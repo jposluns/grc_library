@@ -111,7 +111,7 @@ Documents are organized by primary governance domain.
 /compliance     Compliance management, audit governance, CAPA (Corrective and Preventive Action), regulatory applicability register,
                 and trade compliance programme references (logistics-specific; skip if not applicable):
                 CTPAT (US Customs-Trade Partnership Against Terrorism), BASC (Business Alliance
-                for Secure Commerce), PIP (Canada Partners in Protection), AEO (EU Authorised Economic Operator), AEO-S (AEO Security variant), WCO SAFE (World Customs
+                for Secure Commerce), PIP (Canada Partners in Protection), AEO (EU Authorized Economic Operator), AEO-S (Authorized Economic Operator Security and Safety), WCO SAFE (World Customs
                 Organization SAFE Framework of Standards), and ISO 28000:2022 (supply-chain
                 security management).
 /crypto         Crypto-asset and blockchain governance: crypto-asset classification, custody and key control, blockchain-platform vetting, staking, and smart-contract risk.

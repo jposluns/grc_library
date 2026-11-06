@@ -2,7 +2,7 @@
 
 **Document Title:** US CTPAT Full Minimum Security Criteria Controls Register\
 **Document Type:** Register\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-11-06\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -21,9 +21,9 @@
 This register documents the organization's implementation status against the full set of CTPAT Minimum Security Criteria (2020 revision) across all security domains: physical security, personnel security, cargo security, conveyance security, business partner security, information technology, and procedural controls. It complements [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), which focuses specifically on IT and cybersecurity criteria.
 
 **Programme authority:** U.S. Customs and Border Protection (CBP)\
-**UK equivalent:** Authorized Economic Operator to Security and Safety (AEO-S): see [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md)\
-**Canada equivalent:** Partners in Protection (PIP): see [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md)\
-**Mutual recognition:** The concluded CTPAT arrangements the WCO AEO Compendium (2020) records include EU-US (May 2012, with AEO (EU)) and Canada-US (June 2008, with Canada PIP); confirm the facilitation each provides against the arrangement itself. A CTPAT and UK AEO-S arrangement is not confirmed by a held source: the Compendium lists US-United Kingdom only among MRAs being negotiated.
+**UK parallel programme:** Authorized Economic Operator Security and Safety (AEO-S): see [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md)\
+**Canada parallel programme:** Partners in Protection (PIP): see [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md)\
+**Mutual recognition:** The concluded CTPAT arrangements the WCO AEO Compendium (2020) records include EU-US (2012, with AEO (EU)) and Canada-US (June 2008, with Canada PIP); confirm the facilitation each provides against the arrangement itself. A CTPAT and UK AEO-S arrangement is not confirmed by a held source: the Compendium lists US-United Kingdom only among MRAs being negotiated.
 
 ---
 
@@ -129,19 +129,19 @@ CTPAT membership requires organizations to meet Minimum Security Criteria (MSC) 
 
 ---
 
-## UK AEO-s parallel controls
+## UK AEO-S parallel controls
 
-For each of the seven CTPAT domains, the equivalent AEO-S requirement exists under the UK HMRC AEO-S criteria. A CTPAT and AEO-S mutual recognition arrangement is not confirmed by a held source (the WCO AEO Compendium (2020) lists US-United Kingdom only among MRAs being negotiated), so evidence collected for CTPAT compliance is a candidate overlap for AEO-S, subject to HMRC acceptance requirement by requirement, with the following jurisdiction-specific supplements:
+For each of the seven CTPAT domains, the organization maps a corresponding AEO-S requirement area; that mapping is the organization's own and is to be checked against the UK HMRC AEO security and safety criteria handbook (section 11). A CTPAT and AEO-S mutual recognition arrangement is not confirmed by a held source (the WCO AEO Compendium (2020) lists US-United Kingdom only among MRAs being negotiated). Independently of any arrangement, evidence collected for CTPAT compliance is a candidate overlap for AEO-S, subject to HMRC acceptance requirement by requirement, with the following jurisdiction-specific supplements:
 
 | CTPAT Domain | AEO-S Supplement Required |
 |---|---|
-| Corporate Security | HMRC AEO Compendium application documentation; UK legal entity compliance |
+| Corporate Security | HMRC AEO application documentation; UK legal entity compliance |
 | Physical Security | UK site-specific evidence; HMRC criteria reference |
-| Access Controls | No significant supplement required |
+| Access Controls | Supplement not yet assessed: HMRC's administration of keys criterion (handbook §11.10) expects procedures limiting key access to authorized personnel, the place where keys are kept, the person responsible for key security, a record of who takes keys, when, why and their return, and the handling of lost or unreturned keys; confirm the CTPAT access-control evidence covers these before relying on it |
 | Personnel Security | UK employment law compliance for background checks |
 | Procedural Security | UK customs procedure codes; HMRC authorization references |
 | Business Partner Security | Verify partner UK AEO-S status via HMRC; EU AEO for EU-routed shipments |
-| Information Technology | HMRC incident notification supplement; UK data protection law compliance |
+| Information Technology | Supplement not yet assessed: the HMRC criteria name no incident notification to HMRC (handbook §11.4 expects security procedures to be reviewed and amended after an incident, §11.8, on building and boundary security, asks how security incidents are reported and dealt with and names no recipient, and §11.12, on cargo security, expects procedures for cargo units that say how incidents are reported and recorded and what action is to be taken, including reporting to law enforcement or senior management); UK data protection law compliance |
 
 See [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md) and [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](procedure-aeo-united-kingdom-self-assessment.md) for AEO-S operational procedures.
 

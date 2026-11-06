@@ -2,7 +2,7 @@
 
 **Document Title:** US CTPAT IT and Cybersecurity Compliance Controls Register\
 **Document Type:** Register\
-**Version:** 1.0.8\
+**Version:** 1.0.9\
 **Date:** 2026-11-06\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -21,8 +21,8 @@
 This register documents the organization's implementation status against the IT and cybersecurity-related minimum security criteria of the U.S. Customs-Trade Partnership Against Terrorism (CTPAT) programme. It supports CTPAT membership compliance, annual trade partner profile updates, and pre-certification readiness assessments.
 
 **Programme authority:** U.S. Customs and Border Protection (CBP)\
-**UK parallel programme:** Authorized Economic Operator to Security and Safety (AEO-S), administered by HMRC\
-**Mutual recognition:** A CTPAT and UK AEO-S mutual recognition arrangement is not confirmed by a held source: the WCO AEO Compendium (2020) lists US-United Kingdom only among MRAs being negotiated, so confirm its current status before relying on it. The concluded CTPAT arrangements the Compendium records include EU-US (May 2012) and Canada-US (June 2008). See [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md) for AEO-S IT controls detail.
+**UK parallel programme:** Authorized Economic Operator Security and Safety (AEO-S), administered by HMRC\
+**Mutual recognition:** A CTPAT and UK AEO-S mutual recognition arrangement is not confirmed by a held source: the WCO AEO Compendium (2020) lists US-United Kingdom only among MRAs being negotiated, so confirm its current status before relying on it. The concluded CTPAT arrangements the Compendium records include EU-US (2012) and Canada-US (June 2008). See [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md) for AEO-S IT controls detail.
 
 ---
 
@@ -30,10 +30,10 @@ This register documents the organization's implementation status against the IT 
 
 CTPAT is a voluntary government-business partnership programme administered by U.S. Customs and Border Protection. Members who meet the minimum security criteria receive expedited cargo processing and reduced examination rates at US ports of entry. Since the 2020 criteria revision, IT and cybersecurity form a dedicated minimum security criteria category alongside physical, personnel, procedural, and cargo security.
 
-Membership tiers:
+Membership tiers (not confirmed by a held source: the WCO AEO Compendium (2020), whose United States entry lists CTPAT's benefits, records no membership tiers, so confirm each tier and its benefits against CBP before relying on them):
 - **Tier 1: Certified:** Minimum criteria met; CTPAT membership active
 - **Tier 2: Validated:** CBP Supply Chain Security Specialist (SCSS) has conducted on-site validation
-- **Tier 3: Status member:** Consistently exceeds minimum criteria; enhanced facilitation benefits
+- **Tier 3: Status member:** Consistently exceeds minimum criteria
 
 ---
 
@@ -56,9 +56,9 @@ The following table maps each CTPAT IT and cybersecurity minimum security criter
 
 ---
 
-## CTPAT-AEO-s control alignment
+## CTPAT-AEO-S control alignment
 
-Both CTPAT and UK AEO-S require substantively equivalent IT security controls. The table below cross-references CTPAT IT criteria with their AEO-S counterparts to identify candidate evidence overlaps, each subject to HMRC acceptance requirement by requirement.
+That CTPAT and UK AEO-S require equivalent IT security controls is not confirmed by a held source. The table below cross-references CTPAT IT criteria with the organization's own AEO-S counterpart for each, its scoping rather than HMRC text, to identify candidate evidence overlaps, each subject to HMRC acceptance requirement by requirement. The held HMRC criteria (UK HMRC AEO security and safety criteria handbook, section 11) set out no IT control requirement: they name the computer system as an area the security and safety risk assessment is to address (section 11.2), and list software providers among the external service providers and expect the business's requirements to be stated in contracts (section 11.14), the held provision nearest to the IT-8 row.
 
 | CTPAT Criterion | AEO-S Equivalent Requirement | Shared Evidence Possible |
 |---|---|---|
@@ -66,20 +66,20 @@ Both CTPAT and UK AEO-S require substantively equivalent IT security controls. T
 | IT-2 Authentication | AEO-S: Password policy and privileged access management | Candidate overlap, subject to HMRC acceptance |
 | IT-3 Vulnerability Management | AEO-S: Regular security reviews and patch management | Candidate overlap, subject to HMRC acceptance |
 | IT-4 Network Security | AEO-S: IT infrastructure security including network controls | Candidate overlap, subject to HMRC acceptance |
-| IT-5 Incident Response | AEO-S: Incident reporting to HMRC; documented response procedures | Candidate overlap, subject to HMRC acceptance; with HMRC-specific notification supplement |
+| IT-5 Incident Response | AEO-S: security procedures reviewed and amended after an incident (handbook §11.4); how security incidents are reported and dealt with, with no recipient named (§11.8, building and boundary security); for cargo units, procedures for how incidents are reported and recorded and what action is to be taken, including reporting to law enforcement or senior management (§11.12, cargo security); the organization maps these to IT incidents as its own scoping; incident reporting to HMRC is not named in section 11 | Candidate overlap, subject to HMRC acceptance; whether HMRC expects incident notification is not confirmed by a held source |
 | IT-6 Awareness Training | AEO-S: Security awareness training for relevant staff | Candidate overlap, subject to HMRC acceptance |
 | IT-7 Asset Management | AEO-S: Documented IT asset inventory | Candidate overlap, subject to HMRC acceptance |
-| IT-8 Third-Party Controls | AEO-S: IT security provisions in third-party contracts | Candidate overlap, subject to HMRC acceptance |
+| IT-8 Third-Party Controls | AEO-S: IT security provisions in third-party contracts (the organization's scoping; handbook §11.14 lists software providers among external service providers and expects the business's requirements to be stated in contracts) | Candidate overlap, subject to HMRC acceptance |
 | IT-9 Business Continuity | AEO-S: IT continuity provisions | Candidate overlap, subject to HMRC acceptance |
 | IT-10 Logging | AEO-S: Audit trail maintenance for trade records | Candidate overlap, subject to HMRC acceptance; retention periods may differ |
 
-See [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md) for the full AEO-S mapping and HMRC submission requirements.
+See [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md) for the organization's full AEO-S IT mapping and its self-assessment.
 
 ---
 
 ## CTPAT-BASC control alignment
 
-BASC (Business Alliance for Secure Commerce) requires comparable IT security controls for Latin American trade routes. See [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md) for the detailed BASC IT mapping. Key overlapping criteria:
+BASC (Business Alliance for Secure Commerce) sets its own IT security requirements, for example in clause 5.2 (Cybersecurity and information technology) of BASC International Security Standard 6.0.3. See [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md) for the detailed BASC IT mapping. That BASC's IT controls are comparable to CTPAT's is not confirmed by a held source; the table below lists candidate overlaps the organization identifies, each to be confirmed against the applicable BASC standard before evidence is reused:
 
 | CTPAT Criterion | BASC Equivalent |
 |---|---|

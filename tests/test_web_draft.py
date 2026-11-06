@@ -487,6 +487,7 @@ import functools
 import hashlib
 import importlib.util
 import inspect
+import os
 import re
 import shutil
 import tempfile
@@ -9840,7 +9841,9 @@ class DraftSiteRenderTests(unittest.TestCase):
                if line.startswith("| AICPA TSC 2017 |")]
         self.assertEqual(len(row), 1, "the key table's AICPA TSC 2017 row")
         row = row[0]
-        ctpat_row = "| CTPAT | C-TPAT | Section headings |"
+        ctpat_row = ("| CTPAT | Customs-Trade Partnership Against Terrorism "
+                     "(U.S. Customs and Border Protection) | Section "
+                     "headings |")
         intro = "section references that the document materially supports."
         key_list = "**Framework column keys:**"
         header = "**License:** CC BY-SA 4.0\n"
@@ -13507,7 +13510,7 @@ class DraftSiteRenderTests(unittest.TestCase):
     # (_WCO_ELEMENT_I_HELD, _WCO_ELEMENT_I_UNSUPPORTED). Each cell cites
     # its element alone (review round 2, agy WARN 1; the convention test
     # below).
-    _WCO_PILLAR_ROW = "Pillar II (Customs-to-Business)"
+    _WCO_PILLAR_ROW = "Pillar II (Customs-to-Business Partnerships)"
     _WCO_ELEMENT_ROWS = {
         "governance/standard-records-retention-and-destruction.md":
             "Annex IV B (Satisfactory System for Management of Commercial "
@@ -13526,13 +13529,16 @@ class DraftSiteRenderTests(unittest.TestCase):
         "operations/standard-physical-security-of-it-infrastructure.md":
             "Annex IV I (Premises Security)",
     }
-    # The cells left citing Pillar II alone, by decision; the charter's
-    # pillar is spelled as held line 4535 spells it, "Pillar II
-    # (Customs-to-Business Partnerships)", and the others keep the short
-    # form the held contents entry for Pillar 2 gives at line 139.
+    # The cells left citing Pillar II alone, by decision. Each is spelled
+    # as held line 4535 spells the pillar, "Pillar II (Customs-to-Business
+    # Partnerships)": the programme-claims PR (per-touch reference audit,
+    # claude NOTE 9) brought the three cells that took the short form from
+    # the held contents entry for Pillar 2 (line 139, which writes "Pillar
+    # 2", an en dash and "Customs-to-Business") into that one held form
+    # (_WCO_PILLAR_ROW).
     _WCO_PILLAR_ONLY_ROWS = {
         "governance/charter-governance-library.md":
-            "Pillar II (Customs-to-Business Partnerships)",
+            _WCO_PILLAR_ROW,
         "compliance/logistics/annex-basc-programme-overview.md":
             _WCO_PILLAR_ROW,
         "compliance/logistics/annex-logistics-sector-requirements.md":
@@ -13653,27 +13659,42 @@ class DraftSiteRenderTests(unittest.TestCase):
     # Mutual Recognition cell (review round 6, agy W1): it read "CTPAT
     # (US)" as settled. The held WCO AEO Compendium (2020) records October
     # 2014, US and Mexico, among concluded MRAs (lines 14854 to 14855) and
-    # titles Mexico's programme "Authorized Economic Operator" (line 2038);
-    # a search of it for NEEC, Nuevo Esquema, Empresas Certificadas and
-    # Certified Companies finds no line.
+    # titles Mexico's programme "Authorized Economic Operator" (line 2038).
+    # A case-insensitive search of it finds no line naming NEEC, Nuevo
+    # Esquema or Empresas Certificadas; "certified companies" occurs only
+    # as a generic phrase (lines 2086, 2228 and 7681), which does not name
+    # NEEC (programme-claims PR, from review round 6, codex NOTE).
     _SUPPLY_CHAIN_NEEC_CTPAT = (
         "CTPAT (US): not confirmed by a held source (the WCO AEO Compendium "
         "(2020) records a concluded US-Mexico MRA, October 2014, and titles "
         "Mexico's programme Authorized Economic Operator; it does not name "
         "NEEC)")
 
-    # Lines naming WCO SAFE whose programme claims are left as they are
-    # (finding WCO-SWEEP-REST-0507): each says that BASC, PIP, NEEC or
-    # HMRC AEO-S derives from, rests on, aligns with, implements or is
-    # recognized within the Framework, and the held texts of those
-    # programmes are not yet acquired. Review round 2 (claude NOTE 1 and
-    # NOTE 6) added the two AEO-S lines that say the programme is the UK's
-    # implementation of the Framework, and pins every carrier by path and
-    # exact line text, so adding, removing or rewording one fails.
-    # Review round 6 (agy W1): the NEEC carrier's CTPAT (US) part is
-    # qualified (_SUPPLY_CHAIN_NEEC_CTPAT); its "alignment with WCO SAFE"
-    # stays for the programme-claims PR.
-    _WCO_HELD_BACK_BASIS_CLAIMS = tuple(sorted((
+    # The NEEC cell's WCO SAFE part (programme-claims PR, research WARN
+    # #11): it said "alignment with WCO SAFE" of NEEC. The held
+    # Mexico-Canada AEO mutual recognition arrangement benefits guide
+    # (programs/AEO-MRA-Mexico-Canada/) says of the minimum-security
+    # standards of Mexico's certified companies "These standards are
+    # aligned with the SAFE Framework" (line 89) and "In Mexico, the
+    # program is known as Authorized Economic Operator" (line 91); no held
+    # text uses the name NEEC.
+    _SUPPLY_CHAIN_NEEC_WCO = (
+        "WCO SAFE: the Mexico-Canada AEO mutual recognition arrangement "
+        "benefits guide says the security standards of Mexico's Authorized "
+        "Economic Operator programme are aligned with the SAFE Framework, "
+        "and no held text uses the name NEEC")
+
+    # The held-back set of finding WCO-SWEEP-REST-0507, retired by the
+    # programme-claims PR: no programme claim about WCO SAFE is held back
+    # now. Each line here said that BASC, PIP, NEEC or HMRC AEO-S derives
+    # from, rests on, aligns with, implements or is recognized within the
+    # Framework (review round 2, claude NOTE 1 and NOTE 6, added the two
+    # AEO-S lines; review round 6, agy W1, qualified the NEEC carrier's
+    # CTPAT part). The research pass on these claims found that the held
+    # 2025 Framework names none of the programmes; each line is reworded
+    # to what a named held source supports (_WCO_ATTRIBUTED_BASIS_CLAIMS),
+    # or the claim is removed, and none of the old lines may return.
+    _WCO_REWORDED_BASIS_CLAIMS = tuple(sorted((
         ("compliance/logistics/README.md",
          "Multi-country private trade-security programme, predominantly "
          "Latin American, recognized within the WCO SAFE Framework."),
@@ -13763,6 +13784,79 @@ class DraftSiteRenderTests(unittest.TestCase):
          f"facilitation benefits | {_SUPPLY_CHAIN_NEEC_CTPAT}; alignment "
          "with WCO SAFE |"),
     )))
+    # The reworded carriers the claim matcher still reads, each pinned by
+    # path and exact line text, and each attributing the relationship to a
+    # named held source, never to the Framework itself. The WCO AEO
+    # Compendium (2020) (programs/WCO-AEO-Compendium/) describes its Part I
+    # as "AEO programmes based on" / "the WCO SAFE Framework of Standards"
+    # (lines 411 to 412); Part I.A, "OPERATIONAL AEO PROGRAMMES" (line 40),
+    # lists Canada, "Partners in Protection (PIP)" (lines 992 and 996),
+    # and the United Kingdom, "AEO (European Union Programme)" (lines 6027
+    # and 6031). A case-insensitive search of the held HMRC criteria
+    # (programs/UK-AEO/, section 11) for WCO, World Customs and SAFE
+    # Framework finds no line, so the current UK programme's relationship
+    # to the Framework is not confirmed by a held source. The NEEC cell rests on
+    # the Mexico-Canada guide (_SUPPLY_CHAIN_NEEC_WCO).
+    _WCO_ATTRIBUTED_BASIS_CLAIMS = tuple(sorted((
+        ("compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md",
+         "AEO status is granted by HMRC. The WCO AEO Compendium (2020) "
+         "lists the United Kingdom among the operational AEO programmes of "
+         "its Part I, which it describes as AEO programmes based on the WCO "
+         "SAFE Framework of Standards, and gives the UK programme's title "
+         "then as \"AEO (European Union Programme)\"; the current UK "
+         "programme's relationship to the Framework is not confirmed by a "
+         "held source. HMRC's AEO-S security and safety criteria (UK HMRC "
+         "AEO security and safety criteria handbook, section 11) cover, "
+         "among other areas:"),
+        ("compliance/logistics/procedure-aeo-united-kingdom-self-"
+         "assessment.md",
+         "| WCO SAFE Framework (2025 edition), Annex IV element F "
+         "(Information Exchange, Access and Confidentiality) | AEO "
+         "condition that the operator has a documented information "
+         "security policy and procedures or security-related controls "
+         "protecting its electronic systems from unauthorized access, and "
+         "procedures and back-up capabilities against the loss of "
+         "information; this self-assessment evidences that operator "
+         "condition (§2.6.6 ICT Security, under Pillar 1 Standard 6, sets "
+         "the Customs administration's own ICT security strategy, not the "
+         "operator's); the WCO AEO Compendium (2020) lists the United "
+         "Kingdom's programme, then reported as the European Union "
+         "programme, among AEO programmes based on the Framework, and the "
+         "current HMRC AEO-S programme's relationship to the Framework is "
+         "not confirmed by a held source |"),
+        ("compliance/logistics/register-pip-canada-controls.md",
+         "PIP is a voluntary partnership programme in which businesses "
+         "commit to enhancing border security in exchange for expedited "
+         "cargo processing at Canadian ports of entry. The programme is "
+         "administered by CBSA; the WCO AEO Compendium (2020) lists "
+         "Partners in Protection (PIP) among the operational AEO programmes "
+         "of its Part I, which it describes as AEO programmes based on the "
+         "WCO SAFE Framework of Standards. The PIP security profile is "
+         "organized into four security areas: corporate security, cargo "
+         "and conveyance security, physical security, and supply chain "
+         "partner security. Cybersecurity is addressed within the "
+         "corporate security area; PIP does not publish a separate, "
+         "numbered information-technology requirement set. The control "
+         "references below are the organization's own, mapped to those PIP "
+         "cybersecurity expectations."),
+        ("compliance/logistics/register-pip-canada-controls.md",
+         "The WCO AEO Compendium (2020) lists PIP and the UK programme "
+         "(then reported as the European Union programme) among AEO "
+         "programmes based on the WCO SAFE Framework of Standards. Overlap "
+         "between their security requirements is not confirmed by a held "
+         "source, so the table below is the organization's own candidate "
+         "mapping, each row subject to CBSA acceptance requirement by "
+         "requirement. A Canada-UK mutual recognition arrangement is not "
+         "recorded in the Compendium: evidence gathered for AEO-S may be "
+         "offered in a PIP application, but an AEO-S certification is not "
+         "a formal shortcut to CBSA acceptance."),
+        ("supply-chain/matrix-supply-chain-security-programme-alignment.md",
+         "| **NEEC**: New Scheme of Certified Companies | Servicio de "
+         "Administración Tributaria (SAT) | Mexico | Voluntary "
+         "trusted-trader | Expedited customs processing in Mexico; "
+         f"facilitation benefits | {_SUPPLY_CHAIN_NEEC_CTPAT}; "
+         f"{_SUPPLY_CHAIN_NEEC_WCO} |"),
+    )))
     # Lines the claim matcher reads that make no programme claim about WCO
     # SAFE (review round 2): the matched word belongs to another standard
     # (NIST SP 800-57 and ISO/IEC 27002:2022), or to the EU AEO
@@ -13833,10 +13927,11 @@ class DraftSiteRenderTests(unittest.TestCase):
         implementation wording too. Across the taxonomy documents and the
         README of each of their directories, the lines with a table row or
         prose sentence naming WCO SAFE and carrying that wording are
-        exactly the held-back programme claims
-        (_WCO_HELD_BACK_BASIS_CLAIMS) and the reviewed lines that make no
-        programme claim (_WCO_CLAIM_WORDING_REVIEWED), each pinned by path
-        and exact line text. Matcher limits: a claim worded another way
+        exactly the programme claims attributed to a named held source
+        (_WCO_ATTRIBUTED_BASIS_CLAIMS; the programme-claims PR retired the
+        held-back set, _WCO_REWORDED_BASIS_CLAIMS) and the reviewed lines
+        that make no programme claim (_WCO_CLAIM_WORDING_REVIEWED), each
+        pinned by path and exact line text. Matcher limits: a claim worded another way
         (as "modelled on the Framework"), or in a sentence
         or row that does not name WCO SAFE, is not caught; a prose line is
         split into sentences at a full stop followed by white space, so an
@@ -13868,9 +13963,9 @@ class DraftSiteRenderTests(unittest.TestCase):
                     found.add((rel, line))
         self.assertEqual(
             sorted(found),
-            sorted(self._WCO_HELD_BACK_BASIS_CLAIMS
+            sorted(self._WCO_ATTRIBUTED_BASIS_CLAIMS
                    + self._WCO_CLAIM_WORDING_REVIEWED))
-        self.assertEqual(len(self._WCO_HELD_BACK_BASIS_CLAIMS), 11)
+        self.assertEqual(len(self._WCO_ATTRIBUTED_BASIS_CLAIMS), 5)
         glossary = (REPO_ROOT / "governance/register-glossary.md"
                     ).read_text(encoding="utf-8")
         self.assertEqual(
@@ -14333,18 +14428,21 @@ class DraftSiteRenderTests(unittest.TestCase):
         "CTPAT (US); alignment with WCO SAFE", the CTPAT recognition stated
         as settled. Its CTPAT part now says it is not confirmed by a held
         source and what the Compendium records instead
-        (_SUPPLY_CHAIN_NEEC_CTPAT); "alignment with WCO SAFE" stays for the
-        programme-claims PR, and the pinned carrier follows the new text."""
+        (_SUPPLY_CHAIN_NEEC_CTPAT). The programme-claims PR replaced its
+        "alignment with WCO SAFE" with what the Mexico-Canada guide says
+        (_SUPPLY_CHAIN_NEEC_WCO), and the pinned carrier follows the new
+        text."""
         rows = [line for line in self._supply_chain_matrix_lines()
                 if line.startswith("| **NEEC**:")]
         self.assertEqual(len(rows), 1, rows)
         self.assertTrue(rows[0].endswith(
-            f"| {self._SUPPLY_CHAIN_NEEC_CTPAT}; alignment with WCO SAFE |"),
-            rows[0])
+            f"| {self._SUPPLY_CHAIN_NEEC_CTPAT}; "
+            f"{self._SUPPLY_CHAIN_NEEC_WCO} |"), rows[0])
         self.assertNotIn("| CTPAT (US); ", rows[0])
+        self.assertNotIn("alignment with WCO SAFE", rows[0])
         self.assertIn(
             ("supply-chain/matrix-supply-chain-security-programme-"
-             "alignment.md", rows[0]), self._WCO_HELD_BACK_BASIS_CLAIMS)
+             "alignment.md", rows[0]), self._WCO_ATTRIBUTED_BASIS_CLAIMS)
 
     def test_supply_chain_mra_note_excludes_unconfirmed_pairs(self):
         """Review round 6 of finding WCO-SWEEP-REST-0507 (claude N1): the
@@ -14423,13 +14521,13 @@ class DraftSiteRenderTests(unittest.TestCase):
          "Compendium (2020) lists US-United Kingdom only among MRAs being "
          "negotiated, so confirm its current status before relying on it. "
          "The concluded CTPAT arrangements the Compendium records include "
-         "EU-US (May 2012) and Canada-US (June 2008). See "),
+         "EU-US (2012) and Canada-US (June 2008). See "),
         ("compliance/logistics/register-ctpat-united-states-msc-controls.md",
          "**Mutual recognition:** CTPAT maintains mutual recognition "
          "arrangements with AEO (EU), UK AEO-S, and Canada PIP, providing "
          "reciprocal facilitation benefits for qualifying members.",
          "**Mutual recognition:** The concluded CTPAT arrangements the WCO "
-         "AEO Compendium (2020) records include EU-US (May 2012, with AEO "
+         "AEO Compendium (2020) records include EU-US (2012, with AEO "
          "(EU)) and Canada-US (June 2008, with Canada PIP); confirm the "
          "facilitation each provides against the arrangement itself. A "
          "CTPAT and UK AEO-S arrangement is not confirmed by a held source: "
@@ -14441,9 +14539,10 @@ class DraftSiteRenderTests(unittest.TestCase):
          "reused for AEO-S",
          "A CTPAT and AEO-S mutual recognition arrangement is not confirmed "
          "by a held source (the WCO AEO Compendium (2020) lists US-United "
-         "Kingdom only among MRAs being negotiated), so evidence collected "
-         "for CTPAT compliance is a candidate overlap for AEO-S, subject to "
-         "HMRC acceptance requirement by requirement, with the following "
+         "Kingdom only among MRAs being negotiated). Independently of any "
+         "arrangement, evidence collected for CTPAT compliance is a "
+         "candidate overlap for AEO-S, subject to HMRC acceptance "
+         "requirement by requirement, with the following "
          "jurisdiction-specific supplements:"),
     )
 
@@ -14500,15 +14599,21 @@ class DraftSiteRenderTests(unittest.TestCase):
         prefix = "Candidate overlap, subject to HMRC acceptance"
         self.assertEqual([cell for cell in cells
                           if not cell.startswith(prefix)], [])
+        # Round 4 of the programme-claims PR replaced the IT-5 supplement,
+        # which presumed an HMRC notification duty that the held HMRC
+        # section 11 does not name, and made the counterparts the
+        # organization's own (ProgrammeClaimsTests).
         self.assertEqual(
             sorted(set(cells)),
             [prefix,
              f"{prefix}; retention periods may differ",
-             f"{prefix}; with HMRC-specific notification supplement"])
+             f"{prefix}; whether HMRC expects incident notification is not "
+             "confirmed by a held source"])
         self.assertIn(
-            "The table below cross-references CTPAT IT criteria with their "
-            "AEO-S counterparts to identify candidate evidence overlaps, each "
-            "subject to HMRC acceptance requirement by requirement.",
+            "The table below cross-references CTPAT IT criteria with the "
+            "organization's own AEO-S counterpart for each, its scoping "
+            "rather than HMRC text, to identify candidate evidence overlaps, "
+            "each subject to HMRC acceptance requirement by requirement.",
             lines[start - 4])
         self.assertNotIn("reduce duplication of evidence",
                          "\n".join(lines))
@@ -17283,9 +17388,9 @@ class SiteReviewFixRound2Tests(unittest.TestCase):
         by a neutral pointer to the cross-framework matrix, and the Version
         carries the branch's two PATCH bumps (1.12.8 to 1.12.10) plus round
         3 item 1's (1.12.11), item 3b788 draft round 3's WCO SAFE column
-        correction's (1.12.12), the WCO SAFE attribution sweep's (1.12.13)
-        and its follow-up's (1.12.14, findings WCO-SWEEP-REST-0507 and
-        WCO-SWEEP-REV7-0922)."""
+        correction's (1.12.12), the WCO SAFE attribution sweep's (1.12.13),
+        its follow-up's (1.12.14, findings WCO-SWEEP-REST-0507 and
+        WCO-SWEEP-REV7-0922) and the programme-claims PR's (1.12.15)."""
         text = (REPO_ROOT / "compliance" /
                 "matrix-grc-compliance-alignment.md"
                 ).read_text(encoding="utf-8")
@@ -17296,7 +17401,7 @@ class SiteReviewFixRound2Tests(unittest.TestCase):
                       "the [Cross-Framework Alignment Matrix]"
                       "(../governance/matrix-cross-framework-alignment.md).",
                       text)
-        self.assertIn("**Version:** 1.12.14\\\n", text)
+        self.assertIn("**Version:** 1.12.15\\\n", text)
 
     def test_quick_reference_purpose_matches_its_exception_rows(self):
         """Item 3: the Purpose said "the absolute prohibitions" though
@@ -17390,8 +17495,8 @@ class SiteReviewFixRound3Tests(unittest.TestCase):
         with the Date kept. Item 3b788 draft round 3's WCO SAFE column
         correction bumps it again (1.12.12) and sets the Date to
         2026-11-06; the WCO SAFE attribution sweep bumps it once more
-        (1.12.13) and its follow-up again (1.12.14), each with the same
-        Date."""
+        (1.12.13), its follow-up again (1.12.14) and the programme-claims
+        PR again (1.12.15), each with the same Date."""
         text = (REPO_ROOT / "compliance" /
                 "matrix-grc-compliance-alignment.md"
                 ).read_text(encoding="utf-8")
@@ -17400,7 +17505,7 @@ class SiteReviewFixRound3Tests(unittest.TestCase):
                       "to the control domains and section references of "
                       "ten compliance, security, assurance, and AI-control "
                       "frameworks, so a reader can trace", text)
-        self.assertIn("**Version:** 1.12.14\\\n", text)
+        self.assertIn("**Version:** 1.12.15\\\n", text)
         self.assertIn("**Date:** 2026-11-06\\\n", text)
 
 
@@ -19073,6 +19178,2764 @@ class PromotedRouteCoverageTests(unittest.TestCase):
             # The explicit file spelling resolves through the splat too.
             with self.subTest(url="/" + out_rel):
                 self.assertEqual(self._resolve("/" + out_rel), promoted_rel)
+
+
+class ProgrammeClaimsTests(unittest.TestCase):
+    """The programme-claims PR (on main d6565f5e7): the BASC, PIP, NEEC and
+    UK AEO-S relationship claims that finding WCO-SWEEP-REST-0507 held
+    back, checked against the held texts by a research pass, and the small
+    fixes routed to it by review round 6 of PR #3103 and by the per-touch
+    reference audit. Held paths are under the reference corpus; line numbers
+    are those of the held full-text extracts, counting only LF as a line end
+    (the repository's convention for held extracts, as in
+    tools/audit-reference-breadth.py), so a form feed or a Unicode line
+    separator inside a line does not start a new one.
+
+    The class has 70 tests: 61 corpus regression tests, 5 self-checks and
+    4 held-source consistency checks.
+
+    The corpus regression tests read the corpus files directly (no site
+    render) and are written to fail when their fix is reverted. The
+    exact-row pins (_OEA_ROW, _NEEC_GLOSSARY, _BASC_ANNEX_CLAIM and the like)
+    are editorial snapshots: they catch reverted wording, not a wrong
+    reading. The class-wide negative guards over every .md line catch a
+    removed claim wherever it comes back.
+
+    The self-checks are the tests in _SELF_CHECKS. They read no corpus file
+    or held extract: four hold the class-wide guards' matchers to planted
+    sentences each must catch or let through, and one holds this docstring
+    to the class. Reverting a corpus correction cannot make them fail;
+    loosening a guard's matcher or miscounting the class does.
+
+    The held-source consistency checks are the tests in _HELD_SOURCE_CHECKS.
+    They read the held extracts, so they run only when the reference corpus
+    is present (GRC_REF_PATH or a sibling grc_library_ref checkout) and skip
+    without it; CI holds no reference corpus, so they run locally only.
+    Three of them read only the extracts, so reverting a corpus correction
+    cannot make them fail: they test what the corpus's citations rest on.
+    test_glossary_oea_row_names_every_compendium_oea_title also reads the
+    glossary's OEA row."""
+
+    _HELD_SOURCE_CHECKS = (
+        "test_compendium_neec_search_results_hold",
+        "test_safe_basc_search_result_holds",
+        "test_glossary_oea_row_names_every_compendium_oea_title",
+        "test_cited_held_lines_carry_their_text")
+    # Round 8 (review round 3, claude NOTE 4): the tests that read neither
+    # a corpus file nor a held extract.
+    _SELF_CHECKS = (
+        "test_hmrc_submission_guard_catches_each_form",
+        "test_border_force_guard_reads_the_governing_clause",
+        "test_spanish_oea_guard_reads_each_occurrence",
+        "test_section_11_12_guards_read_the_citing_clause",
+        "test_class_docstring_states_the_test_count_and_held_checks")
+    # What a corpus regression test calls to read the corpus.
+    _CORPUS_READERS = re.compile(
+        r"self\._(?:lines|corpus_lines|md_lines|section_lines|glossary_row"
+        r"|glossary_sections|glossary_all_sections|matrix_cell"
+        r"|taxonomy_paths)\(|\bREPO_ROOT\b|_load_build\(")
+
+    GLOSSARY = "governance/register-glossary.md"
+    SUPPLY_MATRIX = ("supply-chain/matrix-supply-chain-security-programme-"
+                     "alignment.md")
+    COMPLIANCE_MATRIX = "compliance/matrix-grc-compliance-alignment.md"
+    LOGISTICS = "compliance/logistics/"
+    IT_REGISTER = LOGISTICS + "register-ctpat-united-states-it-controls.md"
+    MSC_REGISTER = LOGISTICS + "register-ctpat-united-states-msc-controls.md"
+    PIP_REGISTER = LOGISTICS + "register-pip-canada-controls.md"
+    BASC_ANNEX = LOGISTICS + "annex-basc-programme-overview.md"
+    UK_ANNEX = LOGISTICS + "annex-aeo-united-kingdom-cybersecurity.md"
+    UK_PROCEDURE = (LOGISTICS + "procedure-aeo-united-kingdom-self-"
+                    "assessment.md")
+    # Held extracts, relative to the grc_library_ref root.
+    HELD_HMRC = ("programs/UK-AEO/UK-HMRC-Customs-Technical-Handbook-AEO-"
+                 "AEOS-security-and-safety-criteria--full-text.md")
+    COMPENDIUM = ("programs/WCO-AEO-Compendium/WCO-AEO-Compendium-2020--"
+                  "full-text.md")
+    HELD_SAFE = ("programs/WCO-SAFE/WCO-SAFE-Framework-of-Standards--"
+                 "full-text.md")
+    BASC_NORM = ("frameworks/BASC/BASC-International-Norm-V6-2022--CSMS--"
+                 "full-text.md")
+    BASC_603 = ("frameworks/BASC/BASC-International-Security-Standard-"
+                "6.0.3-2022--basic-security-operational-controls--"
+                "full-text.md")
+    CTPAT_CHECKLIST = ("programs/CTPAT/CTPAT-Cybersecurity-Checklist-Sample--"
+                       "full-text.md")
+    MXCA_GUIDE = ("programs/AEO-MRA-Mexico-Canada/AEO-MRA-Mexico-Canada-"
+                  "benefits-guide--full-text.md")
+    BRAZIL_OEA = ("programs/Brazil-OEA/Brazil-OEA-implementation-guide--"
+                  "full-text.md")
+    ANPD_COOKIES = ("frameworks/Brazil-ANPD/Brazil-ANPD-Guia-Orientativo-"
+                    "Cookies-e-Protecao-de-Dados-Pessoais-v1-2022--"
+                    "full-text.md")
+    HELD_LGPD = "legislation/Brazil/Brazil-LGPD-Lei-13709-2018--full-text.md"
+    MARCO_CIVIL = ("legislation/Brazil/Brazil-Marco-Civil-da-Internet-Lei-"
+                   "12965-2014--full-text.md")
+    DC_200 = ("frameworks/AICPA/AICPA-DC-200-2018-SOC2-Description-"
+              "Criteria-revised-2022-clean--full-text.md")
+    AAG_SOP = ("frameworks/AICPA/AICPA-AAG-SOC-guide-reporting-on-controls-"
+               "AAGSOP22E--full-text.md")
+
+    @staticmethod
+    def _lines(rel):
+        return (REPO_ROOT / rel).read_text(encoding="utf-8").splitlines()
+
+    @staticmethod
+    def _taxonomy_paths():
+        text = (REPO_ROOT / "taxonomy.yml").read_text(encoding="utf-8")
+        return sorted(set(re.findall(r'^- path: "([^"]+)"', text, re.M)))
+
+    def _corpus_lines(self):
+        """Every (path, line) of the taxonomy documents and the README of
+        each of their directories."""
+        rels = set()
+        for rel in self._taxonomy_paths():
+            rels.add(rel)
+            rels.add("/".join(rel.split("/")[:-1] + ["README.md"]))
+        for rel in sorted(rels):
+            if (REPO_ROOT / rel).is_file():
+                for line in self._lines(rel):
+                    yield rel, line
+
+    def _glossary_sections(self):
+        """The glossary's lettered sections: heading to the list of terms
+        of its table rows, in file order."""
+        sections, current = {}, None
+        for line in self._lines(self.GLOSSARY):
+            if line.startswith("## "):
+                heading = re.fullmatch(r"## (\S+)", line)
+                current = heading.group(1) if heading else None
+                if current is not None:
+                    sections[current] = []
+                continue
+            row = re.match(r"\| \*\*(.+?)\*\* \|", line)
+            if row and current is not None:
+                sections[current].append(row.group(1))
+        return sections
+
+    def _glossary_row(self, term):
+        rows = [line for line in self._lines(self.GLOSSARY)
+                if line.startswith(f"| **{term}** |")]
+        self.assertEqual(len(rows), 1, rows)
+        return rows[0]
+
+    def _section_lines(self, rel, heading):
+        """The lines under a level-2 heading, up to the next one."""
+        lines = self._lines(rel)
+        start = lines.index(heading) + 1
+        end = start
+        while end < len(lines) and not lines[end].startswith("## "):
+            end += 1
+        return lines[start:end]
+
+    @staticmethod
+    def _held_root():
+        """The grc_library_ref checkout, looked for as
+        tools/verify-reference-modules.py does: GRC_REF_PATH, then the
+        sibling ../grc_library_ref. None when neither is present (CI holds
+        no reference corpus)."""
+        for candidate in (os.environ.get("GRC_REF_PATH"),
+                          REPO_ROOT.parent / "grc_library_ref"):
+            if candidate and Path(candidate).is_dir():
+                return Path(candidate)
+        return None
+
+    def _held_lines(self, rel):
+        """The held extract's lines, split on LF only; skips the test when
+        the reference corpus is not present."""
+        root = self._held_root()
+        if root is None:
+            self.skipTest("grc_library_ref not present (set GRC_REF_PATH "
+                          "or check it out beside this repository)")
+        return (root / rel).read_text(encoding="utf-8").split("\n")
+
+    # -- research ERROR 1 to 3: BASC recognition within WCO SAFE.
+    # The held 2025 Framework (programs/WCO-SAFE/) names no BASC: a
+    # case-insensitive search of it for BASC and Business Alliance finds no
+    # line (its header line 4 names CTPAT, PIP and EU AEO, not BASC). The
+    # BASC International Norm V6-2022 (frameworks/BASC/, CSMS extract)
+    # says, by clause, that it enables a company to "Implement and
+    # complement programs such as CTPAT, Authorized Economic" / "Operator
+    # (AEO), and others" (clause 1.1 e, lines 326 to 327) and, under "2"
+    # "NORMATIVE REFERENCES" (lines 370 to 372), names "Framework of
+    # Standards - World Customs Organization" (line 390); WBO is "a
+    # member-led, not-forprofit international business organization"
+    # (line 143). Its clause 0.1, "Prologue" (lines 134 to 136), says BASC
+    # "also enjoys cooperation" / "agreements with 22 business and customs
+    # organizations, including the World Customs" / "Organization (WCO)"
+    # (lines 148 to 150); its "Foreword" is a separate clause, 0.2 (table of
+    # contents line 26, heading line 250).
+    _BASC_README = (
+        "Multi-country private supply-chain security certification, "
+        "predominantly Latin American, run by the World BASC Organization "
+        "(WBO). The programme overview annex sets out what BASC's own norm "
+        "says about its relationship to the WCO SAFE Framework and to "
+        "customs AEO programmes.")
+    _BASC_GLOSSARY = (
+        "| **BASC** | Business Alliance for Secure Commerce. International "
+        "private supply-chain security certification, predominantly Latin "
+        "American, run by the World BASC Organization (WBO), a member-led "
+        "business organization. See "
+        "[`compliance/logistics/annex-basc-programme-overview.md`]"
+        "(../compliance/logistics/annex-basc-programme-overview.md). |")
+    _BASC_ANNEX_CLAIM = (
+        "BASC is a private supply-chain security certification run by the "
+        "World BASC Organization (WBO), a member-led business organization, "
+        "and is widely adopted in Latin American trade and logistics "
+        "operations. By BASC's own account, its International Norm V6-2022 "
+        "is meant to help a company implement and complement programmes "
+        "such as CTPAT and the Authorized Economic Operator (AEO) (clause "
+        "1.1 e), and it lists the World Customs Organization (WCO) "
+        "Framework of Standards among its normative references (clause 2). "
+        "In clause 0.1 (Prologue) of the same Norm, BASC states that it has "
+        "cooperation agreements with 22 business and customs organizations, "
+        "the WCO among them. That cooperation agreement is BASC's own "
+        "account and does not by itself establish recognition: BASC is not "
+        "recorded in the WCO SAFE Framework (2025 edition), and recognition "
+        "of BASC by the WCO is not confirmed by a held source.")
+    _BASC_MATRIX_CELL = (
+        "| Not confirmed by a held source: a private certification run by "
+        "the WBO; the BASC International Norm V6-2022 lists the WCO "
+        "Framework of Standards among its normative references (clause 2) "
+        "|")
+
+    def test_basc_recognition_within_wco_safe_removed(self):
+        """Research ERROR 1 to 3 and WARN #10: the logistics README, the
+        glossary and the BASC programme overview annex said BASC is
+        recognized within the WCO SAFE Framework, and the supply chain
+        programme matrix gave BASC "WCO SAFE Framework aligned" as its
+        mutual recognition. The held 2025 Framework never names BASC. The
+        README and the glossary drop the claim; the annex attributes what
+        BASC says of itself to its own Norm, by clause, and says the WCO's
+        recognition is not confirmed by a held source; the matrix cell
+        says the same and names the Norm's normative reference. Round 6
+        (claude NOTE 2): the annex cites clause 0.1 (Prologue), which holds
+        the cooperation statement, not the Norm's separate Foreword (clause
+        0.2), and says the agreement does not by itself establish
+        recognition rather than stating that it is not recognition."""
+        recognized = re.compile(r"(?i)recogni[sz]ed within")
+        found = [f"{rel}: {line[:60]}" for rel, line in self._corpus_lines()
+                 if "BASC" in line and recognized.search(line)]
+        self.assertEqual(found, [])
+        self.assertIn(self._BASC_README,
+                      self._lines(self.LOGISTICS + "README.md"))
+        self.assertEqual(self._glossary_row("BASC"), self._BASC_GLOSSARY)
+        annex = [line for line in self._lines(self.BASC_ANNEX)
+                 if "BASC is a private" in line]
+        self.assertEqual(len(annex), 1, annex)
+        self.assertIn(self._BASC_ANNEX_CLAIM, annex[0])
+        self.assertNotIn("analogous to", annex[0])
+        self.assertNotIn("foreword", annex[0])
+        self.assertNotIn("is not recognition", annex[0])
+        rows = [line for line in self._lines(self.SUPPLY_MATRIX)
+                if line.startswith("| **BASC**:")]
+        self.assertEqual(len(rows), 1, rows)
+        self.assertTrue(rows[0].endswith(self._BASC_MATRIX_CELL), rows[0])
+        self.assertNotIn("WCO SAFE Framework aligned", rows[0])
+
+    # -- research WARN (the other eight carriers): derivation, overlap,
+    # alignment and implementation claims.
+    def test_held_back_programme_claims_are_reworded(self):
+        """Research WARN #2 and #4 to #8, #11: the held-back lines said the
+        UK AEO-S programme is the UK's implementation of the Framework, or
+        derives from it, that the Framework is its international basis,
+        that PIP aligns with it, that PIP and AEO-S both derive from it
+        with significant overlap, and that NEEC aligns with it. None of
+        the eleven held-back lines remains
+        (DraftSiteRenderTests._WCO_REWORDED_BASIS_CLAIMS); the reworded
+        lines the claim matcher still reads are pinned
+        (_WCO_ATTRIBUTED_BASIS_CLAIMS) and each names the held source it
+        rests on; the UK self-assessment purpose drops the clause, and
+        the PIP mutual recognition note no longer calls AEO-S functionally
+        comparable."""
+        reworded = DraftSiteRenderTests._WCO_REWORDED_BASIS_CLAIMS
+        attributed = DraftSiteRenderTests._WCO_ATTRIBUTED_BASIS_CLAIMS
+        # Round 5 (codex WARN 3): no pinned count; the list must be
+        # non-empty, and each line in it must be gone.
+        self.assertTrue(reworded)
+        for rel, old in reworded:
+            with self.subTest(rel=rel, old=old[:50]):
+                self.assertNotIn(old, self._lines(rel))
+        for rel, new in attributed:
+            with self.subTest(rel=rel, new=new[:50]):
+                self.assertEqual(self._lines(rel).count(new), 1)
+                self.assertRegex(new, r"WCO AEO Compendium \(2020\)|"
+                                      r"Mexico-Canada AEO mutual recognition")
+                self.assertNotRegex(
+                    new, r"(?i)\bderives?\b|aligns with|implementation of "
+                         r"the World Customs|international basis")
+        # Round 3b narrowed the rest of this purpose line to the held HMRC
+        # criteria (_UK_PROCEDURE_PURPOSE); the pin follows it.
+        purpose = [line for line in self._lines(self.UK_PROCEDURE)
+                   if line.startswith("HMRC tests AEO-S applicants")]
+        self.assertEqual(purpose, [self._UK_PROCEDURE_PURPOSE])
+        pip = "\n".join(self._lines(self.PIP_REGISTER))
+        self.assertNotIn("functionally comparable", pip)
+        self.assertIn(
+            "That UK AEO-S certification is comparable to PIP is not "
+            "confirmed by a held source; the WCO AEO Compendium (2020) lists "
+            "both programmes (the UK's then reported as the European Union "
+            "programme) among operational AEO programmes, and a Canada-UK "
+            "mutual recognition arrangement is not recorded in it.", pip)
+
+    # The glossary's NEEC row (research WARN #11; wcor6 claude N5): the
+    # WCO AEO Compendium (2020) titles Mexico's programme "Authorized
+    # Economic Operator" (lines 2037 to 2038) and the Mexico-Canada guide
+    # says "In Mexico, the program is known as Authorized Economic
+    # Operator" (line 91); no held text uses NEEC, Nuevo Esquema or
+    # Empresas Certificadas.
+    _NEEC_GLOSSARY = (
+        "| **NEEC** | Nuevo Esquema de Empresas Certificadas (Mexico), the "
+        "name the library uses for Mexico's certified-companies "
+        "trusted-trader scheme; no held source uses the name NEEC. The WCO "
+        "AEO Compendium (2020) titles Mexico's programme Authorized "
+        "Economic Operator, and the Mexico-Canada AEO mutual recognition "
+        "arrangement benefits guide says that in Mexico the programme is "
+        "known as Authorized Economic Operator; how NEEC relates to that "
+        "programme is not confirmed by a held source. |")
+
+    def test_glossary_neec_follows_the_held_sources(self):
+        """Glossary NEEC row (research WARN #11, routed by wcor6 claude N5):
+        it called NEEC Mexico's AEO-equivalent programme, "Also referred to
+        as OEA (Operador Económico Autorizado) in Mexico", which no held
+        text says. It now gives what the Compendium and the Mexico-Canada
+        guide say and that no held text uses the name NEEC."""
+        self.assertEqual(self._glossary_row("NEEC"), self._NEEC_GLOSSARY)
+
+    # -- routed from review round 6 of PR #3103 (wcor6 reports).
+    _MSC_LEAD_IN = (
+        "For each of the seven CTPAT domains, the organization maps a "
+        "corresponding AEO-S requirement area; that mapping is the "
+        "organization's own and is to be checked against the UK HMRC AEO "
+        "security and safety criteria handbook (section 11). ")
+
+    def test_msc_aeo_s_reuse_is_not_caused_by_the_arrangement(self):
+        """wcor6 claude N1 and codex: the MSC register's AEO-S section
+        linked candidate reuse to the missing arrangement with "so", as if
+        a confirmed arrangement would settle reuse, and said the
+        equivalent AEO-S requirement exists for each CTPAT domain. The
+        reuse sentence now stands independently of any arrangement and
+        the domain mapping is the organization's own, to be checked
+        against the HMRC criteria."""
+        section = self._section_lines(self.MSC_REGISTER,
+                                      "## UK AEO-S parallel controls")
+        lead = [line for line in section if line.startswith("For each")]
+        self.assertEqual(len(lead), 1, lead)
+        self.assertTrue(lead[0].startswith(self._MSC_LEAD_IN), lead[0])
+        self.assertNotIn("negotiated), so evidence", lead[0])
+        self.assertNotIn("the equivalent AEO-S requirement exists", lead[0])
+        self.assertIn(". Independently of any arrangement, evidence", lead[0])
+
+    # HMRC section 11.10, "Administration of keys" (programs/UK-AEO/,
+    # lines 99 to 105): "Procedures should exist for only authorised
+    # personnel to have access to keys", "the specially appointed place
+    # where the keys are kept", "the person responsible for controlling
+    # the security of the keys", "the recording of when the keys are
+    # taken, by whom, why and their return", "dealing with losses,
+    # failures to return keys".
+    _MSC_ACCESS_ROW = (
+        "| Access Controls | Supplement not yet assessed: HMRC's "
+        "administration of keys criterion (handbook §11.10) expects "
+        "procedures limiting key access to authorized personnel, the place "
+        "where keys are kept, the person responsible for key security, a "
+        "record of who takes keys, when, why and their return, and the "
+        "handling of lost or unreturned keys; confirm the CTPAT "
+        "access-control evidence covers these before relying on it |")
+
+    def test_msc_access_controls_supplement_is_qualified(self):
+        """wcor6 claude N3: the MSC register said CTPAT access controls
+        need "No significant supplement required" for AEO-S, a settled
+        claim the held HMRC key-custody criterion (section 11.10) does not
+        support. The row now names that criterion and asks for the CTPAT
+        evidence to be checked against it."""
+        lines = self._lines(self.MSC_REGISTER)
+        self.assertNotIn("No significant supplement required",
+                         "\n".join(lines))
+        self.assertEqual(lines.count(self._MSC_ACCESS_ROW), 1)
+
+    def test_msc_register_labels_name_parallel_programmes(self):
+        """Class-wide search (equivalence stated as settled): the MSC
+        register labelled AEO-S the "UK equivalent" and PIP the "Canada
+        equivalent"; like the IT controls register, it now calls each a
+        parallel programme."""
+        text = "\n".join(self._lines(self.MSC_REGISTER))
+        self.assertNotRegex(text, r"\*\*(?:UK|Canada) equivalent:\*\*")
+        self.assertIn("**UK parallel programme:** Authorized Economic "
+                      "Operator Security and Safety (AEO-S)", text)
+        self.assertIn("**Canada parallel programme:** Partners in "
+                      "Protection (PIP)", text)
+
+    def test_ctpat_registers_give_the_eu_us_year_only(self):
+        """wcor6 claude N2: the registers said EU-US "May 2012", one of two
+        dates in the held Compendium (May 2012 in its concluded MRA list,
+        lines 14774 to 14775, and in the US table, line 12953; July 2012
+        for the USA in the EU's own table, line 13502). Both now give the
+        year, as the supply chain matrix does."""
+        for rel in (self.IT_REGISTER, self.MSC_REGISTER):
+            text = "\n".join(self._lines(rel))
+            with self.subTest(rel=rel):
+                self.assertNotIn("May 2012", text)
+                self.assertIn("EU-US (2012", text)
+
+    # The CTPAT IT register's tier 3 line (wcor6 claude N4): the
+    # Compendium's US entry (lines 2573 to 2648) lists accreditation steps
+    # (certification, validation and revalidation, lines 2619 to 2628)
+    # and benefits (lines 2629 to 2648) but no tiers; no held CTPAT text
+    # (programs/CTPAT/) names a tier.
+    # Round 6 (agy stage A NOTE 3): the lead-in below covers each tier and
+    # its benefits, so the Tier 3 line drops its own qualifier and the
+    # unsourced benefits clause that qualifier was attached to.
+    _IT_TIER_3 = (
+        "- **Tier 3: Status member:** Consistently exceeds minimum criteria")
+    # Round 5 (claude NOTE 7): the qualifier moves to the tier list's
+    # lead-in, so it covers Tiers 1 and 2 as well as Tier 3.
+    _IT_TIER_LEAD_IN = (
+        "Membership tiers (not confirmed by a held source: the WCO AEO "
+        "Compendium (2020), whose United States entry lists CTPAT's "
+        "benefits, records no membership tiers, so confirm each tier and "
+        "its benefits against CBP before relying on them):")
+    # The CTPAT IT register's BASC lead-in (wcor6 claude N4): BASC
+    # International Security Standard 6.0.3 (frameworks/BASC/), clause 5.2
+    # "Cybersecurity and information technology" (lines 513 to 515), sets
+    # IT requirements such as unique credentials (item e, lines 527 to
+    # 530), access by function (item f, lines 531 to 532) and a yearly IT
+    # security evaluation (item m, lines 555 to 556).
+    _IT_BASC_LEAD_IN = (
+        "BASC (Business Alliance for Secure Commerce) sets its own IT "
+        "security requirements, for example in clause 5.2 (Cybersecurity "
+        "and information technology) of BASC International Security "
+        "Standard 6.0.3. See "
+        "[`compliance/logistics/register-basc-it-responsibilities.md`]"
+        "(register-basc-it-responsibilities.md) for the detailed BASC IT "
+        "mapping. That BASC's IT controls are comparable to CTPAT's is not "
+        "confirmed by a held source; the table below lists candidate "
+        "overlaps the organization identifies, each to be confirmed "
+        "against the applicable BASC standard before evidence is reused:")
+
+    def test_ctpat_it_register_tier_and_basc_lines_are_qualified(self):
+        """wcor6 claude N4: the CTPAT IT register stated tier 3's
+        "enhanced facilitation benefits" and said BASC "requires comparable
+        IT security controls for Latin American trade routes" with "Key
+        overlapping criteria", both settled and unsourced. The tier list's
+        lead-in says no held source confirms a tier or its benefits; the
+        BASC lead-in cites the BASC standard's own IT clause and calls the
+        table candidate overlaps."""
+        lines = self._lines(self.IT_REGISTER)
+        self.assertEqual(lines.count(self._IT_TIER_3), 1)
+        self.assertNotIn("enhanced facilitation benefits", "\n".join(lines))
+        self.assertEqual(lines.count(self._IT_BASC_LEAD_IN), 1)
+        # Round 5 (claude NOTE 7): the tier list's lead-in carries the
+        # qualifier for every tier, and the bare lead-in is gone.
+        self.assertEqual(lines.count(self._IT_TIER_LEAD_IN), 1)
+        self.assertNotIn("Membership tiers:", lines)
+        tiers = [line for line in lines if line.startswith("- **Tier ")]
+        self.assertEqual(
+            lines.index(self._IT_TIER_LEAD_IN) + 1,
+            lines.index(tiers[0]))
+        text = "\n".join(lines)
+        self.assertNotIn("requires comparable IT security controls", text)
+        self.assertNotIn("Key overlapping criteria", text)
+
+    def test_ctpat_it_register_aeo_s_equivalence_is_not_settled(self):
+        """Class-wide search (wcor6 codex and rab4 claude WARN 3): the IT
+        register said "Both CTPAT and UK AEO-S require substantively
+        equivalent IT security controls" before a table of candidate
+        overlaps. It now says that equivalence is not confirmed by a held
+        source."""
+        section = self._section_lines(self.IT_REGISTER,
+                                      "## CTPAT-AEO-S control alignment")
+        lead = [line for line in section if line.startswith("That CTPAT")]
+        self.assertEqual(len(lead), 1, lead)
+        self.assertTrue(lead[0].startswith(
+            "That CTPAT and UK AEO-S require equivalent IT security "
+            "controls is not confirmed by a held source. The table below"),
+            lead[0])
+        self.assertNotIn("substantively equivalent",
+                         "\n".join(self._lines(self.IT_REGISTER)))
+
+    # The search results the comment above _SUPPLY_CHAIN_NEEC_CTPAT reports
+    # (wcor6 codex NOTE), as claims checked against the held Compendium:
+    # the generic phrase "certified companies" is on these lines, and no
+    # line names the programme.
+    _COMPENDIUM_CERTIFIED_COMPANIES_LINES = [2086, 2228, 7681]
+    _COMPENDIUM_NEEC_NAME_LINES = []
+
+    def test_compendium_neec_search_results_hold(self):
+        """wcor6 codex NOTE, and round 5 (codex WARN 3): the comment above
+        _SUPPLY_CHAIN_NEEC_CTPAT once said a search of the Compendium for
+        the NEEC names and for the phrase certified companies found
+        nothing, while held lines carry "certified companies". The test
+        used to check that the corrected comment exists; it now checks
+        the search results themselves against the held Compendium: the
+        generic phrase is on lines 2086, 2228 and 7681, and no line names
+        NEEC, Nuevo Esquema or Empresas Certificadas (case-insensitive)."""
+        lines = self._held_lines(self.COMPENDIUM)
+        generic = [number for number, line in enumerate(lines, 1)
+                   if re.search(r"(?i)certified\s+companies", line)]
+        self.assertEqual(generic, self._COMPENDIUM_CERTIFIED_COMPANIES_LINES)
+        name = re.compile(r"(?i)\bNEEC\b|nuevo\s+esquema"
+                          r"|empresas\s+certificadas")
+        self.assertEqual([number for number, line in enumerate(lines, 1)
+                          if name.search(line)],
+                         self._COMPENDIUM_NEEC_NAME_LINES)
+
+    # -- routed from the per-touch reference audit (rab4 reports).
+    # The ANPD cookies guide (frameworks/Brazil-ANPD/), lines 128 to 130,
+    # names "Lei nº" / "13.709, de 14 de agosto de 2018", then, after an en
+    # dash, "Lei Geral de Proteção de Dados Pes-" / "soais (lgpd)"; its
+    # title page names the
+    # "Autoridade Nacional de Proteção de Dados" (lines 46 to 47). The held
+    # LGPD (legislation/Brazil/) creates the ANPD in Article 55-A. Its
+    # superseded wordings name the Autoridade Nacional de Proteção de Dados
+    # (lines 1879 to 1880, 2019, and line 1941, 2022); the Medida
+    # Provisória nº 1.317, de 2025 wording (lines 1970 to 1981) and the
+    # current wording, "(Redação dada pela Lei nº 15.452, de 2026)" (lines
+    # 1984 to 2045), both read "Fica criada a Agência Nacional de Proteção
+    # de Dados", the current one "(ANPD)" (line 1985).
+    _LGPD_ROW = (
+        "| **LGPD** | Lei Geral de Proteção de Dados Pessoais, Lei nº "
+        "13.709/2018 (Brazilian general data protection law), as the ANPD's "
+        "cookies guide names it (Guia orientativo: Cookies e proteção de "
+        "dados pessoais, version 1.0, 2022). See "
+        "[`privacy/jurisdictions/annex-privacy-brazil.md`]"
+        "(../privacy/jurisdictions/annex-privacy-brazil.md). |")
+    _ANPD_ROW = (
+        "| **ANPD** | Agência Nacional de Proteção de Dados, formerly the "
+        "Autoridade Nacional de Proteção de Dados. Brazil's "
+        "national data protection authority, created by Article 55-A of the "
+        "LGPD. See [`privacy/jurisdictions/annex-privacy-brazil.md`]"
+        "(../privacy/jurisdictions/annex-privacy-brazil.md). |")
+
+    def test_glossary_lgpd_gives_the_full_name(self):
+        """rab4 claude WARN 2 and codex: the LGPD row read "Lei Geral de
+        Proteção de Dados", dropping the law's last word. It now gives Lei
+        Geral de Proteção de Dados Pessoais, Lei nº 13.709/2018, as the
+        held ANPD cookies guide names it."""
+        self.assertEqual(self._glossary_row("LGPD"), self._LGPD_ROW)
+
+    def test_glossary_has_an_anpd_row(self):
+        """rab4 claude NOTE 4: ANPD is used across the library (the Brazil
+        privacy annex among others) but had no glossary row, while
+        comparable regulators do. Round 9 (review round 4, claude WARN 1):
+        the row expanded ANPD with the superseded Autoridade wording; it now
+        gives the current Article 55-A name, Agência Nacional de Proteção de
+        Dados, as the Brazil privacy annex does (line 29), and the former
+        one."""
+        self.assertEqual(self._glossary_row("ANPD"), self._ANPD_ROW)
+        self.assertIn("ANPD", self._glossary_sections()["A"])
+
+    # AICPA DC 200 (frameworks/AICPA/), footnote 5, lines 116 to 123:
+    # "There are two types of SOC 2 examinations (type 1 and type 2)"; the
+    # type 2 subject matters add "(c) the operating effectiveness of
+    # controls". The AICPA SOC 2 guide (AAG-SOP) names "system and
+    # organization controls / (SOC)" (lines 184 to 185) and calls the
+    # engagement "SOC 2" ... "SOC for Service Organizations: Trust Services
+    # Criteria" (lines 196 to 197).
+    _SOC_2_ROW = (
+        "| **SOC 2** | System and Organization Controls 2 (AICPA SOC for "
+        "Service Organizations: Trust Services Criteria): an examination of "
+        "controls at a service organization relevant to security, "
+        "availability, processing integrity, confidentiality or privacy. "
+        "SOC 2 names the examination, not one type of it: a Type 1 "
+        "examination covers the description of the system and the "
+        "suitability of the design of controls, and a Type 2 examination "
+        "also covers the operating effectiveness of those controls (AICPA "
+        "DC 200, footnote 5). |")
+
+    def test_glossary_defines_soc_2_apart_from_its_types(self):
+        """rab4 codex WARN: the glossary defined SOC 2 as "System and
+        Organization Controls Type 2", conflating the examination with one
+        of its two types (AICPA DC 200, footnote 5). SOC 2 is now defined
+        on its own, with Type 1 and Type 2 told apart, and the SOC row no
+        longer expands SOC 2 as Type 2."""
+        self.assertEqual(self._glossary_row("SOC 2"), self._SOC_2_ROW)
+        self.assertNotIn("Controls Type 2",
+                         "\n".join(self._lines(self.GLOSSARY)))
+
+    # The glossary's own sort rule (its Convention section, added in round
+    # 2: the glossary stated no rule before, and this is the order round 1
+    # applied to the A, B, C, L, N and U sections).
+    _GLOSSARY_SORT_RULE = (
+        "- Rows in each section are sorted by term, ignoring case, "
+        "character by character: a space or punctuation mark sorts before "
+        "a digit, and a digit before a letter (so I&S precedes IACS, and "
+        "SL-A precedes SLA).")
+
+    @staticmethod
+    def _glossary_sort_key(term):
+        """The stated rule as a key: case ignored; per character, a space
+        or punctuation mark ranks first, then a digit, then a letter."""
+        return [(0 if not ch.isalnum() else 1 if ch.isdigit() else 2, ch)
+                for ch in term.lower()]
+
+    def _glossary_all_sections(self):
+        """Every level-2 section of the glossary that has table rows:
+        heading text to its row terms, in file order."""
+        sections, current = {}, None
+        for line in self._lines(self.GLOSSARY):
+            if line.startswith("## "):
+                current = line[3:]
+                continue
+            row = re.match(r"\| \*\*(.+?)\*\* \|", line)
+            if row and current is not None:
+                sections.setdefault(current, []).append(row.group(1))
+        return sections
+
+    def test_glossary_rows_are_in_order(self):
+        """rab4 claude NOTE 5 and round 1 N3: BAI followed BIA, CIIO
+        preceded CIAM, UEM preceded UCC and nFADP followed NSG (fixed in
+        round 1); HITECH followed HKDF, I&S followed IPY, IT/OT
+        convergence followed ITSM and MITRE ATLAS followed MITRE ATT&CK.
+        The glossary now states its sort rule, and every section with
+        rows, the document-domain terms included, follows it; each
+        lettered section holds only terms that start with its letter."""
+        self.assertIn(self._GLOSSARY_SORT_RULE, self._lines(self.GLOSSARY))
+        sections = self._glossary_all_sections()
+        # Round 5 (codex WARN 3): no pinned section count, so a correctly
+        # sorted new section passes; the document-domain terms must still
+        # be read.
+        self.assertIn("Document-domain terms", sections)
+        for heading, terms in sections.items():
+            with self.subTest(section=heading):
+                self.assertEqual(terms,
+                                 sorted(terms, key=self._glossary_sort_key))
+                if heading == "0-9":
+                    self.assertTrue(all(t[0].isdigit() for t in terms))
+                elif len(heading) == 1:
+                    self.assertTrue(all(t[0].upper() == heading
+                                        for t in terms), terms)
+        self.assertEqual(sections["N"][:4], ["NEEC", "NERC", "nFADP",
+                                             "NIS 2"])
+        self.assertEqual(sections["I"][0], "I&S")
+        self.assertEqual(sections["S"][sections["S"].index("SL-A"):][:4],
+                         ["SL-A", "SL-C", "SL-T", "SLA"])
+
+    def test_glossary_has_a_marco_civil_entry(self):
+        """rab4: claude found the Marco Civil da Internet not applicable to
+        the glossary (no acronym), codex proposed adopting it. Decided
+        from the glossary's own stated scope: its Purpose says it resolves
+        "the acronyms and external-domain terms" used in the library,
+        "primarily standards, regulations, frameworks, regulators", and
+        it already lists a named instrument that is not an acronym (AI
+        Act). The Brazil privacy annex uses the term, so it gets a row
+        (Lei nº 12.965/2014, Article 1, held legislation/Brazil/ line
+        26)."""
+        purpose = "\n".join(self._lines(self.GLOSSARY))
+        self.assertIn("resolves the **acronyms and external-domain terms**",
+                      purpose)
+        self.assertEqual(
+            self._glossary_row("Marco Civil da Internet"),
+            "| **Marco Civil da Internet** | Brazilian Internet Act, Lei nº "
+            "12.965/2014: establishes principles, guarantees, rights and "
+            "duties for the use of the internet in Brazil (Article 1). See "
+            "[`privacy/jurisdictions/annex-privacy-brazil.md`]"
+            "(../privacy/jurisdictions/annex-privacy-brazil.md). |")
+        self.assertEqual(self._glossary_sections()["M"][0],
+                         "Marco Civil da Internet")
+
+    # HMRC section 11.1 (programs/UK-AEO/, lines 13 to 17): "Authorised
+    # Economic Operator Security and Safety (" / "AEOS" / ")
+    # authorisation", written with the library's -ize spelling.
+    _AEO_S_EXPANSION = "Authorized Economic Operator Security and Safety"
+
+    def test_aeo_s_is_expanded_one_way(self):
+        """rab4 claude NOTE 6: the glossary expanded AEO-S as "AEO Security
+        and Safety strand", and the CTPAT registers, the PIP register, the
+        supply chain matrix and the audit planning procedure as
+        "Authorized Economic Operator to Security and Safety" (or "to
+        Security"). Each now gives HMRC's form."""
+        self.assertEqual(
+            self._glossary_row("AEO-S"),
+            f"| **AEO-S** | {self._AEO_S_EXPANSION}. The UK AEO "
+            "authorization for security and safety, which HMRC's criteria "
+            "write as AEOS (UK HMRC AEO security and safety criteria "
+            "handbook, §11.1). |")
+        found = [f"{rel}: {line[:60]}" for rel, line in self._corpus_lines()
+                 if "Economic Operator to Security" in line
+                 or "AEO Security and Safety strand" in line]
+        self.assertEqual(found, [])
+        carriers = (
+            (self.IT_REGISTER, f"**UK parallel programme:** "
+                               f"{self._AEO_S_EXPANSION} (AEO-S)"),
+            (self.MSC_REGISTER, f"**UK parallel programme:** "
+                                f"{self._AEO_S_EXPANSION} (AEO-S)"),
+            (self.PIP_REGISTER, f"**UK parallel programme:** "
+                                f"{self._AEO_S_EXPANSION} (AEO-S)"),
+            (self.SUPPLY_MATRIX, f"| **AEO-S**: {self._AEO_S_EXPANSION} |"),
+            ("compliance/procedure-audit-planning.md",
+             f"| AEO-S ({self._AEO_S_EXPANSION}) |"),
+        )
+        for rel, text in carriers:
+            with self.subTest(rel=rel):
+                self.assertIn(text, "\n".join(self._lines(rel)))
+
+    def test_aeo_s_headings_are_upper_case(self):
+        """rab4 claude NOTE 7: the CTPAT IT register's heading read
+        "CTPAT-AEO-s control alignment"; the class-wide search found the
+        same lower-case "AEO-s" in the headings of the MSC register, the
+        PIP register and the UK AEO-S annex. No heading of a taxonomy
+        document writes AEO-s."""
+        found = [f"{rel}: {line}" for rel, line in self._corpus_lines()
+                 if line.startswith("#") and re.search(r"\bAEO-s\b", line)]
+        self.assertEqual(found, [])
+
+    def test_compliance_matrix_ctpat_key_row(self):
+        """rab4 claude NOTE 8: the compliance matrix's column key gave the
+        CTPAT framework as "C-TPAT", the only such spelling in the library
+        corpus. The key row and the build's pin of it now read CTPAT.
+        Round 8 (review round 3, claude NOTE 6): the row then gave the
+        acronym again as the framework's name, while the comparable rows
+        spell theirs out (PIP is "Partners in Protection (Canada Border
+        Services Agency)"). It now gives the programme title the held
+        Compendium's United States entry records, "Customs" / "Trade
+        Partnership against Terrorism (CTPAT)" (lines 2577 to 2578), with
+        the agency the held CTPAT checklist names (line 4), in the form the
+        supply chain matrix's CTPAT row uses."""
+        mod = _load_build()
+        row = ("| CTPAT | Customs-Trade Partnership Against Terrorism (U.S. "
+               "Customs and Border Protection) | Section headings |")
+        lines = self._lines(self.COMPLIANCE_MATRIX)
+        self.assertEqual(lines.count(row), 1)
+        self.assertNotIn("| CTPAT | CTPAT |", "\n".join(lines))
+        self.assertNotIn("C-TPAT", "\n".join(lines))
+        self.assertIn(row, mod.CROSSWALK_TSC_SECTION_OPENING.split("\n"))
+        self.assertIn("| **CTPAT**: Customs-Trade Partnership Against "
+                      "Terrorism | U.S. Customs and Border Protection (CBP) |",
+                      "\n".join(self._lines(self.SUPPLY_MATRIX)))
+
+    def test_compliance_matrix_pillar_ii_has_one_held_form(self):
+        """rab4 claude NOTE 9: the charter's row cited "Pillar II
+        (Customs-to-Business Partnerships)", as held SAFE line 4535 spells
+        it, while three rows cited "Pillar II (Customs-to-Business)",
+        pairing the pillar's numeral with the contents entry's title for
+        "Pillar 2" (line 139). Every row now uses the line 4535 form."""
+        text = "\n".join(self._lines(self.COMPLIANCE_MATRIX))
+        self.assertNotRegex(text, r"Pillar II \(Customs-to-Business\)")
+        cells = re.findall(r"\| (Pillar II \([^)]*\)) \|", text)
+        # Round 5 (codex WARN 3): every Pillar II cell has the held form,
+        # however many rows cite the pillar.
+        self.assertTrue(cells)
+        self.assertEqual(
+            set(cells), {"Pillar II (Customs-to-Business Partnerships)"})
+
+    def test_no_hmrc_aeo_compendium(self):
+        """rab4 claude NOTE 10: the supply chain matrix gave "HMRC AEO
+        Compendium" as the AEO-S key reference, and the class-wide search
+        found the MSC register's "HMRC AEO Compendium application
+        documentation". The AEO Compendium is a WCO publication; the
+        matrix now cites the HMRC handbook the library holds."""
+        found = [f"{rel}: {line[:60]}" for rel, line in self._corpus_lines()
+                 if "HMRC AEO Compendium" in line]
+        self.assertEqual(found, [])
+        self.assertIn(
+            "| AEO-S (UK) | HMRC: https://www.gov.uk/guidance/apply-for-"
+            "authorised-economic-operator-status | UK HMRC AEO security and "
+            "safety "
+            "criteria handbook (Customs Technical Handbook, section 11) |",
+            self._lines(self.SUPPLY_MATRIX))
+
+    # -- class-wide search: settled reuse and recognition in changed files.
+    # SAFE (programs/WCO-SAFE/) lines 3432 to 3438: "Mutual recognition is
+    # a broad concept whereby / an action or decision taken or an
+    # authorization / that has been properly granted by one Customs /
+    # administration is recognized and accepted by / another / Customs /
+    # administration." The Compendium lists May 2012, EU and US, among
+    # concluded MRAs (lines 14774 to 14775), and June 2008, Canada and US
+    # (lines 14700 to 14701).
+    _MRA_ROW = (
+        "| **MRA** | Mutual Recognition Arrangement (or Agreement) between "
+        "Customs administrations. The WCO SAFE Framework (2025 edition) "
+        "describes mutual recognition as \"a broad concept whereby an "
+        "action or decision taken or an authorization that has been "
+        "properly granted by one Customs administration is recognized and "
+        "accepted by another Customs administration\". Example: the EU-US "
+        "MRA, a concluded MRA in the WCO AEO Compendium (2020). |")
+
+    def test_glossary_mra_row_follows_the_held_text(self):
+        """Class-wide search: the glossary's MRA row called an MRA
+        "recognition of equivalent trusted-trader programmes", equivalence
+        stated as settled. It now quotes the held Framework's description
+        of mutual recognition between Customs administrations."""
+        self.assertEqual(self._glossary_row("MRA"), self._MRA_ROW)
+
+    def test_pip_shared_evidence_is_candidate(self):
+        """Class-wide search: the PIP register's AEO-S table answered "Yes"
+        (or "Partial") in every Evidence Sharing cell and its CTPAT row
+        said "broadly equivalent" with "Yes", reuse stated as settled. Each
+        cell now marks a candidate overlap subject to CBSA acceptance, and
+        the CTPAT cross-reference cites the Compendium's concluded
+        Canada-US MRA."""
+        section = self._section_lines(self.PIP_REGISTER,
+                                      "## PIP-AEO-S alignment")
+        rows = [line for line in section if line.startswith("| CYB-")]
+        # Round 5 (codex WARN 3): every CYB row, however many, not ten.
+        self.assertTrue(rows)
+        cells = [row.split("|")[3].strip() for row in rows]
+        self.assertEqual(sorted(set(cells)), [
+            "Candidate overlap, subject to CBSA acceptance",
+            "Partial candidate overlap, subject to CBSA acceptance"])
+        cross = self._section_lines(self.PIP_REGISTER,
+                                    "## PIP-CTPAT cross-reference")
+        self.assertIn(
+            "| CYB-1 to CYB-10 | CTPAT IT-1 to IT-10 (the organization's "
+            "candidate counterparts) | Candidate overlap, subject to CBSA "
+            "acceptance: with jurisdiction-specific supplements for CBSA "
+            "notification obligations |", cross)
+        self.assertTrue(any(
+            "participate in mutual recognition (the WCO AEO Compendium "
+            "(2020) records a concluded Canada-US MRA, June 2008)" in line
+            for line in cross))
+        self.assertNotIn("broadly equivalent",
+                         "\n".join(self._lines(self.PIP_REGISTER)))
+
+    # -- round 2: the round 1 report's own WARN and NOTEs (on e753e7944).
+    # The SAFE search result the comment above _BASC_README reports (round
+    # 1 W1), as a claim checked against the held SAFE extract.
+    _SAFE_BASC_LINES = []
+
+    def test_safe_basc_search_result_holds(self):
+        """Round 1 W1, and round 5 (codex WARN 3): the comment above
+        _BASC_README once said a SAFE search for BASC found the reference
+        store's header line 4. The test used to check that the corrected
+        comment exists; it now checks the search itself against the held
+        SAFE extract: no line matches BASC or Business Alliance,
+        case-insensitively, and its header line 4 names CTPAT, PIP and EU
+        AEO instead."""
+        lines = self._held_lines(self.HELD_SAFE)
+        found = [number for number, line in enumerate(lines, 1)
+                 if re.search(r"(?i)\bBASC\b|business\s+alliance", line)]
+        self.assertEqual(found, self._SAFE_BASC_LINES)
+        self.assertIn("CTPAT, PIP, and EU AEO", lines[3])
+
+    # HMRC section 11.1 (programs/UK-AEO/, lines 13 to 17): "Authorised
+    # Economic Operator Security and Safety (" / "AEOS" / ")
+    # authorisation"; the library writes it with -ize.
+    def test_readme_aeo_s_uses_the_hmrc_expansion(self):
+        """Round 1 N1: the README's compliance directory entry expanded
+        AEO-S as "AEO Security variant". It now gives the expansion the
+        glossary and the registers use. The README Version and the
+        library CalVer are not bumped here (close-out does that)."""
+        text = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertNotIn("AEO Security variant", text)
+        self.assertIn(f"AEO-S ({self._AEO_S_EXPANSION}), WCO SAFE", text)
+
+    def test_compliance_matrix_aeo_s_key_row(self):
+        """Round 1 N2: the compliance matrix's column key, and the build's
+        pin of it, wrote "Authorized Economic Operator (Security and
+        Safety)", a second AEO-S form. Both now give the single
+        expansion."""
+        mod = _load_build()
+        row = (f"| AEO/AEO-S | UK HMRC {self._AEO_S_EXPANSION} | Requirement "
+               "area headings |")
+        lines = self._lines(self.COMPLIANCE_MATRIX)
+        self.assertEqual(lines.count(row), 1)
+        self.assertIn(row, mod.CROSSWALK_TSC_SECTION_OPENING.split("\n"))
+        build = (REPO_ROOT / ".web" / "build.py").read_text(encoding="utf-8")
+        for text in ("\n".join(lines), build):
+            self.assertNotIn("Operator (Security and", text)
+
+    # The held LGPD (legislation/Brazil/), line 15 "LEI Nº 13.709, DE 14 DE
+    # AGOSTO DE 2018" and line 25 "Lei Geral de Proteção de Dados Pessoais
+    # (LGPD)."
+    def test_canonical_citations_lgpd_gives_the_full_title(self):
+        """Round 1 N4: the Canonical Citations Register's Brazil LGPD row
+        gave the topic as "Lei Geral de Proteção de Dados", dropping the
+        law's last word. It now gives the held title and law number."""
+        rows = [line for line in self._lines(
+                    "governance/register-canonical-citations.md")
+                if line.startswith("| Brazil LGPD |")]
+        self.assertEqual(len(rows), 1, rows)
+        cells = [cell.strip() for cell in rows[0].split("|")]
+        self.assertEqual(cells[4], "Lei Geral de Proteção de Dados Pessoais "
+                                   "(Lei nº 13.709, de 14 de agosto de 2018)")
+
+    # HMRC section 11 (programs/UK-AEO/, 183 lines): line 13 "the tests
+    # that HMRC will carry out to ensure that they comply with the security
+    # and safety criteria"; no line names Border Force or a benefit. The
+    # WCO AEO Compendium's United Kingdom entry (lines 6027 to 6066) leaves
+    # "11) Benefits" (line 6065) empty and titles the programme "AEO
+    # (European Union Programme)" (line 6031). The Compendium's European
+    # Union entry (from line 4866) lists, under "11) Benefits" / "Union
+    # Customs Code" (lines 4970 to 4971), "Fewer physical and
+    # document-based controls" (line 4975) to "Mutual recognition with
+    # third countries." (line 4983).
+    _UK_ANNEX_PURPOSE = (
+        "In the UK Authorized Economic Operator (AEO) programme, HMRC tests "
+        "applicants against the security and safety criteria (UK HMRC AEO "
+        "security and safety criteria handbook, section 11.1). That Border "
+        "Force administers the programme is not confirmed by a held source, "
+        "and the trade facilitation benefits the programme grants are not "
+        "recorded in the handbook's section 11. The WCO AEO Compendium "
+        "(2020) United Kingdom entry lists no benefits and names its "
+        "programme \"AEO (European Union Programme)\"; the benefits the "
+        "Compendium's European Union entry lists under the Union Customs "
+        "Code are not confirmed for the current UK programme. Confirm both "
+        "with HMRC before relying on them. ")
+    # Round 8 (review round 3, claude NOTE 2): the form that left out the
+    # European Union entry the United Kingdom entry names.
+    _UK_BENEFITS_TOO_BROAD = ("or in the WCO AEO Compendium (2020), whose "
+                              "United Kingdom entry lists no benefits")
+
+    def test_uk_annex_purpose_qualifies_border_force_and_benefits(self):
+        """Round 1 N5: the UK AEO-S annex's purpose said the programme is
+        "administered by HMRC and Border Force" and "grants recognized
+        trade facilitation benefits", neither recorded in the held HMRC
+        section 11. It now credits HMRC's tests to section 11.1 and says
+        Border Force's role and the benefits are not confirmed. Round 8
+        (review round 3, claude NOTE 2): it said the benefits are not
+        recorded in the Compendium, though the UK entry names the European
+        Union programme and the EU entry lists benefits; it now says the UK
+        entry lists none and names the EU programme, whose benefits are not
+        confirmed for the current UK programme."""
+        purpose = self._section_lines(self.UK_ANNEX, "## Purpose")
+        lead = [line for line in purpose if line.strip()]
+        self.assertTrue(lead[0].startswith(self._UK_ANNEX_PURPOSE), lead[0])
+        self.assertNotIn(self._UK_BENEFITS_TOO_BROAD, lead[0])
+        self.assertNotIn("grants recognized", lead[0])
+        self.assertNotIn("administered by HMRC and Border Force", lead[0])
+
+    # SAFE (programs/WCO-SAFE/) and the WCO AEO Compendium
+    # (programs/WCO-AEO-Compendium/) have no line matching BASC, Business
+    # Alliance, NEEC, Nuevo Esquema or Empresas Certificadas
+    # (case-insensitive); BASC Norm V6-2022 (frameworks/BASC/, CSMS) line
+    # 143 calls the WBO "a member-led, not-forprofit international business
+    # organization".
+    _SUPPLY_MATRIX_PURPOSE = (
+        "This matrix provides a consolidated cross-reference of the supply "
+        "chain security and trusted-trader programmes applicable to the "
+        "organization's operations. It does not treat every listed "
+        "programme as internationally recognized: the Mutual Recognition "
+        "column records what the held sources confirm for each programme, "
+        "and BASC (a private certification run by the World BASC "
+        "Organization) and NEEC are not recorded in the WCO SAFE Framework "
+        "(2025 edition) or the WCO AEO Compendium (2020). ")
+
+    def test_supply_matrix_purpose_does_not_call_every_programme_recognized(
+            self):
+        """Round 1 N6: the supply chain matrix's purpose called every
+        programme it lists, BASC and NEEC included, "internationally
+        recognized". It now points to the Mutual Recognition column and
+        says BASC and NEEC are not recorded in the held WCO texts."""
+        purpose = self._section_lines(self.SUPPLY_MATRIX, "## Purpose")
+        lead = [line for line in purpose if line.strip()]
+        self.assertTrue(lead[0].startswith(self._SUPPLY_MATRIX_PURPOSE),
+                        lead[0])
+        self.assertNotIn("of the internationally recognized", lead[0])
+
+    # The WCO AEO Compendium (programs/WCO-AEO-Compendium/) programme
+    # titles: Bolivia "Operador Económico Autorizado" (line 594), Chile
+    # "AEO Programme" / "(Programa OEA)" (lines 1101 to 1102), Argentina
+    # (line 497), Colombia (line 1195), Mexico (line 2038) and Peru (line
+    # 2411) in English; El Salvador "(OEA-SV)" / "El Salvador Authorized
+    # Economic Operator" (lines 1743 to 1744). In Mexico's entry (lines
+    # 2034 to 2141) the spelled-out Spanish term is only in the SAT
+    # address of lines 2065 to 2066, and the acronym is on line 2134,
+    # "Assignment of an OEA specialist." The Brazil OEA guide
+    # (programs/Brazil-OEA/) line 7 records the back cover's "PROGRAMA
+    # BRASILEIRO DE OEA".
+    _OEA_ROW = (
+        "| **OEA** | Operador Económico Autorizado (Spanish) or Operador "
+        "Econômico Autorizado (Portuguese): Authorized Economic Operator. In "
+        "the WCO AEO Compendium (2020), Bolivia titles its programme "
+        "Operador Económico Autorizado (OEA), Chile titles its programme "
+        "AEO Programme (Programa OEA) and El Salvador titles its programme "
+        "El Salvador Authorized Economic Operator (OEA-SV); Argentina, "
+        "Colombia, Mexico and Peru title theirs in English as an Authorized "
+        "Economic Operator programme. In Mexico's entry the spelled-out "
+        "Spanish term appears only in the address of a SAT web page, and "
+        "the acronym OEA once, in its list of benefits (the assignment of "
+        "an OEA specialist). Brazil's programme guide (Receita Federal do "
+        "Brasil) names its programme the Programa Brasileiro de OEA. No "
+        "other programme title in the Compendium uses the term. |")
+
+    def test_glossary_oea_row_follows_the_held_sources(self):
+        """Round 1 N7: the glossary's OEA row listed Mexico, Argentina,
+        Colombia and Peru among countries using the term for
+        "AEO-equivalent programmes". The Compendium titles those four in
+        English and shows the Spanish term for Mexico only in SAT
+        addresses. The row now gives what the held texts record."""
+        self.assertEqual(self._glossary_row("OEA"), self._OEA_ROW)
+        self.assertNotIn("AEO-equivalent programmes",
+                         "\n".join(self._lines(self.GLOSSARY)))
+
+    def _compendium_titles(self):
+        """Each programme entry of the held Compendium: (country, first
+        line number of the title, title text), read from its "1) Programme
+        Title" item, whose country name stands three lines above."""
+        lines = self._held_lines(self.COMPENDIUM)
+        titles = []
+        for index, line in enumerate(lines):
+            if line.strip() != "1) Programme Title":
+                continue
+            end = index + 1
+            while not lines[end].strip().startswith("2)"):
+                end += 1
+            titles.append((lines[index - 3].strip(), index + 2,
+                           " ".join(part.strip()
+                                    for part in lines[index + 1:end]
+                                    if part.strip())))
+        return titles
+
+    def test_glossary_oea_row_names_every_compendium_oea_title(self):
+        """Round 5 (claude ERROR 2 and WARN 3): the OEA row said use of the
+        term as a programme name in other countries is not confirmed, but
+        the held Compendium titles El Salvador's programme "(OEA-SV)"; and
+        it said Mexico's Spanish term appears "only" in SAT addresses,
+        while the acronym is also in Mexico's benefits list. Checked
+        against the held Compendium: every programme title that carries
+        OEA is named in the row with its country, the row claims no
+        country beyond them, and Mexico's entry has the spelled-out term
+        only in a SAT address and the acronym on exactly one other line."""
+        row = self._glossary_row("OEA")
+        self.assertNotIn("in other countries is not confirmed", row)
+        self.assertNotIn("addresses of SAT web pages", row)
+        titles = self._compendium_titles()
+        with_oea = {country: title for country, _, title in titles
+                    if re.search(r"\bOEA\b", title)}
+        self.assertEqual(sorted(with_oea), ["Bolivia", "Chile", "El Salvador"])
+        for country, title in with_oea.items():
+            with self.subTest(country=country):
+                self.assertIn(f"{country} titles its programme", row)
+                tag = re.search(r"\((?:Programa )?OEA[^)]*\)|OEA-\w+|OEA",
+                                title).group(0)
+                self.assertIn(tag.strip("()"), row)
+        english = {"Argentina", "Colombia", "Mexico", "Peru"}
+        for country, _, title in titles:
+            if country in english:
+                with self.subTest(country=country):
+                    self.assertIn("Authorized Economic Operator", title)
+                    self.assertNotIn("OEA", title)
+        lines = self._held_lines(self.COMPENDIUM)
+        starts = [number - 4 for _, number, _ in titles]
+        mexico = [number for country, number, _ in titles
+                  if country == "Mexico"][0] - 4
+        following = min(start for start in starts if start > mexico)
+        entry = list(enumerate(lines[mexico - 1:following - 1], mexico))
+        spelled = [number for number, line in entry
+                   if re.search(r"(?i)operador", line)]
+        acronym = [number for number, line in entry
+                   if re.search(r"\bOEA\b", line)]
+        self.assertEqual(spelled, [2065])
+        # A web address on SAT's host, under the entry's "AEO Mexico:".
+        self.assertEqual(lines[2063].strip(), "AEO Mexico:")
+        self.assertEqual(urllib.parse.urlsplit(lines[2064]).hostname,
+                         "www.sat.gob.mx")
+        self.assertEqual(acronym, [2134])
+        self.assertIn("Assignment of an OEA specialist", lines[2133])
+
+    # -- round 3b: the round 2 report's notes 2, 3 and 7 and note 4 of the
+    # previous attempt (on f48ad7f3a).
+    MASTER_SPEC = "specification-master-project.md"
+
+    @staticmethod
+    def _md_lines():
+        """Every (path, line number, line) of every .md file in the
+        repository outside .git: the whole corpus, not only the taxonomy
+        documents."""
+        for path in sorted(REPO_ROOT.rglob("*.md")):
+            rel = path.relative_to(REPO_ROOT)
+            if rel.parts[0] == ".git" or not path.is_file():
+                continue
+            text = path.read_text(encoding="utf-8", errors="replace")
+            for number, line in enumerate(text.splitlines(), 1):
+                yield rel.as_posix(), number, line
+
+    # HMRC section 11 (programs/UK-AEO/, 183 lines): line 13 "the tests
+    # that HMRC will carry out to ensure that they comply with the security
+    # and safety criteria"; section 11.2 (line 23) "Such an assessment
+    # should address:" (line 33), "computer system, accounting records and
+    # documents" (line 38); section 11.3 (line 40) "Businesses must be able
+    # to produce documentation showing the measures and controls put in
+    # place" (line 50). No line names Border Force or cybersecurity, and
+    # none matches "trade data" or "customs documentation".
+    _UK_PROCEDURE_PURPOSE = (
+        "HMRC tests AEO-S applicants against the security and safety "
+        "criteria (UK HMRC AEO security and safety criteria handbook, "
+        "section 11.1); that Border Force administers the programme is not "
+        "confirmed by a held source. Under those criteria the applicant's "
+        "security and safety risk assessment is to address, among other "
+        "areas, its computer system, accounting records and documents "
+        "(section 11.2), and the applicant must be able to produce "
+        "documentation showing the measures and controls it has put in "
+        "place (section 11.3). The handbook's section 11 does not name "
+        "cybersecurity, trade data or the integrity of customs "
+        "documentation; this procedure treats the IT and cybersecurity "
+        "controls it evidences as the organization's own scoping of those "
+        "criteria, to be confirmed with HMRC.")
+
+    def test_uk_procedure_purpose_follows_the_held_criteria(self):
+        """Round 2 notes 2 and 7: the UK self-assessment procedure's
+        purpose said the programme is "administered by HMRC and Border
+        Force" and requires "adequate IT and cybersecurity controls" to
+        protect "trade systems, trade data, and the integrity of customs
+        documentation". The held HMRC section 11 records neither. The line
+        now credits HMRC's tests to section 11.1, says Border Force's role
+        is not confirmed, and narrows the IT claim to what sections 11.2
+        and 11.3 say."""
+        lines = self._lines(self.UK_PROCEDURE)
+        self.assertEqual(lines.count(self._UK_PROCEDURE_PURPOSE), 1)
+        text = "\n".join(lines)
+        self.assertNotIn("administered by HMRC and Border Force", text)
+        self.assertNotIn("adequate IT and cybersecurity controls are in "
+                         "place", text)
+
+    _LOGISTICS_README_UK = (
+        "HMRC trusted-trader programme, AEO-S (Authorized Economic Operator "
+        "Security and Safety) authorization. HMRC tests applicants against "
+        "the security and safety criteria (UK HMRC AEO security and safety "
+        "criteria handbook, section 11.1); that Border Force administers "
+        "the programme is not confirmed by a held source.")
+
+    def test_logistics_readme_uk_entry_qualifies_border_force(self):
+        """Round 2 note 2: the logistics README called the UK programme
+        the "HMRC and Border Force trusted-trader programme". It now
+        credits HMRC's tests to section 11.1 and says Border Force's role
+        is not confirmed, as the UK annex does."""
+        section = self._section_lines(self.LOGISTICS + "README.md",
+                                      "## Trusted-trader programmes covered")
+        self.assertEqual(section.count(self._LOGISTICS_README_UK), 1)
+
+    _BORDER_FORCE = re.compile(r"(?i)\bborder\s+force\b")
+    # The two forms a Border Force mention may take: the Australian Border
+    # Force, or the one governed denial every corpus mention uses, "that
+    # Border Force administers the programme is not confirmed by a held
+    # source" (any case, any whitespace between words). Round 10 (review
+    # round 5, claude NOTE 1): an open span between "that Border Force" and
+    # the denial, with a fixed list of conjunctions excluded, let through
+    # any conjunction not on the list (whilst, yet, so, though, or, because,
+    # whose) that hands the denial to another subject.
+    _BORDER_FORCE_ALLOWED = re.compile(
+        r"(?i)\bAustralian\s+Border\s+Force\b"
+        r"|\bthat\s+Border\s+Force\s+administers\s+the\s+programme\s+is\s+"
+        r"not\s+confirmed\s+by\s+a\s+held\s+source\b")
+
+    @classmethod
+    def _unsettled_border_force(cls, line):
+        """The Border Force mentions on this line that neither name the
+        Australian Border Force nor stand as the subject of a denial in
+        their own clause."""
+        spans = [match.span() for match in
+                 cls._BORDER_FORCE_ALLOWED.finditer(line)]
+        return [match.start() for match in cls._BORDER_FORCE.finditer(line)
+                if not any(start <= match.start() < end
+                           for start, end in spans)]
+
+    def test_no_md_line_settles_a_border_force_role(self):
+        """Round 2 note 2, class-wide: every mention of Border Force in
+        every .md file either is the subject of a denial in its own clause
+        (That Border Force administers the programme is not confirmed by a
+        held source) or names the Australian Border Force (the reference
+        manifest's Australian Trusted Trader row). Round 8 (review round 3,
+        claude WARN 1): the guard let through a line on which the phrase
+        "not confirmed by a held source" or "Australian Border Force"
+        appeared anywhere, even about something else; each mention is now
+        read on its own (_unsettled_border_force)."""
+        found = [f"{rel}:{number}" for rel, number, line in self._md_lines()
+                 if self._unsettled_border_force(line)]
+        self.assertEqual(found, [])
+        self.assertTrue(any(self._BORDER_FORCE.search(line)
+                            for _, _, line in self._md_lines()))
+
+    def test_border_force_guard_reads_the_governing_clause(self):
+        """Round 8 (review round 3, claude WARN 1): the Border Force guard
+        catches a settled role whatever else the line says, starting with
+        claude's flip sentence, and lets through only the governed forms
+        the corpus keeps. Round 9 (review round 4, claude WARN 2): a
+        conjunction inside the span (and, but, while, whereas, although)
+        handed the denial to another subject; claude's three sentences are
+        caught, with the round 4 report's elided ends written out. Round 10
+        (review round 5, claude NOTE 1): a conjunction not on that list did
+        the same; the guard now allows only the one governed phrase, and
+        claude's whilst sentence and one sentence each for yet, so, though,
+        or, because and whose are caught."""
+        stated = (
+            "We confirm that Border Force administers the programme whilst "
+            "its benefit is not confirmed by a held source.",
+            "We confirm that Border Force administers the programme yet its "
+            "benefit is not confirmed by a held source.",
+            "We confirm that Border Force administers the programme so its "
+            "benefit is not confirmed by a held source.",
+            "We confirm that Border Force administers the programme though "
+            "its benefit is not confirmed by a held source.",
+            "We confirm that Border Force administers the programme or its "
+            "benefit is not confirmed by a held source.",
+            "We confirm that Border Force administers the programme because "
+            "its benefit is not confirmed by a held source.",
+            "We confirm that Border Force administers the programme whose "
+            "benefit is not confirmed by a held source.",
+            "We confirm that Border Force administers the programme and the "
+            "benefit is not confirmed by a held source.",
+            "We confirm that Border Force administers the programme while "
+            "its benefit is not confirmed by a held source.",
+            "We confirm that Border Force runs the programme but the MRA "
+            "status is not confirmed by a held source.",
+            "We confirm that Border Force runs the programme whereas the "
+            "benefit is not confirmed by a held source.",
+            "We confirm that Border Force runs the programme although the "
+            "benefit is not confirmed by a held source.",
+            "The programme is administered by HMRC and Border Force; its "
+            "benefits are not confirmed by a held source.",
+            "That Border Force administers the programme is clear, and its "
+            "benefit is not confirmed by a held source.",
+            "That Border Force administers the programme is clear; it is "
+            "not confirmed by a held source that HMRC does.",
+            "The Australian Border Force and UK Border Force both administer "
+            "trusted-trader programmes.",
+            "Border Force administers the programme (the role of the "
+            "Australian Border Force is not confirmed by a held source).")
+        for text in stated:
+            with self.subTest(text=text[:40]):
+                self.assertTrue(self._unsettled_border_force(text))
+        allowed = (
+            "That Border Force administers the programme is not confirmed "
+            "by a held source, and the trade facilitation benefits the "
+            "programme grants are not recorded in the handbook's section "
+            "11.",
+            "section 11.1); that Border Force administers the programme is "
+            "not confirmed by a held source.",
+            "THAT border  force administers\tthe programme is not confirmed "
+            "by a held source.",
+            "| Australian Trusted Trader Benefits Booklet |  | Australian "
+            "Border Force |  | FREE |")
+        for text in allowed:
+            with self.subTest(text=text[:40]):
+                self.assertTrue(self._BORDER_FORCE.search(text))
+                self.assertEqual(self._unsettled_border_force(text), [])
+
+    def test_aeo_s_glosses_use_the_hmrc_expansion(self):
+        """Round 2 note 3: the UK procedure and the UK annex glossed AEO-S
+        as "(Security and Safety)", the master specification as
+        "Authorized Economic Operator, Security and Safety", and the
+        logistics README as the "AEO-S security and safety strand". Each
+        now gives the expansion the rest of the PR uses, and no .md line
+        keeps one of those forms."""
+        expansion = self._AEO_S_EXPANSION
+        # Round 4 narrowed the two sentences around these glosses (the
+        # HMRC submission and the cybersecurity requirement); the pins
+        # follow them.
+        carriers = (
+            (self.UK_PROCEDURE, f"and AEO-S ({expansion}) self-assessment. "
+                                "The annual cycle"),
+            (self.UK_ANNEX, f"relying on them. Under the AEO-S ({expansion}) "
+                            "criteria"),
+            (self.MASTER_SPEC, f"- AEO-S: {expansion} (UK HMRC)"),
+        )
+        for rel, text in carriers:
+            with self.subTest(rel=rel):
+                self.assertIn(text, "\n".join(self._lines(rel)))
+        stale = re.compile(r"AEO-?S \((?:Security|Safety) and"
+                           r"|Operator, Security and Safety"
+                           r"|(?i:AEO-?S security and safety strand)")
+        found = [f"{rel}:{number}" for rel, number, line in self._md_lines()
+                 if stale.search(line)]
+        self.assertEqual(found, [])
+
+    def test_readme_eu_aeo_uses_the_library_spelling(self):
+        """Round 2 note 3: the README named the EU programme "EU Authorised
+        Economic Operator". The held EU AEO Guidelines (programs/EU-AEO/)
+        spell it with -ise throughout, and the language gate allows that
+        spelling for the programme name; the library's own text (the
+        supply chain matrix's AEO row, the master specification's AEO
+        entry and the glossary's AEO row) writes Authorized Economic
+        Operator with the Canadian -ize spelling, which the README now
+        uses."""
+        text = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("AEO (EU Authorized Economic Operator), AEO-S", text)
+        self.assertNotIn("EU Authorised Economic Operator", text)
+
+    # The Brazil OEA guide (programs/Brazil-OEA/) line 7 records that its
+    # cover and back cover "carry the "Operador Econômico Autorizado" AEO
+    # logo"; the supply chain matrix's OEA row and the coverage gaps
+    # register's Brazil row give the same Portuguese name.
+    def test_brazil_oea_name_is_portuguese(self):
+        """Note 4 of the previous attempt: the master specification gave
+        Brazil's programme as "Operador Económico Autorizado", the Spanish
+        form. It now gives the Portuguese form, and the Spanish or
+        unaccented form appears in no .md line except the glossary's OEA
+        row, where it is labelled Spanish."""
+        lines = self._lines(self.MASTER_SPEC)
+        self.assertEqual(
+            lines.count("- OEA: Operador Econômico Autorizado (Brazil)"), 1)
+        found = [f"{rel}:{number}" for rel, number, line in self._md_lines()
+                 if self._unlabelled_spanish_oea(line)]
+        self.assertEqual(found, [])
+
+    _SPANISH_OEA = re.compile(r"Operador Econ[oó]mico")
+    # The two forms a Spanish or unaccented occurrence may take: labelled
+    # Spanish where it stands, or quoted as Bolivia's programme title in the
+    # glossary's OEA row (held Compendium line 594).
+    _SPANISH_OEA_ALLOWED = re.compile(
+        r"Operador Econ[oó]mico Autorizado \(Spanish\)"
+        r"|Bolivia titles its programme Operador Económico Autorizado")
+
+    @classmethod
+    def _unlabelled_spanish_oea(cls, line):
+        """The Spanish or unaccented occurrences on this line that are
+        neither labelled Spanish where they stand nor quoted as Bolivia's
+        programme title."""
+        spans = [match.span() for match in
+                 cls._SPANISH_OEA_ALLOWED.finditer(line)]
+        return [match.start() for match in cls._SPANISH_OEA.finditer(line)
+                if not any(start <= match.start() < end
+                           for start, end in spans)]
+
+    def test_spanish_oea_guard_reads_each_occurrence(self):
+        """Round 8 (review round 3, claude WARN 1, class-wide audit): the
+        Spanish OEA guard let through any line on which "(Spanish)" stood
+        anywhere, even beside another occurrence. Each occurrence is now
+        read on its own."""
+        stated = (
+            "Brazil's Operador Económico Autorizado programme differs from "
+            "the Operador Económico Autorizado (Spanish) term.",
+            "- OEA: Operador Economico Autorizado (Brazil); see the "
+            "glossary's (Spanish) row.",
+            "Peru titles its programme Operador Económico Autorizado.")
+        for text in stated:
+            with self.subTest(text=text[:40]):
+                self.assertTrue(self._unlabelled_spanish_oea(text))
+        allowed = (
+            "| **OEA** | Operador Económico Autorizado (Spanish) or Operador "
+            "Econômico Autorizado (Portuguese): Authorized Economic "
+            "Operator. In the WCO AEO Compendium (2020), Bolivia titles its "
+            "programme Operador Económico Autorizado (OEA), Chile titles its "
+            "programme AEO Programme (Programa OEA) |",
+            "- OEA: Operador Econômico Autorizado (Brazil)")
+        for text in allowed:
+            with self.subTest(text=text[:40]):
+                self.assertEqual(self._unlabelled_spanish_oea(text), [])
+        self.assertEqual(len(self._SPANISH_OEA.findall(allowed[0])), 2)
+
+    # -- round 4: the round 3b report's notes 1, 2 and 5 and the class-wide
+    # search for AEO-S and HMRC requirement claims (on a2ac0e775).
+    # HMRC section 11 (programs/UK-AEO/, 183 lines): line 19 "All
+    # procedures should be documented and made available for HMRC during
+    # the audit of the"; section 11.2 (line 23), line 25 "A self-assessment
+    # should be carried out by a person with extensive knowledge of the
+    # risks and threats applicable to the type of business", line 38
+    # "computer system, accounting records and documents"; section 11.3
+    # (line 40), line 50 "Businesses must be able to produce documentation
+    # showing the measures and controls put in place and this documentation
+    # will be verified during the course of the". No line matches cyber,
+    # annual, periodic or submission, and none names reporting or
+    # notification to HMRC.
+    GAP_TEMPLATE = LOGISTICS + "template-trade-compliance-gap-assessment.md"
+    SUPPLIER_EXIT = "supply-chain/procedure-supplier-exit-and-data-return.md"
+    AUDIT_PLANNING = "compliance/procedure-audit-planning.md"
+    _UK_ANNEX_CRITERIA = (
+        "Under the AEO-S (Authorized Economic Operator Security and Safety) "
+        "criteria, the applicant's procedures are to be documented and made "
+        "available for HMRC during the audit of the AEO criteria (section "
+        "11.1), its security and safety risk assessment is to address, among "
+        "other areas, its computer system, accounting records and documents "
+        "(section 11.2), and it must be able to produce documentation "
+        "showing the measures and controls it has put in place (section "
+        "11.3). The handbook's section 11 does not name cybersecurity or IT "
+        "security controls; this annex treats the IT and cybersecurity "
+        "controls below as the organization's own scoping of those "
+        "criteria, to be confirmed with HMRC. ")
+
+    def test_uk_annex_purpose_drops_the_cybersecurity_requirement(self):
+        """Round 3b note 1: the UK annex's purpose said AEO-S "specifically
+        requires documented security controls covering IT systems, access
+        controls, personnel security, and cybersecurity". HMRC section 11
+        names no cybersecurity or IT control. The sentence now gives what
+        sections 11.1 to 11.3 hold and makes the IT scoping the annex's
+        own, as round 3b did for the UK procedure."""
+        purpose = self._section_lines(self.UK_ANNEX, "## Purpose")
+        lead = [line for line in purpose if line.strip()]
+        self.assertIn(self._UK_ANNEX_CRITERIA, lead[0])
+        self.assertNotIn("specifically requires", lead[0])
+        self.assertNotIn("and cybersecurity.", lead[0])
+
+    # HMRC sections 11.5 (line 57), 11.6 (line 59), 11.7 (line 62), 11.8
+    # (line 79), 11.9 (line 86), 11.10 (line 99), 11.13 (line 132) and
+    # 11.14 (line 140); no section is on information systems or
+    # documentation security.
+    _UK_ANNEX_AREAS = [
+        "- Physical and access security (sections 11.5, 11.6 and 11.8 to "
+        "11.10)",
+        "- Personnel security (section 11.7)",
+        "- Business partners and external service providers (sections 11.13 "
+        "and 11.14)",
+        "- The computer system, accounting records and documents, as areas "
+        "the security and safety risk assessment is to address (section "
+        "11.2)"]
+
+    def test_uk_annex_context_lists_the_held_criteria_areas(self):
+        """Class-wide search: the UK annex's programme context said "AEO-S
+        requires" adequate security standards across five domains,
+        including information systems security and documentation security,
+        which HMRC section 11 does not name as criteria. The list now gives
+        the areas section 11 covers, each with its sections, and the scope
+        note says section 11 has no information systems security
+        criterion."""
+        section = self._section_lines(self.UK_ANNEX,
+                                      "## AEO programme context")
+        items = [line for line in section if line.startswith("- ")]
+        self.assertEqual(items, self._UK_ANNEX_AREAS)
+        text = "\n".join(section)
+        self.assertNotIn("AEO-S requires", text)
+        self.assertIn("section 11 does not name information systems "
+                      "security as a criterion of its own", text)
+
+    def test_uk_annex_mapping_column_is_the_organization_scoping(self):
+        """Class-wide search: the UK annex's mapping table headed its first
+        column "AEO-S Requirement", though no row is HMRC text. The header
+        now says the objectives are the organization's scoping."""
+        lines = self._lines(self.UK_ANNEX)
+        self.assertNotIn("| AEO-S Requirement |", "\n".join(lines))
+        self.assertEqual(lines.count(
+            "| Control Objective (the organization's AEO-S scoping, not "
+            "HMRC text) | IT Control | Governing GRC Document(s) |"), 1)
+
+    def test_uk_annex_self_assessment_is_not_an_hmrc_obligation(self):
+        """Class-wide search: the UK annex said "AEO-S requires periodic
+        self-assessment against HMRC AEO criteria". HMRC section 11 names
+        no periodic self-assessment; its only self-assessment is the
+        section 11.2 risk assessment, and section 11.3 documentation is
+        verified during the AEO audit. The annex now says so and makes the
+        annual cycle the organization's own."""
+        # Round 5 (claude NOTE 8): the heading no longer calls the
+        # organization's own schedule an obligation.
+        self.assertNotIn("## Self-assessment obligation",
+                         self._lines(self.UK_ANNEX))
+        section = self._section_lines(self.UK_ANNEX,
+                                      "## Organization's AEO self-assessment")
+        text = "\n".join(section)
+        self.assertNotIn("AEO-S requires periodic", text)
+        self.assertNotIn("overall AEO self-assessment submission", text)
+        self.assertIn(
+            "The CISO provides documented evidence of IT control "
+            "effectiveness to the AEO Compliance function, which integrates "
+            "it into the organization's overall AEO self-assessment and makes "
+            "it available for HMRC during the audit of the AEO criteria "
+            "(section 11.1).", text)
+        self.assertIn(
+            "The held HMRC criteria name no periodic self-assessment or "
+            "self-assessment submission. The only self-assessment section 11 "
+            "names is the one in section 11.2, on the security and safety "
+            "risk assessment, to be carried out by a person with extensive "
+            "knowledge of the risks and threats applicable to the type of "
+            "business, and under section 11.3 the documentation of the "
+            "measures and controls is verified during the AEO audit. The "
+            "organization's annual AEO self-assessment is its own schedule, "
+            "to be confirmed with HMRC.", text)
+
+    _UK_PROCEDURE_SCOPE = (
+        "This procedure defines the process for completing the IT and "
+        "cybersecurity elements of the organization's annual Authorized "
+        "Economic Operator (AEO) and AEO-S (Authorized Economic Operator "
+        "Security and Safety) self-assessment. The annual cycle and its "
+        "internal submission deadline are the organization's own schedule: "
+        "the held HMRC criteria (UK HMRC AEO security and safety criteria "
+        "handbook, section 11) name no annual self-assessment or submission "
+        "to HMRC. "
+        "They say that procedures are to be documented and made available "
+        "for HMRC during the audit of the AEO criteria (section 11.1), and "
+        "the only self-assessment they name is the one in section 11.2, on "
+        "the security and safety risk assessment.")
+
+    def test_uk_procedure_purpose_names_no_hmrc_submission(self):
+        """Round 3b note 2: the UK procedure's purpose named "the annual
+        ... self-assessment submission to HMRC". No held HMRC line matches
+        annual or submission. The purpose now makes the annual cycle and
+        its deadline the organization's own and gives what sections 11.1
+        and 11.2 hold."""
+        lines = self._lines(self.UK_PROCEDURE)
+        self.assertEqual(lines.count(self._UK_PROCEDURE_SCOPE), 1)
+        self.assertNotIn("self-assessment submission to HMRC.",
+                         "\n".join(lines))
+
+    def test_uk_procedure_scoping_is_the_library_statement(self):
+        """Round 3b note 5: the purpose concluded from the handbook ("so")
+        that the procedure's IT controls "are the organization's own
+        scoping" of the criteria, a characterization rather than held
+        text. The sentence now says it is how this procedure treats
+        them."""
+        text = "\n".join(self._lines(self.UK_PROCEDURE))
+        self.assertNotIn("documentation, so the IT and cybersecurity", text)
+        self.assertIn("; this procedure treats the IT and cybersecurity "
+                      "controls it evidences as the organization's own "
+                      "scoping of those criteria, to be confirmed with "
+                      "HMRC.", text)
+
+    def test_uk_procedure_deadline_is_the_organization_own(self):
+        """Class-wide search: the UK procedure gave an "HMRC submission
+        window ... typically in Q4", timed its milestones against an "HMRC
+        submission deadline", and said HMRC guidance "Defines AEO-S
+        criteria and self-assessment obligations". No held HMRC line names
+        a submission, a window or a deadline. The deadline is now set by
+        the AEO Compliance function, and the framework row says section 11
+        names no periodic self-assessment submission."""
+        lines = self._lines(self.UK_PROCEDURE)
+        text = "\n".join(lines)
+        for stale in ("HMRC submission deadline", "HMRC submission window",
+                      "self-assessment obligations",
+                      "their mapping to AEO-S requirements"):
+            with self.subTest(stale=stale):
+                self.assertNotIn(stale, text)
+        self.assertIn(
+            "The AEO Compliance function sets the internal submission "
+            "deadline each year; a submission window or deadline set by HMRC "
+            "is not confirmed by a held source.", text)
+        self.assertEqual(lines.count(
+            "| UK HMRC AEO / AEO-S guidance | Sets the AEO-S security and "
+            "safety criteria (UK HMRC AEO security and safety criteria "
+            "handbook, section 11), which name no periodic self-assessment "
+            "submission (see section 1.1); primary regulatory driver for "
+            "this procedure |"), 1)
+
+    # HMRC section 11.4 (programs/UK-AEO/, line 56): "If there have been any
+    # security incidents the customs authorities will expect the security
+    # procedures to have been reviewed and amended"; section 11.12 "Cargo
+    # security" (line 112), "Cargo units (containers, swap bodies,
+    # transport boxes)" (line 113), whose procedures include, lines 121 to
+    # 122: "how incidents are reported and recorded", "what action should
+    # be taken, including reporting to law enforcement/senior management".
+    # Section 11.8 "Building and boundary security" (line 79) includes "how
+    # security incidents are reported and dealt with" (line 84), not limited
+    # to cargo units and with no recipient named.
+    _CTPAT_IT5 = (
+        "| IT-5 Incident Response | AEO-S: security procedures reviewed and "
+        "amended after an incident (handbook §11.4); how security incidents "
+        "are reported and dealt with, with no recipient named (§11.8, "
+        "building and boundary security); for cargo units, procedures for "
+        "how incidents are reported and recorded and what action is to be "
+        "taken, including reporting to law enforcement or senior management "
+        "(§11.12, cargo security); the "
+        "organization maps these to IT incidents as its own scoping; "
+        "incident reporting to HMRC is not named in section 11 | "
+        "Candidate overlap, subject to HMRC acceptance; whether HMRC expects "
+        "incident notification is not confirmed by a held source |")
+
+    def test_ctpat_it_register_names_no_hmrc_incident_reporting(self):
+        """Class-wide search: the CTPAT IT register gave AEO-S's IT-5
+        counterpart as "Incident reporting to HMRC" with an "HMRC-specific
+        notification supplement", called the counterparts AEO-S's own, and
+        pointed to "HMRC submission requirements". The row now gives what
+        sections 11.4 and 11.12 hold, the lead-in makes the counterparts
+        the organization's scoping, and the pointer drops the
+        requirements."""
+        lines = self._lines(self.IT_REGISTER)
+        text = "\n".join(lines)
+        self.assertEqual(lines.count(self._CTPAT_IT5), 1)
+        self.assertIn("The held HMRC criteria (UK HMRC AEO security and "
+                      "safety criteria handbook, section 11) set out no IT "
+                      "control requirement", text)
+        for stale in ("Incident reporting to HMRC",
+                      "HMRC-specific notification supplement",
+                      "with their AEO-S counterparts",
+                      "HMRC submission requirements"):
+            with self.subTest(stale=stale):
+                self.assertNotIn(stale, text)
+
+    def test_pip_register_names_no_hmrc_incident_reporting(self):
+        """Class-wide search: the PIP register gave AEO-S's CYB-6
+        counterpart as "Incident reporting to HMRC" and pointed to "HMRC
+        submission guidance". The row now gives sections 11.4 and 11.12
+        and says reporting to HMRC is not named."""
+        lines = self._lines(self.PIP_REGISTER)
+        text = "\n".join(lines)
+        rows = [line for line in lines
+                if line.startswith("| CYB-6 Incident Response |")]
+        self.assertEqual(len(rows), 1, rows)
+        self.assertIn(
+            "| AEO-S: security procedures reviewed and amended after an "
+            "incident (handbook §11.4), how security incidents are reported "
+            "and dealt with, with no recipient named (§11.8, building and "
+            "boundary security) and, for cargo units, incident reporting and "
+            "recording and the action to be taken, including reporting to law "
+            "enforcement or senior management (§11.12, cargo security); "
+            "incident reporting to HMRC "
+            "is not named in section 11: CBSA supplement needed |", rows[0])
+        self.assertNotIn("Incident reporting to HMRC", text)
+        self.assertNotIn("HMRC submission guidance", text)
+
+    def test_msc_register_it_supplement_names_no_hmrc_notification(self):
+        """Class-wide search: the MSC register's Information Technology
+        supplement was an "HMRC incident notification supplement". HMRC
+        section 11 names no notification to HMRC; the row now says the
+        supplement is not yet assessed and gives sections 11.4 and
+        11.12."""
+        section = self._section_lines(self.MSC_REGISTER,
+                                      "## UK AEO-S parallel controls")
+        rows = [line for line in section
+                if line.startswith("| Information Technology |")]
+        self.assertEqual(rows, [
+            "| Information Technology | Supplement not yet assessed: the "
+            "HMRC criteria name no incident notification to HMRC (handbook "
+            "§11.4 expects security procedures to be reviewed and amended "
+            "after an incident, §11.8, on building and boundary security, "
+            "asks how security incidents are reported and dealt with and "
+            "names no recipient, and §11.12, on cargo security, expects "
+            "procedures for cargo units that say how incidents are reported "
+            "and recorded and what action is to be taken, including reporting "
+            "to law enforcement or senior management); UK data protection law "
+            "compliance |"])
+
+    # HMRC section 11.12 lists "how incidents are reported and recorded"
+    # (held line 121) and "what action should be taken, including reporting
+    # to law enforcement/senior management" (line 122) as separate items.
+    _REPORTING_ON_THE_RECORDING_ITEM = re.compile(
+        r"(?i)report(?:ed|ing) and record(?:ed|ing), including reporting to "
+        r"law enforcement")
+
+    def test_section_11_12_reporting_belongs_to_the_action_item(self):
+        """Round 9 (review round 4, claude NOTE 3): the CTPAT IT register's
+        IT-5 row, the MSC register's Information Technology row and the PIP
+        register's CYB-6 row attached "including reporting to law
+        enforcement or senior management" to the reporting and recording
+        item. Held section 11.12 attaches it to the action to be taken
+        (lines 121 and 122); each row now names that item, as the supply
+        chain matrix does, and no .md line attaches the phrase to the
+        recording item."""
+        found = [f"{rel}:{number}" for rel, number, line in self._md_lines()
+                 if self._REPORTING_ON_THE_RECORDING_ITEM.search(line)]
+        self.assertEqual(found, [])
+        for rel in (self.IT_REGISTER, self.MSC_REGISTER, self.PIP_REGISTER,
+                    self.SUPPLY_MATRIX):
+            with self.subTest(rel=rel):
+                self.assertRegex(
+                    "\n".join(self._lines(rel)),
+                    r"(?:what action is to be taken|the action to be "
+                    r"taken), including reporting to law enforcement or "
+                    r"senior management")
+
+    def _matrix_cell(self, prefix, column):
+        rows = [line for line in self._lines(self.SUPPLY_MATRIX)
+                if line.startswith(prefix)]
+        self.assertEqual(len(rows), 1, rows)
+        return rows[0].split("|")[column].strip()
+
+    def test_supply_matrix_aeo_s_it_and_notification_cells(self):
+        """Class-wide search: the supply chain matrix marked AEO-S as
+        requiring IT and Cybersecurity and Incident Reporting to Authority,
+        and its IT comparison marked AEO-S Notification to customs
+        authority. HMRC section 11 names the computer system only as a
+        risk-assessment area and names no notification to HMRC. The IT
+        domain is now partial, the IT comparison's Notification to customs
+        authority cell reads Not confirmed, each table's lead-in says why,
+        and the IT comparison's AEO-S column is the organization's scoping.
+        Round 5 (codex ERROR 1 and claude WARN 4): Incident Reporting to
+        Authority read Not confirmed, which suppressed the held section
+        11.12 provision; it is now partial, limited to cargo units and to
+        reporting to law enforcement or senior management."""
+        self.assertEqual(
+            self._matrix_cell("| **IT and Cybersecurity** |", 3), "~")
+        self.assertEqual(
+            self._matrix_cell("| **Incident Reporting to Authority** |", 3),
+            "~ (cargo units only, §11.12: reporting to law enforcement or "
+            "senior management; no reporting to HMRC named)")
+        self.assertEqual(
+            self._matrix_cell("| Notification to customs authority |", 3),
+            "Not confirmed")
+        text = "\n".join(self._lines(self.SUPPLY_MATRIX))
+        self.assertIn("cannot be confirmed from the reference base. For "
+                      "AEO-S (UK), the held HMRC criteria", text)
+        self.assertIn("so the AEO-S (UK) column records the organization's "
+                      "own scoping of those criteria, not HMRC text", text)
+        # Round 8 (review round 3, claude NOTE 3): a ✓ in the AEO-S (UK)
+        # column meant the organization's scoping while a ✓ beside it meant
+        # the programme addresses the area. Every AEO-S (UK) cell of the IT
+        # comparison is now marked (Org), except the source-based Not
+        # confirmed, and the table's key says what (Org) means.
+        lines = self._lines(self.SUPPLY_MATRIX)
+        start = lines.index("| IT Requirement | CTPAT | AEO-S (UK) | AEO "
+                            "(EU) | PIP | BASC |")
+        rows = []
+        for line in lines[start + 2:]:
+            if not line.startswith("| "):
+                break
+            rows.append([cell.strip() for cell in line.split("|")[1:-1]])
+        self.assertTrue(rows)
+        for row in rows:
+            with self.subTest(row=row[0]):
+                if row[0] == "Notification to customs authority":
+                    self.assertEqual(row[2], "Not confirmed")
+                else:
+                    self.assertIn(row[2], ("✓ (Org)", "~ (Org)"))
+                self.assertFalse(any("(Org)" in cell
+                                     for index, cell in enumerate(row)
+                                     if index != 2))
+        self.assertIn(
+            "In the AEO-S (UK) column, ✓ (Org) and ~ (Org) mark the "
+            "organization's own scoping of the HMRC criteria, not a mark "
+            "drawn from a held source; Not confirmed = not found in the held "
+            "HMRC criteria.", lines[start - 2])
+
+    # A mark a table key defines: "<mark> = <meaning>" after the start of
+    # the key or a clause break (an "and" before the last one), or a pair
+    # "<mark> and <mark> mark the ...".
+    _KEY_MARK = re.compile(
+        r"(?:^|[.;,:]\s+)(?:and\s+)?([^\s=;,.:][^=;,.:]*?)\s+=\s")
+    _KEY_MARK_PAIR = re.compile(
+        r"(?:^|[.;,:]\s+)([^\s=;,.:][^=;,.:]*?) and ([^\s=;,.:][^=;,.:]*?) "
+        r"mark\s")
+
+    def test_supply_matrix_keys_define_only_marks_their_tables_use(self):
+        """Round 10 (review round 5, claude NOTE 2): the domain matrix key
+        defined Not confirmed = not found in the programme's held criteria,
+        but no Security Domain row used that mark after Round 5 marked
+        AEO-S Incident Reporting to Authority ~ (cargo units only). The
+        entry is gone. Every mark a key defines appears in the table that
+        follows the key, alone in a cell or opening one (~ (cargo units
+        only, ...)); the IT comparison key's Not confirmed stays, used by
+        its Notification to customs authority row."""
+        lines = self._lines(self.SUPPLY_MATRIX)
+        keys = {}
+        for index, line in enumerate(lines):
+            if line.startswith("|"):
+                continue
+            marks = [match.group(1) for match in
+                     self._KEY_MARK.finditer(line)]
+            for match in self._KEY_MARK_PAIR.finditer(line):
+                marks += match.groups()
+            if not marks:
+                continue
+            table = index + 1
+            while table < len(lines) and not lines[table].strip():
+                table += 1
+            cells = []
+            for row in lines[table + 2:]:
+                if not row.startswith("|"):
+                    break
+                cells += [cell.strip() for cell in row.split("|")[2:-1]]
+            self.assertTrue(cells, lines[table] if table < len(lines)
+                            else line)
+            keys[lines[table]] = (marks, cells)
+        self.assertEqual(
+            {header: marks for header, (marks, _) in keys.items()},
+            {"| Security Domain | CTPAT | AEO-S (UK) | AEO (EU) | PIP | BASC "
+             "| NEEC | OEA | ISO 28000:2022 | WCO SAFE |":
+                 ["✓", "~", "N/A", "Unverifiable"],
+             "| IT Requirement | CTPAT | AEO-S (UK) | AEO (EU) | PIP | BASC |":
+                 ["✓", "~", "N/A", "Not confirmed", "✓ (Org)", "~ (Org)"]})
+        for header, (marks, cells) in keys.items():
+            for mark in marks:
+                with self.subTest(table=header[:20], mark=mark):
+                    self.assertTrue(any(
+                        cell == mark or (cell.startswith(mark + " (")
+                                         and cell not in marks)
+                        for cell in cells))
+
+    def test_gap_template_qualifies_aeo_s_attributions(self):
+        """Class-wide search: the gap assessment template's Programme
+        Source column attributed IT controls, annual reviews and incident
+        reporting to AEO-S with no qualification. The purpose now says
+        those attributions are the organization's own scoping, that HMRC
+        section 11 sets out no IT control, annual cycle or incident
+        notification to HMRC, and that each is to be confirmed. Round 5
+        (claude NOTE 6): it also gives section 11.14, which lists software
+        providers among external service providers (held lines 140 to 143),
+        as the anchor nearest the third-party IT row."""
+        purpose = self._section_lines(self.GAP_TEMPLATE, "## Purpose")
+        self.assertIn(
+            "The Programme Source column names the programmes whose "
+            "requirements the organization maps each row to. For AEO-S, "
+            "those attributions are the organization's own scoping, not "
+            "HMRC text: the held HMRC criteria (UK HMRC AEO security and "
+            "safety criteria handbook, section 11) set out no IT control, "
+            "annual cycle or incident notification to HMRC. They name the "
+            "computer system as an area the security and safety risk "
+            "assessment is to address (section 11.2), and list software "
+            "providers among the external service providers and expect the "
+            "business's requirements to be stated in contracts (section "
+            "11.14), the held provision nearest to the third-party IT "
+            "security controls row. Confirm each AEO-S attribution with HMRC "
+            "before relying on it.", purpose)
+        # Round 8 (review round 3, codex NOTE): held line 143 makes the
+        # requirements the business's, "The business’s’ requirements should
+        # be clearly stated in any contracts", not the providers'.
+        self.assertNotIn(self._PROVIDERS_REQUIREMENTS,
+                         "\n".join(self._lines(self.GAP_TEMPLATE)))
+
+    def test_supplier_exit_names_no_aeo_s_reporting_obligation(self):
+        """Class-wide search: the supplier exit procedure gave a change of
+        approved service providers under AEO-S as an example of a
+        programme reporting obligation. HMRC section 11 names none; the
+        step now says so for AEO-S."""
+        text = "\n".join(self._lines(self.SUPPLIER_EXIT))
+        self.assertNotIn("under CTPAT, AEO-S)", text)
+        self.assertIn(
+            "(e.g., change of approved service providers under CTPAT; for "
+            "AEO-S, the held HMRC criteria (UK HMRC AEO security and safety "
+            "criteria handbook, section 11) name no such reporting "
+            "obligation, so confirm with HMRC)", text)
+
+    def test_audit_planning_aeo_s_frequency_is_organization_set(self):
+        """Class-wide search: the audit planning procedure gave AEO-S an
+        Annual minimum audit frequency under a lead-in that calls each
+        frequency the scheme's own surveillance cycle. HMRC section 11 sets
+        no audit cycle; the cell now says the cadence is the
+        organization's."""
+        rows = [line for line in self._lines(self.AUDIT_PLANNING)
+                if line.startswith(f"| AEO-S ({self._AEO_S_EXPANSION}) |")]
+        self.assertEqual(rows, [
+            f"| AEO-S ({self._AEO_S_EXPANSION}) | Organization-set (annual; "
+            "the held HMRC criteria, handbook section 11, set no audit "
+            "cycle) | AEO-S IT control scope |"])
+
+    def test_compliance_matrix_aeo_s_coverage_note(self):
+        """Class-wide search: the compliance matrix's coverage note said
+        the AEO/AEO-S column is focused on "the information-systems-security
+        requirement area", which HMRC section 11 does not have. The note
+        now names the organization's IT scoping and section 11.2."""
+        rows = [line for line in self._lines(self.COMPLIANCE_MATRIX)
+                if line.startswith("| AEO/AEO-S | Focused on")]
+        self.assertEqual(len(rows), 1, rows)
+        self.assertNotIn("information-systems-security", rows[0])
+        self.assertIn(
+            "Focused on the organization's IT scoping of the security and "
+            "safety criteria (the held HMRC handbook section 11 names no "
+            "information systems security requirement area, only the "
+            "computer system as an area the security and safety risk "
+            "assessment is to address, §11.2)", rows[0])
+
+    # A submission to HMRC, in the forms the corpus used: no held HMRC line
+    # (section 11, 183 lines) matches "submission" or "submit". Only the
+    # verb submit and the noun submission are matched; other verbs (files
+    # with HMRC, sent to HMRC) are not.
+    _HMRC_SUBMISSION = re.compile(
+        r"(?i)submi(?:ssion|tted|ts?) to HMRC|HMRC submission"
+        r"|\bAEO(?:-S)?(?: self-assessment)? submission"
+        r"|self-assessment submission")
+
+    # The words a denied duty's noun phrase may carry between the negation
+    # and the match. The list is closed, so the guard fails closed: a verb
+    # or a subordinate clause between them ("no personal data remains before
+    # the package is submitted to HMRC") ends the negation's reach. Round 8
+    # (review round 3, claude NOTE 1): a bare "and" joined a second clause
+    # ("name no annual self-assessment and AEO self-assessment submission is
+    # due"), so only "or" joins the denied nouns.
+    _DENIED_DUTY_WORDS = (r"(?:(?:annual|periodic|yearly|formal|mandatory"
+                          r"|separate|such|hmrc|aeo(?:-s)?|self-assessment"
+                          r"|or)\s+)*")
+    # "name no ... submission", "does not name a ... submission". A bare
+    # "no" does not count: "no submission to HMRC may contain" presupposes
+    # the submission.
+    _DENIED_NOUN_BEFORE = re.compile(
+        r"(?i)(?:\b(?:names?|sets?|requires?|records?|holds?|states?|imposes?"
+        r"|mentions?|lists?)\s+no"
+        r"|\bnot\s+(?:name|set|require|record|hold|state|impose|mention|list)"
+        r"(?:\s+(?:a|an|any))?)\s+" + _DENIED_DUTY_WORDS + r"$")
+    # "is not submitted to HMRC", "does not submit to HMRC".
+    _DENIED_VERB_BEFORE = re.compile(
+        r"(?i)\b(?:is|are|was|were|do|does|did)\s+not\s+$")
+    # "a submission to HMRC each year is not confirmed by a held source".
+    # Round 8 (review round 3, claude NOTE 1): the denial ends at a clause
+    # boundary (a full stop, semicolon, colon, closing parenthesis, table
+    # cell edge or the end of the line), so "is not required to be signed"
+    # no longer counts as "is not required"; and, as before the match, a
+    # bare "and" no longer joins the words between.
+    _DENIED_AFTER = re.compile(
+        r"(?i)^(?:\s+(?:window|deadline|cycle|requirement|obligation|or"
+        r"|each|year|annual|annually|set|by|hmrc))*\s+(?:is|are|was|were)\s+"
+        r"not\s+(?:confirmed\s+by\s+a\s+held\s+source|named|recorded|required)"
+        r"\s*(?:[.;:)|]|$)")
+
+    @classmethod
+    def _negated(cls, line, match):
+        """Whether a negation governs this match of _HMRC_SUBMISSION: a
+        denial of that duty in the same clause, as in "name no annual
+        self-assessment or submission to HMRC" or "a submission to HMRC is
+        not confirmed". An unrelated no or not elsewhere in the sentence
+        does not count."""
+        before, after = line[:match.start()], line[match.end():]
+        if cls._DENIED_AFTER.search(after):
+            return True
+        if match.group(0).lower().startswith("submit"):
+            return bool(cls._DENIED_VERB_BEFORE.search(before))
+        return bool(cls._DENIED_NOUN_BEFORE.search(before))
+
+    def test_no_md_line_attributes_an_unheld_hmrc_duty(self):
+        """Round 4, class-wide: no line of any .md file keeps one of the
+        removed forms, each a duty HMRC section 11 does not hold: incident
+        reporting or notification to HMRC as an AEO-S requirement, an HMRC
+        submission deadline, window, requirements or guidance, a periodic
+        self-assessment against the HMRC criteria, or AEO-S specifically
+        requiring cybersecurity controls.
+
+        Round 5 (claude ERROR 1 and NOTE 11): the guard matched only "HMRC
+        submission" followed by deadline, window, requirements or guidance,
+        so five sentences of the UK procedure that state a submission to
+        HMRC passed. It now matches the claim where it uses the verb submit
+        or the noun submission (submission, submits or submitted to HMRC,
+        HMRC submission, an AEO or AEO-S submission, a self-assessment
+        submission; other verbs, such as files with or sent to HMRC, are not
+        matched) and allows it only where its own clause denies it. Round 6
+        (claude WARN 1): that allowance accepted any no or not earlier in
+        the sentence; only a negation that governs the matched duty now
+        counts (_negated). Round 8 (review round 3, claude NOTE 1): a
+        denial after the match ends at a clause boundary, and a bare and no
+        longer carries a denial into the next clause."""
+        stale = re.compile(
+            r"AEO-S: Incident reporting to HMRC"
+            r"|HMRC(?:-specific)? (?:incident )?notification supplement"
+            r"|periodic self-assessment against"
+            r"|AEO-?S \([^)]*\) specifically requires")
+        found = [f"{rel}:{number}" for rel, number, line in self._md_lines()
+                 if stale.search(line)]
+        self.assertEqual(found, [])
+        submissions = [
+            f"{rel}:{number}" for rel, number, line in self._md_lines()
+            for match in self._HMRC_SUBMISSION.finditer(line)
+            if not self._negated(line, match)]
+        self.assertEqual(submissions, [])
+
+    def test_hmrc_submission_guard_catches_each_form(self):
+        """Round 5: the widened guard catches each sentence claude ERROR 1
+        listed and the UK annex sentence claude NOTE 8 named, as they read
+        at a494f11a8, and lets through the denials the corpus keeps. Round
+        6 (claude WARN 1): it also catches a claim that follows an unrelated
+        no or not, starting with claude's flip sentence, and it lets through
+        a denial only where the denial governs the duty. Round 8 (review
+        round 3, claude NOTE 1): it catches claude's two sentences, one
+        whose denial a bare and carried into the next clause and one whose
+        "is not required" ran on past the clause."""
+        stated = (
+            "Legal confirms that no personal data remains before the "
+            "package is submitted to HMRC each year.",
+            "The package is not final until it is submitted to HMRC.",
+            "Legal names no individual before the AEO-S submission is made.",
+            "The package is not confirmed until the HMRC submission goes "
+            "out.",
+            "No submission to HMRC may contain personal data.",
+            "It integrates the IT evidence package into the overall "
+            "submission and manages the HMRC submission process.",
+            "The IT evidence package submitted to HMRC must not contain:",
+            "and for managing the submission to HMRC.",
+            "as submitted (the version integrated into the HMRC submission)",
+            "conducts an audit of the IT elements of the AEO-S submission,",
+            "for inclusion in the overall AEO self-assessment submission.",
+            # Round 8 (review round 3, claude NOTE 1).
+            "The held criteria name no annual self-assessment and AEO "
+            "self-assessment submission is due each December.",
+            "A submission to HMRC is not required to be signed; it is due in "
+            "Q4.")
+        for text in stated:
+            with self.subTest(text=text[:40]):
+                self.assertTrue(any(
+                    not self._negated(text, match)
+                    for match in self._HMRC_SUBMISSION.finditer(text)))
+        denied = (
+            "the held HMRC criteria (UK HMRC AEO security and safety "
+            "criteria handbook, section 11) name no annual self-assessment "
+            "or submission to HMRC.",
+            "The held HMRC criteria name no periodic self-assessment or "
+            "self-assessment submission.",
+            "section 11), which name no periodic self-assessment submission "
+            "(see section 1.1)",
+            "The handbook does not name a submission to HMRC.",
+            "The package is not submitted to HMRC.",
+            "A submission to HMRC each year is not confirmed by a held "
+            "source.",
+            "A submission to HMRC is not required; confirm with HMRC.")
+        for text in denied:
+            with self.subTest(text=text[:40]):
+                matches = list(self._HMRC_SUBMISSION.finditer(text))
+                self.assertTrue(matches)
+                self.assertTrue(all(self._negated(text, match)
+                                    for match in matches))
+
+    def test_uk_procedure_hands_the_package_to_the_audit(self):
+        """Round 5 (claude ERROR 1): the UK procedure's governance,
+        anonymization, handoff, retention and audit-response sections said
+        the AEO Compliance function manages "the HMRC submission process",
+        that the package is "submitted to HMRC", and that HMRC audits "the
+        AEO-S submission". The held criteria name no submission to HMRC:
+        procedures are made available for HMRC during the audit of the AEO
+        criteria (section 11.1, line 19) and documentation is verified
+        during the AEO audit (section 11.3, line 50). Each sentence now
+        says that."""
+        text = "\n".join(self._lines(self.UK_PROCEDURE))
+        for new in (
+                "It integrates the IT evidence package into the overall "
+                "self-assessment and holds the result as part of the "
+                "documentation the organization makes available for HMRC "
+                "during the audit of the AEO criteria (section 11.1).",
+                "The IT evidence package, which the AEO Compliance function "
+                "may make available for HMRC during the audit of the AEO "
+                "criteria (section 11.1), must not contain:",
+                "and for making it available for HMRC during the audit of "
+                "the AEO criteria (section 11.1).",
+                "as submitted to the AEO Compliance function (the version "
+                "integrated into the organization's AEO-S self-assessment)",
+                "If HMRC requests follow-up information on the IT elements "
+                "of the organization's AEO-S self-assessment, or verifies "
+                "their documentation during the AEO audit (section 11.3), "
+                "the CISO coordinates the response."):
+            with self.subTest(new=new[:40]):
+                self.assertIn(new, text)
+
+    # Round 11 (review round 6, claude NOTE 1): both citation matchers
+    # ignore case. _SECTION_11_12 ignoring case means a sentence-initial
+    # "Section 11.12" is read. Round 12 (review round 7, claude WARN 1,
+    # codex NOTE 1, agy NOTE): _CITATION ignoring case lets a capitalized
+    # neighbouring citation ("(Section 11.8)") end the stretch the guard
+    # reads; _CITATION never decides whether a section 11.12 citation is
+    # read, since the guard skips the citation it is checking.
+    _SECTION_11_12 = re.compile(r"(?:§|section )11\.12\b", re.IGNORECASE)
+    # A clause ends at a semicolon, a table cell edge or a full stop that
+    # ends a sentence; a sentence ends at the last two only. A full stop
+    # inside a section number (11.12) ends neither.
+    _CLAUSE_END = re.compile(r"[;|]|\.(?=\s|$)")
+    _SENTENCE_END = re.compile(r"\||\.(?=\s|$)")
+    # A comma segment ends where a clause ends or at a comma, except a
+    # comma that opens an "including" phrase, which qualifies the item
+    # before it ("what action should be taken, including reporting to law
+    # enforcement/senior management", held line 122).
+    _SEGMENT_END = re.compile(r"[;|]|\.(?=\s|$)|,(?!\s+including\b)")
+    # A citation of a numbered provision (§11.8, section 11).
+    _CITATION = re.compile(r"(?:§|section )\d+(?:\.\d+)*", re.IGNORECASE)
+    # Round 10 (review round 5, claude WARN 1, codex WARN, agy NOTE): a
+    # comma followed by one of these joins a new clause, so the stretch
+    # back from a section 11.12 citation, and the part of its parenthetical
+    # before it, stop there. Round 11 (review round 6, claude NOTE 2):
+    # whilst, though and because join too, and so does a colon. Round 12
+    # (review round 7, claude NOTE 3): only a colon followed by whitespace
+    # joins (:(?=\s)), so a colon inside a URL ("https://") or a time
+    # ("09:30") does not cut a correctly scoped stretch. A citation that
+    # directly follows a comma ("..., §11.12 requires") heads its own
+    # comma segment, so its stretch back is empty too; its parenthetical
+    # keeps the part before it ("(cargo units only, §11.12: ...)", the
+    # supply matrix's Incident Reporting cell). The guard reads words, not
+    # meaning, and still does not catch: a clause joined with no comma
+    # ("... senior management and §11.12 requires reporting to HMRC"),
+    # with a dash ("... senior management - §11.12 requires") or with a
+    # colon that no whitespace follows ("... senior management:§11.12
+    # requires"); a comma followed by a joining word not listed here (nor,
+    # plus, with, which); a comma followed by any other word before the
+    # citation ("..., handbook §11.12 requires", "..., HMRC's §11.12
+    # requires"), which the direct-comma rule does not reach; a sentence
+    # ended by ? or !, or by a full stop followed by a bracket, quote or
+    # <br> ("... senior management? Section 11.12 requires reporting to
+    # HMRC."), which ends no clause or sentence (_CLAUSE_END,
+    # _SENTENCE_END), so the scope and recipients, or the section 11.8
+    # citation, of the sentence before still count; a scope and
+    # recipients before a comma that directly precedes the citation inside
+    # one parenthetical ("(for cargo units, law enforcement or senior
+    # management, §11.12 requires reporting to HMRC)"); a scope and
+    # recipients borrowed from a later clause inside the same parenthetical
+    # ("(§11.12 requires reporting to HMRC, whilst for cargo units reports
+    # go to law enforcement or senior management)"), since the part of the
+    # parenthetical after the citation stops only at a neighbouring
+    # citation; a citation whose own comma segment names the scope and
+    # recipients while also stating an unheld duty; and a citation that
+    # _SECTION_11_12 does not read, such as § 11.12 with a space, section
+    # followed by a tab or two spaces, Sec. 11.12, sections 11.8 and 11.12,
+    # a bare 11.12, a no-break space after section, or a citation wrapped
+    # across two lines, which neither section 11.12 guard sees.
+    _CLAUSE_JOIN = re.compile(
+        r",\s+(?:and|but|or|so|yet|while|whilst|whereas|although|though"
+        r"|because)\b|:(?=\s)")
+
+    @staticmethod
+    def _span_around(line, match, ends):
+        """The (start, end) of line between the nearest end before match
+        and the nearest end after it."""
+        bounds = [end.span() for end in ends.finditer(line)]
+        left = max([stop for _, stop in bounds if stop <= match.start()],
+                   default=0)
+        right = min([start for start, _ in bounds if start >= match.end()],
+                    default=len(line))
+        return left, right
+
+    @classmethod
+    def _unit_around(cls, line, match, ends):
+        """The text of line between the nearest end before match and the
+        nearest end after it."""
+        left, right = cls._span_around(line, match, ends)
+        return line[left:right]
+
+    @staticmethod
+    def _parenthetical_around(line, match):
+        """The (start, end) of the text inside the innermost parentheses
+        around match, or None when match is in none."""
+        depth = 0
+        for opened in range(match.start() - 1, -1, -1):
+            if line[opened] == ")":
+                depth += 1
+            elif line[opened] == "(":
+                if not depth:
+                    break
+                depth -= 1
+        else:
+            return None
+        depth = 0
+        for closed in range(match.end(), len(line)):
+            if line[closed] == "(":
+                depth += 1
+            elif line[closed] == ")":
+                if not depth:
+                    return opened + 1, closed
+                depth -= 1
+        return opened + 1, len(line)
+
+    @classmethod
+    def _section_11_12_units(cls, line, match):
+        """The stretches of line that bind words to this section 11.12
+        citation, each within its clause: its comma segment, the stretch
+        from the previous citation (or the clause start, or the last
+        _CLAUSE_JOIN) to it, and its innermost parenthetical between the
+        neighbouring citations and after the last _CLAUSE_JOIN."""
+        left, right = cls._span_around(line, match, cls._CLAUSE_END)
+        others = [other.span() for other in cls._CITATION.finditer(line)
+                  if other.start() != match.start()]
+        previous = max([stop for _, stop in others
+                        if left <= stop <= match.start()], default=left)
+        following = min([start for start, _ in others
+                         if match.end() <= start <= right], default=right)
+        joined = max([previous] + [join.end() for join in
+                                   cls._CLAUSE_JOIN.finditer(
+                                       line, 0, match.start())])
+        back = joined
+        if line[:match.start()].rstrip().endswith(","):
+            back = match.start()
+        units = [cls._unit_around(line, match, cls._SEGMENT_END),
+                 line[back:match.start()]]
+        inside = cls._parenthetical_around(line, match)
+        if inside is not None:
+            units.append(line[max(inside[0], joined):
+                              min(inside[1], following)])
+        return units
+
+    @classmethod
+    def _unscoped_11_12_citations(cls, line):
+        """The section 11.12 citations on this line none of whose own
+        stretches (_section_11_12_units) names both cargo units and the
+        two recipients."""
+        found = []
+        for match in cls._SECTION_11_12.finditer(line):
+            if not any(re.search(r"(?i)cargo units?", unit)
+                       and "law enforcement or senior management" in unit
+                       for unit in cls._section_11_12_units(line, match)):
+                found.append(match.start())
+        return found
+
+    @classmethod
+    def _section_11_12_without_11_8(cls, line):
+        """The section 11.12 citations on this line whose own sentence,
+        within its table cell, does not also give section 11.8 and its
+        "reported and dealt with"."""
+        found = []
+        for match in cls._SECTION_11_12.finditer(line):
+            sentence = cls._unit_around(line, match, cls._SENTENCE_END)
+            if not ("§11.8" in sentence
+                    and "reported and dealt with" in sentence):
+                found.append(match.start())
+        return found
+
+    def test_section_11_12_guards_read_the_citing_clause(self):
+        """Round 8 (review round 3, claude WARN 1, class-wide audit): the
+        two section 11.12 guards counted the cargo-unit scope, the
+        recipients and the section 11.8 citation anywhere on the line. Each
+        now reads the citation's own clause (scope and recipients) or
+        sentence within its table cell (section 11.8). Round 9 (review
+        round 4, codex WARN 1 and claude NOTE 1): the clause did not end at
+        a comma, so a comma-joined neighbouring citation supplied the scope
+        or the recipients. They must now sit in the citation's own comma
+        segment or parenthetical, or between it and the previous citation
+        (_section_11_12_units); codex's and claude's sentences are
+        caught. Round 10 (review round 5, claude WARN 1, codex WARN, agy
+        NOTE): a scope and recipients in an earlier comma-joined clause
+        still counted. The stretch back and the parenthetical's part before
+        the citation now stop at a comma followed by a joining conjunction
+        (_CLAUSE_JOIN), and a citation that directly follows a comma takes
+        nothing from before it. The review's three sentences are caught,
+        with the elided all IT incidents sentence written out, as are the
+        same join inside a parenthetical and the first sentence with each
+        joining conjunction. Round 11 (review round 6, claude NOTE 1 and
+        NOTE 2): a sentence-initial "Section 11.12" was read by neither
+        guard, and a colon, whilst, though and because did not join; the
+        capitalized sentence, the review's colon sentence and the first
+        sentence with each added conjunction are caught. Round 12 (review
+        round 7, claude WARN 1, codex NOTE 1, agy NOTE): no case needed
+        _CITATION to ignore case; claude's and codex's sentences with a
+        capitalized "(Section 11.8)" before §11.12 are caught. Round 12
+        (claude NOTE 3): any colon cut the stretch; claude's sentence with
+        a colon inside a URL, on an allow-listed domain, is kept by the
+        scope guard."""
+        unscoped = (
+            "For cargo units, reports go to law enforcement or senior "
+            "management, and section 11.12 requires reporting to HMRC.",
+            "For cargo units (law enforcement or senior management), §11.12 "
+            "also requires reporting to HMRC.",
+            "For cargo units, reports go to law enforcement or senior "
+            "management, while §11.12 requires all IT incidents to be "
+            "reported to HMRC.",
+            "HMRC sets no IT control (for cargo units, reports go to law "
+            "enforcement or senior management, and §11.12 requires "
+            "reporting to HMRC).",
+            "HMRC section 11.12 requires incident reporting to HMRC; for "
+            "cargo units, reports go to law enforcement or senior "
+            "management.",
+            "| IT-5 | reporting to HMRC (§11.12) | for cargo units, "
+            "reporting to law enforcement or senior management |",
+            "For cargo units, the organization records how security "
+            "incidents are reported and dealt with under §11.8 and reports "
+            "to law enforcement or senior management, while §11.12 requires "
+            "all IT incidents to be reported to HMRC.",
+            "HMRC requires incident reporting to HMRC (§11.12), and for "
+            "cargo units reporting to law enforcement or senior management "
+            "(§11.8).",
+            "Section 11.12 requires reporting to HMRC.",
+            "For cargo units, law enforcement or senior management: §11.12 "
+            "requires reporting to HMRC.",
+            "For cargo units, law enforcement or senior management (Section "
+            "11.8) and §11.12 requires reporting to HMRC.",
+            "For cargo units, law enforcement or senior management (Section "
+            "11.8), handbook §11.12 requires reporting to HMRC.")
+        for text in unscoped:
+            with self.subTest(text=text[:40]):
+                self.assertTrue(self._unscoped_11_12_citations(text))
+        for join in ("and", "but", "or", "so", "yet", "while", "whereas",
+                     "although", "whilst", "though", "because"):
+            text = ("For cargo units, reports go to law enforcement or senior "
+                    f"management, {join} section 11.12 requires reporting to "
+                    "HMRC.")
+            with self.subTest(join=join):
+                self.assertTrue(self._unscoped_11_12_citations(text))
+        without = (
+            "| IT-5 | incidents are reported to HMRC (§11.12, cargo "
+            "security) | §11.8 asks how incidents are reported and dealt "
+            "with |",
+            "HMRC section 11.12 names the recipient. Separately, §11.8 "
+            "asks how security incidents are reported and dealt with.",
+            "Section 11.12 requires reporting to HMRC.")
+        for text in without:
+            with self.subTest(text=text[:40]):
+                self.assertTrue(self._section_11_12_without_11_8(text))
+        kept = (
+            "| IT-5 Incident Response | AEO-S: security procedures reviewed "
+            "and amended after an incident (handbook §11.4); how security "
+            "incidents are reported and dealt with, with no recipient named "
+            "(§11.8, building and boundary security); for cargo units, "
+            "procedures for how incidents are reported and recorded and what "
+            "action is to be taken, including reporting to law enforcement "
+            "or senior management (§11.12, cargo security); the organization "
+            "maps these |",
+            "| CYB-6 | reviewed after an incident (handbook §11.4), how "
+            "security incidents are reported and dealt with (§11.8, building "
+            "and boundary security) and, for cargo units, the action to be "
+            "taken on an incident, including reporting to law enforcement or "
+            "senior management (§11.12, cargo security); CBSA supplement |",
+            "| Information Technology | none (handbook §11.4 expects review, "
+            "§11.8, on building and boundary security, asks how security "
+            "incidents are reported and dealt with, and §11.12, on cargo "
+            "security, expects procedures for cargo units that say what "
+            "action is to be taken, including reporting to law enforcement "
+            "or senior management); UK data protection law compliance |",
+            "They name none: §11.8 asks how security incidents are reported "
+            "and dealt with, and §11.12 (cargo security) expects procedures "
+            "for cargo units that say what action is to be taken, including "
+            "reporting to law enforcement or senior management.")
+        for text in kept:
+            with self.subTest(text=text[:40]):
+                self.assertEqual(self._unscoped_11_12_citations(text), [])
+                self.assertEqual(self._section_11_12_without_11_8(text), [])
+        # Kept by the scope guard only: it gives no section 11.8, which the
+        # other guard reads. Claude's example.org is replaced by an
+        # allow-listed domain (tools/lint-external-link-domains.py).
+        scoped = (
+            "For cargo units (see https://www.gov.uk), reports go to law "
+            "enforcement or senior management (§11.12, cargo security).",)
+        for text in scoped:
+            with self.subTest(scoped=text[:40]):
+                self.assertEqual(self._unscoped_11_12_citations(text), [])
+
+    def test_section_11_12_citations_keep_cargo_scope_and_recipients(self):
+        """Round 5 (claude WARN 4 and codex ERROR 1, resolved together):
+        HMRC section 11.12 is "Cargo security" (held line 112); its
+        incident procedures are for cargo units (line 113) and name
+        reporting "to law enforcement/senior management" (line 122). The
+        CTPAT IT register, the PIP register, the MSC register and the
+        supply chain matrix cited it as an incident-reporting provision
+        without that scope, and the matrix marked Incident Reporting to
+        Authority Not confirmed for AEO-S. Every .md line that cites
+        section 11.12 now names cargo units and both recipients. Round 8
+        (review round 3, claude WARN 1, class-wide audit): the scope and the
+        recipients counted anywhere on the line; each citation must now
+        carry them in its own clause (_unscoped_11_12_citations). Round 9
+        (review round 4, codex WARN 1 and claude NOTE 1): within the
+        clause, in the citation's own comma segment or parenthetical, or
+        between it and the previous citation (_section_11_12_units). Round
+        10 (review round 5, claude WARN 1, codex WARN, agy NOTE): not before
+        a comma that joins a new clause (_CLAUSE_JOIN) and, outside a
+        parenthetical, not before a comma that directly precedes it. Round
+        11 (review round 6, claude NOTE 1 and NOTE 2; narrowed in round 12,
+        review round 7, claude NOTE 3 and NOTE 4): the join also matches a
+        colon followed by whitespace, and citations are read without regard
+        to case."""
+        lines = [(rel, number, line)
+                 for rel, number, line in self._md_lines()
+                 if self._SECTION_11_12.search(line)]
+        self.assertTrue(lines)
+        for rel, number, line in lines:
+            with self.subTest(at=f"{rel}:{number}"):
+                self.assertEqual(self._unscoped_11_12_citations(line), [])
+        cited = {rel for rel, _, _ in lines}
+        self.assertLessEqual({self.IT_REGISTER, self.PIP_REGISTER,
+                              self.MSC_REGISTER, self.SUPPLY_MATRIX}, cited)
+
+    # Round 8 (review round 3, codex NOTE): the summary that attributed the
+    # contract requirements to the providers rather than to the business
+    # (HMRC section 11.14, held line 143).
+    _PROVIDERS_REQUIREMENTS = ("providers whose requirements a business "
+                               "should state in its contracts")
+
+    def test_ctpat_it_register_cites_section_11_14_for_third_parties(self):
+        """Round 5 (claude NOTE 6): the IT register said the HMRC criteria
+        "name the computer system only as" a risk-assessment area and gave
+        its IT-8 third-party row no held anchor, while section 11.14 lists
+        software providers among external service providers (held line
+        141) and expects requirements in contracts (line 143). The lead-in
+        and the IT-8 row now cite section 11.14. Round 8 (review round 3,
+        codex NOTE): the lead-in made the requirements the providers'
+        ("whose requirements"); held line 143 makes them the business's, as
+        the IT-8 row says, and the lead-in now says so too."""
+        lines = self._lines(self.IT_REGISTER)
+        text = "\n".join(lines)
+        self.assertNotIn("name the computer system only as", text)
+        self.assertIn(
+            "and list software providers among the external service "
+            "providers and expect the business's requirements to be stated "
+            "in contracts (section 11.14), the held provision nearest to the "
+            "IT-8 row.", text)
+        self.assertNotIn(self._PROVIDERS_REQUIREMENTS, text)
+        rows = [line for line in lines
+                if line.startswith("| IT-8 Third-Party Controls |")]
+        self.assertEqual(len(rows), 1, rows)
+        self.assertIn("handbook §11.14 lists software providers among "
+                      "external service providers", rows[0])
+
+    def test_supply_matrix_aeo_s_benefits_are_qualified(self):
+        """Round 5 (claude NOTE 9): the supply chain matrix's AEO-S row gave
+        "Reduced customs examinations; priority treatment at UK ports;
+        facilitated imports/exports" as settled benefits, while the held
+        HMRC section 11 records none and the Compendium's United Kingdom
+        entry leaves "11) Benefits" empty (held line 6065). The cell now
+        says so, as the UK annex does. Round 8 (review round 3, claude NOTE
+        2): as in the UK annex, the cell now says the UK entry names the
+        European Union programme (line 6031), whose benefits (lines 4970 to
+        4983) are not confirmed for the current UK programme."""
+        cell = self._matrix_cell("| **AEO-S**:", 5)
+        self.assertEqual(
+            cell, "Not confirmed by a held source: the benefits are not "
+            "recorded in the held HMRC criteria (handbook section 11); the "
+            "WCO AEO Compendium (2020) United Kingdom entry lists none and "
+            "names the European Union programme, whose benefits under the "
+            "Union Customs Code are not confirmed for the current UK "
+            "programme; confirm with HMRC")
+        self.assertNotIn(self._UK_BENEFITS_TOO_BROAD,
+                         "\n".join(self._lines(self.SUPPLY_MATRIX)))
+        self.assertNotIn("priority treatment at UK ports",
+                         "\n".join(self._lines(self.SUPPLY_MATRIX)))
+
+    # Every held line this class cites by number, with text it carries,
+    # counted on LF alone (codex WARN 2 counted with str.splitlines(),
+    # which also breaks on the BASC Norm's 19 form feeds and on the
+    # Compendium's other separators, and so read clause 1.1 e at 332, the
+    # WBO line at 145 and the US-table date at 12965).
+    _HELD_CITATIONS = (
+        (BASC_NORM, 26, "0.2 Foreword"),
+        (BASC_NORM, 134, "0.1"),
+        (BASC_NORM, 136, "Prologue"),
+        (BASC_NORM, 250, "Foreword"),
+        (BASC_NORM, 143, "The World BASC Organization (WBO), also known as "
+                         "BASC, is a member-led"),
+        (BASC_NORM, 148, "It also enjoys cooperation"),
+        (BASC_NORM, 149, "agreements with 22 business and customs "
+                         "organizations, including the World Customs"),
+        (BASC_NORM, 150, "Organization (WCO)"),
+        (BASC_NORM, 326, "e) Implement and complement programs such as "
+                         "CTPAT, Authorized Economic"),
+        (BASC_NORM, 327, "Operator (AEO), and others."),
+        (BASC_NORM, 370, "2"),
+        (BASC_NORM, 372, "NORMATIVE REFERENCES"),
+        (BASC_NORM, 390, "Framework of Standards - World Customs "
+                         "Organization"),
+        (BASC_603, 513, "5.2"),
+        (BASC_603, 515, "Cybersecurity and information technology"),
+        (BASC_603, 527, "e) Use individually assigned accounts with unique "
+                        "credentials"),
+        (BASC_603, 531, "f) Limit user access and permissions according to "
+                        "assigned functions"),
+        (BASC_603, 555, "m) Evaluate IT infrastructure (hardware and "
+                        "software) security at least yearly"),
+        (COMPENDIUM, 411, "AEO programmes based on"),
+        (COMPENDIUM, 412, "the WCO SAFE Framework of Standards (Part I)"),
+        (COMPENDIUM, 497, "Authorized Economic Operator (AEO) Programme"),
+        (COMPENDIUM, 594, "Operador Económico Autorizado \u2013 OEA"),
+        (COMPENDIUM, 1101, "AEO Programme"),
+        (COMPENDIUM, 1102, "(Programa OEA)"),
+        (COMPENDIUM, 1195, "Authorized Economic Operator (AEO)"),
+        (COMPENDIUM, 1743, "(OEA-SV)"),
+        (COMPENDIUM, 1744, "El Salvador Authorized Economic Operator"),
+        (COMPENDIUM, 2037, "1) Programme Title"),
+        (COMPENDIUM, 2038, "Authorized Economic Operator"),
+        (COMPENDIUM, 2065, "operador-economico-"),
+        (COMPENDIUM, 2066, "autorizado"),
+        (COMPENDIUM, 2086, "certified companies"),
+        (COMPENDIUM, 2134, "Assignment of an OEA specialist."),
+        (COMPENDIUM, 2228, "certified companies"),
+        (COMPENDIUM, 2411, "Authorized Economic Operator"),
+        (COMPENDIUM, 2573, "United States"),
+        (COMPENDIUM, 2577, "Customs"),
+        (COMPENDIUM, 2578, "Trade Partnership against Terrorism (CTPAT)"),
+        (COMPENDIUM, 4866, "European Union"),
+        (COMPENDIUM, 4870, "EU Authorised Economic Operator (AEO) Programme"),
+        (COMPENDIUM, 4970, "11) Benefits"),
+        (COMPENDIUM, 4971, "Union Customs Code"),
+        (COMPENDIUM, 4975, "Fewer physical and document-based controls;"),
+        (COMPENDIUM, 4983, "Mutual recognition with third countries."),
+        (COMPENDIUM, 2619, "10) Accreditation"),
+        (COMPENDIUM, 2629, "11) Benefits"),
+        (COMPENDIUM, 6027, "United Kingdom"),
+        (COMPENDIUM, 6031, "AEO (European Union Programme)"),
+        (COMPENDIUM, 6065, "11) Benefits"),
+        (COMPENDIUM, 7681, "certified companies"),
+        (COMPENDIUM, 12953, "European Union, May, 2012"),
+        (COMPENDIUM, 13502, "USA \u2013July 2012"),
+        (COMPENDIUM, 14700, "June 2008"),
+        (COMPENDIUM, 14701, "Canada \u2013 US"),
+        (COMPENDIUM, 14774, "May 2012"),
+        (COMPENDIUM, 14775, "EU \u2013 US"),
+        (COMPENDIUM, 14976, "US \u2013 United Kingdom"),
+        (MXCA_GUIDE, 89, "These standards are aligned with the SAFE "
+                         "Framework"),
+        (MXCA_GUIDE, 91, "In Mexico, the program is known as Authorized "
+                         "Economic Operator."),
+        (HELD_SAFE, 4, "CTPAT, PIP, and EU AEO"),
+        (HELD_SAFE, 139, "Pillar 2 \u2013 Customs-to-Business"),
+        (HELD_SAFE, 3432, "Mutual recognition is a broad concept whereby"),
+        (HELD_SAFE, 3438, "administration."),
+        (HELD_SAFE, 4535, "Pillar II (Customs-to-Business Partnerships)"),
+        (BRAZIL_OEA, 7, "PROGRAMA BRASILEIRO DE OEA"),
+        (BRAZIL_OEA, 97, "Programa Brasileiro de OEA"),
+        (ANPD_COOKIES, 47, "Autoridade Nacional de Proteção de Dados"),
+        (ANPD_COOKIES, 128, "Lei nº"),
+        (ANPD_COOKIES, 129, "13.709, de 14 de agosto de 2018"),
+        (ANPD_COOKIES, 130, "soais (lgpd)"),
+        (HELD_LGPD, 15, "LEI Nº 13.709, DE 14 DE AGOSTO DE 2018"),
+        (HELD_LGPD, 25, "Lei Geral de Proteção de Dados Pessoais (LGPD)."),
+        (HELD_LGPD, 1879, "Art. 55-A."),
+        (HELD_LGPD, 1880, "Autoridade Nacional de Proteção de Dados (ANPD)"),
+        (HELD_LGPD, 1941, "Art. 55-A. Fica criada a Autoridade Nacional"),
+        (HELD_LGPD, 1970, "Fica criada a Agência Nacional de"),
+        (HELD_LGPD, 1981, "pela Medida Provisória nº 1.317, de 2025)"),
+        (HELD_LGPD, 1984, "Art. 55-A. Fica criada a Agência Nacional de"),
+        (HELD_LGPD, 1985, "Proteção de Dados (ANPD)"),
+        (HELD_LGPD, 2045, "pela Lei nº 15.452, de 2026)"),
+        (MARCO_CIVIL, 26, "Art. 1º Esta Lei estabelece princípios, "
+                          "garantias, direitos e deveres"),
+        (DC_200, 116, "There are two types of SOC 2 examinations (type 1 "
+                      "and type 2)"),
+        (AAG_SOP, 184, "system and organization controls"),
+        (AAG_SOP, 185, "(SOC)"),
+        (AAG_SOP, 196, "This engagement is referred to as SOC 2"),
+        (AAG_SOP, 197, "Service Organizations: Trust Services Criteria."),
+        (HELD_HMRC, 10, "Authorised Economic Operator Criteria"),
+        (HELD_HMRC, 13, "the tests that HMRC will carry out"),
+        (HELD_HMRC, 16, "AEOS"),
+        (HELD_HMRC, 19, "All procedures should be documented and made "
+                        "available for HMRC during the audit of the"),
+        (HELD_HMRC, 23, "11.2 Security and safety risk assessment"),
+        (HELD_HMRC, 25, "A self-assessment should be carried out by a person "
+                        "with extensive knowledge"),
+        (HELD_HMRC, 33, "Such an assessment should address:"),
+        (HELD_HMRC, 38, "computer system, accounting records and documents"),
+        (HELD_HMRC, 40, "11.3 Controls and measures"),
+        (HELD_HMRC, 50, "Businesses must be able to produce documentation "
+                        "showing the measures and controls put in place"),
+        (HELD_HMRC, 56, "the security procedures to have been reviewed and "
+                        "amended"),
+        (HELD_HMRC, 57, "11.5 Building security"),
+        (HELD_HMRC, 59, "11.6 Access to premises"),
+        (HELD_HMRC, 62, "11.7 Personnel security"),
+        (HELD_HMRC, 79, "11.8 Building and boundary security"),
+        (HELD_HMRC, 84, "how security incidents are reported and dealt with"),
+        (HELD_HMRC, 86, "11.9 Access to business premises"),
+        (HELD_HMRC, 99, "11.10 Administration of keys"),
+        (HELD_HMRC, 105, "dealing with losses, failures to return keys"),
+        (HELD_HMRC, 112, "11.12 Cargo security"),
+        (HELD_HMRC, 113, "Cargo units (containers, swap bodies, transport "
+                         "boxes)"),
+        (HELD_HMRC, 121, "how incidents are reported and recorded"),
+        (HELD_HMRC, 122, "including reporting to law enforcement/senior "
+                         "management"),
+        (HELD_HMRC, 122, "what action should be taken"),
+        (HELD_HMRC, 132, "11.13 Business partner security"),
+        (HELD_HMRC, 140, "11.14 External service providers"),
+        (HELD_HMRC, 141, "software providers"),
+        (HELD_HMRC, 143, "requirements should be clearly stated in any "
+                         "contracts"),
+        (HELD_HMRC, 143, "The business’s’ requirements"),
+        (CTPAT_CHECKLIST, 4, "US Customs and Border Protection, CTPAT"),
+    )
+
+    def test_cited_held_lines_carry_their_text(self):
+        """Round 5 (codex WARN 2): the line numbers this class cites are
+        claims about the held extracts. Each is checked against its
+        extract, counting only LF as a line end; codex's three locators
+        (BASC clause 1.1 e at 326 to 327, the WBO at 143, the Compendium's
+        May 2012 at 12953) hold on that count and are kept."""
+        extracts = {}
+        for rel, number, excerpt in self._HELD_CITATIONS:
+            if rel not in extracts:
+                extracts[rel] = self._held_lines(rel)
+            with self.subTest(at=f"{rel.split('/')[-1][:30]}:{number}"):
+                self.assertIn(excerpt, extracts[rel][number - 1])
+
+    def test_incident_citations_also_give_section_11_8(self):
+        """Round 6 (claude NOTE 1): the IT-5 and CYB-6 rows, the MSC row and
+        the matrix narrative gave section 11.12 as the handbook's incident
+        reporting provision, though section 11.8 (held line 79) also asks
+        "how security incidents are reported and dealt with" (line 84),
+        not limited to cargo units and with no recipient named. Every .md
+        line citing section 11.12 now gives section 11.8 too, except the
+        matrix's Incident Reporting to Authority row, whose cell is about
+        reporting to a named recipient and keeps its cargo-unit scope.
+        Round 8 (review round 3, claude WARN 1, class-wide audit): section
+        11.8 counted anywhere on the line, so another table cell or another
+        sentence could supply it; it must now be in the citing sentence of
+        the same cell (_section_11_12_without_11_8). The supply chain
+        matrix's narrative refers back to the cargo security provision by
+        name, not by a second bare citation."""
+        lines = [(rel, number, line)
+                 for rel, number, line in self._md_lines()
+                 if self._SECTION_11_12.search(line)
+                 and not line.startswith(
+                     "| **Incident Reporting to Authority** |")]
+        self.assertLessEqual({self.IT_REGISTER, self.PIP_REGISTER,
+                              self.MSC_REGISTER, self.SUPPLY_MATRIX},
+                             {rel for rel, _, _ in lines})
+        for rel, number, line in lines:
+            with self.subTest(at=f"{rel}:{number}"):
+                self.assertEqual(self._section_11_12_without_11_8(line), [])
+        self.assertNotIn("Of these, only §11.12 names a recipient",
+                         "\n".join(self._lines(self.SUPPLY_MATRIX)))
+        self.assertTrue(self._matrix_cell(
+            "| **Incident Reporting to Authority** |", 3).startswith(
+                "~ (cargo units only, §11.12:"))
+
+    # HMRC section 11.7 "Personnel security - Pre-employment screening"
+    # (line 62); section 11.2's "computer system, accounting records and
+    # documents" (line 38). No held HMRC line matches retention or retain.
+    _UK_ANNEX_SCOPE = (
+        "This document addresses only the organization's IT and "
+        "cybersecurity scoping of the computer system area, of personnel "
+        "screening for IT access (section 11.7) and of records retention, "
+        "which it scopes from the accounting records and documents area "
+        "(section 11.2; section 11 does not name retention); section 11 does "
+        "not name information systems security as a criterion of its own.")
+
+    def test_uk_annex_scope_sentence_matches_its_table(self):
+        """Round 6 (claude NOTE 3): the UK annex's scope sentence said it
+        addresses only the computer system area, while its mapping table
+        has a personnel screening row and a trade records retention row.
+        The sentence now names both, and the table still holds them."""
+        section = self._section_lines(self.UK_ANNEX,
+                                      "## AEO programme context")
+        self.assertIn(self._UK_ANNEX_SCOPE, "\n".join(section))
+        table = "\n".join(self._section_lines(
+            self.UK_ANNEX, "## IT and cybersecurity controls mapping for "
+            "AEO-S"))
+        self.assertIn("Background screening", table)
+        self.assertIn("Trade records are retained", table)
+
+    _AUTHORISED = "Authorised Economic Operator"
+    # The only exempt spans, by file: the reference acquisition manifest's
+    # held-title cells (EU AEO Guidelines, HMRC handbook) and the audit
+    # programme specification's quoted programme name.
+    _AUTHORISED_EXEMPT = {
+        "docs/reference-acquisition-manifest.md": (
+            "| EU Authorised Economic Operator (AEO) Guidelines, "
+            "TAXUD/B2/047/2011 Rev.6 (2016) |",
+            "| HMRC Customs Technical Handbook, Authorised Economic "
+            "Operator: AEO Criteria, Security and Safety (AEOS only) "
+            "(updated 17 July 2025) |"),
+        "governance/specification-audit-programme.md": (
+            '"Authorised Economic Operator"',),
+    }
+
+    @classmethod
+    def _unexempt_authorised(cls, rel, line):
+        """The -ise programme spellings on this line of rel that no exempt
+        span of rel covers."""
+        spans = [(found.start(), found.end())
+                 for span in cls._AUTHORISED_EXEMPT.get(rel, ())
+                 for found in re.finditer(re.escape(span), line)]
+        return [match.start()
+                for match in re.finditer(re.escape(cls._AUTHORISED), line)
+                if not any(start <= match.start() < end
+                           for start, end in spans)]
+
+    def test_uk_programme_has_one_spelling_in_each_document(self):
+        """Round 6 (claude NOTE 4): the UK annex and the logistics README
+        mixed "Authorised" and "Authorized" for the same programme. The
+        convention is the library's -ize spelling everywhere; HMRC's own
+        -ise spelling (held line 10) stays only in a quotation or a quoted
+        title. Two documents keep it, for those reasons: the acquisition
+        manifest lists the held titles, and the audit programme
+        specification quotes the name the language lint allows. Round 9
+        (review round 4, codex NOTE and claude NOTE 2): the test exempted
+        both files whole, so a new unquoted occurrence in either passed.
+        Only the identified spans are exempt now (_AUTHORISED_EXEMPT): the
+        manifest's two held-title cells and the specification's quoted
+        name; each must still be present, and a new occurrence in either
+        file fails."""
+        found = [f"{rel}:{number}" for rel, number, line in self._md_lines()
+                 if self._unexempt_authorised(rel, line)]
+        self.assertEqual(found, [])
+        lines = {rel: "\n".join(self._lines(rel))
+                 for rel in self._AUTHORISED_EXEMPT}
+        for rel, spans in self._AUTHORISED_EXEMPT.items():
+            for span in spans:
+                with self.subTest(rel=rel, span=span[:40]):
+                    self.assertIn(span, lines[rel])
+        for rel, line in (
+                ("docs/reference-acquisition-manifest.md",
+                 "| UK AEO guidance | the Authorised Economic Operator "
+                 "scheme | HM Revenue and Customs |  | FREE |"),
+                ("governance/specification-audit-programme.md",
+                 "The Authorised Economic Operator programme is audited "
+                 "each year."),
+                ("compliance/logistics/README.md",
+                 '"Authorised Economic Operator"')):
+            with self.subTest(planted=f"{rel}: {line[:30]}"):
+                self.assertTrue(self._unexempt_authorised(rel, line))
+        spelled = self._AUTHORISED
+        self.assertNotIn(spelled, (REPO_ROOT / "taxonomy.yml").read_text(
+            encoding="utf-8"))
+        self.assertIn("### AEO (United Kingdom Authorized Economic Operator)",
+                      self._lines(self.LOGISTICS + "README.md"))
+
+    def test_uk_procedure_has_no_bare_submission(self):
+        """Round 6 (claude NOTE 5, agy stage A NOTE 1): after round 5 the
+        UK procedure's submission is internal, but a bare "submission" still
+        read as something sent to HMRC, above all "the original submission"
+        in the HMRC audit response section. Every use now says internal
+        submission or self-assessment, except the procedure's denials of a
+        submission to HMRC."""
+        allowed = re.compile(
+            r"(?i)internal submission"
+            r"|no annual self-assessment or submission to HMRC"
+            r"|no periodic self-assessment submission"
+            r"|a submission window or deadline set by HMRC is not confirmed")
+        found = []
+        lines = self._lines(self.UK_PROCEDURE)
+        for number, line in enumerate(lines, 1):
+            spans = [match.span() for match in allowed.finditer(line)]
+            for match in re.finditer(r"(?i)\bsubmission\b", line):
+                if not any(start <= match.start() < end
+                           for start, end in spans):
+                    found.append(f"{number}: {line[:60]}")
+        self.assertEqual(found, [])
+        self.assertNotIn("- All evidence items as submitted.", lines)
+
+    def test_hmrc_aeo_guidance_address_uses_the_gov_uk_spelling(self):
+        """Round 7 (round 6 remaining note 2): the supply chain matrix's
+        AEO-S key reference linked the gov.uk guidance page at an -ized
+        address. The orchestrator's live check (2026-11-06 18:09Z) found
+        that address returns 404 and the -ised address returns 200; no held
+        text carries either, so the live check is the only evidence. The
+        link now uses the -ised address, as gov.uk spells it, while the
+        surrounding prose keeps the library's -ize spelling. The link is
+        scheme-qualified because the language lint masks only http(s) URL
+        tokens; a bare -ised address is reported as a spelling finding.
+        The citations register's AEO/AEOS (UK) row names a different page
+        (authorised-economic-operator-certification) and is unchanged."""
+        dead = "apply-for-" + "authorized-economic-operator-status"
+        found = [f"{rel}:{number}" for rel, number, line in self._md_lines()
+                 if dead in line]
+        self.assertEqual(found, [])
+        prefix = "| AEO-S (UK) | HMRC: "
+        self.assertEqual(
+            self._matrix_cell(prefix, 2),
+            "HMRC: https://www.gov.uk/guidance/apply-for-authorised-"
+            "economic-operator-status")
+        self.assertIn("UK HMRC AEO security and safety criteria handbook",
+                      self._matrix_cell(prefix, 3))
+
+    # HMRC section 11.2's "computer system, accounting records and
+    # documents" (line 38). No held HMRC line matches retention or retain.
+    _UK_PROCEDURE_1_2_SCOPE = (
+        "This procedure covers only the IT and cybersecurity elements of the "
+        "AEO-S self-assessment, including the records retention evidence in "
+        "section 4.8, which the organization scopes from the accounting "
+        "records and documents area (UK HMRC AEO security and safety "
+        "criteria handbook, section 11.2; section 11 does not name "
+        "retention). It does not cover:")
+
+    def test_uk_procedure_scope_includes_its_records_retention_evidence(self):
+        """Round 7 (round 6 remaining note 3): the UK procedure's section
+        1.2 excluded "trade record-keeping requirements" while its section
+        4.8 collects evidence that trade records are retained for required
+        periods. As round 6 did for the UK annex, the scope statement now
+        names the records retention evidence, excludes only the trade
+        record-keeping requirements outside it, and section 4.8 still
+        collects that evidence."""
+        lines = self._lines(self.UK_PROCEDURE)
+        start = lines.index("### 1.2 Scope") + 1
+        scope = lines[start:lines.index("---", start)]
+        self.assertIn(self._UK_PROCEDURE_1_2_SCOPE, scope)
+        self.assertNotIn(
+            "- Customs process compliance and trade record-keeping "
+            "requirements.", scope)
+        self.assertIn("- Trade record-keeping requirements outside of the "
+                      "records retention evidence in section 4.8.", scope)
+        start = lines.index("### 4.8 Records retention") + 1
+        retention = "\n".join(lines[start:lines.index("---", start)])
+        self.assertIn("trade records are retained for required periods",
+                      retention)
+
+    def test_class_docstring_states_the_test_count_and_held_checks(self):
+        """Round 6 (codex NOTE, claude NOTE 7): the class docstring said
+        each test fails without its fix, which a test that reads only a
+        held extract cannot do, and a brief gave a stale test count. The
+        docstring now separates the two kinds and states the count, and
+        this test holds it to the class: the counts add up, the named
+        checks are the tests that reach the held extracts, and each of them
+        skips without the reference corpus. Round 8 (review round 3,
+        claude NOTE 4): it counted the submission guard's self-check and
+        this test among the corpus regression tests, though neither reads a
+        corpus file. The docstring now counts the self-checks apart, and
+        this test holds each kind to what its tests read: a corpus
+        regression test reads the corpus, a self-check reads neither the
+        corpus nor a held extract."""
+        cls = type(self)
+        names = [name for name in dir(cls) if name.startswith("test_")]
+        doc = " ".join(cls.__doc__.split())
+        stated = re.search(r"The class has (\d+) tests: (\d+) corpus "
+                           r"regression tests, (\d+) self-checks and (\d+) "
+                           r"held-source consistency checks\.", doc)
+        self.assertIsNotNone(stated, doc)
+        total, regression, checks, held = (int(group)
+                                           for group in stated.groups())
+        self.assertEqual(total, len(names))
+        self.assertEqual(regression + checks + held, total)
+        self.assertEqual(held, len(self._HELD_SOURCE_CHECKS))
+        self.assertEqual(checks, len(self._SELF_CHECKS))
+        reads_held = re.compile(r"self\._(?:held_lines|held_root"
+                                r"|compendium_titles)\(")
+        sources = {name: inspect.getsource(getattr(cls, name))
+                   for name in names}
+        self.assertEqual(
+            sorted(name for name in names if reads_held.search(sources[name])),
+            sorted(self._HELD_SOURCE_CHECKS))
+        self.assertEqual(
+            sorted(name for name in names
+                   if not reads_held.search(sources[name])
+                   and not self._CORPUS_READERS.search(sources[name])),
+            sorted(self._SELF_CHECKS))
+        self.assertIn("The self-checks are the tests in _SELF_CHECKS.", doc)
+        self.assertIn("skip without it", doc)
+        with mock.patch.object(cls, "_held_root",
+                               staticmethod(lambda: None)):
+            for name in self._HELD_SOURCE_CHECKS:
+                with self.subTest(name=name):
+                    with self.assertRaises(unittest.SkipTest):
+                        getattr(self, name)()
 
 
 if __name__ == "__main__":

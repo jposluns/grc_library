@@ -2,7 +2,7 @@
 
 **Document Title:** Supply Chain Security Programme Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.12\
+**Version:** 1.0.13\
 **Date:** 2026-11-06\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This matrix provides a consolidated cross-reference of the internationally recognized supply chain security and trusted-trader programmes applicable to the organization's operations. It maps the security domains and key requirements of each programme to identify overlaps, shared evidence opportunities, and coverage gaps across all active and target programme memberships.
+This matrix provides a consolidated cross-reference of the supply chain security and trusted-trader programmes applicable to the organization's operations. It does not treat every listed programme as internationally recognized: the Mutual Recognition column records what the held sources confirm for each programme, and BASC (a private certification run by the World BASC Organization) and NEEC are not recorded in the WCO SAFE Framework (2025 edition) or the WCO AEO Compendium (2020). It maps the security domains and key requirements of each programme to identify overlaps, shared evidence opportunities, and coverage gaps across all active and target programme memberships.
 
 ---
 
@@ -29,11 +29,11 @@ ISO 28000:2022 is not held in the reference base; confirm its requirements again
 | Programme | Authority | Jurisdiction | Programme Type | Benefit | Mutual Recognition |
 |---|---|---|---|---|---|
 | **CTPAT**: Customs-Trade Partnership Against Terrorism | U.S. Customs and Border Protection (CBP) | United States | Voluntary trusted-trader | Expedited customs processing; reduced examinations at US ports | AEO (EU), PIP (Canada), AEO (Japan, Korea, others): concluded MRAs in the WCO AEO Compendium (2020); AEO-S (UK) is not confirmed by a held source (the Compendium lists the United Kingdom as under negotiation with the US) |
-| **AEO-S**: Authorized Economic Operator to Security and Safety | HMRC | United Kingdom (post-Brexit) | Voluntary trusted-trader | Reduced customs examinations; priority treatment at UK ports; facilitated imports/exports | Not confirmed by a held source: CTPAT (US), AEO (EU), OEA (Brazil), others (the WCO AEO Compendium (2020) lists the United Kingdom as under negotiation with the US) |
+| **AEO-S**: Authorized Economic Operator Security and Safety | HMRC | United Kingdom (post-Brexit) | Voluntary trusted-trader | Not confirmed by a held source: the benefits are not recorded in the held HMRC criteria (handbook section 11); the WCO AEO Compendium (2020) United Kingdom entry lists none and names the European Union programme, whose benefits under the Union Customs Code are not confirmed for the current UK programme; confirm with HMRC | Not confirmed by a held source: CTPAT (US), AEO (EU), OEA (Brazil), others (the WCO AEO Compendium (2020) lists the United Kingdom as under negotiation with the US) |
 | **AEO**: Authorized Economic Operator | National customs authorities; EU Commission | European Union | Voluntary trusted-trader | Simplified procedures; reduced examinations across EU | CTPAT (US) and others: concluded MRAs in the WCO AEO Compendium (2020); PIP (Canada): under negotiation in the Compendium; AEO-S (UK) and OEA (Brazil): not confirmed by a held source |
 | **PIP**: Partners in Protection | Canada Border Services Agency (CBSA) | Canada | Voluntary trusted-trader | Expedited clearance at Canadian ports; reduced examinations | US (CTPAT, 2008), Japan, Korea, Singapore, Mexico (2016), Australia, Israel (signed); EU under negotiation (WCO AEO Compendium 2020); no Canada-UK arrangement recorded in the WCO AEO Compendium (2020) |
-| **BASC**: Business Alliance for Secure Commerce | BASC Organization (WBO) | Latin America; global membership | Private voluntary certification | Market access signals; supply chain security assurance | WCO SAFE Framework aligned |
-| **NEEC**: New Scheme of Certified Companies | Servicio de Administración Tributaria (SAT) | Mexico | Voluntary trusted-trader | Expedited customs processing in Mexico; facilitation benefits | CTPAT (US): not confirmed by a held source (the WCO AEO Compendium (2020) records a concluded US-Mexico MRA, October 2014, and titles Mexico's programme Authorized Economic Operator; it does not name NEEC); alignment with WCO SAFE |
+| **BASC**: Business Alliance for Secure Commerce | BASC Organization (WBO) | Latin America; global membership | Private voluntary certification | Market access signals; supply chain security assurance | Not confirmed by a held source: a private certification run by the WBO; the BASC International Norm V6-2022 lists the WCO Framework of Standards among its normative references (clause 2) |
+| **NEEC**: New Scheme of Certified Companies | Servicio de Administración Tributaria (SAT) | Mexico | Voluntary trusted-trader | Expedited customs processing in Mexico; facilitation benefits | CTPAT (US): not confirmed by a held source (the WCO AEO Compendium (2020) records a concluded US-Mexico MRA, October 2014, and titles Mexico's programme Authorized Economic Operator; it does not name NEEC); WCO SAFE: the Mexico-Canada AEO mutual recognition arrangement benefits guide says the security standards of Mexico's Authorized Economic Operator programme are aligned with the SAFE Framework, and no held text uses the name NEEC |
 | **OEA**: Operador Econômico Autorizado | Receita Federal do Brasil (RFB) | Brazil | Voluntary trusted-trader | Expedited processing at Brazilian customs; reduced examinations | Not confirmed by a held source: AEO (EU); AEO-S (UK); CTPAT (US) (the WCO AEO Compendium (2020) lists the US as under negotiation with Brazil and no EU or UK arrangement with Brazil) |
 | **WCO SAFE Framework** | World Customs Organization (WCO) | Global | Standards framework | Baseline technical guidance for the implementation of AEO programmes at the global level; designed to serve as a starting point for national AEO programme implementation | Not a programme: recognition of an AEO by other Customs administrations can come through mutual recognition arrangements or agreements (MRAs) between Customs administrations or, within a regional Customs union AEO programme, is presumed among the Members without separate or additional MRAs (Section VII, 2.1); see the note after the programme-pair table under [Mutual recognition arrangements](#mutual-recognition-arrangements) |
 | **ISO 28000:2022** | International Organization for Standardization | Global | Management system standard | HMRC considers ISO 28000 certificates to the extent their criteria correspond to AEO criteria (UK HMRC AEO security and safety criteria handbook, §11.17); applicability of the 2022 edition remains unverified | EU AEO Guidelines (TAXUD, Rev 6, §3.III.4.3 c) describe the 2007 edition of ISO 28000 as having very general requirements; they do not address the 2022 edition |
@@ -43,7 +43,7 @@ ISO 28000:2022 is not held in the reference base; confirm its requirements again
 
 ## Security domain alignment matrix
 
-The following matrix maps the common supply chain security domains against each programme's requirements. ✓ = required by this programme; ~ = partially or conditionally required; N/A = not addressed by this programme's published criteria; Unverifiable = ISO 28000 requirement content cannot be confirmed from the reference base.
+The following matrix maps the common supply chain security domains against each programme's requirements. ✓ = required by this programme; ~ = partially or conditionally required; N/A = not addressed by this programme's published criteria; Unverifiable = ISO 28000 requirement content cannot be confirmed from the reference base. For AEO-S (UK), the held HMRC criteria (UK HMRC AEO security and safety criteria handbook, section 11) name the computer system only as an area the security and safety risk assessment is to address (§11.2), so IT and Cybersecurity is marked ~. They name no incident reporting to HMRC: §11.4 expects security procedures to be reviewed and amended after an incident, §11.8 (building and boundary security) asks how security incidents are reported and dealt with, not limited to cargo units and with no recipient named, and §11.12 (cargo security) expects procedures for cargo units that say how incidents are reported and recorded and what action is to be taken, including reporting to law enforcement or senior management. Of these, only the cargo security provision names a recipient, so Incident Reporting to Authority is marked ~ for AEO-S, limited to cargo units and to those recipients.
 
 | Security Domain | CTPAT | AEO-S (UK) | AEO (EU) | PIP | BASC | NEEC | OEA | ISO 28000:2022 | WCO SAFE |
 |---|---|---|---|---|---|---|---|---|---|
@@ -57,8 +57,8 @@ The following matrix maps the common supply chain security domains against each 
 | **Seal Management** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Unverifiable | ✓ |
 | **Documentation and Manifest Accuracy** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Unverifiable | ✓ |
 | **Business Partner / Supplier Security** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Unverifiable | ✓ |
-| **IT and Cybersecurity** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ~ | Unverifiable | ~ |
-| **Incident Reporting to Authority** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ~ | Unverifiable | ~ |
+| **IT and Cybersecurity** | ✓ | ~ | ✓ | ✓ | ✓ | ✓ | ~ | Unverifiable | ~ |
+| **Incident Reporting to Authority** | ✓ | ~ (cargo units only, §11.12: reporting to law enforcement or senior management; no reporting to HMRC named) | ✓ | ✓ | ✓ | ✓ | ~ | Unverifiable | ~ |
 | **Security Assessment / Audit** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Unverifiable | ~ |
 | **Business Continuity** | ~ | ~ | ~ | ~ | ~ | ~ | ~ | Unverifiable | ~ |
 | **Risk Assessment** | ✓ | ✓ | ✓ | ~ | ✓ | ✓ | ✓ | Unverifiable | ~ |
@@ -69,24 +69,26 @@ The following matrix maps the common supply chain security domains against each 
 
 ## IT and cybersecurity requirements comparison
 
-The comparison below indicates whether each programme addresses a control area, not that each publishes an identically enumerated technical requirement. Programmes vary in specificity: PIP, for example, states its cybersecurity expectations at a high level within its corporate security area rather than as a numbered IT standard.
+The comparison below indicates whether each programme addresses a control area, not that each publishes an identically enumerated technical requirement. Programmes vary in specificity: PIP, for example, states its cybersecurity expectations at a high level within its corporate security area rather than as a numbered IT standard. The held HMRC criteria for AEO-S (UK) (handbook section 11) set out no IT control: they name the computer system only as an area the security and safety risk assessment is to address (§11.2), so the AEO-S (UK) column records the organization's own scoping of those criteria, not HMRC text, and its Notification to customs authority cell reads Not confirmed because section 11 names no notification to HMRC.
+
+Key: in the other columns, ✓ = the programme addresses the control area, ~ = it addresses the area partially or conditionally, and N/A = its published criteria do not address it. In the AEO-S (UK) column, ✓ (Org) and ~ (Org) mark the organization's own scoping of the HMRC criteria, not a mark drawn from a held source; Not confirmed = not found in the held HMRC criteria.
 
 | IT Requirement | CTPAT | AEO-S (UK) | AEO (EU) | PIP | BASC |
 |---|---|---|---|---|---|
-| Access control: least privilege | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Multi-factor authentication | ✓ | ✓ | ✓ | N/A | ~ |
-| Password management | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Vulnerability management | ✓ | ✓ | ✓ | N/A | ~ |
-| Network security (firewall, IDS) | ✓ | ✓ | ✓ | ~ | ~ |
-| Encryption in transit | ✓ | ✓ | ~ | ~ | ~ |
-| Encryption at rest | ~ | ~ | ~ | N/A | N/A |
-| Incident response plan | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Notification to customs authority | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Security awareness training | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Asset inventory | ✓ | ✓ | ~ | ✓ | ~ |
-| Third-party IT security | ✓ | ✓ | ✓ | ✓ | ~ |
-| Business continuity / IT recovery | ~ | ~ | ~ | ~ | N/A |
-| Audit logging | ✓ | ✓ | ~ | N/A | N/A |
+| Access control: least privilege | ✓ | ✓ (Org) | ✓ | ✓ | ✓ |
+| Multi-factor authentication | ✓ | ✓ (Org) | ✓ | N/A | ~ |
+| Password management | ✓ | ✓ (Org) | ✓ | ✓ | ✓ |
+| Vulnerability management | ✓ | ✓ (Org) | ✓ | N/A | ~ |
+| Network security (firewall, IDS) | ✓ | ✓ (Org) | ✓ | ~ | ~ |
+| Encryption in transit | ✓ | ✓ (Org) | ~ | ~ | ~ |
+| Encryption at rest | ~ | ~ (Org) | ~ | N/A | N/A |
+| Incident response plan | ✓ | ✓ (Org) | ✓ | ✓ | ✓ |
+| Notification to customs authority | ✓ | Not confirmed | ✓ | ✓ | ✓ |
+| Security awareness training | ✓ | ✓ (Org) | ✓ | ✓ | ✓ |
+| Asset inventory | ✓ | ✓ (Org) | ~ | ✓ | ~ |
+| Third-party IT security | ✓ | ✓ (Org) | ✓ | ✓ | ~ |
+| Business continuity / IT recovery | ~ | ~ (Org) | ~ | ~ | N/A |
+| Audit logging | ✓ | ✓ (Org) | ~ | N/A | N/A |
 
 **Detailed IT mapping documents:**
 - CTPAT IT: [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md)
@@ -153,7 +155,7 @@ The following evidence types are candidate overlaps: each may be collected once 
 | Programme | Authority | Key Reference |
 |---|---|---|
 | CTPAT | CBP: www.cbp.gov/border-security/ports-entry/cargo-security/CTPAT | MSC document published on CBP portal |
-| AEO-S (UK) | HMRC: www.gov.uk/guidance/apply-for-authorized-economic-operator-status | HMRC AEO Compendium |
+| AEO-S (UK) | HMRC: https://www.gov.uk/guidance/apply-for-authorised-economic-operator-status | UK HMRC AEO security and safety criteria handbook (Customs Technical Handbook, section 11) |
 | AEO (EU) | European Commission DG TAXUD | Union Customs Code (Regulation EU 952/2013) |
 | PIP | CBSA: www.cbsa-asfc.gc.ca/security-securite/pip-pep | PIP Partnership Agreement |
 | BASC | World BASC Organization (WBO) | BASC Standards and Requirements |

@@ -2,7 +2,7 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.25\
+**Version:** 1.4.26\
 **Date:** 2026-11-06\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -38,6 +38,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 - A brief definition is provided where the expansion alone is insufficient.
 - Where multiple expansions exist for the same acronym, the one used in this library is specified.
 - "See" cross-references point to the canonical library document for the term.
+- Rows in each section are sorted by term, ignoring case, character by character: a space or punctuation mark sorts before a digit, and a digit before a letter (so I&S precedes IACS, and SL-A precedes SLA).
 
 ---
 
@@ -54,7 +55,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **ADMT** | Automated Decision-Making Technology. The organizing concept of Colorado's re-enacted AI statute (SB 26-189): technology that materially influences a consequential decision. See [`ai/jurisdictions/annex-ai-us-colorado.md`](../ai/jurisdictions/annex-ai-us-colorado.md). The same acronym is also used for California's CCPA regulations on automated decision-making technology, whose canonical home is [`ai/jurisdictions/annex-ai-us-california.md`](../ai/jurisdictions/annex-ai-us-california.md) (the US privacy annex keeps a brief privacy-context summary that points there). |
 | **AEAD** | Authenticated Encryption with Associated Data. Symmetric encryption mode providing confidentiality, integrity, and authenticity in a single primitive. Canonical examples: AES-GCM (NIST SP 800-38D), AES-CCM, ChaCha20-Poly1305 (RFC 8439). |
 | **AEO** | Authorized Economic Operator. The operator, not the programme: the WCO SAFE Framework (2025 edition) defines an AEO as "a party involved in the international movement of goods in whatever function that has been approved by or on behalf of a national Customs administration as complying with WCO or equivalent supply chain security standards". National customs authorities approve operators under national or regional Customs union AEO programmes (the Framework's Section VII, 2.1), which grant trade facilitation benefits. The Framework itself is not a programme: it provides baseline technical guidance for the implementation of AEO programmes at the global level and is designed to serve as a starting point for national AEO programme implementation. |
-| **AEO-S** | AEO Security and Safety strand (UK-specific designation for the security-focused AEO certification). |
+| **AEO-S** | Authorized Economic Operator Security and Safety. The UK AEO authorization for security and safety, which HMRC's criteria write as AEOS (UK HMRC AEO security and safety criteria handbook, §11.1). |
 | **AI** | Artificial Intelligence. |
 | **AI Act** | The EU Artificial Intelligence Act, Regulation (EU) 2024/1689, laying down harmonized rules on artificial intelligence. See [`ai/jurisdictions/annex-ai-european-union.md`](../ai/jurisdictions/annex-ai-european-union.md). |
 | **AICM** | AI Controls Matrix. Cloud Security Alliance (CSA) framework of AI-specific controls. |
@@ -63,6 +64,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **AIMS** | Artificial Intelligence Management System (per ISO/IEC 42001:2023). |
 | **AIQT** | Accuracy, Integrity, Quality, Trust. The library's foundational production principle: the priority ordering (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost. See [`governance/principle-integrity-and-trustworthiness.md`](principle-integrity-and-trustworthiness.md). |
 | **AIS** | AI System. A unit of AI capability tracked in the AI System Register. (CSA CCM also uses AIS as Application & Interface Security, the CCM domain covering application-layer controls; the library cites that domain explicitly where used.) |
+| **ANPD** | Agência Nacional de Proteção de Dados, formerly the Autoridade Nacional de Proteção de Dados. Brazil's national data protection authority, created by Article 55-A of the LGPD. See [`privacy/jurisdictions/annex-privacy-brazil.md`](../privacy/jurisdictions/annex-privacy-brazil.md). |
 | **ASD** | Australian Signals Directorate. Authority for the Australian Information Security Manual (ISM). |
 | **ATT** | Australian Trusted Trader. Australia's AEO-equivalent trusted-trader programme. |
 
@@ -70,12 +72,12 @@ When in doubt: external term or acronym → this register. Internal governance c
 
 | Term | Expansion / definition |
 | --- | --- |
-| **BASC** | Business Alliance for Secure Commerce. International private supply-chain security programme, predominantly Latin American, recognized within the WCO SAFE Framework. See [`compliance/logistics/annex-basc-programme-overview.md`](../compliance/logistics/annex-basc-programme-overview.md). |
+| **BAI** | (COBIT 2019) Build, Acquire, and Implement. One of the five COBIT process domains. |
+| **BASC** | Business Alliance for Secure Commerce. International private supply-chain security certification, predominantly Latin American, run by the World BASC Organization (WBO), a member-led business organization. See [`compliance/logistics/annex-basc-programme-overview.md`](../compliance/logistics/annex-basc-programme-overview.md). |
 | **BC** | Business Continuity. Appears in the BC/DR (Business Continuity / Disaster Recovery) and BC/CM (Business Continuity / Crisis Management) compounds. |
 | **BCM** | Business Continuity Manager. Role accountable for business continuity programme execution. |
 | **BCP** | Business Continuity Plan. |
 | **BIA** | Business Impact Analysis. |
-| **BAI** | (COBIT 2019) Build, Acquire, and Implement. One of the five COBIT process domains. |
 | **BMS** | Building Management System. A category of OT covering automated control of HVAC, lighting, fire/life-safety, physical access control, and other facility systems. Adjacent to but distinct from ICS. |
 
 ## C
@@ -91,8 +93,8 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **CDO** | Chief Data Officer. |
 | **CEK** | (CSA CCM domain) Cryptography, Encryption & Key Management. |
 | **CIA** | Confidentiality, Integrity, Availability. The classic information-security triad. |
-| **CIIO** | Critical Information Infrastructure Operator. Chinese-law category under the Cybersecurity Law of China, which leaves the specific scope of critical information infrastructure to the State Council (Cybersecurity Law Article 33, in the amended numbering in force 1 January 2026; English rendering of the Chinese text, which is authoritative) and does not say who identifies a particular operator as a CIIO; an adopter confirms its CIIO status directly. Triggers mandatory CAC Security Assessment for outbound personal information transfers under PIPL Article 38 and a domestic-storage default under PIPL Article 40. |
 | **CIAM** | Customer Identity and Access Management. |
+| **CIIO** | Critical Information Infrastructure Operator. Chinese-law category under the Cybersecurity Law of China, which leaves the specific scope of critical information infrastructure to the State Council (Cybersecurity Law Article 33, in the amended numbering in force 1 January 2026; English rendering of the Chinese text, which is authoritative) and does not say who identifies a particular operator as a CIIO; an adopter confirms its CIIO status directly. Triggers mandatory CAC Security Assessment for outbound personal information transfers under PIPL Article 38 and a domestic-storage default under PIPL Article 40. |
 | **CIO** | Chief Information Officer. |
 | **CIP** | Critical Infrastructure Protection. NERC CIP is the canonical reference for North American electricity reliability. |
 | **CISO** | Chief Information Security Officer. |
@@ -164,8 +166,8 @@ When in doubt: external term or acronym → this register. Internal governance c
 | Term | Expansion / definition |
 | --- | --- |
 | **HIPAA** | Health Insurance Portability and Accountability Act (U.S.). |
-| **HKDF** | HMAC-based Key Derivation Function. Extract-and-expand key derivation function per RFC 5869. The canonical mechanism for deriving sub-keys from existing high-entropy material (e.g., from an HSM-held master key); not appropriate for deriving keys from passwords (use Argon2id or scrypt for password-based KDFs). |
 | **HITECH** | Health Information Technology for Economic and Clinical Health Act (U.S.). |
+| **HKDF** | HMAC-based Key Derivation Function. Extract-and-expand key derivation function per RFC 5869. The canonical mechanism for deriving sub-keys from existing high-entropy material (e.g., from an HSM-held master key); not appropriate for deriving keys from passwords (use Argon2id or scrypt for password-based KDFs). |
 | **HMI** | Human-Machine Interface. The graphical operator interface to ICS/OT systems, typically running on a workstation that displays process state and accepts operator commands. |
 | **HMRC** | His Majesty's Revenue and Customs (UK). Administers UK AEO and AEO-S. |
 | **HSM** | Hardware Security Module. |
@@ -174,6 +176,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 
 | Term | Expansion / definition |
 | --- | --- |
+| **I&S** | (CSA CCM domain) Infrastructure Security. Renamed from the v4.0 IVS (Infrastructure and Virtualization Security) domain in CCM v4.1.0. |
 | **IACS** | Industrial Automation and Control Systems. The scope term used by IEC 62443. A subset of OT focused on industrial automation. |
 | **IAM** | Identity and Access Management. |
 | **ICAO** | International Civil Aviation Organization. |
@@ -184,13 +187,12 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **IMO** | International Maritime Organization. |
 | **IPS** | Intrusion Prevention System. |
 | **IPY** | (CSA CCM domain) Interoperability & Portability. |
-| **I&S** | (CSA CCM domain) Infrastructure Security. Renamed from the v4.0 IVS (Infrastructure and Virtualization Security) domain in CCM v4.1.0. |
 | **ISACA** | Information Systems Audit and Control Association. Publishes COBIT. |
 | **ISM** | Information Security Manual (Australia). |
 | **ISO** | International Organization for Standardization. |
+| **IT/OT convergence** | The progressive integration of Information Technology (IT) and Operational Technology (OT) networks, identities, and management tooling. Drives joint governance, network segmentation discipline, and unified incident response. |
 | **ITGC** | Information Technology General Controls (SOX context). |
 | **ITSM** | IT Service Management. |
-| **IT/OT convergence** | The progressive integration of Information Technology (IT) and Operational Technology (OT) networks, identities, and management tooling. Drives joint governance, network segmentation discipline, and unified incident response. |
 | **IVDR** | In-Vitro Diagnostic Regulation (EU). |
 
 ## K
@@ -205,7 +207,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 
 | Term | Expansion / definition |
 | --- | --- |
-| **LGPD** | Lei Geral de Proteção de Dados (Brazilian general data protection law). |
+| **LGPD** | Lei Geral de Proteção de Dados Pessoais, Lei nº 13.709/2018 (Brazilian general data protection law), as the ANPD's cookies guide names it (Guia orientativo: Cookies e proteção de dados pessoais, version 1.0, 2022). See [`privacy/jurisdictions/annex-privacy-brazil.md`](../privacy/jurisdictions/annex-privacy-brazil.md). |
 | **LLM** | Large Language Model. |
 | **LOG** | (CSA CCM domain) Logging and Monitoring. |
 
@@ -213,15 +215,16 @@ When in doubt: external term or acronym → this register. Internal governance c
 
 | Term | Expansion / definition |
 | --- | --- |
+| **Marco Civil da Internet** | Brazilian Internet Act, Lei nº 12.965/2014: establishes principles, guarantees, rights and duties for the use of the internet in Brazil (Article 1). See [`privacy/jurisdictions/annex-privacy-brazil.md`](../privacy/jurisdictions/annex-privacy-brazil.md). |
 | **MAS** | Monetary Authority of Singapore. |
 | **MCP** | Model Context Protocol. Standard interface for AI model tool use; tracked in the library's MCP server register. |
 | **MDR** | Medical Device Regulation (EU). |
 | **METI** | Ministry of Economy, Trade and Industry (Japan). |
 | **MFA** | Multi-Factor Authentication. |
-| **MITRE ATT&CK** | Adversarial Tactics, Techniques, and Common Knowledge. MITRE-maintained adversary behaviour framework. |
 | **MITRE ATLAS** | Adversarial Threat Landscape for AI Systems. MITRE-maintained AI adversary framework. |
+| **MITRE ATT&CK** | Adversarial Tactics, Techniques, and Common Knowledge. MITRE-maintained adversary behaviour framework. |
 | **ML** | Machine Learning (in AI/ML contexts). Also Most Likely, the central value in three-point (PERT) estimation used in quantitative risk analysis. |
-| **MRA** | Mutual Recognition Arrangement. Bilateral or multilateral recognition of equivalent trusted-trader programmes (e.g., CTPAT and AEO-EU MRA). |
+| **MRA** | Mutual Recognition Arrangement (or Agreement) between Customs administrations. The WCO SAFE Framework (2025 edition) describes mutual recognition as "a broad concept whereby an action or decision taken or an authorization that has been properly granted by one Customs administration is recognized and accepted by another Customs administration". Example: the EU-US MRA, a concluded MRA in the WCO AEO Compendium (2020). |
 | **MSC** | Minimum Security Criteria (CTPAT). |
 | **MTSA** | Maritime Transportation Security Act (U.S.). |
 
@@ -229,21 +232,21 @@ When in doubt: external term or acronym → this register. Internal governance c
 
 | Term | Expansion / definition |
 | --- | --- |
-| **NEEC** | Nuevo Esquema de Empresas Certificadas (Mexico). Mexico's AEO-equivalent trusted-trader programme. Also referred to as OEA (Operador Económico Autorizado) in Mexico. |
+| **NEEC** | Nuevo Esquema de Empresas Certificadas (Mexico), the name the library uses for Mexico's certified-companies trusted-trader scheme; no held source uses the name NEEC. The WCO AEO Compendium (2020) titles Mexico's programme Authorized Economic Operator, and the Mexico-Canada AEO mutual recognition arrangement benefits guide says that in Mexico the programme is known as Authorized Economic Operator; how NEEC relates to that programme is not confirmed by a held source. |
 | **NERC** | North American Electric Reliability Corporation. Publishes NERC CIP standards. |
+| **nFADP** | New Federal Act on Data Protection (Switzerland). Also referred to as revDSG (revidiertes Datenschutzgesetz). |
 | **NIS 2** | EU Directive 2022/2555 on cybersecurity for network and information systems. Successor to NIS Directive 2016/1148. See [`compliance/annex-nis-2-implementation.md`](../compliance/annex-nis-2-implementation.md). |
 | **NIST** | National Institute of Standards and Technology (U.S.). |
 | **NIST AI RMF** | NIST AI Risk Management Framework. |
 | **NIST CSF** | NIST Cybersecurity Framework. |
 | **NSG** | Network Security Group (cloud-specific network access control). |
-| **nFADP** | New Federal Act on Data Protection (Switzerland). Also referred to as revDSG (revidiertes Datenschutzgesetz). |
 
 ## O
 
 | Term | Expansion / definition |
 | --- | --- |
 | **OCC** | Office of the Comptroller of the Currency (U.S.). |
-| **OEA** | Operador Económico Autorizado. Spanish/Portuguese term for AEO-equivalent programmes in Latin American countries (Mexico, Brazil, Argentina, Chile, Colombia, Peru, etc.). |
+| **OEA** | Operador Económico Autorizado (Spanish) or Operador Econômico Autorizado (Portuguese): Authorized Economic Operator. In the WCO AEO Compendium (2020), Bolivia titles its programme Operador Económico Autorizado (OEA), Chile titles its programme AEO Programme (Programa OEA) and El Salvador titles its programme El Salvador Authorized Economic Operator (OEA-SV); Argentina, Colombia, Mexico and Peru title theirs in English as an Authorized Economic Operator programme. In Mexico's entry the spelled-out Spanish term appears only in the address of a SAT web page, and the acronym OEA once, in its list of benefits (the assignment of an OEA specialist). Brazil's programme guide (Receita Federal do Brasil) names its programme the Programa Brasileiro de OEA. No other programme title in the Compendium uses the term. |
 | **OECD** | Organisation for Economic Co-operation and Development. Publishes the OECD AI Principles. |
 | **OSFI** | Office of the Superintendent of Financial Institutions (Canada). |
 | **OT** | Operational Technology. Hardware and software that detects or causes change through direct monitoring and/or control of physical devices, processes, and events. Distinct from Information Technology (IT) by its real-world physical impact, safety implications, and typically longer asset lifecycles. Includes ICS, SCADA, DCS, PLCs, BMS, and other operational control systems. |
@@ -303,8 +306,8 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **SL-C** | Security Level Capability (IEC 62443). The security level a component is capable of supporting when correctly configured. |
 | **SL-T** | Security Level Target (IEC 62443). The security level a zone or conduit is required to achieve given its risk profile. SL-T values range from SL 1 (protection against casual or coincidental violation) through SL 4 (protection against intentional violation by skilled, well-resourced adversaries). |
 | **SLA** | Service Level Agreement. |
-| **SOC** | Security Operations Centre (operational context). Also used as the auditing standard SOC 2 (System and Organization Controls Type 2). The library disambiguates by context. |
-| **SOC 2** | System and Organization Controls Type 2 audit report (AICPA standard). |
+| **SOC** | Security Operations Centre (operational context). Also System and Organization Controls, the AICPA's name for its suite of control examination services, of which SOC 2 is one. The library disambiguates by context. |
+| **SOC 2** | System and Organization Controls 2 (AICPA SOC for Service Organizations: Trust Services Criteria): an examination of controls at a service organization relevant to security, availability, processing integrity, confidentiality or privacy. SOC 2 names the examination, not one type of it: a Type 1 examination covers the description of the system and the suitability of the design of controls, and a Type 2 examination also covers the operating effectiveness of those controls (AICPA DC 200, footnote 5). |
 | **SOX** | Sarbanes-Oxley Act (U.S.). See [`compliance/financial-services/annex-sox-itgc.md`](../compliance/financial-services/annex-sox-itgc.md). |
 | **SP 800-53** | NIST Special Publication 800-53: Security and Privacy Controls. |
 | **SP 800-82** | NIST Special Publication 800-82: Guide to Operational Technology (OT) Security. Renamed from "Industrial Control Systems (ICS) Security" in Rev. 3 (2023) to reflect broader OT scope. |
@@ -329,8 +332,8 @@ When in doubt: external term or acronym → this register. Internal governance c
 
 | Term | Expansion / definition |
 | --- | --- |
-| **UEM** | (CSA CCM domain) Universal Endpoint Management. |
 | **UCC** | Union Customs Code (EU). |
+| **UEM** | (CSA CCM domain) Universal Endpoint Management. |
 
 ## V
 

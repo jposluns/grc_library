@@ -2,8 +2,8 @@
 
 **Document Title:** Trade Compliance Programme Gap Assessment Template\
 **Document Type:** Template\
-**Version:** 1.0.7\
-**Date:** 2026-10-17\
+**Version:** 1.0.8\
+**Date:** 2026-11-06\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](procedure-aeo-united-kingdom-self-assessment.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`compliance/procedure-capa.md`](../procedure-capa.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md)\
@@ -24,6 +24,8 @@ This template provides a structured approach for assessing the organization's cu
 - Annual readiness reviews for existing programme memberships
 - Pre-audit preparation before regulatory body validation visits
 - Identifying controls that can serve multiple programmes simultaneously (shared evidence)
+
+The Programme Source column names the programmes whose requirements the organization maps each row to. For AEO-S, those attributions are the organization's own scoping, not HMRC text: the held HMRC criteria (UK HMRC AEO security and safety criteria handbook, section 11) set out no IT control, annual cycle or incident notification to HMRC. They name the computer system as an area the security and safety risk assessment is to address (section 11.2), and list software providers among the external service providers and expect the business's requirements to be stated in contracts (section 11.14), the held provision nearest to the third-party IT security controls row. Confirm each AEO-S attribution with HMRC before relying on it.
 
 ---
 
