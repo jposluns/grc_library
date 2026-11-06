@@ -1,4 +1,4 @@
-# site-card.toml: the data file of .baseline/build_card.js (baseline 1.10.0, SPECIFICATION.md section 7.35).
+# site-card.toml: the data file of .baseline/build_card.js (baseline 1.11.0, SPECIFICATION.md section 7.35).
 # Copy, colours and the illustration are owner-approved inputs: change them only on the owner's instruction.
 # name, tld, line1 and line2 carry CARD_IMAGE_ALT in .web/build.py; sub is the subline of the live card image,
 # .web/static/images/grclibrary-card.png. It is not the home page's og:description, which .web/build.py takes from
