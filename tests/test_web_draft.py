@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """The promoted site tree (PR 2b's rebuild on the shared family site
-template, baseline 1.11.0, flipped to the site root at the draft-site
+template, baseline 1.11.1, flipped to the site root at the draft-site
 promotion, maintainer decisions 2026-11-04).
 
 What is locked here, each test failing without its feature:
@@ -341,14 +341,16 @@ What is locked here, each test failing without its feature:
    refused, so the build passes without the caveat; and the 404 page lead
    names each top bar link, in the bar's order, by its exact label, or,
    for a label listed in _404_LEAD_FORMS, by that fixed form only.
-39. Baseline 1.10.0, as item 49 updates it (CHANGELOG 1.7.0 to 1.10.0;
-   spec sections 4 item 3, 6.1, 6.4, 7.24, 7.29 and 7.35): the copied files
-   RELEASE_1_9_2_DIGESTS and RELEASE_1_10_0_CARD_DIGESTS pin, which 1.11.0
-   leaves byte-identical (scheme.js, which 1.6.0 added, search.js, which
-   1.7.0 changed, matrix.js and the overflow check, which 1.8.0 changes or
-   adds, and the 1.10.0 card fonts), carry their releases' digests in the
-   pin, in the repository and, for the served ones, in the draft copy, and
-   item 49's files carry 1.11.0's; the
+39. Baseline 1.10.0, as items 49 and 50 update it (CHANGELOG 1.7.0 to
+   1.10.0; spec sections 4 item 3, 6.1, 6.4, 7.24, 7.29 and 7.35): the
+   copied files RELEASE_1_9_2_DIGESTS and RELEASE_1_10_0_CARD_DIGESTS pin,
+   which 1.11.0 and 1.11.1 leave byte-identical (scheme.js, which 1.6.0
+   added, search.js, which 1.7.0 changed, matrix.js and the overflow check,
+   which 1.8.0 changes or adds, and the 1.10.0 card fonts), carry their
+   releases' digests in the pin, in the repository and, for the served
+   ones, in the draft copy; the files RELEASE_1_11_0_DIGESTS pins (item 49)
+   carry 1.11.0's and the files RELEASE_1_11_1_DIGESTS pins (item 50) carry
+   1.11.1's; the
    card builder and its fonts are never served, and the live card is
    unchanged (a card change waits for the owner's approval);
    the overflow check is pinned beside the palette gate and, like it, never
@@ -460,15 +462,23 @@ What is locked here, each test failing without its feature:
    the compound naming ISO/IEC 27001 and ISO/IEC 27002 links both pages;
    every taxonomy spelling of the five counts toward its page (draft round
    2), and a compound joined with " and " keeps that joiner on its chip.
-49. Baseline 1.11.0 (CHANGELOG 1.11.0, spec section 7.19; maintainer
-   approval 2026-11-06 15:03Z): the pin names 1.11.0, and the files 1.11.0
+49. Baseline 1.11.0, as item 50 updates it (CHANGELOG 1.11.0, spec section
+   7.19; maintainer approval 2026-11-06 15:03Z): of the files 1.11.0
    changes or adds that grc copies (baseline.css, palettes.css, NOTICE.md,
-   the new logos/vendorreplies.png, the palette gate and the card builder)
-   carry the release's SHA256SUMS digests in the pin, in the repository and,
-   for the served ones, in the served copy; every page's footer list is
+   the new logos/vendorreplies.png, the palette gate and the card builder),
+   the 4 that 1.11.1 leaves byte-identical (palettes.css, NOTICE.md,
+   logos/vendorreplies.png and the palette gate, RELEASE_1_11_0_DIGESTS)
+   carry 1.11.0's SHA256SUMS digests in the pin, in the repository and, for
+   the served ones, in the served copy; every page's footer list is
    labelled "The 7 project sites" and holds vendorreplies.ai's card,
    li.slice.slice-vr in the release's markup, as its last item, after the 6
    existing cards in their order.
+50. Baseline 1.11.1 (CHANGELOG 1.11.1: every site moves, by replacing
+   baseline.css, with no markup change; spec section 7.19): the pin names
+   1.11.1, and the 2 files 1.11.1 changes that grc copies (baseline.css and
+   the card builder, RELEASE_1_11_1_DIGESTS; 1.11.1 adds no file) carry the
+   release's SHA256SUMS digests in the pin, in the repository and, for
+   baseline.css, in the served copy, while the card builder stays unserved.
 """
 
 from __future__ import annotations
@@ -489,7 +499,7 @@ from unittest import mock
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-# The draft CSP, copied from baseline 1.11.0 SPECIFICATION.md section 9
+# The draft CSP, copied from baseline 1.11.1 SPECIFICATION.md section 9
 # (unchanged since 1.3.1), the shared policy for draft pages; build.py must
 # carry it byte for byte.
 SPEC_SECTION_9_CSP = (
@@ -526,7 +536,8 @@ SCHEME_SCRIPT_TAG = (
 )
 # The baseline 1.10.0 SHA256SUMS digests of the card fonts, which item
 # 3b788 copies to .baseline/ with the card builder and pins beside the other
-# tools (spec 7.35), never served; 1.11.0 leaves them byte-identical.
+# tools (spec 7.35), never served; 1.11.0 and 1.11.1 leave them
+# byte-identical.
 RELEASE_1_10_0_CARD_DIGESTS = {
     ".baseline/card-fonts/Inter-Bold.otf":
         "00fd6f4691ee8884a33b46bf45851b341927c37c30064f558e1befb242971c49",
@@ -538,13 +549,13 @@ RELEASE_1_10_0_CARD_DIGESTS = {
         "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a",
 }
 # The baseline 1.9.2 SHA256SUMS digests of the files 1.8.0 changes or adds
-# that 1.11.0 leaves byte-identical (matrix.js and
+# that 1.11.0 and 1.11.1 leave byte-identical (matrix.js and
 # tools/check_overflow.js, which the site pins beside the palette gate, spec
 # section 4 item 3), of search.js, which 1.7.0 changed, and of scheme.js,
 # which 1.6.0 added; every other pinned file not named in this table, the
-# card-font table above or RELEASE_1_11_0_DIGESTS below is unchanged from
-# 1.6.1. 1.9.2 itself changes only tools/build_card.js and the documents,
-# none of which grc copied then.
+# card-font table above, RELEASE_1_11_0_DIGESTS or RELEASE_1_11_1_DIGESTS
+# below is unchanged from 1.6.1. 1.9.2 itself changes only
+# tools/build_card.js and the documents, none of which grc copied then.
 RELEASE_1_9_2_DIGESTS = {
     ".web/baseline/scheme.js":
         "39d035d986f53c987cbe92516b9a5fd499af5c7fcdda701ea896c63c45ef1634",
@@ -555,18 +566,16 @@ RELEASE_1_9_2_DIGESTS = {
     ".baseline/check_overflow.js":
         "8e50e8f311516ae4ed7ed653ce24d4c727530e081f44ba9f55af32e9c0d4ba01",
 }
-# The baseline 1.11.0 SHA256SUMS digests of every file grc copies that
-# 1.11.0 changes or adds (CHANGELOG 1.11.0; maintainer approval 2026-11-06
-# 15:03Z): baseline.css and palettes.css (the seventh footer card, the 7-name
-# footer stages and the optional components grc does not use), NOTICE.md
-# (item 3, the 7 project logos), the new logos/vendorreplies.png (the
-# seventh card's logo), tools/check_palette.py (the component tokens of
-# 1.11.0) and tools/build_card.js (its version label alone). Every other
-# pinned file is byte-identical to the release, so every digest in the pin
-# is 1.11.0's and the pin's version is 1.11.0.
+# The baseline 1.11.0 SHA256SUMS digests of the 4 files grc copies that
+# 1.11.0 changes or adds and 1.11.1 leaves byte-identical (CHANGELOG 1.11.0
+# and 1.11.1; maintainer approval of 1.11.0 2026-11-06 15:03Z): palettes.css
+# (the .site-vendorreplies palette and the 3 silver band tokens of the
+# seventh card), NOTICE.md (item 3, the 7 project logos),
+# the new logos/vendorreplies.png (the seventh card's logo) and
+# tools/check_palette.py (the component tokens of 1.11.0). The other 2 files
+# 1.11.0 changed that grc copies, baseline.css and tools/build_card.js,
+# change again in 1.11.1 and carry RELEASE_1_11_1_DIGESTS below.
 RELEASE_1_11_0_DIGESTS = {
-    ".web/baseline/baseline.css":
-        "48d474963881ac430b4e48cca5494783293db758907416a682212c1946bf4d52",
     ".web/baseline/palettes.css":
         "9a83e8a2f690b36a9dd40913d0cda90e9b824860effa1c49dd2cff1a263fe01f",
     ".web/baseline/NOTICE.md":
@@ -575,11 +584,26 @@ RELEASE_1_11_0_DIGESTS = {
         "24c965ca0568376ea505b80aee61faf03428acb968cbca8f364236feb9cf990e",
     ".baseline/check_palette.py":
         "fd6a41d816e25076cb54cabb50d04d959fdb5072fee3b937d9be89a186d8c8c1",
+}
+# The baseline 1.11.1 SHA256SUMS digests of the 2 files grc copies that
+# 1.11.1 changes (CHANGELOG 1.11.1; 1.11.1 adds no file): baseline.css (the
+# compact footer bar, the names shown above 1159 px of footer width, the 3
+# marks grouped beside the signature while the names show, the gold line
+# under the whole current tile at every width, and the optional --band-pad
+# token, which grc does not set) and tools/build_card.js (its version label
+# alone). Every pinned file is in this table, RELEASE_1_11_0_DIGESTS,
+# RELEASE_1_10_0_CARD_DIGESTS, RELEASE_1_9_2_DIGESTS or the set the 1.9.2
+# comment above names as unchanged from 1.6.1, and every digest in the pin
+# equals its file's entry in the 1.11.1 SHA256SUMS, so the pin's version is
+# 1.11.1.
+RELEASE_1_11_1_DIGESTS = {
+    ".web/baseline/baseline.css":
+        "fbc97a3cbcda9bf0df3a914485720d008fdefe702592fab4bb2b12ce4661c3be",
     ".baseline/build_card.js":
-        "3a653136b84808a77ab54fe80b46b06ebb13000d63c2d38e9b21f7127cc80b43",
+        "fc05c9aeb646620034cb014cd9afb752e6aca4b448df48d3d369cbd447ec5c8a",
 }
 # Spec 7.19 from 1.11.0: the seventh footer card, exactly as the release's
-# reference pages carry it (reference/landing.html and 14 more), with the
+# reference pages carry it (reference/landing.html and 15 more), with the
 # logo path in the site's served asset tree. The href is checked by its
 # parsed parts (SEVENTH_CARD_HREF_PARTS) and then put in the {href} slot:
 # the external-link gate scans this file, and the family site's domain is
@@ -3490,7 +3514,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         behaviour returns: every page's footer home card carries
         aria-current="page"; a template request asks the baseline to style
         the "true" form so grc can switch to the semantically exact value
-        later (the card marks the current SITE of the 6-site set)."""
+        later (the card marks the current SITE of the 7-site set)."""
         for rel, html in self.draft_html.items():
             footer = html[html.index("<footer"):]
             marks = re.findall(r'<a class="card" href="/"([^>]*)>', footer)
@@ -10209,29 +10233,34 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     # -- 25. baseline 1.6.0: switch, scheme.js, dark palette, palette gate --
 
-    def test_pin_and_copies_are_baseline_1_11_0(self):
+    def test_pin_and_copies_are_baseline_1_11_1(self):
         """The 1.9.2 move (the owner's 1.9.1 notice: grclibrary.ai, whose
         documents page prompted the chip states, moves; the 1.9.2 notice:
         move to 1.9.2 instead, with the same steps), item 3b788's move to
-        1.10.0, which changed no copied file but the card builder, then the
-        move to 1.11.0 (maintainer approval 2026-11-06 15:03Z): the pin names
-        1.11.0, and the files 1.11.0 changes or adds that grc copies
-        (baseline.css, palettes.css, NOTICE.md, logos/vendorreplies.png, the
-        palette gate and the card builder), with the files
+        1.10.0, which changed no copied file but the card builder, the move
+        to 1.11.0 (maintainer approval 2026-11-06 15:03Z), then the move to
+        1.11.1 (CHANGELOG 1.11.1: every site moves, by replacing
+        baseline.css): the pin names 1.11.1; the 2 files 1.11.1 changes that
+        grc copies (baseline.css and the card builder,
+        RELEASE_1_11_1_DIGESTS) carry 1.11.1's SHA256SUMS digests, the 4
+        files 1.11.0 changes or adds that 1.11.1 leaves byte-identical
+        (palettes.css, NOTICE.md, logos/vendorreplies.png and the palette
+        gate, RELEASE_1_11_0_DIGESTS) carry 1.11.0's, and the files
         RELEASE_1_9_2_DIGESTS and RELEASE_1_10_0_CARD_DIGESTS pin, which
-        1.11.0 leaves as they were, carry their releases' SHA256SUMS digests
-        in the pin, in the repository and, for the served
-        ones, in the draft copy; the card builder and its fonts (item 3b788,
-        spec 7.35) are pinned and never served, while the data file template
-        is not copied and the site's data file is not pinned (the live card
-        changes only after the owner approves a before and after preview);
-        the module docstring and the CSP comment name the pinned version."""
+        1.11.0 and 1.11.1 leave as they were, carry their releases', each in
+        the pin, in the repository and, for the served ones, in the draft
+        copy; the card builder and its fonts (item 3b788, spec 7.35) are
+        pinned and never served, while the data file template is not copied
+        and the site's data file is not pinned (the live card changes only
+        after the owner approves a before and after preview); the module
+        docstring and the CSP comment name the pinned version."""
         import tomllib
         pin = tomllib.loads(
             (REPO_ROOT / ".baseline" / "pin.toml").read_text(encoding="utf-8")
         )
-        self.assertEqual(pin["version"], "1.11.0")
-        for key, digest in RELEASE_1_11_0_DIGESTS.items():
+        self.assertEqual(pin["version"], "1.11.1")
+        for key, digest in {**RELEASE_1_11_1_DIGESTS,
+                            **RELEASE_1_11_0_DIGESTS}.items():
             self.assertEqual(pin["files"].get(key), digest, f"{key} pin")
             self.assertEqual(
                 hashlib.sha256((REPO_ROOT / key).read_bytes()).hexdigest(),
