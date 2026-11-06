@@ -11229,9 +11229,9 @@ class DraftSiteRenderTests(unittest.TestCase):
         "pipl": r"\bPIPL\b|Personal Information Protection Law\b",
     }
     # Plain-text names the matcher hits that name a different text than the
-    # instrument: a namesake, or guidance, a profile, or a regulation made
-    # under the instrument, or a statute the instrument amends. Each stays
-    # unaliased, by design.
+    # instrument (a namesake, or guidance, a profile, or a regulation made
+    # under the instrument), or a spelling held out pending a routed
+    # instrument-identity decision. Each stays unaliased, by design.
     NOT_INSTRUMENT_NAMES = {
         "Accelerate (DORA research)":
             "DORA here is DevOps Research and Assessment",
@@ -11277,12 +11277,16 @@ class DraftSiteRenderTests(unittest.TestCase):
             "the HITRUST Common Security Framework, not the NIST CSF",
         "NIS 2 Implementing Acts":
             "the implementing acts made under NIS 2",
-        # Review of 247cd21f8 (codex ERROR): CQLR c. P-39.1 is the
-        # private-sector statute Law 25 amended, while the citations
-        # register row for Quebec Law 25 names the amending act.
+        # Review of 247cd21f8 (codex ERROR) and of 5135948db (claude WARN):
+        # whether the quebec-law-25 instrument is the amending act or CQLR
+        # c. P-39.1 as amended is routed as QC-LAW25-IDENTITY-0250. Two
+        # P-39.1 spellings stay aliased until then, so this one is held out
+        # pending that decision, not ruled a different text.
         "Quebec Law 25 (Canada, CQLR c. P-39.1)":
-            "names CQLR c. P-39.1, the private-sector statute Law 25 "
-            "amended, not the amending act the register row names",
+            "held out pending the instrument identity decision "
+            "QC-LAW25-IDENTITY-0250 (the amending act, or CQLR c. P-39.1 as "
+            "amended); the P-39.1 spellings already aliased stay aliased "
+            "until that decision settles all of them together",
     }
     # Separate texts that name no crosswalk instrument but sit beside one in
     # a taxonomy string (integration round 3 WARN: each linked whole to the
@@ -11907,9 +11911,10 @@ class DraftSiteRenderTests(unittest.TestCase):
     # AEO / AEO-S guidance" is the aeo instrument itself, which the
     # citations register defines by that guidance; the WCO SAFE spelling
     # is the AEO procedure's corrected citation (the Framework has no ICT
-    # security pillar; ICT Security is 2.6.6 under Pillar 1, Standard 6);
-    # "Quebec Law 25 (Canada, CQLR c. P-39.1)" left for
-    # NOT_INSTRUMENT_NAMES.
+    # security pillar; review of 5135948db: the operator-side condition is
+    # Annex IV element F, while 2.6.6 ICT Security, under Pillar 1 Standard
+    # 6, is the Customs administrations' own strategy); "Quebec Law 25
+    # (Canada, CQLR c. P-39.1)" left for NOT_INSTRUMENT_NAMES.
     _XW_FOLLOWUP2 = {
         "ISO/IEC 27001:2022 Annex A.5.33": "iso-iec-27001",
         "ISO/IEC 27001:2022 Annex A.5.36 (Compliance with policies, rules "
@@ -11951,8 +11956,8 @@ class DraftSiteRenderTests(unittest.TestCase):
         "UK GDPR Art. 20": "gdpr",
         "UK GDPR Art. 21": "gdpr",
         "UK GDPR Arts. 22A-22D (per the UK annex)": "gdpr",
-        "WCO SAFE Framework (2025 edition), Pillar 1 Standard 6 §2.6.6 (ICT "
-        "Security)": "wco-safe",
+        "WCO SAFE Framework (2025 edition), Annex IV element F (Information "
+        "Exchange, Access and Confidentiality)": "wco-safe",
         "UK HMRC AEO / AEO-S guidance": "aeo",
         "COBIT 2019 BAI06 (Managed IT Changes)": "cobit",
         "COBIT 2019 DSS05": "cobit",
@@ -12022,12 +12027,27 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     def test_quebec_p39_1_spelling_is_not_a_law_25_alias(self):
         """Review of 247cd21f8 (codex ERROR): "Quebec Law 25 (Canada, CQLR
-        c. P-39.1)" names the private-sector statute Law 25 amended, while
-        the register row for Quebec Law 25 names the amending act, so the
-        spelling is a listed exclusion with no alias, and the DPIA template
-        that carries it is not on the Quebec Law 25 page through it."""
+        c. P-39.1)" is a listed exclusion with no alias, and the DPIA
+        template that carries it is not on the Quebec Law 25 page through
+        it. Review of 5135948db (claude WARN): its reason said it named
+        P-39.1 and not the amending act, which two P-39.1 spellings still
+        aliased to quebec-law-25 contradict. The instrument's identity is
+        routed as QC-LAW25-IDENTITY-0250, so the reason holds the spelling
+        out pending that decision, those aliases stay, and the reason
+        rules no P-39.1 spelling a different text. Wording limit: the
+        last check reads the reason for the two retired grounds only."""
         name = "Quebec Law 25 (Canada, CQLR c. P-39.1)"
         self.assertIn(name, self.NOT_INSTRUMENT_NAMES)
+        reason = self.NOT_INSTRUMENT_NAMES[name]
+        self.assertIn("pending", reason)
+        self.assertIn("QC-LAW25-IDENTITY-0250", reason)
+        kept = sorted(n for n in self.mod.CROSSWALK_ALIASES if "P-39.1" in n)
+        self.assertEqual(len(kept), 2, kept)
+        for spelling in kept:
+            self.assertEqual(self.mod.crosswalk_alias_keys(spelling),
+                             ("quebec-law-25",), spelling)
+        self.assertNotRegex(
+            reason, r"(?i)not the amending act|statute Law 25 amended")
         self.assertNotIn(name, self.mod.CROSSWALK_ALIASES)
         self.assertEqual(self.mod.crosswalk_alias_keys(name), ())
         docs = [d for d in self._full_taxonomy()
@@ -12040,31 +12060,153 @@ class DraftSiteRenderTests(unittest.TestCase):
                 self.assertNotIn(self.mod._doc_page_url("", d["path"]),
                                  hrefs, d["path"])
 
+    # A claim that a WCO SAFE pillar is an ICT or information security
+    # pillar: "ICT security pillar" and the like, or a pillar whose
+    # parenthetical or immediate qualifier is ICT, IT, cyber or information
+    # security, as in the matrix's former "Pillar II (ICT security)". The
+    # held 2025 text's three pillars are Customs-to-Customs,
+    # Customs-to-Business and Customs-to-other Government Agencies.
+    _WCO_SECURITY_WORD = r"(?:ICT|IT|cyber|information)[- ]?security"
+    _WCO_SECURITY_PILLAR_RE = re.compile(
+        rf"(?i)\b{_WCO_SECURITY_WORD} pillar\b"
+        rf"|\bpillar\s+(?:I{{1,3}}|[123]|one|two|three)\b\s*"
+        rf"(?:\([^)]*\b{_WCO_SECURITY_WORD}\b[^)]*\)"
+        rf"|[:,]?\s*\b{_WCO_SECURITY_WORD}\b)")
+    _WCO_ANNEX_IV_F = ("Annex IV element F (Information Exchange, Access "
+                       "and Confidentiality)")
+    _WCO_PROCEDURE_CITATION = ("WCO SAFE Framework (2025 edition), "
+                               + _WCO_ANNEX_IV_F)
+
+    def _compliance_matrix_rows(self):
+        text = self.mod.CROSSWALK_COMPLIANCE_MATRIX.read_text(encoding="utf-8")
+        _domains, rows = self.mod.parse_compliance_matrix(text)
+        return text, [row for domain_rows in rows.values()
+                      for row in domain_rows]
+
     def test_wco_safe_citation_names_no_ict_security_pillar(self):
         """Review of 247cd21f8 (claude WARN, codex WARN, agy NOTE): the
         UK AEO procedure cited a "WCO SAFE Framework of Standards: ICT
         security pillar", but the held 2025 text rests on three pillars
         (Customs-to-Customs, Customs-to-Business, Customs-to-other
-        Government Agencies) and puts ICT Security at 2.6.6, under Pillar 1
-        Standard 6. No taxonomy framework string naming WCO SAFE, and no
-        line of the procedure, names a security pillar (the cloud providers'
-        Security Pillar names are other texts), and the corrected spelling
-        links the WCO SAFE page."""
-        names = {n for d in self._full_taxonomy()
-                 for n in d.get("frameworks", [])}
+        Government Agencies). Review of 5135948db (claude NOTE 1): the
+        compliance matrix still gave 37 rows "Pillar II (ICT security)" and
+        its coverage summary put "ICT-security requirements" in Pillar II.
+        No claim of an ICT or information security pillar
+        (_WCO_SECURITY_PILLAR_RE) stands in a taxonomy framework string
+        naming WCO SAFE, in a line naming WCO SAFE in any taxonomy
+        document, in any line of the AEO procedure (the cloud providers'
+        Security Pillar names are other texts), in any cell of the
+        compliance matrix's WCO SAFE column, or in any matrix line naming
+        WCO SAFE; and the procedure's corrected spelling links the WCO SAFE
+        page. Matcher limit: a claim worded another way (a security
+        "strand" or "track") is not caught."""
+        claim = self._WCO_SECURITY_PILLAR_RE
+        for bad in ("Pillar II (ICT security)", "ICT security pillar",
+                    "Pillar 2 (Customs-to-Business partnership: AEO and "
+                    "ICT-security requirements)", "Pillar II: IT security"):
+            self.assertRegex(bad, claim)
+        full = self._full_taxonomy()
         wco = re.compile(self.INSTRUMENT_NAME_RES["wco-safe"])
+        names = {n for d in full for n in d.get("frameworks", [])}
         self.assertEqual(
             sorted(n for n in names
-                   if wco.search(n) and re.search(r"(?i)security pillar", n)),
+                   if wco.search(n) and (claim.search(n)
+                                         or re.search(r"(?i)security pillar",
+                                                      n))),
             [])
+        hits = []
+        for d in full:
+            path = REPO_ROOT / d["path"]
+            if not path.is_file():
+                continue
+            for number, line in enumerate(
+                    path.read_text(encoding="utf-8").splitlines(), 1):
+                if wco.search(line) and claim.search(line):
+                    hits.append(f"{d['path']}:{number}")
+        self.assertEqual(hits, [], "a line naming WCO SAFE claims an ICT "
+                                   "security pillar")
         text = (REPO_ROOT / self._AEO_PROCEDURE).read_text(encoding="utf-8")
         self.assertNotRegex(text, r"(?i)security pillar")
-        name = ("WCO SAFE Framework (2025 edition), Pillar 1 Standard 6 "
-                "§2.6.6 (ICT Security)")
+        self.assertNotRegex(text, claim)
+        matrix_text, rows = self._compliance_matrix_rows()
+        self.assertEqual(
+            sorted(f"{row['path']}: {row['cells']['WCO SAFE']}"
+                   for row in rows
+                   if claim.search(row["cells"]["WCO SAFE"])),
+            [], "a compliance matrix WCO SAFE cell claims an ICT security "
+                "pillar")
+        summary = [line for line in matrix_text.splitlines()
+                   if line.startswith("| WCO SAFE |")]
+        self.assertTrue(summary, "the matrix carries WCO SAFE key rows")
+        for line in summary:
+            self.assertNotRegex(line, claim)
+        name = self._WCO_PROCEDURE_CITATION
         self.assertIn(f"| {name} |", text)
         self.assertEqual(self.mod.crosswalk_alias_keys(name), ("wco-safe",))
         self.assertIn(self.mod._doc_page_url("", self._AEO_PROCEDURE),
                       self._citation_hrefs("wco-safe"))
+
+    def test_wco_safe_operator_security_cites_annex_iv_element_f(self):
+        """Review of 5135948db (claude NOTE 1): the AEO procedure cited
+        2.6.6 ICT Security, which the held 2025 text addresses to Customs
+        ("Customs have to undertake risk assessment"), while the operator
+        condition this IT self-assessment evidences is Annex IV element F
+        ("have a documented information security policy and procedures
+        ... to protect the AEO's electronic systems"). The procedure cites
+        Annex IV element F and not 2.6.6 as its WCO SAFE citation; the
+        matrix row for the procedure cites the same element; and the AEO-S
+        annex's reference and the BASC policy's WCO SAFE row, which named
+        an "Information and Communications Technology Security" component
+        and an "AEO Security" heading the held text does not carry, cite
+        Annex IV element F."""
+        text = (REPO_ROOT / self._AEO_PROCEDURE).read_text(encoding="utf-8")
+        rows = [line for line in text.splitlines()
+                if line.startswith("| WCO SAFE")]
+        self.assertEqual(len(rows), 1, rows)
+        citation = rows[0].split("|")[1].strip()
+        self.assertEqual(citation, self._WCO_PROCEDURE_CITATION)
+        self.assertNotIn("2.6.6", citation)
+        _matrix_text, matrix_rows = self._compliance_matrix_rows()
+        cells = [row["cells"]["WCO SAFE"] for row in matrix_rows
+                 if row["path"] == self._AEO_PROCEDURE]
+        self.assertEqual(
+            cells,
+            ["Annex IV F (Information Exchange, Access and Confidentiality)"])
+        annex = (REPO_ROOT / "compliance/logistics/"
+                 "annex-aeo-united-kingdom-cybersecurity.md").read_text(
+                     encoding="utf-8")
+        refs = [line for line in annex.splitlines()
+                if line.startswith("- WCO SAFE")]
+        self.assertEqual(len(refs), 1, refs)
+        self.assertIn(self._WCO_ANNEX_IV_F, refs[0])
+        self.assertNotIn("Communications Technology Security", refs[0])
+        basc = (REPO_ROOT / "compliance/logistics/"
+                "policy-basc-information-security.md").read_text(
+                    encoding="utf-8")
+        refs = [line for line in basc.splitlines()
+                if line.startswith("| WCO SAFE")]
+        self.assertEqual(len(refs), 1, refs)
+        self.assertIn(self._WCO_ANNEX_IV_F, refs[0])
+        self.assertNotIn("| AEO Security |", refs[0])
+
+    def test_wco_safe_matrix_cites_no_standard_6_for_access(self):
+        """Review of 5135948db (claude NOTE 1, same class): seven
+        compliance matrix rows put IT access control at "Pillar II
+        (Standard 6, access)", but the held 2025 text's Pillar 2 Standard 6
+        is Facilitation (Pillar 1 Standard 6 is Advance Electronic
+        Information); access to information systems is in Pillar 2
+        Standard 2 (Security). No identifier in the matrix's WCO SAFE column
+        pairs Standard 6 with access, ICT, IT or information security."""
+        _matrix_text, rows = self._compliance_matrix_rows()
+        security = re.compile(
+            r"(?i)\baccess\b|\bICT\b|\bIT\b|information[- ]security")
+        bad = sorted(
+            f"{row['path']}: {part}"
+            for row in rows
+            for part in self.mod._xw_split_identifiers(
+                row["cells"]["WCO SAFE"])
+            if re.search(r"\bStandard 6\b", part) and security.search(part))
+        self.assertEqual(bad, [])
 
     def test_and_joined_compound_chip_keeps_its_separator(self):
         """Item 3b788 draft round 2: "ISO/IEC 27018:2025 and ISO/IEC
@@ -13615,7 +13757,8 @@ class SiteReviewFixRound2Tests(unittest.TestCase):
         website inside an adopter-facing document; the sentence is replaced
         by a neutral pointer to the cross-framework matrix, and the Version
         carries the branch's two PATCH bumps (1.12.8 to 1.12.10) plus round
-        3 item 1's (1.12.11)."""
+        3 item 1's (1.12.11) and item 3b788 draft round 3's WCO SAFE column
+        correction's (1.12.12)."""
         text = (REPO_ROOT / "compliance" /
                 "matrix-grc-compliance-alignment.md"
                 ).read_text(encoding="utf-8")
@@ -13626,7 +13769,7 @@ class SiteReviewFixRound2Tests(unittest.TestCase):
                       "the [Cross-Framework Alignment Matrix]"
                       "(../governance/matrix-cross-framework-alignment.md).",
                       text)
-        self.assertIn("**Version:** 1.12.11\\\n", text)
+        self.assertIn("**Version:** 1.12.12\\\n", text)
 
     def test_quick_reference_purpose_matches_its_exception_rows(self):
         """Item 3: the Purpose said "the absolute prohibitions" though
@@ -13717,7 +13860,9 @@ class SiteReviewFixRound3Tests(unittest.TestCase):
         documents (ai/framework-ai-assurance-evidence.md at review) have no
         row; the Purpose now says it maps "the GRC library documents it
         lists", and the Version carries a PATCH bump (1.12.10 to 1.12.11)
-        with the Date kept."""
+        with the Date kept. Item 3b788 draft round 3's WCO SAFE column
+        correction bumps it again (1.12.12) and sets the Date to
+        2026-11-06."""
         text = (REPO_ROOT / "compliance" /
                 "matrix-grc-compliance-alignment.md"
                 ).read_text(encoding="utf-8")
@@ -13726,8 +13871,8 @@ class SiteReviewFixRound3Tests(unittest.TestCase):
                       "to the control domains and section references of "
                       "ten compliance, security, assurance, and AI-control "
                       "frameworks, so a reader can trace", text)
-        self.assertIn("**Version:** 1.12.11\\\n", text)
-        self.assertIn("**Date:** 2026-11-05\\\n", text)
+        self.assertIn("**Version:** 1.12.12\\\n", text)
+        self.assertIn("**Date:** 2026-11-06\\\n", text)
 
 
 class BaselinePinGateTests(unittest.TestCase):

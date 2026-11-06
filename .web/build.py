@@ -5517,8 +5517,8 @@ CROSSWALK_ALIASES = {
     "BASC International Security Standard 6.0.2/6.0.3 (2022)": "basc",
     "WCO SAFE Framework": "wco-safe",
     "WCO SAFE Framework (2025 edition)": "wco-safe",
-    "WCO SAFE Framework (2025 edition), Pillar 1 Standard 6 §2.6.6 (ICT "
-    "Security)": "wco-safe",
+    "WCO SAFE Framework (2025 edition), Annex IV element F (Information "
+    "Exchange, Access and Confidentiality)": "wco-safe",
     "AEO-S (UK)": "aeo",
     "AEO-S IT Control Requirements": "aeo",
     "UK HMRC AEO / AEO-S guidance": "aeo",

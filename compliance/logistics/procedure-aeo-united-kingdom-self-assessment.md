@@ -2,7 +2,7 @@
 
 **Document Title:** UK AEO IT Self-Assessment Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-11-06\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -280,7 +280,7 @@ The CISO aims to provide the IT response to the AEO Compliance function within 1
 | Framework / Authority | Relevance |
 |---|---|
 | UK HMRC AEO / AEO-S guidance | Defines AEO-S criteria and self-assessment obligations; primary regulatory driver for this procedure |
-| WCO SAFE Framework (2025 edition), Pillar 1 Standard 6 §2.6.6 (ICT Security) | Customs-to-Customs provision that makes a detailed ICT security strategy an integral part of any Customs supply chain security strategy; the Framework is the international basis of the HMRC AEO-S programme |
+| WCO SAFE Framework (2025 edition), Annex IV element F (Information Exchange, Access and Confidentiality) | AEO condition that the operator has a documented information security policy and procedures or security-related controls protecting its electronic systems from unauthorized access, and procedures and back-up capabilities against the loss of information; this self-assessment evidences that operator condition (§2.6.6 ICT Security, under Pillar 1 Standard 6, sets the Customs administration's own ICT security strategy, not the operator's); the Framework is the international basis of the HMRC AEO-S programme |
 | ISO/IEC 27001:2022 §9.1 | Monitoring and measurement of information security controls; provides the methodology for assessing and evidencing control effectiveness used in Sections 4 and 5 |
 
 ---
