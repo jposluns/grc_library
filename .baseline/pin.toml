@@ -1,4 +1,4 @@
-version = "1.9.2"
+version = "1.10.0"
 
 [files]
 ".baseline/build_card.js" = "3d0cecc8851ff6a2e1cab8c3c7dfdbcebc35c8f02260581cbfcf47ad70d990df"

@@ -22834,6 +22834,129 @@ class ExternalLinkDomainsTests(LinterTestCase):
         self.assertLinterFails(result)
 
 
+class ExternalLinkDomainsBaselineCardLicenceTests(LinterTestCase):
+    """tools/lint-external-link-domains.py and the pinned Inter card-font
+    licence (item 3b788, baseline 1.10.0): its upstream URL is never put on
+    ALLOW_LIST; the gate's own route for pinned byte-identical licence texts,
+    the root-anchored exclusion in main(), drops exactly
+    ``.baseline/card-fonts/inter-LICENSE.txt`` from discovery and nothing
+    wider."""
+
+    SCRIPT = "tools/lint-external-link-domains.py"
+    LICENCE = REPO_ROOT / ".baseline" / "card-fonts" / "inter-LICENSE.txt"
+
+    def test_card_font_licence_host_is_not_allow_listed(self) -> None:
+        """The licence's own URL host stays off the allow-list, so the
+        exclusion below is the only thing that keeps the pinned file clean."""
+        mod = load_linter_module(self.SCRIPT, "_extlink_card_licence_allow")
+        self.assertNotIn("scripts.sil.org", mod.ALLOW_LIST)
+        self.assertFalse(mod._engine().is_allowed(
+            "scripts.sil.org", allow_list=mod.ALLOW_LIST))
+        self.assertIn("scripts.sil.org",
+                      [host for _, host in mod.scan(self.LICENCE)],
+                      "the pinned licence names an off-list host")
+
+    def test_only_the_pinned_card_font_licence_is_dropped(self) -> None:
+        """Exactly the root-anchored pinned licence is left out of the scan:
+        a sibling in card-fonts/, the rest of .baseline/ and a file of the
+        same name in a nested .baseline/ are all still scanned."""
+        import contextlib
+        import io
+        from unittest import mock
+
+        mod = load_linter_module(self.SCRIPT, "_extlink_card_licence_scope")
+        candidates = [
+            self.LICENCE,
+            REPO_ROOT / ".baseline" / "card-fonts" / "other-LICENSE.txt",
+            REPO_ROOT / ".baseline" / "site-card.toml",
+            REPO_ROOT / "docs" / ".baseline" / "card-fonts" / "inter-LICENSE.txt",
+            REPO_ROOT / ".web" / "baseline" / "fonts" / "sample-LICENSE.txt",
+        ]
+        scanned: list[Path] = []
+        out = io.StringIO()
+        with mock.patch.object(mod, "iter_targets", return_value=candidates), \
+                mock.patch.object(mod, "scan",
+                                  side_effect=lambda p: scanned.append(p) or []), \
+                contextlib.redirect_stdout(out):
+            self.assertEqual(mod.main(["lint-external-link-domains.py"]), 0)
+        self.assertIn("(scanned 3 files)", out.getvalue())
+        self.assertEqual(scanned, candidates[1:4])
+
+    def test_pinned_licence_passes_and_a_copy_elsewhere_fails(self) -> None:
+        """End to end: the gate passes on the pinned licence by path, and the
+        same bytes anywhere else are still flagged for scripts.sil.org."""
+        result = run_linter(self.SCRIPT, self.LICENCE)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("(scanned 0 files)", result.stdout)
+        copy = self.make_fixture("inter-LICENSE.txt",
+                                 self.LICENCE.read_text(encoding="utf-8"))
+        result = run_linter(self.SCRIPT, copy)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("scripts.sil.org", result.stdout)
+
+
+class BaselineSiteCardDataTests(unittest.TestCase):
+    """``.baseline/site-card.toml`` (item 3b788, baseline 1.10.0 spec 7.35):
+    its header names the true source of each copy value and says how the
+    builder's own tags relate to grc's build. Item 3b788 review: the header
+    said the subline was the home page's og:description; it is the subline
+    of the live card image."""
+
+    DATA = REPO_ROOT / ".baseline" / "site-card.toml"
+    LIVE_CARD = ".web/static/images/grclibrary-card.png"
+
+    def _header(self) -> str:
+        lines = self.DATA.read_text(encoding="utf-8").splitlines()
+        header = []
+        for line in lines:
+            if not line.startswith("#"):
+                break
+            header.append(line.lstrip("# ").rstrip())
+        return " ".join(header)
+
+    def test_subline_source_is_the_live_card_not_og_description(self) -> None:
+        import hashlib
+        import re
+        import tomllib
+
+        header = self._header()
+        self.assertIn(f"sub is the subline of the live card image, "
+                      f"{self.LIVE_CARD}.", header)
+        self.assertNotIn("sub is the home page's og:description", header)
+        # Why: the home page's og:description is its meta description, a
+        # different sentence from the subline.
+        landing = (REPO_ROOT / ".web" / "templates-draft" / "landing.html"
+                   ).read_text(encoding="utf-8")
+        meta = re.findall(r'<meta name="description" content="([^"]*)">',
+                          landing)
+        sub = tomllib.loads(self.DATA.read_text(encoding="utf-8"))["sub"]
+        self.assertEqual(len(meta), 1)
+        self.assertNotEqual(meta[0], sub)
+        # The named source is the live card, still the one the build pins.
+        build = (REPO_ROOT / ".web" / "build.py").read_text(encoding="utf-8")
+        pinned = re.findall(r'^CARD_SHA256 = "([0-9a-f]{64})"$', build, re.M)
+        self.assertEqual(
+            [hashlib.sha256((REPO_ROOT / self.LIVE_CARD).read_bytes())
+             .hexdigest()], pinned, "the live card is unchanged")
+
+    def test_header_says_grc_does_not_use_the_builder_tags(self) -> None:
+        import tomllib
+
+        header = self._header()
+        self.assertIn("with no description field the builder's "
+                      "card-tags.html would carry sub as og:description", header)
+        self.assertIn("grc does not use card-tags.html", header)
+        # The facts behind it: the builder defaults description to sub, the
+        # data file sets none, and the build reads no card-tags.html.
+        builder = (REPO_ROOT / ".baseline" / "build_card.js").read_text(
+            encoding="utf-8")
+        self.assertIn("d.description = d.description || d.sub;", builder)
+        self.assertNotIn("description", tomllib.loads(
+            self.DATA.read_text(encoding="utf-8")))
+        self.assertNotIn("card-tags", (REPO_ROOT / ".web" / "build.py")
+                         .read_text(encoding="utf-8"))
+
+
 class CrossDocNumbersTests(LinterTestCase):
     """tools/lint-cross-doc-numbers.py"""
 
@@ -41980,7 +42103,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-document-control-codes.py OWN F e2c89293d97c7c4e5f6e8d5e4ceda1f2be850718beecf7cd0323b5c6601fe2f9
         lint-document-date-staleness.py CWD F bd94e8055f86c3639fd11eb90712f9e63d353056de3754d2842e5b5908108e1b
         lint-document-iso-annex-a.py OWN F d15f9b9b9e0bad6ff5a943d950b3b58322293939f8ac496fe38d52c4183e64e5
-        lint-external-link-domains.py CWD F 87744ef9fcf2c145b422c9a3c2a46057f83bd7a175bad845a6c7a93ceecc2f84
+        lint-external-link-domains.py CWD F e6e6a16f780ebc5d847f8d7ef78698a9c01fb19c341bdf829d708f9b62ff8511
         lint-external-overlay-license.py NO_FS F 274c40601ab51949646d3c7fdf115e35b9fa47af81646ec83547e352c10f781d
         lint-filename-title-alignment.py ROOT F 053875094e7cc520061a2dd3a0fa226f35c68834942cef0a168bbfdac5f9dcf3
         lint-followup-ageing.py CWD F 20eedad44d3eb7a8237f0d3e8232f77d2566b4ec68d94631fb59012e2843f37f
@@ -90897,6 +91020,28 @@ class BaselinePinLinterTests(LinterTestCase):
             result.stdout.count(".baseline/card-fonts: symbolic link or not "
                                 "a real directory"), 4, result.stdout)
         self.assertIn("4 baseline-pin finding(s).", result.stdout)
+
+    def test_repository_pin_version_is_the_card_builder_release(self) -> None:
+        """Item 3b788 review: the pin named 1.9.2 while its [files] table
+        carried the 1.10.0 card builder. The builder states the package
+        version it belongs to in its VERSION constant (the package's release
+        checks fail when the two differ), so the repository pin's version is
+        that release, and gate 110 reports it."""
+        import re
+        import tomllib
+
+        pin = tomllib.loads(
+            (REPO_ROOT / ".baseline" / "pin.toml").read_text(encoding="utf-8"))
+        builder = (REPO_ROOT / ".baseline" / "build_card.js").read_text(
+            encoding="utf-8")
+        release = re.findall(r'^const VERSION = "(\d+\.\d+\.\d+)";$', builder,
+                             re.M)
+        self.assertEqual(release, ["1.10.0"], "the pinned builder's release")
+        self.assertEqual(pin["version"], release[0],
+                         "the pin names the release of its card builder")
+        result = run_linter(self.SCRIPT)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn(f"(baseline {release[0]}).", result.stdout)
 
     def test_pinned_tool_changed_byte_flagged(self) -> None:
         root = self._pin_fixture_root()

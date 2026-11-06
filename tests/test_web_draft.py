@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """The promoted site tree (PR 2b's rebuild on the shared family site
-template, baseline 1.9.2, flipped to the site root at the draft-site
+template, baseline 1.10.0, flipped to the site root at the draft-site
 promotion, maintainer decisions 2026-11-04).
 
 What is locked here, each test failing without its feature:
@@ -341,14 +341,15 @@ What is locked here, each test failing without its feature:
    refused, so the build passes without the caveat; and the 404 page lead
    names each top bar link, in the bar's order, by its exact label, or,
    for a label listed in _404_LEAD_FORMS, by that fixed form only.
-39. Baseline 1.9.2 (CHANGELOG 1.7.0 to 1.9.2; spec sections 4 item 3, 6.1,
-   6.4, 7.24 and 7.29): the pin names 1.9.2, and the files 1.9.1 changes
-   that grc copies (baseline.css and the palette gate), the vendored
+39. Baseline 1.10.0 (CHANGELOG 1.7.0 to 1.10.0; spec sections 4 item 3,
+   6.1, 6.4, 7.24, 7.29 and 7.35): the pin names 1.10.0, and the files 1.9.1
+   changes that grc copies (baseline.css and the palette gate), the vendored
    NOTICE.md (its Inter item comes from 1.9.0), the files 1.8.0 changes or adds
    (palettes.css, matrix.js, the overflow check), and search.js, which 1.7.0
    changed, carry the release's digests in the pin, in the repository and,
-   for the served ones, in the draft copy; the card builder and its fonts
-   are not copied or pinned (a card change waits for the owner's approval);
+   for the served ones, in the draft copy; the 1.10.0 card builder and its
+   fonts are copied and pinned with 1.10.0's digests, never served, and the
+   live card is unchanged (a card change waits for the owner's approval);
    the overflow check is pinned beside the palette gate and, like it, never
    served; the served palettes.css gives grclibrary the 13 matrix tokens in
    all 4 of its light and dark forms, and the build's palette gate, which
@@ -478,7 +479,7 @@ from unittest import mock
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-# The draft CSP, copied from baseline 1.9.2 SPECIFICATION.md section 9
+# The draft CSP, copied from baseline 1.10.0 SPECIFICATION.md section 9
 # (unchanged since 1.3.1), the shared policy for draft pages; build.py must
 # carry it byte for byte.
 SPEC_SECTION_9_CSP = (
@@ -522,8 +523,10 @@ SCHEME_SCRIPT_TAG = (
 # tools/build_card.js and the documents, none of which grc copied then.
 # The baseline 1.10.0 SHA256SUMS digests of the card builder and its fonts,
 # which item 3b788 copies to .baseline/ and pins beside the other tools
-# (spec 7.35), never served. 1.10.0 leaves every other copied file
-# byte-identical to 1.9.2 (its CHANGELOG), so the pin's version stays 1.9.2.
+# (spec 7.35), never served. 1.10.0 changes only tools/build_card.js,
+# tools/site-card.example.toml and the documents, and leaves every other
+# copied file byte-identical to 1.9.2 (its CHANGELOG), so every digest in
+# the pin is 1.10.0's and the pin's version is 1.10.0.
 RELEASE_1_10_0_CARD_DIGESTS = {
     ".baseline/build_card.js":
         "3d0cecc8851ff6a2e1cab8c3c7dfdbcebc35c8f02260581cbfcf47ad70d990df",
@@ -10120,11 +10123,12 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     # -- 25. baseline 1.6.0: switch, scheme.js, dark palette, palette gate --
 
-    def test_pin_and_copies_are_baseline_1_9_2(self):
+    def test_pin_and_copies_are_baseline_1_10_0(self):
         """The 1.9.2 move (the owner's 1.9.1 notice: grclibrary.ai, whose
         documents page prompted the chip states, moves; the 1.9.2 notice:
-        move to 1.9.2 instead, with the same steps): the pin names 1.9.2,
-        and the copied files 1.9.0 to 1.9.2 change, with the files 1.8.0
+        move to 1.9.2 instead, with the same steps), then item 3b788's move to
+        1.10.0, which changes no copied file but the card builder: the pin
+        names 1.10.0, and the copied files 1.9.0 to 1.9.2 change, with the files 1.8.0
         changes or adds, search.js from 1.7.0 and scheme.js from 1.6.0,
         carry the release's SHA256SUMS digests in the pin, in the repository
         and, for the served ones, in the draft copy; the 1.10.0 card builder
@@ -10138,7 +10142,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         pin = tomllib.loads(
             (REPO_ROOT / ".baseline" / "pin.toml").read_text(encoding="utf-8")
         )
-        self.assertEqual(pin["version"], "1.9.2")
+        self.assertEqual(pin["version"], "1.10.0")
         for key, digest in RELEASE_1_10_0_CARD_DIGESTS.items():
             self.assertEqual(pin["files"].get(key), digest, f"{key} pin")
             self.assertEqual(
