@@ -66,7 +66,7 @@ const crypto = require("crypto");
 
 // The package version this builder belongs to; the report and the tags name it. The release checks fail when it
 // differs from the package's version.
-const VERSION = "1.10.0";
+const VERSION = "1.11.0";
 const W = 1200, H = 630, SAFE = { l: 120, t: 75, w: 960, h: 480 };
 const ART = 430, ART_BOX = 340, GAP = 28, COL = SAFE.w - ART_BOX - GAP;
 // The centred layout (from 1.10.0) and the Microsoft Teams crop it keeps clear of.

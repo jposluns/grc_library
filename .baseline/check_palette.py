@@ -49,7 +49,12 @@ COMPONENT = ["chip-fg", "chip-border", "chip-hover-fg", "chip-hover-border", "ch
              "button-hover-border", "nav-fg", "nav-hover-fg", "nav-current-fg", "rail-fg", "rail-hover-fg",
              "rail-current-fg", "picker-fg", "picker-hover-fg", "picker-current-fg", "picker-current-rule", "input-fg",
              "input-bg", "input-border", "input-placeholder", "tag-fg", "tag-border", "tag-accent-fg",
-             "tag-accent-border", "th-fg", "th-rule"]
+             "tag-accent-border", "th-fg", "th-rule",
+             # from 1.11.0: the bands
+             "band-tint-bg", "band-dark-bg", "band-dark-fg", "band-dark-heading", "band-dark-link", "band-dark-focus",
+             # from 1.11.0: the banner frame, the before-and-after boxes and the card grid
+             "banner-from", "banner-to", "pair-before-bg", "pair-before-bg-on-tint", "pair-after-bg", "pair-panel-bg",
+             "box-bg", "box-border"]
 # (foreground, [grounds], threshold): text 4.5:1; the boundary of a control 3:1. Tokens not listed are decorative.
 COMPONENT_PAIRS = (
     [(t, ["bg"], 4.5) for t in ["chip-fg", "chip-hover-fg", "chip-pressed-fg", "nav-fg",
@@ -60,7 +65,16 @@ COMPONENT_PAIRS = (
     + [("chip-unavailable-fg", ["chip-unavailable-bg"], 3.0)]
     + [(t, ["bg", "code-bg"], 4.5) for t in ["button-fg", "button-hover-fg"]]
     + [(t, ["bg"], 3.0) for t in ["button-border", "button-hover-border"]]
-    + [("input-fg", ["input-bg"], 4.5), ("input-placeholder", ["input-bg"], 4.5), ("tag-fg", ["bg", "surface-sunken"], 4.5)])
+    + [("input-fg", ["input-bg"], 4.5), ("input-placeholder", ["input-bg"], 4.5), ("tag-fg", ["bg", "surface-sunken"], 4.5)]
+    # from 1.11.0: text on a tinted band (the page's text tokens on --band-tint-bg) and on a dark band
+    + [(t, ["band-tint-bg"], 4.5) for t in ["chip-fg", "nav-fg", "th-fg", "tag-fg"]]
+    + [(t, ["band-dark-bg"], 4.5) for t in ["band-dark-fg", "band-dark-heading", "band-dark-link"]]
+    + [("band-dark-focus", ["band-dark-bg"], 3.0)]
+    # from 1.11.0: the page's text, muted labels, links and the after box's accent label on each box surface
+    + [("text", ["pair-before-bg", "pair-before-bg-on-tint", "pair-after-bg", "pair-panel-bg", "box-bg"], 4.5),
+       ("text-muted", ["pair-before-bg", "pair-before-bg-on-tint", "pair-after-bg", "box-bg"], 4.5),
+       ("link", ["pair-before-bg", "pair-before-bg-on-tint", "pair-after-bg", "pair-panel-bg", "box-bg"], 4.5),
+       ("accent", ["pair-after-bg", "box-bg"], 4.5)])
 FAMILY_PAIRS = [(t, ["bg"], 4.5) for t in ["gold", "silver", "ord-progress", "ord-speed", "ord-cost"]]
 RAINBOW = (["rainbow-%d" % i for i in range(1, 7)] + ["rainbow-join-%d" % i for i in range(1, 7)]
            + ["rainbow-ink-%d" % i for i in range(1, 7)] + ["band-grey"])
