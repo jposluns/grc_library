@@ -22405,13 +22405,16 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertLess(stderr_lines.index(failed), stderr_lines.index(warning), result.stderr)
 
     def test_shard_directory_removal_printing_two_lines_reports_one_line(self):
-        # FLIP TABLE (rmtree round 2, claude N1): a python3 first on PATH,
+        # FLIP TABLE (rmtree round 2, claude N1; round 3, claude N1): a
+        # python3 first on PATH,
         # under the fixture, writes two lines to stderr and exits 3 when it
         # is the shard-directory removal (its program holds shutil.rmtree)
         # and runs the real python3 otherwise. The guard joins the removal's
         # message onto one line, so its failure line holds both messages and
         # neither is printed as a line of its own. Without the guard's
-        # newline collapse the second message starts a line and this fails.
+        # newline collapse the second message starts a line and this fails;
+        # a guard that also prints the first message on a line of its own
+        # fails the first-message count.
         import shlex
         real = shutil.which("python3", path=self.env.get("PATH"))
         self.assertIsNotNone(real)
