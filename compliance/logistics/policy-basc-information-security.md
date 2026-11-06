@@ -2,8 +2,8 @@
 
 **Document Title:** BASC Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.2.13\
-**Date:** 2026-09-01\
+**Version:** 1.2.14\
+**Date:** 2026-11-06\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -204,7 +204,7 @@ All exceptions are logged and assigned an expiry or review date. Owners are resp
 | ISO/IEC 27001:2022 | A.5 to A.8: Security controls | Information security management alignment |
 | NIST SP 800-53 r5 | AC, IA, SI, IR: Access, identity, integrity, incident | Control family mapping |
 | CSA CCM v4.1 | IAM, HRS, TVM, LOG | Cloud control alignment |
-| WCO SAFE Framework (2025 edition) | AEO Security | Trade and customs information security |
+| WCO SAFE Framework (2025 edition) | Annex IV element F (Information Exchange, Access and Confidentiality); Pillar 2 Standard 2 (Security) | Trade and customs information security: the AEO's information security policy and protection of its electronic systems and information systems |
 
 ---
 

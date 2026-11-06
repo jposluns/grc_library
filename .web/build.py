@@ -5389,32 +5389,54 @@ CROSSWALK_BY_KEY = {inst.key: inst for inst in CROSSWALK_INSTRUMENTS}
 # concern page that cites an instrument by one of its clauses, articles or
 # control identifiers names that instrument and is aliased too (integration
 # round 2 ERROR: the concern pages showed such names as plain text beside a
-# linked short form); elsewhere in the taxonomy such spellings are not all
-# aliased yet (for example "COBIT 2019 DSS05"), and an unaliased spelling
-# counts toward no instrument. Guidance, a profile, or a regulation made
-# under an instrument is a separate text and is not aliased.
+# linked short form), and so is every other taxonomy spelling naming exactly
+# one instrument, wherever it sits (XW-GDPR-CHIP-2128 review follow-up 2:
+# spellings such as "GDPR Art. 15" and "COBIT 2019 DSS05" rendered unlinked
+# and counted on no page); an unaliased spelling counts toward no
+# instrument. Guidance, a profile, or a regulation made under an instrument
+# is a separate text and is not aliased.
 CROSSWALK_ALIASES = {
     "ISO/IEC 27001:2022": "iso-iec-27001",
     "ISO/IEC 27001:2022 Annex A.5.24 to A.5.28": "iso-iec-27001",
+    "ISO/IEC 27001:2022 Annex A.5.33": "iso-iec-27001",
+    "ISO/IEC 27001:2022 Annex A.5.36 (Compliance with policies, rules and "
+    "standards for information security)": "iso-iec-27001",
+    "ISO/IEC 27001:2022 Annex A.5.7": "iso-iec-27001",
+    "ISO/IEC 27001:2022 §9.1": "iso-iec-27001",
     "ISO/IEC 42001:2023": "iso-iec-42001",
     "ISO/IEC 42001:2023 A.8.4 (Communication of incidents)": "iso-iec-42001",
     "ISO/IEC 42001:2023 §7.5.3": "iso-iec-42001",
+    "ISO/IEC 42001:2023 §9.2.1-9.2.2": "iso-iec-42001",
+    "ISO/IEC 42001:2023 §9.3.1-9.3.3": "iso-iec-42001",
     "NIST CSF 2.0": "nist-csf",
+    "NIST CSF 2.0 DE.AE-02, DE.AE-03, DE.AE-07": "nist-csf",
+    "NIST CSF 2.0 DE.CM-01, DE.CM-09": "nist-csf",
+    "NIST CSF 2.0 GV.OC (organizational context)": "nist-csf",
     "NIST Cybersecurity Framework 2.0": "nist-csf",
     "NIST SP 800-53 Rev. 5": "nist-sp-800-53",
     "NIST SP 800-53 Rev. 5 CA": "nist-sp-800-53",
+    "NIST SP 800-53 Rev. 5 SI-4": "nist-sp-800-53",
+    "NIST SP 800-53 r5": "nist-sp-800-53",
     "NIST AI RMF 1.0": "nist-ai-rmf",
     "NIST AI RMF 1.0 (2023)": "nist-ai-rmf",
     "NIST AI RMF 1.0 (NIST AI 100-1)": "nist-ai-rmf",
     "NIST AI RMF 1.0 MANAGE 4.3": "nist-ai-rmf",
     "NIST AI RMF 1.0: Govern function": "nist-ai-rmf",
+    "NIST AI RMF 1.0: MANAGE 1.2, 1.4, 4.1, 4.3": "nist-ai-rmf",
+    "NIST AI RMF 1.0: Map/Measure/Manage": "nist-ai-rmf",
+    "NIST AI RMF 1.0: MEASURE 1.1, 2.9, 2.11": "nist-ai-rmf",
     "NIST AI 100-1 (AI RMF 1.0)": "nist-ai-rmf",
     "CSA CCM v4.1": "csa-ccm",
     "CSA CCM v4.1.0": "csa-ccm",
     "CSA CCM": "csa-ccm",
+    "CSA CCM LOG-03, LOG-05": "csa-ccm",
+    "CSA CCM LOG-05": "csa-ccm",
+    "CSA CCM SEF-06, SEF-07": "csa-ccm",
+    "CSA CCM TVM-01, TVM-04, TVM-05": "csa-ccm",
     "CSA CCM v4.1 DSP-02": "csa-ccm",
     "CSA CCM v4.1 DSP-09": "csa-ccm",
     "CSA CCM v4.1 DSP-10": "csa-ccm",
+    "CSA CCM v4.1 DSP-11, DSP-01": "csa-ccm",
     "CSA CCM v4.1 DSP-16": "csa-ccm",
     "CSA CCM v4.1 Data Security and Privacy Lifecycle Management (DSP) "
     "domain": "csa-ccm",
@@ -5426,8 +5448,10 @@ CROSSWALK_ALIASES = {
     "CSA AICM v1.1": "csa-aicm",
     "CSA AICM v1.1.0": "csa-aicm",
     "CSA AICM": "csa-aicm",
+    "CSA AICM v1.1 A&A-01 through A&A-06": "csa-aicm",
     "OWASP LLM Top 10": "owasp-llm-top-10",
     "OWASP LLM Top 10 (2026)": "owasp-llm-top-10",
+    "OWASP Top 10 for LLM Applications 2026": "owasp-llm-top-10",
     "MITRE ATLAS": "mitre-atlas",
     "MITRE ATLAS (2026.07)": "mitre-atlas",
     "EU AI Act": "eu-ai-act",
@@ -5437,16 +5461,27 @@ CROSSWALK_ALIASES = {
     "EU AI Act (Regulation (EU) 2024/1689 as amended by Regulation (EU) "
     "2026/1744)": "eu-ai-act",
     "EU AI Act Annex IV": "eu-ai-act",
+    "EU AI Act Chapter IX": "eu-ai-act",
     "GDPR": "gdpr",
     "EU GDPR": "gdpr",
     "EU GDPR (Regulation (EU) 2016/679)": "gdpr",
+    "EU GDPR (Regulation 2016/679)": "gdpr",
+    "EU GDPR Art. 22": "gdpr",
     "GDPR (EU)": "gdpr",
     "GDPR (2018)": "gdpr",
+    "GDPR (UK and EU)": "gdpr",
     "UK GDPR": "gdpr",
     "GDPR / UK GDPR": "gdpr",
     "GDPR (EU) / UK GDPR": "gdpr",
     "GDPR (Regulation (EU) 2016/679)": "gdpr",
+    "GDPR Art. 15": "gdpr",
+    "GDPR Art. 16": "gdpr",
+    "GDPR Art. 17": "gdpr",
+    "GDPR Art. 18": "gdpr",
+    "GDPR Art. 20": "gdpr",
+    "GDPR Art. 21": "gdpr",
     "GDPR Art. 34(3)(a)": "gdpr",
+    "GDPR Art. 37 to 39": "gdpr",
     "GDPR Article 35": "gdpr",
     "GDPR Articles 33 to 34": "gdpr",
     "GDPR Arts. 33 to 34 (Art. 33(1) notification to the supervisory "
@@ -5454,6 +5489,13 @@ CROSSWALK_ALIASES = {
     "UK GDPR (consolidated text retrieved 29 September 2026)": "gdpr",
     "UK GDPR Articles 33 to 34 (consolidated text retrieved 29 September "
     "2026)": "gdpr",
+    "UK GDPR Art. 15": "gdpr",
+    "UK GDPR Art. 16": "gdpr",
+    "UK GDPR Art. 17": "gdpr",
+    "UK GDPR Art. 18": "gdpr",
+    "UK GDPR Art. 20": "gdpr",
+    "UK GDPR Art. 21": "gdpr",
+    "UK GDPR Arts. 22A-22D (per the UK annex)": "gdpr",
     "UK GDPR Arts. 33 to 34": "gdpr",
     "DORA": "dora",
     "DORA (Regulation (EU) 2022/2554, 14 December 2022)": "dora",
@@ -5475,16 +5517,25 @@ CROSSWALK_ALIASES = {
     "BASC International Security Standard 6.0.2/6.0.3 (2022)": "basc",
     "WCO SAFE Framework": "wco-safe",
     "WCO SAFE Framework (2025 edition)": "wco-safe",
+    "WCO SAFE Framework (2025 edition), Annex IV element F (Information "
+    "Exchange, Access and Confidentiality)": "wco-safe",
     "AEO-S (UK)": "aeo",
     "AEO-S IT Control Requirements": "aeo",
+    "UK HMRC AEO / AEO-S guidance": "aeo",
     "COBIT 2019": "cobit",
     "COBIT 2019 APO14.09, DSS01": "cobit",
+    "COBIT 2019 BAI06 (Managed IT Changes)": "cobit",
+    "COBIT 2019 DSS05": "cobit",
     "COBIT 2019 MEA01": "cobit",
     "PIPEDA": "pipeda",
     "Canada PIPEDA": "pipeda",
+    "Canada PIPEDA (OPC Fair Information Principles)": "pipeda",
     "PIPEDA (Canada)": "pipeda",
     "PIPEDA (Canada Personal Information Protection and Electronic "
     "Documents Act)": "pipeda",
+    "PIPEDA Sch 1 Principle 3 (withdrawal of consent)": "pipeda",
+    "PIPEDA Sch 1 Principle 9 (amendment)": "pipeda",
+    "PIPEDA Sch 1 Principle 9 (Individual Access)": "pipeda",
     "Quebec Law 25": "quebec-law-25",
     "Quebec Law 25 (S.Q. 2021, c. 25)": "quebec-law-25",
     "Quebec Law 25 (CQLR c. P-39.1) sections 3.3 and 12.1 (private "
@@ -5534,6 +5585,16 @@ CROSSWALK_ALIASES = {
 # Risk (STAR)", "CSA CCM v4.1 SEF-08, SEF-03"), so no other string is split
 # on them (item 3b788 draft round 2). A string joining texts none of which
 # is a crosswalk instrument stays whole (finding XW-GDPR-CHIP-2128 sweep).
+# A part that is a filler word naming no text at all carries
+# CROSSWALK_PART_FILLER instead of None (XW-GDPR-CHIP-2128 review follow-up
+# 1: the "equivalents" part of "GDPR / UK GDPR / equivalents" rendered as a
+# search chip, and its search found unrelated documents). Each such part is
+# marked here by hand, never inferred from the word: it renders as plain,
+# unlinked text inside its document chip, counts toward no instrument and is
+# never a framework entry on a concern page. A part naming a real text that
+# is no crosswalk instrument (CCPA, the Data Protection Act 2018) keeps None
+# and its search chip.
+CROSSWALK_PART_FILLER = object()
 CROSSWALK_ALIAS_PARTS_JOINERS = (" / ", " and ", ", ")
 CROSSWALK_ALIAS_PARTS = {
     "CSA CCM v4.1 / AICM v1.1": (
@@ -5547,7 +5608,8 @@ CROSSWALK_ALIAS_PARTS = {
     "GDPR / UK GDPR / CCPA": (
         ("GDPR", "gdpr"), ("UK GDPR", "gdpr"), ("CCPA", None)),
     "GDPR / UK GDPR / equivalents": (
-        ("GDPR", "gdpr"), ("UK GDPR", "gdpr"), ("equivalents", None)),
+        ("GDPR", "gdpr"), ("UK GDPR", "gdpr"),
+        ("equivalents", CROSSWALK_PART_FILLER)),
     "ISO/IEC 27018:2025 and ISO/IEC 27701:2025": (
         ("ISO/IEC 27018:2025", None),
         ("ISO/IEC 27701:2025", "iso-iec-27701")),
@@ -5610,11 +5672,12 @@ CONCERN_PLAIN_ALIASES = {
 def crosswalk_alias_keys(name):
     """The instrument keys one exact taxonomy framework string names through
     the committed alias maps, in order; empty for a string neither carries.
-    A compound's plain-text parts (key None) name no instrument."""
+    A compound's plain-text parts (key None) and filler parts
+    (CROSSWALK_PART_FILLER) name no instrument."""
     if name in CROSSWALK_ALIASES:
         return (CROSSWALK_ALIASES[name],)
     return tuple(key for _, key in CROSSWALK_ALIAS_PARTS.get(name, ())
-                 if key is not None)
+                 if key is not None and key is not CROSSWALK_PART_FILLER)
 
 
 def crosswalk_parts_joiner(name, parts):
@@ -5638,8 +5701,9 @@ def normalize_concern_frameworks(names):
     no instrument, and a spelling outside both maps, each stay one
     plain-text entry, normalized through CONCERN_PLAIN_ALIASES (review
     round 2 item 4) so near-duplicate spellings of one non-instrument text
-    collapse too. Returns (display, key) pairs, key None for plain text,
-    sorted by display."""
+    collapse too. A filler part (CROSSWALK_PART_FILLER) names no text and
+    is no entry at all. Returns (display, key) pairs, key None for plain
+    text, sorted by display."""
     keys = set()
     plain = set()
     for name in names:
@@ -5647,6 +5711,8 @@ def normalize_concern_frameworks(names):
             keys.add(CROSSWALK_ALIASES[name])
         elif name in CROSSWALK_ALIAS_PARTS:
             for part, key in CROSSWALK_ALIAS_PARTS[name]:
+                if key is CROSSWALK_PART_FILLER:
+                    continue
                 if key is None:
                     plain.add(CONCERN_PLAIN_ALIASES.get(part, part))
                 else:
@@ -6808,7 +6874,10 @@ def draft_document_values(doc, docs_by_path):
         # design B 5.5: a bare search link lost the framework the reader
         # clicked). Item 3b788 site review F15: every chip searched even
         # where the instrument page exists, while the concern pages already
-        # linked the same names to their crosswalk pages.
+        # linked the same names to their crosswalk pages. A filler part
+        # (CROSSWALK_PART_FILLER) names no text, so it stays plain, unlinked
+        # text: its search found unrelated documents (XW-GDPR-CHIP-2128
+        # review follow-up 1).
         chips = []
         for f in doc["frameworks"]:
             key = CROSSWALK_ALIASES.get(f)
@@ -6820,8 +6889,9 @@ def draft_document_values(doc, docs_by_path):
             elif f in CROSSWALK_ALIAS_PARTS:
                 joiner = crosswalk_parts_joiner(f, CROSSWALK_ALIAS_PARTS[f])
                 chips.append("<li>" + joiner.join(
-                    (f'<a href="{{{{BASE}}}}/crosswalk/{part_key}/">'
-                     f"{_esc(part)}</a>") if part_key is not None
+                    _esc(part) if part_key is CROSSWALK_PART_FILLER
+                    else (f'<a href="{{{{BASE}}}}/crosswalk/{part_key}/">'
+                          f"{_esc(part)}</a>") if part_key is not None
                     else (f'<a href="{_esc(_draft_search_url(part))}">'
                           f"{_esc(part)}</a>")
                     for part, part_key in CROSSWALK_ALIAS_PARTS[f]
@@ -8194,7 +8264,8 @@ def build_crosswalk(full_docs):
     bad_aliases = sorted(
         {key for key in CROSSWALK_ALIASES.values() if key not in CROSSWALK_BY_KEY}
         | {key for parts in CROSSWALK_ALIAS_PARTS.values() for _, key in parts
-           if key is not None and key not in CROSSWALK_BY_KEY}
+           if key is not None and key is not CROSSWALK_PART_FILLER
+           and key not in CROSSWALK_BY_KEY}
     )
     if bad_aliases:
         raise BuildError(
@@ -8212,7 +8283,8 @@ def build_crosswalk(full_docs):
                 f"crosswalk: the CROSSWALK_ALIAS_PARTS parts of '{name}' do "
                 "not rejoin with ' / ', ' and ' or ', ' to the string"
             )
-        if all(key is None for _, key in parts):
+        if all(key is None or key is CROSSWALK_PART_FILLER
+               for _, key in parts):
             raise BuildError(
                 f"crosswalk: no CROSSWALK_ALIAS_PARTS part of '{name}' names "
                 "a crosswalk instrument"

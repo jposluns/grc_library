@@ -2,8 +2,8 @@
 
 **Document Title:** UK AEO IT Self-Assessment Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-11-06\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`operations/standard-network-security-and-segmentation.md`](../../operations/standard-network-security-and-segmentation.md), [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../../operations/procedure-endpoint-management-and-device-compliance.md), [`resilience/procedure-backup-and-recovery.md`](../../resilience/procedure-backup-and-recovery.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md)\
@@ -280,7 +280,7 @@ The CISO aims to provide the IT response to the AEO Compliance function within 1
 | Framework / Authority | Relevance |
 |---|---|
 | UK HMRC AEO / AEO-S guidance | Defines AEO-S criteria and self-assessment obligations; primary regulatory driver for this procedure |
-| WCO SAFE Framework of Standards: ICT security pillar | Defines international standards for customs IT security that underpin the HMRC AEO-S requirements |
+| WCO SAFE Framework (2025 edition), Annex IV element F (Information Exchange, Access and Confidentiality) | AEO condition that the operator has a documented information security policy and procedures or security-related controls protecting its electronic systems from unauthorized access, and procedures and back-up capabilities against the loss of information; this self-assessment evidences that operator condition (§2.6.6 ICT Security, under Pillar 1 Standard 6, sets the Customs administration's own ICT security strategy, not the operator's); the Framework is the international basis of the HMRC AEO-S programme |
 | ISO/IEC 27001:2022 §9.1 | Monitoring and measurement of information security controls; provides the methodology for assessing and evidencing control effectiveness used in Sections 4 and 5 |
 
 ---
