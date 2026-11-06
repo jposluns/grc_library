@@ -19427,7 +19427,2640 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         for checkout, log in kept:
             self.assertTrue(Path(checkout, "tools", "pre-push-guard.sh").is_file(), checkout)
             self.assertTrue(Path(log).is_file(), log)
+        # FLIP TABLE (leftover report): the interrupt message says what was
+        # left and that the next push checks it again, with no removal
+        # command while this run lasts (round 2: a removal command only for
+        # a finished run); the guard-owner record holds this guard's pid,
+        # clone, start time and pid namespace; the next push, once the run
+        # has ended, prints the commands that remove it. Round 10 (codex
+        # WARN 1): the scan of every process of the host behind each of
+        # these reports may reach its bound on a busy host, which a
+        # correctly reported incomplete scan with no removal command says.
+        left = output.split("Left behind by this run", 1)
+        if not self.incomplete_scan(output):
+            self.assertEqual(len(left), 2, output)
+            self.assertIn(" (nothing was removed; the next push reports it until it is "
+                          "removed):", left[1])
+            self.assertIn("    - this run made it and has not ended yet: the next push checks "
+                          "it again and prints the commands that remove it only once this run "
+                          "has ended and nothing uses it\n", left[1])
+        self.assertEqual(self.leftover_commands(left[-1]), [])
+        root = os.path.dirname(os.path.dirname(kept[0][0]))
+        record = Path(root, "guard-owner").read_bytes().split(b"\0")
+        self.assertEqual(len(record), 7, record)
+        self.assertEqual(record[0], b"%d" % guard.pid)
+        self.assertEqual(os.path.realpath(os.fsdecode(record[1])), os.path.realpath(self.root))
+        self.assertTrue(record[2].isdigit(), record)
+        self.assertEqual(os.fsdecode(record[3]), os.readlink("/proc/self/ns/pid"))
+        self.assertEqual(record[4:], [self.boot_id().encode("ascii"),
+                                      self.machine_id().encode("ascii"), b""])
+        later, _ran = self.run_guard()
+        self.assertEqual(later.returncode, 0, later.stdout + later.stderr)
+        for err in self.complete_reports(later.stderr):
+            self.assertIn("pre-push guard: LEFTOVERS of earlier runs", err)
+        self.assert_removable(later.stderr, root, [checkout for checkout, _log in kept],
+                              re.escape("no process %d exists" % guard.pid), inventory=())
         for checkout, _log in kept:
+            self.git("worktree", "remove", "--force", checkout)
+
+    LEFTOVERS_HEAD = ("pre-push guard: LEFTOVERS of earlier runs of this guard in this clone "
+                      "(report only: the report ran no git and started and signalled no "
+                      "process; no process of a leftover was stopped or signalled, nothing was "
+                      "removed and no git state was changed; the push continues):")
+    # What a REMOVABLE leftover whose directory exists says was read (round
+    # 5, claude NOTE 1 and codex WARN 1: no more than the report reads).
+    ALL_READ_TEXT = ("every process this /proc shows was read (kernel threads aside: the "
+                     "working directory, root directory and open files of each of its threads, "
+                     "and its mapped files), and none uses it there")
+    # The reason a leftover whose directory exists stays INSPECT while any
+    # process (kernel threads aside) cannot be read (round 3, codex WARN 1).
+    UNREAD = (r"\d+ process\(es\) could not be read \((\d+) of yours, (\d+) of other users; \d+ "
+              r"of them may be privileged\), so whether one uses it is unknown: its mode does "
+              r"not exclude one, since a privileged or setuid process, or one handed a "
+              r"descriptor, can use it anyway$")
+    # The report alone (the guard's own LEFTOVER_PY, read from the fixture's
+    # guard), as on a host where every process /proc shows can be read: a
+    # process this user cannot read is taken as one that has exited, except
+    # a kernel thread, which stays unreadable, so the report's own exclusion
+    # of kernel threads is exercised. Any other error reading a process
+    # (round 8, claude WARN 1 and codex WARN 1: a process of this user caught
+    # as it exits has lost its working directory and descriptors before it
+    # is a zombie, which raised a plain OSError and made a test that expects
+    # REMOVABLE fail at random) is taken as an exit only when the process is
+    # gone, or when /proc/<pid>/stat, read again, shows its leader gone, a
+    # zombie or dead, or exiting (PF_EXITING, 0x4, in its flags) and the
+    # stat of every one of its threads (/proc/<pid>/task/<tid>/stat) shows
+    # the same (round 9, codex WARN 2 and claude NOTE 1: the leader alone
+    # is a zombie while other threads of the process still run, as the
+    # EXITED_LEADER fixture shows), and /proc/<pid>/task, listed again once
+    # every thread is read, lists the same threads (round 10, claude NOTE
+    # 1: a thread created after the first listing is not in it, so a
+    # changed listing keeps the process unread); otherwise the process
+    # stays one that cannot be read, so a live process the report cannot read
+    # (UNREAD_THREAD), or a live thread of one whose leader has exited, is
+    # still counted. The re-check reads through os.open and os.read, as the
+    # report does, so a prelude can script it. On a host with unreadable
+    # processes a test uses it to check the commands printed once nothing
+    # else stands in the way. Arguments: the code, then the report's own
+    # arguments.
+    ALL_READ = (
+        "import contextlib, io, os, sys\n"
+        "code = sys.argv.pop(1)\n"
+        "mode = sys.argv[1]\n"
+        "sys.argv[1] = 'identity'\n"
+        "g = {'__name__': '__main__'}\n"
+        "with contextlib.redirect_stdout(io.StringIO()):\n"
+        "    exec(code, g)\n"
+        "g['mode'] = mode\n"
+        "g['only'] = os.path.realpath(sys.argv[5]) if mode == 'left' else None\n"
+        "real = g['uses']\n"
+        "def kernel_thread(pid):\n"
+        "    try:\n"
+        "        data = open('/proc/%s/stat' % pid, 'rb').read()\n"
+        "        return int(data[data.rindex(b')') + 2:].split()[6]) & 0x00200000\n"
+        "    except (OSError, ValueError, IndexError):\n"
+        "        return False\n"
+        "def ended(path):\n"
+        "    try:\n"
+        "        fd = os.open(path, os.O_RDONLY)\n"
+        "    except (FileNotFoundError, ProcessLookupError):\n"
+        "        return True\n"
+        "    except OSError:\n"
+        "        return False\n"
+        "    try:\n"
+        "        data = os.read(fd, 4096)\n"
+        "    except OSError:\n"
+        "        return False\n"
+        "    finally:\n"
+        "        os.close(fd)\n"
+        "    try:\n"
+        "        rest = data[data.rindex(b')') + 2:].split()\n"
+        "        return rest[0] in (b'Z', b'X', b'x') or bool(int(rest[6]) & 0x4)\n"
+        "    except (ValueError, IndexError):\n"
+        "        return False\n"
+        "def threads(pid):\n"
+        "    try:\n"
+        "        return sorted(os.listdir('/proc/%s/task' % pid))\n"
+        "    except (FileNotFoundError, ProcessLookupError):\n"
+        "        return []\n"
+        "def exiting(pid):\n"
+        "    if not ended('/proc/%s/stat' % pid):\n"
+        "        return False\n"
+        "    try:\n"
+        "        tids = threads(pid)\n"
+        "        if not all(ended('/proc/%s/task/%s/stat' % (pid, tid)) for tid in tids):\n"
+        "            return False\n"
+        "        return threads(pid) == tids\n"
+        "    except OSError:\n"
+        "        return False\n"
+        "def uses(pid, roots):\n"
+        "    try:\n"
+        "        return real(pid, roots)\n"
+        "    except PermissionError:\n"
+        "        if kernel_thread(pid):\n"
+        "            raise\n"
+        "        raise ProcessLookupError(pid)\n"
+        "    except OSError:\n"
+        "        if exiting(pid):\n"
+        "            raise ProcessLookupError(pid)\n"
+        "        raise\n"
+        "g['uses'] = uses\n"
+        "g['main']()\n")
+
+    def report_code(self):
+        guard = (self.root / "tools" / "pre-push-guard.sh").read_text(encoding="utf-8")
+        return guard.split("LEFTOVER_PY='\n", 1)[1].split("\n'\n", 1)[0]
+
+    # A prelude for the report alone that gives it a deterministic process
+    # inventory: /proc lists the report itself (which it skips) and the
+    # pids FIXTURE_PIDS names (space-separated: the test's own fixture
+    # processes) and no other, so what it finds does not depend on what
+    # else runs on the host, nor its scan on how much (round 8; round 9,
+    # codex WARN 1 and claude NOTE 3: for every test that asserts an
+    # outcome through ALL_READ). Every other path is listed as is.
+    NO_OTHER_PROCESS = (
+        "import os\n"
+        "_listdir = os.listdir\n"
+        "def _inventory(path='.'):\n"
+        "    if path == '/proc':\n"
+        "        return [str(os.getpid())] + os.environ.get('FIXTURE_PIDS', '').split()\n"
+        "    return _listdir(path)\n"
+        "os.listdir = _inventory\n")
+
+    def report_all_read(self, mode="scan", *args, inventory, prelude="", cwd=None, **extra):
+        """The report alone through ALL_READ. inventory is the pids of the
+        test's own fixture processes, which with the report itself are all
+        that /proc lists (NO_OTHER_PROCESS), or None for the host's whole
+        /proc (only for a test whose subject is that scan). It runs in cwd,
+        the fixture clone by default, as a push from there would."""
+        if inventory is not None:
+            prelude = self.NO_OTHER_PROCESS + prelude
+            extra["FIXTURE_PIDS"] = " ".join(str(pid) for pid in inventory)
+        return subprocess.run([sys.executable, "-I", "-c", self.ALL_READ,
+                               prelude + self.report_code(),
+                               mode, "repo", "1", self.common_dir(), *args],
+                              cwd=self.root if cwd is None else cwd,
+                              env=dict(self.env, **extra), capture_output=True, text=True,
+                              timeout=60)
+
+    def common_dir(self):
+        """This fixture's git common directory, as the guard's shell passes it
+        to the report (git runs here, in the test, never in the report)."""
+        out = self.git("rev-parse", "--git-common-dir").stdout.strip()
+        return os.path.realpath(os.path.join(self.root, out))
+
+    def report_alone(self, prelude="", mode="scan", extra_args=(), **extra):
+        """The report alone (the guard's own code after prelude), with this
+        fixture's common directory, as the guard runs it."""
+        return subprocess.run([sys.executable, "-I", "-c", prelude + self.report_code(), mode,
+                               "repo", "1", self.common_dir(), *extra_args], cwd=self.root,
+                              env=dict(self.env, **extra), capture_output=True, text=True,
+                              timeout=60)
+
+    @staticmethod
+    def leftover_block(text, word):
+        """The lines of the block of the leftover printed as word."""
+        lines = text.splitlines()
+        for i, line in enumerate(lines):
+            if line.startswith("  %s: " % word):
+                block = [line]
+                for more in lines[i + 1:]:
+                    if not more.startswith("    "):
+                        break
+                    block.append(more)
+                return block
+        return None
+
+    def assert_removable(self, err, root, checkouts, state, *, inventory, **extra):
+        """root is proven a finished run of this clone (state: a pattern for
+        how its end was read) in every respect but processes this user cannot
+        read: in err, the real guard's report, REMOVABLE with the commands
+        that remove it, or INSPECT whose one reason is that processes could
+        not be read, or a correctly reported incomplete scan (incomplete_scan:
+        round 10, codex WARN 1). As on a host where every process is read
+        (report_all_read, with the process inventory inventory), it is
+        REMOVABLE with those commands, which are returned."""
+        expected = self.removable_commands(root, checkouts)
+        if not self.incomplete_scan(err):
+            block = self.leftover_block(err, root)
+            self.assertIsNotNone(block, err)
+            if block[0].startswith("  %s: REMOVABLE: " % root):
+                self.assertEqual(self.leftover_commands("\n".join(block)), expected, err)
+            else:
+                self.assertEqual(block[0], "  %s: INSPECT (no removal command), because:" % root,
+                                 err)
+                reasons = [line[6:] for line in block if line.startswith("    - ")]
+                self.assertEqual(len(reasons), 1, err)
+                self.assertRegex(reasons[0], self.UNREAD)
+                self.assertEqual(self.leftover_commands("\n".join(block)), [], err)
+        alone = self.report_all_read(inventory=inventory, **extra)
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        block = self.leftover_block(alone.stdout, root)
+        self.assertIsNotNone(block, alone.stdout)
+        self.assertRegex(block[0], r"^  %s: REMOVABLE: guard run pid \d+ of this clone made it "
+                                   r"and has ended \(%s\); %s$"
+                                   % (re.escape(str(root)), state, re.escape(self.ALL_READ_TEXT)))
+        commands = self.leftover_commands("\n".join(block))
+        self.assertEqual(commands, expected, alone.stdout)
+        return commands
+
+    @staticmethod
+    def boot_id():
+        return Path("/proc/sys/kernel/random/boot_id").read_text(encoding="ascii").strip()
+
+    @staticmethod
+    def machine_id():
+        """This machine id as the report reads it, or - (fail closed)."""
+        try:
+            value = Path("/etc/machine-id").read_text(encoding="ascii").strip()
+        except (OSError, UnicodeDecodeError):
+            return "-"
+        return value if re.fullmatch("[0-9a-f]{32}", value) else "-"
+
+    # A boot id no kernel has, and a machine id that is not this one.
+    OTHER_BOOT = "00000000-0000-0000-0000-000000000000"
+    OTHER_MACHINE = "0" * 32
+
+    def run_record(self, pid=None, clone=None, start="1", ns=None, boot=None, machine=None):
+        """A run record as the guard writes it (in a guard-owner record and
+        beside the git record of each checkout): pid, clone, start time, pid
+        namespace, boot id and machine id, NUL-separated. By default the pid
+        is that of a process that has ended (started and reaped here), the
+        clone is the fixture's, and the pid namespace, boot id and machine
+        id are those of this test."""
+        if pid is None:
+            done = subprocess.Popen([sys.executable, "-c", "pass"])
+            done.wait(timeout=30)
+            pid = done.pid
+        ns = os.readlink("/proc/self/ns/pid") if ns is None else ns
+        boot = self.boot_id() if boot is None else boot
+        machine = self.machine_id() if machine is None else machine
+        return b"\0".join([b"%d" % pid, os.fsencode(str(self.root if clone is None else clone)),
+                           start.encode("ascii"), os.fsencode(ns), boot.encode("ascii"),
+                           machine.encode("ascii"), b""])
+
+    def write_owner(self, root, **fields):
+        """A guard-owner record in root (see run_record)."""
+        Path(root, "guard-owner").write_bytes(self.run_record(**fields))
+
+    def make_leftover(self, shards, tmpdir=None, owner=True, relative=False):
+        """A shard directory as a run that has ended leaves it:
+        grc-gate36-shards.* under tmpdir (the fixture's TMPDIR by default)
+        holding a guard-owner record of an ended run of this clone (none
+        when owner is False, as an older guard leaves it) and `shards`
+        checkouts of HEAD that are registered with this clone (with a
+        relative gitdir when relative is set). Returns its physical path
+        and the checkouts."""
+        base = self.shard_tmp if tmpdir is None else Path(tmpdir)
+        root = Path(os.path.realpath(tempfile.mkdtemp(prefix="grc-gate36-shards.", dir=base)))
+        if owner:
+            self.write_owner(root)
+        checkouts = []
+        for i in range(1, shards + 1):
+            (root / ("shard-%d" % i)).mkdir()
+            (root / ("shard-%d" % i) / "shard.log").write_text("log\n", encoding="utf-8")
+            checkout = root / ("shard-%d" % i) / "repo"
+            config = ("-c", "worktree.useRelativePaths=true") if relative else ()
+            self.git(*config, "worktree", "add", "--detach", str(checkout), "HEAD")
+            checkouts.append(checkout)
+        return root, checkouts
+
+    @staticmethod
+    def leftover_commands(text):
+        """The commands a leftover report prints, in order (each indented six
+        spaces)."""
+        return [line[6:] for line in text.splitlines()
+                if line.startswith("      ")
+                and line[6:].startswith(("git worktree remove ", "rm -rf ", "kill -TERM "))]
+
+    def assert_inspect(self, err, root, *reasons):
+        """root is reported INSPECT, with each reason, and no command at all."""
+        block = err.split("  %s: " % root, 1)
+        self.assertEqual(len(block), 2, err)
+        self.assertTrue(block[1].startswith("INSPECT (no removal command), because:\n"), err)
+        for reason in reasons:
+            self.assertRegex(block[1], r"(?m)^    - " + reason, err)
+        self.assertEqual(self.leftover_commands(err), [], err)
+
+    # The line of a report whose scan reached its bound before it finished
+    # (not one whose scan failed, which no test accepts): at a stage, or
+    # before its state could be read at all.
+    INCOMPLETE_SCAN = (r"(?m)^pre-push guard: the leftover scan is INCOMPLETE: (?:its 4s scan "
+                       r"bound \(the whole report is bounded to 5s\) was reached while [a-z ]+; "
+                       r"leftovers it had not reached are not listed, and none listed has a "
+                       r"removal command\.|its state could not be read within the 5s bound; "
+                       r"leftovers are not listed\.)$")
+    # The first reason of each leftover a report whose scan did not finish
+    # lists.
+    NOT_FINISHED = ("    - the scan did not finish, so what it holds and whether a process uses "
+                    "it are not fully known")
+
+    def incomplete_scan(self, text):
+        """Whether text, the real guard's report (a scan of every process of
+        the host, which on a busy host can reach its bound before it ends:
+        round 10, codex WARN 1), is a correctly reported incomplete scan,
+        which a test accepts in place of the outcome it expects there. True
+        when text says its scan reached its bound; it must then print no
+        removal command and no REMOVABLE leftover, and list each leftover as
+        INSPECT with the unfinished scan as its first reason, or the test
+        fails. False when text does not say so (a scan that failed
+        included), so the test checks its expected outcome. A test that
+        accepts it keeps its exact outcome and rendering assertions on the
+        report alone, against a deterministic inventory."""
+        if not re.search(self.INCOMPLETE_SCAN, text):
+            return False
+        self.assertEqual(self.leftover_commands(text), [], text)
+        lines = text.splitlines()
+        for i, line in enumerate(lines):
+            self.assertNotRegex(line, r"^  (?! ).*: REMOVABLE: ", text)
+            if re.match(r"  (?! ).*: INSPECT \(no removal command\), because:$", line):
+                self.assertEqual(lines[i + 1:i + 2], [self.NOT_FINISHED], text)
+        return True
+
+    def complete_reports(self, real, *alone):
+        """The reports a test checks its exact outcome on: real, the real
+        guard's, unless it is a correctly reported incomplete scan
+        (incomplete_scan), and each report alone."""
+        return ([] if self.incomplete_scan(real) else [real]) + list(alone)
+
+    def removable_commands(self, root, checkouts):
+        return (["git worktree remove --force -- %s" % c for c in sorted(map(str, checkouts))]
+                + ["rm -rf -- %s" % root])
+
+    def test_leftovers_are_reported_with_the_commands_that_remove_them(self):
+        # FLIP TABLE (leftover report): what a finished run of this clone
+        # left (here two registered checkouts in their shard directory) is
+        # REMOVABLE, with the commands that remove it, once every process is
+        # read (round 3, codex WARN 1: on a host with unreadable processes
+        # those alone keep it INSPECT); running them gives a clean start.
+        # The header says the report ran no git and started and signalled
+        # no process (round 5). Round 10 (codex WARN 1): the real guard's
+        # report may be a correctly reported incomplete scan of the host's
+        # processes; the report alone, against a deterministic inventory,
+        # always shows the header and checkouts.
+        self.change(".web/templates-draft/landing.html")
+        root, checkouts = self.make_leftover(2)
+        result, _ran = self.run_guard()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("pre-push guard FAST PATH", result.stdout)
+        err = result.stderr
+        alone = self.report_all_read(inventory=())
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        for text in self.complete_reports(err, alone.stdout):
+            self.assertIn(self.LEFTOVERS_HEAD + "\n", text)
+            for checkout in checkouts:
+                self.assertIn("    checkout %s: registered with this clone; its directory "
+                              "exists; its .git points into this clone\n" % checkout, text)
+        commands = self.assert_removable(err, root, checkouts, r"no process \d+ exists",
+                                         inventory=())
+        for command in commands[:-1]:
+            subprocess.run(["bash", "-c", command], cwd=self.root, env=self.env, check=True,
+                           capture_output=True, timeout=30)
+        # The last command, rm -rf -- <directory>, done here in Python.
+        shutil.rmtree(root)
+        again, _ran = self.run_guard()
+        self.assertEqual(again.returncode, 0, again.stdout + again.stderr)
+        self.assertNotIn("LEFTOVERS", again.stderr)
+
+    def test_leftover_report_changes_no_git_state(self):
+        # FLIP TABLE (round 2, claude ERROR 1, agy NOTE 4): the report runs
+        # no git worktree prune, so a guard checkout and an unrelated
+        # checkout whose directories are gone both keep their records; the
+        # guard's is INSPECT (its shard directory is gone, and no run
+        # record beside its git record shows which run made it: round 3,
+        # claude WARN 1), named with what git says, and has no command.
+        self.change(".web/templates-draft/landing.html")
+        gone, gone_checkouts = self.make_leftover(1)
+        admin = self.git("-C", str(gone_checkouts[0]), "rev-parse",
+                         "--absolute-git-dir").stdout.strip()
+        head = self.git("-C", str(gone_checkouts[0]), "rev-parse", "HEAD").stdout.strip()
+        shutil.rmtree(gone)
+        side = Path(self.tmp.name) / "side-worktree"
+        self.git("worktree", "add", "--detach", str(side), "HEAD")
+        shutil.rmtree(side)
+        before = self.git("worktree", "list", "--porcelain").stdout
+        result, _ran = self.run_guard()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertNotIn("git worktree prune", result.stderr)
+        self.assertNotIn("REMOVABLE", result.stderr)
+        self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
+        # Round 10 (codex WARN 1): the real guard's report may be a correctly
+        # reported incomplete scan of the host's processes; the report
+        # alone, against a deterministic inventory, always gives the outcome.
+        alone = self.report_all_read(inventory=())
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        for err in self.complete_reports(result.stderr, alone.stdout):
+            self.assertNotIn("git worktree prune", err)
+            self.assert_inspect(err, gone, re.escape(
+                "its directory does not exist, and no run record beside the git record of "
+                "checkout %s shows which run registered it (an older guard writes none, or its "
+                "run stopped before writing it), so whether that run has ended is not proved"
+                % gone_checkouts[0]) + "$")
+            self.assertIn("    checkout %s: registered with this clone; git would list it as "
+                          "prunable (gitdir file points to non-existent location); its directory "
+                          "does not exist\n" % gone_checkouts[0], err)
+            # FLIP TABLE (round 4, codex WARN 3): such a git record, which an
+            # older guard left with no run record, gets the facts known and a
+            # manual inspection procedure ending in the narrow command, marked
+            # NOT PROVED, never REMOVABLE, and given as no removal command.
+            block = "\n".join(self.leftover_block(err, gone)) + "\n"
+            self.assertIn(
+                "      its git record holds HEAD %s (detached); a commit made there that no "
+                "branch or tag holds is lost with the record\n"
+                "      NOT PROVED, so no removal command: no run record shows which run "
+                "registered it. To check it by hand (its git record is %s):\n"
+                "        1. that no run of this guard that could have registered it is still "
+                "running, on this host or on another host, VM or container that shares this "
+                "clone;\n"
+                "        2. that HEAD %s is held by a branch or tag, or is not needed (git "
+                "branch --all --contains %s; git tag --contains %s);\n"
+                "        3. that the checkout directory still does not exist (ls -ld -- %s).\n"
+                "        Only then, by your own judgement: git worktree remove -- %s removes "
+                "that git record alone.\n" % (head, admin, head, head, head, gone_checkouts[0],
+                                              gone_checkouts[0]), block)
+            self.assertNotIn("REMOVABLE", err)
+            self.assertEqual(self.leftover_commands(err), [], err)
+        self.assertEqual(self.git("worktree", "list", "--porcelain").stdout, before)
+        self.assertIn("worktree %s\n" % side, before)
+        self.assertIn("worktree %s\n" % gone_checkouts[0], before)
+
+    def test_prunable_checkout_whose_directory_remains_is_not_called_gone(self):
+        # FLIP TABLE (round 2, codex ERROR 1): a registered checkout whose
+        # .git file is gone while its directory remains is one git lists as
+        # prunable; the report says its directory exists, gives git's own
+        # reason, and makes it INSPECT with no command.
+        self.change(".web/templates-draft/landing.html")
+        root, checkouts = self.make_leftover(1)
+        (checkouts[0] / ".git").unlink()
+        result, _ran = self.run_guard()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
+        # Round 10 (codex WARN 1): as in each test of the real guard's
+        # report, a correctly reported incomplete scan is accepted there,
+        # and the report alone always gives the outcome.
+        alone = self.report_all_read(inventory=())
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        for err in self.complete_reports(result.stderr, alone.stdout):
+            self.assert_inspect(err, root, re.escape("git would list checkout %s as prunable "
+                                                     "although its directory exists"
+                                                     % checkouts[0]))
+            self.assertIn("    checkout %s: registered with this clone; git would list it as "
+                          "prunable (gitdir file points to non-existent location); its "
+                          "directory exists; it has no .git file\n" % checkouts[0], err)
+            self.assertNotIn("is gone", err)
+        self.assertTrue(checkouts[0].is_dir())
+        self.assertIn("worktree %s\n" % checkouts[0],
+                      self.git("worktree", "list", "--porcelain").stdout)
+
+    def test_unreadable_checkout_metadata_is_reported_never_dropped(self):
+        # FLIP TABLE (round 2, codex ERROR 2, claude NOTE 5): a checkout
+        # whose .git cannot be read is reported, with or without a
+        # guard-owner record, and never given a removal command.
+        if os.geteuid() == 0:
+            self.skipTest("root reads a mode-000 file")
+        self.change(".web/templates-draft/landing.html")
+        for owner in (False, True):
+            with self.subTest(owner=owner):
+                root = Path(os.path.realpath(tempfile.mkdtemp(prefix="grc-gate36-shards.",
+                                                              dir=self.shard_tmp)))
+                if owner:
+                    self.write_owner(root)
+                checkout = root / "shard-1" / "repo"
+                checkout.mkdir(parents=True)
+                (checkout / ".git").write_text("gitdir: /nowhere\n", encoding="utf-8")
+                (checkout / ".git").chmod(0)
+                try:
+                    result, _ran = self.run_guard()
+                    alone = self.report_all_read(inventory=())
+                finally:
+                    (checkout / ".git").chmod(0o600)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
+                self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+                # Round 10 (codex WARN 1): the real guard's report or a
+                # correctly reported incomplete scan; the report alone.
+                for err in self.complete_reports(result.stderr, alone.stdout):
+                    self.assert_inspect(err, root, re.escape("checkout %s is not proven to be "
+                                                             "a checkout of this clone"
+                                                             % checkout))
+                    self.assertIn("    checkout %s: not registered with this clone; its "
+                                  "directory exists; its .git cannot be read (Permission "
+                                  "denied)\n" % checkout, err)
+                shutil.rmtree(root)
+
+    def test_mixed_ownership_gets_no_removal_command(self):
+        # FLIP TABLE (round 2, codex ERROR 3): a shard directory of this
+        # clone that also holds another repository's checkout, or a file the
+        # guard does not make, is INSPECT: one checkout of this clone does
+        # not license rm -rf of the rest.
+        self.change(".web/templates-draft/landing.html")
+        other = Path(self.tmp.name) / "other" / "repo"
+        other.mkdir(parents=True)
+        for args in (("init", "-q"),
+                     ("-c", "user.email=o@example.com", "-c", "user.name=o", "commit", "-q",
+                      "--allow-empty", "-m", "Other")):
+            subprocess.run(["git", *args], cwd=other, env=self.env, check=True,
+                           capture_output=True, timeout=30)
+        root, checkouts = self.make_leftover(1)
+        (root / "shard-2").mkdir()
+        foreign = root / "shard-2" / "repo"
+        subprocess.run(["git", "worktree", "add", "--detach", str(foreign), "HEAD"], cwd=other,
+                       env=self.env, check=True, capture_output=True, timeout=30)
+        # Round 10 (codex WARN 1): each outcome is checked on the real
+        # guard's report, unless it is a correctly reported incomplete scan
+        # of the host's processes, and on the report alone.
+        def reports():
+            result, _ran = self.run_guard()
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
+            alone = self.report_all_read(inventory=())
+            self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+            return self.complete_reports(result.stderr, alone.stdout)
+        for err in reports():
+            self.assert_inspect(err, root, re.escape("checkout %s is not proven to be a "
+                                                     "checkout of this clone" % foreign))
+            self.assertRegex(err, r"(?m)^    checkout %s: not registered with this clone; its "
+                                  r"directory exists; it is not a checkout of this clone \(its "
+                                  r"\.git names .+\)$" % re.escape(str(foreign)))
+        subprocess.run(["git", "worktree", "remove", "--force", str(foreign)], cwd=other,
+                       env=self.env, check=True, capture_output=True, timeout=30)
+        (root / "notes.txt").write_text("mine\n", encoding="utf-8")
+        for err in reports():
+            self.assert_inspect(err, root, re.escape("it holds %s, which this guard does "
+                                                     "not make" % (root / "notes.txt")))
+        # A checkout that is a symbolic link (here to this clone's own
+        # checkout) is not read through: it is something the guard does
+        # not make.
+        (root / "notes.txt").unlink()
+        (root / "shard-3").mkdir()
+        (root / "shard-3" / "repo").symlink_to(checkouts[0])
+        for err in reports():
+            self.assert_inspect(err, root, re.escape("it holds %s, which this guard does "
+                                                     "not make" % (root / "shard-3" / "repo")))
+
+    def test_live_or_unknown_run_gets_no_removal_command(self):
+        # FLIP TABLE (round 2, claude WARN 2, agy ERROR 1, codex ERROR 4):
+        # a run whose state is unknown (another pid namespace, or a live pid
+        # with no start time recorded) is INSPECT with no command, however
+        # idle its directory looks. So is a run of another kernel whose
+        # machine id is not this one (round 4, claude WARN 1, for the
+        # guard-owner record too: its pid means nothing here), even as on a
+        # host where every process is read.
+        self.change(".web/templates-draft/landing.html")
+        root, checkouts = self.make_leftover(1)
+        helper = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"],
+                                  cwd=self.tmp.name, stdin=subprocess.DEVNULL)
+        self.addCleanup(helper.wait, 60)
+        self.addCleanup(helper.terminate)
+        for fields, reason in (
+                ({"ns": "pid:[1]"}, r"guard run pid \d+ ran in another pid namespace "
+                                    r"\(pid:\[1\]\), so whether it has ended cannot be read "
+                                    r"from here$"),
+                ({"pid": helper.pid, "start": "-"},
+                 r"a process %d exists, and the record holds no start time to tell it from the "
+                 r"run that made it$" % helper.pid),
+                ({"boot": self.OTHER_BOOT, "machine": self.OTHER_MACHINE},
+                 r"guard run pid \d+ ran under another kernel \(boot id %s\), and its machine "
+                 r"id %s is not this one, so it may still be running on another machine that "
+                 r"shares this clone$" % (self.OTHER_BOOT, self.OTHER_MACHINE))):
+            with self.subTest(fields=fields):
+                self.write_owner(root, **fields)
+                result, _ran = self.run_guard()
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
+                alone = self.report_all_read(inventory=(helper.pid,))
+                self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+                # Round 10 (codex WARN 1): the real guard's report or a
+                # correctly reported incomplete scan; the report alone.
+                for err in self.complete_reports(result.stderr, alone.stdout):
+                    self.assert_inspect(err, root, reason)
+        self.assertIsNone(helper.poll(), "the report stopped a process")
+
+    def test_run_identity_is_its_start_time_not_its_command_line(self):
+        # FLIP TABLE (round 2, agy WARN 2): whether the run that made a
+        # directory still runs is read from its pid and start time, not its
+        # command line: a live process with the recorded start time is that
+        # run (INSPECT), whatever it runs, and the same pid with another
+        # start time is a reused pid, so the run has ended (REMOVABLE).
+        self.change(".web/templates-draft/landing.html")
+        root, checkouts = self.make_leftover(1)
+        helper = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"],
+                                  cwd=self.tmp.name, stdin=subprocess.DEVNULL)
+        self.addCleanup(helper.wait, 60)
+        self.addCleanup(helper.terminate)
+        stat = Path("/proc/%d/stat" % helper.pid).read_bytes()
+        start = stat[stat.rindex(b")") + 2:].split()[19].decode("ascii")
+        self.write_owner(root, pid=helper.pid, start=start)
+        result, _ran = self.run_guard()
+        self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
+        alone = self.report_all_read(inventory=(helper.pid,))
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        # Round 10 (codex WARN 1): the real guard's report or a correctly
+        # reported incomplete scan; the report alone.
+        for err in self.complete_reports(result.stderr, alone.stdout):
+            self.assert_inspect(err, root, "guard run pid %d is still running$" % helper.pid)
+        self.write_owner(root, pid=helper.pid, start=str(int(start) + 1))
+        result, _ran = self.run_guard()
+        self.assert_removable(result.stderr, root, checkouts, re.escape(
+            "pid %d is now another process (its start time differs from the record)" % helper.pid),
+            inventory=(helper.pid,))
+        # Under another boot id of this machine (an earlier boot), the live
+        # process with the recorded pid and start time is not that run.
+        if self.machine_id() != "-":
+            self.write_owner(root, pid=helper.pid, start=start, boot=self.OTHER_BOOT)
+            result, _ran = self.run_guard()
+            self.assert_removable(result.stderr, root, checkouts, re.escape(
+                "guard run pid %d ran during an earlier boot of this machine (its boot id "
+                "differs, its machine id is this one)" % helper.pid), inventory=(helper.pid,))
+        self.assertIsNone(helper.poll(), "the report stopped a process")
+
+    def test_clean_start_prints_no_leftover_report(self):
+        # FLIP TABLE (leftover report): nothing left means no leftover line,
+        # even beside another clone's shard directory (its checkout also
+        # named repo, its guard-owner record naming that clone) under TMPDIR
+        # and a checkout of this clone that the guard did not make.
+        self.change(".web/templates-draft/landing.html")
+        other = Path(self.tmp.name) / "other" / "repo"
+        other.mkdir(parents=True)
+        for args in (("init", "-q"),
+                     ("-c", "user.email=o@example.com", "-c", "user.name=o", "commit", "-q",
+                      "--allow-empty", "-m", "Other")):
+            subprocess.run(["git", *args], cwd=other, env=self.env, check=True,
+                           capture_output=True, timeout=30)
+        foreign = Path(tempfile.mkdtemp(prefix="grc-gate36-shards.", dir=self.shard_tmp))
+        self.write_owner(foreign, clone=other)
+        (foreign / "shard-1").mkdir()
+        subprocess.run(["git", "worktree", "add", "--detach", str(foreign / "shard-1" / "repo"),
+                        "HEAD"], cwd=other, env=self.env, check=True, capture_output=True,
+                       timeout=30)
+        self.git("worktree", "add", "--detach", str(Path(self.tmp.name) / "side"), "HEAD")
+        result, _ran = self.run_guard()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        output = result.stdout + result.stderr
+        for text in ("LEFTOVERS", "leftover", "Left behind", "git worktree prune",
+                     "INCOMPLETE", "UNREADABLE"):
+            self.assertNotIn(text, output)
+
+    def test_leftover_report_signals_and_deletes_nothing(self):
+        # FLIP TABLE (leftover report): a leftover a process still uses is
+        # INSPECT, with that process and how it uses it, and no command to
+        # stop it or remove it; the report stops nothing and removes
+        # nothing: the process still runs, and every directory and
+        # registration is still there.
+        self.change(".web/templates-draft/landing.html")
+        root, checkouts = self.make_leftover(2)
+        helper = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"],
+                                  cwd=checkouts[0], stdin=subprocess.DEVNULL)
+        self.addCleanup(helper.wait, 60)
+        self.addCleanup(helper.terminate)
+        result, _ran = self.run_guard()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertNotIn("kill", result.stderr)
+        self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
+        alone = self.report_all_read(inventory=(helper.pid,))
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        # Round 10 (codex WARN 1): the real guard's report or a correctly
+        # reported incomplete scan; the report alone.
+        for err in self.complete_reports(result.stderr, alone.stdout):
+            self.assert_inspect_in_use(err, root, helper.pid)
+        self.assertIsNone(helper.poll(), "the report stopped a process")
+        self.assertTrue(root.is_dir(), root)
+        for checkout in checkouts:
+            self.assertTrue((checkout / "tools" / "pre-push-guard.sh").is_file(), checkout)
+        worktrees = self.git("worktree", "list", "--porcelain").stdout
+        for checkout in checkouts:
+            self.assertIn("worktree %s\n" % checkout, worktrees)
+
+    def assert_inspect_in_use(self, err, root, pid):
+        """root, in report err, is INSPECT for one process, pid (a python3
+        sleeping 60 seconds in it), with the NOT PROVED stop procedure and no
+        command (test_leftover_report_signals_and_deletes_nothing)."""
+        self.assert_inspect(err, root, re.escape("1 process(es) use it, listed below"))
+        self.assertIn("    used by pid %d: " % pid, err)
+        self.assertIn("(working directory)\n", err)
+        self.assertNotIn("kill", err)
+        # FLIP TABLE (round 5, codex WARN 3): a leftover with a detected
+        # user gets a clearly conditional, NOT PROVED manual stop
+        # procedure: recheck the pid's start time and command line (both
+        # printed) just before any signal, never for this guard, the
+        # processes that started this push, a pre-push guard or a live run,
+        # then push again and remove only what that report marks
+        # REMOVABLE. It is never a signal command (no line of it is one).
+        # Round 7 (claude NOTE 1): it claims labels only for the guards the
+        # report identified, since a run with no run record it read (a
+        # fast-path run writes none) is not labelled (before, it said each
+        # such process was "labelled above").
+        start = self.start_time(pid)
+        block = "\n".join(self.leftover_block(err, root)) + "\n"
+        self.assertNotIn("each labelled above", block)
+        self.assertIn(
+            "    NOT PROVED, so no stop command: the report does not prove that a process using "
+            "it is abandoned. To stop one by hand (never this guard, a process that started "
+            "this push, a pre-push guard or a process one started; only the guards the report "
+            "identified are labelled above, and a guard run whose run record it did not read, "
+            "such as a fast-path run, which writes none, is not), check:\n"
+            "      1. that no run of this guard that could have made it is still running, on "
+            "this host or on another host, VM or container that shares this clone (a live run "
+            "uses its own shard directory: let it end);\n"
+            "      2. that the process is not part of another push (no pre-push guard among its "
+            "parents) and that stopping it loses nothing you need;\n"
+            "      3. just before any signal, that the pid is still the process listed here, "
+            "since a pid can be reused: its start time (field 22 of /proc/<pid>/stat) and its "
+            "command line (/proc/<pid>/cmdline) must still be:\n", block)
+        self.assertRegex(block, r"(?m)^           pid %d: start time %s, command line "
+                                r"\S*python\S* -c import time; time\.sleep\(60\)\n"
+                                r"      Only then, by your own judgement, stop it \(TERM before "
+                                r"anything stronger\); then push again, and remove the leftover "
+                                r"only if the report of that push marks it REMOVABLE\.$"
+                         % (pid, start))
+        for line in block.splitlines():
+            self.assertFalse(line.strip().startswith(("kill", "pkill", "killall")), line)
+        self.assertEqual(self.leftover_commands(block), [], block)
+
+    def test_open_file_inside_a_leftover_is_in_use(self):
+        # FLIP TABLE (round 2, claude WARN 3): a process whose working
+        # directory is elsewhere but which holds a file inside a leftover
+        # open is using it, so the leftover is INSPECT.
+        import time
+        self.change(".web/templates-draft/landing.html")
+        root, checkouts = self.make_leftover(1)
+        held = checkouts[0] / "README.md"
+        helper = subprocess.Popen([sys.executable, "-c",
+                                   "import sys, time; f = open(sys.argv[1]); time.sleep(60)",
+                                   str(held)], cwd=self.tmp.name, stdin=subprocess.DEVNULL)
+        self.addCleanup(helper.wait, 60)
+        self.addCleanup(helper.terminate)
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline and not any(
+                os.readlink("/proc/%d/fd/%s" % (helper.pid, fd)) == str(held)
+                for fd in os.listdir("/proc/%d/fd" % helper.pid)):
+            time.sleep(0.05)
+        result, _ran = self.run_guard()
+        self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
+        alone = self.report_all_read(inventory=(helper.pid,))
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        # Round 10 (codex WARN 1): the real guard's report or a correctly
+        # reported incomplete scan; the report alone.
+        for err in self.complete_reports(result.stderr, alone.stdout):
+            self.assert_inspect(err, root, re.escape("1 process(es) use it, listed below"))
+            self.assertRegex(err, r"(?m)^    used by pid %d: .* \(open file\)$" % helper.pid)
+
+    # A process whose thread-group leader calls pthread_exit while a second
+    # thread keeps running in the working directory argv[1]; that thread
+    # prints the pid once the leader is a zombie, then sleeps 30 seconds,
+    # which ends the process.
+    EXITED_LEADER = (
+        "import ctypes, os, sys, threading, time\n"
+        "os.chdir(sys.argv[1])\n"
+        "pid = os.getpid()\n"
+        "def keep():\n"
+        "    deadline = time.monotonic() + 10\n"
+        "    while time.monotonic() < deadline:\n"
+        "        with open('/proc/%d/stat' % pid, 'rb') as f:\n"
+        "            data = f.read()\n"
+        "        if data[data.rindex(b')') + 2:].split()[0] == b'Z':\n"
+        "            break\n"
+        "        time.sleep(0.01)\n"
+        "    sys.stdout.write('%d\\n' % pid)\n"
+        "    sys.stdout.flush()\n"
+        "    time.sleep(30)\n"
+        "threading.Thread(target=keep).start()\n"
+        "ctypes.CDLL(None).pthread_exit(None)\n")
+
+    def test_thread_of_an_exited_leader_is_read(self):
+        # FLIP TABLE (round 4, claude WARN 2 and codex WARN 1, confirmed by
+        # claude's probe): when the thread-group leader of a process has
+        # exited (pthread_exit) while another thread runs, the leader's
+        # /proc entries (working directory, root, descriptors, mappings,
+        # command line) are gone, but the process is not: the report reads
+        # every thread, so a thread whose working directory is inside a
+        # leftover makes it INSPECT, listed with its command line, even as
+        # on a host where every process is read (before, the process was
+        # skipped as gone). The fixture runs under timeout 60, started
+        # outside the leftover.
+        self.change(".web/templates-draft/landing.html")
+        root, checkouts = self.make_leftover(1)
+        helper = subprocess.Popen(["timeout", "60", sys.executable, "-c", self.EXITED_LEADER,
+                                   str(checkouts[0])], cwd=self.tmp.name,
+                                  stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, text=True)
+        self.addCleanup(helper.stdout.close)
+        self.addCleanup(helper.wait, 60)
+        self.addCleanup(helper.terminate)
+        pid = int(helper.stdout.readline())
+        status = Path("/proc/%d/status" % pid).read_text(encoding="ascii")
+        self.assertRegex(status, r"(?m)^State:\s+Z")
+        self.assertRegex(status, r"(?m)^Threads:\s+2$")
+        with self.assertRaises(FileNotFoundError):
+            os.readlink("/proc/%d/cwd" % pid)
+        used = (r"(?m)^    used by pid %d: \S*python\S* -c .* \(working directory\)$" % pid)
+        result, _ran = self.run_guard()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
+        alone = self.report_all_read(inventory=(helper.pid, pid))
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        # Round 10 (codex WARN 1): the real guard's report or a correctly
+        # reported incomplete scan; the report alone.
+        for err in self.complete_reports(result.stderr, alone.stdout):
+            self.assert_inspect(err, root, re.escape("1 process(es) use it, listed below"))
+            self.assertRegex(err, used)
+        self.assertIsNone(helper.poll(), "the report stopped a process")
+
+    def start_exited_leader(self, where):
+        """The EXITED_LEADER fixture under timeout 60, started outside any
+        leftover, its surviving thread in where: (helper, pid, tid), where
+        tid is that of the surviving thread, once its leader is a zombie
+        and the process has two threads."""
+        helper = subprocess.Popen(["timeout", "60", sys.executable, "-c", self.EXITED_LEADER,
+                                   str(where)], cwd=self.tmp.name,
+                                  stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, text=True)
+        self.addCleanup(helper.stdout.close)
+        self.addCleanup(helper.wait, 60)
+        self.addCleanup(helper.terminate)
+        pid = int(helper.stdout.readline())
+        status = Path("/proc/%d/status" % pid).read_text(encoding="ascii")
+        self.assertRegex(status, r"(?m)^State:\s+Z")
+        self.assertRegex(status, r"(?m)^Threads:\s+2$")
+        tids = [int(t) for t in os.listdir("/proc/%d/task" % pid) if int(t) != pid]
+        self.assertEqual(len(tids), 1, tids)
+        return helper, pid, tids[0]
+
+    def test_all_read_harness_keeps_a_live_thread_of_an_exited_leader_unread(self):
+        # FLIP TABLE (round 9, codex WARN 2 and claude NOTE 1): the ALL_READ
+        # harness takes a process whose read raised an OSError that is not
+        # a permission error as exited only when every one of its threads
+        # has ended, not when its leader alone has. Here the leader of the
+        # EXITED_LEADER fixture has exited (a zombie, two threads) while its
+        # surviving thread runs in a leftover, and reading the working
+        # directory of that thread fails with EIO (UNREAD_THREAD): the
+        # process stays one that cannot be read (INSPECT, counted as
+        # yours), where before the zombie leader made the harness drop it
+        # as exited and the leftover was REMOVABLE. Control: without the
+        # error the thread is read and listed.
+        root, checkouts = self.make_leftover(1)
+        helper, pid, tid = self.start_exited_leader(checkouts[0])
+        inventory = (helper.pid, pid)
+        read = self.report_all_read(inventory=inventory)
+        self.assertEqual(read.returncode, 0, read.stdout + read.stderr)
+        self.assert_inspect(read.stdout, root, re.escape("1 process(es) use it, listed below"))
+        self.assertRegex(read.stdout, r"(?m)^    used by pid %d: \S*python\S* -c .* "
+                                      r"\(working directory\)$" % pid)
+        unread = self.report_all_read(prelude=self.UNREAD_THREAD, inventory=inventory,
+                                      UNREAD_THREAD="/proc/%d/task/%d/cwd" % (pid, tid))
+        self.assertEqual(unread.returncode, 0, unread.stdout + unread.stderr)
+        self.assert_counted_unread(unread.stdout, root)
+        self.assertNotIn("REMOVABLE", unread.stdout)
+        self.assertNotIn("used by pid %d" % pid, unread.stdout)
+        self.assertIsNone(helper.poll(), "the report stopped a process")
+
+    # A process whose leader keeps its working directory (where it started,
+    # outside the leftover) while a second thread unshares its file-system
+    # state (unshare with CLONE_FS, through ctypes, in this fixture only)
+    # and moves its own working directory into argv[1]; that thread prints
+    # "<pid> <tid>" once moved. Both threads sleep 30 seconds, which ends
+    # the process.
+    OWN_CWD_THREAD = (
+        "import ctypes, os, sys, threading, time\n"
+        "libc = ctypes.CDLL(None, use_errno=True)\n"
+        "def move():\n"
+        "    if libc.unshare(0x00000200) != 0:\n"
+        "        raise OSError(ctypes.get_errno(), 'unshare(CLONE_FS) failed')\n"
+        "    os.chdir(sys.argv[1])\n"
+        "    sys.stdout.write('%d %d\\n' % (os.getpid(), threading.get_native_id()))\n"
+        "    sys.stdout.flush()\n"
+        "    time.sleep(30)\n"
+        "threading.Thread(target=move).start()\n"
+        "time.sleep(30)\n")
+    # A prelude for the report that makes reading the working directory of
+    # the thread whose /proc path is UNREAD_THREAD fail with EIO (not a
+    # permission error, which the ALL_READ harness takes as an exited
+    # process).
+    UNREAD_THREAD = (
+        "import os\n"
+        "_readlink = os.readlink\n"
+        "def _unread_readlink(path, *args, **kwargs):\n"
+        "    if path == os.environ.get('UNREAD_THREAD'):\n"
+        "        raise OSError(5, 'Input/output error')\n"
+        "    return _readlink(path, *args, **kwargs)\n"
+        "os.readlink = _unread_readlink\n")
+
+    def test_thread_with_its_own_working_directory_is_read_under_a_live_leader(self):
+        # FLIP TABLE (round 5, codex WARN 1 and claude NOTE 1): every thread
+        # of a process is read for its own working directory, root and
+        # descriptors, not only when the leader has exited: a thread that
+        # has unshared its file-system state and moved into a leftover,
+        # while its leader runs elsewhere, makes it INSPECT, listed, even
+        # as on a host where every process is read (before, the leader was
+        # read alone and the leftover was REMOVABLE). A thread whose state
+        # cannot be read makes its process unreadable, so the leftover is
+        # INSPECT for that, not REMOVABLE. The fixture runs under timeout
+        # 60, started outside the leftover.
+        self.change(".web/templates-draft/landing.html")
+        root, checkouts = self.make_leftover(1)
+        helper = subprocess.Popen(["timeout", "60", sys.executable, "-c", self.OWN_CWD_THREAD,
+                                   str(checkouts[0])], cwd=self.tmp.name,
+                                  stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, text=True)
+        self.addCleanup(helper.stdout.close)
+        self.addCleanup(helper.wait, 60)
+        self.addCleanup(helper.terminate)
+        pid, tid = (int(n) for n in helper.stdout.readline().split())
+        self.assertNotEqual(pid, tid)
+        self.assertEqual(os.readlink("/proc/%d/cwd" % pid), os.path.realpath(self.tmp.name))
+        self.assertEqual(os.readlink("/proc/%d/task/%d/cwd" % (pid, tid)), str(checkouts[0]))
+        used = r"(?m)^    used by pid %d: \S*python\S* -c .* \(working directory\)$" % pid
+        result, _ran = self.run_guard()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
+        alone = self.report_all_read(inventory=(helper.pid, pid))
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        # Round 10 (codex WARN 1): the real guard's report or a correctly
+        # reported incomplete scan; the report alone.
+        for err in self.complete_reports(result.stderr, alone.stdout):
+            self.assert_inspect(err, root, re.escape("1 process(es) use it, listed below"))
+            self.assertRegex(err, used)
+        unread = self.report_all_read(prelude=self.UNREAD_THREAD, inventory=(helper.pid, pid),
+                                      UNREAD_THREAD="/proc/%d/task/%d/cwd" % (pid, tid))
+        self.assertEqual(unread.returncode, 0, unread.stdout + unread.stderr)
+        self.assert_inspect(unread.stdout, root, self.UNREAD)
+        counted = re.search(self.UNREAD[:-1], unread.stdout, re.M)
+        self.assertGreater(int(counted.group(1)), 0, unread.stdout)
+        self.assertNotIn("used by pid %d" % pid, unread.stdout)
+        self.assertIsNone(helper.poll(), "the report stopped a process")
+
+    # A prelude for the report that scripts what /proc shows of one live
+    # process as it exits (round 8): reading the link FAKE_LINK fails with
+    # errno FAKE_LINK_ERRNO (2 is a missing entry, 5 is EIO, not a
+    # permission error), and each file FAKE_STAT names (space-separated:
+    # round 9), opened through os.open (as the report and the ALL_READ
+    # harness read a stat), holds the real one changed as FAKE_STAT_HOW
+    # says: "gone" (no such file), "zombie" (state Z), "exiting"
+    # (PF_EXITING, 0x4, set in its flags) or "live" (as read). The file
+    # FAKE_MAPS, opened through os.open (as the report reads mappings),
+    # holds FAKE_MAPS_TEXT, by default nothing (round 9).
+    SCRIPTED_EXIT = (
+        "import os\n"
+        "_readlink, _open = os.readlink, os.open\n"
+        "def _scripted_readlink(path, *args, **kwargs):\n"
+        "    if path == os.environ.get('FAKE_LINK'):\n"
+        "        code = int(os.environ['FAKE_LINK_ERRNO'])\n"
+        "        raise OSError(code, os.strerror(code))\n"
+        "    return _readlink(path, *args, **kwargs)\n"
+        "def _scripted_open(path, *args, **kwargs):\n"
+        "    if path == os.environ.get('FAKE_MAPS'):\n"
+        "        reader, writer = os.pipe()\n"
+        "        os.write(writer, os.environ.get('FAKE_MAPS_TEXT', '').encode())\n"
+        "        os.close(writer)\n"
+        "        return reader\n"
+        "    if path not in os.environ.get('FAKE_STAT', '').split():\n"
+        "        return _open(path, *args, **kwargs)\n"
+        "    how = os.environ['FAKE_STAT_HOW']\n"
+        "    if how == 'gone':\n"
+        "        raise FileNotFoundError(2, os.strerror(2))\n"
+        "    fd = _open(path, *args, **kwargs)\n"
+        "    try:\n"
+        "        data = os.read(fd, 4096)\n"
+        "    finally:\n"
+        "        os.close(fd)\n"
+        "    cut = data.rindex(b')') + 2\n"
+        "    rest = data[cut:].split(b' ')\n"
+        "    if how == 'zombie':\n"
+        "        rest[0] = b'Z'\n"
+        "    elif how == 'exiting':\n"
+        "        rest[6] = b'%d' % (int(rest[6]) | 0x4)\n"
+        "    elif how != 'live':\n"
+        "        raise ValueError(how)\n"
+        "    reader, writer = os.pipe()\n"
+        "    os.write(writer, data[:cut] + b' '.join(rest))\n"
+        "    os.close(writer)\n"
+        "    return reader\n"
+        "os.readlink, os.open = _scripted_readlink, _scripted_open\n")
+
+    def start_own_cwd_thread(self, where):
+        """The OWN_CWD_THREAD fixture under timeout 60, started outside any
+        leftover, its second thread moved to where: (pid, tid)."""
+        helper = subprocess.Popen(["timeout", "60", sys.executable, "-c", self.OWN_CWD_THREAD,
+                                   str(where)], cwd=self.tmp.name,
+                                  stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, text=True)
+        self.addCleanup(helper.stdout.close)
+        self.addCleanup(helper.wait, 60)
+        self.addCleanup(helper.terminate)
+        pid, tid = (int(n) for n in helper.stdout.readline().split())
+        self.assertNotEqual(pid, tid)
+        return helper, pid, tid
+
+    def assert_all_read_removable(self, alone, root, checkouts):
+        """The report run through ALL_READ found root REMOVABLE, with the
+        commands that remove it."""
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        block = self.leftover_block(alone.stdout, root)
+        self.assertIsNotNone(block, alone.stdout)
+        self.assertTrue(block[0].startswith("  %s: REMOVABLE: " % root), alone.stdout)
+        self.assertEqual(self.leftover_commands("\n".join(block)),
+                         self.removable_commands(root, checkouts), alone.stdout)
+
+    def assert_counted_unread(self, out, root):
+        """root is INSPECT because processes could not be read, one of them
+        at least of this user."""
+        self.assert_inspect(out, root, self.UNREAD)
+        counted = re.search(self.UNREAD[:-1], out, re.M)
+        self.assertGreater(int(counted.group(1)), 0, out)
+
+    def test_all_read_harness_takes_a_process_as_exited_only_when_it_is_exiting(self):
+        # FLIP TABLE (round 8, claude WARN 1 and codex WARN 1; agy gives the
+        # same cause): the ALL_READ harness takes a process whose read
+        # raised an OSError that is not a permission error (here EIO reading
+        # its working directory, scripted) as one that has exited only when
+        # its /proc/<pid>/stat, read again, shows it gone, a zombie or
+        # exiting (PF_EXITING), each scripted: the leftover is then
+        # REMOVABLE, where before the process was counted unread and the
+        # leftover was INSPECT (as a process of this user caught as it exits
+        # made it, at random). Round 9 (codex WARN 2 and claude NOTE 1): the
+        # stat of every thread is scripted too, since the harness takes a
+        # process as exited only when each of its threads has ended.
+        # Controls: the same error on a live process keeps it one that
+        # cannot be read (INSPECT, counted as yours), and so does the same
+        # error on a process whose leader alone is scripted a zombie while
+        # its other thread is live (before round 9, the harness took that
+        # process as exited); so the harness ignores no error of a process
+        # any thread of which is live (scripted here; the EXITED_LEADER
+        # fixture checks it on a real exited leader).
+        root, checkouts = self.make_leftover(1)
+        helper, pid, tid = self.start_own_cwd_thread(self.tmp.name)
+        leader = "/proc/%d/stat /proc/%d/task/%d/stat" % (pid, pid, pid)
+        every = "%s /proc/%d/task/%d/stat" % (leader, pid, tid)
+        scripted = dict(FAKE_LINK="/proc/%d/cwd" % pid, FAKE_LINK_ERRNO="5",
+                        inventory=(helper.pid, pid))
+        for how in ("exiting", "zombie", "gone"):
+            with self.subTest(how):
+                alone = self.report_all_read(prelude=self.SCRIPTED_EXIT, FAKE_STAT_HOW=how,
+                                             FAKE_STAT=every, **scripted)
+                self.assert_all_read_removable(alone, root, checkouts)
+        live = self.report_all_read(prelude=self.SCRIPTED_EXIT, FAKE_STAT_HOW="live",
+                                    FAKE_STAT=every, **scripted)
+        self.assertEqual(live.returncode, 0, live.stdout + live.stderr)
+        self.assert_counted_unread(live.stdout, root)
+        for how in ("zombie", "exiting"):
+            with self.subTest("leader alone " + how):
+                alone = self.report_all_read(prelude=self.SCRIPTED_EXIT, FAKE_STAT_HOW=how,
+                                             FAKE_STAT=leader, **scripted)
+                self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+                self.assert_counted_unread(alone.stdout, root)
+        self.assertIsNone(helper.poll(), "the report stopped a process")
+
+    # A prelude for the report that scripts how /proc lists the threads of
+    # one process (round 10): the first listing of the directory FAKE_TASK
+    # shows its threads as they are, and each later one also shows the
+    # threads FAKE_TASK_NEW names (space-separated), as when a thread is
+    # created after the first listing. Each listing is noted, its names
+    # sorted, as one line of the file FAKE_TASK_LOG.
+    SCRIPTED_TASKS = (
+        "import os\n"
+        "_task_listdir = os.listdir\n"
+        "_task_listed = []\n"
+        "def _scripted_listdir(path='.'):\n"
+        "    names = _task_listdir(path)\n"
+        "    if path != os.environ.get('FAKE_TASK'):\n"
+        "        return names\n"
+        "    if _task_listed:\n"
+        "        names = names + os.environ.get('FAKE_TASK_NEW', '').split()\n"
+        "    _task_listed.append(path)\n"
+        "    with open(os.environ['FAKE_TASK_LOG'], 'a', encoding='ascii') as f:\n"
+        "        f.write(' '.join(sorted(names)) + '\\n')\n"
+        "    return names\n"
+        "os.listdir = _scripted_listdir\n")
+
+    def test_all_read_harness_keeps_a_process_whose_threads_change_unread(self):
+        # FLIP TABLE (round 10, claude NOTE 1): the ALL_READ harness lists
+        # the threads of a process again once it has read the stat of each,
+        # and takes the process as exited only when both listings are the
+        # same and every thread has ended, since a thread created after the
+        # first listing is not read. Here a live process (OWN_CWD_THREAD,
+        # under timeout 60, started outside the leftover) has reading its
+        # working directory fail with EIO, and the stat of its leader and of
+        # each of its threads scripted exiting. When the second listing of
+        # its threads also shows a thread the first did not (scripted), the
+        # process stays one that cannot be read (INSPECT, counted as yours),
+        # where with one listing the harness took it as exited and the
+        # leftover was REMOVABLE. Control: with the same threads in both
+        # listings it is taken as exited (REMOVABLE). The log shows that
+        # each run listed the threads twice, and what each listing showed.
+        root, checkouts = self.make_leftover(1)
+        helper, pid, tid = self.start_own_cwd_thread(self.tmp.name)
+        every = "/proc/%d/stat /proc/%d/task/%d/stat /proc/%d/task/%d/stat" % (
+            pid, pid, pid, pid, tid)
+        threads = [str(pid), str(tid)]
+        # Above the largest pid_max (2**22), so no thread has this id.
+        new = str(2 ** 22 + 1)
+        for case, added in (("same threads", []), ("a thread created", [new])):
+            with self.subTest(case):
+                log = Path(self.tmp.name) / ("tasks-%d.log" % len(added))
+                alone = self.report_all_read(
+                    prelude=self.SCRIPTED_EXIT + self.SCRIPTED_TASKS,
+                    inventory=(helper.pid, pid), FAKE_LINK="/proc/%d/cwd" % pid,
+                    FAKE_LINK_ERRNO="5", FAKE_STAT=every, FAKE_STAT_HOW="exiting",
+                    FAKE_TASK="/proc/%d/task" % pid, FAKE_TASK_NEW=" ".join(added),
+                    FAKE_TASK_LOG=str(log))
+                if added:
+                    self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+                    self.assert_counted_unread(alone.stdout, root)
+                    self.assertNotIn("REMOVABLE", alone.stdout)
+                else:
+                    self.assert_all_read_removable(alone, root, checkouts)
+                self.assertEqual(log.read_text(encoding="ascii").splitlines(),
+                                 [" ".join(sorted(threads)),
+                                  " ".join(sorted(threads + added))], alone.stdout)
+        self.assertIsNone(helper.poll(), "the report stopped a process")
+
+    def test_thread_whose_entries_go_while_it_exits_holds_nothing(self):
+        # FLIP TABLE (round 8, claude WARN 1, its optional part, taken): the
+        # report itself counts a thread whose entries are found missing as
+        # read when its stat then shows it exiting (PF_EXITING), though not
+        # yet a zombie: here the second thread of a live process, whose
+        # working directory is scripted missing and its stat exiting. The
+        # leftover is REMOVABLE, where before the process could not be read
+        # (INSPECT); the ALL_READ harness cannot do this, since the leader
+        # it reads again is live. Controls: the same missing entry on a
+        # thread that is not exiting keeps the process one that cannot be
+        # read; and an exiting thread whose entries are all present is still
+        # read, so one whose working directory is in the leftover makes it
+        # INSPECT, listed.
+        root, checkouts = self.make_leftover(1)
+        helper, pid, tid = self.start_own_cwd_thread(self.tmp.name)
+        scripted = dict(FAKE_LINK="/proc/%d/task/%d/cwd" % (pid, tid), FAKE_LINK_ERRNO="2",
+                        FAKE_STAT="/proc/%d/task/%d/stat" % (pid, tid),
+                        inventory=(helper.pid, pid))
+        alone = self.report_all_read(prelude=self.SCRIPTED_EXIT, FAKE_STAT_HOW="exiting",
+                                     **scripted)
+        self.assert_all_read_removable(alone, root, checkouts)
+        live = self.report_all_read(prelude=self.SCRIPTED_EXIT, FAKE_STAT_HOW="live", **scripted)
+        self.assertEqual(live.returncode, 0, live.stdout + live.stderr)
+        self.assert_counted_unread(live.stdout, root)
+        self.assertNotIn("used by pid %d" % pid, live.stdout)
+        inside, in_pid, in_tid = self.start_own_cwd_thread(checkouts[0])
+        self.assertEqual(os.readlink("/proc/%d/task/%d/cwd" % (in_pid, in_tid)),
+                         str(checkouts[0]))
+        used = self.report_all_read(prelude=self.SCRIPTED_EXIT, FAKE_STAT_HOW="exiting",
+                                    FAKE_STAT="/proc/%d/task/%d/stat" % (in_pid, in_tid),
+                                    inventory=(helper.pid, pid, inside.pid, in_pid))
+        self.assertEqual(used.returncode, 0, used.stdout + used.stderr)
+        self.assert_inspect(used.stdout, root, re.escape("1 process(es) use it, listed below"))
+        self.assertRegex(used.stdout, r"(?m)^    used by pid %d: \S*python\S* -c .* "
+                                      r"\(working directory\)$" % in_pid)
+        self.assertIsNone(helper.poll(), "the report stopped a process")
+        self.assertIsNone(inside.poll(), "the report stopped a process")
+
+    # A process that maps the file argv[1] through libc mmap (so that once
+    # its own descriptor is closed it holds no descriptor of that file) and
+    # starts a second thread; it prints its pid once both run, and both
+    # sleep 30 seconds, which ends the process. Its working directory is
+    # where it started.
+    MAPPED_ONLY = (
+        "import ctypes, os, sys, threading, time\n"
+        "libc = ctypes.CDLL(None, use_errno=True)\n"
+        "libc.mmap.restype = ctypes.c_void_p\n"
+        "libc.mmap.argtypes = (ctypes.c_void_p, ctypes.c_size_t, ctypes.c_int, ctypes.c_int,\n"
+        "                      ctypes.c_int, ctypes.c_long)\n"
+        "fd = os.open(sys.argv[1], os.O_RDONLY)\n"
+        "addr = libc.mmap(None, 4096, 1, 1, fd, 0)\n"
+        "if addr is None or addr == ctypes.c_void_p(-1).value:\n"
+        "    raise OSError(ctypes.get_errno(), 'mmap failed')\n"
+        "os.close(fd)\n"
+        "threading.Thread(target=time.sleep, args=(30,)).start()\n"
+        "sys.stdout.write('%d\\n' % os.getpid())\n"
+        "sys.stdout.flush()\n"
+        "time.sleep(30)\n")
+
+    def test_leader_with_no_mapping_has_the_mappings_of_every_thread_read(self):
+        # FLIP TABLE (round 9, claude NOTE 2): the report reads the mappings
+        # of every thread of a process when its leader, read whole, showed
+        # no mapping or is exiting (PF_EXITING) while other threads run, as
+        # a leader caught exiting can be read. Here a live process
+        # (MAPPED_ONLY, under timeout 60, started outside the leftover) uses
+        # a leftover only through a mapping of a file in it, and has a
+        # second thread. With its leader's mappings scripted empty, or its
+        # leader's stat scripted exiting and its mappings scripted to one
+        # mapping elsewhere, the mapping is still found through the other
+        # thread: INSPECT, listed as a mapped file (before, the mappings of
+        # the leader alone were read and the leftover was REMOVABLE).
+        # Control: read as it is, the leader's own mappings show it.
+        root, checkouts = self.make_leftover(1)
+        held = checkouts[0] / "README.md"
+        helper = subprocess.Popen(["timeout", "60", sys.executable, "-c", self.MAPPED_ONLY,
+                                   str(held)], cwd=self.tmp.name,
+                                  stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, text=True)
+        self.addCleanup(helper.stdout.close)
+        self.addCleanup(helper.wait, 60)
+        self.addCleanup(helper.terminate)
+        pid = int(helper.stdout.readline())
+        self.assertEqual(len(os.listdir("/proc/%d/task" % pid)), 2)
+        self.assertIn(" %s\n" % held, Path("/proc/%d/maps" % pid).read_text(encoding="utf-8"))
+        self.assertNotIn(str(held), [os.readlink("/proc/%d/fd/%s" % (pid, fd))
+                                     for fd in os.listdir("/proc/%d/fd" % pid)])
+        used = r"(?m)^    used by pid %d: \S*python\S* -c .* \(mapped file\)$" % pid
+        maps = "/proc/%d/maps" % pid
+        elsewhere = "00400000-00401000 r--p 00000000 00:00 0 /nowhere\n"
+        for case, scripted in (
+                ("as read", {}),
+                ("leader shows no mapping", dict(FAKE_MAPS=maps)),
+                ("leader exiting", dict(FAKE_MAPS=maps, FAKE_MAPS_TEXT=elsewhere,
+                                        FAKE_STAT="/proc/%d/stat" % pid,
+                                        FAKE_STAT_HOW="exiting"))):
+            with self.subTest(case):
+                alone = self.report_all_read(prelude=self.SCRIPTED_EXIT,
+                                             inventory=(helper.pid, pid), **scripted)
+                self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+                self.assert_inspect(alone.stdout, root,
+                                    re.escape("1 process(es) use it, listed below"))
+                self.assertRegex(alone.stdout, used)
+        self.assertIsNone(helper.poll(), "the report stopped a process")
+
+    # A process that moves into the directory argv[1], prints its pid and
+    # sleeps 60 seconds.
+    MOVED_SLEEPER = ("import os, sys, time; os.chdir(sys.argv[1]); print(os.getpid(), flush=True); "
+                     "time.sleep(60)")
+
+    def test_fixture_inventory_lists_only_the_fixture_processes(self):
+        # FLIP TABLE (round 9, codex WARN 1 and claude NOTE 3): a test that
+        # asserts an outcome through ALL_READ gives the report a
+        # deterministic process inventory, its own fixture processes and
+        # the report itself (NO_OTHER_PROCESS with FIXTURE_PIDS), so neither
+        # another process of the host nor how long a scan of every process
+        # takes decides it. Here two processes (each under timeout 60,
+        # started outside the leftover) move into a leftover: with one of
+        # them in the inventory, it alone is listed (INSPECT); with neither,
+        # the leftover is REMOVABLE with its commands (a scan of every
+        # process of the host would list both).
+        root, checkouts = self.make_leftover(1)
+        started = []
+        for _ in range(2):
+            helper = subprocess.Popen(["timeout", "60", sys.executable, "-c", self.MOVED_SLEEPER,
+                                       str(checkouts[0])], cwd=self.tmp.name,
+                                      stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, text=True)
+            self.addCleanup(helper.stdout.close)
+            self.addCleanup(helper.wait, 60)
+            self.addCleanup(helper.terminate)
+            started.append((helper, int(helper.stdout.readline())))
+        (first, first_pid), (second, second_pid) = started
+        for pid in (first_pid, second_pid):
+            self.assertEqual(os.readlink("/proc/%d/cwd" % pid), str(checkouts[0]))
+        one = self.report_all_read(inventory=(first.pid, first_pid))
+        self.assertEqual(one.returncode, 0, one.stdout + one.stderr)
+        self.assert_inspect(one.stdout, root, re.escape("1 process(es) use it, listed below"))
+        self.assertRegex(one.stdout, self.user_line(first_pid))
+        self.assertNotIn("used by pid %d" % second_pid, one.stdout)
+        self.assert_all_read_removable(self.report_all_read(inventory=()), root, checkouts)
+        for helper, _pid in started:
+            self.assertIsNone(helper.poll(), "the report stopped a process")
+
+    @staticmethod
+    def kthreadd():
+        """(2,) when /proc shows pid 2 as a kernel thread (kthreadd, which
+        never exits, in the initial pid namespace), otherwise ()."""
+        try:
+            data = Path("/proc/2/stat").read_bytes()
+            flags = int(data[data.rindex(b")") + 2:].split()[6])
+        except (OSError, ValueError, IndexError):
+            return ()
+        return (2,) if flags & 0x00200000 else ()
+
+    @staticmethod
+    def unreadable_processes():
+        """(of yours, of other users, kernel threads): the processes whose
+        working directory this test cannot read."""
+        mine, others, kernel = 0, 0, 0
+        me = str(os.geteuid())
+        for pid in (n for n in os.listdir("/proc") if n.isdigit()):
+            try:
+                os.readlink("/proc/%s/cwd" % pid)
+                continue
+            except PermissionError:
+                pass
+            except OSError:
+                continue
+            try:
+                data = Path("/proc/%s/stat" % pid).read_bytes()
+                if int(data[data.rindex(b")") + 2:].split()[6]) & 0x00200000:
+                    kernel += 1
+                    continue
+                uids = [line.split()[1:3] for line in
+                        Path("/proc/%s/status" % pid).read_text(encoding="ascii").splitlines()
+                        if line.startswith("Uid:")][0]
+            except (OSError, ValueError, IndexError):
+                continue
+            if me in uids:
+                mine += 1
+            else:
+                others += 1
+        return mine, others, kernel
+
+    def test_unreadable_process_blocks_removal_whoever_owns_it(self):
+        # FLIP TABLE (round 3, codex WARN 1; round 2, claude NOTE 8, gap 3):
+        # a process that cannot be read leaves whether a leftover is in use
+        # unknown, so it is INSPECT, whoever owns that process and whatever
+        # the directory's mode (0700 here): a process of another user, root
+        # included, no longer lets the report print a removal command. Only
+        # kernel threads are set aside: as on a host where every other
+        # process is read (report_all_read, which leaves kernel threads
+        # unreadable), it is REMOVABLE. A process of this user made
+        # non-dumpable (as ssh-agent and gpg-agent make themselves: round 3,
+        # claude NOTE 2, confirmed by probe) blocks it too. The report alone
+        # reads a deterministic inventory (round 9, codex WARN 1 and claude
+        # NOTE 3): no fixture process, plus kthreadd (pid 2) where /proc
+        # shows it as a kernel thread, which never exits. The report sets a
+        # kernel thread aside only when reading it fails, so this case
+        # exercises that exclusion only where reading /proc/2/cwd is
+        # refused, as for a user who is not root; elsewhere (round 10,
+        # claude NOTE 2: root reads it, so nothing is set aside) the case is
+        # skipped, saying why, and the rest of the test runs. The real
+        # guard's report may be a correctly reported incomplete scan of the
+        # host's processes (round 10, codex WARN 1); the non-dumpable
+        # process is also checked by the report alone, against an inventory
+        # of that process only.
+        self.change(".web/templates-draft/landing.html")
+        root, checkouts = self.make_leftover(1)
+        self.assertEqual(root.stat().st_mode & 0o7777, 0o700)
+        with self.subTest("kernel thread set aside"):
+            kernel = self.kthreadd()
+            if not kernel:
+                self.skipTest("/proc shows no kernel thread as pid 2 here (as in a container), "
+                              "so the exclusion of kernel threads is not exercised")
+            try:
+                os.readlink("/proc/2/cwd")
+            except PermissionError:
+                pass
+            except OSError as exc:
+                self.skipTest("reading /proc/2/cwd fails with %s, not a refusal, so the "
+                              "exclusion of kernel threads is not exercised as this case "
+                              "intends" % exc.strerror)
+            else:
+                self.skipTest("reading /proc/2/cwd is not refused here (as for root), so the "
+                              "report reads kthreadd and sets no kernel thread aside")
+            alone = self.report_all_read(inventory=kernel)
+            self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+            self.assertEqual(self.leftover_commands(alone.stdout),
+                             self.removable_commands(root, checkouts), alone.stdout)
+        _mine, others, _kernel = self.unreadable_processes()
+        result, _ran = self.run_guard()
+        if self.complete_reports(result.stderr) and others:
+            self.assert_inspect(result.stderr, root, self.UNREAD)
+            counted = re.search(self.UNREAD[:-1], result.stderr, re.M)
+            self.assertGreater(int(counted.group(2)), 0, result.stderr)
+            self.assertNotIn("lets only a privileged process in", result.stderr)
+        helper = subprocess.Popen([sys.executable, "-c",
+                                   "import ctypes, time; ctypes.CDLL(None).prctl(4, 0, 0, 0, 0); "
+                                   "print(flush=True); time.sleep(60)"],
+                                  cwd=self.tmp.name, stdin=subprocess.DEVNULL,
+                                  stdout=subprocess.PIPE)
+        self.addCleanup(helper.stdout.close)
+        self.addCleanup(helper.wait, 60)
+        self.addCleanup(helper.terminate)
+        helper.stdout.readline()
+        with self.assertRaises(PermissionError):
+            os.readlink("/proc/%d/cwd" % helper.pid)
+        result, _ran = self.run_guard()
+        self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
+        alone = self.report_alone(prelude=self.NO_OTHER_PROCESS, FIXTURE_PIDS=str(helper.pid))
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        for err in self.complete_reports(result.stderr, alone.stdout):
+            self.assert_inspect(err, root, self.UNREAD)
+            counted = re.search(self.UNREAD[:-1], err, re.M)
+            self.assertGreater(int(counted.group(1)), 0, err)
+
+    def test_push_from_inside_a_kept_checkout_lists_itself_and_no_command(self):
+        # FLIP TABLE (round 2, claude NOTE 6, confirmed by probe): a push
+        # run from inside a kept checkout says so, labels its own guard and
+        # the shell that started it among the processes using it, and
+        # prints no command to stop them or remove it.
+        self.change(".web/templates-draft/landing.html")
+        root, checkouts = self.make_leftover(1)
+        shell = subprocess.Popen(["bash", "-c", "bash tools/pre-push-guard.sh; exit $?"],
+                                 cwd=checkouts[0], env=self.env, stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE, text=True)
+        out, err = shell.communicate(timeout=60)
+        self.assertEqual(shell.returncode, 0, out + err)
+        self.assertNotIn("kill", err)
+        self.assertEqual(self.leftover_commands(err), [], err)
+        # Round 10 (codex WARN 1): the real guard's report may be a
+        # correctly reported incomplete scan of the host's processes. The
+        # report alone, run from the same checkout against an empty
+        # inventory, always says the push runs inside it; only the real
+        # guard can label itself and the shell that started it.
+        alone = self.report_all_read(inventory=(), cwd=checkouts[0])
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        self.assertNotIn("kill", alone.stdout)
+        inside = re.escape("this push runs inside it (this clone, %s, is in it)" % checkouts[0])
+        for text in self.complete_reports(err, alone.stdout):
+            self.assert_inspect(text, root, inside)
+        if self.complete_reports(err):
+            self.assertRegex(err, r"(?m)^    used by pid %d \(started this push\): " % shell.pid)
+            self.assertRegex(err, r"(?m)^    used by pid \d+ \(this guard\): bash "
+                                  r"tools/pre-push-guard\.sh ")
+            # No stop procedure for this guard or what started this push
+            # (round 5, codex WARN 3).
+            self.assertIn("    no stop procedure: each process using it is this guard, started "
+                          "this push, is a pre-push guard or was started by one\n", err)
+        self.assertNotIn("NOT PROVED, so no stop command", err)
+
+    # Writes the run record of a stand-in guard run: argv[1] is its pid,
+    # argv[2] the record path, argv[3] a number added to its start time (0
+    # for its own), argv[4] the clone the record names; the pid namespace
+    # and boot id are those of this kernel, the machine id is not recorded.
+    STAND_IN_RECORD = (
+        "import os, sys\n"
+        "pid, path, skew, clone = sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4]\n"
+        "data = open('/proc/%s/stat' % pid, 'rb').read()\n"
+        "start = int(data[data.rindex(b')') + 2:].split()[19]) + skew\n"
+        "boot = open('/proc/sys/kernel/random/boot_id').read().strip()\n"
+        "fields = [pid, clone, str(start), os.readlink('/proc/self/ns/pid'), boot, '-', '']\n"
+        "open(path, 'wb').write('\\0'.join(fields).encode())\n")
+    # A process that prints its pid and its parent pid, then sleeps 60
+    # seconds; any further arguments are only carried in its command line.
+    SLEEPER = "import os, time; print(os.getpid(), os.getppid(), flush=True); time.sleep(60)"
+
+    def user_line(self, pid, label=None):
+        """The pattern of the line naming pid as a process using a leftover,
+        with label, or with no label at all."""
+        return r"(?m)^    used by pid %d%s: \S" % (pid, re.escape(" (%s)" % label) if label else "")
+
+    def test_process_started_by_a_pre_push_guard_gets_no_stop_procedure(self):
+        # FLIP TABLE (round 5, codex WARN 3; round 6, W1 of all three
+        # reviews): a guard is known by its identity, not its command line.
+        # A stand-in guard run (a script under timeout 60, standing in for a
+        # live run of the guard using another run's leftover) writes a run
+        # record with its own pid and start time in the guard-owner record
+        # of a shard directory of another clone (read before that directory
+        # is set aside as not this clone's), moves into a leftover and
+        # starts a child there: it is labelled a pre-push guard, its child
+        # is labelled as started by one, and neither gets a stop procedure,
+        # even where the run that made the leftover has ended, as on a host
+        # where every process is read. With a start time that is not its
+        # own in the record, the same stand-in is no guard: neither is
+        # labelled, and both get the NOT PROVED stop procedure. The script
+        # is named pre-push-guard.sh in both cases, so its name decides
+        # nothing (before, it labelled both cases).
+        roots, pids, helpers = {}, {}, []
+        script = Path(self.tmp.name) / "other-guard" / "pre-push-guard.sh"
+        script.parent.mkdir()
+        # It writes its run record, moves into the leftover, and starts its
+        # child in the background and waits for it, so it stays its parent.
+        script.write_text('cd "$1" || exit 1\n'
+                          '"$2" -c "$3" "$$" "$4" "$5" "$6" || exit 1\n'
+                          '"$2" -c "$7" &\n'
+                          'wait\n', encoding="utf-8")
+        other = Path(self.tmp.name) / "other-clone"
+        for case, skew in (("live", "0"), ("wrong start time", "1")):
+            root, checkouts = self.make_leftover(1)
+            elsewhere = Path(tempfile.mkdtemp(prefix="grc-gate36-shards.", dir=self.shard_tmp))
+            helper = subprocess.Popen(["timeout", "60", "bash", str(script), str(checkouts[0]),
+                                       sys.executable, self.STAND_IN_RECORD,
+                                       str(elsewhere / "guard-owner"), skew, str(other),
+                                       self.SLEEPER], cwd=self.tmp.name,
+                                      stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                      text=True)
+            self.addCleanup(helper.stdout.close)
+            self.addCleanup(helper.wait, 60)
+            self.addCleanup(helper.terminate)
+            helpers.append(helper)
+            child, stand_in = (int(n) for n in helper.stdout.readline().split())
+            roots[case], pids[case] = root, (stand_in, child)
+            self.assertEqual(Path("/proc/%d/cmdline" % stand_in).read_bytes().split(b"\0")[1],
+                             os.fsencode(script))
+        alone = self.report_all_read(inventory=[helper.pid for helper in helpers]
+                                     + [pid for pair in pids.values() for pid in pair])
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        for case, root in roots.items():
+            stand_in, child = pids[case]
+            with self.subTest(case):
+                block = "\n".join(self.leftover_block(alone.stdout, root)) + "\n"
+                self.assert_inspect(block, root, re.escape("2 process(es) use it, listed below"))
+                if case == "live":
+                    self.assertRegex(block, self.user_line(stand_in, "a pre-push guard"))
+                    self.assertRegex(block, self.user_line(child, "started by a pre-push guard"))
+                    self.assertIn("    no stop procedure: each process using it is this guard, "
+                                  "started this push, is a pre-push guard or was started by "
+                                  "one\n", block)
+                    self.assertNotIn("NOT PROVED, so no stop command", block)
+                else:
+                    self.assertRegex(block, self.user_line(stand_in))
+                    self.assertRegex(block, self.user_line(child))
+                    self.assertNotIn("pre-push guard)", block)
+                    self.assertIn("NOT PROVED, so no stop command", block)
+                    for pid in (stand_in, child):
+                        self.assertRegex(block, r"(?m)^           pid %d: start time \d+, "
+                                                r"command line " % pid)
+        # The other clone's shard directory is set aside: it is not listed.
+        self.assertNotIn(str(other), alone.stdout)
+        for helper in helpers:
+            self.assertIsNone(helper.poll(), "the report stopped a process")
+
+    # The report's own labelling alone (the guard's code, read from the
+    # fixture's guard, run in identity mode so that its main does not run):
+    # argv[2] is a JSON list of [pid, start time, live runs], and it prints
+    # the label of each as JSON.
+    LABELS = (
+        "import contextlib, io, json, sys\n"
+        "code = sys.argv.pop(1)\n"
+        "cases = json.loads(sys.argv.pop(1))\n"
+        "sys.argv[1:] = ['identity', 'repo', '1', '']\n"
+        "g = {'__name__': '__main__'}\n"
+        "with contextlib.redirect_stdout(io.StringIO()):\n"
+        "    exec(code, g)\n"
+        "print(json.dumps([g['guard_label'](pid, start, {tuple(run) for run in live})\n"
+        "                  for pid, start, live in cases]))\n")
+
+    # The label of a process whose ancestry the report could not establish
+    # (its own start time or a parent unread, or a walk that is not
+    # consistent: round 8, claude NOTE 1 and codex NOTE 1).
+    UNSURE_ANCESTRY = ("whether a pre-push guard started it is unknown: its ancestry could "
+                       "not be established consistently")
+
+    @staticmethod
+    def start_time(pid):
+        data = Path("/proc/%s/stat" % pid).read_bytes()
+        return data[data.rindex(b")") + 2:].split()[19].decode("ascii")
+
+    def test_guard_label_matches_pid_and_start_time_of_each_parent(self):
+        # FLIP TABLE (round 6, W1 of all three reviews): the labels match
+        # the pid and the start time, of the process and of each parent
+        # (read as the chain is walked), against the live runs: a pid that
+        # matches with another start time (a reused pid) is not a guard,
+        # nor are its children; a process whose own start time cannot be
+        # read while its pid is a live run, or whose parents cannot be
+        # read (here a process that has gone), is uncertain, not labelled.
+        helper = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"],
+                                  cwd=self.tmp.name, stdin=subprocess.DEVNULL)
+        self.addCleanup(helper.wait, 60)
+        self.addCleanup(helper.terminate)
+        done = subprocess.Popen([sys.executable, "-c", "pass"])
+        done.wait(timeout=30)
+        child, me = str(helper.pid), str(os.getpid())
+        cs, ms = self.start_time(child), self.start_time(me)
+        other = lambda start: str(int(start) + 1)
+        cases = [
+            (child, cs, [[child, cs]], "a pre-push guard"),
+            (child, cs, [[child, other(cs)]], None),
+            (child, cs, [[me, ms]], "started by a pre-push guard"),
+            (child, cs, [[me, other(ms)]], None),
+            (child, "-", [[child, cs]], "whether it is a pre-push guard is unknown: its start "
+                                        "time cannot be read"),
+            (str(done.pid), "-", [[me, ms]], self.UNSURE_ANCESTRY),
+        ]
+        import json
+        read = subprocess.run([sys.executable, "-I", "-c", self.LABELS, self.report_code(),
+                               json.dumps([case[:3] for case in cases])], cwd=self.root,
+                              env=self.env, capture_output=True, text=True, timeout=60)
+        self.assertEqual(read.returncode, 0, read.stdout + read.stderr)
+        self.assertEqual(json.loads(read.stdout), [case[3] for case in cases])
+        self.assertIsNone(helper.poll(), "the report stopped a process")
+
+    # The report's own labelling against a scripted /proc (the guard's code,
+    # read from the fixture's guard, run in identity mode so that its main
+    # does not run): argv[2] is a JSON list of [pid, start time, live runs,
+    # table], where table maps each pid to the (start time, parent pid)
+    # pairs proc_stat returns for it, one per read and the last repeated
+    # (null for no such process); a pid the table does not hold is a
+    # KeyError, which fails the run. It prints the label of each as JSON.
+    SCRIPTED_LABELS = (
+        "import contextlib, io, json, sys\n"
+        "code = sys.argv.pop(1)\n"
+        "cases = json.loads(sys.argv.pop(1))\n"
+        "sys.argv[1:] = ['identity', 'repo', '1', '']\n"
+        "g = {'__name__': '__main__'}\n"
+        "with contextlib.redirect_stdout(io.StringIO()):\n"
+        "    exec(code, g)\n"
+        "def scripted(table):\n"
+        "    table = {pid: list(answers) for pid, answers in table.items()}\n"
+        "    def proc_stat(pid):\n"
+        "        answers = table[pid]\n"
+        "        answer = answers.pop(0) if len(answers) > 1 else answers[0]\n"
+        "        return None if answer is None else tuple(answer)\n"
+        "    return proc_stat\n"
+        "labels = []\n"
+        "for pid, start, live, table in cases:\n"
+        "    g['proc_stat'] = scripted(table)\n"
+        "    labels.append(g['guard_label'](pid, start, {tuple(run) for run in live}))\n"
+        "print(json.dumps(labels))\n")
+
+    def test_guard_label_walk_is_consistent_when_pids_are_reused(self):
+        # FLIP TABLE (round 7, codex WARN 1, claude names the same gap):
+        # the walk up the parents is kept consistent, so a pid reused while
+        # it runs cannot join an unrelated chain to a live guard. A guard
+        # (pid 200, start time 50) is live in each case; process 300 was
+        # read by the scan with start time 100. With a scripted proc_stat:
+        # a consistent chain to the guard is "started by a pre-push guard"
+        # and one that ends at pid 1 is no guard (controls); and each of
+        # these is uncertain (UNSURE_PARENTS, which keeps the NOT PROVED
+        # procedure), where before each was "started by a pre-push guard":
+        # process 300 read again with another start time (its pid reused
+        # by a child of the guard); a parent younger than its child; its
+        # direct parent replaced between reads (300 is read again with
+        # parent pid 1, as a child is once its parent exits); and an
+        # intermediate parent replaced between reads (250 read again with
+        # parent pid 1).
+        # The label says what is true in each of these cases, every parent
+        # read or not (round 8, claude NOTE 1 and codex NOTE 1: before, it
+        # said "its parents cannot all be read" when each had been read).
+        guard = [["200", "50"]]
+        unsure = self.UNSURE_ANCESTRY
+        cases = [
+            ("consistent chain", ["300", "100", guard,
+                                  {"300": [["100", "250"]], "250": [["80", "200"]],
+                                   "200": [["50", "1"]]}], "started by a pre-push guard"),
+            ("no guard among its parents", ["300", "100", guard,
+                                            {"300": [["100", "250"]], "250": [["80", "1"]]}],
+             None),
+            ("reread with another start time", ["300", "100", guard,
+                                                {"300": [["120", "200"]],
+                                                 "200": [["50", "1"]]}], unsure),
+            ("parent younger than its child", ["300", "100", guard,
+                                               {"300": [["100", "250"]],
+                                                "250": [["150", "200"]],
+                                                "200": [["50", "1"]]}], unsure),
+            ("direct parent replaced between reads", ["300", "100", guard,
+                                                      {"300": [["100", "250"], ["100", "1"]],
+                                                       "250": [["100", "200"]],
+                                                       "200": [["50", "1"]]}], unsure),
+            ("intermediate parent replaced between reads", ["300", "100", guard,
+                                                            {"300": [["100", "250"]],
+                                                             "250": [["90", "260"], ["90", "1"]],
+                                                             "260": [["90", "200"]],
+                                                             "200": [["50", "1"]]}], unsure),
+            ("gone when read again", ["300", "100", guard, {"300": [None]}], unsure),
+        ]
+        read = subprocess.run([sys.executable, "-I", "-c", self.SCRIPTED_LABELS,
+                               self.report_code(), json.dumps([case[1] for case in cases])],
+                              cwd=self.root, env=self.env, capture_output=True, text=True,
+                              timeout=60)
+        self.assertEqual(read.returncode, 0, read.stdout + read.stderr)
+        for (name, _case, expected), label in zip(cases, json.loads(read.stdout)):
+            with self.subTest(name):
+                self.assertEqual(label, expected)
+
+    # The report's own reads of a file swapped for a FIFO between its type
+    # check and its open (the guard's code, run in identity mode so that its
+    # main does not run): argv[2] is a directory holding a regular file
+    # "file" and a git common directory "common" whose packed-refs is a
+    # regular file; check_regular is wrapped so that, once the real check
+    # passes, the entry it checked is replaced by a FIFO. It prints, as
+    # JSON, what read_file and then resolve_ref return or raise.
+    SWAPPED = (
+        "import contextlib, io, json, os, sys\n"
+        "code = sys.argv.pop(1)\n"
+        "where = sys.argv.pop(1)\n"
+        "sys.argv[1:] = ['identity', 'repo', '1', '']\n"
+        "g = {'__name__': '__main__'}\n"
+        "with contextlib.redirect_stdout(io.StringIO()):\n"
+        "    exec(code, g)\n"
+        "real = g['check_regular']\n"
+        "def swapping(name, dir_fd=None):\n"
+        "    real(name, dir_fd)\n"
+        "    os.unlink(name, dir_fd=dir_fd)\n"
+        "    os.mkfifo(name, dir_fd=dir_fd)\n"
+        "g['check_regular'] = swapping\n"
+        "out = []\n"
+        "try:\n"
+        "    out.append(repr(g['read_file'](os.path.join(where, 'file'))))\n"
+        "except OSError as exc:\n"
+        "    out.append('%s: %s' % (type(exc).__name__, exc.strerror))\n"
+        "scan = g['Scan']()\n"
+        "scan.common = os.path.join(where, 'common')\n"
+        "out.append(list(g['resolve_ref'](scan, b'refs/heads/main')))\n"
+        "print(json.dumps(out))\n")
+
+    def test_fifo_swapped_in_after_the_type_check_is_never_read(self):
+        # FLIP TABLE (round 7, claude NOTE 2): the type check and the open
+        # are two lookups by name, so a FIFO swapped in between them is
+        # opened (without blocking); the type of the open descriptor is
+        # then checked, so it is never read: read_file raises NotRegular,
+        # and resolve_ref says packed-refs cannot be read (before, packed
+        # refs were read from the FIFO as empty: "no ref file or packed ref
+        # names it"). The header and tools/README.md state this window
+        # rather than "never opened".
+        where = Path(self.tmp.name) / "swap"
+        (where / "common").mkdir(parents=True)
+        (where / "file").write_text("x\n", encoding="utf-8")
+        (where / "common" / "packed-refs").write_text(
+            "%s refs/heads/main\n" % ("a" * 40), encoding="utf-8")
+        read = subprocess.run([sys.executable, "-I", "-c", self.SWAPPED, self.report_code(),
+                               str(where)], cwd=self.root, env=self.env, capture_output=True,
+                              text=True, timeout=60)
+        self.assertEqual(read.returncode, 0, read.stdout + read.stderr)
+        self.assertEqual(json.loads(read.stdout), [
+            "NotRegular: it is not a regular file",
+            [None, "packed-refs cannot be read (it is not a regular file)"]])
+        self.assertTrue((where / "file").is_fifo())
+        self.assertTrue((where / "common" / "packed-refs").is_fifo())
+        guard = (REPO_ROOT / "tools" / "pre-push-guard.sh").read_text(encoding="utf-8")
+        readme = " ".join((REPO_ROOT / "tools" / "README.md").read_text(encoding="utf-8")
+                          .replace("`", "").split())
+        self.assertIn("the open descriptor is then checked", " ".join(
+            line.lstrip("# ") for line in guard.splitlines() if line.startswith("#")))
+        self.assertIn("so a FIFO or another entry that is not a regular file is not opened "
+                      "unless it is swapped in between that check and the open", readme)
+        self.assertIn("a descriptor that is not a regular file is closed unread", readme)
+
+    def test_command_line_naming_the_guard_makes_no_guard(self):
+        # FLIP TABLE (round 6, W1 of all three reviews, reproduced by
+        # claude): a process whose own command line, or whose parent
+        # command line, merely names tools/pre-push-guard.sh is not a
+        # pre-push guard. Here a shell (bash -c, under timeout 60) whose
+        # argv names it moves into a leftover and starts a child there whose
+        # argv names it too: neither is labelled, and both get the NOT
+        # PROVED stop procedure (before, the shell was labelled a pre-push
+        # guard and the child as one too, and no procedure was given), as
+        # on a host where every process is read and as the guard prints it.
+        root, checkouts = self.make_leftover(1)
+        shell = ('cd "$1" || exit 1\n'
+                 '"$2" -c "$3" tools/pre-push-guard.sh &\n'
+                 'wait\n')
+        helper = subprocess.Popen(["timeout", "60", "bash", "-c", shell, "tools/pre-push-guard.sh",
+                                   str(checkouts[0]), sys.executable, self.SLEEPER],
+                                  cwd=self.tmp.name, stdin=subprocess.DEVNULL,
+                                  stdout=subprocess.PIPE, text=True)
+        self.addCleanup(helper.stdout.close)
+        self.addCleanup(helper.wait, 60)
+        self.addCleanup(helper.terminate)
+        child, parent = (int(n) for n in helper.stdout.readline().split())
+        for pid in (child, parent):
+            self.assertIn(b"tools/pre-push-guard.sh", Path("/proc/%d/cmdline" % pid).read_bytes())
+        self.change(".web/templates-draft/landing.html")
+        result, _ran = self.run_guard()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
+        alone = self.report_all_read(inventory=(helper.pid, parent, child))
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        # Round 10 (codex WARN 1): the real guard's report or a correctly
+        # reported incomplete scan; the report alone.
+        for text in self.complete_reports(result.stderr, alone.stdout):
+            block = "\n".join(self.leftover_block(text, root)) + "\n"
+            for pid in (child, parent):
+                self.assertRegex(block, self.user_line(pid))
+                self.assertRegex(block, r"(?m)^           pid %d: start time \d+, command "
+                                        r"line " % pid)
+            self.assertNotIn("pre-push guard)", block)
+            self.assertNotIn("no stop procedure", block)
+            self.assertIn("    NOT PROVED, so no stop command: the report does not prove that a "
+                          "process using it is abandoned.", block)
+        self.assertIsNone(helper.poll(), "the report stopped a process")
+
+    def test_symlinked_git_record_is_unreadable_not_skipped(self):
+        # FLIP TABLE (round 6, codex WARN 2): an entry of
+        # <git common dir>/worktrees that is a symbolic link (git follows
+        # it, the report does not) is reported as UNREADABLE, so no leftover
+        # has a removal command while it remains, as on a host where every
+        # process is read (before, opening it with O_DIRECTORY and
+        # O_NOFOLLOW failed with ENOTDIR, which was taken as an entry git
+        # skips, so it was dropped silently and the leftover REMOVABLE). An
+        # entry that is a regular file, which git skips, is skipped.
+        import json
+        root, _checkouts = self.make_leftover(1)
+        records = Path(self.common_dir()) / "worktrees"
+        target = Path(self.tmp.name) / "record-elsewhere"
+        target.mkdir()
+        link = records / "linked-record"
+        link.symlink_to(target)
+        self.addCleanup(link.unlink)
+        stray = records / "stray-file"
+        stray.write_text("not a git record\n", encoding="utf-8")
+        self.addCleanup(stray.unlink)
+        alone = self.report_all_read(inventory=())
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        self.assert_inspect(alone.stdout, root, re.escape(
+            "1 git record(s) of this clone cannot be read (listed below), so the checkouts "
+            "registered with this clone are not fully known") + "$")
+        self.assertIn("  UNREADABLE: %s (it is a symbolic link, which the report does not "
+                      "follow), so whether that git record registers a checkout of a leftover is "
+                      "unknown; no leftover has a removal command while it cannot be read\n"
+                      % link, alone.stdout)
+        self.assertNotIn(str(stray), alone.stdout)
+        read = subprocess.run([sys.executable, "-I", "-c", self.REGISTRATIONS, self.report_code(),
+                               self.common_dir()], cwd=self.root, env=self.env,
+                              capture_output=True, text=True, timeout=60)
+        self.assertEqual(read.returncode, 0, read.stdout + read.stderr)
+        self.assertEqual(json.loads(read.stdout)["unread"],
+                         [[str(link), "it is a symbolic link, which the report does not follow"]])
+
+    def test_reftable_placeholder_head_is_named_as_not_read(self):
+        # FLIP TABLE (round 6, claude NOTE 1, confirmed by probe on git
+        # 2.53.0): in a clone that keeps its refs in reftable, the HEAD of
+        # every git record is the placeholder ref: refs/heads/.invalid. The
+        # report says "reftable HEAD not read" (before: that no ref file or
+        # packed ref names refs/heads/.invalid), and the leftover stays
+        # INSPECT. Checked on a git record of this files-backend fixture
+        # given that HEAD, and, where git can make one, on a real reftable
+        # clone through the registration reader.
+        import json
+        root, checkouts = self.make_leftover(1)
+        admin = Path(self.git("-C", str(checkouts[0]), "rev-parse",
+                              "--absolute-git-dir").stdout.strip())
+        original = (admin / "HEAD").read_bytes()
+        (admin / "HEAD").write_bytes(b"ref: refs/heads/.invalid\n")
+        self.addCleanup((admin / "HEAD").write_bytes, original)
+        why = ("reftable HEAD not read: its HEAD names refs/heads/.invalid, the placeholder a "
+               "clone that keeps its refs in reftable writes there, and the report reads no "
+               "reftable")
+        alone = self.report_all_read(inventory=())
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        self.assert_inspect(alone.stdout, root, re.escape(
+            "the git record of checkout %s: %s" % (checkouts[0], why)) + "$")
+        self.assertNotIn("no ref file or packed ref names it", alone.stdout)
+        clone = Path(self.tmp.name) / "reftable-clone"
+        made = subprocess.run(["git", "init", "-q", "--ref-format=reftable", str(clone)],
+                              env=self.env, capture_output=True, text=True, timeout=30)
+        if made.returncode != 0:
+            self.skipTest("this git cannot make a reftable clone: %s" % made.stderr.strip())
+        for args in (("-c", "user.email=r@example.com", "-c", "user.name=r", "commit", "-q",
+                      "--allow-empty", "-m", "Reftable"),
+                     ("worktree", "add", "--detach", str(Path(self.tmp.name) / "reftable-wt"),
+                      "HEAD")):
+            subprocess.run(["git", *args], cwd=clone, env=self.env, check=True,
+                           capture_output=True, timeout=30)
+        read = subprocess.run([sys.executable, "-I", "-c", self.REGISTRATIONS, self.report_code(),
+                               str(clone / ".git")], cwd=self.root, env=self.env,
+                              capture_output=True, text=True, timeout=60)
+        self.assertEqual(read.returncode, 0, read.stdout + read.stderr)
+        got = json.loads(read.stdout)
+        self.assertEqual([r["head_problem"] for r in got["records"]], [why], got)
+
+    def test_removable_checkout_shows_its_head_and_what_force_discards(self):
+        # FLIP TABLE (round 6, claude NOTE 2): a checkout that exists and is
+        # given git worktree remove --force shows its HEAD with the same
+        # loss warning as a checkout whose directory is gone, and the
+        # commands say that --force discards its uncommitted changes and
+        # untracked files, as on a host where every process is read.
+        root, checkouts = self.make_leftover(1)
+        head = self.git("-C", str(checkouts[0]), "rev-parse", "HEAD").stdout.strip()
+        alone = self.report_all_read(inventory=())
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        block = "\n".join(self.leftover_block(alone.stdout, root)) + "\n"
+        self.assertTrue(block.startswith("  %s: REMOVABLE: " % root), block)
+        self.assertIn("    checkout %s: registered with this clone; its directory exists; its .git "
+                      "points into this clone\n"
+                      "      its git record holds HEAD %s (detached); a commit made there that no "
+                      "branch or tag holds is lost with the record\n" % (checkouts[0], head), block)
+        self.assertIn("    to remove it (git worktree remove --force discards the uncommitted "
+                      "changes and untracked files of each checkout, and a commit made there that "
+                      "no branch or tag holds is lost; the HEAD of each checkout is shown above):\n"
+                      "      git worktree remove --force -- %s\n" % checkouts[0], block)
+
+    def test_fifo_in_a_git_record_is_never_opened(self):
+        # FLIP TABLE (round 6, claude NOTE 3): the type of a file is read
+        # without following it before the file is opened, so a FIFO is
+        # never opened: here the locked file of a git record is a FIFO a
+        # writer (under timeout 60) is blocked opening, and after the report
+        # it is still blocked (before, the report opened the FIFO, which
+        # let the open of the writer complete). The checkout is reported
+        # locked, with a lock file that cannot be read.
+        import time
+        root, checkouts = self.make_leftover(1)
+        admin = Path(self.git("-C", str(checkouts[0]), "rev-parse",
+                              "--absolute-git-dir").stdout.strip())
+        fifo = admin / "locked"
+        os.mkfifo(fifo)
+        self.addCleanup(fifo.unlink)
+        writer = subprocess.Popen(["timeout", "60", sys.executable, "-c",
+                                   "import os, sys; print(os.getpid(), flush=True); "
+                                   "os.open(sys.argv[1], os.O_WRONLY)", str(fifo)],
+                                  cwd=self.tmp.name, stdin=subprocess.DEVNULL,
+                                  stdout=subprocess.PIPE, text=True)
+        self.addCleanup(writer.stdout.close)
+        self.addCleanup(writer.wait, 60)
+
+        def release():
+            # Opening it to read lets a writer still blocked finish.
+            if writer.poll() is None:
+                os.close(os.open(fifo, os.O_RDONLY | os.O_NONBLOCK))
+        self.addCleanup(release)
+        pid = int(writer.stdout.readline())
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline:
+            data = Path("/proc/%d/stat" % pid).read_bytes()
+            if data[data.rindex(b")") + 2:].split()[0] == b"S":
+                break
+            time.sleep(0.02)
+        time.sleep(0.2)
+        alone = self.report_all_read(inventory=(writer.pid, pid))
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        self.assert_inspect(alone.stdout, root, re.escape("checkout %s is locked" % checkouts[0]))
+        self.assertIn("    checkout %s: registered with this clone, locked: its lock file cannot be "
+                      "read (it is not a regular file); " % checkouts[0], alone.stdout)
+        with self.assertRaises(subprocess.TimeoutExpired):
+            writer.wait(timeout=2)
+
+    def test_relative_gitdir_checkout_is_this_clones(self):
+        # FLIP TABLE (round 2, agy NOTE 5, confirmed by probe): a checkout
+        # whose .git holds a relative gitdir (worktree.useRelativePaths) is
+        # read against the checkout, so it is this clone's and the leftover
+        # is REMOVABLE.
+        self.change(".web/templates-draft/landing.html")
+        root, checkouts = self.make_leftover(1, relative=True)
+        self.assertFalse((checkouts[0] / ".git").read_text(encoding="utf-8")[8:].startswith("/"))
+        result, _ran = self.run_guard()
+        self.assert_removable(result.stderr, root, checkouts, r"no process \d+ exists",
+                              inventory=())
+
+    # The report's own registration reader alone (the guard's code, read
+    # from the fixture's guard, run in identity mode so that its main does
+    # not run), printing as JSON what it read from the git records.
+    # Arguments: the code, then the git common directory.
+    REGISTRATIONS = (
+        "import contextlib, io, json, sys\n"
+        "code = sys.argv.pop(1)\n"
+        "common = sys.argv.pop(1)\n"
+        "sys.argv[1:] = ['identity', 'repo', '1', common]\n"
+        "g = {'__name__': '__main__'}\n"
+        "with contextlib.redirect_stdout(io.StringIO()):\n"
+        "    exec(code, g)\n"
+        "scan = g['Scan']()\n"
+        "scan.common = common\n"
+        "records = g['read_registrations'](scan)\n"
+        "print(json.dumps({'records': records, 'unread': scan.reg_unread,\n"
+        "                  'problem': scan.reg_problem}))\n")
+
+    def porcelain_worktrees(self):
+        """The linked checkouts git worktree list --porcelain -z lists (git
+        runs here, in the test), each as the report records it."""
+        out = self.git("worktree", "list", "--porcelain", "-z").stdout
+        records, cur = [], {}
+        for field in out.split("\0"):
+            if not field:
+                if cur:
+                    records.append(cur)
+                cur = {}
+                continue
+            key, _sep, value = field.partition(" ")
+            cur[key] = value
+        listed = []
+        for r in records[1:]:
+            listed.append({"worktree": r["worktree"], "HEAD": r.get("HEAD"),
+                           "branch": r.get("branch"), "locked": r.get("locked"),
+                           "prunable": r.get("prunable")})
+        self.assertNotIn("bare", records[0])
+        return sorted(listed, key=lambda r: r["worktree"])
+
+    def test_direct_read_of_git_records_agrees_with_git_worktree_list(self):
+        # FLIP TABLE (round 5, design change from claude NOTE 3 and codex's
+        # advisory): the report runs no git and reads the git records
+        # itself, so on the fixtures the tests use (checkouts of a shard
+        # directory, a relative gitdir, a locked checkout with and without
+        # a reason, one whose directory is gone, and checkouts on a branch
+        # read through a loose ref and through packed-refs) it must read
+        # exactly what git worktree list --porcelain lists: path, HEAD,
+        # branch or detached, lock reason and prunable reason, with nothing
+        # unreadable.
+        import json
+        self.change(".web/templates-draft/landing.html")
+        _root, checkouts = self.make_leftover(2)
+        self.make_leftover(1, relative=True)
+        gone, _gone_checkouts = self.make_leftover(1)
+        shutil.rmtree(gone)
+        self.git("worktree", "lock", "--reason", "kept for a reason", str(checkouts[0]))
+        self.git("worktree", "lock", str(checkouts[1]))
+        loose = Path(self.tmp.name) / "on-branch"
+        self.git("worktree", "add", "-b", "round5-loose", str(loose), "HEAD")
+        packed = Path(self.tmp.name) / "on-packed-branch"
+        self.git("worktree", "add", "-b", "round5-packed", str(packed), "HEAD")
+        self.git("pack-refs", "--all")
+        self.git("update-ref", "refs/heads/round5-loose", "HEAD")
+        common = self.common_dir()
+        self.assertFalse(Path(common, "refs", "heads", "round5-packed").exists())
+        read = subprocess.run([sys.executable, "-I", "-c", self.REGISTRATIONS, self.report_code(),
+                               common], cwd=self.root, env=self.env, capture_output=True,
+                              text=True, timeout=60)
+        self.assertEqual(read.returncode, 0, read.stdout + read.stderr)
+        got = json.loads(read.stdout)
+        self.assertEqual(got["unread"], [])
+        self.assertIsNone(got["problem"])
+        records = sorted(({key: r[key] for key in ("worktree", "HEAD", "branch", "locked",
+                                                   "prunable")}
+                          for r in got["records"]), key=lambda r: r["worktree"])
+        listed = self.porcelain_worktrees()
+        self.assertEqual(len(listed), 6, listed)
+        self.assertEqual({r["locked"] for r in listed}, {None, "", "kept for a reason"}, listed)
+        self.assertEqual(len([r for r in listed if r["prunable"]]), 1, listed)
+        self.assertEqual({r["branch"] for r in listed},
+                         {None, "refs/heads/round5-loose", "refs/heads/round5-packed"}, listed)
+        self.assertEqual(records, listed)
+        self.assertTrue(all(not r["head_problem"] for r in got["records"]), got)
+        for path in (checkouts[0], checkouts[1]):
+            self.git("worktree", "unlock", str(path))
+
+    def test_leftover_paths_are_escaped_for_the_console(self):
+        # FLIP TABLE (leftover report): a path holding a space, a newline,
+        # an escape sequence, a ! (round 2, agy WARN 3: refuted for bash
+        # 5.3.9 by probe, escaped anyway) and a component with a leading
+        # dash is printed as one bash $'...' word of printable ASCII with no
+        # !, after --, never raw; bash reads it back as the exact path, and
+        # the printed command removes the checkout. The commands are those
+        # of the report as on a host where every process is read (round 3,
+        # codex WARN 1), against a deterministic process inventory (round 8,
+        # codex WARN 1: NO_OTHER_PROCESS), so no other process of the host,
+        # one exiting during the scan included, decides what it renders.
+        self.change(".web/templates-draft/landing.html")
+        odd = Path(self.tmp.name) / "-lead dir!\nnext\x1b[31mline"
+        odd.mkdir()
+        root, checkouts = self.make_leftover(1, tmpdir=odd)
+        result, _ran = self.run_guard(TMPDIR=str(odd))
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        alone = self.report_all_read(inventory=(), TMPDIR=str(odd))
+        self.assertIn(self.ALL_READ_TEXT, alone.stdout)
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        # Round 10 (codex WARN 1): no report prints a path raw, but the real
+        # guard's may be a correctly reported incomplete scan of the host's
+        # processes, which need not list the leftover.
+        for err in (result.stderr, alone.stdout):
+            self.assertNotIn("\x1b", err)
+            self.assertNotIn(str(odd), err)
+            for line in err.splitlines():
+                self.assertFalse(line.startswith("-"), line)
+        for err in self.complete_reports(result.stderr, alone.stdout):
+            self.assertIn("LEFTOVERS", err)
+            words = re.findall(r"(?m)^  (\$'[ -~]*'): (?:REMOVABLE|INSPECT)", err)
+            self.assertEqual(len(words), 1, err)
+            self.assertEqual(subprocess.run(["bash", "-c", "printf %s " + words[0]],
+                                            capture_output=True, check=True,
+                                            timeout=30).stdout, os.fsencode(root))
+        commands = self.leftover_commands(alone.stdout)
+        self.assertEqual(len(commands), 2, alone.stdout)
+        for command, prefix, path in ((commands[0], "git worktree remove --force -- ", checkouts[0]),
+                                      (commands[1], "rm -rf -- ", root)):
+            self.assertTrue(command.startswith(prefix), command)
+            word = command[len(prefix):]
+            self.assertTrue(word.startswith("$'") and word.endswith("'"), word)
+            self.assertTrue(all(32 <= ord(c) < 127 for c in word), word)
+            self.assertNotIn("!", word)
+            decoded = subprocess.run(["bash", "-c", "printf %s " + word], capture_output=True,
+                                     check=True, timeout=30).stdout
+            self.assertEqual(decoded, os.fsencode(path))
+        subprocess.run(["bash", "-c", commands[0]], cwd=self.root, env=self.env, check=True,
+                       capture_output=True, timeout=30)
+        self.assertNotIn(str(checkouts[0]),
+                         self.git("worktree", "list", "--porcelain", "-z").stdout)
+
+    # A prelude for the report alone that holds the opening of the git
+    # records directory (<git common dir>/worktrees) for 30 seconds, as a
+    # stalled file system would.
+    STALLED_RECORDS = (
+        "import os, time\n"
+        "_open = os.open\n"
+        "def _stalled_open(path, *args, **kwargs):\n"
+        "    if isinstance(path, str) and path.endswith(os.sep + 'worktrees'):\n"
+        "        time.sleep(30)\n"
+        "    return _open(path, *args, **kwargs)\n"
+        "os.open = _stalled_open\n")
+
+    def test_leftover_scan_bound_reports_an_incomplete_scan(self):
+        # FLIP TABLE (leftover report; round 2, codex WARN 5, claude NOTE 8
+        # gap 2): a scan that cannot finish within its 4-second bound (here
+        # the opening of the git records directory is held for 30 seconds)
+        # says the report is INCOMPLETE, gives a leftover it had already
+        # read no removal command, and returns within the 5-second bound of
+        # the whole report, with exit status 0, so the push goes on. The
+        # report is run alone, with the guard's own code (round 5: it runs
+        # no git, so no git shim can hold it).
+        import time
+        self.change(".web/templates-draft/landing.html")
+        root, _checkouts = self.make_leftover(1)
+        started = time.monotonic()
+        alone = self.report_alone(prelude=self.STALLED_RECORDS)
+        elapsed = time.monotonic() - started
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        self.assertLess(elapsed, 5.5, alone.stdout)
+        self.assertIn("pre-push guard: the leftover scan is INCOMPLETE: its 4s scan bound (the "
+                      "whole report is bounded to 5s) was reached while reading the git worktree "
+                      "records; leftovers it had not reached are not listed, and none listed has "
+                      "a removal command.", alone.stdout)
+        self.assert_inspect(alone.stdout, root, "the scan did not finish")
+
+    # A prelude for the report alone that holds reading the link
+    # STALLED_LINK names for 30 seconds, as a busy host can keep the scan of
+    # its processes from finishing within its bound.
+    STALLED_PROCESS = (
+        "import os, time\n"
+        "_stall_readlink = os.readlink\n"
+        "def _stalled_readlink(path, *args, **kwargs):\n"
+        "    if path == os.environ.get('STALLED_LINK'):\n"
+        "        time.sleep(30)\n"
+        "    return _stall_readlink(path, *args, **kwargs)\n"
+        "os.readlink = _stalled_readlink\n")
+
+    def test_real_guard_half_accepts_only_a_correctly_reported_incomplete_scan(self):
+        # FLIP TABLE (round 10, codex WARN 1): the half of an outcome test
+        # that checks the real guard's report, whose scan of every process
+        # of the host can reach its bound on a busy host, accepts a
+        # correctly reported incomplete scan with no removal command in
+        # place of the outcome it expects (before, such a report failed the
+        # test); the report alone, against a deterministic inventory, still
+        # gives that outcome. The incomplete report is the guard's own,
+        # its scan held at the processes (one process, this test, whose
+        # working directory is read for 30 seconds), so its bound is reached
+        # there, as a busy host reaches it. It is accepted by
+        # assert_removable, whose report alone is REMOVABLE, and by
+        # complete_reports. Each altered copy fails assert_removable: with
+        # a removal command, with the leftover REMOVABLE, with the
+        # unfinished scan not given as its first reason, or as a scan that
+        # failed (an error, which is never accepted).
+        root, checkouts = self.make_leftover(1)
+        held = self.report_alone(prelude=self.NO_OTHER_PROCESS + self.STALLED_PROCESS,
+                                 FIXTURE_PIDS=str(os.getpid()),
+                                 STALLED_LINK="/proc/%d/cwd" % os.getpid())
+        self.assertEqual(held.returncode, 0, held.stdout + held.stderr)
+        report = held.stdout
+        self.assertIn("pre-push guard: the leftover scan is INCOMPLETE: its 4s scan bound (the "
+                      "whole report is bounded to 5s) was reached while reading which processes "
+                      "use the leftovers; leftovers it had not reached are not listed, and none "
+                      "listed has a removal command.\n", report)
+        header = "  %s: INSPECT (no removal command), because:\n" % root
+        self.assertIn(header + self.NOT_FINISHED + "\n", report)
+        self.assertEqual(self.leftover_commands(report), [], report)
+        self.assertTrue(self.incomplete_scan(report))
+        self.assertEqual(self.complete_reports(report, "alone"), ["alone"])
+        self.assertEqual(self.assert_removable(report, root, checkouts, r"no process \d+ exists",
+                                               inventory=()),
+                         self.removable_commands(root, checkouts))
+        failed = ("pre-push guard: the leftover scan failed (OSError: scripted), so the report "
+                  "is INCOMPLETE; leftovers it had not reached are not listed, and none listed "
+                  "has a removal command.")
+        for case, text in (
+                ("a removal command", report.replace(
+                    self.NOT_FINISHED + "\n",
+                    self.NOT_FINISHED + "\n      rm -rf -- %s\n" % root, 1)),
+                ("a REMOVABLE leftover", report.replace(
+                    header, "  %s: REMOVABLE: guard run pid 1 of this clone made it and has "
+                            "ended\n" % root, 1)),
+                ("no unfinished scan reason", report.replace(self.NOT_FINISHED + "\n", "", 1)),
+                ("a scan that failed", re.sub(self.INCOMPLETE_SCAN, failed, report))):
+            with self.subTest(case):
+                self.assertNotEqual(text, report)
+                with self.assertRaises(AssertionError):
+                    self.assert_removable(text, root, checkouts, r"no process \d+ exists",
+                                          inventory=())
+
+    # A prelude for the report alone that notes, through an audit hook, each
+    # event that starts, replaces or signals a process (or loads a C
+    # library through ctypes) in the file SPAWN_LOG names.
+    NO_CHILD = (
+        "import os, sys\n"
+        "_spawn_log = os.environ['SPAWN_LOG']\n"
+        "_spawn_events = ('os.fork', 'os.forkpty', 'os.posix_spawn', 'os.spawn', 'os.exec',\n"
+        "                 'os.system', 'os.startfile', 'subprocess.Popen', 'pty.spawn',\n"
+        "                 'os.kill', 'os.killpg', 'signal.pthread_kill', 'ctypes.dlopen')\n"
+        "def _spawn_hook(event, args):\n"
+        "    if event in _spawn_events:\n"
+        "        with open(_spawn_log, 'a', encoding='ascii') as f:\n"
+        "            f.write(event + '\\n')\n"
+        "sys.addaudithook(_spawn_hook)\n")
+
+    def test_leftover_report_starts_and_signals_no_process(self):
+        # FLIP TABLE (round 5, design change from claude NOTE 3 and codex's
+        # advisory): the report runs no git and starts and signals no
+        # process, in both modes, with leftovers to read (an existing one
+        # and one whose shard directory is gone) and processes to scan. An
+        # audit hook notes every event that would start, replace or signal
+        # a process (it is shown to note them first), and a git shim on
+        # PATH notes any git run; both stay empty, and the report still
+        # lists the leftovers.
+        self.change(".web/templates-draft/landing.html")
+        real_git = shutil.which("git", path=self.env.get("PATH"))
+        shim = Path(self.tmp.name) / "shim"
+        shim.mkdir()
+        git_log = Path(self.tmp.name) / "git.log"
+        (shim / "git").write_text('#!/bin/sh\necho "$*" >> "%s"\nexec "%s" "$@"\n'
+                                  % (git_log, real_git), encoding="utf-8")
+        (shim / "git").chmod(0o755)
+        path = str(shim) + os.pathsep + self.env.get("PATH", "")
+        spawn_log = Path(self.tmp.name) / "spawn.log"
+        control = subprocess.run([sys.executable, "-I", "-c", self.NO_CHILD
+                                  + "import os, subprocess\n"
+                                    "subprocess.run(['true'])\n"
+                                    "os.kill(os.getpid(), 0)\n"],
+                                 env=dict(self.env, SPAWN_LOG=str(spawn_log)),
+                                 capture_output=True, text=True, timeout=60)
+        self.assertEqual(control.returncode, 0, control.stderr)
+        noted = spawn_log.read_text(encoding="ascii").split()
+        self.assertIn("subprocess.Popen", noted)
+        self.assertIn("os.kill", noted)
+        spawn_log.unlink()
+        root, _checkouts = self.make_leftover(1)
+        gone, _gone_checkouts = self.make_leftover(1)
+        shutil.rmtree(gone)
+        if git_log.exists():
+            git_log.unlink()
+        for mode, extra_args in (("scan", ()), ("left", (str(root),))):
+            with self.subTest(mode):
+                alone = self.report_alone(prelude=self.NO_CHILD, mode=mode, extra_args=extra_args,
+                                          PATH=path, SPAWN_LOG=str(spawn_log))
+                self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+                self.assertRegex(alone.stdout, r"(?m)^  %s: (REMOVABLE|INSPECT)"
+                                 % re.escape(str(root)))
+                if mode == "scan":
+                    self.assertIn(self.LEFTOVERS_HEAD, alone.stdout)
+                    self.assertIn("  %s: " % gone, alone.stdout)
+                self.assertFalse(spawn_log.exists(), spawn_log.exists()
+                                 and spawn_log.read_text(encoding="ascii"))
+                self.assertFalse(git_log.exists(), git_log.exists()
+                                 and git_log.read_text(encoding="utf-8"))
+
+    def test_failed_report_line_is_worded_per_mode(self):
+        # FLIP TABLE (round 3, claude NOTE 1): a leftover report that fails
+        # says what is unknown in its own mode: for "left", what this run
+        # left in its shard directory; for "scan", what earlier runs left.
+        # A python3 shim fails the report in one mode (exit 3, or ended by
+        # SIGALRM as at the 5-second bound) and runs everything else.
+        self.change("ai/policy-fixture.md")
+        real_python = shutil.which("python3", path=self.env.get("PATH"))
+        shim = Path(self.tmp.name) / "pyshim"
+        shim.mkdir()
+        (shim / "python3").write_text(
+            '#!/bin/sh\nif [ "$1 $2 $4" = "-I -c $FAIL_MODE" ]; then\n'
+            '  [ "$FAIL_HOW" != alarm ] || kill -ALRM $$\n  exit 3\nfi\n'
+            'exec "%s" "$@"\n' % real_python, encoding="utf-8")
+        (shim / "python3").chmod(0o755)
+        path = str(shim) + os.pathsep + self.env.get("PATH", "")
+        result, _ran = self.run_guard(PATH=path, FAIL_MODE="left", FAIL_HOW="exit",
+                                      FIXTURE_SHARD_FAIL="3")
+        first = result.stdout
+        self.assertEqual(result.returncode, 7, result.stdout + result.stderr)
+        kept = re.search(r"(?m)^The shard checkouts and logs are kept for inspection under "
+                         r"(\S+):$", result.stdout)
+        self.assertIsNotNone(kept, result.stdout)
+        self.assertIn("pre-push guard: WARNING: the leftover report (left) failed (rc=3), so "
+                      "what this run left in %s (named above) and whether a process uses it "
+                      "are unknown; it stopped and removed nothing of a leftover.\n"
+                      % kept.group(1), result.stderr)
+        self.assertNotIn("what earlier runs", result.stderr)
+        result, _ran = self.run_guard(PATH=path, FAIL_MODE="scan", FAIL_HOW="alarm")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("pre-push guard: WARNING: the leftover report (scan) was ended at its "
+                      "5-second bound before it printed, so what earlier runs of this guard left "
+                      "is unknown; it stopped and removed nothing of a leftover.\n", result.stderr)
+        for checkout in re.findall(r"\(checkout (\S+), log", first):
+            self.git("worktree", "remove", "--force", checkout)
+
+    def test_guard_header_and_readme_state_the_reports_rules(self):
+        # FLIP TABLE (round 4, claude NOTE 1, NOTE 2 and NOTE 4, codex NOTE
+        # 4): the guard's header comment states the report's rules in the
+        # words of tools/README.md, not the superseded ones; the README
+        # says that a non-root user on almost any host sees INSPECT for an
+        # existing leftover. Round 5: both say the report runs no git and
+        # starts and signals no process (the git query text is gone), that
+        # every thread is read, that a leftover in use gets a manual stop
+        # procedure, and (claude NOTE 2) that a VM restored from a memory
+        # snapshot shares both the boot id and the machine id.
+        guard = (REPO_ROOT / "tools" / "pre-push-guard.sh").read_text(encoding="utf-8")
+        header = " ".join(" ".join(line[1:] for line in guard.split("\nset -u\n", 1)[0]
+                                   .splitlines() if line.startswith("#")).split())
+        readme = " ".join((REPO_ROOT / "tools" / "README.md").read_text(encoding="utf-8")
+                          .replace("`", "").split())
+        for text in (
+                "The report runs no git and starts and signals no process",
+                "the common directory passed by the shell",
+                "for its own working directory, root directory and open files",
+                "is read thread by thread",
+                "VM restored from a memory snapshot",
+                "A leftover a process uses also gets a manual stop procedure, marked as not "
+                "proved",
+                "A process that cannot be read, whoever owns it and whatever the directory's "
+                "mode, leaves use unknown",
+                "for a non-root user on almost any host (any running a root daemon) an existing "
+                "leftover is INSPECT",
+                "A differing boot id with another or unknown machine id, or an unknown boot id, "
+                "proves nothing (another kernel may still run it)",
+                "git worktree remove -- <checkout>",
+                "a manual inspection procedure, marked as not proved",
+                # Round 7 (claude NOTE 1): which runs write a run record,
+                # and so which guards can be labelled at all.
+                "writes a run record only from its gate 36 step on",
+                "a whole-runner fallback",
+                "only the guards the report identified are labelled",
+                # Round 7 (codex WARN 1): the walk is kept consistent.
+                "kept consistent",
+                # Round 7 (claude NOTE 2): the type check and the open are
+                # two lookups by name.
+                "are two lookups by name",
+                # Round 9 (claude NOTE 2): when every thread's mappings are
+                # read.
+                "the mappings of every thread are read when the leader is exiting"):
+            with self.subTest(text):
+                self.assertIn(text, header)
+                self.assertIn(text, readme)
+        self.assertIn("pid namespace, boot id and machine id", header)
+        self.assertIn("shares both the boot id and the machine id", readme)
+        for stale in ("It changes nothing: it stops, signals and deletes nothing",
+                      "excluded only when the directory's mode",
+                      "every process of this user was read",
+                      "its own git queries",
+                      "forked and registered before it runs git",
+                      "PR_SET_PDEATHSIG",
+                      "is not read on its own",
+                      "is not a regular file is never opened"):
+            with self.subTest(stale):
+                self.assertNotIn(stale, header)
+                self.assertNotIn(stale, readme)
+
+    def test_guard_owner_naming_another_clone_gets_no_removal_command(self):
+        # FLIP TABLE (round 3, claude NOTE 3): a shard directory whose
+        # guard-owner record names another clone, holding a checkout that
+        # is registered with this clone, is INSPECT with that reason, even
+        # as on a host where every process is read.
+        self.change(".web/templates-draft/landing.html")
+        root, checkouts = self.make_leftover(1)
+        other = Path(self.tmp.name) / "other-clone"
+        self.write_owner(root, clone=other)
+        reason = re.escape("its guard-owner record names another clone, %s" % other) + "$"
+        result, _ran = self.run_guard()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
+        alone = self.report_all_read(inventory=())
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        # Round 10 (codex WARN 1): the real guard's report or a correctly
+        # reported incomplete scan; the report alone.
+        for err in self.complete_reports(result.stderr, alone.stdout):
+            self.assert_inspect(err, root, reason)
+            self.assertIn("    checkout %s: registered with this clone; its directory exists; "
+                          "its .git points into this clone\n" % checkouts[0], err)
+
+    def write_run_record(self, checkout, **fields):
+        """The run record a guard writes beside the git record of a checkout
+        it registers (see run_record); returns that git record directory."""
+        admin = self.git("-C", str(checkout), "rev-parse", "--absolute-git-dir").stdout.strip()
+        Path(admin, "grc-guard-owner").write_bytes(self.run_record(**fields))
+        return Path(admin)
+
+    def test_record_of_a_gone_shard_directory_is_removable_only_when_proven(self):
+        # FLIP TABLE (round 3, claude WARN 1): a registered, unlocked
+        # checkout whose shard directory is gone (a reboot, a temporary
+        # directory cleaner) leaves only its git record. Each run writes a
+        # run record beside that git record; when it proves the run that
+        # registered the checkout has ended, the report shows the record's
+        # HEAD and then the narrow git worktree remove -- <checkout>, which
+        # removes only that record (an unrelated stale record stays), and
+        # never git worktree prune. Otherwise the record is INSPECT, saying
+        # what was not proved.
+        self.change("ai/policy-fixture.md")
+        failed, _ran = self.run_guard(FIXTURE_SHARD_FAIL="3")
+        self.assertEqual(failed.returncode, 7, failed.stdout + failed.stderr)
+        kept = sorted(re.findall(r"^  shard \d: \S+ \(checkout (\S+), log \S+\)$",
+                                 failed.stdout, re.M))
+        self.assertEqual(len(kept), 6, failed.stdout)
+        root = os.path.dirname(os.path.dirname(kept[0]))
+        owner = Path(root, "guard-owner").read_bytes().split(b"\0")
+        self.assertEqual(owner[4:], [self.boot_id().encode("ascii"),
+                                     self.machine_id().encode("ascii"), b""], owner)
+        heads = {}
+        for checkout in kept:
+            admin = self.git("-C", checkout, "rev-parse", "--absolute-git-dir").stdout.strip()
+            record = Path(admin, "grc-guard-owner").read_bytes().split(b"\0")
+            self.assertEqual(record, owner, checkout)
+            heads[checkout] = self.git("-C", checkout, "rev-parse", "HEAD").stdout.strip()
+        shutil.rmtree(root)
+        side = Path(self.tmp.name) / "side-worktree"
+        self.git("worktree", "add", "--detach", str(side), "HEAD")
+        shutil.rmtree(side)
+        later, _ran = self.run_guard()
+        self.assertEqual(later.returncode, 0, later.stdout + later.stderr)
+        self.assertNotIn("git worktree prune", later.stderr)
+        # Round 10 (codex WARN 1): the real guard's report may be a correctly
+        # reported incomplete scan of the host's processes, with no removal
+        # command; the report alone, against a deterministic inventory,
+        # always gives the outcome and the commands, which are run.
+        alone = self.report_all_read(inventory=())
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        for err in self.complete_reports(later.stderr, alone.stdout):
+            self.assertNotIn("git worktree prune", err)
+            block = self.leftover_block(err, root)
+            self.assertIsNotNone(block, err)
+            self.assertEqual(block[0], "  %s: REMOVABLE: its directory does not exist, and the "
+                                       "guard run that registered each checkout in it has ended "
+                                       "(see below), so only the git record of each checkout "
+                                       "is left" % root, err)
+            text = "\n".join(block) + "\n"
+            commands = self.leftover_commands(text)
+            self.assertEqual(commands, ["git worktree remove -- %s" % c for c in kept], err)
+            for checkout in kept:
+                head = "      its git record holds HEAD %s (detached); " % heads[checkout]
+                self.assertIn(head, text)
+                self.assertLess(text.index(head),
+                                text.index("git worktree remove -- %s" % checkout))
+                self.assertIn("      its run record: guard run pid %s, clone %s (no process %s "
+                              "exists)\n" % (owner[0].decode(), self.root, owner[0].decode()),
+                              text)
+        for command in commands:
+            subprocess.run(["bash", "-c", command], cwd=self.root, env=self.env, check=True,
+                           capture_output=True, timeout=30)
+        worktrees = self.git("worktree", "list", "--porcelain").stdout
+        for checkout in kept:
+            self.assertNotIn("worktree %s\n" % checkout, worktrees)
+        self.assertIn("worktree %s\n" % side, worktrees)
+        self.git("worktree", "remove", "--", str(side))
+        again, _ran = self.run_guard()
+        self.assertNotIn("LEFTOVERS", again.stderr)
+        # What was not proved keeps the record INSPECT. A run of an earlier
+        # boot of this machine (another boot id, this machine id) is proved
+        # ended even though its pid is now a live process with the recorded
+        # start time; another boot id is not proof on its own (round 4,
+        # claude WARN 1: another kernel, on another machine that shares
+        # this clone, may still run it), nor is an unknown boot id. A git
+        # record the report cannot read is UNREADABLE, not a missing run
+        # record (round 4, claude NOTE 3): here its gitdir file is a
+        # symbolic link, which git follows and the report does not. The
+        # live helper outlasts every subtest (each runs the guard).
+        helper = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(300)"],
+                                  cwd=self.tmp.name, stdin=subprocess.DEVNULL)
+        self.addCleanup(helper.wait, 60)
+        self.addCleanup(helper.terminate)
+        data = Path("/proc/%d/stat" % helper.pid).read_bytes()
+        start = data[data.rindex(b")") + 2:].split()[19].decode("ascii")
+        other = Path(self.tmp.name) / "other-clone"
+        live = {"pid": helper.pid, "start": start}
+        def another_kernel(why):
+            return (r"checkout %%(checkout)s: guard run pid %d ran under another kernel "
+                    r"\(boot id %s\), and %s, so it may still be running on another machine "
+                    r"that shares this clone$" % (helper.pid, self.OTHER_BOOT, why))
+        for name, record, lock, link, reason in (
+                ("no run record", None, False, False,
+                 r"its directory does not exist, and no run record beside the git record of "
+                 r"checkout %(checkout)s shows which run registered it \(an older guard writes "
+                 r"none, or its run stopped before writing it\), so whether that run has ended "
+                 r"is not proved$"),
+                ("a live run", live, False, False,
+                 r"checkout %%(checkout)s: guard run pid %d is still running$" % helper.pid),
+                ("another clone", {"clone": other}, False, False,
+                 r"the run record of checkout %%(checkout)s names another clone, %s$"
+                 % re.escape(str(other))),
+                ("locked", {}, True, False, r"checkout %(checkout)s is locked$"),
+                ("an earlier boot of this machine", dict(live, boot=self.OTHER_BOOT), False,
+                 False, None),
+                ("another machine", dict(live, boot=self.OTHER_BOOT, machine=self.OTHER_MACHINE),
+                 False, False,
+                 another_kernel("its machine id %s is not this one" % self.OTHER_MACHINE)),
+                ("no machine id recorded", dict(live, boot=self.OTHER_BOOT, machine="-"), False,
+                 False, another_kernel("its machine id was not recorded")),
+                ("no boot id recorded", dict(live, boot="-"), False, False,
+                 r"checkout %%(checkout)s: whether guard run pid %d ran under this kernel is "
+                 r"unknown \(its boot id was not recorded\), so whether it has ended is not "
+                 r"proved$" % helper.pid),
+                ("an unreadable git record", {}, False, True,
+                 r"(?m)^  UNREADABLE: %(gitdir)s \(Too many levels of symbolic links\), so "
+                 r"whether that git record registers a checkout of a leftover is unknown; no "
+                 r"leftover has a removal command while it cannot be read$")):
+            with self.subTest(name):
+                if reason is None and self.machine_id() == "-":
+                    self.skipTest("this machine id cannot be read")
+                gone, checkouts = self.make_leftover(1)
+                admin = Path(self.git("-C", str(checkouts[0]), "rev-parse",
+                                      "--absolute-git-dir").stdout.strip())
+                if record is not None:
+                    self.write_run_record(checkouts[0], **record)
+                if lock:
+                    self.git("worktree", "lock", "--reason", "kept", str(checkouts[0]))
+                if link:
+                    real = Path(self.tmp.name) / "gitdir.real"
+                    shutil.copyfile(admin / "gitdir", real)
+                    (admin / "gitdir").unlink()
+                    (admin / "gitdir").symlink_to(real)
+                shutil.rmtree(gone)
+                try:
+                    result, _ran = self.run_guard()
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                    if reason is not None:
+                        self.assertNotIn("REMOVABLE", result.stderr)
+                        self.assertEqual(self.leftover_commands(result.stderr), [],
+                                         result.stderr)
+                    alone = self.report_all_read(inventory=(helper.pid,))
+                    self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+                    # Round 10 (codex WARN 1): the real guard's report or a
+                    # correctly reported incomplete scan; the report alone.
+                    for err in self.complete_reports(result.stderr, alone.stdout):
+                        if reason is None:
+                            block = self.leftover_block(err, gone)
+                            self.assertIsNotNone(block, err)
+                            self.assertTrue(block[0].startswith("  %s: REMOVABLE: " % gone),
+                                            block)
+                            self.assertIn("      its run record: guard run pid %d, clone %s "
+                                          "(guard run pid %d ran during an earlier boot of "
+                                          "this machine (its boot id differs, its machine id "
+                                          "is this one))" % (helper.pid, self.root, helper.pid),
+                                          block)
+                            self.assertEqual(self.leftover_commands("\n".join(block)),
+                                             ["git worktree remove -- %s" % checkouts[0]])
+                        elif link:
+                            # Round 5: the report reads the git records
+                            # itself, so one it cannot read is a note of its
+                            # own (which checkout it registers is unknown),
+                            # never skipped.
+                            self.assertRegex(err, reason % {
+                                "gitdir": re.escape(str(admin / "gitdir"))})
+                            self.assertNotIn("REMOVABLE", err)
+                            self.assertEqual(self.leftover_commands(err), [], err)
+                        else:
+                            self.assert_inspect(err, gone, reason % {
+                                "checkout": re.escape(str(checkouts[0])),
+                                "gitdir": re.escape(str(admin / "gitdir"))})
+                            self.assertNotIn("REMOVABLE", err)
+                finally:
+                    # Each subtest leaves no record behind, even when it fails.
+                    if lock:
+                        self.git("worktree", "unlock", str(checkouts[0]))
+                    self.git("worktree", "remove", "--", str(checkouts[0]))
+        self.assertIsNone(helper.poll(), "the report stopped a process")
+
+    def test_unreadable_shard_directory_is_reported_not_clean(self):
+        # FLIP TABLE (leftover report): a shard directory of this user that
+        # the scan cannot read is reported as UNREADABLE, never as clean.
+        if os.geteuid() == 0:
+            self.skipTest("root reads a mode-000 directory")
+        self.change(".web/templates-draft/landing.html")
+        root, _checkouts = self.make_leftover(0)
+        root.chmod(0)
+        self.addCleanup(root.chmod, 0o700)
+        result, _ran = self.run_guard()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
+        alone = self.report_all_read(inventory=())
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        # Round 10 (codex WARN 1): the real guard's report or a correctly
+        # reported incomplete scan; the report alone.
+        for err in self.complete_reports(result.stderr, alone.stdout):
+            self.assert_inspect(err, root, r"UNREADABLE: %s \(.+\); it is not reported as clean$"
+                                % re.escape(str(root)))
+
+    def test_concurrent_live_run_is_reported_in_use_not_removable(self):
+        # FLIP TABLE (leftover report): while another push's guard runs its
+        # shards, this push reports that run's shard directory as INSPECT
+        # (the run is still running) and names every process using it, with
+        # no command to stop it or remove it; it stops and removes nothing.
+        # The live run is forced onto the full guard (ALLOW_DIRTY), so this
+        # push takes the fast path; the live run is then interrupted.
+        import signal
+        import time
+        self.change(".web/templates-draft/landing.html")
+        marks = Path(self.tmp.name) / "hang"
+        marks.mkdir()
+        out_path = Path(self.tmp.name) / "live.out"
+
+        def default_signals():
+            for number in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
+                signal.signal(number, signal.SIG_DFL)
+
+        with open(out_path, "w", encoding="utf-8") as out:
+            live = subprocess.Popen(["bash", "tools/pre-push-guard.sh"], cwd=self.root,
+                                    env=dict(self.env, FIXTURE_SHARD_HANG=str(marks),
+                                             PRE_PUSH_GUARD_ALLOW_DIRTY="1"),
+                                    stdin=subprocess.DEVNULL, stdout=out,
+                                    stderr=subprocess.STDOUT, preexec_fn=default_signals)
+        try:
+            deadline = time.monotonic() + 60
+            while (len([m for m in marks.iterdir() if not m.name.endswith(".tmp")]) < 6
+                   and live.poll() is None and time.monotonic() < deadline):
+                time.sleep(0.1)
+            records = [m.read_text(encoding="utf-8").split() for m in marks.iterdir()
+                       if not m.name.endswith(".tmp")]
+            self.assertEqual(len(records), 6, out_path.read_text(encoding="utf-8"))
+            result, _ran = self.run_guard()
+            # Round 10 (codex WARN 1): the real guard's report may be a
+            # correctly reported incomplete scan of the host's processes;
+            # the report alone, while the live run still runs, against an
+            # inventory of that run and its shard processes, always gives
+            # the outcome.
+            alone = self.report_all_read(inventory=[live.pid] + [
+                pid for shard, _pgid, child in records for pid in (shard, child)])
+            still_running = live.poll() is None
+            live.send_signal(signal.SIGINT)
+            rc = live.wait(timeout=60)
+        finally:
+            if live.poll() is None:
+                live.kill()
+                live.wait(timeout=60)
+        output = out_path.read_text(encoding="utf-8")
+        self.assertTrue(still_running, "the report stopped the live run")
+        self.assertEqual(rc, 130, output)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("pre-push guard FAST PATH", result.stdout)
+        self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
+        self.assertNotIn("kill", result.stderr)
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        for err in self.complete_reports(result.stderr, alone.stdout):
+            roots = re.findall(r"(?m)^  (\S+): INSPECT \(no removal command\), because:\n"
+                               r"    - guard run pid %d is still running\n" % live.pid, err)
+            self.assertEqual(len(roots), 1, err)
+            for pid, _pgid, child in records:
+                # Each has the live guard among its parents, and is labelled
+                # so (round 5).
+                self.assertRegex(err, r"(?m)^    used by pid %s \(started by a pre-push "
+                                      r"guard\): " % pid)
+                self.assertRegex(err, r"(?m)^    used by pid %s \(started by a pre-push "
+                                      r"guard\): " % child)
+            self.assertEqual(self.leftover_commands(err), [], err)
+            self.assertNotIn("kill", err)
+            # No stop procedure for the processes of a live run (round 5,
+            # codex WARN 3).
+            self.assertIn("    no stop procedure: the guard run that made it has not ended, and "
+                          "the processes using it belong to that run; let that run end\n", err)
+            self.assertNotIn("NOT PROVED, so no stop command", err)
+        kept = re.findall(r"\(checkout (\S+), log", output)
+        self.assertEqual(len(kept), 6, output)
+        for checkout in kept:
+            self.assertTrue(checkout.startswith(roots[0] + os.sep), checkout)
             self.git("worktree", "remove", "--force", checkout)
 
     def test_failed_checkout_removal_is_reported_and_pruned(self):
@@ -19474,7 +22107,23 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         for checkout, log in kept:
             self.assertTrue(Path(checkout, "tools", "pre-push-guard.sh").is_file(), checkout)
             self.assertTrue(Path(log).is_file(), log)
-        for checkout, _log in kept:
+        # FLIP TABLE (round 2, claude NOTE 4): a failed run, not only an
+        # interrupted one, reports what it left, with no removal command
+        # while it lasts; the next push makes it REMOVABLE. Round 10 (codex
+        # WARN 1): the scan of every process of the host behind each of
+        # these reports may reach its bound on a busy host, which a
+        # correctly reported incomplete scan with no removal command says.
+        left = result.stdout.split("Left behind by this run", 1)
+        if not self.incomplete_scan(result.stdout):
+            self.assertEqual(len(left), 2, result.stdout)
+            self.assertIn("    - this run made it and has not ended yet: ", left[1])
+        self.assertEqual(self.leftover_commands(left[-1]), [])
+        root = os.path.dirname(os.path.dirname(kept[0][0]))
+        later, _ran = self.run_guard(FIXTURE_SHARD_FAIL="3")
+        self.assert_removable(later.stderr, root, [checkout for checkout, _log in kept],
+                              r"no process \d+ exists", inventory=())
+        for checkout in re.findall(r"^  shard \d: \S+ \(checkout (\S+), log \S+\)$",
+                                   later.stdout, re.M) + [c for c, _log in kept]:
             self.git("worktree", "remove", "--force", checkout)
 
     def test_missing_shard_output_or_reconcile_failure_blocks_the_push(self):
@@ -41987,7 +44636,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F 6f1d6f4a4093d5f52b993b685745e112a8fe11b1c767de3dab3dc1ac281c4ad0
+        README.md DATA F 9d965952a1ab45c5da0002fb37e871b97dd7c1b02f227b8182c06f2fcb581ed3
         adopt-bootstrap-ref.py OWN F 2c56acda4d74183039a3eeba0d0ec6d06456c6c4d55b5f30ce9f5be240f829ab
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
         aiqt_bootstrap.py PASSIVE F 2d094f059929c9ce413f4aabb02fff22f45c553759eb6956574240b094462353
@@ -42180,7 +44829,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 384a6ab6aad0e0ceebc7f6beaa82f9174030a824c1a48f48f222dc69ebcb5e69
-        pre-push-guard.sh FIXED F 374c73bbe619c1681bf5469fdc2e1fa5b573f43e09c0ef5acf22de1c52610bc9
+        pre-push-guard.sh FIXED F 119883342e4b7f9ee86fbb9da2fc05551e356ccebc971d44216070a908204a55
         pre-push-hook.py TRANSPORT F d193c170d963cbca2e64bb76ce0b1dfbe7999b9f5af6c0701ae11d95f9d7f659
         preflight-changelog.py NO_FS F bc91a3dc87ba0615f3def6bdddc3d4bc774e1c3389ca9f67b334c9e014f929a2
         preflight-version-date.py NO_FS F a12ecf5ae928da5048eed6f282876a3ad2de92a51cc266eda65c8d5b2a613088

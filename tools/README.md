@@ -210,10 +210,233 @@ shard that exits 0 without step outputs (exit 2, before the reconcile) or a
 failing reconcile (its own status: 1 failure, 2 refusal) fails the push and
 keeps the checkouts, printing their paths. INT, TERM or HUP during the shards
 stops every shard's process group, waits for them, keeps and names every
-checkout and log, and exits 130, 143 or 129. A passing run removes the
-checkouts; a checkout `git worktree remove` cannot remove is named, `git
-worktree prune` runs once its directory is gone, and the guard never claims
-that removal. The full suite, gate 36 whole included, still runs in CI on the pull
+checkout and log, and exits 130, 143 or 129. A kept shard directory is
+reported as left behind, with what it holds and any process still using it,
+but with no removal command while that run lasts; the next push reports it
+until it is removed. A passing run removes the checkouts; a checkout
+`git worktree remove` cannot remove is named, `git worktree prune` runs once
+its directory is gone, and the guard never claims that removal.
+
+Each push (fast path included) first reports, strictly read-only, what
+earlier runs of the guard in this clone left behind after an interrupt, a
+`KILL` or a crash: shard checkouts registered with this clone,
+`grc-gate36-shards.*` directories under `${TMPDIR:-/tmp}` that are, or may
+be, this clone's (each run writes there a `guard-owner` record of its pid,
+clone, start time, pid namespace, boot id and machine id), and every
+process whose working directory, root directory, open files or mapped
+files are inside one. The report runs no git and starts and signals no
+process: it reads this clone's worktree registrations directly from
+`<git common dir>/worktrees/*/` (`gitdir`, `locked`, `HEAD` and the run
+record), the common directory passed by the shell, as `git worktree list`
+reads them (a test checks that the two agree on the test fixtures). The
+final component of each path it reads in a leftover or a git record is
+never followed, and its type is read before it is opened, so a FIFO or
+another entry that is not a regular file is not opened unless it is
+swapped in between that check and the open: they are two lookups by name,
+so one who can write that directory (this user, for a leftover of this
+user) can replace a regular file with a FIFO in that window, and the open
+then succeeds (it does not block, since the report opens without blocking,
+and it lets the open of a writer blocked on that FIFO complete). The type
+of the open descriptor is then checked again (`fstat`), and a
+descriptor that is not a regular file is closed unread, so the report
+never reads what was swapped in. An `O_PATH` descriptor, checked and then
+reopened through `/proc/self/fd`, would close the window; it is not used,
+since the swap needs write access to that directory and the descriptor
+check already keeps the report from reading the swapped entry. The
+directories above that component (`TMPDIR` and the git common directory
+among them) are resolved as usual, symbolic links included. It stops, signals and deletes nothing of a leftover and
+changes no git state (it never runs `git worktree prune`). It prints one
+block on stderr only when it finds something, naming each leftover by its
+path (escaped as a bash `$'...'`
+word, `!` included, when it holds anything unusual) and marking it
+`REMOVABLE` or `INSPECT`. Its advice is never stronger than what it proved:
+only a leftover proven to belong to a finished run of this guard in this
+clone, and proven not in use, is `REMOVABLE`, with the commands that remove
+it (`git worktree remove --force -- <checkout>`, then
+`rm -rf -- <directory>`). Each such checkout is shown with the HEAD its git
+record holds and the warning that a commit made there that no branch or
+tag holds is lost, and the commands say that `--force` discards the
+uncommitted changes and untracked files of each checkout. The proof needs a readable `guard-owner` record
+naming this clone, a run that has ended (below), only checkouts registered
+with this clone whose `.git` points into it, nothing else but the guard's
+own files and links, and every process `/proc` shows read, with none using
+it. A process is read whole through its thread-group leader (working
+directory, root directory, open files and mapped files), and then every
+other thread is read for its own working directory, root directory and
+open files (`task/*/cwd`, `task/*/root` and `task/*/fd`), since a thread
+can have its own (`unshare` with `CLONE_FS` or `CLONE_FILES`); mappings are
+read once, since every thread of a process shares one memory map, except
+that the mappings of every thread are read when the leader is exiting
+(`PF_EXITING`) or shows no mapping while other threads run: an exiting
+leader lets go of the shared memory map for itself before its working
+directory and root, so it can be read whole with no mapping while its
+other threads still map files (an exiting process whose mappings read
+empty while its working directory still read was seen by a review's
+probe, not reproduced here). Reading
+each thread's descriptors was measured before it was kept: on the host
+where this was written (1278 processes, 1937 threads, of which a non-root
+user could read 62 processes and 311 further threads), a pass over `/proc`
+making the same reads took 0.010 to 0.015 seconds through the leaders alone,
+0.013 to 0.015 seconds with each thread's working and root directories,
+and 0.047 to 0.058 seconds with each thread's descriptors too, against the
+4-second scan bound; a host where far more threads can be read takes
+longer (not measured), and one that reaches the bound gets an `INCOMPLETE`
+report with no removal command. A process whose thread-group leader has
+exited while other threads run (the leader's own `/proc` entries are then
+gone, the process is not) is read thread by thread, mappings included. A
+thread that has exited holds nothing. Nor does one whose entries are found
+missing while the kernel marks it exiting (`PF_EXITING`, 0x4, in the flags
+of its `stat`), though it is not yet a zombie: as Linux's `do_exit` runs,
+an exiting thread lets go of its memory map, then its descriptor table,
+then its working directory and root, and an entry goes missing only once
+what it shows has been let go, so by then the thread holds none of them
+(the order of that kernel code, not confirmed by probe here). A thread
+whose entries are all present is read, exiting or not. A thread still
+running whose state cannot be read makes the process unreadable. A
+process that cannot be read, whoever owns it and whatever the directory's
+mode, leaves use unknown: a privileged or setuid process, or one handed a descriptor, can
+use it anyway. Only kernel threads are set aside (no memory map, no
+descriptors of their own). So for a non-root user on almost any host (any
+running a root daemon) an existing leftover is `INSPECT`, and the report
+says how many processes could not be read: such a user should expect
+`INSPECT`, not `REMOVABLE`, for a shard directory that still exists.
+Processes of this user can be unreadable too:
+ssh-agent (OpenSSH 10.2p1) and gpg-agent (GnuPG 2.4.8) make themselves
+non-dumpable, so their working directory, descriptors and mappings cannot
+be read even by their own user (confirmed by probe), and while one runs no
+directory is `REMOVABLE`. No unprivileged interface reads them, and a
+process started before the directory existed can still enter it, so this is
+not narrowed. Processes `/proc` does not show (outside this pid namespace,
+or hidden by a `hidepid` mount) are not seen.
+
+A run has ended when, under the boot id it recorded, no process has its pid
+in its pid namespace or that pid started at another time, or when its boot
+id differs while its machine id (`/etc/machine-id`, read fail closed) is
+this machine's (an earlier boot). A differing boot id with another or
+unknown machine id, or an unknown boot id, proves nothing (another kernel
+may still run it): one clone used from two kernels, through an NFS home or
+a VM's shared folder, each with its own temporary directory, sees the
+other's live checkouts as gone, and a pid means nothing across kernels. A
+machine id copied to another system (a cloned VM image, or a container
+image that ships one) defeats this check, so give each such system its own.
+A VM restored from a memory snapshot (as some CI runners are) shares both
+the boot id and the machine id with every other VM restored from that
+snapshot, so two of them that share one clone each read the other's run
+as one of this kernel, find no process with its pid, and take it as ended;
+this check cannot tell them apart, so do not share a clone between them.
+
+When a shard directory is gone (a reboot, or a temporary-directory cleaner)
+but git still holds the record of a checkout in it, only that record is
+left, and `git worktree remove -- <checkout>` removes only it (confirmed by
+probe on git 2.53.0: an unrelated stale record stays). Each run writes a run
+record (`grc-guard-owner`, holding the `guard-owner` fields) beside the git
+record of each checkout it registers, in `<git common dir>/worktrees/<id>/`,
+which git deletes with that record. For a registered, unlocked checkout on a
+guard-shaped path whose shard directory is gone, the report shows the HEAD
+the record holds and then prints that narrow command only when the run
+record names this clone and a run that has ended, the scan is complete and
+no process is seen using the old path; otherwise the record is `INSPECT`,
+saying which of these was not proved. A git record the report cannot read
+or finds malformed (a `worktrees/<id>` entry or a `gitdir` file that is a
+symbolic link, for one: git follows it, the report does not; or an empty
+`gitdir`) is reported as `UNREADABLE`, never skipped: which checkout it
+registers is then unknown, so no leftover gets a removal command while it
+remains. An entry that is neither a directory nor a symbolic link is
+skipped, as git skips it. A `HEAD` the report cannot read or resolve (a
+branch is read through its loose ref, then `packed-refs`) keeps that
+checkout `INSPECT`. The report reads no reftable: in a clone that keeps its
+refs in reftable (`git init --ref-format=reftable`), the `HEAD` of every
+git record is the placeholder `ref: refs/heads/.invalid` (confirmed by
+probe on git 2.53.0), which the report names as `reftable HEAD not read`,
+so every leftover of such a clone stays `INSPECT`, never `REMOVABLE`.
+A git record an older guard left has no run record. It gets the facts known
+(its HEAD and where the git record is) and a manual inspection procedure,
+marked as not proved: check that no run of this guard that could have
+registered it is still running (on this host, or on another host, VM or
+container that shares this clone), that its HEAD is held by a branch or tag
+or is not needed, and that its directory still does not exist; only then
+does `git worktree remove -- <checkout>` remove that git record alone. It is
+never `REMOVABLE`, and the procedure is not given as a removal command. The
+report never suggests `git worktree prune`.
+
+Anything else uncertain is `INSPECT`, with the facts that are known and no
+removal command: unreadable metadata (reported as `UNREADABLE`, never
+dropped silently), an incomplete scan, mixed ownership, a live run or one
+whose state is unknown, a `guard-owner` record naming another clone, a
+process using it (this guard, the processes that started the push, a
+pre-push guard the report identified and a process with one among its
+parents are labelled), or a
+registered checkout that git would list as prunable while its directory
+exists.
+
+A pre-push guard is known by its identity, never by its command line (a
+shell, editor or agent whose command line merely names
+`tools/pre-push-guard.sh` is no guard). The live guard runs are this guard
+(its pid and start time) and every run record the scan reads whose run is
+running (the same boot id and pid namespace, and a process with that pid
+and start time): the `guard-owner` record of each `grc-gate36-shards.*`
+directory of this user under `TMPDIR`, another clone's included (read
+before such a directory is set aside), and the run record beside each git
+record of this clone. A process is labelled a pre-push guard only when its
+pid and start time are those of a live run, and as started by one only
+when the pid and start time of one of its parents are, each parent's start
+time read as the chain is walked. The walk is kept consistent, so that a
+pid reused while it runs cannot join an unrelated chain: the process,
+read again, must still have the start time the scan read; a parent must
+not have started later than its child; and once a parent is read, its
+child is read again and must still name that parent pid and have the same
+start time (a parent that exits makes its children another's before its
+pid can be reused, so a reused parent pid shows there). A process whose
+own start time or whose parents cannot all be read, or whose walk is not
+consistent, is not labelled either way: it is said to be uncertain (when
+its pid is a live run's and its own start time cannot be read, "its start
+time cannot be read"; in every other such case, "its ancestry could not be
+established consistently"), and it gets the stop procedure below, whose
+second step is to check its parents by hand. A live run of the guard on
+another host, or one whose run record the scan does not read, is not known
+as one.
+
+Only some runs write a run record, so only those can be known. A run
+writes a run record only from its gate 36 step on (step 1b, which only a
+full run whose gate list can be read has), once it has made its shard
+directory: the `guard-owner` record there, then one beside the git record
+of each checkout. It is known from then until a passing step 1b removes
+its shard directory and checkouts (and, with them, those records), or for
+as long as a failed or interrupted run lasts.
+A fast-path run and a whole-runner fallback (the gate list cannot be read)
+never write one; a full run has none before step 1b (gates 1 to 35, and
+step 1b until its `guard-owner` record is written) or after a passing step
+1b (steps 2 and 3); and the scan does not read the records of another
+clone's run whose shard directory is under another `TMPDIR`. A process of
+such a run is not labelled a pre-push guard. The stop procedure says so:
+only the guards the report identified are labelled above it.
+
+A leftover a process uses also gets a manual stop procedure, marked as not
+proved and never given as a stop command (the report prints no signal
+command at all): check that no run of this guard that could have made it is
+still running (on this host, or on another host, VM or container that
+shares this clone), that the process is not part of another push and that
+stopping it loses nothing needed; then, just before any signal, recheck
+that the pid is still the process listed (its start time, field 22 of
+`/proc/<pid>/stat`, and its command line, both printed); only then stop it
+by your own judgement (`TERM` before anything stronger), push again, and
+remove the leftover only if that push's report marks it `REMOVABLE`. There
+is no procedure for this guard, the processes that started this push, a
+pre-push guard or a process with a pre-push guard among its parents (a live
+run of the guard on this host), nor for any process of a leftover whose run
+is still running (its processes belong to that push).
+
+The scan has 4 seconds, and an alarm bounds the whole report to 5 seconds.
+When the scan bound is reached, the report says it is incomplete. The
+shell's `git rev-parse --git-common-dir`, which names the common directory
+the report reads, runs before the report starts and is not under that
+bound (no bounded form is used, since the guard does not rely on
+`timeout(1)`): a git that stalls there (not observed, and not tested)
+delays the push as any other git command of the guard would. A report
+that fails says, per mode, what is unknown: what earlier runs left, or what
+this run left.
+
+The full suite, gate 36 whole included, still runs in CI on the pull
 request as six shard jobs whose outputs the summary job reconciles, and
 `merge-when-green.py` merges only on green CI. Residual: a failure in a
 regression test that a site-only change causes is first seen in CI, not
