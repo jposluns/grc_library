@@ -21208,7 +21208,8 @@ class ProgrammeClaimsTests(unittest.TestCase):
     # comma ("...,and §11.12"); a comma followed by any other word before the
     # citation ("..., handbook §11.12 requires", "..., HMRC's §11.12
     # requires"), which the direct-comma rule does not reach; a sentence
-    # ended by ?, ! or an ellipsis, or by a full stop followed by anything
+    # ended by ?, ! or a one-character ellipsis (…), or by a full stop
+    # followed by anything
     # but whitespace or the line end, such as a bracket, a quote, ** or
     # <br> ("... senior management? Section 11.12 requires reporting to
     # HMRC."), which ends no clause or sentence (_CLAUSE_END,
@@ -21467,7 +21468,7 @@ class ProgrammeClaimsTests(unittest.TestCase):
         parenthetical, not before a comma that directly precedes it. Round
         11 (review round 6, claude NOTE 1 and NOTE 2): citations are read
         without regard to case, and the join also matches whilst, though,
-        because and a colon. Round 12 (review round 7, claude finding 3):
+        because and a colon. Round 12 (review round 7, claude NOTE 3):
         only a colon followed by whitespace joins."""
         lines = [(rel, number, line)
                  for rel, number, line in self._md_lines()
