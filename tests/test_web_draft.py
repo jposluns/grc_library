@@ -11696,10 +11696,11 @@ class DraftSiteRenderTests(unittest.TestCase):
         resolves exact spellings only: since XW-GDPR-CHIP-2128 review
         follow-up 2 every current taxonomy spelling that the concern-page
         matcher (INSTRUMENT_NAME_RES) ties to an instrument is aliased or a
-        listed namesake or derived text (NOT_INSTRUMENT_NAMES), so the
-        former witness "COBIT 2019 DSS05" now counts; a spelling naming an
-        instrument in a form the matcher does not list is not checked, and
-        any other spelling of the same instrument still counts toward
+        listed exclusion (NOT_INSTRUMENT_NAMES: a namesake or derived text,
+        or a spelling held out pending an instrument-identity decision), so
+        the former witness "COBIT 2019 DSS05" now counts; a spelling naming
+        an instrument in a form the matcher does not list is not checked,
+        and any other spelling of the same instrument still counts toward
         none."""
         comply = self.draft_html["comply/index.html"]
         self.assertIn(
@@ -11973,7 +11974,9 @@ class DraftSiteRenderTests(unittest.TestCase):
         rendered unlinked and counted on no page.
         Every taxonomy framework string outside both instrument maps that
         the concern-page matcher (INSTRUMENT_NAME_RES) ties to an instrument
-        is a listed namesake or derived text (NOT_INSTRUMENT_NAMES); each
+        is a listed exclusion (NOT_INSTRUMENT_NAMES: a namesake or derived
+        text, or a spelling held out pending an instrument-identity
+        decision); each
         pinned spelling, which the taxonomy still carries, resolves to its
         one instrument, and its documents are on that instrument's page.
         Matcher limit: a spelling naming an instrument in a form the matcher
@@ -12207,6 +12210,2127 @@ class DraftSiteRenderTests(unittest.TestCase):
                 row["cells"]["WCO SAFE"])
             if re.search(r"\bStandard 6\b", part) and security.search(part))
         self.assertEqual(bad, [])
+
+    # The held 2025 text's standards for each pillar and its Annex IV
+    # elements (A to M), pinned as literals from
+    # programs/WCO-SAFE/WCO-SAFE-Framework-of-Standards--full-text.md:
+    # Pillar 1 (Customs-to-Customs) 2.1 to 2.11 (lines 746 to 1825),
+    # Pillar 2 (Customs-to-Business) 2.1 to 2.6 (lines 2407 to 2782) and
+    # Pillar 3 (Customs to Other Government and Inter-Government Agencies)
+    # 2.1 to 2.12 (lines 2930 to 3321). Standard numbers repeat across the
+    # pillars with different titles, so a standard is looked up only in the
+    # pillar it resolves to.
+    _WCO_PILLAR_1_STANDARDS = {
+        "1": "Integrated Supply Chain Management",
+        "2": "Cargo Inspection Authority",
+        "3": "Modern Technology in Inspection Equipment",
+        "4": "Risk-Management Systems",
+        "5": "Selectivity, profiling and targeting",
+        "6": "Advance Electronic Information",
+        "7": "Targeting and Communication",
+        "8": "Performance Measures",
+        "9": "Security Assessments",
+        "10": "Employee Integrity",
+        "11": "Outbound Security Inspections",
+    }
+    _WCO_PILLAR_2_STANDARDS = {
+        "1": "Partnership", "2": "Security", "3": "Authorization",
+        "4": "Technology", "5": "Communication", "6": "Facilitation",
+    }
+    _WCO_PILLAR_3_STANDARDS = {
+        "1": "Mutual Cooperation",
+        "2": "Cooperative Arrangements/Procedures",
+        "3": "Alignment of security programmes",
+        "4": "Harmonization of national control measures",
+        "5": "Development of continuity and resumptions measures",
+        "6": "Harmonization of data filing requirements",
+        "7": "Mutual Cooperation",
+        "8": "Development of Cooperative Arrangements or Protocols",
+        "9": "Harmonization of security programmes",
+        "10": "Harmonization of cross-border control measures",
+        "11": "Establishment of Mutual Cooperation",
+        "12": "Development of cooperative arrangements or protocols",
+    }
+    _WCO_PILLAR_STANDARDS = {
+        "1": _WCO_PILLAR_1_STANDARDS,
+        "2": _WCO_PILLAR_2_STANDARDS,
+        "3": _WCO_PILLAR_3_STANDARDS,
+    }
+    _WCO_PILLAR_RE = re.compile(r"\bPillar\s+(III|II|I|[123])\b")
+    _WCO_PILLAR_NUMBERS = {"I": "1", "II": "2", "III": "3",
+                           "1": "1", "2": "2", "3": "3"}
+    _WCO_ANNEX_IV_ELEMENTS = {
+        "A": "Demonstrated Compliance with Customs Requirements",
+        "B": "Satisfactory System for Management of Commercial Records",
+        "C": "Financial Viability",
+        "D": "Consultation, Co-operation and Communication",
+        "E": "Education, Training and Awareness",
+        "F": "Information Exchange, Access and Confidentiality",
+        "G": "Cargo Security",
+        "H": "Conveyance Security",
+        "I": "Premises Security",
+        "J": "Personnel Security",
+        "K": "Trading Partner Security",
+        "L": "Crisis Management and Incident Recovery",
+        "M": "Measurement, Analyses and Improvement",
+    }
+    _WCO_ANNEX_IV_TITLE = "AEO Conditions, Requirements and Benefits"
+    # The held text's numbered sections, pinned as literals from its table
+    # of contents (lines 111 to 153) and section headings (lines 165 to
+    # 3415, a heading broken over lines read as one): I Introduction (165),
+    # II Benefits (484), III (645 to 646), IV (2212 to 2213), V (2832 to
+    # 2835), VI (3358 to 3359) and VII Mutual Recognition (3415). The held
+    # titles of III and IV carry an en dash (U+2013, written as an escape
+    # here); the language convention forbids that dash in corpus prose, so
+    # a hyphen in its place is the only form the corpus can write.
+    _WCO_SECTIONS = {
+        "I": "Introduction",
+        "II": "Benefits",
+        "III": "Pillar 1 \u2013 Customs-to-Customs",
+        "IV": "Pillar 2 \u2013 Customs-to-Business",
+        "V": "Pillar 3 - Customs to Other Government and Inter-Government "
+             "Agencies",
+        "VI": "Trade Continuity and Resumption",
+        "VII": "Mutual Recognition",
+    }
+    # A WCO SAFE part the held text carries: Annex IV, a pillar, or a
+    # numbered section (VI is Trade Continuity and Resumption).
+    _WCO_HELD_PART_RE = re.compile(
+        r"\bAnnex IV\b|\bPillar\s+(?:[123]|I{1,3})\b"
+        r"|\bSection (?:I|II|III|IV|V|VI|VII)\b")
+    # Sentence punctuation that may end an identifier (draft round 8,
+    # review of 330f7793c: codex ERROR 2, claude NOTE 1): an emphasis
+    # asterisk (one or two), a footnote marker ("[^1]") and a full stop, in
+    # that order, each optional, with a footnote marker allowed after the
+    # full stop too. _WCO_TERMINAL_END is that punctuation standing at the
+    # end of the identifier (a semicolon, a table pipe or the end of the
+    # text), so "Pillar II Standard 2 (Security)." and "Annex IV F[^1]"
+    # end there, while a full stop followed by more text does not.
+    _WCO_FOOTNOTE = r"\[\^[A-Za-z0-9_-]+\]"
+    _WCO_TERMINAL = (r"(?:\*{1,2})?(?:" + _WCO_FOOTNOTE + r")?\.?(?:"
+                     + _WCO_FOOTNOTE + r")?")
+    _WCO_TERMINAL_END = _WCO_TERMINAL + r"\s*(?:[;|]|$)"
+    _WCO_TERMINAL_RE = re.compile(r"\s*" + _WCO_TERMINAL + r"\s*")
+    # A lone capital letter standing as an element letter in a list ("F, K
+    # and L", "F (...), K (...)", "F (...), K: ..."): followed by a comma,
+    # semicolon, pipe, parenthesis, colon or dash (a hyphen, or an en or em
+    # dash, written as escapes), by "and" or "or", or by the end of the
+    # text, sentence punctuation before it included (_WCO_TERMINAL_END,
+    # draft round 8). Draft round 7 (review of b78d59e6c: codex ERROR 1,
+    # claude WARN 1): the colon and the dash were missing, so after a
+    # parenthesized title "and N: Cargo Security" was read by no matcher
+    # and passed.
+    _WCO_LONE_LETTER = (r"[A-Z](?=\s*(?:[,;|():\-\u2013\u2014]"
+                        r"|(?:and|or)\b|$)|" + _WCO_TERMINAL_END + ")")
+    # What follows a comma that introduces another citation rather than
+    # continuing a title (review of c2a600fae: codex WARN 2, claude NOTE
+    # 2): a part name (pillar, standard, Annex, element or section,
+    # singular or plural) with a number, Roman numeral or letter after it,
+    # a section sign with a number after it, or a lone capital letter
+    # (_WCO_LONE_LETTER), each optionally after "and" or "or". Draft round
+    # 6 (review of 7dece058f, claude NOTE 2): a part name with no number,
+    # numeral or letter after it ("Standards of security", "Sections of
+    # the framework") starts no citation, so it does not end a title. No
+    # held title has a comma followed by any of these, so "Information
+    # Exchange, Access and Confidentiality" and "Selectivity, profiling and
+    # targeting" stay whole. _WCO_PART_CITATION is the part-name form
+    # alone; it only ends a title or a description, and a continuation
+    # must also be read by a citation matcher (_wco_continuation_read).
+    _WCO_PART_CITATION = (
+        r"(?:(?:Pillars?|Standards?|Annex|elements?|Sections?)\s+"
+        r"(?:[0-9][0-9.]*|[IVXLCDM]+|[A-Z])\b|§\s*[0-9])")
+    _WCO_NEXT_CITATION = (
+        r"(?:(?:and|or)\s+)?"
+        rf"(?:{_WCO_PART_CITATION}"
+        rf"|{_WCO_LONE_LETTER})")
+    # A lowercase word that opens a description rather than a title after
+    # a comma, as in "Annex IV element F, the AEO's information security
+    # policy" (review of c2a600fae, claude NOTE 2); every held title opens
+    # with a capital letter, and none with one of these words. The list is
+    # closed: a phrase opening with any other lowercase word is compared as
+    # a title (review of 7dece058f: all three reviews keep it closed).
+    _WCO_DESCRIPTION = (r"(?:the|a|an|its|their|this|that|these|those"
+                        r"|which|whose|where|as|under|including|such)\b")
+    # A title not in parentheses runs to the end of its identifier (the
+    # next semicolon or table pipe) or to a comma introducing another
+    # citation (_WCO_NEXT_CITATION), whichever comes first; sentence
+    # punctuation at the end of the identifier (_WCO_TERMINAL_END, draft
+    # round 8) is not part of the title, so "Standard 2: Security." gives
+    # the title "Security".
+    _WCO_RUN_BODY = (rf"(?:(?!,\s*{_WCO_NEXT_CITATION}|{_WCO_TERMINAL_END})"
+                     r"[^;|])+")
+    _WCO_TITLE_RUN = rf"({_WCO_RUN_BODY})"
+    # A title written after a standard number, an Annex IV element letter
+    # or a section numeral (review of f97a6be23: codex WARN, claude NOTE
+    # 1), in any of four forms: in parentheses; after a colon; after a
+    # dash (a hyphen, or an en or em dash, written as escapes); or after a
+    # comma, unless what follows the comma introduces another citation
+    # (_WCO_NEXT_CITATION), as in "Standard 1 (Partnership), Standard 2
+    # (Security)", or opens a description (_WCO_DESCRIPTION). A title not
+    # in parentheses is a _WCO_TITLE_RUN, so the complete title is
+    # compared, a trailing qualifier included: "Standard 2: Cargo
+    # Security" and "Standard 2 - Security, access control" are not
+    # "Security", while "Standard 1: Partnership, Standard 2 (Security)"
+    # gives Standard 1 the title "Partnership" (review of c2a600fae, codex
+    # WARN 2). One title group per form.
+    _WCO_TITLE = (r"(?:\s*\(([^)]*)\)"
+                  rf"|\s*:\s*{_WCO_TITLE_RUN}"
+                  rf"|\s*[-\u2013\u2014]\s*{_WCO_TITLE_RUN}"
+                  rf"|\s*,(?!\s*(?:{_WCO_NEXT_CITATION}|{_WCO_DESCRIPTION}))"
+                  rf"\s*{_WCO_TITLE_RUN})?")
+    _WCO_STANDARD_RE = re.compile(r"\bStandard ([0-9]+)\b" + _WCO_TITLE)
+    _WCO_ELEMENT_RE = re.compile(
+        r"\b(?:Annex IV|elements?) ([A-Z])\b" + _WCO_TITLE)
+    # A later member of an abbreviated element list (draft round 6, review
+    # of 7dece058f: codex WARN 1, claude NOTE 2): after an element, its
+    # title or its description, a comma (optionally with "and" or "or") or
+    # a bare "and" or "or", then a lone capital letter (_WCO_LONE_LETTER)
+    # and any title after it in any _WCO_TITLE form (parentheses, colon,
+    # dash or comma; draft round 7, review of b78d59e6c: codex ERROR 1,
+    # claude WARN 1), as in "Annex IV F, K and L", "Annex IV F (...), A
+    # (Cargo Security)" or "Annex IV F (...) and K: Cargo Security".
+    _WCO_LIST_MEMBER_RE = re.compile(
+        r"\s*(?:,\s*(?:(?:and|or)\s+)?|\s+(?:and|or)\s+)"
+        rf"({_WCO_LONE_LETTER})" + _WCO_TITLE)
+    # A description after a comma (draft round 6, review of 7dece058f:
+    # codex WARN 2): a phrase opening with a _WCO_DESCRIPTION word, read
+    # where a citation, its title or a list member ends, and running as a
+    # title not in parentheses runs (_WCO_RUN_BODY), except that it also
+    # ends before "and" or "or" and a lone capital letter (draft round 7,
+    # review of b78d59e6c, claude NOTE 3), so in "Annex IV F, the policy
+    # and N" the letter N is read as a list member, not as description.
+    _WCO_DESCRIPTION_RE = re.compile(
+        rf"\s*,\s*(?={_WCO_DESCRIPTION})"
+        rf"((?:(?!,\s*{_WCO_NEXT_CITATION}"
+        rf"|\s+(?:and|or)\s+{_WCO_LONE_LETTER})[^;|])+)")
+    # What may follow a citation once its title, its description and its
+    # list members are read (draft round 7, review of b78d59e6c: codex
+    # ERROR 1, claude WARN 1 and NOTE 3): nothing before the end of its
+    # identifier (a semicolon or table pipe) but sentence punctuation
+    # (_WCO_TERMINAL_RE, draft round 8), or a comma, "and" or "or"
+    # (_WCO_CONTINUATION_RE) and then another citation. Draft round 8
+    # (review of 330f7793c: codex ERROR 1, agy WARN): a part name with any
+    # number, numeral or letter after it was accepted as that citation,
+    # though no matcher read "Standard X", "Section Z", "Standard K" or
+    # "element 1", so the text after it went unchecked. The citation must
+    # now be one a matcher reads (_wco_continuation_read): a standard
+    # number (_WCO_STANDARD_RE), an Annex IV element letter
+    # (_WCO_ELEMENT_RE) or a section numeral (_WCO_SECTION_RE), each of
+    # which its own guard then validates, or one of the stated-limit
+    # lead-ins (_WCO_LEAD_IN_RE). A lone capital letter is a list member
+    # only after an element, so here it is not another citation. Any
+    # other text is reported as unread (_wco_unread_findings).
+    _WCO_UNREAD_TAIL_RE = re.compile(r"[^;|]*")
+    _WCO_CONTINUATION_RE = re.compile(
+        r"(?:\s*,\s*(?:(?:and|or)\s+)?|\s+(?:and|or)\s+)")
+    # A lead-in no matcher reads as a citation, accepted before a citation
+    # a matcher reads (draft round 8): a pillar numeral the held text
+    # carries (Pillar I to III or 1 to 3), a plural part name with a
+    # number or numeral ("Standards 2 and 6", "Sections VI and VII",
+    # "Pillars I and III"), Annex IV itself, or a section sign with a
+    # number, each optionally with a parenthesized title. Group 1 is set
+    # for the first four, which may also end a continuation on their own
+    # (the stated limits of _wco_unread_findings); a section sign must be
+    # followed by a citation. _WCO_LEAD_GAP_RE is what may stand between a
+    # lead-in and the next part name.
+    _WCO_LEAD_IN_RE = re.compile(
+        r"(?:(Pillars?\s+(?:III|II|I|[123])\b"
+        r"|Standards\s+[0-9]+\b"
+        r"|Sections\s+(?:[IVXLCDM]+|[0-9][0-9.]*)\b"
+        r"|Annex IV\b)"
+        r"|§\s*[0-9][0-9.]*)(?:\s*\([^)]*\))?")
+    _WCO_LEAD_GAP_RE = re.compile(r"\s*,?\s*(?:(?:and|or)\s+)?")
+    _WCO_PART_CITATION_RE = re.compile(_WCO_PART_CITATION)
+    # The noun a one-word held title of each kind is named with, as in
+    # "the Partnership standard" or "the Benefits section" (draft round 7,
+    # review of b78d59e6c: codex ERROR 2, claude WARN 2). A standard sits
+    # in a pillar, so "the Security pillar" names one too (the held text
+    # has no Security pillar), and "pillar" is read as a noun of the
+    # standard kind. A naming word before the title ("the element entitled
+    # Benefits") names it whatever its kind. Draft round 8 (review of
+    # 330f7793c, codex ERROR 3; orchestrator's ruling): the noun of
+    # another kind names it too where no held title of that noun's kind
+    # holds the word ("the Benefits element"; see
+    # _wco_description_findings).
+    _WCO_KIND_NOUNS = {"Standard": r"(?:standards?|pillars?)",
+                       "Annex IV": r"elements?",
+                       "Section": r"sections?"}
+    _WCO_NAMING_WORD = r"(?:entitled|titled|named|called)"
+    # Any section numeral, Roman or Arabic, so a numeral the held text
+    # lacks (VIII, or 6) is reported rather than passed over.
+    _WCO_SECTION_RE = re.compile(
+        r"\bSection ([IVXLCDM]+|[0-9][0-9.]*)\b" + _WCO_TITLE)
+    # The WCO SAFE cell each business-partner row of the compliance matrix
+    # carries (review of 9b7946bc2). Pillar 2 Standard 1 (Partnership)
+    # holds the business partners' declared intention to comply with the
+    # SAFE security standards (held lines 2455 to 2462): the rows that set
+    # the lifecycle, vet, review, monitor, audit, record or question
+    # partners cite it. Standard 2 (Security) holds the integrity of a
+    # business partner's cargo processes (lines 2549 to 2554) and the
+    # protection of trade-sensitive data against unauthorized access
+    # (lines 2496 to 2524): the two rows that set partners' security
+    # requirements cite it beside Standard 1, and the two exit rows, which
+    # remove access and return or destroy data, cite it alone. Annex IV K
+    # (Trading Partner Security, line 5046) stands in all thirteen.
+    _WCO_S1 = "Pillar II Standard 1 (Partnership)"
+    _WCO_S2 = "Pillar II Standard 2 (Security)"
+    _WCO_K = "Annex IV K (Trading Partner Security)"
+    _WCO_PARTNER_ROWS = {
+        "risk/standard-third-party-and-supply-chain-risk.md":
+            f"{_WCO_S1}; {_WCO_K}",
+        "supply-chain/framework-supplier-and-cloud-governance.md":
+            f"{_WCO_S1}; {_WCO_S2}; {_WCO_K}",
+        "supply-chain/standard-supplier-security-and-privacy-assurance.md":
+            f"{_WCO_S1}; {_WCO_S2}; {_WCO_K}",
+        "supply-chain/standard-supplier-resilience-monitoring.md":
+            f"{_WCO_S1}; {_WCO_K}",
+        "supply-chain/procedure-supplier-due-diligence.md":
+            f"{_WCO_S1}; {_WCO_K}",
+        "supply-chain/procedure-supplier-onboarding-security-review.md":
+            f"{_WCO_S1}; {_WCO_K}",
+        "supply-chain/procedure-supplier-ongoing-monitoring.md":
+            f"{_WCO_S1}; {_WCO_K}",
+        "supply-chain/procedure-supplier-audit.md":
+            f"{_WCO_S1}; {_WCO_K}",
+        "supply-chain/procedure-supplier-exit-and-data-return.md":
+            f"{_WCO_S2}; {_WCO_K}",
+        "supply-chain/procedure-fourth-party-and-nth-party-risk.md":
+            f"{_WCO_S1}; {_WCO_K}",
+        "supply-chain/register-supplier-risk-template.md":
+            f"{_WCO_S1}; {_WCO_K}",
+        "supply-chain/template-supplier-offboarding-evidence.md":
+            f"{_WCO_S2}; {_WCO_K}",
+        "supply-chain/template-supplier-security-questionnaire.md":
+            f"{_WCO_S1}; {_WCO_K}",
+    }
+
+    @staticmethod
+    def _wco_identifier_bounds(text, pos):
+        """The start and end of the semicolon-separated identifier holding
+        text[pos]; a semicolon inside parentheses does not separate."""
+        depth, start, end = 0, 0, len(text)
+        for index, ch in enumerate(text):
+            if ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth = max(0, depth - 1)
+            elif ch == ";" and depth == 0:
+                if index < pos:
+                    start = index + 1
+                else:
+                    end = index
+                    break
+        return start, end
+
+    def _wco_standards(self, text):
+        """Each standard cited in text, as (match, pillar, held title). Its
+        pillar is the last pillar named before it in the same
+        semicolon-separated identifier, and its held title is looked up in
+        that pillar's standards only; pillar is None when no pillar
+        resolves (never assumed to be Pillar 2), and the held title is None
+        when the pillar has no standard of that number."""
+        found = []
+        for match in self._WCO_STANDARD_RE.finditer(text):
+            start, _end = self._wco_identifier_bounds(text, match.start())
+            pillars = list(self._WCO_PILLAR_RE.finditer(
+                text, start, match.start()))
+            pillar = (self._WCO_PILLAR_NUMBERS[pillars[-1].group(1)]
+                      if pillars else None)
+            held = (self._WCO_PILLAR_STANDARDS[pillar].get(match.group(1))
+                    if pillar else None)
+            found.append((match, pillar, held))
+        return found
+
+    @staticmethod
+    def _wco_title(match):
+        """The title a _WCO_TITLE match captured after its number or letter,
+        each run of whitespace read as one space; empty when none."""
+        return " ".join(next((g for g in match.groups()[1:] if g), "").split())
+
+    def _wco_description(self, text, pos):
+        """The description (_WCO_DESCRIPTION_RE) starting at text[pos], as
+        (text, end); ("", pos) when none starts there."""
+        found = self._WCO_DESCRIPTION_RE.match(text, pos)
+        return (found.group(1), found.end()) if found else ("", pos)
+
+    def _wco_held_parts(self):
+        """Every held part with its held title, as ((kind, key), title):
+        each standard as ("Standard", (pillar, number)), each Annex IV
+        element as ("Annex IV", letter) and each numbered section as
+        ("Section", numeral), a section title's en dash read as a hyphen."""
+        parts = [(("Standard", (pillar, number)), title)
+                 for pillar, table in self._WCO_PILLAR_STANDARDS.items()
+                 for number, title in table.items()]
+        parts += [(("Annex IV", letter), title)
+                  for letter, title in self._WCO_ANNEX_IV_ELEMENTS.items()]
+        parts += [(("Section", numeral), title.replace("\u2013", "-"))
+                  for numeral, title in self._WCO_SECTIONS.items()]
+        return parts
+
+    def _wco_description_findings(self, part, description):
+        """The held titles of other parts that a description of part (a
+        _wco_held_parts key) names: draft round 6 (review of 7dece058f,
+        codex WARN 2), as a wrong attribution phrased as a description
+        ("Annex IV K, the Crisis Management and Incident Recovery
+        element") escaped every comparison. A held title is named when it
+        stands in the description, case-insensitively, as whole words,
+        with each hyphen and dash read as a space on both sides (draft
+        round 7, review of b78d59e6c, claude NOTE 3), so "the
+        crisis-management and incident recovery element" names element L.
+        A one-word held title of a part of another kind ("Security",
+        "Partnership", "Benefits") is not counted where a correct
+        description uses it as an ordinary word, as "Annex IV element F,
+        the AEO's information security policy" does; it is counted where
+        the description uses it as a name (draft round 7, review of
+        b78d59e6c: codex ERROR 2, claude WARN 2): followed by its kind's
+        noun (_WCO_KIND_NOUNS: standard or pillar for a standard, element
+        for an element, section for a section, singular or plural), as in
+        "Annex IV K, the Partnership standard" and "Pillar II Standard 1,
+        the Benefits section", or preceded by a naming word
+        (_WCO_NAMING_WORD: entitled, titled, named or called), as in
+        "Annex IV F, the element entitled Benefits". Draft round 8 (review
+        of 330f7793c, codex ERROR 3; the orchestrator's ruling): a one-word
+        title followed by the noun of another kind (standard or pillar,
+        element, section) is counted too where that word stands in no held
+        title of the noun's kind, so "Annex IV F, the Benefits element" and
+        "Annex IV K, the Partnership element" are reported (no element
+        title holds Benefits or Partnership), as is "Pillar II Standard 2,
+        the Benefits standard", while "Annex IV K, the Security element"
+        and "Annex IV G, the cargo security element" are not (Security
+        stands in element titles), nor is "Annex IV F, the communication
+        element" (element D holds Communication). A held title that stands
+        inside the cited part's own held title is not counted (Pillar 3
+        Standards 1 and 7 are both "Mutual Cooperation"; "Security" stands
+        inside "Cargo Security"), unless it is a title of another kind
+        used as a name in one of those ways, so "Annex IV K, the Security
+        standard" is reported though "Security" stands inside "Trading
+        Partner Security". A one-word title of a part of the same kind
+        always counts, so "Pillar II Standard 1, the Security standard" is
+        reported. Matcher limits: a correct description that uses a
+        one-word held title of the same kind as an ordinary word is
+        reported too; the one-word held titles are Partnership, Security,
+        Authorization, Technology, Communication and Facilitation (Pillar
+        2 Standards 1 to 6) and Introduction and Benefits (Sections I and
+        II), so "Pillar II Standard 1, the partners' commitment to
+        security", "Pillar II Standard 2, the technology that protects
+        trade data" and "Section VI, the introduction of resumption
+        measures" are reported; a description that uses a one-word held
+        title with its own kind's noun is reported even where the held
+        text supports the wording, as the held text calls Annex IV's
+        content "security standards" (held lines 4612 and 5497), so
+        "Annex IV K, the trading partner security standard", "Annex IV K,
+        the security standards set out in this Annex" and "Annex IV K, the
+        Customs-to-Business partnership pillar" are reported (names
+        Security, Security and Partnership); a multi-word held title used
+        as ordinary words is reported whatever its kind ("Annex IV F, the
+        AEO's personnel security vetting" names element J, "Pillar III
+        Standard 1, the establishment of mutual cooperation" names Pillar 3
+        Standard 11); a description opened by a description word that
+        then cites another part with its held title is reported, so
+        "Section VI (Trade Continuity and Resumption), including Annex IV L
+        (Crisis Management and Incident Recovery)" fails ("including"
+        opens a description that names element L's title; the author
+        separates the two with a semicolon); a one-word title of another
+        kind named in any other way (followed by the noun of a kind whose
+        held titles hold the word, as "Annex IV K, the Security element",
+        or in quotation marks with no naming word) is not counted; and a
+        description that names no held title is not checked for
+        attribution at all (_wco_unread_findings reports a lone capital
+        letter inside it)."""
+        if not description:
+            return []
+
+        def norm(value):
+            return " ".join(re.sub(r"[-\u2013\u2014]", " ", value)
+                            .split()).lower()
+
+        held = dict(self._wco_held_parts())
+        own = norm(held[part])
+        text = norm(description)
+        kind_words = {}
+        for (kind, _key), title in self._wco_held_parts():
+            kind_words.setdefault(kind, set()).update(norm(title).split())
+        named = []
+        for other, title in self._wco_held_parts():
+            low = norm(title)
+            if other == part:
+                continue
+            word = re.escape(low)
+            nouns = [self._WCO_KIND_NOUNS[other[0]]]
+            if " " not in low:
+                nouns += [noun for kind, noun in self._WCO_KIND_NOUNS.items()
+                          if kind != other[0]
+                          and low not in kind_words[kind]]
+            as_name = other[0] != part[0] and re.search(
+                rf"(?<!\w){word}\s+(?:{'|'.join(nouns)})(?!\w)"
+                rf"|(?<!\w){self._WCO_NAMING_WORD}\s+[\"'\u2018\u201c]?"
+                rf"{word}(?!\w)", text)
+            if low in own and not as_name:
+                continue
+            if other[0] != part[0] and " " not in low and not as_name:
+                continue
+            if re.search(rf"(?<!\w){word}(?!\w)", text):
+                named.append(title)
+        return named
+
+    def _wco_standard_findings(self, text, exact):
+        """Each standard cited in text without its held title: one with no
+        resolvable pillar, or a number its pillar lacks, is reported. In
+        both modes a title written directly after the number, in any
+        _WCO_TITLE form (parentheses, colon, dash or comma), must be the
+        held title exactly, the complete title compared (an omitted title
+        passes), so a qualifier such as "(Security, access control)" or
+        ": Cargo Security" fails; without exact, the held title must also
+        stand somewhere in the standard's identifier. A title not in
+        parentheses ends at a comma that introduces another citation
+        (_WCO_NEXT_CITATION), so "Pillar II Standard 1: Partnership,
+        Standard 2 (Security)" passes (review of c2a600fae, codex WARN 2).
+        A phrase after a comma, following the number or its title, that
+        opens with a lowercase description word (_WCO_DESCRIPTION) is read
+        as a description, not a title, and is reported when it names the
+        held title of another part (_wco_description_findings; draft round
+        6, review of 7dece058f, codex WARN 2), so "Pillar II Standard 1,
+        the Security standard" fails. Text after the standard, its title
+        and its description that no matcher reads, a lone capital letter
+        included ("Pillar II Standard 2, K"), is reported as unread by
+        _wco_unread_findings (draft round 7, review of b78d59e6c, claude
+        NOTE 1), which states its own limits. Matcher limits: a title set
+        off in another way (a bare space as in "Standard 2 Security", or a
+        slash as in "Standard 2 / Cargo Security") is not captured as a
+        title, so it is reported as unread text whether or not it is the
+        held title; a description is only checked for other parts' held
+        titles, so a wrong attribution in a description that names no held
+        title ("Standard 2, the standard
+        on partner declarations") passes, and without exact the
+        identifier-wide check still applies; a phrase after a comma that
+        opens with any other word is read as a title, so a description
+        such as "Standard 2, physical controls" is reported; plural
+        "Standards 1 and 2" is not read as a standard citation; and a
+        correct title inside a parenthesized pillar qualifier, as in
+        "Pillar II (Standard 2, Security)", is reported because the
+        closing parenthesis falls inside the captured title."""
+        bad = []
+        for match, pillar, held in self._wco_standards(text):
+            start, end = self._wco_identifier_bounds(text, match.start())
+            title = self._wco_title(match)
+            if pillar is None:
+                bad.append(f"{match.group(0)}: no pillar resolves")
+            elif held is None:
+                bad.append(f"{match.group(0)}: Pillar {pillar} has no "
+                           f"Standard {match.group(1)}")
+            else:
+                wrong = bool(title) and title != held
+                if not exact:
+                    wrong = wrong or held not in text[start:end]
+                if wrong:
+                    bad.append(f"{match.group(0)}: Pillar {pillar} Standard "
+                               f"{match.group(1)} is {held}")
+                description, _end = self._wco_description(text, match.end())
+                named = self._wco_description_findings(
+                    ("Standard", (pillar, match.group(1))), description)
+                if named:
+                    bad.append(f"{match.group(0)}, {description}: names "
+                               f"{'; '.join(named)}, not Pillar {pillar} "
+                               f"Standard {match.group(1)} ({held})")
+        return bad
+
+    def _wco_element_findings(self, text):
+        """Each Annex IV element cited in text whose letter the held text
+        lacks, or whose description, in any _WCO_TITLE form (parentheses,
+        colon, dash or comma; review of f97a6be23, codex WARN and claude
+        NOTE 1), is not that element's held title, the complete title
+        compared. Rule chosen for review of 9b7946bc2 (codex WARN 2, claude
+        W2): a description must be the held title exactly, letter case
+        included; no paraphrase is accepted, not even a lowercase
+        rendering, so a K, L or F mix-up cannot pass under a plausible
+        description. A description not in parentheses ends at a comma that
+        introduces another citation (_WCO_NEXT_CITATION), a lone capital
+        letter included, so "Annex IV F, K and L" gives F no description
+        and "Annex IV F: Information Exchange, Access and Confidentiality,
+        Annex IV K: Trading Partner Security" compares both complete
+        titles (review of c2a600fae, codex WARN 2 and claude NOTE 2).
+        Draft round 6 (review of 7dece058f, codex WARN 1 and claude NOTE
+        2): every member of an abbreviated element list is read
+        (_wco_elements), so its letter must be one the held text carries
+        (A to M) and any title written after it must be that member's held
+        title: "Annex IV F, N and Z" and "Annex IV F: Information Exchange,
+        Access and Confidentiality, A (Cargo Security)" fail. Draft round 7
+        (review of b78d59e6c: codex ERROR 1, claude WARN 1): a list
+        member's title is read in any _WCO_TITLE form, a colon or dash
+        included, so "Annex IV F (Information Exchange, Access and
+        Confidentiality) and N: Cargo Security", "..., K: Cargo Security"
+        and "..., K - Cargo Security" fail and "..., K: Trading Partner
+        Security" passes; text after an element, its title, its
+        description and its list members that no matcher reads is
+        reported as unread (_wco_unread_findings), so a range or other
+        list form ("Annex IV F to N", "F/K", "F & K") fails closed. A
+        phrase after a comma that opens with a lowercase description word
+        (_WCO_DESCRIPTION), as in "Annex IV element F, the AEO's
+        information security policy", is read as a description, not a
+        title, and is reported when it names the held title of another part
+        (_wco_description_findings; review of 7dece058f, codex WARN 2).
+        Matcher limits: an element is recognized only as "Annex IV
+        <letter>", "element <letter>" or "elements <letter>", and a later
+        list member only as a lone capital letter after a comma or "and" or
+        "or" (_WCO_LIST_MEMBER_RE) following an element, its title, its
+        description or an earlier member, so a lone letter after a
+        standard or a section ("Pillar II Standard 2, K"), with or without
+        a title, is not read as an element; _wco_unread_findings reports
+        it as unread instead, so it fails closed, a correct title on it
+        included; a title not in parentheses runs on through "and K", so
+        "Annex IV F: Information Exchange, Access and Confidentiality and
+        K" is reported (K is read as part of F's title); a description
+        set off in another way (a slash, or a bare space) is not captured,
+        so it is reported as unread text; a description is only checked
+        for other parts' held titles, so a wrong attribution that names no
+        held title passes; and a phrase after a comma that opens with any
+        other word (another lowercase word, or a capital letter) is read as
+        a title and compared, so "Annex IV element F, information
+        security" is reported, as is a description worded that way."""
+        bad = []
+        for match in self._wco_elements(text):
+            letter = match.group(1)
+            held = self._WCO_ANNEX_IV_ELEMENTS.get(letter)
+            title = self._wco_title(match)
+            cited = (text[match.start(1):match.end()]
+                     if match.re is self._WCO_LIST_MEMBER_RE
+                     else match.group(0))
+            if held is None or (title and title != held):
+                bad.append(cited)
+            if held is not None:
+                description, _end = self._wco_description(text, match.end())
+                named = self._wco_description_findings(("Annex IV", letter),
+                                                       description)
+                if named:
+                    bad.append(f"{cited}, {description}: names "
+                               f"{'; '.join(named)}, not Annex IV {letter} "
+                               f"({held})")
+        return bad
+
+    def _wco_elements(self, text):
+        """Each Annex IV element text cites, as a match whose group 1 is
+        its letter and whose later groups are _WCO_TITLE's: each
+        _WCO_ELEMENT_RE match, then each later member of its abbreviated
+        list (_WCO_LIST_MEMBER_RE), read after the element, its title, or a
+        description after either (a description ends before "and" or "or"
+        and a lone capital letter, draft round 7)."""
+        found = []
+        for match in self._WCO_ELEMENT_RE.finditer(text):
+            found.append(match)
+            _description, pos = self._wco_description(text, match.end())
+            member = self._WCO_LIST_MEMBER_RE.match(text, pos)
+            while member:
+                found.append(member)
+                _description, pos = self._wco_description(text, member.end())
+                member = self._WCO_LIST_MEMBER_RE.match(text, pos)
+        return found
+
+    def _wco_section_findings(self, text):
+        """Each numbered section cited in text whose numeral is outside the
+        held text's I to VII (VIII, or an Arabic 6), or whose title, in any
+        _WCO_TITLE form, is not that section's held title exactly, the
+        complete title compared (an omitted title passes); a hyphen may
+        stand for the held en dash in the titles of Sections III and IV.
+        Review of f97a6be23 (claude WARN 1): no guard checked a title after
+        "Section <numeral>". A title not in parentheses ends at a comma that
+        introduces another citation (_WCO_NEXT_CITATION), as in "Section
+        VI: Trade Continuity and Resumption, Annex IV L: Crisis Management
+        and Incident Recovery" (review of c2a600fae, codex WARN 2). As for
+        standards and elements, a phrase after a comma that opens with a
+        lowercase description word (_WCO_DESCRIPTION) is read as a
+        description, not a title, and is reported when it names the held
+        title of another part (_wco_description_findings; draft round 6,
+        review of 7dece058f, codex WARN 2), while one that opens with any
+        other word is compared as a title. Text after the section, its
+        title and its description that no matcher reads, a lone capital
+        letter included ("Section VI (Trade Continuity and Resumption), L
+        (Cargo Security)"), is reported as unread by _wco_unread_findings
+        (draft round 7, review of b78d59e6c, claude NOTE 1), which states
+        its own limits. Matcher limits: a section is recognized only as
+        "Section <numeral>", capitalized ("section L" in the held text's
+        own cross-reference names an Annex IV element, not a section), so
+        plural "Sections VI and VII" is not read as a section citation;
+        a title after a comma that opens with a pillar, as the held titles
+        of Sections III to V do, is read as another citation
+        (_WCO_NEXT_CITATION), not compared as a title, and the text after
+        that pillar is not checked (_wco_unread_findings), so "Section IV,
+        Pillar 1 - Customs-to-Customs" passes both guards (the author
+        writes the title in parentheses); and a description is only
+        checked for other parts' held titles (_wco_description_findings
+        states that check's limits)."""
+        bad = []
+        for match in self._WCO_SECTION_RE.finditer(text):
+            numeral = match.group(1)
+            held = self._WCO_SECTIONS.get(numeral)
+            title = self._wco_title(match)
+            if held is None:
+                bad.append(f"{match.group(0)}: the held text has no Section "
+                           f"{numeral} (its sections are I to VII)")
+                continue
+            if title and title not in (held, held.replace("\u2013", "-")):
+                bad.append(f"{match.group(0)}: Section {numeral} is {held}")
+            description, _end = self._wco_description(text, match.end())
+            named = self._wco_description_findings(("Section", numeral),
+                                                   description)
+            if named:
+                bad.append(f"{match.group(0)}, {description}: names "
+                           f"{'; '.join(named)}, not Section {numeral} "
+                           f"({held})")
+        return bad
+
+    def _wco_continuation_read(self, text, pos, starts):
+        """Whether text[pos:] opens with a comma, "and" or "or"
+        (_WCO_CONTINUATION_RE) and then a citation a matcher reads (draft
+        round 8, review of 330f7793c: codex ERROR 1, agy WARN): one whose
+        start is in starts (the starts of the standards, Annex IV elements
+        and sections the matchers read in text, each validated by its own
+        guard). A lead-in (_WCO_LEAD_IN_RE) may stand before it ("Pillar
+        II Standard 2", "Annex IV element K", "§2.1 Standard 1"); when no
+        part name follows a lead-in, the continuation is accepted only if
+        the lead-in may end one on its own (a pillar, a plural part name or
+        Annex IV: stated limits), so "Pillar II Standard K", "Annex IV
+        element 1" and a bare "§2.1" are not read."""
+        separator = self._WCO_CONTINUATION_RE.match(text, pos)
+        if not separator:
+            return False
+        at = separator.end()
+        while at not in starts:
+            lead = self._WCO_LEAD_IN_RE.match(text, at)
+            if not lead:
+                return False
+            after = self._WCO_LEAD_GAP_RE.match(text, lead.end()).end()
+            if not self._WCO_PART_CITATION_RE.match(text, after):
+                return lead.group(1) is not None
+            at = after
+        return True
+
+    def _wco_unread_findings(self, text):
+        """Each standard, Annex IV element, list member or section cited
+        in text that is followed by text no matcher reads (draft round 7,
+        review of b78d59e6c: codex ERROR 1, claude WARN 1 and NOTES 1 and
+        3). After a citation, its title (_WCO_TITLE), its description
+        (_WCO_DESCRIPTION_RE) and, for an element, its later list members
+        (_WCO_LIST_MEMBER_RE) are read; what stands between there and the
+        end of the identifier (the next semicolon or table pipe) must be
+        nothing, sentence punctuation (_WCO_TERMINAL_RE: one or two
+        emphasis asterisks, a footnote marker such as "[^1]" and a full
+        stop; draft round 8, review of 330f7793c: codex ERROR 2, claude
+        NOTE 1), or another citation a matcher reads after a comma, "and"
+        or "or" (_wco_continuation_read; draft round 8, codex ERROR 1 and
+        agy WARN), and a lone capital letter must not open the next
+        semicolon-separated identifier. So "Pillar II Standard 2
+        (Security)." and "Annex IV F (Information Exchange, Access and
+        Confidentiality)[^1]" pass, while "Pillar II Standard 2
+        (Security). Standard X" fails. Anything else is reported as unread
+        rather than passed, so these fail closed: a continuation no
+        matcher reads ("Annex IV F (...) and Standard X (Cargo Security)",
+        "... and Section Z (Cargo Security)", "Pillar II Standard 1 and
+        Standard K (Cargo Security)", "... and element 1", "... and Annex
+        V", "... and Pillar IV"), a lead-in followed by one ("... and
+        Pillar II Standard K"), and a section sign with no citation after
+        it ("... and §2.1"); a range or other list form ("Annex IV F to
+        N", "F through N", "F/K", "F & K"); a letter after a phrase
+        ("elements F and K of Annex IV"); a lone letter after a standard
+        or a section, whatever title it carries ("Pillar II Standard 2,
+        K", "Section VI (Trade Continuity and Resumption), L (Cargo
+        Security)"), as a lone letter is a list member only after an
+        element; a lone letter after a semicolon ("Annex IV F; K"); and
+        any other trailing word, a full stop followed by more text
+        included. Draft round 8 (review of 330f7793c, claude WARN 2): a
+        lone capital letter A to Z left inside a captured description
+        (_WCO_DESCRIPTION_RE) is reported too, as no matcher reads it
+        ("Annex IV F, the policy & N", "the policy to N", "the policy/N",
+        "the policy, then N", "as in N"), unless it is the letter of an
+        element, the numeral of a section or the numeral of a pillar that
+        a matcher reads there ("the policy under Pillar I"). Matcher
+        limits: a continuation that is a pillar the held text carries, a
+        plural part name with a number or numeral ("Standards 2 and 6",
+        "Sections VI and VII", "Pillars I and III") or Annex IV itself is
+        accepted, and the text after it is not checked unless a part name
+        follows it directly (after any parenthesized title and a comma,
+        "and" or "or"), which a matcher must then read in turn, so
+        "Section III, Pillar 1 - Customs-to-Customs and Standard X" passes
+        while "Pillar II Standard 2 (Security), Pillar II
+        (Customs-to-Business) and Standard K" does not;
+        text before the first citation of an identifier is not checked; a
+        lone capital letter used as an ordinary word inside a description
+        ("the U.S. rules", "the A-to-M list", the pronoun "I") is reported
+        too; a part name with a lowercase or numeric identifier inside a
+        description ("the policy and element 1") is read as description
+        and not checked; and a correct citation followed by a lone letter
+        after a standard or section, or by a phrase, is reported too
+        ("Pillar II Standard 2 (Security), K (Trading Partner Security)":
+        the author writes "Annex IV K")."""
+        cited = [(match, match.group(0))
+                 for match, _pillar, _held in self._wco_standards(text)]
+        cited += [(match, text[match.start(1):match.end()]
+                   if match.re is self._WCO_LIST_MEMBER_RE
+                   else match.group(0))
+                  for match in self._wco_elements(text)]
+        cited += [(match, match.group(0))
+                  for match in self._WCO_SECTION_RE.finditer(text)]
+        starts = {match.start() for match, _name in cited
+                  if match.re is not self._WCO_LIST_MEMBER_RE}
+        read_letters = {m.start(1)
+                        for pattern in (self._WCO_ELEMENT_RE,
+                                        self._WCO_SECTION_RE,
+                                        self._WCO_PILLAR_RE)
+                        for m in pattern.finditer(text)}
+        bad = []
+        for match, name in cited:
+            found = self._WCO_DESCRIPTION_RE.match(text, match.end())
+            pos = found.end() if found else match.end()
+            if found and any(
+                    found.start(1) + letter.start() not in read_letters
+                    for letter in re.finditer(r"(?<!\w)[A-Z](?!\w)",
+                                              found.group(1))):
+                bad.append(f"{name}: lone letter inside its description: "
+                           f"{found.group(1).strip()}")
+            if (match.re is not self._WCO_STANDARD_RE
+                    and match.re is not self._WCO_SECTION_RE
+                    and self._WCO_LIST_MEMBER_RE.match(text, pos)):
+                continue
+            tail = self._WCO_UNREAD_TAIL_RE.match(text, pos).group(0)
+            after = pos + len(tail)
+            if (tail.strip() and not self._WCO_TERMINAL_RE.fullmatch(tail)
+                    and not self._wco_continuation_read(text, pos, starts)):
+                bad.append(f"{name}: unread text after it: {tail.strip()}")
+            elif (text.startswith(";", after) and re.match(
+                    rf"\s*{self._WCO_LONE_LETTER}", text[after + 1:])):
+                bad.append(f"{name}: unread lone letter after the "
+                           f"semicolon: {text[after + 1:].strip()}")
+        return bad
+
+    def _wco_title_findings(self, text, exact):
+        """Every title finding for text: its standards (exact as in
+        _wco_standard_findings), Annex IV elements and sections, and the
+        text no matcher reads after a citation (_wco_unread_findings)."""
+        return (self._wco_standard_findings(text, exact)
+                + self._wco_element_findings(text)
+                + self._wco_section_findings(text)
+                + self._wco_unread_findings(text))
+
+    def _wco_matrix_cell_findings(self, cell):
+        """What the matrix guard reports for one cell of the compliance
+        matrix's WCO SAFE column (an N/A cell, which the build skips,
+        reports nothing). Review of c2a600fae (claude, codex and agy WARN):
+        the build splits each cell on top-level commas and semicolons
+        (_xw_split_identifiers in .web/build.py) and the crosswalk shows
+        each piece as an identifier of its own, so this guard checks each
+        piece that splitter produces, read alone: each piece must name a
+        WCO SAFE part (a pillar, standard, Annex IV or an element or
+        section), and each piece that names a standard must resolve its
+        own pillar and carry that standard's held title. "Pillar II,
+        Standard 2 (Security)" therefore fails here, as its second piece
+        names no pillar, though the document guard accepts it (document
+        alignment rows do not pass through that splitter); "Annex IV F
+        (Information Exchange, Access and Confidentiality), Annex IV K
+        (Trading Partner Security)" passes, as each piece stands alone. A
+        title the matrix sets off with a comma, outside parentheses, is
+        split from its part by the build, so it fails here however it
+        reads ("Annex IV element F, Information Exchange, Access and
+        Confidentiality" gives the pieces "Information Exchange" and
+        "Access and Confidentiality", which name no part); a title with a
+        comma is written in parentheses. Draft round 6 (review of
+        7dece058f, claude NOTE 3): each piece that names an Annex IV
+        element (_wco_elements) must carry "Annex IV", as the held text
+        never writes "element <letter>" alone, so "element K (Trading
+        Partner Security)" fails here. Matcher limits: a piece counts as
+        naming a part when a part name stands anywhere in it, so a piece
+        that only mentions one in passing is not reported for that; a
+        piece carrying "Annex IV" anywhere passes the element check; and
+        the limits stated in _wco_standard_findings, _wco_element_findings,
+        _wco_section_findings and _wco_unread_findings apply to each
+        piece."""
+        if cell == "N/A":
+            return []
+        bad = []
+        for piece in self.mod._xw_split_identifiers(cell):
+            if not (self._WCO_HELD_PART_RE.search(piece)
+                    or self._wco_cited_parts(piece)):
+                bad.append(f"{piece}: names no WCO SAFE part")
+            if (self._wco_elements(piece)
+                    and not re.search(r"\bAnnex IV\b", piece)):
+                bad.append(f"{piece}: names an Annex IV element without "
+                           "Annex IV")
+            bad.extend(self._wco_title_findings(piece, exact=False))
+        return bad
+
+    def _wco_alignment_ref_findings(self, ref):
+        """What the document guard reports for the first two cells of a
+        framework-alignment row, joined by a pipe, beyond naming a held
+        part: every title finding (standards exact), and a title given to
+        Annex IV itself that is not the held one."""
+        bad = self._wco_title_findings(ref, exact=True)
+        bad.extend(f"Annex IV ({title})"
+                   for title in re.findall(r"\bAnnex IV \(([^)]*)\)", ref)
+                   if title != self._WCO_ANNEX_IV_TITLE)
+        return bad
+
+    def _wco_cited_parts(self, text):
+        """The held parts text cites: each standard as (pillar, number),
+        each Annex IV element letter, every member of an abbreviated list
+        included (_wco_elements), and each numbered section."""
+        parts = {("Standard", pillar, match.group(1))
+                 for match, pillar, _held in self._wco_standards(text)}
+        parts |= {("Annex IV", m.group(1)) for m in self._wco_elements(text)}
+        parts |= {("Section", m.group(1))
+                  for m in self._WCO_SECTION_RE.finditer(text)}
+        return parts
+
+    def _wco_alignment_rows(self, rel):
+        """(line number, first two cells) of each row naming WCO SAFE in
+        its first cell, in each table of rel whose first two headers are
+        Framework and Reference (or Relevant Section)."""
+        wco = re.compile(self.INSTRUMENT_NAME_RES["wco-safe"])
+        path = REPO_ROOT / rel
+        if not path.is_file():
+            return []
+        rows, header = [], None
+        for number, line in enumerate(
+                path.read_text(encoding="utf-8").splitlines(), 1):
+            if not line.startswith("|"):
+                header = None
+                continue
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if header is None:
+                header = cells
+                continue
+            if set(line) <= set("|-: ") or len(header) < 2 \
+                    or len(cells) < 2:
+                continue
+            if not (header[0].startswith("Framework") and header[1] in (
+                    "Reference", "Relevant Section")):
+                continue
+            if wco.search(cells[0]):
+                rows.append((number, cells[:2]))
+        return rows
+
+    def test_wco_safe_title_guards_resolve_the_pillar(self):
+        """Review of 9b7946bc2 (codex ERROR, claude W3): both title guards
+        looked every standard up in the Pillar 2 table, so a correct
+        "Pillar I Standard 2 (Cargo Inspection Authority)" was flagged and
+        a wrong "Pillar I Standard 2 (Security)" passed. A standard's
+        title is looked up in the pillar it resolves to (held Pillar 1, 2
+        and 3 titles), and a standard with no resolvable pillar is
+        reported, not assumed to be Pillar 2."""
+        for good in ("Pillar I Standard 2 (Cargo Inspection Authority)",
+                     "Pillar I Standard 6 (Advance Electronic Information)",
+                     "Pillar 1 Standard 11 (Outbound Security Inspections)",
+                     "Pillar II Standard 1 (Partnership)",
+                     "Pillar 2, §2.1 Standard 1 (Partnership)",
+                     "Pillar III Standard 5 (Development of continuity and "
+                     "resumptions measures)"):
+            for exact in (True, False):
+                with self.subTest(good=good, exact=exact):
+                    self.assertEqual(
+                        self._wco_standard_findings(good, exact), [])
+        for bad in ("Pillar I Standard 2 (Security)",
+                    "Pillar II Standard 2 (Cargo Inspection Authority)",
+                    "Pillar 3 Standard 1 (Partnership)",
+                    "Pillar II Standard 7 (Targeting and Communication)",
+                    "Standard 2 (Security)",
+                    "Pillar I (Customs-to-Customs); Standard 2 (Security)"):
+            for exact in (True, False):
+                with self.subTest(bad=bad, exact=exact):
+                    self.assertNotEqual(
+                        self._wco_standard_findings(bad, exact), [])
+        # With no title after the number only the identifier-wide check
+        # (the matrix's) sees that Pillar 2 Standard 6 is not named.
+        self.assertNotEqual(self._wco_standard_findings(
+            "Pillar II (Customs-to-Business; Standard 6)", exact=False), [])
+        self.assertEqual(self._wco_standard_findings(
+            "Pillar 1 Standard 6", exact=True), [])
+
+    def test_wco_safe_matrix_standards_carry_their_held_titles(self):
+        """WCO SAFE attribution sweep (findings WCO-SAFE-ATTRIB-0406,
+        XWFILL-R3-0420): fifteen compliance matrix rows cited "Pillar II
+        (Customs-to-Business; Standard 6)" or "(Standard 6, business
+        partners); (Standard 5, supply chain)" for supplier and business
+        partner rows and for the BASC IT and Information Security
+        Responsibilities register, but the held 2025 text's Pillar 2
+        Standard 6 is Facilitation and Standard 5 is Communication. Every
+        identifier in the matrix's WCO SAFE column that names a standard
+        names the held title of that standard in the pillar the identifier
+        names (a standard with no pillar in its identifier is reported),
+        and every Annex IV element letter is one the held text carries (A
+        to M) with any description after it the element's held title
+        exactly (review of 9b7946bc2: codex WARN 2, claude W2), so "Annex
+        IV K (Crisis Management and Incident Recovery)" fails. Draft round
+        3 of the sweep: seven IT access control rows cited "Pillar II
+        Standard 2 (Security, access control)", which passed because the
+        held title only had to stand in the identifier, though held line
+        2468 titles Standard 2 "Security" and nothing more. A title in
+        parentheses directly after a standard number is now the held title
+        of that standard in its resolved pillar exactly, the rule the
+        Annex IV element descriptions follow. Draft round 4: a title after
+        a colon, dash or comma is compared as a parenthesized one is, and
+        every section cited is checked against the held section titles (I
+        to VII), a numeral outside them reported. Draft round 5 (review of
+        c2a600fae): each cell goes through _wco_matrix_cell_findings, which
+        reads each piece the build's own splitter produces alone, so a
+        standard must resolve its pillar within its own piece and each
+        piece must name a part. Matcher limits: a standard cited with no
+        number is not checked; pillar titles and pillar-only cells are not
+        checked; and the limits stated in _wco_matrix_cell_findings,
+        _wco_standard_findings, _wco_element_findings,
+        _wco_section_findings and _wco_unread_findings apply."""
+        for good in ("Pillar II Standard 2 (Security)",
+                     "Pillar II Standard 1 (Partnership)"):
+            with self.subTest(good=good):
+                self.assertEqual(
+                    self._wco_standard_findings(good, exact=False), [])
+        for bad in ("Pillar II Standard 2 (Security, access control)",
+                    "Pillar II Standard 1 (Partnership, due diligence)"):
+            with self.subTest(bad=bad):
+                self.assertNotEqual(
+                    self._wco_standard_findings(bad, exact=False), [])
+        for good in ("Annex IV K (Trading Partner Security)",
+                     "Annex IV L (Crisis Management and Incident Recovery)",
+                     "Annex IV F (Information Exchange, Access and "
+                     "Confidentiality)", "Annex IV F"):
+            with self.subTest(good=good):
+                self.assertEqual(self._wco_element_findings(good), [])
+        for bad in ("Annex IV K (crisis management and incident recovery)",
+                    "Annex IV K (Crisis Management and Incident Recovery)",
+                    "Annex IV L (Trading Partner Security)",
+                    "Annex IV F (Cargo Security)",
+                    "Annex IV F (information security)",
+                    "Annex IV K (trading partner security)",
+                    "Annex IV N (Trading Partner Security)"):
+            with self.subTest(bad=bad):
+                self.assertNotEqual(self._wco_element_findings(bad), [])
+        _matrix_text, rows = self._compliance_matrix_rows()
+        bad, standards, elements, sections = [], 0, 0, 0
+        for row in rows:
+            cell = row["cells"]["WCO SAFE"]
+            standards += len(self._wco_standards(cell))
+            elements += len(self._WCO_ELEMENT_RE.findall(cell))
+            sections += len(self._WCO_SECTION_RE.findall(cell))
+            bad.extend(f"{row['path']}: {finding}" for finding in
+                       self._wco_matrix_cell_findings(cell))
+        self.assertEqual(sorted(bad), [])
+        self.assertTrue(standards and elements and sections,
+                        "the matrix cites WCO SAFE standards, elements and "
+                        "sections")
+
+    # The IT access control rows of the compliance matrix (draft round 3 of
+    # the WCO SAFE attribution sweep). Pillar 2 Standard 2 (Security, held
+    # line 2468) holds removal of a terminated employee's access to
+    # information systems and individually assigned password accounts
+    # (held lines 2491 to 2512); Annex IV F (Information Exchange, Access
+    # and Confidentiality, held line 4778) requires security-related
+    # controls, such as firewalls and passwords, protecting the AEO's
+    # electronic systems from unauthorized access (held lines 4808 to
+    # 4809).
+    _WCO_ACCESS_ROWS = (
+        "security/policy-identity-and-access-management.md",
+        "security/standard-privileged-access-management.md",
+        "security/standard-authentication-and-password-management.md",
+        "security/procedure-access-control.md",
+        "security/procedure-identity-management.md",
+        "security/procedure-onboarding-and-offboarding.md",
+        "security/framework-zero-trust-architecture.md",
+    )
+
+    def test_wco_safe_access_control_rows_cite_held_titles(self):
+        """Draft round 3 of the WCO SAFE attribution sweep: seven IT access
+        control rows of the compliance matrix cited "Pillar II Standard 2
+        (Security, access control)", a subtitle the held 2025 text does not
+        carry. Each cites Standard 2 with its held title and Annex IV
+        element F with its held title, as the matrix's other information
+        security rows do, and no WCO SAFE cell carries "access control"."""
+        _matrix_text, rows = self._compliance_matrix_rows()
+        cells = {row["path"]: row["cells"]["WCO SAFE"] for row in rows}
+        expected = (f"{self._WCO_S2}; Annex IV F (Information Exchange, "
+                    "Access and Confidentiality)")
+        self.assertEqual({path: cells.get(path)
+                          for path in self._WCO_ACCESS_ROWS},
+                         dict.fromkeys(self._WCO_ACCESS_ROWS, expected))
+        self.assertEqual(sorted(f"{path}: {cell}"
+                                for path, cell in cells.items()
+                                if "access control" in cell), [])
+
+    def test_wco_safe_business_partner_rows_cite_held_standards(self):
+        """Review of 9b7946bc2 (agy ERROR, claude W1): the thirteen
+        business-partner rows cited "Pillar II Standard 2 (Security,
+        business partners)", a subtitle the held 2025 text lacks, though
+        Standard 1 (Partnership) names business partners declaring their
+        intention to comply (held lines 2455 to 2462) and the third-party
+        and supply chain risk standard cites Standard 1. Each row carries
+        its pinned cell (_WCO_PARTNER_ROWS): Standard 1, Standard 2 or both
+        with their held titles, and Annex IV K as "Trading Partner
+        Security"; no WCO SAFE cell carries "business partners"; and each
+        mapped document whose own WCO SAFE alignment row cites a part
+        cites the same standards and elements as its matrix row."""
+        _matrix_text, rows = self._compliance_matrix_rows()
+        cells = {row["path"]: row["cells"]["WCO SAFE"] for row in rows}
+        self.assertEqual({path: cells.get(path)
+                          for path in self._WCO_PARTNER_ROWS},
+                         self._WCO_PARTNER_ROWS)
+        self.assertEqual(sorted(f"{path}: {cell}"
+                                for path, cell in cells.items()
+                                if "business partners" in cell), [])
+        compared = []
+        for path, cell in self._WCO_PARTNER_ROWS.items():
+            for number, (name, ref) in self._wco_alignment_rows(path):
+                cited = self._wco_cited_parts(ref)
+                if cited:
+                    compared.append(path)
+                    self.assertEqual(cited, self._wco_cited_parts(cell),
+                                     f"{path}:{number}: {ref}")
+        self.assertIn("risk/standard-third-party-and-supply-chain-risk.md",
+                      compared)
+
+    def test_wco_safe_continuity_row_cites_section_vi_and_element_l(self):
+        """Review of 9b7946bc2 (agy ERROR, claude NOTE): the trade and
+        supply-chain continuity annex's matrix row cited "Pillar II
+        Standard 2 (Security, business partners)" beside Annex IV L, but
+        the held 2025 text puts trade continuity in Section VI (Trade
+        Continuity and Resumption, held line 3358), which points to
+        "section L - Crisis Management and Incident Recovery" (lines 3400
+        to 3402). The row cites Section VI and Annex IV L with their held
+        titles, and no standard."""
+        _matrix_text, rows = self._compliance_matrix_rows()
+        cells = [row["cells"]["WCO SAFE"] for row in rows
+                 if row["path"] == "supply-chain/annex-trade-and-supply-"
+                                   "chain-continuity-controls.md"]
+        self.assertEqual(cells, [
+            "Section VI (Trade Continuity and Resumption); Annex IV L "
+            "(Crisis Management and Incident Recovery)"])
+        self.assertNotRegex(cells[0], r"\bStandard\b")
+
+    def test_wco_safe_pillar_only_rows_follow_their_documents(self):
+        """Review of 9b7946bc2 (agy ERROR, claude NOTE): the legal and
+        regulatory compliance policy's and the metrics framework's matrix
+        rows still cited only "Pillar II (Customs-to-Business; AEO)" and
+        "Pillar II (Customs-to-Business)" after the documents' own WCO SAFE
+        rows were corrected to Annex IV element A and element M. Each row
+        cites the element its document's alignment row cites, with the
+        held title. Other pillar-only cells stay as they are by decision."""
+        expected = {
+            "compliance/policy-legal-and-regulatory-compliance.md":
+                "Annex IV A (Demonstrated Compliance with Customs "
+                "Requirements)",
+            "governance/framework-metrics-monitoring-and-performance-"
+            "reporting.md":
+                "Annex IV M (Measurement, Analyses and Improvement)",
+        }
+        _matrix_text, rows = self._compliance_matrix_rows()
+        cells = {row["path"]: row["cells"]["WCO SAFE"] for row in rows}
+        for path, cell in expected.items():
+            with self.subTest(path=path):
+                self.assertEqual(cells.get(path), cell)
+                refs = self._wco_alignment_rows(path)
+                self.assertEqual(len(refs), 1, refs)
+                self.assertEqual(self._wco_cited_parts(refs[0][1][1]),
+                                 self._wco_cited_parts(cell))
+
+    def test_wco_safe_alignment_references_name_held_parts(self):
+        """WCO SAFE attribution sweep: framework-alignment tables gave WCO
+        SAFE a reference the held 2025 text does not carry, "AEO Security"
+        (legal and regulatory compliance policy), "AEO performance
+        standards" (metrics framework) and "Supply Chain Security"
+        (encryption policy). In every corpus table whose first two headers
+        are Framework and Reference (or Relevant Section), a row naming WCO
+        SAFE in its first cell names a held part (Annex IV, a pillar or a
+        numbered section) in its first two cells; each Annex IV element
+        letter is one the held text carries (A to M) and any title written
+        after it is the held title; any title after a standard number is
+        the held title of that standard in the pillar it resolves to, and a
+        standard with no resolvable pillar is reported (review of
+        9b7946bc2: codex ERROR, claude W3); and a title given to Annex IV
+        itself is the held one. Draft round 4 (review of f97a6be23): the
+        references go through _wco_alignment_ref_findings, so a title after
+        a colon, dash or comma is compared as a parenthesized one is, and
+        any title after "Section <numeral>" is that section's held title
+        exactly, a numeral outside I to VII reported. Draft round 5 (review
+        of c2a600fae): a title not in parentheses ends at a comma that
+        introduces another citation, and a comma between pillar and
+        standard stays accepted here, as alignment rows do not pass
+        through the build's matrix-cell splitter. Matcher limits: a table
+        with other headers, or a reference worded without a part name, is
+        not checked; pillar titles are not checked; and the limits stated
+        in _wco_standard_findings, _wco_element_findings,
+        _wco_section_findings and _wco_unread_findings apply."""
+        checked, bad = [], []
+        for d in self._full_taxonomy():
+            for number, cells in self._wco_alignment_rows(d["path"]):
+                where = f"{d['path']}:{number}"
+                checked.append(where)
+                ref = f"{cells[0]} | {cells[1]}"
+                if not self._WCO_HELD_PART_RE.search(ref):
+                    bad.append(f"{where}: names no held part: {cells[1]}")
+                bad.extend(f"{where}: {finding}" for finding in
+                           self._wco_alignment_ref_findings(ref))
+        self.assertEqual(sorted(bad), [])
+        for path in ("compliance/policy-legal-and-regulatory-compliance.md",
+                     "governance/framework-metrics-monitoring-and-"
+                     "performance-reporting.md",
+                     "security/policy-encryption-and-key-management.md",
+                     "risk/standard-third-party-and-supply-chain-risk.md"):
+            self.assertTrue(any(c.startswith(path + ":") for c in checked),
+                            f"{path}: its WCO SAFE row is checked")
+
+    def _wco_both_guards(self, case):
+        """(matrix findings, document findings) for one citation, read as a
+        matrix cell and as the reference cell of an alignment row."""
+        return (self._wco_matrix_cell_findings(case),
+                self._wco_alignment_ref_findings(
+                    f"WCO SAFE Framework (2025 edition) | {case}"))
+
+    def test_wco_safe_section_citations_carry_held_titles(self):
+        """Review of f97a6be23 (claude WARN 1): the commit added the first
+        Section citation, but neither title guard checked a title after
+        "Section <numeral>", so "Section VI (Mutual Recognition)" and
+        "Section VIII (Trade Continuity and Resumption)" passed both. The
+        held section titles are pinned (_WCO_SECTIONS, held lines 111 to
+        153 and 165 to 3415). In the matrix and in the alignment tables a
+        title after "Section <numeral>" is that section's held title
+        exactly, and a numeral outside I to VII is reported."""
+        self.assertEqual(sorted(self._WCO_SECTIONS),
+                         sorted(("I", "II", "III", "IV", "V", "VI", "VII")))
+        for case in ("Section VI (Trade Continuity and Resumption)",
+                     "Section VI",
+                     "Section VII (Mutual Recognition)",
+                     "Section III (Pillar 1 - Customs-to-Customs)",
+                     "Section IV (Pillar 2 \u2013 Customs-to-Business)",
+                     "Section V (Pillar 3 - Customs to Other Government and "
+                     "Inter-Government Agencies)",
+                     "Section VI (Trade Continuity and Resumption); Annex IV "
+                     "L (Crisis Management and Incident Recovery)"):
+            with self.subTest(good=case):
+                self.assertEqual(self._wco_both_guards(case), ([], []))
+        for case in ("Section VI (Mutual Recognition)",
+                     "Section VIII (Trade Continuity and Resumption)",
+                     "Section VIII",
+                     "Section IV (Trade Continuity and Resumption)",
+                     "Section 6 (Trade Continuity and Resumption)",
+                     "Section VI (Trade Continuity)",
+                     "Section VI (trade continuity and resumption)",
+                     "Section VI (Mutual Recognition); Annex IV L (Crisis "
+                     "Management and Incident Recovery)"):
+            with self.subTest(bad=case):
+                matrix, document = self._wco_both_guards(case)
+                self.assertNotEqual(matrix, [])
+                self.assertNotEqual(document, [])
+
+    def test_wco_safe_titles_after_colon_dash_or_comma_are_compared(self):
+        """Review of f97a6be23 (codex WARN, claude NOTE 1): a title set off
+        by a colon, dash or comma after a standard number or element
+        letter escaped the exact-title rule ("Pillar II Standard 2: Cargo
+        Security", "Pillar II Standard 2 - Security, access control",
+        "Annex IV F - information security", "Annex IV element F,
+        information security"). Rule chosen: such a title is captured in
+        each of the four forms (_WCO_TITLE) and the complete title is
+        compared with the held title, in both guards, a title not in
+        parentheses running to the end of its identifier or to a comma
+        introducing another citation (_WCO_TITLE_RUN, draft round 5),
+        whichever comes first (draft round 6, review of 7dece058f, claude
+        NOTE 4); no form is rejected outright, because the corpus already
+        writes the colon form (the cryptographic key lifecycle framework's
+        "Annex IV F: Information Exchange, Access and Confidentiality") and
+        the held headings themselves set a title off with a dash. Draft
+        round 5 (review of c2a600fae, all three WARN): the matrix guard
+        reads each piece the build's splitter produces alone
+        (_wco_matrix_cell_findings), and the build splits a matrix cell at
+        a top-level comma, so a title the matrix sets off with a comma, or
+        a title holding a comma outside parentheses, is accepted by the
+        document guard and reported by the matrix guard; the comma-joined
+        case is no longer a good case for the matrix (combined references:
+        test_wco_safe_combined_references_keep_each_title)."""
+        for case in ("Pillar II Standard 2: Security",
+                     "Pillar II Standard 2 - Security",
+                     "Section VI: Trade Continuity and Resumption",
+                     "Annex IV F (Information Exchange, Access and "
+                     "Confidentiality), Annex IV K (Trading Partner "
+                     "Security)"):
+            with self.subTest(good=case):
+                self.assertEqual(self._wco_both_guards(case), ([], []))
+        for case in ("Pillar II Standard 2, Security",
+                     "Pillar 1 Standard 5: Selectivity, profiling and "
+                     "targeting",
+                     "Annex IV F: Information Exchange, Access and "
+                     "Confidentiality",
+                     "Annex IV element F - Information Exchange, Access and "
+                     "Confidentiality",
+                     "Annex IV element F, Information Exchange, Access and "
+                     "Confidentiality"):
+            with self.subTest(document_only=case):
+                matrix, document = self._wco_both_guards(case)
+                self.assertNotEqual(matrix, [])
+                self.assertEqual(document, [])
+        for case in ("Pillar II Standard 2: Cargo Security",
+                     "Pillar II Standard 2 - Security, access control",
+                     "Pillar 2 Standard 2 \u2013 Security, business partners",
+                     "Pillar II Standard 2, access control",
+                     "Pillar II Standard 2: Security (access control)",
+                     "Annex IV F - information security",
+                     "Annex IV element F, information security",
+                     "Annex IV F: Information Exchange",
+                     "Annex IV K: Crisis Management and Incident Recovery",
+                     "Section VI - Mutual Recognition",
+                     "Section VI, Mutual Recognition"):
+            with self.subTest(bad=case):
+                matrix, document = self._wco_both_guards(case)
+                self.assertNotEqual(matrix, [])
+                self.assertNotEqual(document, [])
+
+    def test_wco_safe_matrix_and_document_guards_differ_on_a_comma(self):
+        """Review of c2a600fae (claude, codex and agy WARN): draft round 4
+        made both guards accept a comma between pillar and standard, but
+        the build splits each matrix cell on top-level commas and
+        semicolons (_xw_split_identifiers, .web/build.py) and the crosswalk
+        shows each piece as an identifier, so "Pillar II, Standard 2
+        (Security)" shows a "Standard 2 (Security)" with no pillar, and
+        standard numbers repeat across the pillars. The matrix guard checks
+        each piece that splitter produces (_wco_matrix_cell_findings) and
+        requires each piece naming a standard to resolve its own pillar;
+        the document guard keeps accepting the comma, since document
+        alignment rows do not pass through that splitter (it is called
+        only on compliance matrix cells). The guards differ on the first
+        four cases below; "Annex IV F (...), Annex IV K (...)" passes both,
+        as each piece stands alone."""
+        split = self.mod._xw_split_identifiers
+        self.assertEqual(split("Pillar II, Standard 2 (Security)"),
+                         ["Pillar II", "Standard 2 (Security)"])
+        self.assertEqual(
+            split("Annex IV F (Information Exchange, Access and "
+                  "Confidentiality), Annex IV K (Trading Partner Security)"),
+            ["Annex IV F (Information Exchange, Access and "
+             "Confidentiality)", "Annex IV K (Trading Partner Security)"])
+        for case, matrix_ok, document_ok in (
+                ("Pillar II, Standard 2 (Security)", False, True),
+                ("Pillar II Standard 1 (Partnership), Standard 2 "
+                 "(Security)", False, True),
+                ("Pillar II (Customs-to-Business), Standard 6 "
+                 "(Facilitation)", False, True),
+                ("Pillar 2, §2.1 Standard 1 (Partnership)", False, True),
+                ("Annex IV F (Information Exchange, Access and "
+                 "Confidentiality), Annex IV K (Trading Partner Security)",
+                 True, True),
+                ("Pillar II Standard 1 (Partnership); Pillar II Standard 2 "
+                 "(Security)", True, True),
+                ("Pillar II, Standard 2 (Cargo Inspection Authority)",
+                 False, False),
+                ("Pillar I, Standard 2 (Security)", False, False),
+                ("Pillar II; Standard 2 (Security)", False, False)):
+            with self.subTest(case=case):
+                matrix, document = self._wco_both_guards(case)
+                self.assertEqual(not matrix, matrix_ok, matrix)
+                self.assertEqual(not document, document_ok, document)
+
+    def test_wco_safe_combined_references_keep_each_title(self):
+        """Review of c2a600fae (codex WARN 2, claude NOTE 2): a title after
+        a colon, dash or comma ran to the next semicolon or pipe, so in a
+        reference combining citations with a comma the first title took in
+        the next citation ("Pillar II Standard 1: Partnership, Standard 2
+        (Security)" captured "Partnership, Standard 2 (Security)" and
+        failed), and "Annex IV element F, the AEO's information security
+        policy" and "Annex IV F, K and L" were reported. A title not in
+        parentheses now ends at a comma introducing another citation
+        (_WCO_NEXT_CITATION), a held title holding a comma ("Information
+        Exchange, Access and Confidentiality") stays whole, and a phrase
+        after a comma opening with a lowercase description word
+        (_WCO_DESCRIPTION) is not compared as a title (draft round 6
+        checks it for other parts' held titles instead:
+        test_wco_safe_descriptions_name_no_other_part). Each title form
+        (parentheses, colon, dash, comma) has a combined fixture the
+        document guard accepts and one it reports; the matrix guard's
+        verdict is pinned
+        beside each, as the build splits a matrix cell at each top-level
+        comma. Forms the matcher cannot read reliably are stated as limits
+        in _wco_standard_findings and _wco_element_findings."""
+        for case, matrix_ok in (
+                ("Pillar II Standard 1 (Partnership), Standard 2 "
+                 "(Security)", False),
+                ("Annex IV F (Information Exchange, Access and "
+                 "Confidentiality), Annex IV K (Trading Partner Security)",
+                 True),
+                ("Pillar II Standard 1: Partnership, Standard 2 (Security)",
+                 False),
+                ("Annex IV F: Information Exchange, Access and "
+                 "Confidentiality, Annex IV K: Trading Partner Security",
+                 False),
+                ("Section VI: Trade Continuity and Resumption, Annex IV L: "
+                 "Crisis Management and Incident Recovery", True),
+                ("Pillar 1 Standard 5: Selectivity, profiling and targeting, "
+                 "Standard 6: Advance Electronic Information", False),
+                ("Pillar II Standard 1 - Partnership, Standard 2 - Security",
+                 False),
+                ("Annex IV F - Information Exchange, Access and "
+                 "Confidentiality, and Annex IV K - Trading Partner "
+                 "Security", False),
+                ("Pillar II Standard 1, Partnership, Standard 2, Security",
+                 False),
+                ("Annex IV element F, Information Exchange, Access and "
+                 "Confidentiality, element K, Trading Partner Security",
+                 False),
+                ("Annex IV element F, the AEO's information security "
+                 "policy", False),
+                ("Annex IV F, K and L", False)):
+            with self.subTest(good=case):
+                matrix, document = self._wco_both_guards(case)
+                self.assertEqual(document, [])
+                self.assertEqual(not matrix, matrix_ok, matrix)
+        for case in ("Pillar II Standard 1 (Partnership), Standard 2 "
+                     "(Cargo Security)",
+                     "Pillar II Standard 1: Partnership, Standard 2: Cargo "
+                     "Security",
+                     "Annex IV F: Information Exchange, Annex IV K: Trading "
+                     "Partner Security",
+                     "Pillar II Standard 1 - Partnership, Standard 2 - "
+                     "Security, access control",
+                     "Pillar II Standard 1, Partners, Standard 2, Security",
+                     "Annex IV element F, Information Exchange, Access and "
+                     "Confidentiality, element K, Crisis Management and "
+                     "Incident Recovery",
+                     "Annex IV F, A security policy"):
+            with self.subTest(bad=case):
+                matrix, document = self._wco_both_guards(case)
+                self.assertNotEqual(matrix, [])
+                self.assertNotEqual(document, [])
+
+    def test_wco_safe_element_lists_check_every_member(self):
+        """Draft round 6 (review of 7dece058f, codex WARN 1 and claude NOTE
+        2): only the first letter of an abbreviated element list was
+        validated, so "Annex IV F, N and Z" passed the document guard; and
+        a colon or dash title stops at a comma before a lone capital
+        letter, so "Annex IV F: Information Exchange, Access and
+        Confidentiality, A (Cargo Security)" passed. Every member of such a
+        list (_wco_elements) is now read: its letter must be one the held
+        text carries (A to M), and a title written after it, in
+        parentheses or after a comma (draft round 7: or after a colon or
+        dash, test_wco_safe_later_members_take_colon_and_dash_titles), must
+        be that member's held title. The good cases pass the document
+        guard and cite every member; the bad cases fail both guards."""
+        for case, letters in (
+                ("Annex IV F, K and L", "FKL"),
+                ("Annex IV F and K", "FK"),
+                ("Annex IV F or K", "FK"),
+                ("elements F and K", "FK"),
+                ("Annex IV F (Information Exchange, Access and "
+                 "Confidentiality), K (Trading Partner Security) and L "
+                 "(Crisis Management and Incident Recovery)", "FKL"),
+                ("Annex IV F: Information Exchange, Access and "
+                 "Confidentiality, A (Demonstrated Compliance with Customs "
+                 "Requirements)", "FA"),
+                ("Annex IV F - Information Exchange, Access and "
+                 "Confidentiality, and M (Measurement, Analyses and "
+                 "Improvement)", "FM"),
+                ("Annex IV element F, Information Exchange, Access and "
+                 "Confidentiality, K, Trading Partner Security", "FK"),
+                ("Annex IV F, the AEO's information security policy, K and "
+                 "L", "FKL")):
+            with self.subTest(good=case):
+                self.assertEqual(self._wco_both_guards(case)[1], [])
+                self.assertEqual(
+                    {key for kind, key in self._wco_cited_parts(case)
+                     if kind == "Annex IV"}, set(letters))
+        for case in ("Annex IV F, N and Z",
+                     "Annex IV F, K and Z",
+                     "Annex IV F, K or N",
+                     "Annex IV F and N",
+                     "elements F and N",
+                     "Annex IV F: Information Exchange, Access and "
+                     "Confidentiality, A (Cargo Security)",
+                     "Annex IV F - Information Exchange, Access and "
+                     "Confidentiality, A (Cargo Security)",
+                     "Annex IV F (Information Exchange, Access and "
+                     "Confidentiality), K (Crisis Management and Incident "
+                     "Recovery)",
+                     "Annex IV F, K and L (Trading Partner Security)",
+                     "Annex IV F, K, Crisis Management and Incident "
+                     "Recovery",
+                     "Annex IV F, the AEO's information security policy, "
+                     "N"):
+            with self.subTest(bad=case):
+                matrix, document = self._wco_both_guards(case)
+                self.assertNotEqual(matrix, [])
+                self.assertNotEqual(document, [])
+
+    def test_wco_safe_descriptions_name_no_other_part(self):
+        """Draft round 6 (review of 7dece058f, codex WARN 2): a phrase
+        after a comma opening with a listed lowercase word
+        (_WCO_DESCRIPTION) skipped every comparison, so a wrong attribution
+        phrased as a description passed ("Annex IV K, the Crisis Management
+        and Incident Recovery element"). The opener list stays closed (all
+        three reviews: relaxing it to any lowercase text would let a
+        lowercase paraphrase of a wrong title pass), and a description is
+        now reported when it names the held title of another part
+        (_wco_description_findings), case-insensitively, after a standard,
+        an element, a list member or a section, with or without a title
+        before it. The reviewers' examples: "Annex IV element F, the AEO's
+        information security policy" (claude, review of c2a600fae) stays
+        accepted; an incorrect attribution introduced with "the" (codex)
+        is reported; "information security controls" (codex) and "cargo
+        security controls" (agy) open with an unlisted word, so they stay
+        compared as titles and reported. A correct description that names
+        another part's held title is reported too ("Pillar II Standard 2,
+        the cargo security standard" names element G); the author cites
+        that part instead."""
+        for case in ("Annex IV element F, the AEO's information security "
+                     "policy",
+                     "Pillar II Standard 1, the partners' declared intention "
+                     "to comply",
+                     "Pillar II Standard 2 (Security), the protection of "
+                     "trade data",
+                     "Annex IV K (Trading Partner Security), the security of "
+                     "business partners",
+                     "Section VI, the resumption of trade after a "
+                     "disruption",
+                     "Pillar III Standard 1, the mutual cooperation "
+                     "standard"):
+            with self.subTest(good=case):
+                self.assertEqual(self._wco_both_guards(case)[1], [])
+        for case in ("Annex IV K, the Crisis Management and Incident "
+                     "Recovery element",
+                     "Annex IV K, the crisis management and incident "
+                     "recovery element",
+                     "Annex IV F (Information Exchange, Access and "
+                     "Confidentiality), the Personnel Security controls",
+                     "Annex IV F, K, the Cargo Security element",
+                     "Pillar II Standard 1, the Security standard",
+                     "Pillar II Standard 2, the Facilitation measures",
+                     "Pillar II Standard 2, the Trading Partner Security "
+                     "element",
+                     "Pillar II Standard 2, the cargo security standard",
+                     "Section VI, the Mutual Recognition arrangements",
+                     "Section VI (Trade Continuity and Resumption), which "
+                     "is Crisis Management and Incident Recovery"):
+            with self.subTest(names_another_part=case):
+                document = self._wco_both_guards(case)[1]
+                self.assertTrue(any(": names " in finding
+                                    for finding in document), document)
+        for case in ("Annex IV element F, information security controls",
+                     "Pillar II Standard 2, cargo security controls"):
+            with self.subTest(unlisted_opener=case):
+                matrix, document = self._wco_both_guards(case)
+                self.assertNotEqual(matrix, [])
+                self.assertNotEqual(document, [])
+
+    def test_wco_safe_next_citation_needs_a_number(self):
+        """Draft round 6 (review of 7dece058f, claude NOTE 2): the plural
+        part names in _WCO_NEXT_CITATION were exercised by no test, and
+        "Standards", "Sections" and "elements" with no number after them
+        ended a title, so "Annex IV element F, Standards of security"
+        passed. A part name starts a new citation only with a number,
+        Roman numeral or letter after it. Each plural form (Pillars,
+        Standards, elements, Sections) ends a title when a number, numeral
+        or letter follows it (the good cases), and a part name with none
+        after it, plural or singular, is read as part of the title (the
+        bad cases, each reported by the document guard)."""
+        for case in ("Pillar II Standard 1: Partnership, Standards 2 and 6 "
+                     "of Pillar II",
+                     "Pillar II Standard 2 - Security, Pillars I and III",
+                     "Annex IV F: Information Exchange, Access and "
+                     "Confidentiality, elements K and L",
+                     "Section VI: Trade Continuity and Resumption, Sections "
+                     "VII and II"):
+            with self.subTest(good=case):
+                self.assertEqual(self._wco_both_guards(case)[1], [])
+        for case in ("Annex IV element F, Standards of security",
+                     "Annex IV element F, Sections of the framework",
+                     "Annex IV element F, elements of security",
+                     "Pillar II Standard 2: Security, Pillars of the "
+                     "framework",
+                     "Annex IV F: Information Exchange, Access and "
+                     "Confidentiality, Annex of the framework",
+                     "Section VI - Trade Continuity and Resumption, Section "
+                     "of the framework"):
+            with self.subTest(bad=case):
+                self.assertNotEqual(self._wco_both_guards(case)[1], [])
+
+    def test_wco_safe_matrix_element_pieces_carry_annex_iv(self):
+        """Draft round 6 (review of 7dece058f, claude NOTE 3): the matrix
+        guard accepted a piece such as "element K (Trading Partner
+        Security)" with no "Annex IV" before it, though the held text never
+        writes "element <letter>" alone and the crosswalk shows each piece
+        as an identifier of its own. Each matrix piece that names an
+        element carries "Annex IV"; the document guard, whose rows are not
+        split, keeps accepting the bare element."""
+        for case, matrix_ok in (
+                ("Annex IV element K (Trading Partner Security)", True),
+                ("Annex IV K (Trading Partner Security)", True),
+                ("element K (Trading Partner Security)", False),
+                ("Pillar II Standard 2 (Security); element K (Trading "
+                 "Partner Security)", False),
+                ("Annex IV F (Information Exchange, Access and "
+                 "Confidentiality), element K (Trading Partner Security)",
+                 False),
+                ("elements F and K", False)):
+            with self.subTest(case=case):
+                matrix, document = self._wco_both_guards(case)
+                self.assertEqual(document, [])
+                self.assertEqual(not matrix, matrix_ok, matrix)
+
+    _WCO_F_PAREN = ("Annex IV F (Information Exchange, Access and "
+                    "Confidentiality)")
+
+    def test_wco_safe_later_members_take_colon_and_dash_titles(self):
+        """Draft round 7 (review of b78d59e6c: codex ERROR 1, claude WARN
+        1): a lone letter followed by a colon or dash was not a list member
+        (_WCO_LONE_LETTER), and a parenthesized title absorbs nothing after
+        it, so after F's parenthesized title a later member with a colon
+        or dash title was read by no matcher: "... and N: Cargo
+        Security", "..., K: Cargo Security" and "..., K - Cargo Security"
+        passed both guards and _wco_cited_parts did not record the member.
+        Such a member is now read, its letter and its title checked. Each
+        bad case fails both guards; each correct counterpart passes the
+        document guard and cites the member, with the matrix guard's
+        verdict pinned beside it (the build splits a matrix cell at a
+        top-level comma, so "K: Trading Partner Security" stands alone
+        there and names no part)."""
+        f = self._WCO_F_PAREN
+        for case in (f"{f} and N: Cargo Security",
+                     f"{f}, K: Cargo Security",
+                     f"{f}, K - Cargo Security",
+                     f"{f} and K: Cargo Security",
+                     f"{f}, N - Trading Partner Security",
+                     f"{f}, K \u2013 Cargo Security"):
+            with self.subTest(bad=case):
+                matrix, document = self._wco_both_guards(case)
+                self.assertNotEqual(matrix, [])
+                self.assertNotEqual(document, [])
+        for case, letters, matrix_ok in (
+                (f"{f} and K: Trading Partner Security", "FK", True),
+                (f"{f}, K: Trading Partner Security", "FK", False),
+                (f"{f}, K - Trading Partner Security", "FK", False),
+                (f"{f}, K \u2013 Trading Partner Security", "FK", False),
+                (f"{f} and L - Crisis Management and Incident Recovery",
+                 "FL", True),
+                ("Annex IV F: Information Exchange, Access and "
+                 "Confidentiality, K: Trading Partner Security", "FK",
+                 False)):
+            with self.subTest(good=case):
+                matrix, document = self._wco_both_guards(case)
+                self.assertEqual(document, [])
+                self.assertEqual(not matrix, matrix_ok, matrix)
+                self.assertEqual(
+                    {key for kind, key in self._wco_cited_parts(case)
+                     if kind == "Annex IV"}, set(letters))
+
+    def test_wco_safe_unread_text_after_a_citation_is_reported(self):
+        """Draft round 7 (review of b78d59e6c: codex ERROR 1, claude WARN 1
+        and NOTES 1 and 3): text after a citation that no matcher read
+        passed both guards, so an invalid or wrongly titled letter in it
+        went unchecked: range and other list forms ("Annex IV F to N", "F
+        through N", "F/K", "F & K"), a letter after a description ("F,
+        the policy and N"), a letter after a phrase ("elements F and K of
+        Annex IV"), a lone letter after a standard or a section with or
+        without a title, and a lone letter after a semicolon. Text after a
+        citation, its title, its description and its list members must be
+        nothing or another citation by part name (_wco_unread_findings);
+        anything else is reported as unread (fail closed), in both guards.
+        A description now ends before "and" or "or" and a lone letter
+        (_WCO_DESCRIPTION_RE), so "F, the policy and N" reads N as a
+        member and reports it. The good cases are the forms the matchers
+        read, and pass the document guard."""
+        for case in ("Annex IV F to N",
+                     "Annex IV F to K",
+                     "Annex IV F through N",
+                     "Annex IV F/K",
+                     "Annex IV F & K",
+                     "Annex IV F (Information Exchange, Access and "
+                     "Confidentiality) to N",
+                     "elements F and K of Annex IV",
+                     "Pillar II Standard 2, K",
+                     "Pillar II Standard 2 (Security), K (Cargo Security)",
+                     "Pillar II Standard 2 (Security), K (Trading Partner "
+                     "Security)",
+                     "Section VI (Trade Continuity and Resumption), L (Cargo "
+                     "Security)",
+                     "Pillar II Standard 2 / Cargo Security",
+                     "Annex IV F (Information Exchange, Access and "
+                     "Confidentiality) per the AEO guidance"):
+            with self.subTest(unread=case):
+                matrix, document = self._wco_both_guards(case)
+                self.assertNotEqual(matrix, [])
+                self.assertTrue(any(": unread " in finding
+                                    for finding in document), document)
+        for case in ("Annex IV F; K",
+                     "Pillar II Standard 2 (Security); L"):
+            with self.subTest(semicolon=case):
+                document = self._wco_both_guards(case)[1]
+                self.assertTrue(any(": unread lone letter" in finding
+                                    for finding in document), document)
+        for case in ("Annex IV F, the policy and N",
+                     "Annex IV F, the AEO's information security policy or "
+                     "Z"):
+            with self.subTest(after_description=case):
+                matrix, document = self._wco_both_guards(case)
+                self.assertNotEqual(matrix, [])
+                self.assertNotEqual(document, [])
+        for case in ("Annex IV F, K and L",
+                     "Annex IV F and K",
+                     "elements F and K",
+                     "Annex IV F, the policy and K",
+                     "Annex IV F, the policy, K and L",
+                     "Pillar II Standard 2 (Security) and Annex IV K "
+                     "(Trading Partner Security)",
+                     "Pillar II Standard 2 (Security); Annex IV K (Trading "
+                     "Partner Security)",
+                     "Pillar II Standard 1: Partnership, Standards 2 and 6 "
+                     "of Pillar II",
+                     "Annex IV (AEO Conditions, Requirements and Benefits), "
+                     "element A (Demonstrated Compliance with Customs "
+                     "Requirements)",
+                     "Pillar 2, §2.1 Standard 1 (Partnership); Annex IV K "
+                     "(Trading Partner Security)"):
+            with self.subTest(good=case):
+                self.assertEqual(self._wco_both_guards(case)[1], [])
+
+    def test_wco_safe_one_word_titles_named_as_names(self):
+        """Draft round 7 (review of b78d59e6c: codex ERROR 2, claude WARN
+        2): a one-word held title of a part of another kind was never
+        counted in a description, so an explicit misattribution passed:
+        "Annex IV K, the Partnership standard", "Annex IV K, the Security
+        standard" ("Security" also stands inside K's own title), "Section
+        VI, the Facilitation standard", "Pillar II Standard 1, the
+        Benefits section" and "Annex IV F, the element entitled
+        Benefits". Such a title now counts where it is used as a name,
+        followed by its kind's noun or preceded by a naming word
+        (_wco_description_findings; draft round 8 adds another kind's noun
+        where no held title of that kind holds the word:
+        test_wco_safe_one_word_titles_with_another_kinds_noun); used as an
+        ordinary word it still does not, so "Annex IV element F, the AEO's
+        information security policy" and the other ordinary-vocabulary
+        counterparts pass."""
+        for case in ("Annex IV K, the Partnership standard",
+                     "Annex IV K, the Security standard",
+                     "Section VI, the Facilitation standard",
+                     "Pillar II Standard 1, the Benefits section",
+                     "Annex IV F, the element entitled Benefits",
+                     "Annex IV F (Information Exchange, Access and "
+                     "Confidentiality), the element called Introduction",
+                     "Section VI, the standards named Technology",
+                     "Annex IV K, the Security pillar"):
+            with self.subTest(named=case):
+                document = self._wco_both_guards(case)[1]
+                self.assertTrue(any(": names " in finding
+                                    for finding in document), document)
+        for case in ("Annex IV element F, the AEO's information security "
+                     "policy",
+                     "Annex IV K, the partnership with suppliers",
+                     "Annex IV K, the security of business partners",
+                     "Section VI, the facilitation of trade after a "
+                     "disruption",
+                     "Pillar II Standard 1, the benefits partners receive",
+                     "Annex IV F, the element on information exchange",
+                     "Annex IV G, the cargo security element"):
+            with self.subTest(ordinary=case):
+                self.assertEqual(self._wco_both_guards(case)[1], [])
+
+    def test_wco_safe_description_hyphens_read_as_spaces(self):
+        """Draft round 7 (review of b78d59e6c, claude NOTE 3): a hyphen in
+        a description hid another part's held title, so "Annex IV K, the
+        crisis-management and incident recovery element" passed. Each
+        hyphen or dash is read as a space on both sides before the
+        comparison (_wco_description_findings); the same description on
+        element L, whose held title it is, still passes."""
+        for case in ("Annex IV K, the crisis-management and incident "
+                     "recovery element",
+                     "Annex IV F, the trading-partner security controls",
+                     "Pillar II Standard 2, the risk management systems"):
+            with self.subTest(names_another_part=case):
+                document = self._wco_both_guards(case)[1]
+                self.assertTrue(any(": names " in finding
+                                    for finding in document), document)
+        for case in ("Annex IV L, the crisis-management and incident "
+                     "recovery element",
+                     "Pillar I Standard 4, the risk-management systems"):
+            with self.subTest(own=case):
+                self.assertEqual(self._wco_both_guards(case)[1], [])
+
+    def test_wco_safe_continuations_are_citations_a_matcher_reads(self):
+        """Draft round 8 (review of 330f7793c: codex ERROR 1, agy WARN): a
+        part name with any number, numeral or letter after it was accepted
+        as a continuation, so a citation no matcher reads, and the title
+        after it, passed both guards: "Annex IV F (...) and Standard X
+        (Cargo Security)", "... and Section Z (Cargo Security)", "Pillar
+        II Standard 1 and Standard K (Cargo Security)" and "... and
+        element 1". A continuation is now accepted only when a matcher
+        reads it (_wco_continuation_read), after any lead-in; otherwise it
+        is reported as unread. A continuation a matcher reads but the held
+        text lacks ("Section VIII", "Annex IV N") is reported by that
+        matcher's own guard. Pillar, plural and bare Annex IV
+        continuations stay accepted (stated limits)."""
+        f = self._WCO_F_PAREN
+        for case in (f"{f} and Standard X (Cargo Security)",
+                     f"{f} and Section Z (Cargo Security)",
+                     "Pillar II Standard 1 and Standard K (Cargo Security)",
+                     f"{f} and element 1",
+                     f"{f}, Annex V",
+                     f"{f} and Pillar IV",
+                     f"{f} and Pillar II Standard K (Cargo Security)",
+                     f"{f} and Annex IV element 1",
+                     f"{f}, Standards K and L",
+                     f"{f} and §2.1"):
+            with self.subTest(unread=case):
+                matrix, document = self._wco_both_guards(case)
+                self.assertNotEqual(matrix, [])
+                self.assertTrue(any(": unread " in finding
+                                    for finding in document), document)
+        # The build splits this matrix cell at the comma, and the piece
+        # "Pillar II (Customs-to-Business) and Standard K" is pillar-only,
+        # which the matrix guard does not check (a stated limit); the
+        # document guard reads the lead-in and reports what follows it.
+        case = ("Pillar II Standard 2 (Security), Pillar II "
+                "(Customs-to-Business) and Standard K")
+        with self.subTest(document_unread=case):
+            self.assertTrue(any(": unread " in finding for finding
+                                in self._wco_both_guards(case)[1]))
+        for case in (f"{f} and Section VIII", f"{f} and Annex IV N",
+                     f"{f} and Section 6"):
+            with self.subTest(read_and_reported=case):
+                matrix, document = self._wco_both_guards(case)
+                self.assertNotEqual(matrix, [])
+                self.assertNotEqual(document, [])
+                self.assertFalse(any(": unread " in finding
+                                     for finding in document), document)
+        for case in (f"{f} and Annex IV K (Trading Partner Security)",
+                     f"{f} and Annex IV element K (Trading Partner "
+                     "Security)",
+                     f"{f} and Pillar II Standard 2 (Security)",
+                     f"{f} and Section VI (Trade Continuity and "
+                     "Resumption)",
+                     "Pillar II Standard 1 (Partnership) and Standard 2 "
+                     "(Security)",
+                     f"{f} and Pillar II",
+                     f"{f} and Pillar II (Customs-to-Business)",
+                     f"{f} and Annex IV (AEO Conditions, Requirements and "
+                     "Benefits)",
+                     f"{f}, Pillars I and III",
+                     "Pillar II Standard 1: Partnership, Standards 2 and 6 "
+                     "of Pillar II",
+                     "Section VI: Trade Continuity and Resumption, Sections "
+                     "VII and II"):
+            with self.subTest(read=case):
+                self.assertEqual(self._wco_both_guards(case)[1], [])
+
+    def test_wco_safe_sentence_punctuation_ends_a_citation(self):
+        """Draft round 8 (review of 330f7793c: codex ERROR 2, claude NOTE
+        1): the unread-text rule reported a trailing full stop, so
+        "Pillar II Standard 2 (Security)." and "Annex IV F (Information
+        Exchange, Access and Confidentiality)." failed both guards.
+        Sentence punctuation at the end of an identifier (_WCO_TERMINAL_RE:
+        an emphasis asterisk, a footnote marker and a full stop) is now
+        read, and a title not in parentheses stops before it. Each good
+        case passes both guards; each paired bad case appends text or an
+        invalid citation after the punctuation, or carries a wrong title
+        or letter before it, and fails both."""
+        f = self._WCO_F_PAREN
+        for case in ("Pillar II Standard 2 (Security).",
+                     f"{f}.",
+                     "Pillar II Standard 2: Security.",
+                     "Pillar II Standard 2 - Security.",
+                     "Section VI (Trade Continuity and Resumption)[^1]",
+                     "Section VI (Trade Continuity and Resumption).[^1]",
+                     f"{f}*",
+                     f"{f}**.",
+                     "Annex IV F and K.",
+                     "Pillar II Standard 2 (Security); Annex IV K (Trading "
+                     "Partner Security)."):
+            with self.subTest(good=case):
+                self.assertEqual(self._wco_both_guards(case), ([], []))
+        for case in ("Pillar II Standard 2 (Security). Standard X",
+                     f"{f}. and N",
+                     "Pillar II Standard 2 (Security). K",
+                     "Pillar II Standard 2 (Security).. ",
+                     f"{f}. and Section Z (Cargo Security)",
+                     "Pillar II Standard 2: Cargo Security.",
+                     "Annex IV F and N.",
+                     "Section VI (Mutual Recognition)[^1]"):
+            with self.subTest(bad=case):
+                matrix, document = self._wco_both_guards(case)
+                self.assertNotEqual(matrix, [])
+                self.assertNotEqual(document, [])
+
+    def test_wco_safe_one_word_titles_with_another_kinds_noun(self):
+        """Draft round 8 (review of 330f7793c, codex ERROR 3; the
+        orchestrator's ruling): only a one-word held title followed by its
+        own kind's noun was counted as a name, so "Annex IV F, the Benefits
+        element" and "Annex IV K, the Partnership element" passed. A
+        one-word held title followed by any kind noun is now counted where
+        that word stands in no held title of the noun's kind
+        (_wco_description_findings); where it does ("Security" stands in
+        five element titles, "Communication" in element D's), the noun
+        does not make it a name, so "Annex IV K, the Security element"
+        and "Annex IV G, the cargo security element" still pass. The
+        own-kind rule and the naming-word rule are unchanged."""
+        for case in ("Annex IV F, the Benefits element",
+                     "Annex IV K, the Partnership element",
+                     "Annex IV F, the Benefits element.",
+                     "Pillar II Standard 2, the Benefits standard",
+                     "Section VI, the Partnership element",
+                     "Annex IV K, the Technology section",
+                     "Annex IV F, the Introduction pillar",
+                     "Annex IV K, the Security standard",
+                     "Annex IV F, the element entitled Benefits"):
+            with self.subTest(named=case):
+                document = self._wco_both_guards(case)[1]
+                self.assertTrue(any(": names " in finding
+                                    for finding in document), document)
+        for case in ("Annex IV K, the Security element",
+                     "Annex IV G, the cargo security element",
+                     "Annex IV F, the communication element",
+                     "Annex IV F, the security element of the policy",
+                     "Annex IV K, the partnership with suppliers",
+                     "Pillar II Standard 1, the benefits partners receive"):
+            with self.subTest(ordinary=case):
+                self.assertEqual(self._wco_both_guards(case)[1], [])
+
+    def test_wco_safe_own_kind_noun_rejection_is_stated(self):
+        """Draft round 8 (review of 330f7793c, claude WARN 1): a
+        description using a one-word held title with its own kind's noun
+        is reported even where the held text supports the wording (held
+        lines 4612 and 5497 call Annex IV's content "security
+        standards"), and _wco_description_findings did not say so. The
+        cases are pinned as reported, and that docstring states them."""
+        for case, word in (
+                ("Annex IV K, the trading partner security standard",
+                 "Security"),
+                ("Annex IV K, the security standards set out in this Annex",
+                 "Security"),
+                ("Annex IV K, the Customs-to-Business partnership pillar",
+                 "Partnership")):
+            with self.subTest(case=case):
+                document = self._wco_both_guards(case)[1]
+                self.assertTrue(any(f": names {word}," in finding
+                                    for finding in document), document)
+                stated = " ".join(
+                    self._wco_description_findings.__doc__.split())
+                self.assertIn(f'"{case}"', stated)
+        self.assertIn("(held lines 4612 and 5497)", " ".join(
+            self._wco_description_findings.__doc__.split()))
+
+    def test_wco_safe_lone_letters_inside_descriptions_are_reported(self):
+        """Draft round 8 (review of 330f7793c, claude WARN 2): a
+        description ends before "and" or "or" and a lone capital letter
+        only, so a lone letter joined any other way was absorbed into the
+        description and never validated: "Annex IV F, the policy & N",
+        "the policy to N", "the policy/N", "the policy, then N" and "as in
+        N" passed the document guard. A lone capital letter A to Z left
+        inside a captured description is now reported
+        (_wco_unread_findings), unless a matcher reads it there as an
+        element letter, a section numeral or a pillar numeral. The matrix
+        guard already reported each case (the build splits at the
+        comma)."""
+        for case in ("Annex IV F, the policy & N",
+                     "Annex IV F, the policy to N",
+                     "Annex IV F, the policy/N",
+                     "Annex IV F, the policy, then N",
+                     "Annex IV F, as in N",
+                     "Annex IV F, the policy through Z",
+                     "Pillar II Standard 2, the policy to K",
+                     "Section VI, the policy as in L"):
+            with self.subTest(lone_letter=case):
+                matrix, document = self._wco_both_guards(case)
+                self.assertNotEqual(matrix, [])
+                self.assertTrue(any(": lone letter inside its description"
+                                    in finding for finding in document),
+                                document)
+        for case in ("Annex IV F, the AEO's information security policy",
+                     "Annex IV F, the policy under Pillar I",
+                     "Pillar II Standard 2, the policy in Section VII",
+                     "Annex IV F, the policy, K and L",
+                     "Annex IV F, the policy and K"):
+            with self.subTest(read=case):
+                self.assertEqual(self._wco_both_guards(case)[1], [])
+
+    def test_wco_safe_including_opens_a_description(self):
+        """Draft round 8 (review of 330f7793c, claude NOTE 2): "Section VI
+        (Trade Continuity and Resumption), including Annex IV L (Crisis
+        Management and Incident Recovery)" fails the document guard,
+        because "including" (_WCO_DESCRIPTION) opens a description that
+        names element L's held title. The failure is pinned as a stated
+        limit of _wco_description_findings, whose docstring names it; the
+        semicolon form passes."""
+        case = ("Section VI (Trade Continuity and Resumption), including "
+                "Annex IV L (Crisis Management and Incident Recovery)")
+        document = self._wco_both_guards(case)[1]
+        self.assertTrue(any(": names Crisis Management and Incident "
+                            "Recovery," in finding for finding in document),
+                        document)
+        self.assertIn(f'"{case}"', " ".join(
+            self._wco_description_findings.__doc__.split()))
+        self.assertEqual(self._wco_both_guards(
+            "Section VI (Trade Continuity and Resumption); Annex IV L "
+            "(Crisis Management and Incident Recovery)"), ([], []))
+
+    # The compliance matrix's description of its WCO SAFE column (review of
+    # f97a6be23, claude NOTE 5): the framework column key's Reference Basis
+    # and the Notes coverage row, and the parts the column's cells cite
+    # (parts as _wco_cited_parts gives them), which the two describe.
+    _WCO_LEGEND = (
+        "Pillar II references, Pillar II Standards 1 (Partnership) and 2 "
+        "(Security), Annex IV elements (A, F, K, L and M) and Section VI "
+        "(Trade Continuity and Resumption); each standard, element and "
+        "section is cited with its held title")
+    _WCO_COVERAGE = (
+        "Focused on Pillar II (Customs-to-Business Partnerships): chiefly "
+        "Standard 2 (Security), with Standard 1 (Partnership) on eleven of "
+        "the thirteen business-partner rows (the supplier exit and "
+        "offboarding rows cite Standard 2), and the AEO conditions of Annex "
+        "IV, mostly element F (Information Exchange, Access and "
+        "Confidentiality), which carries the AEO's information security "
+        "policy, with element K (Trading Partner Security) on all thirteen "
+        "business-partner rows and elements A, L and M on one row each; "
+        "Section VI (Trade Continuity "
+        "and Resumption) is cited beside element L on the trade and "
+        "supply-chain continuity row; Pillar I (Customs-to-Customs), "
+        "including the Customs administrations' own ICT security strategy "
+        "at 2.6.6, is largely outside this matrix's IT scope")
+    _WCO_COLUMN_PARTS = {
+        ("Standard", "2", "1"), ("Standard", "2", "2"),
+        ("Annex IV", "A"), ("Annex IV", "F"), ("Annex IV", "K"),
+        ("Annex IV", "L"), ("Annex IV", "M"), ("Section", "VI"),
+    }
+
+    def test_wco_safe_matrix_legend_describes_the_column(self):
+        """Review of f97a6be23 (claude NOTE 5): the matrix's column key
+        still described the WCO SAFE column as "Pillar and standard
+        references", and its coverage row said "chiefly Standard 2
+        (Security) ... Annex IV ... element F", though the cells now cite
+        Pillar 2 Standards 1 and 2, Annex IV elements A, F, K, L and M, and
+        Section VI. Both rows carry the pinned descriptions (_WCO_LEGEND,
+        _WCO_COVERAGE); the parts the cells cite are exactly
+        _WCO_COLUMN_PARTS, and pillar-only cells remain, so a cell that
+        starts or stops citing a part fails here and points at both
+        descriptions; and Standard 1 and element K stand only on the
+        business-partner rows (_WCO_PARTNER_ROWS), as the coverage row
+        says. Review of c2a600fae (claude NOTE 1): the coverage row put
+        Standard 1 on "the business-partner rows", true of eleven of the
+        thirteen, as the supplier exit and offboarding rows cite Standard
+        2 with element K. Checked against the cells here: the number of
+        business-partner rows citing Standard 1, the two partner rows
+        without it (which cite Standard 2), and the number citing element
+        K. Draft round 6 (review of 7dece058f, claude NOTE 1): also the
+        number of rows citing each of elements A, L and M ("one row each",
+        so citing any of them on a second row fails), and the row citing
+        Section VI, which must be the trade and supply-chain continuity
+        row alone, citing element L beside it. The rest of the coverage
+        row's wording (what each part holds, "chiefly", "mostly", Pillar
+        I's scope) is pinned as text (_WCO_COVERAGE), not derived."""
+        text, rows = self._compliance_matrix_rows()
+        lines = text.splitlines()
+        self.assertEqual(
+            [line for line in lines
+             if line.startswith("| WCO SAFE | WCO SAFE Framework")],
+            [f"| WCO SAFE | WCO SAFE Framework of Standards | "
+             f"{self._WCO_LEGEND} |"])
+        self.assertEqual(
+            [line for line in lines
+             if line.startswith("| WCO SAFE | Focused on")],
+            [f"| WCO SAFE | {self._WCO_COVERAGE} |"])
+        cells = [row["cells"]["WCO SAFE"] for row in rows]
+        cited = set()
+        for cell in cells:
+            cited |= self._wco_cited_parts(cell)
+        self.assertEqual(cited, self._WCO_COLUMN_PARTS)
+        self.assertTrue(any(re.fullmatch(r"Pillar II \([^)]*\)", cell)
+                        for cell in cells))
+        # Standard 1 and element K stand only on business-partner rows.
+        self.assertEqual(
+            sorted(row["path"] for row in rows
+                   if re.search(r"\bStandard 1\b|\bAnnex IV K\b",
+                                row["cells"]["WCO SAFE"])
+                   and row["path"] not in self._WCO_PARTNER_ROWS), [])
+        # The coverage row's counts and its two Standard 2 rows, from the
+        # cells.
+        words = ("no", "one", "two", "three", "four", "five", "six",
+                 "seven", "eight", "nine", "ten", "eleven", "twelve",
+                 "thirteen", "fourteen", "fifteen")
+        partner = {row["path"]: row["cells"]["WCO SAFE"] for row in rows
+                   if row["path"] in self._WCO_PARTNER_ROWS}
+        with_s1 = [p for p, cell in partner.items() if self._WCO_S1 in cell]
+        with_k = [p for p, cell in partner.items() if self._WCO_K in cell]
+        self.assertIn(f"with Standard 1 (Partnership) on "
+                      f"{words[len(with_s1)]} of the {words[len(partner)]} "
+                      "business-partner rows (the supplier exit and "
+                      "offboarding rows cite Standard 2)",
+                      self._WCO_COVERAGE)
+        self.assertEqual(
+            sorted((p, self._WCO_S2 in cell) for p, cell in partner.items()
+                   if p not in with_s1),
+            [("supply-chain/procedure-supplier-exit-and-data-return.md",
+              True),
+             ("supply-chain/template-supplier-offboarding-evidence.md",
+              True)])
+        self.assertEqual(len(with_k), len(partner))
+        self.assertIn(f"element K (Trading Partner Security) on all "
+                      f"{words[len(with_k)]} business-partner rows",
+                      self._WCO_COVERAGE)
+        # Elements A, L and M, and Section VI, from the cells (review of
+        # 7dece058f, claude NOTE 1).
+        parts = {row["path"]: self._wco_cited_parts(row["cells"]["WCO SAFE"])
+                 for row in rows}
+        counts = {letter: sum(("Annex IV", letter) in cited
+                              for cited in parts.values())
+                  for letter in "ALM"}
+        self.assertEqual(len(set(counts.values())), 1, counts)
+        self.assertIn(f"elements A, L and M on {words[counts['A']]} row each",
+                      self._WCO_COVERAGE)
+        continuity = ("supply-chain/annex-trade-and-supply-chain-"
+                      "continuity-controls.md")
+        self.assertEqual(sorted(path for path, cited in parts.items()
+                                if ("Section", "VI") in cited),
+                         [continuity])
+        self.assertIn(("Annex IV", "L"), parts[continuity])
+        self.assertIn("Section VI (Trade Continuity and Resumption) is cited "
+                      "beside element L on the trade and supply-chain "
+                      "continuity row", self._WCO_COVERAGE)
+
+    @staticmethod
+    def _exclusion_docstring_findings(not_instrument_names, docs):
+        """What the exclusion docstrings (name to docstring) lack: while any
+        NOT_INSTRUMENT_NAMES reason is a pending hold, each names the map
+        and the held-out class and drops the namesake-only wording; with no
+        pending hold nothing is required of them."""
+        if not any("pending" in reason
+                   for reason in not_instrument_names.values()):
+            return []
+        bad = []
+        for name, doc in docs.items():
+            doc = " ".join(doc.split())
+            if "NOT_INSTRUMENT_NAMES" not in doc:
+                bad.append(f"{name}: names no NOT_INSTRUMENT_NAMES")
+            if "held out pending an instrument-identity decision" not in doc:
+                bad.append(f"{name}: names no held-out class")
+            if "listed namesake or derived text (NOT_INSTRUMENT_NAMES)" in doc:
+                bad.append(f"{name}: namesake-only wording")
+        return bad
+
+    def test_exclusion_docstrings_name_the_held_out_class(self):
+        """WCO SAFE attribution sweep: two docstrings described every
+        NOT_INSTRUMENT_NAMES exclusion as a namesake or derived text, but
+        the map also holds a spelling out pending an instrument-identity
+        decision ("Quebec Law 25 (Canada, CQLR c. P-39.1)"). While any
+        listed reason is a pending hold, both docstrings name that class
+        too. Review of 9b7946bc2 (codex WARN 3): the requirement is
+        conditional, so resolving the last pending hold does not fail this
+        test; the fixture cases show both states."""
+        stale = {"a": "listed namesake or derived text "
+                      "(NOT_INSTRUMENT_NAMES)"}
+        named = {"a": "a listed exclusion (NOT_INSTRUMENT_NAMES: a namesake "
+                      "or derived text, or a spelling held out pending an "
+                      "instrument-identity decision)"}
+        pending = {"X": "held out pending a routed decision"}
+        settled = {"X": "a namesake"}
+        self.assertEqual(self._exclusion_docstring_findings(settled, stale),
+                         [])
+        self.assertEqual(self._exclusion_docstring_findings(settled, named),
+                         [])
+        self.assertNotEqual(
+            self._exclusion_docstring_findings(pending, stale), [])
+        self.assertEqual(self._exclusion_docstring_findings(pending, named),
+                         [])
+        docs = {method: inspect.getdoc(getattr(type(self), method))
+                for method in (
+                    "test_comply_count_sentence_states_the_alias_scope",
+                    "test_every_single_instrument_spelling_is_aliased")}
+        self.assertEqual(self._exclusion_docstring_findings(
+            self.NOT_INSTRUMENT_NAMES, docs), [])
 
     def test_and_joined_compound_chip_keeps_its_separator(self):
         """Item 3b788 draft round 2: "ISO/IEC 27018:2025 and ISO/IEC
@@ -13757,8 +15881,9 @@ class SiteReviewFixRound2Tests(unittest.TestCase):
         website inside an adopter-facing document; the sentence is replaced
         by a neutral pointer to the cross-framework matrix, and the Version
         carries the branch's two PATCH bumps (1.12.8 to 1.12.10) plus round
-        3 item 1's (1.12.11) and item 3b788 draft round 3's WCO SAFE column
-        correction's (1.12.12)."""
+        3 item 1's (1.12.11), item 3b788 draft round 3's WCO SAFE column
+        correction's (1.12.12) and the WCO SAFE attribution sweep's
+        (1.12.13)."""
         text = (REPO_ROOT / "compliance" /
                 "matrix-grc-compliance-alignment.md"
                 ).read_text(encoding="utf-8")
@@ -13769,7 +15894,7 @@ class SiteReviewFixRound2Tests(unittest.TestCase):
                       "the [Cross-Framework Alignment Matrix]"
                       "(../governance/matrix-cross-framework-alignment.md).",
                       text)
-        self.assertIn("**Version:** 1.12.12\\\n", text)
+        self.assertIn("**Version:** 1.12.13\\\n", text)
 
     def test_quick_reference_purpose_matches_its_exception_rows(self):
         """Item 3: the Purpose said "the absolute prohibitions" though
@@ -13862,7 +15987,8 @@ class SiteReviewFixRound3Tests(unittest.TestCase):
         lists", and the Version carries a PATCH bump (1.12.10 to 1.12.11)
         with the Date kept. Item 3b788 draft round 3's WCO SAFE column
         correction bumps it again (1.12.12) and sets the Date to
-        2026-11-06."""
+        2026-11-06; the WCO SAFE attribution sweep bumps it once more
+        (1.12.13) with the same Date."""
         text = (REPO_ROOT / "compliance" /
                 "matrix-grc-compliance-alignment.md"
                 ).read_text(encoding="utf-8")
@@ -13871,7 +15997,7 @@ class SiteReviewFixRound3Tests(unittest.TestCase):
                       "to the control domains and section references of "
                       "ten compliance, security, assurance, and AI-control "
                       "frameworks, so a reader can trace", text)
-        self.assertIn("**Version:** 1.12.12\\\n", text)
+        self.assertIn("**Version:** 1.12.13\\\n", text)
         self.assertIn("**Date:** 2026-11-06\\\n", text)
 
 

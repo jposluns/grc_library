@@ -2,8 +2,8 @@
 
 **Document Title:** Metrics, Monitoring and Performance Reporting Framework\
 **Document Type:** Framework\
-**Version:** 1.1.13\
-**Date:** 2026-10-27\
+**Version:** 1.1.14\
+**Date:** 2026-11-06\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md), [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -85,7 +85,7 @@ Poorly defined metrics without these fields must not be published in governance 
 | COBIT 2019 | MEA01: Managed Performance and Conformance Monitoring | Performance governance |
 | ISACA DTEF (2024) | Digital-trust indicators (organization-defined) | Stakeholder confidence and service quality |
 | BASC v6 (2022) | Trade-Security Performance Measurement | BASC KPI and customs incident reporting |
-| WCO SAFE Framework (2025 edition) | AEO performance standards | Trade security performance measurement |
+| WCO SAFE Framework (2025 edition) | Annex IV element M (Measurement, Analyses and Improvement) | Trade security performance measurement |
 | ISO 28000:2022 | Supply chain security measurement | Supply chain security metrics. The ISO 28000:2022 alignment is unverifiable. ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 --> |
 
 ---

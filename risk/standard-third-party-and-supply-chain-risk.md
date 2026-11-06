@@ -2,8 +2,8 @@
 
 **Document Title:** Third-Party and Supply Chain Risk Standard\
 **Document Type:** Standard\
-**Version:** 1.1.18\
-**Date:** 2026-10-26\
+**Version:** 1.1.19\
+**Date:** 2026-11-06\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../supply-chain/procedure-supplier-ongoing-monitoring.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](../supply-chain/procedure-supplier-exit-and-data-return.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -235,7 +235,7 @@ The full offboarding workflow is described in [`supply-chain/procedure-supplier-
 | NIST CSF 2.0 | GV.SC-01, GV.SC-03, GV.SC-04, GV.SC-05, GV.SC-06, GV.SC-07, GV.SC-08, GV.SC-10 |
 | COBIT 2019 | APO10.01, APO10.02, APO10.03, APO10.04, APO10.05 |
 | CSA CCM v4.1 | STA-01 Supply Chain Risk Management Policies and Procedures |
-| WCO SAFE Framework | Pillar 2, §2.1 Standard 1 (Partnership) |
+| WCO SAFE Framework | Pillar 2, §2.1 Standard 1 (Partnership); Annex IV K (Trading Partner Security) |
 | CTPAT | Business Partner Requirements; IT security requirements for partners |
 | AEO-S (UK) | Business-partner security requirements (HMRC AEO security and safety criteria, section 11.13 Business partner security) |
 
