@@ -19,27 +19,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 **2026-11-06 | 2026.11.35 | PR #3098** - web: The privacy topic view now links ISO/IEC 27701, Brazil's LGPD and China's PIPL, the privacy instruments added to the crosswalk in PR #3096.
 
-**2026-11-05 | 2026.11.34 | PR #3097** - tools: The project's command guards now show paths and other text taken from their input safely, so a newline or control character in a path can no longer split or disguise a refusal message. A command a refusal suggests still acts on the same path when copied.
-
-**2026-11-05 | 2026.11.33 | PR #3096** - web: The crosswalk now covers ISO/IEC 27002, ISO 31000, ISO/IEC 27701, Brazil's LGPD and China's PIPL, each with its own page listing the documents that cite it. ISO 9001 and ITIL 4 are not on the crosswalk yet.
-
-**2026-11-05 | 2026.11.32 | PR #3095** - governance: Light work now takes a review by two model families instead of three, with claude and agy preferred. Rule text, gates, tooling, sensitive work, corpus document bodies and changes across several surfaces keep the three-family review.
-
-**2026-11-05 | 2026.11.31 | PR #3094** - web: The site build now refuses to publish any link to the library's GitHub repository that it did not deliberately create and record, across every page and generated file. A stray repository link now fails the build instead of reaching the live site, and the guard documents what its reading of each file cannot see.
-
-**2026-11-05 | 2026.11.30 | PR #3093** - tools: When a stop guard blocks the end of a turn, the console now shows three short lines: what was caught, why, and what to do next. The full detail goes to a log for that session instead of a wall of text, every printed path is escaped, and the guard stays within its time limit.
-
-**2026-11-05 | 2026.11.29 | PR #3092** - tools: The full regression suite now runs in six parallel parts, both in continuous integration and in the pre-push check, so a change waits minutes for it rather than hours. Every pull request still runs the whole suite before merge. An interrupted push stops its parts and names any checkouts it leaves; one known gap, an interrupt at the instant a part starts, is fixed in the next PR.
-
-**2026-11-05 | 2026.11.28 | PR #3091** - web: The site moves to the shared template's version 1.9.2. On the Documents page, the Type and Area buttons you can click now stand out, and the ones you cannot are greyed out with their word struck through. Their counts update as you choose, so an unavailable button reads 0.
-
-**2026-11-05 | 2026.11.27 | PR #3090** - web: The crosswalk tables scroll sideways only, with the domain column pinned and empty cells marked no mapping. The decision narratives list moves to /decide/decision-narratives/, with redirects from the old address. Domain pages label their Next link as a tour step. The PIP, BASC, WCO SAFE and AEO pages show their shared control-area table.
-
-**2026-11-05 | 2026.11.26 | PR #3089** - web: Fixes from a full review of the site. Domain pages no longer repeat the licence sentence, and document pages link their type and domain and end their summaries cleanly. Crosswalk instrument pages carry the full navigation rail, and concern pages list each framework once. The home, Browse, Documents and Search pages explain their counts and terms, and the footer and tables read better with screen readers. Six library documents were updated, including a UK AEO row in the citations register.
-
-**2026-11-05 | 2026.11.25 | PR #3088** - web: A new Standards and frameworks page lists every entry in the library's canonical citations register, grouped by section, each with the edition the register records and, where one is recorded, the publisher's page to check it against. It is reached from the Crosswalk, the Comply page and the home page.
-
-**2026-11-05 | 2026.11.24 | PR #3087** - web: On the crosswalk, the Views links in the left rail now open each view's page, and the open view is highlighted. Instrument pages no longer show a large empty gap below their opening sentence.
+**2026-11-05 | 2026.11.34 | PRs #3087-#3097 (11 PRs)** - The site moved to template 1.9.2 with clearer Documents filters, gained a Standards and frameworks page, and its crosswalk now covers ISO/IEC 27002, ISO 31000, ISO/IEC 27701, LGPD and PIPL; crosswalk tables and navigation were tidied, and the build now refuses unrecorded links to the library's GitHub repository. The regression suite runs in six parallel parts, stop-guard messages are shorter, command guards show untrusted text safely, and light work takes a two-family review.
 
 **2026-11-04 | 2026.11.23 | PRs #3079-#3086 (8 PRs)** - The rebuilt site became the live grclibrary.ai, with old /draft/ addresses forwarding to their new homes. Before that, the draft moved to template 1.7.0, stopped scrolling sideways on phones, and gained checks on its matrix note and on long title words. The assistant's timestamps now show Toronto time, and site-only pushes run a faster pre-push check.
 
