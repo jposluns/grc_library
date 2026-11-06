@@ -2,8 +2,8 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.24\
-**Date:** 2026-10-27\
+**Version:** 1.4.25\
+**Date:** 2026-11-06\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md), [`README.md`](../README.md)\
@@ -53,7 +53,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | --- | --- |
 | **ADMT** | Automated Decision-Making Technology. The organizing concept of Colorado's re-enacted AI statute (SB 26-189): technology that materially influences a consequential decision. See [`ai/jurisdictions/annex-ai-us-colorado.md`](../ai/jurisdictions/annex-ai-us-colorado.md). The same acronym is also used for California's CCPA regulations on automated decision-making technology, whose canonical home is [`ai/jurisdictions/annex-ai-us-california.md`](../ai/jurisdictions/annex-ai-us-california.md) (the US privacy annex keeps a brief privacy-context summary that points there). |
 | **AEAD** | Authenticated Encryption with Associated Data. Symmetric encryption mode providing confidentiality, integrity, and authenticity in a single primitive. Canonical examples: AES-GCM (NIST SP 800-38D), AES-CCM, ChaCha20-Poly1305 (RFC 8439). |
-| **AEO** | Authorized Economic Operator. WCO SAFE Framework partnership programme administered by national customs authorities granting trade facilitation benefits to businesses meeting security and safety standards. |
+| **AEO** | Authorized Economic Operator. The operator, not the programme: the WCO SAFE Framework (2025 edition) defines an AEO as "a party involved in the international movement of goods in whatever function that has been approved by or on behalf of a national Customs administration as complying with WCO or equivalent supply chain security standards". National customs authorities approve operators under national or regional Customs union AEO programmes (the Framework's Section VII, 2.1), which grant trade facilitation benefits. The Framework itself is not a programme: it provides baseline technical guidance for the implementation of AEO programmes at the global level and is designed to serve as a starting point for national AEO programme implementation. |
 | **AEO-S** | AEO Security and Safety strand (UK-specific designation for the security-focused AEO certification). |
 | **AI** | Artificial Intelligence. |
 | **AI Act** | The EU Artificial Intelligence Act, Regulation (EU) 2024/1689, laying down harmonized rules on artificial intelligence. See [`ai/jurisdictions/annex-ai-european-union.md`](../ai/jurisdictions/annex-ai-european-union.md). |
@@ -344,7 +344,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | Term | Expansion / definition |
 | --- | --- |
 | **WCO** | World Customs Organization. Publishes the WCO SAFE Framework and the AEO Compendium. |
-| **WCO SAFE Framework** | World Customs Organization SAFE Framework of Standards to Secure and Facilitate Global Trade. The international standard underlying national AEO programmes. |
+| **WCO SAFE Framework** | World Customs Organization SAFE Framework of Standards to Secure and Facilitate Global Trade. Provides baseline technical guidance for the implementation of AEO programmes at the global level and is designed to serve as a starting point for national AEO programme implementation. |
 
 ## Z
 
