@@ -101,6 +101,12 @@ def _load_sibling(name, _cache={}):
         return _cache[name]
 
     def _refuse(why):
+        # A launch path holding a newline or a terminal escape is shown escaped, so the refusal
+        # stays one line: block-turn-end-with-outstanding-work.py's rule (each character that is
+        # neither printable nor a space separator becomes its ascii() escape).
+        import unicodedata
+        why = "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                      else ascii(char)[1:-1] for char in why)
         print("BLOCKED (hook-helper-isolation): " + why + "; refusing to execute "
               "anything but the reviewed helper sources.", file=sys.stderr)
         sys.exit(2)
@@ -253,13 +259,30 @@ def _read_body_file(path: str) -> str | None:
 
 
 def _snippet(s: str) -> str:
-    """The matched attribution text, made safe for the refusal contract: no em/en dashes and
-    no contract-marker substrings, truncated."""
+    """The matched attribution text, made safe for the refusal contract: no em/en dashes, no
+    contract-marker substrings, and escaped with _printable before it is truncated (the line is
+    split on LF only, so a carriage return, a terminal escape or a Unicode line separator from
+    the command or the body file would otherwise reach the refusal raw). The markers are removed
+    until none is left, since one removal can join a marker's halves (WHWHY:Y: leaves WHY:; hook
+    escaping round 4, claude N5)."""
     s = s.replace(chr(0x2014), "-").replace(chr(0x2013), "-")
-    for marker in ("BLOCKED (", "WHY:", "CONSIDER INSTEAD:"):
-        s = s.replace(marker, "")
-    s = s.strip()
+    while True:
+        stripped = s
+        for marker in ("BLOCKED (", "WHY:", "CONSIDER INSTEAD:"):
+            stripped = stripped.replace(marker, "")
+        if stripped == s:
+            break
+        s = stripped
+    s = _printable(s.strip())
     return s[:117] + "..." if len(s) > 120 else s
+
+
+def _printable(text) -> str:
+    """Escape every character that is neither printable nor a space separator (the rule
+    block-turn-end-with-outstanding-work.py applies), so a path cannot start a console line."""
+    import unicodedata
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in str(text))
 
 
 def find_attribution(text: str):
@@ -297,7 +320,8 @@ def decide(command: str, read_file=None, cwd: str | None = None) -> str | None:
             path = os.path.join(cwd, path)
         content = reader(path)
         if content is not None:
-            texts.append(("the body file " + path, content))
+            # The --body-file operand comes from the command, so it is shown escaped.
+            texts.append(("the body file " + _printable(path), content))
     for origin, text in texts:
         hit = find_attribution(text)
         if hit:

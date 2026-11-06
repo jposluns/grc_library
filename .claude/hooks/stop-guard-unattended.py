@@ -54,8 +54,12 @@ CONSIDER INSTEAD), #2291 (count only, producer on demand), #2496 (resolved decla
 and 3b286 (required live count); since 2026-11-04 that text goes to the detail log, and the
 console shows it only on the fallback path (CONSOLE AND DETAIL LOG below), except that the
 short form still names the resolved declared-wait path (#2496). MODE_SET_HINT retains
-the detailed grc guidance; the emitted hint is shortened to fit B's message format. Unusually
-long override paths can still be truncated by B's unchanged per-line clamp.
+the detailed grc guidance; the emitted hint is shortened to fit B's message format. B's
+per-line clamp never cuts the declared-wait command: an override path too long for that line
+leaves it naming the sentinel and the directory setting the hook used without a command
+(_declared_wait_line; hook escaping round 4, codex W1). The detail log carries the whole
+command when it is written; when it is not, the fallback's line says so instead of pointing
+at the log (_fallback_refusal; round 5, claude W1).
 
 GRC ADAPTATION (2026-09-27; backlog 3b113). Rebased the 2026-09-03 cross-project adoption
 (inbox msg 20260903T002018Z.from-lab_infra) onto lab_infra 17b407b9, adding the live-dispatch
@@ -128,17 +132,25 @@ filesystem root, lexically or after resolving symlinks, or `git rev-parse
 --is-inside-work-tree` succeeding there with every inherited GIT_* variable removed), is
 refused before anything is created. The diagnostic is then three short lines
 (_short_refusal), each at most _MAX_LINE_CHARS: what blocked with the actionable count, WHY
-with the live group count, and the one action that clears it, which names the declared-wait
+with the live group count and the required count (decide()'s max(operator share, 3), from
+_required_groups) on every wording, the shortest being "WHY: live 1/5 required; log: " (hook
+escaping round 3, codex W2: the count-free wording it replaced was longer), and the one action
+that clears it, which names the declared-wait
 escape path (_grc_escape_file, #2496: a sentinel was once written at the wrong path because
-the message did not name it) with decide()'s condition "(once, after recording the blocker)",
+the message did not name it) as one shell word (_shell_word) with decide()'s condition "(once, after recording the blocker)",
 followed by the log path. When the escape path and the log path do not both fit that line, the
 escape path keeps the CONSIDER INSTEAD line, with the condition when it fits and "(condition
 in log)" when it does not, and the log path moves to the end of the WHY line; there is never a
 fourth line. No item ID or title appears
 in that form. PATH BUDGET: the log path adds 45 characters to the store path (with a
-12-character session prefix), so the short form fits a store path of at most 82 characters
-(the shortest WHY wording leaves 127 characters for the log path); a longer store path, an
-escape path longer than 101 characters, or a log or escape path with any non-printable
+12-character session prefix), so the short form fits a store path of at most 84 characters
+while the required count has at most two digits, as run()'s always has (_SLOT_SHARE_MAX is
+64; hook escaping round 4, claude N3: a longer required count leaves less), and of 86 while
+it has one digit (the default floor is 3): the shortest WHY
+wording, "WHY: live <live>/<required> required; log: ", leaves 129 to 131 characters for the
+log path (82 when no required count is passed, as before round 3, where the shortest wording
+leaves 127); a longer store path, an
+escape path longer than 101 characters (shell-quoted), or a log or escape path with any non-printable
 character (a newline, a carriage return or a terminal escape, tested with _printable), takes
 the fallback below. The full detail (every item ID and title) is built only after the time
 budget and the session_id have been checked, inside the deadline-controlled write thread, so
@@ -162,9 +174,9 @@ emitted instead (_fallback_refusal): decide()'s reason, then
 one NOTE line naming the failure, then the actionable count only. This fails open to
 visibility, never to silence, and keeps #2291: no item ID or title reaches the diagnostic on
 either path. Every fallback line is clamped to _MAX_LINE_CHARS and _MAX_LINE_BYTES, so the
-fallback always fits _diagnostic's PIPE_BUF cap with the NOTE intact. decide() escapes the
-declared-wait path with _printable, so a newline or terminal escape in it cannot start a
-diagnostic line on the fallback (the detail log carries the same escaped text), and the
+fallback always fits _diagnostic's PIPE_BUF cap with the NOTE intact. decide() writes the
+declared-wait path as one printable shell word (_shell_word), so a newline or terminal escape
+in it cannot start a diagnostic line on the fallback (the detail log carries the same text), and the
 producer's fail-open NOTICE escapes the producer's stderr and path the same way. Exit status,
 the escape and stop_hook_active handling are unchanged. RESIDUE: ancestors above the store directory are
 not checked for symlinks; the log is appended to without rotation; two sessions whose ids
@@ -901,6 +913,16 @@ def read_slot_share(path=None, project=None, expect_uid=None):
         return None, "invalid"
 
 
+def _required_groups(share):
+    """The required live owned dispatch group count for ``share`` (a (value, source-or-cause)
+    tuple), by decide()'s rule (3b286): the larger of the value and _MIN_LIVE_GROUPS, or
+    _MIN_LIVE_GROUPS when the value is None. run() passes it to the console short form;
+    decide() keeps its own statement of the rule (its mutation self-test targets it), and the
+    self-test test_short_form_shows_the_required_count checks that the two agree."""
+    value = share[0]
+    return _MIN_LIVE_GROUPS if value is None else max(_MIN_LIVE_GROUPS, value)
+
+
 def decide(mode, stop_hook_active, actionable, live_groups, share):
     """Pure decision. Returns (block: bool, reason: str). Block iff: unattended mode AND not already in a
     stop-hook continuation AND the actionable set is non-empty AND the known live count is below
@@ -941,8 +963,10 @@ def decide(mode, stop_hook_active, actionable, live_groups, share):
         "(full list: %s)." % ACTIONABLE_PRODUCER,
         "Yield allowed with at least %d live owned dispatch groups, or no actionable items "
         "(a [BLOCKED:<reason>] tag with a granted approvals row)." % required,
-        "Declared wait: touch %s (once, after recording blocker); operator stop: set mode attended."
-        % _printable(_grc_escape_file()),
+        # One shell word naming the declared-wait path itself (_shell_word): an escaped path in
+        # this command would touch a different file (hook escaping round 3, codex W1). The
+        # command is shown whole or not at all, never cut by the clamp below (round 4, codex W1).
+        _declared_wait_line(_grc_escape_file()),
     ]
     return True, "\n".join(line[:_MAX_LINE_CHARS] for line in lines[:_MAX_REASON_LINES])
 
@@ -1061,6 +1085,89 @@ def _printable(value):
     return "".join(ch if ch.isprintable() else ascii(ch)[1:-1] for ch in str(value))
 
 
+def _shell_word(text) -> str:
+    """``text`` as ONE shell word that names the path ``text`` and prints on one line, for a
+    command a refusal tells the reader to run (escaping a shell-quoted word would change the
+    path the command names): shlex.quote when every character is printable or a space
+    separator, else a bash ANSI-C quoted $'...' word in which a backslash or a single quote is
+    backslash-escaped and every other character outside that rule is an escape bash reads
+    back in any locale: below 0x80 the ascii() escape _printable shows, such as \\n or
+    \\x1b; from 0x80 up, a surrogate-escaped byte included, \\xHH for each byte os.fsencode
+    gives: the path's own bytes in this process's filesystem encoding, which bash rebuilds in
+    any locale (a \\uHHHH escape stayed literal outside a UTF-8 locale, round 4, claude W1;
+    UTF-8 bytes named another path when the hook ran in a non-UTF-8 locale, round 5, claude
+    N3). A character that encoding cannot hold keeps its UTF-8 bytes. A relative
+    path starting with "-" is written "./" first, so touch, cd, git -C or python3 cannot
+    read it as an option (round 4, codex W2)."""
+    import shlex
+    import unicodedata
+    text = str(text)
+    if text.startswith("-"):
+        text = "./" + text
+
+    def plain(char):
+        return char.isprintable() or unicodedata.category(char) == "Zs"
+
+    if all(plain(char) for char in text):
+        return shlex.quote(text)
+    out = []
+    for char in text:
+        code = ord(char)
+        if char in "\\'":
+            out.append("\\" + char)
+        elif plain(char):
+            out.append(char)
+        elif code < 0x80:
+            out.append(ascii(char)[1:-1])  # \n, \r, \t or \xHH: the escape _printable shows
+        else:
+            try:
+                data = os.fsencode(char)  # a surrogate-escaped byte gives that byte back
+            except UnicodeEncodeError:
+                data = char.encode("utf-8", "surrogatepass")
+            out.append("".join("\\x%02x" % byte for byte in data))
+    return "$'" + "".join(out) + "'"
+
+
+_WAIT_FORMS = ("Declared wait: touch %s (once, after recording blocker); operator stop: set mode "
+               "attended.",
+               "Declared wait (once, after recording blocker): touch %s")
+_WAIT_TOO_LONG = ("Declared wait (once, after recording blocker): touch .allow-idle-stop in %s; "
+                  "its path is too long for this line (%s).")
+# The directory _grc_escape_file used: GRC_DROP_ROOT absolute, GRC_DROP_ROOT relative (resolved
+# against the repo root by _grc_under_root), or unset or empty (round 5, claude N1).
+_WAIT_DIRS = ("GRC_DROP_ROOT", "<repo-root>/GRC_DROP_ROOT", "<repo-parent>/grc_working")
+_WAIT_LOGGED = "the detail log has it"
+_WAIT_NOT_LOGGED = "no detail log written"
+# Each too-long line decide() can write, mapped to its wording for an unwritten detail log.
+_WAIT_UNLOGGED = {_WAIT_TOO_LONG % (where, _WAIT_LOGGED): _WAIT_TOO_LONG % (where, _WAIT_NOT_LOGGED)
+                  for where in _WAIT_DIRS}
+
+
+def _grc_escape_dir_label():
+    """The directory _grc_escape_file uses, named as the too-long declared-wait line shows it,
+    from the same GRC_DROP_ROOT reading: the setting when it is absolute, the setting under the
+    repo root when it is relative (_grc_under_root), the default when it is unset or empty."""
+    value = os.environ.get("GRC_DROP_ROOT")
+    if not value:
+        return _WAIT_DIRS[2]
+    return _WAIT_DIRS[0] if os.path.isabs(value) else _WAIT_DIRS[1]
+
+
+def _declared_wait_line(escape_path):
+    """decide()'s declared-wait line, at most _MAX_LINE_CHARS characters: the touch command
+    with the path as one shell word (_shell_word), shown whole or not at all. A cut word names
+    another path, or leaves a $'...' word unterminated (hook escaping round 4, codex W1). The
+    operator-stop hint is dropped first; when the command alone does not fit, the line names
+    the sentinel and the directory the hook used (_grc_escape_dir_label; round 5, claude N1)
+    and says the detail log has the command: _detail_text adds the whole command to the log,
+    and _fallback_refusal rewords the line when the log was not written (round 5, claude W1)."""
+    word = _shell_word(escape_path)
+    for form in _WAIT_FORMS:
+        if len(form % word) <= _MAX_LINE_CHARS:
+            return form % word
+    return _WAIT_TOO_LONG % (_grc_escape_dir_label(), _WAIT_LOGGED)
+
+
 def _clamp(line):
     """One diagnostic line cut to _MAX_LINE_CHARS characters and _MAX_LINE_BYTES encoded bytes."""
     line = line[:_MAX_LINE_CHARS]
@@ -1079,29 +1186,49 @@ def _first_fit(forms, values, what):
     raise ValueError("%s does not fit one console line" % what)
 
 
-def _short_refusal(count, live_groups, log_path, escape_path):
+def _short_refusal(count, live_groups, log_path, escape_path, required=None):
     """The three diagnostic lines, each at most _MAX_LINE_CHARS: what blocked (count only,
-    #2291), WHY, and the one action that clears it. The action line names the declared-wait
-    escape path (#2496) with decide()'s condition (once, after recording the blocker) and then
+    #2291), WHY, and the one action that clears it. The WHY line gives the live owned dispatch
+    group count and, when ``required`` (decide()'s required count, _required_groups) is given,
+    the required count on every wording (the shortest, "WHY: live 1/5 required; log: ", is
+    shorter than the count-free "WHY: below the group floor; log: ", which is used only when
+    ``required`` is not given; hook escaping round 3, codex W2). The action line names the declared-wait
+    escape path (#2496) as one shell word (_shell_word: a path with a space or a quote is
+    shell-quoted, so the copied command touches that path) with decide()'s condition (once, after recording the blocker) and then
     the detail log path when all fit it whole; otherwise the escape path keeps the action line,
     with the condition when it fits and "(condition in log)" when it does not, and the log path
     ends the WHY line. There is never a fourth line. A log or escape path with any non-printable
     character, or one that cannot fit whole, raises before its length is used, and the caller
     then shows the fallback.
-    PATH BUDGET: the shortest WHY wording leaves 127 characters for the log path, so the store
-    path may be at most 82 (see CONSOLE AND DETAIL LOG); the escape path at most 101."""
+    PATH BUDGET: with ``required`` given, as run() does, the shortest WHY wording leaves 129 to
+    131 characters for the log path while the required count has at most two digits (as run()'s
+    always has), so the store path may be at most 84, or 86 with a one-digit required count;
+    without it, 127 and 82 (see CONSOLE AND DETAIL LOG); the escape
+    path at most 101 as shell-quoted."""
     if _printable(log_path) != log_path:
         raise ValueError("detail log path has a non-printable character")
     if _printable(escape_path) != escape_path:
         raise ValueError("declared-wait path has a non-printable character")
+    escape_word = _shell_word(escape_path)
     blocked = _clamp("BLOCKED (stop-guard-unattended): unattended turn-end yield; the backlog tool "
                      "reports %d actionable open backlog item(s)." % count)
-    why = _clamp("WHY: not whole-set exhaustion, and the live owned dispatch group count (%d) "
-                 "is below the required count." % live_groups)
+    if required is None:
+        why = _clamp("WHY: not whole-set exhaustion, and the live owned dispatch group count (%d) "
+                     "is below the required count." % live_groups)
+        split_whys = ("WHY: the live owned dispatch group count (%d) is below the required "
+                      "count; detail log: " % live_groups + "%s",
+                      "WHY: below the group floor; log: %s")
+    else:
+        why = _clamp("WHY: not whole-set exhaustion, and the live owned dispatch group count (%d) "
+                     "is below the required count (%d)." % (live_groups, required))
+        split_whys = ("WHY: the live owned dispatch group count (%d) is below the required "
+                      "count (%d); detail log: " % (live_groups, required) + "%s",
+                      "WHY: %d of %d required groups live; log: " % (live_groups, required) + "%s",
+                      "WHY: live %d/%d required; log: " % (live_groups, required) + "%s")
     try:
         action = _first_fit(("CONSIDER INSTEAD: continue; wait (once, after recording the "
                              "blocker): touch %s; log: %s",),
-                            (escape_path, log_path), "declared-wait and detail log paths")
+                            (escape_word, log_path), "declared-wait and detail log paths")
     except ValueError:
         # Prefer the escape path on the action line; the log path ends the WHY line. The
         # condition stays on the action line when it fits; otherwise the line says it is in
@@ -1111,19 +1238,21 @@ def _short_refusal(count, live_groups, log_path, escape_path):
                              "CONSIDER INSTEAD: continue; wait (once, after recording the "
                              "blocker): touch %s",
                              "CONSIDER INSTEAD: continue; wait (condition in log): touch %s"),
-                            (escape_path,), "declared-wait path")
-        why = _first_fit(("WHY: the live owned dispatch group count (%d) is below the required "
-                          "count; detail log: " % live_groups + "%s",
-                          "WHY: below the group floor; log: %s"),
-                         (log_path,), "detail log path")
+                            (escape_word,), "declared-wait path")
+        why = _first_fit(split_whys, (log_path,), "detail log path")
     return "\n".join([blocked, why, action])
 
 
 def _fallback_refusal(reason, count, state, why):
     """The visible fallback: decide()'s reason, the NOTE right after it, then the actionable
     count only (#2291: no item ID or title reaches the diagnostic). Every line is clamped, and
-    the reason keeps at most _MAX_REASON_LINES lines, so the text fits _diagnostic's PIPE_BUF cap."""
-    lines = [_clamp(line) for line in reason.split("\n")[:_MAX_REASON_LINES]]
+    the reason keeps at most _MAX_REASON_LINES lines, so the text fits _diagnostic's PIPE_BUF cap.
+    When the detail log was not written, a too-long declared-wait line says so instead of
+    pointing at the log (round 5, claude W1)."""
+    lines = reason.split("\n")[:_MAX_REASON_LINES]
+    if state == "not written":
+        lines = [_WAIT_UNLOGGED.get(line, line) for line in lines]
+    lines = [_clamp(line) for line in lines]
     lines.append(_clamp("NOTE: detail log %s (%s); reason shown here." % (state, why)))
     lines.append(_clamp("Actionable items: %d (IDs and titles are not shown here, #2291)." % count))
     return "\n".join(lines)
@@ -1214,8 +1343,12 @@ def _log_session(payload):
 def _detail_text(reason, actionable):
     """The full detail: decide()'s reason plus every actionable item's ID and title, escaped
     with _printable. The reason alone when the items cannot be rendered. Built only inside
-    _bounded_write's deadline-controlled thread, so its unbounded size cannot delay the refusal."""
+    _bounded_write's deadline-controlled thread, so its unbounded size cannot delay the refusal.
+    When the reason's declared-wait line could not carry the whole touch command
+    (_declared_wait_line), the command follows the reason on a line of its own, uncut."""
     try:
+        if any(line in _WAIT_UNLOGGED for line in reason.split("\n")):
+            reason += "\nDeclared wait command: touch " + _shell_word(_grc_escape_file())
         return reason + "\nActionable items (%d):" % len(actionable) + "".join(
             "\n  - %s: %s" % (_printable(iid), _printable(title)) for iid, title in actionable)
     except Exception:
@@ -1282,15 +1415,17 @@ def _bounded_write(reason, actionable, payload):
     return box["path"]
 
 
-def _route_refusal(reason, actionable, live_groups, payload):
+def _route_refusal(reason, actionable, live_groups, payload, required=None):
     """Short diagnostic after a successful log write; the count-only fallback otherwise. The
     full detail is built inside _bounded_write, never here (a very large item list with the
-    budget nearly spent still yields the fallback at once)."""
+    budget nearly spent still yields the fallback at once). ``required`` is decide()'s
+    required live count, passed on to the short form."""
     state = "not written"
     try:
         path = _bounded_write(reason, actionable, payload)
         state = "written but not summarized"
-        return _short_refusal(len(actionable), live_groups, path, _grc_escape_file())
+        return _short_refusal(len(actionable), live_groups, path, _grc_escape_file(),
+                              required=required)
     except Exception as exc:
         try:
             why = _printable("%s: %s" % (type(exc).__name__, exc))
@@ -1326,7 +1461,7 @@ def run(root, payload):
     if block:
         # Wording and routing only: the full detail goes to the session log and the diagnostic
         # is three lines, or the reason with the count only when the log cannot be written.
-        reason = _route_refusal(reason, actionable, live_groups, payload)
+        reason = _route_refusal(reason, actionable, live_groups, payload, _required_groups(share))
     if reason:
         import warnings
         with warnings.catch_warnings():
@@ -2478,6 +2613,41 @@ def _self_test():
                     _short_refusal(1, 0, "/s" + odd + "/stop-guard.x.log", "/w/.allow-idle-stop")
                 with self.assertRaises(ValueError):
                     _short_refusal(1, 0, "/s/stop-guard.x.log", "/w" + odd + "/.allow-idle-stop")
+
+        def test_short_form_shows_the_required_count(self):
+            # decide()'s required count reaches the WHY line whenever a wording carrying it fits;
+            # the shortest wording still takes the longest log path (the PATH BUDGET holds).
+            for share, required in (((None, "absent"), 3), ((2, "default"), 3), ((7, "grc"), 7)):
+                self.assertEqual(_required_groups(share), required)
+            # Parity with decide()'s own statement of the rule: it blocks exactly below this count.
+            for value in (None, 1, 2, 3, 4, 7):
+                for live in range(9):
+                    block, _reason = decide("unattended", False, [("1", "t")], live, (value, "x"))
+                    self.assertEqual(block, live < _required_groups((value, "x")), (value, live))
+            log = "/s/" + _DETAIL_SUBDIR + "/stop-guard.0123456789ab.log"
+            escape = "/w/.allow-idle-stop"
+            lines = _short_refusal(500, 1, log, escape, required=7).splitlines()
+            self.assertEqual(lines[1], "WHY: not whole-set exhaustion, and the live owned dispatch "
+                                       "group count (1) is below the required count (7).")
+            wide = "/w/" + "w" * 30 + "/.allow-idle-stop"
+            lines = _short_refusal(500, 1, log, wide, required=7).splitlines()
+            self.assertEqual(lines[1], "WHY: the live owned dispatch group count (1) is below the "
+                                       "required count (7); detail log: " + log)
+            mid = "/" + "s" * 70 + "/" + _DETAIL_SUBDIR + "/stop-guard.0123456789ab.log"
+            lines = _short_refusal(500, 1, mid, escape, required=7).splitlines()
+            self.assertEqual(lines[1], "WHY: 1 of 7 required groups live; log: " + mid)
+            fits = "/" + "s" * 81 + "/" + _DETAIL_SUBDIR + "/stop-guard.0123456789ab.log"
+            lines = _short_refusal(500, 1, fits, escape, required=7).splitlines()
+            self.assertEqual(lines[1], "WHY: live 1/7 required; log: " + fits)
+            # Round 3 (codex W2): the compact wording keeps both counts at every log path the
+            # count-free wording took, and at four characters more.
+            wider = "/" + "s" * 85 + "/" + _DETAIL_SUBDIR + "/stop-guard.0123456789ab.log"
+            lines = _short_refusal(500, 1, wider, escape, required=7).splitlines()
+            self.assertEqual(lines[1], "WHY: live 1/7 required; log: " + wider)
+            for text in (_short_refusal(500, 1, m, e, required=7) for m, e in
+                         ((log, escape), (log, wide), (mid, escape), (fits, escape))):
+                self.assertEqual(len(text.splitlines()), 3)
+                self.assertLessEqual(max(map(len, text.splitlines())), _MAX_LINE_CHARS)
 
         def test_spent_run_budget_skips_the_write(self):
             items = [("X-1", "t")]

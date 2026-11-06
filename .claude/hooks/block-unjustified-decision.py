@@ -125,6 +125,12 @@ def _load_sibling(name, _cache={}):
         return _cache[name]
 
     def _refuse(why):
+        # A launch path holding a newline or a terminal escape is shown escaped, so the refusal
+        # stays one line: block-turn-end-with-outstanding-work.py's rule (each character that is
+        # neither printable nor a space separator becomes its ascii() escape).
+        import unicodedata
+        why = "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                      else ascii(char)[1:-1] for char in why)
         print("BLOCKED (hook-helper-isolation): " + why + "; refusing to execute "
               "anything but the reviewed helper sources.", file=sys.stderr)
         sys.exit(2)
@@ -400,6 +406,15 @@ def _targets_log(payload: dict) -> bool:
         return False
 
 
+def _printable(text) -> str:
+    """Escape every character that is neither printable nor a space separator (the rule
+    block-turn-end-with-outstanding-work.py applies), so submitted text cannot carry a terminal
+    escape or a line break into the refusal."""
+    import unicodedata
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in str(text))
+
+
 def decide(added: str, todo_count: "int | None" = None):
     """Return (block, reason) from textual checks over the whole submitted string.
 
@@ -438,8 +453,10 @@ def decide(added: str, todo_count: "int | None" = None):
                     f"{VALID_BLOCKERS}."
                 )
         elif head not in ("ACT", "ASK"):
+            # The submitted classification is escaped before it is cut: the capture stops only
+            # at LF, so a carriage return or a terminal escape would otherwise reach the refusal.
             problems.append(
-                f"Classification '{c_stripped[:40]}' is not ACT / ASK / BLOCKED."
+                f"Classification '{_printable(c_stripped)[:40]}' is not ACT / ASK / BLOCKED."
             )
     # Reject co-occurring deferral-marker and forbidden-phrase substrings anywhere
     # in the lowercased submission, regardless of classification or entry boundaries.

@@ -32,6 +32,15 @@ _ITEM = re.compile(r"^\s+-\s+(\S+)\s+(?:\[[^\]]*\]\s+)?(.*)$")    # '  - <id>  [
 _ORIGIN = re.compile(r"^\((?:public|private)\)\s+")
 
 
+def _printable(text):
+    """Escape every character that is neither printable nor a space separator (the rule
+    block-turn-end-with-outstanding-work.py applies), so the tool's stderr and the tool path
+    cannot carry a terminal escape into this producer's own NOTICE."""
+    import unicodedata
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in str(text))
+
+
 def main():
     try:
         proc = subprocess.run(
@@ -42,7 +51,7 @@ def main():
         return 1  # spawn/timeout failure -> indeterminate -> hook fails open
     if proc.returncode != 0:
         reason = " ".join(proc.stderr.splitlines()).strip() or (TOOL + " exited " + str(proc.returncode))
-        print("NOTICE (nmw-actionable; fail open): " + reason[:1024], file=sys.stderr)
+        print("NOTICE (nmw-actionable; fail open): " + _printable(reason)[:1024], file=sys.stderr)
         return 1  # tool error -> indeterminate -> hook fails open
 
     declared = None

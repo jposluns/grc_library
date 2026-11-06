@@ -91,6 +91,12 @@ def _load_sibling(name, _cache={}):
         return _cache[name]
 
     def _refuse(why):
+        # A launch path holding a newline or a terminal escape is shown escaped, so the refusal
+        # stays one line: block-turn-end-with-outstanding-work.py's rule (each character that is
+        # neither printable nor a space separator becomes its ascii() escape).
+        import unicodedata
+        why = "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                      else ascii(char)[1:-1] for char in why)
         print("BLOCKED (hook-helper-isolation): " + why + "; refusing to execute "
               "anything but the reviewed helper sources.", file=sys.stderr)
         sys.exit(2)
@@ -148,6 +154,57 @@ def _current_branch(repo_root: str):
     return out.stdout.strip() or None
 
 
+def _printable(text) -> str:
+    """Escape every character that is neither printable nor a space separator (the rule
+    block-turn-end-with-outstanding-work.py applies), so a path cannot start a console line."""
+    import unicodedata
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in str(text))
+
+
+def _shell_word(text) -> str:
+    """``text`` as ONE shell word that names the path ``text`` and prints on one line, for a
+    command a refusal tells the reader to run (escaping a shell-quoted word would change the
+    path the command names): shlex.quote when every character is printable or a space
+    separator, else a bash ANSI-C quoted $'...' word in which a backslash or a single quote is
+    backslash-escaped and every other character outside that rule is an escape bash reads
+    back in any locale: below 0x80 the ascii() escape _printable shows, such as \\n or
+    \\x1b; from 0x80 up, a surrogate-escaped byte included, \\xHH for each byte os.fsencode
+    gives: the path's own bytes in this process's filesystem encoding, which bash rebuilds in
+    any locale (a \\uHHHH escape stayed literal outside a UTF-8 locale, round 4, claude W1;
+    UTF-8 bytes named another path when the hook ran in a non-UTF-8 locale, round 5, claude
+    N3). A character that encoding cannot hold keeps its UTF-8 bytes. A relative
+    path starting with "-" is written "./" first, so touch, cd, git -C or python3 cannot
+    read it as an option (round 4, codex W2)."""
+    import shlex
+    import unicodedata
+    text = str(text)
+    if text.startswith("-"):
+        text = "./" + text
+
+    def plain(char):
+        return char.isprintable() or unicodedata.category(char) == "Zs"
+
+    if all(plain(char) for char in text):
+        return shlex.quote(text)
+    out = []
+    for char in text:
+        code = ord(char)
+        if char in "\\'":
+            out.append("\\" + char)
+        elif plain(char):
+            out.append(char)
+        elif code < 0x80:
+            out.append(ascii(char)[1:-1])  # \n, \r, \t or \xHH: the escape _printable shows
+        else:
+            try:
+                data = os.fsencode(char)  # a surrogate-escaped byte gives that byte back
+            except UnicodeEncodeError:
+                data = char.encode("utf-8", "surrogatepass")
+            out.append("".join("\\x%02x" % byte for byte in data))
+    return "$'" + "".join(out) + "'"
+
+
 def decide(file_path: str, project_dir: str) -> tuple[bool, str]:
     if not isinstance(file_path, str) or not file_path.strip():
         return False, ""
@@ -168,13 +225,17 @@ def decide(file_path: str, project_dir: str) -> tuple[bool, str]:
         rel = target.relative_to(proj)
         reason = (
             "BLOCKED (branch-to-main-edit): an edit to a `grc_library` file "
-            f"(`{rel}`) while the repo is on `{branch}`.\n"
+            f"(`{_printable(rel)}`) while the repo is on `{branch}`.\n"  # rel is from the payload
             "WHY: `main` is PR-only; edits belong on a feature branch, and an edit on `main` "
             "is essentially never intended.\n"
-            "CONSIDER INSTEAD: run `git -C {proj} checkout -b claude/<name>` first, then "
-            "re-apply the edit. (If you genuinely intend to edit a SIBLING repo, use its "
-            "absolute path so the target resolves outside `grc_library`.)"
-        ).replace("{proj}", str(proj))
+            # The project directory in a command the reader runs: one shell word naming it
+            # (_shell_word), not an escaped path, which would name another directory. It is
+            # placed in this sentence only: a str.replace over the whole message also rewrote
+            # a payload path holding "{proj}" (hook escaping round 5, claude N2).
+            f"CONSIDER INSTEAD: run `git -C {_shell_word(proj)} checkout -b claude/<name>` "
+            "first, then re-apply the edit. (If you genuinely intend to edit a SIBLING repo, "
+            "use its absolute path so the target resolves outside `grc_library`.)"
+        )
         return True, reason
     return False, ""
 

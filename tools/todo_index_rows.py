@@ -61,6 +61,16 @@ from __future__ import annotations
 import re
 from typing import NamedTuple
 
+
+def _printable(text) -> str:
+    """Escape every character that is neither printable nor a space separator (the rule
+    .claude/hooks/block-turn-end-with-outstanding-work.py applies), so a path in a refusal
+    cannot start a console line."""
+    import unicodedata
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in str(text))
+
+
 # `lint_common` supplies the backlog-id grammar and the index-header gate, WITHOUT a
 # by-name import statement (3b257): hook-side, the hooks' _load_sibling loader has
 # already executed the reviewed tools/lint_common.py source and registered it in
@@ -79,7 +89,7 @@ def _reviewed_lint_common():
     path = os.path.join(here, "lint_common.py")
     if os.path.islink(path) or os.path.realpath(path) != path:
         raise ImportError("tools/lint_common.py is a symlink or its real path "
-                          "leaves " + here + "; refusing to execute it "
+                          "leaves " + _printable(here) + "; refusing to execute it "
                           "(reviewed source only)")
     with open(path, "rb") as fh:
         source = fh.read()

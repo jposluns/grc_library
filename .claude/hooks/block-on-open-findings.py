@@ -119,6 +119,12 @@ def _load_sibling(name, _cache={}):
         return _cache[name]
 
     def _refuse(why):
+        # A launch path holding a newline or a terminal escape is shown escaped, so the refusal
+        # stays one line: block-turn-end-with-outstanding-work.py's rule (each character that is
+        # neither printable nor a space separator becomes its ascii() escape).
+        import unicodedata
+        why = "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                      else ascii(char)[1:-1] for char in why)
         print("BLOCKED (hook-helper-isolation): " + why + "; refusing to execute "
               "anything but the reviewed helper sources.", file=sys.stderr)
         sys.exit(2)
@@ -699,6 +705,15 @@ def _tokens(cmd: str):
         return None
 
 
+def _printable(text) -> str:
+    """Escape every character that is neither printable nor a space separator (the rule
+    block-turn-end-with-outstanding-work.py applies), so ledger text cannot carry a terminal
+    escape or a line break into a refusal."""
+    import unicodedata
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in str(text))
+
+
 def decide_exit(rows, ledger_text) -> int:
     """PURE decision: the exit code (0 allow / 2 block) for a PARSED ledger.
 
@@ -738,8 +753,10 @@ def decide_exit(rows, ledger_text) -> int:
                 "'## Closed today'); if a row is a deliberate archive, give it a scanned heading or "
                 "remove the finding-row shape:",
             ]
+            # The heading and the row are ledger text: escaped before the row is cut.
             for _ln, _sec, _line in misfiled[:5]:
-                lines.append(f"  - line {_ln} (under {_sec or 'no scanned heading'}): {_line[:100]}")
+                lines.append(f"  - line {_ln} (under {_printable(_sec) if _sec else 'no scanned heading'}): "
+                             f"{_printable(_line)[:100]}")
             lines.append(
                 "This now BLOCKS at gh pr create/merge (P-1.70, maintainer-GO'd 2026-09-10), covering "
                 "the push->merge edit window the pre-push D14 check cannot see; D14 remains the "
@@ -751,7 +768,7 @@ def decide_exit(rows, ledger_text) -> int:
     lines = [f"BLOCKED (open-findings): a PR create/merge with {len(errs)} error-severity finding(s) in {LEDGER_REL} "
              "without a disposition.", ""]
     for _s, finding, _d in errs[:5]:
-        lines.append(f"  - {finding[:150]}")
+        lines.append(f"  - {_printable(finding)[:150]}")  # ledger text, escaped before the cut
     lines += ["",
               "WHY: a finding READ but not acted on is the most expensive state a defect can be in, "
               "because the record shows it was found and the surface therefore reads as examined "

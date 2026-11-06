@@ -192,6 +192,12 @@ def _load_sibling(name, _cache={}):
         return _cache[name]
 
     def _refuse(why):
+        # A launch path holding a newline or a terminal escape is shown escaped, so the refusal
+        # stays one line: block-turn-end-with-outstanding-work.py's rule (each character that is
+        # neither printable nor a space separator becomes its ascii() escape).
+        import unicodedata
+        why = "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                      else ascii(char)[1:-1] for char in why)
         print("BLOCKED (hook-helper-isolation): " + why + "; refusing to execute "
               "anything but the reviewed helper sources.", file=sys.stderr)
         sys.exit(2)
@@ -272,9 +278,11 @@ def write_alert(model: str) -> None:
         if already_open(text):
             return
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        # The model id is read from the payload's transcript, so it is written escaped, as
+        # _message shows it (hook escaping round 4, claude N4).
         block = (
             f"\n### ALERT {ts} {MARKER}\n"
-            f"BLOCKED (opus5-orchestrator-model): MAINTAINER ALERT / HALT: orchestrator work on model `{model}` (Opus 5.0) is HALTED at the first tool call.\n"
+            f"BLOCKED (opus5-orchestrator-model): MAINTAINER ALERT / HALT: orchestrator work on model `{_printable(model)}` (Opus 5.0) is HALTED at the first tool call.\n"
             f"WHY: maintainer directive (2026-08-21, narrowed 2026-09-23) prohibits Opus 5.0 as the orchestrator's working model (Opus 5.5 and 5.1 are allowed).\n"
             f"CONSIDER INSTEAD: swap the session to a better working model (e.g. Opus 4.8, `claude-opus-4-8`) and re-resume. "
             f"This channel clears by removal: once the model is swapped, remove this block and reset "
@@ -286,9 +294,18 @@ def write_alert(model: str) -> None:
         return
 
 
+def _printable(text) -> str:
+    """Escape every character that is neither printable nor a space separator (the rule
+    block-turn-end-with-outstanding-work.py applies), so a path cannot start a console line."""
+    import unicodedata
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in str(text))
+
+
 def _message(model: str) -> str:
+    # The model id is read from the payload's transcript, so it is shown escaped.
     return (
-        f"BLOCKED (opus5-orchestrator-model): MAINTAINER ALERT / HALT: this orchestrator tool call on `{model}` (Opus 5.0) "
+        f"BLOCKED (opus5-orchestrator-model): MAINTAINER ALERT / HALT: this orchestrator tool call on `{_printable(model)}` (Opus 5.0) "
         f"is halted unconditionally (maintainer directive 2026-08-21).\n"
         f"WHY: Opus 5.0 is a banned working model for the orchestrator (Opus 5.5 and 5.1 are allowed); running orchestrator work on "
         f"it is prohibited.\n"
