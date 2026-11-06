@@ -213,9 +213,21 @@ stops every shard's process group, waits for them, keeps and names every
 checkout and log, and exits 130, 143 or 129. A kept shard directory is
 reported as left behind, with what it holds and any process still using it,
 but with no removal command while that run lasts; the next push reports it
-until it is removed. A passing run removes the checkouts; a checkout
-`git worktree remove` cannot remove is named, `git worktree prune` runs once
-its directory is gone, and the guard never claims that removal.
+until it is removed. A passing run removes its own checkouts and acts on
+nothing else: a checkout `git worktree remove` cannot remove is named with
+what is left of it and whether its registration is still listed. While its
+directory is left, the guard names the shard directory (bash-quoted with printf %q) to
+remove once nothing uses it. Unless the listing shows its registration
+gone, the guard prints the command for that checkout alone
+(`git worktree remove --force -- <checkout>`, bash-quoted with printf %q), to run in this
+clone once its directory is gone. If `git worktree list` fails, the guard
+says that the registration state could not be read, with that listing's exit
+status, and still prints that command; it never reports the registration as
+gone. The guard runs no repository-wide git command that changes anything,
+such as `git worktree prune`, which would also clear the stale registrations
+of another live run or another checkout of this repository; the one
+repository-wide git command it runs there is the read-only
+`git worktree list --porcelain`. It never claims the removal of a checkout it could not remove.
 
 Each push (fast path included) first reports, strictly read-only, what
 earlier runs of the guard in this clone left behind after an interrupt, a

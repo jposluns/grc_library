@@ -70,10 +70,21 @@
 #      live run's checkouts from leftovers. A passing run
 #      removes each checkout with git worktree remove --force, then the
 #      shard directory (only a real directory named grc-gate36-shards.*;
-#      the sibling links are removed as links, never followed). A failed
-#      removal is reported with its path, git worktree prune then runs
-#      after the directory is gone, and the guard says whether that
-#      checkout's registration remains; it never claims a removal that
+#      the sibling links are removed as links, never followed). This
+#      cleanup acts on this run's own checkouts only. A failed removal is
+#      reported with its path, and no repository-wide git command that
+#      changes anything runs (no git worktree prune, which would also
+#      clear the stale registrations of another live run or another
+#      checkout of this repository); the one repository-wide git command
+#      is the read-only git worktree list --porcelain. The guard says what
+#      is left of that checkout and whether its registration is still
+#      listed (or that its registration state could not be read, when
+#      that listing fails); while its directory is left, it names the
+#      shard directory (bash-quoted with printf %q) to remove once nothing
+#      uses it; and unless the listing shows the registration gone, it
+#      prints the command for that checkout alone (git worktree remove
+#      --force -- <checkout>, bash-quoted with printf %q), to run in this
+#      clone once its directory is gone. It never claims a removal that
 #      failed. On the fail-closed whole-runner fallback below gate 36 has
 #      just run serially, so this step does not run again.
 #   2. tools/run-pr-time-checks.sh  - the per-PR D-numbered delta gates (D6 retired) plus
@@ -2054,7 +2065,8 @@ shard_interrupted() {
 
 run_gate36_shards() {
     local count="${REGRESSION_SHARD_COUNT}" commit parent store i dir tree rc started
-    local sibling ran verdict first_rc=0 failed="" reconcile_rc no_output="" out
+    local sibling ran verdict first_rc=0 failed="" reconcile_rc no_output="" out shown left
+    local list_rc root_shown then_run
     local identity owner_start owner_ns owner_boot owner_machine admin
     local -a statuses=() pairs=() unremoved=()
     trap 'shard_interrupted INT 130' INT
@@ -2231,16 +2243,36 @@ run_gate36_shards() {
         echo "pre-push guard: WARNING: could not remove the shard directory ${shard_root}." >&2
     fi
     if [ "${#unremoved[@]}" -gt 0 ]; then
-        # The registration of a checkout git could not remove is stale once
-        # its directory is gone; prune clears it then, and only then.
-        if out="$(git worktree prune 2>&1)"; then rc=0; else rc=$?; fi
-        echo "pre-push guard: WARNING: ran git worktree prune (rc=${rc})${out:+: ${out//$'\n'/ }}." >&2
-        out="$(git worktree list --porcelain 2>/dev/null || true)"
+        # Report only, for this run's own checkouts: no repository-wide git
+        # command that changes anything runs here, since git worktree prune
+        # would also clear the stale registrations of another live run or
+        # another checkout of this repository. The one repository-wide git
+        # command is the read-only git worktree list --porcelain; its exit
+        # status is kept, so a listing that fails is reported as such, never
+        # as a registration that is gone. Each checkout git could not remove
+        # is named alone, with what is left of it, the shard directory to
+        # remove while its directory is left, and, unless the listing shows
+        # its registration gone, the command for it alone, to run in this
+        # clone.
+        if out="$(git worktree list --porcelain 2>/dev/null)"; then list_rc=0; else list_rc=$?; fi
+        printf -v root_shown '%q' "${shard_root}"
         for tree in "${unremoved[@]}"; do
-            if [[ $'\n'"${out}"$'\n' == *$'\n'"worktree ${tree}"$'\n'* ]]; then
-                echo "pre-push guard: WARNING: the shard checkout ${tree} is still registered; once its directory is gone, run git worktree prune." >&2
+            printf -v shown '%q' "${tree}"
+            if [ -e "${tree}" ] || [ -L "${tree}" ]; then
+                left="its directory is left"
+                then_run="Remove the shard directory ${root_shown} once nothing uses it; once its directory is gone, run in this clone:"
             else
-                echo "pre-push guard: WARNING: the shard checkout ${tree} was not removed by git worktree remove; its registration is no longer listed after git worktree prune." >&2
+                left="its directory is gone"
+                then_run="Run in this clone:"
+            fi
+            if [ "${list_rc}" -ne 0 ]; then
+                echo "pre-push guard: WARNING: the shard checkout ${tree} was not removed by git worktree remove; ${left} and its registration state could not be read (git worktree list failed, rc=${list_rc}), so it may still be registered. ${then_run} git worktree remove --force -- ${shown}" >&2
+            elif [[ $'\n'"${out}"$'\n' == *$'\n'"worktree ${tree}"$'\n'* ]]; then
+                echo "pre-push guard: WARNING: the shard checkout ${tree} was not removed by git worktree remove; ${left} and it is still registered. ${then_run} git worktree remove --force -- ${shown}" >&2
+            elif [ "${left}" = "its directory is left" ]; then
+                echo "pre-push guard: WARNING: the shard checkout ${tree} was not removed by git worktree remove; ${left} and its registration is no longer listed by git worktree list. Remove the shard directory ${root_shown} once nothing uses it." >&2
+            else
+                echo "pre-push guard: WARNING: the shard checkout ${tree} was not removed by git worktree remove; ${left} and its registration is no longer listed by git worktree list." >&2
             fi
         done
         echo "pre-push guard: gate 36 passed as ${count} local shards in $((SECONDS - started))s; ${#unremoved[@]} of ${count} shard checkouts could not be removed by git worktree remove (named above)."
