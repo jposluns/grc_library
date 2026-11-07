@@ -115,7 +115,7 @@ attempt acquisition, then named options on failure. The project instantiation:
    once the ingest PR merges, fast-forward the `grc_library_ref` directory beside this checkout to
    its merged `main` (the generator reads that working tree, not the remote), run
    `python3 tools/build-reference-manifest.py` here, and confirm that `--check` prints OK for the
-   file you will commit (a "grc_library_ref not present; no-op" line confirms nothing). Ship the
+   file you will commit (a "did not check" line, or exit 4 CANNOT EVALUATE, confirms nothing). Ship the
    regenerated `docs/reference-acquisition-manifest.md` as the next `grc_library` PR, so gate 104's
    staleness window stays one PR wide. Gate 104 reads the manifest file on disk, so a marked claim
    whose marker query now matches a regenerated manifest row fails on the gate's next run against

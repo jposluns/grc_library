@@ -45161,7 +45161,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         build-portal.py NO_FS F 5bb93bd5bc185a71ab3b484027f35cf9847fd7db657758c341742f022685f0db
         build-provision-index.py ROOT F fe7e21ef073874b792080c23593e1d47e3e4f2702177860b06b67486a9cb46e1
         build-public-changelog.py OWN F 407a5b794ad8b51c495f9a2d98ec1f8908fac68500a12004c092e59bd8054d77
-        build-reference-manifest.py NO_FS F fdf4d1211bd09e6e1afdf2437b5b291ec5bc0cbc3d632d588af5bcb0091a387d
+        build-reference-manifest.py NO_FS F 200c142a416149204f0176d71ce08c07f1c644a8317dd97135ed7f0e7f6c2480
         build-relationship-model.py NO_FS F 06f2eb54ad21532fc7fdb0ff0fa863a8affc1cd58419bd7d073b1dee2b4f475f
         build-taxonomy.py NO_FS F 1e8b292d6de7754a235bf5bc92c13da9af29342b21be5a74e3e333b62d9991af
         build-todo-number-allocation.py NO_FS F 8ad89e87b8a6df4a576935a21409cadc80ce0456784a22262ac3229b3f2dd99e
@@ -45319,7 +45319,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 384a6ab6aad0e0ceebc7f6beaa82f9174030a824c1a48f48f222dc69ebcb5e69
-        pre-push-guard.sh FIXED F 4683333e9d1c3c54126768719bfa8d649fdec56e8fa58e342b9bc1cbe9ef9799
+        pre-push-guard.sh FIXED F e082e92fe082af59cee69da9d2a329dacf1cdf4e8e4d600f4c5b6fc2ce89dabf
         pre-push-hook.py TRANSPORT F d193c170d963cbca2e64bb76ce0b1dfbe7999b9f5af6c0701ae11d95f9d7f659
         preflight-changelog.py NO_FS F bc91a3dc87ba0615f3def6bdddc3d4bc774e1c3389ca9f67b334c9e014f929a2
         preflight-version-date.py NO_FS F a12ecf5ae928da5048eed6f282876a3ad2de92a51cc266eda65c8d5b2a613088
@@ -55184,8 +55184,9 @@ class DetectEnvIdentityTests(unittest.TestCase):
 
 
 class ReferenceManifestGeneratorTests(unittest.TestCase):
-    """tools/build-reference-manifest.py (PR #1007): the render() output shape and
-    the sibling-free graceful degradation (adopter portability)."""
+    """tools/build-reference-manifest.py (PR #1007): the render() output shape, the
+    sibling-free graceful degradation (adopter portability) and --check's cannot-evaluate
+    status outside a positively placed adopter clone (3b796)."""
 
     def _load(self, unique: str):
         import importlib.util
@@ -55292,8 +55293,12 @@ class ReferenceManifestGeneratorTests(unittest.TestCase):
         self.assertIn("**Total: 2 sources (1 free, 1 licensed).**", out)
 
     def test_degrades_when_ref_absent(self) -> None:
-        # Adopter portability: main() no-ops (exit 0) when grc_library_ref is absent.
+        # Adopter portability: with grc_library_ref absent, regenerating no-ops (exit 0) without
+        # asking the detector, and --check no-ops (exit 0) in an adopter context (3b796).
         mod = self._load("_refman_degrade")
+
+        def no_detector() -> str:
+            raise AssertionError("the regenerate path must not consult the detector")
         # Monkeypatch the SHARED lint_common.resolve_sibling; save + restore it in
         # the finally so this test does not pollute later tests (e.g.
         # ResolveSiblingTests) that rely on the real function.
@@ -55301,13 +55306,1738 @@ class ReferenceManifestGeneratorTests(unittest.TestCase):
         mod.lint_common.resolve_sibling = lambda name, **_kw: None
         old_argv = sys.argv
         try:
+            mod._operator_context = no_detector
             sys.argv = ["build-reference-manifest.py"]
             self.assertEqual(mod.main(), 0)
+            mod._operator_context = lambda: ("adopter", None)
             sys.argv = ["build-reference-manifest.py", "--check"]
             self.assertEqual(mod.main(), 0)
         finally:
             sys.argv = old_argv
             mod.lint_common.resolve_sibling = old_resolve
+
+    # 3b796: --check run end to end in a throwaway checkout (copies of the tool and its two
+    # dependencies), so the origin is a real git remote, the sibling is absent or present by
+    # construction, and neither this clone's origin nor any real sibling layout is read.
+    MAINTAINER_URLS = ("https://github.com/jposluns/grc_library.git",
+                       "git@github.com:jposluns/grc_library.git")
+    FORK_URL = "https://github.com/some-adopter/grc_library.git"
+    REGENERATE_NOOP = ("build-reference-manifest: grc_library_ref not present; "
+                       "no-op (the committed manifest ships statically for adopters).\n")
+    CATALOGUE = 'standards:\n  - title: "A Standard"\n    origin: "ISO"\n    acquisition: "free"\n'
+
+    def _checkout(self, origin=None, *, repository=True, sibling=False, parent=None) -> Path:
+        base = Path(tempfile.mkdtemp(prefix="refman-"))
+        self.addCleanup(shutil.rmtree, base, True)
+        if parent is not None:
+            # A named parent directory between the temporary directory and the checkout.
+            base = base / parent
+        repo = base / "grc_library"
+        (repo / "tools").mkdir(parents=True)
+        for name in ("build-reference-manifest.py", "lint_common.py", "detect-env.py"):
+            shutil.copyfile(REPO_ROOT / "tools" / name, repo / "tools" / name)
+        env = fixture_git_environment()
+        if repository:
+            subprocess.run(["git", "init", "-q", str(repo)], check=True, env=env,
+                           capture_output=True)
+        if origin is not None:
+            subprocess.run(["git", "-C", str(repo), "remote", "add", "origin", origin],
+                           check=True, env=env, capture_output=True)
+        if sibling:
+            (base / "grc_library_ref").mkdir()
+            (base / "grc_library_ref" / "catalogue.yml").write_text(self.CATALOGUE, encoding="utf-8")
+        return repo
+
+    def _git_shim(self) -> Path:
+        # A directory holding a POSIX shell script named git that runs the real git with
+        # GIT_CONFIG_NOSYSTEM=1 added to its environment (see _tool).
+        import shlex
+        real = shutil.which("git")
+        if real is None:
+            self.skipTest("needs git")
+        shim = Path(tempfile.mkdtemp(prefix="refman-git-"))
+        self.addCleanup(shutil.rmtree, shim, True)
+        script = shim / "git"
+        script.write_text("#!/bin/sh\nGIT_CONFIG_NOSYSTEM=1\nexport GIT_CONFIG_NOSYSTEM\n"
+                          f'exec {shlex.quote(real)} "$@"\n', encoding="utf-8")
+        script.chmod(0o755)
+        return shim
+
+    def _tool(self, repo: Path, *args: str, launcher: "tuple[str, ...]" = (),
+              **extra_env: str) -> subprocess.CompletedProcess:
+        # launcher (3b796 round 10): a command the tool's own command line is appended to, which
+        # runs it (IGNORE_SIGCHLD, for one).
+        env = fixture_git_environment()
+        # A checkout with no repository must not find one above its temporary directory.
+        env["GIT_CEILING_DIRECTORIES"] = str(repo.parent)
+        # 3b796 round 8: the detector's child process drops every GIT_ variable, so the fixture's
+        # GIT_CONFIG_GLOBAL and GIT_CONFIG_NOSYSTEM no longer reach its git; an empty home keeps
+        # the runner's own global git configuration out of it. Round 9: a git shim first on PATH,
+        # which the child inherits (PATH is not a GIT_ variable), sets GIT_CONFIG_NOSYSTEM in the
+        # environment of each git it starts, so the runner's system file stays out of both reads.
+        # The child's own environment still holds no GIT_ variable
+        # (test_check_detector_launch_contract), and the tool itself is unchanged.
+        home = Path(tempfile.mkdtemp(prefix="refman-home-"))
+        self.addCleanup(shutil.rmtree, home, True)
+        env["HOME"] = env["XDG_CONFIG_HOME"] = str(home)
+        env["PATH"] = str(self._git_shim()) + os.pathsep + env.get("PATH", "")
+        env.update(extra_env)
+        # stdin is an empty pipe, not the null device, so a detector child that inherited it
+        # instead of getting the null device shows (test_check_detector_launch_contract).
+        return subprocess.run(
+            [*launcher, sys.executable, "-B", str(repo / "tools" / "build-reference-manifest.py"),
+             *args],
+            cwd=str(repo.parent), env=env, input="", capture_output=True, text=True, timeout=120)
+
+    def _assert_cannot_evaluate(self, r: subprocess.CompletedProcess, phrase: str,
+                                reason: "str | None" = None) -> None:
+        self.assertEqual(r.returncode, 4, r.stdout + r.stderr)
+        self.assertEqual(r.stdout, "")
+        self.assertEqual(len(r.stderr.splitlines()), 1, r.stderr)
+        self.assertIn("CANNOT EVALUATE", r.stderr)
+        self.assertIn("grc_library_ref sibling is missing", r.stderr)
+        self.assertIn(phrase, r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        if reason is not None:
+            # 3b796 round 3: an undecidable context names its cause inside the one line.
+            self.assertIn(f"cannot decide ({reason}", r.stderr)
+            self.assertNotIn("no reason given", r.stderr)
+
+    def _assert_adopter_noop(self, r: subprocess.CompletedProcess) -> None:
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertEqual(len(r.stdout.splitlines()), 1, r.stdout)
+        self.assertIn("grc_library_ref not present; no-op, did not check", r.stdout)
+        self.assertEqual(r.stderr, "")
+
+    # 3b796 round 8: the fixed cause for a detector child that exits 0 without its one line.
+    DETECTOR_NO_LINE = "tools/detect-env.py did not print exactly one line"
+
+    def test_check_maintainer_context_without_sibling_cannot_evaluate(self) -> None:
+        for url in self.MAINTAINER_URLS:
+            with self.subTest(url=url):
+                repo = self._checkout(url)
+                r = self._tool(repo, "--check")
+                self._assert_cannot_evaluate(r, "a clone whose origin is the maintainer repository")
+                self.assertNotIn("maintainer context", r.stderr)
+                self.assertIn(str(repo.parent / "grc_library_ref"), r.stderr)
+
+    # 3b796 round 2: the placed adopter forms (each takes the no-op) and origins that must not.
+    ADOPTER_URLS = (FORK_URL, "git@github.com:some-adopter/grc_library.git",
+                    "ssh://git@gitlab.example.org:2222/some-adopter/grc_library.git",
+                    "http://git.example.org/some-adopter/grc_library/")
+    UNPLACED_URLS = (
+        ("local path", "/srv/git/grc_library"),
+        ("relative local path", "../grc_library"),
+        ("file URL", "file:///srv/git/grc_library"),
+        ("git protocol", "git://github.com/jposluns/grc_library.git"),
+        ("userless scp form", "github.com:jposluns/grc_library.git"),
+        ("one path segment", "https://github.com/some-adopter"),
+        ("nested path", "https://github.com/some-adopter/grc_library/extra"),
+        ("not a url", "not a url"),
+    )
+    # 3b796 round 4: placed forms that the host rule leaves unplaced (the maintainer repository on
+    # a host other than github.com), with their own cause.
+    MAINTAINER_ELSEWHERE_URLS = (
+        ("ssh host alias, scp form", "git@gh-alias:jposluns/grc_library.git"),
+        ("ssh host alias, ssh URL", "ssh://git@gh-alias/jposluns/grc_library.git"),
+        ("mirror host", "https://git.example.org/jposluns/grc_library.git"),
+    )
+    NOT_A_PLACED_FORM = "the origin is not a form the check places as an adopter or maintainer clone"
+    MAINTAINER_ELSEWHERE = ("the origin names the maintainer repository (MAINTAINER_ORIGIN_OWNER_REPO "
+                            "in tools/detect-env.py) on a host other than github.com, which the "
+                            "check does not place")
+
+    def test_check_adopter_context_without_sibling_says_not_checked(self) -> None:
+        for url in self.ADOPTER_URLS:
+            with self.subTest(url=url):
+                r = self._tool(self._checkout(url), "--check")
+                self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+                self.assertEqual(len(r.stdout.splitlines()), 1, r.stdout)
+                self.assertIn("grc_library_ref not present; no-op, did not check", r.stdout)
+                self.assertEqual(r.stderr, "")
+
+    def test_check_unplaced_origin_without_sibling_cannot_evaluate(self) -> None:
+        # Only a positively placed non-maintainer origin is an adopter: a local path, a form the
+        # decision cannot place and the maintainer repository on another host (an SSH alias or a
+        # mirror) are undecidable, though detect-env reads each as not the maintainer repository.
+        # A regex miss and the host rule name different causes (3b796 round 4), and neither carries
+        # the origin value.
+        for urls, reason, other in ((self.UNPLACED_URLS, self.NOT_A_PLACED_FORM,
+                                     self.MAINTAINER_ELSEWHERE),
+                                    (self.MAINTAINER_ELSEWHERE_URLS, self.MAINTAINER_ELSEWHERE,
+                                     self.NOT_A_PLACED_FORM)):
+            for label, url in urls:
+                with self.subTest(label):
+                    r = self._tool(self._checkout(url), "--check")
+                    self._assert_cannot_evaluate(r, "cannot decide", reason + ")")
+                    self.assertNotIn(other, r.stderr)
+                    self.assertNotIn(url, r.stderr)
+
+    def test_check_origin_line_breaks_without_sibling_cannot_evaluate(self) -> None:
+        # git stores and prints each of these (git 2.53); detect-env translates CR to LF and strips
+        # only the ends of its read, so in its value the leading and trailing separators (LF or CR)
+        # disappeared, and those cases reached the decision as a clean fork url, while an internal
+        # LF or CR remains as a line break, a CR arriving as LF through detect-env's text-mode
+        # capture.
+        for label, value in (("leading LF", "\n" + self.FORK_URL),
+                             ("trailing LF", self.FORK_URL + "\n"),
+                             ("internal LF", self.FORK_URL + "\nx"),
+                             ("trailing CR", self.FORK_URL + "\r"),
+                             ("leading CR", "\r" + self.FORK_URL),
+                             ("internal CR", self.FORK_URL + "\rx")):
+            with self.subTest(label):
+                repo = self._checkout()
+                subprocess.run(["git", "-C", str(repo), "config", "remote.origin.url", value],
+                               check=True, env=fixture_git_environment(), capture_output=True)
+                self._assert_cannot_evaluate(
+                    self._tool(repo, "--check"), "cannot decide",
+                    "the origin read failed validation (git remote get-url origin did not print "
+                    "exactly one line with no other LF or CR)")
+
+    def test_check_repository_redirect_without_sibling_cannot_evaluate(self) -> None:
+        # Two repositories: a redirect that makes git read the other one's origin must not let a
+        # maintainer clone (or any clone) take the adopter no-op.
+        def other_repository(repo: Path) -> Path:
+            other = repo.parent / "other"
+            env = fixture_git_environment()
+            subprocess.run(["git", "init", "-q", str(other)], check=True, env=env,
+                           capture_output=True)
+            subprocess.run(["git", "-C", str(other), "remote", "add", "origin", self.FORK_URL],
+                           check=True, env=env, capture_output=True)
+            return other
+
+        set_variable = "the repository-redirecting variable {} is set"
+        with self.subTest("GIT_DIR names another repository"):
+            repo = self._checkout(self.MAINTAINER_URLS[0])
+            other = other_repository(repo)
+            self._assert_cannot_evaluate(
+                self._tool(repo, "--check", GIT_DIR=str(other / ".git")), "cannot decide",
+                set_variable.format("GIT_DIR"))
+        with self.subTest("GIT_COMMON_DIR names another repository"):
+            repo = self._checkout(self.MAINTAINER_URLS[0])
+            other = other_repository(repo)
+            self._assert_cannot_evaluate(
+                self._tool(repo, "--check", GIT_COMMON_DIR=str(other / ".git")), "cannot decide",
+                set_variable.format("GIT_COMMON_DIR"))
+        with self.subTest("GIT_WORK_TREE is set"):
+            repo = self._checkout(self.FORK_URL)
+            other = other_repository(repo)
+            self._assert_cannot_evaluate(
+                self._tool(repo, "--check", GIT_WORK_TREE=str(other)), "cannot decide",
+                set_variable.format("GIT_WORK_TREE"))
+        with self.subTest("GIT_DIR names this checkout's own repository"):
+            # Any set redirect variable is undecidable, whatever it names.
+            repo = self._checkout(self.FORK_URL)
+            self._assert_cannot_evaluate(
+                self._tool(repo, "--check", GIT_DIR=str(repo / ".git")), "cannot decide",
+                set_variable.format("GIT_DIR"))
+        with self.subTest(".git file names another repository's git directory"):
+            # No variable is set; require_own_git_dir refuses the layout, and the cause is the one
+            # fixed category every refusal gets, with no part of the refusal, which names both paths
+            # (3b796 round 4).
+            repo = self._checkout(repository=False)
+            other = other_repository(repo)
+            (repo / ".git").write_text(f"gitdir: {other / '.git'}\n", encoding="utf-8")
+            r = self._tool(repo, "--check")
+            self._assert_cannot_evaluate(r, "cannot decide", self.LAYOUT_REFUSED + ")")
+            self.assertNotIn("is not a work tree registered with the git directory", r.stderr)
+            self.assertNotIn(str(other), r.stderr)
+
+    # 3b796 round 5: one category for every require_own_git_dir refusal (the layout, an environment
+    # variable such as GIT_INDEX_FILE, a directory that is not a repository, a git failure).
+    LAYOUT_REFUSED = ("lint_common.require_own_git_dir did not confirm that git reads this "
+                      "checkout's own repository (layout or environment)")
+    # The operator's way to the withheld refusal, as the generator's _repository_redirect
+    # docstring gives it.
+    PRINT_REFUSAL = ("import pathlib, sys; sys.path.insert(0, 'tools'); import lint_common; "
+                     "print(lint_common.require_own_git_dir(pathlib.Path.cwd()))")
+
+    def test_check_layout_refusal_text_is_withheld(self) -> None:
+        # 3b796 round 4: require_own_git_dir's refusal can carry absolute paths taken from the
+        # environment, so the line gives only the fixed category, never any part of the refusal.
+        sentinel = "refman-sentinel-7c41"
+        with self.subTest("GIT_INDEX_FILE names an index outside the git directory"):
+            repo = self._checkout(self.FORK_URL)
+            outside = repo.parent / sentinel
+            outside.mkdir()
+            env = {"GIT_INDEX_FILE": str(outside / "index")}
+            # The refusal itself names the sentinel, so its absence below is the withholding.
+            shown = subprocess.run([sys.executable, "-B", "-c", self.PRINT_REFUSAL], cwd=str(repo),
+                                   env={**fixture_git_environment(), **env}, capture_output=True,
+                                   text=True, timeout=120)
+            self.assertIn(sentinel, shown.stdout, shown.stdout + shown.stderr)
+            self.assertIn("GIT_INDEX_FILE", shown.stdout)
+            r = self._tool(repo, "--check", **env)
+            self._assert_cannot_evaluate(r, "cannot decide", self.LAYOUT_REFUSED + ")")
+            self.assertNotIn(sentinel, r.stderr)
+            self.assertNotIn("GIT_INDEX_FILE", r.stderr)
+            self.assertNotIn(str(repo / ".git"), r.stderr)
+        for label, refusal in (("multi-line refusal", f"refused at /{sentinel}/a\nsecond /{sentinel}"),
+                               ("one-line refusal", f"git reads the git directory '/{sentinel}'"),
+                               ("empty refusal", "")):
+            with self.subTest(f"in process, require_own_git_dir stubbed: {label}"):
+                import contextlib
+                import io
+                mod = self._load("_refman_layout_refusal")
+                old_guard = mod.lint_common.require_own_git_dir
+                mod.lint_common.require_own_git_dir = lambda root, **_kw: refusal
+                mod._REDIRECT_VARIABLES = ()
+
+                def no_read():
+                    raise AssertionError("a refused layout must not reach the origin read")
+                mod._read_origin = no_read
+                err = io.StringIO()
+                try:
+                    with contextlib.redirect_stderr(err):
+                        rc = mod._check_without_sibling()
+                finally:
+                    mod.lint_common.require_own_git_dir = old_guard
+                self.assertEqual(rc, 4, err.getvalue())
+                self.assertEqual(len(err.getvalue().splitlines()), 1, err.getvalue())
+                self.assertIn(f"cannot decide ({self.LAYOUT_REFUSED})", err.getvalue())
+                self.assertNotIn(sentinel, err.getvalue())
+
+    def test_check_undecidable_context_without_sibling_cannot_evaluate(self) -> None:
+        phrase = "cannot decide"
+        with self.subTest("no origin remote"):
+            self._assert_cannot_evaluate(
+                self._tool(self._checkout(), "--check"), phrase,
+                "the origin read failed validation (git remote get-url origin exited ")
+        with self.subTest("not a repository"):
+            repo = self._checkout(repository=False)
+            r = self._tool(repo, "--check")
+            self._assert_cannot_evaluate(r, phrase, self.LAYOUT_REFUSED + ")")
+            self.assertNotIn("could not confirm", r.stderr)
+        with self.subTest("detector missing"):
+            # 3b796 round 8: the child fails to load it and exits 1; its traceback is not shown.
+            repo = self._checkout(self.FORK_URL)
+            (repo / "tools" / "detect-env.py").unlink()
+            r = self._tool(repo, "--check")
+            self._assert_cannot_evaluate(r, phrase, "tools/detect-env.py exited 1)")
+            self.assertNotIn("FileNotFoundError", r.stderr)
+        with self.subTest("detector raises"):
+            repo = self._checkout(self.FORK_URL)
+            (repo / "tools" / "detect-env.py").write_text("raise RuntimeError('x')\n", encoding="utf-8")
+            r = self._tool(repo, "--check")
+            self._assert_cannot_evaluate(r, phrase, "tools/detect-env.py exited 1)")
+            self.assertNotIn("RuntimeError", r.stderr)
+        with self.subTest("detector exits while loading"):
+            # 3b796 round 5: a SystemExit (even exit 0) from the detector is never the tool's own
+            # exit with no line; since round 8 it ends only the child, which printed nothing.
+            repo = self._checkout(self.FORK_URL)
+            (repo / "tools" / "detect-env.py").write_text("raise SystemExit(0)\n", encoding="utf-8")
+            self._assert_cannot_evaluate(self._tool(repo, "--check"), phrase,
+                                         self.DETECTOR_NO_LINE + ")")
+        with self.subTest("detector disagrees"):
+            repo = self._checkout(self.FORK_URL)
+            (repo / "tools" / "detect-env.py").write_text(
+                'MAINTAINER_ORIGIN_OWNER_REPO = "jposluns/grc_library"\n'
+                "def probe_siblings():\n    return {}\n"
+                "def probe_identity(siblings):\n"
+                '    return {"origin_url": "https://github.com/other/x.git",'
+                ' "origin_is_maintainer_repo": False}\n', encoding="utf-8")
+            self._assert_cannot_evaluate(
+                self._tool(repo, "--check"), phrase,
+                "tools/detect-env.py did not read the same origin and maintainer flag")
+        with self.subTest("detector maintainer constant not a string"):
+            # 3b796 round 4 placed with a None constant and fell back on the AttributeError;
+            # since round 8 the child's output fails the type check before anything is placed.
+            repo = self._checkout(self.FORK_URL)
+            (repo / "tools" / "detect-env.py").write_text(
+                "MAINTAINER_ORIGIN_OWNER_REPO = None\n"
+                "def probe_siblings():\n    return {}\n"
+                "def probe_identity(siblings):\n"
+                f'    return {{"origin_url": "{self.FORK_URL}",'
+                ' "origin_is_maintainer_repo": False}\n', encoding="utf-8")
+            self._assert_cannot_evaluate(
+                self._tool(repo, "--check"), phrase,
+                "tools/detect-env.py printed a value of the wrong type)")
+        with self.subTest("detector maintainer constant is a str subclass that exits"):
+            # 3b796 round 6 reached the placing fallback with this value's SystemExit; since
+            # round 8 the child prints it as plain JSON text, so no code of its class reaches the
+            # tool, and the values (a fork origin, flag False) are an adopter's.
+            repo = self._checkout(self.FORK_URL)
+            (repo / "tools" / "detect-env.py").write_text(
+                "class _Exits(str):\n"
+                "    def lower(self):\n"
+                "        raise SystemExit(0)\n"
+                'MAINTAINER_ORIGIN_OWNER_REPO = _Exits("jposluns/grc_library")\n'
+                "def probe_siblings():\n    return {}\n"
+                "def probe_identity(siblings):\n"
+                f'    return {{"origin_url": "{self.FORK_URL}",'
+                ' "origin_is_maintainer_repo": False}\n', encoding="utf-8")
+            self._assert_adopter_noop(self._tool(repo, "--check"))
+        with self.subTest("garbled origin read"):
+            # detect-env joins git's stdout and stderr, so a trace line beside a maintainer url
+            # reads as a non-maintainer origin; that must not pass as an adopter clone.
+            repo = self._checkout(self.MAINTAINER_URLS[0])
+            self._assert_cannot_evaluate(
+                self._tool(repo, "--check", GIT_TRACE="1"), phrase,
+                "the origin read failed validation (git remote get-url origin wrote to stderr)")
+
+    def test_operator_context_fallback_names_the_failing_part(self) -> None:
+        # 3b796 round 4: an unexpected exception before the detector is loaded reaches the first
+        # generic fallback, which names the part that failed and the exception's type only.
+        for label, redirect, read, want in (
+                ("origin read times out", lambda: None,
+                 subprocess.TimeoutExpired(["git", "remote", "get-url", "origin"], 10),
+                 "TimeoutExpired"),
+                ("repository check raises", RuntimeError("refman-sentinel-c2"), None,
+                 "RuntimeError")):
+            with self.subTest(label):
+                mod = self._load("_refman_fallback")
+
+                def raises(exc):
+                    def stub():
+                        raise exc
+                    return stub
+                mod._repository_redirect = (raises(redirect) if isinstance(redirect, Exception)
+                                            else redirect)
+                mod._read_origin = raises(read) if read is not None else None
+                self.assertEqual(mod._operator_context(), (
+                    "undecidable", f"the repository check or the origin read failed ({want})"))
+
+    def test_check_exit_in_repository_check_or_origin_read_cannot_evaluate(self) -> None:
+        # 3b796 round 6: a SystemExit (even exit 0) from the repository check or the origin read
+        # reaches the first fallback: exit 4 with one line naming that part, never the tool's own
+        # exit with no line.
+        import contextlib
+        import io
+
+        def exits():
+            raise SystemExit(0)
+        for label, redirect, read in (("origin read exits", lambda: None, exits),
+                                      ("repository check exits", exits, None)):
+            with self.subTest(label):
+                mod = self._load("_refman_fallback_exit")
+                mod._repository_redirect = redirect
+                mod._read_origin = read
+                err = io.StringIO()
+                with contextlib.redirect_stderr(err):
+                    rc = mod._check_without_sibling()
+                self.assertEqual(rc, 4, err.getvalue())
+                self.assertEqual(len(err.getvalue().splitlines()), 1, err.getvalue())
+                self.assertIn("cannot decide (the repository check or the origin read failed "
+                              "(SystemExit))", err.getvalue())
+
+    # 3b796 round 7 (codex ERROR, claude W1): an exception class whose metaclass makes __name__
+    # raise SystemExit(0). Reading type(exc).__name__ in a handler ran that property outside the
+    # handler's try, so --check exited 0 with no line.
+    NAME_EXITS = ("class _NameExits(type):\n"
+                  "    @property\n"
+                  "    def __name__(cls):\n"
+                  "        raise SystemExit(0)\n"
+                  "class _Fails(Exception, metaclass=_NameExits):\n"
+                  "    pass\n")
+
+    def _in_process_check(self, mod) -> "tuple[int, str]":
+        # _check_without_sibling run in this process, its stderr captured.
+        import contextlib
+        import io
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            rc = mod._check_without_sibling()
+        return rc, err.getvalue()
+
+    def test_check_exception_type_name_cannot_end_check(self) -> None:
+        # 3b796 round 7 covered the three handlers, the detector's two included; since round 8
+        # the detector's exceptions stay in its own process (see
+        # test_check_detector_runs_in_a_separate_process), so the handlers here see only this
+        # tool's own exceptions, whose type names still go through _type_name.
+        class _NameExits(type):
+            @property
+            def __name__(cls):
+                raise SystemExit(0)
+
+        class _Fails(Exception, metaclass=_NameExits):
+            pass
+
+        def read():
+            raise _Fails()
+        with self.subTest("in process, the origin read raises it"):
+            mod = self._load("_refman_name_exits")
+            mod._repository_redirect = lambda: None
+            mod._read_origin = read
+            rc, err = self._in_process_check(mod)
+            self.assertEqual(rc, 4, err)
+            self.assertEqual(len(err.splitlines()), 1, err)
+            self.assertIn("cannot decide (the repository check or the origin read failed "
+                          "(_Fails))", err)
+        # Review round 6 (claude N2, codex NOTE): the helper's fallback, reached when reading the
+        # name itself raises; this module's own name `type` is rebound to an object whose
+        # attribute access raises, while a KeyboardInterrupt there still passes through.
+        class _Unreadable:
+            def __init__(self, exc):
+                self.exc = exc
+
+            def __getattribute__(self, name):
+                raise object.__getattribute__(self, "exc")
+
+            def __call__(self, *_args):
+                raise object.__getattribute__(self, "exc")
+        for label, exc in (("an ordinary exception", RuntimeError("refman-sentinel-n2")),
+                           ("a SystemExit", SystemExit(0))):
+            with self.subTest(f"in process, reading the type name raises {label}"):
+                mod = self._load("_refman_unreadable_name")
+                mod._repository_redirect = lambda: None
+                mod._read_origin = read
+                mod.type = _Unreadable(exc)
+                rc, err = self._in_process_check(mod)
+                self.assertEqual(rc, 4, err)
+                self.assertEqual(len(err.splitlines()), 1, err)
+                self.assertIn("cannot decide (the repository check or the origin read failed "
+                              "(an exception whose type name could not be read))", err)
+                self.assertNotIn("refman-sentinel-n2", err)
+        with self.subTest("in process, reading the type name raises KeyboardInterrupt"):
+            mod = self._load("_refman_unreadable_interrupt")
+            mod.type = _Unreadable(KeyboardInterrupt())
+            with self.assertRaises(KeyboardInterrupt):
+                mod._type_name(RuntimeError())
+
+    # 3b796 round 8: replacement detectors for the shapes review rounds 5 and 6 found getting past
+    # the in-process handlers. Each now ends only the child.
+    DETECTOR_SHAPES = (
+        ("metaclass __name__ raises SystemExit", NAME_EXITS + "raise _Fails()\n"),
+        ("MRO without BaseException",
+         "class _NoBase(type):\n"
+         "    def mro(cls):\n"
+         "        return (cls, object)\n"
+         "class _Fails(Exception, metaclass=_NoBase):\n"
+         "    pass\n"
+         "raise _Fails()\n"),
+        ("SystemExit subclass with a custom MRO",
+         "class _Mro(type):\n"
+         "    def mro(cls):\n"
+         "        return (cls, SystemExit, object)\n"
+         "class _Quiet(SystemExit, metaclass=_Mro):\n"
+         "    pass\n"
+         "raise _Quiet(0)\n"),
+        ("MRO (cls, Exception, object) with a raising __name__",
+         "class _Mro(type):\n"
+         "    def mro(cls):\n"
+         "        return (cls, Exception, object)\n"
+         "    @property\n"
+         "    def __name__(cls):\n"
+         "        raise SystemExit(0)\n"
+         "class _Fails(Exception, metaclass=_Mro):\n"
+         "    pass\n"
+         "raise _Fails()\n"),
+    )
+    # The detector checks' fixed causes. Which one an exception shape above meets depends on how
+    # the interpreter reports it (an exit status, a signal, a traceback or nothing), which can
+    # differ between Python versions, so those cases accept any of them; each is fixed text.
+    DETECTOR_CAUSE = re.compile(
+        r"tools/detect-env\.py (?:was ended by signal [0-9]+|exited [0-9]+|wrote to stderr"
+        r"|printed output that is not valid UTF-8|did not print exactly one line"
+        r"|printed a line that is not valid JSON|printed JSON that is not an object"
+        r"|printed a JSON object without exactly the expected keys"
+        r"|printed a value of the wrong type"
+        r"|printed the JSON object in a form the program does not write)")
+    ADOPTER_DETECTOR = ('MAINTAINER_ORIGIN_OWNER_REPO = "jposluns/grc_library"\n'
+                        "def probe_siblings():\n    return {}\n"
+                        "def probe_identity(siblings):\n"
+                        f'    return {{"origin_url": "{FORK_URL}",'
+                        ' "origin_is_maintainer_repo": False}\n')
+
+    def _detector_check(self, source: str, **extra_env: str) -> subprocess.CompletedProcess:
+        repo = self._checkout(self.FORK_URL)
+        (repo / "tools" / "detect-env.py").write_text(source, encoding="utf-8")
+        return self._tool(repo, "--check", **extra_env)
+
+    def test_check_detector_runs_in_a_separate_process(self) -> None:
+        import signal
+        for label, source in self.DETECTOR_SHAPES:
+            with self.subTest(label):
+                r = self._detector_check(source)
+                self._assert_cannot_evaluate(r, "cannot decide")
+                cause = r.stderr.split("cannot decide (", 1)[1]
+                cause = cause.rsplit("), which is not taken", 1)[0]
+                self.assertRegex(cause, rf"\A{self.DETECTOR_CAUSE.pattern}\Z")
+                for detector_text in ("_Fails", "_Quiet", "Traceback", "SystemExit"):
+                    self.assertNotIn(detector_text, r.stderr)
+        for label, source, cause in (
+                ("os._exit(0) after printing nothing", "import os\nos._exit(0)\n",
+                 self.DETECTOR_NO_LINE),
+                ("atexit os._exit(0), then a raise",
+                 "import atexit, os\natexit.register(os._exit, 0)\nraise RuntimeError('x')\n",
+                 "tools/detect-env.py wrote to stderr"),
+                ("extra output", "print('refman-extra')\n" + self.ADOPTER_DETECTOR,
+                 self.DETECTOR_NO_LINE),
+                ("malformed JSON",
+                 "import os, sys\nsys.stdout.write('{\"maintainer_owner_repo\": \\n')\n"
+                 "sys.stdout.flush()\nos._exit(0)\n",
+                 "tools/detect-env.py printed a line that is not valid JSON"),
+                ("stderr beside valid values",
+                 "import sys\nsys.stderr.write('refman-noise\\n')\n" + self.ADOPTER_DETECTOR,
+                 "tools/detect-env.py wrote to stderr"),
+                ("KeyboardInterrupt in the child",
+                 "raise KeyboardInterrupt\n",
+                 f"tools/detect-env.py was ended by signal {int(signal.SIGINT)}")):
+            with self.subTest(label):
+                r = self._detector_check(source)
+                self._assert_cannot_evaluate(r, "cannot decide", cause + ")")
+                for detector_text in ("refman-extra", "refman-noise", "maintainer_owner_repo"):
+                    self.assertNotIn(detector_text, r.stderr)
+        with self.subTest("valid adopter values"):
+            self._assert_adopter_noop(self._detector_check(self.ADOPTER_DETECTOR))
+
+    def test_check_detector_launch_contract(self) -> None:
+        # 3b796 round 8: the child runs isolated (-I), from the checkout, with stdin from the null
+        # device and no GIT_ variable (the fixture sets GIT_CONFIG_GLOBAL and GIT_CONFIG_NOSYSTEM,
+        # and round 9 adds Git_Refman_Inert, a mixed-case name git does not read, so the filter's
+        # case-insensitive match is covered too). Each replacement detector reports the adopter
+        # values only when its one condition holds, so a broken condition shows as the
+        # disagreement exit 4.
+        conditions = (
+            ("isolated mode", "sys.flags.isolated == 1"),
+            ("checkout working directory",
+             "os.path.realpath(os.getcwd()) == "
+             "os.path.dirname(os.path.dirname(os.path.realpath(__file__)))"),
+            ("stdin from the null device",
+             "os.path.samestat(os.fstat(0), os.stat(os.devnull))"),
+            ("no GIT_ variable",
+             "not any(name.upper().startswith('GIT_') for name in os.environ)"),
+            # 3b796 round 10 (claude N2): the git the child finds on PATH is _git_shim's script,
+            # and a git command run through it sees GIT_CONFIG_NOSYSTEM=1 (an alias that prints
+            # it), so the shim keeps the runner's system file out of the detector's read.
+            ("git on PATH is the shim, which sets GIT_CONFIG_NOSYSTEM",
+             "os.path.basename(os.path.dirname(shutil.which('git'))).startswith('refman-git-') "
+             "and subprocess.run(['git', '-c', 'alias.refmanenv=!printenv GIT_CONFIG_NOSYSTEM', "
+             "'refmanenv'], stdin=subprocess.DEVNULL, capture_output=True, text=True, "
+             "timeout=30).stdout == '1\\n'"),
+        )
+        for label, condition in conditions:
+            with self.subTest(label):
+                r = self._detector_check(
+                    "import os, shutil, subprocess, sys\n"
+                    'MAINTAINER_ORIGIN_OWNER_REPO = "jposluns/grc_library"\n'
+                    "def probe_siblings():\n    return {}\n"
+                    "def probe_identity(siblings):\n"
+                    f"    held = {condition}\n"
+                    f'    return {{"origin_url": "{self.FORK_URL}" if held else "held: no",'
+                    ' "origin_is_maintainer_repo": False}\n', Git_Refman_Inert="1")
+                self._assert_adopter_noop(r)
+
+    # 3b796 round 9: the fixed cause when the tool's origin read and the detector's differ.
+    DISAGREEMENT = "tools/detect-env.py did not read the same origin and maintainer flag"
+
+    def test_check_git_variable_configuration_disagrees(self) -> None:
+        # 3b796 round 9: configuration supplied through GIT_ variables reaches only the tool's own
+        # origin read (the detector process gets none), so a rewrite there that turns a maintainer
+        # origin into a fork URL makes the two reads disagree: exit 4 with that cause, never the
+        # adopter no-op.
+        key, value = "url.https://github.com/some-adopter/.insteadOf", "https://github.com/jposluns/"
+        for label, extra in (
+                ("GIT_CONFIG_COUNT", {"GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": key,
+                                      "GIT_CONFIG_VALUE_0": value}),
+                ("GIT_CONFIG_PARAMETERS (git -c)", {"GIT_CONFIG_PARAMETERS": f"'{key}={value}'"})):
+            with self.subTest(label):
+                repo = self._checkout(self.MAINTAINER_URLS[0])
+                r = self._tool(repo, "--check", **extra)
+                self._assert_cannot_evaluate(r, "cannot decide", self.DISAGREEMENT + ")")
+                self.assertNotIn("some-adopter", r.stderr)
+
+    def test_detector_program_writes_bytes_below_newline_translation(self) -> None:
+        # 3b796 round 9: the fixed program writes its line as ASCII bytes through
+        # sys.stdout.buffer, so a text layer that translates newlines (as on Windows) cannot add a
+        # CR. Here the child's text stdout is replaced by one that writes CR LF for each LF.
+        mod = self._load("_refman_program_bytes")
+        tools = Path(tempfile.mkdtemp(prefix="refman-program-"))
+        self.addCleanup(shutil.rmtree, tools, True)
+        (tools / "detect-env.py").write_text(self.ADOPTER_DETECTOR, encoding="utf-8")
+        translating = ("import io, sys\n"
+                       "sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='ascii',"
+                       " newline='\\r\\n')\n"
+                       "exec(compile(sys.argv.pop(1), '<program>', 'exec'), {'__name__': '__main__'})\n")
+        r = subprocess.run([sys.executable, "-I", "-c", translating, mod._DETECTOR_PROGRAM,
+                            str(tools / "detect-env.py")],
+                           stdin=subprocess.DEVNULL, capture_output=True, timeout=60)
+        self.assertIsNone(mod._detector_fault(r.returncode, r.stdout, r.stderr),
+                          r.stdout + r.stderr)
+
+    def _in_process_detector(self, unique: str, source: str):
+        # The module loaded in this process, with a replacement detector beside a stand-in path
+        # for it and the repository check and origin read stubbed to a fork origin.
+        mod = self._load(unique)
+        tools = Path(tempfile.mkdtemp(prefix="refman-detector-"))
+        self.addCleanup(shutil.rmtree, tools, True)
+        (tools / "detect-env.py").write_text(source, encoding="utf-8")
+        mod.__file__ = str(tools / "build-reference-manifest.py")
+        mod._repository_redirect = lambda: None
+        mod._read_origin = lambda: (0, (self.FORK_URL + "\n").encode(), b"")
+        return mod, tools
+
+    def _sleeping_detector(self, pid_file: Path, *, leader_exits: bool = False) -> str:
+        # Starts a sleeping descendant (in the child's process group, holding its stdout and
+        # stderr), records both pids (written whole: a rename puts the file in place), then
+        # sleeps, or (leader_exits, 3b796 round 9) exits at once, leaving the descendant holding
+        # both pipes. The descendant's command line carries pid_file, the marker _reap_recorded
+        # checks (3b796 round 10).
+        partial = str(pid_file) + ".partial"
+        return ("import os, subprocess, sys, time\n"
+                "kid = subprocess.Popen([sys.executable, '-I', '-c',\n"
+                f"                        'import time; time.sleep(30)', {str(pid_file)!r}])\n"
+                f"with open({partial!r}, 'w') as f:\n"
+                "    f.write(f'{os.getpid()} {kid.pid}')\n"
+                f"os.replace({partial!r}, {str(pid_file)!r})\n"
+                + ("os._exit(0)\n" if leader_exits else "time.sleep(30)\n"))
+
+    @staticmethod
+    def _wait_for_pids(pid_file: Path) -> bool:
+        # 3b796 round 9: whether the detector recorded its pids within 30 seconds, so a slow
+        # runner gives a failed assertion rather than a FileNotFoundError.
+        import time
+        deadline = time.monotonic() + 30
+        while not pid_file.is_file() and time.monotonic() < deadline:
+            time.sleep(0.02)
+        return pid_file.is_file()
+
+    def _record_children(self, mod):
+        # 3b796 round 9: the detector children mod starts, each recorded once Popen returns, and an
+        # event set then. mod alone sees the recording Popen. Cleanup closes any pipe and reaps
+        # any child the case under test left behind.
+        import threading
+        import types
+        made, started = [], threading.Event()
+
+        class Recording(subprocess.Popen):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                made.append(self)
+                started.set()
+        mod.subprocess = types.SimpleNamespace(**{**vars(subprocess), "Popen": Recording})
+
+        def leftovers() -> None:
+            for child in made:
+                for pipe in (child.stdout, child.stderr):
+                    if pipe is not None:
+                        pipe.close()
+                if child.returncode is None:
+                    child.kill()
+                    child.wait()
+        self.addCleanup(leftovers)
+        return made, started
+
+    def _assert_pipes_closed(self, made: list) -> None:
+        # 3b796 round 9: the one detector child was reaped and both its pipes were closed.
+        self.assertEqual(len(made), 1, made)
+        self.assertIsNotNone(made[0].returncode, "the detector child was left unreaped")
+        self.assertTrue(made[0].stdout.closed and made[0].stderr.closed,
+                        "the detector's pipes were left open")
+
+    # 3b796 round 10 (codex W4): the process-death assertions read Linux procfs, here.
+    _PROC = Path("/proc")
+
+    def _require_procfs(self) -> None:
+        # Skips the case, with the reason, where Linux procfs is not there to read: a missing
+        # /proc/<pid>/stat then says nothing about whether the process is gone.
+        if not sys.platform.startswith("linux") or not (self._PROC / "self" / "stat").is_file():
+            self.skipTest("the process-death assertions read Linux procfs (/proc/<pid>/stat), "
+                          "which is not available here")
+
+    def _process_gone(self, pid: int) -> bool:
+        # Gone: no such process, or a zombie left for its new parent to reap. Only with Linux
+        # procfs present (3b796 round 10), so a missing /proc/<pid>/stat means an absent pid.
+        self._require_procfs()
+        try:
+            with open(self._PROC / str(pid) / "stat", encoding="utf-8") as stat:
+                return stat.read().rsplit(")", 1)[1].split()[0] in ("Z", "X")
+        except FileNotFoundError:
+            return True
+        except OSError:
+            pass
+        try:
+            os.kill(pid, 0)
+        except ProcessLookupError:
+            return True
+        return False
+
+    def _owned(self, pid: int, group: int, marker: str) -> bool:
+        # Whether procfs shows pid as still one of this test's own processes: its command line
+        # carries marker (a path unique to the test) and its process group is group.
+        try:
+            argv = (self._PROC / str(pid) / "cmdline").read_bytes().split(b"\0")
+            stat = (self._PROC / str(pid) / "stat").read_text(encoding="utf-8")
+        except OSError:
+            return False
+        return os.fsencode(marker) in argv and int(stat.rsplit(")", 1)[1].split()[2]) == group
+
+    def _reap_recorded(self, pid_file: Path):
+        # 3b796 round 10 (codex W3): registered with addCleanup before the detector starts, so
+        # it runs however the case's assertions end. It kills each pid the detector recorded in
+        # pid_file only while procfs shows it is still the test's own (_owned: pid_file in its
+        # command line, the recorded detector's process group), one pid at a time, never a
+        # group. Round 11 (codex W3): where the platform has pidfds (os.pidfd_open and
+        # signal.pidfd_send_signal), the pid is opened as a pidfd first, then checked, then
+        # signalled through the pidfd, so the signal reaches only the process the pidfd opened:
+        # if that process exits after the open, signalling the pidfd cannot reach a process that
+        # is given the same pid number afterwards (the pidfd does not keep the number from being
+        # reused; it names the one process), and the send fails as gone; and if it is still
+        # running when signalled, it has held its pid since the open, so the check read that
+        # same process. Without pidfds the guarantee is narrower: a pid that exits and is reused
+        # between the check and os.kill can be signalled. Round 12 (claude N4, codex NOTE): a
+        # pidfd_open that fails other than as gone (ESRCH), as with ENOSYS on an old kernel, EPERM
+        # under a seccomp filter or EINVAL, takes that os.kill fallback for that pid. The detector
+        # child itself is left to _record_children's cleanup, which ends it through its Popen.
+        # Returns the cleanup, so a case can run it.
+        import signal
+
+        def reap() -> None:
+            if not pid_file.is_file():
+                return
+            pids = [int(p) for p in pid_file.read_text(encoding="utf-8").split()]
+            pidfds = hasattr(os, "pidfd_open") and hasattr(signal, "pidfd_send_signal")
+            for pid in pids:
+                pidfd = None
+                if pidfds:
+                    try:
+                        pidfd = os.pidfd_open(pid)
+                    except ProcessLookupError:
+                        continue
+                    except OSError:
+                        pidfd = None
+                if pidfd is None:
+                    if self._owned(pid, pids[0], str(pid_file)):
+                        try:
+                            os.kill(pid, signal.SIGKILL)
+                        except ProcessLookupError:
+                            pass
+                    continue
+                try:
+                    if self._owned(pid, pids[0], str(pid_file)):
+                        try:
+                            signal.pidfd_send_signal(pidfd, signal.SIGKILL)
+                        except ProcessLookupError:
+                            pass
+                finally:
+                    os.close(pidfd)
+        self.addCleanup(reap)
+        return reap
+
+    def _assert_child_gone(self, pid_file: Path) -> None:
+        # The child itself is reaped by the tool; its descendant in the child's process group
+        # is killed (within a few seconds of the kill being sent). A descendant left running is
+        # killed by the _reap_recorded cleanup, whatever this assertion gives.
+        import time
+        self.assertTrue(pid_file.is_file(), "the detector did not record its pids")
+        child, descendant = (int(p) for p in pid_file.read_text(encoding="utf-8").split())
+        with self.assertRaises(ProcessLookupError):
+            os.kill(child, 0)
+        deadline = time.monotonic() + 5
+        while not self._process_gone(descendant) and time.monotonic() < deadline:
+            time.sleep(0.05)
+        self.assertTrue(self._process_gone(descendant),
+                        "the detector's descendant outlived the kill")
+
+    def _pid_file(self) -> Path:
+        # 3b796 round 10: a fresh pid file path for a detector that records its pids, with procfs
+        # required and the _reap_recorded cleanup registered before anything starts.
+        self._require_procfs()
+        holder = Path(tempfile.mkdtemp(prefix="refman-pid-"))
+        self.addCleanup(shutil.rmtree, holder, True)
+        pid_file = holder / "pid"
+        self._reap_recorded(pid_file)
+        return pid_file
+
+    def test_check_detector_timeout_cannot_evaluate(self) -> None:
+        # 3b796 round 8: a detector that outlives the time limit (shortened here to 2 seconds) is
+        # killed and reaped, and the line names the check. Round 9: the limit is armed only once
+        # the detector has recorded its pids, and its pipes are closed.
+        import time
+        pid_file = self._pid_file()
+        mod, _tools = self._in_process_detector("_refman_timeout",
+                                                self._sleeping_detector(pid_file))
+        made, _started = self._record_children(mod)
+        collect, recorded = mod._collect_detector, []
+
+        def collect_after_pids(child, timeout, readers):
+            recorded.append(self._wait_for_pids(pid_file))
+            return collect(child, timeout, readers)
+        mod._collect_detector = collect_after_pids
+        mod._DETECTOR_TIMEOUT = 2
+        started = time.monotonic()
+        rc, err = self._in_process_check(mod)
+        self.assertEqual(recorded, [True], "the detector did not record its pids within 30 seconds")
+        self.assertLess(time.monotonic() - started, 50)
+        self.assertEqual(rc, 4, err)
+        self.assertEqual(len(err.splitlines()), 1, err)
+        self.assertIn("cannot decide (tools/detect-env.py did not finish within 2 seconds)", err)
+        self._assert_child_gone(pid_file)
+        self._assert_pipes_closed(made)
+
+    def test_operator_context_lets_keyboard_interrupt_through(self) -> None:
+        # 3b796 round 6: every handler in _operator_context maps any other BaseException to
+        # undecidable, but a KeyboardInterrupt from any of its three parts passes through. Since
+        # round 8 the detector part is this process waiting for the child.
+        def interrupted(*_args, **_kwargs):
+            raise KeyboardInterrupt
+
+        values = {"maintainer_owner_repo": "jposluns/grc_library", "origin_url": self.FORK_URL,
+                  "origin_is_maintainer_repo": False}
+        for part in ("origin read", "detector", "placing"):
+            with self.subTest(part):
+                mod = self._load("_refman_interrupt")
+                mod._repository_redirect = lambda: None
+                if part == "origin read":
+                    mod._read_origin = interrupted
+                else:
+                    mod._read_origin = lambda: (0, (self.FORK_URL + "\n").encode(), b"")
+                mod._detector_values = (interrupted if part == "detector"
+                                        else lambda: (dict(values), None))
+                if part == "placing":
+                    mod._place_origin = interrupted
+                with self.assertRaises(KeyboardInterrupt):
+                    mod._operator_context()
+
+    def _interrupted_wait(self, unique: str, *, leader_exits: bool) -> None:
+        # 3b796 round 9: run _operator_context with a sleeping detector and interrupt it while it
+        # waits for the child, once Popen has returned and the detector has recorded its pids
+        # (and, with leader_exits, once the child itself has exited, its descendant still
+        # holding both pipes). A helper thread sends SIGALRM to this thread, whose handler raises
+        # KeyboardInterrupt; it passes through, and the child's group is killed, its pipes are
+        # closed and the child is reaped first.
+        import signal
+        import threading
+        import time
+        if not hasattr(signal, "pthread_kill"):
+            self.skipTest("needs signal.pthread_kill")
+        pid_file = self._pid_file()
+        mod, _tools = self._in_process_detector(
+            unique, self._sleeping_detector(pid_file, leader_exits=leader_exits))
+        made, popen_returned = self._record_children(mod)
+        main, ready = threading.get_ident(), []
+
+        def trigger() -> None:
+            if not (popen_returned.wait(30) and self._wait_for_pids(pid_file)):
+                ready.append(False)
+                return
+            if leader_exits:
+                leader = int(pid_file.read_text(encoding="utf-8").split()[0])
+                deadline = time.monotonic() + 30
+                while not self._process_gone(leader) and time.monotonic() < deadline:
+                    time.sleep(0.02)
+                if not self._process_gone(leader):
+                    ready.append(False)
+                    return
+            time.sleep(0.1)
+            ready.append(True)
+            signal.pthread_kill(main, signal.SIGALRM)
+
+        def interrupt(*_args):
+            raise KeyboardInterrupt
+        old_handler = signal.signal(signal.SIGALRM, interrupt)
+        helper = threading.Thread(target=trigger, daemon=True)
+        started = time.monotonic()
+        try:
+            helper.start()
+            with self.assertRaises(KeyboardInterrupt):
+                mod._operator_context()
+        finally:
+            helper.join(60)
+            signal.signal(signal.SIGALRM, old_handler)
+        self.assertEqual(ready, [True], "the detector was not ready to interrupt within 30 seconds")
+        self.assertLess(time.monotonic() - started, 50)
+        self._assert_child_gone(pid_file)
+        self._assert_pipes_closed(made)
+
+    def test_interrupt_while_waiting_kills_the_detector(self) -> None:
+        # 3b796 round 8: an interrupt that reaches this process while it waits for the child
+        # passes through, and the child is killed and reaped first.
+        self._interrupted_wait("_refman_interrupt_wait", leader_exits=False)
+
+    def test_interrupt_after_the_detector_exits_kills_its_group(self) -> None:
+        # 3b796 round 9 (codex E1): the child has exited and a descendant in its group still holds
+        # both pipes when the interrupt arrives. The child stays unreaped until the group is killed,
+        # so no descendant and no open pipe is left.
+        self._interrupted_wait("_refman_interrupt_exited", leader_exits=True)
+
+    def test_exception_while_waiting_kills_the_detector(self) -> None:
+        # 3b796 round 9: any other exception while this process waits for the child is
+        # "undecidable" with its type name, and the child's group is killed, its pipes are closed
+        # and the child is reaped first.
+        pid_file = self._pid_file()
+        mod, _tools = self._in_process_detector("_refman_raise_wait",
+                                                self._sleeping_detector(pid_file))
+        made, _started = self._record_children(mod)
+        recorded = []
+
+        def fails(child, timeout, readers):
+            recorded.append(self._wait_for_pids(pid_file))
+            raise RuntimeError("refman")
+        mod._collect_detector = fails
+        self.assertEqual(mod._operator_context(),
+                         ("undecidable", "tools/detect-env.py could not be run (RuntimeError)"))
+        self.assertEqual(recorded, [True], "the detector did not record its pids within 30 seconds")
+        self._assert_child_gone(pid_file)
+        self._assert_pipes_closed(made)
+
+    def test_normal_finish_kills_what_is_left_of_the_group(self) -> None:
+        # 3b796 round 9: after a normal finish (both pipes closed, the child exited 0 with the
+        # adopter values) a descendant still running in the child's process group is killed too,
+        # and the child is reaped.
+        pid_file = self._pid_file()
+        partial = str(pid_file) + ".partial"
+        mod, _tools = self._in_process_detector("_refman_lingering", (
+            "import os, subprocess, sys\n"
+            'MAINTAINER_ORIGIN_OWNER_REPO = "jposluns/grc_library"\n'
+            "def probe_siblings():\n    return {}\n"
+            "def probe_identity(siblings):\n"
+            "    kid = subprocess.Popen([sys.executable, '-I', '-c', 'import time; time.sleep(30)',\n"
+            f"                            {str(pid_file)!r}],\n"
+            "                           stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,\n"
+            "                           stderr=subprocess.DEVNULL)\n"
+            f"    with open({partial!r}, 'w') as f:\n"
+            "        f.write(f'{os.getpid()} {kid.pid}')\n"
+            f"    os.replace({partial!r}, {str(pid_file)!r})\n"
+            f'    return {{"origin_url": "{self.FORK_URL}", "origin_is_maintainer_repo": False}}\n'))
+        made, _started = self._record_children(mod)
+        self.assertEqual(mod._operator_context(), ("adopter", None))
+        self._assert_child_gone(pid_file)
+        self._assert_pipes_closed(made)
+
+    # 3b796 round 10 (claude W1): runs the command line after it with SIGCHLD ignored (an ignored
+    # disposition survives exec, and Python's startup leaves it as it found it).
+    IGNORE_SIGCHLD = ("import os, signal, sys\n"
+                      "signal.signal(signal.SIGCHLD, signal.SIG_IGN)\n"
+                      "os.execv(sys.argv[1], sys.argv[1:])\n")
+
+    def test_check_with_sigchld_ignored_takes_the_adopter_noop(self) -> None:
+        # 3b796 round 10 (claude W1): a builder that inherits an ignored SIGCHLD still takes the
+        # healthy adopter no-op. Without the hold the kernel reaps the detector child itself,
+        # os.waitid raises ChildProcessError, and --check exits 4 instead.
+        import signal
+        if not hasattr(signal, "SIGCHLD"):
+            self.skipTest("needs SIGCHLD")
+        launcher = (sys.executable, "-I", "-c", self.IGNORE_SIGCHLD)
+        shown = subprocess.run(
+            [*launcher, sys.executable, "-I", "-c",
+             "import signal; print(signal.getsignal(signal.SIGCHLD) is signal.SIG_IGN)"],
+            stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60)
+        self.assertEqual(shown.stdout, "True\n", "the launcher did not pass SIGCHLD on ignored")
+        self._assert_adopter_noop(self._tool(self._checkout(self.FORK_URL), "--check",
+                                             launcher=launcher))
+
+    def test_check_with_sigchld_ignored_reports_the_git_exit(self) -> None:
+        # 3b796 round 11 (claude W1): the hold covers the builder's own git reads too. With an
+        # ignored SIGCHLD and no hold around them, Python's subprocess reports git's exit as 0, so
+        # a failing origin read showed only as "wrote to stderr"; under the hold the cause names
+        # the exit git really gives (read here with SIGCHLD at its default).
+        import signal
+        if not hasattr(signal, "SIGCHLD"):
+            self.skipTest("needs SIGCHLD")
+        repo = self._checkout()
+        env = fixture_git_environment()
+        env["GIT_CEILING_DIRECTORIES"] = str(repo.parent)
+        real = subprocess.run(["git", "-C", str(repo), "remote", "get-url", "origin"], env=env,
+                              stdin=subprocess.DEVNULL, capture_output=True, timeout=60)
+        self.assertNotEqual(real.returncode, 0, "the origin read did not fail")
+        r = self._tool(repo, "--check",
+                       launcher=(sys.executable, "-I", "-c", self.IGNORE_SIGCHLD))
+        self._assert_cannot_evaluate(
+            r, "cannot decide", "the origin read failed validation (git remote get-url origin "
+            f"exited {real.returncode})")
+
+    def test_sigchld_is_held_until_the_reap_then_put_back(self) -> None:
+        # 3b796 round 10 (claude W1): with this process's SIGCHLD ignored, the child starts with
+        # SIGCHLD at its default disposition, it is still the default once the child is reaped,
+        # and the ignored disposition is back afterwards, on a normal finish, an exception and an
+        # interrupt alike.
+        import signal
+        if not hasattr(signal, "SIGCHLD"):
+            self.skipTest("needs SIGCHLD")
+        mod, _tools = self._in_process_detector("_refman_sigchld_hold", self.ADOPTER_DETECTOR)
+        _made, _started = self._record_children(mod)
+        seen = {}
+        recording = mod.subprocess.Popen
+
+        class Seeing(recording):
+            def __init__(self, *args, **kwargs):
+                seen["at the start"] = signal.getsignal(signal.SIGCHLD)
+                super().__init__(*args, **kwargs)
+        mod.subprocess.Popen = Seeing
+        stop = mod._stop_detector
+
+        def stop_then_look(child, readers, *in_flight):
+            stop(child, readers, *in_flight)
+            seen["after the reap"] = (child.returncode is not None,
+                                      signal.getsignal(signal.SIGCHLD))
+        mod._stop_detector = stop_then_look
+        collect = mod._collect_detector
+        old = signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+        self.addCleanup(signal.signal, signal.SIGCHLD, old)
+
+        def raises(exc):
+            def collect_then_raise(child, timeout, readers):
+                raise exc
+            return collect_then_raise
+        for label, collector, want in (
+                ("normal finish", collect, ("adopter", None)),
+                ("an exception while waiting", raises(RuntimeError("refman")),
+                 ("undecidable", "tools/detect-env.py could not be run (RuntimeError)")),
+                ("an interrupt while waiting", raises(KeyboardInterrupt()), KeyboardInterrupt)):
+            with self.subTest(label):
+                seen.clear()
+                mod._collect_detector = collector
+                if want is KeyboardInterrupt:
+                    with self.assertRaises(KeyboardInterrupt):
+                        mod._operator_context()
+                else:
+                    self.assertEqual(mod._operator_context(), want)
+                self.assertIs(seen.get("at the start"), signal.SIG_DFL)
+                self.assertEqual(seen.get("after the reap"), (True, signal.SIG_DFL))
+                self.assertIs(signal.getsignal(signal.SIGCHLD), signal.SIG_IGN)
+
+    def test_sigchld_that_cannot_be_held_does_not_run_the_detector(self) -> None:
+        # 3b796 round 10 (claude W1): off the main thread, or where the disposition cannot be read
+        # or set, the detector is not run, and the cause is fixed text. Round 11: nothing runs, not
+        # even the repository check, and this process's SIGCHLD is ignored first, so a disposition
+        # left changed shows; a swap that changes the disposition and then raises (codex W1) is
+        # still put back, with the cause unchanged.
+        import signal
+        import threading
+        import types
+        if not hasattr(signal, "SIGCHLD"):
+            self.skipTest("needs SIGCHLD")
+        old = signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+        self.addCleanup(signal.signal, signal.SIGCHLD, old)
+
+        def cannot_set(signum, handler):
+            # Round 12: only the swap to the default is refused, so the restore succeeds (a
+            # restore that raises too has its own case, which gives the not-put-back cause).
+            if handler is signal.SIG_DFL:
+                raise OSError("refman")
+            return signal.signal(signum, handler)
+
+        def sets_then_raises(signum, handler):
+            previous = signal.signal(signum, handler)
+            if handler is signal.SIG_DFL:
+                raise OSError("refman")
+            return previous
+        for label, stubs, cause in (
+                ("off the main thread", None,
+                 "SIGCHLD cannot be held at its default disposition off the main thread, so "
+                 "tools/detect-env.py was not run"),
+                ("the disposition cannot be read", {"getsignal": lambda _signum: None},
+                 "the SIGCHLD disposition could not be read, so tools/detect-env.py was not run"),
+                ("the disposition cannot be set", {"signal": cannot_set},
+                 "SIGCHLD could not be set to its default disposition, so tools/detect-env.py was "
+                 "not run"),
+                ("setting the disposition changes it, then raises", {"signal": sets_then_raises},
+                 "SIGCHLD could not be set to its default disposition, so tools/detect-env.py was "
+                 "not run")):
+            with self.subTest(label):
+                mod, _tools = self._in_process_detector("_refman_sigchld_refused",
+                                                        self.ADOPTER_DETECTOR)
+                made, _started = self._record_children(mod)
+
+                def no_repository_check():
+                    raise AssertionError("a refused hold must not reach the repository check")
+                mod._repository_redirect = no_repository_check
+                before = signal.getsignal(signal.SIGCHLD)
+                self.assertIs(before, signal.SIG_IGN)
+                if stubs is None:
+                    result = []
+                    other = threading.Thread(target=lambda: result.append(mod._operator_context()))
+                    other.start()
+                    other.join(60)
+                else:
+                    mod.signal = types.SimpleNamespace(**{**vars(signal), **stubs})
+                    result = [mod._operator_context()]
+                self.assertEqual(result, [("undecidable", cause)])
+                self.assertEqual(made, [], "the detector was run")
+                self.assertEqual(signal.getsignal(signal.SIGCHLD), before)
+
+    def test_sigchld_that_cannot_be_put_back_is_undecidable(self) -> None:
+        # 3b796 round 11: when putting the caller's disposition back raises, a healthy adopter run
+        # is not taken as an adopter: the cause is fixed text with the exception's type name.
+        import signal
+        import types
+        if not hasattr(signal, "SIGCHLD"):
+            self.skipTest("needs SIGCHLD")
+        old = signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+        self.addCleanup(signal.signal, signal.SIGCHLD, old)
+
+        def cannot_restore(signum, handler):
+            if handler is not signal.SIG_DFL:
+                raise OSError("refman")
+            return signal.signal(signum, handler)
+        mod, _tools = self._in_process_detector("_refman_sigchld_not_restored",
+                                                self.ADOPTER_DETECTOR)
+        made, _started = self._record_children(mod)
+        mod.signal = types.SimpleNamespace(**{**vars(signal), "signal": cannot_restore})
+        self.assertEqual(mod._operator_context(), (
+            "undecidable", "the caller's SIGCHLD disposition could not be put back (OSError)"))
+        self.assertEqual(len(made), 1, made)
+        self.assertIsNotNone(made[0].returncode, "the detector child was left unreaped")
+
+    def test_sigchld_that_cannot_be_set_or_put_back_says_it_was_not_put_back(self) -> None:
+        # 3b796 round 12 (claude N1): a swap that changes the disposition and then raises, followed
+        # by a restore that raises too, leaves SIGCHLD at its default; the cause says the caller's
+        # disposition was not put back, and nothing is run.
+        import signal
+        import types
+        if not hasattr(signal, "SIGCHLD"):
+            self.skipTest("needs SIGCHLD")
+        old = signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+        self.addCleanup(signal.signal, signal.SIGCHLD, old)
+
+        def sets_then_raises_and_cannot_restore(signum, handler):
+            if handler is not signal.SIG_DFL:
+                raise PermissionError("refman")
+            signal.signal(signum, handler)
+            raise OSError("refman")
+        mod, _tools = self._in_process_detector("_refman_sigchld_neither", self.ADOPTER_DETECTOR)
+        made, _started = self._record_children(mod)
+        mod.signal = types.SimpleNamespace(**{**vars(signal),
+                                              "signal": sets_then_raises_and_cannot_restore})
+        self.assertEqual(mod._operator_context(), (
+            "undecidable",
+            "the caller's SIGCHLD disposition could not be put back (PermissionError)"))
+        self.assertEqual(made, [], "the detector was run")
+        self.assertIs(signal.getsignal(signal.SIGCHLD), signal.SIG_DFL)
+
+    def test_each_cleanup_step_runs_and_sigchld_returns_after_the_reap(self) -> None:
+        # 3b796 round 11 (codex W2): the group kill, the child kill, each pipe close and the reap
+        # each run, in that order, even when an earlier one raises; the first exception goes on
+        # (an interrupt before any other), and the caller's SIGCHLD disposition is put back only
+        # after the reap was attempted. A stand-in child records each step; no process starts.
+        import signal
+        import types
+        if not hasattr(signal, "SIGCHLD"):
+            self.skipTest("needs SIGCHLD")
+        old = signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+        self.addCleanup(signal.signal, signal.SIGCHLD, old)
+
+        # Round 12: an exception on its way from the wait ("collect") counts as the first, so an
+        # interrupt there survives a cleanup step that then raises (claude W1, codex W1); a group
+        # kill that fails other than as gone (ESRCH) is recorded (codex W2); and when both kills
+        # raise, the reap waits at most _DETECTOR_UNKILLED_REAP seconds (claude N3).
+        class _StepFails(RuntimeError):
+            pass
+
+        class _WaitFails(RuntimeError):
+            pass
+        steps = ("group kill", "child kill", "close stdout", "close stderr", "reap")
+        # want None: nothing raised, so the cause is the stand-in wait's time limit.
+        for label, failing, want in (
+                *((f"{step} raises", {step: _StepFails},
+                   ("undecidable", "tools/detect-env.py could not be run (_StepFails)"))
+                  for step in steps),
+                ("every step raises", dict.fromkeys(steps, _StepFails),
+                 ("undecidable", "tools/detect-env.py could not be run (_StepFails)")),
+                ("a pipe close raises, then the reap is interrupted",
+                 {"close stdout": _StepFails, "reap": KeyboardInterrupt}, KeyboardInterrupt),
+                ("an interrupt while waiting, then a pipe close raises",
+                 {"collect": KeyboardInterrupt, "close stdout": _StepFails}, KeyboardInterrupt),
+                ("an interrupt while waiting, then every step raises",
+                 {"collect": KeyboardInterrupt, **dict.fromkeys(steps, _StepFails)},
+                 KeyboardInterrupt),
+                ("an exception while waiting, then every step raises",
+                 {"collect": _WaitFails, **dict.fromkeys(steps, _StepFails)},
+                 ("undecidable", "tools/detect-env.py could not be run (_WaitFails)")),
+                ("the group kill is refused", {"group kill": PermissionError},
+                 ("undecidable", "tools/detect-env.py could not be run (PermissionError)")),
+                ("the group kill finds no group", {"group kill": ProcessLookupError}, None),
+                ("both kills raise", {"group kill": PermissionError, "child kill": _StepFails},
+                 ("undecidable", "tools/detect-env.py could not be run (PermissionError)")),
+                ("both kills are interrupted",
+                 {"group kill": KeyboardInterrupt, "child kill": KeyboardInterrupt},
+                 KeyboardInterrupt)):
+            with self.subTest(label):
+                log = []
+                waited = []
+
+                def step(name):
+                    log.append((name, signal.getsignal(signal.SIGCHLD)))
+                    if name in failing:
+                        raise failing[name]()
+
+                class Pipe:
+                    def __init__(self, name):
+                        self.name = name
+
+                    def close(self):
+                        step(f"close {self.name}")
+
+                class Child:
+                    pid = 2 ** 30  # beyond any pid_max; the group kill is a stand-in anyway
+                    returncode = None
+                    stdout, stderr = Pipe("stdout"), Pipe("stderr")
+
+                    def __init__(self, *_args, **_kwargs):
+                        pass
+
+                    def kill(self):
+                        step("child kill")
+
+                    def wait(self, timeout=None):
+                        waited.append(timeout)
+                        step("reap")
+
+                def restore_logged(signum, handler):
+                    if handler is not signal.SIG_DFL:
+                        log.append(("restore", None))
+                    return signal.signal(signum, handler)
+
+                def collect(_child, _timeout, _readers):
+                    if "collect" in failing:
+                        raise failing["collect"]()
+                    return None
+                mod, _tools = self._in_process_detector("_refman_cleanup_steps",
+                                                        self.ADOPTER_DETECTOR)
+                mod.subprocess = types.SimpleNamespace(**{**vars(subprocess), "Popen": Child})
+                mod.os = types.SimpleNamespace(**{**vars(os), "killpg":
+                                                  lambda _pid, _sig: step("group kill")})
+                mod.signal = types.SimpleNamespace(**{**vars(signal), "signal": restore_logged})
+                mod._collect_detector = collect
+                if want is None:
+                    want = ("undecidable", "tools/detect-env.py did not finish within "
+                            f"{mod._DETECTOR_TIMEOUT} seconds")
+                if want is KeyboardInterrupt:
+                    with self.assertRaises(KeyboardInterrupt):
+                        mod._operator_context()
+                else:
+                    self.assertEqual(mod._operator_context(), want)
+                self.assertEqual(log, [*((name, signal.SIG_DFL) for name in steps),
+                                       ("restore", None)])
+                self.assertIs(signal.getsignal(signal.SIGCHLD), signal.SIG_IGN)
+                both_raised = {"group kill", "child kill"} <= set(failing)
+                self.assertEqual(waited, [mod._DETECTOR_UNKILLED_REAP if both_raised else None])
+
+    def _thread_fallback(self, unique: str, pid_file: Path, thread_class):
+        # 3b796 round 10 (codex E1): the module with _collect_detector replaced by the thread
+        # fallback (forced here on POSIX, after the detector has recorded its pids, with a
+        # half-second limit) and its threading.Thread replaced by thread_class.
+        import threading
+        import time
+        import types
+        mod, _tools = self._in_process_detector(unique, self._sleeping_detector(pid_file))
+        made, _started = self._record_children(mod)
+
+        def collect(child, _timeout, readers):
+            self.assertTrue(self._wait_for_pids(pid_file), "the detector did not record its pids")
+            return mod._collect_with_threads(child, time.monotonic() + 0.5, readers)
+        mod._collect_detector = collect
+        mod.threading = types.SimpleNamespace(**{**vars(threading), "Thread": thread_class})
+        return mod, made
+
+    def test_thread_fallback_start_failure_still_reaps_and_closes(self) -> None:
+        # 3b796 round 10 (codex E1): a reader whose start raises is never recorded, so it is never
+        # joined; the child is still killed with its group and reaped, and both pipes are closed,
+        # whichever reader fails to start.
+        import threading
+
+        class _StartFails(RuntimeError):
+            pass
+        for failing in (0, 1):
+            with self.subTest(failing_reader=("stdout", "stderr")[failing]):
+                pid_file = self._pid_file()
+                count = []
+
+                class Failing(threading.Thread):
+                    def start(self):
+                        count.append(self)
+                        if len(count) - 1 == failing:
+                            raise _StartFails()
+                        super().start()
+                mod, made = self._thread_fallback("_refman_start_fails", pid_file, Failing)
+                result = mod._operator_context()
+                # 3b796 round 11 (codex NOTE): the cause, the reap and the pipes each report on
+                # their own, so a wrong cause cannot hide a cleanup failure.
+                with self.subTest("cause"):
+                    self.assertEqual(result, (
+                        "undecidable", "tools/detect-env.py could not be run (_StartFails)"))
+                with self.subTest("reap"):
+                    self._assert_child_gone(pid_file)
+                    self.assertEqual(len(made), 1, made)
+                    self.assertIsNotNone(made[0].returncode, "the detector child was left unreaped")
+                with self.subTest("pipes"):
+                    self.assertEqual(len(made), 1, made)
+                    self.assertTrue(made[0].stdout.closed and made[0].stderr.closed,
+                                    "the detector's pipes were left open")
+
+    def test_thread_fallback_join_failure_still_reaps_and_closes(self) -> None:
+        # 3b796 round 10 (codex E1): joining the stderr reader raises inside _stop_detector; the
+        # child is still reaped, its group killed, and the stdout pipe, whose reader was seen to
+        # end, is closed (the stderr pipe, whose reader was not, is left open by design).
+        import threading
+
+        class _JoinFails(RuntimeError):
+            pass
+        made_threads = []
+
+        class Failing(threading.Thread):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                made_threads.append(self)
+
+            def join(self, timeout=None):
+                if self is made_threads[1]:
+                    raise _JoinFails()
+                return super().join(timeout)
+        pid_file = self._pid_file()
+        mod, made = self._thread_fallback("_refman_join_fails", pid_file, Failing)
+        self.assertEqual(mod._operator_context(), (
+            "undecidable", "tools/detect-env.py could not be run (_JoinFails)"))
+        self._assert_child_gone(pid_file)
+        self.assertEqual(len(made), 1, made)
+        self.assertIsNotNone(made[0].returncode, "the detector child was left unreaped")
+        self.assertTrue(made[0].stdout.closed, "the pipe whose reader ended was left open")
+
+    def test_process_gone_refuses_without_procfs(self) -> None:
+        # 3b796 round 10 (codex W4): with no procfs to read (a stand-in empty directory here), a
+        # pid is not taken as gone: the case is skipped with the reason.
+        empty = Path(tempfile.mkdtemp(prefix="refman-noproc-"))
+        self.addCleanup(shutil.rmtree, empty, True)
+        self._PROC = empty
+        with self.assertRaises(unittest.SkipTest):
+            self._process_gone(os.getpid())
+
+    def test_recorded_pid_cleanup_signals_only_the_tests_own_processes(self) -> None:
+        # 3b796 round 10 (codex W3): the _reap_recorded cleanup kills a recorded process that
+        # carries the pid file in its command line, in the recorded group, and leaves one that
+        # does not (a pid now used by a process the test does not own) running.
+        import signal
+        self._require_procfs()
+        holder = Path(tempfile.mkdtemp(prefix="refman-pid-"))
+        self.addCleanup(shutil.rmtree, holder, True)
+        sleeper = [sys.executable, "-I", "-c", "import time; time.sleep(30)"]
+        for label, marked in (("not the test's own", False), ("the test's own", True)):
+            with self.subTest(label):
+                pid_file = holder / f"pid-{int(marked)}"
+                proc = subprocess.Popen(sleeper + ([str(pid_file)] if marked else []),
+                                        stdin=subprocess.DEVNULL, start_new_session=True)
+                self.addCleanup(proc.wait)
+                self.addCleanup(proc.kill)
+                pid_file.write_text(f"{proc.pid} {proc.pid}", encoding="utf-8")
+                self._reap_recorded(pid_file)()
+                if marked:
+                    self.assertEqual(proc.wait(30), -signal.SIGKILL)
+                else:
+                    import time
+                    time.sleep(0.2)
+                    self.assertIsNone(proc.poll(), "a process the test does not own was killed")
+
+    def test_recorded_pid_cleanup_spares_a_marked_process_in_another_group(self) -> None:
+        # 3b796 round 11 (claude N3): a recorded process whose command line carries the pid file
+        # but whose process group is not the recorded one is not signalled. The recorded group
+        # leader is an unmarked sleeper; the marked one leads a session, and so a group, of its own.
+        import time
+        self._require_procfs()
+        holder = Path(tempfile.mkdtemp(prefix="refman-pid-"))
+        self.addCleanup(shutil.rmtree, holder, True)
+        pid_file = holder / "pid"
+        sleeper = [sys.executable, "-I", "-c", "import time; time.sleep(30)"]
+        procs = []
+        for extra in ([], [str(pid_file)]):
+            proc = subprocess.Popen(sleeper + extra, stdin=subprocess.DEVNULL,
+                                    start_new_session=True)
+            self.addCleanup(proc.wait)
+            self.addCleanup(proc.kill)
+            procs.append(proc)
+        leader, marked = procs
+        self.assertNotEqual(os.getpgid(marked.pid), leader.pid)
+        pid_file.write_text(f"{leader.pid} {marked.pid}", encoding="utf-8")
+        self._reap_recorded(pid_file)()
+        time.sleep(0.2)
+        self.assertIsNone(marked.poll(), "a marked process in another group was killed")
+        self.assertIsNone(leader.poll(), "an unmarked process was killed")
+
+    def test_recorded_pid_cleanup_signals_through_a_pidfd(self) -> None:
+        # 3b796 round 11 (codex W3): where the platform has pidfds, the cleanup signals the
+        # test's own process through a pidfd opened before the check, never through os.kill.
+        import signal
+        from unittest import mock
+        self._require_procfs()
+        if not (hasattr(os, "pidfd_open") and hasattr(signal, "pidfd_send_signal")):
+            self.skipTest("needs os.pidfd_open and signal.pidfd_send_signal")
+        holder = Path(tempfile.mkdtemp(prefix="refman-pid-"))
+        self.addCleanup(shutil.rmtree, holder, True)
+        pid_file = holder / "pid"
+        proc = subprocess.Popen([sys.executable, "-I", "-c", "import time; time.sleep(30)",
+                                 str(pid_file)], stdin=subprocess.DEVNULL, start_new_session=True)
+        self.addCleanup(proc.wait)
+        self.addCleanup(proc.kill)
+        # One recorded pid, which is its own group leader.
+        pid_file.write_text(f"{proc.pid}", encoding="utf-8")
+        reap = self._reap_recorded(pid_file)
+        with mock.patch.object(signal, "pidfd_send_signal",
+                               wraps=signal.pidfd_send_signal) as sent, \
+                mock.patch.object(os, "kill", wraps=os.kill) as killed:
+            reap()
+        self.assertEqual(proc.wait(30), -signal.SIGKILL)
+        self.assertEqual(sent.call_count, 1, "the cleanup did not signal through a pidfd")
+        self.assertEqual(sent.call_args.args[1], signal.SIGKILL)
+        killed.assert_not_called()
+
+    def test_recorded_pid_cleanup_falls_back_when_no_pidfd_opens(self) -> None:
+        # 3b796 round 12 (claude N4, codex NOTE): where os.pidfd_open exists but fails other than
+        # as gone (ENOSYS from an old kernel, EPERM from a seccomp filter), the cleanup takes the
+        # os.kill fallback, checked by _owned, instead of erroring.
+        import errno
+        import signal
+        from unittest import mock
+        self._require_procfs()
+        if not (hasattr(os, "pidfd_open") and hasattr(signal, "pidfd_send_signal")):
+            self.skipTest("needs os.pidfd_open and signal.pidfd_send_signal")
+        holder = Path(tempfile.mkdtemp(prefix="refman-pid-"))
+        self.addCleanup(shutil.rmtree, holder, True)
+        for label, error in (("ENOSYS", OSError(errno.ENOSYS, "refman")),
+                             ("EPERM", PermissionError(errno.EPERM, "refman"))):
+            with self.subTest(label):
+                pid_file = holder / f"pid-{label}"
+                proc = subprocess.Popen([sys.executable, "-I", "-c", "import time; time.sleep(30)",
+                                         str(pid_file)], stdin=subprocess.DEVNULL,
+                                        start_new_session=True)
+                self.addCleanup(proc.wait)
+                self.addCleanup(proc.kill)
+                pid_file.write_text(f"{proc.pid}", encoding="utf-8")
+                reap = self._reap_recorded(pid_file)
+                with mock.patch.object(os, "pidfd_open", side_effect=error), \
+                        mock.patch.object(signal, "pidfd_send_signal") as sent, \
+                        mock.patch.object(os, "kill", wraps=os.kill) as killed:
+                    reap()
+                self.assertEqual(proc.wait(30), -signal.SIGKILL)
+                killed.assert_called_once_with(proc.pid, signal.SIGKILL)
+                sent.assert_not_called()
+
+    def test_detector_result_checks(self) -> None:
+        # 3b796 round 8: each check _detector_fault makes on the child's result, in order, with
+        # its fixed cause; a result that passes them all is the only one trusted.
+        import json
+        mod = self._load("_refman_detector_fault")
+        good = {"maintainer_owner_repo": "jposluns/grc_library", "origin_url": self.FORK_URL,
+                "origin_is_maintainer_repo": False}
+
+        def line(values, **dumps):
+            return json.dumps(values, **{"sort_keys": True, **dumps})
+
+        def out(text):
+            return (text + "\n").encode()
+        self.assertIsNone(mod._detector_fault(0, out(line(good)), b""))
+        self.assertIsNone(mod._detector_fault(0, out(line({**good, "origin_url": None})), b""))
+        repeated = ('{"maintainer_owner_repo": "x", ' + line(good)[1:])
+        missing = {k: v for k, v in good.items() if k != "origin_url"}
+        for label, rc, stdout, stderr, cause in (
+            ("signal", -9, out(line(good)), b"", "was ended by signal 9"),
+            ("non-zero exit", 3, out(line(good)), b"", "exited 3"),
+            ("stderr", 0, out(line(good)), b"refman-noise\n", "wrote to stderr"),
+            ("not UTF-8", 0, b"\xff\n", b"", "printed output that is not valid UTF-8"),
+            ("no output", 0, b"", b"", "did not print exactly one line"),
+            ("no line end", 0, line(good).encode(), b"", "did not print exactly one line"),
+            ("empty line", 0, b"\n", b"", "did not print exactly one line"),
+            ("extra line", 0, b"refman-extra\n" + out(line(good)), b"",
+             "did not print exactly one line"),
+            ("CR", 0, out(line(good) + "\r"), b"", "did not print exactly one line"),
+            ("malformed JSON", 0, b'{"maintainer_owner_repo": \n', b"",
+             "printed a line that is not valid JSON"),
+            ("deeply nested JSON", 0, out("[" * 100000 + "]" * 100000), b"",
+             "printed a line that is not valid JSON"),
+            ("JSON array", 0, b"[]\n", b"", "printed JSON that is not an object"),
+            ("missing key", 0, out(line(missing)), b"",
+             "printed a JSON object without exactly the expected keys"),
+            ("extra key", 0, out(line({**good, "x": 1})), b"",
+             "printed a JSON object without exactly the expected keys"),
+            ("flag not a bool", 0, out(line({**good, "origin_is_maintainer_repo": 0})), b"",
+             "printed a value of the wrong type"),
+            ("maintainer not a string", 0, out(line({**good, "maintainer_owner_repo": None})),
+             b"", "printed a value of the wrong type"),
+            ("origin not a string or null", 0, out(line({**good, "origin_url": 7})), b"",
+             "printed a value of the wrong type"),
+            ("added whitespace", 0, out(" " + line(good)), b"",
+             "printed the JSON object in a form the program does not write"),
+            ("other key order", 0, out(json.dumps(good)), b"",
+             "printed the JSON object in a form the program does not write"),
+            ("repeated key", 0, out(repeated), b"",
+             "printed the JSON object in a form the program does not write"),
+        ):
+            with self.subTest(label):
+                self.assertEqual(mod._detector_fault(rc, stdout, stderr),
+                                 f"tools/detect-env.py {cause}")
+
+    def test_check_line_breaks_in_parent_path_are_escaped(self) -> None:
+        # 3b796 round 4: a parent directory name carrying LF, CR, NEL or U+2028 reaches the line
+        # through the displayed sibling path; each is written as its escape, so the diagnostic
+        # stays one line, in the maintainer and the undecidable wording alike.
+        parent = "refman\nlf\rcr\x85nel ls"
+        shown = "refman\\nlf\\rcr\\x85nel\\u2028ls"
+        for label, origin, phrase in (
+                ("maintainer", self.MAINTAINER_URLS[0],
+                 "a clone whose origin is the maintainer repository"),
+                ("undecidable", None, "cannot decide")):
+            with self.subTest(label):
+                repo = self._checkout(origin, parent=parent)
+                r = self._tool(repo, "--check")
+                self._assert_cannot_evaluate(r, phrase)
+                self.assertIn(f"{shown}/grc_library_ref)", r.stderr)
+        with self.subTest("a detector exception's type name carrying a line break"):
+            # 3b796 round 8: it stays in the child; the line gives the fixed cause, not the name.
+            repo = self._checkout(self.FORK_URL)
+            (repo / "tools" / "detect-env.py").write_text(
+                "raise type('Odd\\nName', (Exception,), {})()\n", encoding="utf-8")
+            r = self._tool(repo, "--check")
+            self._assert_cannot_evaluate(r, "cannot decide", "tools/detect-env.py exited 1)")
+            self.assertNotIn("Odd", r.stderr)
+        with self.subTest("in process, a cause carrying a line break (this tool's exception)"):
+            def read():
+                raise type("Odd\nName", (Exception,), {})()
+            mod = self._load("_refman_odd_name")
+            mod._repository_redirect = lambda: None
+            mod._read_origin = read
+            rc, err = self._in_process_check(mod)
+            self.assertEqual(rc, 4, err)
+            self.assertEqual(len(err.splitlines()), 1, err)
+            self.assertIn("the repository check or the origin read failed (Odd\\nName))", err)
+        mod = self._load("_refman_one_line")
+        self.assertEqual(mod._one_line("a\tb\x00c\x1bd\x7fe fég h"),
+                         "a\\tb\\x00c\\x1bd\\x7fe\\u2029fég h")
+
+    def test_context_decision_is_fail_safe_and_keeps_ref_holds_adopter_rule(self) -> None:
+        mod = self._load("_refman_context")
+        holds = load_linter_module("tools/ref-holds.py", "_refman_ref_holds")
+        maintainer = "jposluns/grc_library"
+        url, murl = self.FORK_URL, self.MAINTAINER_URLS[0]
+        alias, local = "git@gh-alias:jposluns/grc_library.git", "/srv/git/grc_library"
+        # (identity, validated origin, decision, ref-holds' adopter rule): the adopter arm is a
+        # strict subset of ref-holds' (3b796 round 2), never wider.
+        for identity, origin, want, holds_adopter in (
+            ({"origin_url": url, "origin_is_maintainer_repo": False}, url, "adopter", True),
+            ({"origin_url": murl, "origin_is_maintainer_repo": True}, murl, "maintainer", False),
+            ({"origin_url": url, "origin_is_maintainer_repo": True}, url, "undecidable", False),
+            ({"origin_url": murl, "origin_is_maintainer_repo": False}, murl, "undecidable", True),
+            ({"origin_url": url, "origin_is_maintainer_repo": False}, None, "undecidable", True),
+            ({"origin_url": url, "origin_is_maintainer_repo": False}, url + "/", "undecidable", True),
+            ({"origin_url": local, "origin_is_maintainer_repo": False}, local, "undecidable", True),
+            ({"origin_url": alias, "origin_is_maintainer_repo": False}, alias, "undecidable", True),
+            ({"origin_url": None, "origin_is_maintainer_repo": False}, None, "undecidable", False),
+            ({"origin_url": "", "origin_is_maintainer_repo": False}, "", "undecidable", False),
+            ({"origin_url": 7, "origin_is_maintainer_repo": False}, url, "undecidable", False),
+            ({"origin_url": url, "origin_is_maintainer_repo": None}, url, "undecidable", False),
+            ({"origin_url": url}, url, "undecidable", False),
+            ({}, url, "undecidable", False),
+        ):
+            with self.subTest(identity=identity, origin=origin):
+                self.assertEqual(mod._context_from_identity(identity, origin, maintainer), want)
+                self.assertEqual(holds._identity_is_adopter(identity), holds_adopter)
+
+    def test_origin_read_is_validated_before_stripping(self) -> None:
+        mod = self._load("_refman_origin_read")
+        url = self.FORK_URL.encode()
+        self.assertEqual(mod._origin_from_read(0, url + b"\n", b""), self.FORK_URL)
+        self.assertIsNone(mod._origin_read_fault(0, url + b"\n", b""))
+        lines = "did not print exactly one line with no other LF or CR"
+        for label, rc, stdout, stderr, fault in (
+            ("leading LF", 0, b"\n" + url + b"\n", b"", lines),
+            ("trailing LF", 0, url + b"\n\n", b"", lines),
+            ("internal LF", 0, url + b"\nx\n", b"", lines),
+            ("trailing CR", 0, url + b"\r\n", b"", lines),
+            ("leading CR", 0, b"\r" + url + b"\n", b"", lines),
+            ("internal CR", 0, url + b"\rx\n", b"", lines),
+            ("no line end", 0, url, b"", lines),
+            ("empty value", 0, b"\n", b"", lines),
+            ("no output", 0, b"", b"", lines),
+            ("stderr", 0, url + b"\n", b"trace: git\n", "wrote to stderr"),
+            ("failed read", 2, url + b"\n", b"", "exited 2"),
+            ("not UTF-8", 0, b"https://github.com/\xff/grc_library\n", b"", "not valid UTF-8"),
+        ):
+            with self.subTest(label):
+                self.assertIsNone(mod._origin_from_read(rc, stdout, stderr))
+                # 3b796 round 3: the refusal names its cause, as one line, for the exit 4 message.
+                why = mod._origin_read_fault(rc, stdout, stderr)
+                self.assertIn(fault, why)
+                self.assertEqual(len(why.splitlines()), 1)
+
+    def test_origin_placement_is_positive_only(self) -> None:
+        mod = self._load("_refman_place")
+        maintainer = "jposluns/grc_library"
+        for url in self.MAINTAINER_URLS + ("ssh://git@github.com:22/jposluns/grc_library",
+                                           "https://GitHub.com/JPosluns/GRC_Library/"):
+            with self.subTest(url=url):
+                self.assertEqual(mod._place_origin(url, maintainer), "maintainer")
+        for url in self.ADOPTER_URLS:
+            with self.subTest(url=url):
+                self.assertEqual(mod._place_origin(url, maintainer), "adopter")
+        for label, url in self.UNPLACED_URLS + (("dot segment", "https://github.com/../x"),
+                                                ("bare .git repo", "https://github.com/a/.git")):
+            with self.subTest(label):
+                self.assertIsNone(mod._place_origin(url, maintainer))
+                self.assertEqual(mod._unplaced_reason(url), self.NOT_A_PLACED_FORM)
+        for label, url in self.MAINTAINER_ELSEWHERE_URLS:
+            with self.subTest(label):
+                self.assertIsNone(mod._place_origin(url, maintainer))
+                self.assertEqual(mod._unplaced_reason(url), self.MAINTAINER_ELSEWHERE)
+
+    def test_sibling_present_never_consults_the_context(self) -> None:
+        # The in-sync and DRIFT outcomes are the ones the sibling always gave, whatever the
+        # context says, including a detector that cannot run.
+        for label, origin, drop_detector in (("maintainer", self.MAINTAINER_URLS[0], False),
+                                             ("adopter", self.FORK_URL, False),
+                                             ("undecidable", None, False),
+                                             ("no detector", self.FORK_URL, True)):
+            with self.subTest(label):
+                repo = self._checkout(origin, sibling=True)
+                if drop_detector:
+                    (repo / "tools" / "detect-env.py").unlink()
+                r = self._tool(repo)
+                self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+                self.assertIn("wrote", r.stdout)
+                r = self._tool(repo, "--check")
+                self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+                self.assertIn("--check: OK", r.stdout)
+                manifest = repo / "docs" / "reference-acquisition-manifest.md"
+                manifest.write_text(manifest.read_text(encoding="utf-8") + "edit\n", encoding="utf-8")
+                r = self._tool(repo, "--check")
+                self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                self.assertIn("--check: DRIFT", r.stderr)
+        with self.subTest("in process, _operator_context replaced by a call-counting stub"):
+            # The outcomes above would also hold if the context were asked and its answer
+            # discarded; this case counts the calls (3b796 round 3), patching in-process as
+            # test_degrades_when_ref_absent does.
+            import contextlib
+            import io
+            mod = self._load("_refman_sibling_present")
+            base = Path(tempfile.mkdtemp(prefix="refman-inproc-"))
+            self.addCleanup(shutil.rmtree, base, True)
+            ref = base / "grc_library_ref"
+            ref.mkdir()
+            (ref / "catalogue.yml").write_text(self.CATALOGUE, encoding="utf-8")
+            calls = []
+
+            def counting_stub():
+                calls.append(1)
+                return ("adopter", None)
+            old_resolve = mod.lint_common.resolve_sibling
+            mod.lint_common.resolve_sibling = lambda name, **_kw: ref
+            old_argv = sys.argv
+            try:
+                mod._operator_context = counting_stub
+                mod.MANIFEST = base / "docs" / "reference-acquisition-manifest.md"
+                out, err = io.StringIO(), io.StringIO()
+                with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                    sys.argv = ["build-reference-manifest.py"]
+                    regenerated = mod.main()
+                    sys.argv = ["build-reference-manifest.py", "--check"]
+                    in_sync = mod.main()
+                    mod.MANIFEST.write_text(
+                        mod.MANIFEST.read_text(encoding="utf-8") + "edit\n", encoding="utf-8")
+                    drifted = mod.main()
+            finally:
+                sys.argv = old_argv
+                mod.lint_common.resolve_sibling = old_resolve
+            self.assertEqual((regenerated, in_sync, drifted), (0, 0, 1),
+                             out.getvalue() + err.getvalue())
+            self.assertIn("--check: OK", out.getvalue())
+            self.assertIn("--check: DRIFT", err.getvalue())
+            self.assertEqual(len(calls), 0)
+
+    def test_regenerate_without_sibling_unchanged_in_every_context(self) -> None:
+        for label, origin in (("maintainer", self.MAINTAINER_URLS[0]), ("adopter", self.FORK_URL),
+                              ("undecidable", None)):
+            with self.subTest(label):
+                repo = self._checkout(origin)
+                r = self._tool(repo)
+                self.assertEqual((r.returncode, r.stdout, r.stderr), (0, self.REGENERATE_NOOP, ""))
+                self.assertFalse((repo / "docs").exists())
 
 
 class AdoptBootstrapRefTests(unittest.TestCase):

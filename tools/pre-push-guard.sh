@@ -2377,7 +2377,21 @@ fi
 # lists every trusted-bucket entry in the grc_library_ref sibling, and its --check is not a CI
 # gate (CI has no grc_library_ref), so a reference ingest leaves it stale until someone
 # regenerates it. Failing here would force an unrelated PR to carry the regeneration, so the
-# drift is reported, not blocked. The check no-ops (exit 0) when the sibling is absent.
+# drift is reported, not blocked. With the sibling absent the check no-ops (exit 0, saying it did
+# not check) only when no repository-redirecting git variable is set, git reads this checkout's own
+# repository and the raw origin read is one clean line that the generator positively places as a
+# non-maintainer origin (an https, http or ssh URL or a user@host:owner/repo form) and detect-env
+# agrees (the generator's docstring gives the rule); anywhere else it exits 4 (cannot evaluate,
+# 3b796), which the could-not-run advisory below reports without blocking. Known residuals (the
+# generator's docstring lists them in full): git configuration that the generator's origin read
+# and detect-env's read share (the repository's own config, the HOME and XDG global files, the
+# system file), such as a url.<base>.insteadOf rewrite or a remote.origin.url, that makes the
+# printed origin of a maintainer clone a fork URL still takes the no-op, as do the repository
+# layouts lint_common.require_own_git_dir lists as its own residuals. Configuration supplied
+# through GIT_ variables (GIT_CONFIG_COUNT and its pairs, GIT_CONFIG_PARAMETERS from git -c,
+# GIT_CONFIG_GLOBAL, GIT_CONFIG_SYSTEM, GIT_CONFIG_NOSYSTEM, and safe.directory supplied that
+# way) reaches only the generator's read, since detect-env runs with no GIT_ variable, so a
+# difference it makes to the origin makes the two reads disagree and gives exit 4.
 echo ""
 echo "=== pre-push guard advisory: build-reference-manifest.py --check (reference manifest vs grc_library_ref; does not block) ==="
 # The status is captured inside an `if`, so an inherited errexit (SHELLOPTS) cannot end the guard
