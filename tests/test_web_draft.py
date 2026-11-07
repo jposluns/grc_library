@@ -21722,11 +21722,13 @@ class ProgrammeClaimsTests(unittest.TestCase):
         joined into one, a sentence end inside a sentence (an
         abbreviation such as e.g., or a section number such as 11.2), or
         (draft h3b795, claude NOTE 2) a guarded sentence reworded to open
-        with anything but a capital letter A to Z (such as "✓ domains"), or
-        whose full stop is not directly followed by whitespace (such as a
-        full stop inside closing quotation marks), fails until the test
-        changes with it. The split separates sentences only at whitespace
-        between a full stop and a capital A to Z, so such a reworded
+        with anything but a capital letter A to Z (such as "✓ domains"), to
+        end in a question mark, exclamation mark or ellipsis (U+2026) in
+        place of its full stop (draft h3b799), or whose full stop is not
+        directly followed by whitespace (such as a full stop inside closing
+        quotation marks), fails until the test changes with it. The split
+        separates sentences only at whitespace between a full stop and a
+        capital A to Z, so such a reworded
         sentence merges with the one before or after it and the split gives
         nine strings; the last sentence, with nothing after it, instead
         leaves a string that does not end in a full stop, and the opening
@@ -21916,7 +21918,17 @@ class ProgrammeClaimsTests(unittest.TestCase):
         self.assertIn("H (d)", cargo[0][cargo[0].find("G (g)"):])
         # The reasoning, not only its tokens (draft safekey5). The literal
         # "because" is a deliberate wording contract (draft h3b795, codex
-        # NOTE): "since" can also read as time ("marked ✓ since 2025").
+        # NOTE): "since" can also read as time ("marked ✓ since 2025"), and
+        # this check holds nothing after the conjunction, while the
+        # "without ... qualifier" the selector above needs may stand before
+        # it, so "since" here would pass a sentence whose only words after
+        # the mark are a date. The ~ check below may keep "since" (draft
+        # h3b799): it reads the ~ sentence up to its first colon, where the
+        # key's A (a), D (c and d) and M (a) quotations begin, and needs the
+        # text after the conjunction to end "qualified by the national AEO
+        # programme", so the reason follows the conjunction whichever word
+        # it is; "marked ~ since 2025:" fails, though a time phrase inside
+        # that span ahead of the reason still passes.
         self.assertRegex(rule[0], r"\bother\b[^.]*\bdomains\b[^.]*"
                                   r"\bmarked ✓ because\b")
         self.assertRegex(cargo[0], r"✓ domain (?:can|may) (?:still )?contain "
