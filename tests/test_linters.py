@@ -56859,7 +56859,7 @@ class ReferenceManifestGeneratorTests(unittest.TestCase):
         # 3b796 round 4: a parent directory name carrying LF, CR, NEL or U+2028 reaches the line
         # through the displayed sibling path; each is written as its escape, so the diagnostic
         # stays one line, in the maintainer and the undecidable wording alike.
-        parent = "refman\nlf\rcr\x85nel ls"
+        parent = "refman\nlf\rcr\x85nel\u2028ls"
         shown = "refman\\nlf\\rcr\\x85nel\\u2028ls"
         for label, origin, phrase in (
                 ("maintainer", self.MAINTAINER_URLS[0],
@@ -56889,7 +56889,7 @@ class ReferenceManifestGeneratorTests(unittest.TestCase):
             self.assertEqual(len(err.splitlines()), 1, err)
             self.assertIn("the repository check or the origin read failed (Odd\\nName))", err)
         mod = self._load("_refman_one_line")
-        self.assertEqual(mod._one_line("a\tb\x00c\x1bd\x7fe fég h"),
+        self.assertEqual(mod._one_line("a\tb\x00c\x1bd\x7fe\u2029fég h"),
                          "a\\tb\\x00c\\x1bd\\x7fe\\u2029fég h")
 
     def test_context_decision_is_fail_safe_and_keeps_ref_holds_adopter_rule(self) -> None:
