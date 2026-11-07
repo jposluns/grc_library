@@ -23022,8 +23022,12 @@ class ProgrammeClaimsTests(unittest.TestCase):
     # class, each value with its pipes escaped. Group 1 is the title cell.
     # The generator's _cell escapes pipes but not backslashes, and it
     # writes the acquisition value upper-cased whatever it is, so the
-    # generator can render a row this refuses: a cell ending in a
-    # backslash, or an acquisition value other than FREE or LICENSED.
+    # generator can render a row this refuses: a title, version, issuer
+    # or URL cell ending in one or three backslashes (two are accepted),
+    # or with one backslash directly before a pipe (a title a\|b renders
+    # as a\\|b; a\\|b renders as a\\\|b and is accepted), or an
+    # acquisition value that upper-cases to neither FREE nor LICENSED,
+    # such as an empty or paywalled one.
     # Such a row has no title cell set aside and is checked in full, so
     # it fails safe.
     _MANIFEST_ROW = re.compile(
