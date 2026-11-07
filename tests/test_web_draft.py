@@ -23020,6 +23020,12 @@ class ProgrammeClaimsTests(unittest.TestCase):
     # A row of the tables tools/build-reference-manifest.py generates:
     # title, version or edition, issuer, upstream URL and acquisition
     # class, each value with its pipes escaped. Group 1 is the title cell.
+    # The generator's _cell escapes pipes but not backslashes, and it
+    # writes the acquisition value upper-cased whatever it is, so the
+    # generator can render a row this refuses: a cell ending in a
+    # backslash, or an acquisition value other than FREE or LICENSED.
+    # Such a row has no title cell set aside and is checked in full, so
+    # it fails safe.
     _MANIFEST_ROW = re.compile(
         r"\| ((?:[^|\\]|\\.)*) \|(?: (?:[^|\\]|\\.)* \|){3} "
         r"(?:FREE|LICENSED) \|")
@@ -23092,10 +23098,10 @@ class ProgrammeClaimsTests(unittest.TestCase):
         specification quotes the name the language lint allows. Round 9
         (review round 4, codex NOTE and claude NOTE 2): the test exempted
         both files whole, so a new unquoted occurrence in either passed.
-        Only the identified spans are exempt now (_AUTHORISED_EXEMPT): the
-        manifest's two held-title cells and the specification's quoted
-        name; each must still be present, and a new occurrence in either
-        file fails. Round 10 (reference manifest regeneration on
+        Only the identified spans were exempt in round 9 (_AUTHORISED_EXEMPT):
+        the manifest's two held-title cells and the specification's quoted
+        name; each had to be present, and a new occurrence in either file
+        failed. Round 10 (reference manifest regeneration on
         8f065577a): the regenerated manifest lists six more held HMRC
         handbook sections, whose titles carry HMRC's -ise spelling as the
         reference catalogue holds them, so each of their rows failed
