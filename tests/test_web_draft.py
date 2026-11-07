@@ -16547,8 +16547,8 @@ class QuebecLaw25IdentityTests(unittest.TestCase):
         right after the subject, with no space before them; then any
         number of unnested parenthetical glosses; then at most one ",", ":"
         or "|"; then at most one word ending in "ly", which may be any such
-        word and not only an adverb, followed by a space; with spaces
-        allowed before each gloss and around the delimiter); and where it
+        word and not only an adverb, followed by whitespace; whitespace
+        may come before each gloss and around the delimiter); and where it
         names the amending act (2021, c. 25) or carries any amend word,
         every CQLR c. P-39.1 citation in it must be followed, within its
         clause (before the next ";", ":", "|" or sentence end), by "as
@@ -16779,7 +16779,9 @@ class QuebecLaw25IdentityTests(unittest.TestCase):
         cell that starts "Amended"). The "," delimiter, the "amends" and
         "amending" forms and the lowercase "a" have no fixture of their
         own: each fixture named here that uses one of them fails when it is
-        removed, but also depends on another part. Also caught: an
+        removed, but also depends on another part. The counts (any number
+        of closings or glosses, at most one delimiter or "ly" word) have no
+        fixture either. Also caught: an
         accurate effect statement, "Law 25 amended Quebec's provincial privacy
         laws" in the sentence after a qualified identity. It is rejected
         because the frame rule bans Law 25 as the subject of an amend verb
