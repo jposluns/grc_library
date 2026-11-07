@@ -22084,6 +22084,23 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                            r"failed, rc=\d+\), so it may still be registered")
 
     @staticmethod
+    def bash_quoted(path):
+        """The path as bash printf %q prints it, as the guard names it."""
+        return subprocess.run(["bash", "-c", 'printf %q "$1"', "bash", path],
+                              capture_output=True, text=True, timeout=30, check=True).stdout
+
+    @staticmethod
+    def bash_reads(word):
+        """The one word bash reads back from a printed bash-quoted word,
+        $'...' (ANSI-C) quoting included, which shlex.split cannot decode.
+        The bytes are decoded as file names are, so a CR stays a CR.
+        It runs eval on the word, so a command substitution in it would run:
+        callers must pass only a word they have already asserted equal to
+        bash_quoted output, never guard output that has not been checked."""
+        return os.fsdecode(subprocess.run(["bash", "-c", 'eval "printf %s $1"', "bash", word],
+                                          capture_output=True, timeout=30, check=True).stdout)
+
+    @staticmethod
     def printed_removal_commands(stderr, directory="gone", registration=REGISTERED):
         """The per-checkout commands, as printed, that a passing run gave for
         checkouts it could not remove whose directory is gone (or left),
@@ -22193,7 +22210,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, output)
         self.assertIn("for the shard checkout %s: " % broken[0], result.stderr)
         shard_root = os.path.dirname(os.path.dirname(broken[0]))
-        self.assertIn("could not remove the shard directory %s." % shard_root, result.stderr)
+        self.assertIn("could not remove the shard directory %s.\n" % self.bash_quoted(shard_root),
+                      result.stderr)
         self.assertTrue(os.path.isdir(broken[0]), output)
         named = re.findall(r"(?m)^pre-push guard: WARNING: the shard checkout .+? its "
                            r"directory is left .+? Remove the shard directory (.+?) once "
@@ -22274,7 +22292,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertIn("git worktree remove --force failed (rc=", result.stderr)
         self.assertIn("for the shard checkout %s: " % broken[0], result.stderr)
         shard_root = os.path.dirname(os.path.dirname(broken[0]))
-        self.assertIn("could not remove the shard directory %s." % shard_root, result.stderr)
+        self.assertIn("could not remove the shard directory %s.\n" % self.bash_quoted(shard_root),
+                      result.stderr)
         self.assertTrue(os.path.isdir(broken[0]), output)
         shown = subprocess.run(["bash", "-c", 'printf %q "$1"', "bash", shard_root],
                                capture_output=True, text=True, timeout=30, check=True).stdout
@@ -22306,6 +22325,128 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         os.chmod(kept, 0o700)
         shutil.rmtree(shard_root)
         self.assertFalse(os.path.lexists(broken[0]))
+
+    @unittest.skipIf(os.geteuid() == 0, "root ignores directory permission bits")
+    def test_failed_shard_directory_removal_reports_one_line(self):
+        # FLIP TABLE (CIPRUNE-R4-DRAFT-1820; rmtree round 2, claude N1 and
+        # codex N1): shard 2's checkout holds a read-only directory with a
+        # file in it, so removing the shard directory fails. The guard
+        # reports that as one plain line (the removal's exit status, then the
+        # exception type and message, naming the shard directory bash-quoted
+        # with printf %q, as bash_quoted gives it) before its WARNING,
+        # never as a Python traceback.
+        self.change("ai/policy-fixture.md")
+        result, _ran = self.run_guard(FIXTURE_SHARD_KEEP_CHECKOUT="2")
+        output = result.stdout + result.stderr
+        broken = [run["cwd"] for run in self.shard_runs() if run["argv"][2] == "2/6"]
+        self.assertEqual(len(broken), 1, output)
+        kept = os.path.join(broken[0], "kept")
+        # Restored before the fixture's own cleanup (cleanups run last first).
+        self.addCleanup(lambda: os.path.isdir(kept) and os.chmod(kept, 0o700))
+        self.assertEqual(result.returncode, 0, output)
+        self.assertNotIn("Traceback", output)
+        shard_root = os.path.dirname(os.path.dirname(broken[0]))
+        shown = self.bash_quoted(shard_root)
+        lines = re.findall(r"(?m)^pre-push guard: removing the shard directory (.+?) "
+                           r"failed \(rc=(\d+)\): (\w+): (.+)\n", result.stderr)
+        self.assertEqual(len(lines), 1, result.stderr)
+        self.assertEqual(lines[0][0], shown, result.stderr)
+        self.assertEqual(lines[0][1:3], ("1", "PermissionError"), result.stderr)
+        self.assertIn("pre-push guard: removing the shard directory %s failed (rc=1): "
+                      "PermissionError: " % shown, result.stderr)
+        warning = "pre-push guard: WARNING: could not remove the shard directory %s.\n" % shown
+        self.assertIn(warning, result.stderr)
+        self.assertLess(result.stderr.index("removing the shard directory "),
+                        result.stderr.index(warning), result.stderr)
+        self.assertTrue(os.path.isdir(shard_root), output)
+
+    def test_shard_directory_removal_ending_without_a_message_reports_its_status(self):
+        # FLIP TABLE (rmtree round 2, claude N1 and N2, codex N1 and N2): a
+        # python3 first on PATH, under the fixture, kills itself (SIGKILL)
+        # when it is the shard-directory removal (its program holds
+        # shutil.rmtree) and runs the real python3 otherwise, so the removal
+        # ends without a message. The guard reports its exit status (rc=137)
+        # and a fallback text, not an empty message. The shard directory sits
+        # under a TMPDIR holding a space, a tab, a CR and a newline: that line
+        # and the WARNING each stay one line and name it as one printf %q
+        # word that bash reads back as the exact path (shlex.split cannot).
+        import shlex
+        real = shutil.which("python3", path=self.env.get("PATH"))
+        self.assertIsNotNone(real)
+        shim = Path(self.tmp.name) / "shim"
+        shim.mkdir()
+        (shim / "python3").write_text(
+            '#!/bin/sh\ncase "$*" in\n    *shutil.rmtree*) kill -KILL "$$" ;;\nesac\n'
+            'exec %s "$@"\n' % shlex.quote(real), encoding="utf-8")
+        (shim / "python3").chmod(0o755)
+        odd = Path(self.tmp.name) / "shard tmp\tdir\r\nnext"
+        odd.mkdir()
+        self.change("ai/policy-fixture.md")
+        result, _ran = self.run_guard(TMPDIR=str(odd),
+                                      PATH=str(shim) + os.pathsep + self.env.get("PATH", ""))
+        output = result.stdout + result.stderr
+        self.assertEqual(result.returncode, 0, output)
+        self.assertNotIn("Traceback", output)
+        self.assertEqual(len(self.shard_runs()), 6, output)
+        roots = [name for name in os.listdir(odd) if name.startswith("grc-gate36-shards.")]
+        self.assertEqual(len(roots), 1, output)
+        shard_root = os.path.join(str(odd), roots[0])
+        self.assertTrue(os.path.isdir(shard_root), output)
+        shown = self.bash_quoted(shard_root)
+        self.assertIn("$'", shown)
+        self.assertEqual(self.bash_reads(shown), shard_root)
+        stderr_lines = result.stderr.splitlines(keepends=True)
+        failed = ("pre-push guard: removing the shard directory %s failed (rc=137): "
+                  "the removal process printed no message\n" % shown)
+        warning = "pre-push guard: WARNING: could not remove the shard directory %s.\n" % shown
+        self.assertIn(failed, stderr_lines, result.stderr)
+        self.assertIn(warning, stderr_lines, result.stderr)
+        self.assertEqual(result.stderr.count("removing the shard directory "), 1, result.stderr)
+        self.assertLess(stderr_lines.index(failed), stderr_lines.index(warning), result.stderr)
+
+    def test_shard_directory_removal_printing_two_lines_reports_one_line(self):
+        # FLIP TABLE (rmtree round 2, claude N1; round 3, claude N1): a
+        # python3 first on PATH,
+        # under the fixture, writes two lines to stderr and exits 3 when it
+        # is the shard-directory removal (its program holds shutil.rmtree)
+        # and runs the real python3 otherwise. The guard joins the removal's
+        # message onto one line, so its failure line holds both messages and
+        # neither is printed as a line of its own. Without the guard's
+        # newline collapse the second message starts a line and this fails;
+        # a guard that also prints the first message on a line of its own
+        # fails the first-message count.
+        import shlex
+        real = shutil.which("python3", path=self.env.get("PATH"))
+        self.assertIsNotNone(real)
+        shim = Path(self.tmp.name) / "shim"
+        shim.mkdir()
+        (shim / "python3").write_text(
+            '#!/bin/sh\ncase "$*" in\n    *shutil.rmtree*)\n'
+            "        printf '%%s\\n' 'first removal message' 'second removal message' >&2\n"
+            '        exit 3 ;;\nesac\nexec %s "$@"\n' % shlex.quote(real), encoding="utf-8")
+        (shim / "python3").chmod(0o755)
+        self.change("ai/policy-fixture.md")
+        result, _ran = self.run_guard(PATH=str(shim) + os.pathsep + self.env.get("PATH", ""))
+        output = result.stdout + result.stderr
+        self.assertEqual(result.returncode, 0, output)
+        self.assertNotIn("Traceback", output)
+        self.assertEqual(len(self.shard_runs()), 6, output)
+        roots = [name for name in os.listdir(self.shard_tmp)
+                 if name.startswith("grc-gate36-shards.")]
+        self.assertEqual(len(roots), 1, output)
+        shard_root = os.path.join(str(self.shard_tmp), roots[0])
+        self.assertTrue(os.path.isdir(shard_root), output)
+        shown = self.bash_quoted(shard_root)
+        stderr_lines = result.stderr.splitlines(keepends=True)
+        failed = ("pre-push guard: removing the shard directory %s failed (rc=3): "
+                  "first removal message second removal message\n" % shown)
+        warning = "pre-push guard: WARNING: could not remove the shard directory %s.\n" % shown
+        self.assertIn(failed, stderr_lines, result.stderr)
+        self.assertEqual(result.stderr.count("removing the shard directory "), 1, result.stderr)
+        self.assertEqual(result.stderr.count("first removal message"), 1, result.stderr)
+        self.assertEqual(result.stderr.count("second removal message"), 1, result.stderr)
+        self.assertIn(warning, stderr_lines, result.stderr)
+        self.assertLess(stderr_lines.index(failed), stderr_lines.index(warning), result.stderr)
 
     def test_failed_checkout_removal_with_unreadable_registrations_keeps_its_command(self):
         # FLIP TABLE (CIPRUNE-0106 round 3, claude and codex WARN): git
@@ -45158,7 +45299,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 384a6ab6aad0e0ceebc7f6beaa82f9174030a824c1a48f48f222dc69ebcb5e69
-        pre-push-guard.sh FIXED F 5d6390c0b2d5e8c11dd5aaa49eb1854c4a74f305588c6d1a515d908862b85df1
+        pre-push-guard.sh FIXED F 4683333e9d1c3c54126768719bfa8d649fdec56e8fa58e342b9bc1cbe9ef9799
         pre-push-hook.py TRANSPORT F d193c170d963cbca2e64bb76ce0b1dfbe7999b9f5af6c0701ae11d95f9d7f659
         preflight-changelog.py NO_FS F bc91a3dc87ba0615f3def6bdddc3d4bc774e1c3389ca9f67b334c9e014f929a2
         preflight-version-date.py NO_FS F a12ecf5ae928da5048eed6f282876a3ad2de92a51cc266eda65c8d5b2a613088
