@@ -16502,10 +16502,10 @@ class QuebecLaw25IdentityTests(unittest.TestCase):
     # subject: any number of ")" or "**" directly after it, with no
     # whitespace before or between them, then any number of unnested
     # parenthetical glosses, then at most one ",", ":" or table cell "|",
-    # then at most one "ly" word (one or more word characters (\w: Unicode
+    # then at most one "ly" word followed by one or more whitespace
+    # characters. An "ly" word is one or more word characters (\w: Unicode
     # alphanumerics and underscore) followed by "ly", so not only an
-    # adverb, and a bare "ly" does not count) followed by one or more
-    # whitespace characters.
+    # adverb, and a bare "ly" does not count.
     # Whitespace of any kind, none or more, may come before each gloss and
     # before and after the delimiter's position, whether or not a
     # delimiter is present. Any other word or mark, or these out of order,
