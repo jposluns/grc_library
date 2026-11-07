@@ -21678,7 +21678,11 @@ class ProgrammeClaimsTests(unittest.TestCase):
         h3b795 (review round 8, claude NOTE 1 and 2, codex NOTE): the count
         sentence above names the sentence ends it counts, and the
         exact-ten and ✓ rule wording contracts below name the two further
-        cases the reviews found.
+        cases the reviews found. Draft h3b799 (3b795 review): the exact-ten
+        wording contract below names a guarded sentence reworded to end in a
+        question mark, exclamation mark or ellipsis (claude NOTE 2), and the
+        code comment on the literal "because" says why the ~ check may keep
+        "since" (claude NOTE 1).
 
         Completeness probe for this class: a negation word is not, no,
         never, neither, nor, cannot, without, none, nothing, nobody or
@@ -21724,21 +21728,20 @@ class ProgrammeClaimsTests(unittest.TestCase):
         (draft h3b795, claude NOTE 2) a guarded sentence reworded to open
         with anything but a capital letter A to Z (such as "✓ domains"), to
         end in a question mark, exclamation mark or ellipsis (U+2026) in
-        place of its full stop (draft h3b799), or whose full stop is not
-        directly followed by whitespace (such as a full stop inside closing
-        quotation marks), fails until the test changes with it. The split
-        separates sentences only at whitespace between a full stop and a
-        capital A to Z, so such a reworded
-        sentence merges with the one before or after it and the split gives
-        nine strings; the last sentence, with nothing after it, instead
-        leaves a string that does not end in a full stop, and the opening
-        sentence must begin "For the WCO SAFE column" in any case. The ✓
-        rule's conjunction is a deliberate wording contract too (draft
+        place of its full stop (draft h3b799, 3b795 review, claude NOTE 2), or
+        whose full stop is not directly followed by whitespace (such as a full
+        stop inside closing quotation marks), fails until the test changes
+        with it. The split separates sentences only at whitespace between a
+        full stop and a capital A to Z, so such a reworded sentence merges
+        with the one before or after it and the split gives nine strings; a
+        last sentence whose end is changed has nothing after it to merge with
+        and instead leaves a string that does not end in a full stop, and the
+        opening sentence must begin "For the WCO SAFE column" in any case. The
+        ✓ rule's conjunction is a deliberate wording contract too (draft
         h3b795, codex NOTE): the rule must say "marked ✓ because", so an
         equally accurate "marked ✓ since" fails until the test changes with
-        it. The other-conditions sentence must
-        also not name the national AEO programme qualifier (no "programme"
-        and no "qualifier" in it).
+        it. The other-conditions sentence must also not name the national AEO
+        programme qualifier (no "programme" and no "qualifier" in it).
 
         Disclosed residual: text outside the guarded strings, such as the
         legend and the AEO-S notes before the key's opening sentence, is not
@@ -21923,12 +21926,13 @@ class ProgrammeClaimsTests(unittest.TestCase):
         # "without ... qualifier" the selector above needs may stand before
         # it, so "since" here would pass a sentence whose only words after
         # the mark are a date. The ~ check below may keep "since" (draft
-        # h3b799): it reads the ~ sentence up to its first colon, where the
-        # key's A (a), D (c and d) and M (a) quotations begin, and needs the
-        # text after the conjunction to end "qualified by the national AEO
-        # programme", so the reason follows the conjunction whichever word
-        # it is; "marked ~ since 2025:" fails, though a time phrase inside
-        # that span ahead of the reason still passes.
+        # h3b799, 3b795 review, claude NOTE 1): it reads the ~ sentence up
+        # to its first colon, where the key's A (a), D (c and d) and M (a)
+        # quotations begin, and needs the text after the conjunction to end
+        # "qualified by the national AEO programme", so the reason follows
+        # the conjunction whichever word it is; "marked ~ since 2025:"
+        # fails, though a time phrase inside that span ahead of the reason
+        # still passes.
         self.assertRegex(rule[0], r"\bother\b[^.]*\bdomains\b[^.]*"
                                   r"\bmarked ✓ because\b")
         self.assertRegex(cargo[0], r"✓ domain (?:can|may) (?:still )?contain "
