@@ -16788,11 +16788,12 @@ class QuebecLaw25IdentityTests(unittest.TestCase):
         probe, an identity cell ending in "Law 25 (Bill 64)" followed by a
         cell that starts "Amended"). Round 6 (round 5 claude N2) adds two
         more: whitespace at the delimiter's position with no delimiter
-        (three spaces between "Law 25 (Bill 64)" and "amends"; it stays
-        caught when the whitespace on either side of that position alone
-        is removed, and passes when the whitespace on both sides is removed
-        and also when the whitespace before a gloss is removed) and a
-        digit in the "ly" word ("Law 25 2ly amends"). The "," delimiter,
+        (three spaces between "Law 25 (Bill 64)" and "amends"; these cases
+        remove the pattern's whitespace allowance, not whitespace in the
+        fixture input: it stays caught when _AMENDING_FRAME_RE drops only its
+        allowance before, or only its allowance after, that position, and
+        passes when it drops both or drops its allowance before a gloss) and
+        a digit in the "ly" word ("Law 25 2ly amends"). The "," delimiter,
         the "amends" and "amending" forms and the lowercase "a" have no
         fixture of their own: each fixture named here that uses one of them
         fails when it is removed, but also depends on another part. The
