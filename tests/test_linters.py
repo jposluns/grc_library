@@ -45308,7 +45308,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         publication-manifest.json DATA F f6c34770a55a6f3245e5b5db0ff99ed3bebc8f2f34f6b1bacbdd3317981dce58
         quick-guard.sh FIXED F 2e518f73cbbe613de9c3265e2996f8babd38a538ff8b50f922d0335430b13f5e
         reconcile-regression-shards.py OWN F cdb29c6e8897ad810d16877ecb56bf762a51064af680784553032a24afec65b4
-        ref-holds.py OWN F 12b4bc426cc0dc4f0cb070fc94feb3398c0d0d420c091e3e343393a16feb4f7d
+        ref-holds.py OWN F 3d7efdf183b5a9e57beb982ee992f856fdf89732ff79ae1ba1e60f16b011a92c
         reference-breadth-aliases.json DATA F c73f2b96060b59aeec663d81b8d4c4eaecb8d279b90dc63d4d102dae047e0710
         repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
         residual-scan.py NO_FS F fd8ff448f4d83f48d3e1116ac9b10d3c5ab8ed4d959ae888924679dd37cb194f
@@ -54369,6 +54369,41 @@ class ResolveSiblingTests(unittest.TestCase):
         self.assertFalse(f({"origin_url": 1, "origin_is_maintainer_repo": False}))
         # empty-string origin -> NOT adopter (loud)
         self.assertFalse(f({"origin_url": "", "origin_is_maintainer_repo": False}))
+
+    def test_identity_is_adopter_line_break_origin_undecidable(self) -> None:
+        # 3b801: an origin_url with a LF or CR is UNDECIDABLE -> NOT adopter (loud).
+        # detect-env's run() joins git's stdout and stderr, so with GIT_TRACE set a
+        # MAINTAINER origin arrives as the URL, a LF and a trace line, and detect-env
+        # reads that as a non-maintainer origin (flag False). Pure decision over
+        # literal dicts: no git, no subprocess, no GIT_ variables, no real layout.
+        # The trace line below is hand-written, so this test does not notice if
+        # detect-env stops producing that shape. Manual reproduction recorded from
+        # 3b801 drafting (not run by this test): in a temporary repository whose
+        # origin is the maintainer URL, with a sanitized environment (no inherited
+        # GIT_ variables) plus GIT_TRACE=1, ``git remote get-url origin`` writes
+        # the URL to stdout and a trace line to stderr; detect-env's run() joins
+        # them into the URL, a LF and the trace line, the maintainer flag reads
+        # False, and before 3b801 _identity_is_adopter returned True. It stays a
+        # manual step rather than a test: detect-env probes the fixed REPO_ROOT
+        # checkout, so an end-to-end test would need git subprocesses and a
+        # patched detector, which this pure test class avoids.
+        mod = self._load_ref_holds("_ref_holds_linebreak")
+        f = mod._identity_is_adopter
+        maint = "https://github.com/jposluns/grc_library.git"
+        fork = "https://github.com/someone/grc_library.git"
+        trace = "12:00:00.000000 git.c:502 trace: built-in: git remote get-url origin"
+        # internal LF (the GIT_TRACE shape), flag False as detect-env yields -> NOT adopter
+        self.assertFalse(f({"origin_url": maint + "\n" + trace,
+                            "origin_is_maintainer_repo": False}))
+        # internal CR, flag False -> NOT adopter. Defensive only: detect-env's
+        # text-mode capture translates CR and CRLF to LF, so a CR from git never
+        # reaches the check as a CR; this covers a dict from any other producer.
+        self.assertFalse(f({"origin_url": fork + "\r" + trace,
+                            "origin_is_maintainer_repo": False}))
+        # the clean cases are unchanged: a clean fork origin is an adopter ...
+        self.assertTrue(f({"origin_url": fork, "origin_is_maintainer_repo": False}))
+        # ... and a clean maintainer origin is not
+        self.assertFalse(f({"origin_url": maint, "origin_is_maintainer_repo": True}))
 
     def test_resolve_working_dir_prefers_private_then_local_then_none(self) -> None:
         # resolve_working_dir: the .working DIRECTORY, private preferred, in-repo
