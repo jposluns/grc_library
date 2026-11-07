@@ -1,7 +1,8 @@
 """Shared lease-id grammar for the Active-session value (3b793).
 
 Decision D-0502-LEASE-ID-GRAMMAR (one shared grammar). Standard library only,
-pure functions: no I/O, no repository imports, and parse() never raises.
+pure functions: no I/O, no repository imports, and parse() never raises,
+including for a str subclass whose methods raise (it calls none of them).
 tools/session_facts.py loads this file from its reviewed source bytes and
 tools/lint-session-state.py (gate 63) imports ID_RE as its Active-session rule.
 
@@ -61,10 +62,15 @@ class LeaseId(NamedTuple):
 
 
 def parse(value) -> LeaseId:
-    """Classify an Active-session value; never raises."""
-    if not isinstance(value, str) or not ID_RE.fullmatch(value):
+    """Classify an Active-session value; never raises.
+
+    No method of value is called, so a str subclass that overrides lower() or
+    an object whose __class__ raises cannot make parse() raise: type(value)
+    replaces isinstance(), and str.lower() replaces value.lower().
+    """
+    if not issubclass(type(value), str) or not ID_RE.fullmatch(value):
         return LeaseId(INVALID)
-    if value.lower() == "none":
+    if str.lower(value) == "none":
         return LeaseId(NONE)
     match = STAMPED_RE.fullmatch(value)
     if match is None or len(match[1]) > LABEL_MAX:

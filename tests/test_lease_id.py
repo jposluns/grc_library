@@ -150,6 +150,30 @@ class LeaseIdGrammarTests(unittest.TestCase):
                 self.assertEqual(bool(self.mod.ID_RE.fullmatch(value)),
                                  bool(old.fullmatch(value)))
 
+    def test_never_raises_for_hostile_str_subclass(self):
+        # Review N4: parse() calls no method of the value, so a str subclass whose
+        # methods raise is classified like the equal plain str.
+        def boom(*_args, **_kwargs):
+            raise RuntimeError("hostile str method called")
+
+        hostile = type("HostileStr", (str,), {name: boom for name in (
+            "lower", "upper", "casefold", "__str__", "__eq__", "__len__", "__getitem__",
+            "__iter__", "__contains__", "startswith", "endswith")})
+        for value in ("grc-orch1-20261102T1310Z", "orch-2026-10-04T13:36:00Z", "none", "NONE",
+                      "69556d8c", "orch-2026-10-04T13:36Z", "", "a b"):
+            with self.subTest(value=value):
+                self.assertEqual(self.mod.parse(hostile(value)), self.mod.parse(value))
+
+    def test_never_raises_when_class_lookup_raises(self):
+        # isinstance() reads __class__, which an object may make raise; parse() reads
+        # type(value) instead and classifies the object as INVALID.
+        class Pretender:
+            @property
+            def __class__(self):
+                raise RuntimeError("__class__ looked up")
+
+        self.assertEqual(self.mod.parse(Pretender()), (self.mod.INVALID, None, None, None))
+
     def test_stamp_forms_have_distinct_lengths(self):
         self.assertEqual(sorted(self.mod.FORMS), [14, 16, 20])
         self.assertEqual({precision for _, _, precision in self.mod.FORMS.values()}, {1, 60})

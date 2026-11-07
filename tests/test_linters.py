@@ -45212,7 +45212,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         install-git-hooks.sh FIXED F a0010c29758bda7824fdd000e5400c5aa6c3dd13563c9cf3bc4c35acc53b286c
         iso27001_reference.py PASSIVE F 01119eacf328d0bfe36ae40f9800a6c7fe37ef895bca70b219341ac07aec53e3
         iso_27001_reference.py PASSIVE F e8789346ac57b557de2f5c93c7fc2b31651b49be25bc8180e8bdc84310b21418
-        lease_id.py PASSIVE F 69ea9b9d36bf5f210f28eb1571bff3772d6adfbf10b3580c26ecac02b0dabbbb
+        lease_id.py PASSIVE F 30cae58af0f3e1667913689fe3f22b0b470f892025af76f2e9a5f1a00d2e0f72
         lint-acronym-consistency.py CWD F 2608f2b4ef320586a895895235ce268e75dcca39f4a1e0618019ef8f1f59c3a9
         lint-aiqt-vendor-digest.py NO_FS F f0c899025d8ce7f633249166d3d87e8d6391ada2507ccee775cf4730178e2b84
         lint-alignment-citation-existence.py CWD F 98916885286c45121fb03f9a05866d80879a9300f6ee461bc4da107db1ec5657
@@ -45338,7 +45338,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         run_all_audits.sh FIXED F ec86a76e9dec99394069b2fccab2fb84c152f9e9a16214f02358d8e2c60862fc
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900
-        session_facts.py PASSIVE F 1ebf3966547b9c935362dc923bffe19b9cdd08d1075b47e043750950c7d0418a
+        session_facts.py PASSIVE F f75296107bcbe6f5a4bf13f42853fc96808013edb3882dfedfd23b2b8654efb9
         skill-verdict-fields.json DATA F fba56d7e70141647fcad92824591d65a0208c6e6b623caaff82bfcb62bbd06aa
         standards-currency-unpinned-baseline.json DATA F 3731e576e0d0afbabdbe3fc1b88cddd2e6865c39e032457dd84e4ccc11f4d4b2
         statusline-next-pr.py NO_FS F 81db4327eb56260c362e61edbae2a7c7c2fd426df579fe21d57638cfd7b55223

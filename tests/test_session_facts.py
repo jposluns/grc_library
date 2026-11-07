@@ -203,6 +203,19 @@ class SessionFactsTests(unittest.TestCase):
                 self.assertEqual(facts["compaction_rows"], count)
                 self.assertEqual(facts["lease_warning"], "")
 
+    def test_3b793_minute_precision_last_minute_no_overflow(self):
+        # Review E1: the grammar accepts the minute 9999-12-31T23:59, and dt + 60 s
+        # overflowed there; the start-minute rule now compares minutes instead.
+        self.lease.write_text(LIVE.replace("orch-2026-10-04T13:36:00Z", "x-99991231T2359Z")
+                              .replace("2026-10-06T14:02:31Z", "9999-12-31T23:59:00Z"))
+        self.log.write_text("| 9999-12-31T23:59:00Z | compaction |\n")
+        facts = self.metrics("9999-12-31T23:59:30+00:00")
+        self.assertEqual(facts, dict(
+            start="9999-12-31T23:59:00Z", elapsed="0h0m", compaction_rows="UNKNOWN",
+            lease_warning="AMBIGUOUS COMPACTION: a compaction row in the start minute of a "
+                          "minute-precision lease id cannot be placed before or after the start",
+            start_source="derived from Active-session lease-id convention (minute precision)"))
+
     def test_3b793_invalid_id_has_its_own_warning(self):
         for value in ("orch-" + chr(0xE9), "grc-orch1-" + chr(0xFF12) + "0261102T1310Z", "a" * 129, "orch\x01x"):
             with self.subTest(value=value):

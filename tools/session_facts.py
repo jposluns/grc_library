@@ -20,7 +20,16 @@ field, the transcript or a log row ever supplies a start. A minute-precision
 stamp (YYYYMMDDTHHMMZ) reads as zero seconds, so elapsed can overstate by
 less than 60 s, and any compaction row inside that start minute makes the
 count UNKNOWN with a warning because its position before or after the start
-is unknown.
+is unknown. Two minute-precision limits are disclosed, not warned: a
+heartbeat inside the start minute but before the true start passes the
+heartbeat-before-start check, and a now inside the start minute shows
+elapsed 0h0m.
+Since 3b793 any <label>-<stamp> id is read as the session start, not only
+orch-<extended seconds>. An id whose stamp is not the session start therefore
+reports a wrong start, and an id whose stamp is after now (for example
+sess-20991231T000000Z) raises SESSION_START_FUTURE where it was UNKNOWN.
+An orch- id with non-ASCII digits, which the earlier orch- rule read as a
+start, is now INVALID with start UNKNOWN; gate 63 always refused it.
 Missing, invalid, early or future heartbeats leave the start intact but make
 elapsed UNKNOWN and compactions UNKNOWN with a log or no log without one:
 activity since the start is unverified.
@@ -58,7 +67,7 @@ accepted by the order rule, including all three in a fenced block at EOF.
 import os
 import re
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -222,7 +231,8 @@ def session_metrics(root: Path, now: datetime | None = None):
                         and stamp == dt.replace(second=0)):
                     start_minute_ambiguous = True
                 # 3b793 W4: a minute-precision start is somewhere in [dt, dt + 60 s).
-                if minute_precision and dt <= stamp < dt + timedelta(seconds=60):
+                # Compare minutes, not dt + 60 s, which overflows in 9999-12-31T23:59.
+                if minute_precision and stamp.replace(second=0, microsecond=0) == dt:
                     start_precision_ambiguous = True
                 if (dt is not None and stale_heartbeat and len(match[1]) == 17
                         and stamp == end.replace(second=0)):
