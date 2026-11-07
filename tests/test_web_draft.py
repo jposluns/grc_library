@@ -17964,7 +17964,8 @@ class SiteReviewFixRound2Tests(unittest.TestCase):
         3 item 1's (1.12.11), item 3b788 draft round 3's WCO SAFE column
         correction's (1.12.12), the WCO SAFE attribution sweep's (1.12.13),
         its follow-up's (1.12.14, findings WCO-SWEEP-REST-0507 and
-        WCO-SWEEP-REV7-0922) and the programme-claims PR's (1.12.15)."""
+        WCO-SWEEP-REV7-0922), the programme-claims PR's (1.12.15) and the
+        CTPAT MSC register retitle's (1.12.16)."""
         text = (REPO_ROOT / "compliance" /
                 "matrix-grc-compliance-alignment.md"
                 ).read_text(encoding="utf-8")
@@ -17975,7 +17976,7 @@ class SiteReviewFixRound2Tests(unittest.TestCase):
                       "the [Cross-Framework Alignment Matrix]"
                       "(../governance/matrix-cross-framework-alignment.md).",
                       text)
-        self.assertIn("**Version:** 1.12.15\\\n", text)
+        self.assertIn("**Version:** 1.12.16\\\n", text)
 
     def test_quick_reference_purpose_matches_its_exception_rows(self):
         """Item 3: the Purpose said "the absolute prohibitions" though
@@ -18070,7 +18071,8 @@ class SiteReviewFixRound3Tests(unittest.TestCase):
         correction bumps it again (1.12.12) and sets the Date to
         2026-11-06; the WCO SAFE attribution sweep bumps it once more
         (1.12.13), its follow-up again (1.12.14) and the programme-claims
-        PR again (1.12.15), each with the same Date."""
+        PR again (1.12.15), each with the same Date; the CTPAT MSC register
+        retitle bumps it to 1.12.16 and sets the Date to 2026-11-07."""
         text = (REPO_ROOT / "compliance" /
                 "matrix-grc-compliance-alignment.md"
                 ).read_text(encoding="utf-8")
@@ -18079,8 +18081,8 @@ class SiteReviewFixRound3Tests(unittest.TestCase):
                       "to the control domains and section references of "
                       "ten compliance, security, assurance, and AI-control "
                       "frameworks, so a reader can trace", text)
-        self.assertIn("**Version:** 1.12.15\\\n", text)
-        self.assertIn("**Date:** 2026-11-06\\\n", text)
+        self.assertIn("**Version:** 1.12.16\\\n", text)
+        self.assertIn("**Date:** 2026-11-07\\\n", text)
 
 
 class BaselinePinGateTests(unittest.TestCase):
@@ -20081,8 +20083,11 @@ class ProgrammeClaimsTests(unittest.TestCase):
         self.assertEqual(self._glossary_row("NEEC"), self._NEEC_GLOSSARY)
 
     # -- routed from review round 6 of PR #3103 (wcor6 reports).
+    # msc2 (round 1 carried onto the programme-claims wording): the
+    # register now has eight domains, the eighth from WCO SAFE Annex IV H.
     _MSC_LEAD_IN = (
-        "For each of the seven CTPAT domains, the organization maps a "
+        "For each of the eight domains in this register, the organization "
+        "maps a "
         "corresponding AEO-S requirement area; that mapping is the "
         "organization's own and is to be checked against the UK HMRC AEO "
         "security and safety criteria handbook (section 11). ")
@@ -20117,8 +20122,12 @@ class ProgrammeClaimsTests(unittest.TestCase):
         "procedures limiting key access to authorized personnel, the place "
         "where keys are kept, the person responsible for key security, a "
         "record of who takes keys, when, why and their return, and the "
-        "handling of lost or unreturned keys; confirm the CTPAT "
-        "access-control evidence covers these before relying on it |")
+        "handling of lost or unreturned keys, and its access to business "
+        "premises criterion (§11.9) requires a list of all access points, "
+        "preferably referenced to the site plan, including fire escapes and "
+        "access stairways, that marks those for cargo loading and unloading, "
+        "utilities, public counters and drivers' rest areas; confirm the "
+        "CTPAT access-control evidence covers these before relying on it |")
 
     def test_msc_access_controls_supplement_is_qualified(self):
         """wcor6 claude N3: the MSC register said CTPAT access controls
@@ -21343,7 +21352,10 @@ class ProgrammeClaimsTests(unittest.TestCase):
             "| Information Technology | Supplement not yet assessed: the "
             "HMRC criteria name no incident notification to HMRC (handbook "
             "§11.4 expects security procedures to be reviewed and amended "
-            "after an incident, §11.8, on building and boundary security, "
+            "after an incident, with evidence of how the changes were "
+            "communicated to staff and visitors and each amendment recorded "
+            "as a revision with its date and the parts revised; §11.8, on "
+            "building and boundary security, "
             "asks how security incidents are reported and dealt with and "
             "names no recipient, and §11.12, on cargo security, expects "
             "procedures for cargo units that say how incidents are reported "
@@ -22627,6 +22639,1091 @@ class ProgrammeClaimsTests(unittest.TestCase):
                 with self.subTest(name=name):
                     with self.assertRaises(unittest.SkipTest):
                         getattr(self, name)()
+
+
+class MscRegisterRound2Tests(unittest.TestCase):
+    """The CTPAT MSC controls register remediation, round 2 (on the
+    programme-claims head 0266f51fe): round 1's change carried onto the
+    programme-claims wording, the retitle (W1), the status sweep (N1) and
+    the held HMRC lines the AEO-S table cites. Each corpus test fails when
+    its fix is reverted. The held-source test reads the reference corpus
+    (GRC_REF_PATH or a sibling grc_library_ref checkout) and skips without
+    it. Held line numbers count only LF as a line end."""
+
+    LOGISTICS = "compliance/logistics/"
+    MSC_REGISTER = LOGISTICS + "register-ctpat-united-states-msc-controls.md"
+    TITLE = "US CTPAT Minimum Security Criteria Controls Register"
+    OLD_TITLE = re.compile(r"(?i)full minimum security criteria")
+    HELD_HMRC = ("programs/UK-AEO/UK-HMRC-Customs-Technical-Handbook-AEO-"
+                 "AEOS-security-and-safety-criteria--full-text.md")
+
+    @staticmethod
+    def _lines(rel):
+        return (REPO_ROOT / rel).read_text(encoding="utf-8").splitlines()
+
+    def _section_lines(self, heading):
+        lines = self._lines(self.MSC_REGISTER)
+        start = lines.index(heading) + 1
+        end = start
+        while end < len(lines) and not lines[end].startswith("## "):
+            end += 1
+        return lines[start:end]
+
+    @staticmethod
+    def _cells(line):
+        return [cell.strip() for cell in line.strip().strip("|").split("|")]
+
+    def test_msc_register_title_names_no_full_criteria(self):
+        """W1: the register's heading and Document Title said "Full Minimum
+        Security Criteria", which no held source supports (the library
+        holds no complete CBP criteria text). The register, the document index, the
+        compliance and logistics READMEs, the compliance alignment matrix
+        and the generated taxonomy, portal and scorecard now carry the new
+        title, and no .md or .yml file in the repository keeps the old
+        one."""
+        lines = self._lines(self.MSC_REGISTER)
+        self.assertEqual(lines[0], f"# {self.TITLE}")
+        self.assertEqual(lines[2], f"**Document Title:** {self.TITLE}\\")
+        found = []
+        for pattern in ("*.md", "*.yml"):
+            for path in sorted(REPO_ROOT.rglob(pattern)):
+                rel = path.relative_to(REPO_ROOT)
+                if rel.parts[0] == ".git" or not path.is_file():
+                    continue
+                text = path.read_text(encoding="utf-8", errors="replace")
+                for number, line in enumerate(text.splitlines(), 1):
+                    if self.OLD_TITLE.search(line):
+                        found.append(f"{rel.as_posix()}:{number}")
+        self.assertEqual(found, [])
+        link = "register-ctpat-united-states-msc-controls.md"
+        carriers = (
+            ("governance/register-document-index-and-classification.md",
+             f"| Compliance | Register | {self.TITLE} |"),
+            ("compliance/README.md", f"| Register | {self.TITLE} |"),
+            ("compliance/matrix-grc-compliance-alignment.md",
+             "| Compliance | Register: US CTPAT Minimum Security Criteria "
+             "Controls |"),
+            ("taxonomy.yml", f'  title: "{self.TITLE}"'),
+            ("docs/portal.md", f"- [{self.TITLE}]"),
+            ("docs/maturity-scorecard.md", f" | {self.TITLE} | Register |"),
+        )
+        for rel, text in carriers:
+            with self.subTest(rel=rel):
+                self.assertTrue(any(
+                    text in line and (link in line or rel == "taxonomy.yml")
+                    for line in self._lines(rel)), text)
+        readme = [line for line in self._lines(self.LOGISTICS + "README.md")
+                  if f"[`{link}`]" in line]
+        self.assertEqual(readme, [
+            f"| [`{link}`]({link}) | Register | CTPAT Minimum Security "
+            "Criteria (MSC) controls. |"])
+
+    def test_msc_register_marks_no_unreviewed_row_implemented(self):
+        """N1: the status rule says Implemented stands only with
+        organization-specific evidence and a Last Reviewed date, yet every
+        Implemented row had a blank Last Reviewed. Each such row, in every
+        table of the register, is now Not assessed."""
+        lines = self._lines(self.MSC_REGISTER)
+        self.assertIn(
+            "**Status rule:** a Status of Implemented is the organization's "
+            "own assertion and stands only when the Evidence Location names "
+            "organization-specific evidence and Last Reviewed carries a date.",
+            "\n".join(lines))
+        offending, rows, header = [], 0, None
+        for line in lines:
+            if not line.startswith("|"):
+                header = None
+                continue
+            cells = self._cells(line)
+            if header is None:
+                header = cells
+                continue
+            if set(line) <= set("|-"):
+                continue
+            if "Status" not in header or "Last Reviewed" not in header:
+                continue
+            rows += 1
+            status = cells[header.index("Status")]
+            reviewed = cells[header.index("Last Reviewed")]
+            if status == "Implemented" and not reviewed:
+                offending.append(cells[0])
+        self.assertGreaterEqual(rows, 50)
+        self.assertEqual(offending, [])
+
+    def test_msc_register_round_1_coverage_claims_and_domain_8(self):
+        """Round 1, carried onto 0266f51fe: the purpose said the register
+        covers "the full set" of the 2020 criteria "across all security
+        domains" and the overview said the 2020 MSC "apply to all CTPAT
+        entity types" in "seven MSC security domains", none of which a held
+        source supports. Both now say what is held; the conveyance and
+        cargo unit domain (WCO SAFE Annex IV H) is added as domain 8."""
+        text = "\n".join(self._lines(self.MSC_REGISTER))
+        self.assertNotIn("the full set of CTPAT Minimum Security Criteria",
+                         text)
+        self.assertNotIn("The 2020 MSC apply to all CTPAT entity types", text)
+        self.assertNotIn("seven MSC security domains", text)
+        self.assertIn("The library holds no complete CBP criteria text", text)
+        headings = re.findall(r"^## Domain (\d): ", text, re.M)
+        self.assertEqual(headings, [str(n) for n in range(1, 9)])
+        self.assertIn("## Domain 8: conveyance and cargo unit security", text)
+        rows = [cells[0] for cells in map(self._cells, self._section_lines(
+            "## Domain 8: conveyance and cargo unit security"))
+            if re.fullmatch(r"CV-\d", cells[0])]
+        self.assertEqual(rows, ["CV-1", "CV-2", "CV-3", "CV-4", "CV-5"])
+        for control in ("CS-6", "PE-5", "PE-6", "PR-7", "PR-8", "BP-5"):
+            with self.subTest(control=control):
+                self.assertRegex(text, rf"(?m)^\| {control} \| ")
+
+    def test_msc_aeo_s_table_carries_round_1_onto_the_programme_wording(self):
+        """Round 1, carried onto the programme-claims rows: the AEO-S table
+        has a row for each of the eight domains; the Corporate Security row
+        keeps "HMRC AEO application documentation" and names the risk and
+        threat assessment and security plan (section 11.2), the appointed
+        contact person (11.16) and section 11.1; the Personnel Security row
+        gives the section 11.7 minimum screening in place of "UK employment
+        law compliance"; the conveyance row gives section 11.12's cargo unit
+        integrity, 7-point inspection and maintenance items."""
+        section = self._section_lines("## UK AEO-S parallel controls")
+        rows = {self._cells(line)[0]: line for line in section
+                if line.startswith("| ") and not line.startswith("| CTPAT")}
+        self.assertEqual(sorted(rows), sorted([
+            "Corporate Security", "Physical Security", "Access Controls",
+            "Personnel Security", "Procedural Security",
+            "Business Partner Security", "Information Technology",
+            "Conveyance and Cargo Unit Security"]))
+        corporate = rows["Corporate Security"]
+        self.assertIn("| HMRC AEO application documentation, including",
+                      corporate)
+        for cite in ("handbook §11.2:", "(§11.16)", "(§11.1)"):
+            self.assertIn(cite, corporate)
+        personnel = rows["Personnel Security"]
+        self.assertNotIn("UK employment law compliance", personnel)
+        self.assertIn("confirms the right to work in the UK", personnel)
+        self.assertIn("(handbook §11.7)", personnel)
+        conveyance = rows["Conveyance and Cargo Unit Security"]
+        for item in ("integrity of the cargo unit before loading",
+                     "7-point inspection",
+                     "routine maintenance",
+                     "outside the supervision of the organization's staff"):
+            self.assertIn(item, conveyance)
+
+    # HMRC section 11 (programs/UK-AEO/): the held lines the AEO-S rows
+    # added or extended in round 2 rest on, with text each carries.
+    _HMRC_CITATIONS = (
+        (12, "11.1 General"),
+        (22, "any specific legal requirements that may be applicable to the "
+             "business"),
+        (23, "11.2 Security and safety risk assessment"),
+        (27, "The risk and threat assessment shall cover all the premises"),
+        (28, "Failure to produce the risk and threat assessment or a security "
+             "plan during the customs authorities visit may result in an "
+             "automatic recommendation that the application be rejected."),
+        (54, "11.4 Security incidents"),
+        (56, "Evidence will also be required of how these changes were "
+             "subsequently communicated to staff and visitors."),
+        (56, "recorded as a revision with a record of the date and the "
+             "part(s) revised"),
+        (62, "11.7 Personnel security - Pre-employment screening"),
+        (66, "confirm the right to work in the UK"),
+        (73, "This history should cover the previous 5 years, but this "
+             "period is not mandatory."),
+        (86, "11.9 Access to business premises"),
+        (94, "HMRC will require a list of all access points, preferably with "
+             "reference to the site plan. Include any fire escapes and show "
+             "access stairways."),
+        (98, "drivers’ rest areas"),
+        (112, "11.12 Cargo security"),
+        (114, "Cargo units include containers, tankers, vans, lorries, "
+              "vehicles, pipelines which transport the goods."),
+        (114, "Procedures should be in place to examine the integrity of the "
+              "cargo unit before loading."),
+        (120, "who is the responsible person to whom incidents are reported"),
+        (125, "a 7-point inspection process should be carried out (to "
+              "include the tractor unit as well)"),
+        (126, "Maintenance should be done routinely"),
+        (126, "If the maintenance is done externally or outside the "
+              "supervision of your staff, the cargo unit’s integrity should "
+              "be inspected when returning to the premises."),
+        (168, "11.16 Appointed contact person"),
+        (169, "responsible for supply chain security"),
+    )
+
+    def test_cited_hmrc_lines_carry_their_text(self):
+        """The held HMRC lines behind the round 2 AEO-S rows carry the text
+        the rows summarize; skips without the reference corpus."""
+        root = None
+        for candidate in (os.environ.get("GRC_REF_PATH"),
+                          REPO_ROOT.parent / "grc_library_ref"):
+            if candidate and Path(candidate).is_dir():
+                root = Path(candidate)
+                break
+        if root is None:
+            self.skipTest("grc_library_ref not present (set GRC_REF_PATH "
+                          "or check it out beside this repository)")
+        held = (root / self.HELD_HMRC).read_text(encoding="utf-8").split("\n")
+        for number, excerpt in self._HMRC_CITATIONS:
+            with self.subTest(line=number):
+                self.assertIn(excerpt, held[number - 1])
+
+
+class MscRegisterRound3Tests(unittest.TestCase):
+    """The CTPAT MSC controls register remediation, rounds 3 to 8 (on
+    86b6802b7 to a4030ae42). Each claim pin in
+    _CLAIMS names one row and the phrases it must carry: the obligation
+    (for the Purpose and the index cell, the statement) and every
+    qualifier or permission the reviews found dropped. The pins cover
+    exactly these statements and nothing else. In the register: the Purpose's
+    held-source sentence (no complete CBP criteria text; the job aid
+    reflects only the cybersecurity criteria); CS-3; CS-6 (WCO SAFE Annex
+    IV L item a, with the appropriate authorities, where advisable or
+    necessary); BP-5; the FCRA note (subparagraph (A), with for employment
+    purposes, the cause-to-be-procured limb, the disclosure's content and
+    by that person, with its antecedent a person, and the permission to
+    make the authorization on the same document as the disclosure;
+    subparagraph (B)'s trigger, in connection with that
+    application, notice, summary of rights and consent; subparagraph (C)'s
+    scope, with the Secretary of Transportation's power and the
+    cause-to-be-procured limb); the IT-5 rail note; CV-1 to CV-5 (CV-1
+    with used for the transportation of cargo within its supply chain);
+    and, in the AEO-S table, the Corporate Security row
+    (relevant premises, may result, and the register's own legal-entity
+    item kept apart from section 11.1), the Personnel Security row's
+    section 11.7 screening, agency and temporary-staff provisions, its
+    section 11.7 contracts provision (a pin of its own) and its ICO
+    statements, and the Conveyance and Cargo Unit Security row (control
+    measures, for example, depending on the cargo unit used, the tractor
+    unit). In the document index: the register row's Primary Alignment
+    Families (frameworks) cell only. Each pin has two kinds of
+    counterexample, and the pin rejects every one: the round 2
+    (86b6802b7) text of its row, pasted verbatim; and deletions from the
+    live row, the first removing the obligation (for the Purpose and the
+    index cell, the statement) and the rest each a qualifier or
+    permission. Two FCRA note deletions remove more than their qualifier,
+    because the deletion test needs a unique match and the bare qualifier
+    occurs more than once in the note: the cause-to-be-procured deletion
+    in subparagraph (C) also removes the comma closing its timing clause
+    (" or caused to be procured,"), and the screening clause's deletion
+    also removes the comma and article after it
+    (" for employment purposes, the"). The held-line test checks that
+    each source line the pins rest on carries the cited text; it reads
+    the reference corpus (GRC_REF_PATH or a sibling grc_library_ref
+    checkout) and skips without it. Held line numbers count only LF as a
+    line end."""
+
+    MSC_REGISTER = ("compliance/logistics/"
+                    "register-ctpat-united-states-msc-controls.md")
+    INDEX = "governance/register-document-index-and-classification.md"
+
+    # claim: (document, index of the pinned table cell); a claim not
+    # listed here pins its whole line in the register.
+    _SCOPES = {"index-frameworks": (INDEX, 6)}
+
+    # claim: (row locator, phrases the corrected row carries: the
+    # obligation and each qualifier).
+    _CLAIMS = {
+        "purpose": ("This register documents the organization's "
+                    "implementation status", (
+            "The library holds no complete CBP criteria text",
+            "its only held CBP CTPAT source is a cybersecurity checklist job "
+            "aid, which reflects only the cybersecurity criteria",
+            "each CTPAT Criterion cell is the library's own summary, "
+            "unverified against CBP wording",
+            "coverage of every criterion CBP applies to the organization's "
+            "entity type is not confirmed")),
+        "CS-3": ("| CS-3 |", (
+            "Annual security risk and threat assessment of the "
+            "organization's supply chain operations, with the appropriate "
+            "measures taken to mitigate those risks",
+            "the WCO AEO Compendium (2020) CTPAT entry",
+            "update their security profile and risk assessments annually",
+            "regularly undertake, as specifically outlined in the national "
+            "AEO programme, assessments of the security risks in its "
+            "operations")),
+        "CS-6": ("| CS-6 |", (
+            "Contingency plans for emergency security situations and for "
+            "disaster or terrorist incident recovery",
+            "developed and documented in conjunction with the appropriate "
+            "authorities, where advisable or necessary",
+            "with periodic employee training and plan testing",
+            "Annex IV L (Crisis Management and Incident Recovery)")),
+        "fcra-note": ("*PE-1 and PE-5 in the United States:", (
+            "a person may not procure the report, or cause the report to be "
+            "procured, unless a clear and conspicuous written disclosure, in "
+            "a document that consists solely of the disclosure, that a "
+            "consumer report may be obtained for employment purposes, has "
+            "been made to the consumer beforehand",
+            "where screening uses a consumer report for employment purposes",
+            "the consumer has authorized the procurement by that person in "
+            "writing",
+            "The authorization may be made on the same document as the "
+            "disclosure.",
+            "The exception in subparagraph (B) applies only to a consumer "
+            "described in subparagraph (C)",
+            "over which the Secretary of Transportation has the power to "
+            "establish qualifications and maximum hours of service",
+            "section 31502 of title 49",
+            "a position subject to safety regulation by a State "
+            "transportation agency",
+            "whose only interaction with the person in connection with the "
+            "application, when the report is procured or caused to be "
+            "procured, has been by mail, telephone, computer or other "
+            "similar means",
+            "applies for employment by mail, telephone, computer or other "
+            "similar means, at any time before the report is procured or "
+            "caused to be procured in connection with that application",
+            "the person who procures it provide to the consumer, by oral, "
+            "written or electronic means, notice that a consumer report may "
+            "be obtained for employment purposes",
+            "together with a summary of the consumer's rights under section "
+            "1681m(a)(3)",
+            "the consumer have consented, orally, in writing or "
+            "electronically, to the procurement of the report by that "
+            "person",
+            "the stand-alone written disclosure and written authorization in "
+            "subparagraph (A) apply")),
+        "BP-5": ("| BP-5 |", (
+            "a documented procedure, in accordance with current legislation, "
+            "to prevent money laundering, financing of terrorism and other "
+            "crimes related to international trade",
+            "a person appointed as responsible for compliance with it",
+            "screening business partners by verifying the identity and legal "
+            "status of the company and its stakeholders",
+            "legal, criminal and financial background checks taking national "
+            "and international lists into account",
+            "timely notification of the relevant authority when suspicious "
+            "transactions are identified",
+            "verification of membership in business or trade associations")),
+        "rail-note": ("*IT-5 for rail carriers:", (
+            "must also report to CISA Central",
+            "the cybersecurity incidents that Section II.C of TSA Security "
+            "Directive 1580-21-01E covers",
+            "systems the owner or operator has responsibility to operate "
+            "and/or maintain",
+            "as soon as practicable and no later than 72 hours after "
+            "identifying the incident")),
+        "CV-1": ("| CV-1 |", (
+            "To the extent and scope of the organization's authority and "
+            "responsibility, all transport conveyances",
+            "used for the transportation of cargo within its supply chain",
+            "are capable of being effectively secured")),
+        "CV-2": ("| CV-2 |", (
+            "To the extent and scope of the organization's ability and "
+            "responsibility, transport conveyances",
+            "secured when left unattended and checked for security breaches "
+            "on return")),
+        "CV-3": ("| CV-3 |", (
+            "To the extent and scope of the organization's authority and "
+            "responsibility, all operators of conveyances",
+            "trained to maintain the security of the conveyance and the "
+            "cargo at all times while in its custody")),
+        "CV-4": ("| CV-4 |", (
+            "Procedures for inspecting the conveyance structure, including "
+            "the reliability of its access controls",
+            "seven-point inspection",
+            "recommended where appropriate to the conveyance type",
+            "potential places of concealment of illegal goods considered and "
+            "regularly inspected",
+            "all internal and external compartments and panels secured as "
+            "appropriate",
+            "records made and kept following each inspection, indicating the "
+            "areas inspected")),
+        "CV-5": ("| CV-5 |", (
+            "As specifically detailed in national AEO programmes",
+            "operators required to report any actual or suspicious incident "
+            "to designated security department staff of both the "
+            "organization and Customs for further investigation",
+            "to keep records of these reports, available to Customs as legal "
+            "and necessary",
+            "any unusual, suspicious or actual breach of conveyance security "
+            "notified to Customs or another relevant body")),
+        "aeo-corporate": ("| Corporate Security |", (
+            "a security and safety risk and threat assessment covering all "
+            "premises relevant to customs-related activities and a security "
+            "plan",
+            "may result in an automatic recommendation that the application "
+            "be rejected",
+            "UK legal entity compliance (this register's own item, not drawn "
+            "from §11.1)",
+            "separately, the handbook's controls and measures are in "
+            "addition to legal health and safety requirements as well as "
+            "any specific legal requirements that may be applicable to the "
+            "business (§11.1)")),
+        "personnel": ("| Personnel Security |", (
+            "verifies identity, confirms the right to work in the UK, "
+            "confirms the employee has declared any unspent criminal records "
+            "and checks previous employment history",
+            "a documented employment history of staff covering the previous "
+            "5 years, a period HMRC says is not mandatory",
+            "a Regulated Agent or Known Consignor should have a 5-year "
+            "employment history check",
+            "a business is not required to screen staff it obtains through "
+            "an employment agency, but should only use agencies that abide "
+            "by The Conduct of Employment Agencies and Employment Businesses "
+            "Regulations 2003",
+            "any agency used should be aware of the security and safety "
+            "policy and, where appropriate, carry out any additional checks",
+            "if, exceptionally, temporary staff are employed without "
+            "screening, there must be measures in place (body searches, "
+            "supervision or restricted access, for example) to manage the "
+            "risk",
+            "(handbook §11.7)")),
+        "personnel-contracts": ("| Personnel Security |", (
+            "the AEO applicant should have all the employment contracts",
+            "including for temporary personnel and outsourcing contracts",
+            "available to present to the visiting officer")),
+        "ICO": ("| Personnel Security |", (
+            "unlikely to be necessary and proportionate to ask all "
+            "candidates for criminal-record information",
+            "in most cases criminal records checks can take place as part of "
+            "pre-employment vetting",
+            "to do pre-employment vetting only where the employer is under a "
+            "legal obligation or can identify significant and particular "
+            "risks",
+            "not to routinely vet all candidates unless legally required to "
+            "do so")),
+        "aeo-conveyance": ("| Conveyance and Cargo Unit Security |", (
+            "procedures to examine the integrity of the cargo unit before "
+            "loading",
+            "control measures for checking cargo units, for example, a "
+            "7-point inspection, depending on the cargo unit used, that "
+            "includes the tractor unit",
+            "(handbook §11.12")),
+        "index-frameworks": ("| Compliance | Register | US CTPAT Minimum "
+                             "Security Criteria Controls Register |", (
+            "CTPAT MSC (library summary; no complete CBP criteria text "
+            "held)",)),
+    }
+
+    # claim: text deleted from the live row, each deletion on its own;
+    # the first removes the obligation (for the Purpose and the index
+    # cell, the statement), the rest each remove a qualifier or
+    # permission. Each must occur once in the row and fail the pin when
+    # deleted.
+    _DELETIONS = {
+        "purpose": (
+            "each CTPAT Criterion cell is the library's own summary, "
+            "unverified against CBP wording, ",
+            "complete ",
+            ", which reflects only the cybersecurity criteria"),
+        "CS-3": (
+            "assessments of the security risks in its operations",
+            ", as specifically outlined in the national AEO programme",
+            " annually"),
+        "CS-6": (
+            "Contingency plans for emergency security situations and for "
+            "disaster or terrorist incident recovery, ",
+            ", where advisable or necessary"),
+        "fcra-note": (
+            "may not procure the report, or cause the report to be procured, "
+            "unless ",
+            "a person ",
+            "together with a summary of the consumer's rights under section "
+            "1681m(a)(3), ",
+            ", whose only interaction with the person in connection with the "
+            "application, when the report is procured or caused to be "
+            "procured, has been by mail, telephone, computer or other "
+            "similar means",
+            ", or cause the report to be procured",
+            " or caused to be procured,",
+            "or caused to be procured ",
+            " in connection with that application",
+            "over which the Secretary of Transportation has the power to "
+            "establish qualifications and maximum hours of service ",
+            " for employment purposes, the",
+            ", that a consumer report may be obtained for employment "
+            "purposes",
+            "by that person ",
+            "The authorization may be made on the same document as the "
+            "disclosure. "),
+        "BP-5": (
+            "a documented procedure, ",
+            ", in accordance with current legislation",
+            " and its stakeholders"),
+        "rail-note": (
+            "must also report to CISA Central ",
+            "that Section II.C of TSA Security Directive 1580-21-01E covers, "
+            "those involving systems the owner or operator has "
+            "responsibility to operate and/or maintain, "),
+        "CV-1": (
+            "are capable of being effectively secured ",
+            "To the extent and scope of the organization's authority and "
+            "responsibility, ",
+            " used for the transportation of cargo within its supply chain"),
+        "CV-2": (
+            "secured when left unattended and checked for security breaches "
+            "on return ",
+            "To the extent and scope of the organization's ability and "
+            "responsibility, "),
+        "CV-3": (
+            "trained to maintain the security of the conveyance and the "
+            "cargo ",
+            "To the extent and scope of the organization's authority and "
+            "responsibility, ",
+            " while in its custody"),
+        "CV-4": (
+            "Procedures for inspecting the conveyance structure, including "
+            "the reliability of its access controls, ",
+            "recommended where appropriate to the conveyance type",
+            " as appropriate"),
+        "CV-5": (
+            "operators required to report any actual or suspicious incident ",
+            "As specifically detailed in national AEO programmes, ",
+            ", available to Customs as legal and necessary"),
+        "aeo-corporate": (
+            "risk and threat assessment ",
+            "covering all premises relevant to customs-related activities ",
+            "may result",
+            " (this register's own item, not drawn from §11.1)",
+            "separately, "),
+        "personnel": (
+            "there must be measures in place (body searches, supervision or "
+            "restricted access, for example) to manage the risk",
+            ", but should only use agencies that abide by The Conduct of "
+            "Employment Agencies and Employment Businesses Regulations 2003 "
+            "(Statutory Instrument 2003 No 3319)",
+            "exceptionally, "),
+        "personnel-contracts": (
+            "available to present to the visiting officer",
+            "including for temporary personnel and outsourcing contracts, "),
+        "ICO": (
+            "do pre-employment vetting only where ",
+            "in most cases ",
+            " unless legally required to do so"),
+        "aeo-conveyance": (
+            "control measures for checking cargo units, ",
+            "for example, ",
+            "depending on the cargo unit used, ",
+            ", that includes the tractor unit"),
+        "index-frameworks": (
+            "library summary; ",
+            "complete "),
+    }
+
+    # The round 2 rows, verbatim: each line as git show
+    # 86b6802b7:<document> gave it when these tests were written (register
+    # lines 21, 50, 53, 92, 119, 140, 150 to 154, 164, 167 and 171; index
+    # line 375). CS-6 did not change from 86b6802b7 to 6d608171c.
+    _R2_PURPOSE = (
+        "This register documents the organization's implementation status "
+        "against the CTPAT Minimum Security Criteria in eight domains: "
+        "corporate security, physical security, access controls, personnel "
+        "security, procedural security (cargo handling), business partner "
+        "security, information technology, and conveyance and cargo unit "
+        "security. The library holds no CBP criteria text (its only held CBP "
+        "CTPAT source is a cybersecurity checklist job aid), so each CTPAT "
+        "Criterion cell is the library's own summary, unverified against CBP "
+        "wording, and coverage of every criterion CBP applies to the "
+        "organization's entity type is not confirmed. It complements "
+        "[`compliance/logistics/register-ctpat-united-states-it-controls.md`]"
+        "(register-ctpat-united-states-it-controls.md), "
+        "which focuses specifically on IT and cybersecurity criteria."
+    )
+    _R2_CS3 = (
+        "| CS-3 | Security assessment conducted to identify vulnerabilities "
+        "| Annual security risk and threat assessment of the organization's "
+        "supply chain operations, with the measures taken against each risk "
+        "(held source: WCO SAFE Framework of Standards (2025), Annex IV M "
+        "(Measurement, Analyses and Improvement), item a). The annual trade "
+        "compliance gap assessment per "
+        "[`compliance/logistics/template-trade-compliance-gap-assessment.md`]"
+        "(template-trade-compliance-gap-assessment.md) "
+        "checks controls against programme requirements and does not replace "
+        "the risk assessment | Risk and threat assessment report; gap "
+        "assessment record | Not assessed | |"
+    )
+    _R2_CS6 = (
+        "| CS-6 | Contingency plans for emergency security situations and "
+        "for disaster or terrorist incident recovery, with periodic employee "
+        "training and plan testing (held source: WCO SAFE (2025), Annex IV L "
+        "(Crisis Management and Incident Recovery); IT recovery stays under "
+        "IT-9) | Not yet documented | Security contingency plan; training "
+        "and test records | Not assessed | |"
+    )
+    _R2_FCRA = (
+        "*PE-1 and PE-5 in the United States: where screening uses a "
+        "consumer report for employment purposes, the Fair Credit Reporting "
+        "Act (15 U.S.C. 1681b(b)(2)(A)) bars procuring the report unless a "
+        "clear and conspicuous written disclosure, in a document that "
+        "consists solely of the disclosure, has been made to the consumer "
+        "beforehand and the consumer has authorized the procurement in "
+        "writing; subparagraph (B) covers applications made by mail, "
+        "telephone, computer or similar means.*"
+    )
+    _R2_BP5 = (
+        "| BP-5 | Business partner screening against money laundering and "
+        "terrorism financing: verify partner identity and legal status, "
+        "conduct legal, criminal and financial background checks taking "
+        "national and international lists into account, and notify the "
+        "relevant authority in a timely manner when suspicious transactions "
+        "are identified (held source: BASC International Security Standard "
+        "6.0.3 (2022), 1.2.1; the BASC International Norm (2022) says its "
+        "Version 6 includes the C-TPAT criteria adopted in 2020, but no held "
+        "CBP text confirms this as a CTPAT criterion) | Not yet documented | "
+        "Partner screening records | Not assessed | |"
+    )
+    _R2_RAIL = (
+        "*IT-5 for rail carriers: a freight railroad carrier identified in "
+        "49 CFR 1580.101, or another TSA-designated freight railroad, must "
+        "also report cybersecurity incidents to CISA Central as soon as "
+        "practicable and no later than 72 hours after identifying them, "
+        "under TSA Security Directive 1580-21-01E (effective January 16, "
+        "2026 through January 15, 2027). This report is separate from CBP "
+        "notification; confirm the directive in force before relying on "
+        "these terms.*"
+    )
+    _R2_CV1 = (
+        "| CV-1 | Transport conveyances used for cargo in the supply chain "
+        "are capable of being effectively secured (Annex IV H, item a) | Not "
+        "yet documented | Conveyance security procedure | Not assessed | |"
+    )
+    _R2_CV2 = (
+        "| CV-2 | Conveyances secured when left unattended and checked for "
+        "security breaches on return (Annex IV H, item b) | Not yet "
+        "documented | Conveyance security procedure; check records | Not "
+        "assessed | |"
+    )
+    _R2_CV3 = (
+        "| CV-3 | Conveyance operators trained to maintain the security of "
+        "the conveyance and the cargo at all times while in custody (Annex "
+        "IV H, item c) | Not yet documented | Training records | Not "
+        "assessed | |"
+    )
+    _R2_CV4 = (
+        "| CV-4 | Inspection of the conveyance structure, including the "
+        "reliability of its access controls, using a seven-point inspection "
+        "(front wall, left side, right side, floor, ceiling or roof, inside "
+        "and outside doors, outside and undercarriage) where appropriate to "
+        "the conveyance type; regular inspection of potential places of "
+        "concealment, with records of the areas inspected (Annex IV G, item "
+        "f; Annex IV H, item e) | Not yet documented | Inspection checklist; "
+        "inspection records | Not assessed | |"
+    )
+    _R2_CV5 = (
+        "| CV-5 | Operators report actual or suspicious incidents to the "
+        "organization's security staff and to Customs, with records kept; "
+        "any unusual, suspicious or actual breach of conveyance security "
+        "notified to Customs or another relevant body (Annex IV H, items d "
+        "and f) | Not yet documented | Incident reports; notification "
+        "records | Not assessed | |"
+    )
+    _R2_CORPORATE = (
+        "| Corporate Security | HMRC AEO application documentation, "
+        "including a security and safety risk and threat assessment covering "
+        "all premises relevant to customs-related activities and a security "
+        "plan (handbook §11.2: failure to produce either during the customs "
+        "authorities' visit may result in an automatic recommendation that "
+        "the application be rejected); an appointed contact person "
+        "responsible for supply chain security (§11.16); UK legal entity "
+        "compliance: the criteria apply in addition to legal health and "
+        "safety requirements and any specific legal requirements that may "
+        "apply to the business (§11.1) |"
+    )
+    _R2_PERSONNEL = (
+        "| Personnel Security | Pre-employment screening of staff in "
+        "sensitive areas that, at minimum, verifies identity, confirms the "
+        "right to work in the UK, confirms the employee has declared any "
+        "unspent criminal records and checks previous employment history; a "
+        "documented employment history of staff covering the previous 5 "
+        "years, a period HMRC says is not mandatory (handbook §11.7). "
+        "Criminal-record data is governed by data protection law: UK GDPR "
+        "Article 10 and Data Protection Act 2018 section 10(5), which "
+        "requires a condition in Part 1, 2 or 3 of Schedule 1; the ICO's "
+        "employment guidance says criminal records checks can in most cases "
+        "take place as part of pre-employment vetting |"
+    )
+    _R2_CONVEYANCE = (
+        "| Conveyance and Cargo Unit Security | HMRC's cargo security "
+        "criterion covers cargo units, which include containers, tankers, "
+        "vans, lorries, vehicles and pipelines: procedures to examine the "
+        "integrity of the cargo unit before loading, with a 7-point "
+        "inspection, depending on the cargo unit, that includes the tractor "
+        "unit; routine maintenance, with an integrity inspection of the "
+        "cargo unit on its return to the premises when maintenance is done "
+        "externally or outside the supervision of the organization's staff; "
+        "and incident procedures (handbook §11.12, on cargo security, "
+        "expects procedures for cargo units that name the responsible person "
+        "to whom incidents are reported and say how incidents are reported "
+        "and recorded and what action is to be taken, including reporting to "
+        "law enforcement or senior management, and §11.8, on building and "
+        "boundary security, asks how security incidents are reported and "
+        "dealt with and names no recipient) |"
+    )
+    _R2_INDEX = (
+        "| Compliance | Register | US CTPAT Minimum Security Criteria "
+        "Controls Register | "
+        "[`compliance/logistics/register-ctpat-united-states-msc-controls.md`"
+        "](../compliance/logistics/register-ctpat-united-states-msc-controls."
+        "md) "
+        "| Supplier Risk Maintainer | Annual | CTPAT MSC 2020 (all domains), "
+        "AEO-S (UK/HMRC), PIP (CBSA) | template |"
+    )
+
+    # claim: its row's round 2 text; the Personnel Security pins share one
+    # round 2 row.
+    _COUNTEREXAMPLES = {
+        "purpose": _R2_PURPOSE,
+        "CS-3": _R2_CS3,
+        "CS-6": _R2_CS6,
+        "fcra-note": _R2_FCRA,
+        "BP-5": _R2_BP5,
+        "rail-note": _R2_RAIL,
+        "CV-1": _R2_CV1,
+        "CV-2": _R2_CV2,
+        "CV-3": _R2_CV3,
+        "CV-4": _R2_CV4,
+        "CV-5": _R2_CV5,
+        "aeo-corporate": _R2_CORPORATE,
+        "personnel": _R2_PERSONNEL,
+        "personnel-contracts": _R2_PERSONNEL,
+        "ICO": _R2_PERSONNEL,
+        "aeo-conveyance": _R2_CONVEYANCE,
+        "index-frameworks": _R2_INDEX,
+    }
+
+    # claim, held path (reference corpus), line, text the line carries.
+    _FCRA = "legislation/US/FCRA-15-USC-1681--full-text.md"
+    _TSA = "legislation/US/US-TSA-SD-1580-21-01E--full-text.md"
+    _COMPENDIUM = ("programs/WCO-AEO-Compendium/"
+                   "WCO-AEO-Compendium-2020--full-text.md")
+    _SAFE = "programs/WCO-SAFE/WCO-SAFE-Framework-of-Standards--full-text.md"
+    _BASC = ("frameworks/BASC/BASC-International-Security-Standard-6.0.3-"
+             "2022--basic-security-operational-controls--full-text.md")
+    _HMRC = ("programs/UK-AEO/UK-HMRC-Customs-Technical-Handbook-AEO-"
+             "AEOS-security-and-safety-criteria--full-text.md")
+    _ICO = ("frameworks/UK-ICO/UK-ICO-Employment-guidance-records-"
+            "recruitment-health--full-text.md")
+    _CTPAT = ("programs/CTPAT/"
+              "CTPAT-Cybersecurity-Checklist-Sample--full-text.md")
+    _HELD_CITATIONS = (
+        ("purpose", _CTPAT, 4, "a sample self-assessment checklist "
+                               "reflecting the cybersecurity Minimum "
+                               "Security Criteria"),
+        ("purpose", _CTPAT, 4, "It is NOT the complete CTPAT Minimum "
+                               "Security Criteria"),
+        ("index-frameworks", _CTPAT, 4, "It is NOT the complete CTPAT "
+                                        "Minimum Security Criteria"),
+        ("CS-6", _SAFE, 5060, "L. Crisis Management and Incident Recovery"),
+        ("CS-6", _SAFE, 5066, "develop and document, in conjunction with the "
+                              "appropriate authorities, where advisable or "
+                              "necessary,"),
+        ("CS-6", _SAFE, 5067, "contingency plans for emergency security "
+                              "situations and for disaster or terrorist "
+                              "incident recovery;"),
+        ("CS-6", _SAFE, 5068, "include periodic training of employees and "
+                              "testing of emergency contingency plans."),
+        ("fcra-note", _FCRA, 423, "(B) Application by mail, telephone, "
+                                  "computer, or other similar means"),
+        ("fcra-note", _FCRA, 424, "at any time before a consumer report is "
+                                  "procured or caused to be procured in "
+                                  "connection with that application"),
+        ("fcra-note", _FCRA, 425, "shall provide to the consumer, by oral, "
+                                  "written, or electronic means, notice that "
+                                  "a consumer report may be obtained for "
+                                  "employment purposes"),
+        ("fcra-note", _FCRA, 425, "and a summary of the consumer's rights "
+                                  "under section 1681m(a)(3)"),
+        ("fcra-note", _FCRA, 428, "the consumer shall have consented, "
+                                  "orally, in writing, or electronically to "
+                                  "the procurement of the report by that "
+                                  "person."),
+        ("BP-5", _BASC, 173, "legislation, to prevent money laundering, "
+                             "financing of terrorism and other crimes"),
+        ("BP-5", _BASC, 174, "related to international trade."),
+        ("BP-5", _BASC, 176, "a) Screening of its business partners to "
+                             "include verifying the identity and legal"),
+        ("rail-note", _TSA, 201, "practicable, but no later than 72 hours "
+                                 "after the Owner/Operator identifies a"),
+        ("CS-3", _SAFE, 5084, "risks in its operations"),
+        ("CV-3", _SAFE, 4921, "are trained to maintain the security of the "
+                              "transport conveyance and the"),
+        ("CV-4", _SAFE, 4935, "inspected;"),
+        ("CV-5", _SAFE, 4930, "as well as to maintain records of these "
+                              "reports"),
+        ("CV-5", _SAFE, 4938, "conveyance security."),
+        ("aeo-corporate", _HMRC, 12, "11.1 General"),
+        ("aeo-corporate", _HMRC, 22, "These controls and measures are in "
+                                     "addition to legal health and safety "
+                                     "requirements as well as any specific "
+                                     "legal requirements that may be "
+                                     "applicable to the business."),
+        ("aeo-corporate", _HMRC, 23, "11.2 Security and safety risk "
+                                     "assessment"),
+        ("aeo-corporate", _HMRC, 27, "The risk and threat assessment shall "
+                                     "cover all the premises which are "
+                                     "relevant to your customs related "
+                                     "activities."),
+        ("aeo-corporate", _HMRC, 28, "may result in an automatic "
+                                     "recommendation that the application be "
+                                     "rejected."),
+        ("personnel", _HMRC, 76, "but they should only use agencies that "
+                                 "abide by"),
+        ("personnel-contracts", _HMRC, 62, "11.7 Personnel security - "
+                                           "Pre-employment screening"),
+        ("personnel-contracts", _HMRC, 73, "In addition to this, the "),
+        ("personnel-contracts", _HMRC, 74, "AEO"),
+        ("personnel-contracts", _HMRC, 75, "applicant should have all the "
+                                           "employment contracts, including "
+                                           "for temporary personnel and "
+                                           "outsourcing contracts, available "
+                                           "to present to the visiting "
+                                           "officer."),
+        ("aeo-conveyance", _HMRC, 112, "11.12 Cargo security"),
+        ("aeo-conveyance", _HMRC, 114, "Procedures should be in place to "
+                                       "examine the integrity of the cargo "
+                                       "unit before loading."),
+        ("aeo-conveyance", _HMRC, 125, "There should be control measures for "
+                                       "checking cargo units in place. For "
+                                       "example, depending on the cargo unit "
+                                       "used, a 7-point inspection process "
+                                       "should be carried out (to include "
+                                       "the tractor unit as well)"),
+        ("fcra-note", _FCRA, 420, "Except as provided in subparagraph (B)"),
+        ("fcra-note", _FCRA, 420, "a person may not procure a consumer "
+                                  "report, or cause a consumer report to be "
+                                  "procured, for employment purposes"),
+        ("fcra-note", _FCRA, 432, "a position over which the Secretary of "
+                                  "Transportation has the power to establish "
+                                  "qualifications and maximum hours of "
+                                  "service"),
+        ("fcra-note", _FCRA, 433, "as of the time at which the person "
+                                  "procures the report or causes the report "
+                                  "to be procured"),
+        ("fcra-note", _FCRA, 421, "in a document that consists solely of "
+                                  "the disclosure"),
+        ("fcra-note", _FCRA, 421, "that a consumer report may be obtained "
+                                  "for employment purposes"),
+        ("fcra-note", _FCRA, 422, "the consumer has authorized in writing"),
+        ("fcra-note", _FCRA, 422, "the procurement of the report by that "
+                                  "person"),
+        ("fcra-note", _FCRA, 422, "(which authorization may be made on the "
+                                  "document referred to in clause (i))"),
+        ("fcra-note", _FCRA, 424, "If a consumer described in subparagraph "
+                                  "(C) applies for employment by mail, "
+                                  "telephone, computer, or other similar "
+                                  "means"),
+        ("fcra-note", _FCRA, 430, "Subparagraph (B) shall apply to a person "
+                                  "procuring a consumer report"),
+        ("fcra-note", _FCRA, 431, "only if"),
+        ("fcra-note", _FCRA, 432, "section 31502 of title 49, or a position "
+                                  "subject to safety regulation by a State "
+                                  "transportation agency"),
+        ("fcra-note", _FCRA, 433, "the only interaction between the consumer "
+                                  "and the person in connection with that "
+                                  "employment application has been by mail, "
+                                  "telephone, computer, or other similar "
+                                  "means"),
+        ("rail-note", _TSA, 177, "C. Reporting Cybersecurity Incidents"),
+        ("rail-note", _TSA, 178, "must report cybersecurity incidents to "
+                                 "CISA involving systems that"),
+        ("rail-note", _TSA, 179, "the Owner/Operator has responsibility to "
+                                 "operate and/or maintain"),
+        ("rail-note", _TSA, 200, "must report the incidents required by "
+                                 "Section II.C., as soon as"),
+        ("rail-note", _TSA, 201, "no later than 72 hours"),
+        ("rail-note", _TSA, 203, "CISA Central"),
+        ("CS-3", _COMPENDIUM, 2624, "Requires that Partners update their "
+                                    "security profile and risk assessments "
+                                    "on an annual"),
+        ("CS-3", _COMPENDIUM, 2625, "basis."),
+        ("CS-3", _SAFE, 5070, "M. Measurement, Analyses and Improvement"),
+        ("CS-3", _SAFE, 5083, "regularly undertake, as specifically outlined "
+                              "in the national AEO programme, assessments "
+                              "of the security"),
+        ("CS-3", _SAFE, 5084, "take appropriate measures to mitigate those "
+                              "risks"),
+        ("BP-5", _BASC, 172, "1.2.1 The company must establish a documented "
+                             "procedure, in accordance with current"),
+        ("BP-5", _BASC, 174, "The company must appoint a person responsible "
+                             "for"),
+        ("BP-5", _BASC, 177, "status of the company and its stakeholders."),
+        ("BP-5", _BASC, 178, "Conducting legal, criminal and financial "
+                             "background checks"),
+        ("BP-5", _BASC, 180, "Timely notifying the relevant authority when "
+                             "suspicious transactions are"),
+        ("BP-5", _BASC, 182, "Verifying membership in business or trade "
+                             "associations."),
+        ("CV-1", _SAFE, 4908, "H. Conveyance Security"),
+        ("CV-1", _SAFE, 4915, "ensure, to the extent and scope of its "
+                              "authority and responsibility, that all "
+                              "transport conveyances used"),
+        ("CV-1", _SAFE, 4916, "capable of being effectively secured"),
+        ("CV-1", _SAFE, 4916, "for the transportation of cargo within its "
+                              "supply chain"),
+        ("CV-2", _SAFE, 4917, "to the extent and scope of its ability and"),
+        ("CV-2", _SAFE, 4918, "responsibility, when left unattended, and "
+                              "check for security breaches upon return"),
+        ("CV-3", _SAFE, 4920, "ensure, to the extent and scope of its "
+                              "authority and responsibility, that all "
+                              "operators of conveyances used"),
+        ("CV-3", _SAFE, 4927, "cargo at all times while in its custody"),
+        ("CV-4", _SAFE, 4863, "have procedures for inspecting the structure "
+                              "of the transport conveyance including the "
+                              "reliability of the"),
+        ("CV-4", _SAFE, 4864, "When appropriate to the type of conveyance a "
+                              "seven-point inspection process is"),
+        ("CV-4", _SAFE, 4865, "recommended:"),
+        ("CV-4", _SAFE, 4932, "consider potential places of concealment of "
+                              "illegal goods on transport conveyances"),
+        ("CV-4", _SAFE, 4933, "places are regularly inspected, and secure "
+                              "all internal and external compartments and "
+                              "panels, as"),
+        ("CV-4", _SAFE, 4934, "Records are to be made and maintained "
+                              "following such inspections, indicating the "
+                              "areas"),
+        ("CV-5", _SAFE, 4928, "require operators, as specifically detailed "
+                              "in national AEO programmes, to report any "
+                              "actual or suspicious"),
+        ("CV-5", _SAFE, 4929, "designated security department staff of both "
+                              "the AEO and Customs for further "
+                              "investigation"),
+        ("CV-5", _SAFE, 4930, "which should be available to Customs, as "
+                              "legal and"),
+        ("CV-5", _SAFE, 4931, "necessary;"),
+        ("CV-5", _SAFE, 4937, "notify Customs, or other relevant body, of "
+                              "any unusual, suspicious or actual breach of "
+                              "transport"),
+        ("personnel", _HMRC, 73, "A Regulated Agent or Known Consignor should "
+                                 "have a 5-year employment history check."),
+        ("personnel", _HMRC, 76, "Businesses are not required to screen "
+                                 "their staff if they use an employment "
+                                 "agency"),
+        ("personnel", _HMRC, 76, "The Conduct of Employment Agencies and "
+                                 "Employment Businesses Regulations 2003 "
+                                 "(Statutory Instrument 2003 No 3319)"),
+        ("personnel", _HMRC, 77, "Any agency used should be aware of the "
+                                 "security and safety policy"),
+        ("personnel", _HMRC, 78, "If, exceptionally, there is a need to "
+                                 "employ temporary staff and they are not "
+                                 "screened, there must be measures in place "
+                                 "(body searches, supervision, restricted "
+                                 "access, for example) to manage the risk."),
+        ("ICO", _ICO, 2301, "It’s unlikely to be necessary and proportionate "
+                            "for you to ask for this information from all "
+                            "candidates."),
+        ("ICO", _ICO, 2301, "In most cases, criminal records checks can take "
+                            "place as part of your pre-employment vetting."),
+        ("ICO", _ICO, 2447, "only do pre-employment vetting where you are "
+                            "under a legal obligation"),
+        ("ICO", _ICO, 2447, "you can identify significant and particular "
+                            "risks"),
+        ("ICO", _ICO, 2456, "should not"),
+        ("ICO", _ICO, 2457, "routinely vet all candidates, unless you are "
+                            "legally required to do so."),
+    )
+
+    @staticmethod
+    def _lines(rel):
+        return (REPO_ROOT / rel).read_text(encoding="utf-8").splitlines()
+
+    @staticmethod
+    def _cells(line):
+        return [cell.strip() for cell in line.strip().strip("|").split("|")]
+
+    def _claim_gaps(self, claim, line):
+        """The phrases of the claim's pin the line (or, for a scoped
+        claim, its pinned cell) lacks; a line without the claim's locator
+        lacks every phrase."""
+        locator, phrases = self._CLAIMS[claim]
+        if not line.startswith(locator):
+            return list(phrases)
+        _, cell = self._SCOPES.get(claim, (self.MSC_REGISTER, None))
+        if cell is not None:
+            cells = self._cells(line)
+            line = cells[cell] if cell < len(cells) else ""
+        return [phrase for phrase in phrases if phrase not in line]
+
+    def _live_row(self, claim):
+        """The one line of the claim's document that carries its
+        locator."""
+        locator = self._CLAIMS[claim][0]
+        document, _ = self._SCOPES.get(claim, (self.MSC_REGISTER, None))
+        rows = [line for line in self._lines(document)
+                if line.startswith(locator)]
+        self.assertEqual(len(rows), 1, locator)
+        return rows[0]
+
+    def test_corrected_rows_carry_their_claims(self):
+        """Each corrected row is present once and carries every phrase of
+        its claim pin."""
+        for claim in self._CLAIMS:
+            with self.subTest(claim=claim):
+                self.assertEqual(
+                    self._claim_gaps(claim, self._live_row(claim)), [])
+
+    def test_counterexamples_keep_the_row_and_fail_the_pin(self):
+        """Each counterexample is its row's round 2 text: it keeps the
+        row's locator and its pin finds it lacking."""
+        self.assertEqual(sorted(self._COUNTEREXAMPLES), sorted(self._CLAIMS))
+        for claim, line in self._COUNTEREXAMPLES.items():
+            with self.subTest(claim=claim):
+                self.assertTrue(line.startswith(self._CLAIMS[claim][0]))
+                self.assertNotEqual(self._claim_gaps(claim, line), [])
+
+    def test_deleting_an_obligation_or_qualifier_fails_the_pin(self):
+        """Codex review round 3: a pin holds the obligation as well as its
+        qualifiers. Deleting the obligation (each claim's first deletion)
+        or any listed qualifier from the live row keeps the row's locator
+        and fails the pin."""
+        self.assertEqual(sorted(self._DELETIONS), sorted(self._CLAIMS))
+        for claim, deletions in self._DELETIONS.items():
+            row = self._live_row(claim)
+            for text in deletions:
+                with self.subTest(claim=claim, deleted=text):
+                    self.assertEqual(row.count(text), 1)
+                    cut = row.replace(text, "", 1)
+                    self.assertTrue(cut.startswith(self._CLAIMS[claim][0]))
+                    self.assertNotEqual(self._claim_gaps(claim, cut), [])
+
+    def test_index_pin_reads_the_frameworks_cell_only(self):
+        """The index-frameworks pin reads only the register row's Primary
+        Alignment Families cell in the document index: the corrected text
+        swapped into another cell fails it."""
+        document, cell = self._SCOPES["index-frameworks"]
+        headers = [line for line in self._lines(document)
+                   if line.startswith("| Domain | Type | Title |")]
+        self.assertEqual(len(headers), 1)
+        self.assertEqual(self._cells(headers[0])[cell],
+                         "Primary Alignment Families")
+        cells = self._cells(self._live_row("index-frameworks"))
+        cells[cell], cells[-1] = cells[-1], cells[cell]
+        swapped = "| " + " | ".join(cells) + " |"
+        self.assertTrue(
+            swapped.startswith(self._CLAIMS["index-frameworks"][0]))
+        self.assertNotEqual(self._claim_gaps("index-frameworks", swapped), [])
+
+    def test_procedural_security_row_carries_no_maintenance_item(self):
+        """Claude review round 2, N1: round 1's cargo unit maintenance item
+        moved to the Conveyance and Cargo Unit Security row; the AEO-S
+        Procedural Security row carries no maintenance item and no 11.12
+        citation."""
+        rows = [line for line in self._lines(self.MSC_REGISTER)
+                if line.startswith("| Procedural Security |")]
+        self.assertEqual(len(rows), 1)
+        self.assertNotIn("maintenance", rows[0].lower())
+        self.assertNotIn("11.12", rows[0])
+
+    def test_cited_held_lines_carry_their_text(self):
+        """Each held line a claim pin rests on carries the cited text;
+        skips without the reference corpus."""
+        root = None
+        for candidate in (os.environ.get("GRC_REF_PATH"),
+                          REPO_ROOT.parent / "grc_library_ref"):
+            if candidate and Path(candidate).is_dir():
+                root = Path(candidate)
+                break
+        if root is None:
+            self.skipTest("grc_library_ref not present (set GRC_REF_PATH "
+                          "or check it out beside this repository)")
+        self.assertEqual(
+            sorted({claim for claim, *_ in self._HELD_CITATIONS}),
+            sorted(self._CLAIMS))
+        held = {}
+        for claim, rel, number, excerpt in self._HELD_CITATIONS:
+            with self.subTest(claim=claim, rel=rel, line=number):
+                if rel not in held:
+                    held[rel] = (root / rel).read_text(
+                        encoding="utf-8").split("\n")
+                self.assertIn(excerpt, held[rel][number - 1])
 
 
 if __name__ == "__main__":

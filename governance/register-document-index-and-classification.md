@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.237\
-**Date:** 2026-11-05\
+**Version:** 1.27.238\
+**Date:** 2026-11-07\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -372,7 +372,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Supply Chain | Register | Supplier Risk Register Template | [`supply-chain/register-supplier-risk-template.md`](../supply-chain/register-supplier-risk-template.md) | Supplier Risk Maintainer | Quarterly | Supplier risk register fields, certification evidence (ISO/IEC 27001:2022, SOC 2), CTPAT, AEO-S, PIP, BASC | template |
 | Supply Chain | Register | Subprocessor Register Template | [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md) | Supplier Risk Maintainer | Annual | GDPR Arts 28/30, UK GDPR | template |
 | Supply Chain | Template | Supplier Security Questionnaire | [`supply-chain/template-supplier-security-questionnaire.md`](../supply-chain/template-supplier-security-questionnaire.md) | Supplier Risk Maintainer | Annual | ISO/IEC 27001:2022, SOC 2, CTPAT, AEO-S (UK/HMRC), PIP, BASC | template |
-| Compliance | Register | US CTPAT Full Minimum Security Criteria Controls Register | [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](../compliance/logistics/register-ctpat-united-states-msc-controls.md) | Supplier Risk Maintainer | Annual | CTPAT MSC 2020 (all domains), AEO-S (UK/HMRC), PIP (CBSA) | template |
+| Compliance | Register | US CTPAT Minimum Security Criteria Controls Register | [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](../compliance/logistics/register-ctpat-united-states-msc-controls.md) | Supplier Risk Maintainer | Annual | CTPAT MSC (library summary; no complete CBP criteria text held), AEO-S (UK/HMRC), PIP (CBSA) | template |
 | Supply Chain | Matrix | Supply Chain Security Programme Alignment Matrix | [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md) | Supplier Risk Maintainer | Annual | CTPAT, AEO-S (UK), AEO (EU), PIP, BASC, NEEC, OEA, WCO SAFE, ISO 28000:2022, ISO 28001 | template |
 | Supply Chain | Procedure | Fourth-Party and Nth-Party Risk Procedure | [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](../supply-chain/procedure-fourth-party-and-nth-party-risk.md) | Supplier Risk Maintainer | Annual | DORA Arts 29(2) first subpara (sub-tier failure risk only)/30(2)(a) (subcontracting-conditions inputs only), GDPR Art 28, NIS 2 Art 21(2)(d), NIST CSF 2.0 GV.SC, NIST SP 800-161r1, ISO 28000:2022, ISO/IEC 27036, FSB toolkit | template |
 | Supply Chain | Register | Concentration Risk Register | [`supply-chain/register-concentration-risk.md`](../supply-chain/register-concentration-risk.md) | Supplier Risk Maintainer | Quarterly | DORA Art 29(1) (input only), Arts 31(12)/42(3) (duties stated only), EBA/GL/2019/02 §76-80, FSB toolkit, NIS 2 Arts 21(2)(d)/22, NIST SP 800-161r1, ISO 28000:2022 | template |
