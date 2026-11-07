@@ -21682,7 +21682,46 @@ class ProgrammeClaimsTests(unittest.TestCase):
         wording contract below names a guarded sentence reworded to end in a
         question mark, exclamation mark or ellipsis (claude NOTE 2), and the
         code comment on the literal "because" says why the ~ check may keep
-        "since" (claude NOTE 1).
+        "since" (claude NOTE 1). Draft
+        3b802 (close-out review): the test compared its own fixed list of
+        ✓ domains with the ✓ cells and then looked for each listed domain's
+        rests phrase, but never read from the text which domains the key and
+        the map describe as resting on an element, so a map item such as
+        "- Risk Assessment rests on element M (a)." for a ~ domain, with no
+        quotation, passed. The rule now runs in both directions. Draft
+        3b802 round 2 (claude WARN 1, NOTE 1 and NOTE 2): the rule compared
+        sets, so a ✓ domain placed twice passed, it did not read the map
+        lead-in, and it did not read "rest on element" with a list of
+        domains as its subject; it now reads all three. The test reads
+        every rests phrase in the key's ten sentences, the map lead-in and
+        the map items: "rests" or "rest", with "mainly" optionally before
+        or after it, then "on element" or "on elements". The phrase's
+        subject is read back from the phrase: one domain of the table
+        directly before it, then, while one is there, a further domain
+        joined to it by ", ", " and " or ", and". At each step at most one
+        domain of the table may end there, and each phrase must have at
+        least one subject. Every domain so read is placed, the set of
+        placed domains must equal the set of ✓ cells of the WCO SAFE
+        column, and each ✓ domain must be placed exactly once, so every ✓
+        domain is placed in exactly one rests phrase, no ~ domain is placed,
+        and a ✓ domain placed again, on the same element or another, fails.
+        The key places its ~ domains in the ~ rule ("the elements they mainly
+        rest on"), which holds no rests phrase and is read by the ~ rule
+        checks instead. Planted negatives, each of which must fail the
+        two-way rule: the reviewer's item added to the items; the item
+        "- Seal Management rests on element K (a)." added after the last
+        item; the lead-in with "the key above does not place:" changed to
+        "the key above does not place (Risk Assessment rests on element
+        M (a)):"; and the key sentence "Risk Assessment and Customs
+        Compliance Record rest on element M (a)." added, which must report
+        both domains. Planted positives, each of which must pass it: the
+        Seal Management item cut to "Seal Management rests on element
+        G (d)."; and the three I (a) items replaced by the one item
+        "Physical Security: Perimeter, Physical Security: Facilities and
+        Access Controls: Physical rest on element I (a).". The rests check
+        above still holds each ✓ domain to "<domain> rests on element" and
+        its letter, so in the held text a ✓ domain written in a list
+        subject fails that check until the test changes with it.
 
         Completeness probe for this class: a negation word is not, no,
         never, neither, nor, cannot, without, none, nothing, nobody or
@@ -21749,9 +21788,20 @@ class ProgrammeClaimsTests(unittest.TestCase):
         change that uses no listed negation word (an antonym, a quantifier
         other than those listed, or n't written with another apostrophe)
         passes unless another named check covers it, so a reviewer reads
-        the key for meaning. Which element a domain mainly rests on is an
-        editorial judgement; the test holds the key to its stated mapping
-        and does not establish that mapping from the held text."""
+        the key for meaning. The two-way rule reads only the rests phrase
+        above, and only in the key's ten sentences, the map lead-in and the
+        map items; it does not read the legend, the AEO-S notes or the
+        table. A ~ domain placed on an element in other words (based on,
+        follows, placed on, rests chiefly on, rests on Annex IV element)
+        passes it unless another named check covers it. In a list subject
+        it reads only the domains joined by ", ", " and " or ", and" back
+        from the phrase, so a domain joined by any other words (as well
+        as, or, together with) passes it unless another named check covers
+        it. It does not read which element a phrase names; the rests check
+        above does that for the ✓ domains.
+        Which element a domain mainly rests on is an editorial judgement;
+        the test holds the key to its stated mapping and does not establish
+        that mapping from the held text."""
         section = self._section_lines(self.SUPPLY_MATRIX,
                                       "## Security domain alignment matrix")
         header = ("| Security Domain | CTPAT | AEO-S (UK) | AEO (EU) | PIP | "
@@ -22110,6 +22160,89 @@ class ProgrammeClaimsTests(unittest.TestCase):
                                  re.escape(domain)
                                  + r" (?:mainly )?rests (?:mainly )?on element "
                                  + re.escape(letter))
+        # Draft 3b802 (close-out review): the domains the key and the map
+        # describe as resting on an element are read from the text, and
+        # that set must equal the set of ✓ cells, in both directions.
+        # Draft 3b802 round 2 (claude WARN 1, NOTE 1 and NOTE 2): each ✓
+        # domain is placed exactly once, the lead-in is read with the key
+        # sentences and the items, and "rest on element" with a list of
+        # table domains as its subject is read too.
+        checked = {domain for domain, mark in marks.items() if mark == "✓"}
+
+        def subjects_of(head):
+            subjects, tail = [], r" $"
+            while True:
+                ends = {domain: found.start() for domain in marks
+                        for found in [re.search(r"(?<!\w)" + re.escape(domain)
+                                                + tail, head)] if found}
+                self.assertLessEqual(len(ends), 1, head)
+                if not ends:
+                    return subjects
+                (domain, at), = ends.items()
+                subjects.append(domain)
+                head, tail = head[:at], r"(?:,| and|, and) $"
+
+        def rests_two_way(key_texts, lead, item_texts):
+            placed = []
+            for text in key_texts + [lead] + item_texts:
+                for match in re.finditer(r"\b(?:mainly )?rests? (?:mainly )?"
+                                         r"on elements?\b", text):
+                    subjects = subjects_of(text[:match.start()])
+                    self.assertGreaterEqual(len(subjects), 1, text)
+                    placed += subjects
+            self.assertEqual(set(placed), checked)
+            self.assertEqual([domain for domain in sorted(checked)
+                              if placed.count(domain) != 1], [], placed)
+
+        rests_two_way(key_strings, lead_in[0], items)
+        # The reviewer's item for a ~ domain must fail the two-way rule.
+        example = "- Risk Assessment rests on element M (a)."
+        with self.assertRaises(self.failureException) as caught:
+            rests_two_way(key_strings, lead_in[0], items + [example[2:]])
+        self.assertIn("Items in the first set but not the second:\n"
+                      "'Risk Assessment'", str(caught.exception))
+        # Round 2 (claude WARN 1, the review's f3): a ✓ domain placed a
+        # second time, here on another element, must fail it.
+        again = "- Seal Management rests on element K (a)."
+        with self.assertRaises(self.failureException) as caught:
+            rests_two_way(key_strings, lead_in[0], items + [again[2:]])
+        self.assertIn("['Seal Management'] != []", str(caught.exception))
+        # Round 2 (claude NOTE 1, the review's f5): a ~ domain placed in
+        # the lead-in must fail it.
+        lead = lead_in[0].replace("the key above does not place:",
+                                  "the key above does not place (Risk "
+                                  "Assessment rests on element M (a)):")
+        self.assertNotEqual(lead, lead_in[0])
+        with self.assertRaises(self.failureException) as caught:
+            rests_two_way(key_strings, lead, items)
+        self.assertIn("Items in the first set but not the second:\n"
+                      "'Risk Assessment'", str(caught.exception))
+        # Round 2 (claude NOTE 2): a key sentence placing two ~ domains with
+        # "rest on element" and a list subject must fail it, naming both.
+        plural = ("Risk Assessment and Customs Compliance Record rest on "
+                  "element M (a).")
+        with self.assertRaises(self.failureException) as caught:
+            rests_two_way(key_strings + [plural], lead_in[0], items)
+        for domain in ("Risk Assessment", "Customs Compliance Record"):
+            with self.subTest(plural=domain):
+                self.assertIn(f"\n'{domain}'", str(caught.exception))
+        # A bare item for a ✓ domain must pass it.
+        seal = [at for at, text in enumerate(items)
+                if text.startswith("Seal Management rests on element G (d)")]
+        self.assertEqual(len(seal), 1, items)
+        planted = list(items)
+        planted[seal[0]] = "Seal Management rests on element G (d)."
+        self.assertNotEqual(planted, items)
+        rests_two_way(key_strings, lead_in[0], planted)
+        # Round 2 (claude NOTE 2): the three I (a) items as one item with a
+        # list subject must pass it.
+        i_a = [text for text in items if " rests on element I (a)" in text]
+        self.assertEqual(len(i_a), 3, items)
+        joined = [text for text in items if text not in i_a]
+        joined.append("Physical Security: Perimeter, Physical Security: "
+                      "Facilities and Access Controls: Physical rest on "
+                      "element I (a).")
+        rests_two_way(key_strings, lead_in[0], joined)
         for sentence in sentences:
             here = paired(sentence)
             if not here:
