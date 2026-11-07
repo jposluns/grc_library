@@ -22296,7 +22296,7 @@ class ProgrammeClaimsTests(unittest.TestCase):
         no other domain of the table, the ~ cells must be exactly those two,
         and every other cell, Incident Reporting to Authority among them,
         must be ✓ and placed exactly once by a rests phrase. Draft 3b807
-        round 2 (W1, all three families): the H (d) statement followed a ~
+        round 2 (claude W1, codex W1, agy N1): the H (d) statement followed a ~
         sentence that no longer named the domain, so a reader took the
         domain as ~; it now names the domain as a ✓ domain whose main
         element is listed after the table, and it is pinned exactly.
@@ -22587,7 +22587,7 @@ class ProgrammeClaimsTests(unittest.TestCase):
         reason = partial_said[0].partition(":")[0]
         self.assertRegex(reason, r"\bmarked ~ (?:because|since)\b.*"
                                  r"\bqualified by the national AEO programme$")
-        # Draft 3b807 round 2 (W1, all three families): the H (d) statement
+        # Draft 3b807 round 2 (claude W1, codex W1, agy N1): the H (d) statement
         # follows the ~ sentence, so it names its domain and that domain's ✓
         # mark itself; a reader cannot then take the domain as ~.
         h_d = [sentence for sentence in sentences
