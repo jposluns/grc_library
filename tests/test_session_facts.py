@@ -58,7 +58,8 @@ class SessionFactsTests(unittest.TestCase):
         self.store = self.base / "private"
         self.store.mkdir()
         (self.root / "tools").mkdir(parents=True)
-        for name in ("handoff-snapshot.py", "session_facts.py", "lint_common.py", "lint-session-state.py"):
+        for name in ("handoff-snapshot.py", "session_facts.py", "lint_common.py", "lint-session-state.py",
+                     "lease_id.py"):
             shutil.copyfile(ROOT / "tools" / name, self.root / "tools" / name)
         self.lease = self.store / "session-state.md"
         self.log = self.store / "degradation-watch-log.md"
@@ -125,7 +126,9 @@ class SessionFactsTests(unittest.TestCase):
 
 
     def test_unknown_ids_fullmatch(self):
-        for value in ("69556d8c", "sess-20260916T230059Z", "claude/example", "orch-20261004T133600Z",
+        # 3b793: sess-20260916T230059Z and orch-20261004T133600Z moved to
+        # test_3b793_stamped_ids_supply_start (the shared grammar accepts them).
+        for value in ("69556d8c", "claude/example", "claude/example-branch",
                       "orch-2026-10-04T13:36:00Z-extra", "orch-2026-02-30T13:36:00Z", "orch-2026-10-04T13:36Z"):
             self.lease.write_text(LIVE.replace("orch-2026-10-04T13:36:00Z", value))
             facts = self.metrics()
@@ -133,6 +136,113 @@ class SessionFactsTests(unittest.TestCase):
             self.assertEqual(facts["elapsed"], "UNKNOWN")
             self.assertEqual(facts["compaction_rows"], "UNKNOWN")
             self.assertIn("lease id does not record one", facts["start_source"])
+            self.assertEqual(facts["lease_warning"],
+                             "SESSION_START_UNKNOWN: the lease id does not record a start time")
+
+    def test_3b793_stamped_ids_supply_start(self):
+        # Ids the orch- only rule left UNKNOWN; the shared grammar reads their stamps.
+        for value, start, elapsed, source in (
+                ("sess-20260916T230059Z", "2026-09-16T23:00:59Z", "471h5m", ""),
+                ("orch-20261004T133600Z", "2026-10-04T13:36:00Z", "48h30m", ""),
+                ("S88-20261004T133600Z", "2026-10-04T13:36:00Z", "48h30m", ""),
+                ("grc-orch1-20261004T1336Z", "2026-10-04T13:36:00Z", "48h30m",
+                 " (minute precision)")):
+            with self.subTest(value=value):
+                self.lease.write_text(LIVE.replace("orch-2026-10-04T13:36:00Z", value))
+                facts = self.metrics()
+                self.assertEqual(facts["start"], start)
+                self.assertEqual(facts["elapsed"], elapsed)
+                self.assertEqual(facts["compaction_rows"], 0)
+                self.assertEqual(facts["lease_warning"], "")
+                self.assertEqual(facts["start_source"],
+                                 "derived from Active-session lease-id convention" + source)
+
+    def live_id_fixture(self, rows="", heartbeat="2026-11-02T14:55:00Z"):
+        self.lease.write_text(LIVE.replace("orch-2026-10-04T13:36:00Z", "grc-orch1-20261102T1310Z")
+                              .replace("2026-10-06T14:02:31Z", heartbeat))
+        self.log.write_text(rows)
+
+    def test_3b793_live_id_minute_precision(self):
+        self.live_id_fixture()
+        facts = self.metrics("2026-11-02T15:00:00+00:00")
+        self.assertEqual(facts, dict(
+            start="2026-11-02T13:10:00Z", elapsed="1h50m", compaction_rows=0, lease_warning="",
+            start_source="derived from Active-session lease-id convention (minute precision)"))
+
+    def test_3b793_live_id_consumers(self):
+        self.env["GRC_STORE"] = str(self.store)
+        self.live_id_fixture("| 2026-11-02T14:00Z | compaction |\n")
+        output = self.fixed_consumers((2026, 11, 2, 15, 0))
+        self.assertIn("- **Session:** start 2026-11-02T13:10:00Z, elapsed 1h50m, "
+                      "compactions this session: 1; source: derived from Active-session "
+                      "lease-id convention (minute precision)", output)
+        message = json.loads(output.splitlines()[-1])["systemMessage"]
+        self.assertIn("length 1h50m (session-start 2026-11-02T13:10:00Z UTC)", message)
+        self.assertIn("compactions this session: 1", message)
+
+    def test_3b793_minute_precision_start_minute_unknown(self):
+        warning = ("AMBIGUOUS COMPACTION: a compaction row in the start minute of a "
+                   "minute-precision lease id cannot be placed before or after the start")
+        for row in ("2026-11-02T13:10Z", "2026-11-02T13:10:00Z", "2026-11-02T13:10:30Z",
+                    "2026-11-02T13:10:59Z"):
+            with self.subTest(row=row):
+                self.live_id_fixture("| " + row + " | compaction |\n"
+                                     "| 2026-11-02T14:00:00Z | compaction | later |\n")
+                facts = self.metrics("2026-11-02T15:00:00+00:00")
+                self.assertEqual(facts["compaction_rows"], "UNKNOWN")
+                self.assertEqual(facts["lease_warning"], warning)
+                self.assertEqual(facts["start"], "2026-11-02T13:10:00Z")
+                self.assertEqual(facts["elapsed"], "1h50m")
+        # Guards: rows outside the start minute are placed and counted as before.
+        for row, count in (("2026-11-02T13:09:59Z", 1), ("2026-11-02T13:09Z", 1),
+                           ("2026-11-02T13:11Z", 2), ("2026-11-02T13:11:00Z", 2)):
+            with self.subTest(row=row):
+                self.live_id_fixture("| " + row + " | compaction |\n"
+                                     "| 2026-11-02T14:00:00Z | compaction | later |\n")
+                facts = self.metrics("2026-11-02T15:00:00+00:00")
+                self.assertEqual(facts["compaction_rows"], count)
+                self.assertEqual(facts["lease_warning"], "")
+
+    def test_3b793_invalid_id_has_its_own_warning(self):
+        for value in ("orch-" + chr(0xE9), "grc-orch1-" + chr(0xFF12) + "0261102T1310Z", "a" * 129, "orch\x01x"):
+            with self.subTest(value=value):
+                self.lease.write_text(LIVE.replace("orch-2026-10-04T13:36:00Z", value))
+                facts = self.metrics()
+                for key in ("start", "elapsed", "compaction_rows"):
+                    self.assertEqual(facts[key], "UNKNOWN")
+                self.assertEqual(facts["start_source"],
+                                 "start unknown because the lease id is not valid")
+                self.assertEqual(facts["lease_warning"], "SESSION_START_UNKNOWN: the lease id "
+                                 "is not 1 to 128 printable ASCII characters")
+
+    def test_3b793_no_fallback_for_unstamped_or_invalid_ids(self):
+        # Neither another field, a log session-start row nor a compaction row supplies a start.
+        for value in ("claude/example-branch", "orch-" + chr(0xE9)):
+            with self.subTest(value=value):
+                self.lease.write_text(LIVE.replace("orch-2026-10-04T13:36:00Z", value)
+                                      + "Session-start-UTC: 2026-10-04T13:36:00Z\n")
+                self.log.write_text("- session-start 2026-10-04T13:36:00Z\n"
+                                    "| 2026-10-04T13:36:00Z | compaction |\n")
+                facts = self.metrics()
+                self.assertEqual(facts["start"], "UNKNOWN")
+                self.assertEqual(facts["elapsed"], "UNKNOWN")
+
+    def test_3b793_lease_id_loader_refuses_symlink(self):
+        path = self.root / "tools/lease_id.py"
+        target = self.base / "lease_id.py"
+        shutil.move(path, target)
+        path.symlink_to(target)
+        try:
+            proc = self.runpy("import runpy\nrunpy.run_path('tools/session_facts.py')\n")
+            self.assertNotEqual(proc.returncode, 0)
+            self.assertIn("reviewed helper is a symlink", proc.stderr)
+            # The hook's dependency map does not name lease_id yet (a .claude/ change outside
+            # 3b793), so the hook fails open: no facts from a planted helper, exit 0.
+            proc = self.hook()
+            self.assertEqual((proc.returncode, proc.stdout), (0, ""), proc.stderr)
+        finally:
+            path.unlink()
+            shutil.move(target, path)
 
     def test_missing_lease_is_unknown_not_old_log(self):
         self.lease.unlink()
@@ -655,7 +765,7 @@ hook['main']()
                 self.assertEqual(facts, dict(
                     start="2026-10-04T13:36:00Z", elapsed="48h30m", compaction_rows=0,
                     lease_warning="", start_source="derived from Active-session "
-                    "orch-<UTC start> convention"))
+                    "lease-id convention"))
                 proc = subprocess.run([sys.executable, "tools/lint-session-state.py"],
                                       cwd=self.root, env=self.env, capture_output=True, text=True)
                 self.assertEqual(proc.returncode, code, proc.stdout + proc.stderr)

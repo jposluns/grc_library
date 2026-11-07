@@ -29,7 +29,9 @@ the file has one style:
 
 - ``Active-session:`` 1 to 128 printable ASCII bytes (0x21 to 0x7E, as
   orch_store requires): the active session's id, or ``none`` when no
-  session holds the lease.
+  session holds the lease. The rule is ``ID_RE`` in tools/lease_id.py, the
+  ID layer of the shared lease-id grammar (3b793); this gate does not
+  require a stamped id.
 - ``Status:`` exactly ``active`` (a session holds the lease) or
   ``released`` (no session holds the lease; the clean-close state),
   case-sensitive; orch_store refuses every other value.
@@ -185,6 +187,8 @@ import unicodedata
 from datetime import datetime, timezone
 
 from lint_common import REPO_ROOT, print_degraded, resolve_working
+# 3b793: the Active-session ID rule is the shared lease-id grammar's ID layer.
+from lease_id import ID_RE as SESSION_RE
 
 
 # Plain `Field: value` lines: the name at column zero, then ": " (one space),
@@ -211,7 +215,6 @@ TITLE = "# Session state: grc"
 TITLE_PREFIX = "# Session state:"
 MAX_BYTES = 65536
 STORE_FIELDS = ("Active-session", "Status", "Last-heartbeat-UTC")
-SESSION_RE = re.compile(r"[!-~]{1,128}")
 MENTION_PATTERNS = {
     name: re.compile(r"\s*%s\s*:" % re.escape(name), re.IGNORECASE)
     for name in STORE_FIELDS
