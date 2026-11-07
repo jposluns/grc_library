@@ -494,7 +494,7 @@ import shutil
 import tempfile
 import unittest
 import urllib.parse
-from collections import Counter
+from collections import Counter, namedtuple
 from html import unescape
 from pathlib import Path
 from unittest import mock
@@ -25705,7 +25705,20 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
     confirmed by a held source), and
     test_msc_register_status_rule_defines_the_values_it_uses, renamed
     from test_msc_register_status_legend_defines_the_values_it_uses, now
-    checks the adopted rule."""
+    checks the adopted rule.
+
+    Item 3b804, PR-A (plan 3b804, sections 1 and 6; register scope
+    A-filtered, decision D-1053-REGISTER-SCOPE): the word-list denial
+    guard is to return as a reviewed register. This step adds only its
+    parser and its UK terms: _register_units reads a document in one pass
+    into units (a prose paragraph or list item, a whole table row, a
+    table header row, or a paragraph inside fenced code),
+    each with its full ancestor heading chain, the document title and, for
+    a row, its table's header row and row label; _UK_TERMS is the one
+    compiled list of UK programme terms that the UK tie (_uk_tied) and UK
+    column detection (_uk_columns) share. The register records, its tiers,
+    the held families and the pointer check driven by the register follow
+    in later steps (PR-B to PR-D)."""
 
     LOGISTICS_ANNEX = ("compliance/logistics/annex-logistics-sector-"
                        "requirements.md")
@@ -25932,7 +25945,7 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
     _QUOTE_PREFIX = re.compile(r"(?:>[ \t]?)+")
 
     @classmethod
-    def _paragraphs(cls, text):
+    def _paragraphs(cls, text, starts=frozenset(), ends=frozenset()):
         """Each (first line number, unit) of text, where a unit is a table
         row whole or a prose paragraph. Draft claimsfu4 (review round 2 of
         claimsfu2, codex WARN 3): a paragraph is assembled from consecutive
@@ -25958,7 +25971,17 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
         an open quoted paragraph and is not a block start (a table row,
         heading, list item or thematic break) is a lazy continuation of
         that paragraph, as in CommonMark, and is joined onto it at the
-        paragraph's quote depth."""
+        paragraph's quote depth.
+
+        Draft 3b804b (review round 1 of 3b804, codex ERROR 1, claude NOTE
+        4): a caller may name the line numbers that start a paragraph
+        (starts) and those that end one (ends), as the register parser
+        does with the opening and closing lines of a fenced code block, so
+        prose directly under a closing fence and a fence directly under
+        prose each stay a unit of their own. A lazy line in starts takes
+        the open paragraph's quote depth but starts a paragraph of its own.
+        Without them (every other caller), paragraphs are assembled as
+        before."""
         lines, first, depth = [], 0, 0
         for number, line in enumerate(text.splitlines(), 1):
             stripped = line.strip()
@@ -25970,11 +25993,12 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
                   and not stripped.startswith("|")
                   and not cls._BLOCK_START.match(stripped)):
                 quote = depth
-            starts = (not stripped or stripped.startswith("|")
+            begins = (not stripped or stripped.startswith("|")
                       or quote != depth
-                      or cls._BLOCK_START.match(stripped))
+                      or cls._BLOCK_START.match(stripped)
+                      or number in starts)
             depth = quote
-            if lines and starts:
+            if lines and begins:
                 yield first, " ".join(lines)
                 lines = []
             if stripped.startswith("|"):
@@ -25985,8 +26009,8 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
             if not lines:
                 first = number
             lines.append(stripped)
-            if stripped.endswith("\\") or cls._SINGLE_LINE_BLOCK.match(
-                    stripped):
+            if (stripped.endswith("\\") or number in ends
+                    or cls._SINGLE_LINE_BLOCK.match(stripped)):
                 yield first, " ".join(lines)
                 lines = []
         if lines:
@@ -26942,6 +26966,691 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
         # after it starts a new paragraph.
         self.assertEqual(list(self._paragraphs("> a\n- b\n> c\n")),
                          [(1, "a"), (2, "- b"), (3, "c")])
+
+    # -- item 3b804, PR-A (plan 3b804, sections 1 and 6): the parser of the
+    # UK claims register. The table reading (_TABLE_SEPARATOR and the
+    # header row found through a quote prefix) and _UNREAD_SPANS (named
+    # _HTML_COMMENT there) come from the word-list guard at 161da03db; its
+    # negation-based selection (_DENIAL_FORM, _denial_topics) does not, as
+    # plan PR-C2 removes it. Paragraphs come from _paragraphs, as before.
+    # One unit, as (path, first line, kind, ancestor heading lines from the
+    # outermost, document title, table header cells, row label, row cells,
+    # unit text exactly as _paragraphs gives it). A kind is "para" (a prose
+    # paragraph or list item), "row" (a whole table row), "header" (a
+    # table's header row) or "code" (a paragraph that starts inside a
+    # fenced code block).
+    _RegisterUnit = namedtuple(
+        "_RegisterUnit",
+        "rel line kind headings title header label cells text")
+    # A table's separator row, the line under its header row.
+    _TABLE_SEPARATOR = re.compile(r"\|[\s:|-]*-[\s:|-]*")
+    # What is not read as prose: an HTML comment, a code span or a link
+    # target, which hold paths and markup, not claims.
+    _UNREAD_SPANS = re.compile(r"<!--.*?-->|`[^`\n]*`|\]\([^)\s]*\)", re.S)
+    # An ATX heading; its level is the number of hashes.
+    _HEADING = re.compile(r"(#{1,6})\s")
+    # A fenced code block's opening line, and its closing line.
+    _FENCE_OPEN = re.compile(r"`{3,}|~{3,}")
+    _FENCE_CLOSE = re.compile(r"(`{3,}|~{3,})\s*")
+    # The Document Title field of a metadata block.
+    _DOCUMENT_TITLE = re.compile(r"\*\*Document Title:\*\*\s*(.*?)\s*\\?")
+    # The UK programme, in every form the corpus and the reviews use: HMRC,
+    # AEO-S, AEOS, AEO (UK), UK AEO, UK-AEO, AEO UK, AEO-UK, the UK (AEO)
+    # programme (or UK programme) and the UK's (or United Kingdom's)
+    # Authorised or Authorized Economic Operator (the possessive optional,
+    # as the UK annex's Purpose has "UK Authorized Economic Operator (AEO)
+    # programme" and compliance/logistics/README.md line 81 has "AEO
+    # (United Kingdom Authorized Economic Operator)"). Not
+    # AEO (EU), EU AEO or a bare AEO, which name the EU programme or the
+    # WCO concept. The UK tie and UK column detection both read this one
+    # compiled object.
+    _UK_TERMS = re.compile(
+        r"\b(?:HMRC|AEO-?S)\b"
+        r"|\bAEO\s*\(UK\)"
+        r"|\bUK[\s-]+AEO\b"
+        r"|\bAEO[\s-]+UK\b"
+        r"|\bUK\s+(?:\(AEO\)\s+)?[Pp]rogramme\b"
+        r"|\b(?:UK|United\s+Kingdom)(?:['’]s)?\s+Authori[sz]ed\s+Economic"
+        r"\s+Operator\b")
+
+    @classmethod
+    def _fences(cls, text):
+        """The line numbers of text (counted as _paragraphs counts them)
+        that open a fenced code block, those that close one, and those
+        that open, close or lie inside one, quoted or not, as three sets.
+        A closing fence repeats the opening character at least as many
+        times and carries nothing else."""
+        opened, closed, fenced, fence = set(), set(), set(), None
+        for number, line in enumerate(text.splitlines(), 1):
+            stripped = line.strip()
+            prefix = cls._QUOTE_PREFIX.match(stripped)
+            if prefix:
+                stripped = stripped[prefix.end():].strip()
+            if fence is None:
+                opening = cls._FENCE_OPEN.match(stripped)
+                if opening:
+                    fence = opening.group()
+                    opened.add(number)
+                    fenced.add(number)
+                continue
+            fenced.add(number)
+            closing = cls._FENCE_CLOSE.fullmatch(stripped)
+            if (closing and closing.group(1)[0] == fence[0]
+                    and len(closing.group(1)) >= len(fence)):
+                fence = None
+                closed.add(number)
+        return opened, closed, fenced
+
+    @classmethod
+    def _fenced_lines(cls, text):
+        """The line numbers of text that open, close or lie inside a fenced
+        code block (_fences)."""
+        return cls._fences(text)[2]
+
+    @classmethod
+    def _register_units(cls, rel, text):
+        """Each register unit of text, the document at rel, in order
+        (_RegisterUnit), from one pass over _paragraphs. A unit is a prose
+        paragraph or list item, joined as _paragraphs joins it (wrapped
+        lines, blockquotes and lazy continuation), or a whole table row,
+        quoted or not. A heading is not a unit: each unit carries the full
+        chain of its ancestor headings, from the outermost, so a heading
+        closes every open heading at its own level or deeper, and a
+        sibling heading resets the chain below it. The document title is
+        the first level-1 heading's text, or else the Document Title field.
+        A table's header row (the row directly above its separator row,
+        read through a quote prefix) is a unit of kind "header", with its
+        cells and no header or label of its own; each later row of the
+        same table carries its cells as header, and its first cell as
+        label. A row that does not continue a table (a line between them)
+        has no header. A thematic break (here a line of three or more
+        hyphens, the only form the corpus uses) and a separator row are not
+        units.
+        A paragraph that starts inside a fenced code block is a unit of kind
+        "code" and never a heading, so a "# comment" line in a code sample
+        leaves the heading chain as it was. Each opening fence line starts
+        a unit and each closing fence line ends one, so a fence directly
+        under prose and prose directly under a closing fence are not joined
+        to the code; every other caller of _paragraphs reads them as
+        before.
+
+        Draft 3b804b (review round 1 of 3b804): fence lines bound units
+        (codex ERROR 1, claude NOTE 4), and a header row is a unit (claude
+        NOTE 5), since the UK annex's header row carries a scoping
+        statement."""
+        lines = text.splitlines()
+        opened, closed, fenced = cls._fences(text)
+        stack, header, previous = [], None, None
+        found, titles, fields = [], [], []
+        for number, unit in cls._paragraphs(text, opened, closed):
+            stripped = unit.strip()
+            headings = tuple(line for _, line in stack)
+            if number in fenced:
+                header = previous = None
+                found.append((number, "code", headings, (), "", (), unit))
+                continue
+            if not stripped.startswith("|"):
+                header = previous = None
+                heading = cls._HEADING.match(stripped)
+                if heading:
+                    level = len(heading.group(1))
+                    while stack and stack[-1][0] >= level:
+                        stack.pop()
+                    stack.append((level, stripped))
+                    if level == 1:
+                        titles.append(stripped[heading.end():].strip())
+                    continue
+                if re.fullmatch(r"-{3,}", stripped):
+                    continue
+                field = cls._DOCUMENT_TITLE.fullmatch(stripped)
+                if field:
+                    fields.append(field.group(1))
+                found.append((number, "para", headings, (), "", (), unit))
+                continue
+            if cls._TABLE_SEPARATOR.fullmatch(stripped):
+                previous = number
+                continue
+            if previous is None or number != previous + 1:
+                header = None
+            previous = number
+            cells = tuple(cell.strip()
+                          for cell in stripped.strip("|").split("|"))
+            following = (lines[number] if number < len(lines) else "").strip()
+            quoted = cls._QUOTE_PREFIX.match(following)
+            if quoted:
+                following = following[quoted.end():].strip()
+            if header is None and cls._TABLE_SEPARATOR.fullmatch(following):
+                header = cells
+                found.append((number, "header", headings, (), "", cells,
+                              unit))
+                continue
+            found.append((number, "row", headings, header or (), cells[0],
+                          cells, unit))
+        title = (titles or fields or [""])[0]
+        for number, kind, headings, row_header, label, cells, unit in found:
+            yield cls._RegisterUnit(rel, number, kind, headings, title,
+                                    row_header, label, cells, unit)
+
+    @classmethod
+    def _uk_columns(cls, unit):
+        """The header cells of a row unit's table, other than its row-label
+        column, that name the UK programme (_UK_TERMS)."""
+        return tuple(column for column in unit.header[1:]
+                     if cls._UK_TERMS.search(cls._UNREAD_SPANS.sub(" ",
+                                                                   column)))
+
+    @classmethod
+    def _uk_tied(cls, unit):
+        """Whether a UK programme term (_UK_TERMS) stands in the unit's own
+        text, one of its ancestor headings or the document title, code
+        spans, link targets and HTML comments aside."""
+        return any(cls._UK_TERMS.search(cls._UNREAD_SPANS.sub(" ", part))
+                   for part in (unit.text, *unit.headings, unit.title))
+
+    @classmethod
+    def _units_of(cls, text, rel="fixture.md"):
+        """The register units of a fixture text, as (line, kind, headings,
+        text) tuples."""
+        return [(unit.line, unit.kind, unit.headings, unit.text)
+                for unit in cls._register_units(rel, text)]
+
+    def test_register_units_carry_the_heading_chain(self):
+        """Plan 3b804, section 1 (claude WARN 2 and codex WARN 1 of review
+        round 6): the word-list guard kept only the nearest heading, so a
+        generic subheading under a UK heading cut the unit's UK tie. Each
+        unit carries every ancestor heading from the outermost, and the
+        document title. Plan F1.5: under "## UK AEO-S" and then
+        "### Monitoring", a sentence with no UK term of its own is tied
+        through the chain. A unit is a prose paragraph or list item, the
+        headings and the thematic break are not units, and the title falls
+        back to the Document Title field when no level-1 heading exists.
+        Flip: keeping only the nearest heading fails every chain below."""
+        text = ("# UK AEO-S IT Annex\n"
+                "\n"
+                "## 4. Controls\n"
+                "\n"
+                "### 4.2 System protection\n"
+                "\n"
+                "#### Firewalls\n"
+                "\n"
+                "The held handbook names no firewall or anti-virus\n"
+                "requirement.\n"
+                "\n"
+                "- Section 8.10 names firewalls.\n"
+                "\n"
+                "---\n"
+                "\n"
+                "### 4.5 Backup and recovery\n"
+                "\n"
+                "Section 8.9 sets no IT security requirement for backups.\n")
+        top = ("# UK AEO-S IT Annex", "## 4. Controls")
+        self.assertEqual(self._units_of(text), [
+            (9, "para", top + ("### 4.2 System protection", "#### Firewalls"),
+             "The held handbook names no firewall or anti-virus "
+             "requirement."),
+            (12, "para",
+             top + ("### 4.2 System protection", "#### Firewalls"),
+             "- Section 8.10 names firewalls."),
+            (18, "para", top + ("### 4.5 Backup and recovery",),
+             "Section 8.9 sets no IT security requirement for backups.")])
+        self.assertEqual({unit.title for unit
+                          in self._register_units("f.md", text)},
+                         {"UK AEO-S IT Annex"})
+        # Plan F1.5: the UK tie comes only from an ancestor heading.
+        text = ("# Monitoring Standard\n\n## UK AEO-S\n\n### Monitoring\n\n"
+                "The handbook does not recommend continuing "
+                "self-assessment.\n")
+        unit, = self._register_units("monitoring.md", text)
+        self.assertEqual(unit.headings, ("# Monitoring Standard",
+                                         "## UK AEO-S", "### Monitoring"))
+        self.assertIsNone(self._UK_TERMS.search(unit.text))
+        self.assertIsNone(self._UK_TERMS.search(unit.title))
+        self.assertTrue(self._uk_tied(unit))
+        # No level-1 heading: the Document Title field gives the title.
+        unit, _ = self._register_units(
+            "f.md", "**Document Title:** UK AEO Procedure\\\n"
+                    "**Version:** 1.0\n")
+        self.assertEqual(unit.title, "UK AEO Procedure")
+        # Draft 3b804b (claude NOTE 1 of review round 1): of two level-1
+        # headings, the first gives the title. Flip: the last one does.
+        self.assertEqual({unit.title for unit in self._register_units(
+            "f.md", "# First\n\nA.\n\n# Second\n\nB.\n")}, {"First"})
+
+    def test_register_units_reset_the_chain_at_a_sibling_heading(self):
+        """Plan 3b804, F1.6: a sibling heading after a UK-named heading
+        closes it, and a shallower heading closes every deeper one, so the
+        161da03db non-UK form under "## Network baseline" carries no UK
+        heading and no UK tie, while the statement under the UK-named
+        heading keeps both. Flip: a heading that closes only deeper
+        headings, not its siblings, leaves "## HMRC AEO-S criteria" in the
+        chain and ties the non-UK form."""
+        text = ("# Network Security Standard\n"
+                "\n"
+                "## HMRC AEO-S criteria\n"
+                "\n"
+                "Section 11 contains no IT security control.\n"
+                "\n"
+                "### 2.1 Scope\n"
+                "\n"
+                "Section 11 is silent on IT security.\n"
+                "\n"
+                "## Network baseline\n"
+                "\n"
+                "Section 8 of this standard sets no IT security requirement "
+                "for guest networks.\n")
+        units = list(self._register_units("network.md", text))
+        title = "# Network Security Standard"
+        self.assertEqual([(unit.line, unit.headings) for unit in units], [
+            (5, (title, "## HMRC AEO-S criteria")),
+            (9, (title, "## HMRC AEO-S criteria", "### 2.1 Scope")),
+            (13, (title, "## Network baseline"))])
+        self.assertEqual([self._uk_tied(unit) for unit in units],
+                         [True, True, False])
+
+    def test_register_units_read_quoted_tables(self):
+        """Plan 3b804, section 1: a table row is one unit, with its
+        table's header row and its row label. A quoted table is read like
+        any other: its header row is found through the quote prefix of the
+        separator row below it, so its rows keep their header and the UK
+        column under it is found. A table that does not continue the last
+        one (a line between them) has no header, and a separator row is not
+        a unit. Draft 3b804b (claude NOTE 5 of review round 1): a header
+        row is a unit of kind "header", with its cells and no header or
+        label of its own, so a claim in it is registered. Flip: reading the
+        separator row without removing its quote prefix leaves the quoted
+        rows with no header and no UK column; not yielding the header row
+        leaves line 3 unregistered."""
+        text = ("## Programme comparison\n"
+                "\n"
+                "> | Area | AEO-S (UK) | AEO (EU) |\n"
+                "> |---|---|---|\n"
+                "> | Back-up routines | N/A | x |\n"
+                "> | Firewalls | x | x |\n"
+                "\n"
+                "| Logs | N/A |\n")
+        units = list(self._register_units("comparison.md", text))
+        header = ("Area", "AEO-S (UK)", "AEO (EU)")
+        self.assertEqual(
+            [(unit.line, unit.kind, unit.header, unit.label, unit.text)
+             for unit in units],
+            [(3, "header", (), "", "| Area | AEO-S (UK) | AEO (EU) |"),
+             (5, "row", header, "Back-up routines",
+              "| Back-up routines | N/A | x |"),
+             (6, "row", header, "Firewalls", "| Firewalls | x | x |"),
+             (8, "row", (), "Logs", "| Logs | N/A |")])
+        self.assertEqual(units[0].cells, header)
+        self.assertEqual(units[1].cells, ("Back-up routines", "N/A", "x"))
+        self.assertEqual(units[1].headings, ("## Programme comparison",))
+        self.assertEqual([self._uk_columns(unit) for unit in units],
+                         [(), ("AEO-S (UK)",), ("AEO-S (UK)",), ()])
+        # The header row names the UK programme, so it is tied.
+        self.assertEqual([self._uk_tied(unit) for unit in units],
+                         [True, False, False, False])
+        # The same table unquoted reads the same.
+        plain = text.replace("> ", "")
+        self.assertEqual(
+            [(unit.line, unit.header, unit.label, unit.text)
+             for unit in self._register_units("comparison.md", plain)],
+            [(unit.line, unit.header, unit.label, unit.text)
+             for unit in units])
+
+    def test_register_units_read_lazy_continuations(self):
+        """Plan 3b804, section 1: a unit is joined as _paragraphs joins it,
+        so a quoted paragraph's unprefixed lazy continuation and a wrapped
+        list item are each one unit with the heading chain, and a quoted
+        blank line, a list item or a heading still ends a unit. Flip:
+        without lazy continuation in _paragraphs the quoted claim is two
+        units, neither of which holds the whole claim."""
+        text = ("# Supplier Standard\n"
+                "\n"
+                "## HMRC criteria\n"
+                "\n"
+                "> HMRC sets no IT security\n"
+                "requirement for AEO-S.\n"
+                ">\n"
+                "> The vendor list is reviewed.\n"
+                "- Back-up routines are\n"
+                "  tested each quarter.\n"
+                "## Next\n")
+        chain = ("# Supplier Standard", "## HMRC criteria")
+        self.assertEqual(self._units_of(text), [
+            (5, "para", chain,
+             "HMRC sets no IT security requirement for AEO-S."),
+            (8, "para", chain, "The vendor list is reviewed."),
+            (9, "para", chain,
+             "- Back-up routines are tested each quarter.")])
+
+    def test_register_units_keep_the_chain_across_fenced_code(self):
+        """Plan 3b804 does not define fenced code. Item 3b804 PR-A: the
+        taxonomy documents and their READMEs hold 75 lines inside fenced
+        code blocks that read as headings (a "# comment" line in a code
+        sample, as in ai/guide-ai-security-technical-implementation.md),
+        and _paragraphs yields each as a heading. Such a line would close
+        a UK heading and cut the tie of every unit below it. A paragraph
+        that starts inside a fenced code block, quoted or not, is a unit of
+        kind "code" and never a heading. Flip: reading fenced lines as
+        prose closes "## HMRC AEO-S criteria" at "# settings"."""
+        text = ("# Logging Standard\n"
+                "\n"
+                "## HMRC AEO-S criteria\n"
+                "\n"
+                "```yaml\n"
+                "# settings\n"
+                "retention: 90\n"
+                "```\n"
+                "\n"
+                "> ~~~\n"
+                "> ## not a heading\n"
+                "> ~~~\n"
+                "\n"
+                "Logs are kept for each user.\n")
+        units = list(self._register_units("logging.md", text))
+        chain = ("# Logging Standard", "## HMRC AEO-S criteria")
+        self.assertEqual([(unit.line, unit.kind, unit.headings)
+                          for unit in units],
+                         [(5, "code", chain), (6, "code", chain),
+                          (7, "code", chain), (10, "code", chain),
+                          (11, "code", chain), (12, "code", chain),
+                          (14, "para", chain)])
+        self.assertTrue(self._uk_tied(units[-1]))
+        self.assertEqual(units[-1].title, "Logging Standard")
+        self.assertEqual(self._fenced_lines(text),
+                         {5, 6, 7, 8, 10, 11, 12})
+        # A closing fence must repeat the opening character.
+        self.assertEqual(self._fenced_lines("```\n~~~\n# a\n```\n# b\n"),
+                         {1, 2, 3, 4})
+        # Draft 3b804b (claude NOTE 1 of review round 1): a shorter fence
+        # cannot close a longer one, so "# a" stays code. Flip: a closing
+        # fence of any length closes the block at line 2 and reads "# a"
+        # as a heading.
+        self.assertEqual(self._fenced_lines("````\n```\n# a\n````\n# b\n"),
+                         {1, 2, 3, 4})
+        text = "# T\n\n````md\n```\n# a\n```\n````\n\nText.\n"
+        self.assertEqual([(unit.line, unit.kind, unit.headings)
+                          for unit in self._register_units("f.md", text)],
+                         [(3, "code", ("# T",)), (5, "code", ("# T",)),
+                          (6, "code", ("# T",)), (9, "para", ("# T",))])
+
+    def test_register_units_end_a_unit_at_each_fence_line(self):
+        """Draft 3b804b (codex ERROR 1 and claude NOTE 4 of review round 1
+        of 3b804): _paragraphs does not end a paragraph at a fence line, so
+        prose directly under a closing fence joined the code unit, and a
+        fence directly under prose joined the prose unit, as at
+        security/sop-security-ticket-reporting-scheme.md lines 33 and 34.
+        In the register parser each opening fence line starts a unit and
+        each closing fence line ends one, quoted or not, and each unit
+        keeps its first line number; _paragraphs reads the same text as
+        before for its other callers. Flip: reading the text without the
+        fence lines as bounds joins "**Example:**", the code and the claim
+        under the closing fence into one unit at line 3."""
+        text = ("# Ticket Scheme\n"
+                "## HMRC criteria\n"
+                "**Example:**\n"
+                "```text\n"
+                "example\n"
+                "```\n"
+                "HMRC sets no IT security requirement.\n"
+                "> Quoted lead-in:\n"
+                "> ~~~\n"
+                "> sample\n"
+                "> ~~~\n"
+                "> HMRC names no firewall.\n")
+        chain = ("# Ticket Scheme", "## HMRC criteria")
+        self.assertEqual(self._units_of(text), [
+            (3, "para", chain, "**Example:**"),
+            (4, "code", chain, "```text example ```"),
+            (7, "para", chain, "HMRC sets no IT security requirement."),
+            (8, "para", chain, "Quoted lead-in:"),
+            (9, "code", chain, "~~~ sample ~~~"),
+            (12, "para", chain, "HMRC names no firewall.")])
+        # The other callers of _paragraphs read the text as before.
+        self.assertEqual(list(self._paragraphs(text)), [
+            (1, "# Ticket Scheme"), (2, "## HMRC criteria"),
+            (3, "**Example:** ```text example ``` HMRC sets no IT security "
+                "requirement."),
+            (8, "Quoted lead-in: ~~~ sample ~~~ HMRC names no firewall.")])
+        # The live case: "**Example:**" and the fence directly under it.
+        rel = "security/sop-security-ticket-reporting-scheme.md"
+        units = {unit.line: unit
+                 for unit in self._register_units(rel, self._text(rel))}
+        self.assertEqual((units[33].kind, units[33].text),
+                         ("para", "**Example:**"))
+        self.assertEqual(units[34].kind, "code")
+        self.assertTrue(units[34].text.startswith("``` SOC - "))
+        self.assertTrue(units[34].text.endswith(" ```"))
+
+    def test_register_units_keep_a_lazy_fence_in_its_quote(self):
+        """Draft 3b804c (claude NOTE 1 of review round 2 of 3b804): an
+        opening fence line with no quote prefix directly under a quoted
+        paragraph keeps that paragraph's quote depth here, so the fenced
+        block stays one code unit, the grouping CommonMark gives it (there
+        the fence ends the blockquote and lines 2 to 4 are one fenced
+        block); as a fence line it still starts a unit. Flip: a line in
+        starts is never a lazy continuation, so the fence drops the quote
+        depth and the next quoted line starts a second code unit at line
+        3."""
+        self.assertEqual(self._units_of("> a\n```\n> b\n```\nprose\n"), [
+            (1, "para", (), "a"),
+            (2, "code", (), "``` b ```"),
+            (5, "para", (), "prose")])
+
+    def test_uk_tie_reads_the_title_and_skips_unread_spans(self):
+        """Draft 3b804b (codex WARN 2 and claude NOTE 2 of review round 1
+        of 3b804): a unit with no UK term in its text or heading chain is
+        tied through the document title alone, whether a level-1 heading
+        (here the first of two, so not in the chain) or the Document Title
+        field gives it. A UK term that sits only in a code span, a link
+        target or an HTML comment ties no unit and makes no UK column.
+        Flips: _uk_tied without the title leaves the title-only units
+        untied; either helper without _UNREAD_SPANS reads those terms."""
+        units = list(self._register_units(
+            "annex.md", "# UK AEO-S Annex\n\nThe annex scope.\n\n"
+                        "# Appendix\n\nThe appendix sets no rule.\n"))
+        unit = units[-1]
+        self.assertEqual((unit.headings, unit.title),
+                         (("# Appendix",), "UK AEO-S Annex"))
+        self.assertIsNone(self._UK_TERMS.search(unit.text))
+        self.assertTrue(self._uk_tied(unit))
+        *_, unit = self._register_units(
+            "f.md", "**Document Title:** UK AEO Procedure\\\n"
+                    "**Version:** 1.0\n\nThe procedure sets no rule.\n")
+        self.assertEqual((unit.line, unit.headings, unit.title),
+                         (4, (), "UK AEO Procedure"))
+        self.assertIsNone(self._UK_TERMS.search(unit.text))
+        self.assertTrue(self._uk_tied(unit))
+        text = ("# Notes\n\n## Scope\n\n"
+                "See `HMRC` for the rule.\n\n"
+                "See [the guide](uk/AEO-S.md) for the rule.\n\n"
+                "The rule <!-- HMRC --> stands.\n\n"
+                "| Control | `AEO-S` | [Guide](AEO-S.md) | <!-- HMRC --> |\n"
+                "|---|---|---|---|\n"
+                "| Back-up routines | N/A | N/A | N/A |\n")
+        units = list(self._register_units("notes.md", text))
+        self.assertEqual([unit.kind for unit in units],
+                         ["para", "para", "para", "header", "row"])
+        *spanned, row = units
+        for unit in spanned:
+            with self.subTest(tied=unit.line):
+                self.assertIsNotNone(self._UK_TERMS.search(unit.text))
+                self.assertFalse(self._uk_tied(unit))
+        self.assertFalse(self._uk_tied(row))
+        self.assertEqual(len([column for column in row.header[1:]
+                              if self._UK_TERMS.search(column)]), 3)
+        self.assertEqual(self._uk_columns(row), ())
+
+    def test_register_units_read_the_uk_documents(self):
+        """Plan 3b804, sections 1 and 3, on the real corpus: the UK annex's
+        Purpose paragraph (line 21) and the UK procedure's first System
+        protection row (line 118) carry their full heading chains, title,
+        header row and row label, and the supply chain matrix's two
+        programme tables (header rows at lines 48 and 89; the plan cites
+        48 and 76 at 161da03db) have exactly one UK column, AEO-S (UK),
+        and not AEO (EU) (plan F3.6). Draft 3b804b (claude WARN 1 and
+        NOTE 5 of review round 1): the annex's header row (line 40) is a
+        unit of kind "header", and though its first cell names AEO-S, that
+        cell heads the row-label column, so row 42 has no UK column. Flips:
+        reading the label column as a UK column gives row 42 one; not
+        yielding header rows drops line 40."""
+        annex = {unit.line: unit for unit in self._register_units(
+            self.UK_ANNEX, self._text(self.UK_ANNEX))}
+        title = "UK AEO-S IT and Cybersecurity Requirements"
+        self.assertEqual(annex[21].headings, ("# " + title, "## Purpose"))
+        self.assertEqual((annex[21].kind, annex[21].title), ("para", title))
+        self.assertTrue(annex[21].text.startswith(
+            "In the UK Authorized Economic Operator (AEO) programme, "))
+        self.assertEqual((annex[40].kind, annex[40].header, annex[40].label),
+                         ("header", (), ""))
+        self.assertIsNotNone(self._UK_TERMS.search(annex[40].cells[0]))
+        self.assertEqual((annex[42].kind, annex[42].header),
+                         ("row", annex[40].cells))
+        self.assertEqual(self._uk_columns(annex[42]), ())
+        procedure = ProgrammeClaimsTests.UK_PROCEDURE
+        rows = {unit.line: unit for unit in self._register_units(
+            procedure, self._text(procedure))}
+        self.assertEqual(rows[118].headings, (
+            "# UK AEO IT Self-Assessment Procedure",
+            "## 4. IT control evidence collection",
+            "### 4.2 System protection"))
+        self.assertEqual((rows[118].kind, rows[118].header, rows[118].label),
+                         ("row", ("Evidence Item", "Description", "Source"),
+                          "Change management log excerpt"))
+        headers = {unit.header: self._uk_columns(unit)
+                   for unit in self._register_units(
+                       self.SUPPLY_MATRIX, self._text(self.SUPPLY_MATRIX))
+                   if "AEO (EU)" in unit.header}
+        self.assertEqual(len(headers), 2, sorted(headers))
+        self.assertEqual(set(headers.values()), {("AEO-S (UK)",)})
+
+    # The UK programme forms of plan 3b804, section 1, each of which
+    # _UK_TERMS must match, and the forms it must not (plan F5.4).
+    _UK_FORMS = ("HMRC", "AEO-S", "AEOS", "AEO (UK)", "UK AEO", "UK-AEO",
+                 "AEO UK", "AEO-UK", "the UK (AEO) programme",
+                 "the UK AEO programme", "the UK programme",
+                 "the UK's Authorised Economic Operator",
+                 "the UK's Authorized Economic Operator",
+                 "the UK’s Authorised Economic Operator",
+                 "the UK Authorized Economic Operator (AEO) programme",
+                 "AEO (United Kingdom Authorized Economic Operator)")
+    _NOT_UK_FORMS = ("AEO (EU)", "EU AEO", "AEO", "AEO-US", "AEOs",
+                     "The WCO SAFE Framework sets the AEO conditions of "
+                     "Annex IV.",
+                     "AEO programmes based on the WCO SAFE Framework of "
+                     "Standards",
+                     "the EU Authorised Economic Operator",
+                     "the UK customs authority", "UKAEO")
+
+    @staticmethod
+    def _top_level_alternatives(source):
+        """A regular expression's source split at each | outside a group
+        or a character class."""
+        parts, depth, start, escaped, in_class = [], 0, 0, False, False
+        for i, char in enumerate(source):
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif in_class:
+                in_class = char != "]"
+            elif char == "[":
+                in_class = True
+            elif char in "()":
+                depth += 1 if char == "(" else -1
+            elif char == "|" and depth == 0:
+                parts.append(source[start:i])
+                start = i + 1
+        parts.append(source[start:])
+        return parts
+
+    def test_uk_terms_match_every_uk_form(self):
+        """Plan 3b804, F5.1 to F5.3 (claude NOTE 3 and codex NOTE 4 of
+        review round 6): the guard's UK column list (AEO-S, HMRC and AEO
+        (UK) only) and its anchor list differed, so an "AEO UK" column was
+        not a UK column. F5.1: the headers UK AEO, AEO UK, UK-AEO and
+        AEO-UK are each a UK column. F5.2: "Under AEO UK, IT security
+        measures are optional." and "UK-AEO sets no IT security
+        requirement." are tied to the UK programme in a document whose
+        title and headings name none. F5.3: each form matches on its own,
+        and each top-level alternative of _UK_TERMS is needed: without it,
+        a listed form no longer matches. Draft 3b804b (claude NOTE 3 of
+        review round 1): the form of compliance/logistics/README.md line
+        81, "AEO (United Kingdom Authorized Economic Operator)", is one
+        more. Flips: dropping an alternative fails its forms here; the last
+        alternative without "United Kingdom" fails that form."""
+        for form in self._UK_FORMS:
+            with self.subTest(form=form):
+                self.assertIsNotNone(self._UK_TERMS.search(form))
+        alternatives = self._top_level_alternatives(self._UK_TERMS.pattern)
+        self.assertEqual(len(alternatives), 6, alternatives)
+        for index, alternative in enumerate(alternatives):
+            without = re.compile("|".join(
+                part for i, part in enumerate(alternatives) if i != index))
+            with self.subTest(without=alternative):
+                self.assertTrue([form for form in self._UK_FORMS
+                                 if not without.search(form)])
+        # F5.1: each header form is a UK column; the other columns are not.
+        for form in ("UK AEO", "AEO UK", "UK-AEO", "AEO-UK"):
+            text = (f"| Control | {form} | ISO 28000 | AEO (EU) |\n"
+                    "|---|---|---|---|\n"
+                    "| Back-up routines | N/A | x | x |\n")
+            with self.subTest(column=form):
+                header, unit = self._register_units("f.md", text)
+                self.assertEqual(header.kind, "header")
+                self.assertEqual(self._uk_columns(unit), (form,))
+        # F5.2 and F2.8: the UK tie from the unit's own text alone.
+        text = ("# Network Security Standard\n\n## Network baseline\n\n"
+                "Under AEO UK, IT security measures are optional.\n\n"
+                "UK-AEO sets no IT security requirement.\n\n"
+                "AEOS sets no IT security requirement.\n\n"
+                "UK AEO sets no IT security requirement.\n\n"
+                "The UK's Authorised Economic Operator criteria name no IT "
+                "security control.\n\n"
+                "The network baseline sets no IT security requirement.\n")
+        self.assertEqual([self._uk_tied(unit) for unit
+                          in self._register_units("network.md", text)],
+                         [True, True, True, True, True, False])
+
+    def test_uk_terms_exclude_eu_and_bare_aeo(self):
+        """Plan 3b804, F5.4: AEO (EU), which heads a supply chain matrix
+        column, EU AEO and a bare AEO in WCO text name no UK programme, so
+        _UK_TERMS matches none of them, no such column is a UK column and
+        no such unit is tied. Flip: a bare AEO alternative matches them."""
+        for form in self._NOT_UK_FORMS:
+            with self.subTest(form=form):
+                self.assertIsNone(self._UK_TERMS.search(form))
+        text = ("# WCO SAFE Framework Notes\n\n## AEO (EU) and EU AEO\n\n"
+                "The WCO SAFE Framework sets the AEO conditions of Annex IV. "
+                "Its Pillar I names no information security requirement for "
+                "operators.\n\n"
+                "| Control | AEO (EU) | EU AEO | AEO |\n"
+                "|---|---|---|---|\n"
+                "| Back-up routines | N/A | N/A | N/A |\n")
+        prose, header, row = self._register_units("wco.md", text)
+        self.assertFalse(self._uk_tied(prose))
+        self.assertFalse(self._uk_tied(header))
+        self.assertFalse(self._uk_tied(row))
+        self.assertEqual(self._uk_columns(row), ())
+
+    def test_uk_tie_and_columns_share_one_uk_terms(self):
+        """Plan 3b804, F5.5: column detection (_uk_columns) and the UK tie
+        (_uk_tied) read the same compiled _UK_TERMS, so the two lists
+        cannot drift apart again: with _UK_TERMS replaced by another
+        pattern, both follow it and neither still finds HMRC or AEO-S.
+        Flip: a column list of its own (161da03db's _DENIAL_UK_COLUMN)
+        fails here."""
+        text = ("# Notes\n\n## ZZQ scheme\n\nThe scheme sets no rule.\n\n"
+                "## HMRC AEO-S\n\nHMRC sets no rule.\n\n"
+                "| Control | ZZQ | AEO-S (UK) | HMRC |\n"
+                "|---|---|---|---|\n"
+                "| Back-up routines | N/A | N/A | N/A |\n")
+        zzq, hmrc, _, row = self._register_units("notes.md", text)
+        self.assertEqual((self._uk_tied(zzq), self._uk_tied(hmrc)),
+                         (False, True))
+        self.assertEqual(self._uk_columns(row), ("AEO-S (UK)", "HMRC"))
+        with mock.patch.object(HmrcHandbookClaimsTests, "_UK_TERMS",
+                               re.compile(r"\bZZQ\b")):
+            self.assertEqual((self._uk_tied(zzq), self._uk_tied(hmrc)),
+                             (True, False))
+            self.assertEqual(self._uk_columns(row), ("ZZQ",))
 
     def test_cited_held_lines_carry_their_text(self):
         """Each held line the corrected text cites carries its excerpt,
