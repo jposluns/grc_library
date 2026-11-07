@@ -19767,7 +19767,7 @@ class ProgrammeClaimsTests(unittest.TestCase):
     tools/audit-reference-breadth.py), so a form feed or a Unicode line
     separator inside a line does not start a new one.
 
-    The class has 71 tests: 61 corpus regression tests, 5 self-checks and
+    The class has 72 tests: 62 corpus regression tests, 5 self-checks and
     5 held-source consistency checks.
 
     The corpus regression tests read the corpus files directly (no site
@@ -21508,6 +21508,576 @@ class ProgrammeClaimsTests(unittest.TestCase):
                                          and cell not in marks)
                         for cell in cells))
 
+    def test_supply_matrix_wco_safe_key_cites_annex_iv_qualifiers(self):
+        """Draft safekey (maintainer decision 2026-11-06): the WCO SAFE
+        column keeps ~ where the held 2025 SAFE Framework Annex IV states
+        an element as a requirement ("This element requires that") but
+        qualifies it by the national AEO programme, and the domain matrix
+        key says so, citing Annex IV and the held element letters: A (a),
+        held line 4631; D (c and d), held lines 4691 and 4699; M (a), held
+        line 5083. Draft safekey2 (maintainer decision 2026-11-07): IT and
+        Cybersecurity (F b, held lines 4808 to 4809), Security Assessment /
+        Audit (M b, held line 5085) and Business Continuity (L a, held
+        lines 5066 to 5067, where "where advisable or necessary" limits only
+        the coordination with the authorities) are stated as plain
+        requirements, so their WCO SAFE cells are now ✓. Draft safekey3
+        (review round 1, claude WARN 1 and 2, NOTE 3 and 4, codex WARN 1
+        and 2): the key now says each domain's mark follows the element
+        the domain mainly rests on, that ✓ domains can still contain a
+        qualified sub-item, naming G (g) (held line 4881) and H (d) (held
+        line 4928), and that H (d) also bears on Incident Reporting to
+        Authority. The test finds the key by its content (the line before
+        the table that names WCO SAFE and Annex IV), checks each element
+        letter and the quoted held substring that follows it with no other
+        cited letter between, not the surrounding prose, and checks the
+        whole WCO SAFE column: the ~ domains are exactly the three named
+        and every other cell is ✓. Draft safekey4 (review round 2, claude
+        WARN 1, NOTE 1 and 2, codex WARN): the key names the element each ✓
+        domain this change touched rests on, with its held quotation (F b,
+        M b, L a, saying that L (a)'s "where advisable or necessary" limits
+        only the coordination with the authorities), and names C (a) for
+        Financial Solvency, quoting held lines 4670 and 4673 and, after the
+        ratio measurements of held line 4672, saying that the programme
+        reference covers that assessment process, not the requirement. The
+        test now works sentence by sentence: each domain, its element letter
+        and that letter's quotation share one sentence, so the H (d)
+        statement on Incident Reporting to Authority is checked where it is
+        made; in a sentence that pairs a domain with an element, every
+        domain of the column that the sentence names is a paired one, and
+        the domains come in the order of their elements, so swapping two
+        domains fails; and the ✓ rule (a sentence citing no element that
+        marks the other domains ✓ for elements without that qualifier) and
+        the qualified sub-item exception for Cargo and Conveyance Security
+        must each be present. Draft safekey5 (review round 3, claude WARN 1
+        and 2, NOTE 1 and 2, codex WARN 1 and 2): a short list after the table
+        (the table must directly follow its key,
+        test_supply_matrix_keys_define_only_marks_their_tables_use) names the
+        main element of the ✓ domains the key did not yet place, with a held
+        quotation: G (a), line 4838; I (a), lines 4955 and 4956;
+        J (a), line 5013; E (e), line 4740; G (m), line 4897; H (b), line
+        4917; G (d), line 4847; F (a) in the list for the AEO alone, lines
+        4796 and 4801; K (a), line 5052. The key says that only the national
+        AEO programme qualifier moves a WCO SAFE mark to ~, and other
+        conditions such as K (a)'s "if necessary" (line 5052) and I (a)'s "as
+        appropriate and based on risk" (line 4959) do not. For C (a) the key
+        no longer says the element states the requirement plainly, because
+        lines 4670 to 4671 continue "considering the specific characteristics
+        of its business model and activity" and line 4674 adds "and should be
+        considered in the totality of the situation for each operator"; it
+        says the element states the requirement without a programme
+        reference. The test now also guards these reasoning statements: the
+        opening rule; the ~ sentence says marked ~ and gives the qualifier
+        reason; the ✓ rule says marked ✓ because and is not negated; the
+        exception is not reversed to cannot contain; every ✓ domain rests on
+        its named element and the set of them is the set of ✓ cells; the key's
+        stated mark for Financial Solvency equals its cell; in the L (a)
+        sentence the phrase limits only the coordination and the AEO and
+        Customs (line 5064) are bound, not the reverse and not the AEO alone;
+        in the C (a) sentence the programme reference covers the assessment
+        process (the ratio measurements), not the requirement, and not the
+        reverse. Draft safekey6 (review round 4, claude WARN 1, NOTE 1 and
+        2, codex WARN): each round found another negation the test accepted
+        (Not only, never moves, never limits, not without, does not bear,
+        and neither does), so the test no longer lists reversals one by one
+        but gives each guarded sentence a polarity rule. Business Partner /
+        Supplier Security now rests on K (b), "review relevant commercial
+        information relating to the other contracting party before entering
+        into contractual relations" (lines 5057 to 5058), because K (a) is
+        conditional ("if necessary ... encourage", line 5052) and the
+        legend's ~ means partially or conditionally required; K (a) stays
+        only as the example in the other-conditions sentence. Draft safekey6
+        also lengthened three map quotations: G (a) added "detailed
+        guidelines on procedures to be followed to preserve the integrity of
+        cargo while in its custody" (lines 4839 to 4840), I (a) kept its
+        verb, "prohibit unauthorized access" (lines 4955 to 4956), and F (a)
+        said it binds "AEO carriers" (line 4800), before its manifest
+        quotation (line 4801); the I (a) and F (a) quotations still stopped
+        before their narrowing clauses. Draft safekey7 (review round 5,
+        claude WARN 1, NOTE 1 to 3, codex NOTE 1 and 2): no word list for
+        negation can be complete, so this round adds none, nothing, nobody,
+        nowhere and the U+02BC apostrophe, guards the lead-in line of the
+        list after the table, and states the residual exactly. Each map
+        quotation now runs through its narrowing clause: I (a) through "that
+        may reasonably affect the security of its areas of responsibility in
+        the supply chain" (lines 4956 to 4957), F (a) through "provided to
+        the carrier by the shipper or its agent, and is filed with Customs in
+        a timely manner" (lines 4801 to 4802), G (m) through "during
+        transport and while loading into or unloading from a transport
+        conveyance" (lines 4897 to 4898), H (b) through "to the extent and
+        scope of its ability and responsibility, when left unattended"
+        (lines 4917 to 4918), and J (a) through "to the extent permitted by
+        national legislation" (line 5014). G (a) gives the held verb in place
+        of the gloss "scoped to": the manual "which contains detailed
+        guidelines on procedures to be followed to preserve the integrity of
+        cargo while in its custody" (lines 4838 to 4840). The legend's ~
+        entry adds that for the WCO SAFE column the rule below governs, so
+        the test checks that entry and reads the key from its own opening
+        sentence ("For the WCO SAFE column"). Draft safekey8 (round 7 draft
+        report, NOTE 2): element I (a) opens "in accordance with its
+        business model and risk analysis, implement security measures and
+        procedures to" (line 4954), and that condition governs everything the
+        element then lists, so the three map items that rest on I (a)
+        (Physical Security: Perimeter, Physical Security: Facilities and
+        Access Controls: Physical) each quote that opening word for word
+        before their own quotation, and each domain is paired with both. The
+        other-conditions sentence now names "in accordance with its business
+        model and risk analysis" beside "as appropriate and based on risk"
+        (line 4959) in element I (a), so the key accounts for the condition
+        the map quotes; neither moves the mark. The opening holds no
+        negation word, so the three items' allowlists stay empty. Draft
+        safekey9 (review round 6, claude WARN 1, NOTE 1 and 2, codex WARN
+        and NOTE): the section after the table is now held to a structure.
+        After the table, the first non-blank line must be the lead-in, the
+        last non-blank line of the section must be its closing rule (---),
+        and every non-blank line between them must start with "- ", so the
+        map list runs from the lead-in to that rule; any other non-blank
+        line there (a continuation line, indented or not, another bullet
+        marker such as * or +, a numbered item or a paragraph) fails. The
+        Access Controls: Physical item, whose I (a) quotation already ran to
+        the end of its sentence ("in the supply chain", line 4957), now also
+        quotes the sentence after it, word for word: it continues "If access
+        control is not possible, increased precautions in other security
+        aspects may be needed" (lines 4957 to 4958), paired with the domain
+        like its other quotations, so that item's allowlist is now "If
+        access control is not possible". The
+        other-conditions sentence names element I (a) once, before its two
+        conditions, so neither reads as K (a)'s: the test checks that the
+        sentence names I (a) exactly once and that each I (a) condition is
+        quoted there exactly once, after I (a), with no other cited element
+        letter between I (a) and the quotation or between the quotation and
+        the next double quotation mark (or the end of the sentence), in any
+        order; it no longer requires the two to sit side by side in one
+        wording. Draft safekey10 (review round 7, claude WARN 1, NOTE 1 to
+        3): four rounds described in prose how the key's sentence split
+        behaves, and each description missed a case, so the key is now
+        guarded by structure and the residual no longer describes what a
+        new sentence joins. The split must give exactly ten strings, each
+        ending in a full stop, and the key must hold exactly ten sentence
+        ends, so each string is one sentence; the ten strings must be
+        exactly the ten guarded strings, each selected by its own named
+        check exactly once. An added, removed or merged sentence therefore
+        fails the count, whatever punctuation ends it. The I (a) tie is a
+        deliberate wording contract (claude NOTE 1): each I (a) condition
+        must be quoted after the sentence's one mention of I (a), so equally
+        accurate wording that quotes a condition first and names element
+        I (a) after it fails until the test changes with it; "in any order"
+        above means the order of the conditions among themselves. The
+        other-conditions sentence now also names "If access control is not
+        possible" (lines 4957 to 4958) among the I (a) conditions, word for
+        word, so the key names each I (a) condition the map quotes; the tie
+        check covers it like the other two, and the sentence's allowlist
+        adds "If access control is not possible" beside "do not".
+
+        Completeness probe for this class: a negation word is not, no,
+        never, neither, nor, cannot, without, none, nothing, nobody or
+        nowhere, or any word ending in n't written with a straight
+        apostrophe, U+2019 or U+02BC, matched as a whole word and
+        case-insensitively (negation below). The polarity rule reads these
+        strings and no others. The key, from its opening sentence ("For the
+        WCO SAFE column") to the end of its line, is split by the regex
+        (?<=\\.)\\s+(?=[A-Z]), that is, at whitespace that directly follows
+        a full stop and precedes a capital letter A to Z. That split must
+        give exactly ten strings, each ending in a full stop, and the key
+        must hold exactly ten sentence ends, a sentence end being a full
+        stop, question mark, exclamation mark or ellipsis character (U+2026);
+        text with no such mark is not a sentence to the count and is read
+        with the guarded string it sits in. The ten strings are exactly the
+        ten guarded strings, each selected by its own named check exactly
+        once: the opening rule, the ~ rule and reason, the H (d) statement,
+        the ✓ rule, the L (a) reading, the C (a) reading, the exception, the
+        only-the-programme-qualifier rule, the other-conditions sentence
+        and the pointer to the list after the table. The map lead-in and
+        every map item are guarded too, and by the structure above they are
+        every non-blank line between the table and the closing rule. A
+        guarded string may contain a negation word only inside its own
+        exact allowlist (polarity below), each allowed phrase must occur in
+        it exactly once, and any other negation in that string fails.
+        Allowlists: the ✓ rule, "without that qualifier"; the L (a)
+        reading, "not the requirement for the plans"; the C (a) reading,
+        "not the requirement" and "without a programme reference"; the
+        other-conditions sentence, "do not" and "If access control is not
+        possible" in its I (a) quotation; the pointer, "is not named
+        above"; the lead-in, "does not place"; the Personnel Security:
+        Screening item, "not previously convicted" in its J (a) quotation;
+        the Access Controls: Physical item, "If access control is not
+        possible" in its I (a) quotation; every other guarded string, none.
+        Each allowlist is a deliberate wording contract (codex NOTE): the
+        lead-in must say "does not place" exactly once, so an equally
+        accurate rewording such as "has not placed" fails until the test
+        changes with it, and the same holds for every allowed phrase. The
+        exact-ten rule is a deliberate wording contract too (claude WARN 1):
+        an accurate added sentence, one sentence split in two, two sentences
+        joined into one, or a sentence end inside a sentence (an
+        abbreviation such as e.g., or a section number such as 11.2) fails
+        until the test changes with it. The other-conditions sentence must
+        also not name the national AEO programme qualifier (no "programme"
+        and no "qualifier" in it).
+
+        Disclosed residual: text outside the guarded strings, such as the
+        legend and the AEO-S notes before the key's opening sentence, is not
+        read by the polarity rule. In a guarded string, a meaning
+        change that uses no listed negation word (an antonym, a quantifier
+        other than those listed, or n't written with another apostrophe)
+        passes unless another named check covers it, so a reviewer reads
+        the key for meaning. Which element a domain mainly rests on is an
+        editorial judgement; the test holds the key to its stated mapping
+        and does not establish that mapping from the held text."""
+        section = self._section_lines(self.SUPPLY_MATRIX,
+                                      "## Security domain alignment matrix")
+        header = ("| Security Domain | CTPAT | AEO-S (UK) | AEO (EU) | PIP | "
+                  "BASC | NEEC | OEA | ISO 28000:2022 | WCO SAFE |")
+        start = section.index(header)
+        keys = [line for line in section[:start]
+                if "WCO SAFE" in line and "Annex IV" in line]
+        self.assertEqual(len(keys), 1, keys)
+        # Draft safekey7 (claude NOTE 3): the legend's ~ entry now names the
+        # WCO SAFE column, so the key starts at its own opening sentence.
+        self.assertIn("~ = partially or conditionally required (for the WCO "
+                      "SAFE column, the rule below governs);", keys[0])
+        key = keys[0][keys[0].index("For the WCO SAFE column"):]
+        # Draft safekey9 (claude WARN 1): after the table, the first
+        # non-blank line is the lead-in, the last is the section's closing
+        # rule, and every non-blank line between them is a "- " item, so a
+        # continuation line, another bullet marker or any other text there
+        # fails and every map line is one the polarity rule reads.
+        end = start + 2
+        while end < len(section) and section[end].startswith("|"):
+            end += 1
+        after = [line for line in section[end:] if line.strip()]
+        self.assertGreaterEqual(len(after), 2, after)
+        self.assertEqual(after[-1], "---", after)
+        lead_in = [line for line in after
+                   if re.search(r"✓ domains\b[^:]*\bkey above\b", line)]
+        self.assertEqual(len(lead_in), 1, after)
+        self.assertEqual(after[0], lead_in[0], after)
+        self.assertEqual([line for line in after[1:-1]
+                          if not line.startswith("- ")], [],
+                         "only '- ' items may follow the map lead-in")
+        items = [line[2:] for line in after[1:-1]]
+        # Draft safekey10 (claude WARN 1): the key is held to its ten guarded
+        # sentences by structure. The split gives exactly ten strings, each
+        # ending in a full stop, and the key holds exactly ten sentence ends,
+        # so each string is one sentence and an added, removed or merged
+        # sentence fails here whatever punctuation ends it; after the
+        # selectors below, the ten strings are the ten they select.
+        key_strings = re.split(r"(?<=\.)\s+(?=[A-Z])", key)
+        self.assertEqual(len(key_strings), 10, key_strings)
+        self.assertEqual([part for part in key_strings
+                          if not part.endswith(".")], [], key_strings)
+        self.assertEqual(len(re.findall(r"[.?!…]", key)), 10, key)
+        sentences = key_strings + items
+        letters = ("A (a)", "D (c and d)", "M (a)", "G (g)", "H (d)",
+                   "F (b)", "M (b)", "L (a)", "C (a)", "G (a)", "I (a)",
+                   "J (a)", "E (e)", "G (m)", "H (b)", "G (d)", "F (a)",
+                   "K (a)", "K (b)")
+        # Draft safekey8 (round 7 draft report, NOTE 2): the opening of
+        # element I (a), held line 4954, which governs all it then lists.
+        i_a_opening = ("in accordance with its business model and risk "
+                       "analysis, implement security measures and procedures "
+                       "to")
+        pairs = (
+            ("Security Policy and Governance", "G (a)",
+             "develop and maintain a security policy manual or other "
+             "tangible guidance"),
+            ("Security Policy and Governance", "G (a)",
+             "which contains detailed guidelines on procedures to be followed "
+             "to preserve the integrity of cargo while in its custody"),
+            ("Physical Security: Perimeter", "I (a)", i_a_opening),
+            ("Physical Security: Perimeter", "I (a)",
+             "monitor and control exterior and interior perimeters"),
+            ("Physical Security: Facilities", "I (a)", i_a_opening),
+            ("Physical Security: Facilities", "I (a)", "secure buildings"),
+            ("Access Controls: Physical", "I (a)", i_a_opening),
+            ("Access Controls: Physical", "I (a)",
+             "prohibit unauthorized access to facilities, transport "
+             "conveyances, loading docks and cargo areas that may reasonably "
+             "affect the security of its areas of responsibility in the "
+             "supply chain"),
+            # Draft safekey9 (claude NOTE 1): held lines 4957 to 4958.
+            ("Access Controls: Physical", "I (a)",
+             "If access control is not possible, increased precautions in "
+             "other security aspects may be needed"),
+            ("Personnel Security: Screening", "J (a)",
+             "take all reasonable precautions when recruiting new staff to "
+             "verify that they are not previously convicted of "
+             "security-related, Customs or other criminal offences, to the "
+             "extent permitted by national legislation"),
+            ("Personnel Security: Training", "E (e)",
+             "conduct specific training to assist employees in maintaining "
+             "cargo integrity"),
+            ("Cargo and Conveyance Security", "G (m)",
+             "establish procedures to manage, secure and control all cargo "
+             "in its custody during transport and while loading into or "
+             "unloading from a transport conveyance"),
+            ("Cargo and Conveyance Security", "H (b)",
+             "secure transport conveyances within its supply chain, to the "
+             "extent and scope of its ability and responsibility, when left "
+             "unattended"),
+            ("Seal Management", "G (d)",
+             "ensure that written procedures are developed and utilized that "
+             "stipulate how seals are to be controlled"),
+            ("Documentation and Manifest Accuracy", "F (a)", "AEO carriers"),
+            ("Documentation and Manifest Accuracy", "F (a)",
+             "the information in the carrier’s cargo manifest accurately "
+             "reflects the information provided to the carrier by the "
+             "shipper or its agent, and is filed with Customs in a timely "
+             "manner"),
+            ("Business Partner / Supplier Security", "K (b)",
+             "review relevant commercial information relating to the other "
+             "contracting party before entering into contractual "
+             "relations"),
+            ("Customs Compliance Record", "A (a)",
+             "determined by the national AEO programme"),
+            ("Incident Reporting to Authority", "D (c and d)",
+             "through particular mechanisms set forth in the national "
+             "AEO programme"),
+            ("Incident Reporting to Authority", "H (d)",
+             "require operators, as specifically detailed in national "
+             "AEO programmes, to report any actual or suspicious"),
+            ("Risk Assessment", "M (a)",
+             "as specifically outlined in the national AEO programme"),
+            ("Cargo and Conveyance Security", "G (g)",
+             "regularly examine, through particular mechanisms set "
+             "forth in the national AEO programme, its security"),
+            ("IT and Cybersecurity", "F (b)",
+             "have a documented information security policy and "
+             "procedures and/or security-related controls"),
+            ("IT and Cybersecurity", "F (b)",
+             "to protect the AEO’s electronic systems from unauthorized "
+             "access"),
+            ("Security Assessment / Audit", "M (b)",
+             "establish and conduct regular self-assessments of its "
+             "security management system"),
+            ("Business Continuity", "L (a)",
+             "contingency plans for emergency security situations and for "
+             "disaster or terrorist incident recovery"),
+            ("Business Continuity", "L (a)", "where advisable or necessary"),
+            ("Financial Solvency", "C (a)",
+             "is required to be in good financial standing which is "
+             "sufficient to fulfil its commitments"),
+            ("Financial Solvency", "C (a)",
+             "This process falls within the vetting and validation "
+             "procedures of Members’ AEO programmes"))
+
+        def paired(sentence):
+            return [(domain, letter) for domain, letter, quote in pairs
+                    if domain in sentence and letter in sentence
+                    and f'"{quote}"' in sentence]
+
+        for domain, letter, quote in pairs:
+            with self.subTest(domain=domain, letter=letter, quote=quote[:24]):
+                found = [sentence for sentence in sentences
+                         if (domain, letter) in paired(sentence)]
+                self.assertEqual(len(found), 1, (domain, letter))
+                at_letter = found[0].find(letter)
+                at_quote = found[0].find(f'"{quote}"')
+                self.assertGreater(at_quote, at_letter)
+                between = found[0][at_letter + len(letter):at_quote]
+                self.assertFalse([other for other in letters
+                                  if other in between], between)
+        rule = [sentence for sentence in sentences
+                if "✓" in sentence
+                and re.search(r"\bwithout\b[^.]*\bqualifier\b", sentence)
+                and not [letter for letter in letters if letter in sentence]]
+        self.assertEqual(len(rule), 1, sentences)
+        cargo = [sentence for sentence in sentences
+                 if ("Cargo and Conveyance Security", "G (g)")
+                 in paired(sentence)]
+        self.assertEqual(len(cargo), 1)
+        self.assertIn("✓", cargo[0])
+        self.assertRegex(cargo[0], r"\bqualified sub-item")
+        self.assertIn("H (d)", cargo[0][cargo[0].find("G (g)"):])
+        # The reasoning, not only its tokens (draft safekey5).
+        self.assertRegex(rule[0], r"\bother\b[^.]*\bdomains\b[^.]*"
+                                  r"\bmarked ✓ because\b")
+        self.assertRegex(cargo[0], r"✓ domain (?:can|may) (?:still )?contain "
+                                   r"a qualified sub-item")
+        self.assertRegex(cargo[0], r"Cargo and Conveyance Security "
+                                   r"(?:includes|contains|has) element G")
+        self.assertRegex(sentences[0], r"\beach domain['’]s mark follows the "
+                                       r"element\b[^.]*\bmainly rests on\b")
+        self.assertIn('"This element requires that"', sentences[0])
+        partial_said = [sentence for sentence in sentences
+                        if "Customs Compliance Record" in sentence
+                        and "Incident Reporting to Authority" in sentence
+                        and "Risk Assessment" in sentence]
+        self.assertEqual(len(partial_said), 1, sentences)
+        reason = partial_said[0].partition(":")[0]
+        self.assertRegex(reason, r"\bmarked ~ (?:because|since)\b.*"
+                                 r"\bqualified by the national AEO programme$")
+        only = [sentence for sentence in sentences
+                if re.search(r"\b(?:[Oo]nly the national AEO programme "
+                             r"qualifier\b[^.]*|national AEO programme "
+                             r"qualifier alone\b[^.]*)\bmoves\b[^.]*"
+                             r"\bmark to ~", sentence)]
+        self.assertEqual(len(only), 1, sentences)
+        others = [sentence for sentence in sentences
+                  if re.search(r"\b[Oo]ther conditions\b", sentence)]
+        self.assertEqual(len(others), 1, sentences)
+        self.assertRegex(others[0], r"\b[Oo]ther conditions\b[^.]*\bdo not\b")
+        self.assertRegex(others[0], r'"if necessary" in element K \(a\)')
+        # Draft safekey8: the key names the I (a) opening condition the map
+        # items quote, as one that does not move the mark. Draft safekey9
+        # (claude NOTE 2): I (a) is named once, and each of its conditions
+        # is quoted after it, tied to it: no other cited letter between
+        # I (a) and the quotation, nor between the quotation and the next
+        # double quotation mark, in any order or wording. Draft safekey10:
+        # each condition after the one I (a) mention is a deliberate wording
+        # contract (claude NOTE 1), and the key now also names held lines
+        # 4957 to 4958, "If access control is not possible" (claude NOTE 3).
+        self.assertEqual(others[0].count("I (a)"), 1, others[0])
+        at_i_a = others[0].find("I (a)") + len("I (a)")
+        for condition in ("in accordance with its business model and risk "
+                          "analysis", "If access control is not possible",
+                          "as appropriate and based on risk"):
+            with self.subTest(i_a_condition=condition[:24]):
+                quoted = f'"{condition}"'
+                self.assertEqual(others[0].count(quoted), 1, others[0])
+                at = others[0].find(quoted)
+                self.assertGreaterEqual(at, at_i_a, others[0])
+                tail = others[0][at + len(quoted):].partition('"')[0]
+                self.assertFalse([other for other in letters
+                                  if other in others[0][at_i_a:at]
+                                  or other in tail], others[0])
+        self.assertNotRegex(others[0], r"(?i)\bprogrammes?\b|\bqualifiers?\b")
+        pointer = [sentence for sentence in sentences
+                   if re.search(r"✓ domains\b[^.]*\bafter the table\b",
+                                sentence)]
+        self.assertEqual(len(pointer), 1, sentences)
+        for letter in ("F (b)", "F (a)"):
+            with self.subTest(list_for=letter):
+                self.assertRegex(" ".join(sentences),
+                                 re.escape(letter)
+                                 + r' in the list for the AEO alone\b[^"]*"')
+        said = [sentence for sentence in sentences if "L (a)" in sentence]
+        self.assertEqual(len(said), 1, sentences)
+        said_plans = said[0]
+        plans = said[0][said[0].index("L (a)"):]
+        self.assertRegex(plans, r"\bthe AEO and Customs are to develop and "
+                                r"document\b")
+        self.assertRegex(plans, r'"where advisable or necessary",[^.]*'
+                                r"\blimits only the coordination\b[^.]*"
+                                r"\bnot the requirement for the plans\b")
+        self.assertNotRegex(plans, r"\bAEO alone\b")
+        self.assertNotRegex(plans, r"\blimits (?:only )?the requirement\b")
+        said = [sentence for sentence in sentences if "C (a)" in sentence]
+        self.assertEqual(len(said), 1, sentences)
+        finance = said[0]
+        self.assertRegex(finance, r"\bfinancial indicators\b[^;]*"
+                                  r"\bratio measurements\b[^;]*"
+                                  r'"This process falls')
+        self.assertRegex(finance, r"\bprogramme reference covers that "
+                                  r"assessment process "
+                                  r"\(the ratio measurements\), "
+                                  r"not the requirement\b")
+        self.assertRegex(finance, r"\bnot the requirement\b[^.]*"
+                                  r"\bwithout a programme reference\b")
+        self.assertNotRegex(finance, r"\bcovers (?:only )?the requirement\b")
+        self.assertNotRegex(finance, r"\bstates plainly\b")
+        # Polarity (draft safekey6): a guarded sentence may hold a negation
+        # word only inside its own allowlist, each phrase exactly once.
+        # Draft safekey7 (claude WARN 1): none, nothing, nobody, nowhere, and
+        # the n't ending with a straight, U+2019 or U+02BC apostrophe.
+        negation = (r"(?i)\b(?:not|no|never|neither|nor|cannot|without"
+                    r"|none|nothing|nobody|nowhere)\b"
+                    r"|\b\w+n['’ʼ]t\b")
+        polarity = [("opening rule", sentences[0], ()),
+                    ("~ rule and reason", partial_said[0], ()),
+                    ("H (d) statement", [
+                        sentence for sentence in sentences
+                        if ("Incident Reporting to Authority", "H (d)")
+                        in paired(sentence)][0], ()),
+                    ("✓ rule", rule[0], ("without that qualifier",)),
+                    ("L (a) reading", said_plans,
+                     ("not the requirement for the plans",)),
+                    ("C (a) reading", finance,
+                     ("not the requirement",
+                      "without a programme reference")),
+                    ("exception", cargo[0], ()),
+                    ("only the programme qualifier", only[0], ()),
+                    ("other conditions", others[0],
+                     ("do not", "If access control is not possible")),
+                    ("pointer", pointer[0], ("is not named above",))]
+        # Draft safekey10 (claude WARN 1): the ten key strings are exactly
+        # the ten guarded strings, each selected by its own check once.
+        selected = [sentence for _, sentence, _ in polarity]
+        self.assertEqual(len(set(selected)), 10, selected)
+        self.assertEqual(sorted(selected), sorted(key_strings), selected)
+        polarity.append(("map lead-in", lead_in[0], ("does not place",)))
+        item_allowed = {"Personnel Security: Screening":
+                            ("not previously convicted",),
+                        # Draft safekey9 (claude NOTE 1): held line 4957.
+                        "Access Controls: Physical":
+                            ("If access control is not possible",)}
+        for item in items:
+            domain = item.partition(" rests on ")[0]
+            self.assertIn(domain, [known for known, _, _ in pairs], item)
+            polarity.append((f"item {domain}", item,
+                             item_allowed.get(domain, ())))
+        for name, sentence, allowed in polarity:
+            with self.subTest(polarity=name):
+                rest = sentence
+                for phrase in allowed:
+                    self.assertEqual(rest.count(phrase), 1, (phrase, sentence))
+                    rest = rest.replace(phrase, " | ")
+                self.assertNotRegex(rest, negation)
+        marks = {}
+        for line in section[start + 2:]:
+            if not line.startswith("| **"):
+                break
+            cells = line.split("|")
+            self.assertEqual(len(cells), 12, line)
+            marks[cells[1].strip().strip("*")] = cells[10].strip()
+        partial = {"Customs Compliance Record",
+                   "Incident Reporting to Authority", "Risk Assessment"}
+        self.assertLessEqual({"IT and Cybersecurity",
+                              "Security Assessment / Audit",
+                              "Business Continuity",
+                              "Cargo and Conveyance Security"}, set(marks))
+        self.assertEqual({domain for domain, mark in marks.items()
+                          if mark == "~"}, partial)
+        for domain, mark in marks.items():
+            if domain not in partial:
+                with self.subTest(domain=domain):
+                    self.assertEqual(mark, "✓")
+        self.assertEqual(re.findall(r"\bFinancial Solvency is marked ([✓~])",
+                                    finance),
+                         [marks["Financial Solvency"]])
+        rests = (("Security Policy and Governance", "G (a)"),
+                 ("Physical Security: Perimeter", "I (a)"),
+                 ("Physical Security: Facilities", "I (a)"),
+                 ("Access Controls: Physical", "I (a)"),
+                 ("Personnel Security: Screening", "J (a)"),
+                 ("Personnel Security: Training", "E (e)"),
+                 ("Cargo and Conveyance Security", "G (m)"),
+                 ("Seal Management", "G (d)"),
+                 ("Documentation and Manifest Accuracy", "F (a)"),
+                 ("Business Partner / Supplier Security", "K (b)"),
+                 ("IT and Cybersecurity", "F (b)"),
+                 ("Security Assessment / Audit", "M (b)"),
+                 ("Business Continuity", "L (a)"),
+                 ("Financial Solvency", "C (a)"))
+        self.assertEqual({domain for domain, _ in rests},
+                         set(marks) - partial)
+        for domain, letter in rests:
+            with self.subTest(rests=domain):
+                self.assertRegex(" ".join(sentences),
+                                 re.escape(domain)
+                                 + r" (?:mainly )?rests (?:mainly )?on element "
+                                 + re.escape(letter))
+        for sentence in sentences:
+            here = paired(sentence)
+            if not here:
+                continue
+            by_letter = [domain for domain, _ in sorted(
+                here, key=lambda pair: sentence.find(pair[1]))]
+            by_letter = [domain for at, domain in enumerate(by_letter)
+                         if at == 0 or domain != by_letter[at - 1]]
+            with self.subTest(order=sentence[:40]):
+                self.assertEqual(by_letter, sorted(
+                    [domain for domain in marks if domain in sentence],
+                    key=sentence.find))
+
     def test_gap_template_qualifies_aeo_s_attributions(self):
         """Class-wide search: the gap assessment template's Programme
         Source column attributed IT controls, annual reviews and incident
@@ -22204,6 +22774,101 @@ class ProgrammeClaimsTests(unittest.TestCase):
         (HELD_SAFE, 3432, "Mutual recognition is a broad concept whereby"),
         (HELD_SAFE, 3438, "administration."),
         (HELD_SAFE, 4535, "Pillar II (Customs-to-Business Partnerships)"),
+        (HELD_SAFE, 4631, "over a period determined by the national AEO "
+                          "programme"),
+        (HELD_SAFE, 4670, "is required to be in good financial standing "
+                          "which is sufficient to fulfil its commitments"),
+        (HELD_SAFE, 4671, "specific characteristics of its business model "
+                          "and activity."),
+        (HELD_SAFE, 4672, "can be utilized to establish ratio measurements "
+                          "which can help to identify the financial "
+                          "standing of the"),
+        (HELD_SAFE, 4673, "This process falls within the vetting and "
+                          "validation procedures of Members’ AEO "
+                          "programmes"),
+        (HELD_SAFE, 4674, "and should be considered in the totality of the "
+                          "situation for each operator."),
+        (HELD_SAFE, 4691, "through particular mechanisms set forth in the "
+                          "national AEO programme, notify an appropriate "
+                          "Customs"),
+        (HELD_SAFE, 4699, "d. through particular mechanisms set forth in the "
+                          "national AEO programme, provide timely "
+                          "notification to"),
+        (HELD_SAFE, 4740, "e. conduct specific training to assist employees "
+                          "in maintaining cargo integrity"),
+        (HELD_SAFE, 4796, "The AEO:"),
+        (HELD_SAFE, 4800, "Similarly, that AEO carriers have procedures in"),
+        (HELD_SAFE, 4801, "the information in the carrier’s cargo manifest "
+                          "accurately reflects the information"),
+        (HELD_SAFE, 4802, "provided to the carrier by the shipper or its "
+                          "agent, and is filed with Customs in a timely "
+                          "manner;"),
+        (HELD_SAFE, 4808, "b. have a documented information security policy "
+                          "and procedures and/or security-related controls"),
+        (HELD_SAFE, 4809, "in place to protect the AEO’s electronic systems "
+                          "from unauthorized access;"),
+        (HELD_SAFE, 4838, "develop and maintain a security policy manual or "
+                          "other tangible guidance"),
+        (HELD_SAFE, 4839, "which contains detailed guidelines on procedures"),
+        (HELD_SAFE, 4840, "to be followed to preserve the integrity of cargo "
+                          "while in its custody;"),
+        (HELD_SAFE, 4847, "d. ensure that written procedures are developed "
+                          "and utilized that stipulate how seals are to be "
+                          "controlled"),
+        (HELD_SAFE, 4881, "regularly examine, through particular mechanisms "
+                          "set forth in the national AEO programme, its "
+                          "security"),
+        (HELD_SAFE, 4897, "m. establish procedures to manage, secure and "
+                          "control all cargo in its custody during transport "
+                          "and while"),
+        (HELD_SAFE, 4898, "loading into or unloading from a transport "
+                          "conveyance;"),
+        (HELD_SAFE, 4917, "b. secure transport conveyances within its supply "
+                          "chain, to the extent and scope of its ability and"),
+        (HELD_SAFE, 4918, "responsibility, when left unattended,"),
+        (HELD_SAFE, 4928, "d. require operators, as specifically detailed in "
+                          "national AEO programmes, to report any actual or "
+                          "suspicious"),
+        (HELD_SAFE, 4954, "in accordance with its business model and risk "
+                          "analysis, implement security measures and "
+                          "procedures to"),
+        (HELD_SAFE, 4955, "secure buildings, as well as monitor and control "
+                          "exterior and interior perimeters"),
+        (HELD_SAFE, 4955, "interior perimeters and prohibit"),
+        (HELD_SAFE, 4956, "unauthorized access to facilities, transport "
+                          "conveyances, loading docks and cargo areas that "
+                          "may"),
+        (HELD_SAFE, 4957, "reasonably affect the security of its areas of "
+                          "responsibility in the supply chain."),
+        (HELD_SAFE, 4957, "If access control is not"),
+        (HELD_SAFE, 4958, "possible, increased precautions in other security "
+                          "aspects may be needed."),
+        (HELD_SAFE, 4959, "as appropriate and based on risk"),
+        (HELD_SAFE, 5013, "take all reasonable precautions when recruiting "
+                          "new staff to verify that they are not previously "
+                          "convicted"),
+        (HELD_SAFE, 5014, "of security-related, Customs or other criminal "
+                          "offences, to the extent permitted by national "
+                          "legislation;"),
+        (HELD_SAFE, 5052, "if necessary, when entering into negotiated "
+                          "contractual arrangements with a trading partner, "
+                          "encourage"),
+        (HELD_SAFE, 5057, "b. review relevant commercial information "
+                          "relating to the other contracting party before "
+                          "entering into"),
+        (HELD_SAFE, 5058, "contractual relations;"),
+        (HELD_SAFE, 5064, "The AEO and Customs:"),
+        (HELD_SAFE, 5066, "develop and document, in conjunction with the "
+                          "appropriate authorities, where advisable or "
+                          "necessary,"),
+        (HELD_SAFE, 5067, "contingency plans for emergency security "
+                          "situations and for disaster or terrorist incident "
+                          "recovery;"),
+        (HELD_SAFE, 5083, "regularly undertake, as specifically outlined in "
+                          "the national AEO programme, assessments of the "
+                          "security"),
+        (HELD_SAFE, 5085, "b. establish and conduct regular self-assessments "
+                          "of its security management system;"),
         (BRAZIL_OEA, 7, "PROGRAMA BRASILEIRO DE OEA"),
         (BRAZIL_OEA, 97, "Programa Brasileiro de OEA"),
         (ANPD_COOKIES, 47, "Autoridade Nacional de Proteção de Dados"),
