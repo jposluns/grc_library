@@ -2,8 +2,8 @@
 
 **Document Title:** Trade Compliance Programme Gap Assessment Template\
 **Document Type:** Template\
-**Version:** 1.0.8\
-**Date:** 2026-11-06\
+**Version:** 1.0.9\
+**Date:** 2026-11-07\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](procedure-aeo-united-kingdom-self-assessment.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`compliance/procedure-capa.md`](../procedure-capa.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md)\
@@ -25,7 +25,7 @@ This template provides a structured approach for assessing the organization's cu
 - Pre-audit preparation before regulatory body validation visits
 - Identifying controls that can serve multiple programmes simultaneously (shared evidence)
 
-The Programme Source column names the programmes whose requirements the organization maps each row to. For AEO-S, those attributions are the organization's own scoping, not HMRC text: the held HMRC criteria (UK HMRC AEO security and safety criteria handbook, section 11) set out no IT control, annual cycle or incident notification to HMRC. They name the computer system as an area the security and safety risk assessment is to address (section 11.2), and list software providers among the external service providers and expect the business's requirements to be stated in contracts (section 11.14), the held provision nearest to the third-party IT security controls row. Confirm each AEO-S attribution with HMRC before relying on it.
+The Programme Source column names the programmes whose requirements the organization maps each row to. For AEO-S, those attributions are the organization's own scoping, not HMRC text, except where a held section holds them: the held HMRC security and safety criteria (UK HMRC AEO security and safety criteria handbook, section 11) set out no IT control, and no held section names an annual cycle. Section 11 names the computer system as an area the security and safety risk assessment is to address (section 11.2), and lists software providers among the external service providers and expects the business's requirements to be stated in contracts (section 11.14), the held provision nearest to the third-party IT security controls row. The record keeping criterion, which section 1.4 of the HMRC Customs Technical Handbook (AEO) lists among the AEO-S criteria, asks for appropriate information technology security measures to protect computer systems from unauthorized intrusion and to secure documentation and data (section 8.1), with detail under back-up, recovery, fallback and archiving (section 8.9), protection of computer systems, naming firewalls, anti-virus and other malware protection, a business continuity or disaster recovery plan, back-up routines, logs of each user and their actions and periodic vulnerability management (section 8.10), access rights procedures, including the format for setting passwords (section 8.11), and documentation security (section 8.12); those sections are the held provisions nearest to the access control, vulnerability management, network and firewall, business continuity and IT recovery, and audit logging rows, and no held section names multi-factor authentication. Section 12.2 recommends that the business continue to self-assess its compliance with the conditions of the authorization, the held provision nearest to the internal security audit or self-assessment row. Section 12.4 of the HMRC Customs Technical Handbook (AEO) says businesses must notify HMRC of all changes that may affect their AEO status, including disclosure of security incidents, and should notify the AEO Central Site as soon as the change is known or, at the latest, within 14 calendar days of the change, using form C122; the security incident reporting row cites it. Where a row names a section of the HMRC Customs Technical Handbook (AEO) beside AEO-S, that attribution rests on the held section named, to the extent the row states. Confirm each other AEO-S attribution with HMRC before relying on it.
 
 ---
 
@@ -95,7 +95,7 @@ Complete the following fields for each gap assessment.
 | Requirement Area | Programme Source | Current Control or Evidence | Gap Description | Gap Severity | Remediation Action | Target Date | Owner |
 |---|---|---|---|---|---|---|---|
 | Cargo receiving and verification procedures | CTPAT; PIP; AEO-S; BASC | | | | | | |
-| Documentation accuracy: manifests, declarations, bills of lading | CTPAT; PIP; AEO-S; NEEC | | | | | | |
+| Documentation accuracy: manifests, declarations, bills of lading | CTPAT; PIP; AEO-S (customs declarations only: HMRC Customs Technical Handbook (AEO), sections 8.1 and 8.7, which name neither manifests nor bills of lading; section 2.4 names a bill of lading only in describing a carrier); NEEC | | | | | | |
 | Outbound cargo inspection before loading | CTPAT; PIP; AEO-S | | | | | | |
 | Chain of custody documentation across handoffs | CTPAT; AEO-S; ISO 28000:2022. ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating this attribution as verified. <!-- ref-absence: ISO 28000:2022 --> | | | | | | |
 | Procedures for detecting and reporting anomalies | CTPAT; PIP; BASC | | | | | | |
@@ -136,7 +136,7 @@ Complete the following fields for each gap assessment.
 
 | Requirement Area | Programme Source | Current Control or Evidence | Gap Description | Gap Severity | Remediation Action | Target Date | Owner |
 |---|---|---|---|---|---|---|---|
-| Documented procedure for reporting security incidents to programme authority | CTPAT; PIP; AEO-S; BASC | [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md) | | | | | |
+| Documented procedure for reporting security incidents to programme authority | CTPAT; PIP; AEO-S (HMRC Customs Technical Handbook (AEO) section 12.4: disclosure of security incidents to HMRC, as a change that may affect AEO status, notified to the AEO Central Site on form C122 within 14 calendar days at the latest); BASC | [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md) | | | | | |
 | Communication with customs authorities during supply chain disruption | CTPAT; PIP; AEO-S | | | | | | |
 | Post-incident review and corrective action | All programmes | [`compliance/procedure-capa.md`](../procedure-capa.md) | | | | | |
 
@@ -146,10 +146,10 @@ Complete the following fields for each gap assessment.
 
 | Requirement Area | Programme Source | Current Control or Evidence | Gap Description | Gap Severity | Remediation Action | Target Date | Owner |
 |---|---|---|---|---|---|---|---|
-| History of customs compliance: declarations, duty payments | AEO-S (mandatory); AEO (mandatory); CTPAT | | | | | | |
-| No serious or repeated infringements of customs rules | AEO-S; AEO; NEEC; OEA | | | | | | |
-| Adequate record-keeping systems with audit trail | AEO-S; AEO; CTPAT | | | | | | |
-| Financial solvency evidence | AEO-S; AEO; CTPAT | | | | | | |
+| History of customs compliance: declarations, duty payments | AEO-S (required criterion: under the HMRC Customs Technical Handbook (AEO), section 1.4, AEO-S status is issued to a business that fulfils the criterion of customs compliance and the other criteria that section lists, and section 7.1 sets the conditions applicants must adhere to and says HMRC examines their record of compliance with customs and tax requirements over the 3 years before the application); AEO (mandatory); CTPAT | | | | | | |
+| No serious or repeated infringements of customs rules | AEO-S (HMRC Customs Technical Handbook (AEO), section 7.1); AEO; NEEC; OEA | | | | | | |
+| Adequate record-keeping systems with audit trail | AEO-S (HMRC Customs Technical Handbook (AEO), section 8.1); AEO; CTPAT | | | | | | |
+| Financial solvency evidence | AEO-S (HMRC Customs Technical Handbook (AEO), sections 9.1 and 9.2); AEO; CTPAT | | | | | | |
 
 ---
 

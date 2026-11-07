@@ -2,8 +2,8 @@
 
 **Document Title:** Third-Party and Supply Chain Risk Standard\
 **Document Type:** Standard\
-**Version:** 1.1.19\
-**Date:** 2026-11-06\
+**Version:** 1.1.20\
+**Date:** 2026-11-07\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../supply-chain/procedure-supplier-ongoing-monitoring.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](../supply-chain/procedure-supplier-exit-and-data-return.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -137,7 +137,7 @@ Continuous or periodic monitoring activities for critical and high-tier third pa
 | Financial health check | Quarterly | Semi-annually | Credit reports; financial statements |
 | Security posture review | Quarterly | Semi-annually | Updated questionnaire; security ratings service |
 | Incident and breach notification review | Ongoing, trigger-based | Ongoing, trigger-based | Incident reports; threat intelligence |
-| Trade compliance status verification | Annually; on renewal | Annually | CBP/HMRC/CBSA verification portals |
+| Trade compliance status verification | Annually; on renewal | Annually | CBP and CBSA verification portals; HMRC (AEO-S status verification route not confirmed by a held source; confirm with HMRC) |
 | Contractual obligation compliance | Quarterly | Semi-annually | SLA reporting; invoice review |
 | Fourth-party (sub-contractor) monitoring | Semi-annually | Annually | Sub-contractor disclosure; spot checks |
 | Business continuity test participation | Annually | Where applicable | Joint continuity exercises |

@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Exit and Data Return Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.6\
-**Date:** 2026-11-06\
+**Version:** 1.0.7\
+**Date:** 2026-11-07\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](standard-cloud-exit-and-data-portability.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md)\
@@ -60,7 +60,7 @@ This procedure defines the steps for managing the termination of a supplier rela
 |---|---|---|
 | 1.1 Document the exit decision and reason | Contract Owner | Before initiating notice |
 | 1.2 Review contract for termination notice period and obligations | Legal | Immediately |
-| 1.3 Assess whether the exit triggers any trade compliance programme reporting obligations (e.g., change of approved service providers under CTPAT; for AEO-S, the held HMRC criteria (UK HMRC AEO security and safety criteria handbook, section 11) name no such reporting obligation, so confirm with HMRC) | Trade Compliance Manager | Within 3 business days |
+| 1.3 Assess whether the exit triggers any trade compliance programme reporting obligations (e.g., change of approved service providers under CTPAT; for AEO-S, section 12.4 of the HMRC Customs Technical Handbook (AEO) says businesses must notify HMRC of all changes that may affect their AEO status, its list including changes to accounting or computer systems and additions or deletions of locations or branches involved in the international supply chain, so assess whether the exit is such a change and, if it is, notify the AEO Central Site as soon as the change is known or, at the latest, within 14 calendar days of the change, using form C122) | Trade Compliance Manager | Within 3 business days |
 | 1.4 Issue formal written notice of termination to the supplier as per contract terms | Legal | Per contract notice period |
 | 1.5 Notify internal stakeholders: IT, Finance, Operations, DPO, HR where relevant | Contract Owner / Supplier Risk Manager | Within 3 business days of decision |
 | 1.6 Initiate contingency planning: identify alternate supplier or transition path | Resilience Manager / Operations | Immediately for Tier 1 |

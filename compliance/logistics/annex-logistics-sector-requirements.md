@@ -2,8 +2,8 @@
 
 **Document Title:** Logistics Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.34\
-**Date:** 2026-10-26\
+**Version:** 1.0.35\
+**Date:** 2026-11-07\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../../supply-chain/annex-trade-and-supply-chain-continuity-controls.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md)\
@@ -182,14 +182,12 @@ ICAO's Aviation Cybersecurity Strategy (October 2019, published under the author
 
 ### HMRC post-brexit customs obligations (UK)
 
-Following the UK's departure from the EU, all organizations moving goods between the UK and EU must comply with UK customs requirements administered by HMRC. Key technology-related obligations:
+Following the UK's departure from the EU, all organizations moving goods between the UK and EU must comply with UK customs requirements administered by HMRC. Key technology-related items follow; the CDS row states no obligation, because no held source confirms one:
 
 | Obligation | Detail | GRC Library Mapping |
 |---|---|---|
-| **Customs Declaration Service (CDS)** | Electronic customs declarations must be filed through CDS | Systems compliance with CDS API requirements |
-| **CHIEF to CDS migration** | All declarants must have migrated from CHIEF to CDS | Systems audit and update |
+| **Customs Declaration Service (CDS)** | Not confirmed by a held source: the held HMRC Customs Technical Handbook (AEO) sections do not cover CDS, so no filing or API requirement is stated here; confirm current HMRC guidance before relying on one | Confirm declaration systems against current HMRC CDS guidance |
 | **AEO-S status maintenance** | UK AEO-S requires ongoing compliance with HMRC security criteria | [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md); [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](procedure-aeo-united-kingdom-self-assessment.md) |
-| **TSP (Trusted Smart Freight)** | HMRC's Trusted Smart Freight partnerships for digital customs | Emerging obligation: monitor HMRC guidance |
 | **GDPR / UK GDPR for shipment data** | Personal data in shipping documents (consignee names, etc.) | [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md) |
 
 ---
@@ -238,7 +236,7 @@ For organizations operating or managing connected vehicle fleets:
 | OT asset inventory and segmentation standards | IEC 62443; NIST SP 800-82 | Supplement asset register and security standards with OT-specific requirements |
 | OT incident response procedure | IEC 62443; TSA Directives | Supplement incident response procedure with OT safety considerations |
 | UNECE R155 CSMS documentation | UNECE WP.29 R155 | Create CSMS documentation framework (vehicle fleet operators/manufacturers) |
-| HMRC CDS API compliance | HMRC CDS | Verify customs declaration systems are CDS-compliant; maintain API access credentials |
+| HMRC CDS requirements (not confirmed by a held source) | HMRC CDS | Confirm customs declaration systems against current HMRC CDS guidance; no held source confirms a CDS filing or API requirement |
 | CIRCIA cyber incident reporting procedure | CIRCIA; TSA | Create CIRCIA-compliant reporting procedure for US critical infrastructure |
 | Aviation cybersecurity programme | ICAO Aviation Cybersecurity Strategy; CAA CAP 1753 | Create aviation cybersecurity programme document (aviation operators) |
 
