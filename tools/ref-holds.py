@@ -968,11 +968,62 @@ def _identity_is_adopter(identity: dict) -> bool:
     probe FAILURE (e.g. a subprocess timeout, rc 124) into a None origin, which
     ``probe_identity`` then classifies as ``adopter``; keying on that classification
     alone would let a MAINTAINER's transient git timeout silently no-op the
-    missing-grc_library_ref HALT. Fail SAFE: only a positively-read fork/private
-    origin degrades; a None origin, a maintainer origin, or any missing field ->
-    False (loud). Pure + injectable so the fail-safe is regression-locked (the
-    guard-input pure-decision-behind-a-thin-observer discipline)."""
+    missing-grc_library_ref HALT. Fail SAFE: a None origin, a maintainer origin,
+    an undecidable origin (below), or any missing field -> False (loud); only an
+    origin that detect-env reads as a clean, non-maintainer value degrades. That
+    reading is NOT proof of a fork or private clone: see the known residuals
+    below. Pure + injectable so the fail-safe is regression-locked (the
+    guard-input pure-decision-behind-a-thin-observer discipline).
+
+    A line break (LF or CR) anywhere in ``origin_url`` makes the identity
+    UNDECIDABLE (3b801). A git remote URL is normally one line, so a line break
+    is ambiguous: it may be extra output captured with the URL, or part of a
+    configured remote value that itself contains a line break. It is not proof
+    that extra output was captured; either way the value cannot be read as one
+    URL. detect-env's ``run`` joins git's stdout and stderr, so with GIT_TRACE
+    set (or any other non-whitespace stderr output) a maintainer origin arrives
+    as the URL, a LF and the extra output; detect-env then reads it as a
+    non-maintainer origin, and the flag check alone would wrongly treat the
+    operator as an adopter. An undecidable identity is handled like a None
+    origin: False, so a missing grc_library_ref stays the LOUD exit 2 (the ERROR
+    line, not the adopter advisory).
+
+    Scope: this pure helper validates the detector's NORMALIZED value, not the
+    raw git output; ref-holds does no raw-origin validation. detect-env strips
+    leading and trailing whitespace (``run`` and ``_origin_url``) before
+    ref-holds sees the value, so on the detector path only an INTERNAL line
+    break reaches this check, and a leading or trailing line break in the raw
+    output is lost before validation (around an otherwise clean maintainer URL
+    that loss alone does not create a false adopter). detect-env's ``run`` also
+    captures in text mode, which translates CR and CRLF to LF, so a CR from git
+    never reaches this check as a CR: the CR branch is defensive, for a dict
+    from any other producer. ref-holds does not re-read the raw value:
+    non-whitespace stderr output follows the URL behind an internal LF, so it
+    survives the strip, and re-running git here would also duplicate
+    detect-env's canonical origin probe (the guard-input single-source rule).
+
+    Backlog item 3b796 applies a STRICTER origin rule to
+    build-reference-manifest.py, but it is pending on its own unmerged branch
+    and is not part of this tree. Aligning ref-holds with 3b796 (one shared
+    origin decision that both tools call) is a tracked follow-up.
+
+    Known residuals (not closed here): a MAINTAINER clone still reads as an
+    adopter whenever detect-env reads a clean, non-maintainer origin for it,
+    namely with (a) an inherited GIT_DIR, alone or with GIT_WORK_TREE, naming a
+    fork's repository; (b) a ``url.<base>.insteadOf`` or ``remote.origin.url``
+    rewrite in repository, global or system configuration, or through
+    GIT_CONFIG_* variables; or (c) an SSH host alias, which detect-env's
+    ``_origin_is_maintainer`` already calls a recoverable false ADOPTER for
+    ``/orch``, or a mirror host, which that function handles as the same
+    non-GitHub-host case. Here none of them is recoverable that way: ref-holds
+    silently skips the missing-grc_library_ref failure (exit 0 with the adopter
+    advisory instead of the LOUD exit 2)."""
     origin_url = identity.get("origin_url")
+    if isinstance(origin_url, str) and ("\n" in origin_url or "\r" in origin_url):
+        # 3b801: a line break makes the value ambiguous (not readable as one URL);
+        # undecidable. The CR test is defensive: detect-env's text-mode capture
+        # already turns CR and CRLF into LF.
+        return False
     # Degrade ONLY on a fully-formed non-maintainer identity: a non-empty STRING
     # origin_url AND the maintainer flag EXACTLY False. isinstance-guarding the url
     # (probe_identity yields str|None) and requiring `is False` make the decision
@@ -986,11 +1037,16 @@ def _identity_is_adopter(identity: dict) -> bool:
 
 
 def _operator_is_adopter() -> bool:
-    """True ONLY if the operator has a positively-read, non-maintainer origin (see
+    """True ONLY if detect-env reads a clean, non-maintainer origin (see
     _identity_is_adopter). Maintainer / maintainer-fresh-machine / undetermined /
-    absent-or-unreadable origin / any error -> False, so a maintainer's
-    genuinely-missing grc_library_ref stays a LOUD exit-2 failure (the 1.19.7
-    (closing PR #1007) loud gate that /orch relies on). Reuses the SINGLE canonical
+    absent-or-unreadable origin / an origin with a line break (undecidable) /
+    any error -> False, so a maintainer's genuinely-missing grc_library_ref stays
+    a LOUD exit-2 failure (the 1.19.7 (closing PR #1007) loud gate that /orch
+    relies on). A clean non-maintainer reading is not proof of a fork: an
+    inherited GIT_DIR naming a fork, an insteadOf or remote.origin.url rewrite,
+    or an SSH host alias or mirror still reads a maintainer clone as an adopter
+    and silently skips that failure (the known residuals listed in
+    _identity_is_adopter). Reuses the SINGLE canonical
     identity source (detect-env.py) via importlib (the file is hyphenated, so not
     import-able by name) rather than duplicating the origin check here (the
     guard-input single-source discipline). Only reached on the rare absent-ref
