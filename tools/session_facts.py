@@ -37,8 +37,9 @@ A heartbeat older than 24h caps both metrics at that last observation.
 Accepted compaction rows count inclusively from the session start to now (or
 the heartbeat when stale), reading minute-form stamps as zero seconds and
 dropping rows after that window without warning, except that a minute-form
-row in the start minute with nonzero start seconds makes the count UNKNOWN
-with a warning because its position before or after the start is unknown.
+row in the start minute with nonzero start seconds, or any row in the start
+minute of a minute-precision id, makes the count UNKNOWN with a warning
+because its position before or after the start is unknown.
 With a known session start, a minute-form row in a stale heartbeat's minute
 also makes the count UNKNOWN with a warning regardless of heartbeat seconds,
 because part of that minute lies after the heartbeat.

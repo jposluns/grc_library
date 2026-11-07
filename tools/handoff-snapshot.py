@@ -18,8 +18,8 @@ Sources of truth (each the canonical one, so the emitted number cannot drift fro
                                        the pre-push guard to confirm; this tool only
                                        reports the sha, it does not run the guard).
   - Session start (lease)            : session-state.md in the resolved working store;
-                                       only an Active-session id in the shared
-                                       lease-id grammar (tools/lease_id.py)
+                                       only a stamped <label>-<stamp>
+                                       Active-session id (tools/lease_id.py)
                                        supplies a start; otherwise UNKNOWN.
   - Compaction count (optional)      : degradation-watch-log.md in that store.
                                        Log timestamps never select the session start.

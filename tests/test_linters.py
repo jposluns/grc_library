@@ -45207,7 +45207,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         git-hooks/commit-msg MESSAGE F 613cecec0514f4a7bdd8a22824dd4bbe1deabd695d86f8b9b7f1533a83efeb44
         git-hooks/pre-commit FIXED F 5562a444ef55842d3d8cc6bd49abbb447a333a4e447736c3a681d562e47aaa0c
         git-hooks/pre-push TRANSPORT F 598806d6ab27e039ae858a935fa02813ba52588bd7ba2fab6586d27bd76d4267
-        handoff-snapshot.py NO_FS F 22c4eafa4c4626b51bd09519af4c7f9cac215f6dff003aa8d42e002bf6bb832e
+        handoff-snapshot.py NO_FS F f402315b516e0c688956f838b091f7a1fe802f6fba920e1677ca117573acb916
         historical_citation_register.py PASSIVE F deb457b7487c069a6f1602b6a4160e1ce922da6a82a523b288dfee151d3b0236
         install-git-hooks.sh FIXED F a0010c29758bda7824fdd000e5400c5aa6c3dd13563c9cf3bc4c35acc53b286c
         iso27001_reference.py PASSIVE F 01119eacf328d0bfe36ae40f9800a6c7fe37ef895bca70b219341ac07aec53e3
@@ -45338,7 +45338,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         run_all_audits.sh FIXED F ec86a76e9dec99394069b2fccab2fb84c152f9e9a16214f02358d8e2c60862fc
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900
-        session_facts.py PASSIVE F f75296107bcbe6f5a4bf13f42853fc96808013edb3882dfedfd23b2b8654efb9
+        session_facts.py PASSIVE F 51db88eba5c34d0e5360dea5f57472f6213768daf122579828c9b92511d14470
         skill-verdict-fields.json DATA F fba56d7e70141647fcad92824591d65a0208c6e6b623caaff82bfcb62bbd06aa
         standards-currency-unpinned-baseline.json DATA F 3731e576e0d0afbabdbe3fc1b88cddd2e6865c39e032457dd84e4ccc11f4d4b2
         statusline-next-pr.py NO_FS F 81db4327eb56260c362e61edbae2a7c7c2fd426df579fe21d57638cfd7b55223
