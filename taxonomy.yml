@@ -13515,7 +13515,7 @@ documents:
   domain: "supply-chain"
   type: "Matrix"
   title: "Supply Chain Security Programme Alignment Matrix"
-  version: "1.0.15"
+  version: "1.0.16"
   date: "2026-11-07"
   owner: "Supplier Risk Maintainer"
   approving_authority: "Governance Library Maintainer"
