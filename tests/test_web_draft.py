@@ -19834,8 +19834,8 @@ class ProgrammeClaimsTests(unittest.TestCase):
     tools/audit-reference-breadth.py), so a form feed or a Unicode line
     separator inside a line does not start a new one.
 
-    The class has 75 tests: 63 corpus regression tests, 7 self-checks and
-    5 held-source consistency checks.
+    The class has 77 tests: 64 corpus regression tests, 7 self-checks and
+    6 held-source consistency checks.
 
     The corpus regression tests read the corpus files directly (no site
     render) and are written to fail when their fix is reverted. The
@@ -19854,7 +19854,7 @@ class ProgrammeClaimsTests(unittest.TestCase):
     They read the held extracts or the reference catalogue, so they run
     only when the reference corpus is present (GRC_REF_PATH or a sibling
     grc_library_ref checkout) and skip without it; CI holds no reference
-    corpus, so they run locally only. Three of them read only the
+    corpus, so they run locally only. Four of them read only the
     extracts, so reverting a corpus correction cannot make them fail: they
     test what the corpus's citations rest on.
     test_glossary_oea_row_names_every_compendium_oea_title also reads the
@@ -19867,6 +19867,7 @@ class ProgrammeClaimsTests(unittest.TestCase):
         "test_safe_basc_search_result_holds",
         "test_glossary_oea_row_names_every_compendium_oea_title",
         "test_cited_held_lines_carry_their_text",
+        "test_supply_matrix_wco_safe_incident_quotations_are_held",
         "test_reference_manifest_set_aside_titles_are_catalogue_titles")
     # Round 8 (review round 3, claude NOTE 4): the tests that read neither
     # a corpus file nor a held extract.
@@ -22278,7 +22279,27 @@ class ProgrammeClaimsTests(unittest.TestCase):
         Access Controls: Physical rest on element I (a).". The rests check
         above still holds each ✓ domain to "<domain> rests on element" and
         its letter, so in the held text a ✓ domain written in a list
-        subject fails that check until the test changes with it.
+        subject fails that check until the test changes with it. Draft
+        3b807 (maintainer decision D-0137-SAFE-INCIDENT-MARK, 2026-11-07):
+        Incident Reporting to Authority mainly rests on element H (f) (held
+        lines 4936 to 4938), "notify Customs, or other relevant body, of any
+        unusual, suspicious or actual breach of transport conveyance
+        security", which carries no national AEO programme qualifier, so its
+        WCO SAFE cell is now ✓. Its map item rests it on H (f) and names
+        element G (d) (held lines 4847 to 4850) as a second plain reporting
+        requirement, quoting "for recognizing and reporting compromised
+        seals, cargo and/or transport conveyances to the Customs
+        administration or the appropriate foreign authority". The ~ rule now
+        names Customs Compliance Record and Risk Assessment only and no
+        longer cites element D (c and d); the H (d) statement is kept. The ~
+        domains are now exactly those two: the ~ sentence must name both and
+        no other domain of the table, the ~ cells must be exactly those two,
+        and every other cell, Incident Reporting to Authority among them,
+        must be ✓ and placed exactly once by a rests phrase. Draft 3b807
+        round 2 (claude W1, codex W1, agy N1): the H (d) statement followed a ~
+        sentence that no longer named the domain, so a reader took the
+        domain as ~; it now names the domain as a ✓ domain whose main
+        element is listed after the table, and it is pinned exactly.
 
         Completeness probe for this class: a negation word is not, no,
         never, neither, nor, cannot, without, none, nothing, nobody or
@@ -22405,7 +22426,9 @@ class ProgrammeClaimsTests(unittest.TestCase):
                           if not part.endswith(".")], [], key_strings)
         self.assertEqual(len(re.findall(r"[.?!…]", key)), 10, key)
         sentences = key_strings + items
-        letters = ("A (a)", "D (c and d)", "M (a)", "G (g)", "H (d)",
+        # Draft 3b807: the key no longer cites D (c and d); the map item for
+        # Incident Reporting to Authority cites H (f).
+        letters = ("A (a)", "M (a)", "G (g)", "H (d)", "H (f)",
                    "F (b)", "M (b)", "L (a)", "C (a)", "G (a)", "I (a)",
                    "J (a)", "E (e)", "G (m)", "H (b)", "G (d)", "F (a)",
                    "K (a)", "K (b)")
@@ -22467,9 +22490,12 @@ class ProgrammeClaimsTests(unittest.TestCase):
              "relations"),
             ("Customs Compliance Record", "A (a)",
              "determined by the national AEO programme"),
-            ("Incident Reporting to Authority", "D (c and d)",
-             "through particular mechanisms set forth in the national "
-             "AEO programme"),
+            # Draft 3b807: held lines 4937 to 4938 (H f) and 4848 to 4850
+            # (G d).
+            ("Incident Reporting to Authority", "H (f)",
+             self._SAFE_H_F),
+            ("Incident Reporting to Authority", "G (d)",
+             self._SAFE_G_D_REPORTING),
             ("Incident Reporting to Authority", "H (d)",
              "require operators, as specifically detailed in national "
              "AEO programmes, to report any actual or suspicious"),
@@ -22534,12 +22560,12 @@ class ProgrammeClaimsTests(unittest.TestCase):
         # it, so "since" here would pass a sentence whose only words after
         # the mark are a date. The ~ check below may keep "since" (draft
         # h3b799, 3b795 review, claude NOTE 1): it reads the ~ sentence up
-        # to its first colon, where the key's A (a), D (c and d) and M (a)
-        # quotations begin, and needs the text after the conjunction to end
-        # "qualified by the national AEO programme", so the reason follows
-        # the conjunction whichever word it is; "marked ~ since 2025:"
-        # fails, though a time phrase inside that span ahead of the reason
-        # still passes.
+        # to its first colon, where the key's A (a) and M (a) quotations
+        # begin (draft 3b807 removed D (c and d)), and needs the text after
+        # the conjunction to end "qualified by the national AEO programme",
+        # so the reason follows the conjunction whichever word it is;
+        # "marked ~ since 2025:" fails, though a time phrase inside that
+        # span ahead of the reason still passes.
         self.assertRegex(rule[0], r"\bother\b[^.]*\bdomains\b[^.]*"
                                   r"\bmarked ✓ because\b")
         self.assertRegex(cargo[0], r"✓ domain (?:can|may) (?:still )?contain "
@@ -22549,14 +22575,31 @@ class ProgrammeClaimsTests(unittest.TestCase):
         self.assertRegex(sentences[0], r"\beach domain['’]s mark follows the "
                                        r"element\b[^.]*\bmainly rests on\b")
         self.assertIn('"This element requires that"', sentences[0])
+        # Draft 3b807: the ~ sentence names Customs Compliance Record and
+        # Risk Assessment, and not Incident Reporting to Authority; below,
+        # the domains it names must be exactly the ~ cells.
         partial_said = [sentence for sentence in sentences
                         if "Customs Compliance Record" in sentence
-                        and "Incident Reporting to Authority" in sentence
-                        and "Risk Assessment" in sentence]
+                        and "Risk Assessment" in sentence
+                        and "marked ~" in sentence]
         self.assertEqual(len(partial_said), 1, sentences)
+        self.assertNotIn("Incident Reporting to Authority", partial_said[0])
         reason = partial_said[0].partition(":")[0]
         self.assertRegex(reason, r"\bmarked ~ (?:because|since)\b.*"
                                  r"\bqualified by the national AEO programme$")
+        # Draft 3b807 round 2 (claude W1, codex W1, agy N1): the H (d) statement
+        # follows the ~ sentence, so it names its domain and that domain's ✓
+        # mark itself; a reader cannot then take the domain as ~.
+        h_d = [sentence for sentence in sentences
+               if ("Incident Reporting to Authority", "H (d)")
+               in paired(sentence)]
+        self.assertEqual(h_d, [
+            "Incident Reporting to Authority, a ✓ domain whose main element "
+            "is listed after the table, also contains a qualified sub-item, "
+            'element H (d), under which the AEO is to "require operators, as '
+            "specifically detailed in national AEO programmes, to report any "
+            'actual or suspicious" incident to designated security department '
+            "staff of both the AEO and Customs."])
         only = [sentence for sentence in sentences
                 if re.search(r"\b(?:[Oo]nly the national AEO programme "
                              r"qualifier\b[^.]*|national AEO programme "
@@ -22680,14 +22723,21 @@ class ProgrammeClaimsTests(unittest.TestCase):
             cells = line.split("|")
             self.assertEqual(len(cells), 12, line)
             marks[cells[1].strip().strip("*")] = cells[10].strip()
-        partial = {"Customs Compliance Record",
-                   "Incident Reporting to Authority", "Risk Assessment"}
+        partial = {"Customs Compliance Record", "Risk Assessment"}
         self.assertLessEqual({"IT and Cybersecurity",
                               "Security Assessment / Audit",
                               "Business Continuity",
-                              "Cargo and Conveyance Security"}, set(marks))
+                              "Cargo and Conveyance Security",
+                              "Incident Reporting to Authority"}, set(marks))
         self.assertEqual({domain for domain, mark in marks.items()
                           if mark == "~"}, partial)
+        # Draft 3b807: the ~ sentence names exactly the ~ domains, each once.
+        self.assertEqual(sorted(domain for domain in marks
+                                if domain in partial_said[0]),
+                         sorted(partial))
+        for domain in partial:
+            with self.subTest(partial_named=domain):
+                self.assertEqual(partial_said[0].count(domain), 1)
         for domain, mark in marks.items():
             if domain not in partial:
                 with self.subTest(domain=domain):
@@ -22705,6 +22755,7 @@ class ProgrammeClaimsTests(unittest.TestCase):
                  ("Seal Management", "G (d)"),
                  ("Documentation and Manifest Accuracy", "F (a)"),
                  ("Business Partner / Supplier Security", "K (b)"),
+                 ("Incident Reporting to Authority", "H (f)"),
                  ("IT and Cybersecurity", "F (b)"),
                  ("Security Assessment / Audit", "M (b)"),
                  ("Business Continuity", "L (a)"),
@@ -22812,6 +22863,54 @@ class ProgrammeClaimsTests(unittest.TestCase):
                 self.assertEqual(by_letter, sorted(
                     [domain for domain in marks if domain in sentence],
                     key=sentence.find))
+
+    # Draft 3b807: WCO SAFE Framework (2025 edition) Annex IV element H
+    # (Conveyance Security, held line 4908), item f (held lines 4936 to
+    # 4938), without the item's closing full stop; and element G (Cargo
+    # Security, held line 4831), item d (held lines 4847 to 4850), from
+    # "for recognizing" to the end of the item, without its semicolon.
+    # _HELD_CITATIONS holds each line these quotations span, and
+    # test_supply_matrix_wco_safe_incident_quotations_are_held (draft 3b807
+    # round 2, N3) checks each against its joined held lines.
+    _SAFE_H_F = ("notify Customs, or other relevant body, of any unusual, "
+                 "suspicious or actual breach of transport conveyance "
+                 "security")
+    _SAFE_G_D_REPORTING = ("for recognizing and reporting compromised "
+                           "seals, cargo and/or transport conveyances to the "
+                           "Customs administration or the appropriate "
+                           "foreign authority")
+
+    def test_supply_matrix_wco_safe_incident_reporting_rests_on_h_f(self):
+        """Draft 3b807 (maintainer decision D-0137-SAFE-INCIDENT-MARK,
+        2026-11-07): the WCO SAFE cell for Incident Reporting to Authority
+        is ✓, because the element it mainly rests on, Annex IV H (f) (held
+        lines 4936 to 4938), states a plain requirement, with no national
+        AEO programme qualifier. The map after the table holds exactly one
+        item for the domain; it rests the domain on element H (f), quoting
+        the whole item as held, and then names element G (d) (held lines
+        4847 to 4850) as a second plain reporting requirement, quoting it
+        as held, without a second rests phrase. The held quotations are
+        pinned here and their held lines in _HELD_CITATIONS; the WCO SAFE
+        key test holds the ~ set and the two-way rests rule."""
+        self.assertEqual(self._matrix_cell(
+            "| **Incident Reporting to Authority** |", 10), "✓")
+        section = self._section_lines(self.SUPPLY_MATRIX,
+                                      "## Security domain alignment matrix")
+        items = [line for line in section
+                 if line.startswith("- Incident Reporting to Authority ")]
+        self.assertEqual(items, [
+            "- Incident Reporting to Authority rests on element H (f), "
+            f'"{self._SAFE_H_F}", and element G (d) states a second plain '
+            f'reporting requirement, procedures "{self._SAFE_G_D_REPORTING}".'
+        ])
+        item = items[0]
+        self.assertEqual(item.count(f'"{self._SAFE_H_F}"'), 1, item)
+        self.assertEqual(item.count(f'"{self._SAFE_G_D_REPORTING}"'), 1, item)
+        self.assertEqual(len(re.findall(r"\brests? on elements?\b", item)), 1,
+                         item)
+        self.assertLess(item.find("H (f)"), item.find(f'"{self._SAFE_H_F}"'))
+        self.assertLess(item.find(f'"{self._SAFE_H_F}"'), item.find("G (d)"))
+        self.assertNotIn("national AEO programme", item)
 
     def test_gap_template_qualifies_aeo_s_attributions(self):
         """Class-wide search: the gap assessment template's Programme
@@ -23822,12 +23921,6 @@ class ProgrammeClaimsTests(unittest.TestCase):
                           "programmes"),
         (HELD_SAFE, 4674, "and should be considered in the totality of the "
                           "situation for each operator."),
-        (HELD_SAFE, 4691, "through particular mechanisms set forth in the "
-                          "national AEO programme, notify an appropriate "
-                          "Customs"),
-        (HELD_SAFE, 4699, "d. through particular mechanisms set forth in the "
-                          "national AEO programme, provide timely "
-                          "notification to"),
         (HELD_SAFE, 4740, "e. conduct specific training to assist employees "
                           "in maintaining cargo integrity"),
         (HELD_SAFE, 4796, "The AEO:"),
@@ -23841,6 +23934,7 @@ class ProgrammeClaimsTests(unittest.TestCase):
                           "and procedures and/or security-related controls"),
         (HELD_SAFE, 4809, "in place to protect the AEO’s electronic systems "
                           "from unauthorized access;"),
+        (HELD_SAFE, 4831, "G. Cargo Security"),
         (HELD_SAFE, 4838, "develop and maintain a security policy manual or "
                           "other tangible guidance"),
         (HELD_SAFE, 4839, "which contains detailed guidelines on procedures"),
@@ -23849,6 +23943,12 @@ class ProgrammeClaimsTests(unittest.TestCase):
         (HELD_SAFE, 4847, "d. ensure that written procedures are developed "
                           "and utilized that stipulate how seals are to be "
                           "controlled"),
+        # Draft 3b807: the G (d) reporting quotation.
+        (HELD_SAFE, 4848, "to include procedures for recognizing and "
+                          "reporting"),
+        (HELD_SAFE, 4849, "compromised seals, cargo and/or transport "
+                          "conveyances to the Customs administration or the"),
+        (HELD_SAFE, 4850, "appropriate foreign authority;"),
         (HELD_SAFE, 4881, "regularly examine, through particular mechanisms "
                           "set forth in the national AEO programme, its "
                           "security"),
@@ -23857,12 +23957,20 @@ class ProgrammeClaimsTests(unittest.TestCase):
                           "and while"),
         (HELD_SAFE, 4898, "loading into or unloading from a transport "
                           "conveyance;"),
+        (HELD_SAFE, 4908, "H. Conveyance Security"),
         (HELD_SAFE, 4917, "b. secure transport conveyances within its supply "
                           "chain, to the extent and scope of its ability and"),
         (HELD_SAFE, 4918, "responsibility, when left unattended,"),
         (HELD_SAFE, 4928, "d. require operators, as specifically detailed in "
                           "national AEO programmes, to report any actual or "
                           "suspicious"),
+        # Draft 3b807: the H (f) quotation, the whole item. Its item letter
+        # line, 4936, is pinned exactly by
+        # test_supply_matrix_wco_safe_incident_quotations_are_held, since
+        # "f." alone is a substring of many lines.
+        (HELD_SAFE, 4937, "notify Customs, or other relevant body, of any "
+                          "unusual, suspicious or actual breach of transport"),
+        (HELD_SAFE, 4938, "conveyance security."),
         (HELD_SAFE, 4954, "in accordance with its business model and risk "
                           "analysis, implement security measures and "
                           "procedures to"),
@@ -23978,6 +24086,35 @@ class ProgrammeClaimsTests(unittest.TestCase):
                 extracts[rel] = self._held_lines(rel)
             with self.subTest(at=f"{rel.split('/')[-1][:30]}:{number}"):
                 self.assertIn(excerpt, extracts[rel][number - 1])
+
+    def test_supply_matrix_wco_safe_incident_quotations_are_held(self):
+        """Draft 3b807 round 2 (N2, N3): the pinned quotations _SAFE_H_F and
+        _SAFE_G_D_REPORTING were not tied to the held text, so removing
+        "unusual," from both the matrix and _SAFE_H_F passed every test.
+        Each is now checked against the held lines it spans, joined and
+        whitespace-normalized: H (f), held lines 4937 to 4938, and G (d),
+        held lines 4848 to 4850. The H (f) item letter line, held line
+        4936, is compared exactly once stripped, since a _HELD_CITATIONS
+        entry only asks that its line contain the excerpt. Draft 3b807
+        round 3 (review round 2, codex WARN, claude NOTE): a substring
+        check passed a quotation cut short at either end, so each check
+        now holds the contract stated at the constants. The H (f) lines
+        must equal _SAFE_H_F followed by the item's closing full stop, and
+        the G (d) lines must end with _SAFE_G_D_REPORTING followed by the
+        item's semicolon, the quotation starting at "for recognizing"."""
+        lines = self._held_lines(self.HELD_SAFE)
+        self.assertEqual(lines[4936 - 1].strip(), "f.")
+        for letter, quote, first, last in (
+                ("H (f)", self._SAFE_H_F, 4937, 4938),
+                ("G (d)", self._SAFE_G_D_REPORTING, 4848, 4850)):
+            with self.subTest(element=letter):
+                held = " ".join(" ".join(lines[first - 1:last]).split())
+                if letter == "H (f)":
+                    self.assertEqual(held, quote + ".")
+                else:
+                    self.assertTrue(quote.startswith("for recognizing"),
+                                    quote)
+                    self.assertTrue(held.endswith(quote + ";"), held)
 
     def test_incident_citations_also_give_section_11_8(self):
         """Round 6 (claude NOTE 1): the IT-5 and CYB-6 rows, the MSC row and
@@ -26538,7 +26675,9 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
          "the security and safety risk assessment is to address (§11.2)",
          "but the record keeping criterion, which §1.4 lists among the "
          "AEO-S criteria, asks for " + _IT_MEASURES_8_1 + "§8.1)"),
-        (SUPPLY_MATRIX, 85,
+        # Draft 3b807: line 86, after the Incident Reporting to Authority
+        # item added to the WCO SAFE map after the domain table.
+        (SUPPLY_MATRIX, 86,
          "The held HMRC security and safety criteria for AEO-S (UK) "
          "(handbook section 11) set out no IT control:",
          _IT_MEASURES_8_1 + "§8.1)"),
