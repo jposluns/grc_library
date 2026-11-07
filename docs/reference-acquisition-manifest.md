@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-reference-manifest.py`
 **Document Title:** Reference-Acquisition Manifest\
 **Document Type:** Guide\
 **Version:** 1.0.0\
-**Date:** 2026-10-31\
+**Date:** 2026-11-07\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/portal.md`](portal.md)\
@@ -929,7 +929,7 @@ without the private reference sibling).
 | Virginia Consumer Data Protection Act (VCDPA), Code of Virginia Title 59.1 Chapter 53 |  | US |  | FREE |
 | Yukon Access to Information and Protection of Privacy Act (SY 2018, c. 9) | SY 2018 c. 9, consolidated | Canada (Yukon) |  | FREE |
 
-## Programs (45: 44 free, 1 licensed)
+## Programs (51: 50 free, 1 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -970,7 +970,13 @@ without the private reference sibling).
 | Government of Canada AI Register (MVP) dataset | MVP dataset export (slug pmv-04-26 indicates an April 2026 export); 24 columns, 412 records; companion to the landing page (published 2025-11-28; modified 2026-04-28) | Treasury Board of Canada Secretariat |  | FREE |
 | Government of Canada Enterprise Cyber Security Strategy | modified 2024-07-12 | Treasury Board of Canada Secretariat |  | FREE |
 | GovRAMP Security Assessment Framework, Version 4.2 (April 2026) | Version 4.2, April 2026 (GovRAMP, formerly StateRAMP) | GovRAMP |  | FREE |
+| HMRC Customs Technical Handbook, Authorised Economic Operator: AEO Criteria, Compliance (updated 17 July 2025) | gov.uk guidance page, public_updated_at 2025-07-17 | HM Revenue and Customs |  | FREE |
+| HMRC Customs Technical Handbook, Authorised Economic Operator: AEO Criteria, Maintaining the Standards (updated 17 July 2025) | gov.uk guidance page, public_updated_at 2025-07-17 | HM Revenue and Customs |  | FREE |
+| HMRC Customs Technical Handbook, Authorised Economic Operator: AEO Criteria, Proven Financial Solvency (updated 17 July 2025) | gov.uk guidance page, public_updated_at 2025-07-17 | HM Revenue and Customs |  | FREE |
+| HMRC Customs Technical Handbook, Authorised Economic Operator: AEO Criteria, Record Keeping (updated 17 July 2025) | gov.uk guidance page, public_updated_at 2025-07-17 | HM Revenue and Customs |  | FREE |
 | HMRC Customs Technical Handbook, Authorised Economic Operator: AEO Criteria, Security and Safety (AEOS only) (updated 17 July 2025) | gov.uk guidance page, public_updated_at 2025-07-17 | HM Revenue and Customs |  | FREE |
+| HMRC Customs Technical Handbook, Authorised Economic Operator: General Information (updated 17 July 2025) | gov.uk guidance page, public_updated_at 2025-07-17 | HM Revenue and Customs |  | FREE |
+| HMRC Customs Technical Handbook, Authorised Economic Operator: Introduction (updated 17 July 2025) | gov.uk guidance page, public_updated_at 2025-07-17 | HM Revenue and Customs |  | FREE |
 | Japan Customs Authorized Economic Operator (AEO) Program (pamphlet) |  | Japan Customs (Ministry of Finance) |  | FREE |
 | Mexico: Lineamientos del Sistema Electronico para el Control de Inventarios de Importaciones Temporales (IMMEX) |  | SAT (Mexico) |  | FREE |
 | Partners in Protection (PIP) security requirements (public criteria summary) |  | Canada Border Services Agency |  | FREE |
@@ -979,5 +985,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 914 sources (793 free, 121 licensed).**
+**Total: 920 sources (799 free, 121 licensed).**
 
