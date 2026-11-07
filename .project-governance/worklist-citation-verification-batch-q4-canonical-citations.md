@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.24\
-**Date:** 2026-10-04\
+**Version:** 1.0.25\
+**Date:** 2026-11-07\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](../governance/template-citation-verification-worklist.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`.project-governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
@@ -97,7 +97,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | Canada CPPA | https://www.parl.ca/legisinfo/en/bill/44-1/c-27 | all | Lapsed 2025-01-06 (Bill C-27 died on prorogation, never enacted); PIPEDA remains in force |  |  |  |  |  |  |
 | Canada PIPEDA | https://laws-lois.justice.gc.ca/eng/acts/P-8.6/ | all | 2000, as amended by the Digital Privacy Act, S.C. 2015, c. 32 (last amended 2025-03-04) |  |  |  |  |  |  |
 | Canada AIDA | https://www.parl.ca/legisinfo/en/bill/44-1/c-27 | all | Lapsed 2025-01-06 (Bill C-27 died on prorogation); Artificial Intelligence and Data Act never enacted |  |  |  |  |  |  |
-| Quebec Law 25 | https://www.legisquebec.gouv.qc.ca/en/document/cs/p-39.1 | all | 2021 (phased in 2022-2024), An Act to modernize legislative provisions as regards protection of personal information |  |  |  |  |  |  |
+| Quebec Law 25 | https://www.legisquebec.gouv.qc.ca/fr/document/lc/p-39.1 | all | 1993, CQLR c. P-39.1, Act respecting the protection of personal information in the private sector (Quebec), as amended by S.Q. 2021, c. 25 (Law 25) (held LegisQuebec consolidation updated to 2026-04-01; held, not confirmed current upstream) |  |  |  |  |  |  |
 
 ### 3.4 Other privacy regulations (7 entries)
 

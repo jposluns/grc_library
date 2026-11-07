@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.40\
-**Date:** 2026-10-27\
+**Version:** 1.2.41\
+**Date:** 2026-11-07\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py), [`specification-ingestion.md`](../specification-ingestion.md)\
@@ -195,7 +195,7 @@ The fenced `json citation-publishers` block at the end of this section is the so
 | EU | `eur-lex.europa.eu`, `digital-strategy.ec.europa.eu`, `enisa.europa.eu`, `europa.eu` | EU regulations, directives, ENISA; europa.eu covers the other EU institution hosts the corpus cites, such as the European Commission and the EDPB. |
 | UK | `legislation.gov.uk`, `ico.org.uk`, `ncsc.gov.uk`, `gov.uk` | UK regulation and ICO/NCSC; gov.uk is the UK government parent domain. |
 | Canada | `laws-lois.justice.gc.ca`, `gazette.gc.ca`, `priv.gc.ca`, `cyber.gc.ca`, `tbs-sct.canada.ca`, `osfi-bsif.gc.ca`, `ola.org`, `dgc-cgn.org`, `canada.ca`, `parl.ca` | Canadian federal regulation and OPC; Treasury Board (TBS Directive on Automated Decision-Making); OSFI (Guideline E-23); Legislative Assembly of Ontario (Bill 194 / Enhancing Digital Security and Trust Act); Digital Governance Council / DGSI (CAN/DGSI 101:2025); Government of Canada parent domain (canada.ca); Parliament of Canada (parl.ca). |
-| Quebec | `legisquebec.gouv.qc.ca` | Quebec provincial regulation (Law 25). |
+| Quebec | `legisquebec.gouv.qc.ca` | Quebec provincial statute (Law 25). |
 | British Columbia | `bclaws.gov.bc.ca` | British Columbia statute consolidations published by the King's Printer on BC Laws (Freedom of Information and Protection of Privacy Act). |
 | WCO | `wcoomd.org` | WCO SAFE Framework, AEO, customs. |
 | ICAO | `icao.int` | International civil aviation. |
@@ -401,7 +401,7 @@ The allow-list itself is subject to the same verification discipline as register
     "domains": [
       "legisquebec.gouv.qc.ca"
     ],
-    "covers": "Quebec provincial regulation (Law 25)."
+    "covers": "Quebec provincial statute (Law 25)."
   },
   {
     "publisher": "British Columbia",

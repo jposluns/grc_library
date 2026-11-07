@@ -5542,8 +5542,14 @@ CROSSWALK_ALIASES = {
     "PIPEDA Sch 1 Principle 3 (withdrawal of consent)": "pipeda",
     "PIPEDA Sch 1 Principle 9 (amendment)": "pipeda",
     "PIPEDA Sch 1 Principle 9 (Individual Access)": "pipeda",
+    # QC-LAW25-RESEARCH-0405 (maintainer decision 2026-11-06): the
+    # quebec-law-25 instrument is CQLR c. P-39.1 as amended by S.Q. 2021,
+    # c. 25 (Law 25), not the amending act, so every P-39.1 spelling is an
+    # alias and no spelling names the amending act alone.
     "Quebec Law 25": "quebec-law-25",
-    "Quebec Law 25 (S.Q. 2021, c. 25)": "quebec-law-25",
+    "Quebec Law 25 (Canada, CQLR c. P-39.1)": "quebec-law-25",
+    "Quebec CQLR c. P-39.1, as amended by Law 25 (S.Q. 2021, c. 25)":
+        "quebec-law-25",
     "Quebec Law 25 (CQLR c. P-39.1) sections 3.3 and 12.1 (private "
     "sector)": "quebec-law-25",
     "Quebec CQLR c. P-39.1, as amended by Law 25 (consolidated text updated "

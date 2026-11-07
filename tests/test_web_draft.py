@@ -487,6 +487,7 @@ import functools
 import hashlib
 import importlib.util
 import inspect
+import json
 import os
 import re
 import shutil
@@ -11408,16 +11409,9 @@ class DraftSiteRenderTests(unittest.TestCase):
             "the HITRUST Common Security Framework, not the NIST CSF",
         "NIS 2 Implementing Acts":
             "the implementing acts made under NIS 2",
-        # Review of 247cd21f8 (codex ERROR) and of 5135948db (claude WARN):
-        # whether the quebec-law-25 instrument is the amending act or CQLR
-        # c. P-39.1 as amended is routed as QC-LAW25-IDENTITY-0250. Two
-        # P-39.1 spellings stay aliased until then, so this one is held out
-        # pending that decision, not ruled a different text.
-        "Quebec Law 25 (Canada, CQLR c. P-39.1)":
-            "held out pending the instrument identity decision "
-            "QC-LAW25-IDENTITY-0250 (the amending act, or CQLR c. P-39.1 as "
-            "amended); the P-39.1 spellings already aliased stay aliased "
-            "until that decision settles all of them together",
+        # QC-LAW25-RESEARCH-0405 settled QC-LAW25-IDENTITY-0250: the
+        # quebec-law-25 instrument is CQLR c. P-39.1 as amended, so "Quebec
+        # Law 25 (Canada, CQLR c. P-39.1)" left this map for the alias map.
     }
     # Separate texts that name no crosswalk instrument but sit beside one in
     # a taxonomy string (integration round 3 WARN: each linked whole to the
@@ -12045,8 +12039,9 @@ class DraftSiteRenderTests(unittest.TestCase):
     # is the AEO procedure's corrected citation (the Framework has no ICT
     # security pillar; review of 5135948db: the operator-side condition is
     # Annex IV element F, while 2.6.6 ICT Security, under Pillar 1 Standard
-    # 6, is the Customs administrations' own strategy); "Quebec Law 25
-    # (Canada, CQLR c. P-39.1)" left for NOT_INSTRUMENT_NAMES.
+    # 6, is the Customs administrations' own strategy). "Quebec Law 25
+    # (Canada, CQLR c. P-39.1)", once held out, is pinned by
+    # test_quebec_law_25_aliases_name_p39_1_as_amended.
     _XW_FOLLOWUP2 = {
         "ISO/IEC 27001:2022 Annex A.5.33": "iso-iec-27001",
         "ISO/IEC 27001:2022 Annex A.5.36 (Compliance with policies, rules "
@@ -12159,40 +12154,71 @@ class DraftSiteRenderTests(unittest.TestCase):
             self.assertIn(self.mod._doc_page_url("", d["path"]), hrefs,
                           d["path"])
 
-    def test_quebec_p39_1_spelling_is_not_a_law_25_alias(self):
-        """Review of 247cd21f8 (codex ERROR): "Quebec Law 25 (Canada, CQLR
-        c. P-39.1)" is a listed exclusion with no alias, and the DPIA
-        template that carries it is not on the Quebec Law 25 page through
-        it. Review of 5135948db (claude WARN): its reason said it named
-        P-39.1 and not the amending act, which two P-39.1 spellings still
-        aliased to quebec-law-25 contradict. The instrument's identity is
-        routed as QC-LAW25-IDENTITY-0250, so the reason holds the spelling
-        out pending that decision, those aliases stay, and the reason
-        rules no P-39.1 spelling a different text. Wording limit: the
-        last check reads the reason for the two retired grounds only."""
-        name = "Quebec Law 25 (Canada, CQLR c. P-39.1)"
-        self.assertIn(name, self.NOT_INSTRUMENT_NAMES)
-        reason = self.NOT_INSTRUMENT_NAMES[name]
-        self.assertIn("pending", reason)
-        self.assertIn("QC-LAW25-IDENTITY-0250", reason)
-        kept = sorted(n for n in self.mod.CROSSWALK_ALIASES if "P-39.1" in n)
-        self.assertEqual(len(kept), 2, kept)
+    # QC-LAW25-RESEARCH-0405 (maintainer decision 2026-11-06): each P-39.1
+    # spelling the identity decision brought into the alias map, with the
+    # document that carries it in the taxonomy.
+    _QC_P39_1_PINNED = {
+        "Quebec Law 25 (Canada, CQLR c. P-39.1)": "privacy/template-dpia.md",
+        "Quebec CQLR c. P-39.1, as amended by Law 25 (S.Q. 2021, c. 25)":
+            "privacy/charter-privacy-management-programme.md",
+    }
+    # Every P-39.1 spelling the alias map must carry: the two pinned above
+    # and the two aliased before the identity decision. The alias map may
+    # carry further P-39.1 spellings; each must still resolve to
+    # quebec-law-25 alone (round 1 claude N4, codex W2: no count pin).
+    _QC_P39_1_REQUIRED = (
+        "Quebec Law 25 (Canada, CQLR c. P-39.1)",
+        "Quebec CQLR c. P-39.1, as amended by Law 25 (S.Q. 2021, c. 25)",
+        "Quebec Law 25 (CQLR c. P-39.1) sections 3.3 and 12.1 (private "
+        "sector)",
+        "Quebec CQLR c. P-39.1, as amended by Law 25 (consolidated text "
+        "updated to 1 April 2026)",
+    )
+    # The retired spelling that named the amending act alone.
+    _QC_AMENDING_ACT_SPELLING = "Quebec Law 25 (S.Q. 2021, c. 25)"
+
+    def test_quebec_law_25_aliases_name_p39_1_as_amended(self):
+        """QC-LAW25-RESEARCH-0405 W1 and W2 (review of 247cd21f8, codex
+        ERROR; review of 5135948db, claude WARN): the quebec-law-25
+        instrument is CQLR c. P-39.1 as amended by S.Q. 2021, c. 25 (Law
+        25), so the alias map routed both the amending act and P-39.1 to
+        it, and "Quebec Law 25 (Canada, CQLR c. P-39.1)" was held out with
+        no alias. No alias names the amending act alone; each required
+        P-39.1 spelling (_QC_P39_1_REQUIRED) is an alias, and every P-39.1
+        spelling in the alias map, required or further, resolves to
+        quebec-law-25 alone; the pinned spellings (the formerly held-out
+        one and the charter's reworded one) are no listed exclusion; the
+        taxonomy no longer carries the amending-act spelling; and each
+        pinned spelling's document is on the Quebec Law 25 page."""
+        mod = self.mod
+        self.assertNotIn(self._QC_AMENDING_ACT_SPELLING,
+                         mod.CROSSWALK_ALIASES)
+        amending_only = sorted(
+            n for n, key in mod.CROSSWALK_ALIASES.items()
+            if key == "quebec-law-25" and "2021, c. 25" in n
+            and "P-39.1" not in n)
+        self.assertEqual(amending_only, [],
+                         "an alias names the amending act alone")
+        kept = sorted(n for n in mod.CROSSWALK_ALIASES if "P-39.1" in n)
+        for spelling in self._QC_P39_1_REQUIRED:
+            with self.subTest(required=spelling):
+                self.assertIn(spelling, kept)
         for spelling in kept:
-            self.assertEqual(self.mod.crosswalk_alias_keys(spelling),
+            self.assertEqual(mod.crosswalk_alias_keys(spelling),
                              ("quebec-law-25",), spelling)
-        self.assertNotRegex(
-            reason, r"(?i)not the amending act|statute Law 25 amended")
-        self.assertNotIn(name, self.mod.CROSSWALK_ALIASES)
-        self.assertEqual(self.mod.crosswalk_alias_keys(name), ())
-        docs = [d for d in self._full_taxonomy()
-                if name in d.get("frameworks", [])]
-        self.assertIn("privacy/template-dpia.md", [d["path"] for d in docs])
+        full = self._full_taxonomy()
+        names = {n for d in full for n in d.get("frameworks", [])}
+        self.assertNotIn(self._QC_AMENDING_ACT_SPELLING, names)
         hrefs = self._citation_hrefs("quebec-law-25")
-        for d in docs:
-            if not any("quebec-law-25" in self.mod.crosswalk_alias_keys(n)
-                       for n in d.get("frameworks", [])):
-                self.assertNotIn(self.mod._doc_page_url("", d["path"]),
-                                 hrefs, d["path"])
+        for name, path in self._QC_P39_1_PINNED.items():
+            with self.subTest(name=name):
+                self.assertNotIn(name, self.NOT_INSTRUMENT_NAMES)
+                self.assertEqual(mod.crosswalk_alias_keys(name),
+                                 ("quebec-law-25",))
+                docs = [d["path"] for d in full
+                        if name in d.get("frameworks", [])]
+                self.assertIn(path, docs)
+                self.assertIn(mod._doc_page_url("", path), hrefs, path)
 
     # A claim that a WCO SAFE pillar is an ICT or information security
     # pillar: "ICT security pillar" and the like, or a pillar whose
@@ -15815,7 +15841,8 @@ class DraftSiteRenderTests(unittest.TestCase):
         listed reason is a pending hold, both docstrings name that class
         too. Review of 9b7946bc2 (codex WARN 3): the requirement is
         conditional, so resolving the last pending hold does not fail this
-        test; the fixture cases show both states."""
+        test; the fixture cases show both states. QC-LAW25-RESEARCH-0405
+        resolved that Quebec hold, so no listed reason is pending now."""
         stale = {"a": "listed namesake or derived text "
                       "(NOT_INSTRUMENT_NAMES)"}
         named = {"a": "a listed exclusion (NOT_INSTRUMENT_NAMES: a namesake "
@@ -16432,6 +16459,553 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertEqual(flat["Example 1"]["version"], "2020")
         with self.assertRaises(self.mod.BuildError):
             self.mod.parse_citations_register_sections(table)
+
+
+class QuebecLaw25IdentityTests(unittest.TestCase):
+    """QC-LAW25-RESEARCH-0405 (maintainer decision 2026-11-06): the
+    quebec-law-25 crosswalk instrument is CQLR c. P-39.1, the Act respecting
+    the protection of personal information in the private sector, as
+    amended by S.Q. 2021, c. 25 (Law 25), under the Standard ID Quebec Law
+    25. These tests read the corpus files directly; the alias side is
+    DraftSiteRenderTests.test_quebec_law_25_aliases_name_p39_1_as_amended.
+    """
+
+    P39_1_TITLE = ("Act respecting the protection of personal information "
+                   "in the private sector")
+    P39_1_URL = "https://www.legisquebec.gouv.qc.ca/fr/document/lc/p-39.1"
+    REGISTER = "governance/register-canonical-citations.md"
+    WORKLIST = (".project-governance/"
+                "worklist-citation-verification-batch-q4-canonical-citations.md")
+    STANDARD_ID = "Quebec Law 25"
+    # P-39.1's title cut short of "in the private sector" (W4), which reads
+    # as the public-sector act (CQLR c. A-2.1).
+    _SHORT_TITLE_RE = re.compile(
+        r"(?i)\bAct respecting the protection of personal information\b"
+        r"(?! in the private sector)")
+    # Round 2 (round 1 claude W1, codex W1): the instrument identity check.
+    # It requires the P-39.1 identity where the instrument is identified
+    # and bans no amend word on its own, since Law 25 did amend P-39.1.
+    # Round 4 (round 3 claude NOTE-1): its frame rule (_AMENDING_FRAME_RE)
+    # still rejects Law 25 or 2021, c. 25 as the subject of an amend verb
+    # anywhere in a checked line, accurate effect statements included
+    # ("Law 25 amended Quebec's provincial privacy laws" in a later
+    # sentence, or an identity cell ending in "Law 25 (S.Q. 2021, c. 25)"
+    # followed by a cell that starts "Amended"); and a frame with other
+    # punctuation between the subject and the verb (a hyphen or dash,
+    # single-asterisk italics, square brackets) or a nested gloss passes.
+    # _identity_problem states the whole boundary.
+    _P39_1_CITE_RE = re.compile(r"\bCQLR c\. P-39\.1\b")
+    _AMENDING_ACT_RE = re.compile(r"(?i)\b2021, c\. 25\b|\bamend\w*")
+    _AS_AMENDED_RE = re.compile(r"\bas amended by\b")
+    # Round 3 (round 2 claude WARN-1, codex NOTE): Law 25 or 2021, c. 25 as
+    # the subject of amends, amending or amended. In this order after the
+    # subject: any number of ")" or "**" directly after it, with no
+    # whitespace before or between them, then any number of unnested
+    # parenthetical glosses, then at most one ",", ":" or table cell "|",
+    # then at most one "ly" word (one or more letters, digits or
+    # underscores followed by "ly", so not only an adverb, and a bare "ly"
+    # does not count) followed by one or more whitespace characters.
+    # Whitespace of any kind, none or more, may come before each gloss and
+    # before and after the delimiter's position, whether or not a
+    # delimiter is present. Any other word or mark, or these out of order,
+    # such as the annex's "which significantly amended", a hyphen, a
+    # single "*", a square bracket or a nested gloss, does not match.
+    _AMENDING_FRAME_RE = re.compile(
+        r"(?:\bLaw 25\b(?!\.\d)|\b2021, c\. 25\b)(?:\)|\*\*)*"
+        r"(?:\s*\([^()]*\))*\s*[,:|]?\s*(?:\w+ly\s+)?"
+        r"[Aa]mend(?:s|ing|ed)\b")
+    # A clause ends at ";", ":", a table cell's "|" or a sentence end.
+    _CLAUSE_END_RE = re.compile(r"[;:|]|\.\s+[A-Z]")
+    # "Law 25", not Argentina's Law 25.326.
+    _LAW_25_RE = re.compile(r"\bLaw 25\b(?!\.\d)")
+    _LAW_25_SECTIONS_RE = re.compile(
+        r"\bLaw 25\b(?!\.\d).*?(?:\bss?\. ?\d|\b[Ss]ections? \d)")
+    _IDENTIFIES_RE = re.compile(r"\bCQLR\b|\bP-39\.1\b|\b2021, c\. 25\b")
+    _NAMES_LAW_25_RE = re.compile(
+        r"\bLaw 25\b(?!\.\d)|\bP-39\.1\b|\b2021, c\. 25\b")
+    # Round 3 (round 2 claude NOTE-1): identifications that cite no
+    # section, so _identification_lines never selects them, found by their
+    # row or bullet prefix instead.
+    _PREFIXED_IDENTIFICATIONS = (
+        ("specification-master-project.md", "- Quebec Law 25"),
+        ("privacy/charter-privacy-management-programme.md", "| Quebec "),
+        ("privacy/procedure-data-protection-and-privacy-breach-response.md",
+         "| **Quebec (Provincial)** |"),
+    )
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = _load_build()
+
+    @staticmethod
+    def _read(rel):
+        return (REPO_ROOT / rel).read_text(encoding="utf-8")
+
+    @classmethod
+    def _identity_problem(cls, text):
+        """None when text passes the identity check, else the reason. The
+        text must cite CQLR c. P-39.1; it must not frame Law 25 or 2021, c.
+        25 as amending, anywhere in it (_AMENDING_FRAME_RE: the subject
+        then "amends", "amending" or "amended", with "A" or "a", and between
+        them only these parts, in this order: any number of ")" or "**"
+        right after the subject, with no whitespace before or between them;
+        then any number of unnested parenthetical glosses; then at most one
+        ",", ":" or "|"; then at most one "ly" word, one or more letters,
+        digits or underscores followed by "ly" (any such word and not only
+        an adverb, so "2ly" counts and a bare "ly" does not), followed by
+        one or more whitespace characters; whitespace of any kind, none or
+        more, may come before each gloss and before and after the
+        delimiter's position, whether or not a delimiter is present, so it
+        may separate the subject, its last closing or its last gloss from
+        the "ly" word or the verb); and where it
+        names the amending act (2021, c. 25) or carries any amend word,
+        every CQLR c. P-39.1 citation in it must be followed, within its
+        clause (before the next ";", ":", "|" or sentence end), by "as
+        amended by". The frame rule ignores clause and sentence ends and
+        does not weigh accuracy, so it rejects accurate effect statements:
+        "Law 25 amended Quebec's provincial privacy laws" in a later
+        sentence, or an identity cell ending in "Law 25 (S.Q. 2021, c. 25)"
+        followed by a cell that starts "Amended". Residual: a frame with
+        any other word between the subject and the verb (a relative clause
+        such as "Law 25, which amends CQLR c. P-39.1", or "Law 25 of 2021
+        amends"), other punctuation there (a hyphen or dash,
+        single-asterisk italics as in "*Law 25*, amending", square
+        brackets as in "Law 25 [S.Q. 2021, c. 25], amending"), a nested
+        gloss ("Law 25 (Bill 64 (2021)) amends"), the allowed marks out of
+        that order or not adjacent (a closing after a gloss or a space, as
+        in "**Law 25 (Bill 64)**, amending" and "Law 25 **, amending"; a
+        gloss after the delimiter, as in "Law 25, (Bill 64) amending"; the
+        "ly" word before the delimiter, as in "Law 25 substantially,
+        amending"; a ")" after a gloss, as in "Law 25 (Bill 64)) amends"),
+        another verb form (amend, amendment) or another subject
+        (Bill 64, the Act) passes when each P-39.1 citation is followed in
+        its clause by "as amended by"; the relative clause is left open so
+        that the annex's "as amended by S.Q. 2021, c. 25 (Law 25), which
+        significantly amended Quebec's provincial privacy laws" passes."""
+        cites = list(cls._P39_1_CITE_RE.finditer(text))
+        if not cites:
+            return "cites no CQLR c. P-39.1"
+        if cls._AMENDING_FRAME_RE.search(text):
+            return "frames Law 25 or S.Q. 2021, c. 25 as amending"
+        if cls._AMENDING_ACT_RE.search(text):
+            for cite in cites:
+                rest = text[cite.end():]
+                end = cls._CLAUSE_END_RE.search(rest)
+                if not cls._AS_AMENDED_RE.search(
+                        rest[:end.start()] if end else rest):
+                    return ("names the amending act or amend wording, and a "
+                            "CQLR c. P-39.1 citation lacks \"as amended by\"")
+        return None
+
+    @classmethod
+    def _identification_lines(cls, text):
+        """(line number, line) for each line that names Law 25 as an
+        instrument and then cites sections ("s. N", "ss. N", "section N"
+        after the first "Law 25"), and identifies the instrument: the line
+        cites CQLR, P-39.1 or 2021, c. 25, or Law 25's own table cell (the
+        rest of the line in a list item) carries an amend word. A line that
+        uses the bare Standard ID with sections and no such identification
+        is not selected."""
+        for n, line in enumerate(text.splitlines(), 1):
+            if not cls._LAW_25_SECTIONS_RE.search(line):
+                continue
+            if cls._IDENTIFIES_RE.search(line) or any(
+                    re.search(r"(?i)\bamend",
+                              line[m.end():].split("|", 1)[0])
+                    for m in cls._LAW_25_RE.finditer(line)):
+                yield n, line
+
+    def _instrument_names(self):
+        """(source, name) for each crosswalk alias and alias part resolving
+        to quebec-law-25, and each taxonomy framework name (or compound
+        part) that resolves to it or names Law 25, P-39.1 or 2021, c. 25,
+        leaving out the bare Standard ID "Quebec Law 25"."""
+        mod = self.mod
+        found = [("alias", n) for n, key in mod.CROSSWALK_ALIASES.items()
+                 if key == "quebec-law-25"]
+        found += [("alias part", part)
+                  for parts in mod.CROSSWALK_ALIAS_PARTS.values()
+                  for part, key in parts if key == "quebec-law-25"]
+        full = mod.parse_taxonomy_full(mod.TAXONOMY.read_text(encoding="utf-8"))
+        for name in sorted({n for d in full for n in d.get("frameworks", [])}):
+            parts = mod.CROSSWALK_ALIAS_PARTS.get(name, ((name, None),))
+            for part, key in parts:
+                if (key == "quebec-law-25"
+                        or "quebec-law-25" in mod.crosswalk_alias_keys(part)
+                        or self._NAMES_LAW_25_RE.search(part)):
+                    found.append(("taxonomy framework", part))
+        return [(src, n) for src, n in found if n != self.STANDARD_ID]
+
+    @staticmethod
+    def _rows(text, standard_id):
+        return [[c.strip() for c in line.strip().strip("|").split("|")]
+                for line in text.splitlines()
+                if line.startswith(f"| {standard_id} |")]
+
+    def _corpus_paths(self):
+        paths = re.findall(r'^- path: "([^"]+)"', self._read("taxonomy.yml"),
+                           re.M)
+        self.assertIn("specification-master-project.md", paths)
+        return paths
+
+    def test_register_row_names_p39_1_as_amended(self):
+        """E1: the register row's Current version, publication date and
+        Topic named the amending act (2021, "An Act to modernize ...")
+        while its upstream check location is P-39.1. Following the PIPEDA
+        row's pattern, the one Quebec Law 25 row names P-39.1 as amended by
+        S.Q. 2021, c. 25, dates it 1993 (the held consolidation's repeal
+        schedule, line 1726: "chapter 17 of the statutes of 1993, in force
+        on 1 September 1994"; held file
+        legislation/Canada/Quebec-Law25-PI-Private-Sector-CQLR-P-39.1--full-text.md
+        in the reference corpus), states the 2026-04-01 consolidation as
+        held and not as current, carries no amending-act long title (no
+        held text has it), and is needs-reconfirm (the upstream date is
+        unconfirmed)."""
+        rows = self._rows(self._read(self.REGISTER), "Quebec Law 25")
+        self.assertEqual(len(rows), 1, rows)
+        self.assertEqual(len(rows[0]), 7, rows[0])
+        _, version, published, topic, superseded, upstream, verified = \
+            rows[0]
+        self.assertTrue(version.startswith(
+            "CQLR c. P-39.1, as amended by S.Q. 2021, c. 25 (Law 25) "),
+            version)
+        self.assertIn("held LegisQuebec consolidation is updated to "
+                      "2026-04-01", version)
+        self.assertIn("held, not confirmed current upstream", version)
+        self.assertEqual(published, "1993")
+        self.assertEqual(topic, f"{self.P39_1_TITLE} (Quebec), as amended "
+                                "by Law 25 (S.Q. 2021, c. 25)")
+        self.assertNotIn("modernize", " ".join(rows[0]))
+        self.assertEqual(superseded, "-")
+        self.assertEqual(upstream, self.P39_1_URL)
+        self.assertEqual(verified, "needs-reconfirm")
+
+    def test_law_25_identifications_name_p39_1_as_amended(self):
+        """W3, rescoped in round 2 (round 1 claude W1, codex W1): the
+        privacy charter (twice) and the master specification named Law 25
+        (S.Q. 2021, c. 25) as the instrument amending P-39.1 ("amending",
+        or "amends" in the charter's second row), and the charter's first
+        row also cited a P-39.1 section (s. 3.1); the Canada annex's Quebec
+        Law 25 entry (claude N1) said only that Law 25 amended Quebec's
+        privacy laws before citing P-39.1 sections. This test does not
+        search the whole corpus for amend wording. It applies
+        _identity_problem (cites CQLR c. P-39.1; frames neither Law 25 nor
+        2021, c. 25 as amending; where the text names 2021, c. 25 or
+        carries an amend word, each CQLR c. P-39.1 citation is followed
+        within its clause by "as amended by") to exactly these places: the
+        Quebec Law 25 row of the canonical-citations register; every name
+        _instrument_names returns (crosswalk aliases and alias parts for
+        quebec-law-25, and taxonomy framework names that resolve to it or
+        name Law 25, P-39.1 or 2021, c. 25, the bare Standard ID aside);
+        every line _identification_lines selects in a taxonomy-listed
+        document; and (round 2 claude NOTE-1) the one line each prefix in
+        _PREFIXED_IDENTIFICATIONS selects, the master specification's
+        Quebec Law 25 bullet, the charter's second row and the breach
+        procedure's Quebec row, which cite no section. The selection
+        includes the annex entry and the charter's first row, which stay
+        pinned as written. Each prefixed line must also carry the full
+        P-39.1 title, the one thing its former whole-line pin guarded that
+        _identity_problem cannot; the breach row's whole-line pin stays in
+        test_corpus_never_cuts_p39_1_title_short, where it guards the
+        one-instrument wording (round 1 claude N2)."""
+        register_lines = [
+            line for line in self._read(self.REGISTER).splitlines()
+            if line.startswith(f"| {self.STANDARD_ID} |")]
+        self.assertEqual(len(register_lines), 1, register_lines)
+        self.assertIsNone(self._identity_problem(register_lines[0]))
+        names = self._instrument_names()
+        self.assertTrue(names)
+        bad_names = [(src, n, self._identity_problem(n))
+                     for src, n in names if self._identity_problem(n)]
+        self.assertEqual(bad_names, [])
+        selected = {}
+        for rel in self._corpus_paths():
+            for n, line in self._identification_lines(self._read(rel)):
+                selected[f"{rel}:{n}"] = self._identity_problem(line)
+        annex = "privacy/jurisdictions/annex-privacy-canada.md"
+        charter_path = "privacy/charter-privacy-management-programme.md"
+        selected_paths = {key.rsplit(":", 1)[0] for key in selected}
+        self.assertIn(annex, selected_paths)
+        self.assertIn(charter_path, selected_paths)
+        self.assertEqual({k: v for k, v in selected.items() if v}, {})
+        self.assertIn(
+            f"- **{self.STANDARD_ID}**: the {self.P39_1_TITLE}, CQLR c. "
+            "P-39.1, as amended by S.Q. 2021, c. 25 (Law 25), which "
+            "significantly amended Quebec's provincial privacy laws. Key "
+            "provisions: ", self._read(annex))
+        as_amended = (f"{self.P39_1_TITLE} (CQLR c. P-39.1), as amended by "
+                      "Law 25 (S.Q. 2021, c. 25)")
+        charter = self._read("privacy/charter-privacy-management-programme.md")
+        self.assertIn(f"| **Quebec (Provincial)** | {as_amended} |", charter)
+        for rel, prefix in self._PREFIXED_IDENTIFICATIONS:
+            with self.subTest(path=rel, prefix=prefix):
+                lines = [line for line in self._read(rel).splitlines()
+                         if line.startswith(prefix)]
+                self.assertEqual(len(lines), 1, lines)
+                self.assertIsNone(self._identity_problem(lines[0]), lines[0])
+                self.assertIn(self.P39_1_TITLE, lines[0])
+
+    def test_identity_check_catches_amending_act_frames(self):
+        """Round 2 caught cases for the identity check (round 1 claude W1,
+        codex W1), extended in round 3 (round 2 claude WARN-1 and NOTE-2,
+        codex NOTE). Caught: claude's probe wording "(S.Q. 2021, c. 25),
+        amending CQLR c. P-39.1" as a line, as a line that also carries the
+        P-39.1 identity, and as a name; the name "Law 25, amending the
+        {title}"; the Canada annex's former entry, the charter's former
+        row, the retired "amends the Act ..." frame, a line that pairs the
+        identity with an amending frame, the retired amending-act spelling
+        and the former register row; and the frames that passed in round 2
+        because they carry no unqualified P-39.1 citation of their own:
+        claude's round 2 probe lines A (an earlier clause, "Law 25 (S.Q.
+        2021, c. 25) amends Quebec's privacy act; see CQLR c. P-39.1, as
+        amended by Law 25") and B (earlier in the same clause, "Law 25
+        (S.Q. 2021, c. 25), amending CQLR c. P-39.1 as amended by Law 25"),
+        and codex's later-clause line ("CQLR c. P-39.1, as amended by Law
+        25; Law 25 (S.Q. 2021, c. 25), amending the Act"). Not caught: the
+        reworded annex entry (its "which significantly amended Quebec's
+        provincial privacy laws" states Law 25's effect after the
+        identity), the whistleblower procedure's P-39.1 citation, accurate
+        amend prose with no section citation, the bare Standard ID with a
+        section, Argentina's Law 25.326, each required alias spelling, and
+        the residual _identity_problem states: a relative clause ("Law 25
+        (S.Q. 2021, c. 25), which amends CQLR c. P-39.1, as amended by Law
+        25"), other words between subject and verb ("Law 25 of 2021
+        amends"), another verb form ("Law 25's amendments to") and another
+        subject ("Bill 64 amends"). Round 4 (round 3 claude NOTE-1 and
+        NOTE-2, codex NOTE) and round 5 (round 4 claude NOTE-1): one
+        caught fixture for each part of the frame rule named here, each
+        with every P-39.1 citation followed in its clause by "as amended
+        by", so that only the frame rule catches it and it passes when
+        that part is removed from _AMENDING_FRAME_RE: the "|" delimiter
+        ("Law 25 | amends"), the "-ly" word ("Law 25 substantially
+        amends"), the "**" closing ("**Law 25**, amending"), the Law 25
+        subject without 2021, c. 25 ("Law 25 amends"), a gloss without
+        the 2021, c. 25 subject ("Law 25 (Bill 64) amends"), the amended
+        verb form ("Law 25 amended"), the 2021, c. 25 subject ("S.Q.
+        2021, c. 25, amending"), the ")" closing ("(Law 25), amending"),
+        the ":" delimiter ("Law 25: amends") and the capital "A" (claude's
+        probe, an identity cell ending in "Law 25 (Bill 64)" followed by a
+        cell that starts "Amended"). Round 6 (round 5 claude N2) adds two
+        more: whitespace at the delimiter's position with no delimiter
+        (three spaces between "Law 25 (Bill 64)" and "amends"; it passes
+        only when the whitespace on both sides of that position is
+        removed) and a digit in the "ly" word ("Law 25 2ly amends"). The
+        "," delimiter, the "amends" and "amending" forms and the lowercase
+        "a" have no fixture of their own: each fixture named here that uses
+        one of them fails when it is removed, but also depends on another
+        part. The counts (any number of closings or glosses, at most one
+        delimiter or "ly" word, none or more whitespace characters at each
+        optional position, one or more after the "ly" word), whitespace
+        other than a space, the whitespace before a gloss and an underscore
+        in the "ly" word have no fixture of their own either. Also caught: an
+        accurate effect statement, "Law 25 amended Quebec's provincial privacy
+        laws" in the sentence after a qualified identity. It is rejected
+        because the frame rule bans Law 25 as the subject of an amend verb
+        anywhere in a checked line, whatever the sentence says; the
+        reworded annex entry says the same and passes only because its
+        "which" comes between the subject and the verb. Not caught, as
+        further residuals: a hyphen ("Law 25 - amending"), single-asterisk
+        italics ("*Law 25*, amending"), square brackets ("Law 25 [S.Q.
+        2021, c. 25], amending") and a nested gloss ("Law 25 (Bill 64
+        (2021)) amends"); and (round 4 claude NOTE-2) the allowed marks out
+        of order or not adjacent ("**Law 25 (Bill 64)**, amending", "Law
+        25 substantially, amending", "Law 25, (Bill 64) amending", "Law 25
+        **, amending" and "Law 25 (Bill 64)) amends"); and (round 6) a bare
+        "ly", which is not an "ly" word ("Law 25 ly amends")."""
+        title = self.P39_1_TITLE
+        lines = (
+            # (line, selected, caught): caught means selected and flagged.
+            ("- **Quebec Law 25** (S.Q. 2021, c. 25), amending CQLR c. "
+             "P-39.1: mandatory PIAs (s. 3.3).", True, True),
+            ("- **Quebec Law 25** (S.Q. 2021, c. 25), amending CQLR c. "
+             f"P-39.1: the {title}, CQLR c. P-39.1, as amended by S.Q. "
+             "2021, c. 25 (Law 25). Key provisions: mandatory PIAs "
+             "(s. 3.3).", True, True),
+            ("- **Quebec Law 25**: Significantly amended Quebec's provincial "
+             "privacy laws. Key provisions: mandatory PIAs (s. 3.3).",
+             True, True),
+            ("| **Quebec (Provincial)** | Law 25 (S.Q. 2021, c. 25), "
+             f"amending the {title} (CQLR c. P-39.1) | Person in charge of "
+             "the protection of personal information mandatory (s. 3.1) |",
+             True, True),
+            (f"| Quebec Law 25 | amends the {title} (CQLR c. P-39.1) | "
+             "s. 3.1 |", True, True),
+            ("| Quebec | CQLR c. P-39.1, as amended by Law 25; Law 25 (S.Q. "
+             "2021, c. 25) amends CQLR c. P-39.1 | s. 3.5 |", True, True),
+            ("| Quebec | Law 25 (S.Q. 2021, c. 25) amends Quebec's privacy "
+             "act; see CQLR c. P-39.1, as amended by Law 25 (s. 3.1) |",
+             True, True),
+            ("| Quebec | Law 25 (S.Q. 2021, c. 25), amending CQLR c. P-39.1 "
+             "as amended by Law 25 (s. 3.1) |", True, True),
+            ("CQLR c. P-39.1, as amended by Law 25; Law 25 (S.Q. 2021, c. "
+             "25), amending the Act, s. 3.1", True, True),
+            # Round 4: one per frame-rule part, caught by that part only.
+            ("| Quebec | Law 25 | amends CQLR c. P-39.1, as amended by Law "
+             "25 (s. 3.1) |", True, True),
+            ("| Quebec | Law 25 substantially amends CQLR c. P-39.1, as "
+             "amended by Law 25 (s. 3.1) |", True, True),
+            ("| Quebec | **Law 25**, amending CQLR c. P-39.1, as amended by "
+             "Law 25 (s. 3.1) |", True, True),
+            ("| Quebec | Law 25 amends CQLR c. P-39.1, as amended by Law 25 "
+             "(s. 3.1) |", True, True),
+            ("| Quebec | Law 25 (Bill 64) amends CQLR c. P-39.1, as amended "
+             "by Law 25 (s. 3.1) |", True, True),
+            ("| Quebec | Law 25 amended CQLR c. P-39.1, as amended by Law 25 "
+             "(s. 3.1) |", True, True),
+            # Round 5: the 2021, c. 25 subject, ")", ":" and capital "A".
+            ("| Quebec | S.Q. 2021, c. 25, amending CQLR c. P-39.1, as "
+             "amended by Law 25 (s. 3.1) |", True, True),
+            ("| Quebec | (Law 25), amending CQLR c. P-39.1, as amended by Law "
+             "25 (s. 3.1) |", True, True),
+            ("| Quebec | Law 25: amends CQLR c. P-39.1, as amended by Law 25 "
+             "(s. 3.1) |", True, True),
+            ("| Quebec | CQLR c. P-39.1, as amended by Law 25 (Bill 64) | "
+             "Amended in 2021 (s. 3.1) |", True, True),
+            # Round 6: whitespace with no delimiter, and a digit "ly" word.
+            ("| Quebec | Law 25 (Bill 64)   amends CQLR c. P-39.1, as "
+             "amended by Law 25 (s. 3.1) |", True, True),
+            ("| Quebec | Law 25 2ly amends CQLR c. P-39.1, as amended by Law "
+             "25 (s. 3.1) |", True, True),
+            # Round 4: accurate, but Law 25 is the subject of "amended".
+            (f"- **Quebec Law 25**: the {title}, CQLR c. P-39.1, as amended "
+             "by S.Q. 2021, c. 25 (Law 25). Law 25 amended Quebec's "
+             "provincial privacy laws. Key provisions: mandatory PIAs "
+             "(s. 3.3).", True, True),
+            ("| Quebec | Law 25 (S.Q. 2021, c. 25), which amends CQLR c. "
+             "P-39.1, as amended by Law 25 (s. 3.1) |", True, False),
+            ("| Quebec | Law 25 of 2021 amends CQLR c. P-39.1, as amended by "
+             "Law 25 (s. 3.1) |", True, False),
+            ("| Quebec | Law 25's amendments to CQLR c. P-39.1, as amended by "
+             "Law 25 (s. 3.1) |", True, False),
+            ("| Quebec | Bill 64 amends CQLR c. P-39.1, as amended by Law 25 "
+             "(s. 3.1) |", True, False),
+            # Round 4 residuals: punctuation and a nested gloss.
+            ("| Quebec | Law 25 - amending CQLR c. P-39.1, as amended by Law "
+             "25 (s. 3.1) |", True, False),
+            ("| Quebec | *Law 25*, amending CQLR c. P-39.1, as amended by "
+             "Law 25 (s. 3.1) |", True, False),
+            ("| Quebec | Law 25 [S.Q. 2021, c. 25], amending CQLR c. "
+             "P-39.1, as amended by Law 25 (s. 3.1) |", True, False),
+            ("| Quebec | Law 25 (Bill 64 (2021)) amends CQLR c. P-39.1, as "
+             "amended by Law 25 (s. 3.1) |", True, False),
+            # Round 5 residuals: allowed marks out of order or not adjacent.
+            ("| Quebec | **Law 25 (Bill 64)**, amending CQLR c. P-39.1, as "
+             "amended by Law 25 (s. 3.1) |", True, False),
+            ("| Quebec | Law 25 substantially, amending CQLR c. P-39.1, as "
+             "amended by Law 25 (s. 3.1) |", True, False),
+            ("| Quebec | Law 25, (Bill 64) amending CQLR c. P-39.1, as "
+             "amended by Law 25 (s. 3.1) |", True, False),
+            ("| Quebec | Law 25 **, amending CQLR c. P-39.1, as amended by "
+             "Law 25 (s. 3.1) |", True, False),
+            ("| Quebec | Law 25 (Bill 64)) amends CQLR c. P-39.1, as amended "
+             "by Law 25 (s. 3.1) |", True, False),
+            # Round 6 residual: a bare "ly" is not an "ly" word.
+            ("| Quebec | Law 25 ly amends CQLR c. P-39.1, as amended by Law "
+             "25 (s. 3.1) |", True, False),
+            (f"- **Quebec Law 25**: the {title}, CQLR c. P-39.1, as amended "
+             "by S.Q. 2021, c. 25 (Law 25), which significantly amended "
+             "Quebec's provincial privacy laws. Key provisions: mandatory "
+             "PIAs (s. 3.3).", True, False),
+            ("| PIPEDA / Quebec Law 25 | Notify the OPC (PIPEDA s. 10.1); "
+             "promptly notify the CAI (CQLR c. P-39.1, ss. 3.5 and 3.8, as "
+             "amended by Law 25; consolidated text updated to 1 April "
+             "2026) |", True, False),
+            (f"Law 25 (S.Q. 2021, c. 25) amended the {title} (CQLR c. "
+             "P-39.1).", False, False),
+            ("| Quebec Law 25 | PIA establishing adequate protection, then "
+             "written agreement (s. 17) |", False, False),
+            ("Argentina applies Law 25.326, s. 5, as amended.", False, False),
+        )
+        for line, selected, caught in lines:
+            with self.subTest(line=line):
+                got = bool(list(self._identification_lines(line)))
+                self.assertEqual(got, selected)
+                self.assertEqual(
+                    got and bool(self._identity_problem(line)), caught)
+        names = (
+            ("Quebec Law 25 (S.Q. 2021, c. 25)", True),
+            ("Quebec Law 25 (S.Q. 2021, c. 25), amending CQLR c. P-39.1",
+             True),
+            (f"Law 25, amending the {title}", True),
+            ("Quebec CQLR c. P-39.1, as amended by Law 25 (S.Q. 2021, c. 25)",
+             False),
+            ("Quebec Law 25 (Canada, CQLR c. P-39.1)", False),
+            ("Quebec Law 25 (CQLR c. P-39.1) sections 3.3 and 12.1 (private "
+             "sector)", False),
+            ("Quebec CQLR c. P-39.1, as amended by Law 25 (consolidated text "
+             "updated to 1 April 2026)", False),
+        )
+        for name, caught in names:
+            with self.subTest(name=name):
+                self.assertEqual(bool(self._identity_problem(name)), caught)
+        old_row = ("| Quebec Law 25 | 2021 (phased in 2022-2024) | 2021 | An "
+                   "Act to modernize legislative provisions as regards the "
+                   "protection of personal information | - | "
+                   f"{self.P39_1_URL} | verified 2026-07-09 |")
+        self.assertTrue(self._identity_problem(old_row))
+
+    def test_corpus_never_cuts_p39_1_title_short(self):
+        """W4: the breach-response procedure called the act "Act Respecting
+        the Protection of Personal Information", dropping "in the private
+        sector", which reads as the public-sector act (CQLR c. A-2.1). No
+        corpus document cuts the title short. Round 2 (round 1 claude N2):
+        the procedure's Quebec row read as two instruments ("Quebec Law 25;
+        ..."), so it now takes the master specification's form, naming
+        P-39.1 in full as amended by Law 25."""
+        hits = [f"{rel}:{n}"
+                for rel in self._corpus_paths()
+                for n, line in enumerate(
+                    self._read(rel).splitlines(), 1)
+                if self._SHORT_TITLE_RE.search(line)]
+        self.assertEqual(hits, [])
+        self.assertIn(
+            f"| **Quebec (Provincial)** | Quebec Law 25: {self.P39_1_TITLE} "
+            "(CQLR c. P-39.1), as amended by Law 25 (S.Q. 2021, c. 25) |",
+            self._read("privacy/"
+                       "procedure-data-protection-and-privacy-breach-"
+                       "response.md"))
+
+    def test_open_q4_worklist_row_matches_the_register_row(self):
+        """W6: batch Q4 (opened 2026-05-30) records no close, and its Quebec
+        Law 25 row repeated the E1 mismatch (the amending act's title and
+        dates, an /en/.../cs/ URL). While the batch is open, the row's
+        expected value and URL match the register row."""
+        text = self._read(self.WORKLIST)
+        if not re.search(r"^\| Batch closed \|\s*\|$", text, re.M):
+            self.skipTest("batch Q4 is closed; its rows are a closed record")
+        rows = self._rows(text, "Quebec Law 25")
+        self.assertEqual(len(rows), 1, rows)
+        _, url, fields, expected = rows[0][:4]
+        self.assertEqual(url, self.P39_1_URL)
+        self.assertEqual(fields, "all")
+        for part in ("1993", "CQLR c. P-39.1", f"{self.P39_1_TITLE} (Quebec)",
+                     "as amended by S.Q. 2021, c. 25 (Law 25)",
+                     "held LegisQuebec consolidation updated to 2026-04-01",
+                     "held, not confirmed current upstream"):
+            self.assertIn(part, expected)
+        self.assertNotIn("modernize", expected)
+
+    def test_citation_verification_calls_law_25_a_statute(self):
+        """N5: the publisher table and its JSON block called Law 25 a
+        "Quebec provincial regulation"; it is a statute. Round 2 (round 1
+        claude N4, codex W2): the check reads the Quebec publisher entries
+        only, the table row whose Publisher cell is Quebec and the JSON
+        entries whose publisher is Quebec, and requires each to say
+        statute and not regulation, so a further accurate mention of Law 25
+        elsewhere in the specification does not fail it."""
+        text = self._read("governance/specification-citation-verification.md")
+        rows = [cells[2] for cells in self._rows(text, "Quebec")]
+        block = re.search(r"^```json citation-publishers\n(.*?)^```$", text,
+                          re.M | re.S)
+        self.assertIsNotNone(block)
+        entries = [e["covers"] for e in json.loads(block.group(1))
+                   if e.get("publisher") == "Quebec"]
+        self.assertTrue(rows)
+        self.assertTrue(entries)
+        for covers in rows + entries:
+            with self.subTest(covers=covers):
+                self.assertIn("statute", covers)
+                self.assertNotIn("regulation", covers)
 
 
 class DraftAdventureGuardTests(unittest.TestCase):
