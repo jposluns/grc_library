@@ -21660,7 +21660,11 @@ class ProgrammeClaimsTests(unittest.TestCase):
         ends, so each string is one sentence; the ten strings must be
         exactly the ten guarded strings, each selected by its own named
         check exactly once. An added, removed or merged sentence therefore
-        fails the count, whatever punctuation ends it. The I (a) tie is a
+        fails the count, whatever counted sentence end (. ? ! or the
+        ellipsis) ends it; other end marks, such as the fullwidth full stop
+        U+FF0E, are not counted (draft h3b795, claude NOTE 1), so an added
+        sentence that ends in one and runs into a guarded sentence is read
+        with that guarded string and can pass. The I (a) tie is a
         deliberate wording contract (claude NOTE 1): each I (a) condition
         must be quoted after the sentence's one mention of I (a), so equally
         accurate wording that quotes a condition first and names element
@@ -21670,7 +21674,11 @@ class ProgrammeClaimsTests(unittest.TestCase):
         possible" (lines 4957 to 4958) among the I (a) conditions, word for
         word, so the key names each I (a) condition the map quotes; the tie
         check covers it like the other two, and the sentence's allowlist
-        adds "If access control is not possible" beside "do not".
+        adds "If access control is not possible" beside "do not". Draft
+        h3b795 (review round 8, claude NOTE 1 and 2, codex NOTE): the count
+        sentence above names the sentence ends it counts, and the
+        exact-ten and ✓ rule wording contracts below name the two further
+        cases the reviews found.
 
         Completeness probe for this class: a negation word is not, no,
         never, neither, nor, cannot, without, none, nothing, nobody or
@@ -21711,9 +21719,22 @@ class ProgrammeClaimsTests(unittest.TestCase):
         changes with it, and the same holds for every allowed phrase. The
         exact-ten rule is a deliberate wording contract too (claude WARN 1):
         an accurate added sentence, one sentence split in two, two sentences
-        joined into one, or a sentence end inside a sentence (an
-        abbreviation such as e.g., or a section number such as 11.2) fails
-        until the test changes with it. The other-conditions sentence must
+        joined into one, a sentence end inside a sentence (an
+        abbreviation such as e.g., or a section number such as 11.2), or
+        (draft h3b795, claude NOTE 2) a guarded sentence reworded to open
+        with anything but a capital letter A to Z (such as "✓ domains"), or
+        whose full stop is not directly followed by whitespace (such as a
+        full stop inside closing quotation marks), fails until the test
+        changes with it. The split separates sentences only at whitespace
+        between a full stop and a capital A to Z, so such a reworded
+        sentence merges with the one before or after it and the split gives
+        nine strings; the last sentence, with nothing after it, instead
+        leaves a string that does not end in a full stop, and the opening
+        sentence must begin "For the WCO SAFE column" in any case. The ✓
+        rule's conjunction is a deliberate wording contract too (draft
+        h3b795, codex NOTE): the rule must say "marked ✓ because", so an
+        equally accurate "marked ✓ since" fails until the test changes with
+        it. The other-conditions sentence must
         also not name the national AEO programme qualifier (no "programme"
         and no "qualifier" in it).
 
@@ -21762,8 +21783,10 @@ class ProgrammeClaimsTests(unittest.TestCase):
         # sentences by structure. The split gives exactly ten strings, each
         # ending in a full stop, and the key holds exactly ten sentence ends,
         # so each string is one sentence and an added, removed or merged
-        # sentence fails here whatever punctuation ends it; after the
-        # selectors below, the ten strings are the ten they select.
+        # sentence fails here whatever counted sentence end (. ? ! or the
+        # ellipsis) ends it; other end marks, such as U+FF0E, are not
+        # counted (draft h3b795, claude NOTE 1). After the selectors below,
+        # the ten strings are the ten they select.
         key_strings = re.split(r"(?<=\.)\s+(?=[A-Z])", key)
         self.assertEqual(len(key_strings), 10, key_strings)
         self.assertEqual([part for part in key_strings
@@ -21891,7 +21914,9 @@ class ProgrammeClaimsTests(unittest.TestCase):
         self.assertIn("✓", cargo[0])
         self.assertRegex(cargo[0], r"\bqualified sub-item")
         self.assertIn("H (d)", cargo[0][cargo[0].find("G (g)"):])
-        # The reasoning, not only its tokens (draft safekey5).
+        # The reasoning, not only its tokens (draft safekey5). The literal
+        # "because" is a deliberate wording contract (draft h3b795, codex
+        # NOTE): "since" can also read as time ("marked ✓ since 2025").
         self.assertRegex(rule[0], r"\bother\b[^.]*\bdomains\b[^.]*"
                                   r"\bmarked ✓ because\b")
         self.assertRegex(cargo[0], r"✓ domain (?:can|may) (?:still )?contain "
