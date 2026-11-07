@@ -16502,9 +16502,10 @@ class QuebecLaw25IdentityTests(unittest.TestCase):
     # subject: any number of ")" or "**" directly after it, with no
     # whitespace before or between them, then any number of unnested
     # parenthetical glosses, then at most one ",", ":" or table cell "|",
-    # then at most one "ly" word (one or more letters, digits or
-    # underscores followed by "ly", so not only an adverb, and a bare "ly"
-    # does not count) followed by one or more whitespace characters.
+    # then at most one "ly" word (one or more word characters (\w: Unicode
+    # alphanumerics and underscore) followed by "ly", so not only an
+    # adverb, and a bare "ly" does not count) followed by one or more
+    # whitespace characters.
     # Whitespace of any kind, none or more, may come before each gloss and
     # before and after the delimiter's position, whether or not a
     # delimiter is present. Any other word or mark, or these out of order,
@@ -16543,22 +16544,22 @@ class QuebecLaw25IdentityTests(unittest.TestCase):
 
     @classmethod
     def _identity_problem(cls, text):
-        """None when text passes the identity check, else the reason. The
+        r"""None when text passes the identity check, else the reason. The
         text must cite CQLR c. P-39.1; it must not frame Law 25 or 2021, c.
         25 as amending, anywhere in it (_AMENDING_FRAME_RE: the subject
         then "amends", "amending" or "amended", with "A" or "a", and between
         them only these parts, in this order: any number of ")" or "**"
         right after the subject, with no whitespace before or between them;
         then any number of unnested parenthetical glosses; then at most one
-        ",", ":" or "|"; then at most one "ly" word, one or more letters,
-        digits or underscores followed by "ly" (any such word and not only
-        an adverb, so "2ly" counts and a bare "ly" does not), followed by
-        one or more whitespace characters; whitespace of any kind, none or
-        more, may come before each gloss and before and after the
-        delimiter's position, whether or not a delimiter is present, so it
-        may separate the subject, its last closing or its last gloss from
-        the "ly" word or the verb); and where it
-        names the amending act (2021, c. 25) or carries any amend word,
+        ",", ":" or "|"; then at most one "ly" word, one or more word
+        characters (\w: Unicode alphanumerics and underscore) followed by
+        "ly" (any such word and not only an adverb, so "2ly" counts and a
+        bare "ly" does not), followed by one or more whitespace characters;
+        whitespace of any kind, none or more, may come before each gloss
+        and before and after the delimiter's position, whether or not a
+        delimiter is present, so it may separate the subject, its last
+        closing or its last gloss from the "ly" word or the verb); and where
+        it names the amending act (2021, c. 25) or carries any amend word,
         every CQLR c. P-39.1 citation in it must be followed, within its
         clause (before the next ";", ":", "|" or sentence end), by "as
         amended by". The frame rule ignores clause and sentence ends and
@@ -16787,13 +16788,15 @@ class QuebecLaw25IdentityTests(unittest.TestCase):
         probe, an identity cell ending in "Law 25 (Bill 64)" followed by a
         cell that starts "Amended"). Round 6 (round 5 claude N2) adds two
         more: whitespace at the delimiter's position with no delimiter
-        (three spaces between "Law 25 (Bill 64)" and "amends"; it passes
-        only when the whitespace on both sides of that position is
-        removed) and a digit in the "ly" word ("Law 25 2ly amends"). The
-        "," delimiter, the "amends" and "amending" forms and the lowercase
-        "a" have no fixture of their own: each fixture named here that uses
-        one of them fails when it is removed, but also depends on another
-        part. The counts (any number of closings or glosses, at most one
+        (three spaces between "Law 25 (Bill 64)" and "amends"; it stays
+        caught when the whitespace on either side of that position alone
+        is removed, and passes when the whitespace on both sides is removed
+        and also when the whitespace before a gloss is removed) and a
+        digit in the "ly" word ("Law 25 2ly amends"). The "," delimiter,
+        the "amends" and "amending" forms and the lowercase "a" have no
+        fixture of their own: each fixture named here that uses one of them
+        fails when it is removed, but also depends on another part. The
+        counts (any number of closings or glosses, at most one
         delimiter or "ly" word, none or more whitespace characters at each
         optional position, one or more after the "ly" word), whitespace
         other than a space, the whitespace before a gloss and an underscore
