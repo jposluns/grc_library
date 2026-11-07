@@ -19765,8 +19765,8 @@ class ProgrammeClaimsTests(unittest.TestCase):
     tools/audit-reference-breadth.py), so a form feed or a Unicode line
     separator inside a line does not start a new one.
 
-    The class has 70 tests: 61 corpus regression tests, 5 self-checks and
-    4 held-source consistency checks.
+    The class has 71 tests: 61 corpus regression tests, 5 self-checks and
+    5 held-source consistency checks.
 
     The corpus regression tests read the corpus files directly (no site
     render) and are written to fail when their fix is reverted. The
@@ -19782,19 +19782,23 @@ class ProgrammeClaimsTests(unittest.TestCase):
     loosening a guard's matcher or miscounting the class does.
 
     The held-source consistency checks are the tests in _HELD_SOURCE_CHECKS.
-    They read the held extracts, so they run only when the reference corpus
-    is present (GRC_REF_PATH or a sibling grc_library_ref checkout) and skip
-    without it; CI holds no reference corpus, so they run locally only.
-    Three of them read only the extracts, so reverting a corpus correction
-    cannot make them fail: they test what the corpus's citations rest on.
+    They read the held extracts or the reference catalogue, so they run
+    only when the reference corpus is present (GRC_REF_PATH or a sibling
+    grc_library_ref checkout) and skip without it; CI holds no reference
+    corpus, so they run locally only. Three of them read only the
+    extracts, so reverting a corpus correction cannot make them fail: they
+    test what the corpus's citations rest on.
     test_glossary_oea_row_names_every_compendium_oea_title also reads the
-    glossary's OEA row."""
+    glossary's OEA row, and
+    test_reference_manifest_set_aside_titles_are_catalogue_titles reads
+    the reference catalogue and the reference acquisition manifest."""
 
     _HELD_SOURCE_CHECKS = (
         "test_compendium_neec_search_results_hold",
         "test_safe_basc_search_result_holds",
         "test_glossary_oea_row_names_every_compendium_oea_title",
-        "test_cited_held_lines_carry_their_text")
+        "test_cited_held_lines_carry_their_text",
+        "test_reference_manifest_set_aside_titles_are_catalogue_titles")
     # Round 8 (review round 3, claude NOTE 4): the tests that read neither
     # a corpus file nor a held extract.
     _SELF_CHECKS = (
@@ -22322,27 +22326,76 @@ class ProgrammeClaimsTests(unittest.TestCase):
         self.assertIn("Trade records are retained", table)
 
     _AUTHORISED = "Authorised Economic Operator"
-    # The only exempt spans, by file: the reference acquisition manifest's
-    # held-title cells (EU AEO Guidelines, HMRC handbook) and the audit
-    # programme specification's quoted programme name.
+    # The only hand-kept exempt span: the audit programme specification's
+    # quoted programme name. In the reference acquisition manifest the
+    # corpus check sets aside only the title cell of a generated row
+    # (_manifest_title_cell), and a held-source check holds each such cell
+    # to the reference catalogue (_unheld_set_aside_title).
     _AUTHORISED_EXEMPT = {
-        "docs/reference-acquisition-manifest.md": (
-            "| EU Authorised Economic Operator (AEO) Guidelines, "
-            "TAXUD/B2/047/2011 Rev.6 (2016) |",
-            "| HMRC Customs Technical Handbook, Authorised Economic "
-            "Operator: AEO Criteria, Security and Safety (AEOS only) "
-            "(updated 17 July 2025) |"),
         "governance/specification-audit-programme.md": (
             '"Authorised Economic Operator"',),
     }
+    REFERENCE_MANIFEST = "docs/reference-acquisition-manifest.md"
+    # A row of the tables tools/build-reference-manifest.py generates:
+    # title, version or edition, issuer, upstream URL and acquisition
+    # class, each value with its pipes escaped. Group 1 is the title cell.
+    _MANIFEST_ROW = re.compile(
+        r"\| ((?:[^|\\]|\\.)*) \|(?: (?:[^|\\]|\\.)* \|){3} "
+        r"(?:FREE|LICENSED) \|")
+    # A generated manifest row whose title the catalogue holds with HMRC's
+    # -ise spelling.
+    _HELD_HMRC_ROW = (
+        "| HMRC Customs Technical Handbook, Authorised Economic "
+        "Operator: AEO Criteria, Security and Safety (AEOS only) "
+        "(updated 17 July 2025) | gov.uk guidance page, "
+        "public_updated_at 2025-07-17 | HM Revenue and Customs |  | "
+        "FREE |")
+
+    @classmethod
+    def _manifest_title_cell(cls, rel, line):
+        """The (start, end) of the title cell when this line of rel is a
+        reference manifest row with the generator's five-column shape
+        (_MANIFEST_ROW), else None. Reads no catalogue."""
+        row = (cls._MANIFEST_ROW.fullmatch(line)
+               if rel == cls.REFERENCE_MANIFEST else None)
+        return row.span(1) if row else None
+
+    @staticmethod
+    def _held_title_cells(catalogue_lines):
+        """The title cell tools/build-reference-manifest.py renders for each
+        entry of the reference catalogue's trusted buckets, parsed and
+        escaped by the generator's own _parse_catalogue and _cell."""
+        build = _load_module("tools/build-reference-manifest.py",
+                             "build_reference_manifest_mod")
+        catalogue = build._parse_catalogue("\n".join(catalogue_lines))
+        return frozenset(build._cell(entry.get("title"))
+                         for bucket in build.TRUSTED
+                         for entry in catalogue.get(bucket, []))
+
+    @classmethod
+    def _unheld_set_aside_title(cls, line, title_cells):
+        """The reference manifest title cell on this line in which the
+        corpus check sets aside an -ise programme spelling, when its text is
+        not one of title_cells (_held_title_cells); else None."""
+        span = cls._manifest_title_cell(cls.REFERENCE_MANIFEST, line)
+        if span is None:
+            return None
+        cell = line[span[0]:span[1]]
+        if cls._AUTHORISED in cell and cell not in title_cells:
+            return cell
+        return None
 
     @classmethod
     def _unexempt_authorised(cls, rel, line):
         """The -ise programme spellings on this line of rel that no exempt
-        span of rel covers."""
+        span of rel covers: a span of _AUTHORISED_EXEMPT or the reference
+        manifest title cell _manifest_title_cell finds."""
         spans = [(found.start(), found.end())
                  for span in cls._AUTHORISED_EXEMPT.get(rel, ())
                  for found in re.finditer(re.escape(span), line)]
+        title = cls._manifest_title_cell(rel, line)
+        if title is not None:
+            spans.append(title)
         return [match.start()
                 for match in re.finditer(re.escape(cls._AUTHORISED), line)
                 if not any(start <= match.start() < end
@@ -22361,25 +22414,56 @@ class ProgrammeClaimsTests(unittest.TestCase):
         Only the identified spans are exempt now (_AUTHORISED_EXEMPT): the
         manifest's two held-title cells and the specification's quoted
         name; each must still be present, and a new occurrence in either
-        file fails."""
-        found = [f"{rel}:{number}" for rel, number, line in self._md_lines()
-                 if self._unexempt_authorised(rel, line)]
-        self.assertEqual(found, [])
+        file fails. Round 10 (reference manifest regeneration on
+        8f065577a): the regenerated manifest lists six more held HMRC
+        handbook sections, whose titles carry HMRC's -ise spelling as the
+        reference catalogue holds them, so each of their rows failed
+        against the two hand-kept manifest spans. The manifest is no longer
+        in _AUTHORISED_EXEMPT, whose specification name must still be
+        present. In the manifest, an occurrence is set aside only inside the
+        title cell of a row with the generator's five-column shape
+        (_manifest_title_cell); every other cell of such a row, every other
+        manifest line and every other file is checked as before. A first
+        draft of this round judged those cells against the catalogue here,
+        which made this test skip without the reference corpus, so CI would
+        have stopped checking any document. The check is split instead:
+        this test reads no catalogue and runs without the reference corpus,
+        and the held-source check
+        test_reference_manifest_set_aside_titles_are_catalogue_titles
+        fails a set-aside title cell that is not a catalogue title. The
+        corpus-wide scan now runs after the planted lines, so a corpus
+        finding cannot hide a matcher fault."""
         lines = {rel: "\n".join(self._lines(rel))
                  for rel in self._AUTHORISED_EXEMPT}
         for rel, spans in self._AUTHORISED_EXEMPT.items():
             for span in spans:
                 with self.subTest(rel=rel, span=span[:40]):
                     self.assertIn(span, lines[rel])
+        held_row = self._HELD_HMRC_ROW
+        self.assertIn(held_row, self._lines(self.REFERENCE_MANIFEST))
+        for line in (held_row, held_row.replace(
+                "Security and Safety (AEOS only)", "Planted Section")):
+            with self.subTest(set_aside=line[60:90]):
+                self.assertEqual(self._unexempt_authorised(
+                    self.REFERENCE_MANIFEST, line), [])
         for rel, line in (
-                ("docs/reference-acquisition-manifest.md",
+                (self.REFERENCE_MANIFEST,
                  "| UK AEO guidance | the Authorised Economic Operator "
                  "scheme | HM Revenue and Customs |  | FREE |"),
+                (self.REFERENCE_MANIFEST, held_row.replace(
+                    "gov.uk guidance page", self._AUTHORISED)),
+                (self.REFERENCE_MANIFEST,
+                 "| Authorised Economic Operator | HM Revenue and Customs "
+                 "|  | FREE |"),
+                (self.REFERENCE_MANIFEST,
+                 "The Authorised Economic Operator sources are listed "
+                 "below."),
                 ("governance/specification-audit-programme.md",
                  "The Authorised Economic Operator programme is audited "
                  "each year."),
                 ("compliance/logistics/README.md",
-                 '"Authorised Economic Operator"')):
+                 '"Authorised Economic Operator"'),
+                ("compliance/logistics/README.md", held_row)):
             with self.subTest(planted=f"{rel}: {line[:30]}"):
                 self.assertTrue(self._unexempt_authorised(rel, line))
         spelled = self._AUTHORISED
@@ -22387,6 +22471,35 @@ class ProgrammeClaimsTests(unittest.TestCase):
             encoding="utf-8"))
         self.assertIn("### AEO (United Kingdom Authorized Economic Operator)",
                       self._lines(self.LOGISTICS + "README.md"))
+        found = [f"{rel}:{number}" for rel, number, line in self._md_lines()
+                 if self._unexempt_authorised(rel, line)]
+        self.assertEqual(found, [])
+
+    def test_reference_manifest_set_aside_titles_are_catalogue_titles(self):
+        """Round 10 (reference manifest regeneration on 8f065577a): the
+        corpus check test_uk_programme_has_one_spelling_in_each_document
+        sets aside the -ise programme spelling in the title cell of a
+        generated reference manifest row (_manifest_title_cell), without
+        reading the catalogue, so that it still runs in CI. This check
+        holds each set-aside cell to the reference catalogue: its text must
+        be a title cell tools/build-reference-manifest.py renders for an
+        entry of a trusted bucket, read through the generator's own parser
+        (_held_title_cells). A set-aside cell whose text is not a catalogue
+        title fails. It reads catalogue.yml, so it skips without the
+        reference corpus."""
+        title_cells = self._held_title_cells(
+            self._held_lines("catalogue.yml"))
+        held_row = self._HELD_HMRC_ROW
+        self.assertIsNone(
+            self._unheld_set_aside_title(held_row, title_cells))
+        self.assertTrue(self._unheld_set_aside_title(
+            held_row.replace("Security and Safety (AEOS only)",
+                             "Planted Section"), title_cells))
+        found = [f"{self.REFERENCE_MANIFEST}:{number}"
+                 for number, line in enumerate(
+                     self._lines(self.REFERENCE_MANIFEST), 1)
+                 if self._unheld_set_aside_title(line, title_cells)]
+        self.assertEqual(found, [])
 
     def test_uk_procedure_has_no_bare_submission(self):
         """Round 6 (claude NOTE 5, agy stage A NOTE 1): after round 5 the
