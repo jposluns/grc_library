@@ -1012,9 +1012,10 @@ def _identity_is_adopter(identity: dict) -> bool:
     namely with (a) an inherited GIT_DIR, alone or with GIT_WORK_TREE, naming a
     fork's repository; (b) a ``url.<base>.insteadOf`` or ``remote.origin.url``
     rewrite in repository, global or system configuration, or through
-    GIT_CONFIG_* variables; or (c) an SSH host alias or a mirror host, which
-    detect-env's ``_origin_is_maintainer`` already calls a recoverable false
-    ADOPTER for ``/orch``. Here none of them is recoverable that way: ref-holds
+    GIT_CONFIG_* variables; or (c) an SSH host alias, which detect-env's
+    ``_origin_is_maintainer`` already calls a recoverable false ADOPTER for
+    ``/orch``, or a mirror host, which that function handles as the same
+    non-GitHub-host case. Here none of them is recoverable that way: ref-holds
     silently skips the missing-grc_library_ref failure (exit 0 with the adopter
     advisory instead of the LOUD exit 2)."""
     origin_url = identity.get("origin_url")

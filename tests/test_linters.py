@@ -45308,7 +45308,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         publication-manifest.json DATA F f6c34770a55a6f3245e5b5db0ff99ed3bebc8f2f34f6b1bacbdd3317981dce58
         quick-guard.sh FIXED F 2e518f73cbbe613de9c3265e2996f8babd38a538ff8b50f922d0335430b13f5e
         reconcile-regression-shards.py OWN F cdb29c6e8897ad810d16877ecb56bf762a51064af680784553032a24afec65b4
-        ref-holds.py OWN F 3d7efdf183b5a9e57beb982ee992f856fdf89732ff79ae1ba1e60f16b011a92c
+        ref-holds.py OWN F 7a9638f7bb9be3e049d38dd6782efc3b5704187ede2168d9541739d6b7117bc5
         reference-breadth-aliases.json DATA F c73f2b96060b59aeec663d81b8d4c4eaecb8d279b90dc63d4d102dae047e0710
         repo-guard.sh COMMAND F b2e71355c9cf4e88a8e3a09242494e52a1f18f7fcc142392e4ca6c4e6e46e40b
         residual-scan.py NO_FS F fd8ff448f4d83f48d3e1116ac9b10d3c5ab8ed4d959ae888924679dd37cb194f
