@@ -33958,6 +33958,25 @@ class SessionStateTests(LinterTestCase):
         self.assertEqual(missing, [])
         self.assertEqual(invalid, [])
 
+    def test_3b793_session_rule_is_shared_id_rule(self) -> None:
+        # Gate 63's Active-session rule is tools/lease_id.py's ID layer, with the
+        # pattern unchanged, so no previously valid id is refused and none is added.
+        mod = self._load_module()
+        import lease_id
+        self.assertIs(mod.SESSION_RE, lease_id.ID_RE)
+        self.assertEqual(mod.SESSION_RE.pattern, r"[!-~]{1,128}")
+        for value in ("grc-orch1-20261102T1310Z", "claude/example-branch", "69556d8c",
+                      "orch-2026-10-04T13:36Z", "a" * 128, "!~"):
+            with self.subTest(value=value):
+                lease = self.VALID_LEASE.replace("claude/example-branch", value)
+                self.assertEqual(mod.check_text(lease), ([], []))
+        for value in ("a" * 129, "orch-" + chr(0xE9), "grc-orch1-" + chr(0xFF12) + "0261102T1310Z"):
+            with self.subTest(value=value):
+                lease = self.VALID_LEASE.replace("claude/example-branch", value)
+                missing, invalid = mod.check_text(lease)
+                self.assertTrue(any("is not 1 to 128 printable" in item for item in invalid),
+                                (missing, invalid))
+
     def test_released_lease_with_none_session_passes(self) -> None:
         mod = self._load_module()
         text = self.VALID_LEASE.replace(
@@ -45188,11 +45207,12 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         git-hooks/commit-msg MESSAGE F 613cecec0514f4a7bdd8a22824dd4bbe1deabd695d86f8b9b7f1533a83efeb44
         git-hooks/pre-commit FIXED F 5562a444ef55842d3d8cc6bd49abbb447a333a4e447736c3a681d562e47aaa0c
         git-hooks/pre-push TRANSPORT F 598806d6ab27e039ae858a935fa02813ba52588bd7ba2fab6586d27bd76d4267
-        handoff-snapshot.py NO_FS F 59e87f5b350caee9295c0ac4499d1f113c1403e156408994520c4889d7c44af0
+        handoff-snapshot.py NO_FS F f402315b516e0c688956f838b091f7a1fe802f6fba920e1677ca117573acb916
         historical_citation_register.py PASSIVE F deb457b7487c069a6f1602b6a4160e1ce922da6a82a523b288dfee151d3b0236
         install-git-hooks.sh FIXED F a0010c29758bda7824fdd000e5400c5aa6c3dd13563c9cf3bc4c35acc53b286c
         iso27001_reference.py PASSIVE F 01119eacf328d0bfe36ae40f9800a6c7fe37ef895bca70b219341ac07aec53e3
         iso_27001_reference.py PASSIVE F e8789346ac57b557de2f5c93c7fc2b31651b49be25bc8180e8bdc84310b21418
+        lease_id.py PASSIVE F 30cae58af0f3e1667913689fe3f22b0b470f892025af76f2e9a5f1a00d2e0f72
         lint-acronym-consistency.py CWD F 2608f2b4ef320586a895895235ce268e75dcca39f4a1e0618019ef8f1f59c3a9
         lint-aiqt-vendor-digest.py NO_FS F f0c899025d8ce7f633249166d3d87e8d6391ada2507ccee775cf4730178e2b84
         lint-alignment-citation-existence.py CWD F 98916885286c45121fb03f9a05866d80879a9300f6ee461bc4da107db1ec5657
@@ -45265,7 +45285,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-secrets-in-content.py CWD F 868061fc0527d0843223825800fb75dd963d345d058a144b6ecc23ee8deb227b
         lint-section-anchors.py CWD F 4b540b4eb8480d1f4be16e1c51cc7c990d22a5b4ea8911244636d0aa1956726f
         lint-section-placement.py CWD F 936e351d52bcd0a0a4964b3ecd046c44ae057298aed6edde002687e8f4c17f98
-        lint-session-state.py NO_FS F e723bbbb0268178ca8e649b3120733ccfd46f8ceaad3a5d3c62891870bba03e7
+        lint-session-state.py NO_FS F 5fa9dbfda3115fa272bb63a37c2420ed34f1ea4678eb8b1e63d81f5fac35ebe3
         lint-shall-near-uncertainty.py ROOT F 0df50c2b6826f9216f67addad8931f1eb35498d0e3862064bdb3fed317e64610
         lint-sibling-placeholders.py NO_FS F 2ae82222a589343521ebfbc12a3b9edbec0533203e02b3f7adf906f2b8ad1d2a
         lint-skill-derives-from.py OWN F 4bf6a78a42e9f8d8dff44035ac2320a67043006a133375e7cacdcd85dd5336f5
@@ -45318,7 +45338,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         run_all_audits.sh FIXED F ec86a76e9dec99394069b2fccab2fb84c152f9e9a16214f02358d8e2c60862fc
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900
-        session_facts.py PASSIVE F b4fc9c2f87ed95dd52a717bf07913c942777e1aae5ec902c595f10e5ed2ad77b
+        session_facts.py PASSIVE F 51db88eba5c34d0e5360dea5f57472f6213768daf122579828c9b92511d14470
         skill-verdict-fields.json DATA F fba56d7e70141647fcad92824591d65a0208c6e6b623caaff82bfcb62bbd06aa
         standards-currency-unpinned-baseline.json DATA F 3731e576e0d0afbabdbe3fc1b88cddd2e6865c39e032457dd84e4ccc11f4d4b2
         statusline-next-pr.py NO_FS F 81db4327eb56260c362e61edbae2a7c7c2fd426df579fe21d57638cfd7b55223
@@ -68690,8 +68710,8 @@ class HookSiblingImportIsolationTests(unittest.TestCase):
             self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
             self.assertIn('hook-helper-isolation', r.stderr)
             self.assertIn('symlink', r.stderr)
-    HELPER_NAMES = ('_hook_state', '_hookutil', '_operating_mode', '_session_clock', 'lint_common', 'todo_index_rows', 'session_facts')
-    HELPER_IMPORT_RE = re.compile('(?:from|import)\\s+(?:_hook_state|_hookutil|_operating_mode|_session_clock|lint_common|todo_index_rows|session_facts)')
+    HELPER_NAMES = ('_hook_state', '_hookutil', '_operating_mode', '_session_clock', 'lint_common', 'todo_index_rows', 'session_facts', 'lease_id')
+    HELPER_IMPORT_RE = re.compile('(?:from|import)\\s+(?:_hook_state|_hookutil|_operating_mode|_session_clock|lint_common|todo_index_rows|session_facts|lease_id)')
 
     def _helper_import_offences(self, paths):
         import ast
@@ -68718,7 +68738,7 @@ class HookSiblingImportIsolationTests(unittest.TestCase):
 
     def test_tools_helpers_import_no_repository_helpers_by_name(self):
         tools = REPO_ROOT / 'tools'
-        offenders = self._helper_import_offences([tools / 'lint_common.py', tools / 'todo_index_rows.py', tools / 'session_facts.py'])
+        offenders = self._helper_import_offences([tools / 'lint_common.py', tools / 'todo_index_rows.py', tools / 'session_facts.py', tools / 'lease_id.py'])
         self.assertEqual(offenders, [])
 
 
@@ -68850,7 +68870,7 @@ class HookDescendantIsolationTests(unittest.TestCase):
         from collections import Counter
         paths = set((REPO_ROOT / '.claude/hooks').glob('*.py'))
         paths.add(REPO_ROOT / '.claude/hooks/nmw-actionable')
-        paths.update((REPO_ROOT / 'tools' / name for name in ('audit-backlog-actionability.py', 'lint_common.py', 'todo_index_rows.py', 'session_facts.py')))
+        paths.update((REPO_ROOT / 'tools' / name for name in ('audit-backlog-actionability.py', 'lint_common.py', 'todo_index_rows.py', 'session_facts.py', 'lease_id.py')))
 
         def commands(node):
             if isinstance(node, dict):

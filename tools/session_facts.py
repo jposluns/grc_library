@@ -13,7 +13,23 @@ the label and value are separated by spaces or tabs only, never a line end.
 Duplicate or malformed fields make start and elapsed UNKNOWN; compactions
 are UNKNOWN with a log and reported as no log without one.
 Only the Active-session value can
-supply a start, via the labelled orch-<UTC seconds> convention.
+supply a start, via the shared lease-id grammar in tools/lease_id.py (3b793):
+a <label>-<stamp> id whose stamp is a real UTC time. An id with no stamp, or
+an invalid value, leaves the start UNKNOWN with its own warning; no other
+field, the transcript or a log row ever supplies a start. A minute-precision
+stamp (YYYYMMDDTHHMMZ) reads as zero seconds, so elapsed can overstate by
+less than 60 s, and any compaction row inside that start minute makes the
+count UNKNOWN with a warning because its position before or after the start
+is unknown. Two minute-precision limits are disclosed, not warned: a
+heartbeat inside the start minute but before the true start passes the
+heartbeat-before-start check, and a now inside the start minute shows
+elapsed 0h0m.
+Since 3b793 any <label>-<stamp> id is read as the session start, not only
+orch-<extended seconds>. An id whose stamp is not the session start therefore
+reports a wrong start, and an id whose stamp is after now (for example
+sess-20991231T000000Z) raises SESSION_START_FUTURE where it was UNKNOWN.
+An orch- id with non-ASCII digits, which the earlier orch- rule read as a
+start, is now INVALID with start UNKNOWN; gate 63 always refused it.
 Missing, invalid, early or future heartbeats leave the start intact but make
 elapsed UNKNOWN and compactions UNKNOWN with a log or no log without one:
 activity since the start is unverified.
@@ -21,8 +37,9 @@ A heartbeat older than 24h caps both metrics at that last observation.
 Accepted compaction rows count inclusively from the session start to now (or
 the heartbeat when stale), reading minute-form stamps as zero seconds and
 dropping rows after that window without warning, except that a minute-form
-row in the start minute with nonzero start seconds makes the count UNKNOWN
-with a warning because its position before or after the start is unknown.
+row in the start minute with nonzero start seconds, or any row in the start
+minute of a minute-precision id, makes the count UNKNOWN with a warning
+because its position before or after the start is unknown.
 With a known session start, a minute-form row in a stale heartbeat's minute
 also makes the count UNKNOWN with a warning regardless of heartbeat seconds,
 because part of that minute lies after the heartbeat.
@@ -55,24 +72,25 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-def _reviewed_lint_common():
+def _reviewed_helper(name):
     """Load reviewed source bytes only; test symlinks before resolving paths."""
     path = Path(os.path.abspath(__file__))
     root = path.parent.parent
-    helper = path.parent / "lint_common.py"
+    helper = path.parent / (name + ".py")
     for item in (root, path.parent, path, helper):
         if item.is_symlink():
             raise ImportError("reviewed helper is a symlink: " + str(item))
-    if path.parent.name != "tools" or helper.resolve() != root.resolve() / "tools/lint_common.py":
+    if path.parent.name != "tools" or helper.resolve() != root.resolve() / "tools" / (name + ".py"):
         raise ImportError("reviewed helper outside repository tools")
-    module = type(sys)("lint_common")
+    module = type(sys)(name)
     module.__file__ = str(helper)
     exec(compile(helper.read_bytes(), str(helper), "exec", dont_inherit=True), module.__dict__)
     return module
 
 
 
-resolve_working = _reviewed_lint_common().resolve_working
+resolve_working = _reviewed_helper("lint_common").resolve_working
+lease_id = _reviewed_helper("lease_id")
 ISO = r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?Z)"
 COMPACTION = re.compile(r"\|\s*" + ISO + r"\s*\|\s*compaction\s*\|")
 SECONDS = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z"
@@ -151,22 +169,33 @@ def session_metrics(root: Path, now: datetime | None = None):
             ambiguous.append("fields are out of order: Active-session, Status, Last-heartbeat-UTC")
     warnings = []
     start, source, dt = "UNKNOWN", "UNKNOWN", None
+    minute_precision = False
     if ambiguous:
         warnings.append("AMBIGUOUS LEASE FIELD: " + ", ".join(ambiguous))
     else:
+        parsed = None
         if session and status == "active":
-            match = re.fullmatch("orch-(" + SECONDS + ")", session)
-            dt = _parse(match[1]) if match else None
-            source = ("derived from Active-session orch-<UTC start> convention" if dt else
-                      "start unknown because the lease id does not record one")
+            parsed = lease_id.parse(session)
+            if parsed.kind == lease_id.STAMPED:
+                dt = parsed.start
+                minute_precision = parsed.precision == 60
+                source = ("derived from Active-session lease-id convention"
+                          + (" (minute precision)" if minute_precision else ""))
+            elif parsed.kind == lease_id.INVALID:
+                source = "start unknown because the lease id is not valid"
+            else:
+                source = "start unknown because the lease id does not record one"
         if dt is not None:
             if dt > now:
                 raise SessionStartError("SESSION_START_FUTURE: lease start is after now")
             start = dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+        elif parsed is None:
+            warnings.append("SESSION_START_UNKNOWN: no usable live lease start")
+        elif parsed.kind == lease_id.INVALID:
+            warnings.append("SESSION_START_UNKNOWN: the lease id is not 1 to 128 "
+                            "printable ASCII characters")
         else:
-            warnings.append("SESSION_START_UNKNOWN: " + (
-                "the lease id does not record a start time" if session and
-                status == "active" else "no usable live lease start"))
+            warnings.append("SESSION_START_UNKNOWN: the lease id does not record a start time")
     end = None
     stale_heartbeat = False
     if not ambiguous:
@@ -189,6 +218,7 @@ def session_metrics(root: Path, now: datetime | None = None):
     _, content = _read(root, "degradation-watch-log.md", "COMPACTIONS_UNREADABLE")
     stamps, invalid = [], False
     start_minute_ambiguous = False
+    start_precision_ambiguous = False
     end_minute_ambiguous = False
     for line in (content or "").splitlines():
         match = COMPACTION.match(line)
@@ -201,6 +231,10 @@ def session_metrics(root: Path, now: datetime | None = None):
                 if (dt is not None and dt.second != 0 and len(match[1]) == 17
                         and stamp == dt.replace(second=0)):
                     start_minute_ambiguous = True
+                # 3b793 W4: a minute-precision start is somewhere in [dt, dt + 60 s).
+                # Compare minutes, not dt + 60 s, which overflows in 9999-12-31T23:59.
+                if minute_precision and stamp.replace(second=0, microsecond=0) == dt:
+                    start_precision_ambiguous = True
                 if (dt is not None and stale_heartbeat and len(match[1]) == 17
                         and stamp == end.replace(second=0)):
                     end_minute_ambiguous = True
@@ -209,6 +243,9 @@ def session_metrics(root: Path, now: datetime | None = None):
     if start_minute_ambiguous:
         warnings.append("AMBIGUOUS COMPACTION: a minute-form compaction row in the session's "
                         "start minute cannot be placed before or after the start")
+    if start_precision_ambiguous:
+        warnings.append("AMBIGUOUS COMPACTION: a compaction row in the start minute of a "
+                        "minute-precision lease id cannot be placed before or after the start")
     if end_minute_ambiguous:
         warnings.append("AMBIGUOUS COMPACTION: a minute-form compaction row in the minute "
                         "of the last heartbeat cannot be placed before or after it")
@@ -220,7 +257,7 @@ def session_metrics(root: Path, now: datetime | None = None):
         seconds = int((end - dt).total_seconds())
         elapsed = f"{seconds // 3600}h{seconds % 3600 // 60}m"
         if (content is not None and not invalid and not start_minute_ambiguous
-                and not end_minute_ambiguous):
+                and not start_precision_ambiguous and not end_minute_ambiguous):
             compactions = sum(dt <= stamp <= end for stamp in stamps)
     return dict(start=start, elapsed=elapsed, compaction_rows=compactions,
                 lease_warning="; ".join(warnings), start_source=source)

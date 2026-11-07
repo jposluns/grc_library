@@ -16,7 +16,7 @@ Unknown starts are labelled UNKNOWN; reader errors fail open. Containment refusa
 
 Fact sources (shared with tools/handoff-snapshot.py through tools/session_facts.py):
   * session length = now minus lease start, or heartbeat minus start when stale.
-  * only Active-session's labelled orch-<UTC start> convention supplies a start.
+  * only an Active-session <label>-<UTC stamp> id (tools/lease_id.py grammar) supplies a start.
   * compaction count = canonical stamped rows from start through now (heartbeat when stale).
   * ambiguous fields or absent/invalid start evidence = start and metrics UNKNOWN.
   * missing, invalid, before-start or future heartbeat = both metrics UNKNOWN.
@@ -29,7 +29,7 @@ from pathlib import Path
 from datetime import datetime, timezone
 
 # The settings.json launcher runs `python3 -I` (SECI-config-is-executable-trust-gate):
-# the helpers (_hookutil, lint_common, session_facts) are loaded at their call sites via _load_sibling,
+# the helpers (_hookutil, lint_common, lease_id, session_facts) are loaded at their call sites via _load_sibling,
 # ONLY from reviewed source bytes; no directory ever enters sys.path and no import
 # statement names them. MISSING-HELPER BEHAVIOUR: worker detection falls back to False
 # and the facts surface exits silently (rc 0).
@@ -60,7 +60,7 @@ def _load_sibling(name, _cache={}):
     nor any file in the tree can change that, so a production load NEVER consults a
     pre-existing sys.modules entry: it always re-executes the reviewed source and
     overwrites the entry. todo_index_rows uses that lint_common entry;
-    session_facts independently executes the reviewed lint_common source bytes.
+    session_facts independently executes the reviewed lint_common and lease_id source bytes.
     """
     import os.path
     import sys
@@ -106,7 +106,7 @@ def _load_sibling(name, _cache={}):
         _refuse("helper " + helper_path + " does not resolve to its expected place "
                 "under the real repository root " + real_root)
     for dep in {"todo_index_rows": ("lint_common",),
-                "session_facts": ("lint_common",)}.get(name, ()):
+                "session_facts": ("lint_common", "lease_id")}.get(name, ()):
         _load_sibling(dep)
     with open(helper_path, "rb") as fh:
         source = fh.read()
