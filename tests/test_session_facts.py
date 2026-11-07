@@ -236,12 +236,26 @@ class SessionFactsTests(unittest.TestCase):
             proc = self.runpy("import runpy\nrunpy.run_path('tools/session_facts.py')\n")
             self.assertNotEqual(proc.returncode, 0)
             self.assertIn("reviewed helper is a symlink", proc.stderr)
-            # The hook's dependency map does not name lease_id yet (a .claude/ change outside
-            # 3b793), so the hook fails open: no facts from a planted helper, exit 0.
+            # The hook's dependency map names lease_id for session_facts, so its own loader
+            # refuses a symlinked tools/lease_id.py with exit 2, as it does for lint_common.
             proc = self.hook()
-            self.assertEqual((proc.returncode, proc.stdout), (0, ""), proc.stderr)
+            self.assertEqual((proc.returncode, proc.stdout), (2, ""), proc.stderr)
+            self.assertIn("BLOCKED (hook-helper-isolation): " + str(path)
+                          + " is a symlink", proc.stderr)
         finally:
             path.unlink()
+            shutil.move(target, path)
+
+    def test_3b793_hook_missing_lease_id_fails_open(self):
+        # Guard: naming lease_id in the dependency map keeps the hook's documented
+        # missing-helper behaviour (silent, exit 0); only containment refusals exit 2.
+        path = self.root / "tools/lease_id.py"
+        target = self.base / "lease_id.py"
+        shutil.move(path, target)
+        try:
+            proc = self.hook()
+            self.assertEqual((proc.returncode, proc.stdout, proc.stderr), (0, "", ""))
+        finally:
             shutil.move(target, path)
 
     def test_missing_lease_is_unknown_not_old_log(self):
