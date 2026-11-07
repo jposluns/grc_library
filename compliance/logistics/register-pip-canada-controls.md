@@ -2,8 +2,8 @@
 
 **Document Title:** Canada PIP IT and Cybersecurity Compliance Controls Register\
 **Document Type:** Register\
-**Version:** 1.0.7\
-**Date:** 2026-11-06\
+**Version:** 1.0.8\
+**Date:** 2026-11-07\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md)\
@@ -65,7 +65,7 @@ The WCO AEO Compendium (2020) lists PIP and the UK programme (then reported as t
 | CYB-3 Data Integrity | AEO-S: IT data integrity and confidentiality requirements | Candidate overlap, subject to CBSA acceptance |
 | CYB-4 Network Security | AEO-S: Network and infrastructure security | Candidate overlap, subject to CBSA acceptance |
 | CYB-5 Vulnerability Management | AEO-S: Regular security reviews | Candidate overlap, subject to CBSA acceptance |
-| CYB-6 Incident Response | AEO-S: security procedures reviewed and amended after an incident (handbook §11.4), how security incidents are reported and dealt with, with no recipient named (§11.8, building and boundary security) and, for cargo units, incident reporting and recording and the action to be taken, including reporting to law enforcement or senior management (§11.12, cargo security); incident reporting to HMRC is not named in section 11: CBSA supplement needed | Partial candidate overlap, subject to CBSA acceptance |
+| CYB-6 Incident Response | AEO-S: security procedures reviewed and amended after an incident (handbook §11.4), how security incidents are reported and dealt with, with no recipient named (§11.8, building and boundary security) and, for cargo units, incident reporting and recording and the action to be taken, including reporting to law enforcement or senior management (§11.12, cargo security); notification to HMRC of all changes that may affect AEO status, including disclosure of security incidents, to the AEO Central Site as soon as the change is known or, at the latest, within 14 calendar days of the change, using form C122 (§12.4, notification of changes); CBSA supplement needed | Partial candidate overlap, subject to CBSA acceptance |
 | CYB-7 Training | AEO-S: Security awareness training | Candidate overlap, subject to CBSA acceptance |
 | CYB-8 Asset Management | AEO-S: IT asset inventory | Candidate overlap, subject to CBSA acceptance |
 | CYB-9 Third-Party Controls | AEO-S: Third-party IT security provisions | Candidate overlap, subject to CBSA acceptance |

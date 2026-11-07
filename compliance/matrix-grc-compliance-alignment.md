@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.12.16\
+**Version:** 1.12.17\
 **Date:** 2026-11-07\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -111,7 +111,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Compliance | Policy: Compliance, Audit, and CAPA Management | [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) | GRC-06, GRC-07, A&A-05 | GRC-11 | §9.2, §9.3, §10.1, §10.2 | ID.IM | N/A | Programme governance | Norm §8.2; Norm §9.2 to §9.4 | N/A | IT controls review and testing | N/A |
 | Compliance | Register: Global Regulatory Applicability | [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md) | GRC-01, GRC-07 | N/A | §4.1, §4.2, §6.1 | N/A | N/A | Programme governance | Norm §4.1 to §4.2; Norm §6.2 | N/A | Management commitment | N/A |
-| Compliance | Register: BASC IT and Information Security Responsibilities | [`compliance/logistics/register-basc-it-responsibilities.md`](logistics/register-basc-it-responsibilities.md) | GRC-01, GRC-02 | N/A | §5.3, §6.1, §9.1 | GV.RR | N/A | N/A | Norm §5.1; Norm §5.4; Norm §6.1; Norm §7.1.2; Norm §7.2; Norm §8.1; Norm §8.2; Norm §9.2 to §9.4; Sec Std §3.1 to §3.2; Sec Std §5.1 to §5.2 | Pillar II Standard 2 (Security); Annex IV F (Information Exchange, Access and Confidentiality) | All AEO-S IT requirement areas | N/A |
+| Compliance | Register: BASC IT and Information Security Responsibilities | [`compliance/logistics/register-basc-it-responsibilities.md`](logistics/register-basc-it-responsibilities.md) | GRC-01, GRC-02 | N/A | §5.3, §6.1, §9.1 | GV.RR | N/A | N/A | Norm §5.1; Norm §5.4; Norm §6.1; Norm §7.1.2; Norm §7.2; Norm §8.1; Norm §8.2; Norm §9.2 to §9.4; Sec Std §3.1 to §3.2; Sec Std §5.1 to §5.2 | Pillar II Standard 2 (Security); Annex IV F (Information Exchange, Access and Confidentiality) | N/A | N/A |
 | Compliance | Register: BASC IT Compliance Monitoring and KPIs | [`compliance/logistics/register-basc-it-compliance-kpis.md`](logistics/register-basc-it-compliance-kpis.md) | A&A-04, GRC-07 | N/A | §9.1 | GV.OV, ID.IM | N/A | N/A | Norm §8.1 | N/A | IT controls review and testing | N/A |
 | Compliance | Annex: AEO-S IT and Cybersecurity Requirements | [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md) | IAM-01, SEF-01, DSP-01 | N/A | §5.3, §8.1, §9.1 | GV.OC, PR.AA, DE.CM | IT security requirements | IT security | Sec Std §5.2 | Pillar II Standard 2 (Security); Annex IV F (Information Exchange, Access and Confidentiality) | Access to IT systems; Information systems security; IT security incidents; Trade records retention | N/A |
 | Compliance | Policy: Legal and Regulatory Compliance | [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md) | GRC-01, GRC-06, GRC-07 | N/A | §4.1, §4.2, §6.1 | N/A | N/A | N/A | N/A | Annex IV A (Demonstrated Compliance with Customs Requirements) | Customs compliance and AEO obligations | N/A |

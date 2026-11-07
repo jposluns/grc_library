@@ -13818,20 +13818,41 @@ class DraftSiteRenderTests(unittest.TestCase):
     # (lines 411 to 412); Part I.A, "OPERATIONAL AEO PROGRAMMES" (line 40),
     # lists Canada, "Partners in Protection (PIP)" (lines 992 and 996),
     # and the United Kingdom, "AEO (European Union Programme)" (lines 6027
-    # and 6031). A case-insensitive search of the held HMRC criteria
-    # (programs/UK-AEO/, section 11) for WCO, World Customs and SAFE
-    # Framework finds no line, so the current UK programme's relationship
-    # to the Framework is not confirmed by a held source. The NEEC cell rests on
-    # the Mexico-Canada guide (_SUPPLY_CHAIN_NEEC_WCO).
+    # and 6031). The held HMRC criteria (programs/UK-AEO/, section 11) name
+    # neither WCO nor the SAFE Framework, but the held introduction
+    # (section 1.1, line 22) says the UK AEO Programme is based on the WCO
+    # SAFE Framework standards; draft claimsfu2 replaced the two lines that
+    # called that relationship unconfirmed with what section 1.1 says
+    # (HmrcHandbookClaimsTests). The NEEC cell rests on the Mexico-Canada
+    # guide (_SUPPLY_CHAIN_NEEC_WCO).
     _WCO_ATTRIBUTED_BASIS_CLAIMS = tuple(sorted((
+        # Draft claimsfu1 (research WARN 11) replaced "AEO status is
+        # granted by HMRC" with what sections 11.1 (line 13) and 1.4 (lines
+        # 60 to 62) hold. Draft claimsfu2 (codex ERROR 1, claude WARN 2):
+        # section 12.7 says HMRC grants AEO status ("HMRC would not have
+        # granted the" / "AEO" / " status", lines 135 to 137), so the claim
+        # was supported; the line states it again citing section 12.7, adds
+        # section 1.1's basis in the Framework (claude ERROR 1) and section
+        # 1.4's qualifier (claude NOTE 5) (HmrcHandbookClaimsTests).
         ("compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md",
-         "AEO status is granted by HMRC. The WCO AEO Compendium (2020) "
-         "lists the United Kingdom among the operational AEO programmes of "
-         "its Part I, which it describes as AEO programmes based on the WCO "
-         "SAFE Framework of Standards, and gives the UK programme's title "
-         "then as \"AEO (European Union Programme)\"; the current UK "
-         "programme's relationship to the Framework is not confirmed by a "
-         "held source. HMRC's AEO-S security and safety criteria (UK HMRC "
+         "HMRC grants AEO status (HMRC Customs Technical Handbook (AEO), "
+         "section 12.7, under which HMRC can annul an authorization it "
+         "would not have granted had the application given correct and "
+         "complete information) and tests AEO-S applicants against the "
+         "security and safety criteria (UK HMRC AEO security and safety "
+         "criteria handbook, section 11.1). The HMRC Customs Technical "
+         "Handbook (AEO) introduction says the UK AEO Programme is based on "
+         "the World Customs Organization (WCO) SAFE Framework standards "
+         "(section 1.1), and that AEO-S status is issued to a business "
+         "established in the UK that fulfils the criteria of customs "
+         "compliance, appropriate record keeping standards, financial "
+         "solvency, and appropriate security and safety standards directly "
+         "related to the activity carried out (section 1.4). The WCO AEO "
+         "Compendium (2020) lists the United Kingdom among the operational "
+         "AEO programmes of its Part I, which it describes as AEO "
+         "programmes based on the WCO SAFE Framework of Standards, and "
+         "gives the UK programme's title then as \"AEO (European Union "
+         "Programme)\". HMRC's AEO-S security and safety criteria (UK HMRC "
          "AEO security and safety criteria handbook, section 11) cover, "
          "among other areas:"),
         ("compliance/logistics/procedure-aeo-united-kingdom-self-"
@@ -13848,8 +13869,9 @@ class DraftSiteRenderTests(unittest.TestCase):
          "operator's); the WCO AEO Compendium (2020) lists the United "
          "Kingdom's programme, then reported as the European Union "
          "programme, among AEO programmes based on the Framework, and the "
-         "current HMRC AEO-S programme's relationship to the Framework is "
-         "not confirmed by a held source |"),
+         "HMRC Customs Technical Handbook (AEO) introduction says the UK "
+         "AEO Programme is based on the World Customs Organization (WCO) "
+         "SAFE Framework standards (section 1.1) |"),
         ("compliance/logistics/register-pip-canada-controls.md",
          "PIP is a voluntary partnership programme in which businesses "
          "commit to enhancing border security in exchange for expedited "
@@ -14242,10 +14264,20 @@ class DraftSiteRenderTests(unittest.TestCase):
         # overlap"; no held source compares the UK and EU programmes after
         # the UK's exit (the WCO AEO Compendium 2020, lines 6027 to 6031,
         # still records the UK programme as "AEO (European Union
-        # Programme)").
+        # Programme)"). Draft claimsfu5 (round 4 drafter WARN 1): the cell
+        # said "separate applications required", which no held source
+        # states; section 1.7 (held introduction lines 115 to 129) gives
+        # the legal basis only. The cell now says the requirement is not
+        # confirmed and cites what section 2.1 holds: "To apply for
+        # Authorised Economic Operator status a business must:" (line 13)
+        # "be established in Great Britain or Northern Ireland" (line 15).
         "AEO-S ↔ AEO (EU)":
-            "Candidate overlap, not confirmed by a held source; separate "
-            "applications required",
+            "Candidate overlap, not confirmed by a held source; whether "
+            "separate UK AEO-S and EU AEO applications are required is not "
+            "confirmed by a held source (the held HMRC handbook says a "
+            "business applying for UK AEO status must be established in "
+            "Great Britain or Northern Ireland: HMRC Customs Technical "
+            "Handbook (AEO), section 2.1)",
     }
 
     def test_supply_chain_pair_shared_evidence_is_candidate_overlap(self):
@@ -14261,7 +14293,10 @@ class DraftSiteRenderTests(unittest.TestCase):
         and AEO (EU) cell said "Substantial overlap" and now marks a
         candidate overlap too; every pair but PIP and AEO (Mexico), whose
         cell says the held source states no evidence reuse, is pinned, and
-        no cell says "Substantial"."""
+        no cell says "Substantial". Draft claimsfu5 (round 4 drafter WARN
+        1): the AEO-S and AEO (EU) cell stated "separate applications
+        required" with no held source; it now says that is not confirmed,
+        and no cell states separate applications as required."""
         lines = (REPO_ROOT / "supply-chain/matrix-supply-chain-security-"
                  "programme-alignment.md").read_text(
                      encoding="utf-8").splitlines()
@@ -14279,7 +14314,8 @@ class DraftSiteRenderTests(unittest.TestCase):
             ["PIP ↔ AEO (Mexico)"])
         self.assertEqual([cell for cell in cells.values()
                           if cell.startswith("Yes")
-                          or "Substantial" in cell], [])
+                          or "Substantial" in cell
+                          or "separate applications required" in cell], [])
 
     # Recognition stated as settled without a held source (review round 5,
     # defect-class sweep after round 4 drafter N1). The held WCO AEO
@@ -14344,11 +14380,32 @@ class DraftSiteRenderTests(unittest.TestCase):
             "US-EU Mutual Recognition Agreement (2012, a concluded MRA in the "
             "WCO AEO Compendium (2020)); the 2019 update is not confirmed by "
             "a held source"),
+        # Draft claimsfu4 (review round 2 of claimsfu2, claude WARN 2): the
+        # cell hedged a legal basis the held HMRC Customs Technical Handbook
+        # (AEO) states. Section 1.7 (held introduction lines 115 to 129)
+        # says AEO-S authorizations have been governed since 1 January 2021
+        # by the UCC and its Delegated and Implementing Regulations "as
+        # assimilated law under the European Union (Withdrawal) Act 2018 and
+        # amended by" (line 123) "the Customs Safety and Security Procedures
+        # (EU Exit) Regulations 2019" (line 124), and that for Northern
+        # Ireland they "remain applicable under The Windsor Framework" (line
+        # 129). The cell now cites it, and hedges only the mutual
+        # recognition, which section 1.7 does not address.
         "AEO-S ↔ AEO (EU)": (
-            "UK HMRC aligned criteria to EU AEO post-Brexit; separate "
-            "national authorizations",
             "Not confirmed by a held source: UK HMRC aligned criteria to EU "
-            "AEO post-Brexit; separate national authorizations"),
+            "AEO post-Brexit; separate national authorizations",
+            "Not confirmed by a held source: mutual recognition between UK "
+            "AEO-S and EU AEO authorizations. The legal basis is held: since "
+            "1 January 2021, UK AEO-S authorizations have been governed by "
+            "the Union Customs Code (UCC) Regulation (EU) No 952/2013, "
+            "Commission Delegated Regulation (EU) 2015/2446 and Commission "
+            "Implementing Regulation EU 2015/2447 as assimilated law under "
+            "the European Union (Withdrawal) Act 2018, amended by the Customs "
+            "Safety and Security Procedures (EU Exit) Regulations 2019, and "
+            "in relation to Northern Ireland the UCC and those two "
+            "Regulations remain applicable under the Windsor Framework and "
+            "the European Union (Withdrawal) Act 2018 (HMRC Customs Technical "
+            "Handbook (AEO), section 1.7)"),
         "AEO-S ↔ OEA (Brazil)": (
             "UK-Brazil Trade Working Group framework",
             "Not confirmed by a held source: UK-Brazil Trade Working Group "
@@ -14625,16 +14682,19 @@ class DraftSiteRenderTests(unittest.TestCase):
         prefix = "Candidate overlap, subject to HMRC acceptance"
         self.assertEqual([cell for cell in cells
                           if not cell.startswith(prefix)], [])
-        # Round 4 of the programme-claims PR replaced the IT-5 supplement,
-        # which presumed an HMRC notification duty that the held HMRC
-        # section 11 does not name, and made the counterparts the
-        # organization's own (ProgrammeClaimsTests).
+        # Round 4 of the programme-claims PR replaced the IT-5 supplement and
+        # made the counterparts the organization's own (ProgrammeClaimsTests).
+        # Draft claimsfu3 (plan cfu2 WARN 7): the notification duty that
+        # round called unconfirmed is held in section 12.4 of the HMRC
+        # Customs Technical Handbook (AEO), so the IT-5 cell cites it and
+        # says the HMRC notification is apart from any CBP notification
+        # (HmrcHandbookClaimsTests).
         self.assertEqual(
             sorted(set(cells)),
             [prefix,
              f"{prefix}; retention periods may differ",
-             f"{prefix}; whether HMRC expects incident notification is not "
-             "confirmed by a held source"])
+             f"{prefix}; the HMRC notification (§12.4) is made on form C122, "
+             "apart from any CBP notification"])
         self.assertIn(
             "The table below cross-references CTPAT IT criteria with the "
             "organization's own AEO-S counterpart for each, its scoping "
@@ -17968,8 +18028,9 @@ class SiteReviewFixRound2Tests(unittest.TestCase):
         3 item 1's (1.12.11), item 3b788 draft round 3's WCO SAFE column
         correction's (1.12.12), the WCO SAFE attribution sweep's (1.12.13),
         its follow-up's (1.12.14, findings WCO-SWEEP-REST-0507 and
-        WCO-SWEEP-REV7-0922), the programme-claims PR's (1.12.15) and the
-        CTPAT MSC register retitle's (1.12.16)."""
+        WCO-SWEEP-REV7-0922), the programme-claims PR's (1.12.15), the
+        CTPAT MSC register retitle's (1.12.16) and draft claimsfu1's BASC
+        register correction (1.12.17)."""
         text = (REPO_ROOT / "compliance" /
                 "matrix-grc-compliance-alignment.md"
                 ).read_text(encoding="utf-8")
@@ -17980,7 +18041,7 @@ class SiteReviewFixRound2Tests(unittest.TestCase):
                       "the [Cross-Framework Alignment Matrix]"
                       "(../governance/matrix-cross-framework-alignment.md).",
                       text)
-        self.assertIn("**Version:** 1.12.16\\\n", text)
+        self.assertIn("**Version:** 1.12.17\\\n", text)
 
     def test_quick_reference_purpose_matches_its_exception_rows(self):
         """Item 3: the Purpose said "the absolute prohibitions" though
@@ -18076,7 +18137,9 @@ class SiteReviewFixRound3Tests(unittest.TestCase):
         2026-11-06; the WCO SAFE attribution sweep bumps it once more
         (1.12.13), its follow-up again (1.12.14) and the programme-claims
         PR again (1.12.15), each with the same Date; the CTPAT MSC register
-        retitle bumps it to 1.12.16 and sets the Date to 2026-11-07."""
+        retitle bumps it to 1.12.16 and sets the Date to 2026-11-07, and
+        draft claimsfu1's BASC register correction bumps it to 1.12.17 with
+        the same Date."""
         text = (REPO_ROOT / "compliance" /
                 "matrix-grc-compliance-alignment.md"
                 ).read_text(encoding="utf-8")
@@ -18085,7 +18148,7 @@ class SiteReviewFixRound3Tests(unittest.TestCase):
                       "to the control domains and section references of "
                       "ten compliance, security, assurance, and AI-control "
                       "frameworks, so a reader can trace", text)
-        self.assertIn("**Version:** 1.12.16\\\n", text)
+        self.assertIn("**Version:** 1.12.17\\\n", text)
         self.assertIn("**Date:** 2026-11-07\\\n", text)
 
 
@@ -19771,7 +19834,7 @@ class ProgrammeClaimsTests(unittest.TestCase):
     tools/audit-reference-breadth.py), so a form feed or a Unicode line
     separator inside a line does not start a new one.
 
-    The class has 72 tests: 62 corpus regression tests, 5 self-checks and
+    The class has 75 tests: 63 corpus regression tests, 7 self-checks and
     5 held-source consistency checks.
 
     The corpus regression tests read the corpus files directly (no site
@@ -19782,7 +19845,7 @@ class ProgrammeClaimsTests(unittest.TestCase):
     removed claim wherever it comes back.
 
     The self-checks are the tests in _SELF_CHECKS. They read no corpus file
-    or held extract: four hold the class-wide guards' matchers to planted
+    or held extract: six hold the class-wide guards' matchers to planted
     sentences each must catch or let through, and one holds this docstring
     to the class. Reverting a corpus correction cannot make them fail;
     loosening a guard's matcher or miscounting the class does.
@@ -19809,13 +19872,16 @@ class ProgrammeClaimsTests(unittest.TestCase):
     # a corpus file nor a held extract.
     _SELF_CHECKS = (
         "test_hmrc_submission_guard_catches_each_form",
+        "test_hmrc_notification_guard_allows_only_a_section_12_4_citation",
+        "test_basis_guard_reads_the_section_1_1_clause",
         "test_border_force_guard_reads_the_governing_clause",
         "test_spanish_oea_guard_reads_each_occurrence",
         "test_section_11_12_guards_read_the_citing_clause",
         "test_class_docstring_states_the_test_count_and_held_checks")
     # What a corpus regression test calls to read the corpus.
     _CORPUS_READERS = re.compile(
-        r"self\._(?:lines|corpus_lines|md_lines|section_lines|glossary_row"
+        r"self\._(?:lines|corpus_lines|md_lines|md_paragraphs|section_lines"
+        r"|glossary_row"
         r"|glossary_sections|glossary_all_sections|matrix_cell"
         r"|taxonomy_paths)\(|\bREPO_ROOT\b|_load_build\(")
 
@@ -20019,6 +20085,76 @@ class ProgrammeClaimsTests(unittest.TestCase):
 
     # -- research WARN (the other eight carriers): derivation, overlap,
     # alignment and implementation claims.
+    # Wording no held text supports for any programme's relationship to the
+    # Framework. Section 1.1 of the HMRC Customs Technical Handbook (AEO)
+    # (held introduction line 22) says the UK AEO Programme "is based on" the
+    # Framework standards: not that it implements, derives from or aligns
+    # with them.
+    _UNHELD_BASIS_WORDING = re.compile(
+        r"(?i)\bderives?\b|aligns with|implementation of the World Customs")
+    _INTERNATIONAL_BASIS = re.compile(r"(?i)\binternational basis\b")
+
+    @classmethod
+    def _unheld_basis_clauses(cls, line):
+        """The clauses of line (split at a full stop followed by white
+        space, a semicolon or a table cell edge) that call the Framework an
+        international basis without naming the UK programme and citing
+        section 1.1 in the same clause.
+
+        Scope: test_held_back_programme_claims_are_reworded applies it to
+        the inventory lines (_WCO_ATTRIBUTED_BASIS_CLAIMS). Draft claimsfu4
+        (review round 2 of claimsfu2, claude NOTE 2): this docstring's rule
+        read as corpus-wide while it ran on those lines only, so a new
+        "the Framework is the international basis of PIP" elsewhere passed.
+        HmrcHandbookClaimsTests.test_no_document_gives_an_unheld_basis now
+        applies it to every claim unit of every taxonomy document and the
+        README of each of their directories, the set the other
+        programme-claim probes read, because the phrase can be added to any
+        of them and the inventory does not list a new line."""
+        return [clause.strip()
+                for clause in re.split(r"(?<=\.)\s+|[;|]", line)
+                if cls._INTERNATIONAL_BASIS.search(clause)
+                and not (re.search(r"\bUK\b|United Kingdom|\bHMRC\b", clause)
+                         and re.search(r"\bsection 1\.1(?!\d)|§1\.1(?!\d)",
+                                       clause))]
+
+    def test_basis_guard_reads_the_section_1_1_clause(self):
+        """Draft claimsfu3 (round 2 NOTE 1): the narrowed basis guard lets
+        an international basis stand only in a clause that names the UK
+        programme and cites section 1.1, and still catches the phrase for
+        another programme, without the citation, or with the citation in
+        another clause; the wording section 1.1 does not support stays
+        caught with or without the citation."""
+        stands = (
+            "the WCO SAFE Framework is the international basis of the UK AEO "
+            "Programme (section 1.1)",
+            "HMRC's programme has the Framework as its international basis "
+            "(HMRC Customs Technical Handbook (AEO), §1.1)")
+        for text in stands:
+            with self.subTest(text=text[:40]):
+                self.assertEqual(self._unheld_basis_clauses(text), [])
+        caught = (
+            "the Framework is the international basis of the HMRC AEO-S "
+            "programme |",
+            "the Framework is the international basis of PIP (section 1.1)",
+            "the Framework is the international basis of the UK programme; "
+            "see section 1.1",
+            "the Framework is the international basis of the UK programme. "
+            "Section 1.1 says so.",
+            "the Framework is the international basis of the UK programme "
+            "(section 1.14)")
+        for text in caught:
+            with self.subTest(text=text[:40]):
+                self.assertNotEqual(self._unheld_basis_clauses(text), [])
+        for text in (
+                "the UK programme is the UK's implementation of the World "
+                "Customs Organization (WCO) SAFE Framework (section 1.1)",
+                "the UK AEO-S programme derives from the WCO SAFE Framework "
+                "(section 1.1)",
+                "PIP aligns with the WCO SAFE Framework"):
+            with self.subTest(text=text[:40]):
+                self.assertRegex(text, self._UNHELD_BASIS_WORDING)
+
     def test_held_back_programme_claims_are_reworded(self):
         """Research WARN #2 and #4 to #8, #11: the held-back lines said the
         UK AEO-S programme is the UK's implementation of the Framework, or
@@ -20031,7 +20167,19 @@ class ProgrammeClaimsTests(unittest.TestCase):
         (_WCO_ATTRIBUTED_BASIS_CLAIMS) and each names the held source it
         rests on; the UK self-assessment purpose drops the clause, and
         the PIP mutual recognition note no longer calls AEO-S functionally
-        comparable."""
+        comparable.
+
+        Draft claimsfu3 (round 2 NOTE 1): section 1.1 (held introduction
+        line 22) says the UK AEO Programme "is based on the internationally
+        recognised World Customs Organisation (WCO) SAFE Framework
+        standards". That supports calling the Framework the UK programme's
+        international basis, so the guard is narrowed to that extent: the
+        phrase now stands in a clause that names the UK programme (UK,
+        United Kingdom or HMRC) and cites section 1.1, and nowhere else
+        (_unheld_basis_clauses). The rest is kept: section 1.1 says based
+        on, which supports neither "implementation of" the Framework nor
+        "derives" or "aligns with", and no held text gives another
+        programme an international basis."""
         reworded = DraftSiteRenderTests._WCO_REWORDED_BASIS_CLAIMS
         attributed = DraftSiteRenderTests._WCO_ATTRIBUTED_BASIS_CLAIMS
         # Round 5 (codex WARN 3): no pinned count; the list must be
@@ -20045,9 +20193,8 @@ class ProgrammeClaimsTests(unittest.TestCase):
                 self.assertEqual(self._lines(rel).count(new), 1)
                 self.assertRegex(new, r"WCO AEO Compendium \(2020\)|"
                                       r"Mexico-Canada AEO mutual recognition")
-                self.assertNotRegex(
-                    new, r"(?i)\bderives?\b|aligns with|implementation of "
-                         r"the World Customs|international basis")
+                self.assertNotRegex(new, self._UNHELD_BASIS_WORDING)
+                self.assertEqual(self._unheld_basis_clauses(new), [])
         # Round 3b narrowed the rest of this purpose line to the held HMRC
         # criteria (_UK_PROCEDURE_PURPOSE); the pin follows it.
         purpose = [line for line in self._lines(self.UK_PROCEDURE)
@@ -20094,7 +20241,11 @@ class ProgrammeClaimsTests(unittest.TestCase):
         "maps a "
         "corresponding AEO-S requirement area; that mapping is the "
         "organization's own and is to be checked against the UK HMRC AEO "
-        "security and safety criteria handbook (section 11). ")
+        "security and safety criteria handbook (section 11) and, for the "
+        "Information Technology domain, against the IT security measures of "
+        "the record keeping criterion, which section 1.4 lists among the "
+        "AEO-S criteria (HMRC Customs Technical Handbook (AEO), §8.1, with "
+        "detail in §8.9 to §8.12). ")
 
     def test_msc_aeo_s_reuse_is_not_caused_by_the_arrangement(self):
         """wcor6 claude N1 and codex: the MSC register's AEO-S section
@@ -20831,6 +20982,20 @@ class ProgrammeClaimsTests(unittest.TestCase):
             for number, line in enumerate(text.splitlines(), 1):
                 yield rel.as_posix(), number, line
 
+    @staticmethod
+    def _md_paragraphs():
+        """Every (path, first line number, unit) of every .md file in the
+        repository outside .git, where a unit is a table row or a prose
+        paragraph assembled from its wrapped lines
+        (HmrcHandbookClaimsTests._paragraphs)."""
+        for path in sorted(REPO_ROOT.rglob("*.md")):
+            rel = path.relative_to(REPO_ROOT)
+            if rel.parts[0] == ".git" or not path.is_file():
+                continue
+            text = path.read_text(encoding="utf-8", errors="replace")
+            for number, unit in HmrcHandbookClaimsTests._paragraphs(text):
+                yield rel.as_posix(), number, unit
+
     # HMRC section 11 (programs/UK-AEO/, 183 lines): line 13 "the tests
     # that HMRC will carry out to ensure that they comply with the security
     # and safety criteria"; section 11.2 (line 23) "Such an assessment
@@ -20838,7 +21003,16 @@ class ProgrammeClaimsTests(unittest.TestCase):
     # documents" (line 38); section 11.3 (line 40) "Businesses must be able
     # to produce documentation showing the measures and controls put in
     # place" (line 50). No line names Border Force or cybersecurity, and
-    # none matches "trade data" or "customs documentation".
+    # none matches "trade data" or "customs documentation". Draft claimsfu4
+    # (review round 2 of claimsfu2, claude ERROR 2, codex WARN 1): section
+    # 11's silence on IT is not the handbook's. Section 8.1 (held record
+    # keeping line 28) asks the business to "have appropriate information
+    # technology security measures in place to protect computer systems
+    # from unauthorised intrusion and to secure documentation and data",
+    # lines 19 to 21 exempt only the logistic-system item for security and
+    # safety authorizations, section 1.4 (introduction line 62) lists
+    # record keeping among the AEO-S criteria, and sections 8.9 to 8.12
+    # (lines 149 to 177) give the detail.
     _UK_PROCEDURE_PURPOSE = (
         "HMRC tests AEO-S applicants against the security and safety "
         "criteria (UK HMRC AEO security and safety criteria handbook, "
@@ -20849,9 +21023,18 @@ class ProgrammeClaimsTests(unittest.TestCase):
         "(section 11.2), and the applicant must be able to produce "
         "documentation showing the measures and controls it has put in "
         "place (section 11.3). The handbook's section 11 does not name "
-        "cybersecurity, trade data or the integrity of customs "
-        "documentation; this procedure treats the IT and cybersecurity "
-        "controls it evidences as the organization's own scoping of those "
+        "cybersecurity; the IT security measures the held handbook names "
+        "sit under the record keeping criterion, which section 1.4 lists "
+        "among the AEO-S criteria: appropriate information technology "
+        "security measures to protect computer systems from unauthorized "
+        "intrusion and to secure documentation and data (section 8.1), with "
+        "detail under back-up, recovery, fallback and archiving (section "
+        "8.9), protection of computer systems (section 8.10), access rights "
+        "procedures (section 8.11) and documentation security (section "
+        "8.12). Section 1.2 of this procedure gives the organization's "
+        "mapping of its evidence areas to those sections; where no held "
+        "section names a control, as with multi-factor authentication, this "
+        "procedure treats it as the organization's own scoping of the "
         "criteria, to be confirmed with HMRC.")
 
     def test_uk_procedure_purpose_follows_the_held_criteria(self):
@@ -20862,9 +21045,16 @@ class ProgrammeClaimsTests(unittest.TestCase):
         documentation". The held HMRC section 11 records neither. The line
         now credits HMRC's tests to section 11.1, says Border Force's role
         is not confirmed, and narrows the IT claim to what sections 11.2
-        and 11.3 say."""
+        and 11.3 say. Draft claimsfu4 (review round 2 of claimsfu2, claude
+        ERROR 2, codex WARN 1): it also gives the record keeping
+        criterion's IT security measures (sections 1.4, 8.1 and 8.9 to
+        8.12), and keeps the organization's own scoping for controls no
+        held section names."""
         lines = self._lines(self.UK_PROCEDURE)
         self.assertEqual(lines.count(self._UK_PROCEDURE_PURPOSE), 1)
+        self.assertNotIn("does not name cybersecurity, trade data or the "
+                         "integrity of customs documentation", "\n".join(
+                             lines))
         text = "\n".join(lines)
         self.assertNotIn("administered by HMRC and Border Force", text)
         self.assertNotIn("adequate IT and cybersecurity controls are in "
@@ -21003,10 +21193,11 @@ class ProgrammeClaimsTests(unittest.TestCase):
         expansion = self._AEO_S_EXPANSION
         # Round 4 narrowed the two sentences around these glosses (the
         # HMRC submission and the cybersecurity requirement); the pins
-        # follow them.
+        # follow them. Draft claimsfu4: the UK procedure's next sentence
+        # now gives section 12.2 first.
         carriers = (
             (self.UK_PROCEDURE, f"and AEO-S ({expansion}) self-assessment. "
-                                "The annual cycle"),
+                                "Its held basis is section 12.2"),
             (self.UK_ANNEX, f"relying on them. Under the AEO-S ({expansion}) "
                             "criteria"),
             (self.MASTER_SPEC, f"- AEO-S: {expansion} (UK HMRC)"),
@@ -21121,9 +21312,19 @@ class ProgrammeClaimsTests(unittest.TestCase):
         "(section 11.2), and it must be able to produce documentation "
         "showing the measures and controls it has put in place (section "
         "11.3). The handbook's section 11 does not name cybersecurity or IT "
-        "security controls; this annex treats the IT and cybersecurity "
-        "controls below as the organization's own scoping of those "
-        "criteria, to be confirmed with HMRC. ")
+        "security controls; the IT security measures the held handbook "
+        "names sit under the record keeping criterion, which section 1.4 "
+        "lists among the AEO-S criteria: appropriate information technology "
+        "security measures to protect computer systems from unauthorized "
+        "intrusion and to secure documentation and data (section 8.1), with "
+        "detail under back-up, recovery, fallback and archiving (section "
+        "8.9), protection of computer systems (section 8.10), access rights "
+        "procedures (section 8.11) and documentation security (section "
+        "8.12). The mapping of each control below to those sections is the "
+        "organization's own; where no held section names a control, as "
+        "with multi-factor authentication and encryption, this annex treats "
+        "it as the organization's own scoping of the criteria, to be "
+        "confirmed with HMRC. ")
 
     def test_uk_annex_purpose_drops_the_cybersecurity_requirement(self):
         """Round 3b note 1: the UK annex's purpose said AEO-S "specifically
@@ -21131,12 +21332,21 @@ class ProgrammeClaimsTests(unittest.TestCase):
         controls, personnel security, and cybersecurity". HMRC section 11
         names no cybersecurity or IT control. The sentence now gives what
         sections 11.1 to 11.3 hold and makes the IT scoping the annex's
-        own, as round 3b did for the UK procedure."""
+        own, as round 3b did for the UK procedure. Draft claimsfu4 (review
+        round 2 of claimsfu2, claude ERROR 2): the purpose took section
+        11's silence for the handbook's and made every IT control the
+        organization's scoping. It now gives the record keeping criterion's
+        IT security measures (sections 1.4, 8.1 and 8.9 to 8.12) and keeps
+        the organization's scoping for the controls no held section names,
+        as multi-factor authentication and encryption."""
         purpose = self._section_lines(self.UK_ANNEX, "## Purpose")
         lead = [line for line in purpose if line.strip()]
         self.assertIn(self._UK_ANNEX_CRITERIA, lead[0])
         self.assertNotIn("specifically requires", lead[0])
         self.assertNotIn("and cybersecurity.", lead[0])
+        self.assertNotIn("this annex treats the IT and cybersecurity "
+                         "controls below as the organization's own scoping",
+                         lead[0])
 
     # HMRC sections 11.5 (line 57), 11.6 (line 59), 11.7 (line 62), 11.8
     # (line 79), 11.9 (line 86), 11.10 (line 99), 11.13 (line 132) and
@@ -21159,15 +21369,20 @@ class ProgrammeClaimsTests(unittest.TestCase):
         which HMRC section 11 does not name as criteria. The list now gives
         the areas section 11 covers, each with its sections, and the scope
         note says section 11 has no information systems security
-        criterion."""
+        criterion. Draft claimsfu4 (review round 2 of claimsfu2, claude
+        ERROR 2): the scope note adds that the held IT security measures
+        sit under the record keeping criterion (section 8)."""
         section = self._section_lines(self.UK_ANNEX,
                                       "## AEO programme context")
         items = [line for line in section if line.startswith("- ")]
         self.assertEqual(items, self._UK_ANNEX_AREAS)
         text = "\n".join(section)
         self.assertNotIn("AEO-S requires", text)
-        self.assertIn("section 11 does not name information systems "
-                      "security as a criterion of its own", text)
+        self.assertIn("Section 11 does not name information systems "
+                      "security as a criterion of its own; the held IT "
+                      "security measures sit under the record keeping "
+                      "criterion (section 8), which section 1.4 lists among "
+                      "the AEO-S criteria.", text)
 
     def test_uk_annex_mapping_column_is_the_organization_scoping(self):
         """Class-wide search: the UK annex's mapping table headed its first
@@ -21185,7 +21400,19 @@ class ProgrammeClaimsTests(unittest.TestCase):
         no periodic self-assessment; its only self-assessment is the
         section 11.2 risk assessment, and section 11.3 documentation is
         verified during the AEO audit. The annex now says so and makes the
-        annual cycle the organization's own."""
+        annual cycle the organization's own.
+
+        Draft claimsfu4 (review round 2 of claimsfu2: claude ERROR 1, codex
+        ERROR 1, agy ERROR 1): the annex then said "The held HMRC criteria
+        name no periodic self-assessment or self-assessment submission",
+        and this test pinned it, but section 12.2 (held maintaining the
+        standards line 25) says "It is recommended that they continue to
+        self-assess their compliance with the conditions of the
+        authorisation", and lines 20 to 24 say HMRC reviews AEO status
+        periodically. The annex now states section 12.2 with its citation
+        as a recommended, continuing self-assessment, and keeps apart what
+        no held section names: a self-assessment submission to HMRC or an
+        annual cycle."""
         # Round 5 (claude NOTE 8): the heading no longer calls the
         # organization's own schedule an obligation.
         self.assertNotIn("## Self-assessment obligation",
@@ -21195,6 +21422,7 @@ class ProgrammeClaimsTests(unittest.TestCase):
         text = "\n".join(section)
         self.assertNotIn("AEO-S requires periodic", text)
         self.assertNotIn("overall AEO self-assessment submission", text)
+        self.assertNotIn("name no periodic self-assessment", text)
         self.assertIn(
             "The CISO provides documented evidence of IT control "
             "effectiveness to the AEO Compliance function, which integrates "
@@ -21202,40 +21430,64 @@ class ProgrammeClaimsTests(unittest.TestCase):
             "it available for HMRC during the audit of the AEO criteria "
             "(section 11.1).", text)
         self.assertIn(
-            "The held HMRC criteria name no periodic self-assessment or "
-            "self-assessment submission. The only self-assessment section 11 "
-            "names is the one in section 11.2, on the security and safety "
-            "risk assessment, to be carried out by a person with extensive "
-            "knowledge of the risks and threats applicable to the type of "
-            "business, and under section 11.3 the documentation of the "
-            "measures and controls is verified during the AEO audit. The "
-            "organization's annual AEO self-assessment is its own schedule, "
-            "to be confirmed with HMRC.", text)
+            "Section 12.2 of the HMRC Customs Technical Handbook (AEO), on "
+            "monitoring, says HMRC will review an authorized business's AEO "
+            "status periodically, that regular monitoring is the primary "
+            "responsibility of the business, and that it is recommended that "
+            "the business continue to self-assess its compliance with the "
+            "conditions of the authorization and act on any identified "
+            "problems as soon as they arise. That is a recommended, "
+            "continuing self-assessment: no held section names a "
+            "self-assessment submission to HMRC or an annual cycle. Within "
+            "section 11, the only self-assessment named is the one in "
+            "section 11.2, on the security and safety risk assessment, to be "
+            "carried out by a person with extensive knowledge of the risks "
+            "and threats applicable to the type of business, and under "
+            "section 11.3 the documentation of the measures and controls is "
+            "verified during the AEO audit. The organization's annual AEO "
+            "self-assessment is its own schedule for the continuing "
+            "self-assessment section 12.2 recommends, to be confirmed with "
+            "HMRC.", text)
 
     _UK_PROCEDURE_SCOPE = (
         "This procedure defines the process for completing the IT and "
         "cybersecurity elements of the organization's annual Authorized "
         "Economic Operator (AEO) and AEO-S (Authorized Economic Operator "
-        "Security and Safety) self-assessment. The annual cycle and its "
-        "internal submission deadline are the organization's own schedule: "
-        "the held HMRC criteria (UK HMRC AEO security and safety criteria "
-        "handbook, section 11) name no annual self-assessment or submission "
-        "to HMRC. "
-        "They say that procedures are to be documented and made available "
-        "for HMRC during the audit of the AEO criteria (section 11.1), and "
-        "the only self-assessment they name is the one in section 11.2, on "
-        "the security and safety risk assessment.")
+        "Security and Safety) self-assessment. Its held basis is section "
+        "12.2 of the HMRC Customs Technical Handbook (AEO), on monitoring, "
+        "which says that HMRC will review AEO status periodically, that "
+        "regular monitoring is the primary responsibility of the business, "
+        "and that it is recommended that the business continue to "
+        "self-assess its compliance with the conditions of the "
+        "authorization. The annual cycle and its internal submission "
+        "deadline are the organization's own schedule for that recommended, "
+        "continuing self-assessment: no held section names a "
+        "self-assessment submission to HMRC or an annual cycle. The held "
+        "HMRC security and safety criteria (UK HMRC AEO security and safety "
+        "criteria handbook, section 11) say that procedures are to be "
+        "documented and made available for HMRC during the audit of the "
+        "AEO criteria (section 11.1), and the only self-assessment they name "
+        "is the one in section 11.2, on the security and safety risk "
+        "assessment.")
 
     def test_uk_procedure_purpose_names_no_hmrc_submission(self):
         """Round 3b note 2: the UK procedure's purpose named "the annual
         ... self-assessment submission to HMRC". No held HMRC line matches
         annual or submission. The purpose now makes the annual cycle and
         its deadline the organization's own and gives what sections 11.1
-        and 11.2 hold."""
+        and 11.2 hold. Draft claimsfu4 (review round 2 of claimsfu2, claude
+        WARN 1 and ERROR 1): the purpose said section 11 names "no annual
+        self-assessment", true of section 11 but silent on section 12.2
+        (held maintaining the standards line 25), which recommends that the
+        business continue to self-assess its compliance and is the
+        procedure's held basis. The purpose now gives section 12.2 first,
+        and its denial covers only a submission to HMRC and an annual
+        cycle, which no held section names."""
         lines = self._lines(self.UK_PROCEDURE)
         self.assertEqual(lines.count(self._UK_PROCEDURE_SCOPE), 1)
         self.assertNotIn("self-assessment submission to HMRC.",
                          "\n".join(lines))
+        self.assertNotIn("name no annual self-assessment", "\n".join(lines))
 
     def test_uk_procedure_scoping_is_the_library_statement(self):
         """Round 3b note 5: the purpose concluded from the handbook ("so")
@@ -21245,10 +21497,13 @@ class ProgrammeClaimsTests(unittest.TestCase):
         them."""
         text = "\n".join(self._lines(self.UK_PROCEDURE))
         self.assertNotIn("documentation, so the IT and cybersecurity", text)
-        self.assertIn("; this procedure treats the IT and cybersecurity "
-                      "controls it evidences as the organization's own "
-                      "scoping of those criteria, to be confirmed with "
-                      "HMRC.", text)
+        # Draft claimsfu4 (review round 2 of claimsfu2, claude ERROR 2):
+        # the organization's own scoping now covers only the controls no
+        # held section names; the rest map to section 8.
+        self.assertIn("; where no held section names a control, as with "
+                      "multi-factor authentication, this procedure treats it "
+                      "as the organization's own scoping of the criteria, to "
+                      "be confirmed with HMRC.", text)
 
     def test_uk_procedure_deadline_is_the_organization_own(self):
         """Class-wide search: the UK procedure gave an "HMRC submission
@@ -21257,7 +21512,12 @@ class ProgrammeClaimsTests(unittest.TestCase):
         criteria and self-assessment obligations". No held HMRC line names
         a submission, a window or a deadline. The deadline is now set by
         the AEO Compliance function, and the framework row says section 11
-        names no periodic self-assessment submission."""
+        names no periodic self-assessment submission. Draft claimsfu4
+        (review round 2 of claimsfu2, agy ERROR 1, claude WARN 1): that row
+        left out section 12.2 and cited "(see section 1.1)", which holds no
+        such statement. It now cites section 12.2's recommendation as the
+        procedure's held basis, and denies only a submission to HMRC and
+        an annual cycle."""
         lines = self._lines(self.UK_PROCEDURE)
         text = "\n".join(lines)
         for stale in ("HMRC submission deadline", "HMRC submission window",
@@ -21272,9 +21532,15 @@ class ProgrammeClaimsTests(unittest.TestCase):
         self.assertEqual(lines.count(
             "| UK HMRC AEO / AEO-S guidance | Sets the AEO-S security and "
             "safety criteria (UK HMRC AEO security and safety criteria "
-            "handbook, section 11), which name no periodic self-assessment "
-            "submission (see section 1.1); primary regulatory driver for "
-            "this procedure |"), 1)
+            "handbook, section 11) and the record keeping criterion's IT "
+            "security measures (HMRC Customs Technical Handbook (AEO), "
+            "sections 8.1 and 8.9 to 8.12), and recommends that the business "
+            "continue to self-assess its compliance with the conditions of "
+            "the authorization (section 12.2), the held basis of this "
+            "procedure; no held section names a self-assessment submission "
+            "to HMRC or an annual cycle; primary regulatory driver for this "
+            "procedure |"), 1)
+        self.assertNotIn("(see section 1.1)", text)
 
     # HMRC section 11.4 (programs/UK-AEO/, line 56): "If there have been any
     # security incidents the customs authorities will expect the security
@@ -21285,7 +21551,19 @@ class ProgrammeClaimsTests(unittest.TestCase):
     # be taken, including reporting to law enforcement/senior management".
     # Section 11.8 "Building and boundary security" (line 79) includes "how
     # security incidents are reported and dealt with" (line 84), not limited
-    # to cargo units and with no recipient named.
+    # to cargo units and with no recipient named. Section 12.4 "Notification
+    # of changes" (held maintaining the standards lines 36 to 57): "Businesses
+    # must notify HMRC of all changes that may affect their" / "AEO" /
+    # " status", including "disclosure of security incidents" (line 52), and
+    # "should notify the" / "AEO" / " Central Site as soon as the change is
+    # known or, at the latest, within 14 calendar days of the change taking
+    # place", using the "C122" form (lines 53 to 57).
+    _SECTION_12_4_CLAUSE = (
+        "notification to HMRC of all changes that may affect AEO status, "
+        "including disclosure of security incidents, to the AEO Central Site "
+        "as soon as the change is known or, at the latest, within 14 calendar "
+        "days of the change, using form C122 (§12.4, notification of "
+        "changes)")
     _CTPAT_IT5 = (
         "| IT-5 Incident Response | AEO-S: security procedures reviewed and "
         "amended after an incident (handbook §11.4); how security incidents "
@@ -21293,26 +21571,37 @@ class ProgrammeClaimsTests(unittest.TestCase):
         "building and boundary security); for cargo units, procedures for "
         "how incidents are reported and recorded and what action is to be "
         "taken, including reporting to law enforcement or senior management "
-        "(§11.12, cargo security); the "
-        "organization maps these to IT incidents as its own scoping; "
-        "incident reporting to HMRC is not named in section 11 | "
-        "Candidate overlap, subject to HMRC acceptance; whether HMRC expects "
-        "incident notification is not confirmed by a held source |")
+        f"(§11.12, cargo security); {_SECTION_12_4_CLAUSE}; the "
+        "organization maps these to IT incidents as its own scoping | "
+        "Candidate overlap, subject to HMRC acceptance; the HMRC notification "
+        "(§12.4) is made on form C122, apart from any CBP notification |")
 
-    def test_ctpat_it_register_names_no_hmrc_incident_reporting(self):
+    def test_ctpat_it_register_cites_section_12_4_notification(self):
         """Class-wide search: the CTPAT IT register gave AEO-S's IT-5
         counterpart as "Incident reporting to HMRC" with an "HMRC-specific
         notification supplement", called the counterparts AEO-S's own, and
         pointed to "HMRC submission requirements". The row now gives what
         sections 11.4 and 11.12 hold, the lead-in makes the counterparts
         the organization's scoping, and the pointer drops the
-        requirements."""
+        requirements. Draft claimsfu3 (plan cfu2 WARN 7): the row said
+        incident reporting to HMRC is not named and that HMRC's expectation
+        of incident notification is not confirmed, but section 12.4 holds
+        it; the row now states section 12.4's notification of changes with
+        its citation, and the uncited "Incident reporting to HMRC"
+        counterpart stays gone. Draft claimsfu4 (review round 2 of
+        claimsfu2, claude ERROR 2, codex WARN 1): the lead-in stopped at
+        section 11's silence; it now gives the record keeping criterion's
+        IT security measures (sections 1.4, 8.1 and 8.9 to 8.12) as the
+        held provisions nearest to the rows they cover."""
         lines = self._lines(self.IT_REGISTER)
         text = "\n".join(lines)
         self.assertEqual(lines.count(self._CTPAT_IT5), 1)
         self.assertIn("The held HMRC criteria (UK HMRC AEO security and "
                       "safety criteria handbook, section 11) set out no IT "
                       "control requirement", text)
+        self.assertIn("access rights procedures, including the format for "
+                      "setting passwords (section 8.11), the held provision "
+                      "nearest to the IT-1 and IT-2 rows", text)
         for stale in ("Incident reporting to HMRC",
                       "HMRC-specific notification supplement",
                       "with their AEO-S counterparts",
@@ -21320,11 +21609,14 @@ class ProgrammeClaimsTests(unittest.TestCase):
             with self.subTest(stale=stale):
                 self.assertNotIn(stale, text)
 
-    def test_pip_register_names_no_hmrc_incident_reporting(self):
+    def test_pip_register_cites_section_12_4_notification(self):
         """Class-wide search: the PIP register gave AEO-S's CYB-6
         counterpart as "Incident reporting to HMRC" and pointed to "HMRC
-        submission guidance". The row now gives sections 11.4 and 11.12
-        and says reporting to HMRC is not named."""
+        submission guidance". The row now gives sections 11.4 and 11.12.
+        Draft claimsfu3 (plan cfu2 WARN 7): it also said reporting to HMRC
+        is not named, but section 12.4 holds the notification of changes,
+        including disclosure of security incidents; the row now states it
+        with its citation."""
         lines = self._lines(self.PIP_REGISTER)
         text = "\n".join(lines)
         rows = [line for line in lines
@@ -21337,34 +21629,57 @@ class ProgrammeClaimsTests(unittest.TestCase):
             "boundary security) and, for cargo units, incident reporting and "
             "recording and the action to be taken, including reporting to law "
             "enforcement or senior management (§11.12, cargo security); "
-            "incident reporting to HMRC "
-            "is not named in section 11: CBSA supplement needed |", rows[0])
+            f"{self._SECTION_12_4_CLAUSE}; CBSA supplement needed |", rows[0])
         self.assertNotIn("Incident reporting to HMRC", text)
         self.assertNotIn("HMRC submission guidance", text)
 
-    def test_msc_register_it_supplement_names_no_hmrc_notification(self):
+    def test_msc_register_it_supplement_cites_section_12_4_notification(
+            self):
         """Class-wide search: the MSC register's Information Technology
-        supplement was an "HMRC incident notification supplement". HMRC
-        section 11 names no notification to HMRC; the row now says the
-        supplement is not yet assessed and gives sections 11.4 and
-        11.12."""
+        supplement was an "HMRC incident notification supplement", with no
+        citation. The row says the supplement is not yet assessed and gives
+        sections 11.4 and 11.12. Draft claimsfu3 (plan cfu2 WARN 7): it also
+        said the HMRC criteria name no incident notification to HMRC, but
+        section 12.4 holds the notification of changes, naming disclosure of
+        security incidents and changes to accounting or computer systems;
+        the row now states it with its citation and leaves the supplement
+        to be assessed against it. Draft claimsfu6 (review round 3 of
+        claimsfu3, claude NOTE 1): the row and the section lead-in pointed
+        the IT domain only at section 11, which finds no IT measure; the IT
+        security measures sit under the record keeping criterion (section
+        8.1, held record keeping line 28), which section 1.4 lists among the
+        AEO-S criteria (introduction line 62), with detail in sections 8.9
+        to 8.12 (lines 149 to 177). Both now give that pointer."""
         section = self._section_lines(self.MSC_REGISTER,
                                       "## UK AEO-S parallel controls")
         rows = [line for line in section
                 if line.startswith("| Information Technology |")]
         self.assertEqual(rows, [
-            "| Information Technology | Supplement not yet assessed: the "
-            "HMRC criteria name no incident notification to HMRC (handbook "
-            "§11.4 expects security procedures to be reviewed and amended "
-            "after an incident, with evidence of how the changes were "
-            "communicated to staff and visitors and each amendment recorded "
-            "as a revision with its date and the parts revised; §11.8, on "
-            "building and boundary security, "
-            "asks how security incidents are reported and dealt with and "
-            "names no recipient, and §11.12, on cargo security, expects "
-            "procedures for cargo units that say how incidents are reported "
-            "and recorded and what action is to be taken, including reporting "
-            "to law enforcement or senior management); UK data protection law "
+            "| Information Technology | Supplement not yet assessed against "
+            "the IT security measures of the record keeping criterion, which "
+            "section 1.4 lists among the AEO-S criteria (handbook §8.1, "
+            "appropriate information technology security measures to protect "
+            "computer systems from unauthorized intrusion and to secure "
+            "documentation and data, with detail in §8.9 to §8.12: back-up, "
+            "recovery, fallback and archiving, protection of computer "
+            "systems, access rights procedures and documentation security), "
+            "against "
+            "HMRC's notification of changes (handbook §12.4), which names "
+            "disclosure of security incidents and changes to accounting or "
+            "computer systems among the changes businesses must notify to "
+            "HMRC, to the AEO Central Site as soon as the change is known or, "
+            "at the latest, within 14 calendar days of the change, using form "
+            "C122, and against the incident provisions of section 11 (§11.4 "
+            "expects security procedures to be reviewed and amended after an "
+            "incident, with evidence of how the changes were communicated to "
+            "staff and visitors and each amendment recorded as a revision "
+            "with its date and the parts revised; §11.8, on building and "
+            "boundary security, asks how "
+            "security incidents are reported and dealt with and names no "
+            "recipient, and §11.12, on cargo security, expects procedures for "
+            "cargo units that say how incidents are reported and recorded and "
+            "what action is to be taken, including reporting to law "
+            "enforcement or senior management); UK data protection law "
             "compliance |"])
 
     # HMRC section 11.12 lists "how incidents are reported and recorded"
@@ -21401,6 +21716,213 @@ class ProgrammeClaimsTests(unittest.TestCase):
         self.assertEqual(len(rows), 1, rows)
         return rows[0].split("|")[column].strip()
 
+    # The IT comparison's AEO-S (UK) column, by row (draft claimsfu4). Held
+    # record keeping lines: section 8.9 (149 to 151), "There should be
+    # satisfactory procedures in place for archiving records and
+    # information and for protection against the loss of information"
+    # (150); section 8.10 (152), "for example the use of firewall,
+    # antivirus programme, password protection" (153), then "Actions
+    # businesses should consider:" (154), among them vulnerability
+    # management (162) and user logs (161); section 8.11 (163), access
+    # rights procedures including passwords (165 to 167); section 8.12
+    # (168), whose actions "should normally include" (170) "dealing with
+    # incidents which compromise document security" (174). Section 11.14
+    # names software providers (held security and safety line 141) and
+    # section 11.15 requires security and safety training (line 163).
+    # No held section names multi-factor authentication, encryption or an
+    # asset inventory, so those keep (Org). Draft claimsfu6 (review round 3
+    # of claimsfu3): section 8.11 asks "how authorisation for access is
+    # issued and the level of access to the computer systems" (lines 164
+    # and 165) and states no least privilege, so that row is ~ (codex ERROR
+    # 2); section 8.9 (line 150) covers archiving and protection against
+    # the loss of information, not business continuity, and the plan is
+    # among the actions to consider (159, section 8.10) and the actions
+    # documentation security should normally include (176, section 8.12),
+    # so that row is ~ citing all three (claude WARN 2, codex ERROR 1, agy
+    # ERROR 1).
+    _SUPPLY_IT_AEO_S = {
+        "Access control: least privilege": "~ (§8.11)",
+        "Multi-factor authentication": "✓ (Org)",
+        "Password management": "✓ (§8.10, §8.11)",
+        # Draft claimsfu8 (review round 5, claude NOTE 4): also section
+        # 8.12, whose actions name testing of systems against unauthorized
+        # access (held record keeping line 175, under line 170).
+        "Vulnerability management": "~ (§8.10, §8.12)",
+        "Network security (firewall, IDS)": "~ (§8.10)",
+        "Encryption in transit": "✓ (Org)",
+        "Encryption at rest": "~ (Org)",
+        "Incident response plan": "~ (§8.12)",
+        "Notification to customs authority": "✓ (§12.4)",
+        "Security awareness training": "~ (§11.15)",
+        "Asset inventory": "✓ (Org)",
+        "Third-party IT security": "~ (§11.14)",
+        "Business continuity / IT recovery": "~ (§8.9, §8.10, §8.12)",
+        "Audit logging": "~ (§8.10)",
+    }
+
+    # The in-part reason the IT comparison's lead-in states for each cited
+    # ~ the review rounds questioned (draft claimsfu6, review round 3 of
+    # claimsfu3), and from draft claimsfu7 (review round 4 of claimsfu4,
+    # claude NOTE 5) for every other cited ~ that covers its row in part,
+    # as (row, reason).
+    _SUPPLY_IT_PARTIAL_REASONS = (
+        ("Access control: least privilege",
+         "least privilege, since access rights procedures should include how "
+         "authorization for access is issued and the level of access to the "
+         "computer systems, with access to sensitive information limited to "
+         "staff authorized to apply changes and additions to it (§8.11), but "
+         "no held section states least privilege;"),
+        ("Network security (firewall, IDS)",
+         "network security, since firewalls are named among the security "
+         "measures there should be and among the actions businesses should "
+         "consider, but intrusion detection is not (§8.10);"),
+        # Held record keeping line 174, under "Actions should normally
+        # include:" (line 170) of section 8.12.
+        ("Incident response plan",
+         "incident response plan, since the actions documentation security "
+         "should normally include cover dealing with incidents which "
+         "compromise document security, not incident response as a whole "
+         "(§8.12);"),
+        ("Security awareness training",
+         "security awareness training, since applicants are required to "
+         "provide their staff with training on security and safety, not IT "
+         "security awareness specifically (§11.15);"),
+        # Held security and safety lines 141 (software providers among the
+        # external service providers), 143 (requirements stated in
+        # contracts) and 146 (appropriate security and safety measures
+        # should apply to them); section 11.14 names no IT security.
+        ("Third-party IT security",
+         "third-party IT security, since software providers are among the "
+         "external service providers to which appropriate security and "
+         "safety measures should apply, with the business's requirements "
+         "stated in contracts, but IT security is not named for them "
+         "(§11.14);"),
+        ("Business continuity / IT recovery",
+         "business continuity or IT recovery, since §8.9 covers archiving "
+         "records and information and protection against the loss of "
+         "information, not business continuity, while a business continuity "
+         "or disaster recovery plan is among the actions businesses should "
+         "consider (§8.10) and the actions documentation security should "
+         "normally include (§8.12)."),
+    )
+
+    def test_supply_matrix_aeo_s_partial_marks_state_their_reason(self):
+        """Draft claimsfu6 (review round 3 of claimsfu3). Business
+        continuity / IT recovery was ✓ (§8.9), but held record keeping line
+        150 (section 8.9) says only "There should be satisfactory procedures
+        in place for archiving records and information and for protection
+        against the loss of information"; the plan is named at line 159
+        (section 8.10, under "Actions businesses should consider:", line
+        154) and line 176 (section 8.12, under "Actions should normally
+        include:", line 170). The row is now ~ (§8.9, §8.10, §8.12), and the
+        domain matrix's Business Continuity cell, an uncited ~, cites the
+        same sections with its reason in the lead-in (all three legs).
+        Least privilege was ✓ (§8.11), but section 8.11 (lines 164 and 165)
+        asks how authorization for access is issued and the level of access,
+        with access to sensitive information limited to authorized staff,
+        and no held section names least privilege; the row keeps its name
+        and is ~ (§8.11) (codex ERROR 2). Security awareness training ~
+        (§11.15) rests on security and safety training (held security line
+        163), not IT security awareness (claude WARN 1), and Network security
+        ~ (§8.10) on firewalls (record keeping lines 153 and 158) with no
+        intrusion detection named (claude NOTE 2). The IT comparison's
+        lead-in, where the matrix states its in-part reasons, now gives each
+        of the four, and each named row carries the ~ its reason explains.
+        Draft claimsfu7 (review round 4 of claimsfu4, claude NOTE 5): "Four
+        cited rows are marked ~" read as the whole list while the AEO-S
+        column has eight cited ~ marks. The lead-in now accounts for all
+        eight: vulnerability management and audit logging are among the
+        actions businesses should consider (§8.10, record keeping lines 161
+        and 162, under line 154), and six cover their row in part, adding
+        the incident response plan (§8.12, line 174, under line 170) and
+        third-party IT security (§11.14, security and safety lines 141 to
+        146). The rows the lead-in names are exactly the cited ~ rows of
+        the column. Draft claimsfu8 (review round 5, claude NOTE 4):
+        vulnerability management also cites §8.12, whose actions name
+        testing of systems against unauthorized access and recording the
+        results (record keeping line 175, under line 170), which covers the
+        row in part; the mark stays ~. Draft claimsfu9 (round 8 WARN 1):
+        the lead-in quoted that line in HMRC's spelling, which the language
+        lint rejects, so it now paraphrases it in -ize spelling, not as a
+        quotation, as the UK annex does (line 34). Draft claimsfu10 (review
+        round 6, claude NOTE 6): the paraphrase read "the actions
+        documentation security should normally include name testing
+        systems against unauthorized access", which is hard to parse; it
+        now reads "testing systems against unauthorized access and
+        recording the results is among the actions documentation security
+        should normally include (§8.12)", with the same citation.
+
+        Draft claimsfu12 (review round 7, claude WARN 2): that rewording
+        dropped "which covers it in part", the only ground for the §8.12
+        part of the ~ that the key below the lead-in accepts:
+        "should normally include" is neither covering the row in part nor
+        among the actions businesses should consider. The clause now reads
+        "testing systems against unauthorized access and recording the
+        results, which covers it in part, is among the actions
+        documentation security should normally include (§8.12)". The
+        business continuity or IT recovery reason needs no such change: it
+        stands among the six rows whose sections cover the row in part, and
+        its §8.10 ground is among the actions businesses should consider,
+        both of which the key accepts."""
+        lines = self._lines(self.SUPPLY_MATRIX)
+        start = lines.index("| IT Requirement | CTPAT | AEO-S (UK) | AEO "
+                            "(EU) | PIP | BASC |")
+        lead_in = lines[start - 4]
+        self.assertTrue(lead_in.startswith("The comparison below indicates"),
+                        lead_in[:40])
+        self.assertNotIn("Four cited rows", lead_in)
+        self.assertNotIn("unauthorised", lead_in)
+        self.assertIn("Of the eight cited ~ rows, vulnerability management "
+                      "and audit logging are marked ~ because periodic "
+                      "vulnerability management and logs of each user and "
+                      "their actions are among the actions businesses should "
+                      "consider (§8.10), vulnerability management also "
+                      "because testing systems against unauthorized access "
+                      "and recording the results, which covers it in part, "
+                      "is among the actions documentation security should "
+                      "normally include (§8.12), and six are marked ~ "
+                      "because their sections cover the row in part: ",
+                      lead_in)
+        self.assertNotIn("should normally include name testing", lead_in)
+        # The IT comparison's own rows (another table of the matrix also
+        # has an Incident response plan row), by row, AEO-S (UK) cell.
+        it_rows = {}
+        for line in lines[start + 2:]:
+            if not line.startswith("|"):
+                break
+            cells = [cell.strip() for cell in line.split("|")]
+            it_rows[cells[1]] = cells[3]
+        considered = {"Vulnerability management": "~ (§8.10, §8.12)",
+                      "Audit logging": "~ (§8.10)"}
+        cited_partial = sorted(row for row, mark in it_rows.items()
+                               if mark.startswith("~ (§"))
+        self.assertEqual(len(cited_partial), 8, cited_partial)
+        self.assertEqual(
+            sorted(tuple(considered)
+                   + tuple(row for row, _ in self._SUPPLY_IT_PARTIAL_REASONS)),
+            cited_partial)
+        for row, mark in considered.items():
+            with self.subTest(row=row):
+                self.assertEqual(self._SUPPLY_IT_AEO_S[row], mark)
+                self.assertEqual(it_rows[row], mark)
+        for row, reason in self._SUPPLY_IT_PARTIAL_REASONS:
+            with self.subTest(row=row):
+                self.assertIn(reason, lead_in)
+                self.assertTrue(self._SUPPLY_IT_AEO_S[row].startswith("~ ("))
+                self.assertEqual(it_rows[row], self._SUPPLY_IT_AEO_S[row])
+        self.assertEqual(self._matrix_cell("| **Business Continuity** |", 3),
+                         "~ (§8.9, §8.10, §8.12)")
+        self.assertIn(
+            "The back-up, recovery, fallback and archiving section asks for "
+            "satisfactory procedures for archiving records and information "
+            "and for protection against the loss of information (§8.9), which "
+            "is not business continuity, and a business continuity or "
+            "disaster recovery plan is among the actions businesses should "
+            "consider for the protection of computer systems (§8.10) and the "
+            "actions documentation security should normally include (§8.12), "
+            "so Business Continuity is marked ~ (§8.9, §8.10, §8.12).",
+            "\n".join(lines))
+
     def test_supply_matrix_aeo_s_it_and_notification_cells(self):
         """Class-wide search: the supply chain matrix marked AEO-S as
         requiring IT and Cybersecurity and Incident Reporting to Authority,
@@ -21412,27 +21934,49 @@ class ProgrammeClaimsTests(unittest.TestCase):
         and the IT comparison's AEO-S column is the organization's scoping.
         Round 5 (codex ERROR 1 and claude WARN 4): Incident Reporting to
         Authority read Not confirmed, which suppressed the held section
-        11.12 provision; it is now partial, limited to cargo units and to
-        reporting to law enforcement or senior management."""
+        11.12 provision; it was then partial, limited to cargo units and to
+        reporting to law enforcement or senior management. Draft claimsfu3
+        (plan cfu2 WARN 7): both notification cells said HMRC notification
+        is not named or not confirmed, but section 12.4 says businesses must
+        notify HMRC of all changes that may affect their AEO status,
+        including disclosure of security incidents. Incident Reporting to
+        Authority is now ✓ citing section 12.4, the IT comparison's
+        Notification to customs authority cell is ✓ (§12.4), and each lead-in
+        says why. Draft claimsfu4 (review round 2 of claimsfu2, claude ERROR
+        2, codex WARN 1): the IT domain and the IT comparison's AEO-S (UK)
+        cells rested on section 11 alone, but section 8.1 (held record
+        keeping line 28) asks for appropriate information technology
+        security measures, which section 1.4 (introduction line 62) makes
+        an AEO-S criterion, and sections 8.9 to 8.12 give the detail. The IT
+        domain is now ✓ (§1.4, §8.1), each IT comparison cell a held section
+        holds cites it (_SUPPLY_IT_AEO_S), and only the cells no held
+        section names keep (Org)."""
         self.assertEqual(
-            self._matrix_cell("| **IT and Cybersecurity** |", 3), "~")
+            self._matrix_cell("| **IT and Cybersecurity** |", 3),
+            "✓ (§1.4, §8.1)")
         self.assertEqual(
             self._matrix_cell("| **Incident Reporting to Authority** |", 3),
-            "~ (cargo units only, §11.12: reporting to law enforcement or "
-            "senior management; no reporting to HMRC named)")
+            "✓ (§12.4: disclosure of security incidents to HMRC, as a change "
+            "that may affect AEO status)")
         self.assertEqual(
             self._matrix_cell("| Notification to customs authority |", 3),
-            "Not confirmed")
+            "✓ (§12.4)")
         text = "\n".join(self._lines(self.SUPPLY_MATRIX))
         self.assertIn("cannot be confirmed from the reference base. For "
                       "AEO-S (UK), the held HMRC criteria", text)
-        self.assertIn("so the AEO-S (UK) column records the organization's "
-                      "own scoping of those criteria, not HMRC text", text)
+        self.assertIn("and it records the organization's own scoping of "
+                      "the HMRC criteria, not HMRC text, in the other rows: "
+                      "no held section names multi-factor authentication, "
+                      "encryption or an asset inventory.", text)
+        self.assertNotIn("so IT and Cybersecurity is marked ~", text)
         # Round 8 (review round 3, claude NOTE 3): a ✓ in the AEO-S (UK)
         # column meant the organization's scoping while a ✓ beside it meant
         # the programme addresses the area. Every AEO-S (UK) cell of the IT
-        # comparison is now marked (Org), except the source-based Not
-        # confirmed, and the table's key says what (Org) means.
+        # comparison was then marked (Org), except the source-based
+        # Notification to customs authority cell (Not confirmed until draft
+        # claimsfu3, now ✓ (§12.4)), and the table's key says what (Org) and
+        # a cited mark mean. Draft claimsfu4: the cells a held section holds
+        # cite it (_SUPPLY_IT_AEO_S); (Org) stays only where none does.
         lines = self._lines(self.SUPPLY_MATRIX)
         start = lines.index("| IT Requirement | CTPAT | AEO-S (UK) | AEO "
                             "(EU) | PIP | BASC |")
@@ -21441,21 +21985,32 @@ class ProgrammeClaimsTests(unittest.TestCase):
             if not line.startswith("| "):
                 break
             rows.append([cell.strip() for cell in line.split("|")[1:-1]])
-        self.assertTrue(rows)
+        self.assertEqual({row[0]: row[2] for row in rows},
+                         self._SUPPLY_IT_AEO_S)
         for row in rows:
             with self.subTest(row=row[0]):
-                if row[0] == "Notification to customs authority":
-                    self.assertEqual(row[2], "Not confirmed")
-                else:
-                    self.assertIn(row[2], ("✓ (Org)", "~ (Org)"))
                 self.assertFalse(any("(Org)" in cell
                                      for index, cell in enumerate(row)
                                      if index != 2))
         self.assertIn(
             "In the AEO-S (UK) column, ✓ (Org) and ~ (Org) mark the "
             "organization's own scoping of the HMRC criteria, not a mark "
-            "drawn from a held source; Not confirmed = not found in the held "
-            "HMRC criteria.", lines[start - 2])
+            "drawn from a held source; a ✓ or ~ followed by section "
+            "numbers, as in ✓ (§8.11) or ~ (§8.10), marks what the held "
+            "handbook sections it names state, ✓ for a measure or procedure "
+            "they say there should be or must be and ~ for one they cover in "
+            "part or list among the actions businesses should consider.",
+            lines[start - 2])
+        self.assertNotIn("Not confirmed", lines[start - 2])
+        self.assertIn(
+            "In the Notification to customs authority cell, the "
+            "handbook's section 12.4 says businesses must notify HMRC of all "
+            "changes that may affect their AEO status, including disclosure "
+            "of security incidents and changes to accounting or computer "
+            "systems, and should notify the AEO Central Site as soon as the "
+            "change is known or, at the latest, within 14 calendar days of "
+            "the change, using form C122, so that cell is marked ✓ (§12.4).",
+            text)
 
     # A mark a table key defines: "<mark> = <meaning>" after the start of
     # the key or a clause break (an "and" before the last one), or a pair
@@ -21473,8 +22028,10 @@ class ProgrammeClaimsTests(unittest.TestCase):
         AEO-S Incident Reporting to Authority ~ (cargo units only). The
         entry is gone. Every mark a key defines appears in the table that
         follows the key, alone in a cell or opening one (~ (cargo units
-        only, ...)); the IT comparison key's Not confirmed stays, used by
-        its Notification to customs authority row."""
+        only, ...)). Draft claimsfu3 (plan cfu2 WARN 7): the IT comparison
+        key's Not confirmed entry is gone too, because its one user, the
+        Notification to customs authority row, is now ✓ (§12.4); the key
+        describes that cited mark in words, not as a defined mark."""
         lines = self._lines(self.SUPPLY_MATRIX)
         keys = {}
         for index, line in enumerate(lines):
@@ -21503,7 +22060,7 @@ class ProgrammeClaimsTests(unittest.TestCase):
              "| NEEC | OEA | ISO 28000:2022 | WCO SAFE |":
                  ["✓", "~", "N/A", "Unverifiable"],
              "| IT Requirement | CTPAT | AEO-S (UK) | AEO (EU) | PIP | BASC |":
-                 ["✓", "~", "N/A", "Not confirmed", "✓ (Org)", "~ (Org)"]})
+                 ["✓", "~", "N/A", "✓ (Org)", "~ (Org)"]})
         for header, (marks, cells) in keys.items():
             for mark in marks:
                 with self.subTest(table=header[:20], mark=mark):
@@ -22265,40 +22822,96 @@ class ProgrammeClaimsTests(unittest.TestCase):
         notification to HMRC, and that each is to be confirmed. Round 5
         (claude NOTE 6): it also gives section 11.14, which lists software
         providers among external service providers (held lines 140 to 143),
-        as the anchor nearest the third-party IT row."""
+        as the anchor nearest the third-party IT row. Draft claimsfu1
+        (research WARN 13): rows that name a held section of the HMRC
+        Customs Technical Handbook (AEO) beside AEO-S rest on that section,
+        and the closing sentence says so
+        (HmrcHandbookClaimsTests._GAP_PURPOSE_HELD). Draft claimsfu3 (plan
+        cfu2 WARN 7): the Purpose said section 11 sets out no incident
+        notification to HMRC, which read as no HMRC notification at all;
+        section 12.4 holds the notification of changes, including disclosure
+        of security incidents, so the Purpose now says so and the security
+        incident reporting row cites it. Draft claimsfu4 (review round 2 of
+        claimsfu2, claude ERROR 2, codex WARN 1): the Purpose stopped at
+        section 11's silence on IT; it now gives the record keeping
+        criterion's IT security measures (sections 1.4, 8.1 and 8.9 to
+        8.12) as the held provisions nearest to the IT rows they cover, and
+        section 12.2's recommended continuing self-assessment as the one
+        nearest to the self-assessment row; no held section names an
+        annual cycle or multi-factor authentication."""
         purpose = self._section_lines(self.GAP_TEMPLATE, "## Purpose")
         self.assertIn(
             "The Programme Source column names the programmes whose "
             "requirements the organization maps each row to. For AEO-S, "
             "those attributions are the organization's own scoping, not "
-            "HMRC text: the held HMRC criteria (UK HMRC AEO security and "
-            "safety criteria handbook, section 11) set out no IT control, "
-            "annual cycle or incident notification to HMRC. They name the "
+            "HMRC text, except where a held section holds them: the held "
+            "HMRC security and safety criteria (UK HMRC AEO security and "
+            "safety criteria handbook, section 11) set out no IT control, and "
+            "no held section names an annual cycle. Section 11 names the "
             "computer system as an area the security and safety risk "
-            "assessment is to address (section 11.2), and list software "
-            "providers among the external service providers and expect the "
+            "assessment is to address (section 11.2), and lists software "
+            "providers among the external service providers and expects the "
             "business's requirements to be stated in contracts (section "
             "11.14), the held provision nearest to the third-party IT "
-            "security controls row. Confirm each AEO-S attribution with HMRC "
-            "before relying on it.", purpose)
+            "security controls row. The record keeping criterion, which "
+            "section 1.4 of the HMRC Customs Technical Handbook (AEO) lists "
+            "among the AEO-S criteria, asks for appropriate information "
+            "technology security measures to protect computer systems from "
+            "unauthorized intrusion and to secure documentation and data "
+            "(section 8.1), with detail under back-up, recovery, fallback and "
+            "archiving (section 8.9), protection of computer systems, naming "
+            "firewalls, anti-virus and other malware protection, a business "
+            "continuity or disaster recovery plan, back-up routines, logs of "
+            "each user and their actions and periodic vulnerability "
+            "management (section 8.10), access rights procedures, including "
+            "the format for setting passwords (section 8.11), and "
+            "documentation security (section 8.12); those sections are the "
+            "held provisions nearest to the access control, vulnerability "
+            "management, network and firewall, business continuity and IT "
+            "recovery, and audit logging rows, and no held section names "
+            "multi-factor authentication. Section 12.2 recommends that the "
+            "business continue to self-assess its compliance with the "
+            "conditions of the authorization, the held provision nearest to "
+            "the internal security audit or self-assessment row. Section "
+            "12.4 of the HMRC Customs "
+            "Technical Handbook (AEO) says businesses must notify HMRC of all "
+            "changes that may affect their AEO status, including disclosure "
+            "of security incidents, and should notify the AEO Central Site as "
+            "soon as the change is known or, at the latest, within 14 "
+            "calendar days of the change, using form C122; the security "
+            "incident reporting row cites it."
+            + HmrcHandbookClaimsTests._GAP_PURPOSE_HELD, purpose)
         # Round 8 (review round 3, codex NOTE): held line 143 makes the
         # requirements the business's, "The business’s’ requirements should
         # be clearly stated in any contracts", not the providers'.
         self.assertNotIn(self._PROVIDERS_REQUIREMENTS,
                          "\n".join(self._lines(self.GAP_TEMPLATE)))
 
-    def test_supplier_exit_names_no_aeo_s_reporting_obligation(self):
+    def test_supplier_exit_cites_section_12_4_notification(self):
         """Class-wide search: the supplier exit procedure gave a change of
         approved service providers under AEO-S as an example of a
-        programme reporting obligation. HMRC section 11 names none; the
-        step now says so for AEO-S."""
+        programme reporting obligation, which no held section names. Draft
+        claimsfu3 (plan cfu2 WARN 7): the step then said the HMRC criteria
+        name no such reporting obligation, but section 12.4 says businesses
+        must notify HMRC of all changes that may affect their AEO status,
+        listing changes to accounting or computer systems and additions or
+        deletions of locations or branches involved in the international
+        supply chain. The step now cites section 12.4 and asks whether the
+        exit is such a change, without saying that a change of service
+        provider is one."""
         text = "\n".join(self._lines(self.SUPPLIER_EXIT))
         self.assertNotIn("under CTPAT, AEO-S)", text)
+        self.assertNotIn("name no such reporting obligation", text)
         self.assertIn(
             "(e.g., change of approved service providers under CTPAT; for "
-            "AEO-S, the held HMRC criteria (UK HMRC AEO security and safety "
-            "criteria handbook, section 11) name no such reporting "
-            "obligation, so confirm with HMRC)", text)
+            "AEO-S, section 12.4 of the HMRC Customs Technical Handbook (AEO) "
+            "says businesses must notify HMRC of all changes that may affect "
+            "their AEO status, its list including changes to accounting or "
+            "computer systems and additions or deletions of locations or "
+            "branches involved in the international supply chain, so assess "
+            "whether the exit is such a change and, if it is, notify the AEO "
+            "Central Site as soon as the change is known or, at the latest, "
+            "within 14 calendar days of the change, using form C122)", text)
 
     def test_audit_planning_aeo_s_frequency_is_organization_set(self):
         """Class-wide search: the audit planning procedure gave AEO-S an
@@ -22350,12 +22963,19 @@ class ProgrammeClaimsTests(unittest.TestCase):
                           r"|or)\s+)*")
     # "name no ... submission", "does not name a ... submission". A bare
     # "no" does not count: "no submission to HMRC may contain" presupposes
-    # the submission.
+    # the submission. Draft claimsfu4 (review round 2 of claimsfu2, claude
+    # NOTE 1): "no held section names a ... submission" counts too; the
+    # guard read it as a stated duty, which pushed corrections towards the
+    # "name no" form that left out section 12.2.
     _DENIED_NOUN_BEFORE = re.compile(
         r"(?i)(?:\b(?:names?|sets?|requires?|records?|holds?|states?|imposes?"
         r"|mentions?|lists?)\s+no"
         r"|\bnot\s+(?:name|set|require|record|hold|state|impose|mention|list)"
-        r"(?:\s+(?:a|an|any))?)\s+" + _DENIED_DUTY_WORDS + r"$")
+        r"(?:\s+(?:a|an|any))?"
+        r"|\bno\s+held\s+(?:sections?|sources?|texts?|lines?|criteria)\s+"
+        r"(?:names?|sets?|requires?|records?|holds?|states?|imposes?"
+        r"|mentions?|lists?)(?:\s+(?:a|an|any))?)\s+"
+        + _DENIED_DUTY_WORDS + r"$")
     # "is not submitted to HMRC", "does not submit to HMRC".
     _DENIED_VERB_BEFORE = re.compile(
         r"(?i)\b(?:is|are|was|were|do|does|did)\s+not\s+$")
@@ -22385,13 +23005,112 @@ class ProgrammeClaimsTests(unittest.TestCase):
             return bool(cls._DENIED_VERB_BEFORE.search(before))
         return bool(cls._DENIED_NOUN_BEFORE.search(before))
 
+    # Round 4's removed form of a duty no held HMRC section holds.
+    _UNHELD_DUTY_FORMS = re.compile(r"AEO-?S \([^)]*\) specifically requires")
+    # Round 4's removed self-assessment form ("AEO-S requires periodic
+    # self-assessment against HMRC AEO criteria") and the wording of
+    # section 12.2. Draft claimsfu4 (review round 2 of claimsfu2: claude
+    # ERROR 1, codex ERROR 1, agy ERROR 1): section 12.2 (held maintaining
+    # the standards line 25) says "It is recommended that they continue to
+    # self-assess their compliance with the conditions of the
+    # authorisation", so a continuing self-assessment is held as a
+    # recommendation; no held section names a submission to HMRC or an
+    # annual cycle. A form stands only where its own clause (to the
+    # nearest full stop, semicolon or table cell edge) cites section 12.2
+    # and calls the self-assessment recommended, and states no duty,
+    # submission or annual cycle (_unheld_self_assessment).
+    # The forms are the removed one and section 12.2's verb wording
+    # ("continue to self-assess", "self-assess their compliance"); a noun
+    # phrase that only names the organization's schedule ("its own
+    # schedule for the continuing self-assessment") is not a form.
+    _SELF_ASSESSMENT_FORMS = re.compile(
+        r"(?i)periodic self-assessment against"
+        r"|\bcontinu\w* to self-assess\w*"
+        r"|\bself-assess\w* (?:their|its) compliance")
+    _CITES_SECTION_12_2 = re.compile(r"(?:§|[Ss]ection )12\.2(?!\d)")
+    _RECOMMENDED = re.compile(r"(?i)\brecommend\w*")
+    _SELF_ASSESSMENT_DUTY = re.compile(
+        r"(?i)\b(?:requires?|required|must|mandatory|obligat\w*|annual\w*"
+        r"|yearly|each year|every year|submi\w*|due)\b")
+
+    @classmethod
+    def _unheld_self_assessment(cls, line, match):
+        """Whether this match of _SELF_ASSESSMENT_FORMS falls in a clause
+        that does not state section 12.2's recommendation as it stands: a
+        clause with no section 12.2 citation or no recommendation, or one
+        that adds a duty, a submission or an annual cycle."""
+        ends = list(cls._CLAUSE_END.finditer(line, 0, match.start()))
+        start = ends[-1].end() if ends else 0
+        after = cls._CLAUSE_END.search(line, match.end())
+        clause = line[start:after.start() if after else len(line)]
+        return (not (cls._CITES_SECTION_12_2.search(clause)
+                     and cls._RECOMMENDED.search(clause))
+                or bool(cls._SELF_ASSESSMENT_DUTY.search(clause)))
+
+    # An annual cycle attributed to HMRC, in the forms a claim would take:
+    # HMRC or AEO-S requiring, setting or reviewing on an annual basis, an
+    # annual HMRC or AEO-S self-assessment, review or submission, or an
+    # annual cycle set by HMRC. Section 12.2 says HMRC will review AEO
+    # status "periodically" (held maintaining the standards lines 20 to
+    # 22) and names no interval. A match that carries its own negation ("HMRC
+    # sets no annual cycle") is a denial and stands.
+    _HMRC_ANNUAL_CYCLE = re.compile(
+        r"(?i)\b(?:HMRC|AEO-S)\b[^.;|]{0,40}?\b(?:requires?|required|sets?"
+        r"|expects?|mandates?|reviews?|reviewed|audits?|audited)\b"
+        r"[^.;|]{0,40}?\b(?:annual(?:ly)?"
+        r"|yearly|each year|every year)\b"
+        r"|\b(?:annual|yearly)\s+(?:HMRC|AEO-S)\s+(?:self-assessment|review"
+        r"|cycle|submission|audit|re-?assessment)"
+        r"|\b(?:annual(?:ly)?|yearly)\b[^.;|]{0,40}?\b(?:required|set"
+        r"|mandated|reviewed|audited)\s+by\s+HMRC\b")
+    _NEGATION = re.compile(r"(?i)\b(?:no|not|never|none)\b")
+
+    @classmethod
+    def _annual_hmrc_cycles(cls, line):
+        """The matches of _HMRC_ANNUAL_CYCLE on this line that carry no
+        negation of their own."""
+        return [match.group(0)
+                for match in cls._HMRC_ANNUAL_CYCLE.finditer(line)
+                if not cls._NEGATION.search(match.group(0))]
+    # Round 4's removed incident-notification forms, matched exactly as
+    # before. Draft claimsfu3 (plan cfu2 WARN 7): section 12.4 of the HMRC
+    # Customs Technical Handbook (AEO) (held maintaining the standards lines
+    # 36 to 57) says businesses must notify HMRC of all changes that may
+    # affect their AEO status, including "disclosure of security incidents"
+    # (line 52), so an HMRC notification duty is held after all; a form
+    # stands only where its own clause, after the match and before the next
+    # full stop, semicolon or table cell edge, cites section 12.4
+    # (_unheld_notification).
+    _HMRC_NOTIFICATION_FORMS = re.compile(
+        r"AEO-S: Incident reporting to HMRC"
+        r"|HMRC(?:-specific)? (?:incident )?notification supplement")
+    _CITES_SECTION_12_4 = re.compile(r"^[^.;|]*?(?:§|section )12\.4(?!\d)")
+
+    @classmethod
+    def _unheld_notification(cls, line, match):
+        """Whether this match of _HMRC_NOTIFICATION_FORMS lacks a section
+        12.4 citation in its own clause: "AEO-S: Incident reporting to HMRC
+        (handbook §12.4)" stands; the same words uncited, or with the
+        citation in a later clause or sentence, do not."""
+        return not cls._CITES_SECTION_12_4.search(line[match.end():])
+
     def test_no_md_line_attributes_an_unheld_hmrc_duty(self):
         """Round 4, class-wide: no line of any .md file keeps one of the
-        removed forms, each a duty HMRC section 11 does not hold: incident
-        reporting or notification to HMRC as an AEO-S requirement, an HMRC
+        removed forms of a duty no held HMRC section holds: an HMRC
         submission deadline, window, requirements or guidance, a periodic
         self-assessment against the HMRC criteria, or AEO-S specifically
-        requiring cybersecurity controls.
+        requiring cybersecurity controls. Round 4 also removed incident
+        reporting or notification to HMRC as an AEO-S requirement, on the
+        premise that no held section names it. Draft claimsfu3 (plan cfu2
+        WARN 7): that premise was wrong. Section 12.4 (held maintaining the
+        standards lines 36 to 57) says businesses must notify HMRC of all
+        changes that may affect their AEO status, including disclosure of
+        security incidents, notifying the AEO Central Site within 14
+        calendar days at the latest on form C122. The guard still matches
+        the removed notification forms exactly as before, and a match now
+        stands only where its own clause cites section 12.4
+        (_unheld_notification; the self-check
+        test_hmrc_notification_guard_allows_only_a_section_12_4_citation).
 
         Round 5 (claude ERROR 1 and NOTE 11): the guard matched only "HMRC
         submission" followed by deadline, window, requirements or guidance,
@@ -22405,17 +23124,36 @@ class ProgrammeClaimsTests(unittest.TestCase):
         the sentence; only a negation that governs the matched duty now
         counts (_negated). Round 8 (review round 3, claude NOTE 1): a
         denial after the match ends at a clause boundary, and a bare and no
-        longer carries a denial into the next clause."""
-        stale = re.compile(
-            r"AEO-S: Incident reporting to HMRC"
-            r"|HMRC(?:-specific)? (?:incident )?notification supplement"
-            r"|periodic self-assessment against"
-            r"|AEO-?S \([^)]*\) specifically requires")
-        found = [f"{rel}:{number}" for rel, number, line in self._md_lines()
-                 if stale.search(line)]
+        longer carries a denial into the next clause.
+
+        Draft claimsfu4 (review round 2 of claimsfu2: claude ERROR 1 and
+        NOTE 1, codex ERROR 1, agy ERROR 1): the periodic self-assessment
+        form was rejected wherever it stood, though section 12.2 (held
+        maintaining the standards line 25) recommends that the business
+        continue to self-assess its compliance with the conditions of the
+        authorization. The self-assessment forms now stand only where their
+        own clause cites section 12.2, calls the self-assessment
+        recommended and adds no duty, submission or annual cycle
+        (_unheld_self_assessment); an annual cycle attributed to HMRC is
+        caught wherever it stands without its own negation
+        (_annual_hmrc_cycles); and "no held section names a ... submission"
+        counts as a denial. Draft claimsfu4 (codex WARN 3): the guard reads
+        each table row and each prose paragraph assembled from its wrapped
+        lines (_md_paragraphs), so a claim wrapped across lines is read
+        whole; a finding gives the paragraph's first line."""
+        found = [f"{rel}:{number}"
+                 for rel, number, line in self._md_paragraphs()
+                 if self._UNHELD_DUTY_FORMS.search(line)
+                 or any(self._unheld_notification(line, match)
+                        for match in
+                        self._HMRC_NOTIFICATION_FORMS.finditer(line))
+                 or any(self._unheld_self_assessment(line, match)
+                        for match in
+                        self._SELF_ASSESSMENT_FORMS.finditer(line))
+                 or self._annual_hmrc_cycles(line)]
         self.assertEqual(found, [])
         submissions = [
-            f"{rel}:{number}" for rel, number, line in self._md_lines()
+            f"{rel}:{number}" for rel, number, line in self._md_paragraphs()
             for match in self._HMRC_SUBMISSION.finditer(line)
             if not self._negated(line, match)]
         self.assertEqual(submissions, [])
@@ -22429,7 +23167,13 @@ class ProgrammeClaimsTests(unittest.TestCase):
         a denial only where the denial governs the duty. Round 8 (review
         round 3, claude NOTE 1): it catches claude's two sentences, one
         whose denial a bare and carried into the next clause and one whose
-        "is not required" ran on past the clause."""
+        "is not required" ran on past the clause. Draft claimsfu4 (review
+        round 2 of claimsfu2): the two denials that said the held criteria
+        name no periodic self-assessment are gone from the allowed list,
+        since section 12.2 recommends one; the "no held section names a
+        ..." form is a denial (claude NOTE 1); a self-assessment form
+        stands only as section 12.2's cited recommendation; and an annual
+        cycle attributed to HMRC is caught."""
         stated = (
             "Legal confirms that no personal data remains before the "
             "package is submitted to HMRC each year.",
@@ -22459,21 +23203,133 @@ class ProgrammeClaimsTests(unittest.TestCase):
             "the held HMRC criteria (UK HMRC AEO security and safety "
             "criteria handbook, section 11) name no annual self-assessment "
             "or submission to HMRC.",
-            "The held HMRC criteria name no periodic self-assessment or "
-            "self-assessment submission.",
-            "section 11), which name no periodic self-assessment submission "
-            "(see section 1.1)",
             "The handbook does not name a submission to HMRC.",
             "The package is not submitted to HMRC.",
             "A submission to HMRC each year is not confirmed by a held "
             "source.",
-            "A submission to HMRC is not required; confirm with HMRC.")
+            "A submission to HMRC is not required; confirm with HMRC.",
+            # Draft claimsfu4 (review round 2 of claimsfu2, claude NOTE 1):
+            # the "no held section names a ..." form is a denial, in the
+            # corpus's wording and in claude's flip sentence.
+            "That is a recommended, continuing self-assessment: no held "
+            "section names a self-assessment submission to HMRC or an "
+            "annual cycle.",
+            "no held section names a self-assessment submission",
+            "No held source names an annual AEO-S submission.")
         for text in denied:
             with self.subTest(text=text[:40]):
                 matches = list(self._HMRC_SUBMISSION.finditer(text))
                 self.assertTrue(matches)
                 self.assertTrue(all(self._negated(text, match)
                                     for match in matches))
+        # The "no held section" form denies only the duty it governs: a
+        # verb or a subordinate clause between them ends its reach.
+        for text in (
+                "No held section names a reason, but the self-assessment "
+                "submission is due each December.",
+                "no held section names the deadline before the submission "
+                "to HMRC is made."):
+            with self.subTest(text=text[:40]):
+                self.assertTrue(any(
+                    not self._negated(text, match)
+                    for match in self._HMRC_SUBMISSION.finditer(text)))
+        # Draft claimsfu4 (review round 2 of claimsfu2: claude ERROR 1,
+        # codex ERROR 1, agy ERROR 1): a self-assessment form stands where
+        # its own clause states section 12.2's recommendation, and is
+        # caught where it states a duty, a submission or an annual cycle,
+        # or where the citation or the recommendation is missing or in
+        # another clause.
+        stands = (
+            "it is recommended that the business continue to self-assess "
+            "its compliance with the conditions of the authorization "
+            "(section 12.2)",
+            "| Sets the criteria and recommends that the business continue "
+            "to self-assess its compliance with the conditions of the "
+            "authorization (section 12.2); primary driver |",
+            "Section 12.2 recommends a periodic self-assessment against the "
+            "conditions of the authorization.",
+            "under §12.2 the business is recommended to continue to "
+            "self-assess its compliance")
+        for text in stands:
+            with self.subTest(text=text[:40]):
+                matches = list(self._SELF_ASSESSMENT_FORMS.finditer(text))
+                self.assertTrue(matches)
+                self.assertFalse(any(self._unheld_self_assessment(text, match)
+                                     for match in matches))
+        caught = (
+            "AEO-S requires periodic self-assessment against HMRC AEO "
+            "criteria.",
+            "Section 12.2 requires the business to continue to self-assess "
+            "its compliance and recommends a review.",
+            "it is recommended that the business continue to self-assess "
+            "annually (section 12.2)",
+            "Section 12.2 recommends that the business continue to "
+            "self-assess its compliance and submit the result to HMRC.",
+            "the business must continue to self-assess its compliance "
+            "(section 12.2 recommends it)",
+            "it is recommended that the business continue to self-assess its "
+            "compliance; see section 12.2.",
+            "the business continues to self-assess its compliance (section "
+            "12.2)",
+            "it is recommended that the business continue to self-assess its "
+            "compliance (section 12.24)")
+        for text in caught:
+            with self.subTest(text=text[:40]):
+                matches = list(self._SELF_ASSESSMENT_FORMS.finditer(text))
+                self.assertTrue(matches)
+                self.assertTrue(any(self._unheld_self_assessment(text, match)
+                                    for match in matches))
+        # An annual cycle attributed to HMRC is caught; its denials stand.
+        for text in ("HMRC requires an annual self-assessment.",
+                     "AEO-S status is reviewed by HMRC each year.",
+                     "The organization files its annual HMRC self-assessment.",
+                     "an annual review cycle set by HMRC"):
+            with self.subTest(text=text[:40]):
+                self.assertTrue(self._annual_hmrc_cycles(text))
+        for text in ("no held section names a self-assessment submission to "
+                     "HMRC or an annual cycle.",
+                     "HMRC sets no annual cycle.",
+                     "HMRC will review AEO status periodically.",
+                     "The organization's annual AEO self-assessment is its "
+                     "own schedule."):
+            with self.subTest(text=text[:40]):
+                self.assertEqual(self._annual_hmrc_cycles(text), [])
+
+    def test_hmrc_notification_guard_allows_only_a_section_12_4_citation(
+            self):
+        """Draft claimsfu3 (plan cfu2 WARN 7): the notification forms the
+        round 4 guard removed are still caught wherever their own clause
+        does not cite section 12.4, including where a citation sits in the
+        next clause, the next sentence or the next cell, or names another
+        section; they stand only with a section 12.4 citation in their own
+        clause."""
+        caught = (
+            "| IT-5 Incident Response | AEO-S: Incident reporting to HMRC "
+            "| Yes |",
+            "Add an HMRC-specific notification supplement.",
+            "the HMRC incident notification supplement applies",
+            "AEO-S: Incident reporting to HMRC; see section 12.4.",
+            "AEO-S: Incident reporting to HMRC. Section 12.4 covers it.",
+            "| AEO-S: Incident reporting to HMRC | §12.4 |",
+            "AEO-S: Incident reporting to HMRC (handbook §11.4)",
+            "AEO-S: Incident reporting to HMRC (handbook §12.45)")
+        for text in caught:
+            with self.subTest(text=text[:40]):
+                matches = list(self._HMRC_NOTIFICATION_FORMS.finditer(text))
+                self.assertTrue(matches)
+                self.assertTrue(any(self._unheld_notification(text, match)
+                                    for match in matches))
+        cited = (
+            "AEO-S: Incident reporting to HMRC (handbook §12.4, notification "
+            "of changes)",
+            "an HMRC notification supplement under section 12.4 of the "
+            "handbook")
+        for text in cited:
+            with self.subTest(text=text[:40]):
+                matches = list(self._HMRC_NOTIFICATION_FORMS.finditer(text))
+                self.assertTrue(matches)
+                self.assertFalse(any(self._unheld_notification(text, match)
+                                     for match in matches))
 
     def test_uk_procedure_hands_the_package_to_the_audit(self):
         """Round 5 (claude ERROR 1): the UK procedure's governance,
@@ -23137,7 +23993,10 @@ class ProgrammeClaimsTests(unittest.TestCase):
         sentence could supply it; it must now be in the citing sentence of
         the same cell (_section_11_12_without_11_8). The supply chain
         matrix's narrative refers back to the cargo security provision by
-        name, not by a second bare citation."""
+        name, not by a second bare citation. Draft claimsfu3 (plan cfu2
+        WARN 7): the Incident Reporting to Authority cell now rests on
+        section 12.4, which names disclosure of security incidents to HMRC,
+        and no longer cites section 11.12; it stays outside this check."""
         lines = [(rel, number, line)
                  for rel, number, line in self._md_lines()
                  if self._SECTION_11_12.search(line)
@@ -23153,18 +24012,32 @@ class ProgrammeClaimsTests(unittest.TestCase):
                          "\n".join(self._lines(self.SUPPLY_MATRIX)))
         self.assertTrue(self._matrix_cell(
             "| **Incident Reporting to Authority** |", 3).startswith(
-                "~ (cargo units only, §11.12:"))
+                "✓ (§12.4:"))
 
     # HMRC section 11.7 "Personnel security - Pre-employment screening"
     # (line 62); section 11.2's "computer system, accounting records and
-    # documents" (line 38). No held HMRC line matches retention or retain.
+    # documents" (line 38). No held HMRC line names a retention period.
+    # Draft claimsfu4 (review round 2 of claimsfu2, claude ERROR 2, codex
+    # WARN 1): retention now rests on section 8.1's "procedures in place to
+    # archive and retrieve records and information" (held record keeping
+    # line 25) and section 8.9 (lines 149 to 151), and the IT scope names
+    # the section 8 headings it maps to.
     _UK_ANNEX_SCOPE = (
         "This document addresses only the organization's IT and "
-        "cybersecurity scoping of the computer system area, of personnel "
-        "screening for IT access (section 11.7) and of records retention, "
-        "which it scopes from the accounting records and documents area "
-        "(section 11.2; section 11 does not name retention); section 11 does "
-        "not name information systems security as a criterion of its own.")
+        "cybersecurity controls for the computer system area (section 11.2) "
+        "and for the record keeping criterion's IT security measures "
+        "(section 8.1), mapped by the organization to access rights "
+        "procedures (section 8.11), protection of computer systems, which "
+        "names firewalls, anti-virus and other malware protection, back-up "
+        "routines, user logs and periodic vulnerability management (section "
+        "8.10), back-up, recovery, fallback and archiving (section 8.9) and "
+        "documentation security, which names dealing with incidents which "
+        "compromise document security and testing systems against "
+        "unauthorized access (section 8.12); for personnel screening for IT "
+        "access (section 11.7); and for records retention, which it scopes "
+        "from the record keeping criterion's procedures to archive and "
+        "retrieve records and information (sections 8.1 and 8.9), no held "
+        "section setting a retention period.")
 
     def test_uk_annex_scope_sentence_matches_its_table(self):
         """Round 6 (claude NOTE 3): the UK annex's scope sentence said it
@@ -23375,8 +24248,7 @@ class ProgrammeClaimsTests(unittest.TestCase):
         submission to HMRC."""
         allowed = re.compile(
             r"(?i)internal submission"
-            r"|no annual self-assessment or submission to HMRC"
-            r"|no periodic self-assessment submission"
+            r"|no held section names a self-assessment submission to HMRC"
             r"|a submission window or deadline set by HMRC is not confirmed")
         found = []
         lines = self._lines(self.UK_PROCEDURE)
@@ -23414,14 +24286,34 @@ class ProgrammeClaimsTests(unittest.TestCase):
                       self._matrix_cell(prefix, 3))
 
     # HMRC section 11.2's "computer system, accounting records and
-    # documents" (line 38). No held HMRC line matches retention or retain.
+    # documents" (line 38). No held HMRC line names a retention period.
+    # Draft claimsfu4 (review round 2 of claimsfu2, claude ERROR 2, codex
+    # WARN 1): the scope now gives the organization's mapping of each
+    # evidence area to the held section 8 heading that holds it (held
+    # record keeping lines 25, 149 to 177), and to sections 11.2 and 11.7.
     _UK_PROCEDURE_1_2_SCOPE = (
         "This procedure covers only the IT and cybersecurity elements of the "
-        "AEO-S self-assessment, including the records retention evidence in "
-        "section 4.8, which the organization scopes from the accounting "
-        "records and documents area (UK HMRC AEO security and safety "
-        "criteria handbook, section 11.2; section 11 does not name "
-        "retention). It does not cover:")
+        "AEO-S self-assessment. The organization maps its evidence areas to "
+        "held sections of the HMRC Customs Technical Handbook (AEO) as "
+        "follows: access controls (this procedure's section 4.1) to access "
+        "rights procedures (section 8.11), except multi-factor "
+        "authentication, which no held section names; system protection "
+        "(section 4.2) to protection of computer systems (section 8.10), "
+        "which names firewalls and anti-virus and other malware protection; "
+        "incident detection and response (section 4.3) to the user logs of "
+        "section 8.10 and to dealing with incidents which compromise "
+        "document security (section 8.12); personnel screening (section "
+        "4.4) to pre-employment screening (section 11.7); backup and "
+        "recovery (section 4.5) to back-up, recovery, fallback and archiving "
+        "(section 8.9) and the back-up routines of section 8.10; risk "
+        "assessment (section 4.6) to the security and safety risk "
+        "assessment (section 11.2); control testing (section 4.7) to "
+        "testing of systems against unauthorized access and recording the "
+        "results (section 8.12) and the periodic vulnerability management of "
+        "section 8.10; and the records retention evidence in section 4.8 to "
+        "the procedures to archive and retrieve records and information "
+        "(sections 8.1 and 8.9), no held section setting a retention period. "
+        "It does not cover:")
 
     def test_uk_procedure_scope_includes_its_records_retention_evidence(self):
         """Round 7 (round 6 remaining note 3): the UK procedure's section
@@ -23438,8 +24330,9 @@ class ProgrammeClaimsTests(unittest.TestCase):
         self.assertNotIn(
             "- Customs process compliance and trade record-keeping "
             "requirements.", scope)
-        self.assertIn("- Trade record-keeping requirements outside of the "
-                      "records retention evidence in section 4.8.", scope)
+        self.assertIn("- Trade record-keeping requirements other than the IT "
+                      "security measures and the records retention evidence "
+                      "mapped above.", scope)
         start = lines.index("### 4.8 Records retention") + 1
         retention = "\n".join(lines[start:lines.index("---", start)])
         self.assertIn("trade records are retained for required periods",
@@ -24577,6 +25470,1604 @@ class MscRegisterRound3Tests(unittest.TestCase):
                     held[rel] = (root / rel).read_text(
                         encoding="utf-8").split("\n")
                 self.assertIn(excerpt, held[rel][number - 1])
+
+
+class HmrcHandbookClaimsTests(unittest.TestCase):
+    """Draft claimsfu1: UK AEO-S and HMRC claims checked against the held
+    HMRC Customs Technical Handbook (AEO) sections 1, 2, 7, 8, 9, 11 and 12
+    (programs/UK-AEO/, all public_updated_at 2025-07-17). The research pass
+    found six ERROR claims (1 to 6) and four WARN claims (11 to 14) with no
+    held source. Each corpus regression test below pins one corrected claim
+    and fails with that correction reverted. Where a held section supports
+    the claim, the corpus cites it and _HELD_CITATIONS holds the cited line;
+    where none does, the claim is removed or says it is not confirmed by a
+    held source, and test_held_sections_name_no_unsupported_route confirms
+    the held sections still name none of the removed items. The three
+    held-source checks (test_cited_held_lines_carry_their_text,
+    test_held_sections_name_no_unsupported_route and
+    test_held_sections_bear_out_kept_absences) read the held extracts, so
+    they run only when the reference corpus is present (GRC_REF_PATH or a
+    sibling grc_library_ref checkout) and skip without it.
+
+    Draft claimsfu2 (review round 1 of claimsfu1): section 1.1 (held
+    introduction line 22) says the UK AEO Programme is based on the WCO
+    SAFE Framework standards, so the two lines that called that
+    relationship unconfirmed now say what section 1.1 holds; section 12.7
+    (lines 133 to 137) says HMRC grants AEO status, so the UK annex says so
+    again; customs compliance is a required AEO-S criterion (section 1.4,
+    line 62; section 7.1, line 13), which is a different point from
+    applying being voluntary (line 24). The regression checks now test the
+    claim, not the wording: each guard reads claim units (a table row or
+    prose sentence, or a cell or clause within one) and fails when a
+    removed claim returns in other words (CDS beside must or required, HMRC
+    beside a portal, register or directory, an unhedged HMRC verification
+    route, an HMRC grant without its section 12.7 citation, or the UK
+    programme's relationship to the Framework called unconfirmed). The
+    whole-row and whole-paragraph pins of round 1 give way to checks of
+    each claim's citation, hedge and conclusion; exact matching remains for
+    held-text quotations, the short AEO-S (UK) mark cells of the supply
+    matrix, and the gap template Purpose sentence ProgrammeClaimsTests
+    shares (_GAP_PURPOSE_HELD). The _WCO_ATTRIBUTED_BASIS_CLAIMS inventory
+    still pins its carriers by exact line, as that matcher requires.
+
+    The semantic guards have a residual: each reads fixed word lists
+    (_OBLIGATION_WORDS, _LOOKUP_WORDS, _VERIFY_WORDS, _HEDGE, the grant
+    and basis words and, from draft claimsfu3, the notification and
+    absence words of test_no_document_calls_hmrc_notification_absent),
+    most within a fixed window of words. A synonym that is not on a list
+    passes: "obligatory" or "lodged only through" beside CDS, an "online
+    checker" or "search service" beside HMRC, "awards" or "confers" for an
+    HMRC grant, and "unverified" or "undocumented" for HMRC notification
+    are not matched. These tests catch the removed claims in the words the
+    lists hold; a reworded claim in other words is left to review.
+
+    Draft claimsfu3 (plan cfu2 WARN 7 and the round 2 notes): section 12.4
+    (held maintaining the standards lines 36 to 57) says businesses must
+    notify HMRC of all changes that may affect their AEO status, including
+    disclosure of security incidents, and should notify the AEO Central
+    Site as soon as the change is known or, at the latest, within 14
+    calendar days, using the C122 form. A class-wide probe found nine
+    lines in six files that called that notification not confirmed, not
+    named or absent for AEO-S; each now says what section 12.4 holds and
+    cites it, and test_no_document_calls_hmrc_notification_absent records
+    the probe. The MSC register then gained a status legend for the two
+    values its tables use (round 2 NOTE 2; withdrawn in claimsfu14).
+
+    Draft claimsfu4 (review round 2 of claimsfu2): section 12.2 (held
+    maintaining the standards line 25) recommends that the business
+    continue to self-assess its compliance with the conditions of the
+    authorization, so no line may say the held criteria name no
+    self-assessment; section 8 (held record keeping lines 28 and 149 to
+    177), an AEO-S criterion through section 1.4, holds IT security
+    measures, so a statement of section 11's silence on IT cites section
+    8.1; section 1.7 holds the AEO-S legal basis the supply matrix's UK-EU
+    pair hedged; the international basis guard reads every taxonomy
+    document; and the claim units are assembled from wrapped paragraphs
+    (_paragraphs), so a claim wrapped across lines is read whole.
+
+    Draft claimsfu10 (review round 6): the word-list denial guard that
+    drafts claimsfu7 to claimsfu9 built (its selector, its reviewed set of
+    denials with their supporting records and held absences, and its
+    self-check over the review forms) was moved to a separate follow-up,
+    to be rebuilt as a reviewed register, after review round 6 found new
+    escapes in it. This class keeps the corrections and the tests that pin
+    them; the section 11 statements that guard selected are pinned exactly
+    by test_section_11_silence_on_it_cites_section_8.
+
+    Draft claimsfu12 (review round 7): each section 11 pin carries its own
+    section 8.1 pointer text (claude WARN 1); the held absences back the
+    "computer system only" statements, catch an incident report recipient
+    and a continuity plan in other words, and again cover the five
+    absences of 161da03db that kept statements rest on (claude WARN 3,
+    WARN 4, NOTE 1 and NOTE 2).
+
+    Draft claimsfu14 (rebase onto main 5292f5832): main's MSC register
+    status rule (#3115) and its Not assessed cells, BP-3 included, govern;
+    the claimsfu3 status legend and its Partially implemented value are
+    withdrawn. BP-3 keeps the claims description (its HMRC route not
+    confirmed by a held source), and
+    test_msc_register_status_rule_defines_the_values_it_uses, renamed
+    from test_msc_register_status_legend_defines_the_values_it_uses, now
+    checks the adopted rule."""
+
+    LOGISTICS_ANNEX = ("compliance/logistics/annex-logistics-sector-"
+                       "requirements.md")
+    SUPPLY_MATRIX = ProgrammeClaimsTests.SUPPLY_MATRIX
+    COMPLIANCE_MATRIX = ProgrammeClaimsTests.COMPLIANCE_MATRIX
+    UK_ANNEX = ProgrammeClaimsTests.UK_ANNEX
+    MSC_REGISTER = ProgrammeClaimsTests.MSC_REGISTER
+    GAP_TEMPLATE = ("compliance/logistics/template-trade-compliance-gap-"
+                    "assessment.md")
+    SUPPLIER_MONITORING = ("supply-chain/procedure-supplier-ongoing-"
+                           "monitoring.md")
+    THIRD_PARTY_STANDARD = "risk/standard-third-party-and-supply-chain-risk.md"
+    BASC_REGISTER = ("compliance/logistics/register-basc-it-"
+                     "responsibilities.md")
+    # Held extracts, relative to the grc_library_ref root.
+    _HANDBOOK = "programs/UK-AEO/UK-HMRC-Customs-Technical-Handbook-AEO-"
+    HELD_INTRO = _HANDBOOK + "introduction--full-text.md"
+    HELD_GENERAL = _HANDBOOK + "general-information--full-text.md"
+    HELD_COMPLIANCE = _HANDBOOK + "AEO-criteria-compliance--full-text.md"
+    HELD_RECORDS = _HANDBOOK + "AEO-criteria-record-keeping--full-text.md"
+    HELD_SOLVENCY = (_HANDBOOK + "AEO-criteria-proven-financial-solvency--"
+                     "full-text.md")
+    HELD_SECURITY = ProgrammeClaimsTests.HELD_HMRC
+    HELD_STANDARDS = (_HANDBOOK + "AEO-criteria-maintaining-the-standards--"
+                      "full-text.md")
+    HELD_SECTIONS = (HELD_INTRO, HELD_GENERAL, HELD_COMPLIANCE, HELD_RECORDS,
+                     HELD_SOLVENCY, HELD_SECURITY, HELD_STANDARDS)
+
+    # Every held line the corrected corpus text cites, as (extract, LF line
+    # number, excerpt the line carries).
+    _HELD_CITATIONS = (
+        (HELD_INTRO, 12, "1.1 Scope of this handbook"),
+        (HELD_INTRO, 22, " Programme is based on the internationally "
+                         "recognised World Customs Organisation (WCO) SAFE "
+                         "Framework standards"),
+        (HELD_INTRO, 53, "1.4 Types of Authorised Economic Operator status"),
+        (HELD_INTRO, 60, "Authorised Economic Operator Security and Safety"),
+        (HELD_INTRO, 62, "issued to any business established in the UK that "
+                         "fulfils the criteria of customs compliance, "
+                         "appropriate record keeping standards, financial "
+                         "solvency, and appropriate security and safety "
+                         "standards directly related to the activity carried "
+                         "out"),
+        # Draft claimsfu4: section 1.7 (claude WARN 2).
+        (HELD_INTRO, 115, "1.7 Legislation"),
+        # Lines 116 and 123 carry no-break spaces (U+00A0); each excerpt
+        # stops short of them.
+        (HELD_INTRO, 116, "1 January 2021"),
+        (HELD_INTRO, 122, "Authorised Economic Operator Security and Safety"),
+        (HELD_INTRO, 123, "Union Customs Code (UCC) Regulation (EU) No "
+                          "952/2013, Commission Delegated Regulation (EU) "
+                          "2015/2446 (The Delegated Act) and Commission "
+                          "Implementing Regulation EU 2015/2447"),
+        (HELD_INTRO, 123, "assimilated law under the European Union "
+                          "(Withdrawal) Act 2018 and amended by"),
+        (HELD_INTRO, 124, "the Customs Safety and Security Procedures (EU "
+                          "Exit) Regulations 2019"),
+        (HELD_INTRO, 129, " in relation to Northern Ireland, the UCC, the "
+                          "Delegated Regulation and the Implementing "
+                          "Regulation remain applicable under The Windsor "
+                          "Framework and The European Union (Withdrawal) Act "
+                          "2018."),
+        # Draft claimsfu5: section 2.1 (round 4 drafter WARN 1).
+        (HELD_GENERAL, 12, "2.1 Who can become an Authorised Economic "
+                           "Operator"),
+        (HELD_GENERAL, 13, "To apply for Authorised Economic Operator status "
+                           "a business must:"),
+        (HELD_GENERAL, 15, "be established in Great Britain or Northern "
+                           "Ireland"),
+        (HELD_GENERAL, 44, "2.4 Stakeholders in the International Supply "
+                           "Chain"),
+        (HELD_GENERAL, 89, "a carrier is the person actually transporting "
+                           "the goods or who has undertaken a contract, and "
+                           "issued, for example, a bill of lading or air "
+                           "waybill"),
+        (HELD_COMPLIANCE, 12, "7.1 General"),
+        (HELD_COMPLIANCE, 13, "This section explains the conditions "
+                              "applicants must adhere to"),
+        (HELD_COMPLIANCE, 16, "HMRC will examine applicants record of "
+                              "compliance with customs and tax requirements "
+                              "over the last 3 years preceding the date of "
+                              "the application"),
+        (HELD_COMPLIANCE, 24, "HMRC will assess whether a serious "
+                              "infringement or repeated infringements of "
+                              "customs rules "
+                              "have been committed"),
+        (HELD_RECORDS, 12, "8.1 Satisfactory system of managing commercial "
+                           "and transport records"),
+        (HELD_RECORDS, 17, "provides a full audit trail of customs "
+                           "activities"),
+        # Draft claimsfu4: section 8's IT security measures (claude ERROR 2,
+        # codex WARN 1). Line 19 exempts only the logistic-system item for
+        # security and safety authorizations.
+        (HELD_RECORDS, 19, "(not applicable in the case of security and "
+                           "safety"),
+        (HELD_RECORDS, 25, "have satisfactory procedures in place to archive "
+                           "and retrieve records and information"),
+        (HELD_RECORDS, 27, "where appropriate, have robust procedures for "
+                           "verifying the accuracy of customs declarations "
+                           "submitted on their behalf by third parties"),
+        (HELD_RECORDS, 28, "have appropriate information technology security "
+                           "measures in place to protect computer systems "
+                           "from unauthorised intrusion and to secure "
+                           "documentation"),
+        (HELD_RECORDS, 120, "8.7 Customs routines"),
+        (HELD_RECORDS, 121, "There should be documented procedures for "
+                            "verifying the accuracy of customs declarations "
+                            "in place"),
+        (HELD_RECORDS, 149, "8.9 Back-up, recovery, fallback and archiving"),
+        (HELD_RECORDS, 150, "There should be satisfactory procedures in place "
+                            "for archiving records and information and for "
+                            "protection against the loss of information."),
+        (HELD_RECORDS, 152, "8.10 Protection of computer systems"),
+        (HELD_RECORDS, 153, "There should be appropriate security measures in "
+                            "place to protect computer systems"),
+        (HELD_RECORDS, 153, "for example the use of firewall, antivirus "
+                            "programme, password protection"),
+        (HELD_RECORDS, 154, "Actions businesses should consider:"),
+        (HELD_RECORDS, 158, "details of firewalls, anti-virus and other "
+                            "malware protection"),
+        (HELD_RECORDS, 159, "a business continuity/ disaster recovery plan in "
+                            "case of incidents"),
+        (HELD_RECORDS, 160, "back-up routines including restoration"),
+        (HELD_RECORDS, 161, "logs where each user and their actions are "
+                            "recorded"),
+        (HELD_RECORDS, 162, "whether the vulnerability management of the "
+                            "system is done periodically and by whom"),
+        (HELD_RECORDS, 163, "8.11 Access rights procedures"),
+        # Draft claimsfu6 (review round 3 of claimsfu3, codex ERROR 2): what
+        # section 8.11 asks, which states no least privilege.
+        (HELD_RECORDS, 164, "Access rights procedures should include:"),
+        (HELD_RECORDS, 165, "how authorisation for access is issued and the "
+                            "level of access to the computer systems"),
+        (HELD_RECORDS, 165, "access to sensitive information should be "
+                            "limited to staff who are authorised"),
+        (HELD_RECORDS, 166, "the format for setting passwords, frequency of "
+                            "changes and who issues passwords"),
+        (HELD_RECORDS, 168, "8.12 Documentation security"),
+        (HELD_RECORDS, 170, "Actions should normally include:"),
+        (HELD_RECORDS, 174, "dealing with incidents which compromise document "
+                            "security"),
+        (HELD_RECORDS, 175, "testing of systems against unauthorised access "
+                            "and recording the results"),
+        # Draft claimsfu6 (all three legs of review round 3 of claimsfu3):
+        # the business continuity plan under section 8.12.
+        (HELD_RECORDS, 176, "business continuity/ disaster recovery plan"),
+        (HELD_SOLVENCY, 12, "9.1 General"),
+        (HELD_SOLVENCY, 15, "financial solvency requirements can be met if "
+                            "the business can prove they have good financial "
+                            "standing"),
+        (HELD_SOLVENCY, 23, "9.2 Sources of information"),
+        (HELD_SOLVENCY, 24, "HMRC will check:"),
+        (HELD_SECURITY, 12, "11.1 General"),
+        (HELD_SECURITY, 13, "the tests that HMRC will carry out to ensure "
+                            "that they comply with the security and safety "
+                            "criteria"),
+        (HELD_SECURITY, 62, "11.7 Personnel security - Pre-employment "
+                            "screening"),
+        (HELD_SECURITY, 132, "11.13 Business partner security"),
+        (HELD_SECURITY, 137, " authorisation holders should actively seek "
+                             "these assurances from non-"),
+        (HELD_SECURITY, 140, "11.14 External service providers"),
+        (HELD_SECURITY, 141, "software providers"),
+        (HELD_SECURITY, 160, "11.15 Security awareness programmes"),
+        (HELD_SECURITY, 163, "applicants are required to provide their staff "
+                             "with training on security and safety"),
+        # Draft claimsfu4: section 12.2 (claude ERROR 1, codex ERROR 1, agy
+        # ERROR 1).
+        (HELD_STANDARDS, 19, "12.2 Monitoring"),
+        (HELD_STANDARDS, 20, "HMRC will review authorised businesses’"),
+        (HELD_STANDARDS, 22, " status periodically to ensure they continue to "
+                             "meet the conditions"),
+        (HELD_STANDARDS, 25, "Regular monitoring is the primary "
+                             "responsibility of the business. It is "
+                             "recommended that they continue to self-assess "
+                             "their compliance with the conditions of the "
+                             "authorisation"),
+        (HELD_STANDARDS, 36, "12.4 Notification of changes"),
+        (HELD_STANDARDS, 37, "Businesses must notify HMRC of all changes that "
+                             "may affect their"),
+        (HELD_STANDARDS, 45, "changes to accounting or computer systems"),
+        (HELD_STANDARDS, 46, "additions or deletions of locations or branches "
+                             "involved in the international supply chain"),
+        (HELD_STANDARDS, 52, "disclosure of security incidents"),
+        (HELD_STANDARDS, 53, "Businesses should notify the"),
+        (HELD_STANDARDS, 55, " Central Site as soon as the change is known "
+                             "or, at the latest, within 14 calendar days of "
+                             "the change taking place."),
+        (HELD_STANDARDS, 56, "C122"),
+        (HELD_STANDARDS, 57, " form on GOV.UK."),
+        (HELD_STANDARDS, 112, "12.7 Revocation"),
+        (HELD_STANDARDS, 133, "granted based on incorrect or incomplete "
+                              "information"),
+        (HELD_STANDARDS, 135, "HMRC would not have granted the"),
+        (HELD_STANDARDS, 137, " status if the correct and complete "
+                              "information was provided in the application"),
+    )
+
+    # A hedge that marks a claim as not confirmed by a held source.
+    _HEDGE = re.compile(r"(?i)not confirmed by a held source|no held source "
+                        r"confirms")
+    # Words that turn a mention into an obligation, a lookup route, a
+    # verification claim or a grant (matched against whole words).
+    _OBLIGATION_WORDS = re.compile(
+        r"(?i)must|required?|requires|mandatory|shall|obliged|compulsory"
+        r"|needs?|compliant|compliance")
+    _LOOKUP_WORDS = re.compile(r"(?i)portals?|registers?|registry"
+                               r"|directory|database|lookup|website")
+    _VERIFY_WORDS = re.compile(r"(?i)\bverif\w*|\bstatus\b")
+    # The four files the HMRC verification route corrections touched.
+    _ROUTE_FILES = ("compliance/logistics/annex-logistics-sector-"
+                    "requirements.md",
+                    "supply-chain/procedure-supplier-ongoing-monitoring.md",
+                    "risk/standard-third-party-and-supply-chain-risk.md",
+                    ProgrammeClaimsTests.MSC_REGISTER)
+
+    # A line that starts a paragraph of its own: a heading, a list item or
+    # a thematic break. A blockquote is read by its quote prefix
+    # (_QUOTE_PREFIX).
+    _BLOCK_START = re.compile(r"(?:#{1,6}\s|[-*+]\s|\d+[.)]\s|---)")
+    # A block that is one line long: a heading or a thematic break.
+    _SINGLE_LINE_BLOCK = re.compile(r"(?:#{1,6}\s|---)")
+    # The quote markers that open a blockquote line, nested or not.
+    _QUOTE_PREFIX = re.compile(r"(?:>[ \t]?)+")
+
+    @classmethod
+    def _paragraphs(cls, text):
+        """Each (first line number, unit) of text, where a unit is a table
+        row whole or a prose paragraph. Draft claimsfu4 (review round 2 of
+        claimsfu2, codex WARN 3): a paragraph is assembled from consecutive
+        non-blank lines that are not table rows, joined by one space, so a
+        claim wrapped across physical lines is read whole. A heading, list
+        item, blockquote or thematic break starts a new paragraph; a
+        heading or thematic break, and a line ending in a hard line break
+        (a backslash, as each field of a document header does), ends one,
+        since each such line carries its own claim. Table rows keep their
+        exact text, as the cell checks and the pinned rows require.
+
+        Draft claimsfu6 (review round 3 of claimsfu3, codex WARN 4): every
+        blockquote line started a paragraph, so a claim wrapped across two
+        quoted lines was read as two units. Consecutive lines of one
+        blockquote paragraph are now assembled like any other paragraph,
+        with their quote prefixes removed. A change of quote depth (into,
+        out of or between nesting levels) starts a new paragraph, and a
+        quoted blank line (">" alone) ends one, as a blank line does; a
+        quoted table row is yielded without its prefix.
+
+        Draft claimsfu7 (review round 4 of claimsfu4, claude NOTE 3, codex
+        WARN 3): a non-blank line with no quote prefix that directly follows
+        an open quoted paragraph and is not a block start (a table row,
+        heading, list item or thematic break) is a lazy continuation of
+        that paragraph, as in CommonMark, and is joined onto it at the
+        paragraph's quote depth."""
+        lines, first, depth = [], 0, 0
+        for number, line in enumerate(text.splitlines(), 1):
+            stripped = line.strip()
+            prefix = cls._QUOTE_PREFIX.match(stripped)
+            quote = prefix.group().count(">") if prefix else 0
+            if prefix:
+                stripped = stripped[prefix.end():].strip()
+            elif (lines and depth and stripped
+                  and not stripped.startswith("|")
+                  and not cls._BLOCK_START.match(stripped)):
+                quote = depth
+            starts = (not stripped or stripped.startswith("|")
+                      or quote != depth
+                      or cls._BLOCK_START.match(stripped))
+            depth = quote
+            if lines and starts:
+                yield first, " ".join(lines)
+                lines = []
+            if stripped.startswith("|"):
+                yield number, stripped if prefix else line
+                continue
+            if not stripped:
+                continue
+            if not lines:
+                first = number
+            lines.append(stripped)
+            if stripped.endswith("\\") or cls._SINGLE_LINE_BLOCK.match(
+                    stripped):
+                yield first, " ".join(lines)
+                lines = []
+        if lines:
+            yield first, " ".join(lines)
+
+    @classmethod
+    def _claim_units(cls, text):
+        """Each table row whole, and each prose paragraph (_paragraphs)
+        split into sentences at a full stop followed by white space."""
+        for _, unit in cls._paragraphs(text):
+            if unit.lstrip().startswith("|"):
+                yield unit
+            else:
+                yield from (u for u in re.split(r"(?<=\.)\s+", unit) if u)
+
+    @classmethod
+    def _clauses(cls, text):
+        """Each claim unit split further at cell and list separators (|
+        and ;), so a hedge or a citation in one cell or clause does not
+        cover a claim in the next."""
+        for unit in cls._claim_units(text):
+            yield from (part.strip() for part in re.split(r"[|;]", unit)
+                        if part.strip())
+
+    @staticmethod
+    def _near(unit, first, second, window):
+        """True when a word matching first and a word matching second lie
+        within window words of each other in unit."""
+        words = re.findall(r"\w+", unit)
+        a = [i for i, word in enumerate(words) if first.fullmatch(word)]
+        b = [i for i, word in enumerate(words) if second.fullmatch(word)]
+        return any(abs(i - j) <= window for i in a for j in b)
+
+    @staticmethod
+    def _text(rel):
+        return (REPO_ROOT / rel).read_text(encoding="utf-8")
+
+    @staticmethod
+    def _taxonomy_paths():
+        taxonomy = (REPO_ROOT / "taxonomy.yml").read_text(encoding="utf-8")
+        return re.findall(r'^\s*-?\s*path: "?([^"\n]+)"?\s*$', taxonomy,
+                          re.M)
+
+    @staticmethod
+    def _lines(rel):
+        return (REPO_ROOT / rel).read_text(encoding="utf-8").splitlines()
+
+    def _held_lines(self, rel):
+        """The held extract's lines, split on LF only; skips the test when
+        the reference corpus is not present."""
+        root = ProgrammeClaimsTests._held_root()
+        if root is None:
+            self.skipTest("grc_library_ref not present (set GRC_REF_PATH "
+                          "or check it out beside this repository)")
+        return (root / rel).read_text(encoding="utf-8").split("\n")
+
+    def _row(self, rel, prefix):
+        rows = [line for line in self._lines(rel) if line.startswith(prefix)]
+        self.assertEqual(len(rows), 1, rows)
+        return rows[0]
+
+    # -- research ERROR 1: CDS filing and API claims (no held section).
+    def test_cds_rows_state_no_unsupported_obligation(self):
+        """ERROR 1: the logistics annex said electronic customs
+        declarations must be filed through CDS and that systems must meet
+        CDS API requirements, and its gap table asked to keep API access
+        credentials. No held section covers CDS; both rows now say so and
+        state no obligation. Draft claimsfu2 (codex WARN 3, claude NOTE 7):
+        the check reads the claim, not the row text. Every row or sentence
+        naming CDS carries the not-confirmed hedge, and no cell or clause
+        puts CDS within eight words of must, required, mandatory, compliant
+        or a like word, so "Declarations must be lodged in CDS" fails in
+        any row."""
+        text = self._text(self.LOGISTICS_ANNEX)
+        cds = [unit for unit in self._claim_units(text)
+               if re.search(r"\bCDS\b|Customs Declaration Service", unit)]
+        # The CDS row of the HMRC table and the CDS row of the gap table,
+        # besides the HMRC table's lead-in sentence.
+        self.assertEqual(len([unit for unit in cds if unit.startswith("|")]),
+                         2, cds)
+        self.assertEqual(
+            [unit for unit in cds if not self._HEDGE.search(unit)], [])
+        self.assertEqual(
+            [clause for clause in self._clauses(text)
+             if self._near(clause, re.compile("CDS"), self._OBLIGATION_WORDS,
+                           8)], [])
+        self.assertIn("no filing or API requirement is stated here",
+                      self._row(self.LOGISTICS_ANNEX,
+                                "| **Customs Declaration Service (CDS)** |"))
+
+    def test_hmrc_table_lead_in_calls_no_row_an_obligation(self):
+        """Draft claimsfu2 (claude NOTE 6): the lead-in "Key
+        technology-related obligations:" introduced a CDS row that states
+        no obligation. The lead-in now introduces items and says the CDS row
+        states none."""
+        lines = self._lines(self.LOGISTICS_ANNEX)
+        header = lines.index("| Obligation | Detail | GRC Library Mapping |")
+        lead_in = lines[header - 2]
+        self.assertNotRegex(lead_in, r"(?i)\bobligations:\s*$")
+        self.assertRegex(lead_in, r"\bCDS row states no obligation\b")
+
+    # -- research ERROR 2: CHIEF to CDS migration (no held section).
+    def test_chief_migration_row_is_removed(self):
+        """ERROR 2: the annex said all declarants must have migrated from
+        CHIEF to CDS. No held section names CHIEF; the row is removed."""
+        found = [line for line in self._lines(self.LOGISTICS_ANNEX)
+                 if re.search(r"\bCHIEF\b", line)]
+        self.assertEqual(found, [])
+
+    # -- research ERROR 3: Trusted Smart Freight (no held section).
+    def test_trusted_smart_freight_row_is_removed(self):
+        """ERROR 3: the annex listed "TSP (Trusted Smart Freight)" as an
+        HMRC partnership for digital customs. No held section names it, so
+        the programme's existence is not confirmed; the row is removed."""
+        text = "\n".join(self._lines(self.LOGISTICS_ANNEX))
+        self.assertNotIn("Smart Freight", text)
+        self.assertNotIn("| **TSP", text)
+
+    # -- research ERROR 4 and WARN 12: supply chain matrix AEO-S (UK) marks.
+    def _supply_cell(self, prefix):
+        return self._row(self.SUPPLY_MATRIX, prefix).split("|")[3].strip()
+
+    def _sentence(self, rel, pattern):
+        """The one claim unit of rel that matches pattern."""
+        found = [unit for unit in self._claim_units(self._text(rel))
+                 if re.search(pattern, unit)]
+        self.assertEqual(len(found), 1, found)
+        return found[0]
+
+    def test_supply_matrix_compliance_and_solvency_cite_held_sections(self):
+        """ERROR 4: the AEO-S (UK) column ticked Customs Compliance Record
+        and Financial Solvency with no held UK source. Sections 1.4, 7.1 and
+        9.1 now support both ticks; each cell cites its sections and the
+        lead-in says what they hold. Draft claimsfu2 (codex WARN 3): the
+        lead-in is checked sentence by sentence for its citation and its
+        conclusion, not as one pinned paragraph."""
+        self.assertEqual(
+            self._supply_cell("| **Customs Compliance Record** |"),
+            "✓ (§1.4, §7.1)")
+        self.assertEqual(self._supply_cell("| **Financial Solvency** |"),
+                         "✓ (§1.4, §9.1)")
+        rel = self.SUPPLY_MATRIX
+        self.assertRegex(self._sentence(rel, r"AEO-S status is issued"),
+                         r"customs compliance.*financial solvency.*\(§1\.4\)")
+        self.assertRegex(self._sentence(rel, r"record of compliance with "
+                                             r"customs and tax"),
+                         r"\(§7\.1\), so Customs Compliance Record is marked "
+                         r"✓.*\(§9\.1\), so Financial Solvency is marked ✓")
+        self.assertRegex(self._sentence(rel, r"^The record keeping criteria "
+                                             r"ask for"),
+                         r"\(§8\.1\).*\(§8\.7\); no held section names "
+                         r"manifests, so Documentation and Manifest Accuracy "
+                         r"is marked ~")
+
+    def test_section_1_4_paraphrase_keeps_its_qualifier(self):
+        """Draft claimsfu2 (claude NOTE 5): section 1.4 (held line 62)
+        issues AEO-S status to a business that fulfils the criteria, ending
+        "appropriate security and safety standards directly related to the
+        activity carried out". Wherever a taxonomy document paraphrases that
+        list, the qualifier follows it (quoted from the held text)."""
+        listed = "appropriate security and safety standards"
+        qualified = listed + " directly related to the activity carried out"
+        carriers, unqualified = set(), []
+        for rel in self._taxonomy_paths():
+            for unit in self._claim_units(self._text(rel)):
+                if listed in unit:
+                    carriers.add(rel)
+                    if qualified not in unit:
+                        unqualified.append((rel, unit[:120]))
+        self.assertEqual(unqualified, [])
+        self.assertEqual(sorted(carriers),
+                         sorted([self.SUPPLY_MATRIX, self.UK_ANNEX]))
+
+    def test_supply_matrix_manifest_accuracy_is_partial(self):
+        """WARN 12: the AEO-S (UK) column ticked Documentation and Manifest
+        Accuracy. Sections 8.1 and 8.7 name the accuracy of customs
+        declarations; no held section names manifests. The cell is now
+        partial and says why."""
+        self.assertEqual(
+            self._supply_cell("| **Documentation and Manifest Accuracy** |"),
+            "~ (§8.1, §8.7: accuracy of customs declarations; manifests not "
+            "named)")
+
+    # -- research ERROR 5: HMRC verification portals (no held route).
+    def test_supplier_monitoring_names_no_hmrc_portal(self):
+        """ERROR 5: the supplier monitoring procedure and the third-party
+        risk standard named an "HMRC AEO portal" and HMRC verification
+        portals. No held section names a status verification route (section
+        1.8 gives enquiry contacts only); both now say the route is not
+        confirmed by a held source. Draft claimsfu2 (codex WARN 3, claude
+        NOTE 7): the check reads the claim in each of the four files the
+        route corrections touched (_ROUTE_FILES). No cell or clause puts
+        HMRC within six words of a portal, register, registry, directory,
+        database, lookup or website, so "Verify via HMRC AEO register"
+        fails; and every cell or clause naming HMRC with a verification or
+        status claim carries the not-confirmed hedge, so "Verify partner
+        UK AEO-S status via HMRC" fails. Both verification rows keep their
+        hedged HMRC clause."""
+        hmrc = re.compile("HMRC")
+        for rel in self._ROUTE_FILES:
+            clauses = list(self._clauses(self._text(rel)))
+            with self.subTest(rel=rel):
+                self.assertEqual(
+                    [c for c in clauses
+                     if self._near(c, hmrc, self._LOOKUP_WORDS, 6)], [])
+                self.assertEqual(
+                    [c for c in clauses
+                     if hmrc.search(c) and self._VERIFY_WORDS.search(c)
+                     and not self._HEDGE.search(c)
+                     and "confirm with HMRC" not in c], [])
+        for rel, prefix in (
+                (self.SUPPLIER_MONITORING,
+                 "| Trade compliance programme status verification "),
+                (self.THIRD_PARTY_STANDARD,
+                 "| Trade compliance status verification |")):
+            with self.subTest(rel=rel):
+                self.assertIn("HMRC (AEO-S status verification route not "
+                              "confirmed by a held source",
+                              self._row(rel, prefix))
+
+    # -- research ERROR 6: BASC IT register mapped to AEO-S.
+    def test_basc_register_has_no_aeo_mapping(self):
+        """ERROR 6: the compliance matrix mapped the BASC IT register to
+        "All AEO-S IT requirement areas", though the register carries no
+        AEO or HMRC text. Its AEO/AEO-S cell is now N/A."""
+        lines = self._lines(self.COMPLIANCE_MATRIX)
+        # The matrix repeats one header over its per-domain tables.
+        header = {line for line in lines if line.startswith(
+            "| Domain | Document Title | Path |")}
+        self.assertEqual(len(header), 1, header)
+        column = [cell.strip() for cell in header.pop().split("|")].index(
+            "AEO/AEO-S")
+        row = self._row(self.COMPLIANCE_MATRIX, "| Compliance | Register: "
+                        "BASC IT and Information Security Responsibilities |")
+        self.assertEqual(row.split("|")[column].strip(), "N/A")
+        register = "\n".join(self._lines(self.BASC_REGISTER))
+        self.assertIsNone(re.search(r"(?i)AEO|HMRC", register))
+
+    # -- research WARN 11: "AEO status is granted by HMRC".
+    def test_uk_annex_states_what_held_sections_hold(self):
+        """WARN 11, corrected by draft claimsfu2 (codex ERROR 1, claude
+        WARN 2): round 1 removed "AEO status is granted by HMRC" as beyond
+        sections 1, 2 and 11, but held section 12.7 says "HMRC would not
+        have granted the" / "AEO" / " status if the correct and complete
+        information was provided in the application" (lines 135 to 137;
+        "granted based on incorrect or incomplete information" at line
+        133). The claim is true and citable, so the annex states it again
+        with its section 12.7 citation, and no check forbids it. The checks
+        read the claims: every sentence in which HMRC grants AEO status
+        cites section 12.7, so an uncited "HMRC grants AEO status." fails;
+        HMRC testing AEO-S applicants cites section 11.1; the UK programme's
+        basis in the WCO SAFE Framework cites section 1.1; and to whom AEO-S
+        status is issued cites section 1.4 with its qualifier."""
+        text = self._text(self.UK_ANNEX)
+        hmrc = re.compile("HMRC")
+        grants = [unit for unit in self._claim_units(text)
+                  if self._near(unit, hmrc, re.compile(r"(?i)grant\w*"), 4)]
+        self.assertEqual(len(grants), 1, grants)
+        self.assertEqual([unit for unit in grants
+                          if "section 12.7" not in unit], [])
+        self.assertRegex(grants[0], r"^HMRC grants AEO status \(HMRC Customs "
+                                    r"Technical Handbook \(AEO\), section "
+                                    r"12\.7")
+        self.assertRegex(grants[0], r"tests AEO-S applicants against the "
+                                    r"security and safety criteria \(.*"
+                                    r"section 11\.1\)")
+        basis = self._sentence(self.UK_ANNEX, r"UK AEO Programme is based on")
+        self.assertRegex(basis, r"based on the World Customs Organization "
+                                r"\(WCO\) SAFE Framework standards \(section "
+                                r"1\.1\)")
+        self.assertRegex(basis, r"AEO-S status is issued to a business "
+                                r"established in the UK that fulfils the "
+                                r"criteria of customs compliance.*\(section "
+                                r"1\.4\)")
+
+    def test_no_document_calls_the_uk_programme_basis_unconfirmed(self):
+        """Draft claimsfu2 (claude ERROR 1, codex NOTE 4): section 1.1
+        (held introduction line 22) says the UK AEO Programme is based on
+        the WCO SAFE Framework standards, so a line saying the UK or HMRC
+        programme's relationship to the Framework is not confirmed is false.
+        The class-wide probe found two: the UK annex's programme context and
+        the UK self-assessment's Annex IV element F row. Across every
+        taxonomy document and each directory README, no cell or clause that
+        names the UK programme and the Framework calls its relationship or
+        basis unconfirmed, and both former carriers now cite section 1.1."""
+        uk = re.compile(r"\b(?:UK|United Kingdom|HMRC|AEO-S|AEOS)\b")
+        framework = re.compile(r"\bSAFE\b|\bWCO\b|\bthe Framework\b")
+        relation = re.compile(r"(?i)relationship|\bbasis\b|\bbased\b")
+        doubt = re.compile(r"(?i)not confirmed|unconfirmed|cannot be "
+                           r"confirmed|not established|unverifi\w+"
+                           r"|no held source")
+        rels = set()
+        for rel in self._taxonomy_paths():
+            rels.add(rel)
+            rels.add("/".join(rel.split("/")[:-1] + ["README.md"]))
+        found = []
+        for rel in sorted(rels):
+            if not (REPO_ROOT / rel).is_file():
+                continue
+            found += [(rel, clause[:160])
+                      for clause in self._clauses(self._text(rel))
+                      if uk.search(clause) and framework.search(clause)
+                      and relation.search(clause) and doubt.search(clause)]
+        self.assertEqual(found, [])
+        for rel in (self.UK_ANNEX, ProgrammeClaimsTests.UK_PROCEDURE):
+            with self.subTest(rel=rel):
+                self.assertTrue(
+                    [clause for clause in self._clauses(self._text(rel))
+                     if re.search(r"UK AEO Programme is based on the World "
+                                  r"Customs Organization \(WCO\) SAFE "
+                                  r"Framework standards \(section 1\.1\)",
+                                  clause)])
+
+    # -- plan cfu2 WARN 7 (draft claimsfu3): HMRC notification of changes.
+    # A notification to HMRC or incident reporting, and words that call it
+    # absent or unconfirmed. "No recipient named" (section 11.8's reporting
+    # of security incidents) is not an absence of HMRC notification, so a
+    # bare "no ... named" does not count; "names no" counts only before a
+    # notification word.
+    _NOTIFICATION = re.compile(
+        r"(?i)\bnotif\w*|incident reporting|\breport\w* (?:\w+ ){0,4}to HMRC"
+        r"|\bdisclos\w*|\breporting obligations?")
+    _NOTIFICATION_ABSENT = re.compile(
+        r"(?i)not confirmed|unconfirmed|cannot be confirmed|not named"
+        r"|\bnames? no (?:\w+ ){0,2}(?:incident|notification|reporting|such)"
+        r"\b|\bno (?:incident )?(?:reporting|notification) to HMRC"
+        r"|\bnot (?:found|stated|held|required)\b|whether HMRC expects"
+        r"|no held source")
+    # Each former carrier, as (path, row prefix or sentence start); its
+    # claim unit must now cite section 12.4.
+    _SECTION_12_4_CARRIERS = (
+        (ProgrammeClaimsTests.IT_REGISTER, "| IT-5 Incident Response |"),
+        (ProgrammeClaimsTests.PIP_REGISTER, "| CYB-6 Incident Response |"),
+        (ProgrammeClaimsTests.MSC_REGISTER, "| Information Technology |"),
+        (ProgrammeClaimsTests.SUPPLIER_EXIT, "| 1.3 Assess whether the exit "),
+        (SUPPLY_MATRIX, "Reporting to HMRC rests on "),
+        # Draft claimsfu4: the IT comparison lead-in's section 12.4 clause
+        # now opens a sentence of its own.
+        (SUPPLY_MATRIX, "In the Notification to customs authority cell, "),
+        (GAP_TEMPLATE, "Section 12.4 of the HMRC Customs Technical "),
+    )
+
+    _UK_NAMES = re.compile(r"\b(?:HMRC|AEO-S|AEOS)\b|AEO Central Site")
+
+    @classmethod
+    def _calls_notification_absent(cls, clause):
+        """Whether a clause names HMRC or AEO-S and a notification or
+        incident reporting, and calls it absent or unconfirmed."""
+        return bool(cls._UK_NAMES.search(clause)
+                    and cls._NOTIFICATION.search(clause)
+                    and cls._NOTIFICATION_ABSENT.search(clause))
+
+    def _taxonomy_documents_and_readmes(self):
+        """Every taxonomy document and the README of each of their
+        directories that exists, sorted: the set the class-wide probes
+        read."""
+        rels = set()
+        for rel in self._taxonomy_paths():
+            rels.add(rel)
+            rels.add("/".join(rel.split("/")[:-1] + ["README.md"]))
+        return [rel for rel in sorted(rels) if (REPO_ROOT / rel).is_file()]
+
+    def test_no_document_calls_hmrc_notification_absent(self):
+        """Draft claimsfu3 (plan cfu2 WARN 7): section 12.4 (held
+        maintaining the standards lines 36 to 57) says businesses must
+        notify HMRC of all changes that may affect their AEO status,
+        including disclosure of security incidents (line 52), and should
+        notify the AEO Central Site as soon as the change is known or, at
+        the latest, within 14 calendar days, using the C122 form (lines 53
+        to 57). So a line saying HMRC incident notification or notification
+        of changes is not confirmed, not named or absent for AEO-S is false.
+        The class-wide probe found nine lines in six files: the supply chain
+        matrix's domain lead-in, Incident Reporting to Authority cell, IT
+        comparison lead-in and Notification to customs authority cell, the
+        CTPAT IT register's IT-5 row (both cells), the PIP register's CYB-6
+        row, the MSC register's Information Technology supplement, the gap
+        template's Purpose and the supplier exit procedure's step 1.3.
+        Across every taxonomy document and each directory README, no cell
+        or clause that names HMRC or AEO-S and a notification or incident
+        reporting calls it absent or unconfirmed, and each former carrier
+        now cites section 12.4 and the C122 form."""
+        found = []
+        for rel in self._taxonomy_documents_and_readmes():
+            found += [(rel, clause[:160])
+                      for clause in self._clauses(self._text(rel))
+                      if self._calls_notification_absent(clause)]
+        self.assertEqual(found, [])
+        for rel, start in self._SECTION_12_4_CARRIERS:
+            with self.subTest(rel=rel, start=start[:30]):
+                units = [unit for unit in self._claim_units(self._text(rel))
+                         if unit.startswith(start)]
+                self.assertEqual(len(units), 1, units)
+                self.assertRegex(units[0], r"(?:§|[Ss]ection )12\.4(?!\d)")
+                self.assertIn("C122", units[0])
+                self.assertIn("14 calendar days", units[0])
+        self.assertEqual(
+            self._supply_cell("| **Incident Reporting to Authority** |"),
+            "✓ (§12.4: disclosure of security incidents to HMRC, as a change "
+            "that may affect AEO status)")
+        self.assertEqual(
+            self._supply_cell("| Notification to customs authority |"),
+            "✓ (§12.4)")
+
+    # -- research WARN 13: gap template AEO-S attributions.
+    # Each cited row, as (Requirement Area, the held sections its AEO-S
+    # attribution must cite).
+    _GAP_CITED_ROWS = (
+        ("Documentation accuracy: manifests, declarations, bills of lading",
+         ("sections 8.1 and 8.7",)),
+        ("History of customs compliance: declarations, duty payments",
+         ("section 1.4", "section 7.1")),
+        ("No serious or repeated infringements of customs rules",
+         ("section 7.1",)),
+        ("Adequate record-keeping systems with audit trail",
+         ("section 8.1",)),
+        ("Financial solvency evidence", ("sections 9.1 and 9.2",)),
+        # Draft claimsfu3 (plan cfu2 WARN 7).
+        ("Documented procedure for reporting security incidents to "
+         "programme authority", ("section 12.4",)),
+    )
+
+    def _gap_aeo_s(self, area):
+        """The AEO-S entry of a gap template row's Programme Source cell,
+        split at semicolons outside parentheses."""
+        source = self._row(self.GAP_TEMPLATE, f"| {area} |").split("|")[2]
+        entries, depth, start = [], 0, 0
+        for i, char in enumerate(source):
+            depth += {"(": 1, ")": -1}.get(char, 0)
+            if char == ";" and depth == 0:
+                entries.append(source[start:i].strip())
+                start = i + 1
+        entries.append(source[start:].strip())
+        found = [entry for entry in entries if entry.startswith("AEO-S")]
+        self.assertEqual(len(found), 1, entries)
+        return found[0]
+
+    # The Purpose's closing sentences: a row naming a held section beside
+    # AEO-S rests on it; the other AEO-S attributions remain to be confirmed.
+    _GAP_PURPOSE_HELD = (
+        " Where a row names a section of the HMRC Customs Technical Handbook "
+        "(AEO) beside AEO-S, that attribution rests on the held section "
+        "named, to the extent the row states. Confirm each other AEO-S "
+        "attribution with HMRC before relying on it.")
+
+    def test_gap_template_attributes_to_aeo_s_only_what_is_held(self):
+        """WARN 13: the gap template attributed manifest and bill of lading
+        accuracy to AEO-S and marked its customs compliance history
+        "(mandatory)" with no citation. Sections 1.4, 7.1, 8.1, 8.7, 9.1 and
+        9.2 hold the cited rows. Each AEO-S attribution now cites its
+        section, the declaration row limits AEO-S to declarations, and the
+        Purpose says a cited row rests on its held section.
+
+        Draft claimsfu2 (claude WARN 3, codex WARN 2): round 1 dropped
+        "(mandatory)" because section 1.1 says AEO "is not mandatory". That
+        confused applying, which is voluntary (held introduction line 24),
+        with the criteria, which AEO-S status requires: section 1.4 issues
+        AEO-S status to a business that fulfils the criteria of customs
+        compliance and the others (line 62), and section 7.1 sets "the
+        conditions applicants must adhere to" (line 13). The history row
+        now marks customs compliance a required AEO-S criterion citing
+        sections 1.4 and 7.1, and no AEO-S entry calls a criterion optional
+        or voluntary. Claude NOTE 4: the declaration row says sections 8.1
+        and 8.7 name neither manifests nor bills of lading, since section
+        2.4 names a bill of lading (general information line 89). Each row
+        is checked by its AEO-S entry, not its whole text. Draft claimsfu3
+        (plan cfu2 WARN 7): the security incident reporting row's AEO-S
+        entry now cites section 12.4, which holds disclosure of security
+        incidents to HMRC."""
+        lines = self._lines(self.GAP_TEMPLATE)
+        for area, sections in self._GAP_CITED_ROWS:
+            entry = self._gap_aeo_s(area)
+            for section in sections:
+                with self.subTest(area=area[:40], section=section):
+                    self.assertIn(section, entry)
+                    self.assertIn("HMRC Customs Technical Handbook (AEO)",
+                                  entry)
+        history = self._gap_aeo_s(self._GAP_CITED_ROWS[1][0])
+        self.assertTrue(history.startswith("AEO-S (required criterion: "),
+                        history)
+        self.assertRegex(history, r"section 1\.4, AEO-S status is issued to "
+                                  r"a business that fulfils the criterion of "
+                                  r"customs compliance")
+        self.assertRegex(history, r"section 7\.1 sets the conditions "
+                                  r"applicants must adhere to")
+        documents = self._gap_aeo_s(self._GAP_CITED_ROWS[0][0])
+        self.assertTrue(documents.startswith("AEO-S (customs declarations "
+                                             "only: "), documents)
+        self.assertIn("sections 8.1 and 8.7, which name neither manifests "
+                      "nor bills of lading", documents)
+        self.assertIn("section 2.4 names a bill of lading", documents)
+        # No claim that the held sections as a whole leave bills of lading
+        # unnamed, and no AEO-S entry calls a criterion optional.
+        text = self._text(self.GAP_TEMPLATE)
+        self.assertEqual(
+            [clause for clause in self._clauses(text)
+             if re.search(r"(?i)bills? of lading", clause)
+             and re.search(r"(?i)not named|no held section|names? no\b",
+                           clause)], [])
+        self.assertEqual(
+            [clause for clause in self._clauses(text)
+             if "AEO-S" in clause and re.search(
+                 r"(?i)\boptional\b|\bvoluntary\b|not mandatory|not required",
+                 clause)], [])
+        source = [line for line in lines
+                  if line.startswith("The Programme Source column ")]
+        self.assertEqual(len(source), 1, source)
+        self.assertTrue(source[0].endswith(self._GAP_PURPOSE_HELD))
+
+    # The MSC register's BP-3 Implementation Description (WARN 14).
+    _MSC_BP3_DESCRIPTION = ("Verification via CBP portal; HMRC (AEO-S status "
+                            "verification route not confirmed by a held "
+                            "source; confirm with HMRC); CBSA directory")
+
+    # -- research WARN 14: MSC register "via HMRC" verification route.
+    def test_msc_register_names_no_hmrc_verification_route(self):
+        """WARN 14: the MSC register verified partner AEO-S status "via
+        HMRC" as if a held route existed. The BP-3 row and the Business
+        Partner Security supplement now say the route is not confirmed by a
+        held source; the supplement also gives section 11.13 (held line
+        137). Draft claimsfu2 (claude NOTE 8): BP-3 kept the status
+        Implemented while its HMRC route is unconfirmed, so no control row
+        whose description carries the not-confirmed hedge may have the
+        status Implemented. Draft claimsfu14 (rebase onto main): main's
+        status rule (#3115) governs the register's Status cells, so BP-3's
+        Status is Not assessed, and its Implementation Description is
+        pinned exactly (_MSC_BP3_DESCRIPTION). The route wording itself is
+        checked by test_supplier_monitoring_names_no_hmrc_portal across
+        _ROUTE_FILES, which includes this register."""
+        lines = self._lines(self.MSC_REGISTER)
+        hedged = []
+        for i, line in enumerate(lines):
+            if not line.startswith("| Control ID |"):
+                continue
+            header = [cell.strip() for cell in line.split("|")]
+            for row in lines[i + 2:]:
+                if not row.startswith("|"):
+                    break
+                row_cells = [cell.strip() for cell in row.split("|")]
+                if self._HEDGE.search(row):
+                    hedged.append((row_cells[1],
+                                   dict(zip(header, row_cells))))
+        self.assertEqual([control for control, _ in hedged], ["BP-3"])
+        self.assertEqual([control for control, cells in hedged
+                          if cells["Status"] == "Implemented"], [])
+        bp3 = dict(hedged)["BP-3"]
+        self.assertEqual(bp3["Implementation Description"],
+                         self._MSC_BP3_DESCRIPTION)
+        self.assertEqual(bp3["Status"], "Not assessed")
+        partner = self._row(self.MSC_REGISTER, "| Business Partner Security |")
+        self.assertIsNotNone(self._HEDGE.search(partner), partner)
+        self.assertIn("(handbook §11.13)", partner)
+
+    # The MSC register's Status rule (main #3115) and the values it defines.
+    _MSC_STATUS_RULE = (
+        "**Status rule:** a Status of Implemented is the organization's own "
+        "assertion and stands only when the Evidence Location names "
+        "organization-specific evidence and Last Reviewed carries a date. "
+        "Not assessed means no implementation is confirmed; record the "
+        "evidence and the review date before changing it.")
+    _MSC_STATUS_VALUES = ("Implemented", "Not assessed")
+
+    def test_msc_register_status_rule_defines_the_values_it_uses(self):
+        """Draft claimsfu3 (round 2 NOTE 2) gave the MSC register a status
+        legend of its own (Implemented, Partially implemented). Draft
+        claimsfu14 (rebase onto main): main's status rule (#3115) governs
+        instead, and the claims legend and its Partially implemented value
+        do not return. The register carries the rule paragraph once, with
+        its exact text (_MSC_STATUS_RULE), and every Status cell of every
+        control table holds a value the rule defines (_MSC_STATUS_VALUES).
+        The main test MscRegisterRound2Tests
+        test_msc_register_marks_no_unreviewed_row_implemented checks the
+        rule's first sentence as a substring and that no Implemented row
+        lacks a Last Reviewed date; it checks neither the Not assessed
+        sentence, nor that the rule appears once, nor which values the
+        Status cells hold, which this test does."""
+        lines = self._lines(self.MSC_REGISTER)
+        rules = [line for line in lines if line.startswith("**Status ")]
+        self.assertEqual(rules, [self._MSC_STATUS_RULE])
+        self.assertEqual([line for line in lines if re.search(
+            r"(?i)partially implemented", line)], [])
+        used = {}
+        for i, line in enumerate(lines):
+            if not line.startswith("| Control ID |"):
+                continue
+            status = [cell.strip() for cell in line.split("|")].index("Status")
+            for row in lines[i + 2:]:
+                if not row.startswith("|"):
+                    break
+                cells = [cell.strip() for cell in row.split("|")]
+                used[cells[1]] = cells[status]
+        self.assertGreaterEqual(len(used), 50)
+        self.assertEqual({control: value for control, value in used.items()
+                          if value not in self._MSC_STATUS_VALUES}, {})
+
+    # Each carrier of section 12.2, as (path, claim unit start).
+    _SECTION_12_2_CARRIERS = (
+        (UK_ANNEX, "Section 12.2 of the HMRC Customs Technical Handbook "
+                   "(AEO), on monitoring, "),
+        (ProgrammeClaimsTests.UK_PROCEDURE, "Its held basis is section 12.2 "),
+        (ProgrammeClaimsTests.UK_PROCEDURE,
+         "| UK HMRC AEO / AEO-S guidance |"),
+        (GAP_TEMPLATE, "Section 12.2 recommends "),
+    )
+
+    def test_section_12_2_self_assessment_is_recommended_not_denied(self):
+        """Review round 2 of claimsfu2: the UK annex said "The held HMRC
+        criteria name no periodic self-assessment or self-assessment
+        submission", and the UK procedure's purpose and framework row said
+        the criteria name no annual or periodic self-assessment (the row
+        citing "see section 1.1", which holds no such statement). Section
+        12.2 (held maintaining the standards line 25) says "Regular
+        monitoring is the primary responsibility of the business. It is
+        recommended that they continue to self-assess their compliance
+        with the conditions of the authorisation", and lines 20 to 24 say
+        HMRC will review AEO status periodically; no held section names a
+        submission or an annual cycle. The class-wide probe found those
+        three lines (and the taxonomy's copy of the purpose) and no other.
+        Each carrier states section 12.2's recommendation with its
+        citation, and the denial that remains covers only a submission to
+        HMRC and an annual cycle. Draft claimsfu7 (review round 4 of
+        claimsfu4) made the class-wide check that no clause denies a
+        self-assessment part of a denial guard; draft claimsfu10 moved that
+        guard to a separate follow-up, so this test pins the carriers and
+        the remaining denial, and no class-wide check of other wording
+        remains in this class."""
+        for rel, start in self._SECTION_12_2_CARRIERS:
+            with self.subTest(rel=rel, start=start[:30]):
+                units = [unit for unit in self._claim_units(self._text(rel))
+                         if unit.startswith(start)]
+                self.assertEqual(len(units), 1, units)
+                self.assertRegex(units[0], r"(?:§|[Ss]ection )12\.2(?!\d)")
+                self.assertRegex(units[0], r"\brecommend")
+                self.assertIn("continue to self-assess its compliance with "
+                              "the conditions of the authorization",
+                              units[0])
+        for rel in (self.UK_ANNEX, ProgrammeClaimsTests.UK_PROCEDURE):
+            with self.subTest(rel=rel):
+                self.assertIn("no held section names a self-assessment "
+                              "submission to HMRC or an annual cycle",
+                              self._text(rel))
+        self.assertNotIn("(see section 1.1)",
+                         self._text(ProgrammeClaimsTests.UK_PROCEDURE))
+
+    # -- review round 2 of claimsfu2 (claude ERROR 2, codex WARN 1): section
+    # 8. Each corpus statement that section 11 sets out no IT control, or
+    # names the computer system only as a risk-assessment area, as (path,
+    # first line of its paragraph or table row, the statement, the text of
+    # its section 8.1 pointer in that paragraph or row). Draft claimsfu10:
+    # exact pins, which replace the selection the denial guard supplied
+    # until that guard moved to a separate follow-up. Draft claimsfu12
+    # (review round 7, claude WARN 1): the pointer text is pinned too, so
+    # another section 8.1 citation in the same paragraph cannot stand in
+    # for it.
+    _IT_MEASURES_8_1 = ("appropriate information technology security "
+                        "measures to protect computer systems from "
+                        "unauthorized intrusion and to secure documentation "
+                        "and data (")
+    _SECTION_11_IT_SILENCES = (
+        (UK_ANNEX, 21,
+         "The handbook's section 11 does not name cybersecurity or IT "
+         "security controls;",
+         _IT_MEASURES_8_1 + "section 8.1)"),
+        # The pointer is the paragraph's first sentence; the statement's
+        # own sentence cites section 8 without a subsection.
+        (UK_ANNEX, 34,
+         "Section 11 does not name information systems security as a "
+         "criterion of its own;",
+         "for the record keeping criterion's IT security measures (section "
+         "8.1)"),
+        (ProgrammeClaimsTests.UK_PROCEDURE, 25,
+         "The handbook's section 11 does not name cybersecurity;",
+         _IT_MEASURES_8_1 + "section 8.1)"),
+        (ProgrammeClaimsTests.IT_REGISTER, 61,
+         "The held HMRC criteria (UK HMRC AEO security and safety criteria "
+         "handbook, section 11) set out no IT control requirement:",
+         _IT_MEASURES_8_1 + "section 8.1)"),
+        (GAP_TEMPLATE, 28,
+         "the held HMRC security and safety criteria (UK HMRC AEO security "
+         "and safety criteria handbook, section 11) set out no IT control,",
+         _IT_MEASURES_8_1 + "section 8.1)"),
+        # The paragraph also cites §8.1 for customs declarations submitted
+        # by third parties, which is not this statement's pointer.
+        (SUPPLY_MATRIX, 46,
+         "the held HMRC criteria (UK HMRC AEO security and safety criteria "
+         "handbook, section 11) name the computer system only as an area "
+         "the security and safety risk assessment is to address (§11.2)",
+         "but the record keeping criterion, which §1.4 lists among the "
+         "AEO-S criteria, asks for " + _IT_MEASURES_8_1 + "§8.1)"),
+        (SUPPLY_MATRIX, 85,
+         "The held HMRC security and safety criteria for AEO-S (UK) "
+         "(handbook section 11) set out no IT control:",
+         _IT_MEASURES_8_1 + "§8.1)"),
+    )
+    _CITES_SECTION_8_1 = re.compile(r"(?:§|[Ss]ections? )8\.1(?!\d)")
+
+    @classmethod
+    def _carries_section_8_1_pointer(cls, unit, pointer):
+        """True when the paragraph or row unit holds the pinned pointer
+        text and that text cites section 8.1."""
+        return pointer in unit and bool(cls._CITES_SECTION_8_1.search(pointer))
+    # The compliance matrix's AEO/AEO-S coverage note is routed, with the
+    # matrix's IT labels and the annex title, to the planned claims part 2
+    # PR (plan cfu2, PR 2b: "matrix :455"), as (path, row line, the
+    # statement); it carries no section 8.1 pointer yet.
+    _SECTION_8_ROUTED = (
+        (COMPLIANCE_MATRIX, 455,
+         "| AEO/AEO-S | Focused on the organization's IT scoping of the "
+         "security and safety criteria (the held HMRC handbook section 11 "
+         "names no information systems security requirement area, only the "
+         "computer system as an area the security and safety risk "
+         "assessment is to address, §11.2);"),
+    )
+    # The documents whose section 11 statements now give section 8.
+    _SECTION_8_CARRIERS = (UK_ANNEX, ProgrammeClaimsTests.UK_PROCEDURE,
+                           ProgrammeClaimsTests.IT_REGISTER, GAP_TEMPLATE,
+                           SUPPLY_MATRIX)
+
+    def test_section_11_silence_on_it_cites_section_8(self):
+        """Review round 2 of claimsfu2: the UK annex, the UK procedure, the
+        CTPAT IT register, the gap template and the supply chain matrix
+        inferred from section 11's silence that HMRC sets no IT control,
+        and made every IT control the organization's own scoping. Section
+        8.1 (held record keeping line 28) asks the business to "have
+        appropriate information technology security measures in place to
+        protect computer systems from unauthorised intrusion and to secure
+        documentation and data"; lines 19 to 21 exempt only the
+        logistic-system item for security and safety authorizations;
+        section 1.4 (introduction line 62) lists record keeping among the
+        AEO-S criteria; sections 8.9 to 8.12 (lines 149 to 177) give the
+        detail. Each corrected document has a paragraph or table row that
+        says section 11 names no IT control, or names the computer system
+        only as a risk-assessment area, and cites section 8.1; each names
+        sections 8.9 to 8.12; and the supply matrix's IT and Cybersecurity
+        cell cites sections 1.4 and 8.1. The compliance matrix coverage
+        note stays routed to the claims part 2 PR (_SECTION_8_ROUTED).
+
+        Draft claimsfu8 (review round 5, claude WARN 2): the check that
+        each section 11 statement has its section 8.1 pointer had become a
+        check that each carrier document has one such paragraph, so
+        deleting the pointer sentence from supply matrix line 72 passed;
+        the check was made per paragraph or table row again. Section 8.1
+        is the criterion that asks for the IT security measures; a citation
+        of section 8.9 to 8.12 alone does not count, since supply matrix
+        line 72 cites those sections for its marks, and the pointer deleted
+        there would otherwise stay satisfied.
+
+        Draft claimsfu10 (review round 6): the statements were selected by
+        the denial guard, which moved to a separate follow-up, so each is
+        now pinned (_SECTION_11_IT_SILENCES): it occurs in exactly one
+        paragraph or table row of its document, that paragraph or row
+        starts on the recorded line, and it carries a section 8.1
+        citation, so deleting a pointer fails. The routed row occurs once,
+        on its recorded line, and the pinned documents are exactly the
+        carriers. Residual: this test reads only the pinned statements, so
+        a new statement of section 11's silence elsewhere is left to
+        review.
+
+        Draft claimsfu12 (review round 7, claude WARN 1): the section 8.1
+        citation could stand anywhere in the paragraph, and supply matrix
+        line 46 cites §8.1 a second time, for customs declarations
+        submitted by third parties, so deleting its IT pointer clause
+        passed (flip F1). Each pin now names its pointer text, which must
+        stand in the statement's paragraph or row and cite section 8.1,
+        so deleting a pointer fails for every pin. In memory, each pinned
+        paragraph without its pointer text, and line 46 with flip F1
+        applied (which still cites §8.1 elsewhere), fail the check."""
+        silences = {}
+        for rel, line, statement, pointer in self._SECTION_11_IT_SILENCES:
+            with self.subTest(rel=rel, line=line):
+                units = [(number, unit) for number, unit
+                         in self._paragraphs(self._text(rel))
+                         if statement in unit]
+                self.assertEqual([number for number, _ in units], [line],
+                                 statement[:80])
+                unit = units[0][1]
+                silences[rel, line] = unit
+                self.assertTrue(
+                    self._carries_section_8_1_pointer(unit, pointer),
+                    pointer[:80])
+                self.assertFalse(self._carries_section_8_1_pointer(
+                    unit.replace(pointer, ""), pointer))
+        for rel, line, statement in self._SECTION_8_ROUTED:
+            with self.subTest(rel=rel, line=line, routed=True):
+                units = [number for number, unit
+                         in self._paragraphs(self._text(rel))
+                         if statement in unit]
+                self.assertEqual(units, [line], statement[:80])
+        # Flip F1 of review round 7: supply matrix line 46 without the IT
+        # pointer clause keeps the statement and a §8.1 citation (for
+        # customs declarations), and fails.
+        (_, _, statement, pointer), = [
+            pin for pin in self._SECTION_11_IT_SILENCES
+            if pin[:2] == (self.SUPPLY_MATRIX, 46)]
+        unit = silences[self.SUPPLY_MATRIX, 46]
+        flipped = re.sub(r", but the record keeping criterion, .*?"
+                         r"\(§1\.4, §8\.1\)", "", unit, count=1)
+        self.assertNotEqual(flipped, unit)
+        self.assertIn(statement, flipped)
+        self.assertRegex(flipped, self._CITES_SECTION_8_1)
+        self.assertFalse(self._carries_section_8_1_pointer(flipped, pointer))
+        self.assertEqual({rel for rel, *_ in self._SECTION_11_IT_SILENCES},
+                         set(self._SECTION_8_CARRIERS))
+        for rel in self._SECTION_8_CARRIERS:
+            text = self._text(rel)
+            for section in ("1.4", "8.9", "8.10", "8.11", "8.12"):
+                with self.subTest(rel=rel, section=section):
+                    self.assertRegex(text, r"(?:§|[Ss]ections? )"
+                                           + re.escape(section) + r"(?!\d)")
+        self.assertEqual(self._supply_cell("| **IT and Cybersecurity** |"),
+                         "✓ (§1.4, §8.1)")
+
+    def test_no_document_gives_an_unheld_basis(self):
+        """Review round 2 of claimsfu2 (claude NOTE 2): the international
+        basis guard (ProgrammeClaimsTests._unheld_basis_clauses) read only
+        the inventory lines, so "The WCO SAFE Framework is the
+        international basis of PIP." added to the supply chain matrix
+        passed every test. It now reads every claim unit of every taxonomy
+        document and each directory README: the phrase stands only in a
+        clause that names the UK programme and cites section 1.1."""
+        guard = ProgrammeClaimsTests._unheld_basis_clauses
+        self.assertTrue(guard("The WCO SAFE Framework is the international "
+                              "basis of PIP."))
+        found = []
+        for rel in self._taxonomy_documents_and_readmes():
+            for unit in self._claim_units(self._text(rel)):
+                found += [(rel, clause[:120]) for clause in guard(unit)]
+        self.assertEqual(found, [])
+
+    def test_claim_units_read_wrapped_paragraphs(self):
+        """Review round 2 of claimsfu2 (codex WARN 3): the claim units were
+        physical lines, so a claim wrapped across lines evaded the clause
+        checks, as codex's "HMRC incident notification is" / "not confirmed
+        by a held source." did. Paragraphs are now assembled first
+        (_paragraphs): the wrapped and unwrapped claims are caught alike,
+        the corrected claims stand wrapped or not, and a blank line, list
+        item, heading, hard line break or table row still separates two
+        claims. Table rows keep their exact text."""
+        for text in ("HMRC incident notification is\nnot confirmed by a "
+                     "held source.\n",
+                     "HMRC incident notification is not confirmed by a held "
+                     "source.\n"):
+            with self.subTest(text=text[:40]):
+                self.assertTrue(any(self._calls_notification_absent(clause)
+                                    for clause in self._clauses(text)))
+        # What the physical-line reading missed.
+        wrapped = "HMRC incident notification is\nnot confirmed by a held "
+        self.assertFalse(any(self._calls_notification_absent(line)
+                             for line in (wrapped + "source.").splitlines()))
+        for text in ("HMRC notification of changes, including disclosure of\n"
+                     "security incidents, is made on form C122 (§12.4).\n",
+                     "HMRC notification of changes, including disclosure of "
+                     "security incidents, is made on form C122 (§12.4).\n"):
+            with self.subTest(text=text[:40]):
+                self.assertFalse(any(self._calls_notification_absent(clause)
+                                     for clause in self._clauses(text)))
+        for text in ("HMRC incident notification uses form C122 (§12.4)\n\n"
+                     "The vendor list is not confirmed\n",
+                     "- HMRC incident notification uses form C122 (§12.4)\n"
+                     "- vendor list not confirmed\n",
+                     "## HMRC incident notification\nThe vendor list is not "
+                     "confirmed.\n",
+                     "**Notification:** HMRC, form C122\\\n**Status:** not "
+                     "confirmed\n",
+                     "HMRC incident notification uses form C122 (§12.4)\n"
+                     "| Vendor list | not confirmed |\n"):
+            with self.subTest(text=text[:40]):
+                self.assertFalse(any(self._calls_notification_absent(clause)
+                                     for clause in self._clauses(text)))
+        cds = re.compile("CDS")
+        for text, caught in (("Declarations for HMRC must be\nlodged in "
+                              "CDS.\n", True),
+                             ("Declarations for HMRC must be lodged in "
+                              "CDS.\n", True),
+                             ("Declarations for HMRC are lodged.\n\nCDS is "
+                              "not confirmed by a held source; no rule must "
+                              "be assumed\n", False)):
+            with self.subTest(text=text[:40]):
+                self.assertEqual(
+                    any(self._near(clause, cds, self._OBLIGATION_WORDS, 8)
+                        for clause in self._clauses(text)), caught)
+        hmrc, grant = re.compile("HMRC"), re.compile(r"(?i)grant\w*")
+        for text, cited in (("HMRC grants AEO status\n(HMRC Customs Technical "
+                             "Handbook (AEO), section 12.7).\n", True),
+                            ("HMRC grants\nAEO status.\n", False)):
+            with self.subTest(text=text[:40]):
+                units = [unit for unit in self._claim_units(text)
+                         if self._near(unit, hmrc, grant, 4)]
+                self.assertEqual(len(units), 1, units)
+                self.assertEqual("section 12.7" in units[0], cited)
+        row = "| Programme | HMRC notification not confirmed |"
+        self.assertEqual(list(self._claim_units(f"Lead-in\n{row}\nAfter.\n")),
+                         ["Lead-in", row, "After."])
+        self.assertEqual(list(self._paragraphs("a\nb\n\n| r |\nc\\\nd\n")),
+                         [(1, "a b"), (4, "| r |"), (5, "c\\"), (6, "d")])
+
+    def test_claim_units_read_wrapped_blockquotes(self):
+        """Review round 3 of claimsfu3 (codex WARN 4): _paragraphs flushed
+        at every blockquote line, so codex's quoted "HMRC incident
+        notification is" / "not confirmed by a held source." stayed two
+        units and passed. Consecutive lines of one blockquote paragraph are
+        now one unit with the quote prefixes removed: the wrapped quoted
+        claim is caught, the wrapped quoted correct statement stands, and a
+        quoted blank line or a change of quote depth still separates two
+        claims. Draft claimsfu7 (review round 4 of claimsfu4, claude NOTE 3,
+        codex WARN 3): an unprefixed line after a quoted line is a lazy
+        continuation of the quoted paragraph, as in CommonMark, so codex's
+        "> HMRC incident notification is" / "not confirmed by a held
+        source." is one unit and is caught; a blank line or a block start
+        (a list item, heading, thematic break or table row) still ends the
+        quoted paragraph."""
+        for text in ("> HMRC incident notification is\n> not confirmed by a "
+                     "held source.\n",
+                     ">HMRC incident notification is\n>not confirmed by a "
+                     "held source.\n",
+                     "> > HMRC incident notification is\n> > not confirmed "
+                     "by a held source.\n",
+                     # Codex WARN 3 of review round 4: the lazy continuation.
+                     "> HMRC incident notification is\nnot confirmed by a "
+                     "held source.\n"):
+            with self.subTest(caught=text[:40]):
+                self.assertTrue(any(self._calls_notification_absent(clause)
+                                    for clause in self._clauses(text)))
+        for text in ("> HMRC notification of changes, including disclosure "
+                     "of\n> security incidents, is made on form C122 "
+                     "(§12.4).\n",
+                     "> HMRC notification of changes, including disclosure "
+                     "of\nsecurity incidents, is made on form C122 "
+                     "(§12.4).\n",
+                     "> HMRC incident notification uses form C122 (§12.4)\n"
+                     ">\n> The vendor list is not confirmed\n",
+                     "> HMRC incident notification uses form C122 (§12.4)\n"
+                     "\nThe vendor list is not confirmed\n",
+                     "> HMRC incident notification uses form C122 (§12.4)\n"
+                     "- The vendor list is not confirmed\n",
+                     "HMRC incident notification uses form C122 (§12.4)\n"
+                     "> The vendor list is not confirmed\n",
+                     "> HMRC incident notification uses form C122 (§12.4)\n"
+                     "> > The vendor list is not confirmed\n"):
+            with self.subTest(allowed=text[:40]):
+                self.assertFalse(any(self._calls_notification_absent(clause)
+                                     for clause in self._clauses(text)))
+        self.assertEqual(
+            list(self._paragraphs("> a\n> b\n>\n> c\nd\n> > e\n> | r |\n")),
+            [(1, "a b"), (4, "c d"), (6, "e"), (7, "| r |")])
+        self.assertEqual(list(self._paragraphs("> > a\nb\n\nc\n")),
+                         [(1, "a b"), (4, "c")])
+        self.assertEqual(
+            list(self._paragraphs("> a\n- b\n## c\n> d\n| r |\n")),
+            [(1, "a"), (2, "- b"), (3, "## c"), (4, "d"), (5, "| r |")])
+        # A list item after a quote leaves the quote, so a quoted line
+        # after it starts a new paragraph.
+        self.assertEqual(list(self._paragraphs("> a\n- b\n> c\n")),
+                         [(1, "a"), (2, "- b"), (3, "c")])
+
+    def test_cited_held_lines_carry_their_text(self):
+        """Each held line the corrected text cites carries its excerpt,
+        counting only LF as a line end."""
+        extracts = {}
+        for rel, number, excerpt in self._HELD_CITATIONS:
+            if rel not in extracts:
+                extracts[rel] = self._held_lines(rel)
+            with self.subTest(at=f"{rel.split('/')[-1][:40]}:{number}"):
+                self.assertIn(excerpt, extracts[rel][number - 1])
+
+    def test_held_sections_name_no_unsupported_route(self):
+        """The removed or reworded claims rest on no held section: none of
+        the seven held sections names CDS, CHIEF, Trusted Smart Freight, a
+        portal or a manifest. Draft claimsfu2: the round 1 check that no
+        held section calls AEO mandatory is dropped; it guarded the reading
+        that customs compliance is not a required AEO-S criterion, which
+        sections 1.4 and 7.1 contradict (claude WARN 3). Claude NOTE 4:
+        the record keeping section (8.1 and 8.7) names no bill of lading,
+        and only the general information section (2.4, line 89) does.
+        Draft claimsfu4: none names multi-factor authentication,
+        encryption, an asset inventory, intrusion detection, an annual
+        interval, a retention period or a self-assessment submission, the
+        items the corrected text says no held section names. Draft
+        claimsfu6: none names least privilege (or any privilege). Draft
+        claimsfu12 (review round 7, claude NOTE 2): the wider forms of
+        these absences (yearly, every year or once a year, a submission
+        named before the self-assessment, multifactor, MFA, 2FA and IDS)
+        are checked, with samples, in _HELD_ABSENCE_CHECKS."""
+        absent = re.compile(r"(?i)customs declaration service|smart freight"
+                            r"|\bportal\b|\bmanifests?\b|multi-factor"
+                            r"|two-factor|encrypt|asset inventory"
+                            r"|intrusion detection|\bannual|retention period"
+                            r"|self-assess\w*[^.]*submi|privilege")
+        absent_exact = re.compile(r"\bCDS\b|\bCHIEF\b")
+        lading = {}
+        for rel in self.HELD_SECTIONS:
+            lines = self._held_lines(rel)
+            self.assertGreater(len(lines), 20, rel)
+            with self.subTest(rel=rel.split("/")[-1]):
+                self.assertEqual(
+                    [line for line in lines
+                     if absent.search(line) or absent_exact.search(line)], [])
+            numbers = [n for n, line in enumerate(lines, 1)
+                       if re.search(r"(?i)bills? of lading", line)]
+            if numbers:
+                lading[rel] = numbers
+        self.assertEqual(lading, {self.HELD_GENERAL: [89]})
+
+    # The held absences the kept corpus statements rest on, by name, as
+    # (held extracts searched, pattern, the (extract, LF line) pairs the
+    # pattern may and must match, sample lines the pattern matches). The
+    # patterns and allowed lines start from those of the word-list guard's
+    # _HELD_ABSENCES at 161da03db. Draft claimsfu11 kept four of them here
+    # and called them the only checks behind statements the claims split
+    # keeps; the other five back kept statements too (review round 7,
+    # claude NOTE 2), so draft claimsfu12 restores them with their
+    # 161da03db patterns, widens the business continuity and recipient
+    # patterns, and adds the computer system absence. Each sample is
+    # added to an in-memory copy of each extract searched, which must then
+    # fail the check.
+    _HELD_ABSENCE_CHECKS = {
+        "annual cycle": (
+            HELD_SECTIONS,
+            re.compile(r"(?i)\bannual|\byearly\b|\bevery\s+year\b"
+                       r"|\bonce\s+a\s+year\b"), (),
+            ("The self-assessment is repeated annually.",
+             "Reviews take place yearly.",
+             "Review the plan every year.",
+             "Review the plan once a year.")),
+        # Either word order.
+        "self-assessment submission": (
+            HELD_SECTIONS,
+            re.compile(r"(?i)self[\s-]*assess\w*[^.]*submi"
+                       r"|submi\w*[^.]*self[\s-]*assess"), (),
+            ("The self-assessment is submitted to HMRC.",
+             "Businesses submit their self-assessment to HMRC.")),
+        # The only two: section 11.2 and section 12.2.
+        "self-assessment at sections 11.2 and 12.2 only": (
+            HELD_SECTIONS, re.compile(r"(?i)\bself[\s-]*assess"),
+            ((HELD_SECURITY, 25), (HELD_STANDARDS, 25)),
+            ("Businesses should self-assess their compliance.",)),
+        # Inventory appears only as goods inventory: "inventory control"
+        # (record keeping line 34, section 8.2) and "inventory" under the
+        # logistical system (line 55, section 8.4).
+        "multi-factor, two-factor, encryption, asset inventory": (
+            HELD_SECTIONS,
+            re.compile(r"(?i)multi-?factor|two-?factor|\bMFA\b|\b2FA\b"
+                       r"|encrypt|\binventor(?:y|ies)\b"),
+            ((HELD_RECORDS, 34), (HELD_RECORDS, 55)),
+            ("Use multi-factor authentication.",
+             "Use multifactor authentication.",
+             "Use MFA for remote access.",
+             "Use 2FA for remote access.",
+             "Use two-factor authentication.",
+             "Encrypt data at rest.",
+             "Keep an asset inventory.")),
+        "retention period": (
+            HELD_SECTIONS, re.compile(r"(?i)retention\s+period"), (),
+            ("Records have a retention period of four years.",)),
+        "least privilege, intrusion detection": (
+            HELD_SECTIONS,
+            re.compile(r"(?i)privilege|intrusion\s+detection|\bIDS\b"), (),
+            ("Access follows least privilege.",
+             "Intrusion detection should be in place.",
+             "An IDS should monitor the network.")),
+        # Sections 8.10 (line 159) and 8.12 (line 176), not section 8.9.
+        # Draft claimsfu12 (review round 7, claude NOTE 1): continuity or
+        # disaster in any words, not only "business continuity"; both
+        # held lines read "business continuity/ disaster recovery plan".
+        "business continuity at sections 8.10 and 8.12 only": (
+            HELD_SECTIONS, re.compile(r"(?i)continuity|disaster"),
+            ((HELD_RECORDS, 159), (HELD_RECORDS, 176)),
+            ("There should be a business continuity plan.",
+             "There should be a continuity and disaster recovery plan.",
+             "A disaster recovery plan should be kept.")),
+        # Section 11 names no IT, cybersecurity, information technology,
+        # information systems or information security, and none of the
+        # measures of sections 8.10 and 8.11.
+        "IT security in section 11": (
+            (HELD_SECURITY,),
+            re.compile(r"\bIT\b|(?i:cyber|information\s+(?:technology"
+                       r"|systems?|security)|firewall|anti-?virus|malware"
+                       r"|password)"), (),
+            ("The IT department reviews access.",
+             "Cybersecurity controls should be documented.",
+             "Information technology security measures apply.",
+             "A firewall should protect the network.",
+             "Anti-virus software should be installed.",
+             "Malware protection should be in place.",
+             "Password rules should be set.")),
+        # Draft claimsfu12 (review round 7, claude WARN 3): section 11
+        # names a computer only at section 11.2 (line 38, "computer
+        # system, accounting records and documents").
+        "computer at section 11.2 only": (
+            (HELD_SECURITY,), re.compile(r"(?i)computer"),
+            ((HELD_SECURITY, 38),),
+            ("Computer systems should be protected against intrusion.",)),
+        # A recipient of incident reports is named under section 11.12
+        # only, so section 11.8 (lines 79 to 85) names none. Draft
+        # claimsfu12 (review round 7, claude WARN 4): a report made or
+        # going to someone is matched too, which adds line 122 ("reporting
+        # to law enforcement/senior management") to line 120 ("to whom
+        # incidents are reported").
+        "incident report recipient at section 11.12 only": (
+            (HELD_SECURITY,),
+            re.compile(r"(?i)to\s+whom|recipient"
+                       r"|\breport\w*(?:\s+\w+){0,2}?\s+to\b"),
+            ((HELD_SECURITY, 120), (HELD_SECURITY, 122)),
+            ("Say to whom security incidents are reported.",
+             "Reports go to the site security manager and HMRC.",
+             "Incidents are reported to HMRC.",
+             "Staff report incidents to the security manager.")),
+    }
+
+    @staticmethod
+    def _absence_matches(extracts, scope, pattern):
+        """The sorted (extract, LF line) pairs across scope whose line the
+        pattern matches."""
+        return sorted((rel, number) for rel in scope
+                      for number, line in enumerate(extracts[rel], 1)
+                      if pattern.search(line))
+
+    def test_held_sections_bear_out_kept_absences(self):
+        """Draft claimsfu11 kept four absences of the removed word-list
+        guard (_HELD_ABSENCES at 161da03db) here over the held text and
+        called them the only checks behind corpus statements the claims
+        split keeps. Review round 7 (claude NOTE 2) found that wrong: the
+        other five back kept statements too, and
+        test_held_sections_name_no_unsupported_route covers them less
+        strictly (no yearly, every year or once a year, no submission
+        before self-assessment, no unhyphenated multifactor, MFA, 2FA or
+        IDS). Draft claimsfu12 restores those five with their 161da03db
+        patterns and adds a sixth for the computer system (claude WARN 3).
+        Across the extracts each absence searches, the lines its pattern
+        matches are exactly the lines it allows.
+
+        No held section names an annual, yearly, every-year or
+        once-a-year cycle, nor a self-assessment submitted (in either
+        word order): the UK annex's and UK procedure's "no held section
+        names a self-assessment submission to HMRC or an annual cycle"
+        and the gap template's "no held section names an annual cycle".
+
+        No held section names multi-factor (hyphenated or not), MFA, 2FA,
+        two-factor or encryption, and inventory appears only as goods
+        inventory (record keeping lines 34 and 55): the supply chain
+        matrix's "no held section names multi-factor authentication,
+        encryption or an asset inventory", the CTPAT IT register's "No
+        held section names multi-factor authentication or encryption",
+        the gap template's "no held section names multi-factor
+        authentication", and the UK annex's and UK procedure's
+        multi-factor authentication (and encryption) as controls no held
+        section names.
+
+        No held section names a retention period: the UK annex's and the
+        UK procedure's "no held section setting a retention period".
+
+        No held section names privilege, intrusion detection or IDS: the
+        supply chain matrix's "no held section states least privilege"
+        and "but intrusion detection is not (§8.10)".
+
+        Section 11 names no IT, cyber, information technology,
+        information systems, information security, firewall, anti-virus,
+        malware or password term: the UK annex's "The handbook's section
+        11 does not name cybersecurity or IT security controls" and
+        "Section 11 does not name information systems security as a
+        criterion of its own", the UK procedure's "The handbook's section
+        11 does not name cybersecurity", the CTPAT IT register's and the
+        supply chain matrix's statements that the held section 11 criteria
+        set out no IT control (requirement), the gap template's "set out
+        no IT control", and the compliance matrix's "names no information
+        systems security requirement area".
+
+        Section 11 names a computer only at section 11.2 (security and
+        safety line 38): the supply chain matrix's "name the computer
+        system only as an area the security and safety risk assessment is
+        to address (§11.2)" (lines 46 and 85) and the compliance matrix's
+        routed coverage note, "only the computer system as an area the
+        security and safety risk assessment is to address, §11.2" (line
+        455).
+
+        Only section 11.12 names a recipient for incident reports
+        (security and safety lines 120 and 122, "to whom incidents are
+        reported" and "reporting to law enforcement/senior management"):
+        the CTPAT MSC register's Information Technology row ("§11.8 ...
+        names no recipient") and the supply chain matrix's "§11.8 ...
+        with no recipient named". The pattern matches "to whom",
+        "recipient", and a report word followed within two words by "to",
+        as in "reports go to".
+
+        Self-assessment appears only at sections 11.2 and 12.2 (security
+        and safety line 25, maintaining the standards line 25): the UK
+        annex's "Within section 11, the only self-assessment named is the
+        one in section 11.2" and the UK procedure's "the only
+        self-assessment they name is the one in section 11.2".
+
+        Continuity and disaster appear only at sections 8.10 and 8.12
+        (record keeping lines 159 and 176, each "business continuity/
+        disaster recovery plan"), so section 8.9 names neither (claude
+        NOTE 1): the supply chain matrix's statements that §8.9 is not
+        business continuity while a business continuity or disaster
+        recovery plan is among the actions of §8.10 and §8.12.
+
+        Each check is shown to discriminate: an in-memory copy of each
+        extract it searches, with one added line its pattern matches,
+        fails it. The test skips when the held corpus is absent."""
+        extracts = {}
+        for name, (scope, pattern, allowed, samples) in (
+                self._HELD_ABSENCE_CHECKS.items()):
+            for rel in scope:
+                if rel not in extracts:
+                    extracts[rel] = self._held_lines(rel)
+            with self.subTest(absence=name):
+                self.assertEqual(
+                    self._absence_matches(extracts, scope, pattern),
+                    sorted(allowed))
+            for rel in scope:
+                for sample in samples:
+                    copy = dict(extracts)
+                    copy[rel] = extracts[rel] + [sample]
+                    with self.subTest(absence=name, added=sample,
+                                      to=rel.split("/")[-1][:40]):
+                        self.assertNotEqual(
+                            self._absence_matches(copy, scope, pattern),
+                            sorted(allowed))
 
 
 if __name__ == "__main__":

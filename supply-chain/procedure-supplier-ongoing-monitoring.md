@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Ongoing Monitoring Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.5\
-**Date:** 2026-08-31\
+**Version:** 1.0.6\
+**Date:** 2026-11-07\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`risk/register-key-risk-indicators.md`](../risk/register-key-risk-indicators.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md)\
@@ -40,7 +40,7 @@ This procedure defines the activities, frequencies, and escalation steps for ong
 | Security posture update: refresh questionnaire or obtain updated certification/audit report | Quarterly | Questionnaire; request for updated evidence | Supplier Risk Manager |
 | Financial health check | Quarterly | Credit rating service; review of public financial indicators | Supplier Risk Manager / Finance |
 | SLA and performance review | Monthly | Review SLA reports submitted by supplier; compare against contractual thresholds | Contract Owner |
-| Trade compliance programme status verification (CTPAT / AEO-S / PIP / BASC where applicable) | Quarterly | Verify via CBP CTPAT portal; HMRC AEO portal; CBSA PIP directory; BASC registry | Trade Compliance Manager |
+| Trade compliance programme status verification (CTPAT / AEO-S / PIP / BASC where applicable) | Quarterly | Verify via CBP CTPAT portal; HMRC (AEO-S status verification route not confirmed by a held source; confirm with HMRC); CBSA PIP directory; BASC registry | Trade Compliance Manager |
 | Sub-contractor disclosure review | Semi-annually | Request updated list of material sub-contractors; compare against last-known list | Supplier Risk Manager |
 | Incident and vulnerability intelligence review | Monthly | Review public breach disclosures; threat intelligence feeds; security ratings service | Information Security |
 | Access review: verify access grants remain appropriate | Quarterly | Review access logs and account inventory | IT Operations |
