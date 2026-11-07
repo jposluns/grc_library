@@ -321,8 +321,8 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Key Terms and Definitions Register](../governance/register-key-terms-and-definitions.md) (maturity: Mature)
 - [Role Authority Register](../governance/register-role-authority.md) (maturity: Mature)
 - [Scenario Risk Catalogue](../risk/register-scenario-risk-catalogue.md) (maturity: Baseline)
-- [US CTPAT Full Minimum Security Criteria Controls Register](../compliance/logistics/register-ctpat-united-states-msc-controls.md) (maturity: Baseline)
 - [US CTPAT IT and Cybersecurity Compliance Controls Register](../compliance/logistics/register-ctpat-united-states-it-controls.md) (maturity: Baseline)
+- [US CTPAT Minimum Security Criteria Controls Register](../compliance/logistics/register-ctpat-united-states-msc-controls.md) (maturity: Baseline)
 
 ### Specification
 
@@ -628,8 +628,8 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 - [Compliance Obligations Register Template](../compliance/register-compliance-obligations-template.md) (maturity: Baseline)
 - [Crypto-Asset Domain Inventory Register](../crypto/register-crypto-asset-inventory.md) (maturity: Draft)
 - [Global Regulatory Applicability Register](../compliance/register-global-regulatory-applicability.md) (maturity: Baseline)
-- [US CTPAT Full Minimum Security Criteria Controls Register](../compliance/logistics/register-ctpat-united-states-msc-controls.md) (maturity: Baseline)
 - [US CTPAT IT and Cybersecurity Compliance Controls Register](../compliance/logistics/register-ctpat-united-states-it-controls.md) (maturity: Baseline)
+- [US CTPAT Minimum Security Criteria Controls Register](../compliance/logistics/register-ctpat-united-states-msc-controls.md) (maturity: Baseline)
 
 ### Standard
 

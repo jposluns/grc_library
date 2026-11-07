@@ -2,8 +2,8 @@
 
 **Document Title:** Logistics Sector Compliance README\
 **Document Type:** Register\
-**Version:** 1.0.4\
-**Date:** 2026-11-06\
+**Version:** 1.0.5\
+**Date:** 2026-11-07\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
@@ -68,7 +68,7 @@ US Customs and Border Protection (CBP) voluntary trusted-trader programme.
 | Document | Type | Description |
 | --- | --- | --- |
 | [`register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md) | Register | CTPAT IT and cybersecurity compliance controls. |
-| [`register-ctpat-united-states-msc-controls.md`](register-ctpat-united-states-msc-controls.md) | Register | CTPAT Full Minimum Security Criteria (MSC) controls. |
+| [`register-ctpat-united-states-msc-controls.md`](register-ctpat-united-states-msc-controls.md) | Register | CTPAT Minimum Security Criteria (MSC) controls. |
 
 ### PIP (Canada Partners in Protection)
 

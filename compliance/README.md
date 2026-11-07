@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance Domain README\
 **Document Type:** Register\
-**Version:** 1.4.12\
-**Date:** 2026-10-26\
+**Version:** 1.4.13\
+**Date:** 2026-11-07\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/logistics/README.md`](logistics/README.md), [`compliance/financial-services/README.md`](financial-services/README.md), [`compliance/healthcare/README.md`](healthcare/README.md), [`compliance/energy-and-utilities/README.md`](energy-and-utilities/README.md), [`compliance/telecommunications/README.md`](telecommunications/README.md), [`compliance/public-sector/README.md`](public-sector/README.md)\
@@ -79,7 +79,7 @@ Each sub-directory has its own README listing the artefacts within and the regul
 | Annex | UK AEO-S IT and Cybersecurity Requirements | [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md) |
 | Procedure | UK AEO IT Self-Assessment Procedure | [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](logistics/procedure-aeo-united-kingdom-self-assessment.md) |
 | Register | US CTPAT IT and Cybersecurity Compliance Controls Register | [`compliance/logistics/register-ctpat-united-states-it-controls.md`](logistics/register-ctpat-united-states-it-controls.md) |
-| Register | US CTPAT Full Minimum Security Criteria Controls Register | [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](logistics/register-ctpat-united-states-msc-controls.md) |
+| Register | US CTPAT Minimum Security Criteria Controls Register | [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](logistics/register-ctpat-united-states-msc-controls.md) |
 | Register | Canada PIP IT and Cybersecurity Compliance Controls Register | [`compliance/logistics/register-pip-canada-controls.md`](logistics/register-pip-canada-controls.md) |
 | Template | Trade Compliance Programme Gap Assessment Template | [`compliance/logistics/template-trade-compliance-gap-assessment.md`](logistics/template-trade-compliance-gap-assessment.md) |
 
