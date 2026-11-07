@@ -21709,7 +21709,7 @@ class ProgrammeClaimsTests(unittest.TestCase):
         rest on"), which holds no rests phrase and is read by the ~ rule
         checks instead. Planted negatives, each of which must fail the
         two-way rule: the reviewer's item added to the items; the item
-        "- Seal Management rests on element K (a)." added beside the G (d)
+        "- Seal Management rests on element K (a)." added after the last
         item; the lead-in with "the key above does not place:" changed to
         "the key above does not place (Risk Assessment rests on element
         M (a)):"; and the key sentence "Risk Assessment and Customs
