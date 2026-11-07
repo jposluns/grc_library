@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.7.5\
-**Date:** 2026-10-27\
+**Version:** 1.7.6\
+**Date:** 2026-11-06\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -363,11 +363,11 @@ When referencing standards and frameworks, the AI must only reference publicly r
 
 - CTPAT: Customs-Trade Partnership Against Terrorism (US CBP)
 - AEO: Authorized Economic Operator (EU)
-- AEO-S, Authorized Economic Operator, Security and Safety (UK HMRC)
+- AEO-S: Authorized Economic Operator Security and Safety (UK HMRC)
 - PIP: Partners in Protection (Canada CBSA)
 - BASC: Business Alliance for Secure Commerce
 - NEEC: Nuevo Esquema de Empresas Certificadas (Mexico)
-- OEA: Operador Económico Autorizado (Brazil)
+- OEA: Operador Econômico Autorizado (Brazil)
 - WCO SAFE Framework of Standards
 - ISO 28000:2022: Supply chain security management systems
 

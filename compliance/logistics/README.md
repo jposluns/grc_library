@@ -2,8 +2,8 @@
 
 **Document Title:** Logistics Sector Compliance README\
 **Document Type:** Register\
-**Version:** 1.0.3\
-**Date:** 2026-10-26\
+**Version:** 1.0.4\
+**Date:** 2026-11-06\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
@@ -52,7 +52,7 @@ Each programme below has its own artefacts in this directory. Organizations adop
 
 ### BASC (Business Alliance for Secure Commerce)
 
-Multi-country private trade-security programme, predominantly Latin American, recognized within the WCO SAFE Framework.
+Multi-country private supply-chain security certification, predominantly Latin American, run by the World BASC Organization (WBO). The programme overview annex sets out what BASC's own norm says about its relationship to the WCO SAFE Framework and to customs AEO programmes.
 
 | Document | Type | Description |
 | --- | --- | --- |
@@ -78,9 +78,9 @@ Canada Border Services Agency (CBSA) trusted-trader programme.
 | --- | --- | --- |
 | [`register-pip-canada-controls.md`](register-pip-canada-controls.md) | Register | PIP IT and cybersecurity compliance controls. |
 
-### AEO (United Kingdom Authorised Economic Operator)
+### AEO (United Kingdom Authorized Economic Operator)
 
-HMRC and Border Force trusted-trader programme, AEO-S security and safety strand.
+HMRC trusted-trader programme, AEO-S (Authorized Economic Operator Security and Safety) authorization. HMRC tests applicants against the security and safety criteria (UK HMRC AEO security and safety criteria handbook, section 11.1); that Border Force administers the programme is not confirmed by a held source.
 
 | Document | Type | Description |
 | --- | --- | --- |

@@ -5178,7 +5178,8 @@ CROSSWALK_TSC_SECTION_OPENING = "\n".join((
     "| NIST CSF 2.0 | NIST Cybersecurity Framework 2.0 | Category "
     "identifiers (e.g., GV.SC, ID.RA, DE.AE) within the six Core Functions "
     "(GV, ID, PR, DE, RS, RC) |",
-    "| CTPAT | C-TPAT | Section headings |",
+    "| CTPAT | Customs-Trade Partnership Against Terrorism (U.S. Customs "
+    "and Border Protection) | Section headings |",
     "| PIP | Partners in Protection (Canada Border Services Agency) | "
     "Programme requirement areas |",
     "| BASC v6 | BASC (Business Alliance for Secure Commerce): the Norm "
@@ -5192,8 +5193,8 @@ CROSSWALK_TSC_SECTION_OPENING = "\n".join((
     "title; a cell that cites an Annex IV element cites the element alone, "
     "or beside a numbered Pillar II standard or Section VI, never beside a "
     "Pillar II reference alone |",
-    "| AEO/AEO-S | UK HMRC Authorized Economic Operator (Security and "
-    "Safety) | Requirement area headings |",
+    "| AEO/AEO-S | UK HMRC Authorized Economic Operator Security and "
+    "Safety | Requirement area headings |",
     "| AICPA TSC 2017 | AICPA 2017 Trust Services Criteria (TSP Section "
     "100), the criteria used to evaluate controls in a SOC 2 examination; "
     "the 2022 revision updated the points of focus, not the criteria | "

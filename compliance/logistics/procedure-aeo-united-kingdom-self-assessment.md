@@ -2,7 +2,7 @@
 
 **Document Title:** UK AEO IT Self-Assessment Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-11-06\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -20,21 +20,22 @@
 
 ### 1.1 Purpose
 
-This procedure defines the process for completing the IT and cybersecurity elements of the annual Authorized Economic Operator (AEO) and AEO-S (Security and Safety) self-assessment submission to HMRC.
+This procedure defines the process for completing the IT and cybersecurity elements of the organization's annual Authorized Economic Operator (AEO) and AEO-S (Authorized Economic Operator Security and Safety) self-assessment. The annual cycle and its internal submission deadline are the organization's own schedule: the held HMRC criteria (UK HMRC AEO security and safety criteria handbook, section 11) name no annual self-assessment or submission to HMRC. They say that procedures are to be documented and made available for HMRC during the audit of the AEO criteria (section 11.1), and the only self-assessment they name is the one in section 11.2, on the security and safety risk assessment.
 
-The AEO-S programme, administered by HMRC and Border Force under the UK's implementation of the World Customs Organization (WCO) SAFE Framework of Standards, requires the organization to demonstrate that adequate IT and cybersecurity controls are in place to protect trade systems, trade data, and the integrity of customs documentation.
+HMRC tests AEO-S applicants against the security and safety criteria (UK HMRC AEO security and safety criteria handbook, section 11.1); that Border Force administers the programme is not confirmed by a held source. Under those criteria the applicant's security and safety risk assessment is to address, among other areas, its computer system, accounting records and documents (section 11.2), and the applicant must be able to produce documentation showing the measures and controls it has put in place (section 11.3). The handbook's section 11 does not name cybersecurity, trade data or the integrity of customs documentation; this procedure treats the IT and cybersecurity controls it evidences as the organization's own scoping of those criteria, to be confirmed with HMRC.
 
 ### 1.2 Scope
 
-This procedure covers only the IT and cybersecurity elements of the AEO-S self-assessment. It does not cover:
+This procedure covers only the IT and cybersecurity elements of the AEO-S self-assessment, including the records retention evidence in section 4.8, which the organization scopes from the accounting records and documents area (UK HMRC AEO security and safety criteria handbook, section 11.2; section 11 does not name retention). It does not cover:
 
-- Customs process compliance and trade record-keeping requirements.
+- Customs process compliance.
+- Trade record-keeping requirements outside of the records retention evidence in section 4.8.
 - Financial solvency criteria.
 - Physical security and site access controls.
 - Personnel security outside of IT-relevant background screening.
 - Business partner security management.
 
-Those domains are outside IT scope and are governed by the AEO Compliance function (Legal / Finance / Compliance). The CISO's role is to provide the IT evidence package described in this procedure to the AEO Compliance function for inclusion in the overall submission.
+Those domains are outside IT scope and are governed by the AEO Compliance function (Legal / Finance / Compliance). The CISO's role is to provide the IT evidence package described in this procedure to the AEO Compliance function for inclusion in the overall self-assessment.
 
 The IT control areas covered by this procedure are drawn from the eight AEO-S IT controls mapped in [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md).
 
@@ -46,7 +47,7 @@ The IT control areas covered by this procedure are drawn from the eight AEO-S IT
 
 The CISO is the lead responsible party for all IT elements of the AEO-S self-assessment. The CISO:
 
-- Initiates IT evidence collection 90 days before the HMRC submission deadline.
+- Initiates IT evidence collection 90 days before the internal submission deadline.
 - Assigns evidence collection tasks to appropriate technical teams.
 - Reviews all IT evidence items before they are included in the IT evidence package.
 - Signs off on the IT evidence package before handoff to the AEO Compliance function.
@@ -54,14 +55,14 @@ The CISO is the lead responsible party for all IT elements of the AEO-S self-ass
 
 ### 2.2 AEO compliance function
 
-The AEO Compliance function (Legal / Finance / Compliance) owns the overall AEO-S self-assessment submission. It provides the CISO with the submission timeline and any HMRC guidance updates. It integrates the IT evidence package into the overall submission and manages the HMRC submission process.
+The AEO Compliance function (Legal / Finance / Compliance) owns the organization's overall AEO-S self-assessment. It provides the CISO with the internal submission timeline and any HMRC guidance updates. It integrates the IT evidence package into the overall self-assessment and holds the result as part of the documentation the organization makes available for HMRC during the audit of the AEO criteria (section 11.1).
 
 ### 2.3 Legal review
 
-Legal reviews the IT evidence package before submission to confirm that:
+Legal reviews the IT evidence package before internal submission to confirm that:
 
 - No personally identifiable information about individual employees is included.
-- No incident detail that could create legal exposure is included in the submission.
+- No incident detail that could create legal exposure is included in the internal submission.
 - The package accurately represents the organization's compliance position.
 
 ### 2.4 CIO sign-off
@@ -74,20 +75,20 @@ The CIO provides sign-off on the completed IT evidence package, confirming that 
 
 ### 3.1 Annual trigger
 
-The AEO IT self-assessment is conducted annually. The HMRC submission window is typically in Q4 of the calendar year, subject to annual confirmation from the AEO Compliance function.
+The AEO IT self-assessment is conducted annually. The AEO Compliance function sets the internal submission deadline each year; a submission window or deadline set by HMRC is not confirmed by a held source.
 
 ### 3.2 Timeline
 
-| Milestone | Target Timing (relative to HMRC submission deadline) | Responsible Party |
+| Milestone | Target Timing (relative to the internal submission deadline) | Responsible Party |
 |---|---|---|
-| AEO Compliance function confirms submission deadline and any updated HMRC guidance | By T-100 days | AEO Compliance function |
+| AEO Compliance function confirms internal submission deadline and any updated HMRC guidance | By T-100 days | AEO Compliance function |
 | CISO initiates IT evidence collection; assigns tasks to technical teams | T-90 days | CISO |
 | Technical teams complete evidence collection for all eight IT control areas | T-60 days | Technical teams (assigned by CISO) |
 | CISO reviews all collected evidence; requests remediation of gaps | T-50 days | CISO |
 | Legal review of IT evidence package for data protection and legal exposure | T-30 days | Legal |
 | CIO sign-off on IT evidence package | T-20 days | CIO |
 | IT evidence package delivered to AEO Compliance function | T-10 business days | CISO |
-| HMRC submission deadline | T-0 | AEO Compliance function |
+| Internal submission deadline | T-0 | AEO Compliance function |
 
 ---
 
@@ -180,14 +181,14 @@ Governing documents: [`governance/standard-records-retention-and-destruction.md`
 
 The CISO assembles all collected evidence items into the IT evidence package. The package must:
 
-- Use a consistent format with a cover sheet identifying the organization, assessment date, CISO name (role only in the submission version), and submission date.
+- Use a consistent format with a cover sheet identifying the organization, assessment date, CISO name (role only in the internal submission version), and internal submission date.
 - Include a table of contents listing each IT control area and the evidence items included.
 - Clearly label each evidence item with the control area it supports and the date of the evidence.
 - Include a CISO attestation statement confirming that the evidence accurately represents the state of IT controls as of the assessment date.
 
 ### 5.2 Anonymization and summarization requirements
 
-The IT evidence package submitted to HMRC must not contain:
+The IT evidence package, which the AEO Compliance function may make available for HMRC during the audit of the AEO criteria (section 11.1), must not contain:
 
 - Individual employee names, usernames, or identifiers.
 - Individual incident descriptions, affected system names, or vulnerability detail.
@@ -210,42 +211,42 @@ The IT evidence package is subject to the following sequential review and sign-o
 
 ## 7. Handoff to AEO compliance function
 
-The CISO delivers the completed, reviewed, and CIO-signed IT evidence package to the AEO Compliance function at least 10 business days before the HMRC submission deadline.
+The CISO delivers the completed, reviewed, and CIO-signed IT evidence package to the AEO Compliance function at least 10 business days before the internal submission deadline.
 
 Delivery is accompanied by a short briefing note summarizing:
 
 - Any control areas where evidence indicates a gap or weakness.
-- Any material changes to IT controls since the previous AEO submission.
-- Any recommendations for how the AEO Compliance function should present the IT evidence in the context of the overall submission.
+- Any material changes to IT controls since the previous AEO-S self-assessment.
+- Any recommendations for how the AEO Compliance function should present the IT evidence in the context of the overall AEO-S self-assessment.
 
-The AEO Compliance function is responsible for integrating the IT evidence package into the overall AEO-S self-assessment submission and for managing the submission to HMRC.
+The AEO Compliance function is responsible for integrating the IT evidence package into the organization's overall AEO-S self-assessment and for making it available for HMRC during the audit of the AEO criteria (section 11.1).
 
 ---
 
-## 8. Post-submission: retention of IT evidence package
+## 8. After internal submission: retention of IT evidence package
 
-The CISO retains a complete copy of the IT evidence package as submitted (the version integrated into the HMRC submission) for a minimum of 7 years from the date of submission. Retention is managed in accordance with [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md).
+The CISO retains a complete copy of the IT evidence package as submitted to the AEO Compliance function (the version integrated into the organization's AEO-S self-assessment) for a minimum of 7 years from the date of internal submission. Retention is managed in accordance with [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md).
 
 The retained package must include:
 
-- All evidence items as submitted.
+- All evidence items as submitted to the AEO Compliance function.
 - The CISO attestation statement.
 - The CIO sign-off record.
 - The Legal review confirmation.
-- The date of submission to the AEO Compliance function.
+- The date of internal submission to the AEO Compliance function.
 
 ---
 
 ## 9. HMRC audit response
 
-If HMRC requests follow-up information or conducts an audit of the IT elements of the AEO-S submission, the CISO coordinates the response.
+If HMRC requests follow-up information on the IT elements of the organization's AEO-S self-assessment, or verifies their documentation during the AEO audit (section 11.3), the CISO coordinates the response.
 
 ### 9.1 Response process
 
 1. The AEO Compliance function notifies the CISO of the HMRC follow-up request, including the specific IT elements queried and the deadline for response.
 2. The CISO reviews the query and determines whether the response can be provided from the retained evidence package or whether additional evidence must be gathered.
-3. The CISO prepares the IT response, applies the same anonymization and summarization rules as for the original submission, and submits the response to the AEO Compliance function for transmission to HMRC within the agreed timeline.
-4. Legal reviews the response before submission if it addresses incidents, vulnerabilities, or control gaps in more detail than the original submission.
+3. The CISO prepares the IT response, applies the same anonymization and summarization rules as for the original internal submission, and submits the response to the AEO Compliance function for transmission to HMRC within the agreed timeline.
+4. Legal reviews the response before it goes to the AEO Compliance function if it addresses incidents, vulnerabilities, or control gaps in more detail than the original internal submission.
 
 ### 9.2 Timeline
 
@@ -259,7 +260,7 @@ The CISO aims to provide the IT response to the AEO Compliance function within 1
 
 | Document | Relevance |
 |---|---|
-| [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md) | Defines the eight IT control areas and their mapping to AEO-S requirements; primary reference for evidence collection |
+| [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md) | Defines the eight IT control areas and the organization's mapping of them to its AEO-S scoping; primary reference for evidence collection |
 | [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md) | Governs the overall compliance and audit programme; CAPA management |
 | [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md) | Confirms AEO-S as an applicable regulatory obligation |
 | [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md) | Access control evidence source |
@@ -279,8 +280,8 @@ The CISO aims to provide the IT response to the AEO Compliance function within 1
 
 | Framework / Authority | Relevance |
 |---|---|
-| UK HMRC AEO / AEO-S guidance | Defines AEO-S criteria and self-assessment obligations; primary regulatory driver for this procedure |
-| WCO SAFE Framework (2025 edition), Annex IV element F (Information Exchange, Access and Confidentiality) | AEO condition that the operator has a documented information security policy and procedures or security-related controls protecting its electronic systems from unauthorized access, and procedures and back-up capabilities against the loss of information; this self-assessment evidences that operator condition (§2.6.6 ICT Security, under Pillar 1 Standard 6, sets the Customs administration's own ICT security strategy, not the operator's); the Framework is the international basis of the HMRC AEO-S programme |
+| UK HMRC AEO / AEO-S guidance | Sets the AEO-S security and safety criteria (UK HMRC AEO security and safety criteria handbook, section 11), which name no periodic self-assessment submission (see section 1.1); primary regulatory driver for this procedure |
+| WCO SAFE Framework (2025 edition), Annex IV element F (Information Exchange, Access and Confidentiality) | AEO condition that the operator has a documented information security policy and procedures or security-related controls protecting its electronic systems from unauthorized access, and procedures and back-up capabilities against the loss of information; this self-assessment evidences that operator condition (§2.6.6 ICT Security, under Pillar 1 Standard 6, sets the Customs administration's own ICT security strategy, not the operator's); the WCO AEO Compendium (2020) lists the United Kingdom's programme, then reported as the European Union programme, among AEO programmes based on the Framework, and the current HMRC AEO-S programme's relationship to the Framework is not confirmed by a held source |
 | ISO/IEC 27001:2022 §9.1 | Monitoring and measurement of information security controls; provides the methodology for assessing and evidencing control effectiveness used in Sections 4 and 5 |
 
 ---

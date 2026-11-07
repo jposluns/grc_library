@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Planning Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.15\
-**Date:** 2026-10-13\
+**Version:** 1.0.16\
+**Date:** 2026-11-06\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -113,7 +113,7 @@ The following external-assurance and regulatory requirements drive the minimum a
 | Assurance scope / Requirement | Minimum Internal Audit Frequency | Domains / Scope Items |
 |-----------------------------|-----------------------------------|-----------------------|
 | BASC Certification | Annual | BASC programme scope |
-| AEO-S (Authorized Economic Operator to Security) | Annual | AEO-S IT control scope |
+| AEO-S (Authorized Economic Operator Security and Safety) | Organization-set (annual; the held HMRC criteria, handbook section 11, set no audit cycle) | AEO-S IT control scope |
 | ISO/IEC 27001:2022 ISMS | Annual | ISMS scope |
 | SOC 2 Type II | Organization-set (commonly annual) | SOC 2 Trust Services Criteria scope |
 | CCPA cybersecurity audit (US California; 11 CCR ss. 7120 to 7124) | Annual | Businesses whose processing presents significant risk to consumers' security (s. 7120(b)) |

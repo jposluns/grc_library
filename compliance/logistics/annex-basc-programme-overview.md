@@ -2,8 +2,8 @@
 
 **Document Title:** BASC Programme Overview Annex\
 **Document Type:** Annex\
-**Version:** 1.1.3\
-**Date:** 2026-09-01\
+**Version:** 1.1.4\
+**Date:** 2026-11-06\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`compliance/logistics/policy-basc-information-security.md`](policy-basc-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This annex provides the programme overview for organizations that pursue or maintain Business Alliance for Secure Commerce (BASC) certification. BASC is an international supply-chain security programme widely adopted in Latin American trade and logistics operations and recognized within the World Customs Organization (WCO) SAFE Framework as a trade-security partnership programme analogous to CTPAT (United States), AEO (United Kingdom and other jurisdictions), PIP (Canada), and similar programmes.
+This annex provides the programme overview for organizations that pursue or maintain Business Alliance for Secure Commerce (BASC) certification. BASC is a private supply-chain security certification run by the World BASC Organization (WBO), a member-led business organization, and is widely adopted in Latin American trade and logistics operations. By BASC's own account, its International Norm V6-2022 is meant to help a company implement and complement programmes such as CTPAT and the Authorized Economic Operator (AEO) (clause 1.1 e), and it lists the World Customs Organization (WCO) Framework of Standards among its normative references (clause 2). In clause 0.1 (Prologue) of the same Norm, BASC states that it has cooperation agreements with 22 business and customs organizations, the WCO among them. That cooperation agreement is BASC's own account and does not by itself establish recognition: BASC is not recorded in the WCO SAFE Framework (2025 edition), and recognition of BASC by the WCO is not confirmed by a held source.
 
 Content here is sector-conditional. Organizations that do not pursue BASC certification can ignore this annex entirely.
 

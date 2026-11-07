@@ -2,7 +2,7 @@
 
 **Document Title:** UK AEO-S IT and Cybersecurity Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-11-06\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -18,27 +18,26 @@
 
 ## Purpose
 
-The UK Authorised Economic Operator (AEO) programme, administered by HMRC and Border Force, grants recognized trade facilitation benefits to businesses that meet defined security and safety standards. AEO-S (Security and Safety) specifically requires documented security controls covering IT systems, access controls, personnel security, and cybersecurity. This annex defines the organization's IT and cybersecurity controls relevant to AEO-S compliance and maps them to the corresponding GRC library documents.
+In the UK Authorized Economic Operator (AEO) programme, HMRC tests applicants against the security and safety criteria (UK HMRC AEO security and safety criteria handbook, section 11.1). That Border Force administers the programme is not confirmed by a held source, and the trade facilitation benefits the programme grants are not recorded in the handbook's section 11. The WCO AEO Compendium (2020) United Kingdom entry lists no benefits and names its programme "AEO (European Union Programme)"; the benefits the Compendium's European Union entry lists under the Union Customs Code are not confirmed for the current UK programme. Confirm both with HMRC before relying on them. Under the AEO-S (Authorized Economic Operator Security and Safety) criteria, the applicant's procedures are to be documented and made available for HMRC during the audit of the AEO criteria (section 11.1), its security and safety risk assessment is to address, among other areas, its computer system, accounting records and documents (section 11.2), and it must be able to produce documentation showing the measures and controls it has put in place (section 11.3). The handbook's section 11 does not name cybersecurity or IT security controls; this annex treats the IT and cybersecurity controls below as the organization's own scoping of those criteria, to be confirmed with HMRC. This annex defines the organization's IT and cybersecurity controls relevant to AEO-S compliance and maps them to the corresponding GRC library documents.
 
 ---
 
 ## AEO programme context
 
-AEO status is granted by HMRC under the UK's implementation of the World Customs Organization (WCO) SAFE Framework of Standards. AEO-S requires that an applicant demonstrates adequate security standards across:
+AEO status is granted by HMRC. The WCO AEO Compendium (2020) lists the United Kingdom among the operational AEO programmes of its Part I, which it describes as AEO programmes based on the WCO SAFE Framework of Standards, and gives the UK programme's title then as "AEO (European Union Programme)"; the current UK programme's relationship to the Framework is not confirmed by a held source. HMRC's AEO-S security and safety criteria (UK HMRC AEO security and safety criteria handbook, section 11) cover, among other areas:
 
-- Physical and access security
-- Personnel security
-- Business partners
-- Information systems security
-- Documentation security
+- Physical and access security (sections 11.5, 11.6 and 11.8 to 11.10)
+- Personnel security (section 11.7)
+- Business partners and external service providers (sections 11.13 and 11.14)
+- The computer system, accounting records and documents, as areas the security and safety risk assessment is to address (section 11.2)
 
-This document addresses information systems security only. All other AEO-S domains are outside IT scope and are governed by the relevant operational and compliance functions.
+This document addresses only the organization's IT and cybersecurity scoping of the computer system area, of personnel screening for IT access (section 11.7) and of records retention, which it scopes from the accounting records and documents area (section 11.2; section 11 does not name retention); section 11 does not name information systems security as a criterion of its own. All other AEO-S areas are outside IT scope and are governed by the relevant operational and compliance functions.
 
 ---
 
-## IT and cybersecurity controls mapping for AEO-s
+## IT and cybersecurity controls mapping for AEO-S
 
-| AEO-S Requirement | IT Control | Governing GRC Document(s) |
+| Control Objective (the organization's AEO-S scoping, not HMRC text) | IT Control | Governing GRC Document(s) |
 | --- | --- | --- |
 | Access to IT systems is restricted to authorized personnel | Conditional Access (enterprise identity provider); MFA; PAM; role-based access provisioning | [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md); [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md); [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md) |
 | IT systems used for customs and trade operations are protected from unauthorized access and modification | Network segmentation; endpoint protection; change management controls | [`operations/standard-network-security-and-segmentation.md`](../../operations/standard-network-security-and-segmentation.md); [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md); [`operations/standard-production-security-requirements.md`](../../operations/standard-production-security-requirements.md) |
@@ -51,9 +50,9 @@ This document addresses information systems security only. All other AEO-S domai
 
 ---
 
-## Self-assessment obligation
+## Organization's AEO self-assessment
 
-AEO-S requires periodic self-assessment against HMRC AEO criteria. The IT elements of the self-assessment are coordinated by the CISO and completed as part of the annual GRC programme review. The CISO provides documented evidence of IT control effectiveness to the AEO Compliance function for inclusion in the overall AEO self-assessment submission.
+The held HMRC criteria name no periodic self-assessment or self-assessment submission. The only self-assessment section 11 names is the one in section 11.2, on the security and safety risk assessment, to be carried out by a person with extensive knowledge of the risks and threats applicable to the type of business, and under section 11.3 the documentation of the measures and controls is verified during the AEO audit. The organization's annual AEO self-assessment is its own schedule, to be confirmed with HMRC. The IT elements of the self-assessment are coordinated by the CISO and completed as part of the annual GRC programme review. The CISO provides documented evidence of IT control effectiveness to the AEO Compliance function, which integrates it into the organization's overall AEO self-assessment and makes it available for HMRC during the audit of the AEO criteria (section 11.1).
 
 ---
 

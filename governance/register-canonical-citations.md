@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.6.20\
-**Date:** 2026-11-05\
+**Version:** 1.6.21\
+**Date:** 2026-11-06\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -259,7 +259,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
 | UK GDPR | 2018 (DPA 2018) as amended by Data (Use and Access) Act 2025 (c. 18), royal assent 19 June 2025; main data-protection provisions commenced 5 February 2026 (Commencement No. 6 Regulations 2026) | 2018 | UK General Data Protection Regulation (retained EU GDPR as amended by the Data Protection Act 2018 and the Data (Use and Access) Act 2025) | - | https://www.legislation.gov.uk/eur/2016/679/contents | 2026-06-30 |
-| Brazil LGPD | 2018 (in force 2020) | 2018 | Lei Geral de Proteção de Dados | - | https://www.gov.br/anpd/pt-br/centrais-de-conteudo/outros-documentos-e-publicacoes-institucionais/lgpd-en-lei-no-13-709-capa.pdf | verified 2026-07-09 |
+| Brazil LGPD | 2018 (in force 2020) | 2018 | Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709, de 14 de agosto de 2018) | - | https://www.gov.br/anpd/pt-br/centrais-de-conteudo/outros-documentos-e-publicacoes-institucionais/lgpd-en-lei-no-13-709-capa.pdf | verified 2026-07-09 |
 | Resolution CD/ANPD No. 15/2024 | 2024 | 2024-04-26 | ANPD Security Incident Communication Regulation (RCIS): 3-business-day breach notification to the ANPD and data subjects, staged communication, doubled deadlines for small-scale agents (the resolution is enacted "de 24 de abril de 2024"; this column records the later DOU publication date) | - | https://www.gov.br/anpd/pt-br/canais_atendimento/agente-de-tratamento/comunicado-de-incidente-de-seguranca-cis | 2026-07-07 |
 | Resolution CD/ANPD No. 18/2024 | 2024 | 2024-07-17 | ANPD Regulation on the activities of the encarregado (Data Protection Officer): appointment, definition, attributions, and performance of the encarregado under LGPD Article 41 (enacted 16 July 2024; this column records the DOU publication date) | - | https://www.gov.br/anpd/pt-br/acesso-a-informacao/institucional/atos-normativos/regulamentacoes_anpd | verified 2026-07-13 |
 | Resolution CD/ANPD No. 4/2023 | 2023 | 2023-02-27 | ANPD Regulation on Dosimetry and Application of Sanctions: the parameters and criteria for calculating the base value of a fine sanction and applying the LGPD Article 52 administrative sanctions; amended the fiscalization-and-sanctioning-process regulation approved by Resolution CD/ANPD No. 1/2021 (enacted 24 February 2023; DOU-published 27 February 2023, the date in the Publication column) | - | https://www.gov.br/anpd/pt-br/acesso-a-informacao/institucional/atos-normativos/regulamentacoes_anpd | verified 2026-07-13 |
