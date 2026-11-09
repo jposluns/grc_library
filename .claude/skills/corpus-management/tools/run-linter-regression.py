@@ -5,8 +5,9 @@ The audit programme's linter regression test suite gate invokes this
 script (a gate in the inventory; its number is maintained in
 ``.claude/skills/corpus-management/specs/specification-audit-programme.md`` §6 and is not repeated
 here, because gate numbers shift when a gate is inserted). It exists so
-that all four audit-programme surfaces (spec inventory, workflow,
-runner, pre-commit hook) can reference the same ``.claude/skills/corpus-management/tools/X.py`` shape
+that the 3 audit-programme surfaces that hold this gate (spec inventory,
+runner, pre-commit hook; the workflow holds only the section 4 CI subset,
+which excludes it) can reference the same ``.claude/skills/corpus-management/tools/X.py`` shape
 that the gate-name parity linter expects.
 
 Discovers every top-level ``.claude/skills/corpus-management/tests/test_*.py`` file itself (sorted by
@@ -219,7 +220,9 @@ its one extra, last line.
 Exit code is otherwise forwarded from unittest: 0 if all tests pass,
 non-zero on failure (1 when unittest reports a failure or an error).
 
-CI sharding (maintainer directive 2026-11-04, the 3b789 gate 36 split):
+Shard mode (maintainer directive 2026-11-04, the 3b789 gate 36 split;
+since the maintainer decision of 2026-11-09 only the pre-push guard's
+local shards use it):
 ``--shard I/K`` runs one deterministic slice of the same suite, and
 ``--verify-shards K`` checks the slicing without running a test. A UNIT
 is a maximal run of consecutive occurrences of one class object within
@@ -256,15 +259,16 @@ whose loaded suite holds the started occurrence, exactly as in the
 full run. The parent refuses a sentinel whose module names are not
 exactly the handed modules, whose per-module counts do not sum to its
 ``credited`` total, or whose ``credited`` exceeds ``testsRun``; and,
-when the ``GITHUB_OUTPUT`` environment file is set (a GitHub Actions
-step), it appends the counts as a ``credited`` multi-line step output
+when the ``GITHUB_OUTPUT`` environment file is set (the GitHub Actions
+step-output file, which the pre-push guard points at a per-shard
+file), it appends the counts as a ``credited`` multi-line step output
 of block-style ``module: count`` lines (refusing, exit 2, when that
-file cannot be written), so each CI shard job publishes its counts as
-a job output. The sentinel and the outputs also carry two digests
+file cannot be written), so each shard publishes its counts as step
+outputs. The sentinel and the outputs also carry two digests
 (``unit_set_digest``): ``unitset``, the sha256 of the TOTAL unit list
 the shard's own suite load found, and ``selection``, that of its
 selected units, published as the ``units_sha256`` and
-``selected_sha256`` outputs. The CI summary job's reconcile step
+``selected_sha256`` outputs. The reconcile step
 (.claude/skills/corpus-management/tools/reconcile-regression-shards.py) sums the counts across all
 shards and fails when any discovered module's total is zero, restoring
 before merge the serial runner's refusal of a module with no credited
@@ -272,17 +276,21 @@ start, and fails unless every shard's ``units_sha256`` is the same, so
 two runners that discovered different suites cannot pass as one
 partition; a shard output that is missing, malformed, or naming a
 module set other than the on-disk .claude/skills/corpus-management/tests/test_*.py files is a refusal
-there, never a pass. The pre-push guard (.claude/skills/corpus-management/tools/pre-push-guard.sh) runs
-the same K shards locally, each in its own temporary detached checkout
+there, never a pass. No workflow runs shards now: the quality
+workflow's 1 small GitHub job runs only the section 4 CI subset of
+gates and the delta gates, and the full suite, gate 36 whole included,
+runs on the local server for the local-quality commit status and in
+the nightly sweep. The pre-push guard (.claude/skills/corpus-management/tools/pre-push-guard.sh) runs
+the K shards locally, each in its own temporary detached checkout
 with ``GITHUB_OUTPUT`` pointed at a per-shard file, and reconciles
 those files with ``reconcile-regression-shards.py --shard-outputs``.
 Residuals specific to shard mode, beyond the full run's: within one
 shard the zero-credited refusal is for the shard as a whole (at least
 one credited start anywhere in it); the per-module rule is enforced
 across shards by the reconcile step, so it holds only where that step
-runs (CI's summary job and the pre-push guard; the plain run, which
-.claude/skills/corpus-management/tools/run_all_audits.sh and the pre-commit hook still invoke, keeps
-the serial per-module rule). Two units of one class object
+runs (the pre-push guard's local shards; the plain run, which
+.claude/skills/corpus-management/tools/run_all_audits.sh, the nightly sweep's command, and the
+pre-commit hook invoke, keeps the serial per-module rule). Two units of one class object
 that land in one shard with nothing between them run under one
 ``setUpClass`` where the whole suite sets the class up twice (the
 standard loader yields one unit per class, so no current module is
@@ -315,7 +323,7 @@ from pathlib import Path
 SUITE_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
-# Shard-mode constants (see the docstring's CI-sharding section). The weights
+# Shard-mode constants (see the docstring's shard-mode section). The weights
 # file is committed, measured data from .claude/skills/corpus-management/tools/measure-regression-timings.py;
 # a unit it does not name gets DEFAULT_UNIT_WEIGHT, and no effective weight
 # falls below MINIMUM_UNIT_WEIGHT, so a crowd of unmeasured units still
@@ -782,10 +790,11 @@ def main(repo_root: Path = SUITE_ROOT, popen=subprocess.Popen) -> int:
 
 
 # ----------------------------------------------------------------------
-# CI sharding (the docstring's CI-sharding section). The pure selection
+# Shard mode (the docstring's shard-mode section). The pure selection
 # functions below are the single source of truth: the parent, the shard
 # child driver (which loads this file by path) and the tests all call
-# them, so the slicing CI runs is the slicing the tests exercise.
+# them, so the slicing the pre-push guard's local shards run is the
+# slicing the tests exercise.
 # ----------------------------------------------------------------------
 
 
@@ -1099,7 +1108,7 @@ not_started_by_unit = dict.fromkeys(selected, 0)
 credited = 0
 # Per-module credited starts, over EVERY handed module (zero stays zero for
 # a module none of this shard's units came from), so the sentinel reports a
-# complete per-module row the CI summary can sum across shards.
+# complete per-module row the reconcile step can sum across shards.
 credited_by_module = dict.fromkeys(modules, 0)
 class ShardResult(unittest.TextTestResult):
     def __init__(self, *args, **kwargs):
@@ -1194,8 +1203,8 @@ sys.exit(0 if result.wasSuccessful() else 1)
 
 # The shard run's completion sentinel and verify mode's selection sentinel.
 # The credited tail mirrors the plain sentinel's per-module counts: credited
-# starts for EVERY handed module (zero allowed), summed by the CI summary's
-# reconcile step across shards.
+# starts for EVERY handed module (zero allowed), summed by the reconcile
+# step across shards.
 _SHARD_SENTINEL = re.compile(
     r"^REGRESSION-SHARD-RESULT (?P<nonce>[0-9a-f]{32}) "
     r"shard=(?P<index>\d+)/(?P<count>\d+) testsRun=(?P<ran>\d+) "
@@ -1333,8 +1342,8 @@ def _write_credited_output(counts: dict[str, int],
     per-module credited counts and the two unit-list digests.
 
     No-op (None) when GITHUB_OUTPUT is unset or empty. Returns a refusal
-    message when the file cannot be written: in CI (and in the pre-push
-    guard's local shards) the outputs ARE the shard's contribution to the
+    message when the file cannot be written: in the pre-push guard's
+    local shards the outputs ARE the shard's contribution to the
     per-module reconciliation and unit-set agreement, so losing them
     silently would hollow those checks out. ``credited`` is block-style
     ``module: count`` lines, every handed module present (zero allowed),
@@ -1414,8 +1423,8 @@ def verify_shards_main(count: int, repo_root: Path = SUITE_ROOT,
 
 def cli(argv: list[str] | None = None) -> int:
     """Dispatch: no argument runs the whole gate, as every runner surface
-    invokes it; ``--shard I/K`` and ``--verify-shards K`` are the CI shard
-    modes. Anything else is a refusal (exit 2), never a silent full run."""
+    invokes it; ``--shard I/K`` and ``--verify-shards K`` are the shard
+    modes the pre-push guard's local shards use. Anything else is a refusal (exit 2), never a silent full run."""
     argv = list(sys.argv[1:] if argv is None else argv)
     if not argv:
         return main()

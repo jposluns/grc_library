@@ -2,8 +2,8 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.53\
-**Date:** 2026-10-30\
+**Version:** 1.1.54\
+**Date:** 2026-11-09\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-glossary.md`](register-glossary.md), [`README.md`](../README.md), [`.working/TODO.md`](../.working/TODO.md)\
@@ -223,7 +223,7 @@ The library is cloud-provider-agnostic. Provider-specific guidance is recorded a
 | Classical ML adversarial taxonomy (evasion, poisoning, extraction, inference) | Substantive | In library | n/a | [`standard-ai-model-risk.md`](../ai/standard-ai-model-risk.md) §3.5 restructured into 6 subsections covering ART/AIJack/HEART-equivalent threats |
 | Citation verification methodology and freshness governance | Substantive | In library | n/a | [`specification-citation-verification.md`](specification-citation-verification.md); [`register-canonical-citations.md`](register-canonical-citations.md); [`lint-citation-verification-freshness.py`](../.claude/skills/corpus-management/tools/lint-citation-verification-freshness.py); [`lint-tooling-provenance-freshness.py`](../.claude/skills/corpus-management/tools/lint-tooling-provenance-freshness.py) |
 | AI security tooling landscape (curated index) | Substantive | In library | n/a | [`register-ai-security-tooling-landscape.md`](register-ai-security-tooling-landscape.md) with 55 entries across 9 categories, per-entry Provenance blocks |
-| Audit programme (automated linting and conformance) | Substantive | In library | n/a | Audit programme running in CI on every PR (see [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](../.claude/skills/corpus-management/specs/specification-audit-programme.md) §6 for the canonical gate inventory and current gate count); coverage spans metadata integrity, language and style, reference integrity, content-drift defence, programme and index integrity, security and privacy, and freshness and lifecycle (see specification §5 for the functional categorization and §6 for the per-gate detail) |
+| Audit programme (automated linting and conformance) | Substantive | In library | n/a | The full gate suite runs on every PR in the `local-quality` run, and a subset of 12 of those gates runs in the GitHub pull-request job (see [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](../.claude/skills/corpus-management/specs/specification-audit-programme.md) §6 for the canonical gate inventory and current gate count); coverage spans metadata integrity, language and style, reference integrity, content-drift defence, programme and index integrity, security and privacy, and freshness and lifecycle (see specification §5 for the functional categorization and §6 for the per-gate detail) |
 | MCP server security | Substantive | In library | n/a | Throughout AI domain; MCP-SEC-01 to 10 in agentic standard; [`register-mcp-server.md`](../ai/register-mcp-server.md); Lasso MCP Gateway pattern referenced |
 | Generative AI specifically | Substantive | In library | n/a | Heavy coverage in AI domain |
 | Synthetic data governance | Referenced | Deferred | n/a | Touched in AI data governance; could be dedicated |

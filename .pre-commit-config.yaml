@@ -7,11 +7,12 @@
 # runner) with no third-party dependencies. Hooks mirror the audit
 # programme defined in:
 #
-#   - .github/workflows/quality.yml (CI source of truth)
+#   - .github/workflows/quality.yml (runs only the pull-request CI subset)
 #   - .claude/skills/corpus-management/tools/run_all_audits.sh (local single-command equivalent)
-#   - .claude/skills/corpus-management/specs/specification-audit-programme.md (architecture spec)
+#   - .claude/skills/corpus-management/specs/specification-audit-programme.md (source of truth)
 #
-# When a new audit is added to quality.yml, add the same hook here.
+# Every section 6 gate must have a hook here, whether or not quality.yml
+# runs it (quality.yml runs only the section 4 ci-pr-subset gates).
 
 repos:
   - repo: local

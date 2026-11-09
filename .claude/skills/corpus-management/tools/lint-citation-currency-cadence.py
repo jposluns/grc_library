@@ -8,7 +8,7 @@ of the source-currency mechanism: it reads that recorded date and warns when a
 source has drifted past its per-trust-tier re-check window. It performs pure
 date arithmetic on the recorded field; it makes NO network request (that is the
 deferred, egress-required Layer B, a separate scheduled sweep, never this
-read-only lint CI).
+read-only gate).
 
 It is the TIME axis of citation currency, complementing the two existing gates:
 ``lint-standards-currency.py`` fires on a cited SUPERSEDED version (the version
@@ -24,9 +24,9 @@ own "Version-currency cadence (advisory, not a gate)" note explains that a HARD
 gate would fail whenever egress is blocked, an environment condition rather than
 a defect. That reasoning still binds here: a row goes stale precisely because the
 maintainer could not re-check it upstream (often because egress was unavailable),
-so failing CI on staleness would penalize an environment condition. This gate
-therefore prints its findings and ALWAYS exits 0; it surfaces drift in the CI log
-without blocking a merge. Flipping any tier (or the whole gate) to FAIL is a
+so failing the gate run on staleness would penalize an environment condition.
+This gate therefore prints its findings and ALWAYS exits 0; it surfaces drift in
+the local-quality and nightly sweep logs without blocking a merge. Flipping any tier (or the whole gate) to FAIL is a
 one-line change once the maintainer confirms the policy and an egress-aware
 exemption path.
 
@@ -103,8 +103,8 @@ DUE_SOON_DAYS = 21
 # invocation path of this script cannot switch the echo off. The token is random
 # per gate run, so no data a gate prints can forge the line, as a record ID that
 # holds the marker text could in gate 93's WARN lines. With the variable unset or
-# empty (a direct run, the pre-commit hook, the quality.yml gate step) the line is
-# not printed. The line holds no WARN, NOTE or DUE-SOON, so no count or grep of
+# empty (a direct run or the pre-commit hook; the GitHub pull-request job does
+# not run this gate) the line is not printed. The line holds no WARN, NOTE or DUE-SOON, so no count or grep of
 # those tags sees it.
 RUNNER_ECHO_MARKER = (
     "runner-echo: .claude/skills/corpus-management/tools/run_all_audits.sh shows this gate's advisory lines on a pass"

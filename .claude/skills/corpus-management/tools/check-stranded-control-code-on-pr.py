@@ -22,7 +22,8 @@ guards below (base trigger ~16 qualifying events / 80 commits).
 TEMPLATE. Architecturally a sibling of D9 (check-retired-section-orphan-on-pr.py):
 deletion-triggered, merge-base-diffed, anchored-form matching, FP guards, a
 `StrandedCode:` commit-trailer opt-out (D9's SectionRef mechanism verbatim), an
-inline `--self-test`, wired into the pre-push runner and quality.yml PR event.
+inline `--self-test`, wired into the pre-push runner and the 1 pull_request
+job of quality.yml.
 
 RESIDUE (what D13 does NOT establish). It is deletion-triggered and same-document
 only. It cannot see (i) a body cite wrong from birth (no table change to trigger

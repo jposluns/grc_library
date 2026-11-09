@@ -2,9 +2,9 @@
 #
 # run_all_audits.sh
 #
-# Single-command audit runner. Executes every linter and generator-check
-# that is also wired into .github/workflows/quality.yml, in the same order
-# the CI workflow runs them. Exits non-zero on the first failure (FAIL_FAST
+# Single-command audit runner. Executes every section 6 linter and
+# generator-check in section 6 order; .github/workflows/quality.yml runs
+# only the section 4 CI subset of them. Exits non-zero on the first failure (FAIL_FAST
 # mode) or aggregates all failures (default).
 #
 # Usage:
@@ -12,21 +12,22 @@
 #   FAIL_FAST=1 .claude/skills/corpus-management/tools/run_all_audits.sh  # stop on first failure
 #
 # Rationale: this script is the single deterministic invocation of the FULL
-# sweep, every gate included. Since the gate-36 CI fast track (maintainer
+# sweep, every gate included. Since the gate 36 fast track (maintainer
 # directives 2026-11-04 and 2026-11-05), a push no longer runs this script
 # itself: the pre-push guard runs every gate here except the linter
 # regression test suite (gate 36) one by one, then, on its full path, gate 36
 # whole as six parallel local shards with the private store present (its
-# site-only fast path leaves gate 36 to CI, which runs it sharded with a
-# summary reconcile before merge), and it falls back to this whole script
-# only when it cannot read the gate list. The nightly sweep and manual full
-# runs still invoke this script whole, gate 36 included.
+# site-only fast path leaves gate 36 to the local server run behind the
+# local-quality commit status that merge requires), and it falls back to
+# this whole script only when it cannot read the gate list. The nightly
+# sweep and manual full runs still invoke this script whole, gate 36
+# included.
 # The current sweep covers the full corpus inventory; see
 # .claude/skills/corpus-management/specs/specification-audit-programme.md section 6 for the
 # canonical inventory and current gate count.
 #
-# Keep this list in lock-step with .github/workflows/quality.yml. If a new
-# audit is added to the CI workflow, add the same step here. The
+# This list must hold every section 6 gate, as .pre-commit-config.yaml
+# does; .github/workflows/quality.yml holds only the CI subset. The
 # specification-audit-programme.md document defines the authoritative
 # audit-programme architecture.
 
@@ -130,7 +131,8 @@ echo "Running full audit programme (${REPO_ROOT})"
 echo ""
 
 # ----------------------------------------------------------------------
-# Markdown linters (sub-group of the corpus gates). Order mirrors quality.yml.
+# Markdown linters (sub-group of the corpus gates). Order follows section 6;
+# quality.yml runs its CI subset in the same order.
 # ----------------------------------------------------------------------
 run_gate "Metadata audit"                                python3 .claude/skills/corpus-management/tools/lint-metadata.py
 # Gate 2 checks the whole root .working/CHANGELOG.md through its default scope.
@@ -177,11 +179,12 @@ run_gate "Machine-readable taxonomy in sync"             python3 .claude/skills/
 run_gate "Adopter portal and maturity scorecard in sync" python3 .claude/skills/corpus-management/tools/build-portal.py --check
 
 # ----------------------------------------------------------------------
-# Self-parity gate (1 gate). Validates that the audit programme's four
-# surfaces (spec inventory, workflow, this runner, pre-commit hook) all
-# declare the same gates with the same names and scripts in the same
-# order. See .claude/skills/corpus-management/specs/specification-audit-programme.md section 3
-# principle 5 for the CI-parity rule this gate enforces.
+# Self-parity gate (1 gate). Validates that the spec inventory, this runner
+# and the pre-commit hook declare the same gates with the same names and
+# scripts in the same order, and that the workflow declares exactly the
+# section 4 CI subset, in the same order. See
+# .claude/skills/corpus-management/specs/specification-audit-programme.md section 3
+# principle 5 for the surface-parity rule this gate enforces.
 # ----------------------------------------------------------------------
 run_gate "Gate-name parity audit"                        python3 .claude/skills/corpus-management/tools/lint-audit-gate-parity.py
 

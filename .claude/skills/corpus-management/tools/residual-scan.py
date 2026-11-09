@@ -46,7 +46,8 @@ Behaviour:
 
 This is an aid, not a numbered audit gate: it has no fixed token vocabulary to
 gate on (the tokens are per-fix), so it cannot run unattended in CI. The
-authoritative gates still run in CI; this tool makes the close-out checklist's
+authoritative gates still run (the full suite on the local server and in the
+nightly sweep, the CI subset in the pull-request job); this tool makes the close-out checklist's
 bare-token and full-file-grep guards a deterministic step instead of a manual one.
 """
 

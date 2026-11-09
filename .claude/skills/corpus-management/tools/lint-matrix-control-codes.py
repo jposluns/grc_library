@@ -19,8 +19,8 @@ scope (MATRIX_PATH), a module-global scan_matrix(path) shim, lint_target, main, 
 the exit codes: 0 clean, 1 on findings, 2 when a target is missing, cannot be read as UTF-8, or
 holds no matrix table (a header row naming both the ISO/IEC 27001:2022 and NIST CSF 2.0 columns),
 since such a target selects nothing to check (P-TODO 3b57; no caller passes arbitrary filenames:
-pre-commit sets pass_filenames false, and quick-guard, run_all_audits.sh and CI run it with no
-arguments).
+pre-commit sets pass_filenames false, and quick-guard and run_all_audits.sh (the full suite, in
+the local-quality run and the nightly sweep) run it with no arguments).
 """
 
 from __future__ import annotations

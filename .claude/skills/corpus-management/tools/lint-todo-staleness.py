@@ -239,7 +239,8 @@ def main() -> int:
             all_findings.get(SWEEP_CURSOR_FILE, []) + cursor_findings
         )
     if degraded:
-        # 3b635: each skip above exits 0, so a green CI run must not read as a pass for them.
+        # 3b635: each skip above exits 0, so a green full-suite run must not read as a pass for
+        # them.
         print_degraded(
             "gate 45",
             f"gate 45 skipped {' and '.join(degraded)} (no private store "

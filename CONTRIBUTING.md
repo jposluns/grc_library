@@ -2,7 +2,7 @@
 
 **Document Title:** Contributing to the GRC Documentation Library\
 **Document Type:** Guideline\
-**Version:** 1.2.15\
+**Version:** 1.2.16\
 **Date:** 2026-11-09\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -59,7 +59,7 @@ The most common net-new artefact is an overlay for a sector or jurisdiction the 
    .claude/skills/corpus-management/tools/run_all_audits.sh
    ```
 
-   The script runs the full audit programme (every gate listed in [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](.claude/skills/corpus-management/specs/specification-audit-programme.md) §6) in the same order as CI. `FAIL_FAST=1 .claude/skills/corpus-management/tools/run_all_audits.sh` stops on first failure. The gates and tooling require Python 3.14 or newer, the version CI runs; the corpus documents themselves need no Python.
+   The script runs the full audit programme (every gate listed in [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](.claude/skills/corpus-management/specs/specification-audit-programme.md) §6) in section 6 order. `FAIL_FAST=1 .claude/skills/corpus-management/tools/run_all_audits.sh` stops on first failure. The gates and tooling require Python 3.14 or newer, the version CI runs; the corpus documents themselves need no Python.
 
    Optionally install pre-commit to run the audit programme automatically on every commit:
 
@@ -73,7 +73,7 @@ The most common net-new artefact is an overlay for a sector or jurisdiction the 
 4. **Update the index and domain README.** Every new active document must appear in [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) and in its domain's [`README.md`](README.md) Active Documents table. If the change adds, moves, or retitles a document or edits its Related Documents, also run `python3 .web/build.py` and commit the refreshed [`.web/corpus-link-manifest.md`](.web/corpus-link-manifest.md), the generated list of every corpus target the public website links; do not edit it by hand.
 5. **Bump versions appropriately.** Patch (`x.y.z` increments the patch segment) for corrections; minor (`x.y.0`) for additive changes, including substantive content additions and policy revisions that add a requirement or permission; major (`x.0.0`) for breaking changes that remove, reverse, or invalidate content or a requirement others rely on (major = breaking, minor = additive, patch = correction), under the per-document rule in the Version numbering section of [`governance/specification-ingestion.md`](governance/specification-ingestion.md).
 6. **Open a pull request.** Reference the issue. Describe what changed and why. Note any version flags raised. List any new external framework references.
-7. **CI must pass.** The same audit programme runs in GitHub Actions.
+7. **CI must pass.** GitHub Actions runs a subset of the audit programme and the per-PR delta gates on each pull request. The full audit programme runs on the project's local server, which posts the `local-quality` commit status. Merge requires both.
 
 ## Reporting content issues without contributing a fix
 

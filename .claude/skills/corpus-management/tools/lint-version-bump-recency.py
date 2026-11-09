@@ -86,9 +86,11 @@ read the Version through the same vendored, digest-pinned
 match behind it either. (The commit-time guard is the one reader that
 is NOT blind: since 3b86 it strips a single leading BOM before
 matching.) So this audit refuses the BOM rather than setting it aside.
-It runs in CI on pushes to main and on pull requests, in the same
-workflow as D2 and D4, so a BOM-prefixed document fails CI here even
-where D2 and D4 cannot see its Version.
+It runs in the full gate suite (the local server run behind the
+local-quality commit status that merge requires, and the nightly sweep
+on main), while D2 and D4 run in the GitHub pull-request job, so a
+BOM-prefixed document fails the full suite here even where D2 and D4
+cannot see its Version.
 
 Exempt from the recency requirement only (the BOM refusal above still
 covers these): .working/CHANGELOG.md (the file is itself the version history;

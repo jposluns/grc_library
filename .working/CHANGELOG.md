@@ -1,11 +1,13 @@
 # Changelog
 
-This file records the GRC Library's changes as weekly summaries, one section per ISO week that had changes, newest first. The library as a whole is versioned by Calendar Versioning (CalVer).
+This file records the GRC Library's changes as weekly summaries, one section per ISO week that had changes, newest first. Until a week is rolled up, each pull request merged in it also has its own line above that week's summary. The library as a whole is versioned by Calendar Versioning (CalVer).
+
+**2026-11-09 | 2026.11.66 | PR #1** - tools: Gate 59 checks that this changelog and its detailed private copy list the same pull requests, and now works in the new repository, where pull request numbers restart at #1; the old repository's history ended at pull request 3127. Root summary lines accept only plain letters, digits and simple punctuation, so no markup can hide an old record. On the maintainer's decision of 2026-11-09, GitHub runs 1 small pull-request check, the full suite runs on the local server and reports a local-quality status that merging requires, and the nightly sweep stays.
 
 ## Week of 2026-11-09
 
 - The library now lives in a new repository whose history starts fresh: the rebuilt library is published as a single commit.
-- The audit tools, project specifications and registers, adopter guides, generated data and tests now live together under `.claude/skills/corpus-management/` as the corpus-management skill, at pack version 0.23.0. The 12 governance domains are unchanged.
+- The audit tools, project specifications and registers, adopter guides, generated data and tests now live together under .claude/skills/corpus-management/ as the corpus-management skill, at pack version 0.23.0. The 12 governance domains are unchanged.
 - The AIQT rule set (https://aiqt.ai) is pinned as the governance baseline, replacing the earlier guardrails pack, and version 1.0.15 of the Clean Language writing skill is bundled.
 - The audit programme runs 95 gates. Its 16 retired gate numbers (32, 42, 43, 44, 46, 50, 51, 60, 63, 74, 76, 80, 83, 95, 103 and 105) stay listed as tombstones and are never reused. Their tombstones give the reasons: 8 gates read maintainer files kept outside the public repository, 6 checked skill or rule files that left the public repository, and gates 95 and 105 were retired as numbered. The hook checks of gates 95 and 105 continue, re-scoped, in gate 111.
 - Tooling: the reference manifest schema is at version 1.0.1, the document date check now reaches the specifications and adopter guides in their new place, and the review-cadence and standards-currency checks reach the specifications there; the adopter guides stay outside those 2 checks, as before.

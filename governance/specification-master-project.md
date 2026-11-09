@@ -2,7 +2,7 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.7.14\
+**Version:** 1.7.15\
 **Date:** 2026-11-09\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
@@ -106,8 +106,11 @@ Repository infrastructure directories and files that are not used for governance
 /SECURITY.md           How to report content accuracy defects, licence concerns,
                        organization or personal data leakage, broken links, tooling defects.
 /.pre-commit-config.yaml  Local pre-commit hooks wiring the audit scripts.
-/.github/              GitHub Actions workflow that runs the audits on push to main
-                       and on every pull request.
+/.github/              GitHub Actions workflows: 1 small pull-request job runs the
+                       CI subset of the audits and the per-PR delta checks, and
+                       the nightly sweep runs the full audit programme on main.
+                       The local server runs the full suite and posts the
+                       local-quality commit status that merge requires.
 /.claude/skills/corpus-management/tools/
                        Stdlib-only Python audit scripts and taxonomy / narrative registry /
                        portal generators.

@@ -1,23 +1,28 @@
 #!/usr/bin/env python3
 """Gate-name parity audit across the four audit-programme surfaces.
 
-The audit programme defines a single set of audit gates whose names must
-match exactly across four surfaces:
+The audit programme defines a single set of audit gates, held on four
+surfaces: the runner and the pre-commit hook hold every gate, the workflow
+holds only the CI subset, and each gate's name must match exactly on every
+surface that holds it:
 
   1. .claude/skills/corpus-management/specs/specification-audit-programme.md, section 6 "Gate inventory"
      - the canonical numbered table of gates.
   2. .github/workflows/quality.yml
-     - the `- name: ...` field of each lint-job step.
+     - the `- name: ...` field of each lint-job step; this surface holds only
+       the CI subset of the gates (see "CI subset" below).
   3. .claude/skills/corpus-management/tools/run_all_audits.sh
      - the first argument to each `run_gate "..."` call.
   4. .pre-commit-config.yaml
      - the `name: ...` field of each local hook.
 
-When the four surfaces drift (a label is abbreviated in one but not the
-others, or a gate is added to one surface but not the others), the audit
-programme's CI-parity guarantee in specification-audit-programme.md
+When the surfaces drift (a label is abbreviated on one surface but not the
+others, a gate is missing from the runner or the pre-commit hook, which hold
+every gate, or the workflow holds a gate outside the CI subset or lacks one
+inside it), the surface-parity rule in specification-audit-programme.md
 section 3 principle 5 is broken. This linter detects that drift
-deterministically.
+deterministically, and it checks each surface's gate arguments against
+GATE_ARGV, the canonical argument table below.
 
 In addition to the four-surface row parity, this gate ADDITIVELY guards the
 three exclusion allow-lists and the per-PR D-numbered delta gates (3.99 (closing PR #1087), extended by #1250): each
@@ -68,15 +73,24 @@ Comparison: the spec inventory table is the canonical source of truth.
 The other three surfaces are validated against it. For each row of the
 inventory, this linter confirms that:
 
-  - The gate name appears, verbatim, in the workflow, runner, and
-    pre-commit hook at the same ordered position.
+  - The gate name appears, verbatim, in the runner and the pre-commit hook
+    at the same ordered position, and, when the gate is in the CI subset, in
+    the workflow at its ordered position among the subset gates.
   - The gate's script path (e.g., .claude/skills/corpus-management/tools/lint-metadata.py) matches the
-    command in each of the three runtime surfaces.
+    command in each runtime surface that runs it.
   - The invocation arguments (flags after the script path) are identical
-    across the execution surfaces that run the gate. The workflow, runner,
-    and pre-commit hook all invoke each gate with the same flags (a
-    --strict / --enforce / --check present on one surface but not another
-    is a finding); the spec §6 row carries no argv, so it is not compared.
+    across the execution surfaces that run the gate: the runner and the
+    pre-commit hook invoke every gate, and the workflow each CI-subset gate,
+    with the same flags (a --strict / --enforce / --check present on one
+    surface but not another is a finding), and every surface's flags are
+    checked against GATE_ARGV (next item); the spec §6 row carries no argv,
+    so it is not compared.
+  - Each surface's arguments for a gate equal that gate's canonical argv in
+    GATE_ARGV, the one table in this tool that pins every live section 6
+    gate's flags by gate number (generated from the runner of 2026-11-09), so
+    a flag dropped or changed on the runner and pre-commit together, which the
+    cross-surface comparison cannot see, is a finding too, as is a live gate
+    with no GATE_ARGV entry or an entry for a number that is not a live gate.
 
 Each gate line is matched against a closed allowlist, not read as shell (3b646,
 maintainer option A): the command must be exactly ``python3 [-I] .claude/skills/corpus-management/tools/X.py``
@@ -98,77 +112,52 @@ a nested value sits exactly two columns deeper than its key; no mapping repeats 
 and each level holds only the keys of the file's fixed skeleton (WORKFLOW_SKELETON,
 PRECOMMIT_SKELETON), the levels above the steps and hooks every one of them, so a step
 is read only as an item of jobs.lint.steps and a hook only as an item of repos[].hooks,
-and the workflow keeps its push and pull_request triggers. A step's first key is
+and the workflow keeps its one pull_request trigger. A step's first key is
 ``- name:`` and a hook's
 ``- id:``. A gate hook decides when it runs with exactly one of always_run, files,
 types and types_or, pinned to the values the gate hooks use (PRECOMMIT_GATE_SELECTORS),
-and the workflow's push branches, runner and permissions are pinned too. Any other
+and the workflow's job name, runner and permissions are pinned too. Any other
 shape is a parse error (exit 2). The allowlist does NOT cover: the values of the
 excluded setup, delta-gate and regeneration steps and hooks (their uses, with, env, if,
 run and entry values, the text of the ``run: |`` block included), which the exclusion
 guards check only by script; runner shell code outside run_gate lines (the function
 body, a redefinition of python3 or run_gate, PATH or BASH_ENV, and whether bash
 reaches a run_gate line inside a conditional, heredoc, loop or backslash
-continuation); the values the skeletons leave free (the workflow and job names, and
-the names and ids of steps and hooks, which the parity comparison reads but does not
-pin); YAML a real reader takes differently in ways these rules do not exclude (the
+continuation); the values the skeletons leave free (the workflow name, and the names
+and ids of steps and hooks, which the parity comparison reads but does not pin); YAML a real reader takes differently in ways these rules do not exclude (the
 check reads the structure, it does not validate YAML, so a value a real reader rejects,
 such as one holding ``: ``, fails there and not here); whether GitHub Actions or
 pre-commit runs at all (a workflow disabled in the repository settings, pre-commit not
 installed, ``SKIP=`` or ``--no-verify``); which python3 is found on PATH; and what the
 gate script does once started.
 
-Gate 36 shard form (maintainer directive 2026-11-04; round-2 hardening): in
-the WORKFLOW alone, the linter regression test suite may run sharded. The
-audit recognizes exactly one shard shape and refuses (exit 2) any deviation
-from it, so the shard form never weakens parity: the jobs mapping holds
-exactly ``lint``, a contiguous ``regression-shard-1`` ..
-``regression-shard-K`` (K at least 2) and ``summary``; each shard job is
-named ``Linter regression test suite (shard i of K)``, runs on ubuntu-latest,
-declares exactly the pinned job outputs ``credited`` (``${{
-steps.gate.outputs.credited }}``, the shard's per-module credited-start
-counts), ``units_sha256`` and ``selected_sha256`` (``${{
-steps.gate.outputs.<name> }}``, the digests of the shard's total and
-selected unit lists), and holds exactly the three setup steps of
-WORKFLOW_SETUP_STEP_ORDER, each pinned to its exact accepted shape
-(WORKFLOW_SETUP_STEP_SHAPES: ``Checkout`` is ``uses:
-actions/checkout@<full 40-hex SHA>`` with ``fetch-depth: 0``; ``Set up
-Python`` is ``uses: actions/setup-python@<full 40-hex SHA>`` with
-``python-version: "3.14"``; ``Install pinned dependencies`` runs exactly
-``python3 -m pip install -r requirements.txt``; a trailing `` # v...``
-version comment is tolerated on a ``uses`` value), followed by one
-gate-shaped step of the job's name with keys exactly ``name``, ``id`` (the
-pinned ``gate``) and ``run``, running exactly ``python3 [-I]
-.claude/skills/corpus-management/tools/run-linter-regression.py --shard i/K``. The ``summary`` job is named
-``Lint markdown corpus`` (the merge guard's required check), needs exactly
-``lint`` and every shard job, carries ``if: always()``, and holds exactly
-the pinned ``Checkout`` and ``Set up Python`` setup steps followed by
-EXACTLY ONE verification step, whose keys are exactly ``name``, ``env`` and
-``run``, whose env is the pinned ``NEEDS_RESULTS: ${{ toJSON(needs) }}``,
-and whose run is exactly ``python3 .claude/skills/corpus-management/tools/reconcile-regression-shards.py``
-(which fails unless every needed job succeeded and the shards'
-``credited`` outputs sum to at least one credited start per on-disk test
-module); a second step of that shape, or any other step, is a refusal, so
-a passing look-alike cannot stand beside the real check. The lint job keeps
-the gate-36 step at its inventory position, running exactly ``python3 [-I]
-.claude/skills/corpus-management/tools/run-linter-regression.py --verify-shards K`` (the partition check;
-the shards run the suite), and its own setup steps are pinned to the same
-shapes and to their place: its first three steps are exactly
-WORKFLOW_SETUP_STEP_ORDER, each once, in order, and no later step carries
-a setup name, so deleting, repeating or reordering one is a refusal. (The
-plain one-job form, read for fixtures and history, pins each setup step's
-shape but not its presence or order.) With the shard form fully verified,
-that step counts as gate 36
-with no arguments (the shards together are the invocation), so the runner
-and pre-commit surfaces, which run gate 36 whole with no arguments, stay in
-argv parity. A workflow whose jobs mapping is exactly ``lint`` is read as
-before, and a ``--verify-shards`` argument without the shard jobs is an
-ordinary argv and fails the argv parity below. Residue: whether GitHub
-Actions actually runs the shard jobs, what the pinned action SHAs resolve
-to, and branch-protection settings, stay outside this audit, as for every
-gate; .claude/skills/corpus-management/tools/merge-when-green.py requires the ``Lint markdown corpus`` check
-itself to succeed, and its ``needs`` make it fail when a shard fails, is
-cancelled or is skipped.
+CI subset (maintainer decision 2026-11-09): GitHub Actions runs one small
+pull-request job, and the full gate suite runs on the local server, which posts
+the local-quality commit status that merge requires. The specification's section
+4 names the gates that job runs in a machine-read block: the one line of the
+specification that starts with ``ci-pr-subset:``, at column 0, alone inside a
+fenced block opened by exactly ```` ```text ```` and closed by exactly ```` ``` ````
+in section 4, the ```` ```text ```` line itself opening that fence at top level
+(not fence text inside an outer fence, nor inside an HTML comment), holding live section 6 gate numbers each after one space
+(CI_SUBSET_RE). A missing block, a second ``ci-pr-subset:`` line, a block outside
+section 4 or outside a fence (an HTML comment included), an empty list or any
+other text on the line is a parse error (exit 2), so an unreadable subset never
+passes. A subset number that is not a live section 6 gate, a repeated number and a
+list out of section 6 order are findings. The runner and pre-commit surfaces must
+still equal the full section 6 list exactly (count, names, scripts, order and
+argv); the workflow must equal the subset exactly: a workflow gate step outside
+the subset, a subset gate no workflow step runs, a step count other than the
+subset's and subset gates in another order are findings, and each subset gate's
+script and argv are compared as on the other surfaces. The workflow skeleton is
+pinned to ``on: pull_request`` only and to a jobs mapping of exactly ``lint``,
+named ``Lint markdown corpus`` (the required check), whose first three steps are
+exactly WORKFLOW_SETUP_STEP_ORDER, each once, in order; any other trigger or job
+(the retired gate-36 shard and summary jobs included) and any workflow line that
+names ``run-linter-regression.py`` (a regression-shard or partition step, or a
+comment naming it) are parse errors (exit 2). Residue: whether GitHub Actions
+runs the job, what the pinned action SHAs resolve to, the local server run, the
+local-quality status and branch-protection settings stay outside this audit, as
+for every gate.
 
 Exit codes:
 
@@ -176,7 +165,8 @@ Exit codes:
   1   one or more drift findings present.
   2   internal error parsing one of the files the gate reads: the four surfaces
       (the specification, quality.yml, run_all_audits.sh and .pre-commit-config.yaml)
-      and .claude/skills/corpus-management/tools/run-pr-time-checks.sh. Whichever of the five it is, a file that
+      and .claude/skills/corpus-management/tools/run-pr-time-checks.sh. A missing, repeated,
+      misplaced, empty or malformed ci-pr-subset block in the specification is one too. Whichever of the five it is, a file that
       cannot be read (for example mode 000) is one of these errors, and so is a
       file that is not valid UTF-8 (an invalid byte, or UTF-16 with a byte-order
       mark). A file in another encoding whose bytes happen to be valid UTF-8 (such
@@ -380,8 +370,8 @@ SCRIPT_RE = re.compile(r"python3\s+(?:-I\s+)?(.claude/skills/corpus-management/t
 #     a function, alias or PATH/BASH_ENV change that redefines python3 or run_gate, and
 #     whether bash runs a run_gate line at all (a conditional, a heredoc, a loop or a
 #     backslash continuation from the line before);
-#   - the values the skeletons leave free: the workflow and job names, and step and hook
-#     names and ids, which the parity comparison reads but does not pin;
+#   - the values the skeletons leave free: the workflow name, and step and hook names
+#     and ids, which the parity comparison reads but does not pin;
 #   - YAML a real reader takes differently in ways these rules do not exclude: the check
 #     reads structure and does not validate YAML, so a value a real reader rejects (one
 #     holding ': ', say) fails in that reader, not here;
@@ -429,6 +419,61 @@ def _gate_command(command: str) -> re.Match[str] | None:
 def _gate_argv(match: re.Match[str]) -> tuple[str, ...]:
     """The arguments after the script of a GATE_COMMAND match."""
     return tuple(match.group("args").split())
+
+
+# The canonical argv of every live section 6 gate, by gate number (ep8qs M2). Generated
+# from the runner of 2026-11-09 (section 6 rows zipped with its run_gate lines) and then
+# maintained by hand: a gate added, retired or given a new flag changes its entry here in
+# the same change. The runner, the pre-commit hooks and, for a CI-subset gate, the
+# workflow are each compared against it, so a flag dropped on every surface at once (for
+# example --check removed from build-taxonomy.py on the runner and pre-commit together)
+# is a finding rather than a quiet agreement between the surfaces.
+GATE_ARGV: dict[int, tuple[str, ...]] = {
+    1: (), 2: (), 3: (), 4: (), 5: (), 6: (), 7: (), 8: (), 9: (), 10: (), 11: (), 12: (),
+    13: (), 14: (), 15: (), 16: (), 17: (), 18: (), 19: (), 20: (), 21: (), 22: (), 23: (),
+    24: (), 25: (), 26: (), 27: (), 28: (), 29: (), 30: (), 31: (), 33: ('--check',),
+    34: ('--check',), 35: (), 36: (), 37: (), 38: (), 39: (), 40: (), 41: (), 45: (),
+    47: (), 48: (), 49: (), 100: (), 52: (), 53: (), 54: (), 55: (), 56: (), 57: (),
+    58: (), 59: (), 61: (), 62: (), 64: (), 65: (), 66: (), 67: (), 68: (), 69: (), 70: (),
+    71: (), 72: (), 73: (), 75: (), 77: (), 78: (), 79: (), 81: (), 82: (), 84: (),
+    85: ('--check',), 86: (), 87: (), 88: (), 89: (), 90: (), 91: ('--check',),
+    92: ('--strict-owner',), 93: ('--check',), 94: ('--enforce',), 96: ('--strict',),
+    97: (), 98: (), 99: ('--check', '--release-delta'), 101: (), 102: ('--check',),
+    104: (), 106: (), 107: (), 108: (), 109: (), 110: (), 111: (),
+}
+
+
+def verify_canonical_argv(spec: list[tuple[int, int, str, str]],
+                          surfaces: list[tuple[str, list[tuple[int, str, str, tuple[str, ...]]]]],
+                          canonical: dict[int, tuple[str, ...]] | None = None) -> list[str]:
+    """Findings for each surface's gate arguments against ``canonical`` (GATE_ARGV).
+
+    ``surfaces`` pairs a surface path with its rows keyed to ``spec`` by position, or
+    by gate number for the workflow (see main). A row whose script differs from the
+    section 6 script is skipped (the script drift is reported elsewhere)."""
+    canonical = GATE_ARGV if canonical is None else canonical
+    findings: list[str] = []
+    live = {gate_num for (_, gate_num, _, _) in spec}
+    for gate_num in sorted(set(canonical) - live):
+        findings.append(f"Gate {gate_num} canonical argv: GATE_ARGV in "
+                        f".claude/skills/corpus-management/tools/lint-audit-gate-parity.py "
+                        f"holds an entry for a number that is not a live section 6 gate")
+    for spec_line, gate_num, _, spec_script in spec:
+        if gate_num not in canonical:
+            findings.append(f"Gate {gate_num} canonical argv: no GATE_ARGV entry for this "
+                            f"live gate (spec {SPEC_PATH}:{spec_line})")
+            continue
+        want = canonical[gate_num]
+        for surf_path, rows in surfaces:
+            row = rows.get(gate_num)
+            if row is None or row[2] != spec_script or row[3] == want:
+                continue
+            findings.append(
+                f"Gate {gate_num} invocation (argv) drift from the canonical argv: "
+                f"{surf_path}:{row[0]} = {(' '.join(row[3]) or '<no args>')!r}; "
+                f"GATE_ARGV = {(' '.join(want) or '<no args>')!r}"
+            )
+    return findings
 
 # Regex to extract the .claude/skills/corpus-management/tools/X.py portion from a markdown link in the
 # inventory table's Script column.
@@ -793,11 +838,18 @@ WORKFLOW_STEP_SKELETON = {
     "with": {"fetch-depth": _SCALAR, "python-version": _SCALAR},
     "env": {"BASE_SHA": _SCALAR, "HEAD_SHA": _SCALAR},
 }
+# The one pull-request job (maintainer decision 2026-11-09): on pull_request only,
+# jobs exactly {lint}, the job named WORKFLOW_JOB_NAME (the required check). The
+# retired gate-36 shard form (regression-shard jobs and a summary job) is refused by
+# the skeleton, and any workflow line naming REGRESSION_SCRIPT_NAME by
+# _check_no_regression_step.
+WORKFLOW_JOB_NAME = "Lint markdown corpus"
 WORKFLOW_SKELETON = _Exact({
     "name": _SCALAR,
-    "on": _Exact({"push": _Exact({"branches": [frozenset({"main"})]}), "pull_request": _EMPTY}),
+    "on": _Exact({"pull_request": _EMPTY}),
     "permissions": _Exact({"contents": frozenset({"read"})}),
-    "jobs": _Exact({"lint": _Exact({"name": _SCALAR, "runs-on": frozenset({"ubuntu-latest"}),
+    "jobs": _Exact({"lint": _Exact({"name": frozenset({WORKFLOW_JOB_NAME}),
+                                    "runs-on": frozenset({"ubuntu-latest"}),
                                     "steps": [WORKFLOW_STEP_SKELETON]})}),
 })
 PRECOMMIT_SKELETON = _Exact({
@@ -805,113 +857,103 @@ PRECOMMIT_SKELETON = _Exact({
                       "hooks": [dict.fromkeys(sorted(PRECOMMIT_GATE_HOOK_KEYS), _SCALAR)]})],
 })
 
-# Gate 36 shard form (see the docstring's shard-form section). Every value a
-# deviation could hide behind is pinned: the job-key shapes, the shard job and
-# step names, the shard and verify commands (via GATE_COMMAND, so the optional
-# -I is tolerated as on every gate line), the summary job's name, if, needs,
-# env and run. SUMMARY_STEP_RUN fails unless every needed job's result is
-# "success", so a failed, cancelled or skipped shard fails the required check.
-REGRESSION_SCRIPT = ".claude/skills/corpus-management/tools/run-linter-regression.py"
-SHARD_JOB_PREFIX = "regression-shard-"
-SHARD_JOB_NAME = "Linter regression test suite (shard %d of %d)"
-SHARD_GATE_STEP_KEYS = ("name", "id", "run")
-SHARD_GATE_STEP_ID = "gate"
-SHARD_CREDITED_OUTPUT = "${{ steps.gate.outputs.credited }}"
-# Each shard job publishes, beside its credited counts, the digests of its
-# total and selected unit lists; the job's outputs mapping is exactly these
-# three, each read from the id-pinned gate step.
-SHARD_JOB_OUTPUTS = {
-    "credited": SHARD_CREDITED_OUTPUT,
-    "units_sha256": "${{ steps.gate.outputs.units_sha256 }}",
-    "selected_sha256": "${{ steps.gate.outputs.selected_sha256 }}",
-}
-SUMMARY_JOB_KEY = "summary"
-SUMMARY_JOB_NAME = "Lint markdown corpus"
-SUMMARY_JOB_IF = "always()"
-SUMMARY_NEEDS_VALUE = "${{ toJSON(needs) }}"
-SUMMARY_STEP_RUN = "python3 .claude/skills/corpus-management/tools/reconcile-regression-shards.py"
-SUMMARY_VERIFY_STEP_KEYS = ("name", "env", "run")
-SUMMARY_SETUP_STEP_ORDER = ("Checkout", "Set up Python")
-SUMMARY_STEP_SKELETON = _Exact({
-    "name": _SCALAR,
-    "env": _Exact({"NEEDS_RESULTS": frozenset({SUMMARY_NEEDS_VALUE})}),
-    "run": frozenset({SUMMARY_STEP_RUN}),
-})
-# A summary-job step: either a pinned setup step (name/uses/with) or the one
-# pinned verification step (name/env/run). _check_shard_jobs then pins the
-# exact sequence: Checkout, Set up Python, then EXACTLY ONE verification step.
-SUMMARY_ANY_STEP_SKELETON = {
-    "name": _SCALAR,
-    "uses": _SCALAR,
-    "run": _SCALAR,
-    "with": {"fetch-depth": _SCALAR, "python-version": _SCALAR},
-    "env": _Exact({"NEEDS_RESULTS": frozenset({SUMMARY_NEEDS_VALUE})}),
-}
-SHARD_SHAPE = ("the gate-36 shard form is exactly: jobs lint, regression-shard-1.."
-               "regression-shard-K (contiguous, K at least 2) and summary; each shard job "
-               "named 'Linter regression test suite (shard i of K)' on ubuntu-latest with "
-               "exactly the pinned outputs credited, units_sha256 and selected_sha256, "
-               "each '${{ steps.gate.outputs.<name> }}', the three "
-               "pinned WORKFLOW_SETUP_STEP_ORDER setup steps in order, then one same-named "
-               "step with keys name, id (exactly 'gate') and run, running "
-               "`python3 [-I] .claude/skills/corpus-management/tools/run-linter-regression.py --shard i/K`; a summary job "
-               "named 'Lint markdown corpus' with if: always(), needs: lint plus every "
-               "shard, the pinned Checkout and Set up Python steps, and EXACTLY ONE "
-               "verification step with the pinned NEEDS_RESULTS env running exactly "
-               "`python3 .claude/skills/corpus-management/tools/reconcile-regression-shards.py`; a lint job whose first "
-               "three steps are the pinned WORKFLOW_SETUP_STEP_ORDER setup steps, each "
-               "exactly once, in order; and one lint-job step "
-               "running `python3 [-I] .claude/skills/corpus-management/tools/run-linter-regression.py --verify-shards K` "
-               "(see the shard-form section of .claude/skills/corpus-management/tools/lint-audit-gate-parity.py)")
+REGRESSION_SCRIPT_NAME = "run-linter-regression.py"
+WORKFLOW_SHAPE = ("the workflow is one pull-request job: on: pull_request only; jobs: lint "
+                  "alone, named 'Lint markdown corpus', on ubuntu-latest; its first three "
+                  "steps exactly the pinned WORKFLOW_SETUP_STEP_ORDER setup steps, each "
+                  "once, in order; and no line naming run-linter-regression.py (see the "
+                  "CI subset section of .claude/skills/corpus-management/tools/"
+                  "lint-audit-gate-parity.py)")
+
+# The specification's CI subset block (see the docstring's CI subset section).
+CI_SUBSET_KEY = "ci-pr-subset:"
+CI_SUBSET_RE = re.compile(r"ci-pr-subset:(?P<numbers>(?: [1-9][0-9]*)*)")
+CI_SUBSET_FENCE_OPEN = "```text"
+CI_SUBSET_FENCE_CLOSE = "```"
+CI_SUBSET_SHAPE = ("the CI subset is the one line of the specification starting with "
+                   "`ci-pr-subset:`, alone inside a ```text fenced block in section 4, "
+                   "followed by at least one gate number, each after one space (see "
+                   "CI_SUBSET_RE in .claude/skills/corpus-management/tools/"
+                   "lint-audit-gate-parity.py)")
 
 
-def _workflow_jobs_skeleton(shard_count: int):
-    """The jobs-mapping skeleton: the lint job alone, or the shard form."""
-    if not shard_count:
-        return WORKFLOW_SKELETON
-    lint_job = WORKFLOW_SKELETON["jobs"]["lint"]
-    shard_job = _Exact({"name": _SCALAR, "runs-on": frozenset({"ubuntu-latest"}),
-                        "outputs": _Exact({key: frozenset({value}) for key, value
-                                           in SHARD_JOB_OUTPUTS.items()}),
-                        "steps": [WORKFLOW_STEP_SKELETON]})
-    needed = ["lint"] + [SHARD_JOB_PREFIX + str(i) for i in range(1, shard_count + 1)]
-    summary_job = _Exact({
-        "name": frozenset({SUMMARY_JOB_NAME}),
-        "runs-on": frozenset({"ubuntu-latest"}),
-        "needs": [frozenset(needed)],
-        "if": frozenset({SUMMARY_JOB_IF}),
-        "steps": [SUMMARY_ANY_STEP_SKELETON],
-    })
-    jobs = _Exact({"lint": lint_job})
-    for i in range(1, shard_count + 1):
-        jobs[SHARD_JOB_PREFIX + str(i)] = shard_job
-    jobs[SUMMARY_JOB_KEY] = summary_job
-    skeleton = _Exact(WORKFLOW_SKELETON)
-    skeleton["jobs"] = jobs
-    return skeleton
+def parse_ci_subset(path: Path) -> tuple[int, list[int]]:
+    """(line number, gate numbers) of the specification's ci-pr-subset block.
+
+    The block is the one line starting with CI_SUBSET_KEY; it must be at column 0,
+    directly between a CI_SUBSET_FENCE_OPEN line that opens a fence at top level
+    (no fence or HTML comment open before it) and a CI_SUBSET_FENCE_CLOSE line,
+    read as fence text by ``_scan_markup`` (so not inside an HTML comment), under
+    the section 4 heading, and match CI_SUBSET_RE with at least one number. Anything
+    else is a ParseError: a subset that cannot be read never passes."""
+    lines = _universal_newlines(_read_utf8(path)).split("\n")
+    keyed = [i for i, line in enumerate(lines) if line.lstrip().startswith(CI_SUBSET_KEY)]
+    if len(keyed) != 1:
+        where = ", ".join(str(i + 1) for i in keyed) or "none"
+        raise ParseError(f"{SPEC_PATH}: holds {len(keyed)} lines starting with "
+                         f"{CI_SUBSET_KEY!r} (lines {where}), not exactly one; "
+                         f"{CI_SUBSET_SHAPE}")
+    index = keyed[0]
+    lineno = index + 1
+    line = lines[index]
+    visible, _ = _scan_markup(lines)
+    # The opener must itself open the fence at top level (ep8qs L5): the lines before
+    # it leave no fence or HTML comment open, so a block shown as an example inside an
+    # outer fence (a 4-backtick one, say) is fence text and not the subset.
+    top_level = 0 < index and not _scan_markup(lines[:index - 1])[1]
+    fenced = (0 < index < len(lines) - 1 and visible[index] is None and top_level
+              and lines[index - 1] == CI_SUBSET_FENCE_OPEN
+              and lines[index + 1] == CI_SUBSET_FENCE_CLOSE)
+    if not fenced:
+        raise ParseError(f"{SPEC_PATH}:{lineno}: the ci-pr-subset line is not alone inside "
+                         f"a fenced block opened at top level by {CI_SUBSET_FENCE_OPEN!r}; "
+                         f"{CI_SUBSET_SHAPE}")
+    heading = next((lines[i] for i in range(index - 1, -1, -1)
+                    if lines[i].startswith("## ") and visible[i] is not None), "")
+    if not heading.startswith("## 4."):
+        raise ParseError(f"{SPEC_PATH}:{lineno}: the ci-pr-subset block is under "
+                         f"{heading or 'no section heading'!r}, not section 4; "
+                         f"{CI_SUBSET_SHAPE}")
+    m = CI_SUBSET_RE.fullmatch(line)
+    if m is None:
+        raise ParseError(f"{SPEC_PATH}:{lineno}: the ci-pr-subset line {line!r} is "
+                         f"malformed; {CI_SUBSET_SHAPE}")
+    numbers = [int(token) for token in m.group("numbers").split()]
+    if not numbers:
+        raise ParseError(f"{SPEC_PATH}:{lineno}: the ci-pr-subset block names no gate; "
+                         f"an empty subset fails closed; {CI_SUBSET_SHAPE}")
+    return lineno, numbers
 
 
-def _shard_job_count(path: Path, jobs: _YamlNode) -> int:
-    """0 for the plain one-job workflow; otherwise the shard count K, with
-    any other jobs-mapping key set a ParseError (fail closed)."""
-    keys = jobs.keys()
-    if keys == ["lint"]:
-        return 0
-    numbers = []
-    for key in keys:
-        if key in ("lint", SUMMARY_JOB_KEY):
-            continue
-        suffix = key[len(SHARD_JOB_PREFIX):] if key.startswith(SHARD_JOB_PREFIX) else ""
-        if not (suffix.isascii() and suffix.isdigit()):
-            raise ParseError(f"{path.relative_to(REPO_ROOT)}:{jobs.lineno}: the jobs "
-                             f"mapping holds the key {key!r}; {SHARD_SHAPE}")
-        numbers.append(int(suffix))
-    if ("lint" not in keys or SUMMARY_JOB_KEY not in keys
-            or sorted(numbers) != list(range(1, len(numbers) + 1)) or len(numbers) < 2):
-        raise ParseError(f"{path.relative_to(REPO_ROOT)}:{jobs.lineno}: the jobs mapping "
-                         f"holds {keys}, which is not the shard form's job set; "
-                         f"{SHARD_SHAPE}")
-    return len(numbers)
+def verify_ci_subset(lineno: int, subset: list[int], live: list[int]) -> list[str]:
+    """Findings for the subset numbers against ``live``, the section 6 live gate
+    numbers in order: each must be a live gate, listed once, in section 6 order."""
+    findings: list[str] = []
+    order = {number: position for position, number in enumerate(live)}
+    seen: list[int] = []
+    for number in subset:
+        if number not in order:
+            findings.append(f"CI subset ({SPEC_PATH}:{lineno}): gate {number} is not a "
+                            f"live section 6 gate")
+        elif number in seen:
+            findings.append(f"CI subset ({SPEC_PATH}:{lineno}): gate {number} is listed "
+                            f"more than once")
+        else:
+            seen.append(number)
+    if seen != sorted(seen, key=order.__getitem__):
+        findings.append(f"CI subset ({SPEC_PATH}:{lineno}): gates {seen} are not in "
+                        f"section 6 order ({sorted(seen, key=order.__getitem__)})")
+    return findings
+
+
+def _check_no_regression_step(path: Path) -> None:
+    """Raise a ParseError for any workflow line naming REGRESSION_SCRIPT_NAME: the
+    gate-36 suite, sharded or whole, runs on the local server, not in the workflow."""
+    for lineno, raw in enumerate(_lf_lines(path), 1):
+        if REGRESSION_SCRIPT_NAME in raw:
+            raise ParseError(f"{path.relative_to(REPO_ROOT)}:{lineno}: names "
+                             f"{REGRESSION_SCRIPT_NAME}; no workflow step runs the "
+                             f"regression suite or a shard of it; {WORKFLOW_SHAPE}")
 
 
 def _check_setup_step(path: Path, step: _YamlNode, where: str) -> None:
@@ -925,21 +967,21 @@ def _check_setup_step(path: Path, step: _YamlNode, where: str) -> None:
     if run is not None and run.kind == "scalar" and SCRIPT_RE.search(run.value):
         raise ParseError(f"{rel}:{step.lineno}: {where} setup step {name!r} invokes "
                          f"the gate script {SCRIPT_RE.search(run.value).group(1)!r}; "
-                         f"a setup step must not run a gate; {SHARD_SHAPE}")
+                         f"a setup step must not run a gate; {WORKFLOW_SHAPE}")
     shape = WORKFLOW_SETUP_STEP_SHAPES[name]
     keys = tuple(step.keys())
     if keys != shape["keys"]:
         raise ParseError(f"{rel}:{step.lineno}: {where} setup step {name!r} has the "
                          f"keys {list(keys)}, not exactly the pinned "
                          f"{list(shape['keys'])} (WORKFLOW_SETUP_STEP_SHAPES); "
-                         f"{SHARD_SHAPE}")
+                         f"{WORKFLOW_SHAPE}")
     if "uses" in shape:
         uses = step.get("uses")
         if uses.kind != "scalar" or not shape["uses"].fullmatch(uses.value):
             raise ParseError(f"{rel}:{uses.lineno}: {where} setup step {name!r} uses "
                              f"{uses.value!r}, which does not match the pinned action "
                              f"at a full 40-hex commit SHA "
-                             f"({shape['uses'].pattern!r}); {SHARD_SHAPE}")
+                             f"({shape['uses'].pattern!r}); {WORKFLOW_SHAPE}")
         with_node = step.get("with")
         pinned = shape["with"]
         if (with_node.kind != "mapping" or with_node.keys() != list(pinned)
@@ -948,12 +990,12 @@ def _check_setup_step(path: Path, step: _YamlNode, where: str) -> None:
                        for key, value in pinned.items())):
             raise ParseError(f"{rel}:{with_node.lineno}: {where} setup step {name!r} "
                              f"has a with mapping other than the pinned {pinned}; "
-                             f"{SHARD_SHAPE}")
+                             f"{WORKFLOW_SHAPE}")
     elif run is None or run.kind != "scalar" or run.value != shape["run"]:
         held = run.value if run is not None and run.kind == "scalar" else None
         raise ParseError(f"{rel}:{step.lineno}: {where} setup step {name!r} runs "
                          f"{held!r}, not exactly the pinned {shape['run']!r}; "
-                         f"{SHARD_SHAPE}")
+                         f"{WORKFLOW_SHAPE}")
 
 
 def _step_names(path: Path, steps: list[_YamlNode]) -> list[str]:
@@ -980,77 +1022,9 @@ def _check_lint_setup_order(path: Path, steps: list[_YamlNode]) -> None:
         raise ParseError(f"{path.relative_to(REPO_ROOT)}: the lint job's setup steps are "
                          f"{setup} (its first steps {names[:len(order)]}), not exactly the "
                          f"pinned {order}, each once, in order, before every other step; "
-                         f"{SHARD_SHAPE}")
+                         f"{WORKFLOW_SHAPE}")
 
 
-def _check_shard_jobs(path: Path, root: _YamlNode, shard_count: int) -> None:
-    """Raise a ParseError unless every shard job and the summary job hold
-    exactly the shard form's pinned content: the skeleton has already pinned
-    the summary name, if, env, run and each job's key set (the shard jobs'
-    ``credited`` output included); this check pins the step sequences, the
-    setup steps' exact shapes, the gate step's keys and ``id: gate``, and
-    EXACTLY ONE summary verification step."""
-    rel = path.relative_to(REPO_ROOT)
-    jobs = root.get("jobs")
-    for i in range(1, shard_count + 1):
-        job = jobs.get(SHARD_JOB_PREFIX + str(i))
-        expected_name = SHARD_JOB_NAME % (i, shard_count)
-        name = job.get("name")
-        if name.value != expected_name:
-            raise ParseError(f"{rel}:{name.lineno}: shard job {SHARD_JOB_PREFIX}{i} is "
-                             f"named {name.value!r}, not {expected_name!r}; {SHARD_SHAPE}")
-        steps = job.get("steps").items
-        names = _step_names(path, steps)
-        if names != list(WORKFLOW_SETUP_STEP_ORDER) + [expected_name]:
-            raise ParseError(f"{rel}:{job.lineno}: shard job {SHARD_JOB_PREFIX}{i} holds "
-                             f"the steps {names}, not exactly the pinned setup steps "
-                             f"{list(WORKFLOW_SETUP_STEP_ORDER)} followed by its one "
-                             f"gate step; {SHARD_SHAPE}")
-        for step in steps[:-1]:
-            _check_setup_step(path, step, f"shard job {SHARD_JOB_PREFIX}{i}")
-        step = steps[-1]
-        what = f"shard job step '{expected_name}'"
-        keys = tuple(step.keys())
-        if keys != SHARD_GATE_STEP_KEYS or step.get("id").value != SHARD_GATE_STEP_ID:
-            raise ParseError(f"{rel}:{step.lineno}: {what} is not the shard form's one "
-                             f"gate-shaped step with exactly the keys "
-                             f"{list(SHARD_GATE_STEP_KEYS)} and id "
-                             f"{SHARD_GATE_STEP_ID!r} (the id the pinned credited "
-                             f"output reads); {SHARD_SHAPE}")
-        run = step.get("run")
-        m = _gate_command(run.value) if run.kind == "scalar" else None
-        if not m:
-            raise _not_a_gate_line(path, run.lineno, what,
-                                   f"run command {run.value!r} is not an accepted "
-                                   f"gate line")
-        if (m.group("script") != REGRESSION_SCRIPT
-                or _gate_argv(m) != ("--shard", "%d/%d" % (i, shard_count))):
-            raise ParseError(f"{rel}:{run.lineno}: {what} runs {run.value!r}, not "
-                             f"`python3 [-I] {REGRESSION_SCRIPT} --shard "
-                             f"{i}/{shard_count}`; {SHARD_SHAPE}")
-    summary = jobs.get(SUMMARY_JOB_KEY)
-    needed = ["lint"] + [SHARD_JOB_PREFIX + str(i) for i in range(1, shard_count + 1)]
-    needs = [item.value for item in summary.get("needs").items]
-    if needs != needed:
-        raise ParseError(f"{rel}:{summary.get('needs').lineno}: the summary job needs "
-                         f"{needs}, not exactly {needed}; {SHARD_SHAPE}")
-    steps = summary.get("steps").items
-    names = _step_names(path, steps)
-    if (len(steps) != len(SUMMARY_SETUP_STEP_ORDER) + 1
-            or names[:-1] != list(SUMMARY_SETUP_STEP_ORDER)):
-        raise ParseError(f"{rel}:{summary.lineno}: the summary job holds the steps "
-                         f"{names}, not exactly the pinned setup steps "
-                         f"{list(SUMMARY_SETUP_STEP_ORDER)} followed by EXACTLY ONE "
-                         f"verification step; {SHARD_SHAPE}")
-    for step in steps[:-1]:
-        _check_setup_step(path, step, "summary job")
-    _check_skeleton(path, steps[-1], SUMMARY_STEP_SKELETON,
-                    "jobs.summary.steps[-1]")
-    verify_keys = tuple(steps[-1].keys())
-    if verify_keys != SUMMARY_VERIFY_STEP_KEYS:
-        raise ParseError(f"{rel}:{steps[-1].lineno}: the summary verification step has "
-                         f"the keys {list(verify_keys)}, not exactly "
-                         f"{list(SUMMARY_VERIFY_STEP_KEYS)}; {SHARD_SHAPE}")
 _KIND_NAMES = {"mapping": "a mapping", "sequence": "a list", "scalar": "a plain value",
                "block": "a `|` block scalar", "empty": "empty"}
 
@@ -1390,34 +1364,23 @@ def _not_a_gate_line(path: Path, lineno: int, what: str, problem: str) -> ParseE
 def parse_workflow(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
     """Return [(line_number, step_name, script_path, argv), ...] from quality.yml.
 
-    Reads the file against WORKFLOW_SKELETON (or, when the jobs mapping holds
-    more than the lint job, against the gate-36 shard form's skeleton, with
-    the shard and summary jobs checked by ``_check_shard_jobs``), then each
-    item of jobs.lint.steps, whose first key must be ``name``. A setup step
-    named in WORKFLOW_SETUP_STEPS is pinned to its exact accepted shape
-    (``_check_setup_step``) and then excluded from the gate list; the
-    delta-gate steps in WORKFLOW_DELTA_GATE_STEPS are excluded as before.
-    Every other step is a gate step: its keys must
-    be exactly ``name`` and ``run``, and its ``run`` value must match
-    GATE_COMMAND. Under the shard form, the one lint-job step running
-    REGRESSION_SCRIPT must carry exactly ``--verify-shards K`` and counts as
-    gate 36 with no arguments (the shards together are the invocation; see
-    the docstring's shard-form section). Anything outside the skeleton is a
-    ParseError. See GATE_COMMAND's comment for what this does not cover.
+    Refuses any line naming REGRESSION_SCRIPT_NAME, reads the file against
+    WORKFLOW_SKELETON (pull_request only, jobs exactly ``lint`` named
+    WORKFLOW_JOB_NAME), pins the lint job's first steps to
+    WORKFLOW_SETUP_STEP_ORDER (``_check_lint_setup_order``), then reads each item
+    of jobs.lint.steps, whose first key must be ``name``. A setup step named in
+    WORKFLOW_SETUP_STEPS is pinned to its exact accepted shape
+    (``_check_setup_step``) and then excluded from the gate list; the delta-gate
+    steps in WORKFLOW_DELTA_GATE_STEPS are excluded as before. Every other step is
+    a gate step: its keys must be exactly ``name`` and ``run``, and its ``run``
+    value must match GATE_COMMAND. Anything outside the skeleton is a ParseError.
+    See GATE_COMMAND's comment for what this does not cover.
     """
-    root = _yaml_tree(path, _yaml_lines(path, {}, WORKFLOW_PINNED_QUOTED_VALUES))
-    jobs = root.get("jobs")
-    shard_count = 0
-    if jobs is not None and jobs.kind == "mapping":
-        shard_count = _shard_job_count(path, jobs)
-    _check_skeleton(path, root, _workflow_jobs_skeleton(shard_count), "")
-    if shard_count:
-        _check_shard_jobs(path, root, shard_count)
+    _check_no_regression_step(path)
+    root = _yaml_surface(path, WORKFLOW_SKELETON, {}, WORKFLOW_PINNED_QUOTED_VALUES)
     steps = _yaml_list(path, root, "jobs", "lint", "steps")
-    if shard_count:
-        _check_lint_setup_order(path, steps.items)
+    _check_lint_setup_order(path, steps.items)
     entries: list[tuple[int, str, str, tuple[str, ...]]] = []
-    regression_steps = 0
     for step in steps.items:
         first = step.keys()[0]
         if first != "name":
@@ -1441,24 +1404,7 @@ def parse_workflow(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
         if not m:
             raise _not_a_gate_line(path, run.lineno, what, f"run command {run.value!r} is not "
                                    f"an accepted gate line")
-        argv = _gate_argv(m)
-        if shard_count and m.group("script") == REGRESSION_SCRIPT:
-            regression_steps += 1
-            if regression_steps > 1:
-                raise ParseError(f"{path.relative_to(REPO_ROOT)}:{step.lineno}: the lint "
-                                 f"job runs {REGRESSION_SCRIPT} more than once; "
-                                 f"{SHARD_SHAPE}")
-            if argv != ("--verify-shards", str(shard_count)):
-                raise ParseError(f"{path.relative_to(REPO_ROOT)}:{run.lineno}: {what} runs "
-                                 f"{run.value!r}; with the shard jobs present it must run "
-                                 f"`python3 [-I] {REGRESSION_SCRIPT} --verify-shards "
-                                 f"{shard_count}`; {SHARD_SHAPE}")
-            argv = ()
-        entries.append((step.lineno, step_name, m.group("script"), argv))
-    if shard_count and not regression_steps:
-        raise ParseError(f"{path.relative_to(REPO_ROOT)}: the shard jobs are present but "
-                         f"no lint-job step runs {REGRESSION_SCRIPT}; the shard form "
-                         f"keeps gate 36's partition-verifying step; {SHARD_SHAPE}")
+        entries.append((step.lineno, step_name, m.group("script"), _gate_argv(m)))
     if not entries:
         raise ParseError(
             f"{path.relative_to(REPO_ROOT)}: no audit-step entries found"
@@ -1769,6 +1715,7 @@ def main(argv: list[str]) -> int:
 
     try:
         spec = parse_spec_inventory(spec_path)
+        subset_line, subset = parse_ci_subset(spec_path)
         workflow = parse_workflow(workflow_path)
         runner = parse_runner(runner_path)
         precommit = parse_precommit(precommit_path)
@@ -1793,12 +1740,47 @@ def main(argv: list[str]) -> int:
         print(f"ERROR: section-5 categories: {exc}", file=sys.stderr)
         return 2
 
-    # Count parity. If any surface has a different number of gates, the
-    # comparison cannot proceed row-by-row; report the count drift and
-    # stop here. The maintainer fixes the missing entries and re-runs.
+    # The CI subset (maintainer decision 2026-11-09): its numbers against the
+    # section 6 live rows, and the workflow's gate steps against the subset rows.
+    findings.extend(verify_ci_subset(subset_line, subset,
+                                     [gate_num for (_, gate_num, _, _) in spec]))
+    ci_rows = [row for row in spec if row[1] in set(subset)]
+    ci_names = [name for (_, _, name, _) in ci_rows]
+    wf_names = [name for (_, name, _, _) in workflow]
+    for wf_line, wf_name, _, _ in workflow:
+        if wf_name not in ci_names:
+            findings.append(
+                f"CI subset drift: workflow({WORKFLOW_PATH}:{wf_line}) step "
+                f"{wf_name!r} is not a gate of the CI subset "
+                f"({SPEC_PATH}:{subset_line})"
+            )
+    for spec_line, gate_num, spec_name, _ in ci_rows:
+        if spec_name not in wf_names:
+            findings.append(
+                f"CI subset drift: gate {gate_num} {spec_name!r} "
+                f"(spec {SPEC_PATH}:{spec_line}) is in the CI subset but no "
+                f"{WORKFLOW_PATH} step runs it"
+            )
+    if len(workflow) != len(ci_rows):
+        findings.append(
+            f"CI subset drift: {WORKFLOW_PATH} holds {len(workflow)} gate step(s); "
+            f"the CI subset names {len(ci_rows)} live gate(s)"
+        )
+    elif sorted(wf_names) == sorted(ci_names) and wf_names != ci_names:
+        findings.append(
+            f"CI subset drift: {WORKFLOW_PATH} runs the subset gates in the order "
+            f"{wf_names}, not the section 6 order {ci_names}"
+        )
+    # Workflow rows by gate number, compared only when the workflow lists the
+    # subset gates exactly, in order.
+    wf_by_num = ({gate_num: wf for (_, gate_num, _, _), wf in zip(ci_rows, workflow)}
+                 if wf_names == ci_names else {})
+
+    # Count parity. If the runner or pre-commit surface has a different number of
+    # gates from section 6, the comparison cannot proceed row-by-row; report the
+    # count drift and stop here. The maintainer fixes the missing entries and re-runs.
     counts = {
         SPEC_PATH: len(spec),
-        WORKFLOW_PATH: len(workflow),
         RUNNER_PATH: len(runner),
         PRECOMMIT_PATH: len(precommit),
     }
@@ -1807,8 +1789,8 @@ def main(argv: list[str]) -> int:
         for label, count in counts.items():
             findings.append(f"  {label}: {count}")
         findings.append(
-            "Each surface must declare the same number of audit gates. "
-            "Add the missing entries to the surface(s) with the lower "
+            "The runner and pre-commit surfaces must each declare every section 6 "
+            "gate. Add the missing entries to the surface(s) with the lower "
             "count, or remove the extra entries from the surface(s) "
             "with the higher count."
         )
@@ -1818,16 +1800,10 @@ def main(argv: list[str]) -> int:
 
     # Row-by-row parity. Spec inventory is canonical.
     for idx, (spec_line, gate_num, spec_name, spec_script) in enumerate(spec):
-        wf_line, wf_name, wf_script, wf_argv = workflow[idx]
         ru_line, ru_name, ru_script, ru_argv = runner[idx]
         pc_line, pc_name, pc_script, pc_argv = precommit[idx]
+        wf = wf_by_num.get(gate_num)
 
-        if wf_name != spec_name:
-            findings.append(
-                f"Gate {gate_num} name drift: "
-                f"spec({SPEC_PATH}:{spec_line}) = {spec_name!r}; "
-                f"workflow({WORKFLOW_PATH}:{wf_line}) = {wf_name!r}"
-            )
         if ru_name != spec_name:
             findings.append(
                 f"Gate {gate_num} name drift: "
@@ -1841,11 +1817,11 @@ def main(argv: list[str]) -> int:
                 f"pre-commit({PRECOMMIT_PATH}:{pc_line}) = {pc_name!r}"
             )
 
-        if wf_script != spec_script:
+        if wf is not None and wf[2] != spec_script:
             findings.append(
                 f"Gate {gate_num} script drift: "
                 f"spec({SPEC_PATH}:{spec_line}) = {spec_script!r}; "
-                f"workflow({WORKFLOW_PATH}:{wf_line}) = {wf_script!r}"
+                f"workflow({WORKFLOW_PATH}:{wf[0]}) = {wf[2]!r}"
             )
         if ru_script != spec_script:
             findings.append(
@@ -1860,22 +1836,23 @@ def main(argv: list[str]) -> int:
                 f"pre-commit({PRECOMMIT_PATH}:{pc_line}) = {pc_script!r}"
             )
 
-        # Invocation (argv) parity across the THREE execution surfaces
-        # (workflow, runner, pre-commit). The spec §6 row carries no argv, so
-        # it is not argv-compared. Every gate hook must be pass_filenames: false
-        # (parse_precommit), so its authored entry flags are directly comparable. Surfaces are
-        # grouped by the script they run; within each group of two or more
-        # surfaces that agree on the script, the flags must be identical, so a
-        # --strict / --enforce / --check that lands on one surface but not the
-        # others is caught rather than silently diverging. Comparing flags of
-        # two DIFFERENT scripts is meaningless (a script drift is already
-        # reported by the script-drift checks above), so the grouping is by
-        # script rather than a blanket three-way equality.
-        exec_surfaces = (
-            (WORKFLOW_PATH, wf_line, wf_script, wf_argv),
+        # Invocation (argv) parity across the execution surfaces that run the gate
+        # (the runner and pre-commit always; the workflow for a CI-subset gate). The
+        # spec §6 row carries no argv, so it is not argv-compared. Every gate hook
+        # must be pass_filenames: false (parse_precommit), so its authored entry flags
+        # are directly comparable. Surfaces are grouped by the script they run; within
+        # each group of two or more surfaces that agree on the script, the flags must
+        # be identical, so a --strict / --enforce / --check that lands on one surface
+        # but not the others is caught rather than silently diverging. Comparing flags
+        # of two DIFFERENT scripts is meaningless (a script drift is already reported
+        # by the script-drift checks above), so the grouping is by script rather than
+        # a blanket equality.
+        exec_surfaces = [
             (RUNNER_PATH, ru_line, ru_script, ru_argv),
             (PRECOMMIT_PATH, pc_line, pc_script, pc_argv),
-        )
+        ]
+        if wf is not None:
+            exec_surfaces.insert(0, (WORKFLOW_PATH, wf[0], wf[2], wf[3]))
         by_script: dict[str, list[tuple[str, int, tuple[str, ...]]]] = {}
         for surf_path, surf_line, surf_script, surf_argv in exec_surfaces:
             by_script.setdefault(surf_script, []).append(
@@ -1897,6 +1874,14 @@ def main(argv: list[str]) -> int:
                 f"identical flags."
             )
 
+    # Canonical argv (ep8qs M2): each surface against GATE_ARGV, so a drift shared by
+    # every surface that runs the gate is still caught.
+    findings.extend(verify_canonical_argv(spec, [
+        (WORKFLOW_PATH, wf_by_num),
+        (RUNNER_PATH, {row[1]: ru for row, ru in zip(spec, runner)}),
+        (PRECOMMIT_PATH, {row[1]: pc for row, pc in zip(spec, precommit)}),
+    ]))
+
     # Additive 3.99 (closing PR #1087) guards: cross-check the exclusion allow-lists against a
     # positive signal, and check the D-numbered delta gates' cross-surface parity.
     spec_scripts = {script for (_, _, _, script) in spec}
@@ -1917,16 +1902,17 @@ def main(argv: list[str]) -> int:
             f"programme's four surfaces."
         )
         print(
-            "The Audit Programme Specification section 3 principle 5 "
-            "requires that the spec, workflow, runner, and pre-commit "
-            "hook all declare the same gates with the same names and "
+            "The Audit Programme Specification requires that the runner and "
+            "pre-commit hook declare every section 6 gate, and the workflow "
+            "exactly the section 4 CI subset, with the same names and "
             "scripts in the same order. The spec is canonical."
         )
         return 1
 
     print(
-        f"OK: gate-name parity confirmed for {len(spec)} gates across "
-        f"all four audit-programme surfaces, each listed once in section 5."
+        f"OK: gate-name parity confirmed for {len(spec)} gates on the spec, "
+        f"runner and pre-commit surfaces and the {len(ci_rows)} CI-subset gates "
+        f"on the workflow, each listed once in section 5."
     )
     return 0
 

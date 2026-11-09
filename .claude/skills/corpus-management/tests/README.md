@@ -33,7 +33,9 @@ linter against the clean corpus on every commit and expecting exit 0.
 
 The pre-push guard's site-only fast path (see
 [`.claude/skills/corpus-management/tools/README.md`](../tools/README.md)) runs `.claude/skills/corpus-management/tests/test_web_draft.py` but no
-other part of gate 36; CI runs gate 36 whole on every pull request before merge.
+other part of gate 36; the local server runs gate 36 whole in the full suite behind
+the `local-quality` commit status that merge requires, and the nightly sweep runs it
+on `main`; the GitHub pull-request job does not run it.
 A change to a `.py` file under `.web/` (`.web/build.py` among them) or
 `.web/site-card/` is not site-only, so the full guard runs gate 36 for it. `PrePushGuardFastPathTests` in
 `test_linters.py` pins both.

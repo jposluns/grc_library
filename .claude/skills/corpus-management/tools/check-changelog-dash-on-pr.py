@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Verify a pull request introduces no em dashes or en dashes in newly-added .working/CHANGELOG.md lines.
 
-This is a PR-time delta gate (D3), not part of the corpus audit programme (it runs in quality.yml on pull_request and locally via the pre-push guard). The
+This is a PR-time delta gate (D3), not part of the corpus audit programme (it runs in the 1 pull_request job of quality.yml and locally via the pre-push guard). The
 corpus gates check repository state at HEAD; this script compares HEAD to the
 PR's merge-base and inspects only the lines the PR ADDS to .working/CHANGELOG.md, failing
 if any added line contains an em dash (U+2014) or en dash (U+2013).

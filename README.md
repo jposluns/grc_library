@@ -5,8 +5,8 @@
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **SPDX-License-Identifier:** CC-BY-SA-4.0\
-**Library Version:** 2026.11.65 (CalVer, library-wide; see [`governance/specification-master-project.md`](governance/specification-master-project.md) §4.5)\
-**README Version:** 1.11.918 (semantic per-document version for this file)
+**Library Version:** 2026.11.66 (CalVer, library-wide; see [`governance/specification-master-project.md`](governance/specification-master-project.md) §4.5)\
+**README Version:** 1.11.919 (semantic per-document version for this file)
 
 ---
 
@@ -164,10 +164,12 @@ Repository infrastructure directories (not used for governance artefacts):
                 document model (its own document class, registry, and gate family); inside the repository
                 safety gates. Establishes no requirements; the linked corpus governs. See
                 executive/README.md.
-/.github        GitHub Actions workflow that runs the full audit programme (see
-                `.claude/skills/corpus-management/specs/specification-audit-programme.md` §6 for the canonical gate
-                inventory; `.claude/skills/corpus-management/tools/run_all_audits.sh` is the local equivalent) on push to
-                main and on every pull request.
+/.github        GitHub Actions workflows: 1 small pull-request job runs the CI subset of the
+                audit programme (see `.claude/skills/corpus-management/specs/specification-audit-programme.md`
+                §4 for the subset and §6 for the canonical gate inventory) and the per-PR delta
+                checks, and the nightly sweep runs the full programme on main through
+                `.claude/skills/corpus-management/tools/run_all_audits.sh`. The local server runs the full
+                suite and posts the local-quality commit status that merge requires.
 /.claude/skills/corpus-management/data/taxonomy.yml
                 Auto-generated machine-readable registry of every active artefact's canonical
                 metadata, purpose, section outline, and framework alignment. Regenerated from document metadata and document structure by .claude/skills/corpus-management/tools/build-taxonomy.py.

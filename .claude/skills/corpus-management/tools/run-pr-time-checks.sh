@@ -16,7 +16,7 @@
 #      inputs are not available in .claude/skills/corpus-management/tools/run_all_audits.sh (the advisory D8
 #      and the size-only D10 read working-tree state and take no base ref);
 #      they run
-#      only here and in quality.yml. D10's two checks (the core-line and
+#      only here and in quality.yml's pull-request job. D10's two checks (the core-line and
 #      startup character ceilings) also run as gate 106 in run_all_audits.sh
 #      (.claude/skills/corpus-management/tools/lint-startup-character-ceiling.py).
 #   2. The history-aware gates that examine each file's commit graph
