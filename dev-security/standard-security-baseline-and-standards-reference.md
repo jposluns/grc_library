@@ -1,0 +1,236 @@
+# Security Baseline and Standards Reference
+
+**Document Title:** Security Baseline and Standards Reference\
+**Document Type:** Standard\
+**Version:** 1.1.39\
+**Date:** 2026-10-27\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)\
+**Classification:** Public\
+**Category:** Developer Security\
+**Review Frequency:** Annual or upon material threat, regulatory, or framework change\
+**Repository Path:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## 1. Purpose and scope
+
+This document establishes the security framework, governing principles, data classification model, identity architecture, and network security model applicable to all computing environments, development programmes, and activities within an organization's security boundary. It applies to all cloud environments, all internal and outsourced development, and all personnel, contractors, and service providers with access to organizational systems, data, or code repositories.
+
+All requirements in the developer security requirements, DevOps security requirements, and production security requirements standards flow from this document. When this document conflicts with any subordinate standard, this document takes precedence.
+
+---
+
+## 2. Governing framework hierarchy
+
+In the event of conflict, higher layers take precedence.
+
+### 2.1 Layer 1: statute and regulation
+
+| Obligation | Jurisdiction | Relevance |
+| --- | --- | --- |
+| PIPEDA / Quebec Law 25 | Canada | Personal data processing, breach notification, cross-border transfer accountability |
+| Canada AI governance (Treasury Board Directive on Automated Decision-Making; Voluntary Code of Conduct on Generative AI; AIDA lapsed) | Canada | AI system governance; high-impact AI (AIDA not in force; the Treasury Board Directive on Automated Decision-Making is binding on federal institutions subject to the Policy on Service and Digital) |
+| Criminal Code of Canada (cybercrime provisions) | Canada | Unauthorized access, data destruction |
+| State and provincial breach notification laws | Multiple | Customer and partner data exposure |
+| GDPR (Article 3 territorial scope) | EU | Processing in the context of an EU establishment of the controller or processor, wherever the processing takes place (Art. 3(1)); processing of personal data of data subjects who are in the Union by a controller or processor not established there, where it relates to offering them goods or services or monitoring their behaviour within the Union (Art. 3(2)); processing by a controller not established in the Union, in a place where Member State law applies by virtue of public international law (Art. 3(3)) |
+| BASC International Standard | Latin America / Global | Customs and trade security for Latin American operations |
+| WCO SAFE Framework | Global | Customs data integrity and trade security |
+| CTPAT | USA | Cross-border trade security |
+
+### 2.2 Layer 2: primary security frameworks
+
+| Framework | Version | Role |
+| --- | --- | --- |
+| CSA Cloud Controls Matrix (CCM) | v4.1.0 | Primary cloud security control framework. 207 controls across 17 domains. |
+| CSA AI Controls Matrix (AICM) | v1.1.0 | AI-specific controls. Mandatory for all AI/ML workloads. |
+| COBIT | 2019 | IT governance framework. Process-level traceability for audit and board reporting. |
+| ISO/IEC 27001:2022 | 2022 | Information Security Management System (ISMS). |
+| ISO/IEC 27002:2022 | 2022 | Security controls implementation guidance. |
+| NIST SSDF | SP 800-218 Version 1.1 and SP 800-218A (Generative AI Profile) | Secure-by-design development. Mandatory for all net-new development. SP 800-218A applies to all AI and ML workloads. |
+| OWASP ASVS | v5.0.0 | Application security testing baseline. |
+
+### 2.3 Layer 3: internal governance documents
+
+The governance library includes authoritative artefacts in the following areas: information security policy; secure development and engineering policy; acceptance into service policy; identity and access management policy; privileged access management standard; authentication and password management standard; encryption and key management policy; privacy and data governance policy; network security and segmentation standard; logging and monitoring standard; physical security of IT infrastructure standard; remote working security standard; penetration testing and red team programme standard; bring-your-own-device policy; media handling and transport procedure; cloud exit and data portability standard; change management procedure; vulnerability management procedure; incident response procedure; AI compliance policy; AI governance and ethics framework; AI security and risk standard; post-quantum cryptography readiness roadmap.
+
+### 2.4 Layer 4: architectural standards
+
+Current architectural authority documents define infrastructure delivery standards, network design, and approved tooling. Adopting organizations should maintain a current-state register of approved platforms, tooling, and vendor assignments.
+
+---
+
+## 3. Core security principles
+
+Deviations require a formal exception through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), with CISO co-approval for security-related exceptions in addition to, not in place of, the risk-tier approver.
+
+| Principle | Statement |
+| --- | --- |
+| **Secure by Design** | Security controls are built in from the first design decision. Not added after build. |
+| **Zero Standing Privilege** | No person or service account holds permanently elevated access. All privileged access is time-bound, approved, and recorded. |
+| **Least Privilege** | Every identity receives only the permissions required to perform its defined function. |
+| **Default Deny** | All access, network flows, and service-to-service communication is denied by default. Only explicitly approved flows are permitted. |
+| **Separation of Environments** | Production, Test, and Dev are distinct environments with dedicated identity domains, network segments, and access controls. No shared credentials or paths between them. |
+| **Immutable and Auditable** | All significant actions generate audit records that cannot be deleted by the actor. Logs are forwarded to the SIEM immediately. Backup repositories use immutable (WORM) storage. |
+| **Data Residency First** | All data is hosted in primary cloud regions by default. Non-default hosting requires a risk assessment, an exception through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) with Legal sign-off, and privacy impact assessment where personal data is involved. |
+| **Encryption Everywhere** | Data at rest, in transit, and in use is encrypted. TLS 1.3 (or stronger). RC4, 3DES, SSL, TLS 1.0/1.1/1.2 prohibited. AES-256 for symmetric encryption. NTLMv1 prohibited. |
+| **Supply Chain Integrity** | All third-party code, libraries, models, and services are evaluated before use. Software Bill of Materials (SBOM) maintained for all applications. |
+| **Privacy by Design** | Personal data processing is minimized and purposeful. Privacy Impact Assessments (PIAs) completed before any new system processing personal data is deployed. |
+
+---
+
+## 4. Data classification
+
+| Classification | Description | Examples |
+| --- | --- | --- |
+| **Public** | Approved for unrestricted external disclosure. | Marketing materials, public website content |
+| **Controlled** | May be shared externally on demand where disclosure poses low risk. | Product overviews, proposals, general client communications |
+| **Internal** | For organizational internal use only. | Operational procedures, internal reports |
+| **Confidential** | Sensitive business data requiring controlled access. | Customer records, financial data, contracts, trade data, personnel information |
+| **Restricted** | Highest sensitivity; access strictly controlled. | Credentials, encryption keys, audit logs with PII, investigation materials |
+
+Always classified as Confidential or Restricted regardless of context: personal identifiable information (PII); payment data; customs declarations; salary and HR data; credentials and API keys; architecture diagrams containing security controls; incident response documentation; AI training datasets containing personal data.
+
+---
+
+## 5. Regulatory obligations
+
+### 5.1 Canadian privacy law
+
+Quebec Law 25 requires: a privacy impact assessment before any project to acquire, develop, or overhaul an information system or electronic service delivery system involving the collection, use, communication, keeping, or destruction of personal information (s. 3.3) and before communicating personal information outside Quebec (s. 17); prompt breach notification to the provincial privacy regulator for a breach presenting a risk of serious injury (the Act's standard is promptness; it sets no fixed hour-count); a person in charge of the protection of personal information (s. 3.1, held by the person exercising the highest authority, who may delegate the function in writing). See the privacy management programme charter for the full privacy governance model.
+
+### 5.2 Trade security compliance (BASC)
+
+BASC International Standard requires: documented access controls to logistics and trade systems; protection of customs and shipment data; supply chain integrity controls; incident response and reporting for trade operations. IT responsibilities should be mapped in a dedicated compliance register.
+
+### 5.3 Trusted-trader programmes (CTPAT and equivalents)
+
+Requirements include: documented cybersecurity programme; password and access control standards; periodic security assessments; and business partner vetting. Refer to the authentication and password management standard and the penetration testing programme standard.
+
+### 5.4 AI regulation
+
+Canada has no in-force federal AI statute. AIDA (proposed as Part 3 of Bill C-27) lapsed at the 2025-01-06 prorogation and is not in force; treat it as a lapsed planning indicator, not a compliance target. The current Canadian instruments are the Treasury Board Directive on Automated Decision-Making (binding on federal institutions subject to the Policy on Service and Digital) and the federal Voluntary Code of Conduct on Generative AI (voluntary); PIPEDA remains the in-force federal private-sector privacy law. Had AIDA been enacted (it lapsed and, per a June 2025 ministerial statement not held in the reference base, is reported not to return in its original form, which an adopter confirms directly), it would have required, in accordance with regulations, an assessment of whether an AI system was high-impact, risk-identification and mitigation measures for high-impact systems, transparency, and record-keeping (not the Treasury Board algorithmic impact assessment process); monitor for any successor AI-governance instrument. Refer to the AI and agentic development security standard for AI security requirements. <!-- ref-absence: AIDA ministerial statement | Artificial Intelligence and Data Act ministerial statement -->
+
+---
+
+## 6. Cloud hosting policy
+
+**Default:** Primary cloud region designated by the organization.
+
+**Non-default hosting process:** Initiate data residency risk assessment; Legal and Compliance review; PIA where personal data is involved; approval through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) with Legal sign-off; recorded in Exception Register; reviewed annually.
+
+**Multi-cloud:** Multiple cloud platforms may be approved for specific workloads. All multi-cloud workloads must comply with this security baseline and be included in SIEM monitoring.
+
+**AI service residency:** Some AI services may not be available in preferred cloud regions. Any project using such a service must complete the non-default hosting exception process before deployment. Adopting organizations should identify approved fallback services for workloads with contractual data residency requirements.
+
+**Cloud exit:** All cloud services must have a documented exit plan per the cloud exit and data portability standard.
+
+---
+
+## 7. Identity and access architecture
+
+### 7.1 Identity authority
+
+An enterprise identity provider (IdP) serves as the authoritative identity authority for all environments. On-premises identity domains should be separate security boundaries from resource domains. Administrative access must not cross trust boundaries.
+
+### 7.2 Authentication standards
+
+Multi-factor authentication (MFA) is mandatory for all human access; exceptions exist only via the exception path in [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md) Section 8 (documented compensating control, remediation target date). Phishing-resistant MFA (e.g., FIDO2 or certificate-based) is required for Tier 0 access. Service accounts use platform managed identities or PAM-vaulted accounts. LDAPS (port 636) is the only permitted directory integration protocol. Kerberos AES-256 is required; RC4 Kerberos is prohibited in all new builds.
+
+### 7.3 Privileged access management
+
+Just-in-time privileged access, approval workflows, and audit trails must be implemented for all privileged access. PAM tiers:
+
+| Tier | Assets | Controls |
+| --- | --- | --- |
+| **Tier 0** | Domain Controllers, PKI, PAM, identity services | Privileged access workstation (PAW) only. Approval mandatory. Session recording mandatory. Rotate every checkout, max 24 hours. |
+| **Tier 1** | Hypervisor, storage, backup, virtualization infrastructure | No Tier 0 access. MFA and session recording mandatory. Rotate every 24 to 48 hours. |
+| **Tier 2** | Application and database servers | No Tier 0/1 access unless explicitly approved. MFA mandatory. Rotate every 7 days. |
+
+### 7.4 Service identities
+
+Service identities must be named per approved convention, hold minimum required permissions, be registered in the PAM vault or managed identity registry, and be reviewed quarterly. No service identity may hold standing domain administrator membership. Cloud workloads should use platform managed identity for all service-to-service authentication wherever technically feasible.
+
+---
+
+## 8. Network security architecture
+
+All inter-segment communication is default-deny. Production, Test, and Dev are fully segregated with separate identity domains, network segments, and access controls. Storage segments are non-routable. Database segments have no outbound internet access. DMZ systems cannot initiate connections to database, storage, or backup segments. All administrative access is from a privileged access workstation (PAW) or approved jump host only. Perimeter controls include a cloud-based web application firewall (WAF) and next-generation firewalls enforcing north-south traffic policy.
+
+Applications must document required network flows before deployment. No access control list (ACL) or firewall change is permitted without a documented, approved change request; an Emergency change is authorized by the CIO or equivalent before implementation, with the change request created retrospectively per the change management procedure.
+
+---
+
+## 9. Logging and monitoring
+
+Logging is mandatory and is not a post-deployment activity. A SIEM is the primary platform for log aggregation and alerting across Production and Test environments. All systems must forward logs to the SIEM.
+
+### 9.1 Minimum log retention
+
+| Environment | Hot Retention | Archive |
+| --- | --- | --- |
+| Production / Test | 90 days | 12 months |
+| Dev | 30 days | N/A |
+| Security logs | 12 months minimum | 24 months recommended |
+
+### 9.2 Required log sources: all systems
+
+Authentication events; privileged access events; administrative actions; network boundary events; application errors and security exceptions; backup events; certificate lifecycle events.
+
+### 9.3 Applications additionally log
+
+All authentication attempts; all authorization decisions; all Confidential/Restricted data access events; all API calls with caller, endpoint, response code, and timestamp; significant configuration changes.
+
+### 9.4 Log integrity
+
+Logs must not be modifiable by the actor that generated them. SIEM workspace deletion is restricted to break-glass roles only.
+
+---
+
+## 10. Incident response obligations
+
+- Report any suspected incident immediately to the security team. No silent remediation.
+- Preserve evidence. Do not reimage, restart, or modify affected systems without IR team instruction.
+- A designated SOC/IR partner or internal incident response capability should be engaged by the CIO/CISO for Priority 1 incidents.
+- Regulatory breach notification under PIPEDA and Quebec Law 25 is time-critical: as soon as feasible after the organization determines the breach has occurred under PIPEDA (s. 10.1(2) and (6)), and promptly under Quebec Law 25 (neither statute sets a fixed hour-count). The DPO must be notified immediately on any suspected breach involving personal data.
+
+---
+
+## 11. Framework and runtime end-of-life policy
+
+Running application frameworks, language runtimes, or middleware that have reached vendor End-of-Life (EOL) is a security risk. EOL runtimes do not receive security patches. CVEs identified after the EOL date will remain unmitigated permanently. This policy applies to all runtimes including .NET, Node.js, Java, Python, OS versions, database engines, and on-premises middleware.
+
+### 11.1 EOL classification and remediation SLA
+
+| Class | Definition | Remediation SLA | Interim Controls |
+| --- | --- | --- | --- |
+| **Class 1: Critical** | Runtime EOL for more than 12 months AND a CVE rated CVSS 7.0 or above published against it since EOL | 30 days. No extension without an exception approved through the formal exception process in [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (the Section 4.2.2 risk-tier approver, with CISO co-approval for security-related exceptions) and documented compensating controls. | Network isolation where feasible; enhanced monitoring; no new features on the affected service. |
+| **Class 2: High** | Runtime EOL date has passed with no qualifying CVE yet, OR runtime reaches EOL within 90 days | 90 days for already-EOL. Upgrade initiated before EOL date for imminent EOL. | Upgrade plan documented and tracked. Interim monitoring in place. |
+| **Class 3: Medium** | Runtime reaches EOL within 180 days | Upgrade plan must exist before the 90-day threshold is reached. | Planning and procurement only. |
+
+### 11.2 EOL tracking and enforcement
+
+A runtime EOL tracking register is maintained by the DevOps lead and reviewed quarterly. SIEM alerts fire at 180 days, 90 days, and 30 days before any runtime reaches EOL. Cloud governance policy should block deployment to EOL runtime versions at the subscription or organizational level. Policy exceptions require a documented waiver with a maximum 30-day duration, approved through the formal exception process in [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (the Section 4.2.2 risk-tier approver, with CISO co-approval for security-related exceptions). An exception permitting an EOL runtime, operating system, middleware, or database in production, or an exception permitting any Class 1 EOL runtime (one with a published CVE rated CVSS 7.0 or above) in any environment, is rated at least High risk (running unsupported software, especially with an active high-severity vulnerability, is a high-severity exposure), so the Section 4.2.2 risk-tier pathway routes its approval to the Executive Committee or Board Risk Committee. This is a risk-rating floor for end-of-life exceptions, not a per-document approver override.
+
+---
+
+## 12. Framework alignment
+
+| Control Area | ISO/IEC 27001:2022 / ISO/IEC 27002:2022 | CSA CCM v4.1 | NIST SP 800-218 Version 1.1 | OWASP ASVS | Regulatory |
+| --- | --- | --- | --- | --- | --- |
+| Security governance and principles | A.5 | GRC-01 to 06 | PO.1.1, PO.1.2 | N/A | ISO 37301:2021, COBIT 2019 |
+| Data classification | A.5.10 to 5.13 | DSP-01 to 07 | N/A | V14 | PIPEDA, Law 25, GDPR |
+| Identity and access | A.5.15 to 5.18 | IAM-01 to 10, IAM-12 to 15 | N/A | V6, V8 | PIPEDA, BASC |
+| Network security | A.8.20 to 8.23 | I&S-03, I&S-09 | N/A | V12 | CTPAT |
+| Logging and monitoring | A.8.15 to 8.16 | LOG-01 to LOG-07, LOG-09 to LOG-13 | N/A | V16 | Quebec Law 25 |
+| Cryptography | A.8.24 | CEK-01 to CEK-07, CEK-09 to CEK-21 | N/A | V11 | FIPS 140-3 guidance |
+| Incident response | A.5.26 | SEF-01 to 06 | N/A | N/A | PIPEDA, Law 25 |
+| Supplier and third-party | A.5.19 to 5.22 | STA-01 to STA-03, STA-05 to STA-09 | N/A | N/A | CTPAT, BASC, WCO SAFE |
+| EOL and vulnerability management | A.8.8 | TVM-01 to 10 | PW.4.4, RV.2.1, RV.2.2 | N/A | BASC |
+
+---
+
+**End of Document**

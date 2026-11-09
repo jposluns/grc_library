@@ -1,0 +1,267 @@
+# Healthcare Sector GRC Requirements Annex
+
+**Document Title:** Healthcare Sector GRC Requirements Annex\
+**Document Type:** Annex\
+**Version:** 1.1.31\
+**Date:** 2026-10-26\
+**Owner:** Chief Compliance Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](procedure-hipaa-operational-compliance.md), [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
+**Classification:** Public\
+**Category:** Compliance: Sector-Specific\
+**Review Frequency:** Annual and upon material regulatory change in applicable jurisdictions\
+**Repository Path:** [`compliance/healthcare/annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This annex identifies the additional GRC obligations that apply to organizations operating in or adjacent to the healthcare sector. It maps applicable regulatory frameworks to the core GRC library controls and identifies gap areas requiring sector-specific supplementation.
+
+This annex applies where an organization:
+- Is a healthcare provider, health insurer, or healthcare clearinghouse (covered entity under HIPAA)
+- Processes electronic protected health information (ePHI) or equivalent health data on behalf of a covered entity (business associate)
+- Manufactures, distributes, or services connected medical devices
+- Provides health information technology, electronic health records (EHR), or clinical decision support systems
+- Conducts clinical research involving human subject data
+- Handles personal health data under GDPR Article 9 (EU), UK GDPR, or equivalent
+
+---
+
+## Regulatory landscape overview
+
+### United states
+
+| Regulation | Authority | Scope |
+|---|---|---|
+| **HIPAA Privacy Rule** (45 CFR Part 164, Subpart E) | HHS Office for Civil Rights (OCR) | Covered entities and business associates handling PHI |
+| **HIPAA Security Rule** (45 CFR Part 164, Subpart C) | HHS OCR | Covered entities and business associates handling ePHI |
+| **HIPAA Breach Notification Rule** (45 CFR Part 164, Subpart D) | HHS OCR | Covered entities and business associates |
+| **HITECH Act** (42 U.S.C. §17921 et seq.) | HHS | Strengthens HIPAA; enhanced penalties; meaningful use |
+| **21st Century Cures Act** | HHS ONC | Information blocking prohibitions; FHIR interoperability |
+| **FDA guidance: Cybersecurity in Medical Devices: Quality Management System Considerations and Content of Premarket Submissions** (final, issued 3 February 2026; docket FDA-2021-D-1158) | FDA | Device manufacturers; premarket submissions (FD&C Act section 524B applies to 510(k), PMA, PDP, De Novo, and HDE submissions for cyber devices) |
+| **FedRAMP** (where applicable) | GSA | Health IT products used by federal healthcare programmes |
+| **42 CFR Part 2** | SAMHSA | Substance use disorder treatment records |
+| **State breach notification laws** | Varies | Many states have additional or stricter requirements |
+
+### Canada
+
+| Regulation / Standard | Authority | Scope |
+|---|---|---|
+| **PIPEDA** | OPC | Personal information (including health information) collected, used, or disclosed in the course of commercial activities, and employee and applicant data of federal works, undertakings, or businesses (s. 4(1)); subject to a Governor in Council order under s. 26(2)(b) exempting in-province handling where substantially similar provincial legislation applies |
+| **PHIPA**: Personal Health Information Protection Act | Ontario IPC | Ontario health information custodians |
+| **PIPA** (Alberta) | OIPC Alberta | Alberta private-sector organizations generally; health information as defined in the Health Information Act, to which that Act applies, is excluded (s. 4(3)(f)) and governed by the HIA below |
+| **HIA**: Health Information Act | Alberta | Alberta custodians of health information |
+| **PHIA** (Manitoba, Nova Scotia, etc.) | Provincial | Province-specific health information custodians |
+
+### United kingdom
+
+| Regulation / Standard | Authority | Scope |
+|---|---|---|
+| **UK GDPR + Data Protection Act 2018** | Information Commission | All health data processing |
+| **NHS Data Security and Protection Toolkit (DSPT)** | NHS England | NHS organizations and their suppliers |
+| **CQC Data Security Standards** | Care Quality Commission | Regulated health and social care providers |
+| **Caldicott Principles** | National Data Guardian (NDG) | NHS and social care organizations |
+| **MHRA regulations** | MHRA | Medical device manufacturers and distributors in UK |
+
+### European union
+
+| Regulation | Authority | Scope |
+|---|---|---|
+| **GDPR Article 9** | National DPAs | Processing special category data including health data |
+| **EU AI Act: High Risk (Article 6(1) + Annex I)** | National competent / market-surveillance authorities (Article 70; for the Section A Annex I medical-device route, the authority designated under the MDR/IVDR, or, in appropriate circumstances and with sectoral coordination, another authority a Member State designates (Article 74(3)); an Annex III point 5(d) system built on a general-purpose AI model by the same provider instead falls under the AI Office's Article 75(1) exclusive competence) | AI that is, or is a safety component of, a medical device or IVD (Annex I points 11-12) where that product must undergo third-party conformity assessment (Article 6(1)); AI used solely for non-safety-related aspects such as performance optimization, service efficiency, or quality control is not a safety component (Article 6(1a)), though AI whose failure or malfunctioning would endanger health and safety is (Article 6(1b)), as inserted by Regulation (EU) 2026/1744; emergency call-evaluation, dispatch, and patient-triage AI is separately listed under Annex III point 5(d), where a qualifying system may still be assessed as non-high-risk under Article 6(3) but is always high-risk where it profiles |
+| **Medical Device Regulation (MDR) 2017/745** | European Commission / national authorities | Medical device manufacturers and importers in EU |
+| **In Vitro Diagnostic Regulation (IVDR) 2017/746** | European Commission / national authorities | In vitro diagnostic device manufacturers |
+| **EU NIS 2 Directive** | National competent authorities | Healthcare entities in scope; essential or important depending on Article 3 classification |
+| **European Health Data Space (EHDS)** | European Commission / national authorities | Health data holders and processors: adopted as Regulation (EU) 2025/327, which is not held in the reference base, so an adopter confirms its application dates and obligations directly <!-- ref-absence: 2025/327 --> |
+
+### Global
+
+| Standard | Body | Scope |
+|---|---|---|
+| **ISO 27799**, Health informatics, Information security management | ISO | Health organizations implementing information security |
+| **HL7 FHIR Security** | HL7 International | FHIR API implementers |
+| **ISO 13485**: Medical devices quality management | ISO | Medical device manufacturers |
+| **IEC 62304**: Medical device software lifecycle | IEC | Medical device software developers |
+| **IEC 62443** (cybersecurity for connected devices) | IEC | Medical device manufacturers with network-connected devices |
+
+---
+
+## Key regulatory requirements
+
+### HIPAA security rule
+
+The HIPAA Security Rule establishes three categories of safeguards for ePHI. The tables below describe the rule **as currently in force** (the original 2003 Security Rule with the HITECH 2009 / Omnibus 2013 amendments). For the proposed NPRM revisions still pending as of May 2026, see ["HIPAA Security Rule NPRM (proposed)"](#hipaa-security-rule-nprm-proposed) below.
+
+#### Administrative safeguards (§164.308)
+
+| Standard | Required / Addressable | GRC Library Mapping |
+|---|---|---|
+| Security management process: risk analysis | Required | [`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md); [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md) |
+| Security management process: risk management | Required | [`risk/template-enterprise-risk-register.md`](../../risk/template-enterprise-risk-register.md); [`compliance/procedure-capa.md`](../procedure-capa.md) |
+| Assigned security responsibility | Required | CISO role definition |
+| Workforce training and awareness | Required | [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md) |
+| Access management: authorization and supervision | Addressable | [`security/procedure-access-control.md`](../../security/procedure-access-control.md) |
+| Workforce clearance procedure | Addressable | Personnel security controls |
+| Security incident procedures: response and reporting | Required | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md) |
+| Contingency plan: data backup | Required | [`resilience/procedure-backup-and-recovery.md`](../../resilience/procedure-backup-and-recovery.md) |
+| Contingency plan: disaster recovery | Required | [`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md) |
+| Contingency plan: emergency mode operations | Required | [`resilience/procedure-crisis-management-eoc-activation.md`](../../resilience/procedure-crisis-management-eoc-activation.md) |
+| Evaluation: periodic technical and non-technical evaluation | Required | [`compliance/procedure-control-testing.md`](../procedure-control-testing.md); [`compliance/standard-internal-audit.md`](../standard-internal-audit.md) |
+| Business associate contracts | Required | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md): supplement with BAA template |
+
+#### Physical safeguards (§164.310)
+
+| Standard | GRC Library Mapping |
+|---|---|
+| Facility access controls | Physical security controls (supplement core library) |
+| Workstation use policies | [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md) |
+| Device and media controls: disposal | [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md); media disposal procedures |
+
+#### Technical safeguards (§164.312)
+
+| Standard | Required / Addressable | GRC Library Mapping |
+|---|---|---|
+| Access control: unique user IDs | Required | [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
+| Access control: emergency access | Required | Emergency access procedure (supplement) |
+| Access control: automatic logoff | Addressable | Endpoint configuration standards |
+| Access control: encryption and decryption | Addressable | [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md) |
+| Audit controls: hardware and software activity records | Required | [`operations/register-it-security-operations.md`](../../operations/register-it-security-operations.md) |
+| Integrity controls | Addressable | Data integrity controls |
+| Transmission security, encryption | Addressable | [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md), TLS 1.3 required |
+
+### HIPAA Security Rule NPRM (proposed)
+
+HHS OCR issued a Notice of Proposed Rulemaking (NPRM) on 27 December 2024, published in the Federal Register on 6 January 2025. The comment period closed 7 March 2025 with approximately 5,000 comments. The final rule remained pending as of May 2026, with OCR's regulatory agenda listing May 2026 as the target finalization window.
+
+The most consequential proposed changes (note: still proposed; not yet in force):
+
+| Proposed change | Effect on currently-addressable controls |
+|---|---|
+| Eliminate the "required vs addressable" distinction | Every implementation specification becomes required, with narrow documented exceptions only. Items currently addressable (such as encryption and decryption at §164.312(a)(2)(iv) and transmission encryption at §164.312(e)(2)(ii)) would become required. |
+| Mandatory encryption of ePHI in transit and at rest | Encryption becomes a baseline control rather than a risk-based determination. |
+| Mandatory multi-factor authentication | MFA required for systems accessing ePHI. |
+| Technology asset inventory and ePHI network map | Refresh at least annually and on any material environmental or operational change. |
+| Annual security risk assessment and vulnerability scanning | Codified cadence rather than periodic-as-reasonable. |
+| Enhanced business associate oversight | Greater BAA verification and reporting expectations. |
+| 72-hour incident reporting (proposed) | Internal reporting timeline tightened. |
+
+When the NPRM is finalized, the published Final Rule will take effect 60 days after publication in the Federal Register, and covered entities and business associates will have an additional 180 days after the effective date to reach compliance (240 days total from publication). Organizations operating in the healthcare sector should track the OCR regulatory agenda and the Federal Register for the finalization event.
+
+### HIPAA breach notification rule
+
+| Obligation | Threshold | Timeline |
+|---|---|---|
+| Notification to affected individuals | Any breach of unsecured PHI | Without unreasonable delay and in no case later than 60 calendar days after discovery (45 CFR 164.404(b)); subject to the law-enforcement delay below |
+| Notification to HHS | Breaches affecting fewer than 500 individuals | Not later than 60 days after the end of each calendar year, for breaches discovered during the preceding calendar year (45 CFR 164.408(c)); subject to the law-enforcement delay below |
+| Notification to HHS | Breaches affecting 500 or more individuals in total, with no per-state split (45 CFR 164.408(b)) | Contemporaneously with the notice to affected individuals (45 CFR 164.408(b)); subject to the law-enforcement delay below |
+| Notification to prominent media serving the state or jurisdiction | Breaches affecting more than 500 residents of a state or jurisdiction (45 CFR 164.406(a)) | Without unreasonable delay and in no case later than 60 calendar days after discovery (45 CFR 164.406(b)); subject to the law-enforcement delay below |
+| Business associate breach notification to covered entity | Any breach of unsecured PHI (45 CFR 164.410(a)(1)) | Without unreasonable delay and in no case later than 60 calendar days after discovery (45 CFR 164.410(b)); subject to the law-enforcement delay below |
+
+**Law-enforcement delay (45 CFR 164.412):** where a law enforcement official states to a covered entity or business associate that a notification, notice, or posting in the table above "would impede a criminal investigation or cause damage to national security", the organization must delay it. A statement "in writing" that "specifies the time for which a delay is required" delays it "for the time period specified by the official" (164.412(a)). An oral statement must be documented, "including the identity of the official making the statement", and delays it "temporarily and no longer than 30 days from the date of the oral statement, unless a written statement as described in paragraph (a) of this section is submitted during that time" (164.412(b)).
+
+**HHS OCR investigation triggers:** Any breach affecting 500+ individuals will be investigated by OCR. Under 45 CFR 102.3, regulatory calendar-year caps for identical violations are the same across all four tiers; the 2019 enforcement-discretion annual caps rise by tier. See the [US privacy annex HIPAA section](../../privacy/jurisdictions/annex-privacy-united-states.md#hipaa) for amounts and the distinction between base and adjusted values.
+
+**Operational procedure:** the executable HIPAA operational obligations, the Privacy Rule individual-rights response clocks (access, amendment, accounting), the Notice of Privacy Practices and minimum-necessary duties, the six-year documentation-retention schedule, the four-factor breach-determination test that decides whether the notification clock starts, and the business associate agreement content requirement, are operationalized in the [HIPAA Operational Compliance Procedure](procedure-hipaa-operational-compliance.md). The full US operational regime map, role determination, the Security Rule safeguard families, the Breach Notification mechanics and timelines, the four-tier enforcement structure, and the mapping of these obligations to library controls through the NIST SP 800-66r2 crosswalk, is in the [United States HIPAA Sector Requirements Annex](annex-healthcare-united-states.md).
+
+### NHS DSPT (UK)
+
+The NHS Data Security and Protection Toolkit is mandatory for all organizations that access NHS patient data or systems. It is structured around the 10 National Data Guardian Standards.
+
+| NDG Standard | Core Requirement | GRC Library Mapping |
+|---|---|---|
+| 1. Personal confidential data | Staff understand their responsibilities | [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md); [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md) |
+| 2. Staff responsibilities | All staff have appropriate training | [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md) |
+| 3. Training | Data security training completed annually | Training completion records |
+| 4. Managing data access | Access based on legitimate relationship | [`security/procedure-access-control.md`](../../security/procedure-access-control.md) |
+| 5. Process reviews | Annual review of processes involving patient data | [`compliance/standard-internal-audit.md`](../standard-internal-audit.md) |
+| 6. Responding to incidents | Processes in place for data security incidents | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md); [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md) |
+| 7. Continuity planning | Continuity planning incorporating data security | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md) |
+| 8. Unsupported systems | Handles risks from unsupported systems | [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md); lifecycle management |
+| 9. IT protection | Cyber security measures deployed | [`security/policy-information-security.md`](../../security/policy-information-security.md) |
+| 10. Accountable suppliers | Contracts include data security requirements | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md) |
+
+DSPT submission is annual. Organizations must achieve at minimum "Standards Met" status to maintain NHS data access.
+
+### FDA cybersecurity in medical devices (2026 guidance)
+
+FDA's final guidance "Cybersecurity in Medical Devices: Quality Management System Considerations and Content of Premarket Submissions" was issued on 3 February 2026 (docket FDA-2021-D-1158) and supersedes the edition issued on 27 June 2025. The guidance contains nonbinding recommendations, intended to help manufacturers meet their obligations under section 524B of the FD&C Act, and covers all relevant cybersecurity considerations that may affect device safety and effectiveness, including software, hardware, and firmware.
+
+Section 524B applies to premarket submissions for cyber devices from 29 March 2023: a person who submits a 510(k), PMA, PDP, De Novo, or HDE for a device that meets the section 524B(c) definition of a cyber device must submit information to ensure that the device meets the cybersecurity requirements under section 524B(b).
+
+| Item | Basis and detail | GRC Library Mapping |
+|---|---|---|
+| **Cybersecurity management plan** | Section 524B(b)(1) requirement: a plan to monitor, identify, and address, as appropriate, in a reasonable time, postmarket cybersecurity vulnerabilities and exploits | [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md): supplement with device-specific plan |
+| **SBOM** | Section 524B(b)(3) requirement: a software bill of materials, including commercial, open-source, and off-the-shelf software components | [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) |
+| **Threat modelling** | Recommended by the FDA guidance (not named in section 524B): threat modelling performed throughout the design process, covering all medical device system elements, to inform the risk analysis | Risk assessment methodology: supplement with threat modelling procedure |
+| **Vulnerability assessment** | Recommended by the FDA guidance (not named in section 524B): identification of all known vulnerabilities associated with the device and its software components (including those in CISA's Known Exploited Vulnerabilities Catalog), and, for components with known vulnerabilities, a safety and security risk assessment of each known vulnerability (including device and system impacts), as part of the security risk management report | [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) |
+| **Penetration testing** | Recommended by the FDA guidance (not named in section 524B) as premarket submission content: testing that discovers and exploits security vulnerabilities in the product, with reports covering tester independence and technical expertise, scope, duration, methods, and results, findings, and observations. After release, the guidance recommends cybersecurity testing at regular intervals commensurate with the risk (for example, annually) | [`security/standard-penetration-testing-and-red-team.md`](../../security/standard-penetration-testing-and-red-team.md): supplement with device product scope |
+| **Patch management plan** | Section 524B(b)(2) requirement: postmarket updates and patches, on a reasonably justified regular cycle for known unacceptable vulnerabilities and as soon as possible out of cycle for critical vulnerabilities that could cause uncontrolled risks | [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) |
+| **Coordinated vulnerability disclosure** | Section 524B(b)(1) requirement, as part of the postmarket plan: coordinated vulnerability disclosure and related procedures | Supplement: vulnerability disclosure policy |
+| **Secure by design** | Section 524B(b)(2) requirement: processes and procedures that provide a reasonable assurance that the device and related systems are cybersecure | [`dev-security/policy-secure-development-and-engineering.md`](../../dev-security/policy-secure-development-and-engineering.md); [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md) |
+
+### GDPR article 9: special category health data
+
+Processing health data as special category data under GDPR requires additional safeguards:
+
+| Obligation | Requirement | GRC Library Mapping |
+|---|---|---|
+| **Article 6 basis plus an Article 9(2) condition** | Special-category health data requires an Article 6 lawful basis together with an applicable Article 9(2) condition (for example explicit consent under Article 9(2)(a), or the health or social care condition under Article 9(2)(h)) | [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md); supplement with health data processing basis documentation |
+| **Data Protection Impact Assessment** | DPIA mandatory before processing health data at scale | [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md) |
+| **Data minimization** | Only collect and process health data actually necessary | Privacy-by-design requirements |
+| **Pseudonymization** | Apply pseudonymization where possible | [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md); [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md) |
+| **Access controls** | Strict access controls; logs of all access to health records | [`security/procedure-access-control.md`](../../security/procedure-access-control.md); [`operations/register-it-security-operations.md`](../../operations/register-it-security-operations.md) |
+| **Breach notification** | Notify the supervisory authority without undue delay and, where feasible, within 72 hours of becoming aware of a personal data breach, unless it is unlikely to result in a risk (GDPR Art. 33); communicate to affected individuals without undue delay where the risk is high (Art. 34) | [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md) |
+
+### Caldicott principles (UK NHS)
+
+In addition to UK GDPR, NHS and social care organizations must apply the 8 Caldicott Principles:
+
+1. Justify the purpose(s) for using confidential information
+2. Use confidential information only when it is necessary
+3. Use the minimum necessary confidential information
+4. Access to confidential information should be on a strict need-to-know basis
+5. Everyone with access to confidential information should be aware of their responsibilities
+6. Comply with the law
+7. The duty to share information for individual care is as important as the duty to protect patient confidentiality
+8. Inform patients and service users about how their confidential information is used
+
+Governance processes should document how each Caldicott Principle is applied to health data processing activities.
+
+---
+
+## Gap analysis: core library vs. healthcare requirements
+
+| Gap Area | Applicable Regulation | Action Required |
+|---|---|---|
+| Business Associate Agreement (BAA) template | HIPAA §164.314 | Create BAA template for use with all processors of ePHI |
+| HIPAA risk analysis methodology | HIPAA §164.308(a)(1) | Document HHS OCR-compliant risk analysis approach using core risk methodology |
+| HIPAA breach notification procedure | HIPAA §164.400 to 414 | Create HIPAA-specific breach notification procedure including media notification for breaches affecting more than 500 residents of a state or jurisdiction |
+| NHS DSPT annual submission procedure | DSPT | Create DSPT submission procedure and evidence library |
+| Caldicott principle compliance documentation | Caldicott / NDG | Document Caldicott principle application to each processing activity |
+| Medical device SBOM and cybersecurity plan | FDA premarket cybersecurity guidance (2026); MDR/IVDR | Supplement SCA standard with device-specific SBOM and patch management obligations |
+| Clinical research data governance | Research ethics frameworks; ICH GCP | Create research data governance procedure |
+| ICD / SNOMED / HL7 FHIR data standards compliance | 21st Century Cures; EHDS | Supplement data architecture standards with health data interoperability requirements |
+| AI in healthcare high-risk classification | EU AI Act Article 6(1) with Annex I points 11-12 (a medical device or IVD requiring third-party conformity assessment; AI used solely for non-safety-related aspects is not a safety component (Article 6(1a)), though AI whose failure or malfunctioning would endanger health and safety is (Article 6(1b)), inserted by Regulation (EU) 2026/1744) and Annex III point 5(d) (emergency call-evaluation, dispatch, and patient triage, where a qualifying system may still be assessed as non-high-risk under Article 6(3) but is always high-risk where it profiles); FDA SaMD guidance | Supplement AI risk methodology with healthcare-specific AI risk considerations |
+
+---
+
+## Key healthcare-specific controls
+
+The following controls have elevated importance or specific implementation requirements in healthcare:
+
+| Control | Healthcare Requirement | Implementation Guidance |
+|---|---|---|
+| **Encryption** | ePHI must be rendered unusable/unreadable to fall within HIPAA's safe harbour (reduces breach notification obligation) | Apply NIST SP 800-111 encryption standards; use [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md) |
+| **Audit logging** | All access to ePHI must be logged; logs reviewed for suspicious activity | Enhanced logging requirements: log all read access, not just changes |
+| **Minimum necessary** | Access to patient data limited to minimum necessary for task | [`security/procedure-access-control.md`](../../security/procedure-access-control.md): implement role-based access tied to clinical function |
+| **Emergency access** | Documented procedure for emergency access to ePHI when normal authentication is unavailable | Supplement [`security/procedure-access-control.md`](../../security/procedure-access-control.md) with break-glass procedure |
+| **Workstation security** | Screen locks; automatic logoff for workstations in clinical areas | Endpoint configuration standard: clinical environment settings |
+| **Mobile device management** | ePHI on mobile devices must be encrypted and remotely wipeable | Endpoint management platform MDM configuration for clinical devices |
+| **Training** | Healthcare privacy training must cover patient confidentiality, right of access, disclosure restrictions | Annual HIPAA/DSPT-specific training track |
+
+---
+
+**End of Document**

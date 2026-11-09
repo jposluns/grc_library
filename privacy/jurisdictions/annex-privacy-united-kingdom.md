@@ -1,0 +1,84 @@
+# United Kingdom Privacy Regulatory Requirements
+
+**Document Title:** United Kingdom Privacy Regulatory Requirements\
+**Document Type:** Annex\
+**Version:** 1.1.19\
+**Date:** 2026-10-20\
+**Owner:** Data Protection Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`privacy/jurisdictions/annex-privacy-european-union.md`](../jurisdictions/annex-privacy-european-union.md), [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
+**Classification:** Public\
+**Category:** Privacy\
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change\
+**Repository Path:** [`privacy/jurisdictions/annex-privacy-united-kingdom.md`](annex-privacy-united-kingdom.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This annex defines privacy and AI regulatory requirements applicable to the processing of personal data in the United Kingdom under UK GDPR and the Data Protection Act 2018, as amended by the Data (Use and Access) Act 2025 (DUAA 2025; c. 18). It supplements the Privacy and Data Governance Policy and the Privacy Impact and Cross-Border Transfer Procedure.
+
+---
+
+## Applicable laws and regulatory authorities
+
+- **UK GDPR**: The retained EU GDPR as amended by the Data Protection Act 2018 (DPA 2018) and further amended by the Data (Use and Access) Act 2025 (DUAA 2025), applicable in the United Kingdom following Brexit. Overseen by the UK supervisory authority: the Information Commission, which took over from the Information Commissioner (whose office was the Information Commissioner's Office, ICO) on 30 September 2026 (see the regulatory authority entry).
+- **UK Data Protection Act 2018 (DPA 2018)**: Supplements UK GDPR; includes provisions for law enforcement and intelligence services processing.
+- **Data (Use and Access) Act 2025 (DUAA 2025; c. 18)**: Royal assent 19 June 2025. The principal data-protection provisions (Part 5) commenced on 5 February 2026 under the Data (Use and Access) Act 2025 (Commencement No. 6 and Transitional and Saving Provisions) Regulations 2026. Remaining provisions commence on staged dates set by commencement regulations, for example S.I. 2026/1015 (Commencement No. 9), which brought the transfer to the Information Commission into force on 30 September 2026. The DUAA amends UK GDPR, DPA 2018, and the Privacy and Electronic Communications Regulations (PECR).
+- **Regulatory authority:** the Information Commission, which took over the functions of the Information Commissioner (whose office was the Information Commissioner's Office, ICO) on 30 September 2026. The Data (Use and Access) Act 2025 establishes the Commission (section 117, in force from 20 August 2025 under S.I. 2025/904 except section 117(4)(a)), abolishes the office of Information Commissioner (section 118) and transfers the Commissioner's functions to the Commission (section 119); S.I. 2026/1015 brought sections 117(4)(a), 118 and 119 into force on 30 September 2026, with general continuity for things done by or in relation to the Commissioner (regulation 3). Until that date the Information Commissioner (ICO) was the regulator. The regulator has order-making powers, enforcement authority, and fine-imposing powers.
+
+---
+
+## AI and privacy obligations
+
+- The UK has adopted a pro-innovation, principles-based approach to AI regulation; see [`ai/jurisdictions/annex-ai-united-kingdom.md`](../../ai/jurisdictions/annex-ai-united-kingdom.md) for the per-framework view. The UK's AI Security Institute (the AI Safety Institute until 14 February 2025) evaluates frontier AI models; the reference base holds the International AI Safety Report 2026, for which the Institute provides the secretariat, and two Institute-affiliated research items catalogued as untrusted, but not the Institute's own evaluation publications, so an adopter confirms them directly.
+- The ICO has published guidance on AI and data protection, including on explaining AI decisions and auditing AI systems; that guidance is not held in the reference base, so an adopter confirms the current edition directly. <!-- ref-absence: ICO guidance on AI and data protection | Explaining decisions made with AI -->
+- The UK has not enacted legislation equivalent to the EU AI Act as of 2026. The Information Commission, the Competition and Markets Authority (CMA), and the Financial Conduct Authority (FCA) each apply their existing sector powers to AI under the UK's principles-based approach; their specific AI positions are published guidance not held in the reference base. <!-- ref-absence: UK regulator AI position | Information Commission AI guidance | UK CMA AI | UK FCA AI -->
+- **Automated decision-making:** Following DUAA 2025 commencement (5 February 2026), UK GDPR Article 22 is replaced by Articles 22A to 22D, which restructure the rules on significant decisions based solely on automated processing. Articles 22A to 22D contain no right to object, but the Article 21 right to object continues to apply to the underlying processing: the data subject may object, "on grounds relating to his or her particular situation", "at any time to processing of personal data" based on Article 6(1)(e), (ea) or (f), "including profiling based on those provisions", and the controller may continue only where it "demonstrates compelling legitimate grounds for the processing" that override the data subject's interests, rights and freedoms, or for the establishment, exercise or defence of legal claims (Article 21(1)). It is a right to object to processing, not to the decision itself. For a significant decision (a legal or similarly significant effect, Article 22A(1)(b)) based solely on automated processing, Article 22C(2) requires safeguards that "provide the data subject with information about" such decisions and enable the data subject to "make representations about", "obtain human intervention on the part of the controller in relation to" and "contest" such decisions. Article 22B restricts such decisions based on special-category data and separately provides that a significant decision "may not be taken based solely on automated processing" where the processing "carried out by, or on behalf of, the decision-maker" for the purposes of the decision is carried out "entirely or partly in reliance on Article 6(1)(ea)" (Article 22B(4)). Organizations whose ADM controls were modelled on the original Article 22 must review against the new 22A-22D framework.
+- **Subject Access Requests (SARs):** DUAA 2025 codifies the principle that searches in response to an SAR are limited to "reasonable and proportionate" searches, and codifies stopping the clock while the controller is waiting for the data subject to provide further information that the controller reasonably requires to identify the information or processing activities to which the request relates (Article 12A(5)).
+- **Time limit for data-subject requests (Article 12A):** UK GDPR Article 12(3) requires the controller to provide information on action taken on a request "without undue delay and in any event before the end of the applicable time period", and Article 12(4) applies the same period where the controller does not take action and informs the data subject of the reasons. Article 12A defines that period as "the period of one month beginning with the relevant time" (Article 12A(1)), the relevant time being "the latest of" when the controller receives the request, when it receives any information requested under Article 12(6) to confirm the data subject's identity, and when any fee charged under Article 12(5) is paid (Article 12A(2)). The controller may, "by giving notice to the data subject", extend the period "by two further months where that is necessary by reason of" the complexity or number of the data subject's requests; the notice is given before the end of the period of one month beginning with the relevant time and states the reasons for the delay (Article 12A(3) and (4)). For access requests, the clarification pause described above is Article 12A(5): where the controller "reasonably requires further information in order to identify the information or processing activities to which a request under Article 15 relates", the period from the day it asks for that information to the day it receives it "does not count towards" the applicable time period or the period for giving an extension notice. Article 12A was inserted by the Data (Use and Access) Act 2025 with effect from 5 February 2026.
+- **DPIA:** Mandatory under UK GDPR Article 35 for high-risk processing, consistent with EU GDPR requirements.
+- **AI literacy and accountability:** The UK government's AI Opportunities Action Plan and the ICO's responsible-AI guidance inform this area; those documents are not held in the reference base, so an adopter confirms their current content directly. <!-- ref-absence: AI Opportunities Action Plan | ICO responsible AI guidance --> The UK has not enacted legislation equivalent to the EU AI Act; DUAA 2025 did not create a horizontal AI regulatory framework. No UK statutory AI framework was enacted as of 2026; an adopter confirms the current legislative position directly.
+
+---
+
+## Employment and workforce monitoring
+
+Where the organization monitors the network and device activity of workers in the United Kingdom, that monitoring processes personal data under UK GDPR and the Data Protection Act 2018 (as amended by the Data (Use and Access) Act 2025) and is governed by the Workforce Network Monitoring Policy ([`security/policy-workforce-network-monitoring.md`](../../security/policy-workforce-network-monitoring.md)) and its supporting suite. The UK position is worked separately from the EU position; the two regimes are not conflated.
+
+- **Lawful basis, stated separately from the purpose.** As under the GDPR, a legitimate security aim does not by itself satisfy the lawful-basis requirement. Monitoring generally relies on legitimate interests (Article 6(1)(f)), assessed through the three-part test in the [Legitimate Interest Assessment for Employment Monitoring Annex](../annex-legitimate-interest-employment-monitoring.md); consent is presumptively not freely given in employment.
+- **Article 88 is not adopted.** There is no UK employment-specific Article 88 regime, so UK workforce monitoring relies on the general lawful-basis analysis: an Article 6 basis, a UK GDPR Article 9 condition where special-category data is processed, and, for several of those conditions, an associated Data Protection Act 2018 Schedule 1 condition (often including an Appropriate Policy Document). These UK conditions are set under the UK regime and are not identical to the EU Article 9(2) conditions.
+- **ICO guidance and DPIA.** A DPIA is required under UK GDPR Article 35 before processing likely to result in high risk, which can include the systematic monitoring of workers; the ICO's monitoring-workers guidance tells employers to carry out a DPIA before any monitoring likely to cause high risk. The ICO's employment-practices guidance, including its guidance on monitoring workers (held in the reference base, latest update 6 June 2024), sets the supervisory expectations for lawfulness, fairness, transparency, and proportionality; adopters confirm the current publications of the Information Commission before reliance.
+- **Automated decisions (Articles 22A to 22D).** Following the Data (Use and Access) Act 2025 (in force 5 February 2026), UK GDPR Article 22 is replaced by Articles 22A to 22D, which restructure the rules on significant decisions based solely on automated processing. Where a monitoring signal could feed such a decision, those provisions apply in addition to the lawful-basis analysis; the parent policy prohibits monitoring signals from driving employment action automatically. The EU and UK automated-decision regimes are not cited under a single combined shorthand.
+- **Information and consultation.** The UK does not operate a general co-determination regime, but information-and-consultation arrangements may apply, for example under the Information and Consultation of Employees Regulations 2004 where triggered (an employee-triggered mechanism rather than an automatic one), and collective agreements with a recognized union may address monitoring. These UK mechanisms are cited illustratively and are not held in the reference base; adopters confirm their applicability and current text. <!-- ref-absence: Information and Consultation of Employees Regulations 2004 | ICE Regulations 2004 --> Where any such duty applies, it is determined and evidenced through the [Works Council and Employee Representative Consultation Procedure](../procedure-works-council-and-employee-representative-consultation.md).
+- **Transparency and notice.** Advance and ongoing notice of the nature, purpose, and scope of monitoring is required; covert monitoring is prohibited. The [Employee Monitoring Notice Template](../template-employee-monitoring-notice.md) provides the notice content, applied consistently to connection metadata under the [Network Telemetry and DPI Controls Standard](../standard-network-telemetry-and-dpi-controls.md) and to presence signals under the [Presence Inference Limitations Standard](../standard-presence-inference-limitations.md).
+
+---
+
+## Cross-border transfer mechanisms
+
+- **UK Adequacy Regulations:** The UK Secretary of State may issue adequacy regulations for third countries. The UK has retained EU adequacy decisions in effect at the end of the Brexit transition period and has added its own, including recognizing the EU as adequate. The European Commission renewed the UK's adequacy decision until 27 December 2031.
+- **International Data Transfer Agreements (IDTAs):** The UK's equivalent of EU SCCs for transfers from the UK. Organizations using EU SCCs for EU transfers need separate IDTAs (or the Addendum to EU SCCs) for UK transfers.
+- **UK-US Data Bridge:** The UK Extension to the EU-US Data Privacy Framework, in force October 2023, provides a transfer mechanism for UK-to-US transfers to participating US organizations.
+
+---
+
+## Enforcement and fines
+
+- **UK GDPR / DPA 2018: higher tier:** Up to £17.5 million or 4% of global annual turnover (whichever is higher).
+- **UK GDPR / DPA 2018: lower tier:** Up to £8.7 million or 2% of global annual turnover.
+- **PECR (post-DUAA 2025):** DUAA 2025 raises the maximum penalty under the Privacy and Electronic Communications Regulations from the pre-DUAA cap of £500,000 to the UK GDPR fining structure, with a maximum of £17.5 million or 4% of global annual turnover (whichever is higher). This change applies from the relevant DUAA commencement date for the PECR amendments.
+- Enforced by the Information Commission.
+- No dedicated AI fines framework as of 2026; existing sectoral regulators apply their existing powers.
+
+---
+
+## Limitations
+
+This document is a CC BY-SA 4.0 reference baseline. It does not constitute legal advice. Adopting organizations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
+
+---
+
+**End of Document**

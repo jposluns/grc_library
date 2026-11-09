@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en" class="site-grclibrary">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="How grclibrary.ai is built and what data it handles: a static site generated from the library, with every script it loads listed as evidence.">
+<title>Disclosure | GRCLibrary.ai</title>
+{{HEAD_STYLE}}
+{{SCRIPT}}<script src="{{BASE}}/assets/baseline/rail.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main-content">Skip to content</a>
+{{TOPBAR}}
+<main id="main-content">
+<div class="wrap"><div class="doc">
+<p class="lbl first">Disclosure</p>
+<h1>Disclosure</h1>
+<nav class="rail" aria-label="On this page"><img class="rail-logo" src="{{BASE}}/assets/baseline/logos/grclibrary.svg" alt="Books on a shelf with a seal"><p class="lbl">On this page</p><ol><li><a href="#d-1">What the library is</a></li><li><a href="#d-2">Counts and figures</a></li><li><a href="#d-3">Citations</a></li><li><a href="#d-4">Licence boundary</a></li><li><a href="#d-5">Change control</a></li><li><a href="#d-6">The site's data handling</a></li></ol></nav>
+<p class="meta">This page sets out what the project claims, the limit of each claim, and the evidence for both.</p>
+<p class="lbl sec">Entry 1</p>
+<h2 id="d-1">What the library is</h2>
+<p><strong>Claim:</strong> The library is {{DOC_TOTAL}} organization-neutral governance, risk, and compliance documents in Markdown, each carrying its owner, classification, review cadence, and framework mappings.</p>
+<p><strong>Limitation:</strong> They are templates the adopting organization adapts and approves. Adopting them confers no certification, and legal advice is outside the library.</p>
+<p><strong>Evidence:</strong> <a href="https://github.com/jposluns/grc_library/blob/main/README.md" target="_blank" rel="noopener noreferrer">README.md<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/.claude/skills/corpus-management/data/taxonomy.yml" target="_blank" rel="noopener noreferrer">.claude/<wbr>skills/<wbr>corpus-management/<wbr>data/<wbr>taxonomy.yml<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/governance/portal.md" target="_blank" rel="noopener noreferrer">The adopter portal<span class="vh"> (opens in a new tab)</span></a></p>
+<p class="lbl sec">Entry 2</p>
+<h2 id="d-2">Counts and figures</h2>
+<p><strong>Claim:</strong> Every count on this site is recomputed from the library at build time, and a build whose counts cannot be computed fails.</p>
+<p><strong>Limitation:</strong> A count describes the inventory. It never describes coverage of any obligation; the library's own gap register records what is not covered.</p>
+<p><strong>Evidence:</strong> <a href="https://github.com/jposluns/grc_library/blob/main/.web/build.py" target="_blank" rel="noopener noreferrer">The site generator<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/.github/workflows/web-generator-health.yml" target="_blank" rel="noopener noreferrer">The generator health check<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/governance/register-coverage-gaps.md" target="_blank" rel="noopener noreferrer">The coverage gap register<span class="vh"> (opens in a new tab)</span></a></p>
+<p class="lbl sec">Entry 3</p>
+<h2 id="d-3">Citations</h2>
+<p><strong>Claim:</strong> Hand-written standard editions on the site are checked against the canonical citations register, and corpus citations follow the citation verification specification.</p>
+<p><strong>Limitation:</strong> External standards change after verification; the register records what was verified and when, not what a publisher released afterwards.</p>
+<p><strong>Evidence:</strong> <a href="https://github.com/jposluns/grc_library/blob/main/governance/register-canonical-citations.md" target="_blank" rel="noopener noreferrer">The canonical citations register<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/governance/specification-citation-verification.md" target="_blank" rel="noopener noreferrer">The citation verification specification<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/.claude/skills/corpus-management/tools/lint-standards-currency.py" target="_blank" rel="noopener noreferrer">The standards currency gate<span class="vh"> (opens in a new tab)</span></a></p>
+<p class="lbl sec">Entry 4</p>
+<h2 id="d-4">Licence boundary</h2>
+<p><strong>Claim:</strong> The library's original content is under CC BY-SA 4.0, and the site template is under CC0 1.0 with the font and mark exceptions.</p>
+<p><strong>Limitation:</strong> Vendored third-party material, the quotations NOTICE.md allows, the fonts under the SIL Open Font License 1.1, and the owners' marks keep their own terms.</p>
+<p><strong>Evidence:</strong> <a href="https://github.com/jposluns/grc_library/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">LICENSE<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/NOTICE.md" target="_blank" rel="noopener noreferrer">NOTICE.md<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/.web/baseline/marks/NOTICE.md" target="_blank" rel="noopener noreferrer">The marks notice<span class="vh"> (opens in a new tab)</span></a></p>
+<p class="lbl sec">Entry 5</p>
+<h2 id="d-5">Change control</h2>
+<p><strong>Claim:</strong> Every change to the library passes the automated audit programme's gates, including the pin gate that verifies the copied site-template files byte for byte.</p>
+<p><strong>Limitation:</strong> A gate checks the mechanical rule it is built to check. Passing the gates does not make an adopting organization compliant or secure.</p>
+<p><strong>Evidence:</strong> <a href="https://github.com/jposluns/grc_library/blob/main/.claude/skills/corpus-management/specs/specification-audit-programme.md" target="_blank" rel="noopener noreferrer">The audit programme specification<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/.claude/skills/corpus-management/tools/run_all_audits.sh" target="_blank" rel="noopener noreferrer">The audit runner<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/.claude/skills/corpus-management/tools/lint-baseline-pin.py" target="_blank" rel="noopener noreferrer">The baseline pin gate<span class="vh"> (opens in a new tab)</span></a> <a href="https://github.com/jposluns/grc_library/blob/main/.web/site-card/pin.toml" target="_blank" rel="noopener noreferrer">The pin<span class="vh"> (opens in a new tab)</span></a></p>
+<p class="lbl sec">Entry 6</p>
+<h2 id="d-6">The site's data handling</h2>
+<p><strong>Claim:</strong> This is a static site. Its own scripts are same-origin files that make no network requests and use no cookies.</p>
+<p>The light and dark switch is the one script that uses browser storage: when the reader presses the switch, it saves the chosen scheme, the word light or dark, in the browser's local storage under the key "scheme", so later pages open in that scheme. It stores nothing else, and nothing until the switch is pressed.</p>
+<p>The search form filters a list already on the page and does not submit the query. As the reader types, the search script writes the query into the page address (?q=), and on All Documents it writes the type and area the reader picks there too (?type=, ?area=), so the query and those choices can appear in the browser history; the script itself never writes the type or area of a chip marked unavailable, though a chip's link opened in a new tab or window carries it, as any link does.</p>
+<p>This site's host, Cloudflare, receives that address, query and choices included, when the reader reloads the page and with later requests from the page to this site. Scripts the page runs, including the Cloudflare Web Analytics beacon, can read the page address.</p>
+<p><strong>Limitation:</strong> The host platform, Cloudflare, serves the pages with these features kept (JavaScript Detections, the Web Analytics beacon, Rocket Loader, and Speed Brain) and sees requests, under the privacy policy linked below.</p>
+<p><strong>Evidence:</strong> {{SCRIPT_EVIDENCE}} <a href="https://github.com/jposluns/grc_library/blob/main/.web/build.py" target="_blank" rel="noopener noreferrer">The headers the site sends<span class="vh"> (opens in a new tab)</span></a></p>
+<p class="lbl blk">Your browser</p>
+<p>If you use the light and dark switch, your choice is kept in your browser's local storage under the name scheme, so the site opens in that scheme next time. It is not sent to this site, and nothing is stored until you press the switch.</p>
+<p class="lbl blk">Security</p>
+<p>To report a security vulnerability, see <a href="https://posluns.ca/security/" target="_blank" rel="noopener noreferrer">the vulnerability disclosure policy<span class="vh"> (opens in a new tab)</span></a>. The privacy policy that covers this site and the owner's other sites is at <a href="https://posluns.ca/privacy/" target="_blank" rel="noopener noreferrer">posluns.ca/privacy<span class="vh"> (opens in a new tab)</span></a>.</p>
+<div class="next"><p class="lbl">Next</p><a class="start" href="{{BASE}}/">Home <span class="arrow" aria-hidden="true">&rarr;</span></a></div>
+</div></div>
+</main>
+{{FOOTER}}
+</body>
+</html>

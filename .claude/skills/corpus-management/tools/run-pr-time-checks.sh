@@ -1,0 +1,247 @@
+#!/usr/bin/env bash
+#
+# run-pr-time-checks.sh
+#
+# Wrapper that runs the commit-graph-aware checks locally against the
+# current branch, so their diagnoses appear before push instead of after
+# CI has flipped the check red. Two groups:
+#
+#   1. The per-PR delta gates (D1 CHANGELOG-on-PR, D2 per-PR
+#      version-bump, D3 CHANGELOG-dash-on-PR, D4 per-PR Version-Date
+#      co-bump, D5 backlog-rotation-on-PR,
+#      D7 CHANGELOG-length-on-PR, D8 daily-changelog-rollup reminder
+#      (advisory), D9 retired-section-orphan check, D10 CLAUDE.md-size
+#      ratchet, D11 narrative-corpus mixed-diff, D12 number-floor monotonicity, D13 stranded-control-code,
+#      D15 alignment-citation register check (advisory)). Most compare the PR head to its merge base, so their
+#      inputs are not available in .claude/skills/corpus-management/tools/run_all_audits.sh (the advisory D8
+#      and the size-only D10 read working-tree state and take no base ref);
+#      they run
+#      only here and in quality.yml. D10's two checks (the core-line and
+#      startup character ceilings) also run as gate 106 in run_all_audits.sh
+#      (.claude/skills/corpus-management/tools/lint-startup-character-ceiling.py).
+#   2. The history-aware gates that examine each file's commit graph
+#      (gate 45 TODO staleness, gate 40 version-bump-recency, gate 31
+#      document-date-staleness). These ALSO run in run_all_audits.sh;
+#      this wrapper re-invokes them so a single pre-push command is a
+#      complete commit-graph-aware guard. That matters most for large
+#      multi-commit or file-move changes (e.g. the governance Phase-1
+#      migration), where the per-commit version-bump-recency and
+#      date-staleness checks are easiest to confirm in one pre-push pass.
+#
+# Together with run_all_audits.sh (the corpus gates from HEAD), the two
+# runners cover every gate the CI workflow runs. Gates 40, 31, and 45
+# were folded in here per the design-decisions "Gate-family coherence
+# (Option A)" decision.
+#
+# Usage:
+#   .claude/skills/corpus-management/tools/run-pr-time-checks.sh            # run against origin/main..HEAD
+#   BASE_REF=origin/develop .claude/skills/corpus-management/tools/run-pr-time-checks.sh
+#
+# Intended use: run BEFORE `git push -u origin <branch>` opens a PR, so
+# the PR-time delta gates' diagnoses appear locally instead of after
+# CI has flipped the check red. Pairs with `.claude/skills/corpus-management/tools/run_all_audits.sh`:
+# the corpus runner covers the corpus gates; this wrapper covers
+# the delta surface.
+#
+# Exit codes: 0 on all pass; first non-zero rc from any gate on
+# failure (aggregation is not the goal here, these checks are fast and
+# the maintainer wants to address them before push).
+
+set -u
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
+cd "${REPO_ROOT}"
+
+BASE_REF="${BASE_REF:-origin/main}"
+HEAD_REF="${HEAD_REF:-HEAD}"
+
+# Make sure the base ref exists locally. If origin/main has not been
+# fetched yet this turn, fetch it once so the diff has something to
+# compare against.
+if ! git rev-parse --verify "${BASE_REF}" >/dev/null 2>&1; then
+    echo "Base ref ${BASE_REF} not found locally; fetching..."
+    git fetch origin --quiet
+fi
+
+BASE_SHA="$(git rev-parse "${BASE_REF}" 2>/dev/null || echo "${BASE_REF}")"
+HEAD_SHA="$(git rev-parse "${HEAD_REF}" 2>/dev/null || echo "${HEAD_REF}")"
+
+echo "PR-time checks: ${BASE_REF} (${BASE_SHA:0:8}) .. ${HEAD_REF} (${HEAD_SHA:0:8})"
+
+FAILED=0
+
+run_check() {
+    local name="$1"
+    shift
+    printf '%-58s ... ' "${name}"
+    if "$@"; then
+        echo "OK"
+    else
+        local rc=$?
+        echo "FAIL (rc=${rc})"
+        FAILED=$((FAILED + 1))
+    fi
+}
+
+# For a check that prints a machine-readable report (D8): end run_check's label
+# line first, so the report's first line (D8 BEGIN) starts a line, then repeat
+# the label (run_check's own ${name}, visible here) so the verdict still reads
+# "<name> ... OK" (3b726 round 3).
+on_own_lines() {
+    echo ""
+    "$@"
+    local rc=$?
+    printf '%-58s ... ' "${name}"
+    return "${rc}"
+}
+
+# A collapsed range evaluates nothing, and is exactly how a run from the wrong
+# repository looks (a main clone whose HEAD is the branch point while the change
+# lives in a worktree printed a false clean, orchestrator mistake 300). The
+# gates that take no range (D8, D10, gates 45/40/31) read working-tree or
+# HEAD state, so they still run and report their verdicts; the range-taking
+# gates are refused before any can print a clean pass over the empty range, and
+# the runner exits 2 (fail closed) whatever the range-free verdicts said.
+if [ "${BASE_SHA}" = "${HEAD_SHA}" ]; then
+    echo ""
+    echo "Collapsed range: running only the gates that take no range; the range-taking gates are refused below."
+    run_check "D8 Daily-changelog-rollup reminder" \
+        on_own_lines python3 .claude/skills/corpus-management/tools/check-daily-changelog-rollup.py
+    run_check "D10 CLAUDE.md-size ratchet" \
+        python3 .claude/skills/corpus-management/tools/check-claude-md-size.py
+    run_check "Gate 45 TODO staleness audit" \
+        python3 .claude/skills/corpus-management/tools/lint-todo-staleness.py
+    run_check "Gate 40 version-bump-recency audit" \
+        python3 .claude/skills/corpus-management/tools/lint-version-bump-recency.py
+    run_check "Gate 31 document-date-staleness audit" \
+        python3 .claude/skills/corpus-management/tools/lint-document-date-staleness.py
+    echo ""
+    if [ "${FAILED}" -ne 0 ]; then
+        echo "${FAILED} range-free PR-time check(s) failed."
+    fi
+    echo "CANNOT-EVALUATE: ${BASE_REF} and ${HEAD_REF} resolve to the same commit (repo=${REPO_ROOT} base=${BASE_SHA} head=${HEAD_SHA}); the range is empty, so the range-taking gates (D1-D5, D7, D9, D11, D12, D13, D15) were refused, not run. If this branch has no commits yet, commit the change first and push after (an empty push has nothing to evaluate). If the change lives in a worktree, run this script from that worktree, or set BASE_REF/HEAD_REF to a range that selects the change." >&2
+    exit 2
+fi
+echo ""
+
+# Delta gate D1: CHANGELOG-on-PR check (dual-entry as of PR #125).
+# The check scripts accept `base` and `head` as positional arguments.
+run_check "D1 CHANGELOG-on-PR check" \
+    python3 .claude/skills/corpus-management/tools/check-changelog-on-pr.py "${BASE_REF}" "${HEAD_REF}"
+
+# Delta gate D2: per-PR version-bump check.
+run_check "D2 Per-PR version-bump check" \
+    python3 .claude/skills/corpus-management/tools/check-version-bump-on-pr.py "${BASE_REF}" "${HEAD_REF}"
+
+# Delta gate D3: no em/en dashes anywhere in newly-added .working/CHANGELOG.md lines.
+# lint-language.py also scans the whole root .working/CHANGELOG.md under its normal rules.
+run_check "D3 CHANGELOG dash-on-PR check" \
+    python3 .claude/skills/corpus-management/tools/check-changelog-dash-on-pr.py "${BASE_REF}" "${HEAD_REF}"
+
+# Delta gate D4: when a PR bumps a versioned document's Version, require
+# the same change to co-bump its Date to the bump commit's date (the
+# residue gates 31/40 leave open, scoped to the PR diff so historical
+# carriers are never in scope).
+run_check "D4 Per-PR Version-Date co-bump check" \
+    python3 .claude/skills/corpus-management/tools/check-date-cobump-on-pr.py "${BASE_REF}" "${HEAD_REF}"
+
+# Delta gate D5: when a PR's added CHANGELOG lines assert a TODO-item
+# closure ("clos... TODO §X"), require the same diff to rotate the item
+# by touching the public .working/TODO.md (the DONE ledger is in the operational store,
+# cross-repo and outside the public diff, so only the public .working/TODO.md index
+# rotation is enforced). PR-time companion of gate 57
+# (the static marked-done detector); catches the wholesale-forgotten
+# rotation where .working/TODO.md is never edited.
+run_check "D5 Backlog-rotation-on-PR check" \
+    python3 .claude/skills/corpus-management/tools/check-todo-rotation-on-pr.py "${BASE_REF}" "${HEAD_REF}"
+
+# Delta gate D7: newly-added root .working/CHANGELOG.md entries must stay within
+# the compact-form length ceiling (<= 100 words, no sentence over 45
+# words), so root summaries cannot drift back into long paragraphs
+# (maintainer-directed 2026-07-17; history is exempt, new entries are not).
+run_check "D7 CHANGELOG length-on-PR check" \
+    python3 .claude/skills/corpus-management/tools/check-changelog-length-on-pr.py "${BASE_REF}" "${HEAD_REF}"
+
+# Delta gate D8 (advisory): scan .working/CHANGELOG.md for any past UTC date that still
+# carries more than one per-PR entry (never collapsed into its daily roll-up).
+# WARNS only (exit 0) so the orchestrator does not skip the daily summarization;
+# the next PR should carry the roll-up and prune the matching mirror rows. Reads
+# working-tree state, so like the corpus gates below it needs no base ref. Its
+# report starts on a line of its own (on_own_lines above).
+run_check "D8 Daily-changelog-rollup reminder" \
+    on_own_lines python3 .claude/skills/corpus-management/tools/check-daily-changelog-rollup.py
+
+# Delta gate D9: retired-section-orphan check. When this PR CLOSES a numbered
+# TODO item (deletes its `| N.M |` index row from .working/TODO.md), flag any anchored positional
+# reference (§N.M / PN.M / TODO §N.M / TODO section N.M) that survives on the
+# operational / gate-exempt surfaces no other gate scans (.claude/ with .claude/references/,
+# .claude/skills/corpus-management/tools/*.py, *.sh, .github/*.yml, .working/TODO.md, and a legacy public TODO-REFERENCE.md if
+# one still exists). Deletion-triggered + anchored +
+# LIVE-only, so it is false-positive-safe (roadmap C phase 2, #1250).
+run_check "D9 Retired-section-orphan check" \
+    python3 .claude/skills/corpus-management/tools/check-retired-section-orphan-on-pr.py "${BASE_REF}" "${HEAD_REF}"
+
+# D10 counts Unicode startup characters as well as core lines; reports all CLAUDE files.
+# Delta gate D10: CLAUDE.md size ratchet. FAILS when .claude/CLAUDE.md exceeds a
+# hand-maintained downward-ratchet ceiling, forcing new content to relocate to
+# .claude/references/ rather than swell the every-turn load. Reads working-tree state, so
+# like D8 it needs no base ref (roadmap C phase 2, #1250).
+run_check "D10 CLAUDE.md-size ratchet" \
+    python3 .claude/skills/corpus-management/tools/check-claude-md-size.py
+
+# Delta gate D11: narrative-corpus mixed-diff check. FAILS when a single PR's
+# delta touches BOTH a narrative content page (executive/*.md minus the README
+# entry point) AND a corpus document (.md under an audited domain dir), crossing
+# the one-way executive-narrative authority boundary (spec item 11, the PR-process
+# half; the at-rest half is gate 87). Fail-closed interim, no override path yet
+# (the accountably-reviewed override is a maintainer-owned governance-design
+# obligation; P-1.25 Phase 1.3d).
+run_check "D11 Narrative-corpus mixed-diff check" \
+    python3 .claude/skills/corpus-management/tools/check-narrative-corpus-mixed-diff-on-pr.py "${BASE_REF}" "${HEAD_REF}"
+
+run_check "D12 Number-floor monotonicity check" \
+    python3 .claude/skills/corpus-management/tools/check-todo-floor-monotonic-on-pr.py "${BASE_REF}" "${HEAD_REF}"
+
+run_check "D13 Stranded-control-code check" \
+    python3 .claude/skills/corpus-management/tools/check-stranded-control-code-on-pr.py "${BASE_REF}" "${HEAD_REF}"
+
+# Delta gate D15 (advisory): a citation of a standard or regulation that the PR adds
+# in a framework-alignment table cell, or an EU/EC instrument number on any added
+# line, with no row in governance/register-canonical-citations.md. WARNS only (exit 0),
+# the D8 precedent; RFCs, vendor guidance and books are excluded by the data file
+# .claude/skills/corpus-management/tools/alignment-register-exclusions.json. Not in run_all_audits.sh (it hides a
+# passing gate's warnings). When the PR changes .claude/skills/corpus-management/tools/alignment-register-aliases.json
+# or the register, the same run adds the report-only sibling probe (D15 SIBLING lines):
+# unregistered alignment-table citations anywhere in the corpus that share a
+# distinctive token with an alias key added, removed or retargeted, or a Standard ID
+# added or removed (a date-only register edit changes none); a citation sharing only a
+# word is listed after them as a weak "D15 SIBLING (word match)" line. No separate gate number.
+run_check "D15 Alignment-citation register check" \
+    python3 .claude/skills/corpus-management/tools/check-alignment-register-on-pr.py "${BASE_REF}" "${HEAD_REF}"
+
+# Gate 45: TODO staleness audit. Behaves like a delta gate because its
+# inputs (git log of merged-PR commit subjects, .working/validate-sweeps/
+# history.md) include history relative to the working state of .working/TODO.md.
+run_check "Gate 45 TODO staleness audit" \
+    python3 .claude/skills/corpus-management/tools/lint-todo-staleness.py
+
+# History-aware corpus gates 40 and 31. These also run in
+# run_all_audits.sh; re-invoking them here makes the pre-push runner a
+# complete commit-graph-aware guard (see the header comment). Each
+# examines per-file commit history, so it operates from HEAD and needs
+# no base ref.
+run_check "Gate 40 version-bump-recency audit" \
+    python3 .claude/skills/corpus-management/tools/lint-version-bump-recency.py
+
+run_check "Gate 31 document-date-staleness audit" \
+    python3 .claude/skills/corpus-management/tools/lint-document-date-staleness.py
+
+echo ""
+if [ "${FAILED}" -eq 0 ]; then
+    echo "All PR-time checks passed."
+    exit 0
+else
+    echo "${FAILED} PR-time check(s) failed."
+    exit 1
+fi

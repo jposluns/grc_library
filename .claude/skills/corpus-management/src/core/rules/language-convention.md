@@ -1,0 +1,16 @@
+# Language convention
+
+The library uses **Canadian English first, Commonwealth (UK / Australian) English
+second, other dialects last.** Canadian English shares its `-ize` / `-ization`
+orthography with American English (the Oxford convention adopted in Canadian usage),
+so the `-ize` rule that `.claude/skills/corpus-management/tools/lint-language.py` enforces is the Canadian-orthography
+manifestation of the convention, not a generic American mandate. Where Canadian English
+has no opinion, Commonwealth forms are preferred; where neither has an opinion, other
+dialects' usage is acceptable. Scheme-qualified `http(s)` URLs are external identifiers:
+the `-ise`, `-isation` and `-yse` checks skip the URL, not adjacent prose (dash,
+`ensure that` and heading-case checks still apply, URL included). The
+`.claude/skills/corpus-management/src/README.md` 3b366 entry and the `URL_PATTERN` comment in
+`.claude/skills/corpus-management/src/tools/gate_lint_language.py` give token rules, checked residuals
+and accepted over-masks.
+Em-dashes (`—`) and en-dashes (`–`) are forbidden in prose regardless of dialect; use
+commas, colons, or parentheses.

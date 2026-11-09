@@ -1,0 +1,76 @@
+# BASC IT Compliance Monitoring and KPIs
+
+**Document Title:** BASC IT Compliance Monitoring and KPIs\
+**Document Type:** Register\
+**Version:** 1.2.9\
+**Date:** 2026-10-12\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`compliance/logistics/policy-basc-information-security.md`](policy-basc-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md)\
+**Classification:** Public\
+**Category:** Compliance: Logistics Sector\
+**Review Frequency:** Annual and upon material regulatory or framework change\
+**Repository Path:** [`compliance/logistics/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This register defines the key performance indicators (KPIs) used to monitor IT and cybersecurity obligations under the BASC International Norm V6-2022. BASC Norm §8.1 requires that the organization establish, implement, and maintain monitoring and measurement processes. This register operationalizes that requirement for IT-owned controls. Results are reported to the CISO monthly and to the BASC Compliance function quarterly.
+
+---
+
+## IT and cybersecurity kpis
+
+| KPI | Metric | Target | Reporting Frequency | Owner | Escalation Owner | Remediation Sign-off |
+| --- | --- | --- | --- | --- | --- | --- |
+| Security awareness training completion | Percentage of personnel completing mandatory annual training | 95% by required deadline | Monthly | Chief Information Security Officer (CISO) | Enterprise Risk Committee | Enterprise Risk Committee |
+| Phishing simulation failure rate | Percentage of employees who click simulated phishing links | < 5% quarterly trend | Quarterly | IT Security | Chief Information Security Officer | Chief Information Security Officer |
+| Critical patch deployment | Percentage of Critical patches deployed within the applicable risk-based SLA window defined in [`procedure-patch-management.md`](../../operations/procedure-patch-management.md) Section 1 (24 hours for actively-exploited vulnerabilities; 72 hours for publicly-disclosed Criticals with a proof-of-concept; 7 days for Criticals with no known exploitation or proof-of-concept) | 100% | Monthly | IT Operations | Chief Information Security Officer | Chief Information Security Officer |
+| MFA coverage | Percentage of active user accounts with MFA enrolled | 100% | Monthly | IAM Team | Chief Information Security Officer | Chief Information Security Officer |
+| Access review completion | Percentage of privileged account access reviews completed on schedule | 100% quarterly | Quarterly | IAM Team | Chief Information Security Officer | Chief Information Security Officer |
+| Offboarding completeness | Percentage of offboarding actions completed within required timelines | 100% | Monthly | IT Operations | Chief Information Security Officer | Chief Information Security Officer |
+| Security incident volume | Number of confirmed P1/P2 security incidents per quarter | Trend tracking; no absolute target | Quarterly | Chief Information Security Officer (CISO) | Enterprise Risk Committee | Enterprise Risk Committee |
+| Mean time to respond (detection to start of containment) | Average time from first SOC awareness (the Detection timestamp in [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) §4.3) to the start of short-term containment for P1/P2 incidents | P1: < 1 hour; P2: < 1 hour | Quarterly | Chief Information Security Officer (CISO) | Enterprise Risk Committee | Enterprise Risk Committee |
+| Exception register currency | Percentage of open exceptions with current owner and target date | 100% | Quarterly | Chief Information Security Officer (CISO) | Enterprise Risk Committee | Enterprise Risk Committee |
+| Vulnerability remediation (High) | Percentage of High severity vulnerabilities remediated within the High SLA of 14 days, using the clock and Emergency classification and reclassification rules in [`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md) section 2 | 95% | Monthly | IT Operations | Chief Information Security Officer | Chief Information Security Officer |
+
+---
+
+## Reporting
+
+The CISO consolidates IT and cybersecurity KPI results monthly. Quarterly results are shared with the BASC Compliance function for inclusion in BASC monitoring reports. Annual results are included in the GRC programme report to the Enterprise Risk Committee (ERC).
+
+---
+
+## Related documents
+
+- Register: BASC IT and Information Security Responsibilities: [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md)
+
+---
+
+## References
+
+- BASC International Norm V6-2022 §8.1
+- ISO/IEC 27001:2022 §9.1
+
+---
+
+## Document history
+
+| Version | Date | Change |
+| --- | --- | --- |
+| 1.0.0 | 2026-05-27 | Initial release |
+| 1.1.0 | 2026-05-28 | Minor revision (per frontmatter; detail not previously logged in this table) |
+| 1.1.1 | 2026-05-28 | Patch revision (per frontmatter; detail not previously logged in this table) |
+| 1.2.0 | 2026-06-21 | Sweep 13 close-out: added Escalation Owner and Remediation Sign-off columns to align with FR-92 design principle established in [`operations/register-it-operations-kpis.md`](../../operations/register-it-operations-kpis.md) (PR #153); backfilled history-table rows for 1.1.0 and 1.1.1. |
+| 1.2.1 - 1.2.6 | 2026-06 to 2026-09 | Incremental revisions recorded in the frontmatter and the root CHANGELOG; not individually logged in this table. |
+| 1.2.7 | 2026-09-18 | Aligned the Critical patch deployment KPI to the governing tiered risk-based SLA (24 hours actively-exploited; 72 hours with a proof-of-concept; 7 days otherwise) in [`procedure-patch-management.md`](../../operations/procedure-patch-management.md) Section 1, replacing a flat 7-day ceiling (PR #2336). |
+| 1.2.8 | 2026-10-03 | Aligned the High vulnerability remediation KPI to the governing clock in [`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md) section 2, including its Emergency classification and reclassification rules, and raised its target from 90% to 95% to match the High vulnerability patch compliance KPI in [`operations/register-it-operations-kpis.md`](../../operations/register-it-operations-kpis.md). |
+| 1.2.9 | 2026-10-12 | Anchored the mean time to respond KPI to the Detection timestamp in [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) section 4.3 (first SOC awareness) and to the start of short-term containment, and set the P2 target to under 1 hour (was 4 hours) to match the procedure's first-60-minutes phase for P1 and P2 incidents. |
+
+
+
+**End of Document**

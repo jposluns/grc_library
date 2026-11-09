@@ -1,0 +1,128 @@
+# Identity and Access Management Policy
+
+**Document Title:** Identity and Access Management Policy\
+**Document Type:** Policy\
+**Version:** 1.3.31\
+**Date:** 2026-10-27\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change\
+**Repository Path:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+This policy establishes the principles, control objectives, and governance requirements for identity and access management (IAM) across all systems, applications, and environments.
+
+---
+
+## 1. Purpose
+
+To ensure that all users, human, service, and machine, are uniquely identified, appropriately authenticated, and authorized according to business need, while maintaining compliance with information security, privacy, and regulatory obligations.
+
+---
+
+## 2. Scope
+
+1. Applies to all employees, contractors, vendors, and partners accessing organizational systems, data, or cloud environments.
+2. Covers all authentication mechanisms: passwords, tokens, biometrics, certificates, federated identities, and API/service accounts.
+3. Applies to all IT, OT, and AI systems managed on-premises, in cloud, or hybrid environments.
+4. Includes both privileged and non-privileged access across applications, infrastructure, and data assets.
+
+---
+
+## 3. Governance and accountability
+
+| Role | Responsibility |
+| --- | --- |
+| CIO | Accountable for IAM strategy, architecture, and integration with enterprise risk management. |
+| CISO | Responsible for enforcement, compliance monitoring, and IAM control validation. |
+| IT Operations / Security Engineering | Responsible for implementation, configuration, and monitoring of IAM technologies. |
+| System and Application Owners | Ensure that proper access design and periodic certification are carried out within their systems. |
+| Managers and Supervisors | Approve and review user access rights for their direct reports. |
+| Users | Must safeguard credentials and comply with authentication requirements. |
+
+---
+
+## 4. Policy statements
+
+### 4.1 Identity management
+
+4.1.1 All identities (user, service, and device) must be uniquely identifiable and associated with a verified entity.
+4.1.2 Access provisioning must follow the principle of least privilege and need to know.
+4.1.3 IAM directories must maintain authoritative records of all identities, access entitlements, and authentication factors.
+4.1.4 Organization-controlled identities must be deactivated within 24 hours of termination or contract completion, and sooner where the tiered offboarding timelines in [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md) require it (on involuntary termination, the critical identity-plane accounts within 1 hour). Access on independently-authenticated external portals not federated to the identity provider follows the distinct removal path in item 9.5 of that procedure.
+
+### 4.2 Authentication
+
+4.2.1 Multi-Factor Authentication (MFA) is required for all user (interactive) accounts and all remote access. Non-interactive service accounts (managed identity or equivalent, not interactive MFA) are exempt where documented and approved; any other exception is documented case-by-case with compensating controls. MFA for privileged accounts must be phishing-resistant.
+4.2.2 Passwords and tokens must comply with the organization's authentication and password management standard, which follows NIST SP 800-63B (length- and blocklist-based strength, no mandatory periodic expiry, and change on evidence of compromise) except for a deliberate organizational character-composition requirement (see Section 4 of that standard). The no-periodic-expiry rule governs human (interactive) passwords; service account passwords, which are long-lived shared secrets, must be rotated as that standard's Section 7 requires.
+4.2.3 Where possible, passwordless authentication (FIDO2 or certificate-based) must be implemented to reduce credential theft risks.
+4.2.4 Shared credentials are prohibited; each account must be traceable to a single entity.
+
+### 4.3 Authorization
+
+4.3.1 All access must be role-based (RBAC) or attribute-based (ABAC) where feasible. Roles must align with approved job functions, data classifications, and BASC International Security Standard §5.2 access-security requirements.
+4.3.2 Segregation of Duties (SoD) must be implemented for high-risk roles to prevent conflicts of interest.
+4.3.3 Temporary access (e.g., vendor or project) must include start and expiry dates and be reviewed prior to renewal.
+4.3.4 System owners must hold a quarterly touchpoint that applies the risk-tiered review cadences in [`procedure-access-control.md`](procedure-access-control.md) §3.1 (privileged access quarterly, high-sensitivity semi-annual, general annual, third-party on renewal and at least annually; high-sensitivity as defined in [`procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md) §4.3) to the entitlements they own (user, service, and machine accounts), and determines on a risk basis whether any additional review is needed beyond those cadences; a full entitlement review must be performed at least annually where one has not already occurred in the preceding 12 months (the certification floor in §4.5.1). This policy section (item 4.3.4) is authoritative for the entitlement-review cadence model.
+
+### 4.4 Privileged access management (PAM)
+
+4.4.1 Privileged accounts (administrators, root, service, and API keys) must be centrally managed and audited.
+4.4.2 Privileged access sessions must be logged, monitored, and retained per the [data-retention schedule](../governance/register-data-retention-schedule.md) (2 years for privileged-access session logs).
+4.4.3 Emergency ("break-glass") accounts must have documented approval, use, and expiration controls.
+
+### 4.5 Access review and certification
+
+4.5.1 All user, service, and machine account access rights must undergo periodic certification at least annually (the mandated review floor of the quarterly-touchpoint model in item 4.3.4), with evidence maintained.
+4.5.2 Any discrepancies identified during certification must be remediated within 15 business days.
+4.5.3 Audit logs for provisioning, deprovisioning, and certification must be preserved for compliance verification.
+
+### 4.6 AI and automation access controls
+
+4.6.1 AI systems, automation agents, and APIs must have discrete non-human identities subject to equivalent authentication and access governance.
+4.6.2 AI models and training environments must use signed access tokens with expiration control.
+4.6.3 Access to AI model weights, embeddings, or datasets must be limited to authorized personnel and validated through logs.
+
+### 4.7 Monitoring and logging
+
+4.7.1 All IAM events, including logins, privilege escalations, failed authentications, and permission changes, must be logged in the SIEM per the Logging and Monitoring Standard.
+4.7.2 IAM alerts must be correlated with endpoint and network telemetry to detect anomalous behaviour.
+4.7.3 AI-driven anomaly detection may be used to identify compromised accounts or access misuse.
+
+### 4.8 Compliance and audit
+
+4.8.1 IAM compliance is monitored through periodic audits and control assessments.
+4.8.2 Nonconformities or violations must be logged, remediated, and tracked through the Corrective and Preventive Action Procedure.
+4.8.3 Exceptions must be documented under the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) and approved through its risk-tier approval pathway, with CISO co-approval for security-related exceptions in addition to (not in place of) the risk-tier approver.
+
+### 4.9 Training and awareness
+
+4.9.1 All employees must complete annual IAM and phishing awareness training.
+4.9.2 Technical personnel with access to privileged systems must undergo role-specific PAM and identity-security training.
+
+### 4.10 Continual improvement
+
+4.10.1 IAM processes must be reviewed annually in conjunction with ISO/IEC 27001:2022 and COBIT 2019 DSS05 controls.
+4.10.2 Emerging technologies such as adaptive authentication, identity federation, and decentralized ID (DID) models must be evaluated for adoption.
+
+---
+
+## 5. Framework alignment
+
+| Control Area | ISO/IEC 27001:2022 | ISO/IEC 27002:2022 | NIST | COBIT 2019 | CSA CCM v4.1 |
+| --- | --- | --- | --- | --- | --- |
+| Identity Management | A.5.15 to A.5.18 | §5.16 to 5.17 | SP 800-63 | DSS05.04 | IAM-01 to 09 |
+| Authentication | A.8.5 | §8.5 | SP 800-63B | DSS05.04 | IAM-13 |
+| Privileged Access | A.8.2 | §8.2 | SP 800-53 Rev. 5 AC-2, AC-6 | DSS05.04 | IAM-10, IAM-04 |
+| Access Review | A.5.18 | §5.18 | SP 800-53 Rev. 5 AC-2 | DSS05.04 | IAM-08 |
+| AI/Automation Access | A.5.16, A.8.3, A.8.5 | 5.16 (identity management); 8.3 (information access restriction); 8.5 (secure authentication) | SP 800-53 Rev. 5 IA-4, IA-5, AC-3 | DSS05.04 | IAM-12, IAM-13, IAM-14, IAM-15 |
+
+This policy further aligns with ISO/IEC 24760 (A framework for identity management, Parts 1 to 3, 2025) and ISO/IEC 29146:2024 (A framework for access management), the ISO identity-management and access-management framework standards.
+
+
+
+**End of Document**

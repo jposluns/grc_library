@@ -1,0 +1,188 @@
+# Consent Management Framework
+
+**Document Title:** Consent Management Framework\
+**Document Type:** Framework\
+**Version:** 1.0.17\
+**Date:** 2026-10-16\
+**Owner:** Data Protection Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/register-cookie-and-tracker.md`](register-cookie-and-tracker.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/framework-childrens-data.md`](framework-childrens-data.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
+**Classification:** Public\
+**Category:** Privacy\
+**Review Frequency:** Annual and upon material regulatory, jurisdictional, or product change\
+**Repository Path:** [`privacy/framework-consent-management.md`](framework-consent-management.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
+
+---
+
+## Purpose
+
+This framework defines the operating model for capturing, recording, refreshing, and honouring consent across the organization. It distinguishes consent from other lawful bases, sets the validity standard, identifies the granularity required for different purposes, and defines the audit trail that supports a defensible position with supervisory authorities and data subjects.
+
+This framework supports GDPR, UK GDPR, ePrivacy expectations, LGPD, PIPL, PIPEDA, COPPA, and equivalent regimes. It supports both web and mobile interfaces and in-product or service-channel consent flows.
+
+---
+
+## Scope
+
+This framework applies to all consent collection from data subjects across all channels, products, services, and jurisdictions in which the organization operates. It does not displace contractual, legitimate interest, vital interest, public task, or legal obligation lawful bases; where one of those bases is lawful and appropriate, consent is not required for ordinary personal data. Special-category data additionally requires an Article 9(2) condition (explicit consent being one), so an Article 6 basis alone does not remove the need for consent where no other Article 9(2) condition applies.
+
+---
+
+## When consent is the lawful basis
+
+Consent is the lawful basis where:
+
+1. The processing is voluntary in nature and not necessary for contract, legitimate interest, vital interest, public task, or legal obligation.
+2. The subject has a free choice without negative consequences for refusal or withdrawal.
+3. The processing falls within a category where consent is legally required (for example most ePrivacy cookie use cases, special-category data under GDPR Article 9 where no other Article 9(2) condition applies, certain transfers, marketing communications under most regimes, and processing of children's data under COPPA and equivalents).
+4. The subject's freely-given, specific, informed, and unambiguous indication is required.
+
+Where consent is not appropriate (for example processing necessary to perform a contract), the organization does not collect consent for that purpose; it identifies the actual lawful basis in the privacy notice and the ROPA.
+
+---
+
+## Validity standard
+
+Consent must satisfy each of the following elements. Failure of any element invalidates the consent and the processing must stop or fall back to a different lawful basis.
+
+| Element | Requirement |
+| --- | --- |
+| Freely given | No bundling with contract execution where the processing is not necessary for the contract. No detriment for refusal beyond the loss of the optional feature itself. No pre-ticked boxes or default-on switches. |
+| Specific | A separate, granular indication per distinct purpose. One overall consent covering "marketing, analytics, and product personalization" does not satisfy this element. |
+| Informed | The subject has been given the controller identity, the purposes, the data categories, the third-party recipients, the international transfers, the retention, and the rights, before consent is captured. |
+| Unambiguous | Captured through a clear affirmative action: ticked box, button press, biometric gesture, explicit utterance. Inactivity, silence, or continued browsing does not constitute consent. |
+| Withdrawable | The subject can withdraw consent at any time through a route as easy as the route used to give it. Withdrawal has no retrospective effect on processing before withdrawal. |
+
+These elements track the European Data Protection Board's **Guidelines 05/2020 on consent under Regulation 2016/679** (adopted 4 May 2020, with Version 1.1 formatting corrections on 13 May 2020), the authoritative supervisory interpretation of the GDPR consent standard: consent that is bundled with, or made a condition of, a service is not "freely given" (the conditionality requirement), and consent requires an unambiguous indication of wishes through a clear affirmative act, so inactivity, silence, or continued browsing does not qualify.
+
+---
+
+## Granularity rules
+
+1. Each purpose has a separate consent control. Bundling is prohibited except where multiple purposes are inseparable in the eyes of an informed subject (e.g. delivering a specific service whose nature requires the bundle).
+2. Each third-party recipient category whose processing is independent of the controller has a separate consent control.
+3. Each special-category data type has a separate consent control where consent is the Article 9 condition.
+4. Profiling and automated decision-making with legal or similarly significant effect has its own consent control even where the underlying processing has another lawful basis.
+5. Cookies and similar tracking technologies are governed by the cookie and tracker register; the consent control granularity matches the register.
+
+---
+
+## Consent record
+
+Each consent capture event produces a record stored in the consent register. The record is the audit artefact for the organization's lawful-basis claim.
+
+| Field | Description |
+| --- | --- |
+| Consent ID | Unique identifier |
+| Subject identifier | Internal subject identifier; not necessarily the public account identifier |
+| Purpose | Specific purpose the consent covers |
+| Granularity context | The product, feature, page, or in-product surface where consent was captured |
+| Notice version | Version of the privacy notice in force at the time |
+| Lawful basis claimed | Always "Consent" for entries in this register; cross-referenced to the ROPA |
+| Capture mechanism | Web form, biometric gesture, in-product flow, IVR, paper signature, etc. |
+| Affirmative action evidence | The user-interface state and the action taken (e.g. "checkbox ticked then Save pressed") |
+| Capture timestamp (UTC) | |
+| Locale and language | The language and locale in which the consent text was presented |
+| Subject's jurisdiction at capture | As inferred from authentication, declared address, or geolocation |
+| Withdrawal channel offered | Description of the route by which the subject can withdraw |
+| Refresh interval | If applicable; consent is refreshed at this cadence |
+| Linked privacy notice | Pointer to the exact version of the notice in force |
+| Validity status | Active, Withdrawn, Expired, Superseded |
+| Withdrawal timestamp (UTC) | If withdrawn |
+| Withdrawal source | The channel the subject used to withdraw |
+
+---
+
+## Withdrawal
+
+1. Withdrawal is available through the same channel through which consent was given, plus the privacy contact route published in the notice.
+2. Withdrawal takes effect within 24 hours of receipt across all systems that rely on the consent.
+3. Withdrawal is recorded in the consent register as a state change; the original consent record is retained for audit.
+4. Withdrawal does not affect the lawfulness of processing before withdrawal.
+5. Where the data has already been transferred to a third party or sub-processor, the controller communicates the withdrawal to the recipient within the same window.
+
+---
+
+## Refresh and expiry
+
+Consent does not automatically expire under most regimes, but stale consent is a defensibility risk. Refresh consent under the following conditions:
+
+| Condition | Refresh action |
+| --- | --- |
+| Material change to purpose or recipient category | New consent required before further processing under the changed purpose |
+| Subject inactivity beyond a defined dormancy window | Pause processing and refresh consent on return |
+| Material change to privacy notice that affects this purpose | Refresh consent rather than rely on tacit acceptance of the new notice |
+| Lapse of a defined refresh interval where the regime requires periodic re-consent (e.g. certain marketing regimes, special-category processing) | Refresh per the interval |
+| Subject moves to a jurisdiction with stricter requirements | Refresh under the stricter regime |
+
+---
+
+## Children's data
+
+Where a subject is below the age of digital consent in the applicable jurisdiction, the consent of a parent or guardian is required and the consent record additionally captures the parental-consent verification mechanism. Cross-reference the children's data framework.
+
+---
+
+## Cookie and similar technologies consent
+
+For cookies and similar tracking technologies, consent is governed by the cookie and tracker register. In the EU, Article 5(3) of the ePrivacy Directive, as amended by Directive 2009/136/EC and implemented in member-state law, requires prior consent for storage of or access to information in terminal equipment, subject to exceptions. The held as-made Article 5(3) instead requires clear and comprehensive information and a right to refuse, and excepts technical storage or access for the sole purpose of carrying out or facilitating the transmission of a communication over an electronic communications network, or as strictly necessary in order to provide an information society service explicitly requested by the subscriber or user. Directive 2009/136/EC is not held in the reference base, so an adopter confirms the amended wording and applicable national transposition directly. <!-- ref-absence: 2009/136/EC -->
+
+For the UK, regulation 6 of the Privacy and Electronic Communications (EC Directive) Regulations 2003 (PECR), as substituted by section 112 of the Data (Use and Access) Act 2025, provides that, subject to Schedule A1, a person must not store information, or gain access to information stored, in the terminal equipment of a subscriber or user. Schedule A1, inserted by Schedule 12 to that Act, permits storage or access with consent where the subscriber or user is provided with clear and comprehensive information about its purpose (paragraph 2), and sets out these further categories, each available only where every condition in its paragraph is met: transmission of a communication over an electronic communications network (paragraph 3); storage or access strictly necessary to provide an information society service requested by the subscriber or user (paragraph 4); collecting information for statistical purposes (paragraph 5); website appearance etc (paragraph 6); and emergency assistance (paragraph 7). The paragraph 5 and paragraph 6 categories require, among their conditions, clear and comprehensive information about the purpose; the subscriber or user must also be given a simple means of objecting, free of charge, to the storage or access and must not object. The reference base holds the as-made 2003 text of PECR; regulation 6 and Schedule A1 are stated here from the Data (Use and Access) Act 2025 as enacted, and regulation 6A lets the Secretary of State add, vary, or omit exceptions by regulations, so an adopter confirms the current text on legislation.gov.uk.
+
+For EU consent under the GDPR and ePrivacy rules, pre-ticked boxes, scroll-to-consent, and consent walls (where refusal degrades the core service disproportionately) are not valid; EDPB Guidelines 05/2020 treat scrolling and continued browsing as failing the unambiguous-indication standard.
+
+---
+
+## Operating expectations
+
+1. Each consented purpose has a single owning role accountable for the consent flow's validity.
+2. Material UI or text changes to a consent flow follow a Data Protection Officer review before release.
+3. Consent capture flows are tested at least annually against the validity standard, including for accessibility (screen readers, high-contrast modes).
+4. Consent records are retained for the duration of the processing plus three years, per the canonical [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md) (Consent records, GDPR Article 7); this covers the lifetime of the processing plus the period in which a claim under applicable law could be brought.
+5. The consent register is one of the artefacts presented during supervisory authority engagement.
+
+---
+
+## Metrics
+
+| Metric | Definition | Target |
+| --- | --- | --- |
+| Consent flow validity score | Percentage of audited consent flows that pass the validity standard | 100% |
+| Withdrawal honoured within SLA | Percentage of withdrawals reflected in dependent systems within 24 hours | At least 99% |
+| Refresh adherence | Percentage of refresh-eligible consents refreshed within their refresh interval | At least 95% |
+| Bundled-purpose violations | Count of consent flows that bundle distinct purposes | Zero |
+
+---
+
+## Framework alignment
+
+| Framework | Reference | Relevance |
+| --- | --- | --- |
+| GDPR | Articles 4(11), 6(1)(a), 7, 8, 9(2)(a) | Consent definition, conditions, child consent, special-category consent |
+| UK GDPR | Same articles | Equivalent provisions on consent as a lawful basis; UK rules on cookies and similar technologies sit in PECR regulation 6, not in UK GDPR |
+| UK PECR (S.I. 2003/2426) regulation 6, as amended by the Data (Use and Access) Act 2025 s. 112 and Schedule 12 | Regulation 6(1); Schedule A1, paragraphs 2 to 7 | Storing information, or gaining access to information stored, in terminal equipment (cookies and similar technologies): consent with clear and comprehensive information (paragraph 2) or a Schedule A1 category (paragraphs 3 to 7) |
+| EDPB Guidelines 05/2020 (v1.1) | Guidelines 05/2020 on consent under Regulation 2016/679 | The regulator's authoritative interpretation of the GDPR consent standard: conditionality (consent bundled with or conditioned on a service is not freely given), the unambiguous-indication requirement, and that pre-ticked boxes and scrolling do not constitute valid consent |
+| ePrivacy Directive 2002/58/EC and national transpositions | Article 5(3) and member-state rules | Cookie and similar technologies consent |
+| LGPD | Articles 7(I), 8 | Consent as lawful basis |
+| PIPL | Articles 13, 14 | Consent definition and conditions |
+| COPPA | 16 CFR 312 | Verifiable parental consent |
+| Canada PIPEDA (OPC Fair Information Principles) | Fair Information Principle 3 (Consent) | Meaningful consent: valid only where the individual can reasonably understand the nature, purpose and consequences; form of consent scaled to information sensitivity (express consent where information is sensitive, falls outside the individual's reasonable expectations, or creates a meaningful residual risk of significant harm); renewed consent for significant practice changes; withdrawal at any time, subject to legal or contractual restrictions and reasonable notice |
+| CPPA (lapsed, not in force) | Section 15(5)-(6) (lapsed with Bill C-27) | Express versus implied consent |
+| CCPA / CPRA | Cal. Civ. Code ss. 1798.120-1798.121; CCPA Regs 11 CCR s. 7004 | Opt-out of sale/sharing (1798.120) and right to limit use and disclosure of sensitive personal information (1798.121); consent-method requirements (symmetry in choice, no dark patterns) |
+| ISO/IEC 29184:2020 | Online notice and consent | Consent capture structure; the standard is not held in the reference base, so an adopter confirms its current edition and content directly <!-- ref-absence: 29184 --> |
+
+---
+
+## Limitations
+
+This framework is a CC BY-SA 4.0 baseline. Adopting organizations must validate jurisdictional rules, integrate with their specific consent management platform, populate the per-purpose consent record fields, and confirm the dormancy and refresh intervals applicable to their regimes. The framework is not legal advice.
+
+---
+
+**End of Document**

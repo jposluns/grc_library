@@ -1,0 +1,337 @@
+# IT Onboarding and Offboarding Procedure
+
+**Document Title:** IT Onboarding and Offboarding Procedure\
+**Document Type:** Procedure\
+**Version:** 1.3.1\
+**Date:** 2026-10-24\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-byod.md`](policy-byod.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material change\
+**Repository Path:** [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## 1. Purpose
+
+This procedure governs the provisioning and deprovisioning of system access and IT assets across the full personnel lifecycle: pre-joining, first-day onboarding, role transfers and changes, voluntary departure, and involuntary termination. It ensures that access rights are granted on a least-privilege basis, are aligned to approved role profiles, and are removed promptly and completely when no longer required.
+
+This procedure supports the Information Security Policy and aligns to ISO/IEC 27001:2022 Annex A controls A.6.1 (Screening), A.6.2 (Terms and conditions of employment), and A.6.5 (Responsibilities after termination or change of employment), NIST SP 800-53 Rev. 5 PS (Personnel Security) control family, and CIS Controls v8.1 Control 5 (Account Management).
+
+---
+
+## 2. Scope
+
+2.1 This procedure applies to all employees (permanent and fixed-term), contractors, consultants, and third-party workers who are granted access to any organizational system, application, network, or physical IT asset.
+
+2.2 It covers all user account types including standard user accounts, privileged accounts, shared accounts, service accounts provisioned to individuals, and third-party portal credentials.
+
+2.3 It applies regardless of whether personnel are onboarded or offboarded locally or remotely, and regardless of whether access is to on-premises, cloud, or hybrid systems.
+
+2.4 Physical access (key cards, building access) is subject to separate facilities management processes but is included in the deprovisioning checklist in Section 11 to ensure that coordinated revocation takes place.
+
+---
+
+## 3. Governance and accountability
+
+| Role | Responsibility |
+| --- | --- |
+| Chief Information Officer (CIO) | Owns this procedure. Ensures that IT Operations has capacity and processes to meet the timelines defined herein. Receives escalated exceptions. |
+| Chief Information Security Officer (CISO) | Provides oversight of access provisioning governance. Reviews privileged access provisioning and deprovisioning. Receives reports on deprovisioning SLA compliance. |
+| Human Resources (HR) | Triggers all onboarding and offboarding notifications to IT Operations within the timeframes specified. Notifies IT Operations of role changes within 24 hours of approval. Owns the hire, departure, and role-change notification forms. |
+| IT Operations | Executes account provisioning and deprovisioning. Maintains access profiles per role. Manages the deprovisioning checklist. Reports SLA compliance monthly to the CISO and CIO. |
+| Line Manager | Provides business approval for access requests that deviate from the standard role profile. Confirms departure dates and manages device collection for voluntary departures. Notified at the time of involuntary termination. |
+| Contract Owner | For contractors and third-party workers, holds the non-disclosure, policy-acknowledgement and exit-reminder responsibilities in items 4.2.4, 7.1.3 and 8.4.3 (item 9.6). |
+| Internal Audit | Periodically samples deprovisioning records to verify completeness and timeliness. |
+
+---
+
+## 4. Pre-joining and hire notification
+
+### 4.1 HR notification to IT operations
+
+4.1.1 HR must notify IT Operations of a new hire a minimum of 5 business days before the individual's start date. The notification must include:
+
+| Field | Notes |
+| --- | --- |
+| Full legal name | As it will appear in the identity directory |
+| Job title and department | Used to match against the access profile matrix |
+| Start date | Required for device preparation and account activation scheduling |
+| Manager name and department | For approval chain configuration |
+| Access profile required | Standard role profile or custom (custom requires line manager written approval) |
+| Device type required | Laptop, desktop, mobile device, or combination |
+| Remote or on-site working | Affects device configuration and VPN provisioning |
+| Elevated or privileged access | Flagged for CISO awareness; requires separate PAM onboarding |
+
+4.1.2 Late notification (fewer than 5 business days) must be approved by the CIO and may result in delayed account activation or device availability on the start date. IT Operations will communicate any delays to HR and the line manager.
+
+### 4.2 Provisional account creation
+
+4.2.1 Upon receipt of a valid hire notification, IT Operations will create the individual's account in the enterprise identity provider in a provisional (disabled) state.
+
+4.2.2 Provisional accounts must not be activated until the individual's confirmed start date.
+
+4.2.3 Role-based access permissions are configured against the pre-approved access profile for the role. Any access that exceeds the standard role profile requires written approval from the line manager and, for Confidential or Restricted data access, the CISO or data owner.
+
+4.2.4 The provisional account must not be activated until HR has recorded the individual's signed non-disclosure agreement (or equivalent contractual non-disclosure obligation) and acknowledgement of the Information Security Policy and the Acceptable Use Policy.
+
+---
+
+## 5. First-day provisioning
+
+### 5.1 Device readiness
+
+5.1.1 A configured, enrolled, and compliant managed device must be available for the individual on their first working day. The device will be enrolled in the endpoint management platform and meet the endpoint configuration baseline.
+
+5.1.2 For remote joiners, the device must be shipped in advance to arrive before the start date, or alternative arrangements confirmed with IT Operations and the line manager.
+
+### 5.2 Credential issuance
+
+5.2.1 Initial credentials (username and temporary password) must be issued in one of the following secure ways only:
+
+- In person at the IT service desk or office location, with identity verified against a government-issued photo ID
+- Via a secure one-time link delivered to the individual's personal email address (pre-registered with HR during the hiring process) that expires after first use and within 24 hours of generation
+
+5.2.2 Credentials must not be sent in plain text via email, instant message, or any other unencrypted channel.
+
+5.2.3 The individual must change their temporary password on first login.
+
+### 5.3 Multi-factor authentication enrolment
+
+5.3.1 MFA must be enrolled on the individual's first working day, before access to any Confidential or Restricted data is granted.
+
+5.3.2 IT Operations will guide first-day MFA enrolment as part of the standard onboarding session.
+
+5.3.3 MFA requirements are governed by the Authentication and Password Management Standard.
+
+### 5.4 Role-based access provisioning
+
+5.4.1 Access is provisioned in accordance with the pre-approved role access profile. Access beyond the standard profile is not activated until line manager written approval is confirmed.
+
+5.4.2 Privileged access (administrator accounts, service accounts) is subject to the Privileged Access Management Standard and must not be provisioned as part of first-day standard onboarding without CISO notification.
+
+5.4.3 Access to the collaboration platform, cloud productivity platform, collaboration and file storage platform, and other standard productivity tools will be activated on day one as part of the standard role profile.
+
+---
+
+## 6. Role changes and transfers
+
+### 6.1 HR notification
+
+6.1.1 HR must notify IT Operations within 24 hours of a role change or internal transfer being approved. The notification must include the individual's name, previous role, new role, effective date of change, and any changes to access requirements.
+
+### 6.2 Access review
+
+6.2.1 An access review for the transferred individual must be triggered within 3 business days of HR notification.
+
+6.2.2 The access review will compare the individual's current access rights against the access profile for their new role. Any access that is no longer required in the new role is classified as excess access.
+
+### 6.3 Excess access removal
+
+6.3.1 All excess access identified in the access review must be removed within 5 business days of HR notification.
+
+6.3.2 Where the line manager believes that transitional access to the former role's systems is temporarily necessary, they must submit a written request to IT Operations and the CISO. Transitional access may be granted for a maximum of 30 days and must be fully removed thereafter.
+
+6.3.3 Privileged access associated with the former role must be revoked within 2 hours of the effective date of the role change, consistent with the timeline in Section 10.
+
+---
+
+## 7. Voluntary departure
+
+### 7.1 Notice and pre-departure preparation
+
+7.1.1 HR must notify IT Operations a minimum of 5 business days before the individual's last working day. Where notice is shorter (e.g., immediate resignation), IT Operations must be notified on the same day.
+
+7.1.2 IT Operations will initiate the deprovisioning checklist (Section 11) upon receipt of departure notification.
+
+7.1.3 HR must hold an exit interview with the departing individual on or before their last working day to remind them of their continuing non-disclosure and confidentiality obligations. Where an exit interview is not possible, HR must send the reminder to the individual in writing instead. HR must record the exit interview or written reminder in the offboarding record.
+
+### 7.2 Last working day
+
+7.2.1 All user accounts for the departing individual must be suspended (not merely password-reset) at the end of their last working day. Suspension means the account is disabled in the enterprise identity provider and cannot be used to authenticate.
+
+7.2.2 Active sessions must be terminated and refresh tokens revoked at the time of account suspension.
+
+### 7.3 Post-departure account deletion
+
+7.3.1 All accounts must be fully deprovisioned (deleted or permanently disabled) within 7 calendar days of the individual's last working day, unless a longer retention period is required for legal hold, investigation, or data retrieval purposes approved by the CISO or Legal.
+
+### 7.4 Device collection and BYOD access removal
+
+**Hold and investigation safeguard.** Every wipe authority and requirement in this document is subject to this safeguard, including selective, corporate-container and full-device wipes. Before initiating a wipe, IT Operations must confirm whether a legal hold or investigation applies to the device, its user, or the data on it, using the two-part confirmation in rule 2 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1. A check of the GRC platform and Records Register confirms only whether a hold is recorded. Under that rule, Legal Counsel or the Incident Commander or, for security P3 and P4 where no Incident Commander is assigned, the SOC lead, or, for security P1 and P2 before an Incident Commander is assigned, the interim technical authority (Security Incident Response Procedure §2.2) confirms whether an investigation under [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) treats the device, its user, or the data on it as evidence. Only Legal Counsel confirms whether an investigation by an external authority treats the device, its user, or the data on it as evidence, and whether a hold is required but not yet recorded. Where a legal hold or investigation applies, or its status cannot be confirmed, IT Operations must suspend the wipe and follow the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 and its rules for non-destructive containment, evidence preservation and any later wipe. This includes remote lock or MAM application-layer containment within 1 hour, forensic acquisition wherever the device is reachable, only as far as rule 3 and applicable law permit, cancellation of queued wipes when a hold or investigation comes to apply, and no wipe until Legal Counsel, in writing, formally releases or narrows the hold as rule 8 requires. For an investigation without a legal hold, rule 8 requires Legal Counsel's written confirmation that the investigation no longer treats the device contents as evidence. An image, backup, owner's consent or immediate-wipe deadline does not override this safeguard. Preserve the management capability needed for containment and evidence acquisition; defer deprovisioning, profile removal, unenrolment, reassignment or disposal where it would destroy evidence or prevent required preservation. Corporate access revocation must still meet its existing deadline. Record the hold check, deferred actions and Legal Counsel's release or confirmation. Where no legal hold or investigation applies, the existing wipe triggers, scope, consent requirements and deadlines continue to apply.
+
+7.4.1 The organization-issued managed device must be collected on or before the individual's last working day. The line manager must coordinate device collection. Personally-owned devices must not be required to be surrendered.
+
+7.4.2 Where in-person collection of an organization-issued device is not possible (e.g., remote worker), a prepaid return courier must be arranged by IT Operations and the device must be received within 5 calendar days of the last working day.
+
+7.4.3 IT Operations must initiate remote wipe via the endpoint management platform if an organization-issued device is not returned within the required timeframe. The hold and investigation safeguard in §7.4 applies before initiating this wipe. Personal-device offboarding must follow item 7.4.4 and must not depend on device return.
+
+7.4.4 IT Operations must identify and record each personal device's deployed BYOD route and remove corporate access in accordance with Sections 7.2 and 8.2, as applicable. Subject to the hold and investigation safeguard in §7.4, IT Operations must perform the following route-specific actions under the [BYOD Policy](policy-byod.md):
+- MAM: selectively wipe corporate application data and then deprovision corporate application access, without deleting personal application data.
+- Managed work profile: wipe the corporate container and confirm completion before removing the work profile and its management; personal data must remain unaffected.
+- Full-device MDM: where the enrolment consent terms require a full-device wipe, IT Operations must perform it while management remains available and then unenrol the device; otherwise, IT Operations must unenrol the device. A full-device wipe must not be performed without the owner's written, recorded consent expressly authorizing it, except where required by law; the consent reference or applicable legal requirement must be recorded.
+
+IT Operations must record the route, actions, timestamps, and wipe and deprovisioning outcomes in the offboarding record. A pending or failed wipe must be recorded and escalated to the CISO for follow-up, must not be recorded as completed, and must not delay corporate access revocation.
+
+### 7.5 Data retrieval
+
+7.5.1 Any organizational data stored in the individual's collaboration and file storage platform workspace must be reviewed and, where required, transferred to the line manager or a designated successor within 7 calendar days of departure.
+
+7.5.2 Personal email forwarding from a corporate account to a personal account must not be set up and will be removed as part of the deprovisioning checklist.
+
+7.5.3 Where business content must be recovered from the individual's mailbox, IT Operations must inform the individual before starting the review, limit the review to the least intrusive means of identifying the business content, and, where feasible, carry it out in the individual's presence. IT Operations must complete the review and transfer to the line manager or a designated successor on or before the individual's last working day, and before the mailbox is converted or archived. This item does not limit the preservation required by a legal hold or investigation.
+
+7.5.4 Communications that are identifiably private must be excluded from any review and transfer of business content from an individual's mailbox, whether under item 7.5.3 or, after an involuntary termination, under item 8.5.1.
+
+---
+
+## 8. Involuntary departure
+
+### 8.1 Account suspension
+
+8.1.1 In the event of involuntary termination (dismissal, redundancy with immediate effect, or any termination where the individual is not permitted to work their notice), all accounts the organization directly controls must be suspended within 1 hour of the suspension instruction being received by IT Operations, effective at the time the termination decision is implemented; independently-authenticated external portal access follows the removal path in item 9.5 and the Section 11 checklist.
+
+8.1.2 Where possible, account suspension should be coordinated to occur at the same time as, or immediately before, the individual is informed of the termination.
+
+### 8.2 Access removal timeline
+
+8.2.1 For an involuntary termination, privileged access is revoked first (per Section 10, within 1 hour), and the following critical access-removal actions must be completed within 1 hour of the suspension instruction being received by IT Operations. This 1-hour timeline applies only to the items listed below; all other deprovisioning actions retain the timelines in the Section 11 checklist:
+
+- Enterprise identity provider account suspension
+- Revocation of all active sessions and tokens
+- Removal from all security groups
+- Revocation of VPN certificates
+- Suspension of collaboration platform access
+
+Disabling the enterprise identity-provider account and revoking active sessions, tokens, and VPN access are completed first because they remove the individual's primary means of authenticating to corporate systems. The remaining Section 11 checklist actions (for example multi-factor enrolment removal, mailbox conversion, file-storage removal, and licence reclamation) follow on their own timelines as subsequent cleanup. Independently-authenticated external portals not federated to the identity provider follow the distinct removal path in item 9.5.
+
+### 8.3 Device collection and BYOD access removal
+
+8.3.1 The organization-issued managed device must be collected on the same day as termination where the individual is on site. Where same-day collection is not possible, the device must be collected or secured within 1 business day. Personally-owned devices must not be required to be surrendered.
+
+8.3.2 Subject to the hold and investigation safeguard in §7.4, IT Operations must initiate a remote wipe of an organization-issued device via the endpoint management platform immediately if there is any risk that the individual may attempt to access or remove data from the device before collection.
+
+8.3.3 For personally-owned devices, subject to the hold and investigation safeguard in §7.4, IT Operations must perform the route-specific actions in item 7.4.4 and must initiate the applicable wipe immediately if there is any risk that the individual may attempt to access or remove corporate data. This urgency must not override the corporate-container boundary or the written, recorded consent requirement for full-device wipe, except where full-device wipe is required by law.
+
+### 8.4 Line manager notification
+
+8.4.1 The individual's line manager will be notified at the time the termination decision is communicated, to coordinate device return and brief their team as appropriate.
+
+8.4.2 HR retains responsibility for communicating the termination to IT Operations and initiating the deprovisioning workflow.
+
+8.4.3 For an involuntary termination, HR must complete the requirement in item 7.1.3 within 1 business day of the termination being communicated; this deadline replaces the last-working-day deadline in item 7.1.3.
+
+### 8.5 Mailbox business-content recovery
+
+8.5.1 Where business content must be recovered from the mailbox of an individual whose employment or engagement has been involuntarily terminated, IT Operations must inform the individual before starting the review and limit the review to the least intrusive means of identifying the business content. Item 7.5.4 applies to the review. This item does not limit the preservation required by a legal hold or investigation.
+
+---
+
+## 9. Contractor and third-party offboarding
+
+9.1 Contractors and third-party workers with system access are subject to the same deprovisioning timelines as employees (Sections 7 and 8, as applicable depending on whether departure is voluntary or involuntary).
+
+9.2 Third-party system access, including access to client portals, supplier systems, or external platforms, must be reviewed and removed as part of the deprovisioning checklist.
+
+9.3 Where a contractor or third-party worker shared credentials with other members of their organization (e.g., a shared service account for a supplier), those shared credentials must be rotated immediately upon the individual's departure, regardless of whether other authorized users continue to require access.
+
+9.4 IT Operations must confirm with the relevant line manager or Contract Owner that all third-party access has been removed before closing the offboarding record.
+
+9.5 The 7-calendar-day target for deprovisioning checklist item 15 (Section 11) is a deliberate, narrow exception to the timelines in item 9.1: independently-authenticated external portals (client portals, supplier systems, and other platforms not federated to the organization's identity provider) are a distinct access class whose removal depends on the external party's own administrative process, so it cannot be guaranteed within the internal-account revocation timelines (checklist item 1 onward). Portals federated to the identity provider lose access when the account is disabled under checklist item 1, and centralized, privileged, and shared-credential access retains its shorter timelines (checklist items 1, 12, and 16).
+
+9.6 For contractors and third-party workers, the Contract Owner, in place of HR, is responsible for items 4.2.4, 7.1.3 and 8.4.3: recording the signed non-disclosure agreement (or equivalent contractual non-disclosure obligation) and the policy acknowledgements before the provisional account is activated, and holding the exit interview or sending the written reminder, and recording it, within the applicable deadline.
+
+---
+
+## 10. Privileged access deprovisioning
+
+10.1 All privileged accounts held by a departing individual, including local administrator accounts, domain administrator accounts, cloud platform administrative roles, PAM vault accounts, and any other elevated access, must be reviewed and revoked within 2 hours of the departure notification being received by IT Operations for a voluntary departure, and within 1 hour of the suspension instruction being received by IT Operations for an involuntary termination.
+
+10.2 For involuntary departures, privileged access revocation is the first priority action, preceding completion of all other deprovisioning steps; the critical access-removal actions listed in Section 8.2 are completed within the same 1-hour window, and all remaining actions retain their Section 11 checklist timelines.
+
+10.3 Service accounts that are registered to or owned by the departing individual must be addressed as follows:
+
+| Scenario | Required Action |
+| --- | --- |
+| Service account used by systems the individual managed | Re-assign ownership to another authorized IT staff member immediately |
+| Service account used only by the departing individual | Disable the service account immediately; confirm with the application owner that no downstream dependency exists before permanent deletion |
+| Service account credentials known only to the departing individual | Reset credentials immediately; document and re-issue to the new owner |
+
+10.4 IT Operations must report completion of privileged access deprovisioning to the CISO within 24 hours of the departure event.
+
+---
+
+## 11. Deprovisioning checklist
+
+The following checklist must be completed for every departure. IT Operations is responsible for completion and verification. The completed checklist is retained as an evidence record.
+
+| # | Action Item | Responsible Party | Target Timeline | Verification Step |
+| --- | --- | --- | --- | --- |
+| 1 | User account disabled in enterprise identity provider | IT Operations | Last day (voluntary) / 1 hour (involuntary) | Confirm account status in identity provider console |
+| 2 | All active sessions terminated and refresh tokens revoked | IT Operations | Simultaneous with account disable | Session log confirms no active sessions |
+| 3 | MFA tokens and authenticator app enrolments removed | IT Operations | Within 4 hours of departure | MFA device list confirmed empty |
+| 4 | VPN certificate revoked | IT Operations | Within 4 hours of departure (voluntary) / 1 hour (involuntary) | Certificate revocation confirmed in PKI management console |
+| 5 | Email access removed and mailbox converted or archived | IT Operations | Last day (voluntary) / 4 hours (involuntary) | Mailbox status confirmed in mail admin console; for a voluntary departure, any business-content recovery under 7.5.3 completed on or before the last working day and before conversion or archiving |
+| 6 | Email forwarding to personal account removed and blocked | IT Operations | Last day | Mail routing confirmed; no forwarding rules active |
+| 7 | Shared mailbox access removed | IT Operations | Within 24 hours | Access list confirmed in mail admin console |
+| 8 | Collaboration platform access removed | IT Operations | Within 4 hours of departure (voluntary) / 1 hour (involuntary) | User removed from collaboration platform tenant |
+| 9 | Collaboration and file storage platform access removed | IT Operations | Within 4 hours of departure | Access confirmed removed; data transferred to line manager (for a voluntary departure, the data review and any required transfer may take up to 7 calendar days under 7.5.1) |
+| 10 | Organization-issued managed device must be returned and receipt confirmed; personal devices must not be required to be surrendered | Line Manager / IT Operations | Last day (voluntary; remote returns within 5 calendar days under 7.4.2) / 1 business day (involuntary) | Device ownership must be recorded; returned device serial number and chain of custody must be documented; personal-device return must be marked not applicable |
+| 11 | Subject to the hold and investigation safeguard in §7.4 for every wipe and destructive deprovisioning action in this row, remote wipe of an unreturned organization-issued device must be initiated; for personally-owned devices, BYOD access removal and the route-specific wipe and deprovisioning must be performed under 7.4.4 and 8.3.3 | IT Operations | Organization-issued device: within 1 business day of the applicable return deadline, or immediately under 8.3.2, subject to the hold and investigation safeguard in §7.4; personally-owned device: as part of access removal under 7.2 / 8.2, or immediately under 8.3.3, subject to the hold and investigation safeguard in §7.4; access revocation retains its existing deadline | The hold check, any preservation deferral and Legal Counsel's release or confirmation, route, access revocation, wipe outcome, and application deprovisioning, work-profile removal or MDM unenrolment must be recorded; any full-device wipe must reference the owner's written, recorded consent or the applicable legal requirement; pending or failed actions must be escalated and tracked to resolution |
+| 12 | All privileged accounts revoked | IT Operations | Within 2 hours of departure notification (voluntary) / 1 hour, first priority (involuntary) | PAM vault audit confirms no active privileged sessions |
+| 13 | Service accounts re-assigned or disabled | IT Operations | Immediately, per Section 10.3; first priority for an involuntary departure | Service account ownership register updated |
+| 14 | Service desk / ITSM account closed | IT Operations | Within 7 calendar days | Account status confirmed in ITSM system |
+| 15 | Third-party portal access removed | IT Operations / Line Manager | Within 7 calendar days | Each portal confirmed; documented in offboarding record |
+| 16 | Shared credentials rotated (contractors/third parties) | IT Operations | Immediately upon departure | Credential rotation confirmed; new credentials distributed to remaining authorized users |
+| 17 | Physical access cards and office keys returned | Facilities / Line Manager | Last day | Facilities receipt or confirmation email |
+| 18 | Security group memberships removed | IT Operations | Within 24 hours (voluntary) / 1 hour (involuntary) | Directory security groups confirmed |
+| 19 | Distribution list memberships removed | IT Operations | Within 24 hours | Distribution list memberships confirmed |
+| 20 | Software licences released and reclaimed | IT Operations | Within 7 calendar days | Licence management platform updated |
+| 21 | Exit interview held or written reminder of non-disclosure and confidentiality obligations sent | HR / Contract Owner | Last day (voluntary) / within 1 business day (involuntary) | Exit interview or written reminder recorded in offboarding record |
+| 22 | Offboarding record completed and filed | IT Operations | Within 7 calendar days of departure | Record accessible in ITSM with all checklist items verified |
+
+---
+
+## 12. Evidence and records retention
+
+12.1 A completed deprovisioning checklist record must be created and retained for every individual offboarded, without exception.
+
+12.2 Deprovisioning records must be retained for a minimum of 7 years from the date of departure. This supports audit requirements, regulatory inquiry, and legal proceedings.
+
+12.3 Records must be stored in the organization's approved records management system with access restricted to IT Operations, CISO, CIO, HR, and Internal Audit, and, limited to the records of their contractors and third-party workers, the Contract Owner (item 9.6).
+
+12.4 Onboarding records (access provisioning approvals, role-profile assignments, initial MFA enrolment confirmation, signed non-disclosure agreements or equivalent contractual non-disclosure obligations, and policy acknowledgements) must similarly be retained for 7 years from the date of offboarding of the individual to whom they relate.
+
+12.5 Records must be retained and destroyed in accordance with the Records Retention and Destruction Standard.
+
+---
+
+## 13. Framework alignment
+
+| Framework | Reference | Alignment |
+| --- | --- | --- |
+| ISO/IEC 27001:2022 | A.6.1 Screening | Pre-joining verification and account creation in provisional state |
+| ISO/IEC 27001:2022 | A.6.2 Terms and conditions of employment | Access provisioning tied to accepted terms; acknowledgement required before access granted |
+| ISO/IEC 27001:2022 | A.6.5 Responsibilities after termination or change of employment | Deprovisioning timelines, device return, data handling post-departure |
+| ISO/IEC 27001:2022 | A.5.18 Access rights | Role-based provisioning, excess access removal, and access review on role change |
+| ISO/IEC 27001:2022 | A.5.11 Return of assets; A.8.12 Data leakage prevention | Data retrieval and forwarding controls on departure |
+| ISO/IEC 27002:2022 | §6.5 Responsibilities after termination or change of employment | Detailed implementation guidance for offboarding controls |
+| NIST SP 800-53 Rev. 5 | PS-4 Personnel Termination | Account suspension, credential revocation, device return timelines |
+| NIST SP 800-53 Rev. 5 | PS-5 Personnel Transfer | Access review and excess access removal on role change |
+| NIST SP 800-53 Rev. 5 | PS-6 Access Agreements | Acknowledgement of acceptable use prior to access provisioning |
+| NIST SP 800-53 Rev. 5 | AC-2 Account Management | Account lifecycle management from provisioning to deprovisioning |
+| CIS Controls v8.1 | 6.1, 6.2, 6.8 | Account provisioning, deprovisioning, and access review processes |
+| CIS Controls v8.1 | 6.8, 5.4 | Least-privilege access, role-based profiles, privileged account management |
+| US DoD CMMC Assessment Guide Level 2 v2.13 | PS.L2-3.9.2 Personnel Actions | Protection of systems containing CUI during and after terminations and transfers; exit interviews and account suspension before notification of termination as measures organizations may consider |
+| VDA ISA 6.0.3 (TISAX, automotive sector) | 2.1.2, 4.1.3, 4.2.1 | Non-disclosure and policy-compliance obligations for staff (implemented in this procedure by the activation gate in item 4.2.4), account disabling on departure, and access adjustment on role change |
+| UK NCSC Cyber Essentials v3.3 | User access control | Account removal on departure and special access privilege removal on role change |
+| Canada CCCS Baseline Cyber Security Controls for Small and Medium Organizations V1.2 | BC.12.1, BC.12.3 | Least-privilege role profiles and account removal on departure or role change |
+| Council of Europe Recommendation CM/Rec(2015)5 (processing of personal data in the context of employment) | Principle 14 (paragraphs 14.3, 14.4 and 14.5) | For mailbox business-content recovery, advance information and least intrusive review on voluntary departure (item 7.5.3) and after an involuntary termination (item 8.5.1); recovery before departure on voluntary departure (item 7.5.3); for any recovery (item 7.5.4), exclusion of private communications |
+
+---
+
+**End of Document**

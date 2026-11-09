@@ -1,0 +1,449 @@
+# Master Project Specification
+
+**Document Title:** Master Project Specification\
+**Document Type:** Specification\
+**Version:** 1.7.14\
+**Date:** 2026-11-09\
+**Owner:** Chief Compliance Officer\
+**Approving Authority:** Chief Risk Officer\
+**Related Documents:** [`governance/specification-ingestion.md`](specification-ingestion.md), [`.claude/skills/corpus-management/specs/instruction-ai-document-ingestion.md`](../.claude/skills/corpus-management/specs/instruction-ai-document-ingestion.md), [`README.md`](../README.md), [`NOTICE.md`](../NOTICE.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md)\
+**Classification:** Public\
+**Category:** Meta-Governance\
+**Review Frequency:** Annual and upon material repository structure, governance, or licence change\
+**Repository Path:** [`governance/specification-master-project.md`](specification-master-project.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This specification governs all behaviour, processing, reasoning constraints, file generation, directory placement, and structural rules used by the AI within this project. It defines authoritative requirements for output consistency, safety, determinism, formatting, and governance alignment. All subordinate specifications, including the Ingestion Specification, operate under this Master Project Specification unless explicitly delegated otherwise.
+
+---
+
+## Scope
+
+This specification applies to every AI response within the project, including:
+
+1. Document ingestion and transformation to library-canonical form.
+2. Governance document generation.
+3. Registers, matrices, templates, and mapping documents.
+4. Analysis, interpretation, and architectural planning.
+5. Behavioural, linguistic, and formatting constraints.
+6. All directories and domain structures governed by this project.
+
+---
+
+## 1. Canonical governing order
+
+1. Master Project Specification (this document).
+2. Ingestion Specification (latest version).
+3. Domain architecture rules (AI, security, privacy, resilience, etc.).
+4. Document-type rules (policy, standard, procedure, etc.).
+5. Any user-provided overrides.
+
+When conflict occurs, the highest item prevails. Exception: where any conflict concerns licence compatibility with the library's CC BY-SA 4.0 licence (for example, a proposal to incorporate external third-party content), the more restrictive rule prevails regardless of document position in this order. This exception does not override the transition clause for existing quotations that [`NOTICE.md`](../NOTICE.md) and section 8 state: a quotation that clause keeps stays even where another rule is more restrictive.
+
+---
+
+## 2. Behavioural requirements for the AI
+
+The AI must:
+
+1. Use a formal, precise, consistent governance tone.
+2. Avoid ambiguity unless ambiguity is explicitly required.
+3. Interpret user intent without commenting on spelling or grammar.
+4. Apply governance, risk, compliance, and security terminology correctly.
+5. Produce deterministic, structured outputs.
+6. Never hallucinate or invent governance content.
+7. Use project rules over internal model defaults.
+8. Never expose internal chain-of-thought, hidden reasoning, or engine analysis.
+9. Identify rule conflicts and request clarification.
+10. Apply regulatory and standards references only when supported by user content or recognized frameworks listed in Section 7.
+11. Preserve user intent exactly while improving clarity, structure, and compliance with this specification.
+
+---
+
+## 3. Document output rule
+
+When producing governance documents in a chat or interactive interface, each document must be contained inside exactly one fenced code block. The fenced block must use backticks (` ``` `) with no language tag unless the user specifically requests one. Nothing may appear inside the fence except the document itself. All commentary, analysis, and repository-update registers must appear outside the fenced block. Multi-document outputs require user approval: one document per output.
+
+When working in a git repository via direct file tooling (read, write, edit operations), documents are written directly to files. The code fence rule does not apply to direct file operations.
+
+---
+
+## 4. Repository architecture
+
+Top-level structure for governance artefacts:
+
+```text
+/README.md
+/NOTICE.md
+/LICENSE
+/governance/
+/security/
+/ai/
+/privacy/
+/resilience/
+/supply-chain/
+/compliance/
+/crypto/
+/risk/
+/dev-security/
+/operations/
+/architecture/
+```
+
+The `/compliance/` domain contains sector-specific sub-directories (`logistics/`, `financial-services/`, `healthcare/`, `energy-and-utilities/`, `telecommunications/`, `public-sector/`) for sector-conditional content; see the compliance README for the structure.
+
+Repository infrastructure directories and files that are not used for governance artefacts but are part of the repository:
+
+```text
+/CONTRIBUTING.md       Contribution workflow, metadata block, style and filename rules.
+/.working/CHANGELOG.md Phase-level history of repository changes.
+/.working/TODO.md      Public backlog index.
+/SECURITY.md           How to report content accuracy defects, licence concerns,
+                       organization or personal data leakage, broken links, tooling defects.
+/.pre-commit-config.yaml  Local pre-commit hooks wiring the audit scripts.
+/.github/              GitHub Actions workflow that runs the audits on push to main
+                       and on every pull request.
+/.claude/skills/corpus-management/tools/
+                       Stdlib-only Python audit scripts and taxonomy / narrative registry /
+                       portal generators.
+/.claude/aiqt/         Pinned snapshot of the AIQT rules (Apache-2.0), consumed from the AIQT
+                       project (https://aiqt.ai), which replaced the rules-and-skills pack
+                       formerly authored in this repository; upstream-owned, never authored
+                       here. Not an audited corpus domain.
+/.claude/              Coding-agent adapter surface. The rule copies under .claude/rules/ are
+                       kept in parity with the pinned AIQT snapshot (gate 37); the slash commands,
+                       hooks, and settings are project-specific operational wiring.
+/executive/            Executive narrative layer (early): non-normative, advisory pages, not an
+                       audited corpus domain; the source for .claude/skills/corpus-management/data/narrative.yml.
+/.claude/skills/corpus-management/tests/
+                       Linter-regression fixtures for the audit toolchain.
+/.claude/skills/corpus-management/registers/
+                       The project's own governance artefacts (the citation-verification
+                       register and related records; formerly /.project-governance/),
+                       governed as their own governance.
+/.claude/skills/corpus-management/docs/
+                       Adopter-facing documentation (adopter guide, multi-entity adoption
+                       guide, worked adoption example).
+/.claude/skills/corpus-management/specs/
+                       The project's own specifications (audit programme, project-governance
+                       separation) and the AI document-ingestion instruction.
+/.claude/skills/corpus-management/procedures/
+                       Skill procedures (6 files) for the validation sweeps, the claim-fit
+                       and matrix-fit reviews, publication screening and the reference
+                       audit; project-side, not governance artefacts.
+/governance/portal.md, /governance/maturity-scorecard.md
+                       Auto-generated portal and maturity scorecard; they sit in governance/
+                       but are generated pages, not governance artefacts.
+/.claude/skills/corpus-management/data/taxonomy.yml
+                       Auto-generated machine-readable registry of every active artefact's
+                       canonical metadata, purpose, section outline, and framework
+                       alignment. Regenerated from document metadata and document
+                       structure by .claude/skills/corpus-management/tools/build-taxonomy.py.
+/.claude/skills/corpus-management/data/narrative.yml
+                       Auto-generated registry of the executive narrative layer's pages.
+                       Regenerated from the executive/ pages by
+                       .claude/skills/corpus-management/tools/build-narrative-registry.py.
+```
+
+Documents subject to this specification are placed only in the governance-artefact directories above, apart from the project's own specifications, registers and adopter guides in `.claude/skills/corpus-management/specs/`, `.claude/skills/corpus-management/registers/` and `.claude/skills/corpus-management/docs/`. Those 3 infrastructure directories are not exempt from the metadata rules: their documents carry the 13-field canonical metadata block (the AI document-ingestion instruction excepted) and the metadata audit checks them. The other infrastructure directories are exempt from the 13-field canonical metadata block (see Section 5). The structural auditor, `.claude/skills/corpus-management/tools/lint-structure.py`, checks only the 12 domain directories: every active markdown file there must appear in its domain README and in the document index register, and every path that the index register and the domain READMEs reference must exist. It does not check those 3 infrastructure directories or any other infrastructure path.
+
+### 4.1 Directory rules
+
+1. All documents must be placed in one of the approved directories listed in Section 4.
+2. Directories must not contain non-canonical document types.
+3. No directory expansions are allowed without explicit user approval.
+4. Specifications sit in `governance/` (the corpus specifications, this one included) or in `.claude/skills/corpus-management/specs/` (the audit-programme and project-governance separation specifications and the AI document-ingestion instruction); none sits at the repository root.
+5. Each file must follow canonical naming: `document-type-canonical-name.md`.
+6. Each domain directory must contain a [`README.md`](../README.md) that lists all active documents in that domain.
+
+### 4.2 Domain purpose summary
+
+| Directory | Primary Governance Purpose |
+|---|---|
+| `governance/` | Core governance: charter, frameworks, policies, registers, matrices, role authority, document architecture, cross-framework alignment, and assurance metrics |
+| `security/` | Information security: policies, standards, procedures, access control, identity, cryptography, logging, classification, and secure operations |
+| `ai/` | AI governance, AI security, model risk, AI lifecycle, documentation, assurance, testing, and AI data security |
+| `privacy/` | Privacy governance, data protection, cross-border transfer, breach response, records retention, and data subject rights |
+| `resilience/` | Business continuity, disaster recovery, crisis management, incident response, resilience testing, and recovery governance |
+| `supply-chain/` | Supplier governance, third-party risk, cloud governance, supply-chain security, trade compliance programmes, and service-provider assurance |
+| `compliance/` | Compliance management, legal and regulatory obligations, audit governance, sector-specific annexes, and trade compliance controls |
+| `crypto/` | Crypto-asset and blockchain governance: crypto-asset classification, custody and key control, blockchain-platform vetting, staking governance, and smart-contract risk. |
+| `risk/` | Enterprise risk management, risk registers, KRIs, risk appetite, quantitative analysis, AI risk methodology, and third-party risk standards |
+| `dev-security/` | Secure development standards, DevOps security, software composition analysis, developer quick references |
+| `operations/` | IT operations, asset management, change management, configuration management, and security operations registers |
+| `architecture/` | Enterprise architecture practice: framework, decision records, reference architectures, technology radar, architecture review, API design, data architecture, and integration architecture |
+| `compliance/<sector>/` | Sector-conditional sub-directories within compliance (`logistics/`, `financial-services/`, `healthcare/`, `energy-and-utilities/`, `telecommunications/`, `public-sector/`) hold sector-specific annexes, programme overlays (CTPAT, PIP, AEO, BASC, etc.), and sector-conditional artefacts. Organizations not participating in a covered sector or programme can ignore the corresponding sub-directory. |
+
+### 4.3 Document-type definitions
+
+Allowed types and their canonical filename prefixes (filenames use lowercase; see [`governance/specification-ingestion.md`](specification-ingestion.md) for full filename rules):
+
+| Document Type | Filename prefix |
+| --- | --- |
+| Charter | `charter-` |
+| Framework | `framework-` |
+| Policy | `policy-` |
+| Principle | `principle-` |
+| Standard | `standard-` |
+| Procedure | `procedure-` |
+| SOP | `sop-` |
+| Plan | `plan-` |
+| Roadmap | `roadmap-` |
+| Guideline | `guideline-` |
+| Guide | `guide-` |
+| Register | `register-` |
+| Matrix | `matrix-` |
+| Specification | `specification-` |
+| Template | `template-` |
+| Annex | `annex-` |
+| Checklist | `checklist-` |
+| Worklist | `worklist-` |
+
+No additional types may be created without approval.
+
+### 4.4 Type selection guidance
+
+- Procedure versus SOP: a Procedure is a multi-actor or cross-functional workflow that coordinates several roles. An SOP is a single-actor or narrow team sequence with explicit step ownership for one repeatable task.
+- Plan versus Roadmap: a Plan is event-triggered or schedule-bound coordination such as incident, recovery, migration, or communication. A Roadmap is a multi-phase forward strategy tied to a strategic outcome with phased milestones and dependencies.
+- Guideline versus Guide: a Guideline is advisory interpretation of a policy or standard requirement and reads as governance commentary. A Guide is technical reference material organized for adoption such as patterns, examples, configuration models, or implementation walkthroughs.
+- Principle versus Charter versus Policy: a Principle document states the foundational, cross-cutting production principles that govern how the corpus itself is produced (priority orderings, non-negotiable facets), derived from the charter and realized across frameworks, policies, and standards. A Charter defines the repository's governing authority, mandate, scope, and approval model (it names principles but does not elaborate them). A Policy states binding operational intent and mandatory commitments for a specific governance domain.
+
+### 4.5 Library versioning
+
+The library as a whole carries a Calendar Versioning (CalVer) version separate from the per-document semantic versions defined in section 5. The library-level version answers the question "which snapshot of the library did the adopter take?".
+
+#### Scheme
+
+The library version is `YYYY.MM.patch` where:
+
+- `YYYY` is the four-digit year of the most recent merge to `main`.
+- `MM` is the two-digit month of the most recent merge to `main`.
+- `patch` is a sequential counter that increments on every merge to `main` within the same `YYYY.MM` window. It resets to `0` when the month rolls over.
+
+Examples: `2026.05.0`, `2026.05.7`, `2026.06.0`, `2026.12.42`.
+
+> **Historical discontinuity (recorded 2026-08-09, Sweep 154; count updated 2026-08-12, Sweep 159; a further gap recorded 2026-08-22).** `patch` is sequential BY INTENT, but
+> the historical record contains a small number of gaps where a patch number appears on no merge to
+> `main`. A walk of the full `Library Version` history as of the 2026-08-12 Sweep-159 update found eleven such gap sites, across the 2026.06,
+> 2026.07, and 2026.08 windows (the earliest is `2026.06.151`; the `2026.07.641` gap is the one noted in
+> `.claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py`, from the PR #1155 mirror-parity incident, not the earliest; the most recent then was `2026.08.177`, a candidate superseded in the #1477/#1478 window). A further gap, `2026.08.360`, was recorded 2026-08-22 by the closing-window `/validate`: PR #1661's UTC-rollover version cascade jumped `2026.08.359` to `2026.08.361`, so `2026.08.360` is on no merged PR. Each sits between two contiguously-numbered,
+> both-merged PRs, so the observed cause is within a merge, not a missing PR: a candidate version
+> superseded before its PR merged (for example `2026.08.164`, assigned on PR #1465's branch then
+> revised to `2026.08.165` before merge), or a `Library Version` bumped by more than one on a single
+> merge. A PR that never merges consumes no patch number, so it cannot produce a gap. These
+> historical gaps do not violate the go-forward sequential intent. No current gate detects them (the
+> library-version monotonicity gate asserts only that the version never decreases, and the CHANGELOG
+> mirror-parity gate's strictly-decreasing check no-ops without the private mirror; a skipped number
+> satisfies both); a forward-looking continuity check remains planned under the Corpus-Management discipline roadmap (item 4.1 of the public working backlog in [`.working/TODO.md`](../.working/TODO.md)).
+
+#### Why CalVer
+
+The library evolves continuously through small phased PRs rather than discrete versioned releases. CalVer is appropriate because:
+
+- The most useful question for an adopter is "how recent is this?", not "is this a backwards-compatible upgrade?".
+- The patch counter records cumulative churn within a month, surfacing the high merge frequency that semantic versioning would obscure.
+- No judgment is needed to decide between major/minor/patch bumps; the scheme is mechanical.
+
+#### Where the version is recorded
+
+The current library version is displayed in [`README.md`](../README.md)'s metadata block as the field `Library Version`. The CHANGELOG records the library version at the time of each phase's completion in the phase heading.
+
+#### Maintenance
+
+Each PR that merges to `main` updates [`README.md`](../README.md)'s `Library Version` field as part of the PR:
+
+- If the merge falls in the same calendar month as the current version, increment the patch.
+- If the calendar month has changed, set the new version to `YYYY.MM.0`.
+
+The version bump is the author's responsibility on the PR that introduces the change. The audit suite's version-monotonicity audit (gate 13) enforces that the README's Library Version and every document's Version metadata field never decrease against the prior committed state; gate 13 passes an unchanged value (a missing library-version bump surfaces instead through the CHANGELOG-coupling gates 29 and 59, which require each PR's entry to carry a strictly higher Library Version matching the README), so reviewers should still verify the bump is present before approving the PR.
+
+#### Relationship to per-document versioning
+
+Per-document versions (section 5, semantic versioning) remain unchanged and continue independently. The library version is the **snapshot identifier** for the corpus as a whole; per-document SemVer is the **evolution marker** for each artefact and carries change-severity signal (major = breaking, minor = additive, patch = correction). The two schemes are deliberately different formats so a reader can tell at a glance which is which: `2026.05.7` is always a library version; `1.2.1` is always a document version. They are not substitutes for each other.
+
+A document may move from `1.2.0` to `1.2.1` within library version `2026.05.7`, and another document in the same PR may move from `0.0.1` to `1.0.0`. The library version aggregates these into a single point-in-time identifier for the corpus.
+
+---
+
+## 5. Metadata requirements
+
+Every generated governance document must include the canonical metadata block with the following fields, in this order:
+
+1. Document Title
+2. Document Type
+3. Version
+4. Date
+5. Owner
+6. Approving Authority
+7. Related Documents
+8. Classification
+9. Category
+10. Review Frequency
+11. Repository Path
+12. Confidentiality
+13. License
+
+Rules:
+
+- Version always begins at `0.0.1`. See the Ingestion Specification for version advancement rules.
+- Owner and Approving Authority must be roles, not individuals.
+- Dates use ISO 8601 format: `YYYY-MM-DD`.
+- Classification defaults to Public unless the user requires otherwise.
+- Related Documents must reference canonical filenames using repository-relative paths.
+- License is always `CC BY-SA 4.0`.
+
+---
+
+## 6. Formatting and style requirements
+
+1. Use plain Markdown only.
+2. No HTML, no images, no emojis.
+3. No nested tables.
+4. No wide or overflow tables in standard documents.
+5. One sentence per line recommended for policies and standards.
+6. Section order must follow the canonical order defined in the Ingestion Specification.
+7. All text must be globally reusable and must not contain organization-specific references.
+8. Apply the organization-neutrality rules in Appendix A of the Ingestion Specification to all content.
+9. Use Oxford English with `-ize` forms where applicable.
+10. Do not use em dashes or en dashes.
+11. Pair `ensure` with `that`; do not use bare `ensure` or `ensures`.
+12. Use sentence case for all section headings (H2 through H6). The first word is capitalized; subsequent words are lowercase except proper nouns and acronyms. Section identifiers such as `A1.`, `Step 1:`, and `Category 1:` count as numbering, not as the first word, so the word that follows must be capitalized. H1 document titles may use Title Case where they name a controlled artefact (e.g. policy or standard title).
+
+### 6.1 Requirement-language register
+
+This library uses **must** / **must not** as the normative requirement verbs, **should** / **should not** as recommendation verbs, and **may** as the permission verb. The semantics are those of RFC 2119 (Bradner, 1997) as updated by RFC 8174 (Leiba, 2017): the requirement-language reading applies where the relevant keyword appears in lowercase or uppercase prose within a normative statement; where the same word appears in a non-normative context (a definition, a citation, an example), it carries its ordinary English meaning.
+
+The following rules apply:
+
+1. **"must" / "must not"** is the project's canonical requirement-language pair for absolute obligations and prohibitions. Use it by default in policies, standards, procedures, SOPs, and any document that states normative requirements.
+2. **"should" / "should not"** is the canonical recommendation pair. Use it for strong recommendations where a documented justification permits deviation. Do not use "should" as a softer synonym for "must"; the distinction is meaningful for audit and conformance purposes.
+3. **"may"** is the canonical permission verb. Do not use "may not" as a prohibition: a strict RFC 2119 reading of "may not" admits a permissible-negative-possibility interpretation that is ambiguous against MUST NOT. Where the intent is a prohibition, write "must not".
+4. **"shall" / "shall not"** is reserved for two narrow cases: (a) a short, attributed quotation that section 8 allows, or that its transition clause keeps, of a source that uses "shall" in its normative text (for example a statute, or a public-domain standard such as a NIST SP publication); and (b) legacy content that has not yet been harmonized to "must". New normative content authored within this library uses "must"; legacy "shall" usage is converted to "must" opportunistically as documents are revised.
+5. **Verb consistency within a document** outranks cross-file uniformity. A single document should use one of "must" or "shall" throughout its normative text, not both, unless the second verb appears only inside such a quotation. Where a document mixes the two, the predominant verb is the canonical form for that document and any normative additions follow it; the minority occurrences are converted opportunistically.
+
+The convention is documented at the library level so reviewers can cite it. A future audit gate may mechanize the rule (for example, flagging "may not" used as a prohibition, or flagging new "shall" introductions outside the carve-outs above); this specification is the source of truth for that future gate's policy.
+
+---
+
+## 7. External framework alignment
+
+When referencing standards and frameworks, the AI must only reference publicly recognized frameworks. The following are confirmed for use in this repository:
+
+### Information security and risk
+
+- ISO/IEC 27001:2022: Information security management systems
+- ISO/IEC 27002:2022: Information security controls
+- ISO/IEC 27701:2025: Privacy information management (standalone PIMS standard since the 2025 revision)
+- ISO/IEC 42001:2023: AI management systems
+- ISO/IEC 23894:2023: AI risk management guidance
+- ISO 22301:2019: Business continuity management
+- ISO 31000:2018: Risk management
+- ISO 9001:2015: Quality management
+- NIST CSF 2.0: Cybersecurity Framework
+- NIST SP 800-53 Rev. 5: Security and privacy controls
+- NIST SP 800-37 Rev. 2: Risk Management Framework
+- NIST SP 800-218 Version 1.1: Secure Software Development Framework (SSDF)
+- NIST AI RMF 1.0: AI Risk Management Framework
+- COBIT 2019: IT governance and management
+- CSA CCM v4.1: Cloud Controls Matrix
+- CIS Benchmarks: Configuration security baselines
+- MITRE ATT&CK: Adversarial tactics and techniques
+- MITRE ATLAS: Adversarial ML threat landscape
+
+### Privacy and data protection
+
+- GDPR: General Data Protection Regulation (EU)
+- UK GDPR: United Kingdom General Data Protection Regulation
+- PIPEDA: Canadian privacy legislation
+- AIDA: Artificial Intelligence and Data Act (Canada; proposed in Bill C-27, lapsed 2025-01-06 and never enacted, cited as a proposed instrument)
+- PIPL: Personal Information Protection Law (China)
+- LGPD: Lei Geral de Proteção de Dados (Brazil)
+- Quebec Law 25: Act respecting the protection of personal information in the private sector (CQLR c. P-39.1), as amended by Law 25 (S.Q. 2021, c. 25)
+
+### AI and emerging technology
+
+- EU AI Act: Regulation on Artificial Intelligence
+- OWASP LLM Top 10: Large Language Model application risks
+- OWASP Top 10: Web application security risks
+- OWASP ASVS: Application Security Verification Standard
+
+### Trade compliance and supply chain
+
+- CTPAT: Customs-Trade Partnership Against Terrorism (US CBP)
+- AEO: Authorized Economic Operator (EU)
+- AEO-S: Authorized Economic Operator Security and Safety (UK HMRC)
+- PIP: Partners in Protection (Canada CBSA)
+- BASC: Business Alliance for Secure Commerce
+- NEEC: Nuevo Esquema de Empresas Certificadas (Mexico)
+- OEA: Operador Econômico Autorizado (Brazil)
+- WCO SAFE Framework of Standards
+- ISO 28000:2022: Supply chain security management systems
+
+### Resilience and operational technology
+
+- IEC 62443: Industrial cybersecurity
+- DORA: Digital Operational Resilience Act (EU)
+- NIS 2 Directive: Network and Information Security (EU)
+- SLSA: Supply-chain Levels for Software Artifacts
+
+### Financial and sector-specific
+
+- PCI DSS v4.0.1: Payment card industry data security standard
+- HIPAA: Health Insurance Portability and Accountability Act (US)
+- SOX: Sarbanes-Oxley Act (US)
+- FedRAMP: Federal Risk and Authorization Management Program (US)
+- OSFI B-13: Technology and Cyber Risk Management (Canada)
+
+References must be accurate and must not be invented. Do not reference frameworks not appearing in this list without explicit user confirmation that the framework is applicable.
+
+---
+
+## 8. Governance document generation rules
+
+1. All content must be normalized to organization-neutral, original-authorship language. The library does not incorporate third-party verbatim text, except a short, attributed quotation of (a) a government or regulatory text or (b) a standard or framework text that is in the public domain or openly licensed (for example a NIST SP or FIPS publication, the NIST CSF, or a framework under CC0 1.0, CC BY 4.0, or CC BY-SA 4.0), where the source licence permits quotation and is compatible with CC BY-SA 4.0, with a Licence basis statement as the licence compatibility rules of [`governance/specification-ingestion.md`](specification-ingestion.md) define. Standards and frameworks under other licences are paraphrased with pinpoint citations. A quotation is at most one provision or passage and at most 100 words, and no longer than what the document relies on. Only a translation that the government itself publishes counts as a government text; any other translation (for example a KLRI English translation of a Korean statute) is a third-party translation, quoted only under its own publisher's terms where they permit quotation and are compatible with CC BY-SA 4.0, and otherwise paraphrased. Quoted text keeps its source licence and is not relicensed under CC BY-SA 4.0. Existing quotations stay under the transition clause that [`NOTICE.md`](../NOTICE.md) and those rules state: quotations merged to `main` before the maintainer decision of 2026-10-24 23:52Z, and the pre-decision quotations on branch `content/3b546-osfi`, stay as they are until the publisher's terms are held (the event that [`NOTICE.md`](../NOTICE.md) defines, which ends every ground at once), after which the rule for a new quotation applies to them, and editing one makes it a new quotation.
+2. Documents must adhere to the canonical structure:
+ - Metadata
+ - Purpose
+ - Scope
+ - Objectives (if applicable)
+ - Governance and Accountability
+ - Policy, Controls, Methods, or Procedures
+ - Roles and Responsibilities
+ - Monitoring, Metrics, and Reporting
+ - Continuous Improvement
+ - References and Framework Alignment
+3. User intent always prevails over automatic restructuring if conflict arises.
+
+---
+
+## 9. Register and matrix rules
+
+1. Registers and matrices must follow the directory and naming rules.
+2. Multi-row matrices must be broken into multiple small tables if they exceed width limits.
+3. Cross-framework or cross-jurisdiction mapping documents must follow the Multi-Block Matrix Guidance in the Ingestion Specification.
+
+---
+
+## 10. Index and README maintenance
+
+1. Every new active document must be added to [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md).
+2. Every new active document must be added to the Active Documents table in the domain-level [`README.md`](../README.md) for its directory.
+3. When a planned document becomes active, the Planned Expansion section of the relevant [`README.md`](../README.md) must be struck through or removed.
+4. The document index version must be incremented when entries are added or removed.
+
+---
+
+## 11. Conflict resolution rules
+
+1. If any project rule conflicts with user instructions, request clarification.
+2. If user intent is clear and conflicts with the Ingestion Specification, the Master Project Specification prevails unless the conflict concerns licence-compatibility constraints (the more restrictive rule prevails on licence-compatibility matters, but does not override the transition clause for existing quotations in section 8).
+3. If a conflict exists between this document and any generated content, this document prevails.
+
+---
+
+**End of Document**

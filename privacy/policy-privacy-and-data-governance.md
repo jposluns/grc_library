@@ -1,0 +1,156 @@
+# Privacy and Data Governance Policy
+
+**Document Title:** Privacy and Data Governance Policy\
+**Document Type:** Policy\
+**Version:** 1.4.30\
+**Date:** 2026-10-27\
+**Owner:** Data Protection Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
+**Classification:** Public\
+**Category:** Privacy\
+**Review Frequency:** 6 to 12 months and upon material privacy, regulatory, or AI governance change\
+**Repository Path:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
+
+---
+
+## 1. Purpose
+
+This policy defines principles, governance structure, and control framework for managing personal data and organizational information assets across all jurisdictions. It consolidates Privacy Policy, Data Governance Policy, Data Quality Policy, and Records Management Policy into a unified global standard. It supports the organization's compliance with applicable data protection laws, upholds data accuracy and integrity, and governs ethical use of information including AI training datasets.
+
+**Applicable Frameworks:** ISO/IEC 27701:2025 PIMS (standalone), ISO/IEC 29100:2024 Privacy Framework, ISO/IEC 29151:2026 Controls, Requirements, and Guidance for PII Protection, ISO 8000-8 Data Quality Principles, EU GDPR, EU AI Act (Regulation (EU) 2024/1689), EU Data Act (Regulation (EU) 2023/2854; applicable from 12 September 2025), Canada CPPA (Bill C-27 lapsed January 2025), APEC CBPR, China PIPL, CSA CCM v4.1 domain DSP, CSA AICM v1.1.0 domain DSP.
+
+---
+
+## 2. Scope
+
+1. Applies to all employees, contractors, subsidiaries, and third parties that collect, process, share, or store organizational or personal data.
+2. Covers all forms of data, including structured, unstructured, derived, anonymized, synthetic, and AI training datasets.
+3. Applies to all geographies where the organization operates, including cross-border data transfers and multinational data processing arrangements.
+4. Encompasses the entire data lifecycle from collection through storage, use, disclosure, retention, and destruction.
+
+---
+
+## 3. Governance and accountability
+
+### 3.1 Accountable roles
+
+1. The **Chief Information Officer (CIO)** serves as the accountable executive for global data governance.
+2. The **Chief Information Security Officer (CISO)** ensures that security controls protect data confidentiality, integrity, and availability.
+3. The **Data Protection Officer (DPO)** represents the organization before regulatory authorities and oversees the organization's compliance with applicable privacy laws, independent of the IT operations chain per the "DPO independence and conflict of interest" subsection in [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md).
+4. **Regional Data Stewards and Privacy Leads** ensure that compliance with local data protection laws (EU GDPR, PIPEDA, PIPL, LGPD, etc.) is maintained.
+
+### 3.2 Governance committees
+
+- **Data Governance Council (DGC):** Sets strategic data management objectives.
+- **AI Governance Council (AIGC):** Ensures that responsible use of data for AI training and operation is maintained.
+
+### 3.3 Roles and responsibilities
+
+| Role | Responsibilities |
+|---|---|
+| Data Protection Officer (DPO) | Accountable for compliance with privacy and data protection laws, overseeing PIMS implementation, regulatory reporting, and response to data subject requests. |
+| CISO | Implements and monitors technical security measures to ensure that data protection and integrity are maintained. |
+| Data Owners | Accountable for accuracy, quality, and lawful use of data within their domain. |
+| Data Stewards | Maintain data dictionaries, classification schemes, and quality validation rules. |
+| System Owners | Implement data protection controls, retention schedules, and access management. |
+| Employees and Contractors | Handle data in compliance with this policy and complete annual privacy training. |
+| Third Parties | Adhere to contractually defined data protection obligations and submit to audits. |
+| AI Engineers and Data Scientists | Ensure that AI training datasets comply with privacy, consent, and data minimization requirements. |
+| Internal Audit | Reviews data governance effectiveness and verifies compliance. |
+
+---
+
+## 4. Policy requirements
+
+### 4.1 Lawful and fair processing
+
+- Personal data must be collected and processed only for legitimate business purposes in compliance with applicable laws.
+- Individuals must be informed about data collection, use, retention, and transfer through transparent notices.
+- Consent, where required, must be specific, informed, and revocable.
+
+### 4.2 Data classification and handling
+
+- All data assets must be classified based on sensitivity: Public, Controlled, Internal, Confidential, and Restricted, per the [Data Classification and Handling Standard](../security/standard-data-classification-and-handling.md).
+- Handling procedures for each classification level must be documented and enforced through technical and organizational controls.
+- Sensitive personal data and AI datasets must be encrypted at rest and in transit.
+
+### 4.3 Data quality and accuracy
+
+- Data must be accurate, complete, and kept up to date in accordance with ISO 8000-8.
+- Periodic validation processes must verify data integrity, detect anomalies, and prevent unauthorized modification.
+
+### 4.4 Records and retention management
+
+- Records must be maintained according to approved retention schedules and applicable legal or regulatory timeframes.
+- Destruction or anonymization of records must be conducted securely and verifiably.
+- Retention schedules must cover both structured data and AI training artifacts.
+
+### 4.5 Privacy by design and default
+
+- Systems and processes must embed privacy principles from inception, including data minimization and pseudonymization.
+- Privacy Impact Assessments (PIAs) must be conducted for new systems, major changes, and AI model training activities.
+- PIAs must assess lawful basis, consent management, cross-border data transfer, and model explainability impacts.
+
+### 4.6 Cross-border data transfers
+
+- All data transfers between jurisdictions must comply with applicable legal mechanisms, such as EU SCCs, APEC CBPR certifications, or recognized adequacy decisions.
+- The organization must maintain a register of all cross-border data flows, reviewed quarterly.
+- Transfers to jurisdictions lacking adequate protection must include additional safeguards and executive approval.
+
+### 4.7 AI training data governance
+
+- AI models must only be trained on datasets that comply with privacy, consent, and licensing obligations.
+- Datasets must include provenance metadata detailing source, collection date, consent type, and processing purpose.
+- Disclosure of training dataset categories must be documented as an organizational transparency control; where the organization is a provider of a general-purpose AI model, it must also draw up and make publicly available a sufficiently detailed summary of the content used for training, according to a template provided by the AI Office, under the EU AI Act (Regulation (EU) 2024/1689), Article 53(1)(d).
+- Synthetic and anonymized data used for AI training must undergo reidentification risk assessments.
+- The EDPB Opinion 28/2024 on certain data protection aspects related to the processing of personal data in the context of AI models (adopted 17 December 2024) is the authoritative EU guidance on the two questions this section turns on: the legal basis for processing personal data to develop or deploy an AI model (including whether and how legitimate interest may be relied on) and whether an AI model, or its training data, can be considered anonymous (the basis for the reidentification-risk assessment above). Training-data lawful-basis and AI-model anonymity determinations are made by reference to that Opinion.
+
+### 4.8 Data subject rights
+
+- Individuals must have the right to access, correct, delete, or port their personal data as required under GDPR, PIPL, and applicable Canadian law (PIPEDA Schedule 1 for access and correction; the lapsed CPPA (Bill C-27) would have added disposal and portability rights, and its privacy successor Bill C-36 (PPCDA), introduced 2026-06-15, is proposed and not in force).
+- Requests must be processed within the applicable statutory timeframes (one month under the GDPR, extendable by two further months for complex or numerous requests; one month beginning with the relevant time under the UK GDPR, Art. 12A, extendable by two further months where necessary by reason of the complexity or number of requests, by notice with reasons given within the first month, as set out in the [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md) Section 3 rights table; 45 days under the CCPA / CPRA; 30 days under PIPEDA; confirmation and access under Brazil's LGPD, Art. 19 (immediately in simplified format, or within 15 days by complete declaration); 20 days for an ARCO determination under Mexico's LFPDPPP, Art. 31; 3 x 24 hours from receipt under Indonesia's UU PDP for correction, access, stopping processing after consent is withdrawn, and delay or restriction, Arts. 30(1), 32(2), 40(2), 41(1)); where more than one regime applies, the strictest (shortest) applicable window governs.
+- Denials must be justified in writing and reviewed by the DPO.
+
+### 4.9 Third-party and supplier governance
+
+- All vendors processing personal or regulated data must be assessed for privacy and security compliance before engagement.
+- Data processing agreements must include breach notification, audit rights, and cross-border data protection clauses.
+- Supplier performance must be monitored and reviewed annually.
+
+### 4.10 Incident response and breach management
+
+- Data breaches must be reported immediately to the CISO and the DPO.
+- Regulatory notifications must be issued without undue delay and, where feasible, within 72 hours of becoming aware (GDPR Art. 33(1)), or as required by local laws.
+- Post-incident reviews must determine root cause, impact, and mitigation actions.
+
+### 4.11 Monitoring and continual improvement
+
+- Compliance must be monitored through audits, metrics, and incident trends.
+- Lessons learned from data breaches or privacy complaints must be integrated into training and control design.
+- This policy is reviewed annually and upon major regulatory change.
+
+---
+
+## 5. Framework alignment
+
+| Policy Area | ISO/IEC 27701:2025 | COBIT 2019 | CSA CCM v4.1 | CSA AICM v1.1.0 | Regulatory References |
+|---|---|---|---|---|---|
+| Governance and accountability | Clauses 5 to 7 | APO13.01 | GRC-06 | N/A | GDPR Art 5, PIPEDA Sch 1 Principle 1 (Accountability) |
+| Lawful processing and consent | Annex A.1.2.3 to A.1.2.5, A.2.2.2 to A.2.2.5 | DSS05 | DSP-12 | N/A | GDPR, PIPL, LGPD |
+| Data classification and handling | Annex A.3.5, A.3.7, A.3.20, A.3.26 | DSS01 | DSP-01, DSP-04 | N/A | ISO 8000-8, SOX, SOC 2 |
+| Cross-border data transfers | Annex A.1.5.2 to A.1.5.4, A.2.5.2 to A.2.5.3 | APO10 | DSP-10 | N/A | GDPR Ch V, APEC CBPR |
+| AI training data governance | N/A | APO14 | DSP-12 | DSP-20 | ISO 8000-8, EU AI Act Art 53(1)(d) (Regulation (EU) 2024/1689) |
+| Data subject rights | Annex A.1.3.2 to A.1.3.11, A.2.3.2 | MEA01 | DSP-11 | N/A | GDPR Arts 15 to 22, PIPEDA Sch 1 Principle 9 (Individual Access) |
+| Records management | Annex A.1.4.8 to A.1.4.9, A.2.4.3, A.3.14 | DSS01 | DSP-16, DSP-02 | N/A | ISO 8000-8, Retention laws |
+| Breach management | Annex A.3.11 to A.3.12 | DSS02 | SEF-08 | N/A | GDPR Art 33, PIPL Art 57 |
+
+---
+
+**End of Document**

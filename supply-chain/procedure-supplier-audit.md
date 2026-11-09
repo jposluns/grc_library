@@ -1,0 +1,187 @@
+# Supplier Audit Procedure
+
+**Document Title:** Supplier Audit Procedure\
+**Document Type:** Procedure\
+**Version:** 1.0.23\
+**Date:** 2026-10-30\
+**Owner:** Supplier Risk Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
+**Classification:** Public\
+**Category:** Supply Chain Governance | Third-Party Risk\
+**Review Frequency:** Annual and upon material supplier, regulatory, or framework change\
+**Repository Path:** [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This procedure defines the process for conducting periodic audits of suppliers, vendors, and third-party service providers to verify adherence to contractual obligations, security standards, regulatory requirements, and ethical conduct principles.
+
+It is aligned with ISO/IEC 27036-2:2022, ISO/IEC 27036-4:2016, COBIT 2019 APO10.05, CSA CCM v4.1 STA-16, BASC International Security Standard v6 (2022), and ENISA's ongoing AI cybersecurity work (feasibility studies and standardization gap analyses under the EU Cybersecurity Act framework; no dedicated AI cybersecurity certification scheme has been formally published as of 2026).
+
+---
+
+## Scope
+
+1. Applies to all suppliers, vendors, contractors, logistics partners, and service providers engaged by the organization.
+2. Covers both IT and non-IT suppliers, including logistics, customs, AI, and cloud service providers.
+3. Applies globally, with additional regional audit requirements for BASC-certified operations in Latin America.
+
+---
+
+## Governance and accountability
+
+| Role | Responsibility |
+| --- | --- |
+| Chief Information Officer | Provides executive oversight of the supplier audit programme and approves the annual audit plan. |
+| Chief Information Security Officer | Defines audit scope for information security, privacy, and AI risk controls. |
+| Procurement Director | Coordinates audit logistics, schedules audits with suppliers, and ensures that supplier cooperation is obtained. |
+| Compliance and GRC Programme Manager | Maintains the Supplier Audit Register, records audit evidence, and reports programme performance metrics. |
+| Legal Counsel | Verifies adherence to contractual obligations, data protection law, trade regulations, and BASC requirements. |
+| AI Governance Council | Reviews audit findings involving AI-enabled services or AI system vendors. |
+| Enterprise Risk Committee | Reviews audit results, identifies systemic supplier risks, and approves remediation strategies. |
+
+---
+
+## Audit types and frequency
+
+| Audit Type | Objective | Frequency |
+| --- | --- | --- |
+| Tier 1 Critical Suppliers | Verify compliance with ISO/IEC 27036-2:2022, BASC, data privacy obligations, and AI governance controls. | Semi-annual. |
+| Tier 2 High-Risk Suppliers | Assess cybersecurity posture, continuity readiness, and contractual performance. | Annual. |
+| Tier 3 Moderate Suppliers | Evaluate service delivery quality and SLA performance. | Biennial. |
+| Tier 4 Low-Risk Suppliers | Monitor via third-party attestations or self-assessment questionnaires. | Biennial. |
+
+---
+
+## Procedure
+
+### Step 1: Audit planning and scoping
+
+The Compliance and GRC Programme Manager must maintain the Supplier Audit Register, recording for each supplier:
+
+- Supplier name and primary contact role.
+- Geographic region and operational jurisdiction.
+- Tier classification and applicable regulatory frameworks.
+- Date of last completed audit and date of next scheduled audit.
+- Outstanding findings and CAPA status.
+
+Audit scope for each engagement must be defined to cover, as applicable:
+
+- Security, privacy, and data-handling practices.
+- Business continuity and operational resilience.
+- Contractual SLA adherence and performance obligations.
+- AI governance controls (for AI-enabled or AI system vendors).
+- Trade compliance, cargo security, and customs integrity (for BASC-certified suppliers).
+
+Suppliers must be formally notified of an upcoming audit at least 30 calendar days in advance. Notification must include the proposed audit scope, requested documentation, and the scheduled date range.
+
+### Step 2: Pre-audit preparation
+
+Prior to conducting the audit, the audit team must:
+
+1. Review the supplier's current contracts, Data Processing Agreements (DPAs), and prior audit reports.
+2. Confirm currency of applicable certificates (ISO/IEC 27001:2022, SOC 2, BASC, AI certification where applicable).
+3. Prepare an audit checklist aligned to the applicable frameworks and control families, including:
+ - ISO/IEC 27036-4 cloud-services supplier security guidance (clause 6; Annex A is an informative cross-reference to other standards, not a control set).
+ - COBIT 2019 APO10.05 management practices.
+ - CSA CCM v4.1 STA-16 supply chain security assessment controls.
+ - BASC International Security Standard v6 (2022) for trade and logistics suppliers; its companion Standards Implementation Guide structures the control areas as business partners, security of cargo units and cargo transport units, security in cargo handling processes and other processes defined in the scope of the CSMS, personnel security, access control and physical security, and information security (the guide does not number these sections).
+ - EU AI Act high-risk-AI-system conformity assessment (Article 43) and the obligations of providers, deployers, and other parties (Articles 16 to 27), with ENISA AI cybersecurity guidance where applicable (for AI system suppliers).
+
+### Step 3: Evaluation and scoring
+
+Audit findings must be scored using a weighted compliance matrix. The weighting reflects the relative governance importance of each domain.
+
+| Domain | Weighting |
+| --- | --- |
+| Security and Privacy | 25% |
+| Operational Continuity | 20% |
+| Legal and Contractual Compliance | 15% |
+| AI Governance | 15% |
+| BASC and Trade Security | 15% |
+| ESG and Ethical Conduct | 10% |
+
+Domain weights are adjusted to distribute proportionally when a domain is not applicable to a given supplier (e.g., AI Governance weight is redistributed for non-AI suppliers).
+
+Overall audit scores are interpreted as follows:
+
+| Score Range | Risk Rating | Required Action |
+| --- | --- | --- |
+| 90 to 100% | Fully Compliant | No mandatory corrective action; schedule next routine audit. |
+| 75 to 89% | Partially Compliant | Minor corrective actions required; track in CAPA Register. |
+| 60 to 74% | Moderate Risk | Improvement plan required within 30 days; follow-up review scheduled. |
+| Below 60% | Noncompliant | Subject to re-audit within 60 days or suspension pending remediation. |
+
+### Step 4: Reporting and findings management
+
+A formal Supplier Audit Report must be issued within 15 business days of audit completion. The report must include:
+
+- Executive summary of audit scope, methodology, and overall risk rating.
+- Findings by domain, with severity classification and supporting evidence.
+- Recommended corrective actions with proposed resolution timelines.
+- Comparison with prior audit results where available.
+
+All findings must be logged in the Corrective and Preventive Action (CAPA) Register. The Supplier Relationship Owner is responsible for tracking resolution progress and verifying closure of each finding. Critical or recurring findings must be escalated to the Enterprise Risk Committee.
+
+Supplier Audit Reports and their supporting evidence are retained for a minimum of 7 years, per the audit-records floor in [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) Section 4.7.1 and the retention schedule register ([`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)).
+
+### Step 5: Sector-programme trade-security compliance
+
+ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 -->
+
+For suppliers in scope of a sector programme (for example, BASC for Latin American logistics, customs brokerage, or cargo operations; CTPAT for US trade; AEO for EU trade), the audit must additionally confirm:
+
+- Validity of current sector certification (for example, BASC, CTPAT, AEO) and scheduled renewal date.
+- Compliance with the WCO SAFE Framework of Standards 2025 edition.
+- Compliance with ISO 28000:2022 supply chain security management requirements, once verified against the standard.
+- Adequacy of cargo inspection procedures, seal integrity controls, and tamper-evidence mechanisms.
+- Security of communication channels with customs authorities and regulatory systems.
+
+Sector-programme compliance metrics must be reported to the sector-conditional role defined by the relevant sector annex (for example, a BASC Regional Compliance Officer where the BASC annex defines that role) and the Enterprise Risk Committee on a quarterly basis; see [`compliance/`](../compliance/).
+
+---
+
+## Evidence requirements
+
+| Activity | Required Evidence |
+| --- | --- |
+| Audit Scheduling | Notification record, confirmed audit scope and date. |
+| Pre-Audit Preparation | Document review log, certificate validation records, audit checklist. |
+| Audit Execution | Interview notes, observation records, evidence artefacts collected. |
+| Scoring and Evaluation | Completed compliance matrix, domain scores, overall risk rating. |
+| Reporting | Issued Supplier Audit Report, CAPA Register entries. |
+| BASC Compliance | BASC certificate copy, compliance metrics report, quarterly submission record. |
+| Finding Closure | CAPA closure record, Supplier Relationship Owner sign-off. |
+
+---
+
+## Related documents
+
+- Supplier and Cloud Governance Framework: [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md)
+- Third-Party Risk Management Standard: [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)
+- Supplier Due Diligence Procedure: [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md)
+- Trade and Supply-Chain Continuity Controls Annex: [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md)
+- Risk Register Procedure: [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md)
+- Corrective and Preventive Action Procedure: [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)
+
+---
+
+## References
+
+- ISO/IEC 27036-2:2022: Cybersecurity - Supplier relationships - Part 2: Requirements (second edition, June 2022; cancels and replaces the 2014 first edition).
+- ISO/IEC 27036-4:2016: Information security for supplier relationships - Part 4: Guidelines for security of cloud services (first edition, October 2016; the "2013" date previously used in this document was incorrect).
+- COBIT 2019 APO10.05: Monitor vendor performance and compliance.
+- CSA Cloud Controls Matrix v4.1, STA-16: Supply Chain Data Security Assessment.
+- ENISA AI cybersecurity work (feasibility studies and standardization gap analyses under the EU Cybersecurity Act framework; no dedicated AI cybersecurity certification scheme has been formally published as of 2026).
+- BASC International Security Standard v6 (2022): Business Alliance for Secure Commerce.
+- BASC International Standards Implementation Guide V6-2022 (Business Partners): Business Alliance for Secure Commerce. Advisory guidance on risk-based business-partner selection, criticality criteria, security agreements, and second-party audits; the guide states it does not constitute mandatory requirements evidenced for conformity.
+- WCO SAFE Framework of Standards 2025 edition: World Customs Organization.
+- ISO 28000:2022, Security and resilience, Security management systems for the supply chain.
+
+---
+
+**End of Document**

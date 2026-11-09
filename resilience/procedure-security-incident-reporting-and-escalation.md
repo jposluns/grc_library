@@ -1,0 +1,107 @@
+# Security Incident Reporting and Escalation Procedure
+
+**Document Title:** Security Incident Reporting and Escalation Procedure\
+**Document Type:** Procedure\
+**Version:** 1.0.5\
+**Date:** 2026-10-27\
+**Owner:** Security Owner\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](../security/sop-security-ticket-reporting-scheme.md)\
+**Classification:** Public\
+**Category:** Resilience\
+**Review Frequency:** Annual and upon material incident, threat, legal, regulatory, supplier, privacy, or AI change\
+**Repository Path:** [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This procedure defines a reusable process for reporting, triaging, escalating, documenting, and transferring security incidents into incident response, privacy breach response, crisis management, supplier escalation, or risk governance processes.
+
+---
+
+## Scope
+
+This procedure applies to suspected or confirmed incidents affecting information systems, identities, data, cloud services, suppliers, endpoints, networks, applications, logs, AI systems, physical-digital dependencies, or critical business services.
+
+---
+
+## Reportable events
+
+Events should be reported when they involve or may involve:
+
+- Unauthorized access or attempted unauthorized access.
+- Privileged access misuse.
+- Credential compromise.
+- Malware, ransomware, destructive activity, or suspicious code execution.
+- Data loss, leakage, corruption, unauthorized disclosure, or unauthorized retention.
+- Security monitoring or logging failure affecting investigation.
+- Supplier security incident affecting services or data.
+- Cloud control plane compromise or material misconfiguration.
+- AI prompt injection, indirect prompt injection, unsafe tool execution, data poisoning, retrieval leakage, model inversion, membership inference, unauthorized model use, or training data exposure.
+- Business service outage with security, privacy, legal, or customer impact.
+
+**Canadian federal public sector.** Where the adopter is a Government of Canada (GC) organization, the GC Cyber Security Event Management Plan (held text: date modified 2026-05-20; the held edition is the one cited, and its currency is to be confirmed upstream) states that GC organizations must report all cyber security incidents to the Canadian Centre for Cyber Security, that departments are expected to report within its Table 2-1 timeframes, and that over-reporting is better than under-reporting when in doubt (§2.3.1.2); it also sets four GC response levels (§2.3.2.1). Those timeframes and the related federal references are summarized in [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §11; this procedure does not restate them.
+
+---
+
+## Procedure
+
+### Step 1: Report
+
+Reports may originate from users, monitoring, suppliers, customers, audit, privacy, compliance, support channels, or automated detection. Reports must be captured in an approved internal record system by adopting organizations. A notification that [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §3.1 requires immediately (for example, for a P1) is made without waiting for the record.
+
+### Step 2: Triage
+
+Initial triage must confirm known facts, affected systems, affected data classes, identities involved, supplier involvement, business impact, privacy impact, AI system impact, and immediate containment needs.
+
+### Step 3: Classify severity
+
+Severity should consider data sensitivity, business criticality, attacker activity, privilege level, service impact, supplier exposure, privacy exposure, legal or regulatory implications, and potential harm.
+
+### Step 4: Escalate
+
+Escalate to incident response, privacy, legal, compliance, supplier, resilience, communications, executive, or crisis management roles according to severity and impact.
+
+### Step 5: Preserve evidence
+
+Preserve relevant logs, alerts, messages, access records, system records, supplier notifications, AI prompts and outputs where appropriate, tool execution records, retrieval logs, and decision records according to internal evidence handling requirements.
+
+### Step 6: Track actions
+
+Record containment actions, assigned owners, deadlines, decisions, communications, supplier actions, residual risk, and transfer to other processes.
+
+### Step 7: Close or transfer
+
+Close only when the event is determined not to be an incident or after transfer to incident response, privacy breach response, crisis management, or corrective action governance.
+
+---
+
+## Minimum record fields
+
+| Field | Description |
+| --- | --- |
+| Event ID | Internal identifier. |
+| Reporter Role | Role or source reporting the event. |
+| Date and Time | Event report time. |
+| Event Summary | Factual summary without speculation. |
+| Affected Assets | Systems, data classes, suppliers, AI systems, or services. |
+| Initial Severity | Low, moderate, high, critical, or pending. |
+| Escalation Path | Roles or processes notified. |
+| Evidence Preserved | Evidence classes captured. |
+| Immediate Actions | Containment or investigation actions. |
+| Status | Open, transferred, false positive, closed. |
+
+**Severity crosswalk.** This procedure uses a plain-language intake scale (Low, moderate, high, critical, or pending) suited to first-report capture. Where an adopter aligns it to the P1 to P4 scale used in [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) and [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md), critical maps to P1, high maps to P2, moderate maps to P3, and Low maps to P4; "pending" denotes an event not yet classified (it has no P-scale equivalent).
+
+---
+
+## Limitations
+
+This procedure is a CC BY-SA 4.0 baseline. Adopting organizations must define actual contact channels, escalation thresholds, legal notification requirements, regulatory timelines, evidence handling rules, and internal tooling.
+
+---
+
+**End of Document**

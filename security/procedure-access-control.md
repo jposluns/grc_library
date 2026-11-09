@@ -1,0 +1,192 @@
+# Access Control Procedure
+
+**Document Title:** Access Control Procedure\
+**Document Type:** Procedure\
+**Version:** 1.4.1\
+**Date:** 2026-10-27\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`security/procedure-identity-management.md`](procedure-identity-management.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md), [`governance/standard-emergency-authority.md`](../governance/standard-emergency-authority.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material system or regulatory change\
+**Repository Path:** [`security/procedure-access-control.md`](procedure-access-control.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This procedure defines the processes for granting, reviewing, modifying, and revoking access to organizational systems, applications, data, and network resources. It implements the principle of least privilege and need-to-know access model across all platforms, ensuring access is appropriate, authorized, and periodically reviewed.
+
+---
+
+## Scope
+
+Applies to all access to organizational systems including cloud platforms, on-premises systems, applications, network infrastructure, databases, development environments, and privileged management interfaces. Covers all user types: employees, contractors, third parties, and service accounts.
+
+---
+
+## Roles and responsibilities
+
+| Role | Responsibility |
+| --- | --- |
+| **CISO** | Owns access control policy and reviews privileged access quarterly. |
+| **IT Operations / Identity Team** | Provisions and deprovisions access; maintains access management tooling. |
+| **System / Application Owner** | Approves access requests for their systems; conducts periodic access reviews. |
+| **Manager / People Leader** | Initiates and approves access requests for their team members. |
+| **Delegated Security Lead** | A named deputy of the CISO authorized to approve privileged-access and emergency-access requests when the CISO is unavailable. In this library's reference configuration the role is filled by a pre-named senior member of the Incident Response Team (IRT) or the deputy CISO where one exists. **Sample data, adjust upon adoption**: adopting organizations name a specific role (e.g., Director of Security Operations, Lead Security Engineer) and identify the individual currently holding it in their internal access-control runbook (not in this public template). |
+| **Internal Audit** | Conducts access certification audits and reviews for compliance. |
+
+> **Sample-data note (operational thresholds)**: this section and §1.4 below carry sample operational thresholds (incident-severity definitions, time bounds, named roles) that are illustrative only. Adopting organizations MUST adjust these values to match their own incident-severity model, regulatory environment, and operational tempo before putting this procedure into force. The thresholds shown here are calibrated against a typical mid-market organization with a 24/7 SOC; small adopters and high-regulation adopters will both need to recalibrate.
+
+---
+
+## 1. Access request and approval
+
+1.1 All access requests must be submitted through the ITSM portal with:
+- User identity and role.
+- System or resource requested.
+- Access level required.
+- Business justification.
+- Approving manager confirmation.
+
+1.2 System owners approve or decline access requests for their systems within 3 business days of submission.
+
+1.2.1 If a system owner does not approve or decline a request within the 3-business-day SLA, the **ITSM portal's SLA timer** auto-escalates the request to the system owner's manager (the SLA timer fires automatically; the escalation requires no human trigger). The manager must approve or decline within a further 2 business days.
+
+1.2.2 If the manager does not act within the 2-business-day escalation window, the ITSM portal's SLA timer auto-escalates the request to the CISO, who must approve or decline within a further 2 business days.
+
+1.2.3 If the CISO does not act within the 2-business-day window, the ITSM portal auto-declines the request and notifies the requester. The requester may resubmit with additional justification, restarting the SLA.
+
+1.2.4 Auto-escalation and auto-decline events are logged in the ITSM portal and reviewed by the CISO quarterly as part of the access-control programme metrics.
+
+1.3 Privileged access (administrative rights, root/sudo, domain admin) requires additional approval from the CISO or the Delegated Security Lead defined in the roles table above.
+
+1.4 Emergency access requests may be approved verbally only when (a) a declared incident response is **active and classified as P1 or P2 severity** under [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), or (b) the delay imposed by ITSM-portal submission would itself cause **material business or safety harm**. The approver in either case is the CISO or the Delegated Security Lead.
+
+> **Sample-data note**: "P1 or P2 severity" reflects this template's incident-severity tier model (four tiers P1 through P4, with P1 being most severe). Adopters with a different severity model (e.g., Critical / High / Medium / Low) must substitute the equivalent top-two severity bands. "Material business or safety harm" means the delay would, on its own, more likely than not cause an outcome that would itself trigger a P1 or P2 incident under the adopter's incident-severity policy (e.g., demonstrable risk of regulated-data exposure, safety incident, customer-facing outage exceeding the adopter's SLA-breach threshold).
+
+1.4.1 Verbal approval must be formalized by the approver as an ITSM ticket within 24 hours of grant, with the trigger condition, the named approver, the granted access, and the access expiry recorded.
+
+1.4.2 If verbal-approval access has not been formalized within 24 hours, the Identity Team must revoke the access at the 24-hour mark and notify the CISO. **Escalation**: if the Identity Team has not acknowledged the revocation requirement within 30 minutes of the 24-hour mark (as evidenced by an ITSM ticket update or chat acknowledgement), the SOC escalates to the SOC L2 on-call (or equivalent second-tier security operations role). If the L2 has not acknowledged within a further 30 minutes, the SOC escalates to the CISO directly. Re-grant of access requires the standard request-and-approval flow under §1.1.
+
+1.4.3 Emergency access events (both formalized and revoked-for-non-formalization) are reviewed by the CISO quarterly as part of the access-control programme metrics.
+
+---
+
+## 2. Access provisioning
+
+2.1 Access is provisioned by the Identity Team following approved request documentation.
+
+2.2 Access is provisioned using role-based access control (RBAC) aligned to job function.
+
+2.3 No account is provisioned with more access than required for the defined role (least privilege).
+
+2.4 Service accounts are assigned the minimum permissions required for their function. Shared service account credentials are prohibited.
+
+2.5 Privileged accounts are provisioned in the Privileged Identity Management (PIM) system with just-in-time activation and time-limited sessions.
+
+---
+
+## 3. Access review
+
+3.1 System owners conduct access reviews for their systems at the following frequency:
+
+| Access Type | Review Frequency |
+| --- | --- |
+| Privileged / administrative access | Quarterly |
+| Standard user access: high-sensitivity systems (as defined in [`procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md) §4.3) | Semi-annual |
+| Standard user access: general systems | Annual |
+| Third-party / contractor access | On contract renewal and at least annually |
+
+These risk-tiered frequencies are the default triggers the quarterly entitlement-review touchpoint in [`policy-identity-and-access-management.md`](policy-identity-and-access-management.md) §4.3.4 applies on a risk basis; a full review is mandated at least annually regardless where one has not already occurred in the preceding 12 months.
+
+3.2 Access reviews confirm that each user's current access:
+
+- Matches the access profile documented for the user's current role in the RBAC catalogue;
+- Does not exceed the minimum required for the user's current responsibilities, applying the least-privilege principle stated in the Access provisioning section;
+- Has a current business justification on file matching the requirements in the Access request and approval section;
+- For privileged access, remains within the active membership of the corresponding PIM role.
+
+Access that does not meet all four criteria is treated as unjustified. The reviewer must, within the access-review window, either (a) find or document a fresh business justification that satisfies all four criteria (the access then remains active), or (b) flag the access for revocation. Access flagged for revocation is processed per the next paragraph.
+
+3.3 Access flagged for revocation under the preceding paragraph is revoked by the Identity Team within **24 hours** of the reviewer's flag. The 24-hour window allows the reviewer to escalate the revocation case to the system owner where a fresh justification might still be valid; if no fresh justification is documented within 24 hours, the revocation proceeds without further sign-off. This 24-hour window is distinct from the "immediate upon instruction" revocation case for security incidents in the Access revocation section below, which has no review window.
+
+3.4 Access review completion status is reported to the CISO quarterly.
+
+---
+
+## 4. Access modification
+
+4.1 Access must be modified when a user changes role, changes location, or when their responsibilities change materially.
+
+4.2 Managers initiate role-change access modifications through the ITSM portal at the time of the role change.
+
+4.3 The Identity Team processes modifications within 1 business day of approval.
+
+---
+
+## 5. Access revocation
+
+5.1 Access is revoked in the following circumstances:
+
+| Trigger | Revocation Timeline |
+| --- | --- |
+| Voluntary resignation | End of last working day |
+| Involuntary termination | Privileged access first, within 1 hour; critical access-removal actions per [`procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md) §8.2.1 within 1 hour; remaining actions per its Section 11 checklist |
+| Role change (access no longer required) | Privileged access within 2 hours of the effective date; non-privileged excess access within 5 business days (per [`procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md) §6.3) |
+| Contract expiry | At contract end date |
+| Security incident or investigation | Immediate upon instruction |
+
+5.2 The offboarding checklist confirms all access is revoked. The Identity Team verifies each revocation action against its target timeline in the Section 11 checklist of [`procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md).
+
+5.3 Third-party access is revoked in coordination with the supplier or contract manager.
+
+---
+
+## 6. Privileged access management
+
+6.1 Privileged access is subject to the following additional controls:
+- All privileged sessions are recorded and logged.
+- Privileged accounts require MFA at every authentication.
+- Just-in-time access activation required for all domain and cloud administrative roles, except where just-in-time activation is genuinely unavailable and standing access is authorized through the formal exception process (see 6.2).
+- Privileged activity is reviewed by the CISO quarterly.
+
+6.2 Standing privileged access is prohibited where just-in-time activation is available. Where just-in-time activation is genuinely unavailable, standing privileged access is permitted only through the formal exception process governed by the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (Section 4), with a documented business justification, a compensating control, and a time-bound review, and it remains subject to the controls in the [Privileged Access Management Standard](../security/standard-privileged-access-management.md). Certificate Authority administrative privilege admits no standing-access exception and is always activated just-in-time (see the [Certificate Authority Management Standard](../operations/standard-certificate-authority-management.md), Section 11.2).
+
+6.3 Break-glass (emergency) accounts are sealed, inventoried, and their use triggers an immediate security alert.
+
+---
+
+## 7. Third-party and vendor access
+
+7.1 Third-party access is time-limited, scoped to the minimum required, and requires a named sponsor.
+
+7.2 Third-party access must be reviewed at contract renewal or at least every 12 months.
+
+7.3 Third-party privileged access follows the same controls as internal privileged access.
+
+---
+
+## Framework alignment
+
+| Framework | Reference | Relevance |
+| --- | --- | --- |
+| ISO/IEC 27001:2022 | Annex A.5.15: Access control; A.5.16: Identity management; A.5.17: Authentication information; A.5.18: Access rights; A.8.2: Privileged access rights | Access governance and privileged access |
+| ISO/IEC 27002:2022 | §5.15 to 5.18, §8.2 | Access request, review, revocation, and privileged access rights |
+| ISO/IEC 29146:2024 | A framework for access management | Access-management framework and lifecycle |
+| NIST SP 800-53 Rev. 5 | AC: Access Control Family | Access management controls |
+| COBIT 2019 | DSS05.04 | Access security services |
+| CSA CCM v4.1 | IAM-01 through IAM-10, IAM-12 through IAM-15: Identity & Access Management | Cloud IAM controls |
+| NIST SP 800-207 | Zero Trust Architecture | Least privilege and continuous authorization |
+| CISA Zero Trust Maturity Model v2.0 (April 2023) | 5.1 Identity, Table 2: Identity Pillar, Access Management function | Just-in-time, time-limited privileged access in place of standing access |
+| ISO/IEC 27017:2026 | 8.2, Table 30: Guidance for privileged access rights | Strong (for example, multi-factor) authentication for cloud service administrators |
+| ISO/IEC 27036-2:2022 | 7.5.3, Table 24: Supplier termination management process activities | Timely removal of supplier access rights at termination |
+| Canada CCCS Baseline Cyber Security Controls for Small and Medium Organizations V1.2 | BC.12.1 to BC.12.4 | Least-privilege accounts with administrator privileges given only as required; administrator accounts kept to administrative activities; removal of accounts and functionality no longer required; consideration of a centralized authorization control system, or a rationale for not implementing one (voluntary guidance) |
+| Canada TBS Directive on Security Management (federal public sector) | B.2.3.2.1, B.2.3.2.2, B.2.3.2.4, B.2.3.2.6 | Account approval and lifecycle procedures; access privileges set by least privilege and segregation of duties; control of accounts with administrative privileges; periodic review of access privileges and removal when no longer required. Applies only where the Policy on Government Security applies (Policy 6.1); force and applicability are in the federal security and cyber baseline under domain cluster 3 of the [Canada public-sector annex](../compliance/public-sector/annex-canada-public-sector-requirements.md#federal-security-and-cyber-baseline) |
+
+---
+
+**End of Document**

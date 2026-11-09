@@ -1,0 +1,156 @@
+# Privacy Jurisdiction Index
+
+**Document Title:** Privacy Jurisdiction Index\
+**Document Type:** Annex\
+**Version:** 1.0.66\
+**Date:** 2026-10-27\
+**Owner:** Data Protection Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
+**Classification:** Public\
+**Category:** Privacy\
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change\
+**Repository Path:** [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
+
+---
+
+## Purpose
+
+This index provides navigation to jurisdiction-specific privacy and AI regulatory requirement annexes and a cross-jurisdiction compliance mapping summary. Each jurisdiction file covers applicable laws, privacy obligations (and AI obligations where the jurisdiction addresses them), cross-border transfer mechanisms, and enforcement authorities and fines.
+
+Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting organizations should retain only the jurisdiction files relevant to their geographic footprint, regulatory obligations, and data subject locations.
+
+---
+
+## Jurisdiction files
+
+### Europe
+
+| Jurisdiction | File |
+| --- | --- |
+| European Union (GDPR, EU AI Act) | [`privacy/jurisdictions/annex-privacy-european-union.md`](jurisdictions/annex-privacy-european-union.md) |
+| United Kingdom (UK GDPR, DPA 2018) | [`privacy/jurisdictions/annex-privacy-united-kingdom.md`](jurisdictions/annex-privacy-united-kingdom.md) |
+| Switzerland (nFADP/revDSG) | [`privacy/jurisdictions/annex-privacy-switzerland.md`](jurisdictions/annex-privacy-switzerland.md) |
+
+### Americas
+
+| Jurisdiction | File |
+| --- | --- |
+| Canada (PIPEDA, Privacy Act, Quebec Law 25, BC PIPA, Ontario PHIPA; CPPA/AIDA lapsed with Bill C-27) | [`privacy/jurisdictions/annex-privacy-canada.md`](jurisdictions/annex-privacy-canada.md) |
+| United States (FTC Act, CCPA/CPRA, state laws) | [`privacy/jurisdictions/annex-privacy-united-states.md`](jurisdictions/annex-privacy-united-states.md) |
+| Brazil (LGPD) | [`privacy/jurisdictions/annex-privacy-brazil.md`](jurisdictions/annex-privacy-brazil.md) |
+| Mexico (LFPDPPP 2025) | [`privacy/jurisdictions/annex-privacy-mexico.md`](jurisdictions/annex-privacy-mexico.md) |
+| Chile (Ley 19.628; transition to Ley 21.719) | [`privacy/jurisdictions/annex-privacy-chile.md`](jurisdictions/annex-privacy-chile.md) |
+| Peru (Ley 29733; DS 016-2024-JUS) | [`privacy/jurisdictions/annex-privacy-peru.md`](jurisdictions/annex-privacy-peru.md) |
+| Colombia (Ley 1581 de 2012; Decreto 1074 de 2015) | [`privacy/jurisdictions/annex-privacy-colombia.md`](jurisdictions/annex-privacy-colombia.md) |
+| Ecuador (LOPDP 2021; Reglamento, Decreto Ejecutivo 904 de 2023) | [`privacy/jurisdictions/annex-privacy-ecuador.md`](jurisdictions/annex-privacy-ecuador.md) |
+| Latin America (Argentina) | [`privacy/jurisdictions/annex-privacy-latin-america.md`](jurisdictions/annex-privacy-latin-america.md) |
+
+### Asia-pacific
+
+| Jurisdiction | File |
+| --- | --- |
+| Singapore (PDPA) | [`privacy/jurisdictions/annex-privacy-singapore.md`](jurisdictions/annex-privacy-singapore.md) |
+| Australia (Privacy Act 1988) | [`privacy/jurisdictions/annex-privacy-australia.md`](jurisdictions/annex-privacy-australia.md) |
+| Japan (APPI) | [`privacy/jurisdictions/annex-privacy-japan.md`](jurisdictions/annex-privacy-japan.md) |
+| South Korea (PIPA 2023) | [`privacy/jurisdictions/annex-privacy-south-korea.md`](jurisdictions/annex-privacy-south-korea.md) |
+| New Zealand (Privacy Act 2020) | [`privacy/jurisdictions/annex-privacy-new-zealand.md`](jurisdictions/annex-privacy-new-zealand.md) |
+
+### Middle east and africa
+
+| Jurisdiction | File |
+| --- | --- |
+| United Arab Emirates (PDPL, DIFC, ADGM) | [`privacy/jurisdictions/annex-privacy-uae.md`](jurisdictions/annex-privacy-uae.md) |
+| Saudi Arabia (PDPL) | [`privacy/jurisdictions/annex-privacy-saudi-arabia.md`](jurisdictions/annex-privacy-saudi-arabia.md) |
+| South Africa (POPIA) | [`privacy/jurisdictions/annex-privacy-south-africa.md`](jurisdictions/annex-privacy-south-africa.md) |
+| Turkey (KVKK 2024 amendment) | [`privacy/jurisdictions/annex-privacy-turkey.md`](jurisdictions/annex-privacy-turkey.md) |
+| Nigeria (NDPA 2023) | [`privacy/jurisdictions/annex-privacy-nigeria.md`](jurisdictions/annex-privacy-nigeria.md) |
+| Kenya (Data Protection Act 2019) | [`privacy/jurisdictions/annex-privacy-kenya.md`](jurisdictions/annex-privacy-kenya.md) |
+
+### East asia
+
+| Jurisdiction | File |
+| --- | --- |
+| China (PIPL, CSL, DSL, Generative AI Regulations) | [`privacy/jurisdictions/annex-privacy-china.md`](jurisdictions/annex-privacy-china.md) |
+
+### South asia
+
+| Jurisdiction | File |
+| --- | --- |
+| India (DPDPA 2023, Rules 2025) | [`privacy/jurisdictions/annex-privacy-india.md`](jurisdictions/annex-privacy-india.md) |
+
+### Southeast asia
+
+| Jurisdiction | File |
+| --- | --- |
+| Thailand (PDPA 2019) | [`privacy/jurisdictions/annex-privacy-thailand.md`](jurisdictions/annex-privacy-thailand.md) |
+| Indonesia (UU PDP 2022) | [`privacy/jurisdictions/annex-privacy-indonesia.md`](jurisdictions/annex-privacy-indonesia.md) |
+| Philippines (Data Privacy Act 2012) | [`privacy/jurisdictions/annex-privacy-philippines.md`](jurisdictions/annex-privacy-philippines.md) |
+| Vietnam (PDPL 91/2025, Decree 356/2025) | [`privacy/jurisdictions/annex-privacy-vietnam.md`](jurisdictions/annex-privacy-vietnam.md) |
+| Malaysia (PDPA 2010, 2024 amendment) | [`privacy/jurisdictions/annex-privacy-malaysia.md`](jurisdictions/annex-privacy-malaysia.md) |
+
+---
+
+## Cross-jurisdiction compliance mapping summary
+
+| Jurisdiction | Primary Law(s) | AI-Specific Obligation | Cross-Border Mechanism | Max Fine |
+|---|---|---|---|---|
+| EU | GDPR, EU AI Act | AI Act risk classification; DPIA; automated decision rights (Art. 22) | Adequacy decision, SCCs + TIA, BCRs | €35M / 7% turnover (AI Act); €20M / 4% (GDPR) |
+| UK | UK GDPR, DPA 2018 | ICO AI guidance; automated decision rights | Adequacy regulations, IDTA | £17.5M / 4% turnover |
+| Switzerland | nFADP/revDSG | Automated decision review; DPIA for high-risk | Adequacy (EU, UK); FDPIC SCCs; BCRs | CHF 250,000 (natural persons); business may be ordered to pay up to CHF 50,000 (Art. 64/ACLA Art. 7) |
+| Canada | PIPEDA, Privacy Act, Quebec Law 25, BC PIPA, Ontario PHIPA (CPPA/AIDA lapsed with Bill C-27, Jan 2025) | Exclusively automated decision notice + opportunity to submit observations (QC Law 25 s. 12.1); federal Treasury Board Directive on Automated Decision-Making (Algorithmic Impact Assessment, federal institutions subject to the Policy on Service and Digital); AIDA high-impact-AI regime lapsed | Contractual safeguards; PIPEDA comparable-protection accountability; Quebec Law 25 s. 17 transfer PIA that must establish adequate protection, then a written agreement reflecting the assessment | CAD 25M / 4% turnover (QC Law 25, penal) |
+| United States | FTC Act, CCPA/CPRA, state laws, BIPA (single-recovery post SB 2979) | NIST AI RMF 1.0; ADMT pre-use notice, opt-out, and access (final CCPA Regs 11 CCR ss. 7220-7222, eff 2026-01-01, compliance 2027-01-01), plus Article 10 risk assessments for s. 7150(b)(3) significant-decision ADMT and (b)(6) processing of consumer personal information to train significant-decision ADMT or covered recognition/profiling technology (ss. 7150-7157, assessed before processing begins); Colorado AI Act (SB 24-205 repealed and re-enacted as SB 26-189, ADMT consequential-decision duties on/after 2027-01-01; litigation pending) | DPF (EU/UK); contractual (CCPA) | USD 7,500 per intentional or minor-involved violation, USD 2,500 otherwise (CCPA; the section 1798.155 CPPA administrative fine keys the minor tier to actual knowledge a consumer is under 16, the Attorney General civil penalty to any violation involving a minor's personal information; both adjusted under section 1798.199.95(d)); USD 5,000/violation (BIPA class action) |
+| Brazil | LGPD | Automated decision review (Art. 20); ANPD DPIA guidance | ANPD SCCs (Resolution 19/2024); EU/EEA adequacy (Resolution 32/2026) | BRL 50M per violation / 2% Brazil revenue |
+| Argentina | Ley 25.326/2000 | AAIP guidance on automated processing (illustrative); Ley 25.326 Art. 20 bars judicial or administrative decisions resting solely on automated profiling; algorithmic transparency developing | Prohibited absent adequate protection; Ley 25.326 Art. 12 exceptions | Fines under Law 25.326 (AAIP) |
+| Mexico | LFPDPPP (2025) | Article 26(II) objection right for qualifying automated processing; ARCO rights | Privacy-notice disclosure + consent (Arts. 35 and 36) | 320,000 UMA (up to 2x for sensitive data) |
+| Chile | Ley 19.628 (transition to Ley 21.719 on 2026-12-01) | No ADM-specific regime under Ley 19.628; Ley 21.719 introduces one | No general cross-border regime under Ley 19.628 (Art 5 only) | UTM fines 1-50 via civil courts; no DPA under Ley 19.628 (Agencia under Ley 21.719) |
+| Peru | Ley 29733; DS 016-2024-JUS (2024) | Automated-decision rights; facultative DPIA (DS Art 40) | Adequacy-plus-safeguards; DGTAIPD model clauses (DS Arts 18-20) | Fines up to 100 UIT for very serious (serious to 50 UIT); capped at 10% prior-year gross income |
+| Colombia | Ley 1581 de 2012; Decreto 1074 de 2015 | ARCO-style rights; no ADM-specific regime | Adequacy determination + Normas Corporativas Vinculantes (BCR) | Fines up to 2,000 SMLMV (SIC) |
+| Ecuador | LOPDP (2021); Reglamento, Decreto Ejecutivo 904 (2023) | Right not to be subject to decisions based solely or partly on automated assessments that produce legal effects or infringe fundamental rights and freedoms, with exceptions (Art 20); mandatory DPIA for systematic and exhaustive automated evaluation of personal aspects on which decisions with legal effects are based (Art 42) | Adequacy resolution; adequate guarantees incl. Authority-approved BCRs; prior authorization; Art 60 exceptions; prior registration of transfers in the Registro Nacional (Art 59) | 0.7% to 1% of prior-year business volume for serious infractions (private-law entities and public companies; Art 72) |
+| Latin America | Various (see jurisdiction file) | Varies by jurisdiction | Varies by jurisdiction | Varies by jurisdiction |
+| Singapore | PDPA | mandatory breach notification; voluntary PDPC Model AI Governance Framework | s. 26 prescribed comparable-protection requirements; Commission exemption (s. 26(2)) | SGD 1M, or 10% of SG turnover if it exceeds SGD 10M (s.48J) |
+| Australia | Privacy Act 1988 | AI Ethics Framework (voluntary); APP principles; Privacy Act 2024 reforms | APP 8 contractual safeguards | For serious interference with the privacy of an individual, the civil penalty for a body corporate is an amount not more than the greatest of the following (s. 13G(1), (3)): (a) AUD 50,000,000; (b) if the court can determine the value of the benefit that the body corporate, and any related body corporate, have obtained directly or indirectly and that is reasonably attributable to the conduct constituting the contravention, 3 times the value of that benefit; (c) if the court cannot determine the value of that benefit, 30% of the adjusted turnover of the body corporate during the breach turnover period for the contravention. |
+| Japan | APPI | APPI purpose limitation for AI training; PPC AI guidance (not held, adopter-verify) <!-- ref-absence: PPC AI guidance --> | Consent; PPC-designated equivalent countries; recipient conforming system | JPY 100M |
+| South Korea | PIPA 2023 | Right to explanation; automated decision review; PIPC guidance | See [Article 28-8 transfer grounds, conditions and notice particulars](jurisdictions/annex-privacy-south-korea.md#cross-border-transfer-mechanisms). | 3% of total sales, net of sales unrelated to the violation (PIPA Art. 64-2, Act No. 19234 text); up to KRW 2 billion, in cases prescribed by Presidential Decree, where there are no sales or sales are impracticable to calculate (Art. 64-2(1) proviso) |
+| New Zealand | Privacy Act 2020 | IPP principles; mandatory breach notification | IPP 12 disclosure conditions; prescribed binding schemes / prescribed countries (ss. 213-214) | NZD 10,000 per offence |
+| UAE | PDPL, DIFC DPL, ADGM DPR | Sector-specific AI guidance; automated-decision objection right (Art 18) | Bureau-approved legislated jurisdictions, or a UAE bilateral/multilateral agreement (Art 22); the six Art 23(1)(a)-(f) cases (contract/consent/judicial cooperation/rights/public interest) | Cabinet decision under Art 26 (PDPL); USD 100,000 (DIFC) |
+| Saudi Arabia | PDPL | SDAIA AI governance framework; automated-decision transparency (Impl. Reg. Art. 4(5)(c)) | Adequacy; Personal Data Transfer Regulation Art. 5 safeguards (BCR/SCC/certification/code) or Art. 6 cases; localization | SAR 5M, committee-imposed, may be doubled for repeat (Art. 36) |
+| South Africa | POPIA | Automated decision rights (s. 71); Information Regulator PIA guidance | s. 72 adequacy or safeguards | ZAR 10M |
+| Turkey | KVKK (2024 amendment) | Automated decision transparency; KVKK Board guidance | **Adequacy (Article 9):** A transfer must satisfy an applicable processing condition under Articles 5 or 6 and be covered by a Board adequacy decision for the destination country, a sector within that country, or an international organization (Article 9(1)). The Board must publish its adequacy decisions in the Official Gazette and must consult the relevant institutions and organizations when it considers this necessary. The Board must review adequacy decisions at least every four years. Following a review or whenever else it considers necessary, the Board may amend, suspend or revoke an adequacy decision with prospective effect (Article 9(2)). When deciding adequacy, the Board must primarily consider: reciprocity with Turkey on personal-data transfers; the destination's legislation and practice, or the rules an international organization is subject to; an independent and effective data-protection authority and administrative and judicial remedies; participation in international data-protection conventions or membership of international organizations; membership of global or regional organizations to which Turkey belongs; and international conventions to which Turkey is a party (Article 9(3)).<br>**Appropriate safeguards:** Where no adequacy decision exists, a transfer must satisfy an applicable processing condition under Articles 5 or 6, and the data subject must be able to exercise rights and seek effective legal remedies in the destination country. The parties must provide one of the safeguards in Article 9(4): an agreement that is not an international convention, between public bodies or international organizations abroad and public bodies or professional organizations with public institution status in Turkey, with Board permission for the transfer (a); Board-approved binding corporate rules containing personal-data protection provisions with which companies within a group engaged in joint economic activities must comply (b); a standard contract published by the Board (c); or a written undertaking containing provisions providing adequate protection, with Board permission for the transfer (ç). The Board's standard contract covers matters such as data categories, transfer purposes, recipients and recipient groups, the technical and administrative measures the recipient will take, and the additional measures taken for special-category personal data (Article 9(4)(c)).<br>**Standard-contract notification:** The controller or processor must notify the Personal Data Protection Authority of the standard contract within five business days of signing (Article 9(5)). This notification requirement is distinct from the Board permission required for a transfer using a written undertaking under Article 9(4)(ç).<br>**Incidental-transfer derogations:** To use Article 9(6), no adequacy decision must exist, none of the Article 9(4) safeguards can be provided, and the transfer must be incidental and satisfy one of the following conditions:<br>**(a)** The data subject must give explicit consent to the transfer after being informed of the potential risks.<br>**(b)** The transfer must be necessary to perform a contract between the data subject and the controller or to implement pre-contractual measures requested by the data subject.<br>**(c)** The transfer must be necessary to conclude or perform a contract between the controller and another natural or legal person in the data subject's interest.<br>**(ç)** The transfer must be necessary for an overriding public interest.<br>**(d)** The transfer must be necessary to establish, exercise or protect a right.<br>**(e)** The transfer must be necessary to protect the life or bodily integrity of a person unable to express consent because of factual impossibility or whose consent lacks legal validity, or of another person.<br>**(f)** The transfer must be from a register open to the public or to persons with a legitimate interest, the access conditions in the applicable legislation must be met, and a person with a legitimate interest must request the transfer.<br>Article 9(7) excludes Article 9(6)(a), (b) and (c) from public-law activities of public institutions and organizations; Article 9(6)(ç), (d), (e) and (f) remain available for those activities, subject to their conditions and the Article 9(6) prerequisites.<br>Controllers and processors must ensure that the safeguards under Law No. 6698 and the requirements of Article 9 also apply to onward transfers and transfers to international organizations (Article 9(8)).<br>Under every transfer route, where a transfer would seriously harm Turkey's interests or the data subject's interests, the transfer must receive Board permission after the Board obtains the opinion of the relevant public institution or organization, subject to the provisions of international conventions (Article 9(9)).<br>Provisions of other laws governing transfers of personal data abroad remain applicable (Article 9(10)).<br>See the Turkey annex. | **2026 revalued administrative fines, applicable from 1 January 2026:** **Article 18(1)(a):** Failure to fulfil the obligation to inform under Article 10: TRY 85,437 to 1,709,200.<br>**Article 18(1)(b):** Failure to fulfil the data-security obligations under Article 12: TRY 256,357 to 17,092,242.<br>**Article 18(1)(c):** Failure to comply with Board decisions under Article 15: TRY 427,263 to 17,092,242.<br>**Article 18(1)(ç):** Failure to comply with registration and notification obligations for the Data Controllers' Registry under Article 16: TRY 341,809 to 17,092,242.<br>**Article 18(1)(d):** Failure to notify a standard contract under Article 9(5): TRY 90,308 to 1,806,177. |
+| Nigeria | NDPA 2023 | Automated decision rights (s. 37); NDPC AI guidance developing | Adequacy (NDPC-determined); contractual safeguards | Up to, per importance tier, the greater of a fixed amount (NGN 10M major, NGN 2M standard) or 2% of preceding-year annual gross revenue (s. 48) |
+| Kenya | Data Protection Act 2019 | Automated decision objection right; ODPC guidance | Adequacy standard; contractual safeguards | KES 5M or 1% turnover admin fine (whichever lower, s. 63); KES 3M on conviction (s. 73) |
+| China | PIPL, CSL, DSL, Generative AI Regulations | PIPL automated decision rights (Art. 24); pre-deployment security assessment; CAC labelling | CAC security assessment, PIPL SCCs, certification | RMB 50M / 5% revenue (PIPL) |
+| India | DPDPA 2023 / Rules 2025 | Children's-data safeguards (s. 9): verifiable parental consent and no tracking, behavioural monitoring, or targeted advertising (subject to s. 9(4)-(5) exemptions); no processing detrimental to a child's well-being; SDF DPIA requirement | Negative-list restriction power (s.16(1)); Rule 15 requirements; Rule 13(4) SDF localization (personal data specified by the Central Government, together with traffic data pertaining to its flow, not transferred outside India) | INR 250 crore (~USD 30M) |
+| Thailand | PDPA 2019 | PDPC guidance (voluntary); no statutory automated-decision provision | s. 16(5) Committee-rule adequacy; s. 28 exceptions; s. 29 certified intra-group policy | THB 5M (~USD 140K) |
+| Indonesia | UU PDP 2022 | Right to object to solely automated decisions, including profiling, with legal or significant effects; impact assessment for such automated decisions; national AI framework in development | Equivalent or higher protection, else adequate binding protection, else consent | 2% of annual revenue or receipts (administrative); corporate criminal fines up to IDR 60 billion |
+| Philippines | Data Privacy Act 2012 | Automated profiling PIA encouraged; NPC guidance | Comparable safeguards; consent | PHP 5M + imprisonment |
+| Vietnam | PDPL 91/2025; Decree 356/2025 | Automated-decision notice, algorithm explanation and opt-out; no data-localization duty under the PDPL/Decree 356 | 60-day cross-border transfer impact-assessment dossier (no adequacy or approval regime) | Administrative fines (up to 10x violation revenue / 5% prior-year turnover / VND 3bn); criminal prosecution |
+| Malaysia | PDPA 2010 (2024 amendment) | PDPA principles apply to AI; national AI Ethics framework (voluntary) | Substantially-similar-law or adequate protection (amended s. 129(2)); s. 129(3) exceptions incl. consent (former Minister-approved-country list repealed) | MYR 1M per offense |
+
+---
+
+## 2026 Update summary
+
+The following material regulatory developments occurred or were anticipated between the initial 2025 issuance and the 2026 review cycle:
+
+- **EU AI Act:** High-risk AI system obligations under Annex III become applicable in December 2027 (restaged from the original August 2026 by Regulation (EU) 2026/1744, the Digital Omnibus on AI). GPAI model obligations applied from August 2025. National AI supervisory authorities are being designated across EU member states, with many still pending past the 2 August 2025 notification deadline (only a minority formally notified as of the 2026 review).
+- **China Generative AI Regulations:** Updated regulations anticipated in 2026, extending obligations to additional generative AI service categories with enhanced training data provenance requirements.
+- **Canada Bill C-27 (CPPA/AIDA):** Lapsed at the 2025-01-06 prorogation (died on the order paper); not in force. A privacy successor, **Bill C-36 (Protecting Privacy and Consumer Data Act)**, was introduced 2026-06-15 and is at second reading (proposed, not in force); no AI-specific successor to AIDA has been introduced. PIPEDA remains the in-force federal private-sector privacy law.
+- **Brazil LGPD:** ANPD continued to develop sector-specific AI guidance; administrative enforcement matured with increasing fine activity.
+- **Australia Privacy Act:** Privacy and Other Legislation Amendment Act 2024 reforms took effect; statutory tort for serious invasions of privacy became actionable.
+- **Global CBPR:** Additional economies joined the Global CBPR Forum; interoperability with GDPR SCCs was under active negotiation.
+- **India DPDPA:** the Act was brought into force by notification G.S.R. 843(E) of 13 November 2025 on a three-tranche schedule under s. 1(2): the definitions and the establishment of the Data Protection Board took effect on that date, the consent-manager registration duty commences around November 2026, and the core substantive regime and the Board's principal inquiry-and-penalty functions commence around 13 May 2027. The Digital Personal Data Protection Rules 2025 (G.S.R. 846(E)), notified the same day, commence on their own matching rule 1(2) to (4) schedule.
+- **Southeast Asia expansion:** Indonesia's implementing Government Regulation under UU PDP was reported enacted in 2026 (not held in the reference base); Malaysia's 2024 PDPA amendments entered into force; Vietnam enacted the PDPL (Law 91/2025) and Decree 356/2025 (in force 2026-01-01), repealing Decree 13/2023. <!-- ref-absence: Government Regulation No. 33 of 2026 | GR 33/2026 -->
+- **South Korea PIPA:** 2023 amendments operationalized, including automated decision explanation rights and enhanced penalty framework.
+- **Nigeria NDPA:** The Nigeria Data Protection Commission established as an independent body and commenced regulatory activity.
+- **Saudi Arabia:** SDAIA issued sector-specific AI governance guidelines for financial services and healthcare; data localization requirements clarified.
+
+---
+
+**End of Document**

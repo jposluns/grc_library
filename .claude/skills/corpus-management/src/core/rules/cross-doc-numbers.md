@@ -1,0 +1,12 @@
+# Cross-document number consistency
+
+A canonical term that carries a numeric threshold does not carry different values in
+different documents. The check tracks a fixed set of canonical terms; for each, it
+extracts every numeric value the term carries across the corpus, normalizes each to a
+common unit (minutes), and flags any term that ends up with more than one distinct
+value. Most tracked terms are read from prose only (outside fenced code blocks); a
+term with a normative carrier inside a fenced block is additionally read there. The
+tracked-term regexes, the fenced-block term set, the unit table, and the value-normalization and
+extraction logic are fixed in the check implementation; the scan scope and the
+exempt-file set are project configuration. A term that appears with a single
+consistent value, or does not appear, contributes no finding.

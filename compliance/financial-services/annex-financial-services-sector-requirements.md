@@ -1,0 +1,255 @@
+# Financial Services Sector GRC Requirements Annex
+
+**Document Title:** Financial Services Sector GRC Requirements Annex\
+**Document Type:** Annex\
+**Version:** 1.0.28\
+**Date:** 2026-10-30\
+**Owner:** Chief Compliance Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
+**Classification:** Public\
+**Category:** Compliance: Sector-Specific\
+**Review Frequency:** Annual and upon material regulatory change in applicable jurisdictions\
+**Repository Path:** [`compliance/financial-services/annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This annex identifies the additional GRC obligations that apply to organizations operating in or adjacent to the financial services sector. It maps applicable regulatory frameworks to the core GRC library controls and identifies gap areas requiring sector-specific supplementation.
+
+This annex applies where an organization:
+- Is a regulated financial institution (bank, insurer, investment firm, payment institution, e-money institution)
+- Provides technology or operational services to regulated financial institutions as an ICT third-party service provider (including a designated critical third party)
+- Handles payment card data (triggering PCI DSS obligations regardless of sector)
+- Is subject to anti-money laundering obligations by virtue of its business activities
+
+---
+
+## Regulatory landscape overview
+
+### European union
+
+| Regulation / Directive | Scope | Effective |
+|---|---|---|
+| **DORA**: Digital Operational Resilience Act (Regulation (EU) 2022/2554) | Financial entities and ICT third-party service providers, with EU oversight of those designated Critical (CTPPs), operating in or serving the EU financial sector | 2025-01-17 |
+| **NIS 2 Directive** (Directive 2022/2555) | Financial sector entities in scope, classified as essential or important under Article 3; for DORA financial entities, NIS 2 Articles 21 and 23 and the Chapter VII supervision and enforcement provisions do not apply where DORA's requirements are at least equivalent (NIS 2 Article 4(1); DORA recital 16: DORA is lex specialis); see the [DORA implementation annex](annex-dora-implementation.md) and the [NIS 2 implementation annex](../annex-nis-2-implementation.md) | October 2024 (transposition) |
+| **GDPR** | All personal data processing | May 2018 |
+| **PSD2 / PSD3** | Payment services providers; open banking | Ongoing |
+| **AML Directives (AMLD6)** | Financial institutions; certain high-value goods dealers | Ongoing |
+| **MiFID II / MiFIR** | Investment firms; trading venues | Ongoing |
+| **Basel III / CRR3** | Credit institutions; capital and operational risk | 2025 onwards |
+
+### United kingdom
+
+| Regulation / Guidance | Authority | Scope |
+|---|---|---|
+| **FCA Operational Resilience Policy Statement (PS21/3)** | Financial Conduct Authority | FCA-authorized firms; Important Business Services |
+| **PRA Supervisory Statement SS1/21** | Prudential Regulation Authority | PRA-regulated firms; operational resilience |
+| **FCA/PRA Cyber and Technology Resilience** | FCA / PRA | Firms' technology risk governance and outsourcing |
+| **UK GDPR** | Information Commission | All firms processing personal data in the UK |
+| **Money Laundering Regulations 2017 (as amended)** | HMRC; FCA | All regulated financial sector firms |
+| **Critical Third Parties (CTPs) regime** (FSMA 2023; PS24/16 joint BoE/PRA/FCA, November 2024) | Bank of England; FCA; PRA | Designated critical technology providers to UK financial sector |
+| **SYSC: Senior Management Arrangements** | FCA Handbook | Senior Manager functions; accountability |
+
+### Canada
+
+| Regulation / Guideline | Authority | Scope |
+|---|---|---|
+| **OSFI Guideline B-13: Technology and Cyber Risk Management** | Office of the Superintendent of Financial Institutions | Federally regulated financial institutions (FRFIs) |
+| **OSFI Guideline B-10: Third-Party Risk Management** | OSFI | FRFIs |
+| **OSFI Guideline B-7: Derivatives** | OSFI | FRFIs |
+| **FINTRAC**: Proceeds of Crime (Money Laundering) and Terrorist Financing Act | FINTRAC | All reporting entities under the Act |
+| **PIPEDA** | OPC | Personal information collected, used, or disclosed in the course of commercial activities, and employee and applicant data of federal works, undertakings, or businesses (s. 4(1)) |
+| **CSA (investment) obligations** | Canadian Securities Administrators | Provincially and territorially registered investment dealers (harmonized CSA framework; CIRO as the self-regulatory organization) |
+
+### United states
+
+| Regulation / Framework | Authority | Scope |
+|---|---|---|
+| **GLBA**: Gramm-Leach-Bliley Act Safeguards Rule (16 CFR Part 314) | FTC; federal banking regulators | Financial institutions; those significantly engaged in financial activities |
+| **23 NYCRR 500**: NY DFS Cybersecurity Regulation | NY Department of Financial Services | Covered entities with NY DFS licence or charter; limited exemptions under 500.19(a) (fewer than 20 employees and independent contractors, or under USD 7.5M gross annual revenue in each of the last 3 fiscal years, or under USD 15M year-end total assets) |
+| **FFIEC IT Examination Handbook** | FFIEC | US banks and credit unions |
+| **FFIEC Cybersecurity Assessment Tool (CAT)** (retired 31 August 2025; the FFIEC suggests institutions may consider industry-developed resources such as the Cyber Risk Institute Cyber Profile and the CIS Critical Security Controls) | FFIEC | US depository institutions |
+| **Interagency safety-and-soundness, information-security, and third-party-risk expectations** | Office of the Comptroller of the Currency (OCC); Federal Reserve Board (FRB); Federal Deposit Insurance Corporation (FDIC) | Federally supervised banks and holding companies; technology risk, information security, and third-party risk |
+| **SOX**: Sarbanes-Oxley Act Section 302/404 | SEC; PCAOB | Publicly listed companies in the US |
+| **Bank Secrecy Act / AML obligations** | FinCEN | Banks; money services businesses; broker-dealers |
+| **PCI DSS v4.0.1** | PCI SSC | Any organization storing, processing, or transmitting payment card data |
+
+### Asia-pacific
+
+| Regulation / Guidance | Authority | Scope |
+|---|---|---|
+| **Technology Risk Management (TRM) Guidelines; Notice on Cyber Hygiene** | Monetary Authority of Singapore (MAS) | Financial institutions regulated in Singapore; technology and cyber risk management |
+| **Prudential Standard CPS 234 (Information Security); CPS 230 (Operational Risk Management)** | Australian Prudential Regulation Authority (APRA) | APRA-regulated entities (banks, insurers, superannuation); information security and operational resilience |
+| **Supervisory Policy Manual: technology and operational risk modules** | Hong Kong Monetary Authority (HKMA) | Authorized institutions in Hong Kong; technology risk and operational resilience |
+| **Guidelines on system risk and cybersecurity for financial institutions** | Japan Financial Services Agency (JFSA / FSA) | Financial institutions supervised in Japan; system risk and cybersecurity |
+
+### Switzerland
+
+| Regulation / Guidance | Authority | Scope |
+|---|---|---|
+| **Circular on operational risks and resilience** | Swiss Financial Market Supervisory Authority (FINMA) | FINMA-supervised banks, insurers, and financial institutions; operational risk and resilience |
+
+> **Note:** The instruments named in the Asia-Pacific and Switzerland subsections are named structurally to map the regulators and their supervisory domains. The specific current instrument titles, versions, and effective dates change over time and are confirmed by the adopting organization against each regulator's current published requirements; this annex does not pin or reproduce them.
+
+### Global / cross-jurisdictional
+
+| Framework | Body | Scope |
+|---|---|---|
+| **FATF Recommendations** | Financial Action Task Force | AML/CFT obligations globally |
+| **SWIFT Customer Security Programme (CSP)** | SWIFT | All SWIFT members and users |
+| **Basel Operational Resilience Principles** | Basel Committee on Banking Supervision (BCBS) | Banks and supervisors globally |
+| **CPMI-IOSCO Principles for FMIs** | BIS / IOSCO | Financial market infrastructures |
+
+---
+
+## Key regulatory requirements
+
+### DORA: digital operational resilience act (EU)
+
+DORA applies to the 20 categories of EU financial entities defined in DORA Article 2(1), points (a) to (t), and to ICT third-party service providers (point (u)), with the EU Oversight Framework applying to those the ESAs designate as Critical (CTPPs). Key requirements:
+
+| DORA Pillar | Requirement | GRC Library Mapping |
+|---|---|---|
+| **ICT Risk Management (Arts 5 to 16)** | Documented ICT risk management framework; asset inventory; protection and prevention measures; detection; response and recovery; communication | [`security/policy-information-security.md`](../../security/policy-information-security.md); [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md); [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md); [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md) |
+| **ICT Incident Classification and Reporting (Arts 17 to 23)** | Classify incidents as major or non-major; report major ICT incidents to competent authority with an initial notification within 4 hours of classification as major and no later than 24 hours from awareness (or, where the incident is classified as major only after that 24-hour window, within 4 hours of that later classification), an intermediate report within 72 hours of the initial notification, and a final report no later than one month after the intermediate report, or the latest updated intermediate report where applicable (windows per the RTS in Delegated Reg (EU) 2025/301) | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md); [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md): supplement with DORA reporting templates |
+| **Digital Operational Resilience Testing (Arts 24 to 27)** | Threat-Led Penetration Testing (TLPT) for entities identified by competent authorities under Article 26(8), at least every 3 years (a competent authority may reduce or increase the frequency for a given entity); regular vulnerability assessments and scenario-based testing | [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md): supplement with TLPT protocol; penetration test programme |
+| **Third-Party ICT Risk (Arts 28 to 44)** | Documented ICT third-party risk management strategy; due diligence; contractual provisions; exit strategies (Arts 28 to 30); use a third-country provider designated as critical only if it has established a subsidiary in the Union within the 12 months following the designation (Art 31(12)); when managing ICT third-party risk, take into account the risks identified in oversight recommendations addressed to critical providers (Art 42(3)); where a competent authority deems that the financial entity fails to take into account or to sufficiently address within its management of ICT third-party risk the specific risks identified in those recommendations, it notifies the financial entity of the possibility of a decision being taken, within 60 calendar days of the receipt of that notification, pursuant to Art 42(6), in the absence of appropriate contractual arrangements aiming to address such risks (Art 42(4)). The Oversight Framework (Arts 31 to 44) is directed at the ICT third-party service providers the ESAs designate as critical; as a measure of last resort, following the notification and, if appropriate, the consultation as set out in Art 42(4) and (5), in accordance with Art 50, a competent authority may take a decision requiring the financial entity to temporarily suspend, either in part or completely, the use or deployment of a critical provider's service until the risks identified in the recommendations addressed to critical providers have been addressed; where necessary, it may require the financial entity to terminate, in part or completely, the relevant contractual arrangements concluded with the critical provider (Art 42(6)) | [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md); [`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md); [`supply-chain/standard-cloud-exit-and-data-portability.md`](../../supply-chain/standard-cloud-exit-and-data-portability.md) |
+| **Information Sharing (Art 45)** | Voluntary cyber threat intelligence sharing arrangements | Supplement with threat intelligence sharing policy |
+
+**DORA Contract Provisions (Art 30):** Art 30 sets two tiers of contract provisions. Art 30(2) applies to every contractual arrangement on the use of ICT services; Art 30(3) adds further elements for contractual arrangements on the use of ICT services supporting critical or important functions.
+
+Every ICT-services contract (Art 30(2)) must include at least:
+- (a) "a clear and complete description of all functions and ICT services to be provided by the ICT third-party service provider, indicating whether subcontracting of an ICT service supporting a critical or important function, or material parts thereof, is permitted and, when that is the case, the conditions applying to such subcontracting"
+- (b) "the locations, namely the regions or countries, where the contracted or subcontracted functions and ICT services are to be provided and where data is to be processed, including the storage location, and the requirement for the ICT third-party service provider to notify the financial entity in advance if it envisages changing such locations"
+- (c) "provisions on availability, authenticity, integrity and confidentiality in relation to the protection of data, including personal data"
+- (d) "provisions on ensuring access, recovery and return in an easily accessible format of personal and non-personal data processed by the financial entity in the event of the insolvency, resolution or discontinuation of the business operations of the ICT third-party service provider, or in the event of the termination of the contractual arrangements"
+- (e) "service level descriptions, including updates and revisions thereof"
+- (f) "the obligation of the ICT third-party service provider to provide assistance to the financial entity at no additional cost, or at a cost that is determined ex-ante, when an ICT incident that is related to the ICT service provided to the financial entity occurs"
+- (g) "the obligation of the ICT third-party service provider to fully cooperate with the competent authorities and the resolution authorities of the financial entity, including persons appointed by them"
+- (h) "termination rights and related minimum notice periods for the termination of the contractual arrangements, in accordance with the expectations of competent authorities and resolution authorities"
+- (i) "the conditions for the participation of ICT third-party service providers in the financial entities’ ICT security awareness programmes and digital operational resilience training in accordance with Article 13(6)"
+
+Contracts for ICT services supporting critical or important functions (Art 30(3)) must include, in addition to the Art 30(2) elements, at least:
+- (a) "full service level descriptions, including updates and revisions thereof with precise quantitative and qualitative performance targets within the agreed service levels to allow effective monitoring by the financial entity of ICT services and enable appropriate corrective actions to be taken, without undue delay, when agreed service levels are not met"
+- (b) "notice periods and reporting obligations of the ICT third-party service provider to the financial entity, including notification of any development that might have a material impact on the ICT third-party service provider’s ability to effectively provide the ICT services supporting critical or important functions in line with agreed service levels"
+- (c) "requirements for the ICT third-party service provider to implement and test business contingency plans and to have in place ICT security measures, tools and policies that provide an appropriate level of security for the provision of services by the financial entity in line with its regulatory framework"
+- (d) "the obligation of the ICT third-party service provider to participate and fully cooperate in the financial entity’s TLPT as referred to in Articles 26 and 27"
+- (e) "the right to monitor, on an ongoing basis, the ICT third-party service provider’s performance", which entails: (i) "unrestricted rights of access, inspection and audit by the financial entity, or an appointed third party, and by the competent authority, and the right to take copies of relevant documentation on-site if they are critical to the operations of the ICT third-party service provider, the effective exercise of which is not impeded or limited by other contractual arrangements or implementation policies"; (ii) "the right to agree on alternative assurance levels if other clients’ rights are affected"; (iii) "the obligation of the ICT third-party service provider to fully cooperate during the onsite inspections and audits performed by the competent authorities, the Lead Overseer, financial entity or an appointed third party"; and (iv) "the obligation to provide details on the scope, procedures to be followed and frequency of such inspections and audits"
+  - Microenterprise exception (Art 30(3), final subparagraph): "By way of derogation from point (e), the ICT third-party service provider and the financial entity that is a microenterprise may agree that the financial entity’s rights of access, inspection and audit can be delegated to an independent third party, appointed by the ICT third-party service provider, and that the financial entity is able to request information and assurance on the ICT third-party service provider’s performance from the third party at any time."
+- (f) "exit strategies, in particular the establishment of a mandatory adequate transition period": (i) "during which the ICT third-party service provider will continue providing the respective functions, or ICT services, with a view to reducing the risk of disruption at the financial entity", or, as the provision's second purpose, to secure its effective resolution and restructuring; (ii) "allowing the financial entity to migrate to another ICT third-party service provider or change to in-house solutions consistent with the complexity of the service provided"
+
+### UK FCA/PRA operational resilience
+
+| Requirement | Core Obligation | GRC Library Mapping |
+|---|---|---|
+| **Important Business Services identification** | Map all services important to customers and financial stability | [`operations/framework-it-service-management.md`](../../operations/framework-it-service-management.md): supplement with Important Business Services register |
+| **Impact tolerances** | Set maximum tolerable disruption for each Important Business Service (time and quality thresholds) | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md); [`resilience/procedure-business-impact-analysis.md`](../../resilience/procedure-business-impact-analysis.md) |
+| **Mapping and testing** | Map people, processes, technology, facilities, and information supporting each service; stress test against disruption scenarios | [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md); [`resilience/procedure-business-impact-analysis.md`](../../resilience/procedure-business-impact-analysis.md) |
+| **Self-assessment** | Annual self-assessment of operational resilience capability against impact tolerances | [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md): self-assess resilience capability against the framework |
+
+### OSFI B-13 (Canada: FRFIs)
+
+OSFI B-13 applies to all federally regulated financial institutions in Canada. Key outcomes:
+
+| B-13 Domain | Outcome Required | GRC Library Mapping |
+|---|---|---|
+| **Governance and risk management** | Senior-Management accountability, with responsibility for technology and cyber risk assigned to senior officers; a technology and cyber risk management framework; technology risk appetite | [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md); [`risk/template-risk-appetite-statement.md`](../../risk/template-risk-appetite-statement.md); [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md); [`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md) |
+| **Technology operations and resilience** | Complete, accurate technology asset inventory; sound technology operations; disaster recovery and resilience capability | [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md); [`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md) |
+| **Cyber security** | Cyber defence, incident response, threat intelligence, and recovery capability | [`security/standard-soc-operating-model.md`](../../security/standard-soc-operating-model.md); [`operations/procedure-threat-intelligence-and-siem-operations.md`](../../operations/procedure-threat-intelligence-and-siem-operations.md); [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md); [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md) |
+
+### NY DFS 23 NYCRR 500 (US)
+
+| Requirement | Detail | GRC Library Mapping |
+|---|---|---|
+| **CISO appointment** | Qualified CISO; annual report to Board | Role definition in security domain |
+| **Penetration testing** | Annual penetration test; vulnerability scans and manual reviews at a frequency determined by the risk assessment and promptly after any material system change (23 NYCRR 500.5(a)) | [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md): supplement with pen test programme |
+| **Multi-factor authentication** | MFA required for any individual accessing any information system, regardless of location, user type, or type of electronic information, effective 1 November 2025 (500.12; limited-exemption carve-out under 500.19(a)) | [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
+| **Annual filings and approvals** | Annual electronic submission to the superintendent by April 15 of a written certification of material compliance or acknowledgment of noncompliance for the prior calendar year (500.17(b)); written cybersecurity policy or policies approved at least annually by a senior officer or the covered entity's senior governing body (500.3) | [`security/policy-information-security.md`](../../security/policy-information-security.md): calendar the NYDFS annual filing deadline and recurring policy approvals |
+| **Encryption** | Encryption of non-public information in transit and at rest | [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md) |
+| **Incident notification** | Notice to NYDFS as promptly as possible and no later than 72 hours after determining that a Cybersecurity Incident occurred (a reportable trigger under 23 NYCRR Part 500, narrower than a Cybersecurity Event) | [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md): supplement with NYDFS notification runbook |
+| **Cybersecurity policy** | Documented policy covering all 15 required areas | [`security/policy-information-security.md`](../../security/policy-information-security.md): verify coverage of all 15 areas |
+| **Access controls** | Privileged access management; periodic review | [`security/procedure-access-control.md`](../../security/procedure-access-control.md); [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
+| **Third-party service provider policy** | Written policy governing third-party security | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md) |
+
+### PCI DSS v4.0.1
+
+PCI DSS applies to any organization that stores, processes, or transmits payment card data. Key requirements across the 12 PCI DSS requirements:
+
+| PCI DSS Requirement Group | Core Obligation | GRC Library Mapping |
+|---|---|---|
+| **Req 1 to 2: Network Security** | Firewalls; secure configurations; no vendor defaults | [`dev-security/standard-devops-security-requirements.md`](../../dev-security/standard-devops-security-requirements.md) |
+| **Req 3 to 4: Protect Cardholder Data** | Encryption of stored PAN; TLS in transit | [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md) |
+| **Req 5 to 6: Vulnerability Management** | Antivirus; secure development; patch management | [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md); [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) |
+| **Req 7 to 8: Access Control** | Least privilege; unique user IDs; MFA | [`security/procedure-access-control.md`](../../security/procedure-access-control.md); [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
+| **Req 9: Physical Security** | Physical access controls to cardholder data environments | Physical security controls |
+| **Req 10: Logging and Monitoring** | Audit logs; log review; SIEM | [`operations/register-it-security-operations.md`](../../operations/register-it-security-operations.md) |
+| **Req 11: Security Testing** | Penetration testing; internal and external vulnerability scans | [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md) |
+| **Req 12: Security Policy** | Information security policy; risk assessment; incident response | Core GRC library policies |
+
+**PCI DSS v4.0.1 new requirements (effective 2025):**
+- Targeted risk analysis for customized approach controls
+- Multi-factor authentication expanded to all CDE access
+- MFA for all non-console access into the cardholder data environment (Requirement 8.4.2), with MFA systems resistant to replay attacks (Requirement 8.5.1)
+- Ecommerce scripts (payment page scripts) monitored for changes
+
+### AML / CFT requirements
+
+For organizations subject to AML obligations (banks, money service businesses, and designated non-financial businesses and professions (DNFBPs) under FATF Recommendation 22):
+
+| Obligation | Requirement | GRC Library Supplement Needed |
+|---|---|---|
+| **Customer Due Diligence (CDD)** | Verify customer identity; assess business purpose; identify beneficial owners | Supplement: CDD procedure |
+| **Enhanced Due Diligence (EDD)** | Enhanced measures for high-risk customers, PEPs, high-risk countries | Supplement: EDD procedure |
+| **Transaction Monitoring** | Monitor transactions for suspicious activity; NY DFS 3 NYCRR Part 504.3 requires a reasonably designed transaction-monitoring and OFAC-filtering program | Supplement: Transaction monitoring programme |
+| **Suspicious Activity Reporting (SAR)** | File SARs with FINTRAC / FinCEN / NCA within prescribed timelines | Supplement: SAR filing procedure |
+| **Record Retention** | AML records retained for 5 to 7 years depending on jurisdiction | [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md): verify AML retention periods |
+| **Staff Training** | AML training for all relevant staff | [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md): ensure that AML training is included |
+
+---
+
+## Gap analysis: core library vs. financial services requirements
+
+The following controls are required by financial services regulations but are not fully addressed by the core GRC library. Supplement with sector-specific procedures as needed.
+
+| Gap Area | Applicable Regulation(s) | Action Required |
+|---|---|---|
+| DORA ICT incident reporting templates and EIOPA/EBA/ESMA regulatory reporting | DORA Arts 19 to 23 | Create DORA incident reporting procedure and templates |
+| Important Business Services register | UK FCA/PRA PS21/3 | Create Important Business Services register and impact tolerance documentation |
+| TLPT (Threat-Led Penetration Testing) protocol | DORA Art 26; CBEST (UK) | Create TLPT governance procedure |
+| DORA third-party ICT provider contract register | DORA Art 28 | Supplement supplier register with DORA-specific fields |
+| AML / CFT policy, CDD, EDD, SAR procedures | FATF; BSA; AMLD6; MLRs 2017; PCMLTFA (Canada) and its regulations; NY DFS 3 NYCRR Part 504 (504.3 transaction-monitoring and OFAC-filtering program; 504.4 annual board resolution or senior-officer compliance finding by April 15) | Create AML programme documents |
+| GLBA Safeguards Rule annual report | GLBA | Create annual GLBA compliance attestation procedure |
+| PCI DSS targeted risk analysis procedure | PCI DSS v4.0.1 Req 12.3 | Create PCI DSS risk analysis procedure |
+| SOX IT General Controls documentation | SOX Section 404; PCAOB AS 2201 | Create ITGC documentation framework |
+| OSFI B-13 Senior-Management technology risk reporting | OSFI B-13 | Create technology and cyber risk reporting to Senior Management |
+| SWIFT CSP annual attestation | SWIFT CSP | Create SWIFT CSP attestation procedure |
+
+---
+
+## Priority implementation sequence
+
+For organizations entering the financial services sector or achieving DORA compliance:
+
+1. **Immediate (before go-live or regulatory deadline):**
+ - Establish ICT risk management framework (DORA / OSFI B-13 / GLBA baseline)
+ - Identify and document Important Business Services and impact tolerances
+ - Execute PCI DSS scoping and initiate Qualified Security Assessor (QSA) engagement
+ - Establish AML programme if obligated
+
+2. **Within 90 days:**
+ - Complete DORA third-party ICT provider inventory and contractual uplift
+ - Establish DORA incident reporting workflow
+ - Complete NY DFS / GLBA policy coverage verification
+
+3. **Within 12 months:**
+ - Complete first TLPT or equivalent penetration testing cycle
+ - Achieve PCI DSS certification (if card data in scope)
+ - Complete OSFI B-13 / FCA/PRA self-assessment
+
+---
+
+**End of Document**

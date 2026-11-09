@@ -1,0 +1,18 @@
+# Per-document framework control-code validity
+
+A control code cited in a document's framework-alignment table is a real code in the
+framework the table is labelled for. The check validates NIST CSF 2.0 codes wherever
+they appear in per-document NIST-labelled tables: every `FUNCTION.CATEGORY` code (the
+function one of the six CSF Functions) cited in a NIST-CSF cell must be a current CSF
+2.0 Category; a code from the superseded CSF 1.1 era is flagged with a relocation note
+pointing to where the concept moved, and a code matching no CSF 2.0 Category is flagged
+as unknown. Both table orientations are handled: framework-as-column (a table whose
+header names a NIST CSF column, validating that column's cells) and framework-as-row (a
+row whose first cell names NIST CSF, validating the adjacent code cell, never the
+trailing notes). The label match is anchored so it does not match a NIST SP reference,
+and the code token regex requires one of the six CSF Functions so an ISO Annex A or NIST
+SP identifier is not mistaken for a CSF code. The authoritative CSF 2.0 Category set and
+the CSF-1.1 relocation map are supplied by the adopter (the framework catalogue) and are
+not part of this clause; the central compliance matrix is validated by a separate check
+and is excluded here. A document whose CSF codes are all current CSF 2.0 Categories
+contributes no findings.

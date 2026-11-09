@@ -1,0 +1,555 @@
+#!/usr/bin/env python3
+"""Authoring-time helper: which listing surfaces should a new document touch?
+
+When a new document is added to the corpus, several listing surfaces
+should be updated so the document is discoverable. This tool, run at
+authoring time, reports them for a given document path, split into:
+
+  MECHANICAL surfaces (hard-gated by lint-listing-surface-completeness.py
+  and the generator --check stages of .claude/skills/corpus-management/tools/pre-push-guard.sh): these MUST
+  be updated or regenerated, and CI will fail otherwise. The tool reports,
+  for each hand-edited surface, whether the document is already present.
+  The regenerate list is DERIVED from the guard, never hand-listed: every
+  ``python3 <script>.py --check`` stage line in the guard and in the runner
+  scripts it chains (``.claude/skills/corpus-management/tools/*.sh``) is a generator, and each one not in
+  NOT_TRIGGERED_BY_NEW_DOCUMENT is listed, so a generator added to the
+  guard joins this list without an edit here (SuggestListingSurfacesTests
+  fails when a guard generator is neither derived nor recorded there).
+
+  SEMANTIC surfaces (matrices, crosswalks, glossary, Related Documents):
+  these are relevance-based and are NOT gated. The tool emits a
+  high-recall, ranked list of candidates for the author to ratify --
+  it deliberately over-suggests rather than under-suggests, because a
+  missed semantic surface is a silent gap whereas a spurious suggestion
+  costs only a moment to dismiss.
+
+Usage:
+    python3 .claude/skills/corpus-management/tools/suggest-listing-surfaces.py <doc-path> [<doc-path> ...]
+
+    <doc-path> is a repository-relative path such as
+    ``ai/standard-new-thing.md``. The document need not yet exist; the
+    tool infers the domain from the path prefix and reads the document's
+    metadata (title, type) if the file is present.
+
+Exit codes: 0 for advice, 2 for usage errors or containment refusals, and
+1 for lookup errors (with the report's partial standard output preserved).
+Fixed control-file inputs refuse containment escapes while unavailable inputs remain advisory unknowns.
+This point-in-time check cannot stop a symlink swapped after resolution or a hard-link alias.
+"""
+
+from __future__ import annotations
+
+import ast
+import re
+import sys
+from pathlib import Path
+
+_TOOLS_DIR = str(Path(__file__).resolve().parent)
+if _TOOLS_DIR not in sys.path:
+    sys.path.append(_TOOLS_DIR)
+
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack .claude/skills/corpus-management/tools/ on sys.path
+from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
+from lint_common import PathContainmentError, check_join_spelling, is_containment_refusal, join_under, is_default_exempt_root, REPO_ROOT, positional_args  # noqa: E402  # grc-config/store, stays local
+
+REGISTER = "governance/register-document-index-and-classification.md"
+PATH_IN_CODESPAN = re.compile(r"`([a-z][a-z0-9-]*(?:/[a-z0-9._-]+)+\.md)`")
+TITLE_RE = re.compile(r"^\*\*Document Title:\*\*\s*(.+?)\s*\\?$", re.M)
+TYPE_RE = re.compile(r"^\*\*Document Type:\*\*\s*(.+?)\s*\\?$", re.M)
+
+GUARD = ".claude/skills/corpus-management/tools/pre-push-guard.sh"
+# A guard stage that runs a runner script: a bare `.claude/skills/corpus-management/tools/<name>.sh` line.
+GUARD_RUNNER_RE = re.compile(r"^\s*(.claude/skills/corpus-management/tools/[a-z0-9_-]+\.sh)\s*$")
+# A generator drift check: a whole line `python3 [-I ...] <script>.py [flags]`
+# (optionally in the runner's `run_gate "<name>"` grammar, the one gate parity
+# parses) whose flags include --check. Anchored, so a check inside $(...) or an
+# if-test is not a stage (the guard's reference-manifest ADVISORY is one; it is
+# recorded below).
+CHECK_STAGE_RE = re.compile(
+    r'^\s*(?:run_gate\s+"[^"]+"\s+)?python3(?:\s+-\w+)*\s+([\w./-]+\.py)((?:\s+--[a-z][a-z-]*)*)\s*$'
+)
+# Generators the guard runs whose inputs a new corpus or executive/ document
+# does not change, with the reason. A generator the guard runs that is neither
+# listed here nor derived as a stage fails SuggestListingSurfacesTests.
+NOT_TRIGGERED_BY_NEW_DOCUMENT = {
+    ".claude/skills/corpus-management/tools/build-todo-number-allocation.py": "reads .working/TODO.md, TODO-REFERENCE.md and .claude/skills/corpus-management/tools/todo-number-floor.json",
+    ".claude/skills/corpus-management/tools/build-relationship-model.py": "reads .claude/skills/corpus-management/data/relationship-model-source.json",
+    ".claude/skills/corpus-management/tools/build-corpus-management.py": "reads the .claude/skills/corpus-management/src/ sources",
+    ".claude/skills/corpus-management/tools/build-citation-publishers.py": "reads the citation-publishers block of "
+    "governance/specification-citation-verification.md",
+    ".claude/skills/corpus-management/tools/build-reference-manifest.py": "advisory guard check over the grc_library_ref sibling; never blocks",
+}
+# Generators whose inputs are executive/ narrative pages only, and those whose
+# inputs are corpus documents only (.claude/skills/corpus-management/data/taxonomy.yml is corpus-only by construction).
+# Any other derived generator applies to both.
+NARRATIVE_ONLY = frozenset({".claude/skills/corpus-management/tools/build-narrative-registry.py"})
+CORPUS_ONLY = frozenset({".claude/skills/corpus-management/tools/build-taxonomy.py", ".claude/skills/corpus-management/tools/build-portal.py"})
+# Generators a sound derivation must find (when present in the tree): a readable
+# guard that yields a list without one of them was restructured past the parser,
+# so the helper reports [unknown] rather than a silently partial list.
+ANCHORS = (".claude/skills/corpus-management/tools/build-taxonomy.py", ".claude/skills/corpus-management/tools/build-portal.py", ".web/build.py")
+# Display only: the committed outputs a generator rewrites. A generator absent
+# from this map is still listed, with a generic note.
+OUTPUTS = {
+    ".claude/skills/corpus-management/tools/build-taxonomy.py": ".claude/skills/corpus-management/data/taxonomy.yml",
+    ".claude/skills/corpus-management/tools/build-portal.py": "governance/portal.md, governance/maturity-scorecard.md",
+    ".claude/skills/corpus-management/tools/build-narrative-registry.py": ".claude/skills/corpus-management/data/narrative.yml",
+    ".web/build.py": ".web/corpus-link-manifest.md",
+}
+# .claude/skills/corpus-management/data/taxonomy.yml indexes only the root-level files named in this builder's iter_all_docs().
+TAXONOMY_BUILDER = ".claude/skills/corpus-management/tools/build-taxonomy.py"
+# The module-level constant naming the root files the builder's iter_all_docs() adds.
+ROOT_SPECS_CONSTANT = "LIBRARY_ROOT_SPECS"
+
+# Words too common to be useful for keyword-overlap ranking.
+STOPWORDS = frozenset(
+    {
+        "and",
+        "the",
+        "of",
+        "for",
+        "to",
+        "a",
+        "in",
+        "on",
+        "policy",
+        "standard",
+        "procedure",
+        "template",
+        "register",
+        "framework",
+        "guideline",
+        "plan",
+        "matrix",
+        "annex",
+        "charter",
+        "management",
+        "and-",
+    }
+)
+
+
+def domain_of(path: str) -> str | None:
+    return path.split("/", 1)[0] if "/" in path else None
+
+
+def keywords(path: str) -> set[str]:
+    """Salient keyword tokens from a document basename (no extension, no type prefix)."""
+    stem = Path(path).stem
+    tokens = {t for t in stem.split("-") if t and t not in STOPWORDS and len(t) > 2}
+    return tokens
+
+
+def _matrix_paths() -> list[str]:
+    """All matrix/crosswalk files in the corpus (the semantic listing surfaces)."""
+    found: list[str] = []
+    for p in sorted(REPO_ROOT.glob("**/*.md")):
+        if is_default_exempt_root(p, repo_root=REPO_ROOT):
+            continue
+        rel = p.relative_to(REPO_ROOT).as_posix()
+        # Skip the working dir, generated docs.
+        if rel.startswith((".working/", "governance/", ".git/")):
+            continue
+        base = p.name
+        if base.startswith("matrix-") or "crosswalk" in base:
+            found.append(rel)
+    return found
+
+
+def find_matrix_surfaces() -> list[str]:
+    """Selector seam called by scan-scope tests; wraps _matrix_paths."""
+    return _matrix_paths()
+
+
+def referenced_paths(file_rel: str) -> set[str]:
+    try:
+        path = join_under(REPO_ROOT, file_rel)
+    except PathContainmentError as exc:
+        if is_containment_refusal(exc):
+            raise
+        path = REPO_ROOT / file_rel
+    text = read_text_safe(path)
+    if text is None:
+        return set()
+    return set(PATH_IN_CODESPAN.findall(text))
+
+
+def fixed_input_path(root: Path, rel: str) -> Path:
+    """Check containment and return the lexical path; retain advisory lookup failures."""
+    try:
+        return join_under(root, rel)
+    except PathContainmentError as exc:
+        if is_containment_refusal(exc):
+            raise
+        return root / rel
+
+
+def guard_generators(root: Path = REPO_ROOT) -> list[str] | None:
+    """Scripts of the generator --check stages the pre-push guard runs, in run order.
+
+    Walks the guard line by line, expanding each runner-script stage
+    (``.claude/skills/corpus-management/tools/<name>.sh``) in place, and keeps each ``python3 <script>.py ...
+    --check`` stage whose script exists (the guard skips an absent
+    .web/build.py). None when the guard or a runner it names cannot be read
+    (absent, unreadable, or not UTF-8). A containment refusal propagates.
+    """
+    found: list[str] = []
+
+    def walk(rel: str, expand_runners: bool) -> bool:
+        path = fixed_input_path(root, rel)
+        try:
+            text = read_text_safe(path) if path.is_file() else None
+        except OSError:  # read_text_safe surfaces filesystem errors; this helper is advisory
+            text = None
+        if text is None:
+            return False
+        for line in text.splitlines():
+            m = GUARD_RUNNER_RE.match(line)
+            if m and expand_runners:
+                if not walk(m.group(1), False):
+                    return False
+                continue
+            m = CHECK_STAGE_RE.match(line)
+            if m and "--check" in m.group(2).split():
+                script = m.group(1)
+                if script not in found and fixed_input_path(root, script).is_file():
+                    found.append(script)
+        return True
+
+    return found if walk(GUARD, True) else None
+
+
+def indexed_root_documents(root: Path = REPO_ROOT) -> tuple[str, ...] | None:
+    """Root-level files .claude/skills/corpus-management/tools/build-taxonomy.py indexes, read from its source.
+
+    Parses the builder (never imports it) and returns the strings that a ``for`` loop in
+    ``iter_all_docs()`` walks: the module-level ``ROOT_SPECS_CONSTANT``
+    (``LIBRARY_ROOT_SPECS``) bound once to a tuple or list of string literals, or an
+    inline tuple of string literals. A loop over any other name, such as the domain list,
+    is not the root-file list. The first such loop in ast.walk order wins when there are
+    several. Returns None when the builder cannot be read or parsed, when no such loop is
+    found, or when the constant is bound more than once or to anything else. A
+    containment refusal propagates.
+    """
+    path = fixed_input_path(root, TAXONOMY_BUILDER)
+    try:
+        text = read_text_safe(path) if path.is_file() else None
+        tree = ast.parse(text) if text is not None else None
+    except (OSError, SyntaxError, ValueError):  # advisory helper: report unknown, never crash
+        return None
+    if tree is None:
+        return None
+
+    def literal_strings(node) -> tuple[str, ...] | None:
+        if (
+            isinstance(node, (ast.Tuple, ast.List))
+            and node.elts
+            and all(isinstance(e, ast.Constant) and isinstance(e.value, str) for e in node.elts)
+        ):
+            return tuple(e.value for e in node.elts)
+        return None
+
+    # Module-level names bound exactly once to a literal string tuple or list; a name
+    # bound twice, or to anything else, maps to None and reads as unknown.
+    constants: dict[str, tuple[str, ...] | None] = {}
+    for stmt in tree.body:
+        if isinstance(stmt, ast.Assign):
+            targets, value = stmt.targets, stmt.value
+        elif isinstance(stmt, ast.AnnAssign) and stmt.value is not None:
+            targets, value = [stmt.target], stmt.value
+        else:
+            continue
+        for target in targets:
+            if isinstance(target, ast.Name):
+                constants[target.id] = (
+                    None if target.id in constants else literal_strings(value))
+    for fn in tree.body:
+        if not (isinstance(fn, ast.FunctionDef) and fn.name == "iter_all_docs"):
+            continue
+        for node in ast.walk(fn):
+            if not isinstance(node, ast.For):
+                continue
+            if isinstance(node.iter, ast.Name):
+                if node.iter.id != ROOT_SPECS_CONSTANT:
+                    continue
+                names = constants.get(node.iter.id)
+            else:
+                names = literal_strings(node.iter) if isinstance(node.iter, ast.Tuple) else None
+            if names is not None:
+                return names
+    return None
+
+
+_UNPLANNED = object()
+
+
+def planned_generators() -> list[str] | None:
+    generators = guard_generators()
+    if generators is not None and any(
+        a not in generators and fixed_input_path(REPO_ROOT, a).is_file() for a in ANCHORS
+    ):
+        generators = None  # a partial derivation is reported as unknown, never listed
+    return generators
+
+
+def report_regenerate(domain: str | None, generators=_UNPLANNED) -> None:
+    if generators is _UNPLANNED:
+        generators = planned_generators()
+    if generators is None:
+        print(
+            f"    [unknown] could not read the generator stages from {GUARD} or a runner "
+            f"it chains; run {GUARD} before pushing and regenerate whatever it reports stale."
+        )
+        return
+    skip = CORPUS_ONLY if domain == "executive" else NARRATIVE_ONLY
+    regen = [g for g in generators if g not in NOT_TRIGGERED_BY_NEW_DOCUMENT and g not in skip]
+    if not regen:
+        print(f"    [regenerate] none -- no generator stage in {GUARD} applies.")
+        return
+    outputs = ", ".join(OUTPUTS.get(g, f"the committed outputs of {g}") for g in regen)
+    print(
+        f"    [regenerate] {outputs} -- run: "
+        + " && ".join(f"python3 {g}" for g in regen)
+        + f" (derived from the --check stages of {GUARD}; commit the outputs with the document)"
+    )
+
+
+def report_paths(doc_path: str) -> tuple[str, str | None, list[str], Exception | None]:
+    """Plan the exact report paths without reading report content.
+
+    No path depends on file content: references affect ranking only.
+    Defer ordinary discovery errors to the report's original matrix-loop point.
+    Process control exceptions propagate during preflight, before report output.
+    """
+    normalized = Path(doc_path).as_posix() if doc_path else ""
+    domain = domain_of(normalized)
+    if is_default_exempt_root(normalized, repo_root=REPO_ROOT) or domain is None:
+        return normalized, None, [], None
+    try:
+        matrices = [p for p in _matrix_paths() if p != normalized]
+    except Exception as exc:
+        return normalized, f"{domain}/README.md", [], exc
+    return normalized, f"{domain}/README.md", matrices, None
+
+
+def document_path(doc_path: str) -> Path | None:
+    """Validate spelling before exemption; walk only non-exempt documents."""
+    # Use join_under's spelling rules before an exempt root can return early.
+    try:
+        check_join_spelling(REPO_ROOT, doc_path)
+    except (OSError, RuntimeError, TypeError, ValueError):
+        return join_under(REPO_ROOT, doc_path)
+    try:
+        exempt = is_default_exempt_root(doc_path, repo_root=REPO_ROOT)
+    except (OSError, RuntimeError):
+        # Unverifiable paths still need the shared refusal, including loops.
+        return join_under(REPO_ROOT, doc_path)
+    if exempt:
+        return None
+    if domain_of(Path(doc_path).as_posix()) is None:
+        try:
+            REPO_ROOT.lstat()
+        except FileNotFoundError:
+            # Main only checks is_file for a root-level name under a missing base.
+            return REPO_ROOT / doc_path
+    try:
+        return join_under(REPO_ROOT, doc_path)
+    except PathContainmentError as exc:
+        if is_containment_refusal(exc):
+            raise
+        return REPO_ROOT / doc_path
+
+
+def preflight(
+    docs: list[str],
+) -> list[tuple[tuple[str, str | None, list[str], Exception | None], tuple[str, ...] | None, object]]:
+    """Verify planned paths and compute the taxonomy index and generator plan before reporting.
+
+    Return (report plan, indexed root documents, generators) for each document.
+    Compute the index only when a root document is planned (otherwise None),
+    and the generator plan only when a document needs regeneration
+    (otherwise _UNPLANNED).
+    """
+    plans = []
+    root_documents = False
+    for doc in docs:
+        path = document_path(doc)
+        plan = report_paths(doc)
+        plans.append((plan, path is None))
+        _normalized, readme, matrices, _error = plan
+        if path is not None and readme is None:
+            root_documents = True
+        for surface in ([REGISTER, readme, *matrices] if readme is not None else []):
+            try:
+                join_under(REPO_ROOT, surface)
+            except PathContainmentError as exc:
+                if is_containment_refusal(exc):
+                    raise
+    indexed = indexed_root_documents() if root_documents else None
+    needs_regeneration = any(
+        not exempt and (plan[1] is not None or
+                        (indexed is not None and plan[0] in indexed))
+        for plan, exempt in plans
+    )
+    generators = planned_generators() if needs_regeneration else _UNPLANNED
+    return [(plan, indexed, generators) for plan, _exempt in plans]
+
+
+def report_one(doc_path: str, plan=None, indexed=_UNPLANNED, generators=_UNPLANNED) -> None:
+    path = document_path(doc_path)
+    doc_path, readme, matrices, discovery_error = plan or report_paths(doc_path)
+    if path is None:
+        print(f"\n=== {doc_path} ===")
+        print("    Source-pack path outside the corpus; no listing surfaces apply.")
+        return
+    domain = domain_of(doc_path)
+    exists = path.is_file()
+    title = doc_type = None
+    if exists:
+        text = read_text_safe(path) or ""
+        m = TITLE_RE.search(text)
+        title = m.group(1) if m else None
+        m = TYPE_RE.search(text)
+        doc_type = m.group(1) if m else None
+
+    print(f"\n=== {doc_path} ===")
+    if title:
+        print(f"    title: {title}  (type: {doc_type or 'unknown'})")
+    if domain is None:
+        print(
+            "    Root-level document (no domain prefix). The domain-index "
+            "register and domain READMEs do not index root-level "
+            "meta-specifications, so no hand-edited MECHANICAL surface applies. "
+            "Confirm this is an intentional root-level document."
+        )
+        if indexed is _UNPLANNED:
+            indexed = indexed_root_documents()
+        if indexed is None:
+            print(
+                f"    [unknown] could not read the root specifications iter_all_docs() in "
+                f"{TAXONOMY_BUILDER} indexes; check whether it names {doc_path} before regenerating."
+            )
+        elif doc_path in indexed:
+            print("    .claude/skills/corpus-management/data/taxonomy.yml indexes it (domain \"root\"), so the corpus generators apply.")
+            report_regenerate(domain, generators)
+        else:
+            print(
+                f"    [add] {TAXONOMY_BUILDER} indexes only its named root specifications "
+                f"({', '.join(indexed)}), so .claude/skills/corpus-management/data/taxonomy.yml does not index this document and "
+                f"regenerating does nothing for it. First add it to the root-file list in "
+                f"iter_all_docs() in {TAXONOMY_BUILDER}; the regenerate line then applies "
+                f"(rerun this tool)."
+            )
+        return
+
+    # --- MECHANICAL surfaces (gated) ---
+    print("  MECHANICAL surfaces (gated -- CI fails if not updated):")
+    reg_listed = doc_path in referenced_paths(REGISTER)
+    print(
+        f"    [{'present' if reg_listed else 'MISSING'}] {REGISTER} "
+        f"(add a row in the Active document index table)"
+    )
+    try:
+        readme_path = join_under(REPO_ROOT, readme)
+    except PathContainmentError as exc:
+        if is_containment_refusal(exc):
+            raise
+        readme_path = REPO_ROOT / readme
+    if readme_path.is_file():
+        rm_listed = doc_path in referenced_paths(readme)
+        print(
+            f"    [{'present' if rm_listed else 'MISSING'}] {readme} "
+            f"(add to the domain's document listing)"
+        )
+    else:
+        # No README for this first-path-segment: it is not a real corpus domain
+        # (e.g. governance/, a root meta-dir) or the domain's README is missing. An
+        # advisory tool must not crash (read_text_safe does not swallow a
+        # FileNotFoundError, by design), so report it instead of reading a
+        # non-existent file.
+        print(
+            f"    [n/a] {readme} does not exist -- '{domain}/' is not a corpus "
+            f"domain with a README (no MECHANICAL domain-README surface applies)."
+        )
+    report_regenerate(domain, generators)
+
+    # --- SEMANTIC surfaces (ranked candidates, not gated) ---
+    kw = keywords(doc_path)
+    candidates: list[tuple[int, str, str]] = []
+    if discovery_error is not None:
+        raise discovery_error from None
+    for surface in matrices:
+        if surface == doc_path:
+            continue
+        refs = referenced_paths(surface)
+        if doc_path in refs:
+            continue  # already mapped
+        same_domain = sum(1 for r in refs if domain_of(r) == domain)
+        surface_domain = domain_of(surface)
+        # Score: a same-domain matrix is highly relevant; otherwise the
+        # count of same-domain documents the matrix already maps is the
+        # relevance signal; keyword overlap with the surface basename adds a point.
+        score = same_domain
+        reason_parts = []
+        if surface_domain == domain:
+            score += 100
+            reason_parts.append("same-domain matrix")
+        if same_domain:
+            reason_parts.append(f"maps {same_domain} other {domain} doc(s)")
+        if kw & keywords(surface):
+            score += 1
+            reason_parts.append("title-keyword overlap")
+        if score > 0:
+            candidates.append((score, surface, "; ".join(reason_parts) or "general matrix"))
+    candidates.sort(key=lambda t: (-t[0], t[1]))
+
+    print("  SEMANTIC surfaces (relevance-based -- ratify each; not gated):")
+    if candidates:
+        for score, surface, reason in candidates:
+            print(f"    [consider] {surface}  ({reason})")
+    else:
+        print("    (no matrix/crosswalk currently maps this domain; check manually)")
+    print(
+        "    [consider] governance/register-glossary.md -- if the document "
+        "introduces a new acronym or external-standard term."
+    )
+    print(
+        "    [consider] the document's own 'Related Documents:' field -- link "
+        "the documents this one depends on or elaborates."
+    )
+
+
+def main(argv: list[str]) -> int:
+    # 3b50b2e2: a flag-like token used to be treated as a document name; parse strictly (use '--'
+    # before a path that begins with '-'). A path that does not exist yet stays valid: this tool
+    # plans listing surfaces for PROPOSED documents (SuggestListingSurfacesTests).
+    docs = positional_args(argv[1:], known_flags=())
+    docs = [doc[2:] if doc.startswith("./") else doc for doc in docs]
+    if not docs:
+        print(__doc__)
+        print("ERROR: provide at least one document path.", file=sys.stderr)
+        return 2
+    try:
+        plans = preflight(docs)
+    except PathContainmentError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+    try:
+        print(
+            "Listing-surface suggestions. MECHANICAL surfaces are gated by "
+            "lint-listing-surface-completeness.py (register + domain README) and "
+            f"the generator --check stages of {GUARD}; SEMANTIC surfaces are advisory."
+        )
+        for doc_path, (plan, indexed, generators) in zip(docs, plans):
+            report_one(doc_path, plan, indexed, generators)
+    except PathContainmentError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+    except OSError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

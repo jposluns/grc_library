@@ -1,0 +1,391 @@
+#!/usr/bin/env python3
+"""Symmetric narrative-boundary gate (P-1.25 Phase 1.3; spec Gates item 3).
+
+Enforces the two-sided placement boundary of
+``governance/specification-executive-narrative.md`` ("Placement and audit scope" and
+Gates item 3). The boundary is mechanical, not conventional, and it is
+SYMMETRIC:
+
+  OUTSIDE the root ``executive/`` tree: no file may carry the
+  ``Executive Narrative`` document type or ANY narrative-extension metadata
+  field, anywhere in the repository, README paths INCLUDED. The corpus
+  metadata gate's README skip is basename-keyed (any ``README.md`` gets only
+  the loose title/license check), which is one of the two known escapes this
+  gate closes; here nothing is keyed off the basename. The other closed
+  escape is the retyped leak: a page renamed and retyped to a valid corpus
+  Document Type that RETAINS narrative-extension fields passes the corpus
+  metadata gate (which does not reject unknown fields) but fails here on the
+  extension-field check.
+
+  INSIDE the root ``executive/`` tree: every page must carry
+  ``Document Type: Executive Narrative`` and the full 8-field
+  narrative-extension block, and must NOT carry a corpus document type. The
+  single named, PATH-scoped exemption is the entry point
+  ``executive/README.md`` (the hand-curated concern framing, not a narrative
+  page); a nested ``executive/<sub>/README.md`` is NOT exempt.
+
+Scope notes:
+  - The outside scan walks the whole repository (every ``.md`` outside the
+    root ``executive/`` tree, minus the vendored/non-content dirs), so corpus
+    domains, ``governance/``, ``.claude/skills/corpus-management/registers/``,
+    root files, ``.claude/skills/corpus-management/tests/``, and every README are covered.
+  - Detection is FENCE-AWARE: the authoring specification's example
+    metadata block (a fenced illustration carrying the narrative type and
+    all 8 extension fields) is documentation, not a leak, so lines inside
+    fenced code blocks never match. This is why the specification itself
+    needs no named exemption. A file that ends inside a fence left open by
+    this marker-aware scan is a fail-loud finding naming the opener line
+    (3b54b), so an unclosed fence cannot silently hide the rest of a file.
+  - Detection is LINE-ANCHORED (``**Field:** ...`` at line start), matching
+    the corpus metadata-field shape; prose that DISCUSSES a field name in a
+    list item or sentence does not match.
+  - Root-anchored classification: only the repository-root ``executive/``
+    tree is "inside"; a nested directory merely named ``executive``
+    (e.g. ``governance/executive/``) is OUTSIDE, per the ``is_narrative_root``
+    precedent in ``lint_common``.
+
+Honest residue (recorded in the spec, Gates item 3): a file stripped of both
+its type marker and all narrative-only fields is not detectable by
+repository-state rules and is covered by review only.
+
+Deeper narrative-page validation (field order, closed vocabularies, pins,
+hard breaks) is the narrative metadata gate's job (lint-narrative-metadata.py);
+this gate proves only the boundary: type + extension-block presence and side.
+
+Usage:
+    python3 .claude/skills/corpus-management/tools/lint-narrative-boundary.py [--root DIR]
+    python3 .claude/skills/corpus-management/tools/lint-narrative-boundary.py --self-test
+
+Exit 0 when the boundary holds (an ``executive/`` tree holding only the
+exempt entry-point README is a valid empty page set). Exit 1 on any finding.
+"""
+from __future__ import annotations
+
+import re
+import sys
+from pathlib import Path
+
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack .claude/skills/corpus-management/tools/ on sys.path (engine imports aiqt_corpus)
+from lint_common import REPO_ROOT, require_dir  # noqa: E402  # grc-config/store, stays local
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / "src" / "tools"
+
+BOUNDARY_SKIP_DIRS = frozenset({".git", "node_modules", "__pycache__"})
+
+NARRATIVE_DOCUMENT_TYPE = "Executive Narrative"
+ENTRY_POINT = "executive/README.md"
+
+# The 8 narrative-extension fields (spec, "Canonical metadata and narrative
+# extension"). Presence of ANY of these outside executive/ is a defect;
+# presence of ALL of them is required on every page inside executive/.
+EXTENSION_FIELDS: tuple[str, ...] = (
+    "Narrative Type",
+    "Narrative Status",
+    "Audience",
+    "Corpus Sources",
+    "External Sources",
+    "Claim Classes Present",
+    "Review Record",
+    "Last Reviewed",
+)
+
+# The allowed corpus document types (mirrors lint-metadata.py ALLOWED_TYPES).
+# `Executive Narrative` must NEVER be added to the corpus set; kept
+# wrapper-accessible for the in-process drift test.
+CORPUS_DOCUMENT_TYPES: frozenset[str] = frozenset(
+    {
+        "Charter",
+        "Framework",
+        "Policy",
+        "Principle",
+        "Standard",
+        "Procedure",
+        "SOP",
+        "Plan",
+        "Roadmap",
+        "Guideline",
+        "Guide",
+        "Register",
+        "Matrix",
+        "Specification",
+        "Template",
+        "Annex",
+        "Checklist",
+        "Worklist",
+    }
+)
+
+# Line-anchored narrative markers (the corpus metadata-field shape, with the
+# optional trailing backslash hard-break marker).
+NARRATIVE_TYPE_LINE_RE = re.compile(
+    r"^\*\*Document Type:\*\*\s*" + re.escape(NARRATIVE_DOCUMENT_TYPE) + r"\s*\\?\s*$"
+)
+EXTENSION_FIELD_LINE_RE = re.compile(
+    r"^\*\*(" + "|".join(re.escape(f) for f in EXTENSION_FIELDS) + r"):\*\*"
+)
+
+
+def _engine():
+    """Import the pack-owned engine, ensuring its .claude/skills/corpus-management/src/tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_narrative_boundary  # the pack-owned engine (source of record)
+    return gate_lint_narrative_boundary
+
+
+# Configure the engine ONCE with the grc narrative markers + type/field sets.
+import types  # noqa: E402
+_engine().configure(types.SimpleNamespace(
+    narrative_document_type=NARRATIVE_DOCUMENT_TYPE, entry_point=ENTRY_POINT,
+    extension_fields=EXTENSION_FIELDS, corpus_document_types=CORPUS_DOCUMENT_TYPES,
+    narrative_type_line_re=NARRATIVE_TYPE_LINE_RE,
+    extension_field_line_re=EXTENSION_FIELD_LINE_RE))
+
+
+def scan_outside_file(path: Path, rel: str) -> list[str]:
+    """Shim -> engine (engine already configured); kept module-global for the self-test + run."""
+    return _engine().scan_outside_file(path, rel)
+
+
+def check_inside_page(path: Path, rel: str) -> list[str]:
+    """Shim -> engine (engine already configured); kept module-global for the self-test + run."""
+    return _engine().check_inside_page(path, rel)
+
+
+def discover(root: Path) -> tuple[list[tuple[Path, str]], list[tuple[Path, str]]]:
+    """(outside_files, inside_pages) as (path, rel) pairs; exempt dirs skipped,
+    the entry point excluded from both sets (it is neither a corpus-side file
+    nor a narrative page)."""
+    outside: list[tuple[Path, str]] = []
+    inside: list[tuple[Path, str]] = []
+    candidates = set(root.rglob("*.md"))
+    for p in sorted(candidates):
+        if not p.is_file():
+            continue
+        rel_parts = p.relative_to(root).parts
+        if any(part in BOUNDARY_SKIP_DIRS for part in rel_parts):
+            continue
+        rel = "/".join(rel_parts)
+        if rel_parts[0] == "executive":
+            if rel == ENTRY_POINT:
+                continue
+            inside.append((p, rel))
+        else:
+            outside.append((p, rel))
+    return outside, inside
+
+
+def run(root: Path) -> list[str]:
+    outside, inside = discover(root)
+    findings: list[str] = []
+    for p, rel in outside:
+        findings.extend(scan_outside_file(p, rel))
+    for p, rel in inside:
+        findings.extend(check_inside_page(p, rel))
+    return findings
+
+
+def _self_test() -> int:
+    """Synthetic per-failure-class fixtures (the live executive/ tree holds only
+    the exempt entry-point README, so detection is proven synthetically;
+    mirrors the narrative metadata gate's self-test discipline)."""
+    import tempfile
+
+    ext_block = "".join(
+        f"**{f}:** x\\\n" for f in EXTENSION_FIELDS[:-1]
+    ) + f"**{EXTENSION_FIELDS[-1]}:** 2026-08-05\n"
+    valid_page = (
+        "# Brief\n\n"
+        "**Document Title:** Brief\\\n"
+        "**Document Type:** Executive Narrative\\\n"
+        "**License:** CC BY-SA 4.0\\\n" + ext_block + "\n---\n\nBody.\n"
+    )
+    corpus_page = (
+        "# Policy\n\n"
+        "**Document Title:** Policy\\\n"
+        "**Document Type:** Policy\\\n"
+        "**License:** CC BY-SA 4.0\n\n---\n\nBody.\n"
+    )
+    failures: list[str] = []
+
+    def expect(name: str, findings: list[str], substr: str | None) -> None:
+        if substr is None:
+            if findings:
+                failures.append(f"{name}: expected PASS, got {findings}")
+        elif not any(substr in f for f in findings):
+            failures.append(f"{name}: expected a finding containing {substr!r}, got {findings}")
+
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        # Integrated valid tree: exempt README + valid page inside, clean corpus
+        # outside, a fenced narrative example outside (documentation, not a leak).
+        (root / "executive").mkdir()
+        (root / "executive" / "README.md").write_text("# Entry point\n\n**License:** CC BY-SA 4.0\n")
+        (root / "executive" / "brief-good.md").write_text(valid_page)
+        (root / "risk").mkdir()
+        (root / "risk" / "policy-x.md").write_text(corpus_page)
+        (root / "spec.md").write_text(
+            "# Spec\n\nExample:\n\n```markdown\n**Document Type:** Executive Narrative\\\n"
+            "**Narrative Type:** Scenario\\\n```\n\nProse: 1. **Narrative Type:** one of seven.\n"
+        )
+        expect("integrated-valid-tree", run(root), None)
+
+        # Root-anchoring: a nested dir named executive is OUTSIDE (scanned as corpus side).
+        (root / "governance" / "executive").mkdir(parents=True)
+        (root / "governance" / "executive" / "brief-leak.md").write_text(valid_page)
+        expect("nested-executive-is-outside", run(root), "outside executive/")
+        (root / "governance" / "executive" / "brief-leak.md").unlink()
+
+        # Nested README under executive/ is NOT exempt (path-scoped, not basename-keyed).
+        (root / "executive" / "sub").mkdir()
+        (root / "executive" / "sub" / "README.md").write_text("# Nested readme\n\n**License:** x\n")
+        expect("nested-readme-not-exempt", run(root), "must carry Document Type")
+        (root / "executive" / "sub" / "README.md").unlink()
+
+        # F1: the pack/reference trees are SCANNED (not the shared corpus exempt set);
+        # a narrative leak there is caught, while vendored dirs stay skipped.
+        (root / ".claude").mkdir()
+        (root / ".claude" / "leak.md").write_text(valid_page)
+        expect("dotclaude-leak-scanned", run(root), "outside executive/")
+        (root / ".claude" / "leak.md").unlink()
+        (root / ".git").mkdir()
+        (root / ".git" / "leak.md").write_text(valid_page)
+        expect("dotgit-vendored-skipped", run(root), None)
+        (root / ".git" / "leak.md").unlink()
+
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        # OUTSIDE per-file checks.
+        leak = root / "leak.md"
+        leak.write_text(valid_page)
+        expect("outside-full-leak-type", scan_outside_file(leak, "risk/leak.md"), "narrative document type")
+        expect("outside-full-leak-ext", scan_outside_file(leak, "risk/leak.md"), "narrative-extension field")
+        # README-path leak (the basename escape this gate closes).
+        readme = root / "README.md"
+        readme.write_text(valid_page)
+        expect("outside-readme-leak", scan_outside_file(readme, "risk/README.md"), "narrative document type")
+        # Retyped leak: valid corpus type, one retained extension field.
+        retyped = root / "policy-retyped.md"
+        retyped.write_text(corpus_page.replace(
+            "**License:** CC BY-SA 4.0\n",
+            "**License:** CC BY-SA 4.0\\\n**Corpus Sources:** [`risk/x.md`](x.md)\n",
+        ))
+        expect("outside-retyped-leak", scan_outside_file(retyped, "risk/policy-retyped.md"), "'Corpus Sources' outside")
+        # Fenced example only: pass.
+        fenced = root / "doc.md"
+        fenced.write_text("```\n**Document Type:** Executive Narrative\\\n**Audience:** x\\\n```\n")
+        expect("outside-fenced-pass", scan_outside_file(fenced, "governance/doc.md"), None)
+        # F4: a ~~~-fenced block containing a ``` line + metadata must NOT toggle
+        # out of code (the fence closes only on the same marker char), so the
+        # metadata line is content, not a false leak.
+        mixedfence = root / "mixed-fence.md"
+        mixedfence.write_text("# D\n\nExample:\n\n~~~\n```\n**Document Type:** Executive Narrative\\\n**Audience:** x\\\n~~~\n\nProse.\n")
+        expect("outside-mixed-fence-noescape", scan_outside_file(mixedfence, "governance/mixed-fence.md"), None)
+        # 3b83: a marker indented four or more columns is content (the shared 0-3
+        # space indent rule), so it cannot open a block that would hide a later
+        # leak, and inside an open fence it is not a closer.
+        indentleak = root / "indent-leak.md"
+        indentleak.write_text("# D\n\n    ```\n**Document Type:** Executive Narrative\\\n**Audience:** x\\\n\nProse.\n")
+        expect("outside-indented-marker-not-an-opener", scan_outside_file(indentleak, "governance/indent-leak.md"), "outside executive/")
+        indentclose = root / "indent-close.md"
+        indentclose.write_text("# D\n\n```\n    ```\n**Document Type:** Executive Narrative\\\n```\n\nProse.\n")
+        expect("outside-indented-marker-not-a-closer", scan_outside_file(indentclose, "governance/indent-close.md"), None)
+        # 3b54b: a file ending inside an open fence fails loud (the remainder, here a
+        # real leak, would otherwise go unscanned); a 4-backtick opener is not closed by
+        # a 3-backtick line.
+        openfence = root / "open-fence.md"
+        openfence.write_text("# D\n\n````\nexample\n```\n**Document Type:** Executive Narrative\\\n")
+        expect("outside-open-fence-fails-loud", scan_outside_file(openfence, "governance/open-fence.md"),
+               "governance/open-fence.md:L3: the file ends inside the fence opened here")
+        # Prose discussion (not line-anchored): pass.
+        prose = root / "prose.md"
+        prose.write_text("1. **Narrative Type:** one of the seven subtypes.\nThe **Audience:** value is fixed.\n")
+        expect("outside-prose-pass", scan_outside_file(prose, "governance/prose.md"), None)
+        # F3: an unreadable / non-UTF-8 file outside executive/ fails LOUD, not open.
+        unreadable = root / "binary.md"
+        unreadable.write_bytes(b"\xff\xfe not utf-8 \x00")
+        expect("outside-unreadable-failloud", scan_outside_file(unreadable, "risk/binary.md"), "not readable")
+
+        # INSIDE per-page checks.
+        good = root / "brief-good.md"
+        good.write_text(valid_page)
+        expect("inside-valid", check_inside_page(good, "executive/brief-good.md"), None)
+        corpus_inside = root / "policy-inside.md"
+        corpus_inside.write_text(corpus_page)
+        expect("inside-corpus-type", check_inside_page(corpus_inside, "executive/policy-inside.md"), "corpus document type")
+        untyped = root / "brief-untyped.md"
+        untyped.write_text(valid_page.replace("**Document Type:** Executive Narrative\\\n", ""))
+        expect("inside-missing-type", check_inside_page(untyped, "executive/brief-untyped.md"), "must carry Document Type")
+        noext = root / "brief-noext.md"
+        noext.write_text(valid_page.replace("**Audience:** x\\\n", ""))
+        expect("inside-missing-ext", check_inside_page(noext, "executive/brief-noext.md"), "missing narrative-extension field 'Audience'")
+        # F2: a page whose only field-shaped lines sit inside a fence has NO real
+        # metadata (the inside check is fence-aware), so it fails the type requirement.
+        fenced_only = root / "brief-fenced.md"
+        fenced_only.write_text("# Brief\n\n```markdown\n**Document Type:** Executive Narrative\\\n**Audience:** x\\\n```\n\nNo real metadata block.\n")
+        expect("inside-fenced-metadata-only", check_inside_page(fenced_only, "executive/brief-fenced.md"), "must carry Document Type")
+
+    if failures:
+        for fl in failures:
+            print(f"  SELF-TEST FAIL: {fl}")
+        print(f"self-test: {len(failures)} case(s) failed.")
+        return 1
+    print("self-test: all symmetric-boundary cases passed (outside: full leak, README-path leak, "
+          "retyped leak, fenced/prose non-leaks, open fence at end of file; inside: corpus type, missing type, missing "
+          "extension; root-anchoring and the path-scoped README exemption).")
+    return 0
+
+
+def main(argv: list[str]) -> int:
+    if "--self-test" in argv[1:]:
+        # 3b50b1 r3: --self-test takes no other argument (no --root). Combined with --root, the self-test ran and the root was
+        # silently dropped (exit 0 that validated nothing of the named tree); refuse instead.
+        if argv[1:] != ["--self-test"]:  # exactly one --self-test and nothing else (r4)
+            print("ERROR: --self-test takes no --root or other argument; run the self-test and "
+                  "the root scan separately.", file=sys.stderr)
+            return 2
+        return _self_test()
+    root = REPO_ROOT
+    seen_root = False
+    args = argv[1:]
+    k = 0
+    while k < len(args):
+        arg = args[k]
+        # 3b50b1: --root VALUE and --root=VALUE are both honoured; a missing, empty or
+        # non-directory value is refused (it used to scan nothing and exit 0, and the = form was
+        # silently ignored). r3: every argument is parsed, so a repeated --root or an unknown
+        # argument (a typo such as --roott) is refused instead of silently scanning the default.
+        if arg == "--root" or arg.startswith("--root="):
+            if seen_root:
+                print("ERROR: --root given more than once.", file=sys.stderr)
+                return 2
+            seen_root = True
+            if arg == "--root":
+                if k + 1 >= len(args) or args[k + 1].startswith("-"):
+                    print("ERROR: --root needs a directory argument.", file=sys.stderr)
+                    return 2
+                root = require_dir(args[k + 1], "--root")
+                k += 2
+            else:
+                root = require_dir(arg.partition("=")[2], "--root")
+                k += 1
+            continue
+        print(f"ERROR: unrecognized argument {arg!r} (usage: [--self-test | --root DIR]).",
+              file=sys.stderr)
+        return 2
+    findings = run(root)
+    if findings:
+        for f in findings:
+            print(f"  {f}")
+        print(f"FAIL: {len(findings)} narrative-boundary finding(s). The boundary is symmetric: "
+              f"narrative form only and always inside executive/ (sole exemption: {ENTRY_POINT}).")
+        return 1
+    outside, inside = discover(root)
+    print(f"OK: symmetric narrative boundary holds ({len(outside)} outside file(s) carry no "
+          f"narrative markers; {len(inside)} page(s) inside executive/ carry full narrative form).")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv))

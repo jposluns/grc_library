@@ -1,0 +1,285 @@
+#!/usr/bin/env python3
+"""TODO staleness audit (gate 45).
+
+Catches the recurring TODO drift patterns that have surfaced across
+four consecutive validation sweeps (Sweep 10 iter 2, iter 3 close-out,
+iter 3 catch-back, Sweep 11 iter 1). The convention amendment in
+PR #127 reframed the "Library version at HEAD" snapshot as
+"as-of-last-refresh" with explicit drift-is-expected wording (the
+version-snapshot field is intentionally allowed to drift). This gate
+catches the two harder-to-tolerate drift shapes that remain:
+
+1. **Queued-PR-already-merged**: .working/TODO.md mentions `Next, PR #N` or
+   `queued PR #N` for a PR that has actually merged. This breaks the
+   resume experience because the maintainer reads "PR #N is next"
+   when it has already shipped.
+
+2. **Sweep-cursor-behind-history**: the session-handoff file's "Last
+   validation sweep" line references Sweep N iteration M, but
+   `.working/validate-sweeps/history.md` contains a more recent sweep
+   iteration row. This breaks the resume experience because the
+   maintainer reads a sweep cursor that has been superseded. (The sweep
+   cursor lives in `.working/session-handoff.md`, the canonical resume
+   point, not in .working/TODO.md: the resume-metadata block was relocated there
+   so .working/TODO.md stays purely forward-looking.)
+
+The gate does NOT enforce the version-snapshot field's currency. Per
+the PR #127 convention amendment, that field is intentionally allowed
+to drift as PRs land between session-pause and resume.
+
+The gate is a regular corpus audit gate (runs on every audit cycle,
+not just at PR time). This catches drift at audit-time before any
+push, so the maintainer can refresh TODO before merging the next PR.
+
+Scope: the queued-PR check scans the public .working/TODO.md index (required) and, for the
+maintainer, the private TODO-REFERENCE.md detail (resolve_todo_reference, graceful-absent). The
+sweep-cursor check scans SWEEP_CURSOR_FILE (`.working/session-handoff.md`).
+Other files adopting the queued-PR convention should be added to
+these two sources, .working/TODO.md required and the private detail optional.
+
+Exit codes:
+    0 - All checked patterns are current.
+    1 - At least one stale pattern detected.
+    2 - Invocation or environment error (git, file read failure).
+"""
+
+from __future__ import annotations
+
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+from lint_common import REPO_ROOT, print_degraded, resolve_working, resolve_todo_reference
+
+SWEEP_HISTORY_PATH = "validate-sweeps/history.md"
+# The sweep cursor lives in the session-handoff file (the canonical resume
+# point), not in .working/TODO.md: .working/TODO.md is purely forward-looking work items.
+SWEEP_CURSOR_FILE = "session-handoff.md"
+
+# Queued-PR patterns. Match `Next` / `queued` / `pending` immediately
+# adjacent to `PR #<n>`, where "immediately adjacent" means only
+# whitespace, commas, colons, dashes, or em-dashes between the marker
+# word and the PR ref. The earlier 80-character window produced false
+# positives on lines where the queued PR was a placeholder (`PR #N`)
+# and the sentence later referenced a real merged PR number in a
+# parenthetical historical aside (`...(during PR #133)`). The tighter
+# character class limits the match to the queued-PR target form
+# `Next, PR #128` / `Next: PR #128` / `queued PR #128` and excludes
+# any inline word characters between the marker and the digit-bearing
+# PR ref.
+QUEUED_PR_PATTERN = re.compile(
+    r"\b(?:next|queued|pending|upcoming)\b[\s,:\u2014\u2013-]*PR\s*#(\d+)",
+    re.IGNORECASE,
+)
+
+# Sweep-cursor pattern. Match `Last validation sweep: Sweep N iteration M`
+# or `Last validation sweep: Sweep N iter M`. Tolerates markdown bold
+# markers (`**`) around the phrase, e.g. `**Last validation sweep**: Sweep ...`,
+# which is the typical form in .working/TODO.md.
+SWEEP_CURSOR_PATTERN = re.compile(
+    r"\bLast\s+validation\s+sweep[*:\s]+Sweep\s+(\d+)\s+iter(?:ation)?\s+(\d+)",
+    re.IGNORECASE,
+)
+
+# Sweep history row pattern (matches the table row format in history.md).
+# Captures sweep number and iteration number.
+HISTORY_ROW_PATTERN = re.compile(
+    r"^\|\s*\d{4}-\d{2}-\d{2}\s*"  # date
+    r"\|\s*(\d+)\s+iter\s+(\d+)\s*"  # sweep N iter M
+    r"\|",
+    re.MULTILINE,
+)
+
+
+def run_git(*args: str) -> str:
+    """Run `git <args>` from REPO_ROOT and return stdout, stripped."""
+    return subprocess.check_output(
+        ["git", "-C", str(REPO_ROOT), *args],
+        text=True,
+    ).strip()
+
+
+def merged_prs() -> set[int]:
+    """Return the set of PR numbers merged into the current branch.
+
+    Parses `git log` for "Merge pull request #N" subject lines.
+    """
+    try:
+        log = run_git("log", "--format=%s", "--all")
+    except subprocess.CalledProcessError as exc:
+        print(f"ERROR: git log failed: {exc}", file=sys.stderr)
+        raise
+
+    return {
+        int(m.group(1))
+        for m in re.finditer(r"Merge pull request #(\d+)", log)
+    }
+
+
+def latest_sweep_iteration(history_path: Path | None) -> tuple[int, int] | None:
+    """Read sweep history file and return (sweep_n, iter_m) of the most
+    recent row, or None if no rows present (or the file is absent, e.g.
+    when `.working/` has moved to the operational store in public CI)."""
+    if history_path is None or not history_path.exists():
+        return None
+    text = history_path.read_text(encoding="utf-8")
+    matches = HISTORY_ROW_PATTERN.findall(text)
+    if not matches:
+        return None
+    # The table is reverse-chronological; first match is the most recent.
+    # But to be safe, take the max by (sweep_n, iter_m) tuple.
+    rows = [(int(s), int(i)) for s, i in matches]
+    return max(rows)
+
+
+def check_queued_pr(path: Path, merged: set[int]) -> list[str]:
+    """Check 1: queued-PR-already-merged. Scans a forward-looking TODO file."""
+    findings: list[str] = []
+    text = path.read_text(encoding="utf-8")
+    # Walk line-by-line so we can report line numbers.
+    for lineno, line in enumerate(text.splitlines(), 1):
+        for match in QUEUED_PR_PATTERN.finditer(line):
+            pr_n = int(match.group(1))
+            if pr_n in merged:
+                findings.append(
+                    f"  L{lineno} [queued-PR-merged] line marks "
+                    f"PR #{pr_n} as queued/next/pending/upcoming "
+                    f"but PR #{pr_n} has merged into the current "
+                    f"branch. Update the line to reflect that the "
+                    f"PR has landed (move to PRs-completed list, or "
+                    f"remove the queued framing)."
+                )
+    return findings
+
+
+def check_sweep_cursor(path: Path, latest: tuple[int, int] | None) -> list[str]:
+    """Check 2: sweep-cursor-behind-history. Scans the session-handoff file
+    (SWEEP_CURSOR_FILE), where the resume cursor lives."""
+    findings: list[str] = []
+    if latest is None:
+        return findings
+    text = path.read_text(encoding="utf-8")
+    latest_sweep, latest_iter = latest
+    for lineno, line in enumerate(text.splitlines(), 1):
+        match = SWEEP_CURSOR_PATTERN.search(line)
+        if not match:
+            continue
+        cursor_sweep = int(match.group(1))
+        cursor_iter = int(match.group(2))
+        if (cursor_sweep, cursor_iter) < (latest_sweep, latest_iter):
+            findings.append(
+                f"  L{lineno} [sweep-cursor-stale] line claims "
+                f"last sweep was Sweep {cursor_sweep} iter "
+                f"{cursor_iter}, but {SWEEP_HISTORY_PATH} has a "
+                f"more recent row at Sweep {latest_sweep} iter "
+                f"{latest_iter}. Update the cursor."
+            )
+    return findings
+
+
+def check_file(path: Path, merged: set[int], latest: tuple[int, int] | None) -> list[str]:
+    """Composite of both checks against a single file. Retained for the unit
+    tests (which exercise each check via a single constructed fixture file);
+    main() routes the two checks to their respective files instead."""
+    return check_queued_pr(path, merged) + check_sweep_cursor(path, latest)
+
+
+def main() -> int:
+    try:
+        merged = merged_prs()
+    except subprocess.CalledProcessError:
+        return 2
+
+    history_path = resolve_working("validate-sweeps/history.md")
+    latest = latest_sweep_iteration(history_path)
+
+    all_findings: dict[str, list[str]] = {}
+    degraded: list[str] = []
+    scanned = 0
+    # Queued-PR check: the public index .working/TODO.md is required; the DETAIL file
+    # (TODO-REFERENCE.md) moved to the private sibling (2026-08 migration), so it
+    # is read private-first and no-ops in public CI / an adopter clone (the
+    # index-only roadmap), the same graceful-degradation the sweep-cursor uses.
+    todo_path = REPO_ROOT / ".working/TODO.md"
+    if not todo_path.exists():
+        print("ERROR: target file .working/TODO.md does not exist.", file=sys.stderr)
+        return 2
+    scanned += 1
+    findings = check_queued_pr(todo_path, merged)
+    if findings:
+        all_findings[".working/TODO.md"] = findings
+    ref_path = resolve_todo_reference()
+    if ref_path is not None:
+        scanned += 1
+        rfindings = check_queued_pr(ref_path, merged)
+        if rfindings:
+            all_findings["TODO-REFERENCE.md"] = rfindings
+    else:
+        degraded.append("the TODO-REFERENCE.md queued-PR check")
+    # Sweep-cursor check scans the session-handoff file (the resume cursor's home).
+    cursor_path = resolve_working("session-handoff.md")
+    if cursor_path is None:
+        # The sweep cursor lives in the maintainer-only session-handoff file.
+        # Once `.working/` moves to the operational store it is absent in public
+        # CI / an adopter clone, so the sweep-cursor check no-ops there; the
+        # public .working/TODO.md queued-PR check above still ran.
+        print(
+            f"OK: {SWEEP_CURSOR_FILE} not present (maintainer-only working "
+            f"state; skipping the sweep-cursor check in public CI / adopter "
+            f"clone). The .working/TODO.md queued-PR staleness check still ran."
+        )
+        cursor_findings = []
+    else:
+        cursor_findings = check_sweep_cursor(cursor_path, latest)
+    if cursor_path is None or history_path is None:
+        degraded.append(f"the {SWEEP_CURSOR_FILE} sweep-cursor check")
+    if cursor_findings:
+        all_findings[SWEEP_CURSOR_FILE] = (
+            all_findings.get(SWEEP_CURSOR_FILE, []) + cursor_findings
+        )
+    if degraded:
+        # 3b635: each skip above exits 0, so a green CI run must not read as a pass for them.
+        print_degraded(
+            "gate 45",
+            f"gate 45 skipped {' and '.join(degraded)} (no private store "
+            f"supplies the input); this pass attests nothing about them."
+        )
+
+    if not all_findings:
+        n = scanned
+        print(
+            f"OK: TODO staleness audit clean across {n} target file(s)."
+        )
+        return 0
+
+    for rel, findings in all_findings.items():
+        print(f"=== {rel} ===", file=sys.stderr)
+        for f in findings:
+            print(f, file=sys.stderr)
+        print("", file=sys.stderr)
+
+    total = sum(len(v) for v in all_findings.values())
+    print(
+        f"FAIL: {total} stale pattern(s) detected across "
+        f"{len(all_findings)} file(s).",
+        file=sys.stderr,
+    )
+    print(
+        "TODO staleness audit (gate 45) catches the recurring drift "
+        "shapes the convention amendment in PR #127 reframed at the "
+        "source. See this tool's module docstring for the convention "
+        "rationale.",
+        file=sys.stderr,
+    )
+    return 1
+
+
+if __name__ == "__main__":
+    # 3b50b2g: this tool takes no argument; an unknown or surplus one
+    # used to be ignored with exit 0, so it is refused (exit 2) before the check runs.
+    import os as _os
+    sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+    from lint_common import strict_flags as _strict_flags
+    _strict_flags(sys.argv[1:], ())
+    sys.exit(main())

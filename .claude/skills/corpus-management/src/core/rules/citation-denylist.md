@@ -1,0 +1,11 @@
+# Citation denylist
+
+A document does not cite an identifier on the project's citation denylist: a set of
+known-wrong framework or standard identifiers (a hallucinated name, a non-existent
+version, a retired or mis-numbered code) each paired with the reason it is wrong and
+the identifier to use instead. A line outside a fenced code block that contains a
+denylisted term is flagged, unless the document's path is on that term's exemption
+list (the paths where the term legitimately appears, such as the changelog recording
+a past correction, or the register that documents the warning itself). The denylist
+and its per-term path exemptions are project configuration; a term not on the
+denylist, and any occurrence on an exempted path, are not flagged.

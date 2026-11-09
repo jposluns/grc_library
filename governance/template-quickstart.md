@@ -1,0 +1,64 @@
+# Adopter Quickstart Template
+
+**Document Title:** Adopter Quickstart Template\
+**Document Type:** Template\
+**Version:** 3.0.12\
+**Date:** 2026-11-08\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`governance/template-startup-roadmap.md`](template-startup-roadmap.md), [`.claude/skills/corpus-management/docs/adopter-guide.md`](../.claude/skills/corpus-management/docs/adopter-guide.md), [`governance/decision-tree.md`](decision-tree.md), [`governance/template-implementation-roadmap.md`](template-implementation-roadmap.md), [`README.md`](../README.md)\
+**Classification:** Public\
+**Category:** Adopter Experience\
+**Review Frequency:** Annual, and on material change to the core baseline\
+**Repository Path:** [`governance/template-quickstart.md`](template-quickstart.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+A 10-minute on-ramp for an adopter who wants to take a defensible starting set from the library today. This quickstart names the minimum viable adoption; the deeper composition workbook lives in [`governance/template-startup-roadmap.md`](template-startup-roadmap.md).
+
+### Where this fits among the adopter entry points
+
+The canonical front door for adopters is [`governance/portal.md`](portal.md) (audience-keyed grouping by role). This quickstart is one of the deeper-dive paths that branch off the portal; it answers "what do I copy on Day 1?". For "what do I add later?" see [`governance/template-startup-roadmap.md`](template-startup-roadmap.md) (the full composition workbook). For fork-and-adapt principles see [`.claude/skills/corpus-management/docs/adopter-guide.md`](../.claude/skills/corpus-management/docs/adopter-guide.md); for sequenced reading order see [`governance/decision-tree.md`](decision-tree.md); for calendar phasing see [`governance/template-implementation-roadmap.md`](template-implementation-roadmap.md). The portal's "Other entry points and when to use them" table picks the right path by question.
+
+---
+
+## The minimum viable adoption
+
+Every adopter needs these three things in the first session, regardless of size or sector:
+
+1. **Copy the core baseline.** Six artefacts that constitute the floor below which the programme cannot be defended:
+   - [`security/policy-information-security.md`](../security/policy-information-security.md) (foundational policy)
+   - [`security/policy-acceptable-use.md`](../security/policy-acceptable-use.md) (acceptable use)
+   - [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md) (identity and access)
+   - [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) (incident response)
+   - [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) plus the relevant file from [`privacy/jurisdictions/`](../privacy/jurisdictions/) (privacy policy and home-jurisdiction annex)
+   - [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) (enterprise risk governance policy; aligns with the Tier 1 starter set in [`.claude/skills/corpus-management/docs/adopter-guide.md`](../.claude/skills/corpus-management/docs/adopter-guide.md))
+
+2. **Substitute the role names.** Every artefact in the library names roles, not people. Map each role to a real person in your organization in a private overlay. Do not edit named individuals into the artefacts themselves.
+
+3. **Point at the portal.** Browse [`governance/portal.md`](portal.md) to see which other documents fit your audience (CIO, CISO, DPO (Data Protection Officer), auditor, engineering team, etc.). Take only the documents that match your sector, jurisdiction, and operating model.
+
+That is the quickstart. An organization that has done these three things has a defensible floor. These six artefacts are the Day-1 floor. All six are represented in the adopter guide's 17-document Tier 1 set; the only piece not in the fixed set is the home-jurisdiction annex that the privacy artefact bundles alongside the privacy policy, which is adopter-specific. The Day-1 floor's fixed documents, the Tier 1 set, and the sector-conditional sets the decision tree builds are progressively-nested, complementary starting points rather than competing ones, and the home-jurisdiction annex is the one adopter-specific file the fixed sets leave to you.
+
+---
+
+## Next steps
+
+When ready to go beyond the floor, the adopter paths are designed to be used in the order [`governance/portal.md`](portal.md) describes: this quickstart composes the starting set, the decision tree sequences it, the implementation roadmap calendars it, and the adopter guide governs how you fork and customize it.
+
+- **[`governance/decision-tree.md`](decision-tree.md)**: the conditional applicability decision tree for the sector, jurisdiction, and capability questions that sequence which domains you adopt.
+- **[`governance/template-implementation-roadmap.md`](template-implementation-roadmap.md)**: once the composition is set, this template calendars the modules into 90 / 180 / 365-day phases.
+- **[`.claude/skills/corpus-management/docs/adopter-guide.md`](../.claude/skills/corpus-management/docs/adopter-guide.md)**: the controlled reference on how the library is meant to be adopted, including the three adoption modes (fork the whole repo, adopt the corpus only, adopt the pinned AIQT runtime only) and the Tier 1 / Tier 2 / Tier 3 growth path.
+- **`/adopt`** (AI-assisted maintenance): if you forked the whole repo and will maintain it with an AI coding assistant, run the library's `/adopt` command once before editing. It configures the clone as an adopter clone, records your sibling model and adoption config, and resets any maintainer working-state that is present to clean adopter baselines (a fresh public fork usually carries none); see the adopter guide's Quick start for what it does.
+
+To plan the fuller composition (what to add beyond the floor), see **[`governance/template-startup-roadmap.md`](template-startup-roadmap.md)**: the full composition workbook. Five dimensions (activity, data scope, audience, regulatory exposure, GRC capacity), 25 modules, three worked examples. Plan on an afternoon.
+
+---
+
+## Licence
+
+CC BY-SA 4.0. Adapt and share, including for commercial use. When you share this document or an adaptation of it, attribute the library and indicate any changes; when you share an adaptation, license your own contributions to it under CC BY-SA 4.0, a later CC BY-SA version, or a BY-SA-compatible licence. The library's own text stays under CC BY-SA 4.0.

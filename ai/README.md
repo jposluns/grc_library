@@ -1,0 +1,123 @@
+# AI Governance Domain
+
+**Document Title:** AI Governance Domain README\
+**Document Type:** Register\
+**Version:** 1.1.32\
+**Date:** 2026-10-26\
+**Owner:** AI Governance Approver\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md)\
+**Classification:** Public\
+**Category:** AI Governance\
+**Review Frequency:** 6 to 12 months and upon material AI governance change\
+**Repository Path:** [`ai/README.md`](README.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This directory contains organization-neutral AI governance, AI security, AI risk, lifecycle, documentation, evaluation, assurance, and register artefacts. Their original content is released under CC BY-SA 4.0; a quotation that [`NOTICE.md`](../NOTICE.md) allows or keeps under its transition clause keeps its source licence and is not relicensed under CC BY-SA 4.0.
+
+AI documents in this repository treat data as the primary risk surface. They address collection, annotation, storage, processing, training, retrieval, inference, monitoring, retention, deletion, and decommissioning.
+
+---
+
+## Active documents
+
+| Type | Title | Path |
+| --- | --- | --- |
+| Framework | AI Governance and Risk Framework | [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md) |
+| Framework | Agentic Response State Model Framework | [`ai/framework-agentic-response-state-model.md`](framework-agentic-response-state-model.md) |
+| Framework | AI Maturity Model Framework | [`ai/framework-ai-maturity-model.md`](framework-ai-maturity-model.md) |
+| Framework | AI Value and Decision-Governance Framework | [`ai/framework-ai-value-and-decision-governance.md`](framework-ai-value-and-decision-governance.md) |
+| Guide | AI Board Oversight Guide | [`ai/guide-ai-board-oversight.md`](guide-ai-board-oversight.md) |
+| Standard | AI Security and Risk Standard | [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md) |
+| Procedure | AI System Impact Assessment Procedure | [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md) |
+| Procedure | Integrated AI and Privacy Assessment Procedure | [`ai/procedure-integrated-ai-and-privacy-assessment.md`](procedure-integrated-ai-and-privacy-assessment.md) |
+| Template | AI System Register Template | [`ai/template-ai-system-register.md`](template-ai-system-register.md) |
+| Framework | AI Model Risk Framework | [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md) |
+| Standard | AI Model Risk Standard | [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md) |
+| Standard | AI Model Succession and Identity Continuity Standard | [`ai/standard-ai-model-succession-and-identity.md`](standard-ai-model-succession-and-identity.md) |
+| Standard | AI Human-Oversight Standard | [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md) |
+| Procedure | AI Model Risk Assessment Procedure | [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md) |
+| Matrix | AI Model Risk Control to Lifecycle Mapping | [`ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md`](matrix-ai-model-risk-control-to-lifecycle-mapping.md) |
+| Matrix | ETSI Securing-AI Baseline Alignment | [`ai/matrix-etsi-sai-baseline-alignment.md`](matrix-etsi-sai-baseline-alignment.md) |
+| Template | Model Card Template | [`ai/template-model-card.md`](template-model-card.md) |
+| Template | System Card Template | [`ai/template-system-card.md`](template-system-card.md) |
+| Guideline | Adversarial Evaluation Suite Development Guideline | [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md) |
+| Guideline | AI Synthetic-Content Provenance Guideline | [`ai/guideline-ai-synthetic-content-provenance.md`](guideline-ai-synthetic-content-provenance.md) |
+| Standard | AI and Agentic Development Security Standard | [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md) |
+| Guide | AI Security Technical Implementation Guide | [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md) |
+| Guide | AI Adversarial Test Reference | [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md) |
+| Framework | AI System Audit and Certification Framework | [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) |
+| Framework | AI Assurance Evidence and Attestation Framework | [`ai/framework-ai-assurance-evidence.md`](framework-ai-assurance-evidence.md) |
+| Checklist | AI Algorithmic Compliance Checklist | [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md) |
+| Charter | AI Governance Council Charter | [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md) |
+| Charter | AI Actor Role and Forum Standing Charter | [`ai/charter-ai-actor-role-and-forum-standing.md`](charter-ai-actor-role-and-forum-standing.md) |
+| Charter | AI Ethics Review Panel Charter | [`ai/charter-ai-ethics-review-panel.md`](charter-ai-ethics-review-panel.md) |
+| Standard | AI Testing, Validation and Documentation Standard | [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) |
+| Framework | AI Model Documentation and Transparency Framework | [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md) |
+| Policy | AI Compliance Policy | [`ai/policy-ai-compliance.md`](policy-ai-compliance.md) |
+| Annex | European Union AI Regulatory Requirements | [`ai/jurisdictions/annex-ai-european-union.md`](jurisdictions/annex-ai-european-union.md) |
+| Annex | Colorado AI and Automated Decision-Making Technology Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-colorado.md`](jurisdictions/annex-ai-us-colorado.md) |
+| Annex | Texas Responsible Artificial Intelligence Governance Act (TRAIGA) Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-texas.md`](jurisdictions/annex-ai-us-texas.md) |
+| Annex | United States Federal AI Policy (OMB M-25-21, M-25-22, and M-26-04) Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-federal.md`](jurisdictions/annex-ai-us-federal.md) |
+| Annex | Illinois AI in Employment (HB 3773) Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-illinois.md`](jurisdictions/annex-ai-us-illinois.md) |
+| Annex | New York City Automated Employment Decision Tool Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-new-york-city.md`](jurisdictions/annex-ai-us-new-york-city.md) |
+| Annex | Canada AI Regulatory Requirements | [`ai/jurisdictions/annex-ai-canada.md`](jurisdictions/annex-ai-canada.md) |
+| Annex | Australia AI Regulatory Requirements | [`ai/jurisdictions/annex-ai-australia.md`](jurisdictions/annex-ai-australia.md) |
+| Annex | Singapore Model AI Governance Framework for Generative AI | [`ai/jurisdictions/annex-ai-singapore.md`](jurisdictions/annex-ai-singapore.md) |
+| Annex | Singapore IMDA Model AI Governance Framework for Agentic AI | [`ai/jurisdictions/annex-ai-singapore-agentic-ai.md`](jurisdictions/annex-ai-singapore-agentic-ai.md) |
+| Annex | Malaysia National Guidelines on AI Governance and Ethics (AIGE) | [`ai/jurisdictions/annex-ai-malaysia.md`](jurisdictions/annex-ai-malaysia.md) |
+| Annex | United Kingdom Pro-Innovation AI Regulation Framework (CP 815 and CP 1019) | [`ai/jurisdictions/annex-ai-united-kingdom.md`](jurisdictions/annex-ai-united-kingdom.md) |
+| Annex | South Korea AI Regulatory Requirements | [`ai/jurisdictions/annex-ai-south-korea.md`](jurisdictions/annex-ai-south-korea.md) |
+| Annex | California CCPA Automated Decision-Making Technology (ADMT) Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-california.md`](jurisdictions/annex-ai-us-california.md) |
+| Procedure | AI Audit Procedure | [`ai/procedure-ai-audit.md`](procedure-ai-audit.md) |
+| Procedure | AI Model Lifecycle Management Procedure | [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md) |
+| Procedure | AI Evaluation Procedure | [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md) |
+| Register | AI Risk Register | [`ai/register-ai-risk.md`](register-ai-risk.md) |
+| Guideline | Ethical AI Use Guideline | [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md) |
+| Plan | AI Incident Response Plan | [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md) |
+| Template | Dataset Datasheet Template | [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md) |
+| Register | Model Registry | [`ai/register-model-registry.md`](register-model-registry.md) |
+| Procedure | Foundation Model Lifecycle Procedure | [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md) |
+| Template | AI Vendor Security Questionnaire Template | [`ai/template-ai-vendor-security-questionnaire.md`](template-ai-vendor-security-questionnaire.md) |
+| Standard | AI Access and Agent Permissions Standard | [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md) |
+| Register | Model Context Protocol Server Register | [`ai/register-mcp-server.md`](register-mcp-server.md) |
+| Procedure | Training Data Governance Procedure | [`ai/procedure-training-data-governance.md`](procedure-training-data-governance.md) |
+| Standard | AI Data Quality and Readiness Validation Standard | [`ai/standard-ai-data-quality-and-readiness-validation.md`](standard-ai-data-quality-and-readiness-validation.md) |
+| Standard | AI Inference Cost Governance Standard | [`ai/standard-ai-inference-cost-governance.md`](standard-ai-inference-cost-governance.md) |
+| Standard | AI Total Cost of Ownership Governance Standard | [`ai/standard-ai-total-cost-of-ownership-governance.md`](standard-ai-total-cost-of-ownership-governance.md) |
+| Template | AI Red Team Report Template | [`ai/template-ai-red-team-report.md`](template-ai-red-team-report.md) |
+| Procedure | AI Assurance Case Procedure | [`ai/procedure-ai-assurance-case.md`](procedure-ai-assurance-case.md) |
+| Template | AI Assurance Case Template | [`ai/template-ai-assurance-case.md`](template-ai-assurance-case.md) |
+
+---
+
+## AI risk coverage
+
+AI domain documents should explicitly consider:
+
+- Prompt injection and indirect prompt injection.
+- Data poisoning.
+- Model inversion.
+- Membership inference.
+- Training data leakage.
+- Retrieval leakage.
+- Unsafe tool use.
+- Shadow AI.
+- Provenance and lineage failure.
+- Retention and enforceable deletion gaps.
+- Supplier-operated model and platform dependencies.
+
+---
+
+## Licence boundary
+
+External AI standards, control frameworks, questionnaires, audit guidance, implementation guidance, and metrics catalogues must not be copied into this directory beyond the short, attributed quotation that [`NOTICE.md`](../NOTICE.md) allows or its transition clause keeps. Otherwise use non-verbatim synthesis, original control language, and high-level alignment.
+
+---
+
+**End of Document**

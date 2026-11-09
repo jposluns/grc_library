@@ -1,0 +1,32 @@
+# .claude/aiqt/PIN.toml: the pin record for the vendored AIQT copy (rule set,
+# corpus core tools/aiqt_corpus.py, LICENSE, NOTICE, and the upstream release
+# manifest with its release root record).
+#
+# The pin IDENTITY is the upstream RELEASE ROOT digest below: the SHA-256 of the
+# exact bytes of the vendored .aiqt/manifest.toml, which is also the single line
+# of the vendored .aiqt/release/root.txt. Every vendored upstream file is
+# verified against that manifest's per-file byte count and SHA-256 by
+# .claude/skills/corpus-management/tools/lint-aiqt-vendor-digest.py and by the
+# validate() in .claude/skills/corpus-management/tools/aiqt_rules.py, which also
+# verifies the rendered copies under .claude/rules/ and the generated AIQT index
+# block in .claude/CLAUDE.md.
+#
+# The commit below is PROVENANCE ONLY (the short id recorded at the re-pin):
+# commit ids do not carry over when the upstream project moves to a new
+# repository, so nothing verifies against it. To update, re-vendor from a newer
+# upstream release, record its release root digest here, and regenerate the
+# rendered rules with aiqt_rules.py --write. Never hand-edit the vendored files.
+
+schema-version = 1
+
+[source]
+project = "AIQT"
+url = "https://aiqt.ai"
+release-version = "1.0.5"
+release-root = "sha256:a268ade60cbd680eb37d61ac4b21607aaf4b3b56b8a873900390bd92a1fd3d2b"
+commit = "37ef243c"
+pinned-utc = "2026-11-08"
+
+[vendored]
+manifest = ".aiqt/manifest.toml"
+root-record = ".aiqt/release/root.txt"

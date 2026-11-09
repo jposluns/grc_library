@@ -1,0 +1,139 @@
+# Reference-vocabulary profile: language spelling vocabulary (grc defaults).
+#
+# Concern: language. The LIVE gate-2 configuration since Phase-4 PR-F:
+# .claude/skills/corpus-management/tools/lint-language.py loads it via profile_loader.load("language") and
+# passes it to the engine's language_vocabulary(); the engine (parameterized
+# in PR-F) compiles the ise/yse patterns FROM ise_stems + yse_forms at run()
+# time (byte-identical to the former hardcoded ISE_PATTERN/YSE_PATTERN), and
+# since 3b234 round 4 lets any run of ise_prefixes, with a hyphen after up to
+# three of them, precede an ise stem inside the same word bounds. Values
+# transcribed VERBATIM from the former gate_lint_language.py module constants
+# (_ISE_STEMS, ISATION_ALLOWED_WORDS, the YSE forms, ALLOWED_COMMONWEALTH_SPANS,
+# VERBATIM_ENSURE_TITLES, LOWERCASE_PROJECT_NAMES). ise_stems order is
+# preserved (the pattern enumerates them in order). The check ALGORITHM (regex
+# structure, dash/ensure/heading rules, scan targets) stays in the engine; this
+# profile carries only the adopter-overridable vocabulary DATA.
+schema_version = 1
+
+[language]
+ise_stems = [
+    "recognise",
+    "organise",
+    "prioritise",
+    "categorise",
+    "emphasise",
+    "harmonise",
+    "standardise",
+    "optimise",
+    "centralise",
+    "customise",
+    "finalise",
+    "specialise",
+    "utilise",
+    "minimise",
+    "maximise",
+    "criticise",
+    "generalise",
+    "operationalise",
+    "anonymise",
+    "apologise",
+    "authorise",
+    "capitalise",
+    "characterise",
+    "containerise",
+    "contextualise",
+    "criminalise",
+    "crystallise",
+    "externalise",
+    "formalise",
+    "immobilise",
+    "initialise",
+    "internalise",
+    "itemise",
+    "legitimise",
+    "localise",
+    "materialise",
+    "mechanise",
+    "memorise",
+    "mobilise",
+    "modernise",
+    "monetise",
+    "neutralise",
+    "normalise",
+    "parameterise",
+    "penalise",
+    "personalise",
+    "pseudonymise",
+    "quantise",
+    "randomise",
+    "realise",
+    "sanitise",
+    "sensitise",
+    "serialise",
+    "stabilise",
+    "summarise",
+    "synchronise",
+    "synthesise",
+    "tokenise",
+    "virtualise",
+    "visualise",
+    "vitalise",
+    "weaponise",
+]
+# Verb prefixes (3b234 round 4): any run of them, with a hyphen after up to
+# three of them, may precede an ise_stems entry inside the same word bounds, so a
+# prefixed derivative needs no entry of its own (reorganised, unreorganised,
+# de-emphasised). ASCII letters only; a word is only reported when a listed
+# stem ends it, so premise, devise or comprise are never reported.
+ise_prefixes = [
+    "re",
+    "un",
+    "de",
+    "mis",
+    "over",
+    "under",
+    "pre",
+    "dis",
+    "co",
+    "non",
+    "anti",
+    "counter",
+    "cross",
+    "hyper",
+    "inter",
+    "micro",
+    "multi",
+    "post",
+    "semi",
+    "sub",
+    "super",
+]
+isation_allowed_words = [
+    "improvisation",
+    "improvisational",
+    "improvisationally",
+    "improvisations",
+]
+yse_forms = [
+    "analyse",
+    "analysed",
+    "analysing",
+    "analyser",
+    "analysers",
+]
+allowed_commonwealth_spans = [
+    "implement appropriate technical and organisational measures, such as pseudonymisation, which are designed to implement data-protection principles, such as data minimisation, in an effective manner",
+    "Organisation for Economic Co-operation and Development",
+    "Opinion 05/2014 on Anonymisation Techniques",
+    "Authorised Economic Operator",
+]
+verbatim_ensure_titles = [
+    "Ensure the implementation of corrective actions",
+    "How do we ensure accuracy?",
+    "Taking steps to ensure, when personal information is involved, that third parties under contract, agreement or arrangement with the government institution provide appropriate privacy protections",
+]
+lowercase_project_names = [
+    "garak",
+    "pip",
+    "promptfoo",
+]

@@ -1,0 +1,67 @@
+# Profile register: reference-vocabulary profiles shipped under defaults/grc/.
+#
+# HAND-MAINTAINED SOURCE (like core/gates.toml): profiles are pack source the
+# compiler VALIDATES at config-load time, never compiler-generated output, so
+# no profile is an ownership.toml owned_target and gate 99 never owns its
+# bytes (an adopter override lives outside the repo entirely). The compiler
+# fail-closes (exit 2) on a malformed or duplicate entry, a dangling target, a
+# target whose filename does not match its concern, an invalid profile file,
+# or a defaults/grc/*.toml with no register row. Ids share the one
+# clause / gate / hook / rule / profile namespace.
+schema_version = 1
+
+[[profiles]]
+id = "citations"
+concern = "citations"
+target = "defaults/grc/citations.toml"
+title = "Framework-citation denylist vocabulary (terms, reasons, replacements, per-term path exemptions)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-citations.py DENYLIST + PATH_EXEMPTIONS, transcribed verbatim in Phase-4 PR-A; the live gate-5 config since Phase-4 PR-B (the wrapper loads this profile via profile_loader and the literals were removed)"
+
+[[profiles]]
+id = "sections"
+concern = "sections"
+target = "defaults/grc/sections.toml"
+title = "Required-sections-by-doctype vocabulary (orientation heading aliases, enforced doctypes)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-required-sections.py ORIENTATION_OPTIONS + REQUIRED_SECTIONS, transcribed verbatim in Phase-4 PR-C; the live gate-19 config since PR-C (the wrapper loads this profile via profile_loader and the literals were removed)"
+
+[[profiles]]
+id = "placement"
+concern = "placement"
+target = "defaults/grc/placement.toml"
+title = "Section-placement rules (per-position, per-doctype section-order constraints)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-section-placement.py PLACEMENT_RULES, transcribed verbatim in Phase-4 PR-D; the live gate-38 config since PR-D (the wrapper loads this profile via profile_loader and the literal was removed)"
+
+[[profiles]]
+id = "alignment"
+concern = "alignment"
+target = "defaults/grc/alignment.toml"
+title = "Filename/title alignment vocabulary (document-type prefix set + acronym/synonym map)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-filename-title-alignment.py DOCTYPES + SYNONYMS, transcribed verbatim in Phase-4 PR-E; the live gate-7 config since PR-E (the wrapper loads this profile via profile_loader, the literals were removed, and gate 67 reads the composed doctypes via _alignment_config())"
+
+[[profiles]]
+id = "language"
+concern = "language"
+target = "defaults/grc/language.toml"
+title = "Language spelling vocabulary + verbatim/heading exemptions (ise stems, isation-allowed, yse forms, commonwealth spans, ensure titles, lowercase names)"
+origin = "grc_library .claude/skills/corpus-management/src/tools/gate_lint_language.py vocabulary constants, transcribed verbatim in Phase-4 PR-F; the engine was PARAMETERIZED (run() takes the vocab; compiles ise/yse patterns from it) and the wrapper loads this profile via _language_config()"
+
+[[profiles]]
+id = "stubs"
+concern = "stubs"
+target = "defaults/grc/stubs.toml"
+title = "Stub-document markers (stub-indicator phrases + body-word-count threshold)"
+origin = "grc_library .claude/skills/corpus-management/src/tools/gate_lint_stub_documents.py STUB_PHRASES + WORD_COUNT_THRESHOLD, transcribed verbatim in Phase-4 PR-G; the engine was parameterized (run() takes a StubVocabulary) and the wrapper loads this profile via _stubs_config()"
+
+[[profiles]]
+id = "placeholders"
+concern = "placeholders"
+target = "defaults/grc/placeholders.toml"
+title = "Placeholder-leakage markers (ordered regex+label patterns; TODO/TBD/angle-bracket/domains)"
+origin = "grc_library .claude/skills/corpus-management/src/tools/gate_lint_placeholder_leakage.py PATTERNS, transcribed verbatim in Phase-4 PR-H (nested {regex,ignorecase} tables + label, loader-compiled, order-preserved); the engine was parameterized (run() takes the composed (pattern,label) pairs via placeholder_patterns()) and the wrapper loads via _placeholders_config()"
+
+[[profiles]]
+id = "uncertainty"
+concern = "uncertainty"
+target = "defaults/grc/uncertainty.toml"
+title = "Mandatory-near-uncertainty markers (uncertainty patterns + mandatory alternation + proximity window)"
+origin = "grc_library .claude/skills/corpus-management/src/tools/gate_lint_shall_near_uncertainty.py UNCERTAINTY_PATTERNS + MANDATORY_PATTERN + WINDOW_LINES, transcribed verbatim in Phase-4 PR-I (patterns as loader-compiled {regex,ignorecase} tables, mandatory stored verbatim to keep its embedded spaces, window as an int); the engine was parameterized (run() takes an UncertaintyVocabulary) and the wrapper loads via _uncertainty_config()"

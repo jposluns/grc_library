@@ -1,0 +1,99 @@
+# Privileged Access Management Standard
+
+**Document Title:** Privileged Access Management Standard\
+**Document Type:** Standard\
+**Version:** 2.0.13\
+**Date:** 2026-10-21\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change\
+**Repository Path:** [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+This standard defines the requirements for managing privileged access across systems and environments. It establishes controls for the identification, provisioning, monitoring, and revocation of privileged accounts to minimize the risk of unauthorized access, credential abuse, and lateral movement.
+
+---
+
+## 1. Purpose
+
+To ensure that privileged accounts are managed, monitored, and revoked according to a documented, auditable process that reduces the attack surface available to insider threats and external adversaries.
+
+---
+
+## 2. Scope
+
+1. Applies to all accounts with elevated privileges including domain administrators, local administrators, service accounts, cloud management identities, and database administrator accounts.
+2. Covers on-premises directory services, enterprise identity provider (cloud and hybrid), productivity platform, cloud resources, and any other platform granting privileged access.
+3. Applies to all employees, contractors, and third-party providers who hold or require privileged access.
+
+---
+
+## 3. Governance and accountability
+
+| Role | Responsibility |
+| --- | --- |
+| CIO | Executive accountability for the PAM programme and alignment with enterprise risk posture. |
+| CISO | Owns this standard, defines privileged account policy, and oversees monitoring and audit. |
+| IT Operations / IAM Team | Implements PAM controls, manages PIM configuration, and conducts access reviews. |
+| System and Application Owners | Identify privileged accounts within their systems and confirm access appropriateness. |
+| Internal Audit | Conducts periodic reviews of privileged account usage and PAM control effectiveness. |
+
+---
+
+## 4. PAM approach
+
+### 4.1 Primary tool: privileged identity management (PIM)
+
+The primary PAM approach uses Privileged Identity Management (PIM), which provides just-in-time (JIT) privileged access, time-bound role activation, approval workflows, and audit logging for cloud and productivity platform roles. PIM is the default implementation for all cloud directory and platform privileged roles.
+
+Third-party PAM solutions remain available for extended use cases including on-premises systems and external vendor access management.
+
+### 4.2 Key PAM controls
+
+| Control | Requirement |
+| --- | --- |
+| Just-in-Time Access | Privileged roles must be activated on demand for defined time periods. Permanent standing privilege is prohibited for all accounts where JIT activation is available. |
+| Approval Workflows | High-risk role activations require approval from a designated approver before access is granted. |
+| Multi-Factor Authentication | MFA is required for all privileged role activations without exception. |
+| Time-Bound Activation | Role activations are time-limited. The default maximum duration of a single privileged-role activation is 1 hour (this Standard is the single authoritative source for this value); extended periods require justification and approval. |
+| Least Privilege | Privileged access is scoped to the minimum permissions required for the task. Broad administrative roles are not assigned where narrower roles are available. |
+| Separation of Duties | Accounts used for standard day-to-day work are separate from privileged administrative accounts. |
+| Service Account Controls | Service accounts must use managed identities or dedicated non-interactive accounts. Service account passwords must meet the requirements of the [Authentication and Password Management Standard](standard-authentication-and-password-management.md) and must be rotated at least annually, upon a change of any person who knows the password (staff, contractor, or supplier personnel), and immediately upon suspected compromise. |
+| Emergency / Break-Glass Accounts | Emergency access accounts must be documented, credentials securely stored, and usage subject to immediate notification and post-access review. |
+
+---
+
+## 5. Privileged account lifecycle
+
+**Provisioning:** All privileged account requests must be approved by the account owner's manager and the CISO or delegate. Requests must include business justification and expected duration. Accounts are created following the principle of least privilege.
+
+**Access Reviews:** All privileged accounts undergo access review at minimum quarterly. Reviews are conducted by System Owners and validated by the IAM Team. Accounts that cannot be justified are revoked immediately.
+
+**Monitoring and Alerting:** All privileged account activations, role assignments, and access events are logged to the SIEM. Alerts are configured for anomalous activity including off-hours activations, repeated failed activations, and bulk role assignments.
+
+**Revocation:** Privileged access is revoked within 2 hours of the effective date of a role change, within 2 hours of a voluntary departure notification being received by IT Operations, and, for an involuntary termination, first and within 1 hour of the suspension instruction being received by IT Operations (per [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md) §6.3.3, §10.1, and §10.2), and within 24 hours of project completion. Service account access is revoked when the associated application is decommissioned.
+
+---
+
+## 6. Incident response
+
+Suspected compromise of a privileged account constitutes a P1 security incident. The IAM Team must immediately disable the account, revoke active sessions, and notify the CISO. All privileged credential compromises follow the Incident Response Procedure.
+
+---
+
+## 7. Framework alignment
+
+| Control | ISO/IEC 27001:2022 | NIST SP 800-53 Rev. 5 | COBIT 2019 | CSA CCM v4.1 | CIS |
+| --- | --- | --- | --- | --- | --- |
+| Privileged access rights | A.8.2 | AC-2, AC-6 | DSS05.04 | IAM-05, IAM-06, IAM-07, IAM-10 | 5.4, 6.8 |
+| Just-in-time access | A.5.18 | AC-2(6) | DSS05.04 | IAM-10 | N/A |
+| Emergency access | A.5.18 | AC-2(2) | DSS05.04 | IAM-10 | N/A |
+| Session logging | A.8.15 | AU-2, AU-12 | DSS01.03 | LOG-09 | 8.2, 8.9, 8.12 |
+
+
+
+**End of Document**

@@ -1,0 +1,213 @@
+# Library Quality and Review Cadence Procedure
+
+**Document Title:** Library Quality and Review Cadence Procedure\
+**Document Type:** Procedure\
+**Version:** 1.0.27\
+**Date:** 2026-10-21\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`governance/specification-master-project.md`](specification-master-project.md), [`governance/specification-ingestion.md`](specification-ingestion.md)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** Annual and upon material change to library structure, tooling, or maintenance practice\
+**Repository Path:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This procedure governs the continuous quality and review of artefacts in this CC BY-SA 4.0 governance library. It complements the continuous assurance and improvement framework (which is library-wide) by setting concrete cadence, drift-detection, refresh, and retirement practice for individual documents.
+
+The objective is that the library remains useful, current, and internally coherent without any single maintenance event becoming heroic.
+
+---
+
+## Scope
+
+This procedure applies to:
+
+1. Every active document in the library across all domains.
+2. Auto-generated artefacts (taxonomy, narrative registry, portal, maturity scorecard, relationship model, and the generated `## Number allocation` block).
+3. Tooling under `.claude/skills/corpus-management/tools/` that supports library quality.
+4. Cross-cutting artefacts at the repository root (README, NOTICE, SECURITY, CONTRIBUTING, the two specifications, the changelog).
+
+It does not govern external consumers' own forks; it governs the canonical repository.
+
+---
+
+## Procedure
+
+### Step 1: Establish the review schedule
+
+| Activity | Description |
+| --- | --- |
+| Source of truth | The review schedule register lists each document, its owner, its review frequency, its last review date, and its next review due date |
+| Population | Schedule entries derived from each document's metadata block (Date and Review Frequency fields) |
+| Refresh | The schedule is refreshed when documents are added, retired, or rewritten |
+| Adopter note | The corpus does not ship a filled review-schedule register or a template of it (the live register is maintainer project-governance state, per the project/corpus separation). Adopters build their own instance from each document's `Date` and `Review Frequency` metadata, in the same way as the compliance-obligations register. |
+| Visibility | The schedule is published in the repository and surfaced via tooling |
+
+### Step 2: Detect overdue reviews
+
+| Activity | Description |
+| --- | --- |
+| Detector | The review-cadence checker ([`.claude/skills/corpus-management/tools/check-review-cadence.py`](../.claude/skills/corpus-management/tools/check-review-cadence.py)) compares each document's Date and Review Frequency against the current date |
+| Cadence | The checker runs as part of CI; it also runs on demand by maintainers |
+| Findings | Overdue documents are listed with the lag (days past due) and the responsible owner role |
+| Threshold for action | Documents more than a defined lag past due are escalated |
+
+### Step 3: Conduct a document review
+
+For each document under review, the responsible owner role conducts the following:
+
+| Activity | Description |
+| --- | --- |
+| Re-read | The owner re-reads the document for currency, accuracy, and continued utility |
+| Framework alignment check | The framework references are verified against current public versions |
+| Cross-reference check | The Related Documents list is checked; broken or outdated cross-references are corrected |
+| Organization-neutrality check | The document is rechecked against the organization-neutrality rules; any residue is removed |
+| Language and style check | The document is checked against the language rules (Oxford `-ize`, no em or en dashes, "ensure that", sentence-case headings) |
+| Disposition | The owner records one of: No change, Minor revision, Material revision, Supersede, Retire |
+| Date and version | Where the document is changed, Date and Version are updated per the ingestion specification |
+| Review record | The review is recorded per the document review record template |
+
+### Step 4: Apply the disposition
+
+| Disposition | Action |
+| --- | --- |
+| No change | Date stays the same; review record states the document remains current; the next review due date is calculated from the original Date |
+| Minor revision | Patch version increment (0.0.x); document content updated; commit references the review |
+| Material revision | Minor version increment (0.x.0) where consistent with the library version-bump rules; document content updated; commit references the review |
+| Supersede | A successor document is produced; the predecessor's status changes per the lifecycle in the governance library charter |
+| Retire | The document is removed from the active set per the retirement procedure; archived per the records retention schedule |
+
+### Step 5: Maintain auto-generated artefacts
+
+| Artefact | Action |
+| --- | --- |
+| [`.claude/skills/corpus-management/data/taxonomy.yml`](../.claude/skills/corpus-management/data/taxonomy.yml) | Regenerated by [`.claude/skills/corpus-management/tools/build-taxonomy.py`](../.claude/skills/corpus-management/tools/build-taxonomy.py) whenever document metadata or document structure (purpose, section outline, or framework alignment) changes |
+| [`.claude/skills/corpus-management/data/narrative.yml`](../.claude/skills/corpus-management/data/narrative.yml) | Regenerated by [`.claude/skills/corpus-management/tools/build-narrative-registry.py`](../.claude/skills/corpus-management/tools/build-narrative-registry.py) from `executive/` page metadata whenever narrative pages change |
+| [`governance/portal.md`](portal.md) | Regenerated by [`.claude/skills/corpus-management/tools/build-portal.py`](../.claude/skills/corpus-management/tools/build-portal.py) whenever metadata changes |
+| [`governance/maturity-scorecard.md`](maturity-scorecard.md) | Regenerated by [`.claude/skills/corpus-management/tools/build-portal.py`](../.claude/skills/corpus-management/tools/build-portal.py) whenever metadata changes |
+| [`governance/relationship-model.generated.json`](relationship-model.generated.json) | Regenerated by [`.claude/skills/corpus-management/tools/build-relationship-model.py`](../.claude/skills/corpus-management/tools/build-relationship-model.py) from the hand-maintained source whenever the relationship model changes |
+| The generated `## Number allocation` block | Regenerated by [`.claude/skills/corpus-management/tools/build-todo-number-allocation.py`](../.claude/skills/corpus-management/tools/build-todo-number-allocation.py) from the number floor and the live backlog ids whenever a backlog number is allocated |
+| [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md) | Manually maintained; cross-checked against the directory listings on every release |
+| Domain READMEs | Updated whenever a document is added, retired, or renamed in the domain |
+
+### Step 6: Run the standing audits
+
+| Audit | Tool | Pass criterion |
+| --- | --- | --- |
+| Metadata | [`.claude/skills/corpus-management/tools/lint-metadata.py`](../.claude/skills/corpus-management/tools/lint-metadata.py) | No findings |
+| Language | [`.claude/skills/corpus-management/tools/lint-language.py`](../.claude/skills/corpus-management/tools/lint-language.py) | No findings |
+| Links | [`.claude/skills/corpus-management/tools/lint-links.py`](../.claude/skills/corpus-management/tools/lint-links.py) | No broken links |
+| Structure | [`.claude/skills/corpus-management/tools/lint-structure.py`](../.claude/skills/corpus-management/tools/lint-structure.py) | No findings |
+| Review cadence | [`.claude/skills/corpus-management/tools/check-review-cadence.py`](../.claude/skills/corpus-management/tools/check-review-cadence.py) | Overdue documents below the action threshold |
+| Taxonomy in sync | `.claude/skills/corpus-management/tools/build-taxonomy.py --check` | In sync |
+| Narrative registry in sync | `.claude/skills/corpus-management/tools/build-narrative-registry.py --check` | In sync |
+| Portal and scorecard in sync | `.claude/skills/corpus-management/tools/build-portal.py --check` | In sync |
+| Relationship model in sync | `.claude/skills/corpus-management/tools/build-relationship-model.py --check` | In sync |
+| Number-allocation block in sync | `.claude/skills/corpus-management/tools/build-todo-number-allocation.py --check` | In sync |
+
+The full audit programme (see [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](../.claude/skills/corpus-management/specs/specification-audit-programme.md) §6 for the canonical gate inventory and current gate count) runs in CI and pre-commit; any failure blocks merge unless an explicit exception is recorded.
+
+### Step 7: Periodic library-level review
+
+| Activity | Cadence |
+| --- | --- |
+| Library health report | Quarterly: a short summary of overdue reviews, audit-finding trends, content additions and retirements, drift hot-spots, and tooling status |
+| Organization-neutrality sweep | Quarterly: an organization-neutrality spot-check across documents touched in the period |
+| Framework reference refresh | Semi-annual: a spot-check that framework references are current against publishing bodies |
+| Tooling review | Annual: tooling is reviewed for currency, accuracy, and coverage |
+| Maintenance practice review | Annual: this procedure is reviewed; lessons from the period feed into changes |
+| Specifications review | Annual: the master and ingestion specifications are reviewed |
+
+### Step 8: Drift and emerging issues
+
+| Source of drift | Treatment |
+| --- | --- |
+| Audit findings | Treated as defects; tracked to closure |
+| Reader feedback | Captured in the continuous improvement register |
+| Framework changes | Triggered framework-reference updates per the affected document set |
+| Regulatory changes | Triggered review of documents whose alignment depends on the regulation |
+| New domain coverage gap | Considered for a future content phase |
+| Tooling gap | Considered for a future tooling phase |
+| Cross-document drift | Treated as a structural issue rather than a single-document issue |
+
+---
+
+## Roles
+
+| Role | Responsibility |
+| --- | --- |
+| Governance Library Maintainer | Owns this procedure; coordinates library quality |
+| Domain owners | Conduct reviews for their domain's documents per the listed cadence |
+| Document owner roles | Identified in each document's metadata block; accountable for that document's review |
+| Tooling maintainer | Keeps the audit tooling functional and accurate |
+| Contributors | Bring issues, suggestions, and corrections via the continuous improvement register |
+
+The Governance Library Maintainer is not the sole reviewer; the role coordinates and prompts the reviewers identified per document.
+
+---
+
+## Cadence summary
+
+| Activity | Cadence |
+| --- | --- |
+| Per-document review | Per the document's stated Review Frequency |
+| Audit suite execution | Continuous (CI and pre-commit) |
+| Quarterly library health report | Quarterly |
+| Quarterly organization-neutrality spot-check | Quarterly |
+| Framework reference spot-check | Semi-annual |
+| Tooling review | Annual |
+| Specifications review | Annual |
+| Maintenance practice review | Annual |
+
+---
+
+## Quality expectations
+
+| Quality | Indicator |
+| --- | --- |
+| Currency | Overdue review backlog kept below the action threshold |
+| Coherence | Cross-document references remain valid; cross-framework alignment matrices remain accurate |
+| Accuracy | Framework references are accurate against current versions |
+| Discoverability | Each domain README and the governance index remain accurate |
+| Organization-neutrality | No real organization identifiers; the library remains organization-neutral |
+| Language quality | The audit suite remains clean |
+| Auto-generated artefacts | In sync with their authoritative sources at all times |
+| Reader feedback | Captured, considered, and closed out |
+
+---
+
+## Operating expectations
+
+1. Every active document has a named owner role and a stated review frequency.
+2. Audit failures are not stockpiled; they are treated as defects on the date they appear.
+3. Periodic review is conducted by the document owner role; the Governance Library Maintainer coordinates, prompts, and tracks.
+4. Quarterly library health is reported; sustained quality issues escalate to the library maintainer.
+5. Document retirement is a deliberate decision recorded in the changelog and the document index register.
+
+---
+
+## Framework alignment
+
+| Framework | Reference | Relevance |
+| --- | --- | --- |
+| ISO 9001:2015 | §7.5 Documented information; §9 Performance evaluation | Quality management |
+| COBIT 2019 | APO11 Managed Quality | Enterprise quality management |
+| ITIL 4 | Continual improvement practice | Service management |
+| ISO/IEC 42001:2023 | §9 Performance evaluation; §10 Improvement | AI management system cross-walk |
+| NIST CSF 2.0 | GV.OV (oversight) | Reviewing library-maintenance outcomes and adjusting the review cadence |
+
+---
+
+## Limitations
+
+This procedure is a CC BY-SA 4.0 baseline. The specific cadences, thresholds, and tooling are organization-specific. The procedure expresses the maintenance outcomes and a workable cadence; adopting organizations select the depth that matches their library size and the maturity of their maintenance practice.
+
+---
+
+**End of Document**

@@ -1,0 +1,221 @@
+# DevOps Security Requirements
+
+**Document Title:** DevOps Security Requirements\
+**Document Type:** Standard\
+**Version:** 1.0.31\
+**Date:** 2026-10-27\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`operations/README.md`](../operations/README.md)\
+**Classification:** Public\
+**Category:** Developer Security\
+**Review Frequency:** 6 to 12 months and upon material tooling, threat, or infrastructure change\
+**Repository Path:** [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## 1. Purpose
+
+This standard defines security requirements for DevOps engineering: CI/CD pipelines, infrastructure as code, environment management, container security, and automation platform operational security. For production and infrastructure operations controls, see the operations domain. For developer security requirements, see the Developer Security Requirements Standard.
+
+---
+
+## 2. CI/CD pipeline security
+
+### 2.1 Pipeline as code
+
+All pipeline definitions must be stored in version control. Pipeline files must not contain hard-coded credentials, API keys, tokens, or logic that bypasses security gates.
+
+### 2.2 Mandatory pipeline security gates
+
+The following gates are mandatory in every pipeline deploying to Test or Production. The pipeline must fail and halt on any gate failure.
+
+| Gate | Failure Threshold |
+| --- | --- |
+| Secret scanning | Any secret pattern detected: fail immediately |
+| SAST | Critical or High: fail. Medium: warn and log. |
+| SCA: dependency scan | Critical CVE: fail. High CVE: fail; a tracked remediation issue carries a 14-day fix target, but production release still requires formal risk acceptance per the [Software Composition Analysis Standard](standard-software-composition-analysis.md). |
+| Container image scanning | Critical CVE in base image or layer: fail. |
+| IaC scanning | Critical misconfiguration: fail. |
+| Licence compliance | GPL/AGPL without Legal approval: fail. |
+| SBOM generation | Must generate and archive on every production build. |
+| Runtime EOL check | Deployment to EOL runtime version: fail. See Security Baseline Standard. |
+
+Gate results are logged and retained as acceptance-into-service gate audit evidence.
+
+*CCM: CCC-01 through CCC-04, CCC-06 through CCC-09, AIS-04 / NIST SSDF Version 1.1 PW.7.1, PW.7.2, PW.4.1, PW.4.4, PS.3.2, RV.1.1, RV.2.1, RV.2.2 / contributes toward SLSA v1.2 Build L2+*
+
+### 2.3 Pipeline identity
+
+The CI/CD pipeline must use a dedicated service identity, not a human account. For cloud deployments: service connection backed by managed identity or service principal with minimum permissions. For on-premises deployments: PAM-vaulted service account with credential injection. The pipeline identity must not be able to approve its own production deployments.
+
+### 2.4 Branch protection
+
+Protected branches feeding Test or Production pipelines must enforce: at minimum one required reviewer (two for security-sensitive repos); no direct push; SAST, SCA, and secret scanning must pass before merge; branch deletion restricted.
+
+### 2.5 Production deployment approval
+
+Production deployments require manual approval from a designated approver who is not the pipeline author. The approval is recorded as an audit event. Emergency deployments still require prior authorization by the CIO or equivalent under the change management procedure, which may be given verbally; the pipeline approval record may be completed asynchronously but must be documented within 4 hours.
+
+### 2.6 Artifact integrity
+
+All build artefacts deployed to Production must be signed (signing key in the organization's secrets management service) and the signature verified before deployment. An artefact with an invalid or absent signature must not be deployed.
+
+*CCM: CCC-04 / contributes toward SLSA v1.2 Build L3*
+
+---
+
+## 3. Infrastructure as code (iac)
+
+**Everything as code.** All infrastructure provisioning must be defined as code. Manual production changes are prohibited except in declared incidents and must be codified within 24 hours.
+
+**Approved tooling categories:** Terraform, Bicep, ARM templates, Ansible, or equivalent declarative infrastructure tools. Choice must be consistent within a workstream.
+
+### 3.1 IaC security standards
+
+- IaC scanning must pass with no Critical findings.
+- Encryption explicitly configured. Network access explicitly restricted. Logging and diagnostic settings configured for every resource.
+- Resource tagging: environment, owner, classification level, and cost centre.
+- No secrets in IaC code: use secrets management references or managed identity.
+
+### 3.2 State management
+
+IaC state must be stored remotely in a cloud object store with versioning and access logging. Not in version control. Not local. State backends require authentication.
+
+---
+
+## 4. Environment separation and promotion
+
+### 4.1 Three-environment model
+
+| Environment | Identity Domain | Promotion Gate |
+| --- | --- | --- |
+| Dev | Dedicated dev domain | Developer merge approval |
+| Test | Dedicated test domain | Acceptance-into-service gate (security and functional sign-off) |
+| Production | Production domain | Acceptance-into-service gate + manual approval + change approval per change class (CAB for Normal changes; joint CISO and CIO approval plus CAB for High-risk changes) |
+
+Test consolidates all pre-production testing (integration, QA, UAT). Multiple server or service copies may exist within Test. All are treated as Test-tier for security classification and access control.
+
+### 4.2 Promotion rules
+
+- Code and configuration move Dev → Test → Production only. No lateral movement. No back-promotion.
+- Production data must not flow to Test or Dev. Data masking or synthetic data required.
+- Environment-specific configuration must not be shared across environments.
+- Developers do not have standing production access. Production access for incident response is time-bound, through PAM, and audited.
+
+*CCM: I&S-05, DSP-15*
+
+---
+
+## 5. Container and platform security
+
+**Base images:** Sourced from approved trusted registries. Minimal (distroless, Alpine) preferred. Must be scanned before use and on a scheduled cadence. Must not run as root. Privileged mode prohibited in production.
+
+**Image versioning:** No `:latest` tag in Test or Production. Production deployments pin by digest (tags are mutable references; digests are immutable), per the [Container and Image Security Standard](standard-container-and-image-security.md); specific version tags are acceptable only in non-production. All images deployed to Production must be signed.
+
+**Runtime security:** EDR tooling mandatory on all servers. Resource limits (CPU, memory) set. Network policies restrict container-to-container communication to required flows. Secrets must not be passed as plain-text environment variables: use platform secrets management integration.
+
+**Image registry:** Private container registry only. No runtime pulls from public registries in production.
+
+*CCM: I&S-04*
+
+---
+
+## 6. Cloud security configuration
+
+All DevOps teams must comply with cloud security configuration requirements when provisioning, configuring, or modifying any cloud resource. DevOps-specific obligations:
+
+- Every application provisioned by a DevOps team must have its own isolated secrets vault. Cross-application secret sharing is prohibited.
+- IaC must explicitly configure encryption, network access restrictions, diagnostic settings, and resource tagging on every resource. Defaults are not sufficient.
+- Cloud governance policy enforcement must be applied at management group or subscription level. Pipelines must not deploy to EOL runtime versions or resources violating the policy baseline.
+- Sandbox subscriptions must have no network path to production data. Cross-subscription connectivity from production to sandbox is prohibited.
+
+---
+
+## 7. Multi-subscription and multi-account governance
+
+- RBAC reviewed across all accounts and subscriptions in a single consolidated quarterly review.
+- Service principal or service account assignments spanning multiple accounts documented with business justification.
+- Governance policy applied at organization level; deviations from organization-level enforcement require documented justification and a compensating-control plan.
+- Sandbox accounts must have no network path to production data. Cross-account connectivity from production to sandbox is prohibited.
+
+---
+
+## 8. Automation platform operational security
+
+This section defines deployment-time and operational security requirements for automation platforms (workflow automation and equivalent). Coding-level security requirements for automation workflows are in the Developer Security Requirements Standard.
+
+### 8.1 Runtime version management
+
+All automation platform runtimes must be on a supported, non-EOL version. A runtime EOL tracking register must be maintained. SIEM alerts must fire at 180, 90, and 30 days before any runtime EOL. Pipelines block deployment to EOL runtimes per §2.2. Upgrade sequence: sandbox regression testing first, then production.
+
+### 8.2 Deployment prerequisites
+
+Before any automation workflow deploys to production:
+
+- Workflow configuration files contain no plain-text secrets: verified by automated secret scan in pipeline.
+- Runtime version is supported (not EOL).
+- No cross-account resource references from production to sandbox.
+- All vendor API endpoint URLs are production endpoints, not development or staging.
+- API gateway named values are secrets-management-backed (not plain text).
+
+### 8.3 OAuth connection re-authorization
+
+Platform OAuth connections expire after a defined period (typically 90 days). A quarterly re-authorization audit of all OAuth-type connections is mandatory. This is an operational obligation enforced by the DevOps team.
+
+---
+
+## 9. API gateway operational requirements
+
+API gateway timeout must equal or exceed worst-case backend response time. All gateway named values must be secrets-management-backed. Gateway observability workspace must be onboarded to the SIEM.
+
+---
+
+## 10. Shared file system security
+
+On-premises shared file systems used by automated workflows as production dependencies must be: access-restricted to the specific service accounts and named administrators that require access; availability-monitored with a SIEM alert on unavailability; included in any applicable migration programme. File permissions audited on any shared file system used in a production automation path.
+
+---
+
+## 11. Application service owner registry
+
+An application service owner registry must be populated before any application onboards to production. Required fields: application name, version, owner, admin contact, operational status, support team, compliance requirements.
+
+---
+
+## 12. Framework and runtime EOL: DevOps requirements
+
+The EOL classification policy and remediation SLAs are defined in the Security Baseline Standard. DevOps obligations:
+
+- All applications must declare their runtime versions explicitly. Undeclared or floating runtime versions are prohibited in production.
+- When a runtime enters Class 3 (within 180 days of EOL), create an upgrade task in the team backlog.
+- When a runtime is Class 2 (within 90 days of EOL or already EOL), the upgrade must be in active development with a target completion date.
+- When a runtime is Class 1 (over 12 months EOL with qualifying CVE), the service must be in emergency remediation. No new feature development occurs until the runtime is upgraded.
+- CI/CD pipelines must not deploy code to a runtime version classified as EOL by organizational governance policy. Attempted deployment fails the pipeline.
+- Cloud governance policy enforcement and CI/CD pipeline EOL gate are both required. One does not substitute for the other.
+- AI-generated code suggestions to use deprecated or EOL package versions must be rejected.
+
+---
+
+## 13. Framework alignment
+
+| Control Area | ISO/IEC 27001:2022 / ISO/IEC 27002:2022 | CSA CCM v4.1 | NIST SSDF | NIST SP 800-53 Rev. 5 | SLSA v1.2 Build |
+| --- | --- | --- | --- | --- | --- |
+| CI/CD pipeline security | A.8.25 to 8.27 | CCC-01 to CCC-04, CCC-06 to CCC-09, AIS-04 | PW.7.1, PW.7.2, PW.4.1, PW.4.4, PS.3.2, RV.1.1, RV.2.1, RV.2.2 | SA-10, SA-15 | Level 2 to 3 |
+| Pipeline secret scanning | A.8.28 | AIS-05 | PW.7.2 | SA-11 | N/A |
+| Artifact signing and integrity | A.8.27 | CCC-04 | PS.2 | SR-4; SI-7 | Level 2 to 3 |
+| IaC security | A.8.25 | CCC-06 | PW.7.2 | CM-2, CM-3 | N/A |
+| Environment separation | A.8.31 | I&S-05 | PO.5.1 | CM-2(6), CM-4(1), SC-7 | N/A |
+| Container security | A.8.25 | I&S-04 | PW.9.1, PW.4.4, RV.1.1 | CM-7, SI-3 | N/A |
+| EOL and patch management | A.8.8 | TVM-01 to 10 | PW.4.4, RV.2.1, RV.2.2 | SI-2 | N/A |
+| Change management | A.8.32 | CCC-01 to CCC-04, CCC-06 to CCC-09 | N/A | CM-3 | N/A |
+
+**On the SLSA v1.2 Build column.** SLSA v1.2 Build levels (L0 to L3) describe the trustworthiness of the build platform and the provenance it generates, not a per-control certification. The levels above indicate the Build-track maturity each control area contributes toward or requires (for example, signed build-platform-generated provenance underpins L2 and L3), not that an individual control confers a level. Scanning controls such as pipeline secret scanning carry no Build level (N/A above): the Build track's primary purpose is verifying that an artifact was built as expected, which scanning does not establish.
+
+This standard also aligns with NIST SP 800-204D (Strategies for the Integration of Software Supply Chain Security in DevSecOps CI/CD Pipelines) for the software supply-chain security of the CI/CD pipeline.
+
+---
+
+**End of Document**

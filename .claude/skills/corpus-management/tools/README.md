@@ -1,0 +1,477 @@
+# Repository tooling
+
+The Corpus-Management compiler (`build-corpus-management.py`) generates two full always-loaded
+prose rules, a compact rule index in the corpus-management skill directory (read when the skill
+loads, on the skill's instruction, not at session start), and on-demand bodies outside
+`.claude/rules/`; see
+[pack tooling](../src/tools/README.md) for the generation and validation contract.
+
+This directory contains repository quality tooling. The scripts are intentionally minimal: they run with the standard Python interpreter (3.14 or newer), take no third-party dependencies, and are designed to be invoked locally, by pre-commit, or by CI.
+
+## Scripts
+
+The library's audit programme is a set of linters, build-and-check generators, and the linter regression test suite. The canonical inventory of every gate, with its name, script, category, and the current gate count, is maintained in [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](../specs/specification-audit-programme.md) §6. Gate 35 (gate-name parity audit) enforces that the §6 inventory, the CI workflow, the local runner, and the pre-commit config declare identical gates with identical names and scripts, and that the three execution surfaces (workflow, runner, pre-commit) invoke each gate with identical flags, and that each section 6 gate number appears exactly once in the section 5 category lists and that those lists name no number the inventory lacks; the inventory is the single source of truth.
+
+To see the current gate set in one place, run [`.claude/skills/corpus-management/tools/run_all_audits.sh`](run_all_audits.sh) or read the §6 table.
+
+Each individual linter is self-documenting via its module docstring (`python3 .claude/skills/corpus-management/tools/<script>.py --help` where supported, or read the docstring directly). The shared helper module is [`.claude/skills/corpus-management/tools/lint_common.py`](lint_common.py); the regression test suite (gate 36) is at [`.claude/skills/corpus-management/tools/run-linter-regression.py`](run-linter-regression.py), which discovers every top-level `.claude/skills/corpus-management/tests/test_*.py` file (sorted by module name), prints the module list it runs, and runs all of the modules in one `unittest` invocation. It refuses (exit 2, naming the offender) each of the following, never softening one to green (this list matches [`.claude/skills/corpus-management/tests/README.md`](../tests/README.md), and a regression test holds the two surfaces together):
+
+- a run list that does not match an independent `os.walk` enumeration of `.claude/skills/corpus-management/tests/` (checked once in the parent and again by the child driver against its own argv, so a filter on either side cannot drop a module);
+- a test file nested in a `.claude/skills/corpus-management/tests/` subdirectory, a `test_*/` package directory, a symlinked subdirectory, or a subdirectory the walk cannot inspect (all of which could hide test files);
+- finding no `.claude/skills/corpus-management/tests/test_*.py` files at all;
+- a module that cannot be imported (any `BaseException`, so an import-time `SystemExit(0)` cannot pass as green);
+- a module that contributes zero test cases;
+- a module with no credited start, on a run unittest reports green, refused as `.claude/skills/corpus-management/tests/X.py: N loaded, 0 credited starts`; this per-module rule is separate from the sentinel's `notStarted` count below. A credited start is a test from this module's loaded suite that reached `startTest` outside a skip-decorated class: a started test is credited to the handed module whose suite, as `unittest.main` loads it (one suite per module, in argv order), contains it, whatever the test's type; the gate checks that each module's suite starts something, not who wrote the test's code. A test that a `SkipTest` raised in `setUpModule` or `setUpClass` kept from `startTest` is not a credited start, and neither is a test whose class is skipped by a class decorator (`unittest.skip`, or `skipIf`/`skipUnless` whose condition skips), although unittest calls `startTest` for that test before it reads the class flag. The refusal states the loaded count and that no start was credited, not a cause. A run unittest reports as failed (including an error, not a skip, raised by `setUpModule` or `setUpClass`) is not turned into this refusal and keeps unittest's failure report and exit 1. Accepted residuals: a module that only imports and loads another module's `TestCase` classes earns credit for their started tests (borrowing; no current module does this; the gate checks that each module's suite starts something, not who wrote it); a test skipped individually (a skip decorator on the test method, or `self.skipTest` inside the test or its `setUp`) is a credited start, so a module whose every test is skipped individually is not refused; the pairing check compares case counts per suite, not case identity, so a second load that returns different cases in the same number passes it, and its cases are credited as `unittest.main` loaded them; a start is matched to the next pending occurrence in unittest's run order, so a test that itself starts another loaded case object (outside the suite's own iteration) can move the match (test code controlling the run is the in-process residual below); a suite that reorders, drops or substitutes cases, in its own `run` or its `__iter__`, and a test object that is not a suite but runs inner cases, are outside what the gate can account for, because crediting and the `setUpClass` skip reconciliation both assume a suite runs its cases in its flattened order (observed effects: a module whose reordering suite holds a `setUpClass`-skipped class can be falsely refused, and a dropping suite can produce a false pass without a shared case object; no current module uses such a suite or test object); and test code can forge the result in-process (the `__main__.nonce` residual below);
+- a load whose started tests cannot be paired with the handed modules: `unittest.main` must load exactly one suite per handed module, each with the case count the driver's own load found for that module (a `load_tests` that returns a different case count on a second load fails this; one that returns different cases in the same number does not, see the residuals above), so started tests are never credited by guesswork; the refusal names the mismatch;
+- a test case object in the loaded suites of more than one module (for example a helper's module-level case loaded by two modules), refused before the run, naming the modules: its starts cannot be credited to one module;
+- a green child exit whose output lacks unittest's own `Ran N tests` line with N at least 1; and
+- a green child exit whose LAST stderr line is not the child driver's completion sentinel, carrying the per-run nonce the parent delivered over the child's stdin (never on argv or in the environment, and consumed before any test module is imported), `testsRun`, `notStarted` (loaded tests a `SkipTest` raised in `setUpClass` kept from starting, counted from the loaded suite: unittest runs `setUpClass` once per run of consecutive cases of the same class object, so each such run of never-started occurrences since the previous matched start takes one skip record of its class arrived in that stretch and counts each of its occurrences once, two classes sharing a module and qualname are two runs, and one skip record never covers two runs; one run contributes at most one counted record: a class cleanup's `SkipTest` after a skipped `setUpClass` is recorded under the same `setUpClass` name, and such further records of one run, told apart from a later run's by arriving back to back (no start and no other skip record in between) with the same holder and the same `_previousTestClass` on the result, are discarded, not credited to a later run; the grouping of records into runs depends on unittest's private `_previousTestClass` attribute and its set-up order (set to a run's class only after that class's set-up; read in CPython 3.14 and 3.11 `suite.py`), which unittest does not document, so a change there could misgroup records (an accepted residual); when the result object has no `_previousTestClass` attribute at all as a `setUpClass` skip record arrives, the run is refused (exit 2, naming `_previousTestClass` and the Python version), never grouped by a default (`None`, its value before the first test, is an answer); so a green run with such a skip in a module that otherwise started a test is not refused; it does not count tests of a skip-decorated class, which reach `startTest`, nor tests a `SkipTest` in `setUpModule` kept from starting, which therefore fail this reconciliation), the per-module test counts and `wasSuccessful=True`.
+
+Passing output: stdout carries the module list (`Running test modules:` and one indented module name per line), printed before the run; stderr carries unittest's own output unchanged, followed by the completion sentinel as its one extra, last line. A regression test in [`.claude/skills/corpus-management/tests/test_regression_gate.py`](../tests/test_regression_gate.py) pins this shape against a direct `python3 -m unittest` run.
+
+What the nonce and sentinel defend against: accidental early exits (a premature `SystemExit` before the sentinel), grandchild or stray output standing in for the summary or the sentinel, dropped modules, and zero-test modules (a module hollowed to zero tests). What they do NOT defend against: test code in the child process that deliberately reads the driver's state. The driver is a `python -c` script, so the nonce is a module-level global of `__main__`; one line of test code (`import __main__`) recovers it and can forge a complete sentinel. This is a documented accepted residual, pinned by a test in [`.claude/skills/corpus-management/tests/test_regression_gate.py`](../tests/test_regression_gate.py), so a change that closes the channel must update that test and this paragraph together. They also do not defend against a partially hollowed module (a `load_tests` that returns some but not all of a module's tests), because the loaded suite is the gate's only ground truth. No in-process scheme is proof against deliberately adversarial in-process code.
+
+The linter fixtures live in [`.claude/skills/corpus-management/tests/test_linters.py`](../tests/test_linters.py).
+
+## Running
+
+Run the full audit programme from the repository root:
+
+```
+bash .claude/skills/corpus-management/tools/run_all_audits.sh
+```
+
+This runs every gate in the order defined in [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](../specs/specification-audit-programme.md) §6 and aggregates results. Use `FAIL_FAST=1 bash .claude/skills/corpus-management/tools/run_all_audits.sh` to stop on first failure.
+
+Individual scripts also run standalone:
+
+```
+python3 .claude/skills/corpus-management/tools/lint-metadata.py
+python3 .claude/skills/corpus-management/tools/lint-language.py ai security    # restrict scope to specific paths
+python3 .claude/skills/corpus-management/tools/build-taxonomy.py --check        # regen-and-check
+```
+
+Each script prints `OK: ...` on a clean run and exits zero. On findings it prints a grouped report and exits one (or two for environmental failure, e.g., a missing register).
+
+To regenerate the auto-generated artefacts after editing document metadata or document structure, run without `--check`:
+
+```
+python3 .claude/skills/corpus-management/tools/build-taxonomy.py
+python3 .claude/skills/corpus-management/tools/build-narrative-registry.py
+python3 .claude/skills/corpus-management/tools/build-portal.py
+```
+
+The narrative registry derives independently from `executive/` page metadata. The portal
+generator depends on the taxonomy; always regenerate the taxonomy first.
+
+Further generated artefacts derive from their own source files rather than from
+document metadata and document structure, and are regenerated when that source
+changes:
+
+```
+python3 .claude/skills/corpus-management/tools/build-relationship-model.py       # from .claude/skills/corpus-management/data/relationship-model-source.json
+python3 .claude/skills/corpus-management/tools/build-todo-number-allocation.py   # from .claude/skills/corpus-management/tools/todo-number-floor.json + the live TODO ids
+python3 .claude/skills/corpus-management/tools/build-citation-publishers.py      # section 7.1 table from its json citation-publishers block
+```
+
+## Pre-commit integration
+
+[`.pre-commit-config.yaml`](../../../../.pre-commit-config.yaml) at the repository root wires every gate as a local hook. Install once:
+
+```
+pip install pre-commit
+pre-commit install
+```
+
+Three git-native hooks are installed by `.claude/skills/corpus-management/tools/install-git-hooks.sh`: a pre-push hook (`.claude/skills/corpus-management/tools/git-hooks/pre-push`), a pre-commit hook (`.claude/skills/corpus-management/tools/git-hooks/pre-commit`) that refuses a commit on a `main` or `master` checkout, a commit that changes a document's `**Version:**` or `**Date:**` line (or a generated output) while the staged `.claude/skills/corpus-management/data/taxonomy.yml`, `governance/portal.md` or `governance/maturity-scorecard.md` is out of sync (`.claude/skills/corpus-management/tools/check-generated-commit.py` runs the staged generators' `--check` on a copy of the index being committed; override `GRC_ALLOW_STALE_GENERATED_COMMIT=1`), and a commit that stages `.working/CHANGELOG.md` while `python3 .claude/skills/corpus-management/tools/preflight-changelog.py --staged` fails (override `GRC_ALLOW_FAILING_CHANGELOG_COMMIT=1`), and a commit-msg hook (`.claude/skills/corpus-management/tools/git-hooks/commit-msg`) that refuses a commit whose staged versioned document changed its body without a Version change (a `VersionBump: none <reason>` message line opts out README.md only). A local commit-msg hook is kept by renaming it to `commit-msg-local`; the managed hook runs it first. Run it once per clone, BEFORE `pre-commit install`: the framework then chains the managed pre-commit hook as `pre-commit.legacy`. If the framework is already installed, run `pre-commit uninstall`, then this installer, then `pre-commit install`. A later re-run of the installer cannot verify the chain from file contents, so it reports the pre-commit half as unverified (non-zero) and names the behavioural check: on a `main` checkout, `git commit --allow-empty -m probe` must be refused. It refuses a `git push` when the tracked working tree is modified or staged AND the push includes the current HEAD, mirroring [`pre-push-guard.sh`](pre-push-guard.sh)'s dirty-tree attestation (override `PRE_PUSH_GUARD_ALLOW_DIRTY=1`), as a backstop on every destination; the full guard below clears this override. It is a raw git hook, not a pre-commit-framework hook, because the framework stashes unstaged edits before running hooks (which would defeat the check).
+
+Subsequent commits run the full audit programme before the commit is finalized. Run on demand against the entire corpus:
+
+```
+pre-commit run --all-files
+```
+
+## Continuous integration
+
+[`.github/workflows/quality.yml`](../../../../.github/workflows/quality.yml) runs the same gate set on every push to `main` and on every pull request. The CI environment uses Python 3.14 from `actions/setup-python`. No third-party dependencies are installed.
+
+## Exemptions
+
+- Draggable AI-context rule files under `.claude/` (the pinned AIQT rules; https://aiqt.ai) are exempt from the metadata and structural audits because they serve a different purpose (loaded into AI coding sessions, not consumed as governance documents).
+- Tooling docs in this directory and adopter docs in [`.claude/skills/corpus-management/docs/`](../docs/) are exempt from the structural audit.
+- The superseded [`privacy/annex-regional-privacy-requirements.md`](../../../../privacy/annex-regional-privacy-requirements.md) is exempt from the structural audit (retained for history; superseded by [`privacy/annex-privacy-jurisdiction-index.md`](../../../../privacy/annex-privacy-jurisdiction-index.md) and the jurisdiction subfolder).
+
+## Pre-push guard
+
+The pre-push hook runs the guard on every branch update to a destination
+whose normalized path ends in `jposluns/grc_library`, on any host or remote name.
+HTTPS, SSH, scp-like and local URLs are matched case-insensitively, ignoring a
+trailing slash and `.git` (including a `/.git` component). After installation,
+use plain `git push`.
+Every non-deletion `refs/heads/*` destination must carry a commit equal to the
+active checkout's HEAD; otherwise push from a checkout at that commit. Tags and
+other namespaces do not run the full guard, including tags pointing to commits.
+Deletion-only pushes and other repositories skip it. The dirty-tree backstop
+still receives every original ref record.
+
+`.claude/skills/corpus-management/tools/install-git-hooks.sh --check` compares the shared pre-push shim byte for
+byte and rejects any `core.hooksPath` setting; without a private store it skips.
+Install once per clone; linked worktrees share the persistent shim, which resolves
+the active checkout. Older hooks are refused for guarded destinations (including
+tags and deletions), with a message to rebase; other destinations run the older
+tracked hook, or succeed if that hook is absent. An existing v1, v2, v3, v4 or v5 shim
+is deliberately treated as foreign:
+inspect and remove that old managed
+pre-push shim, then rerun the installer. Foreign hooks are never overwritten.
+
+Direct `.claude/skills/corpus-management/tools/pre-push-guard.sh` runs remain available and retain pipe refusal.
+Every guarded push reruns the guard, even after a direct pass or transport
+failure. Output streams through a regular temporary file with the guard's exit
+status preserved. The guard environment allows only `LANG`, `LC_*`,
+`TMPDIR`, `TERM`, `GRC_STORE`, `SSH_AUTH_SOCK` and the lowercase and uppercase
+`http_proxy`, `https_proxy`, `ftp_proxy`, `all_proxy` and `no_proxy` variables.
+`GRC_STORE` is a deliberate caller-controlled store selection. Askpass settings
+and global Git credential helpers, URL rewrites and SSH command settings are
+not preserved. Helpers outside the fixed PATH are unavailable; a failed fetch
+prints a warning that delta gates may use a stale local base.
+Both hook entry points fix `PATH` to `/usr/bin:/bin` and unset shell startup,
+loader and Git executable-path variables before invoking commands. They verify
+that the selected toplevel is a registered work tree of the current repository
+before running its tracked hook. Symlinked `.git` entries are refused; canonical
+paths, not inode aliases, bind ordinary and linked checkouts. Relative linked
+worktree backlinks resolve from the Git directory. Separate Git directories
+outside the conventional parent-owned `.git` location are accepted only when the
+checkout gitfile names that directory and `core.worktree` is set to that checkout
+(relative values resolve from the Git directory). An unset `core.worktree` is
+refused with the command that sets it. The hooks read `core.worktree` only from
+the Git directory's own `config` file, so `-c` and `GIT_CONFIG_COUNT` overrides
+cannot change it.
+Hook Python entry points run with `-I`. The
+guard resets `HOME` to the account home from the password database, drops caller
+`PYTHON*` variables and sets `PYTHONNOUSERSITE=1` for child interpreters. It sets
+`GIT_CONFIG_GLOBAL=/dev/null`, retaining repository and administrator system
+config, including system `safe.directory` entries. Caller `GIT_CONFIG_SYSTEM`
+and `GIT_CONFIG_NOSYSTEM` settings are dropped. Other Git settings and
+direct-run overrides are excluded, including in linked worktrees. These overrides do
+not exempt guarded pushes. After the guard passes, HEAD must still match every
+pushed branch SHA and the tracked tree must still be clean.
+
+Site-only fast path: the guard reads the committed diff from the merge base of
+`BASE_REF` (default `origin/main`, the base
+[`run-pr-time-checks.sh`](run-pr-time-checks.sh) uses) to HEAD as NUL-delimited
+raw records (`git diff --raw -z --no-renames --ignore-submodules=none`). It
+takes the fast path only when every record adds or modifies a regular file
+(mode 100644 or 100755, unchanged) at a site-only path, matched literally:
+anything under `.web/` (templates, the vendored `.web/baseline/` files) except
+a `.py` file, anything under `.web/site-card/` except a `.py` file,
+`.claude/skills/corpus-management/tests/test_web_draft.py`, and the root close-out surfaces `.working/CHANGELOG.md`,
+`README.md` and `NOTICE.md`. A change to a `.py` file under `.web/` (the
+generator `.web/build.py` among them) or `.web/site-card/` takes the full guard:
+Python there is tooling, and the linter regression suite tests `.web/build.py`
+and the `.web/site-card/` scripts. A
+deletion, rename, type or mode change, gitlink, symlink, path with a character
+outside `A-Z a-z 0-9 . _ / + @ -`, or any other path means the full guard, as
+do an unreadable or empty diff, more than one merge base, a git config setting
+that can hide changes (`diff.ignoreSubmodules`, `diff.relative`, any
+submodule's `ignore` key), `HEAD_REF` other than HEAD,
+`PRE_PUSH_GUARD_ALLOW_DIRTY`, and a `run_all_audits.sh` that cannot be read or
+parsed. A `run_gate` line parses only when its command after `python3` is plain
+tokens of `A-Z a-z 0-9 _ . / = -` separated by single spaces, so a quoted
+argument, an expansion, a comment or a line continuation means the full guard.
+The fast path runs `run-pr-time-checks.sh` unchanged; every
+`run_all_audits.sh` gate except the linter regression suite (gate 36), by the
+runner's own names and commands read at run time, then the gate step's elapsed
+time; the palette gate; `.web/build.py --check`; and `.claude/skills/corpus-management/tests/test_web_draft.py`.
+Unlike `run_all_audits.sh`, the FAST path does not show a passing gate's
+`DUE-SOON`, `WARN` and `NOTE` lines; a failing gate's output is shown in
+full. The FULL guard path shows them as the runner does: each gate runs with
+a per-gate `GRC_RUNNER_ECHO_TOKEN`, a passing gate's `DUE-SOON` lines are
+always echoed, and its `WARN` and `NOTE` lines are echoed when the gate
+printed the runner-echo marker with that token (gates 6, 72 and 106).
+It prints a `FAST PATH` line naming the changed paths. The guard lists the
+gates itself, so `run_all_audits.sh` has no skip option and CI
+(`.github/workflows/quality.yml`, one step per gate) cannot be told to skip
+one. Skipped locally on the fast path only, and left to CI: gate 36 (every
+regression test except `.claude/skills/corpus-management/tests/test_web_draft.py`, and the completeness checks
+of `run-linter-regression.py`). The FULL guard runs gate 36 whole, with the
+private store present (maintainer decision 2026-11-05), after the other
+gates: six parallel `run-linter-regression.py --shard i/6` runs, each in its
+own temporary detached checkout of the commit being pushed (`git worktree add
+--detach` into a `mktemp` directory, beside symbolic links to this clone's
+store and siblings), each in its own process group with its own log and
+`GITHUB_OUTPUT` file and its exit status read directly;
+`reconcile-regression-shards.py --shard-outputs` then reconciles them. A
+failing shard (the guard exits with the first failing shard's own status), a
+shard that exits 0 without step outputs (exit 2, before the reconcile) or a
+failing reconcile (its own status: 1 failure, 2 refusal) fails the push and
+keeps the checkouts, printing their paths. INT, TERM or HUP during the shards
+stops every shard's process group, waits for them, keeps and names every
+checkout and log, and exits 130, 143 or 129. A kept shard directory is
+reported as left behind, with what it holds and any process still using it,
+but with no removal command while that run lasts; the next push reports it
+until it is removed. A passing run removes its own checkouts and acts on
+nothing else: a checkout `git worktree remove` cannot remove is named with
+what is left of it and whether its registration is still listed. While its
+directory is left, the guard names the shard directory (bash-quoted with printf %q) to
+remove once nothing uses it. Unless the listing shows its registration
+gone, the guard prints the command for that checkout alone
+(`git worktree remove --force -- <checkout>`, bash-quoted with printf %q), to run in this
+clone once its directory is gone. If `git worktree list` fails, the guard
+says that the registration state could not be read, with that listing's exit
+status, and still prints that command; it never reports the registration as
+gone. The guard runs no repository-wide git command that changes anything,
+such as `git worktree prune`, which would also clear the stale registrations
+of another live run or another checkout of this repository; the one
+repository-wide git command it runs there is the read-only
+`git worktree list --porcelain`. It never claims the removal of a checkout it could not remove.
+
+Each push (fast path included) first reports, strictly read-only, what
+earlier runs of the guard in this clone left behind after an interrupt, a
+`KILL` or a crash: shard checkouts registered with this clone,
+`grc-gate36-shards.*` directories under `${TMPDIR:-/tmp}` that are, or may
+be, this clone's (each run writes there a `guard-owner` record of its pid,
+clone, start time, pid namespace, boot id and machine id), and every
+process whose working directory, root directory, open files or mapped
+files are inside one. The report runs no git and starts and signals no
+process: it reads this clone's worktree registrations directly from
+`<git common dir>/worktrees/*/` (`gitdir`, `locked`, `HEAD` and the run
+record), the common directory passed by the shell, as `git worktree list`
+reads them (a test checks that the two agree on the test fixtures). The
+final component of each path it reads in a leftover or a git record is
+never followed, and its type is read before it is opened, so a FIFO or
+another entry that is not a regular file is not opened unless it is
+swapped in between that check and the open: they are two lookups by name,
+so one who can write that directory (this user, for a leftover of this
+user) can replace a regular file with a FIFO in that window, and the open
+then succeeds (it does not block, since the report opens without blocking,
+and it lets the open of a writer blocked on that FIFO complete). The type
+of the open descriptor is then checked again (`fstat`), and a
+descriptor that is not a regular file is closed unread, so the report
+never reads what was swapped in. An `O_PATH` descriptor, checked and then
+reopened through `/proc/self/fd`, would close the window; it is not used,
+since the swap needs write access to that directory and the descriptor
+check already keeps the report from reading the swapped entry. The
+directories above that component (`TMPDIR` and the git common directory
+among them) are resolved as usual, symbolic links included. It stops, signals and deletes nothing of a leftover and
+changes no git state (it never runs `git worktree prune`). It prints one
+block on stderr only when it finds something, naming each leftover by its
+path (escaped as a bash `$'...'`
+word, `!` included, when it holds anything unusual) and marking it
+`REMOVABLE` or `INSPECT`. Its advice is never stronger than what it proved:
+only a leftover proven to belong to a finished run of this guard in this
+clone, and proven not in use, is `REMOVABLE`, with the commands that remove
+it (`git worktree remove --force -- <checkout>`, then
+`rm -rf -- <directory>`). Each such checkout is shown with the HEAD its git
+record holds and the warning that a commit made there that no branch or
+tag holds is lost, and the commands say that `--force` discards the
+uncommitted changes and untracked files of each checkout. The proof needs a readable `guard-owner` record
+naming this clone, a run that has ended (below), only checkouts registered
+with this clone whose `.git` points into it, nothing else but the guard's
+own files and links, and every process `/proc` shows read, with none using
+it. A process is read whole through its thread-group leader (working
+directory, root directory, open files and mapped files), and then every
+other thread is read for its own working directory, root directory and
+open files (`task/*/cwd`, `task/*/root` and `task/*/fd`), since a thread
+can have its own (`unshare` with `CLONE_FS` or `CLONE_FILES`); mappings are
+read once, since every thread of a process shares one memory map, except
+that the mappings of every thread are read when the leader is exiting
+(`PF_EXITING`) or shows no mapping while other threads run: an exiting
+leader lets go of the shared memory map for itself before its working
+directory and root, so it can be read whole with no mapping while its
+other threads still map files (an exiting process whose mappings read
+empty while its working directory still read was seen by a review's
+probe, not reproduced here). Reading
+each thread's descriptors was measured before it was kept: on the host
+where this was written (1278 processes, 1937 threads, of which a non-root
+user could read 62 processes and 311 further threads), a pass over `/proc`
+making the same reads took 0.010 to 0.015 seconds through the leaders alone,
+0.013 to 0.015 seconds with each thread's working and root directories,
+and 0.047 to 0.058 seconds with each thread's descriptors too, against the
+4-second scan bound; a host where far more threads can be read takes
+longer (not measured), and one that reaches the bound gets an `INCOMPLETE`
+report with no removal command. A process whose thread-group leader has
+exited while other threads run (the leader's own `/proc` entries are then
+gone, the process is not) is read thread by thread, mappings included. A
+thread that has exited holds nothing. Nor does one whose entries are found
+missing while the kernel marks it exiting (`PF_EXITING`, 0x4, in the flags
+of its `stat`), though it is not yet a zombie: as Linux's `do_exit` runs,
+an exiting thread lets go of its memory map, then its descriptor table,
+then its working directory and root, and an entry goes missing only once
+what it shows has been let go, so by then the thread holds none of them
+(the order of that kernel code, not confirmed by probe here). A thread
+whose entries are all present is read, exiting or not. A thread still
+running whose state cannot be read makes the process unreadable. A
+process that cannot be read, whoever owns it and whatever the directory's
+mode, leaves use unknown: a privileged or setuid process, or one handed a descriptor, can
+use it anyway. Only kernel threads are set aside (no memory map, no
+descriptors of their own). So for a non-root user on almost any host (any
+running a root daemon) an existing leftover is `INSPECT`, and the report
+says how many processes could not be read: such a user should expect
+`INSPECT`, not `REMOVABLE`, for a shard directory that still exists.
+Processes of this user can be unreadable too:
+ssh-agent (OpenSSH 10.2p1) and gpg-agent (GnuPG 2.4.8) make themselves
+non-dumpable, so their working directory, descriptors and mappings cannot
+be read even by their own user (confirmed by probe), and while one runs no
+directory is `REMOVABLE`. No unprivileged interface reads them, and a
+process started before the directory existed can still enter it, so this is
+not narrowed. Processes `/proc` does not show (outside this pid namespace,
+or hidden by a `hidepid` mount) are not seen.
+
+A run has ended when, under the boot id it recorded, no process has its pid
+in its pid namespace or that pid started at another time, or when its boot
+id differs while its machine id (`/etc/machine-id`, read fail closed) is
+this machine's (an earlier boot). A differing boot id with another or
+unknown machine id, or an unknown boot id, proves nothing (another kernel
+may still run it): one clone used from two kernels, through an NFS home or
+a VM's shared folder, each with its own temporary directory, sees the
+other's live checkouts as gone, and a pid means nothing across kernels. A
+machine id copied to another system (a cloned VM image, or a container
+image that ships one) defeats this check, so give each such system its own.
+A VM restored from a memory snapshot (as some CI runners are) shares both
+the boot id and the machine id with every other VM restored from that
+snapshot, so two of them that share one clone each read the other's run
+as one of this kernel, find no process with its pid, and take it as ended;
+this check cannot tell them apart, so do not share a clone between them.
+
+When a shard directory is gone (a reboot, or a temporary-directory cleaner)
+but git still holds the record of a checkout in it, only that record is
+left, and `git worktree remove -- <checkout>` removes only it (confirmed by
+probe on git 2.53.0: an unrelated stale record stays). Each run writes a run
+record (`grc-guard-owner`, holding the `guard-owner` fields) beside the git
+record of each checkout it registers, in `<git common dir>/worktrees/<id>/`,
+which git deletes with that record. For a registered, unlocked checkout on a
+guard-shaped path whose shard directory is gone, the report shows the HEAD
+the record holds and then prints that narrow command only when the run
+record names this clone and a run that has ended, the scan is complete and
+no process is seen using the old path; otherwise the record is `INSPECT`,
+saying which of these was not proved. A git record the report cannot read
+or finds malformed (a `worktrees/<id>` entry or a `gitdir` file that is a
+symbolic link, for one: git follows it, the report does not; or an empty
+`gitdir`) is reported as `UNREADABLE`, never skipped: which checkout it
+registers is then unknown, so no leftover gets a removal command while it
+remains. An entry that is neither a directory nor a symbolic link is
+skipped, as git skips it. A `HEAD` the report cannot read or resolve (a
+branch is read through its loose ref, then `packed-refs`) keeps that
+checkout `INSPECT`. The report reads no reftable: in a clone that keeps its
+refs in reftable (`git init --ref-format=reftable`), the `HEAD` of every
+git record is the placeholder `ref: refs/heads/.invalid` (confirmed by
+probe on git 2.53.0), which the report names as `reftable HEAD not read`,
+so every leftover of such a clone stays `INSPECT`, never `REMOVABLE`.
+A git record an older guard left has no run record. It gets the facts known
+(its HEAD and where the git record is) and a manual inspection procedure,
+marked as not proved: check that no run of this guard that could have
+registered it is still running (on this host, or on another host, VM or
+container that shares this clone), that its HEAD is held by a branch or tag
+or is not needed, and that its directory still does not exist; only then
+does `git worktree remove -- <checkout>` remove that git record alone. It is
+never `REMOVABLE`, and the procedure is not given as a removal command. The
+report never suggests `git worktree prune`.
+
+Anything else uncertain is `INSPECT`, with the facts that are known and no
+removal command: unreadable metadata (reported as `UNREADABLE`, never
+dropped silently), an incomplete scan, mixed ownership, a live run or one
+whose state is unknown, a `guard-owner` record naming another clone, a
+process using it (this guard, the processes that started the push, a
+pre-push guard the report identified and a process with one among its
+parents are labelled), or a
+registered checkout that git would list as prunable while its directory
+exists.
+
+A pre-push guard is known by its identity, never by its command line (a
+shell, editor or agent whose command line merely names
+`.claude/skills/corpus-management/tools/pre-push-guard.sh` is no guard). The live guard runs are this guard
+(its pid and start time) and every run record the scan reads whose run is
+running (the same boot id and pid namespace, and a process with that pid
+and start time): the `guard-owner` record of each `grc-gate36-shards.*`
+directory of this user under `TMPDIR`, another clone's included (read
+before such a directory is set aside), and the run record beside each git
+record of this clone. A process is labelled a pre-push guard only when its
+pid and start time are those of a live run, and as started by one only
+when the pid and start time of one of its parents are, each parent's start
+time read as the chain is walked. The walk is kept consistent, so that a
+pid reused while it runs cannot join an unrelated chain: the process,
+read again, must still have the start time the scan read; a parent must
+not have started later than its child; and once a parent is read, its
+child is read again and must still name that parent pid and have the same
+start time (a parent that exits makes its children another's before its
+pid can be reused, so a reused parent pid shows there). A process whose
+own start time or whose parents cannot all be read, or whose walk is not
+consistent, is not labelled either way: it is said to be uncertain (when
+its pid is a live run's and its own start time cannot be read, "its start
+time cannot be read"; in every other such case, "its ancestry could not be
+established consistently"), and it gets the stop procedure below, whose
+second step is to check its parents by hand. A live run of the guard on
+another host, or one whose run record the scan does not read, is not known
+as one.
+
+Only some runs write a run record, so only those can be known. A run
+writes a run record only from its gate 36 step on (step 1b, which only a
+full run whose gate list can be read has), once it has made its shard
+directory: the `guard-owner` record there, then one beside the git record
+of each checkout. It is known from then until a passing step 1b removes
+its shard directory and checkouts (and, with them, those records), or for
+as long as a failed or interrupted run lasts.
+A fast-path run and a whole-runner fallback (the gate list cannot be read)
+never write one; a full run has none before step 1b (gates 1 to 35, and
+step 1b until its `guard-owner` record is written) or after a passing step
+1b (steps 2 and 3); and the scan does not read the records of another
+clone's run whose shard directory is under another `TMPDIR`. A process of
+such a run is not labelled a pre-push guard. The stop procedure says so:
+only the guards the report identified are labelled above it.
+
+A leftover a process uses also gets a manual stop procedure, marked as not
+proved and never given as a stop command (the report prints no signal
+command at all): check that no run of this guard that could have made it is
+still running (on this host, or on another host, VM or container that
+shares this clone), that the process is not part of another push and that
+stopping it loses nothing needed; then, just before any signal, recheck
+that the pid is still the process listed (its start time, field 22 of
+`/proc/<pid>/stat`, and its command line, both printed); only then stop it
+by your own judgement (`TERM` before anything stronger), push again, and
+remove the leftover only if that push's report marks it `REMOVABLE`. There
+is no procedure for this guard, the processes that started this push, a
+pre-push guard or a process with a pre-push guard among its parents (a live
+run of the guard on this host), nor for any process of a leftover whose run
+is still running (its processes belong to that push).
+
+The scan has 4 seconds, and an alarm bounds the whole report to 5 seconds.
+When the scan bound is reached, the report says it is incomplete. The
+shell's `git rev-parse --git-common-dir`, which names the common directory
+the report reads, runs before the report starts and is not under that
+bound (no bounded form is used, since the guard does not rely on
+`timeout(1)`): a git that stalls there (not observed, and not tested)
+delays the push as any other git command of the guard would. A report
+that fails says, per mode, what is unknown: what earlier runs left, or what
+this run left.
+
+The full suite, gate 36 whole included, still runs in CI on the pull
+request as six shard jobs whose outputs the summary job reconciles, and
+`merge-when-green.py` merges only on green CI. Residual: a failure in a
+regression test that a site-only change causes is first seen in CI, not
+before the push. The guard's header gives the exact rules.
+
+[.claude/skills/corpus-management/tools/reconcile-regression-shards.py](reconcile-regression-shards.py) is
+the quality workflow summary job's one verification step (the required
+check "Lint markdown corpus"): it fails unless every needed job succeeded
+and the regression shards' `credited` job outputs (block-style
+`module: count` lines of per-module credited starts, published by
+`run-linter-regression.py --shard` from its validated shard sentinel) name
+exactly the on-disk `.claude/skills/corpus-management/tests/test_*.py` modules and sum to at least one
+credited start per module, restoring the serial runner's per-module refusal
+across shards, and every shard's `units_sha256` output (the digest of the
+whole unit list its own suite load found; `selected_sha256` is that of its
+own units) is the same, so a discovery difference between runners fails.
+A missing, malformed or wrongly-scoped shard output is a refusal (exit 2),
+never a pass. Its local mode, `--shard-outputs K RC_1 FILE_1 ... RC_K
+FILE_K`, reads the same outputs from the `GITHUB_OUTPUT` files of the
+pre-push guard's local shards, with each shard's exit status; a wrong
+count or an unreadable file is a refusal.
+
+Residual: `git push --no-verify` and a command-level `core.hooksPath` override
+can skip the hook entirely, including overrides supplied through
+`GIT_CONFIG_COUNT` or `GIT_CONFIG_PARAMETERS`. A `core.hooksPath` selected before
+the hook runs through `HOME`, `GIT_CONFIG_GLOBAL`, `XDG_CONFIG_HOME` or
+`GIT_CONFIG_SYSTEM` is also a residual handled by the guard rules now published by the AIQT project (https://aiqt.ai).
+The hook cannot undo loader code already executed when Git or its initial shell
+starts. `git push -n` is a dry run and still runs the hook. Local hooks are not a
+server-side boundary.

@@ -1,0 +1,48 @@
+{
+  "permissions": {
+    "defaultMode": "default",
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Bash(rm -rf *)",
+      "Bash(git push --force*)"
+    ]
+  },
+  "disableSkillShellExecution": true,
+  "respectGitignore": true,
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-repeated-tool-failure.py"
+          },
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-verification-pipes.py"
+          },
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-unbumped-version-commit.py"
+          },
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-bulk-git-add.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-branch-to-main-edit.py"
+          }
+        ]
+      }
+    ]
+  }
+}

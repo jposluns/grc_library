@@ -1,0 +1,58 @@
+cff-version: 1.2.0
+title: "Governance, Risk, and Compliance Documentation Library"
+abstract: >-
+  A CC BY-SA 4.0-licensed reference set for building an
+  organization-neutral governance, risk, compliance, security, privacy,
+  resilience, supplier, and artificial-intelligence governance
+  programme. Includes ~300 documents across 12 domains plus
+  jurisdiction-specific privacy annexes and sector-specific compliance
+  sub-directories. The Claude Code rules-and-skills pack formerly
+  shipped here is replaced by the AIQT project (https://aiqt.ai),
+  whose pinned snapshot the library adopts.
+message: >-
+  The CC BY-SA 4.0 licence requires attribution of the library when
+  content is redistributed (in original or modified form). Its
+  "ShareAlike" condition requires an adopter who shares an adaptation
+  to license their own contributions to it under CC BY-SA 4.0, a later
+  CC BY-SA version, or a BY-SA-compatible licence. The library's own
+  text stays under CC BY-SA 4.0; quoted or vendored third-party
+  material keeps its own terms, as NOTICE.md records. This CITATION
+  file provides the canonical citation metadata for attribution
+  purposes. The rules-and-skills pack formerly shipped here is
+  replaced by the AIQT project (https://aiqt.ai); the pinned AIQT
+  snapshot keeps its own upstream attribution.
+type: dataset
+authors:
+  - family-names: "Posluns"
+    given-names: "Jeffrey"
+    email: "jeff@posluns.ca"
+    orcid: "https://orcid.org/0009-0000-7775-2233"
+    website: "https://linkedin.com/in/jposluns"
+    alias: "jposluns"
+license: CC-BY-SA-4.0
+repository-code: "https://github.com/jposluns/grc_library"
+url: "https://github.com/jposluns/grc_library"
+keywords:
+  - governance
+  - risk
+  - compliance
+  - GRC
+  - information security
+  - privacy
+  - artificial intelligence
+  - AI governance
+  - resilience
+  - supply chain
+  - audit
+  - cybersecurity
+  - CC BY-SA
+  - ShareAlike
+  - Claude Code
+  - AIQT
+  - Anthropic Claude
+  - AI coding assistant
+  - AI coding agent
+  - AI-assisted development
+  - secure AI coding
+  - AI agent security rules
+  - AI coding compliance

@@ -1,0 +1,258 @@
+# Adopter guide
+
+**Document Title:** Adopter Guide\
+**Document Type:** Guide\
+**Version:** 1.3.37\
+**Date:** 2026-11-09\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`README.md`](../../../../README.md), [`governance/register-document-index-and-classification.md`](../../../../governance/register-document-index-and-classification.md), [`governance/decision-tree.md`](../../../../governance/decision-tree.md), [`governance/worked-example.md`](../../../../governance/worked-example.md), [`.claude/skills/corpus-management/docs/worked-example-adoption.md`](worked-example-adoption.md), [`.claude/skills/corpus-management/docs/adopter-guide-multi-entity.md`](adopter-guide-multi-entity.md), [`governance/specification-master-project.md`](../../../../governance/specification-master-project.md)\
+**Classification:** Public\
+**Category:** Documentation\
+**Review Frequency:** Annual and upon material change to the library structure or the adoption model\
+**Repository Path:** [`.claude/skills/corpus-management/docs/adopter-guide.md`](adopter-guide.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Overview
+
+This guide is for organizations that want to use the GRC Documentation Library as the starting point for their own governance corpus. It is a controlled reference artefact: shorter and more prescriptive than the normative library documents, and intended to orient an adopting organization rather than to state requirements.
+
+### Where this fits among the adopter entry points
+
+The canonical front door for adopters is [`governance/portal.md`](../../../../governance/portal.md) (audience-keyed grouping by role). This adopter guide is one of five deeper-dive paths that branch off the portal; it covers the "fork-and-adapt principles" question. The other four are [`governance/template-quickstart.md`](../../../../governance/template-quickstart.md) (what to copy on Day 1), [`governance/template-startup-roadmap.md`](../../../../governance/template-startup-roadmap.md) (the long-form module-composition workbook), [`governance/decision-tree.md`](../../../../governance/decision-tree.md) (sequenced reading order), and [`governance/template-implementation-roadmap.md`](../../../../governance/template-implementation-roadmap.md) (calendar phasing). The portal's "Other entry points and when to use them" table picks the right path by question; see the portal Overview.
+
+### Two reference registers you will need early
+
+Two registers carry the library's vocabulary and are worth opening before you start reading domain documents:
+
+- [`governance/register-glossary.md`](../../../../governance/register-glossary.md): Glossary and Acronym Index. Resolves **acronyms and external-domain terms** (regulations, standards, frameworks, regulators, sector programmes, technical concepts).
+- [`governance/register-key-terms-and-definitions.md`](../../../../governance/register-key-terms-and-definitions.md): Key Terms and Definitions Register. Defines **library-internal GRC concepts** (Audit, Authorize, Control, Owner roles, Exception, etc.) that may differ from generic usage.
+
+The split is by term class: external acronyms / regulators / standards in the Glossary; internal GRC vocabulary in the Key Terms register. Each register cross-references the other. Newcomers can keep both open in adjacent tabs while reading the domain documents.
+
+## How the library is meant to be used
+
+Adopting organizations should fork or copy the library, adapt the artefacts to their environment, and maintain the adaptation as part of their own internal governance. The library does not become your governance programme by being copied; the artefacts are a starting structure that your organization must operate, evidence, and accept residual risk against.
+
+You are not required to adopt the entire library. Most organizations will adopt a subset that matches their domain, sector, jurisdiction, and operating model.
+
+## Three adoption modes
+
+The repository ships both a GRC corpus and a reference implementation for AI-assisted maintenance of that corpus (the audit toolchain in [`.claude/skills/corpus-management/tools/`](../tools/) and the pinned AIQT rules, published by the AIQT project at https://aiqt.ai). An adopter can engage at any of three levels; pick the mode that matches what you are actually trying to build, not the most ambitious one.
+
+These modes describe a single organization adopting the library. A group, holding company, or multi-entity structure has a further choice, how to adopt across several legal entities that share governance but differ in jurisdiction and sector; see [`.claude/skills/corpus-management/docs/adopter-guide-multi-entity.md`](adopter-guide-multi-entity.md) for the three group topologies and their trade-offs.
+
+### Mode A: Fork the whole repo (full adoption)
+
+**Audience.** An organization building or modernizing its GRC programme that also wants AI-assisted maintenance of the resulting corpus.
+
+**What you take.** Everything: the 12 domain directories, the `governance/` corpus, the audit toolchain, the pinned AIQT rules, the specifications, the CHANGELOG and version-monotonicity discipline, the `.claude/skills/corpus-management/docs/` adopter-facing materials.
+
+**What you ignore.** Nothing structural. You will substitute organization-specific values inside the artefacts (roles, jurisdictions, sector context, vendor names if any) and add organization-specific overlays alongside the library content, but the structural shape stays.
+
+**Next step.** Follow the Quick start below and the [`governance/decision-tree.md`](../../../../governance/decision-tree.md) for prioritization. If you will maintain the corpus with an AI coding assistant, run `/adopt` once before editing (see the note under Quick start).
+
+### Mode B: Adopt the corpus only
+
+**Audience.** An organization that wants the Markdown content as a starting point but has its own maintenance workflow (or no AI assistance in the loop).
+
+**What you take.** The domain directories you need (`governance/`, `security/`, `privacy/`, `risk/`, etc. as applicable to your scope). The Core reference set called out in the root [`README.md`](../../../../README.md). The [`governance/specification-master-project.md`](../../../../governance/specification-master-project.md) if you want to preserve the controlled document model.
+
+**What you ignore.** [`.claude/skills/corpus-management/tools/`](../tools/) (the audit toolchain) and the pinned AIQT rules unless you choose to opt into one or both later. Your maintenance workflow may be a word processor plus a collaboration platform, a wiki, a different toolchain, or human-only review; the library's content is portable to any of those.
+
+**Next step.** Copy the relevant domain directories. Substitute roles and jurisdiction-specific values per the Quick start. The CC BY-SA 4.0 share-alike clause applies to adaptations (Adapted Material) you share.
+
+### Mode C: Adopt the pinned AIQT runtime only
+
+**Audience.** A developer or team that is not building or adopting a GRC library, but wants a solid Claude Code baseline for any project: security rules, language-specific patterns, governance disciplines, and skills for the recurring failure modes an AI coding assistant exhibits.
+
+**What you take.** The pinned AIQT snapshot in `.claude/aiqt/` (`PIN.toml` plus the vendored upstream release manifest `.aiqt/manifest.toml` and its root record `.aiqt/release/root.txt`: the pinned release-root digest, the snapshot's exact inventory, and the upstream provenance commit). The AIQT project (https://aiqt.ai) is the front door and provides the AI-assisted installer. The AIQT rules carry their own version sequence (independent of the library's) and are documented to operate standalone.
+
+**What you ignore.** Everything else in this repository outside `.claude/aiqt/`. The AIQT rules do not require the GRC corpus to be present; they are written as project-agnostic disciplines that any Claude Code project benefits from.
+
+**Why this is supported.** This mode emerged in practice: developers found the rules useful as a Claude Code baseline, usable on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. The provenance is what makes the rules credible as a standalone artefact: the AIQT project (https://aiqt.ai) records each rule's origin (a real maintenance event where one exists, an honest up-front codification where that is the truth), and the detailed lineage lives in this library's records.
+
+> **Replaced by AIQT.** The rules pack formerly embedded in this repository is published as the standalone **AIQT** project ([aiqt.ai](https://aiqt.ai)); the library adopts a pinned AIQT snapshot, pinned in `.claude/aiqt/PIN.toml` and inventoried by the vendored upstream release manifest `.claude/aiqt/.aiqt/manifest.toml`. See https://aiqt.ai for how to adopt it.
+
+**Next step.** Follow the AIQT project's installation guidance (https://aiqt.ai): render the pinned rule families from `.claude/aiqt/rules/` into your project's `.claude/rules/` with `.claude/skills/corpus-management/tools/aiqt_rules.py --write`, which takes the inventory from the vendored upstream manifest (`.claude/aiqt/.aiqt/manifest.toml`) and applies the declared scope insertions; it preserves upstream frontmatter and inserts declared paths into the existing frontmatter block. Keep the upstream LICENSE and NOTICE (Apache-2.0) beside the vendored snapshot, and do not fetch a moving head or install a snapshot README as a rule. The project also provides an AI-assisted setup generator, which analyzes your project and proposes a tailored Claude Code configuration before creating any file. As a standalone adopter, review the project-specific overlays and supply your own wiring.
+
+---
+
+## Quick start
+
+1. **Fork or copy the repository.** Fork on GitHub if you intend to track upstream updates. Copy into a private repository if your organization cannot host a fork.
+2. **Pick a starting set.** Browse [`governance/register-document-index-and-classification.md`](../../../../governance/register-document-index-and-classification.md). Begin with the six-artefact Day-1 floor in [`governance/template-quickstart.md`](../../../../governance/template-quickstart.md), then the 17-document Tier 1 starter set below. The Core reference set called out in the root [`README.md`](../../../../README.md) is the larger catalogue you grow toward as the programme matures, not the day-one starting point.
+3. **Substitute roles and identifiers.** Every Owner and Approving Authority is role-based. Map each role to a real person in your organization in a private overlay that you do not commit to a public fork. Do not edit roles into named individuals inside the artefacts themselves.
+4. **Validate applicability.** Each artefact contains framework references, regulatory citations, and review-frequency expectations. Validate that each applies to your jurisdiction, sector, processing role, and risk appetite before adopting it.
+5. **Track upstream.** If you forked, periodically pull from upstream. Most upstream changes are corrections and additions; conflicts are rare in practice because the corpus uses stable filenames and a controlled metadata block.
+
+**AI-assisted maintenance: run `/adopt` first (full-fork adopters).** If you forked the whole repo (Mode A) and will maintain your corpus with an AI coding assistant, the library ships an `/adopt` command (its skill is `.claude/skills/adopt/SKILL.md`). Run it once before you start editing: it confirms the clone is an adopter clone, records your sibling model (your own reference / exchange / private repositories, or self-contained in-repo stubs), resets any maintainer working-state that is present (the session handoff and the QA and history registers) to clean adopter baselines (a fresh public fork usually carries none, since that state is kept outside the public repository), strips residual maintainer-only machinery, and records your `.claude/adopt-config.json` so the tooling runs in adopter mode.
+
+## Applicability decision tree
+
+Use this to decide which domains and sector annexes your organization needs.
+
+| Question | If yes, adopt | If no, skip |
+| --- | --- | --- |
+| Does the organization handle any personal data of identifiable individuals? | `privacy/` domain + applicable jurisdiction annexes in `privacy/jurisdictions/` | All of privacy/ |
+| Does the organization operate AI systems, services, or agents in production? | `ai/` domain | All of ai/ (but keep the framework as reference) |
+| Does the organization operate cloud workloads? | `dev-security/standard-cloud-hardening-baseline-{aws,azure,gcp}.md` for the platforms in use (see also [`governance/decision-tree.md`](../../../../governance/decision-tree.md) section 5.2 for the operations cloud-security-configuration baseline plus network-segmentation and cloud-exit standards) | The non-relevant cloud baselines |
+| Does the organization deliver customer-facing services? | [`operations/standard-site-reliability-engineering.md`](../../../../operations/standard-site-reliability-engineering.md), [`operations/standard-observability-and-telemetry.md`](../../../../operations/standard-observability-and-telemetry.md), `resilience/` domain | The SLA-related operations content |
+| Does the organization participate in BASC trade-security certification? | `compliance/logistics/` | All of compliance/logistics/ |
+| Does the organization participate in CTPAT, AEO, AEO-S, or PIP trade programmes? | The relevant programme annexes in `compliance/` | The non-relevant trade-compliance annexes |
+| Does the organization operate in a sector with sector-specific regulation (financial services, healthcare, transportation/logistics, telecoms, energy/utilities, public sector)? | The corresponding `compliance/annex-*` | Non-relevant sector annexes |
+| Does the organization operate under SOX or equivalent financial reporting controls? | [`compliance/financial-services/annex-sox-itgc.md`](../../../../compliance/financial-services/annex-sox-itgc.md) | This annex |
+| Does the organization hold, use, issue, or service crypto-assets, or operate blockchain platforms? | [`crypto/framework-crypto-asset-governance.md`](../../../../crypto/framework-crypto-asset-governance.md) (plus [`crypto/standard-digital-asset-custody.md`](../../../../crypto/standard-digital-asset-custody.md) if you hold client crypto-assets, and the MiCA annex if in EU scope) | Skip `crypto/`. |
+| Does the organization operate under DORA, NIS 2, or equivalent EU resilience regulation? | The corresponding implementation annex in `compliance/` | These annexes |
+| Does the organization have a software development practice? | `dev-security/` domain | Most of dev-security/ (keep the policy as reference) |
+| Does the organization have a formal architecture practice? | `architecture/` domain | Most of architecture/ (keep ADR standard as a useful reference regardless) |
+| Does the organization have suppliers with material operational or data access? | `supply-chain/` domain + [`risk/standard-third-party-and-supply-chain-risk.md`](../../../../risk/standard-third-party-and-supply-chain-risk.md) | Most of supply-chain/ |
+
+The cross-cutting documents (`governance/`, top-level [`README.md`](../../../../README.md), `risk/` core artefacts, `security/` core policies) apply to virtually every organization and are the starting baseline.
+
+## Maturity progression
+
+Most adopting organizations cannot operate all of the library's controls on day one. The library is meant to be a progressive adoption target, not a one-shot implementation. Use the maturity tiers from [`governance/guideline-minimum-viable-governance-structure.md`](../../../../governance/guideline-minimum-viable-governance-structure.md) to choose a target tier and progress towards it.
+
+### Tier 1 starter set (minimum viable)
+
+If your organization is small (under approximately 200 staff, low regulatory exposure, no high-risk AI in production), start with these 17 documents and operate them well before adding more (the Governance Library Charter among them is read for orientation rather than operated, as noted below). This Tier 1 set contains all six artefacts in the Day-1 floor named in [`governance/template-quickstart.md`](../../../../governance/template-quickstart.md), with one qualification: the privacy artefact bundles the privacy policy with an adopter-specific home-jurisdiction annex, and that annex is not part of the fixed Tier 1 set. Tier 1 in turn sits within the larger sector-conditional sets the [`governance/decision-tree.md`](../../../../governance/decision-tree.md) builds (for example about 25 documents for an EU-fintech path). Across their fixed documents the three sizes are progressively-nested, complementary starting points rather than competing ones, with the adopter's home-jurisdiction annex the one Day-1 piece the fixed sets leave to them.
+
+**Approximate reading time**: 5 to 7 hours to read all 17 documents once at a moderate pace; substantially longer to internalize. **If you only read three** to get an immediate orientation, pick the three Governance documents in the table below (Charter + Framework + Role Authority Register); they ground the structure that the rest of Tier 1 operationalizes. The Charter is `library-internal` per the document-index register ([`governance/register-document-index-and-classification.md`](../../../../governance/register-document-index-and-classification.md)): it documents how this library governs itself, not an artefact you fork, so read it for orientation and then keep it as reference or delete it. The Framework and Role Authority Register are the two of the three you adapt as your own deliverables.
+
+| Type | Document |
+| --- | --- |
+| Charter | [`governance/charter-governance-library.md`](../../../../governance/charter-governance-library.md) |
+| Framework | [`governance/framework-document-architecture-and-interrelationship.md`](../../../../governance/framework-document-architecture-and-interrelationship.md) |
+| Register | [`governance/register-role-authority.md`](../../../../governance/register-role-authority.md) |
+| Register | [`governance/register-key-terms-and-definitions.md`](../../../../governance/register-key-terms-and-definitions.md) |
+| Policy | [`risk/policy-enterprise-governance-and-risk-management.md`](../../../../risk/policy-enterprise-governance-and-risk-management.md) |
+| Standard | [`risk/standard-enterprise-risk-management.md`](../../../../risk/standard-enterprise-risk-management.md) |
+| Procedure | [`risk/procedure-risk-assessment-methodology.md`](../../../../risk/procedure-risk-assessment-methodology.md) |
+| Procedure | [`risk/procedure-risk-acceptance.md`](../../../../risk/procedure-risk-acceptance.md) |
+| Policy | [`security/policy-information-security.md`](../../../../security/policy-information-security.md) |
+| Policy | [`security/policy-acceptable-use.md`](../../../../security/policy-acceptable-use.md) |
+| Policy | [`security/policy-identity-and-access-management.md`](../../../../security/policy-identity-and-access-management.md) |
+| Standard | [`security/standard-logging-and-monitoring.md`](../../../../security/standard-logging-and-monitoring.md) |
+| Procedure | [`security/procedure-security-incident-response.md`](../../../../security/procedure-security-incident-response.md) |
+| Policy | [`privacy/policy-privacy-and-data-governance.md`](../../../../privacy/policy-privacy-and-data-governance.md) |
+| Procedure | [`privacy/procedure-data-subject-rights-management.md`](../../../../privacy/procedure-data-subject-rights-management.md) |
+| Procedure | [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../../../privacy/procedure-data-protection-and-privacy-breach-response.md) |
+| Standard | [`dev-security/standard-developer-security-requirements.md`](../../../../dev-security/standard-developer-security-requirements.md) (if you do software development) |
+
+Use [`governance/guideline-minimum-viable-governance-structure.md`](../../../../governance/guideline-minimum-viable-governance-structure.md) Tier 1 forum structure to operate them.
+
+### Tier 2 growth set (mid-market addition)
+
+When you have the starter set operating reliably and your organization has grown to mid-market complexity, add these:
+
+- `ai/` core artefacts: framework, governance council charter, model registry, foundation-model lifecycle procedure, AI security and risk standard.
+- `supply-chain/` core artefacts: third-party risk standard (now consolidated in [`risk/standard-third-party-and-supply-chain-risk.md`](../../../../risk/standard-third-party-and-supply-chain-risk.md)), supplier due-diligence procedure, supplier ongoing monitoring procedure.
+- `resilience/` core artefacts: business continuity and disaster recovery policy, framework, IT disaster recovery plan, recovery runbook template.
+- `compliance/` core artefacts: compliance and audit management policy, internal audit standard, the sector annexes relevant to your context.
+- `operations/` core artefacts: change management procedure, patch management procedure, observability and telemetry standard.
+- `dev-security/` core artefacts: secure development policy, API security standard, the cloud hardening baselines for your platforms.
+
+Use Tier 2 forum structure.
+
+### Tier 3 enterprise set
+
+The full library is intended to be operable at Tier 3 by a large, regulated, multi-jurisdiction organization. Every active document in the index is in scope.
+
+## Sector-conditional content
+
+Sector-conditional content lives in sub-directories of `compliance/` (`compliance/logistics/`, and others as they are introduced). Most organizations adopt only the sub-directories matching their industry sector. For example, the `compliance/logistics/` sub-directory contains industry-wide logistics annexes plus trusted-trader programme overlays (CTPAT, PIP, AEO, BASC). If your organization does not operate in the logistics sector, the directory is informational only.
+
+## What to change after copying
+
+These items almost always need adapting before the artefacts become operational in your organization:
+
+| Item | Where it appears | What to change |
+| --- | --- | --- |
+| Owner and Approving Authority roles | Every document's metadata block | Map each role to a named function in your organization, recorded in a private overlay. |
+| Risk appetite and thresholds | `risk/` and `governance/` policies and standards | Replace illustrative thresholds with values your board has approved. |
+| Severity definitions and notification windows | [`security/procedure-security-incident-response.md`](../../../../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../../../privacy/procedure-data-protection-and-privacy-breach-response.md) | Replace with the thresholds your incident commander uses. Regulatory windows are set by law (e.g. GDPR: without undue delay and, where feasible, within 72 hours of becoming aware). Where more than one regulator applies with different clocks (for example a privacy regulator plus a sector regulator plus a US state breach law), set the procedure to the shortest binding window. |
+| Enforcement and disciplinary clauses | Policy `## Enforcement` sections (for example [`risk/policy-enterprise-governance-and-risk-management.md`](../../../../risk/policy-enterprise-governance-and-risk-management.md) section 9) and the privacy jurisdiction annexes | Reconcile disciplinary language ("up to and including termination") and regulatory-reporting language with your HR policy, employment contracts, and local labour law before going live. |
+| Jurisdiction scope | `privacy/jurisdictions/` and `compliance/` sector annexes | Remove jurisdictions and sectors you do not operate in. Keep the relevant ones. Do not delete documents merely because they do not apply yet; mark them with the `Status: Superseded` lifecycle marker so you do not lose the option. |
+| Framework references | Throughout | Confirm that each cited framework is current. Frameworks change versions; the corpus is reviewed annually for currency. |
+| Tier classification and supplier categories | [`risk/standard-third-party-and-supply-chain-risk.md`](../../../../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../../../supply-chain/standard-supplier-security-and-privacy-assurance.md) | Adapt the criteria to your supplier landscape. |
+| Trade-security programmes | `compliance/` and `supply-chain/` trade artefacts | Remove if your organization is not involved in customs or international trade. |
+
+## What not to change
+
+- Do not edit Owner or Approving Authority into a named individual. Keep roles role-based even after adoption. Map roles to people in a separate, private overlay.
+- Do not remove the metadata block, the License field, or the `End of Document` marker.
+- Do not insert organization-specific identifiers (real names, IP addresses, internal system names, contract numbers, customer names) into a public fork.
+
+## Minimum quality bar before going live
+
+Before treating an adopted artefact as operational in your organization:
+
+1. The artefact has been read end-to-end by the named role Owner.
+2. The Approving Authority has signed off (electronically or in a documented decision record).
+3. Any framework reference, regulatory citation, or threshold inconsistent with your environment has been corrected or removed.
+4. The artefact has been added to your organization's evidence repository with traceability to the upstream version it was adapted from.
+5. The control statements within the artefact have a named operational owner.
+
+## Tracking upstream updates
+
+The library publishes phase-level releases through the [CHANGELOG](../../../../.working/CHANGELOG.md). When pulling from upstream:
+
+1. Read the changelog entry for the period since your last pull.
+2. Run `.claude/skills/corpus-management/tools/run_all_audits.sh` to confirm your fork is still conformant after the merge.
+3. Resolve any version conflicts by keeping your fork's version on the artefact and recording an upstream-reconciliation note in your local change record.
+
+A customized fork hits three recurring cases the pull does not resolve on its own:
+
+- **Merge conflicts in artefacts you have edited.** Where you have adapted an artefact and upstream also changed it, resolve the conflict in favour of your adaptation, then re-apply any upstream correction that still matters (a fixed citation, a new control) on top. Record what you took and what you kept in your local change record.
+- **A new upstream audit gate your fork now fails.** Upstream sometimes adds a gate that your customized content trips (see "Running the audit toolchain on your fork" below). The library's own posture is to fix the artefact rather than weaken the gate; an adopter may instead relax or scope a gate locally where a customization legitimately requires it, but should document the deviation and a review date in the local change record (the same exception discipline the AIQT gate-discipline rule describes; https://aiqt.ai) rather than silently disabling the check.
+- **Version-monotonicity conflicts.** If both you and upstream bumped the same artefact, keep your fork's version line and record the upstream version you reconciled against, so your local history stays monotonic.
+
+### Running the audit toolchain on your fork
+
+Some audit gates are calibrated for this library's organization-neutral public corpus and will raise false positives once you insert real values. In particular, [`.claude/skills/corpus-management/tools/lint-pii-in-content.py`](../tools/lint-pii-in-content.py) and [`.claude/skills/corpus-management/tools/lint-secrets-in-content.py`](../tools/lint-secrets-in-content.py) will flag the real role-holders, names, internal system names, or credentials a fork legitimately carries. Keep organization-specific values in a private overlay directory the linters do not scan (add your top-level overlay directory's bare name to `extra_exempt_dirs` in the committed [`.claude/skills/corpus-management/adopter-config.json`](../adopter-config.json) at the repository root, which the value scanners (PII, secrets, placeholder) and essentially all corpus content gates honor, so you never edit tool source that conflicts on upstream pulls; each entry is matched top-level-anchored and directory-only (it exempts only a directory of that name directly under the repository root, never a nested directory and never a file), and a shipped corpus or tooling directory name is rejected, so the config can never blind a gate over shipped library content. A few gates with their own independent file discovery (such as the gate-count-consistency and required-sections checks) still scan your overlay and may echo lines from it in their output, so keep genuinely sensitive credentials out of the committed fork entirely rather than relying on this exemption alone), or keep those values out of the committed fork entirely. Relax or scope a gate only with a documented deviation, per the upstream-tracking guidance above.
+
+### Extending the bundled framework-control registries
+
+The corpus validates the framework control codes cited in an alignment table against bundled, edition-pinned identifier registries under `.claude/skills/corpus-management/tools/`. Each framework family has its own committed registry and its own existence gate, and each gate reads the committed registry rather than the held reference repository at run time, so the checks run in a sibling-free clone. For example, the NIST Privacy Framework uses [`.claude/skills/corpus-management/tools/alignment_citation_reference.py`](../tools/alignment_citation_reference.py) (checked by [`.claude/skills/corpus-management/tools/lint-alignment-citation-existence.py`](../tools/lint-alignment-citation-existence.py)); CSA CCM/AICM uses [`.claude/skills/corpus-management/tools/ccm_aicm_reference.py`](../tools/ccm_aicm_reference.py) (checked by [`.claude/skills/corpus-management/tools/lint-ccm-aicm-citations.py`](../tools/lint-ccm-aicm-citations.py)); ISO/IEC 27001 Annex A uses [`.claude/skills/corpus-management/tools/iso_27001_reference.py`](../tools/iso_27001_reference.py) (checked by [`.claude/skills/corpus-management/tools/lint-document-iso-annex-a.py`](../tools/lint-document-iso-annex-a.py)); and COBIT/ISO 31000 uses [`.claude/skills/corpus-management/tools/cobit_iso31000_reference.py`](../tools/cobit_iso31000_reference.py) (checked by [`.claude/skills/corpus-management/tools/lint-cobit-iso31000-citations.py`](../tools/lint-cobit-iso31000-citations.py)).
+
+If your fork cites a control the relevant framework's registry does not carry (an edition the corpus does not bundle, or an identifier outside the captured set), that framework's existence gate reports a fabricated-code error even though the citation is legitimate against a source you hold. Extend that framework's registry rather than weakening the gate:
+
+1. Identify the registry module the flagging gate imports, and add your held edition's identifiers to it, following that module's own existing structure. The modules differ in shape: some carry a per-edition entry with a `status` and a `provenance` stamp (held-source reference, extraction method, and expected structural counts), while others carry framework-specific sets of constants. Match the module you are editing rather than assuming one common schema.
+2. Extract the identifiers deterministically from the edition you hold. Where a gate validates a code against the union of a framework's held editions, adding your edition's identifiers clears the finding without loosening the check for anything else.
+3. Re-run the gate that flagged the code to confirm it now accepts your citation, then record the addition and its provenance in your local change record. Keep the change in your fork; do not expect it upstream unless the corpus adopts that framework and edition.
+
+One registry is generated rather than hand-maintained: the OWASP ASVS and MITRE CWE identifiers behind the alignment-citation existence gate live in [`.claude/skills/corpus-management/tools/alignment_citation_ids.json`](../tools/alignment_citation_ids.json), produced by [`.claude/skills/corpus-management/tools/build-alignment-citation-registry.py`](../tools/build-alignment-citation-registry.py) from held source files, with the expected counts and digests pinned in [`.claude/skills/corpus-management/tools/alignment_citation_reference.py`](../tools/alignment_citation_reference.py). Editing the JSON by hand fails that module's load by design. Each held ASVS edition is its own entry (the current 5.0.0 and the retained 4.0.3), and the gate validates ASVS citations against their union, so a legacy identifier of a held edition is not reported as fabricated. To carry a different edition, point the generator's source paths at the edition you hold, regenerate, and update the pins from the values the generator prints; the generator refuses a source that is truncated or breaks the edition's section structure.
+
+## When to file an issue upstream
+
+File an issue at https://github.com/jposluns/grc_library/issues if you find:
+
+- A factual error in an artefact.
+- A broken or stale framework reference.
+- A licence concern.
+- An auditor false positive or false negative.
+
+Do not file issues asking for adaptations specific to your organization. Those are the adopter's responsibility.
+
+## Adopter checklist
+
+A short copy-paste checklist for first-time adoption:
+
+```
+[ ] Repository forked or copied
+[ ] Day-1 floor and Tier 1 starter set identified and read end-to-end
+[ ] Roles mapped to organization in private overlay
+[ ] Jurisdictional scope confirmed
+[ ] Sectoral applicability confirmed
+[ ] Risk appetite values replaced with board-approved figures
+[ ] Severity and notification windows replaced with internal thresholds
+[ ] Framework references confirmed current
+[ ] Trade-security programmes retained or removed as appropriate
+[ ] Audit and approval governance signed off
+[ ] Evidence repository linked to adopted artefacts
+[ ] Upstream tracking schedule established (e.g. quarterly pull)
+```

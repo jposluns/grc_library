@@ -1,0 +1,1935 @@
+#!/usr/bin/env python3
+"""Gate-name parity audit across the four audit-programme surfaces.
+
+The audit programme defines a single set of audit gates whose names must
+match exactly across four surfaces:
+
+  1. .claude/skills/corpus-management/specs/specification-audit-programme.md, section 6 "Gate inventory"
+     - the canonical numbered table of gates.
+  2. .github/workflows/quality.yml
+     - the `- name: ...` field of each lint-job step.
+  3. .claude/skills/corpus-management/tools/run_all_audits.sh
+     - the first argument to each `run_gate "..."` call.
+  4. .pre-commit-config.yaml
+     - the `name: ...` field of each local hook.
+
+When the four surfaces drift (a label is abbreviated in one but not the
+others, or a gate is added to one surface but not the others), the audit
+programme's CI-parity guarantee in specification-audit-programme.md
+section 3 principle 5 is broken. This linter detects that drift
+deterministically.
+
+In addition to the four-surface row parity, this gate ADDITIVELY guards the
+three exclusion allow-lists and the per-PR D-numbered delta gates (3.99 (closing PR #1087), extended by #1250): each
+exclusion member is cross-checked against a positive signal that it is genuinely
+not a corpus gate (a setup step invokes no gate script; a delta-gate step's
+script is not a §6-inventory script; a non-gate pre-commit hook carries no
+`--check`), so a real gate mistakenly added to an exclusion set fails rather than
+being masked; and each D-numbered delta gate in the PR-time runner is confirmed
+to map to a workflow delta-gate step of the same script, with the D-numbers
+contiguous D1..HIGHEST_DELTA_GATE apart from retired numbers (D6, retired 2026-08-03;
+D14, retired 2026-11-08). See ``verify_exclusion_and_delta_guards``.
+
+It also checks the spec's section 5 "Gate categories" grouped list against
+the section-6 inventory (backlog 3b158): every inventory gate number appears
+exactly once across the section-5 category lists, and those lists name no
+number the inventory lacks. Only the parenthesized list that opens a
+top-level numbered category item counts, ``N. **Category** (gates 12, 21):``
+at column 0; numbers later on that line (a ``(gate 40)`` gloss) or in other
+section-5 paragraphs are prose and are not read. HTML comments and fenced
+blocks in section 5 are ignored. One pass over the whole spec pairs them in
+context, close to CommonMark: a fence opens on up to three spaces then three
+or more backticks or tildes (a backtick opener's info string holds no
+backtick) and closes only on a line of the same character, at least as long,
+with nothing else on it, so a fence line with an info string inside a fence
+is fence text; outside fences and comments, inline code spans (a run of N
+backticks to the next run of exactly N on the line) are blanked before
+``<!--`` is looked for, so a ``<!--`` quoted in a code span or shown in a
+fenced block opens nothing; an open comment ends at the first ``-->`` in
+the raw text, backticks included; and a fence line inside a comment is
+comment text. A fence or comment that never closes before the end of the
+file is a finding at its opening line, and the lists are then not compared,
+since what the block hides is unknown. A forgotten opener that pairs with a
+later block's closer is not itself a finding: placed before section 5 it
+hides the heading (a missing section 5), and placed among the category
+lines it hides the lists after it (missing numbers), but placed after the
+lists or in section 6, for example a stray backtick fence before the real
+section 6 fenced block, it hides only prose and inventory text that this
+check does not read (``parse_spec_inventory`` reads the rows without the
+markup pass), so it is not reported. A section-5 line that starts like a list
+item with ``*`` or ``_`` emphasis (``N. *``, ``N) *``, ``N. _`` or ``- *``,
+indented or not) without that exact one-line list shape is a finding, and so
+is a missing section 5, so a reformatted or wrapped list fails loud instead
+of being skipped; the lists are then not compared either, which would only
+repeat the line's numbers as missing. Which category a gate belongs in stays
+a review judgment. See ``verify_category_coverage``.
+
+Comparison: the spec inventory table is the canonical source of truth.
+The other three surfaces are validated against it. For each row of the
+inventory, this linter confirms that:
+
+  - The gate name appears, verbatim, in the workflow, runner, and
+    pre-commit hook at the same ordered position.
+  - The gate's script path (e.g., .claude/skills/corpus-management/tools/lint-metadata.py) matches the
+    command in each of the three runtime surfaces.
+  - The invocation arguments (flags after the script path) are identical
+    across the execution surfaces that run the gate. The workflow, runner,
+    and pre-commit hook all invoke each gate with the same flags (a
+    --strict / --enforce / --check present on one surface but not another
+    is a finding); the spec §6 row carries no argv, so it is not compared.
+
+Each gate line is matched against a closed allowlist, not read as shell (3b646,
+maintainer option A): the command must be exactly ``python3 [-I] .claude/skills/corpus-management/tools/X.py``
+followed by plain arguments (GATE_COMMAND), a runner line must be
+``run_gate "LABEL" <command>`` at column 0 or the ``run_gate() {`` definition, a
+gate workflow step has only the keys name and run, and a gate pre-commit hook has
+language system, pass_filenames false and no args; no gate value may continue on a
+deeper-indented line. The two YAML surfaces are accepted only in the structure the
+current files use (3b646 round 6, the maintainer's 23:20Z rule carried from line shapes
+to structure). Every line is blank, a comment, an unquoted ``key:`` or ``key: value``
+line or a plain ``- word`` list item, apart from the text lines of an excluded step's
+``run: |`` block scalar; no value begins with a quote or another YAML indicator, apart
+from the exact pre-commit ``types:`` and ``types_or:`` lists the hooks use and the one
+pinned quoted value, the workflow's ``python-version: "3.14"`` (exactly that text, quote
+opened and closed on the line with nothing after it, kept quoted because YAML reads an
+unquoted ``3.10`` as the number 3.1; WORKFLOW_PINNED_QUOTED_VALUES), so no quote or flow
+collection stays open across lines and a comment line is never inside a value;
+a nested value sits exactly two columns deeper than its key; no mapping repeats a key;
+and each level holds only the keys of the file's fixed skeleton (WORKFLOW_SKELETON,
+PRECOMMIT_SKELETON), the levels above the steps and hooks every one of them, so a step
+is read only as an item of jobs.lint.steps and a hook only as an item of repos[].hooks,
+and the workflow keeps its push and pull_request triggers. A step's first key is
+``- name:`` and a hook's
+``- id:``. A gate hook decides when it runs with exactly one of always_run, files,
+types and types_or, pinned to the values the gate hooks use (PRECOMMIT_GATE_SELECTORS),
+and the workflow's push branches, runner and permissions are pinned too. Any other
+shape is a parse error (exit 2). The allowlist does NOT cover: the values of the
+excluded setup, delta-gate and regeneration steps and hooks (their uses, with, env, if,
+run and entry values, the text of the ``run: |`` block included), which the exclusion
+guards check only by script; runner shell code outside run_gate lines (the function
+body, a redefinition of python3 or run_gate, PATH or BASH_ENV, and whether bash
+reaches a run_gate line inside a conditional, heredoc, loop or backslash
+continuation); the values the skeletons leave free (the workflow and job names, and
+the names and ids of steps and hooks, which the parity comparison reads but does not
+pin); YAML a real reader takes differently in ways these rules do not exclude (the
+check reads the structure, it does not validate YAML, so a value a real reader rejects,
+such as one holding ``: ``, fails there and not here); whether GitHub Actions or
+pre-commit runs at all (a workflow disabled in the repository settings, pre-commit not
+installed, ``SKIP=`` or ``--no-verify``); which python3 is found on PATH; and what the
+gate script does once started.
+
+Gate 36 shard form (maintainer directive 2026-11-04; round-2 hardening): in
+the WORKFLOW alone, the linter regression test suite may run sharded. The
+audit recognizes exactly one shard shape and refuses (exit 2) any deviation
+from it, so the shard form never weakens parity: the jobs mapping holds
+exactly ``lint``, a contiguous ``regression-shard-1`` ..
+``regression-shard-K`` (K at least 2) and ``summary``; each shard job is
+named ``Linter regression test suite (shard i of K)``, runs on ubuntu-latest,
+declares exactly the pinned job outputs ``credited`` (``${{
+steps.gate.outputs.credited }}``, the shard's per-module credited-start
+counts), ``units_sha256`` and ``selected_sha256`` (``${{
+steps.gate.outputs.<name> }}``, the digests of the shard's total and
+selected unit lists), and holds exactly the three setup steps of
+WORKFLOW_SETUP_STEP_ORDER, each pinned to its exact accepted shape
+(WORKFLOW_SETUP_STEP_SHAPES: ``Checkout`` is ``uses:
+actions/checkout@<full 40-hex SHA>`` with ``fetch-depth: 0``; ``Set up
+Python`` is ``uses: actions/setup-python@<full 40-hex SHA>`` with
+``python-version: "3.14"``; ``Install pinned dependencies`` runs exactly
+``python3 -m pip install -r requirements.txt``; a trailing `` # v...``
+version comment is tolerated on a ``uses`` value), followed by one
+gate-shaped step of the job's name with keys exactly ``name``, ``id`` (the
+pinned ``gate``) and ``run``, running exactly ``python3 [-I]
+.claude/skills/corpus-management/tools/run-linter-regression.py --shard i/K``. The ``summary`` job is named
+``Lint markdown corpus`` (the merge guard's required check), needs exactly
+``lint`` and every shard job, carries ``if: always()``, and holds exactly
+the pinned ``Checkout`` and ``Set up Python`` setup steps followed by
+EXACTLY ONE verification step, whose keys are exactly ``name``, ``env`` and
+``run``, whose env is the pinned ``NEEDS_RESULTS: ${{ toJSON(needs) }}``,
+and whose run is exactly ``python3 .claude/skills/corpus-management/tools/reconcile-regression-shards.py``
+(which fails unless every needed job succeeded and the shards'
+``credited`` outputs sum to at least one credited start per on-disk test
+module); a second step of that shape, or any other step, is a refusal, so
+a passing look-alike cannot stand beside the real check. The lint job keeps
+the gate-36 step at its inventory position, running exactly ``python3 [-I]
+.claude/skills/corpus-management/tools/run-linter-regression.py --verify-shards K`` (the partition check;
+the shards run the suite), and its own setup steps are pinned to the same
+shapes and to their place: its first three steps are exactly
+WORKFLOW_SETUP_STEP_ORDER, each once, in order, and no later step carries
+a setup name, so deleting, repeating or reordering one is a refusal. (The
+plain one-job form, read for fixtures and history, pins each setup step's
+shape but not its presence or order.) With the shard form fully verified,
+that step counts as gate 36
+with no arguments (the shards together are the invocation), so the runner
+and pre-commit surfaces, which run gate 36 whole with no arguments, stay in
+argv parity. A workflow whose jobs mapping is exactly ``lint`` is read as
+before, and a ``--verify-shards`` argument without the shard jobs is an
+ordinary argv and fails the argv parity below. Residue: whether GitHub
+Actions actually runs the shard jobs, what the pinned action SHAs resolve
+to, and branch-protection settings, stay outside this audit, as for every
+gate; .claude/skills/corpus-management/tools/merge-when-green.py requires the ``Lint markdown corpus`` check
+itself to succeed, and its ``needs`` make it fail when a shard fails, is
+cancelled or is skipped.
+
+Exit codes:
+
+  0   parity clean.
+  1   one or more drift findings present.
+  2   internal error parsing one of the files the gate reads: the four surfaces
+      (the specification, quality.yml, run_all_audits.sh and .pre-commit-config.yaml)
+      and .claude/skills/corpus-management/tools/run-pr-time-checks.sh. Whichever of the five it is, a file that
+      cannot be read (for example mode 000) is one of these errors, and so is a
+      file that is not valid UTF-8 (an invalid byte, or UTF-16 with a byte-order
+      mark). A file in another encoding whose bytes happen to be valid UTF-8 (such
+      as BOM-less UTF-16 of ASCII text) is read as UTF-8 and fails, if at all, on
+      its content. Anything present at one of the five paths that is not a
+      regular file or a symbolic link to one (a directory, a FIFO, a socket, a
+      device, a symbolic link loop, a link to nothing or to any of those) is one
+      of these errors too, named with its kind and never opened.
+      .claude/skills/corpus-management/tools/run-pr-time-checks.sh may be absent (nothing at the path), which
+      skips the D-number parity check; present but empty, or with no
+      ``run_check "D<n> ..."`` line, it is one of these errors.
+
+The linter is itself part of the audit programme and is added to
+.github/workflows/quality.yml, .claude/skills/corpus-management/tools/run_all_audits.sh, and
+.pre-commit-config.yaml under the conventional name "Gate-name parity
+audit" so it self-checks on every run.
+
+Stdlib-only Python 3.14.
+
+The ``--root`` argument overrides the repository root the linter
+reads its four surface files from. Used by the gate-36 regression
+test suite to point at a synthetic source-set with engineered drift
+so the linter's detection logic can be exercised. Default: the
+repository root derived from this file's location.
+"""
+
+from __future__ import annotations
+
+import argparse
+import errno
+import os
+import re
+import shlex
+import stat
+import sys
+from pathlib import Path
+
+# The tool lives at .claude/skills/corpus-management/tools/, four levels below
+# the repository root that the repository-relative surface paths below name.
+REPO_ROOT = Path(__file__).resolve().parents[4]
+
+SPEC_PATH = ".claude/skills/corpus-management/specs/specification-audit-programme.md"
+WORKFLOW_PATH = ".github/workflows/quality.yml"
+RUNNER_PATH = ".claude/skills/corpus-management/tools/run_all_audits.sh"
+PRECOMMIT_PATH = ".pre-commit-config.yaml"
+# The PR-time runner where the D-numbered delta gates are actually invoked (the
+# positive-signal surface for the delta-gate parity guard, 3.99 (closing PR #1087)).
+PRTIME_PATH = ".claude/skills/corpus-management/tools/run-pr-time-checks.sh"
+
+# Workflow steps that are setup, not audit gates. These names are
+# excluded from the workflow's audit-gate list before comparison. Each is
+# additionally pinned to its exact accepted shape (round-2 hardening): the
+# keys it may hold, the exact `with:` values, and either the exact run
+# command or a `uses:` value pinned to the named action at a FULL 40-hex
+# commit SHA (a trailing " # v..." version comment is tolerated). Anything
+# else is a ParseError, so a setup-named step cannot smuggle other content
+# past the by-name exclusion.
+WORKFLOW_SETUP_STEPS = {"Checkout", "Set up Python", "Install pinned dependencies"}
+WORKFLOW_SETUP_STEP_ORDER = ("Checkout", "Set up Python",
+                             "Install pinned dependencies")
+_USES_COMMENT = r"( # v[0-9][A-Za-z0-9.()-]*)?"
+WORKFLOW_SETUP_STEP_SHAPES = {
+    "Checkout": {
+        "keys": ("name", "uses", "with"),
+        "uses": re.compile(r"actions/checkout@[0-9a-f]{40}" + _USES_COMMENT),
+        "with": {"fetch-depth": "0"},
+    },
+    "Set up Python": {
+        "keys": ("name", "uses", "with"),
+        "uses": re.compile(r"actions/setup-python@[0-9a-f]{40}"
+                           + _USES_COMMENT),
+        "with": {"python-version": '"3.14"'},
+    },
+    "Install pinned dependencies": {
+        "keys": ("name", "run"),
+        "run": "python3 -m pip install -r requirements.txt",
+    },
+}
+
+# Workflow steps that are per-PR delta gates documented in
+# .claude/skills/corpus-management/specs/specification-audit-programme.md §6.1. These are not part
+# of the corpus inventory in §6 and therefore are excluded from
+# the parity audit. Delta gates run in quality.yml on pull_request events
+# and locally via the pre-push guard (run-pr-time-checks.sh); they inspect
+# the PR's change set rather than the repository state at HEAD.
+WORKFLOW_DELTA_GATE_STEPS = {
+    "CHANGELOG-on-PR check",
+    "Per-PR version-bump check",
+    "CHANGELOG dash-on-PR check",
+    "Per-PR Version-Date co-bump check",
+    "Backlog-rotation-on-PR check",
+    "CHANGELOG length-on-PR check",
+    "Daily-changelog-rollup reminder",
+    "Retired-section-orphan check",
+    "CLAUDE.md-size ratchet",
+    "Narrative-corpus mixed-diff check",
+    "Number-floor monotonicity check",
+    "Stranded-control-code check",
+    "Alignment-citation register check",
+}
+
+# Delta-gate numbers are PERMANENT and never reused (the same rule as backlog
+# item numbers): a retired delta gate leaves a GAP in the D1..N sequence rather
+# than being renumbered, because the number leaks into CHANGELOG entries and
+# prose where a recycled number would silently mis-resolve. D6 (pack-README
+# version-history co-bump) was retired 2026-08-03 when the pack README's
+# ``## Version history`` section was removed; D14 (class-completeness
+# attestation) was retired 2026-11-08 when the open-findings ledger it read
+# moved to the private operational store. The contiguity guard below
+# tolerates these gaps.
+RETIRED_DELTA_GATES = {6, 14}
+HIGHEST_DELTA_GATE = 15
+
+# Pre-commit hooks that are setup or regeneration steps, not audit
+# gates. These are excluded from the pre-commit-to-spec parity check.
+# The regenerate-derived-artefacts hook runs the build scripts in
+# write mode so .claude/skills/corpus-management/data/taxonomy.yml / .claude/skills/corpus-management/data/narrative.yml / governance/portal.md / governance/maturity-scorecard.md / governance/relationship-model.generated.json / the .working/TODO.md number-allocation block
+# are refreshed. The ordering differs by artefact: for .claude/skills/corpus-management/data/taxonomy.yml / governance/portal.md /
+# governance/maturity-scorecard.md the --check gates run BEFORE this regen hook (check-then-regen:
+# the gates fail loud on drift first, then the regen auto-fixes the local tree), while the
+# .claude/skills/corpus-management/data/narrative.yml --check, the relationship-model-in-sync --check, and the number-allocation --check (gate 91, always_run) run AFTER this hook, so those artefacts are instead protected by
+# pre-commit's modification detection plus the later check; this hook is not
+# itself a verification gate.
+PRECOMMIT_NON_GATE_HOOKS = {"Regenerate taxonomy, narrative registry, portal, maturity scorecard, relationship model, and number-allocation block"}
+
+# Regex to extract the .claude/skills/corpus-management/tools/X.py portion of a `python3 .claude/skills/corpus-management/tools/X.py ...` or
+# `python3 -I .claude/skills/corpus-management/tools/X.py ...` style command. Captures the script's
+# repository-relative path only, discarding the `python3` prefix, the optional
+# isolated-mode flag and any trailing arguments. It is used to find the script of
+# the excluded and delta-gate steps; a gate line itself must match GATE_COMMAND below.
+# Whether a gate runs with `-I` is not compared across surfaces; only its script and
+# flags are.
+SCRIPT_RE = re.compile(r"python3\s+(?:-I\s+)?(.claude/skills/corpus-management/tools/[A-Za-z0-9_.\-]+\.py)")
+
+# Gate lines are matched against a closed allowlist (3b646 round 4, maintainer option A).
+# Rounds 1 to 3 read the shell grammar and refused the shapes known to hide an
+# interpreter; each round found a new one (a second call, a quoted option, a glob-expanded
+# interpreter). Now a gate command must be exactly GATE_COMMAND, from its first character
+# to its last after trailing spaces and tabs are dropped:
+#
+#   python3 [-I] .claude/skills/corpus-management/tools/NAME.py [ARG ...]
+#
+# with one space between words, NAME made of lower-case letters, digits, '-' and '_'
+# (starting with a letter or digit), and each ARG a plain word of letters, digits and
+# _ . / = , + - only. Those characters have no meaning to the shell or to a YAML plain
+# scalar, so the shell's words, pre-commit's shlex split and a split on spaces agree, and
+# no quoting, variable, glob, brace, redirection, operator, comment or second command can
+# appear. Anything else is a ParseError. The same patterns guard
+# .claude/skills/corpus-management/tools/audit-gate-blindspots.py's runner reading (a test keeps the strings equal).
+#
+# Per surface:
+#   - runner: every line that is not a comment and holds the word run_gate is either a
+#     line in RUNNER_NON_GATE_LINES (the function definition) or matches RUNNER_LINE_RE
+#     from column 0: run_gate "LABEL" GATE_COMMAND, LABEL in RUNNER_LABEL's characters.
+#   - both YAML surfaces (3b646 round 6): the file is read into a tree and must match its
+#     fixed skeleton, WORKFLOW_SKELETON or PRECOMMIT_SKELETON, the structure the current
+#     files use. Round 5 allowlisted line shapes but not structure, so a `- name:` or
+#     `- id:` line was read as a step or hook at any column under any key, and a comment
+#     line was skipped while a quoted value was still open. Now:
+#       * _yaml_lines: every line is blank, a comment, an unquoted `key:` or `key: value`
+#         line (after an optional `- `) or a plain `- word` item; no value begins with a
+#         quote or another YAML indicator (YAML_VALUE_INDICATORS), apart from the exact
+#         PRECOMMIT_FLOW_LISTS values, the one WORKFLOW_PINNED_QUOTED_VALUES value and the
+#         `|` of a block scalar, whose text lines are consumed as text; no line holds a tab.
+#       * _yaml_tree: a nested mapping or list is exactly two columns deeper than its key
+#         (so a list at its key's column, `x:` then `- name:`, is refused), a line deeper
+#         than a mapping's keys that no key above it opens is refused (a plain value never
+#         continues), and a mapping never repeats a key, at any level.
+#       * _check_skeleton: each mapping holds only its skeleton's keys, and the mappings
+#         above the steps and hooks (_Exact) hold every one of them, each list item
+#         matches the skeleton's item, and pinned scalars hold their pinned values. A
+#         step is therefore only an item of jobs.lint.steps, with its dash at column 6
+#         and its keys at column 8, and a hook only an item of repos[].hooks, likewise.
+#     A comment line is skipped only where no value is open: a value never opens a quote
+#     or a flow collection (both refused at their first character, except the one-line
+#     PRECOMMIT_FLOW_LISTS values and the one-line WORKFLOW_PINNED_QUOTED_VALUES value,
+#     each of which closes on its own line), a plain value never continues on a later
+#     line, and
+#     the only multi-line value, a `run: |` block scalar, consumes its lines as text
+#     before comments are looked for (so a `#` line inside it is text, as YAML reads it).
+#   - workflow: a step whose first key is not `- name:` is a finding. A step whose name is
+#     not excluded is a gate step: it has exactly the keys name and run, and its run
+#     value matches GATE_COMMAND.
+#   - pre-commit: a hook whose first key is not `- id:`, or that lacks a name or an entry,
+#     is a finding. Unless excluded, a hook is a gate hook: its language is system, its
+#     pass_filenames is false (pre-commit appends the file names otherwise), it has no
+#     args (no key outside PRECOMMIT_GATE_HOOK_KEYS), it decides when it runs with exactly
+#     one entry of PRECOMMIT_GATE_SELECTORS, verbose is true if present, and its entry
+#     matches GATE_COMMAND.
+# Every surface is split into lines at LF only, as bash splits it; a CR stays in its line
+# (and fails the pattern), and a YAML surface holding CR, NEL, LS or PS, which YAML reads
+# as a line break, is a finding.
+#
+# NOT COVERED by the allowlist (each runs what it runs; this check does not pin it):
+#   - the values of the excluded steps and hooks (WORKFLOW_SETUP_STEPS,
+#     WORKFLOW_DELTA_GATE_STEPS, PRECOMMIT_NON_GATE_HOOKS): their uses, with, env, if, run
+#     and entry values and the text of a `run: |` block, which the exclusion guards check
+#     only by script. Their keys are in the skeleton, so no gate step or hook can sit
+#     inside them;
+#   - runner shell code outside run_gate lines: the run_gate function body, the preamble,
+#     a function, alias or PATH/BASH_ENV change that redefines python3 or run_gate, and
+#     whether bash runs a run_gate line at all (a conditional, a heredoc, a loop or a
+#     backslash continuation from the line before);
+#   - the values the skeletons leave free: the workflow and job names, and step and hook
+#     names and ids, which the parity comparison reads but does not pin;
+#   - YAML a real reader takes differently in ways these rules do not exclude: the check
+#     reads structure and does not validate YAML, so a value a real reader rejects (one
+#     holding ': ', say) fails in that reader, not here;
+#   - whether GitHub Actions or pre-commit runs at all (a workflow disabled in the
+#     repository settings, pre-commit not installed, SKIP= or --no-verify);
+#   - which python3 is found on PATH, and what the gate script itself does.
+GATE_COMMAND = (r"python3(?: -I)? (?P<script>.claude/skills/corpus-management/tools/[a-z0-9][a-z0-9_-]*\.py)"
+                r"(?P<args>(?: [A-Za-z0-9_./=,+-]+)*)")
+GATE_COMMAND_RE = re.compile(GATE_COMMAND)
+RUNNER_LABEL = r"[A-Za-z0-9.][A-Za-z0-9 ./-]*"
+RUNNER_LINE_RE = re.compile(rf'run_gate "(?P<name>{RUNNER_LABEL})" +{GATE_COMMAND}')
+RUN_GATE_WORD_RE = re.compile(r"\brun_gate\b")
+# The fixed list of non-interpreter lines that hold the word run_gate.
+RUNNER_NON_GATE_LINES = frozenset({"run_gate() {"})
+WORKFLOW_GATE_STEP_KEYS = ("name", "run")
+PRECOMMIT_GATE_HOOK_KEYS = frozenset({"id", "name", "entry", "language", "pass_filenames",
+                                      "always_run", "types", "types_or", "files", "verbose"})
+# The keys of PRECOMMIT_GATE_HOOK_KEYS that decide whether pre-commit runs a hook. The
+# others that do (exclude, exclude_types, stages, ...) are outside it, as are the top-level
+# settings (fail_fast, files, exclude, ...), so a gate hook cannot have them. A gate hook
+# has exactly one of these keys, with one of the exact values the current gate hooks use,
+# so every gate hook runs on every commit or whenever a markdown file is staged.
+PRECOMMIT_RUN_KEYS = ("always_run", "files", "types", "types_or")
+PRECOMMIT_GATE_SELECTORS = frozenset({
+    ("always_run", "true"),
+    ("types", "[markdown]"),
+    ("types_or", "[markdown, python, shell]"),
+    ("files", r"(\.md$|^.claude/skills/corpus-management/tools/build-(narrative-registry|portal|taxonomy)\.py$"
+              r"|^.claude/skills/corpus-management/tools/lint-language\.py$|^\.claude/skills/corpus-management/src/tools/gate_lint_language\.py$)"),
+    ("files", r"\.(md|py|yaml|yml|json|toml|txt)$"),
+    ("files", r"\.(md|py|yaml|yml|json|toml|txt|cff)$"),
+})
+GATE_SHAPE = ("a gate line is exactly `python3 [-I] .claude/skills/corpus-management/tools/X.py ...`: one space between "
+              "words, X in lower-case letters, digits, '-' and '_', and plain arguments of "
+              "letters, digits and _ . / = , + - only; no other interpreter or option, "
+              "quoting, variable, glob, redirection, wrapper, second command, comment or "
+              "continuation line (see GATE_COMMAND in .claude/skills/corpus-management/tools/lint-audit-gate-parity.py)")
+
+
+def _gate_command(command: str) -> re.Match[str] | None:
+    """The GATE_COMMAND match of ``command`` (trailing spaces and tabs dropped), or None."""
+    return GATE_COMMAND_RE.fullmatch(command.rstrip(" \t"))
+
+
+def _gate_argv(match: re.Match[str]) -> tuple[str, ...]:
+    """The arguments after the script of a GATE_COMMAND match."""
+    return tuple(match.group("args").split())
+
+# Regex to extract the .claude/skills/corpus-management/tools/X.py portion from a markdown link in the
+# inventory table's Script column.
+SPEC_SCRIPT_RE = re.compile(r"`(.claude/skills/corpus-management/tools/[A-Za-z0-9_.\-]+\.py)`")
+
+# Characters allowed in a plain gate invocation argv (flags, paths, values, matched
+# quotes, and backslash for shlex escaping). This is an ALLOWLIST: if every character of
+# the argv tail is in this set, shlex word-splitting models the shell faithfully (quote-
+# aware, whitespace-normalizing between tokens). If ANY other character appears -- shell
+# expansion, substitution, globbing, or control such as $ ` & | ; < > ( ) * ? [ ] { } ~
+# -- shlex cannot be trusted (it strips quotes but ignores expansion/globbing), so the
+# raw remainder is compared instead. Allowlisting rather than blocklisting the special
+# characters is complete by construction: an unanticipated metacharacter routes to the
+# safe raw comparand rather than being silently mis-parsed.
+_SAFE_ARGV_CHARS = frozenset(
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    " \t_=./:@,+-'\"\\"
+)
+
+
+def _extract_argv(command: str, script_path: str) -> tuple[str, ...]:
+    """Return a comparable representation of the argv a run command passes to
+    ``script_path``. For a plain flag list (every real gate) this is the shlex
+    word-split token tuple, quote-aware so ``--sep 'a b'`` is ONE token and repeated
+    whitespace between tokens is irrelevant. If the remainder contains ANY character
+    outside the ``_SAFE_ARGV_CHARS`` allowlist (shell expansion, substitution, globbing,
+    or control -- ``$`` ``&`` ``|`` ``;`` ``<`` ``>`` ``(`` ``)`` ``*`` ``?`` and the
+    like), or is malformed (unbalanced quotes), it is returned as a single raw-sentinel
+    token holding the stripped remainder verbatim: shlex strips quotes but does not model
+    expansion/globbing and cannot tell an unquoted ``&&`` operator from a quoted ``'&&'``
+    literal, so for those cases the raw text is compared, which preserves EVERY textual
+    difference and so fails toward flagging rather than masking a divergence (or crashing).
+    No real gate invocation contains such a character (each is a plain
+    ``python3 .claude/skills/corpus-management/tools/x.py --flags`` call), so the shlex path handles every live line.
+    The value is only ever compared with this function's output on another execution
+    surface; the spec §6 row carries no argv, so it is not argv-compared.
+
+    CONTRACT + residue: the guard compares the flags of a SIMPLE gate invocation.
+    A metacharacter-bearing invocation is out of that contract, and the raw comparand
+    is a documented best-effort, NOT a model of shell execution semantics: it may flag
+    an equivalent quote-spelling difference (e.g. ``--x 'a&b'`` vs ``--x "a&b"`` -- the
+    SAFE fail-toward-flagging direction), and it does not distinguish how the shell-run
+    surfaces (workflow, runner) versus the direct-exec pre-commit hooks would interpret
+    an operator in identical text (such text would break the gate loudly under argparse
+    anyway). No live gate invocation contains a metacharacter, so this residue is inert;
+    modelling per-surface shell semantics is deliberately out of scope for this guard.
+    """
+    idx = command.find(script_path)
+    if idx < 0:
+        return ()
+    tail = command[idx + len(script_path):]
+    if all(ch in _SAFE_ARGV_CHARS for ch in tail):
+        try:
+            return tuple(shlex.split(tail))
+        except ValueError:
+            pass
+    return ("\x00raw:" + tail.strip(),)
+
+
+# Inventory-table row pattern. Captures the gate number, the gate name,
+# and the rest of the row (which contains the script link).
+SPEC_ROW_RE = re.compile(r"^\|\s*(\d+)\s*\|\s*(.+?)\s*\|\s*(.+?)\s*\|\s*$")
+
+# A retired gate keeps its number as a tombstone row (D-2251: gate numbers are
+# permanent and never reused): the Gate cell is the one-line retired marker
+# "*(retired YYYY-MM-DD: reason)*" and the Script cell is exactly "n/a". A
+# tombstone row has no script link and runs on no execution surface, so it is
+# left out of the live rows that the parity checks compare. A row with either
+# half of the tombstone shape but not the other is a ParseError, so a live gate
+# cannot lose its script link by being half-marked as retired.
+SPEC_TOMBSTONE_NAME_RE = re.compile(r"^\*\(retired \d{4}-\d{2}-\d{2}: [^|]+\)\*$")
+SPEC_TOMBSTONE_SCRIPT = "n/a"
+
+
+class ParseError(Exception):
+    """Raised when one of the four surfaces or .claude/skills/corpus-management/tools/run-pr-time-checks.sh cannot be
+    read or parsed."""
+
+
+def parse_spec_inventory(path: Path) -> list[tuple[int, int, str, str]]:
+    """Return [(line_number, gate_index, name, script_path), ...] from spec section 6.
+
+    Reads the spec markdown, locates the "## 6." heading, walks forward
+    until the next "## " heading, and extracts every table row that
+    matches SPEC_ROW_RE. Skips the table header divider row. Tombstone
+    rows (retired gate numbers, see SPEC_TOMBSTONE_NAME_RE) are validated
+    and skipped: only live rows are returned. A number that appears on more
+    than one row, live or tombstone, is a ParseError.
+    """
+    rows: list[tuple[int, int, str, str]] = []
+    seen_numbers: dict[int, int] = {}
+    in_section_6 = False
+    for lineno, line in enumerate(_universal_newlines(_read_utf8(path)).split("\n"), 1):
+        if line.startswith("## 6."):
+            in_section_6 = True
+            continue
+        if in_section_6 and line.startswith("## ") and not line.startswith("## 6."):
+            break
+        if not in_section_6:
+            continue
+        m = SPEC_ROW_RE.match(line)
+        if not m:
+            continue
+        gate_num_str, gate_name, rest = m.group(1), m.group(2), m.group(3)
+        # Skip header divider rows ("---" content).
+        if gate_name.strip("- ") == "":
+            continue
+        try:
+            gate_num = int(gate_num_str)
+        except ValueError:
+            continue
+        if gate_num in seen_numbers:
+            raise ParseError(
+                f"{path.relative_to(REPO_ROOT)}:{lineno}: "
+                f"gate number {gate_num} already has an inventory row at line "
+                f"{seen_numbers[gate_num]}; a gate number is never reused"
+            )
+        seen_numbers[gate_num] = lineno
+        is_tombstone_name = SPEC_TOMBSTONE_NAME_RE.match(gate_name) is not None
+        is_tombstone_script = rest == SPEC_TOMBSTONE_SCRIPT
+        if is_tombstone_name and is_tombstone_script:
+            continue  # retired number: recorded tombstone, not a live gate
+        if is_tombstone_name or is_tombstone_script:
+            raise ParseError(
+                f"{path.relative_to(REPO_ROOT)}:{lineno}: "
+                f"inventory row for gate {gate_num} is half a tombstone: a retired "
+                f"row needs both the \"*(retired YYYY-MM-DD: ...)*\" Gate cell and "
+                f"the Script cell {SPEC_TOMBSTONE_SCRIPT!r}"
+            )
+        script_match = SPEC_SCRIPT_RE.search(rest)
+        if not script_match:
+            raise ParseError(
+                f"{path.relative_to(REPO_ROOT)}:{lineno}: "
+                f"inventory row for gate {gate_num} has no recognizable "
+                f"`.claude/skills/corpus-management/tools/X.py` script link"
+            )
+        rows.append((lineno, gate_num, gate_name, script_match.group(1)))
+    if not rows:
+        raise ParseError(
+            f"{path.relative_to(REPO_ROOT)}: no §6 gate-inventory rows found"
+        )
+    return rows
+
+
+# Section-5 grouped list (3b158). A line opening with CATEGORY_ITEM_RE is a
+# category item and must match CATEGORY_LIST_RE; only group 1, the leading
+# "(gates ...)" list, is read, so later "(gate N)" glosses stay prose. The item
+# shape is wide (any numbered or bulleted line opening with "*" or "_"
+# emphasis), so a near-miss such as "8) **...**", "- **...**" or "8. __...__"
+# is malformed, not unread.
+CATEGORY_ITEM_RE = re.compile(r"^\s*(?:\d+[.)]|[-*+])\s+[*_]")
+CATEGORY_LIST_RE = re.compile(r"^\d+\. \*\*[^*]+\*\* \(gates? (\d+(?:, \d+)*)\):")
+# CommonMark fence lines: up to three spaces, then a run of three or more
+# backticks or tildes. FENCE_LINE_RE's group 2 is the info string (a backtick
+# opener's may not hold a backtick); a closer has nothing but spaces or tabs
+# after its run.
+FENCE_LINE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
+FENCE_CLOSE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})[ \t]*$")
+BACKTICK_RUN_RE = re.compile(r"`+")
+
+
+def _fence_opener(line: str) -> tuple[str, int, str] | None:
+    """(character, run length, info string) if ``line`` opens a fence."""
+    m = FENCE_LINE_RE.match(line)
+    if not m or (m.group(1)[0] == "`" and "`" in m.group(2)):
+        return None
+    return m.group(1)[0], len(m.group(1)), m.group(2)
+
+
+def _mask_code_spans(line: str) -> str:
+    """``line`` with each inline code span (a run of N backticks to the next
+    run of exactly N backticks on the line) blanked to spaces, offsets kept.
+    A run with no such closer is literal text and stays."""
+    pos = 0
+    while m := BACKTICK_RUN_RE.search(line, pos):
+        closer = re.compile(rf"(?<!`){m.group(0)}(?!`)").search(line, m.end())
+        if closer is None:
+            pos = m.end()
+            continue
+        line = line[:m.start()] + " " * (closer.end() - m.start()) + line[closer.end():]
+        pos = closer.end()
+    return line
+
+
+def _scan_markup(lines: list[str]) -> tuple[list[str | None], list[str]]:
+    """One pass over ``lines`` pairing fences and HTML comments in context.
+
+    Returns the text of each line outside comments (None for a fence line or
+    a line inside a fence) and the markup findings, each at the line where the
+    block opens. Fences pair as CommonMark pairs them: a closer is the
+    opener's character, at least the opener's run, and nothing else, so a
+    fence line with an info string inside a fence is fence text. Outside
+    fences and comments, code spans are blanked before "<!--" is looked for,
+    so a "<!--" quoted in a code span opens nothing; an open comment ends at
+    the first "-->" in the raw text, backticks included, as CommonMark ends
+    it. A fence line inside a comment is comment text. A block is a finding
+    only when it never closes before the end of the file. A forgotten opener
+    that pairs with a later block's closer is not reported as such: it hides
+    the text up to that closer, which fails the check only if that text held
+    category lines whose numbers are not listed elsewhere, or the section 5
+    heading."""
+    not_checked = "the category lists are not checked until it is closed"
+    visible: list[str | None] = []
+    findings: list[str] = []
+    fence: tuple[str, int, int] | None = None  # character, run, opening line
+    comment = 0  # opening line of the open comment
+    for lineno, line in enumerate(lines, start=1):
+        if fence is not None:
+            char, run, _ = fence
+            closer = FENCE_CLOSE_RE.match(line)
+            if closer and closer.group(1)[0] == char and len(closer.group(1)) >= run:
+                fence = None
+            visible.append(None)
+            continue
+        if not comment:
+            opener = _fence_opener(line)
+            if opener:
+                fence = (opener[0], opener[1], lineno)
+                visible.append(None)
+                continue
+        kept: list[str] = []
+        pos = 0
+        while True:
+            if not comment:
+                start = _mask_code_spans(line[pos:]).find("<!--")
+                if start == -1:
+                    kept.append(line[pos:])
+                    break
+                kept.append(line[pos:pos + start])
+                comment, pos = lineno, pos + start + 4
+                continue
+            end = line.find("-->", pos)
+            if end == -1:
+                break
+            comment, pos = 0, end + 3
+        visible.append("".join(kept))
+    if fence is not None:
+        findings.append(
+            f"{SPEC_PATH}:{fence[2]}: section-5 categories: unclosed code fence "
+            f"(no later closing fence of its character and at least its "
+            f"length); {not_checked}"
+        )
+    elif comment:
+        findings.append(
+            f"{SPEC_PATH}:{comment}: section-5 categories: unclosed HTML comment "
+            f"('<!--' with no later '-->'); {not_checked}"
+        )
+    return visible, findings
+
+
+def verify_category_coverage(path: Path, expected: set[int]) -> list[str]:
+    """Return findings for the section-5 grouped list against ``expected``,
+    the section-6 inventory numbers: each must be listed exactly once, and no
+    other number may be listed. ``_scan_markup`` reads the whole file first;
+    a comment or fence that never closes is reported at its opening line and
+    the comparison is skipped, because the block hides an unknown part of the
+    file. The comparison then reads the lines the markup pass left
+    outside fences and comments (not the
+    shared ``lint_common.iter_non_code_lines``, whose fence toggle pairs
+    fences differently from the CommonMark pairing checked here). A malformed
+    category line or a missing section 5 is reported without the comparison,
+    which would only repeat its numbers as missing."""
+    lines = _universal_newlines(_read_utf8(path)).split("\n")
+    visible, findings = _scan_markup(lines)
+    if findings:
+        return findings
+    listed: dict[int, list[int]] = {}
+    seen_section_5 = False
+    in_section_5 = False
+    for lineno, line in enumerate(visible, start=1):
+        if line is None:
+            continue
+        if line.startswith("## "):
+            in_section_5 = line.startswith("## 5.")
+            seen_section_5 = seen_section_5 or in_section_5
+            continue
+        if not in_section_5 or not CATEGORY_ITEM_RE.match(line):
+            continue
+        m = CATEGORY_LIST_RE.match(line)
+        if not m:
+            findings.append(
+                f"{SPEC_PATH}:{lineno}: section-5 categories: malformed category "
+                f"line (expected 'N. **Category** (gates 1, 2, 3):' at its start, "
+                f"at column 0, with the whole list on one line); the lists are "
+                f"not compared until it is fixed"
+            )
+            continue
+        for token in m.group(1).split(", "):
+            listed.setdefault(int(token), []).append(lineno)
+    if not seen_section_5:
+        findings.append(
+            f"{SPEC_PATH}: section-5 categories: no '## 5.' section found"
+        )
+    if findings:
+        return findings
+    for number in sorted(expected | set(listed)):
+        lines = listed.get(number, [])
+        if number not in expected:
+            findings.append(
+                f"{SPEC_PATH}:{lines[0]}: section-5 categories: gate {number} "
+                f"not in the section-6 inventory (listed at lines {lines})"
+            )
+        elif not lines:
+            findings.append(
+                f"{SPEC_PATH}: section-5 categories: gate {number} missing; "
+                f"add it to exactly one category list"
+            )
+        elif len(lines) > 1:
+            findings.append(
+                f"{SPEC_PATH}:{lines[0]}: section-5 categories: gate {number} "
+                f"listed {len(lines)} times (lines {lines}); list it exactly once"
+            )
+    return findings
+
+
+YAML_KEY_RE = re.compile(r"( *)(- )?([A-Za-z_][A-Za-z0-9_-]*):(?: +(.*))?")
+# A block-sequence item that is a plain word, not a mapping (`- main` under `branches:`).
+YAML_PLAIN_ITEM_RE = re.compile(r"( *)- ([A-Za-z0-9_./-]+)")
+# A value may not begin with a quote, so no quote is ever open across lines, nor with any
+# other YAML indicator: a flow collection, an anchor, alias or tag, a folded or chomped
+# block scalar, a comment, a directive or reserved character, or a dash.
+YAML_VALUE_INDICATORS = ("'", '"', "[", "]", "{", "}", "&", "*", "!", "|", ">", "%", "@",
+                         "`", "#", "?", ":", ",", "-")
+# The only flow sequences: the exact pre-commit types: and types_or: lists the hooks use.
+# YAML reads each word as a string; yes, null and the other YAML specials are not in them.
+PRECOMMIT_FLOW_LISTS = {"types": frozenset({"[markdown]"}),
+                        "types_or": frozenset({"[markdown, python, shell]"})}
+# The only quoted value, keyed by key name: the workflow's `python-version: "3.14"`. It stays
+# quoted because YAML reads an unquoted version as a number (`3.10` loads as the float 3.1),
+# a trap for any later version ending in zero. The value must be exactly this text after
+# trailing spaces and tabs are dropped: a double quote opened and closed on the same line,
+# with no quote, `#` or anything else after it. So the comment-line guarantee holds: the
+# quote never stays open past its own line, and a later comment line is never inside it.
+# `"3.12"`, `'3.14'`, `"3.14" # x`, an open `"3.14` and a quoted value of any other key stay
+# refused.
+WORKFLOW_PINNED_QUOTED_VALUES = {"python-version": '"3.14"'}
+# The value that opens a literal block scalar (an excluded step's `run: |`).
+YAML_BLOCK_SCALAR = "|"
+YAML_STRUCTURE = ("a gate YAML surface is accepted only in the fixed structure of the current "
+                  "file: blank and comment lines, unquoted `key:` or `key: value` lines and "
+                  "plain `- word` items, each nested value exactly two columns deeper than its "
+                  "key, no key repeated in a mapping, no value beginning with a quote or other "
+                  "YAML indicator (apart from the exact pre-commit types: and types_or: lists, "
+                  "the workflow's one pinned quoted value `python-version: \"3.14\"` and an "
+                  "excluded step's `run: |`), and at each level only the keys of "
+                  "WORKFLOW_SKELETON or PRECOMMIT_SKELETON in .claude/skills/corpus-management/tools/lint-audit-gate-parity.py")
+# Characters YAML (1.1, as PyYAML reads it) takes as a line break besides LF.
+YAML_OTHER_BREAKS = ("\r", "\x85", "\u2028", "\u2029")
+
+# The fixed skeletons (3b646 round 6). A dict is a mapping that may hold only its keys, and
+# an _Exact one must hold every one of them; a one-item list is a list whose items match
+# that item; a frozenset is a plain value pinned to its members; and a tuple names the node
+# kinds allowed: a plain "scalar", "empty" (a key with no value) or a `|` "block" scalar.
+class _Exact(dict):
+    """A skeleton mapping that must hold every one of its keys."""
+
+
+_SCALAR, _EMPTY, _BLOCK = ("scalar",), ("empty",), ("block",)
+WORKFLOW_STEP_SKELETON = {
+    "name": _SCALAR, "id": _SCALAR, "uses": _SCALAR, "if": _SCALAR,
+    "run": _SCALAR + _BLOCK,
+    "with": {"fetch-depth": _SCALAR, "python-version": _SCALAR},
+    "env": {"BASE_SHA": _SCALAR, "HEAD_SHA": _SCALAR},
+}
+WORKFLOW_SKELETON = _Exact({
+    "name": _SCALAR,
+    "on": _Exact({"push": _Exact({"branches": [frozenset({"main"})]}), "pull_request": _EMPTY}),
+    "permissions": _Exact({"contents": frozenset({"read"})}),
+    "jobs": _Exact({"lint": _Exact({"name": _SCALAR, "runs-on": frozenset({"ubuntu-latest"}),
+                                    "steps": [WORKFLOW_STEP_SKELETON]})}),
+})
+PRECOMMIT_SKELETON = _Exact({
+    "repos": [_Exact({"repo": frozenset({"local"}),
+                      "hooks": [dict.fromkeys(sorted(PRECOMMIT_GATE_HOOK_KEYS), _SCALAR)]})],
+})
+
+# Gate 36 shard form (see the docstring's shard-form section). Every value a
+# deviation could hide behind is pinned: the job-key shapes, the shard job and
+# step names, the shard and verify commands (via GATE_COMMAND, so the optional
+# -I is tolerated as on every gate line), the summary job's name, if, needs,
+# env and run. SUMMARY_STEP_RUN fails unless every needed job's result is
+# "success", so a failed, cancelled or skipped shard fails the required check.
+REGRESSION_SCRIPT = ".claude/skills/corpus-management/tools/run-linter-regression.py"
+SHARD_JOB_PREFIX = "regression-shard-"
+SHARD_JOB_NAME = "Linter regression test suite (shard %d of %d)"
+SHARD_GATE_STEP_KEYS = ("name", "id", "run")
+SHARD_GATE_STEP_ID = "gate"
+SHARD_CREDITED_OUTPUT = "${{ steps.gate.outputs.credited }}"
+# Each shard job publishes, beside its credited counts, the digests of its
+# total and selected unit lists; the job's outputs mapping is exactly these
+# three, each read from the id-pinned gate step.
+SHARD_JOB_OUTPUTS = {
+    "credited": SHARD_CREDITED_OUTPUT,
+    "units_sha256": "${{ steps.gate.outputs.units_sha256 }}",
+    "selected_sha256": "${{ steps.gate.outputs.selected_sha256 }}",
+}
+SUMMARY_JOB_KEY = "summary"
+SUMMARY_JOB_NAME = "Lint markdown corpus"
+SUMMARY_JOB_IF = "always()"
+SUMMARY_NEEDS_VALUE = "${{ toJSON(needs) }}"
+SUMMARY_STEP_RUN = "python3 .claude/skills/corpus-management/tools/reconcile-regression-shards.py"
+SUMMARY_VERIFY_STEP_KEYS = ("name", "env", "run")
+SUMMARY_SETUP_STEP_ORDER = ("Checkout", "Set up Python")
+SUMMARY_STEP_SKELETON = _Exact({
+    "name": _SCALAR,
+    "env": _Exact({"NEEDS_RESULTS": frozenset({SUMMARY_NEEDS_VALUE})}),
+    "run": frozenset({SUMMARY_STEP_RUN}),
+})
+# A summary-job step: either a pinned setup step (name/uses/with) or the one
+# pinned verification step (name/env/run). _check_shard_jobs then pins the
+# exact sequence: Checkout, Set up Python, then EXACTLY ONE verification step.
+SUMMARY_ANY_STEP_SKELETON = {
+    "name": _SCALAR,
+    "uses": _SCALAR,
+    "run": _SCALAR,
+    "with": {"fetch-depth": _SCALAR, "python-version": _SCALAR},
+    "env": _Exact({"NEEDS_RESULTS": frozenset({SUMMARY_NEEDS_VALUE})}),
+}
+SHARD_SHAPE = ("the gate-36 shard form is exactly: jobs lint, regression-shard-1.."
+               "regression-shard-K (contiguous, K at least 2) and summary; each shard job "
+               "named 'Linter regression test suite (shard i of K)' on ubuntu-latest with "
+               "exactly the pinned outputs credited, units_sha256 and selected_sha256, "
+               "each '${{ steps.gate.outputs.<name> }}', the three "
+               "pinned WORKFLOW_SETUP_STEP_ORDER setup steps in order, then one same-named "
+               "step with keys name, id (exactly 'gate') and run, running "
+               "`python3 [-I] .claude/skills/corpus-management/tools/run-linter-regression.py --shard i/K`; a summary job "
+               "named 'Lint markdown corpus' with if: always(), needs: lint plus every "
+               "shard, the pinned Checkout and Set up Python steps, and EXACTLY ONE "
+               "verification step with the pinned NEEDS_RESULTS env running exactly "
+               "`python3 .claude/skills/corpus-management/tools/reconcile-regression-shards.py`; a lint job whose first "
+               "three steps are the pinned WORKFLOW_SETUP_STEP_ORDER setup steps, each "
+               "exactly once, in order; and one lint-job step "
+               "running `python3 [-I] .claude/skills/corpus-management/tools/run-linter-regression.py --verify-shards K` "
+               "(see the shard-form section of .claude/skills/corpus-management/tools/lint-audit-gate-parity.py)")
+
+
+def _workflow_jobs_skeleton(shard_count: int):
+    """The jobs-mapping skeleton: the lint job alone, or the shard form."""
+    if not shard_count:
+        return WORKFLOW_SKELETON
+    lint_job = WORKFLOW_SKELETON["jobs"]["lint"]
+    shard_job = _Exact({"name": _SCALAR, "runs-on": frozenset({"ubuntu-latest"}),
+                        "outputs": _Exact({key: frozenset({value}) for key, value
+                                           in SHARD_JOB_OUTPUTS.items()}),
+                        "steps": [WORKFLOW_STEP_SKELETON]})
+    needed = ["lint"] + [SHARD_JOB_PREFIX + str(i) for i in range(1, shard_count + 1)]
+    summary_job = _Exact({
+        "name": frozenset({SUMMARY_JOB_NAME}),
+        "runs-on": frozenset({"ubuntu-latest"}),
+        "needs": [frozenset(needed)],
+        "if": frozenset({SUMMARY_JOB_IF}),
+        "steps": [SUMMARY_ANY_STEP_SKELETON],
+    })
+    jobs = _Exact({"lint": lint_job})
+    for i in range(1, shard_count + 1):
+        jobs[SHARD_JOB_PREFIX + str(i)] = shard_job
+    jobs[SUMMARY_JOB_KEY] = summary_job
+    skeleton = _Exact(WORKFLOW_SKELETON)
+    skeleton["jobs"] = jobs
+    return skeleton
+
+
+def _shard_job_count(path: Path, jobs: _YamlNode) -> int:
+    """0 for the plain one-job workflow; otherwise the shard count K, with
+    any other jobs-mapping key set a ParseError (fail closed)."""
+    keys = jobs.keys()
+    if keys == ["lint"]:
+        return 0
+    numbers = []
+    for key in keys:
+        if key in ("lint", SUMMARY_JOB_KEY):
+            continue
+        suffix = key[len(SHARD_JOB_PREFIX):] if key.startswith(SHARD_JOB_PREFIX) else ""
+        if not (suffix.isascii() and suffix.isdigit()):
+            raise ParseError(f"{path.relative_to(REPO_ROOT)}:{jobs.lineno}: the jobs "
+                             f"mapping holds the key {key!r}; {SHARD_SHAPE}")
+        numbers.append(int(suffix))
+    if ("lint" not in keys or SUMMARY_JOB_KEY not in keys
+            or sorted(numbers) != list(range(1, len(numbers) + 1)) or len(numbers) < 2):
+        raise ParseError(f"{path.relative_to(REPO_ROOT)}:{jobs.lineno}: the jobs mapping "
+                         f"holds {keys}, which is not the shard form's job set; "
+                         f"{SHARD_SHAPE}")
+    return len(numbers)
+
+
+def _check_setup_step(path: Path, step: _YamlNode, where: str) -> None:
+    """Raise a ParseError unless ``step``, named in WORKFLOW_SETUP_STEPS, holds
+    exactly its pinned accepted shape (WORKFLOW_SETUP_STEP_SHAPES): the exact
+    key set, the named action pinned by a full 40-hex commit SHA with the
+    exact ``with:`` values, or the exact run command."""
+    rel = path.relative_to(REPO_ROOT)
+    name = step.get("name").value
+    run = step.get("run")
+    if run is not None and run.kind == "scalar" and SCRIPT_RE.search(run.value):
+        raise ParseError(f"{rel}:{step.lineno}: {where} setup step {name!r} invokes "
+                         f"the gate script {SCRIPT_RE.search(run.value).group(1)!r}; "
+                         f"a setup step must not run a gate; {SHARD_SHAPE}")
+    shape = WORKFLOW_SETUP_STEP_SHAPES[name]
+    keys = tuple(step.keys())
+    if keys != shape["keys"]:
+        raise ParseError(f"{rel}:{step.lineno}: {where} setup step {name!r} has the "
+                         f"keys {list(keys)}, not exactly the pinned "
+                         f"{list(shape['keys'])} (WORKFLOW_SETUP_STEP_SHAPES); "
+                         f"{SHARD_SHAPE}")
+    if "uses" in shape:
+        uses = step.get("uses")
+        if uses.kind != "scalar" or not shape["uses"].fullmatch(uses.value):
+            raise ParseError(f"{rel}:{uses.lineno}: {where} setup step {name!r} uses "
+                             f"{uses.value!r}, which does not match the pinned action "
+                             f"at a full 40-hex commit SHA "
+                             f"({shape['uses'].pattern!r}); {SHARD_SHAPE}")
+        with_node = step.get("with")
+        pinned = shape["with"]
+        if (with_node.kind != "mapping" or with_node.keys() != list(pinned)
+                or any(with_node.get(key).kind != "scalar"
+                       or with_node.get(key).value != value
+                       for key, value in pinned.items())):
+            raise ParseError(f"{rel}:{with_node.lineno}: {where} setup step {name!r} "
+                             f"has a with mapping other than the pinned {pinned}; "
+                             f"{SHARD_SHAPE}")
+    elif run is None or run.kind != "scalar" or run.value != shape["run"]:
+        held = run.value if run is not None and run.kind == "scalar" else None
+        raise ParseError(f"{rel}:{step.lineno}: {where} setup step {name!r} runs "
+                         f"{held!r}, not exactly the pinned {shape['run']!r}; "
+                         f"{SHARD_SHAPE}")
+
+
+def _step_names(path: Path, steps: list[_YamlNode]) -> list[str]:
+    """Each step's name, refusing a step whose first key is not ``name``."""
+    for step in steps:
+        first = step.keys()[0]
+        if first != "name":
+            raise _not_a_gate_line(path, step.lineno,
+                                   f"step whose first key is {first!r}",
+                                   "is not read as a step (a step's first key is "
+                                   "`- name:`)")
+    return [step.get("name").value for step in steps]
+
+
+def _check_lint_setup_order(path: Path, steps: list[_YamlNode]) -> None:
+    """Raise a ParseError unless the lint job's first steps are exactly the
+    WORKFLOW_SETUP_STEP_ORDER setup steps, in that order, and no other lint
+    step carries a setup name: a deleted, repeated or reordered setup step
+    is refused, not just a misshapen one."""
+    names = _step_names(path, steps)
+    order = list(WORKFLOW_SETUP_STEP_ORDER)
+    setup = [name for name in names if name in WORKFLOW_SETUP_STEPS]
+    if names[:len(order)] != order or setup != order:
+        raise ParseError(f"{path.relative_to(REPO_ROOT)}: the lint job's setup steps are "
+                         f"{setup} (its first steps {names[:len(order)]}), not exactly the "
+                         f"pinned {order}, each once, in order, before every other step; "
+                         f"{SHARD_SHAPE}")
+
+
+def _check_shard_jobs(path: Path, root: _YamlNode, shard_count: int) -> None:
+    """Raise a ParseError unless every shard job and the summary job hold
+    exactly the shard form's pinned content: the skeleton has already pinned
+    the summary name, if, env, run and each job's key set (the shard jobs'
+    ``credited`` output included); this check pins the step sequences, the
+    setup steps' exact shapes, the gate step's keys and ``id: gate``, and
+    EXACTLY ONE summary verification step."""
+    rel = path.relative_to(REPO_ROOT)
+    jobs = root.get("jobs")
+    for i in range(1, shard_count + 1):
+        job = jobs.get(SHARD_JOB_PREFIX + str(i))
+        expected_name = SHARD_JOB_NAME % (i, shard_count)
+        name = job.get("name")
+        if name.value != expected_name:
+            raise ParseError(f"{rel}:{name.lineno}: shard job {SHARD_JOB_PREFIX}{i} is "
+                             f"named {name.value!r}, not {expected_name!r}; {SHARD_SHAPE}")
+        steps = job.get("steps").items
+        names = _step_names(path, steps)
+        if names != list(WORKFLOW_SETUP_STEP_ORDER) + [expected_name]:
+            raise ParseError(f"{rel}:{job.lineno}: shard job {SHARD_JOB_PREFIX}{i} holds "
+                             f"the steps {names}, not exactly the pinned setup steps "
+                             f"{list(WORKFLOW_SETUP_STEP_ORDER)} followed by its one "
+                             f"gate step; {SHARD_SHAPE}")
+        for step in steps[:-1]:
+            _check_setup_step(path, step, f"shard job {SHARD_JOB_PREFIX}{i}")
+        step = steps[-1]
+        what = f"shard job step '{expected_name}'"
+        keys = tuple(step.keys())
+        if keys != SHARD_GATE_STEP_KEYS or step.get("id").value != SHARD_GATE_STEP_ID:
+            raise ParseError(f"{rel}:{step.lineno}: {what} is not the shard form's one "
+                             f"gate-shaped step with exactly the keys "
+                             f"{list(SHARD_GATE_STEP_KEYS)} and id "
+                             f"{SHARD_GATE_STEP_ID!r} (the id the pinned credited "
+                             f"output reads); {SHARD_SHAPE}")
+        run = step.get("run")
+        m = _gate_command(run.value) if run.kind == "scalar" else None
+        if not m:
+            raise _not_a_gate_line(path, run.lineno, what,
+                                   f"run command {run.value!r} is not an accepted "
+                                   f"gate line")
+        if (m.group("script") != REGRESSION_SCRIPT
+                or _gate_argv(m) != ("--shard", "%d/%d" % (i, shard_count))):
+            raise ParseError(f"{rel}:{run.lineno}: {what} runs {run.value!r}, not "
+                             f"`python3 [-I] {REGRESSION_SCRIPT} --shard "
+                             f"{i}/{shard_count}`; {SHARD_SHAPE}")
+    summary = jobs.get(SUMMARY_JOB_KEY)
+    needed = ["lint"] + [SHARD_JOB_PREFIX + str(i) for i in range(1, shard_count + 1)]
+    needs = [item.value for item in summary.get("needs").items]
+    if needs != needed:
+        raise ParseError(f"{rel}:{summary.get('needs').lineno}: the summary job needs "
+                         f"{needs}, not exactly {needed}; {SHARD_SHAPE}")
+    steps = summary.get("steps").items
+    names = _step_names(path, steps)
+    if (len(steps) != len(SUMMARY_SETUP_STEP_ORDER) + 1
+            or names[:-1] != list(SUMMARY_SETUP_STEP_ORDER)):
+        raise ParseError(f"{rel}:{summary.lineno}: the summary job holds the steps "
+                         f"{names}, not exactly the pinned setup steps "
+                         f"{list(SUMMARY_SETUP_STEP_ORDER)} followed by EXACTLY ONE "
+                         f"verification step; {SHARD_SHAPE}")
+    for step in steps[:-1]:
+        _check_setup_step(path, step, "summary job")
+    _check_skeleton(path, steps[-1], SUMMARY_STEP_SKELETON,
+                    "jobs.summary.steps[-1]")
+    verify_keys = tuple(steps[-1].keys())
+    if verify_keys != SUMMARY_VERIFY_STEP_KEYS:
+        raise ParseError(f"{rel}:{steps[-1].lineno}: the summary verification step has "
+                         f"the keys {list(verify_keys)}, not exactly "
+                         f"{list(SUMMARY_VERIFY_STEP_KEYS)}; {SHARD_SHAPE}")
+_KIND_NAMES = {"mapping": "a mapping", "sequence": "a list", "scalar": "a plain value",
+               "block": "a `|` block scalar", "empty": "empty"}
+
+
+def _yaml_value_problem(key: str, value: str, flow_lists: dict[str, frozenset[str]],
+                        pinned_quoted: dict[str, str]) -> str | None:
+    """Why the ``value`` of ``key`` is refused, or None."""
+    if value.startswith(("'", '"')):
+        if key in pinned_quoted and value == pinned_quoted[key]:
+            return None
+        return (f"has a {key} value that begins with a quote; no value is quoted apart from "
+                f"the workflow's python-version: \"3.14\" exactly, so a quote never stays open "
+                f"across lines")
+    if key in flow_lists and value.startswith("["):
+        if value in flow_lists[key]:
+            return None
+        return f"has a {key} list other than {' or '.join(sorted(flow_lists[key]))}"
+    if value == YAML_BLOCK_SCALAR:
+        return None
+    if value.startswith(YAML_VALUE_INDICATORS):
+        return (f"has a {key} value that begins with {value[0]!r}, a YAML indicator (a flow "
+                f"collection, anchor, alias, tag, block scalar, comment or reserved character)")
+    return None
+
+
+REGULAR_FILE = "a regular file"
+
+SPECIAL_KINDS = ((stat.S_ISDIR, "a directory"), (stat.S_ISFIFO, "a FIFO"),
+                 (stat.S_ISSOCK, "a socket"), (stat.S_ISCHR, "a character device"),
+                 (stat.S_ISBLK, "a block device"))
+
+
+def _surface_kind(path: Path) -> str | None:
+    """What is at ``path``, from lstat and, for a symbolic link, stat of its target, so
+    that nothing is opened to find out (3b675 round 4: round 3 read whatever was present at
+    .claude/skills/corpus-management/tools/run-pr-time-checks.sh, and a FIFO there blocked the gate). None when lstat finds
+    no entry (ENOENT); REGULAR_FILE for a regular file or a link to one; otherwise the
+    kind, such as "a FIFO", "a symbolic link loop" or "a symbolic link to a directory".
+    Any other lstat or stat failure (a parent without search permission, a parent that is
+    not a directory) is a ParseError, never read as absent."""
+    def unexaminable(exc: OSError) -> ParseError:
+        return ParseError(f"{path.relative_to(REPO_ROOT)}: cannot be examined "
+                          f"({type(exc).__name__}: {exc.strerror or exc})")
+
+    try:
+        mode = os.lstat(path).st_mode
+    except FileNotFoundError:
+        return None
+    except OSError as exc:
+        raise unexaminable(exc) from None
+    link = stat.S_ISLNK(mode)
+    if link:
+        try:
+            mode = os.stat(path).st_mode
+        except FileNotFoundError:
+            return "a symbolic link to nothing"
+        except OSError as exc:
+            if exc.errno == errno.ELOOP:
+                return "a symbolic link loop"
+            raise unexaminable(exc) from None
+    if stat.S_ISREG(mode):
+        return REGULAR_FILE
+    kind = next((name for test, name in SPECIAL_KINDS if test(mode)), "a special file")
+    return f"a symbolic link to {kind}" if link else kind
+
+
+def _read_utf8(path: Path) -> str:
+    """The text of ``path``, decoded as UTF-8 with no newline translation. Every file the
+    gate reads goes through here (3b675 round 2), so a file that is not valid UTF-8 is a
+    ParseError (exit 2), never a decode traceback. UTF-16 with a byte-order mark is not
+    valid UTF-8; BOM-less UTF-16 of ASCII text is, so it is read as UTF-8 and fails, if at
+    all, on its content. Only a regular file, or a symbolic link to one, is opened: anything
+    else present is a ParseError naming its kind (3b675 round 4; see _surface_kind). A file
+    that cannot be read (any OSError but FileNotFoundError, such as a mode-000 file) is a
+    ParseError too (3b675 round 3); a missing file raises FileNotFoundError, for the caller
+    to refuse or tolerate. The kind is checked by name and the file then opened by name, so
+    a regular file replaced by a FIFO between the two is not caught."""
+    kind = _surface_kind(path)
+    if kind is None:
+        raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), str(path))
+    if kind != REGULAR_FILE:
+        raise ParseError(f"{path.relative_to(REPO_ROOT)}: is not a regular file ({kind})")
+    try:
+        return path.read_bytes().decode("utf-8")
+    except FileNotFoundError:
+        raise
+    except OSError as exc:
+        raise ParseError(f"{path.relative_to(REPO_ROOT)}: cannot be read "
+                         f"({type(exc).__name__}: {exc.strerror or exc})") from None
+    except UnicodeDecodeError as exc:
+        raise ParseError(f"{path.relative_to(REPO_ROOT)}: is not valid UTF-8 (byte "
+                         f"{exc.object[exc.start]:#04x} at offset {exc.start}); only UTF-8 "
+                         f"is accepted") from None
+
+
+def _universal_newlines(text: str) -> str:
+    """``text`` with CRLF and lone CR made LF, as a text-mode open() read gives it."""
+    return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+def _lf_lines(path: Path) -> list[str]:
+    """The lines of ``path`` split at LF only. A universal-newline read would also split
+    at CR, which bash does not: `x.py\\r&& python3 -B ...` is one line to bash. A file
+    that is not valid UTF-8, or cannot be read, is a ParseError (exit 2)."""
+    return _read_utf8(path).split("\n")
+
+
+class _YamlLine:
+    """A key line (``key`` set) or a plain list item (``key`` None, its word in ``value``)
+    of a YAML surface: its line number, its indent, whether it opens a list item, and the
+    column of its key or word."""
+
+    def __init__(self, lineno: int, indent: int, dash: bool, key: str | None, value: str,
+                 column: int) -> None:
+        self.lineno, self.indent, self.dash = lineno, indent, dash
+        self.key, self.value, self.column = key, value, column
+
+
+def _yaml_lines(path: Path, flow_lists: dict[str, frozenset[str]],
+                pinned_quoted: dict[str, str]) -> list[_YamlLine]:
+    """The key lines and plain list items of ``path``, split at LF only, trailing spaces
+    and tabs dropped. Blank lines and comment lines are skipped, and so are the text lines
+    of a ``key: |`` block scalar: the lines after it that are blank or indented deeper
+    than its key, the first exactly two columns deeper and none less deep than the first.
+    Those text lines are consumed before comments are looked for, so a ``#`` line inside
+    the block is text, as YAML reads it, and every other comment line falls where no value
+    is open (see GATE_COMMAND's comment). Any other line is a ParseError."""
+    rel = path.relative_to(REPO_ROOT)
+    lines: list[_YamlLine] = []
+    block: tuple[int, int] | None = None  # the open block scalar's line and key column
+    text_column = 0  # the column of the open block scalar's first text line, once read
+    for lineno, raw in enumerate(_lf_lines(path), 1):
+        if any(c in raw for c in YAML_OTHER_BREAKS):
+            raise ParseError(f"{rel}:{lineno}: holds a line break other than LF, which YAML "
+                             f"reads as a new line that this check would not; only LF line "
+                             f"endings are accepted")
+        line = raw.rstrip(" \t")
+        indent = len(line) - len(line.lstrip(" "))
+        if block is not None:
+            if not line:
+                continue
+            if indent > block[1]:
+                if not text_column and indent != block[1] + 2:
+                    raise ParseError(f"{rel}:{lineno}: the first text line of the block "
+                                     f"scalar at line {block[0]} is at column {indent}, not "
+                                     f"{block[1] + 2}; {YAML_STRUCTURE}")
+                if text_column and indent < text_column:
+                    raise ParseError(f"{rel}:{lineno}: a text line of the block scalar at "
+                                     f"line {block[0]} is less indented than its first text "
+                                     f"line; {YAML_STRUCTURE}")
+                text_column = text_column or indent
+                continue
+            if not text_column:
+                raise ParseError(f"{rel}:{block[0]}: the block scalar has no text line; "
+                                 f"{YAML_STRUCTURE}")
+            block, text_column = None, 0
+        if not line or line.lstrip(" ").startswith("#"):
+            continue
+        if "\t" in line:
+            raise ParseError(f"{rel}:{lineno}: line {line.strip()!r} holds a tab; "
+                             f"{YAML_STRUCTURE}")
+        k = YAML_KEY_RE.fullmatch(line)
+        if k is None:
+            item = YAML_PLAIN_ITEM_RE.fullmatch(line)
+            if item is None:
+                raise ParseError(f"{rel}:{lineno}: line {line.strip()!r} is not an unquoted "
+                                 f"key directly followed by a colon, nor a plain list item; "
+                                 f"{YAML_STRUCTURE}")
+            lines.append(_YamlLine(lineno, indent, True, None, item.group(2), item.start(2)))
+            continue
+        value = k.group(4) or ""
+        problem = _yaml_value_problem(k.group(3), value, flow_lists, pinned_quoted)
+        if problem:
+            raise ParseError(f"{rel}:{lineno}: line {line.strip()!r} {problem}; "
+                             f"{YAML_STRUCTURE}")
+        lines.append(_YamlLine(lineno, indent, bool(k.group(2)), k.group(3), value,
+                               k.start(3)))
+        if value == YAML_BLOCK_SCALAR:
+            block = (lineno, k.start(3))
+    if block is not None and not text_column:
+        raise ParseError(f"{rel}:{block[0]}: the block scalar has no text line; "
+                         f"{YAML_STRUCTURE}")
+    return lines
+
+
+class _YamlNode:
+    """A node of a YAML surface's tree: a "mapping" (``entries`` as (line, key, node), in
+    order), a "sequence" (``items``), a plain "scalar" or a "block" scalar (``value``), or
+    "empty" (a key with no value)."""
+
+    def __init__(self, kind: str, lineno: int, value: str = "") -> None:
+        self.kind, self.lineno, self.value = kind, lineno, value
+        self.entries: list[tuple[int, str, _YamlNode]] = []
+        self.items: list[_YamlNode] = []
+
+    def keys(self) -> list[str]:
+        return [key for _, key, _ in self.entries]
+
+    def get(self, key: str) -> _YamlNode | None:
+        return next((node for _, k, node in self.entries if k == key), None)
+
+
+def _yaml_tree(path: Path, lines: list[_YamlLine]) -> _YamlNode:
+    """The mapping ``lines`` make, read as YAML reads block collections, with every layout
+    that could be read another way refused. A key with no value takes the mapping or list
+    on the lines after it only when they are exactly two columns deeper than the key; at
+    the key's column (a list) or any other deeper column they are a ParseError. A
+    mapping's keys share one column and are unique; a list's items share one column; a
+    line deeper than a mapping's keys or a list's items that no key above it opens is a
+    ParseError, so a plain value never continues on a later line."""
+    rel = path.relative_to(REPO_ROOT)
+    pos = 0
+
+    def refuse(line: _YamlLine, problem: str) -> ParseError:
+        return ParseError(f"{rel}:{line.lineno}: {problem}; {YAML_STRUCTURE}")
+
+    def value(line: _YamlLine) -> _YamlNode:
+        if line.value == YAML_BLOCK_SCALAR:
+            return _YamlNode("block", line.lineno, line.value)
+        if line.value:
+            return _YamlNode("scalar", line.lineno, line.value)
+        if pos == len(lines) or lines[pos].indent < line.column or (
+                lines[pos].indent == line.column and not lines[pos].dash):
+            return _YamlNode("empty", line.lineno)
+        nested = lines[pos]
+        if nested.indent != line.column + 2:
+            raise refuse(nested, f"is at column {nested.indent} below the key {line.key!r} at "
+                                 f"column {line.column}; a nested mapping or list is exactly "
+                                 f"two columns deeper than its key")
+        return sequence(nested.indent) if nested.dash else mapping(nested.indent)
+
+    def mapping(column: int, first: _YamlLine | None = None) -> _YamlNode:
+        nonlocal pos
+        node = _YamlNode("mapping", (first or lines[pos]).lineno)
+        line = first
+        while True:
+            if line is None:
+                if pos == len(lines) or lines[pos].indent < column:
+                    return node
+                line = lines[pos]
+                if line.indent > column:
+                    raise refuse(line, f"is indented deeper than the keys at column {column}, "
+                                       f"but no key above it opens a nested value (a plain "
+                                       f"value never continues on another line)")
+                if line.dash:
+                    raise refuse(line, f"is a list item at column {column}, where the mapping "
+                                       f"above it has its keys")
+                pos += 1
+            if line.key in node.keys():
+                raise refuse(line, f"repeats the key {line.key!r} of the mapping that starts "
+                                   f"at line {node.lineno}; a key appears at most once in a "
+                                   f"mapping")
+            node.entries.append((line.lineno, line.key, value(line)))
+            line = None
+
+    def sequence(column: int) -> _YamlNode:
+        nonlocal pos
+        node = _YamlNode("sequence", lines[pos].lineno)
+        while pos < len(lines) and lines[pos].indent == column and lines[pos].dash:
+            line = lines[pos]
+            pos += 1
+            node.items.append(_YamlNode("scalar", line.lineno, line.value) if line.key is None
+                              else mapping(line.column, line))
+        if pos < len(lines) and lines[pos].indent >= column:
+            raise refuse(lines[pos], f"is at column {lines[pos].indent}, inside the list whose "
+                                     f"items are at column {column}, but is not one of its "
+                                     f"items")
+        return node
+
+    if not lines:
+        raise ParseError(f"{rel}: holds no YAML key; {YAML_STRUCTURE}")
+    return mapping(0)
+
+
+def _check_skeleton(path: Path, node: _YamlNode, skeleton, where: str) -> None:
+    """Raise a ParseError unless ``node``, at the dotted key path ``where``, matches
+    ``skeleton`` (see WORKFLOW_SKELETON's comment)."""
+    rel = path.relative_to(REPO_ROOT)
+
+    def refuse(lineno: int, problem: str) -> ParseError:
+        return ParseError(f"{rel}:{lineno}: {where or 'the top level'} {problem}; "
+                          f"{YAML_STRUCTURE}")
+
+    if isinstance(skeleton, frozenset):
+        if node.kind != "scalar" or node.value not in skeleton:
+            found = repr(node.value) if node.kind == "scalar" else _KIND_NAMES[node.kind]
+            raise refuse(node.lineno, f"is {found}, not {' or '.join(sorted(skeleton))}")
+        return
+    if isinstance(skeleton, tuple):
+        if node.kind not in skeleton:
+            raise refuse(node.lineno, f"is {_KIND_NAMES[node.kind]}, not "
+                                      f"{' or '.join(_KIND_NAMES[k] for k in skeleton)}")
+        return
+    kind = "sequence" if isinstance(skeleton, list) else "mapping"
+    if node.kind != kind:
+        raise refuse(node.lineno, f"is {_KIND_NAMES[node.kind]}, not {_KIND_NAMES[kind]}")
+    if kind == "sequence":
+        for index, item in enumerate(node.items, 1):
+            _check_skeleton(path, item, skeleton[0], f"{where}[{index}]")
+        return
+    for lineno, key, child in node.entries:
+        if key not in skeleton:
+            raise refuse(lineno, f"has the key {key!r}, which is not one of its keys "
+                                 f"{sorted(skeleton)}")
+        _check_skeleton(path, child, skeleton[key], f"{where}.{key}" if where else key)
+    missing = [key for key in skeleton if key not in node.keys()] if isinstance(
+        skeleton, _Exact) else []
+    if missing:
+        raise refuse(node.lineno, f"lacks the key(s) {missing}; it holds every one of "
+                                  f"{list(skeleton)}")
+
+
+def _yaml_surface(path: Path, skeleton, flow_lists: dict[str, frozenset[str]],
+                  pinned_quoted: dict[str, str]) -> _YamlNode:
+    """The tree of the YAML surface ``path``, checked against ``skeleton``."""
+    root = _yaml_tree(path, _yaml_lines(path, flow_lists, pinned_quoted))
+    _check_skeleton(path, root, skeleton, "")
+    return root
+
+
+def _yaml_list(path: Path, node: _YamlNode, *keys: str) -> _YamlNode:
+    """The list under ``keys`` from ``node``, which the skeleton check has already typed;
+    a missing key is a ParseError."""
+    for key in keys:
+        child = node.get(key)
+        if child is None:
+            raise ParseError(f"{path.relative_to(REPO_ROOT)}:{node.lineno}: has no {key} "
+                             f"list; {YAML_STRUCTURE}")
+        node = child
+    return node
+
+
+def _not_a_gate_line(path: Path, lineno: int, what: str, problem: str) -> ParseError:
+    return ParseError(f"{path.relative_to(REPO_ROOT)}:{lineno}: {what} {problem}; {GATE_SHAPE}")
+
+
+def parse_workflow(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
+    """Return [(line_number, step_name, script_path, argv), ...] from quality.yml.
+
+    Reads the file against WORKFLOW_SKELETON (or, when the jobs mapping holds
+    more than the lint job, against the gate-36 shard form's skeleton, with
+    the shard and summary jobs checked by ``_check_shard_jobs``), then each
+    item of jobs.lint.steps, whose first key must be ``name``. A setup step
+    named in WORKFLOW_SETUP_STEPS is pinned to its exact accepted shape
+    (``_check_setup_step``) and then excluded from the gate list; the
+    delta-gate steps in WORKFLOW_DELTA_GATE_STEPS are excluded as before.
+    Every other step is a gate step: its keys must
+    be exactly ``name`` and ``run``, and its ``run`` value must match
+    GATE_COMMAND. Under the shard form, the one lint-job step running
+    REGRESSION_SCRIPT must carry exactly ``--verify-shards K`` and counts as
+    gate 36 with no arguments (the shards together are the invocation; see
+    the docstring's shard-form section). Anything outside the skeleton is a
+    ParseError. See GATE_COMMAND's comment for what this does not cover.
+    """
+    root = _yaml_tree(path, _yaml_lines(path, {}, WORKFLOW_PINNED_QUOTED_VALUES))
+    jobs = root.get("jobs")
+    shard_count = 0
+    if jobs is not None and jobs.kind == "mapping":
+        shard_count = _shard_job_count(path, jobs)
+    _check_skeleton(path, root, _workflow_jobs_skeleton(shard_count), "")
+    if shard_count:
+        _check_shard_jobs(path, root, shard_count)
+    steps = _yaml_list(path, root, "jobs", "lint", "steps")
+    if shard_count:
+        _check_lint_setup_order(path, steps.items)
+    entries: list[tuple[int, str, str, tuple[str, ...]]] = []
+    regression_steps = 0
+    for step in steps.items:
+        first = step.keys()[0]
+        if first != "name":
+            raise _not_a_gate_line(path, step.lineno, f"step whose first key is {first!r}",
+                                   "is not read as a step (a step's first key is `- name:`)")
+        step_name = step.get("name").value
+        if step_name in WORKFLOW_SETUP_STEPS:
+            # Pinned exactly (round-2 hardening): the by-name exclusion alone
+            # would let a setup-named step carry arbitrary content.
+            _check_setup_step(path, step, "lint job")
+            continue
+        if step_name in WORKFLOW_DELTA_GATE_STEPS:
+            continue
+        what = f"step '{step_name}'"
+        keys = tuple(step.keys())
+        if keys != WORKFLOW_GATE_STEP_KEYS:
+            raise _not_a_gate_line(path, step.lineno, what, f"has keys {list(keys)}, not "
+                                   f"exactly {list(WORKFLOW_GATE_STEP_KEYS)}")
+        run = step.get("run")
+        m = _gate_command(run.value) if run.kind == "scalar" else None
+        if not m:
+            raise _not_a_gate_line(path, run.lineno, what, f"run command {run.value!r} is not "
+                                   f"an accepted gate line")
+        argv = _gate_argv(m)
+        if shard_count and m.group("script") == REGRESSION_SCRIPT:
+            regression_steps += 1
+            if regression_steps > 1:
+                raise ParseError(f"{path.relative_to(REPO_ROOT)}:{step.lineno}: the lint "
+                                 f"job runs {REGRESSION_SCRIPT} more than once; "
+                                 f"{SHARD_SHAPE}")
+            if argv != ("--verify-shards", str(shard_count)):
+                raise ParseError(f"{path.relative_to(REPO_ROOT)}:{run.lineno}: {what} runs "
+                                 f"{run.value!r}; with the shard jobs present it must run "
+                                 f"`python3 [-I] {REGRESSION_SCRIPT} --verify-shards "
+                                 f"{shard_count}`; {SHARD_SHAPE}")
+            argv = ()
+        entries.append((step.lineno, step_name, m.group("script"), argv))
+    if shard_count and not regression_steps:
+        raise ParseError(f"{path.relative_to(REPO_ROOT)}: the shard jobs are present but "
+                         f"no lint-job step runs {REGRESSION_SCRIPT}; the shard form "
+                         f"keeps gate 36's partition-verifying step; {SHARD_SHAPE}")
+    if not entries:
+        raise ParseError(
+            f"{path.relative_to(REPO_ROOT)}: no audit-step entries found"
+        )
+    return entries
+
+
+def parse_runner(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
+    """Return [(line_number, gate_name, script_path, argv), ...] from run_all_audits.sh.
+
+    Every line that is not a comment and holds the word ``run_gate`` must be a line in
+    RUNNER_NON_GATE_LINES (the function definition ``run_gate() {``) or match, from
+    column 0, RUNNER_LINE_RE:
+        run_gate "<gate name>" python3 [-I] .claude/skills/corpus-management/tools/<script>.py [plain arguments]
+    Anything else is a ParseError. See GATE_COMMAND's comment for what this does not
+    cover.
+    """
+    entries: list[tuple[int, str, str, tuple[str, ...]]] = []
+    for lineno, raw in enumerate(_lf_lines(path), 1):
+        line = raw.rstrip(" \t")
+        if (line.lstrip().startswith("#") or not RUN_GATE_WORD_RE.search(line)
+                or line in RUNNER_NON_GATE_LINES):
+            continue
+        m = RUNNER_LINE_RE.fullmatch(line)
+        if not m:
+            raise _not_a_gate_line(path, lineno, "run_gate line", f"{line!r} is not an "
+                                   f"accepted gate line (run_gate \"LABEL\" at column 0, "
+                                   f"LABEL in letters, digits, space, '.', '/' and '-')")
+        entries.append((lineno, m.group("name"), m.group("script"), _gate_argv(m)))
+    if not entries:
+        raise ParseError(
+            f"{path.relative_to(REPO_ROOT)}: no run_gate entries found"
+        )
+    return entries
+
+
+def parse_precommit(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
+    """Return [(line_number, hook_name, script_path, argv), ...] from .pre-commit-config.yaml.
+
+    Reads the file against PRECOMMIT_SKELETON, then each item of each repos[].hooks list,
+    whose first key must be ``id``; it must have a ``name`` and an ``entry``, and the line
+    number of the name is recorded. Skips the hooks in PRECOMMIT_NON_GATE_HOOKS. Every
+    other hook is a gate hook: its ``language`` must be ``system``, its
+    ``pass_filenames`` must be ``false``, it must decide when it runs with exactly one of
+    PRECOMMIT_RUN_KEYS, with a (key, value) in PRECOMMIT_GATE_SELECTORS, its ``verbose``
+    (if any) must be ``true``, and its ``entry`` must match GATE_COMMAND. The skeleton
+    holds no ``args`` (which pre-commit appends to the command) and no other key. Anything
+    outside the skeleton is a ParseError. See GATE_COMMAND's comment for what this does
+    not cover.
+    """
+    root = _yaml_surface(path, PRECOMMIT_SKELETON, PRECOMMIT_FLOW_LISTS, {})
+    entries: list[tuple[int, str, str, tuple[str, ...]]] = []
+    for repo in _yaml_list(path, root, "repos").items:
+        for hook in _yaml_list(path, repo, "hooks").items:
+            first = hook.keys()[0]
+            if first != "id":
+                raise _not_a_gate_line(path, hook.lineno, f"hook whose first key is {first!r}",
+                                       "is not read as a hook (a hook's first key is `- id:`)")
+            name, command = hook.get("name"), hook.get("entry")
+            if name is None or command is None:
+                raise _not_a_gate_line(path, hook.lineno, f"hook '{hook.get('id').value}'",
+                                       "does not have exactly one name and one entry")
+            if name.value in PRECOMMIT_NON_GATE_HOOKS:
+                continue
+            what = f"hook '{name.value}'"
+            values = {key: node.value for _, key, node in hook.entries}
+            if values.get("language") != "system":
+                raise _not_a_gate_line(path, hook.lineno, what, "does not have language: system")
+            if values.get("pass_filenames") != "false":
+                raise _not_a_gate_line(path, hook.lineno, what, "does not have pass_filenames: "
+                                       "false, so pre-commit would append file names to the "
+                                       "command")
+            run_keys = [(key, values[key]) for key in PRECOMMIT_RUN_KEYS if key in values]
+            if len(run_keys) != 1 or run_keys[0] not in PRECOMMIT_GATE_SELECTORS:
+                raise _not_a_gate_line(path, hook.lineno, what, f"decides when it runs with "
+                                       f"{run_keys}, not exactly one entry of "
+                                       f"PRECOMMIT_GATE_SELECTORS (one of "
+                                       f"{', '.join(PRECOMMIT_RUN_KEYS)}, with a value a gate "
+                                       f"hook uses), so an edit could stop it from running")
+            if values.get("verbose", "true") != "true":
+                raise _not_a_gate_line(path, hook.lineno, what, "has a verbose value other "
+                                       "than true")
+            m = _gate_command(command.value)
+            if not m:
+                raise _not_a_gate_line(path, command.lineno, what, f"entry {command.value!r} "
+                                       f"is not an accepted gate line")
+            entries.append((name.lineno, name.value, m.group("script"), _gate_argv(m)))
+    if not entries:
+        raise ParseError(
+            f"{path.relative_to(REPO_ROOT)}: no local hook entries found"
+        )
+    return entries
+
+
+# --- Additive hardening of the exclusion allow-lists + the D-numbered delta gates
+# (3.99 (closing PR #1087)). These guards ADD to the parity audit; they do not weaken the
+# name/script row-parity above. Gap (i): the three exclusion allow-lists are
+# themselves unguarded, so a real §6 gate mistakenly added to an exclusion set
+# would be silently masked from parity. Each guard cross-checks every exclusion
+# member against a POSITIVE signal that it is genuinely NOT a corpus gate:
+#   - WORKFLOW_SETUP_STEPS: the named step exists in the workflow and invokes no
+#     `python3 .claude/skills/corpus-management/tools/X.py` gate script (it is a `uses:` action step).
+#   - WORKFLOW_DELTA_GATE_STEPS: the named step exists and its script is NOT one
+#     of the §6-inventory gate scripts (it is a delta / informational script).
+#   - PRECOMMIT_NON_GATE_HOOKS: the named hook exists and its entry is a write /
+#     regeneration invocation (no `--check`), not a verification gate. (The regen
+#     hook runs `build-taxonomy.py`/`build-narrative-registry.py`/`build-portal.py`/`build-relationship-model.py`/`build-todo-number-allocation.py` in write mode; the §6 gates
+#     run the SAME scripts WITH `--check`, so the `--check` flag is the
+#     discriminator, not the script name.)
+# Gap (ii): the live PR-time delta gates (D1..HIGHEST_DELTA_GATE, retired numbers excepted) run in the workflow (authoritative) and the local pre-push runner, with no
+# cross-surface parity. The delta-gate guard confirms each D-numbered gate in the
+# PR-time runner (PRTIME_PATH) maps to a WORKFLOW_DELTA_GATE_STEPS step of the
+# same script, and that the D-numbers are contiguous D1..HIGHEST_DELTA_GATE apart from retired numbers (D6, D14).
+WF_NAME_RE = re.compile(r"^\s*-\s*name:\s*(.+?)\s*$")
+PC_NAME_RE = re.compile(r"^\s*name:\s*(.+?)\s*$")
+PC_ENTRY_RE = re.compile(r"^\s*entry:\s*(.+?)\s*$")
+RUN_CHECK_DN_RE = re.compile(r'^\s*run_check\s+"D(\d+)\s+(.+?)"')
+
+
+def _wf_step_script(wf_lines: list[str], name: str) -> str | None:
+    """The first `python3 .claude/skills/corpus-management/tools/X.py` script under the workflow step ``name``
+    (None if the step invokes no such script, i.e. a setup/uses step)."""
+    for i, line in enumerate(wf_lines):
+        m = WF_NAME_RE.match(line)
+        if m and m.group(1) == name:
+            for j in range(i + 1, min(i + 14, len(wf_lines))):
+                if WF_NAME_RE.match(wf_lines[j]):
+                    break
+                sm = SCRIPT_RE.search(wf_lines[j])
+                if sm:
+                    return sm.group(1)
+            return None
+    return None
+
+
+def verify_exclusion_and_delta_guards(
+    root: Path, spec_scripts: set[str]
+) -> list[str]:
+    """Additive 3.99 (closing PR #1087) guards over the exclusion allow-lists and the D-numbered
+    delta gates. Returns a (possibly empty) list of findings. Never mutates the
+    row-parity result; the caller appends these to its findings."""
+    findings: list[str] = []
+    wf_lines = _read_utf8(root / WORKFLOW_PATH).splitlines()
+    wf_names = {m.group(1) for m in (WF_NAME_RE.match(l) for l in wf_lines) if m}
+    pc_lines = _read_utf8(root / PRECOMMIT_PATH).splitlines()
+    prtime = (root / PRTIME_PATH)
+    # Absent (lstat finds no entry) is tolerated for a portable clone. Anything present goes
+    # to _read_utf8, so an unreadable file is a ParseError (3b675 round 3) and anything but a
+    # regular file is one without being opened (round 4).
+    prtime_present = _surface_kind(prtime) is not None
+    prtime_lines: list[str] = []
+    if prtime_present:
+        prtime_lines = _read_utf8(prtime).splitlines()
+
+    # (i) WORKFLOW_SETUP_STEPS: must exist and invoke no gate script.
+    for name in sorted(WORKFLOW_SETUP_STEPS):
+        if name not in wf_names:
+            findings.append(
+                f"exclusion guard: WORKFLOW_SETUP_STEPS member {name!r} is not a "
+                f"step in {WORKFLOW_PATH} (stale exclusion?)"
+            )
+            continue
+        scr = _wf_step_script(wf_lines, name)
+        if scr is not None:
+            findings.append(
+                f"exclusion guard: WORKFLOW_SETUP_STEPS member {name!r} invokes "
+                f"gate script {scr!r}; a setup step must not run a gate. If this "
+                f"is a real gate, remove it from the exclusion set."
+            )
+
+    # (i) WORKFLOW_DELTA_GATE_STEPS: must exist and NOT be a §6-inventory gate.
+    for name in sorted(WORKFLOW_DELTA_GATE_STEPS):
+        if name not in wf_names:
+            findings.append(
+                f"exclusion guard: WORKFLOW_DELTA_GATE_STEPS member {name!r} is "
+                f"not a step in {WORKFLOW_PATH} (stale exclusion?)"
+            )
+            continue
+        scr = _wf_step_script(wf_lines, name)
+        if scr is not None and scr in spec_scripts:
+            findings.append(
+                f"exclusion guard: WORKFLOW_DELTA_GATE_STEPS member {name!r} runs "
+                f"{scr!r}, which IS a §6-inventory gate script; a real gate is "
+                f"masked from parity by this exclusion."
+            )
+
+    # (i) PRECOMMIT_NON_GATE_HOOKS: must exist and be a non-gate (no --check).
+    pc_entries: dict[str, str] = {}
+    pending: str | None = None
+    for line in pc_lines:
+        mn = PC_NAME_RE.match(line)
+        if mn:
+            pending = mn.group(1)
+            continue
+        me = PC_ENTRY_RE.match(line)
+        if me and pending is not None:
+            pc_entries[pending] = me.group(1)
+            pending = None
+    for name in sorted(PRECOMMIT_NON_GATE_HOOKS):
+        if name not in pc_entries:
+            findings.append(
+                f"exclusion guard: PRECOMMIT_NON_GATE_HOOKS member {name!r} is not "
+                f"a hook in {PRECOMMIT_PATH} (stale exclusion?)"
+            )
+            continue
+        if "--check" in pc_entries[name]:
+            findings.append(
+                f"exclusion guard: PRECOMMIT_NON_GATE_HOOKS member {name!r} entry "
+                f"carries --check ({pc_entries[name]!r}); a --check invocation is a "
+                f"verification gate, not a regeneration hook."
+            )
+
+    # (ii) D-numbered delta-gate parity across the workflow and the PR-time runner.
+    dmap: dict[int, tuple[str, str | None]] = {}
+    for i, line in enumerate(prtime_lines):
+        m = RUN_CHECK_DN_RE.match(line)
+        if not m:
+            continue
+        num, nm = int(m.group(1)), m.group(2)
+        scr = None
+        for j in range(i, min(i + 3, len(prtime_lines))):
+            sm = SCRIPT_RE.search(prtime_lines[j])
+            if sm:
+                scr = sm.group(1)
+                break
+        dmap[num] = (nm, scr)
+    # A present runner that is empty, or has no D-number line, would pass the check below
+    # with nothing checked (3b675 round 3).
+    if prtime_present and not prtime_lines:
+        raise ParseError(f"{PRTIME_PATH}: is present but empty, so the D-number "
+                         f"parity check has nothing to check")
+    if prtime_present and not dmap:
+        raise ParseError(f'{PRTIME_PATH}: has no run_check "D<n> ..." line, so the '
+                         f"D-number parity check has nothing to check")
+    if prtime_present:  # only if the runner is present (portable-clone tolerant)
+        nums = sorted(dmap)
+        expected = sorted(set(range(1, HIGHEST_DELTA_GATE + 1)) - RETIRED_DELTA_GATES)
+        if nums != expected:
+            findings.append(
+                f"delta-gate guard: D-numbers in {PRTIME_PATH} are {nums}, not the "
+                f"expected D1..D{HIGHEST_DELTA_GATE} set minus retired "
+                f"{sorted(RETIRED_DELTA_GATES)} (= {expected}); a delta gate was "
+                f"added, removed, or misnumbered without updating the parity surfaces."
+            )
+        retired_wired = sorted(RETIRED_DELTA_GATES & set(dmap))
+        if retired_wired:
+            findings.append(
+                f"delta-gate guard: retired D-number(s) {retired_wired} are still "
+                f"wired as live delta gates in {PRTIME_PATH}; a retired delta gate "
+                f"must not be invoked, only its retired-marker row may remain."
+            )
+        for num, (nm, scr) in sorted(dmap.items()):
+            if nm not in WORKFLOW_DELTA_GATE_STEPS:
+                findings.append(
+                    f"delta-gate guard: D{num} {nm!r} in {PRTIME_PATH} has no "
+                    f"matching WORKFLOW_DELTA_GATE_STEPS entry in {WORKFLOW_PATH}."
+                )
+                continue
+            wf_scr = _wf_step_script(wf_lines, nm)
+            if wf_scr != scr:
+                findings.append(
+                    f"delta-gate guard: D{num} {nm!r} script drift: "
+                    f"{PRTIME_PATH} = {scr!r}; {WORKFLOW_PATH} = {wf_scr!r}."
+                )
+    return findings
+
+
+def main(argv: list[str]) -> int:
+    global REPO_ROOT
+    parser = argparse.ArgumentParser(
+        description="Gate-name parity audit across the four audit-programme surfaces."
+    )
+    parser.add_argument(
+        "--root",
+        type=str,
+        default=None,
+        help="Override repository root the four source files are read from "
+             "(used by the gate-36 regression test suite for synthetic-drift "
+             "isolation).",
+    )
+    args = parser.parse_args(argv)
+    if args.root is not None:  # 3b50b2d1: a missing, empty or non-directory --root is refused
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from lint_common import require_dir
+        args.root = require_dir(args.root, "--root")
+    if args.root is not None:
+        REPO_ROOT = args.root.resolve()
+
+    spec_path = REPO_ROOT / SPEC_PATH
+    workflow_path = REPO_ROOT / WORKFLOW_PATH
+    runner_path = REPO_ROOT / RUNNER_PATH
+    precommit_path = REPO_ROOT / PRECOMMIT_PATH
+
+    for p in (spec_path, workflow_path, runner_path, precommit_path):
+        try:
+            kind = _surface_kind(p)
+        except ParseError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 2
+        if kind is None:
+            print(f"ERROR: required file not found: {p.relative_to(REPO_ROOT)}",
+                  file=sys.stderr)
+            return 2
+        if kind != REGULAR_FILE:  # 3b675 round 4: present, so not "not found"
+            print(f"ERROR: {p.relative_to(REPO_ROOT)}: is not a regular file ({kind})",
+                  file=sys.stderr)
+            return 2
+
+    try:
+        spec = parse_spec_inventory(spec_path)
+        workflow = parse_workflow(workflow_path)
+        runner = parse_runner(runner_path)
+        precommit = parse_precommit(precommit_path)
+    except ParseError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+    except FileNotFoundError as exc:  # removed after the kind check above
+        print(f"ERROR: required file not found: {exc.filename}", file=sys.stderr)
+        return 2
+
+    findings: list[str] = []
+
+    # Section-5 grouped-list coverage (3b158), against the section-6 numbers.
+    try:
+        findings.extend(verify_category_coverage(
+            spec_path, {gate_num for (_, gate_num, _, _) in spec}
+        ))
+    except ParseError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+    except (OSError, UnicodeError) as exc:
+        print(f"ERROR: section-5 categories: {exc}", file=sys.stderr)
+        return 2
+
+    # Count parity. If any surface has a different number of gates, the
+    # comparison cannot proceed row-by-row; report the count drift and
+    # stop here. The maintainer fixes the missing entries and re-runs.
+    counts = {
+        SPEC_PATH: len(spec),
+        WORKFLOW_PATH: len(workflow),
+        RUNNER_PATH: len(runner),
+        PRECOMMIT_PATH: len(precommit),
+    }
+    if len(set(counts.values())) != 1:
+        findings.append("Gate counts differ across surfaces:")
+        for label, count in counts.items():
+            findings.append(f"  {label}: {count}")
+        findings.append(
+            "Each surface must declare the same number of audit gates. "
+            "Add the missing entries to the surface(s) with the lower "
+            "count, or remove the extra entries from the surface(s) "
+            "with the higher count."
+        )
+        print("\n".join(findings))
+        print(f"\nFAIL: {len(findings)} parity finding(s).")
+        return 1
+
+    # Row-by-row parity. Spec inventory is canonical.
+    for idx, (spec_line, gate_num, spec_name, spec_script) in enumerate(spec):
+        wf_line, wf_name, wf_script, wf_argv = workflow[idx]
+        ru_line, ru_name, ru_script, ru_argv = runner[idx]
+        pc_line, pc_name, pc_script, pc_argv = precommit[idx]
+
+        if wf_name != spec_name:
+            findings.append(
+                f"Gate {gate_num} name drift: "
+                f"spec({SPEC_PATH}:{spec_line}) = {spec_name!r}; "
+                f"workflow({WORKFLOW_PATH}:{wf_line}) = {wf_name!r}"
+            )
+        if ru_name != spec_name:
+            findings.append(
+                f"Gate {gate_num} name drift: "
+                f"spec({SPEC_PATH}:{spec_line}) = {spec_name!r}; "
+                f"runner({RUNNER_PATH}:{ru_line}) = {ru_name!r}"
+            )
+        if pc_name != spec_name:
+            findings.append(
+                f"Gate {gate_num} name drift: "
+                f"spec({SPEC_PATH}:{spec_line}) = {spec_name!r}; "
+                f"pre-commit({PRECOMMIT_PATH}:{pc_line}) = {pc_name!r}"
+            )
+
+        if wf_script != spec_script:
+            findings.append(
+                f"Gate {gate_num} script drift: "
+                f"spec({SPEC_PATH}:{spec_line}) = {spec_script!r}; "
+                f"workflow({WORKFLOW_PATH}:{wf_line}) = {wf_script!r}"
+            )
+        if ru_script != spec_script:
+            findings.append(
+                f"Gate {gate_num} script drift: "
+                f"spec({SPEC_PATH}:{spec_line}) = {spec_script!r}; "
+                f"runner({RUNNER_PATH}:{ru_line}) = {ru_script!r}"
+            )
+        if pc_script != spec_script:
+            findings.append(
+                f"Gate {gate_num} script drift: "
+                f"spec({SPEC_PATH}:{spec_line}) = {spec_script!r}; "
+                f"pre-commit({PRECOMMIT_PATH}:{pc_line}) = {pc_script!r}"
+            )
+
+        # Invocation (argv) parity across the THREE execution surfaces
+        # (workflow, runner, pre-commit). The spec §6 row carries no argv, so
+        # it is not argv-compared. Every gate hook must be pass_filenames: false
+        # (parse_precommit), so its authored entry flags are directly comparable. Surfaces are
+        # grouped by the script they run; within each group of two or more
+        # surfaces that agree on the script, the flags must be identical, so a
+        # --strict / --enforce / --check that lands on one surface but not the
+        # others is caught rather than silently diverging. Comparing flags of
+        # two DIFFERENT scripts is meaningless (a script drift is already
+        # reported by the script-drift checks above), so the grouping is by
+        # script rather than a blanket three-way equality.
+        exec_surfaces = (
+            (WORKFLOW_PATH, wf_line, wf_script, wf_argv),
+            (RUNNER_PATH, ru_line, ru_script, ru_argv),
+            (PRECOMMIT_PATH, pc_line, pc_script, pc_argv),
+        )
+        by_script: dict[str, list[tuple[str, int, tuple[str, ...]]]] = {}
+        for surf_path, surf_line, surf_script, surf_argv in exec_surfaces:
+            by_script.setdefault(surf_script, []).append(
+                (surf_path, surf_line, surf_argv)
+            )
+        for surf_script, members in by_script.items():
+            if len(members) < 2:
+                continue
+            if len({argv for (_, _, argv) in members}) == 1:
+                continue
+            detail = "; ".join(
+                f"{mp}:{ml} = {(' '.join(margv) or '<no args>')!r}"
+                for (mp, ml, margv) in members
+            )
+            findings.append(
+                f"Gate {gate_num} invocation (argv) drift: execution surfaces "
+                f"running {surf_script!r} disagree on flags: {detail}. Every "
+                f"execution surface that runs a gate must invoke it with "
+                f"identical flags."
+            )
+
+    # Additive 3.99 (closing PR #1087) guards: cross-check the exclusion allow-lists against a
+    # positive signal, and check the D-numbered delta gates' cross-surface parity.
+    spec_scripts = {script for (_, _, _, script) in spec}
+    try:
+        findings.extend(verify_exclusion_and_delta_guards(REPO_ROOT, spec_scripts))
+    except ParseError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+    except FileNotFoundError as exc:  # removed after the kind check above
+        print(f"ERROR: required file not found: {exc.filename}", file=sys.stderr)
+        return 2
+
+    if findings:
+        for finding in findings:
+            print(finding)
+        print(
+            f"\nFAIL: {len(findings)} parity finding(s) across the audit "
+            f"programme's four surfaces."
+        )
+        print(
+            "The Audit Programme Specification section 3 principle 5 "
+            "requires that the spec, workflow, runner, and pre-commit "
+            "hook all declare the same gates with the same names and "
+            "scripts in the same order. The spec is canonical."
+        )
+        return 1
+
+    print(
+        f"OK: gate-name parity confirmed for {len(spec)} gates across "
+        f"all four audit-programme surfaces, each listed once in section 5."
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

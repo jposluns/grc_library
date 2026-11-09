@@ -1,0 +1,116 @@
+# Logistics Sector Compliance
+
+**Document Title:** Logistics Sector Compliance README\
+**Document Type:** Register\
+**Version:** 1.0.5\
+**Date:** 2026-11-07\
+**Owner:** Chief Compliance Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`compliance/README.md`](../README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
+**Classification:** Public\
+**Category:** Compliance: Logistics Sector\
+**Review Frequency:** Annual and upon material change to any covered programme or addition of a new programme\
+**Repository Path:** [`compliance/logistics/README.md`](README.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This directory contains the logistics-sector compliance content of the library: sector-wide requirements that apply to organizations operating in transportation, warehousing, freight forwarding, customs brokerage, and supply-chain logistics, plus the trusted-trader programme overlays that such organizations may participate in.
+
+Content here is sector-conditional. Organizations outside the logistics sector can omit this directory entirely without affecting the rest of the library's coherence.
+
+---
+
+## Applicability
+
+This directory applies to organizations operating in any of the following capacities:
+
+- Freight forwarders, customs brokers, third-party logistics providers (3PL), fourth-party logistics providers (4PL).
+- Road, rail, air, or maritime transportation services.
+- Warehousing, distribution centres, cross-docking operations.
+- Port, airport, or intermodal terminal infrastructure.
+- Technology platforms for transportation management, track-and-trace, or customs processing.
+- Participants in trusted-trader programmes covered below.
+
+---
+
+## Sector overview
+
+| Document | Description |
+| --- | --- |
+| [`annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md) | Logistics sector regulatory landscape, transport authority obligations, and cross-programme requirements. Read this first. |
+| [`template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md) | Generic trade-compliance gap assessment template usable across any trusted-trader programme. |
+
+---
+
+## Trusted-trader programmes covered
+
+Each programme below has its own artefacts in this directory. Organizations adopt the programmes relevant to the jurisdictions in which they operate.
+
+### BASC (Business Alliance for Secure Commerce)
+
+Multi-country private supply-chain security certification, predominantly Latin American, run by the World BASC Organization (WBO). The programme overview annex sets out what BASC's own norm says about its relationship to the WCO SAFE Framework and to customs AEO programmes.
+
+| Document | Type | Description |
+| --- | --- | --- |
+| [`annex-basc-programme-overview.md`](annex-basc-programme-overview.md) | Annex | Programme overview, applicability, and relationship to the main library. |
+| [`policy-basc-information-security.md`](policy-basc-information-security.md) | Policy | BASC-specific information-security policy. |
+| [`register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md) | Register | BASC IT and information-security responsibilities. |
+| [`register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md) | Register | BASC IT compliance monitoring and KPIs. |
+
+### CTPAT (US Customs-Trade Partnership Against Terrorism)
+
+US Customs and Border Protection (CBP) voluntary trusted-trader programme.
+
+| Document | Type | Description |
+| --- | --- | --- |
+| [`register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md) | Register | CTPAT IT and cybersecurity compliance controls. |
+| [`register-ctpat-united-states-msc-controls.md`](register-ctpat-united-states-msc-controls.md) | Register | CTPAT Minimum Security Criteria (MSC) controls. |
+
+### PIP (Canada Partners in Protection)
+
+Canada Border Services Agency (CBSA) trusted-trader programme.
+
+| Document | Type | Description |
+| --- | --- | --- |
+| [`register-pip-canada-controls.md`](register-pip-canada-controls.md) | Register | PIP IT and cybersecurity compliance controls. |
+
+### AEO (United Kingdom Authorized Economic Operator)
+
+HMRC trusted-trader programme, AEO-S (Authorized Economic Operator Security and Safety) authorization. HMRC tests applicants against the security and safety criteria (UK HMRC AEO security and safety criteria handbook, section 11.1); that Border Force administers the programme is not confirmed by a held source.
+
+| Document | Type | Description |
+| --- | --- | --- |
+| [`annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md) | Annex | UK AEO-S IT and cybersecurity requirements. |
+| [`procedure-aeo-united-kingdom-self-assessment.md`](procedure-aeo-united-kingdom-self-assessment.md) | Procedure | UK AEO IT self-assessment procedure. |
+
+---
+
+## Future-coverage placeholders
+
+The WCO AEO Compendium lists approximately 94 operational or under-development AEO and equivalent trusted-trader programmes globally. The library presently covers four of them (BASC multi-country, CTPAT-US, PIP-Canada, AEO-UK). Future additions follow the same naming convention (`<doctype>-<programme>-<jurisdiction>-<scope>.md`). Candidates for future addition include AEO European Union, NEEC and OEA Mexico, Australian Trusted Trader (ATT), Secure Trade Partnership (STP) Singapore, AEO Japan, AEO Korea, Secure Exports Scheme (SES) New Zealand, and others as adopting organizations require.
+
+---
+
+## Relationship to the main library
+
+The main library is sector-agnostic and applies to all adopting organizations. This directory's content extends but does not contradict the main library. Where a programme requires specific control language, evidence formats, or operating cadences, the programme's artefacts state those requirements explicitly. Where a programme's controls coincide with main-library controls (access management, logging, incident response), the main-library control remains the implementation; the programme artefact documents how the implementation maps to the programme's expectations.
+
+Adopting organizations operating in the logistics sector consume:
+
+1. The main library as the baseline.
+2. The logistics sector overview annex ([`annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md)) for sector-wide requirements.
+3. The programme-specific artefacts for the programmes the organization participates in.
+
+---
+
+## Licence boundary
+
+This directory's original content is released under CC BY-SA 4.0; a quotation that [`NOTICE.md`](../../NOTICE.md) allows or keeps under its transition clause keeps its source licence and is not relicensed under CC BY-SA 4.0. Programme artefacts reference each programme's standards and criteria by name and section identifier and reproduce the underlying programme text only in such quotations.
+
+---
+
+**End of Document**

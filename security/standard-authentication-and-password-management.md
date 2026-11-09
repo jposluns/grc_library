@@ -1,0 +1,110 @@
+# Authentication and Password Management Standard
+
+**Document Title:** Authentication and Password Management Standard\
+**Document Type:** Standard\
+**Version:** 1.1.22\
+**Date:** 2026-10-27\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change\
+**Repository Path:** [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+This standard defines authentication and password management requirements across all systems, applications, and services. It consolidates requirements referenced across the PAM Standard, Cloud Security Configuration Baseline, and IAM Policy into a single authoritative reference.
+
+---
+
+## 1. Purpose
+
+To establish consistent, risk-proportionate authentication controls that reduce the risk of credential theft, brute force, and account takeover.
+
+---
+
+## 2. Scope
+
+1. Applies to all user accounts, service accounts, and system accounts across on-premises and cloud environments.
+2. Covers password construction, MFA requirements, session management, and authentication exception handling.
+3. Applies to all personnel and systems.
+
+---
+
+## 3. Governance and accountability
+
+| Role | Responsibility |
+| --- | --- |
+| CISO | Owns this standard; co-approves security-related exceptions (including MFA exceptions) per the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md). |
+| IT Operations / IAM Team | Enforces authentication controls via Conditional Access, enterprise identity provider, and endpoint management platform; manages MFA configuration. |
+| System / Application Owners | Ensure that their systems enforce password and authentication policies; report deviations to IT Operations. |
+
+---
+
+## 4. Password requirements
+
+| Parameter | Requirement |
+| --- | --- |
+| Minimum length | 14 characters for standard accounts; 20 characters for privileged accounts |
+| Complexity | Must include characters from at least 3 of: uppercase, lowercase, numerals, special characters. Passphrases are preferred over complex short passwords. **Adopter awareness:** NIST SP 800-63B Rev. 4 §3.1.1.2 prohibits verifiers from imposing character-composition rules and instead emphasizes sufficient length, screening the full password against a blocklist of common, expected, or compromised values, and forced change when compromise is evidenced. The 3-of-4 requirement above is therefore a deliberate organizational divergence from NIST guidance. |
+| Prohibited passwords | Banned via enterprise password protection service (common passwords, company name variants, sequential patterns). Dictionary words as sole content are prohibited. |
+| Password reuse | The last 12 passwords must not be reused. |
+| Maximum age | No mandatory periodic expiry per NIST SP 800-63B Rev. 4 §3.1.1.2 rule 6 (the recommendation is not conditioned on MFA presence; Rev. 4 finalized 2025-07 reaffirms this and prohibits arbitrary rotation absent evidence of compromise). Passwords must be changed immediately upon suspected compromise. The no-periodic-expiry rule applies to human (interactive) account passwords; service account passwords follow section 7. |
+| Storage | Passwords must never be stored in plaintext. This prohibition is absolute and is not subject to the Section 8 exception process. All systems must use salted cryptographic hashing; the governing algorithm and parameter floor is the Password-based encryption entry in the Encryption and Key Management Policy (Argon2id preferred at the parameters stated there, with PBKDF2-HMAC as the alternative). Stored secrets are managed by the secrets management service. |
+
+---
+
+## 5. Multi-factor authentication (MFA)
+
+MFA is required for all user (interactive) accounts and for all remote access. Non-interactive service accounts (authenticating via a managed identity or equivalent, not interactive MFA) are exempt where the exemption is documented and approved. Any other exception may be granted only under Section 8 (approval through the Section 8 exception path, a documented compensating control, and a remediation target date) and is documented case-by-case; absent an approved exception, there are no circumstances under which a user account may access company resources without MFA enrolled. MFA for privileged accounts must be phishing-resistant.
+
+**MFA method hierarchy (in order of preference):**
+1. FIDO2 hardware security key
+2. Authenticator app with number matching enabled
+3. Software TOTP token
+4. SMS OTP: permitted only where no other method is technically feasible; deprecated by default. SMS OTP is **not** permitted for privileged accounts.
+
+MFA is enforced at the enterprise identity provider Conditional Access layer.
+
+---
+
+## 6. Session management
+
+Cloud and productivity sessions must be governed by Conditional Access sign-in-frequency and application session policies:
+- Maximum session lifetime before re-authentication: 8 hours for standard users; privileged-role activations are governed by the [Privileged Access Management Standard](standard-privileged-access-management.md) §4.2 (the single authoritative source for that maximum).
+- Cloud sessions on managed devices must expire after 15 minutes of inactivity, enforced through application session policy alongside Conditional Access sign-in-frequency controls. Endpoint auto-lock must remain at a maximum of 5 minutes.
+- Persistent browser sessions are disabled for high-sensitivity applications.
+
+---
+
+## 7. Service account authentication
+
+Service accounts must use managed identities, workload identities, or certificate-based authentication wherever technically feasible.
+
+Password-based service account authentication is only permitted where no alternative exists, and must be documented as an exception with a compensating control and a remediation target date. Service account passwords must meet privileged account length requirements and be stored in the secrets management service. Because a service account password is a long-lived shared secret rather than a human memorized secret, it must be rotated at least annually, upon a change of any person who knows it (staff, contractor, or supplier personnel), and immediately upon suspected compromise, consistent with the Service Account Controls in the [Privileged Access Management Standard](standard-privileged-access-management.md).
+
+---
+
+## 8. Exceptions
+
+Exceptions to any requirement in this standard are approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), with CISO co-approval (exceptions to this standard are security-related) in addition to, not in place of, the risk-tier approver, and must be documented with a compensating control and a remediation target date. Exception duration, renewal, and escalation are governed by the [Policy Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (Section 4.3); this standard sets no separate exception term.
+
+---
+
+## 9. Framework alignment
+
+| Control | NIST SP 800-63B | ISO/IEC 27001:2022 | CSA CCM v4.1 | CIS |
+| --- | --- | --- | --- | --- |
+| Password requirements | SP 800-63B §3.1.1 (except the organizational character-composition requirement, a deliberate divergence noted in Section 4) | A.8.5 | IAM-02, IAM-14 | 5.2 (Use Unique Passwords) |
+| MFA | SP 800-63B §2.2 (AAL2) | A.8.5 | IAM-13 | 6.3, 6.4, 6.5 (MFA safeguards) |
+| Session management | SP 800-63B §5 | A.8.5 | IAM-13 | 4.3 (Configure Automatic Session Locking on Enterprise Assets) |
+| Service account auth | N/A | A.8.5 | IAM-13 | 5.6 (Centralize Account Management) |
+
+**Canadian sources.** The Canadian Centre for Cyber Security Baseline Cyber Security Controls for Small and Medium Organizations (the held text, V1.2, dated February 2020) recommends two-factor authentication wherever possible, with each decision not to use it documented and with two-factor authentication required for important accounts such as system administrator, cloud administration and privileged accounts (BC.5.1); password changes on suspicion or evidence of compromise (BC.5.2); and clear policies on password length and reuse and on password managers (BC.5.3). Section 5 and the maximum-age row of section 4 are consistent with BC.5.1 and BC.5.2. These are voluntary recommendations written for small and medium organizations. The password selection guidance that the baseline refers to in its section 3.5, ITSP.30.031 (User Authentication Guidance for Information Technology Systems), is not held in the reference base, so no password parameter here is attributed to it. <!-- ref-absence: ITSP.30.031 | User Authentication Guidance -->
+
+For a Canadian federal department or other entity to which the Treasury Board Policy on Government Security applies (Policy 6.1), the Directive on Security Management requires measures so that individuals and devices are uniquely identified and authenticated to an appropriate level of assurance before they are given access to information in information systems (B.2.3.1), and measures that control accounts with administrative privileges, including limiting how many users hold them and what they can reach and do (B.2.3.2.4). B.2.3.1 sets the level of assurance by reference to the Standard on Identity and Credential Assurance (Appendix A of the Directive on Identity Management), and that standard is not held in the reference base, so no assurance level is attributed to it here. <!-- ref-absence: Standard on Identity and Credential Assurance --> The force and applicability of the federal instruments are set out in the federal security and cyber baseline under domain cluster 3 of the [Canada public-sector annex](../compliance/public-sector/annex-canada-public-sector-requirements.md#federal-security-and-cyber-baseline).
+
+
+
+**End of Document**

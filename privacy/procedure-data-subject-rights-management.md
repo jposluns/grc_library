@@ -1,0 +1,378 @@
+# Data Subject Rights Management Procedure
+
+**Document Title:** Data Subject Rights Management Procedure\
+**Document Type:** Procedure\
+**Version:** 1.6.50\
+**Date:** 2026-10-31\
+**Owner:** Data Protection Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
+**Classification:** Public\
+**Category:** Privacy\
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change\
+**Repository Path:** [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
+
+---
+
+## 1. Purpose and scope
+
+### 1.1 Purpose
+
+This procedure defines the end-to-end process for receiving, validating, fulfilling, and documenting requests from individuals exercising their rights over personal data held by the organization. It ensures that compliance with applicable data subject rights obligations under GDPR, UK GDPR, PIPEDA, PIPL, and related laws is maintained, and establishes consistent standards for identity verification, response timelines, denial justification, and record keeping.
+
+The procedure is aligned to ISO/IEC 27701:2025 (PII principals' rights; section numbering changed in 2025 standalone revision), GDPR Articles 15 to 22, PIPEDA Schedule 1 (CSA Model Code fair-information principles), PIPL Articles 44 to 47, and CSA CCM v4.1 DSP-11.
+
+### 1.2 Scope
+
+1. Applies to all personal data held by the organization in any format, structured, unstructured, digital, or physical, across all systems, applications, and third-party processors.
+2. Covers requests submitted by individuals including employees, customers, suppliers, and other data subjects regardless of jurisdiction, subject to applicable legal rights.
+3. Covers all rights categories: access (Subject Access Request / SAR), correction, deletion, data portability, restriction of processing, objection to processing, and review of automated decisions.
+4. Includes AI-derived or AI-processed personal data where the individual is the subject of that data.
+5. Does not apply to data that is fully anonymized and no longer capable of identifying an individual.
+
+---
+
+## 2. Governance
+
+### 2.1 Roles and responsibilities
+
+| Role | Responsibilities |
+| --- | --- |
+| **Chief Information Officer (CIO)** | Accountable executive for the data subject rights programme. Escalation point for complex or contentious requests. |
+| **Data Protection Officer** | Operational ownership of the DSR process. Manages the DSR register, coordinates fulfilment, reviews responses for accuracy and completeness, and escalates complex or contentious requests to the CIO. Signs off on all denials, each carrying the mandatory independent Legal Counsel concurrence per Section 7.3. Represents the organization in regulatory matters relating to data subject rights. |
+| **Legal Counsel** | Advises on exemptions, applicable law, and denial justifications. Reviews and approves responses involving potentially litigation-sensitive information or novel legal questions. |
+| **CISO** | Ensures that technical measures are available to locate, extract, restrict, and delete personal data across systems. Provides guidance on AI system data retrieval and AI-derived data scope. |
+| **IT Operations / System Owners** | Execute data location, extraction, restriction, and deletion actions as directed by the Data Protection Officer within defined timeframes. |
+| **All Employees** | Forward any received data subject request to the Data Protection Officer immediately upon receipt. No employee may respond to, dismiss, or take action on a DSR without Data Protection Officer involvement. |
+
+## 3. Rights catalogue
+
+The following table defines the rights managed under this procedure, the applicable legal instruments, standard response timeframes, and key exemptions.
+
+| Right | Applicable Laws | Scope | Response Timeframe | Key Exemptions |
+| --- | --- | --- | --- | --- |
+| **Access (Subject Access Request / SAR)** | GDPR Art. 15; UK GDPR Art. 15; PIPEDA Sch 1 Principle 9 (Individual Access); PIPL Art. 45 | Confirmation that data is held; categories of data; purposes; recipients; retention periods; source; automated decision logic where applicable | One month under the GDPR (extendable by two further months where necessary for complex or numerous requests, with notice of the extension and its reasons within the first month, GDPR Art. 12(3)); one month beginning with the relevant time under the UK GDPR, the relevant time being the latest of receipt of the request, receipt of any identity information requested under Art. 12(6), and payment of any Art. 12(5) fee (extendable by two further months where necessary by reason of the complexity or number of requests, with notice of the extension and its reasons within the first month; time spent awaiting further information that the controller reasonably requires to identify the information or processing activities to which the request relates does not count towards the applicable time period or towards the period for giving the extension notice, Art. 12A(5)(b) and (4)(a); UK GDPR Art. 12A); 30 days under PIPEDA (s. 8(3), extendable by up to 30 days (or as needed for alternative-format conversion) under s. 8(4), with notice of the new limit, reasons and complaint right no later than 30 days after the request; Sch 1 clause 4.9.4 requires only a response "within a reasonable time") | Data subject rights of third parties; legal professional privilege; ongoing law enforcement cooperation; disproportionate effort for purely archival data |
+| **Correction / Rectification** | GDPR Art. 16; UK GDPR Art. 16; PIPEDA Sch 1 Principle 9 (amendment of inaccurate data); PIPL Art. 46 | Correction of inaccurate personal data; completion of incomplete data | Rectification of inaccurate personal data applied without undue delay (Art. 16 gives "the right to obtain from the controller without undue delay the rectification of inaccurate personal data" and sets no day-count of its own); information on the action taken provided to the data subject "without undue delay and in any event within one month of receipt of the request" under the GDPR (extendable by two further months where necessary, taking into account the complexity and number of the requests, with notice of the extension and its reasons within one month of receipt of the request, GDPR Art. 12(3)), and without undue delay and in any event within one month beginning with the relevant time under the UK GDPR (UK GDPR Art. 12(3) and Art. 12A(1) and (2), extendable by two further months where necessary by reason of the complexity or number of requests, with notice under Art. 12A(3) and (4)); these GDPR and UK GDPR extensions extend only the time for informing the data subject and do not permit postponing a rectification that Art. 16 requires; PIPEDA: respond to an amendment request within 30 days (s. 8(1), (3); extendable by up to 30 days (or as needed for alternative-format conversion) under s. 8(4), with notice of the new limit, reasons and complaint right no later than 30 days after the request); this is a response deadline, not necessarily a deadline to complete amendment under Sch 1 clause 4.9.5 | Data that is required for legal or regulatory compliance in its current form; disputes over factual accuracy subject to legal assessment |
+| **Deletion / Erasure (Right to be Forgotten)** | GDPR Art. 17; UK GDPR Art. 17 | Erasure of personal data where no longer necessary; consent withdrawn; unlawful processing; legal obligation to erase | Erasure applied without undue delay once a ground in Art. 17(1) applies, subject to retention obligations (Art. 17(1) places on the controller "the obligation to erase personal data without undue delay" and sets no day-count of its own); information on the action taken provided to the data subject "without undue delay and in any event within one month of receipt of the request" under the GDPR (extendable by two further months where necessary, taking into account the complexity and number of the requests, with notice of the extension and its reasons within one month of receipt of the request, GDPR Art. 12(3)), and without undue delay and in any event within one month beginning with the relevant time under the UK GDPR (UK GDPR Art. 12(3) and Art. 12A(1) and (2), extendable by two further months where necessary by reason of the complexity or number of requests, with notice under Art. 12A(3) and (4)); these extensions extend only the time for informing the data subject and do not permit postponing an erasure that Art. 17(1) requires | Legal obligation to retain; defence of legal claims; public interest; legitimate interests overriding erasure; statutory or regulatory retention requirements |
+| **Data Portability** | GDPR Art. 20; UK GDPR Art. 20 | Provision of data in a structured, commonly used, machine-readable format; direct transmission to another controller where technically feasible | One month under the GDPR (extendable by two further months where necessary, taking into account the complexity and number of the requests, with notice of the extension and its reasons within one month of receipt of the request, GDPR Art. 12(3)); one month beginning with the relevant time under the UK GDPR (UK GDPR Art. 12A(1) and (2), extendable by two further months where necessary by reason of the complexity or number of requests, with notice under Art. 12A(3) and (4)) | Applies only to data provided by the individual and processed by consent or contract; does not apply to data processed under other legal bases |
+| **Restriction of Processing** | GDPR Art. 18; UK GDPR Art. 18 | Marking data to restrict active processing while accuracy, lawfulness, or competing interests are assessed | Acknowledgement within 72 hours (a calendar-clock ceiling on the intake receipt acknowledgement, issued before identity verification or the Section 5 triage completes and binding over weekends and holidays where a business-day SLA would not; it confirms receipt, not application of the restriction); restriction applied without undue delay once a ground in Art. 18(1) applies (Art. 18 states no time limit, so this procedure applies to the restriction the "without undue delay" standard that Art. 12(3) sets for information on action taken; the Art. 18(1)(a) and (d) restrictions run "for a period enabling the controller to verify the accuracy of the personal data" and "pending the verification", so they are in place while that verification proceeds); information on the action taken provided to the data subject "without undue delay and in any event within one month of receipt of the request" under the GDPR (extendable by two further months where necessary, taking into account the complexity and number of the requests, with notice of the extension and its reasons within one month of receipt of the request, GDPR Art. 12(3)), and without undue delay and in any event within one month beginning with the relevant time under the UK GDPR (UK GDPR Art. 12(3) and Art. 12A(1) and (2), extendable by two further months where necessary by reason of the complexity or number of requests, with notice under Art. 12A(3) and (4)); these extensions extend only the time for informing the data subject and do not permit postponing a restriction that Art. 18(1) requires | While restricted, data may be processed beyond storage only with consent, for legal claims, to protect another's rights, or for important public interest, worded under the GDPR as "for reasons of important public interest of the Union or of a Member State" (GDPR Art. 18(2)) and under the UK GDPR as "for reasons of important public interest" alone, the words that followed having been omitted from 31.12.2020 by S.I. 2019/419, Sch. 1 para. 16 (UK GDPR Art. 18(2)); the data subject is informed before the restriction is lifted (Art. 18(3)) |
+| **Objection to Processing** | GDPR Art. 21; UK GDPR Art. 21; PIPEDA Sch 1 Principle 3 (withdrawal of consent) | Right to object, on grounds relating to the data subject's particular situation, at any time, to processing based on a public-interest task or official authority (Art. 6(1)(e)) or legitimate interests (Art. 6(1)(f)), including profiling based on those provisions (GDPR and UK GDPR Art. 21(1)), and under the UK GDPR also to processing based on a recognized legitimate interest, including profiling based on it (UK GDPR Arts. 6(1)(ea) and 21(1)); or, at any time, to processing for direct marketing, including profiling related to that marketing (Art. 21(2)) | Halt direct marketing processing immediately; assess other objections and respond within one month (under the GDPR, extendable by two further months where necessary, taking into account the complexity and number of the requests, with notice of the extension and its reasons within one month of receipt of the request, GDPR Art. 12(3); under the UK GDPR, one month beginning with the relevant time, UK GDPR Art. 12A(1) and (2), extendable by two further months where necessary by reason of the complexity or number of requests, with notice under Art. 12A(3) and (4); PIPEDA Principle 3 carries no statutory response clock); these GDPR and UK GDPR extensions lengthen only the time to respond and do not by themselves permit processing that Art. 21(1) forbids, under which the controller must no longer process the personal data unless it demonstrates "compelling legitimate grounds for the processing which override the interests, rights and freedoms of the data subject or for the establishment, exercise or defence of legal claims" | Art. 21(1) objections only, and never against a direct-marketing objection (Art. 21(3)): compelling legitimate grounds overriding the individual's interests; legal claims |
+| **Automated Decision Review (including profiling)** | EU GDPR Art. 22; UK GDPR Arts. 22A-22D (DUAA 2025; earlier Article 22(3) decisions saved); see the UK annex for commencement | EU: Article 22 prohibition and safeguards. UK: Article 22C information, representations, human intervention and contest safeguards | Internal service targets: acknowledgement within 5 business days; human review within one month, subject to applicable statutory requirements. Statutory clocks: EU: one month under the EU GDPR ("within one month of receipt of the request", extendable "by two further months where necessary, taking into account the complexity and number of the requests", with notice of the extension and its reasons within the first month, Art. 12(3)). UK: one month beginning with the relevant time under the UK GDPR ("before the end of the applicable time period", Art. 12(3); UK GDPR Art. 12A(1) and (2), extendable by two further months where necessary by reason of the complexity or number of requests, with notice under Art. 12A(3) and (4)) | EU: Article 22(2)-(4). UK: apply Article 22B restrictions; do not import the EU's general prohibition |
+| **Opt out of sale or sharing of personal information (CCPA / CPRA)** | Cal. Civ. Code s. 1798.120; s. 1798.135 (opt-out mechanism); CCPA Regs 11 CCR s. 7026 | Direct a business that sells or shares personal information to third parties not to sell or share it (s. 1798.120(a)(1)); a consumer under 16 requires opt-in consent before any sale or sharing (s. 1798.120(c)) | Given effect as soon as feasibly possible and no later than 15 business days from receipt (11 CCR s. 7026); no verifiable consumer request required, and where the business can comply without additional information it does so (s. 7026(d)) | Applies only to sale or sharing to third parties; the business's own permitted uses of the information continue |
+| **Limit use and disclosure of sensitive personal information (CCPA / CPRA)** | Cal. Civ. Code s. 1798.121; s. 1798.135; CCPA Regs 11 CCR s. 7027 | Direct the business to limit use of sensitive personal information to that use necessary to perform the services or provide the goods reasonably expected (s. 1798.121(a)) | Given effect as soon as feasibly possible and no later than 15 business days from receipt (11 CCR s. 7027(g)); no verifiable consumer request required, and where the business can comply without additional information it does so (s. 7027(e)) | The uses authorized by s. 1798.121(a) continue; sensitive personal information processed without the purpose of inferring characteristics is out of scope (s. 1798.121(d)) |
+| **Opt out of automated decision-making technology / ADMT (CCPA / CPRA)** | CCPA Regs 11 CCR s. 7221 (effective 2026-01-01; compliance for a significant decision no later than 2027-01-01) | Direct the business not to use ADMT to make a significant decision concerning the consumer (s. 7221(a)) | Where ADMT processing has not begun, the business must not initiate it (s. 7221(m)); where it has, cease no later than 15 business days from receipt (s. 7221(n)); no verifiable consumer request required (s. 7221(f)) | The exceptions in s. 7221(b) (including the human-appeal exception) |
+| **Access automated decision-making technology / ADMT (CCPA / CPRA)** | CCPA Regs 11 CCR s. 7222 | Plain-language explanation of the specific purpose for which ADMT was used (not in generic terms), the logic of the ADMT, the outcome of the decision-making process and how the output was used (including, where applicable, planned future use of the output), that the business is prohibited from retaliating, and instructions for exercising other CCPA rights including links to any online request form or portal offered (s. 7222(b)) | Verified request required under Article 5 to a heightened standard (for non-accountholders, a reasonably high degree of certainty, s. 7062(c); for password-protected accounts, s. 7061); receipt confirmed no later than 10 business days; substantive response no later than 45 calendar days, extendable once to a 90-day maximum (s. 7021) | Trade secrets, and information that would compromise the business's security, fraud-prevention, or safety, may be withheld (s. 7222(c)) |
+
+**Canadian legal basis.** The in-force Canadian federal basis for these rights is PIPEDA Schedule 1 (the CSA Model Code fair-information principles): access and amendment rest on Principle 9 (Individual Access), and objection rests on Principle 3 (Consent, including withdrawal of consent). PIPEDA does not provide a standalone right to erasure or a right not to be subject to automated decision-making; for those, the basis above is GDPR (and equivalents). The Consumer Privacy Protection Act (CPPA, Part 1 of Bill C-27) would have introduced disposal and automated-decision-explanation rights, but Bill C-27 lapsed at the 2025-01-06 prorogation and is **not in force**; its privacy successor Bill C-36 (Protecting Privacy and Consumer Data Act), introduced 2026-06-15, is proposed and not in force (see [`privacy/jurisdictions/annex-privacy-canada.md`](jurisdictions/annex-privacy-canada.md)). Where the organization handles personal information in the course of carrying on an enterprise (Quebec Civil Code art. 1525), Quebec Law 25 provides stronger rights (including portability and de-indexing) and applies in addition to PIPEDA.
+
+**Indonesia 3 x 24-hour windows.** Where a request falls under Indonesia's Personal Data Protection Law (UU PDP, Law No. 27 of 2022), the controller acts within 3 x 24 hours of receiving it for correction or updating (Article 30(1)), access with the processing record (Article 32(2)), stopping processing after consent is withdrawn (Article 40(2)), and delaying or restricting processing (Article 41(1)). These windows are far shorter than the standard timeframes above and than the section 5 triage period, so an Indonesian request is flagged at intake and triaged and fulfilled within the statutory window; see the [Indonesia annex](jurisdictions/annex-privacy-indonesia.md).
+
+**Brazil and Mexico fixed windows.** Where a request falls under Brazil's LGPD, confirmation-of-existence and access requests must be met either immediately in simplified format or, by complete declaration, within 15 days (LGPD Art. 19); other LGPD Article 18 rights carry no fixed statutory day-count, so the internal service level applies. LGPD Art. 18 paragraph 5 provides that the request referred to in Art. 18 paragraph 3 must be met without cost to the data subject, within the time limits and on the terms provided for in regulation. Where a request falls under Mexico's LFPDPPP, the controller must communicate its determination on an ARCO request (access, rectification, cancellation, opposition) within 20 days (LFPDPPP Art. 31). These windows are narrower than the GDPR one-month clock; where more than one regime applies to a single request, the fulfilment team runs the strictest (shortest) applicable window. See [`privacy/jurisdictions/annex-privacy-brazil.md`](jurisdictions/annex-privacy-brazil.md) and [`privacy/jurisdictions/annex-privacy-mexico.md`](jurisdictions/annex-privacy-mexico.md).
+
+**California (CCPA / CPRA) basis.** Where the CCPA / CPRA applies, the statutory window for the analogous consumer rights (to know / access, correct, and delete) is **45 days** from receipt of a verifiable consumer request, extendable once by an additional 45 days when reasonably necessary with notice to the consumer within the first 45-day period (Cal. Civ. Code section 1798.130(a)(2); section 1798.145 separately permits extending the response window by up to a total of 90 days where necessary). The statutory one-month timeframes above state the GDPR Article 12(3) clock and, for requests under the UK GDPR, the Article 12A applicable time period ("the period of one month beginning with the relevant time", UK GDPR Article 12A(1)); requests governed by the CCPA / CPRA run on the 45-day clock, and the CCPA / CPRA fee-handling row in Section 7 applies unchanged. The CCPA automated-decision-making regulations (11 CCR Article 11, effective 2026-01-01, with compliance for a significant decision required no later than 2027-01-01) add, alongside the GDPR-style human review, the right to opt out of ADMT used to make a significant decision (11 CCR section 7221; where processing has not begun the business must not initiate it, section 7221(m), and where it has the business ceases no later than 15 business days from receipt, section 7221(n)) and the right to access ADMT (section 7222); all four CCPA / CPRA rights are enumerated as rows in the rights table above. Requests to access or to appeal ADMT run on the section 7021 timeline (receipt confirmed no later than 10 business days, substantive response no later than 45 calendar days, extendable once to a 90-day maximum), matching the 45-day consumer-request clock above.
+
+---
+
+## 4. Request intake
+
+### 4.1 Submission channels
+
+Data subjects may submit requests through:
+
+- The designated privacy request contact (email address or web portal maintained by the Data Protection Officer).
+- Written correspondence to the organization's registered address, directed to the Data Protection Officer.
+- Any other channel where a request is received by an employee; employees must forward to the Data Protection Officer immediately on receipt, and in any event no later than the same business day; a request that may fall under a clock measured in hours (for example Indonesia's 3 x 24-hour windows in section 3) is forwarded immediately, including outside business hours.
+
+The Data Protection Officer maintains the official DSR submission channel and ensures that it is published in the organization's privacy notice.
+
+### 4.2 Identity verification
+
+Identity verification is required before any personal data is disclosed or action taken. The verification standard must be proportionate to the sensitivity of the data involved. The CCPA / CPRA opt-out rights that disclose no personal data, the right to opt out of sale or sharing (11 CCR section 7026), to limit sensitive personal information (section 7027), and to opt out of ADMT (section 7221), do not require a verifiable consumer request and are actioned without this verification step; where the business can comply without additional information it does so (sections 7026(d), 7027(e)). Verification applies to the rights that disclose or act on personal data (to know, access, delete, correct, and to access ADMT under section 7222(e)).
+
+| Verification Level | When Applied | Acceptable Methods |
+| --- | --- | --- |
+| **Standard** | General access, correction, or deletion requests for low-sensitivity data categories | Government-issued photo ID; confirmation of account details or employment record; two independently verifiable data points matching held records |
+| **Enhanced** | Requests involving health, financial, or biometric data; requests with indications of identity fraud; requests from authorized third parties acting on behalf of the data subject | Government-issued photo ID plus secondary verification; notarized authorization for third-party requestors |
+| **Re-verification** | Requests for the same data type made within 12 months of a prior request | Standard verification unless circumstances indicate heightened risk |
+
+Requests where identity cannot be verified within 10 business days are suspended. For CCPA / CPRA requests the section 7021(b) response clock runs from receipt regardless of the time required to verify, so suspension marks case status only and does not pause that clock; a request the business still cannot verify within the 45-day period may be denied. The same applies to the Indonesia 3 x 24-hour windows in section 3, which run from receipt: identity verification does not pause them, and the request is verified and fulfilled, or refused on a lawful ground and the refusal recorded, within the window. The data subject is notified of the verification requirement and given a reasonable further period to provide acceptable evidence.
+
+### 4.3 DSR register logging
+
+Upon receipt, every request is assigned a unique DSR identifier and logged in the DSR register with:
+
+- DSR ID
+- Date received (and time where received electronically, or for any request subject to a clock measured in hours, whatever the channel)
+- Right(s) requested
+- Data subject identity (verified / pending verification)
+- Applicable jurisdiction(s) and governing law
+- Assigned Data Protection Officer
+- Response deadline (calculated from date received, or as a date and time for a clock measured in hours)
+- Current status
+- Outcome
+
+---
+
+## 5. Triage and assessment
+
+Following intake and initial logging, the Data Protection Officer completes a triage assessment within 3 business days, or within the shorter statutory window where one applies (for example the Indonesia 3 x 24-hour windows in section 3):
+
+1. **Confirm identity:** Verify that identity verification has been completed or is in progress. If not in progress, initiate verification. The CCPA / CPRA opt-out rights (opt out of sale or sharing, s. 7026; limit sensitive personal information, s. 7027; opt out of ADMT, s. 7221(f)) require no verifiable consumer request and skip this identity-confirmation step, proceeding to scope and fulfilment; a request to access ADMT instead requires the heightened Article 5 standard (a reasonably high degree of certainty for non-accountholders, s. 7062(c); password-protected-account verification, s. 7061).
+2. **Determine applicable law:** Identify the jurisdiction(s) governing the request based on the data subject's location, the applicable privacy law, and the data categories involved.
+3. **Determine the right(s) invoked:** Confirm which rights under §3 apply and whether all conditions for the right are prima facie met.
+4. **Check exemptions:** Review whether any exemptions in §3 apply and document the assessment.
+5. **Scope the request:** For access requests, identify all systems, data stores, third-party processors, and AI systems that may hold relevant personal data.
+6. **Assign to Data Protection Officer:** Assign formal ownership and confirm the response deadline in the DSR register.
+7. **Notify the data subject:** Send an acknowledgement confirming receipt, the estimated response timeframe, and any verification requirements still outstanding.
+
+---
+
+## 6. Fulfilment workflow
+
+### 6.1 Data location
+
+The Data Protection Officer coordinates with IT Operations and relevant System Owners to locate all personal data within scope of the request. Data location covers:
+
+- Primary operational systems and databases.
+- Archival and backup systems (where technically accessible without disproportionate effort).
+- Cloud platform storage and SaaS applications.
+- Third-party processors and sub-processors subject to data processing agreements.
+- AI systems that process, store, or generate outputs from the data subject's personal data, including AI-derived data and profiling outputs.
+
+### 6.2 Scoping the response
+
+The Data Protection Officer determines:
+
+- Which data falls within the scope of the specific right invoked.
+- Whether any exemptions apply to specific data elements.
+- Whether any third-party personal data is intermingled with the requestor's data and must be redacted before disclosure.
+
+### 6.3 Redaction of third-party data
+
+Responses must not disclose the personal data of third parties without their consent or legal basis. This reflects **GDPR Article 15(4)** (the right to obtain a copy must not adversely affect the rights and freedoms of others); the EDPB's **Guidelines 01/2022 on the right of access** (Version 2.1, 30 May 2024; adopted 28 March 2023) are the authoritative interpretation of that limit, which is applied by redacting the parts that would adversely affect others rather than refusing the request outright. Redaction must be applied to:
+
+- Names, contact details, or identifying information of other individuals appearing in documents or records.
+- Data that, in combination with the disclosed data, would allow identification of another individual.
+
+Redaction must be documented in the fulfilment record. The Data Protection Officer retains the unredacted version in the case file.
+
+### 6.4 Preparation and delivery of response
+
+Responses are prepared in clear, plain language. The response format depends on the right invoked:
+
+| Right | Response Format |
+| --- | --- |
+| Access (SAR) | Summary of data held; attachment of data copies in PDF or other accessible format; explanation of processing purposes, retention, and recipients |
+| Correction | Confirmation of correction made; or explanation of why correction was not made with legal basis |
+| Deletion | Confirmation of deletion and scope; or explanation of retention obligation with legal basis |
+| Portability | Machine-readable export (CSV, JSON, or equivalent) of requested data |
+| Restriction | Confirmation that restriction has been applied and description of its scope; notification before the restriction is lifted (GDPR Art. 18(3)) |
+| Objection | Confirmation that processing has ceased (for direct marketing) or assessment outcome with legal basis |
+| Automated Decision Review | Explanation of the logic applied; outcome of human review; any changes resulting from the review |
+| Access ADMT (CCPA / CPRA) | Plain-language explanation of: the specific purpose for which the ADMT was used (not described in generic terms); the logic of the ADMT; the outcome of the decision-making process and how the output was used, including where applicable how the output will be used for a future significant decision; that the business is prohibited from retaliating; and instructions for exercising other CCPA rights, including links to any online request form or portal offered (11 CCR s. 7222(b)) |
+
+Responses are delivered via a secure channel. Transmission of personal data by unencrypted email is prohibited.
+
+---
+
+## 7. Denial and exemptions
+
+### 7.1 Grounds for denial
+
+A request may be denied wholly or in part on the following grounds (non-exhaustive; determined by applicable law):
+
+- Exercising or defending legal claims.
+- Legal professional privilege.
+- Prevention, detection, or prosecution of criminal offences.
+- Protection of the rights of third parties.
+- Statutory or regulatory retention obligation preventing deletion.
+- The right invoked does not apply under the relevant law (e.g., portability not available for data processed under legitimate interests).
+- The request is manifestly unfounded or excessive (repeat or abusive requests); this must be assessed individually and objectively per the Article 12(5) assessment in §7.2.
+
+### 7.2 Article 12(5) assessment (manifestly unfounded or excessive)
+
+GDPR Article 12(5) makes information and communications free of charge by default. Where requests are manifestly unfounded or excessive, the controller may charge a reasonable fee reflecting administrative costs or refuse to act; the controller bears the burden of demonstrating that character. Separately, Article 15(3) permits a reasonable administrative-cost-based fee for further copies requested by the data subject, without an Article 12(5) finding.
+
+Every invocation of Article 12(5) requires documented evidence supporting the manifestly-unfounded-or-excessive determination before fee or refusal is communicated to the subject. The EDPB Guidelines 01/2022 on the right of access confirm this reading: Article 12(5) permits the controller to charge a reasonable fee or refuse only where the request is manifestly unfounded or excessive, and the controller bears the burden of demonstrating that character.
+
+#### 7.2.1 Default: free of charge
+
+| Default | Reference |
+|---|---|
+| All DSRs handled free of charge | GDPR Article 12(5) sentence 1 |
+| Information under Articles 13 and 14 (privacy notices) provided free | Article 12(5) sentence 1 |
+| Communications under Articles 15 to 22 (access, rectification, erasure, restriction, portability, objection, automated decision-making) provided free | Article 12(5) sentence 1 |
+| Breach notifications to data subjects under Article 34 provided free | Article 12(5) sentence 1 |
+
+A charge or refusal is the **exception**; the assessment below must support either action with documented evidence.
+
+#### 7.2.2 Manifestly unfounded: criteria
+
+For access requests, document why Article 15's requirements are clearly and objectively unmet. Absence of personal data normally calls for confirmation of non-processing. The requester need not justify their purpose. Seek necessary clarification; lack of a narrow scope does not itself establish manifest unfoundedness.
+
+#### 7.2.3 Excessive requests: criteria
+
+Assess each request individually. For repetition, document previous responses, overlap, elapsed time, likely data changes, and the processing context; no fixed interval establishes excessiveness. Workload, data volume, requesting all personal data, or intended litigation does not alone justify refusal or a fee. Any reliance on abuse must be supported by documented evidence: for example, an offer to withdraw the request in return for a benefit from the controller, or malicious use to harass the controller or its staff with no purpose other than disruption (paragraph 190). Apply EDPB Guidelines 01/2022, paragraphs 175-190; assess other rights against their own statutory requirements.
+
+#### 7.2.4 Action options under Article 12(5)
+
+Where the determination is substantiated, select a reasonable fee or refusal according to the circumstances and document why that response is appropriate (EDPB Guidelines 01/2022, paragraphs 191-193):
+
+| Action | Description | Constraints |
+|---|---|---|
+| **(a) Charge a reasonable fee** | Take into account the administrative costs of providing the information, the communication, or the action requested | Fee MUST be cost-recovery, not punitive; the controller must be able to demonstrate the cost-basis of the fee |
+| **(b) Refuse to act on the request** | Decline the request entirely | Subject retains the right to lodge a complaint with the supervisory authority and to seek judicial remedy per Articles 77-79 |
+
+The controller cannot do both (charge a fee AND refuse the substantive action); the language of Article 12(5) is an either/or election.
+
+#### 7.2.5 Burden-of-proof requirements
+
+Per Article 12(5) sentence 3, the controller bears the burden of demonstrating the manifestly-unfounded-or-excessive character. The documentation required:
+
+1. Written assessment against the applicable §7.2.2 and §7.2.3 grounds with quoted evidence.
+2. Legal Counsel sign-off on the assessment before fee or refusal is communicated.
+3. DPO sign-off on the fee-or-refusal election.
+4. Written communication to the subject naming: the determination, the specific Article 12(5) ground invoked, the action taken (fee with amount and basis, OR refusal), and the subject's right to lodge a complaint with the supervisory authority and to seek judicial remedy per Articles 77 to 79.
+5. Entry in the DSR register linking the assessment, sign-offs, and subject communication.
+
+Records retained per the organization's privacy retention schedule; minimum **3 years** for fee/refusal evidence (or longer where the supervisory authority has indicated a longer retention requirement).
+
+#### 7.2.6 Reasonable-fee calculation
+
+Where the controller elects to charge a reasonable fee (Article 12(5)(a)):
+
+| Element | Method |
+|---|---|
+| Cost categories | (a) staff time for retrieval, review, and redaction; (b) storage media if physical copy requested; (c) postage if physical delivery; (d) external Legal Counsel time if involved in redaction review |
+| Hourly rate | Internal staff: salary-based cost-recovery rate (NOT a punitive markup). External counsel: actual rate charged to the controller |
+| Fee cap | The fee MUST be cost-recovery only; no profit margin |
+| Itemization | Fee communication to the subject MUST itemize the cost categories and time/rate applied |
+| Payment method | The controller MUST NOT require advance payment that effectively denies the right; payment-on-delivery is acceptable; instalment options should be offered for substantial fees |
+| Waiver | The controller MAY waive the fee in cases of demonstrated financial hardship without prejudice |
+
+The fee schedule should be documented as an internal cost-recovery policy reviewed annually.
+
+#### 7.2.7 Cross-regime equivalents
+
+| Regime | Equivalent provision | Notable variations |
+|---|---|---|
+| **UK GDPR** (UK) | Article 12(5) (same as EU GDPR) | Apply the administrative-cost and evidence requirements in sections 7.2.4 to 7.2.6. Under UK GDPR Article 12A (inserted by the DUAA 2025, in force from 5 February 2026; see the [UK annex](jurisdictions/annex-privacy-united-kingdom.md)), the one-month period runs from the latest of receipt of the request, receipt of any identity information requested under Article 12(6), and payment of any Article 12(5) fee. Confirm the current right-of-access guidance directly with the Information Commission |
+| **LGPD** (Brazil, Article 18) | Free of charge to the data subject; regulation sets only the deadlines and terms (Art 18 §5) | No explicit "manifestly unfounded or excessive" exception in primary law |
+| **PIPL** (China, Article 50) | Requires a convenient mechanism to receive and handle individuals' rights requests; reasons must be given for rejection, and the individual may bring proceedings in a people's court | Article 50 prescribes no fee rule or repeated-request fee exception; do not cite it as authority for charging |
+| **PIPEDA** (Canada) | Minimal or no cost (Sch 1 clause 4.9.4; also OPC guidance); where a cost applies, the organization notifies the individual of the approximate cost before proceeding (s. 8(6)(a)) | Organization may proceed at a cost only after the individual advises that the request is not withdrawn following approximate-cost notice (s. 8(6)(a)-(b)) |
+| **CCPA / CPRA** (California) | Generally free (Cal. Civ. Code s. 1798.130(a)(2)(A)); "manifestly unfounded or excessive, in particular because of their repetitive character" exception (s. 1798.145(h)(3)); business may charge reasonable fee or decline | Fee accounts for administrative costs; refusal requires notice of the reason; business bears the burden of showing a request is manifestly unfounded or excessive (s. 1798.145(h)(3)) |
+| **APPI** (Japan, Articles 32(1)(iii), 38) | A fee within a reasonable amount considering actual costs is permitted for purpose-of-use notification and disclosure requests (Article 38); the fee amount must be accessible to the person, including through answers provided without delay on request (Article 32(1)(iii)) | No explicit "manifestly unfounded" gate |
+
+When the joint controllers or processors operate across multiple regimes, the strictest applicable regime governs (typically GDPR/UK GDPR where applicable).
+
+### 7.3 Denial process
+
+1. The Data Protection Officer documents the proposed grounds for denial with reference to the specific legal provision.
+2. Legal Counsel reviews the denial rationale and provides written concurrence confirming the legal basis. A denial cannot proceed without this concurrence: the Legal Counsel concurrence is the independent review of record, so no denial rests on a single officer's judgement.
+3. The DPO signs off on the denial in writing before notification is sent to the data subject.
+4. The data subject is notified in writing of the denial, the specific grounds, and their right to lodge a complaint with the relevant supervisory authority (the Information Commission; OPC; CAI; or other applicable authority).
+5. The denial, its grounds, the Legal Counsel concurrence, and the DPO sign-off are recorded in the DSR register.
+
+All denials must be justified in writing, carry the Legal Counsel written concurrence, and be reviewed by the DPO before being communicated to the data subject, consistent with [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md) §4.8.
+
+---
+
+## 8. Cross-border and AI considerations
+
+### 8.1 Cross-border requests
+
+Where a request involves personal data transferred across jurisdictions, the Data Protection Officer:
+
+- Determines the applicable legal rights in each relevant jurisdiction.
+- Identifies any legal mechanism constraints (e.g., PIPL restrictions on disclosing China-held data in response to foreign legal requests).
+- Consults Legal Counsel before fulfilling or denying the cross-border element of the request.
+
+### 8.2 AI-derived data
+
+Data subjects have the right to access data held about them regardless of whether it was directly provided or derived through automated processing, including AI systems. When fulfilling access requests:
+
+- The scope of the response includes AI-inferred or AI-derived personal data attributes (e.g., risk scores, profiling outputs, predicted categories) where those attributes are held and associated with the data subject.
+- The Data Protection Officer coordinates with the CISO and AI system owners to retrieve AI-derived data within the access scope.
+- The system card or model card for relevant AI systems is consulted to confirm what data is generated and retained.
+
+### 8.3 Automated decision review (GDPR art. 22)
+
+Where a data subject exercises their right to human review of an automated decision:
+
+1. The Data Protection Officer identifies the AI system and decision record involved.
+2. A qualified human reviewer (not the same system that generated the original decision) conducts an independent review within one month.
+3. The reviewer documents the logic reviewed, the evidence assessed, the outcome, and any changes to the original decision.
+4. The data subject is notified of the review outcome in writing.
+5. If the original decision is maintained, the reasons must be clearly explained.
+
+---
+
+## 9. Record keeping
+
+### 9.1 DSR register
+
+The Data Protection Officer maintains the DSR register as a living record of all requests received. The register must be accessible to the CIO and available for production to supervisory authorities on request. The DSR register contains, for each request, all fields defined in §4.3 plus fulfilment notes, denial grounds where applicable, and closure date.
+
+### 9.2 Retention
+
+DSR records, including intake records, identity verification evidence, internal assessments, response copies, denial documentation, and DPO sign-off records, are retained for 3 years following the closure date of each request, consistent with the retention schedule in [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) (Privacy / Data Subject Requests: 3 years post-closure).
+
+Records subject to regulatory investigation, litigation hold, or supervisory authority inquiry are retained, regardless of the standard retention period, until Legal Counsel, in writing, formally releases the hold or narrows it so that it no longer covers them.
+
+### 9.3 Evidence of fulfilment
+
+For each completed request, the case file must include:
+
+- Confirmation of identity verification method and outcome.
+- Data location and scope documentation.
+- Redaction log (where applicable).
+- Copy of the response delivered to the data subject.
+- Secure delivery confirmation.
+- Closure approval by the Data Protection Officer.
+
+---
+
+## 10. Metrics
+
+The following metrics are tracked and reported to the CIO at the quarterly Privacy Governance Review:
+
+| Metric | Definition | Target |
+| --- | --- | --- |
+| **Requests Received** | Total DSRs received in the reporting period, by right type | Tracked; volume trend monitored |
+| **On-Time Fulfilment Rate (%)** | Percentage of requests that received the required response (fulfilment, or a lawful refusal with reasons) within the applicable legal timeframe | 100% |
+| **Denial Rate (%)** | Percentage of requests denied wholly or in part | Tracked; material increase triggers process review |
+| **Average Response Time (days)** | Mean number of calendar days from request receipt to response delivery | Target: ≤ 25 days (ahead of the one-month deadline); requests under a clock measured in hours, such as Indonesia's 3 x 24-hour windows, are reported separately against that clock |
+| **Identity Verification Failure Rate (%)** | Percentage of requests suspended or closed due to failure to verify identity | Tracked; used to assess intake process usability |
+| **AI-Related DSR Rate (%)** | Percentage of SARs that included AI-derived data elements in scope | Tracked; informs AI data governance programme |
+| **Escalations to CIO** | Number of requests escalated to CIO as complex or contentious | Tracked |
+
+---
+
+## 11. Framework alignment
+
+| Control Area | Framework Reference |
+| --- | --- |
+| Data subject rights management | ISO/IEC 27701:2025 (PII principals' rights); CSA CCM v4.1 DSP-11, DSP-01 |
+| Access and transparency | GDPR Art. 15; UK GDPR Art. 15; PIPEDA Sch 1 Principle 9 (Individual Access); PIPL Art. 45; EDPB Guidelines 01/2022 on the right of access (v2.1) |
+| Correction and rectification | GDPR Art. 16; UK GDPR Art. 16; PIPEDA Sch 1 Principle 9 (amendment); PIPL Art. 46 |
+| Deletion and erasure | GDPR Art. 17; UK GDPR Art. 17 |
+| Data portability | GDPR Art. 20; UK GDPR Art. 20 |
+| Restriction of processing | GDPR Art. 18; UK GDPR Art. 18 |
+| Objection to processing | GDPR Art. 21; UK GDPR Art. 21; PIPEDA Sch 1 Principle 3 (withdrawal of consent) |
+| Automated decision review | EU GDPR Art. 22; UK GDPR Arts. 22A-22D (per the UK annex) |
+| DPO accountability and record keeping | GDPR Art. 37 to 39; ISO/IEC 27701:2025 §5.3, Annex A.1.2.9, A.3.4 |
+| Retention of DSR records | [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) |
+
+---
+
+*This document is released under the CC BY-SA 4.0 licence. See [`LICENSE`](../LICENSE) in the repository root.*
+
+---
+
+**End of Document**

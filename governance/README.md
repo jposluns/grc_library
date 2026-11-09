@@ -1,0 +1,100 @@
+# Governance Domain
+
+**Document Title:** Governance Domain README\
+**Document Type:** Register\
+**Version:** 1.10.22\
+**Date:** 2026-11-09\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md)\
+**Classification:** Public\
+**Category:** Governance\
+**Review Frequency:** Annual and upon material repository structure change\
+**Repository Path:** [`governance/README.md`](README.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This directory contains the enterprise-wide governance foundation of the GRC Documentation Library: the library charter, document architecture, cross-framework alignment, role authority, terminology, metrics, and the overarching policies for governance, risk, and exception management. Its original content is released under CC BY-SA 4.0; a quotation that [`NOTICE.md`](../NOTICE.md) allows or keeps under its transition clause keeps its source licence and is not relicensed under CC BY-SA 4.0.
+
+---
+
+## Active documents
+
+| Type | Title | Path |
+| --- | --- | --- |
+| Charter | Governance Library Charter | [`governance/charter-governance-library.md`](charter-governance-library.md) |
+| Principle | Capability Is Not Authority Principle | [`governance/principle-capability-is-not-authority.md`](principle-capability-is-not-authority.md) |
+| Principle | Fail-Closed Automation Principle | [`governance/principle-fail-closed-automation.md`](principle-fail-closed-automation.md) |
+| Principle | Integrity and Trustworthiness Principle | [`governance/principle-integrity-and-trustworthiness.md`](principle-integrity-and-trustworthiness.md) |
+| Framework | Document Architecture and Interrelationship Framework | [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md) |
+| Framework | Governance Relationship and Flow Modelling Framework | [`governance/framework-governance-relationship-and-flow-modelling.md`](framework-governance-relationship-and-flow-modelling.md) |
+| Framework | Governance Performance and Improvement Framework | [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md) |
+| Framework | Continuous Assurance and Improvement Framework | [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md) |
+| Framework | Metrics, Monitoring and Performance Reporting Framework | [`governance/framework-metrics-monitoring-and-performance-reporting.md`](framework-metrics-monitoring-and-performance-reporting.md) |
+| Policy | Exception and Risk Acceptance Management Policy | [`governance/policy-exception-and-risk-acceptance-management.md`](policy-exception-and-risk-acceptance-management.md) |
+| Matrix | Cross-Framework Alignment Matrix | [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md) |
+| Matrix | Reverse Framework Control Crosswalk Matrix | [`governance/matrix-reverse-framework-control-crosswalk.md`](matrix-reverse-framework-control-crosswalk.md) |
+| Register | Document Index and Classification Register | [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md) |
+| Register | Role Authority Register | [`governance/register-role-authority.md`](register-role-authority.md) |
+| Register | Key Terms and Definitions Register | [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md) |
+| Register | Glossary and Acronym Index | [`governance/register-glossary.md`](register-glossary.md) |
+| Register | Canonical Citations Register | [`governance/register-canonical-citations.md`](register-canonical-citations.md) |
+| Specification | Citation Verification Specification | [`governance/specification-citation-verification.md`](specification-citation-verification.md) |
+| Specification | Audit Programme Specification | [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](../.claude/skills/corpus-management/specs/specification-audit-programme.md) |
+| Template | Citation Verification Worklist Template | [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md) |
+| Register | AI Security Tooling Landscape Register | [`governance/register-ai-security-tooling-landscape.md`](register-ai-security-tooling-landscape.md) |
+| Register | Coverage Gap Analysis Register | [`governance/register-coverage-gaps.md`](register-coverage-gaps.md) |
+| Register | Digital Trust and Assurance Metrics Register | [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md) |
+| Standard | Records Retention and Destruction Standard | [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) |
+| Standard | Delegation-of-Authority Standard | [`governance/standard-delegation-of-authority.md`](standard-delegation-of-authority.md) |
+| Standard | Emergency Authority Standard | [`governance/standard-emergency-authority.md`](standard-emergency-authority.md) |
+| Standard | Semantic Continuity in Migration and Retirement Standard | [`governance/standard-semantic-continuity-in-migration-and-retirement.md`](standard-semantic-continuity-in-migration-and-retirement.md) |
+| Standard | Maturity Assessment Methodology Standard | [`governance/standard-maturity-assessment-methodology.md`](standard-maturity-assessment-methodology.md) |
+| Procedure | GRC Programme Management and Annual Review Procedure | [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md) |
+| Framework | Human Capital and Ethical Conduct Framework | [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md) |
+| Framework | Sustainability and Responsible Technology Framework | [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md) |
+| Policy | Digital Twin and Simulation Governance Policy | [`governance/policy-digital-twin-and-simulation-governance.md`](policy-digital-twin-and-simulation-governance.md) |
+| Register | Data Retention Schedule | [`governance/register-data-retention-schedule.md`](register-data-retention-schedule.md) |
+| Procedure | Continuous Improvement Register Procedure | [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md) |
+| Procedure | Whistleblower and Incident Reporting Procedure | [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md) |
+| Guideline | ESG and AI Ethics Disclosure Guideline | [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md) |
+| Guideline | Minimum Viable Governance Structure Guideline | [`governance/guideline-minimum-viable-governance-structure.md`](guideline-minimum-viable-governance-structure.md) |
+| Procedure | Library Quality and Review Cadence Procedure | [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md) |
+| Procedure | Standard Version Upgrade Procedure | [`governance/procedure-standard-version-upgrade.md`](procedure-standard-version-upgrade.md) |
+| Template | Document Review Record Template | [`governance/template-document-review-record.md`](template-document-review-record.md) |
+| Template | Executive Narrative Subtype Templates | [`governance/template-executive-narrative-subtypes.md`](template-executive-narrative-subtypes.md) |
+| Template | Library Health Report Template | [`governance/template-library-health-report.md`](template-library-health-report.md) |
+| Specification | Project Governance Separation Specification | [`.claude/skills/corpus-management/specs/specification-project-governance-separation.md`](../.claude/skills/corpus-management/specs/specification-project-governance-separation.md) |
+| Guide | Adopter Decision Tree | [`governance/decision-tree.md`](decision-tree.md) |
+| Guide | Worked Example: Converting a Draft into a CC BY-SA 4.0 Artefact | [`governance/worked-example.md`](worked-example.md) |
+| Specification | Master Project Specification | [`governance/specification-master-project.md`](specification-master-project.md) |
+| Specification | GRC Library Ingestion and Transformation Specification | [`governance/specification-ingestion.md`](specification-ingestion.md) |
+| Specification | Executive Narrative Authoring Specification | [`governance/specification-executive-narrative.md`](specification-executive-narrative.md) |
+| Template | Adopter Quickstart Template | [`governance/template-quickstart.md`](template-quickstart.md) |
+| Template | Adopter Startup Roadmap Template | [`governance/template-startup-roadmap.md`](template-startup-roadmap.md) |
+| Template | Adopter Implementation Roadmap Template | [`governance/template-implementation-roadmap.md`](template-implementation-roadmap.md) |
+| Template | Adopter Maturity Self-Assessment Template | [`governance/template-maturity-self-assessment.md`](template-maturity-self-assessment.md) |
+
+Generated navigation pages: the adopter portal, [`governance/portal.md`](portal.md), and the document maturity scorecard, [`governance/maturity-scorecard.md`](maturity-scorecard.md), sit in this directory but are generated from the taxonomy, not authored. They are not governance artefacts, so they are not in the table above or in the document index register.
+
+---
+
+## Domain coverage
+
+The governance domain establishes the authority model for the entire library. It contains the documents that every other domain depends on: the charter that sets licence and quality boundaries, the framework that defines how documents relate to each other, the role authority register that defines who approves what, and the cross-framework alignment matrix that maps repository artefacts to external standards families.
+
+The governance and risk management policy and the exception management policy establish the binding principles that all downstream standards and procedures implement.
+
+---
+
+## Licence boundary
+
+The original content in this directory is released under CC BY-SA 4.0; a quotation that [`NOTICE.md`](../NOTICE.md) allows or keeps under its transition clause keeps its source licence and is not relicensed under CC BY-SA 4.0. External framework identifiers and regulatory references are used for alignment purposes only and do not reproduce restricted third-party text.
+
+---
+
+**End of Document**

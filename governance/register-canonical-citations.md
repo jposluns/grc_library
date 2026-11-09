@@ -1,0 +1,480 @@
+# Canonical Citations Register
+
+**Document Title:** Canonical Citations Register\
+**Document Type:** Register\
+**Version:** 1.6.22\
+**Date:** 2026-11-07\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`.claude/skills/corpus-management/tools/lint-standards-currency.py`](../.claude/skills/corpus-management/tools/lint-standards-currency.py)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** Quarterly, and upon publication of a superseding version of any listed standard\
+**Repository Path:** [`governance/register-canonical-citations.md`](register-canonical-citations.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This register is the positive list of canonical citations used across the GRC Documentation Library. It records, for each cited standard, regulation, framework, or specification:
+
+- The standard or regulation identifier.
+- The current published version that the library cites.
+- The publication date.
+- A short topic descriptor.
+- Known superseded versions (so the standards-currency linter can flag stale references).
+
+The companion linter [`.claude/skills/corpus-management/tools/lint-standards-currency.py`](../.claude/skills/corpus-management/tools/lint-standards-currency.py) parses this register and uses it to detect:
+
+- References to superseded versions where a current version is recorded here.
+- References including "(draft)" markers where the current version has been published.
+
+The register is the single source of truth. When a new version of a standard is published, update this register first; the linter will then flag remaining references to the prior version across the library.
+
+Entries in this register are subject to publisher-source verification under the Citation Verification Specification ([`specification-citation-verification.md`](specification-citation-verification.md)). Verification results are recorded row-by-row in the Citation Verifications Register. Until an entry is verified there, it carries no recorded factual provenance beyond having been written into this register; the verification process is the control that converts written entries into evidence-bearing entries.
+
+---
+
+## Conventions
+
+- **Standard ID**: the canonical short identifier as the standard publisher writes it (for example, `ISO/IEC 27001` rather than `ISO 27001`).
+- **Current version**: year, year-month, or version number as the publisher writes it. A revised NIST Special Publication is `Rev. N`: NIST's "Revision N" and its hyphen suffix "-N" (as in SP 800-63-3) are both written `Rev. N`, here and in Superseded versions. For a NIST Special Publication that has never been revised and carries no version number in its title, this is the year on its title page (`2020` for SP 800-207), not `(1.0)`.
+- **Publication date**: ISO 8601 year or year-month where known.
+- **Topic**: one-line descriptor.
+- **Superseded versions**: comma-separated list of prior version markers the linter should flag if encountered. Includes prior years (`2013`) and prior phrasing (`draft 2024`, `draft`, `2024 draft`). For a NIST Special Publication, list a prior edition only if the row's held text names it or NIST's revision numbering supports it; the list need not be exhaustive. Write a revision as `Rev. N`, any other publisher marker as the publisher writes it, and an unmarked original as its year where a held text dates it (for example, `Rev. 3, Version 2.0, 2002` for SP 800-40). `Rev. 0` is not used.
+- **Upstream check location**: the authoritative upstream page where the current version is published and can be re-checked (the publisher's catalogue page, the official register or EUR-Lex / legislation ELI page, or the project's releases page). This is where a maintainer goes to confirm currency; it is deliberately a stable "where to check" pointer, not a deep version-specific link. `-` means no confirmed location is recorded yet (see the next column).
+- **Last verified (UTC)**: the UTC date on which the Upstream check location was last fetch-confirmed against the recorded Current version, or `needs-reconfirm` when currency has not been confirmed this cycle. `needs-reconfirm` is an honest deferral, not a defect: it covers both entries never yet verified and entries whose upstream blocks automated fetch (as of the 2026-06-30 population, `iso.org`, the IEC webstore, and several government sources such as `hhs.gov`, `nerc.com`, `tsa.gov`, `planalto.gov.br`, and `wcoomd.org` returned HTTP 403 / JS-gated responses to automated fetch, so their rows carry `needs-reconfirm` rather than an unconfirmed URL; a maintainer with a browser, or a future cycle with different egress, fills these).
+- "-" in any column means "not applicable" or "none recorded".
+
+When citing a standard in library content, use the **Standard ID** plus the **Current version** in the format the publisher uses (for example, `ISO/IEC 42006:2025`, `NIST SP 800-53 Rev. 5`). The linter relies on this exact format.
+
+**Version-currency cadence (advisory, not a gate).** The `Upstream check location` and `Last verified (UTC)` columns operationalize the `evidence-grounded-completion` rule's external-version-currency corollary: the **upstream source is the only authority** on whether a version is current; a stored note, a cached copy, or a `grc_library_ref` holding is believed-current STORAGE, never a version authority. Whenever a row is **load-bearing for a task** and its `Last verified (UTC)` is `needs-reconfirm` or older than **one week**, re-check the Upstream check location before relying on the row, and update `Last verified (UTC)` (and the version columns, if the upstream has moved) in that PR. This is a discipline cued by the column, not a CI gate: a hard gate would fail whenever egress is blocked (an environment condition, not a defect), so the check is advisory like the matrix-fit worklist. The full operational procedure (find what is held via the index, verify upstream this turn, act only after both; and the superseded-archival workflow for `grc_library_ref`) lives in [`specification-citation-verification.md`](specification-citation-verification.md).
+
+**Scope (extended)**: this register's primary scope is formal standards, regulations, and Acts. As of 2026-06-22 the scope is extended to include **soft-law supervisory guidance** (Article 29 Working Party Guidelines, EDPB opinions and guidelines, ICO codes of practice, ANPD orientation documents, and equivalent supervisory-authority-issued guidance documents that the corpus cites by name). Soft-law entries follow the same column structure with the publisher being the supervisory authority and the "Current version" being the published revision number (e.g., `rev.01`). Soft-law guidance is typically referenced for interpretive guidance on a formal regulation; the register's role is to anchor the citation and flag stale revisions.
+
+---
+
+## ISO / IEC standards
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| ISO/IEC 27001 | 2022 | 2022-10 | Information security management systems: requirements; ISO/IEC 27001:2022/Amd 1:2024 (Climate action changes), published 2024-02-23 | 2013 | https://www.iso.org/standard/27001 | verified 2026-09-25 |
+| ISO/IEC 27002 | 2022 | 2022-02 | Information security controls | 2013 | https://www.iso.org/standard/75652.html | verified 2026-09-25 |
+| ISO/IEC 27004 | 2016 | 2016-12 | Information security management: Monitoring, measurement, analysis and evaluation | 2009 | https://www.iso.org/standard/64120.html | verified 2026-08-26 |
+| ISO/IEC 27005 | 2022 | 2022-10 | Information security risk management | 2018 | https://www.iso.org/standard/80585.html | verified 2026-07-09 |
+| ISO/IEC 27017 | 2026 | 2026-07 | Cloud-service information security controls based on ISO/IEC 27002 | 2015 | https://www.iso.org/standard/27017 | verified 2026-07-28 |
+| ISO/IEC 27018 | 2025 | 2025-08 | Protection of personally identifiable information in public clouds acting as PII processors | 2019 | https://www.iso.org/standard/27018 | verified 2026-07-09 |
+| ISO/IEC 27019 | 2024 | 2024-10 | Information security controls for the energy utility industry (Edition 2; based on ISO/IEC 27002:2022 with 12 additional energy-sector controls) | 2017 | https://www.iso.org/standard/85056.html | verified 2026-07-09 |
+| ISO/IEC 27031 | 2025 | 2025-05 | Cybersecurity, information and communication technology readiness for business continuity (Second edition; supersedes the 2011 first edition) | 2011 | https://www.iso.org/standard/27031 | verified 2026-08-16 |
+| ISO/IEC 27033-1 | 2015 | 2015 | Network security - Part 1: Overview and concepts (the roadmap part of the multi-part ISO/IEC 27033 series on network security architecture and segmentation; confirmed unchanged 2021) | 2009 | https://www.iso.org/standard/63461.html | verified 2026-06-30 |
+| ISO/IEC 27034 | Part 1:2011 (+ Cor 1:2014), Part 2:2015, Part 3:2018, Part 5:2017 (+ TS 27034-5-1:2018), Part 6:2016, Part 7:2018 (no Part 4 published) | 2011 to 2018 | Application security (multi-part series on secure SDLC governance and assurance) | - | https://www.iso.org/standard/44378.html | verified 2026-08-16 |
+| ISO/IEC 27035-2 | 2023 | 2023-02 | Information security incident management - Part 2: Guidelines to plan and prepare for incident response (Edition 2; cancels and replaces the 2016 first edition) | 2016 | https://www.iso.org/standard/78974.html | verified 2026-10-20 |
+| ISO/IEC 27036-2 | 2022 | 2022-06 | Cybersecurity - Supplier relationships - Part 2: Requirements (Edition 2; cancels and replaces the 2014 first edition) | 2014 | https://www.iso.org/standard/82060.html | verified 2026-06-30 |
+| ISO/IEC 27036-3 | 2023 | 2023-06 | Cybersecurity - Supplier relationships - Part 3: Guidelines for hardware, software, and services supply chain security | 2013 | https://www.iso.org/standard/82890.html | verified 2026-07-09 |
+| ISO/IEC 27036-4 | 2016 | 2016-10 | Information security for supplier relationships - Part 4: Guidelines for security of cloud services | - | https://www.iso.org/standard/59689.html | verified 2026-07-09 |
+| ISO/IEC 27701 | 2025 | 2025-10 | Privacy information management system (PIMS); standalone standard since the 2025 revision (previously an extension to ISO/IEC 27001 in the 2019 edition; transition deadline October 2028) | 2019 | https://www.iso.org/standard/27701 | verified 2026-07-09 |
+| ISO 22301 | 2019 | 2019-10 | Business continuity management systems (Amd 1:2024, climate action changes) | 2012 | https://www.iso.org/standard/75106.html | verified 2026-09-25 |
+| ISO 31000 | 2018 | 2018-02 | Risk management: Guidelines | 2009 | https://www.iso.org/standard/65694.html | verified 2026-09-25 |
+| ISO/IEC 38500 | 2024 | 2024 | Governance of IT for the organization | 2015 | https://www.iso.org/standard/81684.html | verified 2026-07-09 |
+| ISO/IEC 23894 | 2023 | 2023-02 | AI risk management guidance | - | https://www.iso.org/standard/77304.html | verified 2026-09-25 |
+| ISO/IEC 42001 | 2023 | 2023-12 | AI management systems: requirements | - | https://www.iso.org/standard/42001 | verified 2026-09-25 |
+| ISO/IEC 42005 | 2025 | 2025-05 | AI system impact assessment | - | https://www.iso.org/standard/42005 | verified 2026-07-09 |
+| ISO/IEC 42006 | 2025 | 2025 | Requirements for bodies providing audit and certification of AI management systems | draft 2024, 2024 draft | https://www.iso.org/standard/42006 | verified 2026-07-09 |
+| ISO 28000 | 2022 | 2022-03 | Security management systems for the supply chain (Amd 1:2024, climate action changes) | 2007 | https://www.iso.org/standard/79612.html | verified 2026-09-25 |
+| ISO 28001 | 2007 | 2007 | Best practices for implementing supply chain security | - | https://www.iso.org/standard/45654.html | verified 2026-07-09 |
+| ISO 15489 | 2016 | 2016-04 | Records management | - | https://www.iso.org/standard/62542.html | verified 2026-07-09 |
+| ISO 50001 | 2018 | 2018-08 | Energy management systems | - | https://www.iso.org/standard/69426.html | verified 2026-07-09 |
+| ISO/IEC 5259 | 2024 | 2024 | Data quality for AI and machine learning | - | https://www.iso.org/standard/81088.html | verified 2026-07-09 |
+| ISO 37301 | 2021 | 2021-04 | Compliance management systems (Amd 1:2024, climate action changes) | - | https://www.iso.org/standard/75080.html | verified 2026-09-25 |
+| ISO 37001 | 2025 | 2025-02 | Anti-bribery management systems - Requirements with guidance for use (Edition 2; transition deadline February 2027; changes from 2016 edition are not extensive) | 2016 | https://www.iso.org/standard/37001 | verified 2026-07-09 |
+| ISO/IEC 17021 | 2015 | 2015 | Conformity assessment: requirements for bodies providing audit and certification of management systems | - | https://www.iso.org/standard/61651.html | verified 2026-07-09 |
+| ISO 19011 | 2026 | 2026-05 | Guidelines for auditing management systems | 2018 | https://www.iso.org/standard/19011 | verified 2026-08-30 |
+| ISO/IEC 20000-1 | 2018 | 2018-09 | Service management, Part 1: Service management system requirements (Third edition; Amd 1:2024, climate action changes) | 2011 | https://www.iso.org/standard/70636.html | verified 2026-10-28 |
+
+## NIST publications
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| NIST SP 800-34 | Rev. 1 | 2010-05 | Contingency Planning Guide for Federal Information Systems | - | https://csrc.nist.gov/pubs/sp/800/34/r1/final | 2026-06-30 |
+| NIST SP 800-53 | Rev. 5 | 2020-09 | Security and Privacy Controls for Information Systems and Organizations | Rev. 4 | https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final | 2026-06-30 |
+| NIST SP 800-53A | Rev. 5 | 2022-01 | Assessing Security and Privacy Controls in Information Systems and Organizations | Rev. 4 | https://csrc.nist.gov/pubs/sp/800/53/a/r5/final | 2026-09-24 |
+| NIST SP 800-61 | Rev. 3 | 2025-04 | Incident Response Recommendations and Considerations for Cybersecurity Risk Management (CSF 2.0 Community Profile) | Rev. 2, Rev. 1 | https://csrc.nist.gov/pubs/sp/800/61/r3/final | 2026-06-30 |
+| NIST SP 800-63B | Rev. 4 | 2025-07 | Digital Identity Guidelines: Authentication and Authenticator Management (part of SP 800-63 Rev. 4 family) | 2017 | https://csrc.nist.gov/pubs/sp/800/63/b/4/final | 2026-06-30 |
+| NIST SP 800-88 | Rev. 2 | 2025-09 | Media sanitization (Rev. 2 reframes around an enterprise media-sanitization programme and defers sanitization-technique detail to IEEE 2883, NSA specifications, or an organizationally-approved standard, retaining only cryptographic erase directly) | Rev. 1 | https://csrc.nist.gov/pubs/sp/800/88/r2/final | verified 2026-06-30 |
+| NIST SP 800-207 | 2020 | 2020-08 | Zero Trust Architecture | - | https://csrc.nist.gov/pubs/sp/800/207/final | 2026-06-30 |
+| NIST CSF | 2.0 | 2024-02 | Cybersecurity Framework | 1.1 | https://www.nist.gov/cyberframework | 2026-06-30 |
+| NIST AI RMF | 1.0 | 2023-01 | AI Risk Management Framework (NIST announced a revision of AI RMF 1.0 under the White House AI Action Plan, with no version or date given; 1.0 remains current) | - | https://www.nist.gov/itl/ai-risk-management-framework | 2026-10-27 |
+| NIST Privacy Framework | 1.0 | 2020-01 | A Tool for Improving Privacy through Enterprise Risk Management (identifier NIST.CSWP.01162020; Version 1.1 is an Initial Public Draft, not yet finalized) | - | https://www.nist.gov/privacy-framework | 2026-09-04 |
+| NIST AI 600-1 | 1.0 | 2024-07 | Generative AI Profile for AI RMF | - | https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence | 2026-06-30 |
+| NIST SP 800-208 | 2020 | 2020-10 | Recommendation for Stateful Hash-Based Signature Schemes (stateful hash-based digital signatures: LMS and XMSS, with the HSS and XMSS-MT multi-tree variants) | - | https://csrc.nist.gov/pubs/sp/800/208/final | 2026-07-25 |
+| NIST SP 800-218 | 1.1 | 2022-02 | Secure Software Development Framework (SSDF) (SSDF version 1.0 preceded this Version 1.1; a 2020 NIST Cybersecurity White Paper on the SSDF has identifier NIST.CSWP.04232020; 1.0 is listed as superseded so the linter flags citations of it) | 1.0 | https://csrc.nist.gov/pubs/sp/800/218/final | 2026-06-30 |
+| NIST SP 800-161 | Rev. 1 | 2022-05 (with 2024-11 update) | Cybersecurity Supply Chain Risk Management | 2015 | https://csrc.nist.gov/pubs/sp/800/161/r1/upd1/final | 2026-06-30 |
+| NIST SP 800-82 | Rev. 3 | 2023-09 | Guide to Operational Technology (OT) Security (formerly Guide to Industrial Control Systems Security) | Rev. 2, Rev. 1 | https://csrc.nist.gov/pubs/sp/800/82/r3/final | 2026-06-30 |
+| NIST FIPS 198-1 | 198-1 | 2008-07 | The Keyed-Hash Message Authentication Code (HMAC) (NIST has proposed withdrawing it in favour of SP 800-224, which is an initial public draft; FIPS 198-1 remains the approved standard) | FIPS 198 | https://csrc.nist.gov/pubs/fips/198-1/final | 2026-09-25 |
+| NIST SP 800-185 | 2016 | 2016-12 | SHA-3 Derived Functions: cSHAKE, KMAC, TupleHash and ParallelHash (NIST announced a revision in 2025; the 2016 final remains current) | - | https://csrc.nist.gov/pubs/sp/800/185/final | 2026-09-25 |
+| NIST SP 800-84 | 2006 | 2006-09 | Guide to Test, Training, and Exercise Programs for IT Plans and Capabilities | - | https://csrc.nist.gov/pubs/sp/800/84/final | 2026-10-20 |
+| NIST SP 800-184 | 2016 | 2016-12 | Guide for Cybersecurity Event Recovery | - | https://csrc.nist.gov/pubs/sp/800/184/final | 2026-10-20 |
+| NIST SP 800-30 | Rev. 1 | 2012-09 | Guide for Conducting Risk Assessments | - | - | needs-reconfirm |
+| NIST SP 800-37 | Rev. 2 | 2018-12 | Risk Management Framework for Information Systems and Organizations | Rev. 1 | - | needs-reconfirm |
+| NIST SP 800-38D | 2007 | 2007-11 | Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC | - | - | needs-reconfirm |
+| NIST SP 800-38F | 2012 | 2012-12 | Recommendation for Block Cipher Modes of Operation: Methods for Key Wrapping | - | - | needs-reconfirm |
+| NIST SP 800-39 | 2011 | 2011-03 | Managing Information Security Risk: Organization, Mission, and Information System View | - | - | needs-reconfirm |
+| NIST SP 800-40 | Rev. 4 | 2022-04 | Guide to Enterprise Patch Management Planning | Rev. 3, Version 2.0, 2002 | - | needs-reconfirm |
+| NIST SP 800-41 | Rev. 1 | 2009-09 | Guidelines on Firewalls and Firewall Policy | - | - | needs-reconfirm |
+| NIST SP 800-46 | Rev. 2 | 2016-07 | Guide to Enterprise Telework, Remote Access, and Bring Your Own Device (BYOD) Security | Rev. 1 | - | needs-reconfirm |
+| NIST SP 800-47 | Rev. 1 | 2021-07 | Managing the Security of Information Exchanges | - | - | needs-reconfirm |
+| NIST SP 800-50 | Rev. 1 | 2024-09 | Building a Cybersecurity and Privacy Learning Program (supersedes SP 800-50 of October 2003 and SP 800-16) | 2003 | - | needs-reconfirm |
+| NIST SP 800-52 | Rev. 2 | 2019-08 | Guidelines for the Selection, Configuration, and Use of Transport Layer Security (TLS) Implementations | Rev. 1, 2005 | - | needs-reconfirm |
+| NIST SP 800-55 Vol. 1 | 2024 | 2024-12 | Measurement Guide for Information Security: Volume 1, Identifying and Selecting Measures (with Vol. 2, supersedes SP 800-55 Rev. 1 of July 2008) | - | - | needs-reconfirm |
+| NIST SP 800-55 Vol. 2 | 2024 | 2024-12 | Measurement Guide for Information Security: Volume 2, Developing an Information Security Measurement Program (with Vol. 1, supersedes SP 800-55 Rev. 1 of July 2008) | - | - | needs-reconfirm |
+| NIST SP 800-57 Part 1 | Rev. 5 | 2020-05 | Recommendation for Key Management, Part 1: General | Rev. 4, Rev. 3, Rev. 2, Rev. 1, 2005 | - | needs-reconfirm |
+| NIST SP 800-57 Part 2 | Rev. 1 | 2019-05 | Recommendation for Key Management, Part 2: Best Practices for Key Management Organizations | 2005 | - | needs-reconfirm |
+| NIST SP 800-57 Part 3 | Rev. 1 | 2015-01 | Recommendation for Key Management, Part 3: Application-Specific Key Management Guidance | - | - | needs-reconfirm |
+| NIST SP 800-63 | Rev. 4 | 2025-07 | Digital Identity Guidelines (base volume of the SP 800-63 Rev. 4 family; publisher identifier SP 800-63-4) | Rev. 3, Rev. 2, Rev. 1 | - | needs-reconfirm |
+| NIST SP 800-63A | Rev. 4 | 2025-07 | Digital Identity Guidelines: Identity Proofing and Enrollment (part of SP 800-63 Rev. 4 family; publisher identifier SP 800-63A-4) | 2017 | - | needs-reconfirm |
+| NIST SP 800-66 | Rev. 2 | 2024-02 | Implementing the Health Insurance Portability and Accountability Act (HIPAA) Security Rule | Rev. 1 | - | needs-reconfirm |
+| NIST SP 800-83 | Rev. 1 | 2013-07 | Guide to Malware Incident Prevention and Handling for Desktops and Laptops | - | - | needs-reconfirm |
+| NIST SP 800-86 | 2006 | 2006-08 | Guide to Integrating Forensic Techniques into Incident Response | - | - | needs-reconfirm |
+| NIST SP 800-90B | 2018 | 2018-01 | Recommendation for the Entropy Sources Used for Random Bit Generation | - | - | needs-reconfirm |
+| NIST SP 800-92 | 2006 | 2006-09 | Guide to Computer Security Log Management | - | - | needs-reconfirm |
+| NIST SP 800-94 | 2007 | 2007-02 | Guide to Intrusion Detection and Prevention Systems (IDPS) | - | - | needs-reconfirm |
+| NIST SP 800-95 | 2007 | 2007-08 | Guide to Secure Web Services | - | - | needs-reconfirm |
+| NIST SP 800-111 | 2007 | 2007-11 | Guide to Storage Encryption Technologies for End User Devices | - | - | needs-reconfirm |
+| NIST SP 800-115 | 2008 | 2008-09 | Technical Guide to Information Security Testing and Assessment | - | - | needs-reconfirm |
+| NIST SP 800-116 | Rev. 1 | 2018-06 | Guidelines for the Use of PIV Credentials in Facility Access | 2008 | - | needs-reconfirm |
+| NIST SP 800-124 | Rev. 2 | 2023-05 | Guidelines for Managing the Security of Mobile Devices in the Enterprise | Rev. 1 | - | needs-reconfirm |
+| NIST SP 800-128 | 2011 | 2011-08 | Guide for Security-Focused Configuration Management of Information Systems (includes updates as of 2019-10-10) | - | - | needs-reconfirm |
+| NIST SP 800-130 | 2013 | 2013-08 | A Framework for Designing Cryptographic Key Management Systems | - | - | needs-reconfirm |
+| NIST SP 800-131A | Rev. 2 | 2019-03 | Transitioning the Use of Cryptographic Algorithms and Key Lengths | Rev. 1, 2011 | - | needs-reconfirm |
+| NIST SP 800-137 | 2011 | 2011-09 | Information Security Continuous Monitoring (ISCM) for Federal Information Systems and Organizations | - | - | needs-reconfirm |
+| NIST SP 800-137A | 2020 | 2020-05 | Assessing Information Security Continuous Monitoring (ISCM) Programs | - | - | needs-reconfirm |
+| NIST SP 800-150 | 2016 | 2016-10 | Guide to Cyber Threat Information Sharing | - | - | needs-reconfirm |
+| NIST SP 800-152 | 2015 | 2015-10 | A Profile for U.S. Federal Cryptographic Key Management Systems (CKMS) | - | - | needs-reconfirm |
+| NIST SP 800-160 Vol. 1 | Rev. 1 | 2022-11 | Engineering Trustworthy Secure Systems | 2016 | - | needs-reconfirm |
+| NIST SP 800-160 Vol. 2 | Rev. 1 | 2021-12 | Developing Cyber-Resilient Systems: A Systems Security Engineering Approach | - | - | needs-reconfirm |
+| NIST SP 800-163 | Rev. 1 | 2019-04 | Vetting the Security of Mobile Applications | - | - | needs-reconfirm |
+| NIST SP 800-171 | Rev. 3 | 2024 | Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations (Current version from the held OSCAL catalog, which records framework-version-identifier `SP_800_171_3_0_0` and describes itself as the "OSCAL representation of the NIST SP 800-171 Rev 3"; the year from the held NIST SP 800-172 Rev. 3, which cites "NIST SP 800-171r3" as published in 2024; confirm the month upstream) | Rev. 2, Rev. 1 | - | needs-reconfirm |
+| NIST SP 800-177 | Rev. 1 | 2019-02 | Trustworthy Email | - | - | needs-reconfirm |
+| NIST SP 800-181 | Rev. 1 | 2020-11 | Workforce Framework for Cybersecurity (NICE Framework) | 2017 | - | needs-reconfirm |
+| NIST SP 800-188 | 2023 | 2023-09 | De-Identifying Government Datasets: Techniques and Governance | - | - | needs-reconfirm |
+| NIST SP 800-190 | 2017 | 2017-09 | Application Container Security Guide | - | - | needs-reconfirm |
+| NIST SP 800-204 | 2019 | 2019-08 | Security Strategies for Microservices-based Application Systems | - | - | needs-reconfirm |
+| NIST SP 800-204D | 2024 | 2024-02 | Strategies for the Integration of Software Supply Chain Security in DevSecOps CI/CD Pipelines | - | - | needs-reconfirm |
+| NIST SP 800-207A | 2023 | 2023-09 | A Zero Trust Architecture Model for Access Control in Cloud-Native Applications in Multi-Cloud Environments | - | - | needs-reconfirm |
+| NIST SP 800-210 | 2020 | 2020-07 | General Access Control Guidance for Cloud Systems | - | - | needs-reconfirm |
+| NIST SP 800-215 | 2022 | 2022-11 | Guide to a Secure Enterprise Network Landscape | - | - | needs-reconfirm |
+| NIST SP 800-221 | 2023 | 2023-11 | Enterprise Impact of Information and Communications Technology Risk | - | - | needs-reconfirm |
+| NIST SP 800-226 | 2025 | 2025-03 | Guidelines for Evaluating Differential Privacy Guarantees | - | - | needs-reconfirm |
+| NIST SP 1270 | 2022 | 2022-03 | Towards a Standard for Identifying and Managing Bias in Artificial Intelligence | - | - | needs-reconfirm |
+
+## IEEE standards
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| IEEE 2883 | 2022 | 2022-08 | IEEE Standard for Sanitizing Storage (the clear / purge / destruct sanitization methods and technology-specific requirements; the technique standard NIST SP 800-88 Rev. 2 now defers to) | - | https://standards.ieee.org/ieee/2883/10277/ | verified 2026-10-23 |
+| IEEE 7000 | 2021 | 2021-09 | IEEE Standard Model Process for Addressing Ethical Concerns during System Design (processes for eliciting and prioritizing stakeholder ethical values and tracing them through the concept of operations, ethical requirements, and ethical risk-based design; also issued as ISO/IEC/IEEE 24748-7000:2022) | - | https://standards.ieee.org/ieee/7000/6781/ | verified 2026-10-23 |
+
+## ETSI standards
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| ETSI EN 304 223 | V2.1.1 | 2025-12 | Securing Artificial Intelligence (SAI): baseline cyber security requirements for AI models and systems (13 principles across five lifecycle phases: secure design, development, deployment, maintenance, end of life; the European Norm evolution of the TS 104 223 baseline) V2.0.0 was the 2025-09 draft; TS 104 223 V1.1.1 (2025-04) was the predecessor Technical Specification. | V2.0.0 | https://www.etsi.org/deliver/etsi_en/304200_304299/304223/ | verified 2026-07-24 |
+| ETSI TR 104 128 | V1.1.1 | 2025-05 | Securing Artificial Intelligence (SAI): guide to cyber security for AI models and systems (informative implementation guide to the SAI baseline TS 104 223, carried forward into EN 304 223; AI-lifecycle scenarios and examples for the full supply chain) | - | https://www.etsi.org/deliver/etsi_tr/104100_104199/104128/ | verified 2026-07-24 |
+
+## EU regulations and directives
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| EU AI Act | Regulation 2024/1689 as amended by Regulation (EU) 2026/1744 (Digital Omnibus) | 2024-07 | AI regulation | - | https://eur-lex.europa.eu/eli/reg/2024/1689/oj | 2026-08-04 |
+| EU NIS 2 Directive | Directive 2022/2555 | 2022-12 | Cybersecurity of network and information systems | NIS Directive 2016/1148 | https://eur-lex.europa.eu/eli/dir/2022/2555/oj | 2026-06-30 |
+| EU NIS 2 Implementing Regulation | Commission Implementing Regulation (EU) 2024/2690 | 2024-10 | Technical and methodological requirements of the Article 21(2) cybersecurity risk-management measures and the significant-incident parameters under Article 23(3), for the digital-infrastructure and digital-service entity types in its scope only (adopted 17 October 2024; legal basis Article 21(5) and 23(11) of Directive 2022/2555) | - | https://eur-lex.europa.eu/eli/reg_impl/2024/2690/oj | verified 2026-07-13 |
+| EU DORA | Regulation 2022/2554 | 2022-12 | Digital Operational Resilience Act (financial-services) | - | https://eur-lex.europa.eu/eli/reg/2022/2554/oj | 2026-06-30 |
+| EU MiCA | Regulation 2023/1114 (as amended by Regulation (EU) 2023/2869) | 2023-05 | Markets in Crypto-Assets Regulation (financial-services) | - | https://eur-lex.europa.eu/eli/reg/2023/1114/oj | 2026-09-04 |
+| EU MiCA RTS and ITS | Multiple 2024-2025 Delegated and Implementing Regulations under MiCA | 2024-2025 | MiCA implementing technical standards (financial-services) | - | https://eur-lex.europa.eu/eli/reg/2023/1114/oj | 2026-09-04 |
+| EU GDPR | Regulation 2016/679 | 2016-04 | General Data Protection Regulation | Directive 95/46/EC | https://eur-lex.europa.eu/eli/reg/2016/679/oj | 2026-06-30 |
+| EU Controller-Processor SCCs | Commission Implementing Decision (EU) 2021/915 | 2021-06 | Standard contractual clauses between controllers and processors under Article 28(7) GDPR and Article 29(7) Regulation (EU) 2018/1725; not a Chapter V transfer mechanism (the transfer SCCs are Decision (EU) 2021/914) | - | https://eur-lex.europa.eu/eli/dec_impl/2021/915/oj | verified 2026-07-13 |
+| EU Data Act | Regulation (EU) 2023/2854 | 2023-12 | Data Act (harmonized rules on fair access to and use of data; main provisions applicable from 12 September 2025) | - | https://eur-lex.europa.eu/eli/reg/2023/2854/oj | 2026-06-30 |
+| EU eIDAS | Regulation 910/2014 as amended by Regulation 2024/1183 (eIDAS 2) | 2024-04 (latest amendment) | Electronic identification and trust services | - | https://eur-lex.europa.eu/eli/reg/2014/910/oj | 2026-06-30 |
+| EU EECC | Directive 2018/1972 | 2018-12 | European Electronic Communications Code | - | https://eur-lex.europa.eu/eli/dir/2018/1972/oj | 2026-06-30 |
+| EU MDR | Regulation 2017/745 | 2017-04 | Medical Device Regulation | Directive 93/42/EEC | https://eur-lex.europa.eu/eli/reg/2017/745/oj | 2026-06-30 |
+| EU IVDR | Regulation 2017/746 | 2017-04 | In-Vitro Diagnostic Regulation | Directive 98/79/EC | https://eur-lex.europa.eu/eli/reg/2017/746/oj | 2026-06-30 |
+| EU UCC | Regulation 952/2013 | 2013-10 | Union Customs Code | - | https://eur-lex.europa.eu/eli/reg/2013/952/oj | 2026-06-30 |
+
+## North-American regulations and frameworks
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| US HIPAA | 1996 (with HITECH 2009 and Omnibus 2013 amendments); HIPAA Security Rule NPRM issued by HHS OCR on 27 December 2024, published in the Federal Register on 6 January 2025, comment period closed 7 March 2025 with approximately 5,000 comments. The NPRM would (among other changes) make encryption of ePHI and multi-factor authentication mandatory, eliminate the "required vs addressable" implementation-specification distinction, and require an annually-refreshed asset inventory and ePHI network map. Final rule pending as of May 2026 | - | Health Insurance Portability and Accountability Act | - | https://www.hhs.gov/hipaa/for-professionals/security/hipaa-security-rule-nprm/index.html | verified 2026-07-09 |
+| US HITECH | 2009 | 2009 | Health Information Technology for Economic and Clinical Health Act | - | https://www.govinfo.gov/app/details/PLAW-111publ5 | 2026-06-30 |
+| US SOX | 2002 | 2002-07 | Sarbanes-Oxley Act | - | https://www.govinfo.gov/app/details/PLAW-107publ204 | 2026-06-30 |
+| US CCPA | 2018, as amended (CPRA 2020; 2025 CCPA amendments per the held statute: AB 137 (Stats. 2025 Ch. 20, eff. 2025-06-30), AB 1170 (Ch. 67, ss1798.130/140/185, eff. 2026-01-01), and AB 566 (Ch. 465, Opt Me Out Act, eff. 2026-01-01, operative 2027-01-01); held text retrieved 2026-06-27) | 2018 | California Consumer Privacy Act | - | https://oag.ca.gov/privacy/ccpa | 2026-09-11 |
+| US CCPA Regulations 2026 | Final regulations effective 1 January 2026 (CCPA updates, cybersecurity audits, risk assessments, ADMT, and insurance), 11 CCR Division 6 Chapter 1, sections 7000-7304; ADMT compliance for a significant decision required no later than 1 January 2027 | 2026-01-01 | California Consumer Privacy Act Regulations (11 CCR Div 6 Ch 1); ADMT (Art 11), risk assessments (Art 10), cybersecurity audits (Art 9) | - | https://cppa.ca.gov/regulations/ | 2026-07-16 |
+| Illinois BIPA | 2008 as amended by Illinois SB 2979 (signed 2 August 2024 and effective immediately), which limits damages to a "single recovery" per BIPA §15(b) and §15(d) violation type per individual and recognizes electronic written release | 2008 | Biometric Information Privacy Act (740 ILCS 14/) | - | https://www.ilga.gov/Legislation/ILCS/Articles?ActID=3004&ChapterID=57 | 2026-06-30 |
+| Colorado AI Act | 2024 (Colorado SB 24-205, signed 17 May 2024). Original effective date 1 February 2026; postponed by Colorado SB 25B-004 (signed 28 August 2025) to 30 June 2026. Enforcement effectively frozen by U.S. District Court for the District of Colorado on 27 April 2026 pending litigation (xAI v. Colorado). Following the Governor's Working Group framework (17 March 2026), the legislature repealed and re-enacted SB 24-205 via Colorado SB 26-189 (Automated Decision-Making Technology), signed into law May 2026, with revised automated-decision-making requirements and a revised effective date of 1 January 2027 | 2024-05-17 | Colorado Consumer Protections for Artificial Intelligence (SB 24-205) as re-enacted by SB 26-189 | - | https://leg.colorado.gov/bills/sb24-205 | 2026-06-30 |
+| Texas TRAIGA | HB 149, 89th Legislature (2025); Texas Business and Commerce Code Chapters 551-552; effective 1 January 2026 | 2025-06 | Texas Responsible Artificial Intelligence Governance Act: comprehensive state AI governance (prohibited AI uses, biometric provisions); Attorney-General exclusive enforcement, except Sec. 552.106 state-agency sanctions | - | https://capitol.texas.gov/ | verified 2026-07-24 |
+| Illinois HB 3773 | Public Act 103-0804; amends the Illinois Human Rights Act (775 ILCS 5); effective 1 January 2026 | 2024 | Illinois AI in employment: a civil-rights violation for discriminatory AI use in employment decisions and for failure to notify | - | https://ilga.gov/ | verified 2026-07-24 |
+| US OMB M-25-21 | 2025-04 | 2025-04 | "Accelerating Federal Use of AI through Innovation, Governance, and Public Trust" (issued 3 April 2025): federal agency AI governance and high-impact AI minimum practices; binds covered agencies, creates no rights or obligations for the public; rescinds OMB M-24-10 | - | https://www.whitehouse.gov/omb/information-resources/guidance/memoranda/ | 2026-09-24 |
+| US OMB M-25-22 | 2025-04 | 2025-04 | "Driving Efficient Acquisition of Artificial Intelligence in Government" (issued 3 April 2025): federal AI acquisition contract terms (IP and government data, privacy, testing access, lock-in, M-25-21 high-impact compliance); applies from solicitations issued 180 days after issuance; rescinds OMB M-24-18 | - | https://www.whitehouse.gov/omb/information-resources/guidance/memoranda/ | 2026-09-24 |
+| US OMB M-26-04 | 2025-12 | 2025-12 | "Increasing Public Trust in Artificial Intelligence Through Unbiased AI Principles" (issued 11 December 2025): federal LLM procurement contract requirements and minimum vendor transparency, implementing Executive Order 14319; sunsets 11 December 2027 unless the OMB Director provides otherwise | - | https://www.whitehouse.gov/omb/information-resources/guidance/memoranda/ | 2026-09-24 |
+| US EO 14365 | 2025-12 | 2025-12 | Executive Order 14365, "Ensuring a National Policy Framework for Artificial Intelligence" (11 December 2025; 90 FR 58499): federal action on state AI laws (AI Litigation Task Force, evaluation of state laws, BEAD and discretionary-grant conditions, an FCC proceeding and an FTC policy statement, a preemptive legislative recommendation) | - | https://www.federalregister.gov/documents/2025/12/16/2025-23092/ensuring-a-national-policy-framework-for-artificial-intelligence | 2026-09-24 |
+| US AI Action Plan | 2025-07 | 2025-07 | "America's AI Action Plan" (the White House): United States national AI strategy in three pillars; recommended policy actions, not binding | - | https://www.whitehouse.gov/wp-content/uploads/2025/07/Americas-AI-Action-Plan.pdf | 2026-09-24 |
+| NYC Local Law 144 (AEDT) | Local Law 144 of 2021, implemented by the DCWP final rule 6 RCNY 5-300 to 5-304; effective 1 January 2023 and enforced by the Department of Consumer and Worker Protection from 5 July 2023; in force in 2026 | 2021 (Local Law 144); 2023 (DCWP rule) | Automated employment decision tools: annual independent bias audit and candidate notice | - | https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page | 2026-07-11 |
+| US FedRAMP | Rev. 5 | 2023 | Federal Risk and Authorization Management Program (rev 5 alignment with NIST SP 800-53 Rev. 5) | Rev. 4 | https://www.fedramp.gov/ | 2026-06-30 |
+| US CMMC | 2.0 (model); the 48 CFR / DFARS acquisition rule took effect 2025-11-10 (Phase 1 live) | 2024 (model); 2025-11-10 (acquisition rule) | Cybersecurity Maturity Model Certification | 1.0, 1.02 | https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170 | verified 2026-07-09 |
+| Canada CPPA / successor C-36 (PPCDA) | CPPA lapsed 2025-01-06 (Bill C-27 died on prorogation); successor Bill C-36 (Protecting Privacy and Consumer Data Act) introduced 2026-06-15, at second reading (proposed, NOT in force) | 2022 (CPPA proposed); 2026 (C-36 proposed) | Consumer Privacy Protection Act (C-27, never enacted); Protecting Privacy and Consumer Data Act (C-36, proposed) PIPEDA remains in force; C-36 would repeal PIPEDA Part 1, rename PIPEDA to the "Electronic Documents Act", and create a Privacy and Consumer Data Commissioner. | - | https://www.parl.ca/legisinfo/en/bill/45-1/c-36 | 2026-08-12 |
+| Canada PIPEDA | 2000, as amended by the Digital Privacy Act, S.C. 2015, c. 32 (last amended 2025-03-04; the official Justice Laws consolidation was current to 2026-09-30 when checked on 2026-10-20) | 2000 | Personal Information Protection and Electronic Documents Act | - | https://laws-lois.justice.gc.ca/eng/acts/p-8.6/ | 2026-10-20 |
+| Canada Breach of Security Safeguards Regulations | SOR/2018-64 | 2018-11 | PIPEDA breach-of-security-safeguards regulations: prescribed content of OPC reports and individual notifications, and the 24-month breach-record retention obligation (in force 1 November 2018) | - | https://laws-lois.justice.gc.ca/eng/regulations/SOR-2018-64/index.html | verified 2026-07-13 |
+| Canada AIDA | Lapsed 2025-01-06 (Bill C-27 died on prorogation; per a June 2025 ministerial statement not held in the reference base, AIDA is reported not to return in its original form; confirm directly) <!-- ref-absence: AIDA ministerial statement --> | 2022 (proposed) | Artificial Intelligence and Data Act (never enacted) No federal AI law has been enacted. | - | https://www.parl.ca/legisinfo/en/bill/44-1/c-27 | 2026-06-30 |
+| Quebec Law 25 | CQLR c. P-39.1, as amended by S.Q. 2021, c. 25 (Law 25) (the held LegisQuebec consolidation is updated to 2026-04-01; it is held, not confirmed current upstream) | 1993 | Act respecting the protection of personal information in the private sector (Quebec), as amended by Law 25 (S.Q. 2021, c. 25) | - | https://www.legisquebec.gouv.qc.ca/fr/document/lc/p-39.1 | needs-reconfirm |
+| Canada TBS Directive on Automated Decision-Making | In force since 1 April 2019 (compliance 1 April 2020); fourth-review amendments announced 8 October 2024, with automated decision systems developed or procured before 24 June 2025 given until 24 June 2026 to meet the updated requirements | 2019 | Federal public-sector automated decision-making (binding on federal institutions subject to the Policy on Service and Digital); the Algorithmic Impact Assessment tool | - | https://www.tbs-sct.canada.ca/pol/doc-eng.aspx?id=32592 | verified 2026-07-15 |
+| Canada Privacy Act | R.S.C. 1985, c. P-21, as amended (last amended 2025-06-02; the official Justice Laws consolidation was current to 2026-09-03 when checked on 2026-09-25) | 1985 | Privacy Act: federal public-sector privacy (collection, retention, accuracy, disposal, use, disclosure, personal information banks, access) for government institutions as defined in section 3 | - | https://laws-lois.justice.gc.ca/eng/acts/P-21/ | 2026-09-25 |
+| Canada TBS Policy on Privacy Protection | In effect since 9 October 2024 (replaces the Policy on Privacy Protection dated 26 October 2022) | 2024-10-09 | Treasury Board policy issued under Privacy Act paragraph 71(1)(d); applies to government institutions as defined in section 3 of the Act, except the Bank of Canada | 2022-10-26 | https://www.tbs-sct.canada.ca/pol/doc-eng.aspx?id=12510 | 2026-09-25 |
+| Canada Access to Information Act | R.S.C. 1985, c. A-1, as amended (last amended 2026-06-14; the official Justice Laws consolidation was current to 2026-09-03 when checked on 2026-09-25) | 1985 | Access to Information Act: right of access to records under the control of a government institution (Part 1) and proactive publication (Part 2) | - | https://laws-lois.justice.gc.ca/eng/acts/A-1/ | 2026-09-25 |
+| Canada Access to Information Regulations | SOR/83-507, as amended (last amended 2023-06-23; the official Justice Laws consolidation was current to 2026-09-03 when checked on 2026-09-25) | 1983 | Access to Information Regulations: including the request form and application fee, transfers, and limits on producing records from machine-readable records | - | https://laws-lois.justice.gc.ca/eng/regulations/SOR-83-507/ | 2026-09-25 |
+| Canada TBS Policy on Access to Information | In effect since 28 June 2023 (replaces the Policy on Access to Information dated 13 July 2022) | 2023-06-28 | Treasury Board policy issued under Access to Information Act paragraph 70(1)(c); applies to government institutions as defined in section 3 of the Act, except the Bank of Canada | 2022-07-13 | https://www.tbs-sct.canada.ca/pol/doc-eng.aspx?id=12453 | 2026-09-25 |
+| Canada TBS Directive on Access to Information Requests | In effect since 13 July 2022 (replaces the Interim Directive on the Administration of the Access to Information Act dated 5 May 2016) | 2022-07-13 | Treasury Board directive issued under Access to Information Act paragraph 70(1)(c): processing of access requests by government institutions | Interim Directive 2016-05-05 | https://www.tbs-sct.canada.ca/pol/doc-eng.aspx?id=18310 | 2026-09-25 |
+| British Columbia FOIPPA | RSBC 1996, c. 165, as amended (the BC Laws consolidation was current to 2026-09-22 when checked on 2026-09-25, with no text change from the held capture current to 2026-09-15; any change not yet in force is listed in the BC Laws Tables of Legislative Changes) | 1996 (RSBC revision) | Freedom of Information and Protection of Privacy Act: access to records of British Columbia public bodies (Part 2), protection of privacy including privacy breach notification (Part 3), Information and Privacy Commissioner oversight and reviews (Parts 4 and 5) and offences (Part 5.1) | - | https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/96165_00 | 2026-09-25 |
+| Canada OSFI Guideline E-23 | Final published 11 September 2025; effective 1 May 2027 (scope expanded to all models at all federally regulated financial institutions, expressly covering AI/ML models) | 2025-09-11 | Model risk management for federally regulated financial institutions (covers AI and machine-learning models) | Draft 2023-11-20 | https://www.osfi-bsif.gc.ca/en/guidance/guidance-library/guideline-e-23-model-risk-management-2027 | verified 2026-07-11 |
+| Ontario EDSTA | Enhancing Digital Security and Trust Act, 2024 (Schedule of Bill 194, S.O. 2024, c. 24); Royal Assent 25 November 2024; the artificial-intelligence provisions were proclaimed in force 29 January 2025 by Ontario Order in Council 361/2025 (naming Schedule 1, sections 1 to 16); their AI duties apply and operate in accordance with the prescribing regulations, which an adopter confirms | 2024 | Ontario public-sector artificial-intelligence accountability | - | https://www.ola.org/en/legislative-business/bills/parliament-43/session-1/bill-194 | verified 2026-08-14 |
+| CAN/DGSI 101:2025 | 2nd edition, 2025 | 2025 | Ethical design and use of artificial intelligence by small and medium organizations (voluntary national standard, Digital Governance Standards Institute) | 1st edition | https://dgc-cgn.org/ | verified 2026-07-11 |
+
+## Asia-Pacific regulations and frameworks
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| Australia National AI Plan 2025 | 2025 (launched 2 December 2025) | 2025-12 | National AI strategy (Department of Industry, Science and Resources); three goals; establishes an AI Safety Institute | - | https://www.industry.gov.au/publications/national-ai-plan | verified 2026-07-11 |
+| Australia AI Ethics Principles | 8 principles; published 7 November 2019, updated 2 December 2025 | 2019-11-07 | Voluntary AI ethics principles (Department of Industry, Science and Resources) | - | https://www.industry.gov.au/publications/australias-ai-ethics-principles | verified 2026-07-11 |
+| Australia Voluntary AI Safety Standard | 10 guardrails (National AI Centre, August 2024) | 2024-08 | Voluntary AI safety guardrails across the AI supply chain | - | https://www.industry.gov.au/publications/voluntary-ai-safety-standard | verified 2026-07-11 |
+| Australia Guidance for AI Adoption | 6 essential practices (National AI Centre); published 21 October 2025; condenses the Voluntary AI Safety Standard's 10 guardrails and the AI Ethics Principles | 2025-10-21 | Voluntary AI adoption guidance | - | https://www.ai.gov.au/staying-safe-and-responsible/essential-ai-practices/guidance-ai-adoption-implementation-guidance | verified 2026-07-11 |
+| Singapore Model AI Governance Framework for Generative AI | 30 May 2024 edition (IMDA / AI Verify Foundation); nine dimensions | 2024-05-30 | Voluntary generative-AI governance framework | - | https://www.imda.gov.sg/ | verified 2026-07-24 |
+| Malaysia AIGE | 2024 | 2024-09 | National Guidelines on AI Governance and Ethics (MOSTI), launched 20 September 2024 (no edition number declared); the PDF served on 2026-09-24 is a revision whose file name and metadata are dated 18 November 2024: seven voluntary AI principles | - | https://www.mosti.gov.my/ | 2026-09-24 |
+| UK AI regulation white paper | CP 815 | 2023-03 | A pro-innovation approach to AI regulation (Department for Science, Innovation and Technology; published 29 March 2023): the non-statutory, regulator-led framework and its five cross-sectoral principles | - | https://www.gov.uk/government/publications/ai-regulation-a-pro-innovation-approach | 2026-09-25 |
+| UK AI regulation government response | CP 1019 | 2024-02 | A pro-innovation approach to AI regulation: government response to consultation (Department for Science, Innovation and Technology; published 6 February 2024): confirms the principles-based approach and records the current position | - | https://www.gov.uk/government/consultations/ai-regulation-a-pro-innovation-approach-policy-proposals/outcome/a-pro-innovation-approach-to-ai-regulation-government-response | 2026-09-25 |
+| South Korea AI Basic Act | Framework Act on the Development of Artificial Intelligence and Establishment of Trust, Law No. 20676 (enacted 21 January 2025); in force 22 January 2026 (the digital-medical-devices slice of the high-impact definition from 24 January 2026) | 2025-01-21 | Comprehensive national AI statute (high-impact AI, transparency, safety, domestic representative); Ministry of Science and ICT enforcement | - | https://www.law.go.kr/ | verified 2026-09-05 |
+
+## Other privacy regulations
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| UK GDPR | 2018 (DPA 2018) as amended by Data (Use and Access) Act 2025 (c. 18), royal assent 19 June 2025; main data-protection provisions commenced 5 February 2026 (Commencement No. 6 Regulations 2026) | 2018 | UK General Data Protection Regulation (retained EU GDPR as amended by the Data Protection Act 2018 and the Data (Use and Access) Act 2025) | - | https://www.legislation.gov.uk/eur/2016/679/contents | 2026-06-30 |
+| Brazil LGPD | 2018 (in force 2020) | 2018 | Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709, de 14 de agosto de 2018) | - | https://www.gov.br/anpd/pt-br/centrais-de-conteudo/outros-documentos-e-publicacoes-institucionais/lgpd-en-lei-no-13-709-capa.pdf | verified 2026-07-09 |
+| Resolution CD/ANPD No. 15/2024 | 2024 | 2024-04-26 | ANPD Security Incident Communication Regulation (RCIS): 3-business-day breach notification to the ANPD and data subjects, staged communication, doubled deadlines for small-scale agents (the resolution is enacted "de 24 de abril de 2024"; this column records the later DOU publication date) | - | https://www.gov.br/anpd/pt-br/canais_atendimento/agente-de-tratamento/comunicado-de-incidente-de-seguranca-cis | 2026-07-07 |
+| Resolution CD/ANPD No. 18/2024 | 2024 | 2024-07-17 | ANPD Regulation on the activities of the encarregado (Data Protection Officer): appointment, definition, attributions, and performance of the encarregado under LGPD Article 41 (enacted 16 July 2024; this column records the DOU publication date) | - | https://www.gov.br/anpd/pt-br/acesso-a-informacao/institucional/atos-normativos/regulamentacoes_anpd | verified 2026-07-13 |
+| Resolution CD/ANPD No. 4/2023 | 2023 | 2023-02-27 | ANPD Regulation on Dosimetry and Application of Sanctions: the parameters and criteria for calculating the base value of a fine sanction and applying the LGPD Article 52 administrative sanctions; amended the fiscalization-and-sanctioning-process regulation approved by Resolution CD/ANPD No. 1/2021 (enacted 24 February 2023; DOU-published 27 February 2023, the date in the Publication column) | - | https://www.gov.br/anpd/pt-br/acesso-a-informacao/institucional/atos-normativos/regulamentacoes_anpd | verified 2026-07-13 |
+| China PIPL | 2021 | 2021-11 | Personal Information Protection Law | - | https://www.cac.gov.cn/ | verified 2026-07-09 |
+| China Cross-Border Data Provisions (2024) | 2024-03-22 (immediate effect) | 2024-03-22 | Provisions on Promoting and Regulating the Cross-Border Flow of Data (CAC); revises personal-data export thresholds and exemptions; extends CAC security-assessment validity from two to three years | - | https://www.cac.gov.cn/2024-03/22/c_1712776611775634.htm | 2026-06-30 |
+| China Cybersecurity Law | 2016, as amended by the NPC Standing Committee decision of 28 October 2025, in force 1 January 2026 (the decision also renumbered the articles) | 2016-11 | Cybersecurity Law of the People's Republic of China (中华人民共和国网络安全法); the upstream page holds the CAC consolidated Chinese text as amended | - | https://www.cac.gov.cn/2025-12/29/c_1768735112911946.htm | 2026-10-25 |
+| Switzerland nFADP | 2023 | 2023-09 | New Federal Act on Data Protection (revDSG) | FADP 1992 | https://www.fedlex.admin.ch/eli/cc/2022/491/en | 2026-09-24 |
+| Saudi Arabia PDPL | 2023 | 2023-09 | Personal Data Protection Law | - | https://sdaia.gov.sa/en/SDAIA/about/Pages/RegulationsAndPolicies.aspx | verified 2026-07-09 |
+| Singapore PDPA | 2012 (with 2020 amendments) | 2012 | Personal Data Protection Act | - | https://www.pdpc.gov.sg/ | verified 2026-07-09 |
+| Australia Privacy Act | 1988, as amended by the Privacy and Other Legislation Amendment Act 2024 (Cth) No. 128, 2024 (Royal Assent 10 December 2024); the automated-decision transparency obligation (Australian Privacy Principles 1.7 to 1.9, Schedule 1 Part 15) commences 10 December 2026 | 1988 | Privacy Act (including the automated-decision-making privacy-policy transparency obligation) | - | https://www.legislation.gov.au/C2004A03712/latest | verified 2026-07-11 |
+| India DPDPA | 2023 (Act enacted 2023-08-11); Act brought into force by G.S.R. 843(E) of 13 November 2025 on a staged schedule under s. 1(2) (definitions and Board establishment immediate; consent-manager registration s. 6(9) at 12 months; core substantive regime and the Board's principal inquiry-and-penalty functions at 18 months, around 13 May 2027); Digital Personal Data Protection Rules 2025 (G.S.R. 846(E)) notified the same day commence on a matching rule 1(2)-(4) schedule | 2023-08-11 | Digital Personal Data Protection Act 2023 plus the Digital Personal Data Protection Rules 2025 | - | https://static.pib.gov.in/WriteReadData/specificdocs/documents/2025/nov/doc20251117695301.pdf | verified 2026-07-09 |
+| Malaysia PDPA | 2010 (Act 709) as amended by Personal Data Protection (Amendment) Act 2024 (Act A1727); phased commencement: tranche 1 from 1 January 2025, tranche 2 from 1 April 2025, tranche 3 (including the mandatory DPO appointment and statutory breach notification under s. 12B) from 1 June 2025. DPO and breach-notification Guidelines issued 25 February 2025 | 2010 | Personal Data Protection Act (Malaysia) | - | https://www.pdp.gov.my/ppdpv1/en/akta/pdp-act-2010-en/ | 2026-06-30 |
+
+## CSA frameworks
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| CSA CCM | v4.1 | 2026-01 | Cloud Controls Matrix | v3.0.1, v4.0, v4.0.13 | https://cloudsecurityalliance.org/research/cloud-controls-matrix | 2026-06-30 |
+| CSA AICM | v1.1 | 2026 | AI Controls Matrix | v1.0.0, v1.0.1, v1.0.2, v1.0.3 | https://cloudsecurityalliance.org/artifacts/ai-controls-matrix | 2026-06-30 |
+| CSA STAR | continuous | - | Security, Trust, Assurance and Risk programme | - | https://cloudsecurityalliance.org/star | 2026-06-30 |
+
+## ISACA frameworks
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| COBIT | 2019 | 2018-11 (with Design Guide and Implementation Guide updates 2019, 2020) | Control Objectives for Information and Related Technologies. Note: COBIT 2025 is not a published version; the hallucination is enforced by [`.claude/skills/corpus-management/tools/lint-citations.py`](../.claude/skills/corpus-management/tools/lint-citations.py). | COBIT 5, COBIT 4.1 | https://www.isaca.org/resources/cobit | 2026-06-30 |
+
+## AICPA assurance criteria
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| AICPA TSP Section 100 | 2017 Trust Services Criteria (with revised points of focus, 2022) | 2017 (revised points of focus 2022) | Trust Services Criteria for SOC 2 examinations (Security, Availability, Processing Integrity, Confidentiality, Privacy); the 2022 revision updated the points of focus, not the criteria themselves | - | https://www.aicpa-cima.com/resources/download/2017-trust-services-criteria-with-revised-points-of-focus-2022 | verified 2026-07-13 |
+
+## Cybersecurity and AI security guidance
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| SANS Critical AI Security Guidelines | v1.4 | 2026-03 | SANS Institute consensus guidance for securing AI systems, aligned with the OWASP AI Exchange (informative; living document with numbered editions) | v1.3, v1.2, v1.1, v1.0 | https://www.sans.org/mlp/critical-ai-security-guidelines | 2026-09-24 |
+| Google SAIF | 2.0 | 2025-10 | Google Secure AI Framework: AI security risk and control framework, extended in 2.0 to agent security (informative; single-vendor authorship) | 2023 | https://saif.google/ | 2026-09-24 |
+
+## Cybersecurity adversary frameworks
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| MITRE ATT&CK | v19.2 | 2026-08 | Adversary Tactics, Techniques, and Common Knowledge | v19.1 | https://attack.mitre.org/resources/updates/ | 2026-08-30 |
+| MITRE ATLAS | v2026.07 | 2026-08 | Adversarial Threat Landscape for AI Systems | v2026.06 | https://github.com/mitre-atlas/atlas-data | 2026-08-30 |
+| STRIDE | continuous | 1999 | Six-category threat taxonomy (Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege) introduced by Kohnfelder and Garg at Microsoft; integrated into the Microsoft Security Development Lifecycle (SDL) Threat Modeling Tool | - | https://owasp.org/www-community/Threat_Modeling_Process | 2026-06-30 |
+| LINDDUN | v240118 (knowledge release; methods GO / PRO / MAESTRO) | 2024-01-18 | Seven-category privacy threat taxonomy (Linking, Identifying, Non-repudiation, Detecting, Data Disclosure, Unawareness, Non-compliance) maintained by KU Leuven imec-DistriNet | v20230802, v0 | https://linddun.org/linddun-version-release-history/ | 2026-08-23 |
+| AVID | continuous | 2023 | AI Vulnerability Database, an open knowledge base of AI failure modes and harms (avidml.org) | - | https://avidml.org/ | 2026-06-30 |
+| MLCommons AILuminate | v1.0 | 2024 | AI risk taxonomy and benchmark, 14-category hazard taxonomy | - | https://mlcommons.org/benchmarks/ailuminate/ | 2026-06-30 |
+| HarmBench | continuous | 2024-02 | Standardized evaluation framework for automated red-teaming methods against LLMs and defences | - | https://github.com/centerforaisafety/HarmBench | 2026-06-30 |
+| OWASP GenAI Security Project | continuous | 2024 | Working-group output covering GenAI security risks, controls, and reference test cases (genai.owasp.org) | - | https://genai.owasp.org/ | 2026-06-30 |
+
+## OWASP
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| OWASP Top 10 | 2025 | 2025-11 | Top 10 web application security risks (Eighth edition; new categories include "Software Supply Chain Failures" evolving from "Vulnerable and Outdated Components"; A02 "Security Misconfiguration" moved up from #5 in 2021 to #2 in 2025) | 2021, 2017 | https://owasp.org/www-project-top-ten/ | 2026-06-30 |
+| OWASP LLM Top 10 | 2026 | 2026-08 | Top 10 LLM application risks | 2025 (v2.0) | https://genai.owasp.org/llm-top-10/ | 2026-08-30 |
+| OWASP Top 10 for Agentic Applications | 2026 | 2025-12 | Top 10 risks for agentic AI systems (ASI01-ASI10) | - | https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/ | 2026-07-23 |
+| OWASP MCP Top 10 | 2025 (Beta; a living document whose categories may change) | 2025 | Security risks for Model Context Protocol integrations; anchor controls corroboratively rather than normatively while it remains Beta | - | https://owasp.org/www-project-mcp-top-10/ | 2026-06-30 |
+| OWASP GenAI Red Teaming Guide | 1.0 | 2025-01 | Phased GenAI red-team process blueprint (model, implementation, system, and runtime / human and agentic evaluation phases) with per-phase checklists and agentic and RAG red-team tooling; sub-formal trusted guidance, cited corroboratively (see-also), not normative | - | https://genai.owasp.org/ | 2026-07-24 |
+| OWASP ASVS | 5.0.0 | 2025-05 | Application Security Verification Standard (released May 2025 at Global AppSec EU Barcelona; ~350 requirements across 17 chapters in a three-tier model) | 4.0.3, 4.0, 3.0 | https://owasp.org/projects/asvs | 2026-09-24 |
+| OWASP SAMM | 2.2.0 | 2026-07 | Software Assurance Maturity Model | 2.1.0, 2.0, 1.5 | https://owaspsamm.org/ | verified 2026-08-30 (held _ref v2.2.0; owaspsamm/core tag v2.2.0 released 2026-07-06) |
+
+## Software supply-chain frameworks
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| SLSA | v1.2 | 2025-11 | Supply-chain Levels for Software Artifacts (OpenSSF): Build track (L0 to L3) and Source track (L1 to L4) | v1.1, v1.0, v0.1 | https://slsa.dev/spec/ | 2026-09-24 |
+| CycloneDX | 1.7 | 2025-10 | OWASP Bill of Materials specification (ECMA-424, 2nd Edition): software, hardware, services, cryptographic assets and AI models, with dependencies, vulnerabilities, VEX and attestations | 1.6, 1.5, 1.4, 1.3, 1.2, 1.1, 1.0 | https://cyclonedx.org/specification/overview/ | 2026-09-24 |
+| SPDX | 3.0.1 | 2024-12 | System Package Data Exchange (formerly Software Package Data Exchange; The Linux Foundation): bill of materials specification for software and related components, including licensing, security and provenance information; SPDX 2.2.1 is published as ISO/IEC 5962:2021 | 3.0, 2.3, 2.2.2, 2.2.1, 2.2, 2.1.1, 2.1, 2.0, 1.2, 1.1, 1.0 | https://spdx.dev/use/specifications/ | 2026-09-24 |
+
+## Customs and trade
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| WCO SAFE Framework | 2025 edition | 2025-06 | World Customs Organization Framework of Standards to Secure and Facilitate Global Trade | 2018, 2021 | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | verified 2026-07-11 |
+| BASC International Norm V6-2022 (Control and Security Management System, CSMS) | V6-2022 | 2022-03 | Business Alliance for Secure Commerce control and security management system norm (CSMS) | V5 | https://www.wbasco.org/en/document/basc-international-norm-and-standards-implementation-guide-v6-2022 | needs-reconfirm |
+| BASC International Security Standard 6.0.2 (2022, companies with indirect relation to the cargo) | 6.0.2 | 2022 | BASC security standard for companies with indirect relation to the cargo | - | https://www.wbasco.org/en/document/basc-international-norm-and-standards-implementation-guide-v6-2022 | needs-reconfirm |
+| BASC International Security Standard 6.0.3 (2022, companies implementing basic security operational controls) | 6.0.3 | 2022 | BASC security standard for companies implementing basic security operational controls | - | https://www.wbasco.org/en/document/basc-international-norm-and-standards-implementation-guide-v6-2022 | needs-reconfirm |
+| CTPAT MSC | 2020 | 2020 | Customs-Trade Partnership Against Terrorism Minimum Security Criteria | - | https://www.cbp.gov/border-security/ports-entry/cargo-security/ctpat-customs-trade-partnership-against-terrorism/apply/security-criteria | verified 2026-07-09 |
+| AEO/AEOS (UK) | - | - | UK HMRC Authorized Economic Operator customs and trade security programme (Security and Safety authorization); requirement areas per HMRC guidance, which carries no versioned edition, so the version columns record none | - | https://www.gov.uk/guidance/authorised-economic-operator-certification | needs-reconfirm |
+
+## Sector-specific (energy, telecom, finance)
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| NERC CIP | Standards family CIP-002 through CIP-015 (each standard has its own revision number). CIP-015 Internal Network Security Monitoring: CIP-015-2, adopted by the NERC Board of Trustees 2026-06-17; FERC order issued 2026-08-10, Docket No. RD26-6-000. CIP-015-2 in-force status and final implementation plan not confirmed; phasing, and the retirement of CIP-015-1 in each jurisdiction immediately before CIP-015-2 becomes effective there, are from the February 2026 posted draft plan. Predecessor CIP-015-1: approved in FERC Order No. 907 (issued 2025-06-26); 2025-09-02 is that rule's effective date, not CIP-015-1's, which follows its 36-month implementation plan. | various per individual standard | North American Electric Reliability Corporation Critical Infrastructure Protection standards family | - | - | needs-reconfirm |
+| PCI DSS | 4.0.1 | 2024-06 | Payment Card Industry Data Security Standard | 3.2.1, 4.0 | https://www.pcisecuritystandards.org/document_library/ | 2026-06-30 |
+| IEC 62443-1-1 | 2009 | 2009 | Industrial communication networks: Security: Part 1-1: Concepts and models | - | https://webstore.iec.ch/publication/7029 | 2026-06-30 |
+| IEC 62443-2-1 | 2024 | 2024 | Security for industrial automation and control systems: Part 2-1: Establishing an IACS security programme | 2010 | https://webstore.iec.ch/en/publication/62883 | verified 2026-07-09 |
+| IEC 62443-2-4 | 2023 | 2023 | Security for industrial automation and control systems: Part 2-4: Security programme requirements for IACS service providers | 2015 | https://webstore.iec.ch/en/publication/67631 | verified 2026-07-09 |
+| IEC 62443-3-2 | 2020 | 2020 | Security for industrial automation and control systems: Part 3-2: Security risk assessment for system design | - | https://webstore.iec.ch/en/publication/30727 | verified 2026-07-09 |
+| IEC 62443-3-3 | 2013 | 2013 | Security for industrial automation and control systems: Part 3-3: System security requirements and security levels | - | https://webstore.iec.ch/en/publication/7033 | 2026-06-30 |
+| IEC 62443-4-1 | 2018 | 2018 | Security for industrial automation and control systems: Part 4-1: Secure product development lifecycle requirements | - | https://webstore.iec.ch/en/publication/33615 | verified 2026-07-09 |
+| IEC 62443-4-2 | 2019 | 2019 | Security for industrial automation and control systems: Part 4-2: Technical security requirements for IACS components | - | https://webstore.iec.ch/en/publication/34421 | verified 2026-07-09 |
+| IEC 61511 | 2016 (Edition 2, Amendment 1 in 2017) | 2016 | Functional safety: Safety instrumented systems for the process industry sector | Edition 1 (2003) | https://webstore.iec.ch/en/publication/61289 | verified 2026-07-09 |
+| IEC 61508 | 2010 | 2010 | Functional safety of electrical/electronic/programmable electronic safety-related systems | 1998 | https://webstore.iec.ch/en/publication/5515 | verified 2026-07-09 |
+| ISO 16484 | Part 1:2024 (Ed.2), Part 2:2025 (Ed.2), Part 4:2025; Part 3 at draft (DIS) | 2024 to 2025 | Building automation and control systems (BACS) Earlier editions of the parts were published 2010 to 2020. | - | https://www.iso.org/committee/54740/x/catalogue/ | verified 2026-07-09 |
+| ASHRAE 135 | 2020 (with subsequent addenda) | 2020 | BACnet protocol for building automation and control networks (incl. BACnet/SC) | - | https://www.ashrae.org/technical-resources/bookstore/bacnet | 2026-06-30 |
+| NIST SP 1900 series | subseries (Cyber-Physical Systems; individual publications carry their own dates, e.g. SP 1900-206:2022) | various per publication | Smart-building cybersecurity and IoT guidance | - | https://www.nist.gov/nist-research-library/nist-special-publication-subseries-descriptions | verified 2026-07-09 |
+| NFPA 72 | 2025 | 2025 | National Fire Alarm and Signaling Code | 2022, 2019 | https://www.nfpa.org/codes-and-standards/nfpa-72-standard-development/72 | 2026-06-30 |
+| EN 54 | series (CEN/TC 72; 25+ parts, many harmonized under the Construction Products Regulation (EU) 305/2011) | various | Fire detection and fire alarm systems (European standard series) | - | https://standards.cencenelec.eu/ | verified 2026-07-10 (series-level; corpus cites the series generically, no specific part) |
+| TSA Pipeline Security Directive | SD Pipeline-2021-02G (effective 2026-05-03 through 2027-05-02; cancels and supersedes SD Pipeline-2021-02F) | 2026-05-03 | US Transportation Security Administration pipeline cybersecurity requirements (mitigation actions, contingency planning, and testing) | 02F, SD02, SD 02C | https://www.tsa.gov/sd-and-ea | verified 2026-10-17 |
+| Security Directive Pipeline-2021-01 | SD Pipeline-2021-01G (effective 2026-01-16 through 2027-01-15; cancels and supersedes SD Pipeline-2021-01F) | 2026-01-16 | Enhancing Pipeline Cybersecurity; TSA-designated hazardous liquid and natural gas pipelines or liquefied natural gas facilities | SD Pipeline-2021-01F | https://www.tsa.gov/sd-and-ea | verified 2026-10-17 |
+| Security Directive 1580-21-01 | SD 1580-21-01E (effective 2026-01-16 through 2027-01-15; cancels and supersedes SD 1580-21-01D) | 2026-01-16 | Enhancing Rail Cybersecurity; covered freight railroads | SD 1580-21-01D | https://www.tsa.gov/sd-and-ea | verified 2026-10-17 |
+| Security Directive 1582-21-01 | SD 1582-21-01E (effective 2026-01-16 through 2027-01-15; cancels and supersedes SD 1582-21-01D) | 2026-01-16 | Enhancing Public Transportation and Passenger Railroad Cybersecurity; covered passenger railroad carriers and rail transit systems, excluding bus-only operations owned or operated by a public transportation agency otherwise identified in 49 CFR 1582.101 | SD 1582-21-01D | https://www.tsa.gov/sd-and-ea | verified 2026-10-17 |
+| Security Directive 1580/82-2022-01 | SD 1580/82-2022-01E (effective 2026-05-03 through 2027-05-02; supersedes SD 1580/82-2022-01D) | 2026-05-03 | Rail Cybersecurity Mitigation Actions and Testing; covered freight and TSA-designated passenger railroads | SD 1580/82-2022-01D | https://www.tsa.gov/sd-and-ea | verified 2026-10-17 |
+| Basel III | 2017 (post-crisis reform finalization; now in the consolidated Basel Framework; transitional arrangements through 2028) | 2017-12 | Banking regulation framework | Basel II | https://www.bis.org/bcbs/basel3.htm | 2026-08-23 |
+
+## OECD and global
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| G7 Hiroshima Process International Code of Conduct | 2023 | 2023-10 | Hiroshima Process International Code of Conduct for Organizations Developing Advanced AI Systems, adopted by G7 Leaders 30 October 2023; voluntary; the OECD reporting framework (2025) monitors its application and does not supersede it | - | https://www.soumu.go.jp/hiroshimaaiprocess/en/ | needs-reconfirm |
+| OECD AI Principles | 2019 Recommendation as updated 2024 | 2019 (original); 2024 (update) | AI policy principles (Recommendation of the Council on Artificial Intelligence, OECD/LEGAL/0449: adopted 22 May 2019; revised 8 November 2023 and 3 May 2024) | - | https://oecd.ai/en/ai-principles | 2026-10-22 |
+| OECD Privacy Guidelines | 2013 (revised) | 2013 | Privacy and transborder data flows | 1980 | https://legalinstruments.oecd.org/en/instruments/OECD-LEGAL-0188 | verified 2026-07-09 |
+| UNESCO Recommendation on the Ethics of AI | 2021 | 2021-11 | Recommendation on the Ethics of Artificial Intelligence, adopted 23 November 2021 by the UNESCO General Conference at its 41st session | - | https://www.unesco.org/en/artificial-intelligence/recommendation-ethics | needs-reconfirm |
+| WTO TFA | 2017 | 2017 | Trade Facilitation Agreement | - | https://www.wto.org/english/tratop_e/tradfa_e/tradfa_e.htm | 2026-06-30 |
+
+## ICAO and IMO
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| ICAO Annex 17 (Chicago Convention) | Edition 12 | 2022 | Security: safeguarding international civil aviation against acts of unlawful interference | Edition 11 | https://store.icao.int/en/annex-17-security | verified 2026-07-10 |
+| ICAO Aviation Cybersecurity Strategy | October 2019 | 2019-10 | Aviation cybersecurity framework of seven pillars (non-binding; published under the Secretary General's authority; no ICAO Doc number, Doc 10055 being the Manual on Notification and Publication of Differences) | - | https://www.icao.int/aviation-cybersecurity/strategy | 2026-09-24 |
+| IMO MSC-FAL.1/Circ.3 | Rev. 4 | 2026-05 | Maritime cyber risk management guidelines | Rev. 3, Rev. 2, Rev. 1 | https://www.imo.org/en/OurWork/Security/Pages/Cyber-security.aspx | 2026-10-04 |
+
+## International treaties and conventions
+
+This section records international treaties and conventions, binding at the inter-state level, that establish AI-governance or related obligations. Treaty text is version-sensitive (amendment, protocol, and ratification status change over time), so rows in this section carry the legislation re-verification tier. Data rows are populated as each instrument's authoritative text is confirmed held and current.
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| Council of Europe Framework Convention on AI | 2024 | 2024-05 | Council of Europe Framework Convention on Artificial Intelligence and Human Rights, Democracy and the Rule of Law (CETS No. 225), adopted 17 May 2024 and opened for signature at Vilnius 5 September 2024; open for signature by "the member States of the Council of Europe, the non-member States which have participated in its elaboration and the European Union" and binding on those that become Parties; "This Convention is subject to ratification, acceptance or approval" (Article 30, paragraph 2); as of 2026-10-23 the Treaty Office chart records 21 signatures and one consent to be bound (the European Union, 15 May 2026) and no entry into force, which needs five ratifications, acceptances or approvals including at least three Council of Europe member States (Article 30, paragraph 3) | - | https://www.coe.int/en/web/conventions/full-list?module=treaty-detail&treatynum=225 | verified 2026-10-23 |
+
+## AI safety evaluation programmes
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| UK AISI inspect_evals | continuous | 2024 | UK AI Security Institute (the AI Safety Institute until 14 February 2025) community evaluation catalogue running on Inspect AI harness; hosts third-party benchmarks including AgentDojo, AgentHarm, StrongREJECT | - | https://ukgovernmentbeis.github.io/inspect_evals/ | 2026-09-29 |
+| Meta CyberSecEval | v4 | 2025 | Offensive cyber benchmark covering ATT&CK compliance, FRR, secure code generation, prompt injection, code interpreter abuse, X86-64 CTF, spear phishing, autonomous offensive cyber ops, AutoPatch, CyberSOCEval | v3, v2, v1 | https://github.com/meta-llama/PurpleLlama/tree/main/CybersecurityBenchmarks | 2026-09-29 |
+| NIST SP 800-218A | 2024 | 2024-07 | Secure Software Development Practices for Generative AI and Dual-Use Foundation Models (SSDF profile) | - | https://csrc.nist.gov/pubs/sp/800/218/a/final | 2026-09-29 |
+
+## AI security tooling references
+
+This section records open-source AI security projects referenced by library content as defensive-pattern exemplars or as concrete tooling choices. Unlike standards, these are versioned software projects; the Current version column records the version current at registration. Re-verification cadence is annual per the Citation Verification Specification, with on-demand re-verification when a referencing library document is updated.
+
+| Project | Current version | Registration date | Topic | License | Status notes | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Trusted-AI ART | v1.20.1 | 2025-07 | Adversarial Robustness Toolbox: evasion, poisoning, extraction, inference attacks and defences across classical ML and DL | MIT | Linux Foundation flagship | https://github.com/Trusted-AI/adversarial-robustness-toolbox/releases | 2026-09-29 |
+| IBM HEART | archived | 2025-07 | Hardened Extension of ART for DoD MAITE-aligned T&E | MIT | Curated ART subset; archived 17 September 2026 (latest recorded release v0.7.0) | https://github.com/IBM/heart-library | 2026-09-29 |
+| AIJack | continuous | 2024 | ML privacy and federated-learning attack/defence library | Apache 2.0 | - | https://github.com/Koukyosyumei/AIJack | 2026-09-29 |
+| HarmBench framework | continuous | 2024-02 | 18-method automated red-team benchmark with R2D2 defence recipe | MIT | - | https://github.com/centerforaisafety/HarmBench | 2026-09-29 |
+| Meta PurpleLlama | continuous | 2024 | Llama Guard safeguard models, Code Shield, CyberSecEval harness | MIT (SDK) + Llama Community License (Llama Guard / Prompt Guard weights) | - | https://github.com/meta-llama/PurpleLlama | 2026-09-29 |
+| NVIDIA NeMo Guardrails | continuous | 2024 | Programmable rails framework (Input / Output / Dialog / Retrieval / Execution) | Apache 2.0 | Repository moved from NVIDIA/NeMo-Guardrails, found at the 2026-09-29 re-check | https://github.com/NVIDIA-NeMo/Guardrails/releases | 2026-09-29 |
+| Guardrails AI | continuous | 2024 | RAIL validator framework with Hub of pluggable validators | Apache 2.0 | - | https://github.com/guardrails-ai/guardrails/releases | 2026-09-29 |
+| Protect AI llm-guard | archived | 2024 | 16 input + 22 output scanners covering PII, secrets, toxicity, prompt injection, malicious URLs | MIT | Archived 9 July 2026 | https://github.com/protectai/llm-guard | 2026-09-29 |
+| Protect AI rebuff | archived | 2023 | Multi-layer prompt injection detector (heuristics, vector-DB, LLM detector, canary tokens) | Apache 2.0 | Archived May 2025 | https://github.com/protectai/rebuff | 2026-09-29 |
+| Protect AI modelscan | continuous | 2024 | ML model file scanner for pickle, H5, Keras, SavedModel | Apache 2.0 | - | https://github.com/protectai/modelscan/releases | 2026-09-29 |
+| picklescan | continuous | 2024 | Pickle opcode-stream analyzer; underpins Hugging Face Hub-side scanning | MIT | - | https://github.com/mmaitre314/picklescan/releases | 2026-09-29 |
+| Trail of Bits fickling | continuous | 2024 | Pickle decompiler, symbolic tracer, runtime import-hook with severity tiers | LGPL-3.0 | Copyleft caution for redistribution | https://github.com/trailofbits/fickling/releases | 2026-09-29 |
+| Giskard | continuous | 2024 | AI testing platform with 55 probes across 11 categories; native AVID export | Apache 2.0 | - | https://github.com/Giskard-AI/giskard-oss/releases | 2026-09-29 |
+| Confident AI deepteam | continuous | 2025 | Open-source LLM red-team framework with 50+ vulnerability categories incl. agentic-specific | Apache 2.0 | - | https://github.com/confident-ai/deepteam/releases | 2026-09-29 |
+| promptfoo | continuous | 2024 | LLM eval and red-team with 71 plugin categories + 30 attack strategies; multi-framework compliance mapping | MIT | - | https://github.com/promptfoo/promptfoo/releases | 2026-09-29 |
+| NVIDIA garak | continuous | 2024 | LLM vulnerability scanner with 40+ probe families | Apache 2.0 | - | https://github.com/NVIDIA/garak/releases | 2026-09-29 |
+| Microsoft PyRIT | continuous | 2024 | Python Risk Identification Tool for GenAI red teaming with 75+ converters | MIT | - | https://github.com/microsoft/PyRIT/releases | 2026-09-29 |
+| ETH Zurich AgentDojo | continuous | 2024 | Benchmark of tool-using LLM agents in simulated environments under prompt injection | MIT | Hosted on inspect_evals | https://github.com/ethz-spylab/agentdojo | 2026-09-29 |
+| Vigil-LLM | continuous | 2023 | Prompt-injection and jailbreak detection toolkit; YARA + transformer + canary | Apache 2.0 | Alpha; not archived; last recorded push 31 January 2024 | https://github.com/deadbits/vigil-llm | 2026-09-29 |
+| Stacklok CodeGate | archived | 2024 | Local privacy and security gateway between IDE AI coding assistants and LLM providers | Apache 2.0 | Archived June 2025 | https://github.com/stacklok/codegate | 2026-09-29 |
+| ClawGuard | continuous | 2026 | Runtime security sidecar daemon for tool-augmented LLM agents (OpenClaw) | MIT | V1.0 May 2026 | https://github.com/Claw-Guard/ClawGuard | 2026-09-29 |
+| Lasso MCP Gateway | continuous | 2024 | Plugin-based local intermediary between MCP clients and downstream MCP servers with guardrail plugins | MIT | - | https://github.com/lasso-security/mcp-gateway | 2026-09-29 |
+| jackhhao llm-warden | continuous | 2024 | Single-purpose jailbreak-prompt classifier | MIT | - | https://github.com/jackhhao/llm-warden | 2026-09-29 |
+| TikiTribe claude-secure-coding-rules | continuous | 2024 | Claude Code secure-coding-rules repository with AI/agent/MCP/RAG security baselines | MIT | Referenced in dev-security CI gates | https://github.com/TikiTribe/claude-secure-coding-rules | 2026-09-29 |
+| Wiz secure-rules-files | continuous | 2024 | Language and framework baseline rules for AI coding assistants | MIT | - | https://github.com/wiz-sec-public/secure-rules-files | 2026-09-29 |
+| Kariedo claude-code-security-rules | continuous | 2024 | Modular Claude Code rules using @-syntax import | MIT | - | https://github.com/kariedo/claude-code-security-rules | 2026-09-29 |
+| awesome-ai-security | continuous | 2024 | Curated index of AI security, LLM security, prompt injection, red teaming, guardrail, and ML supply chain resources (approximately 20 categories) | CC0-1.0 | CC0; compatible for quotation, quoted only as NOTICE.md allows, with attribution | https://github.com/brinhosa/awesome-ai-security | 2026-09-29 |
+
+---
+
+## Soft-law supervisory guidance
+
+Soft-law guidance documents issued by supervisory authorities, regulators, or international working groups. Cited for interpretive guidance on formal regulations the corpus references.
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+|---|---|---|---|---| --- | --- |
+| WP243 (Article 29 Working Party Guidelines on Data Protection Officers) | rev.01 | 2017-04 | Guidelines on Data Protection Officers ('DPOs') under GDPR Articles 37-39; endorsed by EDPB in May 2018 as part of the EDPB's adoption of WP29 guidelines. Cited for Article 38(6) conflict-of-interest interpretation. Supersedes the initial 2016-12 draft. | - | https://ec.europa.eu/justice/article-29/documentation/opinion-recommendation/index_en.htm | 2026-06-30 |
+| WP216 (Article 29 Working Party Opinion 05/2014 on Anonymisation Techniques) | Original (no later revision) | 2014-04 | Opinion on anonymization vs pseudonymization, the singling-out / linkability / inference re-identification tests, adopted 10 April 2014 under Directive 95/46/EC and read across to the GDPR. Cited for anonymization thresholds. | - | https://ec.europa.eu/justice/article-29/documentation/opinion-recommendation/index_en.htm | 2026-06-30 |
+| WP248 rev.01 (Article 29 Working Party Guidelines on Data Protection Impact Assessment) | rev.01 | 2017-10 | Guidelines on DPIA and determining whether processing is 'likely to result in a high risk' for the purposes of Regulation 2016/679 (GDPR Article 35), as last revised and adopted 4 October 2017; endorsed by the EDPB. Cited for DPIA methodology and the high-risk criteria. Revises the first adoption of WP248 (4 April 2017). | - | https://ec.europa.eu/justice/article-29/documentation/opinion-recommendation/index_en.htm | 2026-06-30 |
+| EDPB Guidelines 07/2020 (concepts of controller and processor in the GDPR) | Version 2.1 | 2021-07 | The controller, joint-controller, and processor concepts under the GDPR; Version 2.1 adopted 7 July 2021 after public consultation. Cited for controller / processor determination. | - | https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en | 2026-06-30 |
+| EDPB Guidelines 3/2018 (territorial scope of the GDPR, Article 3) | Version 2.1 | 2019-11 | The establishment criterion and the targeting criterion for GDPR territorial scope (Article 3); Version 2.1 adopted 12 November 2019. Cited for extraterritorial applicability. | - | https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en | 2026-06-30 |
+| EDPB Guidelines 4/2019 (Article 25 data protection by design and by default) | Version 2.0 | 2020-10 | The Article 25 data-protection-by-design-and-by-default obligation: effective implementation of the data-protection principles, the design and default elements, and continual review of the chosen measures' effectiveness; Version 2.0 adopted 20 October 2020. Cited for the operational interpretation of Article 25. Version 1.0 was the initial 2019 adoption, for public consultation. | Version 1.0 | https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en | 2026-07-12 |
+| EDPB Guidelines 05/2020 (consent under Regulation 2016/679) | Version 1.1 | 2020-05 | The GDPR consent standard: conditionality (consent bundled with or conditioned on a service is not freely given), the unambiguous-indication requirement, and that pre-ticked boxes and scrolling do not constitute valid consent; the guidelines were adopted 4 May 2020 (Version 1.0), and Version 1.1 (13 May 2020) applied formatting corrections. Cited for the consent validity standard. Version 1.0 was the initial adoption of 4 May 2020; Version 1.1 carries the formatting corrections of 13 May 2020. | Version 1.0 | https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en | 2026-07-12 |
+| EDPB Guidelines 01/2022 (data subject rights, right of access) | Version 2.1 | 2024-05 | The scope of the right of access, "copy" as the main modality and the layered approach, the Article 15(4) third-party-rights limit, and the Article 12(5) manifestly-unfounded-or-excessive assessment; the Guidelines were adopted 28 March 2023 (Version 2.0, after public consultation), with Version 2.1 minor corrections on 30 May 2024. Cited for the right-of-access interpretation. Version 1.0 (18 January 2022) was for public consultation; Version 2.0 (28 March 2023) was the adoption after public consultation. | Version 2.0, Version 1.0 | https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en | 2026-07-12 |
+| EDPB Guidelines 9/2022 (personal data breach notification under GDPR) | Version 2.0 | 2023-03 | The "becoming aware" doctrine and the notification deadline (without undue delay and, where feasible, within 72 hours of becoming aware; Article 33(1)), the Article 33(2) processor-to-controller notification obligation, and the risk-assessment and individual-notification criteria; Version 2.0 adopted 28 March 2023 after public consultation. Cited for the breach-notification "becoming aware" and processor-timeline interpretation. Version 1.0 (10 October 2022) updated the Article 29 Working Party guidelines WP250 rev.01 and was issued for a targeted public consultation. | Version 1.0 | https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en | 2026-07-12 |
+| EDPB Guidelines 07/2022 (certification as a tool for transfers) | Version 2.0 | 2023-02 | The use of an approved certification mechanism (GDPR Article 46(2)(f)) as an appropriate-safeguards tool for transfers to third countries, and its distinct effectiveness analysis; Version 2.0 adopted 14 February 2023 after public consultation. Cited for the certification-mechanism transfer-tool analysis. Version 1.0 (14 June 2022) was for public consultation. | Version 1.0 | https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en | 2026-07-12 |
+| EDPB Guidelines 8/2022 (identifying the lead supervisory authority) | Version 2.1 | 2023-09 | Identifying a controller or processor's lead supervisory authority for the GDPR one-stop-shop mechanism: the main-establishment test; the Guidelines were adopted 28 March 2023 (Version 2.0, after public consultation), with a Version 2.1 minor correction on 28 September 2023, a targeted update superseding the Article 29 Working Party guidelines WP244 rev.01. Cited for lead-supervisory-authority determination. Version 1.0 (10 October 2022) was for targeted public consultation; Version 2.0 (28 March 2023) was the adoption after public consultation; the Guidelines succeed WP244 rev.01. | Version 2.0, Version 1.0 | https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en | 2026-07-13 |
+| EDPB Opinion 28/2024 (data protection aspects of AI models) | Original (no later revision) | 2024-12 | Whether an AI model trained on personal data can be anonymous, the legitimate-interest legal basis across AI development and deployment, and the consequences of unlawful processing in training; adopted 17 December 2024. Cited for AI-model data-protection analysis. | - | https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en | 2026-07-13 |
+| WP249 (Article 29 Working Party Opinion 2/2017 on data processing at work) | Original (no later revision) | 2017-06 | Opinion 2/2017 on data processing at work, adopted 8 June 2017: the proportionality, transparency, and legitimate-interest analysis for monitoring ICT usage at the workplace (section 5.3), outside the workplace including home and remote working and BYOD (section 5.4), and time and attendance (section 5.5). Cited for the workforce-monitoring proportionality interpretation and the limits of employee consent. The source-verified held text is in the reference base. | - | https://ec.europa.eu/newsroom/article29/items/610169 | 2026-10-24 |
+| UK ICO Employment practices and data protection: Monitoring workers | Guidance series, latest update 6 June 2024 | 2024-06 | UK Information Commissioner's Office guidance series (six pages) on monitoring workers: lawful basis, DPIA before monitoring likely to result in high risk, transparency, covert monitoring, device-activity and data-loss-prevention monitoring, biometric time and access control, and solely automated monitoring tools. Cited for the UK supervisory expectations on workforce monitoring. The ICO's page says the guidance is under review following the Data (Use and Access) Act and may change: "Due to changes made by the Data (Use and Access) Act, this guidance is under review and may be subject to change." The source-verified held text is in the reference base. | - | https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/employment/monitoring-workers/ | 2026-10-24 |
+| ILO Code of Practice on the Protection of Workers' Personal Data | 1997 | 1997 | International Labour Organization code of practice (non-binding): general principles 5.1 to 5.13 (including 5.4, security-measure data not used to control worker behaviour; 5.5, no decisions based solely on automated processing; 5.6, electronic monitoring not the only factor in performance evaluation; 5.8 and 5.11, information to and cooperation with workers' representatives) and 6.14 (advance notice of monitoring, minimal intrusion, and limits on secret and continuous monitoring). Cited for worker-privacy limits on monitoring. The source-verified held text is in the reference base (the issuer's PDF is dated 2003). | - | https://www.ilo.org/publications/protection-workers%E2%80%99-personal-data-ilo-code-practice | 2026-10-24 |
+| Council of Europe Recommendation CM/Rec(2015)5 (processing of personal data in the context of employment) | Adopted 1 April 2015 (no later revision) | 2015-04 | Committee of Ministers recommendation to member States on the processing of personal data in the context of employment: transparency (principle 10), electronic communications (principle 14), information systems not introduced for the direct and principal purpose of monitoring (principle 15), location data (principle 16), risk analysis and representative agreement (principle 20), and additional safeguards including consultation of employees' representatives (principle 21). Replaces Recommendation Rec(89)2, which it revised. Cited for employment-monitoring safeguards. The source-verified held text is in the reference base. | - | https://www.coe.int/en/web/data-protection/committee-of-ministers | 2026-10-24 |
+
+---
+
+## Maintenance
+
+- When a new version of a listed standard is published, update the **Current version** and **Publication date** columns, add the prior version to **Superseded versions**, and refresh **Last verified (UTC)** to the date the new version was confirmed upstream.
+- When a standard is added to the library's citation usage, add an entry here before the citing PR merges, including its **Upstream check location** (fetch-confirmed) and **Last verified (UTC)** (or `needs-reconfirm` if it could not be confirmed at add time).
+- **Unregistered-citation reminder (advisory):** the per-PR delta check D15 ([`.claude/skills/corpus-management/tools/check-alignment-register-on-pr.py`](../.claude/skills/corpus-management/tools/check-alignment-register-on-pr.py)) warns, without blocking, when a PR adds a framework-alignment table citation or an EU/EC instrument number that has no row here. RFCs, vendor guidance and books are not expected here (maintainer decision 2026-10-16) and are listed, each with its reason, in the check's exclusion policy [`.claude/skills/corpus-management/tools/alignment-register-exclusions.json`](../.claude/skills/corpus-management/tools/alignment-register-exclusions.json); a row that exists under another name is matched through [`.claude/skills/corpus-management/tools/alignment-register-aliases.json`](../.claude/skills/corpus-management/tools/alignment-register-aliases.json).
+- **Version-currency re-check (advisory):** when a row is load-bearing and its **Last verified (UTC)** is `needs-reconfirm` or more than one week old, re-check the **Upstream check location** before relying on it and refresh the date in that PR (see the Conventions cadence note and [`specification-citation-verification.md`](specification-citation-verification.md)). This is a discipline, not a CI gate.
+- The linter is permissive: it flags only patterns explicitly listed here as superseded. To catch a stale citation, the prior version must be listed under **Superseded versions**.
+- Periodic review: at least quarterly, plus on publication of any major superseding version.
+
+---
+
+**End of Document**

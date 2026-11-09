@@ -1,0 +1,155 @@
+# Information Security Policy
+
+**Document Title:** Information Security Policy\
+**Document Type:** Policy\
+**Version:** 1.3.36\
+**Date:** 2026-10-27\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/public-sector/annex-canada-public-sector-requirements.md`](../compliance/public-sector/annex-canada-public-sector-requirements.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change\
+**Repository Path:** [`security/policy-information-security.md`](policy-information-security.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+This policy establishes the overarching framework for protecting the confidentiality, integrity, and availability of information and systems. It merges and supersedes the Access Control Policy, Network Security Policy, Endpoint Security Policy, Vulnerability Management Policy, and Asset Management Policy into a unified Information Security Management System (ISMS) directive.
+
+---
+
+## 1. Purpose
+
+To ensure that information security is systematically managed, risks are mitigated through proportionate controls, and the organization maintains compliance with ISO/IEC 27001:2022, ISO/IEC 27002:2022, NIST CSF 2.0, COBIT 2019, and CSA CCM v4.1.
+
+---
+
+## 2. Scope
+
+1. Applies to all business units, employees, contractors, and third parties who access, process, or store organizational data.
+2. Covers all information assets including data, systems, networks, hardware, software, cloud environments, AI models, and mobile devices.
+3. Applies to all methods of access whether on-premises, remote, or hybrid, including cross-border data exchange.
+4. Includes all security controls necessary to maintain compliance with ISO/IEC 27001:2022 Annex A and related frameworks.
+
+Sector-specific overlays (for example, BASC-certified trade and logistics operations) apply where the organization participates in a programme covered by a sector annex; see [`compliance/`](../compliance/).
+
+---
+
+## 3. Governance and accountability
+
+**ISMS Ownership**
+- The Chief Information Security Officer (CISO) is responsible for establishing, maintaining, and continually improving the ISMS.
+- The Chief Information Officer (CIO) provides strategic alignment and ensures that resourcing is in place.
+- An Enterprise Risk Committee reviews risk posture and control effectiveness quarterly.
+
+**Information Security Management System (ISMS)**
+- The ISMS must operate in accordance with ISO/IEC 27001:2022 Clauses 4 to 10 and Annex A.
+- Control ownership must be assigned for each ISO/IEC 27002:2022 control family and CSA CCM domain.
+
+**Roles and Responsibilities**
+
+| Role | Responsibility |
+| --- | --- |
+| CISO | Defines and enforces security strategy, policies, and controls. Oversees risk assessments, vulnerability management, and incident response. |
+| CIO | Ensures that security objectives align with business goals. Oversees infrastructure, architecture, and compliance integration. |
+| Security Operations Team | Implements and monitors preventive, detective, and corrective controls. Operates SIEM, vulnerability scanners, and endpoint protection. |
+| System and Application Owners | Maintain asset inventories, apply security baselines, and validate access rights. |
+| Network and Cloud Engineers | Configure, monitor, and protect network and cloud infrastructure per NIST CSF 2.0 Protect and Detect functions. |
+| Employees and Contractors | Adhere to acceptable use and data protection requirements; promptly report incidents or policy violations. |
+| Internal Audit | Evaluates ISMS effectiveness and verifies compliance with ISO/IEC 27001:2022. |
+
+Where the organization participates in a sector-specific security programme (for example, BASC for trade and logistics operations), the corresponding sector annex defines additional oversight roles and reporting cadences. See [`compliance/`](../compliance/).
+
+---
+
+## 4. Policy statements
+
+### 4.1 Information security framework
+
+4.1.1 The organization must maintain an ISMS aligned to ISO/IEC 27001:2022 Clauses 4 to 10 and Annex A.
+4.1.2 The ISMS must integrate risk management, business continuity, privacy, and AI governance.
+4.1.3 Security objectives must be measurable and reviewed annually.
+
+### 4.2 Asset management
+
+4.2.1 All information assets must be inventoried and classified by confidentiality, integrity, and availability impact.
+4.2.2 Owners must be assigned to each asset and responsible for protection throughout its lifecycle.
+4.2.3 Unauthorized assets must be removed from the network and reported to the CISO.
+
+### 4.3 Access control and identity management
+
+4.3.1 Access must follow the principle of least privilege and be granted based on approved business need.
+4.3.2 Multi-factor authentication is required for all interactive user accounts and all remote access; MFA for privileged accounts must be phishing-resistant.
+4.3.3 Role-based access controls must be defined and periodically reviewed for accuracy.
+4.3.4 Access revocation on termination follows the tiered timelines in [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md): on involuntary termination, privileged access is revoked first and the critical access-removal actions are completed within 1 hour, with all remaining actions retaining their Section 11 checklist timelines; voluntary departures follow that procedure's departure timelines. On a role change, privileged access is revoked within 2 hours and non-privileged excess access is removed within 5 business days, per [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md) §6.3.
+
+### 4.4 Network and infrastructure security
+
+4.4.1 The network must be segmented according to sensitivity, criticality, and regulatory requirements.
+4.4.2 Firewalls, intrusion prevention systems, and secure gateways must be configured, monitored, and updated regularly.
+4.4.3 Cloud environments must implement shared responsibility models and continuous monitoring aligned to CSA CCM I&S controls.
+4.4.4 All network traffic must be logged and retained per the Logging and Monitoring Standard.
+
+### 4.5 Endpoint and mobile security
+
+4.5.1 All endpoints must have up-to-date antivirus, endpoint detection, and response capabilities.
+4.5.2 Device encryption must be enforced for all laptops, tablets, and mobile devices storing organizational data.
+4.5.3 Removable media must be restricted and encrypted when use is approved.
+
+### 4.6 Vulnerability and patch management
+
+4.6.1 Vulnerability scans must occur at least monthly for all systems and after any major change.
+4.6.2 Critical vulnerabilities must be remediated within 24 hours if actively exploited, within 72 hours if publicly disclosed with a proof-of-concept available and not actively exploited, and within seven days otherwise; High vulnerabilities must be remediated within fourteen days, per the tiers and clock in the [Vulnerability Management Procedure](procedure-vulnerability-management.md) section 2. Its Emergency tier takes precedence regardless of CVSS score: findings already CISA KEV listed or supported by credible equivalent intelligence of active exploitation when first confirmed and assigned are due within 24 elapsed hours from that date; subsequent reclassification follows section 2 and retains any earlier deadline.
+4.6.3 Patch deployment must be automated where possible and tracked for compliance metrics.
+
+### 4.7 Information handling and data protection
+
+4.7.1 Data classification and labelling must follow the Data Classification Standard.
+4.7.2 Data at rest and in transit must be encrypted using approved algorithms (AES-256 or stronger).
+4.7.3 Backups must be performed daily and stored securely in geographically diverse locations. Restore testing must follow the criticality-tiered baseline in [`resilience/procedure-backup-and-recovery.md`](../resilience/procedure-backup-and-recovery.md) Section 4: at least weekly for production and other high-criticality systems, and at least monthly for all other systems.
+
+### 4.8 AI model and system security
+
+4.8.1 AI systems and models must be protected against unauthorized access, modification, or data poisoning.
+4.8.2 Model artifacts must be version-controlled, integrity-checked, and logged.
+4.8.3 Validation and verification procedures must be implemented to ensure that accuracy, fairness, and reproducibility are achieved.
+4.8.4 AI model risk metrics must align with NIST CSF 2.0 and NIST AI RMF 1.0 (with the AI 600-1 Generative AI Profile).
+
+### 4.9 Incident response and reporting
+
+4.9.1 All suspected or confirmed information security incidents must be reported immediately to the security operations team.
+4.9.2 Incident response must follow the NIST SP 800-61 Rev. 3 framework (Incident Response Recommendations and Considerations for Cybersecurity Risk Management, 2025) and COBIT 2019 DSS02.
+4.9.3 Root cause analysis and lessons learned must be completed within ten business days of incident closure.
+
+### 4.10 Monitoring and continuous improvement
+
+4.10.1 The ISMS must be continuously monitored through defined metrics (mean time to detect, vulnerability closure rate, compliance posture).
+4.10.2 The ISMS must be audited annually for ISO/IEC 27001:2022 compliance.
+4.10.3 Corrective actions must be documented, tracked, and verified by Internal Audit.
+
+---
+
+## 5. Framework alignment
+
+| Control Area | ISO/IEC 27001:2022 | ISO/IEC 27002:2022 | NIST CSF 2.0 | COBIT 2019 | CSA CCM v4.1 |
+| --- | --- | --- | --- | --- | --- |
+| Governance and ISMS | Clauses 4 to 10 | 5.1, 5.2 (policies and roles) | GV.PO, GV.RR, GV.OV | APO01.01, APO13.01 | GRC-01, GRC-05 |
+| Asset Management | A.5.9 to A.5.11 | 5.9 to 5.14 | ID.AM | BAI09.01, APO01.07 | DCS-06, DCS-07 |
+| Access Control | A.5.15 to A.5.18 | 5.15 to 5.18; 8.2 to 8.5 | PR.AA | DSS05.04 | IAM-01 to 09 |
+| Network and Cloud Security | A.5.14, A.5.23, A.8.20 to A.8.24 | 5.14 (information transfer); 5.23 (cloud services); 8.20 to 8.24 (network security and cryptography) | PR.IR, DE.CM | DSS05.02, APO10.04 | I&S-01 to I&S-05, I&S-07 to I&S-09 |
+| Vulnerability and Patch | A.8.8, A.8.9 | 8.8 (technical vulnerabilities); 8.9 (configuration management) | ID.RA-01, PR.PS-02 | DSS05.07 | TVM-03, TVM-08 |
+| Incident Management | A.5.24 | 5.24 to 5.30; 6.8 (event reporting) | RS.MA, RS.AN, RS.CO, ID.IM | DSS02 | SEF-01, SEF-07 |
+| AI Model Security | A.8.3, A.8.9, A.8.15, A.8.29 | 8.3 (information access restriction); 8.9 (configuration management); 8.15 (logging); 8.29 (security testing in development and acceptance) | PR.AA-05, PR.DS-01, PR.PS-01, PR.PS-04, DE.CM-09, GV.OV-03 | DSS05.04, DSS05.07, BAI10 | AIS-03, AIS-05, CCC-06, IAM-15, LOG-09 |
+| Continuous Improvement | Clause 10 | 5.31 to 5.37 (compliance and review); ISMS continuous improvement is in 27001 Clause 10 | GV.OV, ID.IM | MEA01.03, MEA01.04, MEA01.05, APO01.11, MEA04.07 | N/A |
+
+Note: ISO/IEC 27002:2022 reorganized the previous 2013 edition's 14 control clauses (5-18) into four themes covering 93 controls (clause 5 Organizational, 6 People, 7 Physical, 8 Technological). Citations elsewhere in the corpus that use 2013-style chapter numbers (9 to 18) refer to the superseded edition.
+
+**Additional alignments:** ISO 28000:2022; PIPEDA; the Treasury Board Directive on Automated Decision-Making (AIDA lapsed). Sector-specific overlays including BASC International Standard (v6 2022) and WCO SAFE Framework (2025 edition) apply where the organization participates in those programmes; see [`compliance/`](../compliance/).
+
+ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 -->
+
+**Canadian federal public sector.** For a federal department or other entity to which the Treasury Board Policy on Government Security applies (Policy 6.1), section 3 also aligns with the following held Treasury Board instruments, paraphrased with their pinpoints. The Policy on Government Security (the held text, which records that it took effect on 1 July 2019 and was amended effective 6 January 2025) has the deputy head designate a chief security officer to lead and oversee departmental security management (4.1.1), set up the department's security governance, including who holds security risk management decisions (4.1.2), approve a three-year departmental security plan that is reviewed every year (4.1.5), and review any residual security risk that exceeds the established decision authorities (4.1.6). The Directive on Security Management (the held text, which records that it took effect on 1 July 2019) has senior officials see that the security practices and controls in its Appendices A to H are defined, documented, implemented, monitored and maintained for their area of responsibility (4.2.6); the held text's note to reader records that the Directive on Security Screening, which took effect on 6 January 2025, replaces Appendix A. The Policy places the chief security officer designation with the deputy head (4.1.1), so the CISO in section 3 holds that role only on the deputy head's designation. The force and applicability of these instruments, and the other federal security sources, are set out in the federal security and cyber baseline under domain cluster 3 of the [Canada public-sector annex](../compliance/public-sector/annex-canada-public-sector-requirements.md#federal-security-and-cyber-baseline). This shows alignment, not that meeting this policy meets the federal instruments.
+
+
+
+**End of Document**

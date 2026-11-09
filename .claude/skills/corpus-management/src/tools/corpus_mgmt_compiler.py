@@ -1,0 +1,1313 @@
+#!/usr/bin/env python3
+"""Corpus-Management pack compiler (the engine behind grc gate 99).
+
+The pack root (``.claude/skills/corpus-management/src/`` by default) is the authoritative
+SOURCE OF RECORD for every output it generates: generated outputs are never
+edited directly; the pack source is edited and the outputs regenerated. This
+compiler reads the generation ruleset (``gensrc.toml``), validates the pack
+registers against it, and renders every declared output deterministically.
+
+Rule kinds (the generation contract):
+
+- ``block``: exactly one source; the target file is hand-placed EXCEPT the
+  span between the ``begin`` and ``end`` sentinel lines, whose body the
+  compiler owns byte-for-byte (body = source bytes minus exactly one
+  trailing newline, spliced verbatim). Sentinel PLACEMENT is an authored
+  act: generation refuses to run when a sentinel pair is absent from the
+  target; it only ever owns the span between the sentinels.
+- ``file``: one or more sources concatenated in listed order; the compiler
+  owns the WHOLE file, including a first-line provenance comment it emits
+  itself (``provenance = false`` opts a target out: a non-markdown target, or
+  a skill whose discovery frontmatter must start at line 1).
+- ``index``: the ruleset and gate register produce a compact rule directory;
+  purposes come from source headings, tools from gate bindings, bodies stay
+  outside auto-loaded rules. The index itself ships in the corpus-management
+  skill directory and is read when the skill loads, on the skill's
+  instruction, not at session start. A symlink or an unexpected file in
+  either body directory or in the skill directory fails both modes. The
+  index is limited to 6,000 UTF-8 bytes.
+- ``tree``: one source directory; every file under it is mirrored to the
+  same relative path under ``target``, each with the file-kind provenance
+  header; the compiler owns the whole target directory, so an unexpected
+  file there is drift. Each rendered tree child is resolved and contained
+  under the project root before it is compared or written (an expected child
+  that is a symlink escaping the root is a drift finding in ``--check`` and a
+  generation refusal), and a compiler-owned child that is a symlink at all is
+  drift the compiler repairs on the next generate (it emits regular files only).
+
+Declared ownership (validated before any write or comparison; any mismatch
+is a configuration error): every rule is mirrored by a
+``core/ownership.toml`` ``[[owned_targets]]`` entry (rule / kind / target),
+and ``core/manifest.toml`` ``[generation].owned_targets`` carries the
+deduplicated target-path summary. ``enabled = false`` with a non-empty rule
+set is a configuration error (an inert flag hiding live rules);
+``enabled = true`` with zero rules is legal idle. Further validation:
+duplicate rule ids; unknown kinds or keys; missing or non-UTF-8 or CRLF
+sources; path escapes (targets resolve inside the project root, sources
+inside the pack root, via ``Path.resolve()`` plus ``is_relative_to``); no
+target inside the pack source; duplicate or overlapping targets (two rules
+may share a target only as block rules with disjoint sentinel spans); the
+``.claude/rules`` reservation (a target under ``.claude/rules/`` must be
+strictly under ``.claude/rules/corpus-management/``, and a tree target equal
+to or containing ``.claude/rules`` itself is rejected outright); and
+clause-register well-formedness (unique clause ids, existing sources).
+
+Determinism: rules are applied in sorted-id order; sources are read as bytes
+and must decode as strict UTF-8 with LF line endings (a CRLF source is a
+configuration finding, never silently normalized); output is UTF-8 bytes
+with LF endings; no timestamps, digests, or environment values appear in any
+output, so generation is idempotent and byte-reproducible from the committed
+inputs alone. Writes are atomic (temp file plus ``os.replace``). Generation
+never deletes: an unexpected file inside an owned tree fails loud with the
+instruction to remove it, rather than being silently swept away.
+
+Modes:
+
+- default (no flag): GENERATE. Renders every rule and writes changed
+  outputs atomically.
+- ``--check``: the drift gate (grc gate 99). Renders everything in memory,
+  compares to the committed state, prints findings, writes nothing. Unlike
+  the rules-sync gate (which strips sanctioned local-only differences
+  before comparing), this check strips NOTHING: the compiler owns every
+  byte of a file or tree target and the exact body bytes of a block.
+- ``--root <path>``: project root (default: derived from this file's
+  location inside the pack).
+- ``--pack-root <path>``: pack root (default: ``<root>/.claude/skills/corpus-management/src``).
+- ``--aiqt-root <path>``: an AIQT pack root whose ``tools/aiqt_corpus.py``
+  holds the AIQT generic core, for standalone use outside the grc wrapper.
+  The named root is STRICT: it must carry a regular ``tools/aiqt_corpus.py``
+  AND a regular ``PIN.toml``, is verified through the aiqt_bootstrap loader
+  (pin, manifest, and repository release root) before any of its code runs,
+  and nothing from it is put on ``sys.path``. There is no fallback: a root
+  that is missing, shapeless, or unverifiable is a configuration error
+  (exit 2), never silently replaced by environment discovery or the
+  in-repository copy, and after binding, the installed ``aiqt_corpus``
+  module's origin must equal ``<root>/tools/aiqt_corpus.py``
+  (RBQ27-c3-standalone-compiler, RBQ33-c3-explicit-root-fallback).
+
+Exit codes: 0 clean; 1 drift findings (``--check``); 2 configuration or
+internal error (unparseable or invalid manifest / gensrc / ownership /
+clauses, missing declared source, duplicate ids, path escapes, reservation
+violations, register mismatches, or a generation refusal).
+
+Stdlib-only Python 3.14 plus the AIQT generic core (``aiqt_corpus``), whose
+``read_text_safe`` is reused for all text reads (a bytes-level CR screen
+runs first so the read stays byte-exact).
+"""
+from __future__ import annotations
+
+import argparse
+import importlib.util
+import os
+import re
+import stat
+import sys
+import tempfile
+import tomllib
+from pathlib import Path, PurePosixPath
+
+RULE_ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+KNOWN_RULE_KEYS = {"id", "kind", "sources", "target", "begin", "end", "provenance", "regenerate", "gates"}
+DEFAULT_REGENERATE = ["python3", ".claude/skills/corpus-management/tools/build-corpus-management.py"]
+PACK_DIR = PurePosixPath(".claude/skills/corpus-management/src")
+CLAUDE_RULES = PurePosixPath(".claude/rules")
+CM_RULES = PurePosixPath(".claude/rules/corpus-management")
+CM_REFERENCES = PurePosixPath(".claude/references/corpus-management")
+CM_SKILL = PurePosixPath(".claude/skills/corpus-management")
+ALWAYS_LOADED = {"language-convention", "normative-wording"}
+# Shipped, non-generated entries of the relocated skill directory (RBQ10): the
+# compiler owns only its declared targets there (SKILL.md, rule-index.md), so
+# these subtrees and files are skipped by the stray scan. Any other entry,
+# including a stray file beside the managed targets, still fails.
+CM_SKILL_SHIPPED = frozenset({
+    "adopter-config.json", "data", "docs", "procedures", "registers",
+    "specs", "src", "tests", "tools",
+})
+PROVENANCE_TEMPLATE = (
+    "<!-- GENERATED by corpus-management; source: {src}; "
+    "regenerate: {regen}; do not hand-edit -->"
+)
+
+# Bound by _ensure_aiqt() before any text read; module-level so the read
+# helpers stay plain functions.
+_read_text_safe = None
+
+
+def _locate_bootstrap() -> Path | None:
+    """The aiqt_bootstrap verified loader shipped beside this compiler:
+    pack-source layout (src/tools/ beside <skill>/tools/), or a pack root
+    placed directly in a project (<root>/tools/ beside
+    <root>/.claude/skills/corpus-management/tools/)."""
+    here = Path(__file__).resolve()
+    if len(here.parents) < 3:
+        return None
+    base = here.parents[2]
+    for candidate in (base / "tools" / "aiqt_bootstrap.py",
+                      base / ".claude" / "skills" / "corpus-management"
+                      / "tools" / "aiqt_bootstrap.py"):
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+def _ensure_aiqt(aiqt_root: Path | None) -> str | None:
+    """Bind aiqt_corpus.read_text_safe; return a problem string or None.
+
+    A supplied ``--aiqt-root`` is STRICT and goes through the SAME verified
+    loader every other consumer uses (aiqt_bootstrap): the named root must
+    carry a regular ``tools/aiqt_corpus.py`` and a regular ``PIN.toml``
+    (checked here with a non-following lstat before the shim runs), and is
+    handed to the shim as the ``AIQT_PACK_ROOT`` override, which verifies
+    the pack against its own pin and the repository's pinned release root
+    and then installs ``aiqt_corpus`` in ``sys.modules`` from the captured
+    verified bytes; a set override never falls back inside the shim either.
+    After the shim returns, the installed module's origin must equal
+    ``<root>/tools/aiqt_corpus.py``, so the explicitly selected root is the
+    copy that was actually bound, never another one
+    (RBQ33-c3-explicit-root-fallback). Nothing from the pack is put on
+    ``sys.path``, so a module rewritten after verification can never run
+    (RBQ27-c3-standalone-compiler)."""
+    global _read_text_safe
+    if _read_text_safe is not None:
+        return None
+    if aiqt_root is not None:
+        root = Path(os.path.abspath(aiqt_root.expanduser()))
+        if not (root / "tools" / "aiqt_corpus.py").is_file():
+            return (
+                f"--aiqt-root {aiqt_root}: no tools/aiqt_corpus.py there; pass the "
+                f"AIQT pack root directory whose tools/ holds the AIQT generic core"
+            )
+        pin = root / "PIN.toml"
+        try:
+            pin_mode = os.lstat(pin).st_mode
+        except OSError:
+            pin_mode = None
+        if pin_mode is None or not stat.S_ISREG(pin_mode):
+            return (
+                f"--aiqt-root {aiqt_root}: no regular PIN.toml at {pin}; an explicit "
+                f"AIQT root is strict and is never replaced by environment discovery "
+                f"or the in-repository copy (RBQ33-c3-explicit-root-fallback)"
+            )
+        shim = _locate_bootstrap()
+        if shim is None:
+            return (
+                f"--aiqt-root {aiqt_root}: the aiqt_bootstrap verified loader is "
+                f"not beside this compiler, so the named root cannot be verified; "
+                f"run through the project wrapper "
+                f"(python3 .claude/skills/corpus-management/tools/build-corpus-management.py) instead"
+            )
+        os.environ["AIQT_PACK_ROOT"] = str(root)
+        spec = importlib.util.spec_from_file_location(
+            "_corpus_mgmt_aiqt_bootstrap", shim)
+        module = importlib.util.module_from_spec(spec)
+        try:
+            # Verifies the override and installs aiqt_corpus in sys.modules
+            # from the captured verified bytes; refusals are ImportError.
+            spec.loader.exec_module(module)
+        except ImportError as exc:
+            return f"--aiqt-root {aiqt_root}: {exc}"
+        installed = sys.modules.get("aiqt_corpus")
+        origin = getattr(getattr(installed, "__spec__", None), "origin", None)
+        if installed is None or origin != str(root / "tools" / "aiqt_corpus.py"):
+            return (
+                f"--aiqt-root {aiqt_root}: the bound aiqt_corpus origin {origin!r} is "
+                f"not the explicit root's {str(root / 'tools' / 'aiqt_corpus.py')!r}; "
+                f"the explicitly selected root must be the copy actually installed "
+                f"(RBQ33-c3-explicit-root-fallback)"
+            )
+    try:
+        from aiqt_corpus import read_text_safe
+    except ImportError:
+        return (
+            "the aiqt_corpus module is unavailable: run through the project wrapper "
+            "(python3 .claude/skills/corpus-management/tools/build-corpus-management.py), which bootstraps the vendored "
+            "copy, or pass --aiqt-root <the verified AIQT pack root whose tools/ holds aiqt_corpus.py>, or set "
+            "AIQT_PACK_ROOT. A missing required dependency is a broken setup to fix, "
+            "never to silently work around."
+        )
+    _read_text_safe = read_text_safe
+    return None
+
+
+def _default_root() -> Path:
+    # <root>/.claude/skills/corpus-management/src/tools/corpus_mgmt_compiler.py -> parents[5] is <root>.
+    return Path(__file__).resolve().parents[5]
+
+
+def _contained(base: Path, rel: str) -> Path | None:
+    """Resolve ``rel`` against ``base``; None unless it stays inside ``base``."""
+    p = PurePosixPath(rel)
+    if not rel or p.is_absolute() or ".." in p.parts:
+        return None
+    try:
+        resolved = (base / rel).resolve()
+    except (ValueError, OSError):
+        return None
+    if not resolved.is_relative_to(base.resolve()):
+        return None
+    return resolved
+
+
+def _under(p: PurePosixPath, base: PurePosixPath) -> bool:
+    return p == base or base in p.parents
+
+
+def _strict_text(path: Path) -> tuple[str | None, str | None]:
+    """Return ``(text, problem)``: strict UTF-8, LF-only, byte-exact."""
+    try:
+        raw = path.read_bytes()
+    except OSError as exc:
+        return None, f"cannot read: {exc}"
+    if b"\r" in raw:
+        return None, "carries CR / CRLF line endings (sources and block targets are LF-only)"
+    text = _read_text_safe(path)
+    if text is None:
+        return None, "is not valid UTF-8"
+    return text, None
+
+
+def _newline_shape(text: str) -> str | None:
+    if not text.endswith("\n"):
+        return "must end with exactly one trailing newline (none found)"
+    if text.endswith("\n\n"):
+        return "must end with exactly one trailing newline (trailing blank line found)"
+    return None
+
+
+def _load_toml(path: Path, problems: list[str], label: str) -> dict | None:
+    if not path.is_file():
+        problems.append(f"{label}: file not found: {path}")
+        return None
+    try:
+        with open(path, "rb") as fh:
+            return tomllib.load(fh)
+    except (tomllib.TOMLDecodeError, UnicodeDecodeError, OSError) as exc:
+        problems.append(f"{label}: cannot parse: {exc}")
+        return None
+
+
+class Rule:
+    """One generation rule, loaded and validated from the ruleset."""
+
+    __slots__ = ("id", "kind", "sources", "target", "begin", "end",
+                 "provenance", "regenerate", "source_texts", "tree_files", "gates")
+
+    def __init__(self) -> None:
+        self.gates: list[str] = []
+        self.id = ""
+        self.kind = ""
+        self.sources: list[str] = []
+        self.target = ""
+        self.begin = ""
+        self.end = ""
+        self.provenance = True
+        self.regenerate: list[str] = list(DEFAULT_REGENERATE)
+        self.source_texts: list[str] = []
+        self.tree_files: list[tuple[str, str]] = []
+
+
+def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str]]:
+    """Load the manifest, ruleset, and registers; validate everything.
+
+    Returns ``(rules, problems)``; a non-empty problem list means exit 2
+    and carries EVERY problem found, never only the first.
+    """
+    problems: list[str] = []
+    if not pack_root.is_dir():
+        return [], [f"pack root not found: {pack_root}"]
+
+    manifest = _load_toml(pack_root / "core" / "manifest.toml", problems, "core/manifest.toml")
+    if manifest is None:
+        return [], problems
+    _sv = manifest.get("schema_version")
+    if not isinstance(_sv, int) or isinstance(_sv, bool) or _sv != 1:
+        problems.append("core/manifest.toml: schema_version must be the integer 1")
+    registers = manifest.get("registers")
+    if (not isinstance(registers, dict)
+            or not isinstance(registers.get("ownership"), str)
+            or not isinstance(registers.get("clauses"), str)):
+        problems.append("core/manifest.toml: [registers] must declare string "
+                        "'ownership' and 'clauses' paths")
+        return [], problems
+    gen = manifest.get("generation")
+    if not isinstance(gen, dict):
+        problems.append("core/manifest.toml: missing [generation] table")
+        return [], problems
+    enabled = gen.get("enabled")
+    if not isinstance(enabled, bool):
+        problems.append("core/manifest.toml: [generation].enabled must be a boolean")
+        enabled = False
+    ruleset_rel = gen.get("ruleset")
+    if not isinstance(ruleset_rel, str):
+        problems.append("core/manifest.toml: [generation].ruleset must be a string path")
+        return [], problems
+    man_targets = gen.get("owned_targets")
+    if not isinstance(man_targets, list) or not all(isinstance(t, str) for t in man_targets):
+        problems.append("core/manifest.toml: [generation].owned_targets must be a "
+                        "list of strings")
+        man_targets = []
+
+    gensrc_path = _contained(pack_root, ruleset_rel)
+    own_rel = registers["ownership"]
+    clause_rel = registers["clauses"]
+    own_path = _contained(pack_root, own_rel)
+    clause_path = _contained(pack_root, clause_rel)
+    if gensrc_path is None:
+        problems.append(f"core/manifest.toml: [generation].ruleset escapes the pack root: {ruleset_rel}")
+    if own_path is None:
+        problems.append(f"core/manifest.toml: [registers].ownership escapes the pack root: {own_rel}")
+    if clause_path is None:
+        problems.append(f"core/manifest.toml: [registers].clauses escapes the pack root: {clause_rel}")
+    if gensrc_path is None or own_path is None or clause_path is None:
+        return [], problems
+    gensrc = _load_toml(gensrc_path, problems, ruleset_rel)
+    ownership = _load_toml(own_path, problems, own_rel)
+    clauses = _load_toml(clause_path, problems, clause_rel)
+    if gensrc is None or ownership is None or clauses is None:
+        return [], problems
+    for label, reg in ((ruleset_rel, gensrc), (own_rel, ownership), (clause_rel, clauses)):
+        _rsv = reg.get("schema_version")
+        if not isinstance(_rsv, int) or isinstance(_rsv, bool) or _rsv != 1:
+            problems.append(f"{label}: schema_version must be the integer 1")
+
+    raw_rules = gensrc.get("rules")
+    if not isinstance(raw_rules, list):
+        problems.append(f"{ruleset_rel}: 'rules' must be a list")
+        raw_rules = []
+    if enabled is False and raw_rules:
+        problems.append("core/manifest.toml: [generation].enabled is false but the "
+                        "ruleset declares rules (an inert flag hiding live rules)")
+
+    # --- Per-rule parse and validation. ---
+    rules: list[Rule] = []
+    seen_ids: set[str] = set()
+    sentinel_owner: dict[str, str] = {}
+    for i, raw in enumerate(raw_rules):
+        where = f"{ruleset_rel}: rules[{i}]"
+        if not isinstance(raw, dict):
+            problems.append(f"{where}: must be a table")
+            continue
+        unknown = set(raw) - KNOWN_RULE_KEYS
+        if unknown:
+            problems.append(f"{where}: unknown key(s): {', '.join(sorted(unknown))}")
+            continue
+        rid = raw.get("id")
+        kind = raw.get("kind")
+        sources = raw.get("sources")
+        target = raw.get("target")
+        ok = True
+        if not isinstance(rid, str) or not RULE_ID_RE.match(rid):
+            problems.append(f"{where}: 'id' must be a string matching ^[a-z0-9][a-z0-9-]*$")
+            ok = False
+        elif rid in seen_ids:
+            problems.append(f"{where}: duplicate rule id {rid!r}")
+            ok = False
+        else:
+            seen_ids.add(rid)
+        if kind not in ("block", "file", "tree", "index"):
+            problems.append(f"{where}: 'kind' must be one of block / file / tree / index")
+            ok = False
+        if (not isinstance(sources, list) or not sources
+                or not all(isinstance(s, str) and s for s in sources)):
+            problems.append(f"{where}: 'sources' must be a non-empty list of "
+                            f"pack-relative path strings")
+            ok = False
+        if not isinstance(target, str) or not target:
+            problems.append(f"{where}: 'target' must be a project-relative path string")
+            ok = False
+        if not ok:
+            continue
+
+        rule = Rule()
+        rule.id = rid
+        rule.kind = kind
+        rule.sources = list(sources)
+        rule.target = target
+        if "gates" in raw:
+            bindings = raw["gates"]
+            if (kind != "file" or not isinstance(bindings, list) or not bindings
+                    or not all(isinstance(g, str) and RULE_ID_RE.fullmatch(g)
+                               for g in bindings) or len(set(bindings)) != len(bindings)):
+                problems.append(f"{where}: 'gates' requires unique gate ids on a file rule")
+                continue
+            rule.gates = bindings
+
+        regen = raw.get("regenerate", DEFAULT_REGENERATE)
+        if (not isinstance(regen, list) or not regen
+                or not all(isinstance(x, str) and x for x in regen)):
+            problems.append(f"{where}: 'regenerate' must be a non-empty list of argv strings")
+            continue
+        rule.regenerate = list(regen)
+
+        if kind == "block":
+            if len(rule.sources) != 1:
+                problems.append(f"{where}: a block rule takes exactly one source")
+                continue
+            if "provenance" in raw:
+                problems.append(f"{where}: 'provenance' does not apply to a block rule "
+                                f"(the target file is hand-placed outside the sentinels)")
+                continue
+            begin = raw.get("begin")
+            end = raw.get("end")
+            bad = False
+            for name, val in (("begin", begin), ("end", end)):
+                if (not isinstance(val, str) or not val.strip()
+                        or "\n" in val or "\r" in val):
+                    problems.append(f"{where}: '{name}' must be a non-empty "
+                                    f"single-line sentinel string")
+                    bad = True
+            if bad:
+                continue
+            if begin == end:
+                problems.append(f"{where}: 'begin' and 'end' sentinels must differ")
+                continue
+            for name, val in (("begin", begin), ("end", end)):
+                if val in sentinel_owner:
+                    problems.append(f"{where}: '{name}' sentinel duplicates a sentinel "
+                                    f"of rule {sentinel_owner[val]!r}; sentinels are "
+                                    f"unique across all rules")
+                    bad = True
+                else:
+                    sentinel_owner[val] = rid
+            if bad:
+                continue
+            rule.begin, rule.end = begin, end
+        else:
+            if "begin" in raw or "end" in raw:
+                problems.append(f"{where}: 'begin'/'end' sentinels apply only to a block rule")
+                continue
+            prov = raw.get("provenance", True)
+            if not isinstance(prov, bool):
+                problems.append(f"{where}: 'provenance' must be a boolean")
+                continue
+            rule.provenance = prov
+            if kind == "tree" and len(rule.sources) != 1:
+                problems.append(f"{where}: a tree rule takes exactly one source directory")
+                continue
+
+        # Target path validation.
+        tposix = PurePosixPath(target)
+        resolved_target = _contained(root, target)
+        if resolved_target is None:
+            problems.append(f"{where}: target must be a relative, '..'-free path "
+                            f"inside the project root: {target}")
+            continue
+        if (tposix.parts[:len(PACK_DIR.parts)] == PACK_DIR.parts
+                or resolved_target.is_relative_to(pack_root.resolve())):
+            problems.append(f"{where}: target {target!r} is inside the pack source "
+                            f"(the pack is source, never a target)")
+            continue
+        if kind == "tree" and _under(CLAUDE_RULES, tposix):
+            problems.append(f"{where}: a tree target equal to or containing "
+                            f"{CLAUDE_RULES}/ is rejected outright (the "
+                            f"guardrails-owned rule mirrors can never be claimed "
+                            f"by the pack)")
+            continue
+        if _under(tposix, CLAUDE_RULES) and not _under(tposix, CM_RULES):
+            problems.append(f"{where}: a target under {CLAUDE_RULES}/ must be "
+                            f"strictly under {CM_RULES}/")
+            continue
+        if kind == "block" and _under(tposix, CLAUDE_RULES):
+            problems.append(f"{where}: a block target may not sit under {CLAUDE_RULES}/ "
+                            f"(a rule-mirror body cannot also carry a compiler-owned "
+                            f"block; gate 37 rejects it too)")
+            continue
+        if kind in ("block", "file", "index") and resolved_target.is_dir():
+            problems.append(f"{where}: a {kind} target must be a file, not an "
+                            f"existing directory: {target}")
+            continue
+        if kind == "tree" and resolved_target.exists() and not resolved_target.is_dir():
+            problems.append(f"{where}: a tree target must be a directory or absent, "
+                            f"not an existing file: {target}")
+            continue
+        _cr = (root / ".claude" / "rules").resolve()
+        _cm = (root / ".claude" / "rules" / "corpus-management").resolve()
+        _under_cr = resolved_target == _cr or _cr in resolved_target.parents
+        _under_cm = resolved_target == _cm or _cm in resolved_target.parents
+        if _under_cr and not _under_cm:
+            problems.append(f"{where}: target resolves under .claude/rules/ but not "
+                            f"under .claude/rules/corpus-management/ (a symlink alias "
+                            f"cannot smuggle a target into the reserved tree): {target}")
+            continue
+        if kind == "block" and _under_cr:
+            problems.append(f"{where}: a block target resolves under .claude/rules/ "
+                            f"(symlink alias); a rule-mirror body cannot carry a block")
+            continue
+
+        # Source path validation.
+        src_ok = True
+        for s in rule.sources:
+            spath = _contained(pack_root, s)
+            if spath is None:
+                problems.append(f"{where}: source escapes the pack root: {s}")
+                src_ok = False
+                continue
+            if kind == "tree":
+                if not spath.is_dir():
+                    problems.append(f"{where}: tree source is not a directory: {s}")
+                    src_ok = False
+            elif not spath.is_file():
+                problems.append(f"{where}: source does not exist: {s}")
+                src_ok = False
+        if not src_ok:
+            continue
+
+        rules.append(rule)
+
+    # --- Cross-rule target checks. ---
+    by_target: dict[str, list[Rule]] = {}
+    for r in rules:
+        by_target.setdefault(str((root / r.target).resolve()), []).append(r)
+    for target, rs in sorted(by_target.items()):
+        if len(rs) > 1 and any(r.kind != "block" for r in rs):
+            problems.append(f"target {target!r} is claimed by more than one rule and "
+                            f"not all are block rules ({', '.join(r.id for r in rs)})")
+    seen_pairs: set[frozenset[str]] = set()
+    res = {r.id: (root / r.target).resolve() for r in rules}
+    for a in rules:
+        for b in rules:
+            if a is b or frozenset((a.id, b.id)) in seen_pairs:
+                continue
+            ra, rb = res[a.id], res[b.id]
+            # A resolved target sitting AT or UNDER another (a file inside a
+            # tree, a tree inside a tree, or a file that is an ancestor dir of
+            # another file) is an overlap unless both are block rules on the
+            # exact same file (the sanctioned shared-file block case).
+            same = ra == rb
+            nested = ra != rb and (rb == ra or ra in rb.parents or rb in ra.parents)
+            if same and a.kind == "block" and b.kind == "block" and a.target == b.target:
+                continue
+            if same or nested:
+                seen_pairs.add(frozenset((a.id, b.id)))
+                problems.append(f"targets overlap: rule {a.id!r} ({a.target}) and "
+                                f"rule {b.id!r} ({b.target}) resolve to the same or "
+                                f"a nested path")
+
+    # --- Source/target overlap (defence in depth: targets cannot sit in the
+    # --- pack, and sources must sit in the pack, so this cannot fire today).
+    resolved_targets = [((root / r.target).resolve(), r) for r in rules]
+    for r in rules:
+        for s in r.sources:
+            sres = (pack_root / s).resolve()
+            for tres, tr in resolved_targets:
+                inside_tree = tr.kind == "tree" and (sres == tres or tres in sres.parents)
+                if inside_tree or (tr.kind != "tree" and sres == tres):
+                    problems.append(f"rule {r.id!r}: source {s} lies inside the owned "
+                                    f"target {tr.target} of rule {tr.id!r}")
+
+    # --- Ownership-register parity. ---
+    own_entries = ownership.get("owned_targets")
+    if not isinstance(own_entries, list):
+        problems.append(f"{own_rel}: 'owned_targets' must be a list")
+        own_entries = []
+    own_triples: set[tuple[str, str, str]] = set()
+    for i, e in enumerate(own_entries):
+        if (not isinstance(e, dict) or not isinstance(e.get("rule"), str)
+                or not isinstance(e.get("kind"), str)
+                or not isinstance(e.get("target"), str)):
+            problems.append(f"{own_rel}: owned_targets[{i}] must be a table with "
+                            f"string 'rule', 'kind', and 'target' fields")
+            continue
+        triple = (e["rule"], e["kind"], e["target"])
+        if triple in own_triples:
+            problems.append(f"{own_rel}: duplicate owned_targets entry for rule "
+                            f"{e['rule']!r}")
+        own_triples.add(triple)
+    rule_triples = {(r.id, r.kind, r.target) for r in rules}
+    for t in sorted(rule_triples - own_triples):
+        problems.append(f"{own_rel}: no owned_targets entry matching gensrc rule "
+                        f"{t[0]!r} (kind {t[1]}, target {t[2]})")
+    for t in sorted(own_triples - rule_triples):
+        problems.append(f"{own_rel}: owned_targets entry {t[0]!r} (kind {t[1]}, "
+                        f"target {t[2]}) has no matching gensrc rule")
+
+    # --- Manifest owned-target summary parity. ---
+    man_set = set(man_targets)
+    if len(man_targets) != len(man_set):
+        problems.append("core/manifest.toml: [generation].owned_targets carries duplicates")
+    rule_target_set = {r.target for r in rules}
+    if man_set != rule_target_set:
+        problems.append("core/manifest.toml: [generation].owned_targets does not equal "
+                        f"the ruleset's target set (manifest: {sorted(man_set)}; "
+                        f"rules: {sorted(rule_target_set)})")
+
+    # --- Clause-register well-formedness. ---
+    centries = clauses.get("clauses")
+    if not isinstance(centries, list):
+        problems.append(f"{clause_rel}: 'clauses' must be a list")
+        centries = []
+    seen_clause_ids: set[str] = set()
+    for i, c in enumerate(centries):
+        if (not isinstance(c, dict) or not isinstance(c.get("id"), str)
+                or not isinstance(c.get("source"), str)):
+            problems.append(f"{clause_rel}: clauses[{i}] must be a table with string "
+                            f"'id' and 'source' fields")
+            continue
+        if c["id"] in seen_clause_ids:
+            problems.append(f"{clause_rel}: duplicate clause id {c['id']!r}")
+        seen_clause_ids.add(c["id"])
+        csrc = _contained(pack_root, c["source"])
+        if csrc is None or not csrc.is_file():
+            problems.append(f"{clause_rel}: clause {c['id']!r} source does not exist "
+                            f"inside the pack: {c['source']}")
+
+    # Shared id namespace across clauses / gates / profiles: seed the gate-id
+    # set before the (optional) gates block so the profiles block can read it
+    # whether or not a gates register is declared.
+    seen_gate_ids: set[str] = set()
+    # --- Gate-register well-formedness (validate-when-declared; compile PR-5). ---
+    # The gates register is validated only when the manifest declares it, so the
+    # minimal-adoption pack shape (ownership + clauses only) stays valid. When
+    # declared, each gate names its pack ENGINE source (validated to exist inside
+    # the pack), the clause it enforces (validated against the clause register),
+    # and the project-side entry point (the thin wrapper; existence-checked, its
+    # content deliberately not compiler-owned). Ids share ONE namespace with
+    # clauses (and future hooks/rules): a gate id may not collide with a clause id.
+    gentries = []
+    gates_rel = registers.get("gates")
+    if gates_rel is not None and not isinstance(gates_rel, str):
+        problems.append("core/manifest.toml: [registers].gates must be a string path")
+    elif isinstance(gates_rel, str):
+        gates_path = _contained(pack_root, gates_rel)
+        if gates_path is None:
+            problems.append(f"core/manifest.toml: [registers].gates escapes the pack "
+                            f"root: {gates_rel}")
+        else:
+            gates_reg = _load_toml(gates_path, problems, gates_rel)
+            if gates_reg is not None:
+                _gsv = gates_reg.get("schema_version")
+                if not isinstance(_gsv, int) or isinstance(_gsv, bool) or _gsv != 1:
+                    problems.append(f"{gates_rel}: schema_version must be the integer 1")
+                gentries = gates_reg.get("gates")
+                if not isinstance(gentries, list):
+                    problems.append(f"{gates_rel}: 'gates' must be a list")
+                    gentries = []
+                gate_keys = {"id", "title", "source", "enforces", "entry_point", "origin"}
+                for i, g in enumerate(gentries):
+                    where = f"{gates_rel}: gates[{i}]"
+                    if not isinstance(g, dict):
+                        problems.append(f"{where}: must be a table")
+                        continue
+                    unknown = set(g) - gate_keys
+                    if unknown:
+                        problems.append(f"{where}: unknown key(s): {', '.join(sorted(unknown))}")
+                    gid = g.get("id")
+                    if not isinstance(gid, str) or not RULE_ID_RE.match(gid):
+                        problems.append(f"{where}: 'id' must be a string matching "
+                                        f"^[a-z0-9][a-z0-9-]*$")
+                        gid = None
+                    elif gid in seen_gate_ids:
+                        problems.append(f"{where}: duplicate gate id {gid!r}")
+                    elif gid in seen_clause_ids:
+                        problems.append(f"{where}: gate id {gid!r} collides with a clause "
+                                        f"id (clause / gate / hook / rule ids share one "
+                                        f"namespace)")
+                    if isinstance(gid, str):
+                        seen_gate_ids.add(gid)
+                    gsource = g.get("source")
+                    if not isinstance(gsource, str):
+                        problems.append(f"{where}: 'source' must be a pack-relative path "
+                                        f"string")
+                    else:
+                        gsrc = _contained(pack_root, gsource)
+                        if gsrc is None or not gsrc.is_file():
+                            problems.append(f"{where}: 'source' engine does not exist "
+                                            f"inside the pack: {gsource}")
+                    enforces = g.get("enforces")
+                    if not isinstance(enforces, str):
+                        problems.append(f"{where}: 'enforces' must be a clause id string")
+                    elif enforces not in seen_clause_ids:
+                        problems.append(f"{where}: 'enforces' names an unknown clause id "
+                                        f"{enforces!r}")
+                    entry_point = g.get("entry_point")
+                    if not isinstance(entry_point, str):
+                        problems.append(f"{where}: 'entry_point' must be a project-relative "
+                                        f"path string")
+                    else:
+                        ep = _contained(root, entry_point)
+                        if ep is None:
+                            problems.append(f"{where}: 'entry_point' escapes the project "
+                                            f"root: {entry_point}")
+                        elif not ep.is_file():
+                            problems.append(f"{where}: 'entry_point' wrapper does not exist: "
+                                            f"{entry_point}")
+
+    # --- Profiles-register well-formedness (validate-when-declared; Phase-4 PR-A). ---
+    # Reference-vocabulary profiles (defaults/grc/<concern>.toml) are pack SOURCE:
+    # the compiler VALIDATES them (envelope + regex tables, via the pack loader) but
+    # never OWNS or generates them, so no profile is an owned_target and gate 99 never
+    # drift-compares its bytes. Validated only when [registers].profiles is declared,
+    # keeping the minimal-adoption pack shape valid. Profile ids share the one
+    # clause / gate / hook / rule namespace.
+    profiles_rel = registers.get("profiles")
+    if profiles_rel is not None and not isinstance(profiles_rel, str):
+        problems.append("core/manifest.toml: [registers].profiles must be a string path")
+    elif isinstance(profiles_rel, str):
+        ppath = _contained(pack_root, profiles_rel)
+        if ppath is None:
+            problems.append(f"core/manifest.toml: [registers].profiles escapes the pack "
+                            f"root: {profiles_rel}")
+        else:
+            preg = _load_toml(ppath, problems, profiles_rel)
+            if preg is not None:
+                _psv = preg.get("schema_version")
+                if not isinstance(_psv, int) or isinstance(_psv, bool) or _psv != 1:
+                    problems.append(f"{profiles_rel}: schema_version must be the integer 1")
+                pentries = preg.get("profiles")
+                if not isinstance(pentries, list):
+                    problems.append(f"{profiles_rel}: 'profiles' must be a list")
+                    pentries = []
+                try:
+                    import profile_loader
+                except ImportError:
+                    profile_loader = None
+                    problems.append(f"{profiles_rel}: the pack profile loader "
+                                    f"(tools/profile_loader.py) is unavailable; cannot "
+                                    f"validate the registered profiles")
+                profile_keys = {"id", "concern", "target", "title", "origin"}
+                seen_profile_ids: set[str] = set()
+                seen_concerns: set[str] = set()
+                registered_targets: set[str] = set()
+                for i, pf in enumerate(pentries):
+                    where = f"{profiles_rel}: profiles[{i}]"
+                    if not isinstance(pf, dict):
+                        problems.append(f"{where}: must be a table")
+                        continue
+                    unknown = set(pf) - profile_keys
+                    if unknown:
+                        problems.append(f"{where}: unknown key(s): "
+                                        f"{', '.join(sorted(unknown))}")
+                    pid = pf.get("id")
+                    if not isinstance(pid, str) or not RULE_ID_RE.match(pid):
+                        problems.append(f"{where}: 'id' must be a string matching "
+                                        f"^[a-z0-9][a-z0-9-]*$")
+                        pid = None
+                    elif pid in seen_profile_ids:
+                        problems.append(f"{where}: duplicate profile id {pid!r}")
+                    elif pid in seen_clause_ids or pid in seen_gate_ids or pid in seen_ids:
+                        problems.append(f"{where}: profile id {pid!r} collides with a "
+                                        f"clause, gate, or generation-rule id (clause / "
+                                        f"gate / rule / profile ids share one namespace; "
+                                        f"hook ids join it once the hook register is "
+                                        f"populated)")
+                    if isinstance(pid, str):
+                        seen_profile_ids.add(pid)
+                    pconcern = pf.get("concern")
+                    if not isinstance(pconcern, str) or not RULE_ID_RE.match(pconcern):
+                        problems.append(f"{where}: 'concern' must be a string matching "
+                                        f"^[a-z0-9][a-z0-9-]*$")
+                        pconcern = None
+                    elif pconcern in seen_concerns:
+                        problems.append(f"{where}: duplicate concern {pconcern!r} (the "
+                                        f"concern is the loader's lookup identity and must "
+                                        f"be unique across profiles)")
+                    else:
+                        seen_concerns.add(pconcern)
+                    ptarget = pf.get("target")
+                    if not isinstance(ptarget, str):
+                        problems.append(f"{where}: 'target' must be a pack-relative path "
+                                        f"string")
+                        continue
+                    registered_targets.add(ptarget)
+                    tpath = _contained(pack_root, ptarget)
+                    if tpath is None or not tpath.is_file():
+                        problems.append(f"{where}: 'target' profile does not exist inside "
+                                        f"the pack: {ptarget}")
+                        continue
+                    if pconcern is not None:
+                        if PurePosixPath(ptarget).name != f"{pconcern}.toml":
+                            problems.append(f"{where}: target filename must be "
+                                            f"'{pconcern}.toml' (the loader resolves "
+                                            f"profiles by concern name)")
+                        elif profile_loader is not None:
+                            try:
+                                profile_loader.load(pconcern, defaults_dir=tpath.parent)
+                            except profile_loader.ProfileError as exc:
+                                problems.append(f"{where}: profile fails validation: {exc}")
+                # Orphan scan: every defaults-tree profile must be registered.
+                _ref = manifest.get("reference_registers")
+                defaults_root = "defaults/grc"
+                if isinstance(_ref, dict) and isinstance(_ref.get("defaults_root"), str):
+                    defaults_root = _ref["defaults_root"]
+                droot = _contained(pack_root, defaults_root)
+                if droot is not None and droot.is_dir():
+                    for f in sorted(droot.glob("*.toml")):
+                        rel = f.relative_to(pack_root).as_posix()
+                        if rel not in registered_targets:
+                            problems.append(f"{rel}: profile file has no {profiles_rel} "
+                                            f"register entry")
+
+    # --- Source content load (strict UTF-8, LF-only, one trailing newline). ---
+    for r in rules:
+        if r.kind == "tree":
+            src_dir = pack_root / r.sources[0]
+            files = sorted((p for p in src_dir.rglob("*") if p.is_file()),
+                           key=lambda p: p.relative_to(src_dir).as_posix())
+            for sd in sorted(q for q in src_dir.rglob("*")
+                             if q.is_symlink() and not q.is_file()):
+                problems.append(f"rule {r.id!r}: tree source {r.sources[0]}/"
+                                f"{sd.relative_to(src_dir).as_posix()} is a symlinked "
+                                f"directory; its contents are not reproducibly "
+                                f"enumerable (remove the symlink)")
+            tree_files: list[tuple[str, str]] = []
+            for f in files:
+                rel = f.relative_to(src_dir).as_posix()
+                if not f.resolve().is_relative_to(pack_root.resolve()):
+                    problems.append(f"rule {r.id!r}: tree source file "
+                                    f"{r.sources[0]}/{rel} resolves outside the pack "
+                                    f"root (symlink escape)")
+                    continue
+                text, prob = _strict_text(f)
+                if text is None:
+                    problems.append(f"rule {r.id!r}: tree source file "
+                                    f"{r.sources[0]}/{rel}: {prob}")
+                    continue
+                shape = _newline_shape(text)
+                if shape:
+                    problems.append(f"rule {r.id!r}: tree source file "
+                                    f"{r.sources[0]}/{rel}: {shape}")
+                    continue
+                tree_files.append((rel, text))
+            r.tree_files = tree_files
+        else:
+            texts: list[str] = []
+            for s in r.sources:
+                text, prob = _strict_text(pack_root / s)
+                if text is None:
+                    problems.append(f"rule {r.id!r}: source {s}: {prob}")
+                    continue
+                shape = _newline_shape(text)
+                if shape:
+                    problems.append(f"rule {r.id!r}: source {s}: {shape}")
+                    continue
+                texts.append(text)
+            r.source_texts = texts
+
+    if not problems:
+        _prepare_index(root, rules, centries, gentries, ruleset_rel, gates_rel, problems)
+    return rules, problems
+
+
+def _prepare_index(root, rules, clauses, gates, ruleset_rel, gates_rel, problems):
+    """Validate the complete loading partition before synthesizing index bytes."""
+    by_gate = {g["id"]: g for g in gates}
+    for r in rules:
+        if set(r.gates) - by_gate.keys():
+            problems.append(f"rule {r.id!r}: unknown gate binding")
+    indexes = [r for r in rules if r.kind == "index"]
+    references = [r for r in rules if _under(PurePosixPath(r.target), CM_REFERENCES)]
+    if not indexes and not references:
+        return
+    if len(indexes) != 1:
+        problems.append("on-demand rules require exactly one index")
+        return
+    index = indexes[0]
+    if (index.id != "rule-index" or index.target != f"{CM_SKILL}/rule-index.md"
+            or index.sources != [ruleset_rel, gates_rel] or not index.provenance):
+        problems.append("index requires rule-index, canonical target, ruleset/gates sources and provenance")
+        return
+    bodies = {c["id"]: c["source"] for c in clauses
+              if PurePosixPath(c["source"]).parent == PurePosixPath("core/rules")}
+    managed = [r for r in rules if r.id in bodies or r in references
+               or _under(PurePosixPath(r.target), CM_RULES) and r is not index]
+    if {r.id for r in managed} != bodies.keys() or not ALWAYS_LOADED <= bodies.keys():
+        problems.append("index must cover every rule clause, including both always-loaded rules")
+        return
+    rows = []
+    for r in sorted(managed, key=lambda r: r.id):
+        directory = CM_RULES if r.id in ALWAYS_LOADED else CM_REFERENCES
+        if (r.kind != "file" or r.target != f"{directory}/{r.id}.md"
+                or r.sources != [bodies[r.id]] or not r.provenance):
+            problems.append(f"rule {r.id!r}: invalid loading partition, source or provenance")
+            continue
+        if ((root / r.target).resolve() != root.resolve() / r.target):
+            problems.append(f"rule {r.id!r}: managed body path must not use symlinks")
+            continue
+        if r.id in ALWAYS_LOADED:
+            continue
+        heading = r.source_texts[0].splitlines()[0]
+        purpose = heading.removeprefix("# ").split(" (")[0]
+        if (not heading.startswith("# ") or not 1 <= len(purpose.split()) <= 12
+                or "|" in purpose):
+            problems.append(f"rule {r.id!r}: index purpose needs a heading of 1-12 words")
+            continue
+        bound = r.gates or [g["id"] for g in gates if g["enforces"] == r.id]
+        if not bound or set(bound) - by_gate.keys():
+            problems.append(f"rule {r.id!r}: index needs known enforcing gates")
+            continue
+        tools = sorted(by_gate[g]["entry_point"] for g in bound)
+        if any(not re.fullmatch(r".claude/skills/corpus-management/tools/[a-z0-9_-]+\.py", t) for t in tools):
+            problems.append(f"rule {r.id!r}: index tools must be Python entry points in .claude/skills/corpus-management/tools/")
+            continue
+        rows.append(f"- {r.id}|{purpose}|{','.join(PurePosixPath(t).name for t in tools)}|{r.id}.md\n")
+    index.source_texts = [
+        "Gates enforce these mechanically (tools in `.claude/skills/corpus-management/tools/`; bodies in "
+        f"`{CM_REFERENCES}/`).\n"
+        "Read a rule's body before creating or editing a file that its gate scans, "
+        "before reviewing or auditing such files, when answering a question about that rule, "
+        "and when its gate fails. "
+        "Columns: id|purpose|tool|body.\n\n" + "".join(rows)
+    ]
+    if len(_file_render(index).encode("utf-8")) > 6000:
+        problems.append("index exceeds 6,000 bytes")
+
+
+def _managed_drift(root, rules):
+    """Catch stale auto-loaded bodies, undeclared references and skill-directory strays; never delete."""
+    if not any(r.kind == "index" for r in rules):
+        return []
+    expected = {r.target for r in rules}
+    findings = []
+    for directory in (CM_RULES, CM_REFERENCES, CM_SKILL):
+        base = root / directory
+        for path in [base, *sorted(base.rglob("*"))]:
+            rel = path.relative_to(root).as_posix()
+            if directory == CM_SKILL and path != base:
+                top = path.relative_to(base).parts[0]
+                if top in CM_SKILL_SHIPPED and not (base / top).is_symlink():
+                    continue
+            if path.is_symlink() or path.is_file() and rel not in expected:
+                findings.append(f"{rel}: unexpected file or symlink in managed rule outputs; remove it")
+    return findings
+
+
+def _file_render(rule: Rule) -> str:
+    body = "".join(rule.source_texts)
+    if rule.provenance:
+        header = PROVENANCE_TEMPLATE.format(src=", ".join(rule.sources),
+                                            regen=" ".join(rule.regenerate))
+        return header + "\n\n" + body
+    return body
+
+
+def _tree_renders(rule: Rule) -> dict[str, str]:
+    """Return {project-relative posix path: expected content} for a tree rule."""
+    out: dict[str, str] = {}
+    src_dir = rule.sources[0]
+    for rel, text in rule.tree_files:
+        if rule.provenance:
+            header = PROVENANCE_TEMPLATE.format(src=f"{src_dir}/{rel}",
+                                                regen=" ".join(rule.regenerate))
+            content = header + "\n\n" + text
+        else:
+            content = text
+        out[f"{rule.target}/{rel}"] = content
+    return out
+
+
+def _locate_block(text: str, rule: Rule) -> tuple[int | None, int | None, str | None]:
+    """Locate a block rule's sentinel pair in ``text``; return (b, e, problem)."""
+    lines = text.split("\n")
+    bs = [i for i, l in enumerate(lines) if l == rule.begin]
+    es = [i for i, l in enumerate(lines) if l == rule.end]
+    if len(bs) != 1 or len(es) != 1:
+        return None, None, (f"{rule.target}: expected exactly one begin and one end "
+                            f"sentinel line for rule {rule.id!r} (found {len(bs)} "
+                            f"begin, {len(es)} end)")
+    if bs[0] >= es[0]:
+        return None, None, (f"{rule.target}: begin sentinel for rule {rule.id!r} "
+                            f"does not precede its end sentinel")
+    return bs[0], es[0], None
+
+
+def run_check(root: Path, rules: list[Rule]) -> list[str]:
+    """Render every rule in memory and compare to the committed state."""
+    findings: list[str] = _managed_drift(root, rules)
+    _root_r = root.resolve()
+    for _r in rules:
+        try:
+            _rt = (root / _r.target).resolve()
+        except (ValueError, OSError):
+            findings.append(f"{_r.target}: target cannot be resolved")
+            continue
+        if not _rt.is_relative_to(_root_r):
+            findings.append(f"{_r.target}: resolves outside the project root "
+                            f"(symlink escape); refusing to compare")
+    block_by_target: dict[str, list[Rule]] = {}
+    for r in rules:
+        if r.kind == "block":
+            block_by_target.setdefault(r.target, []).append(r)
+    for target, target_rules in sorted(block_by_target.items()):
+        tp = root / target
+        if not tp.is_file():
+            findings.append(f"{target}: compiler-owned block target does not exist "
+                            f"(rule(s) {', '.join(r.id for r in target_rules)})")
+            continue
+        text, prob = _strict_text(tp)
+        if text is None:
+            findings.append(f"{target}: {prob}")
+            continue
+        spans: list[tuple[int, int, Rule]] = []
+        for r in sorted(target_rules, key=lambda r: r.id):
+            b, e, prob = _locate_block(text, r)
+            if prob is not None:
+                findings.append(prob)
+                continue
+            spans.append((b, e, r))
+            body = "\n".join(text.split("\n")[b + 1:e])
+            expected = r.source_texts[0][:-1]
+            if body != expected:
+                findings.append(f"{target}: block body for rule {r.id!r} is out of "
+                                f"sync with its pack source {r.sources[0]}")
+        spans.sort()
+        for (b1, e1, r1), (b2, e2, r2) in zip(spans, spans[1:]):
+            if b2 <= e1:
+                findings.append(f"{target}: sentinel spans for rules {r1.id!r} and "
+                                f"{r2.id!r} overlap or interleave")
+    for r in sorted(rules, key=lambda r: r.id):
+        if r.kind in ("file", "index"):
+            tp = root / r.target
+            expected = _file_render(r).encode("utf-8")
+            if not tp.is_file():
+                findings.append(f"{r.target}: compiler-owned file is missing (rule {r.id!r})")
+            elif tp.read_bytes() != expected:
+                findings.append(f"{r.target}: compiler-owned file is out of sync with "
+                                f"its pack source(s) (rule {r.id!r})")
+        elif r.kind == "tree":
+            renders = _tree_renders(r)
+            for rel, content in sorted(renders.items()):
+                tp = root / rel
+                try:
+                    tp_r = tp.resolve()
+                except (ValueError, OSError):
+                    findings.append(f"{rel}: tree child path cannot be resolved "
+                                    f"(rule {r.id!r})")
+                    continue
+                if not tp_r.is_relative_to(_root_r):
+                    findings.append(f"{rel}: compiler-owned tree child resolves "
+                                    f"outside the project root (symlink escape; "
+                                    f"rule {r.id!r}); refusing to compare")
+                    continue
+                if tp.is_symlink():
+                    findings.append(f"{rel}: compiler-owned tree child is a symlink "
+                                    f"(rule {r.id!r}); the compiler writes regular "
+                                    f"files only, so regenerate")
+                    continue
+                if not tp.is_file():
+                    findings.append(f"{rel}: compiler-owned tree file is missing (rule {r.id!r})")
+                elif tp.read_bytes() != content.encode("utf-8"):
+                    findings.append(f"{rel}: compiler-owned tree file is out of sync "
+                                    f"with its pack source (rule {r.id!r})")
+            tdir = root / r.target
+            if tdir.is_dir():
+                for f in sorted(p for p in tdir.rglob("*")
+                               if p.is_file() or p.is_symlink()):
+                    rel = f.relative_to(root).as_posix()
+                    if rel not in renders:
+                        findings.append(f"{rel}: unexpected file inside the "
+                                        f"compiler-owned tree {r.target} (rule "
+                                        f"{r.id!r}); the compiler owns the whole "
+                                        f"tree, so remove it or add a pack source "
+                                        f"for it")
+    return findings
+
+
+def plan_generate(root: Path, rules: list[Rule]) -> tuple[list[str], list[tuple[Path, bytes]]]:
+    """Compute every write; refuse loud (no write at all) on any problem."""
+    problems: list[str] = _managed_drift(root, rules)
+    writes: list[tuple[Path, bytes]] = []
+    block_by_target: dict[str, list[Rule]] = {}
+    for r in rules:
+        if r.kind == "block":
+            block_by_target.setdefault(r.target, []).append(r)
+    for target, target_rules in sorted(block_by_target.items()):
+        tp = root / target
+        if not tp.is_file():
+            problems.append(f"{target}: block target does not exist; sentinel "
+                            f"placement is an authored act, so author the file with "
+                            f"its sentinel pair first, then generate")
+            continue
+        text, prob = _strict_text(tp)
+        if text is None:
+            problems.append(f"{target}: {prob}")
+            continue
+        located: list[tuple[int, int, Rule]] = []
+        ok = True
+        for r in sorted(target_rules, key=lambda r: r.id):
+            b, e, prob = _locate_block(text, r)
+            if prob is not None:
+                problems.append(f"{prob}; generation refuses to place or repair "
+                                f"sentinels (placement is authored)")
+                ok = False
+                continue
+            located.append((b, e, r))
+        located.sort()
+        for (b1, e1, r1), (b2, e2, r2) in zip(located, located[1:]):
+            if b2 <= e1:
+                problems.append(f"{target}: sentinel spans for rules {r1.id!r} and "
+                                f"{r2.id!r} overlap or interleave")
+                ok = False
+        if not ok:
+            continue
+        lines = text.split("\n")
+        for b, e, r in reversed(located):
+            lines[b + 1:e] = r.source_texts[0][:-1].split("\n")
+        writes.append((tp, "\n".join(lines).encode("utf-8")))
+    for r in sorted(rules, key=lambda r: r.id):
+        if r.kind in ("file", "index"):
+            writes.append((root / r.target, _file_render(r).encode("utf-8")))
+        elif r.kind == "tree":
+            renders = _tree_renders(r)
+            tdir = root / r.target
+            if tdir.is_dir():
+                for f in sorted(p for p in tdir.rglob("*")
+                               if p.is_file() or p.is_symlink()):
+                    rel = f.relative_to(root).as_posix()
+                    if rel not in renders:
+                        problems.append(f"{rel}: unexpected file inside the "
+                                        f"compiler-owned tree {r.target}; generation "
+                                        f"never deletes, so remove it (or add its "
+                                        f"pack source) and re-run")
+            for rel, content in sorted(renders.items()):
+                cp = root / rel
+                try:
+                    cp_r = cp.resolve()
+                except (ValueError, OSError) as exc:
+                    problems.append(f"{rel}: tree child path cannot be resolved "
+                                    f"({exc}); refusing to write (rule {r.id!r})")
+                    continue
+                if not cp_r.is_relative_to(root.resolve()):
+                    problems.append(f"{rel}: tree child resolves outside the project "
+                                    f"root (symlink escape; rule {r.id!r}); refusing to write")
+                    continue
+                writes.append((cp, content.encode("utf-8")))
+    root_r = root.resolve()
+    for wpath, _ in writes:
+        try:
+            resolved = wpath.resolve()
+        except OSError as exc:
+            problems.append(f"output path {wpath}: cannot resolve ({exc})")
+            continue
+        if not resolved.is_relative_to(root_r):
+            problems.append(f"output path {wpath} resolves outside the project "
+                            f"root (symlink escape); refusing to write")
+    return problems, writes
+
+
+def _atomic_write(path: Path, data: bytes) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(prefix=path.name + ".", suffix=".tmp", dir=str(path.parent))
+    try:
+        with os.fdopen(fd, "wb") as fh:
+            fh.write(data)
+        os.replace(tmp, path)
+    except BaseException:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
+
+
+def apply_writes(writes: list[tuple[Path, bytes]]) -> tuple[int, int]:
+    written = 0
+    unchanged = 0
+    for path, data in writes:
+        if path.is_file() and not path.is_symlink() and path.read_bytes() == data:
+            unchanged += 1
+            continue
+        _atomic_write(path, data)
+        written += 1
+    return written, unchanged
+
+
+def _main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description=("Corpus-Management pack compiler: generate the pack's owned "
+                     "outputs from the pack source, or --check them for drift "
+                     "(grc gate 99)."))
+    parser.add_argument("--check", action="store_true",
+                        help="render in memory and compare; write nothing "
+                             "(exit 1 on drift)")
+    parser.add_argument("--root", type=Path, default=None,
+                        help="project root (default: derived from the compiler's "
+                             "location inside the pack)")
+    parser.add_argument("--pack-root", type=Path, default=None,
+                        help="pack root (default: <root>/.claude/skills/corpus-management/src)")
+    parser.add_argument("--aiqt-root", type=Path, default=None,
+                        help="AIQT pack root whose tools/aiqt_corpus.py holds the "
+                             "AIQT generic core (standalone use; the grc wrapper "
+                             "bootstraps it instead). Strict: the root must hold "
+                             "a regular PIN.toml, verify through the "
+                             "aiqt_bootstrap loader, and be the copy actually "
+                             "bound; it is never replaced by environment "
+                             "discovery or the in-repository copy (exit 2 "
+                             "otherwise)")
+    parser.add_argument("--release-delta", action="store_true",
+                        help="check the pack release floor without writing; "
+                             "combine with --check to also check generated outputs")
+    parser.add_argument("--base", metavar="REF",
+                        help="release base (default: git merge-base HEAD origin/main)")
+    args = parser.parse_args(argv)
+    if args.base is not None and not args.release_delta:
+        parser.error("--base requires --release-delta")
+
+    root = (args.root or _default_root()).resolve()
+    pack_root = (args.pack_root or (root / PACK_DIR)).resolve()
+    release_status = 0
+    if args.release_delta:
+        import pack_release_delta
+        release_status = pack_release_delta.check(root, pack_root, args.base)
+        if not args.check or release_status == 2:
+            return release_status
+
+    prob = _ensure_aiqt(args.aiqt_root)
+    if prob is not None:
+        print(f"[corpus-management] CONFIG: {prob}", file=sys.stderr)
+        return 2
+
+    rules, problems = load_and_validate(root, pack_root)
+    if problems:
+        print("FAIL: corpus-management configuration problem(s):")
+        for p in problems:
+            print(f"  [corpus-management] CONFIG: {p}")
+        return 2
+
+    n_targets = len({r.target for r in rules})
+    if args.check:
+        findings = run_check(root, rules)
+        if findings:
+            print("FAIL: corpus-management generated-output drift:")
+            for f in findings:
+                print(f"  [corpus-management] {f}")
+            print(f"\n{len(findings)} finding(s). Generated outputs are "
+                  f"compiler-owned: edit the pack source under {PACK_DIR}/ and "
+                  f"regenerate (python3 .claude/skills/corpus-management/tools/build-corpus-management.py), never "
+                  f"the output.")
+            return 1
+        print(f"OK: corpus-management generated outputs in sync "
+              f"({len(rules)} rule(s), {n_targets} target(s)).")
+        return release_status
+
+    problems, writes = plan_generate(root, rules)
+    if problems:
+        print("FAIL: corpus-management generation problem(s):")
+        for p in problems:
+            print(f"  [corpus-management] {p}")
+        return 2
+    try:
+        written, unchanged = apply_writes(writes)
+    except OSError as exc:
+        print("FAIL: corpus-management generation problem(s):")
+        print(f"  [corpus-management] write failed: {exc}")
+        return 2
+    print(f"OK: corpus-management generation complete ({len(rules)} rule(s), "
+          f"{n_targets} target(s); {written} updated, {unchanged} unchanged).")
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Categorical crash-safety wrapper: any uncaught exception becomes a clean
+    exit 2 (configuration/internal error), never a traceback (the gate never
+    crashes on a malformed input; the specific validations above give precise
+    messages for the known shapes, this is the fail-closed backstop)."""
+    try:
+        return _main(argv)
+    except Exception as exc:
+        print("FAIL: corpus-management internal error:")
+        print(f"  [corpus-management] uncaught {type(exc).__name__}: {exc}")
+        return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

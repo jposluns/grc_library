@@ -1,0 +1,159 @@
+# Exception and Risk Acceptance Management Policy
+
+**Document Title:** Exception and Risk Acceptance Management Policy\
+**Document Type:** Policy\
+**Version:** 1.5.10\
+**Date:** 2026-10-27\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md)\
+**Classification:** Public\
+**Category:** Governance\
+**Review Frequency:** Annual or as required by regulatory or framework changes\
+**Repository Path:** [`governance/policy-exception-and-risk-acceptance-management.md`](policy-exception-and-risk-acceptance-management.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## 1. Purpose
+
+This policy defines the organization-wide process for managing security, risk, compliance, and operational exceptions. It consolidates the former Exception Process, Risk Acceptance Memo Procedure, Temporary Waiver Procedure, and Exception Tracking Log into one cohesive governance artefact.
+
+Its purpose is to ensure that all deviations from policy, control, or standard requirements are risk assessed, time bound, approved at the appropriate authority level, and tracked to closure. The policy aligns with **ISO/IEC 27001:2022 Annex A.5.36 Compliance with policies, rules and standards for information security**, **COBIT 2019 APO12.06 Respond to risk**, **Cloud Security Alliance (CSA)** guidance (CCM v4.1 GRC-04 Policy Exception Process), and **NIST SP 800-37 Revision 2 RMF Authorize step**.
+
+## 2. Scope
+
+- Applies to all employees, contractors, suppliers, and partners operating or supporting organizational systems across on-premise, cloud, multi-cloud, edge, and AI environments. 
+- Covers exceptions to policies, standards, procedures, control requirements, and regulatory or contractual obligations. 
+- Includes control configuration baselines, temporary use of unapproved technology, or processes that could affect data integrity or regulated operations. 
+- Encompasses trade-security programs under a unified reference model. **Trade and Supply Chain Programs** include WCO SAFE, ISO 28000:2022, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalent frameworks.
+
+
+
+## 3. Governance and accountability
+
+### 3.1 Governance structure
+3.1.1 The Chief Information Security Officer (CISO) and Chief Information Officer (CIO) co-own the exception management process. 
+3.1.2 The Enterprise Risk Committee (ERC) provides oversight on aggregate risk exposure and expiry compliance. 
+3.1.3 Exception reporting is integrated with enterprise risk dashboards.
+
+### 3.2 Roles and responsibilities
+
+| Role | Responsibility |
+|------|----------------|
+| **Requestor** | Initiates the exception request with justification, scope of deviation, proposed compensating controls, and target remediation date. |
+| **Risk Owner** | Validates the risk assessment supporting the exception, confirms residual exposure, and confirms alignment with the enterprise risk appetite. Same role as the Risk Owner defined in [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) §3 (sixth accountability action: validates risk assessments for exception requests). |
+| **Control Owner** | Confirms impacted control applicability, remediation feasibility, and adequacy of compensating measures. |
+| **Chief Information Officer (CIO)** | Approves medium-risk exceptions (or delegate, per §4.2) and ensures that exceptions are tracked, reviewed, and reported to executive leadership. High- and critical-risk exceptions are approved by the Executive Committee or Board Risk Committee (§4.2). |
+| **Chief Information Security Officer (CISO)** | Co-approves security-related exceptions (§4.2), validates risk classification, ensures that technical compensating controls are implemented, and oversees remediation closure. |
+| **Chief Compliance Officer (CCO)** | Reviews exceptions impacting regulatory compliance or governance policies, ensuring alignment with ISO 37301:2021 and applicable legal requirements. |
+| **Chief Legal Officer / General Counsel (CLO/GC)** | Validates exceptions that could result in regulatory or contractual exposure; provides legal guidance on acceptance documentation. |
+| **Enterprise Risk Committee (ERC)** | Reviews aggregated exception metrics, expiry compliance, and exceptions exceeding defined risk appetite. Provides escalation guidance and oversight. |
+| **Internal Audit** | Reviews open exceptions, closure evidence, and process adherence. Reports systemic deficiencies and recurring patterns to the Audit Committee. |
+| **AI Governance Council** | Reviews exceptions involving AI systems, datasets, or model governance to ensure that alignment with ISO/IEC 23894:2023 and NIST AI RMF 1.0 is maintained. Escalates high-risk AI exceptions to the Board Risk Committee. |
+
+
+
+## 4. Policy and control statements
+
+### 4.1 Exception request and registration
+4.1.1 All exceptions must be documented in the enterprise exception register before deviation occurs. 
+4.1.2 Each entry must include the affected control or standard reference, description and rationale, risk level (low, medium, high, critical), proposed compensating controls, expiry date, approver details, sign-off evidence, the exception's `max_duration` (the absolute maximum cumulative lifetime including all renewals, defaulting to 360 days, see §4.3.4), and the exception's `renewal_count_limit` (the absolute maximum number of renewals permitted, defaulting to 3, see §4.3.5).
+4.1.3 Requests must use the approved template and be submitted via the governance portal or automated workflow.
+
+### 4.2 Risk assessment and approval
+4.2.1 Exceptions must undergo risk assessment consistent with ISO 31000:2018 Clause 6.4 and COBIT 2019 APO12.02. 
+4.2.2 Approval levels: 
+- **Low risk:** Department Head or equivalent. 
+- **Medium risk:** CIO or delegate. 
+- **High or critical risk:** Executive Committee or Board Risk Committee. 
+- **Trade and customs-related exceptions:** applicable compliance officer co-approval and ERC notification. 
+- **Security-related exceptions:** Chief Information Security Officer (CISO) co-approval, in addition to (not in place of) the risk-tier approver above for the exception's risk level. 
+4.2.3 Exceptions exceeding the organization's defined risk appetite or those impacting trade or customs operations require explicit acceptance by executive authority and validation against trade and supply-chain programs.
+4.2.4 The approval pathway in §4.2.2 is the source of truth for the "Approve exception" row of the Role Authority Register RACI ([`governance/register-role-authority.md`](register-role-authority.md)); the register's row points back at this section so the two documents declare a single chain. The renewal-ceiling pathway in §4.3.5 extends this chain: the original approver acts on the first renewal, the Enterprise Risk Committee (ERC) reviews and approves the second renewal, and the third and final renewal requires Board Risk Committee review and approval. This renewal-ceiling pathway is the source of truth for renewal authority. Adopting organizations may tune the tier thresholds in §4.2.2 (and the named bodies in §4.3.5 where they have no equivalent committee, per the §4.3.4 / §4.3.5 substitution clauses) to local governance structure without amending the RACI; the RACI row's reference to this section is what makes that local tuning propagate. The §4.2.2 security-related-exception limb maps to the CISO co-approval named in the RACI Accountable cell, so the CISO's security-exception co-approval is part of the same single chain.
+
+### 4.3 Duration and renewal
+4.3.1 Exceptions must be time-bound. The initial term must not exceed the chosen base term (90 days by default; the base term is an organization-set convention, tunable per §4.3). 
+4.3.2 Renewals must undergo full re-approval and risk reassessment, and each renewal term must not exceed the chosen base term (90 days by default per §4.3), so the initial term plus its three permitted renewals cannot exceed the `max_duration` ceiling (four multiples of that base, 360 days by default) and the final-renewal Board review is always reachable within it.
+4.3.3 Expired exceptions must be remediated or escalated immediately.
+
+4.3.4 **Maximum cumulative duration (`max_duration`).** The cumulative lifetime of an exception, summed across the initial term and all renewals, must not exceed the `max_duration` ceiling (360 days by default, four chosen-base terms) unless an explicit higher cap has been recorded on the register entry and approved by the Board Risk Committee (or, where the organization has no Board Risk Committee, the highest governance body to which the ERC reports) at the time the exception was first registered. A `max_duration` recorded on the entry is a hard ceiling: when reached, the exception must be remediated, descoped, converted to a documented risk acceptance per [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md), or replaced by a re-baselined entry per §4.3.6. Further renewal is not permitted at any authority level.
+
+4.3.5 **Renewal count limit (`renewal_count_limit`) and renewal-ceiling escalation pathway.** Approval authority for a renewal does not, on its own, authorize an unbounded sequence of renewals. The following hard ceilings apply to every exception regardless of risk classification:
+
+| Renewal number | Required approving authority | Additional requirement |
+|----------------|------------------------------|------------------------|
+| **1st renewal** | The same authority that approved the original exception under the §4.2 approval pathway | Documented justification, refreshed risk assessment, evidence that compensating controls remain effective |
+| **2nd renewal** | Enterprise Risk Committee (ERC) review and approval | A written remediation-feasibility memo from the requestor; confirmation that compensating controls have been re-validated within the prior 30 days; and an explicit ERC determination that the residual exposure remains within risk appetite |
+| **3rd renewal (final renewal within the `max_duration`, 360 days by default)** | Board Risk Committee (or, where the organization has no Board Risk Committee, the highest governance body to which the ERC reports) review and approval | A written root-cause-and-remediation-pathway memo (why has the underlying gap not been closed across the initial term and the first two renewals? what is the binding remediation deadline?) with explicit Board Risk Committee acceptance of the residual risk of continued non-closure. The Board Risk Committee may instead require remediation by a fixed date, conversion to a formal risk acceptance, or descope of the underlying requirement in lieu of granting the final renewal |
+| **4th renewal or beyond** | Not permitted under this policy | The exception must be closed (with the residual gap formally accepted as a risk under [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md)), descoped (the underlying control requirement re-scoped or formally waived), or replaced by a re-baselined entry per §4.3.6. A 4th renewal must not be granted by any authority. |
+
+The `renewal_count_limit` field defaults to 3 (the value at which the 4th-renewal prohibition takes effect, and the maximum number of base-term renewals that fits inside the `max_duration` ceiling in §4.3.4, 360 days by default). A lower limit may be recorded on individual entries by the approving authority where the risk profile warrants a tighter cap. A higher limit must not be recorded; the absolute prohibition on a 4th renewal is policy-wide and cannot be raised through the entry field.
+
+The renewal number and each reviewing or approving authority must be recorded on the exception register entry as part of each renewal event so the cumulative count and escalation are auditable.
+
+4.3.6 **Re-baselining carve-out.** An exception whose underlying scope has materially changed (for example, a new control requirement supersedes the original or a structural change in the affected system alters the nature of the deviation) may be re-baselined: a fresh exception register entry is opened, the renewal count is reset to zero, the `max_duration` clock is reset, and the new entry undergoes the full §4.2 approval pathway from scratch. Re-baselining requires ERC approval and is recorded on the register with an explicit cross-reference to the prior entry so the history is auditable; re-baselining is not a renewal and does not consume a renewal slot. Re-baselining must not be used to bypass the ceiling: a re-baseline that does not rest on a materially-changed underlying scope is treated as the next renewal in the sequence (the ERC declines the re-baseline and the count continues).
+
+4.3.7 **Rationale for the specific numbers.** The 360-day `max_duration` default corresponds to four full base terms (90 days by default), an initial term plus three renewals, and the renewal-ceiling pathway is sized to fit inside it, so every approval tier (original approver, ERC, Board Risk Committee) is reached within the permitted lifetime rather than beyond it. ERC is engaged at the second renewal and the Board Risk Committee at the third and final renewal, mirroring [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) §6.3.1, which engages the ERC at the second extension and the Board Risk Committee at the third extension of a CAPA opened against the same underlying gap; the two pathways align tier-for-tier (original approver, ERC, and Board Risk Committee at the first, second, and third renewal or extension respectively, with a fourth prohibited). This is an event-count alignment, not a shared elapsed-time cadence: CAPA target dates vary by classification, and CAPA extensions carry no fixed duration. Board Risk Committee review is placed at the final renewal because an exception seeking its last permitted extension is no longer a remediation-programme issue but a governance-risk issue requiring the highest oversight body's explicit acceptance of the residual exposure, and because a tier placed beyond the final renewal would never be reached within the `max_duration` ceiling (360 days by default). The 4th-renewal absolute prohibition forces a binary decision (close, descope, convert to risk acceptance, or re-baseline) rather than allowing indefinite drift through serial soft renewals.
+
+4.3.8 **Anchoring the 90-day baseline.** The 90-day base term itself is a library convention rather than a number quoted from any single normative source. Neither NIST SP 800-53 Rev. 5 CA-6 (Authorization, whose ongoing-authorization approach leaves the authorization-update frequency organization-defined) nor ISO/IEC 27001:2022 Clause 9.2 (internal audit "at planned intervals") prescribes a fixed interval; 90 days is chosen to align with the quarterly refresh cycle these controls' typical implementations use, so an exception's renewal point coincides with a scheduled control-evidence refresh. Adopters whose monitoring cadence is monthly or semi-annual may tune the base term downward or upward respectively (the cumulative `max_duration` ceiling in §4.3.4 then tunes proportionally as four multiples of the chosen base); the renewal-ceiling pathway in §4.3.5 remains in force regardless of the chosen base term.
+
+### 4.4 Compensating controls and monitoring
+4.4.1 Requestors must implement compensating controls to mitigate risk exposure. 
+4.4.2 Compliance and security teams must verify compensating control effectiveness within 30 days of approval. 
+4.4.3 Exceptions are subject to monitoring and periodic internal audit review.
+
+### 4.5 Tracking and reporting
+4.5.1 All active exceptions must be recorded in a central register with owner, expiry, risk rating, status metadata, `max_duration` per §4.3.4, `renewal_count_limit` per §4.3.5, and current renewal count. 
+4.5.2 Each exception register entry must record the ID of the related risk-acceptance record (if any) per [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md) "Required record fields"; record `None` if the exception is a policy/control deviation that did not produce a separate risk acceptance. This linkage makes the exception register and risk-acceptance register cross-traversable: an auditor reviewing a risk acceptance can find the corresponding exception and vice versa. 
+4.5.3 Weekly automated reports must alert control owners of expiries within 30 days. 
+4.5.4 Quarterly aggregate reports must summarize exception trends and exposure by domain. A dedicated trade-security exceptions report must highlight deviations affecting cargo integrity, customs compliance, and logistics controls aligned to the trade and supply-chain programs.
+
+### 4.6 Closure and verification
+4.6.1 Exception closure requires evidence that corrective actions or control remediation have been implemented. 
+4.6.2 Internal Audit, the CISO, and the CCO must validate closure before record archival. 
+
+### 4.7 Machine-readable exception registry (recommended where automation is practical)
+4.7.1 Organizations may implement a machine-readable, API-enabled exception registry aligned with CSA CCM v4.1 GRC-04. This is a recommended practice rather than a mandatory requirement; it is appropriate where the exception volume and integration with risk dashboards justify the automation investment.
+4.7.2 Where implemented, automated expiry alerts, metadata tagging, and integration with risk dashboards support near real-time oversight.
+
+### 4.8 Continual improvement
+4.8.1 Exception metrics must be reviewed quarterly for trends, repeat occurrences, and systemic control weaknesses. 
+4.8.2 Lessons learned must inform control redesign and updates to the risk management framework.
+
+
+
+## 5. References and framework alignment
+
+- **ISO/IEC 27001:2022** Annex A.5.36 Compliance with policies, rules and standards for information security 
+- **ISO 31000:2018** Clauses 6.4 and 6.5 (risk assessment, and risk treatment including acceptance and compensating controls)
+- **COBIT 2019** APO12.06 Respond to risk; APO12.02 Analyze risk; MEA01 Managed Performance and Conformance Monitoring 
+- **Cloud Security Alliance (CSA)** guidance including CCM v4.1 GRC-04 Policy Exception Process 
+- **NIST SP 800-37 Rev. 2** RMF Authorize step; **NIST SP 800-53 Rev. 5** CA-6 Authorization
+- **NIST AI RMF 1.0** GOVERN 1.3, GOVERN 2.3, and MANAGE 1.3 (risk response options including acceptance; with the AI 600-1 Generative AI Profile)
+- **OECD AI Principles** Accountability and Transparency 
+- **Trade and Supply Chain Programs:** WCO SAFE, ISO 28000:2022, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalents
+
+
+
+## 6. Compliance mapping table
+
+| Control Area | ISO/IEC 27001:2022 | COBIT 2019 | CSA | NIST | Legal and Regulatory | Trade and Supply Chain Programs |
+|---------------|----------------|-------------|-----|------|----------------------|---------------------------------|
+| Governance and oversight | Annex A.5.36 | APO12.06 | CCM GRC-04 | SP 800-37 Rev. 2 Authorize step | SOX, GDPR Articles 5(2), 24 (accountability) | WCO SAFE equivalence |
+| Risk assessment and approval | Clause 6 and ISO 31000:2018 Clauses 6.4 and 6.5 | APO12.02 | CCM GRC-02 | SP 800-30, SP 800-37 Rev. 2 Assess and Authorize steps | PIPEDA, AIDA (lapsed) | WCO SAFE equivalence |
+| Time-bound authorization | Annex A.5.36 | APO12.06 | CCM GRC-04 | SP 800-37 Rev. 2 Authorize step | Contractual risk governance | WCO SAFE equivalence |
+| Exception tracking and reporting | Annex A.5.36 | MEA01 | CCM GRC-04 | SP 800-53 Rev. 5 RA-7 | Audit transparency | WCO SAFE equivalence |
+| Closure and validation | Annex A.5.36 | MEA02 | CCM GRC-04 | SP 800-37 Rev. 2 Assess step | Regulatory evidence requirements | WCO SAFE equivalence |
+| Machine-readable registry (recommended) | Annex A.5.36 (extension) | APO12.06 | CCM GRC-04 | N/A (library extension) | Future automation compliance | WCO SAFE equivalence |
+
+
+
+## 7. Definitions
+
+Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
+
+
+
+**End of Document**

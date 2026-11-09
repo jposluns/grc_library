@@ -1,0 +1,895 @@
+# Citation Verification Specification
+
+**Document Title:** Citation Verification Specification\
+**Document Type:** Specification\
+**Version:** 1.2.42\
+**Date:** 2026-11-09\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`.claude/skills/corpus-management/tools/lint-standards-currency.py`](../.claude/skills/corpus-management/tools/lint-standards-currency.py), [`governance/specification-ingestion.md`](specification-ingestion.md)\
+**Classification:** Public\
+**Category:** Core Governance\
+**Review Frequency:** Annual and upon material change to publisher source patterns, AI verifier environmental capabilities, or verification methodology\
+**Repository Path:** [`governance/specification-citation-verification.md`](specification-citation-verification.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## 1. Purpose
+
+This specification defines how citations recorded in the Canonical Citations Register ([`register-canonical-citations.md`](register-canonical-citations.md)) are verified against authoritative publisher sources, how verification results are logged in the Citation Verifications Register, and how verification confidence is recorded and refreshed.
+
+It exists because the library's audit programme (see [`specification-audit-programme.md`](../.claude/skills/corpus-management/specs/specification-audit-programme.md) §6 for the canonical inventory) primarily verifies structural integrity and the limited factual checks coded into individual linters (the citation-hallucination denylist, standards-currency comparisons, freshness cadences). It cannot verify that a cited standard exists, that its version is current, or that its publication date is accurate. This specification provides that publisher-grounded factual control.
+
+---
+
+## 2. Scope
+
+### 2.1 In scope
+
+- Every entry in the Canonical Citations Register.
+- New citations added to that register in subsequent phases (each addition triggers verification before the linter trusts it).
+- Standards, regulations, frameworks, protocols, and specifications cited by name and version anywhere in the library that map to a register entry.
+
+### 2.2 Out of scope
+
+- The content of standards (we verify the standard exists and has the recorded version; we do not verify the substance of the standard against the library's interpretation).
+- Internal cross-references between library documents (covered by `lint-links`).
+- Citations to URLs in library content (the library convention is to cite by standard ID, not URL).
+
+---
+
+## 3. Operating model and verifier roles
+
+### 3.1 Why this section exists
+
+This specification was first written assuming a single verifier role with full web access. In practice, verification work is performed across two actors with different capabilities and trust profiles: an AI verifier (the maintainer's AI assistant operating in a sandboxed environment with restricted outbound network access) and a human verifier (the maintainer or a delegated human reviewer with an ordinary browser).
+
+This section codifies the split. It exists not because the AI/human split is a compromise of the methodology, but because honest disclosure of *which actor performed which step* is itself a credibility control. A reader of the Citation Verifications Register must be able to tell, for any row, whether the captured text was taken by a human reading the publisher's page directly or by an AI reading a search snippet. Conflating the two would dilute the trust value of every row.
+
+### 3.2 Verifier roles
+
+| Role | Capabilities | Trust profile |
+| --- | --- | --- |
+| **Human verifier** (maintainer or delegated reviewer) | Unrestricted browser access; can fetch publisher pages directly under TLS; can submit and retrieve Wayback Machine snapshots. | Bears integrity responsibility for verbatim text capture and confidence rating. The verification of record. |
+| **AI verifier** (maintainer's AI assistant) | Operates in a sandboxed environment with restricted outbound network access. Cannot fetch publisher pages directly. Cannot fetch or submit Wayback Machine snapshots. May use Web Search for orientation only. | Performs worklist preparation and clerical recording of human-captured text. Does not perform primary verification. |
+
+### 3.3 AI verifier responsibilities
+
+The AI verifier:
+
+1. **Prepares the per-batch verification worklist**: identifies the publisher canonical URL pattern, the expected catalogue URL for each Standard ID in the batch, the field(s) to be checked, and any known parsing gotchas. Output is a markdown worklist per the worklist template ([`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md)).
+2. **Reviews the human verifier's captured text**: confirms the captured text supports the claim the verifier intended to record; flags anomalies (the page text appears to contradict the claim, the text appears to be a summary rather than primary, the URL is not allow-listed).
+3. **Records the verification row** in the Citation Verifications Register, faithfully reproducing the human-captured text without summarization.
+4. **Identifies downstream impact**: where a verification finds the register entry should be corrected, the AI verifier identifies the library content that references the corrected entry and proposes the fixes for human approval.
+5. **Does not** perform primary verification, claim AI agreement as verification, or summarize publisher text.
+
+### 3.4 Human verifier responsibilities
+
+The human verifier:
+
+1. **Fetches the publisher page** from the URL in the worklist using an ordinary browser under TLS.
+2. **Confirms domain identity**: that the page is served by the expected publisher and not a lookalike (URL bar shows expected domain; TLS certificate matches publisher; page chrome matches publisher norms).
+3. **Captures verbatim text**: copies the exact publisher-page text that supports (or refutes) the claim being verified. Does not paraphrase.
+4. **Submits a Wayback Machine snapshot** of the publisher page on the verification date and records the resulting snapshot URL. Where a snapshot already exists for the verification date, that one is acceptable.
+5. **Assigns the confidence rating** per §10 (A, B, C, or D).
+6. **Returns the captured artefacts** to the AI verifier for recording, or records them directly in the verifications register. Either way, the `Captured by` field of the resulting row identifies the human verifier as the source.
+
+### 3.5 Environmental constraints disclosure
+
+The following constraints in the AI verifier's environment were observed at the time this specification was first written (2026-05-29). They are recorded here for transparency; future capability changes are tracked by version bump.
+
+- `WebFetch` to publisher canonical domains (iso.org, nist.gov, iec.ch, ietf.org, others tested) returns HTTP 403 Forbidden.
+- `WebFetch` to `web.archive.org` is explicitly blocked at the harness level.
+- `WebSearch` is available but returns: result titles and URLs (page-derived), result snippets (page-derived but partial), and search-engine summaries (which may be AI-generated and are explicitly not a verification source under §6.4).
+- No persistent browser session is available to the AI verifier.
+
+The operating principle is that any capability the AI verifier discovers it lacks is added here on first detection rather than worked around silently. A future AI environment with broader access may collapse some AI/human responsibilities back together; until then, the split in §3.3 and §3.4 stands.
+
+### 3.6 Worklist artefact
+
+Each verification batch produces a worklist as a working artefact. The template is at [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md). The template specifies the columns the AI verifier pre-fills and the columns the human verifier fills.
+
+A worklist is not retained indefinitely after the batch is closed; the authoritative record is the Citation Verifications Register. However, in-flight worklists may be committed to the repository for shared visibility during a multi-session batch.
+
+---
+
+## 4. Why "spot sampling" is not sufficient
+
+An earlier proposal was to sample N citations per phase. That proposal is rejected. For a reference library that is intended to be adopted, partial verification has the wrong failure mode: a citation that is wrong but un-sampled stays wrong, propagates to every adopter, and is invisible to the maintainer because the audit reports "sample clean."
+
+The methodology in this specification verifies **every** entry. The cost is bounded (the register is finite) and the value (a citation register that is verifiable rather than asserted) justifies the cost.
+
+---
+
+## 5. Threat model
+
+The verification process must defend against:
+
+| Threat | Description | Defence |
+| --- | --- | --- |
+| **Adversarial poisoning** | Content seeded specifically to corrupt AI knowledge or to misrepresent reputable standards. | Publisher-only primary sources; never trust LLM summaries, AI-generated content, or content of unknown provenance. |
+| **SEO and content-farm spam** | Automatically generated material with confident-sounding wrong claims. | Restrict verification to a closed allow-list of canonical publisher domains. |
+| **Lookalike domains** | Sites mimicking the publisher to mislead readers. | Domain match against the publisher's known canonical domain; TLS verification recorded; human verifier confirms URL-bar and certificate chrome. |
+| **AI summarization drift** | A search-result summary that paraphrases content incorrectly. | Capture the exact text of the publisher page, not a summary. Primary verification is performed by the human verifier (per §3.4), not by an AI reading a search snippet. |
+| **Honest staleness** | Outdated mirrors or cached copies. | Prefer the publisher's current catalogue page; record the fetch date. |
+| **Publisher silently amending the page later** | Page content changes after verification, making the verification log unreproducible. | Wayback Machine snapshot URL recorded alongside the live URL. |
+| **Verifier-side hallucination** | The verifier (whether human or LLM) interprets the publisher page incorrectly. | Captured-text rule (the page's words, not the verifier's paraphrase) plus second-pair-of-eyes spot-check. AI verifier is barred from primary verification (per §3.3). |
+| **Single-source dependency** | Only one source on Earth says X; we trust it. | Confidence rating that distinguishes corroborated from single-source-only entries. |
+| **Role conflation** | A row in the verifications register is recorded without distinguishing whether the captured text came from a human reading the publisher page or an AI reading a search snippet. | Mandatory `Captured by` field on every row; AI verifier never asserts itself as the captor of primary text. |
+
+---
+
+## 6. Trust tiers and source rules
+
+### 6.1 Trust tiers
+
+| Tier | Source | Use in verification |
+| --- | --- | --- |
+| **Tier 1: Publisher canonical** | The standard publisher's own canonical domain (see §7 for the allow-list). | The only source that counts as primary verification. |
+| **Tier 2: Authoritative secondary** | National standards bodies republishing publisher catalogue metadata (ANSI, BSI, DIN, AFNOR, SIS, CSA Group, etc.); official government catalogues (FedRAMP marketplace, EUR-Lex for EU regulations, Federal Register for US, gazettes for other jurisdictions). | Corroboration only. Cannot replace Tier 1. |
+| **Tier 3: Industry-credible secondary** | Reputable professional bodies' summary pages, peer-reviewed academic indexes, government regulator pages summarizing third-party standards. | Used only for orientation and triangulation. Not a verification of record. |
+| **Untrusted** | Wikipedia, blogs, security-vendor articles, AI-generated summaries, SEO content farms, social media, forums, lookalike domains. | Never cited as verification. Must not contribute confidence. |
+
+### 6.2 Publisher-only primary rule
+
+Every register entry must be verified against the publisher's own canonical domain. Where the publisher's standard content is paywalled, the publisher's **catalogue metadata page** (typically free, showing standard ID, title, edition, year, supersedence) is the primary source. We verify the metadata, not the content.
+
+### 6.3 Corroboration rule
+
+Where Tier 2 corroboration is available (a national standards body republishing the same catalogue entry), record it. Where it is not available (newer or sector-specific standards), the entry is marked as single-source.
+
+### 6.4 No mediated verification
+
+The verifier does not ask another LLM, does not consult AI-generated summaries, does not treat their own prior belief as a check. Verification is "publisher page text against our claim", not "search-engine top result agrees with our claim."
+
+### 6.5 Domain match
+
+For each verification, the live URL must match the publisher's known canonical domain (per §7 allow-list). TLS connection state is recorded. Lookalike domains are flagged and not used.
+
+### 6.6 Local reference base (the `grc_library_ref` repo)
+
+The maintainer keeps the source texts that verification and authoring draw on (the publisher standards, laws, and framework catalogues cited across the corpus) in the separate `grc_library_ref` repository (buckets at its root), so an AI verifier can read them locally rather than re-fetching paywalled or egress-blocked upstream pages each turn. The base is trust-bucketed, mirroring the §6.1 tiers:
+
+- `grc_library_ref/standards/` (ISO/IEC, NIST, ETSI, IEEE) and `grc_library_ref/legislation/` (statutes by jurisdiction): **authoritative ground truth**, corresponding to Tier 1. Legislation is version-sensitive; confirm the in-force consolidated version.
+- `grc_library_ref/frameworks/` (MITRE, OWASP, CSA CCM/AICM, COBIT) and `grc_library_ref/programs/`: **trusted, sub-formal**; for a normative claim prefer a formal standard or law.
+- `grc_library_ref/publications/` (vendor explainers, surveys, threat reports): **untrusted by default**; screen for bias or poisoning and corroborate any load-bearing claim against a `grc_library_ref/standards/`, `grc_library_ref/frameworks/`, or `grc_library_ref/legislation/` source before relying on it (per the publication-screening process, slash command `/screen-publications`).
+- `grc_library_ref/templates/`: trusted-issuer scaffolding to adapt, not to cite (for example, the ISACA policy templates are usable as structural scaffolding, adapt-do-not-copy).
+
+Two constraints govern its use:
+
+- **The base is believed-current STORAGE, not the version authority.** Confirm a load-bearing version against the upstream `Upstream check location` per §12.3; the local holding records only what was believed current when it was ingested. Consult the `grc_library_ref/INDEX.md` (not a guessed path) for what is held and where.
+- **The source texts are NOT redistributed in this corpus, apart from the short, attributed quotation that [`NOTICE.md`](../NOTICE.md) allows or its transition clause keeps.** Many held texts are proprietary or licence-restricted, and the `grc_library_ref` base is the maintainer's own private reference base; do not copy source text into corpus documents (cite the metadata and the requirement, not the copyrighted body) beyond that quotation.
+
+For the `/matrix-fit` semantic-fit audit, the control-title reference base is the `grc_library_ref` CCM/AICM catalogue CSVs and the NIST CSF 2.0 OSCAL, plus the COBIT 2019 objective titles and ISO 31000:2018 clause headings encoded in [`.claude/skills/corpus-management/tools/cobit_iso31000_reference.py`](../.claude/skills/corpus-management/tools/cobit_iso31000_reference.py) (the 2026-07-02 extension), so the cadence is reproducible against held ground truth rather than memory; an ISO/IEC 27001:2022 Annex A title map would extend it once a title-map extract is built (that extract is not yet available, so the ISO column is not yet in the matrix-fit reference base). The same semantic-layer pattern covers normative-value attribution claims via the cadenced `/claim-fit` audit (the `claim-fit` procedure, [`.claude/skills/corpus-management/procedures/claim-fit.md`](../.claude/skills/corpus-management/procedures/claim-fit.md), over a worklist built by hand from the in-scope diff or document set): where this specification's scope sections note that what a standard REQUIRES is outside the mechanical gates' reach, that precision residual is instrumented by the claim-fit cadence rather than uninstrumented. The in-repo validator modules ([`.claude/skills/corpus-management/tools/ccm_aicm_reference.py`](../.claude/skills/corpus-management/tools/ccm_aicm_reference.py), [`.claude/skills/corpus-management/tools/nist_csf_reference.py`](../.claude/skills/corpus-management/tools/nist_csf_reference.py), [`.claude/skills/corpus-management/tools/iso_27001_reference.py`](../.claude/skills/corpus-management/tools/iso_27001_reference.py), [`.claude/skills/corpus-management/tools/cobit_iso31000_reference.py`](../.claude/skills/corpus-management/tools/cobit_iso31000_reference.py)) that gates 48/49/54/58/61 build on encode the control codes (and, for CCM/AICM, CSF 2.0, COBIT 2019, and ISO 31000:2018, their titles or clause headings); the `grc_library_ref` extracts carry the full specification text.
+
+---
+
+## 7. Publisher allow-list
+
+The verification process operates against an explicit allow-list of publisher canonical domains. Additions to the allow-list are recorded in this specification with the date and the standard or family of standards that necessitated the addition.
+
+### 7.1 Initial allow-list
+
+The fenced `json citation-publishers` block at the end of this section is the source of record for the publisher allow-list. The table below is generated from it by [`.claude/skills/corpus-management/tools/build-citation-publishers.py`](../.claude/skills/corpus-management/tools/build-citation-publishers.py) and is never hand-edited; gate 102 fails on any drift, and gate 101 compares the external-link allow-list with the block's domains.
+
+<!-- BEGIN-GENERATED citation-publishers -->
+
+| Publisher | Canonical domain | Standards covered |
+| --- | --- | --- |
+| ISO | `iso.org` | ISO and ISO/IEC standards. |
+| IEC | `iec.ch` | IEC standards (including 62443, 61511, 61508). |
+| NIST | `nist.gov`, `csrc.nist.gov`, `nvlpubs.nist.gov` | NIST SP, NIST CSF, NIST AI RMF, NIST FIPS. |
+| ASHRAE | `ashrae.org` | ASHRAE 135 (BACnet) and related. |
+| NFPA | `nfpa.org` | NFPA 72 and related fire-and-life-safety codes. |
+| CEN/CENELEC | `cencenelec.eu`, `cen.eu`, `cenelec.eu` | EN series. |
+| IETF | `ietf.org`, `rfc-editor.org`, `datatracker.ietf.org` | RFCs. |
+| W3C | `w3.org` | W3C recommendations. |
+| OASIS | `oasis-open.org` | OASIS standards. |
+| Cloud Security Alliance | `cloudsecurityalliance.org` | CSA CCM, AICM, STAR. |
+| ISACA | `isaca.org` | COBIT. |
+| MITRE | `attack.mitre.org`, `cve.mitre.org`, `cwe.mitre.org`, `atlas.mitre.org` | ATT&CK, ATLAS, CVE, CWE. |
+| NIST FedRAMP | `fedramp.gov` | FedRAMP. |
+| US Federal | `federalregister.gov`, `ecfr.gov`, `congress.gov`, `whitehouse.gov`, `cisa.gov`, `tsa.gov`, `dhs.gov`, `hhs.gov`, `ftc.gov`, `sec.gov`, `govinfo.gov`, `cbp.gov`, `dodcio.defense.gov` | US federal regulation, directives, and public laws (govinfo.gov is the US GPO public-law repository: HITECH, SOX; ecfr.gov is the Electronic Code of Federal Regulations, e.g. CMMC 32 CFR 170; cbp.gov is US Customs and Border Protection, for the CTPAT Minimum Security Criteria; dodcio.defense.gov is the DoD CIO, for CMMC program documentation). |
+| EU | `eur-lex.europa.eu`, `digital-strategy.ec.europa.eu`, `enisa.europa.eu`, `europa.eu` | EU regulations, directives, ENISA; europa.eu covers the other EU institution hosts the corpus cites, such as the European Commission and the EDPB. |
+| UK | `legislation.gov.uk`, `ico.org.uk`, `ncsc.gov.uk`, `gov.uk` | UK regulation and ICO/NCSC; gov.uk is the UK government parent domain. |
+| Canada | `laws-lois.justice.gc.ca`, `gazette.gc.ca`, `priv.gc.ca`, `cyber.gc.ca`, `tbs-sct.canada.ca`, `osfi-bsif.gc.ca`, `ola.org`, `dgc-cgn.org`, `canada.ca`, `parl.ca` | Canadian federal regulation and OPC; Treasury Board (TBS Directive on Automated Decision-Making); OSFI (Guideline E-23); Legislative Assembly of Ontario (Bill 194 / Enhancing Digital Security and Trust Act); Digital Governance Council / DGSI (CAN/DGSI 101:2025); Government of Canada parent domain (canada.ca); Parliament of Canada (parl.ca). |
+| Quebec | `legisquebec.gouv.qc.ca` | Quebec provincial statute (Law 25). |
+| British Columbia | `bclaws.gov.bc.ca` | British Columbia statute consolidations published by the King's Printer on BC Laws (Freedom of Information and Protection of Privacy Act). |
+| WCO | `wcoomd.org` | WCO SAFE Framework, AEO, customs. |
+| ICAO | `icao.int` | International civil aviation. |
+| IMO | `imo.org` | International maritime. |
+| ILO | `ilo.org` | International Labour Organization instruments, including the Code of Practice on the Protection of Workers' Personal Data (1997). |
+| BIS | `bis.org` | Basel framework. |
+| NERC | `nerc.com` | NERC CIP. |
+| AICPA | `aicpa.org`, `aicpa-cima.com` | SOC reporting standards. |
+| Brazil | `gov.br`, `planalto.gov.br` | Brazilian federal regulation (LGPD). |
+| Singapore | `pdpc.gov.sg`, `imda.gov.sg`, `aiverifyfoundation.sg` | Singapore PDPA; Model AI Governance Framework for Generative AI (IMDA and the AI Verify Foundation). |
+| India | `pib.gov.in` | India DPDPA (the DPDP Rules 2025 notification via the Press Information Bureau). |
+| Australia | `oaic.gov.au`, `legislation.gov.au`, `industry.gov.au`, `ai.gov.au` | Australian privacy (OAIC; Federal Register of Legislation for the Privacy Act); Department of Industry, Science and Resources (National AI Plan, AI Ethics Principles, Voluntary AI Safety Standard); National AI Centre (Guidance for AI Adoption, via ai.gov.au). |
+| Switzerland | `admin.ch`, `edoeb.admin.ch` | Swiss nFADP. |
+| China | `npc.gov.cn`, `cac.gov.cn` | Chinese regulation (PIPL; CAC cross-border data provisions). |
+| Saudi Arabia | `sdaia.gov.sa` | Saudi PDPL. |
+| US States and localities | `ilga.gov`, `leg.colorado.gov`, `nyc.gov`, `oag.ca.gov`, `cppa.ca.gov`, `capitol.texas.gov` | US state and municipal legislation (Illinois BIPA via the Illinois General Assembly; Colorado AI Act / SB 24-205 / SB 26-189 via the Colorado General Assembly; New York City Local Law 144 / DCWP Automated Employment Decision Tools via nyc.gov; the California CCPA statute via the Attorney General (oag.ca.gov) and the CCPA Regulations via the California Privacy Protection Agency (cppa.ca.gov); Texas TRAIGA / HB 149 via the Texas Legislature (capitol.texas.gov)). |
+| Malaysia | `pdp.gov.my`, `mosti.gov.my` | Malaysia PDPA (Personal Data Protection Department); National Guidelines on AI Governance and Ethics (Ministry of Science, Technology and Innovation). |
+| OWASP | `owasp.org`, `genai.owasp.org`, `owaspsamm.org`, `cyclonedx.org` | OWASP Top 10, ASVS, SAMM, the GenAI Security Project (LLM Top 10), and the CycloneDX Bill of Materials specification (ECMA-424). |
+| LINDDUN | `linddun.org` | LINDDUN privacy threat taxonomy (KU Leuven imec-DistriNet). |
+| UK AISI | `ukgovernmentbeis.github.io`, `aisi.org.uk` | UK AI Security Institute (the AI Safety Institute until 14 February 2025) inspect_evals evaluation catalogue (GitHub Pages); aisi.org.uk is the Institute's own domain (the Inspect AI harness). |
+| IEEE | `ieee.org`, `standards.ieee.org` | IEEE standards (for example IEEE 2883-2022 Sanitizing Storage). |
+| ETSI | `etsi.org`, `www.etsi.org` | ETSI standards, including the Securing AI series (EN 304 223, TR 104 128). |
+| PCI SSC | `pcisecuritystandards.org` | PCI DSS. |
+| OECD | `oecd.org`, `oecd.ai` | OECD AI Principles and OECD Privacy Guidelines. |
+| WTO | `wto.org` | WTO Trade Facilitation Agreement. |
+| UNESCO | `unesco.org` | UNESCO Recommendation on the Ethics of Artificial Intelligence. |
+| Council of Europe | `coe.int` | Council of Europe Framework Convention on Artificial Intelligence and Human Rights, Democracy and the Rule of Law (CETS No. 225), via the Treaty Office; Recommendation CM/Rec(2015)5 on the processing of personal data in the context of employment. |
+| Japan (G7 Hiroshima AI Process) | `soumu.go.jp` | Hiroshima Process International Code of Conduct for Organizations Developing Advanced AI Systems (Ministry of Internal Affairs and Communications Hiroshima AI Process site). |
+| World BASC Organization | `wbasco.org` | BASC International Norm and Security Standard (Business Alliance for Secure Commerce). |
+| South Korea | `law.go.kr` | Korean legislation, including the AI Basic Act (Framework Act on the Development of Artificial Intelligence and the Establishment of Trust). |
+| OpenSSF / Linux Foundation | `openssf.org`, `slsa.dev`, `linuxfoundation.org`, `spdx.org`, `spdx.dev` | SLSA (Supply-chain Levels for Software Artifacts), an OpenSSF project of the Linux Foundation; the SPDX specification, a Linux Foundation project. |
+| SANS Institute | `sans.org` | SANS Critical AI Security Guidelines. |
+| Google | `saif.google` | Google Secure AI Framework (SAIF). |
+| MLCommons | `mlcommons.org` | AILuminate hazard taxonomy and benchmark. |
+| AVID | `avidml.org` | AI Vulnerability Database. |
+| HarmBench (Center for AI Safety) | `harmbench.org` | HarmBench automated red-team evaluation framework. |
+| promptfoo | `promptfoo.dev` | promptfoo LLM evaluation and red-team tool (release history on its GitHub releases page). |
+| Wayback Machine | `web.archive.org` | Third-party snapshot capture (not a primary source; an evidence anchor). |
+
+<!-- END-GENERATED citation-publishers -->
+
+The allow-list itself is subject to the same verification discipline as register entries: each domain mapping ("publisher P is hosted at domain D") becomes a verifiable claim. Allow-list verifications use the same workflow as standard verifications and are recorded in the Citation Verifications Register with `Standard ID` set to the publisher name and `Verified Field` set to "allow-list domain mapping."
+
+```json citation-publishers
+[
+  {
+    "publisher": "ISO",
+    "domains": [
+      "iso.org"
+    ],
+    "covers": "ISO and ISO/IEC standards."
+  },
+  {
+    "publisher": "IEC",
+    "domains": [
+      "iec.ch"
+    ],
+    "covers": "IEC standards (including 62443, 61511, 61508)."
+  },
+  {
+    "publisher": "NIST",
+    "domains": [
+      "nist.gov",
+      "csrc.nist.gov",
+      "nvlpubs.nist.gov"
+    ],
+    "covers": "NIST SP, NIST CSF, NIST AI RMF, NIST FIPS."
+  },
+  {
+    "publisher": "ASHRAE",
+    "domains": [
+      "ashrae.org"
+    ],
+    "covers": "ASHRAE 135 (BACnet) and related."
+  },
+  {
+    "publisher": "NFPA",
+    "domains": [
+      "nfpa.org"
+    ],
+    "covers": "NFPA 72 and related fire-and-life-safety codes."
+  },
+  {
+    "publisher": "CEN/CENELEC",
+    "domains": [
+      "cencenelec.eu",
+      "cen.eu",
+      "cenelec.eu"
+    ],
+    "covers": "EN series."
+  },
+  {
+    "publisher": "IETF",
+    "domains": [
+      "ietf.org",
+      "rfc-editor.org",
+      "datatracker.ietf.org"
+    ],
+    "covers": "RFCs."
+  },
+  {
+    "publisher": "W3C",
+    "domains": [
+      "w3.org"
+    ],
+    "covers": "W3C recommendations."
+  },
+  {
+    "publisher": "OASIS",
+    "domains": [
+      "oasis-open.org"
+    ],
+    "covers": "OASIS standards."
+  },
+  {
+    "publisher": "Cloud Security Alliance",
+    "domains": [
+      "cloudsecurityalliance.org"
+    ],
+    "covers": "CSA CCM, AICM, STAR."
+  },
+  {
+    "publisher": "ISACA",
+    "domains": [
+      "isaca.org"
+    ],
+    "covers": "COBIT."
+  },
+  {
+    "publisher": "MITRE",
+    "domains": [
+      "attack.mitre.org",
+      "cve.mitre.org",
+      "cwe.mitre.org",
+      "atlas.mitre.org"
+    ],
+    "covers": "ATT&CK, ATLAS, CVE, CWE."
+  },
+  {
+    "publisher": "NIST FedRAMP",
+    "domains": [
+      "fedramp.gov"
+    ],
+    "covers": "FedRAMP."
+  },
+  {
+    "publisher": "US Federal",
+    "domains": [
+      "federalregister.gov",
+      "ecfr.gov",
+      "congress.gov",
+      "whitehouse.gov",
+      "cisa.gov",
+      "tsa.gov",
+      "dhs.gov",
+      "hhs.gov",
+      "ftc.gov",
+      "sec.gov",
+      "govinfo.gov",
+      "cbp.gov",
+      "dodcio.defense.gov"
+    ],
+    "covers": "US federal regulation, directives, and public laws (govinfo.gov is the US GPO public-law repository: HITECH, SOX; ecfr.gov is the Electronic Code of Federal Regulations, e.g. CMMC 32 CFR 170; cbp.gov is US Customs and Border Protection, for the CTPAT Minimum Security Criteria; dodcio.defense.gov is the DoD CIO, for CMMC program documentation)."
+  },
+  {
+    "publisher": "EU",
+    "domains": [
+      "eur-lex.europa.eu",
+      "digital-strategy.ec.europa.eu",
+      "enisa.europa.eu",
+      "europa.eu"
+    ],
+    "covers": "EU regulations, directives, ENISA; europa.eu covers the other EU institution hosts the corpus cites, such as the European Commission and the EDPB."
+  },
+  {
+    "publisher": "UK",
+    "domains": [
+      "legislation.gov.uk",
+      "ico.org.uk",
+      "ncsc.gov.uk",
+      "gov.uk"
+    ],
+    "covers": "UK regulation and ICO/NCSC; gov.uk is the UK government parent domain."
+  },
+  {
+    "publisher": "Canada",
+    "domains": [
+      "laws-lois.justice.gc.ca",
+      "gazette.gc.ca",
+      "priv.gc.ca",
+      "cyber.gc.ca",
+      "tbs-sct.canada.ca",
+      "osfi-bsif.gc.ca",
+      "ola.org",
+      "dgc-cgn.org",
+      "canada.ca",
+      "parl.ca"
+    ],
+    "covers": "Canadian federal regulation and OPC; Treasury Board (TBS Directive on Automated Decision-Making); OSFI (Guideline E-23); Legislative Assembly of Ontario (Bill 194 / Enhancing Digital Security and Trust Act); Digital Governance Council / DGSI (CAN/DGSI 101:2025); Government of Canada parent domain (canada.ca); Parliament of Canada (parl.ca)."
+  },
+  {
+    "publisher": "Quebec",
+    "domains": [
+      "legisquebec.gouv.qc.ca"
+    ],
+    "covers": "Quebec provincial statute (Law 25)."
+  },
+  {
+    "publisher": "British Columbia",
+    "domains": [
+      "bclaws.gov.bc.ca"
+    ],
+    "covers": "British Columbia statute consolidations published by the King's Printer on BC Laws (Freedom of Information and Protection of Privacy Act)."
+  },
+  {
+    "publisher": "WCO",
+    "domains": [
+      "wcoomd.org"
+    ],
+    "covers": "WCO SAFE Framework, AEO, customs."
+  },
+  {
+    "publisher": "ICAO",
+    "domains": [
+      "icao.int"
+    ],
+    "covers": "International civil aviation."
+  },
+  {
+    "publisher": "IMO",
+    "domains": [
+      "imo.org"
+    ],
+    "covers": "International maritime."
+  },
+  {
+    "publisher": "ILO",
+    "domains": [
+      "ilo.org"
+    ],
+    "covers": "International Labour Organization instruments, including the Code of Practice on the Protection of Workers' Personal Data (1997)."
+  },
+  {
+    "publisher": "BIS",
+    "domains": [
+      "bis.org"
+    ],
+    "covers": "Basel framework."
+  },
+  {
+    "publisher": "NERC",
+    "domains": [
+      "nerc.com"
+    ],
+    "covers": "NERC CIP."
+  },
+  {
+    "publisher": "AICPA",
+    "domains": [
+      "aicpa.org",
+      "aicpa-cima.com"
+    ],
+    "covers": "SOC reporting standards."
+  },
+  {
+    "publisher": "Brazil",
+    "domains": [
+      "gov.br",
+      "planalto.gov.br"
+    ],
+    "covers": "Brazilian federal regulation (LGPD)."
+  },
+  {
+    "publisher": "Singapore",
+    "domains": [
+      "pdpc.gov.sg",
+      "imda.gov.sg",
+      "aiverifyfoundation.sg"
+    ],
+    "covers": "Singapore PDPA; Model AI Governance Framework for Generative AI (IMDA and the AI Verify Foundation)."
+  },
+  {
+    "publisher": "India",
+    "domains": [
+      "pib.gov.in"
+    ],
+    "covers": "India DPDPA (the DPDP Rules 2025 notification via the Press Information Bureau)."
+  },
+  {
+    "publisher": "Australia",
+    "domains": [
+      "oaic.gov.au",
+      "legislation.gov.au",
+      "industry.gov.au",
+      "ai.gov.au"
+    ],
+    "covers": "Australian privacy (OAIC; Federal Register of Legislation for the Privacy Act); Department of Industry, Science and Resources (National AI Plan, AI Ethics Principles, Voluntary AI Safety Standard); National AI Centre (Guidance for AI Adoption, via ai.gov.au)."
+  },
+  {
+    "publisher": "Switzerland",
+    "domains": [
+      "admin.ch",
+      "edoeb.admin.ch"
+    ],
+    "covers": "Swiss nFADP."
+  },
+  {
+    "publisher": "China",
+    "domains": [
+      "npc.gov.cn",
+      "cac.gov.cn"
+    ],
+    "covers": "Chinese regulation (PIPL; CAC cross-border data provisions)."
+  },
+  {
+    "publisher": "Saudi Arabia",
+    "domains": [
+      "sdaia.gov.sa"
+    ],
+    "covers": "Saudi PDPL."
+  },
+  {
+    "publisher": "US States and localities",
+    "domains": [
+      "ilga.gov",
+      "leg.colorado.gov",
+      "nyc.gov",
+      "oag.ca.gov",
+      "cppa.ca.gov",
+      "capitol.texas.gov"
+    ],
+    "covers": "US state and municipal legislation (Illinois BIPA via the Illinois General Assembly; Colorado AI Act / SB 24-205 / SB 26-189 via the Colorado General Assembly; New York City Local Law 144 / DCWP Automated Employment Decision Tools via nyc.gov; the California CCPA statute via the Attorney General (oag.ca.gov) and the CCPA Regulations via the California Privacy Protection Agency (cppa.ca.gov); Texas TRAIGA / HB 149 via the Texas Legislature (capitol.texas.gov))."
+  },
+  {
+    "publisher": "Malaysia",
+    "domains": [
+      "pdp.gov.my",
+      "mosti.gov.my"
+    ],
+    "covers": "Malaysia PDPA (Personal Data Protection Department); National Guidelines on AI Governance and Ethics (Ministry of Science, Technology and Innovation)."
+  },
+  {
+    "publisher": "OWASP",
+    "domains": [
+      "owasp.org",
+      "genai.owasp.org",
+      "owaspsamm.org",
+      "cyclonedx.org"
+    ],
+    "covers": "OWASP Top 10, ASVS, SAMM, the GenAI Security Project (LLM Top 10), and the CycloneDX Bill of Materials specification (ECMA-424)."
+  },
+  {
+    "publisher": "LINDDUN",
+    "domains": [
+      "linddun.org"
+    ],
+    "covers": "LINDDUN privacy threat taxonomy (KU Leuven imec-DistriNet)."
+  },
+  {
+    "publisher": "UK AISI",
+    "domains": [
+      "ukgovernmentbeis.github.io",
+      "aisi.org.uk"
+    ],
+    "covers": "UK AI Security Institute (the AI Safety Institute until 14 February 2025) inspect_evals evaluation catalogue (GitHub Pages); aisi.org.uk is the Institute's own domain (the Inspect AI harness)."
+  },
+  {
+    "publisher": "IEEE",
+    "domains": [
+      "ieee.org",
+      "standards.ieee.org"
+    ],
+    "covers": "IEEE standards (for example IEEE 2883-2022 Sanitizing Storage)."
+  },
+  {
+    "publisher": "ETSI",
+    "domains": [
+      "etsi.org",
+      "www.etsi.org"
+    ],
+    "covers": "ETSI standards, including the Securing AI series (EN 304 223, TR 104 128)."
+  },
+  {
+    "publisher": "PCI SSC",
+    "domains": [
+      "pcisecuritystandards.org"
+    ],
+    "covers": "PCI DSS."
+  },
+  {
+    "publisher": "OECD",
+    "domains": [
+      "oecd.org",
+      "oecd.ai"
+    ],
+    "covers": "OECD AI Principles and OECD Privacy Guidelines."
+  },
+  {
+    "publisher": "WTO",
+    "domains": [
+      "wto.org"
+    ],
+    "covers": "WTO Trade Facilitation Agreement."
+  },
+  {
+    "publisher": "UNESCO",
+    "domains": [
+      "unesco.org"
+    ],
+    "covers": "UNESCO Recommendation on the Ethics of Artificial Intelligence."
+  },
+  {
+    "publisher": "Council of Europe",
+    "domains": [
+      "coe.int"
+    ],
+    "covers": "Council of Europe Framework Convention on Artificial Intelligence and Human Rights, Democracy and the Rule of Law (CETS No. 225), via the Treaty Office; Recommendation CM/Rec(2015)5 on the processing of personal data in the context of employment."
+  },
+  {
+    "publisher": "Japan (G7 Hiroshima AI Process)",
+    "domains": [
+      "soumu.go.jp"
+    ],
+    "covers": "Hiroshima Process International Code of Conduct for Organizations Developing Advanced AI Systems (Ministry of Internal Affairs and Communications Hiroshima AI Process site)."
+  },
+  {
+    "publisher": "World BASC Organization",
+    "domains": [
+      "wbasco.org"
+    ],
+    "covers": "BASC International Norm and Security Standard (Business Alliance for Secure Commerce)."
+  },
+  {
+    "publisher": "South Korea",
+    "domains": [
+      "law.go.kr"
+    ],
+    "covers": "Korean legislation, including the AI Basic Act (Framework Act on the Development of Artificial Intelligence and the Establishment of Trust)."
+  },
+  {
+    "publisher": "OpenSSF / Linux Foundation",
+    "domains": [
+      "openssf.org",
+      "slsa.dev",
+      "linuxfoundation.org",
+      "spdx.org",
+      "spdx.dev"
+    ],
+    "covers": "SLSA (Supply-chain Levels for Software Artifacts), an OpenSSF project of the Linux Foundation; the SPDX specification, a Linux Foundation project."
+  },
+  {
+    "publisher": "SANS Institute",
+    "domains": [
+      "sans.org"
+    ],
+    "covers": "SANS Critical AI Security Guidelines."
+  },
+  {
+    "publisher": "Google",
+    "domains": [
+      "saif.google"
+    ],
+    "covers": "Google Secure AI Framework (SAIF)."
+  },
+  {
+    "publisher": "MLCommons",
+    "domains": [
+      "mlcommons.org"
+    ],
+    "covers": "AILuminate hazard taxonomy and benchmark."
+  },
+  {
+    "publisher": "AVID",
+    "domains": [
+      "avidml.org"
+    ],
+    "covers": "AI Vulnerability Database."
+  },
+  {
+    "publisher": "HarmBench (Center for AI Safety)",
+    "domains": [
+      "harmbench.org"
+    ],
+    "covers": "HarmBench automated red-team evaluation framework."
+  },
+  {
+    "publisher": "promptfoo",
+    "domains": [
+      "promptfoo.dev"
+    ],
+    "covers": "promptfoo LLM evaluation and red-team tool (release history on its GitHub releases page)."
+  },
+  {
+    "publisher": "Wayback Machine",
+    "domains": [
+      "web.archive.org"
+    ],
+    "covers": "Third-party snapshot capture (not a primary source; an evidence anchor)."
+  }
+]
+```
+
+### 7.2 Additions
+
+A standard or regulation cited in the library that is not covered by an allow-list entry triggers a methodology update. The new publisher domain is added to §7.1 in a new revision of this specification, with the date and rationale.
+
+**2026-07-09 (register v1.5.17, reference-currency sweep):** added `ecfr.gov` (US Electronic Code of Federal Regulations) to the US Federal entry, for the CMMC 32 CFR 170 / 48 CFR DFARS acquisition rule; and `pib.gov.in` (India Press Information Bureau) as a new India entry, for the DPDP Rules 2025 notification.
+
+**2026-07-11 (register v1.5.20, AI-workstream PR 7 NYC LL144 annex):** added `nyc.gov` (New York City) to the US States and localities entry, for the Local Law 144 / DCWP Automated Employment Decision Tools rule.
+
+**2026-07-11 (register v1.5.21, AI-workstream canonical-register enrollment for the AI jurisdiction annexes):** added `osfi-bsif.gc.ca`, `ola.org`, and `dgc-cgn.org` to the Canada entry (OSFI Guideline E-23; Ontario Bill 194 / Enhancing Digital Security and Trust Act; CAN/DGSI 101:2025) and noted `tbs-sct.canada.ca` (TBS Directive on Automated Decision-Making, already suffix-covered by `canada.ca`); and added `industry.gov.au` and `ai.gov.au` to the Australia entry (the DISR National AI Plan, AI Ethics Principles, and Voluntary AI Safety Standard; the National AI Centre Guidance for AI Adoption).
+
+**2026-09-24 (register v1.5.77, 3b27(c) CycloneDX register row):** added `cyclonedx.org` (the OWASP CycloneDX project's canonical specification site, which states the current specification version) as the OWASP CycloneDX entry, for the CycloneDX canonical-citations row.
+
+**2026-09-25 (PR #2564, Malaysia AI annex):** added `mosti.gov.my` (Malaysia Ministry of Science, Technology and Innovation, publisher of the National Guidelines on AI Governance and Ethics) to the existing Malaysia row, with the matching external-link allow-list entry.
+
+**2026-09-24 (3b31b, parity gate):** gate 101 ([`.claude/skills/corpus-management/tools/lint-allowlist-spec-parity.py`](../.claude/skills/corpus-management/tools/lint-allowlist-spec-parity.py)) now keeps this section and the external-link gate's allow-list in parity. Every allow-list domain must be covered by a section 7.1 domain (the entry or a parent of it), or carry a same-line `non-publisher:` or `pending-publisher:` marker with a reason; every section 7.1 domain must be admitted by the allow-list. At adoption 27 entries carry a marker: 25 non-publishers (code and package hosting, identifiers, format conventions, the licence, the project's own sites, tool vendors) and 2 pending publishers; promptfoo, which has a register entry, gained its own row instead (`cisecurity.org` and `cncf.io`, whose sources await Canonical Citations Register entries).
+
+**2026-09-24 (3b30, publisher-list reconciliation):** section 7.1 reconciled with the gate's allow-list. Domains added to existing rows: `atlas.mitre.org` (MITRE); `cbp.gov` and `dodcio.defense.gov` (US Federal); `europa.eu` (EU); `gov.uk` (UK); `canada.ca` and `parl.ca` (Canada; `canada.ca` also reconciles the 2026-07-11 note that `tbs-sct.canada.ca` is suffix-covered by it); `oag.ca.gov`, `cppa.ca.gov` and `capitol.texas.gov` (US States and localities); `imda.gov.sg` and `aiverifyfoundation.sg` (Singapore); `aisi.org.uk` (UK AISI). The OWASP CycloneDX row became a general OWASP row. New rows: IEEE, ETSI, PCI SSC, OECD, WTO, World BASC Organization, South Korea, OpenSSF / Linux Foundation, MLCommons, AVID, HarmBench. The allow-listed publisher domains `cisecurity.org`, `sans.org`, `saif.google`, `cncf.io` and `spdx.org` get rows when their sources gain Canonical Citations Register entries (tracked follow-ups). Allow-listed domains that are not citation publishers (code hosting, identifiers, package registries, format conventions, vendors and tools, and the project's own sites) stay allow-listed without a row, by design. Eligibility follows section 2.1: a publisher qualifies for a row when the Canonical Citations Register carries an entry for its source, whether that source is normative (a standard or regulation) or informative (a benchmark, a vulnerability database, or guidance).
+
+**2026-09-24 (3b32, SANS and Google SAIF register rows):** added the SANS Institute (`sans.org`) and Google (`saif.google`) publisher rows, now that their sources have Canonical Citations Register entries.
+
+**2026-09-24 (3b28, SPDX register row):** added `spdx.org` and `spdx.dev` (the project's current site, to which spdx.org redirects; the register row's upstream-check URL is on spdx.dev so that no fetch crosses a redirect to an unlisted domain) to the OpenSSF / Linux Foundation row, now that the SPDX specification has a Canonical Citations Register entry.
+
+**2026-10-23 (register v1.6.7, 2.25.2 international AI-governance authorities):** added three new rows: UNESCO (`unesco.org`), for the UNESCO Recommendation on the Ethics of AI row; Council of Europe (`coe.int`, via the Treaty Office), for the Council of Europe Framework Convention on AI (CETS No. 225) row; and Japan (G7 Hiroshima AI Process) (`soumu.go.jp`, the Ministry of Internal Affairs and Communications Hiroshima AI Process site), for the G7 Hiroshima Process International Code of Conduct row; each with the matching external-link allow-list entry.
+
+**2026-10-24 (register v1.6.11, 2.34.9 workforce-monitoring citations import):** added a new ILO row (`ilo.org`, International Labour Organization), for the ILO Code of Practice on the Protection of Workers' Personal Data (1997) register row, with the matching external-link allow-list entry; and extended the Council of Europe row's coverage note to Recommendation CM/Rec(2015)5 on the processing of personal data in the context of employment (`rm.coe.int`, already suffix-covered by `coe.int`). The WP249 and UK ICO Monitoring workers rows need no new domain (`europa.eu` and `ico.org.uk` are already listed).
+
+---
+
+## 8. Verification procedure
+
+The procedure below specifies, for each step, which verifier performs it. Steps assigned to the AI verifier are clerical or worklist-preparation tasks. Steps assigned to the human verifier are integrity-bearing tasks.
+
+### 8.1 Pre-verification (AI verifier)
+
+Before any fetch is requested:
+
+1. Identify the standard's publisher and the publisher's canonical domain (per §7).
+2. Identify the publisher's catalogue URL pattern (for example, `iso.org/standard/<n>.html` for ISO standards).
+3. Read the claim in the canonical citations register that is being verified: Standard ID, current version, publication date, topic, superseded versions.
+4. Pre-fill the worklist row per the worklist template: Standard ID, Publisher, Expected primary URL, Field(s) to verify, Expected value (from register).
+
+### 8.2 Fetch (human verifier)
+
+1. Open the publisher's catalogue page from the worklist URL in a browser.
+2. Verify the response is from the allow-listed domain (no redirect to a non-allow-listed domain except where the publisher's own subdomain is in the allow-list).
+3. Verify TLS is in use (any non-TLS or certificate-warning page is flagged and not used).
+4. Capture the page text as it pertains to the claim being verified: standard ID as the publisher writes it, full title, edition, year, supersedence. Capture verbatim.
+5. Where available, also capture a corroborating Tier 2 reference (for example, the ANSI catalogue entry for the same standard).
+6. Submit a `web.archive.org` snapshot of the publisher page on the verification date. Record the resulting snapshot URL. Where a snapshot already exists for that date, the existing snapshot URL is acceptable.
+
+### 8.3 Compare (human verifier)
+
+1. Compare the publisher's metadata against the register entry field by field.
+2. Each divergence is logged: register said X, publisher said Y, source URL, captured snippet.
+3. The verifier does not "interpret" the publisher's wording. The wording is captured verbatim; interpretation is a separate downstream step.
+
+### 8.4 Record (AI verifier)
+
+1. The AI verifier reads the human verifier's captured text from the worklist (or accepts it as supplied directly).
+2. The AI verifier appends a row to the Citation Verifications Register with the fields defined in §9, faithfully reproducing the captured text.
+3. The `Captured by` field is set to identify the human verifier.
+4. The AI verifier does not summarize, paraphrase, or "tidy" the captured text.
+
+### 8.5 Reconcile (AI verifier, with human approval)
+
+After a verification batch:
+
+1. Where the publisher's metadata differs from the register, the AI verifier proposes register edits to match the publisher; the human verifier approves each before commit. The prior register value is recorded in the verifications log as superseded.
+2. Where a register superseded-versions list is found incomplete, it is updated.
+3. Where the register cites a standard that the publisher does not show (does not exist; ID is wrong), the register entry is flagged for removal and downstream library references are searched.
+4. Standards-currency linter is rerun. Downstream references to the corrected version are fixed.
+
+### 8.6 Spot-check (human verifier)
+
+After each verification sub-phase, the human verifier (the maintainer or a delegated reviewer who did not perform the original verification in that batch) personally spot-checks at least five entries by opening the recorded URLs and reading the publisher page. The spot-check confirms that the captured text matches what the page currently says. Any divergence stops the methodology and triggers a methodology review.
+
+---
+
+## 9. Citation Verifications Register fields
+
+Each row in the Citation Verifications Register records:
+
+| Field | Description |
+| --- | --- |
+| Standard ID | Identifier as it appears in the Canonical Citations Register. For allow-list domain-mapping verifications, the publisher name. |
+| Verified Field | Which field of the canonical-citations entry was verified (existence / version / publication-date / supersedence / topic / ID format / allow-list domain mapping). For full-row verification, this is "all." |
+| Publisher | Publisher name. |
+| Primary URL | The publisher's canonical-domain URL fetched. |
+| Wayback URL | The web.archive.org snapshot URL captured at verification time. |
+| Secondary URL | Optional Tier 2 corroborating URL. |
+| Captured text | Verbatim publisher page text supporting the claim. |
+| Captured by | Identifier of the human verifier who fetched the page and captured the text (per §3.4). Where this column reads "AI" or any value implying primary capture by AI, the row is invalid and treated as un-verified. |
+| Result | Match / Diverged / Not found. |
+| Divergence detail | If Diverged: register said X; publisher said Y. |
+| Confidence | A (publisher + Tier 2 corroborating), B (publisher only), C (secondary-only, publisher offline or paywalled with no catalogue), D (un-verifiable). |
+| Date checked | ISO 8601 date of the verification. |
+| Recorded by | Identifier of the verifier who appended the row to the register (typically the AI verifier acting as recorder). |
+| Notes | Anything else worth recording. |
+| Resolution | For D-rated rows: what was done (corrected / removed / pending). Empty for A, B, C ratings. |
+
+---
+
+## 10. Confidence ratings
+
+| Rating | Definition | Treatment |
+| --- | --- | --- |
+| A | Publisher primary + at least one Tier 2 corroboration. | Trusted for routine use; re-verify per §12. |
+| B | Publisher primary only (no Tier 2 corroboration available). | Trusted; flagged as single-source in the register; re-verify per §12. |
+| C | Only Tier 2 or Tier 3 sources available (publisher offline, paywalled with no catalogue page, or otherwise un-fetchable). | Trusted with reduced confidence; the captured text is preserved; the entry remains in the register but the confidence rating is visible. |
+| D | Un-verifiable: standard not found at the publisher; no corroborating source; or the publisher-page text materially diverges from the register. | The register entry is flagged for resolution. Either the entry is corrected to match the publisher, or the entry is removed and downstream references rewritten. |
+
+---
+
+## 11. Disposition of D-rated entries
+
+A D-rated entry is one the verifier could not confirm. The library does not silently retain D-rated entries; they are either corrected to a verifiable form or removed.
+
+1. The entry is flagged in the Canonical Citations Register.
+2. The maintainer reviews and decides: correction (re-verify under the corrected form) or removal.
+3. If removed: the standards-currency linter run identifies downstream library content that referenced the removed standard. Each reference is reviewed and rewritten or removed.
+4. The decision and outcome are recorded in the verifications log with a `Resolution` entry.
+
+---
+
+## 12. Verification freshness
+
+Citations age. Standards are revised, superseded, withdrawn, or renumbered. Tooling moves faster than standards; the cadence differs by register.
+
+### 12.1 Canonical Citations Register (12-month cadence)
+
+- Each entry in the Canonical Citations Register is re-verified every 12 months from its last `Date checked`.
+- A linter (`lint-citation-verification-freshness`) is added in a subsequent phase. It reads the Citation Verifications Register, computes per-entry age, and flags any entry whose latest verification is older than 12 months.
+- Re-verification produces a new row in the verifications log; the prior row is retained as historical evidence.
+- Re-verification on demand is also permitted: any change to the canonical-citations register entry, or any external report of a publisher revision, triggers re-verification.
+
+### 12.2 AI Security Tooling Landscape Register (6-month cadence)
+
+Provenance entries in the AI Security Tooling Landscape Register ([`register-ai-security-tooling-landscape.md`](register-ai-security-tooling-landscape.md)) use a shorter cadence because tooling versions, capabilities, licenses, and lifecycle status change faster than standards:
+
+- **Active open-source projects**: re-verification every 6 months.
+- **Archived or unmaintained projects**: re-verification every 12 months (archive status reconfirmed).
+- **Commercial vendor entries**: re-verification every 6 months (vendor product pages change frequently; Wayback snapshot is the integrity anchor).
+- **Triggering events forcing immediate re-verification**: project archival, license change, vendor acquisition, major version release with material capability change.
+
+The linter [`.claude/skills/corpus-management/tools/lint-tooling-provenance-freshness.py`](../.claude/skills/corpus-management/tools/lint-tooling-provenance-freshness.py) (shipped as gate 28 of the audit programme per [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](../.claude/skills/corpus-management/specs/specification-audit-programme.md) §6) reads the tooling register's per-entry Provenance block and flags entries whose latest `Date assessed` is past the cadence above.
+
+### 12.3 Load-bearing version-currency re-check (advisory, column-driven)
+
+The Canonical Citations Register ([`register-canonical-citations.md`](register-canonical-citations.md)) carries two currency columns, `Upstream check location` (the authoritative upstream page where the current version is published) and `Last verified (UTC)` (the date that location was last fetch-confirmed, or `needs-reconfirm`). They support a faster, task-cued re-check that sits alongside the periodic §12.1 cadence:
+
+- **The upstream source is the only version authority.** This operationalizes the `evidence-grounded-completion` rule's external-version-currency corollary. A stored note, a cached copy, or a `grc_library_ref` holding is believed-current STORAGE, never the authority on whether a version is current. The authoritative answer to "is this current?" is the `Upstream check location`, verified in the current turn.
+- **The check order whenever a row is load-bearing for a task**: (1) find what is held, via the register and the `grc_library_ref` index, not a guess; (2) verify the current version at the `Upstream check location` this turn; (3) act only after both.
+- **The trigger**: when a load-bearing row's `Last verified (UTC)` is `needs-reconfirm` or older than **one week**, re-check before relying on it, and refresh `Last verified (UTC)` (and the version columns, if upstream has moved) in that PR.
+- **Advisory, not a CI gate.** A hard gate would fail whenever egress is blocked (an environment condition, not a defect; as of the 2026-06-30 population, `iso.org`, the IEC webstore, and several government sources block automated fetch, so their rows carry `needs-reconfirm`). The check is cued by the column and this cadence, in the same advisory spirit as the matrix-fit worklist, not enforced by a build gate.
+- **Superseded-archival for `grc_library_ref`.** On discovering upstream is newer than a `grc_library_ref` holding, follow the superseded-archival workflow (download the new version into `grc_library_ref` if egress allows; move the old version's files into the retained-version store `grc_library_ref/.superseded/`; update the catalogue and indexes). When the update needs a license or a maintainer download, or egress is blocked, pause and surface to the maintainer, and never write or rely on a superseded version without explicit authorization. The full workflow lives in the multi-session-orchestration runbook; the `grc_library_ref` repository is the believed-current store, this register plus the upstream link are the currency authority.
+
+---
+
+## 13. Non-deferrable rules
+
+The following rules are not subject to convenience-driven exception:
+
+1. Publisher is the only primary source.
+2. Captured text is the publisher's actual words, not a summary.
+3. Wayback snapshot URL is recorded for every verification.
+4. Human spot-check (at least five entries) follows every verification batch.
+5. D-rated entries are resolved, not retained.
+6. AI-generated content is never a verification source, regardless of which AI generated it.
+7. The verifier's prior belief is not a verification.
+8. The AI verifier does not perform primary verification (per §3.3). Primary verification is the human verifier's responsibility (per §3.4). A row whose `Captured by` field implies AI primary capture is invalid.
+9. Environmental capability of the AI verifier is disclosed (§3.5), not worked around silently.
+
+---
+
+## 14. Out-of-scope acknowledgements
+
+This specification does not address:
+
+- **Verification of standard content** versus the library's interpretation of it. A standard's text may legitimately be subject to different reasonable interpretations; this specification does not adjudicate. Where the library makes a claim about what a standard requires, that claim is the library's interpretation, not a verified statement of the standard's text.
+- **Verification of regulator interpretations**. Where the library characterizes a regulator's position, the source is the regulator's published material; the verifier captures that material's text but does not adjudicate regulatory disputes.
+- **Translations**. Publishers issuing standards in multiple languages may have non-identical wording across languages. The verifier captures the publisher's English-language page where one exists, and notes where it does not.
+
+---
+
+## 15. Framework alignment
+
+| Framework | Reference | Relevance |
+| --- | --- | --- |
+| ISO/IEC 27001:2022 | Annex A.5.9 | Inventory of information and other associated assets (the canonical citations register is itself an information asset). |
+| ISO 9001:2015 | Documented information control | Practice analogue for verifiable, dated, recorded factual claims. |
+| Library Charter | [`governance/charter-governance-library.md`](charter-governance-library.md) | Library quality and integrity obligations. |
+
+---
+
+**End of Document**

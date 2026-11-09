@@ -1,0 +1,290 @@
+#!/usr/bin/env python3
+"""Validate external URLs against an allow-list of trusted publisher domains.
+
+A library linking to an unexpected domain is a supply-chain attack vector
+for adopters. This linter scans all external http(s) URLs in library
+content and validates their domains against an allow-list mirroring the
+citation-verification publisher allow-list plus accepted reference and
+tooling domains.
+
+The allow-list is intentionally broad to accommodate legitimate library
+references (publishers, standards bodies, OWASP/NIST/MITRE, common
+open-source hosting). New external domains require explicit addition.
+
+Usage:
+    python3 .claude/skills/corpus-management/tools/lint-external-link-domains.py
+
+Exit codes:
+    0   no findings
+    1   one or more external URLs to non-allow-listed domains
+"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: verifies the vendored AIQT pack .claude/aiqt/ and publishes aiqt_corpus in sys.modules
+from lint_common import guard_explicit_paths_cwd, REPO_ROOT, iter_targets  # noqa: E402  # grc-config/store, stays local
+
+PACK_TOOLS = Path(__file__).resolve().parent.parent / "src" / "tools"
+
+DEFAULT_PATHS = [str(REPO_ROOT)]
+
+# The one pinned, byte-identical licence text outside .web/baseline/ that
+# main() drops from discovery (root-anchored, resolved against REPO_ROOT):
+# the Inter card-font licence that .claude/skills/corpus-management/tools/lint-baseline-pin.py (gate 110) pins.
+PINNED_LICENCE_TEXT = (REPO_ROOT / ".web" / "site-card" / "card-fonts" / "inter-LICENSE.txt").resolve()
+
+SCAN_SUFFIXES = {".md", ".py", ".yaml", ".yml", ".json", ".toml", ".txt", ".cff"}
+
+EXEMPT_FILES = {
+    "lint-external-link-domains.py",
+    # Linter regression tests deliberately embed non-allowlisted
+    # example URLs as test inputs.
+    "test_linters.py",
+    # Generated bibliography (.claude/skills/corpus-management/tools/build-reference-manifest.py): its upstream URLs
+    # are the diverse issuer domains of the reference base, not corpus prose links,
+    # so the allow-list does not apply (1.19.7 (closing PR #1007)).
+    "reference-acquisition-manifest.md",
+    # The pack-owned engine (gate_lint_external_link_domains.py) holds URL_RE +
+    # is_allowed + scan; exempt it so its own regex source is not scanned.
+    "gate_lint_external_link_domains.py",
+    # The PR-attribution check's patterns and self-test cases name the forbidden attribution
+    # links and example link destinations by design; they are test data, not corpus links.
+    "check-pr-attribution.py",
+}
+
+# Allow-listed domains and parent-domain suffixes. A URL matches if its
+# host is in this set or is a subdomain of any entry.
+ALLOW_LIST = {
+    # Standards publishers
+    "iso.org", "iec.ch", "nist.gov", "csrc.nist.gov", "nvlpubs.nist.gov",
+    "ieee.org",
+    "etsi.org",
+    "ashrae.org", "nfpa.org", "cencenelec.eu", "cen.eu", "cenelec.eu",
+    "ietf.org", "rfc-editor.org", "datatracker.ietf.org",
+    "w3.org", "oasis-open.org",
+    # OWASP / Cloud Security Alliance / ISACA / MITRE
+    "owasp.org", "cloudsecurityalliance.org", "isaca.org",
+    "attack.mitre.org", "cve.mitre.org", "cwe.mitre.org", "atlas.mitre.org",
+    # FedRAMP / US Federal
+    "fedramp.gov", "federalregister.gov", "congress.gov", "whitehouse.gov",
+    "cisa.gov", "tsa.gov", "dhs.gov", "hhs.gov", "ftc.gov", "sec.gov", "nist.gov",
+    # EU / UK / Canada / Other jurisdictions
+    "eur-lex.europa.eu", "digital-strategy.ec.europa.eu", "enisa.europa.eu",
+    "europa.eu",
+    "legislation.gov.uk", "ico.org.uk", "ncsc.gov.uk", "gov.uk",
+    "laws-lois.justice.gc.ca", "gazette.gc.ca", "priv.gc.ca", "cyber.gc.ca", "canada.ca",
+    "legisquebec.gouv.qc.ca",
+    "bclaws.gov.bc.ca",  # BC Laws: British Columbia statute consolidations (FOIPPA, 2.25.3)
+    "wcoomd.org", "icao.int", "imo.org", "bis.org", "nerc.com",
+    "aicpa.org", "aicpa-cima.com",
+    "gov.br", "planalto.gov.br", "pdpc.gov.sg", "imda.gov.sg", "aiverifyfoundation.sg", "oaic.gov.au",
+    "admin.ch", "edoeb.admin.ch", "npc.gov.cn", "sdaia.gov.sa",
+    # Internet Archive (third-party anchor)
+    "web.archive.org",
+    # OSS hosting
+    "github.com", "raw.githubusercontent.com", "huggingface.co", "pypi.org",  # non-publisher: code and package hosting
+    # Citation identifiers and preprints
+    "orcid.org", "arxiv.org",  # non-publisher: citation identifiers and preprints
+    # AI/ML safety bodies
+    "aisi.org.uk", "mlcommons.org", "avidml.org",
+    # Adopted references mentioned in library content
+    "spdx.org",
+    "keepachangelog.com", "semver.org", "calver.org",  # non-publisher: format conventions
+    "spdx.dev",  # SPDX project current site (spdx.org redirects here); citation-verification spec section 7.1
+    "creativecommons.org",  # non-publisher: the corpus licence
+    # The project's own public site (grclibrary.ai on Cloudflare Pages; the
+    # canonical URLs emitted on the per-domain pages by .web/build.py). Not a
+    # citation publisher, so the citation-verification spec (§7) is not updated.
+    "grclibrary.ai",  # non-publisher: the project's own site
+    # The CSP hosts in .web/build.py HEADERS_FILE for the kept Cloudflare
+    # features (Rocket Loader and Web Analytics), and the owner's security.txt
+    # URLs in .web/build.py SECURITY_TXT. None is a citation publisher, so the
+    # citation-verification spec (§7) is not updated (as with grclibrary.ai).
+    "ajax.cloudflare.com",  # non-publisher: CSP script-src host for the kept Cloudflare Rocket Loader feature
+    "static.cloudflareinsights.com",  # non-publisher: CSP script-src host for the kept Cloudflare Web Analytics feature
+    "cloudflareinsights.com",  # non-publisher: CSP connect-src host for the kept Cloudflare Web Analytics feature
+    # The maintainer's own domain: hosts the shared site-template (baseline)
+    # package the root NOTICE.md attributes, the universal privacy and security
+    # policies, and the owner's security.txt Encryption and Policy URLs in
+    # .web/build.py SECURITY_TXT. Not a citation publisher, so the
+    # citation-verification spec (§7) is not updated.
+    "posluns.ca",  # non-publisher: the maintainer's own domain (baseline package host and security.txt URLs)
+    # Clean Language, the maintainer's AI-writing editorial standard
+    # (jposluns/cleanlanguage); linked from the CHANGELOG milestone entry.
+    "cleanlanguage.ai",  # non-publisher: the maintainer's editorial standard site
+    # AIQT, the maintainer's cross-family QA product (the pack's aiqt/ subtree
+    # schema $id namespace and publication orientation). Own domain, not a
+    # citation publisher, so the citation-verification spec (S7) is not updated.
+    "aiqt.ai",  # non-publisher: the maintainer's own product domain
+    # Anthropic Claude Code official documentation domain
+    "code.claude.com",  # non-publisher: tool vendor documentation
+    # Common Linux Foundation domains
+    "linuxfoundation.org", "openssf.org", "slsa.dev",
+    "cncf.io",  # pending-publisher: no Canonical Citations Register entry yet (spec section 7.2, 3b30 note)
+    # OWASP CycloneDX canonical specification site (citation-verification spec section 7.2, 2026-09-24)
+    "cyclonedx.org",
+    # AI runtime / observability project canonical homes
+    "promptfoo.dev",
+    # Schema.org and JSON schema
+    "schema.org", "json-schema.org",  # non-publisher: format conventions
+    # Sitemaps.org: the XML namespace URI required in the generated sitemap.xml
+    # (.web/build.py). A protocol namespace, not a citation publisher, so the
+    # citation-verification spec (§7) is not updated (as with grclibrary.ai).
+    "sitemaps.org",  # non-publisher: sitemap XML namespace URI
+    # SANS / CIS
+    "sans.org",
+    "cisecurity.org",  # pending-publisher: CIS Controls v8.1 acquisition and register entry (3b33)
+    # Library maintainer profile
+    "linkedin.com",  # non-publisher: maintainer profile
+    # Google Secure AI Framework
+    "saif.google",
+    # Anthropic Claude documentation
+    "anthropic.com",  # non-publisher: tool vendor documentation
+    # Commercial AI security vendors referenced in the tooling landscape register
+    "lakera.ai", "promptarmor.com", "hiddenlayer.com",  # non-publisher: tool vendors
+    "calypsoai.com", "mindgard.ai", "splx.ai",  # non-publisher: tool vendors
+    # (Phase 23.63 removed checkpoint.com and zscaler.com from the
+    # "other commercial security vendors that may be referenced"
+    # block: neither was cited in any document and the library is
+    # vendor-neutral; if a future citation needs one, re-add via PR
+    # with justification.)
+    # Additional publisher canonical domains (Q4 worklist coverage)
+    "oag.ca.gov",  # California Attorney General
+    "cppa.ca.gov",  # California Privacy Protection Agency (CCPA regulations publisher)
+    "dodcio.defense.gov",  # US DoD CIO
+    "parl.ca",  # Canadian Parliament
+    "harmbench.org",  # HarmBench official site
+    "owaspsamm.org",  # OWASP SAMM official site
+    "wbasco.org",  # World BASC Organization (Business Alliance for Secure Commerce)
+    "cbp.gov",  # US Customs and Border Protection
+    "pcisecuritystandards.org",  # PCI Security Standards Council
+    "oecd.ai", "oecd.org",  # OECD
+    "wto.org",  # World Trade Organization
+    # Canonical-citations register international AI-governance Upstream check location URLs (register v1.6.7, 2.25.2)
+    "unesco.org",  # UNESCO (Recommendation on the Ethics of AI)
+    "coe.int",  # Council of Europe Treaty Office (Framework Convention on AI, CETS No. 225)
+    "soumu.go.jp",  # Japan Ministry of Internal Affairs and Communications (G7 Hiroshima AI Process site)
+    # Canonical-citations register Upstream check location URLs (register v1.5.7)
+    "govinfo.gov",  # US Government Publishing Office (public laws: HITECH, SOX)
+    "ilga.gov",  # Illinois General Assembly (BIPA, HB 3773)
+    "capitol.texas.gov",  # Texas Legislature (TRAIGA HB 149)
+    "law.go.kr",  # Korea Law Information Center / Ministry of Government Legislation (AI Basic Act)
+    "leg.colorado.gov",  # Colorado General Assembly (Colorado AI Act / SB 24-205 / SB 26-189)
+    "nyc.gov",  # New York City (DCWP Automated Employment Decision Tools / Local Law 144)
+    "cac.gov.cn",  # Cyberspace Administration of China (cross-border data provisions)
+    "legislation.gov.au",  # Australian Federal Register of Legislation (Privacy Act)
+    # Canonical-citations register AI-jurisdiction Upstream check location URLs (register v1.5.21)
+    "osfi-bsif.gc.ca",  # Office of the Superintendent of Financial Institutions Canada (Guideline E-23)
+    "ola.org",  # Legislative Assembly of Ontario (Bill 194 / Enhancing Digital Security and Trust Act)
+    "dgc-cgn.org",  # Digital Governance Council / DGSI (CAN/DGSI 101:2025)
+    "industry.gov.au",  # Australia Department of Industry, Science and Resources (National AI Plan, AI Ethics Principles, Voluntary AI Safety Standard)
+    "ai.gov.au",  # Australia National AI Centre (Guidance for AI Adoption)
+    "pdp.gov.my",  # Malaysia Personal Data Protection Department (PDPA)
+    "mosti.gov.my",  # Malaysia Ministry of Science, Technology and Innovation (AIGE)
+    "linddun.org",  # LINDDUN privacy threat-modelling (KU Leuven imec-DistriNet)
+    "ukgovernmentbeis.github.io",  # UK AISI inspect_evals catalogue (GitHub Pages)
+    # Canonical-citations register Upstream check location URLs (register v1.5.17, 1.5 (closing PR #777) currency sweep)
+    "ecfr.gov",  # US Electronic Code of Federal Regulations (CMMC 32 CFR 170 / 48 CFR DFARS acquisition rule)
+    "pib.gov.in",  # India Press Information Bureau (DPDP Rules 2025 notification)
+    # Canonical-citations register workforce-monitoring soft-law Upstream check location URLs (register v1.6.11, 2.34.9)
+    "ilo.org",  # International Labour Organization (Code of Practice on the Protection of Workers' Personal Data)
+}
+
+
+def _engine():
+    """Import the pack-owned engine, ensuring its .claude/skills/corpus-management/src/tools/ dir is importable."""
+    pack_tools = str(PACK_TOOLS)
+    if pack_tools not in sys.path:
+        sys.path.insert(0, pack_tools)
+    import gate_lint_external_link_domains  # the pack-owned engine (source of record)
+    return gate_lint_external_link_domains
+
+
+def scan(path: Path) -> list[tuple[int, str]]:
+    """Thin shim delegating to the pack engine's pure check.
+
+    Kept in the wrapper as a module-global because the scan-scope regression
+    test patches ``mod.scan`` and runs ``main``; URL_RE + is_allowed + the check
+    live in the pack engine. The engine takes the grc publisher allow-list as a
+    keyword; the wrapper supplies it here.
+    """
+    return _engine().scan(path, allow_list=ALLOW_LIST)
+
+
+def main(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(
+        description="Validate external URLs against the publisher allow-list."
+    )
+    parser.add_argument("paths", nargs="*", default=None)
+    args = parser.parse_args(argv[1:])
+    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
+    targets = iter_targets(
+        args.paths,
+        suffixes=SCAN_SUFFIXES,
+        exclude_default_roots=False,  # Preserve source-tree safety coverage.
+        exempt_files=EXEMPT_FILES,
+    )
+    # Scoped exclusion: .web/baseline/ is a verbatim third-party template
+    # package, integrity-pinned by .claude/skills/corpus-management/tools/lint-baseline-pin.py (gate 110). Its
+    # files (the SIL OFL font licence texts among them) must stay byte-identical
+    # to the published package, so their upstream URLs cannot be brought onto
+    # the allow-list by editing them; the pinned tree is dropped from discovery
+    # instead. Root-anchored (resolved against REPO_ROOT), so a nested directory
+    # merely named baseline elsewhere is still scanned.
+    baseline_tree = (REPO_ROOT / ".web" / "baseline").resolve()
+    targets = [t for t in targets if not t.is_relative_to(baseline_tree)]
+    # The same route for the one pinned licence text outside that tree: the
+    # SIL OFL licence of the Inter card fonts, which baseline 1.10.0 copies to
+    # .web/site-card/card-fonts/ beside the card builder and gate 110 pins byte for
+    # byte (never served). Exactly that file and nothing wider: the rest of
+    # .web/site-card/ and of card-fonts/ is still scanned, and so is a file of the
+    # same name anywhere else, so no domain is added to ALLOW_LIST for it.
+    targets = [t for t in targets if t != PINNED_LICENCE_TEXT]
+    # Same reasoning for the ephemeral build output: .web/dist/ is the
+    # git-ignored render artefact (never committed, absent in CI), and from
+    # PR 2b it carries the draft's byte-verified copy of the pinned tree above
+    # (draft/assets/baseline/, the OFL licence texts included), so a local run
+    # after `python3 .web/build.py` must not re-scan those verbatim files.
+    # lint-standards-currency.py excludes the same tree.
+    dist_tree = (REPO_ROOT / ".web" / "dist").resolve()
+    targets = [t for t in targets if not t.is_relative_to(dist_tree)]
+    grouped: dict[Path, list[tuple[int, str]]] = {}
+    for t in targets:
+        findings = scan(t)
+        if findings:
+            grouped[t] = findings
+    if not grouped:
+        print(f"OK: all external URLs are on the allow-list (scanned {len(targets)} files).")
+        return 0
+    total = 0
+    for path, findings in sorted(grouped.items()):
+        try:
+            rel = path.relative_to(REPO_ROOT)
+        except ValueError:
+            rel = path
+        print(f"=== {rel} ===")
+        # Deduplicate per file
+        seen_hosts = set()
+        for lineno, host in findings:
+            if host in seen_hosts:
+                continue
+            seen_hosts.add(host)
+            print(f"  L{lineno} [external-link-domain] {host}")
+            total += 1
+    print(f"\nFAIL: {total} non-allow-listed domain(s) across {len(grouped)} file(s).")
+    print(
+        "External URLs must point to allow-listed domains. If the reference "
+        "is legitimate, add the domain to ALLOW_LIST in lint-external-link-"
+        "domains.py and update the citation-verification specification "
+        "publisher allow-list (§7) where appropriate."
+    )
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

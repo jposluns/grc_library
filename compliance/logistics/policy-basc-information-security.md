@@ -1,0 +1,211 @@
+# BASC Information Security Policy
+
+**Document Title:** BASC Information Security Policy\
+**Document Type:** Policy\
+**Version:** 1.2.14\
+**Date:** 2026-11-06\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md)\
+**Classification:** Public\
+**Category:** Compliance: Logistics Sector\
+**Review Frequency:** Annual and upon material BASC framework or infrastructure change\
+**Repository Path:** [`compliance/logistics/policy-basc-information-security.md`](policy-basc-information-security.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## 1. Purpose
+
+This policy establishes the framework for managing and protecting the organization's information assets and supporting infrastructure in alignment with the applicable Business Alliance for Secure Commerce (BASC) International Security Standard (6.0.2 or 6.0.3, per the organization's role in the cargo chain). It ensures that the confidentiality, integrity, and availability of data are maintained across all BASC-certified operations.
+
+---
+
+## 2. Scope
+
+Applies to all employees, contractors, and third parties accessing the organization's information systems, data, and technology resources. The access-revocation timelines in this policy (including the two-hour access-revocation ceiling) govern organization-controlled and identity-provider-federated access; independently-authenticated external-party portals (client portals, supplier systems, and other platforms not federated to the organization's identity provider) are a distinct access class outside this internal-revocation scope, and their removal follows the deprovisioning path in [`security/procedure-onboarding-and-offboarding.md`](../../security/procedure-onboarding-and-offboarding.md) item 9.5.
+
+---
+
+## 3. Definitions
+
+| Term | Definition |
+| --- | --- |
+| CIO | Chief Information Officer, responsible for IT strategy and its alignment with business goals |
+| CISO | Chief Information Security Officer, responsible for information security and privacy strategy |
+| Policy | High-level guidelines directing decisions and actions |
+| Standard | Mandatory controls that enforce policies |
+| Procedure | Step-by-step instructions for carrying out tasks |
+| Exception | An approved deviation from a policy or standard |
+
+---
+
+## 4. Roles and responsibilities
+
+| Role | Responsibility |
+| --- | --- |
+| **Chief Information Officer (CIO)** | Approves this policy jointly with the CISO; oversees implementation and improvement. |
+| **Chief Information Security Officer (CISO)** | Co-approves the policy; leads enhancement of IT, security, and privacy policies and standards. |
+| **IT Operations Manager** | Manages technical configuration and change management requests; monitors compliance; declares incidents when necessary. |
+| **Service Desk Manager** | Handles user and change management requests via the ITSM portal; monitors compliance; declares incidents when necessary. |
+| **Department Heads** | Ensures that departmental compliance with security practices is maintained; declares incidents when necessary. |
+| **All Users** | Adhere to this policy and report any concerns or policy violations. |
+
+---
+
+## 5. BASC information security requirements
+
+All requirements identified in Chapter 5 of the applicable BASC International Security Standard (6.0.2 or 6.0.3) are mapped below to the organization's control areas.
+
+| ID | Description | Control Area |
+| --- | --- | --- |
+| 5.1.a | Manage and protect information and IT resources, including response measures for non-compliance. | Asset Management; Threat Response |
+| 5.1.b | Safeguard confidentiality, integrity, and availability of information in all forms. | Governance; Access Management; Asset Management; System Integrity; Threat Response |
+| 5.1.c | Protect IT infrastructure. | Access Management; Asset Management; System Integrity; Threat Response |
+| 5.2.a | Establish security criteria for IT systems and ensure that recovery capabilities are in place. | Threat Response |
+| 5.2.b | Communicate cybersecurity threats to relevant parties. | Threat Response |
+| 5.2.c | Identify critical stakeholders in IT infrastructure. | Access Management |
+| 5.2.d | Classify information, systems, and access levels based on criticality. | Governance |
+| 5.2.e | Use unique user credentials with periodic updates. | Access Management |
+| 5.2.f | Limit and review user permissions based on assigned roles. | Access Management |
+| 5.2.g | Revoke system access upon contract termination. | Access Management |
+| 5.2.h | Prevent unauthorized software installation. | System Integrity |
+| 5.2.i | Use licensed, updated hardware/software to protect against malware. | System Integrity |
+| 5.2.j | Maintain secure backup copies of sensitive data offsite. | Asset Management |
+| 5.2.k | Keep an updated user access record with criticality level. | Access Management |
+| 5.2.l | Lock unattended computers. | Asset Management |
+| 5.2.m | Evaluate IT infrastructure annually and address vulnerabilities. | Threat Response |
+| 5.2.n | Identify unauthorized access or policy breaches. | Threat Response |
+| 5.2.o | Review and update cybersecurity policies annually or as needed. | Governance |
+| 5.2.p | Use VPN or MFA for remote access. | Access Management |
+| 5.2.q | Prevent unauthorized remote access from personal or other devices. | System Integrity |
+| 5.2.r | Inventory IT infrastructure media and equipment; ensure that legal disposal is carried out. | Asset Management |
+| 5.2.s | Restrict unauthorized devices from connecting to IT infrastructure. | System Integrity; Access Management |
+| 5.2.t | Monitor cybersecurity policy compliance in digital content and tools. | System Integrity; Threat Response |
+| 5.2.u | Conduct cybersecurity drills to test response effectiveness. | Threat Response |
+| 5.2.v | Establish controls for system administrators and superusers to allow user ID continuity for active systems (where applicable). | Access Management |
+
+---
+
+## 6. Information security controls
+
+### 6.1 Governance
+
+An Information Security Manager is formally appointed and assigned responsibility for information security.
+
+This policy is reviewed at least annually, or following any significant changes to the organization's environment, with all revisions documented and approved by the CIO.
+
+Information assets are classified by sensitivity per the canonical [Data Classification and Handling Standard](../../security/standard-data-classification-and-handling.md): Public, Controlled, Internal, Confidential, Restricted.
+
+Mandatory annual security awareness training is required for all personnel, covering the BASC Control and Security Management System (CSMS) and cybercrime prevention.
+
+*Requirement IDs: 5.1.b, 5.2.d, 5.2.o*
+
+### 6.2 Access management
+
+Access rights are granted based on the principle of least privilege.
+
+Access rights are reviewed at least annually to ensure that they remain aligned with assigned functions and tasks.
+
+User accounts are individually assigned and protected by passwords and MFA.
+
+Privileged access, including superuser and administrator accounts, is managed through Privileged Identity Management (PIM).
+
+Access for all third parties requires a supplier evaluation approved by the CISO.
+
+Access is revoked immediately upon termination or contract conclusion; the two-hour access-revocation target stated in the Access Management control is the measurable ceiling for this immediacy principle, without prejudice to the stricter one-hour involuntary-termination path in [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md) Section 4.1.4 and [`security/procedure-onboarding-and-offboarding.md`](../../security/procedure-onboarding-and-offboarding.md) Section 8.1.1, which governs organization-controlled and identity-provider-federated accounts on involuntary termination.
+
+*Requirement IDs: 5.1.b, 5.1.c, 5.2.c, 5.2.e, 5.2.f, 5.2.g, 5.2.k, 5.2.p, 5.2.s, 5.2.v*
+
+### 6.3 Asset and media management
+
+All IT equipment and storage media are inventoried and tracked.
+
+Disposal of media and assets is performed securely.
+
+Unattended computers must be locked.
+
+Antivirus and firewall protection are active and monitored.
+
+Physical and virtual backups are maintained securely offsite and restore-tested at least at the criticality-tiered baseline in [`resilience/procedure-backup-and-recovery.md`](../../resilience/procedure-backup-and-recovery.md) Section 4.
+
+*Requirement IDs: 5.1.a, 5.1.b, 5.1.c, 5.2.j, 5.2.l, 5.2.r*
+
+### 6.4 System integrity
+
+Only licensed and updated software is permitted.
+
+The installation of unauthorized software on corporate devices is strictly prohibited.
+
+Compliance with this policy for all sanctioned applications and platforms is actively monitored through the change management process.
+
+Personal device connections to internal systems are restricted unless explicitly authorized through the endpoint management platform.
+
+*Requirement IDs: 5.1.b, 5.1.c, 5.2.h, 5.2.i, 5.2.q, 5.2.s, 5.2.t*
+
+### 6.5 Threat response
+
+Cybersecurity incidents are documented, analyzed, and communicated according to the established incident response process.
+
+Unauthorized data manipulation or policy violations are monitored and investigated.
+
+Regular information security incident process reviews are conducted.
+
+Where required, post-incident evaluations are conducted to identify root causes and implement corrective actions.
+
+Compliance is monitored through logs, reports, and audits.
+
+*Requirement IDs: 5.1.a, 5.1.b, 5.1.c, 5.2.a, 5.2.b, 5.2.m, 5.2.n, 5.2.t, 5.2.u*
+
+---
+
+## 7. Exception process
+
+### 7.1 Submission
+
+Any employee may submit an exception request via the ITSM portal or designated collaboration platform channel. The request must include: justification; duration; mitigation measures; impact assessment.
+
+### 7.2 Evaluation
+
+- The CISO assesses information security and privacy impact.
+- The CIO evaluates business implications.
+- Legal is consulted when the deviation involves contractual or regulatory risk.
+
+### 7.3 Approval
+
+- Approval follows the enterprise exception risk-tier matrix in [`policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md) Section 4.2 (medium risk by the CIO; high or critical risk by the Executive Committee or Board Risk Committee), with CISO co-approval for security-related exceptions in addition to (not in place of) the risk-tier approver.
+- Duration and renewal follow that policy's Section 4.3: an exception's initial term does not exceed the enterprise base term, and any extension runs through the renewal pathway (the original approver, then the Enterprise Risk Committee, then the Board Risk Committee) up to the renewal ceiling, converting to a formal risk acceptance once that ceiling is reached.
+- Exceptions under this policy are exceptions to information-security controls and are handled as security-related exceptions (the CISO co-approval above). Membership in the BASC trade-and-supply-chain programme does not by itself make an information-security exception a trade or customs exception; the trade and customs co-approval and Enterprise Risk Committee notification pathway in that policy's Section 4.2.2 applies where an exception also affects trade or customs operations, in which case both applicable pathways apply.
+
+### 7.4 Documentation and monitoring
+
+All exceptions are logged and assigned an expiry or review date. Owners are responsible for implementing compensating controls and tracking progress.
+
+---
+
+## 8. Information security audit checklist
+
+| Area | Evidence Required |
+| --- | --- |
+| Governance | IT Security Manager appointed; policy reviewed annually; information assets classified per the canonical 5-level scheme (Public, Controlled, Internal, Confidential, Restricted); security awareness training completed with attendance records. |
+| Access Management | Access rights based on roles in the enterprise identity provider; MFA enforced; administrator access traceability controls enforced; third-party access authorized through supplier evaluation; access revocation within 2 hours of termination. |
+| Asset Management | Managed computer inventory maintained; unattended computers locked via policy; offsite backups implemented and tested; secure media and hardware disposal procedures followed. |
+| System Integrity | Personal device access managed through endpoint management platform; only authorized devices on the network; only licensed and supported systems and software in use; controls prevent unauthorized software installation. |
+| Threat Response | Cybersecurity incidents tracked and reported; security incident response process documented and followed; logs and audit trails reviewed regularly; annual IT infrastructure evaluation conducted. |
+
+---
+
+## 9. Framework alignment
+
+| Framework | Reference | Relevance |
+| --- | --- | --- |
+| BASC International Security Standard 6.0.2/6.0.3 (2022) | Chapter 5: Information Security | Primary source of control requirements |
+| ISO/IEC 27001:2022 | A.5 to A.8: Security controls | Information security management alignment |
+| NIST SP 800-53 r5 | AC, IA, SI, IR: Access, identity, integrity, incident | Control family mapping |
+| CSA CCM v4.1 | IAM, HRS, TVM, LOG | Cloud control alignment |
+| WCO SAFE Framework (2025 edition) | Annex IV element F (Information Exchange, Access and Confidentiality); Pillar 2 Standard 2 (Security) | Trade and customs information security: the AEO's information security policy and protection of its electronic systems and information systems |
+
+---
+
+**End of Document**

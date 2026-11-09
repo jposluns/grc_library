@@ -1,0 +1,11 @@
+# No stub documents
+
+A production document is not a stub. Its body, with the metadata block stripped, meets a
+substantive-word-count threshold, and it carries no stub-indicator phrase (``[content to be
+added]``, ``details forthcoming``, ``to be completed in a later phase``, ``stub document`` and
+kin). A body below the threshold is flagged; a stub phrase is flagged even in a longer body,
+because mixing finished content with a stub marker is itself a defect. Code-fenced lines are not
+counted toward the word count. The word-count threshold and the stub-phrase list are the check's
+parameters; the exempt files (indexes and notices short by design, templates and worklists with
+intentional placeholders, and superseded-status redirect notices) are the project's scan
+configuration and are not part of this clause.

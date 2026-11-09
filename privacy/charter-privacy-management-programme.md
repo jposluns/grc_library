@@ -1,0 +1,228 @@
+# Privacy Management Programme Charter
+
+**Document Title:** Privacy Management Programme Charter\
+**Document Type:** Charter\
+**Version:** 1.5.24\
+**Date:** 2026-11-07\
+**Owner:** Data Protection Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
+**Classification:** Public\
+**Category:** Privacy\
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change\
+**Repository Path:** [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
+
+---
+
+## Purpose
+
+This charter establishes the Privacy Management Programme: the organizational structure, accountabilities, and operating principles governing how personal data is collected, used, stored, disclosed, and disposed of across all jurisdictions. It creates the overarching framework within which the Privacy and Data Governance Policy, the Privacy Impact and Cross-Border Transfer Procedure, and the Data Subject Rights Management Procedure operate. The programme aligns to ISO/IEC 27701:2025, which is now a standalone Privacy Information Management System (PIMS) standard (the 2019 edition was an extension to ISO/IEC 27001; the 2025 revision restructured ISO/IEC 27701 as an independent standard; transition deadline October 2028).
+
+---
+
+## Scope
+
+1. Applies to all personal data processed by the organization, including employee data, customer data, supplier data, and partner data.
+2. Applies across all jurisdictions where the organization operates or where its data subjects reside; the applicable regimes are those identified in [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md). *[define your jurisdictions and their primary statutes here, for example Canada (PIPEDA and Quebec Law 25) or the United Kingdom (UK GDPR / Data Protection Act 2018)]*
+3. Applies to all employees, contractors, and third parties who process personal data on behalf of the organization.
+
+---
+
+## Privacy accountability structure
+
+The following roles hold defined accountability within the Privacy Management Programme:
+
+| Role | Accountability |
+|---|---|
+| **Chief Information Officer (CIO)** | Executive accountability for the privacy programme. Signs off on material privacy risk decisions. |
+| **Data Protection Officer (DPO)** | Operational ownership of the privacy programme. Manages regulatory obligations, data subject requests, PIA oversight, and cross-border transfer assessment. |
+| **Chief Information Security Officer (CISO)** | Accountable for information security controls that protect personal data. Joint responsibility with the Data Protection Officer for data breach response. |
+| **Legal Counsel** | Advises on regulatory notification obligations; manages regulatory relationships; reviews Data Processing Agreement (DPA) documentation. |
+| **Human Resources** | Manages employee personal data; ensures that HR data processing complies with applicable employment privacy law. |
+
+> **Adopter note:** This library's model keeps the CIO and DPO roles separate. Where an adopter has not yet designated a formal DPO and an executive (commonly the CIO) holds the responsibilities in the interim, see the DPO independence and conflict-of-interest section below for the constraints such an arrangement creates and the mitigations the adopter must apply.
+
+### DPO independence and conflict of interest (GDPR Articles 38(3) and 38(6))
+
+GDPR Article 38 imposes two structural protections on the DPO role that adopters must preserve regardless of the formal-or-interim designation status:
+
+**Article 38(3) independence requirements.** The controller and processor must ensure that the DPO:
+
+| Requirement | Source | What it forbids in practice |
+|---|---|---|
+| Does not receive any instructions regarding the exercise of DPO tasks | Article 38(3) sentence 1 | Management cannot direct the DPO's privacy assessments, regulator-engagement positions, or breach-notification decisions on a case-by-case basis |
+| Cannot be dismissed or penalized for performing DPO tasks | Article 38(3) sentence 2 | Dismissal, demotion, salary reduction, or denial of training cannot be linked to DPO advice the management disliked |
+| Reports directly to the highest management level | Article 38(3) sentence 3 | The DPO must have an unfiltered escalation path; intermediary management layers cannot gate DPO communications to the board or executive |
+
+**Article 38(6) conflict-of-interest constraint.** The DPO may fulfil other tasks and duties, but the controller / processor must ensure that any such tasks and duties do not result in a conflict of interests. The Article 29 Working Party Guidelines on DPOs (WP243 rev.01) and the EDPB's subsequent guidance identify the following positions as **typically incompatible** with the DPO role:
+
+- Chief Executive Officer
+- Chief Operating Officer
+- Chief Financial Officer
+- Chief Information Officer
+- Chief Information Security Officer (where the CISO determines purposes and means of security processing)
+- Head of Marketing
+- Head of Human Resources
+- Head of IT operations or processing department
+- Any role that determines purposes and means of processing personal data
+- Any role that audits or sanctions the DPO
+
+This list is not exhaustive; the test is whether the secondary role results in the DPO determining (in whole or part) the purposes and means of the processing the DPO is supposed to oversee.
+
+**Interim executive-as-DPO arrangements: known conflict (adopter guidance).** Where an adopter operates an interim arrangement in which an executive who determines the purposes and means of processing (commonly the CIO) also holds the DPO responsibilities, an Article 38(6) conflict arises: the same officer determines purposes and means of IT processing AND advises on its privacy compliance. The library's own model keeps the roles separate; an adopter operating such an interim arrangement must either:
+
+1. **Designate a formal DPO** (the preferred path; the formal designation triggers Article 37-39 protections and resolves the Article 38(6) conflict);
+2. **Implement mitigation controls** while the interim arrangement persists, naming each control to the supervisory authority in any DPIA, ROPA, or Article 36 prior consultation; OR
+3. **Document the formal exemption analysis** if Article 37(1) thresholds are not met (most organizations operating at any non-trivial scale will not qualify for exemption).
+
+**Mitigation controls for the interim arrangement** (operational only, not a substitute for formal designation):
+
+| Control | Purpose |
+|---|---|
+| Independent privacy-decision escalation path: the interim role-holder's privacy advice is reviewed by Legal Counsel and the audit committee before any decision that would be vetoed by IT-operations interests | Mitigates Article 38(3) instruction-on-tasks risk |
+| Documented separation of "acting in operations capacity" vs "acting in the DPO capacity" in meeting minutes, sign-offs, and supervisory-authority communications | Mitigates Article 38(6) role-blending risk |
+| External privacy counsel retained on standing brief for any matter where the executive's operations interest and DPO advice would diverge | Provides arms-length advice channel |
+| Annual independent review of the interim arrangement's effectiveness, with a documented decision to renew or replace the arrangement | Maintains discipline against indefinite reliance on the interim arrangement |
+| Public statement in the privacy notice and the Article 30 ROPA that the interim arrangement is in place and time-bounded | Transparency to data subjects and supervisory authorities |
+
+**Cross-regime independence equivalents.**
+
+| Regime | DPO independence basis | Conflict-of-interest test |
+|---|---|---|
+| **UK GDPR** (UK) | Article 38(3) (same as EU GDPR) | Article 38(6) (same); ICO guidance mirrors EDPB |
+| **LGPD** (Brazil, Article 41) | DPO must have appropriate technical knowledge and act independently; ANPD guidance on conflict | Regulation on the encarregado's role annexed to Resolution CD/ANPD No. 18/2024, Arts. 18 to 21: the encarregado acts with ethics, integrity and technical autonomy, and may hold other functions or act for more than one processing agent only where it can fully perform its duties for each agent and no conflict of interest exists, a conflict being a situation that could improperly compromise, influence or affect the encarregado's objectivity and technical judgement (Art. 2(II) of the Regulation); a conflict can arise between functions inside one agent or across agents, or from combining the role with strategic decision-making on the controller's processing, other than operations inherent in the encarregado's own duties (Art. 19 paragraph 1); it is assessed case by case and can lead to a sanction on the processing agent under LGPD Article 52 (Art. 19 paragraph 2); the encarregado declares any possible conflict (Art. 20), and the processing agent sees that the encarregado holds no duties that create a conflict and, once a conflict is possible, does not appoint the person, applies measures to remove the risk, or replaces the encarregado (Art. 21) |
+| **PIPL** (China, Article 52) | Large-scale handlers must designate a personal information protection officer to supervise handling activities and protection measures, disclose the officer's contact method, and report the officer's name and contact to the authorities; Article 52 itself prescribes no professional-qualification or function-separation requirement for the officer (additional qualification and independence expectations derive from separate CAC provisions) | The PIPL sets no separate conflict-of-interest test for the personal information protection officer; Article 52 sets only the appointment, supervision, contact-disclosure and reporting duties |
+| **India DPDP 2023** | Data Protection Officer required for Significant Data Fiduciaries; no statutory independence requirement (the DPO represents the SDF, is based in India, and is responsible to its governing body, s. 10(2)(a)); Data Protection Board provides oversight | The Act sets no separate conflict-of-interest test for the Data Protection Officer (s. 10(2)(a) sets only whom the officer represents, where the officer is based, to whom the officer is responsible, and the grievance contact role); the Digital Personal Data Protection Rules 2025 place conflict-of-interest duties on Consent Managers (First Schedule, Part B, items 9 and 10) and on the Data Protection Board's Chairperson and Members (Fifth Schedule, paragraph 8(1)), not on the Data Protection Officer |
+
+For multi-regime non-EU controllers the strictest applicable independence regime governs.
+
+### EU representative (GDPR Article 27)
+
+Where the organization is not established in the European Union but is subject to GDPR by virtue of Article 3(2) (offering goods or services to data subjects in the Union, or monitoring the behaviour of data subjects in the Union), Article 27 requires the designation in writing of an **EU representative**.
+
+**Trigger.** The Article 27 obligation is triggered when **both** of the following are true:
+
+1. The organization is established outside the European Union (and outside the EEA more broadly: Iceland, Liechtenstein, Norway are within the EEA scope of GDPR).
+2. The organization processes personal data of subjects in the Union in the context of offering goods or services (irrespective of payment) OR monitoring behaviour that takes place within the Union (Article 3(2)).
+
+**Article 27(2) exemptions.** The obligation does NOT apply in either of two independent cases: (a) the processing meets ALL THREE occasional-processing conditions below, OR (b) the organization is a public authority or body (which is exempt regardless of the limb (a) conditions).
+
+| Limb (a) criterion (all three required together) | Description |
+|---|---|
+| Processing is occasional | Not part of regular activity; ad hoc rather than systematic |
+| Excludes Article 9 / Article 10 special categories | No large-scale processing of special-category (Article 9) or criminal-conviction (Article 10) data |
+| Unlikely to result in a risk to rights and freedoms | Risk assessment documents this conclusion |
+
+The DPO documents the Article 27(2) exemption analysis in the organization's Article 30 ROPA.
+
+**Representative criteria.** The EU representative must:
+
+| Criterion | Source |
+|---|---|
+| Be established in one of the Member States where the data subjects whose data is processed (in relation to the offering of goods/services or monitoring of behaviour) are located | Article 27(3) |
+| Be designated in writing | Article 27(1) |
+| Be mandated to be addressed in addition to or instead of the controller/processor by supervisory authorities and data subjects on all issues related to processing | Article 27(4) |
+| Have sufficient knowledge of GDPR and the controller's processing activities to act as point of contact | EDPB Guidelines 3/2018 on the territorial scope of GDPR |
+| Make the controller's or processor's Article 30 records available to the supervisory authority on request | Article 30(4) |
+
+**Designation process.**
+
+1. The DPO assesses Article 3(2) applicability and the Article 27(2) exemption analysis annually and on material change to processing.
+2. Where the obligation applies, the DPO identifies a candidate representative in a Member State where the affected data subjects are located.
+3. Legal Counsel drafts and executes a written mandate between the organization and the representative covering the Article 27(4) scope (responding to supervisory authorities, responding to data subjects, maintaining the ROPA copy where requested).
+4. The CIO signs the designation; the representative countersigns acceptance.
+5. The DPO publishes the representative's contact details in the organization's privacy notices (Article 13(1)(a) and Article 14(1)(a)) using [`privacy/template-privacy-notice.md`](template-privacy-notice.md).
+6. The representative's contact details are also recorded in the Article 30 ROPA using [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md).
+7. The designation is filed with the lead supervisory authority where required by national implementing law (some Member States require notification; some do not).
+
+**Maintenance.** The designation is reviewed:
+
+- **Annually** by the DPO; if the affected data subjects' Member State distribution has changed materially, the representative may need to be re-designated.
+- **Upon material change** to the controller's processing activities (new product lines, new monitoring activities, change in EU subject base).
+- **Upon the representative's resignation or material change in capacity** (insolvency, loss of registration, change in mandate scope).
+
+**Article 27(5) clarification.** The designation of an EU representative does NOT affect legal actions which could be initiated against the controller or processor themselves. Article 27 creates an additional point of contact, not a liability shield.
+
+**Cross-regime equivalents.**
+
+| Regime | Equivalent | Notable variations |
+|---|---|---|
+| **UK GDPR** (UK) | UK representative (UK GDPR Article 27) | Required where the controller / processor is outside the UK but subject to UK GDPR; the Information Commission is the supervisory authority |
+| **LGPD** (Brazil) | Encarregado / data protection officer (Article 5(VIII)); no dedicated foreign-representative mandate | LGPD requires the controller to appoint an encarregado as the communication channel among the controller, data subjects, and the ANPD; the 2018 statute imposes no GDPR-Article-27-style local-representative obligation on non-Brazilian controllers; ANPD is the supervisory authority |
+| **PIPL** (China, Article 53) | Designated organization or appointed agent in China | Required for non-Chinese personal-information handlers; must be filed with the Cyberspace Administration of China (CAC) |
+| **India DPDP Act 2023** | India-based Data Protection Officer for Significant Data Fiduciaries (no general local-representative requirement) | A Significant Data Fiduciary must appoint a DPO based in India (s. 10(2)(a)); the DPDPA imposes no general local-representative obligation; the Data Protection Board of India is the supervisory authority |
+| **Saudi Arabia PDPL** | No dedicated foreign-representative mandate; the Implementing Regulations set when a controller appoints a data protection officer | The PDPL applies extraterritorially to parties outside the Kingdom processing residents' personal data; its Implementing Regulations identify the situations requiring a data protection officer, not a GDPR-Article-27-style foreign representative; SDAIA is the supervisory authority |
+
+For multi-regime non-EU controllers, the organization may need to designate multiple regional representatives in parallel.
+
+---
+
+## Privacy by design
+
+Privacy considerations must be incorporated into any new system, process, or data collection activity from the design stage. Privacy Impact Assessments (PIAs) are mandatory before any of the following:
+
+- Any new personal data collection activity.
+- Any new or changed system processing personal data at scale.
+- Any cross-border data transfer.
+- Any material change to data retention practices.
+
+---
+
+## Applicable regulatory obligations
+
+*[Adopter-defined: replace the rows below with the jurisdictions identified in your regulatory-applicability register; they are worked examples, not an asserted footprint.]*
+
+| Jurisdiction | Instrument | Key Obligations |
+|---|---|---|
+| **Canada (Federal)** | PIPEDA: Personal Information Protection and Electronic Documents Act | Consent, purpose limitation, accountability. Breach of security safeguards (s. 10.1): report to the Privacy Commissioner of Canada where it is reasonable in the circumstances to believe the breach creates a real risk of significant harm to an individual. Unless otherwise prohibited by law, also notify each affected individual for whom that belief holds. See [`privacy/jurisdictions/annex-privacy-canada.md`](jurisdictions/annex-privacy-canada.md) for timing, content, and record-keeping. |
+| **Quebec (Provincial)** | Act respecting the protection of personal information in the private sector (CQLR c. P-39.1), as amended by Law 25 (S.Q. 2021, c. 25) | Person in charge of the protection of personal information mandatory (s. 3.1); privacy impact assessments; prompt breach notification to the Commission d'accès à l'information (CAI); data subject rights. |
+| **United States** | Applicable state breach notification and sector-specific laws | Breach notification timelines vary by state. Refer to the Global Regulatory Applicability Register for current state-level obligations. |
+| **United Kingdom** | UK GDPR / Data Protection Act 2018 | Lawful basis for processing; data subject rights; breach notification to the Information Commission without undue delay and, where feasible, within 72 hours of becoming aware; international transfer mechanisms. |
+| **Latin America** | National privacy laws by jurisdiction (including Brazil LGPD and others) | Jurisdiction-specific requirements apply. Refer to the Global Regulatory Applicability Register and Regional Annexes. |
+
+---
+
+## Data breach response
+
+Privacy breaches involving personal data are managed under the Data Protection and Privacy Breach Response Procedure, which includes regulatory notification assessment. The CISO and Data Protection Officer are jointly responsible for initiating breach response. Legal Counsel determines notification obligations by jurisdiction in accordance with the applicable law table above.
+
+---
+
+## Annual review
+
+The Privacy Management Programme is reviewed annually by the Data Protection Officer and CISO. The review assesses:
+
+- Regulatory changes affecting obligations.
+- PIA register completeness.
+- Data subject request volumes and response times.
+- Cross-border transfer mechanism currency.
+- Programme gaps identified through audits or incidents.
+
+Results are reported to the CIO and included in the annual GRC programme report to the Enterprise Risk Committee (ERC).
+
+---
+
+## Framework alignment
+
+| Framework | Relevance |
+|---|---|
+| ISO/IEC 27701:2025 | Privacy Information Management System (PIMS), standalone |
+| PIPEDA | Personal Information Protection and Electronic Documents Act (Canada) |
+| Quebec CQLR c. P-39.1, as amended by Law 25 (S.Q. 2021, c. 25) | Act respecting the protection of personal information in the private sector |
+| UK GDPR / Data Protection Act 2018 | United Kingdom data protection law |
+| CSA CCM v4.1 Data Security and Privacy Lifecycle Management (DSP) domain | Privacy controls |
+| NIST Privacy Framework v1.0 | Privacy risk management |
+
+---
+
+*This document is released under the CC BY-SA 4.0 licence.*
+
+
+
+**End of Document**

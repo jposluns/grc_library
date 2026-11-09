@@ -1,0 +1,281 @@
+# Logistics Sector GRC Requirements Annex
+
+**Document Title:** Logistics Sector GRC Requirements Annex\
+**Document Type:** Annex\
+**Version:** 1.0.35\
+**Date:** 2026-11-07\
+**Owner:** Chief Compliance Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../../supply-chain/annex-trade-and-supply-chain-continuity-controls.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md)\
+**Classification:** Public\
+**Category:** Compliance: Logistics Sector\
+**Review Frequency:** Annual and upon material regulatory change, new TSA directive, or significant security incident in the sector\
+**Repository Path:** [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This annex identifies the additional GRC obligations that apply to organizations operating in the transportation and logistics sector. It maps applicable regulatory frameworks to the core GRC library controls and identifies gap areas requiring sector-specific supplementation.
+
+This annex applies where an organization:
+- Operates as a freight forwarder, customs broker, third-party logistics provider (3PL), or fourth-party logistics provider (4PL)
+- Operates road, rail, air, or maritime transportation services
+- Manages warehousing, distribution centres, or cross-docking operations
+- Operates port, airport, or intermodal terminal infrastructure
+- Provides technology platforms for transportation management, track and trace, or customs processing
+- Participates in trusted-trader programmes (CTPAT, AEO-S, PIP, BASC, NEEC, OEA)
+
+**Note on trusted-trader programme compliance:** CTPAT, AEO-S, PIP, BASC, and other trade compliance programme requirements are documented in detail in the supply chain domain. This annex addresses cybersecurity-specific regulatory obligations from transportation sector authorities that apply beyond trade compliance programmes.
+
+---
+
+## Regulatory landscape overview
+
+### United states
+
+| Regulation / Directive | Authority | Mode / Scope |
+|---|---|---|
+| **TSA Security Directive Pipeline-2021-01G**: Enhancing Pipeline Cybersecurity (effective 2026-01-16 through 2027-01-15; cancels and supersedes SD Pipeline-2021-01F) | Transportation Security Administration (TSA) | TSA-designated critical hazardous liquid and natural gas pipelines or liquefied natural gas facilities |
+| **TSA Security Directive Pipeline-2021-02G**: Pipeline Cybersecurity Mitigation Actions, Contingency Planning, and Testing (effective 2026-05-03 through 2027-05-02; cancels and supersedes SD Pipeline-2021-02F) | TSA | TSA-designated critical hazardous liquid and natural gas pipelines or liquefied natural gas facilities |
+| **TSA Security Directive 1580-21-01E**: Enhancing Rail Cybersecurity (effective 2026-01-16 through 2027-01-15; cancels and supersedes SD 1580-21-01D) | TSA | Freight railroad carriers identified in 49 CFR 1580.101 and other TSA-designated freight railroads |
+| **TSA Security Directive 1582-21-01E**: Enhancing Public Transportation and Passenger Railroad Cybersecurity (effective 2026-01-16 through 2027-01-15; cancels and supersedes SD 1582-21-01D) | TSA | Passenger railroad carriers and rail transit systems identified in 49 CFR 1582.101 and other TSA-designated passenger railroads; excludes bus-only operations owned or operated by a public transportation agency otherwise identified in 49 CFR 1582.101 |
+| **TSA Security Directive 1580/82-2022-01E**: Rail Cybersecurity Mitigation Actions and Testing (effective 2026-05-03 through 2027-05-02; supersedes SD 1580/82-2022-01D) | TSA | Freight railroad carriers identified in 49 CFR 1580.101 and other TSA-designated freight and passenger railroads |
+| **TSA Security Directive: Aviation Cybersecurity** | TSA | Airport operators; aircraft operators; last-mile delivery involving air |
+| **USCG Maritime Cybersecurity (NVIC 01-20)** | U.S. Coast Guard | Maritime Transportation Security Act (MTSA) facility owners and operators; vessel operators |
+| **DOT Cybersecurity Strategy** | U.S. Dept of Transportation | All DOT-regulated entities |
+| **FMCSA: Electronic Logging Devices (ELD)** | Federal Motor Carrier Safety Administration | Commercial motor vehicle operators |
+| **CBP: CTPAT** | U.S. Customs and Border Protection | Importers, exporters, customs brokers, freight forwarders, carriers |
+| **FAA Cybersecurity** | Federal Aviation Administration | Aviation operators; air traffic management |
+| **Sanderson Act / Rail Safety** | FRA | Freight rail operators |
+
+### Canada
+
+| Regulation / Programme | Authority | Scope |
+|---|---|---|
+| **Transport Canada Cybersecurity** | Transport Canada | Aviation, marine, rail, and road operators |
+| **Canadian Aviation Security Regulations (CASR)** | Transport Canada | Air carriers; aerodrome operators |
+| **Marine Transportation Security Act / Regulations (MTSR)** | Transport Canada | Vessels; marine facilities; ports |
+| **PIP: Partners in Protection** | CBSA | Freight importers; carriers; customs brokers |
+| **Railway Safety Act** | Transport Canada | Federally regulated railways |
+| **PIPEDA** | OPC | Personal information in the course of commercial activities; employee and applicant data of federal works, undertakings, or businesses (s. 4(1)) |
+
+### United kingdom
+
+| Regulation / Guidance | Authority | Scope |
+|---|---|---|
+| **Network and Information Systems (NIS) Regulations 2018** | NCSC / DSIT | Digital Service Providers; Operators of Essential Services (OES) including transport |
+| **CAA CAP 1753: Aviation Cyber Security** | Civil Aviation Authority | UK aviation entities; airlines; ANSPs; airports |
+| **DfT Cyber Security Code of Practice for Vehicles** | Department for Transport | Connected and automated vehicle manufacturers |
+| **UK AEO-S** | HMRC | Customs operators; logistics providers |
+| **Port Security Regulations** | DfT / Home Office | Port facility operators |
+| **UK GDPR** | Information Commission | All personal data |
+| **HMRC Customs Obligations** | HMRC | All customs operators post-Brexit |
+
+### European union
+
+| Regulation / Directive | Authority | Scope |
+|---|---|---|
+| **NIS 2 Directive (2022/2555)** | National competent authorities | In-scope transport entities, essential or important depending on Article 3 classification, including road transport, rail, air, maritime and port facilities |
+| **EU Aviation Security Regulation (EC) 300/2008** | EASA / national authorities | Air carriers; airports; cargo operators |
+| **EASA AMC 20-42: Aviation Cybersecurity** | EASA | Aviation organizations; airspace users |
+| **EU Maritime Security (Regulation 725/2004)** | EMSA / national authorities | Ships; port facilities |
+| **EU Intelligent Transport Systems Directive (Directive 2010/40/EU, as amended by Directive (EU) 2023/2661)** | National authorities (transposition) / European Commission | Intelligent transport systems in road transport and interfaces with other modes of transport; the Directive and its amending Directive are not held in the reference base, so an adopter confirms the current text, scope and national transposition directly <!-- ref-absence: 2010/40 --> |
+| **EU AI Act (High Risk: Annex III point 2)** | National competent / market-surveillance authorities (Article 70; Annex III point 2 is excepted from the AI Office's Article 75(1)(a) exclusive competence) | AI used as a safety component in the management and operation of critical digital infrastructure, road traffic, or the supply of water, gas, heating, or electricity (Annex III point 2; road traffic is the logistics-relevant use); a qualifying Annex III system may still be assessed as non-high-risk under Article 6(3) |
+| **AEO (EU UCC Art 38)** | National customs authorities | Customs operators |
+
+### Global / international
+
+| Standard / Programme | Body | Scope |
+|---|---|---|
+| **ICAO Annex 17 (Chicago Convention): Aviation Security** | International Civil Aviation Organization | States; aviation operators |
+| **ICAO Aviation Cybersecurity Strategy (October 2019)** | ICAO | States; airlines; ANSPs; airports |
+| **IMO MSC-FAL.1/Circ.3**: Maritime Cyber Risk Management (guidelines) | International Maritime Organization | Shipping companies; port operators |
+| **IMO MSC-FAL.1/Circ.3/Rev.4** (28 May 2026) | IMO | Guidelines supporting maritime cyber-risk management within the ISM Code SMS (per IMO Res. MSC.428(98)) |
+| **IATA Cyber Security Guidance** | International Air Transport Association | IATA member airlines; handling agents |
+| **WCO SAFE Framework** | World Customs Organization | All customs operators |
+| **ISO 28000:2022**: Supply chain security | ISO | Supply chain organizations. The ISO 28000:2022 alignment is unverifiable. ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 --> |
+| **ISO 28001:2007**: Best practices for implementing supply chain security | ISO | Customs clearance verification. ISO 28001:2007 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28001 attribution here as verified. <!-- ref-absence: ISO 28001:2007 --> |
+| **ISO/SAE 21434**: Road Vehicle Cybersecurity Engineering | ISO / SAE | Vehicle OEMs; automotive supply chain |
+| **UNECE WP.29 / R155**: Cybersecurity Management System for vehicles | UNECE | Vehicle manufacturers selling in participating markets |
+
+---
+
+## Key regulatory requirements
+
+### TSA cybersecurity directives (US surface transportation and pipeline)
+
+The held TSA Security Directives cover designated freight and passenger railroads, rail transit systems, and critical pipeline systems and facilities. They do not establish a highway owner/operator scope. Requirements differ by directive:
+
+| Requirement | Detail | GRC Library Mapping |
+|---|---|---|
+| **Cybersecurity Incident Reporting** | SD 1580-21-01E, SD 1582-21-01E, and SD Pipeline-2021-01G require Owner/Operators to report to CISA the cybersecurity incidents that each directive's Section II.C requires to be reported (incidents involving systems that the Owner/Operator has responsibility to operate and/or maintain, in the categories that section lists), as soon as practicable, but no later than 72 hours after the Owner/Operator identifies a cybersecurity incident | [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md): supplement with CISA reporting procedure |
+| **Cybersecurity Coordinator** | SD 1580-21-01E, SD 1582-21-01E, and SD Pipeline-2021-01G require a Cybersecurity Coordinator and one or more alternates, at least one of whom is a U.S. citizen serving as a principal point of contact with TSA and CISA | Role designation procedure |
+| **Cybersecurity Vulnerability Assessment** | SD 1580-21-01E, SD 1582-21-01E, and SD Pipeline-2021-01G require a Cybersecurity Vulnerability Assessment using the form provided by TSA, submitted to TSA; under each of the three, Owner/Operators who have previously submitted a vulnerability assessment to TSA are not required to update and submit a revised assessment | [`compliance/logistics/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md): supplement with the TSA form |
+| **Cybersecurity Incident Response Plan** | SD 1580-21-01E, SD 1582-21-01E, and SD Pipeline-2021-02G require Owner/Operators to develop and maintain an up-to-date Cybersecurity Incident Response Plan for their Critical Cyber Systems | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md) |
+| **Cybersecurity Implementation Plan** | SD 1580/82-2022-01E and SD Pipeline-2021-02G require a TSA-approved Cybersecurity Implementation Plan covering: (1) network segmentation; (2) access control measures; (3) continuous monitoring and detection; (4) reducing the risk of exploitation of unpatched systems | [`security/policy-information-security.md`](../../security/policy-information-security.md); [`security/procedure-access-control.md`](../../security/procedure-access-control.md); [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md) |
+| **Cybersecurity Assessment Plan** | SD 1580/82-2022-01E and SD Pipeline-2021-02G require a Cybersecurity Assessment Plan, with an annual update submitted for approval and an annual report of the previous year's results | [`compliance/standard-internal-audit.md`](../standard-internal-audit.md) |
+
+**CISA Reporting Timeline:** Under CIRCIA (Cyber Incident Reporting for Critical Infrastructure Act), covered cyber incidents must be reported to CISA within 72 hours after the entity reasonably believes a covered incident has occurred, and ransom payments within 24 hours; the CISA implementing final rule remains pending (expected 2026), so the reporting obligation is not yet operative.
+
+### EU NIS 2: transportation entities
+
+Under NIS 2, transportation entities in the following Annex I sub-sectors that fall within NIS 2 scope (medium-sized or larger under Article 2(1), or regardless of size where Article 2(2) or (3) applies) are **essential entities** where they exceed the medium-sized-enterprise ceilings (Article 3(1)(a)) or another point of Article 3(1) applies (for example identification as a critical entity, Article 3(1)(f)), and otherwise **important entities** (Article 3(2)); both classes carry the Article 21 and 23 obligations, while essential entities face ex ante supervision and the higher fines (Articles 32 and 34(4)):
+
+- Air transport (airlines, airports, air traffic management)
+- Rail transport (railway infrastructure managers; railway undertakings)
+- Water transport (inland, sea and coastal passenger and freight water transport companies, not including the individual vessels they operate; managing bodies of ports, including their port facilities, and entities operating works and equipment contained within ports; operators of vessel traffic services)
+- Road transport (road authorities; operators of intelligent transport systems)
+
+Post and courier services are **not** in NIS 2 Annex I. Postal and courier providers sit in Annex II (Other critical sectors); because Article 3(1)(a) confers essential status only on Annex I entities that exceed the medium-sized-enterprise ceilings, an in-scope postal or courier operator is an **important entity** under Article 3(2), subject to the lighter ex-post supervisory regime and the lower fine ceiling. It is treated as essential only where a Member State designates it so under Article 2(2), points (b) to (e), where it is identified as a critical entity under Directive (EU) 2022/2557, or where a Member State so provides for an entity it identified before 16 January 2023 as an operator of essential services under NIS 1 or national law (Article 3(1)(g)).
+
+**Key NIS 2 cybersecurity obligations for essential and important entities:**
+
+| NIS 2 Article | Obligation | GRC Library Mapping |
+|---|---|---|
+| Art 21: Cybersecurity risk management | Risk-proportionate technical and organizational measures across 10 minimum areas | [`security/policy-information-security.md`](../../security/policy-information-security.md); [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md) |
+| Art 21(2)(a): Policies on risk analysis | Documented policies on risk analysis and information system security | [`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md) |
+| Art 21(2)(b): Incident handling | Incident detection and response | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md) |
+| Art 21(2)(c): Business continuity | BCM, backup management, DR, crisis management | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md); [`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md) |
+| Art 21(2)(d): Supply chain security | Security policies for suppliers and service providers | [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md) |
+| Art 21(2)(e): Security in acquisition, development and maintenance (incl. vulnerability handling) | Security in network and information systems acquisition, development and maintenance, including vulnerability handling and disclosure | [`dev-security/policy-secure-development-and-engineering.md`](../../dev-security/policy-secure-development-and-engineering.md) |
+| Art 21(2)(f): Effectiveness assessment | Policies and procedures to assess the effectiveness of cybersecurity risk-management measures | [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md) |
+| Art 21(2)(g): Cybersecurity training | Cybersecurity hygiene and training | [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md) |
+| Art 21(2)(h): Cryptography | Policies on use of cryptography and encryption | [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md) |
+| Art 21(2)(i): Human resources security | Personnel security, access control, asset management | [`security/procedure-access-control.md`](../../security/procedure-access-control.md); [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
+| Art 21(2)(j): Multi-factor authentication | MFA / continuous authentication where appropriate | [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
+| Art 23, Incident notification | Entities subject to Article 23 must report significant incidents to the CSIRT or, where applicable, the competent authority, timed from becoming aware of the incident: early warning without undue delay and in any event within 24 hours of becoming aware of the significant incident; incident notification with an initial assessment without undue delay and in any event within 72 hours of becoming aware of the significant incident, except that a trust service provider must notify without undue delay and in any event within 24 hours of becoming aware of significant incidents that have an impact on the provision of its trust services (Article 23(4), second subparagraph; Commission Implementing Regulation (EU) 2024/2690, Article 14, lists criteria under which a trust service provider's incident is considered significant); an intermediate report on request; final report within one month of the notification, or, where the incident is still ongoing at that point, a progress report then and the final report within one month of the entity's handling of the incident (Art 23(4)(e)) | [`resilience/procedure-security-incident-reporting-and-escalation.md`](../../resilience/procedure-security-incident-reporting-and-escalation.md), supplement with NIS 2 notification templates |
+
+**NIS 2 Penalties:** Article 34 sets directive-level floors that national transposition must at least meet: essential entities, a maximum of at least €10M or at least 2% of total worldwide annual turnover, whichever is higher (Article 34(4)); important entities, a maximum of at least €7M or at least 1.4%, whichever is higher (Article 34(5)). The applied maxima are set by national law.
+
+### IMO maritime cyber risk management
+
+The IMO maritime cyber risk management guidelines (MSC-FAL.1/Circ.3) support the ISM Code safety-management framework; IMO Resolution MSC.428(98) affirms that maritime cyber risk should be appropriately addressed within existing Safety Management Systems from the first annual Document of Compliance verification after 1 January 2021.
+
+| IMO Requirement | GRC Library Mapping |
+|---|---|
+| Identify systems and assets supporting shipping operations | [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md): supplement for OT/operational technology assets |
+| Assess cyber risks to identified systems | [`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md) |
+| Protect against identified risks | [`security/policy-information-security.md`](../../security/policy-information-security.md) |
+| Detect cyber events | [`operations/register-it-security-operations.md`](../../operations/register-it-security-operations.md) |
+| Respond and recover from cyber incidents | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md); [`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md) |
+| Address cyber risk within the existing ISM Code Safety Management System (verified at the Document of Compliance audit) | Supplement: ISM Code cyber annex |
+
+**Critical OT systems requiring risk assessment:** ECDIS (navigation); GPS/AIS; GMDSS (communications); cargo management systems; engine monitoring; access control systems.
+
+### ICAO Aviation Cybersecurity Strategy (October 2019)
+
+ICAO's Aviation Cybersecurity Strategy (October 2019, published under the authority of the Secretary General; it carries no ICAO Doc number) is a non-binding framework of seven pillars: international cooperation; governance; effective legislation and regulations; cybersecurity policy; information sharing; incident management and emergency planning; and capacity building, training and cybersecurity culture. It encourages States and the civil aviation sector to act rather than setting binding requirements. Its focus areas map to the library as follows:
+
+| ICAO Area | Strategy focus | GRC Library Mapping |
+|---|---|---|
+| Governance | Clear national governance and accountability for civil aviation cybersecurity, coordinated with the national cybersecurity authority (section 2.2) | [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md) |
+| Risk management | Cybersecurity within aviation security and safety oversight as part of a comprehensive risk management framework (sections 4.1 and 4.2) | [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md) |
+| Incident management | Scalable plans for the continuity of air transport during cyber incidents, and cybersecurity exercises (sections 6.1 and 6.2) | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md): supplement with CAA/FAA notification procedure |
+| Supply chain | Supply chain security for software and hardware as an element of cybersecurity policy (section 4.3) | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md) |
+| Training and awareness | Capacity building, training and cybersecurity culture (pillar 7) | [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md) |
+| Resilience | A civil aviation sector resilient to cyber-attacks (the Strategy's vision; section 6.2 exercises test resilience) | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md) |
+
+**CAA CAP 1753 (UK):** The Cyber Security Oversight Process for Aviation (CAP 1753, 2024) applies to aviation organizations the Civil Aviation Authority notifies as in scope under applicable regulations, including the Network and Information Systems (NIS) Regulations 2018. In-scope organizations complete a cyber assessment for their tier: the CAF for Aviation, or, for Tier 3 organizations, the Tier 3 Cyber Assessment Tool (the CAF for Aviation may be used instead).
+
+### HMRC post-brexit customs obligations (UK)
+
+Following the UK's departure from the EU, all organizations moving goods between the UK and EU must comply with UK customs requirements administered by HMRC. Key technology-related items follow; the CDS row states no obligation, because no held source confirms one:
+
+| Obligation | Detail | GRC Library Mapping |
+|---|---|---|
+| **Customs Declaration Service (CDS)** | Not confirmed by a held source: the held HMRC Customs Technical Handbook (AEO) sections do not cover CDS, so no filing or API requirement is stated here; confirm current HMRC guidance before relying on one | Confirm declaration systems against current HMRC CDS guidance |
+| **AEO-S status maintenance** | UK AEO-S requires ongoing compliance with HMRC security criteria | [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md); [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](procedure-aeo-united-kingdom-self-assessment.md) |
+| **GDPR / UK GDPR for shipment data** | Personal data in shipping documents (consignee names, etc.) | [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md) |
+
+---
+
+## Operational technology (OT) and industrial control system security
+
+Transportation and logistics operators frequently operate Operational Technology (OT) environments including warehouse management systems, automated sorting and conveyor systems, port terminal operating systems, fleet telematics, and vehicle electronic systems. These environments require additional security considerations:
+
+| OT Security Area | Requirement | Key Standards |
+|---|---|---|
+| **OT asset inventory** | Separate inventory for OT/ICS assets; asset classification including safety-critical designation | [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md): supplement with OT asset schema |
+| **IT/OT network segmentation** | Strict network segmentation between IT and OT environments; unidirectional gateways where feasible | [`dev-security/standard-devops-security-requirements.md`](../../dev-security/standard-devops-security-requirements.md): supplement with OT segmentation controls |
+| **OT patch management** | Modified patch management considering OT availability requirements; vendor-approved patches; extended testing cycles | Supplement SCA standard with OT patching procedure |
+| **OT incident response** | Separate or integrated incident response procedures accounting for OT safety implications | Supplement [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md) with OT safety overlay |
+| **Supply chain for OT** | Security assessment of OT vendors; software integrity verification | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md): supplement with OT vendor criteria |
+
+**Applicable OT standards:**
+- IEC 62443 (Industrial Automation and Control Systems Security): primary OT security standard
+- NIST SP 800-82 Rev. 3: Guide to OT Security
+- CPNI / NCSC: Operational Technology Security guidance (UK)
+- CISA ICS-CERT guidance (US)
+
+---
+
+## Connected and automated vehicles
+
+For organizations operating or managing connected vehicle fleets:
+
+| Obligation | Standard / Regulation | Scope |
+|---|---|---|
+| Cybersecurity Management System (CSMS) | UNECE WP.29 / UN Regulation 155 | New vehicle type approvals in participating markets (EU, UK, Japan, Korea, others); effective for new types 2022; all new vehicles 2024 |
+| Software Update Management System (SUMS) | UNECE WP.29 / UN Regulation 156 | As above |
+| Vehicle cybersecurity engineering | ISO/SAE 21434 | Vehicle OEMs; Tier 1/2 suppliers |
+| Fleet telematics data protection | UK GDPR; GDPR | Processing location and driver data from fleet telematics |
+
+---
+
+## Gap analysis: core library vs. transportation requirements
+
+| Gap Area | Applicable Regulation | Action Required |
+|---|---|---|
+| TSA cybersecurity incident reporting to CISA (as soon as practicable, no later than 72 hours after identification, for the cybersecurity incidents each directive's Section II.C requires to be reported under SD 1580-21-01E, SD 1582-21-01E, and SD Pipeline-2021-01G); the separate CIRCIA covered-incident regime is pending | TSA Security Directives (72h); CIRCIA (rule pending) | Supplement [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md) with CISA reporting runbook |
+| NIS 2 incident notification templates and reporting to national CSIRT | EU NIS 2 Art 23 | Create NIS 2 incident notification templates per Member State |
+| CAF self-assessment procedure | UK CAA CAP 1753 | Create CAF self-assessment procedure aligned to CAP 1753 |
+| IMO ISM Code cyber annex | IMO MSC-FAL.1/Circ.3 | Create ISM Code cyber risk management annex (maritime operators) |
+| OT asset inventory and segmentation standards | IEC 62443; NIST SP 800-82 | Supplement asset register and security standards with OT-specific requirements |
+| OT incident response procedure | IEC 62443; TSA Directives | Supplement incident response procedure with OT safety considerations |
+| UNECE R155 CSMS documentation | UNECE WP.29 R155 | Create CSMS documentation framework (vehicle fleet operators/manufacturers) |
+| HMRC CDS requirements (not confirmed by a held source) | HMRC CDS | Confirm customs declaration systems against current HMRC CDS guidance; no held source confirms a CDS filing or API requirement |
+| CIRCIA cyber incident reporting procedure | CIRCIA; TSA | Create CIRCIA-compliant reporting procedure for US critical infrastructure |
+| Aviation cybersecurity programme | ICAO Aviation Cybersecurity Strategy; CAA CAP 1753 | Create aviation cybersecurity programme document (aviation operators) |
+
+---
+
+## Trade compliance and customs security integration
+
+The transportation and logistics sector is the primary sector affected by trusted-trader and trade compliance programme requirements. The following documents in the core GRC library provide detailed compliance controls:
+
+| Programme | Documents |
+|---|---|
+| CTPAT (US) | [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md); [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](register-ctpat-united-states-msc-controls.md) |
+| AEO-S (UK) | [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md); [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](procedure-aeo-united-kingdom-self-assessment.md) |
+| PIP (Canada) | [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md) |
+| BASC (Latin America) | [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md); [`compliance/logistics/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md); [`compliance/logistics/policy-basc-information-security.md`](policy-basc-information-security.md) |
+| All programmes: alignment matrix | [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md) |
+| Trade compliance gap assessment | [`compliance/logistics/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md) |
+
+---
+
+## Priority implementation sequence
+
+For transportation and logistics organizations building sector-specific GRC compliance:
+
+1. **Immediate (core baseline):**
+ - Confirm CTPAT / AEO-S / BASC certification or PIP membership status and gap-fill using existing compliance domain documents
+ - Assess NIS 2 applicability and determine entity classification (essential / important)
+ - Identify applicable TSA freight rail, passenger rail, rail mitigation, and pipeline Security Directives or IMO obligations; do not infer highway coverage from the held TSA directives
+
+2. **Within 90 days:**
+ - Complete NIS 2 cybersecurity risk management gap assessment
+ - Establish CISA / national CSIRT incident reporting procedure
+ - OT asset inventory for logistics automation or vessel systems
+
+3. **Within 12 months:**
+ - Complete NIS 2 compliance programme
+ - Annual trade compliance programme assessments (CTPAT profile update; AEO-S self-assessment)
+ - OT security programme aligned to IEC 62443
+
+---
+
+**End of Document**

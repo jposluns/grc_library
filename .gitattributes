@@ -1,0 +1,11 @@
+# Release-export attributes.
+#
+# This file sets no `export-ignore` rule, so `git archive` exports and release
+# tarballs contain every tracked file. That includes `.working/TODO.md` and
+# `.working/CHANGELOG.md`, which ship as part of the repository.
+#
+# Working state that is not part of the repository (per-run records, session
+# handoffs, metrics and decisions) is kept outside it, in the operational store
+# (`$GRC_STORE` or `<repo-parent>/private`), so no rule is needed to keep it out
+# of exports. Add an `export-ignore` line here only for a tracked path that must
+# not ship in release tarballs.

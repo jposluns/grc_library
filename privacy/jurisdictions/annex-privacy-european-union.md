@@ -1,0 +1,139 @@
+# European Union Privacy Regulatory Requirements
+
+**Document Title:** European Union Privacy Regulatory Requirements\
+**Document Type:** Annex\
+**Version:** 1.1.26\
+**Date:** 2026-10-26\
+**Owner:** Data Protection Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
+**Classification:** Public\
+**Category:** Privacy\
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change\
+**Repository Path:** [`privacy/jurisdictions/annex-privacy-european-union.md`](annex-privacy-european-union.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This annex defines privacy and AI regulatory requirements applicable to the processing of personal data of individuals in the European Union under the GDPR and the EU AI Act. It supplements the Privacy and Data Governance Policy and the Privacy Impact and Cross-Border Transfer Procedure.
+
+---
+
+## Applicable laws and regulatory authorities
+
+- **EU General Data Protection Regulation (GDPR)**: Regulation (EU) 2016/679, effective 2018-05-25. The primary EU data protection law governing the processing of personal data of individuals in the EU.
+- **EU AI Act**: Regulation (EU) 2024/1689, entered into force 2024-08-01, as amended by Regulation (EU) 2026/1744 (the Digital Omnibus on AI, in force 2026-07-27), with phased application; the Digital Omnibus restaged the high-risk timeline to 2 December 2027 (Annex III and Article 6(2) systems) and 2 August 2028 (Article 6(1) and Annex I systems). The world's first comprehensive horizontal AI regulation, classifying AI systems by risk level (unacceptable, high, limited, minimal).
+- **Regulatory authorities:** National supervisory authorities in each EU member state (e.g., CNIL in France, BfDI/LfDI in Germany, AEPD in Spain, DPC in Ireland). The European Data Protection Board (EDPB) provides binding decisions and guidelines. The one-stop-shop mechanism applies to organizations with cross-border processing; lead supervisory authority determined by location of main establishment. The EDPB Guidelines 8/2022 on identifying a controller or processor's lead supervisory authority (Version 2.1, adopted 28 March 2023 with a minor correction of 28 September 2023, a targeted update superseding the Article 29 Working Party guidelines WP244 rev.01) set out the main-establishment test for that determination.
+
+---
+
+## AI and privacy obligations
+
+### GDPR obligations relevant to AI
+
+- **Lawful basis (Article 6):** Personal data used to train or operate AI systems must have a lawful basis (consent, legitimate interests, contract, legal obligation, vital interests, or public task).
+- **Special categories (Article 9):** AI systems processing biometric data, health data, political opinions, racial or ethnic origin, or other special categories require explicit consent or an Article 9(2) exemption. The EU AI Act's new Article 4a (inserted by Regulation (EU) 2026/1744) supplies a narrow Union-law basis, under Article 9(2), point (g), of the GDPR, for the exceptional processing of special categories of personal data where strictly necessary for bias detection and correction in AI systems, subject to the cumulative safeguards and limits Article 4a sets out (including that the purpose cannot be met with other data, that access is controlled and the data not shared onward, and that it is deleted once no longer needed). Article 4a states the full scope and conditions, which differ between its paragraph 1 (providers of high-risk systems) and paragraph 2 (other AI systems, limited to specified bias harms).
+- **Automated decision-making and profiling (Article 22):** Data subjects have the right not to be subject to solely automated decisions producing legal or similarly significant effects. The permitted grounds are contract necessity (Article 22(2)(a)), authorization by Union or Member State law (Article 22(2)(b)), and explicit consent (Article 22(2)(c)); for the contract and consent grounds, Article 22(3) requires safeguards including the right to obtain human intervention, to express a point of view, and to contest the decision, while the legal-authorization ground carries the safeguards laid down in that authorizing law.
+- **Data Protection Impact Assessment (Article 35):** required before processing likely to result in a high risk (Art. 35(1)), and in particular for a systematic and extensive evaluation of personal aspects based on automated processing (including profiling) on which decisions producing legal or similarly significant effects are based, large-scale processing of special categories or of personal data relating to criminal convictions and offences (Article 10), or systematic monitoring of a publicly accessible area on a large scale (Art. 35(3)). A DPIA is required in these cases (subject to the Article 35(10) exception), and AI systems meeting these conditions fall within them.
+- **Data minimization and purpose limitation (Articles 5(1)(b) and 5(1)(c)):** AI training datasets must be limited to data adequate, relevant, and necessary for the specified purpose. Repurposing data for AI training requires a compatible purpose assessment or fresh lawful basis.
+- **Transparency and the safeguards around automated decisions (Articles 13(2)(f), 14(2)(g), 15(1)(h), 22):** For the automated decision-making referred to in Article 22(1) and (4), the controller provides meaningful information about the logic involved, at the point Article 13 sets for data obtained from the subject and Article 14(3) sets for data obtained indirectly, and again on access under Article 15(1)(h). Where such a decision produces legal or similarly significant effects, Article 22(2) sets the limited grounds on which it is permitted; for the Article 22(2)(a) and (c) grounds, Article 22(3) requires safeguards including the right to obtain human intervention, to express a point of view, and to contest the decision, while the Article 22(2)(b) ground carries its own safeguards in the authorizing Union or Member State law.
+
+### EU AI act obligations (phased)
+
+- **Prohibited practices (Article 5, applicable 2 February 2025; the two practices inserted by Regulation (EU) 2026/1744 at Article 5(1) points (ba) and (bb) apply from 2 December 2026):** Prohibited AI applications include subliminal, purposefully manipulative, or deceptive techniques whose objective or effect is to materially distort behaviour by appreciably impairing informed decision-making, thereby causing a decision that would not otherwise have been taken so as to cause or be reasonably likely to cause significant harm (Article 5(1)(a)), exploitation of vulnerabilities due to age, disability, or a specific social or economic situation whose objective or effect is to materially distort behaviour so as to cause or be reasonably likely to cause significant harm (Article 5(1)(b)), real-time remote biometric identification in publicly accessible spaces for law-enforcement purposes (subject to the narrow Article 5(1)(h) exceptions and Article 5(2) to (7) conditions), social scoring leading to detrimental treatment in unrelated social contexts, or to unjustified or disproportionate detrimental treatment, predictive policing based solely on profiling or personality traits (other than where the AI supports a human assessment based on objective and verifiable facts directly linked to criminal activity), and, from 2 December 2026, AI systems that generate or manipulate non-consensual intimate material (image, audio, video, or similar) or child sexual abuse material, in each case subject to the Article 5(1a) intent-and-reasonable-foreseeability conditions, with the Article 5(1b) limit on what counts as manipulation applying to the intimate material only and the national-law 'without right' defence applying to the child sexual abuse material.
+- **High-risk AI systems (Annex III, applicable 2 December 2027 as restaged by Regulation (EU) 2026/1744):** AI deployed in employment management, credit scoring, biometric categorization according to sensitive or protected attributes or characteristics based on the inference of those attributes or characteristics (Annex III point 1(b)), and critical infrastructure is subject to mandatory conformity assessments, technical documentation, human oversight mechanisms, and registration as required under Article 49, subject to the Article 6(3) non-high-risk derogation (a system performing profiling of natural persons is always high-risk).
+- **General-purpose AI (GPAI) models (Articles 51 to 56, applicable August 2025):** Providers must maintain technical documentation, comply with EU copyright law, and publish training data summaries; the documentation duties of Article 53(1)(a) and (b) do not apply to a model released under a qualifying free and open-source licence with its parameters made publicly available (Article 53(2)), unless the model has systemic risk. Providers of GPAI models with systemic risk have additional obligations including adversarial testing and incident reporting.
+- **Limited-risk systems (Article 50):** Chatbots and deepfake generators must disclose AI interaction or AI-generated content to users. Deployers of an emotion recognition or biometric categorization system, including a high-risk one, must inform the natural persons exposed to it of the operation of the system and process the personal data in accordance with the GDPR, Regulation (EU) 2018/1725 and Directive (EU) 2016/680, as applicable (Article 50(3)); the obligation does not apply to AI systems used for biometric categorization and emotion recognition that are permitted by law to detect, prevent or investigate criminal offences, subject to appropriate safeguards for the rights and freedoms of third parties and in accordance with Union law.
+- **AI literacy (Article 4, as amended by Regulation (EU) 2026/1744):** Deployers and providers take measures to support the development of AI literacy among their staff and other persons dealing with the operation and use of AI systems on their behalf; the amended Article 4 does not require guaranteeing any specific level of AI literacy (the Digital Omnibus relaxed the prior sufficient-level obligation into this support-measures duty).
+
+---
+
+## Employment and workforce monitoring
+
+Where the organization monitors the network and device activity of workers located in the European Union, that monitoring processes personal data and is governed by the Workforce Network Monitoring Policy ([`security/policy-workforce-network-monitoring.md`](../../security/policy-workforce-network-monitoring.md)) and its supporting suite, applied through the GDPR. This section states the EU-specific position; the operational lawful-basis, consultation, and notice mechanics live in the suite documents cross-referenced below.
+
+- **Lawful basis is stated separately from the purpose.** A legitimate security, integrity, or compliance aim identifies why the organization monitors; it does not by itself satisfy Article 6. Workforce monitoring generally relies on the legitimate-interests basis (Article 6(1)(f)), assessed through the three-part test (purpose, necessity, balancing) in the [Legitimate Interest Assessment for Employment Monitoring Annex](../annex-legitimate-interest-employment-monitoring.md). Consent is presumptively not a valid basis in the employment relationship because of the imbalance of power (EDPB Guidelines 05/2020), and a monitoring notice presented for signature does not convert the basis to consent.
+- **Special-category data (Article 9).** Where monitoring may process special-category data, Article 9(1) prohibits the processing unless an Article 9(2) condition applies in addition to the Article 6 basis; explicit consent is one of the Article 9(2) conditions, not the only one, and is subject to the same freely-given problem. Biometric data is special-category only when processed for the purpose of uniquely identifying a natural person (the Article 9(1) qualifier).
+- **Article 88 enables more specific employee-data rules; it is not a lawful basis, and it is not the umbrella for co-determination.** GDPR Article 88(1) permits Member States, by law or by collective agreement, to provide more specific rules for processing employees' personal data, and Article 88(2) requires such rules to include suitable and specific safeguards, including on the transparency of processing and on monitoring systems at the workplace. Article 88 does not itself supply a lawful basis for the processing. National works-council, co-determination, and information-consultation duties (for example the German Betriebsverfassungsgesetz or the French Comité Social et Économique) arise under national employment law independently of Article 88, not as a derogation operating under it; the [Works Council and Employee Representative Consultation Procedure](../procedure-works-council-and-employee-representative-consultation.md) determines and evidences those duties per jurisdiction.
+- **Mandatory-DPIA screening (Article 35).** A DPIA is required under Article 35(1) before processing likely to result in a high risk, and systematic monitoring of employees is a recognized high-risk trigger. Under Article 35(4), each national supervisory authority publishes a list of processing operations for which a DPIA is mandatory; the Article 29 Working Party's DPIA criteria (WP248) treat the combination of systematic monitoring and employees as data subjects in a position of dependence as generally, though not invariably, indicating a high risk, so a competent supervisory authority's Article 35(4) list may include systematic employee monitoring. Adopters confirm their competent supervisory authority's published Article 35(4) list, and complete the DPIA (using the DPIA template referenced by the consultation procedure) before deployment or material change.
+- **Automated decisions.** Where a monitoring signal could feed a solely automated decision producing legal or similarly significant effects, GDPR Article 22 applies in addition to the lawful-basis analysis, and the parent policy prohibits monitoring signals from triggering employment action automatically.
+- **Transparency and notice.** Advance, ongoing, and clearly presented notice of the nature, purpose, and scope of monitoring is required; covert monitoring is prohibited by the parent policy and the insider-risk framework and is not reintroduced by relying on legitimate interests. The [Employee Monitoring Notice Template](../template-employee-monitoring-notice.md) provides the notice content, and the scope stated to workers and to any representative body mirrors the parent policy's in-scope and out-of-scope boundaries (including the personal-device and BYOD exclusion), consistently for both connection metadata under the [Network Telemetry and DPI Controls Standard](../standard-network-telemetry-and-dpi-controls.md) and any presence signals under the [Presence Inference Limitations Standard](../standard-presence-inference-limitations.md).
+
+---
+
+## Cross-border transfer mechanisms
+
+- **Adequacy decisions (Article 45):** Transfers to countries or international organizations with an EU adequacy decision require no additional safeguards. Current adequacy decisions (as of 2026-10-25, per the European Commission's *Adequacy decisions* web page, held in the reference base) include: Andorra, Argentina, Brazil (decision listed on the page as dated 26 January 2026), Canada (commercial organizations), the European Patent Organization (decision listed on the page as dated 15 July 2025), Faroe Islands, Guernsey, Israel, Isle of Man, Japan, Jersey, New Zealand, Republic of Korea, Switzerland, United Kingdom (under the GDPR and the Law Enforcement Directive, as amended by renewal decisions listed on the page as dated 19 December 2025; the Law Enforcement Directive decision rests on Article 36 of Directive (EU) 2016/680, not on GDPR Article 45), United States (commercial organizations participating in the EU-US Data Privacy Framework), and Uruguay.
+- **Standard Contractual Clauses (SCCs) (Article 46(2)(c)):** The 2021 European Commission SCCs are the primary mechanism for transfers to non-adequate third countries. SCCs must be supplemented by a Transfer Impact Assessment (TIA); see the [TIA template](../template-transfer-impact-assessment.md).
+- **Binding Corporate Rules (BCRs) (Articles 46(2)(b) and 47):** Approved by a lead supervisory authority; permit intra-group international transfers. BCR approval is a multi-year process.
+- **Derogations (Article 49):** Narrow exceptions for explicit consent, contract performance, vital interests, public interest, or legal claims. Not suitable as routine transfer mechanisms.
+
+**Running a transfer:** the operational sequence that applies these mechanisms (the GDPR Chapter V transfer-tool selection ladder, the Schrems II six-step assessment run through the Transfer Impact Assessment, supplementary-measures selection, the suspend-or-notify hard stop when essential equivalence cannot be reached, and the re-assessment triggers) is in the [Privacy Impact and Cross-Border Transfer Procedure](../procedure-privacy-impact-and-cross-border-transfer.md), Step 4 (the European Union sequence). This inventory lists the mechanisms; the procedure runs them.
+
+---
+
+## GDPR Article 8 child-consent age thresholds per Member State
+
+GDPR Article 8(1) sets the default age at 16 for child consent to information society services but permits each Member State to lower the age, "provided that such lower age is not below 13 years". The table below lists the age chosen by each EU/EEA Member State as of the date in the document header. **Adopters must verify against the current national implementing law before relying on these values**, since Member States can amend their national thresholds.
+
+| Member State | Age for child consent (years) | National implementing law |
+|---|---|---|
+| Austria | 14 | DSG (Datenschutzgesetz), §4(4) |
+| Belgium | 13 | Loi du 30 juillet 2018 relative à la protection des personnes physiques à l'égard des traitements de données à caractère personnel, Article 7 |
+| Bulgaria | 14 | Personal Data Protection Act, Article 25h |
+| Croatia | 16 | Act on the Implementation of the General Data Protection Regulation (default) |
+| Cyprus | 14 | Law 125(I)/2018, Article 7 |
+| Czechia | 15 | Act No. 110/2019, §7 |
+| Denmark | 13 | Databeskyttelsesloven, §6 |
+| Estonia | 13 | Personal Data Protection Act, §8(2) |
+| Finland | 13 | Tietosuojalaki (1050/2018), §5 |
+| France | 15 | Loi Informatique et Libertés, Article 45 (post-2018 amendment) |
+| Germany | 16 | BDSG (default; no derogation below 16) |
+| Greece | 15 | Law 4624/2019, Article 21 |
+| Hungary | 16 | Act CXII of 2011 (default) |
+| Iceland (EEA) | 13 | Act on Data Protection 90/2018, §10 |
+| Ireland | 16 | Data Protection Act 2018, §31 |
+| Italy | 14 | Decreto Legislativo 196/2003 (as amended by D.Lgs. 101/2018), Article 2-quinquies |
+| Latvia | 13 | Personal Data Processing Law, §3(2) |
+| Liechtenstein (EEA) | 16 | Datenschutzgesetz (default) |
+| Lithuania | 14 | Law on Legal Protection of Personal Data, Article 5(2) |
+| Luxembourg | 16 | Loi du 1er août 2018, Article 7 (default) |
+| Malta | 13 | Data Protection Act 2018, Article 9 |
+| Netherlands | 16 | UAVG (Uitvoeringswet AVG), Article 5 (default) |
+| Norway (EEA) | 13 | Personopplysningsloven §5 |
+| Poland | 16 | Act on Personal Data Protection of 10 May 2018, Article 5 (default) |
+| Portugal | 13 | Lei n.º 58/2019, Article 16 |
+| Romania | 16 | Law no. 190/2018 (default) |
+| Slovakia | 16 | Act No. 18/2018 (default) |
+| Slovenia | 15 | Personal Data Protection Act ZVOP-2, Article 6 |
+| Spain | 14 | Ley Orgánica 3/2018, Article 7 |
+| Sweden | 13 | Dataskyddslagen (2018:218), §2(3) |
+
+**Notes**: (1) the default GDPR Article 8 age of 16 applies in Member States that have not chosen a lower age. (2) The Article 8 age governs consent to information society services (online platforms, social media, gaming, etc.); other lawful bases under Article 6 may apply at different age thresholds and other provisions of national law (such as electronic-commerce, education, or child-protection law) may impose additional age-specific obligations. (3) Adopters operating across multiple Member States must apply the per-state age to subjects in that state. (4) The UK is no longer an EU Member State; the UK age is 13 under UK GDPR Article 8 and is documented separately in the United Kingdom privacy annex.
+
+---
+
+## Enforcement and fines
+
+- **Higher tier (GDPR):** Up to €20 million or 4% of total worldwide annual turnover for violations of the basic principles, conditions for consent, data subject rights (Articles 12-22), and international-transfer rules (Articles 44-49) (Article 83(5)).
+- **Lower tier (GDPR):** Up to €10 million or 2% of total worldwide annual turnover for the controller and processor obligations under Articles 25 to 39 (including data-protection by design, security, breach notification, and the DPIA and high-risk-processing duties) (Article 83(4)).
+- **EU AI Act: prohibited practices:** Up to €35 million or 7% of worldwide annual turnover.
+- **EU AI Act: operator obligations:** Up to €15 million or 3% of worldwide annual turnover for the operator and notified-body obligations Article 99(4) lists, including the high-risk provider and deployer obligations and the Article 50 transparency obligations (Article 99(4)).
+- **EU AI Act: general-purpose AI model providers:** Up to €15 million or 3% of annual total worldwide turnover, imposed by the Commission (Article 101(1)).
+- **EU AI Act: incorrect information:** Up to €7.5 million or 1% of worldwide annual turnover.
+- **EU AI Act: SME and start-up cap** (Article 99(6)): for small and medium-sized enterprises, including start-ups, each fine under Article 99(3), (4) or (5) is capped at the lower of the percentage or the fixed amount, rather than the higher. The cap also reaches fines the AI Office imposes on operators within Article 75(1), because Article 75c(4), inserted by Regulation (EU) 2026/1744, applies Article 99(3) to (7) mutatis mutandis to the AI Office; it does not extend to the Article 101 fines on providers of general-purpose AI models.
+- **EU AI Act: small mid-cap (SMC) cap** (Article 99(6a), inserted by Regulation (EU) 2026/1744): for small mid-cap enterprises (defined at Article 3, point (14b)), each Article 99(4) or (5) fine is likewise capped at the lower of the percentage or the fixed amount. Article 75c(4), inserted by the same Regulation, applies Article 99(3) to (7), including this cap, to fines the AI Office imposes on operators within Article 75(1).
+- **Enforcement body (AI Act):** the EU AI Office (within DG CNECT) supervises General-Purpose AI (GPAI) at Union level (Articles 88-90, 92-94); the AI Board coordinates member-state authorities and may issue opinions (Articles 65-66); AI supervisory authorities designated by each EU member state enforce per-system obligations within their territory, except where Regulation (EU) 2026/1744 (the Digital Omnibus) reserves exclusive competence to the Union level: under the amended Article 75, the AI Office has exclusive competence over AI systems built on general-purpose AI models where the system and the model are developed by the same provider or by providers within the same undertaking (subject to sectoral-supervision exceptions), and the Commission acts as market-surveillance authority for AI systems that qualify as, or are embedded in, a very large online platform or search engine under Regulation (EU) 2022/2065. The EDPB has a consultative role on the interaction between the AI Act and Union data-protection law (it issued, with the EDPS, a joint opinion on the AI Act).
+
+---
+
+## Limitations
+
+This document is a CC BY-SA 4.0 reference baseline. It does not constitute legal advice. Adopting organizations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
+
+---
+
+**End of Document**

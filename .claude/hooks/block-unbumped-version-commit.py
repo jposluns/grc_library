@@ -1,0 +1,881 @@
+#!/usr/bin/env python3
+"""PreToolUse: auto-bump (or, failing that, refuse) a `git commit` that changes a versioned document's body without bumping it.
+
+WHY THIS IS A HOOK AND NOT A CONVENTION. The convention existed, is written down in two
+places, and was still repeatedly broken, including a downstream miss (the derived artefacts
+left unregenerated after a bump): the rule was known, restated precisely, and then missed
+again in the same stretch of work. That is the signature of a control at the wrong layer: the
+knowledge was present and the timing was not.
+
+THE ACTUAL CAUSE, because it decides the design. Gates 40 and D2 already catch this, but they speak
+at PRE-PUSH time, roughly six minutes into a guard run and several commits after the edit. By then
+the repair is itself a new commit touching the same file, which is how one miss becomes a chain: a
+D4 repair that moved a `Date` became a gate-40 failure, whose repair became a gate-33 failure. The
+fix has to fire at the moment of the commit, where the correction is free.
+
+WHAT IT READS. The STAGED diff (`git diff --cached`), targeting `project_root()` via `git -C`.
+That root is derived from the hook's own location (NOT the command's `-C` target or the runtime cwd).
+The Git subprocesses inherit ambient Git environment variables, so `GIT_DIR` / `GIT_WORK_TREE`
+pointing at a scratch repository can redirect Git despite `-C`; working-file reads still use
+`project_root()`. It does not
+simulate preceding commands, a `commit -a`, or a path-selected commit, so any of those can make the
+inspected index differ from what the eventual commit contains. Eligibility comes from WORKING-TREE
+contents: a staged `.md` file outside `.claude/skills/corpus-management/src/` whose working file carries its own column-zero
+Version key (`**Version:**`, or `**README Version:**` for the root README.md; see version_key). For each, it asks whether a changed line is non-metadata (a column-zero `**Key:** value`
+line, matched anywhere, is treated as metadata; a blank changed line is ignored) while no changed line is
+the path's own Version key. This is a lighter, commit-time cousin of gate 40's committed-history check (gate
+40 remains the authority and compares differently); it checks only that the path's own Version line was
+added or removed, not that the value increments. Eligible paths come from `git diff --cached --name-only`
+filtered to staged `.md` files (outside `.claude/skills/corpus-management/src/`) whose working file carries that key (a
+per-file read error skips only that file). Git-quoted (including octal-escaped) `--name-only` paths are
+not decoded before suffix checks and working-file reads, so a file can fail eligibility and never enter
+`versioned`. The diff-header parser associates hunks by splitting each header at its first ` b/` and
+requiring the resulting path to be in `versioned`; a ` b/`-containing or Git-quoted header path can also
+break that association. Quoting can therefore defeat eligibility as well as hunk association.
+
+WHAT IT DOES, AND WHAT IT DELIBERATELY DOES NOT.
+  - AUTO-FIXES FIRST, THEN BLOCKS: on a staged body change to a versioned
+    file with no staged `Version` change, it attempts a PATCH increment of the FIRST numeric `**Version:**` match before the metadata-region
+    boundary (skipping an earlier bracketed-template Version),
+    updates the first matching `**Date:**` in the leading metadata region IF one is present (otherwise the
+    Date is left unchanged), writes the file, then re-stages it. The write-then-stage is not transactional,
+    so a later failure can leave the working file modified. It reports the file(s) it could NOT auto-bump
+    (the root README.md, which is never auto-bumped because its `**README Version:**` moves once per PR
+    with the CalVer; other unstaged changes present; no `SEMVER_VERSION` match before the metadata-region
+    end; or an Exception during the attempt) and BLOCKS THE WHOLE tool call if any remain; auto-bumps done earlier in
+    the same run are kept.
+  - ALSO WARNS (never blocks), only when the offender list is empty, over the eligible
+    working-tree-VERSIONED staged paths (not every staged `.md`), for those in a subdirectory outside
+    `.working/` and `.claude/` when none of the derived artefacts is staged alongside them
+    (a corpus path checks the TAXONOMY_GENERATED artefacts; an executive
+    path checks the NARRATIVE_GENERATED artefact; see the constants below). It does NOT verify that a `**Version:**` value actually moved, so a
+    Date-only staged change can trigger it; it warns rather than blocks because the regeneration order
+    matters and the generated artefacts can be staged alongside the document without unstaging it.
+  - DOES NOT block a `Version` bump whose `Date` is stale: delta gate D4 owns that comparison, it
+    needs the commit's own date which does not exist yet at PreToolUse time, and duplicating it here
+    from a guessed date would be a check whose input cannot answer it.
+  - DOES NOT touch files with no own Version key (`**Version:**`; README.md: `**README Version:**`).
+  - DOES NOT act on a `git commit --amend`: an amend reuses an existing commit and its diff is not
+    the staged set alone, so the hook leaves it (the refuse-what-you-cannot-answer discipline); a
+    staged body change amended in is NOT version-checked here (gate 40 / D2 remain the authority).
+
+FAIL-OPEN, BUT NOT UNIVERSALLY. A failure during the INITIAL JSON parse, repository location, or
+staged-diff inspection ALLOWS the commit; an error reading one candidate working file skips only that
+file, so other offenders can still block. A failure DURING an offender's auto-bump (a `git diff`/`git add`
+error, or any exception in `try_auto_bump`) is caught as an unsuccessful attempt, which keeps that file a
+blocking offender rather than allowing. A guard that blocks all work when it breaks gets removed within a
+day, which is why the read path fails open; the
+auto-bump path fails toward the block it was already going to issue. Defence in depth under gates 40 and
+D2, which remain the authority.
+
+THE ESCAPE HATCH IS DELIBERATE AND NARROW. A command whose text contains the bare token
+`VersionBump: none` excuses the root README.md only (matched anywhere in the command string; the
+`<reason>` is a CONVENTION for a reader of the commit, NOT mechanically required or checked by this hook); every
+other staged document is still auto-bumped or blocked. Some body edits genuinely do
+not warrant a bump, and without a sanctioned opt-out an author whose edit genuinely does not warrant one
+has no clean path, so the guard becomes friction that invites disabling it wholesale, which is worse than a
+hatch that, by convention, leaves a reason in the commit message where a reader can see it.
+"""
+from __future__ import annotations
+
+import json
+import os
+import re
+import subprocess
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+VERSION_LINE = re.compile(r"^\*\*Version:\*\*", re.M)
+# METADATA_PREFIX matches a column-zero `**Key:** value` line ANYWHERE (classify_hunk applies it
+# per changed line, with no leading-block tracking). Changing only such lines is a metadata edit,
+# not a body change, so it must not by itself demand a bump.
+METADATA_PREFIX = re.compile(r"^\*\*[A-Za-z][A-Za-z ()/-]*:\*\*")
+OPT_OUT = re.compile(r"VersionBump:\s*none\b", re.I)
+# Generated artefacts, split by SOURCE: corpus documents feed the taxonomy chain;
+# executive/ pages feed .claude/skills/corpus-management/data/narrative.yml. Split sets so staging one family cannot
+# suppress the warn for the other.
+TAXONOMY_GENERATED = (".claude/skills/corpus-management/data/taxonomy.yml",
+                      "governance/portal.md", "governance/maturity-scorecard.md")
+NARRATIVE_GENERATED = (".claude/skills/corpus-management/data/narrative.yml",)
+# Its Version is the generator's schema version; gate 40 exempts it too.
+OTHER_GENERATED = (".claude/skills/corpus-management/registers/reference-acquisition-manifest.md",)
+GENERATED = TAXONOMY_GENERATED + NARRATIVE_GENERATED + OTHER_GENERATED
+# A `**Version:**` line beginning with three dot-separated digit groups (auto-bumpable); the trailing
+# `(.*)` preserves any remainder, so this does NOT distinguish semver from a numerically similar CalVer
+# and increments a `**Version:** 2026.07.725` just as it would a semver value. README's `**Library
+# Version:**` field is a DIFFERENT key and is not matched by VERSION_LINE at all; a bracketed template
+# `**Version:** <x.y.z ...>` has no leading digit group and does not match SEMVER_VERSION. When no numeric
+# match exists before the metadata-region end bump_semver returns None and the offender blocks; a numeric
+# match can still block if the file has other unstaged changes or the auto-bump raises.
+SEMVER_VERSION = re.compile(r"^(\*\*Version:\*\*[ \t]*)(\d+)\.(\d+)\.(\d+)(.*)$", re.M)
+DATE_META = re.compile(r"^(\*\*Date:\*\*[ \t]*)(\d{4}-\d{2}-\d{2})(.*)$", re.M)
+# The root README.md carries its per-document version under a DIFFERENT key (``**README Version:**``);
+# its only ``**Version:**`` line is a fenced metadata TEMPLATE in its body. The key is therefore
+# PATH-SPECIFIC: for README_PATH only ``**README Version:**`` selects the file and counts as
+# its Version change (so editing the template cannot stand in for the bump), and for every other file
+# only ``**Version:**`` does (so an illustrative ``**README Version:**`` line elsewhere is neither).
+# ``**Library Version:**`` is neither key. The date-lag NOTE below uses the same per-path key: a staged
+# Version change whose staged ``**Date:**`` is not today UTC is the UTC-rollover co-bump miss D4
+# otherwise catches only at the pre-push guard.
+README_PATH = "README.md"
+# A UTF-8 byte-order mark before a file's first line hides a column-zero key from the ^-anchored
+# patterns; eligibility, classification, the metadata region, the date-lag note and the auto-bump
+# each set aside EXACTLY ONE leading BOM (removeprefix), so no site reads a double BOM differently
+# from another.
+BOM = "\ufeff"
+README_VERSION_LINE = re.compile(r"^\*\*README Version:\*\*", re.M)
+
+
+def version_key(path: "str | None") -> "re.Pattern[str]":
+    """PURE. The multiline Version-key pattern for a repo-relative ``path``: README.md's own
+    ``**README Version:**`` for the root README, ``**Version:**`` for any other path or ``None``."""
+    return README_VERSION_LINE if path == README_PATH else VERSION_LINE
+HUNK_NEW = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@")
+HUNK_BOTH = re.compile(r"^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@")
+
+
+def _lf_lines(s: str, keepends: bool = False) -> list[str]:
+    """PURE. Split on LF only. git diff output and hunk positions are LF-delimited, whereas
+    str.splitlines() also splits on U+2028, U+0085 and similar, which can fabricate a diff line
+    (a fake 'diff --git' or '+++') from content inside one real line."""
+    parts = s.split("\n")
+    if keepends:
+        out = [x + "\n" for x in parts[:-1]]
+        if parts[-1]:
+            out.append(parts[-1])
+        return out
+    return parts[:-1] if parts and parts[-1] == "" else parts
+
+
+def version_line_changed(lines: list[str], path: "str | None" = None) -> bool:
+    """PURE. True when a +/- changed line (not a diff header) is ``path``'s own Version line
+    (see :func:`version_key`)."""
+    key = version_key(path)
+    for ln in lines:
+        if ln.startswith(("+++", "---", "@@", "diff ", "index ", "new file", "deleted file")):
+            continue
+        if ln and ln[0] in "+-" and key.match(ln[1:]):
+            return True
+    return False
+
+
+def stale_date_after_bump(diff: str, staged_text: dict, today: str) -> list[str]:
+    """PURE. Paths whose staged diff changes a Version/README Version line while the staged file's
+    first ``**Date:**`` value is not ``today``. A file with no Date line is not reported."""
+    out, cur, buf = [], None, []
+
+    def flush():
+        if not cur:
+            return
+        text = staged_text.get(cur, "")
+        head = text[:_metadata_region_end(text)]
+        # Only a Version line that sits in the METADATA header counts (a body/fenced example
+        # changing is not a bump), and only the header Date is compared.
+        # Position-based (not text-membership): track new-file line numbers from the hunk headers
+        # and count an added Version line only when it LIES within the header, so a body/fenced
+        # example whose new value equals the unchanged header Version is not mistaken for a bump.
+        # Count LF-delimited lines only (git hunk positions do; str.splitlines() also splits on
+        # U+2028 and similar). Inside a hunk every '+' line is an added line, including one whose
+        # content begins '++' (rendered '+++'); the '+++ b/...' file header precedes the first '@@'.
+        header_lines = head.count("\n") + (1 if head and not head.endswith("\n") else 0)
+        n, hit, in_hunk = 0, False, False
+        for ln in buf:
+            h = HUNK_NEW.match(ln)
+            if h:
+                n, in_hunk = int(h.group(1)), True
+            elif not in_hunk:
+                continue
+            elif ln.startswith("+"):
+                if version_key(cur).match(ln[1:].removeprefix(BOM) if n == 1 else ln[1:]) and 1 <= n <= header_lines:
+                    hit = True
+                n += 1
+            elif ln.startswith(" "):
+                n += 1
+        if not hit:
+            return
+        # A Date on line 1 sits behind any BOM; the ^-anchored search needs it set aside.
+        m = DATE_META.search(head.removeprefix(BOM))
+        if m and m.group(2) != today:
+            out.append(cur)
+
+    for ln in _lf_lines(diff):
+        if ln.startswith("diff --git "):
+            flush()
+            parts = ln.split(" b/", 1)
+            cur, buf = (parts[1] if len(parts) == 2 else None), []
+        else:
+            buf.append(ln)
+    flush()
+    return out
+
+
+def project_root() -> Path:
+    # Derived from this file's location, never hardcoded, so the guard follows a repo relocation
+    # (the row-E lesson from an earlier checkout move, where five hooks kept a stale absolute root).
+    return Path(__file__).resolve().parents[2]
+
+
+# COMMIT_RE accepts optional whitespace-delimited `-C <path>` operands between `git` and
+# `commit`: commits here are routinely written as `git -C <root> commit`, so a bare
+# "git commit" substring test would miss that common, legitimate shape.
+COMMIT_RE = re.compile(r"\bgit\b(?:\s+-C\s+\S+)*\s+commit\b")
+
+
+def is_commit(cmd: str) -> bool:
+    """PURE. Does the flattened command text contain `git`, optional whitespace-delimited `-C`
+    operands, and `commit` (a textual match, not a guarantee a commit will be created: `git commit
+    --dry-run` and `echo 'git commit'` both match)? Any `--amend` substring anywhere exempts it."""
+    flat = " ".join(cmd.split())
+    if not COMMIT_RE.search(flat):
+        return False
+    # `--amend` reuses an existing commit and its diff is not the staged set alone; leave it alone
+    # rather than guess, which is the refuse-to-answer-what-you-cannot discipline.
+    return "--amend" not in flat
+
+
+def commit_target(cmd: str, cwd: str):
+    """Text-derived, reading the filesystem only to resolve -C symlinks as chdir does. The directory a `git ... commit` in `cmd` runs in: `cwd`, then any `cd <dir>` earlier in
+    the same command, then the commit's own `-C` operands, applied in order as git applies them.
+    Returns None when the target cannot be determined from the text (a quoted, variable, or `~`
+    operand), so the caller steps aside rather than inspect a checkout the commit may not touch
+    (otherwise the guard would read, and even auto-bump, ITS OWN checkout for a commit
+    aimed at another worktree)."""
+    flat = " ".join(cmd.split())
+    matches = list(COMMIT_RE.finditer(flat))
+    if len(matches) != 1:
+        return None   # no commit, or several commits whose targets may differ
+    m = matches[0]
+    prefix = flat[:m.start()]
+    # Shell scope the text cannot settle: a subshell, group, or command
+    # substitution before the commit, or a newline-separated command, may change or hide the
+    # directory. Newlines are checked on the RAW command (flat folds them into spaces).
+    # The raw prefix ends at the MATCHED commit, not the first "commit" substring anywhere
+    # (a filename `commit` earlier on a newline-joined line would otherwise cut the check short).
+    raw_matches = list(COMMIT_RE.finditer(cmd))
+    if len(raw_matches) != 1:
+        return None
+    raw_prefix = cmd[:raw_matches[0].start()]
+    # A quote in the prefix can hide a separator inside one argument and forge a "plain git
+    # segment" (for example `git submodule foreach ':; git commit'`, `-c alias.x='!:; git
+    # commit'`), so quotes are undeterminable too. Cost, accepted: `git add 'a b' && git commit`
+    # steps aside; the git-native check still refuses in the real target.
+    # The backslash is the third POSIX quoting mechanism (for example `git submodule foreach
+    # :\; git commit` runs the commit in each submodule), so it is undeterminable too.
+    if any(t in prefix for t in ("(", ")", "`", "{", "}", "'", '"', "\\")) or "\n" in raw_prefix.strip():
+        return None
+    # ANY cd/pushd/popd before the commit makes the target undeterminable: whether it runs depends
+    # on execution (a failed cd, `||`, a `;` after a failed step), which text cannot settle.
+    # Only the commit's own -C operands are used; those cannot fail silently
+    # (git exits instead of committing). The cost, accepted: a `cd x && ... && git commit` gets no
+    # auto-bump here; the git-native commit-msg check in that checkout still refuses it.
+    if re.search(r"\b(?:cd|pushd|popd)\b", prefix):
+        return None
+    # ALLOWLIST, not a blocklist (env assignments, `env -C`, `source`, an
+    # alias, and quote-spliced `c''d` all move the commit without a literal cd token). The target is
+    # read from the text only when the matched `git` stands alone (not the tail of `repo.git` or a
+    # path), the commit's own command segment has nothing before `git` (no `GIT_DIR=`/`env` prefix),
+    # and every earlier segment is itself a plain `git` invocation, which cannot change the shell's
+    # directory. Anything else steps aside; the git-native commit-msg check in the real target still
+    # refuses. Residue, stated: a user alias or function NAMED `git` is not detectable from text.
+    if m.start() > 0 and flat[m.start() - 1] not in " ;&|":
+        return None
+    segments = re.split(r"&&|\|\||[;|&]", prefix)
+    if segments[-1].strip():
+        return None
+    for seg in segments[:-1]:
+        if seg.strip() and not re.match(r"\s*git\s", seg):
+            return None
+    # Any `-C` on the commit steps aside. Many -C operand shapes (shell escapes, globs, missing
+    # intermediates, symlinks, /proc/self under several spellings, and a trailing `..`
+    # cancelling a /proc/self step) can make this guard resolve a directory git does
+    # not run in. Text plus this process's filesystem view cannot settle git's chdir, so the guard
+    # no longer tries: a -C commit is left to the git-native commit-msg check in the real target.
+    # Cost, accepted: no auto-bump here for a -C commit.
+    if re.search(r"\s-C\s", m.group(0)):
+        return None
+    return cwd
+
+
+def classify_hunk(lines: list[str], path: "str | None" = None) -> tuple[bool, bool]:
+    """PURE. (body_changed, version_changed) for one file's unified-diff lines. The Version key is
+    ``path``'s own (:func:`version_key`): ``**README Version:**`` for README.md, else ``**Version:**``;
+    the other key's line is treated like any other metadata line.
+
+    A changed line counts as BODY unless it is blank/whitespace-only or a column-zero `**Key:**
+    value` metadata line (matched by position anywhere, not only in a leading block). Before the
+    first `@@` hunk header, file-header lines (`+++`/`---`/`diff `/`index `/`new file`/`deleted file`)
+    are skipped; after it every `+`/`-`/space line is hunk content, classified and counted, including
+    content rendered `+++`/`---`. Physical line numbers come from the hunk headers, and a UTF-8 BOM
+    is set aside only on line 1. Returns two independent
+    booleans because the interesting state is
+    body-without-version, and collapsing them early would hide it.
+    """
+    body = version = False
+    key = version_key(path)
+    old_n = new_n = 1  # physical line numbers, from each hunk header
+    in_hunk = False
+    for ln in lines:
+        if ln.startswith("diff --git "):
+            in_hunk = False  # a new file's headers follow (a rename passes a two-path diff)
+            old_n = new_n = 1
+            continue
+        h = HUNK_BOTH.match(ln)
+        if h:
+            old_n, new_n = int(h.group(1)), int(h.group(2))
+            in_hunk = True
+            continue
+        # Before the first hunk header these are file headers; INSIDE a hunk every line is content,
+        # including content rendered `+++`/`---`, so it is classified and counted
+        # (skipping it would shift the line counters and let line 2 pose as line 1).
+        if not in_hunk and ln.startswith(("+++", "---", "@@", "diff ", "index ", "new file", "deleted file")):
+            continue
+        if not ln or ln[0] not in "+- ":
+            continue
+        if ln[0] == " ":
+            old_n += 1
+            new_n += 1
+            continue
+        pos = old_n if ln[0] == "-" else new_n
+        if ln[0] == "-":
+            old_n += 1
+        else:
+            new_n += 1
+        # A UTF-8 BOM is stripped ONLY from a file's first line, where it can exist; stripping it
+        # from any changed line would let a BOM-prefixed body example pose as a Version change.
+        text = ln[1:].removeprefix(BOM) if pos == 1 else ln[1:]
+        if key.match(text):  # the path's own key
+            version = True
+        elif METADATA_PREFIX.match(text):
+            continue
+        elif text.strip():
+            body = True
+    return body, version
+
+
+def offenders(diff: str, versioned: set[str]) -> list[str]:
+    """PURE. Staged versioned files whose body changed with no Version change. Each diff header is
+    split at its FIRST literal ` b/`, so a path CONTAINING ` b/` (or a Git-quoted path) can be
+    misidentified or missed; such a file is then not seen as an offender."""
+    out, cur, buf = [], None, []
+
+    def flush():
+        if cur in versioned:
+            body, ver = classify_hunk(buf, cur)
+            if body and not ver:
+                out.append(cur)
+
+    for ln in _lf_lines(diff):
+        if ln.startswith("diff --git "):
+            flush()
+            parts = ln.split(" b/", 1)
+            cur, buf = (parts[1] if len(parts) == 2 else None), []
+        else:
+            buf.append(ln)
+    flush()
+    return out
+
+
+def _printable(text) -> str:
+    """Escape every character that is neither printable nor a space separator (its ascii() escape replaces it). A staged path is listed through it: git
+    quotes C0 controls in --name-only output, but with core.quotePath=false a C1 control or a
+    bidirectional or other format character stays raw."""
+    import unicodedata
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in str(text))
+
+
+def git(root: Path, *args: str) -> str:
+    # Raw bytes, decoded WITHOUT newline translation: text=True would apply universal newlines and
+    # turn a lone CR inside a tracked line into a line break before any parser sees it.
+    out = subprocess.run(["git", "-C", str(root), *args], capture_output=True, check=True).stdout
+    return out.decode("utf-8", "surrogateescape")
+
+
+def _metadata_region_end(text: str) -> int:
+    """PURE. Char offset where the leading run of blank, `#`-prefixed, and `**Key:**`-metadata-shaped
+    lines ends (a heuristic boundary, not a parse of document structure; each line is stripped first, so an
+    INDENTED metadata-shaped line also extends the region and a Markdown `#` heading is treated as a comment).
+    The auto-bump searches only
+    before this offset, so a `**Version:**`/`**Date:**` at or after it (a fenced example or a template)
+    is left untouched."""
+    off = 0
+    for i, line in enumerate(_lf_lines(text, keepends=True)):
+        # A UTF-8 BOM exists only before the FIRST line; str.strip() does not remove it.
+        st = (line.removeprefix(BOM) if i == 0 else line).strip()
+        if st == "" or st.startswith("#") or METADATA_PREFIX.match(st):
+            off += len(line)
+            continue
+        break
+    return off
+
+
+def bump_semver(text: str) -> str | None:
+    """PURE. `text` with the FIRST `SEMVER_VERSION` match BEFORE `_metadata_region_end(text)`
+    patch-bumped, or None if there is no such match. The regex matches any three dot-separated digit
+    groups, so a CalVer-shaped `**Version:** 2026.07.725` in the metadata region also matches and is
+    bumped. A bracketed-template `**Version:** <x.y.z>` line does not itself match and is skipped, so a
+    later numeric Version line before the region end is still found and bumped; None is returned only when
+    NO numeric match exists before the region end -> caller blocks."""
+    m = SEMVER_VERSION.search(text[:_metadata_region_end(text)])
+    if not m:
+        return None
+    maj, mnr, pat = int(m.group(2)), int(m.group(3)), int(m.group(4))
+    repl = f"{m.group(1)}{maj}.{mnr}.{pat + 1}{m.group(5)}"
+    return text[:m.start()] + repl + text[m.end():]
+
+
+def set_date(text: str, today: str) -> str:
+    """PURE. Set the FIRST `**Date:** YYYY-MM-DD` in the metadata block to `today`; unchanged if none."""
+    m = DATE_META.search(text[:_metadata_region_end(text)])
+    if not m:
+        return text
+    return text[:m.start()] + f"{m.group(1)}{today}{m.group(3)}" + text[m.end():]
+
+
+def try_auto_bump(root: Path, path: str, today: str) -> bool:
+    """Attempt a patch Version bump + Date update on an offender and re-stage it. Return True on
+    success, False (caller blocks) when the file has OTHER unstaged changes (auto-staging would grab
+    them), cannot be read, has no `SEMVER_VERSION` match before the metadata-region end, or any
+    Exception occurs during the attempt. The write-then-stage is not transactional, so a failure after
+    the write can leave the working file modified.
+
+    The root README.md is never auto-bumped: its own key, ``**README Version:**``, is
+    bumped once per PR with the library CalVer, and ``bump_semver`` would otherwise repair a
+    ``**Version:**`` line in it (the wrong key) and report success with the README's key unchanged."""
+    if path == README_PATH:
+        return False
+    try:
+        if git(root, "diff", "--name-only", "--", path).strip():
+            return False
+        f = root / path
+        # Byte-exact on both sides, so a CRLF file keeps its line endings when auto-bumped.
+        # History: an earlier read_text(newline="") raised when CI still ran Python 3.11, which
+        # lacks that keyword, so the auto-bump always fell into the except branch there.
+        text = f.read_bytes().decode("utf-8")
+        if re.search(r"\r(?!\n)", text):
+            # Lone-CR line endings: re.M's ^ and $ see no line starts, so the Version would be
+            # bumped while the Date is never found, and success reported.
+            return False
+        # A leading UTF-8 BOM is set aside and written back unchanged, so the metadata regexes see
+        # the first line and the file's bytes are preserved.
+        bom = BOM if text.startswith(BOM) else ""
+        text = text[len(bom):]
+        if text.startswith(BOM):
+            # A second leading BOM is malformed: the region helper would set it aside too and
+            # bump the Version while the Date search misses line 1. Decline.
+            return False
+        bumped = bump_semver(text)
+        if bumped is None:
+            return False
+        f.write_bytes((bom + set_date(bumped, today)).encode("utf-8"))
+        git(root, "add", "--", path)
+        return True
+    except Exception:
+        return False
+
+
+def escape_filter(bad, opted):
+    """PURE. The offenders left after the VersionBump: none escape, which covers README.md only:
+    every other unbumped document stays an offender."""
+    return [p for p in bad if p != "README.md"] if opted else list(bad)
+
+
+def main() -> int:
+    try:
+        payload = json.load(sys.stdin)
+    except Exception:
+        return 0
+    if payload.get("tool_name") != "Bash":
+        return 0
+    cmd = (payload.get("tool_input") or {}).get("command", "") or ""
+    if not is_commit(cmd):
+        return 0
+    # The VersionBump: none escape covers README.md only (its README Version is bumped once per PR,
+    # at the last pre-push commit); any other versioned document is still bumped or refused.
+    opted = bool(OPT_OUT.search(cmd))
+    # Act ONLY on this guard's own checkout. A commit aimed elsewhere (another worktree via `git -C`
+    # or `cd`) is left to that checkout's git-native commit-msg check; an undeterminable
+    # target is also left alone rather than guessed.
+    # With no payload cwd and no `cd`/`-C` in the command there is nothing to resolve: the commit
+    # runs where this guard runs (the previous behaviour). Resolution goes through git() only.
+    try:
+        target = commit_target(cmd, payload.get("cwd") or "")
+        if target is None:
+            return 0
+        if target:
+            top = git(Path(target), "rev-parse", "--show-toplevel").strip()
+            if Path(top).resolve() != project_root().resolve():
+                return 0
+    except Exception:
+        return 0
+
+    try:
+        root = project_root()
+        staged = [p for p in git(root, "diff", "--cached", "--name-only").splitlines() if p]
+        if not staged:
+            return 0
+        versioned = set()
+        for p in staged:
+            if p.startswith(".claude/skills/corpus-management/src/"):
+                continue
+            # Generated artefacts carry their own Version lines but are REGENERATED, never hand-bumped
+            # (gates 33/34/85 check them); a regenerated scorecard row is not a body edit to bump.
+            if p in GENERATED:
+                continue
+            f = root / p
+            try:
+                ftext = f.read_text(errors="replace")
+                # A double leading BOM is malformed: select the file rather than skip it, so the
+                # commit is judged (and refused) instead of passing unexamined.
+                if f.suffix == ".md" and (version_key(p).search(ftext.removeprefix(BOM))
+                                          or ftext.startswith(BOM * 2)):
+                    versioned.add(p)
+            except OSError:
+                continue
+        # UTC-rollover co-bump NOTE (non-blocking): covers README's different Version key too.
+        try:
+            md = sorted(p for p in staged if p.endswith(".md") and p not in GENERATED
+                        and not p.startswith(".claude/skills/corpus-management/src/"))
+            if md:
+                today_note = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                vdiff = git(root, "diff", "--cached", "--unified=0", "--", *md)
+                texts = {p: git(root, "show", f":{p}") for p in md}
+                lag = stale_date_after_bump(vdiff, texts, today_note)
+                if lag:
+                    print("NOTE (version-bump guard): a staged Version/README Version change carries a "
+                          f"**Date:** that is not today UTC ({today_note}): "
+                          f"{', '.join(_printable(p) for p in lag)}. Co-bump the "
+                          "Date in THIS commit (a later Date-only commit fails gate 40); D4 blocks at push.",
+                          file=sys.stderr)
+        except Exception:
+            pass
+        if not versioned:
+            return 0
+        diff = git(root, "diff", "--cached", "--unified=0", "--", *sorted(versioned))
+        bad = offenders(diff, versioned)
+        bad = escape_filter(bad, opted)
+    except Exception:
+        return 0  # fail OPEN, deliberately: see the module docstring
+
+    if not bad:
+        # The sixth-instance shape: a versioned corpus document staged without its derived
+        # artefacts. This does NOT verify a Version actually moved (a Date-only staged change can
+        # trigger it). A WARNING, not a block: regeneration order matters, and the generated artefacts
+        # can be staged alongside the document without unstaging it.
+        moved = [p for p in versioned if "/" in p and not p.startswith((".working/", ".claude/"))]
+        exec_pages = [p for p in moved if p.startswith("executive/")]
+        corpus_pages = [p for p in moved if not p.startswith("executive/")]
+        if corpus_pages and not any(g in staged for g in TAXONOMY_GENERATED):
+            print("NOTE (version-bump guard): a versioned corpus document is staged and none of "
+                  f"{', '.join(TAXONOMY_GENERATED)} is staged. If this document feeds the taxonomy, "
+                  "run `python3 .claude/skills/corpus-management/tools/build-taxonomy.py` FIRST, then build-portal.py, and stage both. "
+                  "Gate 33 catches it otherwise, six minutes from now.", file=sys.stderr)
+        if exec_pages and not any(g in staged for g in NARRATIVE_GENERATED):
+            print("NOTE (version-bump guard): a versioned executive/ page is staged and .claude/skills/corpus-management/data/narrative.yml "
+                  "is not staged. Run `python3 .claude/skills/corpus-management/tools/build-narrative-registry.py` and stage it. "
+                  "Gate 85 catches it otherwise, six minutes from now.", file=sys.stderr)
+        return 0
+
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    fixed, remaining = [], []
+    for p in bad:
+        (fixed if try_auto_bump(root, p, today) else remaining).append(p)
+    if fixed:
+        print("NOTE (version-bump guard): auto-bumped **Version:** (patch), set the first date-shaped "
+              f"**Date:** before the metadata-region end to {today} if one exists, and re-staged: "
+              f"{', '.join(_printable(p) for p in fixed)}. A PATCH "
+              "bump is assumed; if a minor/major is intended, edit **Version:** yourself and re-commit.",
+              file=sys.stderr)
+    if not remaining:
+        return 0
+
+    lines = [
+        "BLOCKED (unbumped-version-commit): a commit containing staged file(s) with a changed BODY, no "
+        "staged change to its own Version line (`**Version:**`; README.md: `**README Version:**`), and an "
+        "unsuccessful auto-bump (README.md is never auto-bumped; otherwise other unstaged changes "
+        "present, no numeric Version match before the metadata-region end such as a bracketed template, or an exception during the attempt):",
+        "",
+    ]
+    lines += [f"  - {_printable(p)}" for p in remaining]
+    lines += [
+        "",
+        "WHY: a body change without a Version+Date bump trips the delta gates (D2 on a body change "
+        "without a Version, D4 on a Version without a matching Date) and gate 40 (a later Date-only "
+        "commit is itself a body change post-dating the bump); this fires at commit time rather than "
+        "at the pre-push guard six minutes later.",
+        "",
+        "CONSIDER INSTEAD: bump `**Version:**` (README.md: `**README Version:**`) AND `**Date:**` in the "
+        "SAME edit, then re-stage. The `VersionBump: none <reason>` escape covers README.md only (its "
+        "README Version is bumped at the last commit before push); it does not excuse any other document.",
+    ]
+    print("\n".join(lines), file=sys.stderr)
+    return 2
+
+
+def self_test() -> int:
+    # Every scratch path the self-test makes (including a child git's) lands under one root that is
+    # removed on exit, so a run leaves nothing behind in the temp directory.
+    import atexit as _atx, os as _os, shutil as _shu, tempfile as _tpf
+    _tpf.tempdir = _tpf.mkdtemp(prefix="grc-selftest-"); _os.environ["TMPDIR"] = _tpf.tempdir
+    _atx.register(_shu.rmtree, _tpf.tempdir, True)
+    cases, fails = 0, []
+
+    def ck(name, got, want):
+        nonlocal cases
+        cases += 1
+        if got != want:
+            fails.append(f"{name}: {got!r} != {want!r}")
+        print(f"  {'PASS' if got == want else 'FAIL'}: {name}")
+
+    # --- command recognition ---
+    ck("a plain git commit is in scope", is_commit("git -C /r commit -q -m x"), True)
+    ck("a heredoc commit is in scope", is_commit("git -C /r commit -q -F -"), True)
+    ck("--amend is deliberately out of scope", is_commit("git commit --amend --no-edit"), False)
+    ck("git status is not a commit", is_commit("git -C /r status --short"), False)
+    ck("a commit inside a chain is still a commit",
+       is_commit("python3 .claude/skills/corpus-management/tools/preflight-changelog.py && git -C /r commit -q -m x"), True)
+
+    # --- the opt-out ---
+    ck("the opt-out phrase is recognized", bool(OPT_OUT.search("m 'x\n\nVersionBump: none typo only'")), True)
+    ck("the escape excuses README.md only (3b102)", escape_filter(["README.md", "governance/x.md"], True), ["governance/x.md"])
+    ck("without the escape every offender stays", escape_filter(["README.md", "governance/x.md"], False), ["README.md", "governance/x.md"])
+    ck("a mention of versions is not an opt-out", bool(OPT_OUT.search("bump the version")), False)
+
+    # --- THE REALITY FIXTURE: the original miss shape, a spec body edited with no bump ---
+    real = (
+        "diff --git a/.claude/skills/corpus-management/specs/specification-audit-programme.md b/.claude/skills/corpus-management/specs/specification-audit-programme.md\n"
+        "--- a/.claude/skills/corpus-management/specs/specification-audit-programme.md\n"
+        "+++ b/.claude/skills/corpus-management/specs/specification-audit-programme.md\n"
+        "@@ -197,1 +197,1 @@\n"
+        "-the sibling-free portability check (section 1.19.1) leaves\n"
+        "+the sibling-free portability check (PR #993) leaves\n")
+    ck("the original miss shape is caught",
+       offenders(real, {".claude/skills/corpus-management/specs/specification-audit-programme.md"}),
+       [".claude/skills/corpus-management/specs/specification-audit-programme.md"])
+
+    # --- the same edit WITH the bump staged: must not fire ---
+    fixed = real + (
+        "@@ -5,2 +5,2 @@\n"
+        "-**Version:** 1.17.29\\\n"
+        "+**Version:** 1.17.30\\\n"
+        "-**Date:** 2026-07-25\\\n"
+        "+**Date:** 2026-07-26\\\n")
+    ck("the same edit with the bump staged does NOT fire",
+       offenders(fixed, {".claude/skills/corpus-management/specs/specification-audit-programme.md"}), [])
+
+    # --- a metadata-only change must not demand a bump (false-positive guard) ---
+    meta_only = (
+        "diff --git a/x.md b/x.md\n@@ -3,1 +3,1 @@\n"
+        "-**Date:** 2026-07-25\\\n+**Date:** 2026-07-26\\\n")
+    ck("a Date-only edit does not demand a bump", offenders(meta_only, {"x.md"}), [])
+
+    # --- an unversioned file is out of scope even with a big body change ---
+    unver = "diff --git a/notes.txt b/notes.txt\n@@ -1,1 +1,1 @@\n-old body\n+new body\n"
+    ck("an unversioned file is out of scope", offenders(unver, set()), [])
+
+    # --- multi-file: only the offending one is named ---
+    multi = real + (
+        "diff --git a/ok.md b/ok.md\n@@ -1,2 +1,2 @@\n"
+        "-**Version:** 1.0.0\\\n+**Version:** 1.0.1\\\n-body\n+body two\n")
+    ck("only the offending file of two is named",
+       offenders(multi, {".claude/skills/corpus-management/specs/specification-audit-programme.md", "ok.md"}),
+       [".claude/skills/corpus-management/specs/specification-audit-programme.md"])
+
+    # --- classify_hunk directly, both halves independently ---
+    ck("classify: body only", classify_hunk(["-a", "+b"]), (True, False))
+    ck("classify: version only", classify_hunk(["-**Version:** 1\\", "+**Version:** 2\\"]), (False, True))
+    ck("classify: both", classify_hunk(["-a", "+b", "+**Version:** 2\\"]), (True, True))
+    ck("classify: blank added line is not a body change", classify_hunk(["+   "]), (False, False))
+    ck("classify: diff headers are ignored",
+       classify_hunk(["diff --git a/x b/x", "--- a/x", "+++ b/x", "@@ -1 +1 @@"]), (False, False))
+
+    # --- 3.134 auto-bump: pure helpers ---
+    ck("bump_semver patches Z", bump_semver("**Version:** 1.2.3\\\nbody"), "**Version:** 1.2.4\\\nbody")
+    ck("bump_semver keeps trailing text", bump_semver("**Version:** 1.10.87 (per-doc)\\"), "**Version:** 1.10.88 (per-doc)\\")
+    ck("bump_semver returns None on a bracketed-template Version", bump_semver("**Version:** <x.y.z: new docs start at 0.0.1>\\"), None)
+    ck("bump_semver returns None with no Version line", bump_semver("just body text"), None)
+    ck("bump_semver ignores a fenced/body Version example (F1 hardening)",
+       bump_semver("**README Version:** 9.9.9\\\n\nbody\n\n```\n**Version:** 1.0.0\n```\n"), None)
+    ck("bump_semver still bumps a real metadata Version above a body example",
+       bump_semver("**Version:** 2.3.4\\\n\nbody\n\n```\n**Version:** 1.0.0\n```\n"),
+       "**Version:** 2.3.5\\\n\nbody\n\n```\n**Version:** 1.0.0\n```\n")
+    ck("set_date rewrites the Date", set_date("**Date:** 2026-07-01\\", "2026-07-29"), "**Date:** 2026-07-29\\")
+    ck("set_date is a no-op with no Date line", set_date("**Version:** 1.0.0\\", "2026-07-29"), "**Version:** 1.0.0\\")
+
+    # --- 3.134 auto-bump: git-fixture behaviour ---
+    import tempfile
+    def mkrepo():
+        d = Path(tempfile.mkdtemp())
+        git(d, "init", "-q")
+        git(d, "config", "user.email", "t@t")
+        git(d, "config", "user.name", "t")
+        return d
+    # clear offender -> auto-bumped + re-staged
+    d = mkrepo()
+    (d / "x.md").write_text("**Version:** 1.0.0\\\n**Date:** 2026-07-01\\\n\nold body\n")
+    git(d, "add", "x.md"); git(d, "commit", "-q", "-m", "init")
+    (d / "x.md").write_text("**Version:** 1.0.0\\\n**Date:** 2026-07-01\\\n\nnew body\n")
+    git(d, "add", "x.md")  # stage the body change with NO version bump
+    ck("clear offender auto-bumps", try_auto_bump(d, "x.md", "2026-07-29"), True)
+    ck("auto-bumped Version is staged", "**Version:** 1.0.1" in git(d, "show", ":x.md"), True)
+    ck("auto-bumped Date is staged", "**Date:** 2026-07-29" in git(d, "show", ":x.md"), True)
+    # --- no newline translation anywhere on the auto-bump path ---
+    dc = mkrepo()
+    (dc / "c.md").write_bytes(b"**Version:** 1.0.0\\\r\n**Date:** 2026-07-01\\\r\n\r\nold body\r\n")
+    git(dc, "add", "c.md"); git(dc, "commit", "-q", "-m", "init")
+    (dc / "c.md").write_bytes(b"**Version:** 1.0.0\\\r\n**Date:** 2026-07-01\\\r\n\r\nnew body\r\n")
+    git(dc, "add", "c.md")
+    ck("a CRLF offender auto-bumps", try_auto_bump(dc, "c.md", "2026-07-29"), True)
+    ck("the auto-bump keeps CRLF line endings",
+       (dc / "c.md").read_bytes(), b"**Version:** 1.0.1\\\r\n**Date:** 2026-07-29\\\r\n\r\nnew body\r\n")
+    dr = mkrepo()
+    (dr / "r.md").write_bytes(b"line one\rstill line one\n")
+    git(dr, "add", "r.md"); git(dr, "commit", "-q", "-m", "init")
+    ck("git() returns a lone CR untranslated", "one\rstill" in git(dr, "show", "HEAD:r.md"), True)
+    # unstaged changes present -> ambiguous -> not auto-bumped
+    d2 = mkrepo()
+    (d2 / "y.md").write_text("**Version:** 2.0.0\\\n\nbody\n")
+    git(d2, "add", "y.md"); git(d2, "commit", "-q", "-m", "init")
+    (d2 / "y.md").write_text("**Version:** 2.0.0\\\n\nstaged body\n"); git(d2, "add", "y.md")
+    (d2 / "y.md").write_text("**Version:** 2.0.0\\\n\nUNSTAGED further edit\n")  # extra unstaged change
+    ck("offender with other unstaged changes is NOT auto-bumped (block fallback)", try_auto_bump(d2, "y.md", "2026-07-29"), False)
+    # a different key (**Library Version:**) -> no SEMVER_VERSION match -> try_auto_bump returns False;
+    # main also excludes it from versioned eligibility
+    d3 = mkrepo()
+    (d3 / "z.md").write_text("**Library Version:** 2026.07.725\\\n\nbody\n")
+    git(d3, "add", "z.md"); git(d3, "commit", "-q", "-m", "init")
+    (d3 / "z.md").write_text("**Library Version:** 2026.07.725\\\n\nnew body\n"); git(d3, "add", "z.md")
+    ck("direct try_auto_bump returns False for a Library-Version-only file (no SEMVER_VERSION match)", try_auto_bump(d3, "z.md", "2026-07-29"), False)
+
+    # --- UTC-rollover co-bump NOTE (pure helper) ---
+    rd = ("diff --git a/README.md b/README.md\n@@ -2,1 +2,1 @@\n"
+          "-**README Version:** 1.11.282 (x)\n+**README Version:** 1.11.283 (x)\n")
+    ck("README Version bump with a stale Date is reported",
+       stale_date_after_bump(rd, {"README.md": "**Date:** 2026-09-23\\\n**README Version:** 1.11.283 (x)\\\n"}, "2026-09-24"), ["README.md"])
+    ck("README Version bump with today's Date is not reported",
+       stale_date_after_bump(rd, {"README.md": "**Date:** 2026-09-24\\\n**README Version:** 1.11.283 (x)\\\n"}, "2026-09-24"), [])
+    ck("a body-only change is not reported",
+       stale_date_after_bump("diff --git a/x.md b/x.md\n@@ -1 +1 @@\n-a\n+b\n", {"x.md": "**Date:** 2026-01-01\\\n"}, "2026-09-24"), [])
+    ck("a Version bump on a file with no Date line is not reported",
+       stale_date_after_bump("diff --git a/y.md b/y.md\n@@ -1 +1 @@\n-**Version:** 1.0.0\n+**Version:** 1.0.1\n", {"y.md": "no date"}, "2026-09-24"), [])
+    # --- a body/fenced Version example change is not a header bump ---
+    ex = ("diff --git a/e.md b/e.md\n@@ -30,1 +30,1 @@\n-**Version:** 1.0.0\n+**Version:** 1.0.1\n")
+    ex_text = "**Version:** 3.0.0\\\n**Date:** 2026-01-01\\\n\n---\n\nbody\n\n```\n**Version:** 1.0.1\n```\n"
+    ck("a body Version example change is not reported", stale_date_after_bump(ex, {"e.md": ex_text}, "2026-09-24"), [])
+    # --- a fenced example whose NEW value equals the unchanged header Version ---
+    col = ("diff --git a/c.md b/c.md\n@@ -9,1 +9,1 @@\n-**Version:** 2.9.9\n+**Version:** 3.0.0\n")
+    col_text = "**Version:** 3.0.0\\\n**Date:** 2026-01-01\\\n\n---\n\nbody\n\n```\n**Version:** 3.0.0\n```\n"
+    ck("a fenced example colliding with the header Version text is not reported", stale_date_after_bump(col, {"c.md": col_text}, "2026-09-24"), [])
+    hdr = ("diff --git a/h.md b/h.md\n@@ -1,1 +1,1 @@\n-**Version:** 2.9.9\n+**Version:** 3.0.0\n")
+    ck("a header-position Version bump with a stale Date is reported", stale_date_after_bump(hdr, {"h.md": col_text}, "2026-09-24"), ["h.md"])
+    # --- U+2028 in the header must not shift the LF line count; an
+    # added body line beginning '++' (rendered '+++') must still advance the new-file position ---
+    u_text = "**Date:** 2026-01-01\n# t\u2028# c\u2028# c\n---\n**Version:** 1.0.1\n"
+    u = ("diff --git a/u.md b/u.md\n@@ -4,1 +4,1 @@\n-**Version:** 1.0.0\n+**Version:** 1.0.1\n")
+    ck("a U+2028 in the header does not pull a body Version line into it", stale_date_after_bump(u, {"u.md": u_text}, "2026-09-24"), [])
+    pp_text = "**Date:** 2026-01-01\\\n**Version:** 3.0.0\\\n\n---\n\n++ note\n**Version:** 1.0.1\n"
+    pp = ("diff --git a/p.md b/p.md\n--- a/p.md\n+++ b/p.md\n@@ -2,1 +2,2 @@\n-**Version:** 2.0.0\n+**Version:** 3.0.0\n+++ note\n")
+    ck("a '+++' added body line in the hunk does not disturb a header bump", stale_date_after_bump(pp, {"p.md": pp_text}, "2026-09-24"), ["p.md"])
+    # --- the diff itself is split on LF only; a U+2028 inside a deleted line
+    # must not fabricate a '+++' line that shifts a real header Version bump out of the header ---
+    cx = ("diff --git a/x.md b/x.md\n--- a/x.md\n+++ b/x.md\n@@ -2,2 +2 @@\n"
+          "-# title\u2028+++ note\n-**Version:** 1.0.0\n+**Version:** 1.0.1\n")
+    ck("a U+2028 in a deleted line does not fabricate a '+++' line (header bump still reported)",
+       stale_date_after_bump(cx, {"x.md": "**Date:** 2026-01-01\n**Version:** 1.0.1\n"}, "2026-09-24"), ["x.md"])
+    ob = "diff --git a/a.md b/a.md\n@@ -1 +1 @@\n-old\u2028diff --git a/x b/zz.md\n+new\n"
+    ck("a U+2028 in a changed line does not fabricate a file header in the BLOCKING offender scan",
+       offenders(ob, {"zz.md"}), [])
+    mr = "**Date:** 2026-01-01\u2028note\n**Version:** 1.0.1\n\nbody\n"
+    ck("the metadata region counts a U+2028-bearing line as ONE LF line", _metadata_region_end(mr), len("**Date:** 2026-01-01\u2028note\n**Version:** 1.0.1\n\n"))
+    # --- generated-artefact exemption, end to end through main() in a scratch repo ---
+    import shutil, subprocess, json as _json
+    d5 = mkrepo()
+    (d5 / ".claude" / "hooks").mkdir(parents=True)
+    shutil.copy(__file__, d5 / ".claude" / "hooks" / "hook.py")
+    (d5 / "governance").mkdir()
+    (d5 / "governance" / "maturity-scorecard.md").write_text("**Version:** 1.0.0\\\n\n| row | old |\n")
+    (d5 / "x.md").write_text("**Version:** 1.0.0\\\n\nold body\n")
+    git(d5, "add", "-A"); git(d5, "commit", "-q", "-m", "init")
+    (d5 / "governance" / "maturity-scorecard.md").write_text("**Version:** 1.0.0\\\n\n| row | new |\n")
+    git(d5, "add", "governance/maturity-scorecard.md")
+    # an extra UNSTAGED scorecard change makes auto-bump decline, so without the exemption this would BLOCK
+    (d5 / "governance" / "maturity-scorecard.md").write_text("**Version:** 1.0.0\\\n\n| row | newer |\n")
+    # A plain commit with the payload cwd in this checkout (a -C commit steps aside).
+    payload = _json.dumps({"tool_name": "Bash", "tool_input": {"command": "git commit -q -m x"}, "cwd": str(d5)})
+    r = subprocess.run([sys.executable, "-I", "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=payload,
+                       capture_output=True, text=True)
+    ck("a regenerated scorecard body edit is NOT blocked", r.returncode, 0)
+    ck("the reference manifest is exempt as generated, matching gate 40", ".claude/skills/corpus-management/registers/reference-acquisition-manifest.md" in GENERATED, True)
+    # control: an ordinary versioned doc with an extra unstaged change still blocks
+    (d5 / "x.md").write_text("**Version:** 1.0.0\\\n\nnew body\n"); git(d5, "add", "x.md")
+    (d5 / "x.md").write_text("**Version:** 1.0.0\\\n\nnewer unstaged\n")
+    r2 = subprocess.run([sys.executable, "-I", "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=payload,
+                        capture_output=True, text=True)
+    ck("control: an ordinary versioned doc still blocks", r2.returncode, 2)
+    # --- a commit aimed at ANOTHER checkout is not inspected or auto-bumped here ---
+    d6 = mkrepo()
+    (d6 / "y.md").write_text("**Version:** 1.0.0\\\n\nold\n"); git(d6, "add", "-A"); git(d6, "commit", "-q", "-m", "i")
+    (d6 / "y.md").write_text("**Version:** 1.0.0\\\n\nnew\n"); git(d6, "add", "y.md")
+    before = git(d5, "show", ":x.md")
+    p6 = _json.dumps({"tool_name": "Bash", "tool_input": {"command": "git commit -q -m x"}, "cwd": str(d6)})
+    r3 = subprocess.run([sys.executable, "-I", "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=p6,
+                        capture_output=True, text=True)
+    ck("a commit aimed at another checkout is not blocked here", r3.returncode, 0)
+    ck("this checkout's staged offender is untouched by a foreign-target commit", git(d5, "show", ":x.md"), before)
+    ck("commit_target: plain commit runs in cwd", commit_target("git commit -m x", "/r"), "/r")
+    import tempfile as _tfm
+    _W = os.path.realpath(_tfm.mkdtemp()); os.mkdir(os.path.join(_W, "b")); os.mkdir(os.path.join(_W, "d"))
+    os.symlink(os.path.join(_W, "d"), os.path.join(_W, "lnk")); os.mkdir(os.path.join(_W, "{a,b}"))
+    import atexit as _ax, shutil as _sh
+    _ax.register(_sh.rmtree, _W, True)
+    ck("commit_target: any -C on the commit steps aside", commit_target(f"git -C {_W} commit -m x", "/r"), None)
+    ck("commit_target: any cd before the commit is undeterminable", commit_target("cd /a && git -C b commit", "/r"), None)
+    ck("commit_target: several -C operands step aside", commit_target(f"git -C {_W} -C b commit", "/r"), None)
+    ck("commit_target: a trailing .. cancelling a /proc/self step steps aside (3b25 r10)",
+       commit_target(f"git -C {_W} -C /proc/self/cwd/../../.. commit -m x", "/r"), None)
+    ck("commit_target: a -C step that does not exist steps aside", commit_target("git -C /nonexistent/w commit", "/r"), None)
+    ck("commit_target: a missing intermediate cancelled by .. steps aside",
+       commit_target(f"git -C {_W}/missing/.. commit -m x", "/r"), None)
+    ck("commit_target: a symlinked -C step steps aside",
+       commit_target(f"git -C {_W}/lnk -C .. commit -m x", "/r"), None)
+    for spelling in ("/proc/self/cwd", "/../proc/self/cwd", "//proc/self/cwd", "/opt/../proc/self/cwd"):
+        ck(f"commit_target: a /proc/self spelling steps aside: {spelling}",
+           commit_target(f"git -C {_W} -C {spelling} commit -m x", "/r"), None)
+    ck("commit_target: a braced operand steps aside even when a directory of that name exists",
+       commit_target(f"git -C {_W}/{{a,b}} commit -m x", "/r"), None)
+    ck("commit_target: a variable operand is undeterminable", commit_target('git -C "$W" commit', "/r"), None)
+    ck("commit_target: a subshell cd does not move the commit", commit_target("(cd /x && true); git commit -m x", "/r"), None)
+    ck("commit_target: a cd with || is undeterminable", commit_target("cd /x || exit 1; git commit", "/r"), None)
+    ck("commit_target: two commits are undeterminable", commit_target("git -C /a commit -m x && git -C /b commit -m y", "/r"), None)
+    ck("commit_target: a newline-separated command is undeterminable", commit_target("cd /x\ngit commit", "/r"), None)
+    ck("commit_target: a cd after || is undeterminable", commit_target("true || cd /x; git commit -m x", "/r"), None)
+    ck("commit_target: a cd after a failing && is undeterminable", commit_target("false && cd /x; git commit -m x", "/r"), None)
+    ck("commit_target: a failed cd then a skipped cd is undeterminable",
+       commit_target("cd /dev/null && cd /x; git commit -m x", "/r"), None)
+    for shape in ("GIT_DIR=/o/.git GIT_WORK_TREE=/o git commit -m x", "env -C /o git commit -m x",
+                  "env --chdir=/o git commit", "git --work-tree=/o --git-dir=/o/.git commit -m x",
+                  "source s.sh && git commit", ". ./s.sh; git commit", "c''d /o; git commit -m x",
+                  "'cd' /o && git commit", "c\\d /o && git commit", "up && git commit",
+                  "git clone /src/repo.git commit-fix", "git submodule foreach ':; git commit -m x'",
+                  "git -C /o -c alias.ci='!:; git commit -m x' ci", "git tag -a -m 'x; git commit' v1",
+                  "git status -- commit\nc\\d /o && git commit -m x", "git submodule foreach :\\; git commit -m x",
+                  "git -C /o\\-v commit -m x", "git -C /o-[v] commit -m x"):
+        ck(f"commit_target: non-git prefix or prefixed git steps aside: {shape}", commit_target(shape, "/r"), None)
+    ck("commit_target: a /proc/self operand resolves against the guard, so it steps aside",
+       commit_target(f"git -C {_W} -C /proc/self/cwd commit -m x", "/r"), None)
+    ck("commit_target: earlier plain git segments keep the cwd target",
+       commit_target("git -C /o status && git add -- f && git commit -m x", "/r"), "/r")
+    ck("commit_target: a non-git pipe source steps aside", commit_target("true | git commit -F -", "/r"), None)
+
+    if fails:
+        print(f"\nself-test: FAILED ({len(fails)} of {cases})")
+        for f in fails:
+            print(f"  {f}")
+        return 1
+    print(f"\nself-test: {cases}/{cases} passed")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(self_test() if "--self-test" in sys.argv else main())

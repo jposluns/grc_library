@@ -1,0 +1,129 @@
+# Penetration Testing and Red Team Standard
+
+**Document Title:** Penetration Testing and Red Team Standard\
+**Document Type:** Standard\
+**Version:** 1.0.14\
+**Date:** 2026-09-24\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change\
+**Repository Path:** [`security/standard-penetration-testing-and-red-team.md`](standard-penetration-testing-and-red-team.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## 1. Purpose
+
+This standard defines the requirements for the organization's penetration testing and red team programme. It establishes the minimum scope, frequency, methodology, and reporting requirements for both internal vulnerability assessment and externally conducted penetration testing.
+
+The programme complements the Vulnerability Management Procedure and the Logging and Monitoring Standard by validating that controls are effective in practice, not merely in configuration. Vulnerability scanning identifies what is present; penetration testing determines what is exploitable. Together they provide assurance that the organization's defensive posture reflects its intended security architecture.
+
+This standard supports the Information Security Policy and addresses NIST SP 800-53 Rev. 5 CA-8 (Penetration Testing).
+
+---
+
+## 2. Scope
+
+1. Applies to all in-scope production systems, internet-facing services, internal network infrastructure, cloud environments (cloud platform, AWS, GCP), and enterprise identity provider configurations.
+2. Covers external penetration testing (from an unauthenticated attacker perspective), internal network testing (lateral movement and privilege escalation), web and API application testing, and social engineering testing.
+3. Applies to the infrastructure programme once systems are live in production.
+
+---
+
+## 3. Governance and accountability
+
+| Role | Responsibility |
+| --- | --- |
+| **Chief Information Security Officer (CISO)** | Owns this standard; approves scope and Rules of Engagement for each engagement; reviews all findings. |
+| **IT Operations** | Coordinates access and deconfliction; ensures that findings are remediated within required timelines. |
+| **Testing Vendor / Red Team** | Conducts testing per agreed scope and Rules of Engagement; delivers findings report within agreed timelines. |
+| **Internal Audit** | Reviews programme compliance and remediation tracking annually. |
+
+---
+
+## 4. Testing programme requirements
+
+| Test Type | Minimum Frequency | Scope |
+| --- | --- | --- |
+| **External penetration test** | Annual | All internet-facing services, perimeter, and cloud management interfaces |
+| **Internal network penetration test** | Annual (may be combined with external engagement) | Internal network lateral movement, directory services and enterprise identity provider attack paths, segmentation validation |
+| **Web and API application test** | Annual per material application; before major release for new applications | OWASP Top 10, authentication, authorization, injection, API security |
+| **Social engineering test** | Annual (may be integrated with the security awareness programme) | Phishing, vishing, collaboration platform impersonation simulation |
+| **Cloud configuration review** | Annual | Cloud platform and cloud productivity platform configuration assessed against CIS Benchmarks |
+
+---
+
+## 5. Rules of engagement
+
+Every engagement requires a signed Rules of Engagement (RoE) document before testing begins. The RoE must specify:
+
+1. In-scope systems and services.
+2. Explicitly out-of-scope systems (including any systems where testing would cause operational disruption).
+3. Authorized testing techniques and any prohibited techniques.
+4. Notification contacts to be reached immediately if a critical finding requiring immediate action is discovered during testing.
+5. Test window: authorized dates, times, and any change freeze periods to avoid.
+
+Testing against production systems without a signed RoE is prohibited. Discovery of a critical finding during testing, including but not limited to active compromise indicators, credentials exposed in cleartext, or a viable data exfiltration path to sensitive data, must be communicated to the CISO immediately, regardless of whether the agreed test window is ongoing.
+
+---
+
+## 6. Reporting
+
+All penetration test results must be reported in writing. Each report must include:
+
+1. Executive summary suitable for presentation to the CIO and senior leadership.
+2. Methodology: testing approach, tools used, and phases conducted.
+3. Findings with CVSS severity scores assigned to each finding.
+4. Evidence: screenshots, proof-of-concept steps, and reproduction instructions.
+5. Recommended remediation for each finding, including any quick-win mitigations for Critical and High findings.
+
+Reports are classified Confidential and distributed only to the CIO, CISO, and relevant System Owners. Reports must not be forwarded or shared without CISO approval. Testing vendors must destroy all locally retained copies of findings evidence within 30 days of report delivery unless a longer retention period is agreed in writing.
+
+---
+
+## 7. Remediation timelines
+
+Remediation timelines for penetration-test findings follow the remediation SLAs established in the [Vulnerability Management Procedure](procedure-vulnerability-management.md), which sets exploitation-conditional timelines for Critical findings (a shorter clock where a finding is actively exploited or has a public proof-of-concept) and severity-based timelines for High, Medium, and Low findings. Risk acceptances and exceptions follow that procedure's exception process.
+
+Unresolved Critical and High findings beyond their required timelines are escalated to the CIO and logged in the Risk Register with a documented remediation plan.
+
+---
+
+## 8. Vendor selection and qualification
+
+External penetration testing must be conducted by a qualified third-party vendor. Vendors must:
+
+1. Hold recognized industry certifications: OSCP, CREST, or equivalent.
+2. Sign a non-disclosure agreement (NDA) before engagement commencement. The NDA must cover all findings, evidence, and system information obtained during testing.
+3. Be selected through the Supplier Due Diligence Procedure.
+
+The CISO retains final approval authority over vendor selection for all penetration testing engagements.
+
+---
+
+## 9. Programme tracking and continuous improvement
+
+1. Findings from all engagements are tracked in the organization's vulnerability and risk management tooling.
+2. Year-over-year trend analysis (finding counts by severity, repeat findings, time-to-remediation) is presented to the CISO and CIO annually.
+3. Repeat findings, vulnerabilities identified in a prior engagement that remain unremediated or have recurred, are escalated to the CIO and treated as High-priority regardless of their CVSS score.
+4. The CISO reviews the programme scope annually to ensure that emerging attack surfaces (new services, acquired systems, cloud workload growth) are incorporated.
+
+---
+
+## 10. Framework alignment
+
+| Control Area | ISO/IEC 27001:2022 | NIST SP 800-53 Rev. 5 | CSA CCM v4.1 | Other |
+| --- | --- | --- | --- | --- |
+| Penetration testing programme | A.8.8 | CA-8 | TVM-07 | PTES; NIST SP 800-115 |
+| Web application security testing | A.8.8 | CA-8 | TVM-07 | OWASP Testing Guide v4.2 |
+| Rules of engagement and authorization | A.8.34 | CA-8 | TVM-07 | N/A |
+| Remediation tracking | A.8.8, A.5.36 | SI-2 | TVM-08 | N/A |
+| Vendor qualification | A.5.19 | SR-6 | STA-01 | N/A |
+
+---
+
+**End of Document**

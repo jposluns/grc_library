@@ -1,0 +1,130 @@
+# Asset Inventory Register
+
+**Document Title:** Asset Inventory Register\
+**Document Type:** Register\
+**Version:** 1.1.3\
+**Date:** 2026-10-27\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md)\
+**Classification:** Public\
+**Category:** Operations\
+**Review Frequency:** Continuous (automated) with quarterly manual validation\
+**Repository Path:** [`operations/register-asset-inventory.md`](register-asset-inventory.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This register defines the schema, governance, and classification model for the organizational Asset Inventory. The Asset Inventory is the authoritative record of all IT hardware, software, cloud resources, data assets, and AI systems owned, managed, or used by the organization as IT assets. For AI systems, the Asset Inventory records them as deployed IT assets and defers to the AI System Inventory (the authoritative AI-governance record of all AI models and systems, owned by the AI System Inventory Keeper) for their AI-governance attributes such as model lineage, organizational AI risk classification, and lifecycle status. It supports risk assessments, vulnerability management, disaster recovery planning, and compliance activities.
+
+---
+
+## Scope
+
+Covers all organizational assets including:
+- Physical hardware: servers, workstations, laptops, mobile devices, network devices, printers.
+- Software: operating systems, applications, databases, development tools, cloud services.
+- Cloud resources: virtual machines, containers, cloud storage, managed services.
+- Data assets: datasets, databases, backups, archives.
+- AI systems: ML models, automated decision engines, generative AI tools.
+- Operational technology (OT) where applicable.
+
+---
+
+## Asset classification
+
+| Classification | Description | Examples |
+| --- | --- | --- |
+| **Tier 1: Mission Critical** | Assets whose failure causes immediate operational halt or significant customer impact | Core ERP, identity systems, production network infrastructure |
+| **Tier 2: Business Essential** | Assets whose failure causes significant operational disruption within 24 hours | Email platform, financial systems, primary data systems |
+| **Tier 3: Standard** | Assets whose failure causes limited disruption; recoverable within 72 hours | Reporting tools, collaboration platforms, departmental applications |
+| **Tier 4: Non-Critical** | Assets whose failure has minimal operational impact | Development environments, test systems, legacy archives |
+
+---
+
+## Asset record schema
+
+Each asset record must contain the following fields:
+
+| Field | Description |
+| --- | --- |
+| **Asset ID** | Unique identifier |
+| **Asset Name** | Descriptive name |
+| **Asset Type** | Hardware / Software / Cloud Resource / Data Asset / AI System |
+| **Classification Tier** | Tier 1 to 4 (from table above) |
+| **Data Classification** | Public / Controlled / Internal / Confidential / Restricted (per [Data Classification and Handling Standard](../security/standard-data-classification-and-handling.md)) |
+| **Owner** | Role title of responsible party |
+| **Custodian** | Team or individual managing the asset operationally |
+| **Location** | Physical location, data centre, or cloud region |
+| **Platform / Environment** | Production / DR / Development / Test |
+| **Version / Build** | Current version or build number |
+| **Licence** | Licence type, expiry date, and seat count (software) |
+| **Vendor / Manufacturer** | Supplier name |
+| **Support Status** | Supported / End-of-Support / End-of-Life |
+| **End-of-Life Date** | Known or estimated end-of-life |
+| **Last Vulnerability Scan** | Date of most recent vulnerability scan |
+| **Last Patched** | Date of most recent security patch |
+| **Backup Status** | Backup schedule, last successful backup, RPO |
+| **DR Classification** | Tier 1 to 4 aligned to IT DR Plan |
+| **Date Added** | Date asset entered inventory |
+| **Last Reviewed** | Date of most recent manual validation |
+
+---
+
+## Governance and accountability
+
+### Ownership
+
+- The CIO owns the Asset Inventory and is accountable for its completeness.
+- IT Operations maintains the inventory on a day-to-day basis using automated discovery tooling integrated with the IT Asset Management System.
+- Each asset must have a named owner (role title) who is responsible for its currency, security, and lifecycle management.
+
+### Automated discovery
+
+- Automated discovery tools scan the network and cloud environments continuously to detect new, changed, or removed assets.
+- Unregistered assets detected by automated discovery are flagged as unauthorized and reviewed within 2 business days.
+- Cloud resource tagging standards enforce mandatory owner, classification, and environment tags on all cloud assets.
+
+### Manual validation
+
+- Asset owners validate their asset records quarterly to confirm accuracy.
+- IT Operations conducts a full inventory reconciliation annually, comparing automated discovery results against the registered inventory.
+- Discrepancies are investigated and resolved within 10 business days.
+
+### Unauthorized assets
+
+- Assets detected in the environment that are not in the inventory are treated as potentially unauthorized.
+- Unauthorized assets are quarantined from network access pending investigation.
+- Investigation determines whether the asset is approved (and must be registered) or unauthorized (and must be removed).
+
+---
+
+## Lifecycle management
+
+| Lifecycle Stage | Trigger | Action |
+| --- | --- | --- |
+| **Registered** | Asset acquired or deployed | Add to inventory with all required fields |
+| **Active** | Asset in production use | Monitor, patch, and review per asset tier requirements |
+| **End-of-Support** | Vendor ends support | Risk assessment; migration or exception required |
+| **Decommissioning** | Asset replaced or retired | Secure data destruction per the [Media Handling and Transport Procedure](procedure-media-handling-and-transport.md) §7, subject to its hold and investigation safeguard for sanitization and disposal and the two-part hold confirmation in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 rule 2; remove from inventory only once destruction is complete |
+| **Decommissioned** | Asset removed from service | Retain record for audit for minimum 3 years |
+
+---
+
+## Framework alignment
+
+| Framework | Reference | Relevance |
+| --- | --- | --- |
+| ISO/IEC 27001:2022 | Annex A.5.9: Inventory of Information and Other Associated Assets | Asset inventory requirement |
+| ISO/IEC 27002:2022 | §5.9 to 5.10 | Asset ownership and acceptable use |
+| NIST SP 800-53 Rev. 5 | CM-8: System Component Inventory | Asset inventory controls |
+| COBIT 2019 | BAI09: Managed Assets | IT asset lifecycle management |
+| CSA CCM v4.1 | DCS-06 / DCS-07 | Cloud asset inventory and management |
+| NIST IR 8011 Vol. 2 (Hardware Asset Management) | §2.1 HWAM Capability Description | Automated hardware-inventory capability: reconciles identified devices against the desired-state (authorized) inventory to surface unmanaged or unauthorized devices, and provides visibility into per-device management responsibility |
+
+---
+
+**End of Document**

@@ -1,0 +1,156 @@
+# Legal and Regulatory Compliance Policy
+
+**Document Title:** Legal and Regulatory Compliance Policy\
+**Document Type:** Policy\
+**Version:** 1.0.38\
+**Date:** 2026-11-06\
+**Owner:** Chief Compliance Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md)\
+**Classification:** Public\
+**Category:** Compliance Management\
+**Review Frequency:** Annual and upon material legal, regulatory, or framework change\
+**Repository Path:** [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## 1. Purpose
+
+This policy establishes the framework for identifying, interpreting, tracking, implementing, and reporting compliance with legal and regulatory obligations across all jurisdictions where the organization operates.
+
+It ensures that legal, regulatory, and contractual requirements, including those governing data protection, cybersecurity, artificial intelligence, and trade and customs (BASC and WCO SAFE), are effectively integrated into governance, risk, and compliance (GRC) processes.
+
+---
+
+## 2. Scope
+
+1. **Jurisdictional Coverage**: Applies globally to all organizational entities, subsidiaries, and business operations, including BASC-certified logistics and customs operations.
+2. **Domains of Compliance**: Data protection and privacy; information security, cybersecurity, and business resilience; artificial intelligence, automation, and algorithmic transparency; trade, customs, and supply-chain security (BASC and ISO 28000:2022); sector-specific and contractual compliance. ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 -->
+3. **Applicability**: Applies to all employees, contractors, suppliers, and third parties handling organizational or trade data, including AI systems, logistics networks, customs systems, and cloud services supporting regulated processes.
+
+---
+
+## 3. Governance and accountability
+
+| Role | Responsibility |
+| --- | --- |
+| **Chief Information Officer (CIO)** | Oversees regulatory governance integration with enterprise IT and provides executive support to the compliance management system. |
+| **Chief Information Security Officer (CISO)** | Ensures that security, privacy, and trade-compliance obligations are enforced and evidenced across all systems. |
+| **Legal Counsel** | Interprets laws, validates control coverage, and approves external submissions. |
+| **Chief Compliance Officer (CCO)** | Accountable for the global compliance management system; manages enterprise compliance programmes aligned to ISO 37301:2021 as amended by ISO 37301:2021/Amd.1:2024 (Clauses 4.1 and 4.2). |
+| **AI Governance Council (AIGC)** | Oversees AI regulatory monitoring and EU AI Act readiness. |
+| **Internal Audit** | Validates compliance processes and verifies evidence linkage for all regulatory domains. |
+
+Sector-conditional roles (for example, a BASC Regional Compliance Officer for trade and customs compliance liaison with BASC National Chapters and customs authorities) apply where the organization participates in a covered sector programme; see [`compliance/`](./).
+
+---
+
+## 4. Compliance management system
+
+4.1 The organization must operate a Compliance Management System (CMS) aligned to ISO 37301:2021 Clauses 4 to 10, as amended by ISO 37301:2021/Amd.1:2024 (Clauses 4.1 and 4.2).
+
+4.2 The CMS must maintain a centralized Regulatory Obligations Register (ROR) that catalogues all laws, regulations, standards, and contract clauses relevant to each entity or process.
+
+4.3 Each obligation must have an assigned owner, mapped controls, and evidence linkages validated by Internal Audit.
+
+---
+
+## 5. Regulatory horizon scanning and change management
+
+5.1 Legal, compliance, and regional teams must continuously monitor regulatory updates using verified industry sources, including the EU Official Journal, US Federal Register equivalents, and sector-programme notifications (for example, WCO circulars and BASC chapter communications where the organization participates).
+
+5.2 AI-related regulatory tracking must capture EU AI Act obligations, the status of Canada's AI instruments (the current Treasury Board Directive on Automated Decision-Making (binding) and Voluntary Code of Conduct on Generative AI (voluntary), and any successor to the lapsed AIDA, which, per a June 2025 ministerial statement not held in the reference base, is reported not to return in its original form; an adopter confirms the current position directly), and supervisory guidance. <!-- ref-absence: AIDA ministerial statement | Artificial Intelligence and Data Act ministerial statement -->
+
+5.3 Sector-programme regulation updates (for example, trade and customs updates under BASC where the organization participates) must be reflected within the relevant sector compliance matrix and communicated per the sector annex; see [`compliance/`](./).
+
+5.4 All updates must be logged in the ROR and routed through the Change Management and Configuration Control Procedure.
+
+---
+
+## 6. Risk assessment and treatment
+
+6.1 Compliance risks must be assessed in line with ISO 31000:2018 and COBIT 2019 APO12, integrating legal, operational, and trade risks.
+
+6.2 High-risk obligations (such as customs reporting, data export, and AI bias mitigation) must have defined mitigation controls and response plans.
+
+6.3 Sector-programme compliance deviations (for example, trade and customs deviations under BASC) are approved through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), with co-approval by the sector-conditional role defined by the relevant sector annex (the applicable compliance officer) and by the CISO, and with ERC notification per that policy's trade-and-customs limb. The sector-role and CISO co-approvals are in addition to, not in place of, the risk-tier approver; where this is stricter than the baseline trade-and-customs limb (compliance-officer co-approval with ERC notification), the stricter requirement governs.
+
+---
+
+## 7. Control design and evidence management
+
+7.1 Each obligation must be mapped to one or more documented and tested controls.
+
+7.2 Evidence of compliance (audits, logs, reports) must be retained in the GRC repository for a minimum of seven years.
+
+7.3 Sector-programme controls (for example, BASC trade and customs controls including encryption validation, cargo integrity verification, personnel screening records, and customs data exchange logs) apply where the organization participates in a covered programme per the relevant sector annex; see [`compliance/`](./).
+
+7.4 AI governance controls must include organization-defined documentation for transparency, robustness, and conformity, informed by ISO/IEC 42001:2023 (clause 7.5 and Annex A.6.2.7) and NIST AI RMF 1.0.
+
+---
+
+## 8. Reporting and notification obligations
+
+8.1 All regulatory notifications must follow the Security Incident Reporting and Escalation Procedure.
+
+8.2 Sector-programme incidents (for example, BASC and customs incidents where the organization participates in BASC) must be reported to the sector-conditional role defined by the relevant sector annex within the annex's stated timeframe, with onward notifications to the sector body following the annex's escalation path; see [`compliance/`](./).
+
+8.3 Personal-data breaches must be reported to the relevant supervisory authority within the GDPR period (Article 33: without undue delay and, where feasible, within 72 hours of becoming aware, unless the breach is unlikely to result in a risk to individuals). For significant incidents subject to NIS 2 Article 23, entities must follow a separate staged reporting sequence to the CSIRT or, where applicable, the competent authority, timed from becoming aware of the incident (Article 23(4)): an early warning without undue delay and in any event within 24 hours of becoming aware of the significant incident, an incident notification with an initial assessment without undue delay and in any event within 72 hours of becoming aware of the significant incident, except that a trust service provider must notify without undue delay and in any event within 24 hours of becoming aware of significant incidents that have an impact on the provision of its trust services (Article 23(4), second subparagraph), an intermediate report if the CSIRT or, where applicable, the competent authority requests one, and a final report within one month of that notification; where the incident is still ongoing when that final report falls due, a progress report at that point and the final report within one month of the entity's handling of the incident (Article 23(4)(e)).
+
+8.4 Serious incidents involving high-risk AI systems, a serious incident meaning an incident or malfunctioning of an AI system that directly or indirectly leads to any of the harms listed in Article 3, point (49), must be reported per the EU AI Act serious-incident reporting obligation (Article 73, binding providers of high-risk AI systems placed on the Union market; the deployer duty at Article 26(5)). The deployer duty does not cover sensitive operational data of deployers that are law enforcement authorities (Article 26(5)); whether this also limits a fallback report made under Article 73 is not settled by the held text, and Legal confirms it. On the Article 73 route (a provider of a high-risk AI system placed on the Union market reporting under Article 73(1), or, because Article 26(5) applies Article 73 mutatis mutandis without limiting it to particular paragraphs, a deployer that cannot reach the provider), where the high-risk AI system is a safety component of a device, or is itself a device, covered by Regulations (EU) 2017/745 and (EU) 2017/746, the notification is limited to the serious incidents referred to in Article 3, point (49)(c), and is made to the national competent authority chosen for that purpose by the Member States where the incident occurred (Article 73(10)); for a deployer that is a separate entity in the provider's undertaking of a system within the AI Office's Article 75(1) competence, the held texts do not state the recipient of a fallback report, and Legal confirms it. On the same Article 73 route, for high-risk AI systems referred to in Annex III that are placed on the market or put into service by providers subject to Union legislative instruments laying down reporting obligations equivalent to those set out in the EU AI Act, the notification is limited to the serious incidents referred to in Article 3, point (49)(c), and goes, except in the separate-entity case above, to the recipient that Article 73(1) names (the market surveillance authorities of the Member States where the incident occurred) or, where it applies, Article 73(10) names (for a deployer's fallback, as reasoning, these recipients apply through Article 26(5) applying Article 73 mutatis mutandis), since Article 73(9) names none (Article 73(9)); for the deployer's fallback, that condition concerns the provider of the system. By way of derogation from Article 73, providers of high-risk AI systems subject to the AI Office's competence under Article 75(1) report any serious incidents to the AI Office, with Article 73(2) to (9) applying mutatis mutandis; the AI Office promptly transmits the relevant information to the market surveillance authority of the Member State in whose territory the provider or its legal representative is situated (Article 75(1a), inserted by Regulation (EU) 2026/1744). Article 75(1a) applies Article 73(2) to (9) mutatis mutandis, so Article 73(9) also applies on the Article 75(1a) route, where the notification still goes to the AI Office. The Article 26(5) deployer duty applies from 2 December 2027 for systems classified as high-risk under Article 6(2) and Annex III, and from 2 August 2028 for systems classified as high-risk under Article 6(1) and Annex I (Article 113, third paragraph, point (c), as replaced by Regulation (EU) 2026/1744).
+
+---
+
+## 9. Supplier and trade compliance
+
+9.1 Suppliers must maintain certifications including ISO/IEC 27001:2022, ISO/IEC 27018, SOC 2, and BASC (for trade and logistics partners).
+
+9.2 Trade suppliers must meet WCO SAFE Authorized Economic Operator (AEO) requirements and undergo annual audits.
+
+9.3 Supplier performance and trade-compliance results feed into the Supplier Audit Procedure and GRC metrics reporting.
+
+---
+
+## 10. Monitoring, metrics, and review
+
+10.1 The Compliance Steering Group must review compliance KPIs quarterly, including AI governance and BASC metrics.
+
+10.2 KPIs include: obligation coverage completeness; audit success rate; notification timeliness; BASC audit pass percentage; AI regulatory readiness score.
+
+10.3 Results are presented to the Enterprise Risk Committee (ERC) and Board Audit and Risk Committee.
+
+---
+
+## 11. Continuous improvement
+
+11.1 Gaps identified through audits, incidents, or BASC assessments must be documented in the CAPA Procedure and compliance controls register.
+
+11.2 Corrective actions (CAPAs) must include root cause, remediation, and verification evidence.
+
+11.3 Annual management review must evaluate compliance with ISO 37301:2021 as amended by ISO 37301:2021/Amd.1:2024 (Clauses 4.1 and 4.2), BASC, and AI regulatory frameworks.
+
+---
+
+## 12. Framework alignment
+
+| Framework | Reference | Relevance |
+| --- | --- | --- |
+| ISO 37301:2021 | Clauses 4 to 10 (compliance management system); ISO 37301:2021/Amd.1:2024 (Amendment 1) updates Clauses 4.1 and 4.2 | CMS structure, obligations register, CAPA |
+| COBIT 2019 | MEA03, Managed Compliance With External Requirements; APO12, Managed Risk | Regulatory governance, compliance metrics |
+| CSA CCM v4.1 | GRC-01 to GRC-08: Compliance governance | Control mapping and compliance reporting |
+| ISO/IEC 27001:2022 | Annex A: Information security controls | Security compliance evidence |
+| ISO 28000:2022 | Supply-Chain Security and Resilience | Trade compliance controls; ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified <!-- ref-absence: ISO 28000:2022 --> |
+| BASC v6 (2022) | Trade and Customs Compliance | BASC obligations, Chapter reporting |
+| WCO SAFE Framework (2025 edition) | Annex IV (AEO Conditions, Requirements and Benefits), element A (Demonstrated Compliance with Customs Requirements) | Customs compliance and AEO obligations |
+| EU GDPR | Art 33, Data protection | Breach notification, DPA reporting |
+| EU NIS 2 Directive (Directive (EU) 2022/2555) | Critical infrastructure resilience | Entities must submit staged significant-incident reports (Art 23(4): early warning without undue delay and in any event within 24 hours of becoming aware of the significant incident; incident notification with an initial assessment without undue delay and in any event within 72 hours of becoming aware of the significant incident, except that a trust service provider must notify without undue delay and in any event within 24 hours of becoming aware of significant incidents that have an impact on the provision of its trust services (Article 23(4), second subparagraph); an intermediate report on relevant status updates upon request of a CSIRT or, where applicable, the competent authority (Article 23(4)(c)); final report within one month after submission of the incident notification, or a progress report then and the final report within one month of handling where the incident is still ongoing) |
+| EU AI Act (2024) | Art 26(5); Art 73; Art 75(1a), inserted by Regulation (EU) 2026/1744 | AI serious incident reporting |
+| Canada PIPEDA; Treasury Board Directive on Automated Decision-Making / Voluntary Code of Conduct on Generative AI (AIDA lapsed) | Privacy and AI compliance | Canadian regulatory obligations |
+| NIST AI RMF 1.0 | GOVERN 1.1 (legal and regulatory requirements involving AI) | AI compliance governance |
+| ISO/IEC 42001:2023 | Clause 7.5 (documented information) | AI regulatory evidence management |
+
+---
+
+**End of Document**

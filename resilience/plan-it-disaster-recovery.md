@@ -1,0 +1,155 @@
+# IT Disaster Recovery Plan
+
+**Document Title:** IT Disaster Recovery Plan\
+**Document Type:** Plan\
+**Version:** 1.6.1\
+**Date:** 2026-10-27\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`resilience/procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md)\
+**Classification:** Public\
+**Category:** Resilience\
+**Review Frequency:** Annual or following any major infrastructure change or DR exercise\
+**Repository Path:** [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This plan defines the system-specific recovery procedures, RTO and RPO targets, and runbook references for IT Disaster Recovery (DR). It is a companion document to the BC/DR Standard and the Business Continuity and Crisis Management Plan, which govern the broader BC/DR framework. This plan focuses on IT system recovery execution rather than business continuity governance. The plan reflects industry experience with phased recovery from major security incidents; adopting organizations calibrate RTO/RPO targets, tier assignments, and phasing to their own incident history, risk appetite, and operational context. The specific infrastructure, environments, and topology named throughout this plan (for example on-premises and cloud tiers, a hypervisor estate, directory and identity services, and a cloud-based recovery platform) are an illustrative reference deployment, not a description of any particular organization's environment; an adopter substitutes its own.
+
+---
+
+## Scope
+
+1. Applies to all IT systems and infrastructure supporting organizational operations, across on-premises and cloud production environments.
+2. Covers recovery of virtual infrastructure, identity systems, data systems, integration layer, and reporting services.
+3. Covers the environment tiers in scope (for example DEV / TEST / PROD).
+
+---
+
+## Governance and accountability
+
+| Role | Responsibility |
+| --- | --- |
+| **CIO** | Authorizes DR plan activation and approves return to normal operations. |
+| **CISO** | Ensures that security controls are re-enabled before production services are restored. Approves formal "Return to Normal Operations" sign-off. |
+| **IT Operations / Infrastructure Team** | Executes system recovery procedures; validates integrity before service restoration. |
+| **Business Continuity Manager (BCM)** | Coordinates DR activities, tracks recovery milestones, and provides status updates to leadership. |
+| **Integration / Development Team** | Restores and validates integration layer and customer-specific connections. |
+
+---
+
+## RTO and RPO targets
+
+| System / Service Tier | Examples | RTO | RPO |
+| --- | --- | --- | --- |
+| **Tier 1: Mission Critical** | Core ERP, on-premises directory service, enterprise identity provider, production virtual infrastructure | 4 hours | 1 hour |
+| **Tier 2: Business Essential** | Email platform, collaboration platform, financial systems, HR management system | 24 hours | 4 hours |
+| **Tier 3: Standard** | Reporting and analytics, departmental tools, collaboration and file storage platforms | 72 hours | 24 hours |
+| **Tier 4: Non-Critical** | Non-production environments, internal knowledge bases | 7 days | 72 hours |
+
+Per-system RTO/RPO targets for systems added through modernization or onboarding workstreams are incorporated into this plan as those systems enter service.
+
+---
+
+## Recovery infrastructure
+
+The recovery architecture described here, like the infrastructure examples used throughout this plan, is an illustrative reference deployment; an adopting organization substitutes its own primary-site topology, recovery platform, and cloud-service dependencies.
+
+**Primary site:** On-premises hypervisor infrastructure in the primary data centre.
+
+**Recovery platform:** A cloud-based site recovery service replicates production virtual machines to the cloud platform and enables failover within defined RTO windows. Failback to the primary data centre occurs after the primary site is restored and validated.
+
+**Cloud-native services:** Cloud productivity platform services and enterprise identity provider recover according to the cloud provider's platform SLAs and the organization's configuration backup procedures. These services do not require replication-based DR.
+
+---
+
+## Phased recovery sequence
+
+Recovery follows a phased sequence, refined through incident-response testing and post-incident review, that restores systems in dependency order.
+
+The phased sequence below applies to a **catastrophic full-site recovery** (for example, a site-wide ransomware event or facility loss requiring rebuild from clean backups), where systems are restored in dependency order rather than concurrently. The per-system RPO targets in the "RTO and RPO targets" table above are data-loss tolerances that remain the objective in every recovery scenario, catastrophic recovery included. The per-system RTO targets are the objectives for a normal isolated system failure; in a catastrophic recovery a system's effective restoration time is governed instead by its recovery phase, which may exceed its individual-failure RTO because upstream dependencies must be restored first.
+
+**Hold and investigation safeguard for recovery.** This safeguard applies to every recovery under this plan, whatever the trigger, including an isolated system failure, a catastrophic full-site recovery, a failback and a security incident. Before any recovery step that rebuilds, reimages, re-flashes, wipes, restores over or otherwise overwrites the existing contents of a device or storage volume, confirm that no legal hold or investigation covers the device, its user, or its data. The check uses the two-part confirmation in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 rule 2. A check of the GRC platform and Records Register confirms only whether a hold is recorded. Under that rule, Legal Counsel or the Incident Commander or, for security P3 and P4 where no Incident Commander is assigned, the SOC lead, or, for security P1 and P2 before an Incident Commander is assigned, the interim technical authority (Security Incident Response Procedure §2.2) confirms whether an investigation under [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) treats the device, its user, or its data as evidence. Only Legal Counsel confirms whether an investigation by an external authority treats the device, its user, or its data as evidence, and whether a hold is required but not yet recorded. Where a legal hold or investigation covers the device, or that status cannot be confirmed, keep the original device or storage volume unaltered in custody until Legal Counsel, in writing, releases or narrows the hold under [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 rule 8. For an investigation without a legal hold, that release is Legal Counsel's written confirmation that the investigation no longer treats the device or its contents as evidence. A forensic image does not substitute for keeping the original. Recovery onto replacement infrastructure proceeds: recover to replacement hardware, a new instance, the recovery platform or restored copies, never over the held original. Where the recovery follows a security incident, [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §5.1 and §5.4 also apply.
+
+| Phase | Target | Description |
+| --- | --- | --- |
+| **Phase 1: Identity and Infrastructure** | Within 4 hours | Restore on-premises directory service and enterprise identity provider. Initiate cloud-based site recovery failover for Tier 1 systems. Validate network connectivity and firewall state. Confirm all attacker access removed and security controls re-enabled. |
+| **Phase 2: Core Production Systems** | Within 2 to 5 days | Restore ERP, core application servers, and databases. Validate data integrity against last clean backup. Confirm cloud productivity platform services are operational and secure. |
+| **Phase 3: Integration Layer** | Within 7 to 10 days | Restore integration middleware and EDI integrations. Validate data integrity for integration pipeline. Initiate customer re-onboarding with integrity verification before reconnection. |
+| **Phase 4: Reporting and Full Operations** | Within 30 days | Restore reporting services, data warehouse, and analytics platforms. Complete customer-specific integration restoration. Confirm full operational recovery. |
+
+---
+
+## Pre-conditions for service restoration
+
+No production system is restored to service until the following conditions are confirmed:
+
+- Attacker tooling and access paths removed and independently verified.
+- All compromised credentials rotated.
+- Endpoint protection in enforcement mode on all restored systems.
+- Security information and event management (SIEM) log forwarding confirmed active.
+- CISO sign-off obtained.
+
+---
+
+## Backup and restore requirements
+
+All systems must have:
+
+- Automated backups with off-site or cloud copy at a cadence that meets each system's RPO: continuous or near-continuous data protection (for example, journaled or snapshot replication, or log shipping) for Tier 1's 1-hour RPO, backups at least every 4 hours for Tier 2's 4-hour RPO, and at least daily backups for Tier 3 and Tier 4.
+- Backup integrity verified via restore test on the criticality-tiered cadence in [`procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md) Section 4: at least weekly for production and other high-criticality systems, and at least monthly for all other systems.
+- Backup gap not exceeding each tier's RPO: 1 hour for Tier 1 and 4 hours for Tier 2 (the 24-hour and 72-hour RPOs apply to Tier 3 and Tier 4 respectively, per the RTO and RPO targets table above).
+
+Backup status is reported monthly to the CISO. Any backup gap exceeding the defined RPO is treated as a P2 risk event and escalated for immediate remediation.
+
+---
+
+## Runbook references
+
+System-specific recovery runbooks are maintained per the recovery runbook template ([`resilience/template-recovery-runbook.md`](template-recovery-runbook.md)) and held in the operations documentation space owned by the IT/Operations function. Runbooks must be reviewed and tested at minimum annually. Runbook currency (last tested date) is tracked in the CMDB against each in-scope system. Runbooks not tested within 13 months are flagged as non-compliant.
+
+---
+
+## DR testing
+
+DR testing requirements follow the Continuity and Recovery Testing and Exercising Procedure:
+
+- Tier 1 systems must be included in the annual full recovery test.
+- Cloud-based site recovery failover tests for production-critical virtual machines must be conducted at minimum annually.
+- Test results, recovery time achieved versus the applicable target (the per-system RTO for an isolated-failure test, or the recovery-phase target for a catastrophic-recovery test), and any identified gaps are documented and reported to the CIO and ERC.
+- Failures and gaps are logged in the CAPA Register.
+
+---
+
+## Lessons learned: illustrative incident scenario
+
+In an illustrative ransomware scenario, recovery could span roughly a 30-day window. The lessons this plan incorporates from such scenarios include:
+
+- Hypervisor infrastructure requires explicit DR coverage via a cloud-based site recovery service.
+- Identity recovery (on-premises directory service) must be the first recovery step.
+- In such a scenario, integration-layer recovery can take roughly 14 days, exceeding its 7-to-10-day Phase 3 target and requiring dedicated resourcing.
+- Legacy data environments with backup gaps materially increase recovery complexity and must be eliminated.
+- Evidence of attacker removal must be confirmed before any system is restored to production.
+
+---
+
+## Framework alignment
+
+| Framework | Reference | Relevance |
+| --- | --- | --- |
+| ISO 22301:2019 | Business Continuity Management Systems | DR governance and testing |
+| COBIT 2019 | DSS04.03, DSS04.04, DSS04.05, DSS04.07 | IT continuity management |
+| NIST SP 800-34r1 | §4.1, §4.2.1, §4.3.1, §4.3.2, §4.4 | DR plan structure |
+| CSA CCM v4.1 | BCR-08, BCR-09, BCR-10, BCR-11: backups, disaster response plan, response plan exercise, and redundant business-critical equipment | Cloud resilience controls |
+| NIST SP 800-184 (Guide for Cybersecurity Event Recovery) | Sections 2-3 (Planning for Cyber Event Recovery; Continuous Improvement) | Tactical and strategic guidance for developing the recovery plan and its playbooks, defining recovery initiation and termination criteria, and validating and continuously improving recovery capabilities following a cybersecurity event |
+| ISO/IEC 27031:2025 (Information and communication technology readiness for business continuity) | 10.3.1 RPO and RTO plans for ICT; 10.3.2 Facilities | Recovery objectives for each product and service; ICT recovery systems and critical data backups physically separated from the operational site where possible |
+| ISO/IEC 27002:2022 (Information security controls) | 5.30 ICT readiness for business continuity; 8.13 Information backup | ICT continuity readiness; backups maintained and regularly tested |
+| NIST IR 8374 Rev. 1 (Ransomware Risk Management: A Cybersecurity Framework 2.0 Community Profile, June 2026) | ID.IM-04: incident response and other cybersecurity plans established, communicated, maintained and improved | Recovery plans, including ransomware recovery, tested periodically |
+
+---
+
+**End of Document**

@@ -1,0 +1,210 @@
+#!/usr/bin/env python3
+"""Per-PR version-bump delta gate.
+
+When a pull request substantively modifies a versioned document (a
+markdown file carrying a ``**Version:**`` metadata field), the
+document's Version field should bump in the same PR. This delta gate
+detects PRs that change a versioned document's body without bumping
+its Version field, catching the omission before merge.
+
+This is a PR-time delta gate (D2), not part of the corpus audit
+programme in .claude/skills/corpus-management/specs/specification-audit-programme.md §6. The §6
+corpus gates check repository state at HEAD; this script compares
+HEAD to the PR's merge-base and asserts that every changed versioned
+document has a bumped Version field.
+
+Exempt files: .working/CHANGELOG.md (its body is the version history itself);
+generated artefacts (.claude/skills/corpus-management/data/taxonomy.yml, .claude/skills/corpus-management/data/narrative.yml,
+governance/portal.md, governance/maturity-scorecard.md,
+.claude/skills/corpus-management/registers/reference-acquisition-manifest.md); the five append-only .working/
+logs (validate-pr/history.md, improvement-log.md, merge-bypass-log.md,
+guardrail-reviews/history.md, open-findings.md; unversioned by design);
+files without a Version metadata field
+(e.g. plain README boilerplate, governance/charter notes that the
+project chose not to version-control via metadata).
+
+Usage:
+    # In CI (uses GITHUB_BASE_REF):
+    python3 .claude/skills/corpus-management/tools/check-version-bump-on-pr.py
+
+    # Locally, comparing HEAD to a specific base:
+    python3 .claude/skills/corpus-management/tools/check-version-bump-on-pr.py origin/main
+    python3 .claude/skills/corpus-management/tools/check-version-bump-on-pr.py origin/main HEAD
+
+Exit codes:
+    0 : Every changed versioned document has a bumped Version field,
+        or only exempt files were touched.
+    1 : One or more versioned documents changed without a Version bump.
+    2 : Invocation or environment error (cannot determine base/head,
+        git failure), or CANNOT-EVALUATE: base and head resolve to the
+        same commit, or the range changes no file (an empty diff), so
+        nothing was evaluated.
+"""
+
+from __future__ import annotations
+
+import argparse
+import subprocess
+import sys
+
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack .claude/skills/corpus-management/tools/ on sys.path
+from aiqt_corpus import git, head_version  # noqa: E402  # generic core (behaviour-identical to lint_common)
+from lint_common import PrRangeError, empty_pr_range_message, git_show_strict, resolve_pr_range  # noqa: E402  # grc-config/store, stays local
+
+
+# Files exempt from the version-bump requirement.
+EXEMPT_FILES: frozenset[str] = frozenset(
+    {
+        ".working/CHANGELOG.md",
+        ".claude/skills/corpus-management/data/taxonomy.yml",
+        ".claude/skills/corpus-management/data/narrative.yml",
+        "governance/portal.md",
+        "governance/maturity-scorecard.md",
+        # Generated from grc_library_ref/catalogue.yml with a schema-only Version;
+        # regenerated not edited, so exempt like the other generated artefacts and
+        # matching gate 40 (lint-version-bump-recency) EXEMPT_FILES (parity, #1380).
+        ".claude/skills/corpus-management/registers/reference-acquisition-manifest.md",
+        # Append-only .working logs (3.135 (closing PR #1194)): unversioned, so exempt from the
+        # per-PR Version-bump (D2) and Version-Date co-bump (D4) requirements.
+        ".working/validate-pr/history.md",
+        ".working/improvement-log.md",
+        ".working/merge-bypass-log.md",
+        ".working/guardrail-reviews/history.md",
+        ".working/open-findings.md",
+    }
+)
+
+# Directory prefixes whose files are exempt (e.g. node_modules, .git).
+EXEMPT_PREFIXES: tuple[str, ...] = (
+    ".claude/skills/corpus-management/src/",
+    ".git/",
+    "node_modules/",
+    "__pycache__/",
+)
+
+
+def is_exempt(path: str) -> bool:
+    if path in EXEMPT_FILES:
+        return True
+    if any(path.startswith(prefix) for prefix in EXEMPT_PREFIXES):
+        return True
+    if not path.endswith(".md"):
+        return True
+    return False
+
+
+def main(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Check that every versioned document changed in a PR has a "
+            "bumped Version field."
+        ),
+    )
+    parser.add_argument(
+        "base",
+        nargs="?",
+        help=(
+            "Base ref to diff against (default: origin/$GITHUB_BASE_REF in CI; "
+            "must be supplied explicitly when running locally)."
+        ),
+    )
+    parser.add_argument(
+        "head",
+        nargs="?",
+        default="HEAD",
+        help="Head ref (default: HEAD).",
+    )
+    args = parser.parse_args(argv[1:])
+
+    try:
+        merge_base, head = resolve_pr_range(args.base, args.head)
+    except PrRangeError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+
+    # The git reads below refuse with exit 2, never a traceback, when git
+    # cannot run at all (OSError) or prints output the locale codec cannot
+    # decode (UnicodeDecodeError), as the diff already did on a nonzero exit
+    # (3b577 round 4).
+    try:
+        changed_raw = git("diff", "--name-only", merge_base, head)
+    except (subprocess.CalledProcessError, OSError, UnicodeDecodeError) as exc:
+        print(f"ERROR: git diff failed: {exc}", file=sys.stderr)
+        return 2
+
+    changed = [line for line in changed_raw.splitlines() if line]
+
+    if not changed:
+        print(empty_pr_range_message(merge_base, head), file=sys.stderr)
+        return 2
+
+    findings: list[tuple[str, str]] = []
+    versioned_checked = 0
+    skipped_no_version = 0
+    skipped_exempt = 0
+    for path in changed:
+        if is_exempt(path):
+            skipped_exempt += 1
+            continue
+        try:
+            # git_show_strict returns None only when git lists no entry at
+            # the path (it does not exist at that revision) or one that is
+            # not a blob (a gitlink, 3b577 round 6); a failed listing or
+            # read, git not running, or a blob that is not valid UTF-8
+            # refuses instead of reading as an absent file (3b577 round 5).
+            base_content = git_show_strict(merge_base, path)
+            head_content = git_show_strict(head, path)
+        except (subprocess.CalledProcessError, OSError, ValueError) as exc:
+            print(f"ERROR: git show failed for {path}: {exc}", file=sys.stderr)
+            return 2
+        # File added in the PR (no base content): exempt; new files start
+        # at their initial Version and need not "bump".
+        if base_content is None:
+            continue
+        # File deleted in the PR (no head content): not relevant.
+        if head_content is None:
+            continue
+        base_version = head_version(base_content)
+        head_version_value = head_version(head_content)
+        # File has no Version field at either ref: exempt by design.
+        if base_version is None and head_version_value is None:
+            skipped_no_version += 1
+            continue
+        # File has a Version field at head but not at base (or vice versa):
+        # the file gained or lost its Version field, which is a metadata
+        # change that itself counts as a version event.
+        if base_version is None or head_version_value is None:
+            versioned_checked += 1
+            continue
+        versioned_checked += 1
+        if base_version == head_version_value:
+            findings.append(
+                (
+                    path,
+                    f"Version field is `{head_version_value}` at both {merge_base[:8]} "
+                    f"and {head}; the file's body changed but Version did not bump.",
+                )
+            )
+
+    if not findings:
+        print(
+            f"OK: {versioned_checked} changed versioned document(s) have a "
+            f"bumped Version field. {skipped_exempt} exempt file(s), "
+            f"{skipped_no_version} non-versioned file(s) skipped."
+        )
+        return 0
+
+    for path, message in findings:
+        print(f"FAIL {path}: {message}", file=sys.stderr)
+    print(
+        f"\n{len(findings)} versioned document(s) changed without a Version bump. "
+        f"Bump the **Version:** field of each, or move the change to a separate "
+        f"PR if the change does not warrant a version bump (uncommon: most body "
+        f"edits to a versioned document do warrant a bump).",
+        file=sys.stderr,
+    )
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

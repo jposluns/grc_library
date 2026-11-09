@@ -1,0 +1,129 @@
+# Backup and Recovery Procedure
+
+**Document Title:** Backup and Recovery Procedure\
+**Document Type:** Procedure\
+**Version:** 1.1.4\
+**Date:** 2026-10-29\
+**Owner:** Resilience Owner\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`compliance/public-sector/annex-canada-public-sector-requirements.md`](../compliance/public-sector/annex-canada-public-sector-requirements.md)\
+**Classification:** Public\
+**Category:** Resilience\
+**Review Frequency:** Annual and upon material backup, recovery, infrastructure, data, or supplier change\
+**Repository Path:** [`resilience/procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This procedure defines an organization-neutral process for backup, replication, recovery validation, restoration, and evidence capture for business-critical systems and data.
+
+The procedure intentionally avoids vendor-specific implementation steps so that it can be reused across cloud, on-premises, hybrid, managed service, database, file, application, and AI system recovery scenarios.
+
+---
+
+## Scope
+
+This procedure applies to systems, databases, files, configuration repositories, logs, AI system data stores, retrieval stores, model artefacts, service configurations, and other records requiring backup or recovery capability.
+
+It covers:
+
+- Backup scope definition.
+- Recovery objective alignment.
+- Replication and backup scheduling.
+- Backup protection and access control.
+- Recovery validation.
+- Restoration execution.
+- Evidence and reporting.
+- Supplier-operated backup and recovery controls.
+
+---
+
+## Roles and responsibilities
+
+| Role | Responsibility |
+| --- | --- |
+| Resilience Owner | Owns recovery governance, testing cadence, and corrective action tracking. |
+| System Owner | Identifies systems requiring backup and validates restoration outcomes. |
+| Data Owner | Defines recovery, retention, and deletion requirements for data classes. |
+| Technical Recovery Owner | Implements backup, replication, restoration, and technical validation controls. |
+| Security Owner | Reviews access, encryption, logging, and incident-related recovery requirements. |
+| Supplier Owner | Validates supplier backup, recovery, deletion, and continuity commitments where applicable. |
+
+---
+
+## Requirements
+
+### 1. Backup scope
+
+Each system requiring backup must have documented scope covering:
+
+- Application data.
+- Databases.
+- Configuration data.
+- Identity and access dependencies.
+- Encryption keys or recovery dependencies.
+- Logs required for investigation or audit.
+- AI prompts, outputs, embeddings, retrieval stores, model configuration, evaluation data, and monitoring records where applicable.
+
+### 2. Recovery objectives
+
+Recovery time objectives and recovery point objectives must be documented for critical services. Objectives must align with business impact analysis, contractual commitments, legal obligations, data classification, and supplier capability. Backups must be taken at a cadence that meets each system's recovery point objective; the [IT disaster recovery plan](plan-it-disaster-recovery.md) sets the normative floor by tier (continuous or near-continuous protection for Tier 1's one-hour RPO, at least every four hours for Tier 2, and at least daily for Tier 3 and Tier 4), and no system's backup-taking cadence may fall below its RPO. This is the backup-taking cadence; restore-test cadence is governed separately by the Recovery testing section below.
+
+### 3. Protection requirements
+
+Backups must be protected against unauthorized access, alteration, deletion, ransomware, corruption, and inappropriate retention. Protection must include encryption, access control, separation of duties, immutability or deletion resistance where appropriate, monitoring, and restoration access review.
+
+For organizations facing elevated ransomware risk, **NIST IR 8374 Rev. 1** (Ransomware Risk Management: A Cybersecurity Framework 2.0 Community Profile) is an optional supplementary control-prioritization overlay: it maps anti-ransomware safeguards to CSF 2.0 outcomes and can be used to prioritize the backup-protection controls in this section. It is a prioritization aid, not a baseline requirement of this procedure.
+
+For Canadian organizations, the Canadian Centre for Cyber Security **Baseline Cyber Security Controls for Small and Medium Organizations V1.2** (February 2020) is a reference point for backup protection, not an added requirement of this procedure. Its control BC.7.2 says organizations should store backups encrypted and restrict access to those who need it for testing or carrying out restoration, and that long-term backups must be stored offline while frequent backups may be stored online. The held edition is the one cited; its currency is to be confirmed upstream.
+
+### 4. Recovery testing
+
+Recovery capability must be tested according to criticality. This section is the normative source for restore-test cadence across the library. Restore tests for production systems and other high-criticality systems (Tier 1 Mission Critical in the criticality classification used by the IT disaster recovery plan) must be performed at least weekly, and restore tests for all other systems (Tier 2 Business Essential, Tier 3 Standard, and Tier 4 Non-Critical) must be performed at least monthly, so no system falls below a monthly restore-test floor. Adopting organizations may define a more frequent cadence for a system, but must not set a less frequent cadence than this baseline. This cadence governs backup restore testing; cryptographic key-recovery and key-escrow ceremony testing follow their own schedules in [`security/procedure-key-escrow-and-recovery.md`](../security/procedure-key-escrow-and-recovery.md) and are not restore-test obligations under this section. Tests must validate data integrity, service restoration, authentication, application dependencies, supplier dependencies, and business acceptance criteria.
+
+Canadian reference points for recovery capability, which add no requirement to this procedure:
+
+- Control BC.7.1 of the CCCS small and medium organizations baseline cited in the Protection requirements section says organizations should back up systems holding essential business information and ensure that recovery mechanisms restore those systems effectively and efficiently, and should consider keeping backups offline at a secure offsite location or give the rationale for not doing so.
+- For the Canadian federal public sector, the Treasury Board **Directive on Security Management** (held edition: takes effect July 1, 2019), Appendix B, directs departments to set recovery strategies and restoration priorities for data and information systems in line with departmental business continuity requirements (B.2.3.10.1), to implement measures that meet them (B.2.3.10.2), and to test IT continuity mechanisms as part of departmental business continuity management (B.2.3.10.3). The [Canada public-sector annex](../compliance/public-sector/annex-canada-public-sector-requirements.md) sets the applicability model for that lane, and the [IT disaster recovery plan](plan-it-disaster-recovery.md) sets the recovery tiers and objectives this procedure supports. The held edition is the one cited; its currency is to be confirmed upstream.
+
+### 5. Restoration procedure
+
+Restoration activities must record:
+
+- Trigger and authorization.
+- Affected service or data set.
+- Recovery point selected.
+- Restoration steps.
+- Validation method.
+- Actual recovery time.
+- Actual data loss or recovery point.
+- Exceptions encountered.
+- Business acceptance.
+- Residual risk.
+
+### 6. AI and data recovery
+
+AI system recovery must consider retrieval stores, embeddings, model configuration, system prompts, tool permissions, monitoring logs, training or fine-tuning data, data provenance, lineage, retention, and enforceable deletion requirements.
+
+### 7. Supplier recovery
+
+Where backup or recovery is provided by a supplier, contractual and assurance evidence must address restoration commitments, retention, encryption, access controls, subprocessor exposure, incident notification, deletion capability, and exit support.
+
+---
+
+## Evidence requirements
+
+Maintain evidence including backup inventory, recovery objectives, backup configuration record, access review, encryption record, test plan, test result, restoration log, corrective action log, supplier assurance record, and deletion or retention attestation where applicable.
+
+---
+
+## Limitations
+
+This procedure is a reusable CC BY-SA 4.0 baseline. Adopting organizations must define specific technologies, schedules, storage locations, encryption methods, network paths, retention periods, and recovery runbooks internally.
+
+---
+
+**End of Document**

@@ -1,0 +1,72 @@
+# Corpus-Management pack manifest (umbrella 4.1).
+# Compile PR-2 activates generation: the compiler (tools/corpus_mgmt_compiler.py,
+# wrapped by the project's .claude/skills/corpus-management/tools/build-corpus-management.py) owns the targets
+# summarized below; gate 99 runs its --check form.
+# Paths are relative to the pack root (.claude/skills/corpus-management/src/).
+schema_version = 1
+
+[pack]
+id = "corpus-management"
+version = "0.23.0"
+state = "active"
+source_root = "."
+
+[dependency.aiqt]
+model = "B"
+module = "aiqt_corpus"
+minimum_python = "3.14"
+
+[registers]
+clauses = "core/clauses.toml"
+id_history = "core/id-history.toml"
+ownership = "core/ownership.toml"
+gates = "core/gates.toml"
+profiles = "core/profiles.toml"
+hooks = "core/hooks.toml"
+
+[classification]
+# The maintainer-confirmed (2026-09-14) gate-home classification: which of the grc
+# audit gates are Corpus-Management extraction candidates vs AIQT / harness-fleet /
+# grc-only. Roadmap/reference register (NOT compiler-consumed); the authoritative
+# source for the gate-wave transfer sequence.
+gate_homes = "core/gate-homes.toml"
+
+[metadata]
+structure = "fixed"
+vocabulary = "configurable"
+default_profile = "grc"
+
+[reference_registers]
+distribution = "defaults-with-adopter-overrides"
+defaults_root = "defaults/grc"
+
+[operational_registers]
+scope = "project-only"
+shipped = false
+
+[generation]
+enabled = true
+ruleset = "gensrc.toml"
+owned_targets = [".claude/skills/corpus-management/rule-index.md", ".claude/CLAUDE.md", ".claude/rules/corpus-management/language-convention.md", ".claude/references/corpus-management/authoring-conventions.md", ".claude/references/corpus-management/corpus-scan-integrity.md", ".claude/references/corpus-management/markdown-link-integrity.md", ".claude/rules/corpus-management/normative-wording.md", ".claude/references/corpus-management/markdown-link-resolution.md", ".claude/references/corpus-management/required-sections.md", ".claude/references/corpus-management/citation-denylist.md", ".claude/references/corpus-management/section-placement.md", ".claude/references/corpus-management/shall-near-uncertainty.md", ".claude/references/corpus-management/todo-forward-only.md", ".claude/references/corpus-management/positional-backlog-token.md", ".claude/references/corpus-management/no-stub-documents.md", ".claude/references/corpus-management/filename-title-alignment.md", ".claude/references/corpus-management/standards-currency.md", ".claude/references/corpus-management/directional-dependency.md", ".claude/references/corpus-management/role-authority.md", ".claude/references/corpus-management/placeholder-leakage.md", ".claude/references/corpus-management/gate-count-consistency.md", ".claude/references/corpus-management/date-format.md", ".claude/references/corpus-management/license-consistency.md", ".claude/references/corpus-management/section-anchor-resolution.md", ".claude/references/corpus-management/intra-doc-section-refs.md", ".claude/references/corpus-management/secret-content.md", ".claude/references/corpus-management/pii-content.md", ".claude/references/corpus-management/internal-reference.md", ".claude/references/corpus-management/external-link-domain.md", ".claude/references/corpus-management/acronym-consistency.md", ".claude/references/corpus-management/cross-doc-numbers.md", ".claude/references/corpus-management/cobit-iso31000-citations.md", ".claude/references/corpus-management/metadata-line-breaks.md", ".claude/references/corpus-management/orphan-documents.md", ".claude/references/corpus-management/cross-file-section-refs.md", ".claude/references/corpus-management/cross-file-section-names.md", ".claude/references/corpus-management/document-date-staleness.md", ".claude/references/corpus-management/structural-index-integrity.md", ".claude/references/corpus-management/document-metadata.md", ".claude/references/corpus-management/retention-consistency.md", ".claude/references/corpus-management/document-control-codes.md", ".claude/references/corpus-management/document-iso-annex-a.md", ".claude/references/corpus-management/ccm-aicm-citations.md", ".claude/references/corpus-management/matrix-control-codes.md", ".claude/references/corpus-management/ccm-provider-member-range.md", ".claude/references/corpus-management/alignment-citation-existence.md", ".claude/references/corpus-management/cobit-title-text.md", ".claude/references/corpus-management/ssdf-control-ids.md", ".claude/references/corpus-management/listing-surface-completeness.md", ".claude/references/corpus-management/narrative-disclaimer.md", ".claude/references/corpus-management/narrative-vocabulary.md", ".claude/references/corpus-management/narrative-authority-boundary.md", ".claude/references/corpus-management/narrative-boundary.md", ".claude/references/corpus-management/narrative-metadata.md", ".claude/references/corpus-management/index-header-parity.md", ".claude/references/corpus-management/doctype-parity.md", ".claude/skills/corpus-management/SKILL.md"]
+
+[addons]
+# Adopter-availability register ONLY: no pack or project tooling acts on [addons]; only
+# the pack activation test asserts its contents.
+# Dual contract for publication-screening: this entry records adopter availability
+# of the add-on (declared available, disabled here), while the parent project's own
+# publication screening (/screen-publications in its CLAUDE.md) stays required
+# unconditionally. requires_reference_base applies to it because the add-on
+# corroborates each load-bearing claim through the project's configured trusted-source index
+# (publication-screening SKILL.md step 4) and screens an adopter-configured
+# untrusted collection through the adopter's own verdict register and enforcing gate.
+available = ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"]
+enabled = []
+requires_reference_base = true
+
+[release]
+waivers = "core/release-waivers.toml"
+
+[rollout]
+phase_2b = "skip"
+gate_98 = "corpus-interim"
+publication = "deferred-P4"

@@ -1,0 +1,15 @@
+# NIST SSDF control-identifier validity
+
+A NIST SSDF (SP 800-218 / 800-218A) control identifier cited in a document is a valid
+practice or task id, and an SSDF-labelled framework column holds only SSDF-family codes.
+The check reads each document's lines outside fenced code blocks and, for the SSDF
+families it recognizes (a fixed set of two-letter family prefixes), validates each
+practice id (family plus number) and task id (family, practice, and task number)
+against the valid-identifier catalogue, flagging any that do not exist. In a framework
+table whose header cell names the SSDF column, it additionally flags a code-shaped
+token whose family is not an SSDF family (a foreign framework's code sitting in the
+SSDF column). Table cells are split on the pipe and separator rows are skipped. The SSDF family set
+and the id/code-shape/header patterns are fixed by the check (the families are intrinsic
+to the standard); the valid-practice and valid-task catalogue is supplied by the adopter
+(the reference) and is not part of this clause. A document whose SSDF identifiers are all valid, with no
+foreign code in an SSDF column, contributes no findings.

@@ -1,0 +1,339 @@
+# Adopter Startup Roadmap Template
+
+**Document Title:** Adopter Startup Roadmap Template\
+**Document Type:** Template\
+**Version:** 2.2.19\
+**Date:** 2026-11-08\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`governance/template-quickstart.md`](template-quickstart.md), [`.claude/skills/corpus-management/docs/adopter-guide.md`](../.claude/skills/corpus-management/docs/adopter-guide.md), [`governance/decision-tree.md`](decision-tree.md), [`governance/maturity-scorecard.md`](maturity-scorecard.md), [`governance/template-maturity-self-assessment.md`](template-maturity-self-assessment.md), [`README.md`](../README.md), [`governance/worked-example.md`](worked-example.md)\
+**Classification:** Public\
+**Category:** Adopter Experience\
+**Review Frequency:** Annual, and on material change to the library's domain structure or sector-conditional content\
+**Repository Path:** [`governance/template-startup-roadmap.md`](template-startup-roadmap.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This template helps an adopter compose a starting set of library artefacts from a small core baseline plus stacking modules. The composition matches what the organization actually does (its activities, data scope, audience, regulatory exposure, and GRC team capacity), rather than a pre-set profile by company size or sector.
+
+This is the long-form composition workbook. Readers who want a 10-minute on-ramp first should start with [`governance/template-quickstart.md`](template-quickstart.md); this roadmap is the next step after the quickstart, for adopters ready to work through the full module catalogue.
+
+### Where this fits among the adopter entry points
+
+The canonical front door for adopters is [`governance/portal.md`](portal.md) (audience-keyed grouping by role). This template is one of five deeper-dive paths that branch off the portal; it answers "how do I compose the full starting set across activity, data, audience, regulatory exposure, and capacity?". The other four are [`.claude/skills/corpus-management/docs/adopter-guide.md`](../.claude/skills/corpus-management/docs/adopter-guide.md) (fork-and-adapt principles), [`governance/template-quickstart.md`](template-quickstart.md) (what to copy on Day 1; the 10-minute on-ramp version of this workbook), [`governance/decision-tree.md`](decision-tree.md) (sequenced reading order), and [`governance/template-implementation-roadmap.md`](template-implementation-roadmap.md) (calendar phasing). The portal's "Other entry points and when to use them" table picks the right path by question; see the portal Overview.
+
+The aim is to compress the adopter's first-week question (`which of the 12 domains do I need on day one?`) into: copy the core baseline, then add the modules that match the organization. The [`governance/decision-tree.md`](decision-tree.md) covers the conditional logic; this template names the resulting compositions.
+
+A composition is a starting point, not a final scope. Adopters typically grow into adjacent modules as the programme matures; the [`.claude/skills/corpus-management/docs/adopter-guide.md`](../.claude/skills/corpus-management/docs/adopter-guide.md) section "Maturity progression" describes the standard growth path.
+
+---
+
+## Scope
+
+This template applies to organizations adopting the library for the first time and to organizations consolidating an existing adoption against this library's structure.
+
+The composition shape (core baseline plus stacking modules) replaces the earlier per-profile categorization. Categorical profiles (small business, mid-market, multi-national, etc.) were tested against real adopter shapes and found too rigid: real organizations sit across categories, and the same category contains very different operational realities. Activities, data, audience, regulatory exposure, and team capacity are the dimensions that actually drive what an organization needs from the library.
+
+Out of scope: bespoke profile shapes marked Out of scope in [`governance/register-coverage-gaps.md`](../governance/register-coverage-gaps.md) §1 (defence and aerospace, mining, agriculture, etc.). Adopters whose shape is materially different from anything composable here should consult the decision tree directly.
+
+---
+
+## The core baseline
+
+Every adopter copies this set on Day 1, regardless of size, sector, or maturity. The reasoning: every organization has staff data, IT, vendors, and the possibility of an incident. The baseline is the floor below which the programme cannot be defended.
+
+| Domain | Artefact | Why it is in the baseline |
+| --- | --- | --- |
+| `governance/` | one foundational policy (e.g. [`security/policy-information-security.md`](../security/policy-information-security.md) or equivalent) | A single overarching policy that names the organization's posture and the owner of that posture. |
+| `security/` | [`policy-acceptable-use.md`](../security/policy-acceptable-use.md), [`policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) | The three documents that the largest share of incidents touch. |
+| `privacy/` | [`policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) plus the home-jurisdiction annex from [`privacy/jurisdictions/`](../privacy/jurisdictions/) | Even an organization that does not collect customer data has staff data; the home-jurisdiction privacy law is the floor. |
+| `risk/` | [`policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | The posture-setting enterprise risk governance policy: it names the organization's risk appetite and who owns it, and it is the same risk artefact named in the quickstart Day-1 floor and the adopter-guide Tier 1 set. Populating [`procedure-risk-register.md`](../risk/procedure-risk-register.md) with the actual top 10 risks is the recommended early follow-on (a short, real register beats a long imagined one), not a separate Day-1 floor artefact. |
+
+The baseline is six artefacts. An organization that has copied and customized these six has a defensible floor. Layer modules on top.
+
+---
+
+## How to use the modules
+
+Modules are organized in five dimensions. For each dimension, identify which modules apply to your organization and copy the artefacts each module names. Modules are additive (you can pick more than one in each dimension); they are also independent (you can pick A2 without A1 if you ship external-facing SaaS but do not build it in-house).
+
+| Dimension | Question to ask |
+| --- | --- |
+| A. Activity | What do we do? |
+| B. Data scope | What data do we handle? |
+| C. Audience | Who do we serve? |
+| D. Regulatory exposure | Who regulates us? |
+| E. GRC team capacity | How much can we maintain? |
+
+Dimension E (capacity) scales every other module: an organization with a one-person GRC function copies the minimum viable subset of each chosen module; an organization with a department copies the full set plus measurement infrastructure.
+
+---
+
+## Module catalogue
+
+### Dimension A: Activity (what we DO)
+
+#### A1: We build software in-house (custom internal development)
+
+Triggered by any in-house software development, including internal tools, automation, scripting, infrastructure-as-code, and customization of off-the-shelf platforms.
+
+Adopt:
+- [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md): the floor for any internal development.
+- [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md): if the team operates pipelines.
+- [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md): if developers use Claude Code, Copilot, Cursor, or equivalent.
+- The pinned AIQT rules as project-loaded session context: if any AI coding assistant is used. (Published by the AIQT project at https://aiqt.ai; the library adopts a pinned AIQT snapshot, pinned in `.claude/aiqt/PIN.toml` and inventoried by the vendored upstream manifest `.claude/aiqt/.aiqt/manifest.toml`, with the rendered copies under `.claude/rules/aiqt/` and `.claude/rules/security/`.)
+
+#### A2: We ship external-facing software (SaaS, downloadable, embedded)
+
+Triggered by software that runs on customer infrastructure, in a customer-accessible cloud tenancy, or as a downloadable artefact.
+
+Adopt the A1 set plus:
+- [`operations/`](../operations/): runbook-style procedures for the recurring operational interactions.
+- [`architecture/`](../architecture/): lighter set; the reference-architecture artefacts for the patterns the team builds.
+- [`resilience/`](../resilience/): light; business-continuity and incident-aligned recovery procedures.
+
+#### A3: We use AI in operations (any AI deployment)
+
+Triggered by use of AI in customer-facing or internal workflows: chat assistants, document summarization, decision support, content generation, recommendation systems, etc.
+
+Adopt:
+- [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md): the AI policy floor.
+- [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md): inventory each AI system in scope.
+- [`ai/template-system-card.md`](../ai/template-system-card.md): per-system documentation for each high-risk AI system.
+- [`ai/checklist-ai-algorithmic-compliance.md`](../ai/checklist-ai-algorithmic-compliance.md): if the AI use case touches regulated decision-making.
+
+#### A4: We develop or train AI models
+
+Triggered by training models in-house, fine-tuning, or building AI products that depend on the model artefact being part of the deliverable.
+
+Adopt the A3 set plus:
+- [`ai/template-model-card.md`](../ai/template-model-card.md): per-model.
+- [`ai/template-dataset-datasheet.md`](../ai/template-dataset-datasheet.md): per-dataset.
+- [`ai/template-ai-red-team-report.md`](../ai/template-ai-red-team-report.md): for each AI system handling Confidential data or capable of initiating actions with financial or operational impact (REDTEAM-SEC-01 in [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md)).
+- [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md): the documentation discipline.
+
+#### A5: We have critical-availability operations
+
+Triggered by contractual SLAs, regulated availability requirements (DORA, NIS 2, CNI duties), or business-critical processes whose interruption is materially damaging.
+
+Adopt:
+- [`resilience/`](../resilience/) full set.
+- [`operations/`](../operations/) operational-discipline artefacts.
+- [`risk/`](../risk/) deeper risk register with availability-tier classifications.
+
+#### A6: We have physical operations
+
+Triggered by logistics, manufacturing, healthcare delivery, retail estate, transportation, energy distribution, or any operation that materially depends on physical processes and assets.
+
+Adopt:
+- [`operations/`](../operations/) full set.
+- The sector overlay under [`compliance/`](../compliance/) for the relevant industry (logistics, healthcare, energy-and-utilities, etc.).
+- [`resilience/`](../resilience/): physical operations have physical resilience needs.
+
+#### A7: We hold, use, issue, or service crypto-assets, or operate blockchain platforms
+
+Triggered by holding or transacting crypto-assets, issuing or offering them, running or using a crypto-asset trading or custody service, staking, deploying smart contracts, or adopting a blockchain platform.
+
+Adopt:
+- [`crypto/framework-crypto-asset-governance.md`](../crypto/framework-crypto-asset-governance.md): the domain anchor (crypto-asset classification, platform and technology model, risk domains, governance requirements).
+- [`crypto/standard-digital-asset-custody.md`](../crypto/standard-digital-asset-custody.md): if you hold crypto-assets, or the means of access to them, on behalf of clients or other third parties.
+- [`compliance/financial-services/annex-mica-implementation.md`](../compliance/financial-services/annex-mica-implementation.md): if in scope of the EU MiCA regime.
+- [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md): digital-asset key custody relates to the cryptographic key controls.
+
+### Dimension B: Data scope (what we HANDLE)
+
+#### B1: Customer or external personal data
+
+Triggered by any processing of personal data belonging to people outside the organization (customers, prospects, members, patients, etc.). Most organizations trigger this.
+
+Adopt:
+- [`privacy/`](../privacy/) core: policy, jurisdiction annex(es), [`template-record-of-processing-activities.md`](../privacy/template-record-of-processing-activities.md), [`procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md).
+- [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md).
+
+#### B2: Special-category personal data (health, biometric, ethnic origin, religious, sexual orientation, trade union, political opinion, genetic)
+
+Triggered by processing data classified as special-category under GDPR or equivalent regimes.
+
+Adopt the B1 set plus:
+- [`privacy/standard-pseudonymization-and-anonymization.md`](../privacy/standard-pseudonymization-and-anonymization.md).
+- The relevant framework documents (e.g. [`privacy/framework-consent-management.md`](../privacy/framework-consent-management.md)).
+- Stricter retention controls per the data type.
+
+#### B3: Children's data
+
+Triggered by processing data about people under the relevant age-of-majority threshold (typically 16 or 18, jurisdiction-dependent).
+
+Adopt the B1 set plus:
+- [`privacy/framework-childrens-data.md`](../privacy/framework-childrens-data.md).
+- The home-jurisdiction children-data-specific regulation if dedicated.
+
+#### B4: Cross-border data transfers
+
+Triggered by personal data flowing across jurisdictional boundaries (cloud hosted in a different country than data subjects, multi-region operations, vendor processors abroad).
+
+Adopt:
+- [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md).
+- The annex for each jurisdiction the data flows into or out of (from [`privacy/jurisdictions/`](../privacy/jurisdictions/)).
+- [`privacy/register-cross-border-data-flow.md`](../privacy/register-cross-border-data-flow.md).
+
+#### B5: Payment card data (PCI scope)
+
+Triggered by storage, processing, or transmission of payment card data, or by being in the cardholder data environment of a payment processor.
+
+Adopt:
+- [`security/`](../security/) full set.
+- [`supply-chain/`](../supply-chain/) heavy: PCI assessments depend on third-party attestations.
+- The financial-services sector overlay if applicable.
+
+#### B6: Government or classified data
+
+Triggered by processing data classified by a government as restricted, confidential, or above.
+
+Adopt:
+- [`compliance/public-sector/`](../compliance/public-sector/) full set.
+- The jurisdiction-specific classified-information framework.
+- Significantly heavier security stack.
+
+### Dimension C: Audience (who we SERVE)
+
+#### C1: Consumers (B2C)
+
+Adopt:
+- B1 with consumer-facing emphasis: cookies and tracker register, privacy notice, consent management.
+- Breach-notification procedure covering both regulator reporting (e.g. without undue delay and, where feasible, within 72 hours of becoming aware, to the supervisory authority under GDPR Art. 33) and data-subject notification where the breach is likely to result in high risk to individuals (without undue delay under GDPR Art. 34; specific timelines under some US state laws).
+
+#### C2: Businesses (B2B; your customers are other organizations)
+
+Adopt:
+- [`supply-chain/`](../supply-chain/) (you ARE someone's vendor): vendor security questionnaire, attestation patterns, contract security terms.
+- Customer-due-diligence response templates.
+
+#### C3: Government clients
+
+Adopt:
+- [`compliance/public-sector/`](../compliance/public-sector/) full set.
+- Attestation patterns specific to the relevant government framework (FedRAMP, IL4/IL5, GovAssure, ISM, etc.).
+
+### Dimension D: Regulatory exposure (who regulates us)
+
+#### D1: Light (basic privacy law only, no sector regulator)
+
+The core baseline plus the home-jurisdiction privacy annex is enough. No further D-dimension content needed.
+
+#### D2: Sector-regulated (one dominant regulator: FCA, PRA, HIPAA, FDA, NERC, MAS, etc.)
+
+Adopt the relevant sector folder under [`compliance/`](../compliance/) in full. Identify the primary sector via the decision tree.
+
+#### D3: Multi-regulated (multiple sectors or jurisdictions)
+
+Adopt multiple sector folders under [`compliance/`](../compliance/) plus multi-jurisdiction privacy annexes. Establish a cross-framework alignment matrix (consider [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md)).
+
+#### D4: Heavy (financial services, healthcare, public-sector cyber, critical infrastructure)
+
+Adopt the full sector folder plus [`resilience/`](../resilience/), [`supply-chain/`](../supply-chain/) deep, and [`risk/`](../risk/) full. Heavy regulatory exposure is the typical driver for a dedicated GRC function, which then layers Dimension E content.
+
+### Dimension E: GRC team capacity (how much we can maintain)
+
+Dimension E scales the depth of every other adopted module.
+
+#### E0: Zero in-house headcount (outsourced contractor)
+
+The GRC function is entirely outsourced to a third-party contractor or fractional consultant; nobody on the adopter's permanent staff carries GRC duties. The contractor reads, maintains, and operates the adopted artefacts on the adopter's behalf. The adopter retains accountability (decision authority on residual risk acceptance, sign-off on policy adoption, executive forum participation) but delegates execution. Copy the minimum viable subset of each chosen module; the contractor's engagement letter should name which artefacts they maintain and what cadence they review them on. Same artefact subset as E1 below; the operational difference is who holds the pen.
+
+#### E1: None or founder part-time
+
+Copy the minimum viable subset of each chosen module. Skip framework documents and charter documents at this layer; the policies and procedures are enough. Skip programme-level performance reviews.
+
+#### E2: Light (1 to 2 people)
+
+Copy the core artefacts of each chosen module and customize them. Skip programme-performance-review documents (e.g. [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md)) until capacity exists to operate them.
+
+#### E3: Standard (3 to 10 people)
+
+Copy the full set of each chosen module. A quarterly review cycle is realistic. Programme-performance reviews are tractable.
+
+#### E4: Heavy (a department)
+
+Copy the full set of each module plus measurement infrastructure (metrics, dashboards, board-level reports). The library's [`governance/template-maturity-self-assessment.md`](template-maturity-self-assessment.md) Tier 4 / 5 guidance applies.
+
+---
+
+## Worked examples
+
+### Example 1: Mid-size SaaS with EU customers and AI features
+
+A 60-person SaaS company. Customers across EU, UK, and US. Custom internal development, external-facing SaaS. Uses AI for feature delivery (text summarization, recommendation). Lightly regulated (general privacy law only). One-person privacy function plus part-time engineering-security lead (E2-bordering-E3).
+
+Composition:
+- Core baseline (mandatory).
+- A1 (custom internal dev), A2 (ships external SaaS), A3 (AI in operations).
+- B1 (customer personal data), B4 (cross-border, EU plus US).
+- C1 (consumer-facing if customers are individuals) or C2 (B2B) depending on contract type.
+- D1 (light regulatory exposure).
+- E2 (capacity scale).
+
+Adopt order: Days 1 to 30 the core baseline plus A1, A2, B1, B4. Days 30 to 90 the A3 module and the C dimension. Defer the deeper architecture and resilience stack until E grows.
+
+### Example 2: Five-person consultancy with no software
+
+A consulting firm. Five staff. No software shipped; all customer engagement is through consulting deliverables. Customer data is meeting notes, contact details, and engagement documents. B2B audience. Light regulatory exposure (general privacy law of the home jurisdiction). Founder is the GRC function (E1).
+
+Composition:
+- Core baseline (mandatory). The A1 module (in-house software development) does not apply, since no software is shipped; dev-security is optional at this scale and including it costs more than it saves.
+- B1 (customer data, modest scope).
+- C2 (B2B audience).
+- D1.
+- E1 (capacity scale).
+
+The result is a small, sustainable adopted set: six baseline artefacts plus the B1 privacy module plus a vendor security questionnaire response template. The firm can defensibly answer customer security-due-diligence questionnaires with this set.
+
+### Example 3: Regional bank
+
+A 1,200-person regional bank. Custom in-house development for digital banking products. Mainframe and legacy operations for core banking. Customer personal data, payment card data, cross-border (some international wires). Consumer plus business customers. Heavy financial-services regulatory exposure (home-jurisdiction prudential regulator plus AML / sanctions / CCAR-style requirements plus DORA if EU). Dedicated GRC department (E4).
+
+Composition:
+- Core baseline (mandatory).
+- A1 (custom dev), A5 (critical-availability operations: digital banking SLAs), A6 (physical operations: branches).
+- B1 (customer data), B5 (payment cards), B4 (cross-border for wires).
+- C1 (consumer) plus C2 (business banking).
+- D4 (heavy financial-services regulation).
+- E4 (capacity).
+
+Adopt order: the full library is in scope. Day 1 the core baseline, plus the full financial-services sector overlay under [`compliance/financial-services/`](../compliance/financial-services/), plus the resilience and supply-chain domains. Day 30 the A1 / A5 / A6 modules. Day 90 a first programme-level maturity self-assessment with the goal of identifying which Tier-3 to Tier-4 gaps the department closes in year one.
+
+---
+
+## Review questions
+
+When applying a composition, answer the following before going live with the adopted set:
+
+1. Have we copied and customized the core baseline (the six artefacts everyone needs)?
+2. Have we identified the activity modules that apply (Dimension A)?
+3. Have we identified the data-scope modules that apply (Dimension B)? In particular, have we surfaced any special-category, children's, or cross-border processing?
+4. Have we identified the audience modules (Dimension C)?
+5. Have we set our regulatory-exposure level (Dimension D) and copied the relevant sector overlays?
+6. Have we set our GRC capacity (Dimension E) and scaled the depth of each module accordingly?
+7. Have we run an initial maturity-scorecard self-assessment using [`governance/template-maturity-self-assessment.md`](template-maturity-self-assessment.md) against the adopted set?
+8. Have we logged the modules we identified but deferred so they are not silently dropped?
+
+---
+
+## Maintenance
+
+This template is updated when:
+
+- The library adds or removes a domain that materially changes the core baseline or a module's adopted artefacts.
+- A new activity, data, audience, or regulatory dimension is identified that the existing five dimensions do not cover.
+- Adopter feedback identifies a module that consistently splits into two natural sub-modules (in which case the module is decomposed).
+
+Major version bumps to this template are warranted when the dimension model itself changes. Minor bumps cover module additions, artefact additions inside a module, and worked-example updates. The composition shape should not change frequently; it is meant to be stable across the library's growth.
+
+---
+
+## Licence
+
+CC BY-SA 4.0. Adapt and share, including for commercial use. When you share this document or an adaptation of it, attribute the library and indicate any changes; when you share an adaptation, license your own contributions to it under CC BY-SA 4.0, a later CC BY-SA version, or a BY-SA-compatible licence. The library's own text stays under CC BY-SA 4.0.

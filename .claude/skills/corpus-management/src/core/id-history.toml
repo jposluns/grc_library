@@ -1,0 +1,251 @@
+# Append-only pack-ID history (widened from clause-IDs in compile PR-5): a pack
+# id, once assigned, is never reused, whatever register kind carries it (clause,
+# gate, hook, generation rule); clause / gate / hook / rule ids share ONE
+# namespace. A retirement is recorded here, never erased.
+schema_version = 1
+
+[[events]]
+id = "claude-generated-artefacts-note"
+event = "created"
+date = 2026-09-06
+note = "compile PR-2: first generated slice, transferred verbatim from .claude/CLAUDE.md"
+
+[[events]]
+id = "language-convention"
+event = "created"
+date = 2026-09-07
+note = "compile PR-3: first clause-transfer wave; first file-kind rule; first live gate-37 compiler-owned recognition"
+
+[[events]]
+id = "authoring-conventions"
+event = "created"
+date = 2026-09-07
+note = "compile PR-4: second clause-transfer wave; transferred from the CLAUDE.md Conventions section"
+
+[[events]]
+id = "lint-language"
+event = "created"
+date = 2026-09-09
+note = "compile PR-5: gate-wave D0 opened; first gate transfer (grc gate 2; Model-2 wrapper, engine pack source of record, enforces the language-convention clause)"
+
+[[events]]
+id = "lint-unbalanced-fences"
+event = "created"
+date = 2026-09-10
+note = "compile PR-6: gate-wave second gate transfer (grc gate 66; Model-2 wrapper, engine pack source of record, enforces the corpus-scan-integrity clause)"
+
+[[events]]
+id = "corpus-scan-integrity"
+event = "created"
+date = 2026-09-10
+note = "compile PR-6: new pack-internal clause (balanced fences precede any fence-aware gate's soundness); generated AI-facing rule (compile PR-6, Option A) like language-convention"
+
+[[events]]
+id = "lint-nested-markdown-links"
+event = "created"
+date = 2026-09-14
+note = "compile PR-7: gate-wave third gate transfer (grc gate 68; Model-2 wrapper, engine pack source of record, enforces the markdown-link-integrity clause)"
+
+[[events]]
+id = "markdown-link-integrity"
+event = "created"
+date = 2026-09-14
+note = "compile PR-7: new pack-internal clause (no nested markdown links outside code spans; gate-blind to link-coverage and broken-link gates); generated AI-facing rule (compile PR-7) like corpus-scan-integrity"
+
+[[events]]
+id = "lint-ungated-dashes"
+event = "created"
+date = 2026-09-14
+note = "compile PR-8: gate-wave fourth gate transfer (grc gate 82; Model-2 wrapper, engine pack source of record, enforces the existing language-convention clause; no new clause, unlike PR-6/PR-7)"
+
+[[events]]
+id = "lint-bare-normative-shall"
+event = "created"
+date = 2026-09-14
+note = "compile PR-9: gate-wave fifth gate transfer (grc gate 56; Model-2 wrapper, engine pack source of record, enforces the new normative-wording clause). ALLOW-mapped scope fn iter_markdown_files stays in the wrapper (scan-scope regression direct-calls it), and the grc-specific EXEMPT_FILES filter moved to the wrapper so the engine is REPO_ROOT-free."
+
+[[events]]
+id = "normative-wording"
+event = "created"
+date = 2026-09-14
+note = "compile PR-9: new pack-internal clause (new normative content uses must; shall reserved for standard-quotes and legacy; the FR-44 must-over-shall convention from governance/specification-master-project.md); generated AI-facing rule (compile PR-9) like markdown-link-integrity"
+
+[[events]]
+id = "lint-links"
+event = "created"
+date = 2026-09-14
+note = "compile PR-10: gate-wave sixth gate transfer (grc gate 3; Model-2 wrapper, engine pack source of record, enforces the new markdown-link-resolution clause). ALLOW-mapped scope fn iter_markdown_files + DEFAULT_SCAN_ROOTS stay in the wrapper (scan-scope regression direct-calls the fn; 3 resolved-scan-root tests read the constant on the module). Engine repo_root-free via a repo_root parameter to check_file and run."
+
+[[events]]
+id = "markdown-link-resolution"
+event = "created"
+date = 2026-09-14
+note = "compile PR-10: new pack-internal clause (internal markdown link targets resolve to an existing in-repo path; fence-skipped, anchor-stripped, containment-checked); generated AI-facing rule (compile PR-10) like markdown-link-integrity. Distinct from markdown-link-integrity (nested-link malformation) and corpus-scan-integrity (fences)."
+
+[[events]]
+id = "lint-required-sections"
+event = "created"
+date = 2026-09-14
+note = "compile PR-11: gate-wave seventh gate transfer (grc gate 19 lint-required-sections; Model-2 wrapper, engine pack source of record, enforces the new required-sections clause). Engine takes the section MODEL (required_map) + repo_root as params (config-free); REQUIRED_SECTIONS + is_target + iter_targets + main stay in the wrapper. Coupling verified clean (RequiredSectionsTests use run_linter CLI; required.main() @16601; mod.scan() @12139 is a DIFFERENT gate)."
+
+[[events]]
+id = "required-sections"
+event = "created"
+date = 2026-09-14
+note = "compile PR-11: new pack-internal clause (a modelled doctype carries its required sections; alias-satisfiable; unmodelled types unconstrained; the project's specific section model is wrapper config). Generated AI-facing rule (compile PR-11) like markdown-link-resolution."
+
+[[events]]
+id = "lint-citations"
+event = "created"
+date = 2026-09-14
+note = "compile PR-12: gate-wave eighth gate transfer (grc gate 5 lint-citations; Model-2 wrapper, engine pack source of record, enforces the new citation-denylist clause). Engine takes the DENYLIST + PATH_EXEMPTIONS + repo_root as params (config-free); DENYLIST + PATH_EXEMPTIONS + iter_markdown_files + main (incl. the legacy --paths dual-flag) stay in the wrapper. Coupling clean (CitationsLinterTests use run_linter CLI; the mod.check_file(merged=/latest=) direct calls are a DIFFERENT gate)."
+
+[[events]]
+id = "citation-denylist"
+event = "created"
+date = 2026-09-14
+note = "compile PR-12: new pack-internal clause (documents do not cite identifiers on the project's citation denylist; per-term path exemptions; fenced-code lines not scanned; denylist + exemptions are wrapper config). Generated AI-facing rule (compile PR-12) like required-sections."
+
+[[events]]
+id = "lint-section-placement"
+event = "created"
+date = 2026-09-14
+note = "compile PR-13: gate-wave ninth gate transfer (grc gate 38 lint-section-placement; Model-2 wrapper, engine pack source of record, enforces the new section-placement clause). Engine takes PLACEMENT_RULES + repo_root as params (config-free); PLACEMENT_RULES + is_target + iter_targets (sorted) + main stay in the wrapper. run() keeps the relative_to try/except (matches this gate's old main, like gate 19). Coupling clean (CLI-only tests)."
+
+[[events]]
+id = "section-placement"
+event = "created"
+date = 2026-09-14
+note = "compile PR-13: new pack-internal clause (named sections appear in their required top/bottom position per the placement model; scoped/unscoped rules; unmatched sections + no-sections + other-doctype + fenced headings unflagged; model is wrapper config). Generated AI-facing rule (compile PR-13) like citation-denylist. Distinct from required-sections (presence, not order)."
+
+[[events]]
+id = "lint-shall-near-uncertainty"
+event = "created"
+date = 2026-09-14
+note = "compile PR-14: gate-wave tenth gate transfer (grc gate 9 lint-shall-near-uncertainty; Model-2 wrapper, engine pack source of record, enforces the new shall-near-uncertainty clause). The uncertainty/mandatory patterns + window stay in the engine (generic check, like gate 3's LINK_RE); the grc EXEMPT_FILES filter moved to the wrapper (like gate 56) so the engine is repo_root-free; no try/except in run() (matches this gate's old main, like gate 3). Coupling clean (CLI-only tests)."
+
+[[events]]
+id = "shall-near-uncertainty"
+event = "created"
+date = 2026-09-14
+note = "compile PR-14: new pack-internal clause (no mandatory-requirement word within N lines of an uncertainty marker; both read outside fenced blocks; unmatched/in-fence not flagged; exempt files are wrapper scan config). Generated AI-facing rule (compile PR-14) like section-placement."
+
+[[events]]
+id = "lint-todo-marked-done"
+event = "created"
+date = 2026-09-14
+note = "compile PR-15: gate-wave eleventh gate transfer (grc gate 57 lint-todo-marked-done; Model-2 wrapper, engine pack source of record, enforces the new todo-forward-only clause). Cleanest transfer yet: check_file is FULLY generic (the 3 done-marker patterns + code-span strip, no config, no REPO_ROOT); the only grc config is the scan target (.working/TODO.md) in the wrapper. run() has no try/except (matches old main, like gate 3). Coupling clean (CLI-only)."
+
+[[events]]
+id = "todo-forward-only"
+event = "created"
+date = 2026-09-14
+note = "compile PR-15: new pack-internal clause (a backlog item is not marked done in place - no strikethrough / [done]/[completed] tag / Status: done; closed items are removed not annotated; code-span/fence exclusions; unmarked lines not flagged). Generated AI-facing rule (compile PR-15) like shall-near-uncertainty."
+
+[[events]]
+id = "lint-positional-backlog-tokens"
+event = "created"
+date = 2026-09-14
+note = "compile PR-16: gate-wave twelfth gate transfer (grc gate 69 lint-positional-backlog-tokens). FIRST direct-call-coupled transfer: a regression test calls mod.check_file(path) on the wrapper, so the wrapper keeps a thin check_file SHIM (exempt-check + engine generic check) preserving the original signature; POSITIONAL_REF lives in the engine. EXEMPT_FILES filter moved to the wrapper; run() output verbatim; no try/except (like gate 3). Establishes the shim pattern for direct-call-coupled gates."
+
+[[events]]
+id = "positional-backlog-token"
+event = "created"
+date = 2026-09-14
+note = "compile PR-16: new pack-internal clause (prose does not cite a backlog item by renumber-fragile position; bare-digit/unqualified/blockquote/code-span/fence not flagged; exempt files are wrapper scan config). Generated AI-facing rule (compile PR-16) like todo-forward-only."
+
+[[events]]
+id = "lint-stub-documents"
+event = "created"
+date = 2026-09-14
+note = "compile PR-17: gate-wave thirteenth gate transfer (grc gate 16 lint-stub-documents; Model-2 wrapper, engine pack source of record, enforces the new no-stub-documents clause). STUB_PHRASES + WORD_COUNT_THRESHOLD live in the engine (generic check, like gate 9); is_target + iter_targets + EXEMPT_FILES stay in the wrapper. run() keeps the is_relative_to conditional (matches old main). CLI-only coupling (no shim). extract_body/count_substantive_words/scan byte-identical."
+
+[[events]]
+id = "no-stub-documents"
+event = "created"
+date = 2026-09-14
+note = "compile PR-17: new pack-internal clause (a production document meets a word-count floor and carries no stub-indicator phrase; stub phrase flagged even in a long body; fenced lines not counted; threshold+phrase-list are check params, exempt files are wrapper scan config). Generated AI-facing rule (compile PR-17) like positional-backlog-token."
+
+[[events]]
+id = "lint-filename-title-alignment"
+event = "created"
+date = 2026-09-14
+note = "compile PR-18: gate-wave fourteenth gate transfer (grc gate 7 lint-filename-title-alignment; Model-2 wrapper, engine pack source of record, enforces the new filename-title-alignment clause). Most param-heavy transfer: engine takes synonyms + doctypes + min_overlap as params (STOPWORDS + TITLE_PATTERN are engine constants). CROSS-GATE coupling: DOCTYPES stays a wrapper MODULE ATTRIBUTE because gate 67 (doctype-parity) loads the wrapper and reads fta.DOCTYPES; verified gate 67 still passes. DOCTYPES + SYNONYMS byte-identical (in-place transform, structure-matched boundaries). No aiqt_corpus guard (this gate never used it)."
+
+[[events]]
+id = "filename-title-alignment"
+event = "created"
+date = 2026-09-14
+note = "compile PR-18: new pack-internal clause (the filename stem after the doctype prefix shares a significant content word with the Document Title; no-title/no-doctype-prefix/empty-tokens not applicable; doctype-set + synonym-map + min-overlap are wrapper config). Generated AI-facing rule (compile PR-18) like no-stub-documents."
+
+[[events]]
+id = "lint-standards-currency"
+event = "created"
+date = 2026-09-14
+note = "compile PR-19: gate-wave fifteenth gate transfer (grc gate 6 lint-standards-currency; Model-2 wrapper, engine pack source of record, enforces the new standards-currency clause). MOST-involved transfer: the engine gets compile_entry_patterns + check_file + run (compiled patterns + num_entries + repo_root params); the wrapper keeps parse_canonical_register (reads the grc register-canonical-citations.md), the --root global-reassign (gate-36 fixture isolation), the register missing/empty error paths (exit 2/1), iter_files, EXEMPT. CLI-only test coupling; --root tests pass (global-reassign preserved). CANONICAL_REGISTER is a runtime corpus dependency kept in the wrapper."
+
+[[events]]
+id = "standards-currency"
+event = "created"
+date = 2026-09-14
+note = "compile PR-19: new pack-internal clause (external-standard citations use the current not a superseded version per the canonical register; colon/paren/space/v-prefix separators; version-continuation guard; fenced-block occurrences not flagged; register + repo root are wrapper config). Generated AI-facing rule (compile PR-19) like filename-title-alignment."
+
+[[events]]
+id = "lint-directional-dependency"
+event = "created"
+date = 2026-09-14
+note = "compile PR-20: gate-wave sixteenth gate transfer (grc gate 53 lint-directional-dependency; Model-2 wrapper, engine pack source of record, enforces the new directional-dependency clause). Bespoke marker-aware fence handling (_fence_marker/_closes, not the shared iter_non_code_lines) + LINK_RE/REF_DEF_RE/EXTERNAL + links_into_project_gov + check_file + a 9-case _self_test all moved to the engine (project_gov_dir param); the wrapper keeps PROJECT_GOV_DIR + derived scan roots + EXEMPT_PREFIXES + iter_markdown_files + --self-test delegation. No aiqt_corpus (uses path.open + own fence). --self-test passes through the engine."
+
+[[events]]
+id = "directional-dependency"
+event = "created"
+date = 2026-09-14
+note = "compile PR-20: new pack-internal clause (a deliverable document does not link into project-internal governance; inline/titled/angle/ref-def link forms; external/fragment/fenced not flagged; marker-aware fence; project-gov dir name + scan scope are wrapper config). Generated AI-facing rule (compile PR-20) like standards-currency."
+
+[[events]]
+id = "lint-roles"
+event = "created"
+date = 2026-09-14
+note = "compile PR-21: gate-wave seventeenth gate transfer (grc gate 8 lint-roles; Model-2 wrapper, engine pack source of record, enforces the new role-authority clause). OWNER_PATTERN/APPROVER_PATTERN + is_placeholder + check_file (with nested normalise) + the grouped/undefined-values reporting run moved to the engine (known + repo_root params, bare relative_to matching the old main); the wrapper keeps ROLE_REGISTER + load_known_roles + EXTRA_KNOWN_ROLES + DEFAULT_PATHS + iter_markdown_files + the register-prerequisite exit 2 + the --root override. No aiqt_corpus (uses path.read_text). --root proven by PR-19 (standards-currency)."
+
+[[events]]
+id = "role-authority"
+event = "created"
+date = 2026-09-14
+note = "compile PR-21: new pack-internal clause (Owner and Approving Authority metadata values resolve to a known role: register-defined or allow-listed; angle-bracket/[bracketed]/Role Name/Role Title placeholders not flagged; trailing hard-break backslash stripped; register path+format + allow-list + scan scope are wrapper config; no Owner/Approving line contributes no findings). Generated AI-facing rule (compile PR-21) like directional-dependency."
+
+[[events]]
+id = "lint-placeholder-leakage"
+event = "created"
+date = 2026-09-14
+note = "compile PR-22: gate-wave eighteenth gate transfer (grc gate 12 lint-placeholder-leakage; Model-2 wrapper, engine pack source of record, enforces the new placeholder-leakage clause). The PATTERNS marker set (TODO/TBD/FIXME/XXX/(placeholder)/[Unverified]/Coming soon + the angle-bracket <role>/<date>/<version> family + the template-placeholder org domains) + the fence-aware scan + the grouped/reporting run (repo_root param, try/except relative_to display fallback matching the old main) moved to the engine; the wrapper keeps EXEMPT_FILES + EXEMPT_DIR_PARTS + is_exempt + iter_targets + the default scan root. aiqt_corpus import guard (uses iter_non_code_lines + read_text_safe). No code-level cross-gate coupling (the lint-pii-in-content reference is a prose comment, not an import)."
+
+[[events]]
+id = "placeholder-leakage"
+event = "created"
+date = 2026-09-14
+note = "compile PR-22: new pack-internal clause (a production document contains no placeholder marker; presence-flagged, distinct from the mandatory-near-uncertainty conjunction check; the word/marker/angle-bracket/template-domain pattern set; fenced blocks skipped; template-/worklist- prefix + exempt-file/exempt-dir + non-markdown out of scope; exempt sets + carve-outs + scan scope are wrapper config). Generated AI-facing rule (compile PR-22) like role-authority."
+
+[[events]]
+id = "lint-gate-count-consistency"
+event = "created"
+date = 2026-09-14
+note = "compile PR-23: gate-wave nineteenth gate transfer (grc gate 39 lint-gate-count-consistency; Model-2 wrapper, engine pack source of record, enforces the new gate-count-consistency clause). The HEAVIEST transfer of the wave (569L): the PATTERNS count-idiom set (P1-P12 digit + word-form) + the word-number machinery (_UNITS/_TEENS/_TENS/_build_word_to_num/WORD_TO_NUM/_WORDNUM) + Finding + count_collection + resolve_match + scan_file (Markdown ## Version history frozen-section skip; patterns anchored, fences not separately skipped) all moved BYTE-VERBATIM to the engine (diff-verified each block vs source); a new run(targets, *, counts, repo_root, spec_rel) carries the scan loop + grouped report (output byte-identical, REPO_ROOT->repo_root + SPEC_PATH.relative_to->spec_rel params). The wrapper keeps SPEC_PATH/RULES_DIR/SKILLS_DIR + parse_canonical_count (the grc §6-inventory parse) + SCAN_SUFFIXES + EXEMPT_FILES/EXEMPT_DIRS + iter_targets (ALLOW-coupled) + a scan_file SHIM (the importlib direct-module-load test calls mod.scan_file(ghost, counts) on the wrapper - PR-16 shim pattern extended to scan_file). aiqt_corpus import guard (read_text_safe). 20 tests OK incl the importlib shim test; gate 39 standalone identical (gates 100, rules 15, skills 24 across 680 files)."
+
+[[events]]
+id = "gate-count-consistency"
+event = "created"
+date = 2026-09-14
+note = "compile PR-23: new pack-internal clause (a prose reference to a governed collection's size (gates/rules/skills) matches its canonical count; anchored digit + word-form idioms only, so pervasive small-number prose is not matched; Markdown ## Version history skipped (fences not separately skipped - the anchoring keeps code false-positive-safe); canonical-count sources + scanned suffixes + exempt sets are wrapper config). Generated AI-facing rule (compile PR-23) like placeholder-leakage."
+
+[[events]]
+id = "rule-index"
+event = "created"
+date = 2026-10-02
+note = "3b177-b: compact always-loaded index for on-demand rule bodies; prose conventions remain always loaded"
+
+[[events]]
+id = "corpus-management-skill"
+event = "created"
+date = 2026-10-23
+note = "cm PR-1 (skill scaffold): the Corpus-Management umbrella skill, a file-kind rule generated to .claude/skills/corpus-management/SKILL.md with provenance = false (the discovery frontmatter must start at line 1; the generated-from note lives in the body)"

@@ -1,0 +1,436 @@
+#!/usr/bin/env python3
+"""Per-PR Version-Date co-bump delta gate (D4).
+
+When a pull request bumps a versioned document's ``**Version:**`` field,
+the project's version-bump discipline requires the same change to set the
+document's ``**Date:**`` field to the date of that change (the commit
+date). This delta gate catches the residual failure mode that gates 31
+and 40 leave open: a Version bump whose Date was *not* co-bumped to the
+commit date.
+
+Why the existing gates leave a gap:
+
+  - Delta gate D2 (``check-version-bump-on-pr.py``) catches a body change
+    with no Version bump, but says nothing about the Date.
+  - Gate 40 (corpus version-bump-recency) is the HEAD-state counterpart
+    of D2; it too is silent on the Date.
+  - Gate 31 (document-date-staleness) compares the Date against the
+    file's most-recent commit date but tolerates a 1-day lag (to absorb
+    timezone-boundary commits). The recurring residue this gate targets
+    ("Version bumped, Date left one day stale", observed at PR #325 on
+    the audit-programme spec and PR #352 on the pack README) falls
+    inside that 1-day tolerance, so gate 31 passes it.
+
+This gate is *delta-scoped*: it inspects only the files a PR changed
+between its merge-base and head, and only those whose Version actually
+bumped in the PR. A HEAD-state form of this check is unviable because
+the corpus carries a large pre-existing population of historical
+Version bumps whose Dates were not co-bumped by today's strict standard
+(a 2026-05-31 mass commit alone accounts for dozens); a HEAD gate would
+need an unmanageable grandfathering exempt list. The delta form never
+sees that history, so it has zero historical false-positive surface and
+needs no baseline / grandfathering.
+
+The expected Date for a bumped document is the UTC committer date of the
+most-recent commit in the PR range that touched the file (the bump
+commit). Comparing against that commit date, rather than against the
+base Date, is what makes the gate FP-free for same-day sequential PRs:
+when a document is bumped twice on the same UTC day, its Date is already
+today and the bump commit is dated today, so they match and the gate
+stays silent.
+
+Blob reads use ``git cat-file blob`` (a local ``blob_at``), not ``git show``: cat-file
+returns the raw stored bytes and errors on a non-blob (a gitlink) rather than rendering the
+referenced commit or running textconv (diff) drivers, so this gate reads exactly the bytes
+the pre-commit predictor aid (``preflight-version-date.py``) reads and writes no objects,
+notes, or refs. In a partial clone (a promisor remote) an unavailable base blob would be
+misread as an added file and silently clear a stale bump, so this gate detects the promisor
+remote (shared with the aid via ``promisor_remote_reason``) and declines (exit 2), exactly as
+the aid scope-errors; CI runs in a full clone, where no promisor remote exists.
+
+This is a PR-time delta gate (D4), not part of the corpus audit programme in
+.claude/skills/corpus-management/specs/specification-audit-programme.md section 6; it is documented
+there in section 6.1 (per-PR delta gates) alongside the other D-numbered delta gates and is
+exempt from gate 35's parity audit (its inputs, a git history range and
+the PR base ref, are not available to ``.claude/skills/corpus-management/tools/run_all_audits.sh`` or
+``.pre-commit-config.yaml``).
+
+Exempt files: .working/CHANGELOG.md (its body is the version history itself);
+generated artefacts (.claude/skills/corpus-management/data/taxonomy.yml, .claude/skills/corpus-management/data/narrative.yml,
+governance/portal.md, governance/maturity-scorecard.md); the five append-only .working/
+logs (validate-pr/history.md, improvement-log.md, merge-bypass-log.md,
+guardrail-reviews/history.md, open-findings.md; unversioned by design);
+files without a Version metadata field.
+
+Usage:
+    # In CI (uses GITHUB_BASE_REF):
+    python3 .claude/skills/corpus-management/tools/check-date-cobump-on-pr.py
+
+    # Locally, comparing HEAD to a specific base:
+    python3 .claude/skills/corpus-management/tools/check-date-cobump-on-pr.py origin/main
+    python3 .claude/skills/corpus-management/tools/check-date-cobump-on-pr.py origin/main HEAD
+
+Exit codes:
+    0 : Every versioned document whose Version bumped in the PR carries a
+        Date equal to the bump commit's UTC date, or no versioned document
+        bumped.
+    1 : One or more documents bumped Version without co-bumping Date.
+    2 : Invocation or environment error (cannot determine base/head,
+        git failure, or a partial clone whose base/head blobs may be
+        unavailable - declined to avoid a silent false-OK), or
+        CANNOT-EVALUATE: base and head resolve to the same commit, or the
+        range changes no file (an empty diff), so nothing was evaluated.
+"""
+
+from __future__ import annotations
+
+import argparse
+import datetime
+import os
+import subprocess
+import sys
+
+import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack .claude/skills/corpus-management/tools/ on sys.path
+from aiqt_corpus import git, head_version, parse_iso_date, parse_metadata_block  # noqa: E402  # generic core (behaviour-identical to lint_common)
+from lint_common import PrRangeError, empty_pr_range_message, git_tree_entry, resolve_pr_range  # noqa: E402  # grc-config/store, stays local
+
+# B2: neutralise inherited pathspec-mode env vars so the :(top,literal) history pathspec below is
+# always honoured. GIT_LITERAL_PATHSPECS=1 would otherwise make :(top,literal) match literal
+# filename text (finding no commit and silently skipping the date comparison).
+for _pk in ("GIT_LITERAL_PATHSPECS", "GIT_NOGLOB_PATHSPECS", "GIT_GLOB_PATHSPECS"):
+    os.environ.pop(_pk, None)
+
+# Partial-clone safety, matching preflight-version-date.py. GIT_NO_LAZY_FETCH=1 means a
+# blob read on a promisor-unavailable object fails cleanly instead of fetching (writing pack
+# files); popping GIT_CONFIG keeps the promisor-config query reading the repo's own config
+# hierarchy, so an inherited GIT_CONFIG=<file> cannot hide remote.*.promisor. Both are
+# defence in depth: main() declines on any promisor remote before reading a blob.
+os.environ["GIT_NO_LAZY_FETCH"] = "1"
+os.environ.pop("GIT_CONFIG", None)
+
+
+# Files exempt from the co-bump requirement. NOT identical to D2's set:
+# D2 additionally exempts the generated .claude/skills/corpus-management/registers/reference-acquisition-manifest.md
+# (its body changes on regen without a Version bump); D4 fires ONLY on a Version
+# change, which the static-versioned manifest never undergoes, so it needs no D4 entry.
+EXEMPT_FILES: frozenset[str] = frozenset(
+    {
+        ".working/CHANGELOG.md",
+        ".claude/skills/corpus-management/data/taxonomy.yml",
+        ".claude/skills/corpus-management/data/narrative.yml",
+        "governance/portal.md",
+        "governance/maturity-scorecard.md",
+        # Append-only .working logs (3.135 (closing PR #1194)): unversioned, so exempt from the
+        # per-PR Version-bump (D2) and Version-Date co-bump (D4) requirements.
+        ".working/validate-pr/history.md",
+        ".working/improvement-log.md",
+        ".working/merge-bypass-log.md",
+        ".working/guardrail-reviews/history.md",
+        ".working/open-findings.md",
+    }
+)
+
+# Directory prefixes whose files are exempt.
+EXEMPT_PREFIXES: tuple[str, ...] = (
+    ".claude/skills/corpus-management/src/",
+    ".git/",
+    "node_modules/",
+    "__pycache__/",
+)
+
+# Field extraction is shared with the corpus linters (GR-3 wave 2:
+# ``aiqt_corpus.head_version`` for the Version window, and
+# ``parse_metadata_block`` + ``parse_iso_date`` for the Date). An
+# annotated or malformed Date value (``parse_iso_date`` returns
+# ``None``) is treated as a missing canonical line, a FAIL for a
+# bumped file, as under the retired private regex. One finding-text
+# delta: a shape-valid but calendar-invalid Date (e.g. 2026-02-30)
+# previously drew its own "not a valid ISO date" message; it now folds
+# into the missing-canonical-line message. The failing exit is the
+# same either way for a file a range commit touched. The parse also
+# moved AHEAD of the defensive no-range-commit skip: a calendar-invalid
+# Date on a diff-listed file no range commit touched (a merge artefact)
+# previously hit that silent skip first and passed; it now fails loud
+# on the Date before the skip is reached (the #613 sweep's L-1).
+
+
+def promisor_remote_reason(_git=git):
+    """A short reason string if this repository is a partial clone (a ``remote.*.promisor``
+    remote is configured true), else None. In a partial clone a base/head blob may be absent
+    locally; reading it would either lazy-fetch (writing pack files) or fail and be misread as
+    an absent (added/deleted) file, silently clearing a real stale Version bump. Both this gate
+    and preflight-version-date.py decline on it (this gate exits 2, the aid scope-errors), so
+    the two agree on every partial-clone input. Takes the git callable so the aid can pass its
+    read-only-hardened wrapper; defaults to this module's git."""
+    # extensions.partialClone (naming the promisor remote) is git's canonical partial-clone
+    # marker, set at clone time; a repo can carry it while remote.*.promisor is unset, so check
+    # it first (else that config escapes detection and the harmful false-OK survives).
+    # git not running at all (OSError) leaves the config unread, so each read declines with
+    # a reason then too, never a traceback (3b577 round 4). Exit 1 is git config's own
+    # "not set" answer; any other nonzero exit (128 for a config file git cannot parse, say)
+    # left the config unread, so it declines too rather than read as "not a partial clone"
+    # (3b577 round 5).
+    try:
+        ext = _git("config", "--get", "extensions.partialClone")
+    except subprocess.CalledProcessError as exc:
+        if exc.returncode != 1:
+            return (f"git config --get extensions.partialClone failed (exit {exc.returncode}); "
+                    f"cannot read partial-clone config reliably")
+        ext = ""  # not set -> fall through to the remote.*.promisor check
+    except UnicodeDecodeError:
+        return "extensions.partialClone is non-UTF-8; cannot read partial-clone config reliably"
+    except OSError as exc:
+        return f"git config could not run ({exc}); cannot read partial-clone config reliably"
+    if ext.strip():
+        return "this is a partial clone (extensions.partialClone set); base objects may be unavailable without a fetch"
+    try:
+        promisors = _git("config", "--get-regexp", r"^remote\..*\.promisor$")
+    except subprocess.CalledProcessError as exc:
+        if exc.returncode != 1:
+            return (f"git config --get-regexp remote.*.promisor failed (exit {exc.returncode}); "
+                    f"cannot read partial-clone config reliably")
+        return None  # no promisor remote -> not a partial clone
+    except UnicodeDecodeError:
+        return "a remote name is non-UTF-8; cannot read partial-clone config reliably"
+    except OSError as exc:
+        return f"git config could not run ({exc}); cannot read partial-clone config reliably"
+    for line in promisors.splitlines():
+        key = line.split(None, 1)[0] if line.strip() else ""
+        if not key:
+            continue
+        try:
+            norm = _git("config", "--type=bool", "--get", key)
+        except (subprocess.CalledProcessError, UnicodeDecodeError, OSError):
+            return "cannot normalise a partial-clone config value; declining"
+        if norm.strip() == "true":
+            return "this is a partial clone; base objects may be unavailable without a fetch"
+    return None
+
+
+def blob_at(ref: str, path: str) -> str | None:
+    """Content of the blob at ``ref:path`` via ``git cat-file blob`` rather than ``git show``.
+    cat-file returns the raw stored bytes and ERRORS on a non-blob (a gitlink) instead of
+    rendering the referenced commit and running textconv (diff) drivers, so it writes no
+    objects, notes, or refs and reads exactly the bytes preflight-version-date.py reads
+    (read-path parity). Returns None only when lint_common.git_tree_entry finds no entry at
+    ``ref:path`` (git's own answer that the path does not exist at that revision) or a
+    non-blob entry there (a gitlink or a tree, which cat-file blob cannot read). Any other
+    failure is never read as absence (3b577 round 5): a failed listing, or a listed blob
+    whose read exits nonzero, raises CalledProcessError; an undecodable blob raises
+    UnicodeDecodeError, and git not running at all raises OSError; the caller turns each
+    into exit 2 (3b577 round 4)."""
+    entry = git_tree_entry(ref, path)
+    if entry is None or entry[0] != "blob":
+        return None
+    return subprocess.check_output(
+        ["git", "cat-file", "blob", f"{ref}:{path}"],
+        text=True,
+        encoding="utf-8",
+        stderr=subprocess.DEVNULL,
+    )
+
+
+def bump_commit_date_utc(merge_base: str, head: str, path: str) -> datetime.date | None:
+    """Return the UTC committer date of the most-recent commit in the
+    range ``merge_base..head`` that touched ``path``, or ``None`` if no
+    such commit exists (defensive; the path is in the diff, so one
+    normally does): git's own answer for that is an exit 0 with no output.
+    git not running at all (OSError) or output the locale codec cannot
+    decode (UnicodeDecodeError) is not that answer, so it propagates for
+    main() to refuse with exit 2 (3b577 round 4); so does a nonzero exit
+    (CalledProcessError) and a stamp that is not an ISO 8601 date
+    (ValueError), which read as that answer before and skipped the file
+    unchecked (3b577 round 5)."""
+    stamp = git(
+        "log",
+        "-1",
+        # --no-show-signature: an inherited log.showSignature=true would prepend signature
+        # verification text before %cI and break the date parse (silently skipping the check).
+        "--no-show-signature",
+        # --encoding=UTF-8: force UTF-8 %cI output regardless of an inherited
+        # i18n.logOutputEncoding (e.g. UTF-16LE would embed NULs and break the date parse).
+        "--encoding=UTF-8",
+        "--format=%cI",
+        f"{merge_base}..{head}",
+        "--",
+        # :(top,literal) forces the filename to be a literal repository-root path, so a name
+        # beginning with pathspec magic (e.g. ":(literal)x.md") is not reinterpreted as a pathspec.
+        f":(top,literal){path}",
+    )
+    if not stamp:
+        return None
+    try:
+        dt = datetime.datetime.fromisoformat(stamp)
+    except ValueError as exc:
+        raise ValueError(f"git log printed {stamp[:80]!r}, not an ISO 8601 committer date") from exc
+    return dt.astimezone(datetime.timezone.utc).date()
+
+
+def is_exempt(path: str) -> bool:
+    if path in EXEMPT_FILES:
+        return True
+    if any(path.startswith(prefix) for prefix in EXEMPT_PREFIXES):
+        return True
+    if not path.endswith(".md"):
+        return True
+    return False
+
+
+def main(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Check that every versioned document whose Version bumped in a "
+            "PR also co-bumped its Date to the bump commit's date."
+        ),
+    )
+    parser.add_argument(
+        "base",
+        nargs="?",
+        help=(
+            "Base ref to diff against (default: origin/$GITHUB_BASE_REF in CI; "
+            "must be supplied explicitly when running locally)."
+        ),
+    )
+    parser.add_argument(
+        "head",
+        nargs="?",
+        default="HEAD",
+        help="Head ref (default: HEAD).",
+    )
+    args = parser.parse_args(argv[1:])
+
+    try:
+        merge_base, head = resolve_pr_range(args.base, args.head)
+    except PrRangeError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+
+    reason = promisor_remote_reason()
+    if reason is not None:
+        print(
+            f"ERROR: {reason}; D4 cannot reliably read base/head blobs in a partial clone "
+            f"(a missing base blob would be misread as an added file and silently clear a "
+            f"stale bump). Run in a full clone; the preflight aid declines the same way.",
+            file=sys.stderr,
+        )
+        return 2
+
+    try:
+        # -z: NUL-delimited, raw (unquoted) pathnames, so a filename containing a quote,
+        # backslash, control char, or non-ASCII byte is enumerated correctly regardless of
+        # core.quotePath (the default quoted form ends in ``"`` and would be wrongly treated as
+        # non-.md by is_exempt, silently skipping the file).
+        # --no-relative: repository-root-relative paths regardless of an inherited diff.relative
+        # config or the invocation directory, so enumeration matches the aid's --no-relative form.
+        # --no-renames: match the aid; rename detection would otherwise expose only a renamed
+        # destination and hide an undecodable (non-UTF-8) source name from the scope-error guard.
+        changed_raw = git("diff", "--name-only", "-z", "--no-relative", "--no-renames", merge_base, head)
+    except (subprocess.CalledProcessError, OSError) as exc:
+        print(f"ERROR: git diff failed: {exc}", file=sys.stderr)
+        return 2
+    except UnicodeDecodeError as exc:
+        print(f"ERROR: a tracked filename is not valid UTF-8; cannot inspect ({exc})", file=sys.stderr)
+        return 2
+
+    changed = [p for p in changed_raw.split("\0") if p]
+
+    if not changed:
+        print(empty_pr_range_message(merge_base, head), file=sys.stderr)
+        return 2
+
+    findings: list[tuple[str, str]] = []
+    bumped_checked = 0
+    skipped_exempt = 0
+    skipped_no_version_event = 0
+    for path in changed:
+        if is_exempt(path):
+            skipped_exempt += 1
+            continue
+        try:
+            base_content = blob_at(merge_base, path)
+            head_content = blob_at(head, path)
+        except UnicodeDecodeError as exc:
+            print(f"ERROR: a tracked blob is not valid UTF-8; cannot inspect ({exc})", file=sys.stderr)
+            return 2
+        except (subprocess.CalledProcessError, OSError, ValueError) as exc:
+            # The path's tree entry or blob could not be read: never read as an absent
+            # (added or deleted) file, which would skip it unchecked (3b577 round 5).
+            print(f"ERROR: git cat-file failed for {path}: {exc}", file=sys.stderr)
+            return 2
+        # File added (no base) or deleted (no head) in the PR: not a bump event.
+        if base_content is None or head_content is None:
+            continue
+        base_version = head_version(base_content)
+        head_version_value = head_version(head_content)
+        # No Version field at either ref: not a versioned document.
+        if base_version is None and head_version_value is None:
+            skipped_no_version_event += 1
+            continue
+        # A Version event in this PR = the Version field changed value, or
+        # was gained / lost. If unchanged, this gate has nothing to assert
+        # (D2 governs whether a missing bump is itself a defect).
+        if base_version == head_version_value:
+            skipped_no_version_event += 1
+            continue
+        bumped_checked += 1
+        head_date_raw = parse_metadata_block(head_content).fields.get("Date")
+        head_date = (
+            parse_iso_date(head_date_raw) if head_date_raw is not None else None
+        )
+        # An absent Date line AND an annotated / malformed value both land
+        # here: parse_iso_date returns None on anything but a bare ISO
+        # date, matching the retired private regex, which only ever
+        # matched the canonical `**Date:** YYYY-MM-DD` shape.
+        if head_date is None:
+            findings.append(
+                (
+                    path,
+                    f"Version bumped to `{head_version_value}` but the file has no "
+                    f"canonical `**Date:** YYYY-MM-DD` metadata line to co-bump.",
+                )
+            )
+            continue
+        try:
+            commit_date = bump_commit_date_utc(merge_base, head, path)
+        except (subprocess.CalledProcessError, OSError, ValueError) as exc:
+            print(f"ERROR: git log failed for {path}: {exc}", file=sys.stderr)
+            return 2
+        if commit_date is None:
+            # Defensive: the file is in the diff but no range commit touched
+            # it (e.g. a merge artefact). Nothing reliable to compare against.
+            continue
+        if head_date != commit_date:
+            findings.append(
+                (
+                    path,
+                    f"Version bumped to `{head_version_value}` but Date is "
+                    f"`{head_date.isoformat()}`, not the bump commit's UTC date "
+                    f"`{commit_date.isoformat()}`; co-bump the Date in the same "
+                    f"change.",
+                )
+            )
+
+    if not findings:
+        print(
+            f"OK: {bumped_checked} document(s) bumped Version in this PR; "
+            f"each co-bumped its Date to the bump commit's date. "
+            f"{skipped_exempt} exempt file(s), "
+            f"{skipped_no_version_event} non-bumping file(s) skipped."
+        )
+        return 0
+
+    for path, message in findings:
+        print(f"FAIL {path}: {message}", file=sys.stderr)
+    print(
+        f"\n{len(findings)} document(s) bumped Version without co-bumping Date "
+        f"to the commit date. The version-bump discipline requires bumping both "
+        f"`**Version:**` and `**Date:**` in the same change; set each flagged "
+        f"document's `**Date:**` to the date its Version-bumping commit was made "
+        f"(UTC).",
+        file=sys.stderr,
+    )
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

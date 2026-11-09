@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en" class="site-grclibrary">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="All {{DOC_TOTAL}} documents of the open GRC Library in one list, each with its type, area, and purpose, filterable by type, area, and text.">
+<title>All Documents | GRCLibrary.ai</title>
+{{HEAD_STYLE}}
+{{SCRIPT}}<script src="{{BASE}}/assets/baseline/search.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main-content">Skip to content</a>
+{{TOPBAR}}
+<main id="main-content">
+<div class="wrap"><div class="doc"><p class="lbl first">All Documents</p>
+<h1>All Documents</h1>
+<div class="rail"><img class="rail-logo" src="{{BASE}}/assets/baseline/logos/grclibrary.svg" alt="Books on a shelf with a seal"></div>
+<p class="meta">{{INDEX_COUNT}} documents across {{INDEX_AREA_COUNT}} areas, each with its own page, listed by title from A to Z, plus {{INDEX_ROOT_COUNT}} library specifications read on GitHub, in {{INDEX_TYPE_COUNT}} types. The list is generated from the library at build time, so a document added or removed appears or drops out on the next build. An area here is a corpus domain. The documents in the Adopter documents area, outside the corpus, have no row here; <a href="{{BASE}}/browse/#adopter-documents">Browse</a> lists them, and the search page's list carries them.</p>
+<p class="lbl blk">Library specifications</p>
+<ul class="plan one described">
+{{INDEX_ROOT_ROWS}}
+</ul>
+<p class="lbl sec">Documents, {{INDEX_COUNT}}</p>
+<h2>Every document in a corpus area, A to Z</h2>
+<p>With script, a type chip, an area chip, and the words typed each narrow the list, alone or combined; the page address keeps the choice (?type=, ?area=, ?q=), so a filtered list can be linked. Without script, the whole list stays as it is.</p>
+<details><summary>How the filters behave</summary><p>With script, a type chip keeps the documents of its type and an area chip the documents of its area, and typing keeps the documents whose title, type, area, purpose, or framework names match every word; a type, an area and words combine. A second click on a chosen chip, or a click on All, clears that chip's group and leaves the other choices as they are. Each chip's count is the number of documents it would show with the other group's choice and the words typed, All counting them with its own group cleared, so the counts change as the choices and the words change; with nothing chosen or typed, and without script, each count is the number of documents of its type or area in the whole list, All counting the whole list. The status line under the text filter gives how many documents show. A type or area chip that would show no documents with the other group's choice and the words typed is marked unavailable: it is greyed out, with its word struck through and its count at zero. Choosing it on the page (a plain click, Enter or Space) leaves the list and the page address as they are, and the status line says that it would show no documents, until the next change. Opening a chip's link in a new tab or window goes to the address it links, as any link does: the whole list for All, and the list filtered to that chip's type or area alone for any other chip. All and a chosen chip are never unavailable.</p></details>
+<p class="lbl blk">Type</p>
+<ul class="chips" data-filter-group="type" data-filter-empty="disable" data-filter-count="live" aria-label="Filter by type">
+{{INDEX_TYPE_CHIPS}}
+</ul>
+<p class="lbl blk">Area</p>
+<ul class="chips" data-filter-group="area" data-filter-empty="disable" data-filter-count="live" aria-label="Filter by area">
+{{INDEX_AREA_CHIPS}}
+</ul>
+<form class="search" role="search" data-search><label class="lbl" for="q">Filter the documents</label><input id="q" type="search" autocomplete="off" placeholder="e.g. retention, ISO 27001, supplier"><p class="status" role="status" aria-live="polite" data-search-status></p></form>
+<div class="wide"><ul class="plan one described" data-search-scope>
+{{INDEX_ROWS}}
+</ul></div>
+<div class="next"><p class="lbl">Next</p><a class="start" href="{{BASE}}/browse/">Browse by need, domain, or type <span class="arrow" aria-hidden="true">&rarr;</span></a></div></div></div>
+</main>
+{{FOOTER}}
+</body>
+</html>

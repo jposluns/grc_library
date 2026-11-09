@@ -1,0 +1,274 @@
+# Cross-Domain Incident Coordination Procedure
+
+**Document Title:** Cross-Domain Incident Coordination Procedure\
+**Document Type:** Procedure\
+**Version:** 1.1.19\
+**Date:** 2026-11-03\
+**Owner:** Resilience Owner\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](../security/sop-security-ticket-reporting-scheme.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
+**Classification:** Public\
+**Category:** Resilience\
+**Review Frequency:** Annual and upon material incident, threat, system, supplier, AI, privacy, or regulatory change\
+**Repository Path:** [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This procedure defines how an incident is coordinated across domains when more than one response stream is involved: information security, privacy, supplier, AI, operations, communications, legal, and executive. It provides the common lifecycle, the domain-ownership decision rule, the joint command structure, and the hand-off checklists that the domain-specific procedures build on.
+
+This procedure does not replace the domain-specific procedures. Technical security incident handling is governed by [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md). Personal data breach assessment and regulatory notification are governed by [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md). Supplier-originated incidents draw on [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md). AI-related incidents draw on [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md). This procedure governs the joint, cross-stream coordination among them.
+
+---
+
+## Scope
+
+This procedure applies whenever an incident triggers, or is likely to trigger, response activity in more than one domain. Typical triggers include personal data exposure during a security incident, supplier-originated incidents with downstream customer impact, AI system incidents that affect personal data or operational services, and operational incidents that escalate to crisis governance. Single-domain incidents continue to be handled within the responsible domain's procedure.
+
+---
+
+## Domain ownership decision rule
+
+Each incident is assigned a primary owning domain and zero or more participating domains. The owning domain runs the technical response. Participating domains run their own parallel streams with their own deliverables, coordinated through this procedure.
+
+| Incident class | Primary owning domain | Participating domains (typical) |
+| --- | --- | --- |
+| Confirmed or suspected security breach without personal data exposure | Security | Operations, Communications |
+| Security breach with personal data exposure | Security (technical) and Privacy (notification stream) jointly | Communications, Legal, Operations |
+| Personal data disclosure without security breach (e.g. accidental email, lost device with encrypted data) | Privacy | Security (if security control gap), Legal |
+| Supplier breach affecting organization data | Supplier (coordination with supplier) | Security, Privacy, Legal, Communications |
+| AI system safety or security incident not involving personal data | AI | Security, Operations, Legal |
+| AI system incident involving personal data | AI and Privacy jointly | Security, Communications, Legal |
+| Operational service outage with no security or privacy implication | Operations | Communications, Resilience (if continuity activated) |
+| Operational service outage with security or privacy implication | Operations and Security or Privacy jointly | Communications, Resilience, Legal |
+| Pandemic, physical site, or workforce disruption | Resilience | Operations, Communications, HR, Legal |
+| Regulator-initiated investigation triggering operational response | Compliance and Legal jointly | Privacy, Security, Communications |
+| Crisis-level incident (any class above declared at P1 with material reputational, regulatory, or service impact) | Resilience activates the crisis governance overlay; primary domain ownership continues underneath | All applicable domains |
+
+If a domain is unsure whether it owns an incident, default to declaring jointly and resolving the primary owner at the first coordination call. Do not delay containment to resolve ownership.
+
+---
+
+## Joint command structure
+
+When two or more domains are participating, the coordination is run by an **Incident Coordinator** appointed at the start of the incident. The Coordinator does not direct technical response inside any domain; the Coordinator manages cross-stream timing, decisions, and communications.
+
+| Role | Selection rule | Responsibilities |
+| --- | --- | --- |
+| Incident Coordinator | Resilience Owner for P1; primary-domain lead otherwise | Owns the cross-stream timeline, the joint decision log, and the communication cadence. Convenes coordination calls. Escalates blockers to the Executive Sponsor. |
+| Primary-domain Lead | Set by the domain procedure (e.g. CISO for security, Data Protection Officer for privacy, Supplier Risk Maintainer for supplier) | Runs the technical response within their domain. Reports status into each coordination call. |
+| Participating-domain Lead(s) | Same selection rule per participating domain | Runs parallel response within their domain. Hands off evidence and decisions to the Primary-domain Lead as needed. |
+| Communications Lead | Communications Owner | Owns external messaging, regulator-facing messaging, employee messaging, and customer messaging. Coordinates with Legal and primary-domain Leads on content approval. |
+| Legal Lead | Legal Counsel | Owns privilege decisions, litigation hold, contractual notice obligations, and every regulatory notification other than a personal data breach notification, unless the applicable domain procedure assigns the notification elsewhere; for example, the CISO assesses a China Cybersecurity Law Article 27 report on an incident that involves no personal data, with Legal Counsel approving its content ([`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §6.2). For a personal data breach, the Data Protection Officer decides and submits the personal data breach notifications, and Legal Counsel determines the notification obligations by jurisdiction and approves notification content ([`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §2.1). |
+| Executive Sponsor | Designated by role per severity (CISO or Data Protection Officer for P2; CIO for P1 affecting multiple domains; CEO for crisis-level events) | Approves decisions that exceed Coordinator authority. Owns the executive briefing line. |
+| Evidence Custodian | SOC or domain-specific custodian | Owns the evidence index across all streams. Maintains chain of custody for forensic, legal, and audit purposes. |
+
+For P1 events, the Incident Coordinator and Executive Sponsor are notified within 15 minutes of declaration. The Joint Command convenes within 1 hour of declaration.
+
+---
+
+## Coordination lifecycle
+
+The coordination lifecycle mirrors the domain procedures but layers cross-stream synchronization points on top.
+
+| Phase | Cross-stream activities | Outputs |
+| --- | --- | --- |
+| Preparation | Maintain the coordination roster, contact register, decision log template, communication templates, joint exercise schedule, and after-action format. | Coordination roster, register, templates, exercise log. |
+| Declaration | Confirm cross-domain trigger, appoint Incident Coordinator, declare participating domains, open the joint decision log, schedule the first coordination call. | Declaration record, joint decision log opened. |
+| Joint triage | Each participating domain confirms its own triage, severity, and immediate containment needs. Coordinator confirms domain assignments per the ownership decision rule. | Joint triage record, severity decision, ownership confirmation. |
+| Synchronized containment | Each domain executes containment per its own procedure; cross-stream decisions (e.g. service shutdown, supplier isolation, AI tool suspension) routed through the Coordinator. | Containment timeline, cross-stream decisions recorded. |
+| Investigation | Each domain investigates within its scope; Coordinator owns the consolidated timeline, the shared evidence index, and the cross-domain root cause draft. | Consolidated timeline, joint evidence index, root cause draft. |
+| Notification and communication | Privacy and Legal own regulatory notification streams as the Legal Lead row under Joint command structure divides them, unless the applicable domain procedure assigns the notification elsewhere; for example, Security (the CISO) owns a China Cybersecurity Law Article 27 report on an incident that involves no personal data ([`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §6.2); Communications owns external messaging. All public statements approved by Executive Sponsor. | Notification records, communication log, approval evidence. |
+| Recovery and validation | Each domain validates within its scope; Coordinator confirms cross-domain dependencies are satisfied before return to service. | Recovery validation by domain, joint return-to-service approval. |
+| Joint post-incident review | Multi-domain PIR within the per-severity deadline set in the Severity rules across streams table (P1 within 5 business days, P2 within 5, P3 within 15, of closure). Output is one consolidated PIR; per-domain PIRs feed into it. | Joint PIR report, corrective action register, lessons learned. |
+| Closure | All domains confirm independent closure criteria are met; Executive Sponsor signs joint closure. | Joint closure record, residual risk acceptance. |
+
+---
+
+## Hand-off checklists
+
+These checklists govern the transitions between streams. The Coordinator confirms each item before the hand-off completes.
+
+### Security to Privacy hand-off (when personal data is implicated)
+
+1. Confirmed scope of personal data potentially exposed, by data category and approximate volume.
+2. Forensic evidence of access, exfiltration, or modification, with timestamps in UTC.
+3. List of affected data subjects, processing roles, and jurisdictions, to the extent known.
+4. Suspected attack vector and time-of-first-compromise estimate to support the "becoming aware" determination under GDPR Article 33 and UK GDPR Article 33 (consolidated text retrieved 29 September 2026).
+5. Containment status: whether the breach is contained and whether further data is at risk.
+6. Authorization for the Privacy stream to take parallel actions (e.g. request supplier preservation, contact the Privacy regulator).
+
+### Security to Supplier hand-off (when a supplier or processor is implicated)
+
+1. Identity of the supplier, the affected service, and the data or systems involved.
+2. Whether the supplier has been notified, by whom, when, and through which contractual channel.
+3. Required preservation actions and the contractual deadline for them.
+4. Whether supplier access should be restricted or revoked, and the authority to do so.
+5. Evidence the supplier is expected to provide and the format and deadline.
+6. Communication boundary: who at the supplier and at the organization may discuss the incident, and what is on or off the record.
+7. When the supplier or processor notified the organization of the breach (UTC), and whether the contract specifies how the supplier or processor provides the information necessary for the organization to fulfil its obligation to notify relevant authorities (ISO/IEC 27701:2025 B.3.12).
+
+### Security to AI hand-off (when an AI system is implicated)
+
+1. AI system identifier, model identifier, version, and provider, from the AI system register.
+2. Affected capabilities (prompt, retrieval, agent tool use, training pipeline, inference endpoint).
+3. Specific AI risks engaged (prompt injection, indirect injection, data poisoning, model inversion, membership inference, retrieval leakage, unsafe tool execution, training data leakage).
+4. Decision on capability suspension: which AI capabilities are suspended pending investigation, by whose authority.
+5. Whether training, fine-tuning, or retrieval pipelines must be paused.
+6. Whether supplier model provider must be notified per contract and within what window.
+7. Recovery point: the known good state to which the AI system is to be recovered, and the procedures for validating model integrity (ETSI TR 104 128 V1.1.1 (2025-05) clause 6.6.5).
+8. Audit trails across the stack, including prompt inputs, augmentation sources, model outputs, function calls, and tool invocations, preserved and recorded in the evidence index (SANS Critical AI Security Guidelines v1.4, March 2026, Incident Response and Forensics for AI Systems).
+
+### Privacy to Communications hand-off (when external notification is required)
+
+1. Confirmed scope and severity of the personal data breach.
+2. Regulatory notifications submitted or scheduled, by jurisdiction, with submission timestamps and reference numbers.
+3. Whether data subject notification is required, the population, the channel, and the timing.
+4. Approved messaging content from Legal, including any required regulator-approved language.
+5. Embargo, sequencing, and channel rules (e.g. regulator before public, customers before media, employees before external).
+6. Escalation path if a journalist, regulator, or customer initiates contact ahead of the planned sequence.
+
+### Any domain to Resilience hand-off (crisis activation)
+
+1. Trigger met for crisis governance under [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md): material reputational, regulatory, service, or safety impact.
+2. Crisis Coordinator named; Executive Sponsor identified.
+3. Continuity activation needed (yes / no), and if yes which services are affected.
+4. Communication state: existing approvals, current messaging, embargo posture.
+5. Open decisions requiring crisis-level authority.
+6. Resource needs: staffing, supplier engagement, external counsel, external IR partner.
+
+---
+
+## Severity rules across streams
+
+Severity is determined inside each domain by its own procedure. When the same event has different severities in different domains, the **highest** applicable severity governs the coordination cadence. The Incident Coordinator records the per-domain severities and the governing severity in the joint decision log.
+
+| Joint coordination severity | Coordination call cadence | Executive Sponsor cadence | Joint PIR deadline |
+| --- | --- | --- | --- |
+| P1 Critical | Every 2 hours during active response | Briefed at declaration and at least every 4 hours | Within 5 business days of closure |
+| P2 High | Every 8 business hours during active response | Briefed at declaration and daily | Within 5 business days of closure |
+| P3 Medium | Daily during active response | Briefed at declaration and at closure | Within 15 business days of closure |
+| P4 Low | At Coordinator discretion | Closure-only briefing | At Coordinator discretion |
+
+---
+
+## Joint decision log
+
+The Joint decision log is the authoritative cross-stream record for the incident. It is maintained by the Incident Coordinator and includes:
+
+| Field | Description |
+| --- | --- |
+| Decision ID | Unique identifier within the incident |
+| Timestamp (UTC) | When the decision was made |
+| Decision | The decision text |
+| Domains affected | Which response streams are bound by the decision |
+| Decision authority | Role that approved the decision |
+| Rationale | One- or two-sentence justification |
+| Dissent (if any) | Any participating-domain Lead who disagreed and the alternative they proposed |
+| Implementation owner | Role responsible for executing the decision |
+| Status | Pending, In progress, Done, Reversed |
+
+Decisions reversed during the incident are not deleted; the reversal is logged as a new entry referencing the original.
+
+---
+
+## Cross-stream evidence handling
+
+The Evidence Custodian maintains a single evidence index spanning all streams. Each item in the index records source, collection timestamp, custodian, integrity hash where applicable, and the streams that depend on it.
+
+Evidence that crosses streams (for example, a SIEM extract used by Security, Privacy, and Legal) is captured once and referenced by all consuming streams. The Custodian is responsible for chain of custody across the full incident lifecycle, including hand-off to external forensic providers or law enforcement.
+
+Digital evidence can transcend organizational or jurisdictional boundaries (for example, evidence held by a supplier or in another jurisdiction). In such cases, the Custodian confirms with the Legal Lead that the organization is entitled to collect the required information as digital evidence before collecting it (ISO/IEC 27002:2022 5.28).
+
+Retention follows the strictest applicable rule across streams: typically seven years per the records retention standard, longer where litigation hold or regulatory investigation applies.
+
+---
+
+## Communication boundaries
+
+Cross-stream communication discipline reduces leakage and conflicting messages.
+
+1. Internal communication about an active incident is restricted to the joint roster plus role-specific need-to-know.
+2. External communication outside the approved channels is prohibited. Customer, regulator, journalist, and partner contact is routed to the Communications Lead.
+3. Supplier communication during an active supplier-implicated incident is routed through the Supplier-domain Lead with copy to the Coordinator.
+4. Legal privilege is preserved where applicable; the Legal Lead designates which communications are privileged and which are not.
+5. No public statement about the incident is made without Executive Sponsor approval and Legal review.
+
+---
+
+## Joint post-incident review
+
+The Joint PIR is a single consolidated post-incident review that supersedes per-domain PIRs for cross-domain incidents. Per-domain PIR inputs feed into it. The Joint PIR covers:
+
+1. Timeline reconstruction across all streams, with UTC timestamps.
+2. Per-domain root cause and the consolidated root cause where applicable.
+3. Control gaps identified, by domain and by control family.
+4. Coordination effectiveness: hand-off latency, decision quality, communication clarity, dissent handling.
+5. Detection effectiveness across streams: which stream detected first, mean time to detect by domain.
+6. Containment effectiveness across streams: time to contain by domain, presence of any cross-stream delay.
+7. Notification compliance: deadline adherence by regulation and by jurisdiction.
+8. Corrective actions, with named role owners, deadlines, and tracking in the corrective action register.
+9. Risk register updates across the affected domains.
+10. Recommendations for procedure or control changes.
+
+The Joint PIR is owned by the Incident Coordinator, signed by the Executive Sponsor, and provided to Internal Audit. The PIR report classification follows the highest classification of its source domains, typically Restricted in adopting organizations.
+
+---
+
+## Joint exercises
+
+Cross-stream coordination must be exercised at minimum annually (NIST SP 800-84 (2006) Section 2 describes tabletop and functional exercise types). Exercises rotate through scenario classes: security plus privacy, security plus supplier, AI plus security plus privacy, operational outage plus crisis activation. Each exercise produces an after-action report tracked in the resilience metrics register, and corrective actions feed the corrective action register.
+
+---
+
+## Metrics
+
+The Incident Coordinator reports cross-stream coordination metrics at the quarterly governance review:
+
+| Metric | Definition | Target |
+| --- | --- | --- |
+| Cross-stream incident count | Total incidents in the period that triggered coordination | Trend-monitored |
+| Joint Command convene time (P1) | Minutes from declaration to first Joint Command call | At most 60 minutes |
+| Hand-off completeness | Percentage of hand-offs where every checklist item was confirmed | At least 95% |
+| Joint PIR completion rate (P1 and P2) | Percentage completed within the deadline above | At least 95% |
+| Decision-reversal rate | Joint decisions reversed during the incident | Trend-monitored; persistent increase triggers procedure review |
+| Coordination satisfaction (post-incident survey) | Participating-domain Lead feedback on coordination effectiveness | At least 4 of 5 on a 5-point scale |
+| Cross-stream exercise rate | Cross-stream exercises completed against the annual plan | 100% |
+
+---
+
+## Evidence requirements
+
+Maintain joint declaration record, coordination roster snapshot, joint decision log, consolidated timeline, joint evidence index, per-domain hand-off checklists with completion signatures, communication log, notification submissions, joint PIR report, joint closure record, residual risk acceptance.
+
+---
+
+## Framework alignment
+
+| Control area | Framework reference |
+| --- | --- |
+| Incident management programme | ISO/IEC 27035-1:2023, ISO/IEC 27035-2:2023; ISO/IEC 27001:2022 Annex A.5.24 to A.5.28; ISO/IEC 27002:2022 5.24 to 5.28 |
+| Cross-organization incident coordination (supplier and affected-party engagement) | ISO/IEC 27035-4:2024 (Part 4: Coordination); ISO/IEC 27036-2:2022 7.3.3, Table 18, a) 5) ii) (incident management procedure agreed by the acquirer and the supplier); ISO/IEC 27701:2025 B.3.12 (PII processor breach notification provisions) |
+| Business continuity coordination | ISO 22301:2019 §8.4 |
+| Cybersecurity incident handling | NIST SP 800-61 Rev. 3; China Cybersecurity Law Article 27; China Data Security Law Article 29 (data security incidents; unofficial DigiChina English translation of the law in force 1 September 2021) |
+| Personal data breach coordination | GDPR Articles 33 to 34; UK GDPR Articles 33 to 34 (consolidated text retrieved 29 September 2026); PIPL Article 57 (unofficial DigiChina English translation, last revised 7 September 2021); China Cybersecurity Law Articles 27 and 44 para. 2; LGPD Article 48 |
+| Operational resilience incident coordination | DORA Articles 17 and 19; Commission Delegated Regulation (EU) 2025/301 of 23 October 2024 Article 5 (time limits for DORA major-incident reports); NIS 2 Article 23; CER Directive (EU) 2022/2557 of 14 December 2022 Article 15 (critical entities) |
+| Operational service major incident coordination | ISO/IEC 20000-1:2018 §8.6.1 |
+| Cloud incident management | CSA CCM v4.1 SEF-03, SEF-07, SEF-08, SEF-09; ISO/IEC 27018:2025 A.10.1 (notification of a data breach involving PII) |
+| AI security incident response | NIST AI RMF 1.0 MANAGE 4.3; ISO/IEC 42001:2023 A.8.4 (Communication of incidents); ETSI TR 104 128 V1.1.1 (2025-05) clause 6.6.5; SANS Critical AI Security Guidelines v1.4 (March 2026), Incident Response and Forensics for AI Systems |
+| Joint exercises | NIST SP 800-84 (2006) Section 2 (tabletop and functional exercises) |
+
+The China Cybersecurity Law citations in the table are to the consolidated text as amended 28 October 2025; the amended numbering is in force 1 January 2026 under the NPC Standing Committee amendment decision of 28 October 2025.
+
+---
+
+## Limitations
+
+This procedure is a CC BY-SA 4.0 baseline for cross-stream coordination. Adopting organizations must define the named individual or role behind each Lead title, the contact register, the cadence calendar, the joint exercise scenarios, the communication channels, and the evidence repository. This procedure sets no regulatory notification windows; the domain procedures set them, and adopting organizations must validate the windows applicable to their jurisdictions, sectors, processing roles, and contractual obligations.
+
+---
+
+**End of Document**

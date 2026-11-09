@@ -1,0 +1,306 @@
+# Media Handling and Transport Procedure
+
+**Document Title:** Media Handling and Transport Procedure\
+**Document Type:** Procedure\
+**Version:** 1.10.1\
+**Date:** 2026-10-23\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`operations/standard-physical-security-of-it-infrastructure.md`](standard-physical-security-of-it-infrastructure.md)\
+**Classification:** Public\
+**Category:** Operations\
+**Review Frequency:** Annual and upon material platform or regulatory change\
+**Repository Path:** [`operations/procedure-media-handling-and-transport.md`](procedure-media-handling-and-transport.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+This procedure defines the minimum requirements for classifying, storing, transporting, transferring, sanitizing, and disposing of physical and digital media throughout its lifecycle.
+
+---
+
+## 1. Purpose and scope
+
+### 1.1 Purpose
+
+To protect information held on physical and digital media from unauthorized disclosure, loss, or tampering during storage, internal movement, external transfer, and disposal. This procedure implements the media controls required by the Data Classification and Handling Standard and the Records Retention and Destruction Standard, ensuring that the method of media protection is always proportionate to the sensitivity classification of the information it contains.
+
+### 1.2 Scope
+
+1. Applies to all physical media including removable storage (USB drives, portable hard drives, optical media, magnetic tapes), printed documents, and decommissioned hardware containing storage.
+2. Applies to all digital media transfers including file transfer, email attachment, cloud sharing, and direct network transfer.
+3. Applies to organization-issued and personally-owned devices (BYOD) where they are used to handle organizational data. On a personally-owned device, sanitization is limited to corporate application data (MAM route) or the corporate work profile (managed-work-profile route); a full-device wipe follows the BYOD Policy (the owner's written consent, except where required by law). All sanitization and wipes are subject to the hold and investigation safeguard in §7.
+4. Covers all employees, contractors, and third parties who handle organizational media in any classification.
+5. Applies globally across all office locations, data centre sites, field operations, and logistics environments including BASC-certified trade and customs operations.
+
+---
+
+## 2. Governance
+
+| Role | Responsibility |
+| --- | --- |
+| **CISO** | Owns this procedure; approves use of non-standard transfer mechanisms for Confidential or Restricted data; reviews annual metrics. |
+| **IT Operations** | Manages approved media inventory and physical storage; performs and documents sanitization and disposal; maintains the asset register; procures and manages approved secure disposal vendors. |
+| **Data Owners** | Classify data held on media under their domain; authorize transfers of Confidential or Restricted data; confirm retention holds before disposal is initiated. |
+| **All Employees and Contractors** | Handle media in accordance with the classification of the information it contains; report loss or suspected compromise of media immediately to IT Operations and the CISO. |
+
+Sector-conditional roles (for example, a sector-conditional compliance role that confirms destruction of trade and customs data in line with the organization's obligations and applicable national customs-authority requirements) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
+
+---
+
+## 3. Media classification
+
+The required level of protection for any piece of media is determined by the highest classification of information it contains, as defined in the Data Classification and Handling Standard.
+
+| Data Classification | Physical Media Requirement | Digital Media Requirement |
+| --- | --- | --- |
+| **Public** | No restrictions on storage or transport. Normal disposal for paper only; electronic media follow §7. | No restrictions on transfer channel. |
+| **Controlled** | Standard storage; no special transport requirements. | Standard approved channels. |
+| **Internal** | Locked storage when unattended. | Approved internal channels only; external transfer requires management approval. |
+| **Confidential** | Locked container for storage and transport; encryption required if electronic. | Encrypted transfer channel (TLS 1.3); no personal cloud storage. |
+| **Restricted** | Double-locked storage; signed chain-of-custody log for transport; encryption mandatory. | Encrypted transfer channel (TLS 1.3); approved system only; PAM-controlled access. |
+
+Where a single piece of media contains data of multiple classifications, the controls applicable to the highest classification apply to the entire piece of media.
+
+---
+
+## 4. Secure transport of physical media
+
+### 4.1 Approved transport methods
+
+Physical media containing Confidential or Restricted information must only be transported using approved methods:
+
+- Sealed, tamper-evident packaging for inter-office courier or postal services.
+- Locked transport containers for hand-carry movement between sites.
+- Accredited and contracted secure courier services where third-party transport is required.
+
+Personal or untracked postal services are prohibited for Confidential and Restricted media. Consumer parcel carriers without tracked, signed-delivery services are prohibited.
+
+### 4.2 Chain of custody
+
+A chain-of-custody log must be maintained for every physical transport event involving Confidential or Restricted media. Each log entry must record:
+
+| Field | Requirement |
+| --- | --- |
+| Media identifier | Asset tag, serial number, or unique label |
+| Data classification | Highest classification of contents |
+| Sender (name and role) | Individual releasing the media |
+| Recipient (name and role) | Individual accepting the media |
+| Handoff timestamp | Date and time at each transfer point |
+| Transport method | Courier, hand-carry, or postal with reference/tracking number |
+| Seal or container reference | Tamper-evident seal number or container ID |
+| Signature | Both sender and recipient |
+
+Chain-of-custody logs are retained for a minimum of 3 years or for the duration of the associated data's retention period, whichever is longer.
+
+### 4.3 Encryption requirement for transport
+
+All electronic media transported physically and containing Confidential or Restricted data must be encrypted before transport. Encryption must meet the requirements of the Encryption and Key Management Policy. Unencrypted removable media containing Confidential or Restricted data must not leave an IT-controlled area.
+
+### 4.4 Loss or suspected compromise during transport
+
+Loss or suspected compromise of physical media in transit must be reported immediately to the CISO and treated as a security incident under the Incident Response Procedure. If the media contained personal data, the DPO is notified concurrently to assess breach notification obligations.
+
+---
+
+## 5. Transfer of digital data
+
+### 5.1 Approved transfer mechanisms
+
+Digital transfer of organizational data must use approved channels. The approved mechanism depends on the classification of the data being transferred:
+
+| Data Classification | Approved Transfer Mechanisms |
+| --- | --- |
+| Public / Controlled | Approved collaboration platform, email, or file-sharing service. |
+| Internal | Approved internal systems; external transfer requires management approval and must use an encrypted channel. |
+| Confidential | Approved encrypted file transfer service or encrypted email; TLS 1.3 minimum for all channels. |
+| Restricted | Approved secure file transfer service with end-to-end encryption; access logged; transfer pre-authorized by CISO or Data Owner. |
+
+### 5.2 Prohibition on personal cloud storage
+
+The use of personal cloud storage services (including consumer file-sharing services) to store, transfer, or stage Confidential or Restricted data is strictly prohibited. This prohibition applies to all employees, contractors, and third parties. Violations are investigated under the Acceptable Use Policy and Incident Response Procedure.
+
+### 5.3 Encrypted channels
+
+All digital transfers of Confidential or Restricted data over any network, including the internal corporate network, must use an encrypted channel with TLS 1.3 or a higher-equivalent standard, consistent with the canonical encryption-standards mandate in [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md) section 4. TLS 1.0, 1.1, and 1.2 must not be used.
+
+### 5.4 Transfer to third parties
+
+External transfer of Confidential or Restricted data to third parties requires:
+
+1. Written authorization from the Data Owner.
+2. A current and valid data sharing or processing agreement.
+3. Confirmation that the receiving party's controls meet or exceed the requirements of this procedure.
+4. Use of an approved encrypted transfer mechanism.
+
+Ad-hoc external transfers using unapproved channels are prohibited. Requests for external transfers that cannot be accommodated by an approved channel are escalated to the CISO for resolution.
+
+---
+
+## 6. Media storage
+
+### 6.1 Physical media storage
+
+Physical media containing Confidential or Restricted data must be stored in locked, access-controlled cabinets within IT-managed infrastructure areas, as defined in the Physical Security of IT Infrastructure Standard. Storage requirements by classification:
+
+| Classification | Storage Requirement |
+| --- | --- |
+| Internal | Locked cabinet in an access-controlled area; key or combination held by IT Operations. |
+| Confidential | Locked cabinet in a restricted IT infrastructure area; access limited to authorized personnel; access log maintained. |
+| Restricted | Double-locked storage (locked cabinet within a locked room); access list reviewed quarterly by the CISO; access events logged. |
+
+Media containing Confidential or Restricted data must not be stored in general office areas, reception areas, or any area accessible without IT Operations authorization.
+
+### 6.2 Portable digital media encryption
+
+All portable digital media (USB drives, external hard drives, portable SSDs) used for organizational data must be encrypted. Unencrypted portable media is prohibited for Confidential or Restricted data. IT Operations maintains an inventory of organization-issued portable media and the data classification they are approved to carry. Personal USB drives and portable storage devices are not permitted to connect to organization-managed endpoints unless explicitly approved by the CISO for a documented purpose.
+
+### 6.3 Backup media
+
+Backup media (tapes or portable drives used for off-site backup) must be encrypted, stored in immutable repositories where technically feasible, and transported using chain-of-custody procedures consistent with §4. Backup media management is governed jointly by this procedure and the Backup and Recovery Procedure.
+
+---
+
+## 7. Media sanitization and destruction
+
+**Hold and investigation safeguard for sanitization and disposal.** Before any sanitization, erasure or destruction under this document, including reuse, reassignment and disposal, IT Operations and the Data Owner must confirm whether a legal hold or investigation applies to the device or media, its user, or its data. The check uses the two-part confirmation in rule 2 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1. A check of the GRC platform and Records Register confirms only whether a hold is recorded. Under that rule, Legal Counsel or the Incident Commander or, for security P3 and P4 where no Incident Commander is assigned, the SOC lead, or, for security P1 and P2 before an Incident Commander is assigned, the interim technical authority (Security Incident Response Procedure §2.2) confirms whether an investigation under [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) treats the device or media, its user, or its data as evidence. Only Legal Counsel confirms whether an investigation by an external authority treats the device or media, its user, or its data as evidence, and whether a hold is required but not yet recorded. Where a legal hold or investigation applies, or that status cannot be confirmed, preserve the device or media and its contents in secure custody and defer sanitization, erasure, destruction and any transfer that would prevent evidence preservation. No destructive action may proceed until Legal Counsel, in writing, formally releases the hold or narrows it so that it no longer covers the affected contents. For an investigation without a legal hold, no destructive action may proceed until Legal Counsel confirms in writing that the investigation no longer treats those contents as evidence, consistent with rule 8 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1. A backup, migration or forensic image does not itself authorize destruction. Record the check, deferral and Legal Counsel's release or confirmation. Where no legal hold or investigation applies, the existing retention, sanitization and disposal requirements continue to apply.
+
+### 7.1 Sanitization before reuse
+
+Before any storage media is reissued for a different user or purpose, it must be sanitized to remove all previous data. The sanitization method must be appropriate to the classification of the data previously held and consistent with the organization's media-sanitization programme (NIST SP 800-88 Rev. 2) and the sanitization methods of IEEE 2883-2022, the edition this procedure relies on. NIST SP 800-88 Rev. 2 reframes around an enterprise sanitization programme and defers the technique detail to the latest IEEE 2883 (2022 at the time of writing), NSA specifications, or an organizationally-approved standard, retaining only cryptographic erase directly (its section 3.2). The required method by media type:
+
+| Media Type | Required Sanitization Method |
+| --- | --- |
+| Hard disk drives (HDD) | IEEE 2883-2022 Clear (overwrite) or a stronger method for Internal and below; Purge (overwrite by a device sanitize command that also covers non-addressable locations (IEEE 2883-2022 6.3)) for Confidential and above. Where the stronger method for Internal and below is cryptographic erase (which changes the media encryption key on a self-encrypting drive), it is used only where the prerequisites in IEEE 2883-2022 6.5.3 are met. For ATA, SCSI and NVMe storage devices, cryptographic erase must not be used if the device does not support encryption, supports none of the techniques specified in IEEE 2883-2022 8.4.3.5, enabled encryption only after sensitive data were stored, contains both encrypted and unencrypted data, or has any unencrypted NVMe namespace (IEEE 2883-2022 8.4.3.5). Cryptographic erase is also subject to the condition on backed-up or escrowed keys in §8.2 of the Data Classification and Handling Standard (NIST SP 800-88 Rev. 2 §§3.2.2 and 3.2.3). Degaussing is not used on a drive intended for reuse, because it generally leaves a hard disk drive permanently inoperable (IEEE 2883-2022 8.4.3.1). Sanitization must be verified before reuse. |
+| Solid-state drives (SSD) and flash media | IEEE 2883-2022 Purge via sanitize block erase, or via cryptographic erase (which changes the media encryption key on a self-encrypting drive) only where the prerequisites in IEEE 2883-2022 6.5.3 are met; or an equivalent manufacturer-verified Purge method (for example ATA Security Erase Unit in Enhanced Erase mode). For ATA, SCSI and NVMe storage devices, cryptographic erase must not be used if the device does not support encryption, supports none of the techniques specified in IEEE 2883-2022 8.4.3.5, enabled encryption only after sensitive data were stored, contains both encrypted and unencrypted data, or has any unencrypted NVMe namespace (IEEE 2883-2022 8.4.3.5). Cryptographic erase is also subject to the condition on backed-up or escrowed keys in §8.2 of the Data Classification and Handling Standard (NIST SP 800-88 Rev. 2 §§3.2.2 and 3.2.3). For Restricted data, the CISO judges whether the data must stay confidential for a long time; where it must, cryptographic erase is used only where the CISO confirms that the encryption is expected to stay adequate for as long as the data stays sensitive (NIST SP 800-88 Rev. 2 §3.2.2). Where cryptographic erase destroys data whose retention period has expired, it is a destruction action, so the confirmation is recorded in the Destruction Register under §8.2 of the Records Retention and Destruction Standard; where no records are destroyed, the confirmation is not recorded. Memory cards (SD, CompactFlash and similar) have no standard Purge method and are destroyed under §7.2 unless IT Operations has approved a protocol-specific Purge command for the card type (IEEE 2883-2022 8.7.2). If no Purge method in this row can be completed and verified, the media is destroyed under §7.2 (IEEE 2883-2022 8.4.3.1 and 6.1). |
+| Magnetic tapes | IEEE 2883-2022 Purge by degaussing in an approved degausser rated for the tape type (IEEE 2883-2022 8.5.3.2), only where vendor documentation confirms that degaussing sanitizes that tape type and leaves it usable; tapes with servo tracks are rendered unusable by effective degaussing (IEEE 2883-2022 6.5.4) and are not reissued. Reset any cartridge memory (MAM) to factory default with a vendor-specific application, remove labels and verify sanitization before reuse. A tape that cannot be purged and remain usable is destroyed under §7.2. |
+| Mobile device storage | IEEE 2883-2022 Purge by a manufacturer-documented procedure for the specific device model and OS version that IT Operations has reviewed and recorded as effective for Purge (IEEE 2883-2022 A.3.2); cryptographic erase is accepted only where the prerequisites in IEEE 2883-2022 6.5.3 are met. For ATA, SCSI and NVMe storage devices, cryptographic erase must not be used if the device does not support encryption, supports none of the techniques specified in IEEE 2883-2022 8.4.3.5, enabled encryption only after sensitive data were stored, contains both encrypted and unencrypted data, or has any unencrypted NVMe namespace (IEEE 2883-2022 8.4.3.5). Cryptographic erase is also subject to the condition on backed-up or escrowed keys in §8.2 of the Data Classification and Handling Standard (NIST SP 800-88 Rev. 2 §§3.2.2 and 3.2.3). For Restricted data, the CISO judges whether the data must stay confidential for a long time; where it must, cryptographic erase is used only where the CISO confirms that the encryption is expected to stay adequate for as long as the data stays sensitive (NIST SP 800-88 Rev. 2 §3.2.2). Where cryptographic erase destroys data whose retention period has expired, it is a destruction action, so the confirmation is recorded in the Destruction Register under §8.2 of the Records Retention and Destruction Standard; where no records are destroyed, the confirmation is not recorded. A factory reset is accepted only where it carries out that reviewed procedure; any other factory reset is not accepted as Purge. Sanitize removable storage under its own media row, and confirm through the device interface that no organizational data remains before reuse. If Purge cannot be completed and verified, the device is not reissued and is destroyed under §7.2, subject to §1.2 for personally-owned devices. |
+| Optical media (CD, DVD, Blu-ray) | Not reissued at any classification, because IEEE 2883-2022 accepts only Destruct for optical media (IEEE 2883-2022 clauses 8.3.1.1 and 8.3.1.2). Destroy under IEEE 2883-2022 8.3.1.3 by, in order of preference, a commercial optical disk grinder that removes the information-bearing layers (CD only, not DVD or Blu-ray), incineration to ash at a licensed facility, or an optical media shredder or disintegrator that reduces the media to particles of nominal edge 0.5 mm and surface area 0.25 mm² or smaller. |
+
+### 7.2 Destruction of electronic media
+
+Electronic media for which the required Clear or Purge cannot be completed and verified, including failed or damaged media, and media whose cryptographic erasure keys are unavailable where no other Purge method in §7.1 applies, must be destroyed:
+
+- Optical media are destroyed as the optical media row of §7.1 specifies (IEEE 2883-2022 8.3.1.3). All other electronic media require IEEE 2883-2022 Destruct by disintegration, incineration in a licensed incinerator, or melting (IEEE 2883-2022 6.4 and 8.4.4), so that recovery of the data is infeasible even with state-of-the-art laboratory techniques. For those other electronic media, shredding, crushing or pulverizing is accepted only as an interim step before one of those techniques and never as final destruction, whatever the classification.
+- Destruction must be performed or witnessed by an IT Operations staff member, or by a contracted accredited disposal vendor with Certificates of Destruction issued.
+
+### 7.3 Destruction of paper and physical records
+
+Paper and physical records containing Confidential or Restricted data must be destroyed by cross-cut shredding at DIN 66399 Level P-4 or higher, or by contracted secure document destruction services that meet equivalent standards. Strip-cut shredding is not acceptable for Confidential or Restricted records. Shredding bins in general office areas are subject to locked-bin requirements for any area where Confidential or Restricted documents are handled.
+
+### 7.4 Destruction at end of retention period
+
+Media disposal initiated by expiry of the Records Retention Schedule is coordinated between IT Operations and the relevant Data Owner. Prior to disposal, the Data Owner confirms that:
+
+1. No legal hold or investigation applies to the media, its user, or its data, as confirmed through both parts of the hold check in the hold and investigation safeguard at the start of §7. A check of recorded holds alone does not complete it.
+2. The retention period for all data on the media has expired.
+
+Media to which a legal hold or investigation applies, or whose status cannot be confirmed, must not be destroyed until Legal Counsel, in writing, formally releases or narrows the hold, or confirms in writing that an investigation without a legal hold no longer treats its contents as evidence, as that safeguard and the Records Retention and Destruction Standard §7 require.
+
+---
+
+## 8. Certificate of destruction
+
+### 8.1 Requirement
+
+A Certificate of Destruction is mandatory for the disposal of all media that has held Confidential or Restricted data. This includes:
+
+- All decommissioned servers and workstations.
+- All portable media (USB drives, external drives, tapes) removed from service.
+- All organization-issued mobile devices.
+- Paper records of Confidential or Restricted classification destroyed by a contracted service.
+
+A Certificate of Destruction is not required for internal-only paper records shredded on-site, provided the shredding is recorded in the Destruction Register.
+
+### 8.2 Certificate contents
+
+Each Certificate of Destruction must include:
+
+| Field | Requirement |
+| --- | --- |
+| Asset or media identifier | Asset tag, serial number, or batch reference |
+| Data classification | Highest classification of information held |
+| Destruction method | Technique applied and sanitization method (e.g., Purge: cryptographic erasure; Destruct: disintegration, incineration) |
+| Date of destruction | Date destruction was completed |
+| Location | Site or facility where destruction occurred |
+| Performed by | Individual or vendor name |
+| Witness (for on-site physical destruction) | Name and role of witness |
+| Vendor certificate reference | Certificate number from the destruction vendor (if applicable) |
+
+### 8.3 Retention
+
+Certificates of Destruction are retained for a minimum of 7 years, consistent with the Records Retention and Destruction Standard. Certificates are stored in the IT Operations records system with access restricted to IT Operations and the CISO.
+
+---
+
+## 9. Surplus and disposal
+
+### 9.1 Surplus hardware
+
+Surplus hardware declared for disposal by IT Operations must be processed through the following workflow before leaving IT custody:
+
+1. The asset is flagged for disposal in the asset register by the IT Operations lead.
+2. The Data Owner for any data stored on the device confirms retention obligations are met, and the hold check in the hold and investigation safeguard at the start of §7 confirms that no legal hold or investigation applies.
+3. Media sanitization or destruction is performed per §7 and recorded.
+4. A Certificate of Destruction is obtained per §8.
+5. The asset register is updated to "disposed" with the disposal date, method, and Certificate of Destruction reference.
+
+No hardware may be donated, sold, transferred to a third party, or placed for general waste disposal without completing the above workflow.
+
+### 9.2 Secure disposal vendor requirements
+
+Where external vendors are used for media sanitization or physical destruction, vendors must:
+
+- Hold documented and current accreditation such as R2, e-Stewards, ADISA, or equivalent national standard.
+- Provide a Certificate of Destruction for each disposal event, itemized to the asset or batch level.
+- Sign a data processing or confidentiality agreement prior to receiving any media.
+- Be reviewed annually by IT Operations and the CISO for continued compliance with accreditation requirements.
+
+### 9.3 Sector-programme data disposal
+
+Where media holds data associated with a sector programme (for example, trade and customs data in BASC-certified operations), the organization's disposal workflow requires that destruction be confirmed by the sector-conditional role defined by the relevant sector annex before the Certificate of Destruction is filed. That role verifies that:
+
+- The sector-programme minimum retention period has expired or the records have been migrated to an approved successor system.
+- No sector authority hold or audit request (for example, no outstanding customs-authority hold or audit request affecting a BASC-certified operation) is outstanding.
+- The destruction method satisfies the relevant sector annex's data-security requirements.
+
+See [`compliance/`](../compliance/) for the sector annex applicable to the organization's covered programmes.
+
+---
+
+## 10. Metrics
+
+The following metrics are reported to the CISO quarterly and reviewed annually at the information security management review:
+
+| Metric | Target |
+| --- | --- |
+| Disposal events with Certificate of Destruction (where required) | 100% |
+| Media inventory accuracy (registered portable media vs. actual) | 100% quarterly reconciliation |
+| Unauthorized media removal incidents (count) | Zero target; each incident investigated |
+| Transfers of Confidential/Restricted data via unapproved channels (count) | Zero target; each incident investigated |
+| Chain-of-custody log completion rate for qualifying physical transports | 100% |
+| BASC trade data destruction confirmations completed on schedule | 100% |
+
+---
+
+## 11. Framework alignment
+
+| Control Area | ISO/IEC 27001:2022 | NIST SP 800-88 Rev. 2 / IEEE 2883-2022 | CSA CCM v4.1 | COBIT 2019 |
+| --- | --- | --- | --- | --- |
+| Media handling and classification | A.7.10, A.5.12 | 800-88 Rev. 2: programme scope | DSP-04 | DSS05.06 |
+| Physical transport and chain of custody | A.7.10, A.5.14 | N/A | DCS-05 | DSS05.06 |
+| Digital transfer controls | A.8.24, A.5.14 | N/A | DSP-10, CEK-03 | DSS05.02 |
+| Media storage | A.7.10, A.7.9 | N/A | DCS-04 | DSS05.05, DSS05.06 |
+| Sanitization and destruction | A.8.10, A.7.14 | IEEE 2883-2022: Purge / Destruct | DSP-02 | DSS05.06 |
+| Certificate of Destruction and records | A.5.33 | 800-88 Rev. 2: documentation | DSP-02 | DSS05.06 |
+
+This procedure also aligns with ISO/IEC 27040:2024 (Storage security) for the secure handling, storage, and sanitization of storage media.
+
+For the BASC-certified trade and customs operations named in §1.2, the periodic inventory of media and equipment, their controlled disposal, and the restriction of connections of unauthorized personal devices and peripherals to organization-managed endpoints also align with BASC International Security Standard 6.0.2 and 6.0.3 (Version 6, 2022), clause 5.2, items r) and s); item r) also requires that disposal follow current legislation.
+
+---
+
+*This document is released under CC BY-SA 4.0.*
+
+
+
+**End of Document**

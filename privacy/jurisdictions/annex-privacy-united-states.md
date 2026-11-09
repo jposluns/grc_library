@@ -1,0 +1,162 @@
+# United States Privacy Regulatory Requirements
+
+**Document Title:** United States Privacy Regulatory Requirements\
+**Document Type:** Annex\
+**Version:** 1.2.14\
+**Date:** 2026-10-03\
+**Owner:** Data Protection Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
+**Classification:** Public\
+**Category:** Privacy\
+**Review Frequency:** Annual and upon material privacy, regulatory, or AI governance change\
+**Repository Path:** [`privacy/jurisdictions/annex-privacy-united-states.md`](annex-privacy-united-states.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This annex defines privacy and AI regulatory requirements applicable to processing of personal data in the United States under the FTC Act, federal sector-specific laws, and state comprehensive privacy laws. It supplements the Privacy and Data Governance Policy and the Privacy Impact and Cross-Border Transfer Procedure.
+
+---
+
+## Applicable laws and regulatory authorities
+
+The United States does not have a single comprehensive federal privacy law. Obligations arise from a patchwork of federal sector-specific laws, FTC Act enforcement, and state-level comprehensive privacy laws.
+
+### Federal laws
+
+- **FTC Act (15 U.S.C. § 45):** The FTC prohibits unfair or deceptive acts or practices in commerce. The FTC treats material misrepresentations about privacy practices, inadequate data security, and harmful AI practices as unfair or deceptive.
+- **HIPAA:** Governs protected health information held by covered entities and their business associates. HHS OCR issued an NPRM on 27 December 2024 (published in the Federal Register on 6 January 2025; comment period closed 7 March 2025) proposing to overhaul the HIPAA Security Rule. The NPRM would make encryption of ePHI (at rest and in transit) and multi-factor authentication for ePHI-access systems mandatory, require an annually-refreshed technology asset inventory and ePHI network map, eliminate the "required vs addressable" implementation-specification distinction, and add explicit annual risk-analysis and vulnerability-management obligations. The final rule remained pending as of May 2026. Once published, covered entities and business associates would have 60 days to the effective date and 180 days after the effective date to reach compliance (240 days total from publication).
+- **COPPA:** Governs collection of personal information from children under 13.
+- **Gramm-Leach-Bliley Act (GLBA):** Governs financial institutions' treatment of consumer financial information.
+- **Fair Credit Reporting Act (FCRA):** Regulates consumer reporting agencies and use of consumer reports; applicable to AI in credit, employment, and tenant screening.
+- **Equal Credit Opportunity Act (ECOA) / Fair Housing Act:** Prohibit discriminatory lending and housing decisions; applicable to AI models in credit and housing contexts.
+
+### Federal AI initiatives
+
+- **NIST AI Risk Management Framework (AI RMF 1.0, January 2023):** A voluntary framework for managing AI risks across four functions: Govern, Map, Measure, Manage.
+- **NIST Generative AI Profile (NIST AI 600-1, July 2024):** Addresses risks specific to generative AI including hallucination, harmful content, data privacy, and intellectual property.
+
+### State laws
+
+- **California CCPA/CPRA (effective 2023-01-01):** Rights to know, delete, correct, and opt out of sale or sharing. Right to limit the use and disclosure of sensitive personal information (Cal. Civ. Code section 1798.121). California Privacy Protection Agency (CPPA) as independent enforcement agency. The CPPA's final regulations (11 CCR Division 6 Chapter 1) took effect 2026-01-01, adding rules on automated decision-making technology (ADMT), risk assessments, and cybersecurity audits; ADMT compliance for a significant decision is required no later than 2027-01-01.
+- **Other state comprehensive privacy laws:** Virginia (VCDPA), Colorado (CPA), Connecticut (CTDPA), Utah (UCPA), Texas (TDPSA), Oregon, Montana, Iowa, Indiana, Tennessee, Florida, and others. Common elements: access, correction, deletion, opt-out from targeted advertising and profiling; DPIAs for high-risk processing; opt-in consent for sensitive data.
+- **Illinois BIPA:** Requires informed written consent before collecting biometric identifiers. Private right of action: USD 1,000 per negligent violation, USD 5,000 per intentional or reckless violation. **Illinois SB 2979 (effective 2 August 2024)** amended BIPA to limit recovery to a "single recovery" for the same biometric identifier collected from or disclosed to the same recipient using the same method, which materially reduces aggregate damages exposure relative to the Illinois Supreme Court's earlier per-scan accrual interpretation in Cothron v. White Castle. The amendment also recognizes electronic written release. A 2026 Seventh Circuit decision held that SB 2979 applies retroactively to cases pending at its effective date.
+- **Colorado AI Act (SB 24-205):** Signed by Governor Polis on 17 May 2024. The Act requires developers and deployers of high-risk AI to use reasonable care to protect consumers from algorithmic discrimination, and imposes DPIAs, transparency notices, and a right to appeal automated decisions. **Effective date is in flux:** the original effective date was 1 February 2026; Colorado SB 25B-004 (signed 28 August 2025) postponed implementation to **30 June 2026**; on 27 April 2026 the United States District Court for the District of Colorado (Magistrate Judge Cyrus Y. Chung) granted a joint motion from xAI and the Colorado Attorney General that effectively **freezes enforcement** while litigation continues (xAI filed a federal suit on 9 April 2026 on First Amendment, Dormant Commerce Clause, due process, and equal protection grounds; the U.S. Department of Justice intervened shortly after). The Governor's Working Group framework released on 17 March 2026 proposed further amendments including a 90-day cure period and a revised effective date of 1 January 2027. The legislature then enacted Colorado SB 26-189 (signed May 2026), which repeals and re-enacts the statute for consequential decisions made on or after 1 January 2027 and adopts a **sixty-day** cure period (not the ninety days the Working Group had proposed); the [Colorado AI statute jurisdiction annex](../../ai/jurisdictions/annex-ai-us-colorado.md) gives the two-regime (SB 24-205 and SB 26-189) per-regime view. Adopting organizations should treat the Act as **pending in litigation** and monitor the Colorado General Assembly and the U.S. District Court for Colorado for any change of status before committing to a compliance milestone.
+
+---
+
+## AI and privacy obligations
+
+### CCPA/CPRA automated decision-making
+
+- **ADMT (final; 11 CCR Article 11, sections 7200 to 7222, effective 2026-01-01, compliance no later than 2027-01-01).** For automated decision-making technology used to make a *significant decision* (section 7001), a business must provide a pre-use notice (section 7220), honour a right to opt out of ADMT (section 7221), and honour a right to access ADMT (section 7222), with a human-appeal alternative to the opt-out (section 7221(b)(1)). The [California CCPA ADMT jurisdiction annex](../../ai/jurisdictions/annex-ai-us-california.md) is the canonical home for the full per-regime detail (the operative Article 11 obligation text, the section-7001 significant-decision categories, and the AI-governance framework crosswalk); adopting organizations reconfirm the version-sensitive in-force text and the 2027-01-01 compliance date upstream before committing to a milestone.
+- **Risk assessments (final; Article 10, sections 7150 to 7157).** A business must conduct a risk assessment *before initiating* processing that presents a significant risk to consumers' privacy, as enumerated in section 7150(b): selling or sharing personal information, processing sensitive personal information, using ADMT for a significant decision, certain profiling, and processing personal information the business intends to use to train ADMT for a significant decision or to train facial-recognition, emotion-recognition, identity-verification, or physical or biological identification or profiling technology (section 7150(b)(6)).
+- **Cybersecurity audits (final; Article 9, sections 7120 to 7124).** Distinct from the risk assessment, and on a different trigger: a threshold-based, periodic audit required of a business that meets the section 7120 thresholds (the section 7120(b) trigger is met if a business either derives 50 percent or more of its annual revenue from selling or sharing personal information, or has annual gross revenue over USD 25 million (the Civil Code section 1798.140(d)(1)(A) threshold, as periodically adjusted for inflation) and processed either the personal information of 250,000 or more consumers or households or the sensitive personal information of 50,000 or more consumers), with first audits phased by annual gross revenue (by 2028-04-01 for businesses whose 2026 revenue exceeded USD 100 million, 2029-04-01 for businesses whose 2027 revenue was USD 50 to 100 million, and 2030-04-01 for businesses whose 2028 revenue was under USD 50 million).
+
+### NIST AI RMF 1.0 (voluntary)
+
+- **Govern:** Establish accountability, policies, and processes for responsible AI.
+- **Map:** Identify and categorize AI risks in context.
+- **Measure:** Analyze and quantify AI risks using metrics and testing.
+- **Manage:** Prioritize, treat, and monitor AI risks on an ongoing basis.
+
+### FTC AI enforcement themes
+
+Recurring themes in FTC AI-related enforcement actions and business guidance (a characterization, not an FTC-published list; not held in the reference base): <!-- ref-absence: FTC AI | Federal Trade Commission artificial intelligence -->
+
+- AI systems making false or unsubstantiated capability claims.
+- AI used to manipulate consumers or engage in dark patterns.
+- Inadequate disclosure of AI-generated content.
+- AI systems discriminating on the basis of protected characteristics.
+- Inadequate security for AI systems processing sensitive personal data.
+- "AI washing": misleading claims about AI capabilities or safety.
+
+---
+
+### Sectoral AI considerations
+
+- **Financial services:** the Federal Reserve's SR 11-7 model-risk-management guidance is commonly applied to AI in credit, fraud, and compliance decisions; that guidance is not held in the reference base, so an adopter confirms its current scope directly. Fair lending laws apply to AI-driven credit decisions. <!-- ref-absence: SR 11-7 -->
+- **Healthcare:** AI clinical decision support may qualify as a medical device subject to FDA regulation. HIPAA applies to AI processing protected health information.
+- **Employment:** EEOC guidance (cited illustratively; adopters confirm the current EEOC position) that AI hiring tools may violate Title VII if they produce disparate impact.
+
+---
+
+## Employment and workforce monitoring
+
+Where the organization monitors the network and device activity of workers in the United States, the applicable requirements arise from a patchwork rather than a single federal regime, governed operationally by the Workforce Network Monitoring Policy ([`security/policy-workforce-network-monitoring.md`](../../security/policy-workforce-network-monitoring.md)) and its supporting suite. There is no federal omnibus privacy law; the position is assembled from state electronic-monitoring notice laws, the state comprehensive privacy laws that reach employee data, and sectoral interception law.
+
+- **State electronic-monitoring notice laws.** Several states require an employer to give employees notice of electronic monitoring; New York, Connecticut, and Delaware each require prior notice of the monitoring of employees' electronic communications or internet activity. These state statutes are cited illustratively and are not held in the reference base; the specific triggers, form of notice, and penalties differ by state, and adopters confirm the current statute, its scope, and the required notice form in each state where workers are located. <!-- ref-absence: New York electronic monitoring notice | Connecticut electronic monitoring | Delaware electronic monitoring -->
+- **State comprehensive privacy laws reach employee data in California.** The CCPA/CPRA has covered employee and applicant personal information since the employee-data exemption expired on 1 January 2023, so California workers hold notice, access, deletion, correction, and sensitive-information-limitation rights in their monitored personal information, and the CPPA regulations on automated decision-making technology, risk assessments, and cybersecurity audits apply where triggered. Several other state comprehensive privacy laws currently exclude data processed in an employment context, though the position varies by state and is changing; adopters confirm the scope of each applicable state law.
+- **Sectoral interception law.** The Electronic Communications Privacy Act and the Stored Communications Act constrain the interception of, and access to, electronic communications. Whether a given monitoring configuration falls within a statutory exception (for example a provider or consent-based exception) is provision-specific and fact-dependent; these statutes and their exceptions are cited illustratively rather than as a general permission for workplace monitoring, and adopters obtain jurisdiction-specific legal advice on interception and consent before deploying content inspection. Monitoring of communication content is treated as the exceptional, specifically approved measure under the parent policy, and legally privileged or protected communications are excluded.
+- **Purpose stated separately from footing; notice and proportionality.** A legitimate security aim states the purpose the monitoring serves; it does not displace the notice and proportionality expectations the state notice laws and the parent policy impose. Advance notice of the nature, purpose, and scope of monitoring is provided using the [Employee Monitoring Notice Template](../template-employee-monitoring-notice.md); the necessity, proportionality, and balancing analysis is worked in the [Legitimate Interest Assessment for Employment Monitoring Annex](../annex-legitimate-interest-employment-monitoring.md), applied here as an analytic aid rather than as a GDPR lawful basis. Connection metadata is governed by the [Network Telemetry and DPI Controls Standard](../standard-network-telemetry-and-dpi-controls.md) and presence signals by the [Presence Inference Limitations Standard](../standard-presence-inference-limitations.md).
+- **Automated decisions and anti-discrimination.** Where a monitoring signal could feed an automated employment decision, EEOC guidance (cited illustratively, that AI tools used in employment may violate Title VII where they produce disparate impact) and the California ADMT rules are relevant; the parent policy prohibits monitoring signals from driving employment action automatically. Where a representative-body or collective-bargaining duty applies (for example a unionized workforce), it is determined through the [Works Council and Employee Representative Consultation Procedure](../procedure-works-council-and-employee-representative-consultation.md).
+
+---
+
+## Operational requirements (state comprehensive laws)
+
+The earliest three comprehensive state laws converge on the same request-handling mechanics, which most later state laws copy; the cross-state baseline below is citable to the three statutes (each confirmed current against its official code site in 2026).
+
+- **Consumer-request response clock: 45 days, extendable once by 45 days.** California (Cal. Civ. Code s. 1798.130(a)(2)(A)), Virginia (Va. Code s. 59.1-577(B)(1)), and Colorado (Colo. Rev. Stat. s. 6-1-1306) each require a response within 45 days of receipt of a verifiable consumer request, extendable once by 45 additional days where reasonably necessary, with notice of the extension (and its reason, in Virginia and Colorado) within the initial 45-day period.
+- **Appeal process (Virginia and Colorado; the CCPA/CPRA carries no equivalent appeal duty).** A controller must offer a conspicuously available process to appeal a refusal to act: Virginia requires a written answer within 60 days of receiving the appeal (Va. Code s. 59.1-577(C)); Colorado requires an answer within 45 days, extendable by 60 additional days (Colo. Rev. Stat. s. 6-1-1306). The consumer must be given a channel to contact the Attorney General (on a denied appeal in Virginia; in Colorado, on any appeal outcome where the consumer has concerns about the result).
+- **Data protection assessments.** Virginia (Va. Code s. 59.1-580) and Colorado (Colo. Rev. Stat. s. 6-1-1309) require a documented data protection assessment for processing for targeted advertising, the sale of personal data, profiling that presents enumerated heightened risks, or sensitive data, among the statutes' enumerated triggers; Colorado expressly bars conducting such processing without the documented assessment. This is the state-law analogue of the DPIA trigger adopting organizations already run for GDPR-scope processing; one assessment may satisfy multiple comparable state laws where scope aligns.
+
+---
+
+## Cross-border transfer mechanisms
+
+- The United States does not impose general restrictions on outbound cross-border transfers (with sector-specific exceptions such as HIPAA business associate requirements).
+- **EU-US Data Privacy Framework (DPF):** Organizations certified under the DPF can receive personal data from the EU, UK (via UK Extension), and Switzerland without additional transfer mechanisms. Administered by the International Trade Administration (ITA).
+- **CCPA:** Does not restrict cross-border transfers but requires contractual data protection obligations on service providers and contractors.
+- **State health data laws:** Washington My Health My Data Act and similar laws restrict sharing of consumer health data across borders.
+
+---
+
+## Enforcement and fines
+
+### FTC
+
+- No specific fine structure for first violations; injunctive relief and consent orders are typical. Subsequent consent order violations: civil penalties up to USD 51,744 per violation per day.
+
+### CCPA/CPRA
+
+- CPPA administrative fine (section 1798.155): up to USD 2,500 per violation, or USD 7,500 per intentional violation or a violation involving personal information of a consumer the business, service provider, contractor, or other person actually knows is under 16; both amounts are adjusted for inflation under section 1798.199.95(d).
+- Private right of action (section 1798.150): USD 100 to 750 per consumer per incident for data breaches from inadequate security (the amounts adjusted under section 1798.199.95(d)), or actual damages if greater.
+
+### BIPA (Illinois)
+
+- Private right of action: USD 1,000 per negligent violation; USD 5,000 per intentional or reckless violation.
+- Following Illinois SB 2979 (effective 2 August 2024), recovery is limited to a "single recovery" for the same biometric identifier or biometric information collected from the same person and disseminated to the same recipient using the same method of collection (that is, repeated scans of the same individual by the same system no longer compound into separate violations). The amendment substantially reduces aggregate damages exposure relative to the earlier Cothron v. White Castle per-scan accrual standard. Class-action settlements pre-dating the amendment exceeded USD 600 million; post-amendment cases are expected to be materially lower in aggregate exposure.
+
+### State attorneys general
+
+- Enforcement authority under all state comprehensive privacy laws; fines range USD 2,500 to 50,000 per violation depending on state.
+
+### HIPAA
+
+Civil money penalties are enforced by HHS Office for Civil Rights (OCR). For violations occurring on or after 18 February 2009, Title 45 of the Code of Federal Regulations, [section 160.404](https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-160/subpart-D/section-160.404), distinguishes amounts for each violation from caps for identical violations during a calendar year (1 January through 31 December). The table reproduces the **2025 adjustment column** of [section 102.3](https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-A/part-102/section-102.3), the latest column in the text current as of 1 October 2026; all amounts are in USD. Read the regulatory caps together with the enforcement-discretion policy below.
+
+| Tier | Culpability | Per-violation minimum | Per-violation maximum | Regulatory calendar-year cap for identical violations |
+| --- | --- | --- | --- | --- |
+| 1 | The covered entity or business associate did not know and, by exercising reasonable diligence, would not have known that it violated the provision | 145 | 73,011 | 2,190,294 |
+| 2 | The violation was due to reasonable cause and not to willful neglect | 1,461 | 73,011 | 2,190,294 |
+| 3 | The violation was due to willful neglect and was corrected during the 30-day period defined below | 14,602 | 73,011 | 2,190,294 |
+| 4 | The violation was due to willful neglect and was not corrected during the 30-day period defined below | 73,011 | 2,190,294 | 2,190,294 |
+
+For tiers 3 and 4, the 30-day period begins on the first date the covered entity or business associate liable for the penalty knew, or, by exercising reasonable diligence, would have known that the violation occurred.
+
+Under HHS's [2019 Notification of Enforcement Discretion](https://www.federalregister.gov/documents/2019/04/30/2019-08530/notification-of-enforcement-discretion-regarding-hipaa-civil-money-penalties), HHS applies lower annual caps for the first three tiers. The notice's **base annual caps**, before inflation adjustment, are USD 25,000 for tier 1, USD 100,000 for tier 2, USD 250,000 for tier 3, and USD 1,500,000 for tier 4. Both tables in the notice (Table 1, describing the Enforcement Rule, and Table 2, the interim tiers the notice sets) list a tier-4 per-violation maximum of **USD 50,000 as a base value before inflation adjustment**, distinct from the adjusted regulatory maximum in section 102.3 above. The notice states that HHS will use this interim penalty tier structure, as adjusted for inflation, until further notice. Neither section 102.3 nor the notice supplies the current inflation-adjusted values of the lower annual caps; the base values are not current adjusted caps. Adopters must confirm the applicable inflation-adjusted enforcement-discretion limits with HHS OCR before reliance.
+
+---
+
+## Limitations
+
+This document is a CC BY-SA 4.0 reference baseline. It does not constitute legal advice. Adopting organizations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
+
+---
+
+**End of Document**

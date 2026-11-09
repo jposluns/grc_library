@@ -1,0 +1,701 @@
+#!/usr/bin/env python3
+"""Reference-module vs reference-source parity aid (standards-validation discipline).
+
+A maintainer dev-aid that confirms the in-repo control-reference modules
+([`.claude/skills/corpus-management/tools/ccm_aicm_reference.py`], [`.claude/skills/corpus-management/tools/nist_csf_reference.py`], and
+[`.claude/skills/corpus-management/tools/cobit_iso31000_reference.py`], [`.claude/skills/corpus-management/tools/iso27001_reference.py`], and
+[`.claude/skills/corpus-management/tools/tsc_reference.py`])
+still match the authoritative source
+extracts in the ``grc_library_ref`` reference repo (buckets at its root): the
+CSA CCM v4.1.0 / AICM v1.1.0 catalogue CSVs under ``frameworks/CSA/``, the
+NIST CSWP-29 CSF 2.0 full text and the NIST CSF 2.0 OSCAL catalogue under
+``standards/NIST/``, the COBIT 2019
+Governance and Management Objectives extract under ``frameworks/COBIT/``,
+the ISO 31000:2018 full text under ``standards/ISO/``, and the ISO/IEC
+27001:2022 full text (Annex A control table) under ``standards/ISO/``. The in-repo
+modules are a *derived encoding* of codes and titles; the reference extracts are
+the *source text*. Gates 48/49/54/58/61 enforce code validity against the
+modules, so a silent drift between the modules and the source would let the
+gates pass codes the source does not actually contain (or reject codes it
+does). This aid is the parity check that catches such drift; it is the
+mechanical half of the standards-validation discipline: code-set parity is
+checked here, and the prose half is the title-fit read noted below.
+
+It is a developer AID, not an audit gate: it is named ``verify-*`` (not
+``lint-*``) so the gate machinery (the four-surface parity gate 35, the
+regression suite gate 36) does not auto-discover it, and it is NOT wired into
+``run_all_audits.sh`` / CI. The reason it cannot be a CI gate: the reference
+source lives in the separate ``grc_library_ref`` repo, which is
+not present in this repo's CI environment. Run it manually when doing
+standards / control-code work, or when the ``grc_library_ref`` reference base is refreshed.
+
+What it checks, per catalogue:
+
+  * **CSA CCM v4.1.0** (both directions): the ``CCM_V41`` keyset against the
+    Control IDs in ``frameworks/CSA/CCM/CSA-CCM-v4.1.0-catalogue__CCM.csv``
+    (the ``Control ID`` column).
+  * **CSA AICM v1.1.0** (both directions): the ``AICM_V11`` keyset against
+    the Control IDs in
+    ``frameworks/CSA/AICM/CSA-AICM-v1.1.0-catalogue__AICM.csv``.
+  * **NIST CSF 2.0** (both directions): the ``CSF_CATEGORIES`` keyset against
+    the ``FUNCTION.CATEGORY`` tokens in
+    ``standards/NIST/NIST-CSF-2.0--CSWP-29--full-text.md``.
+  * **NIST CSF 2.0 OSCAL** (both directions), against the held catalogue
+    ``standards/NIST/oscal/NIST_CSF_v2.0_catalog.json``: the live Categories (no
+    ``status`` prop) against the ``CSF_CATEGORIES`` keyset; the withdrawn
+    Categories (``status`` ``withdrawn``) against the ``CSF_1_1_RELOCATED``
+    keyset, with each note rebuilt from the Category's ``title`` (quoted as the
+    CSF 1.1 name) and its own ``incorporated_into`` / ``moved_to`` links, or,
+    when it has none, the Categories its Subcategories link to, and compared
+    exactly; the live Subcategories under the live Categories against
+    ``CSF_SUBCATEGORIES``; the withdrawn Subcategories under them against the
+    ``CSF_WITHDRAWN_SUBCATEGORIES`` keyset, with each note rebuilt from the
+    entry's ``incorporated_into`` / ``moved_to`` links and compared exactly. The
+    children of a withdrawn Category are walked through the same duplicate-ID,
+    class, status and depth checks but are not compared with either Subcategory
+    keyset. A catalogue with no live Subcategory, a catalogue-level
+    ``controls`` entry, a ``status`` value other than ``withdrawn`` (null
+    included), a control with more than one ``status`` prop, a live or
+    withdrawn Category whose ``class`` is not ``category``, a child of any
+    Category whose ``class`` is not ``subcategory``, a child with no ``status``
+    under a withdrawn Category, a withdrawn Category whose ``title`` is not a
+    non-empty string, a withdrawn Category, its child or a withdrawn
+    Subcategory under a live Category whose ``links`` value is not a list, a
+    link on a withdrawn Category or its child
+    whose rel is not ``incorporated_into`` or ``moved_to`` or whose destination
+    is not a FUNCTION.CATEGORY or FUNCTION.CATEGORY-NN (a Category's own link
+    may also name a bare FUNCTION), a nested group, a control below a
+    Subcategory, a duplicate control ID, or a shape this check cannot walk is
+    refused (exit 2), never a vacuous pass.
+  * **COBIT 2019** (both directions, plus range closure): the
+    ``COBIT_OBJECTIVES`` keyset against the objective-code tokens of the
+    Governance and Management Objectives extract, and the
+    ``COBIT_PRACTICE_COUNTS`` ranges against the extract's practice tokens
+    (every extract token must fall inside the recorded per-objective range,
+    and every recorded range maximum must appear in the extract).
+  * **ISO 31000:2018** (module-to-source direction ONLY): every
+    ``ISO31000_CLAUSES`` key appears in the extract as a standalone clause
+    token, so a fabricated MULTI-PART clause number (a ``4.5`` or ``5.8``)
+    cannot sit in the module. Single-digit clause tokens are weaker evidence
+    (any digit-and-dot-isolated occurrence of the digit anywhere in the text
+    matches, so a fabricated ``7`` or ``8`` could pass); that residual is
+    covered by the module's deterministic-parse provenance, not by this
+    check. The reverse direction is not checked: the extract's layout does not support a
+    reliable line-scan enumeration of its clause tree, and the module's
+    provenance is already a deterministic parse cross-checked at ingestion.
+
+Note the scope boundary: this aid validates *code existence* parity (does the
+module's code set match the source's). It does NOT validate semantic mapping
+fit (whether a given document belongs under a given control), which is the
+apply-time author-every-cell responsibility, nor control *titles* (a possible
+future extension), except the CSF 1.1 names of the withdrawn CSF Categories,
+which the NIST CSF 2.0 OSCAL check compares. The discipline's prose half
+(verify a mapping's semantic fit against the source control *title*, not the
+code number) is the reviewing author's own obligation at apply time; this
+aid is the code-set parity backstop under it.
+
+Locating the reference source (first match wins). The resolved directory is the
+``grc_library_ref`` ROOT (the buckets sit at it); a CLI path ending in a bucket
+dir (``standards``) is accepted for back-compat and resolved to its parent:
+
+  1. a path given as the first CLI argument (an explicit path that does not
+     resolve is an ERROR, exit 2, never a fallthrough to the defaults),
+  2. the ``GRC_REF_PATH`` environment variable (same error contract as
+     the CLI path: a set-but-nonexistent value exits 2),
+  3. ``../grc_library_ref`` relative to this repository's root (the sibling-checkout
+     case; the root is four levels above this file, ``.claude/skills/corpus-management/tools/``).
+
+If none resolve, the aid SKIPS (prints a NOT CHECKED notice naming the sibling path it looked
+at, and exits 0): the reference base
+is legitimately absent in many environments, and a dev-aid must not fail a
+workflow for an environment it cannot see.
+
+Exit codes: 0 = parity (or skipped, source absent), 1 = drift detected,
+2 = an explicitly-given source path does not resolve, or the source is
+present but a required file is missing, unreadable or unparseable.
+
+Usage:
+    python3 .claude/skills/corpus-management/tools/verify-reference-modules.py
+    python3 .claude/skills/corpus-management/tools/verify-reference-modules.py /path/to/grc_library_ref
+    GRC_REF_PATH=/path/to/grc_library_ref python3 .claude/skills/corpus-management/tools/verify-reference-modules.py
+"""
+
+from __future__ import annotations
+
+import csv
+import json
+import os
+import re
+import sys
+from pathlib import Path
+
+from ccm_aicm_reference import AICM_V11, CCM_V41
+from cobit_iso31000_reference import (
+    COBIT_OBJECTIVES,
+    COBIT_PRACTICE_COUNTS,
+    ISO31000_CLAUSES,
+)
+from nist_csf_reference import (
+    CSF_1_1_RELOCATED,
+    CSF_CATEGORIES,
+    CSF_SUBCATEGORIES,
+    CSF_WITHDRAWN_SUBCATEGORIES,
+)
+from iso27001_reference import ISO27001_2022_ANNEX_A
+from tsc_reference import TSC_CRITERIA, TSC_GROUP_HEADINGS
+
+# Source-extract paths, relative to the grc_library_ref root.
+CCM_CSV = "frameworks/CSA/CCM/CSA-CCM-v4.1.0-catalogue__CCM.csv"
+AICM_CSV = "frameworks/CSA/AICM/CSA-AICM-v1.1.0-catalogue__AICM.csv"
+CSF_MD = "standards/NIST/NIST-CSF-2.0--CSWP-29--full-text.md"
+CSF_OSCAL_JSON = "standards/NIST/oscal/NIST_CSF_v2.0_catalog.json"
+COBIT_MD = (
+    "frameworks/COBIT/"
+    "COBIT-2019-Framework-Governance-and-Management-Objectives--full-text.md"
+)
+ISO31000_MD = "standards/ISO/ISO-31000-2018--Risk-management-guidelines--full-text.md"
+ISO27001_MD = "standards/ISO/ISO-IEC-27001-2022--ISMS-requirements--full-text.md"
+TSC_MD = ("frameworks/AICPA/"
+          "AICPA-TSP-100-2017-Trust-Services-Criteria-revised-POF-2022-clean--full-text.md")
+TSC_LINE_RE = re.compile(r"(?m)^[ \t]*((?:CC|PI|A|C|P)[1-9]\.[0-9])\b")
+
+CONTROL_ID_RE = re.compile(r"^[A-Z&]{2,4}-[0-9]{2}$")
+CSF_CATEGORY_RE = re.compile(r"\b(?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2}\b")
+# The relations and destinations a withdrawn Category's relocation links may carry.
+CSF_RELOCATION_RELS = ("incorporated_into", "moved_to")
+CSF_RELOCATION_DEST_RE = re.compile(r"(?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2}(?:-[0-9]{2})?")
+CSF_FUNCTION_DEST_RE = re.compile(r"GV|ID|PR|DE|RS|RC")
+COBIT_OBJECTIVE_RE = re.compile(r"\b(?:EDM|APO|BAI|DSS|MEA)\d{2}\b")
+COBIT_PRACTICE_RE = re.compile(r"\b((?:EDM|APO|BAI|DSS|MEA)\d{2})\.(\d{2})\b")
+
+REPO_ROOT = Path(__file__).resolve().parents[4]
+SIBLING_REF = REPO_ROOT.parent / "grc_library_ref"
+
+
+def locate_source(argv: list[str]) -> Path | None:
+    """Return the ``grc_library_ref`` root directory, or ``None`` if not found.
+
+    An EXPLICIT CLI path that does not resolve raises ``SystemExit(2)``
+    rather than silently falling through to the default locations (a typo'd
+    path must not produce a green result computed against a different tree).
+    """
+    candidates: list[Path] = []
+    if len(argv) > 2 or (len(argv) > 1 and (argv[1].startswith("-") or not argv[1].strip())):
+        # one optional source directory only; a surplus, option-like or empty argument
+        # used to be ignored or read as the current directory.
+        print("usage: verify-reference-modules.py [<grc_library_ref directory>]", file=sys.stderr)
+        raise SystemExit(2)
+    if len(argv) > 1:
+        given = Path(argv[1])
+        # Back-compat: a path ending in a bucket dir (standards) resolves to its parent (the root).
+        if given.name == "standards" and (given.parent / "frameworks").is_dir():
+            given = given.parent
+        if not given.is_dir():
+            print(
+                f"ERROR: the given source path is not a directory: {given}",
+                file=sys.stderr,
+            )
+            raise SystemExit(2)
+        candidates.append(given)
+    env = os.environ.get("GRC_REF_PATH")
+    if env:
+        env_path = Path(env)
+        if not env_path.is_dir():
+            print(
+                f"ERROR: GRC_REF_PATH is set but is not a directory: {env_path}",
+                file=sys.stderr,
+            )
+            raise SystemExit(2)
+        candidates.append(env_path)
+    candidates.append(SIBLING_REF)
+    for c in candidates:
+        if c.is_dir():
+            return c
+    return None
+
+
+def csv_control_ids(path: Path) -> set[str]:
+    """Extract the Control IDs from a CSA catalogue CSV's ``Control ID`` column."""
+    ids: set[str] = set()
+    id_col: int | None = None
+    with path.open(newline="", encoding="utf-8") as f:
+        for row in csv.reader(f):
+            if id_col is None:
+                if "Control ID" in row:
+                    id_col = row.index("Control ID")
+                continue
+            if len(row) > id_col:
+                tok = row[id_col].strip()
+                if CONTROL_ID_RE.match(tok):
+                    ids.add(tok)
+    return ids
+
+
+def csf_categories(path: Path) -> set[str]:
+    """Extract the FUNCTION.CATEGORY tokens from the CSF 2.0 full-text extract."""
+    text = path.read_text(encoding="utf-8")
+    return set(CSF_CATEGORY_RE.findall(text))
+
+
+def _oscal_status(control: dict) -> str | None:
+    """Return ``"withdrawn"`` if a CSF OSCAL control's ``status`` prop says so, or
+    None (live) if it has no ``status`` prop.
+
+    Raises ``ValueError`` if the control carries more than one ``status`` prop, or
+    one whose value is anything but ``"withdrawn"`` (JSON null included)."""
+    values = [prop["value"] for prop in control.get("props", []) if prop["name"] == "status"]
+    if len(values) > 1:
+        raise ValueError(f"{control['id']}: {len(values)} status props, expected at most one")
+    if not values:
+        return None
+    if values[0] != "withdrawn":
+        raise ValueError(f"{control['id']}: unexpected status {values[0]!r}")
+    return values[0]
+
+
+def _links(control: dict) -> list:
+    """Return the control's ``links`` value (an empty list when absent).
+
+    Raises ``ValueError`` on a ``links`` value that is not a list."""
+    links = control.get("links", [])
+    if not isinstance(links, list):
+        raise ValueError(f"{control['id']}: links {links!r}, expected a list")
+    return links
+
+
+def _oscal_note(control: dict) -> str:
+    """Rebuild a withdrawal note from the control's links, grouped by rel in order.
+
+    Raises ``ValueError`` on a ``links`` value that is not a list (``_links``),
+    so a ``{}`` or ``""`` is refused rather than read as an empty note."""
+    groups: dict[str, list[str]] = {}
+    for link in _links(control):
+        groups.setdefault(link["rel"], []).append(link["href"])
+    return "; ".join(f"{rel.replace('_', ' ')} {', '.join(hrefs)}" for rel, hrefs in groups.items())
+
+
+def _relocation_links(control: dict, *, category: bool = False) -> list[dict]:
+    """Return the links of a withdrawn Category or of one of its children, each
+    checked: rel ``incorporated_into`` or ``moved_to``, and a FUNCTION.CATEGORY
+    or FUNCTION.CATEGORY-NN destination. A Category's own links may also name a
+    bare FUNCTION (the held ID.GV links to GV).
+
+    Raises ``ValueError`` on a ``links`` value that is not a list, a missing or
+    unsupported rel, or a missing or malformed destination. The children's
+    links are checked either way, but feed the Category's note only when the
+    Category has no links of its own (8 of the 12 held withdrawn Categories
+    have their own), and then only as the deduplicated list of the Categories
+    they name (the Subcategory suffix dropped, the rel ignored). So a rel
+    switch, a move to another Subcategory of the same Category, or a
+    removed or duplicated child link that keeps that list the same leaves the
+    rebuilt note unchanged."""
+    links = _links(control)
+    for link in links:
+        if link.get("rel") not in CSF_RELOCATION_RELS:
+            raise ValueError(
+                f"{control['id']}: link rel {link.get('rel')!r}, expected 'incorporated_into' "
+                f"or 'moved_to'"
+            )
+        href = link.get("href")
+        if not isinstance(href, str) or not (
+            CSF_RELOCATION_DEST_RE.fullmatch(href)
+            or (category and CSF_FUNCTION_DEST_RE.fullmatch(href))
+        ):
+            shapes = "FUNCTION, FUNCTION.CATEGORY" if category else "FUNCTION.CATEGORY"
+            raise ValueError(
+                f"{control['id']}: link destination {href!r}, expected {shapes} "
+                f"or FUNCTION.CATEGORY-NN"
+            )
+    return links
+
+
+def _oscal_relocation(control: dict, destinations: list[str]) -> str:
+    """Rebuild the text a withdrawn Category's ``CSF_1_1_RELOCATED`` note ends with:
+    from the Category's own links when it has any, else from ``destinations``,
+    the Categories its children link to in catalogue order."""
+    if _relocation_links(control, category=True):
+        return f"withdrawn, {_oscal_note(control)} in 2.0"
+    if destinations:
+        return f"withdrawn, its Subcategories redistributed to {', '.join(destinations)} in 2.0"
+    return "withdrawn in 2.0"
+
+
+def csf_oscal_drift(path: Path) -> list[str]:
+    """Both directions: live and withdrawn Categories (the withdrawn ones with
+    their relocation notes), live Subcategories and withdrawn Subcategories
+    (with their notes) against the held CSF 2.0 OSCAL catalogue. The children
+    of a withdrawn Category get the same checks as those of a live one, must
+    be withdrawn, and stay out of both Subcategory sets.
+
+    Raises ``ValueError`` (handled with ``OSError`` by ``main``, exit 2) on JSON
+    that does not parse, a shape the walk cannot read, a catalogue-level
+    ``controls`` entry, a nested group, a ``status`` prop whose value is not
+    ``withdrawn`` (null included), a control with more than one ``status``
+    prop, a live or withdrawn Category whose ``class`` is not ``category``, a
+    child of a live or withdrawn Category whose ``class`` is not
+    ``subcategory``, a child with no ``status`` under a withdrawn Category, a
+    withdrawn Category whose ``title`` is missing, null, empty or not a string,
+    a withdrawn Category or child whose ``links`` value, link rel or link
+    destination ``_relocation_links`` refuses, a withdrawn Subcategory under a
+    live Category whose ``links`` value is not a list, a control
+    below a Subcategory, a control ID seen twice, or no live Subcategory at
+    all: fail closed, never a vacuous pass."""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    live_cats: set[str] = set()
+    withdrawn_cats: dict[str, str] = {}
+    live_subs: set[str] = set()
+    withdrawn: dict[str, str] = {}
+    seen: set[str] = set()
+
+    def claim(control: dict) -> None:
+        if control["id"] in seen:
+            raise ValueError(f"{control['id']}: duplicate control ID")
+        seen.add(control["id"])
+
+    try:
+        if "controls" in data["catalog"]:
+            raise ValueError("catalogue-level controls, expected every control inside a group")
+        for group in data["catalog"]["groups"]:
+            if "groups" in group:
+                raise ValueError(f"group {group.get('id')!r}: nested groups, expected none")
+            for cat in group.get("controls", []):
+                claim(cat)
+                live = _oscal_status(cat) is None
+                state = "live" if live else "withdrawn"
+                if cat.get("class") != "category":
+                    raise ValueError(
+                        f"{cat['id']}: class {cat.get('class')!r} on a {state} Category, "
+                        f"expected 'category'"
+                    )
+                title = cat.get("title")
+                if not live and not (isinstance(title, str) and title):
+                    raise ValueError(
+                        f"{cat['id']}: title {title!r} on a withdrawn Category, "
+                        f"expected a non-empty string"
+                    )
+                destinations: list[str] = []
+                for sub in cat.get("controls", []):
+                    claim(sub)
+                    if sub.get("class") != "subcategory":
+                        raise ValueError(
+                            f"{sub['id']}: class {sub.get('class')!r} under {state} Category "
+                            f"{cat['id']}, expected 'subcategory'"
+                        )
+                    if sub.get("controls"):
+                        raise ValueError(
+                            f"{sub['id']}: controls below Subcategory level, expected none"
+                        )
+                    status = _oscal_status(sub)
+                    if not live:
+                        # A withdrawn Category's children are checked, not compared;
+                        # their links name the Categories its content went to.
+                        if status is None:
+                            raise ValueError(
+                                f"{sub['id']}: no status under withdrawn Category "
+                                f"{cat['id']}, expected 'withdrawn'"
+                            )
+                        for link in _relocation_links(sub):
+                            dest = link["href"].split("-")[0]
+                            if dest not in destinations:
+                                destinations.append(dest)
+                        continue
+                    if status is None:
+                        live_subs.add(sub["id"])
+                    else:
+                        withdrawn[sub["id"]] = _oscal_note(sub)
+                if live:
+                    live_cats.add(cat["id"])
+                else:
+                    withdrawn_cats[cat["id"]] = (
+                        f"CSF 1.1 '{title}'; {_oscal_relocation(cat, destinations)}"
+                    )
+    except (KeyError, TypeError, AttributeError) as exc:
+        raise ValueError(f"unexpected OSCAL catalogue shape: {exc!r}") from exc
+    if not live_subs:
+        raise ValueError("no live Subcategory found in the OSCAL catalogue")
+    msgs = compare("NIST CSF 2.0 OSCAL Categories", set(CSF_CATEGORIES), live_cats)
+    msgs += compare(
+        "NIST CSF 2.0 OSCAL withdrawn Categories", set(CSF_1_1_RELOCATED), set(withdrawn_cats)
+    )
+    for code in sorted(set(CSF_1_1_RELOCATED) & set(withdrawn_cats)):
+        if CSF_1_1_RELOCATED[code] != withdrawn_cats[code]:
+            msgs.append(
+                f"NIST CSF 2.0 OSCAL withdrawn Categories: {code} note "
+                f"{CSF_1_1_RELOCATED[code]!r} does not match the note rebuilt from "
+                f"the source title and links {withdrawn_cats[code]!r}"
+            )
+    msgs += compare("NIST CSF 2.0 OSCAL Subcategories", set(CSF_SUBCATEGORIES), live_subs)
+    msgs += compare(
+        "NIST CSF 2.0 OSCAL withdrawn Subcategories",
+        set(CSF_WITHDRAWN_SUBCATEGORIES),
+        set(withdrawn),
+    )
+    for code in sorted(set(CSF_WITHDRAWN_SUBCATEGORIES) & set(withdrawn)):
+        if CSF_WITHDRAWN_SUBCATEGORIES[code] != withdrawn[code]:
+            msgs.append(
+                f"NIST CSF 2.0 OSCAL withdrawn Subcategories: {code} note "
+                f"{CSF_WITHDRAWN_SUBCATEGORIES[code]!r} does not match the "
+                f"note rebuilt from the source links {withdrawn[code]!r}"
+            )
+    return msgs
+
+
+def compare(label: str, module_set: set[str], source_set: set[str]) -> list[str]:
+    """Return a list of drift messages for one catalogue (empty if in parity)."""
+    msgs: list[str] = []
+    only_module = sorted(module_set - source_set)
+    only_source = sorted(source_set - module_set)
+    if only_module:
+        msgs.append(
+            f"{label}: {len(only_module)} code(s) in the in-repo module but NOT "
+            f"in the source extract: {', '.join(only_module)}"
+        )
+    if only_source:
+        msgs.append(
+            f"{label}: {len(only_source)} code(s) in the source extract but NOT "
+            f"in the in-repo module: {', '.join(only_source)}"
+        )
+    return msgs
+
+
+def cobit_drift(path: Path) -> list[str]:
+    """Objective-code parity (both directions) plus practice-range closure."""
+    text = path.read_text(encoding="utf-8")
+    msgs = compare(
+        "COBIT 2019 objectives",
+        set(COBIT_OBJECTIVES),
+        set(COBIT_OBJECTIVE_RE.findall(text)),
+    )
+    seen_max: dict[str, int] = {}
+    for obj, prac in COBIT_PRACTICE_RE.findall(text):
+        num = int(prac)
+        if obj not in COBIT_PRACTICE_COUNTS:
+            msgs.append(
+                f"COBIT 2019 practices: extract token {obj}.{prac} names an "
+                f"objective the module does not record"
+            )
+            continue
+        if num > COBIT_PRACTICE_COUNTS[obj]:
+            msgs.append(
+                f"COBIT 2019 practices: extract token {obj}.{prac} exceeds the "
+                f"module's recorded range ({obj} ends at "
+                f".{COBIT_PRACTICE_COUNTS[obj]:02d})"
+            )
+        seen_max[obj] = max(seen_max.get(obj, 0), num)
+    for obj, count in sorted(COBIT_PRACTICE_COUNTS.items()):
+        if seen_max.get(obj, 0) < count:
+            msgs.append(
+                f"COBIT 2019 practices: the module records {obj} ending at "
+                f".{count:02d}, but the extract's highest seen token is "
+                f".{seen_max.get(obj, 0):02d}"
+            )
+    return msgs
+
+
+def iso31000_drift(path: Path) -> list[str]:
+    """Module-to-source: every recorded clause number appears in the extract."""
+    text = path.read_text(encoding="utf-8")
+    missing = [
+        clause
+        for clause in sorted(ISO31000_CLAUSES)
+        if re.search(rf"(?<![\d.]){re.escape(clause)}(?![\d.])", text) is None
+    ]
+    if not missing:
+        return []
+    return [
+        f"ISO 31000:2018 clauses: {len(missing)} clause number(s) in the "
+        f"in-repo module but NOT found in the source extract: "
+        f"{', '.join(missing)}"
+    ]
+
+
+def tsc_drift(path: Path) -> list[str]:
+    """Both directions: the module's criterion and group-heading sets against the
+    identifiers that begin a line in the held AICPA TSC extract.
+
+    RESIDUE (stated at the point of use): the binding is line-START, not standalone-line,
+    because four criteria (CC6.3, CC6.7, CC6.8, CC7.5) begin a line with their text
+    appended; so a line-initial prose mention (the extract has one, "CC6.4 usually would
+    be interpreted") also counts. A fabricated module ID that appears only line-initially
+    in prose would pass; the literal module list's per-line provenance comments are the
+    control for that residue."""
+    found = set(TSC_LINE_RE.findall(path.read_text(encoding="utf-8")))
+    crit = {t for t in found if not t.endswith(".0")}
+    return (compare("AICPA TSC 2017 criteria", set(TSC_CRITERIA), crit)
+            + compare("AICPA TSC 2017 privacy group headings", set(TSC_GROUP_HEADINGS), found - crit))
+
+
+def iso27001_drift(path: Path) -> list[str]:
+    """Module-to-source, CODE EXISTENCE within the Annex A table.
+
+    Every recorded control number (the ``A.<theme>.<n>`` key with the ``A.``
+    prefix stripped, e.g. ``5.1``, ``8.34``) must appear as a standalone token
+    inside the held extract's Annex A span. A fabricated or misnumbered code
+    (e.g. ``A.5.40``, which does not exist) is caught here.
+
+    RESIDUE (stated at the point of use): this is a row-bound code-EXISTENCE check
+    (each number must appear as a standalone control-row line), not a TITLE-parity check. The held extract is PDF-derived and interleaves each
+    control's ``Control`` body text into its title line (e.g. "Information
+    security roles and Control responsibilities"), so a reliable contiguous
+    title-substring match is not mechanically available and a title check here
+    would false-fail on the layout. The 93 canonical titles are instead
+    cross-checked against the held extract at authoring time; this backstop
+    guards against a code drifting out of the Annex A set on a future _ref
+    refresh.
+    """
+    text = path.read_text(encoding="utf-8")
+    # Scope to the Annex A control table. Anchor on the "Table A.1" caption
+    # (unique to the actual table body) rather than "Annex A"/"Bibliography",
+    # which also occur as table-of-contents entries far earlier and would yield
+    # an empty ToC span. The table runs to end-of-file (only the short
+    # Bibliography follows, and it carries no A.n.m codes).
+    lo = text.find("Table A.1")
+    if lo < 0:
+        # Fail CLOSED: without the caption anchor the span would be the whole
+        # document, and a bare number like "5.1" matches the ISMS clause 5.1,
+        # vacuously passing. A missing anchor is an unreadable source, not a pass.
+        return [
+            "ISO/IEC 27001:2022 Annex A: source anchor \"Table A.1\" not found; "
+            "cannot scope the Annex A span (refusing rather than scanning the "
+            "whole document, which would false-pass on ISMS clause numbers)."
+        ]
+    span = text[lo:]
+    # Bind each code to a STANDALONE control-row line (the Annex A table lists
+    # every control number on its own line, verified: all 93 match `^\s*N\s*$`).
+    # A bare number appearing only in narrative prose, a cross-reference, or the
+    # bibliography does NOT satisfy the check, closing the row-unbound vacuous-pass
+    # residue (a source with "Table A.1" but a deleted control row now fails).
+    missing = [
+        code
+        for code in sorted(ISO27001_2022_ANNEX_A)
+        if re.search(
+            rf"(?m)^\s*{re.escape(code[2:])}\s*$", span) is None
+    ]
+    if not missing:
+        return []
+    return [
+        f"ISO/IEC 27001:2022 Annex A: {len(missing)} control number(s) in the "
+        f"in-repo module but NOT found in the source Annex A span: "
+        f"{', '.join(missing)}"
+    ]
+
+
+def main(argv: list[str]) -> int:
+    source = locate_source(argv)
+    if source is None:
+        print(
+            "SKIP: NOT CHECKED, grc_library_ref base not found (looked at the CLI "
+            f"argument, GRC_REF_PATH and the sibling {SIBLING_REF}); no reference "
+            "module was compared. This is a dev-aid, not a gate; absence of the "
+            "reference base is not an error."
+        )
+        return 0
+
+    set_checks = [
+        ("CSA CCM v4.1.0", set(CCM_V41), CCM_CSV, "csv"),
+        ("CSA AICM v1.1.0", set(AICM_V11), AICM_CSV, "csv"),
+        ("NIST CSF 2.0", set(CSF_CATEGORIES), CSF_MD, "csf"),
+    ]
+    drift: list[str] = []
+    for label, module_set, filename, kind in set_checks:
+        path = source / filename
+        if not path.is_file():
+            print(f"ERROR: source file not found: {path}", file=sys.stderr)
+            return 2
+        try:
+            source_set = csv_control_ids(path) if kind == "csv" else csf_categories(path)
+        except OSError as exc:
+            print(f"ERROR: cannot read {path}: {exc}", file=sys.stderr)
+            return 2
+        msgs = compare(label, module_set, source_set)
+        if msgs:
+            drift.extend(msgs)
+        else:
+            print(f"OK: {label} module ({len(module_set)} codes) matches the source extract.")
+
+    for filename, checker, ok_line in [
+        (
+            CSF_OSCAL_JSON,
+            csf_oscal_drift,
+            (
+                f"OK: NIST CSF 2.0 OSCAL parity ({len(CSF_CATEGORIES)} live "
+                f"Categories, {len(CSF_1_1_RELOCATED)} withdrawn Categories with notes, "
+                f"{len(CSF_SUBCATEGORIES)} live Subcategories, "
+                f"{len(CSF_WITHDRAWN_SUBCATEGORIES)} withdrawn Subcategories "
+                f"with notes) matches the source catalogue."
+            ),
+        ),
+        (
+            COBIT_MD,
+            cobit_drift,
+            (
+                f"OK: COBIT 2019 module ({len(COBIT_OBJECTIVES)} objectives, "
+                f"{sum(COBIT_PRACTICE_COUNTS.values())} practices by range) "
+                f"matches the source extract."
+            ),
+        ),
+        (
+            ISO31000_MD,
+            iso31000_drift,
+            (
+                f"OK: ISO 31000:2018 module ({len(ISO31000_CLAUSES)} clause "
+                f"numbers) all present in the source extract "
+                f"(module-to-source direction; see docstring)."
+            ),
+        ),
+        (
+            ISO27001_MD,
+            iso27001_drift,
+            (
+                f"OK: ISO/IEC 27001:2022 Annex A module "
+                f"({len(ISO27001_2022_ANNEX_A)} controls) all present in the "
+                f"source Annex A span (code-existence; titles tri-family "
+                f"verified, see docstring)."
+            ),
+        ),
+        (
+            TSC_MD,
+            tsc_drift,
+            (
+                f"OK: AICPA TSC 2017 module ({len(TSC_CRITERIA)} criteria, "
+                f"{len(TSC_GROUP_HEADINGS)} group headings) matches the source extract."
+            ),
+        ),
+    ]:
+        path = source / filename
+        if not path.is_file():
+            print(f"ERROR: source file not found: {path}", file=sys.stderr)
+            return 2
+        try:
+            msgs = checker(path)
+        except (OSError, ValueError) as exc:
+            print(f"ERROR: cannot read {path}: {exc}", file=sys.stderr)
+            return 2
+        if msgs:
+            drift.extend(msgs)
+        else:
+            print(ok_line)
+
+    if drift:
+        print(f"\n=== reference-module drift vs {source} ===", file=sys.stderr)
+        for m in drift:
+            print(f"  {m}", file=sys.stderr)
+        print(
+            f"\nFAIL: {len(drift)} reference-module/source drift issue(s). The "
+            f"in-repo modules (which gates 48/49/54/58/61 enforce against) have "
+            f"diverged from the authoritative grc_library_ref source extracts. "
+            f"Reconcile the module to the source before relying on the gates.",
+            file=sys.stderr,
+        )
+        return 1
+
+    print(
+        f"\nOK: all reference modules match the grc_library_ref source "
+        f"extracts at {source} (CCM v4.1.0, AICM v1.1.0, NIST CSF 2.0 Categories "
+        f"and OSCAL Subcategories, COBIT 2019, ISO 31000:2018, ISO/IEC 27001:2022, AICPA TSC 2017)."
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

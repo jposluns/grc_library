@@ -1,0 +1,247 @@
+# Endpoint Hardening Standard
+
+**Document Title:** Endpoint Hardening Standard\
+**Document Type:** Standard\
+**Version:** 1.2.1\
+**Date:** 2026-10-16\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-byod.md`](policy-byod.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-remote-working-security.md`](standard-remote-working-security.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`security/framework-zero-trust-architecture.md`](framework-zero-trust-architecture.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`operations/procedure-media-handling-and-transport.md`](../operations/procedure-media-handling-and-transport.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material change to OS platforms, threat-actor tradecraft, or hardware capabilities\
+**Repository Path:** [`security/standard-endpoint-hardening.md`](standard-endpoint-hardening.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## 1. Purpose
+
+This standard defines the hardening baseline for endpoints used in the organization's environment. It covers managed workstations and laptops on all major operating systems, mobile devices, and the BYOD posture for unmanaged personal devices that access organizational resources. The standard is the technical companion to the endpoint management procedure (which governs operations) and the BYOD policy (which governs scope).
+
+---
+
+## 2. Scope
+
+This standard applies to:
+
+1. **Managed corporate workstations and laptops** running supported operating systems (Windows, macOS, major Linux distributions used at scale).
+2. **Mobile devices** (iOS and Android) issued by the organization or enrolled under the BYOD Policy's full-device MDM route. Personally-owned devices on the managed-work-profile or MAM route are governed by the BYOD Policy's route controls; requirements in this standard apply to them only within the corporate work profile or managed applications.
+3. **Privileged access workstations** used for administering production environments.
+4. **Developer workstations** with additional considerations for build chains and AI coding assistants.
+5. **Kiosks, shared devices, and unattended terminals** in operational settings.
+
+It does not cover servers, network appliances, IoT or OT devices, or container hosts; those follow the production security and cloud baseline standards.
+
+---
+
+## 3. Identity and authentication
+
+| Control area | Requirement |
+| --- | --- |
+| Local accounts | Local administrator accounts disabled or randomized per device; recovery handled via the endpoint management platform |
+| Sign-in | Federated sign-in against the enterprise identity provider; standalone local sign-in to organizational data prohibited |
+| Authentication strength | Phishing-resistant authentication on all managed devices where the OS and hardware support it; passcode minimum complexity per the authentication standard |
+| Biometrics | Platform biometric authentication permitted; secure-enclave-backed |
+| Privileged-action elevation | UAC, sudo, or equivalent enabled; standing local administrative rights prohibited; just-in-time elevation per the privileged access standard |
+| Screen lock | Auto-lock after 5 minutes of inactivity or sooner; unlock requires authentication |
+| Session lock on idle | Per the data classification of the device's expected content |
+
+---
+
+## 4. Device integrity
+
+| Control area | Requirement |
+| --- | --- |
+| Secure boot | Enabled and enforced on every managed device |
+| Firmware integrity | Firmware updates managed centrally; firmware-level passwords set where the platform supports it |
+| Trusted Platform Module or Secure Enclave | Enabled and used for credential storage, disk encryption, and platform attestation |
+| Disk encryption | Full-disk encryption enabled; key escrow integrated with the endpoint management platform |
+| Endpoint attestation | Device posture attested at sign-in; non-compliant attestation blocks access per the zero trust framework |
+| Hypervisor-based protections | Enabled where the OS supports memory-integrity and credential-isolation protections (e.g. virtualization-based security) |
+| Recovery key handling | Recovery keys stored centrally; access logged and audited |
+
+---
+
+## 5. Software and configuration
+
+| Control area | Requirement |
+| --- | --- |
+| OS version | Within the current vendor-supported version; EOL versions prohibited in production use |
+| Patch compliance | Per the patch management procedure |
+| Approved software | Software installed from an approved catalogue or vendor; non-approved installation restricted |
+| Application allow-list | Where the role and platform support it, application allow-list enforced; otherwise application reputation enforced |
+| Browser hardening | Approved browsers configured to enforce phishing protection, secure-DNS, certificate pinning where supported, extension governance |
+| Macro and active content | Office macros disabled by default; PDF active content restricted |
+| Unused services | Disabled (e.g. unused network sharing, legacy protocols) |
+| Removable media | Per the media handling standard; controlled per data classification |
+| Network adapters | Wired-and-wireless simultaneity disabled where it creates path crossings into restricted networks |
+| Bluetooth and short-range wireless | Configured per role; unused protocols disabled |
+
+---
+
+## 6. Endpoint detection and response
+
+| Control area | Requirement |
+| --- | --- |
+| EDR agent | Installed and healthy on every managed endpoint; tamper protection enabled |
+| EDR telemetry | Forwarded to the SIEM per the logging standard |
+| Behavioural detection | Enabled with vendor-recommended detection content plus organization-specific custom content |
+| Response capability | Containment actions (isolate, quarantine file, kill process) available to the SOC per the SOC standard |
+| Coverage validation | Quarterly verification that every managed endpoint has a healthy EDR agent |
+| Tamper response | EDR agent tampering or stop attempts route as a high-severity alert |
+
+---
+
+## 7. Data protection
+
+| Control area | Requirement |
+| --- | --- |
+| Data loss prevention | Per the DLP standard; agent enabled on managed endpoints |
+| Removable storage | Encrypted-by-default for organization data; unencrypted use prohibited |
+| Print and copy controls | Per the data classification of the role; sensitive content requires labelled or controlled print |
+| Cloud sync clients | Approved sync clients only; personal cloud sync restricted per the acceptable use policy |
+| Local data residency | Sensitive data discouraged from local storage; user content directed to managed cloud platforms |
+| Backup | Per the resilience programme; user data backed up where the role and data warrant it |
+
+---
+
+## 8. Network and connectivity
+
+| Control area | Requirement |
+| --- | --- |
+| Local firewall | Enabled and policy-managed |
+| VPN client | Installed per the network communications policy; split tunnelling per the remote working standard |
+| Wi-Fi profiles | Auto-connect to unknown open networks disabled; corporate Wi-Fi authenticated |
+| DNS | Secure DNS enabled where supported; resolution routes through the organization's DNS security service |
+| Proxy and inspection | Where in use, configured at the platform level; bypass restricted |
+| IPv6 | Enabled or disabled per the network design; not left at default-on if the network is not IPv6-ready |
+
+---
+
+## 9. Privileged access workstations (PAW)
+
+Devices used to administer production environments meet a stricter baseline.
+
+| Control area | Requirement |
+| --- | --- |
+| Hardware dedication | The PAW is used only for administrative tasks; no email, browsing, productivity, or personal use |
+| Network segregation | The PAW reaches only administrative networks; access to general internet restricted to an approved subset for vendor portals |
+| Hardware token | Hardware-backed phishing-resistant authentication for the administrative identity |
+| Application restriction | Minimal application set; administrative tooling only |
+| Per-session credentials | Credentials retrieved from the PAM vault per session; no standing credentials |
+| Session recording | Administrative sessions recorded where the action class warrants it |
+| Rotation | Hardware refreshed on the standard PAW lifecycle; the prior device wiped and recycled per the disposal standard, subject to the hold and investigation safeguard in §14 |
+
+---
+
+## 10. Developer workstations
+
+| Control area | Requirement |
+| --- | --- |
+| Local administrator scope | Developer admin rights scoped to the local machine; not to network shares or central systems |
+| Container and virtualization | Permitted; configured per the platform's secure defaults |
+| AI coding assistant | Per the AI coding assistant security guideline; rules and allow-lists applied |
+| Code repository access | Federated identity; SSH keys hardware-backed where the platform supports it |
+| Local secrets | Prohibited; secrets accessed from the secrets management service |
+| Source-of-truth IDE configuration | Provided where it materially improves baseline posture; bring-your-own IDE permitted within the secure-development standard |
+| Telemetry | Developer-tool telemetry routed per the privacy notice |
+
+---
+
+## 11. BYOD and unmanaged devices
+
+| Control area | Requirement |
+| --- | --- |
+| Posture floor | Per the BYOD policy; conditional access enforces minimum posture before access |
+| Application containerization | Where supported, organization data accessed within a managed app or browser profile that the organization can selectively wipe, subject to the hold and investigation safeguard in §14 |
+| No persistent local data | Organization data does not persist on the unmanaged device; cache cleared on session end |
+| Personal-account separation | Personal and organizational accounts on the same device do not share data |
+| Compromise indicators | Where the unmanaged device shows indicators (jailbreak, root, untrusted certificate), access is blocked |
+| Privacy | The organization does not monitor the personal partition of the device; the privacy notice describes the scope |
+
+---
+
+## 12. Mobile devices
+
+| Control area | Requirement |
+| --- | --- |
+| Enrolment | Devices must enrol before accessing organization data, except for the BYOD Policy's cloud-productivity-only MAM route; MAM controls must satisfy the BYOD Policy instead of the device-level requirements in this section |
+| OS version | Within the vendor-supported and patched version |
+| Passcode | Per the authentication standard |
+| Biometrics | Platform biometric permitted; secure-enclave-backed |
+| Wipe capability | Wipe capability must be available and tested: corporate applications for MAM, the corporate container for managed work profiles, and consented full-device wipe for BYOD MDM; corporate-device wipe remains applicable. Any destructive test or operational wipe is subject to the hold and investigation safeguard in §14 |
+| Containerization | Work profile or work container used where the platform supports it |
+| Camera and microphone | Controlled per role and per facility policy |
+| Public-Wi-Fi posture | Per the remote working standard; VPN engaged on untrusted networks |
+| Sideload | Sideloading of unsigned applications prohibited |
+
+---
+
+## 13. Kiosks and shared devices
+
+| Control area | Requirement |
+| --- | --- |
+| Account model | Single-purpose account; no general internet or productivity use |
+| Auto-reset | Session cleared after each user or on idle |
+| Restricted shell | Locked-down launcher; user cannot escape to the underlying OS |
+| Physical security | Tamper-evident enclosure where the device is in a public area |
+| Inventory | Per the asset inventory; physical location recorded |
+
+---
+
+## 14. Lifecycle and disposal
+
+**Hold and investigation safeguard.** Every wipe authority and requirement in this document is subject to this safeguard, including selective, corporate-container and full-device wipes. Before initiating a wipe, IT Operations must confirm whether a legal hold or investigation applies to the device, its user, or the data on it, using the two-part confirmation in rule 2 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1. A check of the GRC platform and Records Register confirms only whether a hold is recorded. Under that rule, Legal Counsel or the Incident Commander or, for security P3 and P4 where no Incident Commander is assigned, the SOC lead, or, for security P1 and P2 before an Incident Commander is assigned, the interim technical authority (Security Incident Response Procedure §2.2) confirms whether an investigation under [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) treats the device, its user, or the data on it as evidence. Only Legal Counsel confirms whether an investigation by an external authority treats the device, its user, or the data on it as evidence, and whether a hold is required but not yet recorded. Where a legal hold or investigation applies, or its status cannot be confirmed, IT Operations must suspend the wipe and follow the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 and its rules for non-destructive containment, evidence preservation and any later wipe. This includes remote lock or MAM application-layer containment within 1 hour, forensic acquisition wherever the device is reachable, only as far as rule 3 and applicable law permit, cancellation of queued wipes when a hold or investigation comes to apply, and no wipe until Legal Counsel, in writing, formally releases or narrows the hold as rule 8 requires. For an investigation without a legal hold, rule 8 requires Legal Counsel's written confirmation that the investigation no longer treats the device contents as evidence. An image, backup, owner's consent or immediate-wipe deadline does not override this safeguard. Preserve the management capability needed for containment and evidence acquisition; defer deprovisioning, profile removal, unenrolment, reassignment or disposal where it would destroy evidence or prevent required preservation. Corporate access revocation must still meet its existing deadline. Record the hold check, deferred actions and Legal Counsel's release or confirmation. Where no legal hold or investigation applies, the existing wipe triggers, scope, consent requirements and deadlines continue to apply.
+
+| Stage | Required action |
+| --- | --- |
+| Procurement | Per the supplier programme; hardware certified to meet the standard's hardware-feature expectations |
+| Provisioning | Image or zero-touch provisioning enrols the device with the baseline applied |
+| In service | Posture monitored continuously; non-compliance triggers conditional access enforcement |
+| Refresh | Within the documented lifecycle; refresh not exceeding the OS-supported window |
+| Reassignment | Wiped and re-enrolled before reassignment, subject to the hold and investigation safeguard in §14 |
+| Disposal | Per the media handling standard with verified data sanitization, subject to the hold and investigation safeguard in §14 |
+| Loss or theft | Loss or theft must be reported immediately and corporate access must be revoked within 1 hour whichever containment action applies. The decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 governs every loss or theft case: it selects WIPE, LOCK-ONLY, or KEEP by verified encryption status, the highest data class on the device, and legal hold or investigation status, and does not select a wipe in every case. Where that table selects WIPE, IT Operations must initiate the remote wipe within 1 hour of notification, or as that table's rules defer it with the interim lock they require, appropriate to ownership and BYOD route: organization-issued device wipe; corporate application data only for MAM; corporate container only for a managed work profile; full-device wipe under BYOD MDM only with the owner's written, recorded consent expressly authorizing it, except where required by law. Where the table selects LOCK-ONLY, IT Operations must initiate a remote lock, or for MAM the application-layer containment that table defines, within 1 hour, and must not destroy device contents other than through the MAM selective-wipe fallback, under the conditions that table sets. If a legal hold or investigation applies to the device, its user, or its data, suspend the wipe and initiate remote lock within 1 hour of notification. On a MAM-only device, which has no device lock, use the application-layer containment that table defines instead. Apply the same actions if hold status cannot be confirmed within 1 hour of notification. Treat the case as held until both parts of the hold check in that table's rule 2 are complete. Capture a forensic image wherever the device is still reachable, under that table's rule 3: only as far as applicable law permits on Legal Counsel's advice and, on a personally-owned device, within the scope that rule sets. If both parts confirm no hold or investigation applies, follow the table's selected action. Otherwise, wipe only after Legal Counsel's written release, narrowing or confirmation under rule 8 of that table. The action selected, wipe scope, outcome and any consent reference or applicable legal requirement must be recorded. |
+
+---
+
+## 15. Operating expectations
+
+1. The endpoint baseline is documented per OS platform and per role tier (general, developer, PAW, mobile, shared).
+2. Posture is verified continuously through the endpoint management platform; deviations trigger conditional access enforcement.
+3. Hardening configuration is reviewed annually against current vendor baselines (CIS Benchmarks, vendor-published security guidance).
+4. Material configuration changes follow the change management procedure.
+
+---
+
+## 16. Framework alignment
+
+| Framework | Reference | Relevance |
+| --- | --- | --- |
+| CIS Benchmarks | Per OS platform | Authoritative configuration baselines |
+| NIST SP 800-46 Rev. 2 | Guide to Enterprise Telework, Remote Access, and Bring Your Own Device (BYOD) Security | Remote and BYOD context |
+| NIST SP 800-124 Rev. 2 | Guidelines for Managing the Security of Mobile Devices in the Enterprise, §4.3 Recommended Mitigations and Countermeasures | Mobile baseline |
+| NIST SP 800-83 Rev. 1 | Guide to Malware Incident Prevention and Handling for Desktops and Laptops, §3.3, §3.4.3, §3.4.5 | Enduring malware-prevention endpoint hardening: least privilege, application hardening and allowlisting, host-based firewalls |
+| NIST SP 800-128 | Guide for Security-Focused Configuration Management of Information Systems (2011, updated 2019) | Security-focused configuration management for hardening baselines and change control |
+| NIST SP 800-111 | Guide to Storage Encryption Technologies for End User Devices (November 2007), §3.1.1 Full Disk Encryption | Full-disk encryption on end-user devices |
+| NIST SP 800-63B-4 | Digital Identity Guidelines: Authentication and Authenticator Management (July 2025), §3.2.5 Phishing Resistance | Phishing-resistant authentication |
+| ISO/IEC 27001:2022 | A.8.1 (user endpoints), A.8.3, A.8.7 | Endpoint controls |
+| ISO/IEC 27002:2022 | §8.1, §8.3, §8.7 | Implementation guidance for the endpoint controls |
+| CSA Cloud Controls Matrix v4.1 | UEM domain | Cross-walk |
+| Microsoft Security Compliance Toolkit | Vendor baseline | Where applicable |
+| macOS Security Compliance Project | Open standard | Where applicable |
+| Apple Platform Security and Android Enterprise security models | Vendor documentation | Mobile baselines |
+
+See also the OWASP Subtractive Security Top 10 variants for Windows, macOS, and Linux, and their platform-agnostic Universal Subtractive Laws (version 1.0.0, an OWASP Incubator project by a single author). They are cited here as complementary guidance rather than a normative mapping for the workstation operating systems in scope: they approach hardening by removing execution, trust, and persistence paths an attacker could reach, which complements the additive controls in this standard.
+
+---
+
+## 17. Limitations
+
+This standard is a CC BY-SA 4.0 baseline. Specific OS, hardware, and management-platform configurations vary; the standard expresses the control requirements rather than vendor-specific settings. Adopting organizations select the appropriate CIS Benchmark level (Level 1 for typical use; Level 2 for high-sensitivity environments) and document any deviations as exceptions.
+
+---
+
+**End of Document**

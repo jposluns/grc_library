@@ -1,0 +1,162 @@
+# Network Communications Security Policy
+
+**Document Title:** Network Communications Security Policy\
+**Document Type:** Policy\
+**Version:** 1.1.19\
+**Date:** 2026-10-17\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material network, architecture, or regulatory change\
+**Repository Path:** [`security/policy-network-communications-security.md`](policy-network-communications-security.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## 1. Purpose
+
+This policy defines the technical and procedural controls for securing organizational networks across on-premise, cloud, and hybrid environments.
+
+It establishes requirements for network segmentation, firewall configuration, intrusion detection and prevention, and secure connectivity, ensuring protection of corporate and cloud networks. Sector-specific overlays (for example, BASC for trade and logistics networks) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
+
+---
+
+## 2. Scope
+
+1. Applies to all networks, connections, and communication channels that transmit or store organizational data.
+2. Covers:
+ - Corporate LAN, WAN, and VPN infrastructure.
+ - Cloud and virtualized networks.
+ - Wireless, remote, and partner connectivity.
+3. Applies to all employees, contractors, and third parties who connect to corporate or third-party certified networks.
+4. Encompasses both internal traffic and external connectivity to partners, customers, and authorities.
+5. Sector-specific scope extensions (for example, BASC logistics, customs, and cargo networks) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
+
+---
+
+## 3. Governance and accountability
+
+| Role | Responsibility |
+| --- | --- |
+| **Chief Information Security Officer (CISO)** | Owns network security strategy, policy enforcement, and monitoring of networks. |
+| **Chief Information Officer (CIO)** | Provides resources and strategic oversight for network infrastructure and architecture. |
+| **Network Security Manager** | Implements segmentation, firewall, VPN, and IDS/IPS configurations. |
+| **Security Operations Centre (SOC)** | Monitors traffic, alerts, and anomalies using SIEM and AI-assisted analytics. |
+| **System and Application Owners** | Validate that network configurations support required data classifications and encryption levels. |
+| **Internal Audit** | Performs periodic verification of firewall and segmentation effectiveness across enterprise environments and any sector-programme environments the organization participates in. |
+
+Sector-conditional roles (for example, a sector-conditional compliance role that oversees customs-security and cargo-integrity controls for BASC-certified networks) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
+
+---
+
+## 4. Network segmentation and architecture
+
+4.1 The network must be segmented into zones based on business function, sensitivity, and regulatory requirements. Sector-programme zones (for example, BASC customs and logistics segments) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
+
+4.2 Segmentation must isolate:
+- Corporate systems.
+- AI and analytics environments.
+- Public-facing services and DMZ.
+- Sector-programme systems (where the organization participates in a covered programme, per the relevant sector annex).
+
+4.3 Inter-zone communication must be restricted and logged, requiring explicit access rules approved by the CISO.
+
+---
+
+## 5. Firewall and perimeter security
+
+5.1 All perimeter gateways must enforce deny-by-default rules and allow only approved, documented traffic.
+
+5.2 Firewalls must support stateful inspection, intrusion prevention, and content filtering.
+
+5.3 Configuration changes must be approved through change-management workflows per the Change Management and Configuration Control Procedure.
+
+5.4 Sector-programme communication channels (for example, customs EDI and customs API gateways where the organization participates in BASC) must be secured per the relevant sector annex's requirements (typically TLS 1.3 or stronger with validated PKI certificates); see [`compliance/`](../compliance/).
+
+5.5 Firewall configurations for sector-programme operations must include the logging policies stated by the relevant sector annex.
+
+---
+
+## 6. Intrusion detection, prevention, and monitoring
+
+6.1 IDS and IPS systems must monitor all network traffic and integrate with the central SIEM.
+
+6.2 SOC must triage and investigate alerts on the severity-tiered service levels defined in the [Security Monitoring and Alert Management Procedure](../operations/procedure-security-monitoring-and-alert-management.md): critical within 15 minutes, high within 1 hour, and medium by the same business day.
+
+6.3 Sector-programme networks (for example, BASC logistics and customs networks where the organization participates in BASC) must have the additional intrusion-detection sensors and retention periods stated by the relevant sector annex; see [`compliance/`](../compliance/).
+
+---
+
+## 7. Secure connectivity and remote access
+
+7.1 All remote connections must use VPN or Zero-Trust Network Access (ZTNA) solutions enforcing device health, MFA, and continuous session validation.
+
+7.2 Direct remote access to networks operating under a sector programme, where the organization applies elevated authorization (for example, BASC trade or customs networks where the organization participates in BASC), is prohibited unless authorized in writing by the CISO and the sector-conditional role defined by the relevant sector annex; see [`compliance/`](../compliance/).
+
+7.3 Partner and supplier connections must be isolated using virtual network peering, firewalls, or secure APIs.
+
+7.4 Wireless access points within sensitive operational facilities (for example, those covered by a sector programme such as BASC logistics or customs facilities) must use WPA3-Enterprise encryption and maintain logs for all authenticated sessions per the relevant sector annex; see [`compliance/`](../compliance/).
+
+---
+
+## 8. Encryption and data protection
+
+8.1 All network traffic must be encrypted using industry-approved algorithms (TLS 1.3, IPsec AES-256). Approved key-agreement protocols are listed in the [Approved Key-Agreement Protocols Register](register-approved-key-agreement-protocols.md).
+
+8.2 Cryptographic controls must follow the Encryption and Key Management Policy.
+
+8.3 Where the organization participates in a sector programme that mandates additional cryptographic controls for customs communications (for example, programme-specific PKI or digital-certificate requirements), the corresponding sector annex states the additional requirements, key custody, and routing controls; see [`compliance/`](../compliance/).
+
+---
+
+## 9. AI-assisted network defence
+
+9.1 AI analytics must continuously evaluate traffic for anomaly detection, drift patterns, or suspicious behaviour consistent with adversarial AI attacks.
+
+9.2 AI tools must produce explainable results for all autonomous actions and integrate with SOC dashboards.
+
+9.3 AI-driven alerts involving sector-programme networks (for example, BASC trade or customs networks where the organization participates in BASC) must be labelled according to the sector annex's classification scheme and escalated to the sector-conditional role defined by the annex for verification; see [`compliance/`](../compliance/).
+
+---
+
+## 10. Sector-programme network security overlays
+
+Where the organization participates in a sector programme that imposes additional network-security controls for trade and logistics networks (for example, perimeter monitoring, cargo and seal-integrity controls, customs-document integrity verification, and digital-certificate controls for customs communications), the corresponding sector annex defines the additional control requirements, audit cadence, and incident-response timeframes. See [`compliance/`](../compliance/) for the sector annex applicable to the organization's covered programmes.
+
+---
+
+## 11. Monitoring, testing, and continuous improvement
+
+11.1 The SOC must continuously monitor performance, intrusion alerts, and access logs.
+
+11.2 Penetration tests and vulnerability scans must occur at least annually; sector-programme inspections occur at the cadence stated in the relevant sector annex.
+
+11.3 Quarterly reviews must validate ZTNA configuration effectiveness.
+
+11.4 Lessons learned and audit findings feed into the Continuous Improvement programme and CAPA process.
+
+---
+
+## 12. Framework alignment
+
+| Framework | Reference | Relevance |
+| --- | --- | --- |
+| ISO/IEC 27033-1:2015 | Overview and concepts | Network architecture, segmentation, secure connectivity |
+| ISO/IEC 27001:2022 | A.8.20 to 22: Networks security, security of network services, segregation of networks | Network security policy obligations |
+| ISO/IEC 27032:2023 | Cybersecurity - Guidelines for Internet security | Internet and network security guidance |
+| COBIT 2019 | APO13.01, DSS05.02 | Network security governance and service management |
+| NIST SP 800-207 | Zero Trust Architecture | ZTNA principles, continuous validation |
+| NIST SP 800-215 | Guide to a Secure Enterprise Network Landscape (§4.4, §§5.1-5.2) | Device-aware access, microsegmentation, and software-defined perimeter |
+| CSA CCM v4.1 | I&S-03: Network Security; I&S-09: Network Defense | Monitoring, encryption, and restriction of communications between environments |
+| EU NIS 2 Directive (Directive (EU) 2022/2555) | Critical Network Security Requirements | Critical infrastructure network obligations |
+
+Sector-specific framework alignments (for example, the applicable BASC International Security Standard (6.0.2 or 6.0.3, section 5), WCO SAFE Framework (2025 edition), and ISO 28000:2022 supply-chain security management for trade and customs contexts) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
+
+ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 -->
+
+---
+
+**End of Document**

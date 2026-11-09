@@ -1,0 +1,655 @@
+# Pre-commit configuration for the GRC Documentation Library.
+#
+# Install: pip install pre-commit && pre-commit install
+# Run on all files: pre-commit run --all-files
+#
+# Each hook invokes a stdlib-only Python script (or the single audit
+# runner) with no third-party dependencies. Hooks mirror the audit
+# programme defined in:
+#
+#   - .github/workflows/quality.yml (CI source of truth)
+#   - .claude/skills/corpus-management/tools/run_all_audits.sh (local single-command equivalent)
+#   - .claude/skills/corpus-management/specs/specification-audit-programme.md (architecture spec)
+#
+# When a new audit is added to quality.yml, add the same hook here.
+
+repos:
+  - repo: local
+    hooks:
+      - id: lint-metadata
+        name: Metadata audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-metadata.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      # Gate 2 checks the whole root .working/CHANGELOG.md through its default scope.
+      - id: lint-language
+        name: Language and style audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-language.py
+        language: system
+        pass_filenames: false
+        files: (\.md$|^.claude/skills/corpus-management/tools/build-(narrative-registry|portal|taxonomy)\.py$|^.claude/skills/corpus-management/tools/lint-language\.py$|^\.claude/skills/corpus-management/src/tools/gate_lint_language\.py$)
+
+      - id: lint-links
+        name: Repository-internal link audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-links.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-structure
+        name: Structural index integrity audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-structure.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-citations
+        name: Framework citation hallucination audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-citations.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-standards-currency
+        name: Standards-currency audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-standards-currency.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-filename-title-alignment
+        name: Filename and Document Title alignment audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-filename-title-alignment.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-roles
+        name: Owner and Approving Authority role audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-roles.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-shall-near-uncertainty
+        name: Mandatory requirement near uncertainty marker audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-shall-near-uncertainty.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: check-review-cadence
+        name: Per-document review cadence audit
+        entry: python3 .claude/skills/corpus-management/tools/check-review-cadence.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-changelog-link-coverage
+        name: CHANGELOG file-reference link coverage
+        entry: python3 .claude/skills/corpus-management/tools/lint-changelog-link-coverage.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-placeholder-leakage
+        name: Placeholder leakage audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-placeholder-leakage.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-library-version-monotonicity
+        name: Library and document version monotonicity audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-library-version-monotonicity.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-date-format
+        name: Metadata date format audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-date-format.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-license-consistency
+        name: License consistency audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-license-consistency.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-stub-documents
+        name: Stub document audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-stub-documents.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-section-anchors
+        name: Section anchor reference audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-section-anchors.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-intra-doc-refs
+        name: Intra-document section reference audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-intra-doc-refs.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-required-sections
+        name: Required sections audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-required-sections.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-acronym-consistency
+        name: Acronym expansion consistency audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-acronym-consistency.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-secrets-in-content
+        name: Secret pattern audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-secrets-in-content.py
+        language: system
+        pass_filenames: false
+        files: \.(md|py|yaml|yml|json|toml|txt)$
+
+      - id: lint-pii-in-content
+        name: PII pattern audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-pii-in-content.py
+        language: system
+        pass_filenames: false
+        files: \.(md|py|yaml|yml|json|toml|txt|cff)$
+
+      - id: lint-internal-references
+        name: Internal references audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-internal-references.py
+        language: system
+        pass_filenames: false
+        files: \.(md|py|yaml|yml|json|toml|txt)$
+
+      - id: lint-external-link-domains
+        name: External link domain audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-external-link-domains.py
+        language: system
+        pass_filenames: false
+        files: \.(md|py|yaml|yml|json|toml|txt|cff)$
+
+      - id: lint-cross-doc-numbers
+        name: Cross-document numerical coherence audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-cross-doc-numbers.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-orphan-documents
+        name: Orphan document audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-orphan-documents.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-citation-verification-freshness
+        name: Citation verification freshness audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-citation-verification-freshness.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-tooling-provenance-freshness
+        name: Tooling provenance freshness audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-tooling-provenance-freshness.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-version-date-consistency
+        name: Version-date consistency audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-version-date-consistency.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-metadata-line-breaks
+        name: Metadata-block line-break audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-metadata-line-breaks.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-document-date-staleness
+        name: Document Date staleness audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-document-date-staleness.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: taxonomy-in-sync
+        name: Machine-readable taxonomy in sync
+        entry: python3 .claude/skills/corpus-management/tools/build-taxonomy.py --check
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: portal-in-sync
+        name: Adopter portal and maturity scorecard in sync
+        entry: python3 .claude/skills/corpus-management/tools/build-portal.py --check
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: regenerate-derived-artefacts
+        name: Regenerate taxonomy, narrative registry, portal, maturity scorecard, relationship model, and number-allocation block
+        entry: bash -c 'python3 .claude/skills/corpus-management/tools/build-taxonomy.py && python3 .claude/skills/corpus-management/tools/build-narrative-registry.py && python3 .claude/skills/corpus-management/tools/build-portal.py && python3 .claude/skills/corpus-management/tools/build-relationship-model.py && python3 .claude/skills/corpus-management/tools/build-todo-number-allocation.py && python3 .claude/skills/corpus-management/tools/build-citation-publishers.py'
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-audit-gate-parity
+        name: Gate-name parity audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-audit-gate-parity.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: linter-regression-tests
+        name: Linter regression test suite
+        entry: python3 .claude/skills/corpus-management/tools/run-linter-regression.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: lint-claude-rules-sync
+        name: Claude-rules local-copy sync audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-claude-rules-sync.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: lint-section-placement
+        name: Section placement audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-section-placement.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-gate-count-consistency
+        name: Cross-file gate-count consistency audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-gate-count-consistency.py
+        language: system
+        pass_filenames: false
+        types_or: [markdown, python, shell]
+
+      - id: lint-version-bump-recency
+        name: Corpus version-bump-recency audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-version-bump-recency.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-collection-enumeration-consistency
+        name: Collection-enumeration consistency audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-collection-enumeration-consistency.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: lint-todo-staleness
+        name: TODO staleness audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-todo-staleness.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-listing-surface-completeness
+        name: Listing-surface completeness audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-listing-surface-completeness.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-ccm-aicm-citations
+        name: CSA CCM/AICM citation-accuracy audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-ccm-aicm-citations.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-matrix-control-codes
+        name: Matrix control-code validity audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-matrix-control-codes.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-ccm-provider-member-in-range
+        name: CCM provider-member range-direction audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-ccm-provider-member-in-range.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-scan-scope-parity
+        name: Directory-scan-scope parity audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-scan-scope-parity.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: lint-directional-dependency
+        name: Corpus-to-project directional-dependency audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-directional-dependency.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: lint-document-control-codes
+        name: Per-document NIST CSF 2.0 control-code validity audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-document-control-codes.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: lint-retention-consistency
+        name: Cross-document retention-consistency audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-retention-consistency.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: lint-bare-normative-shall
+        name: Bare-normative-shall audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-bare-normative-shall.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: lint-todo-marked-done
+        name: Backlog marked-done audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-todo-marked-done.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: lint-document-iso-annex-a
+        name: Per-document ISO Annex A validity audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-document-iso-annex-a.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: lint-changelog-mirror-header-parity
+        name: CHANGELOG mirror header-parity audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: lint-cobit-iso31000-citations
+        name: COBIT/ISO 31000 citation-existence audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-cobit-iso31000-citations.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: lint-cross-file-section-refs
+        name: Cross-file section-reference audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-cross-file-section-refs.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: lint-audit-spec-detailed-prose
+        name: Audit-spec detailed-prose presence audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-audit-spec-detailed-prose.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: lint-cross-file-section-names
+        name: Cross-file section-name audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-cross-file-section-names.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-unbalanced-fences
+        name: Unbalanced-fence audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-unbalanced-fences.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-doctype-parity
+        name: Document-Type enumeration parity audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-doctype-parity.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-nested-markdown-links
+        name: Nested-markdown-link audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-nested-markdown-links.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-positional-backlog-tokens
+        name: Positional backlog-token audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-positional-backlog-tokens.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-sibling-placeholders
+        name: Sibling-repo stub-guard audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-sibling-placeholders.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-stdlib-only-imports
+        name: Stdlib-only import audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-stdlib-only-imports.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-citation-currency-cadence
+        name: Citation-currency-cadence audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-citation-currency-cadence.py
+        language: system
+        pass_filenames: false
+        always_run: true
+        verbose: true
+      - id: lint-cobit-title-text
+        name: COBIT objective title-text audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-cobit-title-text.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-web-corpus-links
+        name: Web-to-corpus link-target integrity audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-web-corpus-links.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-gate-citation-inventory
+        name: Gate-name-citation inventory audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-gate-citation-inventory.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-todo-number-permanence
+        name: Backlog item-number permanence audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-todo-number-permanence.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-ssdf-control-ids
+        name: NIST SSDF control-id validity audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-ssdf-control-ids.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-todo-list-tag
+        name: Backlog list-tag audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-todo-list-tag.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-ungated-dashes
+        name: Ungated-surface dash audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-ungated-dashes.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-narrative-metadata
+        name: Narrative metadata audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-narrative-metadata.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: build-narrative-registry
+        name: Narrative registry sync
+        entry: python3 .claude/skills/corpus-management/tools/build-narrative-registry.py --check
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-narrative-boundary
+        name: Narrative boundary audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-narrative-boundary.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-narrative-authority-boundary
+        name: Narrative authority-boundary audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-narrative-authority-boundary.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-narrative-vocabulary
+        name: Narrative vocabulary audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-narrative-vocabulary.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-narrative-disclaimer
+        name: Narrative disclaimer-presence audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-narrative-disclaimer.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-todo-index-reference-parity
+        name: Backlog index-reference parity audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-todo-index-reference-parity.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: build-todo-number-allocation
+        name: .working/TODO.md number-allocation block sync
+        entry: python3 .claude/skills/corpus-management/tools/build-todo-number-allocation.py --check
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-index-header-parity
+        name: Index-header parity audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-index-header-parity.py --strict-owner
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: relationship-model-in-sync
+        name: Relationship model in sync
+        entry: python3 .claude/skills/corpus-management/tools/build-relationship-model.py --check
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-unused-imports
+        name: Static unused-import audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-unused-imports.py --enforce
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-alignment-citation-existence
+        name: Alignment-citation existence audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-alignment-citation-existence.py --strict
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-skill-verdict-carrier-completeness
+        name: Skill verdict carrier-completeness audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-skill-verdict-carrier-completeness.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-aiqt-vendor-digest
+        name: AIQT vendor digest audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-aiqt-vendor-digest.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: build-corpus-management-check
+        name: Corpus-management generated outputs in sync
+        entry: python3 .claude/skills/corpus-management/tools/build-corpus-management.py --check --release-delta
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-allowlist-spec-parity
+        name: Allow-list and publisher-table parity audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-allowlist-spec-parity.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: build-citation-publishers-check
+        name: Citation-publisher table in sync with its source of record
+        entry: python3 .claude/skills/corpus-management/tools/build-citation-publishers.py --check
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-ref-absence-claims
+        name: Reference-absence claim audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-ref-absence-claims.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-startup-character-ceiling
+        name: Startup character and core-line ceiling audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-startup-character-ceiling.py
+        language: system
+        pass_filenames: false
+        always_run: true
+        verbose: true
+      - id: lint-tooling-backlog-refs
+        name: Tooling backlog-reference audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-tooling-backlog-refs.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-table-cell-count
+        name: Table cell-count audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-table-cell-count.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-isolated-launch
+        name: Isolated-launch import audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-isolated-launch.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-baseline-pin
+        name: Baseline-pin integrity audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-baseline-pin.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-hooks-syntax
+        name: Public hooks syntax and registration-parity audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-hooks-syntax.py
+        language: system
+        pass_filenames: false
+        always_run: true

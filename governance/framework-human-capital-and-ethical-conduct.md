@@ -1,0 +1,123 @@
+# Human Capital and Ethical Conduct Framework
+
+**Document Title:** Human Capital and Ethical Conduct Framework\
+**Document Type:** Framework\
+**Version:** 1.0.13\
+**Date:** 2026-09-25\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](../security/procedure-onboarding-and-offboarding.md), [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`ai/standard-ai-human-oversight.md`](../ai/standard-ai-human-oversight.md)\
+**Classification:** Public\
+**Category:** Governance\
+**Review Frequency:** Annual and upon material HR, legal, or regulatory change\
+**Repository Path:** [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This framework defines the organization's approach to ethical conduct, workforce integrity, and responsible innovation. It integrates human resource governance, ethical behaviour standards, and professional conduct expectations for all employees and affiliates.
+
+It consolidates the HR Security Policy, Security Awareness and Training Policy, Corporate Culture Framework, Whistleblower Procedure, and Anti-Bribery and Corruption Policy into a unified governance model. Aligned with ISO 37001:2025, ISO 37301:2021, OECD AI Principles, CAN/DGSI 101, and CSA CCM v4.1 HRS-09, HRS-11, and HRS-13.
+
+---
+
+## Scope
+
+Applies to all employees, contractors, consultants, and partners representing the organization across all global operations, subsidiaries, and joint ventures.
+
+---
+
+## Framework principles
+
+### 1. Ethical conduct and integrity
+
+All personnel must perform duties honestly and transparently. Bribery, corruption, insider trading, conflicts of interest, and coercive practices are strictly prohibited. Personnel are expected to act in the organization's best interests and in accordance with applicable law at all times.
+
+### 2. Anti-bribery and corruption controls
+
+The organization's anti-bribery management system is designed to align with ISO 37001:2025. Key controls include:
+
+- All gifts, hospitality, and donations must be recorded and pre-approved above defined thresholds.
+- Facilitation payments are prohibited in all circumstances.
+- Suspected bribery or corruption is reported immediately through the whistleblower channel.
+- Third parties acting on behalf of the organization are subject to anti-bribery due diligence.
+
+### 3. Whistleblower protection
+
+Employees may report misconduct, ethical violations, or legal breaches through confidential channels, including anonymously where preferred. Key protections include:
+
+- Retaliation against whistleblowers is strictly prohibited.
+- Reports are reviewed by the Ethics and Compliance Committee (ECC) or equivalent governing body.
+- Reporters are informed of outcomes to the extent possible within legal and confidentiality constraints.
+
+### 4. Security awareness
+
+Annual information security and data privacy awareness training is mandatory for all personnel. Training covers:
+
+- Social engineering and phishing recognition.
+- Acceptable use of organizational systems and data.
+- Data protection obligations under applicable privacy law.
+- Incident reporting obligations.
+
+Enhanced role-specific certification is required for personnel handling regulated, sensitive, or high-risk data.
+
+### 5. Responsible AI and digital ethics
+
+Personnel involved in AI development, data science, or AI-enabled decision-making must complete Responsible AI training aligned with OECD AI Principles and CAN/DGSI 101. Training covers:
+
+- Fairness, transparency, and accountability in AI systems.
+- Bias identification and mitigation techniques.
+- Explainability requirements for high-risk AI.
+- Ethical obligations when AI decisions affect individuals.
+
+Personnel assigned as human overseers of AI systems additionally complete human-oversight competency training covering the assigned system's capabilities and limitations, the override, intervention, and safe-halt procedures, and how to recognize and avoid automation bias, as required by the AI Human Oversight Standard.
+
+### 6. Diversity, inclusion, and equity
+
+The organization is committed to inclusive hiring, equitable treatment, and non-discrimination in all employment practices. Diversity and inclusion metrics are monitored and reported to leadership quarterly.
+
+### 7. Training and competency
+
+| Training Type | Completion Requirement |
+| --- | --- |
+| Ethics and anti-bribery | Within 60 days of hire; annually thereafter |
+| Information security awareness | Within 30 days of hire; annually thereafter |
+| Data protection / privacy | Within 30 days of hire; annually thereafter |
+| Responsible AI | Within 60 days of hire for applicable roles; annually thereafter |
+| AI human-oversight competency (assigned overseers) | Upon oversight assignment; annually thereafter |
+
+Training completion is tracked and reported annually to the ERC and relevant compliance bodies.
+
+---
+
+## Governance and accountability
+
+| Role | Responsibility |
+| --- | --- |
+| **Chief Information Officer (CIO)** | Accountable for framework integrity and integration with enterprise governance. |
+| **HR / People Operations** | Administers training, conducts disciplinary process, manages personnel records. |
+| **Ethics and Compliance Committee (ECC)** | Reviews whistleblower reports; monitors ethical conduct metrics. |
+| **CISO** | Oversees security awareness programme; integrates conduct requirements with security controls. |
+| **Internal Audit** | Validates training completion rates, whistleblower process adherence, and framework effectiveness. |
+
+---
+
+## Framework alignment
+
+| Framework | Reference | Relevance |
+| --- | --- | --- |
+| ISO 37001:2025 | Anti-Bribery Management Systems (Edition 2; transition deadline February 2027) | Anti-bribery controls |
+| ISO 37301:2021 | §7.2 Competence and §7.3 Awareness | Compliance training and competency |
+| CAN/DGSI 101:2025 | Ethical design and use of artificial intelligence by small and medium organizations (2nd edition) | Ethical AI and responsible innovation |
+| OECD AI Principles (2019, updated 2024) | Human-centric, fair, accountable AI | Responsible AI training |
+| COBIT 2019 | APO07: Managed Human Resources | HR governance and competency |
+| CSA CCM v4.1 | HRS-09 Personnel Roles and Responsibilities; HRS-11 Security Awareness Training; HRS-13 Compliance User Responsibility | Workforce conduct, awareness, and compliance responsibility |
+| CSA AICM v1.1 | HRS-14 AI Competency Training | AI training programme for relevant personnel |
+| ISO/IEC 42001:2023 | Clause 7.2 Competence | AI human-oversight competency and training |
+
+---
+
+**End of Document**

@@ -1,0 +1,103 @@
+# IT Service Management Framework
+
+**Document Title:** IT Service Management Framework\
+**Document Type:** Framework\
+**Version:** 1.2.2\
+**Date:** 2026-10-27\
+**Owner:** Chief Information Officer\
+**Approving Authority:** Chief Information Officer\
+**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md)\
+**Classification:** Public\
+**Category:** Operations\
+**Review Frequency:** Annual and upon material service management or regulatory change\
+**Repository Path:** [`operations/framework-it-service-management.md`](framework-it-service-management.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## Purpose
+
+This framework defines the structure, principles, and processes of the organization's IT Service Management (ITSM) function. It consolidates all ITIL-based processes, Incident, Problem, Change, Release, Request, Capacity, Availability, and Service Level Management, into a unified governance model. It aligns with ISO/IEC 20000-1:2018, ITIL 4, COBIT 2019 DSS02 and DSS03, and EU NIS 2 Directive requirements.
+
+---
+
+## Scope
+
+Applies to all IT services, infrastructure, applications, cloud environments, and service delivery functions managed by or on behalf of the organization.
+
+---
+
+## Governance and accountability
+
+| Role | Responsibility |
+| --- | --- |
+| **CIO** | Accountable for service strategy, alignment with business objectives, and continual improvement of the ITSM framework. |
+| **CISO** | Ensures that ITSM integration with incident response and NIS 2 reporting requirements is maintained. |
+| **Service Management Office (SMO)** | Oversees all ITIL process implementation, reporting, and coordination. |
+| **Service Owners** | Manage end-to-end service delivery, availability, and SLAs. |
+| **Process Owners** | Define and maintain policies, procedures, and metrics for their assigned ITIL processes. |
+| **Change Advisory Board (CAB)** | Reviews and authorizes change requests to mitigate operational risk. |
+| **Internal Audit** | Validates ISO/IEC 20000-1:2018 compliance and governance effectiveness. For claims of conformity involving clauses 4.1 and 4.2, account for ISO/IEC 20000-1:2018/Amd 1:2024 (Climate action changes). |
+
+---
+
+## Framework principles
+
+### 1. Incident management
+
+All incidents are logged, categorized, prioritized, and tracked to resolution within defined SLAs. Major incidents trigger immediate escalation to the CIO, CISO, and Crisis Management Team. When a P1 is declared for any complete service outage, IT operations must notify the SOC immediately, so that the SOC can assess whether a security incident caused or is suspected to have caused it, as set out in the [Incident Escalation Matrix](../security/sop-incident-escalation-matrix.md), section "Incident severity levels". Where EU NIS 2 Article 23 applies, entities must report significant incidents to the CSIRT or, where applicable, the competent authority. Entities must submit an early warning without undue delay and in any event within 24 hours of becoming aware of the significant incident (Article 23(4)(a)). Entities must submit an incident notification with an initial assessment without undue delay and in any event within 72 hours of becoming aware of the significant incident, except that a trust service provider must notify without undue delay and in any event within 24 hours of becoming aware of significant incidents that have an impact on the provision of its trust services (Article 23(4), second subparagraph). Entities must provide an intermediate report on request under Article 23(4)(c). Entities must provide a final report within one month after submission of the incident notification under Article 23(4)(d); if the incident is still ongoing at that point, they must provide a progress report then and a final report within one month of handling the incident under Article 23(4)(e).
+
+### 2. Problem management
+
+Problem records are created for recurring or significant incidents. Root cause analysis is conducted for all major incidents. Known Error Databases are maintained and reviewed monthly to drive proactive resolution.
+
+### 3. Change management
+
+All changes are categorized as Standard, Normal, High-risk, or Emergency, per [`procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md) section 1. CAB approval is required before implementation for Normal and High-risk changes, and High-risk changes additionally require joint CISO and CIO approval; Emergency changes are authorized by the CIO or equivalent and receive retrospective CAB review. Post-implementation reviews assess success criteria and rollback results. Emergency changes are notified to the CAB promptly and reviewed within 5 business days of implementation.
+
+### 4. Service level management
+
+SLAs and OLAs are established for all critical services and reviewed annually. SLA breaches trigger service reviews and root cause analysis. SLA performance is reported to the CIO and ERC quarterly.
+
+### 5. Capacity and availability management
+
+Capacity plans are based on trend analysis and predictive modelling. Availability metrics are continuously monitored with defined service-level targets. Capacity risks are raised to the CIO as part of the quarterly governance reporting cycle.
+
+### 6. AI-enabled automation
+
+AI-based automation tools may augment ITSM workflows for incident triage, root cause prediction, and self-healing actions. AI recommendations must be explainable and validated by human operators. AI tools used in ITSM are subject to governance requirements under the AI Governance and Risk Framework.
+
+### 7. Continual service improvement
+
+ITIL 4 continual improvement cycles are adopted. Service improvement plans are data-driven, documented, and reviewed quarterly. Improvement actions are tracked in the CAPA Register and reported to the ERC.
+
+---
+
+## Service levels
+
+| Priority | Definition | Response | Resolution |
+| --- | --- | --- | --- |
+| P1: Critical | Complete service outage, or major customer impact; either condition alone is enough. A complete service outage caused or suspected to be caused by a security incident is a security P1 under the [Incident Escalation Matrix](../security/sop-incident-escalation-matrix.md), section "Incident severity levels", not an IT operations P1. | Immediate | 4 hours |
+| P2: High | Significant degradation; significant user impact | 30 minutes | 8 hours |
+| P3: Medium | Partial degradation; workaround available | 4 hours | 3 business days |
+| P4: Low | Minor issue; minimal impact | 1 business day | 5 business days |
+
+---
+
+## Framework alignment
+
+| Framework | Reference | Relevance |
+| --- | --- | --- |
+| ISO/IEC 20000-1:2018 | Service management system requirements (Part 1) | ITSM framework compliance |
+| ISO/IEC TS 20000-11:2021 | Guidance on the relationship between ISO/IEC 20000-1 and service management frameworks: ITIL | Informative: bridges the Part-1 requirements and the ITIL 4 process model this framework adopts |
+| ITIL 4 | Foundation, Practices, and Guiding Principles | Service management process model |
+| COBIT 2019 | DSS02.02, DSS02.03, DSS02.04, DSS02.05, DSS02.06, DSS02.07 | Incident and request management |
+| COBIT 2019 | DSS03.01, DSS03.02, DSS03.03, DSS03.04, DSS03.05 | Problem management |
+| EU NIS 2 Directive | Articles 21(2)(c) and 23(4) | Business continuity and significant-incident reporting, including the 24-hour trust-service notification derogation in Article 23(4), second subparagraph |
+| CSA CCM v4.1 | SEF-01, SEF-02, GRC-01, GRC-06 | Service and governance controls |
+| NIST SP 800-61r3 | Incident Response Recommendations and Considerations for Cybersecurity Risk Management (CSF 2.0 Community Profile) | Incident handling integration |
+
+---
+
+**End of Document**

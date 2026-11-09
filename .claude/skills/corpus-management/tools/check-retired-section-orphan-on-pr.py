@@ -1,0 +1,473 @@
+#!/usr/bin/env python3
+"""Delta gate D9: retired-section-orphan check (roadmap C phase 2, #1250).
+
+When a PR CLOSES a numbered TODO item (deletes its `| N.M |` INDEX ROW from
+.working/TODO.md), positional references to that section (`§N.M`, `PN.M`, `TODO §N.M`,
+`TODO section N.M`) can survive on the OPERATIONAL / gate-exempt surfaces (the per-item detail moved to the private sibling in the 2026-08 migration; the public .working/TODO.md index rows are the live-id source now) that
+no other gate scans, silently dangling. This gate flags those survivors.
+
+Why it is false-positive-safe (the design constraint: a gate that cries wolf gets
+bypassed and protects nothing):
+- DELETION-TRIGGERED. It derives the retired ids from INDEX ROWS this PR REMOVES
+  from .working/TODO.md (the public index; the per-item detail moved private), so
+  "old" is unambiguous and there is no coexisting "new" value to
+  disambiguate against (unlike a value-change, which is irreducibly semantic).
+- ANCHORED KEY FORMS ONLY. It matches `§N.M` / `PN.M` / `TODO §N.M` /
+  `TODO section N.M` with a left anchor and multi-part decimal + right word
+  boundary, so `§3.6` never matches inside `§3.60` (the #1161 title-slot defence,
+  structural rather than claim-scoped). Bare `N.M`, `item N`, and ranges are
+  deliberately EXCLUDED as too FP-prone; they stay convention.
+- OPERATIONAL-SURFACE-SCOPED. It scans only `.claude/` (with `.claude/references/`),
+  `.claude/skills/corpus-management/tools/*.py`, `*.sh`, `.github/**/*.yml`, and `.working/TODO.md` / `TODO-REFERENCE.md`: the complement
+  of the corpus `.md` gates (18/62/65) and of `lint-positional-backlog-tokens`
+  (pack subtree). On those surfaces a bare `§N.M` is unambiguously a backlog
+  reference (a tool docstring does not cite a corpus document by section number),
+  which dissolves the corpus-vs-backlog ambiguity.
+
+Four FP guards:
+1. RENUMBER/REWORD: an id is retired only if it is NOT a `| <id> |` index row in .working/TODO.md at
+   HEAD (an in-place reword/split/reorder keeps the id, so references stay valid).
+2. HISTORICAL NARRATION: each hit is classified (shared lint_common.classify);
+   only LIVE hits are violations. NOTE (dual-family verify, #1250): for D9's
+   current scan set this guard is SCOPE-MOOT defence-in-depth, because
+   operational_files() never yields a LEDGER (.working/CHANGELOG.md / .working/history)
+   or frozen-record path, so classify() always returns LIVE here; the historical
+   ledgers are excluded by SCOPE, not by this filter. It is retained (harmless)
+   so a future scan-set expansion into .working/ inherits the exemption. A
+   genuine historical `§N.M` note that DOES land on an operational surface is
+   handled by the SectionRef opt-out or by rewording it to cite the closing PR
+   (the permanence rule), which is the correct disposition anyway.
+3. IN-PR TEACHING: a `SectionRef: <reason>` commit trailer opts out (for the rare
+   PR that legitimately adds a live `§N.M` teaching citation in the same change).
+4. PUBLIC/PRIVATE MIGRATION: when a PR MOVES a numbered section from the public
+   .working/TODO.md to the private P-TODO.md (keeping its number, so the id stays LIVE but
+   in a list this gate cannot read in public CI), the `SectionRef:` opt-out is the
+   INTENDED mechanism (maintainer decision 2026-08-01, closing the two-list-
+   awareness backlog item won't-fix-the-CI-way). P-TODO.md lives in the private
+   sibling, which is never checked out in public GitHub CI, so this gate running in
+   CI cannot see the migration destination; a `resolve_sibling`-based two-list read
+   is a no-op in CI while working locally (a local-pass/CI-fail split, why that fix
+   was reverted). The opt-out, with a reason naming the migration, is correct.
+
+Exit: 0 = no retired ids / no LIVE survivors / opt-out / an empty .working/TODO.md diff
+over a real range; 1 = LIVE survivors found; 2 = git or environment error
+(including a work tree top level git reports that is not this script's own
+repository, REPO_ROOT: another directory, or a relative or empty one; a
+git directory other than REPO_ROOT's own, as GIT_DIR naming another
+repository gives; GIT_COMMON_DIR, GIT_OBJECT_DIRECTORY,
+GIT_ALTERNATE_OBJECT_DIRECTORIES, GIT_GRAFT_FILE or GIT_SHALLOW_FILE in the
+environment, or GIT_WORK_TREE or GIT_INDEX_FILE pointing away from REPO_ROOT;
+a REPO_ROOT that is not a work tree registered with the git directory git
+reads, as a .git file naming another checkout's gives, or a relocated
+objects directory or a git-new-workdir checkout (objects, refs or reftable
+that are symbolic links); and a separate git directory that sets no
+core.worktree, as git init or git clone --separate-git-dir leaves one: in
+that checkout run git config core.worktree "$PWD"), or CANNOT-EVALUATE when
+base and head resolve to the same commit (a collapsed, empty range: nothing
+was evaluated).
+
+Known residuals (3b564): git failing to run at all (OSError) on the one
+top-level read degrades to a placeholder and skips the top-level comparison;
+the git-directory checks still run. What the git-directory checks do not
+cover is disclosed in lint_common.require_own_git_dir.
+"""
+from __future__ import annotations
+
+import argparse
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from lint_common import REPO_ROOT, classify, require_own_git_dir, resolve_base_ref  # noqa: E402
+
+
+# Post-2026-08 migration the per-item DETAIL (TODO-REFERENCE.md) is PRIVATE, so
+# an id's live/retired status is read from the PUBLIC .working/TODO.md INDEX rows instead
+# (`| <bare N.M id> | ... |`); the ids are parity-guaranteed with the detail
+# (gate 90). D9 governs the public surfaces, so the public index is the right
+# source and is git-readable in public CI (unlike the private detail).
+INDEX_ROW_RE = re.compile(r"^\|\s*(\d+(?:\.\d+){1,3})\s*\|")
+
+
+def ids_in_headings(todo_text: str) -> set[str]:
+    """Every bare-`N.M` id that is currently an INDEX ROW in .working/TODO.md. PURE.
+
+    (Formerly a `### N.M` heading in TODO-REFERENCE.md; the detail moved private in
+    the 2026-08 migration, so the public index rows are the live-id source now.)"""
+    out: set[str] = set()
+    for line in todo_text.splitlines():
+        m = INDEX_ROW_RE.match(line)
+        if m:
+            out.add(m.group(1))
+    return out
+
+
+def retired_ids(todo_diff: str, head_todo_text: str) -> set[str]:
+    """Ids whose INDEX ROW this PR DELETED and which are NOT an index row at HEAD.
+
+    PURE. `todo_diff` is `git diff <base> <head> -- .working/TODO.md`. A removed index row
+    begins with `-` (but not `---`). FP guard #1 (renumber) is the subtraction of
+    the still-present index rows.
+    """
+    deleted: set[str] = set()
+    for line in todo_diff.splitlines():
+        if line.startswith("-") and not line.startswith("---"):
+            m = INDEX_ROW_RE.match(line[1:])
+            if m:
+                deleted.add(m.group(1))
+    return deleted - ids_in_headings(head_todo_text)
+
+
+def anchored_patterns(section_id: str) -> re.Pattern:
+    """One combined regex for the anchored key forms of `section_id`. PURE.
+
+    Matches: `§N.M`, `PN.M`, `TODO §N.M`, `TODO section N.M`. Left-anchored on
+    `§` / `P` / `TODO ` and right word-boundaried so a longer decimal does not
+    collide (`§3.6` vs `§3.60`).
+    """
+    esc = re.escape(section_id)
+    # Only the FOUR documented, UNAMBIGUOUS forms (each carries a §/P/section
+    # marker). Bare `TODO N.M` (no §) is deliberately EXCLUDED: it is ambiguous
+    # with an ordinary `# TODO 3.1 fix this` code comment, so it stays convention.
+    # The right-guard `(?![\w.])` rejects a following word char OR dot, so `§3.1`
+    # never matches inside `§3.10`, `§3.1.2`, or a suffix id like `P3.1x`.
+    return re.compile(
+        r"(?:"
+        r"§\s*" + esc + r"|"                    # §N.M
+        r"\bP" + esc + r"|"                     # PN.M
+        r"\bTODO\s+§\s*" + esc + r"|"         # TODO §N.M
+        r"\bTODO\s+section\s+" + esc +        # TODO section N.M
+        r")(?![\w.])"
+    )
+
+
+def find_orphans(section_ids: set[str], files: list[tuple[str, str]]) -> list[tuple[str, int, str]]:
+    """Return (relpath, lineno, line) for each LIVE surviving anchored reference.
+
+    PURE given (relpath, text) pairs. FP guard #2 (classify) is applied here
+    (scope-moot for D9's current surfaces; see the module docstring).
+    """
+    if not section_ids:
+        return []
+    pats = {sid: anchored_patterns(sid) for sid in section_ids}
+    hits: list[tuple[str, int, str]] = []
+    for rel, text in files:
+        if classify(rel) != "LIVE":
+            continue
+        for i, line in enumerate(text.splitlines(), 1):
+            for pat in pats.values():
+                if pat.search(line):
+                    hits.append((rel, i, line))
+                    break
+    return hits
+
+
+# ---- git / IO (thin) ----
+
+def git(*args: str) -> str:
+    return subprocess.check_output(
+        ["git", "-C", str(REPO_ROOT), *args], text=True
+    )
+
+
+def in_scope(rel: str) -> bool:
+    """PURE: is repo-relative `rel` one of D9's operational-complement surfaces?
+
+    This is the FP-safety-critical scope decision, isolated so it is directly
+    testable. IN scope: anything under `.claude/` (with `.claude/references/`); `.claude/skills/corpus-management/tools/*.py`
+    and `.claude/skills/corpus-management/tools/*.sh`; a root-level `*.sh`; `.github/**/*.yml|*.yaml`; `.working/TODO.md` / `TODO-REFERENCE.md`.
+    OUT of scope (owned by other gates): the corpus `.md` (18/62/65); `.git/`.
+    """
+    if rel.startswith(".git/"):
+        return False
+    if rel == ".working/TODO.md" or rel == "TODO-REFERENCE.md":
+        return True
+    if rel.startswith(".claude/"):
+        return True
+    if rel.startswith(".claude/skills/corpus-management/tools/") and (rel.endswith(".py") or rel.endswith(".sh")):
+        return True
+    if "/" not in rel and rel.endswith(".sh"):  # root-level shell script
+        return True
+    if rel.startswith(".github/") and (rel.endswith(".yml") or rel.endswith(".yaml")):
+        return True
+    return False
+
+
+def operational_files() -> list[tuple[str, str]]:
+    """The operational-complement surface set, as (relpath, text) at HEAD.
+
+    Collects candidates from the in-scope roots, then filters through the pure
+    `in_scope` predicate (the single source of truth for scope).
+    """
+    cand: list[Path] = []
+    for r in (".claude", ".github"):
+        d = REPO_ROOT / r
+        if d.is_dir():
+            cand += [p for p in d.rglob("*") if p.is_file()]
+    cand += list((REPO_ROOT / ".claude" / "skills" / "corpus-management" / "tools").glob("*"))
+    cand += list(REPO_ROOT.glob("*.sh"))
+    for name in (".working/TODO.md", "TODO-REFERENCE.md"):
+        f = REPO_ROOT / name
+        if f.is_file():
+            cand.append(f)
+    out: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for p in cand:
+        rel = p.relative_to(REPO_ROOT).as_posix()
+        if rel in seen or not in_scope(rel):
+            continue
+        seen.add(rel)
+        try:
+            out.append((rel, p.read_text(encoding="utf-8")))
+        except (OSError, UnicodeDecodeError):
+            continue
+    return out
+
+
+def opt_out_present(base: str, head: str) -> bool:
+    """True if any commit in base..head carries a `SectionRef:` trailer."""
+    try:
+        log = git("log", f"{base}..{head}", "--format=%B")
+    except subprocess.CalledProcessError:
+        return False
+    # Require a non-empty reason: a bare `SectionRef:` (or `SectionRef: `) must
+    # NOT disable the gate wholesale (a guard with a costless bypass is no guard).
+    for line in log.splitlines():
+        s = line.strip()
+        if s.lower().startswith("sectionref:") and s[len("sectionref:"):].strip():
+            return True
+    return False
+
+
+def run(base: str | None, head: str) -> int:
+    # A provided base (the runner passes `${BASE_REF:-origin/main}`, a branch
+    # TIP) is merge-based against head before diffing, exactly as the sibling
+    # delta gates do: diffing a raw tip on a behind-main branch would show
+    # main-added headings as `-` lines and mis-derive them as retired (a real
+    # FP vector, dual-family-caught). Argless default honours GITHUB_BASE_REF
+    # (the PR's target branch) like the other gates, falling back to origin/main.
+    import os
+    if base is None:
+        target = os.environ.get("GITHUB_BASE_REF", "").strip() or "main"
+        base = f"refs/remotes/origin/{target}"
+    # A short name such as origin/main is read from <git-dir>/origin/main
+    # before refs/remotes, so it is resolved unambiguously first, and the
+    # default above is fully qualified (3b620 round 8).
+    base, refusal = resolve_base_ref(base, REPO_ROOT)
+    if refusal:
+        print(f"ERROR: {refusal} (head={head}); nothing was evaluated.", file=sys.stderr)
+        return 2
+    # The merge-base read has its own try so that git that cannot be run
+    # refuses here without widening the handler of the reads below (3b697).
+    try:
+        merge_base = git("merge-base", base, head).strip()
+    except subprocess.CalledProcessError as exc:
+        print(f"ERROR: git failed (base={base}, head={head}): {exc}", file=sys.stderr)
+        return 2
+    except OSError as exc:
+        # git that cannot be started at all (not on PATH, or not executable)
+        # exited 1, D9's own orphan FAIL code, with a traceback; it refuses
+        # instead, naming the error, as D13 does (3b697).
+        print(f"ERROR: git could not be run to find the merge base (base={base}, head={head}): "
+              f"{exc}", file=sys.stderr)
+        return 2
+    except UnicodeDecodeError as exc:
+        # Defence in depth (3b697): git() captures only standard output and
+        # merge-base prints object names, so no known input reaches this; if
+        # git's output ever fails to decode, refuse, naming the error, as D13 does.
+        print(f"ERROR: git's output could not be decoded finding the merge base "
+              f"(base={base}, head={head}): {exc}", file=sys.stderr)
+        return 2
+    try:
+        head_sha = git("rev-parse", "--verify", f"{head}^{{commit}}").strip()
+        try:
+            # The refusal's repo= field and the comparison below: git failing
+            # to run at all (OSError) degrades to a placeholder as D12's
+            # _toplevel does, so the gate keeps its real verdict instead of a
+            # traceback (3b540 round 8). The top level is read as bytes and
+            # decoded with os.fsdecode, so a path that is not valid UTF-8
+            # still reaches the comparison instead of the placeholder (3b564).
+            # git refusing to print one (no work tree, as with GIT_DIR naming
+            # a bare repository) reaches the refusal below: the orphan scan
+            # reads the working tree, so without one it would scan another
+            # tree and pass clean (3b540 round 9).
+            toplevel = os.fsdecode(subprocess.check_output(
+                ["git", "-C", str(REPO_ROOT), "rev-parse", "--show-toplevel"])).strip()
+        except OSError:
+            toplevel = "(no work tree)"
+        else:
+            if not toplevel:
+                # git older than 2.25 printed nothing and exited 0 outside a work
+                # tree instead of refusing, so an empty top level is the same
+                # missing work tree and refuses the same way on any git (3b559).
+                print(f"ERROR: git rev-parse --show-toplevel printed an empty top level "
+                      f"(no work tree) (base={base}, head={head}); the orphan scan reads "
+                      f"the working tree, so nothing was evaluated.", file=sys.stderr)
+                return 2
+            # The orphan scan reads REPO_ROOT's files, so the work tree git
+            # reports must be REPO_ROOT itself. GIT_DIR naming a bare clone
+            # plus GIT_WORK_TREE naming another directory printed "D9 OK" over
+            # a head whose own control run FAILs; a relative top level was
+            # accepted too, and Path resolves one against the current
+            # directory, so it must also be absolute, as git always prints it
+            # (3b564). The placeholder above skips this check (3b540 round 8).
+            top = Path(toplevel)
+            if not (top.is_absolute() and top.resolve() == REPO_ROOT.resolve()):
+                print(
+                    f"ERROR: git reports the work tree top level {toplevel!r}, not "
+                    f"this script's repository {REPO_ROOT} (base={base}, head={head}); "
+                    f"the orphan scan would read another tree. Run the copy of this "
+                    f"script inside the tree under test.",
+                    file=sys.stderr,
+                )
+                return 2
+        # A top level of REPO_ROOT does not show that git reads REPO_ROOT's
+        # repository: GIT_DIR naming another one, alone, with GIT_WORK_TREE
+        # or with its own core.worktree, still reports REPO_ROOT, as does the
+        # GIT_DIR git exports to a linked worktree's hooks (3b564).
+        refusal = require_own_git_dir(REPO_ROOT)
+        if refusal:
+            print(f"ERROR: {refusal} (base={base}, head={head}); the orphan scan would "
+                  f"read this tree against another repository's head.", file=sys.stderr)
+            return 2
+        ref_diff = git("diff", merge_base, head, "--", ".working/TODO.md")
+        try:
+            head_ref = git("show", f"{head}:.working/TODO.md")
+        except subprocess.CalledProcessError:
+            head_ref = ""
+    except subprocess.CalledProcessError as exc:
+        print(f"ERROR: git failed (base={base}, head={head}): {exc}", file=sys.stderr)
+        return 2
+    # D9 anchors git to the script's own repository (-C REPO_ROOT), so a run of
+    # the WRONG CLONE's copy of this script still resolves that clone's HEAD;
+    # a base and head collapsing to one commit is that misrun's signature and
+    # must refuse, never pass clean (orchestrator mistake 300). The printed
+    # repo= top-level makes the wrong-clone case diagnosable.
+    if merge_base == head_sha:
+        print(
+            f"D9 CANNOT-EVALUATE: base {base} and head {head} resolve to the same "
+            f"commit (repo={toplevel} base={merge_base} head={head_sha}); the "
+            f"named range is empty, so nothing was evaluated. If the change "
+            f"lives in a worktree, run that worktree's copy of this script.",
+            file=sys.stderr,
+        )
+        return 2
+    base = merge_base
+    # NOTE: retired ids come from the `head` git object (removed .working/TODO.md INDEX rows), but the
+    # orphan scan reads the WORKING TREE (operational_files reads files from disk). In
+    # the pre-push guard and CI, HEAD IS the checked-out working tree, so the two
+    # agree; D9 assumes head == working tree and is not meant for an arbitrary
+    # non-checked-out head ref.
+    ids = retired_ids(ref_diff, head_ref)
+    if not ids:
+        print("D9 OK: no TODO section closed in this PR.")
+        return 0
+    if opt_out_present(base, head):
+        print(f"D9 OK: {len(ids)} section(s) retired; SectionRef: opt-out present.")
+        return 0
+    hits = find_orphans(ids, operational_files())
+    if not hits:
+        print(f"D9 OK: {len(ids)} section(s) retired; no LIVE orphan references.")
+        return 0
+    print(
+        f"FAIL: {len(hits)} LIVE orphan reference(s) to section(s) this PR retired "
+        f"({', '.join(sorted(ids))}). Reword or drop each, or add a `SectionRef: "
+        f"<reason>` commit trailer for a legitimate teaching citation:",
+        file=sys.stderr,
+    )
+    for rel, ln, text in hits:
+        print(f"  {rel}:{ln}: {text}", file=sys.stderr)
+    return 1
+
+
+def _self_test() -> int:
+    import unittest
+
+    CLAUDE = ".claude/CLAUDE.md"
+    LEDGER = ".working/DONE.md"  # Logical .working/ DONE ledger fixture
+
+    class D9Tests(unittest.TestCase):
+        # --- retired-id derivation (FP guard #1: renumber) ---
+        def test_retired_id_derivation(self):
+            diff = "-| 3.9 | old thing | `[public]` |\n+| 3.10 | new thing | `[public]` |\n"
+            self.assertEqual(retired_ids(diff, "| 3.10 | new thing | `[public]` |\n"), {"3.9"})
+
+        def test_renumber_in_place_not_retired(self):
+            diff = "-| 3.9 | reworded | `[public]` |\n+| 3.9 | reworded better | `[public]` |\n"
+            self.assertEqual(retired_ids(diff, "| 3.9 | reworded better | `[public]` |\n"), set())
+
+        def test_index_row_is_the_live_source(self):
+            # 2026-08: live ids come from .working/TODO.md INDEX ROWS, not ### headings
+            self.assertEqual(ids_in_headings("| 3.9 | an item | `[public]` |\n"), {"3.9"})
+            self.assertEqual(ids_in_headings("### 3.9 a detail heading, not an index row\n"), set())
+
+        # --- anchored-pattern precision (FP guards) ---
+        def test_live_orphan_flagged(self):
+            self.assertEqual(len(find_orphans({"3.9"}, [(CLAUDE, "see §3.9 for detail")])), 1)
+
+        def test_substring_not_matched(self):
+            # right-guard: §3.6 must not match inside §3.60
+            self.assertIsNone(anchored_patterns("3.6").search("see §3.60 here"))
+
+        def test_child_decimal_not_matched(self):
+            # right-guard rejects a following dot: §3.6 must not match §3.6.1
+            self.assertIsNone(anchored_patterns("3.6").search("see §3.6.1 here"))
+
+        def test_letter_suffix_not_matched(self):
+            # right-guard rejects a following letter: 3.1 must not match P3.1x
+            self.assertIsNone(anchored_patterns("3.1").search("per P3.1x above"))
+
+        def test_bare_todo_not_matched(self):
+            # § is REQUIRED; ambiguous bare `TODO 3.1` (a code comment) is not a match
+            self.assertIsNone(anchored_patterns("3.1").search("# TODO 3.1 fix this later"))
+
+        def test_bare_number_not_matched(self):
+            self.assertIsNone(anchored_patterns("3.9").search("version 3.9 shipped"))
+
+        def test_todo_section_and_P_forms_matched(self):
+            self.assertTrue(anchored_patterns("3.9").search("per P3.9 above"))
+            self.assertTrue(anchored_patterns("3.9").search("TODO section 3.9 detail"))
+            self.assertTrue(anchored_patterns("3.9").search("TODO §3.9 detail"))
+
+        # --- scope (the FP-safety-critical in_scope predicate) ---
+        def test_in_scope_excludes_corpus_and_pack(self):
+            self.assertFalse(in_scope("ai/some-doc.md"))          # corpus
+            self.assertFalse(in_scope("compliance/matrix.md"))    # corpus
+            self.assertFalse(in_scope("governance/x.md"))         # corpus
+            self.assertFalse(in_scope("notes.txt"))               # root level but not .sh
+            self.assertFalse(in_scope(".github/x.md"))            # .github but not yaml
+
+        def test_in_scope_includes_operational(self):
+            self.assertTrue(in_scope(".claude/CLAUDE.md"))
+            self.assertTrue(in_scope(".claude/playbooks/pr-lifecycle.md"))
+            self.assertTrue(in_scope(".claude/skills/corpus-management/tools/check-x.py"))
+            self.assertTrue(in_scope(".claude/skills/corpus-management/tools/run.sh"))
+            self.assertTrue(in_scope(".claude/skills/corpus-management/tools/foo.md"))  # under .claude/: every file
+            self.assertTrue(in_scope("run.sh"))
+            self.assertTrue(in_scope(".github/workflows/quality.yml"))
+            self.assertTrue(in_scope(".working/TODO.md"))
+
+        # --- classify (currently scope-moot defence-in-depth; still validate the branch) ---
+        def test_ledger_narration_not_flagged(self):
+            self.assertEqual(find_orphans({"3.9"}, [(LEDGER, "§3.9 closed in #814")]), [])
+
+    suite = unittest.TestLoader().loadTestsFromTestCase(D9Tests)
+    result = unittest.TextTestRunner(verbosity=2).run(suite)
+    return 0 if result.wasSuccessful() else 1
+
+
+def main(argv: list[str]) -> int:
+    ap = argparse.ArgumentParser(description="D9: retired-section-orphan check")
+    ap.add_argument("base", nargs="?", default=None, help="base ref (default: merge-base with origin/main)")
+    ap.add_argument("head", nargs="?", default="HEAD", help="head ref (default: HEAD)")
+    ap.add_argument("--self-test", action="store_true")
+    args = ap.parse_args(argv)
+    if args.self_test:
+        return _self_test()
+    return run(args.base, args.head)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))

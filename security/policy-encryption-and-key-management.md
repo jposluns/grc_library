@@ -1,0 +1,238 @@
+# Encryption and Key Management Policy
+
+**Document Title:** Encryption and Key Management Policy\
+**Document Type:** Policy\
+**Version:** 1.9.2\
+**Date:** 2026-11-06\
+**Owner:** Chief Information Security Officer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/register-approved-key-agreement-protocols.md`](register-approved-key-agreement-protocols.md)\
+**Classification:** Public\
+**Category:** Information Security\
+**Review Frequency:** Annual and upon material threat, framework, or regulatory change\
+**Repository Path:** [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
+---
+
+## 1. Purpose
+
+Defines mandatory encryption and cryptographic key management requirements. Ensures that confidentiality, integrity, and availability are protected through consistent encryption controls for data at rest, in transit, and in use.
+
+---
+
+## 2. Scope
+
+1. Applies to all digital and physical information assets including: databases, file systems, and backups; cloud-hosted systems, SaaS platforms, and endpoint devices; AI datasets, model artifacts, and inference logs; trade and customs data governed by BASC across Latin American operations.
+2. Covers encryption during all states: at rest, in transit, in use.
+3. Applies to all employees, contractors, vendors, and service providers with system access.
+4. Encompasses key generation, storage, distribution, rotation, and destruction.
+
+---
+
+## 3. Governance and accountability
+
+| Role | Responsibility |
+|---|---|
+| CIO | Approves encryption standards and ensures that alignment with enterprise risk strategy is maintained. |
+| CISO | Owns encryption controls, defines key management processes, and ensures that compliance monitoring is performed. |
+| IT Operations / Security Engineering | Ensures that all cryptographic implementation procedures and key-management runbooks are maintained for traceability and lifecycle verification. |
+| Application Owners / Developers | Ensure that encryption requirements are applied within systems and APIs. |
+| Compliance / GRC Programme Manager | Monitors adherence and maintains evidence for audit and certification. |
+| AI Governance Council (AIGC) | Oversees encryption of AI datasets, model artifacts, and explainability data. |
+
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who verifies trade-data encryption and customs-communication security for organizations participating in BASC) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
+
+---
+
+## 4. Encryption standards
+
+| State | Requirement | Approved Standards |
+|---|---|---|
+| At Rest | Encrypt all sensitive, confidential, and restricted data. | AES-256 or stronger (FIPS 140-3 validated). |
+| In Transit | Encrypt all external and internal communications. | TLS 1.3 or stronger; SSH 2.0 or stronger. Approved key-agreement protocols: [Approved Key-Agreement Protocols Register](register-approved-key-agreement-protocols.md). |
+| In Use | Protect data processed in volatile memory through secure enclaves or hardware encryption where supported. | Trusted Execution Environments (TEE), SGX, SEV. |
+| AI and Model Data | Apply encryption for model weights, datasets, and configuration files. | AES-256-GCM (AEAD: confidentiality with built-in integrity tag); HKDF-SHA-256 for key derivation from high-entropy material; Argon2id (or scrypt) for password-derived keys. SHA-512 alone is a hash function, not a key-derivation function. |
+| Customs and Trade Data (sector programme) | Ensure that encryption is applied for all cargo manifests, customs documentation, and trade communications. | AES-256 (organization baseline); digital-certificate / PKI arrangements per the applicable sector annex. |
+
+---
+
+## 5. Cryptographic key management
+
+A private or public ephemeral key-agreement key within an approved protocol, including a symmetric session key treated as one (both as defined in the [Cryptographic Key Operations Procedure](procedure-cryptographic-key-operations.md), which governs these keys), is outside the asymmetric key exchange requirement in 5.2 and the centralized Key Management Service (KMS) integration requirement in 7.1, and outside sections 5.3, 5.5 and 9.2. The prohibitions in 5.3 remain absolute for every other key and are not subject to the Section 11 exception process.
+
+### 5.1 Key generation
+
+Keys generated using FIPS 140-3 certified hardware or software modules. Default, hard-coded, or vendor-supplied keys are prohibited. This prohibition is absolute and is not subject to the Section 11 exception process.
+
+### 5.2 Key distribution
+
+Symmetric keys distributed via encrypted channels (TLS 1.3+). Asymmetric key exchange via authenticated PKI.
+
+### 5.3 Key storage
+
+Keys stored in dedicated Hardware Security Modules (HSMs) or a cloud key management service (KMS). Keys must never be stored in plaintext or embedded in source code. These prohibitions are absolute and are not subject to the Section 11 exception process.
+
+### 5.4 Key rotation
+
+Encryption keys rotated at least every 90 days for Restricted data and annually for other categories. Immediate rotation required after personnel changes or suspected compromise. This classification baseline and the key-type cadence in the Cryptographic Key Lifecycle Management Framework are independent axes; where both apply to a key, use the shorter applicable interval. NIST SP 800-57 Part 1 (section 5.3.6) derives a key's cryptoperiod from its type, usage environment, and data characteristics jointly, as rough guidance rather than a fixed one-to-one mapping.
+
+### 5.5 Key destruction
+
+Retired or expired secret (symmetric) and private keys are destroyed, including every copy (NIST SP 800-57 Part 1 Rev. 5, section 8.3.4), by zeroization where the storage supports it (the key sanitization technique recommended by NIST SP 800-88 Rev. 2, section 3.2.3, for the target cryptographic keys of a cryptographic erase), otherwise by another method, in either case removing all traces of the key so that it cannot be recovered by physical or electronic means (as NIST SP 800-57 Part 1 Rev. 5, section 8.3.4, requires for secret and private keys), subject to the following retention requirements. Retain a data-encryption key until the data it protects has been re-encrypted under a new key or destroyed. Retain a key-wrapping key while any key it protects is still needed (NIST SP 800-57 Part 1 Rev. 5, section 5.3.6). Before destruction, confirm whether a legal hold or investigation covers data the key protects, directly or through a key it wraps. The check follows rule 2's two-part confirmation, as set out in the [Cryptographic Key Operations Procedure](procedure-cryptographic-key-operations.md), section 7.1. Recorded hold status alone does not complete the check. Legal Counsel or the Incident Commander or, for security P3 and P4 where no Incident Commander is assigned, the SOC lead confirms whether an investigation under the [Security Incident Response Procedure](procedure-security-incident-response.md) treats that data or the key as evidence. Only Legal Counsel confirms whether an investigation by an external authority does so, and whether a hold is required but not yet recorded. Retain the key if a hold or investigation applies, or either part of the check is incomplete. The key stays retained until Legal Counsel, in writing, releases the hold or narrows it so that it no longer covers that data. For an investigation without a legal hold, it stays retained until Legal Counsel confirms in writing that the investigation no longer treats that data or the key as evidence. A retired or expired public key or public-key certificate is not subject to the all-traces destruction requirement (NIST SP 800-57 Part 1 Rev. 5, section 8.3.4). As an organizational rule, it is removed from active use and distribution so that it is not used to apply new cryptographic protection. It is retained or archived for as long as needed to verify information signed with the corresponding private key (section B.3.1.2); otherwise it may be retained or destroyed (section 8.3.4), subject to the legal hold and investigation check above. For a public key, data the key protects includes information signed with the corresponding private key. Destruction events are logged in the Key Lifecycle Register and retained for seven years.
+
+---
+
+## 6. Cryptographic algorithms and hashing
+
+| Category | Approved Algorithms |
+|---|---|
+| Symmetric encryption | AES-256, ChaCha20-Poly1305 |
+| Asymmetric encryption | RSA-4096, ECC P-384 or stronger |
+| Hashing | SHA-512, BLAKE2b-512, for integrity hashing where the organization selects the algorithm (for example log, document, evidence and data integrity). Where an external specification or ecosystem interface mandates a digest algorithm or format (for example OCI image digests, SLSA and in-toto provenance, Sigstore signatures, SBOM component hashes, or git object identifiers), that algorithm is used only for interoperability within that interface, and the governing specification is documented. Password-based encryption (its own row in this table), and key derivation and TLS (section 4), are governed separately; message authentication is governed by its own row in this table, and signature algorithms are not integrity hashing and are outside this row. Integrity values already recorded keep the algorithm they were recorded with; new values use SHA-512 or BLAKE2b-512. |
+| Message authentication | HMAC-SHA-512 or HMAC-SHA-384 (NIST FIPS 198-1), or KMAC256 (NIST SP 800-185), for new message-authentication codes where the organization selects the algorithm. Keys are at least 256 bits and meet any larger minimum the applicable protocol sets. Existing HMAC-SHA-256 keys and tokens migrate to the approved algorithms at their next rotation. Keyed hashing for pseudonymization uses the same algorithms and key sizes. HMAC used inside key derivation (section 4) or password-based encryption (its own row), and the authentication tags of authenticated encryption (section 4 and the Symmetric encryption row), are governed by those entries, not by this row. Where an external specification or ecosystem interface mandates a MAC algorithm (for example JWT HS256 for interoperability with a third-party service), that algorithm is used only within that interface, and the governing specification is documented. |
+| Password-based encryption | Argon2id (preferred) at minimum m=19456 (19 MiB), t=2, p=1; or PBKDF2-HMAC-SHA256 at minimum 600,000 iterations (PBKDF2-HMAC-SHA512 at minimum 220,000), per the OWASP Password Storage Cheat Sheet |
+| Post-quantum cryptography | ML-KEM (formerly CRYSTALS-Kyber; NIST FIPS 203, August 2024) for key encapsulation and ML-DSA (formerly CRYSTALS-Dilithium; NIST FIPS 204, August 2024) for digital signatures, at NIST security category 3 as the baseline (ML-KEM-768, ML-DSA-65) and category 5 (ML-KEM-1024, ML-DSA-87) for long-lived or high-assurance data; SLH-DSA (NIST FIPS 205, August 2024) where a conservative hash-only signature assumption is required; hybrid key exchange (ECC + PQC) during migration. See the [Post-Quantum Cryptography Readiness Roadmap](roadmap-post-quantum-cryptography.md) for parameter-set selection and crypto-agility |
+
+---
+
+## 7. Cloud and SaaS encryption requirements
+
+### 7.1 Cloud storage
+
+Cloud storage must enforce:
+
+- Customer-managed keys (CMK) with a defined rotation schedule.
+- Audit logging for all key access and rotation events.
+- Integration with centralized Key Management Service (KMS).
+
+### 7.2 Cloud productivity and collaboration platforms
+
+Cloud productivity platform, collaboration platform, and file storage must use sensitivity labels and encryption policies mapped to classification levels per the Data Classification and Handling Standard.
+
+### 7.3 Data loss prevention
+
+DLP enforcement must block or encrypt Restricted and Confidential data shared externally.
+
+---
+
+## 8. BASC trade-data protection
+
+### 8.1 Encryption requirements
+
+ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 -->
+
+All trade, customs, and cargo data in BASC-certified regions (Colombia, Mexico, Peru, Chile) must:
+
+- Be encrypted at rest and in transit under the organization's trade-data protection controls, consistent with its ISO 28000:2022 supply-chain security management system.
+- Utilize PKI authentication for customs and government system integration.
+- Maintain tamper-proof audit logs of encryption and decryption events.
+
+### 8.2 Key custody
+
+Trade-data decryption keys must remain under organizational custody only.
+
+### 8.3 Violations
+
+Unauthorized decryption, key export, or sharing constitutes a critical security violation and triggers investigation under the Incident Response Procedure.
+
+---
+
+## 9. AI and data encryption requirements
+
+### 9.1 Dataset encryption
+
+AI datasets containing personal or proprietary information must be encrypted in transit and at rest.
+
+### 9.2 Key separation
+
+Encryption keys must be separate from AI training environments and stored in secure HSMs.
+
+### 9.3 Model encryption logs
+
+Model encryption logs must be linked to AI system entries in the AI Audit Repository.
+
+### 9.4 Explainability files
+
+Model explainability files (e.g., SHAP/LIME outputs) must be encrypted and access-controlled per Restricted classification.
+
+---
+
+## 10. Monitoring and compliance
+
+| Activity | Frequency | Owner |
+|---|---|---|
+| Continuous encryption compliance monitoring via SIEM and KMS dashboards | Ongoing | CISO / IT Operations |
+| Encryption compliance audit | Quarterly | CISO and Compliance Manager |
+| Sector-programme audit of programme-specific encryption (for example, the customs-data and cargo-communications encryption controls the organization applies to its BASC-certified operations) | At the cadence stated by the relevant sector annex | Sector-conditional role per the annex; see [`compliance/`](../compliance/) |
+| Findings and remediation actions logged in CAPA Register | Per finding | Compliance / GRC Programme Manager |
+
+---
+
+## 11. Exceptions
+
+### 11.1 Standard exceptions
+
+Exceptions require:
+
+- Approval through the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), with CISO co-approval (encryption exceptions are security-related) in addition to, not in place of, the risk-tier approver.
+- Documented business justification and risk assessment.
+- A temporary exception record in the Exception Register; duration and renewal per that policy's §4.3.
+
+### 11.2 Sector-programme exceptions
+
+Where the organization adopts additional encryption controls for a sector programme (for example, for customs data in BASC-certified operations), exceptions to those programme-specific controls follow the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (with CISO co-approval, as security-related exceptions) and additionally are not permitted unless explicitly authorized by the sector-conditional role defined by the relevant sector annex and the Enterprise Risk Committee. This sector overlay is deliberately stricter than the baseline trade-and-customs limb of §4.2.2 (compliance-officer co-approval with ERC notification); the stricter requirement governs. See [`compliance/`](../compliance/).
+
+---
+
+## 12. Continual improvement
+
+### 12.1 Annual review
+
+The CISO and AIGC review encryption standards annually against evolving regulatory, quantum, and BASC requirements.
+
+### 12.2 Lessons learned
+
+Lessons learned from incidents or audits feed into the continual improvement cycle.
+
+### 12.3 Policy metrics
+
+| Metric | Description |
+|---|---|
+| Encryption coverage | Coverage by classification level |
+| Key rotation SLA adherence | Percentage of keys rotated within scheduled windows |
+| Trade-data encryption compliance rate | Success rate across BASC-certified regions |
+| PQC algorithm adoption progress | Percentage of eligible systems migrated to hybrid or PQC schemes |
+
+---
+
+## 13. Framework alignment
+
+| Framework | Reference |
+|---|---|
+| ISO/IEC 27002:2022 | §8.24: Use of cryptography |
+| ISO/IEC 27017:2026 | 8.24, Table 43: Guidance for use of cryptography (cloud services) |
+| COBIT 2019 | DSS05.03: Manage endpoint security |
+| CSA CCM v4.1 | CEK-01: Encryption and Key Management |
+| CSA CCM v4.1 | CEK-02: CEK Roles and Responsibilities |
+| CSA CCM v4.1 | CEK-03: Data Protection |
+| CSA CCM v4.1 | CEK-04: Encryption Algorithm |
+| NIST SP 800-57 Part 1 Rev. 5 | Recommendation for Key Management, Part 1: General (May 2020) |
+| NIST FIPS 197-upd1 | Advanced Encryption Standard (AES) (November 2001, updated May 2023) |
+| NIST SP 800-38D | Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC (November 2007) |
+| NIST SP 800-131A Rev. 2 | Transitioning the Use of Cryptographic Algorithms and Key Lengths (March 2019) |
+| NIST SP 800-208 | Recommendation for Stateful Hash-Based Signature Schemes |
+| PCI DSS v4.0.1 | Requirement 3: Protect Stored Account Data |
+| ETSI EN 304 223 V2.1.1 (2025-12) | Provision 5.2.1-4: protection of sensitive data, such as training or test data, against unauthorized access; informative implementation guidance ETSI TR 104 128 V1.1.1 (2025-05) 6.5.5 (Provision 5.2.1-4, written against the predecessor ETSI TS 104 223), example measures: encryption at rest and in transit, including model artifacts and training data |
+| BASC International Security Standard 6.0.2/6.0.3 (2022) | Trade and Customs Data Security |
+| WCO SAFE Framework (2025 edition) | Annex IV element F (Information Exchange, Access and Confidentiality) |
+| ISO 28000:2022 | Supply-Chain Security and Resilience. ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating this alignment as verified. <!-- ref-absence: ISO 28000:2022 --> |
+
+---
+
+*This document is released under CC BY-SA 4.0.*
+
+
+
+**End of Document**
