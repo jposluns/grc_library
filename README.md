@@ -5,8 +5,8 @@
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **SPDX-License-Identifier:** CC-BY-SA-4.0\
-**Library Version:** 2026.11.67 (CalVer, library-wide; see [`governance/specification-master-project.md`](governance/specification-master-project.md) §4.5)\
-**README Version:** 1.11.920 (semantic per-document version for this file)
+**Library Version:** 2026.11.68 (CalVer, library-wide; see [`governance/specification-master-project.md`](governance/specification-master-project.md) §4.5)\
+**README Version:** 1.11.921 (semantic per-document version for this file)
 
 ---
 
@@ -426,9 +426,9 @@ See [`NOTICE.md`](NOTICE.md) for repository rules governing external reference m
 
 ## Maintained by
 
-Originally created and maintained by **Jeffrey Posluns** ([@jposluns](https://github.com/jposluns), <jeff@posluns.ca>, [LinkedIn](https://linkedin.com/in/jposluns), [ORCID](https://orcid.org/0009-0000-7775-2233)).
+Originally created and maintained by **Jeff Posluns** ([@jposluns](https://github.com/jposluns), <jeff@posluns.ca>, [LinkedIn](https://linkedin.com/in/jposluns), [ORCID](https://orcid.org/0009-0000-7775-2233)).
 
-GRC-original material is released under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0); the pinned AIQT snapshot is separately Apache-2.0 with its upstream LICENSE and NOTICE retained. The CC licence requires attribution of the library when content is redistributed. Its "ShareAlike" condition requires an adopter who shares an adaptation to license their own contributions to it under CC BY-SA 4.0, a later CC BY-SA version, or a BY-SA-compatible licence. The library's own text stays under CC BY-SA 4.0; quoted or vendored material keeps its own terms (see [`NOTICE.md`](NOTICE.md)). For machine-readable citation metadata see [`CITATION.cff`](CITATION.cff); for full attribution context and acknowledgement of contributors see [`AUTHORS.md`](AUTHORS.md).
+Original GRC Library material is licensed under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0); the AI-assistant rules taken from the AIQT project are separately licensed Apache-2.0, with their upstream LICENSE and NOTICE files kept in `.claude/aiqt/`. The CC licence requires attribution of the library when content is redistributed. Its "ShareAlike" condition requires an adopter who shares an adaptation to license their own contributions to it under CC BY-SA 4.0, a later CC BY-SA version, or a BY-SA-compatible licence. The library's own text stays under CC BY-SA 4.0; quoted or vendored material keeps its own terms (see [`NOTICE.md`](NOTICE.md)). For machine-readable citation metadata see [`CITATION.cff`](CITATION.cff); for full attribution context and acknowledgement of contributors see [`AUTHORS.md`](AUTHORS.md).
 
 ---
 
