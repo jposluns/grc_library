@@ -17161,7 +17161,15 @@ class NativePrePushGuardTests(unittest.TestCase):
     def test_real_hostile_environment_main_and_linked(self):
         remote = self.real_remote()
         runner = self.root / ".claude/skills/corpus-management/tools/run_all_audits.sh"
-        runner.write_text("#!/bin/sh\npython3 -I - <<'CHECK'\nimport os\n"
+        # hermetic-fu1 (hermq9 LOW 2, agy): the runner's Python runs without
+        # -I, which its check does not need: the dispatcher starts the guard
+        # only through pre-push-hook.py, whose clean_environment builds the
+        # guard's whole environment from an allowlist with no PYTHONPATH in
+        # it, and the guard sets none, so PYTHONPATH never reaches the
+        # runner (as its check asserts); were it to, the planted
+        # sitecustomize.py below would print its marker, which each push
+        # refuses.
+        runner.write_text("#!/bin/sh\npython3 - <<'CHECK'\nimport os\n"
                           "assert not any(k in os.environ for k in "
                           "('BASH_ENV', 'ENV', 'SHELLOPTS', 'PYTHONPATH', 'LD_PRELOAD', "
                           "'PRE_PUSH_GUARD_ALLOW_DIRTY'))\n"
@@ -17772,21 +17780,43 @@ class NativePrePushGuardTests(unittest.TestCase):
         # directory is on sys.path and Python reads PYTHON* variables; its
         # isolation is the environment this test builds: no PYTHON* variable
         # of the test process reaches it, and PYTHONNOUSERSITE=1 keeps the
-        # user's site-packages out.
+        # user's site-packages out. hermetic-fu1 (hermq9 LOW 3, claude): that
+        # isolation is observed. Before it is built, this test's environment
+        # names as PYTHONPATH a directory whose sitecustomize.py says it ran
+        # (OLDER_SITECUSTOMIZE_RAN on stderr), so there is a PYTHON* variable
+        # to drop whatever the host sets; the older hook prints the PYTHON*
+        # variables it is given (OLDER_HOOK_ENV), which must be
+        # PYTHONNOUSERSITE=1 alone, and no push may print the marker. With
+        # either line that builds the isolation removed, this test fails.
         (self.root / ".claude/skills/corpus-management/tools/git-hooks/pre-push").write_text(
             '#!/bin/sh\necho OLDER_HOOK >&2\n'
+            "printf 'OLDER_HOOK_ENV %s\\n' \"$(env | LC_ALL=C sort | grep '^PYTHON' | tr '\\n' ' ')\" >&2\n"
             'exec python3 "$(git rev-parse --show-toplevel)/.claude/skills/corpus-management/tools/check-dirty-tree-push.py" --pre-push "$@"\n')
         self.commit_fixture()
+        modules = Path(self.tmp.name) / "older-modules"
+        modules.mkdir()
+        (modules / "sitecustomize.py").write_text(
+            "import os\nos.write(2, b'OLDER_SITECUSTOMIZE_RAN\\n')\n")
+        self.env["PYTHONPATH"] = str(modules)
         self.env = {k: v for k, v in self.env.items() if not k.startswith("PYTHON")}
         self.env["PYTHONNOUSERSITE"] = "1"
         for checkout in self.main_and_linked():
             result = self.run_cmd("git", "push", "upstream", "HEAD:refs/heads/" + checkout, code=1)
             self.assertIn("rebase", result.stderr)
+            self.assertNotIn("OLDER_SITECUSTOMIZE_RAN", result.stderr)
+            older = []
             result = self.run_cmd("git", "push", "fork", "HEAD:refs/heads/" + checkout)
             self.assertIn("OLDER_HOOK", result.stderr)
+            older.append(result)
             (self.root / ".web/build.py").write_text("print('dirty')\n")
             result = self.run_cmd("git", "push", "fork", "HEAD:refs/heads/" + checkout + "-dirty", code=1)
             self.assertIn("REFUSING", result.stderr)
+            older.append(result)
+            for result in older:
+                self.assertEqual([seen.split() for seen in
+                                  re.findall(r"(?m)^OLDER_HOOK_ENV (.*)$", result.stderr)],
+                                 [["PYTHONNOUSERSITE=1"]], result.stderr)
+                self.assertNotIn("OLDER_SITECUSTOMIZE_RAN", result.stderr)
 
     def test_real_dot_git_component_main_and_linked(self):
         remote = self.real_remote(suffix="jposluns/grc_library/.git")
@@ -18624,16 +18654,15 @@ class PrePushGuardFastPathTests(unittest.TestCase):
     # built environment, env), waits for its "ready" line (the startup
     # handshake), writes "pid pgid child-pid start child-start" to shard-<i>,
     # and then reads the FIFO that FIXTURE_SHARD_RELEASE names until no
-    # writer holds it,
-    # so it lives until it is stopped or the test's cleanup closes that
-    # FIFO (hold_shards). The child holds that FIFO open itself and reads
-    # it the same way, with its stdin from /dev/null, so its shard's end
-    # does not end it: only a signal to it, as to its shard's whole
-    # process group, or that cleanup does (hermetic-r8, review MED,
+    # writer holds it, so it lives until it is stopped or the test's cleanup
+    # closes that FIFO (hold_shards). The child holds that FIFO open itself
+    # and reads it the same way, with its stdin from /dev/null, so its
+    # shard's end does not end it: only a signal to it, as to its shard's
+    # whole process group, or that cleanup does (hermetic-r8, review MED,
     # claude; in hermetic-r7 it read a pipe its shard held, so it ended at
-    # end of file once its shard died, however the shard was stopped).
-    # Once released, the shard reaps its child and exits (hermetic-r7,
-    # review MED 2, codex; before, both slept 120 seconds).
+    # end of file once its shard died, however the shard was stopped). Once
+    # released, the shard reaps its child and exits (hermetic-r7, review MED
+    # 2, codex; before, both slept 120 seconds).
     # hermetic-r9 (review LOW 1, claude): start and child-start are the
     # start times (field 22 of /proc/<pid>/stat) of the shard and of its
     # child, read as the record is written (the child's while it is the
@@ -18801,9 +18830,9 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         child-start" to shard-<i> once its child has started (its
         handshake), with the start times of itself and its child read as it
         writes each (hermetic-r9), and FIXTURE_SHARD_RELEASE names a FIFO
-        this test holds open. A shard and its child live until
-        they are stopped or this test's cleanup (release_shards) closes that
-        FIFO, with no time limit of their own."""
+        this test holds open. A shard and its child live until they are
+        stopped or this test's cleanup (release_shards) closes that FIFO,
+        with no time limit of their own."""
         marks.mkdir()
         release = Path(self.tmp.name) / (marks.name + ".release")
         os.mkfifo(release)
@@ -18830,48 +18859,61 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         child's command line), so a shard that has not written a record yet
         is waited for too. A zombie is not gone: this process reaps any it
         is the parent of (as a subreaper or PID 1 is) and waits for any
-        other parent to. Whatever outlasts timeout seconds is killed with
-        SIGKILL (its process group, unless that is this process's own, and
-        itself, each only while /proc shows it with the start time it was
-        found with, so a pid reused before that check is not signalled),
-        waited for again until it is reaped, and the cleanup then fails.
-        hermetic-r10 (review LOW 4, claude): the check and the signal are
-        two steps, so a pid reused between them can still be signalled; if
-        another user's process now holds it, the refusal (PermissionError)
-        is passed over, as a pid that is gone (ProcessLookupError) is, and
-        the cleanup goes on. hermetic-r9 (review
-        LOW 2, claude): that wait after the SIGKILL has its own bound,
-        reap_timeout seconds (30 by default), not timeout, which a test may
-        shorten, so how fast a loaded host tears down and reaps what was
-        killed does not decide the outcome. hermetic-r9 (review LOW 1,
-        claude): a pid a record names is found only while /proc shows it
-        with the start time the record holds (each shard writes its own and
-        its child's as it writes the record), never with one first read
-        here, so a recorded process that ended and whose pid was reused
-        before or during this cleanup is neither waited for nor signalled;
-        a pid /proc shows naming the FIFO is found with the start time read
-        before that match, if it still has it after. The waiting is in a
-        finally block, so it runs whatever closing raises."""
+        other parent to. hermetic-fu1 (agy round 8 LOW 3): a zombie shows
+        no environment or command line, so one that no record names is
+        found by its parent, read from its /proc/<pid>/stat: a process of
+        the run found here (a shard that does not reap its child), or this
+        process when the zombie is in the process group of a process of the
+        run (other than this process's own group); it is then waited for,
+        reported and reaped as any other, and one whose parent is killed
+        below is reaped by whoever adopts it. Whatever outlasts timeout
+        seconds is killed with SIGKILL (its process group, unless that is
+        this process's own, and itself, each only while /proc shows it with
+        the start time it was found with, so a pid reused before that check
+        is not signalled), waited for again until it is reaped, and the
+        cleanup then fails. hermetic-r10 (review LOW 4, claude): the check
+        and the signal are two steps, so a pid reused between them can
+        still be signalled; if another user's process now holds it, the
+        refusal (PermissionError) is passed over, as a pid that is gone
+        (ProcessLookupError) is, and the cleanup goes on. hermetic-r9
+        (review LOW 2, claude): that wait after the SIGKILL has its own
+        bound, reap_timeout seconds (30 by default), not timeout, which a
+        test may shorten, so how fast a loaded host tears down and reaps
+        what was killed does not decide the outcome. hermetic-r9 (review
+        LOW 1, claude): a pid a record names is found only while /proc
+        shows it with the start time the record holds (each shard writes
+        its own and its child's as it writes the record), never with one
+        first read here, so a recorded process that ended and whose pid was
+        reused before or during this cleanup is neither waited for nor
+        signalled; a pid /proc shows naming the FIFO, or a zombie found by
+        its parent, is found with the start time read before that match, if
+        it still has it after. The waiting is in a finally block, so it runs
+        whatever closing raises."""
         import signal
         import time
 
         def stat(pid):
-            """(state, pgid, start time) of pid; None once it is reaped."""
+            """(state, parent pid, pgid, start time) of pid; None once it is
+            reaped."""
             try:
                 data = Path("/proc/%d/stat" % pid).read_bytes()
             except (FileNotFoundError, ProcessLookupError):
                 return None
             fields = data[data.rindex(b")") + 2:].split()
-            return fields[0], int(fields[2]), int(fields[19])
+            return fields[0], int(fields[1]), int(fields[2]), int(fields[19])
 
         names = {os.fsencode("FIXTURE_SHARD_RELEASE=%s" % release), os.fsencode(str(release))}
         found = {}
+        # The process groups of the run: each recorded one and that of each
+        # process found (hermetic-fu1).
+        groups = set()
 
         def note(pid, start):
             """Find pid, only while /proc shows it with start time start."""
             now = stat(pid) if pid not in found and pid != os.getpid() else None
-            if now is not None and now[2] == start:
+            if now is not None and now[3] == start:
                 found[pid] = start
+                groups.add(now[2])
 
         def survey():
             for mark in marks.iterdir():
@@ -18884,6 +18926,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 else:
                     continue
                 fields = [int(f) for f in mark.read_text(encoding="utf-8").split()]
+                groups.add(fields[1])
                 for pid, start in pairs:
                     note(fields[pid], fields[start])
             for entry in os.listdir("/proc"):
@@ -18891,18 +18934,25 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                     before = stat(int(entry))
                     if before is None:
                         continue
+                    # A zombie, found by its parent (hermetic-fu1).
+                    if before[0] == b"Z":
+                        if before[1] in found or (
+                                before[1] == os.getpid() and before[2] in groups
+                                and before[2] != os.getpgid(0)):
+                            note(int(entry), before[3])
+                        continue
                     for name in ("environ", "cmdline"):
                         try:
                             data = Path("/proc", entry, name).read_bytes()
                         except OSError:
                             continue
                         if names.intersection(data.split(b"\0")):
-                            note(int(entry), before[2])
+                            note(int(entry), before[3])
                             break
 
         def gone(pid):
             now = stat(pid)
-            return now is None or now[2] != found[pid]
+            return now is None or now[3] != found[pid]
 
         def reaped(pid):
             try:
@@ -18923,11 +18973,11 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 time.sleep(0.1)
             for pid in left:
                 now = stat(pid)
-                if now is None or now[2] != found[pid]:
+                if now is None or now[3] != found[pid]:
                     continue
                 targets = [(os.kill, pid)]
-                if now[1] != os.getpgid(0):
-                    targets.insert(0, (os.killpg, now[1]))
+                if now[2] != os.getpgid(0):
+                    targets.insert(0, (os.killpg, now[2]))
                 for send, target in targets:
                     try:
                         send(target, signal.SIGKILL)
@@ -19016,6 +19066,52 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             self.release_shards(held, marks, release, timeout=1)
         self.assertFalse(os.path.exists("/proc/%d" % shard.pid),
                          "the killed process is left unreaped")
+
+    # A process for
+    # test_release_shards_reports_and_reaps_a_zombie_its_parent_keeps
+    # (hermetic-fu1): it starts a child that exits at once and never reaps
+    # it, waits until that child has exited (waitid with WNOWAIT, which
+    # leaves it a zombie), writes "ready <child pid>" (its startup
+    # handshake) and then reads its stdin, as LIVE_HELPER does.
+    ZOMBIE_KEEPER = ("import os, sys\n"
+                     "child = os.fork()\n"
+                     "if child == 0:\n"
+                     "    os._exit(0)\n"
+                     "os.waitid(os.P_PID, child, os.WEXITED | os.WNOWAIT)\n"
+                     "sys.stdout.write('ready %d\\n' % child)\n"
+                     "sys.stdout.flush()\n"
+                     "sys.stdin.buffer.read()\n")
+
+    def test_release_shards_reports_and_reaps_a_zombie_its_parent_keeps(self):
+        # FLIP TABLE (hermetic-fu1; agy round 8 LOW 3): a zombie of a held
+        # run whose live parent does not reap it shows no environment or
+        # command line, so only its parent, read from its /proc/<pid>/stat,
+        # finds it. Here that parent is a process of the run that its
+        # command line (naming the release FIFO) finds and that the FIFO's
+        # close does not end, and its child has exited and is left a
+        # zombie. The cleanup finds both; both outlive the release and are
+        # reported; the parent is killed and reaped here, and the zombie is
+        # reaped once its parent has ended, by whoever adopts it. Without
+        # the check of a zombie's parent, the cleanup reports the parent
+        # alone and this test fails.
+        marks = Path(self.tmp.name) / "zombie"
+        marks.mkdir()
+        release = Path(self.tmp.name) / "zombie.release"
+        os.mkfifo(release)
+        held = os.open(release, os.O_RDWR)
+        keeper, line = self.live_process(self.ZOMBIE_KEEPER, str(release),
+                                         start_new_session=True)
+        self.assertRegex(line, r"^ready \d+\n$", "the zombie keeper did not start")
+        zombie = int(line.split()[1])
+        data = Path("/proc/%d/stat" % zombie).read_bytes()
+        self.assertEqual(data[data.rindex(b")") + 2:].split()[:2],
+                         [b"Z", b"%d" % keeper.pid], data)
+        self.assertEqual(self.proc_bytes(zombie, "cmdline"), b"")
+        with self.assertRaisesRegex(AssertionError, r"outlived their release: %s; still not "
+                                    r"reaped after SIGKILL: \[\]"
+                                    % re.escape(repr(sorted([keeper.pid, zombie])))):
+            self.release_shards(held, marks, release, timeout=1)
+        self.assertFalse(os.path.exists("/proc/%d" % zombie), "the zombie is left unreaped")
 
     def git(self, *args):
         return subprocess.run(["git", *args], cwd=self.root, env=self.env, check=True,
@@ -19287,13 +19383,20 @@ class PrePushGuardFastPathTests(unittest.TestCase):
     # guard), passes SIGINT on to it, reaps the guard and every orphan of
     # its run, writes the guard's pid and then "pid signal" for each
     # orphan a signal ended to argv[1], and, once the guard has ended,
-    # reaps for up to 60 more seconds
-    # until no child is left; it exits with the guard's status (128 + its
-    # signal if a signal ended it), or 125 if prctl fails.
+    # reaps for up to 60 more seconds until no child is left; it exits with
+    # the guard's status (128 + its signal if a signal ended it).
+    # hermetic-fu1 (hermq9 LOW 5, claude): when prctl is refused, as a
+    # seccomp profile may refuse it, it starts nothing, writes "SKIP: " and
+    # the reason (the text of the errno) to argv[1] and exits 77, and the
+    # test is skipped with that reason; before, it exited 125 and the test
+    # failed as "130 != 125" without giving the cause.
     SUBREAPER = (
         "import ctypes, os, signal, subprocess, sys, time\n"
         "if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0):\n"
-        "    sys.exit(125)\n"
+        "    with open(sys.argv[1], 'w', encoding='utf-8') as refused:\n"
+        "        refused.write('SKIP: prctl(PR_SET_CHILD_SUBREAPER) failed: %s\\n'\n"
+        "                      % os.strerror(ctypes.get_errno()))\n"
+        "    sys.exit(77)\n"
         "guard = subprocess.Popen(sys.argv[2:])\n"
         "def forward(_signum, _frame):\n"
         "    try:\n"
@@ -19374,6 +19477,13 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             while (len(self.shard_records(marks)) < 6
                    and guard.poll() is None and time.monotonic() < deadline):
                 time.sleep(0.1)
+            # hermetic-fu1: a host that refuses the launcher's prctl skips
+            # this test, with the reason the launcher wrote (SUBREAPER).
+            if guard.poll() == 77 and reaped_log.exists():
+                refused = reaped_log.read_text(encoding="utf-8", errors="replace")
+                if refused.startswith("SKIP: "):
+                    self.skipTest("this test needs its launcher to be the child subreaper, "
+                                  "which this host refuses: " + refused[len("SKIP: "):].strip())
             started = sorted(m.name for m in marks.iterdir() if re.fullmatch(r"shard-\d+", m.name))
             self.assertEqual(started, ["shard-%d" % i for i in range(1, 7)],
                              out_path.read_text(encoding="utf-8"))
@@ -19797,7 +19907,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
     # The line of a report whose scan reached its bound before it finished
     # (not one whose scan failed, which no test accepts): at a stage, or
     # before its state could be read at all.
-    INCOMPLETE_SCAN = (r"(?m)^pre-push guard: the leftover scan is INCOMPLETE: (?:its 4s scan "
+    INCOMPLETE_SCAN = (r"(?m)^pre-push guard: the leftover scan is INCOMPLETE: (?:its 3s scan "
                        r"bound \(the whole report is bounded to 5s\) was reached while [a-z ]+; "
                        r"leftovers it had not reached are not listed, and none listed has a "
                        r"removal command\.|its state could not be read within the 5s bound; "
@@ -19832,16 +19942,17 @@ class PrePushGuardFastPathTests(unittest.TestCase):
     # The guard's line when the alarm of its scan-mode report ended that
     # report (status 142; leftover_report in pre-push-guard.sh).
     ALARMED_SCAN = ("pre-push guard: WARNING: the leftover report (scan) was ended at its "
-                    "5-second bound before it printed, so what earlier runs of this guard left "
-                    "is unknown; it stopped and removed nothing of a leftover.")
+                    "5-second bound (any report output above may be incomplete), so what "
+                    "earlier runs of this guard left is unknown; it stopped and removed nothing "
+                    "of a leftover.")
 
     # The guard's line when the alarm of its left-mode report ended that
     # report, with the shard directory the report was given in place of %s
     # (status 142; leftover_report in pre-push-guard.sh; hermetic-r4).
     ALARMED_LEFT = ("pre-push guard: WARNING: the leftover report (left) was ended at its "
-                    "5-second bound before it printed, so what this run left in %s (named "
-                    "above) and whether a process uses it are unknown; it stopped and removed "
-                    "nothing of a leftover.")
+                    "5-second bound (any report output above may be incomplete), so what this "
+                    "run left in %s (named above) and whether a process uses it are unknown; it "
+                    "stopped and removed nothing of a leftover.")
 
     def alarmed(self, text, warning, report=None):
         """Whether text holds warning, the guard's WARNING that the 5-second
@@ -21650,13 +21761,25 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.addCleanup(release)
         pid = int(line)
         self.assertEqual(pid, writer.pid)
-        deadline = time.monotonic() + 10
-        while time.monotonic() < deadline:
-            data = Path("/proc/%d/stat" % pid).read_bytes()
-            if data[data.rindex(b")") + 2:].split()[0] == b"S":
-                break
+        # hermetic-fu1 (hermq9 LOW 4, claude): the report runs only once the
+        # writer is blocked in its open of the FIFO, waiting for a reader: its
+        # wait channel (/proc/<pid>/wchan) is then wait_for_partner, the
+        # kernel's wait of a FIFO open for its other end, which this test
+        # asserts. The wait for it ends there or when the writer ends, with a
+        # 60-second bound that only a writer that never blocks reaches, so a
+        # slow host does not fail it; before, it polled the writer's state for
+        # up to 10 seconds, went on whatever it found and slept 0.2 seconds.
+
+        def wchan():
+            try:
+                return Path("/proc/%d/wchan" % pid).read_text(encoding="ascii")
+            except OSError:
+                return ""
+        deadline = time.monotonic() + 60
+        while (wchan() != "wait_for_partner" and writer.poll() is None
+               and time.monotonic() < deadline):
             time.sleep(0.02)
-        time.sleep(0.2)
+        self.assertEqual(wchan(), "wait_for_partner", "the writer is not blocked opening the FIFO")
         alone = self.report_all_read(inventory=(pid,))
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
         self.assert_inspect(alone.stdout, root, re.escape("checkout %s is locked" % checkouts[0]))
@@ -21818,7 +21941,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
     # A prelude for the report alone that runs it on a clock the test sets
     # (hermetic-r1), so its verdict depends neither on how busy the host is
     # nor on which tests ran before. The report's clock (time.monotonic,
-    # which its start, its 4-second scan bound and its lock wait read) stands
+    # which its start, its 3-second scan bound and its lock wait read) stands
     # still, so elapsed time on it never reaches the scan bound by itself.
     # The worker can be stopped at one point: with FIXTURE_HOLD_RECORDS=1,
     # FIXTURE_RECORDS_CLOCK or FIXTURE_LATE_RECORDS=1 at its opening of the
@@ -21829,7 +21952,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
     # is at the stop (the order that used to race), and the worker goes on
     # from the stop only once the main thread has noted the timeout of its
     # wait for the worker, which it read from the clock before that wait
-    # (thread.join(max(0.0, remaining() + 0.3)) in pre-push-guard.sh). At
+    # (its thread.join, until waits_end - 0.2, in pre-push-guard.sh). At
     # the stop, a hold moves the clock an hour on, past the scan bound, and
     # never returns, as a stalled file system would; FIXTURE_RECORDS_CLOCK=<s>
     # moves the clock to s seconds after the report's start and goes on, so
@@ -21915,19 +22038,21 @@ class PrePushGuardFastPathTests(unittest.TestCase):
 
     def assert_requested_bounds(self, stderr):
         """The report alone, under CLOCKED_REPORT, asked for its 5-second
-        alarm and then for a wait for its worker of its 4-second scan bound
+        alarm and then for a wait for its worker of its 3-second scan bound
         and 0.3 seconds: the arguments it passed, which CLOCKED_REPORT notes
-        (hermetic-r3, review LOW 2, codex). The alarm is noted, not armed;
+        (hermetic-r3, review LOW 2, codex). hermetic-fu1: that wait ends 1.7
+        seconds before the alarm (its render margin of 1.5 seconds and the
+        0.2 seconds of its wait for the lock). The alarm is noted, not armed;
         the wait is the real one, with that timeout unless
         FIXTURE_JOIN_UNTIL_DONE makes it last until the worker ends."""
         noted = re.findall(r"(?m)^(alarm|join timeout) (\S+)$", stderr)
         self.assertEqual([name for name, _value in noted], ["alarm", "join timeout"], stderr)
         self.assertEqual(int(noted[0][1]), 5, stderr)
-        self.assertAlmostEqual(float(noted[1][1]), 4.3, delta=0.01, msg=stderr)
+        self.assertAlmostEqual(float(noted[1][1]), 3.3, delta=0.01, msg=stderr)
 
     def test_leftover_scan_bound_reports_an_incomplete_scan(self):
         # FLIP TABLE (leftover report; round 2, codex WARN 5, claude NOTE 8
-        # gap 2): a scan that cannot finish within its 4-second bound (here
+        # gap 2): a scan that cannot finish within its 3-second bound (here
         # the opening of the git records directory is held and never
         # returns) says the report is INCOMPLETE, gives a leftover it had
         # already read no removal command, and returns without waiting for
@@ -21943,18 +22068,128 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # hermetic-r2: every run takes the order that used to race (the
         # worker reaches the git records before the main thread reads its
         # wait from the clock), and the clock moves only once that wait has
-        # begun, so the wait is the full 4.3 seconds whichever thread runs
+        # begun, so the wait is the full 3.3 seconds whichever thread runs
         # first.
         self.change(".web/templates-draft/landing.html")
         root, _checkouts = self.make_leftover(1)
         alone = self.report_alone(prelude=self.CLOCKED_REPORT, FIXTURE_HOLD_RECORDS="1")
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
-        self.assertIn("pre-push guard: the leftover scan is INCOMPLETE: its 4s scan bound (the "
+        self.assertIn("pre-push guard: the leftover scan is INCOMPLETE: its 3s scan bound (the "
                       "whole report is bounded to 5s) was reached while reading the git worktree "
                       "records; leftovers it had not reached are not listed, and none listed has "
                       "a removal command.", alone.stdout)
         self.assert_inspect(alone.stdout, root, "the scan did not finish")
         self.assert_requested_bounds(alone.stderr)
+        # hermetic-fu1 (agy round 8 LOW 4): the same incomplete scan through
+        # the guard's bash wrapper (run_guard), whose scan-mode report runs
+        # with CLOCKED_REPORT before its code (report_shim) and is held at the
+        # git records: the guard prints the report's INCOMPLETE line and the
+        # leftover with no removal command on its stderr, and no WARNING of
+        # a report that failed or that its alarm ended, and the push goes on.
+        result, _ran = self.run_guard(PATH=self.report_shim(self.CLOCKED_REPORT),
+                                      FIXTURE_HOLD_RECORDS="1")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("pre-push guard: the leftover scan is INCOMPLETE: its 3s scan bound (the "
+                      "whole report is bounded to 5s) was reached while reading the git worktree "
+                      "records; leftovers it had not reached are not listed, and none listed has "
+                      "a removal command.\n", result.stderr)
+        self.assert_inspect(result.stderr, root, "the scan did not finish")
+        self.assertNotIn("pre-push guard: WARNING: the leftover report", result.stderr)
+        self.assert_requested_bounds(result.stderr)
+
+    # A prelude for the report alone that runs it on a clock the test sets
+    # (hermetic-fu1), so its verdict does not depend on how busy the host
+    # is: time.monotonic stands still but for what this prelude adds. The
+    # worker is held at its opening of the git records directory and never
+    # returns, as a stalled file system would hold it, and the main thread
+    # starts it only once it is held there. Each wait of the main thread
+    # lasts its whole timeout on that clock, the longest it can: the wait
+    # for the worker (noted on stderr, as CLOCKED_REPORT notes it) and the
+    # wait for the lock, which then takes the lock. The alarm is noted on
+    # stderr and kept on that clock, and the output, once rendered, moves
+    # the clock FIXTURE_RENDER_DELAY seconds on before it is written, as a
+    # slow render would; if the alarm is due by then, the report signals
+    # itself SIGALRM, as its alarm would end it there.
+    RENDER_CLOCK = (
+        "import os, signal, sys, threading, time\n"
+        "_render_now = [time.monotonic()]\n"
+        "time.monotonic = lambda: _render_now[0]\n"
+        "_render_alarm = [None]\n"
+        "def _render_alarm_at(seconds):\n"
+        "    sys.stderr.write('alarm %d\\n' % seconds)\n"
+        "    sys.stderr.flush()\n"
+        "    _render_alarm[0] = _render_now[0] + seconds if seconds else None\n"
+        "    return 0\n"
+        "signal.alarm = _render_alarm_at\n"
+        "_render_held = threading.Event()\n"
+        "_render_open = os.open\n"
+        "def _render_held_open(path, *args, **kwargs):\n"
+        "    if isinstance(path, str) and path.endswith(os.sep + 'worktrees'):\n"
+        "        _render_held.set()\n"
+        "        threading.Event().wait()\n"
+        "    return _render_open(path, *args, **kwargs)\n"
+        "os.open = _render_held_open\n"
+        "_render_start = threading.Thread.start\n"
+        "def _render_start_until_held(self):\n"
+        "    _render_start(self)\n"
+        "    _render_held.wait(50)\n"
+        "threading.Thread.start = _render_start_until_held\n"
+        "class _RenderLock:\n"
+        "    def __init__(self, lock):\n"
+        "        self._lock = lock\n"
+        "    def acquire(self, blocking=True, timeout=-1):\n"
+        "        _render_now[0] += max(0.0, timeout)\n"
+        "        return self._lock.acquire(False)\n"
+        "    def release(self):\n"
+        "        self._lock.release()\n"
+        "def _render_join(self, timeout=None):\n"
+        "    sys.stderr.write('join timeout %.3f\\n' % timeout)\n"
+        "    sys.stderr.flush()\n"
+        "    _render_now[0] += timeout\n"
+        "    caller = sys._getframe(1).f_globals\n"
+        "    caller['lock'] = _RenderLock(caller['lock'])\n"
+        "threading.Thread.join = _render_join\n"
+        "class _RenderOutput:\n"
+        "    def __init__(self, out):\n"
+        "        self._out = out\n"
+        "    def write(self, text):\n"
+        "        _render_now[0] += float(os.environ['FIXTURE_RENDER_DELAY'])\n"
+        "        if _render_alarm[0] is not None and _render_now[0] >= _render_alarm[0]:\n"
+        "            os.kill(os.getpid(), signal.SIGALRM)\n"
+        "            threading.Event().wait(30)\n"
+        "            os._exit(3)\n"
+        "        return self._out.write(text)\n"
+        "    def flush(self):\n"
+        "        self._out.flush()\n"
+        "sys.stdout = _RenderOutput(sys.stdout)\n")
+
+    def test_report_keeps_its_render_margin_before_its_alarm(self):
+        # FLIP TABLE (hermetic-fu1; hermq9 LOW, claude and agy): the
+        # report's main thread stops waiting for its worker and for the lock
+        # 1.5 seconds (RENDER_MARGIN) before its 5-second alarm, so a report
+        # whose scan reaches its bound still has that long to render, write
+        # and flush. Under RENDER_CLOCK, with the scan held at the git
+        # records, each wait lasting its whole timeout and a render delay of
+        # 0.9 seconds, all on the report's own clock, the report asks for its
+        # 5-second alarm and a wait for its worker of 3.3 seconds, writes its
+        # INCOMPLETE line 4.4 seconds after its start and exits 0. With the
+        # main thread's deadlines back at their earlier margin (the wait for
+        # the worker until 0.3 seconds past a 4-second scan bound, the wait
+        # for the lock until 0.5 seconds before the alarm), its output is due
+        # 5.4 seconds after its start, past its alarm, which ends it (status
+        # -14), and this test fails. No real time decides the verdict (a
+        # first form of this test on the real clock failed once in a full
+        # class run on a loaded host).
+        self.change(".web/templates-draft/landing.html")
+        root, _checkouts = self.make_leftover(1)
+        alone = self.report_alone(prelude=self.RENDER_CLOCK, FIXTURE_RENDER_DELAY="0.9")
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        self.assert_requested_bounds(alone.stderr)
+        self.assertIn("pre-push guard: the leftover scan is INCOMPLETE: its 3s scan bound (the "
+                      "whole report is bounded to 5s) was reached while reading the git worktree "
+                      "records; leftovers it had not reached are not listed, and none listed has "
+                      "a removal command.\n", alone.stdout)
+        self.assert_inspect(alone.stdout, root, "the scan did not finish")
 
     # Preludes that make a test's use of NO_OTHER_PROCESS observable
     # (hermetic-r5, review LOW 3, codex, and LOW 1, agy).
@@ -21988,19 +22223,19 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # hermetic-r3, review HIGH agy and LOW 4 claude; hermetic-r4, review
         # MED 3 and LOW 3, codex; hermetic-r5, review LOW 3, codex, and LOW
         # 1, agy): on the same clock, with the git records not held, a scan
-        # that reaches the git records 3.9 seconds after the report's start
-        # on its clock (FIXTURE_RECORDS_CLOCK), within its 4-second scan
+        # that reaches the git records 2.9 seconds after the report's start
+        # on its clock (FIXTURE_RECORDS_CLOCK), within its 3-second scan
         # bound, is complete: no INCOMPLETE line, the git record of the
         # leftover's checkout is read (it is registered with this clone) and
         # the leftover has no unfinished-scan reason. The main thread waits
         # for the worker until it ends (FIXTURE_JOIN_UNTIL_DONE), so the
         # verdict does not depend on how long the scan takes in real time;
-        # the report still asks for its 4.3-second wait
+        # the report still asks for its 3.3-second wait
         # (assert_requested_bounds), and
         # test_leftover_scan_slower_than_its_wait_reports_an_incomplete_scan
         # pins that the real wait ends at that timeout. Its pair,
         # test_leftover_scan_at_its_bound_on_its_clock_reports_an_incomplete_scan,
-        # is INCOMPLETE at 4.0 seconds, so the report's own check of its scan
+        # is INCOMPLETE at 3.0 seconds, so the report's own check of its scan
         # bound, on the clock CLOCKED_REPORT sets, decides the two: with that
         # clock replaced by the real one, the pair fails. Its process scan
         # sees only the report itself (NO_OTHER_PROCESS), so what it reads
@@ -22015,7 +22250,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         listed = Path(self.tmp.name) / "proc.log"
         alone = self.report_alone(prelude=self.HOST_PROCESSES_POISONED + self.NO_OTHER_PROCESS
                                   + self.PROCESSES_LISTED + self.CLOCKED_REPORT,
-                                  FIXTURE_PIDS="", FIXTURE_RECORDS_CLOCK="3.9",
+                                  FIXTURE_PIDS="", FIXTURE_RECORDS_CLOCK="2.9",
                                   FIXTURE_JOIN_UNTIL_DONE="1", FIXTURE_PROC_LOG=str(listed))
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
         self.assertNotIn("INCOMPLETE", alone.stdout)
@@ -22034,8 +22269,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
     def test_leftover_scan_at_its_bound_on_its_clock_reports_an_incomplete_scan(self):
         # FLIP TABLE (hermetic-r4, review LOW 3, codex): the pair of
         # test_leftover_scan_within_its_bound_reports_a_complete_scan. The
-        # same scan, reaching the git records 4.0 seconds after the report's
-        # start on its clock, has reached its 4-second scan bound: the
+        # same scan, reaching the git records 3.0 seconds after the report's
+        # start on its clock, has reached its 3-second scan bound: the
         # worker's own check ends it there, so the report is INCOMPLETE at
         # the git records and the leftover it had read has no removal
         # command, though the main thread waits for the worker until it ends
@@ -22044,10 +22279,10 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.change(".web/templates-draft/landing.html")
         root, _checkouts = self.make_leftover(1)
         alone = self.report_alone(prelude=self.NO_OTHER_PROCESS + self.CLOCKED_REPORT,
-                                  FIXTURE_PIDS="", FIXTURE_RECORDS_CLOCK="4.0",
+                                  FIXTURE_PIDS="", FIXTURE_RECORDS_CLOCK="3.0",
                                   FIXTURE_JOIN_UNTIL_DONE="1")
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
-        self.assertIn("pre-push guard: the leftover scan is INCOMPLETE: its 4s scan bound (the "
+        self.assertIn("pre-push guard: the leftover scan is INCOMPLETE: its 3s scan bound (the "
                       "whole report is bounded to 5s) was reached while reading the git worktree "
                       "records; leftovers it had not reached are not listed, and none listed has "
                       "a removal command.", alone.stdout)
@@ -22064,7 +22299,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # has ended, and the report's clock stands still, so only that wait
         # can end the scan, however long the host keeps either thread from
         # running: the report is INCOMPLETE at the git records, as the real
-        # join(4.3) makes it in production, and the leftover it had read has
+        # join(3.3) makes it in production, and the leftover it had read has
         # no removal command. A wait that outlasts its timeout until the
         # worker ends never ends (the worker waits for it), so the report is
         # held until this test's 60-second timeout fails it. In hermetic-r3
@@ -22076,7 +22311,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         alone = self.report_alone(prelude=self.NO_OTHER_PROCESS + self.CLOCKED_REPORT,
                                   FIXTURE_PIDS="", FIXTURE_LATE_RECORDS="1")
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
-        self.assertIn("pre-push guard: the leftover scan is INCOMPLETE: its 4s scan bound (the "
+        self.assertIn("pre-push guard: the leftover scan is INCOMPLETE: its 3s scan bound (the "
                       "whole report is bounded to 5s) was reached while reading the git worktree "
                       "records; leftovers it had not reached are not listed, and none listed has "
                       "a removal command.", alone.stdout)
@@ -22106,12 +22341,12 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # CLOCKED_REPORT sets, with FIXTURE_JOIN_UNTIL_DONE=1, so a host
         # stall cannot make it INCOMPLETE or let its alarm end it. Here its
         # opening of the git records stalls for 6 seconds of real time
-        # (STALLED_RECORDS), past its 4-second scan bound, its 4.3-second
+        # (STALLED_RECORDS), past its 3-second scan bound, its 3.3-second
         # wait for the worker and its 5-second alarm: its scan is complete,
         # the leftover is REMOVABLE with the commands that remove it, and it
         # still asks for that alarm and wait (assert_requested_bounds). With
         # report_all_read back on the real clock, its real wait and its real
-        # alarm, as before hermetic-r5, the wait ends at 4.3 seconds, before
+        # alarm, as before hermetic-r5, the wait ends at 3.3 seconds, before
         # the stalled scan has finished, so the report is INCOMPLETE (on a
         # host that delays it further, its alarm ends it), and this test
         # fails.
@@ -22154,7 +22389,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(held.returncode, 0, held.stdout + held.stderr)
         self.assert_requested_bounds(held.stderr)
         report = held.stdout
-        self.assertIn("pre-push guard: the leftover scan is INCOMPLETE: its 4s scan bound (the "
+        self.assertIn("pre-push guard: the leftover scan is INCOMPLETE: its 3s scan bound (the "
                       "whole report is bounded to 5s) was reached while reading which processes "
                       "use the leftovers; leftovers it had not reached are not listed, and none "
                       "listed has a removal command.\n", report)
@@ -22321,14 +22556,15 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         result, _ran = self.run_guard(PATH=path, FAIL_MODE="scan", FAIL_HOW="alarm")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("pre-push guard: WARNING: the leftover report (scan) was ended at its "
-                      "5-second bound before it printed, so what earlier runs of this guard left "
-                      "is unknown; it stopped and removed nothing of a leftover.\n", result.stderr)
+                      "5-second bound (any report output above may be incomplete), so what "
+                      "earlier runs of this guard left is unknown; it stopped and removed nothing "
+                      "of a leftover.\n", result.stderr)
         for checkout in re.findall(r"\(checkout (\S+), log", first):
             self.git("worktree", "remove", "--force", checkout)
 
     def test_left_report_check_accepts_its_alarm_warning_where_it_accepts_an_incomplete_scan(self):
         # FLIP TABLE (hermetic-r4, review MED 1, claude): the left-mode
-        # report runs the same report code, with the same 4-second scan
+        # report runs the same report code, with the same 3-second scan
         # bound and 5-second alarm, as the scan-mode report, so a busy host
         # can let its alarm end it too; the guard then prints its WARNING
         # (ALARMED_LEFT, naming this run's shard directory) and no "Left
@@ -22369,7 +22605,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                  result.stderr.replace(warning, self.ALARMED_SCAN)),
                 ("the WARNING of a report that failed",
                  result.stderr.replace(warning, warning.replace(
-                     "was ended at its 5-second bound before it printed", "failed (rc=3)"))),
+                     "was ended at its 5-second bound (any report output above may be "
+                     "incomplete)", "failed (rc=3)"))),
                 ("a removal command after it",
                  result.stderr.replace(warning + "\n",
                                        warning + "\n      rm -rf -- %s\n" % root))):
@@ -22550,8 +22787,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 ("the WARNING of the left report",
                  err.replace("leftover report (scan)", "leftover report (left)")),
                 ("a report that failed",
-                 err.replace("was ended at its 5-second bound before it printed",
-                             "failed (rc=3)"))):
+                 err.replace("was ended at its 5-second bound (any report output above "
+                             "may be incomplete)", "failed (rc=3)"))):
             with self.subTest(case):
                 self.assertNotEqual(text, err)
                 with self.assertRaises(AssertionError):
@@ -42298,7 +42535,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F 553163caef493836bea44a7b25c305ad7be10f68b55e1f62becd06d63633004c
+        README.md DATA F 9c03a45af74d01794902d6cca8c7e33ca213604dcac6e6f6c0743ecd29dd3a4c
         adopt-bootstrap-ref.py OWN F 1c0e5ba5922d5e3558914ea164d4c553ea8dc5cf501d0a3864fbcffaf84e04c7
         adopt-preflight-guard.py FIXED F ee7dd3404bad7ae6b955c536bb5478a1f435462b565537d5dcf56479484a55ce
         aiqt_bootstrap.py PASSIVE F bc5496de79c394e76703b34380bfc1bbb9ae1a8c489aa719d0a75344d3c915dc
@@ -42444,7 +42681,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F c6d1f22fbc6e8663067a0cb3239f277db3e5daad7e5b8fa698dcf8f865621f99
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
-        pre-push-guard.sh FIXED F e75b3068520874b11b6608b8edf5a736c47441cbf7fdf9ce869bebca25f9350b
+        pre-push-guard.sh FIXED F 137360e56134845a3de78d6db8fe6acb9d960c3d454bdb3e14d37ee6674ecbad
         pre-push-hook.py TRANSPORT F e0a06be59cc3e8c0b47377b229c16ea169eba04ed717e31c9427356b85f6bb76
         preflight-changelog.py NO_FS F 29957c73e3b649040497b2db9fcd095a8ae92627d69259795943a363ac7d514c
         preflight-version-date.py NO_FS F fa0c5302a8b96c582ecc5cb32e74b70bfed7b26da4727839c6d0765841aee2b9
