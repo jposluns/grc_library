@@ -1,4 +1,4 @@
-# Append-only pack-ID history (widened from clause-IDs in compile PR-5): a pack
+# Append-only pack-ID history (widened from clause IDs to every register kind): a pack
 # id, once assigned, is never reused, whatever register kind carries it (clause,
 # gate, hook, generation rule); clause / gate / hook / rule ids share ONE
 # namespace. A retirement is recorded here, never erased.

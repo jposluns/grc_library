@@ -1,13 +1,14 @@
 # Reference-vocabulary profile: framework-citation denylist (grc defaults).
 #
-# Concern: citations. This is the LIVE gate-5 configuration since Phase-4 PR-B:
+# Concern: citations. This is the LIVE gate-5 configuration:
 # .claude/skills/corpus-management/tools/lint-citations.py loads it via profile_loader.load("citations") and
 # converts it to the engine shapes in _citation_config(). Values were
-# transcribed verbatim from the wrapper literals in Phase-4 PR-A; PR-B removed
-# those literals, so this profile is now the single source (no duplication).
+# transcribed verbatim from the wrapper literals, which were then removed, so
+# this profile is the single source of these values; the wrapper holds no
+# copy of them.
 #
-# Shape mirrors the engine's two data structures 1:1 so PR-B is a faithful
-# migration, not a reshape: each [[citations.denylist]] entry is the engine
+# Shape mirrors the engine's two data structures 1:1: each
+# [[citations.denylist]] entry is the engine
 # tuple (term = string-to-find, reason = why-it-is-wrong, replacement =
 # suggested-replacement); [citations.path_exemptions] is the engine's dict of
 # term -> exempt relative posix paths (CHANGELOG is the canonical exemption:

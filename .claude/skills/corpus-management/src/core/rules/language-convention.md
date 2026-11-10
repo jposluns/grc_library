@@ -9,7 +9,7 @@ has no opinion, Commonwealth forms are preferred; where neither has an opinion, 
 dialects' usage is acceptable. Scheme-qualified `http(s)` URLs are external identifiers:
 the `-ise`, `-isation` and `-yse` checks skip the URL, not adjacent prose (dash,
 `ensure that` and heading-case checks still apply, URL included). The
-`.claude/skills/corpus-management/src/README.md` 3b366 entry and the `URL_PATTERN` comment in
+"URL masking (gate 2)" section of `.claude/skills/corpus-management/src/README.md` and the `URL_PATTERN` comment in
 `.claude/skills/corpus-management/src/tools/gate_lint_language.py` give token rules, checked residuals
 and accepted over-masks.
 Em-dashes (`—`) and en-dashes (`–`) are forbidden in prose regardless of dialect; use

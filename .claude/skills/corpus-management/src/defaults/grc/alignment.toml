@@ -1,6 +1,6 @@
 # Reference-vocabulary profile: filename/title alignment vocabulary (grc defaults).
 #
-# Concern: alignment. The LIVE gate-7 configuration since Phase-4 PR-E:
+# Concern: alignment. The LIVE gate-7 configuration:
 # .claude/skills/corpus-management/tools/lint-filename-title-alignment.py loads it via
 # profile_loader.load("alignment") and rebuilds the engine's inputs in
 # _alignment_config(): a synonyms dict[str,str] and a doctypes set[str].

@@ -1,5 +1,5 @@
-# Corpus-Management pack manifest (umbrella 4.1).
-# Compile PR-2 activates generation: the compiler (tools/corpus_mgmt_compiler.py,
+# Corpus-Management pack manifest.
+# The compiler (tools/corpus_mgmt_compiler.py,
 # wrapped by the project's .claude/skills/corpus-management/tools/build-corpus-management.py) owns the targets
 # summarized below; gate 99 runs its --check form.
 # Paths are relative to the pack root (.claude/skills/corpus-management/src/).
@@ -7,7 +7,7 @@ schema_version = 1
 
 [pack]
 id = "corpus-management"
-version = "0.23.0"
+version = "0.23.1"
 state = "active"
 source_root = "."
 
@@ -25,7 +25,7 @@ profiles = "core/profiles.toml"
 hooks = "core/hooks.toml"
 
 [classification]
-# The maintainer-confirmed (2026-09-14) gate-home classification: which of the grc
+# The gate-home classification: which of the grc
 # audit gates are Corpus-Management extraction candidates vs AIQT / harness-fleet /
 # grc-only. Roadmap/reference register (NOT compiler-consumed); the authoritative
 # source for the gate-wave transfer sequence.

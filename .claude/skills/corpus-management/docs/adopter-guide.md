@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.37\
-**Date:** 2026-11-09\
+**Version:** 1.3.39\
+**Date:** 2026-11-10\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../../../../README.md), [`governance/register-document-index-and-classification.md`](../../../../governance/register-document-index-and-classification.md), [`governance/decision-tree.md`](../../../../governance/decision-tree.md), [`governance/worked-example.md`](../../../../governance/worked-example.md), [`.claude/skills/corpus-management/docs/worked-example-adoption.md`](worked-example-adoption.md), [`.claude/skills/corpus-management/docs/adopter-guide-multi-entity.md`](adopter-guide-multi-entity.md), [`governance/specification-master-project.md`](../../../../governance/specification-master-project.md)\
@@ -199,9 +199,9 @@ Before treating an adopted artefact as operational in your organization:
 
 ## Tracking upstream updates
 
-The library publishes phase-level releases through the [CHANGELOG](../../../../.working/CHANGELOG.md). When pulling from upstream:
+The library records its changes in the [CHANGELOG](../../../../.working/CHANGELOG.md) as per-PR entries and weekly summaries: each merged pull request has its own entry until its week is rolled up into that week's summary. When pulling from upstream:
 
-1. Read the changelog entry for the period since your last pull.
+1. Read the changelog entries and weekly summaries since your last pull.
 2. Run `.claude/skills/corpus-management/tools/run_all_audits.sh` to confirm your fork is still conformant after the merge.
 3. Resolve any version conflicts by keeping your fork's version on the artefact and recording an upstream-reconciliation note in your local change record.
 
