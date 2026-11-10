@@ -2,8 +2,8 @@
 
 **Document Title:** Crypto-Asset Service Provider Vetting Standard\
 **Document Type:** Standard\
-**Version:** 0.0.2\
-**Date:** 2026-09-28\
+**Version:** 0.0.3\
+**Date:** 2026-11-10\
 **Owner:** Crypto-Asset Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`crypto/README.md`](README.md), [`crypto/framework-crypto-asset-governance.md`](framework-crypto-asset-governance.md), [`crypto/standard-digital-asset-custody.md`](standard-digital-asset-custody.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`compliance/financial-services/annex-mica-implementation.md`](../compliance/financial-services/annex-mica-implementation.md)\
@@ -26,7 +26,7 @@ This standard sets the crypto-specific acceptance requirements for selecting and
 
 This standard applies before initial engagement, and again upon a material change in legal entity, ownership, authorization, service scope, custody model, supported network, or outsourcing chain, to an external legal person providing one or more of: custody or administration of crypto-assets; a crypto-asset trading platform or exchange; exchange of crypto-assets for funds or other crypto-assets; reception, transmission, execution, or routing of orders; crypto-asset transfer services; on-ramp or off-ramp facilities and any related payment provider; or sub-custody or another material outsourced component of those services.
 
-It does not govern selection of the underlying blockchain or distributed-ledger network (the framework's platform and technology model), the organization's internal custody mechanics (the [Digital Asset Custody Standard](standard-digital-asset-custody.md)), or token classification (the framework). A decentralized protocol with no accountable contracting provider is out of scope unless the maintainer expands it; where there is a contracting provider, that provider is in scope.
+It does not govern selection of the underlying blockchain or distributed-ledger network (the framework's platform and technology model), the organization's internal custody mechanics (the [Digital Asset Custody Standard](standard-digital-asset-custody.md)), or token classification (the framework). A decentralized protocol with no accountable contracting provider is out of scope unless the Governance Library Maintainer expands it; where there is a contracting provider, that provider is in scope.
 
 ## 3. Requirements
 

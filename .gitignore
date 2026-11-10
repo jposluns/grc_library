@@ -28,11 +28,11 @@ __pycache__/
 # permissions overrides); never committed.
 .claude/settings.local.json
 
-# Local VM terminal-output mirror (Stop hook; never committed)
+# AI assistant terminal-output log; never committed.
 claude-output.log
 
 # Machine-local self-guard hook state (block-history JSONL; never committed).
 .claude/hooks/.state/
 
-# Session/orchestration artefact (carries account config); never commit.
+# Local state, which can carry account configuration; never committed.
 .orch

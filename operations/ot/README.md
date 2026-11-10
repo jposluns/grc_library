@@ -2,8 +2,8 @@
 
 **Document Title:** Operational Technology (OT) Sub-Directory README\
 **Document Type:** Register\
-**Version:** 1.5.3\
-**Date:** 2026-07-02\
+**Version:** 1.5.4\
+**Date:** 2026-11-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/README.md`](../README.md), [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md), [`compliance/energy-and-utilities/`](../../compliance/energy-and-utilities/), [`compliance/logistics/`](../../compliance/logistics/)\
@@ -56,9 +56,9 @@ The sub-directory does **not** duplicate IT security content already in the libr
 
 ---
 
-## Phase 22 status
+## Further expansion
 
-Phase 22 (OT depth) is complete with the addition of the BMS overlay annex (Phase 22.6). Subsequent OT expansion will be driven by adopter feedback and sector-specific OT requirements rather than the original Phase 22 sub-phase plan.
+The OT set listed above is complete as shipped, ending with the BMS overlay annex. Further OT expansion is driven by adopter feedback and sector-specific OT requirements.
 
 ---
 

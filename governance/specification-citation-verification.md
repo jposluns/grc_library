@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.42\
-**Date:** 2026-11-09\
+**Version:** 1.2.43\
+**Date:** 2026-11-10\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`.claude/skills/corpus-management/tools/lint-standards-currency.py`](../.claude/skills/corpus-management/tools/lint-standards-currency.py), [`governance/specification-ingestion.md`](specification-ingestion.md)\
@@ -29,7 +29,7 @@ It exists because the library's audit programme (see [`specification-audit-progr
 ### 2.1 In scope
 
 - Every entry in the Canonical Citations Register.
-- New citations added to that register in subsequent phases (each addition triggers verification before the linter trusts it).
+- New citations added to that register later (each addition triggers verification before the linter trusts it).
 - Standards, regulations, frameworks, protocols, and specifications cited by name and version anywhere in the library that map to a register entry.
 
 ### 2.2 Out of scope
@@ -44,7 +44,7 @@ It exists because the library's audit programme (see [`specification-audit-progr
 
 ### 3.1 Why this section exists
 
-This specification was first written assuming a single verifier role with full web access. In practice, verification work is performed across two actors with different capabilities and trust profiles: an AI verifier (the maintainer's AI assistant operating in a sandboxed environment with restricted outbound network access) and a human verifier (the maintainer or a delegated human reviewer with an ordinary browser).
+Verification work is performed across two actors with different capabilities and trust profiles: an AI verifier (the maintainer's AI assistant operating in an environment with restricted outbound network access) and a human verifier (the maintainer or a delegated human reviewer with an ordinary browser).
 
 This section codifies the split. It exists not because the AI/human split is a compromise of the methodology, but because honest disclosure of *which actor performed which step* is itself a credibility control. A reader of the Citation Verifications Register must be able to tell, for any row, whether the captured text was taken by a human reading the publisher's page directly or by an AI reading a search snippet. Conflating the two would dilute the trust value of every row.
 
@@ -53,7 +53,7 @@ This section codifies the split. It exists not because the AI/human split is a c
 | Role | Capabilities | Trust profile |
 | --- | --- | --- |
 | **Human verifier** (maintainer or delegated reviewer) | Unrestricted browser access; can fetch publisher pages directly under TLS; can submit and retrieve Wayback Machine snapshots. | Bears integrity responsibility for verbatim text capture and confidence rating. The verification of record. |
-| **AI verifier** (maintainer's AI assistant) | Operates in a sandboxed environment with restricted outbound network access. Cannot fetch publisher pages directly. Cannot fetch or submit Wayback Machine snapshots. May use Web Search for orientation only. | Performs worklist preparation and clerical recording of human-captured text. Does not perform primary verification. |
+| **AI verifier** (maintainer's AI assistant) | Operates in an environment with restricted outbound network access. Cannot fetch publisher pages directly. Cannot fetch or submit Wayback Machine snapshots. May use Web Search for orientation only. | Performs worklist preparation and clerical recording of human-captured text. Does not perform primary verification. |
 
 ### 3.3 AI verifier responsibilities
 
@@ -78,11 +78,11 @@ The human verifier:
 
 ### 3.5 Environmental constraints disclosure
 
-The following constraints in the AI verifier's environment were observed at the time this specification was first written (2026-05-29). They are recorded here for transparency; future capability changes are tracked by version bump.
+The following constraints in the AI verifier's environment were observed when this specification was first written (2026-05-29), and are recorded here for transparency. A capability change is recorded in a new version of this specification.
 
-- `WebFetch` to publisher canonical domains (iso.org, nist.gov, iec.ch, ietf.org, others tested) returns HTTP 403 Forbidden.
-- `WebFetch` to `web.archive.org` is explicitly blocked at the harness level.
-- `WebSearch` is available but returns: result titles and URLs (page-derived), result snippets (page-derived but partial), and search-engine summaries (which may be AI-generated and are explicitly not a verification source under §6.4).
+- A direct page fetch from publisher canonical domains (iso.org, nist.gov, iec.ch, ietf.org, others tested) returns HTTP 403 Forbidden.
+- `web.archive.org` is not reachable from the AI verifier's environment.
+- Web search is available but returns: result titles and URLs (page-derived), result snippets (page-derived but partial), and search-engine summaries (which may be AI-generated and are explicitly not a verification source under §6.4).
 - No persistent browser session is available to the AI verifier.
 
 The operating principle is that any capability the AI verifier discovers it lacks is added here on first detection rather than worked around silently. A future AI environment with broader access may collapse some AI/human responsibilities back together; until then, the split in §3.3 and §3.4 stands.
@@ -97,7 +97,7 @@ A worklist is not retained indefinitely after the batch is closed; the authorita
 
 ## 4. Why "spot sampling" is not sufficient
 
-An earlier proposal was to sample N citations per phase. That proposal is rejected. For a reference library that is intended to be adopted, partial verification has the wrong failure mode: a citation that is wrong but un-sampled stays wrong, propagates to every adopter, and is invisible to the maintainer because the audit reports "sample clean."
+For a reference library that is intended to be adopted, partial verification has the wrong failure mode: a citation that is wrong but un-sampled stays wrong, propagates to every adopter, and is invisible to the maintainer because the audit reports "sample clean."
 
 The methodology in this specification verifies **every** entry. The cost is bounded (the register is finite) and the value (a citation register that is verifiable rather than asserted) justifies the cost.
 
@@ -148,21 +148,21 @@ The verifier does not ask another LLM, does not consult AI-generated summaries, 
 
 For each verification, the live URL must match the publisher's known canonical domain (per §7 allow-list). TLS connection state is recorded. Lookalike domains are flagged and not used.
 
-### 6.6 Local reference base (the `grc_library_ref` repo)
+### 6.6 Local reference base
 
-The maintainer keeps the source texts that verification and authoring draw on (the publisher standards, laws, and framework catalogues cited across the corpus) in the separate `grc_library_ref` repository (buckets at its root), so an AI verifier can read them locally rather than re-fetching paywalled or egress-blocked upstream pages each turn. The base is trust-bucketed, mirroring the §6.1 tiers:
+The maintainer keeps the source texts that verification and authoring draw on (the publisher standards, laws, and framework catalogues cited across the corpus) in a separate private reference base (buckets at its root), so an AI verifier can read them locally rather than re-fetching paywalled or egress-blocked upstream pages for each verification. The base is trust-bucketed, mirroring the §6.1 tiers:
 
-- `grc_library_ref/standards/` (ISO/IEC, NIST, ETSI, IEEE) and `grc_library_ref/legislation/` (statutes by jurisdiction): **authoritative ground truth**, corresponding to Tier 1. Legislation is version-sensitive; confirm the in-force consolidated version.
-- `grc_library_ref/frameworks/` (MITRE, OWASP, CSA CCM/AICM, COBIT) and `grc_library_ref/programs/`: **trusted, sub-formal**; for a normative claim prefer a formal standard or law.
-- `grc_library_ref/publications/` (vendor explainers, surveys, threat reports): **untrusted by default**; screen for bias or poisoning and corroborate any load-bearing claim against a `grc_library_ref/standards/`, `grc_library_ref/frameworks/`, or `grc_library_ref/legislation/` source before relying on it (per the publication-screening process, slash command `/screen-publications`).
-- `grc_library_ref/templates/`: trusted-issuer scaffolding to adapt, not to cite (for example, the ISACA policy templates are usable as structural scaffolding, adapt-do-not-copy).
+- The reference base's `standards/` bucket (ISO/IEC, NIST, ETSI, IEEE) and its `legislation/` bucket (statutes by jurisdiction): **authoritative ground truth**, corresponding to Tier 1. Legislation is version-sensitive; confirm the in-force consolidated version.
+- The reference base's `frameworks/` bucket (MITRE, OWASP, CSA CCM/AICM, COBIT) and its `programs/` bucket: **trusted, sub-formal**; for a normative claim prefer a formal standard or law.
+- The reference base's `publications/` bucket (vendor explainers, surveys, threat reports): **untrusted by default**; screen for bias or poisoning and corroborate any load-bearing claim against a `standards/`, `frameworks/`, or `legislation/` source in the reference base before relying on it (per the publication-screening process, slash command `/screen-publications`).
+- The reference base's `templates/` bucket: trusted-issuer scaffolding to adapt, not to cite (for example, the ISACA policy templates are usable as structural scaffolding, adapt-do-not-copy).
 
 Two constraints govern its use:
 
-- **The base is believed-current STORAGE, not the version authority.** Confirm a load-bearing version against the upstream `Upstream check location` per §12.3; the local holding records only what was believed current when it was ingested. Consult the `grc_library_ref/INDEX.md` (not a guessed path) for what is held and where.
-- **The source texts are NOT redistributed in this corpus, apart from the short, attributed quotation that [`NOTICE.md`](../NOTICE.md) allows or its transition clause keeps.** Many held texts are proprietary or licence-restricted, and the `grc_library_ref` base is the maintainer's own private reference base; do not copy source text into corpus documents (cite the metadata and the requirement, not the copyrighted body) beyond that quotation.
+- **The base is believed-current STORAGE, not the version authority.** Confirm a load-bearing version against the upstream `Upstream check location` per §12.3; the local holding records only what was believed current when it was ingested. Consult the reference base's `INDEX.md` (not a guessed path) for what is held and where.
+- **The source texts are NOT redistributed in this corpus, apart from the short, attributed quotation that [`NOTICE.md`](../NOTICE.md) allows or its transition clause keeps.** Many held texts are proprietary or licence-restricted, and the reference base is the maintainer's own private holding; do not copy source text into corpus documents (cite the metadata and the requirement, not the copyrighted body) beyond that quotation.
 
-For the `/matrix-fit` semantic-fit audit, the control-title reference base is the `grc_library_ref` CCM/AICM catalogue CSVs and the NIST CSF 2.0 OSCAL, plus the COBIT 2019 objective titles and ISO 31000:2018 clause headings encoded in [`.claude/skills/corpus-management/tools/cobit_iso31000_reference.py`](../.claude/skills/corpus-management/tools/cobit_iso31000_reference.py) (the 2026-07-02 extension), so the cadence is reproducible against held ground truth rather than memory; an ISO/IEC 27001:2022 Annex A title map would extend it once a title-map extract is built (that extract is not yet available, so the ISO column is not yet in the matrix-fit reference base). The same semantic-layer pattern covers normative-value attribution claims via the cadenced `/claim-fit` audit (the `claim-fit` procedure, [`.claude/skills/corpus-management/procedures/claim-fit.md`](../.claude/skills/corpus-management/procedures/claim-fit.md), over a worklist built by hand from the in-scope diff or document set): where this specification's scope sections note that what a standard REQUIRES is outside the mechanical gates' reach, that precision residual is instrumented by the claim-fit cadence rather than uninstrumented. The in-repo validator modules ([`.claude/skills/corpus-management/tools/ccm_aicm_reference.py`](../.claude/skills/corpus-management/tools/ccm_aicm_reference.py), [`.claude/skills/corpus-management/tools/nist_csf_reference.py`](../.claude/skills/corpus-management/tools/nist_csf_reference.py), [`.claude/skills/corpus-management/tools/iso_27001_reference.py`](../.claude/skills/corpus-management/tools/iso_27001_reference.py), [`.claude/skills/corpus-management/tools/cobit_iso31000_reference.py`](../.claude/skills/corpus-management/tools/cobit_iso31000_reference.py)) that gates 48/49/54/58/61 build on encode the control codes (and, for CCM/AICM, CSF 2.0, COBIT 2019, and ISO 31000:2018, their titles or clause headings); the `grc_library_ref` extracts carry the full specification text.
+For the `/matrix-fit` semantic-fit audit, the control-title ground truth is the reference base's CCM/AICM catalogue CSVs and the NIST CSF 2.0 OSCAL, plus the COBIT 2019 objective titles and ISO 31000:2018 clause headings encoded in [`.claude/skills/corpus-management/tools/cobit_iso31000_reference.py`](../.claude/skills/corpus-management/tools/cobit_iso31000_reference.py), so the cadence is reproducible against held ground truth rather than memory; the ISO/IEC 27001:2022 Annex A titles are not part of the matrix-fit ground truth. The same semantic-layer pattern covers normative-value attribution claims via the cadenced `/claim-fit` audit (the `claim-fit` procedure, [`.claude/skills/corpus-management/procedures/claim-fit.md`](../.claude/skills/corpus-management/procedures/claim-fit.md), over a worklist built by hand from the in-scope diff or document set): where this specification's scope sections note that what a standard REQUIRES is outside the mechanical gates' reach, that precision residual is instrumented by the claim-fit cadence rather than uninstrumented. The in-repo validator modules ([`.claude/skills/corpus-management/tools/ccm_aicm_reference.py`](../.claude/skills/corpus-management/tools/ccm_aicm_reference.py), [`.claude/skills/corpus-management/tools/nist_csf_reference.py`](../.claude/skills/corpus-management/tools/nist_csf_reference.py), [`.claude/skills/corpus-management/tools/iso_27001_reference.py`](../.claude/skills/corpus-management/tools/iso_27001_reference.py), [`.claude/skills/corpus-management/tools/cobit_iso31000_reference.py`](../.claude/skills/corpus-management/tools/cobit_iso31000_reference.py)) that gates 48/49/54/58/61 build on encode the control codes (and, for CCM/AICM, CSF 2.0, COBIT 2019, and ISO 31000:2018, their titles or clause headings); the reference base's extracts carry the full specification text.
 
 ---
 
@@ -702,27 +702,19 @@ The allow-list itself is subject to the same verification discipline as register
 
 A standard or regulation cited in the library that is not covered by an allow-list entry triggers a methodology update. The new publisher domain is added to §7.1 in a new revision of this specification, with the date and rationale.
 
-**2026-07-09 (register v1.5.17, reference-currency sweep):** added `ecfr.gov` (US Electronic Code of Federal Regulations) to the US Federal entry, for the CMMC 32 CFR 170 / 48 CFR DFARS acquisition rule; and `pib.gov.in` (India Press Information Bureau) as a new India entry, for the DPDP Rules 2025 notification.
+Coverage notes for the §7.1 entries, each with its date:
 
-**2026-07-11 (register v1.5.20, AI-workstream PR 7 NYC LL144 annex):** added `nyc.gov` (New York City) to the US States and localities entry, for the Local Law 144 / DCWP Automated Employment Decision Tools rule.
-
-**2026-07-11 (register v1.5.21, AI-workstream canonical-register enrollment for the AI jurisdiction annexes):** added `osfi-bsif.gc.ca`, `ola.org`, and `dgc-cgn.org` to the Canada entry (OSFI Guideline E-23; Ontario Bill 194 / Enhancing Digital Security and Trust Act; CAN/DGSI 101:2025) and noted `tbs-sct.canada.ca` (TBS Directive on Automated Decision-Making, already suffix-covered by `canada.ca`); and added `industry.gov.au` and `ai.gov.au` to the Australia entry (the DISR National AI Plan, AI Ethics Principles, and Voluntary AI Safety Standard; the National AI Centre Guidance for AI Adoption).
-
-**2026-09-24 (register v1.5.77, 3b27(c) CycloneDX register row):** added `cyclonedx.org` (the OWASP CycloneDX project's canonical specification site, which states the current specification version) as the OWASP CycloneDX entry, for the CycloneDX canonical-citations row.
-
-**2026-09-25 (PR #2564, Malaysia AI annex):** added `mosti.gov.my` (Malaysia Ministry of Science, Technology and Innovation, publisher of the National Guidelines on AI Governance and Ethics) to the existing Malaysia row, with the matching external-link allow-list entry.
-
-**2026-09-24 (3b31b, parity gate):** gate 101 ([`.claude/skills/corpus-management/tools/lint-allowlist-spec-parity.py`](../.claude/skills/corpus-management/tools/lint-allowlist-spec-parity.py)) now keeps this section and the external-link gate's allow-list in parity. Every allow-list domain must be covered by a section 7.1 domain (the entry or a parent of it), or carry a same-line `non-publisher:` or `pending-publisher:` marker with a reason; every section 7.1 domain must be admitted by the allow-list. At adoption 27 entries carry a marker: 25 non-publishers (code and package hosting, identifiers, format conventions, the licence, the project's own sites, tool vendors) and 2 pending publishers; promptfoo, which has a register entry, gained its own row instead (`cisecurity.org` and `cncf.io`, whose sources await Canonical Citations Register entries).
-
-**2026-09-24 (3b30, publisher-list reconciliation):** section 7.1 reconciled with the gate's allow-list. Domains added to existing rows: `atlas.mitre.org` (MITRE); `cbp.gov` and `dodcio.defense.gov` (US Federal); `europa.eu` (EU); `gov.uk` (UK); `canada.ca` and `parl.ca` (Canada; `canada.ca` also reconciles the 2026-07-11 note that `tbs-sct.canada.ca` is suffix-covered by it); `oag.ca.gov`, `cppa.ca.gov` and `capitol.texas.gov` (US States and localities); `imda.gov.sg` and `aiverifyfoundation.sg` (Singapore); `aisi.org.uk` (UK AISI). The OWASP CycloneDX row became a general OWASP row. New rows: IEEE, ETSI, PCI SSC, OECD, WTO, World BASC Organization, South Korea, OpenSSF / Linux Foundation, MLCommons, AVID, HarmBench. The allow-listed publisher domains `cisecurity.org`, `sans.org`, `saif.google`, `cncf.io` and `spdx.org` get rows when their sources gain Canonical Citations Register entries (tracked follow-ups). Allow-listed domains that are not citation publishers (code hosting, identifiers, package registries, format conventions, vendors and tools, and the project's own sites) stay allow-listed without a row, by design. Eligibility follows section 2.1: a publisher qualifies for a row when the Canonical Citations Register carries an entry for its source, whether that source is normative (a standard or regulation) or informative (a benchmark, a vulnerability database, or guidance).
-
-**2026-09-24 (3b32, SANS and Google SAIF register rows):** added the SANS Institute (`sans.org`) and Google (`saif.google`) publisher rows, now that their sources have Canonical Citations Register entries.
-
-**2026-09-24 (3b28, SPDX register row):** added `spdx.org` and `spdx.dev` (the project's current site, to which spdx.org redirects; the register row's upstream-check URL is on spdx.dev so that no fetch crosses a redirect to an unlisted domain) to the OpenSSF / Linux Foundation row, now that the SPDX specification has a Canonical Citations Register entry.
-
-**2026-10-23 (register v1.6.7, 2.25.2 international AI-governance authorities):** added three new rows: UNESCO (`unesco.org`), for the UNESCO Recommendation on the Ethics of AI row; Council of Europe (`coe.int`, via the Treaty Office), for the Council of Europe Framework Convention on AI (CETS No. 225) row; and Japan (G7 Hiroshima AI Process) (`soumu.go.jp`, the Ministry of Internal Affairs and Communications Hiroshima AI Process site), for the G7 Hiroshima Process International Code of Conduct row; each with the matching external-link allow-list entry.
-
-**2026-10-24 (register v1.6.11, 2.34.9 workforce-monitoring citations import):** added a new ILO row (`ilo.org`, International Labour Organization), for the ILO Code of Practice on the Protection of Workers' Personal Data (1997) register row, with the matching external-link allow-list entry; and extended the Council of Europe row's coverage note to Recommendation CM/Rec(2015)5 on the processing of personal data in the context of employment (`rm.coe.int`, already suffix-covered by `coe.int`). The WP249 and UK ICO Monitoring workers rows need no new domain (`europa.eu` and `ico.org.uk` are already listed).
+- **US Federal and India (2026-07-09).** The US Federal entry includes `ecfr.gov` (US Electronic Code of Federal Regulations), for the CMMC 32 CFR 170 / 48 CFR DFARS acquisition rule. The India entry is `pib.gov.in` (India Press Information Bureau), for the DPDP Rules 2025 notification.
+- **US States and localities (2026-07-11).** The entry includes `nyc.gov` (New York City), for the Local Law 144 / DCWP Automated Employment Decision Tools rule.
+- **Canada and Australia (2026-07-11).** The Canada entry includes `osfi-bsif.gc.ca`, `ola.org`, and `dgc-cgn.org` (OSFI Guideline E-23; Ontario Bill 194 / Enhancing Digital Security and Trust Act; CAN/DGSI 101:2025); `tbs-sct.canada.ca` (TBS Directive on Automated Decision-Making) is suffix-covered by `canada.ca`. The Australia entry includes `industry.gov.au` and `ai.gov.au` (the DISR National AI Plan, AI Ethics Principles, and Voluntary AI Safety Standard; the National AI Centre Guidance for AI Adoption).
+- **OWASP (2026-09-24).** The OWASP row is a general OWASP row. It includes `cyclonedx.org` (the OWASP CycloneDX project's canonical specification site, which states the current specification version), for the CycloneDX canonical-citations row.
+- **Malaysia (2026-09-25).** The Malaysia row includes `mosti.gov.my` (Malaysia Ministry of Science, Technology and Innovation, publisher of the National Guidelines on AI Governance and Ethics), with the matching external-link allow-list entry.
+- **Parity with the allow-list (2026-09-24).** Gate 101 ([`.claude/skills/corpus-management/tools/lint-allowlist-spec-parity.py`](../.claude/skills/corpus-management/tools/lint-allowlist-spec-parity.py)) keeps this section and the external-link gate's allow-list in parity. Every allow-list domain must be covered by a section 7.1 domain (the entry or a parent of it), or carry a same-line `non-publisher:` or `pending-publisher:` marker with a reason; every section 7.1 domain must be admitted by the allow-list. When the parity check was adopted, 27 allow-list entries carried a marker: 25 non-publishers and 2 pending publishers. The non-publisher markers cover code and package hosting, identifiers, format conventions, the licence, the project's own sites, and tool vendors. `cisecurity.org` and `cncf.io` carry the pending-publisher marker until their sources have Canonical Citations Register entries. promptfoo, which has a register entry, has its own row.
+- **Rows matched to the allow-list (2026-09-24).** Existing rows include these domains: `atlas.mitre.org` (MITRE); `cbp.gov` and `dodcio.defense.gov` (US Federal); `europa.eu` (EU); `gov.uk` (UK); `canada.ca` and `parl.ca` (Canada); `oag.ca.gov`, `cppa.ca.gov` and `capitol.texas.gov` (US States and localities); `imda.gov.sg` and `aiverifyfoundation.sg` (Singapore); `aisi.org.uk` (UK AISI). Rows also exist for IEEE, ETSI, PCI SSC, OECD, WTO, World BASC Organization, South Korea, OpenSSF / Linux Foundation, MLCommons, AVID, and HarmBench. An allow-listed publisher domain gets a row when its source gains a Canonical Citations Register entry. Allow-listed domains that are not citation publishers (code hosting, identifiers, package registries, format conventions, vendors and tools, and the project's own sites) stay allow-listed without a row, by design. Eligibility follows section 2.1: a publisher qualifies for a row when the Canonical Citations Register carries an entry for its source, whether that source is normative (a standard or regulation) or informative (a benchmark, a vulnerability database, or guidance).
+- **SANS and Google SAIF (2026-09-24).** The SANS Institute (`sans.org`) and Google (`saif.google`) have publisher rows because their sources have Canonical Citations Register entries.
+- **SPDX (2026-09-24).** The OpenSSF / Linux Foundation row includes `spdx.org` and `spdx.dev` (the project's current site, to which spdx.org redirects; the register row's upstream-check URL is on spdx.dev so that no fetch crosses a redirect to an unlisted domain), because the SPDX specification has a Canonical Citations Register entry.
+- **International AI-governance authorities (2026-10-23).** Rows exist for UNESCO (`unesco.org`), for the UNESCO Recommendation on the Ethics of AI row; Council of Europe (`coe.int`, via the Treaty Office), for the Council of Europe Framework Convention on AI (CETS No. 225) row; and Japan (G7 Hiroshima AI Process) (`soumu.go.jp`, the Ministry of Internal Affairs and Communications Hiroshima AI Process site), for the G7 Hiroshima Process International Code of Conduct row; each has the matching external-link allow-list entry.
+- **Workforce monitoring (2026-10-24).** The ILO row (`ilo.org`, International Labour Organization) covers the ILO Code of Practice on the Protection of Workers' Personal Data (1997) register row, with the matching external-link allow-list entry. The Council of Europe row's coverage note extends to Recommendation CM/Rec(2015)5 on the processing of personal data in the context of employment (`rm.coe.int`, suffix-covered by `coe.int`). The WP249 and UK ICO Monitoring workers rows need no new domain (`europa.eu` and `ico.org.uk` are listed).
 
 ---
 
@@ -772,7 +764,7 @@ After a verification batch:
 
 ### 8.6 Spot-check (human verifier)
 
-After each verification sub-phase, the human verifier (the maintainer or a delegated reviewer who did not perform the original verification in that batch) personally spot-checks at least five entries by opening the recorded URLs and reading the publisher page. The spot-check confirms that the captured text matches what the page currently says. Any divergence stops the methodology and triggers a methodology review.
+After each verification batch, the human verifier (the maintainer or a delegated reviewer who did not perform the original verification in that batch) personally spot-checks at least five entries by opening the recorded URLs and reading the publisher page. The spot-check confirms that the captured text matches what the page currently says. Any divergence stops the methodology and triggers a methodology review.
 
 ---
 
@@ -829,7 +821,7 @@ Citations age. Standards are revised, superseded, withdrawn, or renumbered. Tool
 ### 12.1 Canonical Citations Register (12-month cadence)
 
 - Each entry in the Canonical Citations Register is re-verified every 12 months from its last `Date checked`.
-- A linter (`lint-citation-verification-freshness`) is added in a subsequent phase. It reads the Citation Verifications Register, computes per-entry age, and flags any entry whose latest verification is older than 12 months.
+- The linter `lint-citation-verification-freshness` reads the Citation Verifications Register, computes per-entry age, and flags any entry whose latest verification is older than 12 months.
 - Re-verification produces a new row in the verifications log; the prior row is retained as historical evidence.
 - Re-verification on demand is also permitted: any change to the canonical-citations register entry, or any external report of a publisher revision, triggers re-verification.
 
@@ -848,11 +840,11 @@ The linter [`.claude/skills/corpus-management/tools/lint-tooling-provenance-fres
 
 The Canonical Citations Register ([`register-canonical-citations.md`](register-canonical-citations.md)) carries two currency columns, `Upstream check location` (the authoritative upstream page where the current version is published) and `Last verified (UTC)` (the date that location was last fetch-confirmed, or `needs-reconfirm`). They support a faster, task-cued re-check that sits alongside the periodic §12.1 cadence:
 
-- **The upstream source is the only version authority.** This operationalizes the `evidence-grounded-completion` rule's external-version-currency corollary. A stored note, a cached copy, or a `grc_library_ref` holding is believed-current STORAGE, never the authority on whether a version is current. The authoritative answer to "is this current?" is the `Upstream check location`, verified in the current turn.
-- **The check order whenever a row is load-bearing for a task**: (1) find what is held, via the register and the `grc_library_ref` index, not a guess; (2) verify the current version at the `Upstream check location` this turn; (3) act only after both.
+- **The upstream source is the only version authority.** A stored note, a cached copy, or a reference-base holding is believed-current STORAGE, never the authority on whether a version is current. The authoritative answer to "is this current?" is the `Upstream check location`, verified during the current verification task before the row is relied on.
+- **The check order whenever a row is load-bearing for a task**: (1) find what is held, via the register and the reference base's index, not a guess; (2) verify the current version at the `Upstream check location` during the current verification task; (3) act only after both.
 - **The trigger**: when a load-bearing row's `Last verified (UTC)` is `needs-reconfirm` or older than **one week**, re-check before relying on it, and refresh `Last verified (UTC)` (and the version columns, if upstream has moved) in that PR.
-- **Advisory, not a CI gate.** A hard gate would fail whenever egress is blocked (an environment condition, not a defect; as of the 2026-06-30 population, `iso.org`, the IEC webstore, and several government sources block automated fetch, so their rows carry `needs-reconfirm`). The check is cued by the column and this cadence, in the same advisory spirit as the matrix-fit worklist, not enforced by a build gate.
-- **Superseded-archival for `grc_library_ref`.** On discovering upstream is newer than a `grc_library_ref` holding, follow the superseded-archival workflow (download the new version into `grc_library_ref` if egress allows; move the old version's files into the retained-version store `grc_library_ref/.superseded/`; update the catalogue and indexes). When the update needs a license or a maintainer download, or egress is blocked, pause and surface to the maintainer, and never write or rely on a superseded version without explicit authorization. The full workflow lives in the multi-session-orchestration runbook; the `grc_library_ref` repository is the believed-current store, this register plus the upstream link are the currency authority.
+- **Advisory, not a CI gate.** A hard gate would fail whenever egress is blocked (an environment condition, not a defect; as of the 2026-06-30 population, `iso.org`, the IEC webstore, and several government sources blocked automated fetch, so their rows then carried `needs-reconfirm`). The check is cued by the column and this cadence, in the same advisory spirit as the matrix-fit worklist, not enforced by a build gate.
+- **Superseded-archival for the reference base.** On discovering upstream is newer than a reference-base holding, follow the superseded-archival workflow (download the new version into the reference base if egress allows; move the old version's files into the reference base's `.superseded/` retained-version store; update the catalogue and indexes). When the update needs a licence or a maintainer download, or egress is blocked, pause and surface to the maintainer, and never write or rely on a superseded version without explicit authorization. The reference base is the believed-current store; this register plus the upstream link are the currency authority.
 
 ---
 

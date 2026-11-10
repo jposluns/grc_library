@@ -1,22 +1,22 @@
 # TODO
 
-Forward-looking backlog of planned enhancements for the GRC Documentation Library. This file is an index-only roadmap (one row per open item, in priority bands); the per-item detail lives in the maintainer's private sibling (`grc_library_private/TODO-REFERENCE.md`), joined by the stable id, and is not part of this public repository (maintainer-directed 2026-08-29: the detail does not need public visibility). Items are added when identified and rotated out when completed (the index row is deleted here; the private detail block rotates separately). Completed items move to the operational store's DONE ledger (closed-TODO ledger, keyed by original backlog ID); historical change detail lives in [`.working/CHANGELOG.md`](CHANGELOG.md).
+Forward-looking backlog of planned enhancements for the GRC Documentation Library. This file is an index-only roadmap (one row per open item, in priority bands); the per-item detail lives in a private operational store, where the project keeps one, joined by the stable id, and is not part of this public repository. Items are added when identified and rotated out when completed (the index row is deleted here; the detail block and the closure record, keyed by original backlog ID, are kept outside this repository); historical change detail lives in [`.working/CHANGELOG.md`](CHANGELOG.md).
 
-This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions: the ordinary CONTENT and METADATA gates skip it. A set of BACKLOG-SPECIFIC gates does intentionally read it, because governing the backlog is their whole job: number-permanence (gate 78), list-tag (gate 81), marked-done (gate 57), and staleness (gate 45) read the public index rows (and, for the maintainer, the private detail); index-reference parity (gate 90) checks the index rows against the private `grc_library_private/TODO-REFERENCE.md` detail blocks (and no-ops in public CI / an adopter clone, which have no private sibling); the retired-section-orphan check (D9) reads the .working/TODO.md index-row diff; and the two-file rotation check (D5) requires the .working/TODO.md index-row edit in a closure diff (the private detail block and the DONE ledger rotate cross-repo, outside the public diff). The intra-document section-reference gate scans this file (the positional section-reference gate deliberately EXEMPTS it). Every ordinary content and metadata gate skips it.
+This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions: the ordinary CONTENT and METADATA gates skip it. A set of BACKLOG-SPECIFIC gates does intentionally read it, because governing the backlog is their whole job: number-permanence (gate 78), list-tag (gate 81), marked-done (gate 57), and staleness (gate 45) read the public index rows (and, where a private store is present, the private detail); index-reference parity (gate 90) checks the index rows' format and their one-to-one match (id, title, band, and order) with the `### <id>` detail blocks of a `TODO-REFERENCE.md`, read from the private store when one is present and otherwise from the repository root (when neither holds that file, it checks .working/TODO.md only for presence and readability); the retired-section-orphan check (D9) reads the .working/TODO.md index-row diff; and the two-file rotation check (D5) requires the .working/TODO.md index-row edit in a closure diff (the private detail block and the closure record rotate in the private store, outside the public diff). The intra-document section-reference gate scans this file (the positional section-reference gate deliberately EXEMPTS it). Every ordinary content and metadata gate skips it.
 
 ---
 
 ## How items are numbered and formatted
 
-Items are grouped into four priority bands by work type: **P1** fix errors and prevent recurrence; **P2** fill significant gaps; **P3** clean up and tooling; **P4** adopter experience and future work (corpus expansion and items awaiting a decision). Within a band, rows run in a deliberate order (roughly lowest-effort-first, maintainer-directed at any time); a row's **position** is the queue order, not its number.
+Items are grouped into four priority bands by work type: **P1** fix errors and prevent recurrence; **P2** fill significant gaps; **P3** clean up and tooling; **P4** adopter experience and future work (corpus expansion and items awaiting a decision). Within a band, rows run in a deliberate order (roughly lowest-effort-first, reordered by the maintainer at any time); a row's **position** is the queue order, not its number.
 
-**Every open item is one INDEX ROW here plus one detail block in the private `grc_library_private/TODO-REFERENCE.md`, joined by the stable id.** The row is `| ID | Item | Tags |`; the detail block is `### <id> <title>` followed by the item's scope, dependencies, and status. The `Item` cell carries a one-line title with its `(severity, effort)` tag; `Tags` carries the `[public]`/`[private]` list-membership tag plus any `[content]`/`[machinery]`/`[BLOCKED: ...]` tag.
+**Every open item is one INDEX ROW here plus one detail block, joined by the stable id.** The row is `| ID | Item | Tags |`; the detail block is `### <id> <title>` followed by the item's scope, dependencies, and status. The `Item` cell carries a one-line title with its `(severity, effort)` tag; `Tags` carries the `[public]`/`[private]` list-membership tag plus any `[content]`/`[machinery]`/`[BLOCKED: ...]` tag.
 
-**The id is a permanent identity, never recycled** (maintainer-directed 2026-07-15) and **decoupled from the display band** (maintainer-directed 2026-08-12): an item keeps its original number when it rebands, so a number's leading digit records the number-series it was drawn from, not its current band. One number maps to exactly one item across the whole history of the file, and a lookup by number is unambiguous. A closed item's number retires with it and is never reused; items are never renumbered when the file is reorganized (renumbering would break the CHANGELOG, DONE, and handoff references that point at them). New numbers are drawn from the `## Number allocation` block below.
+**The id is a permanent identity, never recycled** and **decoupled from the display band**: an item keeps its original number when it rebands, so a number's leading digit records the number-series it was drawn from, not its current band. One number maps to exactly one item across the whole history of the file, and a lookup by number is unambiguous. A closed item's number retires with it and is never reused; items are never renumbered when the file is reorganized (renumbering would break the changelog and other references that point at them). New numbers are drawn from the `## Number allocation` block below.
 
-**Series-consolidation redirect-stub** (maintainer-directed 2026-07-23): when an item's content is consolidated into a series (relocated under a series umbrella as a new child `X.Y.Z`), the original number `A.B` is neither reassigned nor deleted. The content moves to `X.Y.Z`; a one-line forward redirect stub stays at `A.B` (its own index row + a short `### A.B` reference block noting the move), so `A.B` still resolves as a forwarder while the series reads in execution order. The stub holds no content of its own and closes together with `X.Y.Z`. **Multi-phase-project series** (maintainer-directed 2026-07-26): a project with distinct phases takes an umbrella number `N.M` as a goal-description heading (not itself a doable task) whose phases are `N.M.Y` children that are the actual work, each independently closeable and never bundled; the umbrella consumes one counter number and closes when its last child does.
+**Series-consolidation redirect-stub**: when an item's content is consolidated into a series (relocated under a series umbrella as a new child `X.Y.Z`), the original number `A.B` is neither reassigned nor deleted. The content moves to `X.Y.Z`; a one-line forward redirect stub stays at `A.B` (its own index row + a short `### A.B` reference block noting the move), so `A.B` still resolves as a forwarder while the series reads in execution order. The stub holds no content of its own and closes together with `X.Y.Z`. **Multi-phase-project series**: a project with distinct phases takes an umbrella number `N.M` as a goal-description heading (not itself a doable task) whose phases are `N.M.Y` children that are the actual work, each independently closeable and never bundled; the umbrella consumes one counter number and closes when its last child does.
 
-**Effort scale** (referenced by the `(sev, effort)` tags): **XS** single-line / single-cell (5-15 min, bundle 5-10); **S** single-doc section add (30-90 min, bundle 2-4); **M** multi-doc bounded (2-4 hrs, 1/PR); **L** new artefact + multi-doc propagation (4-8 hrs, 1/PR); **XL** new domain / library-wide reshape (1-3 days, may split). Severity is `H[critical]` / `H` / `M` / `L` / `FYI`. A `⚠` in a detail block marks a persona-quoted finding to verify at action time.
+**Effort scale** (referenced by the `(sev, effort)` tags): **XS** single-line / single-cell (5-15 min, bundle 5-10); **S** single-doc section add (30-90 min, bundle 2-4); **M** multi-doc bounded (2-4 hrs, 1/PR); **L** new artefact + multi-doc propagation (4-8 hrs, 1/PR); **XL** new domain / library-wide reshape (1-3 days, may split). Severity is `H[critical]` / `H` / `M` / `L` / `FYI`.
 
 ---
 
@@ -28,14 +28,14 @@ Item numbers are permanent identity, never recycled, and decoupled from the P1-P
 - **Next item number: 1.32.** (P1 / fix series)
 - **Next item number: 2.37.** (P2 / content series)
 - **Next item number: 3.250.** (P3 / tooling series)
-- **Next item number: 4.32.** (P4 / adopter series)
+- **Next item number: 4.33.** (P4 / adopter series)
 - **Next item number: 5.10.** (frozen; series 5 takes no new items)
 - **Next item number: 6.7.** (frozen; series 6 takes no new items)
 - **Next item number: 7.6.** (frozen; series 7 takes no new items)
 - **Next item number: TF-5.** (time-bounded follow-ups)
 <!-- END-GENERATED number-allocation -->
 
-The 3.x (P3 / tooling) counter above is drawn from the public floor [`.claude/skills/corpus-management/tools/todo-number-floor.json`](../.claude/skills/corpus-management/tools/todo-number-floor.json) like the other active series. Series-3 is a single bare-`N.M` namespace shared with the private `P-TODO.md` (the `P-N.M` namespace is separate); the floor records the highest bare-`N.M` series-3 ordinal ever allocated across both lists (`.working/TODO.md` and `P-TODO.md`, including retired numbers), so a public clone computes the next number without `DONE.md`, and this generated block is the single authority for the next series-3 number.
+The 3.x (P3 / tooling) counter above is drawn from the public floor [`.claude/skills/corpus-management/tools/todo-number-floor.json`](../.claude/skills/corpus-management/tools/todo-number-floor.json) like the other active series. Series-3 is a single bare-`N.M` namespace shared with any private backlog list the project keeps; the floor records the highest bare-`N.M` series-3 ordinal ever allocated across both lists (this file and the private list, including retired numbers), so a public clone computes the next number without the closure records, and this generated block is the single authority for the next series-3 number.
 
 ---
 
@@ -107,29 +107,19 @@ Adopter experience and future work: capability and guidance for organizations ad
 
 ## Time-bounded follow-ups
 
-Non-urgent follow-ups deliberately DEFERRED to a future date, then re-evaluated: a suggested revisit of something already shipped, where acting now would be premature (not enough real-world signal yet). This is NOT the normal forward backlog (those are the priority bands); an item here is date-gated, not ready-now, and will mostly track "revisit this suggested follow-up after date X". Each entry carries a **Not-before** date (UTC), what to EVALUATE, and the originating PR. `/orch` reads this section and surfaces any entry whose Not-before date has passed. When a follow-up is acted on (or decided against), rotate it to the operational store's DONE ledger like any other closed item. (The `TF-` counter is in the `## Number allocation` block.)
-
----
-
-## Standing conventions
-
-Durable behavioural guidance from the maintainer. NOT actionable items; reference material for future contributors.
-
-- **"More PRs, keep each one clean"** — favor small focused PRs.
-- **"One item, one functional action"** (2026-07-10) — split items per distinct resolution path; group bullets under one number only when they resolve as a single action.
-- **Item numbers are permanent, never recycled, and decoupled from the display band** (2026-07-15, 2026-08-12) — new items draw from the `## Number allocation` series counters; a closed number retires with its item; items are not renumbered when the file is reorganized, so a number maps to exactly one item across the file's whole history. A series-consolidation move never REASSIGNS a number: the content moves to a new series child `X.Y.Z` and a forward redirect stub is left at the original number (both close together).
-- **"I prefer /validate, not /validation-sweep"** — short slash commands; skill names stay descriptive.
-- **"Don't explicitly name or link `.working/`"** in template-content files that adopters see.
-- **"Inference must be validated before committing or before anything else uses that information"** — operationalized in the AIQT rules (https://aiqt.ai).
-- **DONE keeps its own H3 format** — DONE uses `### PR #N:` headings; it does NOT mirror the TODO index-row format (the two diverged in the TODO-rework).
-- **Compute-don't-ask** — before surfacing a question, apply a "can I compute/verify this myself?" gate; codified into `clarify-before-acting`.
+Non-urgent follow-ups deliberately DEFERRED to a future date, then re-evaluated: a suggested revisit of something already shipped, where acting now would be premature (not enough real-world signal yet). This is NOT the normal forward backlog (those are the priority bands); an item here is date-gated, not ready-now, and will mostly track "revisit this suggested follow-up after date X". Each entry carries a **Not-before** date (UTC), what to EVALUATE, and the originating PR. Review this section regularly and evaluate each entry whose Not-before date has passed. When a follow-up is acted on (or decided against), close it like any other item. (The `TF-` counter is in the `## Number allocation` block.)
 
 ---
 
 ## Notes on maintenance
 
 - Add new items at the appropriate band; a row's position is its queue order. Move items between bands as context changes (the number never changes).
-- When an item is completed, delete its index row here (no strikethroughs, no `[done]` suffixes); rotate the item's `### <id>` detail block in the private `grc_library_private/TODO-REFERENCE.md` and record its closure in the operational store's DONE ledger. Rotation discipline: the PR-finalization rules of the AIQT change-tracking discipline (https://aiqt.ai).
-- Design decisions belong in the private decision record, not TODO.
-- This file (the public index; per-item detail in the private `grc_library_private/TODO-REFERENCE.md`) is the source of truth for what's queued; conversation history is not.
-- Fitness-review backlogs remain the authoritative per-finding evidence source; this file is the action-organized view.
+- One item, one functional action: split items per distinct resolution path; group bullets under one number only when they resolve as a single action.
+- Item numbers are permanent, never recycled, and decoupled from the display band: new items draw from the `## Number allocation` series counters; a closed number retires with its item; items are not renumbered when the file is reorganized, so a number maps to exactly one item across the file's whole history. A series-consolidation move never REASSIGNS a number: the content moves to a new series child `X.Y.Z` and a forward redirect stub is left at the original number (both close together).
+- Favour small, focused pull requests.
+- Slash commands use short names (for example `/validate`); skill and procedure names stay descriptive.
+- Template-content files that adopters see do not name or link `.working/`.
+- When an item is completed, delete its index row here (no strikethroughs, no `[done]` suffixes); rotate its `### <id>` detail block and record its closure. Rotation discipline: the PR-finalization rules of the AIQT change-tracking discipline (https://aiqt.ai).
+- Record design decisions outside this file, for example in a private operational store, where the project keeps one.
+- This file (the public index) is the source of truth for what is queued.
+- Review findings keep their authoritative per-finding evidence outside this file (for example, in a private operational store, where the project keeps one); this file is the action-organized view.

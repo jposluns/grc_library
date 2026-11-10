@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.56\
-**Date:** 2026-11-08\
+**Version:** 1.8.57\
+**Date:** 2026-11-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
@@ -232,7 +232,7 @@ The approved Claude Code rules framework is the AIQT rule set, published by the 
 | Go workloads | Go language rules |
 | CI/CD pipelines | CI/CD pipeline gate rules |
 
-External rule repositories referenced by the AIQT project (https://aiqt.ai) are URL pointers only; per the trust-posture decision recorded in Phase 23.66, they are not configured to fetch automatically at session start. Rule deployment is verified in CI per the gate matrix below; builds fail if required rule files are absent when AI-generated code is detected in the commit.
+External rule repositories referenced by the AIQT project (https://aiqt.ai) are URL pointers only; they are not configured to fetch automatically at session start. Rule deployment is verified in CI per the gate matrix below; builds fail if required rule files are absent when AI-generated code is detected in the commit.
 
 ### 9.3 AI-generated code requirements
 

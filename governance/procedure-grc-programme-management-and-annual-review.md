@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Programme Management and Annual Review Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.0\
-**Date:** 2026-10-26\
+**Version:** 1.2.1\
+**Date:** 2026-11-10\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`dev-security/register-compliance-controls-and-gap-register.md`](../dev-security/register-compliance-controls-and-gap-register.md)\
@@ -133,7 +133,7 @@ All GRC library documents follow semantic versioning using the format MAJOR.MINO
 
 6.4.1 When a document is superseded, it is retired. Retired documents must be:
 
-- Marked with the `**Status:** Superseded` lifecycle line in its metadata (Classification stays Public; the 2026-07-02 lifecycle-marker migration), with a cross-reference to the superseding document recorded in the document index register
+- Marked with the `**Status:** Superseded` lifecycle line in its metadata (Classification stays Public), with a cross-reference to the superseding document recorded in the document index register
 - Archived in the designated document archive location with read-only access
 - Cross-referenced from the superseding document with the retirement date
 - Not deleted: archived copies must be retained per the Records Retention and Destruction Standard

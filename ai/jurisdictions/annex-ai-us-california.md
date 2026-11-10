@@ -2,8 +2,8 @@
 
 **Document Title:** California CCPA Automated Decision-Making Technology (ADMT) Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.6\
-**Date:** 2026-10-27\
+**Version:** 0.0.7\
+**Date:** 2026-11-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-us-colorado.md`](annex-ai-us-colorado.md), [`ai/jurisdictions/annex-ai-us-new-york-city.md`](annex-ai-us-new-york-city.md), [`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -50,7 +50,7 @@ The California Privacy Protection Agency holds investigation and enforcement aut
 
 ## Relationship to the California privacy layer
 
-This annex and the US privacy annex ([`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md)) both touch the CCPA ADMT limb. The privacy annex now summarizes it within its "AI and privacy obligations" section, from the privacy-compliance angle (a brief bullet pointing here), alongside the CCPA risk-assessment and cybersecurity-audit slices and the general CCPA consumer-data rights (access, deletion, correction, sale and sharing opt-out); this annex gives the full AI-governance view for the `ai/jurisdictions/` reader, with the framework-alignment crosswalk. The ADMT detail is now CONSOLIDATED here (a maintainer-decided consolidation): this annex is the single canonical home for the CCPA ADMT limb (the operative Article 11 obligation text, the section-7001 significant-decision categories, and the AI-governance framework crosswalk), and the privacy annex narrows its ADMT bullet to a brief privacy-context summary plus a pointer to this annex, mirroring the pattern it already uses for the Colorado AI statute. The privacy annex retains the CCPA risk-assessment (Article 10) and cybersecurity-audit (Article 9) slices and the general CCPA consumer-data rights, which are privacy-domain obligations; on any divergence of the shared ADMT detail the enacted regulation governs.
+This annex and the US privacy annex ([`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md)) both touch the CCPA ADMT limb. The privacy annex summarizes it within its "AI and privacy obligations" section, from the privacy-compliance angle (a brief bullet pointing here), alongside the CCPA risk-assessment and cybersecurity-audit slices and the general CCPA consumer-data rights (access, deletion, correction, sale and sharing opt-out); this annex gives the full AI-governance view for the `ai/jurisdictions/` reader, with the framework-alignment crosswalk. The ADMT detail is CONSOLIDATED here: this annex is the single canonical home for the CCPA ADMT limb (the operative Article 11 obligation text, the section-7001 significant-decision categories, and the AI-governance framework crosswalk), and the privacy annex narrows its ADMT bullet to a brief privacy-context summary plus a pointer to this annex, mirroring the pattern it already uses for the Colorado AI statute. The privacy annex retains the CCPA risk-assessment (Article 10) and cybersecurity-audit (Article 9) slices and the general CCPA consumer-data rights, which are privacy-domain obligations; on any divergence of the shared ADMT detail the enacted regulation governs.
 
 ## Limitations
 
