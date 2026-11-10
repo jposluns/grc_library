@@ -2,8 +2,8 @@
 
 **Document Title:** Standard Version Upgrade Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.3\
-**Date:** 2026-09-09\
+**Version:** 1.0.4\
+**Date:** 2026-11-10\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](../.claude/skills/corpus-management/specs/specification-audit-programme.md), [`governance/specification-ingestion.md`](specification-ingestion.md), [`README.md`](../README.md)\
@@ -82,7 +82,7 @@ Run the standards-currency audit ([`.claude/skills/corpus-management/tools/lint-
 
 ### Step 7: Record the campaign
 
-Add a CHANGELOG entry covering the upgrade (root summary plus the detailed mirror, per the change-tracking discipline). Where the substantive rewrites span more than one commit or pull request, the campaign is multi-PR: record a backlog item tracking the remaining locations so the campaign is not left half-applied, and rotate it to the closed-item ledger when the last location lands. A single positional-only bump that touches one register row and a handful of markers is a single PR and needs only its CHANGELOG entry.
+Add a CHANGELOG entry covering the upgrade: the root summary and the matching entry in the detailed copy, per the change-tracking discipline. Where the substantive rewrites span more than one commit or pull request, the campaign is multi-PR: record a backlog item tracking the remaining locations so the campaign is not left half-applied. When the last location lands, close the backlog item and rotate it to the closed-item ledger. A single positional-only bump that touches one register row and a handful of markers is a single PR and needs only its CHANGELOG entry.
 
 ---
 

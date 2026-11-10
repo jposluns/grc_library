@@ -5,8 +5,8 @@
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **SPDX-License-Identifier:** CC-BY-SA-4.0\
-**Library Version:** 2026.11.68 (CalVer, library-wide; see [`governance/specification-master-project.md`](governance/specification-master-project.md) §4.5)\
-**README Version:** 1.11.921 (semantic per-document version for this file)
+**Library Version:** 2026.11.69 (CalVer, library-wide; see [`governance/specification-master-project.md`](governance/specification-master-project.md) §4.5)\
+**README Version:** 1.11.922 (semantic per-document version for this file)
 
 ---
 
@@ -60,7 +60,7 @@ This repository is, primarily, a **GRC documentation corpus**: organization-neut
 
 The corpus is maintained by a small team using Claude Code as an AI coding assistant, under documented governance and discipline. To keep the corpus internally consistent under that maintenance model, the project carries an audit toolchain ([`.claude/skills/corpus-management/tools/`](.claude/skills/corpus-management/tools/), the multi-gate audit programme under [`.claude/skills/corpus-management/tools/run_all_audits.sh`](.claude/skills/corpus-management/tools/run_all_audits.sh)) and the pinned AIQT rules (https://aiqt.ai). The audit toolchain is the maintainer's quality-assurance machinery, not an adopter dependency: adopters who only consume the corpus do not need it. Adopters who want the same maintenance discipline for their own fork can adopt the toolchain (it is permissively licensed and copy-paste portable), but doing so is optional. The rules-and-skills pack formerly maintained in this repository is replaced by the AIQT project (https://aiqt.ai), whose pinned snapshot ships with the corpus (separately Apache-2.0): an adopter who is not building a GRC library can still adopt AIQT on any project. The rules are a by-product of the corpus's maintenance, not a parallel deliverable.
 
-The audit gates and the discipline rules grew out of the corpus, not the other way around. Audit gates were added in response to specific drift modes observed in the corpus. The discipline rules, now published by the AIQT project (https://aiqt.ai), were extracted from real failure modes the maintainer encountered while keeping the corpus consistent (evidence-grounded completion came from a stale-claim incident; clarify-before-acting from "always confirm" feedback; action-before-explanation-of-inaction from a merge-blocked incident). The corpus is the headline; the maintenance discipline is the methodology that keeps the headline honest.
+The audit gates and the discipline rules grew out of the corpus, not the other way around. Audit gates were added in response to specific drift modes observed in the corpus. The discipline rules, now published by the AIQT project (https://aiqt.ai), were extracted from real failure modes the maintainer encountered while keeping the corpus consistent. The corpus is the headline; the maintenance discipline is the methodology that keeps the headline honest.
 
 ### Three adoption modes
 
@@ -186,7 +186,7 @@ Repository infrastructure directories (not used for governance artefacts):
 /.working       Public working-state placeholders: TODO.md, the forward-looking public
                 backlog index (one row per planned item), and CHANGELOG.md, the weekly
                 change record. An adopter keeps its own entries here from a clean baseline.
-(private store) Optional. An adopter (like the maintainer) may keep operational records
+(private store) Optional. An adopter may keep operational records
                 (QA histories, per-run audit records, per-item backlog detail) in a
                 private store outside this repository. Every public gate degrades
                 gracefully when no private store is present; nothing outside this
@@ -235,7 +235,7 @@ Additional repository hygiene files:
 | File | Purpose |
 | --- | --- |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Contribution workflow, metadata block requirements, style rules, filename rules, and review path. |
-| [`.working/CHANGELOG.md`](.working/CHANGELOG.md) | Phase-level history of repository changes. |
+| [`.working/CHANGELOG.md`](.working/CHANGELOG.md) | The weekly change record. |
 | [`SECURITY.md`](SECURITY.md) | How to report content accuracy defects, licence concerns, organization or personal data leakage, and tooling defects. |
 | [`.claude/skills/corpus-management/docs/adopter-guide.md`](.claude/skills/corpus-management/docs/adopter-guide.md) | How to fork, adapt, and operate the library inside an adopting organization. |
 | [`governance/worked-example.md`](governance/worked-example.md) | End-to-end walkthrough of converting a draft into a library-compliant artefact (ingestion). |

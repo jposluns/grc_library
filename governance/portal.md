@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 .claude/skills/corpus-management/t
 **Document Title:** Adopter Portal\
 **Document Type:** Guide\
 **Version:** 1.3.2\
-**Date:** 2026-11-09\
+**Date:** 2026-11-10\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`.claude/skills/corpus-management/docs/adopter-guide.md`](../.claude/skills/corpus-management/docs/adopter-guide.md), [`governance/decision-tree.md`](decision-tree.md), [`governance/maturity-scorecard.md`](maturity-scorecard.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\

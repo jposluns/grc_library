@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.7.15\
-**Date:** 2026-11-09\
+**Version:** 1.7.16\
+**Date:** 2026-11-10\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`governance/specification-ingestion.md`](specification-ingestion.md), [`.claude/skills/corpus-management/specs/instruction-ai-document-ingestion.md`](../.claude/skills/corpus-management/specs/instruction-ai-document-ingestion.md), [`README.md`](../README.md), [`NOTICE.md`](../NOTICE.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md)\
@@ -101,7 +101,7 @@ Repository infrastructure directories and files that are not used for governance
 
 ```text
 /CONTRIBUTING.md       Contribution workflow, metadata block, style and filename rules.
-/.working/CHANGELOG.md Phase-level history of repository changes.
+/.working/CHANGELOG.md The weekly change record.
 /.working/TODO.md      Public backlog index.
 /SECURITY.md           How to report content accuracy defects, licence concerns,
                        organization or personal data leakage, broken links, tooling defects.
@@ -230,19 +230,22 @@ The library version is `YYYY.MM.patch` where:
 
 Examples: `2026.05.0`, `2026.05.7`, `2026.06.0`, `2026.12.42`.
 
-> **Historical discontinuity (recorded 2026-08-09, Sweep 154; count updated 2026-08-12, Sweep 159; a further gap recorded 2026-08-22).** `patch` is sequential BY INTENT, but
+> **Historical discontinuity.** `patch` is sequential BY INTENT, but
 > the historical record contains a small number of gaps where a patch number appears on no merge to
-> `main`. A walk of the full `Library Version` history as of the 2026-08-12 Sweep-159 update found eleven such gap sites, across the 2026.06,
-> 2026.07, and 2026.08 windows (the earliest is `2026.06.151`; the `2026.07.641` gap is the one noted in
-> `.claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py`, from the PR #1155 mirror-parity incident, not the earliest; the most recent then was `2026.08.177`, a candidate superseded in the #1477/#1478 window). A further gap, `2026.08.360`, was recorded 2026-08-22 by the closing-window `/validate`: PR #1661's UTC-rollover version cascade jumped `2026.08.359` to `2026.08.361`, so `2026.08.360` is on no merged PR. Each sits between two contiguously-numbered,
-> both-merged PRs, so the observed cause is within a merge, not a missing PR: a candidate version
-> superseded before its PR merged (for example `2026.08.164`, assigned on PR #1465's branch then
-> revised to `2026.08.165` before merge), or a `Library Version` bumped by more than one on a single
-> merge. A PR that never merges consumes no patch number, so it cannot produce a gap. These
-> historical gaps do not violate the go-forward sequential intent. No current gate detects them (the
-> library-version monotonicity gate asserts only that the version never decreases, and the CHANGELOG
-> mirror-parity gate's strictly-decreasing check no-ops without the private mirror; a skipped number
-> satisfies both); a forward-looking continuity check remains planned under the Corpus-Management discipline roadmap (item 4.1 of the public working backlog in [`.working/TODO.md`](../.working/TODO.md)).
+> `main`. Twelve such gap sites were recorded up to 2026-08-22: eleven found by a walk of the full
+> `Library Version` history as of 2026-08-12, and `2026.08.360` added on 2026-08-22. They span the
+> 2026.06, 2026.07, and 2026.08 windows (the earliest is `2026.06.151` and the latest is
+> `2026.08.360`). Each sits between two
+> contiguously-numbered, both-merged PRs, so the observed cause is within a merge, not a missing PR:
+> a candidate version superseded before its PR merged, or a `Library Version` bumped by more than one
+> on a single merge. A PR that never merges consumes no patch number, so it cannot produce a gap.
+> These historical gaps do not violate the go-forward sequential intent. No current gate detects
+> them. The library-version monotonicity gate asserts only that the version never decreases. The
+> CHANGELOG mirror-parity gate (gate 59) asserts that `Library Version` values strictly decrease
+> top-down in the root CHANGELOG and, where the detailed private copy is present, in that copy too,
+> and that both record the same version for each PR; without the copy, only the root's checks run
+> and the copy's ordering and version-agreement checks are skipped. A skipped number satisfies every
+> one of these checks; a forward-looking continuity check remains planned under the Corpus-Management discipline roadmap (item 4.1 of the public working backlog in [`.working/TODO.md`](../.working/TODO.md)).
 
 #### Why CalVer
 
@@ -254,7 +257,7 @@ The library evolves continuously through small phased PRs rather than discrete v
 
 #### Where the version is recorded
 
-The current library version is displayed in [`README.md`](../README.md)'s metadata block as the field `Library Version`. The CHANGELOG records the library version at the time of each phase's completion in the phase heading.
+The current library version is displayed in [`README.md`](../README.md)'s metadata block as the field `Library Version`. The CHANGELOG holds per-PR entries and weekly summaries; each per-PR entry records the library version its PR set.
 
 #### Maintenance
 
@@ -408,7 +411,7 @@ References must be accurate and must not be invented. Do not reference framework
 
 ## 8. Governance document generation rules
 
-1. All content must be normalized to organization-neutral, original-authorship language. The library does not incorporate third-party verbatim text, except a short, attributed quotation of (a) a government or regulatory text or (b) a standard or framework text that is in the public domain or openly licensed (for example a NIST SP or FIPS publication, the NIST CSF, or a framework under CC0 1.0, CC BY 4.0, or CC BY-SA 4.0), where the source licence permits quotation and is compatible with CC BY-SA 4.0, with a Licence basis statement as the licence compatibility rules of [`governance/specification-ingestion.md`](specification-ingestion.md) define. Standards and frameworks under other licences are paraphrased with pinpoint citations. A quotation is at most one provision or passage and at most 100 words, and no longer than what the document relies on. Only a translation that the government itself publishes counts as a government text; any other translation (for example a KLRI English translation of a Korean statute) is a third-party translation, quoted only under its own publisher's terms where they permit quotation and are compatible with CC BY-SA 4.0, and otherwise paraphrased. Quoted text keeps its source licence and is not relicensed under CC BY-SA 4.0. Existing quotations stay under the transition clause that [`NOTICE.md`](../NOTICE.md) and those rules state: quotations merged to `main` before the maintainer decision of 2026-10-24 23:52Z, and the pre-decision quotations on branch `content/3b546-osfi`, stay as they are until the publisher's terms are held (the event that [`NOTICE.md`](../NOTICE.md) defines, which ends every ground at once), after which the rule for a new quotation applies to them, and editing one makes it a new quotation.
+1. All content must be normalized to organization-neutral, original-authorship language. The library does not incorporate third-party verbatim text, except a short, attributed quotation of (a) a government or regulatory text or (b) a standard or framework text that is in the public domain or openly licensed (for example a NIST SP or FIPS publication, the NIST CSF, or a framework under CC0 1.0, CC BY 4.0, or CC BY-SA 4.0), where the source licence permits quotation and is compatible with CC BY-SA 4.0, with a Licence basis statement as the licence compatibility rules of [`governance/specification-ingestion.md`](specification-ingestion.md) define. Standards and frameworks under other licences are paraphrased with pinpoint citations. A quotation is at most one provision or passage and at most 100 words, and no longer than what the document relies on. Only a translation that the government itself publishes counts as a government text; any other translation (for example a KLRI English translation of a Korean statute) is a third-party translation, quoted only under its own publisher's terms where they permit quotation and are compatible with CC BY-SA 4.0, and otherwise paraphrased. Quoted text keeps its source licence and is not relicensed under CC BY-SA 4.0. Existing quotations stay under the transition clause that [`NOTICE.md`](../NOTICE.md) and those rules state: quotations merged to `main` before the transition cutoff (23:52 UTC on 2026-10-24), and, if they are merged, the OSFI Guideline E-21 and E-23 quotations committed before the cutoff for the financial-services sector annex (`compliance/financial-services/annex-financial-services-sector-requirements.md`), stay as they are until the publisher's terms are held (the event that [`NOTICE.md`](../NOTICE.md) defines, which ends every ground at once), after which the rule for a new quotation applies to them, and editing one makes it a new quotation.
 2. Documents must adhere to the canonical structure:
  - Metadata
  - Purpose

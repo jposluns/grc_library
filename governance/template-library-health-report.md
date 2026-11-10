@@ -2,8 +2,8 @@
 
 **Document Title:** Library Health Report Template\
 **Document Type:** Template\
-**Version:** 1.0.10\
-**Date:** 2026-08-28\
+**Version:** 1.0.11\
+**Date:** 2026-11-10\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md)\
@@ -174,7 +174,7 @@ Where signals are available:
 
 | Period | Posture | Material change | Material risk |
 | --- | --- | --- | --- |
-| 2026-Q3 (illustrative) | Stable | Phase 12 corrective campaign closed all critical and high findings from the comprehensive audit. | Continued attention to citation accuracy as the AI domain frameworks evolve. |
+| 2026-Q3 (illustrative) | Stable | A corrective campaign closed all critical and high findings from the comprehensive audit. | Continued attention to citation accuracy as the AI domain frameworks evolve. |
 
 A full report would include the per-audit table, per-document review status, per-finding incident summary, and the next-period plan.
 

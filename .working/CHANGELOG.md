@@ -2,10 +2,11 @@
 
 This file records the GRC Library's changes as weekly summaries, one section per ISO week that had changes, newest first. Until a week is rolled up, each pull request merged in it also has its own line above that week's summary. The library as a whole is versioned by Calendar Versioning (CalVer).
 
+**2026-11-10 | 2026.11.69 | PR #5** - docs: Removes or replaces internal decision records, IDs, private names, AI conventions and review history in public files. In the AI security tooling landscape register, LocalMod becomes Surveyed only, PISmith Referenced as exemplar, seven observability and pentest-agent entries move to Cited and Strix gains Cited, closing backlog item 4.32. Other entries name the covering register, standard or control (CodeGate only in part). The master specification corrects its gate 59 and changelog-format descriptions, and the backlog its gate 90 description. The notice and two specifications name the transition clause's OSFI quotations. The PR #1 line and six weekly summary lines change.
 **2026-11-10 | 2026.11.68 | PR #4** - docs: The authors page and the README credit now name the maintainer as Jeff Posluns; the citation file and the BibTeX entry keep the formal given name. The authors page also notes that more than 50 contributors, reviewers, and editors have worked on the library. The authors and notice pages drop sentences that cited internal decisions; they and the README licence paragraph state the AI-assistant rules licence in plain terms and name the folder that holds its LICENSE and NOTICE files.
 **2026-11-10 | 2026.11.67 | PR #3** - tests: The pre-push guard tests no longer depend on the developer's environment, host load or the clock. Every Python process they start runs isolated, with a built environment and a lifetime the test controls; waits use the guard's own clock or generous bounds; the shard tests reap every process they start; and the leftover-scan tests read only their own fixture. A run as root skips only the checks that need an unprivileged user.
 
-**2026-11-09 | 2026.11.66 | PR #1** - tools: Gate 59 checks that this changelog and its detailed private copy list the same pull requests, and now works in the new repository, where pull request numbers restart at #1; the old repository's history ended at pull request 3127. Root summary lines accept only plain letters, digits and simple punctuation, so no markup can hide an old record. On the maintainer's decision of 2026-11-09, GitHub runs 1 small pull-request check, the full suite runs on the local server and reports a local-quality status that merging requires, and the nightly sweep stays.
+**2026-11-09 | 2026.11.66 | PR #1** - tools: Gate 59 checks that this changelog and its detailed private copy list the same pull requests, and now works in the new repository, where pull request numbers restart at #1. Root summary lines accept only plain letters, digits and simple punctuation, so no markup can hide an old record. GitHub now runs 1 small pull-request check, the full suite runs on the local server and reports a local-quality status that merging requires, and the nightly sweep stays.
 
 ## Week of 2026-11-09
 
@@ -17,7 +18,7 @@ This file records the GRC Library's changes as weekly summaries, one section per
 
 ## Week of 2026-11-02
 
-- The rebuilt grclibrary.ai became the live site. The week built it from a draft up: landing, browse, search, document, decision and crosswalk pages, a dark mode, a Standards and frameworks page, a full-site review with fixes, and a build guard that refuses unrecorded links to the library's source repository.
+- The rebuilt grclibrary.ai became the live site. The week built it from a draft up: landing, browse, search, document, decision and crosswalk pages, a dark mode, a Standards and frameworks page, site-wide fixes, and a build guard that refuses unrecorded links to the library's source repository.
 - Customs and trade-security accuracy: WCO SAFE claims were swept against the held 2025 text, the Supply Chain Security Programme Alignment Matrix's WCO SAFE column now follows Annex IV of the Framework with a stated rule for required and partial marks, and BASC, PIP, NEEC and UK AEO Security and Safety claims follow the held texts.
 - UK AEO-S and HMRC statements in twelve documents were corrected against the newly ingested HMRC Customs Technical Handbook (AEO), and the US CTPAT Minimum Security Criteria register now says plainly that the library holds no complete CBP criteria text, with every control Not assessed until an adopter records evidence.
 - Quebec Law 25 is now cited as the Act respecting the protection of personal information in the private sector (CQLR c. P-39.1), as amended by S.Q. 2021, c. 25, and the citation-verification specification calls it a statute, not a regulation.
@@ -115,7 +116,7 @@ This file records the GRC Library's changes as weekly summaries, one section per
 
 ## Week of 2026-08-10
 
-- A source-verified Canada and India accuracy review ran all week: fabricated Partners in Protection material was quarantined, PIPEDA's scope was corrected to commercial activities and federal works, Quebec Law 25 triggers and section citations were fixed, the lapsed Bill C-27 (CPPA and AIDA) is stated accurately in the past tense, and India DPDPA penalties, roles, transfer model and consent framing now follow the Act.
+- Canada and India content was corrected against held sources: fabricated Partners in Protection material was quarantined, PIPEDA's scope was corrected to commercial activities and federal works, Quebec Law 25 triggers and section citations were fixed, the lapsed Bill C-27 (CPPA and AIDA) is stated accurately in the past tense, and India DPDPA penalties, roles, transfer model and consent framing now follow the Act.
 - Canada legal currency recorded the successor private-sector privacy bill (C-36, PPCDA), and the Canada privacy annex was deepened from the held bill text.
 - Seven new executive pages were published (oversight question sets, scenarios, a decision narrative and a lifecycle journey), with a de-reproduction pass so executive pages point at sources rather than restating them.
 - Citation accuracy continued corpus-wide: ISO 27001:2022 clause corrections, ISO/IEC 42001 clause attributions, Singapore PDPA penalty figures, UK transfer citations moved to UK GDPR Chapter V, withdrawn NIST controls remapped and unevidenced SLSA version tokens dropped.
@@ -132,8 +133,8 @@ This file records the GRC Library's changes as weekly summaries, one section per
 
 ## Week of 2026-07-27
 
-- The public/private separation milestone: working records and operational material moved to a private companion repository, slimming the public tree to the corpus, the audit gates, the rules now published by the AIQT project (https://aiqt.ai), and the commands an adopter actually clones and runs.
-- An external-audit accuracy series modernized the OWASP Web Top 10 rules to the 2025 edition, resolved a self-contradictory AI-logging guidance (security events always logged, content redacted unless an authorized exception applies), made NIST SSDF identifiers valid, and repaired fabricated product call-outs and unsafe cryptography examples in the developer-security rules.
+- Working records and operational material moved out of the public tree, slimming it to the corpus, the audit gates, the rules now published by the AIQT project (https://aiqt.ai), and the commands an adopter actually clones and runs.
+- Accuracy fixes modernized the OWASP Web Top 10 rules to the 2025 edition, resolved a self-contradictory AI-logging guidance (security events always logged, content redacted unless an authorized exception applies), made NIST SSDF identifiers valid, and repaired fabricated product call-outs and unsafe cryptography examples in the developer-security rules.
 - Citation corrections covered the GDPR breach clock, NIST CSF, ISO/IEC 27002 and NIS 2, and a closing wave fixed CSA CCM and AICM control citations, source-verified.
 - The AIQT priority rule gained Progress: accuracy, integrity, quality and trust rank above progress, then speed, then cost.
 - New audit gates arrived for NIST SSDF control-identifier validity and for em and en dashes on ungated surfaces, the public backlog split into a guarded two-list model, and the governance rules, since published by the AIQT project (https://aiqt.ai), were generalized to be project-agnostic.
@@ -150,7 +151,7 @@ This file records the GRC Library's changes as weekly summaries, one section per
 
 - The public grclibrary.ai website shipped: a static-site generator producing per-domain and per-document pages, client-side search, a For-AI page with machine-readable dataset metadata, and a build health check in CI.
 - The reference-breadth stream concluded: EDPB guidelines and opinions, the NIS 2 implementing regulation, Brazilian ANPD resolutions, Canada's breach-of-safeguards regulations and the AICPA Trust Services Criteria were cited and registered.
-- Three deep-assessment rounds ran end to end and their findings were remediated, including the OWASP ASVS 4.0.3 to 5.0.0 chapter remap and TLS, certificate-key-size and password values reconciled to their governing authorities.
+- Assessment findings were remediated, including the OWASP ASVS 4.0.3 to 5.0.0 chapter remap and TLS, certificate-key-size and password values reconciled to their governing authorities.
 - Jurisdiction accuracy sharpened across Canada and Quebec, including Law 25 penalty and privacy-impact-assessment citations, and the final California CCPA regulations were applied across the US annex, registers, notice template and rights procedure.
 - Underneath ran an internal-architecture sprint on adopter portability: a portability check, internal safeguards, a reference-acquisition manifest generator and a run-once fork-onboarding command.
 
@@ -179,7 +180,7 @@ This file records the GRC Library's changes as weekly summaries, one section per
 
 ## Week of 2026-06-15
 
-- Mostly internal process and tooling: the mechanical corpus-review capability was built up, this changelog was split into a public summary and a detailed maintainer mirror, and many audit checks and authoring rules were added.
+- Mostly internal process and tooling: the mechanical corpus-review capability was built up, this changelog was split and this file kept the public summary, and many audit checks and authoring rules were added.
 - Adopter templates arrived: a ten-minute quickstart, a maturity self-assessment, an implementation roadmap, an audit evidence package and a GDPR Article 35 data-protection-impact-assessment template.
 - Corpus reconciliation propagated the five-level data-classification scheme, standardized requirement language, and raised retention and transport-security values to their canonical floors, including seven-year retention for corrective-action and internal-audit records.
 

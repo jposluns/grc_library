@@ -42712,7 +42712,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         sweep-preflight-exemptions.json DATA F 2c11643eb1082a34c9d2cafed9cf04c6481c3e8322a44f426aa0f55729ad75df
         sweep-preflight-scanner.py NO_FS F d1bb0f1a66719510f4d40908f2407a2252ee7752fbb20ead5d667337323b8a7a
         tail-safe.sh COMMAND F 53a9d69a2697af2f82584189b7c73115caf2279ee7df9358674366a145904000
-        todo-number-floor.json DATA F 6dac3e36323bb29bbdc089bcb21c32be1c22ca03940df66e4c0f93d64bfbf8fc
+        todo-number-floor.json DATA F 04d57f011e4db00befe75a085b2b9d46b8dda72fa93c1969b6b193c5d167b7cf
         todo_index_rows.py PASSIVE F f3de08f8e6de12b042a1f5a78559faf6ef5697e6ada10b1e5ddfe1375fadacf6
         tsc_reference.py PASSIVE F e8452e3c68c8fa8b3ac8cf34eaad1a4a9dbf1bf2c1bc26f49411c5a79e77d5d4
         verify-reference-modules.py OWN F 98c85d7fd833d86c55e443381e104bad155acd92ea785c08de946ac879235caa

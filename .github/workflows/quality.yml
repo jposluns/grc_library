@@ -9,13 +9,13 @@ permissions:
   contents: read
 
 jobs:
-  # The one pull-request job (maintainer decision 2026-11-09). It runs only the
-  # CI subset of corpus gates that the audit programme specification's
-  # ci-pr-subset block names, in section 6 order, then the 13 per-PR delta
-  # gates. The full gate suite runs on the local server, which posts the
-  # local-quality commit status that merge requires; the scheduled full sweep
-  # stays in nightly-sweep.yml. Gate 35 checks that the steps below equal the
-  # subset exactly and that the runner and pre-commit still hold every gate.
+  # The one pull-request job. It runs only the CI subset of corpus gates that
+  # the audit programme specification's ci-pr-subset block names, in section 6
+  # order, then the 13 per-PR delta gates. The full gate suite runs on the
+  # local server, which posts the local-quality commit status that merge
+  # requires; the scheduled full sweep stays in nightly-sweep.yml. Gate 35
+  # checks that the steps below equal the subset exactly and that the runner
+  # and pre-commit still hold every gate.
   lint:
     name: Lint markdown corpus
     runs-on: ubuntu-latest

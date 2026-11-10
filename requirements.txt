@@ -8,4 +8,4 @@
 # CI installs this file so the gates and regression tests exercise the exact path.
 # The gates and tooling require Python 3.14 or newer (the version CI pins); the corpus
 # documents need no Python.
-idna>=3.10,<4   # exact UTS-46 domain-label validity for the gate-22 PII email/domain check (PRs #2430/#2431)
+idna>=3.10,<4   # exact UTS-46 domain-label validity for the gate-22 PII email/domain check
