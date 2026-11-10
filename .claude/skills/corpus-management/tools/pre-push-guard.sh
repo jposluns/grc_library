@@ -1711,7 +1711,7 @@ leftover_report() {
         rc=$?
     fi
     if [ "${mode}" = left ]; then
-        unknown="what this run left in ${1:-its shard directory} (named above) and whether a process uses it are unknown"
+        unknown="what this run left in ${1:-its shard directory} and whether a process uses it are unknown"
     else
         unknown="what earlier runs of this guard left is unknown"
     fi

@@ -19009,13 +19009,13 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # its parent, as a subreaper or PID 1 is of an orphan). Without the
         # wait after the SIGKILL, /proc still shows the zombie and this
         # test fails.
-        # Only the wait before the kill is shortened (timeout=1); the
-        # reap after it keeps its own 30-second bound (reap_timeout), so
-        # this test does not depend on the killed process being reaped
-        # within 1 second.
-        # live_process starts the stuck helper (in its own session,
-        # so its group is signalled too) and checks its -I and its
-        # built environment.
+        # Only the wait before the kill is shortened (timeout=1); the reap
+        # after it keeps its own 30-second bound (reap_timeout), so this
+        # test does not depend on the killed process being reaped within 1
+        # second.
+        # live_process starts the stuck helper (in its own session, so its
+        # group is signalled too) and checks its -I and its built
+        # environment.
         marks = Path(self.tmp.name) / "stuck"
         marks.mkdir()
         release = Path(self.tmp.name) / "stuck.release"
@@ -19082,24 +19082,31 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # the zombie is reaped once its parent has ended, by whoever adopts
         # it. Without the check of a zombie's parent, the cleanup reports the
         # parent alone and this test fails.
-        # This test process is made a child subreaper (PR_SET_CHILD_SUBREAPER)
-        # for this test, so once the keeper is killed its zombie is adopted
-        # by this process and reaped by the own-child branch of
+        # This test process is made a child subreaper for this test
+        # (PR_SET_CHILD_SUBREAPER), so once the keeper is killed its zombie
+        # is adopted by this process and reaped by the own-child branch of
         # release_shards, whatever the host's PID 1 or subreaper does with
-        # the children it adopts. The setting this process had is restored at
-        # cleanup; where prctl is refused or unavailable, the test is skipped
-        # with the reason.
+        # the children it adopts; the setting this process had is restored
+        # at cleanup. Where prctl is refused or unavailable, release_shards
+        # still runs and must still report both pids as outliving their
+        # release; only the zombie's reap, which then rests with whoever
+        # adopts it, is not required: the list of those still not reaped
+        # after SIGKILL may then name the zombie (once release_shards has
+        # waited its 30-second reap_timeout for it), and the check that the
+        # zombie is gone is skipped as a subtest, with the reason.
         import ctypes
         previous = ctypes.c_int()
+        unadopted = None
         try:
             libc = ctypes.CDLL(None, use_errno=True)
             if (libc.prctl(37, ctypes.byref(previous), 0, 0, 0) != 0
                     or libc.prctl(36, 1, 0, 0, 0) != 0):
-                self.skipTest("prctl(PR_SET_CHILD_SUBREAPER) was refused: %s"
-                              % os.strerror(ctypes.get_errno()))
-        except (AttributeError, OSError, TypeError) as exc:
-            self.skipTest("prctl(PR_SET_CHILD_SUBREAPER) is unavailable: %r" % (exc,))
-        self.addCleanup(libc.prctl, 36, previous.value, 0, 0, 0)
+                unadopted = ("prctl(PR_SET_CHILD_SUBREAPER) was refused: %s"
+                             % os.strerror(ctypes.get_errno()))
+            else:
+                self.addCleanup(libc.prctl, 36, previous.value, 0, 0, 0)
+        except (AttributeError, OSError) as exc:
+            unadopted = "prctl(PR_SET_CHILD_SUBREAPER) is unavailable: %r" % (exc,)
         marks = Path(self.tmp.name) / "zombie"
         marks.mkdir()
         release = Path(self.tmp.name) / "zombie.release"
@@ -19113,11 +19120,17 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(data[data.rindex(b")") + 2:].split()[:2],
                          [b"Z", b"%d" % keeper.pid], data)
         self.assertEqual(self.proc_bytes(zombie, "cmdline"), b"")
+        not_reaped = r"\[\]" if unadopted is None else r"\[(%d)?\]" % zombie
         with self.assertRaisesRegex(AssertionError, r"outlived their release: %s; still not "
-                                    r"reaped after SIGKILL: \[\]"
-                                    % re.escape(repr(sorted([keeper.pid, zombie])))):
+                                    r"reaped after SIGKILL: %s"
+                                    % (re.escape(repr(sorted([keeper.pid, zombie]))), not_reaped)):
             self.release_shards(held, marks, release, timeout=1)
-        self.assertFalse(os.path.exists("/proc/%d" % zombie), "the zombie is left unreaped")
+        if unadopted is None:
+            self.assertFalse(os.path.exists("/proc/%d" % zombie), "the zombie is left unreaped")
+        else:
+            with self.subTest("the zombie is reaped"):
+                self.skipTest("this host gives this test no child subreaper, so the zombie's "
+                              "reap rests with whoever adopts it: " + unadopted)
 
     def git(self, *args):
         return subprocess.run(["git", *args], cwd=self.root, env=self.env, check=True,
@@ -19394,7 +19407,9 @@ class PrePushGuardFastPathTests(unittest.TestCase):
     # When prctl is refused, as a seccomp profile may refuse it, it starts
     # nothing, writes "SKIP: " and the reason (the text of the errno) to
     # argv[1] and exits 77, and the test is skipped with that reason, so
-    # the cause is given rather than a bare mismatch of exit statuses.
+    # the cause is given rather than a bare mismatch of exit statuses (the
+    # launcher's status 125 where 130 is expected, which an earlier form of
+    # this test reported only as "130 != 125").
     SUBREAPER = (
         "import ctypes, os, signal, subprocess, sys, time\n"
         "if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0):\n"
@@ -19773,9 +19788,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         that remove it, or INSPECT whose one reason is that processes could
         not be read, or a correctly reported unknown (unknown_scan: an
         incomplete scan, or the WARNING that the report's alarm ended it,
-        after whatever it had printed). As on a host where every process
-        is read
-        (report_all_read, with the process inventory inventory), it is
+        after whatever it had printed). As on a host where every process is
+        read (report_all_read, with the process inventory inventory), it is
         REMOVABLE with those commands, which are returned."""
         expected = self.removable_commands(root, checkouts)
         if not self.unknown_scan(err):
@@ -19952,8 +19966,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
     # (status 142; leftover_report in pre-push-guard.sh).
     ALARMED_LEFT = ("pre-push guard: WARNING: the leftover report (left) was ended at its "
                     "5-second bound (any report output it printed may be incomplete), so "
-                    "what this run left in %s (named above) and whether a process uses it are "
-                    "unknown; it stopped and removed nothing of a leftover.")
+                    "what this run left in %s and whether a process uses it are unknown; "
+                    "it stopped and removed nothing of a leftover.")
 
     def alarmed(self, text, warning, report=None):
         """Whether text holds warning, the guard's WARNING that the 5-second
@@ -20296,12 +20310,14 @@ class PrePushGuardFastPathTests(unittest.TestCase):
 
     def live_process(self, code=None, *args, cwd=None, command=None, poison=None,
                      start_new_session=False, extra_env=None):
-        """A live process for this test (the one place that starts a live
-        process, for every live process of this class): isolated Python (-I)
-        running code with args, or command (bash running a script whose own
-        Python processes it starts with -I), started with this fixture's
-        built environment (self.env), not this process's, in cwd (this
-        fixture's directory, outside any leftover, by default).
+        """A live process for this test (the one place this class starts a
+        helper that it holds alive by a stdin pipe and awaits by a startup
+        handshake; its guard runs, ended_pid's process and SUBREAPER's
+        launcher are started elsewhere): isolated Python (-I) running code
+        with args, or command (bash running a script whose own Python
+        processes it starts with -I), started with this fixture's built
+        environment (self.env), not this process's, in cwd (this fixture's
+        directory, outside any leftover, by default).
         start_poisoned starts it, so while it starts, this process's own
         environment names poison (poison_directory's by default) as
         PYTHONHOME and PYTHONPATH: a Python that read it as PYTHONHOME would
@@ -21739,8 +21755,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         fifo = admin / "locked"
         os.mkfifo(fifo)
         self.addCleanup(fifo.unlink)
-        # Its lifetime is its open, which release (run before
-        # live_process's cleanup) lets finish.
+        # Its lifetime is its open, which release (run before live_process's
+        # cleanup) lets finish.
         writer, line = self.live_process("import os, sys; print(os.getpid(), flush=True); "
                                          "os.open(sys.argv[1], os.O_WRONLY)", str(fifo))
 
@@ -22185,8 +22201,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # the wait for the lock until 0.5 seconds before the alarm), its
         # output is due 5.4 seconds after its start, past its alarm, which
         # ends it (status -14), and this test fails. No real time decides the
-        # verdict (on the real clock, a loaded host can fail this test, as
-        # one full class run did).
+        # verdict; an earlier form of this test, on the real clock, failed
+        # once in a full class run on a loaded host.
         self.change(".web/templates-draft/landing.html")
         root, _checkouts = self.make_leftover(1)
         alone = self.report_alone(prelude=self.RENDER_CLOCK, FIXTURE_RENDER_DELAY="0.9")
@@ -22481,15 +22497,14 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         shutil.rmtree(gone)
         if git_log.exists():
             git_log.unlink()
-        # The report alone reads a deterministic inventory
-        # (NO_OTHER_PROCESS: a live helper of this test, so it still has
-        # a process to scan) on the clock CLOCKED_REPORT sets, its wait
-        # for the worker lasting until the worker ends, so no real scan
-        # bound, join or alarm applies to the outcome it checks.
-        # NO_CHILD's audit hook comes first, so it notes any such event
-        # of those preludes too.
-        # The inventory also holds a process of this user made non-dumpable
-        # (NON_DUMPABLE, as in
+        # The report alone reads the inventory NO_OTHER_PROCESS sets, which
+        # is deterministic (a live helper of this test, so it still has a
+        # process to scan), on the clock CLOCKED_REPORT sets, its wait for
+        # the worker lasting until the worker ends, so no real scan bound,
+        # join or alarm applies to the outcome it checks. NO_CHILD's audit
+        # hook comes first, so it notes any such event of those preludes
+        # too. The inventory also holds a process of this user made
+        # non-dumpable (NON_DUMPABLE, as in
         # test_unreadable_process_blocks_removal_whoever_owns_it), which no
         # unprivileged process can read, so the report's path for an
         # unreadable process runs under the audit hook on every host, and
@@ -22554,8 +22569,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                          r"(\S+):$", result.stdout)
         self.assertIsNotNone(kept, result.stdout)
         self.assertIn("pre-push guard: WARNING: the leftover report (left) failed (rc=3), so "
-                      "what this run left in %s (named above) and whether a process uses it "
-                      "are unknown; it stopped and removed nothing of a leftover.\n"
+                      "what this run left in %s and whether a process uses it are unknown; "
+                      "it stopped and removed nothing of a leftover.\n"
                       % kept.group(1), result.stderr)
         self.assertNotIn("what earlier runs", result.stderr)
         result, _ran = self.run_guard(PATH=path, FAIL_MODE="scan", FAIL_HOW="alarm")
@@ -42676,7 +42691,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F c6d1f22fbc6e8663067a0cb3239f277db3e5daad7e5b8fa698dcf8f865621f99
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
-        pre-push-guard.sh FIXED F 84df8f0d7ddbd4ac138ab29488bc3165853ad06eef47f916774a9111c946678a
+        pre-push-guard.sh FIXED F baaf888d44c6c946f5c12233a32e899639a1949b062623164069a668d07332a9
         pre-push-hook.py TRANSPORT F e0a06be59cc3e8c0b47377b229c16ea169eba04ed717e31c9427356b85f6bb76
         preflight-changelog.py NO_FS F 29957c73e3b649040497b2db9fcd095a8ae92627d69259795943a363ac7d514c
         preflight-version-date.py NO_FS F fa0c5302a8b96c582ecc5cb32e74b70bfed7b26da4727839c6d0765841aee2b9
