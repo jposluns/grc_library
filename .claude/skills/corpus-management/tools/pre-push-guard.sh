@@ -445,12 +445,13 @@ STARTED = time.monotonic()
 # main thread stops waiting for the worker and for the lock RENDER_MARGIN
 # seconds before that, at deadlines main derives from the alarm, so it has
 # at least that long to render, write and flush what the worker found.
-# SCAN_BOUND, the bound the worker checks itself, ends 0.5 seconds before
-# those waits: the wait for the worker lasts 0.3 seconds past it and the
-# wait for the lock 0.2 seconds more.
+# SCAN_BOUND, the bound the worker checks itself, is derived from BOUND and
+# RENDER_MARGIN and ends 0.5 seconds before those waits: the wait for the
+# worker lasts 0.3 seconds past it and the wait for the lock 0.2 seconds
+# more.
 BOUND = 5
 RENDER_MARGIN = 1.5
-SCAN_BOUND = 3
+SCAN_BOUND = BOUND - RENDER_MARGIN - 0.5
 PREFIX = "grc-gate36-shards."
 OWNER = "guard-owner"
 RUN_RECORD = "grc-guard-owner"
@@ -1668,7 +1669,7 @@ def main():
         if held:
             out.append("pre-push guard: the leftover scan is INCOMPLETE: its state could not be read within the %ds bound; leftovers are not listed." % BOUND)
         else:
-            out.append("pre-push guard: the leftover scan is INCOMPLETE: its %ds scan bound (the whole report is bounded to %ds) was reached while %s; leftovers it had not reached are not listed, and none listed has a removal command." % (SCAN_BOUND, BOUND, stage))
+            out.append("pre-push guard: the leftover scan is INCOMPLETE: its %gs scan bound (the whole report is bounded to %ds) was reached while %s; leftovers it had not reached are not listed, and none listed has a removal command." % (SCAN_BOUND, BOUND, stage))
     if out:
         sys.stdout.write("\n".join(out) + "\n")
     sys.stdout.flush()
@@ -1715,7 +1716,7 @@ leftover_report() {
         unknown="what earlier runs of this guard left is unknown"
     fi
     if [ "${rc}" -eq 142 ]; then
-        how="was ended at its 5-second bound (any report output above may be incomplete)"
+        how="was ended at its 5-second bound (any report output it printed may be incomplete)"
     else
         how="failed (rc=${rc})"
     fi

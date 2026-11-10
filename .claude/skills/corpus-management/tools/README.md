@@ -436,15 +436,14 @@ is still running (its processes belong to that push).
 
 The scan has 3 seconds, and an alarm bounds the whole report to 5 seconds;
 the report stops waiting for the scan 1.5 seconds before that alarm, so
-that it has that long to print what the scan found. When the scan bound
-is reached, the report says it is incomplete. The
-shell's `git rev-parse --git-common-dir`, which names the common directory
-the report reads, runs before the report starts and is not under that
-bound (no bounded form is used, since the guard does not rely on
-`timeout(1)`): a git that stalls there (not observed, and not tested)
-delays the push as any other git command of the guard would. A report
-that fails says, per mode, what is unknown: what earlier runs left, or what
-this run left.
+that it has that long to print what the scan found. When the scan bound is
+reached, the report says it is incomplete. The shell's
+`git rev-parse --git-common-dir`, which names the common directory the
+report reads, runs before the report starts and is not under that bound (no
+bounded form is used, since the guard does not rely on `timeout(1)`): a git
+that stalls there (not observed, and not tested) delays the push as any
+other git command of the guard would. A report that fails says, per mode,
+what is unknown: what earlier runs left, or what this run left.
 
 The full suite, gate 36 whole included, runs on the local server for the
 pull request head, which posts the `local-quality` commit status that

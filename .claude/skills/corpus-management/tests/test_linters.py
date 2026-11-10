@@ -18626,27 +18626,27 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             "    sys.exit(3)\n")
     RUN_GATE_RE = re.compile(r'^run_gate\s+"([^"]+)"\s+python3\s+(.+?)\s*$', re.M)
     REGRESSION_SCRIPT = ".claude/skills/corpus-management/tools/run-linter-regression.py"
-    # The full guard's local gate 36 shard stub. It logs one JSON line per run
-    # to the absolute SHARDS_LOG (its working directory is the shard's own
-    # checkout), drops a marker under tests/tmp (the repository-root test
+    # The full guard's local gate 36 shard stub. It logs one JSON line per
+    # run to the absolute SHARDS_LOG (its working directory is the shard's
+    # own checkout), drops a marker under tests/tmp (the repository-root test
     # scratch, lint_common.TEST_SCRATCH_ROOT) and lists what it sees there
     # after the other shards have had time to do the same (a shared working
     # tree shows their markers), then writes the outputs the real runner
     # writes to GITHUB_OUTPUT, for the real reconcile tool. Like the real
     # runner (SUITE_ROOT, parents[1] of its own file), it finds the skill's
     # tests/ folder from its own location, not from its working directory,
-    # which the guard sets to the checkout root. FIXTURE_SHARD_FAIL
-    # names a shard that exits 7; FIXTURE_SHARD_NO_OUTPUT one that writes no
-    # outputs (FIXTURE_SHARD_FAIL may name several, comma-separated);
-    # FIXTURE_SHARD_BAD_OUTPUT one whose outputs the reconcile
-    # refuses (exit 2); FIXTURE_SHARD_OTHER_UNITS one that reports another
-    # unit set (a reconcile failure, exit 1); FIXTURE_SHARD_BREAK_CHECKOUT one
-    # that deletes its checkout's .git file, so git worktree remove fails;
+    # which the guard sets to the checkout root. FIXTURE_SHARD_FAIL names a
+    # shard that exits 7; FIXTURE_SHARD_NO_OUTPUT one that writes no outputs
+    # (FIXTURE_SHARD_FAIL may name several, comma-separated);
+    # FIXTURE_SHARD_BAD_OUTPUT one whose outputs the reconcile refuses (exit
+    # 2); FIXTURE_SHARD_OTHER_UNITS one that reports another unit set (a
+    # reconcile failure, exit 1); FIXTURE_SHARD_BREAK_CHECKOUT one that
+    # deletes its checkout's .git file, so git worktree remove fails;
     # FIXTURE_SHARD_KEEP_CHECKOUT one that leaves a read-only directory
     # holding a file in its checkout, so the shard directory cannot be
     # removed; FIXTURE_SHARD_UNREGISTER_CHECKOUT one that deletes its
-    # checkout's git record, so git worktree remove fails and the checkout
-    # is no longer registered.
+    # checkout's git record, so git worktree remove fails and the checkout is
+    # no longer registered.
     # FIXTURE_SHARD_HANG names a directory: every shard first writes "pid
     # pgid start" to started-<i> there, so the test's cleanup knows every
     # shard that started (hermetic-r8, review LOW, all three families), then
@@ -19094,6 +19094,24 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # reaped once its parent has ended, by whoever adopts it. Without
         # the check of a zombie's parent, the cleanup reports the parent
         # alone and this test fails.
+        # This test process is made a child subreaper (PR_SET_CHILD_SUBREAPER)
+        # for this test, so once the keeper is killed its zombie is adopted
+        # by this process and reaped by the own-child branch of
+        # release_shards, whatever the host's PID 1 or subreaper does with
+        # the children it adopts. The setting this process had is restored at
+        # cleanup; where prctl is refused or unavailable, the test is skipped
+        # with the reason.
+        import ctypes
+        previous = ctypes.c_int()
+        try:
+            libc = ctypes.CDLL(None, use_errno=True)
+            if (libc.prctl(37, ctypes.byref(previous), 0, 0, 0) != 0
+                    or libc.prctl(36, 1, 0, 0, 0) != 0):
+                self.skipTest("prctl(PR_SET_CHILD_SUBREAPER) was refused: %s"
+                              % os.strerror(ctypes.get_errno()))
+        except (AttributeError, OSError, TypeError) as exc:
+            self.skipTest("prctl(PR_SET_CHILD_SUBREAPER) is unavailable: %r" % (exc,))
+        self.addCleanup(libc.prctl, 36, previous.value, 0, 0, 0)
         marks = Path(self.tmp.name) / "zombie"
         marks.mkdir()
         release = Path(self.tmp.name) / "zombie.release"
@@ -19942,17 +19960,17 @@ class PrePushGuardFastPathTests(unittest.TestCase):
     # The guard's line when the alarm of its scan-mode report ended that
     # report (status 142; leftover_report in pre-push-guard.sh).
     ALARMED_SCAN = ("pre-push guard: WARNING: the leftover report (scan) was ended at its "
-                    "5-second bound (any report output above may be incomplete), so what "
-                    "earlier runs of this guard left is unknown; it stopped and removed nothing "
-                    "of a leftover.")
+                    "5-second bound (any report output it printed may be incomplete), so "
+                    "what earlier runs of this guard left is unknown; it stopped and removed "
+                    "nothing of a leftover.")
 
     # The guard's line when the alarm of its left-mode report ended that
     # report, with the shard directory the report was given in place of %s
     # (status 142; leftover_report in pre-push-guard.sh; hermetic-r4).
     ALARMED_LEFT = ("pre-push guard: WARNING: the leftover report (left) was ended at its "
-                    "5-second bound (any report output above may be incomplete), so what this "
-                    "run left in %s (named above) and whether a process uses it are unknown; it "
-                    "stopped and removed nothing of a leftover.")
+                    "5-second bound (any report output it printed may be incomplete), so "
+                    "what this run left in %s (named above) and whether a process uses it are "
+                    "unknown; it stopped and removed nothing of a leftover.")
 
     def alarmed(self, text, warning, report=None):
         """Whether text holds warning, the guard's WARNING that the 5-second
@@ -21761,25 +21779,45 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.addCleanup(release)
         pid = int(line)
         self.assertEqual(pid, writer.pid)
-        # hermetic-fu1 (hermq9 LOW 4, claude): the report runs only once the
-        # writer is blocked in its open of the FIFO, waiting for a reader: its
-        # wait channel (/proc/<pid>/wchan) is then wait_for_partner, the
-        # kernel's wait of a FIFO open for its other end, which this test
-        # asserts. The wait for it ends there or when the writer ends, with a
-        # 60-second bound that only a writer that never blocks reaches, so a
-        # slow host does not fail it; before, it polled the writer's state for
-        # up to 10 seconds, went on whatever it found and slept 0.2 seconds.
+        # The report runs only once the writer is blocked in its open of the
+        # FIFO, waiting for a reader. Once its handshake is written, that open
+        # is the one call left in its code, so the writer is taken as blocked
+        # there when it still runs and its state (/proc/<pid>/stat) is S
+        # (sleeping) on 5 readings in a row, 0.02 seconds apart; this needs no
+        # kernel symbol. A wait channel (/proc/<pid>/wchan) that names the
+        # wait of a FIFO open (wait_for_partner, or fifo_open, where a kernel
+        # build inlines that wait) is taken as blocked at once; any other
+        # wchan reading ("0", empty, refused or another symbol) is not used.
+        # The wait ends there or when the writer ends, with a 60-second bound
+        # that only a writer that never blocks reaches, so a slow host does
+        # not fail it, and the test then fails if the writer has ended or is
+        # not sleeping. writer.wait below checks that the report did not let
+        # the open finish.
 
-        def wchan():
+        def waiting():
+            """How /proc shows the writer: "wchan" when its wait channel
+            names the wait of a FIFO open, else its state letter from
+            /proc/<pid>/stat ("" when that cannot be read)."""
             try:
-                return Path("/proc/%d/wchan" % pid).read_text(encoding="ascii")
+                if Path("/proc/%d/wchan" % pid).read_text(encoding="ascii") in (
+                        "wait_for_partner", "fifo_open"):
+                    return "wchan"
+            except (OSError, UnicodeDecodeError):
+                pass
+            try:
+                data = Path("/proc/%d/stat" % pid).read_bytes()
             except OSError:
                 return ""
-        deadline = time.monotonic() + 60
-        while (wchan() != "wait_for_partner" and writer.poll() is None
-               and time.monotonic() < deadline):
+            return data[data.rindex(b")") + 2:].split()[0].decode("ascii")
+        sleeping, deadline = 0, time.monotonic() + 60
+        while writer.poll() is None and time.monotonic() < deadline:
+            seen = waiting()
+            sleeping = sleeping + 1 if seen == "S" else 0
+            if seen == "wchan" or sleeping >= 5:
+                break
             time.sleep(0.02)
-        self.assertEqual(wchan(), "wait_for_partner", "the writer is not blocked opening the FIFO")
+        self.assertIsNone(writer.poll(), "the writer ended: its open of the FIFO did not block")
+        self.assertIn(waiting(), ("wchan", "S"), "the writer is not blocked opening the FIFO")
         alone = self.report_all_read(inventory=(pid,))
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
         self.assert_inspect(alone.stdout, root, re.escape("checkout %s is locked" % checkouts[0]))
@@ -22097,19 +22135,19 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertNotIn("pre-push guard: WARNING: the leftover report", result.stderr)
         self.assert_requested_bounds(result.stderr)
 
-    # A prelude for the report alone that runs it on a clock the test sets
-    # (hermetic-fu1), so its verdict does not depend on how busy the host
-    # is: time.monotonic stands still but for what this prelude adds. The
-    # worker is held at its opening of the git records directory and never
-    # returns, as a stalled file system would hold it, and the main thread
-    # starts it only once it is held there. Each wait of the main thread
-    # lasts its whole timeout on that clock, the longest it can: the wait
-    # for the worker (noted on stderr, as CLOCKED_REPORT notes it) and the
-    # wait for the lock, which then takes the lock. The alarm is noted on
-    # stderr and kept on that clock, and the output, once rendered, moves
-    # the clock FIXTURE_RENDER_DELAY seconds on before it is written, as a
-    # slow render would; if the alarm is due by then, the report signals
-    # itself SIGALRM, as its alarm would end it there.
+    # A prelude for the report alone that runs it on a clock the test sets,
+    # so its verdict does not depend on how busy the host is: time.monotonic
+    # stands still but for what this prelude adds. The worker is held at its
+    # opening of the git records directory and never returns, as a stalled
+    # file system would hold it, and the main thread starts it only once it
+    # is held there. Each wait of the main thread lasts its whole timeout on
+    # that clock, the longest it can: the wait for the worker (noted on
+    # stderr, as CLOCKED_REPORT notes it) and the wait for the lock (noted
+    # on stderr as "lock timeout <seconds>"), which then takes the lock. The
+    # alarm is noted on stderr and kept on that clock, and the output, once
+    # rendered, moves the clock FIXTURE_RENDER_DELAY seconds on before it is
+    # written, as a slow render would; if the alarm is due by then, the
+    # report signals itself SIGALRM, as its alarm would end it there.
     RENDER_CLOCK = (
         "import os, signal, sys, threading, time\n"
         "_render_now = [time.monotonic()]\n"
@@ -22138,6 +22176,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         "    def __init__(self, lock):\n"
         "        self._lock = lock\n"
         "    def acquire(self, blocking=True, timeout=-1):\n"
+        "        sys.stderr.write('lock timeout %.3f\\n' % timeout)\n"
+        "        sys.stderr.flush()\n"
         "        _render_now[0] += max(0.0, timeout)\n"
         "        return self._lock.acquire(False)\n"
         "    def release(self):\n"
@@ -22185,6 +22225,13 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         alone = self.report_alone(prelude=self.RENDER_CLOCK, FIXTURE_RENDER_DELAY="0.9")
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
         self.assert_requested_bounds(alone.stderr)
+        # The wait for the lock that RENDER_CLOCK notes is 0.2 seconds, so
+        # with the 3.3-second wait for the worker it ends RENDER_MARGIN (1.5
+        # seconds) before the 5-second alarm; a lock deadline with less time
+        # left before the alarm asks for a longer wait and fails here.
+        noted = re.findall(r"(?m)^lock timeout (\S+)$", alone.stderr)
+        self.assertEqual(len(noted), 1, alone.stderr)
+        self.assertAlmostEqual(float(noted[0]), 0.2, delta=0.01, msg=alone.stderr)
         self.assertIn("pre-push guard: the leftover scan is INCOMPLETE: its 3s scan bound (the "
                       "whole report is bounded to 5s) was reached while reading the git worktree "
                       "records; leftovers it had not reached are not listed, and none listed has "
@@ -22556,9 +22603,9 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         result, _ran = self.run_guard(PATH=path, FAIL_MODE="scan", FAIL_HOW="alarm")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("pre-push guard: WARNING: the leftover report (scan) was ended at its "
-                      "5-second bound (any report output above may be incomplete), so what "
-                      "earlier runs of this guard left is unknown; it stopped and removed nothing "
-                      "of a leftover.\n", result.stderr)
+                      "5-second bound (any report output it printed may be incomplete), so "
+                      "what earlier runs of this guard left is unknown; it stopped and removed "
+                      "nothing of a leftover.\n", result.stderr)
         for checkout in re.findall(r"\(checkout (\S+), log", first):
             self.git("worktree", "remove", "--force", checkout)
 
@@ -22605,8 +22652,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                  result.stderr.replace(warning, self.ALARMED_SCAN)),
                 ("the WARNING of a report that failed",
                  result.stderr.replace(warning, warning.replace(
-                     "was ended at its 5-second bound (any report output above may be "
-                     "incomplete)", "failed (rc=3)"))),
+                     "was ended at its 5-second bound (any report output it printed may "
+                     "be incomplete)", "failed (rc=3)"))),
                 ("a removal command after it",
                  result.stderr.replace(warning + "\n",
                                        warning + "\n      rm -rf -- %s\n" % root))):
@@ -22787,8 +22834,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 ("the WARNING of the left report",
                  err.replace("leftover report (scan)", "leftover report (left)")),
                 ("a report that failed",
-                 err.replace("was ended at its 5-second bound (any report output above "
-                             "may be incomplete)", "failed (rc=3)"))):
+                 err.replace("was ended at its 5-second bound (any report output it "
+                             "printed may be incomplete)", "failed (rc=3)"))):
             with self.subTest(case):
                 self.assertNotEqual(text, err)
                 with self.assertRaises(AssertionError):
@@ -42535,7 +42582,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F 9c03a45af74d01794902d6cca8c7e33ca213604dcac6e6f6c0743ecd29dd3a4c
+        README.md DATA F 200e0b5aed213ebc6d3cad364dbaf5e12492e008860495ec542f4ac82e1c1d22
         adopt-bootstrap-ref.py OWN F 1c0e5ba5922d5e3558914ea164d4c553ea8dc5cf501d0a3864fbcffaf84e04c7
         adopt-preflight-guard.py FIXED F ee7dd3404bad7ae6b955c536bb5478a1f435462b565537d5dcf56479484a55ce
         aiqt_bootstrap.py PASSIVE F bc5496de79c394e76703b34380bfc1bbb9ae1a8c489aa719d0a75344d3c915dc
@@ -42681,7 +42728,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F c6d1f22fbc6e8663067a0cb3239f277db3e5daad7e5b8fa698dcf8f865621f99
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
-        pre-push-guard.sh FIXED F 137360e56134845a3de78d6db8fe6acb9d960c3d454bdb3e14d37ee6674ecbad
+        pre-push-guard.sh FIXED F 84df8f0d7ddbd4ac138ab29488bc3165853ad06eef47f916774a9111c946678a
         pre-push-hook.py TRANSPORT F e0a06be59cc3e8c0b47377b229c16ea169eba04ed717e31c9427356b85f6bb76
         preflight-changelog.py NO_FS F 29957c73e3b649040497b2db9fcd095a8ae92627d69259795943a363ac7d514c
         preflight-version-date.py NO_FS F fa0c5302a8b96c582ecc5cb32e74b70bfed7b26da4727839c6d0765841aee2b9
