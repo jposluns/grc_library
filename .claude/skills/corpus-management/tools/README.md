@@ -287,7 +287,7 @@ user could read 62 processes and 311 further threads), a pass over `/proc`
 making the same reads took 0.010 to 0.015 seconds through the leaders alone,
 0.013 to 0.015 seconds with each thread's working and root directories,
 and 0.047 to 0.058 seconds with each thread's descriptors too, against the
-4-second scan bound; a host where far more threads can be read takes
+3-second scan bound; a host where far more threads can be read takes
 longer (not measured), and one that reaches the bound gets an `INCOMPLETE`
 report with no removal command. A process whose thread-group leader has
 exited while other threads run (the leader's own `/proc` entries are then
@@ -434,15 +434,16 @@ pre-push guard or a process with a pre-push guard among its parents (a live
 run of the guard on this host), nor for any process of a leftover whose run
 is still running (its processes belong to that push).
 
-The scan has 4 seconds, and an alarm bounds the whole report to 5 seconds.
-When the scan bound is reached, the report says it is incomplete. The
-shell's `git rev-parse --git-common-dir`, which names the common directory
-the report reads, runs before the report starts and is not under that
-bound (no bounded form is used, since the guard does not rely on
-`timeout(1)`): a git that stalls there (not observed, and not tested)
-delays the push as any other git command of the guard would. A report
-that fails says, per mode, what is unknown: what earlier runs left, or what
-this run left.
+The scan has 3 seconds, and an alarm bounds the whole report to 5 seconds;
+the report stops waiting for the scan 1.5 seconds before that alarm, so
+that it has that long to print what the scan found. When the scan bound is
+reached, the report says it is incomplete. The shell's
+`git rev-parse --git-common-dir`, which names the common directory the
+report reads, runs before the report starts and is not under that bound (no
+bounded form is used, since the guard does not rely on `timeout(1)`): a git
+that stalls there (not observed, and not tested) delays the push as any
+other git command of the guard would. A report that fails says, per mode,
+what is unknown: what earlier runs left, or what this run left.
 
 The full suite, gate 36 whole included, runs on the local server for the
 pull request head, which posts the `local-quality` commit status that

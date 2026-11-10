@@ -196,11 +196,13 @@
 # any signal, never for this guard, the processes that started this push,
 # a pre-push guard, a process one started or a live guard run, then push
 # again and remove the leftover only if that report marks it REMOVABLE.
-# The scan has 4 seconds. An alarm ends the whole report at 5 seconds
-# (counted from when its code starts). When the scan bound is reached it
-# says the report is INCOMPLETE, and nothing it lists has a removal
-# command. A failed report is reported, and the push continues either
-# way. .claude/skills/corpus-management/tools/README.md gives the rules in full.
+# The scan has 3 seconds. An alarm ends the whole report at 5 seconds
+# (counted from when its code starts), and the report stops waiting for
+# the scan 1.5 seconds before that, so that it has that long to print
+# what it found. When the scan bound is reached it says the report is
+# INCOMPLETE, and nothing it lists has a removal command. A failed report
+# is reported, and the push continues either way.
+# .claude/skills/corpus-management/tools/README.md gives the rules in full.
 #
 # Coverage: a green full guard has run every runner gate, gate 36 included
 # (whole, sharded, with the private store present), so its tests that skip
@@ -431,15 +433,25 @@ sh .claude/skills/corpus-management/tools/install-git-hooks.sh --check || exit $
 # locked, HEAD and the run record), never following the final component of
 # a path it reads and reading its type before opening it, and anything
 # unreadable or malformed there is reported, never taken as clean. The scan
-# runs in a worker thread with SCAN_BOUND seconds; the main thread then
-# prints what the worker found so far, and an alarm ends the whole report
-# at BOUND seconds, so a blocked call cannot hold the push. It stops,
-# signals or removes nothing of a leftover, and it changes no git state.
+# runs in a worker thread with SCAN_BOUND seconds; the main thread stops
+# waiting for it RENDER_MARGIN seconds before an alarm that ends the whole
+# report at BOUND seconds and prints what the worker found so far in that
+# margin, so a blocked call cannot hold the push. It stops, signals or
+# removes nothing of a leftover, and it changes no git state.
 LEFTOVER_PY='
 import copy, errno, os, re, signal, stat, sys, threading, time
 STARTED = time.monotonic()
+# The alarm ends the whole report BOUND seconds after main arms it. The
+# main thread stops waiting for the worker and for the lock RENDER_MARGIN
+# seconds before that, at deadlines main derives from the alarm, so it has
+# at least that long to render, write and flush what the worker found.
+# SCAN_BOUND, the bound the worker checks itself, is derived from BOUND and
+# RENDER_MARGIN and ends 0.5 seconds before those waits: the wait for the
+# worker lasts 0.3 seconds past it and the wait for the lock 0.2 seconds
+# more.
 BOUND = 5
-SCAN_BOUND = 4
+RENDER_MARGIN = 1.5
+SCAN_BOUND = BOUND - RENDER_MARGIN - 0.5
 PREFIX = "grc-gate36-shards."
 OWNER = "guard-owner"
 RUN_RECORD = "grc-guard-owner"
@@ -1613,12 +1625,18 @@ def render(root, g, complete, scan):
 def main():
     signal.signal(signal.SIGALRM, signal.SIG_DFL)
     signal.alarm(BOUND)
+    # Both waits end by RENDER_MARGIN seconds before the alarm fires
+    # (STARTED is read before the alarm is armed), so at least that long is
+    # left to render, write and flush the report, unless a busy host delays
+    # the main thread past that point; the wait for the lock then lasts
+    # 0.05 seconds, so the main thread still tries to take the lock.
+    waits_end = STARTED + BOUND - RENDER_MARGIN
     thread = threading.Thread(target=worker, daemon=True)
     thread.start()
-    thread.join(max(0.0, remaining() + 0.3))
+    thread.join(max(0.0, waits_end - 0.2 - time.monotonic()))
     scan, complete, stage, error, held = Scan(), False, None, None, True
     # The exit path: with lock, stop the worker and take what it found.
-    if lock.acquire(timeout=max(0.05, STARTED + BOUND - 0.5 - time.monotonic())):
+    if lock.acquire(timeout=max(0.05, waits_end - time.monotonic())):
         try:
             shared["stop"] = True
             scan = shared["snap"] or Scan()
@@ -1651,7 +1669,7 @@ def main():
         if held:
             out.append("pre-push guard: the leftover scan is INCOMPLETE: its state could not be read within the %ds bound; leftovers are not listed." % BOUND)
         else:
-            out.append("pre-push guard: the leftover scan is INCOMPLETE: its %ds scan bound (the whole report is bounded to %ds) was reached while %s; leftovers it had not reached are not listed, and none listed has a removal command." % (SCAN_BOUND, BOUND, stage))
+            out.append("pre-push guard: the leftover scan is INCOMPLETE: its %gs scan bound (the whole report is bounded to %ds) was reached while %s; leftovers it had not reached are not listed, and none listed has a removal command." % (SCAN_BOUND, BOUND, stage))
     if out:
         sys.stdout.write("\n".join(out) + "\n")
     sys.stdout.flush()
@@ -1693,12 +1711,12 @@ leftover_report() {
         rc=$?
     fi
     if [ "${mode}" = left ]; then
-        unknown="what this run left in ${1:-its shard directory} (named above) and whether a process uses it are unknown"
+        unknown="what this run left in ${1:-its shard directory} and whether a process uses it are unknown"
     else
         unknown="what earlier runs of this guard left is unknown"
     fi
     if [ "${rc}" -eq 142 ]; then
-        how="was ended at its 5-second bound before it printed"
+        how="was ended at its 5-second bound (any report output it printed may be incomplete)"
     else
         how="failed (rc=${rc})"
     fi

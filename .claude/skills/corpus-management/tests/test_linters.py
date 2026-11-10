@@ -141,6 +141,21 @@ def fixture_git_environment():
     return env
 
 
+def hermetic_environment(home, tmpdir, **extra):
+    """The whole environment of a fixture's guard, report or git, built here
+    and not inherited: PATH is the one value taken from this process (it
+    finds bash, git and python3); HOME and TMPDIR are the fixture's own
+    directories, git reads no global or system configuration, and extra adds
+    what the caller sets. Unlike fixture_git_environment, no other variable
+    of this process (a store, a git setting or a fixture control variable)
+    reaches the fixture."""
+    env = {"PATH": os.environ.get("PATH", os.defpath), "HOME": str(home),
+           "TMPDIR": str(tmpdir), "GIT_CONFIG_GLOBAL": os.devnull,
+           "GIT_CONFIG_NOSYSTEM": "1"}
+    env.update(extra)
+    return env
+
+
 # Minimal metadata block that satisfies lint-metadata.py's required-fields
 # check. Fixtures that need to pass metadata while triggering some other
 # linter's rule can prepend this block.
@@ -17097,7 +17112,7 @@ class NativePrePushGuardTests(unittest.TestCase):
         self.real_remote()
         # The runner checks the exact environment that reaches the guard.
         runner = self.root / ".claude/skills/corpus-management/tools/run_all_audits.sh"
-        runner.write_text("#!/bin/sh\npython3 - <<'CHECK'\nimport os, pwd\n"
+        runner.write_text("#!/bin/sh\npython3 -I - <<'CHECK'\nimport os, pwd\n"
                           "assert os.environ['GIT_CONFIG_GLOBAL'] == '/dev/null'\n"
                           "assert 'GIT_CONFIG_NOSYSTEM' not in os.environ\n"
                           "assert 'GIT_CONFIG_SYSTEM' not in os.environ\n"
@@ -17146,6 +17161,13 @@ class NativePrePushGuardTests(unittest.TestCase):
     def test_real_hostile_environment_main_and_linked(self):
         remote = self.real_remote()
         runner = self.root / ".claude/skills/corpus-management/tools/run_all_audits.sh"
+        # The runner's Python runs without -I, which its check does not
+        # need: the dispatcher starts the guard only through
+        # pre-push-hook.py, whose clean_environment builds the guard's whole
+        # environment from an allowlist with no PYTHONPATH in it, and the
+        # guard sets none, so PYTHONPATH never reaches the runner (as its
+        # check asserts); were it to, the planted sitecustomize.py below
+        # would print its marker, which each push refuses.
         runner.write_text("#!/bin/sh\npython3 - <<'CHECK'\nimport os\n"
                           "assert not any(k in os.environ for k in "
                           "('BASH_ENV', 'ENV', 'SHELLOPTS', 'PYTHONPATH', 'LD_PRELOAD', "
@@ -17157,7 +17179,13 @@ class NativePrePushGuardTests(unittest.TestCase):
         poison.write_text("echo STARTUP_BYPASS\nexit 0\n")
         modules = Path(self.tmp.name) / "modules"
         modules.mkdir()
-        (modules / "sitecustomize.py").write_text("import os\nos._exit(0)\n")
+        # The planted sitecustomize.py says it ran (SITECUSTOMIZE_RAN on
+        # stderr) before it exits 0, so a Python launch that reads
+        # PYTHONPATH (one of the hook's, were its -I removed) shows itself,
+        # and each push below refuses that marker, instead of that launch
+        # silently passing its check.
+        (modules / "sitecustomize.py").write_text(
+            "import os\nos.write(2, b'SITECUSTOMIZE_RAN\\n')\nos._exit(0)\n")
         values = dict(BASH_ENV=str(poison), ENV=str(poison), SHELLOPTS="errexit",
                       PYTHONPATH=str(modules), LD_PRELOAD=str(modules / "absent.so"))
         for checkout in self.main_and_linked():
@@ -17171,12 +17199,14 @@ class NativePrePushGuardTests(unittest.TestCase):
                         for marker in ("guard 1/3", "guard 2/3", "WEB CHECK", "ADVISORY CHECK"):
                             self.assertIn(marker, result.stdout)
                         self.assertNotIn("STARTUP_BYPASS", result.stdout + result.stderr)
+                        self.assertNotIn("SITECUSTOMIZE_RAN", result.stdout + result.stderr)
                         self.assertEqual(self.run_cmd("git", "--git-dir", str(remote),
                                                      "rev-parse", ref).stdout.strip(),
                                          self.run_cmd("git", "rev-parse", "HEAD").stdout.strip())
                         (self.root / ".web/build.py").write_text("print('dirty')\n")
                         blocked = self.run_cmd("git", "push", "upstream", "HEAD:" + ref + "-dirty", code=1)
                         self.assertIn("REFUSING", blocked.stdout + blocked.stderr)
+                        self.assertNotIn("SITECUSTOMIZE_RAN", blocked.stdout + blocked.stderr)
                     finally:
                         self.env = saved
                         self.run_cmd("git", "checkout", "--", ".web/build.py")
@@ -17652,7 +17682,7 @@ class NativePrePushGuardTests(unittest.TestCase):
         self.real_remote()
         runner = self.root / ".claude/skills/corpus-management/tools/run_all_audits.sh"
         runner.write_text(
-            "#!/bin/sh\npython3 - <<'CHECK'\nimport os, pwd, subprocess\n"
+            "#!/bin/sh\npython3 -I - <<'CHECK'\nimport os, pwd, subprocess\n"
             "assert os.environ['GIT_CONFIG_GLOBAL'] == '/dev/null'\n"
             "assert 'GIT_CONFIG_NOSYSTEM' not in os.environ\n"
             "assert 'GIT_CONFIG_SYSTEM' not in os.environ\n"
@@ -17744,18 +17774,47 @@ class NativePrePushGuardTests(unittest.TestCase):
     def test_real_older_hook_scope_main_and_linked(self):
         self.real_remote()
         self.real_remote("fork", "other/repository.git")
+        # The older hook runs the checker as an older installed hook did,
+        # with no -I, so the script's directory is on sys.path and Python
+        # reads PYTHON* variables; its isolation is the environment this test
+        # builds: no PYTHON* variable of the test process reaches it, and
+        # PYTHONNOUSERSITE=1 keeps the user's site-packages out. That
+        # isolation is observed. Before it is built, this test's environment
+        # names as PYTHONPATH a directory whose sitecustomize.py says it ran
+        # (OLDER_SITECUSTOMIZE_RAN on stderr), so there is a PYTHON* variable
+        # to drop whatever the host sets; the older hook prints the PYTHON*
+        # variables it is given (OLDER_HOOK_ENV), which must be
+        # PYTHONNOUSERSITE=1 alone, and no push may print the marker. With
+        # either line that builds the isolation removed, this test fails.
         (self.root / ".claude/skills/corpus-management/tools/git-hooks/pre-push").write_text(
             '#!/bin/sh\necho OLDER_HOOK >&2\n'
+            "printf 'OLDER_HOOK_ENV %s\\n' \"$(env | LC_ALL=C sort | grep '^PYTHON' | tr '\\n' ' ')\" >&2\n"
             'exec python3 "$(git rev-parse --show-toplevel)/.claude/skills/corpus-management/tools/check-dirty-tree-push.py" --pre-push "$@"\n')
         self.commit_fixture()
+        modules = Path(self.tmp.name) / "older-modules"
+        modules.mkdir()
+        (modules / "sitecustomize.py").write_text(
+            "import os\nos.write(2, b'OLDER_SITECUSTOMIZE_RAN\\n')\n")
+        self.env["PYTHONPATH"] = str(modules)
+        self.env = {k: v for k, v in self.env.items() if not k.startswith("PYTHON")}
+        self.env["PYTHONNOUSERSITE"] = "1"
         for checkout in self.main_and_linked():
             result = self.run_cmd("git", "push", "upstream", "HEAD:refs/heads/" + checkout, code=1)
             self.assertIn("rebase", result.stderr)
+            self.assertNotIn("OLDER_SITECUSTOMIZE_RAN", result.stderr)
+            older = []
             result = self.run_cmd("git", "push", "fork", "HEAD:refs/heads/" + checkout)
             self.assertIn("OLDER_HOOK", result.stderr)
+            older.append(result)
             (self.root / ".web/build.py").write_text("print('dirty')\n")
             result = self.run_cmd("git", "push", "fork", "HEAD:refs/heads/" + checkout + "-dirty", code=1)
             self.assertIn("REFUSING", result.stderr)
+            older.append(result)
+            for result in older:
+                self.assertEqual([seen.split() for seen in
+                                  re.findall(r"(?m)^OLDER_HOOK_ENV (.*)$", result.stderr)],
+                                 [["PYTHONNOUSERSITE=1"]], result.stderr)
+                self.assertNotIn("OLDER_SITECUSTOMIZE_RAN", result.stderr)
 
     def test_real_dot_git_component_main_and_linked(self):
         remote = self.real_remote(suffix="jposluns/grc_library/.git")
@@ -17802,7 +17861,19 @@ class PrePushGuardTests(unittest.TestCase):
         import stat
         import tempfile
 
-        tmp = Path(tempfile.mkdtemp(prefix="lint-guard-test-"))
+        # The fixture repository sits one level inside its own temporary
+        # directory, so its parent, where lint_common looks for the store
+        # (<parent>/private when GRC_STORE is unset) and the
+        # grc_library_private sibling, is this fixture's own directory and
+        # never the shared TMPDIR. The guard's TMPDIR (_guard_env) is the
+        # empty tmp directory beside the repository. The addCleanup below is
+        # the cleanup of record for the whole fixture; the finally:
+        # shutil.rmtree(tmp, ...) of the older tests removes only the
+        # repository inside it, earlier.
+        outer = Path(tempfile.mkdtemp(prefix="lint-guard-test-"))
+        self.addCleanup(shutil.rmtree, outer, True)
+        (outer / "tmp").mkdir()
+        tmp = outer / "repo"
         tools = tmp / self.GUARD_TOOLS
         tools.mkdir(parents=True)
         shutil.copy(SKILL_ROOT / "tools" / "pre-push-guard.sh", tools / "pre-push-guard.sh")
@@ -17836,9 +17907,19 @@ class PrePushGuardTests(unittest.TestCase):
             path.chmod(path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
         return tmp, shutil
 
+    @staticmethod
+    def _guard_env(tmp: Path) -> dict:
+        """The whole environment of the guard and of the git a test runs in
+        the fixture, built here, not inherited: no GRC_STORE and no GIT_*
+        variable of the test process reaches them, so a store or a git
+        setting of the host cannot decide a verdict. PATH is the one value
+        taken from the test process (it finds bash, git and python3); HOME
+        and TMPDIR are the fixture's own directories, and git reads no global
+        or system configuration (hermetic_environment)."""
+        return hermetic_environment(tmp.parent, tmp.parent / "tmp")
+
     def _run_guard(self, tmp: Path, allow_pipe: bool = True, allow_dirty: bool = True,
                    extra_env=None):
-        import os
         import subprocess as sp
 
         # capture_output wires the guard's stdout to a PIPE, which the
@@ -17846,7 +17927,7 @@ class PrePushGuardTests(unittest.TestCase):
         # documented override is the sanctioned way to run a deliberate,
         # judged pipe, which is exactly what this harness capture is. The
         # refusal path itself is pinned by test_piped_stdout_refused.
-        env = dict(os.environ)
+        env = self._guard_env(tmp)
         if allow_pipe:
             env["PRE_PUSH_GUARD_ALLOW_PIPE"] = "1"
         else:
@@ -18010,8 +18091,16 @@ class PrePushGuardTests(unittest.TestCase):
                 "sys.argv = ['build-reference-manifest.py', '--check']\n"
                 "runpy.run_path('.claude/skills/corpus-management/tools/build-reference-manifest.py', run_name='__main__')\n"
             )
-            r = sp.run([sys.executable, "-c", code], cwd=str(REPO_ROOT),
-                       capture_output=True, text=True)
+            # Isolated Python with the environment built here
+            # (hermetic_environment), so no PYTHON*, GRC_STORE or GIT_*
+            # variable of the test process reaches lint_common or the
+            # builder. GRC_STORE names an absent directory in td, as
+            # PrePushGuardFastPathTests.guard_environment does, since with it
+            # unset lint_common takes the store beside the checkout.
+            r = sp.run([sys.executable, "-I", "-c", code], cwd=str(REPO_ROOT),
+                       capture_output=True, text=True, timeout=60,
+                       env=hermetic_environment(td, td,
+                                                GRC_STORE=str(Path(td) / "no-store")))
         self.assertEqual(r.returncode, 3, r.stdout + r.stderr)
         self.assertIn("internal error", r.stderr)
         self.assertNotIn("DRIFT", r.stderr)
@@ -18064,7 +18153,7 @@ class PrePushGuardTests(unittest.TestCase):
                          ["config", "user.name", "t"], ["add", "-A"],
                          ["commit", "-q", "-m", "init"]):
                 sp.run(["git", "-C", str(tmp), *args], check=True,
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, env=self._guard_env(tmp))
             # dirty a tracked file
             (tmp / self.GUARD_TOOLS / "run_all_audits.sh").write_text(
                 "#!/bin/bash\nexit 0\n# dirtied\n", encoding="utf-8")
@@ -18091,6 +18180,56 @@ class PrePushGuardTests(unittest.TestCase):
             self.assertIn("PRE_PUSH_GUARD_ALLOW_DIRTY", result.stderr)
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_guard_ignores_the_test_process_store_home_tmpdir_and_git_variables(self) -> None:
+        # FLIP TABLE: the guard's verdict does not come from the test
+        # process. With GRC_STORE naming an existing directory, GIT_DIR,
+        # GIT_WORK_TREE, HOME and TMPDIR set in this process, and the shared
+        # temporary directory holding a private and a grc_library_private
+        # directory, the guard still finds no private store (its
+        # install-git-hooks.sh --check skips, where a store would send it to
+        # git rev-parse, which exits 128 in this non-repository fixture) and
+        # passes. The runner it starts sees no GRC_STORE, no GIT_* variable
+        # this process set (a GIT_* variable _guard_env sets itself is not
+        # one), and the fixture's own HOME and TMPDIR. Passing the guard the
+        # test process environment, taking HOME or TMPDIR from it, or
+        # building the fixture directly in the shared temporary directory,
+        # fails this test.
+        import os
+        import shutil
+        import tempfile
+        from unittest.mock import patch
+
+        shared = Path(tempfile.mkdtemp(prefix="lint-guard-shared-"))
+        try:
+            for name in ("store", "private", "grc_library_private", "home", "tmp"):
+                (shared / name).mkdir()
+            leaked = {"GRC_STORE": str(shared / "store"), "GIT_DIR": str(shared / "no-repo"),
+                      "GIT_WORK_TREE": str(shared), "HOME": str(shared / "home"),
+                      "TMPDIR": str(shared / "tmp")}
+            with patch.dict(os.environ, leaked), patch.object(tempfile, "tempdir", str(shared)):
+                tmp = self._build_guard_dir(first_rc=0, second_rc=0)[0]
+                inherited = ({name for name in os.environ if name.startswith("GIT_")}
+                             - set(self._guard_env(tmp)))
+                (tmp / self.GUARD_TOOLS / "run_all_audits.sh").write_text(
+                    "#!/bin/bash\nseen=\"$(dirname \"$0\")/../../../../env.seen\"\n"
+                    "compgen -e > \"$seen\"\n"
+                    "printf 'HOME=%s\\nTMPDIR=%s\\n' \"$HOME\" \"$TMPDIR\" > \"$seen.values\"\n"
+                    "exit 0\n",
+                    encoding="utf-8")
+                result = self._run_guard(tmp)
+            output = result.stdout + result.stderr
+            self.assertEqual(result.returncode, 0, output)
+            self.assertIn("install-git-hooks: check SKIP (no private store).", result.stdout)
+            self.assertIn("Safe to push", result.stdout)
+            seen = (tmp / "env.seen").read_text(encoding="utf-8").split()
+            self.assertNotIn("GRC_STORE", seen)
+            self.assertLessEqual({"GIT_DIR", "GIT_WORK_TREE"}, inherited)
+            self.assertEqual(sorted(inherited.intersection(seen)), [], seen)
+            self.assertEqual((tmp / "env.seen.values").read_text(encoding="utf-8"),
+                             "HOME=%s\nTMPDIR=%s\n" % (tmp.parent, tmp.parent / "tmp"))
+        finally:
+            shutil.rmtree(shared, ignore_errors=True)
 
 
 class NightlySweepStepTests(unittest.TestCase):
@@ -18484,29 +18623,52 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             "    sys.exit(3)\n")
     RUN_GATE_RE = re.compile(r'^run_gate\s+"([^"]+)"\s+python3\s+(.+?)\s*$', re.M)
     REGRESSION_SCRIPT = ".claude/skills/corpus-management/tools/run-linter-regression.py"
-    # The full guard's local gate 36 shard stub. It logs one JSON line per run
-    # to the absolute SHARDS_LOG (its working directory is the shard's own
-    # checkout), drops a marker under tests/tmp (the repository-root test
+    # The full guard's local gate 36 shard stub. It logs one JSON line per
+    # run to the absolute SHARDS_LOG (its working directory is the shard's
+    # own checkout), drops a marker under tests/tmp (the repository-root test
     # scratch, lint_common.TEST_SCRATCH_ROOT) and lists what it sees there
     # after the other shards have had time to do the same (a shared working
     # tree shows their markers), then writes the outputs the real runner
     # writes to GITHUB_OUTPUT, for the real reconcile tool. Like the real
     # runner (SUITE_ROOT, parents[1] of its own file), it finds the skill's
     # tests/ folder from its own location, not from its working directory,
-    # which the guard sets to the checkout root. FIXTURE_SHARD_FAIL
-    # names a shard that exits 7; FIXTURE_SHARD_NO_OUTPUT one that writes no
-    # outputs (FIXTURE_SHARD_FAIL may name several, comma-separated);
-    # FIXTURE_SHARD_BAD_OUTPUT one whose outputs the reconcile
-    # refuses (exit 2); FIXTURE_SHARD_OTHER_UNITS one that reports another
-    # unit set (a reconcile failure, exit 1); FIXTURE_SHARD_BREAK_CHECKOUT one
-    # that deletes its checkout's .git file, so git worktree remove fails;
+    # which the guard sets to the checkout root. FIXTURE_SHARD_FAIL names a
+    # shard that exits 7; FIXTURE_SHARD_NO_OUTPUT one that writes no outputs
+    # (FIXTURE_SHARD_FAIL may name several, comma-separated);
+    # FIXTURE_SHARD_BAD_OUTPUT one whose outputs the reconcile refuses (exit
+    # 2); FIXTURE_SHARD_OTHER_UNITS one that reports another unit set (a
+    # reconcile failure, exit 1); FIXTURE_SHARD_BREAK_CHECKOUT one that
+    # deletes its checkout's .git file, so git worktree remove fails;
     # FIXTURE_SHARD_KEEP_CHECKOUT one that leaves a read-only directory
     # holding a file in its checkout, so the shard directory cannot be
     # removed; FIXTURE_SHARD_UNREGISTER_CHECKOUT one that deletes its
-    # checkout's git record, so git worktree remove fails and the checkout
-    # is no longer registered.
-    # FIXTURE_SHARD_HANG names a directory: every shard starts a child, writes
-    # "pid pgid child-pid" to shard-<i> there, and sleeps until stopped.
+    # checkout's git record, so git worktree remove fails and the checkout is
+    # no longer registered.
+    # FIXTURE_SHARD_HANG names a directory: every shard first writes "pid
+    # pgid start" to started-<i> there, so the test's cleanup knows every
+    # shard that started, then starts a child (SHARD_CHILD: isolated Python,
+    # -I, with this fixture's built environment, env), waits for its "ready"
+    # line (the startup handshake), writes "pid pgid child-pid start
+    # child-start" to shard-<i>, and then reads the FIFO that
+    # FIXTURE_SHARD_RELEASE names until no writer holds it, so it lives until
+    # it is stopped or the test's cleanup closes that FIFO (hold_shards). The
+    # child holds that FIFO open itself and reads it the same way, with its
+    # stdin from /dev/null, so its shard's end does not end it: only a signal
+    # to it, as to its shard's whole process group, or that cleanup does (a
+    # child that read a pipe its shard held would end at end of file once its
+    # shard died, however the shard was stopped). Once released, the shard
+    # reaps its child and exits.
+    # Start and child-start are the start times (field 22 of
+    # /proc/<pid>/stat) of the shard and of its child, read as the record is
+    # written (the child's while it is the shard's unreaped child, so its
+    # pid cannot have been reused), so the cleanup trusts a recorded pid
+    # only while it still has that start time.
+    SHARD_CHILD = ("import os\nimport sys\n"
+                   "held = os.open(sys.argv[1], os.O_RDONLY | os.O_NONBLOCK)\n"
+                   "os.set_blocking(held, True)\n"
+                   "print('ready', flush=True)\n"
+                   "while os.read(held, 1):\n"
+                   "    pass\n")
     SHARD_STUB = (
         "import json\nimport os\nimport shutil\nimport subprocess\nimport sys\nimport time\n"
         "index, count = sys.argv[2].split('/')\n"
@@ -18514,12 +18676,31 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         "open(os.path.join('tests', 'tmp', 'shard-' + index), 'w').close()\n"
         "hang = os.environ.get('FIXTURE_SHARD_HANG')\n"
         "if hang:\n"
-        "    child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(120)'])\n"
-        "    with open(os.path.join(hang, 'shard-' + index + '.tmp'), 'w') as f:\n"
-        "        f.write('%%d %%d %%d\\n' %% (os.getpid(), os.getpgid(0), child.pid))\n"
-        "    os.rename(os.path.join(hang, 'shard-' + index + '.tmp'),\n"
-        "              os.path.join(hang, 'shard-' + index))\n"
-        "    time.sleep(120)\n"
+        "    def record(name, line):\n"
+        "        with open(os.path.join(hang, name + '.tmp'), 'w') as f:\n"
+        "            f.write(line)\n"
+        "        os.rename(os.path.join(hang, name + '.tmp'), os.path.join(hang, name))\n"
+        "    def start(pid):\n"
+        "        with open('/proc/%%d/stat' %% pid, 'rb') as f:\n"
+        "            data = f.read()\n"
+        "        return int(data[data.rindex(b')') + 2:].split()[19])\n"
+        "    record('started-' + index, '%%d %%d %%d\\n'\n"
+        "           %% (os.getpid(), os.getpgid(0), start(os.getpid())))\n"
+        "    release = os.environ['FIXTURE_SHARD_RELEASE']\n"
+        "    child = subprocess.Popen([sys.executable, '-I', '-c', %(child)r, release],\n"
+        "                             env=%(env)r, stdin=subprocess.DEVNULL,\n"
+        "                             stdout=subprocess.PIPE)\n"
+        "    if child.stdout.readline() != b'ready\\n':\n"
+        "        sys.exit(8)\n"
+        "    record('shard-' + index, '%%d %%d %%d %%d %%d\\n'\n"
+        "           %% (os.getpid(), os.getpgid(0), child.pid, start(os.getpid()),\n"
+        "              start(child.pid)))\n"
+        "    held = os.open(release, os.O_RDONLY | os.O_NONBLOCK)\n"
+        "    os.set_blocking(held, True)\n"
+        "    while os.read(held, 1):\n"
+        "        pass\n"
+        "    child.wait()\n"
+        "    sys.exit(0)\n"
         "time.sleep(1)\n"
         "seen = sorted(os.listdir(os.path.join('tests', 'tmp')))\n"
         "head = subprocess.run(['git', 'rev-parse', 'HEAD'], capture_output=True,\n"
@@ -18529,7 +18710,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         "            if os.path.isdir(os.path.join('..', name))}\n"
         "links = {name: os.readlink(os.path.join('..', name)) for name in sorted(os.listdir('..'))\n"
         "         if os.path.islink(os.path.join('..', name))}\n"
-        "with open(%r, 'a') as f:\n"
+        "with open(%(log)r, 'a') as f:\n"
         "    f.write(json.dumps({'argv': sys.argv, 'cwd': os.path.realpath(os.getcwd()),\n"
         "                        'output': os.environ.get('GITHUB_OUTPUT', ''),\n"
         "                        'store': os.environ.get('GRC_STORE', ''),\n"
@@ -18589,8 +18770,6 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # real reconcile tool reconciles what the stubs wrote; their temporary
         # checkouts go under the fixture's own TMPDIR.
         self.shards_log = Path(self.tmp.name) / "shards.log"
-        (self.root / self.REGRESSION_SCRIPT).write_text(
-            self.SHARD_STUB % str(self.shards_log), encoding="utf-8")
         shutil.copyfile(SKILL_ROOT / "tools" / "reconcile-regression-shards.py",
                         self.root / ".claude/skills/corpus-management/tools" / "reconcile-regression-shards.py")
         self.shard_tmp = Path(self.tmp.name) / "tmpdir"
@@ -18608,23 +18787,350 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             path = self.root / rel
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(body, encoding="utf-8")
-        self.env = {k: v for k, v in os.environ.items()
-                    if not k.startswith(("GIT_", "PRE_PUSH_GUARD_"))
-                    and k not in ("BASE_REF", "HEAD_REF")}
-        self.env.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1",
-                        GRC_STORE=str(Path(self.tmp.name) / "no-store"),
-                        PRE_PUSH_GUARD_ALLOW_PIPE="1", BASE_REF="base",
-                        TMPDIR=str(self.shard_tmp))
-        for name in ("FIXTURE_SHARD_FAIL", "FIXTURE_SHARD_NO_OUTPUT", "FIXTURE_SHARD_BAD_OUTPUT",
-                     "FIXTURE_SHARD_OTHER_UNITS", "FIXTURE_SHARD_BREAK_CHECKOUT",
-                     "FIXTURE_SHARD_KEEP_CHECKOUT", "FIXTURE_SHARD_UNREGISTER_CHECKOUT",
-                     "FIXTURE_SHARD_HANG", "FIXTURE_GIT_WORKTREE_LIST_FAIL", "GITHUB_OUTPUT"):
-            self.env.pop(name, None)
+        # The whole environment of the guard, the report and the git this
+        # class runs, built here, not copied from the test process, so no
+        # variable of the host (a store, a git setting, or a control variable
+        # that a stub or a report prelude reads, FIXTURE_* among them)
+        # reaches them unless a test sets it. PATH is the one value taken
+        # from the test process (it finds bash, git and python3); HOME is the
+        # fixture's own directory, and git reads no global or system
+        # configuration. guard_environment builds it, and
+        # test_guard_environment_takes_nothing_from_the_test_process_but_path
+        # checks it.
+        self.env = self.guard_environment()
+        # The shard stub is written once self.env is built, since a hanging
+        # shard starts its child with it.
+        (self.root / self.REGRESSION_SCRIPT).write_text(
+            self.SHARD_STUB % {"log": str(self.shards_log), "env": self.env,
+                               "child": self.SHARD_CHILD}, encoding="utf-8")
         self.git("init", "-q")
         self.git("config", "user.email", "fixture@example.com")
         self.git("config", "user.name", "Guard fixture")
         self.commit("Base")
         self.git("branch", "base")
+
+    def guard_environment(self):
+        """The whole environment of the guard, the report and the git this
+        class runs (hermetic_environment), with this fixture's HOME, TMPDIR
+        and absent store, the pipe override and the base ref."""
+        return hermetic_environment(self.tmp.name, self.shard_tmp,
+                                    GRC_STORE=str(Path(self.tmp.name) / "no-store"),
+                                    PRE_PUSH_GUARD_ALLOW_PIPE="1", BASE_REF="base")
+
+    def hold_shards(self, marks):
+        """The variables that make every stub shard of a guard run hang
+        (SHARD_STUB): FIXTURE_SHARD_HANG names marks, a new directory, where
+        each shard writes "pid pgid start" to started-<i> as it starts and
+        "pid pgid child-pid start child-start" to shard-<i> once its child
+        has started (its handshake), with the start times of itself and its
+        child read as it writes each, and FIXTURE_SHARD_RELEASE names a FIFO
+        this test holds open. A shard and its child live until they are
+        stopped or this test's cleanup (release_shards) closes that FIFO,
+        with no time limit of their own."""
+        marks.mkdir()
+        release = Path(self.tmp.name) / (marks.name + ".release")
+        os.mkfifo(release)
+        held = os.open(release, os.O_RDWR)
+        self.addCleanup(self.release_shards, held, marks, release)
+        return {"FIXTURE_SHARD_HANG": str(marks), "FIXTURE_SHARD_RELEASE": str(release)}
+
+    @staticmethod
+    def shard_records(marks):
+        """The "pid pgid child-pid" parts (each a list of three strings) of
+        the records of the shards of hold_shards whose child has started, by
+        name; the start times that follow them are for release_shards."""
+        return [m.read_text(encoding="utf-8").split()[:3] for m in sorted(marks.iterdir())
+                if re.fullmatch(r"shard-\d+", m.name)]
+
+    @staticmethod
+    def release_shards(held, marks, release, timeout=30, reap_timeout=30):
+        """The cleanup of hold_shards: close the FIFO it holds, which ends
+        each shard and child still reading it (a shard then reaps its
+        child), and wait until every process of that run is reaped: each pid
+        marks records (a shard records itself as it starts, before its child)
+        and each process /proc shows naming that FIFO (a shard's environment,
+        a child's command line), so a shard that has not written a record yet
+        is waited for too. A zombie is not gone: this process reaps any it is
+        the parent of (as a subreaper or PID 1 is) and waits for any other
+        parent to. A zombie shows no environment or command line, so one that
+        no record names is found by its parent, read from its
+        /proc/<pid>/stat: a process of the run found here (a shard that does
+        not reap its child), or this process when the zombie is in the
+        process group of a process of the run (other than this process's own
+        group); it is then waited for, reported and reaped as any other, and
+        one whose parent is killed below is reaped by whoever adopts it.
+        Whatever outlasts timeout seconds is killed with SIGKILL (its process
+        group, unless that is this process's own, and itself, each only while
+        /proc shows it with the start time it was found with, so a pid reused
+        before that check is not signalled), waited for again until it is
+        reaped, and the cleanup then fails. The check and the signal are two
+        steps, so a pid reused between them can still be signalled; if
+        another user's process now holds it, the refusal (PermissionError) is
+        passed over, as a pid that is gone (ProcessLookupError) is, and the
+        cleanup goes on. That wait after the SIGKILL has its own bound,
+        reap_timeout seconds (30 by default), not timeout, which a test may
+        shorten, so how fast a loaded host tears down and reaps what was
+        killed does not decide the outcome. A pid a record names is found
+        only while /proc shows it with the start time the record holds (each
+        shard writes its own and its child's as it writes the record), never
+        with one first read here, so a recorded process that ended and whose
+        pid was reused before or during this cleanup is neither waited for
+        nor signalled; a pid /proc shows naming the FIFO, or a zombie found
+        by its parent, is found with the start time read before that match,
+        if it still has it after. The waiting is in a finally block, so it
+        runs whatever closing raises."""
+        import signal
+        import time
+
+        def stat(pid):
+            """(state, parent pid, pgid, start time) of pid; None once it is
+            reaped."""
+            try:
+                data = Path("/proc/%d/stat" % pid).read_bytes()
+            except (FileNotFoundError, ProcessLookupError):
+                return None
+            fields = data[data.rindex(b")") + 2:].split()
+            return fields[0], int(fields[1]), int(fields[2]), int(fields[19])
+
+        names = {os.fsencode("FIXTURE_SHARD_RELEASE=%s" % release), os.fsencode(str(release))}
+        found = {}
+        # The process groups of the run: each recorded one and that of each
+        # process found.
+        groups = set()
+
+        def note(pid, start):
+            """Find pid, only while /proc shows it with start time start."""
+            now = stat(pid) if pid not in found and pid != os.getpid() else None
+            if now is not None and now[3] == start:
+                found[pid] = start
+                groups.add(now[2])
+
+        def survey():
+            for mark in marks.iterdir():
+                # started-<i>: pid pgid start; shard-<i>: pid pgid child-pid
+                # start child-start (SHARD_STUB).
+                if re.fullmatch(r"started-\d+", mark.name):
+                    pairs = ((0, 2),)
+                elif re.fullmatch(r"shard-\d+", mark.name):
+                    pairs = ((0, 3), (2, 4))
+                else:
+                    continue
+                fields = [int(f) for f in mark.read_text(encoding="utf-8").split()]
+                groups.add(fields[1])
+                for pid, start in pairs:
+                    note(fields[pid], fields[start])
+            for entry in os.listdir("/proc"):
+                if entry.isdigit() and int(entry) not in found:
+                    before = stat(int(entry))
+                    if before is None:
+                        continue
+                    # A zombie, found by its parent.
+                    if before[0] == b"Z":
+                        if before[1] in found or (
+                                before[1] == os.getpid() and before[2] in groups
+                                and before[2] != os.getpgid(0)):
+                            note(int(entry), before[3])
+                        continue
+                    for name in ("environ", "cmdline"):
+                        try:
+                            data = Path("/proc", entry, name).read_bytes()
+                        except OSError:
+                            continue
+                        if names.intersection(data.split(b"\0")):
+                            note(int(entry), before[3])
+                            break
+
+        def gone(pid):
+            now = stat(pid)
+            return now is None or now[3] != found[pid]
+
+        def reaped(pid):
+            try:
+                os.waitpid(pid, os.WNOHANG)
+            except ChildProcessError:
+                pass
+            return gone(pid)
+
+        try:
+            os.close(held)
+        finally:
+            deadline = time.monotonic() + timeout
+            while True:
+                survey()
+                left = sorted(pid for pid in found if not reaped(pid))
+                if not left or time.monotonic() >= deadline:
+                    break
+                time.sleep(0.1)
+            for pid in left:
+                now = stat(pid)
+                if now is None or now[3] != found[pid]:
+                    continue
+                targets = [(os.kill, pid)]
+                if now[2] != os.getpgid(0):
+                    targets.insert(0, (os.killpg, now[2]))
+                for send, target in targets:
+                    try:
+                        send(target, signal.SIGKILL)
+                    except (ProcessLookupError, PermissionError):
+                        pass
+            # After any SIGKILL: wait until each is reaped, for up to
+            # reap_timeout seconds of its own.
+            deadline = time.monotonic() + reap_timeout
+            while not all(reaped(pid) for pid in left) and time.monotonic() < deadline:
+                time.sleep(0.05)
+            if left:
+                raise AssertionError("shard processes outlived their release: %r; still not "
+                                     "reaped after SIGKILL: %r"
+                                     % (left, [pid for pid in left if not gone(pid)]))
+
+    @staticmethod
+    def stop_guard(guard):
+        """End a guard run a test started in the background, if it still
+        runs: SIGINT first, since its trap stops and waits for every shard's
+        process group (within REGRESSION_SHARD_STOP_GRACE, 10 seconds, and a
+        KILL), then SIGKILL if it has not ended within 60 seconds; it is
+        reaped either way."""
+        import signal
+
+        if guard.poll() is None:
+            guard.send_signal(signal.SIGINT)
+            try:
+                guard.wait(timeout=60)
+            except subprocess.TimeoutExpired:
+                guard.kill()
+                guard.wait(timeout=60)
+
+    def test_release_shards_waits_for_unrecorded_shards_and_reaps_what_it_kills(self):
+        # FLIP TABLE: a process of a held run that wrote no record (its
+        # command line names the release FIFO, as a shard's child does) and
+        # that the FIFO's close does not end is found, outlives the release
+        # and is killed; the cleanup then fails, and it has waited for that
+        # process until it is reaped, so no zombie is left (this test is
+        # its parent, as a subreaper or PID 1 is of an orphan). Without the
+        # wait after the SIGKILL, /proc still shows the zombie and this
+        # test fails.
+        # Only the wait before the kill is shortened (timeout=1); the reap
+        # after it keeps its own 30-second bound (reap_timeout), so this
+        # test does not depend on the killed process being reaped within 1
+        # second.
+        # live_process starts the stuck helper (in its own session, so its
+        # group is signalled too) and checks its -I and its built
+        # environment.
+        marks = Path(self.tmp.name) / "stuck"
+        marks.mkdir()
+        release = Path(self.tmp.name) / "stuck.release"
+        os.mkfifo(release)
+        held = os.open(release, os.O_RDWR)
+        stuck, line = self.live_process(self.LIVE_HELPER, str(release), start_new_session=True)
+        self.assertEqual(line, "ready\n", "the stuck helper did not start")
+        with self.assertRaisesRegex(AssertionError, r"outlived their release: \[%d\]; still "
+                                    r"not reaped after SIGKILL: \[\]" % stuck.pid):
+            self.release_shards(held, marks, release, timeout=1)
+        self.assertFalse(os.path.exists("/proc/%d" % stuck.pid),
+                         "the killed process is left unreaped")
+
+    def test_release_shards_finds_an_unrecorded_shard_by_its_environment(self):
+        # FLIP TABLE: a process of a held run that wrote no record and whose
+        # command line does not name the release FIFO, as a shard that has
+        # not written its record yet, is found by its environment alone
+        # (FIXTURE_SHARD_RELEASE names the FIFO), outlives the release (the
+        # FIFO's close does not end it) and is killed and reaped; the
+        # cleanup then fails. With the environ match gone, the cleanup finds
+        # nothing, does not fail, and this test fails. live_process starts
+        # it, with FIXTURE_SHARD_RELEASE added to the built environment
+        # (extra_env), and checks its -I and that environment.
+        marks = Path(self.tmp.name) / "unrecorded"
+        marks.mkdir()
+        release = Path(self.tmp.name) / "unrecorded.release"
+        os.mkfifo(release)
+        held = os.open(release, os.O_RDWR)
+        shard, line = self.live_process(self.LIVE_HELPER, start_new_session=True,
+                                        extra_env={"FIXTURE_SHARD_RELEASE": str(release)})
+        self.assertEqual(line, "ready\n", "the unrecorded shard did not start")
+        cmdline = self.proc_bytes(shard.pid, "cmdline").split(b"\0")
+        self.assertFalse([arg for arg in cmdline if os.fsencode(str(release)) in arg], cmdline)
+        self.assertEqual(os.listdir(marks), [])
+        with self.assertRaisesRegex(AssertionError, r"outlived their release: \[%d\]; still "
+                                    r"not reaped after SIGKILL: \[\]" % shard.pid):
+            self.release_shards(held, marks, release, timeout=1)
+        self.assertFalse(os.path.exists("/proc/%d" % shard.pid),
+                         "the killed process is left unreaped")
+
+    # A process for
+    # test_release_shards_reports_and_reaps_a_zombie_its_parent_keeps: it
+    # starts a child that exits at once and never reaps it, waits until
+    # that child has exited (waitid with WNOWAIT, which leaves it a
+    # zombie), writes "ready <child pid>" (its startup handshake) and then
+    # reads its stdin, as LIVE_HELPER does.
+    ZOMBIE_KEEPER = ("import os, sys\n"
+                     "child = os.fork()\n"
+                     "if child == 0:\n"
+                     "    os._exit(0)\n"
+                     "os.waitid(os.P_PID, child, os.WEXITED | os.WNOWAIT)\n"
+                     "sys.stdout.write('ready %d\\n' % child)\n"
+                     "sys.stdout.flush()\n"
+                     "sys.stdin.buffer.read()\n")
+
+    def test_release_shards_reports_and_reaps_a_zombie_its_parent_keeps(self):
+        # FLIP TABLE: a zombie of a held run whose live parent does not reap
+        # it shows no environment or command line, so only its parent, read
+        # from its /proc/<pid>/stat, finds it. Here that parent is a process
+        # of the run that its command line (naming the release FIFO) finds
+        # and that the FIFO's close does not end, and its child has exited
+        # and is left a zombie. The cleanup finds both; both outlive the
+        # release and are reported; the parent is killed and reaped here, and
+        # the zombie is reaped once its parent has ended, by whoever adopts
+        # it. Without the check of a zombie's parent, the cleanup reports the
+        # parent alone and this test fails.
+        # This test process is made a child subreaper for this test
+        # (PR_SET_CHILD_SUBREAPER), so once the keeper is killed its zombie
+        # is adopted by this process and reaped by the own-child branch of
+        # release_shards, whatever the host's PID 1 or subreaper does with
+        # the children it adopts; the setting this process had is restored
+        # at cleanup. Where prctl is refused or unavailable, release_shards
+        # still runs and must still report both pids as outliving their
+        # release; only the zombie's reap, which then rests with whoever
+        # adopts it, is not required: the list of those still not reaped
+        # after SIGKILL may then name the zombie (once release_shards has
+        # waited its 30-second reap_timeout for it), and the check that the
+        # zombie is gone is skipped as a subtest, with the reason.
+        import ctypes
+        previous = ctypes.c_int()
+        unadopted = None
+        try:
+            libc = ctypes.CDLL(None, use_errno=True)
+            if (libc.prctl(37, ctypes.byref(previous), 0, 0, 0) != 0
+                    or libc.prctl(36, 1, 0, 0, 0) != 0):
+                unadopted = ("prctl(PR_SET_CHILD_SUBREAPER) was refused: %s"
+                             % os.strerror(ctypes.get_errno()))
+            else:
+                self.addCleanup(libc.prctl, 36, previous.value, 0, 0, 0)
+        except (AttributeError, OSError) as exc:
+            unadopted = "prctl(PR_SET_CHILD_SUBREAPER) is unavailable: %r" % (exc,)
+        marks = Path(self.tmp.name) / "zombie"
+        marks.mkdir()
+        release = Path(self.tmp.name) / "zombie.release"
+        os.mkfifo(release)
+        held = os.open(release, os.O_RDWR)
+        keeper, line = self.live_process(self.ZOMBIE_KEEPER, str(release),
+                                         start_new_session=True)
+        self.assertRegex(line, r"^ready \d+\n$", "the zombie keeper did not start")
+        zombie = int(line.split()[1])
+        data = Path("/proc/%d/stat" % zombie).read_bytes()
+        self.assertEqual(data[data.rindex(b")") + 2:].split()[:2],
+                         [b"Z", b"%d" % keeper.pid], data)
+        self.assertEqual(self.proc_bytes(zombie, "cmdline"), b"")
+        not_reaped = r"\[\]" if unadopted is None else r"\[(%d)?\]" % zombie
+        with self.assertRaisesRegex(AssertionError, r"outlived their release: %s; still not "
+                                    r"reaped after SIGKILL: %s"
+                                    % (re.escape(repr(sorted([keeper.pid, zombie]))), not_reaped)):
+            self.release_shards(held, marks, release, timeout=1)
+        if unadopted is None:
+            self.assertFalse(os.path.exists("/proc/%d" % zombie), "the zombie is left unreaped")
+        else:
+            with self.subTest("the zombie is reaped"):
+                self.skipTest("this host gives this test no child subreaper, so the zombie's "
+                              "reap rests with whoever adopts it: " + unadopted)
 
     def git(self, *args):
         return subprocess.run(["git", *args], cwd=self.root, env=self.env, check=True,
@@ -18889,6 +19395,54 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 self.assertEqual((parent / name / "nested" / "keep.md").read_text(encoding="utf-8"),
                                  name + "\n")
 
+    # The launcher of
+    # test_interrupt_stops_every_shard_group_and_keeps_the_checkouts: it
+    # makes itself the child subreaper (prctl PR_SET_CHILD_SUBREAPER, 36),
+    # starts argv[2:] (the guard), passes SIGINT on to it, reaps the guard
+    # and every orphan of its run, writes the guard's pid and then "pid
+    # signal" for each orphan a signal ended to argv[1], and, once the
+    # guard has ended, reaps for up to 60 more seconds until no child is
+    # left; it exits with the guard's status (128 + its signal if a signal
+    # ended it).
+    # When prctl is refused, as a seccomp profile may refuse it, it starts
+    # nothing, writes "SKIP: " and the reason (the text of the errno) to
+    # argv[1] and exits 77, and the test is skipped with that reason, so
+    # the cause is given rather than a bare mismatch of exit statuses (the
+    # launcher's status 125 where 130 is expected, which an earlier form of
+    # this test reported only as "130 != 125").
+    SUBREAPER = (
+        "import ctypes, os, signal, subprocess, sys, time\n"
+        "if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0):\n"
+        "    with open(sys.argv[1], 'w', encoding='utf-8') as refused:\n"
+        "        refused.write('SKIP: prctl(PR_SET_CHILD_SUBREAPER) failed: %s\\n'\n"
+        "                      % os.strerror(ctypes.get_errno()))\n"
+        "    sys.exit(77)\n"
+        "guard = subprocess.Popen(sys.argv[2:])\n"
+        "def forward(_signum, _frame):\n"
+        "    try:\n"
+        "        os.kill(guard.pid, signal.SIGINT)\n"
+        "    except ProcessLookupError:\n"
+        "        pass\n"
+        "signal.signal(signal.SIGINT, forward)\n"
+        "status = deadline = None\n"
+        "with open(sys.argv[1], 'w', encoding='ascii') as log:\n"
+        "    log.write('%d\\n' % guard.pid)\n"
+        "    while True:\n"
+        "        try:\n"
+        "            pid, how = os.waitpid(-1, 0 if status is None else os.WNOHANG)\n"
+        "        except ChildProcessError:\n"
+        "            break\n"
+        "        if pid == guard.pid:\n"
+        "            status, deadline = how, time.monotonic() + 60\n"
+        "        elif pid:\n"
+        "            if os.WIFSIGNALED(how):\n"
+        "                log.write('%d %d\\n' % (pid, os.WTERMSIG(how)))\n"
+        "        elif time.monotonic() >= deadline:\n"
+        "            break\n"
+        "        else:\n"
+        "            time.sleep(0.05)\n"
+        "sys.exit(os.WEXITSTATUS(status) if os.WIFEXITED(status) else 128 + os.WTERMSIG(status))\n")
+
     def test_interrupt_stops_every_shard_group_and_keeps_the_checkouts(self):
         # FLIP TABLE (round 6, both WARN): SIGINT to a guard running stub
         # shards stops each shard's own process group (a shard and the
@@ -18896,50 +19450,105 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # and log, and exits 130; no later step runs. The guard starts with
         # INT, TERM and HUP at their defaults, as from a terminal: bash cannot
         # trap a signal that was ignored when it started.
+        # Each shard's child holds the release FIFO itself, with its stdin
+        # from /dev/null, so its shard's end does not end it. With no group
+        # signal at all, the children outlive the run, which the checks of
+        # each group below refuse; and a child that ends when its shard does
+        # fails the /proc checks below. This test does not refuse the guard's
+        # KILL after its grace (9 to 10 seconds of SECONDS), which a host
+        # stall after the TERM would bring. It tells a TERM to each shard's
+        # group from a TERM to each shard alone by how each child ended, not
+        # by time. The guard runs under SUBREAPER, a launcher (isolated
+        # Python) that makes itself the child subreaper, so it reaps each
+        # child its shard's end orphans, and writes "pid signal" for each
+        # process it reaps that a signal ended. A child keeps SIGTERM's
+        # default action and the guard knows only its shard's pid, so only a
+        # signal to the shard's group reaches it; the first fatal signal sent
+        # to it decides how it ends. A child the guard's group TERM ended
+        # reports SIGTERM however slow the host is; with a TERM to each shard
+        # pid alone, the child lives on and ends only at the guard's group
+        # KILL after its grace, and reports SIGKILL. While the shards are
+        # held, /proc shows that each child runs isolated (-I) with this
+        # fixture's built environment (Python may add LC_CTYPE, PEP 538).
         import signal
         import time
         self.change("ai/policy-fixture.md")
         marks = Path(self.tmp.name) / "hang"
-        marks.mkdir()
+        hang = self.hold_shards(marks)
+        release = hang["FIXTURE_SHARD_RELEASE"]
         out_path = Path(self.tmp.name) / "guard.out"
 
         def default_signals():
             for number in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
                 signal.signal(number, signal.SIG_DFL)
 
+        reaped_log = Path(self.tmp.name) / "reaped.log"
         with open(out_path, "w", encoding="utf-8") as out:
-            guard = subprocess.Popen(["bash", ".claude/skills/corpus-management/tools/pre-push-guard.sh"], cwd=self.root,
-                                     env=dict(self.env, FIXTURE_SHARD_HANG=str(marks)),
+            guard = subprocess.Popen([sys.executable, "-I", "-c", self.SUBREAPER, str(reaped_log),
+                                      "bash", ".claude/skills/corpus-management/tools/pre-push-guard.sh"],
+                                     cwd=self.root, env=dict(self.env, **hang),
                                      stdin=subprocess.DEVNULL, stdout=out,
                                      stderr=subprocess.STDOUT, preexec_fn=default_signals)
         try:
             deadline = time.monotonic() + 60
-            while (len([m for m in marks.iterdir() if not m.name.endswith(".tmp")]) < 6
+            while (len(self.shard_records(marks)) < 6
                    and guard.poll() is None and time.monotonic() < deadline):
                 time.sleep(0.1)
-            started = sorted(m.name for m in marks.iterdir() if not m.name.endswith(".tmp"))
+            # A host that refuses the launcher's prctl skips this test,
+            # with the reason the launcher wrote (SUBREAPER).
+            if guard.poll() == 77 and reaped_log.exists():
+                refused = reaped_log.read_text(encoding="utf-8", errors="replace")
+                if refused.startswith("SKIP: "):
+                    self.skipTest("this test needs its launcher to be the child subreaper, "
+                                  "which this host refuses: " + refused[len("SKIP: "):].strip())
+            started = sorted(m.name for m in marks.iterdir() if re.fullmatch(r"shard-\d+", m.name))
             self.assertEqual(started, ["shard-%d" % i for i in range(1, 7)],
                              out_path.read_text(encoding="utf-8"))
+            for _pid, _pgid, child in self.shard_records(marks):
+                with self.subTest(child=child):
+                    cmdline = self.proc_bytes(int(child), "cmdline").split(b"\0")
+                    self.assertEqual(cmdline[1:3], [b"-I", b"-c"], cmdline)
+                    self.assertEqual(cmdline[4:5], [os.fsencode(release)], cmdline)
+                    environ = self.proc_bytes(int(child), "environ").split(b"\0")
+                    self.assertEqual(
+                        sorted(e for e in environ if e and not e.startswith(b"LC_CTYPE=")),
+                        sorted(os.fsencode("%s=%s" % item) for item in self.env.items()),
+                        "the shard's child does not run with this fixture's environment")
+                    fds = Path("/proc/%s/fd" % child)
+                    self.assertEqual(os.readlink(fds / "0"), os.devnull)
+                    self.assertIn(os.path.realpath(release),
+                                  [os.readlink(fd) for fd in fds.iterdir()])
             guard.send_signal(signal.SIGINT)
-            rc = guard.wait(timeout=60)
+            rc = guard.wait(timeout=120)
         finally:
-            if guard.poll() is None:
-                guard.kill()
-                guard.wait(timeout=60)
+            self.stop_guard(guard)
         output = out_path.read_text(encoding="utf-8")
         self.assertEqual(rc, 130, output)
+        reaped = reaped_log.read_text(encoding="ascii").splitlines()
+        guard_pid = int(reaped[0])
+        ended = dict(tuple(int(f) for f in line.split()) for line in reaped[1:])
         self.assertIn("SIGINT received during the gate 36 local shards", output)
         self.assertIn("pre-push guard FAILED at gate 36 local shards (rc=130): interrupted by "
                       "SIGINT", output)
         self.assertNotIn("Safe to push", output)
-        records = [m.read_text(encoding="utf-8").split() for m in marks.iterdir()]
+        records = self.shard_records(marks)
+        self.assertEqual(len(records), 6, records)
         self.assertEqual(len({pgid for _pid, pgid, _child in records}), 6, records)
         for pid, pgid, child in records:
             with self.subTest(shard_pid=pid):
                 self.assertEqual(pid, pgid, "a shard does not lead its own process group")
                 self.assertNotEqual(int(pgid), os.getpgid(0))
-                # Every process of the group is gone (an orphan's reaping may lag).
-                deadline = time.monotonic() + 10
+                # The child ended by the guard's TERM to its shard's group,
+                # not by the KILL after the grace.
+                self.assertEqual(ended.get(int(child)), signal.SIGTERM,
+                                 "the shard's child was not ended by a TERM to its group "
+                                 "(reaped: %r)\n%s" % (ended, output))
+                # Every process of the group is gone. SUBREAPER reaps each
+                # orphan as it ends and exits once none is left, so the
+                # group is normally gone already; the bound (60 seconds)
+                # is generous so that only a real leak, not a slow host,
+                # fails it.
+                deadline = time.monotonic() + 60
                 while time.monotonic() < deadline:
                     try:
                         os.killpg(int(pgid), 0)
@@ -18948,6 +19557,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                     time.sleep(0.1)
                 with self.assertRaises(ProcessLookupError):
                     os.killpg(int(pgid), 0)
+                # The child, which its shard's end does not end, is gone
+                # too, and reaped (a zombie still takes signal 0).
                 with self.assertRaises(ProcessLookupError):
                     os.kill(int(child), 0)
         ran = (self.root / "ran.log").read_text(encoding="utf-8").split()
@@ -18966,19 +19577,20 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # WARN 1): the scan of every process of the host behind each of
         # these reports may reach its bound on a busy host, which a
         # correctly reported incomplete scan with no removal command says.
-        left = output.split("Left behind by this run", 1)
-        if not self.incomplete_scan(output):
-            self.assertEqual(len(left), 2, output)
-            self.assertIn(" (nothing was removed; the next push reports it until it is "
-                          "removed):", left[1])
-            self.assertIn("    - this run made it and has not ended yet: the next push checks "
-                          "it again and prints the commands that remove it only once this run "
-                          "has ended and nothing uses it\n", left[1])
-        self.assertEqual(self.leftover_commands(left[-1]), [])
+        # So may the WARNING that the left report's alarm ended it
+        # (assert_left_report, which reads the left report from the line
+        # that keeps the checkouts on, not the scan-mode report this run
+        # printed first).
+        self.assert_left_report(
+            output, None,
+            " (nothing was removed; the next push reports it until it is removed):",
+            "    - this run made it and has not ended yet: the next push checks it again and "
+            "prints the commands that remove it only once this run has ended and nothing uses "
+            "it\n")
         root = os.path.dirname(os.path.dirname(kept[0][0]))
         record = Path(root, "guard-owner").read_bytes().split(b"\0")
         self.assertEqual(len(record), 7, record)
-        self.assertEqual(record[0], b"%d" % guard.pid)
+        self.assertEqual(record[0], b"%d" % guard_pid)
         self.assertEqual(os.path.realpath(os.fsdecode(record[1])), os.path.realpath(self.root))
         self.assertTrue(record[2].isdigit(), record)
         self.assertEqual(os.fsdecode(record[3]), os.readlink("/proc/self/ns/pid"))
@@ -18989,7 +19601,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         for err in self.complete_reports(later.stderr):
             self.assertIn("pre-push guard: LEFTOVERS of earlier runs", err)
         self.assert_removable(later.stderr, root, [checkout for checkout, _log in kept],
-                              re.escape("no process %d exists" % guard.pid), inventory=())
+                              re.escape("no process %d exists" % guard_pid), inventory=())
         for checkout, _log in kept:
             self.git("worktree", "remove", "--force", checkout)
 
@@ -19121,11 +19733,19 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         """The report alone through ALL_READ. inventory is the pids of the
         test's own fixture processes, which with the report itself are all
         that /proc lists (NO_OTHER_PROCESS), or None for the host's whole
-        /proc (only for a test whose subject is that scan). It runs in cwd,
+        /proc (only for a test whose subject is that scan). With an
+        inventory it also runs on the clock CLOCKED_REPORT sets, its wait
+        for the worker lasting until the worker ends
+        (FIXTURE_JOIN_UNTIL_DONE=1), so no real scan bound, join margin or
+        alarm applies to it: it is the report alone that complete_reports
+        and assert_removable check an exact outcome on, and a host stall
+        cannot make it INCOMPLETE or end it
+        (test_report_all_read_does_not_depend_on_real_time). It runs in cwd,
         the fixture clone by default, as a push from there would."""
         if inventory is not None:
-            prelude = self.NO_OTHER_PROCESS + prelude
+            prelude = self.NO_OTHER_PROCESS + self.CLOCKED_REPORT + prelude
             extra["FIXTURE_PIDS"] = " ".join(str(pid) for pid in inventory)
+            extra["FIXTURE_JOIN_UNTIL_DONE"] = "1"
         return subprocess.run([sys.executable, "-I", "-c", self.ALL_READ,
                                prelude + self.report_code(),
                                mode, "repo", "1", self.common_dir(), *args],
@@ -19166,12 +19786,13 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         how its end was read) in every respect but processes this user cannot
         read: in err, the real guard's report, REMOVABLE with the commands
         that remove it, or INSPECT whose one reason is that processes could
-        not be read, or a correctly reported incomplete scan (incomplete_scan:
-        round 10, codex WARN 1). As on a host where every process is read
-        (report_all_read, with the process inventory inventory), it is
+        not be read, or a correctly reported unknown (unknown_scan: an
+        incomplete scan, or the WARNING that the report's alarm ended it,
+        after whatever it had printed). As on a host where every process is
+        read (report_all_read, with the process inventory inventory), it is
         REMOVABLE with those commands, which are returned."""
         expected = self.removable_commands(root, checkouts)
-        if not self.incomplete_scan(err):
+        if not self.unknown_scan(err):
             block = self.leftover_block(err, root)
             self.assertIsNotNone(block, err)
             if block[0].startswith("  %s: REMOVABLE: " % root):
@@ -19211,17 +19832,43 @@ class PrePushGuardFastPathTests(unittest.TestCase):
     OTHER_BOOT = "00000000-0000-0000-0000-000000000000"
     OTHER_MACHINE = "0" * 32
 
+    # A process that only checks how it was started: it exits 0 if it runs
+    # isolated (-I) with exactly the environment argv[1] holds as JSON
+    # (Python may add LC_CTYPE, PEP 538), and 9 if not.
+    ENDED = ("import json, os, sys\n"
+             "env = dict(os.environ)\n"
+             "env.pop('LC_CTYPE', None)\n"
+             "sys.exit(0 if sys.flags.isolated and env == json.loads(sys.argv[1]) else 9)\n")
+
+    def ended_pid(self):
+        """The pid of a process that has ended: isolated Python (-I) running
+        ENDED with this fixture's built environment (self.env), started by
+        start_poisoned in this fixture's directory and reaped here. It must
+        exit 0, which it does only if it ran isolated with exactly self.env,
+        so a start without -I or with this process's environment fails the
+        test. Its wait is bounded, and it is killed and reaped in a finally
+        block, whatever that wait raises."""
+        done = self.start_poisoned([sys.executable, "-I", "-c", self.ENDED, json.dumps(self.env)],
+                                   cwd=self.tmp.name)
+        try:
+            done.wait(timeout=30)
+        finally:
+            if done.poll() is None:
+                done.kill()
+            done.wait(timeout=30)
+        self.assertEqual(done.returncode, 0,
+                         "the ended process did not run isolated with this fixture's environment")
+        return done.pid
+
     def run_record(self, pid=None, clone=None, start="1", ns=None, boot=None, machine=None):
         """A run record as the guard writes it (in a guard-owner record and
         beside the git record of each checkout): pid, clone, start time, pid
         namespace, boot id and machine id, NUL-separated. By default the pid
-        is that of a process that has ended (started and reaped here), the
-        clone is the fixture's, and the pid namespace, boot id and machine
-        id are those of this test."""
+        is that of a process that has ended (ended_pid), the clone is the
+        fixture's, and the pid namespace, boot id and machine id are those
+        of this test."""
         if pid is None:
-            done = subprocess.Popen([sys.executable, "-c", "pass"])
-            done.wait(timeout=30)
-            pid = done.pid
+            pid = self.ended_pid()
         ns = os.readlink("/proc/self/ns/pid") if ns is None else ns
         boot = self.boot_id() if boot is None else boot
         machine = self.machine_id() if machine is None else machine
@@ -19275,7 +19922,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
     # The line of a report whose scan reached its bound before it finished
     # (not one whose scan failed, which no test accepts): at a stage, or
     # before its state could be read at all.
-    INCOMPLETE_SCAN = (r"(?m)^pre-push guard: the leftover scan is INCOMPLETE: (?:its 4s scan "
+    INCOMPLETE_SCAN = (r"(?m)^pre-push guard: the leftover scan is INCOMPLETE: (?:its 3s scan "
                        r"bound \(the whole report is bounded to 5s\) was reached while [a-z ]+; "
                        r"leftovers it had not reached are not listed, and none listed has a "
                        r"removal command\.|its state could not be read within the 5s bound; "
@@ -19307,11 +19954,109 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 self.assertEqual(lines[i + 1:i + 2], [self.NOT_FINISHED], text)
         return True
 
+    # The guard's line when the alarm of its scan-mode report ended that
+    # report (status 142; leftover_report in pre-push-guard.sh).
+    ALARMED_SCAN = ("pre-push guard: WARNING: the leftover report (scan) was ended at its "
+                    "5-second bound (any report output it printed may be incomplete), so "
+                    "what earlier runs of this guard left is unknown; it stopped and removed "
+                    "nothing of a leftover.")
+
+    # The guard's line when the alarm of its left-mode report ended that
+    # report, with the shard directory the report was given in place of %s
+    # (status 142; leftover_report in pre-push-guard.sh).
+    ALARMED_LEFT = ("pre-push guard: WARNING: the leftover report (left) was ended at its "
+                    "5-second bound (any report output it printed may be incomplete), so "
+                    "what this run left in %s and whether a process uses it are unknown; "
+                    "it stopped and removed nothing of a leftover.")
+
+    def alarmed(self, text, warning, report=None):
+        """Whether text holds warning, the guard's WARNING that the 5-second
+        alarm of one of its reports ended that report (ALARMED_SCAN, or
+        ALARMED_LEFT with its directory), as a busy host that uses up the
+        margin after the scan bound makes it. The alarm can end the report
+        at any point of its output, so before it ended the report may have
+        printed nothing, a part of its report cut anywhere, even within a
+        line, or all of it. That output is in text before the WARNING, which
+        the guard writes right after it (so the WARNING ends a line but need
+        not start one), or in report when the report writes to another stream
+        than the WARNING. It is a correctly reported unknown whatever part of
+        the report it holds: a test that accepts it checks its exact outcome
+        on the report alone, against a deterministic inventory. A scan that
+        failed is never accepted, and nothing of a report may follow the
+        WARNING in text (the report had ended), or the test fails."""
+        found = re.search(r"(?m)%s$" % re.escape(warning), text)
+        if found is None:
+            return False
+        printed = text[:found.start()] if report is None else report
+        self.assertNotRegex(printed, r"(?m)^pre-push guard: the leftover scan failed ", text)
+        after = text[found.end():]
+        self.assertEqual(self.leftover_commands(after), [], text)
+        self.assertNotIn(self.LEFTOVERS_HEAD, after)
+        self.assertNotIn("Left behind by this run", after)
+        self.assertNotRegex(after, r"(?m)^pre-push guard: the leftover scan ")
+        self.assertNotRegex(after, r"(?m)^  (?! ).*: (REMOVABLE|INSPECT)")
+        return True
+
+    def unknown_scan(self, text):
+        """Whether text, the real guard's scan-mode report (on its stderr),
+        is a correctly reported unknown, which a test accepts in place of
+        the outcome it expects there: a correctly reported incomplete scan
+        (incomplete_scan), or the guard's WARNING that the report's 5-second
+        alarm ended it (ALARMED_SCAN), after whatever part of the report it
+        had printed (alarmed). False for any other text (a report that
+        failed, or the WARNING of the left report, included), so the test
+        checks its expected outcome. Only the checks of the real guard's
+        scan-mode report use it (complete_reports and assert_removable); the
+        checks of what a run left use unknown_left, since a WARNING about the
+        scan-mode report says nothing about that."""
+        if self.incomplete_scan(text):
+            return True
+        return self.alarmed(text, self.ALARMED_SCAN)
+
+    def unknown_left(self, out, err, root):
+        """Whether out, the real guard's left-mode report about root (this
+        run's shard directory), is a correctly reported unknown, which a
+        check of what a run left accepts in place of the "Left behind by
+        this run" block it expects: a correctly reported incomplete scan
+        (incomplete_scan), or the guard's WARNING that the report's
+        5-second alarm ended it (ALARMED_LEFT, naming root; alarmed), in
+        err, the guard's stderr, or in out when err is None (one text
+        holds both). False for any other text (the WARNING of the
+        scan-mode report, of a left report that failed or about another
+        directory, included), so the test checks its expected outcome."""
+        if self.incomplete_scan(out):
+            return True
+        if err is None:
+            return self.alarmed(out, self.ALARMED_LEFT % root)
+        return self.alarmed(err, self.ALARMED_LEFT % root, report=out)
+
+    def assert_left_report(self, out, err, *expected):
+        """What the real guard printed about what this run left, once a
+        shard failed or the run was interrupted: out is the guard's stdout
+        and err its stderr, or err is None when out holds both, as one file
+        does. The left report is what out holds from the line that keeps the
+        shard checkouts on (which names the directory the report is given): a
+        "Left behind by this run" block that holds each expected text, or
+        a correctly reported unknown (unknown_left). It prints no removal
+        command either way, since this run has not ended. Returns the
+        directory."""
+        kept = re.search(r"(?m)^The shard checkouts and logs are kept for inspection under "
+                         r"(\S+):$", out)
+        self.assertIsNotNone(kept, out)
+        section = out[kept.end():]
+        left = section.split("Left behind by this run", 1)
+        if not self.unknown_left(section, err, kept.group(1)):
+            self.assertEqual(len(left), 2, section)
+            for text in expected:
+                self.assertIn(text, left[1])
+        self.assertEqual(self.leftover_commands(section), [], section)
+        return kept.group(1)
+
     def complete_reports(self, real, *alone):
         """The reports a test checks its exact outcome on: real, the real
-        guard's, unless it is a correctly reported incomplete scan
-        (incomplete_scan), and each report alone."""
-        return ([] if self.incomplete_scan(real) else [real]) + list(alone)
+        guard's, unless it is a correctly reported unknown (unknown_scan),
+        and each report alone."""
+        return ([] if self.unknown_scan(real) else [real]) + list(alone)
 
     def removable_commands(self, root, checkouts):
         return (["git worktree remove --force -- %s" % c for c in sorted(map(str, checkouts))]
@@ -19528,6 +20273,157 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             self.assert_inspect(err, root, re.escape("it holds %s, which this guard does "
                                                      "not make" % (root / "shard-3" / "repo")))
 
+    # A process for a test whose run record names a live pid: it writes
+    # "ready" on its stdout once it runs (the startup handshake) and then
+    # reads its stdin, a pipe the test holds, until that pipe closes, so it
+    # lives until the test's cleanup closes it, with no time limit of its
+    # own; it also ends if the test process dies, since the pipe then
+    # closes too.
+    LIVE_HELPER = ("import sys\n"
+                   "sys.stdout.write('ready\\n')\n"
+                   "sys.stdout.flush()\n"
+                   "sys.stdin.buffer.read()\n")
+
+    def poison_directory(self, name="parent-poison"):
+        """A directory (name, in this fixture's directory) that no Python can
+        start from: it holds no standard library, so a Python that reads it
+        as PYTHONHOME stops at its encodings import ("Failed to import
+        encodings module"), before site runs; its sitecustomize.py exits at
+        once (status 9), which stops a Python that reads it only as
+        PYTHONPATH. Returns its path."""
+        poison = Path(self.tmp.name) / name
+        poison.mkdir(exist_ok=True)
+        (poison / "sitecustomize.py").write_text("raise SystemExit(9)\n", encoding="utf-8")
+        return poison
+
+    def start_poisoned(self, argv, poison=None, env=None, **popen):
+        """subprocess.Popen(argv, env=env, **popen) (env is self.env by
+        default), started while this process's own environment names poison
+        (poison_directory's by default) as PYTHONHOME and PYTHONPATH, so a
+        process that took this process's environment and was not isolated
+        would not start."""
+        from unittest.mock import patch
+
+        poison = self.poison_directory() if poison is None else poison
+        with patch.dict(os.environ, {"PYTHONHOME": str(poison), "PYTHONPATH": str(poison)}):
+            return subprocess.Popen(argv, env=self.env if env is None else env, **popen)
+
+    def live_process(self, code=None, *args, cwd=None, command=None, poison=None,
+                     start_new_session=False, extra_env=None):
+        """A live process for this test (the one place this class starts a
+        helper that it holds alive by a stdin pipe and awaits by a startup
+        handshake; its guard runs, ended_pid's process and SUBREAPER's
+        launcher are started elsewhere): isolated Python (-I) running code
+        with args, or command (bash running a script whose own Python
+        processes it starts with -I), started with this fixture's built
+        environment (self.env), not this process's, in cwd (this fixture's
+        directory, outside any leftover, by default).
+        start_poisoned starts it, so while it starts, this process's own
+        environment names poison (poison_directory's by default) as
+        PYTHONHOME and PYTHONPATH: a Python that read it as PYTHONHOME would
+        stop at its encodings import, since it holds no standard library, and
+        one that read it only as PYTHONPATH would stop at its
+        sitecustomize.py, which exits at once, so a process that took this
+        process's environment and was not isolated would not start. Its stdin
+        is a pipe this test holds, so it lives until it ends by itself or
+        this test's cleanup closes that pipe and reaps it (end_live_helper),
+        with no time limit of its own. Its first line on stdout is its
+        startup handshake, awaited for up to 60 seconds; then /proc shows
+        that its environment is exactly self.env (Python may add LC_CTYPE,
+        PEP 538) and, for code, that its command line has -I.
+        start_new_session starts it in a session (and process group) of its
+        own. extra_env adds variables to self.env for it, and its environment
+        is then exactly both. Returns (its Popen, that line)."""
+        import select
+
+        env = dict(self.env, **(extra_env or {}))
+        argv = [sys.executable, "-I", "-c", code, *args] if command is None else command
+        helper = self.start_poisoned(argv, poison, env=env,
+                                     cwd=self.tmp.name if cwd is None else cwd,
+                                     stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                     start_new_session=start_new_session)
+        self.addCleanup(self.end_live_helper, helper)
+        ready, _writable, _failed = select.select([helper.stdout], [], [], 60)
+        line = helper.stdout.readline() if ready else b""
+        self.assertTrue(line.endswith(b"\n"), "the live process did not start: %r" % line)
+        environ = self.proc_bytes(helper.pid, "environ").split(b"\0")
+        self.assertEqual(sorted(e for e in environ if e and not e.startswith(b"LC_CTYPE=")),
+                         sorted(os.fsencode("%s=%s" % item) for item in env.items()),
+                         "the live process does not run with this fixture's environment")
+        if command is None:
+            cmdline = self.proc_bytes(helper.pid, "cmdline").split(b"\0")
+            self.assertEqual(cmdline[1:3], [b"-I", b"-c"], cmdline)
+        return helper, line.decode("ascii")
+
+    @staticmethod
+    def proc_bytes(pid, name):
+        """/proc/<pid>/<name> (environ or cmdline) as the first thread of pid
+        that shows it reads it: once the thread-group leader has exited (as
+        in EXITED_LEADER), its own is empty or refused (EACCES), and a live
+        thread's is read; empty if no thread shows it."""
+        tasks = sorted(os.listdir("/proc/%d/task" % pid))
+        for where in ["/proc/%d" % pid] + ["/proc/%d/task/%s" % (pid, tid) for tid in tasks]:
+            try:
+                data = Path(where, name).read_bytes()
+            except PermissionError:
+                continue
+            if data:
+                return data
+        return b""
+
+    def live_helper(self, cwd=None, poison=None):
+        """A live process (LIVE_HELPER) for this test, started by live_process
+        (in cwd, this fixture's directory by default, and with poison as
+        live_process takes it); its handshake is its "ready" line. Returns
+        its Popen."""
+        helper, line = self.live_process(self.LIVE_HELPER, cwd=cwd, poison=poison)
+        self.assertEqual(line, "ready\n", "the live helper did not start")
+        return helper
+
+    @staticmethod
+    def end_live_helper(helper):
+        """End a live_process process: close its pipe, which ends a process
+        that reads it (one blocked elsewhere, such as the FIFO writer of
+        test_fifo_in_a_git_record_is_never_opened, is ended first by its
+        test's own cleanup, which was registered later and so runs earlier),
+        and reap it, killing it first if it has not ended within 30
+        seconds. The reaping is in a finally block, so it runs whatever
+        closing raises."""
+        try:
+            helper.stdin.close()
+            helper.wait(timeout=30)
+        finally:
+            if helper.poll() is None:
+                helper.kill()
+            helper.wait(timeout=30)
+            helper.stdout.close()
+
+    def test_live_helper_is_isolated_and_lives_until_its_pipe_closes(self):
+        # FLIP TABLE: the live process of
+        # test_live_or_unknown_run_gets_no_removal_command starts whatever
+        # Python variables this process holds: here PYTHONHOME and PYTHONPATH
+        # name this test's own directory (poison_directory), which
+        # live_process sets, and does not replace with a directory of its
+        # own, while it starts it. A Python that read it as PYTHONHOME would
+        # stop at its encodings import, and one that read it only as
+        # PYTHONPATH at its sitecustomize.py, so neither would start. Its
+        # command line has -I, and its environment is exactly self.env
+        # (Python may add LC_CTYPE, PEP 538). It is still running once its
+        # handshake is done and ends, with status 0, once its pipe is closed.
+        # Started without -I and with this process's environment, it fails
+        # its handshake and this test fails; with either one alone, the
+        # command line or the environment check fails.
+        poison = self.poison_directory("poison")
+        helper = self.live_helper(poison=poison)
+        self.assertIsNone(helper.poll(), "the live helper ended by itself")
+        cmdline = Path("/proc/%d/cmdline" % helper.pid).read_bytes().split(b"\0")
+        self.assertEqual(cmdline[1:3], [b"-I", b"-c"], cmdline)
+        environ = Path("/proc/%d/environ" % helper.pid).read_bytes().split(b"\0")
+        self.assertEqual(sorted(e for e in environ if e and not e.startswith(b"LC_CTYPE=")),
+                         sorted(os.fsencode("%s=%s" % item) for item in self.env.items()))
+        helper.stdin.close()
+        self.assertEqual(helper.wait(timeout=30), 0)
+
     def test_live_or_unknown_run_gets_no_removal_command(self):
         # FLIP TABLE (round 2, claude WARN 2, agy ERROR 1, codex ERROR 4):
         # a run whose state is unknown (another pid namespace, or a live pid
@@ -19538,10 +20434,13 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # host where every process is read.
         self.change(".web/templates-draft/landing.html")
         root, checkouts = self.make_leftover(1)
-        helper = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"],
-                                  cwd=self.tmp.name, stdin=subprocess.DEVNULL)
-        self.addCleanup(helper.wait, 60)
-        self.addCleanup(helper.terminate)
+        # The live process is live_helper's, isolated from this process's
+        # environment and alive until this test's cleanup, however long its
+        # three guard and report pairs take. live_process builds the
+        # environment this process starts it from, so a live_process that
+        # took this process's environment, or ran Python without -I, fails
+        # this test too.
+        helper = self.live_helper()
         for fields, reason in (
                 ({"ns": "pid:[1]"}, r"guard run pid \d+ ran in another pid namespace "
                                     r"\(pid:\[1\]\), so whether it has ended cannot be read "
@@ -19574,10 +20473,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # start time is a reused pid, so the run has ended (REMOVABLE).
         self.change(".web/templates-draft/landing.html")
         root, checkouts = self.make_leftover(1)
-        helper = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"],
-                                  cwd=self.tmp.name, stdin=subprocess.DEVNULL)
-        self.addCleanup(helper.wait, 60)
-        self.addCleanup(helper.terminate)
+        helper = self.live_helper()
         stat = Path("/proc/%d/stat" % helper.pid).read_bytes()
         start = stat[stat.rindex(b")") + 2:].split()[19].decode("ascii")
         self.write_owner(root, pid=helper.pid, start=start)
@@ -19639,10 +20535,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # registration is still there.
         self.change(".web/templates-draft/landing.html")
         root, checkouts = self.make_leftover(2)
-        helper = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"],
-                                  cwd=checkouts[0], stdin=subprocess.DEVNULL)
-        self.addCleanup(helper.wait, 60)
-        self.addCleanup(helper.terminate)
+        helper = self.live_helper(cwd=checkouts[0])
         result, _ran = self.run_guard()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertNotIn("kill", result.stderr)
@@ -19662,8 +20555,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             self.assertIn("worktree %s\n" % checkout, worktrees)
 
     def assert_inspect_in_use(self, err, root, pid):
-        """root, in report err, is INSPECT for one process, pid (a python3
-        sleeping 60 seconds in it), with the NOT PROVED stop procedure and no
+        """root, in report err, is INSPECT for one process, pid (a
+        live_helper process in it), with the NOT PROVED stop procedure and no
         command (test_leftover_report_signals_and_deletes_nothing)."""
         self.assert_inspect(err, root, re.escape("1 process(es) use it, listed below"))
         self.assertIn("    used by pid %d: " % pid, err)
@@ -19698,7 +20591,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             "since a pid can be reused: its start time (field 22 of /proc/<pid>/stat) and its "
             "command line (/proc/<pid>/cmdline) must still be:\n", block)
         self.assertRegex(block, r"(?m)^           pid %d: start time %s, command line "
-                                r"\S*python\S* -c import time; time\.sleep\(60\)\n"
+                                r"\S*python\S* -I -c import sys\\x0asys\.stdout\.write\(.*\n"
                                 r"      Only then, by your own judgement, stop it \(TERM before "
                                 r"anything stronger\); then push again, and remove the leftover "
                                 r"only if the report of that push marks it REMOVABLE\.$"
@@ -19707,24 +20600,27 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             self.assertFalse(line.strip().startswith(("kill", "pkill", "killall")), line)
         self.assertEqual(self.leftover_commands(block), [], block)
 
+    # A process that opens the file argv[1], writes "ready" (its
+    # handshake) and then reads its stdin, a pipe the test holds, until
+    # that pipe closes.
+    OPEN_HOLDER = ("import sys\n"
+                   "held = open(sys.argv[1])\n"
+                   "sys.stdout.write('ready\\n')\n"
+                   "sys.stdout.flush()\n"
+                   "sys.stdin.buffer.read()\n")
+
     def test_open_file_inside_a_leftover_is_in_use(self):
         # FLIP TABLE (round 2, claude WARN 3): a process whose working
         # directory is elsewhere but which holds a file inside a leftover
         # open is using it, so the leftover is INSPECT.
-        import time
         self.change(".web/templates-draft/landing.html")
         root, checkouts = self.make_leftover(1)
         held = checkouts[0] / "README.md"
-        helper = subprocess.Popen([sys.executable, "-c",
-                                   "import sys, time; f = open(sys.argv[1]); time.sleep(60)",
-                                   str(held)], cwd=self.tmp.name, stdin=subprocess.DEVNULL)
-        self.addCleanup(helper.wait, 60)
-        self.addCleanup(helper.terminate)
-        deadline = time.monotonic() + 10
-        while time.monotonic() < deadline and not any(
-                os.readlink("/proc/%d/fd/%s" % (helper.pid, fd)) == str(held)
-                for fd in os.listdir("/proc/%d/fd" % helper.pid)):
-            time.sleep(0.05)
+        # It opens the file before its handshake, so the file is open once
+        # live_process returns.
+        helper, _line = self.live_process(self.OPEN_HOLDER, str(held))
+        self.assertIn(str(held), [os.readlink("/proc/%d/fd/%s" % (helper.pid, fd))
+                                  for fd in os.listdir("/proc/%d/fd" % helper.pid)])
         result, _ran = self.run_guard()
         self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
         alone = self.report_all_read(inventory=(helper.pid,))
@@ -19737,8 +20633,9 @@ class PrePushGuardFastPathTests(unittest.TestCase):
 
     # A process whose thread-group leader calls pthread_exit while a second
     # thread keeps running in the working directory argv[1]; that thread
-    # prints the pid once the leader is a zombie, then sleeps 30 seconds,
-    # which ends the process.
+    # prints the pid once the leader is a zombie (its handshake), then reads
+    # its stdin, a pipe the test holds, until that pipe closes, which ends
+    # the process.
     EXITED_LEADER = (
         "import ctypes, os, sys, threading, time\n"
         "os.chdir(sys.argv[1])\n"
@@ -19753,7 +20650,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         "        time.sleep(0.01)\n"
         "    sys.stdout.write('%d\\n' % pid)\n"
         "    sys.stdout.flush()\n"
-        "    time.sleep(30)\n"
+        "    sys.stdin.buffer.read()\n"
         "threading.Thread(target=keep).start()\n"
         "ctypes.CDLL(None).pthread_exit(None)\n")
 
@@ -19766,27 +20663,18 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # every thread, so a thread whose working directory is inside a
         # leftover makes it INSPECT, listed with its command line, even as
         # on a host where every process is read (before, the process was
-        # skipped as gone). The fixture runs under timeout 60, started
-        # outside the leftover.
+        # skipped as gone). The fixture is a live_process, started outside
+        # the leftover.
         self.change(".web/templates-draft/landing.html")
         root, checkouts = self.make_leftover(1)
-        helper = subprocess.Popen(["timeout", "60", sys.executable, "-c", self.EXITED_LEADER,
-                                   str(checkouts[0])], cwd=self.tmp.name,
-                                  stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, text=True)
-        self.addCleanup(helper.stdout.close)
-        self.addCleanup(helper.wait, 60)
-        self.addCleanup(helper.terminate)
-        pid = int(helper.stdout.readline())
-        status = Path("/proc/%d/status" % pid).read_text(encoding="ascii")
-        self.assertRegex(status, r"(?m)^State:\s+Z")
-        self.assertRegex(status, r"(?m)^Threads:\s+2$")
+        helper, pid, _tid = self.start_exited_leader(checkouts[0])
         with self.assertRaises(FileNotFoundError):
             os.readlink("/proc/%d/cwd" % pid)
-        used = (r"(?m)^    used by pid %d: \S*python\S* -c .* \(working directory\)$" % pid)
+        used = (r"(?m)^    used by pid %d: \S*python\S* -I -c .* \(working directory\)$" % pid)
         result, _ran = self.run_guard()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
-        alone = self.report_all_read(inventory=(helper.pid, pid))
+        alone = self.report_all_read(inventory=(pid,))
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
         # Round 10 (codex WARN 1): the real guard's report or a correctly
         # reported incomplete scan; the report alone.
@@ -19796,17 +20684,13 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertIsNone(helper.poll(), "the report stopped a process")
 
     def start_exited_leader(self, where):
-        """The EXITED_LEADER fixture under timeout 60, started outside any
+        """The EXITED_LEADER fixture, a live_process, started outside any
         leftover, its surviving thread in where: (helper, pid, tid), where
         tid is that of the surviving thread, once its leader is a zombie
         and the process has two threads."""
-        helper = subprocess.Popen(["timeout", "60", sys.executable, "-c", self.EXITED_LEADER,
-                                   str(where)], cwd=self.tmp.name,
-                                  stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, text=True)
-        self.addCleanup(helper.stdout.close)
-        self.addCleanup(helper.wait, 60)
-        self.addCleanup(helper.terminate)
-        pid = int(helper.stdout.readline())
+        helper, line = self.live_process(self.EXITED_LEADER, str(where))
+        pid = int(line)
+        self.assertEqual(pid, helper.pid)
         status = Path("/proc/%d/status" % pid).read_text(encoding="ascii")
         self.assertRegex(status, r"(?m)^State:\s+Z")
         self.assertRegex(status, r"(?m)^Threads:\s+2$")
@@ -19828,11 +20712,11 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # error the thread is read and listed.
         root, checkouts = self.make_leftover(1)
         helper, pid, tid = self.start_exited_leader(checkouts[0])
-        inventory = (helper.pid, pid)
+        inventory = (pid,)
         read = self.report_all_read(inventory=inventory)
         self.assertEqual(read.returncode, 0, read.stdout + read.stderr)
         self.assert_inspect(read.stdout, root, re.escape("1 process(es) use it, listed below"))
-        self.assertRegex(read.stdout, r"(?m)^    used by pid %d: \S*python\S* -c .* "
+        self.assertRegex(read.stdout, r"(?m)^    used by pid %d: \S*python\S* -I -c .* "
                                       r"\(working directory\)$" % pid)
         unread = self.report_all_read(prelude=self.UNREAD_THREAD, inventory=inventory,
                                       UNREAD_THREAD="/proc/%d/task/%d/cwd" % (pid, tid))
@@ -19846,10 +20730,11 @@ class PrePushGuardFastPathTests(unittest.TestCase):
     # outside the leftover) while a second thread unshares its file-system
     # state (unshare with CLONE_FS, through ctypes, in this fixture only)
     # and moves its own working directory into argv[1]; that thread prints
-    # "<pid> <tid>" once moved. Both threads sleep 30 seconds, which ends
-    # the process.
+    # "<pid> <tid>" once moved (its handshake) and then waits; the leader
+    # reads its stdin, a pipe the test holds, until that pipe closes, which
+    # ends the process.
     OWN_CWD_THREAD = (
-        "import ctypes, os, sys, threading, time\n"
+        "import ctypes, os, sys, threading\n"
         "libc = ctypes.CDLL(None, use_errno=True)\n"
         "def move():\n"
         "    if libc.unshare(0x00000200) != 0:\n"
@@ -19857,9 +20742,9 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         "    os.chdir(sys.argv[1])\n"
         "    sys.stdout.write('%d %d\\n' % (os.getpid(), threading.get_native_id()))\n"
         "    sys.stdout.flush()\n"
-        "    time.sleep(30)\n"
-        "threading.Thread(target=move).start()\n"
-        "time.sleep(30)\n")
+        "    threading.Event().wait()\n"
+        "threading.Thread(target=move, daemon=True).start()\n"
+        "sys.stdin.buffer.read()\n")
     # A prelude for the report that makes reading the working directory of
     # the thread whose /proc path is UNREAD_THREAD fail with EIO (not a
     # permission error, which the ALL_READ harness takes as an exited
@@ -19882,32 +20767,25 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # as on a host where every process is read (before, the leader was
         # read alone and the leftover was REMOVABLE). A thread whose state
         # cannot be read makes its process unreadable, so the leftover is
-        # INSPECT for that, not REMOVABLE. The fixture runs under timeout
-        # 60, started outside the leftover.
+        # INSPECT for that, not REMOVABLE. The fixture is a live_process,
+        # started outside the leftover.
         self.change(".web/templates-draft/landing.html")
         root, checkouts = self.make_leftover(1)
-        helper = subprocess.Popen(["timeout", "60", sys.executable, "-c", self.OWN_CWD_THREAD,
-                                   str(checkouts[0])], cwd=self.tmp.name,
-                                  stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, text=True)
-        self.addCleanup(helper.stdout.close)
-        self.addCleanup(helper.wait, 60)
-        self.addCleanup(helper.terminate)
-        pid, tid = (int(n) for n in helper.stdout.readline().split())
-        self.assertNotEqual(pid, tid)
+        helper, pid, tid = self.start_own_cwd_thread(checkouts[0])
         self.assertEqual(os.readlink("/proc/%d/cwd" % pid), os.path.realpath(self.tmp.name))
         self.assertEqual(os.readlink("/proc/%d/task/%d/cwd" % (pid, tid)), str(checkouts[0]))
-        used = r"(?m)^    used by pid %d: \S*python\S* -c .* \(working directory\)$" % pid
+        used = r"(?m)^    used by pid %d: \S*python\S* -I -c .* \(working directory\)$" % pid
         result, _ran = self.run_guard()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
-        alone = self.report_all_read(inventory=(helper.pid, pid))
+        alone = self.report_all_read(inventory=(pid,))
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
         # Round 10 (codex WARN 1): the real guard's report or a correctly
         # reported incomplete scan; the report alone.
         for err in self.complete_reports(result.stderr, alone.stdout):
             self.assert_inspect(err, root, re.escape("1 process(es) use it, listed below"))
             self.assertRegex(err, used)
-        unread = self.report_all_read(prelude=self.UNREAD_THREAD, inventory=(helper.pid, pid),
+        unread = self.report_all_read(prelude=self.UNREAD_THREAD, inventory=(pid,),
                                       UNREAD_THREAD="/proc/%d/task/%d/cwd" % (pid, tid))
         self.assertEqual(unread.returncode, 0, unread.stdout + unread.stderr)
         self.assert_inspect(unread.stdout, root, self.UNREAD)
@@ -19965,15 +20843,11 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         "os.readlink, os.open = _scripted_readlink, _scripted_open\n")
 
     def start_own_cwd_thread(self, where):
-        """The OWN_CWD_THREAD fixture under timeout 60, started outside any
-        leftover, its second thread moved to where: (pid, tid)."""
-        helper = subprocess.Popen(["timeout", "60", sys.executable, "-c", self.OWN_CWD_THREAD,
-                                   str(where)], cwd=self.tmp.name,
-                                  stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, text=True)
-        self.addCleanup(helper.stdout.close)
-        self.addCleanup(helper.wait, 60)
-        self.addCleanup(helper.terminate)
-        pid, tid = (int(n) for n in helper.stdout.readline().split())
+        """The OWN_CWD_THREAD fixture, a live_process, started outside any
+        leftover, its second thread moved to where: (helper, pid, tid)."""
+        helper, line = self.live_process(self.OWN_CWD_THREAD, str(where))
+        pid, tid = (int(n) for n in line.split())
+        self.assertEqual(pid, helper.pid)
         self.assertNotEqual(pid, tid)
         return helper, pid, tid
 
@@ -20018,7 +20892,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         leader = "/proc/%d/stat /proc/%d/task/%d/stat" % (pid, pid, pid)
         every = "%s /proc/%d/task/%d/stat" % (leader, pid, tid)
         scripted = dict(FAKE_LINK="/proc/%d/cwd" % pid, FAKE_LINK_ERRNO="5",
-                        inventory=(helper.pid, pid))
+                        inventory=(pid,))
         for how in ("exiting", "zombie", "gone"):
             with self.subTest(how):
                 alone = self.report_all_read(prelude=self.SCRIPTED_EXIT, FAKE_STAT_HOW=how,
@@ -20064,7 +20938,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # and takes the process as exited only when both listings are the
         # same and every thread has ended, since a thread created after the
         # first listing is not read. Here a live process (OWN_CWD_THREAD,
-        # under timeout 60, started outside the leftover) has reading its
+        # a live_process, started outside the leftover) has reading its
         # working directory fail with EIO, and the stat of its leader and of
         # each of its threads scripted exiting. When the second listing of
         # its threads also shows a thread the first did not (scripted), the
@@ -20085,7 +20959,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 log = Path(self.tmp.name) / ("tasks-%d.log" % len(added))
                 alone = self.report_all_read(
                     prelude=self.SCRIPTED_EXIT + self.SCRIPTED_TASKS,
-                    inventory=(helper.pid, pid), FAKE_LINK="/proc/%d/cwd" % pid,
+                    inventory=(pid,), FAKE_LINK="/proc/%d/cwd" % pid,
                     FAKE_LINK_ERRNO="5", FAKE_STAT=every, FAKE_STAT_HOW="exiting",
                     FAKE_TASK="/proc/%d/task" % pid, FAKE_TASK_NEW=" ".join(added),
                     FAKE_TASK_LOG=str(log))
@@ -20117,7 +20991,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         helper, pid, tid = self.start_own_cwd_thread(self.tmp.name)
         scripted = dict(FAKE_LINK="/proc/%d/task/%d/cwd" % (pid, tid), FAKE_LINK_ERRNO="2",
                         FAKE_STAT="/proc/%d/task/%d/stat" % (pid, tid),
-                        inventory=(helper.pid, pid))
+                        inventory=(pid,))
         alone = self.report_all_read(prelude=self.SCRIPTED_EXIT, FAKE_STAT_HOW="exiting",
                                      **scripted)
         self.assert_all_read_removable(alone, root, checkouts)
@@ -20130,21 +21004,22 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                          str(checkouts[0]))
         used = self.report_all_read(prelude=self.SCRIPTED_EXIT, FAKE_STAT_HOW="exiting",
                                     FAKE_STAT="/proc/%d/task/%d/stat" % (in_pid, in_tid),
-                                    inventory=(helper.pid, pid, inside.pid, in_pid))
+                                    inventory=(pid, in_pid))
         self.assertEqual(used.returncode, 0, used.stdout + used.stderr)
         self.assert_inspect(used.stdout, root, re.escape("1 process(es) use it, listed below"))
-        self.assertRegex(used.stdout, r"(?m)^    used by pid %d: \S*python\S* -c .* "
+        self.assertRegex(used.stdout, r"(?m)^    used by pid %d: \S*python\S* -I -c .* "
                                       r"\(working directory\)$" % in_pid)
         self.assertIsNone(helper.poll(), "the report stopped a process")
         self.assertIsNone(inside.poll(), "the report stopped a process")
 
     # A process that maps the file argv[1] through libc mmap (so that once
     # its own descriptor is closed it holds no descriptor of that file) and
-    # starts a second thread; it prints its pid once both run, and both
-    # sleep 30 seconds, which ends the process. Its working directory is
+    # starts a second thread, which waits; it prints its pid once both run
+    # (its handshake), then reads its stdin, a pipe the test holds, until
+    # that pipe closes, which ends the process. Its working directory is
     # where it started.
     MAPPED_ONLY = (
-        "import ctypes, os, sys, threading, time\n"
+        "import ctypes, os, sys, threading\n"
         "libc = ctypes.CDLL(None, use_errno=True)\n"
         "libc.mmap.restype = ctypes.c_void_p\n"
         "libc.mmap.argtypes = (ctypes.c_void_p, ctypes.c_size_t, ctypes.c_int, ctypes.c_int,\n"
@@ -20154,17 +21029,17 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         "if addr is None or addr == ctypes.c_void_p(-1).value:\n"
         "    raise OSError(ctypes.get_errno(), 'mmap failed')\n"
         "os.close(fd)\n"
-        "threading.Thread(target=time.sleep, args=(30,)).start()\n"
+        "threading.Thread(target=threading.Event().wait, daemon=True).start()\n"
         "sys.stdout.write('%d\\n' % os.getpid())\n"
         "sys.stdout.flush()\n"
-        "time.sleep(30)\n")
+        "sys.stdin.buffer.read()\n")
 
     def test_leader_with_no_mapping_has_the_mappings_of_every_thread_read(self):
         # FLIP TABLE (round 9, claude NOTE 2): the report reads the mappings
         # of every thread of a process when its leader, read whole, showed
         # no mapping or is exiting (PF_EXITING) while other threads run, as
         # a leader caught exiting can be read. Here a live process
-        # (MAPPED_ONLY, under timeout 60, started outside the leftover) uses
+        # (MAPPED_ONLY, a live_process, started outside the leftover) uses
         # a leftover only through a mapping of a file in it, and has a
         # second thread. With its leader's mappings scripted empty, or its
         # leader's stat scripted exiting and its mappings scripted to one
@@ -20174,18 +21049,14 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # Control: read as it is, the leader's own mappings show it.
         root, checkouts = self.make_leftover(1)
         held = checkouts[0] / "README.md"
-        helper = subprocess.Popen(["timeout", "60", sys.executable, "-c", self.MAPPED_ONLY,
-                                   str(held)], cwd=self.tmp.name,
-                                  stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, text=True)
-        self.addCleanup(helper.stdout.close)
-        self.addCleanup(helper.wait, 60)
-        self.addCleanup(helper.terminate)
-        pid = int(helper.stdout.readline())
+        helper, line = self.live_process(self.MAPPED_ONLY, str(held))
+        pid = int(line)
+        self.assertEqual(pid, helper.pid)
         self.assertEqual(len(os.listdir("/proc/%d/task" % pid)), 2)
         self.assertIn(" %s\n" % held, Path("/proc/%d/maps" % pid).read_text(encoding="utf-8"))
         self.assertNotIn(str(held), [os.readlink("/proc/%d/fd/%s" % (pid, fd))
                                      for fd in os.listdir("/proc/%d/fd" % pid)])
-        used = r"(?m)^    used by pid %d: \S*python\S* -c .* \(mapped file\)$" % pid
+        used = r"(?m)^    used by pid %d: \S*python\S* -I -c .* \(mapped file\)$" % pid
         maps = "/proc/%d/maps" % pid
         elsewhere = "00400000-00401000 r--p 00000000 00:00 0 /nowhere\n"
         for case, scripted in (
@@ -20196,17 +21067,18 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                                         FAKE_STAT_HOW="exiting"))):
             with self.subTest(case):
                 alone = self.report_all_read(prelude=self.SCRIPTED_EXIT,
-                                             inventory=(helper.pid, pid), **scripted)
+                                             inventory=(pid,), **scripted)
                 self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
                 self.assert_inspect(alone.stdout, root,
                                     re.escape("1 process(es) use it, listed below"))
                 self.assertRegex(alone.stdout, used)
         self.assertIsNone(helper.poll(), "the report stopped a process")
 
-    # A process that moves into the directory argv[1], prints its pid and
-    # sleeps 60 seconds.
-    MOVED_SLEEPER = ("import os, sys, time; os.chdir(sys.argv[1]); print(os.getpid(), flush=True); "
-                     "time.sleep(60)")
+    # A process that moves into the directory argv[1], prints its pid (its
+    # handshake) and then reads its stdin, a pipe the test holds, until that
+    # pipe closes.
+    MOVED_SLEEPER = ("import os, sys; os.chdir(sys.argv[1]); print(os.getpid(), flush=True); "
+                     "sys.stdin.buffer.read()")
 
     def test_fixture_inventory_lists_only_the_fixture_processes(self):
         # FLIP TABLE (round 9, codex WARN 1 and claude NOTE 3): a test that
@@ -20214,7 +21086,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # deterministic process inventory, its own fixture processes and
         # the report itself (NO_OTHER_PROCESS with FIXTURE_PIDS), so neither
         # another process of the host nor how long a scan of every process
-        # takes decides it. Here two processes (each under timeout 60,
+        # takes decides it. Here two processes (each a live_process,
         # started outside the leftover) move into a leftover: with one of
         # them in the inventory, it alone is listed (INSPECT); with neither,
         # the leftover is REMOVABLE with its commands (a scan of every
@@ -20222,17 +21094,12 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         root, checkouts = self.make_leftover(1)
         started = []
         for _ in range(2):
-            helper = subprocess.Popen(["timeout", "60", sys.executable, "-c", self.MOVED_SLEEPER,
-                                       str(checkouts[0])], cwd=self.tmp.name,
-                                      stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, text=True)
-            self.addCleanup(helper.stdout.close)
-            self.addCleanup(helper.wait, 60)
-            self.addCleanup(helper.terminate)
-            started.append((helper, int(helper.stdout.readline())))
+            helper, line = self.live_process(self.MOVED_SLEEPER, str(checkouts[0]))
+            started.append((helper, int(line)))
         (first, first_pid), (second, second_pid) = started
         for pid in (first_pid, second_pid):
             self.assertEqual(os.readlink("/proc/%d/cwd" % pid), str(checkouts[0]))
-        one = self.report_all_read(inventory=(first.pid, first_pid))
+        one = self.report_all_read(inventory=(first_pid,))
         self.assertEqual(one.returncode, 0, one.stdout + one.stderr)
         self.assert_inspect(one.stdout, root, re.escape("1 process(es) use it, listed below"))
         self.assertRegex(one.stdout, self.user_line(first_pid))
@@ -20281,6 +21148,19 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             else:
                 others += 1
         return mine, others, kernel
+
+    # A process that writes "ready" (its handshake), waits for a line on its
+    # stdin, makes itself non-dumpable (prctl PR_SET_DUMPABLE 0, as ssh-agent
+    # and gpg-agent do), writes "non-dumpable" and then reads its stdin, a
+    # pipe the test holds, until that pipe closes.
+    NON_DUMPABLE = ("import ctypes, sys\n"
+                    "sys.stdout.write('ready\\n')\n"
+                    "sys.stdout.flush()\n"
+                    "sys.stdin.buffer.readline()\n"
+                    "ctypes.CDLL(None).prctl(4, 0, 0, 0, 0)\n"
+                    "sys.stdout.write('non-dumpable\\n')\n"
+                    "sys.stdout.flush()\n"
+                    "sys.stdin.buffer.read()\n")
 
     def test_unreadable_process_blocks_removal_whoever_owns_it(self):
         # FLIP TABLE (round 3, codex WARN 1; round 2, claude NOTE 8, gap 3):
@@ -20335,25 +21215,41 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             counted = re.search(self.UNREAD[:-1], result.stderr, re.M)
             self.assertGreater(int(counted.group(2)), 0, result.stderr)
             self.assertNotIn("lets only a privileged process in", result.stderr)
-        helper = subprocess.Popen([sys.executable, "-c",
-                                   "import ctypes, time; ctypes.CDLL(None).prctl(4, 0, 0, 0, 0); "
-                                   "print(flush=True); time.sleep(60)"],
-                                  cwd=self.tmp.name, stdin=subprocess.DEVNULL,
-                                  stdout=subprocess.PIPE)
-        self.addCleanup(helper.stdout.close)
-        self.addCleanup(helper.wait, 60)
-        self.addCleanup(helper.terminate)
-        helper.stdout.readline()
-        with self.assertRaises(PermissionError):
-            os.readlink("/proc/%d/cwd" % helper.pid)
-        result, _ran = self.run_guard()
-        self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
-        alone = self.report_alone(prelude=self.NO_OTHER_PROCESS, FIXTURE_PIDS=str(helper.pid))
-        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
-        for err in self.complete_reports(result.stderr, alone.stdout):
-            self.assert_inspect(err, root, self.UNREAD)
-            counted = re.search(self.UNREAD[:-1], err, re.M)
-            self.assertGreater(int(counted.group(1)), 0, err)
+        # It makes itself non-dumpable only once live_process has read its
+        # environment and command line (on its "go" line), since /proc then
+        # lets only a privileged process read them.
+        # The report alone runs on the clock CLOCKED_REPORT sets, its wait
+        # for the worker lasting until the worker ends
+        # (FIXTURE_JOIN_UNTIL_DONE=1), so no real scan bound, join or alarm
+        # applies to the outcome it checks.
+        # Root, or any process with CAP_SYS_PTRACE, reads a non-dumpable
+        # process's /proc entries, so where reading its cwd is not refused
+        # this part is skipped, as the kernel thread subtest above is; the
+        # rest of the test still runs.
+        import select
+        helper, _line = self.live_process(self.NON_DUMPABLE)
+        helper.stdin.write(b"go\n")
+        helper.stdin.flush()
+        ready, _writable, _failed = select.select([helper.stdout], [], [], 60)
+        self.assertEqual(helper.stdout.readline() if ready else b"", b"non-dumpable\n")
+        with self.subTest("non-dumpable process of this user"):
+            try:
+                os.readlink("/proc/%d/cwd" % helper.pid)
+            except PermissionError:
+                pass
+            else:
+                self.skipTest("reading a non-dumpable process's cwd is not refused here (as "
+                              "for root or with CAP_SYS_PTRACE), so the report reads it and "
+                              "the unreadable-process case is not exercised")
+            result, _ran = self.run_guard()
+            self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
+            alone = self.report_alone(prelude=self.NO_OTHER_PROCESS + self.CLOCKED_REPORT,
+                                      FIXTURE_PIDS=str(helper.pid), FIXTURE_JOIN_UNTIL_DONE="1")
+            self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+            for err in self.complete_reports(result.stderr, alone.stdout):
+                self.assert_inspect(err, root, self.UNREAD)
+                counted = re.search(self.UNREAD[:-1], err, re.M)
+                self.assertGreater(int(counted.group(1)), 0, err)
 
     # The word kill with no letter on either side: a printed kill command
     # matches, a path through .claude/skills/ does not (chunk T2d).
@@ -20412,9 +21308,12 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         "boot = open('/proc/sys/kernel/random/boot_id').read().strip()\n"
         "fields = [pid, clone, str(start), os.readlink('/proc/self/ns/pid'), boot, '-', '']\n"
         "open(path, 'wb').write('\\0'.join(fields).encode())\n")
-    # A process that prints its pid and its parent pid, then sleeps 60
-    # seconds; any further arguments are only carried in its command line.
-    SLEEPER = "import os, time; print(os.getpid(), os.getppid(), flush=True); time.sleep(60)"
+    # A process that prints its pid and its parent pid (its handshake), then
+    # reads its stdin until it closes (the pipe live_process holds, which
+    # the shell that starts it passes on with <&0); any further arguments
+    # are only carried in its command line.
+    SLEEPER = ("import os, sys; print(os.getpid(), os.getppid(), flush=True); "
+               "sys.stdin.buffer.read()")
 
     def user_line(self, pid, label=None):
         """The pattern of the line naming pid as a process using a leftover,
@@ -20424,48 +21323,47 @@ class PrePushGuardFastPathTests(unittest.TestCase):
     def test_process_started_by_a_pre_push_guard_gets_no_stop_procedure(self):
         # FLIP TABLE (round 5, codex WARN 3; round 6, W1 of all three
         # reviews): a guard is known by its identity, not its command line.
-        # A stand-in guard run (a script under timeout 60, standing in for a
-        # live run of the guard using another run's leftover) writes a run
-        # record with its own pid and start time in the guard-owner record
-        # of a shard directory of another clone (read before that directory
-        # is set aside as not this clone's), moves into a leftover and
-        # starts a child there: it is labelled a pre-push guard, its child
-        # is labelled as started by one, and neither gets a stop procedure,
-        # even where the run that made the leftover has ended, as on a host
-        # where every process is read. With a start time that is not its
-        # own in the record, the same stand-in is no guard: neither is
-        # labelled, and both get the NOT PROVED stop procedure. The script
-        # is named pre-push-guard.sh in both cases, so its name decides
-        # nothing (before, it labelled both cases).
+        # A stand-in guard run (a script run as a live_process, standing in
+        # for a live run of the guard using another run's leftover) writes
+        # a run record with its own pid and start time in the guard-owner
+        # record of a shard directory of another clone (read before that
+        # directory is set aside as not this clone's), moves into a
+        # leftover and starts a child there: it is labelled a pre-push
+        # guard, its child is labelled as started by one, and neither gets
+        # a stop procedure, even where the run that made the leftover has
+        # ended, as on a host where every process is read. With a start
+        # time that is not its own in the record, the same stand-in is no
+        # guard: neither is labelled, and both get the NOT PROVED stop
+        # procedure. The script is named pre-push-guard.sh in both cases,
+        # so its name decides nothing.
         roots, pids, helpers = {}, {}, []
         script = Path(self.tmp.name) / "other-guard" / "pre-push-guard.sh"
         script.parent.mkdir()
         # It writes its run record, moves into the leftover, and starts its
         # child in the background and waits for it, so it stays its parent.
+        # Its Python processes run isolated (-I), and its child reads the
+        # pipe live_process holds (<&0, since bash otherwise gives a
+        # background job /dev/null), so it lives until that pipe closes.
         script.write_text('cd "$1" || exit 1\n'
-                          '"$2" -c "$3" "$$" "$4" "$5" "$6" || exit 1\n'
-                          '"$2" -c "$7" &\n'
+                          '"$2" -I -c "$3" "$$" "$4" "$5" "$6" || exit 1\n'
+                          '"$2" -I -c "$7" <&0 &\n'
                           'wait\n', encoding="utf-8")
         other = Path(self.tmp.name) / "other-clone"
         for case, skew in (("live", "0"), ("wrong start time", "1")):
             root, checkouts = self.make_leftover(1)
             elsewhere = Path(tempfile.mkdtemp(prefix="grc-gate36-shards.", dir=self.shard_tmp))
-            helper = subprocess.Popen(["timeout", "60", "bash", str(script), str(checkouts[0]),
-                                       sys.executable, self.STAND_IN_RECORD,
-                                       str(elsewhere / "guard-owner"), skew, str(other),
-                                       self.SLEEPER], cwd=self.tmp.name,
-                                      stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
-                                      text=True)
-            self.addCleanup(helper.stdout.close)
-            self.addCleanup(helper.wait, 60)
-            self.addCleanup(helper.terminate)
+            helper, line = self.live_process(command=[
+                "bash", str(script), str(checkouts[0]), sys.executable, self.STAND_IN_RECORD,
+                str(elsewhere / "guard-owner"), skew, str(other), self.SLEEPER])
             helpers.append(helper)
-            child, stand_in = (int(n) for n in helper.stdout.readline().split())
+            child, stand_in = (int(n) for n in line.split())
+            self.assertEqual(stand_in, helper.pid)
             roots[case], pids[case] = root, (stand_in, child)
             self.assertEqual(Path("/proc/%d/cmdline" % stand_in).read_bytes().split(b"\0")[1],
                              os.fsencode(script))
-        alone = self.report_all_read(inventory=[helper.pid for helper in helpers]
-                                     + [pid for pair in pids.values() for pid in pair])
+            self.assertEqual(Path("/proc/%d/cmdline" % child).read_bytes().split(b"\0")[1:3],
+                             [b"-I", b"-c"])
+        alone = self.report_all_read(inventory=[pid for pair in pids.values() for pid in pair])
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
         for case, root in roots.items():
             stand_in, child = pids[case]
@@ -20526,12 +21424,11 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # nor are its children; a process whose own start time cannot be
         # read while its pid is a live run, or whose parents cannot be
         # read (here a process that has gone), is uncertain, not labelled.
-        helper = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"],
-                                  cwd=self.tmp.name, stdin=subprocess.DEVNULL)
-        self.addCleanup(helper.wait, 60)
-        self.addCleanup(helper.terminate)
-        done = subprocess.Popen([sys.executable, "-c", "pass"])
-        done.wait(timeout=30)
+        # Each Python it starts runs isolated (-I) with this fixture's built
+        # environment: the live helper (live_process), the process that has
+        # gone (ended_pid) and the labelling run.
+        helper = self.live_helper()
+        done = self.ended_pid()
         child, me = str(helper.pid), str(os.getpid())
         cs, ms = self.start_time(child), self.start_time(me)
         other = lambda start: str(int(start) + 1)
@@ -20542,7 +21439,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             (child, cs, [[me, other(ms)]], None),
             (child, "-", [[child, cs]], "whether it is a pre-push guard is unknown: its start "
                                         "time cannot be read"),
-            (str(done.pid), "-", [[me, ms]], self.UNSURE_ANCESTRY),
+            (str(done), "-", [[me, ms]], self.UNSURE_ANCESTRY),
         ]
         import json
         read = subprocess.run([sys.executable, "-I", "-c", self.LABELS, self.report_code(),
@@ -20702,31 +21599,32 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # FLIP TABLE (round 6, W1 of all three reviews, reproduced by
         # claude): a process whose own command line, or whose parent
         # command line, merely names .claude/skills/corpus-management/tools/pre-push-guard.sh is not a
-        # pre-push guard. Here a shell (bash -c, under timeout 60) whose
+        # pre-push guard. Here a shell (bash -c, a live_process) whose
         # argv names it moves into a leftover and starts a child there whose
         # argv names it too: neither is labelled, and both get the NOT
         # PROVED stop procedure (before, the shell was labelled a pre-push
         # guard and the child as one too, and no procedure was given), as
         # on a host where every process is read and as the guard prints it.
         root, checkouts = self.make_leftover(1)
+        # The child runs isolated (-I) and reads the pipe live_process holds
+        # (<&0), so it lives until that pipe closes.
         shell = ('cd "$1" || exit 1\n'
-                 '"$2" -c "$3" .claude/skills/corpus-management/tools/pre-push-guard.sh &\n'
+                 '"$2" -I -c "$3" .claude/skills/corpus-management/tools/pre-push-guard.sh <&0 &\n'
                  'wait\n')
-        helper = subprocess.Popen(["timeout", "60", "bash", "-c", shell, ".claude/skills/corpus-management/tools/pre-push-guard.sh",
-                                   str(checkouts[0]), sys.executable, self.SLEEPER],
-                                  cwd=self.tmp.name, stdin=subprocess.DEVNULL,
-                                  stdout=subprocess.PIPE, text=True)
-        self.addCleanup(helper.stdout.close)
-        self.addCleanup(helper.wait, 60)
-        self.addCleanup(helper.terminate)
-        child, parent = (int(n) for n in helper.stdout.readline().split())
+        helper, line = self.live_process(command=[
+            "bash", "-c", shell, ".claude/skills/corpus-management/tools/pre-push-guard.sh",
+            str(checkouts[0]), sys.executable, self.SLEEPER])
+        child, parent = (int(n) for n in line.split())
+        self.assertEqual(parent, helper.pid)
+        self.assertEqual(Path("/proc/%d/cmdline" % child).read_bytes().split(b"\0")[1:3],
+                         [b"-I", b"-c"])
         for pid in (child, parent):
             self.assertIn(b".claude/skills/corpus-management/tools/pre-push-guard.sh", Path("/proc/%d/cmdline" % pid).read_bytes())
         self.change(".web/templates-draft/landing.html")
         result, _ran = self.run_guard()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
-        alone = self.report_all_read(inventory=(helper.pid, parent, child))
+        alone = self.report_all_read(inventory=(parent, child))
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
         # Round 10 (codex WARN 1): the real guard's report or a correctly
         # reported incomplete scan; the report alone.
@@ -20846,7 +21744,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # FLIP TABLE (round 6, claude NOTE 3): the type of a file is read
         # without following it before the file is opened, so a FIFO is
         # never opened: here the locked file of a git record is a FIFO a
-        # writer (under timeout 60) is blocked opening, and after the report
+        # writer (a live_process) is blocked opening, and after the report
         # it is still blocked (before, the report opened the FIFO, which
         # let the open of the writer complete). The checkout is reported
         # locked, with a lock file that cannot be read.
@@ -20857,28 +21755,58 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         fifo = admin / "locked"
         os.mkfifo(fifo)
         self.addCleanup(fifo.unlink)
-        writer = subprocess.Popen(["timeout", "60", sys.executable, "-c",
-                                   "import os, sys; print(os.getpid(), flush=True); "
-                                   "os.open(sys.argv[1], os.O_WRONLY)", str(fifo)],
-                                  cwd=self.tmp.name, stdin=subprocess.DEVNULL,
-                                  stdout=subprocess.PIPE, text=True)
-        self.addCleanup(writer.stdout.close)
-        self.addCleanup(writer.wait, 60)
+        # Its lifetime is its open, which release (run before live_process's
+        # cleanup) lets finish.
+        writer, line = self.live_process("import os, sys; print(os.getpid(), flush=True); "
+                                         "os.open(sys.argv[1], os.O_WRONLY)", str(fifo))
 
         def release():
             # Opening it to read lets a writer still blocked finish.
             if writer.poll() is None:
                 os.close(os.open(fifo, os.O_RDONLY | os.O_NONBLOCK))
         self.addCleanup(release)
-        pid = int(writer.stdout.readline())
-        deadline = time.monotonic() + 10
-        while time.monotonic() < deadline:
-            data = Path("/proc/%d/stat" % pid).read_bytes()
-            if data[data.rindex(b")") + 2:].split()[0] == b"S":
+        pid = int(line)
+        self.assertEqual(pid, writer.pid)
+        # The report runs only once the writer is blocked in its open of the
+        # FIFO, waiting for a reader. Once its handshake is written, that open
+        # is the one call left in its code, so the writer is taken as blocked
+        # there when it still runs and its state (/proc/<pid>/stat) is S
+        # (sleeping) on 5 readings in a row, 0.02 seconds apart; this needs no
+        # kernel symbol. A wait channel (/proc/<pid>/wchan) that names the
+        # wait of a FIFO open (wait_for_partner, or fifo_open, where a kernel
+        # build inlines that wait) is taken as blocked at once; any other
+        # wchan reading ("0", empty, refused or another symbol) is not used.
+        # The wait ends there or when the writer ends, with a 60-second bound
+        # that only a writer that never blocks reaches, so a slow host does
+        # not fail it, and the test then fails if the writer has ended or is
+        # not sleeping. writer.wait below checks that the report did not let
+        # the open finish.
+
+        def waiting():
+            """How /proc shows the writer: "wchan" when its wait channel
+            names the wait of a FIFO open, else its state letter from
+            /proc/<pid>/stat ("" when that cannot be read)."""
+            try:
+                if Path("/proc/%d/wchan" % pid).read_text(encoding="ascii") in (
+                        "wait_for_partner", "fifo_open"):
+                    return "wchan"
+            except (OSError, UnicodeDecodeError):
+                pass
+            try:
+                data = Path("/proc/%d/stat" % pid).read_bytes()
+            except OSError:
+                return ""
+            return data[data.rindex(b")") + 2:].split()[0].decode("ascii")
+        sleeping, deadline = 0, time.monotonic() + 60
+        while writer.poll() is None and time.monotonic() < deadline:
+            seen = waiting()
+            sleeping = sleeping + 1 if seen == "S" else 0
+            if seen == "wchan" or sleeping >= 5:
                 break
             time.sleep(0.02)
-        time.sleep(0.2)
-        alone = self.report_all_read(inventory=(writer.pid, pid))
+        self.assertIsNone(writer.poll(), "the writer ended: its open of the FIFO did not block")
+        self.assertIn(waiting(), ("wchan", "S"), "the writer is not blocked opening the FIFO")
+        alone = self.report_all_read(inventory=(pid,))
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
         self.assert_inspect(alone.stdout, root, re.escape("checkout %s is locked" % checkouts[0]))
         self.assertIn("    checkout %s: registered with this clone, locked: its lock file cannot be "
@@ -21017,7 +21945,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             words = re.findall(r"(?m)^  (\$'[ -~]*'): (?:REMOVABLE|INSPECT)", err)
             self.assertEqual(len(words), 1, err)
             self.assertEqual(subprocess.run(["bash", "-c", "printf %s " + words[0]],
-                                            capture_output=True, check=True,
+                                            env=self.env, capture_output=True, check=True,
                                             timeout=30).stdout, os.fsencode(root))
         commands = self.leftover_commands(alone.stdout)
         self.assertEqual(len(commands), 2, alone.stdout)
@@ -21028,60 +21956,432 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             self.assertTrue(word.startswith("$'") and word.endswith("'"), word)
             self.assertTrue(all(32 <= ord(c) < 127 for c in word), word)
             self.assertNotIn("!", word)
-            decoded = subprocess.run(["bash", "-c", "printf %s " + word], capture_output=True,
-                                     check=True, timeout=30).stdout
+            decoded = subprocess.run(["bash", "-c", "printf %s " + word], env=self.env,
+                                     capture_output=True, check=True, timeout=30).stdout
             self.assertEqual(decoded, os.fsencode(path))
         subprocess.run(["bash", "-c", commands[0]], cwd=self.root, env=self.env, check=True,
                        capture_output=True, timeout=30)
         self.assertNotIn(str(checkouts[0]),
                          self.git("worktree", "list", "--porcelain", "-z").stdout)
 
-    # A prelude for the report alone that holds the opening of the git
-    # records directory (<git common dir>/worktrees) for 30 seconds, as a
-    # stalled file system would.
-    STALLED_RECORDS = (
-        "import os, time\n"
-        "_open = os.open\n"
-        "def _stalled_open(path, *args, **kwargs):\n"
+    # A prelude for the report alone that runs it on a clock the test sets,
+    # so its verdict depends neither on how busy the host is nor on which
+    # tests ran before. The report's clock (time.monotonic, which its start,
+    # its 3-second scan bound and its lock wait read) stands still, so
+    # elapsed time on it never reaches the scan bound by itself. The worker
+    # can be stopped at one point: with FIXTURE_HOLD_RECORDS=1,
+    # FIXTURE_RECORDS_CLOCK or FIXTURE_LATE_RECORDS=1 at its opening of the
+    # git records directory (<git common dir>/worktrees), with
+    # FIXTURE_HOLD_LINK at its reading of the link that variable names.
+    # The order of the two threads is fixed. With a stop, the main thread,
+    # once it has started the worker, waits until the worker is at the stop
+    # (the order that can otherwise race), and the worker goes on from the
+    # stop only once the main thread has noted the timeout of its wait for
+    # the worker, which it read from the clock before that wait (its
+    # thread.join, until waits_end - 0.2, in pre-push-guard.sh). At the stop,
+    # a hold moves the clock an hour on, past the scan bound, and never
+    # returns, as a stalled file system would; FIXTURE_RECORDS_CLOCK=<s>
+    # moves the clock to s seconds after the report's start and goes on, so
+    # the worker's own check of its scan bound reads that.
+    # FIXTURE_LATE_RECORDS=1 makes the opening return only once the main
+    # thread has stopped the worker (shared["stop"], which it sets only after
+    # its wait for the worker has ended), as a slow file system or a busy
+    # host would delay it, so the worker cannot finish within that wait,
+    # whenever either thread runs. The main thread's wait for the worker is
+    # the real one, with the timeout the report gives it (noted on stderr),
+    # so it ends when the worker ends or once that timeout has passed in real
+    # time, as in production; with FIXTURE_JOIN_UNTIL_DONE=1 it lasts until
+    # the worker ends, whatever its timeout, so a verdict the worker reaches
+    # on the clock does not depend on how long the scan takes in real time (a
+    # worker that never ended would hold the report until the test's own
+    # timeout ends it). The report's alarm (the 5-second bound of the whole
+    # report, a wall-clock timer that a busy host can let expire after the
+    # scan bound and before the report exits) is noted on stderr, not armed
+    # (test_report_held_past_its_bound_is_ended_by_its_alarm arms it).
+    CLOCKED_REPORT = (
+        "import os, signal, sys, threading, time\n"
+        "_real_clock = time.monotonic\n"
+        "_clock_now = _real_clock()\n"
+        "_clock_skew = [0.0]\n"
+        "time.monotonic = lambda: _clock_now + _clock_skew[0]\n"
+        "_stop_set = (os.environ.get('FIXTURE_HOLD_RECORDS') == '1'\n"
+        "             or bool(os.environ.get('FIXTURE_HOLD_LINK'))\n"
+        "             or bool(os.environ.get('FIXTURE_RECORDS_CLOCK'))\n"
+        "             or os.environ.get('FIXTURE_LATE_RECORDS') == '1')\n"
+        "_at_stop = threading.Event()\n"
+        "_joining = threading.Event()\n"
+        "def _stop():\n"
+        "    _at_stop.set()\n"
+        "    _joining.wait(50)\n"
+        "def _hold():\n"
+        "    _stop()\n"
+        "    _clock_skew[0] = 3600.0\n"
+        "    threading.Event().wait()\n"
+        "_unheld_open = os.open\n"
+        "def _held_open(path, *args, **kwargs):\n"
         "    if isinstance(path, str) and path.endswith(os.sep + 'worktrees'):\n"
-        "        time.sleep(30)\n"
-        "    return _open(path, *args, **kwargs)\n"
-        "os.open = _stalled_open\n")
+        "        if os.environ.get('FIXTURE_HOLD_RECORDS') == '1':\n"
+        "            _hold()\n"
+        "        if os.environ.get('FIXTURE_RECORDS_CLOCK'):\n"
+        "            _stop()\n"
+        "            _clock_skew[0] = float(os.environ['FIXTURE_RECORDS_CLOCK'])\n"
+        "        if os.environ.get('FIXTURE_LATE_RECORDS') == '1':\n"
+        "            _stop()\n"
+        "            while not shared['stop']:\n"
+        "                time.sleep(0.01)\n"
+        "    return _unheld_open(path, *args, **kwargs)\n"
+        "os.open = _held_open\n"
+        "_unheld_readlink = os.readlink\n"
+        "def _held_readlink(path, *args, **kwargs):\n"
+        "    if path == os.environ.get('FIXTURE_HOLD_LINK'):\n"
+        "        _hold()\n"
+        "    return _unheld_readlink(path, *args, **kwargs)\n"
+        "os.readlink = _held_readlink\n"
+        "_thread_start = threading.Thread.start\n"
+        "def _start_until_at_stop(self):\n"
+        "    _thread_start(self)\n"
+        "    until = _real_clock() + 50\n"
+        "    while (_stop_set and self.is_alive() and not _at_stop.is_set()\n"
+        "           and _real_clock() < until):\n"
+        "        _at_stop.wait(0.01)\n"
+        "threading.Thread.start = _start_until_at_stop\n"
+        "_thread_join = threading.Thread.join\n"
+        "def _noted_join(self, timeout=None):\n"
+        "    sys.stderr.write('join timeout %.3f\\n' % timeout)\n"
+        "    sys.stderr.flush()\n"
+        "    _joining.set()\n"
+        "    if os.environ.get('FIXTURE_JOIN_UNTIL_DONE') == '1':\n"
+        "        return _thread_join(self)\n"
+        "    return _thread_join(self, timeout)\n"
+        "threading.Thread.join = _noted_join\n"
+        "def _noted_alarm(seconds):\n"
+        "    sys.stderr.write('alarm %d\\n' % seconds)\n"
+        "    sys.stderr.flush()\n"
+        "    return 0\n"
+        "signal.alarm = _noted_alarm\n")
+
+    def assert_requested_bounds(self, stderr):
+        """The report alone, under CLOCKED_REPORT, asked for its 5-second
+        alarm and then for a wait for its worker of its 3-second scan bound
+        and 0.3 seconds: the arguments it passed, which CLOCKED_REPORT notes.
+        That wait ends 1.7 seconds before the alarm (its render margin of 1.5
+        seconds and the 0.2 seconds of its wait for the lock). The alarm is
+        noted, not armed; the wait is the real one, with that timeout unless
+        FIXTURE_JOIN_UNTIL_DONE makes it last until the worker ends."""
+        noted = re.findall(r"(?m)^(alarm|join timeout) (\S+)$", stderr)
+        self.assertEqual([name for name, _value in noted], ["alarm", "join timeout"], stderr)
+        self.assertEqual(int(noted[0][1]), 5, stderr)
+        self.assertAlmostEqual(float(noted[1][1]), 3.3, delta=0.01, msg=stderr)
 
     def test_leftover_scan_bound_reports_an_incomplete_scan(self):
         # FLIP TABLE (leftover report; round 2, codex WARN 5, claude NOTE 8
-        # gap 2): a scan that cannot finish within its 4-second bound (here
-        # the opening of the git records directory is held for 30 seconds)
-        # says the report is INCOMPLETE, gives a leftover it had already
-        # read no removal command, and returns within the 5-second bound of
-        # the whole report, with exit status 0, so the push goes on. The
+        # gap 2): a scan that cannot finish within its 3-second bound (here
+        # the opening of the git records directory is held and never
+        # returns) says the report is INCOMPLETE, gives a leftover it had
+        # already read no removal command, and returns without waiting for
+        # the held scan, with exit status 0, so the push goes on. The
         # report is run alone, with the guard's own code (round 5: it runs
-        # no git, so no git shim can hold it).
-        import time
+        # no git, so no git shim can hold it). It runs on the clock
+        # CLOCKED_REPORT sets, so the bound is reached at the git records on
+        # every host and in any suite order. On the real clock, with its real
+        # alarm, a full-suite run once ended it at -14 (SIGALRM): the alarm
+        # expired after the scan bound and before the report exited. The
+        # report still arms its 5-second alarm and waits for the scan no
+        # longer than its scan bound (assert_requested_bounds).
+        # Every run takes the order that can otherwise race (the worker
+        # reaches the git records before the main thread reads its wait from
+        # the clock), and the clock moves only once that wait has begun, so
+        # the wait is the full 3.3 seconds whichever thread runs first.
         self.change(".web/templates-draft/landing.html")
         root, _checkouts = self.make_leftover(1)
-        started = time.monotonic()
-        alone = self.report_alone(prelude=self.STALLED_RECORDS)
-        elapsed = time.monotonic() - started
+        alone = self.report_alone(prelude=self.CLOCKED_REPORT, FIXTURE_HOLD_RECORDS="1")
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
-        self.assertLess(elapsed, 5.5, alone.stdout)
-        self.assertIn("pre-push guard: the leftover scan is INCOMPLETE: its 4s scan bound (the "
+        self.assertIn("pre-push guard: the leftover scan is INCOMPLETE: its 3s scan bound (the "
                       "whole report is bounded to 5s) was reached while reading the git worktree "
                       "records; leftovers it had not reached are not listed, and none listed has "
                       "a removal command.", alone.stdout)
         self.assert_inspect(alone.stdout, root, "the scan did not finish")
+        self.assert_requested_bounds(alone.stderr)
+        # The same incomplete scan through the guard's bash wrapper
+        # (run_guard), whose scan-mode report runs with CLOCKED_REPORT before
+        # its code (report_shim) and is held at the git records: the guard
+        # prints the report's INCOMPLETE line and the leftover with no
+        # removal command on its stderr, and no WARNING of a report that
+        # failed or that its alarm ended, and the push goes on.
+        result, _ran = self.run_guard(PATH=self.report_shim(self.CLOCKED_REPORT),
+                                      FIXTURE_HOLD_RECORDS="1")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("pre-push guard: the leftover scan is INCOMPLETE: its 3s scan bound (the "
+                      "whole report is bounded to 5s) was reached while reading the git worktree "
+                      "records; leftovers it had not reached are not listed, and none listed has "
+                      "a removal command.\n", result.stderr)
+        self.assert_inspect(result.stderr, root, "the scan did not finish")
+        self.assertNotIn("pre-push guard: WARNING: the leftover report", result.stderr)
+        self.assert_requested_bounds(result.stderr)
 
-    # A prelude for the report alone that holds reading the link
-    # STALLED_LINK names for 30 seconds, as a busy host can keep the scan of
-    # its processes from finishing within its bound.
-    STALLED_PROCESS = (
+    # A prelude for the report alone that runs it on a clock the test sets,
+    # so its verdict does not depend on how busy the host is: time.monotonic
+    # stands still but for what this prelude adds. The worker is held at its
+    # opening of the git records directory and never returns, as a stalled
+    # file system would hold it, and the main thread starts it only once it
+    # is held there. Each wait of the main thread lasts its whole timeout on
+    # that clock, the longest it can: the wait for the worker (noted on
+    # stderr, as CLOCKED_REPORT notes it) and the wait for the lock (noted
+    # on stderr as "lock timeout <seconds>"), which then takes the lock. The
+    # alarm is noted on stderr and kept on that clock, and the output, once
+    # rendered, moves the clock FIXTURE_RENDER_DELAY seconds on before it is
+    # written, as a slow render would; if the alarm is due by then, the
+    # report signals itself SIGALRM, as its alarm would end it there.
+    RENDER_CLOCK = (
+        "import os, signal, sys, threading, time\n"
+        "_render_now = [time.monotonic()]\n"
+        "time.monotonic = lambda: _render_now[0]\n"
+        "_render_alarm = [None]\n"
+        "def _render_alarm_at(seconds):\n"
+        "    sys.stderr.write('alarm %d\\n' % seconds)\n"
+        "    sys.stderr.flush()\n"
+        "    _render_alarm[0] = _render_now[0] + seconds if seconds else None\n"
+        "    return 0\n"
+        "signal.alarm = _render_alarm_at\n"
+        "_render_held = threading.Event()\n"
+        "_render_open = os.open\n"
+        "def _render_held_open(path, *args, **kwargs):\n"
+        "    if isinstance(path, str) and path.endswith(os.sep + 'worktrees'):\n"
+        "        _render_held.set()\n"
+        "        threading.Event().wait()\n"
+        "    return _render_open(path, *args, **kwargs)\n"
+        "os.open = _render_held_open\n"
+        "_render_start = threading.Thread.start\n"
+        "def _render_start_until_held(self):\n"
+        "    _render_start(self)\n"
+        "    _render_held.wait(50)\n"
+        "threading.Thread.start = _render_start_until_held\n"
+        "class _RenderLock:\n"
+        "    def __init__(self, lock):\n"
+        "        self._lock = lock\n"
+        "    def acquire(self, blocking=True, timeout=-1):\n"
+        "        sys.stderr.write('lock timeout %.3f\\n' % timeout)\n"
+        "        sys.stderr.flush()\n"
+        "        _render_now[0] += max(0.0, timeout)\n"
+        "        return self._lock.acquire(False)\n"
+        "    def release(self):\n"
+        "        self._lock.release()\n"
+        "def _render_join(self, timeout=None):\n"
+        "    sys.stderr.write('join timeout %.3f\\n' % timeout)\n"
+        "    sys.stderr.flush()\n"
+        "    _render_now[0] += timeout\n"
+        "    caller = sys._getframe(1).f_globals\n"
+        "    caller['lock'] = _RenderLock(caller['lock'])\n"
+        "threading.Thread.join = _render_join\n"
+        "class _RenderOutput:\n"
+        "    def __init__(self, out):\n"
+        "        self._out = out\n"
+        "    def write(self, text):\n"
+        "        _render_now[0] += float(os.environ['FIXTURE_RENDER_DELAY'])\n"
+        "        if _render_alarm[0] is not None and _render_now[0] >= _render_alarm[0]:\n"
+        "            os.kill(os.getpid(), signal.SIGALRM)\n"
+        "            threading.Event().wait(30)\n"
+        "            os._exit(3)\n"
+        "        return self._out.write(text)\n"
+        "    def flush(self):\n"
+        "        self._out.flush()\n"
+        "sys.stdout = _RenderOutput(sys.stdout)\n")
+
+    def test_report_keeps_its_render_margin_before_its_alarm(self):
+        # FLIP TABLE: the report's main thread stops waiting for its worker
+        # and for the lock 1.5 seconds (RENDER_MARGIN) before its 5-second
+        # alarm, so a report whose scan reaches its bound still has that long
+        # to render, write and flush. Under RENDER_CLOCK, with the scan held
+        # at the git records, each wait lasting its whole timeout and a
+        # render delay of 0.9 seconds, all on the report's own clock, the
+        # report asks for its 5-second alarm and a wait for its worker of 3.3
+        # seconds, writes its INCOMPLETE line 4.4 seconds after its start and
+        # exits 0. With the main thread's deadlines at a narrower margin (the
+        # wait for the worker until 0.3 seconds past a 4-second scan bound,
+        # the wait for the lock until 0.5 seconds before the alarm), its
+        # output is due 5.4 seconds after its start, past its alarm, which
+        # ends it (status -14), and this test fails. No real time decides the
+        # verdict; an earlier form of this test, on the real clock, failed
+        # once in a full class run on a loaded host.
+        self.change(".web/templates-draft/landing.html")
+        root, _checkouts = self.make_leftover(1)
+        alone = self.report_alone(prelude=self.RENDER_CLOCK, FIXTURE_RENDER_DELAY="0.9")
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        self.assert_requested_bounds(alone.stderr)
+        # The wait for the lock that RENDER_CLOCK notes is 0.2 seconds, so
+        # with the 3.3-second wait for the worker it ends RENDER_MARGIN (1.5
+        # seconds) before the 5-second alarm; a lock deadline with less time
+        # left before the alarm asks for a longer wait and fails here.
+        noted = re.findall(r"(?m)^lock timeout (\S+)$", alone.stderr)
+        self.assertEqual(len(noted), 1, alone.stderr)
+        self.assertAlmostEqual(float(noted[0]), 0.2, delta=0.01, msg=alone.stderr)
+        self.assertIn("pre-push guard: the leftover scan is INCOMPLETE: its 3s scan bound (the "
+                      "whole report is bounded to 5s) was reached while reading the git worktree "
+                      "records; leftovers it had not reached are not listed, and none listed has "
+                      "a removal command.\n", alone.stdout)
+        self.assert_inspect(alone.stdout, root, "the scan did not finish")
+
+    # Preludes that make a test's use of NO_OTHER_PROCESS observable.
+    # HOST_PROCESSES_POISONED, put before NO_OTHER_PROCESS, makes the listing
+    # of /proc that NO_OTHER_PROCESS replaces fail (EIO), so a report that
+    # reads the host's processes in place of the fixture inventory says that
+    # processes cannot be listed. PROCESSES_LISTED, put after it, notes each
+    # listing of /proc the report receives, as one line of the file
+    # FIXTURE_PROC_LOG: the report's pid, a colon and the names listed.
+    HOST_PROCESSES_POISONED = (
+        "import os\n"
+        "_host_listdir = os.listdir\n"
+        "def _host_processes_poisoned(path='.'):\n"
+        "    if path == '/proc':\n"
+        "        raise OSError(5, 'Input/output error')\n"
+        "    return _host_listdir(path)\n"
+        "os.listdir = _host_processes_poisoned\n")
+    PROCESSES_LISTED = (
+        "import os\n"
+        "_listed_listdir = os.listdir\n"
+        "def _processes_listed(path='.'):\n"
+        "    names = _listed_listdir(path)\n"
+        "    if path == '/proc':\n"
+        "        with open(os.environ['FIXTURE_PROC_LOG'], 'a', encoding='ascii') as f:\n"
+        "            f.write('%d:%s\\n' % (os.getpid(), ' '.join(names)))\n"
+        "    return names\n"
+        "os.listdir = _processes_listed\n")
+
+    def test_leftover_scan_within_its_bound_reports_a_complete_scan(self):
+        # FLIP TABLE: on the same clock, with the git records not held, a
+        # scan that reaches the git records 2.9 seconds after the report's
+        # start on its clock (FIXTURE_RECORDS_CLOCK), within its 3-second
+        # scan bound, is complete: no INCOMPLETE line, the git record of the
+        # leftover's checkout is read (it is registered with this clone) and
+        # the leftover has no unfinished-scan reason. The main thread waits
+        # for the worker until it ends (FIXTURE_JOIN_UNTIL_DONE), so the
+        # verdict does not depend on how long the scan takes in real time;
+        # the report still asks for its 3.3-second wait
+        # (assert_requested_bounds), and
+        # test_leftover_scan_slower_than_its_wait_reports_an_incomplete_scan
+        # pins that the real wait ends at that timeout. Its pair,
+        # test_leftover_scan_at_its_bound_on_its_clock_reports_an_incomplete_scan,
+        # is INCOMPLETE at 3.0 seconds, so the report's own check of its scan
+        # bound, on the clock CLOCKED_REPORT sets, decides the two: with that
+        # clock replaced by the real one, the pair fails. Its process scan
+        # sees only the report itself (NO_OTHER_PROCESS), so what it reads
+        # does not depend on the host either, and that is observed: the
+        # listing of /proc that NO_OTHER_PROCESS replaces is poisoned
+        # (HOST_PROCESSES_POISONED), and the one listing the report receives
+        # is noted (PROCESSES_LISTED) and holds the report's own pid alone.
+        # Without NO_OTHER_PROCESS the report says that processes cannot be
+        # listed and notes no listing, and this test fails.
+        self.change(".web/templates-draft/landing.html")
+        root, checkouts = self.make_leftover(1)
+        listed = Path(self.tmp.name) / "proc.log"
+        alone = self.report_alone(prelude=self.HOST_PROCESSES_POISONED + self.NO_OTHER_PROCESS
+                                  + self.PROCESSES_LISTED + self.CLOCKED_REPORT,
+                                  FIXTURE_PIDS="", FIXTURE_RECORDS_CLOCK="2.9",
+                                  FIXTURE_JOIN_UNTIL_DONE="1", FIXTURE_PROC_LOG=str(listed))
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        self.assertNotIn("INCOMPLETE", alone.stdout)
+        self.assertFalse(self.incomplete_scan(alone.stdout), alone.stdout)
+        self.assertIn("  %s: " % root, alone.stdout)
+        self.assertNotIn(self.NOT_FINISHED, alone.stdout)
+        self.assertIn("checkout %s: registered with this clone" % checkouts[0], alone.stdout)
+        self.assert_requested_bounds(alone.stderr)
+        self.assertNotIn("processes cannot be listed", alone.stdout)
+        self.assertTrue(listed.exists(), "the report received no listing of /proc")
+        lines = listed.read_text(encoding="ascii").splitlines()
+        self.assertEqual(len(lines), 1, lines)
+        pid, _colon, names = lines[0].partition(":")
+        self.assertEqual(names.split(), [pid], lines)
+
+    def test_leftover_scan_at_its_bound_on_its_clock_reports_an_incomplete_scan(self):
+        # FLIP TABLE: the pair of
+        # test_leftover_scan_within_its_bound_reports_a_complete_scan. The
+        # same scan, reaching the git records 3.0 seconds after the report's
+        # start on its clock, has reached its 3-second scan bound: the
+        # worker's own check ends it there, so the report is INCOMPLETE at
+        # the git records and the leftover it had read has no removal
+        # command, though the main thread waits for the worker until it ends
+        # (FIXTURE_JOIN_UNTIL_DONE). With CLOCKED_REPORT's clock replaced by
+        # the real one, the scan finishes and this test fails.
+        self.change(".web/templates-draft/landing.html")
+        root, _checkouts = self.make_leftover(1)
+        alone = self.report_alone(prelude=self.NO_OTHER_PROCESS + self.CLOCKED_REPORT,
+                                  FIXTURE_PIDS="", FIXTURE_RECORDS_CLOCK="3.0",
+                                  FIXTURE_JOIN_UNTIL_DONE="1")
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        self.assertIn("pre-push guard: the leftover scan is INCOMPLETE: its 3s scan bound (the "
+                      "whole report is bounded to 5s) was reached while reading the git worktree "
+                      "records; leftovers it had not reached are not listed, and none listed has "
+                      "a removal command.", alone.stdout)
+        self.assert_inspect(alone.stdout, root, "the scan did not finish")
+        self.assert_requested_bounds(alone.stderr)
+
+    def test_leftover_scan_slower_than_its_wait_reports_an_incomplete_scan(self):
+        # FLIP TABLE: under CLOCKED_REPORT the main thread's wait for the
+        # worker honours the timeout the report gives it. The scan is slow
+        # in real time only, and deterministically so: its opening of the
+        # git records returns only once the main thread has stopped the
+        # worker (FIXTURE_LATE_RECORDS), which it does only after that wait
+        # has ended, and the report's clock stands still, so only that wait
+        # can end the scan, however long the host keeps either thread from
+        # running: the report is INCOMPLETE at the git records, as the real
+        # join(3.3) makes it in production, and the leftover it had read has
+        # no removal command. A wait that outlasts its timeout until the
+        # worker ends never ends (the worker waits for it), so the report is
+        # held until this test's 60-second timeout fails it. A worker that
+        # instead slept 9 seconds once the main thread was about to begin
+        # that wait would let the scan finish first on a host that kept the
+        # main thread from running for as long.
+        self.change(".web/templates-draft/landing.html")
+        root, _checkouts = self.make_leftover(1)
+        alone = self.report_alone(prelude=self.NO_OTHER_PROCESS + self.CLOCKED_REPORT,
+                                  FIXTURE_PIDS="", FIXTURE_LATE_RECORDS="1")
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        self.assertIn("pre-push guard: the leftover scan is INCOMPLETE: its 3s scan bound (the "
+                      "whole report is bounded to 5s) was reached while reading the git worktree "
+                      "records; leftovers it had not reached are not listed, and none listed has "
+                      "a removal command.", alone.stdout)
+        self.assert_inspect(alone.stdout, root, "the scan did not finish")
+        self.assert_requested_bounds(alone.stderr)
+
+    # A prelude for the report that stalls its first opening of the git
+    # records directory (<git common dir>/worktrees) for FIXTURE_STALL
+    # seconds of real time, as a busy host or a slow file system would.
+    STALLED_RECORDS = (
         "import os, time\n"
-        "_stall_readlink = os.readlink\n"
-        "def _stalled_readlink(path, *args, **kwargs):\n"
-        "    if path == os.environ.get('STALLED_LINK'):\n"
-        "        time.sleep(30)\n"
-        "    return _stall_readlink(path, *args, **kwargs)\n"
-        "os.readlink = _stalled_readlink\n")
+        "_stall_open = os.open\n"
+        "_stalled = []\n"
+        "def _stalled_open(path, *args, **kwargs):\n"
+        "    if (not _stalled and isinstance(path, str)\n"
+        "            and path.endswith(os.sep + 'worktrees')):\n"
+        "        _stalled.append(path)\n"
+        "        time.sleep(float(os.environ['FIXTURE_STALL']))\n"
+        "    return _stall_open(path, *args, **kwargs)\n"
+        "os.open = _stalled_open\n")
+
+    def test_report_all_read_does_not_depend_on_real_time(self):
+        # FLIP TABLE: the report alone that complete_reports and
+        # assert_removable check an exact outcome on (report_all_read with
+        # an inventory) runs on the clock CLOCKED_REPORT sets, with
+        # FIXTURE_JOIN_UNTIL_DONE=1, so a host stall cannot make it
+        # INCOMPLETE or let its alarm end it. Here its opening of the git
+        # records stalls for 6 seconds of real time (STALLED_RECORDS), past
+        # its 3-second scan bound, its 3.3-second wait for the worker and
+        # its 5-second alarm: its scan is complete, the leftover is
+        # REMOVABLE with the commands that remove it, and it still asks for
+        # that alarm and wait (assert_requested_bounds). With
+        # report_all_read back on the real clock, its real wait and its real
+        # alarm, the wait ends at 3.3 seconds, before the stalled scan has
+        # finished, so the report is INCOMPLETE (on a host that delays it
+        # further, its alarm ends it), and this test fails.
+        self.change(".web/templates-draft/landing.html")
+        root, checkouts = self.make_leftover(1)
+        alone = self.report_all_read(inventory=(), prelude=self.STALLED_RECORDS,
+                                     FIXTURE_STALL="6")
+        self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
+        self.assertNotIn("INCOMPLETE", alone.stdout)
+        self.assertFalse(self.incomplete_scan(alone.stdout), alone.stdout)
+        self.assert_all_read_removable(alone, root, checkouts)
+        self.assert_requested_bounds(alone.stderr)
 
     def test_real_guard_half_accepts_only_a_correctly_reported_incomplete_scan(self):
         # FLIP TABLE (round 10, codex WARN 1): the half of an outcome test
@@ -21092,20 +22392,26 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # test); the report alone, against a deterministic inventory, still
         # gives that outcome. The incomplete report is the guard's own,
         # its scan held at the processes (one process, this test, whose
-        # working directory is read for 30 seconds), so its bound is reached
-        # there, as a busy host reaches it. It is accepted by
+        # working directory link is held and never read), so its bound is
+        # reached there, as a busy host reaches it. It is accepted by
         # assert_removable, whose report alone is REMOVABLE, and by
         # complete_reports. Each altered copy fails assert_removable: with
         # a removal command, with the leftover REMOVABLE, with the
         # unfinished scan not given as its first reason, or as a scan that
-        # failed (an error, which is never accepted).
+        # failed (an error, which is never accepted). Both reports run on
+        # the clock CLOCKED_REPORT sets, the held one held there with
+        # FIXTURE_HOLD_LINK, so the order of their threads, a busy host and
+        # their alarm (noted, not armed) cannot end them or change what they
+        # print; on the real clock with its real alarm, a busy host could
+        # let the alarm end the held report at -14 after its scan bound.
         root, checkouts = self.make_leftover(1)
-        held = self.report_alone(prelude=self.NO_OTHER_PROCESS + self.STALLED_PROCESS,
+        held = self.report_alone(prelude=self.NO_OTHER_PROCESS + self.CLOCKED_REPORT,
                                  FIXTURE_PIDS=str(os.getpid()),
-                                 STALLED_LINK="/proc/%d/cwd" % os.getpid())
+                                 FIXTURE_HOLD_LINK="/proc/%d/cwd" % os.getpid())
         self.assertEqual(held.returncode, 0, held.stdout + held.stderr)
+        self.assert_requested_bounds(held.stderr)
         report = held.stdout
-        self.assertIn("pre-push guard: the leftover scan is INCOMPLETE: its 4s scan bound (the "
+        self.assertIn("pre-push guard: the leftover scan is INCOMPLETE: its 3s scan bound (the "
                       "whole report is bounded to 5s) was reached while reading which processes "
                       "use the leftovers; leftovers it had not reached are not listed, and none "
                       "listed has a removal command.\n", report)
@@ -21159,6 +22465,12 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # a process (it is shown to note them first), and a git shim on
         # PATH notes any git run; both stay empty, and the report still
         # lists the leftovers.
+        # Only the unreadable-process part depends on the host. A process
+        # with CAP_SYS_PTRACE (root usually has it; root without it does not)
+        # reads a non-dumpable process's /proc entries, so where reading the
+        # non-dumpable helper's cwd is not refused, that helper is left out
+        # of the inventory and the leftover may be REMOVABLE or INSPECT; the
+        # audit hook and git shim checks run on every host.
         self.change(".web/templates-draft/landing.html")
         real_git = shutil.which("git", path=self.env.get("PATH"))
         shim = Path(self.tmp.name) / "shim"
@@ -21185,13 +22497,46 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         shutil.rmtree(gone)
         if git_log.exists():
             git_log.unlink()
+        # The report alone reads the inventory NO_OTHER_PROCESS sets, which
+        # is deterministic (a live helper of this test, so it still has a
+        # process to scan), on the clock CLOCKED_REPORT sets, its wait for
+        # the worker lasting until the worker ends, so no real scan bound,
+        # join or alarm applies to the outcome it checks. NO_CHILD's audit
+        # hook comes first, so it notes any such event of those preludes
+        # too. The inventory also holds a process of this user made
+        # non-dumpable (NON_DUMPABLE, as in
+        # test_unreadable_process_blocks_removal_whoever_owns_it), which no
+        # unprivileged process can read, so the report's path for an
+        # unreadable process runs under the audit hook on every host, and
+        # the leftover is INSPECT for it.
+        import select
+        helper = self.live_helper()
+        unreadable, _line = self.live_process(self.NON_DUMPABLE)
+        unreadable.stdin.write(b"go\n")
+        unreadable.stdin.flush()
+        ready, _writable, _failed = select.select([unreadable.stdout], [], [], 60)
+        self.assertEqual(unreadable.stdout.readline() if ready else b"", b"non-dumpable\n")
+        try:
+            os.readlink("/proc/%d/cwd" % unreadable.pid)
+        except PermissionError:
+            pids = "%d %d" % (helper.pid, unreadable.pid)
+        else:
+            pids = "%d" % helper.pid
+        prelude = self.NO_CHILD + self.NO_OTHER_PROCESS + self.CLOCKED_REPORT
         for mode, extra_args in (("scan", ()), ("left", (str(root),))):
             with self.subTest(mode):
-                alone = self.report_alone(prelude=self.NO_CHILD, mode=mode, extra_args=extra_args,
-                                          PATH=path, SPAWN_LOG=str(spawn_log))
+                alone = self.report_alone(prelude=prelude, mode=mode, extra_args=extra_args,
+                                          PATH=path, SPAWN_LOG=str(spawn_log),
+                                          FIXTURE_PIDS=pids, FIXTURE_JOIN_UNTIL_DONE="1")
                 self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
-                self.assertRegex(alone.stdout, r"(?m)^  %s: (REMOVABLE|INSPECT)"
-                                 % re.escape(str(root)))
+                block = alone.stdout.split("  %s: " % root, 1)
+                self.assertEqual(len(block), 2, alone.stdout)
+                if " " in pids:
+                    self.assertTrue(block[1].startswith("INSPECT (no removal command), "
+                                                        "because:\n"), alone.stdout)
+                    self.assertRegex(block[1], r"(?m)^    - " + self.UNREAD, alone.stdout)
+                else:
+                    self.assertRegex(block[1], r"^(REMOVABLE|INSPECT)", alone.stdout)
                 if mode == "scan":
                     self.assertIn(self.LEFTOVERS_HEAD, alone.stdout)
                     self.assertIn("  %s: " % gone, alone.stdout)
@@ -21224,17 +22569,407 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                          r"(\S+):$", result.stdout)
         self.assertIsNotNone(kept, result.stdout)
         self.assertIn("pre-push guard: WARNING: the leftover report (left) failed (rc=3), so "
-                      "what this run left in %s (named above) and whether a process uses it "
-                      "are unknown; it stopped and removed nothing of a leftover.\n"
+                      "what this run left in %s and whether a process uses it are unknown; "
+                      "it stopped and removed nothing of a leftover.\n"
                       % kept.group(1), result.stderr)
         self.assertNotIn("what earlier runs", result.stderr)
         result, _ran = self.run_guard(PATH=path, FAIL_MODE="scan", FAIL_HOW="alarm")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("pre-push guard: WARNING: the leftover report (scan) was ended at its "
-                      "5-second bound before it printed, so what earlier runs of this guard left "
-                      "is unknown; it stopped and removed nothing of a leftover.\n", result.stderr)
+                      "5-second bound (any report output it printed may be incomplete), so "
+                      "what earlier runs of this guard left is unknown; it stopped and removed "
+                      "nothing of a leftover.\n", result.stderr)
         for checkout in re.findall(r"\(checkout (\S+), log", first):
             self.git("worktree", "remove", "--force", checkout)
+
+    def test_left_report_check_accepts_its_alarm_warning_where_it_accepts_an_incomplete_scan(self):
+        # FLIP TABLE: the left-mode report runs the same report code, with
+        # the same 3-second scan bound and 5-second alarm, as the scan-mode
+        # report, so a busy host can let its alarm end it too; the guard
+        # then prints its WARNING (ALARMED_LEFT, naming this run's shard
+        # directory) and no "Left behind by this run" block. The checks of
+        # what a run left, which accept a correctly reported incomplete scan
+        # (assert_left_report, which the interrupted and the failing shard
+        # tests use), accept that WARNING as a correctly reported unknown
+        # too; the left report alone is checked in its own tests. A python3
+        # shim forces it, as in test_failed_report_line_is_worded_per_mode:
+        # it ends the left-mode report with SIGALRM, as its alarm does.
+        # incomplete_scan does not take it for an INCOMPLETE report, and
+        # each altered copy fails assert_left_report: the WARNING about
+        # another directory, the WARNING of the scan-mode report, the
+        # WARNING of a report that failed, or a removal command after it.
+        # assert_left_report back on incomplete_scan alone fails this test.
+        self.change("ai/policy-fixture.md")
+        real_python = shutil.which("python3", path=self.env.get("PATH"))
+        shim = Path(self.tmp.name) / "pyshim"
+        shim.mkdir()
+        (shim / "python3").write_text(
+            '#!/bin/sh\nif [ "$1 $2 $4" = "-I -c left" ]; then\n'
+            '  kill -ALRM $$\n  exit 3\nfi\n'
+            'exec "%s" "$@"\n' % real_python, encoding="utf-8")
+        (shim / "python3").chmod(0o755)
+        path = str(shim) + os.pathsep + self.env.get("PATH", "")
+        result, _ran = self.run_guard(PATH=path, FIXTURE_SHARD_FAIL="3")
+        self.assertEqual(result.returncode, 7, result.stdout + result.stderr)
+        made = "    - this run made it and has not ended yet: "
+        root = self.assert_left_report(result.stdout, result.stderr, made)
+        warning = self.ALARMED_LEFT % root
+        self.assertIn(warning + "\n", result.stderr)
+        self.assertNotIn("Left behind by this run", result.stdout)
+        self.assertFalse(self.incomplete_scan(result.stdout), result.stdout)
+        for case, err in (
+                ("the WARNING about another directory",
+                 result.stderr.replace(warning, self.ALARMED_LEFT % (root + "-other"))),
+                ("the WARNING of the scan-mode report",
+                 result.stderr.replace(warning, self.ALARMED_SCAN)),
+                ("the WARNING of a report that failed",
+                 result.stderr.replace(warning, warning.replace(
+                     "was ended at its 5-second bound (any report output it printed may "
+                     "be incomplete)", "failed (rc=3)"))),
+                ("a removal command after it",
+                 result.stderr.replace(warning + "\n",
+                                       warning + "\n      rm -rf -- %s\n" % root))):
+            with self.subTest(case):
+                self.assertNotEqual(err, result.stderr)
+                with self.assertRaises(AssertionError):
+                    self.assert_left_report(result.stdout, err, made)
+        for checkout in re.findall(r"\(checkout (\S+), log", result.stdout):
+            self.git("worktree", "remove", "--force", checkout)
+
+    # A prelude for the guard's own report (a python3 shim puts it before
+    # the report's code) that notes on stderr each alarm the report arms and
+    # arms it for real, and holds the report's output, which its main thread
+    # writes and flushes once it has taken what the scan found, as a stalled
+    # output would: the report then does not end by itself within the
+    # 60-second wait of the test that uses it. The hold is bounded, 90
+    # seconds and then exit status 3, so a report its alarm does not end
+    # cannot run on without end even when that test cannot end it.
+    HELD_OUTPUT = (
+        "import os, signal, sys, threading\n"
+        "_real_alarm = signal.alarm\n"
+        "def _noted_real_alarm(seconds):\n"
+        "    sys.stderr.write('alarm %d\\n' % seconds)\n"
+        "    sys.stderr.flush()\n"
+        "    return _real_alarm(seconds)\n"
+        "signal.alarm = _noted_real_alarm\n"
+        "def _held():\n"
+        "    threading.Event().wait(90)\n"
+        "    os._exit(3)\n"
+        "class _HeldOutput:\n"
+        "    def write(self, text):\n"
+        "        _held()\n"
+        "    def flush(self):\n"
+        "        _held()\n"
+        "sys.stdout = _HeldOutput()\n")
+
+    @staticmethod
+    def end_process_group(process):
+        """Terminate and reap the process group that process leads (it was
+        started with start_new_session): SIGTERM to the whole group, then
+        SIGKILL to what is left after 10 seconds; the leader is reaped
+        here (its pipes drained), and this waits up to 30 seconds more
+        until no process of the group exists (one the leader started is
+        reaped by whichever process adopted it). Returns whether the group
+        is gone."""
+        import signal
+        import time
+        gone = False
+        for sig, wait in ((signal.SIGTERM, 10), (signal.SIGKILL, 30)):
+            try:
+                os.killpg(process.pid, sig)
+            except ProcessLookupError:
+                gone = True
+                break
+            deadline = time.monotonic() + wait
+            while time.monotonic() < deadline:
+                process.poll()
+                try:
+                    os.killpg(process.pid, 0)
+                except ProcessLookupError:
+                    gone = True
+                    break
+                time.sleep(0.1)
+            if gone:
+                break
+        if process.stdout is not None and not process.stdout.closed:
+            process.communicate(timeout=30)
+        process.wait(timeout=30)
+        return gone
+
+    def report_shim(self, prelude, name="pyshim"):
+        """A PATH whose python3, a shim put before this fixture's PATH, runs
+        the guard's scan-mode report with prelude before the report's code
+        and runs every other python3 command as it is."""
+        real_python = shutil.which("python3", path=self.env.get("PATH"))
+        shim = Path(self.tmp.name) / name
+        shim.mkdir()
+        (shim / "prelude.py").write_text(prelude, encoding="utf-8")
+        (shim / "python3").write_text(
+            '#!/bin/sh\nif [ "$1 $2 $4" = "-I -c scan" ]; then\n'
+            '  code="$3"\n  shift 3\n'
+            '  exec "%s" -I -c "$(cat "%s")\n$code" "$@"\nfi\n'
+            'exec "%s" "$@"\n' % (real_python, shim / "prelude.py", real_python),
+            encoding="utf-8")
+        (shim / "python3").chmod(0o755)
+        return str(shim) + os.pathsep + self.env.get("PATH", "")
+
+    def run_guard_in_group(self, **extra):
+        """The guard, with the environment run_guard gives it (self.env and
+        extra), in its own process group, which is terminated and reaped
+        (end_process_group) however its run ends, so no process it started
+        is left running. Returns the guard's process, its stdout and stderr,
+        and whether its group is gone."""
+        guard = subprocess.Popen(["bash", ".claude/skills/corpus-management/tools/pre-push-guard.sh"],
+                                 cwd=self.root, env=dict(self.env, **extra),
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                                 start_new_session=True)
+        try:
+            out, err = guard.communicate(timeout=60)
+        finally:
+            gone = self.end_process_group(guard)
+        return guard, out, err, gone
+
+    def test_report_held_past_its_bound_is_ended_by_its_alarm(self):
+        # FLIP TABLE: the 5-second bound of the leftover report is its own
+        # real alarm, and the guard says so when it fires. A python3 shim
+        # runs the guard's report in scan mode with HELD_OUTPUT before its
+        # code, so the report arms its real 5-second alarm (noted on stderr)
+        # and then never ends by itself: whatever its scan finds, and however
+        # long it takes, its main thread is held at its output. Only the
+        # alarm ends it (SIGALRM, status 142 to the shell). A busy host can
+        # only make it fire later, never earlier and never in place of
+        # another end, and a report the alarm does not end holds the guard
+        # until this test's 60-second wait for it fails this test. The guard
+        # prints its WARNING for status 142, nothing of the report is
+        # printed, and the push goes on (exit status 0). With the report's
+        # alarm removed or made longer than that wait (signal.alarm(BOUND) in
+        # pre-push-guard.sh), this test fails. The guard runs in its own
+        # process group, which is terminated and reaped (end_process_group)
+        # whether this test passes or fails, so a report its alarm did not
+        # end is not left running.
+        self.change(".web/templates-draft/landing.html")
+        guard, out, err, gone = self.run_guard_in_group(PATH=self.report_shim(self.HELD_OUTPUT))
+        self.assertTrue(gone, "a process of the guard's group is still running")
+        self.assertEqual(guard.returncode, 0, out + err)
+        self.assertEqual(re.findall(r"(?m)^alarm \d+$", err), ["alarm 5"], err)
+        self.assertIn(self.ALARMED_SCAN + "\n", err)
+        self.assertNotIn("pre-push guard: the leftover scan", err)
+        self.assertNotIn(self.LEFTOVERS_HEAD, err)
+
+    def test_real_guard_half_accepts_its_alarm_warning_where_it_accepts_an_incomplete_scan(self):
+        # FLIP TABLE: a busy host can use up the margin after the report's
+        # scan bound, so the report's alarm ends it and the guard prints only
+        # its WARNING (ALARMED_SCAN). The checks of the real guard's
+        # scan-mode report that accept a correctly reported incomplete scan
+        # (complete_reports and assert_removable) accept that WARNING as a
+        # correctly reported unknown too, and the report alone, against a
+        # deterministic inventory, still gives the expected outcome (here
+        # REMOVABLE). A python3 shim forces the WARNING, with a leftover to
+        # report: it ends the scan-mode report with SIGALRM, as its alarm
+        # does. incomplete_scan, which the checks of what a run left use,
+        # does not take it for an INCOMPLETE report, and each altered copy
+        # fails assert_removable: with a removal command, with a leftover
+        # listed (which an INCOMPLETE report may list), as the WARNING of the
+        # left report, or as a report that failed. complete_reports or
+        # assert_removable back on incomplete_scan fails this test.
+        self.change(".web/templates-draft/landing.html")
+        root, checkouts = self.make_leftover(1)
+        real_python = shutil.which("python3", path=self.env.get("PATH"))
+        shim = Path(self.tmp.name) / "pyshim"
+        shim.mkdir()
+        (shim / "python3").write_text(
+            '#!/bin/sh\nif [ "$1 $2 $4" = "-I -c scan" ]; then\n'
+            '  kill -ALRM $$\n  exit 3\nfi\n'
+            'exec "%s" "$@"\n' % real_python, encoding="utf-8")
+        (shim / "python3").chmod(0o755)
+        path = str(shim) + os.pathsep + self.env.get("PATH", "")
+        result, _ran = self.run_guard(PATH=path)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        err = result.stderr
+        self.assertIn(self.ALARMED_SCAN + "\n", err)
+        self.assertNotIn(self.LEFTOVERS_HEAD, err)
+        self.assertFalse(self.incomplete_scan(err), err)
+        self.assertTrue(self.unknown_scan(err))
+        self.assertEqual(self.complete_reports(err, "alone"), ["alone"])
+        self.assertEqual(self.assert_removable(err, root, checkouts, r"no process \d+ exists",
+                                               inventory=()),
+                         self.removable_commands(root, checkouts))
+        listed = ("%s\n  %s: INSPECT (no removal command), because:\n%s\n"
+                  % (self.LEFTOVERS_HEAD, root, self.NOT_FINISHED))
+        for case, text in (
+                ("a removal command", err + "      rm -rf -- %s\n" % root),
+                ("a leftover listed", err + listed),
+                ("the WARNING of the left report",
+                 err.replace("leftover report (scan)", "leftover report (left)")),
+                ("a report that failed",
+                 err.replace("was ended at its 5-second bound (any report output it "
+                             "printed may be incomplete)", "failed (rc=3)"))):
+            with self.subTest(case):
+                self.assertNotEqual(text, err)
+                with self.assertRaises(AssertionError):
+                    self.assert_removable(text, root, checkouts, r"no process \d+ exists",
+                                          inventory=())
+
+    # A prelude for the guard's own report (a python3 shim puts it before
+    # the report's code) that ends the report with SIGALRM, as its alarm
+    # does, in the middle of its output: of the text its main thread writes
+    # once it has taken what the scan found, the first line and the second
+    # but its last five characters are written and flushed, and the report
+    # then signals itself (main() sets the default action for SIGALRM, so
+    # the signal ends it there).
+    CUT_OUTPUT = (
+        "import os, signal, sys, threading\n"
+        "class _CutOutput:\n"
+        "    def __init__(self, out):\n"
+        "        self._out = out\n"
+        "    def write(self, text):\n"
+        "        first = text.find('\\n')\n"
+        "        second = text.find('\\n', first + 1)\n"
+        "        self._out.write(text[:second - 5] if 0 <= first < second else text)\n"
+        "        self._out.flush()\n"
+        "        os.kill(os.getpid(), signal.SIGALRM)\n"
+        "        threading.Event().wait(30)\n"
+        "        os._exit(3)\n"
+        "    def flush(self):\n"
+        "        self._out.flush()\n"
+        "sys.stdout = _CutOutput(sys.stdout)\n")
+
+    def test_real_guard_half_accepts_its_alarm_warning_after_a_partial_report(self):
+        # FLIP TABLE: the alarm of the scan-mode report can end it once it
+        # has printed a part of its report, even within a line, and the
+        # guard then writes its WARNING (ALARMED_SCAN) right after that
+        # part. The checks of the real guard's scan-mode report
+        # (complete_reports and assert_removable, through unknown_scan)
+        # accept it as a correctly reported unknown, whatever part of the
+        # report it holds, and the report alone, against a deterministic
+        # inventory, still gives the expected outcome (here REMOVABLE). A
+        # python3 shim forces it with the guard's own report: CUT_OUTPUT
+        # ends it within the second line of its output, and CLOCKED_REPORT
+        # (its wait for the worker lasting until the worker ends) with
+        # NO_OTHER_PROCESS makes that output the same on every host: the
+        # LEFTOVERS head and the leftover's first line but its last five
+        # characters (bash may add its own line about the signal after it,
+        # before the WARNING). Each altered copy fails assert_removable: as
+        # a scan that failed, or with a removal command or a leftover after
+        # the WARNING. unknown_scan that accepts the WARNING only when
+        # nothing of the report was printed before it fails this test.
+        self.change(".web/templates-draft/landing.html")
+        root, checkouts = self.make_leftover(1)
+        path = self.report_shim(self.NO_OTHER_PROCESS + self.CLOCKED_REPORT + self.CUT_OUTPUT)
+        guard, out, err, gone = self.run_guard_in_group(PATH=path, FIXTURE_PIDS="",
+                                                        FIXTURE_JOIN_UNTIL_DONE="1")
+        self.assertTrue(gone, "a process of the guard's group is still running")
+        self.assertEqual(guard.returncode, 0, out + err)
+        cut = re.search(r"(?m)^%s\n  (\S+): REMOVABLE: [^\n]*\n(?:[^\n]*\n)?%s$"
+                        % (re.escape(self.LEFTOVERS_HEAD), re.escape(self.ALARMED_SCAN)), err)
+        self.assertIsNotNone(cut, err)
+        self.assertEqual(cut.group(1), str(root), err)
+        self.assertIn(self.ALL_READ_TEXT[:-5], err)
+        self.assertNotIn(self.ALL_READ_TEXT, err)
+        self.assertFalse(self.incomplete_scan(err), err)
+        self.assertTrue(self.unknown_scan(err))
+        self.assertEqual(self.complete_reports(err, "alone"), ["alone"])
+        self.assertEqual(self.assert_removable(err, root, checkouts, r"no process \d+ exists",
+                                               inventory=()),
+                         self.removable_commands(root, checkouts))
+        failed = ("pre-push guard: the leftover scan failed (OSError: scripted), so the report "
+                  "is INCOMPLETE; leftovers it had not reached are not listed, and none listed "
+                  "has a removal command.")
+        for case, text in (
+                ("a scan that failed", err.replace(self.LEFTOVERS_HEAD, failed)),
+                ("a removal command after it", err + "      rm -rf -- %s\n" % root),
+                ("a leftover after it",
+                 err + "  %s: INSPECT (no removal command), because:\n" % root)):
+            with self.subTest(case):
+                self.assertNotEqual(text, err)
+                with self.assertRaises(AssertionError):
+                    self.assert_removable(text, root, checkouts, r"no process \d+ exists",
+                                          inventory=())
+
+    def test_guard_environment_takes_nothing_from_the_test_process_but_path(self):
+        # FLIP TABLE: the environment this class gives the guard, the
+        # report and git is built, not inherited. With a store that exists,
+        # a git setting, fixture control variables, HOME and TMPDIR set in
+        # this process, guard_environment, which setUp uses, holds none of
+        # them: its keys are exactly those it sets, its store is this
+        # fixture's absent one and its HOME and TMPDIR are this fixture's.
+        # Building it from os.environ fails this test.
+        from unittest.mock import patch
+
+        leaked = {"GRC_STORE": self.tmp.name, "GIT_DIR": str(self.root / ".git"),
+                  "FIXTURE_HOLD_RECORDS": "1", "FIXTURE_SHARD_FAIL": "1",
+                  "HOME": str(self.root), "TMPDIR": str(self.root)}
+        with patch.dict(os.environ, leaked):
+            env = self.guard_environment()
+        self.assertEqual(env, self.env)
+        self.assertEqual(sorted(env), ["BASE_REF", "GIT_CONFIG_GLOBAL", "GIT_CONFIG_NOSYSTEM",
+                                       "GRC_STORE", "HOME", "PATH",
+                                       "PRE_PUSH_GUARD_ALLOW_PIPE", "TMPDIR"])
+        self.assertEqual(env["GRC_STORE"], str(Path(self.tmp.name) / "no-store"))
+        self.assertEqual((env["HOME"], env["TMPDIR"]), (self.tmp.name, str(self.shard_tmp)))
+        self.assertEqual(env["PATH"], os.environ.get("PATH", os.defpath))
+
+    # A prelude for a report that writes the names in its environment to
+    # its stderr, and the values of its GRC_STORE, HOME and TMPDIR as JSON,
+    # null for one that is not set.
+    NOTED_ENVIRONMENT = (
+        "import json, os, sys\n"
+        "sys.stderr.write('environment %s\\n' % ' '.join(sorted(os.environ)))\n"
+        "sys.stderr.write('values %s\\n' % json.dumps(\n"
+        "    {name: os.environ.get(name) for name in ('GRC_STORE', 'HOME', 'TMPDIR')}))\n"
+        "sys.stderr.flush()\n")
+
+    def test_guard_and_report_runners_pass_only_the_guard_environment(self):
+        # FLIP TABLE: what each runner of this class passes, not only what
+        # guard_environment builds. With a store, a git setting, fixture
+        # control variables, HOME, TMPDIR and a variable of its own set in
+        # this process, the report alone (report_alone, report_all_read)
+        # receives exactly self.env and what the test adds, and the guard
+        # (run_guard, run_guard_in_group) gives its scan-mode report
+        # self.env and what the test adds, with at most the variables the
+        # shells set themselves (PWD, OLDPWD, SHLVL, _); Python itself may
+        # add LC_CTYPE when it coerces the C locale (PEP 538), since the
+        # environment sets no locale.
+        # The report notes the names in its environment (NOTED_ENVIRONMENT;
+        # for the guard's report, through report_shim). It also notes the
+        # values of its GRC_STORE, HOME and TMPDIR, which must be self.env's
+        # for every runner, so a runner that passes self.env's names with
+        # this process's values fails too. Any of these runners changed to
+        # take os.environ fails this test.
+        from unittest.mock import patch
+
+        self.change(".web/templates-draft/landing.html")
+        path = self.report_shim(self.NOTED_ENVIRONMENT, name="envshim")
+        leaked = {"GRC_STORE": self.tmp.name, "GIT_DIR": str(self.root / ".git"),
+                  "FIXTURE_HOLD_RECORDS": "1", "FIXTURE_SHARD_FAIL": "1",
+                  "HOME": str(self.root), "TMPDIR": str(self.root),
+                  "LEAKED_FROM_THE_TEST": "1"}
+        with patch.dict(os.environ, leaked):
+            runs = (
+                ("report_alone", self.report_alone(prelude=self.NOTED_ENVIRONMENT).stderr,
+                 set(self.env)),
+                ("report_all_read", self.report_all_read(inventory=(),
+                                                         prelude=self.NOTED_ENVIRONMENT).stderr,
+                 set(self.env) | {"FIXTURE_PIDS", "FIXTURE_JOIN_UNTIL_DONE"}),
+                ("run_guard", self.run_guard(PATH=path)[0].stderr, set(self.env)),
+                ("run_guard_in_group", self.run_guard_in_group(PATH=path)[2], set(self.env)))
+        shells = {"PWD", "OLDPWD", "SHLVL", "_"}
+        for name, err, expected in runs:
+            with self.subTest(name):
+                noted = re.findall(r"(?m)^environment (.*)$", err)
+                self.assertEqual(len(noted), 1, err)
+                seen = set(noted[0].split()) - {"LC_CTYPE"}
+                if name.startswith("report"):
+                    self.assertEqual(seen, expected, err)
+                else:
+                    self.assertLessEqual(expected, seen, err)
+                    self.assertLessEqual(seen - expected, shells, err)
+                self.assertEqual(sorted(seen & (set(leaked) - expected)), [], err)
+                values = re.findall(r"(?m)^values (.*)$", err)
+                self.assertEqual(len(values), 1, err)
+                self.assertEqual(json.loads(values[0]),
+                                 {name: self.env[name] for name in ("GRC_STORE", "HOME", "TMPDIR")},
+                                 err)
 
     def test_guard_header_and_readme_state_the_reports_rules(self):
         # FLIP TABLE (round 4, claude NOTE 1, NOTE 2 and NOTE 4, codex NOTE
@@ -21404,10 +23139,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # record (round 4, claude NOTE 3): here its gitdir file is a
         # symbolic link, which git follows and the report does not. The
         # live helper outlasts every subtest (each runs the guard).
-        helper = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(300)"],
-                                  cwd=self.tmp.name, stdin=subprocess.DEVNULL)
-        self.addCleanup(helper.wait, 60)
-        self.addCleanup(helper.terminate)
+        helper = self.live_helper()
         data = Path("/proc/%d/stat" % helper.pid).read_bytes()
         start = data[data.rindex(b")") + 2:].split()[19].decode("ascii")
         other = Path(self.tmp.name) / "other-clone"
@@ -21531,11 +23263,14 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # no command to stop it or remove it; it stops and removes nothing.
         # The live run is forced onto the full guard (ALLOW_DIRTY), so this
         # push takes the fast path; the live run is then interrupted.
+        # Its shards and their children live until this test's cleanup
+        # (hold_shards), so the run is still alive after both reports,
+        # however long they take.
         import signal
         import time
         self.change(".web/templates-draft/landing.html")
         marks = Path(self.tmp.name) / "hang"
-        marks.mkdir()
+        hang = self.hold_shards(marks)
         out_path = Path(self.tmp.name) / "live.out"
 
         def default_signals():
@@ -21544,17 +23279,15 @@ class PrePushGuardFastPathTests(unittest.TestCase):
 
         with open(out_path, "w", encoding="utf-8") as out:
             live = subprocess.Popen(["bash", ".claude/skills/corpus-management/tools/pre-push-guard.sh"], cwd=self.root,
-                                    env=dict(self.env, FIXTURE_SHARD_HANG=str(marks),
-                                             PRE_PUSH_GUARD_ALLOW_DIRTY="1"),
+                                    env=dict(self.env, PRE_PUSH_GUARD_ALLOW_DIRTY="1", **hang),
                                     stdin=subprocess.DEVNULL, stdout=out,
                                     stderr=subprocess.STDOUT, preexec_fn=default_signals)
         try:
             deadline = time.monotonic() + 60
-            while (len([m for m in marks.iterdir() if not m.name.endswith(".tmp")]) < 6
+            while (len(self.shard_records(marks)) < 6
                    and live.poll() is None and time.monotonic() < deadline):
                 time.sleep(0.1)
-            records = [m.read_text(encoding="utf-8").split() for m in marks.iterdir()
-                       if not m.name.endswith(".tmp")]
+            records = self.shard_records(marks)
             self.assertEqual(len(records), 6, out_path.read_text(encoding="utf-8"))
             result, _ran = self.run_guard()
             # Round 10 (codex WARN 1): the real guard's report may be a
@@ -21568,9 +23301,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             live.send_signal(signal.SIGINT)
             rc = live.wait(timeout=60)
         finally:
-            if live.poll() is None:
-                live.kill()
-                live.wait(timeout=60)
+            self.stop_guard(live)
         output = out_path.read_text(encoding="utf-8")
         self.assertTrue(still_running, "the report stopped the live run")
         self.assertEqual(rc, 130, output)
@@ -21609,22 +23340,43 @@ class PrePushGuardFastPathTests(unittest.TestCase):
     REGISTRATION_UNREAD = (r"its registration state could not be read \(git worktree list "
                            r"failed, rc=\d+\), so it may still be registered")
 
-    @staticmethod
-    def bash_quoted(path):
-        """The path as bash printf %q prints it, as the guard names it."""
-        return subprocess.run(["bash", "-c", 'printf %q "$1"', "bash", path],
+    def bash_quoted(self, path):
+        """The path as bash printf %q prints it, as the guard names it: in
+        this fixture's built environment (self.env), as the guard runs, so
+        no BASH_ENV or locale of this process changes it."""
+        return subprocess.run(["bash", "-c", 'printf %q "$1"', "bash", path], env=self.env,
                               capture_output=True, text=True, timeout=30, check=True).stdout
 
-    @staticmethod
-    def bash_reads(word):
+    def bash_reads(self, word):
         """The one word bash reads back from a printed bash-quoted word,
-        $'...' (ANSI-C) quoting included, which shlex.split cannot decode.
-        The bytes are decoded as file names are, so a CR stays a CR.
+        $'...' (ANSI-C) quoting included, which shlex.split cannot decode,
+        in self.env as bash_quoted runs. The bytes are decoded as file
+        names are, so a CR stays a CR.
         It runs eval on the word, so a command substitution in it would run:
         callers must pass only a word they have already asserted equal to
         bash_quoted output, never guard output that has not been checked."""
         return os.fsdecode(subprocess.run(["bash", "-c", 'eval "printf %s $1"', "bash", word],
-                                          capture_output=True, timeout=30, check=True).stdout)
+                                          env=self.env, capture_output=True, timeout=30,
+                                          check=True).stdout)
+
+    def test_fixture_shell_helpers_take_no_startup_file_of_this_process(self):
+        # FLIP TABLE: bash_quoted and bash_reads run bash in this
+        # fixture's built environment, as the guard whose printf %q
+        # output they are compared to runs, so a BASH_ENV startup file
+        # this process names (here one that prints INHERITED_STARTUP) and
+        # its locale reach neither. Without env=self.env, both outputs
+        # start with INHERITED_STARTUP and this test fails.
+        from unittest.mock import patch
+
+        startup = Path(self.tmp.name) / "startup.sh"
+        startup.write_text("printf 'INHERITED_STARTUP '\n", encoding="utf-8")
+        odd = "/fixture/jos\u00e9e/a\tb"
+        with patch.dict(os.environ, {"BASH_ENV": str(startup), "LC_ALL": "C.UTF-8"}):
+            shown = self.bash_quoted(odd)
+            read = self.bash_reads(shown)
+        self.assertNotIn("INHERITED_STARTUP", shown)
+        self.assertTrue(shown.startswith("$'") and shown.isascii(), shown)
+        self.assertEqual(read, odd)
 
     @staticmethod
     def printed_removal_commands(stderr, directory="gone", registration=REGISTERED):
@@ -21822,7 +23574,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                       result.stderr)
         self.assertTrue(os.path.isdir(broken[0]), output)
         shown = subprocess.run(["bash", "-c", 'printf %q "$1"', "bash", shard_root],
-                               capture_output=True, text=True, timeout=30, check=True).stdout
+                               env=self.env, capture_output=True, text=True, timeout=30,
+                               check=True).stdout
         self.assertIn("pre-push guard: WARNING: the shard checkout %s was not removed by git "
                       "worktree remove; its directory is left and its registration is no "
                       "longer listed by git worktree list. Remove the shard directory %s once "
@@ -22050,7 +23803,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertIn("worktree %s\n" % other, after)
         self.assertEqual(after.count("worktree "), 2, after)
         # The words bash reads from it, and the $'...' form that carries the tab.
-        words = subprocess.run(["bash", "-c", "printf '%s\\0' " + commands[0]],
+        words = subprocess.run(["bash", "-c", "printf '%s\\0' " + commands[0]], env=self.env,
                                capture_output=True, text=True, timeout=30, check=True).stdout
         self.assertEqual(words.split("\0")[:-1],
                          ["git", "worktree", "remove", "--force", "--", broken[0]])
@@ -22081,11 +23834,10 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # WARN 1): the scan of every process of the host behind each of
         # these reports may reach its bound on a busy host, which a
         # correctly reported incomplete scan with no removal command says.
-        left = result.stdout.split("Left behind by this run", 1)
-        if not self.incomplete_scan(result.stdout):
-            self.assertEqual(len(left), 2, result.stdout)
-            self.assertIn("    - this run made it and has not ended yet: ", left[1])
-        self.assertEqual(self.leftover_commands(left[-1]), [])
+        # So may the WARNING that the left report's alarm ended it
+        # (assert_left_report).
+        self.assert_left_report(result.stdout, result.stderr,
+                                "    - this run made it and has not ended yet: ")
         root = os.path.dirname(os.path.dirname(kept[0][0]))
         later, _ran = self.run_guard(FIXTURE_SHARD_FAIL="3")
         self.assert_removable(later.stderr, root, [checkout for checkout, _log in kept],
@@ -40793,7 +42545,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F 553163caef493836bea44a7b25c305ad7be10f68b55e1f62becd06d63633004c
+        README.md DATA F 200e0b5aed213ebc6d3cad364dbaf5e12492e008860495ec542f4ac82e1c1d22
         adopt-bootstrap-ref.py OWN F 1c0e5ba5922d5e3558914ea164d4c553ea8dc5cf501d0a3864fbcffaf84e04c7
         adopt-preflight-guard.py FIXED F ee7dd3404bad7ae6b955c536bb5478a1f435462b565537d5dcf56479484a55ce
         aiqt_bootstrap.py PASSIVE F bc5496de79c394e76703b34380bfc1bbb9ae1a8c489aa719d0a75344d3c915dc
@@ -40939,7 +42691,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F c6d1f22fbc6e8663067a0cb3239f277db3e5daad7e5b8fa698dcf8f865621f99
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
-        pre-push-guard.sh FIXED F e75b3068520874b11b6608b8edf5a736c47441cbf7fdf9ce869bebca25f9350b
+        pre-push-guard.sh FIXED F baaf888d44c6c946f5c12233a32e899639a1949b062623164069a668d07332a9
         pre-push-hook.py TRANSPORT F e0a06be59cc3e8c0b47377b229c16ea169eba04ed717e31c9427356b85f6bb76
         preflight-changelog.py NO_FS F 29957c73e3b649040497b2db9fcd095a8ae92627d69259795943a363ac7d514c
         preflight-version-date.py NO_FS F fa0c5302a8b96c582ecc5cb32e74b70bfed7b26da4727839c6d0765841aee2b9
