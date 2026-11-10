@@ -56,7 +56,8 @@ D10_PATH = REPO_ROOT / ".claude" / "skills" / "corpus-management" / "tools" / "c
 # WARN and NOTE lines when the output has this exact line followed by a space
 # and the token run_gate passed in RUNNER_ECHO_TOKEN_ENV (the gate 72 opt-in;
 # run_gate holds the same string). With the variable unset or empty (a direct
-# run, the pre-commit hook, the quality.yml gate step) the line is not printed.
+# run or the pre-commit hook; the GitHub pull-request job does not run this
+# gate) the line is not printed.
 RUNNER_ECHO_MARKER = (
     "runner-echo: .claude/skills/corpus-management/tools/run_all_audits.sh shows this gate's advisory lines on a pass"
 )

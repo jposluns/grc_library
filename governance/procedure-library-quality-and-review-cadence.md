@@ -2,8 +2,8 @@
 
 **Document Title:** Library Quality and Review Cadence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.27\
-**Date:** 2026-10-21\
+**Version:** 1.0.29\
+**Date:** 2026-11-09\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`governance/specification-master-project.md`](specification-master-project.md), [`governance/specification-ingestion.md`](specification-ingestion.md)\
@@ -54,7 +54,7 @@ It does not govern external consumers' own forks; it governs the canonical repos
 | Activity | Description |
 | --- | --- |
 | Detector | The review-cadence checker ([`.claude/skills/corpus-management/tools/check-review-cadence.py`](../.claude/skills/corpus-management/tools/check-review-cadence.py)) compares each document's Date and Review Frequency against the current date |
-| Cadence | The checker runs as part of CI; it also runs on demand by maintainers |
+| Cadence | The full gate suite runs the checker in the `local-quality` run and the nightly sweep, and maintainers also run it on demand; the GitHub pull-request job does not run it |
 | Findings | Overdue documents are listed with the lag (days past due) and the responsible owner role |
 | Threshold for action | Documents more than a defined lag past due are escalated |
 
@@ -111,7 +111,7 @@ For each document under review, the responsible owner role conducts the followin
 | Relationship model in sync | `.claude/skills/corpus-management/tools/build-relationship-model.py --check` | In sync |
 | Number-allocation block in sync | `.claude/skills/corpus-management/tools/build-todo-number-allocation.py --check` | In sync |
 
-The full audit programme (see [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](../.claude/skills/corpus-management/specs/specification-audit-programme.md) §6 for the canonical gate inventory and current gate count) runs in CI and pre-commit; any failure blocks merge unless an explicit exception is recorded.
+The full audit programme (see [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](../.claude/skills/corpus-management/specs/specification-audit-programme.md) §6 for the canonical gate inventory and current gate count) runs in pre-commit and in the full suite that the local server runs for the `local-quality` commit status that merge requires; the GitHub pull-request job runs only its CI subset (§4 of that specification) and the per-PR delta checks, and the nightly sweep runs the full programme on `main`. A failure in the GitHub pull-request job or in the `local-quality` run blocks merge unless an explicit exception is recorded; a nightly failure blocks no merge and flags drift on `main`.
 
 ### Step 7: Periodic library-level review
 
@@ -157,7 +157,7 @@ The Governance Library Maintainer is not the sole reviewer; the role coordinates
 | Activity | Cadence |
 | --- | --- |
 | Per-document review | Per the document's stated Review Frequency |
-| Audit suite execution | Continuous (CI and pre-commit) |
+| Audit suite execution | Continuous (pre-commit, the GitHub pull-request job for the CI subset, the local server for the full suite, and the nightly sweep) |
 | Quarterly library health report | Quarterly |
 | Quarterly organization-neutrality spot-check | Quarterly |
 | Framework reference spot-check | Semi-annual |

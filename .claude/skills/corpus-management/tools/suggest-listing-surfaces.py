@@ -7,7 +7,8 @@ authoring time, reports them for a given document path, split into:
 
   MECHANICAL surfaces (hard-gated by lint-listing-surface-completeness.py
   and the generator --check stages of .claude/skills/corpus-management/tools/pre-push-guard.sh): these MUST
-  be updated or regenerated, and CI will fail otherwise. The tool reports,
+  be updated or regenerated, and the full gate suite fails otherwise. The
+  tool reports,
   for each hand-edited surface, whether the document is already present.
   The regenerate list is DERIVED from the guard, never hand-listed: every
   ``python3 <script>.py --check`` stage line in the guard and in the runner
@@ -443,7 +444,7 @@ def report_one(doc_path: str, plan=None, indexed=_UNPLANNED, generators=_UNPLANN
         return
 
     # --- MECHANICAL surfaces (gated) ---
-    print("  MECHANICAL surfaces (gated -- CI fails if not updated):")
+    print("  MECHANICAL surfaces (gated -- the full gate suite fails if not updated):")
     reg_listed = doc_path in referenced_paths(REGISTER)
     print(
         f"    [{'present' if reg_listed else 'MISSING'}] {REGISTER} "

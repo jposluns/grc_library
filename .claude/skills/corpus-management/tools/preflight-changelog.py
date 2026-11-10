@@ -46,8 +46,8 @@ mirror whose diff added a line (3b399 round 9), each read from its own file, sin
 lines added to a ``.working/`` mirror get no per-line link check.
 
 This is a developer AID, not a new audit gate. The authoritative gates
-(D3, the link-coverage gate) remain and run in CI and
-``run_all_audits.sh`` / ``run-pr-time-checks.sh``; this aid only moves their
+(D3, the link-coverage gate) remain and run: D3 in the pull-request CI job and
+``run-pr-time-checks.sh``, the link-coverage gate in ``run_all_audits.sh``; this aid only moves their
 diagnosis earlier, to before the first commit, closing the recurring
 commit-then-amend loop (improvement-log #341/#347/#349/#355). Run it in an
 ``&&`` chain: a ``;`` join commits whatever its exit status. Where

@@ -2531,7 +2531,7 @@ class RegressionGateCompletenessTests(unittest.TestCase):
 
 
 class RegressionGateShardTests(unittest.TestCase):
-    """Gate 36 CI sharding (maintainer directive 2026-11-04): the
+    """Gate 36 shard mode (maintainer directive 2026-11-04): the
     selection deterministically and exactly partitions the test list, a
     missing, duplicated, unknown or empty selection refuses, the shard
     child runs its slice with the gate's refusal posture, and the CLI
@@ -2706,7 +2706,7 @@ class RegressionGateShardTests(unittest.TestCase):
                 ran_total += int(match.group(1))
                 # FLIP TABLE (round 2): the sentinel carries the shard's
                 # per-module credited-start counts for EVERY module, zero
-                # included, so the CI summary can sum them across shards.
+                # included, so the reconcile step can sum them across shards.
                 # The captured stream can carry the test process's own
                 # warnings after the child's output; the sentinel is the
                 # last CHILD line, selected by its prefix here.
@@ -2917,51 +2917,16 @@ class RegressionGateShardTests(unittest.TestCase):
                 self.assertEqual(code, 2, err)
                 self.assertIn("REFUSED", err)
 
-    def test_workflow_shards_match_the_selection_contract(self) -> None:
-        """The quality workflow's shard jobs and the lint job's
-        --verify-shards step agree on one shard count, and the summary
-        job needs the lint job and every shard (the required-check
-        contract merge-when-green relies on)."""
-        text = (REPO_ROOT / ".github" / "workflows" /
-                "quality.yml").read_text(encoding="utf-8")
-        shard_runs = re.findall(
-            r"^        run: python3 .claude/skills/corpus-management/tools/run-linter-regression\.py "
-            r"--shard (\d+)/(\d+)$", text, re.M)
-        counts = {count for _i, count in shard_runs}
-        self.assertEqual(len(counts), 1, shard_runs)
-        count = int(counts.pop())
-        self.assertEqual(sorted(int(i) for i, _c in shard_runs),
-                         list(range(1, count + 1)))
-        self.assertEqual(
-            len(re.findall(r"^        run: python3 .claude/skills/corpus-management/tools/run-linter-"
-                           r"regression\.py --verify-shards %d$" % count,
-                           text, re.M)), 1)
-        needs = re.search(r"^    needs:\n((?:      - [a-z0-9-]+\n)+)", text,
-                          re.M)
-        self.assertIsNotNone(needs)
-        needed = re.findall(r"- ([a-z0-9-]+)", needs.group(1))
-        self.assertEqual(needed, ["lint"] + ["regression-shard-%d" % i
-                                             for i in range(1, count + 1)])
-        # FLIP TABLE (round 2): every shard job publishes its per-module
-        # credited-start counts as the pinned `credited` output of its
-        # id-pinned gate step, and the summary job runs the reconcile step
-        # that sums them (with the needs context in NEEDS_RESULTS).
-        self.assertEqual(
-            len(re.findall(r"(?m)^    outputs:\n      credited: "
-                           r"\$\{\{ steps\.gate\.outputs\.credited \}\}$",
-                           text)), count)
-        self.assertEqual(len(re.findall(r"(?m)^        id: gate$", text)),
-                         count)
-        self.assertEqual(
-            len(re.findall(r"(?m)^        run: python3 "
-                           r".claude/skills/corpus-management/tools/reconcile-regression-shards\.py$", text)),
-            1)
-        self.assertIn("NEEDS_RESULTS: ${{ toJSON(needs) }}", text)
-
 
 class ReconcileRegressionShardsTests(unittest.TestCase):
-    """.claude/skills/corpus-management/tools/reconcile-regression-shards.py: the CI summary job's one
-    verification step. FLIP TABLE (round 2): it keeps the round-1 rule
+    """.claude/skills/corpus-management/tools/reconcile-regression-shards.py: the gate 36 shard
+    reconcile. The pre-push guard runs its local mode over its 6 local
+    shards. No workflow runs it now: the quality workflow's 1 small
+    GitHub job runs only the section 4 CI subset of gates and the delta
+    gates, and the full suite runs on the local server for the
+    local-quality commit status and in the nightly sweep. Its job mode
+    reads NEEDS_RESULTS as the retired summary job supplied it. FLIP
+    TABLE (round 2): it keeps the round-1 rule
     (every needed job must have succeeded, an empty needs context fails)
     and adds the per-module credited-start reconciliation that restores
     the serial runner's refusal of a module with no credited start."""

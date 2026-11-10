@@ -2,8 +2,8 @@
 
 **Document Title:** Document Review Schedule Register\
 **Document Type:** Register\
-**Version:** 1.0.4\
-**Date:** 2026-07-23\
+**Version:** 1.0.5\
+**Date:** 2026-11-09\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](../../../../governance/procedure-library-quality-and-review-cadence.md), [`governance/template-document-review-record.md`](../../../../governance/template-document-review-record.md), [`governance/register-document-index-and-classification.md`](../../../../governance/register-document-index-and-classification.md), [`governance/framework-continuous-assurance-and-improvement.md`](../../../../governance/framework-continuous-assurance-and-improvement.md), [`governance/procedure-continuous-improvement-register.md`](../../../../governance/procedure-continuous-improvement-register.md)\
@@ -113,7 +113,7 @@ Schedule entries are kept consistent with document metadata; any divergence is a
 
 | Activity | Cadence |
 | --- | --- |
-| Schedule recompute | On every CI run via the review-cadence checker |
+| Schedule recompute | On every full gate suite run via the review-cadence checker: the `local-quality` run and the nightly sweep; the GitHub pull-request job does not run it |
 | Owner-role prompt | Owner roles are notified by the maintainer when documents enter the due-soon or overdue state |
 | Quarterly health report | Schedule status fed into the library health report |
 | Annual schema review | Schema and normalization table reviewed annually |
@@ -126,7 +126,7 @@ Schedule entries are kept consistent with document metadata; any divergence is a
 | --- | --- |
 | [`.claude/skills/corpus-management/tools/check-review-cadence.py`](../tools/check-review-cadence.py) | Parses metadata, computes status, and reports overdue and action-threshold entries |
 | [`.claude/skills/corpus-management/tools/build-taxonomy.py`](../tools/build-taxonomy.py) | Produces the taxonomy that feeds the schedule build |
-| CI | Runs the cadence checker on every push |
+| Local server and nightly sweep | Run the cadence checker in the full gate suite: the local server for the `local-quality` commit status that merge requires, and the nightly sweep on `main`; the GitHub pull-request job does not run it |
 | Pre-commit | Optional cadence check in pre-commit |
 
 Where this register and the checker disagree, the checker output is treated as primary; the discrepancy is itself a finding.
@@ -149,7 +149,7 @@ Where this register and the checker disagree, the checker output is treated as p
 
 ## Operating expectations
 
-1. The review-cadence checker is run on every CI pass; failures are addressed promptly.
+1. The full gate suite runs the review-cadence checker in the `local-quality` run and the nightly sweep; failures are addressed promptly.
 2. Document owners receive prompts when their documents enter the due-soon and overdue states.
 3. Blocking conditions are recorded against documents; a document is not silently overdue.
 4. Schedule entries reconcile to document metadata; reconciliation drift is a finding.

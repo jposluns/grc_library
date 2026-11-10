@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 """Reconcile the gate-36 shards: results, unit sets, credited starts.
 
-The quality workflow's summary job (the required check "Lint markdown
-corpus") runs this as its one verification step, with ``NEEDS_RESULTS``
-holding GitHub Actions' ``toJSON(needs)`` for the lint job and every
-regression-shard job. The pre-push guard (.claude/skills/corpus-management/tools/pre-push-guard.sh) runs
-it in its local mode, ``--shard-outputs`` (below), over the shards it ran
-itself. It fails unless:
+No workflow runs this now. Since the maintainer decision of 2026-11-09
+the quality workflow has 1 small GitHub job (the required check "Lint
+markdown corpus"), which runs only the section 4 CI subset of gates and
+the delta gates; its former shard and summary jobs are retired. The
+full suite, gate 36 whole included, runs on the local server, which
+posts the local-quality commit status that merge requires, and in the
+nightly sweep. The pre-push guard
+(.claude/skills/corpus-management/tools/pre-push-guard.sh) runs this in its local mode,
+``--shard-outputs`` (below), over the 6 local shards it ran itself. The
+job mode (no argument) still reads ``NEEDS_RESULTS``, a GitHub Actions
+``toJSON(needs)`` context for a lint job and every regression-shard
+job, as the retired summary job supplied it. It fails unless:
 
   1. every needed job's result is ``success`` (the round-1 rule the old
      inline summary command enforced: a failed, cancelled or skipped

@@ -6,11 +6,11 @@ loads, on the skill's instruction, not at session start), and on-demand bodies o
 `.claude/rules/`; see
 [pack tooling](../src/tools/README.md) for the generation and validation contract.
 
-This directory contains repository quality tooling. The scripts are intentionally minimal: they run with the standard Python interpreter (3.14 or newer), take no third-party dependencies, and are designed to be invoked locally, by pre-commit, or by CI.
+This directory contains repository quality tooling. The scripts are intentionally minimal: they run with the standard Python interpreter (3.14 or newer), take no third-party dependency apart from the optional `idna` the PII gate uses (gate 22, with a standard-library fallback), and are designed to be invoked locally, by pre-commit, or by CI.
 
 ## Scripts
 
-The library's audit programme is a set of linters, build-and-check generators, and the linter regression test suite. The canonical inventory of every gate, with its name, script, category, and the current gate count, is maintained in [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](../specs/specification-audit-programme.md) §6. Gate 35 (gate-name parity audit) enforces that the §6 inventory, the CI workflow, the local runner, and the pre-commit config declare identical gates with identical names and scripts, and that the three execution surfaces (workflow, runner, pre-commit) invoke each gate with identical flags, and that each section 6 gate number appears exactly once in the section 5 category lists and that those lists name no number the inventory lacks; the inventory is the single source of truth.
+The library's audit programme is a set of linters, build-and-check generators, and the linter regression test suite. The canonical inventory of every gate, with its name, script, category, and the current gate count, is maintained in [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](../specs/specification-audit-programme.md) §6. Gate 35 (gate-name parity audit) enforces that the §6 inventory, the local runner, and the pre-commit config declare identical gates with identical names and scripts, that the CI workflow holds exactly the CI subset the specification's section 4 `ci-pr-subset` block names, and that the three execution surfaces (workflow, runner, pre-commit) invoke each gate they share with identical flags, each equal to the gate's entry in `GATE_ARGV`, the canonical argument table in [`lint-audit-gate-parity.py`](lint-audit-gate-parity.py) keyed by gate number (a gate added, retired or given a new flag changes its entry there in the same change, and a live gate with no entry fails gate 35), and that each section 6 gate number appears exactly once in the section 5 category lists and that those lists name no number the inventory lacks; the inventory is the single source of truth.
 
 To see the current gate set in one place, run [`.claude/skills/corpus-management/tools/run_all_audits.sh`](run_all_audits.sh) or read the §6 table.
 
@@ -93,7 +93,7 @@ pre-commit run --all-files
 
 ## Continuous integration
 
-[`.github/workflows/quality.yml`](../../../../.github/workflows/quality.yml) runs the same gate set on every push to `main` and on every pull request. The CI environment uses Python 3.14 from `actions/setup-python`. No third-party dependencies are installed.
+[`.github/workflows/quality.yml`](../../../../.github/workflows/quality.yml) runs on every pull request. Its 1 job, `Lint markdown corpus`, runs only the CI subset of gates that the audit programme specification's section 4 `ci-pr-subset` block names, then the 13 per-PR delta gates. It uses Python 3.14 from `actions/setup-python` and installs the pinned `requirements.txt` (the one sanctioned third-party dependency, `idna`). The full gate suite runs on the local server, which posts the `local-quality` commit status; merge requires both that status and the `Lint markdown corpus` check. [`.github/workflows/nightly-sweep.yml`](../../../../.github/workflows/nightly-sweep.yml) runs the whole local audit runner on `main` on a nightly schedule.
 
 ## Exemptions
 
@@ -189,9 +189,9 @@ a per-gate `GRC_RUNNER_ECHO_TOKEN`, a passing gate's `DUE-SOON` lines are
 always echoed, and its `WARN` and `NOTE` lines are echoed when the gate
 printed the runner-echo marker with that token (gates 6, 72 and 106).
 It prints a `FAST PATH` line naming the changed paths. The guard lists the
-gates itself, so `run_all_audits.sh` has no skip option and CI
-(`.github/workflows/quality.yml`, one step per gate) cannot be told to skip
-one. Skipped locally on the fast path only, and left to CI: gate 36 (every
+gates itself, so `run_all_audits.sh` has no skip option. Skipped locally on
+the fast path only, and left to the local server run behind the
+`local-quality` commit status: gate 36 (every
 regression test except `.claude/skills/corpus-management/tests/test_web_draft.py`, and the completeness checks
 of `run-linter-regression.py`). The FULL guard runs gate 36 whole, with the
 private store present (maintainer decision 2026-11-05), after the other
@@ -444,15 +444,17 @@ delays the push as any other git command of the guard would. A report
 that fails says, per mode, what is unknown: what earlier runs left, or what
 this run left.
 
-The full suite, gate 36 whole included, still runs in CI on the pull
-request as six shard jobs whose outputs the summary job reconciles, and
-`merge-when-green.py` merges only on green CI. Residual: a failure in a
-regression test that a site-only change causes is first seen in CI, not
-before the push. The guard's header gives the exact rules.
+The full suite, gate 36 whole included, runs on the local server for the
+pull request head, which posts the `local-quality` commit status that
+merge requires; the GitHub Actions job runs only the CI subset and the
+delta gates. Residual: a failure in a regression test that a site-only
+change causes is first seen in that local server run, not before the
+push. The guard's header gives the exact rules.
 
 [.claude/skills/corpus-management/tools/reconcile-regression-shards.py](reconcile-regression-shards.py) is
-the quality workflow summary job's one verification step (the required
-check "Lint markdown corpus"): it fails unless every needed job succeeded
+the gate 36 shard reconcile. Its job mode was the one verification step
+of the former quality workflow summary job, which no workflow runs now:
+it fails unless every needed job succeeded
 and the regression shards' `credited` job outputs (block-style
 `module: count` lines of per-module credited starts, published by
 `run-linter-regression.py --shard` from its validated shard sentinel) name

@@ -48,6 +48,18 @@ jobs:
       - name: Run full audit programme
         run: .claude/skills/corpus-management/tools/run_all_audits.sh
 
+      # The 2 checks below ran in quality.yml and web-generator-health.yml before the
+      # CI shrink (maintainer decision 2026-11-09); the runner holds neither, so the
+      # nightly sweep runs each as its own step. Each runs even when an earlier step
+      # fails, so one failure does not hide another.
+      - name: Gate 36 regression shard partition check
+        if: always()
+        run: python3 .claude/skills/corpus-management/tools/run-linter-regression.py --verify-shards 6
+
+      - name: Web generator health check
+        if: always()
+        run: python3 .web/build.py --check
+
       - name: Run pre-flight scanner (informational)
         if: always()
         run: python3 .claude/skills/corpus-management/tools/sweep-preflight-scanner.py

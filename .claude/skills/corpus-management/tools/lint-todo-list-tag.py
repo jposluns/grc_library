@@ -165,7 +165,8 @@ def main(argv: list[str]) -> int:
             why = f"the private sibling has no {PTODO_REL}"
         print(f"OK: {PTODO_REL} not present ({where}). Scanning {TODO_REL} only.")
         if args.root is None:
-            # 3b635: the DEFAULT lookup's skip exits 0, so a green CI run must not read as a pass.
+            # 3b635: the DEFAULT lookup's skip exits 0, so a green full-suite run must not read as
+            # a pass.
             print_degraded(
                 "gate 81",
                 f"gate 81 skipped the {PTODO_REL} list-tag check ({why}); "

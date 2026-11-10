@@ -8,6 +8,12 @@ referenced file in one click. This linter enforces that convention going
 forward: every backtick-wrapped file-path-shaped string in .working/CHANGELOG.md
 must be wrapped in a markdown link.
 
+Root file references are written as plain text (EP13, ep13qs L4): gate 59's
+strict character rule refuses every backtick, square bracket and underscore in
+a root .working/CHANGELOG.md line, so the root holds no backticked reference
+for this gate to read and no Markdown link that would satisfy it. This gate
+still checks any file passed to it explicitly.
+
 A reference qualifies as a file path if it:
 - is enclosed in backticks: `...`
 - contains at least one of: a directory separator (/), or matches a known

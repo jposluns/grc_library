@@ -2,7 +2,7 @@
 """Measure wall seconds per unit of the linter regression test suite.
 
 PR 1 of the gate 36 split plan (backlog item 3b789): before the suite
-can be split across parallel CI jobs, the split needs per-unit timings.
+can be split across parallel shards, the split needs per-unit timings.
 This tool runs the regression suite's test modules in one process,
 times each unit, and writes ``.claude/skills/corpus-management/tests/regression-shard-weights.json``,
 the weights file the planned ``--shard`` mode of
@@ -15,9 +15,9 @@ the audit-programme specification
 pre-commit configuration do not list it. Like every ``.claude/skills/corpus-management/tools/`` file it
 has an ordinary inventory pin row in ``ExplicitPathCliInventoryTests``
 (``.claude/skills/corpus-management/tests/test_linters.py``), which pins its bytes and path policy
-without running it. The dispatch-only workflow
-``.github/workflows/regression-timings.yml`` runs it on a CI runner and
-uploads the JSON as a workflow artefact.
+without running it. No workflow runs it now: the dispatch-only
+regression-timings workflow was deleted (maintainer decision 2026-11-09),
+and gate 36 is sharded only locally, so it is run by hand on the local server.
 
 A UNIT is a maximal run of consecutive occurrences of one class object
 within one module's loaded suite, flattened in suite order, so a unit

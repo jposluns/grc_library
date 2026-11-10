@@ -567,7 +567,8 @@ class LinterTestCase(unittest.TestCase):
         _runs_scope_probes scan is only a pre-screen. Residue: a class- or module-level skip
         (setUpClass, setUpModule) or a direct debug() call never reaches run() and is not
         guarded, and a test excluded by selection (a -k filter or load_tests) simply does not run
-        in that invocation; CI runs the full suite (3b64 round 11, gemini)."""
+        in that invocation; the local server and the nightly sweep run the full suite
+        (3b64 round 11, gemini)."""
         self._scope_probes_completed = False
         if self._testMethodName in getattr(type(self), "IDENTIFIER_SCOPE_PROBES", {}):
             self.addCleanup(self._check_scope_probes_completed)
@@ -16456,7 +16457,8 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         max(floor, live)+1 counter computation, the floor-violation detector (a floor
         below a live id is unsound), the render / splice / missing-sentinel-raise, and
         the reality anchor that the PUBLIC floor + live ids reproduce the committed block
-        (public + deterministic, so it verifies on CI with no private-data dependency)."""
+        (public + deterministic, so it verifies in the full suite (the local-quality run and
+        the nightly sweep) with no private-data dependency)."""
         result = self._run_selftest(
             [sys.executable, str(SKILL_ROOT / "tools" / "build-todo-number-allocation.py"),
              "--self-test"]
@@ -18091,6 +18093,374 @@ class PrePushGuardTests(unittest.TestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 
+class NightlySweepStepTests(unittest.TestCase):
+    """The nightly sweep's full-suite steps (ep9qs L2, ep9qg L3).
+
+    Gate 35 does not read nightly-sweep.yml, so this class pins its 3 full-suite
+    steps: the whole runner, the gate 36 shard partition check and the web
+    generator health check. Each step's run line is pinned; the 2 checks after
+    the runner carry ``if: always()`` and the runner step carries no ``if:``, so
+    one failure does not hide another and nothing skips the runner. Each pinned
+    step's full key set is pinned too (EP10, ep10qg L4 and ep10qs L2): the runner
+    holds only ``run`` and each check only ``if`` and ``run``, so no pinned step
+    sets ``continue-on-error`` and the runner sets no ``working-directory``. The
+    workflow holds 1 job, ``nightly-sweep``, whose keys are pinned (so it has no
+    job-level ``if``), and each line of its ``jobs:`` block indented less than 6
+    spaces is a 2-space job id or a 4-space key line, so a quoted job key or a space
+    before a colon at job level is a finding (EP12, ep12qx L1, ep12qg L2 and ep12qs
+    L1); its ``on:`` block holds a ``schedule`` trigger with the
+    1 cron ``'0 4 * * *'``. The nightly ``--verify-shards`` count equals the
+    pre-push guard's REGRESSION_SHARD_COUNT. The runner step comes before both
+    checks, so a failing check cannot skip the runner (EP11b, ep11qx L1). The
+    workflow's top-level keys are pinned to ``name``, ``on``, ``permissions`` and
+    ``jobs``, so no workflow-level ``defaults`` or ``env`` reaches a step, and each
+    step-body line is a key line, a comment or a line nested under a key whose
+    value is empty or a block scalar indicator, so a quoted key, a space before a
+    colon or a run line continued on the next line is a finding (EP11b, ep11qs L3).
+    test_each_flip_is_caught breaks each of those facts in a copy of the text and
+    asserts that the check reports it; test_check_moved_above_the_runner_is_caught
+    moves each check above the runner and asserts that only the order check
+    reports it.
+    """
+
+    RUNNER_STEP = "Run full audit programme"
+    SHARD_STEP = "Gate 36 regression shard partition check"
+    WEB_STEP = "Web generator health check"
+    RUNNER_RUN = "run: .claude/skills/corpus-management/tools/run_all_audits.sh"
+    SHARD_RUN = "run: python3 .claude/skills/corpus-management/tools/run-linter-regression.py --verify-shards "
+    WEB_RUN = "run: python3 .web/build.py --check"
+    RUNNER_KEYS = ["run"]
+    CHECK_KEYS = ["if", "run"]
+    JOB = "nightly-sweep"
+    JOB_KEYS = ["name", "permissions", "runs-on", "steps"]
+    CRON = "'0 4 * * *'"
+    TOP_KEYS = ["name", "on", "permissions", "jobs"]
+
+    @staticmethod
+    def _texts() -> tuple[str, str]:
+        nightly = (REPO_ROOT / ".github" / "workflows" / "nightly-sweep.yml").read_text(
+            encoding="utf-8")
+        guard = (SKILL_ROOT / "tools" / "pre-push-guard.sh").read_text(encoding="utf-8")
+        return nightly, guard
+
+    @staticmethod
+    def _steps(nightly: str) -> tuple[dict[str, list[list[str]]], list[str],
+                                      list[tuple[str, str]]]:
+        # (step name -> the key lines (stripped) of each step item of that name,
+        # the step names in file order, (step name, stripped line) for each step-body
+        # line that is not a key line, a comment or a line nested under a key whose
+        # value is empty or a block scalar indicator).
+        steps: dict[str, list[list[str]]] = {}
+        order: list[str] = []
+        stray: list[tuple[str, str]] = []
+        current = None
+        name = ""
+        nested = False
+        for line in nightly.splitlines():
+            match = re.match(r"^      - name: (.+)$", line)
+            if match:
+                name = match.group(1).strip()
+                current = []
+                steps.setdefault(name, []).append(current)
+                order.append(name)
+                nested = False
+            elif current is not None and line.startswith("        "):
+                if not line.strip() or line.lstrip().startswith("#"):
+                    continue
+                if re.match(r"^        [A-Za-z_-]+:(?:[ \t]|$)", line):
+                    current.append(line.strip())
+                    value = line.split(":", 1)[1].strip()
+                    nested = value == "" or value.startswith("#") or bool(
+                        re.fullmatch(r"[|>][-+0-9]*(?:\s+#.*)?", value))
+                elif not (nested and line.startswith("         ")):
+                    stray.append((name, line.strip()))
+            elif current is not None and line.strip() \
+                    and not line.lstrip().startswith("#"):
+                current = None
+        return steps, order, stray
+
+    @staticmethod
+    def _top_keys(nightly: str) -> tuple[list[str], list[str]]:
+        # (the workflow's top-level key names in file order, the top-level lines that
+        # are not key lines).
+        keys: list[str] = []
+        stray: list[str] = []
+        for line in nightly.splitlines():
+            if not line.strip() or line[0].isspace() or line.startswith("#"):
+                continue
+            match = re.match(r"^([A-Za-z_-]+):(?:[ \t]|$)", line)
+            if match:
+                keys.append(match.group(1))
+            else:
+                stray.append(line.rstrip())
+        return keys, stray
+
+    @staticmethod
+    def _jobs(nightly: str) -> tuple[dict[str, list[str]], list[str]]:
+        # (job id -> the key names of that job (the 4-space keys under a 2-space id in jobs:),
+        # each line of jobs: indented less than 6 spaces that is neither a 2-space job id nor
+        # a 4-space key line, such as a quoted key or a space before a colon; EP12).
+        jobs: dict[str, list[str]] = {}
+        stray: list[str] = []
+        current = None
+        in_jobs = False
+        for line in nightly.splitlines():
+            if not line.strip() or line.lstrip().startswith("#"):
+                continue
+            if not line[0].isspace():
+                in_jobs, current = line.rstrip() == "jobs:", None
+                continue
+            if not in_jobs:
+                continue
+            match = re.match(r"^  ([A-Za-z0-9_-]+):\s*$", line)
+            if match:
+                current = jobs.setdefault(match.group(1), [])
+                continue
+            match = re.match(r"^    ([A-Za-z_-]+):(?:[ \t]|$)", line)
+            if match and current is not None:
+                current.append(match.group(1))
+            elif len(line) - len(line.lstrip(" ")) < 6:
+                stray.append(line.strip())
+        return jobs, stray
+
+    @staticmethod
+    def _triggers(nightly: str) -> tuple[list[str], list[str]]:
+        # (the trigger names in the on: block, the cron values of its schedule trigger).
+        names: list[str] = []
+        crons: list[str] = []
+        in_on = in_schedule = False
+        for line in nightly.splitlines():
+            if not line.strip() or line.lstrip().startswith("#"):
+                continue
+            if not line[0].isspace():
+                in_on, in_schedule = line.rstrip() == "on:", False
+                continue
+            if not in_on:
+                continue
+            match = re.match(r"^  ([A-Za-z_-]+):", line)
+            if match:
+                names.append(match.group(1))
+                in_schedule = match.group(1) == "schedule"
+                continue
+            match = re.match(r"^    - cron:\s*(.+?)\s*$", line)
+            if match and in_schedule:
+                crons.append(match.group(1))
+        return names, crons
+
+    def _findings(self, nightly: str, guard: str) -> list[str]:
+        findings = []
+        counts = re.findall(r"^REGRESSION_SHARD_COUNT=(\d+)$", guard, re.M)
+        if len(counts) != 1:
+            return [f"the guard sets REGRESSION_SHARD_COUNT {len(counts)} times, not once"]
+        steps, order, stray = self._steps(nightly)
+        for name, run, if_lines, key_names in (
+                (self.RUNNER_STEP, self.RUNNER_RUN, [], self.RUNNER_KEYS),
+                (self.SHARD_STEP, self.SHARD_RUN + counts[0], ["if: always()"], self.CHECK_KEYS),
+                (self.WEB_STEP, self.WEB_RUN, ["if: always()"], self.CHECK_KEYS)):
+            items = steps.get(name, [])
+            if len(items) != 1:
+                findings.append(f"step {name!r} appears {len(items)} times, not once")
+                continue
+            keys = items[0]
+            runs = [key for key in keys if key.startswith("run:")]
+            if runs != [run]:
+                findings.append(f"step {name!r} runs {runs!r}, not {[run]!r}")
+            ifs = [key for key in keys if key.startswith("if:")]
+            if ifs != if_lines:
+                findings.append(f"step {name!r} has if lines {ifs!r}, not {if_lines!r}")
+            names = sorted(key.split(":", 1)[0] for key in keys)
+            if "continue-on-error" in names:
+                findings.append(f"step {name!r} sets continue-on-error")
+            if name == self.RUNNER_STEP and "working-directory" in names:
+                findings.append(f"step {name!r} sets working-directory")
+            if names != key_names:
+                findings.append(f"step {name!r} has keys {names!r}, not {key_names!r}")
+        for name, line in stray:
+            findings.append(f"step {name!r} has a line that is not a key line: {line!r}")
+        if all(len(steps.get(name, [])) == 1
+               for name in (self.RUNNER_STEP, self.SHARD_STEP, self.WEB_STEP)):
+            for name in (self.SHARD_STEP, self.WEB_STEP):
+                if order.index(name) < order.index(self.RUNNER_STEP):
+                    findings.append(f"step {name!r} comes before step "
+                                    f"{self.RUNNER_STEP!r}")
+        top_keys, top_stray = self._top_keys(nightly)
+        if top_keys != self.TOP_KEYS:
+            findings.append(f"the workflow has top-level keys {top_keys!r}, "
+                            f"not {self.TOP_KEYS!r}")
+        for line in top_stray:
+            findings.append(f"the workflow has a top-level line that is not a key line: "
+                            f"{line!r}")
+        jobs, job_stray = self._jobs(nightly)
+        for line in job_stray:
+            findings.append(f"the jobs block has a line that is not a job id or a job key "
+                            f"line: {line!r}")
+        if list(jobs) != [self.JOB]:
+            findings.append(f"the workflow has jobs {list(jobs)!r}, not {[self.JOB]!r}")
+        job_keys = sorted(jobs.get(self.JOB, []))
+        if "if" in job_keys:
+            findings.append(f"job {self.JOB!r} has a job-level if")
+        if job_keys != self.JOB_KEYS:
+            findings.append(f"job {self.JOB!r} has keys {job_keys!r}, not {self.JOB_KEYS!r}")
+        triggers, crons = self._triggers(nightly)
+        if "schedule" not in triggers:
+            findings.append("the workflow has no schedule trigger")
+        if crons != [self.CRON]:
+            findings.append(f"the schedule crons are {crons!r}, not {[self.CRON]!r}")
+        for found in re.findall(r"--verify-shards (\d+)", nightly):
+            if found != counts[0]:
+                findings.append(f"the nightly --verify-shards count {found} is not the guard's "
+                                f"REGRESSION_SHARD_COUNT {counts[0]}")
+        return findings
+
+    def test_live_nightly_sweep_holds_the_full_suite_steps(self) -> None:
+        nightly, guard = self._texts()
+        self.assertEqual(self._findings(nightly, guard), [])
+
+    def test_each_flip_is_caught(self) -> None:
+        nightly, guard = self._texts()
+        shard_if = ("      - name: Gate 36 regression shard partition check\n"
+                    "        if: always()\n")
+        web_if = "      - name: Web generator health check\n        if: always()\n"
+        for label, which, old, new, message in (
+                ("runner run line", "nightly", self.RUNNER_RUN + "\n", "run: true\n",
+                 "step 'Run full audit programme' runs ['run: true']"),
+                ("runner skipped", "nightly", self.RUNNER_RUN + "\n",
+                 self.RUNNER_RUN + "\n        if: false\n",
+                 "step 'Run full audit programme' has if lines ['if: false']"),
+                ("shard run line", "nightly", "--verify-shards 6\n", "\n",
+                 "step 'Gate 36 regression shard partition check' runs"),
+                ("shard if", "nightly", shard_if,
+                 "      - name: Gate 36 regression shard partition check\n",
+                 "step 'Gate 36 regression shard partition check' has if lines []"),
+                ("web run line", "nightly", self.WEB_RUN + "\n", "run: true\n",
+                 "step 'Web generator health check' runs ['run: true']"),
+                ("web if", "nightly", web_if, "      - name: Web generator health check\n",
+                 "step 'Web generator health check' has if lines []"),
+                ("web step gone", "nightly", web_if + "        " + self.WEB_RUN + "\n", "",
+                 "step 'Web generator health check' appears 0 times"),
+                ("nightly count", "nightly", "--verify-shards 6\n", "--verify-shards 5\n",
+                 "the nightly --verify-shards count 5 is not the guard's "
+                 "REGRESSION_SHARD_COUNT 6"),
+                ("guard count", "guard", "\nREGRESSION_SHARD_COUNT=6\n",
+                 "\nREGRESSION_SHARD_COUNT=7\n",
+                 "the nightly --verify-shards count 6 is not the guard's "
+                 "REGRESSION_SHARD_COUNT 7"),
+                # EP10 item 5 (ep10qg L4 and ep10qs L2).
+                ("runner continue-on-error", "nightly", self.RUNNER_RUN + "\n",
+                 self.RUNNER_RUN + "\n        continue-on-error: true\n",
+                 "step 'Run full audit programme' sets continue-on-error"),
+                ("shard continue-on-error", "nightly", "--verify-shards 6\n",
+                 "--verify-shards 6\n        continue-on-error: true\n",
+                 "step 'Gate 36 regression shard partition check' sets continue-on-error"),
+                ("web continue-on-error", "nightly", self.WEB_RUN + "\n",
+                 self.WEB_RUN + "\n        continue-on-error: true\n",
+                 "step 'Web generator health check' sets continue-on-error"),
+                ("runner working-directory", "nightly", self.RUNNER_RUN + "\n",
+                 self.RUNNER_RUN + "\n        working-directory: .web\n",
+                 "step 'Run full audit programme' sets working-directory"),
+                ("runner key set", "nightly", self.RUNNER_RUN + "\n",
+                 self.RUNNER_RUN + "\n        timeout-minutes: 1\n",
+                 "step 'Run full audit programme' has keys ['run', 'timeout-minutes'], "
+                 "not ['run']"),
+                ("shard key set", "nightly", "--verify-shards 6\n",
+                 "--verify-shards 6\n        shell: bash\n",
+                 "step 'Gate 36 regression shard partition check' has keys "
+                 "['if', 'run', 'shell'], not ['if', 'run']"),
+                ("web key set", "nightly", self.WEB_RUN + "\n",
+                 self.WEB_RUN + "\n        env:\n          SKIP: '1'\n",
+                 "step 'Web generator health check' has keys ['env', 'if', 'run'], "
+                 "not ['if', 'run']"),
+                ("job-level if", "nightly", "    runs-on: ubuntu-latest\n",
+                 "    if: false\n    runs-on: ubuntu-latest\n",
+                 "job 'nightly-sweep' has a job-level if"),
+                ("job key set", "nightly", "    runs-on: ubuntu-latest\n",
+                 "    runs-on: ubuntu-latest\n    continue-on-error: true\n",
+                 "job 'nightly-sweep' has keys ['continue-on-error', 'name', 'permissions', "
+                 "'runs-on', 'steps'], not ['name', 'permissions', 'runs-on', 'steps']"),
+                ("schedule removed", "nightly",
+                 "  schedule:\n    # 04:00 UTC nightly. Cron: minute hour dom month dow.\n"
+                 "    - cron: '0 4 * * *'\n", "",
+                 "the workflow has no schedule trigger"),
+                ("cron removed", "nightly", "    - cron: '0 4 * * *'\n", "",
+                 "the schedule crons are [], not [\"'0 4 * * *'\"]"),
+                ("cron changed", "nightly", "- cron: '0 4 * * *'", "- cron: '0 4 1 1 *'",
+                 "the schedule crons are [\"'0 4 1 1 *'\"], not [\"'0 4 * * *'\"]"),
+                # EP11b item 2 (ep11qs L3).
+                ("workflow defaults", "nightly", "permissions: {}\n",
+                 "permissions: {}\n\ndefaults:\n  run:\n    shell: 'true {0}'\n",
+                 "the workflow has top-level keys ['name', 'on', 'permissions', 'defaults', "
+                 "'jobs'], not ['name', 'on', 'permissions', 'jobs']"),
+                ("workflow env", "nightly", "permissions: {}\n",
+                 "permissions: {}\n\nenv:\n  SKIP: '1'\n",
+                 "the workflow has top-level keys ['name', 'on', 'permissions', 'env', "
+                 "'jobs'], not ['name', 'on', 'permissions', 'jobs']"),
+                ("workflow quoted key", "nightly", "permissions: {}\n",
+                 "permissions: {}\n\n\"env\":\n  SKIP: '1'\n",
+                 "the workflow has a top-level line that is not a key line: '\"env\":'"),
+                ("runner quoted continue-on-error", "nightly", self.RUNNER_RUN + "\n",
+                 self.RUNNER_RUN + "\n        \"continue-on-error\": true\n",
+                 "step 'Run full audit programme' has a line that is not a key line: "
+                 "'\"continue-on-error\": true'"),
+                ("runner spaced if", "nightly", self.RUNNER_RUN + "\n",
+                 self.RUNNER_RUN + "\n        if : false\n",
+                 "step 'Run full audit programme' has a line that is not a key line: "
+                 "'if : false'"),
+                ("runner run continued", "nightly", self.RUNNER_RUN + "\n",
+                 self.RUNNER_RUN + "\n          ; exit 0\n",
+                 "step 'Run full audit programme' has a line that is not a key line: "
+                 "'; exit 0'"),
+                # EP12 item 2 (ep12qx L1, ep12qg L2 and ep12qs L1): each quoted or spaced
+                # key form at step level and at job level.
+                ("runner double-quoted if", "nightly", self.RUNNER_RUN + "\n",
+                 self.RUNNER_RUN + "\n        \"if\": false\n",
+                 "step 'Run full audit programme' has a line that is not a key line: "
+                 "'\"if\": false'"),
+                ("runner single-quoted if", "nightly", self.RUNNER_RUN + "\n",
+                 self.RUNNER_RUN + "\n        'if': false\n",
+                 "step 'Run full audit programme' has a line that is not a key line: "
+                 "\"'if': false\""),
+                ("job double-quoted if", "nightly", "    runs-on: ubuntu-latest\n",
+                 "    runs-on: ubuntu-latest\n    \"if\": false\n",
+                 "the jobs block has a line that is not a job id or a job key line: "
+                 "'\"if\": false'"),
+                ("job single-quoted if", "nightly", "    runs-on: ubuntu-latest\n",
+                 "    runs-on: ubuntu-latest\n    'if': false\n",
+                 "the jobs block has a line that is not a job id or a job key line: "
+                 "\"'if': false\""),
+                ("job spaced if", "nightly", "    runs-on: ubuntu-latest\n",
+                 "    runs-on: ubuntu-latest\n    if : false\n",
+                 "the jobs block has a line that is not a job id or a job key line: "
+                 "'if : false'"),
+                ("job double-quoted continue-on-error", "nightly",
+                 "    runs-on: ubuntu-latest\n",
+                 "    runs-on: ubuntu-latest\n    \"continue-on-error\": true\n",
+                 "the jobs block has a line that is not a job id or a job key line: "
+                 "'\"continue-on-error\": true'")):
+            with self.subTest(flip=label):
+                texts = {"nightly": nightly, "guard": guard}
+                self.assertEqual(texts[which].count(old), 1, label)
+                texts[which] = texts[which].replace(old, new)
+                findings = self._findings(texts["nightly"], texts["guard"])
+                self.assertTrue(any(message in finding for finding in findings),
+                                f"{label}: {findings!r}")
+
+    def test_check_moved_above_the_runner_is_caught(self) -> None:
+        # EP11b item 1 (ep11qx L1): a check moved above the runner keeps every pinned
+        # name, key and line, but its failure would skip the runner, which has no if:.
+        nightly, guard = self._texts()
+        runner = f"      - name: {self.RUNNER_STEP}\n        {self.RUNNER_RUN}\n"
+        shard = (f"      - name: {self.SHARD_STEP}\n        if: always()\n"
+                 f"        {self.SHARD_RUN}6\n")
+        web = f"      - name: {self.WEB_STEP}\n        if: always()\n        {self.WEB_RUN}\n"
+        for check, block in ((self.WEB_STEP, web), (self.SHARD_STEP, shard)):
+            with self.subTest(moved=check):
+                self.assertEqual(nightly.count(runner), 1)
+                self.assertEqual(nightly.count(block), 1)
+                moved = nightly.replace(block, "").replace(runner, block + "\n" + runner)
+                self.assertEqual(self._findings(moved, guard),
+                                 [f"step {check!r} comes before step {self.RUNNER_STEP!r}"])
+
+
 class PrePushGuardFastPathTests(unittest.TestCase):
     """.claude/skills/corpus-management/tools/pre-push-guard.sh site-only fast path (maintainer directive 2026-11-04).
 
@@ -18332,13 +18702,15 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("pre-push guard FAST PATH", result.stdout)
         self.assertIn("without the linter regression suite (gate 36)", result.stdout)
-        self.assertIn("the full suite still runs in CI before merge", result.stdout)
+        self.assertIn("the full suite still runs on the local server before merge",
+                      result.stdout)
         self.assertIn("Changed paths (3): .web/templates-draft/landing.html .working/CHANGELOG.md "
                       "README.md", result.stdout)
         self.assertIn("PASS (FAST PATH", result.stdout)
         self.assertNotIn(".claude/skills/corpus-management/tools/run_all_audits.sh", ran)
         self.assertNotIn(self.REGRESSION_SCRIPT, ran)
-        # The fast path keeps leaving gate 36 to CI: no local shard runs.
+        # The fast path leaves gate 36 to the local server's full-suite run (the
+        # local-quality status): no local shard runs.
         self.assertEqual(self.shard_runs(), [])
         self.assertNotIn("local shards", result.stdout)
         for expected in (".claude/skills/corpus-management/tools/run-pr-time-checks.sh", ".web/site-card/check_palette.py",
@@ -18359,7 +18731,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         result, ran = self.run_guard()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("Changed paths (1): .web/templates-draft/landing.html", result.stdout)
-        self.assertIn("gate 36), which is left to CI", result.stdout)
+        self.assertIn("gate 36), which is left to the local-quality run", result.stdout)
         self.assertIn("PASS (FAST PATH", result.stdout)
         self.assertNotIn(".claude/skills/corpus-management/tools/run_all_audits.sh", ran)
         self.assertNotIn(self.REGRESSION_SCRIPT, ran)
@@ -21795,17 +22167,17 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 for checkout in re.findall(r"\(checkout (\S+), log", result.stdout):
                     self.git("worktree", "remove", "--force", checkout)
 
-    def test_local_shard_count_matches_the_quality_workflow(self):
-        # The guard's REGRESSION_SHARD_COUNT is the quality workflow's
-        # regression-shard job count, so the local run splits gate 36 as CI
-        # does.
+    def test_local_shard_count_is_six_and_the_workflow_has_no_shard_job(self):
+        # The guard's REGRESSION_SHARD_COUNT is 6 (maintainer decision
+        # 2026-11-05). Since the 2026-11-09 decision the quality workflow runs
+        # no regression-shard job, so gate 36 is split only locally.
         guard = (SKILL_ROOT / "tools" / "pre-push-guard.sh").read_text(encoding="utf-8")
         quality = (REPO_ROOT / ".github" / "workflows" / "quality.yml").read_text(
             encoding="utf-8")
         counts = re.findall(r"^REGRESSION_SHARD_COUNT=(\d+)$", guard, re.M)
         jobs = re.findall(r"^  regression-shard-(\d+):$", quality, re.M)
-        self.assertEqual(counts, [str(len(jobs))])
-        self.assertEqual(jobs, [str(i) for i in range(1, len(jobs) + 1)])
+        self.assertEqual(counts, ["6"])
+        self.assertEqual(jobs, [])
 
     def test_build_py_change_takes_full_guard(self):
         self.change(".web/build.py")
@@ -21841,9 +22213,9 @@ class PrePushGuardFastPathTests(unittest.TestCase):
 
     def test_ci_path_skips_nothing(self):
         # The skip lives in the guard alone: the real runner carries no skip
-        # option and runs gate 36 whole; quality.yml runs gate 36 on every
-        # pull request as six shard jobs that together run exactly the suite
-        # plus the lint job's partition-verifying --verify-shards step; the
+        # option and runs gate 36 whole; quality.yml runs only the CI subset
+        # and no part of gate 36 (the local server runs the full suite for
+        # the local-quality status); the
         # nightly sweep runs the whole runner; and the guard invokes the
         # whole runner only on its fail-closed fallback.
         runner = (SKILL_ROOT / "tools" / "run_all_audits.sh").read_text(encoding="utf-8")
@@ -21854,14 +22226,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(len(re.findall(r'^run_gate\s+"Linter regression test suite"\s+'
                                         r"python3\s+.claude/skills/corpus-management/tools/run-linter-regression\.py\s*$",
                                         runner, re.M)), 1)
-        self.assertEqual(len(re.findall(
-            r"^\s+run: python3 .claude/skills/corpus-management/tools/run-linter-regression\.py --verify-shards 6\s*$",
-            quality, re.M)), 1)
-        self.assertEqual(sorted(re.findall(
-            r"^\s+run: python3 .claude/skills/corpus-management/tools/run-linter-regression\.py --shard (\d+)/6\s*$",
-            quality, re.M)), [str(i) for i in range(1, 7)])
-        self.assertEqual(len(re.findall(
-            r"^\s+run: python3 .claude/skills/corpus-management/tools/run-linter-regression\.py\s*$", quality, re.M)), 0)
+        self.assertNotIn("run-linter-regression.py", quality)
         self.assertIn("run: .claude/skills/corpus-management/tools/run_all_audits.sh", nightly)
         for label, text in ((".claude/skills/corpus-management/tools/run_all_audits.sh", runner), ("quality.yml", quality),
                             ("nightly-sweep.yml", nightly)):
@@ -22929,6 +23294,45 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
 
     MIRROR_REL = "changelog-details/CHANGELOG-detailed.md"
 
+    NO_ROOT_HEADER_REASON = (
+        "the root CHANGELOG has no per-PR header (a weekly-only root); root/mirror header "
+        "parity at HEAD has nothing to compare"
+    )
+
+    # A weekly-only root, the rebuilt repository's starting shape: no per-PR header at all.
+    WEEKLY_ROOT = "# Changelog\n\n## Week of 2026-11-09\n\n- tooling: entry.\n"
+
+    @staticmethod
+    def _new_headers(*prs: int) -> str:
+        """Compact new-repository headers for PRS, newest first, one day apart; the last
+        (oldest) is dated on EPOCH_START itself (2026-11-09)."""
+        return "".join(
+            f"**2026-11-{9 + len(prs) - 1 - i:02d} | 2026.12.{pr} | PR #{pr}** - tooling: entry {pr}.\n\n"
+            for i, pr in enumerate(prs)
+        )
+
+    @staticmethod
+    def _as_root(text: str) -> str:
+        """EP6: the root grammar admits only canonical compact per-PR lines (with the title, the
+        intro and blank lines) above its first ``## Week of`` heading, so a legacy-shaped fixture
+        meant as a valid root becomes compact lines, in order, and its body lines are dropped."""
+        lines = []
+        for line in text.splitlines():
+            m = re.match(r"^## (\d{4}-\d{2}-\d{2}), (?:Library )?Version (\S+), PR #(\d+)$", line)
+            if m:
+                lines.append(f"**{m.group(1)} | {m.group(2)} | PR #{m.group(3)}** - text\n")
+        return "".join(lines)
+
+    def _parity_run(self, root_text: str, mirror_text: str, titled: bool = True):
+        """Gate 59's CLI under --root on a fixture pair (no git, so nothing is deferred). The root
+        gets the ``# Changelog`` title unless ``titled`` is false (see ``_write_pair``)."""
+        with tempfile.TemporaryDirectory() as tmp:
+            self._write_pair(Path(tmp), root_text, mirror_text, titled=titled)
+            return run_linter(
+                ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py",
+                "--root", tmp,
+            )
+
     def _head_parity_result(
         self, changelog: str | None = None
     ) -> tuple[subprocess.CompletedProcess, int] | None:
@@ -22940,21 +23344,29 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         with it is still checked. The linter has no ceiling option (its only option is --root), so
         the bound is applied here: mirror headers naming a PR above the checkout's newest root
         header are dropped, and a branch one merge behind main (the #3008 case) passes, while a
-        mismatch at or below that header and above the mirror's oldest header still fails. A
-        mirror missing its oldest header is NOT caught: the gate's floor is the mirror's own
-        oldest header (its "Boundary limitation" note), so that root header leaves the window
-        (3b656 r3 pins this boundary). The pair is read through an explicit --root,
+        mismatch at or below that header still fails. EP2: the gate has no floor, so a mirror
+        missing its oldest header is caught too. Only headers the gate's mirror classification
+        passes are dropped: every line entry_findings fails (an old-repository record by date or
+        by VERSION_FLOOR, an unparseable date, an unreadable shape, a PR below CUTOFF_PR or more
+        than 1 PR) is kept whatever its PR number (EP6, ep5qx 2), so such a record above the root
+        ceiling still reaches the gate and fails there. The pair is read through an explicit --root,
         so the linter's store-scope deferral reads no branch git state (its note says so). None
-        when no mirror is present."""
+        when no mirror is present; the calling test skips (NO_ROOT_HEADER_REASON) when the
+        root has no per-PR header, so there is no ceiling to bound the mirror by."""
         mod = load_linter_module(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "_mp_3b656_head")
         mirror_path = mod.resolve_working(self.MIRROR_REL)
         if mirror_path is None:
             return None
         if changelog is None:
             changelog = (REPO_ROOT / ".working/CHANGELOG.md").read_text(encoding="utf-8")
-        ceiling = max(pr for _, pr, _, _ in mod.pr_headers(changelog, cutoff=0))
+        root_prs = [pr for _, pr, _, _ in mod.pr_headers(changelog, cutoff=0)]
+        if not root_prs:
+            self.skipTest(self.NO_ROOT_HEADER_REASON)
+        ceiling = max(root_prs)
         mirror = mirror_path.read_text(encoding="utf-8")
-        above = {ln for ln, pr, _, _ in mod.pr_headers(mirror, cutoff=0) if pr > ceiling}
+        kept = mod.entry_findings(mirror).lines()
+        above = {ln for ln, pr, _, _ in mod.pr_headers(mirror, cutoff=0)
+                 if pr > ceiling and ln not in kept}
         bounded = "".join(
             line for n, line in enumerate(mirror.splitlines(keepends=True), 1) if n not in above
         )
@@ -23028,7 +23440,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     # form, so the window does not depend on how many unrolled entries the live file holds
     # (#3058: after the roll-ups it held two and MIDDLE fell outside it).
     ROOT_FIXTURE = "# Changelog\n\n" + "".join(
-        f"**2026-10-31 | 2026.10.{1759 - n} | PR #{3058 - n}** - tooling: Entry {n}.\n\n"
+        f"**2026-12-31 | 2026.12.{1759 - n} | PR #{3058 - n}** - tooling: Entry {n}.\n\n"
         for n in range(5)
     )
 
@@ -23060,20 +23472,33 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertLess(records[-1][1], pr)
         self.assertLess(pr, records[0][1])
         self.assertEqual(result.returncode, 1, result.stdout)
-        self.assertIn(f"MISSING from the detailed mirror (>= #{records[-1][1]}): #{pr}\n",
-                      result.stdout)
+        self.assertIn(f"MISSING from the detailed mirror (>= #1): #{pr}\n", result.stdout)
 
-    def test_head_parity_does_not_catch_a_missing_oldest_header(self) -> None:
-        # 3b656 r3 (codex): BOUNDARY, not coverage. The gate's floor is max(CUTOFF_PR, the
-        # mirror's oldest header), so a mirror missing the root's oldest header raises its own
-        # floor past it and passes; from root and mirror alone that drop reads exactly like a
-        # sweep (the gate's "Boundary limitation" note). This pins that the head test does not
-        # cover it, so a gate change that starts catching it shows up here.
+    def test_head_parity_catches_a_missing_oldest_header(self) -> None:
+        # EP2 item 1 (replaces the 3b656 r3 boundary pin): the gate has no floor for post-epoch
+        # headers, so a mirror missing the root's oldest header no longer raises a floor past
+        # it; the header is compared, fails and is named.
         result, records = self._head_parity_dropping(-1, "_mp_3b656_floor")
-        oldest, next_oldest = records[-1][1], records[-2][1]
-        self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertIn(f"at or above #{next_oldest},", result.stdout)
-        self.assertNotIn(f"#{oldest}", result.stdout)
+        oldest = records[-1][1]
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn(f"MISSING from the detailed mirror (>= #1): #{oldest}\n", result.stdout)
+
+    def test_head_parity_keeps_old_mirror_headers_above_the_root_ceiling(self) -> None:
+        # EP2 item 3: a mixed mirror holding new #2 and #1 and an old-repository #3127 (dated
+        # before EPOCH_START) against a root holding only #1. The helper drops new #2 as above
+        # the root ceiling but keeps old #3127, so the gate fails on it as a record to archive
+        # instead of the helper hiding it.
+        from unittest import mock
+        old = "**2026-10-30 | 2026.10.1760 | PR #3127** - old record\n"
+        with tempfile.TemporaryDirectory() as store:
+            self._store_mirror(store, self._new_headers(2, 1) + old)
+            with mock.patch.dict(os.environ, {"GRC_STORE": store}):
+                result, ceiling = self._head_parity_result(self._new_headers(1))
+        self.assertEqual(ceiling, 1)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("are old-repository records to archive", result.stdout)
+        self.assertIn("PR #3127 (2026-10-30)", result.stdout)
+        self.assertNotIn("MISSING from root", result.stdout)
 
     def test_head_parity_is_skipped_without_a_mirror(self) -> None:
         # No store and no fallback supplies the mirror: the head test reports a skip, never a pass.
@@ -23089,7 +23514,2074 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         ])
         self.assertEqual((outcome.failures, outcome.errors), ([], []))
 
-    def _write_pair(self, root: Path, root_headers: str, mirror_headers: str) -> None:
+    def test_head_parity_skips_when_the_root_has_no_per_pr_header(self) -> None:
+        # EP1: the rebuilt root starts weekly-only, so the head helper has no ceiling to bound the
+        # mirror by. It must skip with a reason, never raise ValueError from max() of nothing.
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as store:
+            self._store_mirror(store, self._new_headers(1))
+            with mock.patch.dict(os.environ, {"GRC_STORE": store}):
+                with self.assertRaises(unittest.SkipTest) as caught:
+                    self._head_parity_result(self.WEEKLY_ROOT)
+        self.assertEqual(str(caught.exception), self.NO_ROOT_HEADER_REASON)
+
+    def test_epoch_new_mirror_missing_a_pr_fails(self) -> None:
+        # EP1 research shapes S4 and S5: the old mirror is archived and the new mirror is missing
+        # #2. With CUTOFF_PR at 1 the gate compares new low-numbered PRs and names #2; under the
+        # old floor of 463 nothing was compared and this passed.
+        result = self._parity_run(self._new_headers(3, 2, 1), self._new_headers(3, 1))
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("MISSING from the detailed mirror (>= #1): #2\n", result.stdout)
+
+    def test_epoch_matching_new_mirror_passes_from_pr_one(self) -> None:
+        # EP1 research shape S6: a new mirror matching the root passes, comparing every new PR
+        # from #1, including #1 dated on EPOCH_START itself (the boundary is inclusive).
+        same = self._new_headers(3, 2, 1)
+        self.assertIn("**2026-11-09 | 2026.12.1 | PR #1**", same)
+        result = self._parity_run(same, same)
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("for all 3 PR(s) at or above #1,", result.stdout)
+        self.assertNotIn("DEGRADED", result.stdout)
+
+    def test_epoch_old_dated_headers_fail_as_records_to_archive(self) -> None:
+        # The S7 old-record shape without git: run through --root with no repository, so no
+        # store scope exists and nothing can be deferred (StoreScopeCeilingTests'
+        # test_epoch_old_mirror_entries_fail_before_deferral covers deferral). An
+        # old-repository header (legacy shape, dated before EPOCH_START) left in BOTH surfaces
+        # fails and is named as a record to archive, even though the two surfaces agree and
+        # every version descends.
+        old = "## 2026-10-30, Library Version 2026.10.1759, PR #3127\n\ntext.\n"
+        same = self._new_headers(2, 1) + old
+        result = self._parity_run(same, same)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn(
+            "FAIL: per-PR header(s) in root .working/CHANGELOG.md dated before EPOCH_START "
+            "2026-11-09 are old-repository records to archive", result.stdout)
+        self.assertIn("FAIL: per-PR header(s) in the detailed mirror (", result.stdout)
+        self.assertIn("line 6 PR #3127 (2026-10-30)", self._fail_lines(result.stdout, "root"))
+        self.assertIn("line 5 PR #3127 (2026-10-30)", self._fail_lines(result.stdout, "mirror"))
+
+    def test_zero_compared_prints_the_degraded_line(self) -> None:
+        # EP1 item 3: a present mirror with nothing to compare (weekly-only root, no per-PR
+        # header in the mirror) still exits 0 but prints the DEGRADED line, so the empty
+        # comparison is not read as an attestation.
+        # EP2 item 5: the line says that no PR was compared and gives the deferred count; it does
+        # not claim that no qualifying header exists.
+        result = self._parity_run(self.WEEKLY_ROOT, "# Detailed changelog\n")
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("for all 0 PR(s) at or above #1,", result.stdout)
+        self.assertIn("DEGRADED: gate 59 compared no PR: ", result.stdout)
+        self.assertIn("(0 detailed-mirror header(s) deferred)", result.stdout)
+        self.assertNotIn("holds a per-PR header", result.stdout)
+
+    def test_epoch_dropped_oldest_mirror_entry_fails(self) -> None:
+        # EP2 item 1, ep1qc probe P1: root #3, #2, #1 and a mirror holding only #3 and #2. Under
+        # the EP1 floor (the mirror's oldest PR, #2) root #1 left scope and the gate passed with
+        # no notice; with no floor it is compared and named.
+        result = self._parity_run(self._new_headers(3, 2, 1), self._new_headers(3, 2))
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("MISSING from the detailed mirror (>= #1): #1\n", result.stdout)
+
+    def test_epoch_day_before_the_boundary_fails(self) -> None:
+        # EP2 item 7: the boundary case. A header dated 2026-11-08, the day before EPOCH_START,
+        # fails in both surfaces as an old-repository record; #1 dated 2026-11-09 passes.
+        old = "**2026-11-08 | 2026.12.0 | PR #3127** - old record\n"
+        same = self._new_headers(1) + old
+        result = self._parity_run(same, same)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("line 4 PR #3127 (2026-11-08)", self._fail_lines(result.stdout, "root"))
+        self.assertIn("line 3 PR #3127 (2026-11-08)", self._fail_lines(result.stdout, "mirror"))
+        self.assertNotIn("PR #1 (", result.stdout)
+
+    def test_epoch_rule_reads_every_dated_header_shape(self) -> None:
+        # EP2 item 6, ep1qc probe P8: old records in four shapes the shared header grammar
+        # accepts but the comparison patterns cannot read (a lowercase pr label, a trailing
+        # space, an em dash separator, a PRs range) used to be neither checked nor compared, so
+        # the gate passed. The epoch rule now reads every dated header-like line.
+        # EP7 (ep6qc L1): the probes sit in the mirror only, and the mirror's own FAIL line is
+        # asserted, so the root grammar's fallback cannot stand in for mirror detection.
+        old = ("**2026-10-30 | 2026.10.5 | pr #3127**\n"
+               "**2026-10-29 | 2026.10.4 | PR #3126** \n"
+               "**2026-10-28 \u2014 2026.10.3 \u2014 PR #3125**\n"
+               "**2026-10-27 | 2026.10.2 | PRs #3120-#3124**\n")
+        same = self._new_headers(1)
+        result = self._parity_run(same, same + old)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        mirror_fail = self._mirror_old_line(result.stdout)
+        for named in ("line 3 PR #3127 (2026-10-30)", "line 4 PR #3126 (2026-10-29)",
+                      "line 5 PR #3125 (2026-10-28)", "line 6 PRs #3120, #3124 (2026-10-27)"):
+            self.assertIn(named, mirror_fail)
+        self.assertNotIn("root .working/CHANGELOG.md dated before", result.stdout)
+
+    @staticmethod
+    def _mirror_old_line(stdout: str) -> str:
+        """The mirror's old-repository FAIL line in ``stdout`` (EP7); empty when there is none."""
+        return next((line for line in stdout.splitlines()
+                     if line.startswith("FAIL: per-PR header(s) in the detailed mirror (")
+                     and "are old-repository records to archive" in line), "")
+
+    def test_epoch_rule_fails_unparseable_dates(self) -> None:
+        # EP2 item 6, ep1qc probes P5 and P6: a date in full-width digits and an impossible
+        # date used to pass as new PRs. Patterns are ASCII-only and each date is read with
+        # datetime.date.fromisoformat, so both fail as unparseable in both surfaces.
+        wide = "\uff12\uff10\uff12\uff16-\uff11\uff10-\uff13\uff10"
+        bad = (f"**{wide} | 2026.12.2 | PR #3127** - wide digits\n"
+               "**2026-99-99 | 2026.12.1 | PR #3128** - impossible date\n")
+        same = bad + self._new_headers(1)
+        result = self._parity_run(same, same)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertEqual(result.stdout.count("carry a date gate 59 cannot parse"), 2, result.stdout)
+        root_fail = self._fail_lines(result.stdout, "root")
+        mirror_fail = self._fail_lines(result.stdout, "mirror")
+        self.assertIn(f"line 2 ({wide!r})", root_fail)
+        self.assertIn("line 3 ('2026-99-99')", root_fail)
+        self.assertIn(f"line 1 ({wide!r})", mirror_fail)
+        self.assertIn("line 2 ('2026-99-99')", mirror_fail)
+
+    def test_no_mirror_still_runs_the_root_epoch_rule(self) -> None:
+        # EP2 item 2: with no store supplying the mirror, the root's epoch rule still runs, so a
+        # pre-epoch root header fails in CI too; a clean root skips only the mirror checks.
+        import contextlib
+        from unittest import mock
+        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "_mp_ep2_nomirror")
+        for root_text, rc in (("**2026-11-08 | 2026.12.1 | PR #3127** - old\n", 1),
+                              (self._new_headers(1), 0)):
+            with tempfile.TemporaryDirectory() as tmp:
+                (Path(tmp) / ".working").mkdir()
+                (Path(tmp) / ".working/CHANGELOG.md").write_text(self._titled(root_text),
+                                                                encoding="utf-8")
+                out = io.StringIO()
+                with mock.patch.object(mod, "REPO_ROOT", Path(tmp)), \
+                        mock.patch.object(mod, "resolve_working", return_value=None), \
+                        contextlib.redirect_stdout(out):
+                    got = mod.main([])
+            self.assertEqual(got, rc, out.getvalue())
+            if rc:
+                self.assertIn("line 2 PR #3127 (2026-11-08)", out.getvalue())
+                self.assertNotIn("DEGRADED", out.getvalue())
+            else:
+                self.assertIn("DEGRADED: gate 59 skipped", out.getvalue())
+
+    def _no_mirror_run(self, root_bytes: bytes, name: str, titled: bool = True):
+        """Gate 59's main([]) in-process with no store supplying the mirror; (rc, stdout). The
+        root gets the ``# Changelog`` title line unless ``titled`` is false (EP8b)."""
+        import contextlib
+        from unittest import mock
+        title = self.ROOT_TITLE_LINE.encode("utf-8")
+        if titled and not root_bytes.startswith(title):
+            root_bytes = title + root_bytes
+        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", name)
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / ".working").mkdir()
+            (Path(tmp) / ".working/CHANGELOG.md").write_bytes(root_bytes)
+            out = io.StringIO()
+            with mock.patch.object(mod, "REPO_ROOT", Path(tmp)), \
+                    mock.patch.object(mod, "resolve_working", return_value=None), \
+                    contextlib.redirect_stdout(out):
+                got = mod.main([])
+        return got, out.getvalue()
+
+    def test_multi_pr_comparison_header_fails(self) -> None:
+        # EP3 item 1, ep2qx 1: a legacy header naming 2 PRs was read as its last PR only, so a
+        # mirror holding only #2 passed with #1 never compared. One header per PR is required.
+        result = self._parity_run(
+            "## 2026-11-09, Library Version 2026.12.2, PR #1 and PR #2\n",
+            "**2026-11-09 | 2026.12.2 | PR #2**\n")
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("one header per PR is required: line 2 (#1, #2)", result.stdout)
+
+    def test_numbered_body_headings_are_not_dated(self) -> None:
+        # EP3 item 2, ep2qx 2 and ep2qc M1: mirror body headings that open on a number but have
+        # no date shape are not dated lines, so a matching PR #1 pair passes.
+        same = self._new_headers(1)
+        mirror = (same + "\n### 1. Follow-up for PR #1\n\ntext.\n\n"
+                  "### 3 fixes from QA round 1 (#1)\n\ntext.\n")
+        result = self._parity_run(same, mirror)
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertNotIn("cannot parse", result.stdout)
+
+    def test_undecodable_root_or_mirror_fails(self) -> None:
+        # EP3 item 3, ep2qc M2: a root or mirror that is not valid UTF-8 (a Latin-1 byte) used
+        # to read as empty text, so its headers were never checked. It fails and is named.
+        old = "**2026-10-30 | 2026.10.1 | PR #3127** - caf\xe9\n".encode("latin-1")
+        good = self._new_headers(1).encode("utf-8")
+        for root_bytes, mirror_bytes, named in ((good + old, good, "root .working/CHANGELOG.md"),
+                                                (good, good + old, "the detailed mirror (")):
+            with self.subTest(named=named), tempfile.TemporaryDirectory() as tmp:
+                self._write_pair(Path(tmp), "", "")
+                (Path(tmp) / ".working/CHANGELOG.md").write_bytes(root_bytes)
+                (Path(tmp) / ".working/changelog-details/CHANGELOG-detailed.md").write_bytes(
+                    mirror_bytes)
+                result = run_linter(
+                    ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py",
+                    "--root", tmp)
+            self.assertEqual(result.returncode, 1, result.stdout)
+            self.assertIn(f"FAIL: {named}", result.stdout)
+            self.assertIn("is not valid UTF-8", result.stdout)
+
+    def test_no_mirror_undecodable_root_fails(self) -> None:
+        # EP3 item 3, ep2qc M2 probe B1: with no mirror, a root holding an old #3127 and one
+        # Latin-1 byte used to pass and claim the epoch rule passed.
+        rc, out = self._no_mirror_run(
+            "**2026-10-30 | 2026.10.1 | PR #3127** - caf\xe9\n".encode("latin-1"),
+            "_mp_ep3_nomirror_latin1")
+        self.assertEqual(rc, 1, out)
+        self.assertIn("FAIL: root .working/CHANGELOG.md is not valid UTF-8", out)
+        self.assertNotIn("passed", out)
+
+    def test_post_epoch_unreadable_per_pr_shapes_fail(self) -> None:
+        # EP3 item 4 (routed): post-epoch dated per-PR lines in 4 shapes the comparison cannot
+        # read (a lowercase pr label, a trailing space, an em dash separator, a PRs range) used
+        # to pass the epoch rule and never be compared. Each fails, naming the expected shapes.
+        shapes = ("**2026-11-13 | 2026.12.5 | pr #5**\n"
+                  "**2026-11-12 | 2026.12.4 | PR #4** \n"
+                  "**2026-11-11 \u2014 2026.12.3 \u2014 PR #3**\n"
+                  "**2026-11-10 | 2026.12.2 | PRs #6-#7**\n")
+        same = shapes + self._new_headers(1)
+        result = self._parity_run(same, same)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertEqual(result.stdout.count("in a shape gate 59 cannot compare"), 2, result.stdout)
+        self.assertIn("**YYYY-MM-DD | X.Y.Z | PR #N**", result.stdout)
+        for lineno in (1, 2, 3, 4):
+            self.assertIn(f"line {lineno + 1} ('**2026-11-1", self._fail_lines(result.stdout, "root"))
+            self.assertIn(f"line {lineno} ('**2026-11-1", self._fail_lines(result.stdout, "mirror"))
+
+    def test_post_epoch_pr_zero_fails(self) -> None:
+        # EP3 item 5, ep2qc L1: a post-epoch PR #0 header was dropped below CUTOFF_PR with no
+        # notice and the gate passed. EP7 (ep6qc L4): the comparison shapes take PR #([1-9][0-9]*),
+        # so PR #0 is no longer a comparison shape and fails as a shape gate 59 cannot compare.
+        result = self._parity_run("**2026-11-10 | 2026.12.2 | PR #0**\n" + self._new_headers(1),
+                                  self._new_headers(1))
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("in a shape gate 59 cannot compare", result.stdout)
+        self.assertIn("line 2 ('**2026-11-10 | 2026.12.2 | PR #0**')", result.stdout)
+
+    def test_no_mirror_runs_root_duplicate_and_ordering_checks(self) -> None:
+        # EP3 item 6, ep2qc L2 probe E2: with no mirror, a root holding a duplicated #1 with an
+        # equal version used to pass; the root's duplicate and ordering checks need no mirror.
+        rc, out = self._no_mirror_run(
+            ("**2026-11-10 | 2026.12.1 | PR #1** - a\n"
+             "**2026-11-09 | 2026.12.1 | PR #1** - b\n").encode("utf-8"),
+            "_mp_ep3_nomirror_dup")
+        self.assertEqual(rc, 1, out)
+        self.assertIn("appearing more than once in root .working/CHANGELOG.md (>= #1): #1", out)
+        self.assertIn("root .working/CHANGELOG.md Library Version ordering violated", out)
+        self.assertNotIn("DEGRADED", out)
+
+    def test_one_digit_and_slash_dates_fail(self) -> None:
+        # EP4, ep3qx 1 and ep3qc M2 probes B1 to B3: a post-epoch entry whose date has a 1-digit
+        # day or slash separators was never read as dated, so the gate passed comparing only #1.
+        # Each is now an entry candidate whose date does not parse, and fails.
+        same = self._new_headers(1)
+        for line, token in (("## 2026-11-9, Library Version 2026.12.67, PR #2", "2026-11-9"),
+                            ("**2026-11-9 | 2026.12.67 | PR #2**", "2026-11-9"),
+                            ("**2026/11/10 | 2026.12.67 | PR #2**", "2026/11/10")):
+            with self.subTest(line=line):
+                result = self._parity_run(line + "\n" + same, same)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn("carry a date gate 59 cannot parse", result.stdout)
+                self.assertIn(f"line 2 ({token!r})", result.stdout)
+
+    def test_compact_line_without_a_pr_label_fails(self) -> None:
+        # EP4, ep3qx 2, ep3qa 1 and ep3qc M1 probes A1 to A3: a dated compact line whose PR cell
+        # lost its "PR #" label named no PR, so it was neither compared nor failed. A dated bold
+        # line is an entry candidate whatever its PR cell says, and fails.
+        same = self._new_headers(1)
+        for line in ("**2026-11-10 | 2026.12.67 | PR5**", "**2026-11-10 | 2026.12.67 | 5**",
+                     "**2026-11-10 | 2026.12.67 | pull 5**", "**2026-11-10 | 2026.12.2 | 2**"):
+            with self.subTest(line=line):
+                result = self._parity_run(line + "\n" + same, same)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn("in a shape gate 59 cannot compare", result.stdout)
+                self.assertIn(f"line 2 ({line!r})", result.stdout)
+
+    def test_old_records_in_any_position_or_list_item_fail(self) -> None:
+        # EP4, ep3qc M2 probes C1 to C5: an old record whose date has a 1-digit month, is not the
+        # first cell, or sits on a list-item bold line used to pass unread. A date before
+        # EPOCH_START anywhere in a candidate's heading text or first bold span now fails it as
+        # an old-repository record. The old weekly roll-up (C4) is a named exempt shape.
+        # EP7 (ep6qc L1): each probe sits in the mirror only and the mirror's FAIL line is asserted.
+        same = self._new_headers(1)
+        for line, date in (("## 2026-6-21, Library Version 2026.06.9, PR #3127", "2026-6-21"),
+                           ("**PR #3127 | 2026-06-21 | 2026.06.9**", "2026-06-21"),
+                           ("## Library Version 2026.06.9, 2026-06-21, PR #3127", "2026-06-21"),
+                           ("- **2026-06-21 | 2026.06.9 | PR #3127**", "2026-06-21")):
+            with self.subTest(line=line):
+                result = self._parity_run(same, same + line + "\n")
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(f"line 3 PR #3127 ({date})", self._mirror_old_line(result.stdout))
+        # EP6: the old roll-up is exempt in the mirror; the root grammar fails it as old.
+        result = self._parity_run(same, same + "**Week of 2026-06-15 (PRs #3100-#3127)** Old.\n")
+        self.assertEqual(result.returncode, 0, result.stdout)
+
+    def test_milestone_line_naming_a_pr_passes(self) -> None:
+        # EP4, ep3qc L2 probes F2 and F3: the bold milestone form is a named exempt shape whether
+        # or not its text names a PR; one dated before EPOCH_START still fails as old.
+        # EP6: the root grammar admits no milestone, so the exemption is read in the mirror and a
+        # root milestone fails as outside the root grammar.
+        same = self._new_headers(1)
+        for text in ("split landed in PR #1.", "split landed."):
+            with self.subTest(text=text):
+                mirror = f"**2026-11-10 | MILESTONE:** {text}\n\n" + same
+                result = self._parity_run(same, mirror)
+                self.assertEqual(result.returncode, 0, result.stdout)
+                result = self._parity_run(mirror, same)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn("are outside the root grammar", result.stdout)
+        result = self._parity_run(same, same + "**2026-07-29 | MILESTONE:** Old.\n")
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("line 3 with no PR number read (2026-07-29)", result.stdout)
+
+    def test_dated_level_three_body_heading_passes(self) -> None:
+        # EP4, ep3qa (PARTLY) and ep3qc L2 probe F1: a dated level-3 body subheading that cites a
+        # PR is body structure, not an entry, so it is never a candidate, whatever its date.
+        same = self._new_headers(1)
+        mirror = (same + "\n### 2026-11-10 ruling applied (see #1)\n\ntext.\n\n"
+                  "### 2026-10-30 ruling applied (see #1)\n\ntext.\n")
+        result = self._parity_run(same, mirror)
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+
+    # EP5 item 1 (ep4qc M1 probes S1 to S18, ep4qx 1): a new #2 entry behind an opening other
+    # than a column-0 comparison shape. Each used to be neither compared nor failed, so the gate
+    # passed comparing only #1. S12 (mirror side) and the pre-epoch probes are separate tests.
+    NEW_TRIPLE_PROBES = (
+        ("S1 leading space", " **2026-11-10 | 2026.12.2 | PR #2**"),
+        ("S2 level 1", "# 2026-11-10, Library Version 2026.12.2, PR #2"),
+        ("S3 level 3", "### 2026-11-10, Library Version 2026.12.2, PR #2"),
+        ("S4 tab after ##", "##\t2026-11-10, Library Version 2026.12.2, PR #2"),
+        ("S5 underscore bold", "__2026-11-10 | 2026.12.2 | PR #2__"),
+        ("S6 star bullet", "* **2026-11-10 | 2026.12.2 | PR #2**"),
+        ("S7 plus bullet", "+ **2026-11-10 | 2026.12.2 | PR #2**"),
+        ("S8 numbered item", "1. **2026-11-10 | 2026.12.2 | PR #2**"),
+        ("S9 quote", "> **2026-11-10 | 2026.12.2 | PR #2**"),
+        ("S10 setext", "2026-11-10, Library Version 2026.12.2, PR #2\n" + "-" * 44),
+        ("S11 BOM", "\ufeff**2026-11-10 | 2026.12.2 | PR #2**"),
+        ("S13 doubled bold", "** **2026-11-10 | 2026.12.2 | PR #2**"),
+        ("S14 Pr label", "**2026-11-10 | 2026.12.2 | Pr #2**"),
+        ("S18 no-break space after ##", "##\u00a02026-11-10, Library Version 2026.12.2, PR #2"),
+        ("tab before bold", "\t**2026-11-10 | 2026.12.2 | PR #2**"),
+        ("no-break space before bold", "\u00a0**2026-11-10 | 2026.12.2 | PR #2**"),
+        ("indented list item", "  - **2026-11-10 | 2026.12.2 | PR #2**"),
+    )
+
+    def test_new_entry_behind_any_opening_fails(self) -> None:
+        # EP5 item 1: a line holding a comparison-like triple must be a column-0 full match of a
+        # comparison shape; behind any other opening it fails, naming the expected shapes.
+        same = self._new_headers(1)
+        for name, probe in self.NEW_TRIPLE_PROBES:
+            with self.subTest(probe=name):
+                result = self._parity_run(same + probe + "\n", same)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn("are in a shape gate 59 cannot compare", result.stdout)
+                self.assertIn("**YYYY-MM-DD | X.Y.Z | PR #N**", result.stdout)
+                self.assertIn(f"line 4 ({probe.splitlines()[0]!r})", result.stdout)
+                self.assertNotIn("headers match", result.stdout)
+
+    def test_mirror_only_entry_behind_a_leading_space_fails(self) -> None:
+        # EP5 item 1, ep4qc probe S12: a mirror-only #2 with a leading space used to pass.
+        same = self._new_headers(1)
+        probe = " **2026-11-10 | 2026.12.2 | PR #2**"
+        result = self._parity_run(same, same + probe + "\n")
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("FAIL: entry line(s) in the detailed mirror (", result.stdout)
+        self.assertIn(f"line 3 ({probe!r})", result.stdout)
+
+    def test_triple_pr_cell_forms_behind_any_opening_fail(self) -> None:
+        # EP5 item 1: every PR cell form (PR #N, PR N, PRN, #N and a bare number in a cell), in
+        # the compact cell shape and the legacy comma shape, makes the line a candidate.
+        same = self._new_headers(1)
+        for probe in (" **2026-11-10 | 2026.12.2 | PR 2**", " **2026-11-10 | 2026.12.2 | PR2**",
+                      " **2026-11-10 | 2026.12.2 | #2**", " **2026-11-10 | 2026.12.2 | 2**",
+                      " 2026-11-10 | 2026.12.2 | 2", "- 2026-11-10, Version 2026.12.2, 2",
+                      "- 2026-11-10, Library Version 2026.12.2, PR 2",
+                      "* 2026-11-10, Library Version 2026.12.2, PR #2"):
+            with self.subTest(probe=probe):
+                result = self._parity_run(same + probe + "\n", same)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(f"line 4 ({probe!r})", result.stdout)
+                self.assertIn("are in a shape gate 59 cannot compare", result.stdout)
+
+    def test_old_record_behind_any_opening_fails_as_old(self) -> None:
+        # EP5 item 1, ep4qc probes O1, O2 and O11 and ep4qx 1 (tab after ##): a pre-epoch record
+        # behind any opening used to pass in both files. It now fails as an old-repository record.
+        same = self._new_headers(1)
+        for probe in ("* **2026-06-21 | 2026.06.9 | PR #3127**",
+                      "### 2026-06-21, Library Version 2026.06.9, PR #3127",
+                      "  - **2026-06-21 | 2026.06.9 | PR #3127**",
+                      "##\t2026-06-21, Library Version 2026.06.9, PR #3127",
+                      "##\u00a02026-06-21, Library Version 2026.06.9, PR #3127",
+                      " **2026-06-21 | 2026.06.9 | PR #3127**"):
+            with self.subTest(probe=probe):
+                result = self._parity_run(same + probe + "\n", same + probe + "\n")
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn("are old-repository records to archive", result.stdout)
+                self.assertIn("line 4 PR #3127 (2026-06-21)",
+                              self._fail_lines(result.stdout, "root"))
+                self.assertIn("line 3 PR #3127 (2026-06-21)",
+                              self._fail_lines(result.stdout, "mirror"))
+
+    def test_bold_and_heading_body_lines_are_not_candidates(self) -> None:
+        # EP5 item 3, ep4qc L2 probes W1 to W5, W9 and W10: ordinary body lines that mention a PR
+        # or a date used to fail as entry candidates. A bold line is a candidate only when its
+        # first bold span starts with a date-like token or holds a cell separator, and a "## "
+        # heading only when it carries a date-like token or a numbered PR identity.
+        same = self._new_headers(1)
+        body = ("**Follow-up to PR #1:** none.\n"
+                "- **PR #1 review:** two rounds.\n"
+                "**Ruling 2026-11-09:** applied.\n"
+                "**Per the 2026-09-30 ruling:** kept.\n"
+                "## Pull-request checklist\n"
+                "- **reports/2026-11-02-sweep.md** read.\n"
+                "- **reports/2026-11-10-sweep.md** read.\n")
+        result = self._parity_run(same, same + body)
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+
+    def test_unreadable_and_multi_pr_messages_state_what_was_found(self) -> None:
+        # EP5 item 4, ep4qc L3: the unreadable-shape message said "on or after EPOCH_START" for
+        # lines with no date (W5 shape) or a non-ISO date (O7), and the multi-PR message named
+        # a PR-cell case it never reports.
+        # EP7: a pre-epoch month-name date now reads as an old-repository record, so the non-ISO
+        # probe carries a post-epoch month-name date.
+        same = self._new_headers(1)
+        for probe in ("**21 Nov 2026 | 2026.11.67 | PR #2**", "**PR #5 | 2026.12.5**"):
+            with self.subTest(probe=probe):
+                result = self._parity_run(same + probe + "\n", same)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(f"are in a shape gate 59 cannot compare (each must be ", result.stdout)
+                self.assertIn(f"line 4 ({probe!r})", result.stdout)
+                self.assertNotIn("on or after EPOCH_START", result.stdout)
+        result = self._parity_run(
+            "## 2026-11-10, Library Version 2026.12.3, PR #2 and PR #3\n" + same, same)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("name more than 1 PR; one header per PR is required: line 2 (#2, #3)",
+                      result.stdout)
+        self.assertNotIn("cannot read as 1 PR", result.stdout)
+
+    def test_version_floor_fails_an_epoch_day_old_record(self) -> None:
+        # EP5 item 2, ep4qc L1 probe O3b: an old-repository record dated on EPOCH_START itself
+        # (2026-11-09) at 2026.11.65 passed as a new PR. A compared header below VERSION_FLOOR
+        # (2026.11.66, the first new-repository version) fails as an old record whatever its
+        # date; #1 at 2026.11.66 is the passing control.
+        same = "**2026-11-09 | 2026.11.66 | PR #1** - tooling: entry 1.\n\n"
+        for old in ("**2026-11-09 | 2026.11.65 | PR #3127** - old record\n",
+                    "## 2026-11-09, Library Version 2026.11.65, PR #3127\n"):
+            with self.subTest(old=old):
+                result = self._parity_run(same + old, same + old)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn("carry a Library Version below VERSION_FLOOR 2026.11.66", result.stdout)
+                self.assertIn("old-repository records to archive", result.stdout)
+                self.assertIn("line 4 PR #3127 (2026.11.65)",
+                              self._fail_lines(result.stdout, "root"))
+                self.assertIn("line 3 PR #3127 (2026.11.65)",
+                              self._fail_lines(result.stdout, "mirror"))
+        result = self._parity_run(same, same)
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+
+    def test_head_parity_keeps_an_epoch_day_floor_record(self) -> None:
+        # EP6 item 3, ep5qx 2: the head helper kept only the old and unparseable lines before its
+        # ceiling filter, so an epoch-day record below VERSION_FLOOR above the root ceiling was
+        # dropped before the gate could fail it. Every line entry_findings fails is kept now.
+        from unittest import mock
+        old = "**2026-11-09 | 2026.11.65 | PR #3127** - old record\n"
+        with tempfile.TemporaryDirectory() as store:
+            self._store_mirror(store, self._new_headers(1) + old)
+            with mock.patch.dict(os.environ, {"GRC_STORE": store}):
+                result, ceiling = self._head_parity_result(self._new_headers(1))
+        self.assertEqual(ceiling, 1)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("carry a Library Version below VERSION_FLOOR 2026.11.66", result.stdout)
+        self.assertIn("line 3 PR #3127 (2026.11.65)", result.stdout)
+
+    # EP6 item 1: a root in full form (title, intro, a canonical per-PR line) above its first
+    # "## Week of" heading. A probe line goes in as line 7, between the per-PR line and the week.
+    ROOT_HEAD = "# Changelog\n\nThis file records changes, newest first.\n\n"
+    WEEK_TAIL = "\n## Week of 2026-11-09\n\n- tooling: entry.\n"
+
+    # ep5qc M1 (new #2) and M2 and ep5qx 1, in root form. Lines that ep5qc describes rather than
+    # quotes (the bold date with "### " or "  - " in front, and the "Also:" list) are built here.
+    ROOT_NEW_PROBES = (
+        ("M1 bold date only", "* **2026-11-10** | 2026.11.67 | PR #2"),
+        ("M1 bold date only, level 3", "### **2026-11-10** | 2026.11.67 | PR #2"),
+        ("M1 bold date only, indented item", "  - **2026-11-10** | 2026.11.67 | PR #2"),
+        ("M1 linked PR cell", "* **2026-11-10 | 2026.11.67 | [PR #2](https://example.invalid/pull/2)**"),
+        ("M1 hyphen joints", "### 2026-11-10 - Library Version 2026.11.67 - PR #2"),
+        ("M1 em dash joints", "* 2026-11-10 — 2026.11.67 — PR #2"),
+        ("M1 code spans", "* `2026-11-10` | `2026.11.67` | PR #2"),
+        ("M1 parenthesized PR", "### 2026-11-10, Library Version 2026.11.67 (PR #2)"),
+        ("M1 PR before version", "### 2026-11-10, PR #2, Library Version 2026.11.67"),
+        ("M1 month-name date", "### 10 Nov 2026, Library Version 2026.11.67, PR #2"),
+        ("M1 v prefix", "**2026-11-10 | v2026.11.67 | PR #2**"),
+        ("M1 Pull request label", "**2026-11-10 | 2026.11.67 | Pull request #2**"),
+        ("M1 (#N) cell", "**2026-11-10 | 2026.11.67 | (#2)**"),
+        ("M1 bracketed date", "**[2026-11-10] | 2026.11.67 | PR #2**"),
+        ("M1 Version: label", "### 2026-11-10, Version: 2026.11.67, PR #2"),
+        ("M1 semicolons", "**2026-11-10; 2026.11.67; PR #2**"),
+        ("M1 timestamp", "**2026-11-10T12:00Z | 2026.11.67 | PR #2**"),
+        ("M1 pre-release version", "**2026-11-10 | 2026.11.67-rc1 | PR #2**"),
+        ("M1 zero-width space", "\u200b**2026-11-10 | 2026.11.67 | PR #2**"),
+        ("M2 PR first, cells", "**PR #2** | 2026-11-10 | 2026.11.67"),
+        ("M2 PR first, list item", "- **PR #2:** 2026-11-10, Library Version 2026.11.67"),
+        ("ep5qx 1 linked PR cell", "* **2026-11-10 | 2026.11.67 | [PR #2](../../pull/2)**"),
+    )
+
+    # ep5qc M1 (old records) and M2 (old, PR first) and ep5qx 1 (old), in root form. The elided
+    # link target of ep5qc's linked old record is rebuilt with an example.invalid address.
+    ROOT_OLD_PROBES = (
+        "* **2026-06-21** | 2026.06.9 | PR #3127",
+        "### 21 Jun 2026, Library Version 2026.06.9, PR #3127",
+        "* **2026-06-21 | 2026.06.9 | [PR #3127](https://example.invalid/pull/3127)**",
+        "### 2026-06-21 - Library Version 2026.06.9 - PR #3127",
+        "* **2026-07-29 | MILESTONE:** split landed in PR #3127.",
+        "**PR #3127** | 2026-06-21 | 2026.06.9",
+        "- **PR #3127:** 2026-06-21, Library Version 2026.06.9",
+        "* **2026-06-21 | 2026.06.9 | [PR #3127](../../pull/3127)**",
+    )
+
+    def _root_with(self, probe: str) -> str:
+        return self.ROOT_HEAD + self._new_headers(1) + probe + "\n" + self.WEEK_TAIL
+
+    def test_root_grammar_full_form_passes(self) -> None:
+        # EP6 item 1: the title, the intro paragraph, blank lines and a canonical per-PR line above
+        # the first week heading, and weekly summaries below it, pass.
+        same = self._new_headers(1)
+        result = self._parity_run(self.ROOT_HEAD + same + self.WEEK_TAIL, same)
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+
+    def test_real_root_changelog_passes_the_root_grammar(self) -> None:
+        # EP6 item 1: the real root (byte-identical to the corpus copy new-repo-root-CHANGELOG.md
+        # when EP6 was written) has 0 root-grammar failures and still compares its PR #1 line.
+        mod = load_linter_module(
+            ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py",
+            "_mp_ep6_real_root")
+        text = (REPO_ROOT / ".working/CHANGELOG.md").read_text(encoding="utf-8")
+        found = mod.root_findings(text)
+        self.assertEqual(found.lines(), set())
+        self.assertTrue(mod.pr_headers(text))
+        rc, out = self._no_mirror_run(text.encode("utf-8"), "_mp_ep6_real_root_run")
+        self.assertEqual(rc, 0, out)
+
+    def test_root_grammar_fails_every_ep5_probe_in_root_form(self) -> None:
+        # EP6 item 1, ep5qc M1 and M2 and ep5qx 1: each new #2 line passed unread in EP5 because
+        # pattern detection missed its shape. The closed root grammar fails every line that is not
+        # a canonical per-PR line, naming the canonical shape.
+        mirror = self._new_headers(1)
+        for name, probe in self.ROOT_NEW_PROBES:
+            with self.subTest(probe=name):
+                result = self._parity_run(self._root_with(probe), mirror)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(f"line 7 ({probe!r})", result.stdout)
+                self.assertIn("**YYYY-MM-DD | X.Y.Z | PR #N** at column 0", result.stdout)
+                self.assertNotIn("headers match", result.stdout)
+
+    def test_root_grammar_fails_every_ep5_old_probe_in_root_form(self) -> None:
+        # EP6 item 1, ep5qc M1 and M2 and ep5qx 1: the old records passed in EP5. In root form
+        # each fails, as an old-repository record or as outside the root grammar. EP7: a
+        # month-name date (21 Jun 2026) is read as a date, so that probe fails as old too.
+        mirror = self._new_headers(1)
+        for probe in self.ROOT_OLD_PROBES:
+            with self.subTest(probe=probe):
+                result = self._parity_run(self._root_with(probe), mirror)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertTrue(f"line 7 PR #3127 (" in result.stdout
+                                or "line 7 with no PR number read (2026-07-29)" in result.stdout
+                                or f"line 7 ({probe!r})" in result.stdout, result.stdout)
+                self.assertNotIn("headers match", result.stdout)
+
+    def test_root_grammar_fails_other_lines_above_the_week(self) -> None:
+        # EP6 item 1: shapes the mirror accepts or ignores fail in the root region: a legacy
+        # header, a milestone, a weekly roll-up, a table row, a second prose paragraph, a level-3
+        # heading and a second title.
+        mirror = self._new_headers(1)
+        for probe in ("## 2026-11-10, Library Version 2026.12.2, PR #2",
+                      "**2026-11-10 | MILESTONE:** split landed.",
+                      "**Week of 2026-11-09 (PRs #1-#2)** Summary.",
+                      "| 2026-11-10 | 2026.12.2 | PR #2 |",
+                      "More prose about the changes.",
+                      "### Notes",
+                      "# Changelog"):
+            with self.subTest(probe=probe):
+                result = self._parity_run(self._root_with(probe), mirror)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn("are outside the root grammar", result.stdout)
+                self.assertIn(f"line 7 ({probe!r})", result.stdout)
+                self.assertIn("**YYYY-MM-DD | X.Y.Z | PR #N** at column 0", result.stdout)
+
+    def test_root_grammar_intro_rules(self) -> None:
+        # EP6 item 1: intro lines come directly after the title, start with a letter and hold no
+        # date-like token. EP7 (ep6qx 1, ep6qc M1): they hold no X.Y.Z version and no numbered PR
+        # identity either, so the EP6 version line now fails.
+        same = self._new_headers(1)
+        ok = "# Changelog\n\nVersions follow the CalVer scheme.\nA second intro line.\n\n" + same
+        result = self._parity_run(ok, same)
+        self.assertEqual(result.returncode, 0, result.stdout)
+        for intro in ("This file starts on 2026-11-09.", "- A list item as intro.",
+                      "2026 changes, newest first.", "Versions follow 2026.11.66 and later."):
+            with self.subTest(intro=intro):
+                result = self._parity_run("# Changelog\n\n" + intro + "\n\n" + same, same)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(f"line 3 ({intro!r})", result.stdout)
+        result = self._parity_run("Intro without a title.\n\n" + same, same, titled=False)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("line 1 ('Intro without a title.')", result.stdout)
+
+    def test_root_per_pr_line_below_the_week_heading_fails(self) -> None:
+        # EP6 item 1: per-PR lines belong only to the current week, above the summaries. Below
+        # the first week heading each comparison-shape line fails, and the mirror rules still
+        # read every other line there.
+        same = self._new_headers(1)
+        root = (self.ROOT_HEAD + same + "## Week of 2026-11-09\n\n"
+                "**2026-11-10 | 2026.12.2 | PR #2** - late.\n"
+                "## 2026-11-10, Library Version 2026.12.3, PR #3\n"
+                "- 2026-11-10 | 2026.12.4 | PR #4\n"
+                "- An ordinary summary bullet citing PR #1.\n")
+        result = self._parity_run(root, same)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("sit at or below its first ## Week of heading", result.stdout)
+        self.assertIn("line 9 ('**2026-11-10 | 2026.12.2 | PR #2** - late.')", result.stdout)
+        self.assertIn("line 10 ('## 2026-11-10, Library Version 2026.12.3, PR #3')", result.stdout)
+        self.assertIn("line 11 ('- 2026-11-10 | 2026.12.4 | PR #4')", result.stdout)
+        self.assertNotIn("line 12", result.stdout)
+        self.assertNotIn("MISSING", result.stdout)
+
+    def test_mirror_body_lines_from_ep5qc_l1_pass(self) -> None:
+        # EP6 item 2, ep5qc L1: real-looking mirror body lines failed in EP5. An X.Y.Z token is not
+        # date-like, table rows and inline code spans are skipped, and a bold span holding "|"
+        # needs a date, version or PR to be a candidate. EP7: a triple after words is no longer
+        # body text (see test_mirror_entry_tokens_in_any_order_fail).
+        same = self._new_headers(1)
+        body = ("| 2026-11-10 | 2026.11.67 | 2 |\n"
+                "| 2026-11-09 | 2026.11.66 | PR #1 |\n"
+                "- Archived `**2026-11-07 | 2026.11.65 | PR #3127**` to changelog-archive.\n"
+                "- `**2026-11-07 | 2026.11.65 | PR #3127**` moved to changelog-archive.\n"
+                "## Upgrade notes for 2026.11.66\n"
+                "## Changes to section 6.1.2\n"
+                "**0.23.0 pack:** moved.\n"
+                "- **3.12.1 support:** added.\n"
+                "## README 1.11.919 bump\n"
+                "**Before | after:** renamed.\n")
+        for line in body.splitlines():
+            with self.subTest(line=line):
+                result = self._parity_run(same, same + line + "\n")
+                self.assertEqual(result.returncode, 0, result.stdout)
+                self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+
+    def test_mirror_new_entry_citing_an_old_date_is_not_an_old_record(self) -> None:
+        # EP6 item 2, ep5qc L1: a line is an old-repository record only when its first date cell
+        # is before EPOCH_START. This new #2 behind a leading space fails as unreadable.
+        same = self._new_headers(1)
+        probe = " **2026-11-10 | 2026.11.67 | PR #2** - reverts the 2026-11-02 change"
+        result = self._parity_run(same, same + probe + "\n")
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("are in a shape gate 59 cannot compare", result.stdout)
+        self.assertIn(f"line 3 ({probe!r})", result.stdout)
+        self.assertNotIn("old-repository", result.stdout)
+
+    def test_mirror_pr_first_bold_lines_fail(self) -> None:
+        # EP6 item 2, ep5qc M2: a bold line whose first bold span names a numbered PR and whose
+        # rest holds a date-like token is a candidate again, so these mirror-only lines fail.
+        same = self._new_headers(1)
+        for probe, old in (("**PR #2** | 2026-11-10 | 2026.11.67", False),
+                           ("- **PR #2:** 2026-11-10, Library Version 2026.11.67", False),
+                           ("**PR #3127** | 2026-06-21 | 2026.06.9", True),
+                           ("- **PR #3127:** 2026-06-21, Library Version 2026.06.9", True)):
+            with self.subTest(probe=probe):
+                result = self._parity_run(same, same + probe + "\n")
+                self.assertEqual(result.returncode, 1, result.stdout)
+                if old:
+                    self.assertIn("line 3 PR #3127 (2026-06-21)", result.stdout)
+                    self.assertIn("are old-repository records to archive", result.stdout)
+                else:
+                    self.assertIn(f"line 3 ({probe!r})", result.stdout)
+                    self.assertIn("are in a shape gate 59 cannot compare", result.stdout)
+
+    def test_mirror_bold_week_lines_are_validated(self) -> None:
+        # EP6 item 4, ep5qx 3: a bold "Week of" line was never a candidate, so an invalid date
+        # or a malformed roll-up passed without reaching the exemption check.
+        same = self._new_headers(1)
+        result = self._parity_run(same, same + "**Week of 2026-99-99 (PRs #1-#2)**\n")
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("carry a date gate 59 cannot parse", result.stdout)
+        self.assertIn("line 3 ('2026-99-99')", result.stdout)
+        for probe in ("**Week of 2026-11-09 PRs #1-#2**", "- **Week of 2026-11-09 (PRs #1-#2)**",
+                      "**Week of next sprint**"):
+            with self.subTest(probe=probe):
+                result = self._parity_run(same, same + probe + "\n")
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(f"line 3 ({probe!r})", result.stdout)
+                self.assertIn("are in a shape gate 59 cannot compare", result.stdout)
+        result = self._parity_run(same, same + "**Week of 2026-11-02 (PRs #1-#2)** Summary.\n")
+        self.assertEqual(result.returncode, 0, result.stdout)
+
+    # EP7 item 1 (ep6qx 1, ep6qc M1 I1 to I7): intro lines holding a PR identity or a version.
+    INTRO_PROBES = (
+        ("I1", "PR #2 shipped Library Version 2026.11.67 on 10 November 2026.", False),
+        ("I2", "PR #2 | 2026.11.67 | 2026.11.10", False),
+        ("I3", "PR #3127 | 2026.06.9 | 21 Jun 2026", True),
+        ("I5", "Version 2026.11.67, PR #2, merged 2026.11.10.", False),
+        ("qx new", "November 10, 2026 | 2026.11.67 | PR #2", False),
+        ("qx old", "November 7, 2026 | 2026.11.65 | PR #3127", True),
+        ("version only", "Versions follow 2026.11.66 and later.", False),
+        ("PR only", "See pull 4 for the history.", False),
+    )
+
+    def test_root_intro_lines_holding_a_version_or_pr_fail(self) -> None:
+        # EP7 item 1: an intro line holding a numbered PR identity or an X.Y.Z version passed
+        # unread in EP6. It now fails, as an old-repository record when its first date is
+        # pre-epoch and otherwise with a message naming the canonical root shape.
+        same = self._new_headers(1)
+        for name, intro, old in self.INTRO_PROBES:
+            with self.subTest(probe=name):
+                result = self._parity_run("# Changelog\n\n" + intro + "\n\n" + same, same)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertNotIn("headers match", result.stdout)
+                if old:
+                    self.assertIn("line 3 PR #3127 (", result.stdout)
+                    self.assertIn("are old-repository records to archive", result.stdout)
+                else:
+                    self.assertIn(f"line 3 ({intro!r})", result.stdout)
+                    self.assertIn("**YYYY-MM-DD | X.Y.Z | PR #N** at column 0", result.stdout)
+        # I7 (a second intro line) and I4 (2 such lines).
+        for intro, linenos in (("This file records changes.\nLatest: PR #2 at 2026.11.67.", (4,)),
+                               ("PR #2 | 2026.11.67 | 2026.11.10\nPR #3 | 2026.11.68 | 2026.11.11",
+                                (3, 4))):
+            with self.subTest(intro=intro):
+                result = self._parity_run("# Changelog\n\n" + intro + "\n\n" + same, same)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                for lineno in linenos:
+                    self.assertIn(f"line {lineno} ('", result.stdout)
+        # I6: the old record in both files fails in both.
+        line = "PR #3127 | 2026.06.9 | 21 Jun 2026"
+        result = self._parity_run("# Changelog\n\n" + line + "\n\n" + same, same + line + "\n")
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("line 3 PR #3127 (21 Jun 2026)", result.stdout)
+        self.assertIn("line 3 PR #3127 (21 Jun 2026)", self._mirror_old_line(result.stdout))
+
+    def test_root_below_the_week_holds_only_weekly_lines(self) -> None:
+        # EP7 item 2 (ep6qc M2): below the first "## Week of" heading the root holds only valid
+        # weekly headings, blank lines and "- " bullets without both a version and a PR identity.
+        same = self._new_headers(1)
+        for probe in ("- PR #2 (2026.11.67) merged 2026-11-10: adds X",
+                      "- **PR #2** 2026.11.67: tools",
+                      "* **2026-11-10**: 2026.11.67, PR #2",
+                      "### 2026-11-10: Library Version 2026.11.67, PR #2",
+                      "Continuation text.", "## Week of next week"):
+            with self.subTest(probe=probe):
+                result = self._parity_run(self._root_with("") + probe + "\n", same)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn("at or below its first ## Week of heading are outside the root grammar "
+                              "(that region must hold only ## Week of YYYY-MM-DD headings with a "
+                              "valid date, blank lines and \"- \" bullets", result.stdout)
+                self.assertIn(f"line 12 ({probe!r})", result.stdout)
+        result = self._parity_run(self._root_with("") + "## Week of 2026-99-99\n", same)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("line 12 ('2026-99-99')", result.stdout)
+        ok = ("\n## Week of 2026-11-02\n\n- tooling: version 1.0.15 bundled.\n"
+              "- An ordinary summary bullet citing PR #1.\n  \n")
+        result = self._parity_run(self._root_with("") + ok, same)
+        self.assertEqual(result.returncode, 0, result.stdout)
+
+    # EP7 item 3 (ep6qx 2, ep6qc M2): mirror entries in any order and with any separators.
+    MIRROR_ANY_ORDER_NEW = (
+        "* **2026-11-10**: 2026.11.67, PR #2",
+        "### 2026-11-10: Library Version 2026.11.67, PR #2",
+        "- 2026-11-10: 2026.11.67 (PR #2)",
+        "* 2026-11-10 2026.11.67 PR #2",
+        "### 2026-11-10 Library Version 2026.11.67 PR #2",
+        "* 2026-11-10\t2026.11.67\tPR #2",
+        "* 2026-11-10 / 2026.11.67 / PR #2",
+        "* **PR #2** | 2026-11-10 | 2026.11.67",
+        "### **PR #2** (2026-11-10, 2026.11.67)",
+        "### 2026-11-10 (2026.11.67) PR #2",
+        "* [2026-11-10](https://example.invalid/r) | 2026.11.67 | PR #2",
+        "- [x] 2026-11-10 | 2026.11.67 | PR #2",
+        "* 2026-11-10 | 2026.11.67 | PR-2",
+        "* 2026-11-10 | 2026.11.67 | https://example.invalid/o/r/pull/2",
+        "* [2026-11-10] | 2026.11.67 | PR #2",
+        "* 2026-11-10T12:00Z | 2026.11.67 | PR #2",
+        "* 2026-11-10 | 2026.11.67-rc1 | PR #2",
+        "### 2026-11-10, PR #2, Library Version 2026.11.67",
+        "- 2026-11-10 | PR #2 | 2026.11.67",
+        "### 10 Nov 2026, Library Version 2026.11.67, PR #2",
+        "* 2026.11.10 | v2026.11.67 | PR2",
+        "PR #2 shipped Library Version 2026.11.67 on 10 November 2026.",
+        "- Corrects the 2026-11-09, Library Version 2026.11.66, PR #1 header.",
+    )
+    MIRROR_ANY_ORDER_OLD = (
+        ("### 2026-06-21, PR #3127, Library Version 2026.06.9", "2026-06-21"),
+        ("### 21 Jun 2026, Library Version 2026.06.9, PR #3127", "21 Jun 2026"),
+        ("* **2026-06-21**: 2026.06.9, PR #3127", "2026-06-21"),
+        ("* **2026-07-29 | MILESTONE:** split landed in PR #3127.", "2026-07-29"),
+    )
+
+    def test_mirror_entry_tokens_in_any_order_fail(self) -> None:
+        # EP7 item 3: each mirror-only line passed in EP6 with only #1 compared. A line holding a
+        # date-like token, an X.Y.Z version and a PR identity in any order, and a milestone behind
+        # an opening, is now a candidate that fails.
+        same = self._new_headers(1)
+        for probe in self.MIRROR_ANY_ORDER_NEW:
+            with self.subTest(probe=probe):
+                result = self._parity_run(same, same + probe + "\n")
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn("are in a shape gate 59 cannot compare", result.stdout)
+                self.assertIn(f"line 3 ({probe!r})", result.stdout)
+        for probe, date in self.MIRROR_ANY_ORDER_OLD:
+            with self.subTest(probe=probe):
+                result = self._parity_run(same, same + probe + "\n")
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(f"({date})", self._mirror_old_line(result.stdout))
+
+    def test_mirror_pr_first_rule_needs_a_leading_date(self) -> None:
+        # EP7 item 4 (ep6qc L2): the PR-first bold rule needed the date as the first token of the
+        # tail after an optional "|" or ":", so the first 2 body lines passed and the other 5 L2
+        # lines still failed under the EP7 opening rules.
+        # EP8c item 2 (ep7qx 2, ep7qc L2): a line without the full date, version and PR triple and
+        # without a canonical opening is no longer a candidate, so the other 5 L2 body lines pass
+        # too. The cell form (the W5 shape) and malformed canonical openings still fail.
+        same = self._new_headers(1)
+        for line in ("**Supersedes PR #1:** reverted on 2026-11-10.",
+                     "**Scope (PR #1):** see the 2026-11-09 ruling.",
+                     "- **2026-11-10:** the maintainer ruled.", "**2026-11-10 follow-up:** none.",
+                     "## Ruling of 2026-11-10", "## Follow-up for PR #1",
+                     "**Gate 59 | 2026-11-10 review:** done."):
+            with self.subTest(line=line):
+                result = self._parity_run(same, same + line + "\n")
+                self.assertEqual(result.returncode, 0, result.stdout)
+                self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+        for line in ("**PR #5 | 2026.12.5**", "## PR #5 | 2026.12.5", "**2026-11-10**",
+                     "- **2026-11-10 | 2026.11.67**", "## 2026-11-10, Library Version 2026.11.67",
+                     "## Week of next week"):
+            with self.subTest(line=line):
+                result = self._parity_run(same, same + line + "\n")
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(f"line 3 ({line!r})", self._fail_lines(result.stdout, "mirror"))
+
+    def test_root_byte_order_mark_is_stripped(self) -> None:
+        # EP7 item 6 (ep6qc L3): 1 leading U+FEFF failed the real root's title line. It is removed
+        # before the root grammar, and a per-PR line right after it is still compared.
+        # EP8b item 1: the BOM is removed before the title rule (EP8a item 5), so a BOM-prefixed
+        # root with the title passes and compares its per-PR line, while a BOM-prefixed root with
+        # no title now fails at its first line (it passed before the title rule).
+        same = self._new_headers(1)
+        result = self._parity_run("\ufeff" + self.ROOT_HEAD + same + self.WEEK_TAIL, same,
+                                  titled=False)
+        self.assertEqual(result.returncode, 0, result.stdout)
+        result = self._parity_run("\ufeff# Changelog\n" + same, same, titled=False)
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+        result = self._parity_run("\ufeff" + same, same, titled=False)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("the # Changelog title as the first non-blank line", result.stdout)
+        self.assertIn("line 1 ('**2026-11-09 | 2026.12.1 | PR #1** - tooling: entry 1.')",
+                      self._fail_lines(result.stdout, "root"))
+
+    def test_comparison_shapes_reject_leading_zeros(self) -> None:
+        # EP7 item 6 (ep6qc L4): "PR #02" and "2026.11.067" matched the shapes and agreed with
+        # "PR #2" and "2026.11.67". A 2-digit CalVer month (2027.01.5) still matches, and its
+        # version text must agree exactly in both files.
+        same = self._new_headers(1)
+        for line in ("**2026-11-10 | 2026.11.067 | PR #2**", "**2026-11-10 | 2026.11.67 | PR #02**",
+                     "## 2026-11-10, Library Version 2026.011.67, PR #2"):
+            with self.subTest(line=line):
+                result = self._parity_run(line + "\n" + same,
+                                          "**2026-11-10 | 2026.11.67 | PR #2**\n" + same)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(f"line 2 ({line!r})", result.stdout)
+        padded = "**2027-01-05 | 2027.01.5 | PR #9**\n"
+        result = self._parity_run(padded + same, padded + same)
+        self.assertEqual(result.returncode, 0, result.stdout)
+        result = self._parity_run(padded + same, "**2027-01-05 | 2027.1.5 | PR #9**\n" + same)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("#9 root=2027.01.5 mirror=2027.1.5", result.stdout)
+
+    # EP8b item 2: regressions for EP8a's gate 59 changes, new and old where a date applies.
+
+    # Emphasized records (EP8a item 1, ep7qx 1): the 2 ep7qx lines and other emphasis forms.
+    EMPHASIS_NEW = ("- PR #2 | __2026.11.67__ | 2026-11-10",
+                    "- *PR #2* | *2026.11.67* | 2026-11-10",
+                    "- PR #2 | _2026.11.67_ | __2026-11-10__")
+    EMPHASIS_OLD = ("- PR #3127 | __2026.06.9__ | 2026-06-21",
+                    "- *PR #3127* | _2026.06.9_ | 2026-06-21")
+
+    def test_ep8a_emphasized_versions_and_prs_are_read(self) -> None:
+        # EP8a item 1 (ep7qx 1): a version or a PR in Markdown emphasis was read by no detector, so
+        # these lines passed unread in the mirror, below the root's first week heading and in the
+        # intro. Emphasis markers are now removed before detection, so each fails: in the mirror a
+        # new record as a shape gate 59 cannot compare and an old one as a record to archive.
+        same = self._new_headers(1)
+        for probe in self.EMPHASIS_NEW:
+            with self.subTest(where="mirror", probe=probe):
+                result = self._parity_run(same, same + probe + "\n")
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn("are in a shape gate 59 cannot compare", result.stdout)
+                self.assertIn(f"line 3 ({probe!r})", self._fail_lines(result.stdout, "mirror"))
+        for probe in self.EMPHASIS_OLD:
+            with self.subTest(where="mirror", probe=probe):
+                result = self._parity_run(same, same + probe + "\n")
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn("line 3 PR #3127 (2026-06-21)", self._mirror_old_line(result.stdout))
+        for probe in self.EMPHASIS_NEW + self.EMPHASIS_OLD:
+            with self.subTest(where="below the week heading", probe=probe):
+                result = self._parity_run(self._root_with("") + probe + "\n", same)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn("at or below its first ## Week of heading are outside", result.stdout)
+                self.assertIn(f"line 12 ({probe!r})", self._fail_lines(result.stdout, "root"))
+        for intro in ("Versions follow __2026.11.66__.", "See _PR #2_ for the history.",
+                      "Releases follow *2026.11.66* and later."):
+            with self.subTest(where="intro", intro=intro):
+                result = self._parity_run("# Changelog\n\n" + intro + "\n\n" + same, same)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(f"line 3 ({intro!r})", self._fail_lines(result.stdout, "root"))
+        intro = "Release _PR #3127_ shipped __2026.06.9__ on 21 Jun 2026."
+        result = self._parity_run("# Changelog\n\n" + intro + "\n\n" + same, same)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("line 3 PR #3127 (21 Jun 2026)", self._fail_lines(result.stdout, "root"))
+
+    # Every labelled PR form (EP8a item 2, ep7qc M1 and L1), with "{n}" for the PR number.
+    LABELLED_PR_FORMS = ("PR #{n}", "PR {n}", "PR{n}", "PR-{n}", "PR: {n}", "PR. {n}",
+                         "PR no. {n}", "PR number {n}", "GH-{n}", "acme/grc_library#{n}",
+                         "grc_library#{n}", "pull {n}", "pull request {n}", "pull-request {n}",
+                         "https://example.invalid/acme/grc_library/pull/{n}")
+
+    def test_ep8a_every_labelled_pr_form_below_the_week_fails(self) -> None:
+        # EP8a item 2 (ep7qc M1 and L2): below the root's first week heading a bullet holding a
+        # version and a PR in a form the EP7 detector missed (PR: 2, PR number 2, GH-2 and others)
+        # passed unread. A bullet now fails when it holds a version together with a date, or a
+        # version together with a labelled PR identity, so each form fails: with a date (new and
+        # old) and without one. Both ep7qc L2 bullets (a version and a bare #N) still pass.
+        same = self._new_headers(1)
+        for form in self.LABELLED_PR_FORMS:
+            new, old = form.format(n=2), form.format(n=3127)
+            for probe in (f"- 2026-11-10 | 2026.11.67 | {new}",
+                          f"- Tooling: Library Version 2026.11.67 lands {new}.",
+                          f"- 2026-06-21 | 2026.06.9 | {old}"):
+                with self.subTest(probe=probe):
+                    result = self._parity_run(self._root_with("") + probe + "\n", same)
+                    self.assertEqual(result.returncode, 1, result.stdout)
+                    self.assertIn(f"line 12 ({probe!r})", self._fail_lines(result.stdout, "root"))
+        for bullet in ("- Tooling: the manifest schema is at version 1.0.1, tracked as backlog "
+                       "item #12.",
+                       "- OWASP ASVS references moved from 4.0.3 to 5.0.0, closing issue #42."):
+            with self.subTest(bullet=bullet):
+                result = self._parity_run(self._root_with("") + bullet + "\n", same)
+                self.assertEqual(result.returncode, 0, result.stdout)
+                self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+
+    def test_ep8a_summary_tail_naming_another_pr_fails(self) -> None:
+        # EP8a item 4 (ep7qc L3): a canonical line's free summary tail carried a second PR's record
+        # unread, in the root and in the mirror. A tail holding an X.Y.Z version and a labelled PR
+        # identity naming another number now fails in both surfaces (a new record and an old one);
+        # a tail naming only the header's own PR still passes.
+        # EP9b item 1: in the root a tail now fails when it holds any CalVer library version, so
+        # the root failure names that version, and the own-PR control passes in the mirror only.
+        same = self._new_headers(1)
+        head = "**2026-11-10 | 2026.12.2 | PR #2**"
+        for tail, other, version in ((" - also lands PR #3 (2026.11.68, 2026-11-10)", 3, "2026.11.68"),
+                                     (" - also carries PR #3127 (2026.06.9, 2026-06-21)", 3127,
+                                      "2026.06.9"),
+                                     (" - folds in GH-4 at 2026.12.4", 4, "2026.12.4")):
+            with self.subTest(tail=tail):
+                both = head + tail + "\n" + same
+                result = self._parity_run(both, both)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn("carry another PR's record in their summary tail", result.stdout)
+                self.assertIn(f"line 2 PR #2 ({version})", self._fail_lines(result.stdout, "root"))
+                self.assertIn(f"line 1 PR #2 (names #{other})",
+                              self._fail_lines(result.stdout, "mirror"))
+        result = self._parity_run(head + "\n" + same,
+                                  head + " - follow-up to PR #2 in 2026.12.2\n" + same)
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("for all 2 PR(s) at or above #1,", result.stdout)
+
+    def test_ep8a_root_title_rule_and_mirror_byte_order_mark(self) -> None:
+        # EP8a item 5 (ep7qa, ep7qc L5): the root must start with the # Changelog title, so a
+        # missing title, a title after another line, a root holding only a week heading and an
+        # empty root each fail at the line where the title belongs. A byte order mark before the
+        # mirror's first line failed that line as unreadable; it is removed, so the mirror passes.
+        same = self._new_headers(1)
+        first = "'**2026-11-09 | 2026.12.1 | PR #1** - tooling: entry 1.'"
+        for root, mirror, named in (
+                (same, same, f"line 1 ({first})"),
+                ("This file records changes.\n# Changelog\n\n" + same, same,
+                 "line 1 ('This file records changes.')"),
+                ("**2026-11-09 | 2026.12.1 | PR #1** - tooling: entry 1.\n# Changelog\n", same,
+                 f"line 1 ({first})"),
+                ("## Week of 2026-11-09\n\n- tooling: entry.\n", "# Detailed changelog\n",
+                 "line 1 ('## Week of 2026-11-09')"),
+                ("", "# Detailed changelog\n", "line 1 ('')"),
+                ("\n\n", "# Detailed changelog\n", "line 1 ('')")):
+            with self.subTest(root=root):
+                result = self._parity_run(root, mirror, titled=False)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn("the # Changelog title as the first non-blank line", result.stdout)
+                self.assertIn(named, self._fail_lines(result.stdout, "root"))
+        for mirror in ("\ufeff" + same, "\ufeff# Detailed changelog\n\n" + same):
+            with self.subTest(mirror=mirror):
+                result = self._parity_run(same, mirror)
+                self.assertEqual(result.returncode, 0, result.stdout)
+                self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+
+    def test_ep8a_wording_names_the_detection_dependent_rules(self) -> None:
+        # EP8a item 6 (ep7qc M1 and L6): the gate docstring and the specification said the root
+        # grammar was "closed end to end" and that a line is old when its "first year-first date"
+        # is before EPOCH_START. Both now name the 3 rules that depend on token detection and say
+        # "first date", which the code reads (a month-name or dot-joined date counts too).
+        gate = (SKILL_ROOT / "tools" / "lint-changelog-mirror-header-parity.py").read_text(
+            encoding="utf-8")
+        spec = (SKILL_ROOT / "specs" / "specification-audit-programme.md").read_text(
+            encoding="utf-8")
+        for name, text in (("gate", gate), ("specification", spec)):
+            with self.subTest(surface=name):
+                self.assertNotIn("closed end to end", text)
+                self.assertNotIn("first year-first date is before", text)
+                self.assertIn("3 of its rules depend on token detection", text)
+        self.assertIn("its first date (as defined below) is before `EPOCH_START`", spec)
+        self.assertIn("as ``old`` when its first date (``_first_date``", gate)
+
+    def test_ep8b_bare_repo_form_names_only_this_repository(self) -> None:
+        # EP8b item 4: the bare repo#N form of the labelled PR detector read any word glued to
+        # #N, so issue#42 counted as a PR: a weekly bullet with a version, a mirror body line with a
+        # date and a version, and a summary tail with a version all failed. The bare form now
+        # names only the repository's own name (grc_library#N); owner/repo#N is kept.
+        same = self._new_headers(1)
+        result = self._parity_run(
+            self._root_with("") + "- Tooling: version 1.0.15 fixes issue#42.\n", same)
+        self.assertEqual(result.returncode, 0, result.stdout)
+        result = self._parity_run(same, same + "- 2026-11-10: release 2026.11.67 closes issue#42.\n")
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+        both = "**2026-11-10 | 2026.12.2 | PR #2** - bumps 1.0.15 for issue#42\n" + same
+        result = self._parity_run(both, both)
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("for all 2 PR(s) at or above #1,", result.stdout)
+        for form in ("grc_library#2", "acme/grc_library#2", "other-org/other.repo#2"):
+            with self.subTest(form=form):
+                # EP9b item 1: below the week heading only a CalVer library version fails, so a
+                # non-CalVer version with a labelled PR passes there now.
+                probe = f"- Tooling: version 1.0.15 lands {form}."
+                if "_" in form:
+                    # EP12 item 1: the root's strict character rule refuses the underscore.
+                    self._root_strict_fails(probe, "bullet", "_")
+                else:
+                    result = self._parity_run(self._root_with("") + probe + "\n", same)
+                    self.assertEqual(result.returncode, 0, result.stdout)
+                probe = f"- 2026-11-10: release 2026.11.67 closes {form}."
+                result = self._parity_run(same, same + probe + "\n")
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(f"line 3 ({probe!r})", self._fail_lines(result.stdout, "mirror"))
+
+    # EP8c item 1 (ep7qc L1, ep7qa): mirror lines that passed unread after EP8b, new and old. The
+    # first 5 carry a PR form EP8b added; the others carry a date form DATE_ANY_RE now reads.
+    WIDER_DATE_NEW = (
+        "### 2026-11-10 | 2026.11.67 | PR: 2", "### 2026-11-10 | 2026.11.67 | PR number 2",
+        "### 2026-11-10 | 2026.11.67 | GH-2", "### 2026-11-10 | 2026.11.67 | pull-request 2",
+        "### 2026-11-10 | 2026.11.67 | org/grc_library#2",
+        "### 10.11.2026 | 2026.11.67 | PR #2", "- 10.11.2026: Library Version 2026.11.67, PR #2",
+        "### 2026-Nov-10 | 2026.11.67 | PR #2", "### 10-Nov-2026 | 2026.11.67 | PR #2",
+        "### 20261110 | 2026.11.67 | PR #2", "### 2026\u201011\u201010 | 2026.11.67 | PR #2",
+        "### 2026\u201311\u201310 | 2026.11.67 | PR #2",
+        "### 2026\u201511\u201510 | 2026.11.67 | PR #2")
+    WIDER_DATE_OLD = (
+        "### 2026-06-21 | 2026.06.9 | PR: 3127", "### 21-Jun-2026 | 2026.06.9 | PR: 3127",
+        "## 2026\u201006\u201021, Library Version 2026.06.9, PR #3127",
+        "### 21.06.2026 | 2026.06.9 | PR #3127", "### 2026-Jun-21 | 2026.06.9 | GH-3127")
+
+    def test_ep8c_wider_mirror_dates_are_read(self) -> None:
+        # EP8c item 1 (ep7qc L1, ep7qa): DATE_ANY_RE now also reads a DD.MM.YYYY date, a date
+        # joined by a Unicode dash from U+2010 to U+2015, D-Mon-YYYY, YYYY-Mon-D and YYYYMMDD, so
+        # each mirror-only line fails: a new record as a shape gate 59 cannot compare and an old
+        # one as a record to archive. A YYYY.MM.patch version never reads as a day-first date.
+        same = self._new_headers(1)
+        for probe in self.WIDER_DATE_NEW:
+            with self.subTest(probe=probe):
+                result = self._parity_run(same, same + probe + "\n")
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn("are in a shape gate 59 cannot compare", result.stdout)
+                self.assertIn(f"line 3 ({probe!r})", self._fail_lines(result.stdout, "mirror"))
+        for probe in self.WIDER_DATE_OLD:
+            with self.subTest(probe=probe):
+                result = self._parity_run(same, same + probe + "\n")
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn("line 3 PR #3127 (", self._mirror_old_line(result.stdout))
+        for line in ("- Library Version 2026.11.67 ships PR #2.", "- Version 2026.11.10, PR #2"):
+            with self.subTest(line=line):
+                result = self._parity_run(same, same + line + "\n")
+                self.assertEqual(result.returncode, 0, result.stdout)
+                self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+
+    def test_ep8c_malformed_legacy_headers_fail_in_the_mirror(self) -> None:
+        # EP8c item 3 (ep7qx 3, ep7qc L4): the leading-zero test put its legacy probe in the root,
+        # where the root grammar fails every legacy header whatever its digits. Each malformed
+        # legacy header now sits in the mirror against a valid compact root counterpart, and the
+        # mirror's own shape failure is asserted; the well-formed legacy header is the control.
+        tail = "**2026-11-09 | 2026.11.66 | PR #1** - tooling: entry 1.\n"
+        root = "**2026-11-10 | 2026.11.67 | PR #2** - tooling: entry 2.\n" + tail
+        for line in ("## 2026-11-10, Library Version 2026.011.67, PR #2",
+                     "## 2026-11-10, Library Version 2026.11.67, PR #02"):
+            with self.subTest(line=line):
+                result = self._parity_run(root, line + "\n" + tail)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                mirror = self._fail_lines(result.stdout, "mirror")
+                self.assertIn("are in a shape gate 59 cannot compare", mirror)
+                self.assertIn(f"line 1 ({line!r})", mirror)
+        result = self._parity_run(root, "## 2026-11-10, Library Version 2026.11.67, PR #2\n" + tail)
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("for all 2 PR(s) at or above #1,", result.stdout)
+
+    def test_ep8c_specification_names_the_forms_the_code_reads(self) -> None:
+        # EP8c item 4 (EP8b report): the specification still named the bare PR form repo#N, which
+        # the code stopped reading in EP8b. The gate 59 sentences now name grc_library#N, and the
+        # specification and the gate docstring name the wider date forms (EP8c item 1) and the
+        # canonical opening (EP8c item 2).
+        gate = (SKILL_ROOT / "tools" / "lint-changelog-mirror-header-parity.py").read_text(
+            encoding="utf-8")
+        spec = (SKILL_ROOT / "specs" / "specification-audit-programme.md").read_text(
+            encoding="utf-8")
+        self.assertNotIn("`owner/repo#N`, `repo#N`", spec)
+        self.assertIn("`owner/repo#N`, `grc_library#N` (the bare form names only the repository's "
+                      "own name, so `issue#42` is not one)", spec)
+        self.assertIn("By its canonical opening", spec)
+        self.assertIn("a line without the full date, version and PR triple and without a canonical "
+                      "opening is body text", spec)
+        self.assertIn("`**Gate 59 | 2026-11-10 review:** done.` pass", spec)
+        self.assertIn("by its canonical opening", gate)
+        self.assertIn("a line without the full date, version and PR triple", gate)
+        self.assertIn("``**Gate 59 | 2026-11-10 review:** done.`` pass", gate)
+        for name, text, mark in (("gate", gate, "``"), ("specification", spec, "`")):
+            with self.subTest(surface=name):
+                for form in ("10.11.2026", "10-Nov-2026", "2026-Nov-10", "20261110"):
+                    self.assertIn(f"{mark}{form}{mark}", text)
+                self.assertIn("U+2015", text)
+
+    # EP9b item 1 (orchestrator decision after rounds 7 and 8): every per-PR record carries a
+    # CalVer library version, so the root's intro, its bullets below the first week heading and a
+    # canonical line's summary tail hold none, read after a root flatten that keeps code-span
+    # text and removes backslash escapes and emphasis. Each probe has a new and an old form.
+    CALVER_CODE_SPAN_BULLETS = (
+        "- `2026-11-10 | 2026.11.67 | PR #2`", "- `2026-06-21 | 2026.06.9 | PR #3127`",
+        "- Shipped `2026.11.67` in `PR #2` on `2026-11-10`.",
+        "- Shipped `2026.06.9` in `PR #3127` on `2026-06-21`.")
+    CALVER_CODE_SPAN_INTROS = (
+        "Released in `PR #2` as `2026.11.67` on `2026-11-10`.",
+        "Released in `PR #3127` as `2026.06.9` on `2026-06-21`.",
+        "Versions follow `2026.11.66`.", "Old history used `2026.06.9`.")
+    CALVER_BULLETS = (
+        "- 2026-11-10 | 2026.11.67 | #2", "- 2026-06-21 | 2026.06.9 | #3127",
+        "- Released 2026.11.67 on 10 November 2026.", "- Released 2026.06.9 on 21 June 2026.",
+        "- Released v2026.11.67 today.", "- Released V2026.06.9 then.",
+        "- Library Version 2026.11.67 shipped in pull request number 2.",
+        "- Library Version 2026.06.9 shipped in pull request number 3127.",
+        "- Library Version 2026.11.67 shipped in pull request no. 2.",
+        "- Library Version 2026.06.9 shipped in pull request no. 3127.",
+        "- Library Version 2026.11.67 shipped in PR \\#2.",
+        "- Library Version 2026.06.9 shipped in PR \\#3127.")
+    CALVER_ESCAPED = (
+        "- Library Version 2026\\.11\\.67 shipped in PR #2 on 2026-11-10.",
+        "- Library Version 2026\\.06\\.9 shipped in PR #3127 on 2026-06-21.")
+    CALVER_ESCAPED_INTROS = ("Versions follow 2026\\.11\\.66 and later.",
+                             "Old history used 2026\\.06\\.9 and earlier.")
+    CALVER_REALISTIC_BULLETS = (
+        "- The NIS 2 crosswalk now cites Directive (EU) 2022/2555 of 14 December 2022, and the "
+        "reference manifest schema is at version 1.0.2.",
+        "- OWASP ASVS references moved from 4.0.3 to 5.0.0 after the review in PR #1.",
+        "- Tooling: the manifest schema is at version 1.0.1, tracked as backlog item #12.")
+
+    def _root_calver_fails(self, probe: str, where: str) -> None:
+        """``probe`` fails in the root: as a weekly bullet (line 12) or as an intro line (line 3)."""
+        same = self._new_headers(1)
+        if where == "bullet":
+            result = self._parity_run(self._root_with("") + probe + "\n", same)
+            named = f"line 12 ({probe!r})"
+        else:
+            result = self._parity_run("# Changelog\n\n" + probe + "\n\n" + same, same)
+            named = f"line 3 ({probe!r})"
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn(named, self._fail_lines(result.stdout, "root"))
+
+    def test_ep9b_root_code_span_records_are_refused(self) -> None:
+        # EP9b item 1 (ep8qg M1) read the text of a code span by removing its backticks. EP13 item
+        # 1 (ep13qs M1): the strict character rule refuses the backtick, so each probe fails by
+        # that rule, named at its first backtick.
+        for probe in self.CALVER_CODE_SPAN_BULLETS:
+            with self.subTest(where="bullet", probe=probe):
+                self._root_strict_fails(probe, "bullet", "`")
+        for probe in self.CALVER_CODE_SPAN_INTROS:
+            with self.subTest(where="intro", probe=probe):
+                self._root_strict_fails(probe, "intro", "`")
+
+    def test_ep9b_root_bullets_hold_no_calver_version(self) -> None:
+        # EP9b item 1 (ep8qg L1 and L3): a dated bullet with a bare #N or no PR, and a bullet
+        # naming its PR as "pull request number N", "pull request no. N" or "PR \#N", passed below
+        # the week heading. Every bullet holding a CalVer library version now fails, new and old.
+        for probe in self.CALVER_BULLETS:
+            with self.subTest(probe=probe):
+                self._root_calver_fails(probe, "bullet")
+
+    def test_ep9b_root_backslash_escapes_are_refused(self) -> None:
+        # EP9b item 1 (ep8qg L3) read a version written with Markdown backslash escapes
+        # (2026\.11\.67) by removing the escapes. EP12 item 1: the strict character rule refuses
+        # the backslash itself, so each probe fails by that rule, named at its first backslash.
+        for probe in self.CALVER_ESCAPED:
+            with self.subTest(where="bullet", probe=probe):
+                self._root_strict_fails(probe, "bullet", "\\")
+        for probe in self.CALVER_ESCAPED_INTROS:
+            with self.subTest(where="intro", probe=probe):
+                self._root_strict_fails(probe, "intro", "\\")
+        with self.subTest(where="tail"):
+            self._root_strict_fails(" - bumps 2026\\.12\\.3", "tail", "\\")
+
+    def test_ep9b_root_summary_tail_holds_no_calver_version(self) -> None:
+        # EP9b item 1 (ep8qg M1 and L4): a canonical root line's summary tail fails when it holds
+        # a CalVer library version, in plain text or in a code span, new and old (an escaped tail
+        # is refused by the strict character rule since EP12); a tail
+        # holding a non-CalVer X.Y.Z and another PR (ep8qg L4) passes in the root. The mirror
+        # keeps its own tail rule.
+        same = self._new_headers(1)
+        head = "**2026-11-10 | 2026.12.2 | PR #2**"
+        for tail, version in ((" - also lands `PR #3` at `2026.11.68`", "2026.11.68"),
+                              (" - also carries `PR #3127` (`2026.06.9`, `2026-06-21`)", "2026.06.9"),
+                              (" - follow-up to PR #2 in 2026.12.2", "2026.12.2")):
+            with self.subTest(tail=tail):
+                result = self._parity_run(head + tail + "\n" + same, head + "\n" + same)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                root = self._fail_lines(result.stdout, "root")
+                self.assertIn("hold a CalVer library version in their summary tail", root)
+                self.assertIn(f"line 2 PR #2 ({version})", root)
+        tail = " - tools: follows up PR #1; the reference manifest schema is now 1.0.2."
+        result = self._parity_run(head + tail + "\n" + same, head + "\n" + same)
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("for all 2 PR(s) at or above #1,", result.stdout)
+
+    def test_ep9b_realistic_bullets_pass(self) -> None:
+        # EP9b item 1 (ep8qg L4): any X.Y.Z token counted as a library version, so realistic
+        # bullets naming a schema or standard version with a date or a PR failed. Only a CalVer
+        # library version fails now, so each passes.
+        same = self._new_headers(1)
+        for bullet in self.CALVER_REALISTIC_BULLETS:
+            with self.subTest(bullet=bullet):
+                result = self._parity_run(self._root_with("") + bullet + "\n", same)
+                self.assertEqual(result.returncode, 0, result.stdout)
+                self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+
+    def test_ep9b_closing_underscore_dates_are_read_in_the_mirror(self) -> None:
+        # EP9b item 2 (ep8qg L2): no test needed the closing-underscore alternative of
+        # EMPHASIS_RE. In each probe the date reads only after its closing "_" is removed, so a
+        # new record fails as a shape gate 59 cannot compare and an old one as a record to archive.
+        same = self._new_headers(1)
+        for probe in ("- PR #2 | 2026.11.67 | _10 November 2026_", "- PR #2 | 2026.11.67 | _20261110_"):
+            with self.subTest(probe=probe):
+                result = self._parity_run(same, same + probe + "\n")
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(f"line 3 ({probe!r})", self._fail_lines(result.stdout, "mirror"))
+        for probe, date in (("- PR #3127 | 2026.06.9 | _21 June 2026_", "21 June 2026"),
+                            ("- PR #3127 | 2026.06.9 | _20260621_", "20260621")):
+            with self.subTest(probe=probe):
+                result = self._parity_run(same, same + probe + "\n")
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(f"line 3 PR #3127 ({date})", self._mirror_old_line(result.stdout))
+
+    def test_ep9b_dated_mirror_notes_pass(self) -> None:
+        # EP9b item 3 (ep8qg L5): a dated body note whose date is followed by "," or "|" was a
+        # candidate by its canonical opening and failed. After a date and "," the opening now needs
+        # a Version label, a version or a numbered PR identity, and after a date and "|" a version
+        # or MILESTONE:, so these notes pass and the entry shapes below still fail.
+        same = self._new_headers(1)
+        for line in ("- **2026-11-10, 17:07Z:** the maintainer ruled option B.",
+                     "**2026-11-10 | review:** done.", "## 2026-11-10, a note"):
+            with self.subTest(line=line):
+                result = self._parity_run(same, same + line + "\n")
+                self.assertEqual(result.returncode, 0, result.stdout)
+                self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+        for line in ("## 2026-11-10, Library Version 2026.11.67", "## 2026-11-10, Version 2026.11.67",
+                     "## 2026-11-10, 2026.11.67", "## 2026-11-10, PR #2", "**2026-11-10, PR 2**",
+                     "- **2026-11-10 | 2026.11.67**", "**2026-11-10 | PR #2**",
+                     "- **2026-11-10 | MILESTONE:** split landed."):
+            with self.subTest(line=line):
+                result = self._parity_run(same, same + line + "\n")
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(f"line 3 ({line!r})", self._fail_lines(result.stdout, "mirror"))
+
+    def test_ep9b_first_date_reads_the_wider_forms(self) -> None:
+        # EP9b item 5 (the EP8c open item): when a mirror line had no year-first ASCII date, the
+        # old-record reading skipped the date forms EP8c added and named the version 2026.06.9 as
+        # the date. It now reads them, so each old line names its own date.
+        same = self._new_headers(1)
+        for probe, date in (("### 21-Jun-2026 | 2026.06.9 | PR: 3127", "21-Jun-2026"),
+                            ("### 2026-Jun-21 | 2026.06.9 | GH-3127", "2026-Jun-21"),
+                            ("### 21.06.2026 | 2026.06.9 | PR #3127", "21.06.2026"),
+                            ("### 2026\u201006\u201021 | 2026.06.9 | PR #3127",
+                             "2026\u201006\u201021"),
+                            ("### 20260621 | 2026.06.9 | PR #3127", "20260621"),
+                            ("### 21 June 2026 | 2026.06.9 | PR #3127", "21 June 2026")):
+            with self.subTest(probe=probe):
+                result = self._parity_run(same, same + probe + "\n")
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(f"line 3 PR #3127 ({date})", self._mirror_old_line(result.stdout))
+
+    def test_ep9b_texts_name_what_the_code_reads_and_reports(self) -> None:
+        # EP9b item 4 (ep8qg L6 and L7): the specification and the docstring named fewer intro PR
+        # identities than the code rejects, and said a PR #0 header fails as below CUTOFF_PR and
+        # that every non-ISO date fails as unparseable. Both texts now name the full list and say
+        # how the code reports those lines; the unreachable below branch is removed.
+        gate = (SKILL_ROOT / "tools" / "lint-changelog-mirror-header-parity.py").read_text(
+            encoding="utf-8")
+        spec = (SKILL_ROOT / "specs" / "specification-audit-programme.md").read_text(
+            encoding="utf-8")
+        self.assertNotIn("(``PR``, ``PRs`` or ``pull`` with a number, or ``#N``)", gate)
+        self.assertNotIn("(`PR`, `PRs` or `pull` with a number, or `#N`)", spec)
+        for name, text, mark in (("gate", gate, "``"), ("specification", spec, "`")):
+            with self.subTest(surface=name):
+                for form in ("GH-N", "owner/repo#N", "grc_library#N", "pull-request N", "pull/N"):
+                    self.assertIn(f"{mark}{form}{mark}", text)
+                self.assertIn(f"{mark}- 2026/11/09 | 2026.11.66 | PR #1{mark}", text)
+                self.assertIn("matches no comparison shape and fails with the message naming the "
+                              "expected shapes", " ".join(text.split()))
+        self.assertNotIn("found.below.append", gate)
+        same = self._new_headers(1)
+        for line, message in (("**2026-11-10 | 2026.12.3 | PR #0**", "cannot compare"),
+                              ("- 2026/11/09 | 2026.11.66 | PR #1", "cannot compare"),
+                              ("## 2026/11/09, Library Version 2026.11.66, PR #1", "cannot parse")):
+            with self.subTest(line=line):
+                result = self._parity_run(same, same + line + "\n")
+                self.assertEqual(result.returncode, 1, result.stdout)
+                mirror = self._fail_lines(result.stdout, "mirror")
+                self.assertIn(message, mirror)
+                self.assertNotIn("below CUTOFF_PR", result.stdout)
+
+    # EP12 item 1: the root's strict character rule. Every root line that is not blank holds only
+    # printable ASCII (U+0020 to U+007E) other than [ ] < > \ ~ _ and no HTML character reference,
+    # so each form that rounds 9 to 12 found hiding a CalVer version in the root now fails by that
+    # rule, and the FAIL line names the line, the column and the character or the reference.
+    @staticmethod
+    def _strict_what(token: str) -> str:
+        """The gate's name for a refused ``token``: a reference, or a character by its code point."""
+        if token.startswith("&") and token.endswith(";"):
+            return f"HTML character reference {token!r}"
+        if " " <= token <= "~":
+            return f"refused character {token!r} (U+{ord(token):04X})"
+        return f"character U+{ord(token):04X} outside printable ASCII"
+
+    def _root_strict_fails(self, probe: str, where: str, token: str) -> str:
+        """``probe`` fails in the root by the strict character rule as a weekly bullet (line 12),
+        an intro line (line 3) or a canonical line's summary tail (line 2), and the FAIL line names
+        ``token`` at its first column in that line. Returns the root FAIL lines."""
+        same = self._new_headers(1)
+        head = "**2026-11-10 | 2026.12.2 | PR #2**"
+        mirror = same
+        if where == "bullet":
+            root, lineno, line = self._root_with("") + probe + "\n", 12, probe
+        elif where == "intro":
+            root, lineno, line = "# Changelog\n\n" + probe + "\n\n" + same, 3, probe
+        else:
+            line = head + probe
+            root, lineno, mirror = line + "\n" + same, 2, head + "\n" + same
+        result = self._parity_run(root, mirror)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        failed = self._fail_lines(result.stdout, "root")
+        self.assertIn("strict character rule refuses", failed)
+        column = len(line) - len(probe) + probe.index(token) + 1
+        self.assertIn(f"line {lineno} column {column}: {self._strict_what(token)}", failed)
+        return failed
+
+    # EP9d item 1 (ep9qg M1) read a CalVer version split by a Unicode format character, written
+    # with a look-alike dot or written with an HTML character reference by decoding references,
+    # removing format characters and NFKC-normalizing. EP12 item 1: the strict character rule
+    # refuses each of them, raw or as a reference. Each form is planted new and old.
+    CALVER_HIDDEN_MARKS = ("\u200b", "\u00ad", "\u2060", "\uff0e", "\u2024", "&#46;", "&#50;")
+    # EP9d item 3 (ep9qg L1): emphasis that splits the version, read by the root read's emphasis
+    # removal until EP13, which refuses every "*" but a canonical header's bold delimiters.
+    CALVER_EMPHASIS_BULLETS = ("- Released 2026.*11*.67 in PR #2.", "- Released **2026**.11.67 in PR #2.",
+                               "- 2026-06-21 | 2026.*06*.9 | PR #3127",
+                               "- 2026-06-21 | **2026**.06.9 | PR #3127")
+    CALVER_EMPHASIS_INTROS = ("Versions follow 2026.*11*.66 and later.",
+                              "Versions follow **2026**.11.67 and later.")
+    CALVER_EMPHASIS_TAILS = ((" - also lands PR #3 at 2026.*11*.68", "2026.11.68"),
+                             (" - also carries PR #3127 (**2026**.06.9)", "2026.06.9"))
+
+    def _root_tail_calver_fails(self, tail: str, version: str) -> None:
+        """A canonical root line with ``tail`` fails as holding ``version`` in its summary tail."""
+        same = self._new_headers(1)
+        head = "**2026-11-10 | 2026.12.2 | PR #2**"
+        result = self._parity_run(head + tail + "\n" + same, head + "\n" + same)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        root = self._fail_lines(result.stdout, "root")
+        self.assertIn("hold a CalVer library version in their summary tail", root)
+        self.assertIn(f"line 2 PR #2 ({version})", root)
+
+    def test_ep9d_root_hidden_calver_versions_are_refused(self) -> None:
+        for mark in self.CALVER_HIDDEN_MARKS:
+            for probe in (f"- Released 2026{mark}.11.67 in PR #2 on 2026-11-10.",
+                          f"- 2026-06-21 | 2026{mark}.06.9 | PR #3127"):
+                with self.subTest(where="bullet", probe=probe):
+                    self._root_strict_fails(probe, "bullet", mark)
+            with self.subTest(where="intro", mark=mark):
+                self._root_strict_fails(f"Versions follow 2026{mark}.11.66 and later.", "intro",
+                                        mark)
+            with self.subTest(where="tail", mark=mark):
+                self._root_strict_fails(f" - also lands PR #3 at 2026{mark}.11.68", "tail", mark)
+
+    def test_ep9d_root_emphasis_split_versions_are_refused(self) -> None:
+        # EP13 item 1 (ep13qs M1): each probe fails by the strict character rule at its first "*".
+        for probe in self.CALVER_EMPHASIS_BULLETS:
+            with self.subTest(where="bullet", probe=probe):
+                self._root_strict_fails(probe, "bullet", "*")
+        for probe in self.CALVER_EMPHASIS_INTROS:
+            with self.subTest(where="intro", probe=probe):
+                self._root_strict_fails(probe, "intro", "*")
+        for tail, _version in self.CALVER_EMPHASIS_TAILS:
+            with self.subTest(where="tail", tail=tail):
+                self._root_strict_fails(tail, "tail", "*")
+
+    def test_ep9d_mirror_tail_code_span_records_are_refused(self) -> None:
+        # EP9d item 2 (ep9qa M1) read the text of a code span in a mirror summary tail. EP13 item 2
+        # (ep13qx M1, ep13qa M1): every mirror canonical line meets the strict character rule, so
+        # each tail fails by that rule at its first backtick; a tail with no other PR passes.
+        same = self._new_headers(1)
+        head = "**2026-11-10 | 2026.12.2 | PR #2**"
+        for tail in (" - also lands `PR #3` at `2026.11.68`",
+                     " - also carries `PR #3127` (`2026.06.9`)",
+                     " - also lands `PR #3 at 2026.11.68`"):
+            with self.subTest(tail=tail):
+                self._mirror_strict_fails(tail, "`")
+        tail = " - tooling: PR #2 moves the schema to 1.0.2."
+        result = self._parity_run(head + "\n" + same, head + tail + "\n" + same)
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("for all 2 PR(s) at or above #1,", result.stdout)
+
+    def test_ep9d_dated_mirror_notes_naming_a_pr_pass(self) -> None:
+        # EP9d item 5 (ep9qg L5): a dated note whose opening or cell names a PR that does not end
+        # its span or cell was a candidate and failed. The PR identity of the opening's comma
+        # joint or of a cell now reads as an entry only when it ends its span or cell (an
+        # optional ":" or "." aside) or is followed by "," or "|"; every entry shape still fails.
+        same = self._new_headers(1)
+        for line in ("**2026-11-10, PR #1 follow-up:** none.", "**2026-11-10 | PR #1 review:** done.",
+                     "- **2026-11-10, PR #1 follow-up:** none.", "## 2026-11-10, PR #1 follow-up",
+                     "**2026-11-10 | #1 review:** done."):
+            with self.subTest(line=line):
+                result = self._parity_run(same, same + line + "\n")
+                self.assertEqual(result.returncode, 0, result.stdout)
+                self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+        for line in ("## 2026-11-10, PR #2", "**2026-11-10, PR 2**", "**2026-11-10, PR #2:** none.",
+                     "**2026-11-10, PR #2, review:** done.", "**2026-11-10, PR #2 | review**",
+                     "**2026-11-10, #2**", "- **2026-11-10, pull 2**", "**2026-11-10 | PR #2**",
+                     "**2026-11-10 | PR #2:** done.", "**2026-11-10 | review | PR #2**",
+                     "**PR #2 | 2026-11-10**", "## 2026-11-10, Library Version 2026.11.67",
+                     "- **2026-11-10 | 2026.11.67**", "**PR #5 | 2026.12.5**"):
+            with self.subTest(line=line):
+                result = self._parity_run(same, same + line + "\n")
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(f"line 3 ({line!r})", self._fail_lines(result.stdout, "mirror"))
+
+    def test_ep9d_mirror_full_width_date_stays_a_candidate(self) -> None:
+        # EP9d item 3 (ep9qa date wording): DATE_ANY_RE stays Unicode-wide (no re.ASCII), because
+        # the mirror's content rule reads it without NFKC; with re.ASCII this line, whose only date
+        # is in full-width digits, would pass unread. The comment now says only the parts patterns
+        # are ASCII-only.
+        same = self._new_headers(1)
+        line = "- Released 2026.11.67 in PR #2 on ２０２６-１１-１０."
+        result = self._parity_run(same, same + line + "\n")
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn(f"line 3 ({line!r})", self._fail_lines(result.stdout, "mirror"))
+
+    def test_ep9d_texts_name_what_the_code_reads_and_reports(self) -> None:
+        # EP9d items 1, 3 and 4 (ep9qg M1 and L4, ep9qa date wording, ep9qx L2).
+        gate = (SKILL_ROOT / "tools" / "lint-changelog-mirror-header-parity.py").read_text(
+            encoding="utf-8")
+        spec = (SKILL_ROOT / "specs" / "specification-audit-programme.md").read_text(
+            encoding="utf-8")
+        self.assertNotIn("name a PR below CUTOFF_PR", gate)
+        self.assertNotIn("``below`` holds ``(lineno, pr)``", gate)
+        self.assertNotIn("ASCII digits only, like the other shape patterns", gate)
+        self.assertIn("DATE_ANY_RE itself stays Unicode-wide on purpose", gate)
+        self.assertNotIn("(digits\n  other than ASCII 0 to 9,", gate)
+        self.assertNotIn("(digits other than ASCII 0 to 9,", spec)
+        self.assertIn("summary tail holds an X.Y.Z version and a labelled PR identity naming another PR",
+                      spec)
+        for name, text, mark in (("gate", gate, "``"), ("specification", spec, "`")):
+            with self.subTest(surface=name):
+                flat = " ".join(text.split())
+                self.assertNotIn("NFKC-normalize", flat)
+                self.assertIn("such as a version split by a space", flat)
+                self.assertIn(f"{mark}**2026-11-10, PR #1 follow-up:** none.{mark}", flat)
+                self.assertIn(f"{mark}**2026-11-10 | PR #1 review:** done.{mark}", flat)
+
+    # EP10 item 1 (ep10qg M1) read a Markdown link as its link text and each URL as a separate
+    # text, so a CalVer version split by a link, or written only in its URL, was read in the root.
+    # EP12 item 1: the root refuses square brackets, so each form fails by the strict character
+    # rule at its first "[". The mirror's summary-tail rule keeps the EP10 reads.
+    CALVER_LINK_BULLETS = ("- Released [2026]().11.67 in PR #3.",
+                           "- Released [2026](https://example.org/r).11.67 in PR #3.",
+                           "- Released 2026.[11](https://example.org).67 in PR #3.",
+                           "- 2026-06-21 | [2026]().06.9 | PR #3127")
+    CALVER_LINK_INTROS = ("Versions follow [2026]().11.66 and later.",
+                          "Old history used 2026.[06](https://example.org).9 and earlier.")
+    CALVER_LINK_TAILS = (" - also ships PR #3 as [2026]().11.68.",
+                         " - also carries PR #3127 ([2026](https://example.org/r).06.9)")
+    # A CalVer version written only in a link's URL.
+    CALVER_URL_BULLETS = ("- See [the notes](https://example.org/2026.11.67) for PR #3.",)
+    CALVER_URL_INTROS = ("Versions follow [the notes](https://example.org/2026.11.66).",)
+    CALVER_URL_TAILS = (" - see [the notes](https://example.org/2026.11.68)",)
+
+    def test_ep10_root_link_split_versions_are_refused(self) -> None:
+        for probe in self.CALVER_LINK_BULLETS + self.CALVER_URL_BULLETS:
+            with self.subTest(where="bullet", probe=probe):
+                self._root_strict_fails(probe, "bullet", "[")
+        for probe in self.CALVER_LINK_INTROS + self.CALVER_URL_INTROS:
+            with self.subTest(where="intro", probe=probe):
+                self._root_strict_fails(probe, "intro", "[")
+        for tail in self.CALVER_LINK_TAILS + self.CALVER_URL_TAILS:
+            with self.subTest(where="tail", tail=tail):
+                self._root_strict_fails(tail, "tail", "[")
+
+    def test_ep10_mirror_tail_links_are_refused(self) -> None:
+        # EP10 read a link in a mirror summary tail as its text and its URL. EP13 item 2: every
+        # mirror canonical line meets the strict character rule, so each tail fails at its "[".
+        same = self._new_headers(1)
+        head = "**2026-11-10 | 2026.12.2 | PR #2**"
+        for tail in (" - also lands PR #3 at [2026]().11.68",
+                     " - also lands [the fix](https://example.org/o/r/pull/3) as 2026.11.68"):
+            with self.subTest(where="mirror tail", tail=tail):
+                self._mirror_strict_fails(tail, "[")
+        # A root line with a bare URL and no CalVer version still passes.
+        url = "https://example.org/guide"
+        for where, result in (
+                ("bullet", self._parity_run(self._root_with("") + f"- See {url} for PR #3.\n",
+                                            same)),
+                ("intro", self._parity_run(f"# Changelog\n\nRead {url} first.\n\n" + same,
+                                           same)),
+                ("tail", self._parity_run(head + f" - see {url}\n" + same, head + "\n" + same))):
+            with self.subTest(where=where, passes=True):
+                self.assertEqual(result.returncode, 0, result.stdout)
+
+    # EP10 item 2 (ep10qg L1 and ep10qs L1) removed default-ignorable code points outside category
+    # Cf before reading the root. EP12 item 1: the strict character rule refuses each, raw or as a
+    # numeric character reference. 1 code point at each end of every listed range is planted.
+    IGNORABLE_CODES = (0x034F, 0x115F, 0x1160, 0x17B4, 0x17B5, 0x180B, 0x180F, 0x3164, 0xFE00,
+                       0xFE0F, 0xFFA0, 0xE0100, 0xE01EF)
+
+    def test_ep10_root_default_ignorable_split_versions_are_refused(self) -> None:
+        for index, code in enumerate(self.IGNORABLE_CODES):
+            for form, mark in (("raw", chr(code)), ("reference", f"&#x{code:X};")):
+                for probe in (f"- Released 2026{mark}.11.67 in PR #2 on 2026-11-10.",
+                              f"- 2026-06-21 | 2026{mark}.06.9 | PR #3127"):
+                    with self.subTest(where="bullet", code=f"U+{code:04X}", form=form,
+                                      probe=probe):
+                        self._root_strict_fails(probe, "bullet", mark)
+            form, mark = (("raw", chr(code)) if index % 2 == 0
+                          else ("reference", f"&#x{code:X};"))
+            with self.subTest(where="intro", code=f"U+{code:04X}", form=form):
+                self._root_strict_fails(f"Versions follow 2026{mark}.11.66 and later.", "intro",
+                                        mark)
+            form, mark = (("reference", f"&#x{code:X};") if index % 2 == 0
+                          else ("raw", chr(code)))
+            with self.subTest(where="tail", code=f"U+{code:04X}", form=form):
+                self._root_strict_fails(f" - also lands PR #3 at 2026{mark}.11.68", "tail", mark)
+
+    def test_ep10_mirror_tail_message_names_a_labelled_pr_identity(self) -> None:
+        # EP10 item 3 (ep10qs L4): tail_prs reads only labelled PR identities, so the FAIL message
+        # says "a labelled PR identity"; a bare #N in the tail is not read and passes.
+        same = self._new_headers(1)
+        head = "**2026-11-10 | 2026.12.2 | PR #2**"
+        result = self._parity_run(head + "\n" + same,
+                                  head + " - fixes PR #3 (2026.11.68)\n" + same)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        mirror = self._fail_lines(result.stdout, "mirror")
+        self.assertIn("(an X.Y.Z version and a labelled PR identity naming a number other than "
+                      "the header's PR)", mirror)
+        self.assertIn("line 1 PR #2 (names #3)", mirror)
+        result = self._parity_run(head + "\n" + same, head + " - fixes #3 (2026.11.68)\n" + same)
+        self.assertEqual(result.returncode, 0, result.stdout)
+
+    # EP11a item 1 (ep11qx M1, ep11qg M1 and ep11qs M1) read link forms that LINK_RE misread (a URL
+    # holding balanced parentheses, a title holding ")", an angle-bracket URL holding ")", and
+    # reference, collapsed and shortcut links) with root_links and a fail-closed second read.
+    # EP12 item 1: the root refuses square brackets, so each form fails by the strict character
+    # rule at its first "["; EP13 item 2 holds every mirror canonical line to the same rule and
+    # deletes root_links and the second read.
+    LINK_FORMS = ("[2026](https://example.org/(a))", "[2026](https://example.org/a(b))",
+                  '[2026](https://example.org "a)b")', "[2026](https://example.org 'a)b')",
+                  "[2026](https://example.org (t))", "[2026](<https://example.org/a)b>)",
+                  "[2026][r]", "[2026][]", "[2026]")
+    # A form root_links did not model: a title holding an escaped quote, which CommonMark reads as
+    # the title a"b)c, so the link renders as 2026. The strict character rule refuses it.
+    LINK_UNMODELLED_FORMS = ('[2026](https://example.org "a\\"b)c")',)
+    # A real-world link whose URL holds balanced parentheses and no version.
+    WIKIPEDIA_LINK = "[patches](https://en.wikipedia.org/wiki/Patch_(computing))"
+
+    def _ep11a_gate(self, name: str):
+        return load_linter_module(
+            ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", name)
+
+    def test_ep11a_root_link_forms_are_refused(self) -> None:
+        same = self._new_headers(1)
+        head = "**2026-11-10 | 2026.12.2 | PR #2**"
+        for form in self.LINK_FORMS + self.LINK_UNMODELLED_FORMS:
+            for probe in (f"- Released {form}.11.67 in PR #3.",
+                          f"- 2026-06-21 | {form}.06.9 | PR #3127"):
+                with self.subTest(where="bullet", probe=probe):
+                    self._root_strict_fails(probe, "bullet", "[")
+            with self.subTest(where="intro", form=form):
+                self._root_strict_fails(f"Versions follow {form}.11.66 and later.", "intro", "[")
+            with self.subTest(where="tail", form=form):
+                self._root_strict_fails(f" - also ships PR #3 as {form}.11.68.", "tail", "[")
+            tail = f" - also lands PR #3 at {form}.11.68"
+            with self.subTest(where="mirror tail", form=form):
+                self._mirror_strict_fails(tail, "[")
+        # A reference link with its definition line in the root (ep11qs M1).
+        with self.subTest(where="definition"):
+            failed = self._root_strict_fails("- Released [2026][r].11.67 in PR #3.", "bullet", "[")
+            result = self._parity_run(self._root_with("") + "- [r]: https://example.org\n", same)
+            self.assertEqual(result.returncode, 1, result.stdout)
+            self.assertIn("line 12 column 3: refused character '[' (U+005B)",
+                          self._fail_lines(result.stdout, "root"))
+            self.assertIn("line 12 column 17: refused character ']' (U+005D)", failed)
+
+    def test_ep11a_real_world_link_is_refused_in_root_and_mirror_tail(self) -> None:
+        # The root refuses any link (EP12), and so does a mirror canonical line (EP13 item 2).
+        same = self._new_headers(1)
+        head = "**2026-11-10 | 2026.12.2 | PR #2**"
+        link = self.WIKIPEDIA_LINK
+        with self.subTest(where="bullet"):
+            self._root_strict_fails(f"- See {link} for PR #3.", "bullet", "[")
+        with self.subTest(where="intro"):
+            self._root_strict_fails(f"Read {link} first.", "intro", "[")
+        with self.subTest(where="tail"):
+            failed = self._root_strict_fails(f" - see {link}", "tail", "[")
+            column = (head + f" - see {link}").index("_") + 1
+            self.assertIn(f"line 2 column {column}: refused character '_' (U+005F)", failed)
+        with self.subTest(where="mirror tail"):
+            self._mirror_strict_fails(f" - see {link} for PR #2 at 1.0.2", "[")
+
+    # EP11a item 2 (ep11qs L1) removed control characters (category Cc) other than a tab, raw or
+    # written as a numeric character reference. EP12 item 1: the strict character rule refuses
+    # each, and the tab too, since it is outside printable ASCII.
+    CONTROL_MARKS = (("U+0001", "\x01"), ("U+007F", "\x7f"), ("U+0081", "\x81"),
+                     ("&#x81;", "&#x81;"), ("&#x9D;", "&#x9D;"))
+
+    def test_ep11a_root_control_characters_are_refused(self) -> None:
+        for name, mark in self.CONTROL_MARKS:
+            for probe in (f"- Released 2026{mark}.11.67 in PR #2 on 2026-11-10.",
+                          f"- 2026-06-21 | 2026{mark}.06.9 | PR #3127"):
+                with self.subTest(where="bullet", mark=name, probe=probe):
+                    self._root_strict_fails(probe, "bullet", mark)
+            with self.subTest(where="intro", mark=name):
+                self._root_strict_fails(f"Versions follow 2026{mark}.11.66 and later.", "intro",
+                                        mark)
+            with self.subTest(where="tail", mark=name):
+                self._root_strict_fails(f" - also lands PR #3 at 2026{mark}.11.68", "tail", mark)
+        with self.subTest(mark="tab"):
+            self._root_strict_fails("- Released 2026\t.11.67 in PR #2.", "bullet", "\t")
+
+    # EP11a item 3 (ep11qs L2): the intro read a PR, date or X.Y.Z held only in a link URL. EP12
+    # item 1: the root refuses the link; a bare URL is read whole, so its token still fails the
+    # intro. EP13 item 2: a mirror canonical line refuses the link too.
+    URL_ONLY_INTROS = ("Read [the PR](https://example.org/o/r/pull/2) first.",
+                       "Read [the notes](https://example.org/2026-11-10/) first.",
+                       "Read [the notes](https://example.org/v1.2.3/) first.")
+
+    def test_ep11a_intro_and_mirror_tail_tokens_in_a_url_are_read(self) -> None:
+        for probe in self.URL_ONLY_INTROS:
+            with self.subTest(where="intro", probe=probe):
+                self._root_strict_fails(probe, "intro", "[")
+        for probe in ("Read https://example.org/o/r/pull/2 first.",
+                      "Read https://example.org/2026-11-10/ first.",
+                      "Read https://example.org/v1.2.3/ first."):
+            with self.subTest(where="bare URL intro", probe=probe):
+                self._root_calver_fails(probe, "intro")
+        tail = " - also lands PR #3, see [notes](https://example.org/2026.11.68)"
+        with self.subTest(where="mirror tail", tail=tail):
+            self._mirror_strict_fails(tail, "[")
+
+    # EP12 item 1 (ep12qx M1, ep12qg M1 and L1, ep12qa M1, ep12qs L3 and L4): the round 12 forms,
+    # each a CalVer version split across 2 links (or a link the scanner misread) or behind a C1
+    # numeric character reference that html.unescape remapped. Each now fails by the strict
+    # character rule, named at its first refused character or reference.
+    ROUND12_FORMS = (
+        ('- 2026-06-21 | [2026](u "a\\"b)c").[06](u "a\\"b)c").9 | PR #3127', "["),
+        ("- 2026-06-21 | [20](u\\)x)[26](v\\)y).06.9 | PR #3127", "["),
+        ("- 2026-06-21 | [20](u&#41;x)[26](v&#41;y).06.9 | PR #3127", "["),
+        ('- 2026-06-21 | [20](u "a\\"b)c")[26](v "d\\"e)f").06.9 | PR #3127', "["),
+        ('- 2026-06-21 | [20](u "a\\"b")[26](v "d\\"e").06.9 | PR #3127', "["),
+        ("- Released [202](https://example.org/(a))6.11.[67](https://example.org/(b)) in PR #3.",
+         "["),
+        ('- Released [2026](a(b "t").11.67 in PR #3.', "["),
+        ("- Released 2026&#133;.11.67 in PR #3.", "&#133;"),
+        ("- Released 2026&#128;.11.67 in PR #3.", "&#128;"),
+        ("- Released 2026&#150;.11.67 in PR #3.", "&#150;"),
+        ("- Released 2026&#159;.11.67 in PR #3.", "&#159;"))
+
+    def test_ep12_round_12_hiding_forms_are_refused(self) -> None:
+        for probe, token in self.ROUND12_FORMS:
+            with self.subTest(where="bullet", probe=probe):
+                self._root_strict_fails(probe, "bullet", token)
+        with self.subTest(where="tail"):
+            tail = " - also lands PR #3 at [20](u\\)x)[26](v\\)y).11.68"
+            failed = self._root_strict_fails(tail, "tail", "[")
+            line = "**2026-11-10 | 2026.12.2 | PR #2**" + tail
+            self.assertIn(f"line 2 column {line.index(chr(92)) + 1}: refused character '\\\\' "
+                          "(U+005C)", failed)
+        with self.subTest(where="intro"):
+            failed = self._root_strict_fails(
+                "Versions follow [20](u&#41;x)[26](v&#41;y).11.66 and later.", "intro", "[")
+            self.assertIn("line 3 column 23: HTML character reference '&#41;'", failed)
+
+    def test_ep12_each_refused_character_and_reference_is_named(self) -> None:
+        # Each refused ASCII character, characters just outside printable ASCII (U+001F, U+007F,
+        # U+0080) and a no-break space, and each reference form (named, decimal, hexadecimal in
+        # either case) fail with their own message; a line with several refusals names each one.
+        for token in ("[", "]", "<", ">", "\\", "~", "_", "\x1f", "\x7f", "\x80", "\u00a0",
+                      "&amp;", "&nbsp;", "&#46;", "&#x2E;", "&#X2e;"):
+            with self.subTest(token=token):
+                self._root_strict_fails(f"- Tooling note {token} here.", "bullet", token)
+        failed = self._root_strict_fails("- a_b ~c~ <d>", "bullet", "_")
+        for column, token in ((7, "~"), (9, "~"), (11, "<"), (13, ">")):
+            self.assertIn(f"line 12 column {column}: {self._strict_what(token)}", failed)
+        # The title and a canonical per-PR line are held to the rule too.
+        same = self._new_headers(1)
+        result = self._parity_run("# Changelog_\n\n" + same, same, titled=False)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("line 1 column 12: refused character '_' (U+005F)",
+                      self._fail_lines(result.stdout, "root"))
+
+    def test_ep12_plain_ampersand_and_real_root_pass(self) -> None:
+        # A plain "&" (no name, number and ";" after it) is allowed in every root line it reads.
+        same = self._new_headers(1)
+        head = "**2026-11-10 | 2026.12.2 | PR #2**"
+        for where, result in (
+                ("bullet", self._parity_run(
+                    self._root_with("") + "- Risk & compliance: R&D notes, AT&T terms & more.\n",
+                    same)),
+                ("intro", self._parity_run(
+                    "# Changelog\n\nRisk & compliance notes, R&D and AT&T terms.\n\n" + same,
+                    same)),
+                ("tail", self._parity_run(head + " - risk & compliance & more\n" + same,
+                                          head + "\n" + same))):
+            with self.subTest(where=where):
+                self.assertEqual(result.returncode, 0, result.stdout)
+                self.assertNotIn("strict character rule", result.stdout)
+        # The real root passes the strict character rule unchanged.
+        mod = self._ep11a_gate("_mp_ep12_real_root")
+        text = (REPO_ROOT / ".working" / "CHANGELOG.md").read_text(encoding="utf-8")
+        found = mod.root_findings(text)
+        self.assertEqual(found.chars, [])
+        self.assertFalse(found, sorted(found.lines()))
+
+    def test_ep12_texts_describe_the_strict_rule(self) -> None:
+        # EP12 item 1: the gate docstring and the specification describe the strict character
+        # rule and no longer describe the removed root reads.
+        gate = (SKILL_ROOT / "tools" / "lint-changelog-mirror-header-parity.py").read_text(
+            encoding="utf-8")
+        spec = (SKILL_ROOT / "specs" / "specification-audit-programme.md").read_text(
+            encoding="utf-8")
+        for name, text in (("gate", gate), ("specification", spec)):
+            with self.subTest(surface=name):
+                flat = " ".join(text.split())
+                self.assertIn("strict character rule", flat)
+                self.assertIn("printable ASCII (U+0020 to U+007E)", flat)
+                self.assertIn("a plain", flat)
+                self.assertIn("such as a version split by a space", flat)
+                self.assertNotIn("such as Arabic-Indic digits", flat)
+                self.assertNotIn("second time, fail-closed", flat)
+                self.assertNotIn("a link form the first read does not model", flat)
+
+    def _mirror_strict_fails(self, tail: str, token: str) -> str:
+        """A mirror canonical line, ``**2026-11-10 | 2026.12.2 | PR #2**`` followed by ``tail``
+        (line 1), fails by the strict character rule (EP13 item 2), and the mirror FAIL line names
+        ``token`` at its first column in ``tail``. Returns the mirror FAIL lines."""
+        same = self._new_headers(1)
+        head = "**2026-11-10 | 2026.12.2 | PR #2**"
+        result = self._parity_run(head + "\n" + same, head + tail + "\n" + same)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        failed = self._fail_lines(result.stdout, "mirror")
+        self.assertIn("strict character rule refuses", failed)
+        column = len(head) + tail.index(token) + 1
+        self.assertIn(f"line 1 column {column}: {self._strict_what(token)}", failed)
+        return failed
+
+    # EP13 item 1 (ep13qs M1): the root read removed every backtick and every "*" that touched a
+    # character other than a space, so a digit joined to a CalVer version through one of them hid
+    # an old record (3*2026.06.9 read as 32026.06.9, which CALVER_RE skips). The strict character
+    # rule now refuses every backtick and every "*" but the 2 bold delimiters of a canonical
+    # header, and the root reads each line as written. The last 2 forms join or split a version
+    # with "*" and with a backtick at once.
+    ROUND13_JOIN_FORMS = (
+        ("- Released build 3*2026.06.9 to adopters.", "*"),
+        ("- Released `PR #3`2026.06.9 to adopters.", "`"),
+        ("- Released 3`2026.06.9` to adopters.", "`"),
+        ("- Released build 3*2026*.06.9 to adopters.", "*"),
+        ("- Released 2026`.06.9` to adopters.", "`"))
+    ROUND13_JOIN_TAILS = ((" - Released build 3*2026.06.9", "*"),
+                          (" - Released `PR #3`2026.06.9", "`"),
+                          (" - Released build 3*2026*.06.9", "*"),
+                          (" - Released 2026`.06.9`", "`"))
+
+    def test_ep13_root_join_and_split_forms_are_refused(self) -> None:
+        for probe, token in self.ROUND13_JOIN_FORMS:
+            with self.subTest(where="bullet", probe=probe):
+                self._root_strict_fails(probe, "bullet", token)
+            intro = "Versions follow" + probe[len("- Released"):]
+            with self.subTest(where="intro", probe=intro):
+                self._root_strict_fails(intro, "intro", token)
+        for tail, token in self.ROUND13_JOIN_TAILS:
+            with self.subTest(where="tail", tail=tail):
+                self._root_strict_fails(tail, "tail", token)
+
+    def test_ep13_star_is_allowed_only_as_a_canonical_bold_delimiter(self) -> None:
+        # A canonical line passes with its 2 bold delimiters; a "*" anywhere else fails.
+        same = self._new_headers(1)
+        result = self._parity_run(same, same)
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertNotIn("strict character rule", result.stdout)
+        self._root_strict_fails(" - tooling: a * b and **c**.", "tail", "*")
+        self._root_strict_fails("- Tooling: a * b.", "bullet", "*")
+        self._root_strict_fails("This file * records changes.", "intro", "*")
+
+    def test_ep13_real_root_holds_no_backtick(self) -> None:
+        # The real root's backticked path (its line 10) is written as plain text, and a backticked
+        # file reference in a root bullet fails by the strict character rule.
+        text = (REPO_ROOT / ".working" / "CHANGELOG.md").read_text(encoding="utf-8")
+        self.assertNotIn("`", text)
+        self.assertIn("under .claude/skills/corpus-management/ as the corpus-management skill",
+                      text)
+        self._root_strict_fails("- Tools moved to `tools/lint-links.py` today.", "bullet", "`")
+
+    # EP13 item 2 (ep13qx M1, ep13qa M1, ep13qs L2 and L3): the mirror read a canonical line's
+    # summary tail through the link scanner, a second read and normalization, so 2 links with
+    # escaped titles hid another PR's record there. Header parity compares only the PR number and
+    # the version of a canonical line, not the whole line, so every mirror canonical line now meets
+    # the root's strict character rule, and its tail is read as written.
+    ROUND13_MIRROR_TWO_LINKS = ' - also lands PR #3127 at [2026](u "a\\"b)c").[06](u "a\\"b)c").9'
+
+    def test_ep13_mirror_canonical_lines_meet_the_strict_rule(self) -> None:
+        with self.subTest(form="two links"):
+            self._mirror_strict_fails(self.ROUND13_MIRROR_TWO_LINKS, "[")
+        for tail, token in ((" - also lands PR #3127 at 3*2026.06.9", "*"),
+                            (" - also lands `PR #3127` at `2026.06.9`", "`"),
+                            (" - also lands PR #3127 at 2026&#46;06.9", "&#46;"),
+                            (" - also lands PR #3127 at 2026&#133;.06.9", "&#133;"),
+                            (" - also lands PR #3127 at 2026\u200b.06.9", "\u200b"),
+                            (" - also lands PR #3127 at 2026\\.06\\.9", "\\"),
+                            (" - also lands grc_library#3127 at 2026.06.9", "_")):
+            with self.subTest(tail=tail):
+                self._mirror_strict_fails(tail, token)
+        same = self._new_headers(1)
+        head = "**2026-11-10 | 2026.12.2 | PR #2**"
+        tail = " - tools: the reference manifest schema is now 1.0.2."
+        with self.subTest(passes=tail):
+            result = self._parity_run(head + tail + "\n" + same, head + tail + "\n" + same)
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertIn("for all 2 PR(s) at or above #1,", result.stdout)
+        with self.subTest(other_pr="plain"):
+            result = self._parity_run(head + "\n" + same,
+                                      head + " - also lands PR #3127 at 2026.06.9\n" + same)
+            self.assertEqual(result.returncode, 1, result.stdout)
+            self.assertIn("line 1 PR #2 (names #3127)", self._fail_lines(result.stdout, "mirror"))
+
+    def test_ep13_mirror_canonical_line_ends_only_at_lf(self) -> None:
+        # splitlines() ends a mirror line at a vertical tab, a form feed, U+001C to U+001E, U+0085,
+        # U+2028 or U+2029, none of which ends a line in Markdown, so the rest of a canonical line
+        # was read as a separate line. Such a canonical line now fails at that character's column.
+        for mark in ("\x0b", "\x0c", "\x1c", "\x1d", "\x1e", "\x85", "\u2028", "\u2029"):
+            with self.subTest(mark=f"U+{ord(mark):04X}"):
+                self._mirror_strict_fails(f" - also lands PR #3127 at 2026{mark}.06.9", mark)
+
+    def test_ep13_removed_tail_reads_are_gone(self) -> None:
+        # No path reads a line through the link scanner, the second read, ROOT_IGNORABLE, the Cf
+        # and Cc removal, NFKC or html.unescape any more, so they are deleted (EP13 item 2), and
+        # the root read, which removed backticks and emphasis, is deleted too (EP13 item 1).
+        mod = self._ep11a_gate("_mp_ep13_removed")
+        for name in ("root_read", "root_reads", "root_flatten", "root_links", "root_link_urls",
+                     "root_unlinked_reads", "_root_plain", "_root_inline_end",
+                     "_root_bracket_end", "ROOT_IGNORABLE", "BACKSLASH_ESCAPE_RE",
+                     "ROOT_DEST_OPEN_RE", "ROOT_DEST_SHORT_RE"):
+            with self.subTest(name=name):
+                self.assertFalse(hasattr(mod, name))
+        gate = (SKILL_ROOT / "tools" / "lint-changelog-mirror-header-parity.py").read_text(
+            encoding="utf-8")
+        for code in ("import html", "import unicodedata", "html.unescape(", "unicodedata."):
+            with self.subTest(code=code):
+                self.assertNotIn(code, gate)
+
+    def test_ep13_root_splits_lines_on_lf_only(self) -> None:
+        # EP13 item 3 (ep13qx L1, ep13qs L1): root_findings split lines with str.splitlines(),
+        # which also ends a line at a vertical tab, a form feed, U+001C to U+001E, U+0085, U+2028
+        # and U+2029, so those characters vanished before the strict rule and later line numbers
+        # drifted. The root is split on LF only, so each is refused in its own line and column.
+        for mark in ("\x0b", "\x0c", "\x1c", "\x1d", "\x1e", "\x85", "\u2028", "\u2029"):
+            with self.subTest(where="bullet", mark=f"U+{ord(mark):04X}"):
+                self._root_strict_fails(f"- Released notes{mark}- second half.", "bullet", mark)
+        with self.subTest(where="intro"):
+            self._root_strict_fails("This file\x0bhas weekly notes.", "intro", "\x0b")
+        same = self._new_headers(1)
+        with self.subTest(where="line numbers"):
+            root = (self._root_with("") + "- Released 2026\u2028.11.67 in PR #2.\n"
+                    + "- Tooling ~ note.\n")
+            result = self._parity_run(root, same)
+            self.assertEqual(result.returncode, 1, result.stdout)
+            failed = self._fail_lines(result.stdout, "root")
+            self.assertIn("line 12 column 16: character U+2028 outside printable ASCII", failed)
+            self.assertIn("line 13 column 11: refused character '~' (U+007E)", failed)
+        mod = self._ep11a_gate("_mp_ep13_lf")
+        with self.subTest(where="CR LF"):
+            found = mod.root_findings(("# Changelog\n\n" + same).replace("\n", "\r\n"))
+            self.assertFalse(found, sorted(found.lines()))
+        with self.subTest(where="lone CR"):
+            found = mod.root_findings("# Changelog\n\n" + same + "## Week of 2026-11-09\n\n"
+                                      + "- Released notes\r- second half.\n")
+            self.assertEqual(found.chars, [(7, 17, "character U+000D outside printable ASCII")])
+        self.assertEqual(mod.lf_lines("a\r\nb\n\nc"), ["a", "b", "", "c"])
+        self.assertEqual(mod.lf_lines("a\n"), ["a"])
+        self.assertEqual(mod.lf_lines(""), [])
+
+    def test_ep13_texts_describe_the_wider_strict_rule(self) -> None:
+        # EP13 items 1 to 4: the gate docstring and the specification describe the backtick and
+        # "*" refusals, the rule on every mirror canonical line and the LF-only split, and no longer
+        # describe the removed reads; gate 11's docstring says root file references are plain text.
+        gate = (SKILL_ROOT / "tools" / "lint-changelog-mirror-header-parity.py").read_text(
+            encoding="utf-8")
+        spec = (SKILL_ROOT / "specs" / "specification-audit-programme.md").read_text(
+            encoding="utf-8")
+        coverage = (SKILL_ROOT / "tools" / "lint-changelog-link-coverage.py").read_text(
+            encoding="utf-8")
+        for name, text in (("gate", gate), ("specification", spec)):
+            with self.subTest(surface=name):
+                flat = " ".join(text.split())
+                self.assertIn("2 bold delimiters of a canonical header", flat)
+                self.assertIn("every mirror canonical line", flat)
+                self.assertIn("on LF only", flat)
+                self.assertIn("written as plain text", flat)
+                self.assertNotIn("root_read", flat)
+                self.assertNotIn("NFKC-normalize", flat)
+                self.assertNotIn("second time with link destinations", flat)
+        self.assertIn("written as plain text", " ".join(coverage.split()))
+
+    # EP13b item 1 (ep13qg M2): GitHub inline math hid a root CalVer version ($2026$.11.67, with
+    # {} groups that render invisibly), because the strict rule listed refused characters and each
+    # round found new renderer syntax. The rule is now an allowlist: ASCII letters, digits, the
+    # space, . , : ; - ' " ( ) / # | & % + ? ! = @ and "*" only as a canonical header's 2 bold
+    # delimiters; every other character fails with its line, column and code point.
+    ROUND13B_MATH_FORMS = ("- Released $2026$.11.67 in PR #2.",
+                           "- Released $2{}026.11.67$ in PR #2.",
+                           "- 2026-06-21 | $20{26}.06.9$ | PR #3127")
+    ROOT_ALLOWED = ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+                    " .,:;-'\"()/#|&%+?!=@")
+
+    def test_ep13b_inline_math_forms_are_refused(self) -> None:
+        for probe in self.ROUND13B_MATH_FORMS:
+            with self.subTest(where="bullet", probe=probe):
+                self._root_strict_fails(probe, "bullet", "$")
+        with self.subTest(where="intro"):
+            self._root_strict_fails("This library is at $2026$.11.67 now.", "intro", "$")
+        with self.subTest(where="tail"):
+            self._root_strict_fails(" - also lands PR #3 at $2026$.11.68", "tail", "$")
+        with self.subTest(where="mirror tail"):
+            self._mirror_strict_fails(" - also lands PR #3127 at $20{26}.06.9$", "$")
+        failed = self._root_strict_fails("- Released $2{}026.11.67$ in PR #2.", "bullet", "$")
+        for column, token in ((14, "{"), (15, "}"), (25, "$")):
+            self.assertIn(f"line 12 column {column}: {self._strict_what(token)}", failed)
+
+    def test_ep13b_allowlist_refuses_every_other_character(self) -> None:
+        # A lone dollar, braces, a caret and every character an earlier round refused fail through
+        # the gate; in process, every printable ASCII character outside the allowlist is refused
+        # and every allowlisted one passes.
+        for token in ("$", "{", "}", "^", "[", "]", "<", ">", "\\", "~", "_", "`", "*", "\t",
+                      "\x1f", "\x7f", "\x80", "\u00a0", "\u200b", "\u2028", "\uff0e",
+                      "&amp;", "&#46;", "&#x2E;"):
+            with self.subTest(token=token):
+                self._root_strict_fails(f"- Tooling note {token} here.", "bullet", token)
+        mod = self._ep11a_gate("_mp_ep13b_allowlist")
+        self.assertEqual(mod.ROOT_ALLOWED_CHARS, frozenset(self.ROOT_ALLOWED))
+        self.assertFalse(hasattr(mod, "ROOT_REFUSED_CHARS"))
+        for code in range(0x20, 0x7f):
+            char = chr(code)
+            with self.subTest(char=f"U+{code:04X}"):
+                found = mod.root_character_findings(f"- a{char}b")
+                if char in self.ROOT_ALLOWED:
+                    self.assertEqual(found, [])
+                else:
+                    self.assertEqual(found, [(4, f"refused character {char!r} (U+{code:04X})")])
+        head = "**2026-11-10 | 2026.12.2 | PR #2**"
+        self.assertEqual(mod.root_character_findings(head + " - " + self.ROOT_ALLOWED), [])
+
+    def test_ep13b_texts_describe_the_allowlist(self) -> None:
+        gate = (SKILL_ROOT / "tools" / "lint-changelog-mirror-header-parity.py").read_text(
+            encoding="utf-8")
+        spec = (SKILL_ROOT / "specs" / "specification-audit-programme.md").read_text(
+            encoding="utf-8")
+        for name, text in (("gate", gate), ("specification", spec)):
+            with self.subTest(surface=name):
+                flat = " ".join(text.split())
+                self.assertIn("may hold only these characters of printable ASCII", flat)
+                self.assertIn("inline math", flat)
+                self.assertIn("at most 1 leading byte order mark", flat)
+                self.assertNotIn("printable ASCII (U+0020 to U+007E) other than", flat)
+        self.assertNotIn("ROOT_REFUSED_CHARS", gate)
+        failed = self._root_strict_fails("- costs $5 here.", "bullet", "$")
+        self.assertIn("may hold only ASCII letters, digits, the space and "
+                      ". , : ; - ' \" ( ) / # | & % + ? ! = @, with * only as the 2 bold "
+                      "delimiters of a canonical header", failed)
+        self.assertNotIn("other than [ ] < >", failed)
+
+    def test_ep13b_root_strips_at_most_one_byte_order_mark(self) -> None:
+        # EP13b item 3: main and root_findings each removed 1 leading byte order mark, so a root
+        # that starts with 2 passed. main removes at most 1, once, and the strict character rule
+        # refuses any other.
+        same = self._new_headers(1)
+        result = self._parity_run("\ufeff\ufeff# Changelog\n" + same, same, titled=False)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("line 1 column 1: character U+FEFF outside printable ASCII",
+                      self._fail_lines(result.stdout, "root"))
+        rc, out = self._no_mirror_run(("\ufeff\ufeff# Changelog\n" + same).encode("utf-8"),
+                                      "_mp_ep13b_two_boms", titled=False)
+        self.assertEqual(rc, 1, out)
+        self.assertIn("line 1 column 1: character U+FEFF outside printable ASCII", out)
+        rc, out = self._no_mirror_run(("\ufeff# Changelog\n" + same).encode("utf-8"),
+                                      "_mp_ep13b_one_bom", titled=False)
+        self.assertEqual(rc, 0, out)
+        mod = self._ep11a_gate("_mp_ep13b_bom")
+        self.assertEqual(mod.root_findings("\ufeff# Changelog\n\n" + same).chars,
+                         [(1, 1, "character U+FEFF outside printable ASCII")])
+
+    def test_ep13b_root_pr_headers_split_on_lf_only(self) -> None:
+        # EP13b item 4: pr_headers split the root with str.splitlines(), so a form feed in an
+        # earlier line moved its line numbers off the strict character rule's.
+        mod = self._ep11a_gate("_mp_ep13b_pr_headers")
+        text = ("# Changelog\n\nIntro\x0cmore.\n\n"
+                "**2026-11-10 | 2026.12.2 | PR #2** - tooling: a $b\n")
+        found = mod.root_findings(text)
+        self.assertIn((5, 49, "refused character '$' (U+0024)"), found.chars)
+        self.assertEqual([r[0] for r in mod.pr_headers(text, root=True)], [5])
+        self.assertEqual([r[0] for r in mod.pr_headers(text)], [6])
+
+    # EP8b item 1: the root grammar requires the "# Changelog" title as the root's first
+    # non-blank line (EP8a item 5, ep7qa), so every fixture root gets it as 1 added line 1 (every
+    # other root line moves down by 1) unless the fixture already starts with it. A test that
+    # checks a missing title, or a byte order mark before the title, passes titled=False and
+    # gets the root exactly as written.
+    ROOT_TITLE_LINE = "# Changelog\n"
+
+    @classmethod
+    def _titled(cls, root_text: str) -> str:
+        """``root_text`` with the ``# Changelog`` title line added when it does not start with it."""
+        if root_text.startswith(cls.ROOT_TITLE_LINE):
+            return root_text
+        return cls.ROOT_TITLE_LINE + root_text
+
+    @staticmethod
+    def _fail_lines(stdout: str, surface: str) -> str:
+        """The FAIL lines of ``stdout`` that name ``surface`` ("root" or "mirror"), joined by
+        newlines (EP8b), so a line number is asserted in the surface it belongs to."""
+        tag = {"root": " in root .working/CHANGELOG.md ", "mirror": " in the detailed mirror ("}[surface]
+        return "\n".join(line for line in stdout.splitlines()
+                         if line.startswith("FAIL:") and tag in line)
+
+    def _write_pair(self, root: Path, root_headers: str, mirror_headers: str,
+                    titled: bool = True) -> None:
+        if titled:
+            root_headers = self._titled(root_headers)
         (root / ".working").mkdir(parents=True, exist_ok=True)
         (root / ".working/CHANGELOG.md").write_text(root_headers, encoding="utf-8")
         mirror_dir = root / ".working" / "changelog-details"
@@ -23103,9 +25595,9 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             root = Path(tmp)
             self._write_pair(
                 root,
-                "## 2026-07-01, Library Version 2026.07.9, PR #521\n\nlead.\n"
-                "## 2026-06-30, Library Version 2026.06.8, PR #520\n\nlead.\n",
-                "## 2026-06-30, Library Version 2026.06.8, PR #520\n\nfull.\n",
+                self._as_root("## 2026-11-30, Library Version 2026.12.9, PR #521\n\nlead.\n"
+                              "## 2026-11-21, Library Version 2026.12.8, PR #520\n\nlead.\n"),
+                "## 2026-11-21, Library Version 2026.12.8, PR #520\n\nfull.\n",
             )
             result = run_linter(
                 ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
@@ -23119,45 +25611,46 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             same = (
-                "## 2026-07-01, Library Version 2026.07.9, PR #521\n\ntext.\n"
-                "## 2026-06-30, Library Version 2026.06.8, PR #520\n\ntext.\n"
+                "## 2026-11-30, Library Version 2026.12.9, PR #521\n\ntext.\n"
+                "## 2026-11-21, Library Version 2026.12.8, PR #520\n\ntext.\n"
             )
-            self._write_pair(root, same, same)
+            self._write_pair(root, self._as_root(same), same)
             result = run_linter(
                 ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
             )
         self.assertEqual(result.returncode, 0, result.stdout)
 
     def test_bare_version_mirror_ordering_now_checked(self) -> None:
-        # POSITIVE fixture, CV-F1 regression guard (PR after #1503). The mirror's
-        # newer per-PR headers write a BARE ``Version`` (``## <date>, Version
-        # X.Y.Z, PR #N``) rather than the older ``Library Version`` form. The
-        # pre-fix VERSION_RE matched only ``Library Version``, so a bare-``Version``
-        # header parsed to version=None and the ordering assertion SKIPPED it: a
-        # genuinely out-of-order run of bare-``Version`` mirror entries read GREEN
-        # (the live #1491/#1495 case). Built so ONLY the mirror ordering check can
-        # fire: identical PR sets, matching per-PR versions (the join passes), the
-        # root strictly descending, and the mirror out of order ONLY among its
-        # bare-``Version`` headers. Mutation: reverting VERSION_RE to the
-        # ``Library Version``-only pattern makes the LINTER go green (exit 0) on the
-        # seeded bare-``Version`` violation (the pre-fix bug), so this test then FAILS
-        # its ``returncode == 1`` assertion.
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            self._write_pair(
-                root,
-                "**2026-07-02 | 2026.07.9 | PR #521** - text\n\n"
-                "**2026-07-01 | 2026.07.8 | PR #520** - text\n",
-                "## 2026-07-01, Version 2026.07.8, PR #520\n\ntext.\n"
-                "## 2026-07-02, Version 2026.07.9, PR #521\n\ntext.\n",
-            )
-            result = run_linter(
-                ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
-            )
+        # POSITIVE fixture, CV-F1 regression guard (PR after #1503), rewritten in EP5 (ep4qx 3).
+        # The mirror's newer per-PR headers write a bare ``Version`` (``## <date>, Version X.Y.Z,
+        # PR #N``) rather than the older ``Library Version`` form; a bare-``Version`` header was
+        # once skipped by the ordering assertion (the live #1491/#1495 case). VERSION_RE is gone:
+        # HEADER_RE reads the bare label through its optional ``Library `` group. Built so only
+        # the mirror ordering check can fire: identical PR sets, matching per-PR versions, the
+        # root strictly descending, and the mirror out of order only among its bare-``Version``
+        # headers. The test asserts the mirror ordering diagnostic itself and that no line failed
+        # its shape, and a correctly ordered bare-``Version`` mirror is the passing control.
+        # Mutation: narrowing HEADER_RE to require ``Library Version`` makes both bare headers
+        # unreadable, so the diagnostic and no-shape-failure assertions fail, and so does the
+        # control.
+        root = ("**2026-11-22 | 2026.12.9 | PR #521** - text\n\n"
+                "**2026-11-21 | 2026.12.8 | PR #520** - text\n")
+        out_of_order = ("## 2026-11-21, Version 2026.12.8, PR #520\n\ntext.\n"
+                        "## 2026-11-22, Version 2026.12.9, PR #521\n\ntext.\n")
+        ordered = ("## 2026-11-22, Version 2026.12.9, PR #521\n\ntext.\n"
+                   "## 2026-11-21, Version 2026.12.8, PR #520\n\ntext.\n")
+        result = self._parity_run(root, out_of_order)
         self.assertEqual(result.returncode, 1, result.stdout)
-        self.assertIn("#520", result.stdout)
-        self.assertIn("#521", result.stdout)
-        self.assertIn("strictly decrease", result.stdout)
+        self.assertIn(
+            "FAIL: detailed-mirror Library Version ordering violated (>= #1):\n"
+            "  line 1 (PR #520, 2026.12.8) sits above line 4 (PR #521, 2026.12.9) but carries "
+            "the SMALLER version", result.stdout)
+        for shape_failure in ("cannot compare", "cannot parse", "old-repository", "MISSING",
+                              "root .working/CHANGELOG.md Library Version ordering violated"):
+            self.assertNotIn(shape_failure, result.stdout)
+        control = self._parity_run(root, ordered)
+        self.assertEqual(control.returncode, 0, control.stdout)
+        self.assertIn("SAME Library Version in both files", control.stdout)
 
     def test_shared_pr_with_different_versions_flagged(self) -> None:
         # POSITIVE fixture, fail-open regression guard (added in PR #1158). The gate
@@ -23176,10 +25669,10 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             root = Path(tmp)
             self._write_pair(
                 root,
-                "## 2026-07-01, Library Version 2026.07.9, PR #521\n\ntext.\n"
-                "## 2026-06-30, Library Version 2026.07.8, PR #520\n\ntext.\n",
-                "## 2026-07-01, Library Version 2026.07.7, PR #521\n\ntext.\n"
-                "## 2026-06-30, Library Version 2026.07.6, PR #520\n\ntext.\n",
+                self._as_root("## 2026-11-30, Library Version 2026.12.9, PR #521\n\ntext.\n"
+                              "## 2026-11-21, Library Version 2026.12.8, PR #520\n\ntext.\n"),
+                "## 2026-11-30, Library Version 2026.12.7, PR #521\n\ntext.\n"
+                "## 2026-11-21, Library Version 2026.12.6, PR #520\n\ntext.\n",
             )
             result = run_linter(
                 ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
@@ -23187,8 +25680,8 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertEqual(result.returncode, 1, result.stdout)
         self.assertIn("DIFFERENT Library Versions", result.stdout)
         self.assertIn("#521", result.stdout)
-        self.assertIn("root=2026.07.9", result.stdout)
-        self.assertIn("mirror=2026.07.7", result.stdout)
+        self.assertIn("root=2026.12.9", result.stdout)
+        self.assertIn("mirror=2026.12.7", result.stdout)
 
     def test_shared_pr_with_identical_versions_passes(self) -> None:
         # NEGATIVE fixture: the same PR set with matching versions must stay
@@ -23196,33 +25689,32 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             same = (
-                "## 2026-07-01, Library Version 2026.07.9, PR #521\n\ntext.\n"
-                "## 2026-06-30, Library Version 2026.07.8, PR #520\n\ntext.\n"
+                "## 2026-11-30, Library Version 2026.12.9, PR #521\n\ntext.\n"
+                "## 2026-11-21, Library Version 2026.12.8, PR #520\n\ntext.\n"
             )
-            self._write_pair(root, same, same)
+            self._write_pair(root, self._as_root(same), same)
             result = run_linter(
                 ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
             )
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn("SAME Library Version in both files", result.stdout)
 
-    def test_unparseable_version_is_skipped_not_flagged(self) -> None:
-        # NEGATIVE fixture, boundary: a header whose version does not parse
-        # yields None, which the ordering assertion already tolerates. The new
-        # join must SKIP such a pair rather than start failing on a shape the
-        # rest of the gate accepts.
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            self._write_pair(
-                root,
-                "## 2026-07-01, Library Version 2026.07.9, PR #521\n\ntext.\n",
-                "## 2026-07-01, PR #521\n\ntext.\n",
-            )
-            result = run_linter(
-                ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
-            )
-        self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertNotIn("DIFFERENT Library Versions", result.stdout)
+    def test_compared_header_without_a_parseable_version_fails(self) -> None:
+        # EP4 (was test_unparseable_version_is_skipped_not_flagged, changed on purpose), ep3qc
+        # L1 probes D1 to D3: a post-epoch legacy header with no version or an unparseable one
+        # used to be compared with its version skipped, so version agreement and ordering passed
+        # unchecked. Every entry candidate must now fully match a comparison shape with an
+        # X.Y.Z version, so each fails, naming the expected shapes.
+        root = "**2026-11-09 | 2026.12.66 | PR #1** - tooling: entry 1.\n"
+        for mirror in ("## 2026-11-09, PR #1\n",
+                       "## 2026-11-09, Library Version 2026.11, PR #1\n",
+                       "## 2026-11-09, Library Version 2026.12.67a, PR #1\n"):
+            with self.subTest(mirror=mirror):
+                result = self._parity_run(root, mirror)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn("in a shape gate 59 cannot compare", result.stdout)
+                self.assertIn(f"line 1 ({mirror.rstrip()!r})", result.stdout)
+                self.assertNotIn("SAME Library Version", result.stdout)
 
     def test_compact_root_header_parses(self) -> None:
         # The stage-3a compact root header form (PR #855 changelog reformat)
@@ -23232,31 +25724,23 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             root = Path(tmp)
             self._write_pair(
                 root,
-                "**2026-07-01 | 2026.07.9 | PR #521**\n\nlead.\n"
-                "**2026-06-30 | 2026.06.8 | PR #520**\n\nlead.\n",
-                "## 2026-07-01, Library Version 2026.07.9, PR #521\n\nfull.\n"
-                "## 2026-06-30, Library Version 2026.06.8, PR #520\n\nfull.\n",
+                "**2026-11-30 | 2026.12.9 | PR #521**\n\n"
+                "**2026-11-21 | 2026.12.8 | PR #520**\n\n",
+                "## 2026-11-30, Library Version 2026.12.9, PR #521\n\nfull.\n"
+                "## 2026-11-21, Library Version 2026.12.8, PR #520\n\nfull.\n",
             )
             result = run_linter(
                 ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
             )
         self.assertEqual(result.returncode, 0, result.stdout)
 
-    def test_pre_cutoff_mismatch_not_flagged(self) -> None:
-        # A header below the cutoff present on only one side is an accepted
-        # historical exemption, not a violation.
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            self._write_pair(
-                root,
-                "## 2026-05-01, Library Version 2026.05.1, PR #462\n\nlead.\n"
-                "## 2026-07-01, Library Version 2026.07.9, PR #521\n\nlead.\n",
-                "## 2026-07-01, Library Version 2026.07.9, PR #521\n\nfull.\n",
-            )
-            result = run_linter(
-                ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
-            )
-        self.assertEqual(result.returncode, 0, result.stdout)
+    def test_low_numbered_new_pr_is_in_scope(self) -> None:
+        # EP1 (replaces test_pre_cutoff_mismatch_not_flagged, which relied on the old floor of
+        # 463 and the old repository's #462 exemption): numbering restarted at #1, so a new
+        # root header below 463 and missing from the mirror must fail and be named.
+        result = self._parity_run(self._new_headers(463, 462, 1), self._new_headers(463, 1))
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("MISSING from the detailed mirror (>= #1): #462\n", result.stdout)
 
     def test_out_of_order_version_flagged(self) -> None:
         # GR-1: a smaller Library Version ABOVE a larger one (entries are
@@ -23264,10 +25748,10 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             same = (
-                "## 2026-07-01, Library Version 2026.07.8, PR #521\n\ntext.\n"
-                "## 2026-06-30, Library Version 2026.07.9, PR #520\n\ntext.\n"
+                "## 2026-11-30, Library Version 2026.12.8, PR #521\n\ntext.\n"
+                "## 2026-11-21, Library Version 2026.12.9, PR #520\n\ntext.\n"
             )
-            self._write_pair(root, same, same)
+            self._write_pair(root, self._as_root(same), same)
             result = run_linter(
                 ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
             )
@@ -23280,10 +25764,10 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             same = (
-                "## 2026-07-01, Library Version 2026.07.9, PR #521\n\ntext.\n"
-                "## 2026-06-30, Library Version 2026.07.9, PR #520\n\ntext.\n"
+                "## 2026-11-30, Library Version 2026.12.9, PR #521\n\ntext.\n"
+                "## 2026-11-21, Library Version 2026.12.9, PR #520\n\ntext.\n"
             )
-            self._write_pair(root, same, same)
+            self._write_pair(root, self._as_root(same), same)
             result = run_linter(
                 ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
             )
@@ -23297,19 +25781,21 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             same = (
-                "## 2026-06-10, Library Version 2026.06.9, PR #521\n\ntext.\n"
-                "## 2026-06-09, Library Version 2026.06.10, PR #520\n\ntext.\n"
+                "## 2026-11-10, Library Version 2026.12.9, PR #521\n\ntext.\n"
+                "## 2026-11-09, Library Version 2026.12.10, PR #520\n\ntext.\n"
             )
-            self._write_pair(root, same, same)
+            self._write_pair(root, self._as_root(same), same)
             result = run_linter(
                 ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
             )
         self.assertEqual(result.returncode, 1, result.stdout)
         self.assertIn("SMALLER version", result.stdout)
 
-    def test_pre_cutoff_out_of_order_exempt(self) -> None:
-        # GR-1: the historical PR #170-#175 non-monotonic window sits below
-        # the cutoff; a replica must NOT flag.
+    def test_old_repository_out_of_order_window_fails_as_old_records(self) -> None:
+        # EP1 (replaces test_pre_cutoff_out_of_order_exempt): the old repository's 2026-06-21
+        # non-monotonic window was exempt only because it sat below the old cutoff of 463. It is
+        # dated before EPOCH_START, so a replica now fails as old-repository records to archive,
+        # not as an ordering violation.
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             same = (
@@ -23317,49 +25803,48 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 "## 2026-06-21, Library Version 2026.06.153, PR #172\n\ntext.\n"
                 "## 2026-06-20, Library Version 2026.06.150, PR #463\n\ntext.\n"
             )
-            self._write_pair(root, same, same)
+            self._write_pair(root, self._as_root(same), same)
             result = run_linter(
                 ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
             )
-        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("are old-repository records to archive", result.stdout)
+        self.assertNotIn("ordering violated", result.stdout)
 
-    def test_current_week_model_swept_entries_not_flagged(self) -> None:
-        # Current-week model (2026-07-08): the in-repo mirror keeps only the
-        # current week, so its oldest PR rises above the fixed CUTOFF_PR (463).
-        # Root keeps EVERY entry. A root-only header between 463 and the
-        # mirror's oldest in-repo PR is swept-to-scratch, not missing; the
-        # dynamic effective cutoff (= oldest mirror PR) must leave it out of
-        # scope so it is NOT flagged. Under the old fixed-463 cutoff #520 would
-        # be a false "missing from mirror".
+    def test_post_epoch_root_header_below_the_mirror_oldest_fails(self) -> None:
+        # EP2 item 1 (replaces test_current_week_model_swept_entries_not_flagged): in the new
+        # repository the root keeps per-PR lines only for the current week, as the mirror does,
+        # so a post-epoch root header below the mirror's oldest PR is not a swept entry. With no
+        # floor it is compared and fails as missing from the mirror.
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             root_text = (
-                "## 2026-07-07, Library Version 2026.07.9, PR #690\n\nlead.\n"
-                "## 2026-07-01, Library Version 2026.07.5, PR #520\n\nlead.\n"
+                "## 2026-11-27, Library Version 2026.12.9, PR #690\n\nlead.\n"
+                "## 2026-11-21, Library Version 2026.12.5, PR #520\n\nlead.\n"
             )
             mirror_text = (
-                "## 2026-07-07, Library Version 2026.07.9, PR #690\n\nfull.\n"
+                "## 2026-11-27, Library Version 2026.12.9, PR #690\n\nfull.\n"
             )
-            self._write_pair(root, root_text, mirror_text)
+            self._write_pair(root, self._as_root(root_text), mirror_text)
             result = run_linter(
                 ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
             )
-        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("MISSING from the detailed mirror (>= #1): #520\n", result.stdout)
 
-    def test_current_week_model_in_window_miss_still_flagged(self) -> None:
-        # The dynamic cutoff must not neuter the gate: a root header at or
-        # above the mirror's oldest in-repo PR but absent from the mirror is a
-        # genuine in-window drift and must still fail.
+    def test_newest_root_header_missing_from_the_mirror_fails(self) -> None:
+        # EP3 rename (was test_current_week_model_in_window_miss_still_flagged; the window is
+        # gone): the root's newest header, #700, is absent from the mirror and must fail.
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             root_text = (
-                "## 2026-07-08, Library Version 2026.07.10, PR #700\n\nlead.\n"
-                "## 2026-07-07, Library Version 2026.07.9, PR #690\n\nlead.\n"
+                "## 2026-11-28, Library Version 2026.12.10, PR #700\n\nlead.\n"
+                "## 2026-11-27, Library Version 2026.12.9, PR #690\n\nlead.\n"
             )
             mirror_text = (
-                "## 2026-07-07, Library Version 2026.07.9, PR #690\n\nfull.\n"
+                "## 2026-11-27, Library Version 2026.12.9, PR #690\n\nfull.\n"
             )
-            self._write_pair(root, root_text, mirror_text)
+            self._write_pair(root, self._as_root(root_text), mirror_text)
             result = run_linter(
                 ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
             )
@@ -24171,6 +26656,14 @@ class AuditGateParityTests(LinterTestCase):
         agp = self._gate_parity_module("_agp_live_count")
         return len(agp.parse_spec_inventory(_resolve_path(agp.SPEC_PATH)))
 
+    def _surface_gate_floor(self, name: str) -> int:
+        """The least number of gate lines the real runtime surface ``name`` holds: every
+        live gate on the runner and pre-commit, the CI subset on the workflow."""
+        if name == ".github/workflows/quality.yml":
+            agp = self._gate_parity_module("_agp_subset_floor")
+            return len(agp.parse_ci_subset(_resolve_path(agp.SPEC_PATH))[1])
+        return self._live_gate_count()
+
     def _run_isolated_fixture(self, flag: str, *surfaces: str) -> subprocess.CompletedProcess:
         """Copy the real surfaces and put ``flag`` after ``python3`` on every gate
         invocation of the named runtime surfaces (runner, workflow, pre-commit);
@@ -24185,14 +26678,10 @@ class AuditGateParityTests(LinterTestCase):
                 if name in surfaces:
                     changed = 0
                     for i, line in enumerate(lines):
-                        # The summary job's reconcile step is not a gate: its run is
-                        # pinned exactly (SUMMARY_STEP_RUN), so it is never switched.
-                        if ".claude/skills/corpus-management/tools/reconcile-regression-shards.py" in line:
-                            continue
                         if line.lstrip().startswith(prefixes[name]) and " python3 .claude/skills/corpus-management/tools/" in line:
                             lines[i] = line.replace(" python3 .claude/skills/corpus-management/tools/", f" python3 {flag} .claude/skills/corpus-management/tools/", 1)
                             changed += 1
-                    self.assertGreaterEqual(changed, self._live_gate_count(),
+                    self.assertGreaterEqual(changed, self._surface_gate_floor(name),
                                             f"fixture anchor in {name}")
                 target = synthetic_root / name
                 target.parent.mkdir(parents=True, exist_ok=True)
@@ -24240,6 +26729,89 @@ class AuditGateParityTests(LinterTestCase):
                 self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
                 self.assertIn("is not an accepted gate line", result.stderr)
 
+    def _run_mutated_surfaces(self, mutate) -> subprocess.CompletedProcess:
+        """Copy the real surfaces gate 35 reads, apply ``mutate(name, text) -> text`` to
+        each, and run the gate with --root on the copy."""
+        synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-parity-mutated-", dir=FIXTURE_DIR))
+        try:
+            for name in self._ISOLATED_SURFACES:
+                text = _resolve_path(name).read_text(encoding="utf-8")
+                target = synthetic_root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(mutate(name, text), encoding="utf-8")
+            return subprocess.run(
+                [sys.executable, str(REPO_ROOT / ".claude/skills/corpus-management/tools/lint-audit-gate-parity.py"),
+                 "--root", str(synthetic_root)],
+                cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=300)
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
+
+    def test_argv_drift_on_runner_and_precommit_together_is_caught(self) -> None:
+        # ep8qs M2 probe x_drop_check_runner_and_pc: --check removed from build-taxonomy.py
+        # on both the runner and pre-commit. The surfaces still agree with each other, so
+        # only the canonical GATE_ARGV comparison can see it.
+        anchor = "tools/build-taxonomy.py --check"
+        both = (".claude/skills/corpus-management/tools/run_all_audits.sh", ".pre-commit-config.yaml")
+
+        def drop_check(name, text):
+            if name not in both:
+                return text
+            self.assertEqual(text.count(anchor), 1, f"fixture anchor in {name}")
+            return text.replace(anchor, "tools/build-taxonomy.py")
+
+        finding = "Gate 33 invocation (argv) drift from the canonical argv"
+        drifted = self._run_mutated_surfaces(drop_check)
+        self.assertEqual(drifted.returncode, 1, drifted.stdout + drifted.stderr)
+        self.assertIn(finding, drifted.stdout)
+        self.assertEqual(drifted.stdout.count("from the canonical argv"), 2, drifted.stdout)
+        # Flip: the unchanged copy passes, with no canonical-argv finding.
+        clean = self._run_mutated_surfaces(lambda name, text: text)
+        self.assertEqual(clean.returncode, 0, clean.stdout + clean.stderr)
+        self.assertNotIn("canonical argv", clean.stdout)
+
+    def test_canonical_argv_table_entries_track_the_live_gates(self) -> None:
+        # A live gate with no GATE_ARGV entry, and an entry for a number that is not live,
+        # are findings; the real table matches the real inventory exactly (the flip).
+        agp = self._gate_parity_module("_agp_canonical_table")
+        spec = agp.parse_spec_inventory(_resolve_path(agp.SPEC_PATH))
+        self.assertEqual(set(agp.GATE_ARGV), {row[1] for row in spec})
+        self.assertEqual(agp.verify_canonical_argv(spec, [], agp.GATE_ARGV), [])
+        table = dict(agp.GATE_ARGV)
+        del table[33]
+        table[9999] = ()
+        found = agp.verify_canonical_argv(spec, [], table)
+        self.assertEqual(len(found), 2, found)
+        self.assertTrue(any(f.startswith("Gate 33 canonical argv: no GATE_ARGV entry") for f in found))
+        self.assertTrue(any(f.startswith("Gate 9999 canonical argv") for f in found))
+
+    def test_ci_subset_block_inside_an_outer_fence_is_refused(self) -> None:
+        # ep8qs L5 probe spec_subset_in_outer_fence: the ```text block nested inside an
+        # outer 4-backtick fence renders as an example, so its opener is fence text and
+        # the subset is unreadable (exit 2).
+        spec_name = ".claude/skills/corpus-management/specs/specification-audit-programme.md"
+
+        def wrap(outer_before):
+            def mutate(name, text):
+                if name != spec_name:
+                    return text
+                lines = text.split("\n")
+                index = next(i for i, line in enumerate(lines) if line.startswith("ci-pr-subset:"))
+                self.assertEqual((lines[index - 1], lines[index + 1]), ("```text", "```"))
+                if outer_before:
+                    lines[index - 1:index - 1] = ["````markdown", "an example", "````"]
+                else:
+                    lines[index + 2:index + 2] = ["````"]
+                    lines[index - 1:index - 1] = ["````markdown"]
+                return "\n".join(lines)
+            return mutate
+
+        nested = self._run_mutated_surfaces(wrap(False))
+        self.assertEqual(nested.returncode, 2, nested.stdout + nested.stderr)
+        self.assertIn("not alone inside a fenced block opened at top level", nested.stderr)
+        # Flip: an outer fence that closes before the ```text line leaves it at top level.
+        closed = self._run_mutated_surfaces(wrap(True))
+        self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+
     def _gate_parity_module(self, name: str):
         import importlib.util
         tool = Path(__file__).resolve().parent.parent / "tools" / "lint-audit-gate-parity.py"
@@ -24281,9 +26853,24 @@ class AuditGateParityTests(LinterTestCase):
 
     # Since round 6 each YAML surface must have its file's fixed skeleton; a fixture's steps
     # or hooks follow these heads at the real files' columns.
-    _WORKFLOW_HEAD = ("name: Quality\non:\n  push:\n    branches:\n      - main\n"
-                      "  pull_request:\npermissions:\n  contents: read\njobs:\n  lint:\n"
-                      "    name: Lint\n    runs-on: ubuntu-latest\n    steps:\n")
+    # The one pull-request job (maintainer decision 2026-11-09): pull_request only,
+    # jobs exactly {lint} named "Lint markdown corpus", its first steps the three pinned
+    # setup steps.
+    _WORKFLOW_JOB_HEAD = ("name: Quality\non:\n  pull_request:\npermissions:\n"
+                          "  contents: read\njobs:\n  lint:\n    name: Lint markdown corpus\n"
+                          "    runs-on: ubuntu-latest\n    steps:\n")
+    _WF_CHECKOUT_STEP = ("      - name: Checkout\n        uses: actions/checkout@"
+                         "0123456789abcdef0123456789abcdef01234567 # v1\n        with:\n"
+                         "          fetch-depth: 0\n")
+    _WF_SETUP_PYTHON_STEP = ("      - name: Set up Python\n        uses: actions/setup-python@"
+                             "0123456789abcdef0123456789abcdef01234567 # v1\n        with:\n"
+                             '          python-version: "3.14"\n')
+    _WF_INSTALL_STEP = ("      - name: Install pinned dependencies\n"
+                        "        run: python3 -m pip install -r requirements.txt\n")
+    _WORKFLOW_HEAD = (_WORKFLOW_JOB_HEAD + _WF_CHECKOUT_STEP + _WF_SETUP_PYTHON_STEP
+                      + _WF_INSTALL_STEP)
+    # A synthetic specification's section 4 CI subset block naming gate 1 alone.
+    _SPEC_SUBSET = "## 4. Enforcement surfaces\n\n```text\nci-pr-subset: 1\n```\n\n"
     _PRECOMMIT_HEAD = "repos:\n  - repo: local\n    hooks:\n"
 
     def _gate_fixtures(self, root: Path, command: str) -> dict[str, Path]:
@@ -25041,10 +27628,12 @@ class AuditGateParityTests(LinterTestCase):
             # Each setup step's shape is pinned (a full 40-hex SHA, the step's own
             # with: value), so the uses: line here is a pinned Set up Python step.
             workflow.write_text(
-                self._WORKFLOW_HEAD + "      - name: Set up Python\n"
+                self._WORKFLOW_JOB_HEAD + self._WF_CHECKOUT_STEP
+                + "      - name: Set up Python\n"
                 "        uses: actions/setup-python@0123456789abcdef0123456789abcdef01234567"
                 " # v1\n        with:\n"
                 "          python-version: \"3.14\"\n\n      # A comment between steps.\n"
+                + self._WF_INSTALL_STEP +
                 "      - name: A\n        run: python3 .claude/skills/corpus-management/tools/a.py\n"
                 "      - name: Alignment-citation register check\n"
                 "        if: github.event_name == 'pull_request'\n        run: |\n"
@@ -25065,8 +27654,8 @@ class AuditGateParityTests(LinterTestCase):
     # marked, 1) at f0dbdfe07.
     def _run_yaml_edits(self, *edits: tuple[str, str, str]) -> subprocess.CompletedProcess:
         """Gate 35 over a copy of the real surfaces, with each (surface, old, new) edit
-        replacing the FIRST occurrence of ``old`` in that surface by ``new`` (the lint
-        job's, where the gate-36 shard jobs repeat a setup line)."""
+        replacing the FIRST occurrence of ``old`` in that surface by ``new`` (the
+        workflow has 1 job, lint, since the gate-36 shard jobs were retired)."""
         root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r6-", dir=FIXTURE_DIR))
         try:
             for name in self._ISOLATED_SURFACES:
@@ -25098,7 +27687,7 @@ class AuditGateParityTests(LinterTestCase):
     _PC = ".pre-commit-config.yaml"
     _WF_METADATA = "      - name: Metadata audit\n        run: python3 .claude/skills/corpus-management/tools/lint-metadata.py\n"
     # The lint job's last line: the run line of its last step, the excluded
-    # Alignment-citation register delta-gate step (the shard jobs follow).
+    # Alignment-citation register delta-gate step (the file's last line).
     _WF_TAIL = "        run: python3 .claude/skills/corpus-management/tools/check-alignment-register-on-pr.py\n"
     _PC_LINKS = ("      - id: lint-links\n        name: Repository-internal link audit\n"
                  "        entry: python3 .claude/skills/corpus-management/tools/lint-links.py\n        language: system\n"
@@ -25137,18 +27726,20 @@ class AuditGateParityTests(LinterTestCase):
         root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r6b-", dir=FIXTURE_DIR))
         try:
             workflow = root / "quality.yml"
-            workflow.write_text(self._WORKFLOW_HEAD + "      - name: Set up Python\n"
+            workflow.write_text(self._WORKFLOW_JOB_HEAD + self._WF_CHECKOUT_STEP
+                                + "      - name: Set up Python\n"
                                 "        uses: actions/setup-python@"
                                 "0123456789abcdef0123456789abcdef01234567 # v1\n        with:\n"
                                 + self._WF_PYTHON + "\n      # A comment after the value.\n"
+                                + self._WF_INSTALL_STEP +
                                 "      - name: A\n        run: python3 .claude/skills/corpus-management/tools/a.py\n",
                                 encoding="utf-8")
             self.assertEqual([e[1:] for e in agp.parse_workflow(workflow)],
                              [("A", ".claude/skills/corpus-management/tools/a.py", ())])
         finally:
             shutil.rmtree(root, ignore_errors=True)
-        # Every python-version line of the real workflow (the lint job's and
-        # one per gate-36 shard job) is exactly the one pinned quoted value.
+        # Every python-version line of the real workflow (the lint job's; the
+        # gate-36 shard jobs are retired) is exactly the one pinned quoted value.
         versions = [line for line in (_resolve_path(self._WF)).read_text(
             encoding="utf-8").splitlines(keepends=True) if "python-version" in line]
         self.assertTrue(versions)
@@ -25189,8 +27780,8 @@ class AuditGateParityTests(LinterTestCase):
                        "        entry: python3 .claude/skills/corpus-management/tools/lint-audit-gate-parity.py\n"
                        "        language: system\n        pass_filenames: false\n"
                        "        always_run: true\n")
-        last_step = ("      - name: Isolated-launch import audit\n"
-                     "        run: python3 .claude/skills/corpus-management/tools/lint-isolated-launch.py\n")
+        last_step = ("      - name: Public hooks syntax and registration-parity audit\n"
+                     "        run: python3 .claude/skills/corpus-management/tools/lint-hooks-syntax.py\n")
         nested = lambda text, by: "".join(" " * by + line + "\n" for line in text.splitlines())
         self._assert_yaml_edits_refused((
             ("P29 repo key", "has the key 'x'", (
@@ -25317,25 +27908,176 @@ class AuditGateParityTests(LinterTestCase):
                 (self._PC, hooks_split, hooks_split.replace("\n\n", "\n    hooks:\n")),)),
             ("second on", "repeats the key 'on'", (
                 (self._WF, "permissions:\n", "on:\n  pull_request:\npermissions:\n"),)),
-            ("push branches", "is 'nowhere', not main", (
-                (self._WF, "      - main\n", "      - nowhere\n"),)),
             # Found by a PyYAML mutation cross-check while writing round 6: the skeleton
             # allowed a key to be missing, and without pull_request: no gate runs on a PR.
-            ("no pull_request trigger", "lacks the key(s) ['pull_request']", (
+            # Since 2026-11-09 pull_request is the only key on: may hold.
+            ("no pull_request trigger", "on is empty, not a mapping", (
                 (self._WF, "  pull_request:\n", ""),)),
             ("no runs-on", "lacks the key(s) ['runs-on']", (
                 (self._WF, "    runs-on: ubuntu-latest\n", ""),)),
         ))
 
+    # CI subset (maintainer decision 2026-11-09): the workflow is one pull-request job
+    # that runs exactly the gates the specification's section 4 ci-pr-subset block
+    # names; the runner and pre-commit still run every section 6 gate. Each case below
+    # edits a copy of the real surfaces.
+    _SPEC = ".claude/skills/corpus-management/specs/specification-audit-programme.md"
+    _RUNNER = ".claude/skills/corpus-management/tools/run_all_audits.sh"
+    _SUBSET_LINE = "ci-pr-subset: 1 3 6 14 21 22 35 59 66 68 99 111\n"
+    _WF_LINKS = ("      - name: Repository-internal link audit\n"
+                 "        run: python3 .claude/skills/corpus-management/tools/lint-links.py\n")
+    _WF_FENCES = ("      - name: Unbalanced-fence audit\n"
+                  "        run: python3 .claude/skills/corpus-management/tools/lint-unbalanced-fences.py\n")
+    _WF_LANGUAGE = ("      - name: Language and style audit\n"
+                    "        run: python3 .claude/skills/corpus-management/tools/lint-language.py\n")
+
+    def _assert_subset_finding(self, message: str, *edits) -> None:
+        result = self._run_yaml_edits(*edits)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(message, result.stdout)
+
+    def test_ci_subset_is_read_and_the_live_workflow_equals_it(self) -> None:
+        agp = self._gate_parity_module("_agp_subset_live")
+        _, subset = agp.parse_ci_subset(_resolve_path(agp.SPEC_PATH))
+        self.assertEqual(subset, [1, 3, 6, 14, 21, 22, 35, 59, 66, 68, 99, 111])
+        result = self._run_yaml_edits()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("the 12 CI-subset gates on the workflow", result.stdout)
+
+    def test_ci_subset_extra_workflow_gate_step_is_a_finding(self) -> None:
+        self._assert_subset_finding(
+            "step 'Language and style audit' is not a gate of the CI subset",
+            (self._WF, self._WF_LINKS, self._WF_LANGUAGE + "\n" + self._WF_LINKS))
+
+    def test_ci_subset_missing_member_is_a_finding(self) -> None:
+        self._assert_subset_finding(
+            "gate 66 'Unbalanced-fence audit'",
+            (self._WF, "\n" + self._WF_FENCES, ""))
+
+    def test_ci_subset_out_of_order_workflow_is_a_finding(self) -> None:
+        self._assert_subset_finding(
+            "not the section 6 order",
+            (self._WF, self._WF_METADATA, "@@METADATA@@"),
+            (self._WF, self._WF_LINKS, self._WF_METADATA),
+            (self._WF, "@@METADATA@@", self._WF_LINKS))
+
+    def test_ci_subset_workflow_argv_drift_is_a_finding(self) -> None:
+        self._assert_subset_finding(
+            "Gate 3 invocation (argv) drift",
+            (self._WF, "lint-links.py\n", "lint-links.py --strict\n"))
+
+    def test_ci_subset_unknown_repeated_or_unordered_number_is_a_finding(self) -> None:
+        for label, line, message in (
+                ("unknown", "ci-pr-subset: 1 3 6 14 21 22 35 59 66 68 99 111 999\n",
+                 "gate 999 is not a live section 6 gate"),
+                ("retired", "ci-pr-subset: 1 3 6 14 21 22 32 35 59 66 68 99 111\n",
+                 "gate 32 is not a live section 6 gate"),
+                ("repeated", "ci-pr-subset: 1 1 3 6 14 21 22 35 59 66 68 99 111\n",
+                 "gate 1 is listed more than once"),
+                ("unordered", "ci-pr-subset: 3 1 6 14 21 22 35 59 66 68 99 111\n",
+                 "are not in section 6 order")):
+            with self.subTest(case=label):
+                self._assert_subset_finding(message, (self._SPEC, self._SUBSET_LINE, line))
+
+    def test_ci_subset_empty_or_unreadable_fails_closed(self) -> None:
+        self._assert_yaml_edits_refused((
+            ("empty", "names no gate", ((self._SPEC, self._SUBSET_LINE, "ci-pr-subset:\n"),)),
+            ("absent", "not exactly one", ((self._SPEC, self._SUBSET_LINE, ""),)),
+            ("second line", "not exactly one", (
+                (self._SPEC, self._SUBSET_LINE, self._SUBSET_LINE + self._SUBSET_LINE),)),
+            ("malformed", "is malformed", (
+                (self._SPEC, self._SUBSET_LINE, "ci-pr-subset: 1,3\n"),)),
+            ("double space", "is malformed", (
+                (self._SPEC, self._SUBSET_LINE, "ci-pr-subset:  1 3\n"),)),
+            ("not fenced", "not alone inside a fenced block", (
+                (self._SPEC, "```text\n" + self._SUBSET_LINE + "```\n", self._SUBSET_LINE),)),
+            ("in a comment", "not alone inside a fenced block", (
+                (self._SPEC, "```text\n" + self._SUBSET_LINE + "```\n",
+                 "<!--\n```text\n" + self._SUBSET_LINE + "```\n-->\n"),)),
+            ("outside section 4", "not section 4", (
+                (self._SPEC, "```text\n" + self._SUBSET_LINE + "```\n", ""),
+                (self._SPEC, "## 5. Gate categories\n",
+                 "## 5. Gate categories\n\n```text\n" + self._SUBSET_LINE + "```\n"))),
+        ))
+
+    def test_workflow_skeleton_is_one_pull_request_job(self) -> None:
+        other_job = ("  other:\n    name: Other\n    runs-on: ubuntu-latest\n    steps:\n"
+                     "      - name: Checkout\n        uses: actions/checkout@"
+                     "0123456789abcdef0123456789abcdef01234567\n        with:\n"
+                     "          fetch-depth: 0\n")
+        self._assert_yaml_edits_refused((
+            ("push trigger", "has the key 'push'", (
+                (self._WF, "on:\n  pull_request:\n",
+                 "on:\n  push:\n    branches:\n      - main\n  pull_request:\n"),)),
+            ("second job", "has the key 'other'", (
+                (self._WF, self._WF_TAIL, self._WF_TAIL + "\n" + other_job),)),
+            ("summary job", "has the key 'summary'", (
+                (self._WF, self._WF_TAIL,
+                 self._WF_TAIL + "\n" + other_job.replace("  other:", "  summary:")),)),
+            ("job name", "is 'Lint markdown corpus gates', not Lint markdown corpus", (
+                (self._WF, "    name: Lint markdown corpus\n",
+                 "    name: Lint markdown corpus gates\n"),)),
+        ))
+
+    def test_workflow_regression_step_is_refused(self) -> None:
+        regression = ("      - name: Linter regression test suite\n"
+                      "        run: python3 .claude/skills/corpus-management/tools/"
+                      "run-linter-regression.py%s\n")
+        self._assert_yaml_edits_refused(tuple(
+            (label, "names run-linter-regression.py", (
+                (self._WF, self._WF_TAIL, self._WF_TAIL + "\n" + regression % argv),))
+            for label, argv in (("whole", ""), ("shard", " --shard 1/6"),
+                                ("partition", " --verify-shards 6"))))
+        # In the subset too: gate 36 cannot be a CI gate.
+        self._assert_yaml_edits_refused((
+            ("in the subset", "names run-linter-regression.py", (
+                (self._SPEC, self._SUBSET_LINE,
+                 "ci-pr-subset: 1 3 14 21 22 35 36 59 66 68 111\n"),
+                (self._WF, "\n      - name: CHANGELOG mirror",
+                 "\n" + regression % "" + "\n      - name: CHANGELOG mirror"))),))
+
+    def test_workflow_setup_steps_are_pinned_in_place(self) -> None:
+        setup = "not exactly the pinned ['Checkout', 'Set up Python', 'Install pinned dependencies']"
+        install = self._WF_INSTALL_STEP
+        self._assert_yaml_edits_refused((
+            ("deleted", setup, ((self._WF, install, ""),)),
+            ("repeated", setup, ((self._WF, self._WF_TAIL, self._WF_TAIL + "\n" + install),)),
+            ("reordered", setup, ((self._WF, install, ""),
+                                  (self._WF, "      - name: Set up Python\n",
+                                   install + "\n      - name: Set up Python\n"))),
+            ("action not at a full SHA", "does not match the pinned action", (
+                (self._WF, "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                 "actions/checkout@v7"),)),
+        ))
+
+    def test_runner_or_precommit_short_of_section_6_is_a_finding(self) -> None:
+        self._assert_subset_finding(
+            "Gate counts differ across surfaces",
+            (self._RUNNER, 'run_gate "Language and style audit"', '# run_gate "Language and style audit"'))
+        self._assert_subset_finding(
+            "Gate counts differ across surfaces",
+            (self._PC, self._PC_LINKS, ""))
+        # Removing a non-subset gate from all three surfaces that held it is still a
+        # finding: section 6 names it, so the runner and pre-commit must run it.
+        self._assert_subset_finding(
+            "Gate counts differ across surfaces",
+            (self._RUNNER, 'run_gate "Repository-internal link audit"',
+             '# run_gate "Repository-internal link audit"'),
+            (self._PC, self._PC_LINKS, ""))
+
     def test_r6_current_surfaces_read_every_gate(self) -> None:
-        # Every current gate step and hook is read, in the runner's order and count.
+        # Every current hook is read, in the runner's order and count; every current
+        # workflow gate step is read, in the runner's order, and they are exactly the
+        # runner's gates the CI subset names.
         agp = self._gate_parity_module("_agp_r6_current")
         runner = agp.parse_runner(_resolve_path(agp.RUNNER_PATH))
-        for parse, name in ((agp.parse_workflow, agp.WORKFLOW_PATH),
-                            (agp.parse_precommit, agp.PRECOMMIT_PATH)):
-            with self.subTest(surface=name):
-                self.assertEqual([e[1:] for e in parse(_resolve_path(name))],
-                                 [e[1:] for e in runner])
+        self.assertEqual([e[1:] for e in agp.parse_precommit(_resolve_path(agp.PRECOMMIT_PATH))],
+                         [e[1:] for e in runner])
+        spec = agp.parse_spec_inventory(_resolve_path(agp.SPEC_PATH))
+        subset = set(agp.parse_ci_subset(_resolve_path(agp.SPEC_PATH))[1])
+        subset_names = {name for (_, number, name, _) in spec if number in subset}
+        self.assertEqual([e[1:] for e in agp.parse_workflow(_resolve_path(agp.WORKFLOW_PATH))],
+                         [e[1:] for e in runner if e[1] in subset_names])
 
     def test_r3_same_bypass_on_all_three_surfaces_is_refused(self) -> None:
         # Argv parity cannot see a tail added identically to every surface; the allowlist
@@ -25353,7 +28095,7 @@ class AuditGateParityTests(LinterTestCase):
                                 ("run: python3 .claude/skills/corpus-management/tools/", "entry: python3 .claude/skills/corpus-management/tools/"))):
                             lines[i] = line + " && /usr/bin/pyt?on3 -B .claude/skills/corpus-management/tools/x.py"
                             changed += 1
-                    self.assertGreaterEqual(changed, self._live_gate_count(),
+                    self.assertGreaterEqual(changed, self._surface_gate_floor(name),
                                             f"fixture anchor in {name}")
                 target = synthetic_root / name
                 target.parent.mkdir(parents=True, exist_ok=True)
@@ -25388,7 +28130,7 @@ class AuditGateParityTests(LinterTestCase):
             # Spec inventory (canonical): one row.
             (synthetic_root / ".claude/skills/corpus-management/specs"
              / "specification-audit-programme.md").write_text(
-                "# Audit Programme\n\n"
+                "# Audit Programme\n\n" + self._SPEC_SUBSET +
                 "## 6. Gate inventory\n\n"
                 "| # | Gate | Script |\n"
                 "| --- | --- | --- |\n"
@@ -25443,7 +28185,7 @@ class AuditGateParityTests(LinterTestCase):
         try:
             (synthetic_root / ".claude/skills/corpus-management/specs"
              / "specification-audit-programme.md").write_text(
-                "# Audit Programme\n\n"
+                "# Audit Programme\n\n" + self._SPEC_SUBSET +
                 "## 6. Gate inventory\n\n"
                 "| # | Gate | Script |\n"
                 "| --- | --- | --- |\n"
@@ -25506,7 +28248,7 @@ class AuditGateParityTests(LinterTestCase):
         try:
             (synthetic_root / ".claude/skills/corpus-management/specs"
              / "specification-audit-programme.md").write_text(
-                "# Audit Programme\n\n"
+                "# Audit Programme\n\n" + self._SPEC_SUBSET +
                 "## 6. Gate inventory\n\n"
                 "| # | Gate | Script |\n"
                 "| --- | --- | --- |\n"
@@ -25570,7 +28312,7 @@ class AuditGateParityTests(LinterTestCase):
         try:
             (synthetic_root / ".claude/skills/corpus-management/specs"
              / "specification-audit-programme.md").write_text(
-                "# Audit Programme\n\n"
+                "# Audit Programme\n\n" + self._SPEC_SUBSET +
                 "## 6. Gate inventory\n\n"
                 "| # | Gate | Script |\n"
                 "| --- | --- | --- |\n"
@@ -25635,7 +28377,7 @@ class AuditGateParityTests(LinterTestCase):
         try:
             (synthetic_root / ".claude/skills/corpus-management/specs"
              / "specification-audit-programme.md").write_text(
-                "# Audit Programme\n\n"
+                "# Audit Programme\n\n" + self._SPEC_SUBSET +
                 "## 6. Gate inventory\n\n"
                 "| # | Gate | Script |\n"
                 "| --- | --- | --- |\n"
@@ -25796,8 +28538,9 @@ class AuditGateParityTests(LinterTestCase):
                 self.assertIn("with the whole list on one line", result.stdout)
 
     # Stray-opener positions: after the complete lists, before section 5,
-    # and in section 6 just before the real spec's one fenced block.
-    _STRAY_ANCHORS = (_SECTION_5_TAIL, "\n## 5. Gate categories", "\n```text\n")
+    # and in section 6 just before the fenced block after the gate 73
+    # paragraph (section 4's ci-pr-subset block is the spec's other fence).
+    _STRAY_ANCHORS = (_SECTION_5_TAIL, "\n## 5. Gate categories", "\n```text\nManage/")
     # A category line in the middle of the section 5 lists.
     _CATEGORY_3 = "\n3. **Content drift defence**"
 
@@ -25834,7 +28577,7 @@ class AuditGateParityTests(LinterTestCase):
         # text gate 35 does not read, so the spec passes.
         cases = (
             (self._SECTION_5_TAIL, None),
-            ("\n```text\n", None),
+            ("\n```text\nManage/", None),
             ("\n## 5. Gate categories", "section-5 categories: no '## 5.' section found"),
             (self._CATEGORY_3, "section-5 categories: gate 5 missing"),
         )
@@ -38050,7 +40793,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F 22db2236bdd9aa07cfd990918e9c93790bcb4ede1b4434b5d7906a0e343f5e68
+        README.md DATA F 553163caef493836bea44a7b25c305ad7be10f68b55e1f62becd06d63633004c
         adopt-bootstrap-ref.py OWN F 1c0e5ba5922d5e3558914ea164d4c553ea8dc5cf501d0a3864fbcffaf84e04c7
         adopt-preflight-guard.py FIXED F ee7dd3404bad7ae6b955c536bb5478a1f435462b565537d5dcf56479484a55ce
         aiqt_bootstrap.py PASSIVE F bc5496de79c394e76703b34380bfc1bbb9ae1a8c489aa719d0a75344d3c915dc
@@ -38070,13 +40813,13 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         build-reference-manifest.py NO_FS F 8c35622bb04788a491c73ad01962836a565a656c827dedfea819d21f7f0352d4
         build-relationship-model.py NO_FS F 4f1985be07bd7accba4590136fff047e5edc5684c1d7f1451b7ab082923d5ddd
         build-taxonomy.py NO_FS F 7b2c33ab4b32773deb192e34264fb7f672a64c7c408d5d988dcaab380da2af43
-        build-todo-number-allocation.py NO_FS F 5f0a11a42909b0929e72e88a0474b83ae318abf626f909bb668f593f7cd40ef0
+        build-todo-number-allocation.py NO_FS F c43639a5293d9a8ed65bcd7d629610941c5c13d9cb9a4c2c93348efb829be534
         ccm_aicm_reference.py PASSIVE F 0d3218cfad279bd8f196c0d26241380220a3fc91fdb70505622fdedb5eba4733
         changelog_diff.py PASSIVE F f7e55f77c428f8151a04cb1a0128b238a4af194fa8a9832c9f68d6fc1af9a3fd
-        check-alignment-register-on-pr.py NO_FS F 575e3e9a5b8240e8b5938abb8b4e025916284a369d8d3c1ed542ab4cbf9ca96f
-        check-changelog-dash-on-pr.py NO_FS F 9ffefdedd2f4f31731869e136d4d76c9940cae949d6a4021f15c8c263ce6beb3
+        check-alignment-register-on-pr.py NO_FS F d1c38262c93c543594ff197b6c52ed4ee0daf11057b985b0624bf47b482e3145
+        check-changelog-dash-on-pr.py NO_FS F ae246a045b11a2adb2ba048bb4ac30e99d577686a97cbbcdd6f0f42257d21faa
         check-changelog-length-on-pr.py NO_FS F dd5bafe5fd12ea3a906e3e3ce79f4fb4a55bd916494e0a856e9c7d55f7a274bd
-        check-changelog-on-pr.py NO_FS F 3f1f95adc4d1ac36d02fc7280a669f143928ac495b0c6c189f75086e02d55ec1
+        check-changelog-on-pr.py NO_FS F 988704bf5fc7880e6979e734eb661bc29adfd5ea1be38a4c31469d44e2b47922
         check-changelog-preflight-commit.py NO_FS F 3549e7958e63fe73066eeb5eadf3ccc2e9c6d90f5e6529dadea9847397ec2c8b
         check-class-completeness.py NO_FS F 9b7075b1b6eaa95e2eb1cf56204e2e31a40d79bd2c65583704a1a226a4bcf71f
         check-claude-md-size.py NO_FS F 0063137a9ec00914945c3248d5965b6bea9f732b375bf6ed014e7977b1ae6ad8
@@ -38091,14 +40834,14 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-portability.sh FIXED F 6db8acf68ba0551ea3121df5c948bbe4f8e7be57280c1f60dcace4b8ba92ae19
         check-retired-section-orphan-on-pr.py NO_FS F 6fd04e27564842955cc3729941fee9a83a1321999e0e946e62f5e220a6441f45
         check-review-cadence.py ROOT F 2277b86f5316dcbc729e230a3ca27444e25c462ea931836d6bd4e0b39d64d5d2
-        check-stranded-control-code-on-pr.py NO_FS F d17b1e58874687f6d3d2368b73c148fdf5e3ed6beb8e9b65817c0e2a1c233c15
+        check-stranded-control-code-on-pr.py NO_FS F 2ae031e42fcfa71b867a6c4e3157735efbad4869f0d5e5bc94f7473b629309d7
         check-todo-floor-monotonic-on-pr.py NO_FS F 6e3d51fb8760b6f635e4a3673ac1db8092d47fab752e0b954fa5bcdd205faf79
         check-todo-rotation-on-pr.py NO_FS F dcce3d1984ffa30b363629d88855c834b622d27a8074297e272f89798997b61f
         check-version-bump-commit.py MESSAGE F 62aca20f0eba5e80813712f237b25901808b9bef228264bf875cd9c6f15c5243
         check-version-bump-on-pr.py NO_FS F 8e831de0e9628775708a0651c3c56d68e02c082864b819a73058cdd75cd35383
         citation_publishers.py PASSIVE F fde369119935dca0544558c9d4014b58b2ddd989e3777d59d9f5acdae199203b
         cobit_iso31000_reference.py PASSIVE F 396aa674262ec1a794c27adb7ce50f8b2adbfe863eec66e7845a45a07fbd2c61
-        gate-scope-manifest.json DATA F 498068431eb835af696205412a6e757b29551aa769da2415a6e4b9c75e7465d2
+        gate-scope-manifest.json DATA F 899ce0b1666d9caf39bb1c7cddf866f3602d91f0ac53f5c762e37b40cb821327
         git-hooks/commit-msg MESSAGE F 16db495598a27417aa07a6f84e4e2660cd7fe1facceb07c1a9be80491e10c7f4
         git-hooks/pre-commit FIXED F 08d1e02bcdf96561b7b3e19002ef44f3b28b89a679765ebc8f2f4a2c631e1e93
         git-hooks/pre-push TRANSPORT F 0cb81bca5e070adface9fcff866cf6d33d4c5d4fe39d0db68e0476e291c131c8
@@ -38110,15 +40853,15 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-aiqt-vendor-digest.py NO_FS F 49f26e0c53d3c6c5b88c455204bec8a092ddca252890e189f4dc988baf0e7c8d
         lint-alignment-citation-existence.py CWD F ce3b2a02ba1d6fc99b77718fee2e908af1a793dfac90cf5e373b34b9da838c67
         lint-allowlist-spec-parity.py NO_FS F 31a9e348330041d1237e9f60f0b4b8d8486e690370f3685a8828553b54b36d9b
-        lint-audit-gate-parity.py OWN F a2565f899167ae537ddb443b2d434971239c45ac44cef049038b2c6a0dc495a1
+        lint-audit-gate-parity.py OWN F 2098e8b17acaaf7f2e58cfbd0b81a5a2c914799ecf524017fe558854ec975d4e
         lint-audit-spec-detailed-prose.py OWN F ae791fa738b8b6e2c3299e79eaac07e28b174acfdcf16a0d92de024af2eea144
         lint-bare-normative-shall.py ROOT F 961914ca91d7e70a286019f6c0aaee5b5398791dc7b4a5a4a41cdae8acafc385
         lint-baseline-pin.py OWN F 8f66582bf204c37fe1dd4a97aa56aba1562c9c7bbde98bfc0021656141fc407c
         lint-ccm-aicm-citations.py CWD F 1bfff249d503ff8f44b7126ea5337d8a352386ee9d5fb0fcf744db6b4b8ed1bf
         lint-ccm-provider-member-in-range.py CWD F 206f09840a333f1942d6628e9b51c83a4b058957489d1b9d57144758a9441699
-        lint-changelog-link-coverage.py CWD F 107150324c1a7ce89b1ffcbfb10c56c9f260b9253a8e1e46af9279da4a07495b
-        lint-changelog-mirror-header-parity.py OWN F 570f3f72d0c471619faeb87291f746254cf9a949171669642e1f5e85fec1ef98
-        lint-citation-currency-cadence.py NO_FS F aa024149eeb63e660ea22c9f25cdd9ff5c197c7a56186a89dccad00dcc4fbcdf
+        lint-changelog-link-coverage.py CWD F f61f00e34774091dfbf3d47449ebfebc386e152e2dfc2d2022d969fb46438ac2
+        lint-changelog-mirror-header-parity.py OWN F c48af58b593186e2d89aa2e3ed145cc5c0943db5635352e02d624cc355c84fa0
+        lint-citation-currency-cadence.py NO_FS F c9ade17f84bb47e4f021e9a1b3d686c0bfc28cc03bd7117576c430cdc93fa776
         lint-citation-verification-freshness.py OWN F 6fef148ac78796357de64b363f2d9002b0f5030fe0924de4c5b09d44b1179ea7
         lint-citations.py ROOT F abaab05779f502ceeaf3ef6ffab83d487adca151ed5c92601c2ddf0d305c2a15
         lint-claude-rules-sync.py OWN F 4e375feac86fed164e9bef4b5055692ee0b1e832a8bc3ab7dc54ce89fb93186d
@@ -38148,7 +40891,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-license-consistency.py CWD F d20553fc01d7ef8e1da5a7de0725dbd04f29aca2543a5e49499086c9c014c6d1
         lint-links.py ROOT F dabb86b552db35bea36c72131c8b8aadc39ac764e984558eeb8a5da8c3f038d9
         lint-listing-surface-completeness.py NO_FS F 883baec9004bd08709a57c9ea64634e7e65ce275e1e104eab2259d305480ef73
-        lint-matrix-control-codes.py OWN F b3e36f5d54fc2b2445623521a20d9c0c5616158a848bd3319f75d7752cb43ed9
+        lint-matrix-control-codes.py OWN F 4b8bce03178d6a21e6bc001b112186053125ac3e3285531f2aab5276492ddf13
         lint-metadata-line-breaks.py ROOT F e000e749f15b403c7bbf16112fd7e8c498044573f6233f2e976b42c035218c73
         lint-metadata.py ROOT F 7474e9cfce84b951917fafed04a4c2e0fd078935cd35cc7471c6ecb224fc524c
         lint-narrative-authority-boundary.py ROOT F 75b9f667b9ba61f82f545456726bb2c497644875ea59c403ecf44ac1864e9d43
@@ -38173,51 +40916,51 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-sibling-placeholders.py NO_FS F 797b8c1bc25e66b973149f04c2d3f041377ad8aef4d2d6ae1651f7e36b975444
         lint-skill-verdict-carrier-completeness.py OWN F ef309b38652400b00b26e815a7731617e60046a609d0377f5c795bb68746724b
         lint-ssdf-control-ids.py CWD F e47480aa4721817438ef4dee1eed56afafef586568e39b047ed045ab69e7d1ee
-        lint-standards-currency.py OWN F 1ec1f91a65e9efbf4b7b2f16409248e0db5d6ee8d8e1c27dc4056a500601d05f
-        lint-startup-character-ceiling.py NO_FS F 4c0da66b5078b3225b4f283f417c8c55cf521d7ad3b5be0529a61b99b518e75a
+        lint-standards-currency.py OWN F 5f162f1d61f71bf561802e30720985e3edbf307e8f6558b417ba70d7abaa9e11
+        lint-startup-character-ceiling.py NO_FS F d6417cd2e9987e8038f664931a8d3f8a1e54e9d28d655ea93187e1dcc2a17daf
         lint-stdlib-only-imports.py NO_FS F 9d1a4208ba701d558b6fa81cc6ae6e287bb3ea153acbebbe241b754feca76ceb
         lint-structure.py OWN F e3d425a59b899333d7619ac10144a6c321f1c031892e209a4a8746c4de7d64a8
         lint-stub-documents.py CWD F 08931995bad0efe6d0c611bf315e13e69ba7da57b8323d1ed6e3179d8f8c626d
         lint-table-cell-count.py OWN F 09f0901d07db0f8ce4536534da879480cf07bd32d48188059a78d9ce9ec42416
         lint-todo-index-reference-parity.py OWN F 0322cc9188ff149fbbb5549252f1362f1755ef45243fdde7160169208e8424fc
-        lint-todo-list-tag.py OWN F 71f8bed7af8602a4f045499ae92a3824e6b3132d7dd94d22cc8bad86c638254c
+        lint-todo-list-tag.py OWN F 58dca800aa32f4c3ac1f54cb20ab9f497500b161b9de6cbe611ca284c6e08caf
         lint-todo-marked-done.py ROOT F 384030341ae9a8916fa891e9c32f8e17d70b09f03618e8ae364a413b97cf7cb9
-        lint-todo-number-permanence.py OWN F 037e8a8b6e759f9a4162d2dcb8242974b899a898c92bcc7808b10df46e1d0199
-        lint-todo-staleness.py NO_FS F d97991bf910bf152a6fea09f07c6f852ba21dd819c7de5815ecbf76ed7548969
-        lint-tooling-backlog-refs.py OWN F 7fbb2a8dd4c57bc2e07d719e59245f5762373061fd7c9b78827e4ad157d41d88
+        lint-todo-number-permanence.py OWN F 87564815efb4cbcc220987775cbe9faa60c97b2ae9031d5d1b331e23bd44a4b5
+        lint-todo-staleness.py NO_FS F e3857e1bc4ac5e961c465c3b2a8ed9e0de0b34a88dc3d89ad815615f049f2bf9
+        lint-tooling-backlog-refs.py OWN F 607e771c3b92ae7c591e0867da24031ea7d0e700057afeff665123a619a1cdeb
         lint-tooling-provenance-freshness.py OWN F 38a5222e69c3ec9c43c1ea917f39d8b17683ae3f91b6c361e4b10a34d0f4027a
         lint-unbalanced-fences.py ROOT F efc44ab68739892982c9da6f68197e2ac6f035ed544113013c80e4d1e233cffb
         lint-ungated-dashes.py NO_FS F f59de21823dd85927a173159fa6026001097d609431db814f6fc3025ce4608bc
         lint-unused-imports.py CWD F 05ca63d3f4bb0462f9866dcd7ef795ca0d0c54b9187e3a67eff39697dd7265cb
-        lint-version-bump-recency.py CWD F c17e62dfb08be96a44646e021c0fd6de4f93f51978f8c9ec7ed950de34962218
+        lint-version-bump-recency.py CWD F 6bda3d80d35330f7ebcfa06a18dab4e7161df2546cea1c5ac1879fcde080f347
         lint-version-date-consistency.py OWN F 4b69ee3f29de310e37a7cc6981089f2e89b6ad21c2e3c3d314279ce8f75cef3d
-        lint-web-corpus-links.py OWN F a975c9eff8f12a9fbd80117157c0aba3bb640d972c053245376ff664ed01ab2d
-        lint_common.py PASSIVE F 7e5cf429bf8742a93439d8742a7746ac9d5881f6b7d121c36fb780c7f3e9e973
+        lint-web-corpus-links.py OWN F 590157e1f8c31f8c867b1f31e5976d95a8e04ef2a00fa7a0c636589b3bb7e80a
+        lint_common.py PASSIVE F 0ec7c234d7caf333bca84672db4c61739a11c3d82328c3042886ab75b3b63228
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
-        measure-regression-timings.py WRITE F 9fbe429674ff0d44dc44ab092eaef84291e7e71e2205ebaae501d857ed9d4624
+        measure-regression-timings.py WRITE F c6d1f22fbc6e8663067a0cb3239f277db3e5daad7e5b8fa698dcf8f865621f99
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
-        pre-push-guard.sh FIXED F 5d163625dbdb5b25cc72977c0c44897dae1c7ce4296d1677ae33c80a04393907
+        pre-push-guard.sh FIXED F e75b3068520874b11b6608b8edf5a736c47441cbf7fdf9ce869bebca25f9350b
         pre-push-hook.py TRANSPORT F e0a06be59cc3e8c0b47377b229c16ea169eba04ed717e31c9427356b85f6bb76
-        preflight-changelog.py NO_FS F d38edaaa99b9a6b0d10db15a188a498a7fe5736a0244a8565f70a0418caf7a31
+        preflight-changelog.py NO_FS F 29957c73e3b649040497b2db9fcd095a8ae92627d69259795943a363ac7d514c
         preflight-version-date.py NO_FS F fa0c5302a8b96c582ecc5cb32e74b70bfed7b26da4727839c6d0765841aee2b9
         preflight_language_runner.py CHILD F 74bf872dffaee970bcab511f640704f8575fa5a5e652d7e9d2689573be097d55
         provision_citations.py PASSIVE F be64f2ad5bd5f96d1e7242bda050964851ba96a44a375d6fcb8aadf17e85fc71
         quick-guard.sh FIXED F 9be1ac996a3aeffde824bc0256cf0538f7fc75db0420a8b02e8b6b0f67c3f729
-        reconcile-regression-shards.py OWN F a44ad6ddb1357dc259fadcfef8b5581e31b0804eb2e5ec6bfef83058c82e4617
-        residual-scan.py NO_FS F fa1430fc4bc284b2995eb0dd0a5a3244e1f6c6a8e4ccd91e71a38f7f23840549
-        run-linter-regression.py FIXED F 42e260417339aafaecf91732c7bd29ddd4cbc40be237de6eddf6db75059753b4
-        run-pr-time-checks.sh FIXED F 3d4c875badc3855c4695e3961aa0f7a2f05aa854ab5a36ce8cc83dc719c99652
+        reconcile-regression-shards.py OWN F 85e0c4672f74ab83bdfc02e879b910ea542da2dec2438a4aa52f05285b43cd73
+        residual-scan.py NO_FS F 557ebe813cae26b5ffd5cddc9807b25136c4c2f54f29182f19dc0acb7dda2e6f
+        run-linter-regression.py FIXED F b4709d17ecccbf4bf7c7318656c9196432790eeeadb8eb61215ad22096cb57cd
+        run-pr-time-checks.sh FIXED F dc661e4567722dcafa0b15aef9fcd295a5d3e7e1eccc45903306d4d0a8f2c9cf
         run-shell-stubbed.py NO_FS F b414cc61ce69b6f6a2c2732515efc6c0960726ec52e88ec3222401011cb3db69
-        run_all_audits.sh FIXED F 1b5f51c7683e5a1c1b4a1f534af60e38b0b2fccab3718eda3ac2af7ed88e83bb
+        run_all_audits.sh FIXED F d9f60a5cca7ca9337e2aa0cf2e207efbffb2269a53820191767bcb32e7fa5067
         safe_fs.py PASSIVE F 13c29f1625ffc04ba289a42a2ba241e2d68a77c9420b114f2a96e58c4b5ad35a
         scan-publication-instruction-content.py OWN F ad8f97941e94236419fae6fe3c9591e376de24fd8a7a5884b26899c11de16cc7
         skill-verdict-fields.json DATA F 3a9c5b89ed3acc1a7bdbda02b5630379c1ef016fc58b34e4338a485ad3fd4cb8
         standards-currency-unpinned-baseline.json DATA F 25526fa37844734661ef142a8d54c27a79ed13df1ed3b18955343be1246d7fc5
-        suggest-listing-surfaces.py SKIP F 016b4e5360cf4eb6b6989774419621f0c135b04409f94a8b549003774a5329aa
+        suggest-listing-surfaces.py SKIP F f4a5c4a4997dfeba9f870d43e92726f2c065dda377cf11d2874574dc4c4c0206
         sweep-preflight-exemptions.json DATA F 2c11643eb1082a34c9d2cafed9cf04c6481c3e8322a44f426aa0f55729ad75df
         sweep-preflight-scanner.py NO_FS F d1bb0f1a66719510f4d40908f2407a2252ee7752fbb20ead5d667337323b8a7a
         tail-safe.sh COMMAND F 53a9d69a2697af2f82584189b7c73115caf2279ee7df9358674366a145904000
-        todo-number-floor.json DATA F b5b684a17754dd265c1072f2342971befcc59b5a6e0b579f48eb21ea172f047b
+        todo-number-floor.json DATA F 6dac3e36323bb29bbdc089bcb21c32be1c22ca03940df66e4c0f93d64bfbf8fc
         todo_index_rows.py PASSIVE F f3de08f8e6de12b042a1f5a78559faf6ef5697e6ada10b1e5ddfe1375fadacf6
         tsc_reference.py PASSIVE F e8452e3c68c8fa8b3ac8cf34eaad1a4a9dbf1bf2c1bc26f49411c5a79e77d5d4
         verify-reference-modules.py OWN F 98c85d7fd833d86c55e443381e104bad155acd92ea785c08de946ac879235caa
@@ -46080,11 +48823,14 @@ class StoreDegradedNoticeTests(unittest.TestCase):
     def test_gate59_changelog_mirror_header_parity(self) -> None:
         from unittest.mock import Mock
         mod = self._load("lint-changelog-mirror-header-parity.py")
-        self._write("changelog-details/CHANGELOG-detailed.md", "# Detailed changelog\n")
+        # One matching new-repository header on each side: a present store that compares zero
+        # PRs is reported as degraded (EP1 item 3), so the clean run must compare at least one.
+        entry = "**2026-11-09 | 2026.11.66 | PR #1** - tooling: entry.\n"
+        self._write("changelog-details/CHANGELOG-detailed.md", "# Detailed changelog\n\n" + entry)
         root = self.store / "root"
         root.mkdir()
         (root / mod.ROOT_CHANGELOG_REL).parent.mkdir(parents=True, exist_ok=True)
-        (root / mod.ROOT_CHANGELOG_REL).write_text("# Changelog\n", encoding="utf-8")
+        (root / mod.ROOT_CHANGELOG_REL).write_text("# Changelog\n\n" + entry, encoding="utf-8")
         from lint_common import StoreScope
         present = {"REPO_ROOT": root,
                    "store_scope": Mock(return_value=StoreScope(None, None, None, None))}
@@ -72412,9 +75158,9 @@ class StoreScopeCeilingTests(LinterTestCase):
 
     # ---- fixtures ----
 
-    _BASE_ROOT = ("**2026-07-02 | 2026.07.9 | PR #521** - t\n\n"
-                  "**2026-07-01 | 2026.07.8 | PR #520** - t\n")
-    _OWN_522_ROOT = "**2026-07-03 | 2026.07.10 | PR #522** - own\n\n"
+    _BASE_ROOT = ("**2026-11-22 | 2026.12.9 | PR #521** - t\n\n"
+                  "**2026-11-21 | 2026.12.8 | PR #520** - t\n")
+    _OWN_522_ROOT = "**2026-11-23 | 2026.12.10 | PR #522** - own\n\n"
     _HDR = "| Date | PR | Families | Tier | Disposition |\n|---|---|---|---|---|\n"
     _LATER_PR_ROWS = ("| 2026-09-30 | #2652 | c | T | SHIP final |\n"
                       "| 2026-09-30 | #2652 | c | T | IN PROGRESS: r1 dispatched |\n")
@@ -72424,7 +75170,7 @@ class StoreScopeCeilingTests(LinterTestCase):
 
     @staticmethod
     def header(pr: int, version: int | None = None) -> str:
-        return f"**2026-09-30 | 2026.09.{version or pr} | PR #{pr}**\n"
+        return f"**2026-12-30 | 2026.12.{version or pr} | PR #{pr}**\n"
 
     @staticmethod
     def pending_rows(pr: int) -> str:
@@ -72446,8 +75192,20 @@ class StoreScopeCeilingTests(LinterTestCase):
             rc = function(*args)
         return rc, out.getvalue(), err.getvalue()
 
+    # EP8b item 1: gate 59's root grammar requires the "# Changelog" title as the root's first
+    # non-blank line (EP8a item 5, ep7qa), so every gate 59 fixture root, and the origin/main root
+    # it is compared against, gets it as 1 added line 1 unless the text already starts with it.
+    ROOT_TITLE_LINE = "# Changelog\n"
+
+    @classmethod
+    def titled(cls, text: str) -> str:
+        """``text`` with the ``# Changelog`` title line added when it does not start with it."""
+        return text if text.startswith(cls.ROOT_TITLE_LINE) else cls.ROOT_TITLE_LINE + text
+
     def mirror_gate(self, root: str, mirror: str, scope):
-        """Gate 59's main() in process, with a fixed scope and in-memory surfaces."""
+        """Gate 59's main() in process, with a fixed scope and in-memory surfaces; the root gets
+        the ``# Changelog`` title (EP8b)."""
+        root = self.titled(root)
         with self.patch.object(self.mp, "resolve_working", return_value=Path("/mirror")), \
                 self.patch.object(self.mp, "read_text_safe",
                                   side_effect=lambda p: mirror if str(p) == "/mirror" else root), \
@@ -72464,7 +75222,7 @@ class StoreScopeCeilingTests(LinterTestCase):
         committed under ``subjects`` (the first commit adds the file)."""
         self.git(root, "init", "-q", "-b", "main")
         (root / ".working").mkdir(parents=True, exist_ok=True)
-        (root / ".working/CHANGELOG.md").write_text(base_text, encoding="utf-8")
+        (root / ".working/CHANGELOG.md").write_text(self.titled(base_text), encoding="utf-8")
         self.git(root, "add", ".working/CHANGELOG.md")
         for subject in subjects or ("base",):
             self.git(root, "commit", "-q", "--allow-empty", "-m", subject)
@@ -72478,7 +75236,7 @@ class StoreScopeCeilingTests(LinterTestCase):
         if base_root_text is not None:
             self.origin_main(root, base_root_text, *subjects)
         (root / ".working").mkdir(parents=True, exist_ok=True)
-        (root / ".working/CHANGELOG.md").write_text(root_text, encoding="utf-8")
+        (root / ".working/CHANGELOG.md").write_text(self.titled(root_text), encoding="utf-8")
         d = root / ".working" / "changelog-details"
         d.mkdir(parents=True, exist_ok=True)
         (d / "CHANGELOG-detailed.md").write_text(mirror_text, encoding="utf-8")
@@ -72488,6 +75246,75 @@ class StoreScopeCeilingTests(LinterTestCase):
         with tempfile.TemporaryDirectory() as tmp:
             self.mirror_pair(Path(tmp), root_text, mirror_text, **kwargs)
             return run_linter(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", tmp)
+
+    @staticmethod
+    def new_header(pr: int) -> str:
+        """A compact new-repository header dated on or after EPOCH_START (#1 on 2026-11-09)."""
+        return f"**2026-11-{8 + pr:02d} | 2026.12.{pr} | PR #{pr}**\n"
+
+    def test_epoch_branch_missing_its_own_mirror_entry_fails(self) -> None:
+        # EP1 research shape S3: a branch declares new PR #3 in its root, but the store mirror
+        # holds no entry for #3 at all, so no #3 header is offered to deferral and this test does
+        # not exercise own-PR deferral protection. The root header is compared (CUTOFF_PR is 1
+        # and there is no floor), so the gate fails naming #3 (under the old floor of 463 it
+        # passed). Probe P7 below covers an own entry missing while another open PR's is present.
+        base = self.new_header(2) + self.new_header(1)
+        r = self.run_mirror_gate(self.new_header(3) + base, base, base_root_text=base,
+                                 subjects=("First (#1)", "Second (#2)"))
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("MISSING from the detailed mirror (>= #1): #3\n", r.stdout)
+
+    def test_epoch_own_pr_missing_while_another_open_pr_is_present_fails(self) -> None:
+        # EP2 item 1, ep1qc probe P7: the branch declares #1 and the store mirror holds only open
+        # PR #2's entry. Under the EP1 floor (#2, taken from the raw mirror before deferral) root
+        # #1 left scope and #2 was deferred, so the gate passed comparing nothing. With no floor,
+        # #1 is compared and named, while #2 still defers as another open PR.
+        r = self.run_mirror_gate(self.new_header(1), self.new_header(2),
+                                 base_root_text="# Changelog\n")
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("MISSING from the detailed mirror (>= #1): #1\n", r.stdout)
+        self.assertIn(": deferred #2: ", r.stdout)
+        self.assertIn("declared own PR #1", r.stdout)
+
+    def test_epoch_own_pr_missing_while_mirror_holds_high_numbers_fails(self) -> None:
+        # EP2 item 1, ep1qc probe P2c: the branch declares #1 and the mirror holds only entries
+        # numbered #3127 and #3126 dated on EPOCH_START (so not old records). The EP1 floor
+        # became #3126, root #1 left scope and both entries deferred above the ceiling, so the
+        # gate passed. With no floor, #1 is compared and named.
+        mirror = ("**2026-11-09 | 2026.12.3128 | PR #3127**\n"
+                  "**2026-11-09 | 2026.12.3127 | PR #3126**\n")
+        r = self.run_mirror_gate(self.new_header(1), mirror, base_root_text="# Changelog\n")
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("MISSING from the detailed mirror (>= #1): #1\n", r.stdout)
+        self.assertNotIn("at or above #3126", r.stdout)
+
+    def test_zero_compared_degraded_line_counts_deferred_headers(self) -> None:
+        # EP2 item 5, ep1qx 5: a weekly-only root and a mirror whose only entry defers. The
+        # DEGRADED line says no PR was compared and gives the deferred count, instead of claiming
+        # that neither file holds a qualifying header.
+        scope = self.lc.StoreScope(None, None, 1, None)
+        rc, out, _ = self.mirror_gate("# Changelog\n\n## Week of 2026-11-09\n",
+                                      self.new_header(5), scope)
+        self.assertEqual(rc, 0, out)
+        self.assertIn(": deferred #5: ", out)
+        self.assertIn("DEGRADED: gate 59 compared no PR: ", out)
+        self.assertIn("(1 detailed-mirror header(s) deferred)", out)
+
+    def test_epoch_old_mirror_entries_fail_before_deferral(self) -> None:
+        # EP1 research shape S7: old-repository entries (#3127, #3126, dated before EPOCH_START)
+        # left at the top of the store mirror sit above the clean-base ceiling (#2), so the store
+        # scope would defer them as open PRs and the gate would pass having flagged nothing. The
+        # epoch rule runs before deferral: they fail, named as records to archive, and none is
+        # deferred.
+        base = self.new_header(2) + self.new_header(1)
+        old = ("**2026-10-30 | 2026.10.1760 | PR #3127**\n"
+               "**2026-10-29 | 2026.10.1759 | PR #3126**\n")
+        r = self.run_mirror_gate(base, old + base, base_root_text=base,
+                                 subjects=("First (#1)", "Second (#2)"))
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("are old-repository records to archive", r.stdout)
+        self.assertIn("line 1 PR #3127 (2026-10-30), line 2 PR #3126 (2026-10-29)", r.stdout)
+        self.assertNotIn(": deferred ", r.stdout)
 
     def stacked_child(self, root: Path, *, own_entry: bool, parent: str) -> str:
         """origin/main holds merged #2660; branch ``parent`` adds open #2653's entry; branch
@@ -72501,10 +75328,10 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.origin_main(root, base, "Lost-device table (#2660)")
         self.git(root, "checkout", "-q", "-b", "parent")
         (root / ".working").mkdir(parents=True, exist_ok=True)
-        (root / ".working/CHANGELOG.md").write_text(entry + base, encoding="utf-8")
+        (root / ".working/CHANGELOG.md").write_text(self.titled(entry + base), encoding="utf-8")
         self.git(root, "commit", "-q", "-am", "parent work")
         self.git(root, "checkout", "-q", "-b", "child")
-        text = (self.header(2662) if own_entry else "") + entry + base
+        text = self.titled((self.header(2662) if own_entry else "") + entry + base)
         (root / ".working/CHANGELOG.md").write_text(text, encoding="utf-8")
         (root / "README.md").write_text("child\n", encoding="utf-8")
         self.git(root, "add", ".working/CHANGELOG.md", "README.md")
@@ -72515,7 +75342,7 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.git(root, "checkout", "-q", "main")
         if parent == "squash-merged":
             (root / ".working").mkdir(parents=True, exist_ok=True)
-            (root / ".working/CHANGELOG.md").write_text(entry + base, encoding="utf-8")
+            (root / ".working/CHANGELOG.md").write_text(self.titled(entry + base), encoding="utf-8")
             self.git(root, "commit", "-q", "-am", "Parent feature (#2653)")
         elif parent == "merge-committed":
             self.git(root, "merge", "-q", "--no-ff", "-m", "Merge pull request #2653 from a/parent",
@@ -72809,13 +75636,18 @@ class StoreScopeCeilingTests(LinterTestCase):
                 self.assertNotIn("deferred", out)
 
     def test_clean_base_historical_milestone_is_not_a_new_header(self) -> None:
-        base = self.header(2660) + "**2026-07-29 | MILESTONE:** Historical split.\n"
+        base = self.header(2660) + "**2026-11-29 | MILESTONE:** Historical split.\n"
         mirror = self.header(2662) + base
         r = self.run_mirror_gate(base, mirror, base_root_text=base)
-        self.assertEqual(r.returncode, 0, r.stdout)
+        # EP6: the milestone still declares nothing (clean-base scope holds and #2662 defers), but
+        # the root grammar admits no milestone line, so the run fails on that line alone.
+        self.assertEqual(r.returncode, 1, r.stdout)
         self.assertIn("clean-base", r.stdout)
         self.assertIn("deferred #2662", r.stdout)
-        r = self.run_mirror_gate("**2026-10-01 | MILESTONE:** New unexplained header.\n" + base,
+        self.assertIn("are outside the root grammar", r.stdout)
+        self.assertIn("'**2026-11-29 | MILESTONE:** Historical split.'", r.stdout)
+        self.assertNotIn("MISSING", r.stdout)
+        r = self.run_mirror_gate("**2026-12-31 | MILESTONE:** New unexplained header.\n" + base,
                                  mirror, base_root_text=base)
         self.assertEqual(r.returncode, 1, r.stdout)
         self.assertIn("no own-PR declaration", r.stdout)
@@ -72977,7 +75809,7 @@ class StoreScopeCeilingTests(LinterTestCase):
         # REPO_ROOT instead of the --root fixture (no declaration there, rc 1).
         r = self.run_mirror_gate(
             self._OWN_522_ROOT + self._BASE_ROOT,
-            "**2026-07-04 | 2026.07.11 | PR #523** - later PR\n\n" + self._OWN_522_ROOT + self._BASE_ROOT,
+            "**2026-11-24 | 2026.12.11 | PR #523** - later PR\n\n" + self._OWN_522_ROOT + self._BASE_ROOT,
             base_root_text=self._BASE_ROOT)
         self.assertEqual(r.returncode, 0, r.stdout)
         self.assertIn("deferred #523: every named PR exceeds store-scope ceiling #522", r.stdout)
@@ -72988,7 +75820,7 @@ class StoreScopeCeilingTests(LinterTestCase):
         # Kills: `>` -> `>=` and any caller-local `>=` re-filter (rc 0, "deferred").
         r = self.run_mirror_gate(
             self._OWN_522_ROOT + self._BASE_ROOT,
-            "**2026-07-03 | 2026.07.11 | PR #522** - own\n\n" + self._BASE_ROOT,
+            "**2026-11-23 | 2026.12.11 | PR #522** - own\n\n" + self._BASE_ROOT,
             base_root_text=self._BASE_ROOT)
         self.assertEqual(r.returncode, 1, r.stdout)
         self.assertIn("DIFFERENT Library Versions", r.stdout)
@@ -73017,7 +75849,7 @@ class StoreScopeCeilingTests(LinterTestCase):
         # Old 17. No repository and no origin/main: nothing defers and the gate says so. Kills: a
         # root-maximum fallback (rc 0) and a silent fail-closed.
         r = self.run_mirror_gate(self._OWN_522_ROOT + self._BASE_ROOT,
-                                 "**2026-07-04 | 2026.07.11 | PR #523** - later PR\n\n"
+                                 "**2026-11-24 | 2026.12.11 | PR #523** - later PR\n\n"
                                  + self._OWN_522_ROOT + self._BASE_ROOT)
         self.assertEqual(r.returncode, 1, r.stdout)
         self.assertIn("MISSING from root", r.stdout)
@@ -73026,12 +75858,17 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertIn("merge-base", r.stdout)
         self.assertNotIn("deferred", r.stdout)
 
-    def test_mirror_gate_multi_pr_entry_kept_when_any_named_pr_in_scope(self) -> None:
-        # Old 18. A legacy header naming in-scope #520 and later #524 is evaluated whole. Kills:
-        # deciding from the greedy record key [524] alone, and `min` -> `max`.
+    def test_mirror_gate_multi_pr_legacy_header_fails_classification(self) -> None:
+        # Old 18, renamed in EP5 (ep4qx 2, ep4qc L4; was
+        # test_mirror_gate_multi_pr_entry_kept_when_any_named_pr_in_scope). Since EP4 a legacy
+        # header naming #520 and #524 fails entry classification (one header per PR) before the
+        # deferral flags are read, so this is a classification regression only; it no longer
+        # reaches the deferral decision. The shared helper's `min` rule (lint_common, "every
+        # named PR exceeds the ceiling") is still pinned: `min` -> `max` there fails
+        # test_above_store_ceiling_is_fail_closed and test_stacked_connectors_and_ambiguous_cells.
         r = self.run_mirror_gate(
             self._OWN_522_ROOT + self._BASE_ROOT,
-            "## 2026-07-04, Library Version 2026.07.11, PR #520 and PR #524\n\n"
+            "## 2026-11-24, Library Version 2026.12.11, PR #520 and PR #524\n\n"
             + self._OWN_522_ROOT + self._BASE_ROOT,
             base_root_text=self._BASE_ROOT)
         self.assertEqual(r.returncode, 1, r.stdout)
@@ -73039,29 +75876,88 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertNotIn("deferred", r.stdout)
 
     def test_mirror_gate_record_key_and_deferral_share_one_pr_rule(self) -> None:
-        # Old 19 (claude r2 WARN 1): the greedy record key #2650 is outside the ambiguous cell, so
-        # the record is kept and the duplicate #2650 fails exactly as on main. Kills: the joint
-        # removal of the ambiguity probe and the caller's record-key membership test.
-        base = "**2026-09-28 | 2026.09.1353 | PR #2650** - t\n"
-        work = "**2026-09-30 | 2026.09.1360 | PR #2657** - t\n\n" + base
+        # Old 19, rewritten in EP5 (ep4qx 2, ep4qc L4): the record-key check in main (a mirror
+        # record defers only when its own PR is among the PRs its line's deferral flags name) is
+        # reached directly, with the shared deferral flags mocked: the #9998 line is flagged as
+        # deferring #9999 only, and the #9997 line as deferring itself. With the check, #9998 is
+        # kept (and fails as missing from root) while #9997 defers; without it both defer and the
+        # gate passes. The shared parser returns the bold-cell PR for every full-match line, so
+        # real flags cannot produce this mismatch today: the check is defence in depth.
+        import contextlib
+        import types
+        from unittest import mock
+        root_text = "**2026-12-28 | 2026.12.1353 | PR #2650** - t\n"
+        mirror_text = ("**2026-12-31 | 2026.12.1400 | PR #9998** - flagged for #9999 only\n\n"
+                       "**2026-12-30 | 2026.12.1399 | PR #9997** - flagged for itself\n\n"
+                       + root_text)
+
+        def flags(lines, scope):
+            return [(True, [9999]) if "PR #9998" in line
+                    else (True, [9997]) if "PR #9997" in line else (False, [])
+                    for line in lines]
+
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / ".working/changelog-details").mkdir(parents=True)
+            (Path(tmp) / ".working/CHANGELOG.md").write_text(self.titled(root_text),
+                                                             encoding="utf-8")
+            (Path(tmp) / ".working/changelog-details/CHANGELOG-detailed.md").write_text(
+                mirror_text, encoding="utf-8")
+            out = io.StringIO()
+            with mock.patch.object(self.mp, "store_scope",
+                                   return_value=types.SimpleNamespace(note=None, own_pr=None)), \
+                    mock.patch.object(self.mp, "store_deferral_flags", side_effect=flags), \
+                    mock.patch.object(self.mp, "store_deferral_note",
+                                      side_effect=lambda prs, scope, where, lineno:
+                                      f"deferred #{prs[0]} (line {lineno})"), \
+                    contextlib.redirect_stdout(out):
+                rc = self.mp.main(["--root", tmp])
+        self.assertEqual(rc, 1, out.getvalue())
+        self.assertIn("MISSING from root .working/CHANGELOG.md (>= #1): #9998\n", out.getvalue())
+        self.assertIn("deferred #9997 (line 3)", out.getvalue())
+        self.assertNotIn("deferred #9999", out.getvalue())
+
+    def test_mirror_gate_follow_up_tail_fails_classification(self) -> None:
+        # Old 19's former EP4 case, kept under its own name in EP5: a legacy header with a
+        # trailing "(follow-up to PR #2650)" does not fully match the comparison shape, so entry
+        # classification fails it before deferral, naming both PRs. It is never deferred.
+        base = "**2026-12-28 | 2026.12.1353 | PR #2650** - t\n"
+        work = "**2026-12-30 | 2026.12.1360 | PR #2657** - t\n\n" + base
         r = self.run_mirror_gate(
             work,
-            "## 2026-09-30, Library Version 2026.09.1361, PR #9999 (follow-up to PR #2650)\n\n" + work,
+            "## 2026-12-30, Library Version 2026.12.1361, PR #9999 (follow-up to PR #2650)\n\n" + work,
             base_root_text=base)
         self.assertEqual(r.returncode, 1, r.stdout)
-        self.assertIn("more than once in the detailed mirror", r.stdout)
-        self.assertIn("#2650", r.stdout)
+        self.assertIn("one header per PR is required: line 1 (#2650, #9999)", r.stdout)
         self.assertNotIn("deferred", r.stdout)
 
-    def test_mirror_gate_deferred_multi_pr_header_reports_every_pr(self) -> None:
-        # Old 20 (gemini r2 finding 4). Kills (M4): a note naming only the greedy record key.
+    def test_mirror_gate_version_floor_fails_before_deferral(self) -> None:
+        # EP5 item 2, ep4qc L1 probe G1: with readable evidence, an old record dated on
+        # EPOCH_START at 2026.11.65 deferred as another open PR's entry, then rc 0. It now fails
+        # as an old-repository record before deferral (the 2026.12.1 lookalike in
+        # test_mirror_gate_lookalike_below_own_entry is the deferring control).
         r = self.run_mirror_gate(
             self._OWN_522_ROOT + self._BASE_ROOT,
-            "## 2026-07-04, Library Version 2026.07.11, PR #523 and PR #524\n\n"
+            self._OWN_522_ROOT + "**2026-11-09 | 2026.11.65 | PR #9999** - old epoch-day record\n\n"
+            + self._BASE_ROOT,
+            base_root_text=self._BASE_ROOT)
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("below VERSION_FLOOR 2026.11.66", r.stdout)
+        self.assertIn("PR #9999 (2026.11.65)", r.stdout)
+        self.assertNotIn("deferred", r.stdout)
+
+    def test_mirror_gate_multi_pr_header_fails_before_deferral(self) -> None:
+        # Old 20 (gemini r2 finding 4), changed on purpose by EP4 (was
+        # test_mirror_gate_deferred_multi_pr_header_reports_every_pr): an entry candidate must
+        # name exactly 1 PR, so a legacy header naming open PRs #523 and #524 fails before
+        # store-scope deferral instead of deferring both.
+        r = self.run_mirror_gate(
+            self._OWN_522_ROOT + self._BASE_ROOT,
+            "## 2026-11-24, Library Version 2026.12.11, PR #523 and PR #524\n\n"
             + self._OWN_522_ROOT + self._BASE_ROOT,
             base_root_text=self._BASE_ROOT)
-        self.assertEqual(r.returncode, 0, r.stdout)
-        self.assertIn("deferred #523, #524:", r.stdout)
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("one header per PR is required: line 1 (#523, #524)", r.stdout)
+        self.assertNotIn("deferred", r.stdout)
 
     def test_mirror_gate_lookalike_below_own_entry(self) -> None:
         # Old 21, changed on purpose by option B (NOTE 1's stated residue): with readable
@@ -73072,7 +75968,7 @@ class StoreScopeCeilingTests(LinterTestCase):
         # test_open_rule_reaches_below_own_entry_and_lookalike_residue.
         r = self.run_mirror_gate(
             self._OWN_522_ROOT + self._BASE_ROOT,
-            self._OWN_522_ROOT + "**2026-10-01 | 2026.10.1 | PR #9999** - unmarked lookalike\n\n"
+            self._OWN_522_ROOT + "**2026-12-31 | 2026.12.1 | PR #9999** - unmarked lookalike\n\n"
             + self._BASE_ROOT,
             base_root_text=self._BASE_ROOT)
         self.assertEqual(r.returncode, 0, r.stdout)
@@ -73081,7 +75977,7 @@ class StoreScopeCeilingTests(LinterTestCase):
     def test_mirror_gate_no_root_header_defers_nothing(self) -> None:
         # Old 22. No parseable root header: no declaration, nothing deferred, the mirror-only
         # #522 fails loudly. Kills: a None ceiling read as 0, and a silent no-deferral state.
-        r = self.run_mirror_gate("# Changelog\n", "**2026-07-03 | 2026.07.10 | PR #522** - t\n",
+        r = self.run_mirror_gate("# Changelog\n", "**2026-11-23 | 2026.12.10 | PR #522** - t\n",
                                  base_root_text="# Changelog\n")
         self.assertEqual(r.returncode, 1, r.stdout)
         self.assertIn("#522", r.stdout)
@@ -73094,12 +75990,12 @@ class StoreScopeCeilingTests(LinterTestCase):
         # `-->` in root prose span the real #522 root header, which must still be required in the
         # mirror. Kills (M9): masking either surface read in main() (rc 0). The literal delimiter
         # also makes the root ambiguous, so nothing is declared.
-        base = "**2026-07-02 | 2026.07.9 | PR #521** - t\n"
-        work = ("**2026-07-04 | 2026.07.11 | PR #523** - own\n"
+        base = "**2026-11-22 | 2026.12.9 | PR #521** - t\n"
+        work = ("**2026-11-24 | 2026.12.11 | PR #523** - own\n"
                 "Notes: the gate reads `<!--` literally.\n"
-                "**2026-07-03 | 2026.07.10 | PR #522** - never mirrored\n"
+                "**2026-11-23 | 2026.12.10 | PR #522** - never mirrored\n"
                 "end of the `-->` note.\n" + base)
-        r = self.run_mirror_gate(work, "**2026-07-04 | 2026.07.11 | PR #523** - own\n\n" + base,
+        r = self.run_mirror_gate(work, "**2026-11-24 | 2026.12.11 | PR #523** - own\n\n" + base,
                                  base_root_text=base)
         self.assertEqual(r.returncode, 1, r.stdout)
         self.assertIn("MISSING from the detailed mirror", r.stdout)
@@ -73111,9 +76007,9 @@ class StoreScopeCeilingTests(LinterTestCase):
         # subject, no root header). Its mirror entry is evaluated and fails as on main. Kills:
         # merged status from header absence alone (rc 0, #523 deferred as another open PR).
         r = self.run_mirror_gate(
-            "**2026-07-05 | 2026.07.12 | PR #524** - own\n\n" + self._BASE_ROOT,
-            "**2026-07-05 | 2026.07.12 | PR #524** - own\n\n"
-            "**2026-07-04 | 2026.07.11 | PR #523** - trailer-only merge\n\n" + self._BASE_ROOT,
+            "**2026-11-25 | 2026.12.12 | PR #524** - own\n\n" + self._BASE_ROOT,
+            "**2026-11-25 | 2026.12.12 | PR #524** - own\n\n"
+            "**2026-11-24 | 2026.12.11 | PR #523** - trailer-only merge\n\n" + self._BASE_ROOT,
             base_root_text=self._BASE_ROOT,
             subjects=("Base entries (#521)", "Trailer-only fix (#523)"))
         self.assertEqual(r.returncode, 1, r.stdout)
@@ -73146,7 +76042,7 @@ class StoreScopeCeilingTests(LinterTestCase):
         # Kills: fence-blind declaration (#9999 declared, #2662 deferred as another open PR, rc 0).
         base = self.header(2660)
         fence = chr(96) * 3 + "\n"
-        root_text = fence + "**2026-10-01 | 2026.10.1 | PR #9999** - example\n" + fence + base
+        root_text = fence + "**2026-12-31 | 2026.12.1 | PR #9999** - example\n" + fence + base
         r = self.run_mirror_gate(root_text, self.header(2662) + base, base_root_text=base,
                                  subjects=("Lost-device table (#2660)",))
         self.assertEqual(r.returncode, 1, r.stdout)
@@ -73157,11 +76053,17 @@ class StoreScopeCeilingTests(LinterTestCase):
 
     def test_gate_59_keeps_ambiguous_record_key_and_ordering_checks(self) -> None:
         # Round-6 regression: scope never weakens the duplicate, version-agreement or ordering
-        # checks for evaluated records.
+        # checks for evaluated records. Changed on purpose by EP4: the ambiguous legacy header
+        # no longer fully matches the comparison shape, so entry classification fails it before
+        # deferral, naming both PRs; a plain duplicate still fails the duplicate check.
         root, base = self.header(2661) + self.header(2659), self.header(2659)
         scope = self.scope(root, base, base)
-        mirror = "## 2026-09-30, Library Version 2026.09.2662, PR #9999 (see PR #2659)\n" + root
+        mirror = "## 2026-12-30, Library Version 2026.12.2662, PR #9999 (see PR #2659)\n" + root
         rc, out, err = self.mirror_gate(root, mirror, scope)
+        self.assertEqual(rc, 1, out + err)
+        self.assertNotIn("deferred", out)
+        self.assertIn("one header per PR is required: line 1 (#2659, #9999)", out)
+        rc, out, err = self.mirror_gate(root, root + self.header(2659), scope)
         self.assertEqual(rc, 1, out + err)
         self.assertNotIn("deferred", out)
         self.assertIn("appearing more than once", out)
@@ -78981,460 +81883,6 @@ class BaselinePinLinterTests(LinterTestCase):
         pinned bytes (the gate's default-root contract)."""
         result = run_linter(self.SCRIPT)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-
-
-class QualityWorkflowShardSummaryTests(unittest.TestCase):
-    """The quality workflow's required-check summary job (maintainer
-    directive 2026-11-04; round 2): its pinned reconcile step, run exactly
-    as the workflow runs it, fails unless every needed job's result is
-    success AND the shards' per-module credited-start counts, summed,
-    give every on-disk test module at least one credited start. FLIP
-    TABLE: the aggregate job fails when a shard fails, is cancelled or is
-    skipped, when needs is empty, and when a module's cross-shard total
-    is zero; a missing or malformed shard output is a refusal."""
-
-    def _summary_command(self) -> str:
-        text = (REPO_ROOT / ".github" / "workflows" / "quality.yml").read_text(
-            encoding="utf-8")
-        match = re.search(
-            r"^        run: (python3 .claude/skills/corpus-management/tools/reconcile-regression-shards\.py)$",
-            text, re.M)
-        self.assertIsNotNone(match, "the summary job's pinned reconcile "
-                                    "command must be present in quality.yml")
-        return match.group(1)
-
-    def _modules(self) -> list[str]:
-        return sorted(
-            "tests." + name[:-3]
-            for name in os.listdir(SKILL_ROOT / "tests")
-            if name.startswith("test_") and name.endswith(".py"))
-
-    UNITS = "a" * 64
-
-    def _outputs(self, credited: str, units: str = UNITS, shard: int = 1):
-        return {"credited": credited, "units_sha256": units,
-                "selected_sha256": "%064x" % shard}
-
-    def _needs(self, modules: list[str]) -> dict:
-        credited = "".join("%s: 1\n" % module for module in modules)
-        needs = {"lint": {"result": "success", "outputs": {}}}
-        for i in range(1, 7):
-            needs["regression-shard-%d" % i] = {
-                "result": "success", "outputs": self._outputs(credited, shard=i)}
-        return needs
-
-    def _run_summary(self, needs: dict) -> subprocess.CompletedProcess:
-        env = {"PATH": os.environ.get("PATH", ""),
-               "NEEDS_RESULTS": json.dumps(needs)}
-        return subprocess.run(["bash", "-c", self._summary_command()],
-                              cwd=REPO_ROOT, env=env, capture_output=True,
-                              text=True, timeout=60)
-
-    def test_summary_green_only_when_every_needed_job_succeeded(self):
-        ok = self._needs(self._modules())
-        green = self._run_summary(ok)
-        self.assertEqual(green.returncode, 0, green.stdout + green.stderr)
-        for bad in ("failure", "cancelled", "skipped", None):
-            with self.subTest(result=bad):
-                needs = {name: dict(job) for name, job in ok.items()}
-                needs["regression-shard-3"]["result"] = bad
-                self.assertEqual(self._run_summary(needs).returncode, 1)
-        lint_failed = {name: dict(job) for name, job in ok.items()}
-        lint_failed["lint"]["result"] = "failure"
-        self.assertEqual(self._run_summary(lint_failed).returncode, 1)
-        self.assertNotEqual(self._run_summary({}).returncode, 0,
-                            "an empty needs context must fail, not pass "
-                            "vacuously")
-
-    def test_summary_fails_a_module_with_zero_credited_starts(self):
-        """FLIP TABLE (round 2): every job green, but one module earned no
-        credited start in any shard (a wholly skipped module) -> the
-        required check fails, as the serial runner's per-module refusal
-        would have."""
-        modules = self._modules()
-        victim = modules[0]
-        needs = self._needs(modules)
-        credited = "".join("%s: %d\n" % (module, 0 if module == victim else 1)
-                           for module in modules)
-        for i in range(1, 7):
-            needs["regression-shard-%d" % i] = {
-                "result": "success", "outputs": self._outputs(credited, shard=i)}
-        run = self._run_summary(needs)
-        self.assertEqual(run.returncode, 1, run.stdout + run.stderr)
-        self.assertIn("0 credited starts", run.stdout)
-        self.assertIn(victim.partition(".")[2], run.stdout)
-
-    def test_summary_fails_when_shards_discovered_different_units(self):
-        """FLIP TABLE (unit-set digests): every job green and every module
-        credited, but one shard's units_sha256 differs (a runner that
-        discovered another suite) -> the required check fails; a shard
-        without the digest outputs is a refusal."""
-        modules = self._modules()
-        needs = self._needs(modules)
-        needs["regression-shard-4"]["outputs"]["units_sha256"] = "b" * 64
-        run = self._run_summary(needs)
-        self.assertEqual(run.returncode, 1, run.stdout + run.stderr)
-        self.assertIn("different unit sets", run.stdout)
-        for output in ("units_sha256", "selected_sha256"):
-            with self.subTest(missing=output):
-                needs = self._needs(modules)
-                del needs["regression-shard-2"]["outputs"][output]
-                run = self._run_summary(needs)
-                self.assertEqual(run.returncode, 2, run.stdout + run.stderr)
-
-    def test_summary_refuses_missing_or_malformed_shard_output(self):
-        """A shard that published no usable counts can never pass the
-        required check (fail closed, exit 2)."""
-        modules = self._modules()
-        for label, outputs in (
-                ("missing", {}),
-                ("malformed", self._outputs("garbage", shard=2)),
-                ("wrong-set", self._outputs("tests.test_only_one: 1\n",
-                                            shard=2))):
-            with self.subTest(label=label):
-                needs = self._needs(modules)
-                needs["regression-shard-2"] = {"result": "success",
-                                               "outputs": outputs}
-                run = self._run_summary(needs)
-                self.assertEqual(run.returncode, 2,
-                                 run.stdout + run.stderr)
-
-    def test_summary_command_matches_the_parity_pin(self):
-        """The command the workflow runs is byte-identical to the one the
-        gate-parity audit pins (SUMMARY_STEP_RUN), so neither surface can
-        drift from the other."""
-        import importlib.util
-        tool = SKILL_ROOT / "tools" / "lint-audit-gate-parity.py"
-        spec = importlib.util.spec_from_file_location("_agp_summary", str(tool))
-        agp = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(agp)
-        self.assertEqual(self._summary_command(), agp.SUMMARY_STEP_RUN)
-
-
-class GateParityShardFormTests(unittest.TestCase):
-    """Gate 35's gate-36 shard form (maintainer directive 2026-11-04):
-    the one accepted shape parses with gate 36 normalized to no
-    arguments, and every deviation near it is a ParseError (exit 2), so
-    the shard form never weakens parity. FLIP TABLE: each mutation
-    below fails when the audit's shard-form checks are weakened."""
-
-    REGRESSION = ".claude/skills/corpus-management/tools/run-linter-regression.py"
-    SHA = "0123456789abcdef0123456789abcdef01234567"
-    SHARD_OUTPUTS = ("    outputs:\n"
-                     "      credited: ${{ steps.gate.outputs.credited }}\n"
-                     "      units_sha256: "
-                     "${{ steps.gate.outputs.units_sha256 }}\n"
-                     "      selected_sha256: "
-                     "${{ steps.gate.outputs.selected_sha256 }}\n")
-
-    def _agp(self):
-        import importlib.util
-        tool = SKILL_ROOT / "tools" / "lint-audit-gate-parity.py"
-        spec = importlib.util.spec_from_file_location("_agp_shard", str(tool))
-        agp = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(agp)
-        return agp
-
-    def _setup_steps(self, checkout_sha=None, fetch_depth="0",
-                     with_install=True):
-        checkout_sha = checkout_sha or self.SHA
-        text = ("      - name: Checkout\n"
-                f"        uses: actions/checkout@{checkout_sha}\n"
-                "        with:\n"
-                f"          fetch-depth: {fetch_depth}\n"
-                "      - name: Set up Python\n"
-                f"        uses: actions/setup-python@{self.SHA}\n"
-                "        with:\n"
-                "          python-version: \"3.14\"\n")
-        if with_install:
-            text += ("      - name: Install pinned dependencies\n"
-                     "        run: python3 -m pip install -r requirements.txt\n")
-        return text
-
-    def _workflow(self, agp, verify="--verify-shards 2", shard_one="1/2",
-                  needs=("lint", "regression-shard-1", "regression-shard-2"),
-                  summary_name="Lint markdown corpus", shard_one_name=None,
-                  summary_run=None, drop_shard_two=False, extra_job="",
-                  verify_step=True, shard_outputs=None, gate_id="gate",
-                  checkout_sha=None, fetch_depth="0", summary_setup=True,
-                  extra_summary_step="", pre_verify_step="",
-                  shard_setup=None, lint_setup=None):
-        shard_one_name = shard_one_name or ("Linter regression test suite "
-                                            "(shard 1 of 2)")
-        summary_run = summary_run or agp.SUMMARY_STEP_RUN
-        if shard_outputs is None:
-            shard_outputs = self.SHARD_OUTPUTS
-        if lint_setup is None:
-            lint_setup = self._setup_steps()
-        id_line = f"        id: {gate_id}\n" if gate_id else ""
-        verify_lines = ("      - name: Linter regression test suite\n"
-                        f"        run: python3 {self.REGRESSION} {verify}\n"
-                        if verify_step else "")
-        if shard_setup is None:
-            shard_setup = self._setup_steps(checkout_sha=checkout_sha,
-                                            fetch_depth=fetch_depth)
-        shard_two = ("" if drop_shard_two else
-                     "  regression-shard-2:\n"
-                     "    name: Linter regression test suite (shard 2 of 2)\n"
-                     "    runs-on: ubuntu-latest\n"
-                     + shard_outputs +
-                     "    steps:\n"
-                     + self._setup_steps() +
-                     "      - name: Linter regression test suite (shard 2 of 2)\n"
-                     "        id: gate\n"
-                     f"        run: python3 {self.REGRESSION} --shard 2/2\n")
-        needs_lines = "".join(f"      - {name}\n" for name in needs)
-        summary_setup_lines = (self._setup_steps(with_install=False)
-                               if summary_setup else "")
-        return ("name: Quality\n"
-                "on:\n"
-                "  push:\n"
-                "    branches:\n"
-                "      - main\n"
-                "  pull_request:\n"
-                "permissions:\n"
-                "  contents: read\n"
-                "jobs:\n"
-                "  lint:\n"
-                "    name: Lint\n"
-                "    runs-on: ubuntu-latest\n"
-                "    steps:\n"
-                + lint_setup +
-                "      - name: Shape\n"
-                "        run: python3 .claude/skills/corpus-management/tools/x.py\n"
-                + verify_lines +
-                "  regression-shard-1:\n"
-                f"    name: {shard_one_name}\n"
-                "    runs-on: ubuntu-latest\n"
-                + shard_outputs +
-                "    steps:\n"
-                + shard_setup +
-                f"      - name: {shard_one_name}\n"
-                + id_line +
-                f"        run: python3 {self.REGRESSION} --shard {shard_one}\n"
-                + shard_two + extra_job +
-                "  summary:\n"
-                f"    name: {summary_name}\n"
-                "    runs-on: ubuntu-latest\n"
-                "    needs:\n"
-                + needs_lines +
-                "    if: always()\n"
-                "    steps:\n"
-                + summary_setup_lines + pre_verify_step +
-                "      - name: Confirm the lint job and every regression "
-                "shard succeeded\n"
-                "        env:\n"
-                "          NEEDS_RESULTS: ${{ toJSON(needs) }}\n"
-                f"        run: {summary_run}\n"
-                + extra_summary_step)
-
-    def _parse(self, agp, text):
-        root = Path(tempfile.mkdtemp(prefix="parity-shard-", dir=FIXTURE_DIR))
-        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
-        path = root / "quality.yml"
-        path.write_text(text, encoding="utf-8")
-        return agp.parse_workflow(path)
-
-    def test_shard_form_parses_with_gate_36_normalized(self):
-        agp = self._agp()
-        entries = self._parse(agp, self._workflow(agp))
-        self.assertEqual([entry[1:] for entry in entries],
-                         [("Shape", ".claude/skills/corpus-management/tools/x.py", ()),
-                          ("Linter regression test suite", self.REGRESSION,
-                           ())])
-
-    def test_unsharded_workflow_keeps_the_verify_argv(self):
-        # Without the shard jobs a --verify-shards argument is an ordinary
-        # argv, so it reaches the argv parity comparison and fails there.
-        agp = self._agp()
-        text = ("name: Quality\non:\n  push:\n    branches:\n      - main\n"
-                "  pull_request:\npermissions:\n  contents: read\njobs:\n"
-                "  lint:\n    name: Lint\n    runs-on: ubuntu-latest\n"
-                "    steps:\n      - name: Linter regression test suite\n"
-                f"        run: python3 {self.REGRESSION} --verify-shards 6\n")
-        entries = self._parse(agp, text)
-        self.assertEqual(entries[0][3], ("--verify-shards", "6"))
-
-    def test_shard_form_deviations_are_parse_errors(self):
-        agp = self._agp()
-        deviations = {
-            "verify-count-mismatch": dict(verify="--verify-shards 3"),
-            "verify-step-missing": dict(verify_step=False),
-            "plain-gate-36-step": dict(verify=""),
-            "shard-spec-mismatch": dict(shard_one="2/2"),
-            "shard-name-drift": dict(shard_one_name="Regression shard one"),
-            "summary-name-drift": dict(summary_name="Lint summary"),
-            "needs-missing-shard": dict(needs=("lint", "regression-shard-1")),
-            "needs-missing-lint": dict(needs=("regression-shard-1",
-                                              "regression-shard-2")),
-            "summary-run-drift": dict(
-                summary_run="python3 -c 'import sys; sys.exit(0)'"),
-            "foreign-job": dict(extra_job=(
-                "  stray:\n    name: Stray\n    runs-on: ubuntu-latest\n"
-                "    steps:\n      - name: Shape\n"
-                "        run: python3 .claude/skills/corpus-management/tools/x.py\n")),
-            "one-shard-only": dict(drop_shard_two=True),
-            # Round-2 hardening: the summary holds EXACTLY ONE verification
-            # step, the setup steps are pinned exactly, each shard declares
-            # the pinned credited output, and the gate step's id is pinned.
-            "two-summary-verify-steps": dict(extra_summary_step=(
-                "      - name: Confirm again\n"
-                "        env:\n"
-                "          NEEDS_RESULTS: ${{ toJSON(needs) }}\n"
-                "        run: python3 .claude/skills/corpus-management/tools/reconcile-regression-shards.py\n")),
-            "summary-missing-setup": dict(summary_setup=False),
-            # A pinned-shaped FOURTH step before the verify step: only the
-            # exactly-one-verification-step sequence check refuses it, so
-            # weakening that check alone fails here.
-            "summary-extra-pinned-setup-step": dict(pre_verify_step=(
-                "      - name: Checkout\n"
-                "        uses: actions/checkout@"
-                "0123456789abcdef0123456789abcdef01234567\n"
-                "        with:\n"
-                "          fetch-depth: 0\n")),
-            "shard-outputs-missing": dict(shard_outputs=""),
-            "shard-outputs-wrong-expr": dict(shard_outputs=self.SHARD_OUTPUTS.replace(
-                "steps.gate.outputs.credited", "steps.other.outputs.credited")),
-            # The two unit-list digest outputs are pinned beside credited.
-            "shard-outputs-missing-unit-digest": dict(shard_outputs="".join(
-                line for line in self.SHARD_OUTPUTS.splitlines(keepends=True)
-                if "units_sha256" not in line)),
-            "shard-outputs-wrong-digest-expr": dict(shard_outputs=self.SHARD_OUTPUTS.replace(
-                "steps.gate.outputs.selected_sha256", "steps.gate.outputs.units_sha256")),
-            "gate-step-id-missing": dict(gate_id=""),
-            "gate-step-wrong-id": dict(gate_id="runner"),
-            "unpinned-checkout-sha": dict(checkout_sha="abc"),
-            "setup-with-drift": dict(fetch_depth="1"),
-            "setup-step-missing": dict(shard_setup=(
-                "      - name: Checkout\n"
-                "        uses: actions/checkout@"
-                "0123456789abcdef0123456789abcdef01234567\n"
-                "        with:\n"
-                "          fetch-depth: 0\n")),
-        }
-        for label, kwargs in deviations.items():
-            with self.subTest(label=label):
-                with self.assertRaises(agp.ParseError):
-                    self._parse(agp, self._workflow(agp, **kwargs))
-
-    def _setup_blocks(self):
-        """The three pinned setup steps as separate text blocks."""
-        text = self._setup_steps()
-        first = text.index("      - name: Set up Python\n")
-        second = text.index("      - name: Install pinned dependencies\n")
-        return text[:first], text[first:second], text[second:]
-
-    def test_lint_job_setup_steps_present_once_in_pinned_order(self):
-        """FLIP TABLE (gate 35 setup-order pin): under the shard form the
-        lint job's setup steps must be present exactly once and in the
-        pinned order. Each mutation below parses cleanly when only the
-        steps' shapes are checked, so weakening the sequence check fails
-        here."""
-        agp = self._agp()
-        self._parse(agp, self._workflow(agp))
-        checkout, python, install = self._setup_blocks()
-        mutations = {
-            "checkout-deleted": python + install,
-            "python-deleted": checkout + install,
-            "install-deleted": checkout + python,
-            "all-deleted": "",
-            "reordered": python + checkout + install,
-            "install-first": install + checkout + python,
-            "checkout-repeated": checkout + checkout + python + install,
-            "install-repeated": checkout + python + install + install,
-        }
-        for label, lint_setup in mutations.items():
-            with self.subTest(label=label):
-                with self.assertRaisesRegex(agp.ParseError,
-                                            "the lint job's setup steps"):
-                    self._parse(agp, self._workflow(agp, lint_setup=lint_setup))
-        # A setup step moved below a gate step is refused too.
-        good = self._workflow(agp)
-        moved = good.replace(install, "", 1).replace(
-            "        run: python3 .claude/skills/corpus-management/tools/x.py\n",
-            "        run: python3 .claude/skills/corpus-management/tools/x.py\n" + install, 1)
-        self.assertNotEqual(moved, good)
-        with self.assertRaisesRegex(agp.ParseError, "the lint job's setup steps"):
-            self._parse(agp, moved)
-
-    def test_shard_gap_is_a_parse_error(self):
-        agp = self._agp()
-        text = self._workflow(agp).replace("regression-shard-2",
-                                           "regression-shard-3")
-        with self.assertRaises(agp.ParseError):
-            self._parse(agp, text)
-
-    def test_shard_setup_step_running_a_gate_script_is_a_parse_error(self):
-        # A setup-named step inside a shard job must not smuggle a gate
-        # script past the by-name exclusion.
-        agp = self._agp()
-        checkout_block = (
-            f"      - name: Checkout\n"
-            f"        uses: actions/checkout@{self.SHA}\n"
-            f"        with:\n"
-            f"          fetch-depth: 0\n")
-        # The lint job now opens with its own setup steps; mutate the shard's.
-        head, marker, tail = self._workflow(agp).partition("  regression-shard-1:\n")
-        text = head + marker + tail.replace(
-            checkout_block,
-            "      - name: Checkout\n        run: python3 .claude/skills/corpus-management/tools/lint-links.py\n",
-            1)
-        with self.assertRaisesRegex(agp.ParseError, "must not run a gate"):
-            self._parse(agp, text)
-
-    def test_lint_job_setup_step_shape_is_pinned(self):
-        # Round-2 hardening: the lint job's setup steps are pinned to their
-        # exact accepted shapes too, so an unpinned action or a drifted
-        # command cannot hide behind the by-name exclusion.
-        agp = self._agp()
-        root = Path(tempfile.mkdtemp(prefix="parity-setup-", dir=FIXTURE_DIR))
-        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
-        base = ("name: Quality\n"
-                "on:\n"
-                "  push:\n"
-                "    branches:\n"
-                "      - main\n"
-                "  pull_request:\n"
-                "permissions:\n"
-                "  contents: read\n"
-                "jobs:\n"
-                "  lint:\n"
-                "    name: Lint\n"
-                "    runs-on: ubuntu-latest\n"
-                "    steps:\n"
-                "%s"
-                "      - name: Shape\n"
-                "        run: python3 .claude/skills/corpus-management/tools/x.py\n")
-        good = base % self._setup_steps()
-        path = root / "quality.yml"
-        path.write_text(good, encoding="utf-8")
-        entries = agp.parse_workflow(path)
-        self.assertEqual([entry[1] for entry in entries], ["Shape"])
-        for label, kwargs in (
-                ("unpinned-sha", dict(checkout_sha="v4")),
-                ("with-drift", dict(fetch_depth="1"))):
-            with self.subTest(label=label):
-                path.write_text(base % self._setup_steps(**kwargs),
-                                encoding="utf-8")
-                with self.assertRaises(agp.ParseError):
-                    agp.parse_workflow(path)
-        drifted = good.replace(
-            "        run: python3 -m pip install -r requirements.txt\n",
-            "        run: python3 -m pip install requests\n")
-        path.write_text(drifted, encoding="utf-8")
-        with self.assertRaises(agp.ParseError):
-            agp.parse_workflow(path)
-
-    def test_live_workflow_parses_under_the_shard_form(self):
-        """The committed quality.yml is the shard form: gate 36 appears
-        once, normalized to no arguments, at its inventory position."""
-        agp = self._agp()
-        entries = agp.parse_workflow(REPO_ROOT / ".github" / "workflows" /
-                                     "quality.yml")
-        regression = [entry for entry in entries
-                      if entry[2] == self.REGRESSION]
-        self.assertEqual([(entry[1], entry[3]) for entry in regression],
-                         [("Linter regression test suite", ())])
 
 
 if __name__ == "__main__":

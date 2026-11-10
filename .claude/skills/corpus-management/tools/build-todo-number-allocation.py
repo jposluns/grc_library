@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Generate the `## Number allocation` counter block in ``.working/TODO.md`` from a PUBLIC floor
 file plus the live public backlog ids, so a human can never hand-set a counter below the
-highest-used number, and so the check runs on CI and adopter clones (no private data).
+highest-used number, and so the check runs in the full suite (the ``local-quality`` run and the
+nightly sweep) and on adopter clones (no private data).
 
 WHAT IS GENERATED. Only the eight ``- **Next item number: X.**`` counter bullets, between
 ``<!-- BEGIN-GENERATED number-allocation -->`` and ``<!-- END-GENERATED number-allocation -->``.
@@ -11,7 +12,8 @@ THE PUBLIC FLOOR (``.claude/skills/corpus-management/tools/todo-number-floor.jso
 EVER allocated per PUBLIC series (bare ``N.M`` / ``TF-n``; the ``P-N.M`` private namespace is
 separate), including RETIRED numbers that no live file still holds. It is monotonic (only ever
 increases) and is bumped in the PR that allocates a new number. Because the floor is a committed
-PUBLIC file, ``--check`` verifies the block on CI and adopter clones with NO dependency on the
+PUBLIC file, ``--check`` verifies the block in the full suite (the ``local-quality`` run and the
+nightly sweep) and on adopter clones with NO dependency on the
 private ``grc_library_private`` sibling (the flaw of the earlier DONE-archive design, which made
 the check a maintainer-local no-op). ``gate 78`` reads the same floor for its recycle check.
 
@@ -25,7 +27,7 @@ would let a counter collide with a live id), so the floor cannot silently under-
 
 Usage:
   python3 .claude/skills/corpus-management/tools/build-todo-number-allocation.py            # regenerate in place
-  python3 .claude/skills/corpus-management/tools/build-todo-number-allocation.py --check    # exit 1 on drift (CI)
+  python3 .claude/skills/corpus-management/tools/build-todo-number-allocation.py --check    # exit 1 on drift (full suite)
   python3 .claude/skills/corpus-management/tools/build-todo-number-allocation.py --self-test # unit self-check
 """
 import argparse
@@ -288,7 +290,8 @@ def self_test():
 
         def test_reproduces_committed_block(self):
             """Reality anchor: the floor + live union regenerates the committed block
-            byte-for-byte. Public + deterministic, so this runs on CI too (no private dep)."""
+            byte-for-byte. Public + deterministic, so this runs in the full suite too (the
+            local-quality run and the nightly sweep; no private dep)."""
             tops, tf_max, floor, floor_tf, live, live_tf = compute_counters()
             self.assertFalse(floor_violations(floor, floor_tf, live, live_tf),
                              "the committed floor is below a live id")

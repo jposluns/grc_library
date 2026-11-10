@@ -24663,7 +24663,8 @@ class ProgrammeClaimsTests(unittest.TestCase):
         corpus check test_uk_programme_has_one_spelling_in_each_document
         sets aside the -ise programme spelling in the title cell of a
         generated reference manifest row (_manifest_title_cell), without
-        reading the catalogue, so that it still runs in CI. This check
+        reading the catalogue, so that it still runs where the reference
+        catalogue is absent, as in the nightly sweep. This check
         holds each set-aside cell to the reference catalogue: its text must
         be a title cell .claude/skills/corpus-management/tools/build-reference-manifest.py renders for an
         entry of a trusted bucket, read through the generator's own parser

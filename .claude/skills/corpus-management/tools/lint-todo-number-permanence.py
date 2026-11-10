@@ -1279,7 +1279,8 @@ def find_stale_counters(
     PUBLIC ``.claude/skills/corpus-management/tools/todo-number-floor.json``, keyed by section) supplies the highest
     ordinal EVER allocated, so the counter-recycle check catches a counter at or below a
     RETIRED number even where ``DONE.md`` is absent (CI / adopter clone). This is the
-    CI-enforceable recycle backstop the private DONE archive could not provide."""
+    recycle backstop the full suite enforces, which the private DONE archive could not
+    provide."""
     floor = floor or {}
     findings = []
     for section, (raw, lineno) in sorted(counters.items()):
@@ -1378,7 +1379,7 @@ def main(argv: list[str]) -> int:
             # UNAFFECTED: it reads the PUBLIC floor (.claude/skills/corpus-management/tools/todo-number-floor.json,
             # the highest ordinal EVER allocated per series), so it still catches a
             # counter at or below a retired-ONLY number even here (the floor coupling
-            # is the CI-enforceable recycle backstop; only the exact-live-id-vs-retired
+            # is the recycle backstop the full suite enforces; only the exact-live-id-vs-retired
             # comparison of check A remains maintainer-local).
             print(
                 f"OK: DONE.md not present (maintainer-only working state; "
@@ -1422,7 +1423,8 @@ def main(argv: list[str]) -> int:
                       f"but is not a regular file.", file=sys.stderr)
                 return 2
             ptodo_path = cand if kind == "file" else None
-        # 3b635: the DEFAULT lookup's skips exit 0, so a green CI run must not read as a pass.
+        # 3b635: the DEFAULT lookup's skips exit 0, so a green full-suite run must not read as a
+        # pass.
         # 3b677: each skip names its own cause; P-TODO.md is skipped for an absent sibling AND for
         # a usable sibling with no P-TODO.md in it, so the notice says which.
         degraded = []

@@ -292,7 +292,7 @@ multiword name) are not citations (the ``not_citable`` block of the alias file).
 
 POSTURE. ADVISORY, the D8 precedent: it prints a ``D15 WARN`` line per
 unregistered citation and, once its modules load, ALWAYS exits 0. It is wired into the PR-time runner
-and the ``pull_request`` job of ``quality.yml`` only, never into
+and the 1 ``pull_request`` job of ``quality.yml`` only, never into
 ``.claude/skills/corpus-management/tools/run_all_audits.sh``: the corpus-gate bar requires near-zero false
 positives, and that runner hides a passing gate's warnings. An absent register
 where D15 reads it (an adopter may drop it) is a NOTE and a no-op, and so is a

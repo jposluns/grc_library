@@ -18,12 +18,12 @@
 # except the linter regression test suite (gate 36) gate by gate. The FULL
 # guard then runs gate 36 WHOLE, with the private store present, as six
 # parallel local shards (maintainer decision 2026-11-05 09:08 EST, replacing
-# the reviewed store-dependent list); the fast path leaves gate 36 to CI. The
-# quality workflow still runs the whole suite on every pull request, split
-# across parallel shard jobs that together run exactly the serial run's tests
-# plus a partition-verifying step, and .claude/skills/corpus-management/tools/merge-when-green.py merges only
-# when its required check (the summary job "Lint markdown corpus", which needs
-# every shard) succeeded. The full guard runs, stopping on the first failure:
+# the reviewed store-dependent list); the fast path leaves gate 36 to the
+# local server run. Since the maintainer decision of 2026-11-09 the quality
+# workflow runs only the CI subset of gates and the delta gates on each pull
+# request, in 1 job ("Lint markdown corpus"); the full suite, gate 36 whole
+# included, runs on the local server, which posts the local-quality commit
+# status that merge requires. The full guard runs, stopping on the first failure:
 #
 #   1. Every .claude/skills/corpus-management/tools/run_all_audits.sh gate except gate 36, in runner order, by
 #      the runner's own name and command, read from its run_gate lines at run
@@ -35,8 +35,8 @@
 #      (gates 6, 72 and 106). When the gate-list reading fails, the guard
 #      FAILS CLOSED to running .claude/skills/corpus-management/tools/run_all_audits.sh whole, gate 36
 #      included, so doubt never drops a check.
-#   1b. Gate 36 whole, as REGRESSION_SHARD_COUNT (6, the quality workflow's
-#      shard count) parallel local shards: .claude/skills/corpus-management/tools/run-linter-regression.py
+#   1b. Gate 36 whole, as REGRESSION_SHARD_COUNT (6, set by the maintainer
+#      decision of 2026-11-05) parallel local shards: .claude/skills/corpus-management/tools/run-linter-regression.py
 #      --shard i/6, each in its OWN temporary detached checkout of the exact
 #      commit being pushed (git worktree add --detach into a mktemp
 #      directory), so no shard's fixtures under the root tests/tmp are seen by
@@ -204,7 +204,7 @@
 #
 # Coverage: a green full guard has run every runner gate, gate 36 included
 # (whole, sharded, with the private store present), so its tests that skip
-# or degrade in CI for want of the store have run here. A green fast path
+# or degrade where the store is absent have run here. A green fast path
 # covers less (see its residual below).
 #
 # Site-only fast path (maintainer directive 2026-11-04: accelerated pushes when
@@ -286,30 +286,28 @@
 #   itself and runs each gate except 36, one at a time, on BOTH paths, then, on the
 #   full path only, gate 36 as local shards, so .claude/skills/corpus-management/tools/run_all_audits.sh takes
 #   no skip option or variable and still runs gate 36 whole when invoked
-#   directly (as the nightly sweep does), and .github/workflows/quality.yml
-#   is never told to skip a gate: it runs every gate on every pull request,
-#   gate 36 as six parallel shard jobs that together run exactly the serial
-#   run's tests plus the lint job's partition-verifying --verify-shards step
-#   (kept in lock-step with run_all_audits.sh by the gate-parity gate).
+#   directly (as the nightly sweep does). .github/workflows/quality.yml runs
+#   only the CI subset that section 4 of the audit programme specification
+#   names (gate 36 is not in it); the gate-parity gate keeps that subset,
+#   run_all_audits.sh and the pre-commit file in lock-step with section 6.
 #
-#   Skipped locally on the FAST PATH only, disclosed as left to CI: gate 36
+#   Skipped locally on the FAST PATH only, disclosed as left to the
+#   local-quality run: gate 36
 #   (every .claude/skills/corpus-management/tests/test_*.py module and the completeness checks
 #   .claude/skills/corpus-management/tools/run-linter-regression.py makes; the fast path still runs
 #   .claude/skills/corpus-management/tests/test_web_draft.py directly as its own step). On both paths, when
 #   the gate list is read from the runner, the full guard's former
 #   run_all_audits.sh summary line is not printed.
-#   .github/workflows/quality.yml runs gate 36 whole, sharded, on every pull
-#   request (each shard publishing its per-module credited-start counts and
-#   unit-set digests), and .claude/skills/corpus-management/tools/merge-when-green.py merges only when its
-#   required check, the summary job that needs every shard and reconciles
-#   those outputs, succeeded.
+#   The local server runs gate 36 whole for the pull request head, and
+#   merge requires the local-quality commit status it posts.
 #
 #   Residual (what is lost on the fast path): local detection, before the
 #   push, of a gate 36 failure a site-only change causes; that failure first
-#   shows in CI, on the shard running the failing test, and the merge guard
-#   still blocks the merge. CI has no private store, so a gate 36 test that
-#   needs the store and skips or degrades there runs before merge only on a
-#   full-path push from a clone that has the store. On the fast path a
+#   shows in the local server run, and a failed or missing local-quality
+#   status still blocks the merge. A gate 36 test that needs the private
+#   store skips or degrades where it is absent, so it runs before merge only
+#   where the store is present, such as a full-path push from a clone that
+#   has it. On the fast path a
 #   passing gate's DUE-SOON, WARN and NOTE lines are not shown before the
 #   push (the full path shows them, as the runner does).
 #
@@ -1726,8 +1724,8 @@ BASE_REF="${BASE_REF:-origin/main}"
 # The runner's linter regression suite gate (gate 36), as "runner name|command":
 # the one runner gate the fast path does not run whole.
 REGRESSION_GATE="Linter regression test suite|.claude/skills/corpus-management/tools/run-linter-regression.py"
-# The full guard's local gate 36 shard count: the quality workflow's six
-# regression-shard jobs (a regression test keeps the two equal).
+# The full guard's local gate 36 shard count (maintainer decision 2026-11-05).
+# The quality workflow runs no shard job now; a regression test pins both.
 REGRESSION_SHARD_COUNT=6
 # The siblings each shard checkout's parent links back to this clone's own,
 # so a shard reaches the private store and siblings as the serial run does.
@@ -2293,7 +2291,7 @@ run_gate36_shards() {
 }
 
 if [ "${fast_path}" -eq 1 ]; then
-    echo "=== pre-push guard FAST PATH: every changed path is site-only, so .claude/skills/corpus-management/tools/run_all_audits.sh runs here without the linter regression suite (gate 36), which is left to CI; the full suite still runs in CI before merge. Changed paths (${#changed_paths[@]}): ${changed_paths[*]} ==="
+    echo "=== pre-push guard FAST PATH: every changed path is site-only, so .claude/skills/corpus-management/tools/run_all_audits.sh runs here without the linter regression suite (gate 36), which is left to the local-quality run; the full suite still runs on the local server before merge. Changed paths (${#changed_paths[@]}): ${changed_paths[*]} ==="
     fast_step "run-pr-time-checks.sh (delta + history-aware gates)" .claude/skills/corpus-management/tools/run-pr-time-checks.sh
     echo ""
     echo "=== pre-push guard fast path: ${#fast_gates[@]} .claude/skills/corpus-management/tools/run_all_audits.sh gates (all but gate 36) ==="
@@ -2407,7 +2405,7 @@ fi
 
 echo ""
 if [ "${fast_path}" -eq 1 ]; then
-    echo "=== pre-push guard PASS (FAST PATH, site-only change, ${SECONDS}s): the site checks are green. Safe to push; the full suite runs in CI before merge. ==="
+    echo "=== pre-push guard PASS (FAST PATH, site-only change, ${SECONDS}s): the site checks are green. Safe to push; the full suite runs on the local server before merge. ==="
 else
     echo "=== pre-push guard PASS: all applicable checks green. Safe to push. ==="
 fi

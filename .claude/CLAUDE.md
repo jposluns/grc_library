@@ -14,8 +14,8 @@ Domain directories: `ai/`, `architecture/`, `compliance/`, `crypto/`, `dev-secur
 `supply-chain/`.
 Corpus tooling lives in the Corpus-Management skill at `.claude/skills/corpus-management/`
 (`.claude/skills/corpus-management/tools/lint-*.py`, `.claude/skills/corpus-management/tools/build-*.py`, shared `.claude/skills/corpus-management/tools/lint_common.py`, tests in `.claude/skills/corpus-management/tests/`).
-Current gate inventory: `.claude/skills/corpus-management/tools/run_all_audits.sh` and
-`.github/workflows/quality.yml`. Repository slash commands live in `.claude/commands/`.
+Current gate inventory: `.claude/skills/corpus-management/tools/run_all_audits.sh`;
+`.github/workflows/quality.yml` runs the CI subset. Repository slash commands live in `.claude/commands/`.
 <!-- corpus-management:begin claude-generated-artefacts-note (compiler-owned; edit .claude/skills/corpus-management/src/core/policies/generated-artefacts-note.md, then run: python3 .claude/skills/corpus-management/tools/build-corpus-management.py) -->
 - `.claude/skills/corpus-management/data/taxonomy.yml`, `governance/portal.md`, and `governance/maturity-scorecard.md` are generated
   from corpus document metadata; `.claude/skills/corpus-management/data/narrative.yml` is generated independently from
@@ -44,20 +44,20 @@ links are navigation, not startup imports), and the always-loaded language conve
 
 ## Commands
 
-- Full audit sweep (all gates, CI order): `.claude/skills/corpus-management/tools/run_all_audits.sh`
+- Full audit sweep (all gates, section 6 order): `.claude/skills/corpus-management/tools/run_all_audits.sh`
 - Stop on first failure: `FAIL_FAST=1 .claude/skills/corpus-management/tools/run_all_audits.sh`
 - One gate: `python3 .claude/skills/corpus-management/tools/<lint-name>.py`
 - Linter regression tests: `python3 .claude/skills/corpus-management/tools/run-linter-regression.py`
-- Pre-commit (mirrors CI): `pre-commit run --all-files`
+- Pre-commit (every gate): `pre-commit run --all-files`
 - Regenerate derived artefacts (`.claude/skills/corpus-management/tools/build-*.py`,
-  `python3`-run; CI `--check` verifies sync): `build-taxonomy.py`,
+  `python3`-run; each `--check` gate verifies sync): `build-taxonomy.py`,
   `build-narrative-registry.py`, `build-portal.py`, `build-relationship-model.py`,
   `build-todo-number-allocation.py`, `build-corpus-management.py`,
   `build-citation-publishers.py`
 
-CI source of truth: `.github/workflows/quality.yml`. Keep `quality.yml`,
-`.claude/skills/corpus-management/tools/run_all_audits.sh`, and `.pre-commit-config.yaml` in
-lock-step: a gate added to one must be added to all (the gate-parity audit enforces this).
+Gate source of truth: audit spec section 6. `run_all_audits.sh` and `.pre-commit-config.yaml`
+must run every gate; `quality.yml` runs the section 4 CI subset (the gate-parity audit enforces
+both). Merge also needs the `local-quality` status, which the local server posts (full suite).
 
 ## Structure
 

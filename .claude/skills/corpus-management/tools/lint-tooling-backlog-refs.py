@@ -862,7 +862,7 @@ def main(argv: list[str]) -> int:
         return 2
 
     if skipped:
-        # 3b635: the degraded skip exits 0, so a green CI run must not read as a pass for
+        # 3b635: the degraded skip exits 0, so a green full-suite run must not read as a pass for
         # the references it could not check (a reference live in .working/TODO.md was checked).
         print_degraded("gate 107",
                        f"gate 107 skipped the open-versus-deleted check of "

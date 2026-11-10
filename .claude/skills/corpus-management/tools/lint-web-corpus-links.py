@@ -5,7 +5,8 @@ Reads the committed web corpus-link manifest (``.web/corpus-link-manifest.md``,
 a generated artefact like ``.claude/skills/corpus-management/data/taxonomy.yml`` / ``governance/portal.md``) and verifies
 that every corpus-relative target it lists resolves to a file inside the
 repository. It does NOT fetch any URL: it checks repository-internal targets
-only, so it runs in CI and pre-commit with no network. It catches a corpus
+only, so the local audit runner, the pre-commit hook and the nightly sweep
+run it with no network. It catches a corpus
 document renamed or deleted without the website (and its manifest) being
 regenerated, the class the taxonomy-derived page links and the curated
 ``llms.txt`` map both silently 404 on.

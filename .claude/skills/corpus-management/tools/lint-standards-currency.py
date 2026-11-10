@@ -100,9 +100,13 @@ Disclosed residuals, in this order: a local process that controls the environmen
 (GITHUB_ACTIONS, HOME and the global git configuration it locates, the variables the
 Python interpreter reads, or any other), the git executable on GIT_SEARCH_PATH, or the
 event payload (a GITHUB_EVENT_PATH file of its choosing) is not defended against,
-because with HEAD these choose the base and what git reports of it; CI is the defended
-path. A local caller can move or recreate refs/remotes/origin/main; edits to this
-wrapper, the workflows (.github/workflows/quality.yml, nightly-sweep.yml), the runner
+because with HEAD these choose the base and what git reports of it; the defended run
+is the GitHub Actions pull-request job (.github/workflows/quality.yml runs this gate as
+part of the section 4 CI subset), whose base is HEAD^1 of the merge commit. The nightly
+sweep runs on main, where the merge base of HEAD and refs/remotes/origin/main is HEAD
+itself, so that run ratchets nothing. A local caller can move or recreate
+refs/remotes/origin/main; edits to this wrapper, the 2 workflows that run it
+(.github/workflows/quality.yml and nightly-sweep.yml), the runner
 (.claude/skills/corpus-management/tools/run_all_audits.sh) or the pre-commit invocation can change or remove the
 gate, and review of such a change is the control; and the base count (of the
 bootstrap and of a new register row's entry) uses the head register, so a
@@ -399,7 +403,8 @@ class RatchetBaseError(Exception):
 # WARN and NOTE lines when the output has this exact line followed by a space
 # and the token run_gate passed in RUNNER_ECHO_TOKEN_ENV (the gate 72 opt-in;
 # run_gate holds the same string). With the variable unset or empty (a direct
-# run, the pre-commit hook, the quality.yml gate step) the line is not printed.
+# run, the pre-commit hook or the GitHub pull-request job step, which runs this
+# gate as part of the section 4 CI subset) the line is not printed.
 RUNNER_ECHO_MARKER = (
     "runner-echo: .claude/skills/corpus-management/tools/run_all_audits.sh shows this gate's advisory lines on a pass"
 )
