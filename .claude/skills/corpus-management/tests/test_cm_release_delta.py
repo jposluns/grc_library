@@ -172,8 +172,8 @@ class ReleaseDeltaTests(unittest.TestCase):
             self.expect(repo, "NONE", 0, base=repo.base)
 
     def test_pycache_is_the_only_exclusion(self):
-        # 3b81 QA r3 and r4: the scope is every pack file except __pycache__, so no reference form
-        # and no README (which a tree or block rule can consume) escapes it.
+        # The scope is every pack file except __pycache__, so no reference form and no README
+        # (which a tree or block rule can consume) escapes it.
         with self.repo() as repo:
             repo.write("tools/__pycache__/engine.cpython-314.pyc", "bytes")
             self.expect(repo, "NONE", 0)
@@ -279,9 +279,9 @@ class ReleaseDeltaTests(unittest.TestCase):
                     self.assertIn("strengthening vs clarifying is not machine-decidable", output)
 
     def test_round_one_refactors_and_scope(self):
-        # 3b81 QA r1: renaming a key-set variable or adding a private helper that assigns `keys`
-        # is not a configuration change; an engine outside tools/ is classified; the manifest's
-        # declared waiver path must be the supported one.
+        # Renaming a key-set variable or adding a private helper that assigns `keys` is not a
+        # configuration change; an engine outside tools/ is classified; the manifest's declared
+        # waiver path must be the supported one.
         with self.repo() as repo:
             repo.replace("tools/engine.py", "    gate_keys = ", "    allowed_gate_keys = ")
             repo.replace("tools/engine.py", "def _private():", "def _helper(d):\n    keys = sorted(d)\n    return keys\n\ndef _private():")
@@ -301,7 +301,7 @@ class ReleaseDeltaTests(unittest.TestCase):
             self.assertIn("[release].waivers must be", output)
 
     def test_dot_slash_reference_stays_in_scope(self):
-        # 3b81 QA r2 (codex): a reference written ./path is the same file to the compiler.
+        # A reference written ./path is the same file to the compiler.
         with self.repo() as repo:
             repo.replace("core/clauses.toml", 'source = "core/policies/note.md"', 'source = "./core/policies/note.md"')
             repo.replace("gensrc.toml", '["core/policies/note.md"]', '["./core/policies/note.md"]')
@@ -396,7 +396,7 @@ class ReleaseDeltaTests(unittest.TestCase):
             output = self.expect(repo, "PATCH", 1, "DECREASE")
             self.assertIn("version decreased", output)
         # A waiver row that does not move the version up is refused outright: an equal or
-        # backward row would waive every later unbumped change (3b81 QA r1).
+        # backward row would waive every later unbumped change.
         for after in ("1.2.3", "1.2.2"):
             with self.subTest(after=after), self.repo() as repo:
                 repo.replace("tools/engine.py", "return 1", "return 2")
@@ -507,7 +507,7 @@ class ReleaseDeltaTests(unittest.TestCase):
         self.assertEqual(error.exception.code, 2)
 
     def test_fixture_git_ignores_ambient_git_index_file(self):
-        # 3b525 round 2, VPR004: an inherited GIT_INDEX_FILE once made the
+        # In the earlier repository, an inherited GIT_INDEX_FILE made the
         # fixture's `git add` write an index outside its temporary
         # directory. The fixture environment drops every GIT_* variable.
         with tempfile.TemporaryDirectory(prefix="release-delta-") as directory:

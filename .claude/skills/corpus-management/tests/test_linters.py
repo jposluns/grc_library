@@ -51,8 +51,8 @@ except ImportError:
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 SKILL_ROOT = Path(__file__).resolve().parents[1]
-# First parts that name a skill-relative path (D1): a path that starts with one
-# of these, or a bare tool file name, joins SKILL_ROOT; any other relative path
+# First parts that name a skill-relative path: a path that starts with one of
+# these, or a bare tool file name, joins SKILL_ROOT; any other relative path
 # (.claude/..., .github/, .web/, governance/, the corpus directories, the
 # top-level files) joins REPO_ROOT.
 _SKILL_PARTS = frozenset({
@@ -135,7 +135,7 @@ def fixture_git_environment():
     global/system git config ignored, so a repository-local variable a
     caller leaks (a pre-commit hook's GIT_INDEX_FILE, a GIT_DIR) or an
     external git configuration cannot redirect a fixture repository's git
-    commands (round 7, W4)."""
+    commands."""
     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
     env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull)
     return env
@@ -194,7 +194,7 @@ def _force_rmtree(path) -> None:
     (avoids the shutil.rmtree onerror/onexc signature change across 3.11-3.14)."""
     # Restore the root's own mode FIRST: os.walk cannot list a mode-0 directory
     # (it silently yields nothing with onerror=None), so a chmod-0 ROOT would
-    # otherwise survive rmtree(ignore_errors=True) (codex/gemini vpr-2292 HOLD).
+    # otherwise survive rmtree(ignore_errors=True).
     try:
         os.chmod(path, 0o700)
     except OSError:
@@ -211,16 +211,17 @@ def _force_rmtree(path) -> None:
 def setUpModule() -> None:
     """Ensure the per-test fixture directory exists.
 
-    Run once before any test in this module. It creates tests/tmp (FIXTURE_DIR) and
-    deletes NOTHING (P-1.86 PR 1): every fixture lives in a unique
-    per-instance mkdtemp directory and is owned and cleaned by the test
-    that created it, so a module-level sweep of top-level *.md (or of
-    the retired fixed "synthetic-claude-rules-sync" name) could only
-    ever delete files a concurrently running instance owns. One suite
-    run already overlaps itself: DirectRunTests launches this very
-    module as a child process, whose module setup used to sweep its
-    parent's fixtures. Crash residue under tests/tmp is removed only by
-    an explicit cleanup while no run is active; see .claude/skills/corpus-management/tests/README.md.
+    Run once before any test in this module. It creates tests/tmp
+    (FIXTURE_DIR) and deletes NOTHING: every fixture lives in a unique
+    per-instance mkdtemp directory and is owned and cleaned by the
+    test that created it, so a module-level sweep of top-level *.md
+    (or of the retired fixed "synthetic-claude-rules-sync" name) could
+    only ever delete files a concurrently running instance owns. One
+    suite run already overlaps itself: DirectRunTests launches this
+    very module as a child process, whose module setup in the earlier
+    repository swept its parent's fixtures. Crash residue under
+    tests/tmp is removed only by an explicit cleanup while no run is
+    active; see .claude/skills/corpus-management/tests/README.md.
     ModuleFixtureOwnershipTests pins this ownership contract.
     """
     FIXTURE_DIR.mkdir(parents=True, exist_ok=True)
@@ -287,14 +288,15 @@ def _identifier_probe_engine():
 def identifier_probe_unflaggable(family, token, template):
     """Why a declared probe cannot witness a scope rule, or None.
 
-    Absence from the catalogue is not enough (3b64 QA). None means three things, and no more:
-    the placeholder sits on a line the engine reads and renders as a WHOLE token of the family's
-    engine pattern at exactly that position (a glued prefix or trailing digit cannot change it,
-    and it is not part of a PF range); the engine flags the token on a neutral line of its family
-    (a zero-middle ASVS token, which the engine reads as a version, is refused). What makes the
-    template's difference the suppressing rule is proved at run time by the probe's declared twin
-    (LinterTestCase.assertIdentifierScopeProbes). CWE and PF have no context gate in this engine,
-    so no CWE or PF probe can currently pass; the families are supported for a future context rule.
+    Absence from the catalogue is not enough. None means three things, and no more: the
+    placeholder sits on a line the engine reads and renders as a WHOLE token of the family's
+    engine pattern at exactly that position (a glued prefix or trailing digit cannot change
+    it, and it is not part of a PF range); the engine flags the token on a neutral line of
+    its family (a zero-middle ASVS token, which the engine reads as a version, is refused).
+    What makes the template's difference the suppressing rule is proved at run time by the
+    probe's declared twin (LinterTestCase.assertIdentifierScopeProbes). CWE and PF have no
+    context gate in this engine, so no CWE or PF probe can currently pass; the families are
+    supported for a future context rule.
     """
     eng = _identifier_probe_engine()
     whole = _probe_is_whole_token(family, token, template)
@@ -317,10 +319,10 @@ def _probe_is_whole_token(family, token, template):
     the engine reads, and (PF) is neither inside a range nor rebuilt as a range endpoint elsewhere;
     a reason string otherwise. Shared by the template and twin checks.
 
-    The placeholder is located with the ENGINE's line model (3b64 round 2): the file is read in
-    universal-newline mode and split by splitlines() (so a bare CR breaks a line), and fenced lines
-    are dropped. The position comes from the placeholder itself (round 3: a sentinel character
-    could collide with the template), and the text checked is exactly the text the run writes."""
+    The placeholder is located with the ENGINE's line model: the file is read in universal-newline
+    mode and split by splitlines() (so a bare CR breaks a line), and fenced lines are dropped. The
+    position comes from the placeholder itself (a sentinel character could collide with the
+    template), and the text checked is exactly the text the run writes."""
     eng = _identifier_probe_engine()
     rendered = template.replace("{probe}", token)
     lineno, column = next((n, ln.index("{probe}")) for n, ln in
@@ -336,8 +338,8 @@ def _probe_is_whole_token(family, token, template):
         if any(m.start() < span[1] and span[0] < m.end()
                for m in eng._PF_RANGE.finditer(engine_lines[lineno])):
             return "is part of a PF range (not supported as a probe)"
-        # 3b64 round 7 (claude): the engine rebuilds range endpoints ('CT.PO-P1 to P9' reports
-        # 'CT.PO-P9'), so an endpoint equal to the token elsewhere could be the one reported.
+        # The engine rebuilds range endpoints ('CT.PO-P1 to P9' reports 'CT.PO-P9'), so an
+        # endpoint equal to the token elsewhere could be the one reported.
         for _n, line in engine_lines.items():
             for m in eng._PF_RANGE.finditer(line):
                 if token in (f"{m.group(1)}{int(m.group(2))}",
@@ -349,9 +351,9 @@ def _probe_is_whole_token(family, token, template):
 def identifier_scope_probe_issues(cases):
     """Check declared (catalogue, token, template, twin) suppression probes. The twin is a
     minimally different template in which the linter must REPORT the token; running it proves the
-    template's difference is what suppresses the finding (3b64 round 4). Stated residue: it does
-    not prove that difference is the rule the test NAMES; choosing a twin whose only difference is
-    that rule is the author's judgement, reviewed like any test."""
+    template's difference is what suppresses the finding. Stated residue: it does not prove that
+    difference is the rule the test NAMES; choosing a twin whose only difference is that rule is
+    the author's judgement, reviewed like any test."""
     catalogues = _identifier_probe_catalogues()
     patterns = {
         "asvs": r"V[0-9]+\.[0-9]+(?:\.[0-9]+)?",
@@ -398,9 +400,8 @@ def identifier_scope_probe_issues(cases):
                 )
                 continue
             if token in template.replace("{probe}", "") or token in twin.replace("{probe}", ""):
-                # 3b64 round 5 (claude, codex): the twin control matches the token in the report,
-                # so the token must occur only at the placeholder or another occurrence could be
-                # the one reported.
+                # The twin control matches the token in the report, so the token must occur only
+                # at the placeholder or another occurrence could be the one reported.
                 issues.append(
                     f"TEST-PROBE-DUPLICATE: {where}: {family} {token!r} also appears outside the "
                     f"placeholder in the template or twin"
@@ -412,8 +413,8 @@ def identifier_scope_probe_issues(cases):
             if why:
                 issues.append(f"TEST-PROBE-UNFLAGGABLE: {where}: {family} {token!r} {why}")
             else:
-                # 3b64 round 6 (codex): the twin's placeholder must render as the declared token
-                # itself, or the twin can be reported for a longer identifier ('V9.9.90').
+                # The twin's placeholder must render as the declared token itself, or the twin
+                # can be reported for a longer identifier ('V9.9.90').
                 twin_ok = _probe_is_whole_token(family, token, twin)
                 if twin_ok is not True:
                     issues.append(f"TEST-PROBE-TWIN: {where}: {family} {token!r} in the twin "
@@ -466,8 +467,8 @@ def _runs_scope_probes(func):
             stack.extend(ast.iter_child_nodes(cur))
 
     def definition_time(node):
-        """The parts of a def, lambda or class that RUN when it is reached (3b64 round 7):
-        decorators, argument defaults, a class's bases and keywords, and a class body."""
+        """The parts of a def, lambda or class that RUN when it is reached: decorators,
+        argument defaults, a class's bases and keywords, and a class body."""
         parts = list(getattr(node, "decorator_list", []))
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
             parts += [d for d in [*node.args.defaults, *node.args.kw_defaults] if d is not None]
@@ -477,8 +478,8 @@ def _runs_scope_probes(func):
 
     def may_exit(node):
         """A statement or expression that can leave the method when it runs: a return or raise in
-        it, or a skipTest, fail or exit call in it (3b64 rounds 5 to 7). A def, lambda or class is
-        judged by what runs when it is reached, never by its deferred body."""
+        it, or a skipTest, fail or exit call in it. A def, lambda or class is judged by what runs
+        when it is reached, never by its deferred body."""
         if isinstance(node, scopes):
             # A bare decorator (@self.skipTest) is CALLED when applied, without call syntax.
             if any((getattr(d, "attr", None) or getattr(d, "id", None)) in exits
@@ -534,22 +535,22 @@ def scope_probe_registry_issues(classes):
     for name, cls in sorted(classes.items()):
         if not isinstance(cls, type) or not issubclass(cls, LinterTestCase):
             continue
-        # Inherited registrations count (3b64 round 11, codex): LinterTestCase.run enforces
-        # them too, so a subclass that inherits probes gets the skip, expected-failure and method
-        # checks; the per-probe declaration checks run once, on the declaring class.
+        # Inherited registrations count: LinterTestCase.run enforces them too, so a subclass that
+        # inherits probes gets the skip, expected-failure and method checks; the per-probe
+        # declaration checks run once, on the declaring class.
         cases = getattr(cls, "IDENTIFIER_SCOPE_PROBES", {})
         if not cases:
             continue
         own = "IDENTIFIER_SCOPE_PROBES" in cls.__dict__
         if getattr(cls, "__unittest_skip__", False):
-            # 3b64 round 10 (claude, codex): unittest returns before doCleanups for a skip-marked
-            # class or method, so the run-time completion check never executes; refuse the
-            # marker here, reading the live attribute (a wrapper applied after definition, or a
-            # skip inherited from a base class, too).
+            # unittest returns before doCleanups for a skip-marked class or method, so the
+            # run-time completion check never executes; refuse the marker here, reading the live
+            # attribute (a wrapper applied after definition, or a skip inherited from a base
+            # class, too).
             issues.append(f"TEST-PROBE-SKIP-MARKED: {name} is skip-marked and declares scope probes")
         if getattr(cls, "__unittest_expecting_failure__", False):
-            # 3b64 round 11 (gemini): under expectedFailure the NOT-RUN failure is recorded as an
-            # expected failure, which unittest counts as success.
+            # Under expectedFailure the NOT-RUN failure is recorded as an expected failure, which
+            # unittest counts as success.
             issues.append(f"TEST-PROBE-EXPECTED-FAILURE: {name} is expectedFailure-marked and declares scope probes")
         for method in cases:
             func = getattr(cls, method, None)
@@ -574,16 +575,15 @@ class LinterTestCase(unittest.TestCase):
 
     def run(self, result=None):
         """Run the test with the scope-probe completion check registered as a CLEANUP, so it runs
-        inside the test's own result lifecycle (3b64 round 9: after stopTest, a failure breaks
-        the TestResult protocol; unittest's startTestRun/stopTestRun are untouched). A test that
-        declares scope probes but ends without every probe having run fails with
-        TEST-PROBE-NOT-RUN, whatever stopped the probes (a skip before or inside the call, a
-        generator method, an early return, or an earlier probe failure). The static
-        _runs_scope_probes scan is only a pre-screen. Residue: a class- or module-level skip
-        (setUpClass, setUpModule) or a direct debug() call never reaches run() and is not
-        guarded, and a test excluded by selection (a -k filter or load_tests) simply does not run
-        in that invocation; the local server and the nightly sweep run the full suite
-        (3b64 round 11, gemini)."""
+        inside the test's own result lifecycle (after stopTest, a failure breaks the TestResult
+        protocol; unittest's startTestRun/stopTestRun are untouched). A test that declares scope
+        probes but ends without every probe having run fails with TEST-PROBE-NOT-RUN, whatever
+        stopped the probes (a skip before or inside the call, a generator method, an early
+        return, or an earlier probe failure). The static _runs_scope_probes scan is only a
+        pre-screen. Residue: a class- or module-level skip (setUpClass, setUpModule) or a direct
+        debug() call never reaches run() and is not guarded, and a test excluded by selection (a
+        -k filter or load_tests) simply does not run in that invocation; the local server and the
+        nightly sweep run the full suite."""
         self._scope_probes_completed = False
         if self._testMethodName in getattr(type(self), "IDENTIFIER_SCOPE_PROBES", {}):
             self.addCleanup(self._check_scope_probes_completed)
@@ -601,9 +601,9 @@ class LinterTestCase(unittest.TestCase):
         name = self._testMethodName
         cases = {name: self.IDENTIFIER_SCOPE_PROBES[name]}
         if not isinstance(cases[name], tuple):
-            # 3b64 round 9 (codex): a one-shot iterable is consumed by validation and would then
-            # run zero probes; the declaration must be a tuple. (identifier_scope_probe_issues
-            # refuses it too, without consuming it; this is a deliberate second layer.)
+            # A one-shot iterable is consumed by validation and would then run zero probes; the
+            # declaration must be a tuple. (identifier_scope_probe_issues refuses it too,
+            # without consuming it; this is a deliberate second layer.)
             self.fail(f"TEST-PROBE-SHAPE: {name}: probes must be declared as a tuple")
         issues = identifier_scope_probe_issues(cases)
         if issues:
@@ -612,18 +612,18 @@ class LinterTestCase(unittest.TestCase):
             try:
                 return run(text)
             except unittest.SkipTest as exc:
-                # 3b64 round 8 (claude): a skip inside the runner would be recorded as a skipped
-                # subtest and the probe would silently not run.
+                # A skip inside the runner would be recorded as a skipped subtest and the probe
+                # would silently not run.
                 self.fail(f"TEST-PROBE-SKIPPED: the run callable skipped ({exc}); probes must run")
 
         for family, token, template, twin in cases[name]:
             with self.subTest(catalogue=family, token=token, template=template):
-                # Counterfactual twin (3b64 round 4): the same run callable must REPORT the token
-                # in the twin, so a zero exit below proves the template's difference suppresses it
-                # (not report mode, an exempt path, or a probe trivially out of context).
+                # Counterfactual twin: the same run callable must REPORT the token in the twin, so
+                # a zero exit below proves the template's difference suppresses it (not report
+                # mode, an exempt path, or a probe trivially out of context).
                 checked = call(twin.replace("{probe}", token))
                 # The engine quotes the identifier it reports ('V9.9.9'); match that exactly, so a
-                # longer identifier sharing the prefix is not taken as the probe (round 6).
+                # longer identifier sharing the prefix is not taken as the probe.
                 if checked.returncode == 0 or f"'{token}'" not in checked.stdout:
                     self.fail(
                         f"TEST-PROBE-CONTROL: {family} {token!r}: the run callable did not report "
@@ -653,7 +653,7 @@ class LinterTestCase(unittest.TestCase):
         return path
 
     def _fixture_base(self, prefix: str) -> Path:
-        """A unique, self-cleaning fixture dir OUTSIDE the repository (3b156).
+        """A unique, self-cleaning fixture dir OUTSIDE the repository.
 
         For fixtures that hold chmod-0 files and directories. Under tests/tmp
         a concurrent run's repository walk (the version-bump-recency audit's
@@ -749,10 +749,10 @@ class LanguageLinterTests(LinterTestCase):
         self.assertLinterFails(result, "ise")
 
     def test_ise_third_person_inflection_flagged(self) -> None:
-        # Regression for the #480 /validate-pr finding: the third-person
-        # singular `-ises` inflection (e.g. "recognises") must be flagged.
-        # Before the ise_stems (formerly ISE_PATTERN) widening it listed only -ise / -ised / -ising
-        # and let the -ises form through.
+        # Regression: the third-person singular `-ises` inflection (e.g.
+        # "recognises") must be flagged. Before the ise_stems (formerly
+        # ISE_PATTERN) widening it listed only -ise / -ised / -ising and
+        # let the -ises form through.
         fixture = self.make_fixture(
             "standard-ises.md",
             VALID_METADATA + "\n\nThe procedure recognises three modes.\n",
@@ -761,9 +761,9 @@ class LanguageLinterTests(LinterTestCase):
         self.assertLinterFails(result, "ise")
 
     def test_isation_noun_flagged(self) -> None:
-        # The 2026-07-02 spelling-coverage extension: Commonwealth -isation
-        # noun and adjective forms are flagged (the harmonization sweep
-        # flipped the corpus to -ization in the same PR).
+        # The spelling-coverage extension: Commonwealth -isation noun
+        # and adjective forms are flagged (in the earlier repository,
+        # the harmonization sweep flipped the corpus to -ization).
         fixture = self.make_fixture(
             "standard-isation.md",
             VALID_METADATA + "\n\nThe organization reviews authorisation and organizational controls.\n",
@@ -798,10 +798,10 @@ class LanguageLinterTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, f"linter should pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
 
     def test_derivational_ise_forms_flagged(self) -> None:
-        # The -isable adjective and -iser agent-noun derivations of covered
-        # stems are flagged (the FN-verifier catch on the harmonization
-        # sweep: localisable, customisable, sanitiser, analyser escaped the
-        # inflection-only pattern).
+        # The -isable adjective and -iser agent-noun derivations of
+        # covered stems are flagged (in the earlier repository,
+        # localisable, customisable, sanitiser and analyser escaped
+        # the inflection-only pattern).
         fixture = self.make_fixture(
             "standard-isable.md",
             VALID_METADATA + "\n\nStrings are localisable; run the sanitiser and the analyser.\n",
@@ -834,8 +834,8 @@ class LanguageLinterTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, f"linter should pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
 
     def test_url_spelling_exempt_bare_url(self) -> None:
-        # 3b366: a scheme-qualified URL is an external identifier whose spelling
-        # cannot be changed (the UK ICO guidance path), so it is masked out of the
+        # A scheme-qualified URL is an external identifier whose spelling cannot
+        # be changed (the UK ICO guidance path), so it is masked out of the
         # spelling checks.
         fixture = self.make_fixture(
             "standard-url-bare.md",
@@ -845,7 +845,7 @@ class LanguageLinterTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, f"linter should pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
 
     def test_url_spelling_exempt_in_code_span(self) -> None:
-        # 3b366: the same URL inside an inline code span is exempt.
+        # The same URL inside an inline code span is exempt.
         fixture = self.make_fixture(
             "standard-url-code-span.md",
             VALID_METADATA + "\n\nSee `https://ico.org.uk/for-organisations/x/` for guidance.\n",
@@ -854,7 +854,7 @@ class LanguageLinterTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, f"linter should pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
 
     def test_url_spelling_exempt_link_target(self) -> None:
-        # 3b366: the same URL as a markdown link target is exempt.
+        # The same URL as a markdown link target is exempt.
         fixture = self.make_fixture(
             "standard-url-link-target.md",
             VALID_METADATA + "\n\nSee the [link](https://ico.org.uk/for-organisations/x/) for guidance.\n",
@@ -863,9 +863,9 @@ class LanguageLinterTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, f"linter should pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
 
     def test_url_exemption_does_not_cover_prose(self) -> None:
-        # 3b366: the URL mask is token-scoped. The same word in ordinary prose, in a
-        # link's visible text, or in a non-URL code span is still flagged, including
-        # on a line that also carries an exempt URL.
+        # The URL mask is token-scoped. The same word in ordinary prose, in a link's
+        # visible text, or in a non-URL code span is still flagged, including on a
+        # line that also carries an exempt URL.
         for name, body in (
             ("standard-url-prose.md",
              "See https://ico.org.uk/x/ for guidance to organisations.\n"),
@@ -880,8 +880,8 @@ class LanguageLinterTests(LinterTestCase):
                     run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] organisations")
 
     def test_url_mask_does_not_cover_glued_prose(self) -> None:
-        # 3b366 round 2: prose glued to a URL by a stop character or by the
-        # trimmed trailing punctuation is outside the token and still flagged.
+        # Prose glued to a URL by a stop character or by the trimmed trailing
+        # punctuation is outside the token and still flagged.
         for index, glue in enumerate([*"`<>\"|*{}[]\\)", *".,;:!?", ",1-", ".("]):
             with self.subTest(glue=glue):
                 fixture = self.make_fixture(
@@ -897,9 +897,9 @@ class LanguageLinterTests(LinterTestCase):
             run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] organisations")
 
     def test_url_mask_round3_glue_still_flagged(self) -> None:
-        # 3b366 round 3: a capitalized sentence glued to a path-less host, prose
-        # after "~~" and a bracketed authority that is not an IPv6 literal are
-        # outside the token and still flagged.
+        # A capitalized sentence glued to a path-less host, prose after "~~" and
+        # a bracketed authority that is not an IPv6 literal are outside the
+        # token and still flagged.
         for index, (body, word) in enumerate((
                 ("See https://ico.org.uk.Organisations must register.\n", "Organisations"),
                 ("See ~~https://x.org/a~~organisations here.\n", "organisations"),
@@ -912,9 +912,9 @@ class LanguageLinterTests(LinterTestCase):
                     run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] " + word)
 
     def test_url_after_emphasis_underscore_exempt(self) -> None:
-        # 3b366 round 3: a URL in Markdown underscore emphasis is recognized (the
-        # citation-verification worklist form), while a scheme embedded in a word
-        # is not.
+        # A URL in Markdown underscore emphasis is recognized (the
+        # citation-verification worklist form), while a scheme embedded in
+        # a word is not.
         fixture = self.make_fixture(
             "standard-url-emphasis.md",
             VALID_METADATA + "\n\nSee _https://ico.org.uk/for-organisations/_ for guidance.\n")
@@ -929,10 +929,10 @@ class LanguageLinterTests(LinterTestCase):
                     run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] organisations")
 
     def test_url_mask_round4_glue_still_flagged(self) -> None:
-        # 3b366 round 4: prose right after a closing "_" / "__" emphasis delimiter,
-        # a digit run before "/", an all-uppercase label glued to a lowercase host,
-        # an invalid query escape, a non-scheme "://" and ",)" inside parentheses
-        # are outside the token and still flagged.
+        # Prose right after a closing "_" / "__" emphasis delimiter, a digit run
+        # before "/", an all-uppercase label glued to a lowercase host, an invalid
+        # query escape, a non-scheme "://" and ",)" inside parentheses are outside
+        # the token and still flagged.
         for index, (body, word) in enumerate((
                 ("See _https://x.org/a_(organisations) here.\n", "organisations"),
                 ("See __https://x.org/a__(organisations) here.\n", "organisations"),
@@ -950,8 +950,8 @@ class LanguageLinterTests(LinterTestCase):
                     run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] " + word)
 
     def test_url_mask_round5_closer_before_punctuation_flagged(self) -> None:
-        # 3b366 round 5: prose after a closing "_" / "__" followed by punctuation
-        # that a URL path could hold ("#", "-", "&", "$") is outside the token.
+        # Prose after a closing "_" / "__" followed by punctuation that a URL
+        # path could hold ("#", "-", "&", "$") is outside the token.
         for index, body in enumerate((
                 "See _https://x.org/a_#organisations here.\n",
                 "See __https://x.org/a__-organisations here.\n",
@@ -964,9 +964,10 @@ class LanguageLinterTests(LinterTestCase):
                     run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] organisations")
 
     def test_spelling_word_bounded_by_letters_flagged(self) -> None:
-        # 3b372: the spelling checks bound a word by ASCII letters, not \b, so a
-        # word in "_" / "__" emphasis ("_" is a word character to \b) or glued to a
-        # non-ASCII letter is reported, and "http\u017f://" (U+017F) is not a URL scheme.
+        # The spelling checks bound a word by ASCII letters, not \b, so a word in
+        # "_" / "__" emphasis ("_" is a word character to \b) or glued to a
+        # non-ASCII letter is reported, and "http\u017f://" (U+017F) is not a URL
+        # scheme.
         for index, (body, expected) in enumerate((
                 ("See _organisations_ here.\n", "[isation] organisations"),
                 ("See __organisations__ here.\n", "[isation] organisations"),
@@ -989,10 +990,10 @@ class LanguageLinterTests(LinterTestCase):
         self.assertLinterFails(result, "ensure")
 
     def test_verbatim_ensure_title_exempt(self) -> None:
-        # The 2026-07-02 verbatim-external-title exemption: the canonical
-        # COBIT 2019 MEA01.05 practice title carries a bare imperative
-        # "Ensure" and is masked (the verbatim_ensure_titles profile field), while a bare
-        # "ensure" elsewhere on the same line still fails.
+        # The verbatim-external-title exemption: the canonical COBIT 2019
+        # MEA01.05 practice title carries a bare imperative "Ensure" and
+        # is masked (the verbatim_ensure_titles profile field), while a
+        # bare "ensure" elsewhere on the same line still fails.
         fixture = self.make_fixture(
             "standard-verbatim-ensure.md",
             VALID_METADATA + "\n\nThe row cites MEA01.05 Ensure the "
@@ -1047,11 +1048,12 @@ class LanguageLinterTests(LinterTestCase):
         self.assertLinterFails(result, "dash")
 
     def test_generator_emitted_prose_ise_flagged(self) -> None:
-        # Gate 2 also scans the build-*.py generators' emitted-prose string
-        # literals (Sweep 78 B-1, the low-severity cleanup batch): the generated governance/ output is
-        # excluded from the .md scan and the .py source is never scanned as
-        # markdown, so a Commonwealth -ise spelling in a generator's emitted
-        # prose (not a docstring) was doubly blind. It must now be flagged.
+        # Gate 2 also scans the build-*.py generators' emitted-prose
+        # string literals: the generated governance/ output is excluded
+        # from the .md scan and the .py source is never scanned as
+        # markdown, so in the earlier repository a Commonwealth -ise
+        # spelling in a generator's emitted prose (not a docstring) was
+        # doubly blind. It must now be flagged.
         fixture = self.make_fixture(
             "build-gen-ise.py",
             '"""Module docstring: finalised (docstring, must be ignored)."""\n'
@@ -1180,7 +1182,7 @@ class ChangelogLanguageTests(unittest.TestCase):
         mod = self.load_tool("preflight-changelog")
         # Inherited repository-local GIT_* variables (a hook's GIT_INDEX_FILE)
         # or global/system git config must not redirect this fixture's git
-        # commands or the preflight's own diffs (round 7, W4).
+        # commands or the preflight's own diffs.
         env_guard = patch.dict(os.environ, fixture_git_environment(), clear=True)
         env_guard.start()
         self.addCleanup(env_guard.stop)
@@ -1316,7 +1318,7 @@ class ChangelogLanguageTests(unittest.TestCase):
         mod = self.load_tool("preflight-changelog")
         # Inherited repository-local GIT_* variables (a hook's GIT_INDEX_FILE)
         # or global/system git config must not redirect this fixture's git
-        # commands or the preflight's own diffs (round 7, W4).
+        # commands or the preflight's own diffs.
         env_guard = patch.dict(os.environ, fixture_git_environment(), clear=True)
         env_guard.start()
         self.addCleanup(env_guard.stop)
@@ -1478,9 +1480,9 @@ class ChangelogLanguageTests(unittest.TestCase):
         for word in ("centralised", "centralized"):
             # Immediate destruction faults before sealing and must be refused.
             # A retained cycle (GC disabled) is collected by the runner's
-            # pre-seal gc.collect() and refused too (round 7, E1); a module
-            # global survives until shutdown, which the seal skips, so that
-            # verdict must still be preserved.
+            # pre-seal gc.collect() and refused too; a module global survives
+            # until shutdown, which the seal skips, so that verdict must still
+            # be preserved.
             for lifetime in ("immediate", "cycle", "module"):
                 with self.subTest(word=word, lifetime=lifetime):
                     retain = {"immediate": "", "cycle": "    result.cycle = result\n",
@@ -1652,7 +1654,7 @@ class ChangelogLanguageTests(unittest.TestCase):
                     "time.sleep(60)\n", encoding="utf-8")
                 # A 5-second engine timeout and a bounded pidfile poll: a slow
                 # host must not kill the group before the engine has forked the
-                # descendant and atomically published its pid (round 7, N5).
+                # descendant and atomically published its pid.
                 with patch.object(mod, "_LANGUAGE_GATE", wrapper), \
                      patch.object(mod, "added_lines", return_value=[]), \
                      patch.object(mod, "unresolved_links_in_mirror", return_value=[]), \
@@ -1677,7 +1679,7 @@ class ChangelogLanguageTests(unittest.TestCase):
                     os.kill(pid, 0)
                 # The specific descendant is reaped and gone (asserted above);
                 # a process-wide os.waitpid(-1, ...) would couple this test to
-                # any other child of the test process (round 7, N6).
+                # any other child of the test process.
         finally:
             if pid is not None and not reaped:
                 try:
@@ -1689,9 +1691,9 @@ class ChangelogLanguageTests(unittest.TestCase):
 
     @unittest.skipUnless(sys.platform == "linux", "Linux subreaper assertion")
     def test_preflight_kills_descendant_on_success_and_failure(self):
-        # Round 7, E3: a descendant the engine leaves behind is killed on EVERY
-        # completion path, not only on timeout: after a successful run and
-        # after a failed engine load, the sleeper must be SIGKILLed and gone.
+        # A descendant the engine leaves behind is killed on EVERY completion
+        # path, not only on timeout: after a successful run and after a failed
+        # engine load, the sleeper must be SIGKILLed and gone.
         import ctypes
         import signal
         import time
@@ -1813,8 +1815,8 @@ class ChangelogLanguageTests(unittest.TestCase):
             "def spelling_matches(text, checks): raise ValueError('bad matcher')\n")
 
     def test_preflight_engine_closed_stdout_fails_closed(self):
-        # R5-1: the engine closes the child's stdout and raises. The result channel
-        # is a pre-saved duplicate descriptor, and the fault denies the marker anyway.
+        # The engine closes the child's stdout and raises. The result channel is a
+        # pre-saved duplicate descriptor, and the fault denies the marker anyway.
         self.assert_engine_failure_refuses_staged_misspelling(
             "import sys\nsys.stdout.close()\nraise RuntimeError('engine failed')\n")
 
@@ -1823,8 +1825,8 @@ class ChangelogLanguageTests(unittest.TestCase):
             "import sys\nsys.stderr.close()\nraise RuntimeError('engine failed')\n")
 
     def test_preflight_engine_printed_traceback_is_discarded(self):
-        # R5-2: engine diagnostics printed before the fault never reach the caller
-        # (the single-line assertion in the helper would catch any replay).
+        # Engine diagnostics printed before the fault never reach the caller (the
+        # single-line assertion in the helper would catch any replay).
         self.assert_engine_failure_refuses_staged_misspelling(
             "import traceback\n"
             "try:\n"
@@ -1852,10 +1854,10 @@ class ChangelogLanguageTests(unittest.TestCase):
             "    return EngineResult(_original_spelling_matches(text, checks))\n")
 
     def test_preflight_restored_unraisablehook_fault_refuses_clean_commit(self):
-        # Round 7, E1: an engine that restores the interpreter's DEFAULT
-        # unraisable hook turns a destructor fault into discarded stderr noise;
-        # the runner's pre-seal identity check must refuse the result (exit
-        # 71), so even a clean entry cannot commit over the masked fault.
+        # An engine that restores the interpreter's DEFAULT unraisable hook
+        # turns a destructor fault into discarded stderr noise; the runner's
+        # pre-seal identity check must refuse the result (exit 71), so even a
+        # clean entry cannot commit over the masked fault.
         self.assert_engine_failure_refuses_staged_misspelling(
             "import sys\n"
             "sys.unraisablehook = sys.__unraisablehook__\n"
@@ -1865,9 +1867,9 @@ class ChangelogLanguageTests(unittest.TestCase):
             "del resource\n", staged_word="centralized")
 
     def test_preflight_restored_thread_excepthook_fault_refuses_clean_commit(self):
-        # Round 7, E1: the same masking through threading.__excepthook__: a
-        # joined thread's exception becomes stderr noise under the default
-        # hook; the pre-seal identity check must still refuse the result.
+        # The same masking through threading.__excepthook__: a joined
+        # thread's exception becomes stderr noise under the default hook;
+        # the pre-seal identity check must still refuse the result.
         self.assert_engine_failure_refuses_staged_misspelling(
             "import threading\n"
             "threading.excepthook = threading.__excepthook__\n"
@@ -1877,22 +1879,22 @@ class ChangelogLanguageTests(unittest.TestCase):
             "_worker.join()\n", staged_word="centralized")
 
     def test_preflight_matcher_invalid_return_shape_refuses_staged_misspelling(self):
-        # Round 7, E2: a matcher returning '' or {} (or any other
-        # non-list shape) iterates into ZERO pairs, which round 6 sealed as a
-        # clean verdict over a staged misspelling; the runner must enforce the
-        # declared list-of-string-pairs contract and die without a result.
+        # A matcher returning '' or {} (or any other non-list shape) iterates
+        # into ZERO pairs, which the runner in the earlier repository sealed as
+        # a clean verdict over a staged misspelling; the runner must enforce
+        # the declared list-of-string-pairs contract and die without a result.
         for value in ("''", "{}", "iter([])"):
             with self.subTest(value=value):
                 self.assert_engine_failure_refuses_staged_misspelling(
                     f"def spelling_matches(text, checks): return {value}\n")
 
     def test_preflight_async_thread_matcher_refuses_staged_misspelling(self):
-        # Round 8, E1: a matcher that hands the real work to a thread and
-        # returns its still-empty list at once would seal a clean verdict over
-        # a staged misspelling; the runner must refuse (exit 72, no result
-        # line) while any engine thread is alive, BEFORE reading the results,
-        # so the standalone preflight, the hook and a real git commit all
-        # refuse and HEAD stays unchanged.
+        # A matcher that hands the real work to a thread and returns its
+        # still-empty list at once would seal a clean verdict over a staged
+        # misspelling; the runner must refuse (exit 72, no result line) while
+        # any engine thread is alive, BEFORE reading the results, so the
+        # standalone preflight, the hook and a real git commit all refuse and
+        # HEAD stays unchanged.
         self.assert_engine_failure_refuses_staged_misspelling(
             "import threading, time\n"
             "_original_matches = spelling_matches\n"
@@ -1905,11 +1907,11 @@ class ChangelogLanguageTests(unittest.TestCase):
             "    return pending\n")
 
     def test_preflight_runner_unreaped_until_group_kill(self):
-        # Round 8, W2: the group kill must run while the runner is still
-        # UNREAPED (running, or a waitable zombie pinning the group id), on
-        # the success path and on the failure path alike. communicate() used
-        # to reap the runner before the kill, so the recorded pgid pointed at
-        # an already-freed pid slot when os.killpg ran.
+        # The group kill must run while the runner is still UNREAPED (running,
+        # or a waitable zombie pinning the group id), on the success path and
+        # on the failure path alike. In the earlier repository, communicate()
+        # reaped the runner before the kill, so the recorded pgid pointed at an
+        # already-freed pid slot when os.killpg ran.
         from unittest.mock import patch
         mod = self.load_tool("preflight-changelog")
         engine_stub = (
@@ -1948,11 +1950,11 @@ class ChangelogLanguageTests(unittest.TestCase):
                 self.assertEqual(pinned, ["unreaped"])
 
     def test_preflight_pgid_mismatch_fails_closed_without_hang(self):
-        # Round 8, W2: were the group-id check ever to fail, the old code
-        # raised, skipped every kill, and then blocked forever in child.wait()
-        # on a runner still reading its never-closed stdin. The branch must
-        # kill the runner ITSELF, reap it, and refuse promptly, without
-        # signalling a group that was never verified as the runner's own.
+        # In the earlier repository, a failed group-id check raised, skipped
+        # every kill, and then blocked forever in child.wait() on a runner
+        # still reading its never-closed stdin. The branch must kill the
+        # runner ITSELF, reap it, and refuse promptly, without signalling a
+        # group that was never verified as the runner's own.
         import time
         from unittest.mock import patch
         mod = self.load_tool("preflight-changelog")
@@ -1966,16 +1968,16 @@ class ChangelogLanguageTests(unittest.TestCase):
         self.assertEqual(killpg_calls, [])
 
     def test_preflight_staged_verdicts_survive_inherited_sigchld_ignore(self):
-        # Round 9, W1: a caller that inherited SIGCHLD=SIG_IGN makes the
-        # kernel reap the runner the moment it exits; the WNOWAIT wait then
-        # raised ChildProcessError inside the engine fault boundary, so a
-        # CLEAN staged addition was refused as the fixed engine error (exit
-        # 2, where base 8e8fdad1 exits 0). The preflight must hold the
-        # default disposition for the runner's lifetime and put the caller's
-        # back after the reap: the staged verdicts are unchanged (clean 0,
-        # misspelled 1) and the caller's SIG_IGN survives. The scenario runs
-        # in its OWN process so the ignored SIGCHLD never leaks into this
-        # test runner.
+        # A caller that inherited SIGCHLD=SIG_IGN makes the kernel reap the
+        # runner the moment it exits; the WNOWAIT wait then raised
+        # ChildProcessError inside the engine fault boundary, so a CLEAN
+        # staged addition was refused as the fixed engine error (exit 2,
+        # where the base revision in the earlier repository exited 0). The
+        # preflight must hold the default disposition for the runner's
+        # lifetime and put the caller's back after the reap: the staged
+        # verdicts are unchanged (clean 0, misspelled 1) and the caller's
+        # SIG_IGN survives. The scenario runs in its OWN process so the
+        # ignored SIGCHLD never leaks into this test runner.
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             for rel in (".claude/skills/corpus-management/tools/preflight-changelog.py",
@@ -2040,17 +2042,17 @@ class ChangelogLanguageTests(unittest.TestCase):
                     self.assertNotIn("Traceback", report)
 
     def test_preflight_interrupt_during_sigchld_swap_restores_disposition(self):
-        # Round 10: an interrupt delivered right after the swap to SIG_DFL,
-        # before the old code reached its cleanup-protecting try, propagated
-        # with the caller's SIGCHLD disposition still replaced, so a caller's
-        # SIG_IGN was permanently lost without any engine having run. The
-        # protection must be armed BEFORE the disposition changes: the
+        # In the earlier repository, an interrupt delivered right after the
+        # swap to SIG_DFL, before the code reached its cleanup-protecting try,
+        # propagated with the caller's SIGCHLD disposition still replaced, so a
+        # caller's SIG_IGN was permanently lost without any engine having run.
+        # The protection must be armed BEFORE the disposition changes: the
         # interrupt still propagates, and the caller's disposition is back in
         # place afterwards. The interrupt is injected from the signal.signal
         # seam itself (immediately after the first swap to SIG_DFL takes
-        # effect), the narrowest window there is. The scenario runs in its
-        # OWN process so the ignored SIGCHLD and the injected interrupt never
-        # leak into this test runner.
+        # effect), the narrowest window there is. The scenario runs in its OWN
+        # process so the ignored SIGCHLD and the injected interrupt never leak
+        # into this test runner.
         driver = (
             "import importlib.util, signal, sys\n"
             "sys.path.insert(0, 'tools')\n"
@@ -2164,9 +2166,10 @@ class ChangelogLanguageTests(unittest.TestCase):
 
     def test_preflight_help_and_argparse_untouched_by_pending_faults(self):
         """Non-engine control: --help prints usage and exits 0 even when the CALLER
-        has a collectable object whose __del__ raises (be365929 collected it under
-        its recording hook, suppressed the help text and printed the engine error),
-        and the preflight never touches sys.unraisablehook."""
+        has a collectable object whose __del__ raises (in the earlier repository,
+        one revision collected it under its recording hook, suppressed the help
+        text and printed the engine error), and the preflight never touches
+        sys.unraisablehook."""
         import gc
         from contextlib import redirect_stdout, redirect_stderr
         mod = self.load_tool("preflight-changelog")
@@ -2205,18 +2208,20 @@ class ChangelogLanguageTests(unittest.TestCase):
                 sys.unraisablehook = previous_hook
 
     def test_preflight_argparse_error_with_closed_stdout(self):
-        # R5-3 control: an unknown flag with the caller's stdout closed (runpy, as
-        # an embedding caller) stays an ordinary argparse error: usage on stderr,
-        # exit 2, no traceback (be365929 replayed empty stdout first and crashed).
+        # Control: an unknown flag with the caller's stdout closed (runpy, as an
+        # embedding caller) stays an ordinary argparse error: usage on stderr,
+        # exit 2, no traceback (in the earlier repository, one revision replayed
+        # empty stdout first and crashed).
         preflight = SKILL_ROOT / "tools" / "preflight-changelog.py"
         driver = (
             "import runpy, sys\n"
             "sys.stdout.close()\n"
             "sys.argv = ['preflight-changelog.py', '--unknown']\n"
             f"runpy.run_path({str(preflight)!r}, run_name='__main__')\n")
-        # PYTHON_COLORS=0: Python 3.14 argparse colour detection probes the closed
-        # stdout's fileno() while BUILDING the parser, on the pre-PR preflight too;
-        # the subject here is the R5-3 replay regression, not colour detection.
+        # PYTHON_COLORS=0: Python 3.14 argparse colour detection probes the
+        # closed stdout's fileno() while BUILDING the parser, as it also did
+        # on the preflight before the replay fix in the earlier repository;
+        # the subject here is the replay regression, not colour detection.
         result = subprocess.run([sys.executable, "-c", driver],
                                 capture_output=True, text=True,
                                 env={**os.environ, "PYTHON_COLORS": "0"})
@@ -2426,7 +2431,7 @@ class LinksLinterTests(LinterTestCase):
         for case, (rel, break_file) in cases.items():
             with self.subTest(case=case):
                 # Outside the repository: a mode-0 entry under tests/tmp stops
-                # a concurrent run's repository walk (3b156).
+                # a concurrent run's repository walk.
                 root = self._tracked_repo(self._fixture_base("links-unreadable-"), {
                     "clean.md": "Clean prose.\n", rel: "[broken](missing.md)\n"})
                 self.assertNotIn(REPO_ROOT.resolve(), root.resolve().parents)
@@ -2620,8 +2625,9 @@ class CitationsLinterTests(LinterTestCase):
     def test_spelled_out_cloud_controls_matrix_v5_flagged(self) -> None:
         # The spelled-out "Cloud Controls Matrix v5" form evades the
         # abbreviated "CCM v5" entry (no "CCM" substring); it needs its
-        # own denylist entry. Sweep 30 surfaced five corpus instances of
-        # this form that the abbreviated entry had never caught.
+        # own denylist entry. In the earlier repository, a corpus sweep
+        # surfaced five instances of this form that the abbreviated
+        # entry had never caught.
         fixture = self.make_fixture(
             "standard-cloud-controls-matrix-v5.md",
             VALID_METADATA + "\n\nAligned with the CSA Cloud Controls Matrix v5 baseline.\n",
@@ -2666,11 +2672,10 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertLinterFails(result, "2013")
 
     def test_superseded_pci_dss_v_prefixed_flagged(self) -> None:
-        # PR #649 (PCI DSS v4.0.1 currency migration) widened the separator group
-        # (":", "(", whitespace) to also accept a "v"-prefixed superseded label,
-        # so "PCI DSS v4.0" (4.0 is superseded by 4.0.1 in the canonical register),
-        # which previously never fired, now does. (Cited by stable PR number, not a
-        # recycled TODO section number.)
+        # The PCI DSS v4.0.1 currency migration widened the separator group (":",
+        # "(", whitespace) to also accept a "v"-prefixed superseded label, so "PCI
+        # DSS v4.0" (4.0 is superseded by 4.0.1 in the canonical register), which
+        # never fired in the earlier repository, now does.
         fixture = self.make_fixture(
             "standard-pci-v-prefixed-superseded.md",
             VALID_METADATA
@@ -2680,9 +2685,10 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertLinterFails(result, "stale citation")
 
     def test_superseded_marker_after_id_ending_in_parenthesis_flagged(self) -> None:
-        # 3b35: a register ID ending in ")" (ICAO Annex 17 (Chicago Convention),
-        # superseded "Edition 11") previously produced a pattern that could never
-        # match, because \b after ")" demands a following word character.
+        # A register ID ending in ")" (ICAO Annex 17 (Chicago Convention),
+        # superseded "Edition 11") produced, in the earlier repository, a
+        # pattern that could never match, because \b after ")" demands a
+        # following word character.
         fixture = self.make_fixture(
             "standard-icao-parenthesis-superseded.md",
             VALID_METADATA
@@ -2692,8 +2698,8 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertLinterFails(result, "ICAO Annex 17")
 
     def test_superseded_marker_ending_in_parenthesis_flagged(self) -> None:
-        # 3b35 r2 (claude): the marker side had the same boundary defect; the
-        # OWASP LLM Top 10 marker "2025 (v2.0)" ends in ")" and never matched.
+        # In the earlier repository, the marker side had the same boundary defect;
+        # the OWASP LLM Top 10 marker "2025 (v2.0)" ends in ")" and never matched.
         fixture = self.make_fixture(
             "standard-owasp-llm-marker-parenthesis.md",
             VALID_METADATA
@@ -2703,7 +2709,7 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertLinterFails(result, "OWASP LLM Top 10")
 
     def test_bare_draft_is_not_a_superseded_marker(self) -> None:
-        # 3b35 r2 (codex): a bare "draft" marker read an ordinary word as an edition.
+        # A bare "draft" marker read an ordinary word as an edition.
         fixture = self.make_fixture(
             "standard-iso-42006-draft-word.md",
             VALID_METADATA
@@ -2714,10 +2720,10 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_register_prose_is_not_a_superseded_marker(self) -> None:
-        # 3b35 QA (codex): once IDs ending in ")" could match, prose left in a
-        # superseded cell (Canada CPPA's PIPEDA note) became a pseudo-marker that
-        # blocked an ordinary sentence. The register now keeps prose in the Topic
-        # cell, so this sentence must not block.
+        # Once IDs ending in ")" could match, prose left in a superseded cell
+        # (Canada CPPA's PIPEDA note) became a pseudo-marker that blocked an
+        # ordinary sentence. The register now keeps prose in the Topic cell, so
+        # this sentence must not block.
         fixture = self.make_fixture(
             "standard-cppa-prose-not-marker.md",
             VALID_METADATA
@@ -2729,8 +2735,8 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertNotIn("stale citation", result.stdout + result.stderr)
 
     def test_superseded_marker_with_id_prefix_flagged(self) -> None:
-        # 3b38: COBIT's superseded markers are written "COBIT 5" and "COBIT 4.1";
-        # the pattern must not require the id twice ("COBIT COBIT 5").
+        # COBIT's superseded markers are written "COBIT 5" and "COBIT 4.1"; the
+        # pattern must not require the id twice ("COBIT COBIT 5").
         fixture = self.make_fixture(
             "standard-cobit-5-superseded.md",
             VALID_METADATA
@@ -2751,8 +2757,8 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertEqual(messages, ["stale citation 'COBIT 5' (current: 2019)"])
 
     def test_superseded_v_prefixed_marker_matches_bare_citation(self) -> None:
-        # 3b34: a register marker written with a "v" (SLSA superseded "v1.1") must
-        # also match a citation that drops the "v" ("SLSA 1.1"); before the fix the
+        # A register marker written with a "v" (SLSA superseded "v1.1") must also
+        # match a citation that drops the "v" ("SLSA 1.1"); before the fix the
         # optional "v?" only admitted an ADDED "v" against a bare marker.
         fixture = self.make_fixture(
             "standard-slsa-bare-superseded.md",
@@ -2774,7 +2780,7 @@ class StandardsCurrencyTests(LinterTestCase):
         )
         # "SLSA 1.10" is rejected by the word boundary; "SLSA 1.1.0" and
         # "SLSA 1.1-rc1" exercise the version-continuation lookahead against the
-        # stripped "1.1" marker (3b34 QA, all three families).
+        # stripped "1.1" marker.
         result = run_linter(".claude/skills/corpus-management/tools/lint-standards-currency.py", "--paths", str(fixture))
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertNotIn("stale citation", result.stdout + result.stderr)
@@ -2797,7 +2803,7 @@ class StandardsCurrencyTests(LinterTestCase):
         )
 
     def test_root_override_with_missing_register_exits_2(self) -> None:
-        # Phase 23.64: --root override + missing canonical-citations register → exit 2.
+        # --root override + missing canonical-citations register → exit 2.
         synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-root-no-register-citations-", dir=FIXTURE_DIR))
         try:
             result = run_linter(
@@ -2816,10 +2822,10 @@ class StandardsCurrencyTests(LinterTestCase):
             import shutil
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
-    # 3b655: every run names the register standards no citation grammar reads, derived from the
-    # register at run time (disclose-guard-residuals); the lines are advisory and never a finding.
-    # r2 (both families): one list per thing the gate still does with such a row, so a row with no
-    # superseded edition is not said to have one matched, and a CANDIDATE row is not "nothing".
+    # Every run names the register standards no citation grammar reads, derived from the register
+    # at run time (disclose-guard-residuals); the lines are advisory and never a finding. One list
+    # per thing the gate still does with such a row, so a row with no superseded edition is not
+    # said to have one matched, and a CANDIDATE row is not "nothing".
     SUPERSEDED_MATCHED = "Superseded editions matched"
     NOT_COVERED = "Not covered by this gate"
     BROAD_CANDIDATE = "Advisory CANDIDATE from the broad channel"
@@ -2835,8 +2841,8 @@ class StandardsCurrencyTests(LinterTestCase):
             "| --- | --- | --- | --- | --- |\n" + "".join(r + "\n" for r in rows),
             encoding="utf-8",
         )
-        # P-3.213: a default-scope run reads the UNPINNED baseline and its copy at the ratchet
-        # base, so the tree holds an empty baseline and is its own base.
+        # A default-scope run reads the UNPINNED baseline and its copy at the ratchet base, so
+        # the tree holds an empty baseline and is its own base.
         self._write_or_remove(root / self.BASELINE_REL, {})
         self._fixture_git(root, "init", "-q")
         self._fixture_git(root, "add", "-A")
@@ -2848,8 +2854,8 @@ class StandardsCurrencyTests(LinterTestCase):
     UNCOVERED_ROW = "| Example Widget Norm | 3.0 | 2026-01 | Widgets | 2.0 |"
     UNMATCHED_ROW = "| Example Gadget Rule | 1.0 | 2026-01 | Gadgets | - |"
     CANDIDATE_ROW = "| Example Gizmo Framework | 2026 | 2026-01 | Gizmos | - |"
-    # r3 (both families): like WCO SAFE Framework, a row that lists a superseded edition and also
-    # draws a CANDIDATE; the first and third lists overlap on it by design.
+    # Like WCO SAFE Framework, a row that lists a superseded edition and also draws a CANDIDATE;
+    # the first and third lists overlap on it by design.
     BOTH_ROW = "| Example Doohickey Framework | 2026 | 2026-01 | Doohickeys | 2021 |"
 
     def _residual_line(self, output: str, prefix: str) -> str:
@@ -2884,7 +2890,7 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertTrue(line.endswith(": Example Widget Norm"), line)
         for prefix in (self.SUPERSEDED_MATCHED, self.NOT_COVERED, self.BROAD_CANDIDATE):
             self.assertNotIn("ISO/IEC 27001", self._residual_line(output, prefix))
-        # P-3.213: the lines precede the count line, and the verdict line stays last.
+        # The lines precede the count line, and the verdict line stays last.
         lines = output.splitlines()
         self.assertTrue(lines[-2].startswith("NOTE: standards-currency counts:"), output)
         self.assertTrue(lines[-1].startswith("OK: no findings"), output)
@@ -2971,11 +2977,11 @@ class StandardsCurrencyTests(LinterTestCase):
             self.assertTrue(self._residual_line(result.stdout, prefix).endswith(": (none)"))
 
     def test_default_scope_reads_the_moved_specifications(self) -> None:
-        # FX3a (D-2254 combined review): before the move this gate read the
-        # specifications S1 and S2 in governance/, and they now sit in the
-        # skill's specs/ directory. The adopter guides, excluded in docs/ before
-        # the move, stay excluded in the skill's docs/ directory. The expected
-        # directories are written out here, not read from lint_common.
+        # Before the move this gate read the specifications S1 and S2 in
+        # governance/, and they now sit in the skill's specs/ directory. The
+        # adopter guides, excluded in docs/ before the move, stay excluded in
+        # the skill's docs/ directory. The expected directories are written out
+        # here, not read from lint_common.
         mod = load_linter_module(".claude/skills/corpus-management/tools/lint-standards-currency.py", "currency_fx3a_scope")
         root = Path(tempfile.mkdtemp(prefix="currency-fx3a-")).resolve()
         self.addCleanup(shutil.rmtree, root, ignore_errors=True)
@@ -2991,8 +2997,8 @@ class StandardsCurrencyTests(LinterTestCase):
             [*mod.DEFAULT_PATHS, *mod.HTML_ROOTS], explicit=False, root=root)]
         self.assertEqual(selected, [".claude/skills/corpus-management/specs/s.md", "governance/a.md"])
 
-    # P-3.213 (maintainer ruling 2026-10-27, option A): the count line, the ISO/IEC
-    # 20000-1 register row and the per-standard UNPINNED ratchet.
+    # The count line, the ISO/IEC 20000-1 register row and the per-standard
+    # UNPINNED ratchet.
     RATCHET_REGISTER = (
         "# Register\n\n## ISO / IEC standards\n\n"
         "| Standard ID | Current version | Publication date | Topic | Superseded versions"
@@ -3035,13 +3041,13 @@ class StandardsCurrencyTests(LinterTestCase):
                       base_wrapper=RATCHET_WRAPPER, base_doc="Base document.\n",
                       git=True) -> Path:
         """A --root tree: the fixture register, ai/doc.md and the baseline (see
-        _write_or_remove). Round 2: the tree is a git repository whose one commit, also
+        _write_or_remove). The tree is a git repository whose one commit, also
         refs/remotes/origin/main, is the ratchet base. That commit holds base_register
         (default the tree's register), base_wrapper (default a wrapper with the ratchet),
-        base_baseline (default the tree's baseline when it is a dict, else an empty
-        one) and base_doc as ai/doc.md; None leaves a file out of the base. The tree's
-        own files are then written over it, uncommitted. git=False gives a plain
-        directory with no repository."""
+        base_baseline (default the tree's baseline when it is a dict, else an empty one)
+        and base_doc as ai/doc.md; None leaves a file out of the base. The tree's own
+        files are then written over it, uncommitted. git=False gives a plain directory
+        with no repository."""
         root = Path(tempfile.mkdtemp(prefix="currency-ratchet-", dir=FIXTURE_DIR))
         self.addCleanup(shutil.rmtree, root, ignore_errors=True)
         if git:
@@ -3077,8 +3083,8 @@ class StandardsCurrencyTests(LinterTestCase):
         )
 
     def _ratchet_history(self, doc: str, baseline, base_baseline, **kwargs):
-        """Round 3: a _ratchet_root whose tree is committed on top of the base, so HEAD is
-        the change and refs/remotes/origin/main stays at the base. Returns (root, base, tip)."""
+        """A _ratchet_root whose tree is committed on top of the base, so HEAD is the change and
+        refs/remotes/origin/main stays at the base. Returns (root, base, tip)."""
         root = self._ratchet_root(doc, baseline, base_baseline=base_baseline, **kwargs)
         base = self._fixture_git(root, "rev-parse", "HEAD")
         self._fixture_git(root, "add", "-A")
@@ -3251,7 +3257,7 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertEqual(result.returncode, 1, result.stdout[-300:] + result.stderr)
         self.assertIn("malformed header", result.stderr)
 
-    # P-3.213 round 2: the baseline itself may only fall relative to a base revision.
+    # The baseline itself may only fall relative to a base revision.
     def test_baseline_entry_raised_above_its_base_value_fails(self) -> None:
         # Adding an unpinned citation and raising its entry in the same change passes the
         # live-count comparison, so the base comparison must fail it; an entry at or
@@ -3288,8 +3294,8 @@ class StandardsCurrencyTests(LinterTestCase):
                       "the standard's new register row in the same change.", result.stdout)
         base_register = self.RATCHET_REGISTER.replace(
             "| ISO/IEC 27002 | 2022 | 2022-02 | Controls | 2013 | - | needs-reconfirm |\n", "")
-        # Round 4: the new row's entry is capped at the count at the base, so the base
-        # already holds the citation the entry records.
+        # The new row's entry is capped at the count at the base, so the base already
+        # holds the citation the entry records.
         new_row = self._ratchet_root(doc, counts, base_baseline={"ISO/IEC 27001": 1},
                                      base_register=base_register, base_doc=doc)
         result = self._run_ratchet(new_row)
@@ -3347,7 +3353,7 @@ class StandardsCurrencyTests(LinterTestCase):
         refused(tree, why="is not a file")
         # In GitHub Actions the event payload must be readable and name a commit; a payload
         # that names none, or a commit the clone lacks, is refused, as is an event with no
-        # base rule. Round 3: a pull_request run also needs a merge commit at HEAD.
+        # base rule. A pull_request run also needs a merge commit at HEAD.
         root, base, tip = self._ratchet_history(doc, counts, counts)
         merge = self._ratchet_merge(root, base, tip)
         payload = self._event_payload(root)
@@ -3417,13 +3423,13 @@ class StandardsCurrencyTests(LinterTestCase):
             self.assertIn(why, result.stderr)
             self.assertIn("this is not the bootstrap", result.stderr)
 
-    # P-3.213 round 3: one base-selection function, and a bootstrap that cannot raise a count.
+    # One base-selection function, and a bootstrap that cannot raise a count.
     RAISED_DOC = "ISO/IEC 27001 applies.\n\nISO/IEC 27001 again.\n"
 
     def test_schedule_and_workflow_dispatch_runs_take_the_merge_base(self) -> None:
-        # Round 2 finding 1: the nightly sweep runs on schedule and workflow_dispatch, and
-        # the gate exited 2 for any Actions event but pull_request and push. Those runs now
-        # take the merge base of HEAD and refs/remotes/origin/main, as a local run does.
+        # The nightly sweep runs on schedule and workflow_dispatch, and the gate exited 2
+        # for any Actions event but pull_request and push. Those runs now take the merge
+        # base of HEAD and refs/remotes/origin/main, as a local run does.
         root, base, _ = self._ratchet_history("ISO/IEC 27001 applies.\n",
                                               {"ISO/IEC 27001": 1}, {"ISO/IEC 27001": 1})
         payload = self._event_payload(root)
@@ -3446,9 +3452,9 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertIn("rose from 1", result.stdout)
 
     def test_bootstrap_seed_cannot_raise_a_count_above_the_base(self) -> None:
-        # Round 2 finding 2: the bootstrap held the seed only to the live counts, so a
-        # change that adds a bare citation and seeds the raised count passed. The seed is
-        # now also held to each count at the base, read from the base tree through git.
+        # The bootstrap held the seed only to the live counts, so a change that adds a
+        # bare citation and seeds the raised count passed. The seed is now also held to
+        # each count at the base, read from the base tree through git.
         root = self._ratchet_root(self.RAISED_DOC, {"ISO/IEC 27001": 2}, base_baseline=None,
                                   base_wrapper=self.PRE_RATCHET_WRAPPER,
                                   base_doc="ISO/IEC 27001 applies.\n")
@@ -3471,10 +3477,10 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertNotIn("seed entry", result.stdout)
 
     def test_inherited_actions_variables_cannot_name_head_as_the_base(self) -> None:
-        # Round 2 finding 3: a run that inherits GITHUB_ACTIONS and GITHUB_EVENT_PATH took
-        # its base from the payload alone, so a payload naming the modified HEAD compared
-        # the baseline with itself and passed. A push payload's before must now be a proper
-        # ancestor of HEAD, and a pull_request payload must match HEAD^1 of a merge commit.
+        # A run that inherits GITHUB_ACTIONS and GITHUB_EVENT_PATH took its base from the
+        # payload alone, so a payload naming the modified HEAD compared the baseline with
+        # itself and passed. A push payload's before must now be a proper ancestor of HEAD,
+        # and a pull_request payload must match HEAD^1 of a merge commit.
         root, _, tip = self._ratchet_history(self.RAISED_DOC, {"ISO/IEC 27001": 2},
                                              {"ISO/IEC 27001": 1})
         payload = self._event_payload(root)
@@ -3490,8 +3496,8 @@ class StandardsCurrencyTests(LinterTestCase):
             self.assertEqual(result.returncode, 2, (event, result.stdout[-300:], result.stderr))
             self.assertIn("ERROR: UNPINNED ratchet base:", result.stderr)
             self.assertIn(why, result.stderr)
-        # Round 4: GITHUB_ACTIONS without a readable event file exits 2; it no longer falls
-        # back to the merge base (test_actions_run_needs_a_readable_event_object).
+        # GITHUB_ACTIONS without a readable event file exits 2; it no longer falls back to
+        # the merge base (test_actions_run_needs_a_readable_event_object).
         result = self._run_ratchet(root, env={
             "GITHUB_ACTIONS": "true", "GITHUB_EVENT_NAME": "push",
             "GITHUB_EVENT_PATH": str(root / "no-such-event.json")})
@@ -3499,9 +3505,9 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertIn("GITHUB_ACTIONS is true but the event payload", result.stderr)
 
     def test_pull_request_base_sha_must_be_head_first_parent(self) -> None:
-        # Round 2 finding 4: a pull_request run trusted pull_request.base.sha. The base is
-        # now HEAD^1 of the checked-out merge commit, and a payload naming any other commit
-        # (here the pull request's own head, which carries the raised entry) exits 2.
+        # A pull_request run trusted pull_request.base.sha. The base is now HEAD^1 of the
+        # checked-out merge commit, and a payload naming any other commit (here the pull
+        # request's own head, which carries the raised entry) exits 2.
         root, base, tip = self._ratchet_history(self.RAISED_DOC, {"ISO/IEC 27001": 2},
                                                 {"ISO/IEC 27001": 1})
         self._ratchet_merge(root, base, tip)
@@ -3520,8 +3526,8 @@ class StandardsCurrencyTests(LinterTestCase):
                       "pull request merge commit)", result.stdout)
 
     def test_main_ref_is_fully_qualified(self) -> None:
-        # Round 2 note: a local branch named origin/main must not stand in for the
-        # remote-tracking ref; the base is the merge base with refs/remotes/origin/main.
+        # A local branch named origin/main must not stand in for the remote-tracking
+        # ref; the base is the merge base with refs/remotes/origin/main.
         root, base, tip = self._ratchet_history(self.RAISED_DOC, {"ISO/IEC 27001": 2},
                                                 {"ISO/IEC 27001": 1})
         self._fixture_git(root, "branch", "origin/main", tip)
@@ -3530,11 +3536,10 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertIn(f"rose from 1 at the base revision {base[:12]} (merge base with "
                       "refs/remotes/origin/main)", result.stdout)
 
-    # P-3.213 round 4.
     def test_new_register_row_entry_is_capped_at_the_base_count(self) -> None:
-        # Round 3 finding 1: a change that added a register row, more bare citations of
-        # that standard and a baseline entry of the raised count passed. The new row's
-        # entry is now held to the standard's UNPINNED count at the base, as a seed is.
+        # A change that added a register row, more bare citations of that standard and
+        # a baseline entry of the raised count passed. The new row's entry is now held
+        # to the standard's UNPINNED count at the base, as a seed is.
         base_register = self.RATCHET_REGISTER.replace(
             "| ISO/IEC 27002 | 2022 | 2022-02 | Controls | 2013 | - | needs-reconfirm |\n", "")
         base_doc = "ISO/IEC 27001 applies.\n\nISO/IEC 27002 applies.\n"
@@ -3560,9 +3565,9 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertNotIn("new baseline entry", result.stdout)
 
     def test_main_ref_is_resolved_exactly(self) -> None:
-        # Round 3 finding 2: with refs/remotes/origin/main absent, git's ref-name lookup
-        # took a tag or branch literally named refs/remotes/origin/main in its place (here
-        # at the change itself, so the raised baseline was compared with itself and passed).
+        # With refs/remotes/origin/main absent, git's ref-name lookup took a tag or branch
+        # literally named refs/remotes/origin/main in its place (here at the change itself,
+        # so the raised baseline was compared with itself and passed).
         root, base, tip = self._ratchet_history(self.RAISED_DOC, {"ISO/IEC 27001": 2},
                                                 {"ISO/IEC 27001": 1})
         self._fixture_git(root, "update-ref", "-d", "refs/remotes/origin/main")
@@ -3584,9 +3589,9 @@ class StandardsCurrencyTests(LinterTestCase):
                 self._fixture_git(root, "update-ref", "-d", imitation)
 
     def test_actions_run_needs_a_readable_event_object(self) -> None:
-        # Round 3 finding 3: with GITHUB_ACTIONS=true and an unset, missing or unreadable
-        # GITHUB_EVENT_PATH the run fell back to the merge base. It now exits 2; only a run
-        # where GITHUB_ACTIONS is not "true" is local.
+        # With GITHUB_ACTIONS=true and an unset, missing or unreadable GITHUB_EVENT_PATH
+        # the run fell back to the merge base. It now exits 2; only a run where
+        # GITHUB_ACTIONS is not "true" is local.
         root, _, _ = self._ratchet_history(self.RAISED_DOC, {"ISO/IEC 27001": 2},
                                            {"ISO/IEC 27001": 1})
         payload = self._event_payload(root)
@@ -3631,9 +3636,9 @@ class StandardsCurrencyTests(LinterTestCase):
                 self.assertIn("(merge base with refs/remotes/origin/main)", result.stdout)
 
     def test_pull_request_base_sha_may_be_an_ancestor_of_head_first_parent(self) -> None:
-        # Round 3 finding 4: requiring base.sha to equal HEAD^1 failed a valid pull request
-        # whose base branch moved after the event. The base is HEAD^1 of the checked-out
-        # merge commit, and base.sha need only be that commit or an ancestor of it.
+        # Requiring base.sha to equal HEAD^1 failed a valid pull request whose base branch
+        # moved after the event. The base is HEAD^1 of the checked-out merge commit, and
+        # base.sha need only be that commit or an ancestor of it.
         root, base, tip = self._ratchet_history("ISO/IEC 27001 applies.\n",
                                                 {"ISO/IEC 27001": 1}, {"ISO/IEC 27001": 1})
         self._fixture_git(root, "checkout", "-q", "--detach", base)
@@ -3662,7 +3667,7 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertIn(f"the pull_request payload's base.sha {tip} is neither HEAD^1 {moved}",
                       result.stderr)
 
-    # P-3.213 round 5: git substitutes no object or parent for the base.
+    # Git substitutes no object or parent for the base.
     def _forged_base(self, root: Path, tip: str) -> str:
         """A parentless commit holding tip's tree (the raised baseline), to stand in for the base."""
         return self._fixture_git(root, "commit-tree", tip + "^{tree}", "-m", "forged base")
@@ -3672,8 +3677,8 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertIn(f"rose from 1 at the base revision {base[:12]} ({how})", result.stdout)
 
     def test_replace_ref_cannot_substitute_the_base(self) -> None:
-        # Round 4 review: after git replace <base> <forged>, git read the forged commit's tree
-        # for the base object id, so the raised baseline was compared with itself and passed.
+        # After git replace <base> <forged>, git read the forged commit's tree for the base
+        # object id, so the raised baseline was compared with itself and passed.
         root, base, tip = self._ratchet_history(self.RAISED_DOC, {"ISO/IEC 27001": 2},
                                                 {"ISO/IEC 27001": 1})
         self._fixture_git(root, "replace", base, self._forged_base(root, tip))
@@ -3681,8 +3686,8 @@ class StandardsCurrencyTests(LinterTestCase):
                                    "merge base with refs/remotes/origin/main")
 
     def test_inherited_replace_ref_base_cannot_substitute_the_base(self) -> None:
-        # Round 4 review: GIT_REPLACE_REF_BASE, inherited, named refs that hold a replacement
-        # outside refs/replace/, which the round 4 denylist did not drop.
+        # In the earlier repository, an inherited GIT_REPLACE_REF_BASE named refs that
+        # hold a replacement outside refs/replace/, which the GIT_* denylist did not drop.
         root, base, tip = self._ratchet_history(self.RAISED_DOC, {"ISO/IEC 27001": 2},
                                                 {"ISO/IEC 27001": 1})
         self._fixture_git(root, "update-ref", "refs/elsewhere/" + base,
@@ -3692,11 +3697,12 @@ class StandardsCurrencyTests(LinterTestCase):
             "merge base with refs/remotes/origin/main")
 
     def test_grafts_cannot_substitute_a_parent(self) -> None:
-        # refs/remotes/origin/main is a sibling of the change on the base. A graft giving it
-        # the change as its parent made the change itself the merge base, so the raised
-        # baseline was compared with itself and passed: from an inherited GIT_GRAFT_FILE (a
-        # GIT_ variable the round 4 denylist did not drop) and from the repository's own
-        # info/grafts, which git 2.53 still honours under GIT_NO_REPLACE_OBJECTS.
+        # refs/remotes/origin/main is a sibling of the change on the base. In the earlier
+        # repository, a graft giving it the change as its parent made the change itself
+        # the merge base, so the raised baseline was compared with itself and passed: from
+        # an inherited GIT_GRAFT_FILE (a GIT_ variable the GIT_* denylist did not drop)
+        # and from the repository's own info/grafts, which git 2.53 still honours under
+        # GIT_NO_REPLACE_OBJECTS.
         root, base, tip = self._ratchet_history(self.RAISED_DOC, {"ISO/IEC 27001": 2},
                                                 {"ISO/IEC 27001": 1})
         main = self._fixture_git(root, "commit-tree", base + "^{tree}", "-p", base,
@@ -3793,7 +3799,7 @@ class StandardsCurrencyTests(LinterTestCase):
         with patch.dict(os.environ, inherited), patch.object(mod.subprocess, "run", fake_run):
             mod._git("rev-parse", "HEAD")
         (argv, env), = calls
-        # Round 6: git by the absolute path found on the fixed search path.
+        # Git by the absolute path found on the fixed search path.
         self.assertEqual(argv, [mod._git_executable(), "-C", str(mod.REPO_ROOT),
                                 "-c", "core.commitGraph=false", "rev-parse", "HEAD"])
         self.assertTrue(os.path.isabs(argv[0]), argv[0])
@@ -3811,9 +3817,9 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertEqual(env, mod._GIT_ENV)
 
     def test_git_child_environment_lacks_inherited_variables(self) -> None:
-        # Rebase revision (D21): a real git child, through a shell alias that prints its
-        # environment, sees neither an inherited LD_PRELOAD (naming a nonexistent file, so the
-        # loader only warns) nor an arbitrary variable; HOME and _GIT_ENV's values reach it.
+        # A real git child, through a shell alias that prints its environment, sees neither an
+        # inherited LD_PRELOAD (naming a nonexistent file, so the loader only warns) nor an
+        # arbitrary variable; HOME and _GIT_ENV's values reach it.
         from unittest.mock import patch
         mod = load_linter_module(".claude/skills/corpus-management/tools/lint-standards-currency.py", "currency_git_child_env")
         root = Path(tempfile.mkdtemp(prefix="currency-git-env-", dir=FIXTURE_DIR))
@@ -3832,11 +3838,11 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertEqual(names.get("LC_ALL"), "C")
         self.assertEqual(names.get("GIT_CONFIG_NOSYSTEM"), "1")
 
-    # P-3.213 round 6: no shallow repository, no substitute git, and git's real error shown.
+    # No shallow repository, no substitute git, and git's real error shown.
     def test_shallow_repository_exits_2(self) -> None:
-        # Round 5 review: a shallow file naming a commit on main's side hid its parent, so the
-        # merge base moved from the base (baseline 1) to an older commit (baseline 2) and the
-        # raised baseline passed. A shallow repository now exits 2 before any base is computed.
+        # A shallow file naming a commit on main's side hid its parent, so the merge base moved
+        # from the base (baseline 1) to an older commit (baseline 2) and the raised baseline
+        # passed. A shallow repository now exits 2 before any base is computed.
         root, older, base = self._ratchet_history("ISO/IEC 27001 applies.\n",
                                                   {"ISO/IEC 27001": 1}, {"ISO/IEC 27001": 2},
                                                   base_doc=self.RAISED_DOC)
@@ -3863,9 +3869,9 @@ class StandardsCurrencyTests(LinterTestCase):
                       result.stderr)
 
     def test_substitute_git_on_the_inherited_path_is_not_run(self) -> None:
-        # Round 5 review: _git ran "git" through the inherited PATH, so a substitute git
-        # first on it (here one that answers merge-base with HEAD, comparing the raised
-        # baseline with itself) made the rise pass. git is now found on a fixed search path.
+        # _git ran "git" through the inherited PATH, so a substitute git first on it (here
+        # one that answers merge-base with HEAD, comparing the raised baseline with itself)
+        # made the rise pass. git is now found on a fixed search path.
         root, base, tip = self._ratchet_history(self.RAISED_DOC, {"ISO/IEC 27001": 2},
                                                 {"ISO/IEC 27001": 1})
         real = shutil.which("git", path="/usr/local/bin:/usr/bin:/bin")
@@ -3886,8 +3892,8 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertFalse(log.exists(), log.read_text(encoding="utf-8") if log.exists() else "")
 
     def test_failing_git_call_shows_the_real_error_without_hints(self) -> None:
-        # Round 5 review: with GIT_GRAFT_FILE set, git 2.53 prints a deprecation hint that
-        # was the only detail a reader saw first; the message now leaves hint lines out.
+        # With GIT_GRAFT_FILE set, git 2.53 prints a deprecation hint that was the only
+        # detail a reader saw first; the message now leaves hint lines out.
         from unittest.mock import patch
         mod = load_linter_module(".claude/skills/corpus-management/tools/lint-standards-currency.py", "currency_git_hint")
         stderr = (b"hint: Support for <GIT_DIR>/info/grafts is deprecated\n"
@@ -3905,8 +3911,8 @@ class StandardsCurrencyTests(LinterTestCase):
                          "fatal: Not a valid object name deadbeef")
 
     def test_bare_hint_lines_are_dropped_from_the_error(self) -> None:
-        # Rebase revision (D21): git separates hint paragraphs with a bare "hint:" line, with
-        # or without a trailing space; neither may stand in the message ahead of the error.
+        # Git separates hint paragraphs with a bare "hint:" line, with or without a trailing
+        # space; neither may stand in the message ahead of the error.
         from unittest.mock import patch
         mod = load_linter_module(".claude/skills/corpus-management/tools/lint-standards-currency.py", "currency_git_bare_hint")
         stderr = (b"hint: Support for <GIT_DIR>/info/grafts is deprecated\n"
@@ -3930,7 +3936,7 @@ class StandardsCurrencyTests(LinterTestCase):
         for line in ("hints: advice", "fatal: hint:", " hint:", "hint:advice"):
             self.assertFalse(mod._git_hint(line), line)
 
-    # P-3.213 exit-code list (the wrapper docstring's "Exit codes"): guards for the listed
+    # The exit-code list (the wrapper docstring's "Exit codes"): guards for the listed
     # conditions no other test pinned by status. Behaviour is unchanged; each passes on the
     # code the list was derived from.
     def _wrapper_cli(self, *args: str):
@@ -4103,9 +4109,9 @@ class StandardsCurrencyTests(LinterTestCase):
         code, out, err = self._main_in_process(mod, self._bootstrap_root())
         self.assertEqual(code, 0, out[-300:] + err)
 
-    # P-3.213 exit-code list, second pass: guards for the listed conditions (and the listed
+    # The exit-code list, continued: guards for the listed conditions (and the listed
     # alternatives within one) that still had no test asserting their status. Behaviour is
-    # unchanged; each passes on 0cfc96602.
+    # unchanged; each passed on the code it was written against in the earlier repository.
     def test_exit_list_argparse_value_errors_exit_2(self) -> None:
         # Guard, exit 2 (argparse): --paths with no value, and a --coverage-mode or --format
         # value outside its choices.
@@ -4369,9 +4375,9 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertIn("Traceback", result.stderr)
         self.assertIn("ValueError: not enough values to unpack", result.stderr)
 
-    # P-3.213 exit-code list, organized by main()'s handlers: guards for the causes the
-    # reorganized list names for the first time. Behaviour is unchanged; each passes on
-    # 0ee959387.
+    # The exit-code list, organized by main()'s handlers: guards for the causes the
+    # reorganized list names for the first time. Behaviour is unchanged; each passed on
+    # the code it was written against in the earlier repository.
     def test_exit_list_base_ls_tree_record_malformed_or_non_ascii_id_exits_2(self) -> None:
         # Guard, exit 2 through the RatchetBaseError handler: _blob_at on an ls-tree record
         # that does not split into three fields ("is not a file"), or whose object id is not
@@ -4454,7 +4460,7 @@ class RolesLinterTests(LinterTestCase):
         self.assertLinterFails(result)
 
     def test_root_override_with_missing_register_exits_2(self) -> None:
-        # Phase 23.64: --root override lets the linter be pointed at a
+        # The --root override lets the linter be pointed at a
         # synthetic minimal repository. If --root names a directory
         # that has no role-authority register at the expected
         # governance/ path, the file-missing path must exit 2.
@@ -4514,11 +4520,11 @@ class ShallNearUncertaintyTests(LinterTestCase):
         self.assertLinterFails(result)
 
     def test_shall_near_uncertainty_inside_tilde_fence_ignored(self) -> None:
-        # PR #937 (GR-4 tilde-blindness): a ~~~ fenced code block must be
-        # skipped exactly as a backtick fence is. Before the shared
-        # lint_common.is_fence_line() consolidation this linter was tilde-blind
-        # and scanned the shall-near-uncertainty phrase inside the fence (a
-        # false positive); routed through the shared predicate it now skips it.
+        # A ~~~ fenced code block must be skipped exactly as a backtick fence
+        # is. Before the shared lint_common.is_fence_line() consolidation this
+        # linter was tilde-blind and scanned the shall-near-uncertainty phrase
+        # inside the fence (a false positive); routed through the shared
+        # predicate it now skips it.
         fixture = self.make_fixture(
             "standard-shall-tilde-fence.md",
             VALID_METADATA
@@ -4534,29 +4540,26 @@ class ShallNearUncertaintyTests(LinterTestCase):
 class RefAbsenceClaimsTests(LinterTestCase):
     """Gate 104: line-bound marker binding, claim detection and marker checks.
 
-    Under the maintainer ruling of 2026-09-30 18:34Z a canonical claim is
-    satisfied only by a marker opening on one of the lines the claim spans,
-    and under the 20:47Z ruling detection fails closed. The escape
-    reproductions of review rounds 10 to 13 are regression rows: each
-    blocks, or passes only because a marker is on the claim's lines. The
-    round-13 mutation survivors are killed here: the min claim end by
-    test_shorter_reading_bounds_the_claim, the matching order and the
-    reading union by test_reading_union_and_matching_order, and the fence
-    prefix break by the bullet-fence row of the fenced-code test. The
-    round-14 and round-15 escapes (3b144) fire the blocking obfuscation
-    screen in test_obfuscation_screen_blocks_hidden_claims; the screen
-    fails closed on markup it cannot read exactly, stays silent on
-    detected claims and on plain-prose paraphrases, which remain
-    advisory, and the round-15 mutation survivors (the claim-span skip,
-    the invisible-character class and the exact junk and part budgets)
-    are killed in the screen tests. The round-16 escapes (the screen's
-    second review round) fire the permissive hidden-claim refusal in
-    test_permissive_reader_refuses_hidden_claims, and the round-16
-    mutation survivors (the between-word variation-selector,
-    grapheme-joiner and debris refusals, the bracket rule's junk arm,
-    the readable-gap letter-skip guard and the no-evidence anchor step)
-    are killed by that test's rows and the r16 pin rows of the screen
-    tests.
+    A canonical claim is satisfied only by a marker opening on one of the
+    lines the claim spans, and detection fails closed. Reproductions of known
+    escapes are regression rows: each blocks, or passes only because a marker
+    is on the claim's lines. Mutation survivors are killed here: the min
+    claim end by test_shorter_reading_bounds_the_claim, the matching order
+    and the reading union by test_reading_union_and_matching_order, and the
+    fence prefix break by the bullet-fence row of the fenced-code test.
+    An earlier set of reproduced escapes fires the blocking obfuscation
+    screen in test_obfuscation_screen_blocks_hidden_claims; the screen fails
+    closed on markup it cannot read exactly, stays silent on detected claims
+    and on plain-prose paraphrases, which remain advisory, and the screen's
+    mutation survivors (the claim-span skip, the invisible-character class
+    and the exact junk and part budgets) are killed in the screen tests. A
+    later set of reproduced escapes, which the screen does not catch, fires
+    the permissive hidden-claim refusal in test_permissive_reader_refuses_hidden_claims,
+    and further mutation survivors (the between-word variation-selector,
+    grapheme-joiner and debris refusals, the bracket rule's junk arm, the
+    readable-gap letter-skip guard and the no-evidence anchor step) are
+    killed by that test's rows and the mutation-survivor pin rows of the
+    screen tests.
     """
     SCRIPT = '.claude/skills/corpus-management/tools/lint-ref-absence-claims.py'
     CLAIM = 'X is not held in the reference base.'
@@ -4858,7 +4861,7 @@ class RefAbsenceClaimsTests(LinterTestCase):
     def test_fenced_code_is_skipped_only_when_closed(self):
         rows = [(1, 'iso/iec 27002:2022', '| ISO/IEC 27002:2022 |')]
         claim = self.CLAIM
-        sep = chr(0x2028)  # U+2028: not a Markdown line break (r13 F2).
+        sep = chr(0x2028)  # U+2028: not a Markdown line break.
         for body in (
             '```\n' + claim + '\n```\n',
             '~~~~\n' + claim + '\n~~~~\n',
@@ -4904,7 +4907,7 @@ class RefAbsenceClaimsTests(LinterTestCase):
         # str.splitlines separators such as U+2028 are not Markdown line
         # breaks: they stay inside their physical line, so a marker after
         # one stays on the claim's line and line numbers count newlines
-        # only (r13 F2).
+        # only.
         sep = chr(0x2028)
         self.assertClean(self.CLAIM + sep + 'See the note. ' + self.MARKER + '\n')
         self.assertClaimBlocks('A' + sep + 'B\n' + self.CLAIM + '\n', 2)
@@ -4914,7 +4917,7 @@ class RefAbsenceClaimsTests(LinterTestCase):
         # is a literal label in one reading and a dropped reference label
         # in another. The claim keeps the SHORTEST span, so a marker on
         # line 2 satisfies neither reading and the min->max mutant of
-        # canonical_claims is killed by the first assertion (r13 WARN).
+        # canonical_claims is killed by the first assertion.
         body = 'X is not held in the [reference][base]\nbase. ' + self.MARKER + '\n'
         self.assertClaimBlocks(body, 1, 1)
         self.assertOrphan(body, 2)
@@ -4927,7 +4930,7 @@ class RefAbsenceClaimsTests(LinterTestCase):
     def test_reading_union_and_matching_order(self):
         # Overlapping claims from different readings match distinct markers
         # in last-line order; the (first, last) sort-key mutant false-blocks
-        # on this shape (r13 mutation witness).
+        # on this shape (a mutation witness).
         self.assertClean('A is not <!--\nB is not held in the reference base. --> '
                          + self.MARKER + '\nheld in the reference base. ' + self.OTHER_MARKER + '\n')
         for body in (
@@ -5046,12 +5049,11 @@ class RefAbsenceClaimsTests(LinterTestCase):
                 self.assertIn('ADVISORY:', result.stdout)
 
     def test_obfuscation_screen_blocks_hidden_claims(self):
-        # 3b144 round 14 (codex R14-1 to R14-3; claude F1 to F4): shapes
-        # that hide a canonical claim from every reading and stripped
-        # copy now fire the blocking obfuscation screen. Each row was
-        # HIDDEN (exit 0) before the screen shipped.
+        # Shapes that hide a canonical claim from every reading and
+        # stripped copy now fire the blocking obfuscation screen. Each
+        # row was HIDDEN (exit 0) before the screen shipped.
         for label, body in (
-            # R14-1: HTML stripping hides a claim.
+            # HTML stripping hides a claim.
             ('r14-attr-gt', 'X is not <span title="a>b">held</span> in the reference base.'),
             ('r14-attr-lt', 'X is not <span title="a<b">held</span> in the reference base.'),
             ('r14-tag-split-word', 'X is not he<ruby></ruby>ld in the reference base.'),
@@ -5063,15 +5065,15 @@ class RefAbsenceClaimsTests(LinterTestCase):
             ('r14-word-joiner', 'X is not he\u2060ld in the reference base.'),
             ('r14-grapheme-joiner', 'X is not he\u034fld in the reference base.'),
             ('r14-variation-selector', 'X is not he\ufe0fld in the reference base.'),
-            # R14-2: an unmatched backtick shifts code-span pairing, so a
+            # An unmatched backtick shifts code-span pairing, so a
             # code-span "](" goes live and swallows the later linked claim.
             ('r14-unmatched-backtick-swallow', 'stray ` here. `see ](x for` X is [not](a) held in the reference base. )'),
-            # R14-3: unclosed constructs leave text between the claim words.
+            # Unclosed constructs leave text between the claim words.
             ('r14-unclosed-link-title', 'X is [not](d "foo held in the reference base.'),
             ('r14-unclosed-tag-attribute', 'X is not <span title="foo held in the reference base.'),
-            # 3b144 round 15 (claude F1-F4, codex F1-F3, gemini F1): the
-            # screen fails closed on markup it cannot read exactly. Each
-            # row was HIDDEN (exit 0) before this round.
+            # The screen fails closed on markup it cannot read exactly. In
+            # the earlier repository, each row was HIDDEN (exit 0) before
+            # the screen failed closed on it.
             ('r15-angle-destination-swallows-prose', "See [a](x<y) and X is not [held](z) in the reference base, so a>b)."),
             ('r15-quoted-title-swallows-prose', "See [a](x 'y) and X is not [held](z) in the reference base. It's ok)."),
             ('r15-attr-debris-no-junk-token', 'X is not <span title="a>">held</span> in the reference base.'),
@@ -5092,10 +5094,10 @@ class RefAbsenceClaimsTests(LinterTestCase):
             ('r15-optional-currently-backtrack', 'X is not held in the <span title="a>currently">reference</span> base.'),
             ('r15-exactly-three-junk-tokens', 'X is not <b>alpha beta gamma</b> held in the reference base.'),
             ('r15-exactly-four-part-word', 'X is not h<x></x>e<x></x>l<x></x>d in the reference base.'),
-            # 3b144 round 16: mutation-survivor pins. Each row blocks
-            # through the screen; a mutant dropping its rule falls
-            # through to the permissive refusal, whose message differs,
-            # so this assertion still kills the mutant.
+            # Mutation-survivor pins. Each row blocks through the
+            # screen; a mutant dropping its rule falls through to the
+            # permissive refusal, whose message differs, so this
+            # assertion still kills the mutant.
             ('r16-pin-variation-selector-between-words', 'X is not \ufe0fheld in the reference base.'),
             ('r16-pin-grapheme-joiner-between-words', 'X is not \u034f held in the reference base.'),
             ('r16-pin-image-with-alt', 'X is not ![alt](p.png) held in the reference base.'),
@@ -5116,23 +5118,23 @@ class RefAbsenceClaimsTests(LinterTestCase):
     def test_obfuscation_screen_spares_detected_claims_and_paraphrases(self):
         # The screen never fires where a reading already detects the
         # claim (the marker machinery owns it), and it carries no
-        # evidence on plain prose, so near misses stay advisory under
-        # the 2026-09-30 00:57Z/14:05Z ruling. The R14-2 shape without
-        # the stray backtick keeps its code-span pairing, so the claim
-        # is detected and its marker satisfies it.
+        # evidence on plain prose, so near misses stay advisory. The
+        # unmatched-backtick shape without the stray backtick keeps
+        # its code-span pairing, so the claim is detected and its
+        # marker satisfies it.
         self.assertClean(self.CLAIM + ' ' + self.MARKER + '\n')
         self.assertClean('X is not held ' + self.MARKER + ' in the reference base.\n')
         self.assertClean('`see ](x for` X is [not](a) held in the reference base. ) ' + self.MARKER + '\n')
-        # Round 15: plain whitespace is not obfuscation (a split word
-        # joins only across a gap the screen cannot read), and a marked
-        # claim split by emphasis stays with the marker machinery (the
+        # Plain whitespace is not obfuscation (a split word joins only
+        # across a gap the screen cannot read), and a marked claim
+        # split by emphasis stays with the marker machinery (the
         # claim-span skip), so neither row carries a screen finding.
         self.assertClean('There is no T held in the reference base.\n')
         self.assertClean('X is not h**e**ld in the reference base. ' + self.MARKER + '\n')
-        # Round 16: a letter skipped across a readable gap is still not
-        # evidence, and the permissive reading spells no claim through
-        # 'n t', so the row stays clean (kills the letter-skip-guard
-        # mutant, which would false-block it).
+        # A letter skipped across a readable gap is still not evidence,
+        # and the permissive reading spells no claim through 'n t', so
+        # the row stays clean (kills the letter-skip-guard mutant,
+        # which would false-block it).
         self.assertClean('X is n t held in the reference base.\n')
         for body in (
             'The implementing decree is not yet held in the reference base.',
@@ -5172,86 +5174,85 @@ class RefAbsenceClaimsTests(LinterTestCase):
             'unreadable markup around a possible reference-absence claim')
 
     def test_permissive_reader_refuses_hidden_claims(self):
-        # 3b144 round 16 (review round 2 of the screen: claude F1-F3,
-        # codex F1-F4, gemini F1-F2): a permissive reading of each
-        # paragraph (closed comments, images, closing link tails and
-        # well-formed tags blanked; entities decoded; invisible Mn, Cf
-        # and Cc characters deleted so split words rejoin; every other
-        # non-alphanumeric character a word separator) spells the
-        # canonical claim where no reading detects a claim and the
-        # screen raises nothing. Each row was HIDDEN (exit 0) or
-        # advisory-only before this round.
+        # A permissive reading of each paragraph (closed comments,
+        # images, closing link tails and well-formed tags blanked;
+        # entities decoded; invisible Mn, Cf and Cc characters deleted
+        # so split words rejoin; every other non-alphanumeric
+        # character a word separator) spells the canonical claim where
+        # no reading detects a claim and the screen raises nothing.
+        # Each row was HIDDEN (exit 0) or advisory-only before the
+        # permissive reader shipped.
         for label, body in (
-            # claude F1: an empty-alt or reference-style image between
-            # claim words renders no text.
+            # An empty-alt or reference-style image between claim
+            # words renders no text.
             ('r16-empty-alt-image', 'X is not ![](p.png) held in the reference base.'),
             ('r16-empty-alt-emphasis', 'X is *not* ![](p.png) held in the reference base.'),
             ('r16-empty-alt-late', 'X is not held in the reference ![](p.png) base.'),
             ('r16-reference-image', 'X is not ![][p] held in the reference base.\n\n[p]: p.png'),
             ('r16-empty-alt-was-advisory', 'X is not held ![](x.png) in the reference base.'),
-            # claude F2 / codex F3: invisible Mn characters outside
-            # U+FE00-U+FE0F beside a claim word.
+            # Invisible Mn characters outside U+FE00-U+FE0F beside
+            # a claim word.
             ('r16-variation-selector-17', 'X is not \U000e0100held in the reference base.'),
             ('r16-mongolian-selector', 'X is not \u180bheld in the reference base.'),
             ('r16-mongolian-selector-after', 'X is not held\u180b in the reference base.'),
             ('r16-khmer-inherent-vowel', 'X is not\u17b5 held in the reference base.'),
             ('r16-selector-after-strike', 'X is not ~~held~~\U000e0100 in the reference base.'),
-            # claude F3: a malformed tag or an entity that does not
-            # decode renders as text, but the screen blanks it.
+            # A malformed tag or an entity that does not decode
+            # renders as text, but the screen blanks it.
             ('r16-malformed-tag-prose', '<b X is not he\u00adld in the reference base, really>'),
             ("r16-malformed-tag-attr", "<i x='a' X is not he&shy;ld in the reference base.>"),
             ('r16-fake-entity', 'X is not &held; in the reference base.'),
-            # codex F1: an invalid link tail renders as prose, but the
-            # screen blanks it up to its first whitespace; a bare tail
-            # with no link opener renders literally too.
+            # An invalid link tail renders as prose, but the screen
+            # blanks it up to its first whitespace; a bare tail with
+            # no link opener renders literally too.
             ('r16-invalid-tail-swallows-held', 'X is [not](held in the reference base.)'),
             ('r16-invalid-tail-swallows-in', 'X is not [held](in the reference base.)'),
             ('r16-bare-tail-no-opener', 'X is not ](held) in the reference base.'),
-            # codex F2, and the closed round-15 residue: letters erased
-            # from a claim word's edges by entity blanking.
+            # Letters erased from a claim word's edges by entity
+            # blanking, a former residue of the screen.
             ('r16-erased-trailing-letter', 'X is not hel&#100;&shy; in the reference base.'),
             ('r16-erased-leading-letters', 'X is not &#104;&shy;eld in the reference base.'),
-            # codex F4: a different detected claim inside an attribute
-            # no longer suppresses the refusal on the claim around it.
+            # A different detected claim inside an attribute no longer
+            # suppresses the refusal on the claim around it.
             ('r16-attr-claim-overlap', 'X is not <span title="\nY is not held in the reference base. <!-- ref-absence: Y-NONESUCH -->\n">he\u2060ld</span> in the reference base.'),
-            # gemini F1-F2: visible separators the screen reads as
-            # plain prose while no reading matches the claim.
+            # Visible separators the screen reads as plain prose
+            # while no reading matches the claim.
             ('r16-slash-separators', 'X is not/held/in/the/reference/base.'),
             ('r16-hyphen-joined', 'The decree is not-held in the reference base.'),
             ('r16-comma-separator', 'The decree is not, held in the reference base.'),
-            # Review round 3, claude E1: a claim word in an image's alt
-            # text, read in the permissive reader's alt-text reading.
+            # A claim word in an image's alt text, read in the
+            # permissive reader's alt-text reading.
             ('rev3-alt-inline', 'X is not ![held](x.png) in the reference base.'),
             ('rev3-alt-reference', 'X is not ![held][i] in the reference base.\n\n[i]: x.png'),
             ('rev3-alt-wholly-after-word', 'X is not ![held in the reference base](x.png).'),
             ('rev3-alt-was-advisory', 'X is not held ![in the](x.png) reference base.'),
             ('rev3-alt-html-img', 'X is not <img alt="held" src="x.png"> in the reference base.'),
-            # claude E2: default-ignorable code points, unassigned ones
-            # and the Hangul fillers included, split a word into five
-            # parts, past the screen's four-part budget.
+            # Default-ignorable code points, unassigned ones and the
+            # Hangul fillers included, split a word into five parts,
+            # past the screen's four-part budget.
             ('rev3-cn-2065-five-part', 'X is not held in the r\u2065e\u2065f\u2065e\u2065rence base.'),
             ('rev3-cn-fff0-five-part', 'X is not held in the r\ufff0e\ufff0f\ufff0e\ufff0rence base.'),
             ('rev3-cn-e0080-five-part', 'X is not held in the r\U000e0080e\U000e0080f\U000e0080e\U000e0080rence base.'),
             ('rev3-cn-e0fff-five-part', 'X is not held in the r\U000e0fffe\U000e0ffff\U000e0fffe\U000e0fffrence base.'),
             ('rev3-hangul-filler-five-part', 'X is not held in the r\u1160e\u1160f\u1160e\u1160rence base.'),
             ('rev3-halfwidth-filler', 'X is not he\uffa0ld in the reference base.'),
-            # claude W3: five-part Mn splits. U+180B and U+E0100 are
-            # also default-ignorable, so the U+0301 row is the one a
+            # Five-part Mn splits. U+180B and U+E0100 are also
+            # default-ignorable, so the U+0301 row is the one a
             # mutant dropping "Mn" fails.
             ('rev3-mongolian-selector-five-part', 'X is not held in the r\u180be\u180bf\u180be\u180brence base.'),
             ('rev3-selector-17-five-part', 'X is not held in the r\U000e0100e\U000e0100f\U000e0100e\U000e0100rence base.'),
             ('rev3-combining-mark-five-part', 'X is not held in the r\u0301e\u0301f\u0301e\u0301rence base.'),
-            # codex G104-R3-1 and claude W1: a claim split across a
-            # paragraph break, read with paragraph breaks as separators.
+            # A claim split across a paragraph break, read with
+            # paragraph breaks as separators.
             ('rev3-empty-alt-paragraph', 'X is not ![](p.png)\n\nheld in the reference base.'),
             ('rev3-selector-paragraph', 'X is not \U000e0100\n\nheld in the reference base.'),
             ('rev3-slash-paragraph', 'X is not\n\nheld/in the reference base.'),
             ('rev3-hyphen-paragraph', 'X is not\n\nheld-in the reference base.'),
             ('rev3-emoji-paragraph', 'X is not\n\n\U0001f512\n\nheld in the reference base.'),
             ('rev3-thematic-break-paragraph', 'X is not\n\n---\n\nheld in the reference base.'),
-            # Review round 4, claude E2: letters inside a non-rendering
-            # element, deleted with the element in the hidden-content
-            # reading so the neighbours join.
+            # Letters inside a non-rendering element, deleted with the
+            # element in the hidden-content reading so the neighbours
+            # join.
             ('rev4-rp-one-letter', 'X is not he<rp>x</rp>ld in the reference base.'),
             ('rev4-rp-two-letters', 'X is not he<rp>xy</rp>ld in the reference base.'),
             ('rev4-rp-junk-words', 'X is not <rp>a b c d</rp> held in the reference base.'),
@@ -5263,8 +5264,8 @@ class RefAbsenceClaimsTests(LinterTestCase):
             ('rev4-noscript', 'X is not he<noscript>x</noscript>ld in the reference base.'),
             ('rev4-hidden-junk-words', 'X is not <span hidden>a b c d</span> held in the reference base.'),
             ('rev4-hidden-nested', 'X is not he<span hidden><span>x</span>y</span>ld in the reference base.'),
-            # codex G104-R4-1: emphasis inside image alt text, deleted
-            # as the strict readings delete it elsewhere.
+            # Emphasis inside image alt text, deleted as the strict
+            # readings delete it elsewhere.
             ('rev4-alt-emphasis', 'X is not held in the ![r*e*f*e*rence](x.png) base.'),
             ('rev4-alt-strong', 'X is not held in the ![r**e**f**e**rence](x.png) base.'),
             ('rev4-alt-underscore', 'X is not held in the ![r_e_f_e_rence](x.png) base.'),
@@ -5282,7 +5283,7 @@ class RefAbsenceClaimsTests(LinterTestCase):
         # The reader never fires on ordinary prose with emoji, curly
         # quotes or accents, on detected claims, or where a really
         # closed link tail swallows a claim word: the rendered text
-        # does not spell the claim (gemini F3, reviewed as not a hide).
+        # does not spell the claim.
         for body in (
             'X is not [held](in) the reference base.',
             '[ X is not ](held) in the reference base.',
@@ -5290,8 +5291,8 @@ class RefAbsenceClaimsTests(LinterTestCase):
             'Caf\u00e9 notes \U0001f512: the \u201cheld\u201d copy sits in the reference base.',
             # Joining paragraphs spells no claim from unrelated prose.
             'The copy is not lost.\n\nHeld texts live in the reference base.',
-            # Round 5: ruby annotations, hidden elements and alt text
-            # with emphasis that spell no claim stay clean, and escaped
+            # Ruby annotations, hidden elements and alt text with
+            # emphasis that spell no claim stay clean, and escaped
             # alt-text delimiters render literally, so they still split.
             'The <ruby>\u6f22<rp>(</rp><rt>kan</rt><rp>)</rp></ruby> reading is held in the archive.',
             '<span hidden>draft</span> notes are not lost; held texts live in the reference base.',
@@ -5310,10 +5311,10 @@ class RefAbsenceClaimsTests(LinterTestCase):
         self.assertLinterFails(run_linter(self.SCRIPT, fixture), 'possible hidden claim')
 
     def test_bidi_controls_are_screen_findings(self):
-        # Review round 4, claude E1: a bidirectional override or isolate
-        # control, literal or entity-encoded, or a <bdo> element displays
-        # letters in an order no reading scans, so each is a blocking
-        # finding naming its line, whether or not a claim is spelled.
+        # A bidirectional override or isolate control, literal or
+        # entity-encoded, or a <bdo> element displays letters in an order
+        # no reading scans, so each is a blocking finding naming its
+        # line, whether or not a claim is spelled.
         bidi = 'bidirectional override or isolate control'
         for label, line in (
             ('rev4-rlo-reversed-claim', 'X is \u202eesab ecnerefer eht ni dleh ton\u202c.'),
@@ -5384,10 +5385,10 @@ class PlaceholderLeakageTests(LinterTestCase):
         self.assertLinterFails(result, "<YYYY-MM-DD>")
 
     def test_yourcompany_dot_com_placeholder_flagged_in_non_template(self) -> None:
-        # Phase 23.63: template-placeholder organization domains must
-        # be flagged when they appear in a non-template file. The PII
-        # linter intentionally exempts them as EXAMPLE_DOMAINS (they
-        # are not real PII) but the placeholder linter catches them as
+        # Template-placeholder organization domains must be flagged
+        # when they appear in a non-template file. The PII linter
+        # intentionally exempts them as EXAMPLE_DOMAINS (they are
+        # not real PII) but the placeholder linter catches them as
         # leaked template content.
         fixture = self.make_fixture(
             "standard-leaked-yourcompany.md",
@@ -5425,10 +5426,10 @@ class PlaceholderLeakageTests(LinterTestCase):
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
-    # -- the generated web manifest's narrow carve-out (round-2 fix 2): the
-    # former whole-file EXEMPT_FILES entry "corpus-link-manifest.md" exempted
-    # every file of that name whole, so template link text leaking into the
-    # manifest passed the gate. Only .web/corpus-link-manifest.md takes the
+    # -- the generated web manifest's narrow carve-out: in the earlier
+    # repository, the whole-file EXEMPT_FILES entry "corpus-link-manifest.md"
+    # exempted every file of that name whole, so template link text leaking into
+    # the manifest passed the gate. Only .web/corpus-link-manifest.md takes the
     # carve-out, and only for the literal .working/TODO.md path token in a row's
     # target and link-text cells.
 
@@ -5492,9 +5493,9 @@ class PlaceholderLeakageTests(LinterTestCase):
         prose = "TODO: prose outside a table row"
         self.assertEqual(mask(prose), prose)
 
-    # -- round-3 fix 1: the wrapper's CLI path over the real manifest
-    # location, the whole-line (fence-blind) manifest scan, and the one
-    # combined summary.
+    # -- the wrapper's CLI path over the real manifest location, the
+    # whole-line (fence-blind) manifest scan, and the one combined
+    # summary.
 
     def _cli_root(self, manifest_text):
         """A private repository root whose ``.web/corpus-link-manifest.md``
@@ -5535,10 +5536,10 @@ class PlaceholderLeakageTests(LinterTestCase):
         return code, out.getvalue()
 
     def test_cli_default_run_flags_a_manifest_marker_in_one_summary(self):
-        # Round-3 fix 1a: the CLI path itself (main, default scan, the real
-        # .web/corpus-link-manifest.md location) must exit 1 on a TBD in a
-        # manifest cell; and (fix 1c) the report is ONE combined summary,
-        # never an engine OK line followed by a wrapper FAIL block.
+        # On a TBD in a manifest cell the CLI path itself (main, default
+        # scan, the real .web/corpus-link-manifest.md location) must
+        # exit 1; and the report is ONE combined summary, never an engine
+        # OK line followed by a wrapper FAIL block.
         root = self._cli_root("| ai/README.md | /ai/ | TBD |\n")
         code, text = self._run_wrapper_main_at_root(root)
         self.assertEqual(code, 1, text)
@@ -5548,8 +5549,8 @@ class PlaceholderLeakageTests(LinterTestCase):
         self.assertEqual(text.count("FAIL:"), 1, text)
 
     def test_cli_default_run_counts_the_manifest_in_the_ok_summary(self):
-        # Round-3 fix 1c: on a clean tree the one OK summary's file count
-        # includes the manifest (here: the manifest plus one clean doc).
+        # On a clean tree the one OK summary's file count includes the
+        # manifest (here: the manifest plus one clean doc).
         root = self._cli_root("")
         code, text = self._run_wrapper_main_at_root(root)
         self.assertEqual(code, 0, text)
@@ -5558,9 +5559,8 @@ class PlaceholderLeakageTests(LinterTestCase):
         self.assertIn("scanned 2 files", text)
 
     def test_manifest_scan_reads_a_marker_inside_a_fence(self):
-        # Round-3 fix 1b: the manifest scan reads every line, fenced or not
-        # (the generated table has no legitimate fences, so a fence must
-        # hide nothing).
+        # The manifest scan reads every line, fenced or not (the generated
+        # table has no legitimate fences, so a fence must hide nothing).
         wrapper = load_linter_module(
             ".claude/skills/corpus-management/tools/lint-placeholder-leakage.py", "_plh_wrapper_fenced"
         )
@@ -5591,10 +5591,10 @@ class PlaceholderLeakageTests(LinterTestCase):
         self.assertEqual([f[0] for f in findings], [2], findings)
         self.assertIn("TBD", findings[0][1])
 
-    # -- round-4 item 5: the wrapper prints its own combined report in the
-    # engine's ``run`` shape; these pin the wrapper's report text equal to
-    # the engine's run output for the same findings (and for a clean scan),
-    # so the copied shape cannot drift silently.
+    # -- the wrapper prints its own combined report in the engine's ``run``
+    # shape; these pin the wrapper's report text equal to the engine's run
+    # output for the same findings (and for a clean scan), so the copied
+    # shape cannot drift silently.
 
     def _engine_run_output(self, wrapper, root, targets):
         """The engine's ``run`` report and exit code for ``targets``."""
@@ -5642,12 +5642,11 @@ class PlaceholderLeakageTests(LinterTestCase):
         self.assertEqual(engine_code, 0, engine_text)
 
     def test_docstring_documents_exit_two_and_the_regression_pins(self):
-        # Link-guard follow-up round 1, small item: the wrapper's docstring
-        # documents exit 2 (a refused explicit path through
-        # guard_explicit_paths_cwd, or an argparse usage error) beside 0 and
-        # 1, and names the two report-text parity tests above as regression
-        # pins, so the documented exit contract matches the guard's
-        # SystemExit(2) and argparse's own exit 2.
+        # The wrapper's docstring documents exit 2 (a refused explicit path
+        # through guard_explicit_paths_cwd, or an argparse usage error)
+        # beside 0 and 1, and names the two report-text parity tests above
+        # as regression pins, so the documented exit contract matches the
+        # guard's SystemExit(2) and argparse's own exit 2.
         wrapper = load_linter_module(
             ".claude/skills/corpus-management/tools/lint-placeholder-leakage.py", "_plh_wrapper_docstring"
         )
@@ -5679,11 +5678,11 @@ class DateFormatTests(LinterTestCase):
         self.assertLinterFails(result)
 
     def test_placeholder_in_code_block_ignored(self) -> None:
-        # Regression for Phase 23.57: a `**Date:** YYYY-MM-DD`
-        # placeholder inside a fenced code block (documentation
-        # showing the metadata-block format) must not be flagged in a
-        # non-template file. The structurally-correct rule uses
-        # iter_non_code_lines instead of a file-identity allowlist.
+        # Regression: a `**Date:** YYYY-MM-DD` placeholder inside a
+        # fenced code block (documentation showing the metadata-block
+        # format) must not be flagged in a non-template file. The
+        # structurally-correct rule uses iter_non_code_lines instead
+        # of a file-identity allowlist.
         body = VALID_METADATA + (
             "\n\nHere is an example of the canonical metadata block "
             "that adopters should fill in:\n\n"
@@ -5862,12 +5861,12 @@ class IntraDocRefTests(LinterTestCase):
         self.assertLinterFails(result)
 
     def test_trailing_link_cross_doc_ref_not_flagged(self) -> None:
-        # The r3 O-F1 seam: a section reference whose markdown link
-        # follows it ("see section 9.9 in [foo](foo.md)") is a CROSS-doc
-        # reference (gate 62's territory), so the intra-doc gate must not
-        # resolve it against this document's own headings. Before the
-        # trailing-window extension, only a PRECEDING link suppressed the
-        # intra-doc check.
+        # A section reference whose markdown link follows it ("see
+        # section 9.9 in [foo](foo.md)") is a CROSS-doc reference
+        # (gate 62's territory), so the intra-doc gate must not resolve
+        # it against this document's own headings. In the earlier
+        # repository, before the trailing-window extension, only a
+        # PRECEDING link suppressed the intra-doc check.
         body = (
             VALID_METADATA.replace("## Purpose", "## 1. Purpose")
             + "\n\nSee §9.9 in [the target](xref-target.md) for detail.\n"
@@ -6062,8 +6061,8 @@ class IntraDocRefTests(LinterTestCase):
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_canadian_federal_instrument_marks_pass(self) -> None:
-        # 3b662: one line per Canadian federal instrument marker; each cites
-        # that instrument's own section, not a heading of this document.
+        # One line per Canadian federal instrument marker; each cites that
+        # instrument's own section, not a heading of this document.
         for line in (
             "ITSP.80.022 §2.1 defines seven zone types.",
             "ITSAP.40.003 §4.2 lists the response phases.",
@@ -6078,10 +6077,10 @@ class IntraDocRefTests(LinterTestCase):
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_unmarked_intra_ref_still_fails(self) -> None:
-        # 3b662: without a marker on the line, a stale §N is still reported;
-        # the markers match case-sensitively, so lowercase words do not count.
-        # An issuer name (CCCS, TBS, Treasury Board) or a SPIN without its
-        # number is not a marker, so a stale mark beside one is reported.
+        # Without a marker on the line, a stale §N is still reported; the
+        # markers match case-sensitively, so lowercase words do not count. An
+        # issuer name (CCCS, TBS, Treasury Board) or a SPIN without its number
+        # is not a marker, so a stale mark beside one is reported.
         for line, ref in (
             ("Zone interface points (§2.2) carry all inter-zone traffic.", "2.2"),
             ("The spin §99.99 and tbs §99.99 rows are ours.", "99.99"),
@@ -6388,7 +6387,7 @@ class VersionBumpRecencyTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def _recency_bom_repo(self, commits: list[dict[str, str]]) -> Path:
-        """A throwaway git repo with one commit per mapping of relative path to text (3b89)."""
+        """A throwaway git repo with one commit per mapping of relative path to text."""
         import shutil
         import subprocess as sp
         import tempfile
@@ -6400,7 +6399,7 @@ class VersionBumpRecencyTests(LinterTestCase):
         sp.run(["git", "-C", str(tmp), "config", "user.name", "Test"], check=True)
         for n, files in enumerate(commits):
             for rel, text in files.items():
-                # 3b89 round 2: fixtures now sit under .claude/, references/, node_modules/.
+                # Fixtures now sit under .claude/, references/, node_modules/.
                 (tmp / rel).parent.mkdir(parents=True, exist_ok=True)
                 (tmp / rel).write_text(text, encoding="utf-8")
             sp.run(["git", "-C", str(tmp), "add", "-A"], check=True)
@@ -6417,8 +6416,9 @@ class VersionBumpRecencyTests(LinterTestCase):
         )
 
     def test_bom_prefixed_version_on_line_1_refused_not_skipped(self) -> None:
-        # P-TODO 3b89: a UTF-8 BOM before a line-1 **Version:** made head_version return None,
-        # so the document left scope silently and a body change without a bump passed (exit 0).
+        # In the earlier repository, a UTF-8 BOM before a line-1 **Version:** made head_version
+        # return None, so the document left scope silently and a body change without a bump
+        # passed (exit 0).
         bom = "\ufeff"
         meta = "**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\n# Doc\n\n"
         root = self._recency_bom_repo([
@@ -6437,8 +6437,8 @@ class VersionBumpRecencyTests(LinterTestCase):
         self.assertIn("1 markdown file(s) begin with a UTF-8 byte-order mark", result.stderr)
 
     def test_bom_refusal_covers_exempt_and_unversioned_files_but_not_mid_text_feff(self) -> None:
-        # 3b89: the refusal precedes the recency exemptions and the Version filter (a BOM hides
-        # the Version itself), applies to explicit paths too, and only a LEADING U+FEFF is a BOM.
+        # The refusal precedes the recency exemptions and the Version filter (a BOM hides the
+        # Version itself), applies to explicit paths too, and only a LEADING U+FEFF is a BOM.
         bom = "\ufeff"
         root = self._recency_bom_repo([{
             ".working/CHANGELOG.md": bom + "# Changelog\n",
@@ -6459,14 +6459,14 @@ class VersionBumpRecencyTests(LinterTestCase):
         self.assertIn("OK: 1 versioned document(s) scanned", mid.stdout)
 
     def test_bom_refusal_covers_recency_exempt_directories(self) -> None:
-        # 3b89 round 2 (r1 codex F1 / claude F1): the walk applied the recency-only
-        # DEFAULT_EXEMPT_DIRS skip before the BOM check, so a BOM file under .claude/ or
-        # references/, trees the push-time checks D2 and D4 DO read, was never refused.
-        # Round 3 (r2 codex F2 / claude F1): the BOM scope covers the D2/D4 markdown scope
-        # and is a superset of it. It applies only the directory exclusions those gates
-        # share (.claude/skills/corpus-management/src/, .git/, node_modules/, __pycache__/, each at the
-        # repository root), not their per-file EXEMPT_FILES, so a BOM .working/CHANGELOG.md is
-        # refused too (test_bom_refusal_covers_exempt_and_unversioned_files_...).
+        # In the earlier repository, the walk applied the recency-only DEFAULT_EXEMPT_DIRS
+        # skip before the BOM check, so a BOM file under .claude/ or references/, trees
+        # the push-time checks D2 and D4 DO read, was never refused. The BOM scope covers
+        # the D2/D4 markdown scope and is a superset of it. It applies only the
+        # directory exclusions those gates share (.claude/skills/corpus-management/src/,
+        # .git/, node_modules/, __pycache__/, each at the repository root), not their
+        # per-file EXEMPT_FILES, so a BOM .working/CHANGELOG.md is refused too
+        # (test_bom_refusal_covers_exempt_and_unversioned_files_...).
         bom = "\ufeff"
         root = self._recency_bom_repo([{
             ".claude/skills/x/SKILL.md": bom + "**Version:** 1.0.0\\\n\n# Skill\n\nBody.\n",
@@ -6485,9 +6485,9 @@ class VersionBumpRecencyTests(LinterTestCase):
         self.assertIn("2 markdown file(s) begin with a UTF-8 byte-order mark", walk.stderr)
 
     def test_bom_walk_and_explicit_path_modes_agree(self) -> None:
-        # 3b89 round 2: quick-guard.sh passes changed files explicitly while CI walks, so
-        # both modes classify through the same function and must give any path the same
-        # verdict: a BOM file under a recency-exempt tree is refused in both, one under a
+        # quick-guard.sh passes changed files explicitly while CI walks, so both modes
+        # classify through the same function and must give any path the same verdict:
+        # a BOM file under a recency-exempt tree is refused in both, one under a
         # shared D2/D4 exclusion is out of scope in both, and a non-BOM file under a
         # recency-exempt tree is a recency target in neither (its stale body is not a
         # finding on either surface).
@@ -6518,7 +6518,7 @@ class VersionBumpRecencyTests(LinterTestCase):
             )
 
     def test_bom_symlink_gets_the_same_verdict_in_both_modes(self) -> None:
-        # 3b89 round 3 (r2 codex F1): explicit mode resolved a symlink before classifying
+        # In the earlier repository, explicit mode resolved a symlink before classifying
         # it while the walk classified the link's own path, so a BOM link.md pointing into
         # node_modules/ failed the walk (exit 1) and passed an explicit run (exit 0). Both
         # modes now take the stricter reading: a link is refused when EITHER its own path
@@ -6549,17 +6549,17 @@ class VersionBumpRecencyTests(LinterTestCase):
                 "3 markdown file(s) begin with a UTF-8 byte-order mark", result.stderr, mode,
             )
         # The link alone, given relative to the cwd as quick-guard.sh passes a changed file:
-        # refused under its own name, where it used to pass.
+        # refused under its own name, where in the earlier repository it passed.
         alone = self._run_recency_bom(root, "link.md")
         self.assertEqual(alone.returncode, 1, alone.stdout + alone.stderr)
         self.assertIn("FAIL link.md: ", alone.stdout)
 
     def test_bom_scope_exclusions_are_root_anchored_in_both_modes(self) -> None:
-        # 3b89 round 3 (r2 claude F2): the shared D2/D4 directory exclusions are anchored
-        # at the repository root, as the gates' path.startswith(prefix) is. A pin, not a
-        # fix: the pre-round-3 code anchored them the same way, so this test passes
-        # before and after round 3 and exists to catch a future de-anchoring (r3 claude
-        # N3). D2 and D4 read a nested governance/node_modules/ file, so a BOM file there is
+        # The shared D2/D4 directory exclusions are anchored at the repository root, as the
+        # gates' path.startswith(prefix) is. A pin, not a fix: in the earlier repository the
+        # code before this test already anchored them the same way, so the test passed on
+        # that code, passes on the current code and exists to catch a future de-anchoring.
+        # D2 and D4 read a nested governance/node_modules/ file, so a BOM file there is
         # refused in both modes; a BOM file under the root-level node_modules/ is out of
         # scope in both modes. The pack source moved from the root-level .corpus-management/
         # to .claude/skills/corpus-management/src/, which no root-anchored exclusion names:
@@ -6588,12 +6588,12 @@ class VersionBumpRecencyTests(LinterTestCase):
             )
 
     def test_dangling_symlink_walk_skips_but_explicit_mode_refuses(self) -> None:
-        # 3b89 round 3 (r3 claude N2 / codex F1): a pinned, documented divergence, not a
-        # fix. The walk's classify_markdown skips a dangling link (is_file is False), so
-        # a tree holding one still walks clean; explicit mode never reaches
-        # classification, because guard_explicit_paths_cwd refuses the missing resolved
-        # target with exit 2. The guard's refusal predates round 3 and fails closed, so
-        # it stays; this test passes before and after round 3 and pins both sides.
+        # A pinned, documented divergence, not a fix. The walk's classify_markdown skips
+        # a dangling link (is_file is False), so a tree holding one still walks clean;
+        # explicit mode never reaches classification, because guard_explicit_paths_cwd
+        # refuses the missing resolved target with exit 2. The guard's refusal predates
+        # this test in the earlier repository and fails closed, so it stays; the test
+        # passed on that earlier code, passes on the current code and pins both sides.
         root = self._recency_bom_repo([{
             "clean.md": "# Clean\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\nBody.\n",
         }])
@@ -6607,12 +6607,12 @@ class VersionBumpRecencyTests(LinterTestCase):
         self.assertNotIn("FAIL", explicit.stdout)
 
     def test_link_to_bom_file_outside_root_walk_fails_explicit_mode_refuses(self) -> None:
-        # 3b89 round 3 (r3 claude N2 / codex F1): the other divergent symlink class,
-        # pinned, not fixed. An in-root link to a BOM file OUTSIDE --root is in the BOM
-        # scope under its own name, so the walk refuses it (FAIL l_out.md, exit 1);
-        # explicit mode exits 2 first, guard_explicit_paths_cwd refusing the resolved
-        # outside target. Both verdicts are refusals; explicit mode's is the stricter,
-        # fail-closed one, and it predates round 3 and stays.
+        # The other divergent symlink class, pinned, not fixed. An in-root link to
+        # a BOM file OUTSIDE --root is in the BOM scope under its own name, so the
+        # walk refuses it (FAIL l_out.md, exit 1); explicit mode exits 2 first,
+        # guard_explicit_paths_cwd refusing the resolved outside target. Both verdicts
+        # are refusals; explicit mode's is the stricter, fail-closed one, and it
+        # predates this test in the earlier repository and stays.
         import shutil
         import tempfile
 
@@ -6636,15 +6636,15 @@ class VersionBumpRecencyTests(LinterTestCase):
         self.assertNotIn("FAIL", explicit.stdout)
 
     def test_explicit_symlink_is_recency_queried_under_its_own_name(self) -> None:
-        # 3b89 round 3 (r3 claude N1): classifying an explicit symlink as named also
-        # changes which recency history it queries. Pre-round-3 explicit mode resolved
-        # the link first, so a link argument to a stale versioned document reported
-        # FAIL under the TARGET's name (exit 1 here). Now the link is recency-queried
-        # under its own name, exactly as the walk queries it: the untracked link
-        # governance/l_v2.md has no history of its own and is skipped, and .claude/l_v.md is
-        # skipped by the recency-exempt parts check on its own spelling, so the
-        # explicit run exits 0. The stale target itself is still caught whenever it is
-        # walked or named directly. Fails on the pre-round-3 code (exit 1, not 0).
+        # Classifying an explicit symlink as named also changes which recency history it
+        # queries. In the earlier repository, explicit mode resolved the link first, so a
+        # link argument to a stale versioned document reported FAIL under the TARGET's name
+        # (exit 1 here). Now the link is recency-queried under its own name, exactly as the
+        # walk queries it: the untracked link governance/l_v2.md has no history of its own
+        # and is skipped, and .claude/l_v.md is skipped by the recency-exempt parts check on
+        # its own spelling, so the explicit run exits 0. The stale target itself is still
+        # caught whenever it is walked or named directly. The test failed on that earlier
+        # code (exit 1, not 0).
         meta = "**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\n# Doc\n\n"
         root = self._recency_bom_repo([
             {"governance/v.md": meta + "Original body.\n"},
@@ -6662,16 +6662,16 @@ class VersionBumpRecencyTests(LinterTestCase):
         self.assertIn("FAIL governance/v.md: ", direct.stdout)
         walk = self._run_recency_bom(root)
         self.assertEqual(walk.returncode, 1, walk.stdout + walk.stderr)
-        # The walk's COMPLETE failure set, exactly (3b89 round 5, r4 codex F3): a walk
-        # that resolved the links before querying would report the stale target's
-        # history under governance/l_v2.md too, and an assertIn would still pass.
+        # The walk's COMPLETE failure set, exactly: a walk that resolved the
+        # links before querying would report the stale target's history under
+        # governance/l_v2.md too, and an assertIn would still pass.
         walk_fails = [line.split(":", 1)[0] for line in walk.stdout.splitlines()
                       if line.startswith("FAIL ")]
         self.assertEqual(walk_fails, ["FAIL governance/v.md"], walk.stdout)
 
     def test_symlink_loop_is_a_finding_never_a_crash_or_skip(self) -> None:
-        # 3b89 round 5 (r4 gemini): node_modules/loop.md -> loop.md is out of the BOM
-        # scope by its own path, so classify_markdown resolved it; non-strict resolve()
+        # node_modules/loop.md -> loop.md is out of the BOM scope by its own path, so
+        # in the earlier repository classify_markdown resolved it; non-strict resolve()
         # raises on a loop through Python 3.12 (CI runs 3.11), crashing the walk, and
         # on 3.13+ returns the loop unresolved, where is_file() is False and the walk
         # skipped it silently. The gate now detects a loop by its stat errno (ELOOP,
@@ -6701,14 +6701,14 @@ class VersionBumpRecencyTests(LinterTestCase):
 
     @unittest.skipIf(os.geteuid() == 0, "root ignores directory permission bits")
     def test_unreadable_directory_fails_the_walk_closed(self) -> None:
-        # 3b89 round 5 (r4 gemini): Path.rglob suppresses the traversal error on an
-        # existing-but-unlistable directory, so a BOM file inside one passed unseen
+        # Path.rglob suppresses the traversal error on an existing-but-unlistable
+        # directory, so in the earlier repository a BOM file inside one passed unseen
         # (fail open; main behaved the same). The walk now uses os.walk with a raising
-        # onerror, the guardrails .claude/skills/corpus-management/tools/_walk.py pattern, and exits 2 naming the
-        # directory instead of reporting OK over a subtree it never read. Round 6:
-        # the message says "path", not "directory" (r5 claude F2: the same handler
-        # fires for an unreadable regular file, so the old wording called a file a
-        # directory).
+        # onerror, the guardrails .claude/skills/corpus-management/tools/_walk.py
+        # pattern, and exits 2 naming the directory instead of reporting OK over a
+        # subtree it never read. The message says "path", not "directory": the same
+        # handler fires for an unreadable regular file, so the old wording called a
+        # file a directory.
         root = self._recency_bom_repo([{
             "clean.md": "# Clean\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\nBody.\n",
             "governance/hidden/doc.md": "\ufeff# Hidden\n",
@@ -6723,14 +6723,14 @@ class VersionBumpRecencyTests(LinterTestCase):
 
     @unittest.skipIf(os.geteuid() == 0, "root ignores directory permission bits")
     def test_unsearchable_directory_child_fails_closed_in_both_modes(self) -> None:
-        # 3b89 round 6 (r5 claude F1 / codex F1): a directory with read but not
-        # execute permission (mode 0444) is listable, so os.walk's raising onerror
-        # never fires; stat on each child then fails with EACCES, which is_file()
-        # swallowed, so a BOM file inside classified as a skip and the walk
+        # A directory with read but not execute permission (mode 0444) is
+        # listable, so os.walk's raising onerror never fires; stat on each
+        # child then fails with EACCES, which is_file() swallowed in the earlier
+        # repository, so a BOM file inside classified as a skip and the walk
         # reported OK over it (fail open). classify_markdown's fail-closed stat
         # now raises on any stat error other than ENOENT and the walk exits 2
-        # naming the child. Explicit mode fails closed too: the guard cannot stat
-        # the argument, so it refuses it with exit 2 (the guard's message is
+        # naming the child. Explicit mode fails closed too: the guard cannot
+        # stat the argument, so it refuses it with exit 2 (the guard's message is
         # version-dependent, exists() raising through Python 3.12 and returning
         # False on 3.13+, so only the exit code, the absence of a verdict and the
         # absence of a traceback are pinned on that side).
@@ -6754,9 +6754,9 @@ class VersionBumpRecencyTests(LinterTestCase):
 
     @unittest.skipIf(os.geteuid() == 0, "root ignores file permission bits")
     def test_unreadable_regular_file_fails_closed_in_both_modes(self) -> None:
-        # 3b89 round 6 (r5 claude F2): a regular file at mode 000 passes the stat
-        # (stat needs only search permission on the parents) and fails at read.
-        # The walk already exited 2, but through a message that called the file a
+        # A regular file at mode 000 passes the stat (stat needs only search
+        # permission on the parents) and fails at read. In the earlier repository
+        # the walk already exited 2, but through a message that called the file a
         # directory; explicit mode let the PermissionError escape as a traceback
         # with exit 1, the findings code. Both modes now exit 2 through the one
         # "cannot read a path" handler, with no traceback.
@@ -7046,10 +7046,10 @@ class DateCobumpOnPrTests(LinterTestCase):
             _sh.rmtree(src, ignore_errors=True); _sh.rmtree(parent, ignore_errors=True)
 
     def test_partial_clone_via_extensions_config_declines(self) -> None:
-        # Regression guard for the extensions.partialClone detection (the B1 fix): git's canonical
-        # partial-clone marker is ``extensions.partialClone=<remote>``, which a repo can carry with
-        # ``remote.*.promisor`` UNSET. That config must still make D4 decline (exit 2) without
-        # lazy-fetching, or the harmful false-OK survives for it.
+        # Regression guard for the extensions.partialClone detection: git's canonical
+        # partial-clone marker is ``extensions.partialClone=<remote>``, which a repo can
+        # carry with ``remote.*.promisor`` UNSET. That config must still make D4 decline
+        # (exit 2) without lazy-fetching, or the harmful false-OK survives for it.
         import subprocess as sp, tempfile, glob, shutil as _sh
 
         def _doc(v, d):
@@ -7255,7 +7255,7 @@ class PreflightVersionDateTests(LinterTestCase):
 
     def test_uses_index_not_working_tree(self) -> None:
         # The aid predicts `git commit` (the index): a staged stale bump whose Date fix was NOT
-        # re-staged must STILL flag (reading the working tree would falsely pass). (gemini R4.)
+        # re-staged must STILL flag (reading the working tree would falsely pass).
         tmp, sp, shutil = self._repo()
         try:
             doc = self._doc_path(tmp)
@@ -7327,7 +7327,8 @@ class PreflightVersionDateTests(LinterTestCase):
 
     def test_rm_cached_edited_file_skipped(self) -> None:
         # `git rm --cached` untracks a file but leaves an edited copy on disk; the prospective
-        # commit DELETES it, so the aid (reading the index) must skip it, not flag (codex R4 FP).
+        # commit DELETES it, so the aid (reading the index) must skip it, not flag it (a false
+        # positive).
         tmp, sp, shutil = self._repo()
         try:
             doc = self._doc_path(tmp)
@@ -7469,8 +7470,8 @@ class PreflightVersionDateTests(LinterTestCase):
 
 
     def test_multi_commit_untouched_file_not_flagged(self) -> None:
-        # gemini/codex R5: a document bumped+dated in an EARLIER branch commit and NOT staged for
-        # the current commit must NOT be flagged (the aid enumerates staged-vs-HEAD, not vs base).
+        # A document bumped+dated in an EARLIER branch commit and NOT staged for the current
+        # commit must NOT be flagged (the aid enumerates staged-vs-HEAD, not vs base).
         tmp, sp, shutil = self._repo()
         try:
             doc = self._doc_path(tmp)
@@ -7502,7 +7503,7 @@ class PreflightVersionDateTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_standalone_unmerged_scope_error(self) -> None:
-        # codex R5 mutation gap: unmerged index entries WITHOUT MERGE_HEAD (e.g. a conflicted
+        # Mutation gap: unmerged index entries WITHOUT MERGE_HEAD (e.g. a conflicted
         # cherry-pick/rebase, or synthetic stages) must still scope-error via the ls-files guard.
         tmp, sp, shutil = self._repo()
         try:
@@ -7519,8 +7520,8 @@ class PreflightVersionDateTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_undecodable_index_content_scope_error(self) -> None:
-        # codex R5 P2: a staged blob that is not valid UTF-8 is an inspection failure -> scope error,
-        # never a silent clear of a real staged stale bump.
+        # A staged blob that is not valid UTF-8 is an inspection failure -> scope error, never a
+        # silent clear of a real staged stale bump.
         tmp, sp, shutil = self._repo()
         try:
             doc = self._doc_path(tmp)
@@ -7536,8 +7537,8 @@ class PreflightVersionDateTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_fsmonitor_hook_not_executed(self) -> None:
-        # codex R5 P2: a configured core.fsmonitor hook can write files; the aid disables fsmonitor
-        # for every git subprocess (GIT_CONFIG_*), so the hook must not run.
+        # A configured core.fsmonitor hook can write files; the aid disables fsmonitor for every
+        # git subprocess (GIT_CONFIG_*), so the hook must not run.
         tmp, sp, shutil = self._repo()
         try:
             hook = tmp / "fsm.sh"
@@ -7556,7 +7557,7 @@ class PreflightVersionDateTests(LinterTestCase):
             self.assertFalse(marker.exists(), "the aid must not trigger a repo-configured fsmonitor hook")
             # also defeat an inherited GIT_CONFIG_PARAMETERS fsmonitor (higher precedence than a
             # GIT_CONFIG_* env override; only a command-line -c outranks it). And GIT_CONFIG_COUNT=""
-            # must not crash the aid. (codex R6.)
+            # must not crash the aid.
             import subprocess as sp2
             for extra in ({"GIT_CONFIG_PARAMETERS": f"'core.fsmonitor={hook}'"}, {"GIT_CONFIG_COUNT": ""}):
                 if marker.exists():
@@ -7573,8 +7574,8 @@ class PreflightVersionDateTests(LinterTestCase):
 
 
     def test_partial_clone_scope_error(self) -> None:
-        # codex R7: in a partial clone (a promisor remote) a base blob may be absent; the aid must
-        # NOT lazy-fetch it (that writes pack files) and must scope-error (2) instead.
+        # In a partial clone (a promisor remote) a base blob may be absent; the aid must NOT
+        # lazy-fetch it (that writes pack files) and must scope-error (2) instead.
         import subprocess as sp, tempfile, glob
         src = Path(tempfile.mkdtemp(prefix="preflight-vd-pcsrc-"))
         parent = Path(tempfile.mkdtemp(prefix="preflight-vd-pcclone-"))
@@ -7617,9 +7618,10 @@ class PreflightVersionDateTests(LinterTestCase):
             _sh.rmtree(src, ignore_errors=True); _sh.rmtree(parent, ignore_errors=True)
 
     def _assert_filename_parity(self, name: str) -> None:
-        # round-8 codex/gemini: the aid must predict D4 EXACTLY for any filename. Both enumerate
-        # with -z (never quoted), so a stale-dated bump of `name` must FLAG in both (aid rc 1, D4
-        # rc 1), regardless of core.quotePath. The pre-fix isascii()/quoted-path handling diverged.
+        # The aid must predict D4 EXACTLY for any filename. Both enumerate with -z (never quoted),
+        # so a stale-dated bump of `name` must FLAG in both (aid rc 1, D4 rc 1), regardless of
+        # core.quotePath. In the earlier repository, the pre-fix isascii()/quoted-path handling
+        # diverged.
         tmp, sp, shutil = self._repo()
         try:
             doc = tmp / "governance" / name
@@ -7637,19 +7639,20 @@ class PreflightVersionDateTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_non_ascii_filename_flagged_matches_d4(self) -> None:
-        # round-8: an accented .md name; under core.quotePath=false the old isascii() skip was a
-        # FALSE NEGATIVE (aid cleared while D4 flagged). Now both flag.
+        # An accented .md name; under core.quotePath=false the earlier repository's isascii()
+        # skip was a FALSE NEGATIVE (aid cleared while D4 flagged). Now both flag.
         self._assert_filename_parity("politique-securité.md")
 
     def test_quote_char_filename_flagged_matches_d4(self) -> None:
-        # round-8: an ASCII name containing a double-quote. Git quotes it by default so D4's old
-        # endswith(".md") wrongly exempted it (FALSE POSITIVE for the aid); -z fixes both.
+        # An ASCII name containing a double-quote. Git quotes it by default, so in the earlier
+        # repository D4's endswith(".md") wrongly exempted it (FALSE POSITIVE for the aid); -z
+        # fixes both.
         self._assert_filename_parity('a"b.md')
 
     def test_git_trace2_event_writes_nothing(self) -> None:
-        # round-8 codex: an inherited GIT_TRACE2_EVENT=<path> made the aid's git subprocesses WRITE
-        # a trace file, breaking the read-only contract. The module-init scrub of GIT_TRACE* must
-        # stop that write.
+        # In the earlier repository, an inherited GIT_TRACE2_EVENT=<path> made the aid's git
+        # subprocesses WRITE a trace file, breaking the read-only contract. The module-init scrub
+        # of GIT_TRACE* must stop that write.
         import subprocess as sp2, tempfile, os as _os
         tmp, sp, shutil = self._repo()
         trace = Path(tempfile.mkdtemp(prefix="preflight-vd-trace-")) / "trace.json"
@@ -7673,8 +7676,8 @@ class PreflightVersionDateTests(LinterTestCase):
             shutil.rmtree(trace.parent, ignore_errors=True)
 
     def test_promisor_boolean_true_variants_scope_error(self) -> None:
-        # round-8 codex: `remote.*.promisor` accepts git-boolean spellings (1/yes/on/True), not just
-        # the literal "true". Each must be recognized as a partial clone -> scope error (rc 2).
+        # `remote.*.promisor` accepts git-boolean spellings (1/yes/on/True), not just the literal
+        # "true". Each must be recognized as a partial clone -> scope error (rc 2).
         for value in ("1", "yes", "on", "True"):
             tmp, sp, shutil = self._repo()
             try:
@@ -7707,8 +7710,8 @@ class PreflightVersionDateTests(LinterTestCase):
                 shutil.rmtree(tmp, ignore_errors=True)
 
     def test_no_pyc_written(self) -> None:
-        # codex R7 mutation gap: sys.dont_write_bytecode must suppress .pyc creation. Redirect the
-        # bytecode cache to a temp dir and assert nothing lands there.
+        # Mutation gap: sys.dont_write_bytecode must suppress .pyc creation. Redirect the bytecode
+        # cache to a temp dir and assert nothing lands there.
         import subprocess as sp, tempfile, shutil
         pyc_dir = Path(tempfile.mkdtemp(prefix="preflight-vd-pyc-"))
         tmp, sp2, shutil2 = self._repo()
@@ -7743,8 +7746,8 @@ class PreflightVersionDateTests(LinterTestCase):
             shutil2.rmtree(tmp, ignore_errors=True)
 
     def test_global_trace2_config_writes_nothing(self) -> None:
-        # round-9 codex B1: a GLOBAL config trace2.eventTarget still writes a trace file (a late `-c`
-        # override cannot prevent it); the aid must disable it via GIT_TRACE2*=0 in the env.
+        # A GLOBAL config trace2.eventTarget still writes a trace file (a late `-c` override cannot
+        # prevent it); the aid must disable it via GIT_TRACE2*=0 in the env.
         import subprocess as sp2, tempfile, os as _os
         tmp, sp, shutil = self._repo()
         cfgdir = Path(tempfile.mkdtemp(prefix="preflight-vd-gcfg-"))
@@ -7767,8 +7770,8 @@ class PreflightVersionDateTests(LinterTestCase):
             shutil.rmtree(cfgdir, ignore_errors=True)
 
     def test_non_utf8_filename_scope_error_matches_d4(self) -> None:
-        # round-9 codex B2 / gemini: a non-UTF-8 filename -> both the aid and D4 must scope-error (2),
-        # never traceback (D4 previously crashed with exit 1 while the aid cleanly exited 2).
+        # A non-UTF-8 filename -> both the aid and D4 must scope-error (2), never traceback (in the
+        # earlier repository D4 crashed with exit 1 while the aid cleanly exited 2).
         import os as _os
         tmp, sp, shutil = self._repo()
         try:
@@ -7788,9 +7791,9 @@ class PreflightVersionDateTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_pathspec_magic_root_filename_flagged_matches_d4(self) -> None:
-        # round-9 codex B3: a root filename beginning with pathspec magic (":(literal)...") was read
-        # by D4's history lookup as a pathspec -> no commit found -> cleared 0, diverging from the aid
-        # (1). The :(top,literal) pathspec fix makes D4 flag it too.
+        # In the earlier repository, a root filename beginning with pathspec magic (":(literal)...")
+        # was read by D4's history lookup as a pathspec -> no commit found -> cleared 0, diverging
+        # from the aid (1). The :(top,literal) pathspec fix makes D4 flag it too.
         tmp, sp, shutil = self._repo()
         try:
             doc = tmp / ":(literal)standard-x.md"
@@ -7807,9 +7810,9 @@ class PreflightVersionDateTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_ascii_output_encoding_no_crash(self) -> None:
-        # round-9 codex B4: printing a finding for a non-ASCII path under PYTHONIOENCODING=ascii raised
-        # UnicodeEncodeError (traceback exit 1). backslashreplace on stdout/stderr must prevent that:
-        # the aid still flags (rc 1) and prints no traceback.
+        # In the earlier repository, printing a finding for a non-ASCII path under
+        # PYTHONIOENCODING=ascii raised UnicodeEncodeError (traceback exit 1). backslashreplace on
+        # stdout/stderr must prevent that: the aid still flags (rc 1) and prints no traceback.
         import subprocess as sp2, os as _os
         tmp, sp, shutil = self._repo()
         try:
@@ -7830,9 +7833,9 @@ class PreflightVersionDateTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_diff_relative_from_subdir_parity(self) -> None:
-        # round-9 codex B5: with diff.relative=true and invocation from an unrelated subdir, D4's diff
-        # returned subdir-relative/empty -> "no files changed" (0) while the aid (--no-relative) flagged
-        # 1. D4's --no-relative makes both root-relative and in parity.
+        # In the earlier repository, with diff.relative=true and invocation from an unrelated
+        # subdir, D4's diff returned subdir-relative/empty -> "no files changed" (0) while the aid
+        # (--no-relative) flagged 1. D4's --no-relative makes both root-relative and in parity.
         tmp, sp, shutil = self._repo()
         try:
             doc = self._doc_path(tmp)  # governance/standard-x.md
@@ -7853,8 +7856,9 @@ class PreflightVersionDateTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_d4_literal_pathspecs_env_neutralized(self) -> None:
-        # round-10 codex B2: GIT_LITERAL_PATHSPECS=1 made D4's :(top,literal) history pathspec match
-        # literal text -> no commit -> cleared 0. D4 now unsets the pathspec-mode env vars, so it flags.
+        # In the earlier repository, GIT_LITERAL_PATHSPECS=1 made D4's :(top,literal) history pathspec
+        # match literal text -> no commit -> cleared 0. D4 now unsets the pathspec-mode env vars, so it
+        # flags.
         import os as _os
         tmp, sp, shutil = self._repo()
         try:
@@ -7872,9 +7876,9 @@ class PreflightVersionDateTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_rename_non_utf8_to_utf8_scope_error_matches_d4(self) -> None:
-        # round-10 codex B3: renaming a non-UTF-8 name to UTF-8; with --no-renames on both, the enum
-        # exposes the undecodable source and BOTH scope-error (2). Without --no-renames D4 saw only the
-        # valid destination and cleared 0.
+        # Renaming a non-UTF-8 name to UTF-8; with --no-renames on both, the enum exposes the
+        # undecodable source and BOTH scope-error (2). In the earlier repository, without --no-renames
+        # D4 saw only the valid destination and cleared 0.
         import os as _os
         tmp, sp, shutil = self._repo()
         try:
@@ -7894,7 +7898,7 @@ class PreflightVersionDateTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_no_common_ancestor_scope_error_matches_d4(self) -> None:
-        # round-10 codex B4: an unrelated base (no common ancestor) -> the aid used to compare against
+        # An unrelated base (no common ancestor) -> in the earlier repository the aid compared against
         # the ref directly (1) while D4 rejects the range (2). The aid now scope-errors too.
         tmp, sp, shutil = self._repo()
         try:
@@ -7917,8 +7921,9 @@ class PreflightVersionDateTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_git_absent_from_path_scope_error(self) -> None:
-        # round-10 codex B6: git not on PATH raised an uncaught FileNotFoundError (traceback exit 1);
-        # the git() wrapper now translates the launch OSError into a clean scope error (exit 2).
+        # In the earlier repository, git not on PATH raised an uncaught FileNotFoundError (traceback
+        # exit 1); the git() wrapper now translates the launch OSError into a clean scope error (exit
+        # 2).
         import subprocess as sp2, os as _os
         tmp, sp, shutil = self._repo()
         try:
@@ -7938,9 +7943,9 @@ class PreflightVersionDateTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_index_stage_prefix_filenames_flagged(self) -> None:
-        # round-11 codex B1: a root filename beginning with an index-stage prefix (0:/1:/2:/3:) was
-        # misparsed by the ":<path>" index read as ":<stage>:<path>" and silently skipped. The explicit
-        # ":0:<path>" form fixes it, so the aid reads the blob and flags in parity with D4.
+        # In the earlier repository, a root filename beginning with an index-stage prefix (0:/1:/2:/3:)
+        # was misparsed by the ":<path>" index read as ":<stage>:<path>" and silently skipped. The
+        # explicit ":0:<path>" form fixes it, so the aid reads the blob and flags in parity with D4.
         for prefix in ("0", "1", "2", "3"):
             tmp, sp, shutil = self._repo()
             try:
@@ -7958,8 +7963,8 @@ class PreflightVersionDateTests(LinterTestCase):
                 shutil.rmtree(tmp, ignore_errors=True)
 
     def test_d4_log_show_signature_neutralized(self) -> None:
-        # round-11 codex B2: log.showSignature=true prepends signature text before %cI, breaking D4's
-        # date parse (silently skipping the check). --no-show-signature fixes it.
+        # log.showSignature=true prepends signature text before %cI, breaking D4's date parse
+        # (silently skipping the check). --no-show-signature fixes it.
         tmp, sp, shutil = self._repo()
         try:
             doc = self._doc_path(tmp)
@@ -7975,8 +7980,8 @@ class PreflightVersionDateTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_bad_pack_root_scope_error(self) -> None:
-        # round-11 codex B3: an unresolvable AIQT_PACK_ROOT made the module-level bootstrap import
-        # traceback (exit 1); it must now be a clean scope error (exit 2).
+        # In the earlier repository, an unresolvable AIQT_PACK_ROOT made the module-level
+        # bootstrap import traceback (exit 1); it must now be a clean scope error (exit 2).
         import subprocess as sp2, os as _os
         tmp, sp, shutil = self._repo()
         try:
@@ -7996,8 +8001,8 @@ class PreflightVersionDateTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_d4_log_output_encoding_neutralized(self) -> None:
-        # round-12 codex B1: i18n.logOutputEncoding=UTF-16LE made D4's %cI output non-UTF-8 (embedded
-        # NULs) -> date parse failed -> D4 skipped. --encoding=UTF-8 forces UTF-8 output.
+        # In the earlier repository, i18n.logOutputEncoding=UTF-16LE made D4's %cI output non-UTF-8
+        # (embedded NULs) -> date parse failed -> D4 skipped. --encoding=UTF-8 forces UTF-8 output.
         tmp, sp, shutil = self._repo()
         try:
             doc = self._doc_path(tmp)
@@ -8013,8 +8018,8 @@ class PreflightVersionDateTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_missing_d4_module_scope_error(self) -> None:
-        # round-12 codex B2: the D4 importlib load runs outside the bootstrap guard; a missing D4 (or
-        # lint_common) previously tracebacked (exit 1). The guarded load now scope-errors (exit 2).
+        # The D4 importlib load runs outside the bootstrap guard; in the earlier repository a missing
+        # D4 (or lint_common) tracebacked (exit 1). The guarded load now scope-errors (exit 2).
         import subprocess as sp2, tempfile, shutil as sh, os as _os
         tmp, sp, shutilx = self._repo()
         toolcopy = Path(tempfile.mkdtemp(prefix="preflight-vd-tools-"))
@@ -8038,9 +8043,9 @@ class PreflightVersionDateTests(LinterTestCase):
             sh.rmtree(toolcopy, ignore_errors=True)
 
     def test_gitlink_md_entry_no_object_or_ref_writes(self) -> None:
-        # round-13 codex B1: `git show :0:<gitlink.md>` renders the commit and runs textconv drivers,
-        # WRITING objects + refs/notes/textconv/*. Reading via `git cat-file blob` (errors on a
-        # non-blob gitlink -> skip) must write nothing.
+        # `git show :0:<gitlink.md>` renders the commit and runs textconv drivers, WRITING objects
+        # + refs/notes/textconv/*. Reading via `git cat-file blob` (errors on a non-blob gitlink ->
+        # skip) must write nothing.
         import glob
         tmp, sp, shutil = self._repo()
         try:
@@ -8067,8 +8072,8 @@ class PreflightVersionDateTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_syntax_error_in_dependency_scope_error(self) -> None:
-        # round-13 codex B2: a SyntaxError (unresolved merge) in a loaded dependency escaped the import
-        # guards -> traceback. The guards now include SyntaxError -> clean exit 2.
+        # In the earlier repository, a SyntaxError (unresolved merge) in a loaded dependency escaped
+        # the import guards -> traceback. The guards now include SyntaxError -> clean exit 2.
         import subprocess as sp2, tempfile, shutil as sh, os as _os
         tmp, sp, shutilx = self._repo()
         toolcopy = Path(tempfile.mkdtemp(prefix="preflight-vd-syn-"))
@@ -8093,8 +8098,9 @@ class PreflightVersionDateTests(LinterTestCase):
             shutilx.rmtree(tmp, ignore_errors=True)
             sh.rmtree(toolcopy, ignore_errors=True)
     def test_corrupt_dependency_bytecode_scope_error(self) -> None:
-        # round-14 codex B2: a corrupt .pyc raises EOFError (truncated payload) or ValueError (bad
-        # marshal) at import, escaping the guards -> traceback. Both guards now catch these -> exit 2.
+        # A corrupt .pyc raises EOFError (truncated payload) or ValueError (bad marshal) at
+        # import; in the earlier repository these escaped the guards -> traceback. Both guards
+        # now catch these -> exit 2.
         # Proxy: inject a raise at import into a dependency (the guard catches the exception type
         # regardless of whether it came from a .pyc or the .py).
         import subprocess as sp2, tempfile, shutil as sh, os as _os
@@ -8123,9 +8129,10 @@ class PreflightVersionDateTests(LinterTestCase):
                 sh.rmtree(toolcopy, ignore_errors=True)
 
     def test_git_config_redirect_still_detects_partial_clone(self) -> None:
-        # round-15 codex: GIT_CONFIG=/dev/null redirects the `git config` promisor query, hiding the
-        # partial clone -> the aid treated an unavailable base blob as absent (aid=0) while D4 flagged.
-        # Scrubbing GIT_CONFIG makes the config query see the repo's promisor -> scope-error (2).
+        # GIT_CONFIG=/dev/null redirects the `git config` promisor query, hiding the partial clone ->
+        # in the earlier repository the aid treated an unavailable base blob as absent (aid=0) while D4
+        # flagged. Scrubbing GIT_CONFIG makes the config query see the repo's promisor -> scope-error
+        # (2).
         import subprocess as sp, tempfile, glob, os as _os, shutil as _sh
         src = Path(tempfile.mkdtemp(prefix="preflight-vd-gcsrc-"))
         parent = Path(tempfile.mkdtemp(prefix="preflight-vd-gcclone-"))
@@ -8173,10 +8180,10 @@ class PreflightVersionDateTests(LinterTestCase):
             _sh.rmtree(parent, ignore_errors=True)
 
     def test_git_committer_date_override_scope_error(self) -> None:
-        # round-16 codex B2: an inherited GIT_COMMITTER_DATE overrides the committer date D4 compares
-        # against, so the aid's wall-clock "today" would mispredict (aid=0 while D4=1). Without a
-        # PREFLIGHT_VD_TODAY override the aid cannot know the prospective committer date, so it
-        # scope-errors (2) and defers to D4.
+        # An inherited GIT_COMMITTER_DATE overrides the committer date D4 compares against, so the
+        # aid's wall-clock "today" would mispredict (aid=0 while D4=1). Without a PREFLIGHT_VD_TODAY
+        # override the aid cannot know the prospective committer date, so it scope-errors (2) and
+        # defers to D4.
         import subprocess as sp2, os as _os
         tmp, sp, shutil = self._repo()
         try:
