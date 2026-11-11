@@ -42719,7 +42719,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-retired-section-orphan-on-pr.py NO_FS F 0d710f974f62cd7b1cf9e80d7b8b03ce51f05784c34e6ead05db22f157d5428b
         check-review-cadence.py ROOT F bcd4b92ee9be87833a2905a2f9aea484fec84520c85ff1aa07e85aff956b0cc1
         check-stranded-control-code-on-pr.py NO_FS F d0631b2fca128c3457f87029e56a252e20e4be701148cc2e171c2d6cbe051b37
-        check-todo-floor-monotonic-on-pr.py NO_FS F bca2ea5684ae6828a03cea9e7e595b3ec54b81aa05acf7586460863adf3c57df
+        check-todo-floor-monotonic-on-pr.py NO_FS F 3d8a8e64f47f3055e85fff8a27fd741b8e84ff6a6c29046576c3331cf2889bd3
         check-todo-rotation-on-pr.py NO_FS F d2516ba2514b6a2d2062059e2a1d4f3d0985220a2ef5f6127a7f464eea998dbc
         check-version-bump-commit.py MESSAGE F 5a7a28391d0db1fd12176213de8b34eddf11412fc937e00bdb1d9c50e0f2aef6
         check-version-bump-on-pr.py NO_FS F c0aaefac08a658834846417e1049dd17cdec4caae3224914fcb64c863a8b2ad1
