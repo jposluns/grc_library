@@ -1,4 +1,4 @@
-"""Gate 36 regression-gate guard tests (the 3b525 round-2/round-3 findings).
+"""Gate 36 regression-gate guard tests.
 
 These tests guard the gate runner itself, so they live OUTSIDE
 ``.claude/skills/corpus-management/tests/test_linters.py``: a discovery or run-list regression that
@@ -31,8 +31,8 @@ from pathlib import Path
 from unittest import mock
 
 # The repository root, stated literally for this file's location
-# (<root>/.claude/skills/corpus-management/tests/), decision D1; SUITE_ROOT
-# is the skill directory that holds tools/ and tests/ (the runner's suite
+# (<root>/.claude/skills/corpus-management/tests/); SUITE_ROOT is the
+# skill directory that holds tools/ and tests/ (the runner's suite
 # anchor: discovery, tests.X imports and the shard-weights file).
 REPO_ROOT = Path(__file__).resolve().parents[4]
 SUITE_ROOT = REPO_ROOT / ".claude" / "skills" / "corpus-management"
@@ -58,15 +58,15 @@ class FailingTests(unittest.TestCase):
         self.fail("this test must be reached, or the run must be refused")
 """
 
-# The round-3 review's forgery reproducer (3b525 F1): a load_tests that
-# scrapes the passive channels (argv, stdin), prints a green summary
-# plus a sentinel forged from the best nonce candidate it found, and
-# exits 0 before a failing sibling can run. With the nonce delivered
-# over stdin and consumed before any test module is imported, no 32-hex
-# candidate is visible TO THIS SCRAPE, so the forged sentinel cannot
-# carry this run's nonce; with the nonce on argv (the flip), the
-# forgery would succeed. The nonce stays recoverable from the driver's
-# own __main__ globals: see MAIN_NONCE_FORGING_MODULE below.
+# A forgery reproducer: a load_tests that scrapes the passive channels
+# (argv, stdin), prints a green summary plus a sentinel forged from the
+# best nonce candidate it found, and exits 0 before a failing sibling
+# can run. With the nonce delivered over stdin and consumed before any
+# test module is imported, no 32-hex candidate is visible TO THIS
+# SCRAPE, so the forged sentinel cannot carry this run's nonce; with the
+# nonce on argv (the flip), the forgery would succeed. The nonce stays
+# recoverable from the driver's own __main__ globals: see
+# MAIN_NONCE_FORGING_MODULE below.
 FORGING_MODULE = """\
 import sys
 import unittest
@@ -97,15 +97,15 @@ def load_tests(loader, tests, pattern):
     raise SystemExit(0)
 """
 
-# The round-4 review's forgery reproducer (3b525 round 4, F1): the
-# driver is a python -c script, so the nonce it reads from stdin is a
-# module-level global of __main__ for the life of the child. A
-# load_tests that imports __main__ recovers it and forges a complete
-# green sentinel, exiting 0 before a failing sibling runs. This is a
-# DOCUMENTED ACCEPTED RESIDUAL (in-process secrecy is unattainable; the
-# maintainer has a pending decision on whether gates must defend
-# against deliberately adversarial in-process code), asserted as such
-# by test_main_accepts_main_nonce_forgery_residual below.
+# A second forgery reproducer: the driver is a python -c script, so the
+# nonce it reads from stdin is a module-level global of __main__ for the
+# life of the child. A load_tests that imports __main__ recovers it and
+# forges a complete green sentinel, exiting 0 before a failing sibling
+# runs. This is a DOCUMENTED ACCEPTED RESIDUAL (in-process secrecy is
+# unattainable, and whether gates must defend against deliberately
+# adversarial in-process code is unsettled, so the acceptance is
+# provisional and may change). The residual is asserted as such by
+# test_main_accepts_main_nonce_forgery_residual below.
 MAIN_NONCE_FORGING_MODULE = """\
 import sys
 import unittest
@@ -129,9 +129,9 @@ def load_tests(loader, tests, pattern):
     raise SystemExit(0)
 """
 
-# setUpClass raises SkipTest (3b525 round 3, F4): both tests are loaded
-# but neither reaches startTest, so testsRun undercounts the loaded
-# suite by two while unittest itself reports the run green.
+# setUpClass raises SkipTest: both tests are loaded but neither reaches
+# startTest, so testsRun undercounts the loaded suite by two while
+# unittest itself reports the run green.
 SKIPPING_CLASS_MODULE = """\
 import unittest
 
@@ -162,10 +162,10 @@ class SkippedModuleTests(unittest.TestCase):
         self.fail("must not start")
 """
 
-# A module that otherwise ran (3b525 round 8, W1): one class is skipped
-# in setUpClass (two tests never start), while the other class starts
-# both of its tests, one of which is skipped individually and so still
-# counts as started. Loaded 4, started 2, notStarted 2.
+# A module that otherwise ran: one class is skipped in setUpClass (two
+# tests never start), while the other class starts both of its tests,
+# one of which is skipped individually and so still counts as started.
+# Loaded 4, started 2, notStarted 2.
 PARTLY_SKIPPED_MODULE = """\
 import unittest
 
@@ -192,10 +192,10 @@ class RunningTests(unittest.TestCase):
 """
 
 # Its own class is skipped in setUpClass, while it imports a passing
-# class defined in .claude/skills/corpus-management/tests/test_zz_ok.py (3b525 round-8 review, W1). A
-# started test is credited to the module whose loaded suite contains it,
-# so this module earns credit for the imported class: the documented
-# borrowing residual (no current module does this).
+# class defined in .claude/skills/corpus-management/tests/test_zz_ok.py. A started test is credited to
+# the module whose loaded suite contains it, so this module earns credit
+# for the imported class: the documented borrowing residual (no current
+# module does this).
 BORROWING_MODULE = """\
 import unittest
 
@@ -211,10 +211,9 @@ class SkippedClassTests(unittest.TestCase):
         self.fail("must not start")
 """
 
-# Legitimate modules whose tests are not plain classes they define
-# (3b525 round-9 and round-10 reviews): each started test is in the
-# module's own loaded suite, so each module must be credited.
-# FunctionTestCase's type is defined in unittest.case.
+# Legitimate modules whose tests are not plain classes they define: each
+# started test is in the module's own loaded suite, so each module must
+# be credited. FunctionTestCase's type is defined in unittest.case.
 FUNCTION_TEST_CASE_MODULE = """\
 import unittest
 
@@ -245,8 +244,9 @@ def load_tests(loader, tests, pattern):
     return tests
 """
 
-# Doctests of a library module outside .claude/skills/corpus-management/tests/ (round-10 review: refused
-# under defining-code crediting, whose globals name the library).
+# Doctests of a library module outside .claude/skills/corpus-management/tests/
+# (refused in the earlier repository under defining-code crediting,
+# whose globals name the library).
 DOCTEST_LIBRARY = """\
 def triple(value):
     \"\"\"
@@ -265,7 +265,8 @@ def load_tests(loader, tests, pattern):
     return tests
 """
 
-# A doctest file found relative to a package (round-10 review: refused).
+# A doctest file found relative to a package (refused in the earlier
+# repository).
 DOCFILE_TEXT = """\
 >>> 1 + 1
 2
@@ -282,9 +283,10 @@ def load_tests(loader, tests, pattern):
 """
 
 # A FunctionTestCase wrapping a functools.partial, which has no
-# __module__ of its own (round-10 review: refused). The partial is given
-# a __name__ only because unittest's own FunctionTestCase.__str__ reads
-# it (without one, unittest itself errors while recording the duration).
+# __module__ of its own (refused in the earlier repository). The partial
+# is given a __name__ only because unittest's own
+# FunctionTestCase.__str__ reads it (without one, unittest itself errors
+# while recording the duration).
 PARTIAL_MODULE = """\
 import functools
 import unittest
@@ -394,10 +396,10 @@ def load_tests(loader, tests, pattern):
     return unittest.TestSuite([ProbeCase()])
 """
 
-# A helper outside the run list whose setUpModule raises SkipTest
-# (3b525 round-9 review, N2): its class, imported into a handed module
-# that also runs its own class, never starts, and no skip holder is
-# counted for it, so the parent's reconciliation refuses the run.
+# A helper outside the run list whose setUpModule raises SkipTest: its
+# class, imported into a handed module that also runs its own class,
+# never starts, and no skip holder is counted for it, so the parent's
+# reconciliation refuses the run.
 HELPER_MODULE_SKIP = """\
 import unittest
 
@@ -422,9 +424,9 @@ class RunningTests(unittest.TestCase):
         self.assertTrue(True)
 """
 
-# The module's only class is skipped by a class decorator (3b525
-# round-8 review, N1): unittest calls startTest for each of its tests
-# before reading the class flag, yet the class is skipped as a whole.
+# The module's only class is skipped by a class decorator: unittest
+# calls startTest for each of its tests before reading the class flag,
+# yet the class is skipped as a whole.
 DECORATOR_SKIPPED_CLASS_MODULE = """\
 import unittest
 
@@ -463,8 +465,8 @@ class RunningTests(unittest.TestCase):
         self.assertTrue(True)
 """
 
-# A fixture that raises an error, not SkipTest (3b525 round-8 review,
-# N2): the run fails on unittest's own terms and keeps its exit 1.
+# A fixture that raises an error, not SkipTest: the run fails on
+# unittest's own terms and keeps its exit 1.
 ERRORING_SETUPMODULE_MODULE = """\
 import unittest
 
@@ -491,12 +493,11 @@ class ErroringClassTests(unittest.TestCase):
         self.fail("must not start")
 """
 
-# One case OBJECT in two handed modules' suites (3b525 round-11 review,
-# codex E1): a helper's module-level case loaded by two modules. Round
-# 12 credited each module per occurrence; round 13 refuses the shared
-# object before the run, naming both modules, because forward matching
-# across modules could credit the wrong one (round-12 review, codex E1
-# and E2).
+# One case OBJECT in two handed modules' suites: a helper's module-level
+# case loaded by two modules. In the earlier repository, one version
+# credited each module per occurrence; the shared object is refused
+# before the run, naming both modules, because forward matching across
+# modules could credit the wrong one.
 HELPER_SHARED_CASE = """\
 import unittest
 
@@ -520,13 +521,13 @@ def load_tests(loader, tests, pattern):
 """
 
 # One case object in two handed modules' suites whose class's setUpClass
-# skips on its second call (3b525 round-11 review, codex E2): the first
-# module's occurrence starts, the second's never does. Crediting by case
+# skips on its second call: the first module's occurrence starts, the
+# second's never does. In the earlier repository, crediting by case
 # object gave the first module's start to the second module, and a
-# helper test that a setUpModule skip keeps from starting (counted by
-# no holder) offset the per-class notStarted overcount, so that run
-# reconciled and passed. Round 13 refuses it before the run: the case
-# object is in both modules' suites.
+# helper test that a setUpModule skip keeps from starting (counted by no
+# holder) offset the per-class notStarted overcount, so that run
+# reconciled and passed. It is refused before the run: the case object
+# is in both modules' suites.
 HELPER_SHARED_ONCE = """\
 import unittest
 
@@ -575,9 +576,9 @@ def load_tests(loader, tests, pattern):
 """
 
 # A class whose setUpClass raises SkipTest, loaded twice in one module
-# around a running class (3b525 round-11 review, codex E3): setUpClass
-# runs, and skips, once per stretch, so counting the class's loaded
-# tests per skip record gave notStarted=4 for this three-case suite.
+# around a running class: setUpClass runs, and skips, once per stretch,
+# so in the earlier repository counting the class's loaded tests per
+# skip record gave notStarted=4 for this three-case suite.
 SKIPPED_CLASS_LOADED_TWICE_MODULE = """\
 import unittest
 
@@ -602,10 +603,10 @@ def load_tests(loader, tests, pattern):
                                SkippedClassTests("test_never_starts")])
 """
 
-# unittest reads the class skip flag from test.__class__, not type(test)
-# (3b525 round-11 review, claude N4). Here a __class__ property hides a
-# skip-decorated class behind a plain type: unittest skips the test,
-# so it is not a credited start.
+# unittest reads the class skip flag from test.__class__, not
+# type(test). Here a __class__ property hides a skip-decorated class
+# behind a plain type: unittest skips the test, so it is not a credited
+# start.
 CLASS_PROPERTY_HIDES_SKIP_MODULE = """\
 import unittest
 
@@ -644,9 +645,9 @@ class DecoratedTypeTests(unittest.TestCase):
         self.assertTrue(True)
 """
 
-# A load_tests returning a bare BaseTestSuite (3b525 round-11 review,
-# claude W2): flatten must descend into any BaseTestSuite, not only
-# unittest.TestSuite, or the case inside is never matched to a start.
+# A load_tests returning a bare BaseTestSuite: flatten must descend into
+# any BaseTestSuite, not only unittest.TestSuite, or the case inside is
+# never matched to a start.
 BASE_TEST_SUITE_MODULE = """\
 import unittest
 
@@ -660,12 +661,12 @@ def load_tests(loader, tests, pattern):
     return unittest.suite.BaseTestSuite([BaseSuiteTests("test_runs")])
 """
 
-# A test that starts many fresh case objects itself (3b525 round-11
-# review, claude W1). unittest frees a module's never-started cases
-# once their sub-suite has run, so a later fresh object can take a freed
-# case's id; looked up by id, such a start credited the module whose
-# only test a setUpModule SkipTest had stopped. The probes are kept
-# alive, so each takes a new address and the freed one is reached.
+# A test that starts many fresh case objects itself. unittest frees a
+# module's never-started cases once their sub-suite has run, so a later
+# fresh object can take a freed case's id; looked up by id in the
+# earlier repository, such a start credited the module whose only test a
+# setUpModule SkipTest had stopped. The probes are kept alive, so each
+# takes a new address and the freed one is reached.
 DYNAMIC_START_MODULE = """\
 import unittest
 
@@ -688,12 +689,11 @@ class DynamicStartTests(unittest.TestCase):
 
 # Two DISTINCT but equal case objects (TestCase equality compares type
 # and method name) in two modules' suites, so the shared-case refusal
-# does not apply (3b525 round-12 review, claude W2 and codex W). The
-# class's first setUpClass skips and its second succeeds, and a skipped
-# class separates the two occurrences, so no start falls between them:
-# matched by identity, the second module's start is its own; matched
-# by equality, it is taken by the first module's never-started
-# occurrence and the second module is refused.
+# does not apply. The class's first setUpClass skips and its second
+# succeeds, and a skipped class separates the two occurrences, so no
+# start falls between them: matched by identity, the second module's
+# start is its own; matched by equality, it is taken by the first
+# module's never-started occurrence and the second module is refused.
 HELPER_SKIP_FIRST_SETUP = """\
 import unittest
 
@@ -748,11 +748,10 @@ def load_tests(loader, tests, pattern):
 """
 
 # A test dropped by a standard suite whose class skipped in setUpClass
-# earlier in the run (3b525 round-12 review, claude W2 and codex W): the
-# helper's setUpModule skips on its second call, which no counted holder
-# records, so the class's second occurrence never starts. The class's
-# skip record from the first stretch must not count it: the records are
-# cleared at each matched start.
+# earlier in the run: the helper's setUpModule skips on its second call,
+# which no counted holder records, so the class's second occurrence
+# never starts. The class's skip record from the first stretch must not
+# count it: the records are cleared at each matched start.
 HELPER_MODULE_SKIP_SECOND = """\
 import unittest
 
@@ -792,11 +791,11 @@ def load_tests(loader, tests, pattern):
                                ClassSkipTests("test_never_starts")])
 """
 
-# A shared case object whose __eq__ says equal to any string (3b525
-# round-13 review, codex E): kept in one list with the module names and
-# tested with "in", it matched each module name, so the shared-case
-# check saw one module and the run passed. The __hash__ is restored
-# because overriding __eq__ alone would make the case unhashable.
+# A shared case object whose __eq__ says equal to any string: in the
+# earlier repository, kept in one list with the module names and tested
+# with "in", it matched each module name, so the shared-case check saw
+# one module and the run passed. The __hash__ is restored because
+# overriding __eq__ alone would make the case unhashable.
 HELPER_STRING_EQUAL_CASE = """\
 import unittest
 
@@ -827,11 +826,11 @@ def load_tests(loader, tests, pattern):
 """
 
 # A plain suite in which a class skipped in setUpClass is loaded twice
-# around another setUpClass-skipped class, with no start between (3b525
-# round-13 review, claude W1): the helper's setUpModule skips on its
-# second call, so the class's second occurrence is dropped without a
-# record. Its one skip record covered both occurrences, so notStarted
-# was 3 and the run passed; one record covers one class occurrence.
+# around another setUpClass-skipped class, with no start between: the
+# helper's setUpModule skips on its second call, so the class's second
+# occurrence is dropped without a record. In the earlier repository, its
+# one skip record covered both occurrences, so notStarted was 3 and the
+# run passed; one record covers one class occurrence.
 DROPPED_BETWEEN_CLASS_SKIPS_MODULE = """\
 import unittest
 
@@ -860,12 +859,12 @@ def load_tests(loader, tests, pattern):
 """
 
 # Two distinct classes a factory built with one module and qualname,
-# loaded consecutively: the first runs, the second skips in setUpClass
-# (3b525 round-14 review, codex and claude). unittest sets a class up
-# once per run of consecutive cases of the same class OBJECT, so the
-# second class is set up and its skip recorded under the shared name;
-# split by name, the second occurrence continued the first's run, took
-# no record and was refused where plain unittest reports OK.
+# loaded consecutively: the first runs, the second skips in setUpClass.
+# unittest sets a class up once per run of consecutive cases of the same
+# class OBJECT, so the second class is set up and its skip recorded
+# under the shared name; in the earlier repository, split by name, the
+# second occurrence continued the first's run, took no record and was
+# refused where plain unittest reports OK.
 FACTORY_SAME_QUALNAME_MODULE = """\
 import unittest
 
@@ -955,11 +954,11 @@ def load_tests(loader, tests, pattern):
 
 # A class whose class cleanup raises SkipTest and whose setUpClass then
 # raises SkipTest: unittest records the cleanup's skip under the same
-# "setUpClass (<module>.<Class>)" holder, so one run yields two records
-# (3b525 round-15 review, claude). The helper's setUpModule skips on its
-# second call, so the class's second occurrence is dropped without a
-# record of its own. Counted one record per run, the spare record covered
-# the dropped occurrence, notStarted=3, and the run passed.
+# "setUpClass (<module>.<Class>)" holder, so one run yields two records.
+# The helper's setUpModule skips on its second call, so the class's
+# second occurrence is dropped without a record of its own. In the
+# earlier repository, counted one record per run, the spare record
+# covered the dropped occurrence, notStarted=3, and the run passed.
 HELPER_CLEANUP_SKIP = """\
 import unittest
 
@@ -1049,10 +1048,10 @@ class BothSkipTests(unittest.TestCase):
 # Own, C, Own, C: C's setUpClass and two class cleanups raise SkipTest,
 # so each of C's two runs gives three records under one holder, and both
 # runs have Own as unittest's _previousTestClass. Own's start between
-# them ends "back to back", so the second run's first record counts
-# (3b525 round-16 review, claude W1: without the reset in startTest the
-# second run's records continued the first's, notStarted=1, and this
-# legitimate run was refused). unittest reports OK (skipped=6).
+# them ends "back to back", so the second run's first record counts (in
+# the earlier repository, without the reset in startTest the second
+# run's records continued the first's, notStarted=1, and this legitimate
+# run was refused). unittest reports OK (skipped=6).
 CLEANUP_SKIPS_AROUND_STARTS_MODULE = """\
 import unittest
 
@@ -1090,9 +1089,9 @@ def load_tests(loader, tests, pattern):
 # lookup alike) and discards unittest's writes, so unittest itself sees
 # None throughout. SkippedClassTests' setUpClass raises SkipTest, so a
 # skip record arrives while the attribute is absent; RunningTests gives
-# the module a credited start, so read as None the run would be green
-# (3b525 round-16 review, agy: the getattr default None grouped such
-# records silently).
+# the module a credited start, so read as None the run would be green (in
+# the earlier repository, the getattr default None grouped such records
+# silently).
 HIDDEN_PREVIOUS_CLASS_MODULE = """\
 import unittest
 
@@ -1267,7 +1266,7 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         """The module list main() actually hands to the child subprocess
         (not discovery alone) covers every on-disk .claude/skills/corpus-management/tests/test_*.py; the
         per-run nonce the child's sentinel must echo travels over the
-        child's stdin, never on argv (3b525 round 3, F1)."""
+        child's stdin, never on argv."""
         runner = self._runner()
         fake = _FakePopen()
         code, _out, err = self._call_main(runner, popen=fake)
@@ -1345,7 +1344,7 @@ class RegressionGateCompletenessTests(unittest.TestCase):
     def test_main_refuses_test_package_directory(self) -> None:
         """A .claude/skills/corpus-management/tests/test_*/ package directory could hold TestCases that
         discovery would neither run nor refuse per file; the directory
-        itself is refused by name (3b525 round 2, F8/VPR003)."""
+        itself is refused by name."""
         runner = self._runner()
         root = self._tmp_repo(["test_a.py"])
         pkg = root / "tests" / "test_pkg"
@@ -1361,7 +1360,7 @@ class RegressionGateCompletenessTests(unittest.TestCase):
     def test_main_refuses_symlinked_subdirectory(self) -> None:
         """os.walk does not follow directory symlinks, so a symlinked
         .claude/skills/corpus-management/tests/ subdirectory could hide a test file; it is refused by
-        name (3b525 round 2, VPR003)."""
+        name."""
         runner = self._runner()
         root = self._tmp_repo(["test_a.py"])
         target = root / "elsewhere"
@@ -1380,8 +1379,7 @@ class RegressionGateCompletenessTests(unittest.TestCase):
                      "root ignores directory permission bits")
     def test_main_refuses_unreadable_subdirectory(self) -> None:
         """A .claude/skills/corpus-management/tests/ subdirectory the walk cannot list could hide a test
-        file; the walk error is a refusal, never a silent skip (3b525
-        round 2, VPR003)."""
+        file; the walk error is a refusal, never a silent skip."""
         runner = self._runner()
         root = self._tmp_repo(["test_a.py"])
         sub = root / "tests" / "hidden"
@@ -1429,8 +1427,8 @@ class RegressionGateCompletenessTests(unittest.TestCase):
     def test_import_refusal_is_hermetic(self) -> None:
         """An ambient PYTHONSAFEPATH/PYTHONPATH must not reach the child
         driver (it would refuse BOTH modules and let a flip pass
-        vacuously, 3b525 round 2 F5): the driver subprocess runs with a
-        minimal environment, so the control module still imports."""
+        vacuously): the driver subprocess runs with a minimal
+        environment, so the control module still imports."""
         runner = self._runner()
         driver = runner["_DRIVER"]
         root = self._tmp_repo(["test_ok.py"])
@@ -1454,8 +1452,7 @@ class RegressionGateCompletenessTests(unittest.TestCase):
     def test_driver_refuses_argv_that_drops_a_module(self) -> None:
         """The child driver re-enumerates .claude/skills/corpus-management/tests/ itself and refuses an
         argv that differs, so a filter on the child's argv (or inside
-        the driver, after a flip) cannot drop a module (3b525 round 2,
-        VPR001/F1)."""
+        the driver, after a flip) cannot drop a module."""
         runner = self._runner()
         driver = runner["_DRIVER"]
         root = self._tmp_repo(["test_a.py", "test_b.py"])
@@ -1471,8 +1468,7 @@ class RegressionGateCompletenessTests(unittest.TestCase):
     def test_driver_refuses_zero_test_module(self) -> None:
         """A module that imports cleanly but contributes zero test cases
         (an empty load_tests, a class moved off TestCase) is refused by
-        name; the control run with real tests emits the sentinel (3b525
-        round 2, F2/VPR002)."""
+        name; the control run with real tests emits the sentinel."""
         runner = self._runner()
         driver = runner["_DRIVER"]
         root = self._tmp_repo(["test_ok.py"])
@@ -1527,10 +1523,10 @@ class RegressionGateCompletenessTests(unittest.TestCase):
 
     def test_main_requires_completion_sentinel(self) -> None:
         """A green child exit is believed only when the LAST stderr line
-        is the driver's sentinel with this run's nonce, per-module
-        counts naming exactly the handed modules (each at least 1) and
-        a matching testsRun; an earlier real summary, a spoofed line or
-        a dropped module is refused (3b525 round 2, VPR001/VPR002/F3)."""
+        is the driver's sentinel with this run's nonce, per-module counts
+        naming exactly the handed modules (each at least 1) and a
+        matching testsRun; an earlier real summary, a spoofed line or a
+        dropped module is refused."""
         runner = self._runner()
 
         def drop_last(nonce, ran, ok, counts):
@@ -1612,8 +1608,7 @@ class RegressionGateCompletenessTests(unittest.TestCase):
     def test_main_refuses_load_tests_systemexit(self) -> None:
         """A load_tests that prints a real green unittest summary and then
         raises SystemExit(0) ends the child before the sentinel, so the
-        run is refused even though a failing sibling never ran (3b525
-        round 2, VPR002)."""
+        run is refused even though a failing sibling never ran."""
         runner = self._runner()
         root = self._tmp_repo(["test_zz_fail.py"], body=FAILING_MODULE)
         (root / "tests" / "test_aa_sneaky.py").write_text(
@@ -1632,19 +1627,20 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         self.assertIn("sentinel", err)
 
     def test_main_refuses_forged_sentinel_from_load_tests(self) -> None:
-        """The round-3 reproducer (3b525 F1): a load_tests that reads
-        argv and stdin, prints a green summary plus a forged completion
-        sentinel and exits 0, beside a failing sibling that never runs.
-        The nonce travels over the child's stdin and is consumed before
-        any test module is imported, so a scrape of argv and stdin
-        cannot see it (on argv it could, and this forgery then passed
-        as green). With no 32-hex candidate in sight the scrape falls
-        back to a non-hex token, so what refuses this run is the
-        sentinel FORMAT check (the forged line never parses as the
-        driver's completion sentinel), not the nonce comparison; that
-        comparison is pinned by the wrong_nonce subtest of
-        test_main_requires_completion_sentinel. The __main__.nonce
-        channel stays open: see the residual test below."""
+        """The forgery reproducer (FORGING_MODULE): a load_tests that
+        reads argv and stdin, prints a green summary plus a forged
+        completion sentinel and exits 0, beside a failing sibling that
+        never runs. The nonce travels over the child's stdin and is
+        consumed before any test module is imported, so a scrape of argv
+        and stdin cannot see it (on argv it could, and in the earlier
+        repository this forgery then passed as green). With no 32-hex
+        candidate in sight the scrape falls back to a non-hex token, so
+        what refuses this run is the sentinel FORMAT check (the forged
+        line never parses as the driver's completion sentinel), not the
+        nonce comparison; that comparison is pinned by the wrong_nonce
+        subtest of test_main_requires_completion_sentinel. The
+        __main__.nonce channel stays open: see the residual test
+        below."""
         runner = self._runner()
         root = self._tmp_repo(["test_zz_fail.py"], body=FAILING_MODULE)
         (root / "tests" / "test_aa_forge.py").write_text(FORGING_MODULE)
@@ -1657,19 +1653,18 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         self.assertIn("sentinel", err)
 
     def test_main_accepts_main_nonce_forgery_residual(self) -> None:
-        """DOCUMENTED ACCEPTED RESIDUAL (3b525 round 4, F1): the driver
-        is a python -c script, so the nonce is a module-level global of
-        __main__; a load_tests that imports __main__ recovers it,
-        forges a complete sentinel and exits 0, and the run passes as
-        green while the failing sibling never runs. This test asserts
-        that documented behaviour (it is NOT a skip): a change that
-        closes the channel turns this exit 0 into a refusal and must
-        update this test together with the three documentation
-        surfaces that state the residual: the runner's module
-        docstring (pinned below via the loaded module's __doc__, so
-        the driver-comment copy cannot stand in for it) and
-        .claude/skills/corpus-management/tools/README.md and .claude/skills/corpus-management/tests/README.md (each pinned as file
-        text)."""
+        """DOCUMENTED ACCEPTED RESIDUAL: the driver is a python -c
+        script, so the nonce is a module-level global of __main__; a
+        load_tests that imports __main__ recovers it, forges a complete
+        sentinel and exits 0, and the run passes as green while the
+        failing sibling never runs. This test asserts that documented
+        behaviour (it is NOT a skip): a change that closes the channel
+        turns this exit 0 into a refusal and must update this test
+        together with the three documentation surfaces that state the
+        residual: the runner's module docstring (pinned below via the
+        loaded module's __doc__, so the driver-comment copy cannot stand
+        in for it) and .claude/skills/corpus-management/tools/README.md and .claude/skills/corpus-management/tests/README.md (each pinned
+        as file text)."""
         runner = self._runner()
         root = self._tmp_repo(["test_zz_fail.py"], body=FAILING_MODULE)
         (root / "tests" / "test_aa_forge.py").write_text(
@@ -1700,7 +1695,7 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         # loaded above (which does not execute main): a driver comment
         # in the same file carries a second copy of the recipe, so a
         # file-wide search would stay green with the docstring
-        # disclosure deleted (3b525 round 6, N1).
+        # disclosure deleted.
         self.assertIn(
             "import __main__",
             runner["__doc__"] or "",
@@ -1719,10 +1714,9 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         test of that class, so testsRun undercounts the loaded suite
         while unittest itself reports the run green; when the module
         otherwise ran, the sentinel's notStarted accounts for those
-        tests and the run is NOT refused (3b525 round 3, F4). A test
-        skipped individually counts as started (3b525 round 8, W1
-        rule). Loaded here: 4 (partly skipped module) + 1 (passing
-        sibling) = 5; testsRun=3, notStarted=2."""
+        tests and the run is NOT refused. A test skipped individually
+        counts as started. Loaded here: 4 (partly skipped module) + 1
+        (passing sibling) = 5; testsRun=3, notStarted=2."""
         runner = self._runner()
         root = self._tmp_repo(["test_zz_ok.py"])
         (root / "tests" / "test_aa_partlyskipped.py").write_text(
@@ -1742,11 +1736,11 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         """A module none of whose tests started (a SkipTest raised in
         setUpModule, or in setUpClass for its only class) is refused by
         name even though unittest reports the run green and the other
-        module ran (3b525 round 8, W1: before this check the run exited
-        0 with testsRun=1 notStarted=3). A class skipped by a class
-        decorator (unittest.skip, skipUnless(False)) counts the same as
-        one skipped in setUpClass, although unittest calls startTest for
-        its tests (3b525 round-8 review, N1)."""
+        module ran (in the earlier repository, before this check the run
+        exited 0 with testsRun=1 notStarted=3). A class skipped by a
+        class decorator (unittest.skip, skipUnless(False)) counts the
+        same as one skipped in setUpClass, although unittest calls
+        startTest for its tests."""
         runner = self._runner()
         cases = (
             ("setupmodule_skip", SKIPPING_MODULE_MODULE),
@@ -1775,12 +1769,13 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         """DOCUMENTED ACCEPTED RESIDUAL: a started test is credited to
         the module whose loaded suite contains it, so a module that only
         imports and loads another module's TestCase class earns credit
-        for it and is not refused (rounds 9 and 10 refused this by
-        crediting the defining code, and each variant broke legitimate
-        modules). Here: a module whose own class is skipped in
-        setUpClass beside a class imported from .claude/skills/corpus-management/tests/test_zz_ok.py
-        (loaded 2 + 1; testsRun=2, notStarted=1), and a module that only
-        imports a class from a helper outside the run list."""
+        for it and is not refused (in the earlier repository, two
+        versions refused this by crediting the defining code, and each
+        variant broke legitimate modules). Here: a module whose own
+        class is skipped in setUpClass beside a class imported from
+        .claude/skills/corpus-management/tests/test_zz_ok.py (loaded 2 + 1; testsRun=2, notStarted=1),
+        and a module that only imports a class from a helper outside the
+        run list."""
         cases = (
             ("handed_module_class",
              {"test_aa_borrows.py": BORROWING_MODULE},
@@ -1828,10 +1823,9 @@ class RegressionGateCompletenessTests(unittest.TestCase):
 
     def test_main_refuses_case_shared_by_two_modules(self) -> None:
         """A helper's module-level case object loaded by two modules is
-        refused before the run, naming both (3b525 round 13). Round 12
-        credited each module for its own occurrence (round-11 review,
-        codex E1), but forward matching across modules could credit the
-        wrong one (round-12 review, codex E1 and E2)."""
+        refused before the run, naming both. In the earlier repository,
+        one version credited each module for its own occurrence, but
+        forward matching across modules could credit the wrong one."""
         code, _out, err = self._run_gate_with({
             "helper_sharedcase.py": HELPER_SHARED_CASE,
             "test_aa_first.py": SHARED_CASE_MODULE,
@@ -1843,8 +1837,8 @@ class RegressionGateCompletenessTests(unittest.TestCase):
 
     def test_main_refuses_module_whose_shared_occurrence_never_starts(
             self) -> None:
-        """A shared case object whose second occurrence never starts
-        (3b525 round-11 review, codex E2: that run passed; round 12
+        """A shared case object whose second occurrence never starts (in
+        the earlier repository that run passed, and a later version
         refused the second module after the run) is now refused before
         the run by the shared-case refusal, naming both modules."""
         code, _out, err = self._run_gate_with({
@@ -1861,9 +1855,9 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         """A shared case object whose __eq__ says equal to any string is
         still refused before the run, naming both modules: the check is
         keyed by identity and keeps the module names in a set of their
-        own (3b525 round-13 review, codex E: compared with the module
-        names by equality, the case hid the second module and the run
-        exited 0)."""
+        own (in the earlier repository, compared with the module names
+        by equality, the case hid the second module and the run exited
+        0)."""
         code, _out, err = self._run_gate_with({
             "helper_stringequal.py": HELPER_STRING_EQUAL_CASE,
             "test_aa_first.py": STRING_EQUAL_CASE_MODULE,
@@ -1876,10 +1870,10 @@ class RegressionGateCompletenessTests(unittest.TestCase):
     def test_main_matches_starts_by_identity_not_equality(self) -> None:
         """Two distinct but equal case objects, one in each of two
         modules' suites, separated by a setUpClass-skipped class: each
-        module is credited for its own object's start (3b525 round 13;
-        with equality matching the second module's start is taken by
-        the first module's never-started occurrence, and the second
-        module is refused). Loaded 3 + 1 + 1; testsRun=3, notStarted=2."""
+        module is credited for its own object's start (were starts
+        matched by equality, the first module's never-started occurrence
+        would take the second module's start, and the second module
+        would be refused). Loaded 3 + 1 + 1; testsRun=3, notStarted=2."""
         code, _out, err = self._run_gate_with({
             "helper_skipfirst.py": HELPER_SKIP_FIRST_SETUP,
             "test_aa_first.py": EQUAL_CASE_FIRST_MODULE,
@@ -1895,10 +1889,10 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         """A standard suite drops a test (its helper's setUpModule skips
         on the second call, which no counted holder records) whose class
         skipped in setUpClass earlier in the run: the earlier skip record
-        must not count it, so the reconciliation refuses (3b525 round
-        13; without clearing the records at each matched start, the
-        dropped test counted as notStarted and the run passed). Loaded
-        3 + 1; testsRun=2, notStarted=1."""
+        must not count it, so the reconciliation refuses (in the earlier
+        repository, without clearing the records at each matched start,
+        the dropped test counted as notStarted and the run passed).
+        Loaded 3 + 1; testsRun=2, notStarted=1."""
         code, _out, err = self._run_gate_with({
             "helper_modskipsecond.py": HELPER_MODULE_SKIP_SECOND,
             "test_aa_dropped.py": DROPPED_AFTER_CLASS_SKIP_MODULE,
@@ -1919,7 +1913,7 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         setUpModule skips on its second call, which no counted holder
         records). Its one skip record covers one class occurrence, so
         the dropped one is not notStarted and the reconciliation refuses
-        (3b525 round-13 review, claude W1: the record covered both, so
+        (in the earlier repository the record covered both, so
         notStarted was 3 and the run passed). Loaded 4 + 1; testsRun=2,
         notStarted=2."""
         code, _out, err = self._run_gate_with({
@@ -1936,10 +1930,10 @@ class RegressionGateCompletenessTests(unittest.TestCase):
 
     def test_main_counts_trailing_class_skip_in_last_module(self) -> None:
         """A setUpClass-skipped class at the end of the last module (it
-        sorts after .claude/skills/corpus-management/tests/test_zz_ok.py) has no later start to settle
-        it: the driver's final settle counts it, so the run is green
-        (3b525 round 13; without the final settle notStarted is 0 and
-        the reconciliation refuses). Loaded 1 + 4; testsRun=3,
+        sorts after .claude/skills/corpus-management/tests/test_zz_ok.py)
+        has no later start to settle it: the driver's final settle counts
+        it, so the run is green (without that settle, notStarted would be
+        0 and the reconciliation would refuse). Loaded 1 + 4; testsRun=3,
         notStarted=2."""
         code, _out, err = self._run_gate_with({
             "test_zz_zpartlyskipped.py": PARTLY_SKIPPED_MODULE,
@@ -1952,9 +1946,9 @@ class RegressionGateCompletenessTests(unittest.TestCase):
     def test_main_counts_class_skip_per_occurrence(self) -> None:
         """A setUpClass-skipped class loaded twice in one module, around
         a running class, is set up (and skips) twice; notStarted counts
-        each never-started occurrence once (3b525 round-11 review, codex
-        E3: notStarted=4 for the three-case suite refused the run).
-        Loaded 3 + 1; testsRun=2, notStarted=2."""
+        each never-started occurrence once (in the earlier repository,
+        notStarted=4 for the three-case suite refused the run). Loaded
+        3 + 1; testsRun=2, notStarted=2."""
         code, _out, err = self._run_gate_with({
             "test_aa_skiptwice.py": SKIPPED_CLASS_LOADED_TWICE_MODULE,
         })
@@ -1968,9 +1962,9 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         a factory), consecutive in one suite, the first running and the
         second skipping in setUpClass: unittest sets each up, as it
         splits runs by class object, so the second's skip record counts
-        it (3b525 round-14 review: split by strclass name it continued
-        the first's run, testsRun=2 notStarted=0 of 3, and was refused).
-        Loaded 2 + 1; testsRun=2, notStarted=1."""
+        it (in the earlier repository, split by strclass name it
+        continued the first's run, testsRun=2 notStarted=0 of 3, and was
+        refused). Loaded 2 + 1; testsRun=2, notStarted=1."""
         code, _out, err = self._run_gate_with({
             "test_aa_factory.py": FACTORY_SAME_QUALNAME_MODULE,
         })
@@ -1983,9 +1977,9 @@ class RegressionGateCompletenessTests(unittest.TestCase):
             self) -> None:
         """Two distinct classes sharing a module and qualname, both
         skipping in setUpClass, consecutive, are two runs taking two skip
-        records, so a later occurrence of the first class, dropped by
-        its helper's setUpModule skipping on the second call, has no
-        record left and the reconciliation refuses (3b525 round 15;
+        records, so a later occurrence of the first class, dropped by its
+        helper's setUpModule skipping on the second call, has no record
+        left and the reconciliation refuses (in the earlier repository,
         split by strclass name the two were one run, the leftover record
         counted the dropped occurrence, notStarted=4, and the run
         passed). Loaded 5 + 1; testsRun=2, notStarted=3."""
@@ -2007,8 +2001,8 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         gives two records under one setUpClass holder from one run; one
         run consumes at most one of them, so a later occurrence of the
         class, dropped by its helper's setUpModule skipping on the second
-        call, has no record left and the reconciliation refuses (3b525
-        round-15 review, claude: the spare record covered the dropped
+        call, has no record left and the reconciliation refuses (in the
+        earlier repository the spare record covered the dropped
         occurrence, notStarted=3, and the run passed). Loaded 4 + 1;
         testsRun=2, notStarted=2."""
         code, _out, err = self._run_gate_with({
@@ -2042,9 +2036,9 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         """Own, C, Own, C, where C's setUpClass and two class cleanups
         raise SkipTest: both of C's runs follow Own, so their records
         share holder and _previousTestClass, and only Own's start between
-        them separates the runs; each run counts one record (3b525
-        round-16 review, claude W1: the reset in startTest was untested).
-        Loaded 4 + 1; testsRun=3, notStarted=2."""
+        them separates the runs; each run counts one record (in the
+        earlier repository the reset in startTest was untested). Loaded
+        4 + 1; testsRun=3, notStarted=2."""
         code, _out, err = self._run_gate_with({
             "test_aa_aroundstarts.py": CLEANUP_SKIPS_AROUND_STARTS_MODULE,
         })
@@ -2057,7 +2051,7 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         """A setUpClass skip record arriving while the result has no
         _previousTestClass attribute at all is refused, naming the
         attribute and the Python version, rather than grouped as if the
-        attribute were None (3b525 round-16 review, agy: getattr's
+        attribute were None (in the earlier repository, getattr's
         default turned an input that cannot answer into an answer). Read
         as None, the run is green: loaded 2 + 1, testsRun=2,
         notStarted=1."""
@@ -2074,11 +2068,11 @@ class RegressionGateCompletenessTests(unittest.TestCase):
 
     def test_main_reads_class_skip_flag_from_dunder_class(self) -> None:
         """The class skip flag is read from test.__class__, as unittest
-        reads it (3b525 round-11 review, claude N4): a __class__
-        property hiding a skip-decorated class behind a plain type is
-        skipped by unittest and is not a credited start, and a skip flag
-        on the type alone, behind a __class__ naming a plain class, does
-        not stop unittest running the test, which is credited."""
+        reads it: a __class__ property hiding a skip-decorated class
+        behind a plain type is skipped by unittest and is not a credited
+        start, and a skip flag on the type alone, behind a __class__
+        naming a plain class, does not stop unittest running the test,
+        which is credited."""
         with self.subTest(label="dunder_class_hides_skipped_class"):
             code, _out, err = self._run_gate_with({
                 "test_aa_disguised.py": CLASS_PROPERTY_HIDES_SKIP_MODULE,
@@ -2099,10 +2093,9 @@ class RegressionGateCompletenessTests(unittest.TestCase):
 
     def test_main_credits_case_inside_base_test_suite(self) -> None:
         """A load_tests returning unittest.suite.BaseTestSuite([case]) is
-        credited: flatten descends into any BaseTestSuite (3b525
-        round-11 review, claude W2; with flatten limited to
-        unittest.TestSuite the case is never matched and the module is
-        refused)."""
+        credited: flatten descends into any BaseTestSuite (with flatten
+        limited to unittest.TestSuite the case is never matched and the
+        module is refused)."""
         code, _out, err = self._run_gate_with({
             "test_aa_basesuite.py": BASE_TEST_SUITE_MODULE,
         })
@@ -2113,10 +2106,10 @@ class RegressionGateCompletenessTests(unittest.TestCase):
     def test_driver_never_credits_a_freed_case_id(self) -> None:
         """Every flattened case stays alive until the run ends, so a
         fresh case object started later cannot take a freed case's id
-        and credit its module (3b525 round-11 review, claude W1). The
-        module whose only test a setUpModule SkipTest stopped is refused
-        by name, by the driver itself, before the parent's
-        reconciliation (which the probes' extra starts also fail)."""
+        and credit its module. The module whose only test a setUpModule
+        SkipTest stopped is refused by name, by the driver itself,
+        before the parent's reconciliation (which the probes' extra
+        starts also fail)."""
         code, _out, err = self._run_gate_with({
             "test_ab_modskip.py": SKIPPING_MODULE_MODULE,
             "test_ac_dynamic.py": DYNAMIC_START_MODULE,
@@ -2130,7 +2123,7 @@ class RegressionGateCompletenessTests(unittest.TestCase):
 
     def _assert_refusal_names_no_cause(self, err: str) -> None:
         """The zero-credited refusal states what the gate observed, not a
-        cause it cannot know (3b525 round-9 review, claude W)."""
+        cause it cannot know."""
         for line in err.splitlines():
             if "credited starts" in line:
                 for cause in ("SkipTest", "setUpModule", "setUpClass",
@@ -2153,14 +2146,14 @@ class RegressionGateCompletenessTests(unittest.TestCase):
 
     def test_main_credits_tests_in_the_modules_loaded_suite(self) -> None:
         """A started test is credited to the module whose loaded suite
-        contains it, whatever type holds it (3b525 round-9 and round-10
-        reviews: defining-code crediting refused several of these with
-        unittest's OK): a FunctionTestCase wrapping the module's own
-        function, one wrapping a functools.partial, a DocTestSuite of
-        the module itself, a DocTestSuite of a library module outside
-        .claude/skills/corpus-management/tests/, a DocFileSuite found through a package, a class built by
-        a factory in a helper module outside the run list, and a test
-        object of no known case type."""
+        contains it, whatever type holds it (in the earlier repository,
+        defining-code crediting refused several of these with unittest's
+        OK): a FunctionTestCase wrapping the module's own function, one
+        wrapping a functools.partial, a DocTestSuite of the module
+        itself, a DocTestSuite of a library module outside .claude/skills/corpus-management/tests/, a
+        DocFileSuite found through a package, a class built by a factory
+        in a helper module outside the run list, and a test object of no
+        known case type."""
         cases = (
             ("function_test_case",
              {"test_aa_function.py": FUNCTION_TEST_CASE_MODULE}, {},
@@ -2202,7 +2195,7 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         keeps its imported class from starting; the handed module still
         has a credited start, so the parent's reconciliation refuses the
         run, and its message names only the setUpClass holders that
-        notStarted counts (3b525 round-9 review, N2)."""
+        notStarted counts."""
         code, _out, err = self._run_gate_with({
             "helper_moduleskip.py": HELPER_MODULE_SKIP,
             "test_aa_helperskip.py": HELPER_MODULE_SKIP_IMPORTING_MODULE,
@@ -2219,11 +2212,11 @@ class RegressionGateCompletenessTests(unittest.TestCase):
 
     def test_main_green_with_decorator_skipped_class_beside_running_class(
             self) -> None:
-        """Control for the class-decorator rule (3b525 round-8 review,
-        N1): a decorator-skipped class does not refuse a module that
-        starts a test of another class it defines. The decorated class's
-        test still reaches startTest, so testsRun counts it and
-        notStarted stays 0. Loaded: 2 + 1 = 3; testsRun=3."""
+        """Control for the class-decorator rule: a decorator-skipped
+        class does not refuse a module that starts a test of another
+        class it defines. The decorated class's test still reaches
+        startTest, so testsRun counts it and notStarted stays 0. Loaded:
+        2 + 1 = 3; testsRun=3."""
         runner = self._runner()
         root = self._tmp_repo(["test_zz_ok.py"])
         (root / "tests" / "test_aa_decorated.py").write_text(
@@ -2239,7 +2232,7 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         """A setUpModule, or a module's only setUpClass, that raises an
         error (not SkipTest) fails the run on unittest's own terms: the
         exit stays unittest's 1 and no zero-started refusal names a
-        SkipTest cause the run did not have (3b525 round-8 review, N2:
+        SkipTest cause the run did not have (in the earlier repository,
         before this the run printed that refusal and exited 2)."""
         runner = self._runner()
         cases = (
@@ -2263,12 +2256,12 @@ class RegressionGateCompletenessTests(unittest.TestCase):
 
     def test_main_refuses_module_that_defines_no_tests(self) -> None:
         """A module that imports cleanly but defines no tests is refused
-        with a message naming it, beside a module that runs (3b525
-        round 8, W1). The driver's pre-run zero-test-cases check names
-        it first; the post-run zero-started check names it too when
-        that pre-run check is absent, so either layer alone keeps this
-        refusal naming the file (the parent's sentinel check would
-        still refuse, but without naming the module)."""
+        with a message naming it, beside a module that runs. The
+        driver's pre-run zero-test-cases check names it first; the
+        post-run zero-started check names it too when that pre-run check
+        is absent, so either layer alone keeps this refusal naming the
+        file (the parent's sentinel check would still refuse, but
+        without naming the module)."""
         runner = self._runner()
         root = self._tmp_repo(["test_zz_ok.py"])
         (root / "tests" / "test_aa_notests.py").write_text(
@@ -2283,11 +2276,11 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         self.assertNotIn(".claude/skills/corpus-management/tests/test_zz_ok.py", err)
 
     def test_main_passing_output_forwards_unittest_output(self) -> None:
-        """The passing output contract (3b525 round 8, W2): stdout is the
-        module list alone; stderr is unittest's own output for the same
-        modules, unchanged, followed by the sentinel as its one extra,
-        last line. Compared against a direct `python -m unittest` run of
-        the same tree, with only the elapsed time normalised."""
+        """The passing output contract: stdout is the module list alone;
+        stderr is unittest's own output for the same modules, unchanged,
+        followed by the sentinel as its one extra, last line. Compared
+        against a direct `python -m unittest` run of the same tree, with
+        only the elapsed time normalised."""
         root = self._tmp_repo(["test_a.py", "test_b.py"],
                               body=PASSING_WITH_SKIP_MODULE)
         wrapper = (
@@ -2326,7 +2319,7 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         """A green summary written by a test (standing in for a grandchild
         that inherits stderr) followed by a SystemExit(0) escaping from
         setUpClass cannot pass as green: the sentinel never appears, so
-        the run is refused (3b525 round 2, F3)."""
+        the run is refused."""
         runner = self._runner()
         root = self._tmp_repo(["test_aa_spoof.py"])
         (root / "tests" / "test_aa_spoof.py").write_text(
@@ -2362,7 +2355,7 @@ class RegressionGateCompletenessTests(unittest.TestCase):
     def test_main_flushes_stdout_before_child(self) -> None:
         """With stdout a pipe, the module list is flushed before the child
         starts, so it precedes the child's output instead of appearing
-        after the whole run (3b525 round 2, F6)."""
+        after the whole run."""
         root = self._tmp_repo(["test_a.py", "test_b.py"])
         wrapper = (
             "import runpy, sys\n"
@@ -2384,7 +2377,7 @@ class RegressionGateCompletenessTests(unittest.TestCase):
 
     # Every refusal the runner can make; BOTH documentation surfaces
     # (.claude/skills/corpus-management/tests/README.md and .claude/skills/corpus-management/tools/README.md) must list each of them, so
-    # neither can drift stale again (3b525 rounds 2 and 3, F7/F3).
+    # neither can drift stale again.
     _README_REFUSAL_NEEDLES = (
         "does not match",   # run-list / driver-argv mismatch
         "nested",           # nested test file
@@ -2397,18 +2390,17 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         "Ran N tests",
         "sentinel",
         "nonce",
-        "stdin",            # nonce delivery channel (round 3, F1)
-        "notStarted",       # class/module-level skip accounting (F4)
-        "0 credited starts",  # module with no credited start (W1)
+        "stdin",            # nonce delivery channel
+        "notStarted",       # class/module-level skip accounting
+        "0 credited starts",  # module with no credited start
         "cannot be paired",  # unittest.main load not paired with modules
         "more than one module",  # one case object in two modules' suites
     )
 
-    # The key phrase of each crediting residual and of the pairing-check
-    # wording; the runner docstring and both READMEs must carry every one
-    # (3b525 round-13 review: agy W, codex W, claude N1 and N2; round 15:
-    # every residual, and the per-run notStarted rule; round 16: its
-    # stretch limit and one run's further records discarded).
+    # The key phrase of each crediting residual, of the pairing-check
+    # wording and of the per-run notStarted rule, with its stretch limit
+    # and the discarding of one run's further records; the runner
+    # docstring and both READMEs must carry every one.
     _RESIDUAL_PHRASES = (
         # the pairing check compares counts, not identity
         "compares case counts per suite, not case identity",
@@ -2446,28 +2438,28 @@ class RegressionGateCompletenessTests(unittest.TestCase):
         # the stretch limit: records since the previous matched start
         "since the previous matched start",
         "arrived in that stretch",
-        # round 16: a class cleanup's skip gives one run a second record
-        # (round 17: worded as at most one counted record per run; round
-        # 19: this phrase replaced the old "never yields two records"
-        # clause in place, so restoring that clause drops it and fails
-        # here, and no negative check on the old words is kept, since it
-        # also fired on a correction quoting them; round 20: anchored to
-        # the preceding clause and its colon, so a negation inserted
-        # between them, as "It is false that one run contributes ...",
-        # fails here)
+        # a class cleanup's skip gives one run a second record, so the
+        # rule is worded as at most one counted record per run; this
+        # phrase replaced the old "never yields two records" clause in
+        # place, so restoring that clause drops it and fails here, and
+        # no negative check on the old words is kept, since in the
+        # earlier repository such a check also fired on a correction
+        # quoting them; the phrase is anchored to the preceding clause
+        # and its colon, so a negation inserted between them, as "It is
+        # false that one run contributes ...", fails here
         "one skip record never covers two runs; one run contributes at "
         "most one counted record:",
         "recorded under the same setUpClass name",
         "not credited to a later run",
-        # round 17: "back to back" defined as the code applies it
+        # "back to back" defined as the code applies it
         "arriving back to back (no start and no other skip record in "
         "between) with the same holder and the same _previousTestClass",
-        # round 17: the rule relies on a private unittest attribute
+        # the rule relies on a private unittest attribute
         "depends on unittest's private _previousTestClass attribute and "
         "its set-up order",
         "read in CPython 3.14 and 3.11 suite.py",
         "a change there could misgroup records",
-        # round 18: an absent attribute is refused, not read as None
+        # an absent attribute is refused, not read as None
         "has no _previousTestClass attribute at all as a setUpClass skip "
         "record arrives, the run is refused (exit 2, naming "
         "_previousTestClass and the Python version), never grouped by a "
@@ -2477,19 +2469,18 @@ class RegressionGateCompletenessTests(unittest.TestCase):
     def test_docs_state_crediting_residuals_in_agreement(self) -> None:
         """The runner docstring and both READMEs state every crediting
         residual, the pairing-check wording and the per-run notStarted
-        rule in the same words (markup and line breaks aside) (3b525
-        rounds 13, 14 and 15). The one-run rule is pinned by its
-        positive phrase alone (round 19: a negative check on the old
-        wording failed a correction that quoted it), anchored to the
-        clause before it (round 20). The pairing-check wording is also
-        pinned by its positive phrase alone (round 22: the last negative
-        check, on "different suite on a second load", was removed for
-        the same reason). Every check
-        here is an assertIn, so these wording checks establish only
-        that the listed text is present; they cannot detect added text
-        that contradicts it, before, after or elsewhere on a surface
-        (round 20 showed both a negation placed before the anchored
-        clause and a "correction" sentence appended after it pass)."""
+        rule in the same words (markup and line breaks aside). The
+        one-run rule is pinned by its positive phrase alone (in the
+        earlier repository, a negative check on the old wording failed a
+        correction that quoted it), anchored to the clause before it.
+        The pairing-check wording is also pinned by its positive phrase
+        alone, with no negative check on "different suite on a second
+        load", for the same reason. Every check here is an assertIn, so
+        these wording checks establish only that the listed text is
+        present; they cannot detect added text that contradicts it,
+        before, after or elsewhere on a surface (in the earlier
+        repository, a negation placed before the anchored clause and a
+        "correction" sentence appended after it both passed)."""
         surfaces = {"runner docstring": self._runner()["__doc__"] or ""}
         for rel in (".claude/skills/corpus-management/tools/README.md", ".claude/skills/corpus-management/tests/README.md"):
             surfaces[rel] = (REPO_ROOT / rel).read_text(encoding="utf-8")
@@ -2514,8 +2505,8 @@ class RegressionGateCompletenessTests(unittest.TestCase):
 
     def test_tools_readme_documents_runner_refusals(self) -> None:
         """.claude/skills/corpus-management/tools/README.md's gate-36 description stays in line with
-        .claude/skills/corpus-management/tests/README.md: every refusal listed on both surfaces (3b525
-        round 3, F3: .claude/skills/corpus-management/tools/README.md was the stale surface)."""
+        .claude/skills/corpus-management/tests/README.md: every refusal listed on both surfaces (in the
+        earlier repository, .claude/skills/corpus-management/tools/README.md was the stale surface)."""
         text = (SUITE_ROOT / "tools" / "README.md").read_text(encoding="utf-8")
         for refusal in self._README_REFUSAL_NEEDLES:
             self.assertIn(refusal, text,
@@ -2531,13 +2522,12 @@ class RegressionGateCompletenessTests(unittest.TestCase):
 
 
 class RegressionGateShardTests(unittest.TestCase):
-    """Gate 36 shard mode (maintainer directive 2026-11-04): the
-    selection deterministically and exactly partitions the test list, a
-    missing, duplicated, unknown or empty selection refuses, the shard
-    child runs its slice with the gate's refusal posture, and the CLI
-    refuses malformed shard arguments. The flip-table tests are marked
-    in their docstrings: each fails when its change is reverted or its
-    check is weakened."""
+    """Gate 36 shard mode: the selection deterministically and exactly
+    partitions the test list, a missing, duplicated, unknown or empty
+    selection refuses, the shard child runs its slice with the gate's
+    refusal posture, and the CLI refuses malformed shard arguments. The
+    flip-table tests are marked in their docstrings: each fails when its
+    change is reverted or its check is weakened."""
 
     SHARD_COUNT = 6
     WEIGHTS = '{\n  "schema": 1,\n  "units": {}\n}\n'
@@ -2704,9 +2694,9 @@ class RegressionGateShardTests(unittest.TestCase):
                 match = re.search(r"Ran (\d+) test", err)
                 self.assertIsNotNone(match, err)
                 ran_total += int(match.group(1))
-                # FLIP TABLE (round 2): the sentinel carries the shard's
-                # per-module credited-start counts for EVERY module, zero
-                # included, so the reconcile step can sum them across shards.
+                # FLIP TABLE: the sentinel carries the shard's per-module
+                # credited-start counts for EVERY module, zero included, so
+                # the reconcile step can sum them across shards.
                 # The captured stream can carry the test process's own
                 # warnings after the child's output; the sentinel is the
                 # last CHILD line, selected by its prefix here.
@@ -2733,10 +2723,10 @@ class RegressionGateShardTests(unittest.TestCase):
                          "shards, match the serial run's")
 
     def test_shard_main_publishes_credited_output_in_ci(self) -> None:
-        """FLIP TABLE (round 2): with GITHUB_OUTPUT set (a GitHub Actions
-        step), shard_main appends the validated per-module credited-start
-        counts as a block-style `credited` output; an unwritable
-        GITHUB_OUTPUT is a refusal, never a silent loss."""
+        """FLIP TABLE: with GITHUB_OUTPUT set (a GitHub Actions step),
+        shard_main appends the validated per-module credited-start counts
+        as a block-style `credited` output; an unwritable GITHUB_OUTPUT
+        is a refusal, never a silent loss."""
         runner = self._runner()
         root = self._tmp_repo(["test_aa_one.py", "test_bb_two.py"],
                               weights=self.WEIGHTS)
@@ -2855,9 +2845,9 @@ class RegressionGateShardTests(unittest.TestCase):
     def test_shard_sentinel_refusals(self) -> None:
         """A shard child's green exit is believed only from a sentinel
         carrying this run's nonce, shard, reconciled counts and per-module
-        credited starts naming exactly the handed modules (round 2: a
-        sentinel without the credited tail, naming other modules, or whose
-        counts do not sum to its credited total is refused)."""
+        credited starts naming exactly the handed modules (a sentinel
+        without the credited tail, naming other modules, or whose counts
+        do not sum to its credited total is refused)."""
         runner = self._runner()
         refusal = runner["_shard_sentinel_refusal"]
         nonce = "ab" * 16
@@ -2926,10 +2916,10 @@ class ReconcileRegressionShardsTests(unittest.TestCase):
     gates, and the full suite runs on the local server for the
     local-quality commit status and in the nightly sweep. Its job mode
     reads NEEDS_RESULTS as the retired summary job supplied it. FLIP
-    TABLE (round 2): it keeps the round-1 rule
-    (every needed job must have succeeded, an empty needs context fails)
-    and adds the per-module credited-start reconciliation that restores
-    the serial runner's refusal of a module with no credited start."""
+    TABLE: it keeps the needed-jobs rule (every needed job must have
+    succeeded, an empty needs context fails) and adds the per-module
+    credited-start reconciliation that restores the serial runner's
+    refusal of a module with no credited start."""
 
     TOOL = SUITE_ROOT / "tools" / "reconcile-regression-shards.py"
     MODULES = ["tests.test_aa_one", "tests.test_bb_two"]
@@ -3090,7 +3080,7 @@ class ReconcileRegressionShardsTests(unittest.TestCase):
                             for line in lines), lines)
 
     def test_failed_cancelled_skipped_or_empty_needs_fail(self) -> None:
-        """The round-1 property is kept: a needed job that failed, was
+        """The needed-jobs rule is kept: a needed job that failed, was
         cancelled, was skipped or is missing its result fails the check,
         and an empty needs context never passes vacuously."""
         tool = self._tool()
@@ -3169,10 +3159,10 @@ class ReconcileRegressionShardsTests(unittest.TestCase):
                 self.assertIn("REFUSED", bad.stderr)
 
 
-# D1 (rebuild C1 chunk R1): each relocated tool states the repository root
-# literally, at the depth matching its own location, not through a shared
-# import. This file is .claude/skills/corpus-management/tests/
-# test_regression_gate.py, so its own statement of the root is parents[4].
+# Each relocated tool states the repository root literally, at the depth
+# matching its own location, not through a shared import. This file is
+# .claude/skills/corpus-management/tests/test_regression_gate.py, so its
+# own statement of the root is parents[4].
 MARKER_ROOT = Path(__file__).resolve().parents[4]
 SKILL_REL = Path(".claude/skills/corpus-management")
 _SH_SCRIPT_DIR_ROOT = re.compile(

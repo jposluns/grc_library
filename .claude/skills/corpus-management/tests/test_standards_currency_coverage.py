@@ -1,4 +1,4 @@
-"""PR1 behavior fixtures: stdlib only; synthetic inputs stay in memory."""
+"""Behavior fixtures: stdlib only; synthetic inputs stay in memory."""
 import json
 import re
 import contextlib
@@ -14,7 +14,7 @@ if "W" not in globals():
     import sys
 
     # The repository root, stated literally for this file's location
-    # (<root>/.claude/skills/corpus-management/tests/), decision D1.
+    # (<root>/.claude/skills/corpus-management/tests/).
     ROOT = Path(__file__).resolve().parents[4]
     sys.path.insert(0, str(ROOT / ".claude/skills/corpus-management/tools"))
     spec = importlib.util.spec_from_file_location(
@@ -147,7 +147,7 @@ class CitationCoverageTests(unittest.TestCase):
             "governance/register-canonical-citations.md": register,
             relative: text,
         }
-        if exceptions is not None:  # 3b75: the historical register data and its generated page
+        if exceptions is not None:  # the historical register data and its generated page
             values[W.HISTORICAL_DATA_REL] = exceptions
             if page is None:
                 try:
@@ -172,7 +172,7 @@ class CitationCoverageTests(unittest.TestCase):
             return code, out.getvalue(), err.getvalue()
 
     def test_legacy_label_follows_the_legacy_match_position(self):
-        # 3b88: a normalized occurrence blocks only where a legacy pattern matches at its own
+        # A normalized occurrence blocks only where a legacy pattern matches at its own
         # position, so another spelling or edition the legacy check misses keeps ADVISORY,
         # whichever comes first on the line.
         def labels(text, register=REGISTER):
@@ -186,7 +186,7 @@ class CitationCoverageTests(unittest.TestCase):
         reg = REGISTER.replace("| Security | 2013 |", "| Security | 2013, 2005 |")
         self.assertEqual(labels("ISO/IEC 27001:2013 and ISO/IEC **27001**:2005.", reg),
                          [("2013", True), ("2005", False)])
-        # r2: a legacy match lends its label only where it starts at the occurrence and names the
+        # A legacy match lends its label only where it starts at the occurrence and names the
         # same edition (an attribute match or a shorter edition overlapping it does not).
         def spans(text, register=REGISTER):
             _, out, _ = self.invoke(text, "--format", "json", register=register)
@@ -498,7 +498,7 @@ class CitationCoverageTests(unittest.TestCase):
             for o in E.discover("NIST future publication", ".md")
         ))
 
-    # 3b425: one register row per cited NIST SP part or volume, exact matching kept.
+    # One register row per cited NIST SP part or volume, exact matching kept.
     PARTS = REGISTER + "".join(
         "| %s | %s | 2024 | NIST | %s |\n" % row for row in (
             ("NIST SP 800-57 Part 1", "Rev. 5", "Rev. 4, 2005"),
@@ -541,9 +541,10 @@ class CitationCoverageTests(unittest.TestCase):
         self.assertEqual(self.invoke("NIST SP 800-57 Pt. 1 Rev. 4", register=self.PARTS)[0], 0)
 
     def test_nist_bare_number_stays_its_own_identity(self):
-        """Compatibility control: the bare-number, comma, "Parts", "Volumes" and single-part
-        cases also pass on the 3b425 round 1 grammar; only the cases naming several parts
-        after "Part", "Pt." or "Vol." are new in round 2 and fail there."""
+        """Compatibility control: in the earlier repository, the bare-number, comma,
+        "Parts", "Volumes" and single-part cases also passed on the first version of the
+        part grammar; only the cases naming several parts after "Part", "Pt." or "Vol." were
+        added later and failed there."""
         # A bare number, or a citation naming several parts or volumes, names no single
         # part: it is not folded into a part row.
         for text in (
@@ -621,8 +622,8 @@ class CitationCoverageTests(unittest.TestCase):
             [("nist sp 1900 series", ""), ("nist sp 1800 series", ""), ("nist sp 800-53", "")],
         )
 
-    # 3b652: an allowlisted parenthesised programme name and its version is the version of
-    # the citation that name maps to; any other name is read as before 3b652.
+    # An allowlisted parenthesised programme name and its version is the version of the
+    # citation that name maps to; any other name is read as it would be with no allowlist.
     SSDF = (
         REGISTER + "| NIST SP 800-218 | 1.1 | 2022-02 | SSDF | 1.0 |\n"
         "| NIST CSF | 2.0 | 2024 | CSF | 1.1 |\n"
@@ -639,8 +640,8 @@ class CitationCoverageTests(unittest.TestCase):
         self.assertEqual(E.PROGRAMME_VERSIONS, {"SSDF": "nist sp 800-218"})
 
     def test_nist_parenthesised_name_not_allowlisted_reads_as_before(self):
-        # VPR3B652-R1 (claude, codex): another programme's version, a control, section or
-        # table number, a year-like token, or SSDF after an identity it does not name.
+        # Another programme's version, a control, section or table number, a year-like
+        # token, or SSDF after an identity it does not name.
         for cited, kind, names in (
             ("NIST CSF", "UNPINNED", (
                 "ISO 2.0", "CMMC 2.0", "PCI 4.0.1", "AC 2.1", "SECTION 3.2",
@@ -665,13 +666,13 @@ class CitationCoverageTests(unittest.TestCase):
         self.assertEqual(self.identities("ISO/IEC 27001 (ISMS 2.0)"), [("iso/iec 27001", "")])
 
 
-# 3b75: the sanctioned historical-context form (policy register + engine binding).
+# The sanctioned historical-context form (policy register + engine binding).
 HREG = (
     REGISTER
     + "| ISO/IEC 27002 | 2022 | 2022 | Controls | 2013 |\n"
     + "| ISO/IEC 27701 | 2025 | 2025 | PIMS | 2019 |\n"
 )
-# 3b75 redesign: the rows live in a TOML data file; the Markdown page is a generated view.
+# The rows live in a TOML data file; the Markdown page is a generated view.
 HXHEAD = "schema_version = 1\n"
 HSENT = (
     "The 2019 edition of ISO/IEC 27701 extended ISO/IEC 27001:2013 "
@@ -696,10 +697,10 @@ def hx(*rows):
 
 
 def assert_refused(tc, doc, sent, citation="ISO/IEC 27001:2013", msg=None):
-    """Both layers refuse the declaration (3b75 QA r7): the gate exits 1 with no HISTORICAL finding,
-    by the wrapper's register screen or the engine's INVALID_EXCEPTION, AND the engine alone, given
-    the declaration directly, sanctions nothing, so its binding rules keep their own coverage now
-    that the wrapper screens most malformed sentences first. Returns the engine's error details."""
+    """Both layers refuse the declaration: the gate exits 1 with no HISTORICAL finding, by the
+    wrapper's register screen or the engine's INVALID_EXCEPTION, AND the engine alone, given the
+    declaration directly, sanctions nothing, so its binding rules keep their own coverage now that
+    the wrapper screens most malformed sentences first. Returns the engine's error details."""
     msg = msg or repr(doc)
     code, found, err = tc.run_json(doc, hx(hrow(sent, citation=citation)))
     tc.assertEqual(code, 1, msg)
@@ -757,8 +758,8 @@ class HistoricalContextTests(unittest.TestCase):
         self.assertIn("HISTORICAL: 1 identities; 1 occurrences", out)
 
     def test_two_stale_occurrences_on_one_line_both_block(self):
-        # 3b88: each normalized occurrence consumes exactly one legacy finding, so the second
-        # stale citation of the same identifier on a line stays BLOCKING (legacy) too.
+        # Each normalized occurrence consumes exactly one legacy finding, so the second stale
+        # citation of the same identifier on a line stays BLOCKING (legacy) too.
         code, found, _ = self.run_json(
             "Adopted ISO/IEC 27001:2013 first and ISO/IEC 27001:2013 again.\n", None,
         )
@@ -845,8 +846,8 @@ class HistoricalContextTests(unittest.TestCase):
         code, found, _ = self.run_json(line + "\n", hx(hrow(sentence)))
         self.assertEqual(code, 1)
         # The row is invalid here (the sentence is not its own paragraph), so it sanctions
-        # nothing and both stale citations on the line block (3b88: the second one used to be
-        # downgraded to advisory).
+        # nothing and both stale citations on the line block (in the earlier repository, the
+        # second one was downgraded to advisory).
         self.assertEqual(
             [f["span"][0] for f in found
              if f["kind"] == "STALE" and f["legacy"]],
@@ -935,7 +936,7 @@ class HistoricalContextTests(unittest.TestCase):
 
 
 class HistoricalContextRoundTwoTests(unittest.TestCase):
-    """3b75 QA round 1 (claude, codex): each counterexample is a regression."""
+    """Each counterexample is a regression."""
     invoke = CitationCoverageTests.invoke
     run_json = HistoricalContextTests.run_json
 
@@ -980,7 +981,7 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
         self.assertIn("STALE", [f["kind"] for f in found], doc)
 
     def test_register_data_is_strict(self):
-        # 3b75 redesign: the rows live in TOML; the structural checks refuse, fail closed.
+        # The rows live in TOML; the structural checks refuse, fail closed.
         row = hrow()
         for data, message in [
             ("schema_version = 1\nschema_version = 1\n", "not valid TOML"),            # duplicate key
@@ -998,15 +999,15 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
             (HXHEAD + hrow(reason="Records the edition lin\u0435age accurately."), "single-line printable ASCII"),
             (HXHEAD + hrow(reason="Records the edition\nlineage accurately."), "single-line printable ASCII"),
             (HXHEAD + hrow(reason=" Records the edition lineage accurately."), "no leading, trailing or doubled space"),
-            (HXHEAD + hrow(reason="Records the  edition lineage accurately."), "doubled space"),  # claude r5
+            (HXHEAD + hrow(reason="Records the  edition lineage accurately."), "doubled space"),
             (HXHEAD + hrow(url="https://www.iso.org/standard/71670.html|x"), "upstream evidence URL required"),
-            # An https URL that names no host is not evidence (codex r5).
+            # An https URL that names no host is not evidence.
             (HXHEAD + hrow(url="https://#"), "upstream evidence URL required"),
             (HXHEAD + hrow(url="https:///"), "upstream evidence URL required"),
             (HXHEAD + hrow(url="https://?"), "upstream evidence URL required"),
             (HXHEAD + hrow(url="https://localhost/x"), "upstream evidence URL required"),
             (HXHEAD + hrow(url="https://www.iso.org:99999/x"), "upstream evidence URL required"),
-            # Credentials, an empty port or port 0 (claude r6).
+            # Credentials, an empty port or port 0.
             (HXHEAD + hrow(url="https://u:p" + "\x40" + "www.iso.org/x"), "upstream evidence URL required"),
             (HXHEAD + hrow(url="https://u" + "\x40" + "www.iso.org/x"), "upstream evidence URL required"),
             (HXHEAD + hrow(url="https://www.iso.org:/x"), "upstream evidence URL required"),
@@ -1016,7 +1017,7 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
             self.assertEqual(code, 1, data)
             self.assertIn(message, err, data)
             self.assertNotIn("\u0435", err)  # the error names the field, it does not echo content
-        # Colon-delimited times, edition suffixes and URNs are ordinary text, not refused (r7).
+        # Colon-delimited times, edition suffixes and URNs are ordinary text, not refused.
         for reason in ["Records ISO/IEC 27001:2013: the previous baseline.",
                        "Checked 12:30:00 UTC.", "Cites urn:uuid:12345 as the record."]:
             self.assertEqual(len(W.HCR.load(hx(hrow(reason=reason)))), 1, reason)
@@ -1042,24 +1043,24 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
             self.assertEqual(code, 1, page)
             self.assertIn(message, err, page)
             self.assertNotIn("HISTORICAL", [f["kind"] for f in found])
-        # The page must show the generated table as its only table (3b75 redesign QA, codex, claude).
+        # The page must show the generated table as its only table.
         fake = "| Exception ID | Path |\n| --- | --- |\n| HCE-999 | governance/x.md |\n"
         for page, message in [
             ("<script>\n\n" + good + "\n</script>\n", "raw HTML or a comment outside the generated block"),
             ("<script>\n" + good + "</script>\n", "must stand alone"),
             ("<details>\n\n" + good + "\n</details>\n", "raw HTML or a comment outside the generated block"),
             ("```\n\n" + good + "\n```\n", "a fence marker outside the generated block"),
-            ("> ```\n> x\n\n" + good, "a fence marker outside the generated block"),   # a quoted fence (claude r3)
+            ("> ```\n> x\n\n" + good, "a fence marker outside the generated block"),   # a quoted fence
             ("- ~~~\n\n" + good, "a fence marker outside the generated block"),
-            ("---\nException ID: HCE-999\nPath: ai/phantom.md\n---\n\n" + good, "front matter at the top of the page"),  # codex r3
-            (("---\nException ID: HCE-999\n---\n\n" + good).replace("\n", "\r\n"), "LF line endings only"),  # r4
+            ("---\nException ID: HCE-999\nPath: ai/phantom.md\n---\n\n" + good, "front matter at the top of the page"),
+            (("---\nException ID: HCE-999\n---\n\n" + good).replace("\n", "\r\n"), "LF line endings only"),
             (good.replace("# Register\n", "# Register\u2028"), "LF line endings only"),
-            (good + "\n$$\n\\begin{array}{ll} HCE-001 & ai/x.md \\end{array}\n$$\n", "math markup"),  # claude r4
+            (good + "\n$$\n\\begin{array}{ll} HCE-001 & ai/x.md \\end{array}\n$$\n", "math markup"),
             (fake + "\n" + good, "a table (or a pipe) outside the generated block"),
             ("a | b\n:-- | --:\n1 | 2\n\n" + good, "a table (or a pipe) outside the generated block"),  # no outer pipes
             ("# Register\n\n- item\n\n  " + H.render(rows) + "\n", "must stand alone"),  # nested in a list item
             (good.replace(H.END + "\n", H.END + "x\n"), "must stand alone"),
-            # An image can show a picture of a table (claude r5).
+            # An image can show a picture of a table.
             ("![Exceptions](https://www.iso.org/t.png)\n\n" + good, "an image outside the generated block"),
             (good + "\n![Exceptions][t]\n\n[t]: https://www.iso.org/t.svg\n", "an image outside the generated block"),
             (" \t" + H.render(rows) + "\n", "must stand alone"),  # an indented block on line 1
@@ -1068,10 +1069,10 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
             self.assertEqual(code, 1, page)
             self.assertIn(message, err, page)
             self.assertNotIn("HISTORICAL", [f["kind"] for f in found])
-        # Blank lines may hold spaces or tabs (codex r2): accepted.
+        # Blank lines may hold spaces or tabs: accepted.
         code, found, _ = self.run_json("\n" + s + "\n\n", data, page="# Register\n \t\n" + H.render(rows) + "\n  \nEnd.\n")
         self.assertEqual((code, [f["kind"] for f in found]), (0, ["HISTORICAL"]))
-        # The start and end of the file are a boundary: one blank line there is enough (codex r5).
+        # The start and end of the file are a boundary: one blank line there is enough.
         R = H.render(rows)
         for page in ["\n" + R + "\n", " \t\n" + R + "\n", R + "\n \t", R, R + "\n"]:
             code, found, err = self.run_json("\n" + s + "\n\n", data, page=page)
@@ -1117,17 +1118,17 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
                 (root / H.PAGE_REL).write_text("# Register\n\n" + H.render([]) + "\n")
                 self.assertEqual(B.main(["--check", "--root", d]), 1)
                 (root / H.PAGE_REL).write_text("<details>\n\n" + good.split("\n", 2)[2] + "\n</details>\n")
-                self.assertEqual(B.main(["--check", "--root", d]), 1)  # a page gate 6 refuses (r4)
+                self.assertEqual(B.main(["--check", "--root", d]), 1)  # a page gate 6 refuses
                 (root / H.PAGE_REL).write_text("# Register\n\n" + H.render([]) + "\n")
                 self.assertEqual(B.main(["--root", d]), 0)
                 self.assertEqual((root / H.PAGE_REL).read_text(), good)
-                # Write mode still reports a page gate 6 would refuse (claude r5).
+                # Write mode still reports a page gate 6 would refuse.
                 (root / H.PAGE_REL).write_text("a | b\n\n" + good)
                 self.assertEqual(B.main(["--root", d]), 1)
                 (root / H.PAGE_REL).write_text(good)
                 (root / H.DATA_REL).write_text("schema_version = 2\n")
                 self.assertEqual(B.main(["--check", "--root", d]), 2)
-                # An unreadable data file is an input error, never "no rows" (codex, gemini r2).
+                # An unreadable data file is an input error, never "no rows".
                 (root / H.DATA_REL).write_text(data)
                 os.chmod(root / H.DATA_REL, 0)
                 try:
@@ -1138,7 +1139,7 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
                     os.chmod(root / H.DATA_REL, 0o600)
 
     def test_round_three_structural_rules(self):
-        # 3b75 QA r2 (claude, codex, gemini): the sentence is the WHOLE of its line or cell.
+        # The sentence is the WHOLE of its line or cell.
         for doc, sent in [
             ("The earlier ISO/IEC 27001:2013 edition, e.g.\n",
              "The earlier ISO/IEC 27001:2013 edition, e.g."),
@@ -1153,9 +1154,9 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
             self.assertEqual(code, 1, doc)
             self.assertIn("INVALID_EXCEPTION", [f["kind"] for f in found], doc)
             self.assertIn("STALE", [f["kind"] for f in found], doc)
-        # 3b75 QA r3 (claude, codex): only a STANDALONE PARAGRAPH binds. A table cell (real or a
-        # pipe line inside a paragraph), a list item (parent, child or sibling), a heading
-        # neighbour and a sentence missing its terminator are all refused.
+        # Only a STANDALONE PARAGRAPH binds. A table cell (real or a pipe line inside a
+        # paragraph), a list item (parent, child or sibling), a heading neighbour and a sentence
+        # missing its terminator are all refused.
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
         for doc in [
             "| A | B |\n| --- | --- |\n| Lineage | " + s + " |\n",
@@ -1222,8 +1223,8 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
 
     def test_round_five_containers_and_parsing(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
-        # 3b75 QA r4 (codex): a code span in the sentence could, once masked, expose a fence that
-        # hides a later citation; it is refused, and the later citation still blocks.
+        # A code span in the sentence could, once masked, expose a fence that hides a later
+        # citation; it is refused, and the later citation still blocks.
         fence = "ISO/IEC 27001:2013 ```was the previous edition```."
         assert_refused(self, "\n" + fence + "\n\nPCI DSS 4.0 governs certification.\n", fence)
         # Legacy-check line eligibility comes from the original text, not the masked one.
@@ -1232,19 +1233,19 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
         masked = "            ```was```.\nPCI DSS 4.0 x\n"
         original = "ISO/IEC 27001:2013 ```was```.\nPCI DSS 4.0 x\n"
         self.assertEqual(eng.check_text(masked, compiled, eligible_from=original), [(2, "PCI")])
-        # 3b75 QA r4 (codex): a no-break-space line is not a Markdown blank line.
+        # A no-break-space line is not a Markdown blank line.
         code, found, _ = self.run_json("Our programme relies on\n\u00a0\n" + s + "\n\u00a0\n", hx(hrow(s)))
         self.assertEqual(code, 1)
         self.assertIn("INVALID_EXCEPTION", [f["kind"] for f in found])
-        # 3b75 QA r4 (codex): a raw-HTML quotation around the paragraph.
+        # A raw-HTML quotation around the paragraph.
         code, found, _ = self.run_json("<blockquote>\n\n" + s + "\n\n</blockquote>\n", hx(hrow(s)))
         self.assertEqual(code, 1)
         self.assertIn("INVALID_EXCEPTION", [f["kind"] for f in found])
-        # 3b75 QA r4 (claude): a sentence present only inside a fenced block is not found.
+        # A sentence present only inside a fenced block is not found.
         code, found, _ = self.run_json("```\n" + s + "\n```\n", hx(hrow(s)))
         self.assertEqual(code, 1)
         self.assertTrue(any("declared sentence not found" in f["detail"] for f in found))
-        # A citation cell carrying more than the one registered edition (codex r4).
+        # A citation cell carrying more than the one registered edition.
         for register, message in [
             (hx(hrow(s, citation="ISO/IEC 27001:2013 extra")), "is not exactly one registered superseded edition"),
         ]:
@@ -1254,32 +1255,32 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
 
     def test_round_nine_guards(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
-        # 3b75 QA r8 (claude): the absolute-path guard.
+        # The absolute-path guard.
         code, _, err = self.run_json("\n" + s + "\n\n", hx(hrow(s, path="/ai/citation.md")))
         self.assertEqual(code, 1)
         self.assertIn("path must be a canonical repo .md path", err)
-        # 3b75 QA r8 (claude): a fence line carrying text after its run does not close the block.
+        # A fence line carrying text after its run does not close the block.
         self.assertIn("HCE-001: the document's fenced blocks are not all simple three-character fences",
                       assert_refused(self, "```\nx\n```y\n\n" + s + "\n\n", s))
 
     def test_round_eight_lookalikes_and_rows(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
-        # 3b75 QA r7 (claude): a non-ASCII lookalike letter hides a present-tense verb from the
-        # word screen and from the reviewer; the data file refuses non-ASCII text, and the engine
-        # alone refuses the sentence too.
+        # A non-ASCII lookalike letter hides a present-tense verb from the word screen and from
+        # the reviewer; the data file refuses non-ASCII text, and the engine alone refuses the
+        # sentence too.
         for sent in ("The previously adopted ISO/IEC 27001:2013 r\u0435quires annual audits.",
                      "The earlier ISO/IEC 27001:2013 edition \u0433overns audits."):
             code, _, err = self.run_json("\n" + sent + "\n\n", hx(hrow(sent)))
             self.assertEqual(code, 1, sent)
             self.assertIn("single-line printable ASCII", err, sent)
             assert_refused(self, "\n" + sent + "\n\n", sent)
-        # 3b75 QA r7 (claude): further present-tense verbs.
+        # Further present-tense verbs.
         for sent in ("The control set, previously agreed, conforms to ISO/IEC 27001:2013.",
                      "Our certification continues under ISO/IEC 27001:2013 as previously scoped."):
             code, _, err = self.run_json("\n" + sent + "\n\n", hx(hrow(sent)))
             self.assertEqual(code, 1, sent)
             self.assertIn("present-tense wording", err, sent)
-        # 3b75 QA r7 (claude): two rows cannot sanction the one occurrence.
+        # Two rows cannot sanction the one occurrence.
         code, _, err = self.run_json("\n" + s + "\n\n", hx(hrow(s), hrow(s, xid="HCE-002")))
         self.assertEqual(code, 1)
         self.assertIn("repeats another row's path, sentence and citation", err)
@@ -1290,25 +1291,25 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
     def test_round_seven_markup_and_line_model(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
         tbl = "<table><tr><th>Current baseline</th></tr><tr><td>"
-        # 3b75 QA r6 (claude, codex, gemini): comment markers a regex pairs but a renderer does not
-        # (in a code span, in a fence, escaped, or the complete `<!-->` comment) hid real HTML.
+        # Comment markers a regex pairs but a renderer does not (in a code span, in a fence,
+        # escaped, or the complete `<!-->` comment) hid real HTML in the earlier repository.
         for doc in (
             "Write `<!--` to open.\n\n" + tbl + "\n\n" + s + "\n\n</td></tr></table>\n\nWrite `-->` to close.\n",
             "```\n<!--\n```\n\n" + tbl + "\n\n" + s + "\n\n</td></tr></table>\n\n```\n-->\n```\n",
             "<!-->\n" + tbl + "\n-->\n\n" + s + "\n\n<!-- </td></tr></table> -->\n",
             "\\<!--\n\n<blockquote>\n\n" + s + "\n\n</blockquote>\n\n-->\n",
-            "<!--\n\n" + s + "\n\n",  # an unclosed comment in the citing document (claude r6)
+            "<!--\n\n" + s + "\n\n",  # an unclosed comment in the citing document
         ):
             self.assertIn("HCE-001: the document carries raw HTML or an HTML comment",
                           assert_refused(self, doc, s))
-        # A lone CR in the file's bytes, which a universal-newline read turns into LF (codex r6).
+        # A lone CR in the file's bytes, which a universal-newline read turns into LF.
         self.assertIn("HCE-001: the document uses line separators other than LF or CRLF",
                       assert_refused(self, ("\n" + s + "\r\rIt governs certification today.\n").encode(), s))
         # CRLF is an ordinary line ending, so a CRLF document still binds.
         code, found, _ = self.run_json(("Intro.\r\n\r\n" + s + "\r\n\r\nMore.\r\n").encode(), hx(hrow(s)))
         self.assertEqual((code, [f["kind"] for f in found]), (0, ["HISTORICAL"]))
-        # A fence the line model toggles differently from a renderer (claude r6): a 4-backtick
-        # fence around a 3-backtick line, an indented fence, mixed fence characters, an open fence.
+        # A fence the line model toggles differently from a renderer: a 4-backtick fence around a
+        # 3-backtick line, an indented fence, mixed fence characters, an open fence.
         for doc in (
             "````\n```\n\n" + s + "\n\n```\n````\n",
             "  ```\ncode\n  ```\n\n" + s + "\n\n",
@@ -1325,7 +1326,7 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
         code, found, _ = self.run_json("```text\ncode\n```\n\n" + s + "\n\n~~~\nmore\n~~~\n", hx(hrow(s)))
         self.assertEqual((code, [f["kind"] for f in found]), (0, ["HISTORICAL"]))
         # The sentence is plain text: a character reference hides a break or a present-tense word, a
-        # tilde run or emphasis can change what renders (codex r6, claude r6).
+        # tilde run or emphasis can change what renders.
         for sent in (
             "The earlier ISO/IEC 27001:2013 edition was withdrawn.&#32;The replacement followed.",
             "The previous edition ISO/IEC 27001:2013 r&#101;quires certification.",
@@ -1338,7 +1339,7 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
             self.assertIn("sentence must be plain text", err, sent)
             assert_refused(self, "\n" + sent + "\n\n", sent)
         # The data file: separators other than LF or CRLF, and Markdown or HTML around the data,
-        # are not TOML and fail closed (codex r6, claude r6; the redesign removes the page parser).
+        # are not TOML and fail closed (the rows are read from TOML, not parsed from the page).
         for sep in ("\u2028", "\x0b", "\x85", "\r"):
             body = (HXHEAD + hrow(s)).replace("\n", sep).encode("utf-8")
             code, found, err = self.invoke("\n" + s + "\n", register=HREG, exceptions=body)
@@ -1351,8 +1352,8 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
 
     def test_round_six_line_model_and_html(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
-        # 3b75 QA r5 (claude, codex): with NO exceptions, a U+2028 earlier in the file must not
-        # shift which line the legacy check reads; the stale citation keeps blocking.
+        # With NO exceptions, a U+2028 earlier in the file must not shift which line the legacy
+        # check reads; the stale citation keeps blocking.
         doc = "Intro\u2028more\n\n```\ncode\n```\nISO/IEC 27001:2013\n"
         code, out, _ = self.invoke(doc, register=HREG)
         self.assertEqual(code, 1)
@@ -1370,10 +1371,10 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
         inl = "The earlier ISO/IEC 27001:2013 <em>edition</em> was withdrawn."
         code, found, _ = self.run_json("\n" + inl + "\n\n", hx(hrow(inl)))
         self.assertEqual(code, 1)
-        # Curly quotes do not hide a sentence break (codex r5).
+        # Curly quotes do not hide a sentence break.
         curly = "He wrote \u201cThe earlier ISO/IEC 27001:2013 edition was withdrawn.\u201d The replacement followed."
         assert_refused(self, "\n" + curly + "\n\n", curly)
-        # HTML around the data is not TOML and fails closed (codex r5).
+        # HTML around the data is not TOML and fails closed.
         code, _, err = self.invoke("\n" + s + "\n", register=HREG,
                                    exceptions="Policy <script type=\"text/plain\">\n" + hx(hrow(s)) + "End </script>\n")
         self.assertEqual(code, 1)
