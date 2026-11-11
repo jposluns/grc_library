@@ -8498,7 +8498,7 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         )
         warned = self._warned(out)
         self.assertEqual(len(warned), 1, out)
-        # 3b425: gate 6's identity keeps the explicit part.
+        # Gate 6's identity keeps the explicit part.
         self.assertIn("alignment-table row 'NIST SP 800-57 Part 1'", warned[0])
         self.assertIn("security/standard-example.md:9:", warned[0])
         self.assertIn("D15 ADVISORY: 1 added citation", out)
@@ -8532,8 +8532,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         return mod.scan_text(doc, set(range(1, doc.count("\n") + 1)), resolver)
 
     def _assert_list_header(self, first):
-        # 3b376: identity_key drops the spaces around "/", so a spaced LIST_HEADERS entry never
-        # matched and its table was read as matrix-form, with its rows never scanned.
+        # identity_key drops the spaces around "/"; in the earlier repository a spaced
+        # LIST_HEADERS entry therefore never matched and its table was read as matrix-form,
+        # with its rows never scanned.
         got = self._scan_header(f"| {first} | Relevant Clause | Mapping |", "| NIST SP 800-57 | Keys | Keys |")
         self.assertEqual(got, [(7, "alignment-table row", "NIST SP 800-57")])
 
@@ -8556,7 +8557,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self._assert_list_header("Standard / Framework")
 
     def test_list_header_sibling_slash_forms(self) -> None:
-        # 3b378 item 5: the sibling headers 3b376 surfaced, spaced and unspaced, in any case.
+        # The sibling headers that the spaced-header fix surfaced, spaced and unspaced, in any
+        # case.
         for first in ("Regulation / Guideline", "Regulation / Framework", "Regulation / Directive",
                       "Standard / Regulation", "regulation/directive", "standard/regulation",
                       "regulation/framework"):
@@ -8649,7 +8651,7 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertIn("'45 CFR Part 165'", warned[0])
 
     def test_tsa_pipeline_directives_plural_is_not_aliased_to_one_row(self) -> None:
-        # 3b369: the plural names both pipeline series, so it no longer maps to the 02 row only.
+        # The plural names both pipeline series, so it no longer maps to the 02 row only.
         # Both pipeline rows are registered, so an alias to either row would silence a plural.
         rows = self.ROWS + (
             ("TSA Pipeline Security Directive", "SD Pipeline-2021-02G", "-"),
@@ -8725,7 +8727,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertEqual(self._warned(out), [], out)
 
     def test_alias_keys_are_in_case_insensitive_order(self) -> None:
-        # 3b369: three older pairs were out of order; the file's own rule keeps the block sorted.
+        # In the earlier repository three older pairs were out of order; the file's own rule keeps
+        # the block sorted.
         import json
 
         keys = list(json.loads(self._module().ALIASES_PATH.read_text(encoding="utf-8"))["aliases"])
@@ -8736,8 +8739,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
     ICO_SERIES = "UK ICO, Employment practices and data protection"
 
     def test_full_title_alias_matches_and_series_name_does_not_cover_other_titles(self) -> None:
-        # 3b367 (a): the ": " provision branch strips a document title; the full title still
-        # reaches the alias lookup, so an alias keyed on it registers that title only.
+        # The ": " provision branch strips a document title; the full title still reaches
+        # the alias lookup, so an alias keyed on it registers that title only.
         import json
 
         mod = self._module()
@@ -8753,7 +8756,7 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
             f"| {self.ICO_SERIES}: Monitoring workers (June 2024) | Devices | - |",
             f"| {self.ICO_SERIES}: Recruitment and selection | Vetting | - |",
             "| Other | - | GDPR Art. 32; EU AI Act: High Risk |",
-            # Round 2: text after the parenthetical, so the alias must not match its prefix.
+            # Text after the parenthetical, so the alias must not match its prefix.
             f"| {self.ICO_SERIES}: Monitoring workers (June 2024) Unknown Act | Devices | - |",
             header=header,
         )
@@ -8791,8 +8794,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         return [(ln, cite) for ln, _, cite in found]
 
     def test_free_text_full_form_exact_match(self) -> None:
-        # Round 2 (claude N5): a free-text segment's full form reaches the exact lookups too.
-        # Passes on the round-1 checker as well; it pins the free-text path of that change.
+        # A free-text segment's full form reaches the exact lookups too. In the earlier repository
+        # it also passed on the checker's first version; it pins the free-text path of the
+        # full-form change.
         got = self._scan_rows(
             "| Other | - | GDPR Art. 88; ICO guidance: Monitoring workers (June 2024) |",
             "| Other | - | ICO guidance: Recruitment |",  # control: no alias for this title
@@ -8818,8 +8822,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
     WP249 = "Article 29 Working Party Opinion 2/2017 on data processing at work (WP 249)"
 
     def test_article_29_working_party_citation_is_looked_up(self) -> None:
-        # 3b367 (b): the leading "Article" was read as a provision, so the citation split to
-        # nothing and was never checked.
+        # In the earlier repository the leading "Article" was read as a provision, so the citation
+        # split to nothing and was never checked.
         header = "| Framework | Reference | Regulatory |"
         head = self._doc(
             f"| {self.WP249} | §5.4.2 | - |",
@@ -8832,8 +8836,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
             self.assertIn(f"alignment-table row {self.WP249!r}", warned[0])
             self.assertIn("citation-list cell 'Article 29 Working Party Opinion 2/2017'", warned[1])
         with self.subTest(register="registered"):
-            # Passes before 3b367 too (both citations were dropped unchecked); after it, it pins
-            # that the row's WP number and the free-text Opinion designator match the WP249 row.
+            # In the earlier repository it also passed before the fix (both citations were
+            # dropped unchecked); now it pins that the row's WP number and the free-text Opinion
+            # designator match the WP249 row.
             rows = self.ROWS + (
                 ("WP249 (Article 29 Working Party Opinion 2/2017 on data processing at work)", "Original", "-"),
             )
@@ -8841,8 +8846,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
             self.assertEqual(self._warned(out), [], out)
 
     def test_article_29_exception_is_the_spelled_out_segment_initial_form_only(self) -> None:
-        # Round 2 (codex, claude N1): only "Article 29 Working Party" at the start of a segment
-        # keeps its words; no WP249 row is registered here, so a kept citation warns.
+        # Only "Article 29 Working Party" at the start of a segment keeps its words; no WP249
+        # row is registered here, so a kept citation warns.
         cases = (
             # Abbreviated and plural forms are provisions again: stripped to nothing.
             ("| Art 29 Working Party Opinion 2/2017 | - | - |", []),
@@ -8850,29 +8855,30 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
             # After another citation the words are that citation's provision: GDPR resolves.
             ("| GDPR Article 29 Working Party guidance | - | - |", []),
             ("| Other | - | DORA Art. 9; GDPR Article 29 Working Party guidance |", []),
-            # The possessive still starts with the body name. Passes on the round-1 checker too.
+            # The possessive still starts with the body name. In the earlier repository it also
+            # passed on the checker's first version.
             ("| Article 29 Working Party's Opinion 2/2017 | - | - |",
              [(7, "Article 29 Working Party's Opinion 2/2017")]),
             # Ends at a comma: the bare body name is not a citation; the Opinion still warns.
             ("| Other | - | Article 29 Working Party, Opinion 2/2017 |", [(7, "Opinion 2/2017")]),
-            ("| Article 29 Working Party | Guidance | - |", []),  # a bare list cell (claude W2)
+            ("| Article 29 Working Party | Guidance | - |", []),  # a bare list cell
         )
         for row, want in cases:
             with self.subTest(row=row):
                 self.assertEqual(self._scan_rows(row), want)
 
     def test_full_form_drops_only_a_date_edition_or_designator_parenthetical(self) -> None:
-        # Round 3 (codex): a substantive terminal parenthetical stays part of the full form, so
-        # a full-title alias does not register it; the stripped series name then warns.
+        # A substantive terminal parenthetical stays part of the full form, so a full-title
+        # alias does not register it; the stripped series name then warns.
         title = f"{self.ICO_SERIES}: Monitoring workers"
         got = self._scan_rows(
             f"| {title} (Unknown Act) | Devices | - |",
             f"| {title} (June 2024) | Devices | - |",
             f"| {title} (2019, updated 2024) | Devices | - |",
             f"| {title} (v2.0) | Devices | - |",
-            # Round 6 item 3: a WP number the ICO row does not carry is kept.
+            # A WP number the ICO row does not carry is kept.
             f"| {title} (WP 249) | Devices | - |",
-            # Punctuation after the parenthetical (claude N: the class was unpinned).
+            # Punctuation after the parenthetical (a class the earlier repository left unpinned).
             f"| {title} (June 2024): | Devices | - |",
             # Free text: a control code after the full title is removed from the full form too.
             "| Other | - | GDPR Art. 88; ICO guidance: Monitoring workers (June 2024) LOG-05 |",
@@ -8886,11 +8892,11 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertEqual(got, [(7, self.ICO_SERIES), (11, self.ICO_SERIES), (14, "ICO guidance")])
 
     def test_full_form_keeps_a_jurisdiction_status_or_multi_word_capitals_parenthetical(self) -> None:
-        # Round 4 (all three): the acronym item accepted any capitals run, so these were dropped
-        # and the full-title alias registered them; now they stay and the series name warns.
-        # The last three rows pin the items a mutant could remove unnoticed (claude). Round 5:
-        # "SMEs" and "AICM" are not this title's registered acronyms, so they are kept too.
-        # Round 6 item 3: Opinion 2/2017 and WP 248 are designators the ICO row does not carry, so they are kept.
+        # In the earlier repository the acronym item accepted any capitals run, so these were
+        # dropped and the full-title alias registered them; now they stay and the series name
+        # warns. The last three rows pin the items a mutant could remove unnoticed. "SMEs" and
+        # "AICM" are not this title's registered acronyms, so they are kept too. Opinion 2/2017 and
+        # WP 248 are designators the ICO row does not carry, so they are kept.
         title = f"{self.ICO_SERIES}: Monitoring workers"
         kept = ("UK", "US", "UNKNOWN ACT", "SUPERSEDED", "WITHDRAWN", "NOT ADOPTED", "DRAFT",
                 "HIPAA, US", "RFC 9457", "SMEs", "AICM", "Opinion 2/2017", "WP 248")
@@ -8906,8 +8912,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
                  "rev.01", "-")
 
     def test_article_29_full_form_matches_a_registered_designator(self) -> None:
-        # Round 3 (claude W): the stripped form ends at the inner "Article 35", so only the full
-        # form's WP number can reach the WP248 row; main dropped the citation unchecked.
+        # The stripped form ends at the inner "Article 35", so only the full form's WP number
+        # can reach the WP248 row; the earlier repository's main branch dropped the citation
+        # unchecked.
         got = self._scan_rows(
             "| Article 29 Working Party Guidelines on DPIA under Article 35 (WP 248) | DPIA | - |",
             "| Article 29 Working Party Guidelines on DPIA under Article 35 (WP 250) | DPIA | - |",
@@ -8920,8 +8927,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         )
 
     def test_article_29_full_form_needs_every_wp_number_registered(self) -> None:
-        # Round 4 (all three): one registered designator anywhere in the full form registered it;
-        # now only WP numbers count, at least one is needed, and every one must be registered.
+        # In the earlier repository one registered designator anywhere in the full form registered
+        # it; now only WP numbers count, at least one is needed, and every one must be registered.
         # The register here has neither WP999 nor the consent guidelines, but, like the real
         # register, an EDPB Guidelines 07/2020 row.
         edpb = ("EDPB Guidelines 07/2020 (concepts of controller and processor in the GDPR)", "Version 2.1", "-")
@@ -8930,7 +8937,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
             "| Article 29 Working Party Guidelines on consent under Article 7 "
             "(replaced by EDPB Guidelines 07/2020) | - | - |",
             "| Article 29 Working Party Guidelines on DPIA under Article 35 (WP 248) | DPIA | - |",
-            # Round 4 (gemini): the stripped-form designator fallback ignored the issuing body.
+            # In the earlier repository the stripped-form designator fallback ignored the issuing
+            # body.
             "| EU Unknown Act (WP 248) | DPIA | - |",
             register_rows=self.ROWS + (self.WP248_ROW, edpb),
         )
@@ -8941,8 +8949,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ])
 
     def test_article_29_colon_before_the_title_is_not_a_provision(self) -> None:
-        # Round 3 (claude W): ": " after the body name introduced the document and stripped it,
-        # leaving the not-citable body name, so an unregistered WP249 citation gave no finding.
+        # In the earlier repository ": " after the body name introduced the document and
+        # stripped it, leaving the not-citable body name, so an unregistered WP249 citation
+        # gave no finding.
         cite = "Article 29 Working Party: Opinion 2/2017 on data processing at work (WP 249)"
         rows = (f"| {cite} | §5.4.2 | - |", "| Other | - | GDPR Art. 88; Article 29 Working Party: Opinion 2/2017 |")
         with self.subTest(register="unregistered"):
@@ -8958,7 +8967,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
     TBS_ADM_ROW = ("Canada TBS Directive on Automated Decision-Making", "2019", "-")
 
     def test_chapter_is_a_provision_tail(self) -> None:
-        # 3b378 item 1: "Chapter" was not a provision word, so "EU AI Act Chapter IX" warned.
+        # In the earlier repository "Chapter" was not a provision word, so "EU AI Act Chapter IX"
+        # warned.
         rows = (
             "| EU AI Act Chapter IX | Post-market monitoring | - |",
             "| EU AI Act Chapters III | High risk | - |",
@@ -8973,8 +8983,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertEqual(self._scan_rows(rows[0]), [(7, "EU AI Act")])
 
     def test_provision_inside_a_parenthetical_is_kept(self) -> None:
-        # 3b378 item 2: the provision tail was cut inside an open parenthesis, so the citation
-        # was reported truncated at "(11 CCR Div 6".
+        # In the earlier repository the provision tail was cut inside an open parenthesis, so the
+        # citation was reported truncated at "(11 CCR Div 6".
         name = "California CCPA ADMT and risk-assessment regulations (11 CCR Div 6 Ch 1 Arts 10-11)"
         mod = self._module()
         self.assertEqual(mod.split_parts(name, False), [(name, name)])
@@ -8990,8 +9000,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         )
 
     def test_leading_jurisdiction_label_names_the_instrument_after_it(self) -> None:
-        # 3b378 item 3: "Canada: " was read as a provision tail, leaving the not-citable
-        # "Canada" and hiding the instrument.
+        # In the earlier repository "Canada: " was read as a provision tail, leaving the
+        # not-citable "Canada" and hiding the instrument.
         mod = self._module()
         cite = "Canada: TBS Directive on Automated Decision-Making"
         self.assertEqual(
@@ -9009,7 +9019,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
             [(7, "ISED Voluntary Code (2023)"), (8, "TBS Directive on Unknown Systems"), (9, "Unknown Act"),
              (10, "ACME")],
         )
-        # Without its row the instrument is now reported; before 3b378 it gave no finding.
+        # Without its row the instrument is now reported; in the earlier repository it gave no
+        # finding.
         self.assertEqual(self._scan_rows(rows[0]), [(7, "ISED Voluntary Code (2023)"),
                                                     (7, "TBS Directive on Automated Decision-Making")])
 
@@ -9022,9 +9033,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
     )
 
     def test_basc_security_standard_without_international(self) -> None:
-        # 3b378 item 4: the umbrella pattern required "International". Round 2 item 2
-        # (VPR3B378-R1): round 1 sent 6.0.3-only forms to the 6.0.2 row and expected that; each
-        # numbered standard now resolves to its own row, and the combined form needs both rows.
+        # In the earlier repository the umbrella pattern required "International", and a first
+        # fix sent 6.0.3-only forms to the 6.0.2 row and expected that; each numbered standard
+        # now resolves to its own row, and the combined form needs both rows.
         rows = (
             "| Other | - | BASC Security Standard 6.0.2/6.0.3 |",
             "| BASC Security Standard 6.0.3 | - | - |",
@@ -9038,13 +9049,13 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
             [(7, "BASC Security Standard 6.0.2/6.0.3"), (8, "BASC Security Standard 6.0.3"),
              (10, "BASC Security Standard 7.0.1")],
         )
-        # Residual (predates 3b378), in both directions: the "International" spelling of a
-        # numbered standard whose row is absent is still registered by the series rule when the
-        # other numbered row exists, "BASC International Security Standard" being a series prefix
-        # of either Standard ID; no umbrella sends it to a row. With only the 6.0.3 row, "BASC
-        # International Security Standard 6.0.2" (line 9) gives no finding; with only the 6.0.2
-        # row, "BASC International Security Standard 6.0.3" gives none (round 2 review N1), and
-        # with either row neither does an unknown number such as 7.0.1 (round 2 review, codex).
+        # Residual (it predates the umbrella fix), in both directions: the "International"
+        # spelling of a numbered standard whose row is absent is still registered by the series
+        # rule when the other numbered row exists, "BASC International Security Standard" being a
+        # series prefix of either Standard ID; no umbrella sends it to a row. With only the 6.0.3
+        # row, "BASC International Security Standard 6.0.2" (line 9) gives no finding; with only
+        # the 6.0.2 row, "BASC International Security Standard 6.0.3" gives none, and with either
+        # row neither does an unknown number such as 7.0.1.
         self.assertEqual(
             self._scan_rows(*rows, register_rows=self.ROWS + (self.BASC_NORM_ROW, self.BASC_603_ROW)),
             [(7, "BASC Security Standard 6.0.2/6.0.3"), (10, "BASC Security Standard 7.0.1")],
@@ -9073,8 +9084,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
                 self.assertEqual(resolver.exact_row(cite), row)
 
     def test_chapter_needs_a_whole_numeral(self) -> None:
-        # 3b378 round 2 item 1 (VPR3B378-R1): "[IVX\d]" read any word that starts with I, V or X
-        # as a chapter number and missed numerals such as L.
+        # In the earlier repository "[IVX\d]" read any word that starts with I, V or X as a
+        # chapter number and missed numerals such as L.
         mod = self._module()
         for cite in ("Chapter Implementation Guide", "Widget Act Chapter Values", "Chapter XYZ Rules"):
             with self.subTest(cite=cite):
@@ -9091,17 +9102,17 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         )
 
     def test_aeo_eu_ucc_article_38_alias(self) -> None:
-        # 3b378 round 2 item 3 (VPR3B378-R1): the logistics annex form was a false finding,
-        # although the EU UCC row exists and Article 38 UCC sets AEO status.
+        # In the earlier repository the logistics annex form was a false finding, although the EU
+        # UCC row exists and Article 38 UCC sets AEO status.
         ucc = ("EU UCC", "Regulation 952/2013", "-")
         rows = ("| AEO (EU UCC Art 38) | Customs | - |", "| AEO (Unknown Code Art 38) | - | - |")
         self.assertEqual(self._scan_rows(*rows, register_rows=self.ROWS + (ucc,)), [(8, "AEO (Unknown Code Art 38)")])
         self.assertEqual(self._scan_rows(rows[0]), [(7, "AEO (EU UCC Art 38)")])
 
     def test_label_cut_at_a_colon_reports_the_full_form(self) -> None:
-        # 3b378 round 2 item 5 (VPR3B378-R1): a bare agency label before a colon was reported
-        # alone ("FINTRAC", "FMCSA"); a label that is not a citation on its own now gives the
-        # full form, and the text after the colon decides whether it is registered.
+        # In the earlier repository a bare agency label before a colon was reported alone
+        # ("FINTRAC", "FMCSA"); a label that is not a citation on its own now gives the full
+        # form, and the text after the colon decides whether it is registered.
         rows = (
             "| **FINTRAC**: Proceeds of Crime (Money Laundering) and Terrorist Financing Act | AML | - |",
             "| **FMCSA: Electronic Logging Devices (ELD)** | - | - |",
@@ -9117,9 +9128,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ])
 
     def test_registered_label_before_a_colon_keeps_its_tail(self) -> None:
-        # 3b378 round 3 item 1 (VPR3B378-R2, claude E1, codex D15-R2-002): after_label ran
-        # before the register lookup, so a registered name that the shape heuristic calls not
-        # citable was resolved by its title and reported as the full form.
+        # In the earlier repository after_label ran before the register lookup, so a
+        # registered name that the shape heuristic calls not citable was resolved by its
+        # title and reported as the full form.
         registered = self.ROWS + (
             ("Switzerland nFADP", "2023", "-"),
             ("CycloneDX", "1.6", "-"),
@@ -9142,11 +9153,11 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
                 self.assertIsNone(resolver.after_label(label, f"{label}: Some Title 2020"))
 
     def test_agency_label_is_reported_without_reporting_descriptive_text(self) -> None:
-        # 3b378 round 3 item 2 (VPR3B378-R2, codex D15-R2-001, claude W1): round 2 added the
-        # agencies to not_citable.exact, which silenced "CBP: Unknown Programme" and the bare
-        # agency rows. Agency labels are now their own list: reported bare, and before a colon
-        # by the full form unless the text after it is registered; a not-citable label with no
-        # citation after the colon still gives no finding.
+        # In the earlier repository a previous fix added the agencies to not_citable.exact,
+        # which silenced "CBP: Unknown Programme" and the bare agency rows. Agency labels are
+        # now their own list: reported bare, and before a colon by the full form unless the
+        # text after it is registered; a not-citable label with no citation after the colon
+        # still gives no finding.
         rows = (
             "| CBP: Unknown Programme | - | - |",
             "| CBP | - | - |",
@@ -9180,10 +9191,10 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
                     mod.load_aliases(json.dumps({"schema_version": 1, "agency_labels": bad}))
 
     def test_agency_label_is_reported_bare_in_any_case_or_shape(self) -> None:
-        # 3b378 round 4 item 1 (VPR3B378-R3, codex D15-R3-N1): the bare-name branch applied the
-        # not_citable shape heuristic before agency_label, so a lowercase agency ("cbp") or a
-        # configured mixed-case one ("Customs Bureau") was silent while its colon form was
-        # reported. Exclusion handling still comes first.
+        # In the earlier repository the bare-name branch applied the not_citable shape
+        # heuristic before agency_label, so a lowercase agency ("cbp") or a configured
+        # mixed-case one ("Customs Bureau") was silent while its colon form was reported.
+        # Exclusion handling still comes first.
         rows = (
             "| cbp | - | - |",
             "| fintrac | - | - |",
@@ -9206,16 +9217,16 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
                 self.assertTrue(resolver.not_citable(name))  # the shape heuristic alone would cut it
 
     def test_agency_label_may_not_also_be_not_citable(self) -> None:
-        # 3b378 round 4 item 2 (VPR3B378-R3, claude W2): a label in both agency_labels and
-        # not_citable.exact would have silenced the bare agency under e3fe751b, whose
-        # _unregistered read not_citable alone; _unregistered now reads agency_label first, but
-        # the two lists would contradict each other, so load_aliases refuses the overlap.
+        # A label in both agency_labels and not_citable.exact would have silenced the bare
+        # agency in the earlier repository's previous version, whose _unregistered read
+        # not_citable alone; _unregistered now reads agency_label first, but the two lists
+        # would contradict each other, so load_aliases refuses the overlap.
         import json
 
         mod = self._module()
         data = json.loads(mod.ALIASES_PATH.read_text(encoding="utf-8"))
         mod.load_aliases(json.dumps(data))  # the real file has no overlap
-        # Round 5 (VPR3B378-R4, claude N2): the error names the entry as agency_labels spells it.
+        # The error names the entry as agency_labels spells it.
         for listed, named in (("CBP", "CBP"), ("cbp", "CBP"), ("Fintrac", "FINTRAC")):
             with self.subTest(listed=listed):
                 bad = json.loads(json.dumps(data))
@@ -9226,9 +9237,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
                     mod.load_aliases(json.dumps(bad))
 
     def test_prose_label_is_reported_with_its_prefix(self) -> None:
-        # 3b378 round 3 item 3 (VPR3B378-R2, claude N4): a generic prose label before a colon is
-        # not a citation on its own, so an unregistered citation after it is reported as the
-        # full form, prefix included (the documented choice); nothing citable after it is silent.
+        # A generic prose label before a colon is not a citation on its own, so an unregistered
+        # citation after it is reported as the full form, prefix included (the documented
+        # choice); nothing citable after it is silent.
         rows = (
             "| Other | - | Note: Unknown Act 2020 |",
             "| Other | - | Note: see the annex |",
@@ -9236,8 +9247,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertEqual(self._scan_rows(*rows), [(7, "Note: Unknown Act 2020")])
 
     def test_paren_tail_is_cut_outside_parentheses_only(self) -> None:
-        # 3b378 round 2 item 6 (VPR3B378-R1): paren_tail_ok cut the text after a parenthetical
-        # at a provision inside a further parenthetical, so the name never reached exact_row.
+        # In the earlier repository paren_tail_ok cut the text after a parenthetical at a
+        # provision inside a further parenthetical, so the name never reached exact_row.
         mod, resolver = self._resolver(extra_aliases={"GDPR Guide (Art 5 edition)": "EU GDPR"})
         row = mod.identity_key("EU GDPR")
         self.assertTrue(resolver.paren_tail_ok(" Guide (Art 5 edition)", row, "GDPR"))
@@ -9245,12 +9256,14 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertFalse(resolver.paren_tail_ok(" Guide (Art 6 edition)", row, "GDPR"))
 
     def test_abbreviated_article_29_residual_is_still_dropped(self) -> None:
-        # Pins a documented residual (claude N3): "Art." is still read as a provision, so this
-        # unregistered citation is stripped to nothing and not checked. Passes before and after.
+        # Pins a documented residual: "Art." is still read as a provision, so this unregistered
+        # citation is stripped to nothing and not checked. In the earlier repository it passed
+        # both before and after the fix.
         self.assertEqual(self._scan_rows("| Art. 29 Working Party Opinion 2/2017 | - | - |"), [])
 
     def test_true_provision_tails_are_still_stripped(self) -> None:
-        # Guard cases: these pin behaviour 539ca8e5 already had, so they pass before and after.
+        # Guard cases: these pin behaviour the earlier repository already had, so there they
+        # passed both before and after the fix.
         rows = self.ROWS + (("US HIPAA", "1996", "-"),)
         header = "| Framework | Reference | Regulatory |"
         out = self._check(
@@ -9288,9 +9301,10 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         )
 
     def test_terminal_acronym_is_dropped_only_through_an_allowlist_source(self) -> None:
-        # Round 5 item 1 (all three): an allowlist replaces the status-word denylist. Each
-        # source drops a parenthetical that names the title's own row; the rule is reported.
-        # Round 6 item 1: the glossary source is removed, so "EPDP" is no longer one.
+        # A terminal acronym is dropped only through an allowlist source (the earlier
+        # repository used a status-word denylist). Each source drops a parenthetical that
+        # names the title's own row; the rule is reported. There is no glossary source, so
+        # "EPDP" is not one.
         mod, resolver = self._resolver(
             self.ROWS + (self.ICO_ROW, self.HIPAA_ROW),
             {self.ICO_TITLE: self.ICO_ROW[0], "MWG": self.ICO_ROW[0]},
@@ -9308,9 +9322,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertEqual(self._scan_ico("June 2024, ICO", "ICO; v2.0"), [])
 
     def test_registered_name_acronym_from_the_row(self) -> None:
-        # Round 5 item 1, round 6 item 1: "(HIPAA)" after the Act's own name and "(AICM)" after
-        # the AI Controls Matrix's are acronym words of their rows' Standard IDs, so they are
-        # dropped without the glossary; after the ICO title both are kept.
+        # "(HIPAA)" after the Act's own name and "(AICM)" after the AI Controls Matrix's are
+        # acronym words of their rows' Standard IDs, so they are dropped without the glossary;
+        # after the ICO title both are kept.
         hipaa = "Health Insurance Portability and Accountability Act: Security Rule guidance"
         aicm = "CSA AI Controls Matrix: Implementation Guidelines"
         got = self._scan_rows(
@@ -9324,8 +9338,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertEqual(got, [(9, self.ICO_SERIES), (10, self.ICO_SERIES)])
 
     def test_umbrella_pattern_does_not_register_an_acronym(self) -> None:
-        # Round 6 item 2 (gemini): a capitals word an umbrella pattern matched was dropped after
-        # any title under that umbrella. Only a Standard ID or curated alias key counts now.
+        # In the earlier repository a capitals word an umbrella pattern matched was dropped
+        # after any title under that umbrella. Only a Standard ID or curated alias key counts
+        # now.
         title = "Fixture Rules 9: Monitoring"
         umbrella = ((r"Fixture Rules 9: [A-Za-z ]+|FR9[A-Z]*", "FR9 Fixture Rules Register"),)
         register_rows = self.ROWS + (("FR9 Fixture Rules Register", "2024", "-"),)
@@ -9346,11 +9361,10 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertEqual(resolver.acronym_source("FRX", row), "registered")
 
     def test_designator_item_is_dropped_only_for_its_own_row(self) -> None:
-        # Round 6 item 3 (claude W2, gemini): a WP number or designator item was dropped after any
-        # registered name. Now the name's row must carry that (body, designator) pair.
-        # Round 7 items 1 and 2 (claude): rows 16-18 cross to another row of the same body, row 19
-        # is the row's own designator (control), and row 20 is a WP number named in an EDPB row's
-        # Standard ID.
+        # In the earlier repository a WP number or designator item was dropped after any registered
+        # name. Now the name's row must carry that (body, designator) pair. Rows 16-18 cross to
+        # another row of the same body, row 19 is the row's own designator (control), and row 20 is
+        # a WP number named in an EDPB row's Standard ID.
         edpb, edpb_05, wp216 = self.EDPB_ROWS[0], self.EDPB_ROWS[1], self.EDPB_ROWS[3]
         replacing = ("EDPB Guidelines 9/2022 (replacing WP250)", "Version 2.0", "-")
         aliases = {
@@ -9384,9 +9398,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ])
 
     def test_month_names_need_a_word_boundary_in_parenthetical_items(self) -> None:
-        # Round 6 item 4 (claude W1, executed): "(?:Jan|...|Dec)[a-z]*" read "Decision",
-        # "Marketing" and "Novel" as months, so these parentheticals were dropped as dates.
-        # Round 7 item 3 (claude): a word after each remaining abbreviation is pinned too.
+        # In the earlier repository "(?:Jan|...|Dec)[a-z]*" read "Decision", "Marketing" and
+        # "Novel" as months, so these parentheticals were dropped as dates. A word after each
+        # remaining abbreviation is pinned too.
         dated = ("Decision 2024", "Marketing 2024", "Novel 2024", "Junk 2024", "Mayor 2024",
                  "Janitor 2024", "Augur 2024", "Octet 2024", "Aprons 2024")
         months = ("Sept. 2017", "Sep 2017", "September 2017", "Dec. 2024", "June 2024", "Jun 2024",
@@ -9396,8 +9410,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertEqual(got, [(7 + n, self.ICO_SERIES) for n in range(len(dated))])
 
     def test_month_names_need_a_word_boundary_in_the_wp_tail(self) -> None:
-        # Round 6 item 4 (claude W1): the same month group let WP_TAIL accept "(WP 248) Decision
-        # 2017", so text after the last WP number registered the citation.
+        # In the earlier repository the same month group let WP_TAIL accept
+        # "(WP 248) Decision 2017", so text after the last WP number registered the citation.
         stem = "Article 29 Working Party Guidelines on DPIA under Article 35"
         got = self._scan_rows(
             f"| {stem} (WP 248) Decision 2017 | - | - |",
@@ -9410,9 +9424,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertEqual(got, [(7, stripped), (8, stripped)])
 
     def test_issuer_names_are_anchored(self) -> None:
-        # Round 6 item 5 (claude W3): a body name mid-name or a non-terminal "(EDPB)" is not the
-        # citation's issuer, so its designators are not matched; a bare "WP216" row is an
-        # Article 29 Working Party row.
+        # A body name mid-name or a non-terminal "(EDPB)" is not the citation's issuer, so its
+        # designators are not matched; a bare "WP216" row is an Article 29 Working Party row.
         got = self._scan_rows(
             "| Unknown Act implementing EDPB Guidelines 07/2020 | - | - |",
             "| Unknown Act of the Article 29 Working Party (WP 216) | - | - |",
@@ -9428,8 +9441,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ])
 
     def test_version_tail_is_removed_before_the_parenthetical_is_judged(self) -> None:
-        # Round 5 item 2 (all three, executed): strip_version removed the year or version and
-        # then the status parenthetical, so these registered through the full-title alias.
+        # In the earlier repository strip_version removed the year or version and then the
+        # status parenthetical, so these registered through the full-title alias.
         warned = self._scan_rows(
             *(f"| {self.ICO_TITLE} {tail} | Devices | - |"
               for tail in ("(DRAFT) v2", "(DRAFT) 2024", "(DRAFT), 2024", "(BETA) v2", "(USA) v2.0")),
@@ -9437,7 +9450,7 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
             extra_aliases={self.ICO_TITLE: self.ICO_ROW[0]},
         )
         self.assertEqual(warned, [(7 + n, self.ICO_SERIES) for n in range(5)])
-        # A droppable parenthetical with a version after it registers (codex warning).
+        # A droppable parenthetical with a version after it registers.
         self.assertEqual(self._scan_ico("June 2024", "ICO", "v2.0", suffix=" v2.0"), [])
         self.assertEqual(self._module().strip_version("T (DRAFT) v2"), "T (DRAFT)")
 
@@ -9449,8 +9462,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
     )
 
     def test_designators_are_matched_within_their_issuing_body(self) -> None:
-        # Round 5 item 3 (codex error, claude note): a non-WP designator registered for an EDPB
-        # row registered the same designator from the Article 29 Working Party, and vice versa.
+        # In the earlier repository a non-WP designator registered for an EDPB row registered
+        # the same designator from the Article 29 Working Party, and vice versa.
         got = self._scan_rows(
             "| Article 29 Working Party Guidelines 07/2020 on controllers | - | - |",
             "| EDPB Opinion 05/2014 on anonymisation | - | - |",
@@ -9471,8 +9484,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
                              reg.designators)
 
     def test_edpb_name_forms(self) -> None:
-        # Round 5 item 4 (claude note): an "EU " prefix, the board's full name and an "(EDPB)"
-        # issuer suffix name the EDPB; without an issuer the designator is not matched.
+        # An "EU " prefix, the board's full name and an "(EDPB)" issuer suffix name the EDPB;
+        # without an issuer the designator is not matched.
         got = self._scan_rows(
             "| EU EDPB Guidelines 05/2020 on consent under Regulation 2016/679 "
             "(Version 1.1, adopted 4 May 2020) | - | - |",
@@ -9488,8 +9501,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ])
 
     def test_wp_number_path_needs_nothing_but_wp_numbers_dates_and_editions_after_it(self) -> None:
-        # Round 5 item 5 (claude note): text after the last WP number, or an EDPB-led name,
-        # keeps the WP-number match from registering the citation.
+        # Text after the last WP number, or an EDPB-led name, keeps the WP-number match
+        # from registering the citation.
         stem = "Article 29 Working Party Guidelines on DPIA under Article 35"
         got = self._scan_rows(
             f"| {stem} (WP 248) Unknown Act | - | - |",
@@ -9507,9 +9520,10 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ])
 
     def test_parenthetical_acronym_needs_its_own_row_without_a_provision_tail(self) -> None:
-        # 3b374 (VPR3B367-R6): with no provision tail the full-form check was skipped, and the
-        # stripped form tried each parenthetical's inner text, so "(HIPAA)" and "(GDPR)"
-        # registered any name through the HIPAA and GDPR rows. The row-aware rule applies now.
+        # In the earlier repository, with no provision tail, the full-form check was skipped,
+        # and the stripped form tried each parenthetical's inner text, so "(HIPAA)" and
+        # "(GDPR)" registered any name through the HIPAA and GDPR rows. The row-aware rule
+        # applies now.
         hipaa = "Health Insurance Portability and Accountability Act"
         got = self._scan_rows(
             "| Unregistered Framework (HIPAA) | - | - |",
@@ -9530,9 +9544,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ])
 
     def test_article_29_wp_number_rule_applies_without_a_provision_tail(self) -> None:
-        # 3b374 (VPR2838-CL1): with no provision tail an Article 29 Working Party citation
-        # registered on any one registered WP number, while the same tails after "under Article
-        # 35" took the stricter full-form rule. Both now take it.
+        # In the earlier repository, with no provision tail, an Article 29 Working Party
+        # citation registered on any one registered WP number, while the same tails after
+        # "under Article 35" took the stricter full-form rule. Both now take it.
         stem = "Article 29 Working Party Guidelines on DPIA"
         got = self._scan_rows(
             f"| {stem} (WP 248, WP 999) | - | - |",
@@ -9552,8 +9566,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ])
 
     def test_lowercase_wp_number_takes_the_article_29_rule(self) -> None:
-        # 3b374 round 2 item 1 (VPR3B374-R1): WP_NUMBER was case-sensitive while DESIGNATOR and
-        # WP_TAIL read re.I, so a lowercase WP number fell back to the any-one-designator rule.
+        # In the earlier repository WP_NUMBER was case-sensitive while DESIGNATOR and WP_TAIL
+        # read re.I, so a lowercase WP number fell back to the any-one-designator rule.
         stem = "Article 29 Working Party Guidelines on DPIA"
         got = self._scan_rows(
             f"| {stem} (wp 248, wp 999) | - | - |",
@@ -9585,13 +9599,13 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
     )
 
     def test_parenthetical_acronym_registers_after_its_rows_words(self) -> None:
-        # 3b374 round 2 item 2 (VPR3B374-R1): round 1 let the acronym count only after a
-        # Standard ID or alias of its row, which registers the citation by itself, so these
-        # corpus forms (healthcare annex EU MDR and EU IVDR rows, SSPM CSA STAR row) and the
-        # spelled-out CCM name became findings. The name before the parenthetical now needs only
-        # to be made of its row's words (Standard ID, Topic title, curated aliases, or the
-        # initials of an acronym of the Standard ID) whose initials give the acronym's letters
-        # (round 3: ``words_name_row``).
+        # In the earlier repository a first fix let the acronym count only after a Standard ID
+        # or alias of its row, which registers the citation by itself, so these corpus forms
+        # (healthcare annex EU MDR and EU IVDR rows, SSPM CSA STAR row) and the spelled-out CCM
+        # name became findings. The name before the parenthetical now needs only to be made of
+        # its row's words (Standard ID, Topic title, curated aliases, or the initials of an
+        # acronym of the Standard ID) whose initials give the acronym's letters
+        # (``words_name_row``).
         got = self._scan_rows(
             "| Medical Device Regulation (MDR) 2017/745 | - | - |",
             "| In Vitro Diagnostic Regulation (IVDR) 2017/746 | - | - |",
@@ -9621,7 +9635,7 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertTrue(resolver.paren_names_row("Cloud Security Alliance Cloud Controls Matrix", "CCM"))
 
     def test_parenthetical_acronym_needs_an_accepted_tail(self) -> None:
-        # 3b374 round 3 item 1 (VPR3B374-R2, codex): the acronym counted whatever followed it, so
+        # In the earlier repository the acronym counted whatever followed it, so
         # "(MDR) Unregistered Act" and "(MDR) 2017/999" registered. Now only nothing, an
         # edition or date, a provision tail, or an instrument number of the acronym's row.
         got = self._scan_rows(
@@ -9653,8 +9667,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertFalse(resolver.paren_names_row("", "HIPAA", " Unregistered Act"))
 
     def test_parenthetical_acronym_registers_common_phrasings(self) -> None:
-        # 3b374 round 3 item 2 (VPR3B374-R2, claude): these genuine phrasings (the EU privacy
-        # annex, the acquisition manifest) stopped registering in round 2. Function words, years
+        # In the earlier repository these genuine phrasings (the EU privacy annex, the
+        # acquisition manifest) stopped registering after a previous fix. Function words, years
         # and the row's own instrument number are ignored, a plural reads as its singular,
         # "European" reads as the "EU" of an EU row, and a name of row words whose initials give
         # all but one letter of the acronym ("Data Protection Regulation") names the row.
@@ -9700,8 +9714,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ])
 
     def test_row_words_read_the_topic_title_only(self) -> None:
-        # 3b374 round 3 item 3 (VPR3B374-R2, claude): the whole UK GDPR Topic cell, a description
-        # of the retained law, was read, so names built from it registered.
+        # In the earlier repository the whole UK GDPR Topic cell, a description of the retained
+        # law, was read, so names built from it registered.
         got = self._scan_rows(
             "| Retained (GDPR) | - | - |",
             "| Amended Act (GDPR) | - | - |",
@@ -9721,9 +9735,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertNotIn("use", words)
 
     def test_acronym_initials_alone_do_not_name_the_row(self) -> None:
-        # 3b374 round 3 item 4 (VPR3B374-R2, claude): a run spelling CSA counted as the whole
-        # name. A row word outside the run, and initials giving the parenthetical's acronym,
-        # are now required.
+        # In the earlier repository a run spelling CSA counted as the whole name. A row word
+        # outside the run, and initials giving the parenthetical's acronym, are now required.
         got = self._scan_rows(
             "| Consumer Safety Act (STAR) | - | - |",
             "| Certified Secure Apps (STAR) | - | - |",
@@ -9740,17 +9753,17 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ])
 
     def test_family_token_name_does_not_name_the_row(self) -> None:
-        # 3b374 round 3 item 5 (VPR3B374-R2, claude): a name made only of family tokens does not
-        # name a row by its Standard ID's words. A token is a family token in ten or more
-        # Standard IDs (``FAMILY_ROWS``), so the fixture register carries ten more NIST rows.
+        # A name made only of family tokens does not name a row by its Standard ID's words. A
+        # token is a family token in ten or more Standard IDs (``FAMILY_ROWS``), so the fixture
+        # register carries ten more NIST rows.
         nist_rows = tuple((f"NIST SP 800-{n}", "1", "-") for n in range(10, 20))
         _, resolver = self._resolver(self.ROWS + nist_rows)
         self.assertFalse(resolver.paren_names_row("NIST", "CSF"))
         self.assertTrue(resolver.paren_names_row("NIST Cybersecurity Framework", "CSF"))
 
     def test_function_words_give_no_acronym_letters(self) -> None:
-        # 3b374 round 4 item 1 (VPR3B374-R3, claude W2, codex D15-INITIALS): the initials were
-        # taken from every word, so an exempt "and" or "to" supplied a letter of the acronym.
+        # In the earlier repository the initials were taken from every word, so an exempt
+        # "and" or "to" supplied a letter of the acronym.
         got = self._scan_rows(
             "| Trust and Risk (STAR) | - | - |",
             "| Security and Risk (STAR) | - | - |",
@@ -9774,9 +9787,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ])
 
     def test_parenthetical_acronym_whole_tail_is_judged(self) -> None:
-        # 3b374 round 4 item 2 (VPR3B374-R3, codex D15-TAIL): the stripped form ends at the
-        # parenthetical, and the tail rule accepted whatever followed a provision word, so text
-        # after "Annex I" or ": " was never judged. The tail is now read from the full form.
+        # The stripped form ends at the parenthetical, and in the earlier repository the tail
+        # rule accepted whatever followed a provision word, so text after "Annex I" or ": " was
+        # never judged. The tail is now read from the full form.
         got = self._scan_rows(
             "| Medical Device Regulation (MDR) Annex I 2017/999 | - | - |",
             "| Medical Device Regulation (MDR): Unregistered Act | - | - |",
@@ -9803,9 +9816,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertTrue(resolver.paren_names_row(name, "MDR", " Annex I, Recital 26"))
 
     def test_long_standard_id_needs_its_words_beside_the_parenthetical(self) -> None:
-        # 3b374 round 4 item 3 (VPR3B374-R3, claude W1): a name of any non-family words of a long
-        # Article 29 Working Party Standard ID registered through it. A name of Standard ID words
-        # now has to carry every Standard ID word the parenthetical does not.
+        # In the earlier repository a name of any non-family words of a long Article 29 Working
+        # Party Standard ID registered through it. A name of Standard ID words now has to carry
+        # every Standard ID word the parenthetical does not.
         wp216 = ("WP216 (Article 29 Working Party Opinion 05/2014 on Anonymisation Techniques)",
                  "Original", "-")
         got = self._scan_rows(
@@ -9825,10 +9838,10 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ])
 
     def test_row_word_conditions_each_decide(self) -> None:
-        # 3b374 round 4 items 4 and 6 (VPR3B374-R3, claude W3): each case fails when its
-        # condition is removed: the row word outside an acronym run, "European" read as "eu"
-        # only for an EU row, the plural folded on the row side (``devices`` of the IVDR alias),
-        # the year dropped, and a year dropped only outside an instrument number.
+        # Each case fails when its condition is removed: the row word outside an acronym run,
+        # "European" read as "eu" only for an EU row, the plural folded on the row side
+        # (``devices`` of the IVDR alias), the year dropped, and a year dropped only outside an
+        # instrument number.
         echr = ("CoE ECHR", "1950", "-", "European Convention on Human Rights")
         got = self._scan_rows(
             "| Cloud Security Alliance Consumer Safety Act (CCM) | - | - |",  # only CSA runs
@@ -9846,9 +9859,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ])
 
     def test_parenthetical_acronym_registers_numbered_and_titled_forms(self) -> None:
-        # 3b374 round 4 item 5 (VPR3B374-R3, claude W4): common forms that registered on main
-        # warned: a name with the row's own instrument number, a tail that makes a registered
-        # name with the parenthetical, and a possessive.
+        # Common forms that registered on the earlier repository's main branch warned after a
+        # previous fix: a name with the row's own instrument number, a tail that makes a
+        # registered name with the parenthetical, and a possessive.
         hipaa = "Health Insurance Portability and Accountability Act"
         got = self._scan_rows(
             "| Regulation (EU) 2016/679 (GDPR) | - | - |",
@@ -9871,8 +9884,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ])
 
     def test_acronym_runs_and_initials_use_content_words_once(self) -> None:
-        # 3b374 round 5 items 1 and 5 (VPR3B374-R4, codex; claude): a run was built over every
-        # word, so "Consumer Safety and" spelled CSA, and a repeated word gave its initial twice.
+        # In the earlier repository a run was built over every word, so "Consumer Safety and"
+        # spelled CSA, and a repeated word gave its initial twice.
         got = self._scan_rows(
             "| Consumer Safety and Cloud Matrix (CCM) | - | - |",
             "| Consumer Safety Cloud Matrix (CCM) | - | - |",
@@ -9887,9 +9900,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ])
 
     def test_parenthetical_acronym_tail_drops_the_rows_own_designation(self) -> None:
-        # 3b374 round 5 item 2 (VPR3B374-R4, claude W1): the library's own "Name (ACR):
-        # Regulation (EU) N/N" form warned, since only the number was removed from the tail.
-        # Round 5 item 3: the docstring's title-after-a-provision example truly warns.
+        # In the earlier repository the library's own "Name (ACR): Regulation (EU) N/N" form
+        # warned, since only the number was removed from the tail. The docstring's
+        # title-after-a-provision example truly warns.
         got = self._scan_rows(
             "| EU General Data Protection Regulation (GDPR): Regulation (EU) 2016/679 | - | - |",
             "| Medical Device Regulation (MDR): Regulation (EU) 2017/745 | - | - |",
@@ -9906,11 +9919,10 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ])
 
     def test_parenthetical_acronym_tail_conditions_each_decide(self) -> None:
-        # 3b374 round 5 item 4 (VPR3B374-R4, claude W3): each case fails when its condition is
-        # removed: the name-tail branch's name must be of the parenthetical's own row ("CCPA
-        # Regulations" names another row), the rest after that name must be a provision tail,
-        # standalone "and" joins provision references, a Roman numeral is in capitals only, and
-        # (round 5 item 5) "&" joins provision references.
+        # Each case fails when its condition is removed: the name-tail branch's name must be of
+        # the parenthetical's own row ("CCPA Regulations" names another row), the rest after
+        # that name must be a provision tail, standalone "and" joins provision references, a
+        # Roman numeral is in capitals only, and "&" joins provision references.
         ccpa = (
             ("US CCPA", "2018", "-", "California Consumer Privacy Act"),
             ("US CCPA Regulations 2026", "2026", "-", "California Consumer Privacy Act Regulations"),
@@ -9931,9 +9943,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ])
 
     def test_required_standard_id_words_leave_out_function_words_and_years(self) -> None:
-        # 3b374 round 5 item 4 (VPR3B374-R4, claude W3): a name of Standard ID words must carry
-        # every Standard ID word the parenthetical does not, function words and years aside;
-        # each case fails when that word kind is kept in the required set.
+        # A name of Standard ID words must carry every Standard ID word the parenthetical does
+        # not, function words and years aside; each case fails when that word kind is kept in
+        # the required set.
         rows = (("Code of Practice ABC", "1", "-"), ("UK Widget 2024 Act XYZ", "1", "-"))
         got = self._scan_rows(
             "| Code of Practice (ABC) | - | - |",  # "of" is not required
@@ -9944,7 +9956,7 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertEqual(got, [(9, "Practice (ABC)")])
 
     def test_function_word_breaks_an_acronym_run(self) -> None:
-        # 3b374 round 6 item 1 (VPR3B374-R5, codex; claude): a run skipped a function word, so
+        # In the earlier repository a run skipped a function word, so
         # "Cloud Security and Alliance" and "Cloud Security for Alliance" spelled CSA while
         # "Consumer Safety and" did not. A function word now breaks a run.
         got = self._scan_rows(
@@ -9968,10 +9980,10 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertTrue(resolver.words_name_row("Cloud Security Alliance Cloud Controls Matrix", row, "CCM"))
 
     def test_bare_subpoints_after_a_connector(self) -> None:
-        # 3b374 round 6 item 2 (VPR3B374-R5, codex): "Art. 10(1)(a)" registered and "Art.
-        # 10(1)(a) and (b)" warned. A bare lowercase or numeric sub-point now follows a provision
-        # reference and a connector; a capitalised word in parentheses, a title or another
-        # instrument number after it, or a sub-point with no provision reference still warns.
+        # In the earlier repository "Art. 10(1)(a)" registered and "Art. 10(1)(a) and (b)"
+        # warned. A bare lowercase or numeric sub-point now follows a provision reference and a
+        # connector; a capitalised word in parentheses, a title or another instrument number
+        # after it, or a sub-point with no provision reference still warns.
         mdr = "Medical Device Regulation (MDR)"
         got = self._scan_rows(
             f"| {mdr} Art. 10(1)(a) and (Fake) | - | - |",
@@ -9995,10 +10007,10 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ])
 
     def test_parenthetical_acronym_tail_eu_before_the_designation(self) -> None:
-        # 3b374 round 6 item 3 (VPR3B374-R5, claude): "(MDR): EU Regulation 2017/745" warned,
-        # since "EU" before the row's own designation was left in the tail. An "EU" before a
-        # designation of the row's own number is now removed with it; another number, a bare
-        # "EU" with no kind word and a Code of Federal Regulations reference still warn.
+        # In the earlier repository "(MDR): EU Regulation 2017/745" warned, since "EU" before
+        # the row's own designation was left in the tail. An "EU" before a designation of the
+        # row's own number is now removed with it; another number, a bare "EU" with no kind
+        # word and a Code of Federal Regulations reference still warn.
         mdr = "Medical Device Regulation (MDR)"
         got = self._scan_rows(
             f"| {mdr}: EU Regulation 2017/745 | - | - |",
@@ -10020,9 +10032,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ])
 
     def test_subpoint_chain_takes_only_subpoints(self) -> None:
-        # 3b374 round 7 item 1 (VPR3B374-R6, codex; claude): any parenthesised word of up to
-        # four characters chained after a number or a bare sub-point, so "(b)(Fake)", "(b)(Act)"
-        # and "Art. 10(Fake)" passed. Only a sub-point (``SUBPOINT``) now chains.
+        # In the earlier repository any parenthesised word of up to four characters chained
+        # after a number or a bare sub-point, so "(b)(Fake)", "(b)(Act)" and "Art. 10(Fake)"
+        # passed. Only a sub-point (``SUBPOINT``) now chains.
         mdr = "Medical Device Regulation (MDR)"
         got = self._scan_rows(
             f"| {mdr} Art. 10(1)(a) and (b)(Fake) | - | - |",
@@ -10039,7 +10051,7 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertEqual(got, [(7, mdr), (8, mdr), (9, mdr), (10, mdr)])
 
     def test_subpoint_takes_uppercase_and_roman_forms(self) -> None:
-        # 3b374 round 8 (VPR3B374-R7, codex): round 7's sub-point took neither an uppercase
+        # In the earlier repository the previous sub-point pattern took neither an uppercase
         # letter, an uppercase Roman numeral, a Roman numeral with c, d or m, nor a digit with an
         # uppercase letter, so these corpus provision forms warned after a parenthetical acronym
         # (HIPAA template; Illinois, California and Virginia sections; LGPD articles). A title
@@ -10074,8 +10086,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertEqual(got, [(7, mdr), (8, mdr), (9, mdr), (10, mdr)])
 
     def test_cybersecurity_framework_residuals_still_report(self) -> None:
-        # 3b374 round 7 item 2 (VPR3B374-R6, claude): stated residuals. "of" and "and" break a
-        # run, so the spelled-out NIST does not spell NIST; "2.0" with no "v" is not an edition.
+        # Stated residuals. "of" and "and" break a run, so the spelled-out NIST does not spell
+        # NIST; "2.0" with no "v" is not an edition.
         rows = tuple(r for r in self.ROWS if r[0] != "NIST CSF") + (
             ("NIST CSF", "2.0", "1.1", "Cybersecurity Framework"),
         )
@@ -10092,9 +10104,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ])
 
     def test_glossary_register_does_not_register_an_acronym(self) -> None:
-        # Round 6 item 1 (claude, codex, gemini): the glossary source let "(SEC)" drop after any
-        # name containing "U.S.", "(HIPAA)" after a longer, different title containing the
-        # expansion, and a glossary row the PR itself adds ("(DRAFTS)") suppress its warning.
+        # In the earlier repository the glossary source let "(SEC)" drop after any name
+        # containing "U.S.", "(HIPAA)" after a longer, different title containing the expansion,
+        # and a glossary row the PR itself adds ("(DRAFTS)") suppress its warning.
         glossary = (REPO_ROOT / "governance/register-glossary.md").read_text(encoding="utf-8")
         glossary += "| **DRAFTS** | Fixture Code Monitoring workers. A term this PR adds. |\n"
         titles = (
@@ -10246,9 +10258,10 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertNotIn("D15 WARN", result.stdout)
 
     def test_pr_2697_replay_against_historical_register(self) -> None:
-        # The 2026-10-04 PR #2697 added these two sentences (abridged from its
-        # compliance/annex-nis-2-implementation.md line 29) with no register row for either
-        # instrument. This fixed register fixture lacks both numbers regardless of later rows.
+        # In the earlier repository a pull request added these two sentences (abridged from
+        # its compliance/annex-nis-2-implementation.md line 29) with no register row for
+        # either instrument. This fixed register fixture lacks both numbers regardless of
+        # later rows.
         prose = (
             "An entity of a type in Annex I is an essential entity where it exceeds the ceilings "
             "for medium-sized enterprises provided for in Article 2(1) of the Annex to Commission "
@@ -10264,11 +10277,11 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
             with self.subTest(number=number):
                 self.assertIn(f"EU/EC instrument number '{observed}'", warned, out)
 
-    # The sibling probe (3b370): when a PR changes the alias file or the register, D15 lists
-    # every unregistered alignment-table citation already in the corpus that shares a
-    # distinctive token with a changed alias key or register Standard ID. In PR #2833 (3b364)
-    # round 1 aliased "US TSA Pipeline Security Directives" while the sibling row "US TSA Rail
-    # Cybersecurity Directives" kept warning.
+    # The sibling probe: when a PR changes the alias file or the register, D15 lists every
+    # unregistered alignment-table citation already in the corpus that shares a distinctive
+    # token with a changed alias key or register Standard ID. In the earlier repository a pull
+    # request's first version aliased "US TSA Pipeline Security Directives" while the sibling
+    # row "US TSA Rail Cybersecurity Directives" kept warning.
     ALIASES = ".claude/skills/corpus-management/tools/alignment-register-aliases.json"
     TSA_ROWS = ROWS + (("TSA Pipeline Security Directive", "SD Pipeline-2021-02G", "-"),)
     SIBLING_DOC = (
@@ -10332,8 +10345,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertEqual(self._warned(out), [], out)
 
     def test_sibling_probe_lists_the_whole_corpus_from_a_subdirectory(self) -> None:
-        # Without --full-tree, ls-tree lists only the invocation directory: run from
-        # governance/ or .claude/skills/corpus-management/tools/, the probe listed no corpus document outside it (3b551).
+        # Without --full-tree, ls-tree lists only the invocation directory: in the earlier
+        # repository, run from governance/ or .claude/skills/corpus-management/tools/, the probe
+        # listed no corpus document outside it.
         import subprocess as sp
 
         base = {self.DOC: self._doc(*self.SIBLING_DOC), self.REGISTER: self._register(self.TSA_ROWS),
@@ -10368,9 +10382,10 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertIn("register Standard ID 'TSA Pipeline Security Directive'", listed[0])
 
     def test_sibling_probe_ignores_a_date_only_register_edit(self) -> None:
-        # Only the set of Standard IDs is compared (3b370 round 2): a refresh of the Last
-        # verified dates changes no Standard ID, so nothing is listed (comparing whole rows
-        # would list the rail sibling here, and 86 citations on the real corpus).
+        # Only the set of Standard IDs is compared: a refresh of the Last verified dates
+        # changes no Standard ID, so nothing is listed (comparing whole rows would list the
+        # rail sibling here; on the earlier repository's corpus it would have listed 86
+        # citations).
         register = self._register(self.TSA_ROWS)
         out = self._probe(
             {self.REGISTER: register},
@@ -10528,7 +10543,7 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
 
     def test_sibling_probe_lists_word_only_matches_in_a_weak_tier(self) -> None:
         # An acronym match is a D15 SIBLING line; a citation sharing only a word with the
-        # changed entry is a weak "word match" line after it (3b370 round 3: nothing dropped).
+        # changed entry is a weak "word match" line after it (nothing is dropped).
         doc = self._doc("| ACME Pipeline Code | x | y |", "| US TSA Rail Cybersecurity Directives | x | y |")
         out = self._probe(
             {self.REGISTER: self._register(self.TSA_ROWS), self.ALIASES: self._aliases()},
@@ -10547,8 +10562,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertIn("1 share an acronym, designator or number (D15 SIBLING) and 1 share only", out)
 
     def test_sibling_probe_lists_the_spelled_out_form_as_a_word_match(self) -> None:
-        # The codex 3b370 round 2 case: the spelled-out TSA form shares only "pipeline" with
-        # the changed alias key, so the acronym-only match lost it.
+        # The spelled-out TSA form shares only "pipeline" with the changed alias key, so the
+        # earlier repository's acronym-only match lost it.
         doc = self._doc(
             "| Transportation Security Administration Pipeline Security Directives "
             "(SD Pipeline-2021-02G) | x | y |",
@@ -10591,9 +10606,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertNotIn("has no distinctive token", out)
 
     def test_sibling_probe_does_not_list_a_spelled_out_name_sharing_only_stop_words(self) -> None:
-        # 3b370 round 3 review: the spelled-out CSA name shares only "cloud", "controls",
-        # "matrix" and "security" with the changed "CSA Cloud Controls Matrix" key, all stop
-        # words, so it is not listed; the printed residual names the case.
+        # The spelled-out CSA name shares only "cloud", "controls", "matrix" and "security"
+        # with the changed "CSA Cloud Controls Matrix" key, all stop words, so it is not
+        # listed; the printed residual names the case.
         spelled = "Cloud Security Alliance Cloud Controls Matrix v4.1"
         doc = self._doc(f"| {spelled} | x | y |", "| CSA STAR Registry | x | y |")
         register = self._register()
@@ -10635,8 +10650,8 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertIn("D15 SIBLING-PROBE: 0 unregistered", out)
 
     def test_sibling_probe_notes_an_agency_labels_only_change(self) -> None:
-        # 3b378 round 3: agency labels change what a label before a colon resolves to, and the
-        # probe does not compare them, so a change is named like a not_citable change.
+        # Agency labels change what a label before a colon resolves to, and the probe does not
+        # compare them, so a change is named like a not_citable change.
         aliases = self._aliases("US TSA Pipeline Security Directives")
         out = self._probe(
             {self.REGISTER: self._register(self.TSA_ROWS), self.ALIASES: aliases},
@@ -10774,7 +10789,7 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ):
             with self.subTest(text=text):
                 self.assertEqual(mod.distinctive_tokens(text), expected)
-        # The generic words the 3b370 round 1 review found pairing different publishers.
+        # The generic words that paired different publishers in the earlier repository.
         for word in ("party", "assessment", "access", "design", "provisions", "certification"):
             with self.subTest(word=word):
                 self.assertIn(word, mod.SIBLING_STOP_WORDS)
@@ -10968,45 +10983,48 @@ class ChangelogDashOnPrTests(DeltaGateRepoTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_added_line_starting_plus_plus_flagged(self) -> None:
-        # 3b399: D3 skipped every diff line starting "+++", so an added line whose text starts
-        # with "++" (diff line "+++...") escaped the dash check, a forged "++ b/" header
-        # included. Fails on 3bdeb8a0 (exit 0).
+        # In the earlier repository D3 skipped every diff line starting "+++", so an added
+        # line whose text starts with "++" (diff line "+++...") escaped the dash check, a
+        # forged "++ b/" header included; this test failed there before the fix (exit 0).
         for added in ("++ New entry \u2014 dash.", "++ b/New entry \u2014 dash."):
             with self.subTest(added=added):
                 self._assert_fails(added)
 
     def test_added_line_with_a_unicode_line_break_flagged(self) -> None:
-        # 3b399: D3 split the diff text with splitlines(), so a CR, U+2028 or U+0085 inside an
-        # added line split it and the fragment after it, which carries the dash, lost its "+"
-        # marker. Fails on 3bdeb8a0 (exit 0) for each separator.
+        # In the earlier repository D3 split the diff text with splitlines(), so a CR, U+2028
+        # or U+0085 inside an added line split it and the fragment after it, which carries the
+        # dash, lost its "+" marker; this test failed there before the fix (exit 0) for each
+        # separator.
         for separator in ("\r", "\u2028", "\u0085"):
             with self.subTest(separator=ascii(separator)):
                 self._assert_fails("Clean start." + separator + "New entry \u2014 dash.")
 
     def test_git_diff_opts_in_the_environment_flagged(self) -> None:
-        # 3b399: GIT_DIFF_OPTS=--unified=3 in the caller's environment overrides --unified=0 and
-        # puts context lines in the diff; with diff.suppressBlankEmpty=true a blank one is an
-        # empty line. The shared runner drops GIT_DIFF_OPTS and pins the blank-line form, and the
+        # GIT_DIFF_OPTS=--unified=3 in the caller's environment overrides --unified=0 and puts
+        # context lines in the diff; with diff.suppressBlankEmpty=true a blank one is an empty
+        # line. The shared runner drops GIT_DIFF_OPTS and pins the blank-line form, and the
         # parser reads each hunk by its counts, so the later dash line is still read. A pin: it
-        # also passes on 3bdeb8a0; AddedLineDiffTests kills the GIT_DIFF_OPTS mutation.
+        # also passed in the earlier repository before the fix; AddedLineDiffTests kills the
+        # GIT_DIFF_OPTS mutation.
         self._assert_fails("New entry \u2014 dash.", env={"GIT_DIFF_OPTS": "--unified=3"},
                            config=(("diff.suppressBlankEmpty", "true"),))
 
     def test_a_run_from_a_subdirectory_reads_the_root_changelog(self) -> None:
-        # 3b399 round 3 (N5): the .working/CHANGELOG.md pathspec was read against the working directory,
-        # so a run from a subdirectory printed "OK: .working/CHANGELOG.md not modified" (exit 0); and
-        # diff.relative=true leaves out every file outside that directory. Both fail on 3231c303
-        # (exit 0). Mutations killed: dropping ":(top)", and dropping --no-relative.
+        # In the earlier repository the .working/CHANGELOG.md pathspec was read against the working
+        # directory, so a run from a subdirectory printed "OK: .working/CHANGELOG.md not modified"
+        # (exit 0); and diff.relative=true leaves out every file outside that directory. Both
+        # failed there before the fix (exit 0). Mutations killed: dropping ":(top)", and dropping
+        # --no-relative.
         for config in ((), (("diff.relative", "true"),)):
             with self.subTest(config=config):
                 self._assert_fails("New entry \u2014 dash.", config=config, subdir=True)
 
     def test_rename_and_copy_settings_cannot_hide_an_added_line(self) -> None:
-        # 3b399 round 3: a new .working/CHANGELOG.md copied from, or renamed from, another file is read in
-        # full under diff.renames=copies, diff.renames=true and status.renames=copies. A pin: it
-        # also passes on 3231c303, because D3 diffs .working/CHANGELOG.md alone, so git has no other path
-        # in the diff to pair it with; AddedLineDiffTests and PreflightChangelogGitDiffTests hold
-        # the regression tests for --no-renames.
+        # A new .working/CHANGELOG.md copied from, or renamed from, another file is read in full
+        # under diff.renames=copies, diff.renames=true and status.renames=copies. A pin: it also
+        # passed in the earlier repository before the fix, because D3 diffs .working/CHANGELOG.md
+        # alone, so git has no other path in the diff to pair it with; AddedLineDiffTests and
+        # PreflightChangelogGitDiffTests hold the regression tests for --no-renames.
         body = "".join(f"Shared line {i}.\n" for i in range(20)) + "New entry \u2014 dash.\n"
         settings = (("diff.renames", "copies"), ("diff.renames", "true"),
                     ("status.renames", "copies"))
@@ -11026,21 +11044,22 @@ class ChangelogDashOnPrTests(DeltaGateRepoTestCase):
                     self.assertIn("contain an em dash or en dash", result.stderr)
 
     def test_literal_pathspecs_in_the_environment_flagged(self) -> None:
-        # 3b399 round 4 (3B399-LITERAL-PATHSPECS): with GIT_LITERAL_PATHSPECS=1 git read
-        # ":(top).working/CHANGELOG.md" as a file of that literal name, so D3 printed "OK: .working/CHANGELOG.md not
-        # modified" (exit 0) from the root and from a subdirectory. Both fail on 54442fc2.
-        # Mutation killed: passing GIT_LITERAL_PATHSPECS through to git.
+        # In the earlier repository, with GIT_LITERAL_PATHSPECS=1, git read
+        # ":(top).working/CHANGELOG.md" as a file of that literal name, so D3 printed
+        # "OK: .working/CHANGELOG.md not modified" (exit 0) from the root and from a subdirectory;
+        # both failed there before the fix. Mutation killed: passing GIT_LITERAL_PATHSPECS through
+        # to git.
         for subdir in (False, True):
             with self.subTest(subdir=subdir):
                 self._assert_fails("New entry \u2014 dash.",
                                    env={"GIT_LITERAL_PATHSPECS": "1"}, subdir=subdir)
 
     def test_a_linked_changelog_exits_2(self) -> None:
-        # 3b399 round 4 (N2): git diffs a symbolic link's target path and a gitlink's commit id,
-        # so a .working/CHANGELOG.md linked to a file holding a dash line passed ("OK", exit 0). Every row
-        # fails on 54442fc2. diff.submodule=log printed a "Submodule" line and no file header, and
-        # diff.ignoreSubmodules=all left a changed gitlink out; --submodule=short and
-        # --ignore-submodules=none pin them.
+        # Git diffs a symbolic link's target path and a gitlink's commit id, so in the earlier
+        # repository a .working/CHANGELOG.md linked to a file holding a dash line passed ("OK",
+        # exit 0), and every row failed there before the fix. diff.submodule=log printed a
+        # "Submodule" line and no file header, and diff.ignoreSubmodules=all left a changed gitlink
+        # out; --submodule=short and --ignore-submodules=none pin them.
         rows = (("symlink", False, ()), ("symlink", True, ()), ("gitlink", False, ()),
                 ("gitlink", False, (("diff.submodule", "log"),)),
                 ("gitlink", True, (("diff.ignoreSubmodules", "all"),)))
@@ -11054,10 +11073,10 @@ class ChangelogDashOnPrTests(DeltaGateRepoTestCase):
                 self.assertEqual(len(result.stderr.splitlines()), 1, result.stderr)
 
     def test_a_changelog_linked_at_the_base_and_unchanged_exits_2(self) -> None:
-        # 3b399 round 5 (3B399-UNCHANGED-LINK): a .working/CHANGELOG.md that was already a link at the
-        # base and stayed one is not in the diff, so a dash line added to notes.md alone printed
-        # "OK: .working/CHANGELOG.md not modified" (exit 0). The head's tree mode is now read directly.
-        # The review reproduced the symlink pass on 1a7ecf6e. Mutation killed (both rows):
+        # A .working/CHANGELOG.md that was already a link at the base and stayed one is not in the
+        # diff, so in the earlier repository a dash line added to notes.md alone printed
+        # "OK: .working/CHANGELOG.md not modified" (exit 0), and the symlink pass was reproduced
+        # there. The head's tree mode is now read directly. Mutation killed (both rows):
         # refuse_links returning without a check.
         for kind, mode in (("symlink", "120000"), ("gitlink", "160000")):
             with self.subTest(kind=kind):
@@ -11068,12 +11087,11 @@ class ChangelogDashOnPrTests(DeltaGateRepoTestCase):
                 self.assertEqual(len(result.stderr.splitlines()), 1, result.stderr)
 
     def test_git_selecting_another_repository_exits_2(self) -> None:
-        # 3b399 round 5 (N2): with GIT_DIR naming a sibling clone at the base, D3 diffed the
-        # sibling and printed "OK: .working/CHANGELOG.md not modified" (exit 0); it now shares the
-        # preflight's selection check. The review reproduced the pass on 1a7ecf6e. Mutation
-        # killed (sibling row): check_git_selects_root returning without a check. The controls
-        # (GIT_DIR naming the fixture's own repository, and CI's plain checkout) still find the
-        # dash.
+        # In the earlier repository, with GIT_DIR naming a sibling clone at the base, D3 diffed the
+        # sibling and printed "OK: .working/CHANGELOG.md not modified" (exit 0), a pass reproduced
+        # there; it now shares the preflight's selection check. Mutation killed (sibling row):
+        # check_git_selects_root returning without a check. The controls (GIT_DIR naming the
+        # fixture's own repository, and CI's plain checkout) still find the dash.
         for which in ("sibling", "own", None):
             with self.subTest(git_dir=which):
                 result = self._run_gate_with_git_dir(self.SCRIPT, which)
@@ -11127,10 +11145,10 @@ class ChangelogLengthOnPrTests(DeltaGateRepoTestCase):
         self._assert_over_length(self.ENTRY + self.LONG)
 
     def test_an_entry_split_by_a_unicode_line_break_is_measured_whole(self) -> None:
-        # 3b399: D7 split the diff text with splitlines(), so a CR, U+2028 or U+0085 inside an
-        # added entry cut its summary short (the rest lost its "+" marker), and an entry that
-        # starts after one lost its "+" marker entirely. Both fail on 3bdeb8a0 (exit 0) for each
-        # separator.
+        # In the earlier repository D7 split the diff text with splitlines(), so a CR, U+2028 or
+        # U+0085 inside an added entry cut its summary short (the rest lost its "+" marker), and
+        # an entry that starts after one lost its "+" marker entirely. Both failed there before
+        # the fix (exit 0) for each separator.
         for separator in ("\r", "\u2028", "\u0085"):
             for added in (self.ENTRY + "Short." + separator + self.LONG,
                           "Lead." + separator + self.ENTRY + self.LONG):
@@ -11138,30 +11156,33 @@ class ChangelogLengthOnPrTests(DeltaGateRepoTestCase):
                     self._assert_over_length(added)
 
     def test_an_added_line_starting_plus_plus_is_read(self) -> None:
-        # 3b399: D7 skipped every diff line starting "+++". A line whose text starts with "++" is
-        # not itself a compact entry (ENTRY_RE starts at "**"), so the pure "++" escape is tested
-        # on D3; here the entry after a CR in such a line is checked. On 3bdeb8a0 that line was
-        # skipped whole (exit 0). Mutation killed: skipping "+++" lines inside a hunk.
+        # In the earlier repository D7 skipped every diff line starting "+++", so before the fix
+        # this line was skipped whole (exit 0). A line whose text starts with "++" is not itself
+        # a compact entry (ENTRY_RE starts at "**"), so the pure "++" escape is tested on D3;
+        # here the entry after a CR in such a line is checked. Mutation killed: skipping "+++"
+        # lines inside a hunk.
         self._assert_over_length("++ lead\r" + self.ENTRY + self.LONG)
 
     def test_git_diff_opts_in_the_environment_cannot_hide_an_entry(self) -> None:
-        # 3b399: as for D3, GIT_DIFF_OPTS=--unified=3 with diff.suppressBlankEmpty=true puts an
-        # empty blank-context line before the entry; the entry is still measured. A pin: it also
-        # passes on 3bdeb8a0; AddedLineDiffTests kills the GIT_DIFF_OPTS mutation.
+        # As for D3, GIT_DIFF_OPTS=--unified=3 with diff.suppressBlankEmpty=true puts an empty
+        # blank-context line before the entry; the entry is still measured. A pin: it also
+        # passed in the earlier repository before the fix; AddedLineDiffTests kills the
+        # GIT_DIFF_OPTS mutation.
         self._assert_over_length(self.ENTRY + self.LONG, env={"GIT_DIFF_OPTS": "--unified=3"},
                                  config=(("diff.suppressBlankEmpty", "true"),))
 
     def test_a_run_from_a_subdirectory_reads_the_root_changelog(self) -> None:
-        # 3b399 round 3 (N5): as for D3, a run from a subdirectory read no .working/CHANGELOG.md (exit 0,
-        # "not modified"), with and without diff.relative=true. Both fail on 3231c303.
+        # As for D3, in the earlier repository a run from a subdirectory read no
+        # .working/CHANGELOG.md (exit 0, "not modified"), with and without diff.relative=true; both
+        # failed there before the fix.
         for config in ((), (("diff.relative", "true"),)):
             with self.subTest(config=config):
                 self._assert_over_length(self.ENTRY + self.LONG, config=config, subdir=True)
 
     def test_rename_and_copy_settings_cannot_hide_an_entry(self) -> None:
-        # 3b399 round 3: a new .working/CHANGELOG.md copied or renamed from another file is measured under
-        # diff.renames=copies and diff.renames=true. A pin, as for D3: it also passes on 3231c303,
-        # because D7 diffs .working/CHANGELOG.md alone.
+        # A new .working/CHANGELOG.md copied or renamed from another file is measured under
+        # diff.renames=copies and diff.renames=true. A pin, as for D3: it also passed in the
+        # earlier repository before the fix, because D7 diffs .working/CHANGELOG.md alone.
         body = "# Notes\n\n" + self.ENTRY + self.LONG + "\n"
         for key, value in (("diff.renames", "copies"), ("diff.renames", "true")):
             for head, deleted in (({"notes.md": body + "More.\n", ".working/CHANGELOG.md": body}, ()),
@@ -11178,8 +11199,8 @@ class ChangelogLengthOnPrTests(DeltaGateRepoTestCase):
                     self.assertIn("PR #988: 120 words > 100", result.stderr)
 
     def test_an_unreadable_diff_exits_2(self) -> None:
-        # 3b399: a diff the shared parser cannot read exactly is one ERROR line and exit 2, not a
-        # pass. An added line that is not UTF-8 is one such diff.
+        # A diff the shared parser cannot read exactly is one ERROR line and exit 2, not a pass.
+        # An added line that is not UTF-8 is one such diff.
         tmp, base_sha, shutil = self._build_repo(
             {".working/CHANGELOG.md": "# Changelog\n"}, {".working/CHANGELOG.md": "# Changelog\nnew\n"})
         try:
@@ -11195,17 +11216,17 @@ class ChangelogLengthOnPrTests(DeltaGateRepoTestCase):
         self.assertIn("ERROR: the .working/CHANGELOG.md diff could not be read", result.stderr)
 
     def test_literal_pathspecs_in_the_environment_cannot_hide_an_entry(self) -> None:
-        # 3b399 round 4: as for D3, GIT_LITERAL_PATHSPECS=1 made the ":(top)" pathspec name no
-        # file, so D7 printed "OK: .working/CHANGELOG.md not modified" (exit 0) from the root and from a
-        # subdirectory. Both fail on 54442fc2.
+        # As for D3, in the earlier repository GIT_LITERAL_PATHSPECS=1 made the ":(top)" pathspec
+        # name no file, so D7 printed "OK: .working/CHANGELOG.md not modified" (exit 0) from the
+        # root and from a subdirectory; both failed there before the fix.
         for subdir in (False, True):
             with self.subTest(subdir=subdir):
                 self._assert_over_length(self.ENTRY + self.LONG,
                                          env={"GIT_LITERAL_PATHSPECS": "1"}, subdir=subdir)
 
     def test_a_linked_changelog_exits_2(self) -> None:
-        # 3b399 round 4: as for D3, a .working/CHANGELOG.md linked to a file holding an over-length entry
-        # passed (exit 0). Each row fails on 54442fc2.
+        # As for D3, in the earlier repository a .working/CHANGELOG.md linked to a file holding an
+        # over-length entry passed (exit 0); each row failed there before the fix.
         for kind in ("symlink", "gitlink"):
             with self.subTest(kind=kind):
                 result = self._run_gate_on_link(self.SCRIPT, kind)
@@ -11215,9 +11236,9 @@ class ChangelogLengthOnPrTests(DeltaGateRepoTestCase):
                 self.assertEqual(len(result.stderr.splitlines()), 1, result.stderr)
 
     def test_a_changelog_linked_at_the_base_and_unchanged_exits_2(self) -> None:
-        # 3b399 round 5: as for D3, a .working/CHANGELOG.md already linked at the base and unchanged was
-        # not in the diff, so an over-length entry added to notes.md alone passed (exit 0).
-        # Mutation killed (both rows): refuse_links returning without a check.
+        # As for D3, a .working/CHANGELOG.md already linked at the base and unchanged was not in
+        # the diff, so in the earlier repository an over-length entry added to notes.md alone
+        # passed (exit 0). Mutation killed (both rows): refuse_links returning without a check.
         for kind, mode in (("symlink", "120000"), ("gitlink", "160000")):
             with self.subTest(kind=kind):
                 result = self._run_gate_on_unchanged_link(self.SCRIPT, kind)
@@ -11227,9 +11248,10 @@ class ChangelogLengthOnPrTests(DeltaGateRepoTestCase):
                 self.assertEqual(len(result.stderr.splitlines()), 1, result.stderr)
 
     def test_git_selecting_another_repository_exits_2(self) -> None:
-        # 3b399 round 5 (N2): as for D3, a GIT_DIR naming a sibling clone at the base printed
-        # "OK: .working/CHANGELOG.md not modified" (exit 0). Mutation killed (sibling row):
-        # check_git_selects_root returning without a check. The controls still measure the entry.
+        # As for D3, in the earlier repository a GIT_DIR naming a sibling clone at the base
+        # printed "OK: .working/CHANGELOG.md not modified" (exit 0). Mutation killed (sibling
+        # row): check_git_selects_root returning without a check. The controls still measure the
+        # entry.
         for which in ("sibling", "own", None):
             with self.subTest(git_dir=which):
                 result = self._run_gate_with_git_dir(self.SCRIPT, which)
@@ -11243,7 +11265,7 @@ class ChangelogLengthOnPrTests(DeltaGateRepoTestCase):
 
 
 class AddedLineDiffTests(DeltaGateRepoTestCase):
-    """changelog_diff.added_line_diff: the pinned diff shared by D3, D7 and the preflight (3b399)."""
+    """changelog_diff.added_line_diff: the pinned diff shared by D3, D7 and the preflight."""
 
     def test_git_diff_opts_in_the_environment_is_dropped(self) -> None:
         # GIT_DIFF_OPTS=--unified=3 overrides --unified=0; the shared runner drops it, so the
@@ -11264,11 +11286,11 @@ class AddedLineDiffTests(DeltaGateRepoTestCase):
         self.assertEqual(changelog_diff.parse_added_lines(diff), [(".working/CHANGELOG.md", "y1")])
 
     def test_a_rename_or_copy_in_the_same_diff_cannot_hide_added_lines(self) -> None:
-        # 3b399 round 3 (3B399-DIFF-COPIES): with two paths in one diff, as the preflight passes
-        # .working/CHANGELOG.md and the detailed mirror, git paired a new .working/CHANGELOG.md with the other path
-        # as a copy (diff.renames=copies) or a rename (diff.renames=true, git's default) and
-        # printed copy or rename metadata without its added lines. Fails on 3231c303 for each
-        # row. Mutation killed: dropping --no-renames.
+        # With two paths in one diff, as the preflight passes .working/CHANGELOG.md and the
+        # detailed mirror, git in the earlier repository paired a new .working/CHANGELOG.md with
+        # the other path as a copy (diff.renames=copies) or a rename (diff.renames=true, git's
+        # default) and printed copy or rename metadata without its added lines; each row failed
+        # there before the fix. Mutation killed: dropping --no-renames.
         import changelog_diff
         body = "".join(f"Shared line {i}.\n" for i in range(20))
         rows = (("diff.renames", "copies",
@@ -11289,7 +11311,7 @@ class AddedLineDiffTests(DeltaGateRepoTestCase):
                 self.assertEqual(added, body.splitlines())
 
     def test_pathspec_variables_cannot_change_what_a_path_names(self) -> None:
-        # 3b399 round 4: ":(top).working/CHANGELOG.md" names the root .working/CHANGELOG.md alone under each
+        # ":(top).working/CHANGELOG.md" names the root .working/CHANGELOG.md alone under each
         # pathspec variable, from the root and from a subdirectory. Mutations killed: passing
         # GIT_LITERAL_PATHSPECS (no file) or GIT_ICASE_PATHSPECS (changelog.md too) through to
         # git. GIT_GLOB_PATHSPECS and GIT_NOGLOB_PATHSPECS are pins: the runner drops them too,
@@ -11313,9 +11335,9 @@ class AddedLineDiffTests(DeltaGateRepoTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_a_link_mode_on_the_new_side_is_unreadable(self) -> None:
-        # 3b399 round 4: a file whose new side has mode 120000 (symbolic link) or 160000 (gitlink)
-        # raises, wherever the header gives the mode, with or without a hunk. The old side's mode
-        # and a regular file's mode do not.
+        # A file whose new side has mode 120000 (symbolic link) or 160000 (gitlink) raises,
+        # wherever the header gives the mode, with or without a hunk. The old side's mode and a
+        # regular file's mode do not.
         import changelog_diff
         head = b"diff --git a/.working/CHANGELOG.md b/.working/CHANGELOG.md\n"
         tail = b"--- /dev/null\n+++ b/.working/CHANGELOG.md\n@@ -0,0 +1 @@\n+notes.md\n"
@@ -11397,7 +11419,7 @@ class NarrativeCorpusMixedDiffOnPrTests(DeltaGateRepoTestCase):
         )
 
     def test_nested_narrative_readme_plus_corpus_fails(self) -> None:
-        # F1: the README exemption is PATH-SCOPED; a NESTED executive README is
+        # The README exemption is PATH-SCOPED; a NESTED executive README is
         # authored narrative content, so a nested-README + corpus edit is mixed.
         self._run(
             {"README.md": "# R\n"},
@@ -11406,7 +11428,7 @@ class NarrativeCorpusMixedDiffOnPrTests(DeltaGateRepoTestCase):
         )
 
     def test_narrative_plus_root_spec_fails(self) -> None:
-        # F2: a root-level governed corpus doc (specification-*) IS corpus content.
+        # A root-level governed corpus doc (specification-*) IS corpus content.
         self._run(
             {"README.md": "# R\n"},
             {"executive/page.md": "# N\n", "governance/specification-master-project.md": "# S\n"},
@@ -11414,8 +11436,8 @@ class NarrativeCorpusMixedDiffOnPrTests(DeltaGateRepoTestCase):
         )
 
     def test_boundary_crossing_rename_fails(self) -> None:
-        # F4: a rename that MOVES a narrative page into a corpus directory crosses
-        # the boundary. With --no-renames the diff reports delete(executive) +
+        # A rename that MOVES a narrative page into a corpus directory crosses the
+        # boundary. With --no-renames the diff reports delete(executive) +
         # add(corpus), so BOTH sides are seen; default rename detection would
         # report only the destination and lose the narrative side.
         import subprocess as sp
@@ -11464,9 +11486,9 @@ class TodoRotationOnPrDeltaTests(DeltaGateRepoTestCase):
 
     def _run_gate(self, script_name, tmp, base_sha):
         # D5 refuses a top level or git directory other than its own
-        # REPO_ROOT's (3b564), so it runs as an untracked copy inside the
-        # fixture, with lint_common, which it imports, at the shipped layout
-        # path, so that REPO_ROOT is the fixture.
+        # REPO_ROOT's, so it runs as an untracked copy inside the fixture,
+        # with lint_common, which it imports, at the shipped layout path, so
+        # that REPO_ROOT is the fixture.
         import subprocess as sp
 
         tools = fixture_tools(tmp, "lint_common.py", script_name)
@@ -11511,11 +11533,10 @@ class TodoRotationOnPrDeltaTests(DeltaGateRepoTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_index_only_rotation_passes(self) -> None:
-        # 2026-08 migration: the per-item DETAIL (TODO-REFERENCE.md) moved to the private
-        # sibling, so a public closure rotates ONLY the .working/TODO.md index row; the detail block
-        # and the DONE ledger rotate cross-repo, outside the public diff. A closure that
-        # touches .working/TODO.md (index row) therefore PASSES D5, even with no public detail edit.
-        # (Superseded the earlier two-file-rotation requirement.)
+        # The per-item DETAIL (TODO-REFERENCE.md) lives in the private sibling, so a public closure
+        # rotates ONLY the .working/TODO.md index row; the detail block and the DONE ledger rotate
+        # cross-repo, outside the public diff. A closure that touches .working/TODO.md (index row)
+        # therefore PASSES D5, even with no public detail edit.
         tmp, base_sha, shutil = self._build_repo(
             self.BASE,
             {
@@ -11551,17 +11572,18 @@ class TodoRotationOnPrDeltaTests(DeltaGateRepoTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 class CollapsedRangeRefusalTests(unittest.TestCase):
-    """3b530: the range-taking delta gates refuse a collapsed or net-empty named
+    """The range-taking delta gates refuse a collapsed or net-empty named
     range instead of printing a clean pass.
 
-    Incident (orchestrator mistake 300): the D15 gate, run from the main clone
-    while the change lived in a worktree, resolved HEAD to the branch point, so
-    base and head collapsed to one commit and it printed "D15 OK: 0 corpus
-    document(s) changed", a false clean. Strict gates now exit 2 with a
-    CANNOT-EVALUATE message naming the resolved repository top-level and both
-    SHAs; the advisory D15 prints a distinct NOTE stating nothing was evaluated
-    and keeps exit 0. A scoped-empty set over a REAL range (a PR that simply
-    does not touch a gate's files) stays legitimately clean.
+    In the earlier repository the D15 gate, run from the main clone
+    while the change lived in a worktree, resolved HEAD to the branch
+    point, so base and head collapsed to one commit and it printed
+    "D15 OK: 0 corpus document(s) changed", a false clean. Strict gates now
+    exit 2 with a CANNOT-EVALUATE message naming the resolved repository
+    top-level and both SHAs; the advisory D15 prints a distinct NOTE stating
+    nothing was evaluated and keeps exit 0. A scoped-empty set over a REAL
+    range (a PR that simply does not touch a gate's files) stays legitimately
+    clean.
     """
 
     # Strict gates on lint_common.resolve_pr_range. check-version-bump-on-pr.py
@@ -11636,10 +11658,10 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
             capture_output=True, text=True, cwd=str(cwd), env=full_env,
         )
 
-    # 3b564: the gates that refuse a work tree top level or git directory
-    # other than their own REPO_ROOT's, each with its real verdict on
-    # _retire_and_cite's range (D9's is the control FAIL, exit 1) and the
-    # marker of its clean pass.
+    # The gates that refuse a work tree top level or git directory other than
+    # their own REPO_ROOT's, each with its real verdict on _retire_and_cite's
+    # range (D9's is the control FAIL, exit 1) and the marker of its clean
+    # pass.
     OWN_TOP_GATES = (
         ("check-todo-rotation-on-pr.py", 0, "OK: no TODO-item closure asserted", "OK:"),
         ("check-retired-section-orphan-on-pr.py", 1,
@@ -11658,9 +11680,9 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
 
     def _own_gate(self, script, cwd, *args):
         """``_gate`` for a gate that runs git from the current directory and
-        refuses a top level other than its own REPO_ROOT (D5, tension-scan;
-        3b564): it runs as an untracked copy inside the fixture at ``cwd``,
-        as D9 and D13 always did."""
+        refuses a top level other than its own REPO_ROOT (D5, tension-scan):
+        it runs as an untracked copy inside the fixture at ``cwd``, as D9 and
+        D13 always did."""
         import subprocess as sp
 
         tools = self._own_copies(cwd)
@@ -11788,8 +11810,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertIn("not modified", d3.stdout)
 
         # D13 anchors git to its own script's repository, so run a copy of it
-        # from inside the fixture (with lint_common, which it imports since
-        # 3b564).
+        # from inside the fixture (with lint_common, which it imports).
         tools = fixture_tools(tmp, "lint_common.py", "check-stranded-control-code-on-pr.py")
         copy = tools / "check-stranded-control-code-on-pr.py"
         d13 = sp.run(
@@ -11824,10 +11845,9 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn(f"{tag} OK", r.stdout)
 
     def test_d12_same_commit_exit2(self) -> None:
-        # D12 resolves its own two refs (and, since 3b577 round 3, their merge
-        # base), so base==head is the same collapsed range and must refuse
-        # before the first-introduction "floor is new at this base" OK can
-        # fire (round 2 of 3b530).
+        # D12 resolves its own two refs (and their merge base), so base==head
+        # is the same collapsed range and must refuse before the
+        # first-introduction "floor is new at this base" OK can fire.
         tmp, git = self._repo()
         head_sha = git("rev-parse", "HEAD")
         r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp, "origin/main", "HEAD")
@@ -11838,14 +11858,14 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("OK", r.stdout)
 
     def test_d12_net_empty_named_range_exit2(self) -> None:
-        # 3b577 round 2 (3b530 post-merge review WARN): distinct base and
-        # head commits that change no file -- an empty head commit, or a
-        # change and its revert -- select nothing, as base==head does, so D12
-        # refuses with exit 2 as the unscoped gates refuse an empty changed
-        # set. Before 3b577 round 2 each run printed the monotonic OK, or
-        # "new at this base" with no floor at the base (exit 0). A real
-        # change that leaves the floor untouched still gets the monotonic OK:
-        # the refusal predicate is the empty RANGE, not an unchanged floor.
+        # Distinct base and head commits that change no file -- an empty head
+        # commit, or a change and its revert -- select nothing, as base==head
+        # does, so D12 refuses with exit 2 as the unscoped gates refuse an
+        # empty changed set. In the earlier repository each run printed the
+        # monotonic OK, or "new at this base" with no floor at the base (exit
+        # 0). A real change that leaves the floor untouched still gets the
+        # monotonic OK: the refusal predicate is the empty RANGE, not an
+        # unchanged floor.
         def empty_commit(git, floor):
             git("commit", "-q", "--allow-empty", "-m", "empty")
 
@@ -11893,8 +11913,9 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
 
     def test_d12_argless_worktree_equals_base_exit2(self) -> None:
         # The argless form's head is the WORKING TREE; a tree identical to the
-        # base (the exact wrong-clone shape of orchestrator mistake 300, since
-        # the main clone sits clean at origin/main) is the same collapsed range.
+        # base (the exact wrong-clone shape of the incident the class
+        # docstring describes, since the main clone sits clean at origin/main)
+        # is the same collapsed range.
         tmp, git = self._repo()
         head_sha = git("rev-parse", "HEAD")
         r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
@@ -11907,11 +11928,11 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("OK", r.stdout)
 
     def test_d12_argless_untracked_file_still_evaluates(self) -> None:
-        # Round 3 of 3b530 (review F1): an untracked, non-ignored file IS
-        # working-tree content, so the argless form evaluates it instead of
-        # refusing -- including an untracked brand-new floor file, which the
-        # gate's own head read (open(FLOOR_PATH)) evaluates. Here the fixture
-        # base has no floor, so the real verdict is the first-introduction OK.
+        # An untracked, non-ignored file IS working-tree content, so the
+        # argless form evaluates it instead of refusing -- including an
+        # untracked brand-new floor file, which the gate's own head read
+        # (open(FLOOR_PATH)) evaluates. Here the fixture base has no floor, so
+        # the real verdict is the first-introduction OK.
         for rel, content, label in (
             ("NEW.md", "New.\n", "plain untracked file"),
             (".claude/skills/corpus-management/tools/todo-number-floor.json", '{"2": 32}\n', "untracked floor file"),
@@ -11929,10 +11950,10 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertIn("OK", r.stdout)
 
     def test_d12_unresolvable_head_exit2(self) -> None:
-        # Round 3 of 3b530 (review F2): an explicitly named head that does not
-        # resolve is refused the way an unresolvable base is, BEFORE any floor
-        # read (the fixture base has no floor, so without the guard this run
-        # reaches the clean first-introduction "new at this base" OK).
+        # An explicitly named head that does not resolve is refused the way an
+        # unresolvable base is, BEFORE any floor read (the fixture base has no
+        # floor, so without the guard this run reaches the clean
+        # first-introduction "new at this base" OK).
         tmp, git = self._repo()
         r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
                        "origin/main", "no-such-ref")
@@ -11943,10 +11964,9 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("OK", r.stdout)
 
     def test_d12_argless_whitespace_named_untracked_file_still_evaluates(self) -> None:
-        # Round 4 of 3b530 (review F2): the untracked-file check is exact, not
-        # .strip() -- a file whose NAME is whitespace is still working-tree
-        # content, so the argless form evaluates it instead of refusing the
-        # range as empty.
+        # The untracked-file check is exact, not .strip() -- a file whose NAME
+        # is whitespace is still working-tree content, so the argless form
+        # evaluates it instead of refusing the range as empty.
         tmp, git = self._repo()
         (tmp / " ").write_text("x\n", encoding="utf-8")
         r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
@@ -11956,10 +11976,10 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertIn("OK", r.stdout)
 
     def test_d12_argless_from_subdirectory_sees_root_untracked_file(self) -> None:
-        # Round 4 of 3b530 (review F3): the collapsed-range check anchors its
-        # untracked listing and tracked diff to the repository top level, so
-        # an argless run from a subdirectory still sees an untracked file at
-        # the root and evaluates instead of refusing the range as empty.
+        # The collapsed-range check anchors its untracked listing and tracked
+        # diff to the repository top level, so an argless run from a
+        # subdirectory still sees an untracked file at the root and evaluates
+        # instead of refusing the range as empty.
         tmp, git = self._repo()
         (tmp / "NEW.md").write_text("New.\n", encoding="utf-8")
         r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp / "security",
@@ -11969,11 +11989,12 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertIn("OK", r.stdout)
 
     def test_d12_argless_from_subdirectory_with_floor_at_base_gets_real_verdict(self) -> None:
-        # Round 5 of 3b530 (review F1): every working-tree read in the argless
-        # form -- the head floor read included -- anchors to the repository
-        # top level. With a floor PRESENT at the base, an argless run from a
-        # subdirectory (which has no .claude/skills/corpus-management/tools/ of its own) must reach the real
-        # monotonic OK, not a false "missing at HEAD" FAIL and not a refusal.
+        # Every working-tree read in the argless form -- the head floor read
+        # included -- anchors to the repository top level. With a floor
+        # PRESENT at the base, an argless run from a subdirectory (which has
+        # no .claude/skills/corpus-management/tools/ of its own) must reach
+        # the real monotonic OK, not a false "missing at HEAD" FAIL and not a
+        # refusal.
         tmp, git = self._repo()
         floor = tmp / ".claude/skills/corpus-management/tools" / "todo-number-floor.json"
         floor.parent.mkdir(parents=True, exist_ok=True)
@@ -11990,11 +12011,11 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertIn("monotonic", r.stdout)
 
     def test_d12_argless_non_utf8_untracked_name_cannot_crash(self) -> None:
-        # Round 5 of 3b530 (review F2): with core.quotePath=false an untracked
-        # file whose NAME is not valid UTF-8 reaches the gate's ls-files
-        # output raw. The byte-level untracked check treats it as working-tree
-        # content and evaluates (here the first-introduction OK) instead of
-        # dying with a UnicodeDecodeError traceback.
+        # With core.quotePath=false an untracked file whose NAME is not valid
+        # UTF-8 reaches the gate's ls-files output raw. The byte-level
+        # untracked check treats it as working-tree content and evaluates
+        # (here the first-introduction OK) instead of dying with a
+        # UnicodeDecodeError traceback.
         tmp, git = self._repo()
         git("config", "core.quotePath", "false")
         with open(os.path.join(os.fsencode(tmp), b"\xff\xfe"), "wb") as fh:
@@ -12007,12 +12028,12 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertIn("OK", r.stdout)
 
     def test_d12_argless_unreadable_head_floor_refuses(self) -> None:
-        # 3b540 (round-5 review F1): with the floor present at the base, an
-        # argless head floor that EXISTS but cannot be read -- a directory in
-        # its place, a permission error, bytes that are not valid UTF-8 or
-        # not valid JSON -- is neither the floor-removed FAIL nor any clean
-        # verdict: the gate refuses with D12 CANNOT-EVALUATE (exit 2) naming
-        # the path and the error, instead of dying with a traceback.
+        # With the floor present at the base, an argless head floor that
+        # EXISTS but cannot be read -- a directory in its place, a permission
+        # error, bytes that are not valid UTF-8 or not valid JSON -- is
+        # neither the floor-removed FAIL nor any clean verdict: the gate
+        # refuses with D12 CANNOT-EVALUATE (exit 2) naming the path and the
+        # error, instead of dying with a traceback.
         cases = [
             ("directory in place", "IsADirectoryError",
              lambda p: (p.unlink(), p.mkdir())),
@@ -12023,7 +12044,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         ]
         def _unreadable_target(p):
             # chmod 0 on the floor itself would already fail git diff (exit
-            # 128, the round-4 refusal); a symlink to an unreadable target
+            # 128, the failed-call refusal); a symlink to an unreadable target
             # keeps the tracked diff readable (a typechange) so the EACCES
             # surfaces at the gate's own head floor open().
             secret = p.parent / "unreadable-target"
@@ -12059,11 +12080,11 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn("OK", r.stdout)
 
     def test_d12_argless_nested_repo_refused_and_documented(self) -> None:
-        # 3b540 (round-5 review F3): an argless run from inside a NESTED git
-        # repository anchors to the nested repository (inherent git cwd
-        # discovery, shared by every cwd-launched gate), where the base ref
-        # does not resolve, so it is refused -- never evaluated against the
-        # outer repository -- and the usage docstring documents that refusal.
+        # An argless run from inside a NESTED git repository anchors to the
+        # nested repository (inherent git cwd discovery, shared by every
+        # cwd-launched gate), where the base ref does not resolve, so it is
+        # refused -- never evaluated against the outer repository -- and the
+        # usage docstring documents that refusal.
         import subprocess as sp
 
         tmp, git = self._repo()
@@ -12082,13 +12103,13 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                       "the usage docstring must document the nested-repository refusal")
 
     def test_d12_argless_nested_repo_with_resolving_base_evaluates_nested(self) -> None:
-        # 3b540 round 2: the complement of the fresh-nested refusal above.
-        # When the nested repository's OWN base ref resolves, the argless run
-        # is evaluated against the NESTED repository's base and head -- never
-        # the outer repository, whose base here holds no floor at all, so an
-        # outer evaluation would print the first-introduction "new at this
-        # base" OK instead of the real monotonic verdict -- and the usage
-        # docstring states this resolving case alongside the refusal case.
+        # The complement of the fresh-nested refusal above. When the nested
+        # repository's OWN base ref resolves, the argless run is evaluated
+        # against the NESTED repository's base and head -- never the outer
+        # repository, whose base here holds no floor at all, so an outer
+        # evaluation would print the first-introduction "new at this base" OK
+        # instead of the real monotonic verdict -- and the usage docstring
+        # states this resolving case alongside the refusal case.
         import subprocess as sp
 
         tmp, git = self._repo()
@@ -12138,12 +12159,11 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         return tmp, git, floor
 
     def test_d12_base_floor_not_json_refuses(self) -> None:
-        # 3b540 round 2 (r1 reviews, claude F2 / gemini F1): a COMMITTED base
-        # floor that is not valid JSON leaves the base state undetermined, so
-        # the gate refuses with D12 CANNOT-EVALUATE (exit 2) naming the base
-        # source (ref:path), instead of dying with a JSONDecodeError traceback.
-        # Since 3b577 round 4 the source is the merge base SHA the floor was
-        # read at, here the base itself.
+        # A COMMITTED base floor that is not valid JSON leaves the base state
+        # undetermined, so the gate refuses with D12 CANNOT-EVALUATE (exit 2)
+        # naming the base source (ref:path), instead of dying with a
+        # JSONDecodeError traceback. The source is the merge base SHA the
+        # floor was read at, here the base itself.
         tmp, git, floor = self._repo_with_floor_at_base("not a floor\n")
         base_sha = git("rev-parse", "origin/main")
         r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
@@ -12157,11 +12177,10 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("OK", r.stdout)
 
     def test_d12_base_floor_wrong_shape_refuses(self) -> None:
-        # 3b540 round 2 (r1 reviews, claude F1 / gemini F2): a committed base
-        # floor that is VALID JSON of the wrong shape -- not an object, a key
-        # that is not an integer string (or the TF series), a value that is
-        # not an integer -- refuses the same way, never a traceback and never
-        # a verdict computed from garbage.
+        # A committed base floor that is VALID JSON of the wrong shape -- not
+        # an object, a key that is not an integer string (or the TF series), a
+        # value that is not an integer -- refuses the same way, never a
+        # traceback and never a verdict computed from garbage.
         for label, content, named in (
             ("not an object", "[1, 2]\n", "not a JSON object"),
             ("non-integer-string key", '{"abc": 3}\n', "'abc'"),
@@ -12182,10 +12201,10 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn("OK", r.stdout)
 
     def test_d12_argless_head_floor_wrong_shape_refuses(self) -> None:
-        # 3b540 round 2 (r1 reviews, claude F1 / gemini F2): valid JSON of the
-        # WRONG SHAPE in the argless head floor (the working tree) is refused
-        # like the unreadable and non-JSON head shapes above, naming the
-        # path, through the one shape validation every parse shares.
+        # Valid JSON of the WRONG SHAPE in the argless head floor (the working
+        # tree) is refused like the unreadable and non-JSON head shapes above,
+        # naming the path, through the one shape validation every parse
+        # shares.
         for label, content, named in (
             ("not an object", "[1, 2]\n", "not a JSON object"),
             ("non-integer-string key", '{"abc": 3}\n', "'abc'"),
@@ -12206,10 +12225,9 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn("OK", r.stdout)
 
     def test_d12_explicit_head_floor_unparseable_refuses(self) -> None:
-        # 3b540 round 2 (r1 reviews, claude F1+F2 / gemini F1+F2): an EXPLICIT
-        # head ref whose floor blob is not valid JSON, or is valid JSON of
-        # the wrong shape, refuses with D12 CANNOT-EVALUATE naming the head
-        # source (ref:path), instead of a traceback.
+        # An EXPLICIT head ref whose floor blob is not valid JSON, or is valid
+        # JSON of the wrong shape, refuses with D12 CANNOT-EVALUATE naming the
+        # head source (ref:path), instead of a traceback.
         for label, content, named in (
             ("not valid JSON", "not a floor\n", "JSONDecodeError"),
             ("not an object", "[1, 2]\n", "not a JSON object"),
@@ -12232,11 +12250,11 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn("OK", r.stdout)
 
     def test_d12_git_missing_refuses_not_traceback(self) -> None:
-        # 3b540 round 3 (r2 review, claude F2 generalized): git missing from
-        # PATH entirely (FileNotFoundError, an OSError) at the very first
-        # helper call is mapped once in the helpers to _GitCallFailed and
-        # refused by main()'s backstop as D12 CANNOT-EVALUATE (exit 2) naming
-        # the call, never an escaping traceback.
+        # git missing from PATH entirely (FileNotFoundError, an OSError) at
+        # the very first helper call is mapped once in the helpers to
+        # _GitCallFailed and refused by main()'s backstop as D12
+        # CANNOT-EVALUATE (exit 2) naming the call, never an escaping
+        # traceback.
         tmp, git = self._repo()
         empty_dir = Path(tempfile.mkdtemp(prefix="no-git-")).resolve()
         self.addCleanup(shutil.rmtree, empty_dir, ignore_errors=True)
@@ -12249,12 +12267,11 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("OK", r.stdout)
 
     def test_d12_base_floor_show_failure_refuses(self) -> None:
-        # 3b540 round 3 (r2 review, claude F2): the base floor passing the
-        # _path_at_sha existence check but the git show read then failing
-        # (CalledProcessError; the repository mutating under the gate) is a
-        # D12 CANNOT-EVALUATE refusal (exit 2) naming the call, never a
-        # traceback. The PATH shim delegates to the real git except for show.
-        # The call names the pinned base SHA, not the ref (3b540 round 5).
+        # The base floor passing the _path_at_sha existence check but the git
+        # show read then failing (CalledProcessError; the repository mutating
+        # under the gate) is a D12 CANNOT-EVALUATE refusal (exit 2) naming the
+        # call, never a traceback. The PATH shim delegates to the real git
+        # except for show. The call names the pinned base SHA, not the ref.
         real_git = shutil.which("git")
         self.assertIsNotNone(real_git)
         tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
@@ -12284,12 +12301,12 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("OK", r.stdout)
 
     def test_d12_explicit_head_floor_removed_still_fails(self) -> None:
-        # 3b540 round 3: regression pin for the restructure above -- with the
-        # floor-removed FAIL now decided by the explicit-head _path_at_sha
-        # check (git show failures having become refusals), a head commit
-        # that genuinely DELETES the floor still fails (exit 1), not a
-        # refusal and not a pass. Since 3b540 round 5 that check is an empty
-        # git ls-tree listing at the pinned head SHA (round-5 probe P1).
+        # Regression pin for the restructure above -- with the floor-removed
+        # FAIL now decided by the explicit-head _path_at_sha check (git show
+        # failures having become refusals), a head commit that genuinely
+        # DELETES the floor still fails (exit 1), not a refusal and not a
+        # pass. That check is an empty git ls-tree listing at the pinned head
+        # SHA.
         tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
         git("checkout", "-q", "-b", "feat")
         git("rm", "-q", ".claude/skills/corpus-management/tools/todo-number-floor.json")
@@ -12302,12 +12319,12 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("OK", r.stdout)
 
     def test_d12_negative_floor_value_refuses_zero_allowed(self) -> None:
-        # 3b540 round 3 (r2 review, gemini F1): a NEGATIVE floor value is no
-        # floor at all; on a brand-new series it would sail through the
-        # monotonicity comparison as a silent OK, so _parse refuses it as a
-        # shape defect (exit 2) naming the series. Zero stays allowed: it is
-        # the producer's no-allocation default (build-todo-number-allocation.py
-        # load_floor starts tf at 0 and compute reads floor.get(s, 0)).
+        # A NEGATIVE floor value is no floor at all; on a brand-new series it
+        # would sail through the monotonicity comparison as a silent OK, so
+        # _parse refuses it as a shape defect (exit 2) naming the series. Zero
+        # stays allowed: it is the producer's no-allocation default
+        # (build-todo-number-allocation.py load_floor starts tf at 0 and
+        # compute reads floor.get(s, 0)).
         tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
         floor.write_text('{"2": 32, "3": -1}\n', encoding="utf-8")
         r = self._gate("check-todo-floor-monotonic-on-pr.py", tmp,
@@ -12332,11 +12349,11 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         (moving or deleting a ref) once, just before the gate's first
         ``git ls-tree``, ``git cat-file`` or ``git show`` call, which comes
         after it resolved its refs, so the injection fires whichever of those
-        three the presence check uses (3b540 round 6, r5 review WARN-1). A
-        floor read through any other git command (``rev-parse <ref>:<path>``,
-        say) does not trigger it. Every call delegates to the real git. The
-        caller checks the ref afterwards (_resolved_or_none) to prove the
-        injection happened. Returns the PATH value."""
+        three the presence check uses. A floor read through any other git
+        command (``rev-parse <ref>:<path>``, say) does not trigger it. Every
+        call delegates to the real git. The caller checks the ref afterwards
+        (_resolved_or_none) to prove the injection happened. Returns the PATH
+        value."""
         real_git = shutil.which("git")
         self.assertIsNotNone(real_git)
         shim_dir = Path(tempfile.mkdtemp(prefix="gitshim-")).resolve()
@@ -12381,16 +12398,14 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         return tmp, git
 
     def test_d12_head_ref_changing_mid_run_keeps_pinned_verdict(self) -> None:
-        # 3b540 round 5 (r4 review, claude NOTE-1, probes P3 and P5): the
-        # head ref is resolved to its SHA once, and both head floor reads use
-        # that SHA. A head ref moved onto the base commit after the
-        # collapsed-range check, or deleted, therefore cannot turn the
-        # genuine verdict at the resolved head (the floor lowered: FAIL, exit
-        # 1) into the reflexive monotonic OK or a refusal. The shim fires on
-        # the first ls-tree, cat-file or show call, and the ref's state after
-        # the run proves the change happened (3b540 round 6, r5 review
-        # WARN-1): the round-4 tool, whose presence check was
-        # git cat-file -e, fails here.
+        # The head ref is resolved to its SHA once, and both head floor reads
+        # use that SHA. A head ref moved onto the base commit after the
+        # collapsed-range check, or deleted, therefore cannot turn the genuine
+        # verdict at the resolved head (the floor lowered: FAIL, exit 1) into
+        # the reflexive monotonic OK or a refusal. The shim fires on the first
+        # ls-tree, cat-file or show call, and the ref's state after the run
+        # proves the change happened: the earlier repository's tool, whose
+        # presence check was git cat-file -e, failed here.
         for label, update, after in (
             ("moved onto the base", ("refs/heads/feat", "{base}"), "{base}"),
             ("deleted", ("-d", "refs/heads/feat"), None),
@@ -12415,16 +12430,14 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn("OK", r.stdout)
 
     def test_d12_base_ref_changing_mid_run_keeps_pinned_verdict(self) -> None:
-        # 3b540 round 5 (r4 review, claude NOTE-1, probe P4): the base-side
-        # mirror. The base ref is resolved to its SHA once, and the base
-        # floor-path check and read use that SHA. A base ref moved onto a
-        # commit without the floor after the collapsed-range check, or
+        # The base-side mirror. The base ref is resolved to its SHA once, and
+        # the base floor-path check and read use that SHA. A base ref moved
+        # onto a commit without the floor after the collapsed-range check, or
         # deleted, therefore cannot turn the genuine verdict at the resolved
         # base (the working tree lowered the floor: FAIL, exit 1) into the
         # first-introduction OK (a silent waiver) or a refusal. As above, the
-        # shim fires on the first ls-tree, cat-file or show call and the
-        # ref's state after the run proves the change happened
-        # (3b540 round 6).
+        # shim fires on the first ls-tree, cat-file or show call and the ref's
+        # state after the run proves the change happened.
         for label, update, after in (
             ("moved onto a commit without the floor",
              ("refs/remotes/origin/main", "{initial}"), "{initial}"),
@@ -12459,12 +12472,12 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         (tmp / ".git" / "objects" / blob[:2] / blob[2:]).unlink()
 
     def test_d12_base_floor_blob_missing_refuses(self) -> None:
-        # 3b540 round 5 (r4 review, claude WARN-1, probe P6): the base tree
-        # LISTS the floor but its blob is missing from the object store
-        # while the base ref resolves. Presence is decided by git ls-tree
-        # (the entry is listed), and the failed read refuses as D12
+        # The base tree LISTS the floor but its blob is missing from the
+        # object store while the base ref resolves. Presence is decided by git
+        # ls-tree (the entry is listed), and the failed read refuses as D12
         # CANNOT-EVALUATE (exit 2), never the first-introduction OK (git
-        # cat-file -e is nonzero here, which read as "new at this base").
+        # cat-file -e is nonzero here, which the earlier repository read as
+        # "new at this base").
         tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
         base_sha = git("rev-parse", "origin/main")
         self._drop_floor_blob(tmp, git, "origin/main")
@@ -12479,11 +12492,11 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("OK", r.stdout)
 
     def test_d12_head_floor_blob_missing_refuses(self) -> None:
-        # 3b540 round 5 (r4 review, claude WARN-1, probe P7): the head-side
-        # mirror. The explicit head's tree lists the floor (raised) but its
-        # blob is missing from the object store: the failed read refuses as
-        # D12 CANNOT-EVALUATE (exit 2), never the floor-removed FAIL (git
-        # cat-file -e is nonzero here, which read as "missing at HEAD").
+        # The head-side mirror. The explicit head's tree lists the floor
+        # (raised) but its blob is missing from the object store: the failed
+        # read refuses as D12 CANNOT-EVALUATE (exit 2), never the
+        # floor-removed FAIL (git cat-file -e is nonzero here, which the
+        # earlier repository read as "missing at HEAD").
         tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
         git("checkout", "-q", "-b", "feat")
         floor.write_text('{"2": 33}\n', encoding="utf-8")
@@ -12504,11 +12517,10 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("OK", r.stdout)
 
     def test_d12_explicit_head_first_introduction_still_ok(self) -> None:
-        # 3b540 round 5 (probe P2): regression pin for the git ls-tree
-        # presence check -- a base whose tree does not list the floor (empty
-        # ls-tree output, exit 0) is the genuine first introduction, so an
-        # explicit head that adds the floor still gets the "new at this base"
-        # OK (exit 0), not a refusal.
+        # Regression pin for the git ls-tree presence check -- a base whose
+        # tree does not list the floor (empty ls-tree output, exit 0) is the
+        # genuine first introduction, so an explicit head that adds the floor
+        # still gets the "new at this base" OK (exit 0), not a refusal.
         tmp, git = self._repo()
         git("checkout", "-q", "-b", "feat")
         floor = tmp / ".claude/skills/corpus-management/tools" / "todo-number-floor.json"
@@ -12523,14 +12535,14 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("CANNOT-EVALUATE", r.stderr)
 
     def test_d12_introduced_head_floor_malformed_refuses(self) -> None:
-        # 3b577 (3b540 post-merge review E1): a base without the floor leaves
-        # nothing to compare, but the floor the head introduces is still read
-        # and parsed before the first-introduction OK, so an introduced floor
-        # that is not valid JSON, or is JSON of the wrong shape, refuses with
-        # D12 CANNOT-EVALUATE (exit 2) naming the head source, from an
-        # explicit head and from the argless working tree alike. Before 3b577
-        # each run printed "new at this base" (exit 0) without reading the
-        # head floor.
+        # A base without the floor leaves nothing to compare, but the floor
+        # the head introduces is still read and parsed before the
+        # first-introduction OK, so an introduced floor that is not valid
+        # JSON, or is JSON of the wrong shape, refuses with D12
+        # CANNOT-EVALUATE (exit 2) naming the head source, from an explicit
+        # head and from the argless working tree alike. In the earlier
+        # repository each run printed "new at this base" (exit 0) without
+        # reading the head floor.
         for label, content, named in (
             ("not valid JSON", "not a floor\n", "JSONDecodeError"),
             ("not an object", "[1, 2]\n", "not a JSON object"),
@@ -12562,13 +12574,12 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                     self.assertNotIn("OK", r.stdout)
 
     def test_d12_introduced_head_floor_blob_missing_refuses(self) -> None:
-        # 3b577 (3b540 post-merge review E1): the explicit head's tree lists
-        # the floor it introduces (the base has none) but the blob is missing
-        # from the object store. The failed read refuses as D12
-        # CANNOT-EVALUATE (exit 2) naming the call, as it does with a floor at
-        # the base (test_d12_head_floor_blob_missing_refuses above); before
-        # 3b577 the run printed "new at this base" (exit 0) without reading
-        # the head floor.
+        # The explicit head's tree lists the floor it introduces (the base has
+        # none) but the blob is missing from the object store. The failed read
+        # refuses as D12 CANNOT-EVALUATE (exit 2) naming the call, as it does
+        # with a floor at the base (test_d12_head_floor_blob_missing_refuses
+        # above); in the earlier repository the run printed "new at this base"
+        # (exit 0) without reading the head floor.
         tmp, git = self._repo()
         git("checkout", "-q", "-b", "feat")
         floor = tmp / ".claude/skills/corpus-management/tools" / "todo-number-floor.json"
@@ -12591,13 +12602,13 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("OK", r.stdout)
 
     def test_d12_pathspec_mode_env_keeps_real_verdict(self) -> None:
-        # 3b540 round 6 (r5 review NOTE-1): git ls-tree rejects pathspec
-        # magic, so with GIT_GLOB_PATHSPECS=1 or GIT_ICASE_PATHSPECS=1
-        # inherited it exited 128 and the presence check refused a monotonic
-        # range (exit 2). Its call now runs without those two, so an explicit
-        # range raising the floor (both presence calls) gets the monotonic OK.
-        # GIT_LITERAL_PATHSPECS and GIT_NOGLOB_PATHSPECS are verdict pins:
-        # the test pins the monotonic OK under each, not that they reach git.
+        # git ls-tree rejects pathspec magic, so in the earlier repository,
+        # with GIT_GLOB_PATHSPECS=1 or GIT_ICASE_PATHSPECS=1 inherited, it
+        # exited 128 and the presence check refused a monotonic range (exit
+        # 2). Its call now runs without those two, so an explicit range
+        # raising the floor (both presence calls) gets the monotonic OK.
+        # GIT_LITERAL_PATHSPECS and GIT_NOGLOB_PATHSPECS are verdict pins: the
+        # test pins the monotonic OK under each, not that they reach git.
         # Mutation killed: passing the glob or icase variable through.
         for var in ("GIT_GLOB_PATHSPECS", "GIT_ICASE_PATHSPECS",
                     "GIT_LITERAL_PATHSPECS", "GIT_NOGLOB_PATHSPECS"):
@@ -12615,11 +12626,11 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn("CANNOT-EVALUATE", r.stderr)
 
     def test_d12_verdict_and_head_floor_lines_name_pinned_shas(self) -> None:
-        # 3b540 round 6 (r5 review NOTE-2): every verdict line -- both OKs
-        # and all three FAILs -- and the head-floor read and parse refusals
-        # name the pinned base and head SHAs (the argless head as the working
-        # tree), as the refusals already named the base, so a ref that moves
-        # after the gate pinned it cannot point the reader at other content.
+        # Every verdict line -- both OKs and all three FAILs -- and the
+        # head-floor read and parse refusals name the pinned base and head
+        # SHAs (the argless head as the working tree), as the refusals already
+        # named the base, so a ref that moves after the gate pinned it cannot
+        # point the reader at other content.
         def explicit(content, drop_blob=False):
             # feat commits ``content`` as the floor (None removes it).
             tmp, git, floor = self._repo_with_floor_at_base('{"2": 32}\n')
@@ -12684,14 +12695,14 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertIn(f"base={base_sha} head={head_pin}", line)
 
     def test_d12_argless_dangling_floor_link_refuses(self) -> None:
-        # 3b577 round 3 (r2 review, claude F1): open() follows links, so an
-        # argless head floor that is a dangling symlink raised the same
-        # FileNotFoundError as a missing floor: with no floor at the base the
-        # run printed the first-introduction OK (exit 0), and with one the
-        # floor-removed FAIL (exit 1). lstat finds the entry, so the gate now
-        # refuses with D12 CANNOT-EVALUATE (exit 2) naming the path, with or
-        # without a floor at the base, as the explicit form already refuses
-        # the same committed link. A floor genuinely absent still FAILs
+        # open() follows links, so in the earlier repository an argless head
+        # floor that is a dangling symlink raised the same FileNotFoundError
+        # as a missing floor: with no floor at the base the run printed the
+        # first-introduction OK (exit 0), and with one the floor-removed FAIL
+        # (exit 1). lstat finds the entry, so the gate now refuses with D12
+        # CANNOT-EVALUATE (exit 2) naming the path, with or without a floor at
+        # the base, as the explicit form already refuses the same committed
+        # link. A floor genuinely absent still FAILs
         # (test_d12_verdict_and_head_floor_lines_name_pinned_shas).
         for label, floor_at_base in (("floor at the base", True),
                                      ("no floor at the base", False)):
@@ -12737,19 +12748,18 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         return tmp, git, fork
 
     def test_d12_stale_branch_judged_against_merge_base(self) -> None:
-        # 3b577 round 3 (r2 review, claude F3, probes P14a-P14d): D12
-        # compares against the PR's merge base, as the specification says,
+        # D12 compares against the PR's merge base, as the specification says,
         # not against the base itself. Each fixture forks feat from a base
         # whose floor is 32, then main moves on and origin/main follows, so
         # feat is stale. A change and its revert (P14a) or an empty commit
         # (P14b) changed nothing since the fork, and a head AT the fork point
-        # (P14c, the wrong-clone shape) selects nothing, so each refuses
-        # (exit 2), as D1 refuses the same ranges. A README-only branch after
-        # main raised the floor (P14d) did not lower it, so it gets the
-        # monotonic OK against the fork point's floor. Before 3b577 round 3
-        # every run compared with origin/main itself: P14a and P14c printed
-        # the monotonic OK (exit 0), and P14b and P14d the false FAIL "floor
-        # decreased 33 -> 32" (exit 1), in both forms.
+        # (P14c, the wrong-clone shape) selects nothing, so each refuses (exit
+        # 2), as D1 refuses the same ranges. A README-only branch after main
+        # raised the floor (P14d) did not lower it, so it gets the monotonic
+        # OK against the fork point's floor. In the earlier repository every
+        # run compared with origin/main itself: P14a and P14c printed the
+        # monotonic OK (exit 0), and P14b and P14d the false FAIL
+        # "floor decreased 33 -> 32" (exit 1), in both forms.
         def change_and_revert(git, tmp, floor):
             floor.write_text('{"2": 33}\n', encoding="utf-8")
             git("commit", "-q", "-am", "raise floor")
@@ -12794,11 +12804,11 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                         self.assertNotIn("OK", r.stdout)
 
     def test_d12_no_merge_base_refuses(self) -> None:
-        # 3b577 round 3: with no merge base there is no floor to compare
-        # against, so D12 refuses (exit 2) instead of falling back to the
-        # base itself: an argless run on an unborn branch, and an argless or
-        # named run whose head shares no history with the base. Before 3b577
-        # round 3 each run was evaluated against the base and printed the
+        # With no merge base there is no floor to compare against, so D12
+        # refuses (exit 2) instead of falling back to the base itself: an
+        # argless run on an unborn branch, and an argless or named run whose
+        # head shares no history with the base. In the earlier repository each
+        # run was evaluated against the base and printed the
         # first-introduction "new at this base" OK (exit 0).
         def unborn(git, tmp):
             git("checkout", "-q", "--orphan", "fresh")
@@ -12829,11 +12839,10 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn("OK", r.stdout)
 
     def test_d12_no_floor_on_either_side_says_so(self) -> None:
-        # 3b577 round 3 (r2 review, claude F4): with no floor at the merge
-        # base and none at the head nothing was introduced, so the OK says
-        # "no floor on either side" instead of the first-introduction "new
-        # at this base" it printed before (exit 0 both ways), in the named
-        # and the argless form.
+        # With no floor at the merge base and none at the head nothing was
+        # introduced, so the OK says "no floor on either side" instead of the
+        # first-introduction "new at this base" it printed in the earlier
+        # repository (exit 0 both ways), in the named and the argless form.
         for form in ("named", "argless"):
             with self.subTest(form=form):
                 tmp, git = self._repo()
@@ -12853,19 +12862,19 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn("CANNOT-EVALUATE", r.stderr)
 
     def _criss_cross(self, head_tree_is_b1, b1_later):
-        """A criss-cross history with two merge bases (3b577 round 4, r3
-        review claude F1). From a root whose floor is 30, main commits A1
-        (floor 33) and feat commits B1 (floor 32); each side then merges the
-        other's commit keeping its own tree (``-s ours``), so origin/main
-        (main's merge, floor 33) and feat (feat's merge, floor 32) have A1
-        and B1 as merge bases. Commits are one minute apart, B1 after A1
-        when ``b1_later``: ``git merge-base`` without --all prints one of
-        the two by commit date (git 2.53 printed the later one, B1, the base
-        whose floor feat does not lower), so of the two orderings one has
-        git's single pick at B1 whichever way git breaks the tie. Unless
-        ``head_tree_is_b1``, feat then edits README.md, so its tree differs
-        from both bases; otherwise feat's tree is B1's. feat is checked out
-        with a clean working tree. Returns (path, git runner, A1, B1)."""
+        """A criss-cross history with two merge bases. From a root whose floor
+        is 30, main commits A1 (floor 33) and feat commits B1 (floor 32); each
+        side then merges the other's commit keeping its own tree
+        (``-s ours``), so origin/main (main's merge, floor 33) and feat
+        (feat's merge, floor 32) have A1 and B1 as merge bases. Commits are
+        one minute apart, B1 after A1 when ``b1_later``: ``git merge-base``
+        without --all prints one of the two by commit date (git 2.53 printed
+        the later one, B1, the base whose floor feat does not lower), so of
+        the two orderings one has git's single pick at B1 whichever way git
+        breaks the tie. Unless ``head_tree_is_b1``, feat then edits README.md,
+        so its tree differs from both bases; otherwise feat's tree is B1's.
+        feat is checked out with a clean working tree. Returns (path, git
+        runner, A1, B1)."""
         import subprocess as sp
 
         tmp, git = self._repo()
@@ -12907,17 +12916,17 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         return tmp, git, a1, b1
 
     def test_d12_criss_cross_compares_every_merge_base(self) -> None:
-        # 3b577 round 4 (r3 review, claude F1): in a criss-cross history git
-        # merge-base without --all prints one merge base, and e41b151b4
-        # compared the floor against that one only. When git's pick was B1
-        # (floor 32), a feat that lowers the floor below A1's 33 printed the
-        # monotonic OK (exit 0) in both forms; when feat's tree was B1's, the
-        # named form refused as a net-empty range and the argless form as a
-        # collapsed one (exit 2). D12 now reads every merge base: it FAILS
-        # on the decrease against A1 (exit 1), naming both merge bases, and
-        # the range is empty only when the head's tree is every merge
-        # base's. Both orderings of A1 and B1 run, so the test discriminates
-        # whichever merge base git's single pick is.
+        # In a criss-cross history git merge-base without --all prints one
+        # merge base, and the earlier repository compared the floor against
+        # that one only. When git's pick was B1 (floor 32), a feat that lowers
+        # the floor below A1's 33 printed the monotonic OK (exit 0) in both
+        # forms; when feat's tree was B1's, the named form refused as a
+        # net-empty range and the argless form as a collapsed one (exit 2).
+        # D12 now reads every merge base: it FAILS on the decrease against A1
+        # (exit 1), naming both merge bases, and the range is empty only when
+        # the head's tree is every merge base's. Both orderings of A1 and B1
+        # run, so the test discriminates whichever merge base git's single
+        # pick is.
         for variant, head_tree_is_b1 in (("feat edits README.md", False),
                                          ("feat's tree is B1's", True)):
             for b1_later in (True, False):
@@ -12943,14 +12952,14 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                         self.assertNotIn("OK", r.stdout)
 
     def test_d12_floor_beyond_decoder_limits_refuses(self) -> None:
-        # 3b577 round 4 (r3 review, claude F2): text json.loads cannot hold
-        # raises RecursionError (nesting deeper than the decoder's stack) or
-        # a plain ValueError (an integer longer than the interpreter's
-        # 4300-digit limit), not JSONDecodeError, so it escaped _parse and
-        # every form exited 1 with a traceback, for a head floor with or
-        # without a floor at the merge base and for a merge-base floor
-        # alike. _parse now raises _FloorParseError naming the source, so the
-        # gate refuses with D12 CANNOT-EVALUATE (exit 2).
+        # Text json.loads cannot hold raises RecursionError (nesting deeper
+        # than the decoder's stack) or a plain ValueError (an integer longer
+        # than the interpreter's 4300-digit limit), not JSONDecodeError, so in
+        # the earlier repository it escaped _parse and every form exited 1
+        # with a traceback, for a head floor with or without a floor at the
+        # merge base and for a merge-base floor alike. _parse now raises
+        # _FloorParseError naming the source, so the gate refuses with D12
+        # CANNOT-EVALUATE (exit 2).
         deep = "[" * 200000 + "\n"
         long_int = '{"2": ' + "1" * 5000 + "}\n"
 
@@ -13009,20 +13018,21 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                         self.assertNotIn("OK", r.stdout)
 
     def test_d12_messages_name_the_merge_base_floor(self) -> None:
-        # 3b577 round 4 (r3 reviews, claude F4 and F6, codex WARN): a message
-        # that reads the merge-base floor names it by the merge base SHA, and
-        # each verdict line says what it compared. Two stale-branch probes,
-        # in the named and the argless form:
-        # - the fork point's floor is not JSON and main has since fixed it.
-        #   e41b151b4 labelled the floor origin/main:.claude/skills/corpus-management/tools/todo-number-floor.json,
+        # A message that reads the merge-base floor names it by the merge base
+        # SHA, and each verdict line says what it compared. Two stale-branch
+        # probes, in the named and the argless form:
+        # - the fork point's floor is not JSON and main has since fixed it. The
+        #   earlier repository labelled the floor
+        #   origin/main:.claude/skills/corpus-management/tools/todo-number-floor.json,
         #   git revision syntax for the fixed blob, not the one read, and said
         #   to fix the floor at the base. The refusal now names
-        #   <fork>:.claude/skills/corpus-management/tools/todo-number-floor.json and says to bring the branch
-        #   up to date with origin/main if it has fixed its floor.
-        # - main and feat each introduce a floor after the fork (the r3
-        #   review's F5 probe). e41b151b4 printed "new at this base" although
-        #   the base has a floor; the OK now says the floor is new since the
-        #   merge base and names it.
+        #   <fork>:.claude/skills/corpus-management/tools/todo-number-floor.json
+        #   and says to bring the branch up to date with origin/main if it has
+        #   fixed its floor.
+        # - main and feat each introduce a floor after the fork. The earlier
+        #   repository printed "new at this base" although the base has a
+        #   floor; the OK now says the floor is new since the merge base and
+        #   names it.
         def malformed_at_fork():
             tmp, git, floor = self._repo_with_floor_at_base("not a floor\n")
             (tmp / "NEW.md").unlink()
@@ -13089,13 +13099,13 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn("CANNOT-EVALUATE", r.stderr)
 
     def test_d12_argless_git_call_failure_refuses(self) -> None:
-        # Round 4 of 3b530 (review F5): a git diff or git ls-files call that
-        # fails outright (nonzero beyond the documented difference status 1)
-        # leaves the working-tree state undetermined, so the argless form
-        # refuses with CANNOT-EVALUATE naming the failed call instead of
-        # falling through to evaluation (here that fall-through would reach
-        # the clean first-introduction OK). The PATH shim delegates to the
-        # real git except for the one failing subcommand.
+        # A git diff or git ls-files call that fails outright (nonzero beyond
+        # the documented difference status 1) leaves the working-tree state
+        # undetermined, so the argless form refuses with CANNOT-EVALUATE
+        # naming the failed call instead of falling through to evaluation
+        # (here that fall-through would reach the clean first-introduction
+        # OK). The PATH shim delegates to the real git except for the one
+        # failing subcommand.
         real_git = shutil.which("git")
         self.assertIsNotNone(real_git)
         for subcommand, named in (("diff", "git diff --quiet"),
@@ -13138,15 +13148,15 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertIn("OK", r.stdout)
 
     def test_runner_same_sha_runs_rangeless_gates_then_refuses(self) -> None:
-        # Round 2 of 3b530 (review F2): on a collapsed range the runner still
-        # runs the gates that take no range and reports their verdicts, then
-        # refuses the range-taking gates and exits 2 (fail closed), telling the
-        # operator of a no-commit branch to commit before pushing. The real
-        # runner script runs against a fixture clone with stub copies of the
-        # five range-free gate tools, so the test is hermetic and pins the
-        # runner's own tool wiring (a renamed tool breaks a stub's OK line).
-        # D14 (the class-completeness attestation) is retired, as
-        # lint-audit-gate-parity.py records, so the runner must not run it.
+        # On a collapsed range the runner still runs the gates that take no
+        # range and reports their verdicts, then refuses the range-taking
+        # gates and exits 2 (fail closed), telling the operator of a no-commit
+        # branch to commit before pushing. The real runner script runs against
+        # a fixture clone with stub copies of the five range-free gate tools,
+        # so the test is hermetic and pins the runner's own tool wiring (a
+        # renamed tool breaks a stub's OK line). D14 (the class-completeness
+        # attestation) is retired, as lint-audit-gate-parity.py records, so
+        # the runner must not run it.
         import subprocess as sp
 
         tmp, git = self._repo()
@@ -13180,8 +13190,9 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("D15", r.stdout)
 
     def test_d13_diff_failure_not_clean(self) -> None:
-        # A failed enumeration diff must never print the clean "D13 OK: no
-        # corpus document changed" (the old changed_corpus_files returned []).
+        # A failed enumeration diff must never print the clean
+        # "D13 OK: no corpus document changed" (in the earlier repository
+        # changed_corpus_files returned []).
         import contextlib
         import importlib.util
         import io
@@ -13192,9 +13203,9 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
 
-        # The top-level read and the git-directory check (3b564) run the real
-        # git against the module's own REPO_ROOT, this checkout, so both pass
-        # and the run reaches the failing diff.
+        # The top-level read and the git-directory check run the real git
+        # against the module's own REPO_ROOT, this checkout, so both pass and
+        # the run reaches the failing diff.
         def fake_git(*args):
             if args[0] == "merge-base":
                 return "a" * 40
@@ -13212,10 +13223,10 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("D13 OK", out.getvalue())
 
     def test_d13_document_read_failure_not_clean(self) -> None:
-        # 3b572: a failed read of one changed corpus document (its diff or its
-        # HEAD text) must never print the clean "D13 OK: N corpus doc(s)
-        # changed" (the old loop skipped the document). Mutation killed:
-        # restoring the `continue` in that except clause.
+        # A failed read of one changed corpus document (its diff or its HEAD
+        # text) must never print the clean "D13 OK: N corpus doc(s) changed"
+        # (in the earlier repository the loop skipped the document). Mutation
+        # killed: restoring the `continue` in that except clause.
         import contextlib
         import importlib.util
         import io
@@ -13247,13 +13258,13 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("D13 OK", out.getvalue())
 
     def _d13_fixture(self):
-        """``(tmp, env, run)``: the one-commit fixture plus a ``feat`` branch
-        that deletes the corpus document, an unrelated-history ``lonely``
-        branch, and an untracked copy of D13 (it anchors git to its own
-        script's repository) with lint_common, which it imports since 3b564.
-        ``env`` has no inherited GIT_* and no system or
-        global config, so a global safe.directory cannot mask the ownership
-        refusal; ``run(base, head, extra)`` runs the copy under it (3b572)."""
+        """``(tmp, env, run)``: the one-commit fixture plus a ``feat``
+        branch that deletes the corpus document, an unrelated-history
+        ``lonely`` branch, and an untracked copy of D13 (it anchors git to
+        its own script's repository) with lint_common, which it imports.
+        ``env`` has no inherited GIT_* and no system or global config,
+        so a global safe.directory cannot mask the ownership refusal;
+        ``run(base, head, extra)`` runs the copy under it."""
         import subprocess as sp
 
         tmp, git = self._repo()
@@ -13275,13 +13286,14 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         return tmp, env, run
 
     def test_d13_git_refusal_at_merge_base_refuses_exit2(self) -> None:
-        # 3b572: git merge-base failing for any reason other than "no merge
-        # base" (exit 1, no output) is git refusing to answer, not a skip. At
-        # the base both cases printed "D13 SKIP: no resolvable merge base
-        # ...; fail-open." with exit 0. Mutation killed: reading any
-        # CalledProcessError from merge-base as the SKIP again. 3b620 round
-        # 18: git's dubious-ownership exit 128 at rev-parse --verify is not
-        # its unknown-name answer, so resolve_base_ref refuses it first.
+        # git merge-base failing for any reason other than
+        # "no merge base" (exit 1, no output) is git refusing to answer,
+        # not a skip. In the earlier repository both cases printed
+        # "D13 SKIP: no resolvable merge base ...; fail-open." with exit 0.
+        # Mutation killed: reading any CalledProcessError from merge-base
+        # as the SKIP again. git's dubious-ownership exit 128 at rev-parse
+        # --verify is not its unknown-name answer, so resolve_base_ref refuses
+        # it first.
         import subprocess as sp
 
         tmp, env, run = self._d13_fixture()
@@ -13305,12 +13317,12 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn("D13 OK", r.stdout)
 
     def test_d13_no_merge_base_still_skips_exit0(self) -> None:
-        # 3b572: git's own no-merge-base result (unrelated histories: exit 1,
-        # no output) keeps the documented fail-open SKIP; a deleted corpus
+        # git's own no-merge-base result (unrelated histories: exit 1, no
+        # output) keeps the documented fail-open SKIP; a deleted corpus
         # document over a real range is still clean (it has no HEAD text).
         # Mutation killed: refusing every merge-base failure, or dropping the
         # deleted-document skip. The base prints fully qualified, as
-        # resolve_base_ref hands it back (3b620).
+        # resolve_base_ref hands it back.
         _tmp, _env, run = self._d13_fixture()
         r = run("origin/main", "lonely")
         self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
@@ -13322,14 +13334,14 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertIn("D13 OK: 1 corpus doc(s) changed; no stranded body control-codes.", r.stdout)
 
     def test_d13_merge_base_partial_no_base_shapes_refuse_exit2(self) -> None:
-        # 3b572 round 2 (r1 review N1): each half of merge_base_of's "exit 1
-        # with no output" test refuses on its own. Unrelated histories with a
-        # git warning on stderr (an ambiguous refname) and a nonzero exit
-        # other than 1 with no output at all (a PATH shim) both exit 2.
-        # Mutations killed: dropping `and not exc.stderr` (M6) or
-        # `exc.returncode == 1 and` (M7) from merge_base_of. The ambiguous
-        # refname is the head, on lonely's unrelated history: resolve_base_ref
-        # refuses an ambiguous base before merge-base runs (3b620).
+        # Each half of merge_base_of's "exit 1 with no output" test refuses on
+        # its own. Unrelated histories with a git warning on stderr (an
+        # ambiguous refname) and a nonzero exit other than 1 with no output at
+        # all (a PATH shim) both exit 2. Mutations killed: dropping
+        # `and not exc.stderr` or `exc.returncode == 1 and` from
+        # merge_base_of. The ambiguous refname is the head, on lonely's
+        # unrelated history: resolve_base_ref refuses an ambiguous base before
+        # merge-base runs.
         import subprocess as sp
 
         real_git = shutil.which("git")
@@ -13363,11 +13375,11 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn("D13 OK", r.stdout)
 
     def test_d13_git_absent_refuses_exit2(self) -> None:
-        # 3b572 round 2 (r1 reviews: codex ERROR, claude W1): git missing from
-        # PATH (FileNotFoundError, an OSError) at the merge-base call exited
-        # 1, D13's own stranded-codes FAIL code, with a traceback; it refuses
-        # with exit 2 naming the error instead. Mutation killed: dropping the
-        # OSError clause at the merge-base call.
+        # In the earlier repository git missing from PATH (FileNotFoundError,
+        # an OSError) at the merge-base call exited 1, D13's own
+        # stranded-codes FAIL code, with a traceback; it refuses with exit 2
+        # naming the error instead. Mutation killed: dropping the OSError
+        # clause at the merge-base call.
         _tmp, _env, run = self._d13_fixture()
         empty_dir = Path(tempfile.mkdtemp(prefix="no-git-")).resolve()
         self.addCleanup(shutil.rmtree, empty_dir, ignore_errors=True)
@@ -13379,19 +13391,19 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("D13 SKIP", r.stdout)
         self.assertNotIn("D13 OK", r.stdout)
 
-    # 3b697: D5 and D9, with the marker of each one's clean pass.
+    # D5 and D9, with the marker of each one's clean pass.
     D5_D9_GATES = (
         ("check-todo-rotation-on-pr.py", "OK:"),
         ("check-retired-section-orphan-on-pr.py", "D9 OK"),
     )
 
     def test_d5_d9_git_absent_refuses_exit2(self) -> None:
-        # 3b697: git missing from PATH (FileNotFoundError, an OSError) at
-        # the merge-base call exited 1, D5's and D9's own FAIL code, with a
-        # traceback; each refuses with exit 2 naming the error instead, as
-        # D13 does (test_d13_git_absent_refuses_exit2). Each runs as its own
-        # copy inside the fixture. Mutation killed: dropping the OSError
-        # clause at either gate's merge-base call.
+        # In the earlier repository git missing from PATH (FileNotFoundError,
+        # an OSError) at the merge-base call exited 1, D5's and D9's own FAIL
+        # code, with a traceback; each refuses with exit 2 naming the error
+        # instead, as D13 does (test_d13_git_absent_refuses_exit2). Each runs
+        # as its own copy inside the fixture. Mutation killed: dropping the
+        # OSError clause at either gate's merge-base call.
         import subprocess as sp
 
         tmp, _git = self._repo()
@@ -13413,10 +13425,10 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
 
     def _d5_d9_in_process(self, script, exc):
         """``(rc, stdout, stderr)`` of D5's main() or D9's run() in process
-        over origin/main..HEAD, ``exc`` raised by the merge-base git call
-        and every other git call an AssertionError; the base passes
-        resolve_base_ref unchanged, so the merge-base call is the first
-        git call (3b697)."""
+        over origin/main..HEAD, ``exc`` raised by the merge-base git call and
+        every other git call an AssertionError; the base passes
+        resolve_base_ref unchanged, so the merge-base call is the first git
+        call."""
         import contextlib
         import importlib.util
         import io
@@ -13442,10 +13454,11 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         return rc, out.getvalue(), err.getvalue()
 
     def test_d5_d9_git_not_executable_at_merge_base_refuses_exit2(self) -> None:
-        # 3b697: git that is present but cannot be executed (PermissionError,
-        # an OSError) at the merge-base call raised out of D5's main() and
-        # D9's run(); each returns 2 naming the error instead. Mutation
-        # killed: dropping the OSError clause at either gate's merge-base call.
+        # In the earlier repository git that is present but cannot be executed
+        # (PermissionError, an OSError) at the merge-base call raised out of
+        # D5's main() and D9's run(); each returns 2 naming the error instead.
+        # Mutation killed: dropping the OSError clause at either gate's
+        # merge-base call.
         denied = PermissionError(13, "Permission denied", "git")
         for script, ok in self.D5_D9_GATES:
             with self.subTest(gate=script):
@@ -13457,13 +13470,14 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn(ok, out)
 
     def test_d5_d9_undecodable_git_output_at_merge_base_refuses_exit2(self) -> None:
-        # 3b697 round 2: git output that is not valid UTF-8 (UnicodeDecodeError)
-        # at the merge-base call raised out of D5's main() and D9's run(), a
-        # traceback with exit 1; each returns 2 naming the decoding error
-        # instead, in D13's wording (test_d13_undecodable_git_output_refuses_exit2).
-        # The error is the one test_d13_undecodable_output_at_later_call_refuses_exit2
-        # injects. Mutation killed: dropping the UnicodeDecodeError clause at
-        # either gate's merge-base call.
+        # In the earlier repository git output that is not valid UTF-8
+        # (UnicodeDecodeError) at the merge-base call raised out of D5's
+        # main() and D9's run(), a traceback with exit 1; each returns 2
+        # naming the decoding error instead, in D13's wording
+        # (test_d13_undecodable_git_output_refuses_exit2). The error is the
+        # one test_d13_undecodable_output_at_later_call_refuses_exit2 injects.
+        # Mutation killed: dropping the UnicodeDecodeError clause at either
+        # gate's merge-base call.
         undecodable = UnicodeDecodeError("utf-8", b"caf\xe9", 3, 4, "invalid continuation byte")
         for script, ok in self.D5_D9_GATES:
             with self.subTest(gate=script):
@@ -13479,14 +13493,13 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn(ok, out)
 
     def test_d5_d9_git_refusal_at_merge_base_refuses_exit2(self) -> None:
-        # 3b697 round 3 (r2 review): git refusing the merge-base call
-        # (CalledProcessError; here exit 128 on a base git does not know,
-        # which resolve_base_ref passes unchanged) refuses with exit 2 in each
-        # gate's existing message naming the base and head, and no traceback.
-        # D9's merge-base call has its own try since round 1, so its clause
-        # is the only one that catches it. Each runs as its own copy inside
-        # the fixture. Mutation killed: dropping the CalledProcessError
-        # clause at either gate's merge-base call.
+        # git refusing the merge-base call (CalledProcessError; here exit 128
+        # on a base git does not know, which resolve_base_ref passes
+        # unchanged) refuses with exit 2 in each gate's existing message
+        # naming the base and head, and no traceback. D9's merge-base call has
+        # its own try, so its clause is the only one that catches it. Each
+        # runs as its own copy inside the fixture. Mutation killed: dropping
+        # the CalledProcessError clause at either gate's merge-base call.
         import subprocess as sp
 
         tmp, _git = self._repo()
@@ -13517,7 +13530,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn(ok, r.stdout)
 
     # The two git calls resolve_base_ref validates a base with: the argument
-    # that marks each, and the call its refusal names (3b620 round 17).
+    # that marks each, and the call its refusal names.
     D13_BASE_VALIDATION_CALLS = (
         ("--allow-onelevel", "check-ref-format"),
         ("--symbolic-full-name", "rev-parse --symbolic-full-name"),
@@ -13527,8 +13540,8 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         """Run the fixture's D13 copy over origin/main..feat in-process,
         subprocess.run raising OSError (EAGAIN) on the git call whose argv
         holds ``marker`` and running every other git call for real; stderr
-        carries one INJECTED line per raise. A simulation of a transient
-        spawn failure, not a real fault (3b620 round 17)."""
+        carries one INJECTED line per raise. A simulation of a transient spawn
+        failure, not a real fault."""
         import subprocess as sp
 
         driver = (
@@ -13565,15 +13578,14 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("D13 OK", r.stdout)
 
     def test_d13_base_validation_oserror_refuses_exit2(self) -> None:
-        # 3b620 round 17 (r16 reviews): an OSError other than git being
-        # absent (EAGAIN, ENOMEM, EMFILE) on either git call resolve_base_ref
-        # validates the base with passed the base unchanged, so an
-        # unvalidated base reached the merge-base call while git otherwise
-        # ran; D13 now refuses with exit 2 naming the call and the error,
-        # before merge-base runs. git absent (FileNotFoundError) still passes
-        # the base to the merge-base handling
-        # (test_d13_git_absent_refuses_exit2). Mutation killed:
-        # test_d13_base_validation_oserror_mutant_passes_base.
+        # In the earlier repository an OSError other than git being absent
+        # (EAGAIN, ENOMEM, EMFILE) on either git call resolve_base_ref
+        # validates the base with passed the base unchanged, so an unvalidated
+        # base reached the merge-base call while git otherwise ran; D13 now
+        # refuses with exit 2 naming the call and the error, before merge-base
+        # runs. git absent (FileNotFoundError) still passes the base to the
+        # merge-base handling (test_d13_git_absent_refuses_exit2). Mutation
+        # killed: test_d13_base_validation_oserror_mutant_passes_base.
         tmp, env, _run = self._d13_fixture()
         for marker, call in self.D13_BASE_VALIDATION_CALLS:
             with self.subTest(call=call):
@@ -13581,10 +13593,10 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                     self._d13_validation_oserror(tmp, env, marker), call)
 
     def test_d13_base_validation_oserror_mutant_passes_base(self) -> None:
-        # 3b620 round 17: the mutant of lint_common whose two OSError
-        # branches pass the base unchanged again (round 16) fails
-        # test_d13_base_validation_oserror_refuses_exit2's assertions: the
-        # unvalidated base reaches merge-base and D13 passes clean (exit 0).
+        # The mutant of lint_common whose two OSError branches pass the base
+        # unchanged again fails test_d13_base_validation_oserror_refuses_exit2's
+        # assertions: the unvalidated base reaches merge-base and D13 passes
+        # clean (exit 0).
         tmp, env, _run = self._d13_fixture()
         lc = fixture_tools(tmp) / "lint_common.py"
         text = lc.read_text(encoding="utf-8")
@@ -13608,7 +13620,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertIn("D13 OK", r.stdout)
 
     # A marker no git argv holds: _base_validation_fault then faults no call
-    # and only traces merge-base (3b620 round 19).
+    # and only traces merge-base.
     NO_FAULT = "--3b620-no-fault"
 
     def _base_validation_fault(self, script, cwd, env, marker, kind, said="",
@@ -13618,7 +13630,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         other git call for real: OSError (EAGAIN) for ``oserror``, else a
         return of ``int(kind)`` with no stdout and ``said`` on stderr. stderr
         carries one INJECTED line per fault and a MERGE-BASE line per git
-        merge-base call. A simulation, not a real fault (3b620 round 18)."""
+        merge-base call. A simulation, not a real fault."""
         import subprocess as sp
 
         driver = (
@@ -13646,8 +13658,8 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
             capture_output=True, text=True, cwd=str(cwd),
             env={**env, "INJECT_MARKER": marker, "INJECT_KIND": kind, "INJECT_SAID": said})
 
-    # The injected --symbolic-full-name results (3b620 round 18): a git
-    # killed by SIGKILL, and one exiting 128 on an internal error.
+    # The injected --symbolic-full-name results: a git killed by SIGKILL, and
+    # one exiting 128 on an internal error.
     D13_SYMBOLIC_FAULTS = (
         ("-9", "", "(nothing)"),
         ("128", "fatal: unable to allocate memory\n", "fatal: unable to allocate memory"),
@@ -13668,14 +13680,14 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("D13 OK", r.stdout)
 
     def test_d13_symbolic_full_name_nonzero_refuses_exit2(self) -> None:
-        # 3b620 round 18 (r17 reviews): any nonzero exit of git rev-parse
+        # In the earlier repository any nonzero exit of git rev-parse
         # --symbolic-full-name passed the base unchanged, so with a return
-        # code of -9 (SIGKILL) injected there D13 reached merge-base with
-        # the unqualified short base and exited 0. Now the base passes only
-        # where git rev-parse --verify answers that git does not know the
-        # name (exit 1, no output); origin/main is known, so D13 refuses with
-        # exit 2 naming both calls, before merge-base runs. An unknown base
-        # still reaches merge-base and refuses there
+        # code of -9 (SIGKILL) injected there D13 reached merge-base with the
+        # unqualified short base and exited 0. Now the base passes only where
+        # git rev-parse --verify answers that git does not know the name (exit
+        # 1, no output); origin/main is known, so D13 refuses with exit 2
+        # naming both calls, before merge-base runs. An unknown base still
+        # reaches merge-base and refuses there
         # (test_d13_git_refusal_at_merge_base_refuses_exit2). Mutation killed:
         # test_d13_symbolic_full_name_nonzero_mutant_passes_base.
         tmp, env, _run = self._d13_fixture()
@@ -13687,10 +13699,10 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                     rc, named)
 
     def test_d13_symbolic_full_name_nonzero_mutant_passes_base(self) -> None:
-        # 3b620 round 18: the mutant of lint_common that restores
-        # ``return base, None`` on the nonzero --symbolic-full-name branch
-        # (round 17) fails test_d13_symbolic_full_name_nonzero_refuses_exit2's
-        # assertions: the base reaches merge-base and D13 passes clean.
+        # The mutant of lint_common that restores ``return base, None`` on the
+        # nonzero --symbolic-full-name branch fails
+        # test_d13_symbolic_full_name_nonzero_refuses_exit2's assertions: the
+        # base reaches merge-base and D13 passes clean.
         tmp, env, _run = self._d13_fixture()
         lc = fixture_tools(tmp) / "lint_common.py"
         text = lc.read_text(encoding="utf-8")
@@ -13710,10 +13722,9 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertIn("D13 OK", r.stdout)
 
     def test_d9_d5_tension_scan_base_validation_oserror_refuses_exit2(self) -> None:
-        # 3b620 round 18 (r17 reviews): D9, D5 and tension-scan share
-        # resolve_base_ref with D13; an OSError (EAGAIN) injected at its
-        # check-ref-format call makes each exit 2 with the round-17 refusal,
-        # never reaching merge-base.
+        # D9, D5 and tension-scan share resolve_base_ref with D13; an OSError
+        # (EAGAIN) injected at its check-ref-format call makes each exit 2
+        # with the base-validation refusal, never reaching merge-base.
         import errno
 
         tmp, git = self._repo()
@@ -13738,11 +13749,10 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn("Traceback", r.stderr)
 
     def test_d9_d5_tension_scan_symbolic_full_name_nonzero_refuses_exit2(self) -> None:
-        # 3b620 round 19: the round-18 nonzero --symbolic-full-name branch,
-        # with a return code of -9 (SIGKILL) injected there, makes D9, D5
-        # and tension-scan each exit 2 with the refusal naming both calls
-        # (origin/main is known, so rev-parse --verify exits 0), never
-        # reaching merge-base.
+        # The nonzero --symbolic-full-name branch, with a return code of -9
+        # (SIGKILL) injected there, makes D9, D5 and tension-scan each exit 2
+        # with the refusal naming both calls (origin/main is known, so
+        # rev-parse --verify exits 0), never reaching merge-base.
         tmp, git = self._repo()
         git("checkout", "-q", "-b", "feat")
         (tmp / ".working").mkdir(parents=True, exist_ok=True)
@@ -13767,12 +13777,12 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
 
     def _d13_ambiguous_prefix(self, tmp, env):
         """The first four digits of the fixture's feat commit, made an
-        ambiguous object name by writing a blob whose name starts with them
-        (3b620 round 19). One process at nice 19 searches blob contents by
-        hashing them, at most 2,000,000 (about 30 expected misses per 2**16;
-        no git call per try), within 300 seconds; the one blob found is then
-        written. Asserts git's round-18 answer for the prefix: rev-parse
-        --verify --quiet exits 1 with no output."""
+        ambiguous object name by writing a blob whose name starts with them.
+        One process at nice 19 searches blob contents by hashing them, at most
+        2,000,000 (about 30 expected misses per 2**16; no git call per try),
+        within 300 seconds; the one blob found is then written. Asserts git's
+        unknown-name answer for the prefix: rev-parse --verify --quiet exits 1
+        with no output."""
         import subprocess as sp
 
         def git(*args, data=None):
@@ -13817,12 +13827,13 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("D13 OK", r.stdout)
 
     def test_d13_ambiguous_abbreviated_base_refuses_exit2(self) -> None:
-        # 3b620 round 19 (r18 review): git rev-parse --verify --quiet exits 1
-        # with no output for an abbreviated object name a commit and another
-        # object share, its unknown-name answer, so round 18 passed
-        # <prefix>~1 unchanged and D13 reached merge-base and exited 0. Hexadecimal
-        # digits that are not a full object name now refuse before any ref
-        # lookup. Mutation killed: test_d13_ambiguous_abbreviated_base_mutant_passes_base.
+        # git rev-parse --verify --quiet exits 1 with no output for
+        # an abbreviated object name a commit and another object
+        # share, its unknown-name answer, so the earlier repository
+        # passed <prefix>~1 unchanged and D13 reached merge-base and
+        # exited 0. Hexadecimal digits that are not a full object
+        # name now refuse before any ref lookup. Mutation killed:
+        # test_d13_ambiguous_abbreviated_base_mutant_passes_base.
         tmp, env, _run = self._d13_fixture()
         prefix = self._d13_ambiguous_prefix(tmp, env)
         d13 = fixture_tools(tmp) / "check-stranded-control-code-on-pr.py"
@@ -13833,10 +13844,10 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                     base)
 
     def test_d13_describe_and_unknown_base(self) -> None:
-        # 3b620 round 19: a describe-style base (<tag>-<n>-g<hex>, with a
-        # unique or an ambiguous hex part) refuses with exit 2 before
-        # merge-base (git resolves it to no ref); an unknown name still
-        # passes to merge-base and refuses there with exit 2, as before.
+        # A describe-style base (<tag>-<n>-g<hex>, with a unique or an
+        # ambiguous hex part) refuses with exit 2 before merge-base (git
+        # resolves it to no ref); an unknown name still passes to merge-base
+        # and refuses there with exit 2.
         import subprocess as sp
 
         tmp, env, _run = self._d13_fixture()
@@ -13865,11 +13876,11 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertNotIn("D13 OK", r.stdout)
 
     def test_d13_ambiguous_abbreviated_base_mutant_passes_base(self) -> None:
-        # 3b620 round 19: the mutant of lint_common without the hex-shape
-        # refusal and the ^{commit} check (round 18) fails
-        # test_d13_ambiguous_abbreviated_base_refuses_exit2's assertions:
-        # the ambiguous base reaches merge-base. Without only the hex-shape
-        # refusal, the ^{commit} check still refuses before merge-base.
+        # The mutant of lint_common without the hex-shape refusal and the
+        # ^{commit} check fails test_d13_ambiguous_abbreviated_base_refuses_exit2's
+        # assertions: the ambiguous base reaches merge-base. Without only
+        # the hex-shape refusal, the ^{commit} check still refuses before
+        # merge-base.
         tmp, env, _run = self._d13_fixture()
         prefix = self._d13_ambiguous_prefix(tmp, env)
         lc = fixture_tools(tmp) / "lint_common.py"
@@ -13907,7 +13918,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         """``(rc, stdout, stderr)`` of D13's run() in process over a fake git:
         one changed corpus document whose table drops SA-11 while its body
         still cites it (a stranded code), with ``exc`` raised by every git
-        call whose argument tuple ``failing`` accepts (3b572 round 2)."""
+        call whose argument tuple ``failing`` accepts."""
         import contextlib
         import importlib.util
         import io
@@ -13942,10 +13953,10 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         return rc, out.getvalue(), err.getvalue()
 
     def test_d13_git_unstartable_at_later_call_refuses_exit2(self) -> None:
-        # 3b572 round 2: git that cannot be started at a call after the merge
-        # base (an OSError) refuses with exit 2 naming the error, never a
-        # traceback. Mutation killed: dropping OSError from the head
-        # resolution, changed-file, document-read or opt-out-read clause.
+        # git that cannot be started at a call after the merge base (an
+        # OSError) refuses with exit 2 naming the error, never a traceback.
+        # Mutation killed: dropping OSError from the head resolution,
+        # changed-file, document-read or opt-out-read clause.
         oserror = FileNotFoundError(2, "No such file or directory", "git")
         for label, failing, named in (
             ("head resolution", lambda a: a[:2] == ("rev-parse", "--verify"),
@@ -13962,7 +13973,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn("D13 OK", out)
 
     def test_d13_opt_out_read_failure_refuses_exit2(self) -> None:
-        # 3b572 round 2 (r1 review N4): a failed git log read of the commit
+        # In the earlier repository a failed git log read of the commit
         # messages, over a range with a stranded code, printed the FAIL that
         # tells the author to add a `StrandedCode:` trailer they may already
         # have (exit 1); it refuses with exit 2 naming git's error instead.
@@ -13982,8 +13993,8 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertIn("stranded `SA-11`", err)
 
     def test_d13_undecodable_git_output_refuses_exit2(self) -> None:
-        # 3b572 round 3 (r2 claude review N1): git output that is not valid
-        # UTF-8 raised UnicodeDecodeError, a traceback with exit 1 (D13's own
+        # In the earlier repository git output that is not valid UTF-8 raised
+        # UnicodeDecodeError, a traceback with exit 1 (D13's own
         # stranded-codes FAIL code), at the merge-base call (git's message
         # echoing a base holding the byte 0xe9) and at the per-document diff
         # (a changed corpus document holding it); both refuse with exit 2
@@ -14017,10 +14028,10 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn("D13 OK", r.stdout)
 
     def test_d13_undecodable_output_at_later_call_refuses_exit2(self) -> None:
-        # 3b572 round 3: git output that is not valid UTF-8 at a call after
-        # the merge base refuses with exit 2 naming the decoding error, never
-        # a traceback. Mutation killed: dropping UnicodeDecodeError from the
-        # head resolution, changed-file, document-read or opt-out-read clause.
+        # git output that is not valid UTF-8 at a call after the merge base
+        # refuses with exit 2 naming the decoding error, never a traceback.
+        # Mutation killed: dropping UnicodeDecodeError from the head
+        # resolution, changed-file, document-read or opt-out-read clause.
         undecodable = UnicodeDecodeError("utf-8", b"caf\xe9", 3, 4, "invalid continuation byte")
         for label, failing, named in (
             ("head resolution", lambda a: a[:2] == ("rev-parse", "--verify"),
@@ -14037,21 +14048,21 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn("D13 OK", out)
 
     def test_non_utf8_toplevel_keeps_real_verdict_and_refusal(self) -> None:
-        # 3b540 round 8 (r7 review WARN-2): the top level a gate reads for
-        # its refusal's repo= field is diagnostic only. In a repository whose
-        # top-level path holds a byte that is not valid UTF-8 (0xff), that
-        # read raised UnicodeDecodeError and D1-D5, D7, D9, D11, D13 and
+        # The top level a gate reads for its refusal's repo= field is
+        # diagnostic only. In a repository whose top-level path holds a byte
+        # that is not valid UTF-8 (0xff), that read raised UnicodeDecodeError
+        # in the earlier repository and D1-D5, D7, D9, D11, D13 and
         # tension-scan exited 1 with a traceback (D15 failed open); it now
         # degrades to a placeholder as D12's _toplevel does, so a real range
-        # gets each gate's real verdict and a collapsed range its refusal.
-        # Since 3b564, D5, D9, D13 and tension-scan decode the top level with
-        # os.fsdecode instead, so their refusal names the real top level and
-        # their top-level comparison always runs: they run as copies inside
-        # the fixture, their own REPO_ROOT. Mutation killed: dropping
+        # gets each gate's real verdict and a collapsed range its refusal. D5,
+        # D9, D13 and tension-scan decode the top level with os.fsdecode
+        # instead, so their refusal names the real top level and their
+        # top-level comparison always runs: they run as copies inside the
+        # fixture, their own REPO_ROOT. Mutation killed: dropping
         # UnicodeDecodeError from the except clause in
-        # lint_common.pr_range_resolution, or reading the top level as
-        # strict text again in D5, D9, D13 or tension-scan (a traceback, or
-        # the placeholder where the real path belongs). Skipped where the
+        # lint_common.pr_range_resolution, or reading the top level as strict
+        # text again in D5, D9, D13 or tension-scan (a traceback, or the
+        # placeholder where the real path belongs). Skipped where the
         # filesystem refuses the name.
         import subprocess as sp
 
@@ -14084,9 +14095,9 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         git("checkout", "-q", "-b", "feat")
         write(".working/CHANGELOG.md", b"# Changelog\n\nNew entry.\n\nOld entry.\n")
         git("commit", "-q", "-am", "feat: a change")
-        # D5, D9, D13 and tension-scan refuse a top level other than their
-        # own script's repository (3b564), so they run as untracked copies
-        # inside the fixture (with lint_common, which they import).
+        # D5, D9, D13 and tension-scan refuse a top level other than their own
+        # script's repository, so they run as untracked copies inside the
+        # fixture (with lint_common, which they import).
         os.makedirs(os.path.join(top, b".claude/skills/corpus-management/tools"))
         for name in ("lint_common.py", "check-retired-section-orphan-on-pr.py",
                      "check-stranded-control-code-on-pr.py", "check-todo-rotation-on-pr.py"):
@@ -14130,9 +14141,9 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
     def _inject_oserror(self, script, cwd, tail, *args, nth=None):
         """Run ``script`` with ``args`` in-process, subprocess.check_output
         raising OSError (EAGAIN) on each git call whose argv ends with
-        ``tail`` -- or, given ``nth``, on the nth such call only (3b577
-        round 3); stderr carries one INJECTED line per raise. A simulation of
-        git failing to run, not a real fault (3b540 round 9)."""
+        ``tail`` -- or, given ``nth``, on the nth such call only; stderr
+        carries one INJECTED line per raise. A simulation of git failing to
+        run, not a real fault."""
         import subprocess as sp
 
         driver = (
@@ -14161,23 +14172,22 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         )
 
     def test_toplevel_oserror_keeps_real_verdict_and_refusal(self) -> None:
-        # 3b540 round 9 (r8 review NOTE-2): git failing to run at all
-        # (OSError) on the one top-level read a gate makes for its refusal's
-        # repo= field degrades to the placeholder, as UnicodeDecodeError does
-        # above, so a real range keeps each gate's real verdict and a
-        # collapsed range its refusal. The OSError is injected on that single
-        # git call. Mutation killed: dropping OSError from the top-level
-        # read's except clause in lint_common.pr_range_resolution (reached
-        # through D1), D5, D9, D13 or tension-scan, which then exits 1 with a
-        # traceback. Since 3b564 the placeholder skips only the top-level
-        # comparison of D5, D9 and tension-scan (their git-directory check
-        # still runs), and they run as copies inside the fixture, their own
-        # REPO_ROOT. 3b572 round 3: D13 no longer degrades; its top-level
-        # read refuses with exit 2 naming the OSError on a real range, a
-        # collapsed range, and a core.worktree naming another directory,
-        # which only the skipped comparison refuses, so the degraded read
-        # passed it with "D13 OK" and exit 0. Mutation killed: restoring
-        # D13's placeholder.
+        # git failing to run at all (OSError) on the one top-level read a gate
+        # makes for its refusal's repo= field degrades to the placeholder, as
+        # UnicodeDecodeError does above, so a real range keeps each gate's
+        # real verdict and a collapsed range its refusal. The OSError is
+        # injected on that single git call. Mutation killed: dropping OSError
+        # from the top-level read's except clause in
+        # lint_common.pr_range_resolution (reached through D1), D5, D9, D13 or
+        # tension-scan, which then exits 1 with a traceback. The placeholder
+        # skips only the top-level comparison of D5, D9 and tension-scan
+        # (their git-directory check still runs), and they run as copies
+        # inside the fixture, their own REPO_ROOT. D13 does not degrade: its
+        # top-level read refuses with exit 2 naming the OSError on a real
+        # range, a collapsed range, and a core.worktree naming another
+        # directory, which only the skipped comparison refuses, so in the
+        # earlier repository the degraded read passed it with "D13 OK" and
+        # exit 0. Mutation killed: restoring D13's placeholder.
         import errno
         import subprocess as sp
 
@@ -14228,7 +14238,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertEqual(r.stderr.count("INJECTED"), 1, r.stderr)
                 self.assertNotIn("Traceback", r.stderr)
                 # The base prints fully qualified, as resolve_base_ref hands
-                # it back (3b620).
+                # it back.
                 self.assertIn("ERROR: git could not be run reading the top level "
                               f"(base=refs/remotes/origin/main, head={head}): "
                               f"[Errno {errno.EAGAIN}] injected",
@@ -14238,17 +14248,16 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn("(no work tree)", r.stderr)
 
     def test_head_sha_oserror_never_reads_collapsed_range_clean(self) -> None:
-        # 3b540 round 9 (r8 review NOTE-1): the head SHA pr_range_resolution
-        # reads decides the collapse, so that read degrades on a
-        # CalledProcessError only. Had an OSError there degraded to the echoed
-        # ref name, the name would never equal the merge base and a collapsed
-        # range would read as a real one: D3 and D7 printed a clean "not
-        # modified" pass (exit 0) at round 8. 3b577 (3b540 post-merge review
-        # W1): the OSError, injected on that single git call, raises
-        # PrRangeError, so the gate refuses with exit 2 instead of escaping
-        # as a traceback (exit 1, which the round-9 non-zero check accepted).
-        # Mutations killed: adding OSError back to the degrading clause, or
-        # dropping the PrRangeError clause.
+        # The head SHA pr_range_resolution reads decides the collapse, so that
+        # read degrades on a CalledProcessError only. Had an OSError there
+        # degraded to the echoed ref name, the name would never equal the
+        # merge base and a collapsed range would read as a real one: in the
+        # earlier repository D3 and D7 printed a clean "not modified" pass
+        # (exit 0). The OSError, injected on that single git call, raises
+        # PrRangeError, so the gate refuses with exit 2 instead of escaping as
+        # a traceback (exit 1, which this test's own non-zero check accepted
+        # in the earlier repository). Mutations killed: adding OSError back to
+        # the degrading clause, or dropping the PrRangeError clause.
         tmp, _git = self._repo()
         for script in ("check-changelog-dash-on-pr.py", "check-changelog-length-on-pr.py"):
             with self.subTest(gate=script):
@@ -14263,16 +14272,15 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn("OK", r.stdout)
 
     def test_empty_range_message_head_sha_failure_never_tracebacks(self) -> None:
-        # 3b577 round 3 (r2 reviews, codex E1 / claude F2): on a net-empty
-        # named range D1, D2, D4 and D11 compose their refusal with
-        # empty_pr_range_message, which reads the head SHA a second time,
+        # On a net-empty named range D1, D2, D4 and D11 compose their refusal
+        # with empty_pr_range_message, which reads the head SHA a second time,
         # outside the gates' resolve_pr_range handler. The OSError, injected
         # on that second read only (the first, in resolve_pr_range, succeeds),
-        # raised PrRangeError there and each gate exited 1 with a traceback;
-        # the SHA is diagnostic once the range is found empty, so it now
-        # degrades to a placeholder and the gate refuses with exit 2.
-        # Mutation killed: dropping the PrRangeError clause in
-        # empty_pr_range_message.
+        # raised PrRangeError there in the earlier repository and each gate
+        # exited 1 with a traceback; the SHA is diagnostic once the range is
+        # found empty, so it now degrades to a placeholder and the gate
+        # refuses with exit 2. Mutation killed: dropping the PrRangeError
+        # clause in empty_pr_range_message.
         tmp, git = self._repo()
         git("checkout", "-q", "-b", "feat-empty")
         git("commit", "-q", "--allow-empty", "-m", "empty")
@@ -14300,8 +14308,8 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         only into a call that decodes text, the one place it can arise; exit
         status 128 for ``nonzero``; nothing for ``none``. stderr carries an
         INJECTED line naming the faulted call and a final ``GIT-CALLS <n>``
-        line counting the run's git calls. A simulation of git failing, not
-        a real fault (3b577 round 4, the r3 review's harness)."""
+        line counting the run's git calls. A simulation of git failing, not a
+        real fault."""
         import subprocess as sp
 
         driver = (
@@ -14342,31 +14350,28 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         )
 
     def test_d1_d2_d4_d11_d12_never_traceback_on_any_git_call_fault(self) -> None:
-        # The gates whose git calls 3b577 changed are D1, D2, D4, D11 and D12,
-        # walked here, and D15, walked by
+        # The gates whose git calls were hardened against these faults are D1,
+        # D2, D4, D11 and D12, walked here, and D15, walked by
         # test_d15_git_call_fault_never_reports_a_clean_or_altered_result; D3
         # and D7 share only the resolver, and their own git calls are neither
-        # changed nor walked (backlog 3b591) (3b577 round 6).
-        # 3b577 round 4 (r3 review, claude F3, class-wide): the r3 review
-        # failed the k-th git call of D1, D2, D4 and D11 for every k and
-        # found tracebacks (exit 1) on OSError and UnicodeDecodeError at the
-        # merge-base call in lint_common.resolve_pr_range, each gate's git
-        # diff and D4's git config reads. Walking the paths below reached
-        # more at e41b151b4: D1's git log reads (the per-commit one on a
-        # nonzero exit too), D2's git show reads and D4's git cat-file and
-        # git log reads. Each now refuses with exit 2, never a traceback.
-        # This walks every git call of each gate, D12 included, on a real
-        # range (a versioned document bumped, the floor raised, .working/CHANGELOG.md
-        # untouched, so D1 reaches its git log reads and D2 and D4 their
-        # blob reads), a
-        # net-empty range (the empty_pr_range_message reads) and D12's
-        # argless form, failing that one call with OSError, a decode error
-        # where text is decoded, or exit 128. No run may print a traceback.
-        # An OSError or a decode error must refuse (exit 2), except on the
-        # top-level read some refusals only quote, which may keep the run's
-        # real verdict; a nonzero exit is a documented answer at some sites
-        # (the head-SHA read, which then echoes the ref name, say), so its
-        # verdict is not pinned.
+        # hardened nor walked here. In the earlier repository, failing the
+        # k-th git call of D1, D2, D4 and D11 for every k gave tracebacks
+        # (exit 1) on OSError and UnicodeDecodeError at the merge-base call in
+        # lint_common.resolve_pr_range, each gate's git diff and D4's git
+        # config reads, and walking the paths below reached more: D1's git log
+        # reads (the per-commit one on a nonzero exit too), D2's git show
+        # reads and D4's git cat-file and git log reads. Each now refuses with
+        # exit 2, never a traceback. This walks every git call of each gate,
+        # D12 included, on a real range (a versioned document bumped, the
+        # floor raised, .working/CHANGELOG.md untouched, so D1 reaches its git
+        # log reads and D2 and D4 their blob reads), a net-empty range (the
+        # empty_pr_range_message reads) and D12's argless form, failing that
+        # one call with OSError, a decode error where text is decoded, or exit
+        # 128. No run may print a traceback. An OSError or a decode error must
+        # refuse (exit 2), except on the top-level read some refusals only
+        # quote, which may keep the run's real verdict; a nonzero exit is a
+        # documented answer at some sites (the head-SHA read, which then
+        # echoes the ref name, say), so its verdict is not pinned.
         tmp, git = self._repo()
         doc = tmp / "governance" / "doc.md"
         doc.parent.mkdir(parents=True, exist_ok=True)
@@ -14428,10 +14433,9 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         """Run ``script`` with ``args`` in-process, subprocess.run (which
         check_output also calls) answering the ``nth`` git call whose
         arguments, after any leading ``-c <name>=<value>`` pairs, begin with
-        ``prefix`` with exit status ``status`` (128 unless given; 3b577 round
-        6) and no output instead of running it; stderr carries an INJECTED
-        line naming that call. A simulation of a git read failing, not a
-        real fault (3b577 round 5)."""
+        ``prefix`` with exit status ``status`` (128 unless given) and no
+        output instead of running it; stderr carries an INJECTED line naming
+        that call. A simulation of a git read failing, not a real fault."""
         import subprocess as sp
 
         driver = (
@@ -14471,15 +14475,14 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         )
 
     def _criss_cross_range(self):
-        """A criss-cross history whose head makes a real change for every
-        gate family on lint_common.resolve_pr_range (3b577 round 5). On
-        _repo's root plus a versioned document, main commits A1 and feat
-        commits B1; each side then merges the other's commit, so
-        origin/main (main's merge) and feat have A1 and B1 as merge bases.
-        feat then adds a .working/CHANGELOG.md entry (D1, D3, D7), bumps the versioned
-        document with its Date set to today's UTC date (D2, D4) and adds an
-        unregistered citation to the corpus document (D11, D15). Returns
-        (path, git runner, A1, B1)."""
+        """A criss-cross history whose head makes a real change for every gate
+        family on lint_common.resolve_pr_range. On _repo's root plus a
+        versioned document, main commits A1 and feat commits B1; each side
+        then merges the other's commit, so origin/main (main's merge) and feat
+        have A1 and B1 as merge bases. feat then adds a .working/CHANGELOG.md
+        entry (D1, D3, D7), bumps the versioned document with its Date set to
+        today's UTC date (D2, D4) and adds an unregistered citation to the
+        corpus document (D11, D15). Returns (path, git runner, A1, B1)."""
         import datetime
 
         tmp, git = self._repo()
@@ -14514,16 +14517,16 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         return tmp, git, a1, b1
 
     def test_shared_resolver_refuses_a_criss_cross_range(self) -> None:
-        # 3b577 round 5 (r4 report, outside its brief): resolve_pr_range ran
-        # git merge-base without --all, so in a criss-cross history D1, D2,
-        # D3, D4, D7, D11 and D15 diffed the head against git's single pick
-        # of the two merge bases and gave that one's verdict (at 9255c0936
-        # every gate below printed its verdict here). Each of them diffs
-        # against one merge base, so the shared resolver now refuses more
-        # than one, naming both: the strict gates with exit 2 and the
-        # advisory D15 with its fail-open NOTE (exit 0). The control merges
-        # origin/main into feat, the remedy the refusal names: the range then
-        # has one merge base and every gate evaluates it.
+        # In the earlier repository resolve_pr_range ran git merge-base
+        # without --all, so in a criss-cross history D1, D2, D3, D4, D7, D11
+        # and D15 diffed the head against git's single pick of the two merge
+        # bases and gave that one's verdict (every gate below printed its
+        # verdict here). Each of them diffs against one merge base, so the
+        # shared resolver now refuses more than one, naming both: the strict
+        # gates with exit 2 and the advisory D15 with its fail-open NOTE (exit
+        # 0). The control merges origin/main into feat, the remedy the refusal
+        # names: the range then has one merge base and every gate evaluates
+        # it.
         tmp, git, a1, b1 = self._criss_cross_range()
         self.assertEqual(sorted(git("merge-base", "--all", "origin/main", "feat").split()),
                          sorted([a1, b1]), "the fixture must have two merge bases")
@@ -14567,16 +14570,15 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                     self.assertIn(verdicts[script], r.stdout, out)
 
     def test_shared_resolver_refuses_a_merge_base_run_that_prints_none(self) -> None:
-        # 3b577 round 6 (r5 report, an untested branch): git merge-base --all
-        # exits 1 with no output when base and head share no history, which
-        # the resolver's CalledProcessError clause refuses; a run that exits
-        # 0 and prints no merge base leaves the range just as undetermined,
-        # so the resolver refuses it too, never indexing an empty list (a
-        # traceback). The real git prints a merge base for this range, so
-        # the read is injected to exit 0 with no output. D1, D2, D3, D4, D7
-        # and D11 refuse with exit 2, and D15 with its fail-open NOTE (exit
-        # 0); the control, the same harness injecting nothing, evaluates the
-        # range in every gate.
+        # git merge-base --all exits 1 with no output when base and head share
+        # no history, which the resolver's CalledProcessError clause refuses;
+        # a run that exits 0 and prints no merge base leaves the range just as
+        # undetermined, so the resolver refuses it too, never indexing an
+        # empty list (a traceback). The real git prints a merge base for this
+        # range, so the read is injected to exit 0 with no output. D1, D2, D3,
+        # D4, D7 and D11 refuse with exit 2, and D15 with its fail-open NOTE
+        # (exit 0); the control, the same harness injecting nothing, evaluates
+        # the range in every gate.
         import datetime
 
         tmp, git = self._repo()
@@ -14631,17 +14633,18 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                     self.assertNotIn("OK", r.stdout, out)
 
     def test_failed_blob_or_log_read_refuses_never_reads_absent(self) -> None:
-        # 3b577 round 5 (r4 report, outside its brief): D2's git_show, D4's
-        # blob_at and D4's bump-date git log read every nonzero git exit as
-        # "absent at that revision" or "no range commit touched the file"
-        # and skipped it, so a read that failed passed the file unchecked: at
-        # 9255c0936 each git show, cat-file and git log fault below gave a
-        # clean OK (exit 0), D4's over a stale Date its control FAILs. Absence
-        # is now git's own answer only -- git ls-tree listing no entry, git
-        # log exiting 0 with no output -- and any other failure, the listing's
-        # own included, refuses with exit 2. governance/new.md, which the head
-        # adds, is absent at the merge base by git's own answer, so it reads
-        # as an added file in the control and is never named.
+        # In the earlier repository D2's git_show, D4's blob_at
+        # and D4's bump-date git log read every nonzero git exit as
+        # "absent at that revision" or "no range commit touched the file" and
+        # skipped it, so a read that failed passed the file unchecked: each
+        # git show, cat-file and git log fault below gave a clean OK (exit
+        # 0), D4's over a stale Date its control FAILs. Absence is now git's
+        # own answer only -- git ls-tree listing no entry, git log exiting 0
+        # with no output -- and any other failure, the listing's own included,
+        # refuses with exit 2.
+        # governance/new.md, which the head adds, is absent at the merge base
+        # by git's own answer, so it reads as an added file in the control and
+        # is never named.
         tmp, git = self._repo()
         doc = tmp / "governance" / "doc.md"
         doc.write_text("# Doc\n\n**Version:** 1.0.0\\\n**Date:** 2026-01-01\n\nBody.\n",
@@ -14686,19 +14689,18 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn("OK", r.stdout, out)
 
     def test_md_gitlink_reads_as_absent_never_as_a_failed_read(self) -> None:
-        # 3b577 round 6 (r5 reviews, codex ERROR and claude W1): round 5's
-        # git_show_strict ran git show on every entry git ls-tree listed, and
-        # git show cannot read a gitlink whose commit the repository does not
-        # hold (exit 128), so at 5741f435d D2 refused (exit 2) a PR that adds,
-        # updates, deletes or converts to a gitlink the .md path
-        # security/sub.md; D15 printed its fail-open NOTE in place of its
+        # In the earlier repository git_show_strict ran git show on every
+        # entry git ls-tree listed, and git show cannot read a gitlink whose
+        # commit the repository does not hold (exit 128), so D2 refused (exit
+        # 2) a PR that adds, updates, deletes or converts to a gitlink the .md
+        # path security/sub.md; D15 printed its fail-open NOTE in place of its
         # WARN when the PR leaves that gitlink at the head, and its sibling
         # probe skipped its listing over a .md gitlink the head keeps
-        # unchanged. A listed entry that is not a blob is no file, so it
-        # now reads as absent, as D4's blob_at reads it, and the probe lists
-        # only blobs: each PR below gets D2's OK and D15's WARN and probe
-        # listing (exit 0). A listed blob whose read fails still refuses in
-        # D2 (exit 2) and skips D15's check with a NOTE.
+        # unchanged. A listed entry that is not a blob is no file, so it now
+        # reads as absent, as D4's blob_at reads it, and the probe lists only
+        # blobs: each PR below gets D2's OK and D15's WARN and probe listing
+        # (exit 0). A listed blob whose read fails still refuses in D2 (exit
+        # 2) and skips D15's check with a NOTE.
         reg = AlignmentRegisterOnPrTests
         sub = "security/sub.md"
         g1, g2 = "1" * 40, "2" * 40
@@ -14803,20 +14805,19 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                     self.assertNotIn("D15 WARN", r.stdout, out)
 
     def test_partial_clone_config_read_failure_declines(self) -> None:
-        # 3b577 round 5 (the preflight aid's shared helper path):
+        # The preflight aid's shared helper path: in the earlier repository
         # promisor_remote_reason, which D4 runs and preflight-version-date.py
         # shares (passing its own git wrapper), read every nonzero git config
         # exit as "not set", so a config read that failed passed as "not a
-        # partial clone" and both went on to read blobs (exit 0 here at
-        # 9255c0936). The failure is injected at the config read alone. With
-        # git 2.53, a config file git cannot parse (exit 128) reaches this
-        # read in the aid, whose MERGE_HEAD and unmerged-index reads pass
-        # over a failed read, but D4's merge-base read refuses on it first;
-        # and a bad value only some commands parse, such as
-        # log.showSignature=notabool, leaves git config at exit 1 and fails
-        # git log and git show instead (3b577 round 6).
-        # Exit 1 is git config's own "not set" answer, which the real git
-        # gives in each control; any other nonzero exit now declines (exit 2).
+        # partial clone" and both went on to read blobs (exit 0 here). The
+        # failure is injected at the config read alone. With git 2.53, a
+        # config file git cannot parse (exit 128) reaches this read in the
+        # aid, whose MERGE_HEAD and unmerged-index reads pass over a failed
+        # read, but D4's merge-base read refuses on it first; and a bad value
+        # only some commands parse, such as log.showSignature=notabool, leaves
+        # git config at exit 1 and fails git log and git show instead. Exit 1
+        # is git config's own "not set" answer, which the real git gives in
+        # each control; any other nonzero exit now declines (exit 2).
         tmp, git = self._repo()
         doc = tmp / "governance" / "doc.md"
         doc.write_text("# Doc\n\n**Version:** 1.0.0\\\n**Date:** 2026-01-01\n\nBody.\n",
@@ -14859,10 +14860,10 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                     self.assertNotIn("OK", r.stdout, out)
 
     def test_d15_git_call_fault_never_reports_a_clean_or_altered_result(self) -> None:
-        # 3b577 round 5 (D15's own git call sites): main() turns any exception
-        # into the fail-open NOTE (exit 0), so no fault tracebacks, but four
-        # reads took a nonzero exit as an answer. The per-file diff and head
-        # read took it as "deleted in the PR" (at 9255c0936 that printed a
+        # D15's own git call sites: main() turns any exception into the
+        # fail-open NOTE (exit 0), so no fault tracebacks, but in the earlier
+        # repository four reads took a nonzero exit as an answer. The per-file
+        # diff and head read took it as "deleted in the PR" (that printed a
         # clean "D15 OK" over a head whose added citation WARNs), the register
         # read as "absent", and the sibling probe's reads as an absent alias
         # file or register, or dropped a corpus document from its scan (an
@@ -14937,10 +14938,10 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
     )
 
     def _retire_and_cite(self):
-        """The fixture of _no_work_tree_env and the 3b564 tests: branch feat
-        deletes TODO row 9.99 and commits .claude/skills/corpus-management/tools/x.py citing it, so D9's real
-        verdict on main..feat is FAIL. Returns (path, git runner), checked out
-        at feat."""
+        """The fixture of _no_work_tree_env and the own-top-level tests: branch
+        feat deletes TODO row 9.99 and commits .claude/skills/corpus-management/tools/x.py
+        citing it, so D9's real verdict on main..feat is FAIL. Returns (path,
+        git runner), checked out at feat."""
         tmp, git = self._repo()
         rows = "# TODO\n\n## Priority 1\n\n| 9.98 | Keep | x |\n"
         (tmp / ".working").mkdir(parents=True, exist_ok=True)
@@ -14958,7 +14959,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         """``(holder, env)`` for a run with no work tree: ``env`` names, in
         GIT_DIR, a bare clone (in ``holder``) of a head that deletes TODO row
         9.99 and commits a file citing it. The control, D9 run from a normal
-        checkout of that head, FAILs (3b540 round 9)."""
+        checkout of that head, FAILs."""
         import subprocess as sp
 
         tmp, git = self._retire_and_cite()
@@ -14979,14 +14980,14 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         return holder, env
 
     def test_no_work_tree_refuses_exit2(self) -> None:
-        # 3b540 round 9 (r8 review WARN-1): git refusing the top-level read
-        # because there is no work tree (GIT_DIR naming a bare repository) is
-        # a refusal, exit 2, as before round 8, not a placeholder. D9's orphan
-        # scan reads the working tree, so without one it scanned this
-        # checkout instead of the head and printed "D9 OK" for a head that
-        # deletes TODO row 9.99 and commits a file citing it; the control, a
-        # normal checkout of the same head, FAILs. At round 8 D5, D9, D13 and
-        # tension-scan all exited 0 here.
+        # git refusing the top-level read because there is no work tree
+        # (GIT_DIR naming a bare repository) is a refusal, exit 2, not a
+        # placeholder. D9's orphan scan reads the working tree, so in the
+        # earlier repository, with that read degraded to a placeholder, it
+        # scanned this checkout instead of the head and printed "D9 OK" for a
+        # head that deletes TODO row 9.99 and commits a file citing it; the
+        # control, a normal checkout of the same head, FAILs. In the earlier
+        # repository D5, D9, D13 and tension-scan all exited 0 here.
         import subprocess as sp
 
         holder, env = self._no_work_tree_env()
@@ -15000,15 +15001,15 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn(clean, r.stdout)
 
     def test_pre_2_25_empty_toplevel_refuses_exit2(self) -> None:
-        # 3b559: before git 2.25, rev-parse --show-toplevel printed nothing
-        # and exited 0 outside a work tree, so the refusal above held only on
-        # git 2.25 or later. The PATH shim delegates to the real git and, when
-        # the real --show-toplevel read fails, prints nothing and exits 0 as
-        # that older git did, marking that it fired. Without the empty-result
-        # check D5, D9, D13 and tension-scan each printed their clean verdict
-        # (exit 0) here, D9's "D9 OK" over the head the control FAILs; each
-        # now refuses with exit 2. Mutation killed: dropping the empty-result
-        # check from any one of the four.
+        # Before git 2.25, rev-parse --show-toplevel printed nothing and
+        # exited 0 outside a work tree, so the refusal above held only on git
+        # 2.25 or later. The PATH shim delegates to the real git and, when the
+        # real --show-toplevel read fails, prints nothing and exits 0 as that
+        # older git did, marking that it fired. In the earlier repository,
+        # without the empty-result check, D5, D9, D13 and tension-scan each
+        # printed their clean verdict (exit 0) here, D9's "D9 OK" over the
+        # head the control FAILs; each now refuses with exit 2. Mutation
+        # killed: dropping the empty-result check from any one of the four.
         import subprocess as sp
 
         real_git = shutil.which("git")
@@ -15055,14 +15056,15 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn("not this script's repository", r.stderr)
 
     def test_foreign_work_tree_refuses_exit2(self) -> None:
-        # 3b564: GIT_DIR naming a bare clone of the head plus GIT_WORK_TREE
-        # naming another directory gives git a work tree, so the top-level
-        # read succeeds, but it names that directory, not the script's
-        # repository. D9 then scanned this checkout and printed "D9 OK" over
-        # a head whose own control run FAILs (git 2.53); D5, D13 and
-        # tension-scan printed their clean passes. Each gate now refuses with
-        # exit 2 unless the top level resolves to its own REPO_ROOT. Mutation
-        # killed: dropping the REPO_ROOT comparison from any one gate.
+        # GIT_DIR naming a bare clone of the head plus GIT_WORK_TREE naming
+        # another directory gives git a work tree, so the top-level read
+        # succeeds, but it names that directory, not the script's repository.
+        # In the earlier repository D9 then scanned this checkout and printed
+        # "D9 OK" over a head whose own control run FAILs (git 2.53); D5, D13
+        # and tension-scan printed their clean passes. Each gate now refuses
+        # with exit 2 unless the top level resolves to its own REPO_ROOT.
+        # Mutation killed: dropping the REPO_ROOT comparison from any one
+        # gate.
         import subprocess as sp
 
         tmp, git = self._retire_and_cite()
@@ -15088,17 +15090,16 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn(clean, r.stdout)
 
     def test_own_git_dir_other_work_tree_refuses_exit2(self) -> None:
-        # 3b564 (r1 review W1, W2): with GIT_DIR naming the gate's own
-        # repository, so the git-directory check passes, GIT_WORK_TREE at a
-        # subdirectory of REPO_ROOT, at its parent, at REPO_ROOT + "-x", or
-        # at a directory whose name is not valid UTF-8 is a top level other
-        # than REPO_ROOT, and each gate's own copy refuses it with exit 2. At
-        # round 1 the last skipped the comparison (a placeholder replaced a
-        # top level the strict decode refused), so all four exited 0.
-        # Mutations killed, in any one gate: also accepting a top level
-        # inside REPO_ROOT, an ancestor of it, or a path that merely starts
-        # with it; and reading the top level as strict text with the
-        # placeholder again.
+        # With GIT_DIR naming the gate's own repository, so the git-directory
+        # check passes, GIT_WORK_TREE at a subdirectory of REPO_ROOT, at its
+        # parent, at REPO_ROOT + "-x", or at a directory whose name is not
+        # valid UTF-8 is a top level other than REPO_ROOT, and each gate's own
+        # copy refuses it with exit 2. In the earlier repository the last
+        # skipped the comparison (a placeholder replaced a top level the
+        # strict decode refused), so all four exited 0. Mutations killed, in
+        # any one gate: also accepting a top level inside REPO_ROOT, an
+        # ancestor of it, or a path that merely starts with it; and reading
+        # the top level as strict text with the placeholder again.
         import subprocess as sp
 
         tmp, git = self._retire_and_cite()
@@ -15132,18 +15133,19 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                     self.assertNotIn(clean, r.stdout)
 
     def test_foreign_git_dir_refuses_exit2(self) -> None:
-        # 3b564 (r1 review E1): GIT_DIR naming another repository while git's
-        # top level is still the gate's own REPO_ROOT passes the top-level
-        # comparison: a non-bare foreign GIT_DIR alone (git takes the current
-        # directory, or -C REPO_ROOT, as the top level), a bare GIT_DIR plus
+        # GIT_DIR naming another repository while git's top level is still the
+        # gate's own REPO_ROOT passes the top-level comparison: a non-bare
+        # foreign GIT_DIR alone (git takes the current directory, or -C
+        # REPO_ROOT, as the top level), a bare GIT_DIR plus
         # GIT_WORK_TREE=REPO_ROOT, and a foreign GIT_DIR whose own
         # core.worktree is REPO_ROOT. REPO_ROOT here is a checkout of main,
-        # without the citing file, so D9 read its range from the foreign
-        # repository, scanned REPO_ROOT and printed "D9 OK" over a head whose
-        # own control run FAILs; D5, D13 and tension-scan printed their clean
-        # passes. Run from REPO_ROOT, each gate now refuses with exit 2
-        # through lint_common.require_own_git_dir. Mutation killed: dropping
-        # that call from any one gate.
+        # without the citing file, so in the earlier repository D9 read its
+        # range from the foreign repository, scanned REPO_ROOT and printed
+        # "D9 OK" over a head whose own control run FAILs; D5, D13 and
+        # tension-scan printed their clean passes. Run from REPO_ROOT, each
+        # gate now refuses with exit 2 through
+        # lint_common.require_own_git_dir. Mutation killed: dropping that call
+        # from any one gate.
         import subprocess as sp
 
         tmp, git = self._retire_and_cite()
@@ -15178,18 +15180,18 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                     self.assertNotIn(clean, r.stdout)
 
     def test_linked_worktree_hook_git_dir(self) -> None:
-        # 3b564 (r1 review E1): git exports GIT_DIR, naming the worktree's
-        # own git directory, to the hooks of a linked worktree. D9 and D13
-        # anchor git to their own REPO_ROOT with -C, so the main checkout's
-        # copies still read a top level of REPO_ROOT there while git read
-        # the worktree's refs, and the main checkout's D9 printed "D9 OK"
-        # over a head whose own control run FAILs. A real pre-commit hook in
-        # the worktree runs both trees' copies: the main checkout's refuse
-        # with exit 2 (D9 and D13 through require_own_git_dir; D5 and
-        # tension-scan run git from the hook's directory, the worktree, so
-        # their top-level comparison refuses too), and the worktree's own
-        # copies keep their real verdicts. Mutation killed: dropping the
-        # require_own_git_dir call from D9 or D13.
+        # git exports GIT_DIR, naming the worktree's own git directory, to the
+        # hooks of a linked worktree. D9 and D13 anchor git to their own
+        # REPO_ROOT with -C, so in the earlier repository the main checkout's
+        # copies still read a top level of REPO_ROOT there while git read the
+        # worktree's refs, and the main checkout's D9 printed "D9 OK" over a
+        # head whose own control run FAILs. A real pre-commit hook in the
+        # worktree runs both trees' copies: the main checkout's refuse with
+        # exit 2 (D9 and D13 through require_own_git_dir; D5 and tension-scan
+        # run git from the hook's directory, the worktree, so their top-level
+        # comparison refuses too), and the worktree's own copies keep their
+        # real verdicts. Mutation killed: dropping the require_own_git_dir
+        # call from D9 or D13.
         import subprocess as sp
 
         tmp, git = self._retire_and_cite()
@@ -15246,17 +15248,17 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                     self.assertNotIn("not this script's repository", stderr)
 
     def test_relative_or_empty_toplevel_refuses_exit2(self) -> None:
-        # 3b564: a top level that is relative was accepted as long as git
-        # exited 0. A shim git prints one for rev-parse --show-toplevel (and
-        # delegates every other call), with each gate run as its own copy
-        # from its own top level, so only the reported top level is wrong.
-        # "." and "elsewhere" resolve against the current directory, here
-        # the gate's own REPO_ROOT for ".", so the comparison alone would
-        # accept it; each gate also requires an absolute top level, as git
-        # always prints. An empty one is 3b559's missing work tree and keeps
-        # that refusal, which runs first. The absolute case is the shim's
-        # control. Mutation killed: dropping the comparison, or only its
-        # is_absolute half, from any one gate.
+        # In the earlier repository a top level that is relative was accepted
+        # as long as git exited 0. A shim git prints one for rev-parse
+        # --show-toplevel (and delegates every other call), with each gate run
+        # as its own copy from its own top level, so only the reported top
+        # level is wrong. "." and "elsewhere" resolve against the current
+        # directory, here the gate's own REPO_ROOT for ".", so the comparison
+        # alone would accept it; each gate also requires an absolute top
+        # level, as git always prints. An empty one is the missing work tree
+        # of a git before 2.25 and keeps that refusal, which runs first. The
+        # absolute case is the shim's control. Mutation killed: dropping the
+        # comparison, or only its is_absolute half, from any one gate.
         import subprocess as sp
 
         tmp, git = self._retire_and_cite()
@@ -15297,15 +15299,15 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                     self.assertNotIn(verdict, r.stdout + r.stderr)
 
     def test_non_absolute_git_dir_refuses_exit2(self) -> None:
-        # 3b564 (r2 review W1): git rev-parse echoes an option it does not
-        # know and exits 0, so a git without --absolute-git-dir would print
-        # the flag itself for both of require_own_git_dir's reads. A shim git
-        # prints the flag for that one query (and delegates every other
-        # call, so the top level is the real one). realpath resolved both
-        # values against the current directory, they compared equal, and all
-        # four gates kept their verdicts with the git directory unconfirmed;
-        # each now refuses with exit 2 because neither read is an absolute
-        # path. Mutation killed: dropping that check from
+        # git rev-parse echoes an option it does not know and exits 0, so a
+        # git without --absolute-git-dir would print the flag itself for both
+        # of require_own_git_dir's reads. A shim git prints the flag for that
+        # one query (and delegates every other call, so the top level is the
+        # real one). In the earlier repository realpath resolved both values
+        # against the current directory, they compared equal, and all four
+        # gates kept their verdicts with the git directory unconfirmed; each
+        # now refuses with exit 2 because neither read is an absolute path.
+        # Mutation killed: dropping that check from
         # lint_common.require_own_git_dir.
         import subprocess as sp
 
@@ -15339,17 +15341,16 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                 self.assertNotIn(verdict, r.stdout + r.stderr)
 
     def test_run_from_other_clone(self) -> None:
-        # 3b564 (r2 review W2): run from inside another clone whose top level
-        # is the gate's own REPO_ROOT, once through GIT_WORK_TREE=REPO_ROOT
-        # and once through that clone's own core.worktree naming it, with no
-        # GIT_DIR. D5 and tension-scan run git from the current directory,
-        # so they would read the other clone's refs; require_own_git_dir with
-        # from_cwd refuses them with exit 2, naming that clone's git
-        # directory. D9 and D13 run git with -C REPO_ROOT, so they read their
-        # own repository and keep their real verdicts. Mutations killed:
-        # require_own_git_dir ignoring from_cwd (always -C repo_root), D5 or
-        # tension-scan calling it without from_cwd, and D9 calling it with
-        # from_cwd.
+        # Run from inside another clone whose top level is the gate's own
+        # REPO_ROOT, once through GIT_WORK_TREE=REPO_ROOT and once through
+        # that clone's own core.worktree naming it, with no GIT_DIR. D5 and
+        # tension-scan run git from the current directory, so they would read
+        # the other clone's refs; require_own_git_dir with from_cwd refuses
+        # them with exit 2, naming that clone's git directory. D9 and D13 run
+        # git with -C REPO_ROOT, so they read their own repository and keep
+        # their real verdicts. Mutations killed: require_own_git_dir ignoring
+        # from_cwd (always -C repo_root), D5 or tension-scan calling it
+        # without from_cwd, and D9 calling it with from_cwd.
         import subprocess as sp
 
         tmp, git = self._retire_and_cite()
@@ -15384,23 +15385,24 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                     self.assertNotIn("Traceback", r.stderr)
 
     def test_gitfile_alias_refuses_exit2(self) -> None:
-        # 3b564 (r3 review W1): a main-tree alias whose .git is a file naming
-        # the checkout's git directory. git takes the alias as the top level
-        # and reads that git directory, so the top-level comparison and both
-        # git-directory reads passed: run from the alias, D9 printed "D9 OK:
-        # 1 section(s) retired; no LIVE orphan references" over a head whose
-        # own control run FAILs, and D5, D13 and tension-scan printed their
-        # clean passes. .claude/skills/corpus-management/tools/git-hooks/pre-push refuses the alias because it
-        # is not a work tree registered with that git directory; each gate
-        # now refuses it the same way, with exit 2, through
-        # lint_common.require_own_git_dir. A linked worktree of the same
-        # repository, whose .git file is registered, keeps its real
+        # A main-tree alias whose .git is a file naming the checkout's
+        # git directory. git takes the alias as the top level and reads
+        # that git directory, so the top-level comparison and both
+        # git-directory reads passed: run from the alias, D9 printed
+        # "D9 OK: 1 section(s) retired; no LIVE orphan references" over a head
+        # whose own control run FAILs, and D5, D13 and tension-scan printed
+        # their clean passes.
+        # .claude/skills/corpus-management/tools/git-hooks/pre-push refuses
+        # the alias because it is not a work tree registered with that git
+        # directory; each gate now refuses it the same way, with exit 2,
+        # through lint_common.require_own_git_dir. A linked worktree of the
+        # same repository, whose .git file is registered, keeps its real
         # verdicts. Mutations killed: dropping the registration check,
         # accepting any .git file, and ignoring the linked worktree's gitdir
-        # file (the worktree then refuses). Round 6 (r5 review W1) adds aliases
-        # that take the checkout's objects and refs while git reports the
-        # alias's own git directory, each of which the gates and pre-push
-        # passed at 8f9b4b468: a .git directory whose commondir file names
+        # file (the worktree then refuses). The test also covers aliases that
+        # take the checkout's objects and refs while git reports the alias's
+        # own git directory, each of which the gates and pre-push passed in
+        # the earlier repository: a .git directory whose commondir file names
         # the checkout's git directory, a .git directory whose objects and
         # refs are symbolic links into it, and a .git file naming a git
         # directory with such a commondir file, either a separate one whose
@@ -15408,9 +15410,9 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         # names the alias's .git (not in the checkout's worktrees directory).
         # Mutations killed (helper and pre-push each): dropping the
         # common-directory comparison from each layout's branch, and dropping
-        # the objects or refs symbolic-link check. Round 7 (r6 review N1)
-        # adds an alias linking objects alone and one linking refs alone, so
-        # dropping either half of that check is killed; f0da1931d refused
+        # the objects or refs symbolic-link check. An alias linking objects
+        # alone and one linking refs alone are covered too, so dropping either
+        # half of that check is killed; the earlier repository already refused
         # both.
         import subprocess as sp
 
@@ -15482,12 +15484,11 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
                                    env=env, label="registered worktree")
 
     def test_own_toplevel_keeps_real_verdicts(self) -> None:
-        # 3b564: the top-level and git-directory comparisons keep every real
-        # verdict where git reads the gate's own repository: a normal
-        # checkout, a run from a subdirectory (D5 and tension-scan run git
-        # from the current directory), a root reached through a symbolic
-        # link, and a linked worktree and a submodule each running their own
-        # copies.
+        # The top-level and git-directory comparisons keep every real verdict
+        # where git reads the gate's own repository: a normal checkout, a run
+        # from a subdirectory (D5 and tension-scan run git from the current
+        # directory), a root reached through a symbolic link, and a linked
+        # worktree and a submodule each running their own copies.
         import subprocess as sp
 
         tmp, git = self._retire_and_cite()
@@ -15516,8 +15517,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
 
 
 class RegressionGateGuardPinTests(unittest.TestCase):
-    """The gate 36 guard module is on disk AND is handed to the child
-    (3b525 rounds 2 and 3).
+    """The gate 36 guard module is on disk AND is handed to the child.
 
     The completeness and refusal guards for the gate runner live in
     .claude/skills/corpus-management/tests/test_regression_gate.py (plus the runner's own in-process
@@ -15549,7 +15549,7 @@ class RegressionGateGuardPinTests(unittest.TestCase):
             def __init__(self, cmd):
                 commands.append(list(cmd))
                 # main() writes the per-run nonce to the child's stdin
-                # (3b525 round 3, F1: never on argv).
+                # (never on argv).
                 self.stdin = io.BytesIO()
                 self.stderr = io.BytesIO(b"")
 
@@ -15579,13 +15579,12 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
 
     """The RM-10 enforcers' own self-tests, wired into the suite.
 
-    Added by PR #635 (the 2026-07-04 worker QA run's validated
-    GR-GAP-3): the PreToolUse pipe-blocking hook's ``--self-test`` and
-    the ``tail-safe.sh`` wrapper's ``--self-test`` were wired into no
-    runner, CI, or regression surface, so a broken enforcer failed
-    nothing. Running them here makes the regression suite (and every
-    pre-push guard run that chains it) fail loud when either enforcer
-    regresses.
+    In the earlier repository, the PreToolUse pipe-blocking hook's
+    ``--self-test`` and the ``tail-safe.sh`` wrapper's ``--self-test``
+    were wired into no runner, CI, or regression surface, so a broken
+    enforcer failed nothing. Running them here makes the regression
+    suite (and every pre-push guard run that chains it) fail loud when
+    either enforcer regresses.
     """
 
     def _run_selftest(self, cmd, timeout=None):
@@ -15602,7 +15601,8 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         exempt-marker states, and the environmental exits. The live run against the real
         matrix-fit/claim-fit pairs at exit 0 is the standing negative test (a future PR that
         drops a required verdict field from a carrier turns this red), per the audit suite's
-        census convention. Origin: PR #1926 (P-1.56) cost four QA rounds on exactly this class.
+        census convention. In the earlier repository one change needed four verification
+        rounds to clear exactly this class.
         """
         tool = SKILL_ROOT / "tools" / "lint-skill-verdict-carrier-completeness.py"
         st = self._run_selftest([sys.executable, str(tool), "--self-test"])
@@ -15625,10 +15625,10 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
     def test_check_dirty_tree_push_hook_self_test(self) -> None:
         """The git-native pre-push dirty-tree backstop's --self-test, wired at introduction.
 
-        Replaces the abandoned PreToolUse block-dirty-tree-push.py
-        (OF-2026-09-20-dirty-tree-push-hook-defects): a PreToolUse shell-parser could not
-        avoid false positives; this git-native pre-push hook runs at push time on the real
-        tree, so it is FP-safe by construction. --self-test exercises decide().
+        Replaces the abandoned PreToolUse block-dirty-tree-push.py: a PreToolUse
+        shell-parser could not avoid false positives; this git-native pre-push hook runs
+        at push time on the real tree, so it is FP-safe by construction. --self-test
+        exercises decide().
         """
         result = self._run_selftest(
             [sys.executable, str(SKILL_ROOT / "tools" / "check-dirty-tree-push.py"),
@@ -15639,7 +15639,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertIn("self-test: ", result.stdout)
 
     def test_check_commit_on_main_hook_self_test(self) -> None:
-        """The git-native pre-commit commit-on-main guard's --self-test, wired at introduction (P-TODO 3b17).
+        """The git-native pre-commit commit-on-main guard's --self-test, wired at introduction.
 
         Refuses a commit on a grc_library main/master checkout from ANY tool or worktree (a Bash
         write bypasses the Edit|Write hook block-branch-to-main-edit.py). --self-test exercises
@@ -15653,7 +15653,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertIn("self-test: ", result.stdout)
 
     def test_check_version_bump_commit_hook_self_test(self) -> None:
-        """The git-native commit-msg Version-bump check's --self-test, wired at introduction (P-TODO 3b25).
+        """The git-native commit-msg Version-bump check's --self-test, wired at introduction.
 
         Checks every commit in the committing worktree (the PreToolUse guard is blind to `git -C
         <worktree>` commits); refuses only, never auto-bumps. --self-test runs decide(), the message
@@ -15689,7 +15689,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertIn("self-test: ", result.stdout)
 
     def test_check_generated_commit_hook_self_test(self) -> None:
-        """The git-native pre-commit generated-output check's --self-test, wired at introduction (P-TODO 3b200).
+        """The git-native pre-commit generated-output check's --self-test, wired at introduction.
 
         Refuses a commit that changes a Version or Date line or a generated output while the staged
         .claude/skills/corpus-management/data/taxonomy.yml, governance/portal.md or governance/maturity-scorecard.md is out of sync, judged by the staged
@@ -15733,9 +15733,10 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
 
     def test_changelog_preflight_commit_override_is_exactly_1(self) -> None:
         """GRC_ALLOW_FAILING_CHANGELOG_COMMIT is honoured only when exactly "1", as GRC_ALLOW_BULK_ADD
-        and GRC_ALLOW_PR_ATTRIBUTION are (3b141 QA r1: "0" once skipped the check). Mutations killed:
-        `bool(os.environ.get(_OVERRIDE))`, which takes "0", "false" or " 1" as the override; and a
-        merge exemption put back into decide() (it no longer takes a sequencer argument)."""
+        and GRC_ALLOW_PR_ATTRIBUTION are (in the earlier repository, "0" once skipped the check).
+        Mutations killed: `bool(os.environ.get(_OVERRIDE))`, which takes "0", "false" or " 1" as the
+        override; and a merge exemption put back into decide() (it no longer takes a sequencer
+        argument)."""
         import importlib.util
         import inspect
         spec = importlib.util.spec_from_file_location(
@@ -15749,7 +15750,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertEqual(list(inspect.signature(check.decide).parameters), ["allow", "ok", "staged", "code"])
 
     def test_run_shell_stubbed_self_test(self) -> None:
-        """.claude/skills/corpus-management/tools/run-shell-stubbed.py (P-TODO 3b116): gh and git stand-ins reach nested shells, the
+        """.claude/skills/corpus-management/tools/run-shell-stubbed.py: gh and git stand-ins reach nested shells, the
         credentials are out of reach, and a path invocation is refused."""
         result = self._run_selftest([sys.executable, str(SKILL_ROOT / "tools" / "run-shell-stubbed.py"),
                                      "--self-test"])
@@ -15758,12 +15759,12 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertIn("self-test: OK", result.stdout)
 
     def test_run_shell_stubbed_self_test_behind_a_slow_reaper(self) -> None:
-        """P-TODO 3b125: the run-shell-stubbed self-test passes on a loaded host whose reaper is slow. The run's
-        killed children are adopted by a parent that never reaps them (PR_SET_CHILD_SUBREAPER), so each stays a
-        zombie in /proc for the whole self-test; the background-child-killed and job-control-child-killed checks
-        read the session straight after run() returned and counted such a zombie as a live survivor. Where the
-        subreaper cannot be set (a non-Linux host, or a container that blocks prctl) the reproduction cannot be
-        built, so the test is skipped with the reason, never failed (3b125 QA r1)."""
+        """The run-shell-stubbed self-test passes on a loaded host whose reaper is slow. The run's killed
+        children are adopted by a parent that never reaps them (PR_SET_CHILD_SUBREAPER), so each stays a zombie
+        in /proc for the whole self-test; in the earlier repository, the background-child-killed and
+        job-control-child-killed checks read the session straight after run() returned and counted such a zombie
+        as a live survivor. Where the subreaper cannot be set (a non-Linux host, or a container that blocks
+        prctl) the reproduction cannot be built, so the test is skipped with the reason, never failed."""
         wrapper = (
             "import ctypes, os, subprocess, sys\n"
             "try:\n"
@@ -15789,10 +15790,10 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertIn("self-test: OK", result.stdout)
 
     def test_run_shell_stubbed_sigterm_exit_timeout_captures_probe_state(self) -> None:
-        """P-TODO 3b363: when the sigterm-cleans-up stage's wait for the probe's exit reaches its deadline, the
-        failure output carries the probe's /proc state before the probe is killed. The cause of the codex
-        probe-exit-wait-timeout is unknown and did not reproduce, so the next occurrence must carry its own
-        evidence. A near-zero private deadline forces the timeout path; the stage still fails with the same
+        """When the sigterm-cleans-up stage's wait for the probe's exit reaches its deadline, the failure
+        output carries the probe's /proc state before the probe is killed. A probe-exit-wait-timeout seen in
+        the earlier repository has no known cause and did not reproduce, so the next occurrence must carry its
+        own evidence. A near-zero private deadline forces the timeout path; the stage still fails with the same
         name."""
         driver = (
             "import runpy, sys\n"
@@ -15814,11 +15815,11 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         for field in ("State: ", "SigPnd: ", "ShdPnd: ", "SigBlk: ", "SigIgn: ", "SigCgt: ", "wchan: "):
             self.assertIn(field, probe[0], detail)
         self.assertTrue(any(" (probe) fds: " in line for line in captured), detail)
-        # The fixture watcher is the probe's child in its own session (round 2, E1).
+        # The fixture watcher is the probe's child in its own session.
         watchers = [m.group(1) for m in (re.match(r"pid (\d+) \(child\): State: ", line) for line in captured) if m]
         self.assertEqual(len(watchers), 1, detail)
         self.assertTrue(any(line.startswith(f"pid {watchers[0]} (child) fds: ") for line in captured), detail)
-        # The watcher's own stack block, up to the next header, is its faulthandler dump (round 3).
+        # The watcher's own stack block, up to the next header, is its faulthandler dump.
         header = f"thread stacks of pid {watchers[0]} (child):"
         self.assertIn(header, captured, detail)
         block = []
@@ -15851,10 +15852,10 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         return json.loads(result.stdout.splitlines()[-1]), detail
 
     def test_probe_capture_returns_within_its_budget_when_proc_reads_hang(self) -> None:
-        """P-TODO 3b363 round 2: the capture's time bound is enforced, not checked between reads. With every /proc
-        read hanging, the capture returns within its budget (plus formatting) and says it was cut short. Round 3:
-        the caller is left single-threaded with no capture process, so later stages keep the single-threaded spawn
-        path and os.fork does not warn."""
+        """The capture's time bound is enforced, not checked between reads. With every /proc read hanging, the
+        capture returns within its budget (plus formatting) and says it was cut short. The caller is left
+        single-threaded with no capture process, so later stages keep the single-threaded spawn path and os.fork
+        does not warn."""
         out, detail = self._probe_capture_driver(
             "import threading, warnings\n"
             "warnings.simplefilter('error')\n"
@@ -15881,8 +15882,8 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                         detail)
 
     def test_probe_capture_character_limit_covers_the_whole_output(self) -> None:
-        """P-TODO 3b363 round 2: the character limit counts every returned line with its prefix and newline,
-        including the note naming what was left out, and part of it is kept for the thread stacks."""
+        """The character limit counts every returned line with its prefix and newline, including the note
+        naming what was left out, and part of it is kept for the thread stacks."""
         # The stand-in probe is a separate single-threaded process, as the real probe is: a faulthandler dump of
         # every thread, signalled into the capturing process itself while its worker thread runs, can crash it.
         out, detail = self._probe_capture_driver(
@@ -15910,9 +15911,9 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertTrue(any(line.startswith("pid ") and " (probe): State: " in line for line in lines), detail)
 
     def test_probe_capture_signals_only_known_faulthandler_targets(self) -> None:
-        """P-TODO 3b363 round 3: a child of the probe that holds the stack pipe and has its own SIGUSR1 handler
-        (SigCgt includes SIGUSR1, but it is no faulthandler; codex saw such a child exit with 42) is not signalled,
-        unregistered or registered with a start time that is not its own; the probe still is. Round 4: nor is it
+        """A child of the probe that holds the stack pipe and has its own SIGUSR1 handler (SigCgt includes SIGUSR1,
+        but it is no faulthandler; in the earlier repository such a child was seen to exit with 42) is not
+        signalled, unregistered or registered with a start time that is not its own; the probe still is. Nor is it
         when registered with its real start time but a descriptor that is not the stack pipe."""
         import signal
 
@@ -15933,7 +15934,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
             "    forged = capture(probe.pid, None, r, budget=4.0, registry_fd=reg_r)\n"
             "    with open(f'/proc/{child}/stat') as stream:\n"
             "        state = stream.read().rsplit(')', 1)[1].split()[0]\n"
-            # Round 4: its real start time, but its stdout (another pipe) as the dump descriptor.
+            # Its real start time, but its stdout (another pipe) as the dump descriptor.
             "    with open(f'/proc/{child}/stat') as stream:\n"
             "        started = stream.read().rsplit(')', 1)[1].split()[19]\n"
             "    os.write(reg_w, f'{child} {started} 1\\n'.encode())\n"
@@ -15968,11 +15969,11 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertNotIn(out["other_state"], ("Z", "X"), detail)
 
     def test_probe_capture_reports_unreadable_proc_entries(self) -> None:
-        """P-TODO 3b363 round 2: an unreadable status or descriptor becomes a line saying so, the capture goes on,
-        and an unreadable probe status is named as such, never as faulthandler not being registered."""
+        """An unreadable status or descriptor becomes a line saying so, the capture goes on, and an unreadable
+        probe status is named as such, never as faulthandler not being registered."""
         out, detail = self._probe_capture_driver(
             "real_read, real_link = g['_capture_read'], g['_capture_readlink']\n"
-            # Bound here: the seams run in the capture's forked child, whose own pid differs (round 3).
+            # Bound here: the seams run in the capture's forked child, whose own pid differs.
             "status, fd0 = f'/proc/{os.getpid()}/status', f'/proc/{os.getpid()}/fd/0'\n"
             "def read(path):\n"
             "    if path == status:\n"
@@ -15994,8 +15995,8 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertFalse(any("faulthandler is not registered" in line for line in lines), detail)
 
     def test_probe_capture_names_an_exited_probe(self) -> None:
-        """P-TODO 3b363 round 2: a probe that has exited is named as exited (a zombie) or as unreadable (reaped);
-        no stacks are requested from it and the capture still returns its lines."""
+        """A probe that has exited is named as exited (a zombie) or as unreadable (reaped); no stacks are
+        requested from it and the capture still returns its lines."""
         out, detail = self._probe_capture_driver(
             "p = subprocess.Popen([sys.executable, '-I', '-c', 'pass'])\n"
             "os.waitid(os.P_PID, p.pid, os.WEXITED | os.WNOWAIT)\n"
@@ -16014,11 +16015,11 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                                             "not be read: FileNotFoundError") for line in out["gone"]), detail)
 
     def test_probe_capture_gives_each_target_its_own_signal_failure(self) -> None:
-        """P-TODO 3b363 round 4: pidfd_send_signal raising (PermissionError, or AttributeError where it does not
-        exist) gives each target its own reason line instead of ending the stack section; where no pidfd opens,
-        the probe alone is signalled by os.kill and a registered target is not. Round 5: for the probe, a failed
-        pidfd send is retried by os.kill and its lines state both outcomes, and the os.kill fallback after no
-        pidfd opened is named, with the pidfd error, before its dump."""
+        """pidfd_send_signal raising (PermissionError, or AttributeError where it does not exist) gives each
+        target its own reason line instead of ending the stack section; where no pidfd opens, the probe alone is
+        signalled by os.kill and a registered target is not. For the probe, a failed pidfd send is retried by
+        os.kill and its lines state both outcomes, and the os.kill fallback after no pidfd opened is named, with
+        the pidfd error, before its dump."""
         out, detail = self._probe_capture_driver(
             "import signal\n"
             "r, w = os.pipe()\n"
@@ -16099,11 +16100,11 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         """Run a capture whose child records its open descriptors and then hangs, and return what the child
         listed itself, what the driver listed from outside while it hung, and the driver's own descriptors.
 
-        Round 5 handshake: the child signals a FIFO after writing its report, and the driver, wrapping os.fork,
-        waits for that (up to 60 s) in the parent before the capture goes on to its budget, so the cut-short
-        check never races the child's listing. Round 6: the driver reads the FIFO to EOF before listing, so the
-        child's FIFO descriptor is closed by then. With lowered, the driver first opens descriptor 100 and then
-        lowers its soft RLIMIT_NOFILE to 64, below it."""
+        Readiness handshake: the child signals a FIFO after writing its report, and the driver, wrapping
+        os.fork, waits for that (up to 60 s) in the parent before the capture goes on to its budget, so the
+        cut-short check never races the child's listing. The driver reads the FIFO to EOF before listing, so
+        the child's FIFO descriptor is closed by then. With lowered, the driver first opens descriptor 100 and
+        then lowers its soft RLIMIT_NOFILE to 64, below it."""
         out, detail = self._probe_capture_driver(
             "import resource, select, shutil, tempfile\n"
             f"lowered = {lowered!r}\n"
@@ -16179,9 +16180,10 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         for view in ("listed", "outside"):
             listed = out["listed"] if view == "listed" else out["seen"]["outside"]
             if out["high"] is not None:
-                # Round 5: open above the lowered soft limit, so closerange up to SC_OPEN_MAX missed it.
+                # Open above the lowered soft limit, so in the earlier repository closerange up to
+                # SC_OPEN_MAX missed it.
                 self.assertNotIn(str(out["high"]), listed, f"{view}{detail}")
-            # Round 5: 0, 1 and 2 are /dev/null, so a stray write cannot reach a reused descriptor number.
+            # 0, 1 and 2 are /dev/null, so a stray write cannot reach a reused descriptor number.
             for n in ("0", "1", "2"):
                 self.assertEqual(listed.get(n), "/dev/null", f"{view} {n}{detail}")
             kept = {n: target for n, target in listed.items() if n not in ("0", "1", "2")}
@@ -16195,14 +16197,15 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertTrue(out["lines"][0].startswith("capture cut short"), detail)
 
     def test_probe_capture_child_keeps_only_its_three_descriptors(self) -> None:
-        """P-TODO 3b363 round 4: the forked capture child closes every inherited descriptor except its output pipe,
-        stack_fd and registry_fd, so a child that outlives its reap holds none of the stage's other pipes. Round 5:
-        it puts /dev/null on 0, 1 and 2, and a readiness handshake replaces the race against the budget."""
+        """The forked capture child closes every inherited descriptor except its output pipe, stack_fd and
+        registry_fd, so a child that outlives its reap holds none of the stage's other pipes. It also puts
+        /dev/null on 0, 1 and 2, and a readiness handshake replaces the race against the budget."""
         self._assert_capture_child_descriptors(*self._probe_capture_child_descriptors(lowered=False))
 
     def test_probe_capture_child_closes_a_descriptor_above_a_lowered_soft_limit(self) -> None:
-        """P-TODO 3b363 round 5 (codex: limit 64, inherited fd 100 stayed open): a descriptor opened before the
-        soft RLIMIT_NOFILE was lowered below it is closed too, as the child closes what /proc/self/fd lists."""
+        """A descriptor opened before the soft RLIMIT_NOFILE was lowered below it is closed too, as the child
+        closes what /proc/self/fd lists (in the earlier repository, with the soft limit at 64, an inherited
+        descriptor 100 stayed open)."""
         self._assert_capture_child_descriptors(*self._probe_capture_child_descriptors(lowered=True))
 
     def _capture_isolate_child(self, setup):
@@ -16247,8 +16250,8 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         return out, detail
 
     def test_capture_isolate_moves_a_kept_descriptor_off_0_to_2(self) -> None:
-        """P-TODO 3b363 round 6 (codex CAPTURE-STD-FD): a kept descriptor numbered 0 or 2 is moved above 2 and
-        stays open there, and /dev/null still ends on 0, 1 and 2; the old numbers are not kept twice."""
+        """A kept descriptor numbered 0 or 2 is moved above 2 and stays open there, and /dev/null still ends
+        on 0, 1 and 2; the old numbers are not kept twice."""
         out, detail = self._capture_isolate_child("os.dup2(a_r, 0)\n"
                                                   "os.dup2(b_w, 2)\n"
                                                   "keep, ceiling = {0, 2, out_w}, 1 << 16\n")
@@ -16267,10 +16270,10 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          sorted(map(str, {0, 1, 2, moved[0], moved[2], out["out_w"]}), key=int), detail)
 
     def test_capture_isolate_moves_a_kept_descriptor_off_0_to_2_in_a_full_descriptor_table(self) -> None:
-        """P-TODO 3b363 round 7 (codex CAPTURE-FD-MOVE-EMFILE): with the child's descriptor table full (its soft
-        RLIMIT_NOFILE lowered and every number below it open), a kept pipe on 0 is still moved above 2, as the
-        descriptors outside keep are closed before the move, and 0, 1 and 2 end on /dev/null. A full table also
-        leaves /proc/self/fd unlistable, so the closerange fallback does the closing."""
+        """With the child's descriptor table full (its soft RLIMIT_NOFILE lowered and every number below it
+        open), a kept pipe on 0 is still moved above 2, as the descriptors outside keep are closed before the
+        move, and 0, 1 and 2 end on /dev/null. A full table also leaves /proc/self/fd unlistable, so the
+        closerange fallback does the closing."""
         out, detail = self._capture_isolate_child(
             "import errno, resource\n"
             "os.dup2(a_r, 0)\n"
@@ -16300,8 +16303,8 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertEqual(sorted(fds, key=int), sorted(map(str, {0, 1, 2, moved, out["out_w"]}), key=int), detail)
 
     def test_probe_capture_reads_stacks_from_a_stack_pipe_at_descriptor_0(self) -> None:
-        """P-TODO 3b363 round 6: with stack_fd at descriptor 0, the capture child reads the probe's thread stacks
-        from the number _capture_isolate moved it to, not from the /dev/null now on 0."""
+        """With stack_fd at descriptor 0, the capture child reads the probe's thread stacks from the number
+        _capture_isolate moved it to, not from the /dev/null now on 0."""
         out, detail = self._probe_capture_driver(
             "r, w = os.pipe()\n"
             "probe = subprocess.Popen([sys.executable, '-I', '-c', 'import faulthandler, signal, sys, time; '\n"
@@ -16323,8 +16326,8 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertFalse(any(line.startswith("capture") for line in lines), detail)
 
     def test_capture_isolate_falls_back_below_its_ceiling_when_proc_self_fd_is_unlistable(self) -> None:
-        """P-TODO 3b363 round 6 (claude N1): where /proc/self/fd cannot be listed, the capture child says so,
-        closes every descriptor below the ceiling outside keep, and leaves one above the ceiling open."""
+        """Where /proc/self/fd cannot be listed, the capture child says so, closes every descriptor below the
+        ceiling outside keep, and leaves one above the ceiling open."""
         out, detail = self._capture_isolate_child(
             "listdir = os.listdir\n"
             "def unlistable(path='.'):\n"
@@ -16348,9 +16351,8 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
 
     def test_capture_isolate_fallback_leaves_open_a_descriptor_between_the_ceiling_and_a_kept_one_above_it(
             self) -> None:
-        """P-TODO 3b363 round 8 (codex CAPTURE-FALLBACK-CEILING): where /proc/self/fd cannot be listed and a
-        kept descriptor is numbered above the ceiling, an unkept one between the ceiling and it stays open, as
-        every fallback range stops at the ceiling."""
+        """Where /proc/self/fd cannot be listed and a kept descriptor is numbered above the ceiling, an unkept
+        one between the ceiling and it stays open, as every fallback range stops at the ceiling."""
         out, detail = self._capture_isolate_child(
             "listdir = os.listdir\n"
             "def unlistable(path='.'):\n"
@@ -16375,9 +16377,9 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertEqual(sorted(fds, key=int), sorted(map(str, {0, 1, 2, out["out_w"], 80, 100}), key=int), detail)
 
     def test_run_shell_stubbed_sigterm_stage_passes_when_registration_fails(self) -> None:
-        """P-TODO 3b363 round 4: a failure in SIGNAL_PROBE's watcher registration (an unreadable /proc stat, or a
-        full registry pipe that a blocking write would wait on forever) leaves the watcher unregistered and the
-        probe's stage passing as before."""
+        """A failure in SIGNAL_PROBE's watcher registration (an unreadable /proc stat, or a full registry pipe
+        that a blocking write would wait on forever) leaves the watcher unregistered and the probe's stage
+        passing as before."""
         driver = (
             "import runpy, sys\n"
             "t = runpy.run_path(sys.argv[1])\n"
@@ -16409,10 +16411,10 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
             self.assertIn(f"RESULT {name} True []", result.stdout, detail)
 
     def test_run_shell_stubbed_untimed_wait_acts_on_pending_term(self) -> None:
-        """P-TODO 3b419: a run with timeout=None waits in finite slices, so a TERM whose C-level handler ran without
-        interrupting the wait still stops the run and its cleanup completes. The untimed-wait-acts-on-term stage
-        passes on the tool and fails, at its exit wait, on a copy whose slice loop is replaced by the old blocking
-        wait (the held command never exits there; a 20s private deadline bounds that failure)."""
+        """A run with timeout=None waits in finite slices, so a TERM whose C-level handler ran without interrupting
+        the wait still stops the run and its cleanup completes. The untimed-wait-acts-on-term stage passes on the
+        tool and fails, at its exit wait, on a copy whose slice loop is replaced by the old blocking wait (the held
+        command never exits there; a 20s private deadline bounds that failure)."""
         source = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
         start = source.index("                    if timeout is None:\n                        # An untimed wait")
         end = source.index("                    else:\n                        rc = p.wait(timeout=timeout)\n", start)
@@ -16580,8 +16582,9 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
     def test_lint_narrative_metadata_self_test(self) -> None:
         """Gate 84's own self-test. The narrative metadata gate's eleven-check ``audit_page`` logic
         runs against ZERO real pages today (the live ``executive/`` tree holds only the exempted
-        entry-point README), so its per-failure-class detection is exercised here (a valid page plus a case per known failure class)
-        (guardrail-review r18 MEDIUM-1: the gate shipped wired but without a fixture)."""
+        entry-point README), so its per-failure-class detection is exercised here (a valid page
+        plus a case per known failure class) (in the earlier repository, the gate shipped wired but
+        without a fixture)."""
         result = self._run_selftest(
             [sys.executable, str(SKILL_ROOT / "tools" / "lint-narrative-metadata.py"), "--self-test"]
         )
@@ -16619,7 +16622,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         """Gate 86's own self-test. The symmetric narrative-boundary gate runs against a live tree
         with zero pages inside executive/, so its OUTSIDE-leak / INSIDE-form detection is exercised
         here against synthetic files (full leak, README-path leak, retyped leak, fenced/prose
-        non-leaks, open fence at end of file fails loud (3b54b), corpus-type-inside,
+        non-leaks, open fence at end of file fails loud, corpus-type-inside,
         missing-type/extension, root-anchoring, path-scoped README)."""
         result = self._run_selftest(
             [sys.executable, str(SKILL_ROOT / "tools" / "lint-narrative-boundary.py"), "--self-test"]
@@ -16632,7 +16635,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         """Gate 86's CORPUS_DOCUMENT_TYPES must stay byte-equal to the corpus metadata gate's
         ALLOWED_TYPES (it mirrors it to reject corpus types inside executive/). A drift between the
         two would let a newly-added corpus document type slip past the boundary gate; this parity
-        test is the drift guard the 1.3 verifier called for (in lieu of a lint_common hoist)."""
+        test is the drift guard (in lieu of a lint_common hoist)."""
         import importlib.util
         tools = SKILL_ROOT / "tools"
         def _load(name, fname):
@@ -16651,8 +16654,8 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          "lint-metadata ALLOWED_TYPES; keep them in parity.")
 
     def test_narrative_boundary_open_fence_at_eof_fails_loud(self) -> None:
-        """3b54b: gate 86 keeps its fence skip (it protects fenced example metadata), so a file
-        that ends inside an open fence would silently leave its remainder unscanned. The gate now
+        """Gate 86 keeps its fence skip (it protects fenced example metadata), so a file that
+        ends inside an open fence would silently leave its remainder unscanned. The gate now
         reports it, naming the opener line; a closed fence still passes."""
         import importlib.util
         tools = SKILL_ROOT / "tools"
@@ -16680,7 +16683,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         """Gate 87's own self-test. The one-way authority-boundary gate runs against a live corpus
         with no executive/ references, so its detection (body link, root-doc link, metadata-field
         mention, taxonomy row, hyphenated/nested non-matches, plain-path mentions legal, fenced
-        links and reference definitions flagged (fail closed, 3b54), unreadable fail-loud) is exercised here synthetically."""
+        links and reference definitions flagged (fail closed), unreadable fail-loud) is exercised here synthetically."""
         result = self._run_selftest(
             [sys.executable, str(SKILL_ROOT / "tools" / "lint-narrative-authority-boundary.py"), "--self-test"]
         )
@@ -16740,9 +16743,9 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertIn("OK", result.stderr)
 
     def test_block_branch_to_main_edit_hook_self_test(self) -> None:
-        # The branch-to-main edit guard (PR #1134): blocks Edit/Write to a
-        # grc_library file while HEAD is on main; allows sibling-repo files and
-        # feature branches. Its 7-case --self-test gates the FP-safety envelope.
+        # The branch-to-main edit guard: blocks Edit/Write to a grc_library file
+        # while HEAD is on main; allows sibling-repo files and feature branches.
+        # Its 7-case --self-test gates the FP-safety envelope.
         result = self._run_selftest(
             [sys.executable,
              str(REPO_ROOT / ".claude" / "hooks" / "block-branch-to-main-edit.py"),
@@ -16767,9 +16770,9 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertIn("self-test OK", result.stdout)
 
     def test_unbumped_version_guard_auto_bump_runs_without_newer_read_text(self) -> None:
-        """P-TODO 3b84: CI runs Python 3.11, whose Path.read_text lacked the newline keyword
-        (added in 3.13; write_text has it from 3.10); the auto-bump must not depend on it, keeps
-        CRLF endings, and declines a lone-CR file rather than bump the Version without the Date."""
+        """CI runs Python 3.11, whose Path.read_text lacked the newline keyword (added in 3.13;
+        write_text has it from 3.10); the auto-bump must not depend on it, keeps CRLF endings, and
+        declines a lone-CR file rather than bump the Version without the Date."""
         import importlib.util
         from unittest.mock import patch
         spec = importlib.util.spec_from_file_location(
@@ -16814,9 +16817,10 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
             self.assertEqual((repo / "r.md").read_bytes(), lone)
 
     def test_unbumped_version_guard_sees_a_bom_prefixed_document(self) -> None:
-        """P-TODO 3b86: a UTF-8 BOM before the first line hid a column-zero **Version:** from the
-        ^-anchored patterns, so a BOM-prefixed document was never selected and a body edit without
-        a bump passed both guards. Selection, classification and the auto-bump now set it aside."""
+        """In the earlier repository, a UTF-8 BOM before the first line hid a column-zero
+        **Version:** from the ^-anchored patterns, so a BOM-prefixed document was never selected
+        and a body edit without a bump passed both guards. Selection, classification and the
+        auto-bump now set it aside."""
         import importlib.util
         import json
         spec = importlib.util.spec_from_file_location(
@@ -16863,43 +16867,42 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         diff = ("diff --git a/b.md b/b.md\n@@ -1 +1 @@\n-\ufeff**Version:** 1.0.0\n"
                 "+\ufeff**Version:** 1.0.1\n@@ -4 +4 @@\n-old\n+new\n")
         self.assertEqual(guard.offenders(diff, {"b.md"}), [])
-        # 3b86 QA (codex): the BOM is set aside ONLY on line 1; a BOM-prefixed example deep in the
-        # body is not the document's Version, so its edit cannot stand in for the bump.
+        # The BOM is set aside ONLY on line 1; a BOM-prefixed example deep in the body is not the
+        # document's Version, so its edit cannot stand in for the bump.
         body_example = ("diff --git a/b.md b/b.md\n@@ -6 +6 @@\n-\ufeff**Version:** 7.0.0\n"
                         "+\ufeff**Version:** 7.0.1\n@@ -9 +9 @@\n-old\n+new\n")
         self.assertEqual(guard.offenders(body_example, {"b.md"}), ["b.md"])
-        # 3b86 QA (claude, codex, gemini): the metadata region, and so the stale-date note, see a
-        # BOM-prefixed header.
+        # The metadata region, and so the stale-date note, see a BOM-prefixed header.
         staged = "\ufeff**Version:** 1.0.1\n**Date:** 2026-09-01\n\nbody\n"
         self.assertEqual(guard._metadata_region_end(staged), len("\ufeff**Version:** 1.0.1\n**Date:** 2026-09-01\n\n"))
         bump = "diff --git a/b.md b/b.md\n@@ -1 +1 @@\n-\ufeff**Version:** 1.0.0\n+\ufeff**Version:** 1.0.1\n"
         self.assertEqual(guard.stale_date_after_bump(bump, {"b.md": staged}, "2026-09-25"), ["b.md"])
         self.assertEqual(guard.stale_date_after_bump(
             bump, {"b.md": staged.replace("2026-09-01", "2026-09-25")}, "2026-09-25"), [])
-        # 3b86 r2 (codex, gemini): a Date on line 1 behind the BOM.
+        # A Date on line 1 behind the BOM.
         date_first = "\ufeff**Date:** 2026-09-01\n**Version:** 1.0.1\n\nbody\n"
         bump2 = "diff --git a/b.md b/b.md\n@@ -2 +2 @@\n-**Version:** 1.0.0\n+**Version:** 1.0.1\n"
         self.assertEqual(guard.stale_date_after_bump(bump2, {"b.md": date_first}, "2026-09-25"), ["b.md"])
         self.assertEqual(guard.stale_date_after_bump(
             bump2, {"b.md": date_first.replace("2026-09-01", "2026-09-25")}, "2026-09-25"), [])
-        # 3b86 r2 (codex): content rendered '---'/'+++' inside a hunk is counted, so line 2 cannot
-        # pose as line 1 (the real Version on line 3 is unchanged; the body changed).
+        # Content rendered '---'/'+++' inside a hunk is counted, so line 2 cannot pose as line 1
+        # (the real Version on line 3 is unchanged; the body changed).
         shifted = ("diff --git a/b.md b/b.md\n--- a/b.md\n+++ b/b.md\n@@ -1,2 +1,2 @@\n"
                    "--- old lead\n-\ufeff**Version:** 7.0.0\n+++ new lead\n+\ufeff**Version:** 7.0.1\n"
                    "@@ -9 +9 @@\n-old\n+new\n")
         self.assertEqual(guard.offenders(shifted, {"b.md"}), ["b.md"])
-        # 3b86 r2 (claude): old and new start lines differ, and context lines advance both counters.
+        # Old and new start lines differ, and context lines advance both counters.
         self.assertEqual(guard.classify_hunk(["@@ -2,2 +1,2 @@", " ctx", "-\ufeffx", "+\ufeff**Version:** 2"]),
                          (True, False))  # new line 2, not 1: the BOM line is body
         self.assertEqual(guard.classify_hunk(["@@ -1 +1 @@", "-\ufeff**Version:** 1", "+\ufeff**Version:** 2"]),
                          (False, True))
         self.assertEqual(guard.classify_hunk(["@@ -3 +1 @@", "-\ufeffold", "+\ufeff**Version:** 2"]),
                          (True, True))  # old line 3 is body; new line 1 is the Version
-        # 3b86 r3 (codex): the old side is positioned by the old start line.
+        # The old side is positioned by the old start line.
         self.assertEqual(guard.classify_hunk(["@@ -1 +3 @@", "-\ufeff**Version:** 1", "+\ufeffx"]),
                          (True, True))  # old line 1 is the Version; new line 3 is body
-        # 3b86 r3 (codex): EXACTLY ONE BOM is set aside everywhere, so a double BOM hides the key
-        # consistently (never a Version from one site and body from another).
+        # EXACTLY ONE BOM is set aside everywhere, so a double BOM hides the key consistently
+        # (never a Version from one site and body from another).
         double = "\ufeff\ufeff**Date:** 2026-09-01\n**Version:** 1.0.0\n\nnew body\n"
         self.assertEqual(guard._metadata_region_end(double), 0)
         with tempfile.TemporaryDirectory() as td2:
@@ -16917,7 +16920,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
             self.assertFalse(guard.try_auto_bump(r2, "d.md", "2026-09-26"))
             self.assertEqual((r2 / "d.md").read_text(encoding="utf-8"), double)
             # Eligibility selects a double-BOM file (the git-native check), so its unbumped body
-            # edit is refused rather than skipped as unversioned (3b86 r4, claude).
+            # edit is refused rather than skipped as unversioned.
             self.assertEqual(check.staged_offenders(r2, guard), ["d.md"])
             key_first = "\ufeff\ufeff**Version:** 1.0.0\n**Date:** 2026-09-01\n\nold\n"
             (r2 / "e.md").write_text(key_first, encoding="utf-8")
@@ -16936,19 +16939,19 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                                  env=dict(os.environ, CLAUDE_PROJECT_DIR=str(r2)))
             self.assertEqual(cp2.returncode, 2, cp2.stderr)  # selected, not auto-bumped: refused
             self.assertIn("e.md", cp2.stderr)
-        # 3b86 r4 (claude, codex): the classifier removes EXACTLY ONE BOM, so a changed double-BOM
-        # line 1 is body, not the Version.
+        # The classifier removes EXACTLY ONE BOM, so a changed double-BOM line 1 is body, not the
+        # Version.
         self.assertEqual(guard.classify_hunk(["@@ -1 +1 @@", "-\ufeff\ufeff**Version:** 1",
                                               "+\ufeff\ufeff**Version:** 2"]), (True, False))
-        # 3b86 r3 (claude): a two-file buffer (a rename) resets hunk state at each diff header, so
-        # the second file's ---/+++ headers are not read as body.
+        # A two-file buffer (a rename) resets hunk state at each diff header, so the second file's
+        # ---/+++ headers are not read as body.
         two = ["diff --git a/o.md b/o.md", "--- a/o.md", "+++ /dev/null", "@@ -1 +0,0 @@", "-**Version:** 1",
                "diff --git a/n.md b/n.md", "--- /dev/null", "+++ b/n.md", "@@ -0,0 +1 @@", "+**Version:** 2"]
         self.assertEqual(guard.classify_hunk(two), (False, True))
 
     def test_unbumped_version_guard_counts_readme_version_key(self) -> None:
-        """P-TODO 3b80: README.md's per-document version is **README Version:**. A README body edit with it
-        bumped is not an offender; without it (or with only **Library Version:** bumped) it still is."""
+        """README.md's per-document version is **README Version:**. A README body edit with it bumped is
+        not an offender; without it (or with only **Library Version:** bumped) it still is."""
         import importlib.util
         spec = importlib.util.spec_from_file_location(
             "_vbump_guard_3b80", REPO_ROOT / ".claude" / "hooks" / "block-unbumped-version-commit.py")
@@ -16967,15 +16970,15 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         readme = "**Date:** 2026-09-25\\\n**README Version:** 1.0.0\\\n\nbody\n"
         self.assertTrue(guard.version_key("README.md").search(readme))
         self.assertIsNone(guard.version_key("README.md").search("**Library Version:** 2026.09.1\\\n\nbody\n"))
-        # QA (codex, gemini): the README key is path-specific. In another document it neither
-        # selects the file nor stands in for that document's own **Version:** bump.
+        # The README key is path-specific. In another document it neither selects the file
+        # nor stands in for that document's own **Version:** bump.
         self.assertIsNone(guard.version_key("governance/x.md").search(readme))
         other = ("diff --git a/governance/x.md b/governance/x.md\n@@ -3,1 +3,1 @@\n"
                  "-**README Version:** 1\n+**README Version:** 2\n" + body)
         self.assertEqual(guard.offenders(other, {"governance/x.md"}), ["governance/x.md"])
         # A nested README is an ordinary document: only **Version:** is its key.
         self.assertIs(guard.version_key("governance/README.md"), guard.VERSION_LINE)
-        # QA round 2 (codex): the other helpers use the path's own key too.
+        # The other helpers use the path's own key too.
         self.assertTrue(guard.version_line_changed(["+**README Version:** 2"], "README.md"))
         self.assertFalse(guard.version_line_changed(["+**README Version:** 2"], "governance/x.md"))
         self.assertFalse(guard.version_line_changed(["+**Version:** 2"], "README.md"))
@@ -16988,8 +16991,8 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
             ["README.md"])
 
     def test_unbumped_version_guard_main_selects_readme_by_its_key(self) -> None:
-        """P-TODO 3b80 (QA): the hook's main() selects the root README by **README Version:**, so a
-        README body edit with no bump is blocked rather than skipped as unversioned."""
+        """The hook's main() selects the root README by **README Version:**, so a README body edit
+        with no bump is blocked rather than skipped as unversioned."""
         import json
         import subprocess
         import tempfile
@@ -17018,8 +17021,8 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                                 text=True, env=env)
             self.assertEqual(cp.returncode, 2, cp.stdout + cp.stderr)
             self.assertIn("README.md", cp.stderr)
-            # QA round 2 (codex, gemini): a README that also carries a **Version:** line is not
-            # "repaired" by bumping that wrong key; the commit is refused and the file untouched.
+            # A README that also carries a **Version:** line is not "repaired" by bumping that
+            # wrong key; the commit is refused and the file untouched.
             dual = "**Date:** 2026-09-25\\\n**README Version:** 1.0.0\n**Version:** 8.0.0\n\nnew body 2\n"
             (repo / "README.md").write_text(dual)
             git("add", "README.md")
@@ -17029,9 +17032,9 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
             self.assertEqual((repo / "README.md").read_text(), dual)
 
     def test_unbumped_version_guard_declines_readme_before_any_git_call(self) -> None:
-        """3b80 round 3 (codex): a version-independent check that the README decline is the
-        first thing try_auto_bump does (on Python 3.11 the later read raises, which also returns
-        False, so an end-to-end refusal alone does not prove the decline)."""
+        """A version-independent check that the README decline is the first thing try_auto_bump
+        does (on Python 3.11 the later read raises, which also returns False, so an end-to-end
+        refusal alone does not prove the decline)."""
         import importlib.util
         from unittest.mock import Mock
         spec = importlib.util.spec_from_file_location(
@@ -17396,7 +17399,7 @@ class NativePrePushGuardTests(unittest.TestCase):
     def plant_usercustomize(self, home):
         saved = self.env
         # The probe and control need the user site whatever the caller set; the
-        # installed hook runs this suite with PYTHONNOUSERSITE=1 (3b395).
+        # installed hook runs this suite with PYTHONNOUSERSITE=1.
         self.env = {k: v for k, v in saved.items() if k != "PYTHONNOUSERSITE"}
         self.env["HOME"] = str(home)
         try:
@@ -17418,7 +17421,7 @@ class NativePrePushGuardTests(unittest.TestCase):
         return site
 
     def test_usercustomize_probe_ignores_caller_nousersite(self):
-        # 3b395: the push hook's own environment must not break the probe.
+        # The push hook's own environment must not break the probe.
         self.env["PYTHONNOUSERSITE"] = "1"
         home = Path(self.tmp.name) / "fake-home"
         site = self.plant_usercustomize(home)
@@ -17528,19 +17531,20 @@ class NativePrePushGuardTests(unittest.TestCase):
                     hook.write_bytes(installed)
 
     def test_real_commondir_alias(self):
-        # 3b564 round 6 (r5 review W1): a tree whose .git directory has a
-        # commondir file naming this checkout's git directory pushes this
-        # checkout's refs, and git runs the hook in that common directory.
-        # The tracked hook refuses it; at 8f9b4b468 it accepted the alias and
-        # went on to run the alias's own tree. Only the tracked dispatcher is
-        # run here: the installed dispatcher (v7, .claude/skills/corpus-management/tools/install-git-hooks.sh)
+        # A tree whose .git directory has a commondir file naming this
+        # checkout's git directory pushes this checkout's refs, and git
+        # runs the hook in that common directory. The tracked hook refuses
+        # it; in the earlier repository, an earlier version of it accepted
+        # the alias and went on to run the alias's own tree. Only the
+        # tracked dispatcher is run here: the installed dispatcher (v7,
+        # .claude/skills/corpus-management/tools/install-git-hooks.sh)
         # keeps the earlier check, accepts the alias and runs the alias's
         # own tracked hook (a disclosed residual). An alias that links only
         # objects and refs has its own hooks directory, so no hook of this
-        # checkout runs there; a git-new-workdir checkout also links hooks
-        # (r6 review N5), so this checkout's hook runs from it and refuses,
-        # naming that layout (round 7; f0da1931d refused without naming it).
-        # The workdir is emulated (config, refs, objects, info, hooks and
+        # checkout runs there; a git-new-workdir checkout also links hooks,
+        # so this checkout's hook runs from it and refuses, naming that
+        # layout (another earlier version refused without naming it). The
+        # workdir is emulated (config, refs, objects, info, hooks and
         # packed-refs linked): the contrib script is not installed here.
         remote = self.real_remote()
         main = self.root
@@ -17580,10 +17584,10 @@ class NativePrePushGuardTests(unittest.TestCase):
             hook.write_bytes(installed)
 
     def test_reftable_linked_tables_refused(self):
-        # 3b620: a reftable clone whose reftable is a directory but whose
-        # tables.list and tables are symbolic links into another reftable
-        # repository reads that repository's refs; the tracked hook passed it.
-        # An ordinary reftable clone still passes.
+        # A reftable clone whose reftable is a directory but whose tables.list
+        # and tables are symbolic links into another reftable repository reads
+        # that repository's refs; in the earlier repository, the tracked hook
+        # passed it. An ordinary reftable clone still passes.
         main = self.root
         table, alias = Path(self.tmp.name) / "table", Path(self.tmp.name) / "table-alias"
         result = subprocess.run(["git", "clone", "-q", "--ref-format=reftable", str(main), str(table)],
@@ -17605,8 +17609,8 @@ class NativePrePushGuardTests(unittest.TestCase):
                              subprocess.run(["git", "-C", str(table), "rev-parse", "HEAD"], env=self.env,
                                             capture_output=True, text=True, check=True).stdout)
             result = self.push(code=1, remote="fork", url="/other/repo.git")
-            # 3b620 round 4: the walk for symlinks names the first linked
-            # entry (a table sorts before tables.list).
+            # The walk for symlinks names the first linked entry (a table
+            # sorts before tables.list).
             reftable = str((alias / ".git/reftable").resolve())
             self.assertIn("pre-push: refusing " + reftable + "/", result.stderr)
             self.assertIn(": it is a symlink", result.stderr)
@@ -17615,17 +17619,18 @@ class NativePrePushGuardTests(unittest.TestCase):
             self.root = main
 
     def test_real_redirect_variables_main_and_linked(self):
-        # 3b564 round 7 (r6 review E1): with GIT_OBJECT_DIRECTORY naming a
+        # In the earlier repository, with GIT_OBJECT_DIRECTORY naming a
         # clone's objects, git pushed through the installed and tracked hooks
         # while reading that clone's object store; so did
         # GIT_ALTERNATE_OBJECT_DIRECTORIES, GIT_GRAFT_FILE and
         # GIT_SHALLOW_FILE, which git 2.53 exported to no pre-push hook, and
         # GIT_INDEX_FILE naming the clone's index. Each push now refuses in
-        # the tracked hook, naming the variable, and pushes nothing;
-        # f0da1931d pushed all five. GIT_INDEX_FILE naming the checkout's own
-        # index still pushes. GIT_COMMON_DIR is not pushed here: git then
-        # takes config and hooks from that common dir, so no hook of this
-        # checkout runs (LintCommonHelperTests runs the hook with it).
+        # the tracked hook, naming the variable, and pushes nothing, where
+        # the earlier hook pushed all five. GIT_INDEX_FILE naming the
+        # checkout's own index still pushes. GIT_COMMON_DIR is not pushed
+        # here: git then takes config and hooks from that common dir, so no
+        # hook of this checkout runs (LintCommonHelperTests runs the hook
+        # with it).
         remote = self.real_remote()
         clone = Path(self.tmp.name) / "objects-clone"
         self.run_cmd("git", "clone", "-q", str(self.root), str(clone))
@@ -17976,8 +17981,8 @@ class NativePrePushGuardTests(unittest.TestCase):
 class PrePushGuardTests(unittest.TestCase):
     """.claude/skills/corpus-management/tools/pre-push-guard.sh exit-code chain.
 
-    Pins the improvement-log #438/#439 regression class: the guard must
-    propagate a failing runner's exit code (captured from the BARE
+    Pins a regression class seen in the earlier repository: the guard
+    must propagate a failing runner's exit code (captured from the BARE
     command, not an `if ! cmd` test) and must not run the second runner
     after the first fails. The fixture copies the real guard into a temp
     tree beside stub runners, at the shipped layout path
@@ -18057,10 +18062,10 @@ class PrePushGuardTests(unittest.TestCase):
         import subprocess as sp
 
         # capture_output wires the guard's stdout to a PIPE, which the
-        # RM-10 self-defence (PR #620) refuses by design; the
-        # documented override is the sanctioned way to run a deliberate,
-        # judged pipe, which is exactly what this harness capture is. The
-        # refusal path itself is pinned by test_piped_stdout_refused.
+        # RM-10 self-defence refuses by design; the documented override
+        # is the sanctioned way to run a deliberate, judged pipe, which
+        # is exactly what this harness capture is. The refusal path
+        # itself is pinned by test_piped_stdout_refused.
         env = self._guard_env(tmp)
         if allow_pipe:
             env["PRE_PUSH_GUARD_ALLOW_PIPE"] = "1"
@@ -18126,8 +18131,8 @@ class PrePushGuardTests(unittest.TestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_web_check_failure_blocks(self) -> None:
-        # CLW-2/3/4/5/7 r2 (codex MED-NEW-1): the conditional third check propagates its
-        # own non-zero exit; the two runners passing is not sufficient.
+        # The conditional third check propagates its own non-zero exit; the two runners
+        # passing is not sufficient.
         tmp, shutil = self._build_guard_dir(first_rc=0, second_rc=0, web_rc=9)
         try:
             result = self._run_guard(tmp)
@@ -18150,8 +18155,8 @@ class PrePushGuardTests(unittest.TestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_manifest_drift_is_advisory_only(self) -> None:
-        # P-TODO 3b62: reference-manifest drift is reported after the three checks, never
-        # blocking: the guard still exits 0 and says the push is safe.
+        # Reference-manifest drift is reported after the three checks, never blocking:
+        # the guard still exits 0 and says the push is safe.
         tmp, shutil = self._build_guard_dir(first_rc=0, second_rc=0, manifest_rc=1,
                                             manifest_drift_line=True)
         try:
@@ -18207,13 +18212,14 @@ class PrePushGuardTests(unittest.TestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_manifest_builder_internal_error_exits_3(self) -> None:
-        # P-TODO 3b62: build-reference-manifest.py maps an unexpected exception to exit 3, so its
-        # exit 1 means --check DRIFT only (Python's own uncaught-exception exit is also 1).
+        # build-reference-manifest.py maps an unexpected exception to exit 3, so its exit 1 means
+        # --check DRIFT only (Python's own uncaught-exception exit is also 1).
         import subprocess as sp
         import tempfile
         # The crash is injected at resolve_sibling (called inside main), so the test does not
-        # depend on any catalogue shape the generator might learn to tolerate (3b63 made a
-        # titleless entry render cleanly, which this test used to rely on to raise).
+        # depend on any catalogue shape the generator might learn to tolerate (in the earlier
+        # repository, a change made a titleless entry render cleanly, which this test used to
+        # rely on to raise).
         with tempfile.TemporaryDirectory() as td:
             code = (
                 "import sys; sys.path.insert(0, '.claude/skills/corpus-management/tools')\n"
@@ -18240,8 +18246,8 @@ class PrePushGuardTests(unittest.TestCase):
         self.assertNotIn("DRIFT", r.stderr)
 
     def test_piped_stdout_refused(self) -> None:
-        """RM-10 self-defence (PR #620): piped stdout without the
-        override refuses with exit 3 before any runner runs."""
+        """RM-10 self-defence: piped stdout without the override
+        refuses with exit 3 before any runner runs."""
         tmp, shutil = self._build_guard_dir(first_rc=0, second_rc=0)
         try:
             result = self._run_guard(tmp, allow_pipe=False)
@@ -18259,9 +18265,10 @@ class PrePushGuardTests(unittest.TestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_unattestable_tree_fails_closed(self) -> None:
-        """Attestation-soundness (git-add-drop 2b): when `git status` errors
-        (the fixture dir is not a git repo), the guard must FAIL CLOSED (exit 5),
-        not read an empty status as a clean tree. Pins codex's fail-open finding."""
+        """Attestation soundness: when `git status` errors (the fixture dir is not
+        a git repo), the guard must FAIL CLOSED (exit 5), not read an empty status
+        as a clean tree. Pins the fail-open case found in the earlier
+        repository."""
         tmp, shutil = self._build_guard_dir(first_rc=0, second_rc=0)
         try:
             result = self._run_guard(tmp, allow_dirty=False)
@@ -18367,33 +18374,31 @@ class PrePushGuardTests(unittest.TestCase):
 
 
 class NightlySweepStepTests(unittest.TestCase):
-    """The nightly sweep's full-suite steps (ep9qs L2, ep9qg L3).
+    """The nightly sweep's full-suite steps.
 
     Gate 35 does not read nightly-sweep.yml, so this class pins its 3 full-suite
     steps: the whole runner, the gate 36 shard partition check and the web
     generator health check. Each step's run line is pinned; the 2 checks after
     the runner carry ``if: always()`` and the runner step carries no ``if:``, so
     one failure does not hide another and nothing skips the runner. Each pinned
-    step's full key set is pinned too (EP10, ep10qg L4 and ep10qs L2): the runner
-    holds only ``run`` and each check only ``if`` and ``run``, so no pinned step
-    sets ``continue-on-error`` and the runner sets no ``working-directory``. The
-    workflow holds 1 job, ``nightly-sweep``, whose keys are pinned (so it has no
-    job-level ``if``), and each line of its ``jobs:`` block indented less than 6
-    spaces is a 2-space job id or a 4-space key line, so a quoted job key or a space
-    before a colon at job level is a finding (EP12, ep12qx L1, ep12qg L2 and ep12qs
-    L1); its ``on:`` block holds a ``schedule`` trigger with the
-    1 cron ``'0 4 * * *'``. The nightly ``--verify-shards`` count equals the
+    step's full key set is pinned too: the runner holds only ``run`` and each
+    check only ``if`` and ``run``, so no pinned step sets ``continue-on-error``
+    and the runner sets no ``working-directory``. The workflow holds 1 job,
+    ``nightly-sweep``, whose keys are pinned (so it has no job-level ``if``), and
+    each line of its ``jobs:`` block indented less than 6 spaces is a 2-space job
+    id or a 4-space key line, so a quoted job key or a space before a colon at
+    job level is a finding; its ``on:`` block holds a ``schedule`` trigger with
+    the 1 cron ``'0 4 * * *'``. The nightly ``--verify-shards`` count equals the
     pre-push guard's REGRESSION_SHARD_COUNT. The runner step comes before both
-    checks, so a failing check cannot skip the runner (EP11b, ep11qx L1). The
-    workflow's top-level keys are pinned to ``name``, ``on``, ``permissions`` and
-    ``jobs``, so no workflow-level ``defaults`` or ``env`` reaches a step, and each
-    step-body line is a key line, a comment or a line nested under a key whose
-    value is empty or a block scalar indicator, so a quoted key, a space before a
-    colon or a run line continued on the next line is a finding (EP11b, ep11qs L3).
-    test_each_flip_is_caught breaks each of those facts in a copy of the text and
-    asserts that the check reports it; test_check_moved_above_the_runner_is_caught
-    moves each check above the runner and asserts that only the order check
-    reports it.
+    checks, so a failing check cannot skip the runner. The workflow's top-level
+    keys are pinned to ``name``, ``on``, ``permissions`` and ``jobs``, so no
+    workflow-level ``defaults`` or ``env`` reaches a step, and each step-body
+    line is a key line, a comment or a line nested under a key whose value is
+    empty or a block scalar indicator, so a quoted key, a space before a colon or
+    a run line continued on the next line is a finding. test_each_flip_is_caught
+    breaks each of those facts in a copy of the text and asserts that the check
+    reports it; test_check_moved_above_the_runner_is_caught moves each check
+    above the runner and asserts that only the order check reports it.
     """
 
     RUNNER_STEP = "Run full audit programme"
@@ -18472,7 +18477,7 @@ class NightlySweepStepTests(unittest.TestCase):
     def _jobs(nightly: str) -> tuple[dict[str, list[str]], list[str]]:
         # (job id -> the key names of that job (the 4-space keys under a 2-space id in jobs:),
         # each line of jobs: indented less than 6 spaces that is neither a 2-space job id nor
-        # a 4-space key line, such as a quoted key or a space before a colon; EP12).
+        # a 4-space key line, such as a quoted key or a space before a colon).
         jobs: dict[str, list[str]] = {}
         stray: list[str] = []
         current = None
@@ -18618,7 +18623,6 @@ class NightlySweepStepTests(unittest.TestCase):
                  "\nREGRESSION_SHARD_COUNT=7\n",
                  "the nightly --verify-shards count 6 is not the guard's "
                  "REGRESSION_SHARD_COUNT 7"),
-                # EP10 item 5 (ep10qg L4 and ep10qs L2).
                 ("runner continue-on-error", "nightly", self.RUNNER_RUN + "\n",
                  self.RUNNER_RUN + "\n        continue-on-error: true\n",
                  "step 'Run full audit programme' sets continue-on-error"),
@@ -18658,7 +18662,6 @@ class NightlySweepStepTests(unittest.TestCase):
                  "the schedule crons are [], not [\"'0 4 * * *'\"]"),
                 ("cron changed", "nightly", "- cron: '0 4 * * *'", "- cron: '0 4 1 1 *'",
                  "the schedule crons are [\"'0 4 1 1 *'\"], not [\"'0 4 * * *'\"]"),
-                # EP11b item 2 (ep11qs L3).
                 ("workflow defaults", "nightly", "permissions: {}\n",
                  "permissions: {}\n\ndefaults:\n  run:\n    shell: 'true {0}'\n",
                  "the workflow has top-level keys ['name', 'on', 'permissions', 'defaults', "
@@ -18682,8 +18685,7 @@ class NightlySweepStepTests(unittest.TestCase):
                  self.RUNNER_RUN + "\n          ; exit 0\n",
                  "step 'Run full audit programme' has a line that is not a key line: "
                  "'; exit 0'"),
-                # EP12 item 2 (ep12qx L1, ep12qg L2 and ep12qs L1): each quoted or spaced
-                # key form at step level and at job level.
+                # Each quoted or spaced key form at step level and at job level.
                 ("runner double-quoted if", "nightly", self.RUNNER_RUN + "\n",
                  self.RUNNER_RUN + "\n        \"if\": false\n",
                  "step 'Run full audit programme' has a line that is not a key line: "
@@ -18718,8 +18720,8 @@ class NightlySweepStepTests(unittest.TestCase):
                                 f"{label}: {findings!r}")
 
     def test_check_moved_above_the_runner_is_caught(self) -> None:
-        # EP11b item 1 (ep11qx L1): a check moved above the runner keeps every pinned
-        # name, key and line, but its failure would skip the runner, which has no if:.
+        # A check moved above the runner keeps every pinned name, key and line, but
+        # its failure would skip the runner, which has no if:.
         nightly, guard = self._texts()
         runner = f"      - name: {self.RUNNER_STEP}\n        {self.RUNNER_RUN}\n"
         shard = (f"      - name: {self.SHARD_STEP}\n        if: always()\n"
@@ -18735,7 +18737,7 @@ class NightlySweepStepTests(unittest.TestCase):
 
 
 class PrePushGuardFastPathTests(unittest.TestCase):
-    """.claude/skills/corpus-management/tools/pre-push-guard.sh site-only fast path (maintainer directive 2026-11-04).
+    """.claude/skills/corpus-management/tools/pre-push-guard.sh site-only fast path.
 
     A committed fixture repository holds the real guard beside stub runners and
     a stub for every .claude/skills/corpus-management/tools/*.py the guard or a runner gate line names, the web
@@ -19324,7 +19326,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             return
         # The full guard runs every other runner gate, in runner order,
         # without invoking the whole runner, and then gate 36 whole as six
-        # local shards (maintainer decision 2026-11-05 09:08 EST).
+        # local shards.
         self.assertNotIn(".claude/skills/corpus-management/tools/run_all_audits.sh", ran)
         self.assertNotIn(self.REGRESSION_SCRIPT, ran)
         self.assertIn("gate 36 passed as 6 local shards", result.stdout)
@@ -19377,12 +19379,12 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertNotIn(self.REGRESSION_SCRIPT, ran)
 
     def test_full_path_echoes_advisory_lines_from_a_passing_gate(self):
-        # FLIP TABLE (round-2 fix, round-1 WARN): on the FULL path a passing
-        # gate's DUE-SOON lines are echoed, and its WARN and NOTE lines when
-        # the gate prints the runner-echo marker with the guard's per-gate
-        # GRC_RUNNER_ECHO_TOKEN, exactly as .claude/skills/corpus-management/tools/run_all_audits.sh run_gate
-        # echoes them; a gate that does not opt in keeps its WARN lines
-        # hidden, and the marker line itself is never echoed.
+        # FLIP TABLE: on the FULL path a passing gate's DUE-SOON lines are
+        # echoed, and its WARN and NOTE lines when the gate prints the
+        # runner-echo marker with the guard's per-gate GRC_RUNNER_ECHO_TOKEN,
+        # exactly as .claude/skills/corpus-management/tools/run_all_audits.sh
+        # run_gate echoes them; a gate that does not opt in keeps its WARN
+        # lines hidden, and the marker line itself is never echoed.
         (self.root / ".claude/skills/corpus-management/tools" / "fixture-echo.py").write_text(
             "import os\nimport sys\n"
             "with open('ran.log', 'a') as f:\n"
@@ -19425,9 +19427,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertNotIn("DUE-SOON", result.stdout)
 
     def test_no_path_runs_a_store_dependent_list(self):
-        # FLIP TABLE (maintainer decision 2026-11-05 09:08 EST): the reviewed
-        # store-dependent list and its runner are gone; neither guard path
-        # names or runs them.
+        # FLIP TABLE: the store-dependent list and its runner are gone;
+        # neither guard path names or runs them.
         guard = (SKILL_ROOT / "tools" / "pre-push-guard.sh").read_text(encoding="utf-8")
         self.assertNotIn("run-store-dependent-tests", guard)
         self.assertNotIn("store-dependent-tests.txt", guard)
@@ -19442,11 +19443,11 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 self.assertNotIn("store-dependent", result.stdout)
 
     def test_full_guard_runs_gate_36_as_six_isolated_local_shards(self):
-        # FLIP TABLE (round-4 ERROR): each local shard runs in its OWN
-        # temporary detached checkout of the commit being pushed, so one
-        # shard's tests/tmp fixtures are never seen by another; two shards
-        # sharing a working tree (or running in this clone's) fail here.
-        # A passing run removes every checkout and the shard directory.
+        # FLIP TABLE: each local shard runs in its OWN temporary detached
+        # checkout of the commit being pushed, so one shard's tests/tmp
+        # fixtures are never seen by another; two shards sharing a working
+        # tree (or running in this clone's) fail here. A passing run
+        # removes every checkout and the shard directory.
         self.change("ai/policy-fixture.md")
         head = self.git("rev-parse", "HEAD").stdout.strip()
         result, _ran = self.run_guard()
@@ -19484,11 +19485,11 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # FLIP TABLE: each shard checkout's parent links to this clone's own
         # store and siblings, and a relative GRC_STORE is made absolute, so
         # the store is reachable from a shard as it is for the serial run.
-        # Round 6 (claude NOTE): each of the four siblings is a symbolic link
-        # to this clone's own sibling, by its absolute physical path, and
-        # nothing else sits beside a checkout but its log and output files;
-        # the passing run's cleanup removes the links as links, so every
-        # file in the linked store and siblings survives it.
+        # Each of the four siblings is a symbolic link to this clone's own
+        # sibling, by its absolute physical path, and nothing else sits
+        # beside a checkout but its log and output files; the passing run's
+        # cleanup removes the links as links, so every file in the linked
+        # store and siblings survives it.
         parent = Path(self.tmp.name)
         siblings = ("private", "grc_library_private", "grc_library_ref", "grc_library_scratch")
         # With a private store present the guard's install-git-hooks.sh
@@ -19578,12 +19579,12 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         "sys.exit(os.WEXITSTATUS(status) if os.WIFEXITED(status) else 128 + os.WTERMSIG(status))\n")
 
     def test_interrupt_stops_every_shard_group_and_keeps_the_checkouts(self):
-        # FLIP TABLE (round 6, both WARN): SIGINT to a guard running stub
-        # shards stops each shard's own process group (a shard and the
-        # child it started), waits for them, keeps and names every checkout
-        # and log, and exits 130; no later step runs. The guard starts with
-        # INT, TERM and HUP at their defaults, as from a terminal: bash cannot
-        # trap a signal that was ignored when it started.
+        # FLIP TABLE: SIGINT to a guard running stub shards stops each shard's
+        # own process group (a shard and the child it started), waits for
+        # them, keeps and names every checkout and log, and exits 130; no
+        # later step runs. The guard starts with INT, TERM and HUP at their
+        # defaults, as from a terminal: bash cannot trap a signal that was
+        # ignored when it started.
         # Each shard's child holds the release FIFO itself, with its stdin
         # from /dev/null, so its shard's end does not end it. With no group
         # signal at all, the children outlive the run, which the checks of
@@ -19704,17 +19705,16 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             self.assertTrue(Path(log).is_file(), log)
         # FLIP TABLE (leftover report): the interrupt message says what was
         # left and that the next push checks it again, with no removal
-        # command while this run lasts (round 2: a removal command only for
+        # command while this run lasts (a removal command is given only for
         # a finished run); the guard-owner record holds this guard's pid,
         # clone, start time and pid namespace; the next push, once the run
-        # has ended, prints the commands that remove it. Round 10 (codex
-        # WARN 1): the scan of every process of the host behind each of
-        # these reports may reach its bound on a busy host, which a
-        # correctly reported incomplete scan with no removal command says.
-        # So may the WARNING that the left report's alarm ended it
-        # (assert_left_report, which reads the left report from the line
-        # that keeps the checkouts on, not the scan-mode report this run
-        # printed first).
+        # has ended, prints the commands that remove it. The scan of every
+        # process of the host behind each of these reports may reach its
+        # bound on a busy host, which a correctly reported incomplete scan
+        # with no removal command says. So may the WARNING that the left
+        # report's alarm ended it (assert_left_report, which reads the left
+        # report from the line that keeps the checkouts on, not the
+        # scan-mode report this run printed first).
         self.assert_left_report(
             output, None,
             " (nothing was removed; the next push reports it until it is removed):",
@@ -19743,13 +19743,13 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                       "(report only: the report ran no git and started and signalled no "
                       "process; no process of a leftover was stopped or signalled, nothing was "
                       "removed and no git state was changed; the push continues):")
-    # What a REMOVABLE leftover whose directory exists says was read (round
-    # 5, claude NOTE 1 and codex WARN 1: no more than the report reads).
+    # What a REMOVABLE leftover whose directory exists says was read (no
+    # more than the report reads).
     ALL_READ_TEXT = ("every process this /proc shows was read (kernel threads aside: the "
                      "working directory, root directory and open files of each of its threads, "
                      "and its mapped files), and none uses it there")
     # The reason a leftover whose directory exists stays INSPECT while any
-    # process (kernel threads aside) cannot be read (round 3, codex WARN 1).
+    # process (kernel threads aside) cannot be read.
     UNREAD = (r"\d+ process\(es\) could not be read \((\d+) of yours, (\d+) of other users; \d+ "
               r"of them may be privileged\), so whether one uses it is unknown: its mode does "
               r"not exclude one, since a privileged or setuid process, or one handed a "
@@ -19758,27 +19758,25 @@ class PrePushGuardFastPathTests(unittest.TestCase):
     # guard), as on a host where every process /proc shows can be read: a
     # process this user cannot read is taken as one that has exited, except
     # a kernel thread, which stays unreadable, so the report's own exclusion
-    # of kernel threads is exercised. Any other error reading a process
-    # (round 8, claude WARN 1 and codex WARN 1: a process of this user caught
-    # as it exits has lost its working directory and descriptors before it
-    # is a zombie, which raised a plain OSError and made a test that expects
-    # REMOVABLE fail at random) is taken as an exit only when the process is
-    # gone, or when /proc/<pid>/stat, read again, shows its leader gone, a
-    # zombie or dead, or exiting (PF_EXITING, 0x4, in its flags) and the
-    # stat of every one of its threads (/proc/<pid>/task/<tid>/stat) shows
-    # the same (round 9, codex WARN 2 and claude NOTE 1: the leader alone
-    # is a zombie while other threads of the process still run, as the
+    # of kernel threads is exercised. Any other error reading a process (a
+    # process of this user caught as it exits has lost its working directory
+    # and descriptors before it is a zombie, which raised a plain OSError
+    # and made a test that expects REMOVABLE fail at random) is taken as
+    # an exit only when the process is gone, or when /proc/<pid>/stat,
+    # read again, shows its leader gone, a zombie or dead, or exiting
+    # (PF_EXITING, 0x4, in its flags) and the stat of every one of its
+    # threads (/proc/<pid>/task/<tid>/stat) shows the same (the leader
+    # alone is a zombie while other threads of the process still run, as the
     # EXITED_LEADER fixture shows), and /proc/<pid>/task, listed again once
-    # every thread is read, lists the same threads (round 10, claude NOTE
-    # 1: a thread created after the first listing is not in it, so a
-    # changed listing keeps the process unread); otherwise the process
-    # stays one that cannot be read, so a live process the report cannot read
-    # (UNREAD_THREAD), or a live thread of one whose leader has exited, is
-    # still counted. The re-check reads through os.open and os.read, as the
-    # report does, so a prelude can script it. On a host with unreadable
-    # processes a test uses it to check the commands printed once nothing
-    # else stands in the way. Arguments: the code, then the report's own
-    # arguments.
+    # every thread is read, lists the same threads (a thread created after
+    # the first listing is not in it, so a changed listing keeps the process
+    # unread); otherwise the process stays one that cannot be read, so a live
+    # process the report cannot read (UNREAD_THREAD), or a live thread of one
+    # whose leader has exited, is still counted. The re-check reads through
+    # os.open and os.read, as the report does, so a prelude can script it. On
+    # a host with unreadable processes a test uses it to check the commands
+    # printed once nothing else stands in the way. Arguments: the code, then
+    # the report's own arguments.
     ALL_READ = (
         "import contextlib, io, os, sys\n"
         "code = sys.argv.pop(1)\n"
@@ -19851,9 +19849,9 @@ class PrePushGuardFastPathTests(unittest.TestCase):
     # inventory: /proc lists the report itself (which it skips) and the
     # pids FIXTURE_PIDS names (space-separated: the test's own fixture
     # processes) and no other, so what it finds does not depend on what
-    # else runs on the host, nor its scan on how much (round 8; round 9,
-    # codex WARN 1 and claude NOTE 3: for every test that asserts an
-    # outcome through ALL_READ). Every other path is listed as is.
+    # else runs on the host, nor its scan on how much (for every test that
+    # asserts an outcome through ALL_READ). Every other path is listed as
+    # is.
     NO_OTHER_PROCESS = (
         "import os\n"
         "_listdir = os.listdir\n"
@@ -20068,16 +20066,16 @@ class PrePushGuardFastPathTests(unittest.TestCase):
 
     def incomplete_scan(self, text):
         """Whether text, the real guard's report (a scan of every process of
-        the host, which on a busy host can reach its bound before it ends:
-        round 10, codex WARN 1), is a correctly reported incomplete scan,
-        which a test accepts in place of the outcome it expects there. True
-        when text says its scan reached its bound; it must then print no
-        removal command and no REMOVABLE leftover, and list each leftover as
-        INSPECT with the unfinished scan as its first reason, or the test
-        fails. False when text does not say so (a scan that failed
-        included), so the test checks its expected outcome. A test that
-        accepts it keeps its exact outcome and rendering assertions on the
-        report alone, against a deterministic inventory."""
+        the host, which on a busy host can reach its bound before it ends),
+        is a correctly reported incomplete scan, which a test accepts in
+        place of the outcome it expects there. True when text says its scan
+        reached its bound; it must then print no removal command and no
+        REMOVABLE leftover, and list each leftover as INSPECT with the
+        unfinished scan as its first reason, or the test fails. False when
+        text does not say so (a scan that failed included), so the test
+        checks its expected outcome. A test that accepts it keeps its exact
+        outcome and rendering assertions on the report alone, against a
+        deterministic inventory."""
         if not re.search(self.INCOMPLETE_SCAN, text):
             return False
         self.assertEqual(self.leftover_commands(text), [], text)
@@ -20200,13 +20198,12 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # FLIP TABLE (leftover report): what a finished run of this clone
         # left (here two registered checkouts in their shard directory) is
         # REMOVABLE, with the commands that remove it, once every process is
-        # read (round 3, codex WARN 1: on a host with unreadable processes
-        # those alone keep it INSPECT); running them gives a clean start.
-        # The header says the report ran no git and started and signalled
-        # no process (round 5). Round 10 (codex WARN 1): the real guard's
-        # report may be a correctly reported incomplete scan of the host's
-        # processes; the report alone, against a deterministic inventory,
-        # always shows the header and checkouts.
+        # read (on a host with unreadable processes those alone keep it
+        # INSPECT); running them gives a clean start. The header says the
+        # report ran no git and started and signalled no process. The real
+        # guard's report may be a correctly reported incomplete scan of the
+        # host's processes; the report alone, against a deterministic
+        # inventory, always shows the header and checkouts.
         self.change(".web/templates-draft/landing.html")
         root, checkouts = self.make_leftover(2)
         result, _ran = self.run_guard()
@@ -20232,12 +20229,11 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertNotIn("LEFTOVERS", again.stderr)
 
     def test_leftover_report_changes_no_git_state(self):
-        # FLIP TABLE (round 2, claude ERROR 1, agy NOTE 4): the report runs
-        # no git worktree prune, so a guard checkout and an unrelated
-        # checkout whose directories are gone both keep their records; the
-        # guard's is INSPECT (its shard directory is gone, and no run
-        # record beside its git record shows which run made it: round 3,
-        # claude WARN 1), named with what git says, and has no command.
+        # FLIP TABLE: the report runs no git worktree prune, so a guard
+        # checkout and an unrelated checkout whose directories are gone
+        # both keep their records; the guard's is INSPECT (its shard
+        # directory is gone, and no run record beside its git record shows
+        # which run made it), named with what git says, and has no command.
         self.change(".web/templates-draft/landing.html")
         gone, gone_checkouts = self.make_leftover(1)
         admin = self.git("-C", str(gone_checkouts[0]), "rev-parse",
@@ -20253,9 +20249,9 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertNotIn("git worktree prune", result.stderr)
         self.assertNotIn("REMOVABLE", result.stderr)
         self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
-        # Round 10 (codex WARN 1): the real guard's report may be a correctly
-        # reported incomplete scan of the host's processes; the report
-        # alone, against a deterministic inventory, always gives the outcome.
+        # The real guard's report may be a correctly reported incomplete scan
+        # of the host's processes; the report alone, against a deterministic
+        # inventory, always gives the outcome.
         alone = self.report_all_read(inventory=())
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
         for err in self.complete_reports(result.stderr, alone.stdout):
@@ -20268,10 +20264,10 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             self.assertIn("    checkout %s: registered with this clone; git would list it as "
                           "prunable (gitdir file points to non-existent location); its directory "
                           "does not exist\n" % gone_checkouts[0], err)
-            # FLIP TABLE (round 4, codex WARN 3): such a git record, which an
-            # older guard left with no run record, gets the facts known and a
-            # manual inspection procedure ending in the narrow command, marked
-            # NOT PROVED, never REMOVABLE, and given as no removal command.
+            # FLIP TABLE: such a git record, which an older guard left with no
+            # run record, gets the facts known and a manual inspection
+            # procedure ending in the narrow command, marked NOT PROVED, never
+            # REMOVABLE, and given as no removal command.
             block = "\n".join(self.leftover_block(err, gone)) + "\n"
             self.assertIn(
                 "      its git record holds HEAD %s (detached); a commit made there that no "
@@ -20294,19 +20290,19 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertIn("worktree %s\n" % gone_checkouts[0], before)
 
     def test_prunable_checkout_whose_directory_remains_is_not_called_gone(self):
-        # FLIP TABLE (round 2, codex ERROR 1): a registered checkout whose
-        # .git file is gone while its directory remains is one git lists as
-        # prunable; the report says its directory exists, gives git's own
-        # reason, and makes it INSPECT with no command.
+        # FLIP TABLE: a registered checkout whose .git file is gone while
+        # its directory remains is one git lists as prunable; the report
+        # says its directory exists, gives git's own reason, and makes it
+        # INSPECT with no command.
         self.change(".web/templates-draft/landing.html")
         root, checkouts = self.make_leftover(1)
         (checkouts[0] / ".git").unlink()
         result, _ran = self.run_guard()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
-        # Round 10 (codex WARN 1): as in each test of the real guard's
-        # report, a correctly reported incomplete scan is accepted there,
-        # and the report alone always gives the outcome.
+        # As in each test of the real guard's report, a correctly
+        # reported incomplete scan is accepted there, and the report
+        # alone always gives the outcome.
         alone = self.report_all_read(inventory=())
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
         for err in self.complete_reports(result.stderr, alone.stdout):
@@ -20322,9 +20318,9 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                       self.git("worktree", "list", "--porcelain").stdout)
 
     def test_unreadable_checkout_metadata_is_reported_never_dropped(self):
-        # FLIP TABLE (round 2, codex ERROR 2, claude NOTE 5): a checkout
-        # whose .git cannot be read is reported, with or without a
-        # guard-owner record, and never given a removal command.
+        # FLIP TABLE: a checkout whose .git cannot be read is reported,
+        # with or without a guard-owner record, and never given a
+        # removal command.
         if os.geteuid() == 0:
             self.skipTest("root reads a mode-000 file")
         self.change(".web/templates-draft/landing.html")
@@ -20346,8 +20342,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                 self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
                 self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
-                # Round 10 (codex WARN 1): the real guard's report or a
-                # correctly reported incomplete scan; the report alone.
+                # The real guard's report or a correctly reported
+                # incomplete scan; the report alone.
                 for err in self.complete_reports(result.stderr, alone.stdout):
                     self.assert_inspect(err, root, re.escape("checkout %s is not proven to be "
                                                              "a checkout of this clone"
@@ -20358,10 +20354,10 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 shutil.rmtree(root)
 
     def test_mixed_ownership_gets_no_removal_command(self):
-        # FLIP TABLE (round 2, codex ERROR 3): a shard directory of this
-        # clone that also holds another repository's checkout, or a file the
-        # guard does not make, is INSPECT: one checkout of this clone does
-        # not license rm -rf of the rest.
+        # FLIP TABLE: a shard directory of this clone that also holds
+        # another repository's checkout, or a file the guard does not make,
+        # is INSPECT: one checkout of this clone does not license rm -rf of
+        # the rest.
         self.change(".web/templates-draft/landing.html")
         other = Path(self.tmp.name) / "other" / "repo"
         other.mkdir(parents=True)
@@ -20375,9 +20371,9 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         foreign = root / "shard-2" / "repo"
         subprocess.run(["git", "worktree", "add", "--detach", str(foreign), "HEAD"], cwd=other,
                        env=self.env, check=True, capture_output=True, timeout=30)
-        # Round 10 (codex WARN 1): each outcome is checked on the real
-        # guard's report, unless it is a correctly reported incomplete scan
-        # of the host's processes, and on the report alone.
+        # Each outcome is checked on the real guard's report, unless it is
+        # a correctly reported incomplete scan of the host's processes, and
+        # on the report alone.
         def reports():
             result, _ran = self.run_guard()
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -20559,13 +20555,12 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(helper.wait(timeout=30), 0)
 
     def test_live_or_unknown_run_gets_no_removal_command(self):
-        # FLIP TABLE (round 2, claude WARN 2, agy ERROR 1, codex ERROR 4):
-        # a run whose state is unknown (another pid namespace, or a live pid
-        # with no start time recorded) is INSPECT with no command, however
-        # idle its directory looks. So is a run of another kernel whose
-        # machine id is not this one (round 4, claude WARN 1, for the
-        # guard-owner record too: its pid means nothing here), even as on a
-        # host where every process is read.
+        # FLIP TABLE: a run whose state is unknown (another pid namespace,
+        # or a live pid with no start time recorded) is INSPECT with no
+        # command, however idle its directory looks. So is a run of another
+        # kernel whose machine id is not this one (for the guard-owner
+        # record too: its pid means nothing here), even as on a host where
+        # every process is read.
         self.change(".web/templates-draft/landing.html")
         root, checkouts = self.make_leftover(1)
         # The live process is live_helper's, isolated from this process's
@@ -20593,18 +20588,18 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
                 alone = self.report_all_read(inventory=(helper.pid,))
                 self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
-                # Round 10 (codex WARN 1): the real guard's report or a
-                # correctly reported incomplete scan; the report alone.
+                # The real guard's report or a correctly reported
+                # incomplete scan; the report alone.
                 for err in self.complete_reports(result.stderr, alone.stdout):
                     self.assert_inspect(err, root, reason)
         self.assertIsNone(helper.poll(), "the report stopped a process")
 
     def test_run_identity_is_its_start_time_not_its_command_line(self):
-        # FLIP TABLE (round 2, agy WARN 2): whether the run that made a
-        # directory still runs is read from its pid and start time, not its
-        # command line: a live process with the recorded start time is that
-        # run (INSPECT), whatever it runs, and the same pid with another
-        # start time is a reused pid, so the run has ended (REMOVABLE).
+        # FLIP TABLE: whether the run that made a directory still runs is
+        # read from its pid and start time, not its command line: a live
+        # process with the recorded start time is that run (INSPECT),
+        # whatever it runs, and the same pid with another start time is a
+        # reused pid, so the run has ended (REMOVABLE).
         self.change(".web/templates-draft/landing.html")
         root, checkouts = self.make_leftover(1)
         helper = self.live_helper()
@@ -20615,8 +20610,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
         alone = self.report_all_read(inventory=(helper.pid,))
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
-        # Round 10 (codex WARN 1): the real guard's report or a correctly
-        # reported incomplete scan; the report alone.
+        # The real guard's report or a correctly reported incomplete
+        # scan; the report alone.
         for err in self.complete_reports(result.stderr, alone.stdout):
             self.assert_inspect(err, root, "guard run pid %d is still running$" % helper.pid)
         self.write_owner(root, pid=helper.pid, start=str(int(start) + 1))
@@ -20676,8 +20671,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
         alone = self.report_all_read(inventory=(helper.pid,))
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
-        # Round 10 (codex WARN 1): the real guard's report or a correctly
-        # reported incomplete scan; the report alone.
+        # The real guard's report or a correctly reported incomplete
+        # scan; the report alone.
         for err in self.complete_reports(result.stderr, alone.stdout):
             self.assert_inspect_in_use(err, root, helper.pid)
         self.assertIsNone(helper.poll(), "the report stopped a process")
@@ -20696,17 +20691,17 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertIn("    used by pid %d: " % pid, err)
         self.assertIn("(working directory)\n", err)
         self.assertNotIn("kill", err)
-        # FLIP TABLE (round 5, codex WARN 3): a leftover with a detected
-        # user gets a clearly conditional, NOT PROVED manual stop
-        # procedure: recheck the pid's start time and command line (both
-        # printed) just before any signal, never for this guard, the
-        # processes that started this push, a pre-push guard or a live run,
-        # then push again and remove only what that report marks
-        # REMOVABLE. It is never a signal command (no line of it is one).
-        # Round 7 (claude NOTE 1): it claims labels only for the guards the
-        # report identified, since a run with no run record it read (a
-        # fast-path run writes none) is not labelled (before, it said each
-        # such process was "labelled above").
+        # FLIP TABLE: a leftover with a detected user gets a clearly
+        # conditional, NOT PROVED manual stop procedure: recheck the
+        # pid's start time and command line (both printed) just before
+        # any signal, never for this guard, the processes that started
+        # this push, a pre-push guard or a live run, then push again and
+        # remove only what that report marks REMOVABLE. It is never a
+        # signal command (no line of it is one). It claims labels only
+        # for the guards the report identified, since a run with no run
+        # record it read (a fast-path run writes none) is not labelled
+        # (in the earlier repository it said each such process was
+        # "labelled above").
         start = self.start_time(pid)
         block = "\n".join(self.leftover_block(err, root)) + "\n"
         self.assertNotIn("each labelled above", block)
@@ -20744,9 +20739,9 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                    "sys.stdin.buffer.read()\n")
 
     def test_open_file_inside_a_leftover_is_in_use(self):
-        # FLIP TABLE (round 2, claude WARN 3): a process whose working
-        # directory is elsewhere but which holds a file inside a leftover
-        # open is using it, so the leftover is INSPECT.
+        # FLIP TABLE: a process whose working directory is elsewhere but
+        # which holds a file inside a leftover open is using it, so the
+        # leftover is INSPECT.
         self.change(".web/templates-draft/landing.html")
         root, checkouts = self.make_leftover(1)
         held = checkouts[0] / "README.md"
@@ -20759,8 +20754,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
         alone = self.report_all_read(inventory=(helper.pid,))
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
-        # Round 10 (codex WARN 1): the real guard's report or a correctly
-        # reported incomplete scan; the report alone.
+        # The real guard's report or a correctly reported incomplete
+        # scan; the report alone.
         for err in self.complete_reports(result.stderr, alone.stdout):
             self.assert_inspect(err, root, re.escape("1 process(es) use it, listed below"))
             self.assertRegex(err, r"(?m)^    used by pid %d: .* \(open file\)$" % helper.pid)
@@ -20789,16 +20784,16 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         "ctypes.CDLL(None).pthread_exit(None)\n")
 
     def test_thread_of_an_exited_leader_is_read(self):
-        # FLIP TABLE (round 4, claude WARN 2 and codex WARN 1, confirmed by
-        # claude's probe): when the thread-group leader of a process has
-        # exited (pthread_exit) while another thread runs, the leader's
-        # /proc entries (working directory, root, descriptors, mappings,
-        # command line) are gone, but the process is not: the report reads
-        # every thread, so a thread whose working directory is inside a
-        # leftover makes it INSPECT, listed with its command line, even as
-        # on a host where every process is read (before, the process was
-        # skipped as gone). The fixture is a live_process, started outside
-        # the leftover.
+        # FLIP TABLE (confirmed by a probe in the earlier repository): when
+        # the thread-group leader of a process has exited (pthread_exit)
+        # while another thread runs, the leader's /proc entries (working
+        # directory, root, descriptors, mappings, command line) are gone,
+        # but the process is not: the report reads every thread, so a
+        # thread whose working directory is inside a leftover makes it
+        # INSPECT, listed with its command line, even as on a host where
+        # every process is read (in the earlier repository the process was
+        # skipped as gone).
+        # The fixture is a live_process, started outside the leftover.
         self.change(".web/templates-draft/landing.html")
         root, checkouts = self.make_leftover(1)
         helper, pid, _tid = self.start_exited_leader(checkouts[0])
@@ -20810,8 +20805,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
         alone = self.report_all_read(inventory=(pid,))
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
-        # Round 10 (codex WARN 1): the real guard's report or a correctly
-        # reported incomplete scan; the report alone.
+        # The real guard's report or a correctly reported incomplete
+        # scan; the report alone.
         for err in self.complete_reports(result.stderr, alone.stdout):
             self.assert_inspect(err, root, re.escape("1 process(es) use it, listed below"))
             self.assertRegex(err, used)
@@ -20833,17 +20828,17 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         return helper, pid, tids[0]
 
     def test_all_read_harness_keeps_a_live_thread_of_an_exited_leader_unread(self):
-        # FLIP TABLE (round 9, codex WARN 2 and claude NOTE 1): the ALL_READ
-        # harness takes a process whose read raised an OSError that is not
-        # a permission error as exited only when every one of its threads
-        # has ended, not when its leader alone has. Here the leader of the
-        # EXITED_LEADER fixture has exited (a zombie, two threads) while its
-        # surviving thread runs in a leftover, and reading the working
-        # directory of that thread fails with EIO (UNREAD_THREAD): the
-        # process stays one that cannot be read (INSPECT, counted as
-        # yours), where before the zombie leader made the harness drop it
-        # as exited and the leftover was REMOVABLE. Control: without the
-        # error the thread is read and listed.
+        # FLIP TABLE: the ALL_READ harness takes a process whose read raised
+        # an OSError that is not a permission error as exited only when
+        # every one of its threads has ended, not when its leader alone has.
+        # Here the leader of the EXITED_LEADER fixture has exited (a zombie,
+        # two threads) while its surviving thread runs in a leftover, and
+        # reading the working directory of that thread fails with EIO
+        # (UNREAD_THREAD): the process stays one that cannot be read
+        # (INSPECT, counted as yours), where in the earlier repository the
+        # zombie leader made the harness drop it as exited and the leftover
+        # was REMOVABLE.
+        # Control: without the error the thread is read and listed.
         root, checkouts = self.make_leftover(1)
         helper, pid, tid = self.start_exited_leader(checkouts[0])
         inventory = (pid,)
@@ -20893,16 +20888,16 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         "os.readlink = _unread_readlink\n")
 
     def test_thread_with_its_own_working_directory_is_read_under_a_live_leader(self):
-        # FLIP TABLE (round 5, codex WARN 1 and claude NOTE 1): every thread
-        # of a process is read for its own working directory, root and
-        # descriptors, not only when the leader has exited: a thread that
-        # has unshared its file-system state and moved into a leftover,
-        # while its leader runs elsewhere, makes it INSPECT, listed, even
-        # as on a host where every process is read (before, the leader was
-        # read alone and the leftover was REMOVABLE). A thread whose state
-        # cannot be read makes its process unreadable, so the leftover is
-        # INSPECT for that, not REMOVABLE. The fixture is a live_process,
-        # started outside the leftover.
+        # FLIP TABLE: every thread of a process is read for its own working
+        # directory, root and descriptors, not only when the leader has
+        # exited: a thread that has unshared its file-system state and moved
+        # into a leftover, while its leader runs elsewhere, makes it
+        # INSPECT, listed, even as on a host where every process is read
+        # (in the earlier repository the leader was read alone and the
+        # leftover was REMOVABLE). A thread whose state cannot be read makes
+        # its process unreadable, so the leftover is INSPECT for that, not
+        # REMOVABLE.
+        # The fixture is a live_process, started outside the leftover.
         self.change(".web/templates-draft/landing.html")
         root, checkouts = self.make_leftover(1)
         helper, pid, tid = self.start_own_cwd_thread(checkouts[0])
@@ -20914,8 +20909,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
         alone = self.report_all_read(inventory=(pid,))
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
-        # Round 10 (codex WARN 1): the real guard's report or a correctly
-        # reported incomplete scan; the report alone.
+        # The real guard's report or a correctly reported incomplete
+        # scan; the report alone.
         for err in self.complete_reports(result.stderr, alone.stdout):
             self.assert_inspect(err, root, re.escape("1 process(es) use it, listed below"))
             self.assertRegex(err, used)
@@ -20929,15 +20924,15 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertIsNone(helper.poll(), "the report stopped a process")
 
     # A prelude for the report that scripts what /proc shows of one live
-    # process as it exits (round 8): reading the link FAKE_LINK fails with
-    # errno FAKE_LINK_ERRNO (2 is a missing entry, 5 is EIO, not a
-    # permission error), and each file FAKE_STAT names (space-separated:
-    # round 9), opened through os.open (as the report and the ALL_READ
-    # harness read a stat), holds the real one changed as FAKE_STAT_HOW
-    # says: "gone" (no such file), "zombie" (state Z), "exiting"
-    # (PF_EXITING, 0x4, set in its flags) or "live" (as read). The file
-    # FAKE_MAPS, opened through os.open (as the report reads mappings),
-    # holds FAKE_MAPS_TEXT, by default nothing (round 9).
+    # process as it exits: reading the link FAKE_LINK fails with errno
+    # FAKE_LINK_ERRNO (2 is a missing entry, 5 is EIO, not a permission
+    # error), and each file FAKE_STAT names (space-separated), opened
+    # through os.open (as the report and the ALL_READ harness read a
+    # stat), holds the real one changed as FAKE_STAT_HOW says: "gone" (no
+    # such file), "zombie" (state Z), "exiting" (PF_EXITING, 0x4, set in
+    # its flags) or "live" (as read). The file FAKE_MAPS, opened through
+    # os.open (as the report reads mappings), holds FAKE_MAPS_TEXT, by
+    # default nothing.
     SCRIPTED_EXIT = (
         "import os\n"
         "_readlink, _open = os.readlink, os.open\n"
@@ -21003,24 +20998,22 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertGreater(int(counted.group(1)), 0, out)
 
     def test_all_read_harness_takes_a_process_as_exited_only_when_it_is_exiting(self):
-        # FLIP TABLE (round 8, claude WARN 1 and codex WARN 1; agy gives the
-        # same cause): the ALL_READ harness takes a process whose read
-        # raised an OSError that is not a permission error (here EIO reading
-        # its working directory, scripted) as one that has exited only when
-        # its /proc/<pid>/stat, read again, shows it gone, a zombie or
-        # exiting (PF_EXITING), each scripted: the leftover is then
-        # REMOVABLE, where before the process was counted unread and the
+        # FLIP TABLE: the ALL_READ harness takes a process whose read raised
+        # an OSError that is not a permission error (here EIO reading its
+        # working directory, scripted) as one that has exited only when its
+        # /proc/<pid>/stat, read again, shows it gone, a zombie or exiting
+        # (PF_EXITING), each scripted: the leftover is then REMOVABLE, where
+        # in the earlier repository the process was counted unread and the
         # leftover was INSPECT (as a process of this user caught as it exits
-        # made it, at random). Round 9 (codex WARN 2 and claude NOTE 1): the
-        # stat of every thread is scripted too, since the harness takes a
-        # process as exited only when each of its threads has ended.
-        # Controls: the same error on a live process keeps it one that
-        # cannot be read (INSPECT, counted as yours), and so does the same
-        # error on a process whose leader alone is scripted a zombie while
-        # its other thread is live (before round 9, the harness took that
-        # process as exited); so the harness ignores no error of a process
-        # any thread of which is live (scripted here; the EXITED_LEADER
-        # fixture checks it on a real exited leader).
+        # made it, at random). The stat of every thread is scripted too,
+        # since the harness takes a process as exited only when each of its
+        # threads has ended. Controls: the same error on a live process
+        # keeps it one that cannot be read (INSPECT, counted as yours), and
+        # so does the same error on a process whose leader alone is scripted
+        # a zombie while its other thread is live (in the earlier repository
+        # the harness took that process as exited); so the harness ignores
+        # no error of a process any thread of which is live (scripted here;
+        # the EXITED_LEADER fixture checks it on a real exited leader).
         root, checkouts = self.make_leftover(1)
         helper, pid, tid = self.start_own_cwd_thread(self.tmp.name)
         leader = "/proc/%d/stat /proc/%d/task/%d/stat" % (pid, pid, pid)
@@ -21045,11 +21038,11 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertIsNone(helper.poll(), "the report stopped a process")
 
     # A prelude for the report that scripts how /proc lists the threads of
-    # one process (round 10): the first listing of the directory FAKE_TASK
-    # shows its threads as they are, and each later one also shows the
-    # threads FAKE_TASK_NEW names (space-separated), as when a thread is
-    # created after the first listing. Each listing is noted, its names
-    # sorted, as one line of the file FAKE_TASK_LOG.
+    # one process: the first listing of the directory FAKE_TASK shows its
+    # threads as they are, and each later one also shows the threads
+    # FAKE_TASK_NEW names (space-separated), as when a thread is created
+    # after the first listing. Each listing is noted, its names sorted, as
+    # one line of the file FAKE_TASK_LOG.
     SCRIPTED_TASKS = (
         "import os\n"
         "_task_listdir = os.listdir\n"
@@ -21067,20 +21060,20 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         "os.listdir = _scripted_listdir\n")
 
     def test_all_read_harness_keeps_a_process_whose_threads_change_unread(self):
-        # FLIP TABLE (round 10, claude NOTE 1): the ALL_READ harness lists
-        # the threads of a process again once it has read the stat of each,
-        # and takes the process as exited only when both listings are the
-        # same and every thread has ended, since a thread created after the
-        # first listing is not read. Here a live process (OWN_CWD_THREAD,
-        # a live_process, started outside the leftover) has reading its
-        # working directory fail with EIO, and the stat of its leader and of
-        # each of its threads scripted exiting. When the second listing of
-        # its threads also shows a thread the first did not (scripted), the
-        # process stays one that cannot be read (INSPECT, counted as yours),
-        # where with one listing the harness took it as exited and the
-        # leftover was REMOVABLE. Control: with the same threads in both
-        # listings it is taken as exited (REMOVABLE). The log shows that
-        # each run listed the threads twice, and what each listing showed.
+        # FLIP TABLE: the ALL_READ harness lists the threads of a process
+        # again once it has read the stat of each, and takes the process as
+        # exited only when both listings are the same and every thread has
+        # ended, since a thread created after the first listing is not read.
+        # Here a live process (OWN_CWD_THREAD, a live_process, started
+        # outside the leftover) has reading its working directory fail with
+        # EIO, and the stat of its leader and of each of its threads
+        # scripted exiting. When the second listing of its threads also
+        # shows a thread the first did not (scripted), the process stays one
+        # that cannot be read (INSPECT, counted as yours), where with one
+        # listing the harness took it as exited and the leftover was
+        # REMOVABLE. Control: with the same threads in both listings it is
+        # taken as exited (REMOVABLE). The log shows that each run listed
+        # the threads twice, and what each listing showed.
         root, checkouts = self.make_leftover(1)
         helper, pid, tid = self.start_own_cwd_thread(self.tmp.name)
         every = "/proc/%d/stat /proc/%d/task/%d/stat /proc/%d/task/%d/stat" % (
@@ -21109,18 +21102,17 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertIsNone(helper.poll(), "the report stopped a process")
 
     def test_thread_whose_entries_go_while_it_exits_holds_nothing(self):
-        # FLIP TABLE (round 8, claude WARN 1, its optional part, taken): the
-        # report itself counts a thread whose entries are found missing as
-        # read when its stat then shows it exiting (PF_EXITING), though not
-        # yet a zombie: here the second thread of a live process, whose
-        # working directory is scripted missing and its stat exiting. The
-        # leftover is REMOVABLE, where before the process could not be read
-        # (INSPECT); the ALL_READ harness cannot do this, since the leader
-        # it reads again is live. Controls: the same missing entry on a
-        # thread that is not exiting keeps the process one that cannot be
-        # read; and an exiting thread whose entries are all present is still
-        # read, so one whose working directory is in the leftover makes it
-        # INSPECT, listed.
+        # FLIP TABLE: the report itself counts a thread whose entries are
+        # found missing as read when its stat then shows it exiting
+        # (PF_EXITING), though not yet a zombie: here the second thread of a
+        # live process, whose working directory is scripted missing and its
+        # stat exiting. The leftover is REMOVABLE, where in the earlier
+        # repository the process could not be read (INSPECT); the ALL_READ
+        # harness cannot do this, since the leader it reads again is live.
+        # Controls: the same missing entry on a thread that is not exiting
+        # keeps the process one that cannot be read; and an exiting thread
+        # whose entries are all present is still read, so one whose working
+        # directory is in the leftover makes it INSPECT, listed.
         root, checkouts = self.make_leftover(1)
         helper, pid, tid = self.start_own_cwd_thread(self.tmp.name)
         scripted = dict(FAKE_LINK="/proc/%d/task/%d/cwd" % (pid, tid), FAKE_LINK_ERRNO="2",
@@ -21169,17 +21161,18 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         "sys.stdin.buffer.read()\n")
 
     def test_leader_with_no_mapping_has_the_mappings_of_every_thread_read(self):
-        # FLIP TABLE (round 9, claude NOTE 2): the report reads the mappings
-        # of every thread of a process when its leader, read whole, showed
-        # no mapping or is exiting (PF_EXITING) while other threads run, as
-        # a leader caught exiting can be read. Here a live process
-        # (MAPPED_ONLY, a live_process, started outside the leftover) uses
-        # a leftover only through a mapping of a file in it, and has a
-        # second thread. With its leader's mappings scripted empty, or its
-        # leader's stat scripted exiting and its mappings scripted to one
-        # mapping elsewhere, the mapping is still found through the other
-        # thread: INSPECT, listed as a mapped file (before, the mappings of
-        # the leader alone were read and the leftover was REMOVABLE).
+        # FLIP TABLE: the report reads the mappings of every thread of a
+        # process when its leader, read whole, showed no mapping or is
+        # exiting (PF_EXITING) while other threads run, as a leader caught
+        # exiting can be read. Here a live process (MAPPED_ONLY, a
+        # live_process, started outside the leftover) uses a leftover only
+        # through a mapping of a file in it, and has a second thread. With
+        # its leader's mappings scripted empty, or its leader's stat
+        # scripted exiting and its mappings scripted to one mapping
+        # elsewhere, the mapping is still found through the other thread:
+        # INSPECT, listed as a mapped file (in the earlier repository the
+        # mappings of the leader alone were read and the leftover was
+        # REMOVABLE).
         # Control: read as it is, the leader's own mappings show it.
         root, checkouts = self.make_leftover(1)
         held = checkouts[0] / "README.md"
@@ -21215,16 +21208,15 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                      "sys.stdin.buffer.read()")
 
     def test_fixture_inventory_lists_only_the_fixture_processes(self):
-        # FLIP TABLE (round 9, codex WARN 1 and claude NOTE 3): a test that
-        # asserts an outcome through ALL_READ gives the report a
-        # deterministic process inventory, its own fixture processes and
-        # the report itself (NO_OTHER_PROCESS with FIXTURE_PIDS), so neither
-        # another process of the host nor how long a scan of every process
-        # takes decides it. Here two processes (each a live_process,
-        # started outside the leftover) move into a leftover: with one of
-        # them in the inventory, it alone is listed (INSPECT); with neither,
-        # the leftover is REMOVABLE with its commands (a scan of every
-        # process of the host would list both).
+        # FLIP TABLE: a test that asserts an outcome through ALL_READ gives
+        # the report a deterministic process inventory, its own fixture
+        # processes and the report itself (NO_OTHER_PROCESS with
+        # FIXTURE_PIDS), so neither another process of the host nor how long
+        # a scan of every process takes decides it. Here two processes (each
+        # a live_process, started outside the leftover) move into a
+        # leftover: with one of them in the inventory, it alone is listed
+        # (INSPECT); with neither, the leftover is REMOVABLE with its
+        # commands (a scan of every process of the host would list both).
         root, checkouts = self.make_leftover(1)
         started = []
         for _ in range(2):
@@ -21297,28 +21289,26 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                     "sys.stdin.buffer.read()\n")
 
     def test_unreadable_process_blocks_removal_whoever_owns_it(self):
-        # FLIP TABLE (round 3, codex WARN 1; round 2, claude NOTE 8, gap 3):
-        # a process that cannot be read leaves whether a leftover is in use
-        # unknown, so it is INSPECT, whoever owns that process and whatever
-        # the directory's mode (0700 here): a process of another user, root
-        # included, no longer lets the report print a removal command. Only
-        # kernel threads are set aside: as on a host where every other
-        # process is read (report_all_read, which leaves kernel threads
-        # unreadable), it is REMOVABLE. A process of this user made
-        # non-dumpable (as ssh-agent and gpg-agent make themselves: round 3,
-        # claude NOTE 2, confirmed by probe) blocks it too. The report alone
-        # reads a deterministic inventory (round 9, codex WARN 1 and claude
-        # NOTE 3): no fixture process, plus kthreadd (pid 2) where /proc
-        # shows it as a kernel thread, which never exits. The report sets a
-        # kernel thread aside only when reading it fails, so this case
-        # exercises that exclusion only where reading /proc/2/cwd is
-        # refused, as for a user who is not root; elsewhere (round 10,
-        # claude NOTE 2: root reads it, so nothing is set aside) the case is
-        # skipped, saying why, and the rest of the test runs. The real
-        # guard's report may be a correctly reported incomplete scan of the
-        # host's processes (round 10, codex WARN 1); the non-dumpable
-        # process is also checked by the report alone, against an inventory
-        # of that process only.
+        # FLIP TABLE: a process that cannot be read leaves whether a
+        # leftover is in use unknown, so it is INSPECT, whoever owns that
+        # process and whatever the directory's mode (0700 here): a process
+        # of another user, root included, no longer lets the report print a
+        # removal command. Only kernel threads are set aside: as on a host
+        # where every other process is read (report_all_read, which leaves
+        # kernel threads unreadable), it is REMOVABLE. A process of this
+        # user made non-dumpable (as ssh-agent and gpg-agent make
+        # themselves, confirmed by a probe in the earlier repository) blocks
+        # it too. The report alone reads a deterministic inventory: no
+        # fixture process, plus kthreadd (pid 2) where /proc shows it as a
+        # kernel thread, which never exits. The report sets a kernel thread
+        # aside only when reading it fails, so this case exercises that
+        # exclusion only where reading /proc/2/cwd is refused, as for a user
+        # who is not root; elsewhere (root reads it, so nothing is set
+        # aside) the case is skipped, saying why, and the rest of the test
+        # runs. The real guard's report may be a correctly reported
+        # incomplete scan of the host's processes; the non-dumpable process
+        # is also checked by the report alone, against an inventory of that
+        # process only.
         self.change(".web/templates-draft/landing.html")
         root, checkouts = self.make_leftover(1)
         self.assertEqual(root.stat().st_mode & 0o7777, 0o700)
@@ -21386,7 +21376,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 self.assertGreater(int(counted.group(1)), 0, err)
 
     # The word kill with no letter on either side: a printed kill command
-    # matches, a path through .claude/skills/ does not (chunk T2d).
+    # matches, a path through .claude/skills/ does not.
     KILL_WORD = re.compile(r"(?<![A-Za-z])kill(?![A-Za-z])")
 
     def assert_no_kill_word(self, text):
@@ -21396,10 +21386,10 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertNotRegex(text, self.KILL_WORD, text)
 
     def test_push_from_inside_a_kept_checkout_lists_itself_and_no_command(self):
-        # FLIP TABLE (round 2, claude NOTE 6, confirmed by probe): a push
-        # run from inside a kept checkout says so, labels its own guard and
-        # the shell that started it among the processes using it, and
-        # prints no command to stop them or remove it.
+        # FLIP TABLE (confirmed by a probe in the earlier repository): a
+        # push run from inside a kept checkout says so, labels its own
+        # guard and the shell that started it among the processes using it,
+        # and prints no command to stop them or remove it.
         self.change(".web/templates-draft/landing.html")
         root, checkouts = self.make_leftover(1)
         shell = subprocess.Popen(["bash", "-c", "bash .claude/skills/corpus-management/tools/pre-push-guard.sh; exit $?"],
@@ -21409,11 +21399,11 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(shell.returncode, 0, out + err)
         self.assert_no_kill_word(err)
         self.assertEqual(self.leftover_commands(err), [], err)
-        # Round 10 (codex WARN 1): the real guard's report may be a
-        # correctly reported incomplete scan of the host's processes. The
-        # report alone, run from the same checkout against an empty
-        # inventory, always says the push runs inside it; only the real
-        # guard can label itself and the shell that started it.
+        # The real guard's report may be a correctly reported incomplete
+        # scan of the host's processes. The report alone, run from the
+        # same checkout against an empty inventory, always says the push
+        # runs inside it; only the real guard can label itself and the
+        # shell that started it.
         alone = self.report_all_read(inventory=(), cwd=checkouts[0])
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
         self.assert_no_kill_word(alone.stdout)
@@ -21424,8 +21414,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             self.assertRegex(err, r"(?m)^    used by pid %d \(started this push\): " % shell.pid)
             self.assertRegex(err, r"(?m)^    used by pid \d+ \(this guard\): bash "
                                   r".claude/skills/corpus-management/tools/pre-push-guard\.sh ")
-            # No stop procedure for this guard or what started this push
-            # (round 5, codex WARN 3).
+            # No stop procedure for this guard or what started this push.
             self.assertIn("    no stop procedure: each process using it is this guard, started "
                           "this push, is a pre-push guard or was started by one\n", err)
         self.assertNotIn("NOT PROVED, so no stop command", err)
@@ -21455,21 +21444,20 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         return r"(?m)^    used by pid %d%s: \S" % (pid, re.escape(" (%s)" % label) if label else "")
 
     def test_process_started_by_a_pre_push_guard_gets_no_stop_procedure(self):
-        # FLIP TABLE (round 5, codex WARN 3; round 6, W1 of all three
-        # reviews): a guard is known by its identity, not its command line.
-        # A stand-in guard run (a script run as a live_process, standing in
-        # for a live run of the guard using another run's leftover) writes
-        # a run record with its own pid and start time in the guard-owner
-        # record of a shard directory of another clone (read before that
-        # directory is set aside as not this clone's), moves into a
-        # leftover and starts a child there: it is labelled a pre-push
-        # guard, its child is labelled as started by one, and neither gets
-        # a stop procedure, even where the run that made the leftover has
-        # ended, as on a host where every process is read. With a start
-        # time that is not its own in the record, the same stand-in is no
-        # guard: neither is labelled, and both get the NOT PROVED stop
-        # procedure. The script is named pre-push-guard.sh in both cases,
-        # so its name decides nothing.
+        # FLIP TABLE: a guard is known by its identity, not its command
+        # line. A stand-in guard run (a script run as a live_process,
+        # standing in for a live run of the guard using another run's
+        # leftover) writes a run record with its own pid and start time in
+        # the guard-owner record of a shard directory of another clone
+        # (read before that directory is set aside as not this clone's),
+        # moves into a leftover and starts a child there: it is labelled a
+        # pre-push guard, its child is labelled as started by one, and
+        # neither gets a stop procedure, even where the run that made the
+        # leftover has ended, as on a host where every process is read.
+        # With a start time that is not its own in the record, the same
+        # stand-in is no guard: neither is labelled, and both get the NOT
+        # PROVED stop procedure. The script is named pre-push-guard.sh in
+        # both cases, so its name decides nothing.
         roots, pids, helpers = {}, {}, []
         script = Path(self.tmp.name) / "other-guard" / "pre-push-guard.sh"
         script.parent.mkdir()
@@ -21541,7 +21529,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
 
     # The label of a process whose ancestry the report could not establish
     # (its own start time or a parent unread, or a walk that is not
-    # consistent: round 8, claude NOTE 1 and codex NOTE 1).
+    # consistent).
     UNSURE_ANCESTRY = ("whether a pre-push guard started it is unknown: its ancestry could "
                        "not be established consistently")
 
@@ -21551,13 +21539,13 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         return data[data.rindex(b")") + 2:].split()[19].decode("ascii")
 
     def test_guard_label_matches_pid_and_start_time_of_each_parent(self):
-        # FLIP TABLE (round 6, W1 of all three reviews): the labels match
-        # the pid and the start time, of the process and of each parent
-        # (read as the chain is walked), against the live runs: a pid that
-        # matches with another start time (a reused pid) is not a guard,
-        # nor are its children; a process whose own start time cannot be
-        # read while its pid is a live run, or whose parents cannot be
-        # read (here a process that has gone), is uncertain, not labelled.
+        # FLIP TABLE: the labels match the pid and the start time, of the
+        # process and of each parent (read as the chain is walked),
+        # against the live runs: a pid that matches with another start
+        # time (a reused pid) is not a guard, nor are its children; a
+        # process whose own start time cannot be read while its pid is a
+        # live run, or whose parents cannot be read (here a process that
+        # has gone), is uncertain, not labelled.
         # Each Python it starts runs isolated (-I) with this fixture's built
         # environment: the live helper (live_process), the process that has
         # gone (ended_pid) and the labelling run.
@@ -21612,24 +21600,23 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         "print(json.dumps(labels))\n")
 
     def test_guard_label_walk_is_consistent_when_pids_are_reused(self):
-        # FLIP TABLE (round 7, codex WARN 1, claude names the same gap):
-        # the walk up the parents is kept consistent, so a pid reused while
-        # it runs cannot join an unrelated chain to a live guard. A guard
-        # (pid 200, start time 50) is live in each case; process 300 was
-        # read by the scan with start time 100. With a scripted proc_stat:
-        # a consistent chain to the guard is "started by a pre-push guard"
-        # and one that ends at pid 1 is no guard (controls); and each of
-        # these is uncertain (UNSURE_PARENTS, which keeps the NOT PROVED
-        # procedure), where before each was "started by a pre-push guard":
-        # process 300 read again with another start time (its pid reused
-        # by a child of the guard); a parent younger than its child; its
-        # direct parent replaced between reads (300 is read again with
-        # parent pid 1, as a child is once its parent exits); and an
-        # intermediate parent replaced between reads (250 read again with
-        # parent pid 1).
-        # The label says what is true in each of these cases, every parent
-        # read or not (round 8, claude NOTE 1 and codex NOTE 1: before, it
-        # said "its parents cannot all be read" when each had been read).
+        # FLIP TABLE: the walk up the parents is kept consistent, so a pid
+        # reused while it runs cannot join an unrelated chain to a live
+        # guard. A guard (pid 200, start time 50) is live in each case;
+        # process 300 was read by the scan with start time 100. With a
+        # scripted proc_stat: a consistent chain to the guard is
+        # "started by a pre-push guard" and one that ends at pid 1 is no
+        # guard (controls); and each of these is uncertain (UNSURE_PARENTS,
+        # which keeps the NOT PROVED procedure), where in the earlier
+        # repository each was "started by a pre-push guard": process 300
+        # read again with another start time (its pid reused by a child of
+        # the guard); a parent younger than its child; its direct parent
+        # replaced between reads (300 is read again with parent pid 1, as a
+        # child is once its parent exits); and an intermediate parent
+        # replaced between reads (250 read again with parent pid 1).
+        # The label says what is true in each of these cases, every
+        # parent read or not (in the earlier repository it said
+        # "its parents cannot all be read" when each had been read).
         guard = [["200", "50"]]
         unsure = self.UNSURE_ANCESTRY
         cases = [
@@ -21698,14 +21685,15 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         "print(json.dumps(out))\n")
 
     def test_fifo_swapped_in_after_the_type_check_is_never_read(self):
-        # FLIP TABLE (round 7, claude NOTE 2): the type check and the open
-        # are two lookups by name, so a FIFO swapped in between them is
-        # opened (without blocking); the type of the open descriptor is
-        # then checked, so it is never read: read_file raises NotRegular,
-        # and resolve_ref says packed-refs cannot be read (before, packed
-        # refs were read from the FIFO as empty: "no ref file or packed ref
-        # names it"). The header and .claude/skills/corpus-management/tools/README.md state this window
-        # rather than "never opened".
+        # FLIP TABLE: the type check and the open are two lookups by
+        # name, so a FIFO swapped in between them is opened (without
+        # blocking); the type of the open descriptor is then checked,
+        # so it is never read: read_file raises NotRegular, and
+        # resolve_ref says packed-refs cannot be read (in the earlier
+        # repository packed refs were read from the FIFO as empty:
+        # "no ref file or packed ref names it"). The header and
+        # .claude/skills/corpus-management/tools/README.md state this
+        # window rather than "never opened".
         where = Path(self.tmp.name) / "swap"
         (where / "common").mkdir(parents=True)
         (where / "file").write_text("x\n", encoding="utf-8")
@@ -21730,15 +21718,16 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertIn("a descriptor that is not a regular file is closed unread", readme)
 
     def test_command_line_naming_the_guard_makes_no_guard(self):
-        # FLIP TABLE (round 6, W1 of all three reviews, reproduced by
-        # claude): a process whose own command line, or whose parent
-        # command line, merely names .claude/skills/corpus-management/tools/pre-push-guard.sh is not a
-        # pre-push guard. Here a shell (bash -c, a live_process) whose
-        # argv names it moves into a leftover and starts a child there whose
-        # argv names it too: neither is labelled, and both get the NOT
-        # PROVED stop procedure (before, the shell was labelled a pre-push
-        # guard and the child as one too, and no procedure was given), as
-        # on a host where every process is read and as the guard prints it.
+        # FLIP TABLE (reproduced in the earlier repository): a process whose
+        # own command line, or whose parent command line, merely names
+        # .claude/skills/corpus-management/tools/pre-push-guard.sh is not a
+        # pre-push guard. Here a shell (bash -c, a live_process) whose argv
+        # names it moves into a leftover and starts a child there whose argv
+        # names it too: neither is labelled, and both get the NOT PROVED
+        # stop procedure (in the earlier repository the shell was labelled a
+        # pre-push guard and the child as one too, and no procedure was
+        # given), as on a host where every process is read and as the guard
+        # prints it.
         root, checkouts = self.make_leftover(1)
         # The child runs isolated (-I) and reads the pipe live_process holds
         # (<&0), so it lives until that pipe closes.
@@ -21760,8 +21749,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
         alone = self.report_all_read(inventory=(parent, child))
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
-        # Round 10 (codex WARN 1): the real guard's report or a correctly
-        # reported incomplete scan; the report alone.
+        # The real guard's report or a correctly reported incomplete
+        # scan; the report alone.
         for text in self.complete_reports(result.stderr, alone.stdout):
             block = "\n".join(self.leftover_block(text, root)) + "\n"
             for pid in (child, parent):
@@ -21775,14 +21764,14 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertIsNone(helper.poll(), "the report stopped a process")
 
     def test_symlinked_git_record_is_unreadable_not_skipped(self):
-        # FLIP TABLE (round 6, codex WARN 2): an entry of
-        # <git common dir>/worktrees that is a symbolic link (git follows
-        # it, the report does not) is reported as UNREADABLE, so no leftover
-        # has a removal command while it remains, as on a host where every
-        # process is read (before, opening it with O_DIRECTORY and
-        # O_NOFOLLOW failed with ENOTDIR, which was taken as an entry git
-        # skips, so it was dropped silently and the leftover REMOVABLE). An
-        # entry that is a regular file, which git skips, is skipped.
+        # FLIP TABLE: an entry of <git common dir>/worktrees that is a
+        # symbolic link (git follows it, the report does not) is reported as
+        # UNREADABLE, so no leftover has a removal command while it remains,
+        # as on a host where every process is read (in the earlier
+        # repository opening it with O_DIRECTORY and O_NOFOLLOW failed with
+        # ENOTDIR, which was taken as an entry git skips, so it was dropped
+        # silently and the leftover REMOVABLE). An entry that is a regular
+        # file, which git skips, is skipped.
         import json
         root, _checkouts = self.make_leftover(1)
         records = Path(self.common_dir()) / "worktrees"
@@ -21812,14 +21801,15 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                          [[str(link), "it is a symbolic link, which the report does not follow"]])
 
     def test_reftable_placeholder_head_is_named_as_not_read(self):
-        # FLIP TABLE (round 6, claude NOTE 1, confirmed by probe on git
-        # 2.53.0): in a clone that keeps its refs in reftable, the HEAD of
-        # every git record is the placeholder ref: refs/heads/.invalid. The
-        # report says "reftable HEAD not read" (before: that no ref file or
-        # packed ref names refs/heads/.invalid), and the leftover stays
-        # INSPECT. Checked on a git record of this files-backend fixture
-        # given that HEAD, and, where git can make one, on a real reftable
-        # clone through the registration reader.
+        # FLIP TABLE (confirmed in the earlier repository by a probe on
+        # git 2.53.0): in a clone that keeps its refs in reftable, the HEAD
+        # of every git record is the placeholder ref: refs/heads/.invalid.
+        # The report says "reftable HEAD not read" (in the earlier
+        # repository it said that no ref file or packed ref names
+        # refs/heads/.invalid), and the leftover stays INSPECT. Checked
+        # on a git record of this files-backend fixture given that HEAD,
+        # and, where git can make one, on a real reftable clone through the
+        # registration reader.
         import json
         root, checkouts = self.make_leftover(1)
         admin = Path(self.git("-C", str(checkouts[0]), "rev-parse",
@@ -21854,11 +21844,11 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual([r["head_problem"] for r in got["records"]], [why], got)
 
     def test_removable_checkout_shows_its_head_and_what_force_discards(self):
-        # FLIP TABLE (round 6, claude NOTE 2): a checkout that exists and is
-        # given git worktree remove --force shows its HEAD with the same
-        # loss warning as a checkout whose directory is gone, and the
-        # commands say that --force discards its uncommitted changes and
-        # untracked files, as on a host where every process is read.
+        # FLIP TABLE: a checkout that exists and is given git worktree
+        # remove --force shows its HEAD with the same loss warning as a
+        # checkout whose directory is gone, and the commands say that
+        # --force discards its uncommitted changes and untracked files, as
+        # on a host where every process is read.
         root, checkouts = self.make_leftover(1)
         head = self.git("-C", str(checkouts[0]), "rev-parse", "HEAD").stdout.strip()
         alone = self.report_all_read(inventory=())
@@ -21875,11 +21865,11 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                       "      git worktree remove --force -- %s\n" % checkouts[0], block)
 
     def test_fifo_in_a_git_record_is_never_opened(self):
-        # FLIP TABLE (round 6, claude NOTE 3): the type of a file is read
-        # without following it before the file is opened, so a FIFO is
-        # never opened: here the locked file of a git record is a FIFO a
-        # writer (a live_process) is blocked opening, and after the report
-        # it is still blocked (before, the report opened the FIFO, which
+        # FLIP TABLE: the type of a file is read without following it
+        # before the file is opened, so a FIFO is never opened: here the
+        # locked file of a git record is a FIFO a writer (a live_process)
+        # is blocked opening, and after the report it is still blocked
+        # (in the earlier repository the report opened the FIFO, which
         # let the open of the writer complete). The checkout is reported
         # locked, with a lock file that cannot be read.
         import time
@@ -21949,10 +21939,10 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             writer.wait(timeout=2)
 
     def test_relative_gitdir_checkout_is_this_clones(self):
-        # FLIP TABLE (round 2, agy NOTE 5, confirmed by probe): a checkout
-        # whose .git holds a relative gitdir (worktree.useRelativePaths) is
-        # read against the checkout, so it is this clone's and the leftover
-        # is REMOVABLE.
+        # FLIP TABLE: a checkout whose .git holds a relative gitdir
+        # (worktree.useRelativePaths) is read against the checkout, so it
+        # is this clone's and the leftover is REMOVABLE (confirmed by a
+        # probe in the earlier repository).
         self.change(".web/templates-draft/landing.html")
         root, checkouts = self.make_leftover(1, relative=True)
         self.assertFalse((checkouts[0] / ".git").read_text(encoding="utf-8")[8:].startswith("/"))
@@ -22000,8 +21990,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         return sorted(listed, key=lambda r: r["worktree"])
 
     def test_direct_read_of_git_records_agrees_with_git_worktree_list(self):
-        # FLIP TABLE (round 5, design change from claude NOTE 3 and codex's
-        # advisory): the report runs no git and reads the git records
+        # FLIP TABLE: the report runs no git and reads the git records
         # itself, so on the fixtures the tests use (checkouts of a shard
         # directory, a relative gitdir, a locked checkout with and without
         # a reason, one whose directory is gone, and checkouts on a branch
@@ -22048,15 +22037,15 @@ class PrePushGuardFastPathTests(unittest.TestCase):
 
     def test_leftover_paths_are_escaped_for_the_console(self):
         # FLIP TABLE (leftover report): a path holding a space, a newline,
-        # an escape sequence, a ! (round 2, agy WARN 3: refuted for bash
-        # 5.3.9 by probe, escaped anyway) and a component with a leading
-        # dash is printed as one bash $'...' word of printable ASCII with no
-        # !, after --, never raw; bash reads it back as the exact path, and
-        # the printed command removes the checkout. The commands are those
-        # of the report as on a host where every process is read (round 3,
-        # codex WARN 1), against a deterministic process inventory (round 8,
-        # codex WARN 1: NO_OTHER_PROCESS), so no other process of the host,
-        # one exiting during the scan included, decides what it renders.
+        # an escape sequence, a ! (in the earlier repository a probe found
+        # it harmless to bash 5.3.9; it is escaped anyway) and a component
+        # with a leading dash is printed as one bash $'...' word of
+        # printable ASCII with no !, after --, never raw; bash reads it back
+        # as the exact path, and the printed command removes the checkout.
+        # The commands are those of the report as on a host where every
+        # process is read, against a deterministic process inventory
+        # (NO_OTHER_PROCESS), so no other process of the host, one exiting
+        # during the scan included, decides what it renders.
         self.change(".web/templates-draft/landing.html")
         odd = Path(self.tmp.name) / "-lead dir!\nnext\x1b[31mline"
         odd.mkdir()
@@ -22066,9 +22055,9 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         alone = self.report_all_read(inventory=(), TMPDIR=str(odd))
         self.assertIn(self.ALL_READ_TEXT, alone.stdout)
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
-        # Round 10 (codex WARN 1): no report prints a path raw, but the real
-        # guard's may be a correctly reported incomplete scan of the host's
-        # processes, which need not list the leftover.
+        # No report prints a path raw, but the real guard's may be a
+        # correctly reported incomplete scan of the host's processes, which
+        # need not list the leftover.
         for err in (result.stderr, alone.stdout):
             self.assertNotIn("\x1b", err)
             self.assertNotIn(str(odd), err)
@@ -22208,20 +22197,20 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertAlmostEqual(float(noted[1][1]), 3.3, delta=0.01, msg=stderr)
 
     def test_leftover_scan_bound_reports_an_incomplete_scan(self):
-        # FLIP TABLE (leftover report; round 2, codex WARN 5, claude NOTE 8
-        # gap 2): a scan that cannot finish within its 3-second bound (here
-        # the opening of the git records directory is held and never
-        # returns) says the report is INCOMPLETE, gives a leftover it had
-        # already read no removal command, and returns without waiting for
-        # the held scan, with exit status 0, so the push goes on. The
-        # report is run alone, with the guard's own code (round 5: it runs
-        # no git, so no git shim can hold it). It runs on the clock
+        # FLIP TABLE (leftover report): a scan that cannot finish within its
+        # 3-second bound (here the opening of the git records directory is
+        # held and never returns) says the report is INCOMPLETE, gives a
+        # leftover it had already read no removal command, and returns
+        # without waiting for the held scan, with exit status 0, so the push
+        # goes on. The report is run alone, with the guard's own code (it
+        # runs no git, so no git shim can hold it). It runs on the clock
         # CLOCKED_REPORT sets, so the bound is reached at the git records on
         # every host and in any suite order. On the real clock, with its real
-        # alarm, a full-suite run once ended it at -14 (SIGALRM): the alarm
-        # expired after the scan bound and before the report exited. The
-        # report still arms its 5-second alarm and waits for the scan no
-        # longer than its scan bound (assert_requested_bounds).
+        # alarm, a full-suite run in the earlier repository once ended it at
+        # -14 (SIGALRM): the alarm expired after the scan bound and before
+        # the report exited. The report still arms its 5-second alarm and, as
+        # assert_requested_bounds checks, waits for the scan no longer than
+        # its scan bound.
         # Every run takes the order that can otherwise race (the worker
         # reaches the git records before the main thread reads its wait from
         # the clock), and the clock moves only once that wait has begun, so
@@ -22518,26 +22507,26 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assert_requested_bounds(alone.stderr)
 
     def test_real_guard_half_accepts_only_a_correctly_reported_incomplete_scan(self):
-        # FLIP TABLE (round 10, codex WARN 1): the half of an outcome test
-        # that checks the real guard's report, whose scan of every process
-        # of the host can reach its bound on a busy host, accepts a
-        # correctly reported incomplete scan with no removal command in
-        # place of the outcome it expects (before, such a report failed the
-        # test); the report alone, against a deterministic inventory, still
-        # gives that outcome. The incomplete report is the guard's own,
-        # its scan held at the processes (one process, this test, whose
-        # working directory link is held and never read), so its bound is
-        # reached there, as a busy host reaches it. It is accepted by
-        # assert_removable, whose report alone is REMOVABLE, and by
-        # complete_reports. Each altered copy fails assert_removable: with
-        # a removal command, with the leftover REMOVABLE, with the
-        # unfinished scan not given as its first reason, or as a scan that
-        # failed (an error, which is never accepted). Both reports run on
-        # the clock CLOCKED_REPORT sets, the held one held there with
-        # FIXTURE_HOLD_LINK, so the order of their threads, a busy host and
-        # their alarm (noted, not armed) cannot end them or change what they
-        # print; on the real clock with its real alarm, a busy host could
-        # let the alarm end the held report at -14 after its scan bound.
+        # FLIP TABLE: the half of an outcome test that checks the real
+        # guard's report, whose scan of every process of the host can reach
+        # its bound on a busy host, accepts a correctly reported incomplete
+        # scan with no removal command in place of the outcome it expects
+        # (in the earlier repository such a report failed the test); the
+        # report alone, against a deterministic inventory, still gives that
+        # outcome. The incomplete report is the guard's own, its scan held
+        # at the processes (one process, this test, whose working directory
+        # link is held and never read), so its bound is reached there, as a
+        # busy host reaches it. It is accepted by assert_removable, whose
+        # report alone is REMOVABLE, and by complete_reports. Each altered
+        # copy fails assert_removable: with a removal command, with the
+        # leftover REMOVABLE, with the unfinished scan not given as its
+        # first reason, or as a scan that failed (an error, which is never
+        # accepted). Both reports run on the clock CLOCKED_REPORT sets, the
+        # held one held there with FIXTURE_HOLD_LINK, so the order of their
+        # threads, a busy host and their alarm (noted, not armed) cannot end
+        # them or change what they print; on the real clock with its real
+        # alarm, a busy host could let the alarm end the held report at -14
+        # after its scan bound.
         root, checkouts = self.make_leftover(1)
         held = self.report_alone(prelude=self.NO_OTHER_PROCESS + self.CLOCKED_REPORT,
                                  FIXTURE_PIDS=str(os.getpid()),
@@ -22591,8 +22580,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         "sys.addaudithook(_spawn_hook)\n")
 
     def test_leftover_report_starts_and_signals_no_process(self):
-        # FLIP TABLE (round 5, design change from claude NOTE 3 and codex's
-        # advisory): the report runs no git and starts and signals no
+        # FLIP TABLE: the report runs no git and starts and signals no
         # process, in both modes, with leftovers to read (an existing one
         # and one whose shard directory is gone) and processes to scan. An
         # audit hook notes every event that would start, replace or signal
@@ -22680,11 +22668,11 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                                  and git_log.read_text(encoding="utf-8"))
 
     def test_failed_report_line_is_worded_per_mode(self):
-        # FLIP TABLE (round 3, claude NOTE 1): a leftover report that fails
-        # says what is unknown in its own mode: for "left", what this run
-        # left in its shard directory; for "scan", what earlier runs left.
-        # A python3 shim fails the report in one mode (exit 3, or ended by
-        # SIGALRM as at the 5-second bound) and runs everything else.
+        # FLIP TABLE: a leftover report that fails says what is unknown in
+        # its own mode: for "left", what this run left in its shard
+        # directory; for "scan", what earlier runs left. A python3 shim
+        # fails the report in one mode (exit 3, or ended by SIGALRM as at
+        # the 5-second bound) and runs everything else.
         self.change("ai/policy-fixture.md")
         real_python = shutil.which("python3", path=self.env.get("PATH"))
         shim = Path(self.tmp.name) / "pyshim"
@@ -23106,15 +23094,15 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                                  err)
 
     def test_guard_header_and_readme_state_the_reports_rules(self):
-        # FLIP TABLE (round 4, claude NOTE 1, NOTE 2 and NOTE 4, codex NOTE
-        # 4): the guard's header comment states the report's rules in the
-        # words of .claude/skills/corpus-management/tools/README.md, not the superseded ones; the README
-        # says that a non-root user on almost any host sees INSPECT for an
-        # existing leftover. Round 5: both say the report runs no git and
-        # starts and signals no process (the git query text is gone), that
-        # every thread is read, that a leftover in use gets a manual stop
-        # procedure, and (claude NOTE 2) that a VM restored from a memory
-        # snapshot shares both the boot id and the machine id.
+        # FLIP TABLE: the guard's header comment states the report's rules
+        # in the words of .claude/skills/corpus-management/tools/README.md,
+        # not the superseded ones; the README says that a non-root user on
+        # almost any host sees INSPECT for an existing leftover. Both also
+        # say the report runs no git and starts and signals no process (the
+        # git query text is gone), that every thread is read, that a
+        # leftover in use gets a manual stop procedure, and that a VM
+        # restored from a memory snapshot shares both the boot id and the
+        # machine id.
         guard = (SKILL_ROOT / "tools" / "pre-push-guard.sh").read_text(encoding="utf-8")
         header = " ".join(" ".join(line[1:] for line in guard.split("\nset -u\n", 1)[0]
                                    .splitlines() if line.startswith("#")).split())
@@ -23136,18 +23124,16 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 "proves nothing (another kernel may still run it)",
                 "git worktree remove -- <checkout>",
                 "a manual inspection procedure, marked as not proved",
-                # Round 7 (claude NOTE 1): which runs write a run record,
-                # and so which guards can be labelled at all.
+                # Which runs write a run record, and so which guards can
+                # be labelled at all.
                 "writes a run record only from its gate 36 step on",
                 "a whole-runner fallback",
                 "only the guards the report identified are labelled",
-                # Round 7 (codex WARN 1): the walk is kept consistent.
+                # The walk is kept consistent.
                 "kept consistent",
-                # Round 7 (claude NOTE 2): the type check and the open are
-                # two lookups by name.
+                # The type check and the open are two lookups by name.
                 "are two lookups by name",
-                # Round 9 (claude NOTE 2): when every thread's mappings are
-                # read.
+                # When every thread's mappings are read.
                 "the mappings of every thread are read when the leader is exiting"):
             with self.subTest(text):
                 self.assertIn(text, header)
@@ -23167,10 +23153,10 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 self.assertNotIn(stale, readme)
 
     def test_guard_owner_naming_another_clone_gets_no_removal_command(self):
-        # FLIP TABLE (round 3, claude NOTE 3): a shard directory whose
-        # guard-owner record names another clone, holding a checkout that
-        # is registered with this clone, is INSPECT with that reason, even
-        # as on a host where every process is read.
+        # FLIP TABLE: a shard directory whose guard-owner record names
+        # another clone, holding a checkout that is registered with this
+        # clone, is INSPECT with that reason, even as on a host where
+        # every process is read.
         self.change(".web/templates-draft/landing.html")
         root, checkouts = self.make_leftover(1)
         other = Path(self.tmp.name) / "other-clone"
@@ -23181,8 +23167,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
         alone = self.report_all_read(inventory=())
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
-        # Round 10 (codex WARN 1): the real guard's report or a correctly
-        # reported incomplete scan; the report alone.
+        # The real guard's report or a correctly reported incomplete
+        # scan; the report alone.
         for err in self.complete_reports(result.stderr, alone.stdout):
             self.assert_inspect(err, root, reason)
             self.assertIn("    checkout %s: registered with this clone; its directory exists; "
@@ -23196,15 +23182,14 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         return Path(admin)
 
     def test_record_of_a_gone_shard_directory_is_removable_only_when_proven(self):
-        # FLIP TABLE (round 3, claude WARN 1): a registered, unlocked
-        # checkout whose shard directory is gone (a reboot, a temporary
-        # directory cleaner) leaves only its git record. Each run writes a
-        # run record beside that git record; when it proves the run that
-        # registered the checkout has ended, the report shows the record's
-        # HEAD and then the narrow git worktree remove -- <checkout>, which
-        # removes only that record (an unrelated stale record stays), and
-        # never git worktree prune. Otherwise the record is INSPECT, saying
-        # what was not proved.
+        # FLIP TABLE: a registered, unlocked checkout whose shard directory
+        # is gone (a reboot, a temporary directory cleaner) leaves only its
+        # git record. Each run writes a run record beside that git record;
+        # when it proves the run that registered the checkout has ended,
+        # the report shows the record's HEAD and then the narrow git
+        # worktree remove -- <checkout>, which removes only that record (an
+        # unrelated stale record stays), and never git worktree prune.
+        # Otherwise the record is INSPECT, saying what was not proved.
         self.change("ai/policy-fixture.md")
         failed, _ran = self.run_guard(FIXTURE_SHARD_FAIL="3")
         self.assertEqual(failed.returncode, 7, failed.stdout + failed.stderr)
@@ -23228,10 +23213,10 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         later, _ran = self.run_guard()
         self.assertEqual(later.returncode, 0, later.stdout + later.stderr)
         self.assertNotIn("git worktree prune", later.stderr)
-        # Round 10 (codex WARN 1): the real guard's report may be a correctly
-        # reported incomplete scan of the host's processes, with no removal
-        # command; the report alone, against a deterministic inventory,
-        # always gives the outcome and the commands, which are run.
+        # The real guard's report may be a correctly reported incomplete scan
+        # of the host's processes, with no removal command; the report alone,
+        # against a deterministic inventory, always gives the outcome and the
+        # commands, which are run.
         alone = self.report_all_read(inventory=())
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
         for err in self.complete_reports(later.stderr, alone.stdout):
@@ -23266,13 +23251,13 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # What was not proved keeps the record INSPECT. A run of an earlier
         # boot of this machine (another boot id, this machine id) is proved
         # ended even though its pid is now a live process with the recorded
-        # start time; another boot id is not proof on its own (round 4,
-        # claude WARN 1: another kernel, on another machine that shares
-        # this clone, may still run it), nor is an unknown boot id. A git
-        # record the report cannot read is UNREADABLE, not a missing run
-        # record (round 4, claude NOTE 3): here its gitdir file is a
-        # symbolic link, which git follows and the report does not. The
-        # live helper outlasts every subtest (each runs the guard).
+        # start time; another boot id is not proof on its own (another
+        # kernel, on another machine that shares this clone, may still run
+        # it), nor is an unknown boot id. A git record the report cannot
+        # read is UNREADABLE, not a missing run record: here its gitdir
+        # file is a symbolic link, which git follows and the report does
+        # not. The live helper outlasts every subtest (each runs the
+        # guard).
         helper = self.live_helper()
         data = Path("/proc/%d/stat" % helper.pid).read_bytes()
         start = data[data.rindex(b")") + 2:].split()[19].decode("ascii")
@@ -23334,8 +23319,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                                          result.stderr)
                     alone = self.report_all_read(inventory=(helper.pid,))
                     self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
-                    # Round 10 (codex WARN 1): the real guard's report or a
-                    # correctly reported incomplete scan; the report alone.
+                    # The real guard's report or a correctly reported
+                    # incomplete scan; the report alone.
                     for err in self.complete_reports(result.stderr, alone.stdout):
                         if reason is None:
                             block = self.leftover_block(err, gone)
@@ -23350,10 +23335,10 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                             self.assertEqual(self.leftover_commands("\n".join(block)),
                                              ["git worktree remove -- %s" % checkouts[0]])
                         elif link:
-                            # Round 5: the report reads the git records
-                            # itself, so one it cannot read is a note of its
-                            # own (which checkout it registers is unknown),
-                            # never skipped.
+                            # The report reads the git records itself, so
+                            # one it cannot read is a note of its own (which
+                            # checkout it registers is unknown), never
+                            # skipped.
                             self.assertRegex(err, reason % {
                                 "gitdir": re.escape(str(admin / "gitdir"))})
                             self.assertNotIn("REMOVABLE", err)
@@ -23384,8 +23369,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(self.leftover_commands(result.stderr), [], result.stderr)
         alone = self.report_all_read(inventory=())
         self.assertEqual(alone.returncode, 0, alone.stdout + alone.stderr)
-        # Round 10 (codex WARN 1): the real guard's report or a correctly
-        # reported incomplete scan; the report alone.
+        # The real guard's report or a correctly reported incomplete
+        # scan; the report alone.
         for err in self.complete_reports(result.stderr, alone.stdout):
             self.assert_inspect(err, root, r"UNREADABLE: %s \(.+\); it is not reported as clean$"
                                 % re.escape(str(root)))
@@ -23424,11 +23409,10 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             records = self.shard_records(marks)
             self.assertEqual(len(records), 6, out_path.read_text(encoding="utf-8"))
             result, _ran = self.run_guard()
-            # Round 10 (codex WARN 1): the real guard's report may be a
-            # correctly reported incomplete scan of the host's processes;
-            # the report alone, while the live run still runs, against an
-            # inventory of that run and its shard processes, always gives
-            # the outcome.
+            # The real guard's report may be a correctly reported
+            # incomplete scan of the host's processes; the report alone,
+            # while the live run still runs, against an inventory of that
+            # run and its shard processes, always gives the outcome.
             alone = self.report_all_read(inventory=[live.pid] + [
                 pid for shard, _pgid, child in records for pid in (shard, child)])
             still_running = live.poll() is None
@@ -23449,16 +23433,14 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                                r"    - guard run pid %d is still running\n" % live.pid, err)
             self.assertEqual(len(roots), 1, err)
             for pid, _pgid, child in records:
-                # Each has the live guard among its parents, and is labelled
-                # so (round 5).
+                # Each has the live guard among its parents, and is labelled so.
                 self.assertRegex(err, r"(?m)^    used by pid %s \(started by a pre-push "
                                       r"guard\): " % pid)
                 self.assertRegex(err, r"(?m)^    used by pid %s \(started by a pre-push "
                                       r"guard\): " % child)
             self.assertEqual(self.leftover_commands(err), [], err)
             self.assert_no_kill_word(err)
-            # No stop procedure for the processes of a live run (round 5,
-            # codex WARN 3).
+            # No stop procedure for the processes of a live run.
             self.assertIn("    no stop procedure: the guard run that made it has not ended, and "
                           "the processes using it belong to that run; let that run end\n", err)
             self.assertNotIn("NOT PROVED, so no stop command", err)
@@ -23534,13 +23516,13 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 for command in cls.printed_removal_commands(stderr, directory, registration)]
 
     def test_failed_checkout_removal_is_reported_for_that_checkout_alone(self):
-        # FLIP TABLE (round 6, codex WARN; CIPRUNE-0106): when git worktree
-        # remove fails for a shard checkout, the guard names it, says what
-        # is left of it and that its registration is still listed, prints
-        # the command for that checkout alone (bash-quoted), runs no
-        # git worktree prune, and never claims the checkouts were removed.
-        # Shard 2 deletes its checkout's .git file, so git refuses to
-        # remove it; the printed command then removes its registration.
+        # FLIP TABLE: when git worktree remove fails for a shard checkout,
+        # the guard names it, says what is left of it and that its
+        # registration is still listed, prints the command for that
+        # checkout alone (bash-quoted), runs no git worktree prune, and
+        # never claims the checkouts were removed. Shard 2 deletes its
+        # checkout's .git file, so git refuses to remove it; the printed
+        # command then removes its registration.
         self.change("ai/policy-fixture.md")
         result, _ran = self.run_guard(FIXTURE_SHARD_BREAK_CHECKOUT="2")
         output = result.stdout + result.stderr
@@ -23566,12 +23548,12 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(worktrees.count("worktree "), 1, worktrees)
 
     def test_failed_checkout_removal_leaves_other_stale_registrations(self):
-        # FLIP TABLE (CIPRUNE-0106): a passing run whose own checkout
-        # removal fails acts on that checkout alone. Another stale worktree
-        # registration of this repository (standing in for a checkout of
-        # another live run or another checkout of this repository, whose
-        # directory is gone) survives the run, and no printed command names
-        # it; a repository-wide git worktree prune would have cleared it.
+        # FLIP TABLE: a passing run whose own checkout removal fails acts
+        # on that checkout alone. Another stale worktree registration of
+        # this repository (standing in for a checkout of another live run
+        # or another checkout of this repository, whose directory is gone)
+        # survives the run, and no printed command names it; a
+        # repository-wide git worktree prune would have cleared it.
         other = Path(self.tmp.name) / "other-run" / "checkout"
         other.parent.mkdir()
         self.git("worktree", "add", "--detach", str(other), "HEAD")
@@ -23600,15 +23582,15 @@ class PrePushGuardFastPathTests(unittest.TestCase):
 
     @unittest.skipIf(os.geteuid() == 0, "root ignores directory permission bits")
     def test_failed_checkout_removal_reports_its_directory_left(self):
-        # FLIP TABLE (CIPRUNE-0106 round 2): git worktree remove fails for
-        # shard 2's checkout (its .git file is gone), and the shard
-        # directory cannot be removed either (the checkout holds a
-        # read-only directory with a file in it), so that checkout's
-        # directory is left and it is still registered. The guard says its
-        # directory is left, not gone, names the shard directory
-        # (bash-quoted) to remove once nothing uses it, and prints the
-        # command for that checkout alone to run once its directory is gone;
-        # run then, that command removes its registration.
+        # FLIP TABLE: git worktree remove fails for shard 2's checkout (its
+        # .git file is gone), and the shard directory cannot be removed
+        # either (the checkout holds a read-only directory with a file in
+        # it), so that checkout's directory is left and it is still
+        # registered. The guard says its directory is left, not gone, names
+        # the shard directory (bash-quoted) to remove once nothing uses it,
+        # and prints the command for that checkout alone to run once its
+        # directory is gone; run then, that command removes its
+        # registration.
         import shlex
         self.change("ai/policy-fixture.md")
         result, _ran = self.run_guard(FIXTURE_SHARD_BREAK_CHECKOUT="2",
@@ -23651,12 +23633,11 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(worktrees.count("worktree "), 1, worktrees)
 
     def test_failed_checkout_removal_reports_its_registration_no_longer_listed(self):
-        # FLIP TABLE (CIPRUNE-0106 round 2): shard 2 deletes its checkout's
-        # git record (<git common dir>/worktrees/<id>), so git worktree
-        # remove fails for it and its registration is absent from git
-        # worktree list afterwards. The guard says so, with no command for
-        # that checkout (there is nothing left to remove), and runs no git
-        # worktree prune.
+        # FLIP TABLE: shard 2 deletes its checkout's git record (<git
+        # common dir>/worktrees/<id>), so git worktree remove fails for it
+        # and its registration is absent from git worktree list afterwards.
+        # The guard says so, with no command for that checkout (there is
+        # nothing left to remove), and runs no git worktree prune.
         self.change("ai/policy-fixture.md")
         result, _ran = self.run_guard(FIXTURE_SHARD_UNREGISTER_CHECKOUT="2")
         output = result.stdout + result.stderr
@@ -23683,14 +23664,14 @@ class PrePushGuardFastPathTests(unittest.TestCase):
 
     @unittest.skipIf(os.geteuid() == 0, "root ignores directory permission bits")
     def test_failed_checkout_removal_reports_its_directory_left_and_registration_gone(self):
-        # FLIP TABLE (CIPRUNE-0106 round 4, claude WARN): shard 2's checkout
-        # holds a read-only directory with a file in it, and nothing else
-        # breaks it. git worktree remove --force then fails to delete that
-        # directory but still deletes the checkout's git record, so its
-        # directory is left and its registration is no longer listed. The
-        # guard says exactly that, names the shard directory (bash-quoted)
-        # to remove once nothing uses it, and prints no git worktree remove
-        # command for that checkout (there is no registration to remove).
+        # FLIP TABLE: shard 2's checkout holds a read-only directory with a
+        # file in it, and nothing else breaks it. git worktree remove
+        # --force then fails to delete that directory but still deletes the
+        # checkout's git record, so its directory is left and its
+        # registration is no longer listed. The guard says exactly that,
+        # names the shard directory (bash-quoted) to remove once nothing
+        # uses it, and prints no git worktree remove command for that
+        # checkout (there is no registration to remove).
         import shlex
         self.change("ai/policy-fixture.md")
         result, _ran = self.run_guard(FIXTURE_SHARD_KEEP_CHECKOUT="2")
@@ -23741,13 +23722,12 @@ class PrePushGuardFastPathTests(unittest.TestCase):
 
     @unittest.skipIf(os.geteuid() == 0, "root ignores directory permission bits")
     def test_failed_shard_directory_removal_reports_one_line(self):
-        # FLIP TABLE (CIPRUNE-R4-DRAFT-1820; rmtree round 2, claude N1 and
-        # codex N1): shard 2's checkout holds a read-only directory with a
+        # FLIP TABLE: shard 2's checkout holds a read-only directory with a
         # file in it, so removing the shard directory fails. The guard
         # reports that as one plain line (the removal's exit status, then the
         # exception type and message, naming the shard directory bash-quoted
-        # with printf %q, as bash_quoted gives it) before its WARNING,
-        # never as a Python traceback.
+        # with printf %q, as bash_quoted gives it) before its WARNING, never
+        # as a Python traceback.
         self.change("ai/policy-fixture.md")
         result, _ran = self.run_guard(FIXTURE_SHARD_KEEP_CHECKOUT="2")
         output = result.stdout + result.stderr
@@ -23774,15 +23754,14 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertTrue(os.path.isdir(shard_root), output)
 
     def test_shard_directory_removal_ending_without_a_message_reports_its_status(self):
-        # FLIP TABLE (rmtree round 2, claude N1 and N2, codex N1 and N2): a
-        # python3 first on PATH, under the fixture, kills itself (SIGKILL)
-        # when it is the shard-directory removal (its program holds
+        # FLIP TABLE: a python3 first on PATH, under the fixture, kills itself
+        # (SIGKILL) when it is the shard-directory removal (its program holds
         # shutil.rmtree) and runs the real python3 otherwise, so the removal
         # ends without a message. The guard reports its exit status (rc=137)
         # and a fallback text, not an empty message. The shard directory sits
         # under a TMPDIR holding a space, a tab, a CR and a newline: that line
-        # and the WARNING each stay one line and name it as one printf %q
-        # word that bash reads back as the exact path (shlex.split cannot).
+        # and the WARNING each stay one line and name it as one printf %q word
+        # that bash reads back as the exact path (shlex.split cannot).
         import shlex
         real = shutil.which("python3", path=self.env.get("PATH"))
         self.assertIsNotNone(real)
@@ -23818,16 +23797,14 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertLess(stderr_lines.index(failed), stderr_lines.index(warning), result.stderr)
 
     def test_shard_directory_removal_printing_two_lines_reports_one_line(self):
-        # FLIP TABLE (rmtree round 2, claude N1; round 3, claude N1): a
-        # python3 first on PATH,
-        # under the fixture, writes two lines to stderr and exits 3 when it
-        # is the shard-directory removal (its program holds shutil.rmtree)
-        # and runs the real python3 otherwise. The guard joins the removal's
-        # message onto one line, so its failure line holds both messages and
-        # neither is printed as a line of its own. Without the guard's
-        # newline collapse the second message starts a line and this fails;
-        # a guard that also prints the first message on a line of its own
-        # fails the first-message count.
+        # FLIP TABLE: a python3 first on PATH, under the fixture, writes two
+        # lines to stderr and exits 3 when it is the shard-directory removal
+        # (its program holds shutil.rmtree) and runs the real python3
+        # otherwise. The guard joins the removal's message onto one line, so
+        # its failure line holds both messages and neither is printed as a
+        # line of its own. Without the guard's newline collapse the second
+        # message starts a line and this fails; a guard that also prints the
+        # first message on a line of its own fails the first-message count.
         import shlex
         real = shutil.which("python3", path=self.env.get("PATH"))
         self.assertIsNotNone(real)
@@ -23862,14 +23839,13 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertLess(stderr_lines.index(failed), stderr_lines.index(warning), result.stderr)
 
     def test_failed_checkout_removal_with_unreadable_registrations_keeps_its_command(self):
-        # FLIP TABLE (CIPRUNE-0106 round 3, claude and codex WARN): git
-        # worktree remove fails for shard 2's checkout (its .git file is
-        # gone), and the fixture switch FIXTURE_GIT_WORKTREE_LIST_FAIL makes
-        # a git shim fail git worktree list (rc=3). The guard keeps that
-        # exit status: it says the registration state could not be read,
-        # never that the registration is no longer listed, and still prints
-        # the command for that checkout alone, which, run as printed,
-        # removes the registration that is in fact still there.
+        # FLIP TABLE: git worktree remove fails for shard 2's checkout (its
+        # .git file is gone), and FIXTURE_GIT_WORKTREE_LIST_FAIL, a fixture
+        # switch, makes a git shim fail git worktree list (rc=3). The guard
+        # keeps that exit status: it says the registration state could not
+        # be read, never that the registration is no longer listed, and
+        # still prints the command for that checkout alone, which, run as
+        # printed, removes the registration that is in fact still there.
         path = self.git_shim('if [ -n "${FIXTURE_GIT_WORKTREE_LIST_FAIL}" ] '
                              '&& [ "$1" = worktree ] && [ "$2" = list ]; then exit 3; fi')
         self.change("ai/policy-fixture.md")
@@ -23903,12 +23879,12 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(worktrees.count("worktree "), 1, worktrees)
 
     def test_failed_removal_command_is_shell_quoted_and_runs_as_printed(self):
-        # FLIP TABLE (CIPRUNE-0106 round 2): the shard checkouts sit under a
-        # TMPDIR whose name holds a space and a tab, so bash printf %q
-        # quotes the printed path in $'...' form. Run as printed through
-        # bash, the command gives git that path as one argument and removes
-        # exactly that checkout's registration: another worktree of this
-        # repository stays registered.
+        # FLIP TABLE: the shard checkouts sit under a TMPDIR whose name
+        # holds a space and a tab, so bash printf %q quotes the printed path
+        # in $'...' form. Run as printed through bash, the command gives git
+        # that path as one argument and removes exactly that checkout's
+        # registration: another worktree of this repository stays
+        # registered.
         odd = Path(self.tmp.name) / "shard tmp\tdir"
         odd.mkdir()
         other = Path(self.tmp.name) / "other checkout"
@@ -23962,14 +23938,13 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         for checkout, log in kept:
             self.assertTrue(Path(checkout, ".claude/skills/corpus-management/tools", "pre-push-guard.sh").is_file(), checkout)
             self.assertTrue(Path(log).is_file(), log)
-        # FLIP TABLE (round 2, claude NOTE 4): a failed run, not only an
-        # interrupted one, reports what it left, with no removal command
-        # while it lasts; the next push makes it REMOVABLE. Round 10 (codex
-        # WARN 1): the scan of every process of the host behind each of
-        # these reports may reach its bound on a busy host, which a
-        # correctly reported incomplete scan with no removal command says.
-        # So may the WARNING that the left report's alarm ended it
-        # (assert_left_report).
+        # FLIP TABLE: a failed run, not only an interrupted one, reports
+        # what it left, with no removal command while it lasts; the next
+        # push makes it REMOVABLE. The scan of every process of the host
+        # behind each of these reports may reach its bound on a busy host,
+        # which a correctly reported incomplete scan with no removal
+        # command says. So may the WARNING that the left report's alarm
+        # ended it (assert_left_report).
         self.assert_left_report(result.stdout, result.stderr,
                                 "    - this run made it and has not ended yet: ")
         root = os.path.dirname(os.path.dirname(kept[0][0]))
@@ -23981,11 +23956,11 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             self.git("worktree", "remove", "--force", checkout)
 
     def test_missing_shard_output_or_reconcile_failure_blocks_the_push(self):
-        # FLIP TABLE (round 6, claude NOTE): every shard exits 0 but one
-        # wrote no outputs; the guard's own check names that shard and fails
-        # the push with 2 before the reconcile runs, keeping the checkouts.
-        # A reconcile refusal (malformed outputs) and a reconcile failure
-        # (another unit set) each fail the push with the reconcile's status.
+        # FLIP TABLE: every shard exits 0 but one wrote no outputs; the
+        # guard's own check names that shard and fails the push with 2
+        # before the reconcile runs, keeping the checkouts. A reconcile
+        # refusal (malformed outputs) and a reconcile failure (another unit
+        # set) each fail the push with the reconcile's status.
         self.change("ai/policy-fixture.md")
         for env, rc, expected in (
                 ({"FIXTURE_SHARD_NO_OUTPUT": "5"}, 2,
@@ -24019,15 +23994,14 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 (self.root / "ran.log").unlink(missing_ok=True)
 
     def test_header_exit_codes_match_the_shard_step(self):
-        # FLIP TABLE (round 6, claude NOTE): the header states the shard
-        # step's real exit codes: the first failing shard's own status in
-        # shard order (here shard 4 exits 5 and every other failing shard
-        # 7, so failing shards 4 and 6 exit 5, and 2 and 4 exit 7), else 2
-        # for set-up or a shard without outputs, else the reconcile's own
-        # status (1 failure, 2 refusal), and 130/143/129 on INT/TERM/HUP.
-        # The behaviour behind each code is pinned by the tests above and
-        # this one; the retired wording (a shard failure exits 1, a missing
-        # shard) is gone.
+        # FLIP TABLE: the header states the shard step's real exit codes:
+        # the first failing shard's own status in shard order (here shard 4
+        # exits 5 and every other failing shard 7, so failing shards 4 and
+        # 6 exit 5, and 2 and 4 exit 7), else 2 for set-up or a shard
+        # without outputs, else the reconcile's own status (1 failure, 2
+        # refusal), and 130/143/129 on INT/TERM/HUP. The behaviour behind
+        # each code is pinned by the tests above and this one; the retired
+        # wording (a shard failure exits 1, a missing shard) is gone.
         guard = (SKILL_ROOT / "tools" / "pre-push-guard.sh").read_text(encoding="utf-8")
         header = " ".join(line.lstrip("#").strip() for line in guard.split("\nset -u\n", 1)[0]
                           .splitlines())
@@ -24054,9 +24028,8 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                     self.git("worktree", "remove", "--force", checkout)
 
     def test_local_shard_count_is_six_and_the_workflow_has_no_shard_job(self):
-        # The guard's REGRESSION_SHARD_COUNT is 6 (maintainer decision
-        # 2026-11-05). Since the 2026-11-09 decision the quality workflow runs
-        # no regression-shard job, so gate 36 is split only locally.
+        # The guard's REGRESSION_SHARD_COUNT is 6, and the quality workflow
+        # runs no regression-shard job, so gate 36 is split only locally.
         guard = (SKILL_ROOT / "tools" / "pre-push-guard.sh").read_text(encoding="utf-8")
         quality = (REPO_ROOT / ".github" / "workflows" / "quality.yml").read_text(
             encoding="utf-8")
@@ -24129,9 +24102,9 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertNotIn("fast path gate:", result.stdout)
 
     def test_full_guard_runs_every_gate_but_36(self):
-        # FLIP TABLE (maintainer directive 2026-11-04 17:36 EST): the guard
-        # no longer runs gate 36 and still runs the rest, on the full path
-        # too, by the runner's own gate names in runner order.
+        # FLIP TABLE: the guard no longer runs gate 36 and still runs the
+        # rest, on the full path too, by the runner's own gate names in
+        # runner order.
         self.change("ai/policy-fixture.md")
         result, ran = self.run_guard()
         self.assert_full_guard(result, ran,
