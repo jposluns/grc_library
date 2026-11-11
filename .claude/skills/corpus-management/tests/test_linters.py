@@ -60974,16 +60974,17 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
 
 
 class CorpusManagementPackActivationTests(unittest.TestCase):
-    """The .claude/skills/corpus-management/src/ pack (compile PR-2) is ACTIVE and internally consistent: the
-    manifest and every register parse, register paths resolve inside the pack, generation is
-    enabled with the ruleset / ownership register / manifest summary in three-way agreement,
-    the clause and id-history registers are non-empty and well-formed, the gate register
-    carries its first transfer (lint-language, compile PR-5) and the hook register is still
-    empty, and pack Python lives only
-    under .claude/skills/corpus-management/src/tools/. Rewrites the PR-1b CorpusManagementScaffoldInertnessTests
-    as the activation-shape class: the scan-boundary exemption removes corpus-content checks
-    from the pack, so WITHOUT this test a malformed manifest, a register desync, or misplaced
-    pack Python would leave the audit green. Runs in the regression suite (gate 36)."""
+    """The .claude/skills/corpus-management/src/ pack is ACTIVE and internally consistent:
+    the manifest and every register parse, register paths resolve inside the pack,
+    generation is enabled with the ruleset / ownership register / manifest summary in
+    three-way agreement, the clause and id-history registers are non-empty and well-formed,
+    the gate register carries its first transfer (lint-language) and the hook register is
+    still empty, and pack Python lives only under
+    .claude/skills/corpus-management/src/tools/. Rewrites the earlier
+    CorpusManagementScaffoldInertnessTests as the activation-shape class: the scan-boundary
+    exemption removes corpus-content checks from the pack, so WITHOUT this test a malformed
+    manifest, a register desync, or misplaced pack Python would leave the audit green. Runs
+    in the regression suite (gate 36)."""
 
     PACK = SKILL_ROOT / "src"
 
@@ -61004,8 +61005,8 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         self.assertIs(addons["requires_reference_base"], True)
 
     def test_language_profile_masks_the_ico_ensure_heading(self):
-        # 3b582: the 0.20.0 heading is listed in the profile and masked by the gate-2 engine,
-        # while an ordinary 'ensure' sentence (the positive control) is still flagged.
+        # The 0.20.0 heading is listed in the profile and masked by the gate-2 engine, while
+        # an ordinary 'ensure' sentence (the positive control) is still flagged.
         from unittest.mock import patch
         heading = "How do we ensure accuracy?"
         self.assertIn(heading,
@@ -61041,7 +61042,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
             "manifest [registers] must declare exactly the six expected registers",
         )
         # Fail-CLOSED on SHAPE, keyed by filename: each register carries its SPECIFIC list
-        # collection. PR-2 populates the generation-side registers (ownership, clauses,
+        # collection. The pack populates the generation-side registers (ownership, clauses,
         # id-history); the gate and hook registers stay empty until a transfer wave fills them.
         expected = {
             "clauses.toml": ("clauses", True),
@@ -61145,9 +61146,8 @@ class CorpusManagementCompilerTests(LinterTestCase):
         'rule = "rules-tree"\nkind = "tree"\ntarget = "generated/rules"\n'
     )
     EMPTY_CLAUSES = "schema_version = 1\nclauses = []\n"
-    # The compiler's PACK_DIR (src/tools/corpus_mgmt_compiler.py, CM/src since chunk R6). The
-    # wrapper passes its own src as --pack-root unless the caller passes one, so _run passes the
-    # fixture's.
+    # The compiler's PACK_DIR (src/tools/corpus_mgmt_compiler.py, CM/src). The wrapper passes
+    # its own src as --pack-root unless the caller passes one, so _run passes the fixture's.
     PACK_REL = ".claude/skills/corpus-management/src"
     # What the compiler writes in these fixtures: the owned rule bodies and the skill directory's
     # index. The pack itself now sits under .claude, so "nothing written" checks these.
@@ -61156,8 +61156,8 @@ class CorpusManagementCompilerTests(LinterTestCase):
 
     @staticmethod
     def _tree_snapshot(root):
-        # FX5a: every entry under root by path, with its type and its bytes (a symlink's
-        # target), so a check against it sees a write anywhere in the fixture.
+        # Every entry under root by path, with its type and its bytes (a symlink's target),
+        # so a check against it sees a write anywhere in the fixture.
         entries = {}
         for directory, dirs, files in os.walk(root):
             for name in dirs + files:
@@ -61179,8 +61179,8 @@ class CorpusManagementCompilerTests(LinterTestCase):
         self.assertEqual(self._tree_snapshot(root), before, msg)
 
     def test_wrote_nothing_check_sees_an_unexpected_file(self):
-        # FX5a control: a file written anywhere in the fixture, outside OUTPUT_DIRS,
-        # fails the no-write check.
+        # Control: a file written anywhere in the fixture, outside OUTPUT_DIRS, fails the
+        # no-write check.
         root = self._index_root()
         before = self._tree_snapshot(root)
         self._assert_wrote_nothing(root, before)
@@ -61192,12 +61192,12 @@ class CorpusManagementCompilerTests(LinterTestCase):
                    clauses=None, sources=None, files=None,
                    gates_toml=None, gates_register_line=None):
         # Unique per-call scratch dir + self-registered cleanup so two concurrent
-        # suite runs cannot delete or overwrite each other's tree (P-1.86;
-        # the fixed-dir + `if exists: rmtree` pattern raced on this fleet-concurrent
-        # machine; mirrors the #2292 _make_synthetic fix + _force_rmtree).
-        # Outside the repository, since one caller makes a target chmod-0 and
-        # a mode-0 entry under tests/tmp stops a concurrent run's repository
-        # walk (3b156).
+        # suite runs cannot delete or overwrite each other's tree (in the earlier
+        # repository, the fixed-dir + `if exists: rmtree` pattern raced on a
+        # fleet-concurrent machine; this helper mirrors the _make_synthetic fix
+        # and _force_rmtree). Outside the repository, since one caller makes a
+        # target chmod-0 and a mode-0 entry under tests/tmp stops a concurrent
+        # run's repository walk.
         root = self._fixture_base("synthetic-corpus-mgmt-")
         pack = root / self.PACK_REL
         (pack / "core").mkdir(parents=True)
@@ -61340,7 +61340,7 @@ class CorpusManagementCompilerTests(LinterTestCase):
             ('.claude/rules/corpus-management/language-convention.md',
              '.claude/references/corpus-management/language-convention.md', "loading partition"),
             ('.claude/skills/corpus-management/rule-index.md', 'generated/INDEX.md', "canonical target"),
-            # 3b607: the former always-loaded location is no longer canonical.
+            # The former always-loaded location is no longer canonical.
             ('.claude/skills/corpus-management/rule-index.md',
              '.claude/rules/corpus-management/INDEX.md', "canonical target"),
         )
@@ -61403,8 +61403,8 @@ class CorpusManagementCompilerTests(LinterTestCase):
                 self.assertIn("symlinks", result.stdout)
 
     def test_index_leftover_always_loaded_copy_fails_without_writes(self):
-        # 3b607: a copy of the index left in .claude/rules/ would still load
-        # at session start, so both modes refuse it until it is removed.
+        # A copy of the index left in .claude/rules/ would still load at
+        # session start, so both modes refuse it until it is removed.
         root = self._index_root()
         self.assertEqual(self._run(root).returncode, 0)
         index = root / ".claude/skills/corpus-management/rule-index.md"
@@ -61422,10 +61422,10 @@ class CorpusManagementCompilerTests(LinterTestCase):
         self.assertEqual(self._run(root, "--check").returncode, 0)
 
     def test_index_symlink_in_skill_directory_fails_without_writes(self):
-        # 3b607 round 3: before the move, a symlinked INDEX.md failed --check
-        # (1) and generation (2); the index now lives in the skill directory,
-        # so a same-bytes symlink there must fail the same way rather than
-        # pass the check and be silently replaced by the next generate.
+        # Before the move, a symlinked INDEX.md failed --check (1) and
+        # generation (2); the index now lives in the skill directory, so a
+        # same-bytes symlink there must fail the same way rather than pass
+        # the check and be silently replaced by the next generate.
         root = self._index_root(skill=True)
         self.assertEqual(self._run(root).returncode, 0)
         self.assertEqual(self._run(root, "--check").returncode, 0,
@@ -61454,7 +61454,7 @@ class CorpusManagementCompilerTests(LinterTestCase):
         skill_dir = REPO_ROOT / ".claude/skills/corpus-management"
         index = (skill_dir / "rule-index.md").read_bytes()
         self.assertLessEqual(len(index), 6000)
-        # 3b607: the skill body names the index and carries its leading
+        # The skill body names the index and carries its leading
         # instruction, so the instruction loads with the skill body and the
         # index is read on it.
         skill = " ".join((skill_dir / "SKILL.md").read_text().split())
@@ -61590,7 +61590,7 @@ class CorpusManagementCompilerTests(LinterTestCase):
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertIn("expected exactly one begin", result.stdout)
 
-    # --- Gate-register validation (compile PR-5; the D2 slice codex hardened). ---
+    # --- Gate-register validation. ---
     GATES_VALID = 'schema_version = 1\n\n[[gates]]\nid = "note-gate"\ntitle = "Note gate"\nsource = ".claude/skills/corpus-management/tools/gate_note.py"\nenforces = "note-clause"\nentry_point = ".claude/skills/corpus-management/tools/note_wrapper.py"\norigin = "test"\n'
 
     def _gate_root(self, *, gates_toml=None, gates_register_line=None):
@@ -61762,8 +61762,7 @@ class CorpusManagementCompilerTests(LinterTestCase):
             "the spliced body must come from the pack source",
         )
 
-    # --- Hardening regressions (compile PR-2 /validate-pr HOLD, tri-family;
-    # --- codex+gemini found these latent fail-closed/containment gaps). ---
+    # --- Hardening regressions: latent fail-closed/containment gaps. ---
     def test_non_utf8_register_is_config_error(self):
         root = self._block_root(self.HANDBOOK_IN_SYNC)
         (root / self.PACK_REL / "gensrc.toml").write_bytes(b"\xff\xfe not toml")
@@ -61840,15 +61839,14 @@ class CorpusManagementCompilerTests(LinterTestCase):
         td = root / self.PACK_REL / "core" / "rules"
         td.mkdir(parents=True, exist_ok=True)
         # Own mkdtemp dir beside the root, not a fixed name in the shared
-        # system temp dir; cleanup is registered before the write (P-1.86).
+        # system temp dir; cleanup is registered before the write.
         outside = self._fixture_base("cm-symlink-secret-") / "cm-symlink-secret.md"
         outside.write_text("secret\n", encoding="utf-8")
         os.symlink(outside, td / "leak.md")
         result = self._run(root, "--check")
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
 
-    # --- Round-2 hardening regressions (compile PR-2 /validate-pr iter-2 HOLD,
-    # --- codex the discriminator; deeper crash/fail-open edge cases). ---
+    # --- Further hardening regressions: deeper crash/fail-open edge cases. ---
     def test_nul_in_target_is_config_error_not_crash(self):
         root = self._make_root(
             gensrc='schema_version = 1\n\n[[rules]]\nid = "r"\nkind = "file"\n'
@@ -61914,11 +61912,11 @@ class CorpusManagementCompilerTests(LinterTestCase):
         # A permission-denied on a committed target during --check must be a
         # clean fail-closed drift/findings exit (1) - the compiler appends an
         # unreadable-target finding and returns 1, never exit 2 and never an
-        # uncaught traceback (P-1.80).
+        # uncaught traceback.
         if hasattr(os, "geteuid") and os.geteuid() == 0:
             # Root reads a chmod-0 file regardless, so the permission-denied-target
-            # precondition cannot be established as uid 0 (D1, #2093). Skip with a
-            # visible NOTE rather than emit a spurious red gate for a root sweep.
+            # precondition cannot be established as uid 0. Skip with a visible NOTE
+            # rather than emit a spurious red gate for a root sweep.
             print(
                 "NOTE: skipping test_unreadable_target_in_check_reports_drift_not_traceback under "
                 "root (chmod-0 is still readable as uid 0)",
@@ -61926,7 +61924,7 @@ class CorpusManagementCompilerTests(LinterTestCase):
             )
             self.skipTest("running as root: chmod-0 file remains readable; unreadable-target case not exercisable")
         root = self._block_root(self.HANDBOOK_IN_SYNC)
-        # The chmod-0 target must not sit under the repository tree (3b156).
+        # The chmod-0 target must not sit under the repository tree.
         self.assertNotIn(REPO_ROOT.resolve(), root.resolve().parents)
         handbook = root / "HANDBOOK.md"
         os.chmod(handbook, 0)
@@ -61935,8 +61933,8 @@ class CorpusManagementCompilerTests(LinterTestCase):
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertNotIn("Traceback", result.stderr)
 
-    # --- Round-3 hardening regression (iter-3 HOLD, gemini+claude): a
-    # --- symlink-to-DIRECTORY is not is_file(), so a naive rglob scan missed it. ---
+    # --- Hardening regression: a symlink-to-DIRECTORY is not is_file(), so a naive
+    # --- rglob scan missed it. ---
     def test_symlink_dir_stray_in_owned_tree_is_drift(self):
         root = self._make_root(
             gensrc=self.TREE_GENSRC, ownership=self.TREE_OWNERSHIP,
@@ -61966,8 +61964,8 @@ class CorpusManagementCompilerTests(LinterTestCase):
         result = self._run(root, "--check")
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
 
-    # --- Compile PR-3: tree-child containment (the #2038 routed blocker),
-    # --- the inside-root symlink rider, and the first live file-kind rule. ---
+    # --- Tree-child containment, the inside-root symlink rider, and the first live
+    # --- file-kind rule. ---
     def test_tree_child_symlink_escape_flagged(self):
         # An EXPECTED tree child replaced by a symlink to an OUTSIDE file with
         # the exact rendered bytes: a content compare through the link passes,
@@ -61982,7 +61980,7 @@ class CorpusManagementCompilerTests(LinterTestCase):
         # Own mkdtemp dir beside the root, never a fixed name in the shared
         # system temp dir, so two concurrent runs cannot overwrite or delete
         # each other's escape target; _fixture_base registers cleanup before
-        # the write (P-1.86).
+        # the write.
         outside = self._fixture_base("cm-child-escape-") / "cm-child-escape.md"
         outside.write_bytes(child.read_bytes())
         child.unlink()
@@ -62036,10 +62034,10 @@ class CorpusManagementCompilerTests(LinterTestCase):
 
 
 class NarrativeScanScopeTests(LinterTestCase):
-    """P-1.25 scan-root split: executive/ is outside the corpus document
-    model but inside the repository safety gates, and the classification is
-    closed against the WIRED gate programme (a new gate of any name fails
-    here until classified).
+    """Scan-root split: executive/ is outside the corpus document model but
+    inside the repository safety gates, and the classification is closed
+    against the WIRED gate programme (a new gate of any name fails here
+    until classified).
 
     Manifest: ``.claude/skills/corpus-management/tools/gate-scope-manifest.json``. Mechanism: each of the five
     corpus-model root-walkers excludes the repo-root ``executive/`` tree via the
@@ -62207,8 +62205,8 @@ class NarrativeScanScopeTests(LinterTestCase):
         """A PRIVATE repository-shaped root holding ``files`` (relative path
         to content), built under the self-cleaning ``_fixture_base`` dir so
         no behavioural probe is ever written into the shared repository tree
-        (a concurrent repository scan used to see the fixed-name probes,
-        including the deliberately planted credential)."""
+        (in the earlier repository, a concurrent repository scan saw the
+        fixed-name probes, including the deliberately planted credential)."""
         root = self._fixture_base(prefix)
         for rel, content in files.items():
             path = root / rel
@@ -62510,10 +62508,10 @@ class IndexHeaderParityTests(LinterTestCase):
             self.assertEqual(r.returncode, 0, f"allow-listed multi-cadence row must pass.\n{r.stdout}")
 
     def test_allowlisted_path_with_changed_shape_fails(self) -> None:
-        # Fail-closed pinning (codex /validate-pr hardening, PR #1665): the
-        # allow-listed MCP path but with a DIFFERENT cadence shape than the pinned
-        # (index {QUARTERLY} / header {CONTINUOUS, QUARTERLY}) must FAIL, proving
-        # the exception is keyed to the exact pinned base sets, not the path alone.
+        # Fail-closed pinning: the allow-listed MCP path but with a DIFFERENT
+        # cadence shape than the pinned (index {QUARTERLY} / header {CONTINUOUS,
+        # QUARTERLY}) must FAIL, proving the exception is keyed to the exact pinned
+        # base sets, not the path alone.
         with tempfile.TemporaryDirectory() as d:
             self._write(
                 d,
@@ -62579,7 +62577,7 @@ class IndexHeaderParityTests(LinterTestCase):
         self.assertEqual(r.returncode, 0, f"live corpus must be clean under strict.\n{r.stdout}\n{r.stderr}")
 
     def test_shared_event_trigger_does_not_mask_base_mismatch(self) -> None:
-        # C6 (r21): a shared trigger/event clause must NOT reconcile a genuine
+        # A shared trigger/event clause must NOT reconcile a genuine
         # base-cadence disagreement (Annual+trigger vs Quarterly+trigger).
         with tempfile.TemporaryDirectory() as d:
             self._write(
@@ -62591,8 +62589,8 @@ class IndexHeaderParityTests(LinterTestCase):
             self.assertLinterFails(r, "base cadence set mismatch")
 
     def test_blank_line_does_not_truncate_table(self) -> None:
-        # C8 (r21): a blank line inside the table must not silently truncate
-        # the scan and drop the later (mismatching) row from checking.
+        # A blank line inside the table must not silently truncate the scan
+        # and drop the later (mismatching) row from checking.
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)
             (root / "governance").mkdir(parents=True, exist_ok=True)
@@ -62627,7 +62625,7 @@ class IndexHeaderParityTests(LinterTestCase):
 
 
 class IndexTitleParityTests(LinterTestCase):
-    """Gate 92 title ratchet (3b150): the engine's third comparator.
+    """Gate 92 title ratchet: the engine's third comparator.
 
     Synthetic --root trees warn about unmatched baseline paths. The live run
     requires all 45 pinned pairs, with 30 privacy shortenings and 15 drift
@@ -63030,8 +63028,8 @@ class UnusedImportsGateTests(unittest.TestCase):
             self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
 
     def test_external_skipped_path_does_not_crash(self):
-        # A dynamic __all__ file makes scan_file SKIP; the CLI must print SKIP and
-        # exit 0 for an EXTERNAL --paths target, not crash on relative_to (codex r22 High).
+        # A dynamic __all__ file makes scan_file SKIP; the CLI must print SKIP and exit 0
+        # for an EXTERNAL --paths target, not crash on relative_to.
         with tempfile.TemporaryDirectory() as td:
             p = Path(td) / "m.py"
             p.write_text("from a import Public\n__all__ = []\n__all__.extend(['Public'])\n", encoding="utf-8")
@@ -63056,10 +63054,11 @@ class UnusedImportsGateTests(unittest.TestCase):
                          "live toolchain has unused imports:\n" + r.stdout)
 
     def test_default_discovery_is_recursive_and_widened(self):
-        # r22-F4: default discovery covers .claude/skills/corpus-management/tools/, .claude/skills/corpus-management/tests/, .web/, and
-        # .claude/hooks/ RECURSIVELY (a nested file under EACH root is in scope),
-        # with __pycache__ excluded and a directory whose name ends in .py
-        # skipped (is_file filter, so rglob never hands a directory to read_text).
+        # Default discovery covers .claude/skills/corpus-management/tools/,
+        # .claude/skills/corpus-management/tests/, .web/, and .claude/hooks/
+        # RECURSIVELY (a nested file under EACH root is in scope), with __pycache__
+        # excluded and a directory whose name ends in .py skipped (is_file filter,
+        # so rglob never hands a directory to read_text).
         import importlib.util
         spec = importlib.util.spec_from_file_location(
             "lint_unused_imports_mod", REPO_ROOT / ".claude/skills/corpus-management/tools/lint-unused-imports.py")
@@ -63093,13 +63092,13 @@ class UnusedImportsGateTests(unittest.TestCase):
 
 
 class HookParserStrictnessTests(LinterTestCase):
-    """3b50b2f: hook and revision-tool parsers accept only their documented forms.
+    """Hook and revision-tool parsers accept only their documented forms.
 
-    Each used to ignore a surplus or unknown argument and run its normal path with exit 0 (for
-    example check-pr-attribution --text-file FILE --stray, or tension-scan BASE HEAD --stray).
-    The real caller shapes stay accepted: the commit-msg and pre-commit hooks' single flag, the
-    pre-push hook's --pre-push plus git's remote name and URL, and the PR-time floor check's two
-    refs."""
+    In the earlier repository, each ignored a surplus or unknown argument and ran its normal
+    path with exit 0 (for example check-pr-attribution --text-file FILE --stray, or tension-scan
+    BASE HEAD --stray). The real caller shapes stay accepted: the commit-msg and pre-commit
+    hooks' single flag, the pre-push hook's --pre-push plus git's remote name and URL, and the
+    PR-time floor check's two refs."""
 
     def test_surplus_or_unknown_arguments_refused(self) -> None:
         td = Path(tempfile.mkdtemp(prefix="hookparse-"))
@@ -63144,13 +63143,13 @@ class HookParserStrictnessTests(LinterTestCase):
         ):
             r = run_linter(script, *args)
             self.assertEqual(r.returncode, 0, (script, args, r.stdout[-200:], r.stderr[-200:]))
-        # HEAD~1..HEAD since 3b530: a collapsed (base==head) range is now a
-        # CANNOT-EVALUATE refusal, not an accepted documented form (D12
-        # since round 2; its refusal is pinned in CollapsedRangeRefusalTests).
-        # Chunk T2E: the range is a two-commit fixture repository, the floor at
-        # the base and a README.md change at the head, so the run does not read
-        # the checkout's history (the new repository starts with one commit,
-        # where HEAD~1 does not resolve). The gate reads the repository it runs in.
+        # HEAD~1..HEAD: a collapsed (base==head) range is a CANNOT-EVALUATE
+        # refusal, not an accepted documented form (D12; its refusal is pinned in
+        # CollapsedRangeRefusalTests). The range is a two-commit fixture
+        # repository, the floor at the base and a README.md change at the head, so
+        # the run does not read the checkout's history (the new repository starts
+        # with one commit, where HEAD~1 does not resolve). The gate reads the
+        # repository it runs in.
         repo = td / "repo"
 
         def git(*args):
@@ -63231,7 +63230,7 @@ class HooksSyntaxGateTests(unittest.TestCase):
 
 
 class HookSelfTestAndParityGateTests(unittest.TestCase):
-    """Gate 111's self-test run and registration-parity checks (chunk G).
+    """Gate 111's self-test run and registration-parity checks.
 
     Each case runs the tool as a subprocess on a fixture hooks directory with a fixture
     settings file, so the live hooks and settings are never read for parity. Each failing
@@ -63408,8 +63407,8 @@ class HookLauncherIsolationGateTests(unittest.TestCase):
             self.assertIn('ERROR: settings.json:', r.stderr)
 
     def test_non_json_constants_refused(self):
-        # 3b270: json.loads accepts NaN, Infinity and -Infinity; strict JSON refuses each, even in
-        # an extra top-level field beside a valid isolated hook.
+        # json.loads accepts NaN, Infinity and -Infinity; strict JSON refuses each, even in an
+        # extra top-level field beside a valid isolated hook.
         import json
         hook = '/usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'
         hooks = json.dumps(dict(PreToolUse=[dict(matcher='Bash', hooks=[dict(type='command', command=hook)])]))
@@ -63422,8 +63421,9 @@ class HookLauncherIsolationGateTests(unittest.TestCase):
                 self.assertIn('ERROR: settings.json: non-JSON constant ' + constant, r.stderr)
 
     def test_deeply_nested_settings_refused_without_traceback(self):
-        # 3b270: nesting past the decoder's recursion limit raised an uncaught RecursionError (exit 1,
-        # which means "lacks isolation"); it is a refusal with a one-line error.
+        # In the earlier repository, nesting past the decoder's recursion
+        # limit raised an uncaught RecursionError (exit 1, which means
+        # "lacks isolation"); it is now a refusal with a one-line error.
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / 'settings.json'
             path.write_text('{"hooks": ' + '[' * 100000 + ']' * 100000 + '}', encoding='utf-8')
@@ -63449,8 +63449,8 @@ class HookLauncherIsolationGateTests(unittest.TestCase):
             self.assertIn("ERROR: settings.json:", r.stderr)
 
     def test_obsolete_q_option_refused_by_gate(self):
-        # 3b270: -Q (Python 2 division control) is not a Python 3 option; the gate itself refuses
-        # it as unmodelled, whether its argument is attached or separate, even beside -I.
+        # -Q (Python 2 division control) is not a Python 3 option; the gate itself refuses it as
+        # unmodelled, whether its argument is attached or separate, even beside -I.
         for cmd in ('/usr/bin/python3 -I -Qnew "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '/usr/bin/python3 -I -Q new "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'):
             with tempfile.TemporaryDirectory() as td:
                 p = self._settings(td, [cmd])
@@ -63605,8 +63605,9 @@ class HookSiblingImportIsolationTests(unittest.TestCase):
             self.assertIn('verification-pipes', state.read_text(encoding='utf-8'))
 
     def test_bulk_git_add_decoys_not_imported(self):
-        # Chunk FC: rewritten from block-claude-attribution.py (does not ship) to the
-        # shipped hook that loads _hookutil.py at import time.
+        # Runs the shipped hook that loads _hookutil.py at import time; in the
+        # earlier repository this case ran block-claude-attribution.py, which does
+        # not ship.
         with tempfile.TemporaryDirectory() as td:
             d, env = self._arena(td, 'block-bulk-git-add.py', '_hookutil.py')
             env.pop('GRC_ALLOW_BULK_ADD', None)
@@ -63701,15 +63702,15 @@ class HookSiblingImportIsolationTests(unittest.TestCase):
                 offenders.append(py.name)
         self.assertEqual(offenders, [])
 
-    # Chunk FC retired five cases whose hooks do not ship and whose property no
-    # shipped hook has: surface-session-facts (worker detection through _hookutil),
-    # block-unjustified-decision and block-askuserquestion-unattended (helpers loaded
-    # from the skill tools directory: no shipped hook loads lint_common or
-    # todo_index_rows), inject-session-timestamp (_session_clock.py does not ship),
-    # and the symlinked tools directory case below them (it needed a hook that loads
-    # a tools helper). The _hookutil.py load is covered by
-    # test_bulk_git_add_decoys_not_imported, the symlinked helper and hooks
-    # directory refusals by the cases that remain.
+    # Five cases of the earlier repository were retired because their hooks do not
+    # ship and no shipped hook has their property: surface-session-facts (worker
+    # detection through _hookutil), block-unjustified-decision and
+    # block-askuserquestion-unattended (helpers loaded from the skill tools
+    # directory: no shipped hook loads lint_common or todo_index_rows),
+    # inject-session-timestamp (_session_clock.py does not ship), and the symlinked
+    # tools directory case below them (it needed a hook that loads a tools helper).
+    # The _hookutil.py load is covered by test_bulk_git_add_decoys_not_imported, the
+    # symlinked helper and hooks directory refusals by the cases that remain.
 
     def test_missing_helper_with_seeded_sys_modules_never_consumed(self):
         import json
@@ -63830,7 +63831,7 @@ class HookSiblingImportIsolationTests(unittest.TestCase):
 
     def test_tools_helpers_import_no_repository_helpers_by_name(self):
         tools = SKILL_ROOT / 'tools'
-        # Chunk FC: session_facts.py and lease_id.py do not ship; the two helpers that do remain.
+        # session_facts.py and lease_id.py do not ship; the two helpers that do remain.
         offenders = self._helper_import_offences([tools / 'lint_common.py', tools / 'todo_index_rows.py'])
         self.assertEqual(offenders, [])
 
@@ -64108,7 +64109,7 @@ class HookRoundEightTests(unittest.TestCase):
                    for event, groups in settings['hooks'].items()
                    for group in groups for hook in group['hooks']
                    if hook.get('type') == 'command']
-        # C1 T1j: settings.json registers exactly the 5 shipped blocking hooks, each once.
+        # settings.json registers exactly the 5 shipped blocking hooks, each once.
         self.assertEqual(len(entries), 5)
         self.assertEqual(sorted((event, matcher, Path(command.rsplit('/', 1)[1]).stem)
                                 for event, matcher, command in entries), [
@@ -64135,8 +64136,8 @@ class HookRoundEightTests(unittest.TestCase):
                 self.assertFalse(source.is_symlink(), source)
                 (hooks / source.name).write_bytes(source.read_bytes())
             fleet = base / 'operating-mode'
-            # 3b781 r3 (codex E2, agy2 E1): no copied hook may still carry the live
-            # fleet path as a string literal (docstrings cite it in double backquotes).
+            # No copied hook may still carry the live fleet path as a string literal
+            # (docstrings cite it in double backquotes).
             for copied in sorted(hooks.glob('*.py')):
                 self.assertNotIn('"/opt/orch-operator/operating-mode"',
                                  copied.read_text(), copied.name)
@@ -64187,9 +64188,9 @@ class HookRoundEightTests(unittest.TestCase):
                 if has_private:
                     private.mkdir()
                     (private / 'P-TODO.md').write_text('# Empty private backlog\n')
-                # 3b781 r2: set_at is load-bearing since the fleet-first cutover, so the
-                # well-formed fixtures carry it; a fleet file without set_at is the
-                # fail-closed malformed class, not the attended class.
+                # set_at is load-bearing, so the well-formed fixtures carry it; a
+                # fleet file without set_at is the fail-closed malformed class, not
+                # the attended class.
                 for mode, content in (
                     ('attended', '{"mode":"attended","set_at":"2026-11-01T12:00:00Z"}'),
                     ('unattended', '{"mode":"unattended","set_at":"2026-11-01T12:00:00Z"}'),
@@ -64207,10 +64208,10 @@ class HookRoundEightTests(unittest.TestCase):
                         fleet.unlink()
                     if content is not None:
                         fleet.write_text(content)
-                    # Exact expected sets. C1 T1j: no shipped hook blocks Bash pwd or an Edit
-                    # outside the project in any mode, with or without the private sibling.
-                    # FX5a: block-bulk-git-add alone blocks a bulk stage (Bash git add -A, with
-                    # the same Edit), so this test fails if that hook cannot block when it runs
+                    # Exact expected sets. No shipped hook blocks Bash pwd or an Edit outside
+                    # the project in any mode, with or without the private sibling.
+                    # block-bulk-git-add alone blocks a bulk stage (Bash git add -A, with the
+                    # same Edit), so this test fails if that hook cannot block when it runs
                     # outside the project.
                     for bash_command, expected in (('pwd', set()),
                                                    ('git add -A', {'block-bulk-git-add'})):
@@ -64319,8 +64320,8 @@ class SuggestListingSurfacesTests(unittest.TestCase):
         self.assertNotIn("Traceback", r.stdout + r.stderr, "nonexistent/foo.md crashed")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertIn("[n/a] nonexistent/README.md does not exist", r.stdout)
-        # governance/ now has a README (D-2102 layout), so its documents report that
-        # README as a MECHANICAL surface instead of [n/a].
+        # governance/ now has a README, so its documents report that README as a
+        # MECHANICAL surface instead of [n/a].
         r = self._run("governance/portal.md")
         self.assertNotIn("Traceback", r.stdout + r.stderr, "governance/portal.md crashed")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
@@ -64769,7 +64770,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
             ("asvs", "V2.14",
              "| ASVS | ZAP {probe} (tool version) |\n| --- | --- |\n| V1.2.4 | enabled |\n",
              "| ASVS | ASVS ZAP {probe} |\n| --- | --- |\n| V1.2.4 | enabled |\n"),
-            # The tool-version signal alone: the twin differs only by "(tool version)" (3b82 QA).
+            # The tool-version signal alone: the twin differs only by "(tool version)".
             ("asvs", "V2.14",
              "| ASVS | ASVS ZAP {probe} (tool version) |\n| --- | --- |\n| V1.2.4 | enabled |\n",
              "| ASVS | ASVS ZAP {probe} |\n| --- | --- |\n| V1.2.4 | enabled |\n"),
@@ -64906,7 +64907,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
         self.assertEqual(result.returncode, 0,
                          f"valid range should pass; stdout:\n{result.stdout}")
 
-    # --- OWASP ASVS and MITRE CWE (P-1.63 part d) ---
+    # --- OWASP ASVS and MITRE CWE ---
     def _run(self, name: str, body: str):
         return run_linter(self.SCRIPT, "--strict", self.make_fixture(name, body))
 
@@ -64930,7 +64931,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
 
     def test_other_publisher_versions_are_not_asvs_ids(self) -> None:
         self.assertIdentifierScopeProbes(lambda body: self._run("asvs-versions.md", body))
-        # The original line, with every fabricated token together, still passes (3b82 QA).
+        # The original line, with every fabricated token together, still passes.
         r = self._run("asvs-versions.md",
                       "ETSI EN 304 223 V9.9.9 and CMMI V9.9 sit beside OWASP ASVS V5.0.0 in this table.\n"
                       "| Standard | Version |\n| --- | --- |\n| ETSI TR 104 128 | V9.9.9 |\n")
@@ -64950,7 +64951,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
         self.assertLinterFails(r, "CWE-99999")
         self.assertNotIn("'CWE-79'", r.stdout)
 
-    # --- round-1 QA regressions (P-1.63 part d) ---
+    # --- direct ASVS citations ---
     def test_direct_asvs_citation_is_checked(self) -> None:
         # "ASVS V1.2.99" is a (fabricated) requirement, not an edition string.
         self.assertLinterFails(self._run("asvs-direct.md", "Per OWASP ASVS V1.2.99, inputs are decoded once.\n"),
@@ -65010,14 +65011,14 @@ class AlignmentCitationExistenceTests(LinterTestCase):
             with self.assertRaises(ValueError):
                 gen.build(ref)
 
-    # --- round-2 QA regressions (P-1.63 part d) ---
+    # --- identifiers are not editions ---
     def test_an_asvs_identifier_is_not_an_edition_for_later_tokens(self) -> None:
         for body in ("ASVS V1.2.4 and V1.2.99\n", "ASVS V7.2-V7.99\n", "ASVS V7.2\u2013V7.99\n"):
             r = self._run("asvs-idnotedition.md", body)
             self.assertNotEqual(r.returncode, 0, body + r.stdout)
             self.assertNotIn("'V1.2.4'", r.stdout)
 
-    # --- round-3 QA regressions (P-1.63 part d) ---
+    # --- chapters, tables and held editions ---
     def test_dotless_capital_v_after_the_name_is_a_chapter_not_an_edition(self) -> None:
         self.assertLinterFails(self._run("asvs-dotless.md", "ASVS V6 covers V6.2.99.\n"), "V6.2.99")
         self.assertLinterFails(self._run("asvs-idafter.md", "ASVS V1.2.99.\n"), "V1.2.99")
@@ -65047,7 +65048,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
     def test_other_standard_prefixes_are_versions(self) -> None:
         self.assertIdentifierScopeProbes(lambda body: self._run("asvs-otherstd.md", body))
 
-    # --- round-5: union of held editions (5.0.0 live, 4.0.3 retained) ---
+    # --- union of held editions (5.0.0 live, 4.0.3 retained) ---
     def test_a_held_legacy_identifier_passes_anywhere(self) -> None:
         for body in ("| Framework | Version | Reference |\n|---|---|---|\n| OWASP ASVS | 4.0.3 | V5.3.4 |\n",
                      "Version 4.0.3 of the ASVS requires V5.3.4.\n",
@@ -65067,7 +65068,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
         self.assertLinterFails(self._run("asvs-r5c.md",
                                          "| Requirement ID | OWASP ASVS |\n|---|---|\n| V1.2.99 | Implemented |\n"), "V1.2.99")
 
-    # --- round-6 QA regressions (P-1.63 part d) ---
+    # --- signalled columns and header cells ---
     def test_round6_cells_naming_asvs_are_checked_in_signalled_columns(self) -> None:
         for body in ("| Obligation | Library artefact |\n|---|---|\n| Input validation | standard (OWASP ASVS V1.2.99) |\n",
                      "| Requirement | NIST SSDF | ISO 27001 |\n|---|---|---|\n| SQLi | PW.5.1, OWASP ASVS V1.2.99 | A.8.28 |\n",
@@ -65081,7 +65082,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
         self.assertLinterFails(self._run("asvs-hdrcell.md",
                                          "| Control | ASVS V1.2.99 mapping |\n| --- | --- |\n| X | y |\n"), "V1.2.99")
 
-    # --- round-7 QA regressions (P-1.63 part d) ---
+    # --- bare integers and edition placement ---
     def test_round7_a_bare_integer_is_never_an_edition(self) -> None:
         for body in ("OWASP ASVS: 3 requirements apply here (V1.2.99).\n", "OWASP ASVS 1-3 levels: V1.2.99 applies.\n",
                      "ASVS \u00a73 maps to V1.2.99.\n", "ASVS[^1] requires V1.2.99.\n\n[^1]: note.\n",
@@ -65095,7 +65096,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
     def test_round7_markdown_and_more_standard_forms_are_excluded(self) -> None:
         self.assertIdentifierScopeProbes(lambda body: self._run("asvs-r7fp.md", body))
 
-    # --- round-8 QA regressions (P-1.63 part d) ---
+    # --- section signs, ranges and shortcut links ---
     def test_round8_section_sign_and_hyphen_range_are_checked(self) -> None:
         self.assertLinterFails(self._run("asvs-r8sec.md", "ASVS 5.0.0: see ASVS \u00a73.2 requirement V3.2.99.\n"), "V3.2.99")
         self.assertLinterFails(self._run("cwe-r8range.md", "Weakness range: CWE-79-CWE-99999.\n"), "CWE-99999")
@@ -65103,7 +65104,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
     def test_round8_shortcut_links_tool_headers_and_titles_are_excluded(self) -> None:
         self.assertIdentifierScopeProbes(lambda body: self._run("asvs-r8fp.md", body))
 
-    # --- round-9 QA regressions (P-1.63 part d) ---
+    # --- long standard names and generic columns ---
     def test_round9_misses_are_checked(self) -> None:
         for body, tok in (("Mapped to NIST and OWASP Application Security Verification Standard V1.2.99.\n", "V1.2.99"),
                           ("See \u00a73.0 ASVS mapping: V1.2.99.\n", "V1.2.99"),
@@ -65117,7 +65118,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
     def test_round9_long_standard_names_and_generic_columns_are_excluded(self) -> None:
         self.assertIdentifierScopeProbes(lambda body: self._run("asvs-r9fp.md", body))
 
-    # --- round-4 QA regressions (P-1.63 part d) ---
+    # --- table context boundaries ---
     def test_table_context_ends_at_a_pipeless_line_or_a_fence(self) -> None:
         self.assertIdentifierScopeProbes(
             lambda body: self._run("asvs-tableend.md", body)
@@ -65238,8 +65239,8 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
             self.assertEqual(identifier_scope_probe_issues(self._cases(family, token)), [])
 
     def test_probes_the_linter_could_never_flag_are_rejected(self) -> None:
-        # 3b64 QA (claude, codex): absent from the catalogue yet unflaggable, so a test built on
-        # them passes whatever the scope logic does.
+        # Absent from the catalogue yet unflaggable, so a test built on them passes whatever the
+        # scope logic does.
         for family, token, template, why in (
             ("asvs", "V9.9.9", "ASVS requirement X{probe}.", "is not a whole token at its placeholder once rendered"),
             ("asvs", "V5.0.1", "ASVS requirement {probe}.", "is not flagged by the engine even in a neutral context"),
@@ -65253,7 +65254,7 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
                 )
 
     def test_a_nul_in_the_template_does_not_move_the_probe(self) -> None:
-        # 3b64 round 3 (claude, codex): the text checked is the text the run writes.
+        # The text checked is the text the run writes.
         self.assertEqual(
             identifier_scope_probe_issues(self._cases("asvs", "V9.9.9", "\x00\n```\nASVS {probe}\n```\n")),
             ["TEST-PROBE-UNFLAGGABLE: runTest[0]: asvs 'V9.9.9' sits on a line the engine "
@@ -65261,8 +65262,8 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
         )
 
     def test_a_probe_needs_a_distinct_twin(self) -> None:
-        # 3b64 round 4 (claude): the twin replaces the name heuristic; a missing or identical
-        # twin cannot prove what suppresses the finding.
+        # The twin replaces the name heuristic; a missing or identical twin cannot prove what
+        # suppresses the finding.
         self.assertEqual(identifier_scope_probe_issues({"runTest": (("asvs", "V9.9.9", "ASVS {probe}."),)}),
                          ["TEST-PROBE-SHAPE: runTest[0]: expected (family, token, template, twin)"])
         self.assertEqual(
@@ -65270,7 +65271,7 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
             ["TEST-PROBE-TWIN: runTest[0]: the twin needs one {probe} and must differ from the template"])
 
     def test_a_rebuilt_pf_range_endpoint_is_refused(self) -> None:
-        # 3b64 round 7 (claude): 'CT.PO-P1 to P9' makes the engine report 'CT.PO-P9'.
+        # 'CT.PO-P1 to P9' makes the engine report 'CT.PO-P9'.
         self.assertEqual(
             identifier_scope_probe_issues(self._cases("pf", "CT.PO-P9", "{probe} x\n",
                                                       "CT.PO-P1 to P9, {probe}\n")),
@@ -65278,7 +65279,6 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
              "elsewhere, which the engine reports"])
 
     def test_twin_placeholder_count_and_duplicates_are_refused(self) -> None:
-        # 3b64 round 5 (claude, codex).
         for twin in ("ASVS requirement.\n", "ASVS {probe} and {probe}.\n"):
             with self.subTest(twin=twin):
                 self.assertEqual(
@@ -65293,8 +65293,8 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
                      "placeholder in the template or twin"])
 
     def test_a_registered_test_whose_probes_do_not_run_fails(self) -> None:
-        # 3b64 round 8 (claude, codex): the runtime guard catches every way the probes can fail
-        # to run, including shapes the static pre-screen cannot see.
+        # The runtime guard catches every way the probes can fail to run, including shapes the
+        # static pre-screen cannot see.
         import warnings
         from unittest.mock import Mock
         ok = Mock(side_effect=lambda body: subprocess.CompletedProcess(
@@ -65340,8 +65340,8 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
                         failed["test_runner_skips"])
 
     def test_skip_marked_probe_tests_are_refused(self) -> None:
-        # 3b64 round 10 (claude, codex): a skip marker returns before doCleanups, so the runtime
-        # check cannot see it; the registry check reads the live attribute.
+        # A skip marker returns before doCleanups, so the runtime check cannot see it; the
+        # registry check reads the live attribute.
         probe = (("asvs", "V9.9.9", "ASVS 3.0.1 {probe}.\n", "ASVS requirement {probe}.\n"),)
 
         class _M(LinterTestCase):
@@ -65364,8 +65364,8 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
         self.assertEqual(scope_probe_registry_issues({"_C": _C}),
                          ["TEST-PROBE-SKIP-MARKED: _C is skip-marked and declares scope probes"])
 
-        # 3b64 round 11 (claude, codex): a skip on a BASE class, and a skip-marked subclass that
-        # only INHERITS the registration, are both refused (run() enforces inherited probes).
+        # A skip on a BASE class, and a skip-marked subclass that only INHERITS the
+        # registration, are both refused (run() enforces inherited probes).
         class _Base(LinterTestCase):
             IDENTIFIER_SCOPE_PROBES = {"test_x": probe}
 
@@ -65397,7 +65397,7 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
         self.assertEqual(scope_probe_registry_issues({"_BadBase": _BadBase, "_Child": _Child}),
                          ["_BadBase: TEST-PROBE-VALID-ID: test_x[0]: asvs 'V1.6' exists in the held catalogue"])
 
-        # 3b64 round 11 (gemini): an expectedFailure wrapper applied after definition.
+        # An expectedFailure wrapper applied after definition.
         class _E(LinterTestCase):
             IDENTIFIER_SCOPE_PROBES = {"test_x": probe}
 
@@ -65421,14 +65421,14 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
                       scope_probe_registry_issues({"_EC": _EC}))
 
     def test_a_one_shot_probe_collection_is_refused(self) -> None:
-        # 3b64 round 9 (codex): a generator is consumed by validation and would run nothing.
+        # A generator is consumed by validation and would run nothing.
         gen = (p for p in (("asvs", "V9.9.9", "ASVS 3.0.1 {probe}.\n", "ASVS requirement {probe}.\n"),))
         self.assertEqual(identifier_scope_probe_issues({"runTest": gen}),
                          ["TEST-PROBE-SHAPE: runTest: probes must be declared as a tuple"])
 
     def test_probe_guard_keeps_the_result_lifecycle(self) -> None:
-        # 3b64 round 9 (codex, gemini): the NOT-RUN failure is recorded before stopTest, and
-        # run(None) keeps unittest's startTestRun/stopTestRun.
+        # The NOT-RUN failure is recorded before stopTest, and run(None) keeps unittest's
+        # startTestRun/stopTestRun.
         events = []
 
         class _Recording(unittest.TestResult):
@@ -65468,8 +65468,8 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
         self.assertEqual(events, ["startTestRun", "start", "fail", "stop", "stopTestRun"])
 
     def test_twin_must_report_the_declared_token_itself(self) -> None:
-        # 3b64 round 6 (codex): a twin rendering 'V9.9.90' is refused statically, and a report
-        # naming only a longer identifier does not satisfy the helper.
+        # A twin rendering 'V9.9.90' is refused statically, and a report naming only a longer
+        # identifier does not satisfy the helper.
         from unittest.mock import Mock
         self.assertEqual(
             identifier_scope_probe_issues(self._cases("asvs", "V9.9.9", "ASVS 3.0.1 {probe}.\n",
@@ -65489,8 +65489,8 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
         self.assertTrue(str(caught.exception).startswith("TEST-PROBE-CONTROL: asvs 'V9.9.9'"))
 
     def test_helper_refuses_a_twin_the_run_does_not_report(self) -> None:
-        # 3b64 round 4 (claude, codex): the helper refuses when the twin is not reported (here
-        # the run callable exits 0), before running the template.
+        # The helper refuses when the twin is not reported (here the run callable exits 0),
+        # before running the template.
         from unittest.mock import Mock
         case = LinterTestCase()
         case.IDENTIFIER_SCOPE_PROBES = self._cases(
@@ -65502,7 +65502,7 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
         run.assert_called_once_with("```\nASVS\n```\nThe V9.9.9\n")
 
     def test_helper_refuses_a_control_that_does_not_name_the_token(self) -> None:
-        # 3b64 round 3 (codex): a non-zero exit about something else is not a report of the token.
+        # A non-zero exit about something else is not a report of the token.
         from unittest.mock import Mock
         case = LinterTestCase()
         case.IDENTIFIER_SCOPE_PROBES = self._cases("asvs", "V9.9.9", "ASVS {probe}.")
@@ -65513,7 +65513,7 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
         run.assert_called_once_with("ASVS requirement V9.9.9.\n")
 
     def test_probe_location_follows_the_engine_line_model(self) -> None:
-        # 3b64 round 2 (claude, codex): a fenced probe is never read; a bare CR is a line break.
+        # A fenced probe is never read; a bare CR is a line break.
         self.assertEqual(
             identifier_scope_probe_issues(self._cases("asvs", "V9.9.9", "```\nASVS {probe}\n```\n")),
             ["TEST-PROBE-UNFLAGGABLE: runTest[0]: asvs 'V9.9.9' sits on a line the engine "
@@ -65736,8 +65736,8 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
                          ["ASVS requirement V9.9.9.\n", "ASVS V1.2.4; other version V9.9.9\n"])
 
     def test_helper_refuses_a_run_callable_that_cannot_report(self) -> None:
-        # 3b64 round 2 (claude): a run callable in report mode (or on an exempt path) exits 0
-        # whatever it finds, which would make every probe pass.
+        # A run callable in report mode (or on an exempt path) exits 0 whatever it finds,
+        # which would make every probe pass.
         from unittest.mock import Mock
         case = LinterTestCase()
         case.IDENTIFIER_SCOPE_PROBES = self._cases("asvs", "V9.9.9", "ASVS {probe}.")
@@ -66028,11 +66028,11 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertEqual(rc, 1, "gate 98 must fail when the pin record is absent")
         self.assertIn("pin record not found", out)
 
-    # ---- RBQ8 fix round 1: traversal, symlinked roots, schema versions ----
+    # ---- traversal, symlinked roots, schema versions ----
 
     def test_symlinked_vendor_root_refused(self):
-        # RBQ8-vendor-root-symlink: identical bytes behind a symlinked
-        # .claude/aiqt must not pass.
+        # Identical bytes behind a symlinked .claude/aiqt must not
+        # pass.
         if os.name != "posix":
             self.skipTest("needs POSIX symlinks")
         repo = self._synthetic_repo()
@@ -66059,8 +66059,8 @@ class AIQTVendorDigestTests(LinterTestCase):
             mod.aiqt_rules.verify_vendor_dir(vendor)
 
     def test_fifo_vendored_entry_refused(self):
-        # RBQ8-traversal-special-entries: an entry that is neither a regular
-        # file nor a directory is refused, never silently ignored.
+        # An entry that is neither a regular file nor a directory is
+        # refused, never silently ignored.
         if os.name != "posix" or not hasattr(os, "mkfifo"):
             self.skipTest("needs POSIX FIFOs")
         repo = self._synthetic_repo()
@@ -66070,8 +66070,8 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIn("special", out.lower())
 
     def test_unlistable_vendored_subdirectory_fails(self):
-        # RBQ8-traversal-special-entries: a listing error propagates; a file
-        # hidden in an unreadable subdirectory cannot pass as a clean tree.
+        # A listing error propagates; a file hidden in an unreadable
+        # subdirectory cannot pass as a clean tree.
         if os.name != "posix" or (hasattr(os, "geteuid") and os.geteuid() == 0):
             self.skipTest("needs POSIX permissions that bind the current user")
         repo = self._synthetic_repo()
@@ -66085,16 +66085,16 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIn("unlistable", out.lower())
 
     def test_wrong_pin_schema_version_fails(self):
-        # RBQ8-schema-versions (pin side).
+        # Schema versions, pin side.
         pin = self._pin_text("sha256:" + "0" * 64, schema='"wrong"')
         rc, out = self._run(self._synthetic_repo(pin_text=pin))
         self.assertEqual(rc, 1, out)
         self.assertIn("schema-version must be the integer 1", out)
 
     def test_wrong_manifest_format_version_fails(self):
-        # RBQ8-schema-versions (manifest side): even consistently re-pinned
-        # (digest, root record and pin all agree), the declared format-version
-        # is held to the supported value.
+        # Schema versions, manifest side: even consistently re-pinned (digest,
+        # root record and pin all agree), the declared format-version is held
+        # to the supported value.
         import hashlib
         repo = self._synthetic_repo()
         vendor = repo / ".claude" / "aiqt"
@@ -66111,11 +66111,11 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertEqual(rc, 1, out)
         self.assertIn("format-version must be the integer 1", out)
 
-    # ---- RBQ11 fix round 2: exact types, exact bytes, non-blocking metadata ----
+    # ---- exact types, exact bytes, non-blocking metadata ----
 
     def test_float_pin_schema_version_fails(self):
-        # RBQ11-float-schema-versions (pin side): TOML 1.0 equals 1 under ==,
-        # so the declaration is held to the exact int type, not to equality.
+        # Float schema versions, pin side: TOML 1.0 equals 1 under ==, so the
+        # declaration is held to the exact int type, not to equality.
         pin = self._pin_text("sha256:" + "0" * 64, schema="1.0")
         rc, out = self._run(self._synthetic_repo(pin_text=pin))
         self.assertEqual(rc, 1, out)
@@ -66123,7 +66123,7 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIn("1.0", out)
 
     def test_float_manifest_format_version_fails(self):
-        # RBQ11-float-schema-versions (manifest side): consistently re-pinned
+        # Float schema versions, manifest side: consistently re-pinned
         # (digest, root record and pin all agree), so only the float type can
         # be the refusal.
         import hashlib
@@ -66143,9 +66143,8 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIn("format-version must be the integer 1", out)
 
     def test_whitespace_altered_root_record_fails(self):
-        # RBQ11-root-record-whitespace: the record must be exactly
-        # b"sha256:" + digest + b"\n"; whitespace variation is drift, never
-        # noise to strip away.
+        # The root record must be exactly b"sha256:" + digest + b"\n";
+        # whitespace variation is drift, never noise to strip away.
         import hashlib
         repo = self._synthetic_repo()
         vendor = repo / ".claude" / "aiqt"
@@ -66162,10 +66161,10 @@ class AIQTVendorDigestTests(LinterTestCase):
                 self.assertIn("root record", out)
 
     def test_fifo_metadata_inputs_are_refused_not_blocking(self):
-        # RBQ11-metadata-fifo-hang: a FIFO in place of the pin record, the
-        # manifest, or the root record is refused without ever being opened
-        # blocking. Runs in a child process so a regression hangs the CHILD
-        # and surfaces here as TimeoutExpired, not as a wedged suite.
+        # A FIFO in place of the pin record, the manifest, or the root
+        # record is refused without ever being opened blocking. Runs in a
+        # child process so a regression hangs the CHILD and surfaces here
+        # as TimeoutExpired, not as a wedged suite.
         if os.name != "posix" or not hasattr(os, "mkfifo"):
             self.skipTest("needs POSIX FIFOs")
         for rel in ("PIN.toml", ".aiqt/manifest.toml", ".aiqt/release/root.txt"):
@@ -66210,10 +66209,9 @@ class AIQTVendorDigestTests(LinterTestCase):
                          (REPO_ROOT / ".claude" / "aiqt" / "tools").resolve())
 
     def test_pack_tools_never_on_sys_path_and_planted_module_not_importable(self):
-        # RBQ28-c3-tools-on-path (with RBQ27-c3-concurrent-import): the shim
-        # never puts the pack's tools/ on sys.path and REMOVES a caller's
-        # stale insert, so `import json` stays the stdlib module, the
-        # verified aiqt_corpus still resolves (from sys.modules), and a
+        # The shim never puts the pack's tools/ on sys.path and REMOVES a
+        # caller's stale insert, so `import json` stays the stdlib module,
+        # the verified aiqt_corpus still resolves (from sys.modules), and a
         # module planted inside the verified pack AFTER verification is not
         # importable at all. (A file planted BEFORE verification is refused
         # outright as an unlisted extra:
@@ -66251,12 +66249,12 @@ class AIQTVendorDigestTests(LinterTestCase):
                          "a module planted in the pack after verification was importable")
 
     def test_shim_env_override_without_pack_shape_is_refused_not_ignored(self):
-        # RBQ33-c3-explicit-root-fallback: a set AIQT_PACK_ROOT is STRICT. A
-        # named root without a regular PIN.toml (with or without the module)
-        # is refused with ImportError naming the strict contract; discovery
-        # never falls back to the in-repo vendored copy, so a stale variable
-        # fails loud instead of silently selecting another pack. The refusal
-        # fires at the shim's import-time bootstrap.
+        # A set AIQT_PACK_ROOT is STRICT. A named root without a regular
+        # PIN.toml (with or without the module) is refused with ImportError
+        # naming the strict contract; discovery never falls back to the
+        # in-repo vendored copy, so a stale variable fails loud instead of
+        # silently selecting another pack. The refusal fires at the shim's
+        # import-time bootstrap.
         import os
         with tempfile.TemporaryDirectory() as d:
             module_only = Path(d) / "module-only"
@@ -66280,20 +66278,20 @@ class AIQTVendorDigestTests(LinterTestCase):
                             if v is not None:
                                 os.environ[k] = v
 
-    # ---- RBQ8 fix round 1: the verified bootstrap ----
+    # ---- the verified bootstrap ----
 
     def _standalone_pack(self, *, module: bytes = b"# core\n") -> Path:
         """A self-consistent pack laid out like .claude/aiqt/, for the
         bootstrap override REFUSAL tests: it verifies against its own pin,
         but its release root is not this repository's pinned release root,
-        so the shim refuses it (RBQ11-override-not-pinned)."""
+        so the shim refuses it as an unpinned override."""
         return self._synthetic_repo(module=module) / ".claude" / "aiqt"
 
     def _repo_pack_copy(self) -> Path:
         """A byte-identical copy of THIS repository's vendored pack, in a
         link-free fixture directory: the only kind of override the bootstrap
-        admits after RBQ11-override-not-pinned (verified AND carrying the
-        repository's pinned release root)."""
+        admits (verified AND carrying the repository's pinned release
+        root)."""
         base = self._fixture_base("aiqt-repo-pack-").resolve()
         pack = base / ".claude" / "aiqt"
         pack.parent.mkdir(parents=True)
@@ -66316,19 +66314,18 @@ class AIQTVendorDigestTests(LinterTestCase):
                               capture_output=True, text=True, env=env, timeout=120)
 
     def test_shim_verifies_and_exposes_a_verifiable_override(self):
-        # Positive control for the verified-bootstrap contract
-        # (RBQ11-override-not-pinned): the admitted override is a verified
-        # copy carrying THIS repository's pinned release root, never a merely
-        # self-consistent pack.
+        # Positive control for the verified-bootstrap contract: the admitted
+        # override is a verified copy carrying THIS repository's pinned
+        # release root, never a merely self-consistent pack.
         pack = self._repo_pack_copy()
         res = self._bootstrap_probe(pack)
         self.assertEqual(res.returncode, 0, res.stderr)
         self.assertIn(str(pack / "tools" / "aiqt_corpus.py"), res.stdout)
 
     def test_self_consistent_but_unpinned_override_is_refused(self):
-        # RBQ11-override-not-pinned: a pack that verifies against its OWN pin
-        # but whose release root differs from the repository's committed
-        # .claude/aiqt/PIN.toml release root must not expose or import code.
+        # A pack that verifies against its OWN pin but whose release root
+        # differs from the repository's committed .claude/aiqt/PIN.toml
+        # release root must not expose or import code.
         pack = self._standalone_pack(module=b"print('SENTINEL-UNPINNED')\n")
         res = self._bootstrap_probe(pack, "print('imported anyway')\n")
         self.assertNotEqual(res.returncode, 0,
@@ -66338,9 +66335,9 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIn("unpinned", res.stderr)
 
     def test_override_without_a_repository_pin_is_refused(self):
-        # RBQ11-override-not-pinned (fail closed): when the repository's own
-        # pin record is missing, NO override is admitted, not even a
-        # byte-identical copy of the vendored pack.
+        # Fail closed: when the repository's own pin record is missing, NO
+        # override is admitted, not even a byte-identical copy of the
+        # vendored pack.
         pack = self._repo_pack_copy()
         base = self._fixture_base("aiqt-no-repo-pin-")
         shim_dir = (base / "repo" / ".claude" / "skills"
@@ -66363,9 +66360,9 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIn("repository pin record", res.stderr)
 
     def test_symlinked_override_root_is_refused_before_verification(self):
-        # RBQ11-bootstrap-symlinked-override: an override that IS a symlink is
-        # refused through bootstrap discovery, even when its target is a
-        # byte-identical, repository-pinned pack that would verify.
+        # An override that IS a symlink is refused through bootstrap
+        # discovery, even when its target is a byte-identical,
+        # repository-pinned pack that would verify.
         if os.name != "posix":
             self.skipTest("needs POSIX symlinks")
         pack = self._repo_pack_copy()
@@ -66378,9 +66375,9 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIn("symlink", res.stderr)
 
     def test_override_crossing_a_symlinked_component_is_refused(self):
-        # RBQ11-bootstrap-symlinked-override: a symlinked PARENT component is
-        # refused too; every component is checked without following links,
-        # before any verification or resolve().
+        # A symlinked PARENT component is refused too; every component is
+        # checked without following links, before any verification or
+        # resolve().
         if os.name != "posix":
             self.skipTest("needs POSIX symlinks")
         pack = self._repo_pack_copy()           # <base>/.claude/aiqt
@@ -66394,12 +66391,11 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIn("symlink", res.stderr)
 
     def test_symlinked_repository_vendor_dir_refuses_the_matching_override(self):
-        # RBQ14-repo-pin-symlinked-vendor: when the repository's own
-        # .claude/aiqt is a symlink to a self-consistent replacement pack,
-        # an override naming that SAME replacement must still be refused:
-        # following the link while reading the repository pin would let the
-        # override supply both the candidate pack and the trust anchor it
-        # is compared against.
+        # When the repository's own .claude/aiqt is a symlink to a
+        # self-consistent replacement pack, an override naming that SAME
+        # replacement must still be refused: following the link while
+        # reading the repository pin would let the override supply both the
+        # candidate pack and the trust anchor it is compared against.
         if os.name != "posix":
             self.skipTest("needs POSIX symlinks")
         replacement = self._standalone_pack(
@@ -66430,10 +66426,10 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIn("symlink", res.stderr)
 
     def test_override_pin_swapped_after_verification_is_refused(self):
-        # RBQ14-pin-reread-race: the release root compared against the
-        # repository pin is the value verify_vendor_dir() itself validated,
-        # never a re-read of the override's PIN.toml, so a pin record
-        # swapped in between verification and the comparison buys nothing.
+        # The release root compared against the repository pin is the value
+        # verify_vendor_dir() itself validated, never a re-read of the
+        # override's PIN.toml, so a pin record swapped in between
+        # verification and the comparison buys nothing.
         from unittest.mock import patch
         pack = self._standalone_pack(module=b"print('SENTINEL-PIN-SWAP')\n")
         repo_pin = (REPO_ROOT / ".claude" / "aiqt"
@@ -66456,11 +66452,11 @@ class AIQTVendorDigestTests(LinterTestCase):
                 mod.find_pack_tools()
 
     def test_module_swapped_after_verification_runs_verified_bytes(self):
-        # RBQ26-c3-module-swap-race: the bytes that execute as aiqt_corpus
-        # are the bytes verify_vendor_dir() validated (captured and
-        # digest-checked by _verified, executed by ensure_on_path), never a
-        # re-read of tools/aiqt_corpus.py, so rewriting the module file
-        # between verification and import is refused or buys nothing.
+        # The bytes that execute as aiqt_corpus are the bytes
+        # verify_vendor_dir() validated (captured and digest-checked by
+        # _verified, executed by ensure_on_path), never a re-read of
+        # tools/aiqt_corpus.py, so rewriting the module file between
+        # verification and import is refused or buys nothing.
         import importlib
         from unittest.mock import patch
         pack = self._repo_pack_copy()
@@ -66505,11 +66501,11 @@ class AIQTVendorDigestTests(LinterTestCase):
             sys.path[:] = saved_path
 
     def test_module_swapped_during_verification_capture_is_refused(self):
-        # RBQ28-c3-refusal-half-test: the REFUSED half of
-        # RBQ26-c3-module-swap-race. A rewrite of tools/aiqt_corpus.py that
-        # lands inside verify_vendor_dir() -- after the verifier's own read,
-        # before the byte capture -- must be refused by the capture's
-        # manifest-row re-check, never captured and executed.
+        # The REFUSED half of the module-swap race above. A rewrite of
+        # tools/aiqt_corpus.py that lands inside verify_vendor_dir() --
+        # after the verifier's own read, before the byte capture -- must be
+        # refused by the capture's manifest-row re-check, never captured and
+        # executed.
         from unittest.mock import patch
         pack = self._repo_pack_copy()
         mod = load_linter_module("tools/aiqt_bootstrap.py",
@@ -66536,12 +66532,12 @@ class AIQTVendorDigestTests(LinterTestCase):
                 mod.find_pack_tools()
 
     def test_concurrent_import_during_bootstrap_cannot_run_disk_bytes(self):
-        # RBQ27-c3-concurrent-import: a deterministic two-thread probe. With
-        # the pack's tools/ never on sys.path, a second thread importing
-        # aiqt_corpus after verification (and a rewrite) but BEFORE the
-        # shim's installation fails closed with ModuleNotFoundError; the
-        # rewritten on-disk bytes can never run, and the module the
-        # bootstrap then installs is built from the verified bytes.
+        # A deterministic two-thread probe. With the pack's tools/ never on
+        # sys.path, a second thread importing aiqt_corpus after verification
+        # (and a rewrite) but BEFORE the shim's installation fails closed
+        # with ModuleNotFoundError; the rewritten on-disk bytes can never
+        # run, and the module the bootstrap then installs is built from the
+        # verified bytes.
         import importlib
         import threading
         from unittest.mock import patch
@@ -66596,12 +66592,12 @@ class AIQTVendorDigestTests(LinterTestCase):
             sys.path[:] = saved_path
 
     def test_fifo_swapped_in_before_capture_is_refused_not_blocking(self):
-        # RBQ27-c3-capture-fifo: the byte capture reads through the
-        # verifier's non-following, nonblocking regular-file reader, so a
-        # FIFO swapped in for tools/aiqt_corpus.py right after verification
-        # is refused, never opened blocking. Runs in a child process so a
-        # regression hangs the CHILD and surfaces here as TimeoutExpired,
-        # not as a wedged suite.
+        # The byte capture reads through the verifier's non-following,
+        # nonblocking regular-file reader, so a FIFO swapped in for
+        # tools/aiqt_corpus.py right after verification is refused, never
+        # opened blocking. Runs in a child process so a regression hangs
+        # the CHILD and surfaces here as TimeoutExpired, not as a wedged
+        # suite.
         if os.name != "posix" or not hasattr(os, "mkfifo"):
             self.skipTest("needs POSIX FIFOs")
         pack = self._repo_pack_copy()
@@ -66640,10 +66636,10 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertNotIn("PASSED", res.stdout)
 
     def test_verified_loader_compiles_without_inherited_flags(self):
-        # RBQ28-c3-compile-inherit: the shim itself runs under `from
-        # __future__ import annotations`; the verified bytes must be
-        # compiled with dont_inherit=True so they run with the default
-        # compiler flags a normal import would use.
+        # The shim itself runs under `from __future__ import
+        # annotations`; the verified bytes must be compiled with
+        # dont_inherit=True so they run with the default compiler
+        # flags a normal import would use.
         import importlib.util
         mod = load_linter_module("tools/aiqt_bootstrap.py",
                                  "aiqt_bootstrap_compileflags")
@@ -66658,10 +66654,10 @@ class AIQTVendorDigestTests(LinterTestCase):
                       "future-annotations compile flag")
 
     def test_standalone_compiler_aiqt_root_goes_through_the_verified_loader(self):
-        # RBQ27-c3-standalone-compiler: the documented --aiqt-root path is
-        # routed through the aiqt_bootstrap verified loader, so a pack whose
-        # corpus module was rewritten is refused (configuration error, exit
-        # 2) and the rewritten code never runs.
+        # The documented --aiqt-root path is routed through the
+        # aiqt_bootstrap verified loader, so a pack whose corpus module was
+        # rewritten is refused (configuration error, exit 2) and the
+        # rewritten code never runs.
         pack = self._repo_pack_copy()
         (pack / "tools" / "aiqt_corpus.py").write_bytes(
             b"print('SENTINEL-STANDALONE-COMPILER')\n")
@@ -66678,7 +66674,7 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIn("does not verify", res.stdout + res.stderr)
 
     def test_standalone_compiler_admits_a_repository_pinned_aiqt_root(self):
-        # Positive control for RBQ27-c3-standalone-compiler: a verified,
+        # Positive control for the standalone compiler path: a verified,
         # repository-pinned pack binds the dependency; the compiler then
         # proceeds to its own configuration validation (the empty --root
         # has no pack) instead of failing on the AIQT dependency.
@@ -66696,9 +66692,9 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertNotIn("does not verify", output)
         self.assertNotIn("aiqt_corpus module is unavailable", output)
         self.assertIn("pack root not found", output)
-        # RBQ33-c3-explicit-root-fallback: the positive control also asserts
-        # the INSTALLED module's origin is the explicit root's module, so a
-        # fallback that bound another copy could not pass this test.
+        # The positive control also asserts the INSTALLED module's origin is
+        # the explicit root's module, so a fallback that bound another copy
+        # could not pass this test.
         probe = (
             "import importlib.util, sys\n"
             "from pathlib import Path\n"
@@ -66718,14 +66714,14 @@ class AIQTVendorDigestTests(LinterTestCase):
                       res.stdout)
 
     def test_stale_pack_path_is_scrubbed_before_verification(self):
-        # RBQ33-c3-stale-path-race: a caller's stale pack tools/ entry is
-        # removed from sys.path at the START of bootstrap, BEFORE
-        # verification and capture, so a concurrent import of aiqt_corpus
-        # inside the verification window fails closed with
-        # ModuleNotFoundError instead of executing rewritten disk bytes,
-        # and the module the bootstrap then installs is built from the
-        # captured verified bytes (the round-5 code removed the entry only
-        # after capture and then accepted the disk module by origin).
+        # A caller's stale pack tools/ entry is removed from sys.path at
+        # the START of bootstrap, BEFORE verification and capture, so a
+        # concurrent import of aiqt_corpus inside the verification window
+        # fails closed with ModuleNotFoundError instead of executing
+        # rewritten disk bytes, and the module the bootstrap then installs
+        # is built from the captured verified bytes (in the earlier
+        # repository, the bootstrap removed the entry only after capture
+        # and then accepted the disk module by origin).
         import importlib
         import threading
         from unittest.mock import patch
@@ -66784,15 +66780,15 @@ class AIQTVendorDigestTests(LinterTestCase):
             sys.path[:] = saved_path
 
     def test_bootstrap_holds_no_import_lock_while_the_verified_module_executes(self):
-        # RBQ33-c3-import-lock-deadlock: the captured bytes execute with NO
-        # import lock held. The child pauses another thread inside the real
-        # subprocess module's execution (that thread holds subprocess's
-        # per-module import lock); it resumes with a nested import -- which
-        # needs the global import lock -- once it sees the global lock held
-        # continuously, or after a deadline. A bootstrap that held the
-        # global lock across execution deadlocks the CHILD (both threads
-        # wait on each other's lock), surfacing here as TimeoutExpired,
-        # never a wedged suite; the lock-free execution completes.
+        # The captured bytes execute with NO import lock held. The child
+        # pauses another thread inside the real subprocess module's
+        # execution (that thread holds subprocess's per-module import
+        # lock); it resumes with a nested import -- which needs the global
+        # import lock -- once it sees the global lock held continuously, or
+        # after a deadline. A bootstrap that held the global lock across
+        # execution deadlocks the CHILD (both threads wait on each other's
+        # lock), surfacing here as TimeoutExpired, never a wedged suite;
+        # the lock-free execution completes.
         shim = SKILL_ROOT / "tools" / "aiqt_bootstrap.py"
         probe = (
             "import _imp, importlib.machinery, importlib.util, sys, threading, time, types\n"
@@ -66852,12 +66848,12 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIn("LOCK-FREE-EXEC-OK 1", res.stdout)
 
     def test_explicit_compiler_root_without_pin_is_a_configuration_error(self):
-        # RBQ33-c3-explicit-root-fallback: an explicit --aiqt-root carrying
-        # tools/aiqt_corpus.py but no PIN.toml (and no .aiqt) is refused as
-        # a configuration error (exit 2) naming PIN.toml, with no fallback
-        # to the in-repo vendored copy: the compiler must fail on the AIQT
-        # root, never proceed to its own configuration validation with a
-        # silently substituted pack, and the sentinel must never run.
+        # An explicit --aiqt-root carrying tools/aiqt_corpus.py but no
+        # PIN.toml (and no .aiqt) is refused as a configuration error (exit
+        # 2) naming PIN.toml, with no fallback to the in-repo vendored
+        # copy: the compiler must fail on the AIQT root, never proceed to
+        # its own configuration validation with a silently substituted
+        # pack, and the sentinel must never run.
         base = self._fixture_base("aiqt-nopin-root-")
         root = base / "pack"
         (root / "tools").mkdir(parents=True)
@@ -66878,15 +66874,15 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertNotIn("pack root not found", output)
 
     def test_import_during_module_execution_fails_closed_never_partial(self):
-        # RBQ33-c3-lock-window-test: an import of aiqt_corpus that starts
-        # while the verified module is EXECUTING must fail closed with
-        # ModuleNotFoundError. The module executes unpublished with no
-        # import lock held, so the concurrent importer neither blocks on a
-        # lock the bootstrap holds, nor sees a half-built module in
-        # sys.modules, nor imports the on-disk file; the module the
-        # bootstrap then publishes is complete. (The round-5 suite passed
-        # with the install lock or the _initializing flag removed; this
-        # exercises the execution window itself.)
+        # An import of aiqt_corpus that starts while the verified module
+        # is EXECUTING must fail closed with ModuleNotFoundError. The
+        # module executes unpublished with no import lock held, so the
+        # concurrent importer neither blocks on a lock the bootstrap
+        # holds, nor sees a half-built module in sys.modules, nor imports
+        # the on-disk file; the module the bootstrap then publishes is
+        # complete. (In the earlier repository, the suite passed with the
+        # install lock or the _initializing flag removed; this exercises
+        # the execution window itself.)
         import importlib
         import threading
         from unittest.mock import patch
@@ -66943,12 +66939,12 @@ class AIQTVendorDigestTests(LinterTestCase):
             sys.path[:] = saved_path
 
     def test_installed_module_is_rechecked_for_marker_and_origin(self):
-        # RBQ33-c3-origin-recheck-comment: after _install_verified_corpus,
-        # ensure_on_path re-checks that what sys.modules holds carries this
-        # bootstrap's installation marker AND the located copy's origin. A
-        # module published without the marker -- even with a matching
-        # origin, the exact acceptance the round-5 code applied -- is
-        # refused instead of returned.
+        # After _install_verified_corpus, ensure_on_path re-checks that
+        # what sys.modules holds carries this bootstrap's installation
+        # marker AND the located copy's origin. A module published without
+        # the marker -- even with a matching origin, the exact acceptance
+        # the earlier repository's bootstrap applied -- is refused instead
+        # of returned.
         import types
         from unittest.mock import patch
         pack = self._repo_pack_copy()
@@ -66980,9 +66976,9 @@ class AIQTVendorDigestTests(LinterTestCase):
         AIQT_PACK_ROOT names, with no pin check and no verification, and
         announces itself on stderr. Against this stand-in each of the
         compiler's own --aiqt-root checks must fire BY ITSELF for the
-        refusal to appear (RBQ34-c3-compiler-checks-untested). With
-        foreign_origin=True the stand-in binds a module whose origin is NOT
-        the explicit root's tools/aiqt_corpus.py."""
+        refusal to appear. With foreign_origin=True the stand-in binds a
+        module whose origin is NOT the explicit root's
+        tools/aiqt_corpus.py."""
         src_tools = base / "src" / "tools"
         src_tools.mkdir(parents=True)
         compiler = src_tools / "corpus_mgmt_compiler.py"
@@ -67015,13 +67011,13 @@ class AIQTVendorDigestTests(LinterTestCase):
         return compiler
 
     def test_symlinked_alias_of_pack_tools_is_scrubbed_before_verification(self):
-        # RBQ34-c3-symlink-alias: a stale sys.path entry that reaches the
-        # pack tools/ through a symlink -- an alias of any name, or a link
-        # named tools in a markerless parent -- is matched by its RESOLVED
-        # path and removed at the start of bootstrap, so a concurrent import
-        # inside the verification window fails closed instead of executing
-        # rewritten disk bytes (the round-6 scrub matched only the entry's
-        # literal spelling, and such an alias survived it).
+        # A stale sys.path entry that reaches the pack tools/ through a
+        # symlink -- an alias of any name, or a link named tools in a
+        # markerless parent -- is matched by its RESOLVED path and removed
+        # at the start of bootstrap, so a concurrent import inside the
+        # verification window fails closed instead of executing rewritten
+        # disk bytes (in the earlier repository, the scrub matched only the
+        # entry's literal spelling, and such an alias survived it).
         import importlib
         import threading
         from unittest.mock import patch
@@ -67091,18 +67087,18 @@ class AIQTVendorDigestTests(LinterTestCase):
                     sys.path[:] = saved_path
 
     def test_retargeted_and_relative_entries_fail_closed_during_verification(self):
-        # RBQ38-c3-scrub-toctou: the sys.path scrub decides ONCE, at scrub
-        # time, so an entry that is benign then and hostile later -- a
-        # symlink RETARGETED to the pack tools/ after the scrub ran, or a
-        # relative entry re-resolved against a working directory changed
-        # after the scrub -- is invisible to any path match. The name guard
-        # on sys.meta_path closes the class: a concurrent import of
-        # aiqt_corpus inside the verification window is refused with
-        # ModuleNotFoundError BEFORE sys.path is consulted for the name,
-        # the rewritten disk bytes never run, and the main thread itself
-        # then fails closed on the still-hostile entry (the masquerade
-        # scan) instead of publishing past it. On the round-7 code both
-        # variants executed the rewritten bytes in the window.
+        # The sys.path scrub decides ONCE, at scrub time, so an entry that
+        # is benign then and hostile later -- a symlink RETARGETED to the
+        # pack tools/ after the scrub ran, or a relative entry re-resolved
+        # against a working directory changed after the scrub -- is
+        # invisible to any path match. The name guard on sys.meta_path
+        # closes the class: a concurrent import of aiqt_corpus inside the
+        # verification window is refused with ModuleNotFoundError BEFORE
+        # sys.path is consulted for the name, the rewritten disk bytes
+        # never run, and the main thread itself then fails closed on the
+        # still-hostile entry (the masquerade scan) instead of publishing
+        # past it. In the earlier repository, both variants executed the
+        # rewritten bytes in the window.
         if os.name != "posix":
             self.skipTest("needs POSIX symlinks")
         import importlib
@@ -67196,16 +67192,15 @@ class AIQTVendorDigestTests(LinterTestCase):
                     importlib.invalidate_caches()
 
     def test_file_level_symlink_alias_fails_closed_during_verification(self):
-        # RBQ38-c3-file-symlink-alias: a plain directory holding a symlink
-        # named aiqt_corpus.py to the pack's file is not a pack tools/
-        # entry by RESOLVED path (only the ENTRY is resolved, never the
-        # files under it), so it survives the scrub. The name guard closes
-        # it: a concurrent import inside the verification window is refused
-        # with ModuleNotFoundError before sys.path is consulted for the
-        # name, the rewritten pack bytes never run through the alias, and
-        # the main thread fails closed at the masquerade scan. On the
-        # round-7 code the concurrent import executed the rewritten bytes
-        # from the alias directory.
+        # A plain directory holding a symlink named aiqt_corpus.py to the
+        # pack's file is not a pack tools/ entry by RESOLVED path (only the
+        # ENTRY is resolved, never the files under it), so it survives the
+        # scrub. The name guard closes it: a concurrent import inside the
+        # verification window is refused with ModuleNotFoundError before
+        # sys.path is consulted for the name, the rewritten pack bytes
+        # never run through the alias, and the main thread fails closed at
+        # the masquerade scan. In the earlier repository, the concurrent
+        # import executed the rewritten bytes from the alias directory.
         if os.name != "posix":
             self.skipTest("needs POSIX symlinks")
         import importlib
@@ -67278,7 +67273,7 @@ class AIQTVendorDigestTests(LinterTestCase):
             importlib.invalidate_caches()
 
     def test_embedded_nul_sys_path_entry_never_raises_valueerror(self):
-        # RBQ38-c3-realpath-valueerror: round 7 moved os.path.realpath
+        # In the earlier repository, a change moved os.path.realpath
         # ahead of the empty-entry check's name test while catching only
         # OSError, so a sys.path entry with an embedded NUL raised
         # ValueError out of ensure_on_path(), which promises ImportError.
@@ -67327,9 +67322,8 @@ class AIQTVendorDigestTests(LinterTestCase):
         # tools/ after the scrub, and a relative entry re-resolved after a
         # chdir -- a concurrent import during the verification window fails
         # closed with ModuleNotFoundError and the rewritten disk bytes
-        # never run (RBQ38-c3-scrub-toctou, RBQ38-c3-file-symlink-alias,
-        # RBQ34-c3-symlink-alias, RBQ33-c3-stale-path-race). The resolved-
-        # path scrub still removes the three forms it can see.
+        # never run. The resolved-path scrub still removes the three forms
+        # it can see.
         if os.name != "posix":
             self.skipTest("needs POSIX symlinks")
         import importlib
@@ -67431,8 +67425,7 @@ class AIQTVendorDigestTests(LinterTestCase):
         # entry and a file-level symlink alias freshly put on sys.path, an
         # import of aiqt_corpus after the name is emptied from sys.modules
         # still yields the published verified module object itself --
-        # sys.path is never consulted for the name
-        # (RBQ38-c3-scrub-toctou, RBQ38-c3-file-symlink-alias).
+        # sys.path is never consulted for the name.
         if os.name != "posix":
             self.skipTest("needs POSIX symlinks")
         import importlib
@@ -67479,12 +67472,12 @@ class AIQTVendorDigestTests(LinterTestCase):
             importlib.invalidate_caches()
 
     def test_premodule_without_marker_at_expected_origin_is_refused(self):
-        # RBQ34-c3-premodule-marker-test: an aiqt_corpus ALREADY in
-        # sys.modules when ensure_on_path() starts is accepted only with the
-        # installation marker. A module at the EXPECTED origin but without
-        # the marker -- what an import of the on-disk file through a stale
-        # entry leaves behind, and exactly what the round-5 origin-only
-        # acceptance admitted -- is refused.
+        # An aiqt_corpus ALREADY in sys.modules when ensure_on_path() starts
+        # is accepted only with the installation marker. A module at the
+        # EXPECTED origin but without the marker -- what an import of the
+        # on-disk file through a stale entry leaves behind, and exactly what
+        # the earlier repository's origin-only acceptance admitted -- is
+        # refused.
         import types
         from unittest.mock import patch
         pack = self._repo_pack_copy()
@@ -67506,11 +67499,11 @@ class AIQTVendorDigestTests(LinterTestCase):
                 sys.modules["aiqt_corpus"] = saved_module
 
     def test_premodule_with_marker_at_foreign_origin_is_refused(self):
-        # RBQ34-c3-premodule-marker-test (complement): a module already in
-        # sys.modules BEFORE ensure_on_path() that carries the correct
-        # installation marker for the verified bytes but whose origin is not
-        # the located copy's tools/aiqt_corpus.py is refused on origin:
-        # marker or origin alone is never enough.
+        # Complement: a module already in sys.modules BEFORE
+        # ensure_on_path() that carries the correct installation marker for
+        # the verified bytes but whose origin is not the located copy's
+        # tools/aiqt_corpus.py is refused on origin: marker or origin alone
+        # is never enough.
         import hashlib
         import types
         from unittest.mock import patch
@@ -67537,22 +67530,23 @@ class AIQTVendorDigestTests(LinterTestCase):
                 sys.modules["aiqt_corpus"] = saved_module
 
     def test_repo_root_premise_and_dotted_routes_scrubbed(self):
-        # RBQ43-c3-repo-root-premise: round 9 disclosed the dotted-name
-        # residual on a false premise -- that the repository root, an
-        # ancestor of the in-repo pack, is a legitimate sys.path entry
-        # through which a dotted import runs the on-disk pack bytes.
-        # Executed, that is false: .claude is not a Python identifier, so
-        # NO dotted spelling reaches the in-repo pack through a
-        # repository-root entry. The routes that DO reach the file are a
-        # pack-root entry (import tools.aiqt_corpus), a pack-root-parent
-        # entry (import aiqt.tools.aiqt_corpus through a .claude entry)
-        # and, for an OVERRIDE pack, any chain of identifier-named
-        # ancestors. This test pins the executed premise, the corrected
-        # docstrings, and the second scrub layer: ensure_on_path now also
-        # removes entries resolving to a pack ROOT or to a pack root's
-        # PARENT, while a repository-root-shaped entry (no dotted route)
-        # and an override pack's deeper identifier-named ancestor (the
-        # disclosed REMAINING residual) survive.
+        # In the earlier repository, the bootstrap disclosed the
+        # dotted-name residual on a false premise -- that the repository
+        # root, an ancestor of the in-repo pack, is a legitimate sys.path
+        # entry through which a dotted import runs the on-disk pack
+        # bytes. Executed, that is false: .claude is not a Python
+        # identifier, so NO dotted spelling reaches the in-repo pack
+        # through a repository-root entry. The routes that DO reach the
+        # file are a pack-root entry (import tools.aiqt_corpus), a
+        # pack-root-parent entry (import aiqt.tools.aiqt_corpus through a
+        # .claude entry) and, for an OVERRIDE pack, any chain of
+        # identifier-named ancestors. This test pins the executed
+        # premise, the corrected docstrings, and the second scrub layer:
+        # ensure_on_path now also removes entries resolving to a pack
+        # ROOT or to a pack root's PARENT, while a repository-root-shaped
+        # entry (no dotted route) and an override pack's deeper
+        # identifier-named ancestor (the disclosed REMAINING residual)
+        # survive.
         import importlib
         from unittest.mock import patch
         mod = load_linter_module("tools/aiqt_bootstrap.py",
@@ -67694,12 +67688,12 @@ class AIQTVendorDigestTests(LinterTestCase):
             importlib.invalidate_caches()
 
     def test_rerun_displaces_a_finder_placed_in_front_of_the_guard(self):
-        # RBQ40-c3-guard-not-refronted: round 8 inserted the guard only when
-        # absent, so a finder placed at sys.meta_path[0] after the first
-        # bootstrap stayed in front of the guard on every later run and
-        # decided the name first. Now every bootstrap run removes the guard
-        # if present and re-inserts it at index 0 under the lock, so the
-        # next run displaces such a finder behind the guard (a finder
+        # In the earlier repository, the bootstrap inserted the guard only
+        # when absent, so a finder placed at sys.meta_path[0] after the
+        # first bootstrap stayed in front of the guard on every later run
+        # and decided the name first. Now every bootstrap run removes the
+        # guard if present and re-inserts it at index 0 under the lock, so
+        # the next run displaces such a finder behind the guard (a finder
         # inserted in front with NO further run remains the disclosed
         # REMAINING gap).
         from unittest.mock import patch
@@ -67746,16 +67740,15 @@ class AIQTVendorDigestTests(LinterTestCase):
             sys.meta_path[:] = saved_meta
 
     def test_non_str_sys_path_entries_are_skipped_never_typeerror(self):
-        # RBQ40-c3-nonstr-path-typeerror: a bytes or int sys.path entry made
-        # round 8's scrub raise TypeError out of ensure_on_path(), which
-        # promises ImportError. The import system's own PathFinder skips
-        # such entries (observed: find_spec over a bytes or int entry
-        # returns None); the scrub and the masquerade scan now skip them
-        # the same way: _pack_tools_entry reports them unmatched, the
-        # bootstrap completes with the entries left in place (they are not
-        # pack tools/ entries), and no TypeError escapes. aiqt_corpus is
-        # emptied from sys.modules first so the masquerade scan really runs
-        # over the non-str entries.
+        # In the earlier repository, a bytes or int sys.path entry made the
+        # scrub raise TypeError out of ensure_on_path(), which promises
+        # ImportError. The import system's own PathFinder skips such entries
+        # (observed: find_spec over a bytes or int entry returns None); the
+        # scrub and the masquerade scan now skip them the same way:
+        # _pack_tools_entry reports them unmatched, the bootstrap completes
+        # with the entries left in place (they are not pack tools/ entries),
+        # and no TypeError escapes. aiqt_corpus is emptied from sys.modules
+        # first so the masquerade scan really runs over the non-str entries.
         import importlib
         from unittest.mock import patch
         pack = self._repo_pack_copy()
@@ -67807,12 +67800,12 @@ class AIQTVendorDigestTests(LinterTestCase):
             importlib.invalidate_caches()
 
     def test_refront_keeps_guard_present_in_every_meta_path_state(self):
-        # RBQ43-c3-refront-race: round 9 re-fronted the guard with
-        # sys.meta_path.remove() followed by insert(0, ...) -- two list
-        # operations. Python 3.14's importer snapshots sys.meta_path with
-        # list(meta_path) BEFORE taking any import lock (gh-130094), so a
-        # concurrent import whose snapshot landed between the two steps
-        # saw NO guard and fell through to sys.path: on the round-9 code a
+        # In the earlier repository, the bootstrap re-fronted the guard
+        # with sys.meta_path.remove() followed by insert(0, ...) -- two
+        # list operations. Python 3.14's importer snapshots sys.meta_path
+        # with list(meta_path) BEFORE taking any import lock (gh-130094),
+        # so a concurrent import whose snapshot landed between the two
+        # steps saw NO guard and fell through to sys.path; in that code, a
         # forced interleaving made a concurrent import execute planted,
         # unverified on-disk bytes. The re-front is now ONE atomic slice
         # assignment built from the old list first. This test instruments
@@ -67908,7 +67901,7 @@ class AIQTVendorDigestTests(LinterTestCase):
             sys.path[:] = saved_path
 
     def test_refused_prebootstrap_module_is_removed_from_sys_modules(self):
-        # RBQ43-c3-prebootstrap-module-stays: round 9 raised ImportError
+        # In the earlier repository, the bootstrap raised ImportError
         # when an unmarked aiqt_corpus was already in sys.modules, but
         # left the module there, so a later import of the name in the
         # same process returned the unmarked module while the guard
@@ -67949,10 +67942,10 @@ class AIQTVendorDigestTests(LinterTestCase):
             sys.meta_path[:] = saved_meta
 
     def test_empty_sys_path_entry_is_scrubbed_like_dot(self):
-        # RBQ48-c3-empty-entry-route: round 10's _pack_dotted_entry returned
-        # False for the empty sys.path entry while removing ".", so with the
-        # working directory at a pack root or at a pack root's parent the
-        # empty entry survived the scrub and import tools.aiqt_corpus (or
+        # In the earlier repository, _pack_dotted_entry returned False for
+        # the empty sys.path entry while removing ".", so with the working
+        # directory at a pack root or at a pack root's parent the empty
+        # entry survived the scrub and import tools.aiqt_corpus (or
         # aiqt.tools.aiqt_corpus) loaded the on-disk pack bytes without the
         # installation marker. The scrub now resolves the empty entry
         # against the current working directory, exactly like ".", in both
@@ -68012,18 +68005,19 @@ class AIQTVendorDigestTests(LinterTestCase):
                         "(RBQ48-c3-empty-entry-route)")
 
     def test_every_refusal_path_removes_unmarked_module(self):
-        # RBQ48-c3-other-refusal-paths: round 10 removed a refused unmarked
-        # aiqt_corpus from sys.modules only on the before-this-bootstrap-ran
-        # path. An unmarked module present when the bootstrap FAILED before
-        # that check (a broken strict override), one refused by the
-        # mid-install marker check in _install_verified_corpus, and one
-        # refused by the after-installation re-check all stayed in
-        # sys.modules, and a later import returned them while the docstrings
-        # said the name fails closed for the rest of the process. Every such
-        # refusal, and a bootstrap failure after a pre-existing module was
-        # seen, now goes through one helper that removes the refused module
-        # under the import lock (only when the name still binds the same
-        # object) before the ImportError propagates.
+        # In the earlier repository, the bootstrap removed a refused
+        # unmarked aiqt_corpus from sys.modules only on the
+        # before-this-bootstrap-ran path. An unmarked module present when
+        # the bootstrap FAILED before that check (a broken strict override),
+        # one refused by the mid-install marker check in
+        # _install_verified_corpus, and one refused by the
+        # after-installation re-check all stayed in sys.modules, and a later
+        # import returned them while the docstrings said the name fails
+        # closed for the rest of the process. Every such refusal, and a
+        # bootstrap failure after a pre-existing module was seen, now goes
+        # through one helper that removes the refused module under the
+        # import lock (only when the name still binds the same object)
+        # before the ImportError propagates.
         import importlib
         import types
         from unittest.mock import patch
@@ -68099,17 +68093,17 @@ class AIQTVendorDigestTests(LinterTestCase):
             importlib.invalidate_caches()
 
     def test_dotted_route_disclosure_names_the_class_not_a_complete_list(self):
-        # The defect class behind RBQ43-c3-repo-root-premise,
-        # RBQ48-c3-symlink-dotted-route and RBQ48-c3-empty-entry-route is
-        # the claim of an exhaustive dotted-route list: three rounds in a
-        # row found a route the docstrings said did not exist or was
-        # removed. The docstrings now claim protection only for what the
-        # guard owns (the bare name aiqt_corpus), state the dotted routes
-        # as a CLASS -- any sys.path entry from which the pack's files can
-        # be reached under a path of identifiers -- give the known routes
-        # as examples, never call the list complete, and describe the
-        # scrub as a best-effort second layer that removes the entry
-        # shapes it recognises.
+        # The defect class behind the repository-root premise, the
+        # symlinked dotted route and the empty-entry route is the claim of
+        # an exhaustive dotted-route list: in the earlier repository,
+        # three times in a row a route turned up that the docstrings said
+        # did not exist or was removed. The docstrings now claim
+        # protection only for what the guard owns (the bare name
+        # aiqt_corpus), state the dotted routes as a CLASS -- any sys.path
+        # entry from which the pack's files can be reached under a path of
+        # identifiers -- give the known routes as examples, never call the
+        # list complete, and describe the scrub as a best-effort second
+        # layer that removes the entry shapes it recognises.
         mod = load_linter_module("tools/aiqt_bootstrap.py",
                                  "aiqt_bootstrap_disclosure")
         docs = {
@@ -68151,15 +68145,14 @@ class AIQTVendorDigestTests(LinterTestCase):
                     "the exhaustive-route claim itself")
 
     def test_symlink_entry_dotted_route_is_pinned_disclosed_residual(self):
-        # RBQ48-c3-symlink-dotted-route: a plain sys.path directory holding
-        # a symlink to a pack directory (at any depth) survives the scrub
-        # -- the ENTRY resolves to the plain directory, and only the entry
-        # is resolved, never the links under it -- and a dotted import
-        # through the link runs the on-disk pack bytes without the
-        # installation marker. This is a disclosed residual of the
-        # best-effort scrub, pinned here so a change in the behaviour (or
-        # the loss of the disclosure) is caught; the bare name stays
-        # guarded throughout.
+        # A plain sys.path directory holding a symlink to a pack directory
+        # (at any depth) survives the scrub -- the ENTRY resolves to the
+        # plain directory, and only the entry is resolved, never the links
+        # under it -- and a dotted import through the link runs the on-disk
+        # pack bytes without the installation marker. This is a disclosed
+        # residual of the best-effort scrub, pinned here so a change in the
+        # behaviour (or the loss of the disclosure) is caught; the bare
+        # name stays guarded throughout.
         pack = self._repo_pack_copy()
         plain = self._fixture_base("aiqt-symlink-entry-")
         os.symlink(pack / "tools", plain / "xtools")
@@ -68227,16 +68220,16 @@ class AIQTVendorDigestTests(LinterTestCase):
                          "published verified module")
 
     def test_non_importerror_bootstrap_failure_removes_unmarked_module(self):
-        # RBQ53-c3-non-importerror-failure: round 11's failure handler was
-        # `except ImportError` only, so a bootstrap failure raising
-        # RuntimeError (Path.expanduser on an unknown-user override),
-        # OSError or SyntaxError (_load_verifier beside the shim) left a
-        # planted unmarked aiqt_corpus in sys.modules and a later import
-        # returned it, while the docstrings claimed every bootstrap
-        # failure after a pre-existing module was seen removed it. The
-        # handler now catches BaseException, removes an UNMARKED
-        # pre-existing module through the one shared helper, and
-        # re-raises the original error unchanged.
+        # In the earlier repository, the failure handler was `except
+        # ImportError` only, so a bootstrap failure raising RuntimeError
+        # (Path.expanduser on an unknown-user override), OSError or
+        # SyntaxError (_load_verifier beside the shim) left a planted
+        # unmarked aiqt_corpus in sys.modules and a later import returned
+        # it, while the docstrings claimed every bootstrap failure after a
+        # pre-existing module was seen removed it. The handler now catches
+        # BaseException, removes an UNMARKED pre-existing module through
+        # the one shared helper, and re-raises the original error
+        # unchanged.
         import importlib
         import importlib.util
         import types
@@ -68299,12 +68292,12 @@ class AIQTVendorDigestTests(LinterTestCase):
                         "(RBQ53-c3-non-importerror-failure)")
                     with self.assertRaises(ModuleNotFoundError):
                         importlib.import_module("aiqt_corpus")
-            # Routes 4 and 5 (RBQ57-c3-baseexception-untested): BaseException
-            # failures that are NOT Exception subclasses -- KeyboardInterrupt
-            # and SystemExit -- must behave the same way: narrowing the
-            # handler to `except Exception` left all 104 tests passing, so
-            # these routes pin the breadth: the unmarked module is removed
-            # and the SAME exception object propagates unchanged.
+            # Routes 4 and 5: BaseException failures that are NOT Exception
+            # subclasses -- KeyboardInterrupt and SystemExit -- must behave
+            # the same way: in the earlier repository, narrowing the handler
+            # to `except Exception` left all 104 tests passing, so these
+            # routes pin the breadth: the unmarked module is removed and the
+            # SAME exception object propagates unchanged.
             for exc in (KeyboardInterrupt("rbq57-interrupt"),
                         SystemExit("rbq57-exit")):
                 with self.subTest(route=type(exc).__name__):
@@ -68340,19 +68333,17 @@ class AIQTVendorDigestTests(LinterTestCase):
             importlib.invalidate_caches()
 
     def test_failure_does_not_remove_or_unpublish_marked_module(self):
-        # RBQ51-c3-handler-unpublishes-verified and
-        # RBQ53-c3-left-alone-wording: round 11's failure handler called
+        # In the earlier repository, the failure handler called
         # _remove_refused_module on the module captured as preexisting
         # unconditionally. The helper's checks are object identity, so a
         # racing run that accepted and published the SAME pre-existing
         # verified object had that publication retracted and the module
         # deleted by this run's failure, and a failing re-run removed the
         # marked module an earlier successful run left (fail-closed
-        # availability loss, refuting the round-11 "left alone"
-        # comments). The failure path now removes only an UNMARKED
-        # pre-existing module: one carrying the installation marker for
-        # the verified bytes is never removed or unpublished by another
-        # run's failure.
+        # availability loss, refuting the "left alone" comments). The
+        # failure path now removes only an UNMARKED pre-existing module:
+        # one carrying the installation marker for the verified bytes is
+        # never removed or unpublished by another run's failure.
         import importlib
         from unittest.mock import patch
         pack = self._repo_pack_copy()
@@ -68416,16 +68407,16 @@ class AIQTVendorDigestTests(LinterTestCase):
             importlib.invalidate_caches()
 
     def test_failure_path_wording_states_marker_and_identity_semantics(self):
-        # RBQ53-c3-left-alone-wording: "left alone" held only for a
-        # DIFFERENT module object -- the helper's checks are object
-        # identity, so round 11's comments ("a module this run (or a
-        # racing run) accepted or published meanwhile is left alone"; "A
-        # module another thread swapped in or published meanwhile is left
+        # "Left alone" held only for a DIFFERENT module object -- the
+        # helper's checks are object identity, so the earlier
+        # repository's comments ("a module this run (or a racing run)
+        # accepted or published meanwhile is left alone"; "A module
+        # another thread swapped in or published meanwhile is left
         # alone") were refuted by a racing publication of the same
-        # pre-existing object, and the round-11 failure-path claims held
-        # only for ImportError. The docstrings and comments now state the
-        # identity semantics exactly, scope the failure-path removal to
-        # an UNMARKED module, and cover failures of any exception type.
+        # pre-existing object, and its failure-path claims held only for
+        # ImportError. The docstrings and comments now state the identity
+        # semantics exactly, scope the failure-path removal to an
+        # UNMARKED module, and cover failures of any exception type.
         mod = load_linter_module("tools/aiqt_bootstrap.py",
                                  "aiqt_bootstrap_failurewording")
         source = (SKILL_ROOT / "tools" / "aiqt_bootstrap.py").read_text(
@@ -68471,15 +68462,16 @@ class AIQTVendorDigestTests(LinterTestCase):
             self.assertIn("RBQ51-c3-handler-unpublishes-verified", doc,
                           f"the {where} docstring must state the "
                           "marked-module guarantee")
-        # RBQ59-c3-baseexception-descriptor-wording: round 14's wording
-        # overclaimed the RBQ58 protection -- "a __dict__ descriptor
+        # In the earlier repository, the docstring wording overclaimed
+        # the raising-descriptor protection -- "a __dict__ descriptor
         # raising any exception ... is treated as unmarked" -- but
         # _module_marker catches only Exception, so a descriptor raising
         # a BaseException subclass still crashes the read and the entry
-        # survives (the same in-process forgery class as RBQ57/RBQ58).
-        # Catching BaseException there would swallow a real
-        # KeyboardInterrupt, so the docstrings must instead claim
-        # Exception only and disclose the BaseException residual.
+        # survives (the same in-process forgery class as the dict-less
+        # and raising-descriptor entries). Catching BaseException there
+        # would swallow a real KeyboardInterrupt, so the docstrings must
+        # instead claim Exception only and disclose the BaseException
+        # residual.
         marker_doc = " ".join(mod._module_marker.__doc__.split())
         for where, doc in (("_module_marker", marker_doc),
                            ("_marked_for_verified_bytes", marked_doc)):
@@ -68502,15 +68494,14 @@ class AIQTVendorDigestTests(LinterTestCase):
                     "(RBQ59-c3-baseexception-descriptor-wording)")
 
     def test_refused_midinstall_publication_is_retracted(self):
-        # RBQ51-c3-retraction-untested and
-        # RBQ53-c3-retraction-load-bearing: the guard retraction in
-        # _remove_refused_module is load-bearing -- a marker-matching
-        # module with a FOREIGN origin that appears during execution is
-        # kept and PUBLISHED by the mid-install check (marker only) and
-        # then refused by the after-installation origin re-check; without
-        # the retraction the guard keeps serving the refused module to a
-        # later bare-name import after the sys.modules cleanup. No
-        # round-11 test exercised that branch (deleting it left all 100
+        # The guard retraction in _remove_refused_module is load-bearing
+        # -- a marker-matching module with a FOREIGN origin that appears
+        # during execution is kept and PUBLISHED by the mid-install check
+        # (marker only) and then refused by the after-installation origin
+        # re-check; without the retraction the guard keeps serving the
+        # refused module to a later bare-name import after the
+        # sys.modules cleanup. In the earlier repository, no test
+        # exercised that branch (deleting it left all 100
         # AIQTVendorDigestTests and AIQTCutoverTests green). This test
         # drives the real mid-install publication and re-check refusal
         # and fails when the retraction branch is a no-op.
@@ -68569,16 +68560,16 @@ class AIQTVendorDigestTests(LinterTestCase):
             importlib.invalidate_caches()
 
     def test_refused_override_bytes_never_become_the_reference(self):
-        # RBQ57-c3-refused-override-bytes: round 12's _verified() assigned
+        # In the earlier repository, _verified() assigned
         # _verified_corpus_source BEFORE _pinned_to_repository() decided
         # whether to admit an override, so on a re-run a self-consistent
         # pack whose release root differs from the repository pin replaced
         # the captured bytes and was then refused; the failure handler then
         # validated the earlier run's verified module against the REFUSED
-        # pack's digest, treated it as unmarked, and removed it (executed
-        # probe D: availability loss refuting the "never removed" claims).
-        # The bytes are now assigned only after admission, so a refused
-        # pack's bytes never become the reference.
+        # pack's digest, treated it as unmarked, and removed it (an
+        # executed probe showed availability loss refuting the "never
+        # removed" claims). The bytes are now assigned only after
+        # admission, so a refused pack's bytes never become the reference.
         import importlib
         from unittest.mock import patch
         pack = self._repo_pack_copy()
@@ -68619,8 +68610,8 @@ class AIQTVendorDigestTests(LinterTestCase):
             importlib.invalidate_caches()
 
     def test_wrong_digest_marker_is_unmarked_after_bytes_captured(self):
-        # RBQ57-c3-digest-compare-untested: replacing the digest comparison
-        # in _marked_for_verified_bytes with `return True` left all 104
+        # In the earlier repository, replacing the digest comparison in
+        # _marked_for_verified_bytes with `return True` left all 104
         # AIQTVendorDigestTests and AIQTCutoverTests passing. This drives
         # the comparison itself: after bytes WERE captured, a pre-existing
         # module carrying a WRONG-digest marker must be treated as unmarked
@@ -68665,8 +68656,8 @@ class AIQTVendorDigestTests(LinterTestCase):
             importlib.invalidate_caches()
 
     def test_entry_without_module_dict_is_unmarked_and_removed(self):
-        # RBQ57-c3-no-dict-module: an object without __dict__ (an int, a
-        # __slots__ instance) in sys.modules["aiqt_corpus"] made
+        # In the earlier repository, an object without __dict__ (an int,
+        # a __slots__ instance) in sys.modules["aiqt_corpus"] made
         # _accept_installed raise AttributeError and
         # _marked_for_verified_bytes raise AGAIN inside the failure
         # handler, so _remove_refused_module never ran: the object stayed
@@ -68745,16 +68736,16 @@ class AIQTVendorDigestTests(LinterTestCase):
             importlib.invalidate_caches()
 
     def test_raising_dict_descriptor_is_unmarked_and_removed(self):
-        # RBQ58-c3-dict-descriptor-raises: _module_marker read the module
+        # In the earlier repository, _module_marker read the module
         # namespace with getattr(module, "__dict__", None), which
         # suppresses only AttributeError, so an entry whose __dict__
         # descriptor raises any OTHER exception (a property raising
         # RuntimeError) still crashed every marker read, replaced the
         # original bootstrap error inside the failure handler and stayed
-        # importable -- the failure shape RBQ57-c3-no-dict-module fixed
+        # importable -- the failure shape the dict-less test above covers
         # for int/__slots__ entries, one step further. Any entry whose
-        # namespace cannot be read, or whose marker lookup raises, is
-        # now treated as unmarked.
+        # namespace cannot be read, or whose marker lookup raises, is now
+        # treated as unmarked.
         import importlib
         from unittest.mock import patch
         pack = self._repo_pack_copy()
@@ -68842,18 +68833,17 @@ class AIQTVendorDigestTests(LinterTestCase):
             importlib.invalidate_caches()
 
     def test_self_marked_planted_module_survival_is_pinned_and_disclosed(self):
-        # RBQ57-c3-self-marked-planted: a planted on-disk aiqt_corpus.py
-        # whose own body sets the installation marker, imported through
-        # sys.path BEFORE the guard exists, survives a bootstrap failure
-        # that happens before any bytes were captured, and a later plain
-        # import is served that module from sys.modules with no acceptance
-        # check. Round 12's docstring DENIED this ("carries no marker at
+        # A planted on-disk aiqt_corpus.py whose own body sets the
+        # installation marker, imported through sys.path BEFORE the guard
+        # exists, survives a bootstrap failure that happens before any
+        # bytes were captured, and a later plain import is served that
+        # module from sys.modules with no acceptance check. In the earlier
+        # repository, the docstring DENIED this ("carries no marker at
         # all", "loses nothing"). The keep is deliberate -- removing an
         # unvalidatable marked module could remove a module another shim
-        # instance verified (RBQ51-c3-handler-unpublishes-verified) -- so
-        # this test pins BOTH the chosen behaviour (keep, disclosed
-        # fail-open corner) and the accurate disclosure; a change in
-        # either direction must update the other.
+        # instance verified -- so this test pins BOTH the chosen behaviour
+        # (keep, disclosed fail-open corner) and the accurate disclosure;
+        # a change in either direction must update the other.
         base = self._fixture_base("aiqt-self-marked-")
         broken = base / "shapeless"
         broken.mkdir()
@@ -68929,13 +68919,13 @@ class AIQTVendorDigestTests(LinterTestCase):
                 "(RBQ57-c3-self-marked-planted)")
 
     def test_compiler_pin_precheck_fires_without_the_shim(self):
-        # RBQ34-c3-compiler-checks-untested: the compiler's own PIN.toml
-        # pre-check must refuse a pin-less --aiqt-root BY ITSELF. The
-        # verified shim beside this compiler copy is a permissive stand-in
-        # that accepts any root, so only the compiler's pre-check can
-        # produce the refusal: with the pre-check removed, the stand-in
-        # binds (PERMISSIVE-SHIM-BOUND appears) and the run proceeds to the
-        # compiler's own configuration validation instead.
+        # The compiler's own PIN.toml pre-check must refuse a pin-less
+        # --aiqt-root BY ITSELF. The verified shim beside this compiler
+        # copy is a permissive stand-in that accepts any root, so only the
+        # compiler's pre-check can produce the refusal: with the pre-check
+        # removed, the stand-in binds (PERMISSIVE-SHIM-BOUND appears) and
+        # the run proceeds to the compiler's own configuration validation
+        # instead.
         base = self._fixture_base("compiler-pin-precheck-")
         compiler = self._compiler_with_permissive_shim(base)
         root = base / "pack"
@@ -68956,13 +68946,13 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertNotIn("pack root not found", output)
 
     def test_compiler_origin_postcheck_fires_without_the_shim(self):
-        # RBQ34-c3-compiler-checks-untested: the compiler's own post-bind
-        # origin check must refuse BY ITSELF when the module that ended up
-        # bound is not the explicit root's. The permissive stand-in shim
-        # binds an aiqt_corpus at a DIFFERENT origin and would otherwise
-        # satisfy the import, so only the compiler's origin check can
-        # produce the refusal: with it removed, the run proceeds to the
-        # compiler's own configuration validation instead.
+        # The compiler's own post-bind origin check must refuse BY ITSELF
+        # when the module that ended up bound is not the explicit root's.
+        # The permissive stand-in shim binds an aiqt_corpus at a DIFFERENT
+        # origin and would otherwise satisfy the import, so only the
+        # compiler's origin check can produce the refusal: with it
+        # removed, the run proceeds to the compiler's own configuration
+        # validation instead.
         base = self._fixture_base("compiler-origin-postcheck-")
         compiler = self._compiler_with_permissive_shim(base,
                                                        foreign_origin=True)
@@ -68986,8 +68976,8 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertNotIn("pack root not found", output)
 
     def test_unverifiable_override_is_refused_not_imported(self):
-        # RBQ8-bootstrap-unverified: a copy that fails verification must not
-        # expose or import code (altered module, malformed pin, extra file).
+        # A copy that fails verification must not expose or import code
+        # (altered module, malformed pin, extra file).
         tampered = self._standalone_pack()
         (tampered / "tools" / "aiqt_corpus.py").write_bytes(b"SENTINEL = 'injected'\n")
         malformed = self._standalone_pack()
@@ -69007,8 +68997,8 @@ class AIQTVendorDigestTests(LinterTestCase):
                 self.assertIn("does not verify", res.stderr)
 
     def test_shim_refuses_an_aiqt_corpus_from_outside_the_pack(self):
-        # RBQ8-bootstrap-shadow-test (restored): a foreign aiqt_corpus.py
-        # planted ahead on sys.path is refused with ImportError.
+        # A foreign aiqt_corpus.py planted ahead on sys.path is refused
+        # with ImportError.
         with tempfile.TemporaryDirectory() as d:
             foreign = Path(d) / "foreign"
             foreign.mkdir()
@@ -69028,8 +69018,8 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIn("aiqt_corpus resolves to", res.stderr)
 
     def test_shim_discovery_stops_at_the_repository_root(self):
-        # RBQ8-bootstrap-walkup: a pack at an ancestor ABOVE the repository
-        # root is never discovered or imported, even when it would verify.
+        # A pack at an ancestor ABOVE the repository root is never
+        # discovered or imported, even when it would verify.
         base = self._fixture_base("aiqt-walkup-")
         ancestor = base / "ancestor"
         shutil.copytree(self._standalone_pack(), ancestor)
@@ -69052,10 +69042,9 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIn("vendored AIQT copy not found", res.stderr)
 
     def test_corpus_import_writes_no_bytecode_into_the_pack(self):
-        # RBQ8-bytecode-in-vendor: an ordinary import (no -B) must not create
-        # __pycache__ inside the digest-pinned pack, and the pack must still
-        # verify afterwards. The pack is a repository-pinned copy, the only
-        # kind the shim admits (RBQ11-override-not-pinned).
+        # An ordinary import (no -B) must not create __pycache__ inside the
+        # digest-pinned pack, and the pack must still verify afterwards. The
+        # pack is a repository-pinned copy, the only kind the shim admits.
         pack = self._repo_pack_copy()
         res = self._bootstrap_probe(pack, "print('imported ok')\n")
         self.assertEqual(res.returncode, 0, res.stderr)
@@ -69069,15 +69058,15 @@ class AIQTVendorDigestTests(LinterTestCase):
 
 
 class ProfileLoaderTests(unittest.TestCase):
-    """.claude/skills/corpus-management/src/tools/profile_loader.py (Phase-4 PR-A).
+    """.claude/skills/corpus-management/src/tools/profile_loader.py.
 
     In-process tests against synthetic defaults/adopter directories (via the
     load()'s defaults_dir seam): the fail-closed envelope (missing profile,
     unknown keys, schema_version, regex compilation) and the key-level-replace
     overlay semantics (replace-whole, fall-back, explicit-empty clear, unknown
     adopter key), plus a wiring check that gate 5's _citation_config() derives its
-    engine input from the shipped citations profile (the PR-A byte-parity test was
-    reworked to this when PR-B removed the wrapper literals).
+    engine input from the shipped citations profile (an earlier byte-parity test
+    was reworked to this when the wrapper literals were removed).
     """
 
     BASIC = (
@@ -69213,8 +69202,8 @@ class ProfileLoaderTests(unittest.TestCase):
             self.assertEqual(set(entry), {"term", "reason", "replacement"})
 
     def test_citations_profile_drives_wrapper_config(self):
-        # PR-B closed the PR-A duplication window: the wrapper no longer carries
-        # literal DENYLIST/PATH_EXEMPTIONS; its engine input is DERIVED from the
+        # The wrapper no longer carries literal DENYLIST/PATH_EXEMPTIONS, so
+        # nothing duplicates the profile; its engine input is DERIVED from the
         # shipped profile via _citation_config(). Lock the wiring + the
         # tuple/set conversion, and that the literals are gone.
         wrapper = load_linter_module(
@@ -69261,7 +69250,7 @@ class ProfileLoaderTests(unittest.TestCase):
         self.assertTrue(prof["orientation_doctypes"])
 
     def test_sections_profile_drives_wrapper_config(self):
-        # PR-C: the wrapper no longer carries REQUIRED_SECTIONS /
+        # The wrapper no longer carries REQUIRED_SECTIONS /
         # ORIENTATION_OPTIONS literals; the engine input is DERIVED from the
         # shipped profile via _sections_config(). Lock wiring + composition.
         wrapper = load_linter_module(
@@ -69304,8 +69293,8 @@ class ProfileLoaderTests(unittest.TestCase):
             self.assertLessEqual({"id", "description", "section_aliases", "position", "count"}, set(r))
 
     def test_placement_profile_drives_wrapper_config(self):
-        # PR-D: the wrapper no longer carries the PLACEMENT_RULES literal; the
-        # engine input is DERIVED from the profile via _placement_config(), and
+        # The wrapper no longer carries the PLACEMENT_RULES literal; the engine
+        # input is DERIVED from the profile via _placement_config(), and
         # rebuilt into the exact tuple/frozenset/None shape.
         wrapper = load_linter_module(
             ".claude/skills/corpus-management/tools/lint-section-placement.py", "_placement_profile_wiring")
@@ -69354,7 +69343,7 @@ class ProfileLoaderTests(unittest.TestCase):
         self.assertTrue(prof["synonyms"])
 
     def test_alignment_profile_drives_wrapper_config(self):
-        # PR-E: the wrapper no longer carries DOCTYPES / SYNONYMS literals; the
+        # The wrapper no longer carries DOCTYPES / SYNONYMS literals; the
         # engine input (and gate 67's cross-check) is DERIVED from the profile
         # via _alignment_config(). Lock wiring + types.
         wrapper = load_linter_module(
@@ -69544,7 +69533,7 @@ class ProfileLoaderTests(unittest.TestCase):
 
 
     def test_malformed_adopter_path_fails_closed(self):
-        # F1: a directory (or broken symlink) at <adopter_dir>/<concern>.toml is a
+        # A directory (or broken symlink) at <adopter_dir>/<concern>.toml is a
         # misconfiguration, not an absent override; it must fail closed.
         self._write(self.defaults, "widgets", self.BASIC)
         (self.adopter / "widgets.toml").mkdir()
@@ -69553,15 +69542,17 @@ class ProfileLoaderTests(unittest.TestCase):
         self.assertIn("not a regular file", str(ctx.exception))
 
     def test_concern_table_shaped_as_regex_is_plain_data(self):
-        # F2: a concern table whose keys are exactly {regex, ignorecase} must be
-        # returned as plain data, never misread as a regex table (which crashed).
+        # A concern table whose keys are exactly {regex, ignorecase} must be
+        # returned as plain data, never misread as a regex table (in the
+        # earlier repository, that misreading crashed).
         self._write(self.defaults, "widgets",
                     'schema_version = 1\n\n[widgets]\nregex = "abc"\nignorecase = true\n')
         prof = self._load()
         self.assertEqual(prof, {"regex": "abc", "ignorecase": True})
 
     def test_regex_table_as_value_still_compiles(self):
-        # F2 positive: a regex table appearing as a VALUE still compiles.
+        # Positive control: a regex table appearing as a VALUE still
+        # compiles.
         self._write(self.defaults, "widgets",
                     'schema_version = 1\n\n[widgets]\npat = {regex = "^ab$", ignorecase = true}\n')
         prof = self._load()
@@ -69593,15 +69584,16 @@ class CorpusManagementProfilesRegisterTests(unittest.TestCase):
         'target = "defaults/grc/widgets.toml"\n'
     )
     REGISTER = "schema_version = 1\n\n" + ENTRY
-    # The compiler's PACK_DIR (CM/src since chunk R6); passed as --pack-root, since the wrapper
-    # otherwise passes its own src.
+    # The compiler's PACK_DIR (CM/src); passed as --pack-root, since the wrapper otherwise
+    # passes its own src.
     PACK_REL = ".claude/skills/corpus-management/src"
 
     def _make_root(self, *, register, profiles=None, clauses=None):
         # Unique per-call scratch dir + self-registered cleanup so two concurrent
-        # suite runs cannot delete or overwrite each other's tree (P-1.86;
-        # the fixed-dir + `if exists: rmtree` pattern raced on this fleet-concurrent
-        # machine; mirrors the #2292 _make_synthetic fix + _force_rmtree).
+        # suite runs cannot delete or overwrite each other's tree (in the earlier
+        # repository, the fixed-dir + `if exists: rmtree` pattern raced on a
+        # fleet-concurrent machine; this helper mirrors the _make_synthetic fix
+        # and _force_rmtree).
         root = Path(tempfile.mkdtemp(prefix="synthetic-corpus-mgmt-profiles-", dir=FIXTURE_DIR))
         self.addCleanup(_force_rmtree, root)
         pack = root / self.PACK_REL
@@ -69670,7 +69662,7 @@ class CorpusManagementProfilesRegisterTests(unittest.TestCase):
 
 
     def test_duplicate_concern_fails_closed(self):
-        # F4: two distinct ids registering the same concern (the loader's lookup
+        # Two distinct ids registering the same concern (the loader's lookup
         # identity) must fail closed.
         two = ("schema_version = 1\n\n"
                "[[profiles]]\nid = \"widgets\"\nconcern = \"widgets\"\n"
@@ -69684,8 +69676,8 @@ class CorpusManagementProfilesRegisterTests(unittest.TestCase):
         self.assertIn("duplicate concern", r.stdout)
 
     def test_profile_id_colliding_with_clause_fails_closed(self):
-        # F3: a profile id sharing the one clause/gate/rule/profile namespace with
-        # a clause id must fail closed.
+        # A profile id sharing the one clause/gate/rule/profile namespace with a
+        # clause id must fail closed.
         clauses = ("schema_version = 1\n\n[[clauses]]\n"
                    'id = "widgets"\nsource = "core/profiles.toml"\n')
         root = self._make_root(register=self.REGISTER,
@@ -69697,7 +69689,7 @@ class CorpusManagementProfilesRegisterTests(unittest.TestCase):
 
 
 class LanguageEngineProfileTests(unittest.TestCase):
-    """gate 2 engine behaviour after PR-F parameterization: every spelling form
+    """gate 2 engine behaviour after parameterization: every spelling form
     detected, exclusions scoped, empty/dynamic vocab, fail-closed on bad data."""
 
     def setUp(self):
@@ -69735,10 +69727,10 @@ class LanguageEngineProfileTests(unittest.TestCase):
                                          [(kind, 1, value)])
 
     def test_prefixed_stems_flagged(self):
-        # 3b234: the letter-bounded pattern does not match a covered stem inside a
-        # prefixed word, so "decentralised" passed while only "centralise" was listed.
-        # Since round 4 the ise_prefixes rule covers them; a hyphenated prefix is
-        # part of the reported word.
+        # The letter-bounded pattern does not match a covered stem inside a prefixed
+        # word, so in the earlier repository "decentralised" passed while only
+        # "centralise" was listed. The ise_prefixes rule covers them; a hyphenated
+        # prefix is part of the reported word.
         for stem in ("decentralise", "destabilise", "reprioritise", "underutilise",
                      "unrealise", "derecognise", "detokenise", "recategorise",
                      "reinitialise", "renormalise", "unutilise"):
@@ -69750,11 +69742,11 @@ class LanguageEngineProfileTests(unittest.TestCase):
         self.assertEqual(self.scan("de-emphasised"), [("ise", 1, "de-emphasised")])
 
     def test_round3_stems_flagged(self):
-        # 3b234 round 3: the base "initialise" and further prefixed stems were not
-        # listed, so "initialised", "uninitialised" and "reutilised" passed. Each
-        # -ise inflection is flagged, its -isation noun where the word exists is
-        # flagged by the generic suffix check, and its -ize forms are accepted.
-        # Since round 4 only the bases are listed; the prefixes rule covers the rest.
+        # In the earlier repository, the base "initialise" and further prefixed
+        # stems were not listed, so "initialised", "uninitialised" and "reutilised"
+        # passed. Each -ise inflection is flagged, its -isation noun where the word
+        # exists is flagged by the generic suffix check, and its -ize forms are
+        # accepted. Only the bases are listed; the prefixes rule covers the rest.
         nouns = ("initialise", "deinitialise", "reutilise", "reoptimise",
                  "reserialise", "retokenise", "reparameterise", "depseudonymise",
                  "repseudonymise", "reanonymise", "recentralise", "relocalise",
@@ -69777,7 +69769,7 @@ class LanguageEngineProfileTests(unittest.TestCase):
         for stem in ("initialise", "externalise", "visualise"):
             self.assertIn(stem, self.vocab.ise_stems)
 
-    # 3b234 round 4: the forms the round 3 review found passing, and the bases
+    # Further forms that passed in the earlier repository, and the bases
     # they need, with the -isation noun where the word exists.
     ROUND4_FORMS = {
         "underemphasise": False, "overoptimise": False, "miscategorise": True,
@@ -69848,12 +69840,13 @@ class LanguageEngineProfileTests(unittest.TestCase):
                          [("ise", 1, "non-co-non-organised")])
 
     def test_prefix_rule_long_chain_bounded_time(self):
-        # 3b234 round 5: a long hyphenated prefix chain completes in bounded time.
-        # Without the three-hyphen cap the time grew quadratically with the chain
-        # (about 12 seconds for "re-" repeated 2000 times), because every hyphen
-        # restarted the run; with the cap these inputs (about 20000 characters)
-        # each take well under a second. The 5-second CPU budget leaves room for
-        # a slow runner while failing a quadratic regression.
+        # A long hyphenated prefix chain completes in bounded time. In the
+        # earlier repository, without the three-hyphen cap the time grew
+        # quadratically with the chain (about 12 seconds for "re-" repeated 2000
+        # times), because every hyphen restarted the run; with the cap these
+        # inputs (about 20000 characters) each take well under a second. The
+        # 5-second CPU budget leaves room for a slow runner while failing a
+        # quadratic regression.
         import time
         cases = (
             ("re-" * 7000 + "x", []),
@@ -69873,19 +69866,20 @@ class LanguageEngineProfileTests(unittest.TestCase):
                     self.assertLess(elapsed, 5.0)
 
     def test_prefix_rule_casefold_runs_bounded_time(self):
-        # 3b234 round 6: U+017F (long s) folds to "s", so the prefix "mis" takes
-        # "mi" + U+017F, and the ASCII-only letter bound allowed a fresh attempt
-        # after every U+017F; the pattern alone took about 29 seconds for the first
-        # input below (quadratic). U+0130 and U+0131 fold to "i" the same way, and
-        # U+212A (Kelvin sign) folds to "k". With the memoized scan the first input
-        # takes well under a second; the shorter runs, one for every listed prefix,
-        # took about 2 seconds each before and a few hundredths of a second after.
-        # Gate 36: a fixed CPU budget failed under host load (1.12 to 4.13 seconds
+        # U+017F (long s) folds to "s", so the prefix "mis" takes "mi" + U+017F, and
+        # in the earlier repository the ASCII-only letter bound allowed a fresh
+        # attempt after every U+017F; the pattern alone took about 29 seconds for
+        # the first input below (quadratic). U+0130 and U+0131 fold to "i" the same
+        # way, and U+212A (Kelvin sign) folds to "k". With the memoized scan the
+        # first input takes well under a second; the shorter runs, one for every
+        # listed prefix, took about 2 seconds each before and a few hundredths of a
+        # second after. Before the current timing, this test used a fixed CPU
+        # budget, which failed under host load in gate 36 (1.12 to 4.13 seconds
         # against 1.0), and the -isation check was itself quadratic on these runs
         # (_isation_matches). Each input is now timed against the same input at an
         # eighth of its length, so host speed and load scale both runs alike: a
         # linear scan takes about 8 times as long on the longer input, the quadratic
-        # -isation check about 17 times in total, the round 6 pattern far more. The
+        # -isation check about 17 times in total, the pattern alone far more. The
         # best of three (shorter) and two (longer) runs keeps one slow run from
         # deciding.
         import time
@@ -69945,10 +69939,10 @@ class LanguageEngineProfileTests(unittest.TestCase):
         self.assertGreater(matched, 5000)
 
     def test_prefix_scan_matches_the_pattern(self):
-        # 3b234 round 6: ise_words runs the ise pattern as a memoized search; it
-        # must report exactly the words the pattern's own finditer reports,
-        # including case-folded characters, hyphen chains past the three-group cap
-        # and (for the second vocabulary) prefixes that overlap one another.
+        # ise_words runs the ise pattern as a memoized search; it must report
+        # exactly the words the pattern's own finditer reports, including
+        # case-folded characters, hyphen chains past the three-group cap and (for
+        # the second vocabulary) prefixes that overlap one another.
         self.assert_scan_matches_pattern(3234, 4000, 14)
         empty = self.engine.compile_language(self.vocab._replace(ise_prefixes=()))
         self.assertIsNone(empty.ise_scan)
@@ -69976,20 +69970,21 @@ class LanguageEngineProfileTests(unittest.TestCase):
         self.assertGreater(matched, 200)
 
     def test_prefix_scan_compact_memo_matches_the_pattern(self):
-        # 3b407: the scan memoizes only failures, as bits per position, and keeps
-        # its search stack as integers; longer texts than the round 6 fuzz reuse
-        # failed states across start positions and hyphenated groups.
+        # The scan memoizes only failures, as bits per position, and keeps its
+        # search stack as integers; longer texts than the 14-piece fuzz above
+        # reuse failed states across start positions and hyphenated groups.
         self.assert_scan_matches_pattern(3407, 3000, 40)
 
     def test_prefix_scan_rejects_an_empty_prefix(self):
-        # 3b407: an empty prefix made a scan state its own child, so ise_words
-        # looped without end. compile_language rejects one even when the
-        # vocabulary did not pass through language_vocabulary's check, and the
-        # scan skips a zero-width prefix match from a hand-built IsePrefixScan.
+        # In the earlier repository, an empty prefix made a scan state its own
+        # child, so ise_words looped without end. compile_language rejects one
+        # even when the vocabulary did not pass through language_vocabulary's
+        # check, and the scan skips a zero-width prefix match from a
+        # hand-built IsePrefixScan.
         for prefixes in (("",), ("re", ""), ("", "un")):
             with self.subTest(prefixes=prefixes), self.assertRaises(ValueError):
                 self.engine.compile_language(self.vocab._replace(ise_prefixes=prefixes))
-        # An empty stem made every start a zero-width word (3b407 round 2).
+        # In the earlier repository, an empty stem made every start a zero-width word.
         for stems in (("",), ("", *self.vocab.ise_stems), (*self.vocab.ise_stems, "")):
             for prefixes in ((), self.vocab.ise_prefixes):
                 with (self.subTest(stems=stems[:2], prefixes=bool(prefixes)),
@@ -70006,9 +70001,10 @@ class LanguageEngineProfileTests(unittest.TestCase):
                                  self.engine.ise_words(text, self.language))
 
     def test_prefix_scan_terminates_on_a_zero_width_word(self):
-        # 3b407 round 2: a hand-built stem pattern that matches empty made the
-        # scan report a zero-width word and search again from the same position,
-        # without end; ise_words now moves past every start it has tried.
+        # In the earlier repository, a hand-built stem pattern that matches
+        # empty made the scan report a zero-width word and search again from
+        # the same position, without end; ise_words now moves past every start
+        # it has tried.
         empty = re.compile("")
         bare = self.language._replace(
             ise_scan=self.engine.IsePrefixScan(empty, (), empty))
@@ -70024,11 +70020,12 @@ class LanguageEngineProfileTests(unittest.TestCase):
                 self.assertEqual(self.engine.ise_words(text, stemless), expected)
 
     def test_prefix_scan_bounded_memory(self):
-        # 3b407: the round 6 memo (a dict keyed by tuples) and its list frames
-        # took about 250 bytes per character on a one-line prefix run (about
-        # 50 MB for these 200,000-character words); the integer memo and stack
-        # take about 10. The 8 MB limit (40 bytes per character) fails the
-        # round 6 encoding with room for allocator differences.
+        # In the earlier repository, the memo (a dict keyed by tuples) and
+        # its list frames took about 250 bytes per character on a one-line
+        # prefix run (about 50 MB for these 200,000-character words); the
+        # integer memo and stack take about 10. The 8 MB limit (40 bytes per
+        # character) fails the dict encoding with room for allocator
+        # differences.
         import tracemalloc
         if tracemalloc.is_tracing():
             self.skipTest("tracemalloc is already tracing; its peak would include the caller's")
@@ -70085,9 +70082,9 @@ class LanguageEngineProfileTests(unittest.TestCase):
                         self.engine.language_vocabulary(**prof)
 
     def test_prefixed_entries_need_no_listing(self):
-        # Round 4 removed the prefixed entries the prefix rule covers. Listing
-        # them again changes no result: a removed entry's prefix joins the
-        # unhyphenated run before its base stem.
+        # The prefixed entries the prefix rule covers were removed from the
+        # list. Listing them again changes no result: a removed entry's prefix
+        # joins the unhyphenated run before its base stem.
         removed = ("reorganise", "unrecognise", "deemphasise", "overutilise",
                    "mischaracterise", "preauthorise", "disorganise", "undercapitalise")
         full = self.engine.compile_language(self.vocab._replace(
@@ -70101,7 +70098,8 @@ class LanguageEngineProfileTests(unittest.TestCase):
 
     def test_prefix_rule_without_prefixes_is_the_stem_pattern(self):
         # An empty ise_prefixes list compiles the plain stem alternation, so
-        # prefixed derivatives are reported only after a hyphen, as before round 4.
+        # prefixed derivatives are reported only after a hyphen, as they were
+        # before the prefix rule.
         empty = self.engine.compile_language(self.vocab._replace(ise_prefixes=()))
         stems = "|".join(
             "|".join(re.escape(w) for w in (s, s + "s", s + "d", s[:-1] + "ing",
@@ -70158,8 +70156,8 @@ class LanguageEngineProfileTests(unittest.TestCase):
                          [("ise", 1, "sentinelised"), ("yse", 1, "sentinelyse")])
         self.assertEqual(self.scan("## sentinel title", language=dyn), [])
 
-    # 3b366 round 2: direct unit tests of mask_urls. URL is a 15-character token,
-    # so the masked form of URL + rest is BLANK + rest.
+    # Direct unit tests of mask_urls. URL is a 15-character token, so the masked
+    # form of URL + rest is BLANK + rest.
     URL = "https://x.org/a"
     BLANK = " " * 15
 
@@ -70171,15 +70169,15 @@ class LanguageEngineProfileTests(unittest.TestCase):
             with self.subTest(stop=stop):
                 self.assertMasked(self.URL + stop + "organisations",
                                   self.BLANK + stop + "organisations")
-        # 3b366 round 3: a strikethrough delimiter ends the token; a single "~" does not.
+        # A strikethrough delimiter ends the token; a single "~" does not.
         self.assertMasked(self.URL + "~~organisations", self.BLANK + "~~organisations")
         self.assertMasked("~~" + self.URL + "~~organisations",
                           "~~" + self.BLANK + "~~organisations")
         self.assertMasked("https://x.org/~organisations", " " * 28)
 
     def test_mask_urls_round7_caret_control_and_non_ascii_end_token(self):
-        # 3b366 round 7: "^", an ASCII control character and any non-ASCII
-        # character end the token, so prose glued after them stays checked.
+        # "^", an ASCII control character and any non-ASCII character end
+        # the token, so prose glued after them stays checked.
         for stop in ("^", "\x00", "\x1f", "\x7f", "\u00e9", "\u00a0", "\u2019"):
             with self.subTest(stop=stop):
                 self.assertMasked(self.URL + stop + "organisations",
@@ -70191,9 +70189,9 @@ class LanguageEngineProfileTests(unittest.TestCase):
                           " " * 17 + "\u00e9/organisations")
 
     def test_mask_urls_round3_glue_ends_token(self):
-        # 3b366 round 3: each glue must end the token (discriminates the "(" and
-        # "~ + @ $" punctuation lookaheads and the six-character extension cap),
-        # and a symbol glued after punctuation ends it too.
+        # Each glue must end the token (discriminates the "(" and "~ + @ $"
+        # punctuation lookaheads and the six-character extension cap), and a
+        # symbol glued after punctuation ends it too.
         for glue in (".(organisations)", ".~organisations", ".+organisations",
                      ".@organisations", ".$organisations", ".utilise", ".analyse",
                      ".&organisations", ".%organisations", ".%20organisations",
@@ -70206,10 +70204,10 @@ class LanguageEngineProfileTests(unittest.TestCase):
                          [("yse", "analyse")])
 
     def test_mask_urls_round4_digit_run_glue_ends_token(self):
-        # 3b366 round 4: after ".,;:!?" a run of digits followed by "&", "%", "=",
-        # "#", "/" or ")" ends the token like a letter does, so these glue forms
-        # stay reported. Under-masked as a result (residual): a dotted version
-        # followed by "/" ("v1.2/") leaves its tail checked.
+        # After ".,;:!?" a run of digits followed by "&", "%", "=", "#", "/" or
+        # ")" ends the token like a letter does, so these glue forms stay
+        # reported. Under-masked as a result (residual): a dotted version followed
+        # by "/" ("v1.2/") leaves its tail checked.
         for glue in (",1/", ",1&", ",1%", ",1=", ",1#", ",1)", ".2/", ";12/", ":3=",
                      "!4#", "?5&", ".20%"):
             with self.subTest(glue=glue):
@@ -70227,10 +70225,10 @@ class LanguageEngineProfileTests(unittest.TestCase):
         self.assertMasked("https://x.org/a,1.html", " " * 22)
 
     def test_mask_urls_query_key_continuation(self):
-        # 3b366 round 4: "?" continues the token whenever a query key (any run,
-        # possibly empty, of letters, digits, ". _ ~ + -" or %XX escapes) reaches
-        # "="; these forms are masked by design (an accepted over-mask that the
-        # rule surfaces state), and "?" before letters with no "=" ends it.
+        # "?" continues the token whenever a query key (any run, possibly empty,
+        # of letters, digits, ". _ ~ + -" or %XX escapes) reaches "="; these
+        # forms are masked by design (an accepted over-mask that the rule
+        # surfaces state), and "?" before letters with no "=" ends it.
         for text in ("https://x.org/a?-organisations=1", "https://x.org/a?_organisations=1",
                      "https://x.org/a?1organisations=1", "https://x.org/a?=organisations",
                      "https://x.org/a?%41organisations=1"):
@@ -70241,8 +70239,8 @@ class LanguageEngineProfileTests(unittest.TestCase):
                 self.assertMasked(self.URL + rest, self.BLANK + rest)
 
     def test_mask_urls_round4_survivors(self):
-        # 3b366 round 4: an invalid escape in a query key ends the token, a nested
-        # plain "http://" continues it, and a "://" after a non-scheme does not.
+        # An invalid escape in a query key ends the token, a nested plain
+        # "http://" continues it, and a "://" after a non-scheme does not.
         self.assertEqual(self.engine.spelling_matches(
             "https://x.org/p?organisations%zz=1", self.language),
             [("isation", "organisations")])
@@ -70253,17 +70251,17 @@ class LanguageEngineProfileTests(unittest.TestCase):
             [("isation", "organisations")])
 
     def test_mask_urls_top_level_label_case(self):
-        # 3b366 round 3: the top-level label is all-lowercase or all-uppercase, so a
-        # capitalized sentence glued to a path-less host is not swallowed.
+        # The top-level label is all-lowercase or all-uppercase, so a capitalized
+        # sentence glued to a path-less host is not swallowed.
         self.assertEqual(self.engine.spelling_matches(
             "See https://ico.org.uk.Organisations must register.", self.language),
             [("isation", "Organisations")])
         self.assertMasked("https://ico.org.uk.Organisations", " " * 18 + ".Organisations")
         self.assertMasked("https://x.Org/organisations", "https://x.Org/organisations")
         self.assertMasked("HTTPS://X.ORG.UK/organisations", " " * 30)
-        # 3b366 round 4: an all-uppercase top-level label is accepted only when no
-        # host label has a lowercase letter, so an all-capitals word glued to a
-        # lowercase host stays reported, and "x.ORG" is an under-masked residual.
+        # An all-uppercase top-level label is accepted only when no host label has
+        # a lowercase letter, so an all-capitals word glued to a lowercase host
+        # stays reported, and "x.ORG" is an under-masked residual.
         self.assertMasked("https://ico.org.uk.ORGANISATIONS", " " * 18 + ".ORGANISATIONS")
         self.assertEqual(self.engine.spelling_matches(
             "See https://ico.org.uk.ORGANISATIONS here.", self.language),
@@ -70277,8 +70275,8 @@ class LanguageEngineProfileTests(unittest.TestCase):
         # a syntactically valid top-level label, masked with the host.
         self.assertEqual(self.engine.spelling_matches(
             "See https://ico.org.uk.organisations must register.", self.language), [])
-        # 3b366 round 5: likewise an all-uppercase word glued to an all-uppercase
-        # host is masked, while a mixed-case word glued to it is not a label.
+        # Likewise an all-uppercase word glued to an all-uppercase host is
+        # masked, while a mixed-case word glued to it is not a label.
         self.assertEqual(self.engine.spelling_matches(
             "See HTTPS://X.ORG.ORGANISATIONS here.", self.language), [])
         self.assertMasked("HTTPS://X.ORGanisations", "HTTPS://X.ORGanisations")
@@ -70287,7 +70285,7 @@ class LanguageEngineProfileTests(unittest.TestCase):
             [("isation", "ORGanisations")])
 
     def test_mask_urls_ipv6_literal_validated(self):
-        # 3b366 round 3: a bracketed authority is masked only as a valid IPv6 literal.
+        # A bracketed authority is masked only as a valid IPv6 literal.
         for text in ("https://[.]/organisations", "https://[1:2]/organisations",
                      "https://[::1::2]/organisations", "https://[12345::1]/organisations",
                      "https://[:]/organisations", "https://[1.2.3.4]/organisations",
@@ -70300,7 +70298,7 @@ class LanguageEngineProfileTests(unittest.TestCase):
                 self.assertMasked(text, " " * len(text))
 
     def test_mask_urls_percent_escape_validated(self):
-        # 3b366 round 3: "%" continues the token only before two hexadecimal digits.
+        # "%" continues the token only before two hexadecimal digits.
         prefix = " " * len("https://x.org/")
         for rest in ("%organisations", "%GGorganisations", "%4organisations", "%"):
             with self.subTest(rest=rest):
@@ -70311,8 +70309,8 @@ class LanguageEngineProfileTests(unittest.TestCase):
                 self.assertMasked(text, " " * len(text))
 
     def test_mask_urls_after_emphasis_underscore(self):
-        # 3b366 round 3: "_" or "__" emphasis before the scheme is recognized; a
-        # scheme embedded in a word is not.
+        # "_" or "__" emphasis before the scheme is recognized; a scheme
+        # embedded in a word is not.
         text = "_https://ico.org.uk/for-organisations/_"
         self.assertMasked(text, "_" + " " * (len(text) - 2) + "_")
         self.assertMasked("__https://x.org/organisations__", "__" + " " * 27 + "__")
@@ -70322,11 +70320,11 @@ class LanguageEngineProfileTests(unittest.TestCase):
                 self.assertMasked(text, text)
 
     def test_mask_urls_emphasis_close_ends_token(self):
-        # 3b366 round 4: a URL opened after "_" or "__" ends at a closing delimiter
-        # followed by anything other than an ASCII letter or digit, so prose right
-        # after the emphasis is checked; inside the path of such a URL a "_" (or run
-        # of "_") stays a path character only when an ASCII letter or digit follows
-        # it, and in a URL not opened after a delimiter "_" is always a path character.
+        # A URL opened after "_" or "__" ends at a closing delimiter followed by
+        # anything other than an ASCII letter or digit, so prose right after the
+        # emphasis is checked; inside the path of such a URL a "_" (or run of "_")
+        # stays a path character only when an ASCII letter or digit follows it, and in
+        # a URL not opened after a delimiter "_" is always a path character.
         for delim in ("_", "__"):
             for rest in ("(organisations)", ".organisations", ",organisations",
                          ";organisations", ")organisations", " organisations",
@@ -70345,11 +70343,11 @@ class LanguageEngineProfileTests(unittest.TestCase):
         self.assertMasked("https://x.org/a_.organisations", " " * 16 + ".organisations")
 
     def test_mask_urls_emphasis_close_before_any_punctuation(self):
-        # 3b366 round 5: a closing "_" / "__" ends the token before every ASCII
-        # punctuation character (only a letter or digit continues it), so prose
-        # after "_#", "_-", "_/", "_$" and the rest is checked; a "_" inside the
-        # path of an emphasized URL stays a path character only when a letter or
-        # digit follows it (see test_mask_urls_round6_emphasis_residuals).
+        # A closing "_" / "__" ends the token before every ASCII punctuation
+        # character (only a letter or digit continues it), so prose after "_#",
+        # "_-", "_/", "_$" and the rest is checked; a "_" inside the path of an
+        # emphasized URL stays a path character only when a letter or digit
+        # follows it (see test_mask_urls_round6_emphasis_residuals).
         for delim in ("_", "__"):
             for punct in "!\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~":
                 rest = punct + "organisations"
@@ -70367,8 +70365,8 @@ class LanguageEngineProfileTests(unittest.TestCase):
         self.assertMasked("__https://x.org/a_b/c__", "__" + " " * 19 + "__")
 
     def test_mask_urls_round6_emphasis_residuals(self):
-        # 3b366 round 6: a closer followed by a digit continues the token like one
-        # followed by a letter (pins the digits in the closer lookahead).
+        # A closer followed by a digit continues the token like one followed by a
+        # letter (pins the digits in the closer lookahead).
         self.assertMasked("_https://x.org/v_2/c_", "_" + " " * 19 + "_")
         # Residual (false positive): path text after a "_" (or run of "_") followed
         # by anything other than an ASCII letter or digit stays checked in an
@@ -70378,7 +70376,7 @@ class LanguageEngineProfileTests(unittest.TestCase):
         self.assertEqual(self.engine.spelling_matches(
             "_https://x.org/for_/organisations/x_", self.language),
             [("isation", "organisations")])
-        # 3b366 round 7: a non-ASCII letter after the path "_" ends the token too.
+        # A non-ASCII letter after the path "_" ends the token too.
         self.assertMasked("_https://x.org/a_\u00e9/organisations/x_",
                           "_" + " " * 15 + "_\u00e9/organisations/x_")
         self.assertEqual(self.engine.spelling_matches(
@@ -70399,9 +70397,9 @@ class LanguageEngineProfileTests(unittest.TestCase):
                     ["isation"])
 
     def test_mask_urls_round7_underscore_run(self):
-        # 3b366 round 7: in an emphasized URL a whole run of "_" continues the token
-        # when an ASCII letter or digit follows the run, and ends it otherwise, so
-        # the triple underscore below is a path run and "organisations" is masked.
+        # In an emphasized URL a whole run of "_" continues the token when an ASCII
+        # letter or digit follows the run, and ends it otherwise, so the triple
+        # underscore below is a path run and "organisations" is masked.
         self.assertMasked("_https://x.org/a___organisations_", "_" + " " * 31 + "_")
         self.assertEqual(self.engine.spelling_matches(
             "_https://x.org/a___organisations_", self.language), [])
@@ -70411,13 +70409,13 @@ class LanguageEngineProfileTests(unittest.TestCase):
         self.assertMasked("_https://x.org/a___", "_" + self.BLANK + "___")
 
     def test_spelling_letter_boundaries(self):
-        # 3b372: the three spelling checks bound a word by ASCII letters, not \b.
-        # "_", digits and non-ASCII letters are word characters to \b, so a word in
-        # "_" / "__" emphasis, in a snake_case name, glued to a digit or glued to a
-        # non-ASCII letter (round 7 note a) was not reported. U+017F, U+212A and
-        # U+0131, which re.IGNORECASE folds into [A-Za-z], do not block the word
-        # either (a leading U+017F is taken by the isation pattern's first letter,
-        # so the isation cases add them on the right only).
+        # The three spelling checks bound a word by ASCII letters, not \b. "_",
+        # digits and non-ASCII letters are word characters to \b, so in the earlier
+        # repository a word in "_" / "__" emphasis, in a snake_case name, glued to
+        # a digit or glued to a non-ASCII letter was not reported. U+017F, U+212A
+        # and U+0131, which re.IGNORECASE folds into [A-Za-z], do not block the
+        # word either (a leading U+017F is taken by the isation pattern's first
+        # letter, so the isation cases add them on the right only).
         glue = [("_", "_"), ("__", "__"), ("data_", "_policy"), ("2", "2"),
                 ("\u00e9", "\u00e9"), ("\u00e9", ""), ("", "\u00e9")]
         cases = [("isation", "organisations",
@@ -70440,9 +70438,9 @@ class LanguageEngineProfileTests(unittest.TestCase):
                 self.assertEqual(self.engine.spelling_matches(text, self.language), [])
 
     def test_mask_urls_scheme_is_ascii_only(self):
-        # 3b372 (round 7 note b): under (?i:...) U+017F (long s) matched "s", so
-        # "http\u017f://" was taken for a scheme and its path masked; the scheme is now
-        # matched in ASCII only, and the text stays checked.
+        # In the earlier repository, under (?i:...) U+017F (long s) matched "s", so
+        # "http\u017f://" was taken for a scheme and its path masked; the scheme is
+        # now matched in ASCII only, and the text stays checked.
         for text in ("http\u017f://x.org/organisations", "HTTP\u017f://x.org/organisations",
                      "_http\u017f://x.org/organisations_"):
             with self.subTest(text=text):
@@ -70453,9 +70451,9 @@ class LanguageEngineProfileTests(unittest.TestCase):
         self.assertMasked("HTTPS://x.org/organisations", " " * 27)
 
     def test_ensure_letter_boundaries(self):
-        # 3b372: the "ensure that" check bounds the word by ASCII letters, not \b,
-        # so "ensure" in "_" / "__" emphasis, glued to a digit, a non-ASCII letter
-        # or a snake_case part is reported, and an emphasis run before "that" is
+        # The "ensure that" check bounds the word by ASCII letters, not \b, so
+        # "ensure" in "_" / "__" emphasis, glued to a digit, a non-ASCII letter or
+        # a snake_case part is reported, and an emphasis run before "that" is
         # allowed ("_ensure_ that", "*ensure* that"); emphasis on "that" itself
         # ("ensure _that_") is still reported.
         for text in ("We _ensure_ the result.", "We __ensure__ it.", "We ensure2 it.",
@@ -70475,11 +70473,11 @@ class LanguageEngineProfileTests(unittest.TestCase):
                     self.assertEqual(self.scan(text, generator=generator), [])
 
     def test_non_ascii_inside_checked_part_residual(self):
-        # 3b372 residual: a non-ASCII character inside the checked part (a
-        # ligature, a soft hyphen, a zero-width space, a combining mark) hides an
-        # -ise or -yse form; an -isation word is reported from after that character
-        # only when at least one ASCII letter separates it from "isation", and is
-        # otherwise hidden too (the character directly before "isation" or inside it).
+        # Residual: a non-ASCII character inside the checked part (a ligature, a soft
+        # hyphen, a zero-width space, a combining mark) hides an -ise or -yse form; an
+        # -isation word is reported from after that character only when at least one
+        # ASCII letter separates it from "isation", and is otherwise hidden too (the
+        # character directly before "isation" or inside it).
         for text in ("orga\u00adnised", "organi\u200bsed", "analy\u0301sed",
                      "\ufb01nalised", "organ\u00adisation", "organis\u00adation",
                      "organi\u200bsation", "organ\u0301isation", "organi\u00adsation"):
@@ -70495,8 +70493,8 @@ class LanguageEngineProfileTests(unittest.TestCase):
                                  [("isation", word)])
 
     def test_case_folding_character_inside_isation_word_reported_whole(self):
-        # 3b372 residual: U+017F, U+212A, U+0130 and U+0131 inside a word are
-        # matched as letters by the case-folding -isation pattern, so the word is
+        # Residual: U+017F, U+212A, U+0130 and U+0131 inside a word are matched
+        # as letters by the case-folding -isation pattern, so the word is
         # reported whole, not from after the character.
         for char in ("\u017f", "\u212a", "\u0130", "\u0131"):
             word = "r" + char + "organisations"
@@ -70505,8 +70503,8 @@ class LanguageEngineProfileTests(unittest.TestCase):
                     "See " + word + " here.", self.language), [("isation", word)])
 
     def test_case_folding_character_in_ise_and_yse_form_reported(self):
-        # 3b372 round 4: the case-folding -ise and -yse patterns match U+017F as
-        # "s", U+0130 and U+0131 as "i" and U+212A as "k" in place of that letter.
+        # The case-folding -ise and -yse patterns match U+017F as "s", U+0130 and
+        # U+0131 as "i" and U+212A as "k" in place of that letter.
         for word, kind in (("organi\u017fed", "ise"), ("organ\u0131sed", "ise"),
                            ("organ\u0130sed", "ise"), ("minimi\u017fe", "ise"),
                            ("to\u212aenised", "ise"), ("analy\u017fed", "yse"),
@@ -70516,9 +70514,9 @@ class LanguageEngineProfileTests(unittest.TestCase):
                     "See " + word + " here.", self.language), [(kind, word)])
 
     def test_mask_urls_non_ascii_host_masked_to_last_top_level_label(self):
-        # 3b372 round 4: a non-ASCII host character ends the mask at the end of
-        # the last ASCII label before it that can end a host, so a checked word
-        # after it is reported and one ending at it is masked with the host.
+        # A non-ASCII host character ends the mask at the end of the last ASCII
+        # label before it that can end a host, so a checked word after it is
+        # reported and one ending at it is masked with the host.
         self.assertMasked("https://x.org\u00e9/organisations",
                           " " * 13 + "\u00e9/organisations")
         self.assertEqual(self.engine.spelling_matches(
@@ -70530,10 +70528,10 @@ class LanguageEngineProfileTests(unittest.TestCase):
             "See https://x.organisations\u00e9.org/a here.", self.language), [])
 
     def test_mask_urls_checked_word_before_non_ascii_host_character_reported(self):
-        # 3b372 round 5: only a checked word that is itself the last ASCII label
-        # before a non-ASCII host character and can end a host is masked; in the
-        # first label, in mixed case or sharing its label with a hyphen or a
-        # digit, the word is reported and the URL is left unmasked.
+        # Only a checked word that is itself the last ASCII label before a
+        # non-ASCII host character and can end a host is masked; in the first
+        # label, in mixed case or sharing its label with a hyphen or a digit,
+        # the word is reported and the URL is left unmasked.
         for host, word in (("organisations", "organisations"),
                            ("x.Organisations", "Organisations"),
                            ("x.a-organisations", "organisations"),
@@ -70543,10 +70541,10 @@ class LanguageEngineProfileTests(unittest.TestCase):
                 self.assertMasked(url, url)
                 self.assertEqual(self.engine.spelling_matches(
                     "See " + url + " here.", self.language), [("isation", word)])
-        # 3b372 round 7: an all-uppercase word there is masked only when no host
-        # label before the character holds a lowercase letter; after a lowercase
-        # label it is reported, masked only through the last lowercase label that
-        # can end a host, and not at all when no such label precedes it.
+        # An all-uppercase word there is masked only when no host label before
+        # the character holds a lowercase letter; after a lowercase label it is
+        # reported, masked only through the last lowercase label that can end a
+        # host, and not at all when no such label precedes it.
         self.assertMasked("https://x.ORGANISATIONS\u00e9.org/a",
                           "https://x.ORGANISATIONS\u00e9.org/a")
         self.assertEqual(self.engine.spelling_matches(
@@ -70565,9 +70563,9 @@ class LanguageEngineProfileTests(unittest.TestCase):
                     "See " + url + " here.", self.language), [])
 
     def test_complete_form_before_non_ascii_character_reported(self):
-        # 3b372 round 5: when the text before a non-ASCII character inside the
-        # checked part is itself a complete -ise or -yse form, that form is
-        # reported (U+017F, a soft hyphen, a zero-width space, a combining mark).
+        # When the text before a non-ASCII character inside the checked part is
+        # itself a complete -ise or -yse form, that form is reported (U+017F, a
+        # soft hyphen, a zero-width space, a combining mark).
         for char in ("\u017f", "\u00ad", "\u200b", "\u0301"):
             for text, kind, word in (("recognise" + char + "s", "ise", "recognise"),
                                      ("analyse" + char + "rs", "yse", "analyse")):
@@ -70576,9 +70574,9 @@ class LanguageEngineProfileTests(unittest.TestCase):
                         "See " + text + " here.", self.language), [(kind, word)])
 
     def test_isation_word_through_isation_before_non_ascii_character_reported(self):
-        # 3b372 round 7: a non-ASCII character directly after "isation", before
-        # its suffix, leaves the word through "isation" reported (U+017F, a soft
-        # hyphen, a zero-width space, a combining mark).
+        # A non-ASCII character directly after "isation", before its suffix,
+        # leaves the word through "isation" reported (U+017F, a soft hyphen, a
+        # zero-width space, a combining mark).
         for char in ("\u017f", "\u00ad", "\u200b", "\u0301"):
             for suffix in ("s", "al", "ally"):
                 text = "organisation" + char + suffix
@@ -70588,10 +70586,10 @@ class LanguageEngineProfileTests(unittest.TestCase):
                         [("isation", "organisation")])
 
     def test_isation_word_with_non_ascii_character_inside_suffix(self):
-        # 3b372 round 8: a non-ASCII character inside the "al" or "ally" suffix
-        # hides the word, except directly after the "al" of "ally", which leaves
-        # the word through "al" reported (U+017F, a soft hyphen, a zero-width
-        # space, a combining mark).
+        # A non-ASCII character inside the "al" or "ally" suffix hides the word,
+        # except directly after the "al" of "ally", which leaves the word
+        # through "al" reported (U+017F, a soft hyphen, a zero-width space, a
+        # combining mark).
         for char in ("\u017f", "\u00ad", "\u200b", "\u0301"):
             for text, expected in (
                     ("organisationa" + char + "l", []),
@@ -70602,10 +70600,10 @@ class LanguageEngineProfileTests(unittest.TestCase):
                         "See " + text + " here.", self.language), expected)
 
     def test_allowed_isation_word_with_case_folding_character_reported(self):
-        # 3b372 round 5 residual: the allowed-words lookup uses str.lower(), which
-        # does not map U+017F, U+0130 or U+0131 to the plain ASCII spelling
-        # (U+0130 becomes "i" + U+0307), so an allowed -isation word holding one
-        # of them is reported.
+        # Residual: the allowed-words lookup uses str.lower(), which does not map
+        # U+017F, U+0130 or U+0131 to the plain ASCII spelling (U+0130 becomes
+        # "i" + U+0307), so an allowed -isation word holding one of them is
+        # reported.
         self.assertEqual(self.engine.spelling_matches(
             "See improvisation here.", self.language), [])
         for word in ("improvi\u017fation", "improv\u0131sation", "improv\u0130sation"):
@@ -70614,10 +70612,10 @@ class LanguageEngineProfileTests(unittest.TestCase):
                     "See " + word + " here.", self.language), [("isation", word)])
 
     def test_mask_urls_non_ascii_character_ends_token(self):
-        # 3b372 residual: any non-ASCII character (a letter or not) in a URL path,
-        # query or fragment ends the masked token, so a checked word after it is
+        # Residual: any non-ASCII character (a letter or not) in a URL path, query
+        # or fragment ends the masked token, so a checked word after it is
         # reported; a non-ASCII character in the first host label leaves the whole
-        # URL unmasked (since 3b366).
+        # URL unmasked.
         for url in ("https://x.org/r\u00e9organisations", "https://x.org/a\u00b7organisations",
                     "https://x.org/a?q=r\u00e9organisations",
                     "https://x.org/a?q=a\u00b7organisations",
@@ -70717,7 +70715,7 @@ class LanguageEngineProfileTests(unittest.TestCase):
 
 
 class StubEngineProfileTests(unittest.TestCase):
-    """gate 16 engine behaviour after PR-G parameterization: threshold + phrase
+    """gate 16 engine behaviour after parameterization: threshold + phrase
     detection via the passed vocab, dynamic vocab, fail-closed on bad data."""
 
     def setUp(self):
@@ -70763,7 +70761,7 @@ class StubEngineProfileTests(unittest.TestCase):
 
 
 class PlaceholderEngineProfileTests(unittest.TestCase):
-    """gate 12 engine behaviour after PR-H parameterization: label detection,
+    """gate 12 engine behaviour after parameterization: label detection,
     first-match-per-line order, fail-closed composition."""
 
     def setUp(self):
@@ -70817,7 +70815,7 @@ class PlaceholderEngineProfileTests(unittest.TestCase):
 
 
 class UncertaintyEngineProfileTests(unittest.TestCase):
-    """gate 9 engine behaviour after PR-I parameterization: mandatory-near-uncertainty
+    """gate 9 engine behaviour after parameterization: mandatory-near-uncertainty
     within the window, fence exclusion, dynamic vocab, fail-closed."""
 
     def setUp(self):
@@ -70864,9 +70862,9 @@ class UncertaintyEngineProfileTests(unittest.TestCase):
 
 
 class DateFormatEngineTransferTests(unittest.TestCase):
-    """gate 14 engine after the SHARED/SAFETY-lane PR-33 transfer (Pattern A):
-    the pure check (ISO_DATE_RE, validate_date, PLACEHOLDER_VALUES, scan) lives in
-    the pack engine; the wrapper keeps a module-global scan shim delegating to it."""
+    """gate 14 engine after the engine/wrapper split (Pattern A): the pure check
+    (ISO_DATE_RE, validate_date, PLACEHOLDER_VALUES, scan) lives in the pack engine;
+    the wrapper keeps a module-global scan shim delegating to it."""
 
     def setUp(self):
         self.wrapper = load_linter_module(".claude/skills/corpus-management/tools/lint-date-format.py", "_dateformat_engine")
@@ -70921,7 +70919,7 @@ class DateFormatEngineTransferTests(unittest.TestCase):
 
 
 class LicenseConsistencyEngineTransferTests(unittest.TestCase):
-    """gate 15 engine after the SHARED/SAFETY-lane PR-34 transfer (Pattern A):
+    """gate 15 engine after the engine/wrapper split (Pattern A):
     CANONICAL_LICENSE + the raw-line scan live in the pack engine; the wrapper
     keeps a module-global scan shim + EXEMPT_FILES + main."""
 
@@ -70971,7 +70969,7 @@ class LicenseConsistencyEngineTransferTests(unittest.TestCase):
 
 
 class SectionAnchorsEngineTransferTests(unittest.TestCase):
-    """gate 17 engine after the SHARED/SAFETY-lane PR-35 transfer (Pattern A):
+    """gate 17 engine after the engine/wrapper split (Pattern A):
     slugify/extract_anchors/scan live in the pack engine; the wrapper keeps a
     module-global scan shim supplying repo_root."""
 
@@ -71023,7 +71021,7 @@ class SectionAnchorsEngineTransferTests(unittest.TestCase):
 
 
 class IntraDocRefsEngineTransferTests(unittest.TestCase):
-    """gate 18 engine after the SHARED/SAFETY-lane PR-36 transfer (Pattern A):
+    """gate 18 engine after the engine/wrapper split (Pattern A):
     HEADING_RE/REF_PATTERNS/extract_sections/is_cross_doc_context/scan live in the
     pack engine; the wrapper keeps a module-global scan shim + EXEMPT_FILES."""
 
@@ -71069,14 +71067,14 @@ class IntraDocRefsEngineTransferTests(unittest.TestCase):
         self.assertEqual(self._scan("## 1. Intro\n\nNIST SP 800-53 §5.4 applies.\n"), [])
 
     def test_cross_doc_canadian_instrument_skipped(self):
-        # 3b662: a Canadian federal instrument marker on the line marks the ref as cross-doc
+        # A Canadian federal instrument marker on the line marks the ref as cross-doc
         for marker in ("ITSP.80.022", "ITSAP.40.003", "ITSG-33", "SPIN 2017-01",
                        "Baseline Cyber Security Controls V1.2"):
             with self.subTest(marker=marker):
                 self.assertEqual(self._scan(f"## 1. Intro\n\n{marker} §5.4 applies.\n"), [])
 
     def test_canadian_issuer_name_not_a_marker(self):
-        # 3b662: an issuer name alone does not claim the ref; the stale §5.4 is reported
+        # An issuer name alone does not claim the ref; the stale §5.4 is reported
         for issuer in ("CCCS", "TBS direction", "Treasury Board direction", "The held SPIN"):
             with self.subTest(issuer=issuer):
                 found = self._scan(f"## 1. Intro\n\n{issuer} §5.4 applies.\n")
@@ -71088,7 +71086,7 @@ class IntraDocRefsEngineTransferTests(unittest.TestCase):
 
 
 class SecretsInContentEngineTransferTests(unittest.TestCase):
-    """gate 21 engine after the SHARED/SAFETY-lane PR-37 transfer (Pattern A):
+    """gate 21 engine after the engine/wrapper split (Pattern A):
     SECRET_PATTERNS + scan live in the pack engine; the wrapper keeps a
     module-global scan shim + the grc scan scope + EXEMPT_FILES (now including
     the engine, defensively)."""
@@ -71137,9 +71135,9 @@ class SecretsInContentEngineTransferTests(unittest.TestCase):
 
 
 class PiiInContentEngineTransferTests(unittest.TestCase):
-    """gate 22 engine after the SHARED/SAFETY-lane PR-38 transfer (Pattern A):
-    the detection regexes + IP filters + scan live in the pack engine; the wrapper
-    keeps a module-global scan shim + the grc scope config + the EXAMPLE_DOMAINS
+    """gate 22 engine after the engine/wrapper split (Pattern A): the detection
+    regexes + IP filters + scan live in the pack engine; the wrapper keeps a
+    module-global scan shim + the grc scope config + the EXAMPLE_DOMAINS
     allow-list (passed to the engine as a keyword)."""
 
     def setUp(self):
@@ -71204,8 +71202,7 @@ class PiiInContentEngineTransferTests(unittest.TestCase):
         # A REAL domain whose ASCII EMAIL_RE prefix ends in a reserved suffix
         # (an IDN label or a fullwidth dot truncates the capture) must NOT be
         # exempted: the regex captures only e.g. 'a.test', but the full domain
-        # (a.test.<idn>.com) is real and deliverable. Regression for the codex
-        # execution-lens finding on PR #2430.
+        # (a.test.<idn>.com) is real and deliverable. A regression guard.
         for doc in ("x@a.test.école.com here.\n",   # a.test.<IDN>.com
                     "x@a.test-é.com here.\n",        # a.test-<IDN>.com
                     "x@a.test。com here.\n"):          # fullwidth ideographic dot
@@ -71239,9 +71236,9 @@ class PiiInContentEngineTransferTests(unittest.TestCase):
     def test_idna_compat_symbols_and_repeated_dots(self):
         # IDNA / UTS-46 compatibility characters map to real domain labels, so a
         # reserved-looking ASCII prefix before one is a truncated domain and must be
-        # FLAGGED (codex VERIFY finding). This also pins the example_domains branch
-        # of the guard (a truncated example.com domain must flag) and the fullwidth /
-        # small hyphens that map to "-" (gemini VERIFY finding).
+        # FLAGGED. This also pins the example_domains branch of the guard (a
+        # truncated example.com domain must flag) and the fullwidth / small hyphens
+        # that map to "-".
         for doc in ("x@a.test.ⓐ.com here.\n",   # circled 'a' -> a
                     "x@www.test.ⓒom here.\n",    # circled 'c' -> c
                     "x@a.test.①.com here.\n",    # circled '1' -> 1
@@ -71354,11 +71351,11 @@ class PiiInContentEngineTransferTests(unittest.TestCase):
             self.assertEqual(found, [addr], f"address must stay reported: {doc!r}")
 
     def test_section_sign_locator_cases(self):
-        # P-F5 backlog regression, engine level. Exempt: a four-part locator
-        # directly after a section sign, with or without a space after the
-        # sign (CITATION_CUE_RE deliberately uses \s* after §, so the
-        # typographic spaced form "§ 3.1.1.2" stays a citation). 3.1.1.2
-        # parses as a public address, so the citation rule alone suppresses it.
+        # Engine-level regression. Exempt: a four-part locator directly after a
+        # section sign, with or without a space after the sign (CITATION_CUE_RE
+        # deliberately uses \s* after §, so the typographic spaced form
+        # "§ 3.1.1.2" stays a citation). 3.1.1.2 parses as a public address, so
+        # the citation rule alone suppresses it.
         self.assertFalse(self.engine.is_documentation_ip("3.1.1.2"))
         for doc in ("NIST SP 800-63B Rev. 4 §3.1.1.2 prohibits verifier"
                     " composition rules (rule 5).\n",
@@ -71385,8 +71382,8 @@ class PiiInContentEngineTransferTests(unittest.TestCase):
 
 
 class InternalReferencesEngineTransferTests(unittest.TestCase):
-    """gate 23 engine after the SHARED/SAFETY-lane PR-39 transfer (Pattern A):
-    the detection regexes + subnet filter + scan live in the pack engine; the
+    """gate 23 engine after the engine/wrapper split (Pattern A): the
+    detection regexes + subnet filter + scan live in the pack engine; the
     wrapper keeps a module-global scan shim + the grc scope config."""
 
     def setUp(self):
@@ -71431,8 +71428,8 @@ class InternalReferencesEngineTransferTests(unittest.TestCase):
 
 
 class ExternalLinkDomainsEngineTransferTests(unittest.TestCase):
-    """gate 24 engine after the SHARED/SAFETY-lane PR-40 transfer (Pattern A):
-    URL_RE + is_allowed + scan live in the pack engine; the wrapper keeps a
+    """gate 24 engine after the engine/wrapper split (Pattern A): URL_RE +
+    is_allowed + scan live in the pack engine; the wrapper keeps a
     module-global scan shim + the grc scope config + the ALLOW_LIST (passed to
     the engine as a keyword)."""
 
@@ -71473,10 +71470,10 @@ class ExternalLinkDomainsEngineTransferTests(unittest.TestCase):
 
 
 class AcronymConsistencyEngineTransferTests(unittest.TestCase):
-    """gate 20 engine after the SHARED/SAFETY-lane PR-41 transfer (Pattern A + 2nd
-    seam): the regexes/stopwords + parse_glossary (path-parameterized) + scan live
-    in the pack engine; the wrapper keeps TWO module-global shims (parse_glossary,
-    scan) because the scan-scope test patches both."""
+    """gate 20 engine after the engine/wrapper split (Pattern A + 2nd seam): the
+    regexes/stopwords + parse_glossary (path-parameterized) + scan live in the
+    pack engine; the wrapper keeps TWO module-global shims (parse_glossary, scan)
+    because the scan-scope test patches both."""
 
     def setUp(self):
         self.wrapper = load_linter_module(".claude/skills/corpus-management/tools/lint-acronym-consistency.py", "_acronym_engine")
@@ -71525,10 +71522,10 @@ class AcronymConsistencyEngineTransferTests(unittest.TestCase):
 
 
 class CrossDocNumbersEngineTransferTests(unittest.TestCase):
-    """gate 25 engine after the SHARED/SAFETY-lane PR-42 transfer (Pattern A): the
-    tracked-term regexes + normalise + the dict-returning scan live in the pack
-    engine; the wrapper keeps a module-global scan shim + the grc scope config +
-    the cross-document aggregation in main."""
+    """gate 25 engine after the engine/wrapper split (Pattern A): the tracked-term
+    regexes + normalise + the dict-returning scan live in the pack engine; the
+    wrapper keeps a module-global scan shim + the grc scope config + the
+    cross-document aggregation in main."""
 
     def setUp(self):
         self.wrapper = load_linter_module(".claude/skills/corpus-management/tools/lint-cross-doc-numbers.py", "_crossdoc_engine")
@@ -71567,10 +71564,10 @@ class CrossDocNumbersEngineTransferTests(unittest.TestCase):
 
 
 class CobitIso31000CitationsEngineTransferTests(unittest.TestCase):
-    """gate 62 engine after the SHARED/SAFETY-lane PR-43 transfer (Pattern A + keyword-parameter
-    variant): the citation regexes + _iso31000_clauses_on_line + Finding + scan_file live in the
-    pack engine; the wrapper keeps a module-global scan_file shim + the grc scope config, and the
-    COBIT/ISO reference data (COBIT_OBJECTIVES / COBIT_PRACTICE_COUNTS / ISO31000_CLAUSES) stays
+    """gate 62 engine after the engine/wrapper split (Pattern A + keyword-parameter variant): the
+    citation regexes + _iso31000_clauses_on_line + Finding + scan_file live in the pack engine;
+    the wrapper keeps a module-global scan_file shim + the grc scope config, and the COBIT/ISO
+    reference data (COBIT_OBJECTIVES / COBIT_PRACTICE_COUNTS / ISO31000_CLAUSES) stays
     wrapper-side, threaded to the engine as keyword parameters."""
 
     def setUp(self):
@@ -71624,7 +71621,7 @@ class CobitIso31000CitationsEngineTransferTests(unittest.TestCase):
 
 
 class BlockVerificationPipesTests(unittest.TestCase):
-    """3b513: lexical decisions, not execution of the supplied shell commands."""
+    """Lexical decisions, not execution of the supplied shell commands."""
 
     @classmethod
     def setUpClass(cls):
@@ -71710,9 +71707,9 @@ class BlockVerificationPipesTests(unittest.TestCase):
                     'set -o pipefail; cmd | tail | cat; echo $?'], False)
 
     def test_line_continued_pipelines(self):
-        # 3b513 round 3: a newline directly after | or |& (optionally after
-        # whitespace or a comment) continues the pipeline, exactly as in bash,
-        # so the split form is judged like the one-line form.
+        # A newline directly after | or |& (optionally after whitespace or a
+        # comment) continues the pipeline, exactly as in bash, so the split
+        # form is judged like the one-line form.
         self.check([
             './.claude/skills/corpus-management/tools/run_all_audits.sh 2>&1 |\ncat; echo $?',
             'cmd |\ncat; echo $?',
@@ -71723,9 +71720,9 @@ class BlockVerificationPipesTests(unittest.TestCase):
             'cmd |\ncat |\nsort; echo $?',
             'cmd <<EOF |\nbody\nEOF\ncat; echo $?',  # body is data; pipe continues
             '(a) |\ncat; echo $?',
-            # 3b513 round 6 (R5-1): a backslash-newline after the pipe,
-            # followed by blank lines, whitespace or a comment line, still
-            # continues the pipeline, exactly as in bash
+            # A backslash-newline after the pipe, followed by blank lines,
+            # whitespace or a comment line, still continues the pipeline,
+            # exactly as in bash
             'cmd | \\\n\ncat; echo $?',
             'cmd | \\\n\n\ncat; echo $?',
             'cmd | \\\n# note\ncat; echo $?',
@@ -71751,11 +71748,11 @@ class BlockVerificationPipesTests(unittest.TestCase):
         ], False)
 
     def test_backslash_newline_splits_and_comment_pipes(self):
-        # 3b513 round 5: the legacy named-verifier rule blocks when PIPED
-        # matches EITHER the raw command text OR legacy_view, which removes
-        # only backslash-newline continuations (no comment stripping at all),
-        # so a backslash-split pipeline blocks and no misread quote or
-        # comment boundary can delete a real pipe (round-4 A1/A2).
+        # The legacy named-verifier rule blocks when PIPED matches EITHER the
+        # raw command text OR legacy_view, which removes only
+        # backslash-newline continuations (no comment stripping at all), so a
+        # backslash-split pipeline blocks and no misread quote or comment
+        # boundary can delete a real pipe.
         self.check([
             './.claude/skills/corpus-management/tools/run_all_audits.sh 2>&1 | \\\ntail -8',
             './.claude/skills/corpus-management/tools/run_all_audits.sh 2>&1 |\\\ntail -8',
@@ -71764,7 +71761,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
             '.claude/skills/corpus-management/tools/run_all_audits.sh \\\n 2>&1 | tail -8',
             'python3 -m unittest \\\n| tail -2',
             './.claude/skills/corpus-management/tools/run_all_audits.sh 2>&1 | \\\n\\\ntail -8',
-            # round-4 A1/A2 regressions: a quoted # inside $( ) was cut as a
+            # In the earlier repository, a quoted # inside $( ) was cut as a
             # comment, deleting the real | tail; the raw text shows the pipe
             'echo "$(./.claude/skills/corpus-management/tools/run_all_audits.sh "a # b" | tail -8)"',
             'x="$(git push "a # b" | tail -8)"',
@@ -71780,14 +71777,14 @@ class BlockVerificationPipesTests(unittest.TestCase):
             "echo 'a | \\\ntail'",
             'echo "run_all_audits.sh | \\\ntail"',
             # the sanctioned forms stay allowed, each carrying the join
-            # under test so no case passes vacuously without one (R5-3)
+            # under test so no case passes vacuously without one
             './.claude/skills/corpus-management/tools/run_all_audits.sh \\\n--verbose',
             './.claude/skills/corpus-management/tools/run_all_audits.sh 2>&1 \\\n> /tmp/a.log; echo $?',
             '.claude/skills/corpus-management/tools/tail-safe.sh -n 8 -- \\\n./tools/run_all_audits.sh',
         ], False)
 
     def test_arithmetic_ampersands_are_not_background(self):
-        # Round 7: only a strict arithmetic interior hides shell operators.
+        # Only a strict arithmetic interior hides shell operators.
         self.check([
             'echo $(( 1 & 2 ))',
             'echo $((1&2))',
@@ -71807,7 +71804,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
         ], False)
         self.check([
             # Accepted conservative blocks: complex arithmetic uses the
-            # round-5 tokenizer, exposing its ampersands as shell operators.
+            # tokenizer, exposing its ampersands as shell operators.
             'echo $(( (1 & 2) | 4 ))',
             '(( (flags & 1) && (flags & 2) ))',
             'echo $(( $(( 1 & 2 )) | 4 ))',
@@ -71825,10 +71822,11 @@ class BlockVerificationPipesTests(unittest.TestCase):
         self.check(['( (a | tail; echo $?) )', '((cmd | tail; echo $?) )'], True)
 
     def test_dollar_bracket_arithmetic_gets_the_dollar_paren_treatment(self):
-        # 3b569: bash reads the deprecated $[ ... ] as arithmetic, like $((.
-        # Each refusal below was allowed on 728cbbe47: an echo or printf
-        # stage holding $[ read as a plain emitter, and a << inside $[ ... ]
-        # registered a heredoc whose skipped body hid the lines bash runs.
+        # Bash reads the deprecated $[ ... ] as arithmetic, like $((. In the
+        # earlier repository, the revision before the $[ reading allowed
+        # each refusal below: an echo or printf stage holding $[ read as a
+        # plain emitter, and a << inside $[ ... ] registered a heredoc whose
+        # skipped body hid the lines bash runs.
         refused = [
             'echo $[x] | tail; echo $?',  # as 'echo $((x)) | tail; echo $?'
             'echo "$[i]" | tail -1; echo rc=$?',
@@ -71846,10 +71844,12 @@ class BlockVerificationPipesTests(unittest.TestCase):
             with self.subTest(command=command):
                 self.assertEqual(self.hook.shell_violation(command)[0], guard)
         # A strict $[ interior is one word, as for $((: its & is arithmetic.
-        # Both were refused on 728cbbe47 (false blocks there).
+        # In the earlier repository, the revision before the $[ reading
+        # refused both (false blocks there).
         self.check(['echo $[1 & 2]', 'x=$[a & b]; echo $x'], False)
         # Controls: single quotes and a backslash keep $[ literal, so the
-        # emitter stays plain data (allowed on 728cbbe47 and now).
+        # emitter stays plain data (allowed in the earlier repository
+        # before the $[ reading, and now).
         self.check(["echo '$[i]' | tail; echo $?",
                     'echo \\$[i] | tail; echo $?'], False)
         # bash pairs $$ before the [, so these background "echo $$[1" and
@@ -71857,12 +71857,12 @@ class BlockVerificationPipesTests(unittest.TestCase):
         self.check(['echo $$[1 & 2]', 'echo $\\\n$[1 & 2]'], True)
 
     def test_dollar_bracket_backquote_escape_refuses(self):
-        # 3b569 round 2 (claude VPR-2): inside backquotes bash removes one
-        # backslash level before parsing, so the $ after a \\ or \$ escape
-        # there is literal or pairs into $$, and the & or | after it is a
-        # real operator, also across a line continuation. All four refused
-        # on 728cbbe47 and allowed on 89aab260e; the second, backquote
-        # reading refuses them again.
+        # Inside backquotes bash removes one backslash level before
+        # parsing, so the $ after a \\ or \$ escape there is literal or
+        # pairs into $$, and the & or | after it is a real operator, also
+        # across a line continuation. In the earlier repository, all four
+        # were refused before the $[ reading and allowed by the first $[
+        # reading; the second, backquote reading refuses them again.
         refused = [
             'echo `echo \\\\$[1 & 2]`',
             'echo `false \\\\$[1 | tail ]; echo $?`',
@@ -71875,20 +71875,23 @@ class BlockVerificationPipesTests(unittest.TestCase):
         for command, guard in zip(refused, guards):
             with self.subTest(command=command):
                 self.assertEqual(self.hook.shell_violation(command)[0], guard)
-        # Outside backquotes bash reads this $[ as arithmetic. Round 2
-        # refused it as an accepted false block; round 3 reads a command
-        # with no backquote only once, so it is allowed again (allowed on
-        # 89aab260e, refused on 728cbbe47 and 6e71da937).
+        # Outside backquotes bash reads this $[ as arithmetic. The
+        # backquote reading refused it as an accepted false block; the
+        # hook now reads a command with no backquote only once, so it is
+        # allowed again (in the earlier repository, allowed by the first
+        # $[ reading, refused before it and by the first backquote
+        # reading).
         self.check(['echo \\$$[1 & 2]'], False)
-        # Controls (allowed on 89aab260e and now): no backslash before the $,
-        # or nothing the ungrouped backquote reading exposes (it adds no
-        # group, so the later wait still collects the job).
+        # Controls (allowed by the first $[ reading in the earlier
+        # repository, and now): no backslash before the $, or nothing the
+        # ungrouped backquote reading exposes (it adds no group, so the later
+        # wait still collects the job).
         self.check(['echo `echo $[1 & 2]`', 'echo \\\\$[1+1]',
                     'a & echo \\\\$[1 ]; wait'], False)
 
     def test_dollar_bracket_hides_no_separator_or_quoted_substitution(self):
-        # 3b569 round 2 (claude VPR-1, codex ERROR): each strict, grouped and
-        # quoted refusal below was allowed on 89aab260e. A subscript,
+        # Each strict, grouped and quoted refusal below was allowed by the
+        # first $[ reading in the earlier repository. A subscript,
         # parentheses or a strict nested $(( now stays inside the one $[
         # word, so its && or || is no separator that clears the pending
         # warning before the $? ...
@@ -71906,8 +71909,9 @@ class BlockVerificationPipesTests(unittest.TestCase):
             'false | cat; echo $[1 \\\n&& 1] $?',
         ]
         # The group runs past bash's ], so a $? in it can also follow the
-        # pipeline holding the $[ (refused on 89aab260e too; a group
-        # without that check allowed both).
+        # pipeline holding the $[ (the first $[ reading in the earlier
+        # repository refused this too; a group without that check allowed
+        # both).
         own = ['false | cat $[ "$x" ]; echo $?',
                'cmd | tail -n $[ "$n" ] && echo $?']
         self.check(strict + grouped + own, True)
@@ -71924,14 +71928,15 @@ class BlockVerificationPipesTests(unittest.TestCase):
             with self.subTest(command=command):
                 self.assertEqual(self.hook.shell_violation(command)[0],
                                  'quoted-arithmetic')
-        # Controls (allowed on 89aab260e and now): strict quoted interiors.
+        # Controls (allowed by the first $[ reading in the earlier
+        # repository, and now): strict quoted interiors.
         self.check(['echo "$[ ${#a[@]} ]"', 'echo "$[a[0] + 1]"'], False)
 
     def test_dollar_bracket_wider_interior_allows(self):
-        # 3b569 round 2 (claude VPR-3, codex WARN): each refused on
-        # 89aab260e and allowed on 728cbbe47. These interiors pass the wider
-        # $[ check, so they take no fallback: no << refusal, and a later
-        # strict $(( is still recognized.
+        # Each was refused by the first $[ reading and allowed before it, in
+        # the earlier repository. These interiors pass the wider $[ check,
+        # so they take no fallback: no << refusal, and a later strict $(( is
+        # still recognized.
         self.check([
             'cat <<< $[a[0]]',
             'x=$[a[0]+1]; cat <<EOF\nhi\nEOF',
@@ -71941,14 +71946,15 @@ class BlockVerificationPipesTests(unittest.TestCase):
             'echo $[ $((1 & 2)) ]',
             'echo $[1 + (2)]; cat <<<hello',
         ], False)
-        # One word still exposes the line after it (arithmetic-shift on
-        # 89aab260e, which sent this interior to the fallback).
+        # One word still exposes the line after it (arithmetic-shift by
+        # the first $[ reading in the earlier repository, which sent
+        # this interior to the fallback).
         self.assertEqual(self.hook.shell_violation(
             'echo $[a[0] << x ]\n: &\nx')[0], 'untracked-background')
         # Kept refusals and disclosed false blocks (safe direction): a
-        # rejected interior with a heredoc (round-10 rule), a <( opener that
-        # rejects the interior, groups that run to the end of the command,
-        # and a double-quoted rejected interior.
+        # rejected interior with a heredoc (any << in the fallback refuses),
+        # a <( opener that rejects the interior, groups that run to the end
+        # of the command, and a double-quoted rejected interior.
         self.check([
             'echo $[ $(cmd) ]; cat <<E\nz\nE',
             'echo $[ <(echo ]) << x ]\n: &\nx',
@@ -71958,12 +71964,12 @@ class BlockVerificationPipesTests(unittest.TestCase):
         ], True)
 
     def test_dollar_bracket_fallback_shift_refusal_is_pinned(self):
-        # 3b569 round 3 (codex NOTE): replaces the round-2 M5 pin, which
-        # 728cbbe47 also refused. The nested )) closes the shared arithmetic
-        # fallback before the <<, so only the $[ entry's << refusal keeps a
-        # heredoc from hiding the next line, which bash runs: mutant M5 (no
-        # such refusal) allows both, and so does 728cbbe47, which reads no
-        # $[ and skips that line as heredoc body.
+        # The nested )) closes the shared arithmetic fallback before the
+        # <<, so only the $[ entry's << refusal keeps a heredoc from hiding
+        # the next line, which bash runs: mutant M5 (no such refusal)
+        # allows both, and so did the revision before the $[ reading in the
+        # earlier repository, which read no $[ and skipped that line as
+        # heredoc body.
         for command in ['echo $[ "$x" + $((1)) << x ]\n: &\nx',
                         'echo $[ "$x" + $((1)) << x ]\n'
                         'false | cat; echo $?\nx']:
@@ -71973,34 +71979,36 @@ class BlockVerificationPipesTests(unittest.TestCase):
                                  'arithmetic-shift')
 
     def test_dollar_bracket_escape_without_backquote_allows(self):
-        # 3b569 round 3 (codex WARN): with no backquote bash removes no
-        # backslash level, so the $[ after an escaped $ or backslash is
-        # arithmetic. Each was allowed on 728cbbe47 and refused on
-        # 6e71da937 by the backquote reading; a command with no backquote
-        # is now read once.
+        # With no backquote bash removes no backslash level, so the $[
+        # after an escaped $ or backslash is arithmetic. In the earlier
+        # repository, each was allowed before the $[ reading and refused
+        # by the first backquote reading; a command with no backquote is
+        # now read once.
         self.check(['echo \\$$[1 << 2]', 'echo \\$$[1 | 2]; echo $?',
                     'echo \\\\$[1 << 2]', 'echo \\\\$[1 | 2]; echo $?'], False)
-        # Refused on 728cbbe47, which read the & as a launch, and on 6e71da937.
+        # Refused in the earlier repository before the $[ reading, which read
+        # the & as a launch, and by the first backquote reading.
         self.check(['echo \\\\$[1 & 2]'], False)
         # One backquote anywhere still brings the backquote reading over the
         # whole command, so an escaped $[ outside backquotes can still refuse
-        # (disclosed false block; allowed on 728cbbe47) ...
+        # (disclosed false block; allowed in the earlier repository before
+        # the $[ reading) ...
         self.check(['echo \\`$[1 << 2]'], True)
         # ... and must: the first reading takes both $[ as arithmetic words
         # and sees no &, while bash runs the backquoted & on the next line
-        # (allowed on 728cbbe47).
+        # (allowed in the earlier repository before the $[ reading).
         self.assertEqual(self.hook.shell_violation(
             'echo \\$$[1 << x ]\n`echo \\\\$[1 & 2]`\nx')[0], 'arithmetic-shift')
 
     def test_dollar_bracket_wait_after_close_drains(self):
-        # 3b569 round 3 (claude WARN): a rejected $[ groups the rest of the
-        # command, and a wait in that group that starts after the ] bash
-        # pairs with the $[ now also drains the jobs launched before the $[,
-        # as a wait after a rejected $(( does. Each was allowed on 728cbbe47
-        # and refused (untracked-background) on 6e71da937. Round 5 (claude
-        # F3): each interior is valid arithmetic, so bash reaches the wait;
-        # the last line used to substitute a ), which bash rejects as
-        # arithmetic, so its wait never ran.
+        # A rejected $[ groups the rest of the command, and a wait in that
+        # group that starts after the ] bash pairs with the $[ now also
+        # drains the jobs launched before the $[, as a wait after a rejected
+        # $(( does. In the earlier repository, each was allowed before the
+        # $[ reading and refused (untracked-background) by the first
+        # backquote reading. Each interior is valid arithmetic, so bash
+        # reaches the wait; the last line used to substitute a ), which bash
+        # rejects as arithmetic, so its wait never ran.
         self.check([
             'sleep 1 & echo $[ $(printf 0) ]; wait',
             'worker & echo $[ $(date +%s) + 1 ]; wait',
@@ -72029,21 +72037,22 @@ class BlockVerificationPipesTests(unittest.TestCase):
             'a & echo $[ "]"; wait; ]',
             'a & echo $[ $(echo ]) ; wait ; ]',
         ]
-        # ... or the scan gives up on what it does not model: a backquote,
-        # a # (a comment for this hook, not for bash), $'...', ${...}, a
-        # substitution inside double quotes, and a case, $[ or [[ inside
-        # $( ... ). Round 5 (claude F1): it also gives up on a
-        # backslash-newline, which bash removes before reading, so one can
-        # split a $( it counts or any opener it watches, in double quotes
-        # too (a split $[ in double quotes refuses as quoted-arithmetic
-        # instead). Each split form below was allowed on 728cbbe47 and
-        # 442f9b1be and refused on 6e71da937. Round 6 (claude F1): it
-        # also gives up at any [ inside $( ... ): bash reads an array
-        # subscript there, in an assignment word or as a compound-assignment
-        # key, to its matching ], so the ) in x[)] or [)]= does not end the
-        # $( ... ) and the wait stays inside bash's $[ ... ] (bash 5.3 runs
-        # the subscript line's wait only in the substitution and fails to
-        # expand the compound-key line). Both were allowed on 32e755f9a.
+        # ... or the scan gives up on what it does not model: a backquote, a
+        # # (a comment for this hook, not for bash), $'...', ${...}, a
+        # substitution inside double quotes, and a case, $[ or [[ inside $(
+        # ... ). It also gives up on a backslash-newline, which bash removes
+        # before reading, so one can split a $( it counts or any opener it
+        # watches, in double quotes too (a split $[ in double quotes refuses
+        # as quoted-arithmetic instead). In the earlier repository, each
+        # split form below was allowed before the $[ reading and by one
+        # other earlier revision, and refused by the first backquote
+        # reading. It also gives up at any [ inside $( ... ): bash reads an
+        # array subscript there, in an assignment word or as a
+        # compound-assignment key, to its matching ], so the ) in x[)] or
+        # [)]= does not end the $( ... ) and the wait stays inside bash's $[
+        # ... ] (bash 5.3 runs the subscript line's wait only in the
+        # substitution and fails to expand the compound-key line). Both were
+        # allowed by another earlier revision.
         unsure = [
             'a & echo $[ `echo ]; wait; :` ]',
             "a & echo $[ $(x) #]'\nwait\n'",
@@ -72063,10 +72072,10 @@ class BlockVerificationPipesTests(unittest.TestCase):
             'a & echo $[ $( [\\\n[ x =~ ) ]]; wait; ) ]',
             'a & echo $[ $(declare -A x; x[)]=1; wait; echo 0) ]',
             'a & echo $[ $(declare -A x; x=([)]=1); : ]; wait; echo 0) ]',
-            # Round 7 (claude F1): inside backquotes bash first removes one
-            # backslash level, so \\] there is an escaped ] and bash's ]
-            # comes after the wait; the scan now gives up on a backquote
-            # anywhere in the command. Allowed on 7392b8b74.
+            # Inside backquotes bash first removes one backslash level, so
+            # \\] there is an escaped ] and bash's ] comes after the wait;
+            # the scan now gives up on a backquote anywhere in the command.
+            # An earlier revision in the earlier repository allowed this.
             'echo `a & echo $[ $(x) \\\\]; wait; ]`',
         ]
         # The same shape without backquotes is still read as drained.
@@ -72078,11 +72087,12 @@ class BlockVerificationPipesTests(unittest.TestCase):
                                  'untracked-background')
 
     def test_dollar_bracket_nested_wait_drains_outer(self):
-        # 3b569 round 4: a nested )) closes the arithmetic fallback, so a
-        # later $[ opens a second group inside the first. A wait after the
-        # ] bash pairs with each $[ now reaches the outer group too and
-        # drains the jobs launched before the first $[. Each was allowed on
-        # 728cbbe47 and refused (untracked-background) on 3d14fd711.
+        # A nested )) closes the arithmetic fallback, so a later $[ opens a
+        # second group inside the first. A wait after the ] bash pairs with
+        # each $[ now reaches the outer group too and drains the jobs
+        # launched before the first $[. In the earlier repository, each was
+        # allowed before the $[ reading and refused (untracked-background)
+        # by a later revision.
         self.check([
             'a & echo $[ $(x) + $(( (1) )) ] $[ $(y) ]; wait',
             'a & echo $[ $(x) + $(( (1) )) ] $[ $(y) ]\nwait',
@@ -72108,7 +72118,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
                                  'untracked-background')
 
     def test_arithmetic_review_regressions(self):
-        # R6 Claude F1 and Codex R6-1/R6-2: all these allowed on 0b900a3b8.
+        # An earlier revision in the earlier repository allowed all these.
         self.check([
             'echo $(( $(cmd | tail; echo $?) ))',
             'echo $(( $(cmd | tail; echo ${?}) ))',
@@ -72128,8 +72138,9 @@ class BlockVerificationPipesTests(unittest.TestCase):
         ], True)
 
     def test_arithmetic_shift_never_starts_heredoc_skipping(self):
-        # R7 Codex R7-1: a rejected span's << registered a heredoc terminator
-        # and hid the commands after it. All these allowed on 235d80122.
+        # A rejected span's << registered a heredoc terminator and hid the
+        # commands after it. An earlier revision in the earlier repository
+        # allowed all these.
         self.check([
             'echo $((1 << (2)))\n: &',
             'echo $((1 << (2)))\nfalse | cat; echo $?',
@@ -72140,42 +72151,43 @@ class BlockVerificationPipesTests(unittest.TestCase):
         self.assertEqual(self.hook.shell_violation('echo $((1 << (2)))')[0],
                          'arithmetic-shift')
         # Controls: a strict-interior shift and a real heredoc outside
-        # arithmetic keep their round-7 decisions. Round 10 moved the
-        # rejected-arithmetic-then-heredoc control to the blocked side: the
-        # fallback close cannot be trusted (R9X nested-pair), so any << in a
-        # command entering the fallback refuses (accepted false block).
+        # arithmetic stay allowed. The rejected-arithmetic-then-heredoc
+        # control is on the blocked side: the fallback close cannot be
+        # trusted (see the nested-pair case below), so any << in a command
+        # entering the fallback refuses (accepted false block).
         self.check(['echo $((1 << 2))', '(( flags << 1 ))',
                     'cat <<EOF\nx & y\nEOF'], False)
         self.check(['echo $((1 << 2))\n: &',
                     '(( (1) )); cat <<E\nz &\nE'], True)
 
     def test_round9_crlf_heredoc_terminator_divergence_refuses(self):
-        # R8 Gemini ERROR 1 / Codex R8-2: a CRLF delimiter word kept its \r,
-        # so the "EOF\r" body line matched it (defence in depth) and the next
-        # line's bare & / status read is seen again; either way these block.
-        # Both allowed on c5d1df367 (the \r broke the delimiter word, so the
-        # heredoc looked unterminated and swallowed the rest).
+        # A CRLF delimiter word kept its \r, so the "EOF\r" body line matched
+        # it (defence in depth) and the next line's bare & / status read is
+        # seen again; either way these block. An earlier revision in the
+        # earlier repository allowed both (the \r broke the delimiter word,
+        # so the heredoc looked unterminated and swallowed the rest).
         self.check([
             "cat <<EOF\r\nbody\r\nEOF\r\n: &\r\n",
             "cat <<EOF\r\nbody\r\nEOF\r\nfalse | cat; echo $?\r\n",
         ], True)
 
     def test_round9_backslash_continued_terminator_refuses(self):
-        # R8 Codex R8-2: bash joins "E\<newline>OF" into the delimiter EOF and
-        # runs the next line; the hook compares physical lines, never matches,
-        # and would swallow ": &". Allowed on c5d1df367; round 9 refused it as
-        # heredoc-unterminated, and round 10 refuses the divergent body line
-        # itself, so a later matching line cannot rescue it (R9X).
+        # Bash joins "E\<newline>OF" into the delimiter EOF and runs the next
+        # line; the hook compares physical lines, never matches, and would
+        # swallow ": &". An earlier revision in the earlier repository allowed
+        # it; a later one refused it as heredoc-unterminated, and the hook now
+        # refuses the divergent body line itself, so a later matching line
+        # cannot rescue it.
         self.check(["cat <<EOF\nE\\\nOF\n: &"], True)
         self.assertEqual(
             self.hook.shell_violation("cat <<EOF\nE\\\nOF\n: &")[0],
             'heredoc-divergence')
 
     def test_round9_case_arm_parentheses_keep_arithmetic_tracking(self):
-        # R8 Codex R8-1 / Gemini ERROR 2: two case pattern arms' ) dropped the
-        # arithmetic fallback counter to zero early, so a later << registered a
-        # heredoc and hid the next line. A lone ) now only decrements; the span
-        # closes only at the adjacent )). Both allowed on c5d1df367.
+        # Two case pattern arms' ) dropped the arithmetic fallback counter to
+        # zero early, so a later << registered a heredoc and hid the next line.
+        # A lone ) now only decrements; the span closes only at the adjacent
+        # )). An earlier revision in the earlier repository allowed both.
         self.check([
             'echo $(( $(case 1 in 1) echo 1;; 2) echo 2;; esac) + (1 << (2)) ))\n: &',
             'echo $(( $(case 1 in 1) echo 1;; 2) echo 2;; esac) + (1 << (2)) ))\n'
@@ -72189,7 +72201,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
         # Controls that must keep allowing under the new refusal: an LF heredoc
         # that terminates, a tab-stripped <<- heredoc, a quoted-delimiter
         # heredoc, and STRICT arithmetic completed before a real heredoc
-        # (round 10: rejected arithmetic plus any << now refuses instead).
+        # (rejected arithmetic plus any << now refuses instead).
         self.check([
             'cat <<EOF\nx & y\nEOF',
             'cat <<-EOF\n\tx & y\n\tEOF',
@@ -72198,13 +72210,13 @@ class BlockVerificationPipesTests(unittest.TestCase):
         ], False)
 
     def test_round10_later_delimiter_divergence_refuses(self):
-        # R9 Codex R9-1 / ledger VPR3B513-R9X-later-delimiter: bash ends the
-        # heredoc at the joined "E\<newline>OF" (or at the $'EOF' delimiter's
-        # own expansion) and runs the hidden lines, while a LATER physical
-        # delimiter satisfied the round-9 unterminated check. A skipped body
-        # line ending in a backslash or holding a CR, or a delimiter that is
-        # not one plain [A-Za-z0-9_-] word after quote removal, now refuses.
-        # All four allowed on 29b77da3d (codex N01/N02/N11/N12).
+        # Bash ends the heredoc at the joined "E\<newline>OF" (or at the
+        # $'EOF' delimiter's own expansion) and runs the hidden lines, while
+        # a LATER physical delimiter satisfied the earlier unterminated
+        # check. A skipped body line ending in a backslash or holding a CR,
+        # or a delimiter that is not one plain [A-Za-z0-9_-] word after quote
+        # removal, now refuses. An earlier revision in the earlier repository
+        # allowed all four.
         self.check([
             'cat <<EOF\nE\\\nOF\n: &\n: <<EOF\nEOF',
             'cat <<EOF\nE\\\nOF\nfalse |\ncat; echo $?\n: <<EOF\nEOF',
@@ -72221,12 +72233,12 @@ class BlockVerificationPipesTests(unittest.TestCase):
         self.check(['cat <<EOF\nx \\ y\nEOF', "cat <<'PY'\na | b\nPY"], False)
 
     def test_round10_nested_pair_fallback_shift_refuses(self):
-        # R9 Codex R9-2 / Gemini ERROR / ledger VPR3B513-R9X-nested-pair: a
-        # nested adjacent )) (from ((2)) or esac)+) inside a rejected span
-        # drove the round-9 close early, so a later << registered a heredoc
-        # whose LATER matching delimiter hid the lines in between. Any command
-        # that enters the rejected-arithmetic fallback and contains << anywhere
-        # now refuses. All four allowed on 29b77da3d (codex N01-N04 family).
+        # A nested adjacent )) (from ((2)) or esac)+) inside a rejected span
+        # drove the earlier fallback close early, so a later << registered a
+        # heredoc whose LATER matching delimiter hid the lines in between. Any
+        # command that enters the rejected-arithmetic fallback and contains <<
+        # anywhere now refuses. An earlier revision in the earlier repository
+        # allowed all four.
         self.check([
             '(( $(case 1 in 1) echo 0;; 2) echo 0;; esac) + ((1)) + '
             '(1 << EOF) ))\n: &\nEOF',
@@ -72244,10 +72256,10 @@ class BlockVerificationPipesTests(unittest.TestCase):
         self.check(['echo $((1 << 2))', '(( flags << 1 ))'], False)
 
     def test_round10_data_emitter_pipeline_allows(self):
-        # F1 (falseblocks-classification): a plain echo/printf data emitter
-        # piped into one consumer (a writer or a hook under test) does not
-        # mask a status; $? reads the consumer. These three DISCRIMINATE the
-        # round -- each was blocked on 29b77da3d (round 9) and is allowed now.
+        # A plain echo/printf data emitter piped into one consumer (a writer
+        # or a hook under test) does not mask a status; $? reads the consumer.
+        # These three discriminate the plain-emitter rule -- each was blocked
+        # by an earlier revision in the earlier repository and is allowed now.
         self.check([
             'echo \'{"tool_name":"Bash"}\' | python3 -I '
             '.claude/hooks/block-on-open-findings.py; echo rc=$?',
@@ -72256,8 +72268,9 @@ class BlockVerificationPipesTests(unittest.TestCase):
             'LC_ALL=C echo x | tr a-z A-Z; echo $?',
         ], False)
         # Loop-body boundary that must keep allowing but does NOT discriminate
-        # the round: its pending warning is already cleared at `done` on
-        # 29b77da3d (round 9), so round 9 allowed it too (claude R10 NOTE 2).
+        # the change: its pending warning was already cleared at `done` by
+        # that earlier revision in the earlier repository, so it allowed this
+        # too.
         self.check([
             'for f in a b; do printf \'%s\\n\' "$f" | python3 -I "$H"; done; '
             'rc=$?',
@@ -72276,15 +72289,14 @@ class BlockVerificationPipesTests(unittest.TestCase):
         ], True)
 
     def test_round11_split_substitution_emitter_refuses(self):
-        # R10 Codex R10-1 / Claude R10 ERROR: the round-10 F1 check
-        # searched the RAW stage text for "$(" / backquote, so a
-        # backslash-newline splitting the opener hid a command
-        # substitution and the stage read as a plain emitter. Bash removes
-        # the continuation before it recognizes "$(", runs the
-        # substitution, and $? then reads the truncating filter. Each
-        # split emitter now refuses -- echo and printf, piped into a
-        # truncating filter and carrying a background launch -- and every
-        # one was allowed on 9faebb29d (round 10).
+        # The earlier raw-text emitter check searched the RAW stage text
+        # for "$(" / backquote, so a backslash-newline splitting the
+        # opener hid a command substitution and the stage read as a plain
+        # emitter. Bash removes the continuation before it recognizes
+        # "$(", runs the substitution, and $? then reads the truncating
+        # filter. Each split emitter now refuses -- echo and printf, piped
+        # into a truncating filter and carrying a background launch -- and
+        # an earlier revision in the earlier repository allowed every one.
         from unittest.mock import patch
         split = [
             'echo "$\\\n(printf \'x\'; false)" | head -1; echo rc=$?',
@@ -72298,23 +72310,23 @@ class BlockVerificationPipesTests(unittest.TestCase):
                 self.hook.shell_violation(c)[0], 'pipeline-status')
         # Positive control: a plain unsplit echo pipeline stays allowed.
         self.check(['echo plain | head -1; echo rc=$?'], False)
-        # Flip control: restoring the round-10 raw-text check (the pre-fix
+        # Flip control: restoring the earlier raw-text check (the pre-fix
         # emitter_is_plain) re-admits every split case, proving this test
-        # pins the round-11 continuation-joining fix, not another guard.
+        # pins the continuation-joining fix, not another guard.
         raw_check = lambda raw: "$(" not in raw and "`" not in raw
         with patch.object(self.hook, 'emitter_is_plain', raw_check):
             for c in split:
                 self.assertFalse(self.hook.command_is_blocked(c))
 
     def test_round11_bash53_substitution_emitter_refuses(self):
-        # agy R11 NOTE 2: pin the bash-5.3 spellings the round-11
-        # allow-list disqualifies. A ${ cmd; } brace function
-        # substitution, a ${| cmd; } brace substitution and a ${name@P}
-        # prompt-expansion parameter operator each run or transform code
-        # inside an echo/printf emitter piped into a truncating filter,
-        # so the stage is no plain data emitter and the later $? read of
-        # the filter refuses. None of these contain "$(" or a backquote,
-        # so the round-10 raw-text check read every one as plain.
+        # Pin the bash-5.3 spellings the allow-list disqualifies. A ${
+        # cmd; } brace function substitution, a ${| cmd; } brace
+        # substitution and a ${name@P} prompt-expansion parameter
+        # operator each run or transform code inside an echo/printf
+        # emitter piped into a truncating filter, so the stage is no
+        # plain data emitter and the later $? read of the filter
+        # refuses. None of these contain "$(" or a backquote, so the
+        # earlier raw-text check read every one as plain.
         from unittest.mock import patch
         funsub = [
             'echo "${ printf \'x\'; false; }" | head -1; echo rc=$?',
@@ -72336,9 +72348,9 @@ class BlockVerificationPipesTests(unittest.TestCase):
             "echo '${ false; }' | head -1; echo rc=$?",
             "printf '%s' '${| false; }${PS1@P}' | cat; echo rc=$?",
         ], False)
-        # Flip control: restoring the round-10 raw-text check (the
+        # Flip control: restoring the earlier raw-text check (the
         # pre-fix emitter_is_plain) re-admits every bash-5.3 case, so
-        # this test pins the round-11 allow-list, not another guard.
+        # this test pins the allow-list, not another guard.
         raw_check = lambda raw: "$(" not in raw and "`" not in raw
         with patch.object(self.hook, 'emitter_is_plain', raw_check):
             for c in funsub:
@@ -72506,7 +72518,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
                 self.assertEqual(escaped, expected)
 
     def test_3b562_bash53_forms_beyond_exact_spellings(self):
-        # 3b562: the round-11 cases spell each bash-5.3 form one way (a
+        # The exact-spelling cases spell each bash-5.3 form one way (a
         # blank after "${" or "${|", a plain NAME before @P, no other
         # operator) and always inside double quotes. A tab or a newline
         # also opens a brace substitution, "${|" needs no blank, @P also
@@ -72517,7 +72529,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
         # through, and a rule predicts them for each generated row; every
         # other mutant must refuse the row.
         cases = [
-            # round 11: every mutant refuses these
+            # exact spellings: every mutant refuses these
             ('echo "${ printf \'x\'; false; }" | head -1; echo rc=$?', ''),
             ('echo "${| false; }" | head -1; echo rc=$?', ''),
             ('echo "${PS1@P}" | head -1; echo rc=$?', ''),
@@ -72548,7 +72560,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
             ("printf '%s' ${arr[@]@P} | tail -3; echo rc=$?", 'M2 M3 M3p'),
             # a trim word and a replace pattern starting with a dot, which a
             # widening for "${f%.md}" or "${f/.md}" keyed to the dot lets
-            # through (the round-6 Claude review's W5 and W11)
+            # through
             ('echo "${x%.$(false)}" | head -1; echo rc=$?',
              'M2 M2g M2h M2x M2o'),
             ("printf '%s' ${x%.$(false)} | tail -1; echo rc=$?",
@@ -72557,8 +72569,8 @@ class BlockVerificationPipesTests(unittest.TestCase):
              'M2 M2g M2h M2r M2o'),
             ("printf '%s' ${x/.$(false)} | tail -1; echo rc=$?",
              'M2 M2g M2h M2r M2o M3 M3p M3g'),
-            # 3b613: the same for a ## or %% trim word and a /% replace
-            # pattern starting with a dot, which a widening for "${f##.md}",
+            # the same for a ## or %% trim word and a /% replace pattern
+            # starting with a dot, which a widening for "${f##.md}",
             # "${f%%.md}" or "${f/%.md}" keyed to the dot lets through
             ('echo "${x##.$(false)}" | head -1; echo rc=$?',
              'M2 M2g M2h M2x M2o D1'),
@@ -72572,8 +72584,8 @@ class BlockVerificationPipesTests(unittest.TestCase):
              'M2 M2g M2h M2r M2o P2 P2s D3'),
             ("printf '%s' ${x/%.$(false)} | tail -1; echo rc=$?",
              'M2 M2g M2h M2r M2o M3 M3p M3g P2 P2s D3'),
-            # 3b613 round 2: the same with a literal after the dot, which a
-            # widening keyed to ".md" lets through
+            # the same with a literal after the dot, which a widening keyed
+            # to ".md" lets through
             ('echo "${x##.md$(false)}" | head -1; echo rc=$?',
              'M2 M2g M2h M2x M2o D1 D4'),
             ("printf '%s' ${x##.md$(false)} | tail -1; echo rc=$?",
@@ -72620,9 +72632,9 @@ class BlockVerificationPipesTests(unittest.TestCase):
              'M2 M2g M2h M2o D13'),
             ("printf '%s' ${x/%.md/$(false)} | tail -1; echo rc=$?",
              'M2 M2g M2h M2o M3 M3p M3g D13'),
-            # 3b613 round 3: a backquote substitution after the dot, which a
-            # dot-keyed widening that keeps "$" out of its pattern lets
-            # through; unquoted, M3 still meets the backquote and refuses
+            # a backquote substitution after the dot, which a dot-keyed
+            # widening that keeps "$" out of its pattern lets through;
+            # unquoted, M3 still meets the backquote and refuses
             ('echo "${x##.`false`}" | head -1; echo rc=$?',
              'M2 M2g M2h M2x M2o D1 X4'),
             ("printf '%s' ${x##.`false`} | tail -1; echo rc=$?",
@@ -72635,7 +72647,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
              'M2 M2g M2h M2r M2o P2 P2s D3 X6'),
             ("printf '%s' ${x/%.`false`} | tail -1; echo rc=$?",
              'M2 M2g M2h M2r M2o M3p M3g P2 P2s D3 X6'),
-            # 3b613 round 4: a backquote twin of each round-2 row, which the
+            # a backquote twin of each literal-after-the-dot row, which the
             # dollar-excluding form of its widening lets through
             ('echo "${x##.md`false`}" | head -1; echo rc=$?',
              'M2 M2g M2h M2x M2o D1 D4 X4 D4d'),
@@ -72712,28 +72724,28 @@ class BlockVerificationPipesTests(unittest.TestCase):
         #     parameters (3815-3837), ${!arr[@]} and ${!arr[*]}
         #     (3803-3805), and ${!x*} and ${!x@} (3789-3791).
         # Each form has one row with a literal in every operand position
-        # (word y, pattern a, string b, offset 1, negative offset -1,
-        # length 2, negative length -1, subscript 0, negative subscript -1),
-        # one row per position with $(false) there instead (-$(false) at a
-        # negative operand), and, where it has an arithmetic operand (an
-        # offset, a length or a subscript, 3747, 3153), two more rows: one
-        # with each of those spelled as a name (i, -i, n, -n, i and -i;
-        # 5423-5427) and one with each spelled as a $name ($i, -$i, $n,
-        # -$n, $i and -$i; 5421-5422). Apart from its $(false), a row
-        # spells its arithmetic operands alike (all literals, all names or
-        # all $names), so a widening keyed to a mix (${x:0:$n},
-        # ${x:i:$(false)}) goes unseen. No other operand text is generated
-        # here. The listed 3b613 rows pin selected dot words, glob endings,
-        # nested expansions and a /% replacement string. The 3b613 matrix
-        # adds #, ##, %, %%, /, //, /# and /% with dot, .md, .* and a
-        # quote-bearing prefix, both substitution spellings, and each Bash-
-        # executing quote form. The earlier % and / dot rows remain in cases.
-        # A dollar-excluding pattern cannot take a nested ${...} twin merely
-        # because its inner substitution uses backquotes: the nested opener
-        # still contains a dollar sign. The matrix pins immediate .* and
-        # quote-boundary shapes, but finite rows do not cover arbitrary
-        # literal text (such as .txt), other operator/operand structures,
-        # or all ways of crossing a shell quote boundary.
+        # (word y, pattern a, string b, offset 1, negative offset -1, length
+        # 2, negative length -1, subscript 0, negative subscript -1), one row
+        # per position with $(false) there instead (-$(false) at a negative
+        # operand), and, where it has an arithmetic operand (an offset, a
+        # length or a subscript, 3747, 3153), two more rows: one with each of
+        # those spelled as a name (i, -i, n, -n, i and -i; 5423-5427) and one
+        # with each spelled as a $name ($i, -$i, $n, -$n, $i and -$i;
+        # 5421-5422). Apart from its $(false), a row spells its arithmetic
+        # operands alike (all literals, all names or all $names), so a
+        # widening keyed to a mix (${x:0:$n}, ${x:i:$(false)}) goes unseen.
+        # No other operand text is generated here. The listed dot rows pin
+        # selected dot words, glob endings, nested expansions and a /%
+        # replacement string. The dot matrix adds #, ##, %, %%, /, //, /# and
+        # /% with dot, .md, .* and a quote-bearing prefix, both substitution
+        # spellings, and each Bash-executing quote form. The earlier % and /
+        # dot rows remain in cases. A dollar-excluding pattern cannot take a
+        # nested ${...} twin merely because its inner substitution uses
+        # backquotes: the nested opener still contains a dollar sign. The
+        # matrix pins immediate .* and quote-boundary shapes, but finite rows
+        # do not cover arbitrary literal text (such as .txt), other
+        # operator/operand structures, or all ways of crossing a shell quote
+        # boundary.
         # Left out on purpose:
         #   - ${x}, the one form the allow-list takes;
         #   - ${!@} and ${!*}, with or without an operator: they read as
@@ -72807,12 +72819,12 @@ class BlockVerificationPipesTests(unittest.TestCase):
              for expansion, _ in expansions]
         # Mutants, each the hook with one exact edit: M3 replaces two code
         # lines, and M3p and M3g write the allow-list line as two.
-        #   M2   a deny-list of the round-11 spellings "${ ", "${| " and
+        #   M2   a deny-list of the exact spellings "${ ", "${| " and
         #        ${NAME@P}; any other ${...} is skipped unscanned as data,
         #        up to its first "}" only.
         #   M2g  a deny-list of "${" before a space, tab, newline or "|",
         #        and of any ${...@P}; anything else is skipped as in M2.
-        #   M2h  M2g, but "${|" only before a space, as round 11 spells it.
+        #   M2h  M2g, but "${|" only before a space, as in M2.
         #   M2x  the allow-list also takes a # or % trim with any operand
         #        before the first "}", as a fix for "${f%.md}" might.
         #   M2r  the allow-list also takes a replace with the string and
@@ -72832,14 +72844,12 @@ class BlockVerificationPipesTests(unittest.TestCase):
         #        disqualify unquoted; unlike M3, no unquoted $(( case
         #        elsewhere in this class catches it.
         #   M3g  the allow-list inside double quotes, M2g outside them.
-        # The round-4 reviews' widenings, under their names there:
+        # Further widenings a fix might make:
         #   P1   the allow-list also takes a // replace with the string and
-        #        its "/" left out, as a fix for "${f//-}" might (also the
-        #        Gemini review's replace variant).
+        #        its "/" left out, as a fix for "${f//-}" might.
         #   P2   the allow-list also takes a /# or /% replace with the
         #        string and its "/" left out, as a fix for "${f/%.md}"
-        #        might; P2p and P2s take /# alone and /% alone, as the
-        #        Gemini review spells them.
+        #        might; P2p and P2s take /# alone and /% alone.
         #   P4   the allow-list also takes a substring with the length left
         #        out after its colon, as a fix for "${s:1:}" might.
         #   P5   the allow-list also takes a substring at a numeric
@@ -72854,8 +72864,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
         #        reference, as a fix for "${#arr[@]}" might.
         #   P10  the allow-list also takes a :- default after a positional
         #        parameter, as a fix for "${1:-}" might.
-        # The round-5 Claude review's widenings, under its names there (W1
-        # is also the widening of the Codex round-4 and round-5 reviews):
+        # Substring and subscript widenings:
         #   W1   the allow-list also takes a substring at a numeric offset
         #        after a space, then a colon and any length, as a fix for
         #        "${s: 0:7}" might.
@@ -72866,7 +72875,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
         #        with any length or none, as a fix for "${line:$i:1}" might.
         #   W4   the allow-list also takes an array element whose subscript
         #        starts with a minus, as a fix for "${arr[-1]}" might.
-        # 3b613's dot-keyed widenings, which no generated row holds:
+        # Dot-keyed widenings, which no generated row holds:
         #   D1   the allow-list also takes a ## trim whose word starts with
         #        a dot, as a fix for "${f##.md}" might.
         #   D2   the allow-list also takes a %% trim whose word starts with
@@ -72892,13 +72901,12 @@ class BlockVerificationPipesTests(unittest.TestCase):
         #   D13  the allow-list also takes a /% replace whose pattern starts
         #        with a dot, with a string, as a fix for "${f/%.md/.txt}"
         #        might.
-        # The 3b613 round-1 Claude review's dollar-excluding widenings,
-        # under its names there:
+        # Dollar-excluding widenings:
         #   X4   D1 with no "$" after the dot, as a fix for "${f##.md}" that
         #        keeps a $( out might.
         #   X5   D2 with no "$" after the dot.
         #   X6   D3 with no "$" after the dot.
-        # 3b613 round 4: the same for the rest of the dot-keyed widenings:
+        # The same for the rest of the dot-keyed widenings:
         #   Dnd  for n from 4 to 13, Dn with "$" added to each excluded
         #        class, as X4 to X6 are D1 to D3 with it.
         allow = (r'            m = re.match(r"\$\{[A-Za-z_][A-Za-z0-9_]*\}", '
@@ -73141,11 +73149,11 @@ class BlockVerificationPipesTests(unittest.TestCase):
         self.check(commands, True)  # the loaded hook is unchanged
 
     def test_round10_and_continuation_clears_pending(self):
-        # F2 (falseblocks-classification row 67): an executed single-command
-        # && continuation replaces the pipeline's status, and a skipped one
-        # leaves the pipeline's own nonzero status, so the later read is
-        # never the masking filter's. A || continuation keeps the warning.
-        # The allowed forms blocked on 29b77da3d.
+        # An executed single-command && continuation replaces the pipeline's
+        # status, and a skipped one leaves the pipeline's own nonzero
+        # status, so the later read is never the masking filter's. A ||
+        # continuation keeps the warning. An earlier revision in the earlier
+        # repository blocked the allowed forms.
         self.check([
             'git -C w status --short | wc -l && python3 '
             '.claude/skills/corpus-management/tools/lint-version-bump-recency.py >/dev/null 2>&1; '
@@ -73180,8 +73188,8 @@ class BlockVerificationPipesTests(unittest.TestCase):
                     '(echo $((flags & 1)))'], False)
 
     def test_every_status_parameter_expansion_counts(self):
-        # 3b513 round 3: every parameter expansion of ? reads the pipeline's
-        # status, not only $? and ${?}.
+        # Every parameter expansion of ? reads the pipeline's status, not
+        # only $? and ${?}.
         expansions = ('${?}', '${?:-x}', '${?:=x}', '${?:?bad}', '${?:+x}',
                       '${?-x}', '${?+x}', '${?#0}', '${?##0}', '${?%x}',
                       '${?%%x}', '${?/0/ok}', '${?^}', '${?@Q}', '${#?}',
@@ -73202,7 +73210,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
                     'cmd | cat; echo ${rc:-0}'], False)
 
     def test_ordinary_commands_stay_allowed(self):
-        # 3b513 round 3: no new false block on ordinary commands.
+        # No new false block on ordinary commands.
         self.check([
             'git status',
             'git log --oneline | head -5',
@@ -73263,8 +73271,8 @@ class BlockVerificationPipesTests(unittest.TestCase):
             "echo '<<EOF'; echo ok",
         ], False)
         self.check([
-            # round 10: a delimiter that is not one plain word after quote
-            # removal ('$?' here) refuses (heredoc-divergence, safe direction)
+            # a delimiter that is not one plain word after quote removal ('$?'
+            # here) refuses (heredoc-divergence, safe direction)
             "cmd | cat; cat <<'$?'\na &\n$?\n",
             "python3 <<'PY' &\nprint(1 & 2)\nPY\n",
             "cat <<A\na &\nA\nb &",
@@ -73274,8 +73282,8 @@ class BlockVerificationPipesTests(unittest.TestCase):
             "cat <<A <<B\na &\nA\nb &\nB\nc &",
             "cat <<<word; a &",  # here-string is not a heredoc
             "cat <<A\ntools/run_all_audits.sh | tail\nA\n",
-            # round 9: a terminator never matched before the end of the command
-            # now refuses rather than swallowing the rest as body (R8 reviews)
+            # a terminator never matched before the end of the command now
+            # refuses rather than swallowing the rest as body
             "cat <<A\na &\n",
         ], True)  # the legacy regex still scans raw heredoc bodies
 
@@ -73358,7 +73366,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
 
 
 class BlockingHookMessageContractTests(unittest.TestCase):
-    """P-1.95: per-rendered-message refusal inventory and contract."""
+    """Per-rendered-message refusal inventory and contract."""
 
     P = "/__p195__/grc_library"
     SHIPPED_HOOKS = ("block-branch-to-main-edit", "block-bulk-git-add",
@@ -73441,11 +73449,11 @@ class BlockingHookMessageContractTests(unittest.TestCase):
 
         add = group("block-unbumped-version-commit", "bump",
                     ("main", "print('\\n'.join(lines),"))
-        # Occurrence 0 is the README decline (3b80); the others follow it.
+        # Occurrence 0 is the README decline; the others follow it.
         add("readme", "readme", evidence=("README.md",),
             sites=(("try_auto_bump", "return False", 0),))
-        # Occurrence 2 is the lone-CR decline (3b84); nonnumeric and the exception follow it.
-        # Occurrence 3 is the double-BOM decline (3b86).
+        # Occurrence 2 is the lone-CR decline; nonnumeric and the exception follow it.
+        # Occurrence 3 is the double-BOM decline.
         for name, occurrence in (("unstaged", 1), ("lone-cr", 2), ("double-bom", 3),
                                  ("nonnumeric", 4), ("read-error", 5)):
             add(name, name, evidence=("doc.md",),
@@ -73490,8 +73498,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             label="shell-complexity", verb="run",
             at=("main", "sys.stderr.write(", 7),
             evidence=("inspection limit", "refusing it", "fewer nested groups"))
-        # C1 T1i/T1j: only the shipped hooks have cases; cases[hook] raises KeyError for a
-        # shipped hook without them.
+        # Only the shipped hooks have cases; cases[hook] raises KeyError for a shipped
+        # hook without them.
         return {hook: cases[hook] for hook in cls.SHIPPED_HOOKS}
 
     def assert_refusal(self, message, *, guard, imperative):
@@ -73670,7 +73678,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     p(mod, "git", git)
 
                     def read_text(path, *a, **kw):
-                        # The eligibility read in main(); the auto-bump reads bytes (3b84).
+                        # The eligibility read in main(); the auto-bump reads bytes.
                         self.assertIn(path.name, paths)
                         if arg == "readme":
                             return "**README Version:** 1.0.0\n**Version:** 8.0.0\nBody\n"
@@ -73680,7 +73688,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
 
                     def read_bytes(path):
                         # The auto-bump read: the read-error case fails HERE, the read it names
-                        # (3b84; it previously never raised on either read).
+                        # (in the earlier repository it never raised on either read).
                         if arg == "read-error":
                             raise OSError("crafted read failure")
                         if arg == "double-bom":
@@ -73693,7 +73701,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
 
                     def write_bytes(path, data):
                         # read-error may write only if its read did not fail; the branch trace
-                        # then lands on the success return and the case fails (3b84).
+                        # then lands on the success return and the case fails.
                         self.assertIn((arg, path), (("mixed", Path(self.P) / "good.md"),
                                                     ("read-error", Path(self.P) / "doc.md")))
                         writes.append(data.decode("utf-8"))
@@ -73750,8 +73758,9 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             sys.path[:] = old_path
             self.assertEqual(external, [], "Attempted real external effects")
 
-    # ---- Round 6 (2026-11-05): every path and error text a Stop hook prints is escaped ----
-    # (label, raw character, the _printable form): each case fails on 6ef6aa643.
+    # ---- Every path and error text a Stop hook prints is escaped ----
+    # (label, raw character, the _printable form): each case failed on an earlier revision in
+    # the earlier repository.
     ODD_PATH_CHARS = (("newline", "\n", "\\n"), ("ESC", "\x1b", "\\x1b"))
 
     def _assert_paths_escaped(self, text, raw, shown, *paths):
@@ -73759,11 +73768,11 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             self.assertNotIn(str(path), text)
             self.assertIn(str(path).replace(raw, shown), text)
 
-    # ---- 2026-11-05: every refusal copy escapes; Stop-hook short forms carry their remedy ----
+    # ---- Every refusal copy escapes; Stop-hook short forms carry their remedy ----
     def _refuse_hooks(self):
         """(hook, parsed source) for every hook whose source defines _refuse anywhere. This is
         the rerunnable search for the copied refusal helper (the turn-end copy and the 17 others
-        that, at 0526f67bb, printed the launch path raw)."""
+        that, in the earlier repository, printed the launch path raw)."""
         import ast
         found = []
         for path in sorted((REPO_ROOT / ".claude" / "hooks").glob("*.py")):
@@ -73800,7 +73809,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     self.assertEqual(len(text.splitlines()), 1, repr(text))
                     self._assert_paths_escaped(text, raw, shown, launch)
 
-    # ---- 2026-11-05 round 2: payload paths in refusals and tool console text are escaped ----
+    # ---- Payload paths in refusals and tool console text are escaped ----
     # Each case fails without its fix: the raw path (or model id) would reach the text.
     def test_branch_to_main_edit_escapes_payload_path(self):
         """The edited file's repository-relative path comes from the payload's file_path."""
@@ -73840,7 +73849,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 self._assert_paths_escaped(text, raw, shown, odd)
                 self.assertEqual(len(text.splitlines()), 1, repr(text))
 
-    # ---- 2026-11-05 round 3: text from tool input, the environment and the filesystem ----
+    # ---- Text from tool input, the environment and the filesystem ----
     # Each case fails without its fix: the raw character reaches the console text, or the
     # displayed command names another path.
     # Characters str.splitlines() keeps inside a line (a line split there still carries them)...
@@ -73849,12 +73858,12 @@ class BlockingHookMessageContractTests(unittest.TestCase):
     LINE_BREAK_CHARS = (("CR", "\r", "\\r"), ("VT", "\x0b", "\\x0b"), ("NEL", "\x85", "\\x85"),
                         ("LS", "\u2028", "\\u2028"))
     # One path segment for the displayed-command round trip: a newline, an ESC, a space, a
-    # single quote, a backslash and a surrogate-escaped byte (0xff in the file name); round 4
-    # (claude W1): a C1 control (NEL), U+202E and a plane-15 character, which bash rebuilt from
-    # \uHHHH or \UHHHHHHHH only in a UTF-8 locale.
+    # single quote, a backslash and a surrogate-escaped byte (0xff in the file name); also a C1
+    # control (NEL), U+202E and a plane-15 character, which bash rebuilt from \uHHHH or
+    # \UHHHHHHHH only in a UTF-8 locale.
     ODD_SEGMENT = "a b'c\\d\n\x1b[2J\udcffe\x85f\u202eg\U000f0000h"
     _SHELL_WORD = re.compile(r"\$'(?:[^\\']|\\.)*'|(?:'[^']*'|\"'\")+|[^\s`';]+")
-    # Locales the displayed-command round trip runs bash in (round 4, codex N3).
+    # Locales the displayed-command round trip runs bash in.
     SHELL_LOCALES = ("C", "C.UTF-8")
 
     def _assert_text_escaped(self, text, raw, shown):
@@ -73898,8 +73907,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         self.assertTrue(target.is_file(), word)
 
     def test_repeated_tool_failure_escapes_recorded_hook_name(self):
-        """codex E1: the hook name in the state file is any decoded JSON string, so it can hold
-        a newline or a terminal escape; the refusal shows it escaped and keeps three lines."""
+        """The hook name in the state file is any decoded JSON string, so it can hold a newline
+        or a terminal escape; the refusal shows it escaped and keeps three lines."""
         import json
         import time
         from unittest.mock import patch
@@ -73918,8 +73927,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 self.assertEqual(len(text.splitlines()), 3, repr(text))
 
     def test_version_guard_escapes_staged_paths(self):
-        """claude N3: with core.quotePath=false git lists a C1 control in a staged path raw; the
-        version guard's BLOCKED list and both NOTEs (auto-bumped, stale Date) show it escaped."""
+        """With core.quotePath=false git lists a C1 control in a staged path raw; the version
+        guard's BLOCKED list and both NOTEs (auto-bumped, stale Date) show it escaped."""
         import json
         with tempfile.TemporaryDirectory() as td:
             repo = Path(td)
@@ -73958,11 +73967,11 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         self.assertIn("lag\\x9bz.md", cp.stderr)
         self.assertNotIn("\x9b", cp.stderr)
 
-    # ---- 2026-11-05 round 4: leading dash, uncut declared wait, alert file, markers ----
+    # ---- Leading dash, uncut declared wait, alert file, markers ----
     WORD_HOOKS = ("block-branch-to-main-edit",)
 
     def test_branch_to_main_escapes_project_directory(self):
-        """FX4: the branch-to-main part of the removed printed-path test. A project directory
+        """The branch-to-main part of the removed printed-path test. A project directory
         holding a newline or an ESC is shown escaped in the refusal."""
         from unittest.mock import patch
         branch = load_linter_module(".claude/hooks/block-branch-to-main-edit.py", "_fx4_esc_branch")
@@ -73975,9 +73984,9 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 self._assert_paths_escaped(text, raw, shown, odd)
 
     def test_branch_to_main_checkout_command_names_the_project_path(self):
-        """FX4: the branch-to-main part of the removed displayed-command test (codex W1). The
-        git -C command in the refusal names an unusual project path as one printable shell word
-        that bash reads back as that exact path."""
+        """The branch-to-main part of the removed displayed-command test. The git -C command in
+        the refusal names an unusual project path as one printable shell word that bash reads
+        back as that exact path."""
         from unittest.mock import patch
         branch = load_linter_module(".claude/hooks/block-branch-to-main-edit.py", "_fx4_word_branch")
         with tempfile.TemporaryDirectory() as td:
@@ -73987,9 +73996,9 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             self._assert_names_path(text, "git -C ", odd)
 
     def test_shell_word_keeps_a_leading_dash_path(self):
-        """FX4: the _shell_word part of the removed leading-dash test (codex W2, claude N1). A
-        relative path starting with "-" is written "./" first in every quoting form, so a command
-        does not read it as an option; an absolute path is unchanged."""
+        """The _shell_word part of the removed leading-dash test. A relative path starting with
+        "-" is written "./" first in every quoting form, so a command does not read it as an
+        option; an absolute path is unchanged."""
         for hook in self.WORD_HOOKS:
             with self.subTest(site=hook + " _shell_word"):
                 mod = load_linter_module(".claude/hooks/%s.py" % hook,
@@ -73999,10 +74008,10 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 self.assertEqual(mod._shell_word("-a\nb/.x"), "$'./-a\\nb/.x'")
                 self.assertEqual(mod._shell_word("/abs/-x"), "/abs/-x")
 
-    # ---- 2026-11-05 round 5: wait line by write state and directory, payload path, fsencode ----
+    # ---- Wait line by write state and directory, payload path, fsencode ----
     def test_branch_to_main_refusal_keeps_the_payload_path(self):
-        """claude N2: the project directory goes into the CONSIDER INSTEAD command only; an
-        edited path holding "{proj}" is shown as edited, not with the directory put in."""
+        """The project directory goes into the CONSIDER INSTEAD command only; an edited
+        path holding "{proj}" is shown as edited, not with the directory put in."""
         from unittest.mock import patch
         mod = load_linter_module(".claude/hooks/block-branch-to-main-edit.py", "_esc5_branch")
         with tempfile.TemporaryDirectory() as td:
@@ -74016,11 +74025,11 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             self._assert_names_path(text, "git -C ", proj)
 
     def test_shell_words_follow_the_filesystem_encoding(self):
-        """claude N3: from 0x80 up, a surrogate-escaped byte included, every copy of
-        _shell_word writes the bytes os.fsencode gives, so with a Latin-1 filesystem encoding
-        U+0085 is the byte 0x85, not its UTF-8 bytes, and bash reads the word back as the
-        path's own bytes in every locale. A character the encoding cannot hold keeps its
-        UTF-8 bytes rather than raising."""
+        """From 0x80 up, a surrogate-escaped byte included, every copy of _shell_word writes
+        the bytes os.fsencode gives, so with a Latin-1 filesystem encoding U+0085 is the byte
+        0x85, not its UTF-8 bytes, and bash reads the word back as the path's own bytes in
+        every locale. A character the encoding cannot hold keeps its UTF-8 bytes rather than
+        raising."""
         from unittest.mock import patch
         bash = shutil.which("bash")
         if bash is None:
@@ -74074,7 +74083,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     executed.add((hook, case["id"]))
         self.assertEqual(executed, {(h, c["id"]) for h, cs in registry.items() for c in cs})
 
-    # FX1: restored from the pre-C1 suite for block-unbumped-version-commit, the only
+    # Restored from the earlier suite for block-unbumped-version-commit, the only
     # shipped hook with a mixed case (the other hooks they named do not ship).
     def test_mixed_diagnostics_preserve_one_complete_refusal(self):
         hook = "block-unbumped-version-commit"
@@ -74158,12 +74167,13 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         with self.assertRaises(AssertionError):
             self.assert_refusal(render(new_branch, new=True), guard="probe", imperative="run")
 class FileArgRefusalTests(LinterTestCase):
-    """3b50b2d2: explicit file arguments that passed vacuously or crashed.
+    """Explicit file arguments that passed vacuously or crashed.
 
-    web-corpus-links accepted an empty, missing-row or unrelated --manifest and printed OK after
-    checking nothing; version-date-consistency passed an unrelated --changelog as "nothing to
-    verify" and read an empty value as the current directory; library-version-monotonicity raised
-    a traceback on a missing or non-file --prior-readme. Each now refuses with exit 2."""
+    In the earlier repository, web-corpus-links accepted an empty, missing-row or unrelated
+    --manifest and printed OK after checking nothing; version-date-consistency passed an
+    unrelated --changelog as "nothing to verify" and read an empty value as the current
+    directory; library-version-monotonicity raised a traceback on a missing or non-file
+    --prior-readme. Each now refuses with exit 2."""
 
     def test_file_argument_refusals(self) -> None:
         td = Path(tempfile.mkdtemp(prefix="filearg-"))
@@ -74181,11 +74191,11 @@ class FileArgRefusalTests(LinterTestCase):
             (".claude/skills/corpus-management/tools/lint-version-date-consistency.py", "--readme", str(td)),
             (".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "--prior-readme", str(td / "missing.md")),
             (".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "--prior-readme", str(td)),
-            # r1: a non-UTF-8 explicit file used to raise a traceback (version-date) or print OK
-            # after checking nothing (matrix-control-codes).
+            # In the earlier repository, a non-UTF-8 explicit file raised a traceback
+            # (version-date) or printed OK after checking nothing (matrix-control-codes).
             (".claude/skills/corpus-management/tools/lint-version-date-consistency.py", "--changelog", str(binary)),
             (".claude/skills/corpus-management/tools/lint-version-date-consistency.py", "--readme", str(binary)),
-            # r2: an explicitly passed path equal to the default is still explicit
+            # An explicitly passed path equal to the default is still explicit
             (".claude/skills/corpus-management/tools/lint-version-date-consistency.py", "--changelog", str(REPO_ROOT / ".working/CHANGELOG.md"),
              "--readme", str(binary)),
             (".claude/skills/corpus-management/tools/lint-matrix-control-codes.py", str(binary)),
@@ -74916,12 +74926,12 @@ class ClausePreservationTests(unittest.TestCase):
     BACKSLASH_RULE = ('unit.find("\\\\")', "-1")
     LESS_RULE = ('unit.find("<")', "-1")
     LINK_PAREN_RULE = ("target_paren(unit)", "-1")
-    # Round 8: each target starts after leading whitespace; flips restore the r7 start.
+    # Each target starts after leading whitespace; flips restore a start at the match end.
     PAREN_START = ("start = TARGET_START.match(unit, match.end()).end()", "start = match.end()")
     REBASED_START = (("TARGET_START.match(base, i).end()", "i"),
                      ("TARGET_START.match(text, j).end()", "j"))
     WHITESPACE_RULES = (PAREN_START,) + REBASED_START
-    # Backlog 3b204: flips that skip one leading character only, or skip no FF or VT.
+    # Flips that skip one leading character only, or skip no FF or VT.
     TARGET_START_RULE = 'TARGET_START = re.compile(r"[ \\t\\n\\r\\f\\v]*")'
     WS_RUN_RULE = (TARGET_START_RULE, TARGET_START_RULE.replace("]*", "]?"))
     FF_VT_RULE = (TARGET_START_RULE, TARGET_START_RULE.replace("\\f\\v", ""))
@@ -74968,7 +74978,7 @@ class ClausePreservationTests(unittest.TestCase):
                     "character '\\x01'", ((PATH_RULE, ALLOW.replace("CHARS", "\\x01")),)),
         "unterminated": ("Read [x](a.md", "Read [x](../a.md", "text differs",
                          ((TERMINATORS, TERMINATORS.replace(']")', ']|$")')),)),
-        # Round 4 QA rows: renderer-visible changes the lexical rules must refuse.
+        # Rows: renderer-visible changes the lexical rules must refuse.
         "paren_dot": ("R [a](x(a/.).md) n.\n", "R [a](../x(a).md) n.\n",
                       "'(' in a link target in the BASE unit at raw offset 7",
                       (LINK_PAREN_RULE, (PATH_RULE, ALLOW.replace("CHARS", "(")), DOT_RULE)),
@@ -74997,7 +75007,7 @@ class ClausePreservationTests(unittest.TestCase):
                   "Read [x](../a.md?q=](../b.md)) now.\n",
                   "'(' in a link target in the BASE unit at raw offset 17",
                   (LINK_PAREN_RULE, SUFFIX_RULE)),
-        # Round 5 QA rows: balanced "()" in a suffix must not end it early.
+        # Rows: balanced "()" in a suffix must not end it early.
         "paren_fragment": ("R [a](x.md#f()](y.md)) n.\n",
                            "R [a](../p/x.md#f()](../p/y.md)) n.\n",
                            "'(' in a link target in the BASE unit at raw offset 12",
@@ -75029,7 +75039,7 @@ class ClausePreservationTests(unittest.TestCase):
                          "empty path component", (('if "//" in segment:', "if False:"),)),
         "dot_component": ("Read [x](a/x.md) now.\n", "Read [x](../a/./x.md) now.\n",
                           "'.' path component", (DOT_RULE,)),
-        # Round 6 QA rows: a ")" the renderer does not treat as the end of a target.
+        # Rows: a ")" the renderer does not treat as the end of a target.
         "r6_escaped_fragment": ("R [a](x.md#f\\)](y.md)) n.\n",
                                 "R [a](../p/x.md#f\\)](../p/y.md)) n.\n",
                                 "backslash in the BASE unit at raw offset 12",
@@ -75063,7 +75073,7 @@ class ClausePreservationTests(unittest.TestCase):
                                      "[x](a.md?q=\\)](../b.md))\n",
                                      "backslash in the BASE unit at raw offset 11",
                                      (BACKSLASH_RULE,)),
-        # Round 7 maintainer ruling: one row per new rule, in prose and per side.
+        # One row per new rule, in prose and per side.
         "backslash_prose": ("Use \\*x\\* and [y](y.md).\n", "Use \\*x\\* and [y](../y.md).\n",
                             "backslash in the BASE unit at raw offset 4", (BACKSLASH_RULE,)),
         "backslash_destination": ("R [x](a.md) n.\n", "R [x](../w\\/../a.md) n.\n",
@@ -75082,7 +75092,7 @@ class ClausePreservationTests(unittest.TestCase):
         "paren_unterminated_target": ("See [y](y.md) then ](x(", "See [y](../y.md) then ](x(",
                                       "'(' in a link target in the BASE unit at raw offset 22",
                                       (LINK_PAREN_RULE,)),
-        # Round 8 QA rows: whitespace between "](" and the destination.
+        # Rows: whitespace between "](" and the destination.
         "ws_space": ("R [a]( x.md#f](y.md)) n.\n", "R [a]( x.md#f](../p/y.md)) n.\n",
                      "'(' in a link target in the BASE unit at raw offset 14",
                      WHITESPACE_RULES, SAME_DIR),
@@ -75110,7 +75120,7 @@ class ClausePreservationTests(unittest.TestCase):
                             'R [a]( x.md#s "T (x)") and [b](../p/b.md).\n',
                             "BASE raw offset 17 (BASE line 1; destination line 1): "
                             "'(' in a '#' or '?' suffix", REBASED_START, SIBLINGS),
-        # Backlog 3b204 rows: a multi-character run, and a lone FF or VT lead.
+        # Rows: a multi-character run, and a lone FF or VT lead.
         "ws_run": ("R [a]( \t x.md#f](y.md)) n.\n", "R [a]( \t x.md#f](../p/y.md)) n.\n",
                    "'(' in a link target in the BASE unit at raw offset 16",
                    (WS_RUN_RULE,), SAME_DIR),
@@ -75322,7 +75332,7 @@ class ClausePreservationTests(unittest.TestCase):
                          "1 REBASED asserted", self.WS_RUN_RULE)
 
     def test_rebased_form_feed_and_vertical_tab_lead_targets(self):
-        """3b204 (d): keep skipping FF and VT, as the tool docstring explains.
+        """Keep skipping FF and VT, as the tool docstring explains.
 
         markdown-it-py 3.0.0's commonmark preset renders "](" then FF or VT as
         prose; there the "(" refusal is only stricter and the re-based segment is
@@ -75338,7 +75348,7 @@ class ClausePreservationTests(unittest.TestCase):
                                  "1 REBASED asserted", self.FF_VT_RULE)
 
     def test_rebased_disclosed_shapes_in_titles_and_code(self):
-        """3b204 (e): the tool docstring examples re-base a.md, a link destination in none.
+        """The tool docstring examples re-base a.md, a link destination in none.
 
         The link-title example also re-bases its real destination b.md; the
         reference definition's own b.md must stay byte-identical.
@@ -75356,9 +75366,9 @@ class ClausePreservationTests(unittest.TestCase):
                     "BASE raw offset 5 (BASE line 1; destination line 1): text differs")
 
     def test_rebased_shadowed_rules_standalone(self):
-        """3b204 (b): rules that earlier refusals shadow, pinned directly.
+        """Rules that earlier refusals shadow, pinned directly.
 
-        The round 7 whole-unit refusals shadow PATH_CHAR's backslash, "<" and "("
+        The whole-unit refusals shadow PATH_CHAR's backslash, "<" and "("
         refusals; the "](" count rule is shadowed by those and by target_error.
         """
         from unittest.mock import patch
@@ -75389,7 +75399,7 @@ class ClausePreservationTests(unittest.TestCase):
                 self.assertEqual(mod.rebased(base, "", moved, "docs"), expected)
 
     def test_rebased_used_index_gate_and_recording(self):
-        """3b204 (a): same-key units, so only the used set stops a second take."""
+        """Same-key units, so only the used set stops a second take."""
         base, moved = "- [x](a.md)\n- [x](a.md)\n", "- [x](../a.md)\n-  [x](../a.md)\n"
         for flip in (("if index in used or ", "if "), ("            used.add(index)\n", "")):
             with self.subTest(flip=flip):
@@ -75730,7 +75740,7 @@ class StartupCharacterCeilingGateTests(unittest.TestCase):
 
 
 class SelfTestTempdirTests(unittest.TestCase):
-    """3b103: a hook or tool self-test that makes temp directories leaves none behind."""
+    """A hook or tool self-test that makes temp directories leaves none behind."""
 
     ALLOCATORS = ("mkdtemp", "mkstemp", "mktemp", "TemporaryDirectory", "NamedTemporaryFile")
 
@@ -75758,10 +75768,10 @@ class SelfTestTempdirTests(unittest.TestCase):
             for path in sorted(REPO_ROOT.glob(pattern)):
                 text = path.read_text(errors="replace")
                 # Any self-test that imports tempfile, read from the AST so `import os, tempfile` and
-                # renamed allocators count (3b103 QA r3, r4); an unparseable file is kept, and the
-                # explicit-base check then fails on it.
-                # A tool may detect the flag through lint_common.self_test_requested and never spell it
-                # (3b103 QA r5).
+                # renamed allocators count; an unparseable file is kept, and the explicit-base check
+                # then fails on it.
+                # A tool may detect the flag through lint_common.self_test_requested and never spell
+                # it.
                 flagged = "--self-test" in text or "self_test_requested" in text
                 if flagged and "tempfile" in text and self.imports_tempfile(text):
                     found.append(path)
@@ -75775,13 +75785,13 @@ class SelfTestTempdirTests(unittest.TestCase):
     DIR_POSITION = {"mkdtemp": 2, "mkstemp": 2, "mktemp": 2, "TemporaryDirectory": 2, "NamedTemporaryFile": 6}
 
     def explicit_bases(self, source: str) -> list[int]:
-        """Lines of allocator calls that pass dir, by keyword or position (3b103 QA r1-r2)."""
+        """Lines of allocator calls that pass dir, by keyword or position."""
         import ast
         tree = ast.parse(source)
-        # A name imported from tempfile under another name maps back to the allocator (3b103 QA r3).
+        # A name imported from tempfile under another name maps back to the allocator.
         alias = {a.asname or a.name: a.name for node in ast.walk(tree)
                  if isinstance(node, ast.ImportFrom) and node.module == "tempfile" for a in node.names}
-        if "*" in alias:  # from tempfile import * brings every allocator in by name (3b103 QA r5)
+        if "*" in alias:  # from tempfile import * brings every allocator in by name
             alias.update({name: name for name in self.DIR_POSITION})
         lines = []
         for node in ast.walk(tree):
@@ -75814,12 +75824,12 @@ class SelfTestTempdirTests(unittest.TestCase):
 
     def test_no_explicit_base_outside_the_monitored_root(self) -> None:
         # The run below watches only TMPDIR, so a self-test that allocates under an explicit dir leaks
-        # unseen (3b103 QA r1, codex). Residue: a self-test whose temp use lives in an imported module
-        # outside .claude/skills/corpus-management/tools/ and .claude/hooks/, a self-test killed before exit (atexit does not run),
-        # a dir passed through **kwargs, functools.partial or
-        # getattr, and a hard-coded base path (os.makedirs("/dev/shm/x")), are not recognized, and
-        # .claude/skills/corpus-management/tests/ is not scanned here, so a leak there is caught only by running the full suite under
-        # a fresh TMPDIR.
+        # unseen. Residue: a self-test whose temp use lives in an imported module outside
+        # .claude/skills/corpus-management/tools/ and .claude/hooks/, a self-test killed before exit
+        # (atexit does not run), a dir passed through **kwargs, functools.partial or getattr, and a
+        # hard-coded base path (os.makedirs("/dev/shm/x")), are not recognized, and
+        # .claude/skills/corpus-management/tests/ is not scanned here, so a leak there is caught only by
+        # running the full suite under a fresh TMPDIR.
         for path in self.targets():
             if path.name in self.EXPLICIT_BASE_OWNED:
                 continue
@@ -75835,13 +75845,14 @@ class SelfTestTempdirTests(unittest.TestCase):
         self.assertIn("lint-narrative-metadata.py", names)
 
     def test_discovery_is_not_vacuous(self) -> None:
-        # Nine self-tests leaked before 3b103; the scan must still see at least those.
+        # Nine self-tests leaked in the earlier repository before this check; the scan must still
+        # see at least those.
         self.assertGreaterEqual(len(self.targets()), 9)
 
     def test_self_tests_leave_no_temp_directories(self) -> None:
         # The guardrails-owned copies allocate under their own explicit base, which this TMPDIR run cannot
         # observe, and one carries a wall-clock assertion that flakes on CI runners; they are skipped here
-        # as they are in the explicit-base check (3b103, CI on #2618).
+        # as they are in the explicit-base check.
         for path in self.targets():
             if path.name in self.EXPLICIT_BASE_OWNED:
                 continue
@@ -75856,7 +75867,7 @@ class SelfTestTempdirTests(unittest.TestCase):
 
 class ProvisionIndexTests(LinterTestCase):
     """.claude/skills/corpus-management/tools/provision_citations.py, .claude/skills/corpus-management/tools/build-provision-index.py and
-    tools/audit-provision-siblings.py (advisory; P-TODO from the #2649 retro).
+    tools/audit-provision-siblings.py (advisory).
 
     Mutation map, one killing test per extractor branch: the subsection
     continuation by test_continuation_subsection_attaches, and its
@@ -75941,17 +75952,17 @@ class ProvisionIndexTests(LinterTestCase):
     own-side line and section distrust, and the own_trusted gate) and
     test_siblings_own_phrase_only_citation_stays_unverified.
 
-    Round 4 (each killing test was run against its mutant in memory): the
-    decimal-range endpoint, its interior list and zero padding by
-    test_abbreviated_decimal_range_endpoint, the doubtful-endpoint rule and
-    its continuation by test_doubtful_decimal_range_endpoint_unresolved, the
-    endpoint pinpoints by test_range_endpoints_keep_cited_pinpoints; the
+    Each of the following killing tests was run against its mutant in
+    memory: the decimal-range endpoint, its interior list and zero padding
+    by test_abbreviated_decimal_range_endpoint, the doubtful-endpoint rule
+    and its continuation by test_doubtful_decimal_range_endpoint_unresolved,
+    the endpoint pinpoints by test_range_endpoints_keep_cited_pinpoints; the
     prefix branch's tail refusal and each of its three alternatives by
     test_prefix_alias_refused_when_tail_names_another_instrument; the
     subordinate-instrument refusal by
     test_postfix_alias_of_subordinate_instrument_refused; the conjoined
-    known-instrument rule by test_conjoined_unknown_member_dropped (the
-    round-3 map credited it to two tests that kill only the adjacent-alias
+    known-instrument rule by test_conjoined_unknown_member_dropped (an
+    earlier map credited it to two tests that kill only the adjacent-alias
     checks), and SHARED_NUMBERING, the numbering test and the explicit-only
     member filter by test_conjoined_prefix_aliases_cite_each_instrument; the
     gloss check's bracket-close bound by
@@ -75960,10 +75971,10 @@ class ProvisionIndexTests(LinterTestCase):
     test_alias_led_bracket_gloss_downgrades; the prefix tail's comma by
     test_comma_prefix_tail_is_explicit; the body-name skip by
     test_body_name_is_not_a_citation; the postfix claim by
-    test_postfix_claimed_alias_not_reused_by_line_tier (and its
-    postfix-only scope) and test_point_designation_does_not_defeat_postfix;
-    the point designation in the postfix lead and in the "of <Name>" refusal
-    by test_point_designation_does_not_defeat_postfix; the month words by
+    test_postfix_claimed_alias_not_reused_by_line_tier (and its postfix-only
+    scope) and test_point_designation_does_not_defeat_postfix; the point
+    designation in the postfix lead and in the "of <Name>" refusal by
+    test_point_designation_does_not_defeat_postfix; the month words by
     test_day_of_month_not_absorbed; the quantity adjective and the widened
     shorthand list by test_unit_after_quantity_adjective_not_absorbed;
     parse_key's canonical-name branch and its family check by
@@ -75971,11 +75982,12 @@ class ProvisionIndexTests(LinterTestCase):
     test_every_printed_corpus_key_round_trips; the sorted unresolved bucket
     by test_build_unresolved_listing_is_sorted.
 
-    Round 5 (each killing test was run against its mutant in memory): the
-    contiguity filter on range interiors and the unresolved-interior skip
-    by test_range_interior_only_for_contiguous_numbering; restoring a
-    decimal range's interior (the round-4 interior list and its zero
-    padding, now removed), flagged as interior or not, by
+    Each of the following killing tests was also run against its mutant in
+    memory: the contiguity filter on range interiors and the
+    unresolved-interior skip by
+    test_range_interior_only_for_contiguous_numbering; restoring a decimal
+    range's interior (the earlier interior list and its zero padding, now
+    removed), flagged as interior or not, by
     test_abbreviated_decimal_range_endpoint; a misspelt canonical name in
     CONTIGUOUS_NUMBERING or SELF_NOUNS by
     test_numbering_and_self_noun_tables_name_known_instruments; the
@@ -75985,14 +75997,14 @@ class ProvisionIndexTests(LinterTestCase):
     test_structural_or_self_noun_tail_keeps_prefix_alias; the lowercase
     subordinate descriptors, their lowercase intervening words, the
     clause-word stop and the verb stop by
-    test_lowercase_subordinate_instrument_refused; the bound-postfix
-    conflict refusal and its same-instrument exception by
-    test_bound_postfix_alias_conflicting_heading_refuses; the body-name
-    trim, its whole-body keep and the Data Protection spelling by
-    test_body_name_drops_only_its_29; the point designation in the
-    "of this <Word>" refusal by test_point_designation_before_of_this_refuses
-    and the branch fold's certainty by test_branch_fold_keeps_endpoint_doubt
-    (the two round-5 survivors); parse_key's bare-key rule by
+    test_lowercase_subordinate_instrument_refused; the bound-postfix conflict
+    refusal and its same-instrument exception by
+    test_bound_postfix_alias_conflicting_heading_refuses; the body-name trim,
+    its whole-body keep and the Data Protection spelling by
+    test_body_name_drops_only_its_29; the point designation in the "of this
+    <Word>" refusal by test_point_designation_before_of_this_refuses and the
+    branch fold's certainty by test_branch_fold_keeps_endpoint_doubt (two
+    mutants that survived the earlier tests); parse_key's bare-key rule by
     test_parse_key_canonical_branch_needs_bare_key.
     """
 
@@ -76115,11 +76127,11 @@ class ProvisionIndexTests(LinterTestCase):
     def test_ambiguous_alias_unresolved_jurisdiction(self) -> None:
         # Kills removing _known from the explicit prefix and postfix branches: an
         # ambiguous alias whose jurisdiction never resolves is not a known instrument
-        # (round-3 QA: "the section 1798.155 CPPA administrative fine" is the
-        # California AGENCY, and its explicit record collided with Canadian Bill C-27
-        # rows under the shared "CPPA (jurisdiction unresolved)" key), so adjacency
-        # to it is unresolved, never explicit — while a line-tier mention still
-        # surfaces the "(jurisdiction unresolved)" key as an unverified candidate.
+        # ("the section 1798.155 CPPA administrative fine" is the California AGENCY,
+        # and its explicit record collided with Canadian Bill C-27 rows under the
+        # shared "CPPA (jurisdiction unresolved)" key), so adjacency to it is
+        # unresolved, never explicit — while a line-tier mention still surfaces the
+        # "(jurisdiction unresolved)" key as an unverified candidate.
         self.assertEqual(self.scan("PDPA s. 26D"), [(None, "26D", "unresolved")])
         self.assertEqual(self.scan("| PDPA | porting duty (s. 26D) |"),
                          [("PDPA (jurisdiction unresolved) s. 26D", "26D", "line")])
@@ -76135,8 +76147,9 @@ class ProvisionIndexTests(LinterTestCase):
     def test_marker_family_mismatch_refuses(self) -> None:
         # Kills removing the marker-family guard: an Art-marker citation resolving to an
         # s.-style instrument is the wrong instrument's ("CCPA Article 10" is 11 CCR
-        # Article 10, not Cal. Civ. Code s. 10; the round-2 QA found this family at the
-        # explicit, line, heading and section tiers), so it is refused at every tier.
+        # Article 10, not Cal. Civ. Code s. 10; in the earlier repository, this family
+        # was found at the explicit, line, heading and section tiers), so it is refused
+        # at every tier.
         self.assertEqual(self.scan("CCPA Article 10 requires a risk assessment"),
                          [(None, "10", "unresolved")])
         self.assertEqual(self.scan("| CCPA | ADMT pre-use notice (Art 11) |"),
@@ -76193,9 +76206,9 @@ class ProvisionIndexTests(LinterTestCase):
         self.assertEqual(self.scan("## Breach\n\nA real risk of significant harm.\n"), [])
         self.assertEqual(self.scan("## Canada (PIPEDA)\n\nA real risk of significant harm.\n"),
                          [("PIPEDA s. 10.1", "(uncited)", "phrase")])
-        # Kills disabling the first-alias-after-the-phrase fallback (round-3 QA: no
-        # test reached it; the phrase here starts the line, so only "after" can name
-        # the instrument).
+        # Kills disabling the first-alias-after-the-phrase fallback (no test reached
+        # it before this one; the phrase here starts the line, so only "after" can
+        # name the instrument).
         self.assertEqual(self.scan("A real risk of significant harm triggers PIPEDA reporting."),
                          [("PIPEDA s. 10.1", "(uncited)", "phrase")])
 
@@ -76302,20 +76315,20 @@ class ProvisionIndexTests(LinterTestCase):
 
     def test_acronym_year_statute_refuses_inference(self) -> None:
         # Kills dropping the optional year from the acronym branch: "DUAA 2025 s.80"
-        # cites an unaliased statute, and the bare year before the marker slipped past
-        # the identifier branch (privacy/register-automated-decision-making.md:130
-        # became UK GDPR Art. 80).
+        # cites an unaliased statute, and in the earlier repository the bare year
+        # before the marker slipped past the identifier branch (privacy/
+        # register-automated-decision-making.md:130 became UK GDPR Art. 80).
         self.assertEqual(self.scan("## PIPEDA\n\nDUAA 2025 s.80 sets the new erasure duty.\n"),
                          [(None, "80", "unresolved")])
 
     def test_comma_after_foreign_identifier_refuses(self) -> None:
         # "Regulation (EU) 2025/1140, Article 4" names the delegated regulation, and
-        # the comma bypassed the whitespace-only refusal (crypto/
-        # standard-digital-asset-custody.md:41 became MiCA Art. 4 from an earlier
-        # MiCA mention). That corpus shape is ALSO refused by the law-word branch
-        # ("Regulation (EU) 2025/1140" through the comma tail), so it kills nothing
-        # alone (round-3 QA); the bare-identifier case ("125(I)/2018, Article 15",
-        # no law word) is what kills dropping the comma-identifier branch.
+        # in the earlier repository the comma bypassed the whitespace-only refusal
+        # (crypto/standard-digital-asset-custody.md:41 became MiCA Art. 4 from an
+        # earlier MiCA mention). That corpus shape is ALSO refused by the law-word
+        # branch ("Regulation (EU) 2025/1140" through the comma tail), so it kills
+        # nothing alone; the bare-identifier case ("125(I)/2018, Article 15", no law
+        # word) is what kills dropping the comma-identifier branch.
         got = self.scan("MiCA custody rules; Commission Delegated Regulation (EU) 2025/1140, "
                         "Article 4 applies.")
         self.assertEqual(got, [(None, "4", "unresolved")])
@@ -76338,7 +76351,7 @@ class ProvisionIndexTests(LinterTestCase):
         # Kills removing the _OF_OTHER_RE refusal ("of the Charter" names the
         # instrument). The heading must be an Art.-family instrument: under an
         # s.-style one (## PIPEDA) the marker-family guard refuses "Article 5"
-        # anyway and masks the mutation (round-3 QA).
+        # anyway and masks the mutation.
         self.assertEqual(self.scan("## GDPR\n\nArticle 5 of the Charter applies.\n"),
                          [(None, "5", "unresolved")])
 
@@ -76377,8 +76390,9 @@ class ProvisionIndexTests(LinterTestCase):
 
     def test_conflicting_heading_and_body_context_refuses(self) -> None:
         # Kills reverting _context to innermost-body-before-outer-heading (privacy/
-        # template-dpa-article-28.md:27: a bare "Article 28(9)" under a GDPR document
-        # heading read as PIPEDA s. 28 from a body mention).
+        # template-dpa-article-28.md:27: in the earlier repository, a bare "Article
+        # 28(9)" under a GDPR document heading read as PIPEDA s. 28 from a body
+        # mention).
         text = ("# Data Processing Agreement Template (GDPR Article 28)\n\n## Purpose\n\n"
                 "It also accommodates PIPEDA equally.\n\nIt must be in writing (Article 28(9)).\n")
         self.assertEqual(self.scan(text)[-1], (None, "28(9)", "unresolved"))
@@ -76400,9 +76414,9 @@ class ProvisionIndexTests(LinterTestCase):
         self.assertEqual(self.scan("## Breach\n\nPIPEDA applies.\n\nA real risk of significant harm.\n"), [])
 
     def test_conjoined_prefix_aliases_cite_each_instrument(self) -> None:
-        # Kills removing the _CONJ_RE chain walk (round-3 QA: "GDPR / UK GDPR
-        # Article 21" keyed only to UK GDPR, so the GDPR key missed the surface
-        # entirely; privacy/template-employee-monitoring-notice.md:110 and
+        # Kills removing the _CONJ_RE chain walk (in the earlier repository, "GDPR
+        # / UK GDPR Article 21" keyed only to UK GDPR, so the GDPR key missed the
+        # surface entirely; privacy/template-employee-monitoring-notice.md:110 and
         # supply-chain/register-subprocessor-template.md:31).
         self.assertEqual(self.scan("GDPR / UK GDPR Article 21(4)"),
                          [("GDPR Art. 21", "21(4)", "explicit"),
@@ -76414,14 +76428,14 @@ class ProvisionIndexTests(LinterTestCase):
         # must not refuse the adjacent alias's record).
         self.assertEqual(self.scan("SOX and GDPR Articles 5(2) and 24 set accountability"),
                          [("GDPR Art. 5", "5(2)", "explicit"), ("GDPR Art. 24", "24", "explicit")])
-        # Round-4 QA (gemini): the chain indexed the citation under EVERY conjoined
-        # instrument, explicitly, whether or not the prose meant it. Only a member
-        # sharing the adjacent alias's article numbering (SHARED_NUMBERING: GDPR and
-        # UK GDPR, above) is explicit; any other member is an inference, keyed at
-        # the line tier ("the LGPD and GDPR Article 20" is GDPR portability, not
-        # LGPD Art. 20). Kills treating every member as explicit (this case) and
-        # kills emptying SHARED_NUMBERING (the first case drops GDPR to the line
-        # tier).
+        # In the earlier repository, the chain indexed the citation under EVERY
+        # conjoined instrument, explicitly, whether or not the prose meant it.
+        # Only a member sharing the adjacent alias's article numbering
+        # (SHARED_NUMBERING: GDPR and UK GDPR, above) is explicit; any other
+        # member is an inference, keyed at the line tier ("the LGPD and GDPR
+        # Article 20" is GDPR portability, not LGPD Art. 20). Kills treating every
+        # member as explicit (this case) and kills emptying SHARED_NUMBERING (the
+        # first case drops GDPR to the line tier).
         self.assertEqual(self.scan("the LGPD and GDPR Article 20 portability right"),
                          [("LGPD Art. 20", "20", "line"), ("GDPR Art. 20", "20", "explicit")])
         # Kills dropping the explicit-only filter on conjoined members: a Section
@@ -76437,18 +76451,19 @@ class ProvisionIndexTests(LinterTestCase):
                          [("GDPR Art. 30", "30", "explicit"), ("LGPD Art. 37", "37", "explicit")])
 
     def test_alias_led_bracket_gloss_downgrades(self) -> None:
-        # Kills removing the gloss check on a bracket-lead prefix (round-3 QA:
-        # compliance/financial-services/annex-mica-implementation.md:122, where
-        # "DORA (Art 68(7), citing DORA Arts 11-12)" made MiCA's Art 68(7) an
-        # EXPLICIT DORA record; the re-named alias inside the bracket shows the
-        # lead is a gloss, so the citation falls to the line tier — an unverified
-        # candidate — while the inner "DORA Arts 11-12" stays explicit).
-        # Round-4 QA (gemini): the downgraded citation then fell to the LINE tier,
-        # whose nearest earlier alias is the same DORA lead, so it was still keyed
-        # DORA Art. 68. The lead is now excluded from the inferred tiers too: in a
-        # bare row the citation is unresolved, and under the MiCA annex's own
-        # heading it resolves to MiCA. Kills removing the gloss check (first case
-        # explicit DORA) and kills not excluding the lead (both cases line DORA).
+        # Kills removing the gloss check on a bracket-lead prefix
+        # (compliance/financial-services/annex-mica-implementation.md:122,
+        # where, in the earlier repository, "DORA (Art 68(7), citing DORA
+        # Arts 11-12)" made MiCA's Art 68(7) an EXPLICIT DORA record; the
+        # re-named alias inside the bracket shows the lead is a gloss, so the
+        # citation is not explicit, while the inner "DORA Arts 11-12" stays
+        # explicit). After that fix, the downgraded citation fell to the LINE
+        # tier, whose nearest earlier alias is the same DORA lead, so it was
+        # still keyed DORA Art. 68. The lead is now excluded from the inferred
+        # tiers too: in a bare row the citation is unresolved, and under the
+        # MiCA annex's own heading it resolves to MiCA. Kills removing the gloss
+        # check (first case explicit DORA) and kills not excluding the lead
+        # (both cases line DORA).
         got = self.scan("| ICT continuity per DORA (Art 68(7), citing DORA Arts 11-12) | annex |")
         self.assertEqual(got, [(None, "68(7)", "unresolved"),
                                ("DORA Art. 11", "11", "explicit"),
@@ -76460,11 +76475,12 @@ class ProvisionIndexTests(LinterTestCase):
         self.assertEqual(self.scan("under PIPEDA (s. 10.1(2) and (6)), and promptly")[0][2], "explicit")
 
     def test_agency_acronym_postfix_never_explicit(self) -> None:
-        # Round-3 QA corpus regression (privacy/annex-privacy-jurisdiction-index.md:107):
-        # "the section 1798.155 CPPA administrative fine" read the California agency
-        # as an instrument and keyed an explicit "CPPA (jurisdiction unresolved)"
-        # record. The Section marker is explicit-only, so the refused citation is
-        # dropped, not misattributed; a jurisdiction word still resolves the alias.
+        # Corpus regression (privacy/annex-privacy-jurisdiction-index.md:107): in the
+        # earlier repository, "the section 1798.155 CPPA administrative fine" read the
+        # California agency as an instrument and keyed an explicit "CPPA (jurisdiction
+        # unresolved)" record. The Section marker is explicit-only, so the refused
+        # citation is dropped, not misattributed; a jurisdiction word still resolves
+        # the alias.
         self.assertEqual(self.scan("escalating the section 1798.155 CPPA administrative fine tier",
                                    "privacy/annex-privacy-jurisdiction-index.md"), [])
         self.assertEqual(self.scan("Canada's CPPA Section 63(3) sets administrative penalties"),
@@ -76477,7 +76493,7 @@ class ProvisionIndexTests(LinterTestCase):
         # instrument at all — the section-body and line contexts it would otherwise
         # seed stay empty and the bare citations refuse (an ADJACENT contradicted
         # alias is already refused by the explicit known-instrument rule;
-        # ai/jurisdictions/annex-ai-us-california.md, round-3 QA).
+        # ai/jurisdictions/annex-ai-us-california.md).
         text = ("## Enforcement\n\nThe California CPPA enforces the rules.\n\n"
                 "Penalties (s. 7150) apply.\n")
         self.assertEqual(self.scan(text), [(None, "7150", "unresolved")])
@@ -76505,15 +76521,15 @@ class ProvisionIndexTests(LinterTestCase):
                          [(None, "26D", "unresolved")])
 
     def test_colon_prefix_tail_is_explicit(self) -> None:
-        # Kills removing the ":" from _PREFIX_TAIL_RE (round-3 QA: no test reached
-        # it; "GDPR: Article 33" would silently fall to the line tier).
+        # Kills removing the ":" from _PREFIX_TAIL_RE (no test reached it before
+        # this one; "GDPR: Article 33" would silently fall to the line tier).
         self.assertEqual(self.scan("GDPR: Article 33 notice duty"),
                          [("GDPR Art. 33", "33", "explicit")])
 
     def test_law_word_eu_qualifier_refuses_inference(self) -> None:
         # Kills dropping the "(EU)"-style qualifier from _FOREIGN_PREFIX_RE's
-        # law-word branch (round-3 QA: no test reached it; with a slashless number
-        # neither the identifier nor the comma branch fires, so without the
+        # law-word branch (no test reached it before this one; with a slashless
+        # number neither the identifier nor the comma branch fires, so without the
         # qualifier the citation would fall to the line tier as GDPR).
         self.assertEqual(self.scan("GDPR applies; Regulation (EU) 1024 Article 4 differs"),
                          [(None, "4", "unresolved")])
@@ -76521,7 +76537,7 @@ class ProvisionIndexTests(LinterTestCase):
     def test_unit_shorthand_and_magnitude_not_absorbed(self) -> None:
         # Kills removing _NOT_SHORTHAND ("and 24h" gained Art. 24h) and kills
         # dropping the magnitude words from _UNIT ("and 20 million" gained Art. 20);
-        # both latent shapes from the round-3 QA, no corpus hit today.
+        # both are latent shapes, no corpus hit today.
         self.assertEqual(self.scan("GDPR Art. 33 and 24h"), [("GDPR Art. 33", "33", "explicit")])
         self.assertEqual(self.scan("GDPR Art. 33 and 72 h"), [("GDPR Art. 33", "33", "explicit")])
         self.assertEqual(self.scan("GDPR Art. 83 and 20 million euro"),
@@ -76529,23 +76545,23 @@ class ProvisionIndexTests(LinterTestCase):
 
     def test_thousands_separator_not_a_list(self) -> None:
         # Kills removing _NOT_THOUSANDS ("and 1,000 users" gained Art. 1 and
-        # Art. 000; round-3 QA latent shape). A spaced list is untouched.
+        # Art. 000; a latent shape). A spaced list is untouched.
         self.assertEqual(self.scan("GDPR Art. 6 and 1,000 users"), [("GDPR Art. 6", "6", "explicit")])
         self.assertEqual([k for k, _p, _t in self.scan("GDPR Arts. 33, 34")],
                          ["GDPR Art. 33", "GDPR Art. 34"])
 
     def test_unique_rows_keeps_distinct_tiers(self) -> None:
-        # Kills dropping c.tier from the unique_rows identity (round-3 QA: no test
-        # reached it): the same pinpoint on one line can resolve at two tiers, and
-        # the trusted/candidate split must see both rows.
+        # Kills dropping c.tier from the unique_rows identity (no test reached it
+        # before this one): the same pinpoint on one line can resolve at two
+        # tiers, and the trusted/candidate split must see both rows.
         rows = self.pc.unique_rows(self.pc.scan_text("x.md", "GDPR Art. 33; notify (Art. 33)"))
         self.assertEqual([c.tier for c in rows], ["explicit", "line"])
 
     def test_excluded_generated_artefacts_not_scanned(self) -> None:
-        # Kills removing entries from EXCLUDED_FILES (round-3 QA: no test reached
-        # it): generated artefacts derive from sources already in scope, so a hit
+        # Kills removing entries from EXCLUDED_FILES (no test reached it before this
+        # one): generated artefacts derive from sources already in scope, so a hit
         # there is not a sibling. The names are spelled here, not read from the
-        # constant, so shrinking the constant cannot shrink the check. FX5a: the scan
+        # constant, so shrinking the constant cannot shrink the check. The scan
         # covers the registers directory too, so the manifest's exclusion is tested
         # where the scan could reach it.
         registers = ".claude/skills/corpus-management/registers"
@@ -76558,15 +76574,15 @@ class ProvisionIndexTests(LinterTestCase):
             self.assertNotIn(excluded, paths)
 
     def test_abbreviated_decimal_range_endpoint(self) -> None:
-        # Round-4 QA (claude 1, codex 1): compliance/healthcare/annex-healthcare-sector-
-        # requirements.md:237, "HIPAA §164.400 to 414", keyed a false EXPLICIT
-        # "HIPAA (45 CFR) s. 414". Kills reverting expand_body's decimal-range branch
-        # (the endpoint keeps its shorthand form). Round-5 QA (claude F1): the interior
-        # it then listed (164.401 ... 164.413) keyed seven sections 45 CFR does not have
-        # (Part 164 Subpart D numbers only the even ones), so a range from a decimal
-        # section indexes its endpoints only. Kills restoring the interior list,
-        # flagged as interior (the PIPEDA case: PIPEDA is in CONTIGUOUS_NUMBERING) or
-        # not (the HIPAA cases).
+        # In the earlier repository, compliance/healthcare/
+        # annex-healthcare-sector-requirements.md:237, "HIPAA §164.400 to 414", keyed
+        # a false EXPLICIT "HIPAA (45 CFR) s. 414". Kills reverting expand_body's
+        # decimal-range branch (the endpoint keeps its shorthand form). The interior
+        # that branch then listed (164.401 ... 164.413) keyed seven sections 45 CFR
+        # does not have (Part 164 Subpart D numbers only the even ones), so a range
+        # from a decimal section indexes its endpoints only. Kills restoring the
+        # interior list, flagged as interior (the PIPEDA case: PIPEDA is in
+        # CONTIGUOUS_NUMBERING) or not (the HIPAA cases).
         self.assertEqual(self.scan("HIPAA §164.400 to 414"),
                          [("HIPAA (45 CFR) s. 164.400", "164.400", "explicit"),
                           ("HIPAA (45 CFR) s. 164.414", "164.414", "explicit")])
@@ -76595,20 +76611,20 @@ class ProvisionIndexTests(LinterTestCase):
                           (None, "5(2)", "unresolved")])
 
     def test_range_endpoints_keep_cited_pinpoints(self) -> None:
-        # Round-4 QA (gemini) read the endpoints' pinpoints as dropped range context.
-        # That is by design (docstring rule 1): an endpoint is cited directly, with
-        # its own subdivisions; only the interior sections, which the text never
-        # names, carry the range. Kills giving the endpoints the range pinpoint.
+        # The endpoints' pinpoints are not dropped range context. That is by design
+        # (docstring rule 1): an endpoint is cited directly, with its own
+        # subdivisions; only the interior sections, which the text never names, carry
+        # the range. Kills giving the endpoints the range pinpoint.
         got = self.scan("GDPR Arts. 25 to 39(2)")
         self.assertEqual((got[0], got[1], got[-1]),
                          (("GDPR Art. 25", "25", "explicit"), ("GDPR Art. 26", "25 to 39", "explicit"),
                           ("GDPR Art. 39", "39(2)", "explicit")))
 
     def test_prefix_alias_refused_when_tail_names_another_instrument(self) -> None:
-        # Round-4 QA (claude 2): the explicit prefix branch returned before looking at
-        # what FOLLOWS the citation, so "Unlike the GDPR, Article 12 of the Data Act"
-        # keyed GDPR Art. 12 explicitly. Kills dropping other_tail from the prefix
-        # branch, and each of its three alternatives ("of the <Name>", "of that
+        # In the earlier repository, the explicit prefix branch returned before
+        # looking at what FOLLOWS the citation, so "Unlike the GDPR, Article 12 of the
+        # Data Act" keyed GDPR Art. 12 explicitly. Kills dropping other_tail from the
+        # prefix branch, and each of its three alternatives ("of the <Name>", "of that
         # <Word>", a trailing instrument word). A tail naming an alias resolves the
         # citation to THAT instrument through the postfix branch.
         self.assertEqual(self.scan("Unlike the GDPR, Article 12 of the Data Act applies"),
@@ -76621,11 +76637,11 @@ class ProvisionIndexTests(LinterTestCase):
                          [("PIPL Art. 12", "12", "explicit")])
 
     def test_postfix_alias_of_subordinate_instrument_refused(self) -> None:
-        # Round-4 QA (claude 2): a postfix alias that modifies a subordinate
-        # instrument names THAT instrument ("Article 12 of the DORA RTS" is an RTS
-        # article, not DORA Art. 12). Kills removing the _SUBORDINATE_RE refusal. The
-        # section marker is explicit-only, so its refused citation is dropped. A
-        # singular instrument word after the alias is the aliased instrument itself.
+        # A postfix alias that modifies a subordinate instrument names THAT
+        # instrument ("Article 12 of the DORA RTS" is an RTS article, not DORA Art.
+        # 12). Kills removing the _SUBORDINATE_RE refusal. The section marker is
+        # explicit-only, so its refused citation is dropped. A singular instrument
+        # word after the alias is the aliased instrument itself.
         self.assertEqual(self.scan("Article 12 of the DORA RTS"), [(None, "12", "unresolved")])
         self.assertEqual(self.scan("s. 7012 CCPA Regulations"), [(None, "7012", "unresolved")])
         self.assertEqual(self.scan("Article 4 of the NIS2 Implementing Regulation"),
@@ -76636,26 +76652,26 @@ class ProvisionIndexTests(LinterTestCase):
                          [("HIPAA (45 CFR) s. 164.308", "164.308", "explicit")])
 
     def test_conjoined_unknown_member_dropped(self) -> None:
-        # Round-4 QA (claude 3a): kills dropping _known from the conjoined-member loop
-        # (the mutant survived all round-3 tests): "AI Act / EU AI Act Art. 50" would
-        # add an "AI Act (jurisdiction unresolved)" record, a key rule 4 reserves for
-        # alias MENTIONS, never for an adjacency.
+        # Kills dropping _known from the conjoined-member loop (the mutant survived
+        # all earlier tests): "AI Act / EU AI Act Art. 50" would add an "AI Act
+        # (jurisdiction unresolved)" record, a key rule 4 reserves for alias MENTIONS,
+        # never for an adjacency.
         self.assertEqual(self.scan("AI Act / EU AI Act Art. 50"),
                          [("EU AI Act Art. 50", "50", "explicit")])
 
     def test_bracket_gloss_check_stops_at_bracket_close(self) -> None:
-        # Round-4 QA (claude 3b): kills widening the gloss check past the bracket
-        # close (post[:close] -> post; the mutant survived). dev-security/
-        # standard-security-baseline-and-standards-reference.md:198, one of the four
-        # #2649 trusted siblings, names Quebec Law 25 AFTER the bracket closes, which
-        # is not a gloss, so the PIPEDA records stay explicit.
+        # Kills widening the gloss check past the bracket close (post[:close] -> post;
+        # the mutant survived). dev-security/
+        # standard-security-baseline-and-standards-reference.md:198, a document the
+        # sibling audit trusts, names Quebec Law 25 AFTER the bracket closes, which is
+        # not a gloss, so the PIPEDA records stay explicit.
         self.assertEqual(self.scan("under PIPEDA (s. 10.1(2) and (6)), and promptly under Quebec Law 25"),
                          [("PIPEDA s. 10.1", "10.1(2)", "explicit"),
                           ("PIPEDA s. 10.1", "10.1(6)", "explicit")])
 
     def test_comma_prefix_tail_is_explicit(self) -> None:
-        # Round-4 QA (claude 3c): kills removing the "," from _PREFIX_TAIL_RE (the
-        # mutant survived; the colon had a test, the comma none). The first case is
+        # Kills removing the "," from _PREFIX_TAIL_RE (the mutant survived; the
+        # colon had a test, the comma none). The first case is
         # compliance/public-sector/annex-eidas-requirements.md:123, which the mutant
         # turns into an unresolved comma-identifier refusal; the second demotes to a
         # line-tier candidate.
@@ -76665,10 +76681,10 @@ class ProvisionIndexTests(LinterTestCase):
                          [("LGPD Art. 18", "18", "explicit")])
 
     def test_body_name_is_not_a_citation(self) -> None:
-        # Round-4 QA (claude): "Article 29 Working Party" names the EDPB's predecessor,
-        # and was keyed GDPR Art. 29 at the section and line tiers (governance/
-        # register-canonical-citations.md:385-394, privacy/
-        # standard-pseudonymization-and-anonymization.md:150); next to an alias it
+        # "Article 29 Working Party" names the EDPB's predecessor; in the earlier
+        # repository it was keyed GDPR Art. 29 at the section and line tiers
+        # (governance/register-canonical-citations.md:385-394, privacy/
+        # standard-pseudonymization-and-anonymization.md:150), and next to an alias it
         # came out explicit. Kills removing the _BODY_NAME_RE skip.
         self.assertEqual(self.scan("GDPR Article 29 Working Party guidance applies"), [])
         self.assertEqual(self.scan("## GDPR\n\nThe Art. 29 WP opinion on anonymisation.\n"), [])
@@ -76676,11 +76692,11 @@ class ProvisionIndexTests(LinterTestCase):
                          [("GDPR Art. 29", "29", "explicit")])
 
     def test_postfix_claimed_alias_not_reused_by_line_tier(self) -> None:
-        # Round-4 QA (claude): ai/jurisdictions/annex-ai-european-union.md:68 keyed the
-        # AI Act's "Article 27(4)" as GDPR Art. 27 at the line tier because "Article 35
-        # GDPR" came earlier on the prose line. A postfix alias binds to its own
-        # citation, so the line tier skips it. Kills removing the claimed set, and
-        # kills claiming PREFIX aliases too (the last case: a prefix alias still
+        # In the earlier repository, ai/jurisdictions/annex-ai-european-union.md:68
+        # keyed the AI Act's "Article 27(4)" as GDPR Art. 27 at the line tier because
+        # "Article 35 GDPR" came earlier on the prose line. A postfix alias binds to
+        # its own citation, so the line tier skips it. Kills removing the claimed set,
+        # and kills claiming PREFIX aliases too (the last case: a prefix alias still
         # seeds the line tier).
         self.assertEqual(self.scan("Where the DPIA under Article 35 GDPR already meets it, Article 27(4) applies."),
                          [("GDPR Art. 35", "35", "explicit"), (None, "27(4)", "unresolved")])
@@ -76688,14 +76704,14 @@ class ProvisionIndexTests(LinterTestCase):
                          [("GDPR Art. 33", "33", "explicit"), ("GDPR Art. 34", "34", "line")])
 
     def test_point_designation_does_not_defeat_postfix(self) -> None:
-        # Round-4 QA (gemini): privacy/jurisdictions/annex-privacy-european-union.md:38,
-        # "under Article 9(2), point (g), of the GDPR", fell to the line tier as EU AI
-        # Act Art. 9 because the point designation broke the postfix lead. Kills
-        # removing _POINT from _POSTFIX_LEAD_RE (first two cases; in the first, the
-        # claimed GDPR alias also lets the second "Article 4a" resolve) and from
-        # _OF_OTHER_RE (third: crypto/standard-crypto-asset-reserve-and-prudential-
-        # requirements.md:39, "Article 2, point (9), of Regulation (EU) 2017/1131",
-        # was MiCA Art. 2 at the line tier).
+        # In the earlier repository, privacy/jurisdictions/
+        # annex-privacy-european-union.md:38, "under Article 9(2), point (g), of the
+        # GDPR", fell to the line tier as EU AI Act Art. 9 because the point
+        # designation broke the postfix lead. Kills removing _POINT from
+        # _POSTFIX_LEAD_RE (first two cases; in the first, the claimed GDPR alias also
+        # lets the second "Article 4a" resolve) and from _OF_OTHER_RE (third: crypto/
+        # standard-crypto-asset-reserve-and-prudential-requirements.md:39, "Article 2,
+        # point (9), of Regulation (EU) 2017/1131", was MiCA Art. 2 at the line tier).
         self.assertEqual(self.scan("The EU AI Act's new Article 4a supplies a basis under Article 9(2), "
                                    "point (g), of the GDPR, within the limits Article 4a sets out"),
                          [("EU AI Act Art. 4a", "4a", "line"), ("GDPR Art. 9", "9(2)", "explicit"),
@@ -76707,20 +76723,21 @@ class ProvisionIndexTests(LinterTestCase):
                          [("MiCA Art. 36", "36(11)", "explicit"), (None, "2", "unresolved")])
 
     def test_day_of_month_not_absorbed(self) -> None:
-        # Round-4 QA (claude): "EU AI Act Art. 113 and 2 August 2026" gained an explicit
-        # EU AI Act Art. 2 (latent; no corpus hit). Kills removing the month names
-        # from _UNIT, including the abbreviated ones.
+        # In the earlier repository, "EU AI Act Art. 113 and 2 August 2026" gained an
+        # explicit EU AI Act Art. 2 (latent; no corpus hit). Kills removing the month
+        # names from _UNIT, including the abbreviated ones.
         self.assertEqual(self.scan("EU AI Act Art. 113 and 2 August 2026"),
                          [("EU AI Act Art. 113", "113", "explicit")])
         self.assertEqual([k for k, _p, _t in self.scan("EU AI Act Arts. 5 and 113, and 2 Aug. 2026")],
                          ["EU AI Act Art. 5", "EU AI Act Art. 113"])
 
     def test_unit_after_quantity_adjective_not_absorbed(self) -> None:
-        # Round-4 QA (gemini): the unit guard saw only the token straight after the
-        # number, so "and 2 further months" gained Art. 2, and the non-canonical
-        # "and 36h" gained Art. 36h (latent; no corpus hit). Kills removing the
-        # quantity-adjective slot from _UNIT and narrowing _NOT_SHORTHAND back to
-        # 24/48/72. A letter-suffixed article stays parseable.
+        # In the earlier repository, the unit guard saw only the token straight
+        # after the number, so "and 2 further months" gained Art. 2, and the
+        # non-canonical "and 36h" gained Art. 36h (latent; no corpus hit). Kills
+        # removing the quantity-adjective slot from _UNIT and narrowing
+        # _NOT_SHORTHAND back to 24/48/72. A letter-suffixed article stays
+        # parseable.
         self.assertEqual(self.scan("GDPR Art. 12(3) and 2 further months"),
                          [("GDPR Art. 12", "12(3)", "explicit")])
         self.assertEqual(self.scan("GDPR Art. 33 and 36h"), [("GDPR Art. 33", "33", "explicit")])
@@ -76728,11 +76745,11 @@ class ProvisionIndexTests(LinterTestCase):
                          ["GDPR Art. 5g", "GDPR Art. 5h"])
 
     def test_parse_key_accepts_printed_keys(self) -> None:
-        # Round-4 QA (claude): keys the tools PRINT were refused by --key / --provision
-        # (exit 2), because a canonical name with a bracketed qualifier ("PDPA
-        # (Singapore)", "HIPAA (45 CFR)") is not an alias. Kills removing
-        # parse_key's canonical-name branch, and kills dropping its marker-family
-        # check (the Art. form of an s.-style instrument is still refused).
+        # In the earlier repository, keys the tools PRINT were refused by --key /
+        # --provision (exit 2), because a canonical name with a bracketed qualifier
+        # ("PDPA (Singapore)", "HIPAA (45 CFR)") is not an alias. Kills removing
+        # parse_key's canonical-name branch, and kills dropping its marker-family check
+        # (the Art. form of an s.-style instrument is still refused).
         for key in ("PDPA (Singapore) s. 26D", "CPPA (Canada) s. 63", "PDPL (Vietnam) Art. 39",
                     "HIPAA (45 CFR) s. 164.308", "PDPA (jurisdiction unresolved) s. 26D"):
             self.assertEqual(self.pc.parse_key(key), key)
@@ -76742,16 +76759,17 @@ class ProvisionIndexTests(LinterTestCase):
 
     def test_every_printed_corpus_key_round_trips(self) -> None:
         # Every key the index prints over the real corpus parses back to itself
-        # (at b03d3775, 120 of the 689 did not).
+        # (in the earlier repository, 120 of the 689 did not).
         pc = self.pc
         index = pc.group_by_key(pc.scan_files(pc.corpus_files(list(pc.DEFAULT_SCAN_ROOTS))))
         self.assertGreater(len(index), 100)
         self.assertEqual([k for k in sorted(index) if pc.parse_key(k) != k], [])
 
     def test_build_unresolved_listing_is_sorted(self) -> None:
-        # Round-4 QA (gemini): the unresolved bucket was listed in scan order, while
-        # every other listing is path- and line-sorted. Kills removing the sort
-        # (the scan order is reversed here, in-process, with no fixture files).
+        # In the earlier repository, the unresolved bucket was listed in scan
+        # order, while every other listing is path- and line-sorted. Kills removing
+        # the sort (the scan order is reversed here, in-process, with no fixture
+        # files).
         import contextlib
         import io
         import json
@@ -76769,13 +76787,12 @@ class ProvisionIndexTests(LinterTestCase):
         self.assertEqual([(r["path"], r["line"]) for r in rows], [("a.md", 1), ("a.md", 2), ("b.md", 1)])
 
     def test_range_interior_only_for_contiguous_numbering(self) -> None:
-        # Round-5 QA (claude F1): a range's interior is a list of numbers the text never
-        # names, and it is a list of PROVISIONS only where the instrument numbers
-        # without gaps (SOX numbers by title; 45 CFR Part 164 Subpart D has only even
-        # sections). The interior is keyed only under CONTIGUOUS_NUMBERING, and an
-        # unresolved range records its endpoints only. Kills dropping the contiguity
-        # filter (SOX gains s. 303 to s. 305) and keeping unresolved interiors (the
-        # Ley range gains an unresolved Art. 4).
+        # A range's interior is a list of numbers the text never names, and it is a list
+        # of PROVISIONS only where the instrument numbers without gaps (SOX numbers by
+        # title; 45 CFR Part 164 Subpart D has only even sections). The interior is keyed
+        # only under CONTIGUOUS_NUMBERING, and an unresolved range records its endpoints
+        # only. Kills dropping the contiguity filter (SOX gains s. 303 to s. 305) and
+        # keeping unresolved interiors (the Ley range gains an unresolved Art. 4).
         self.assertEqual([k for k, _p, _t in self.scan("SOX Sections 302 to 306")],
                          ["SOX s. 302", "SOX s. 306"])
         self.assertEqual(self.scan("Ley Arts 3 to 5"), [(None, "3", "unresolved"), (None, "5", "unresolved")])
@@ -76799,14 +76816,13 @@ class ProvisionIndexTests(LinterTestCase):
             self.assertNotIn(sparse, self.pc.CONTIGUOUS_NUMBERING)
 
     def test_structural_or_self_noun_tail_keeps_prefix_alias(self) -> None:
-        # Round-5 QA (claude F2, codex R5-02): the round-5 tail refusal read any "of +
-        # capitalized word" or trailing instrument word as another instrument, so
-        # correct prefix citations became unresolved (the "§" one was dropped outright).
-        # A structural qualifier names a division, and the alias's own generic noun
-        # (SELF_NOUNS) re-names the alias. Kills dropping _STRUCT from the tail lead
-        # or matching it non-possessively (first case), dropping the SELF_NOUNS
-        # exemption (second to fourth) and dropping the Code of Conduct lookahead
-        # (fifth).
+        # In the earlier repository, the tail refusal read any "of + capitalized word"
+        # or trailing instrument word as another instrument, so correct prefix
+        # citations became unresolved (the "§" one was dropped outright). A structural
+        # qualifier names a division, and the alias's own generic noun (SELF_NOUNS)
+        # re-names the alias. Kills dropping _STRUCT from the tail lead or matching it
+        # non-possessively (first case), dropping the SELF_NOUNS exemption (second to
+        # fourth) and dropping the Code of Conduct lookahead (fifth).
         for text, key in (("GDPR Article 12 of Chapter III", "GDPR Art. 12"),
                           ("PIPEDA s. 10.1 of the Act", "PIPEDA s. 10.1"),
                           ("the GDPR Article 83 of the Regulation", "GDPR Art. 83"),
@@ -76830,11 +76846,11 @@ class ProvisionIndexTests(LinterTestCase):
             self.assertEqual(self.scan(text), [(None, "12", "unresolved")], text)
 
     def test_lowercase_subordinate_instrument_refused(self) -> None:
-        # Round-5 QA (codex R5-01): the subordinate-instrument refusal matched only
-        # capitalized descriptors, so lowercase wording keyed the parent statute
-        # explicitly. Kills dropping the lowercase branch (first two cases) and
-        # limiting its intervening words to capitalized ones (third; the Section
-        # marker is explicit-only, so the refused citation is dropped).
+        # In the earlier repository, the subordinate-instrument refusal matched
+        # only capitalized descriptors, so lowercase wording keyed the parent
+        # statute explicitly. Kills dropping the lowercase branch (first two cases)
+        # and limiting its intervening words to capitalized ones (third; the
+        # Section marker is explicit-only, so the refused citation is dropped).
         self.assertEqual(self.scan("s. 7012 CCPA regulations"), [(None, "7012", "unresolved")])
         self.assertEqual(self.scan("Article 12 of the NIS2 implementing regulation"),
                          [(None, "12", "unresolved")])
@@ -76851,44 +76867,45 @@ class ProvisionIndexTests(LinterTestCase):
             self.assertEqual([(k, t) for k, _p, t in self.scan(text)], [(key, "explicit")], text)
 
     def test_bound_postfix_alias_conflicting_heading_refuses(self) -> None:
-        # Round-5 QA (claude N1): a bare citation whose only earlier alias is bound to an
-        # earlier postfix citation fell to the heading chain, which can name a different
-        # instrument ("## NIS2 reporting" keyed the GDPR's Article 34 as NIS2 Art. 34).
-        # That conflict is refused; a heading naming the same instrument still resolves
-        # it. Kills removing the refusal (first case) and refusing whenever an alias is
-        # bound (second).
+        # In the earlier repository, a bare citation whose only earlier alias is bound to
+        # an earlier postfix citation fell to the heading chain, which can name a
+        # different instrument ("## NIS2 reporting" keyed the GDPR's Article 34 as NIS2
+        # Art. 34). That conflict is refused; a heading naming the same instrument still
+        # resolves it. Kills removing the refusal (first case) and refusing whenever an
+        # alias is bound (second).
         text = "## NIS2 reporting\n\nArticle 33 of the GDPR applies; Article 34 covers data subjects.\n"
         self.assertEqual(self.scan(text), [("GDPR Art. 33", "33", "explicit"), (None, "34", "unresolved")])
         text = "## GDPR breach duties\n\nArticle 33 of the GDPR applies; Article 34 covers data subjects.\n"
         self.assertEqual(self.scan(text), [("GDPR Art. 33", "33", "explicit"), ("GDPR Art. 34", "34", "heading")])
 
     def test_body_name_drops_only_its_29(self) -> None:
-        # Round-5 QA (claude N2): the body-name skip dropped the WHOLE citation before
-        # "WP" / "Working Party", whatever it cited; only the trailing "29" names the
-        # body. Kills skipping the whole body again (first two cases) and dropping the
-        # "Data Protection" spelling (third).
+        # In the earlier repository, the body-name skip dropped the WHOLE citation
+        # before "WP" / "Working Party", whatever it cited; only the trailing "29"
+        # names the body. Kills skipping the whole body again (first two cases) and
+        # dropping the "Data Protection" spelling (third).
         self.assertEqual(self.scan("GDPR Arts. 28 and 29 WP guidance"), [("GDPR Art. 28", "28", "explicit")])
         self.assertEqual(self.scan("GDPR Article 35 WP 248 criteria"), [("GDPR Art. 35", "35", "explicit")])
         self.assertEqual(self.scan("## GDPR\n\nThe Article 29 Data Protection Working Party opinion.\n"), [])
 
     def test_point_designation_before_of_this_refuses(self) -> None:
-        # Round-5 QA (claude N3): kills removing _POINT from the tail lead of the "of this
-        # <Word>" refusal (the mutant survived round 5); without it the table row keys
-        # DORA Art. 5 at the line tier.
+        # Kills removing _POINT from the tail lead of the "of this <Word>" refusal (the
+        # mutant survived the earlier tests); without it the table row keys DORA Art. 5 at
+        # the line tier.
         self.assertEqual(self.scan("| DORA | Article 5, point (a), of this Regulation |"),
                          [(None, "5", "unresolved")])
 
     def test_branch_fold_keeps_endpoint_doubt(self) -> None:
-        # Round-5 QA (claude N3): kills setting the branch fold's certainty to True (the
-        # mutant survived round 5): a branch-numbered fold of a doubtful decimal-range
-        # endpoint stays doubtful, so "5-2" is never keyed.
+        # Kills setting the branch fold's certainty to True (the mutant survived the
+        # earlier tests): a branch-numbered fold of a doubtful decimal-range endpoint
+        # stays doubtful, so "5-2" is never keyed.
         self.assertEqual(self.scan("PIPEDA ss. 3.1 to 5-2"),
                          [("PIPEDA s. 3.1", "3.1", "explicit"), (None, "5-2", "unresolved")])
 
     def test_parse_key_canonical_branch_needs_bare_key(self) -> None:
-        # Round-5 QA (claude N4): the canonical-name branch fired on any text starting
-        # with a canonical name, so parse_key skipped the scanner's explicit-tier
-        # refusals. It now takes a bare key only. Kills dropping the end-of-text test.
+        # In the earlier repository, the canonical-name branch fired on any text
+        # starting with a canonical name, so parse_key skipped the scanner's
+        # explicit-tier refusals. It now takes a bare key only. Kills dropping the
+        # end-of-text test.
         self.assertEqual(self.pc.parse_key("GDPR Art. 33 of the DORA"), "DORA Art. 33")
         self.assertIsNone(self.pc.parse_key("GDPR Article 12 of the Data Act"))
         self.assertEqual(self.pc.parse_key("GDPR Art. 33"), "GDPR Art. 33")
@@ -76928,8 +76945,8 @@ class ProvisionIndexTests(LinterTestCase):
         self.assertIn("names no instrument", result.stderr)
 
     def test_build_accepts_printed_key(self) -> None:
-        # Round-4 QA (claude): a key exactly as the report prints it is accepted back
-        # by --key (it exited 2 before).
+        # A key exactly as the report prints it is accepted back by --key (in the
+        # earlier repository it exited 2).
         a = self.make_fixture("hipaa.md", "# H\n\nSafeguards (HIPAA §164.308(a)(1)).\n")
         result = run_linter(self.BUILD, a.parent, "--key", "HIPAA (45 CFR) s. 164.308")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -76938,14 +76955,14 @@ class ProvisionIndexTests(LinterTestCase):
         self.assertIn(a.name + ":3  164.308(a)(1)  [explicit]", result.stdout)
 
     def test_schedule_or_annex_tail_refuses(self) -> None:
-        # Round-6 QA (claude R6-01): "Schedule" and "Annex" sat in the structural
+        # In the earlier repository, "Schedule" and "Annex" sat in the structural
         # qualifier list, but a schedule or annex numbers its OWN clauses ("s. 4.3
-        # of Schedule 1" is clause 4.3 of PIPEDA's Schedule 1 — the CSA Model
-        # Code — not the Act's s. 4.3), so skipping the tail keyed the parent
-        # instrument's section, explicitly (and at the heading tier under a
-        # PIPEDA heading). The tail now refuses. Kills restoring "[Ss]chedule" to
-        # _STRUCT (the PIPEDA cases) and "[Aa]nnex" (the UK GDPR case); the
-        # explicit-only section marker drops its refused record.
+        # of Schedule 1" is clause 4.3 of PIPEDA's Schedule 1 — the CSA Model Code
+        # — not the Act's s. 4.3), so skipping the tail keyed the parent
+        # instrument's section, explicitly (and at the heading tier under a PIPEDA
+        # heading). The tail now refuses. Kills restoring "[Ss]chedule" to _STRUCT
+        # (the PIPEDA cases) and "[Aa]nnex" (the UK GDPR case); the explicit-only
+        # section marker drops its refused record.
         self.assertEqual(self.scan("PIPEDA s. 4.3 of Schedule 1"), [(None, "4.3", "unresolved")])
         self.assertEqual(self.scan("section 2 of Schedule 1 of PIPEDA"), [])
         self.assertEqual(self.scan("UK GDPR Art. 9 of Annex 1"), [(None, "9", "unresolved")])
@@ -76956,14 +76973,14 @@ class ProvisionIndexTests(LinterTestCase):
                          [("GDPR Art. 12", "12", "explicit")])
 
     def test_self_noun_continued_title_refused(self) -> None:
-        # Round-6 QA (claude R6-02, codex R6-01): the self-noun guard's
-        # title-continuation lookahead knew only "on", "of" and "for", so "of the
-        # Act respecting ..." (Quebec's P-39.1) and "of the Regulation laying
-        # down harmonised rules ..." (the AI Act) re-named the prefix alias and
-        # were trusted explicitly. Kills narrowing _TITLE_CONTINUATION back: one
-        # case per reported word ("respecting", "laying", "implementing") plus
-        # the Canadian "Act to promote ..." long-title form; the bare noun and
-        # the prose recall pins stay explicit.
+        # In the earlier repository, the self-noun guard's title-continuation
+        # lookahead knew only "on", "of" and "for", so "of the Act respecting
+        # ..." (Quebec's P-39.1) and "of the Regulation laying down harmonised
+        # rules ..." (the AI Act) re-named the prefix alias and were trusted
+        # explicitly. Kills narrowing _TITLE_CONTINUATION back: one case per
+        # added word ("respecting", "laying", "implementing") plus the Canadian
+        # "Act to promote ..." long-title form; the bare noun and the prose
+        # recall pins stay explicit.
         for text, section in (
                 ("PIPEDA s. 7 of the Act respecting the protection of personal "
                  "information in the private sector", "7"),
@@ -76980,15 +76997,15 @@ class ProvisionIndexTests(LinterTestCase):
             self.assertEqual([(k, t) for k, _p, t in self.scan(text)], [(key, "explicit")], text)
 
     def test_lowercase_schedule_or_annex_tail_refuses(self) -> None:
-        # Round-7 QA (codex R7-01, claude F2): _OF_OTHER_RE's bare [A-Z] test
-        # refused only CAPITALIZED schedule/annex tails, so "of schedule 1" and
-        # "of annex II" re-keyed the attachment's clause to the parent
-        # instrument's own section, explicitly (and at the heading tier under a
-        # PIPEDA heading). The word now refuses in any capitalization
-        # ("appendix" too: its capitalized form already refused via [A-Z]).
-        # Kills narrowing the scoped (?i:...) alternative back to [A-Z]; the
-        # last case kills dropping its \b ("of scheduled ..." is prose, not an
-        # attachment tail, and keeps the prefix alias).
+        # In the earlier repository, _OF_OTHER_RE's bare [A-Z] test refused
+        # only CAPITALIZED schedule/annex tails, so "of schedule 1" and "of
+        # annex II" re-keyed the attachment's clause to the parent instrument's
+        # own section, explicitly (and at the heading tier under a PIPEDA
+        # heading). The word now refuses in any capitalization ("appendix" too:
+        # its capitalized form already refused via [A-Z]). Kills narrowing the
+        # scoped (?i:...) alternative back to [A-Z]; the last case kills
+        # dropping its \b ("of scheduled ..." is prose, not an attachment tail,
+        # and keeps the prefix alias).
         self.assertEqual(self.scan("PIPEDA s. 4.3 of schedule 1"), [(None, "4.3", "unresolved")])
         self.assertEqual(self.scan("UK GDPR Art. 9 of annex II"), [(None, "9", "unresolved")])
         self.assertEqual(self.scan("GDPR Article 5 of appendix 2"), [(None, "5", "unresolved")])
@@ -76998,13 +77015,13 @@ class ProvisionIndexTests(LinterTestCase):
                          [("GDPR Art. 30", "30", "explicit")])
 
     def test_title_case_continued_title_refused(self) -> None:
-        # Round-7 QA (claude F1): the _TITLE_CONTINUATION lookahead inside
-        # _SELF_NOUN_RE was case-sensitive, so a TITLE-CASE long title ("of the
-        # Act Respecting ...", "of the Regulation Laying Down ..."), the form
-        # secondary sources often use, re-named the prefix alias and was
-        # trusted explicitly while the lowercase form refused. The continuation
-        # words now match case-insensitively. Kills scoping the (?i:...) group
-        # back to (?:...); the bare self-noun stays explicit.
+        # In the earlier repository, the _TITLE_CONTINUATION lookahead inside
+        # _SELF_NOUN_RE was case-sensitive, so a TITLE-CASE long title ("of
+        # the Act Respecting ...", "of the Regulation Laying Down ..."), the
+        # form secondary sources often use, re-named the prefix alias and was
+        # trusted explicitly while the lowercase form refused. The
+        # continuation words now match case-insensitively. Kills scoping the
+        # (?i:...) group back to (?:...); the bare self-noun stays explicit.
         for text, section in (
                 ("PIPEDA s. 7 of the Act Respecting the Protection of Personal "
                  "Information in the Private Sector", "7"),
@@ -77017,20 +77034,18 @@ class ProvisionIndexTests(LinterTestCase):
 
 class StoreScopeCeilingTests(LinterTestCase):
     """lint_common's shared store scope and its use by gate 50 (row integrity, worker provenance)
-    and gate 59 (detailed-mirror header parity), maintainer ruling 2026-09-30 17:07Z (option B,
-    simplified 21:03Z).
+    and gate 59 (detailed-mirror header parity).
 
     The invariant every test here serves: a missing or wrong record for a merged PR or for the
     branch's declared own PR is never deferred, and ambiguity fails closed (no deferral). Under a
-    clean-base scope (3b217, maintainer 2026-10-22) no own PR is known, so an undeclared
-    (trailer-only) own PR's entries defer until it merges. A branch declares
-    its own PR through the single new singular root header naming a PR absent from the merge-base
-    root headers and from origin/main's root headers and merge subjects, all read offline; no
-    other ref is consulted, and historical edits, roll-ups, a merged PR's header and fenced or
-    commented example headers never declare. One shared case-insensitive grammar reads every PR
-    identity and range. Every reader is raw (no masking); mirror uncertainty (unknown or
-    unrecognized boundaries, fence or comment delimiters) disables further deferral. Each method
-    names the round-6 old test it restores or the finding it pins."""
+    clean-base scope no own PR is known, so an undeclared (trailer-only) own PR's entries defer
+    until it merges. A branch declares its own PR through the single new singular root header
+    naming a PR absent from the merge-base root headers and from origin/main's root headers and
+    merge subjects, all read offline; no other ref is consulted, and historical edits, roll-ups,
+    a merged PR's header and fenced or commented example headers never declare. One shared
+    case-insensitive grammar reads every PR identity and range. Every reader is raw (no masking);
+    mirror uncertainty (unknown or unrecognized boundaries, fence or comment delimiters) disables
+    further deferral."""
 
     def setUp(self) -> None:
         super().setUp()
@@ -77076,9 +77091,9 @@ class StoreScopeCeilingTests(LinterTestCase):
             rc = function(*args)
         return rc, out.getvalue(), err.getvalue()
 
-    # EP8b item 1: gate 59's root grammar requires the "# Changelog" title as the root's first
-    # non-blank line (EP8a item 5, ep7qa), so every gate 59 fixture root, and the origin/main root
-    # it is compared against, gets it as 1 added line 1 unless the text already starts with it.
+    # Gate 59's root grammar requires the "# Changelog" title as the root's first non-blank line,
+    # so every gate 59 fixture root, and the origin/main root it is compared against, gets it as 1
+    # added line 1 unless the text already starts with it.
     ROOT_TITLE_LINE = "# Changelog\n"
 
     @classmethod
@@ -77088,7 +77103,7 @@ class StoreScopeCeilingTests(LinterTestCase):
 
     def mirror_gate(self, root: str, mirror: str, scope):
         """Gate 59's main() in process, with a fixed scope and in-memory surfaces; the root gets
-        the ``# Changelog`` title (EP8b)."""
+        the ``# Changelog`` title."""
         root = self.titled(root)
         with self.patch.object(self.mp, "resolve_working", return_value=Path("/mirror")), \
                 self.patch.object(self.mp, "read_text_safe",
@@ -77137,11 +77152,11 @@ class StoreScopeCeilingTests(LinterTestCase):
         return f"**2026-11-{8 + pr:02d} | 2026.12.{pr} | PR #{pr}**\n"
 
     def test_epoch_branch_missing_its_own_mirror_entry_fails(self) -> None:
-        # EP1 research shape S3: a branch declares new PR #3 in its root, but the store mirror
-        # holds no entry for #3 at all, so no #3 header is offered to deferral and this test does
-        # not exercise own-PR deferral protection. The root header is compared (CUTOFF_PR is 1
-        # and there is no floor), so the gate fails naming #3 (under the old floor of 463 it
-        # passed). Probe P7 below covers an own entry missing while another open PR's is present.
+        # A branch declares new PR #3 in its root, but the store mirror holds no entry for #3 at
+        # all, so no #3 header is offered to deferral and this test does not exercise own-PR
+        # deferral protection. The root header is compared (CUTOFF_PR is 1 and there is no floor),
+        # so the gate fails naming #3 (under the old floor of 463 it passed). The next test covers
+        # an own entry missing while another open PR's is present.
         base = self.new_header(2) + self.new_header(1)
         r = self.run_mirror_gate(self.new_header(3) + base, base, base_root_text=base,
                                  subjects=("First (#1)", "Second (#2)"))
@@ -77149,10 +77164,10 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertIn("MISSING from the detailed mirror (>= #1): #3\n", r.stdout)
 
     def test_epoch_own_pr_missing_while_another_open_pr_is_present_fails(self) -> None:
-        # EP2 item 1, ep1qc probe P7: the branch declares #1 and the store mirror holds only open
-        # PR #2's entry. Under the EP1 floor (#2, taken from the raw mirror before deferral) root
-        # #1 left scope and #2 was deferred, so the gate passed comparing nothing. With no floor,
-        # #1 is compared and named, while #2 still defers as another open PR.
+        # The branch declares #1 and the store mirror holds only open PR #2's entry. Under the
+        # former floor rule (#2, taken from the raw mirror before deferral) root #1 left scope and
+        # #2 was deferred, so the gate passed comparing nothing. With no floor, #1 is compared and
+        # named, while #2 still defers as another open PR.
         r = self.run_mirror_gate(self.new_header(1), self.new_header(2),
                                  base_root_text="# Changelog\n")
         self.assertEqual(r.returncode, 1, r.stdout)
@@ -77161,10 +77176,10 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertIn("declared own PR #1", r.stdout)
 
     def test_epoch_own_pr_missing_while_mirror_holds_high_numbers_fails(self) -> None:
-        # EP2 item 1, ep1qc probe P2c: the branch declares #1 and the mirror holds only entries
-        # numbered #3127 and #3126 dated on EPOCH_START (so not old records). The EP1 floor
-        # became #3126, root #1 left scope and both entries deferred above the ceiling, so the
-        # gate passed. With no floor, #1 is compared and named.
+        # The branch declares #1 and the mirror holds only entries numbered #3127 and #3126 dated
+        # on EPOCH_START (so not old records). Under the former floor rule the floor became #3126,
+        # root #1 left scope and both entries deferred above the ceiling, so the gate passed. With
+        # no floor, #1 is compared and named.
         mirror = ("**2026-11-09 | 2026.12.3128 | PR #3127**\n"
                   "**2026-11-09 | 2026.12.3127 | PR #3126**\n")
         r = self.run_mirror_gate(self.new_header(1), mirror, base_root_text="# Changelog\n")
@@ -77173,9 +77188,9 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertNotIn("at or above #3126", r.stdout)
 
     def test_zero_compared_degraded_line_counts_deferred_headers(self) -> None:
-        # EP2 item 5, ep1qx 5: a weekly-only root and a mirror whose only entry defers. The
-        # DEGRADED line says no PR was compared and gives the deferred count, instead of claiming
-        # that neither file holds a qualifying header.
+        # A weekly-only root and a mirror whose only entry defers. The DEGRADED line says no PR was
+        # compared and gives the deferred count, instead of claiming that neither file holds a
+        # qualifying header.
         scope = self.lc.StoreScope(None, None, 1, None)
         rc, out, _ = self.mirror_gate("# Changelog\n\n## Week of 2026-11-09\n",
                                       self.new_header(5), scope)
@@ -77185,11 +77200,10 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertIn("(1 detailed-mirror header(s) deferred)", out)
 
     def test_epoch_old_mirror_entries_fail_before_deferral(self) -> None:
-        # EP1 research shape S7: old-repository entries (#3127, #3126, dated before EPOCH_START)
-        # left at the top of the store mirror sit above the clean-base ceiling (#2), so the store
-        # scope would defer them as open PRs and the gate would pass having flagged nothing. The
-        # epoch rule runs before deferral: they fail, named as records to archive, and none is
-        # deferred.
+        # Old-repository entries (#3127, #3126, dated before EPOCH_START) left at the top of the
+        # store mirror sit above the clean-base ceiling (#2), so the store scope would defer them
+        # as open PRs and the gate would pass having flagged nothing. The epoch rule runs before
+        # deferral: they fail, named as records to archive, and none is deferred.
         base = self.new_header(2) + self.new_header(1)
         old = ("**2026-10-30 | 2026.10.1760 | PR #3127**\n"
                "**2026-10-29 | 2026.10.1759 | PR #3126**\n")
@@ -77237,18 +77251,18 @@ class StoreScopeCeilingTests(LinterTestCase):
             self.git(root, "branch", "-q", "-D", "parent")
         return text
 
-    # ---- the shared parser and ceiling (old tests 1-9) ----
+    # ---- the shared parser and ceiling ----
 
     def test_ceiling_reads_header_pr_cell_not_summary(self) -> None:
-        # Old 1. Kills: a greedy whole-line token read on an unambiguous compact header (the
-        # summary tail's #9999 would raise the ceiling).
+        # Kills: a greedy whole-line token read on an unambiguous compact header (the summary
+        # tail's #9999 would raise the ceiling).
         text = ("**2026-09-29 | 2026.09.1353 | PR #2649** - routed from #9999\n\n"
                 "**2026-09-29 | 2026.09.1352 | PR #2648** - text\n")
         self.assertEqual(self.lc.store_pr_ceiling(text), 2649)
         self.assertEqual(self.lc.store_pr_ceiling(self.header(521).rstrip() + " - mentions #9999"), 521)
 
     def test_ceiling_reads_legacy_and_rolled_up_forms(self) -> None:
-        # Old 2. Kills: dropping any of the three header alternates from CHANGELOG_HEADER_PRS_RE.
+        # Kills: dropping any of the three header alternates from CHANGELOG_HEADER_PRS_RE.
         lc = self.lc
         self.assertEqual(lc.store_pr_ceiling("## 2026-07-01, Library Version 2026.07.9, PR #521\n"), 521)
         self.assertEqual(lc.store_pr_ceiling("**Week of 2026-09-21 (PRs #2426-#2639)** text\n"), 2639)
@@ -77256,14 +77270,14 @@ class StoreScopeCeilingTests(LinterTestCase):
             lc.store_pr_ceiling("**2026-09-27 | 2026.09.1300 | PRs #2600-#2610 (11 PRs)**\n"), 2610)
 
     def test_no_root_header_means_no_ceiling(self) -> None:
-        # Old 3. Kills: reading a bare-prose `PR #9999` token as a header.
+        # Kills: reading a bare-prose `PR #9999` token as a header.
         for text in (None, "", "# Changelog\n\nprose naming PR #9999\n"):
             self.assertIsNone(self.lc.store_pr_ceiling(text), repr(text))
 
     def test_legacy_multi_pr_header_reads_every_pr_token(self) -> None:
-        # Old 4 (codex r1 finding 4): a repeated `PR` label after `,` or `&` must not end the cell.
-        # Kills: reverting the legacy capture to a `#[\d \t,#and-]` class, and dropping stacked
-        # connectors (the Oxford `, and` case).
+        # A repeated `PR` label after `,` or `&` must not end the cell. Kills: reverting the legacy
+        # capture to a `#[\d \t,#and-]` class, and dropping stacked connectors (the Oxford `, and`
+        # case).
         cases = [
             ("## 2026-09-29, Library Version 2026.09.1354, PR #2650, PR #2649", [2650, 2649]),
             ("## 2026-07-01, Library Version 2026.07.9, PR #520 & PR #521", [520, 521]),
@@ -77275,10 +77289,9 @@ class StoreScopeCeilingTests(LinterTestCase):
                 self.assertEqual(self.lc.store_pr_ceiling(line + "\n"), max(expected))
 
     def test_header_prs_reads_bare_range_endpoints(self) -> None:
-        # Old 5 (claude r2 ERROR 2): a range endpoint without `#` counts on every header form; the
-        # `(N PRs)` count and the version cell never read as PRs. Kills: extracting with the
-        # `#`-requiring token alone (yields the first endpoint only) and dropping `-` from the
-        # connector alternation.
+        # A range endpoint without `#` counts on every header form; the `(N PRs)` count and the
+        # version cell never read as PRs. Kills: extracting with the `#`-requiring token alone
+        # (yields the first endpoint only) and dropping `-` from the connector alternation.
         cases = [
             ("**2026-09-30 | 2026.09.1360 | PRs #2640-2645 (6 PRs)**", [2640, 2645]),
             ("**Week of 2026-09-21 (PRs #2426-2639)**", [2426, 2639]),
@@ -77292,10 +77305,10 @@ class StoreScopeCeilingTests(LinterTestCase):
             self.lc.store_pr_ceiling("**2026-09-30 | 2026.09.1360 | PRs #2655-2657 (3 PRs)**\n"), 2657)
 
     def test_stacked_connectors_and_ambiguous_cells(self) -> None:
-        # Old 6 (codex r2 ERROR 1): Oxford connectors keep every key, so a mixed-scope entry is
-        # kept; a legacy header naming a further #N beyond the cell is AMBIGUOUS: the deferral side
-        # yields [] (kept) while the ceiling side reads the whole line. Kills: a single-connector
-        # run (drops #521 and defers at ceiling 521), and dropping the ambiguity probe.
+        # Oxford connectors keep every key, so a mixed-scope entry is kept; a legacy header naming
+        # a further #N beyond the cell is AMBIGUOUS: the deferral side yields [] (kept) while the
+        # ceiling side reads the whole line. Kills: a single-connector run (drops #521 and defers
+        # at ceiling 521), and dropping the ambiguity probe.
         lc = self.lc
         oxford = "## 2026-07-04, Library Version 2026.07.11, PR #524, PR #525, and PR #521"
         self.assertFalse(lc.above_store_ceiling(lc.changelog_header_prs(oxford), 521))
@@ -77308,10 +77321,10 @@ class StoreScopeCeilingTests(LinterTestCase):
             9999, "the ambiguous tail raises the ceiling (mutant M1 reads 2650)")
 
     def test_ambiguous_cell_ceiling_reads_runs_and_line_tokens(self) -> None:
-        # Old 7 (codex r3 ERROR 1): the ceiling side unions the parsed runs (bare endpoint 530)
-        # with the whole-line tokens (tail #9999), and the protection side uses the same over-read.
-        # Kills: the ambiguous branch reading `#N` tokens alone (520), the runs alone (M1: 520 on
-        # the second fixture), and a protection side that ignores the ambiguous tail.
+        # The ceiling side unions the parsed runs (bare endpoint 530) with the whole-line tokens
+        # (tail #9999), and the protection side uses the same over-read. Kills: the ambiguous
+        # branch reading `#N` tokens alone (520), the runs alone (M1: 520 on the second fixture),
+        # and a protection side that ignores the ambiguous tail.
         lc = self.lc
         text = "## 2026-09-30, Library Version 2026.09.1, PRs #520-530 (follow-up to PR #500)"
         self.assertEqual(lc.changelog_header_prs(text), [])
@@ -77325,8 +77338,8 @@ class StoreScopeCeilingTests(LinterTestCase):
                          "a PR named in an ambiguous root tail is protected, never another open PR")
 
     def test_ceiling_reads_raw_text_examples_can_only_raise_it(self) -> None:
-        # Old 8. NO masking: a fenced or commented header lookalike raises the ceiling, which can
-        # only reduce deferral. Kills: reintroducing any example mask into store_pr_ceiling.
+        # NO masking: a fenced or commented header lookalike raises the ceiling, which can only
+        # reduce deferral. Kills: reintroducing any example mask into store_pr_ceiling.
         fenced = ("```\n**2026-10-01 | 2026.10.1 | PR #9999** - example\n```\n"
                   "**2026-09-29 | 2026.09.1353 | PR #2649** - real\n")
         self.assertEqual(self.lc.store_pr_ceiling(fenced), 9999)
@@ -77335,8 +77348,8 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertEqual(self.lc.store_pr_ceiling(commented), 2650)
 
     def test_above_store_ceiling_is_fail_closed(self) -> None:
-        # Old 9. Kills: `>` -> `>=` (defers the ceiling, the declared own PR), `min` -> `max` (the
-        # mixed entry), dropping the empty-token guard, and dropping the None-ceiling guard.
+        # Kills: `>` -> `>=` (defers the ceiling, the declared own PR), `min` -> `max` (the mixed
+        # entry), dropping the empty-token guard, and dropping the None-ceiling guard.
         f = self.lc.above_store_ceiling
         cases = [([2651], 2650, True), ([2650], 2649, True), ([2650], 2650, False),
                  ([2648, 2651], 2649, False), ([], 2649, False), ([2651], None, False),
@@ -77347,16 +77360,16 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertFalse(f(self.lc.StorePRs([2651], certain=False), 2650),
                          "an uncertain identity is never deferred")
 
-    # ---- mirror deferral flags (old tests 10, 27-30; round-5 ERROR 2; WARN 3; NOTE 1) ----
+    # ---- mirror deferral flags ----
 
     def test_store_deferral_flags_confine_ceiling_deferral_to_the_initial_run(self) -> None:
-        # Old 10, and the unreadable-origin/main half of old 21: without the open-PR rule, ceiling
-        # deferral ends at the first header naming a PR at or below the ceiling, so a lookalike
-        # below the own entry is EVALUATED. Kills (M3): dropping the positional latch (indices 5-6
-        # read deferred), ending the run on ANY boundary (indices 1-2 read kept), and deferring on
-        # a None ceiling. The same latch holds for a StoreScope built without the open-PR rule.
-        # Changed on purpose by round 8: a scope whose origin/main is unreadable declares nothing,
-        # so it defers nothing at all.
+        # Without the open-PR rule, ceiling deferral ends at the first header naming a PR at or
+        # below the ceiling, so a lookalike below the own entry is EVALUATED (the
+        # unreadable-origin/main half of test_mirror_gate_lookalike_below_own_entry). Kills (M3):
+        # dropping the positional latch (indices 5-6 read deferred), ending the run on ANY boundary
+        # (indices 1-2 read kept), and deferring on a None ceiling. The same latch holds for a
+        # StoreScope built without the open-PR rule. A scope whose origin/main is unreadable
+        # declares nothing, so it defers nothing at all.
         lines = ["preamble",
                  "**2026-10-01 | 2026.10.2 | PR #2652** - later PR's entry",
                  "its body",
@@ -77377,14 +77390,14 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertEqual((blind.own_pr, blind.ceiling, blind.open_rule), (None, None, False))
         self.assertEqual([d for d, _ in self.lc.store_deferral_flags(lines, blind)], [False] * 7)
 
-    # ---- the own-PR declaration (old tests 11-13; round-5 ERROR 1; ERROR 2; WARN 2; round-7 F1) ----
+    # ---- the own-PR declaration ----
 
     def test_declared_own_pr_is_the_single_new_root_header(self) -> None:
-        # Old 11. Kept: a new own header declares; an unchanged file and a PR-less new header do
-        # not. Changed on purpose: two new identities no longer resolve to the topmost (WARN 2:
-        # one of them may be a stacked parent's), so the old "topmost wins" and the M2 "maximum
-        # wins" mutants both fail here; an empty merge-base makes every header new and no longer
-        # declares; an edited historical header no longer declares (round-5 ERROR 1).
+        # A new own header declares; an unchanged file and a PR-less new header do not. Two new
+        # identities no longer resolve to the topmost (one of them may be a stacked parent's), so
+        # the old "topmost wins" and the M2 "maximum wins" mutants both fail here; an empty
+        # merge-base makes every header new and no longer declares; an edited historical header no
+        # longer declares.
         lc = self.lc
         base = self._BASE_ROOT
         work = "**2026-07-05 | 2026.07.12 | PR #524** - own\n\n" + base
@@ -77401,9 +77414,9 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertIsNone(lc.declared_own_pr(base.replace(" - t", " - retitled", 1), base))
 
     def test_declaration_checks_range_interiors_and_rejects_unknown_identity(self) -> None:
-        # Round-5 follow-up: a PR inside a base range is not new; a combined new identity, a
-        # PR-less new header and an unrecognized new header (WARN 3 at the declaration) all fail
-        # closed, the last even when a valid own header is also present.
+        # A PR inside a base range is not new; a combined new identity, a PR-less new header and an
+        # unrecognized new header (at the declaration) all fail closed, the last even when a valid
+        # own header is also present.
         lc = self.lc
         base = "**Week of 2026-09-21 (PRs #2400-2659)**\n"
         self.assertIsNone(lc.declared_own_pr(self.header(2500) + base, base))
@@ -77417,11 +77430,12 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertIsNone(lc.declared_own_pr("### 2026-09-30 PR #2660\n" + self.header(2661) + base, base))
 
     def test_open_parent_header_without_own_entry_is_the_stated_residue(self) -> None:
-        # The residue round 8 accepts by removing the stacked-parent concept: a child that has not
-        # yet written its own entry carries only its open parent's header, which offline is
-        # indistinguishable from an own entry, so it declares whether the parent's ref sits at the
-        # stack point or has moved on, and the child's own #2662 then defers. Pinned so that any
-        # change to it is deliberate; the note names the declared PR, so the misdeclaration is loud.
+        # The residue accepted by removing the stacked-parent concept: a child that
+        # has not yet written its own entry carries only its open parent's header,
+        # which offline is indistinguishable from an own entry, so it declares
+        # whether the parent's ref sits at the stack point or has moved on, and
+        # the child's own #2662 then defers. Pinned so that any change to it is
+        # deliberate; the note names the declared PR, so the misdeclaration is loud.
         for parent in ("at-stack-point", "advanced"):
             with self.subTest(parent=parent), tempfile.TemporaryDirectory() as tmp:
                 root = Path(tmp)
@@ -77433,12 +77447,12 @@ class StoreScopeCeilingTests(LinterTestCase):
                               self.lc.store_deferral_note([2662], scope, "h", 1))
 
     def test_store_scope_composes_ceiling_and_gates_deferral_on_the_declaration(self) -> None:
-        # Old 12, plus NOTE 4's M10, revised for 3b217: a clean-base scope uses the root maximum
-        # without declaring an own PR. Kills: a headerless root turning None into 0; the fail-closed
-        # branches (merge-base, origin/main headers, origin/main subjects) keeping a ceiling or
-        # printing nothing; dropping the declaration from the tuple; and `ceiling = own` when an
-        # older own PR sits below a higher root header (M10: #2658 would read as exceeding ceiling
-        # #2655 instead of as another open PR, and #2661 would name the wrong ceiling).
+        # A clean-base scope uses the root maximum without declaring an own PR. Kills: a headerless
+        # root turning None into 0; the fail-closed branches (merge-base, origin/main headers,
+        # origin/main subjects) keeping a ceiling or printing nothing; dropping the declaration
+        # from the tuple; and `ceiling = own` when an older own PR sits below a higher root header
+        # (M10: #2658 would read as exceeding ceiling #2655 instead of as another open PR, and
+        # #2661 would name the wrong ceiling).
         base = self._BASE_ROOT
         work = "**2026-07-05 | 2026.07.12 | PR #524** - own\n\n" + base
         s = self.scope(work, base, base, merged=(520, 521))
@@ -77467,7 +77481,7 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertEqual(reason([2661], s6), "every named PR exceeds store-scope ceiling #2660")
         self.assertIsNone(reason([2659], s6))
 
-    # ---- 3b217 clean-base scope (maintainer "Allow clean-base", 2026-10-22 01:29Z) ----
+    # ---- clean-base scope ----
 
     def test_clean_base_open_entries_above_and_below_ceiling_defer(self) -> None:
         base = self.header(2660) + self.header(2649)
@@ -77523,8 +77537,8 @@ class StoreScopeCeilingTests(LinterTestCase):
         base = self.header(2660) + "**2026-11-29 | MILESTONE:** Historical split.\n"
         mirror = self.header(2662) + base
         r = self.run_mirror_gate(base, mirror, base_root_text=base)
-        # EP6: the milestone still declares nothing (clean-base scope holds and #2662 defers), but
-        # the root grammar admits no milestone line, so the run fails on that line alone.
+        # The milestone still declares nothing (clean-base scope holds and #2662 defers), but the
+        # root grammar admits no milestone line, so the run fails on that line alone.
         self.assertEqual(r.returncode, 1, r.stdout)
         self.assertIn("clean-base", r.stdout)
         self.assertIn("deferred #2662", r.stdout)
@@ -77569,10 +77583,10 @@ class StoreScopeCeilingTests(LinterTestCase):
             self.assertFalse(self.lc.above_store_ceiling([2662], scope))
 
     def test_git_reads_are_offline_and_fail_closed(self) -> None:
-        # Round-6 replacement for old 13's mocked half. Every reader runs local git only, under
-        # the given root; every failure reads as None. Kills: a reader that fetches or calls an
-        # API, or lists any other ref (round 8 reads none; any unlisted command fails), and merge
-        # subjects read from bodies or bare prose `#N`.
+        # The mocked counterpart of test_git_readers_against_a_real_repository. Every reader runs
+        # local git only, under the given root; every failure reads as None. Kills: a reader that
+        # fetches or calls an API, or lists any other ref (none is read; any unlisted command
+        # fails), and merge subjects read from bodies or bare prose `#N`.
         import subprocess as sp
         replies = [
             (["merge-base", "HEAD", "origin/main"], "abc\n"),
@@ -77608,11 +77622,11 @@ class StoreScopeCeilingTests(LinterTestCase):
             self.assertIsNone(self.lc.merge_base_changelog())
 
     def test_git_readers_against_a_real_repository(self) -> None:
-        # Old 13, against real git. Kills: reading the working-tree CHANGELOG instead of
+        # The git readers against real git. Kills: reading the working-tree CHANGELOG instead of
         # `git show <merge-base>:` (the post-edit assertion), returning "" instead of None outside
         # a repository or without origin/main, and merge subjects read from anything but
-        # origin/main. Changed on purpose since round 5: a CHANGELOG absent at the merge-base is
-        # unreadable (None, fail closed), no longer "" (which would declare every entry).
+        # origin/main. A CHANGELOG absent at the merge-base is unreadable (None, fail closed), no
+        # longer "" (which would declare every entry).
         lc = self.lc
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -77646,12 +77660,12 @@ class StoreScopeCeilingTests(LinterTestCase):
             self.assertIsNone(lc.merge_base_changelog(root))
             self.assertIn("fail-closed", lc.store_scope(self._OWN_522_ROOT, repo_root=root).note)
 
-    # ---- protection of merged and own PRs (WARN 1; codex R6-01; round-6 regressions; round-7 R7-01) ----
+    # ---- protection of merged and own PRs ----
 
     def test_merged_entry_missing_root_line_still_fails(self) -> None:
-        # Round-6 regression: a PR merged on origin/main whose root line this branch lacks is
-        # protected, so its mirror entry fails as missing from root, even above the ceiling (the
-        # branch is behind main). Kills: protecting only this branch's root headers.
+        # A PR merged on origin/main whose root line this branch lacks is protected, so its mirror
+        # entry fails as missing from root, even above the ceiling (the branch is behind main).
+        # Kills: protecting only this branch's root headers.
         root = self.header(2661) + self.header(2658)
         main = self.header(2662) + self.header(2659) + self.header(2658)
         scope = self.scope(root, self.header(2658), main)
@@ -77665,10 +77679,10 @@ class StoreScopeCeilingTests(LinterTestCase):
                 self.assertNotIn(f"deferred #{pr}", out)
 
     def test_origin_main_unreadable_declares_nothing_and_prints_note(self) -> None:
-        # Round-6 regression, changed on purpose by round 8: a declaration needs origin/main's
-        # root headers AND merge subjects, so with either unreadable nothing is declared, nothing
-        # defers (not even above the ceiling) and a note says so. Kills: declaring from the
-        # merge-base alone, a ceiling or open-PR rule without that evidence, and dropping the note.
+        # A declaration needs origin/main's root headers AND merge subjects, so with either
+        # unreadable nothing is declared, nothing defers (not even above the ceiling) and a note
+        # says so. Kills: declaring from the merge-base alone, a ceiling or open-PR rule without
+        # that evidence, and dropping the note.
         root, base = self.header(2661) + self.header(2659), self.header(2659)
         for main, merged in ((None, ()), (self.header(2665) + base, None)):
             with self.subTest(main=main, merged=merged):
@@ -77683,14 +77697,14 @@ class StoreScopeCeilingTests(LinterTestCase):
                 self.assertIn("MISSING from root", out)
                 self.assertNotIn("deferred", out)
 
-    # ---- register rows (old tests 24-26; round-5 codex ERROR 2; NOTE 3; codex R6-03) ----
+    # ---- register rows ----
 
-    # ---- gate 59 CLI under --root against fixture repositories (old tests 14-23) ----
+    # ---- gate 59 CLI under --root against fixture repositories ----
 
     def test_mirror_gate_later_pr_header_is_deferred(self) -> None:
-        # Old 14. PR #523's store entry is visible on #522's branch (#522 declared, ceiling 522).
-        # Kills: dropping the deferral in main() (rc 1), and M7: resolving the scope against
-        # REPO_ROOT instead of the --root fixture (no declaration there, rc 1).
+        # PR #523's store entry is visible on #522's branch (#522 declared, ceiling 522). Kills:
+        # dropping the deferral in main() (rc 1), and M7: resolving the scope against REPO_ROOT
+        # instead of the --root fixture (no declaration there, rc 1).
         r = self.run_mirror_gate(
             self._OWN_522_ROOT + self._BASE_ROOT,
             "**2026-11-24 | 2026.12.11 | PR #523** - later PR\n\n" + self._OWN_522_ROOT + self._BASE_ROOT,
@@ -77700,8 +77714,8 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertIn("declared own PR #522", r.stdout)
 
     def test_mirror_gate_own_pr_at_ceiling_is_evaluated(self) -> None:
-        # Old 15. The declared PR is the ceiling: its mirror record is compared, never deferred.
-        # Kills: `>` -> `>=` and any caller-local `>=` re-filter (rc 0, "deferred").
+        # The declared PR is the ceiling: its mirror record is compared, never deferred. Kills: `>`
+        # -> `>=` and any caller-local `>=` re-filter (rc 0, "deferred").
         r = self.run_mirror_gate(
             self._OWN_522_ROOT + self._BASE_ROOT,
             "**2026-11-23 | 2026.12.11 | PR #522** - own\n\n" + self._BASE_ROOT,
@@ -77712,11 +77726,11 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertNotIn("deferred", r.stdout)
 
     def test_mirror_gate_clean_base_defers_until_own_header_lands(self) -> None:
-        # Replaces old 16 (3b217, maintainer 2026-10-22). The 3b303 incident shape: the mirror
-        # carries #522 before the root entry lands. Under clean-base the own PR is unknown, so
-        # #522 (a trailer-only PR's own entry included) defers with a note until its root header
-        # lands; it then declares and parity is evaluated with no note. Kills: a no-declaration
-        # scope that still disables all deferral, and a note naming "#None".
+        # The shape of a recorded incident: the mirror carries #522 before the root entry lands.
+        # Under clean-base the own PR is unknown, so #522 (a trailer-only PR's own entry included)
+        # defers with a note until its root header lands; it then declares and parity is evaluated
+        # with no note. Kills: a no-declaration scope that still disables all deferral, and a note
+        # naming "#None".
         r = self.run_mirror_gate(self._BASE_ROOT, self._OWN_522_ROOT + self._BASE_ROOT,
                                  base_root_text=self._BASE_ROOT)
         self.assertEqual(r.returncode, 0, r.stdout)
@@ -77730,7 +77744,7 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertNotIn("note:", r.stdout)
 
     def test_mirror_gate_no_merge_base_fails_closed(self) -> None:
-        # Old 17. No repository and no origin/main: nothing defers and the gate says so. Kills: a
+        # No repository and no origin/main: nothing defers and the gate says so. Kills: a
         # root-maximum fallback (rc 0) and a silent fail-closed.
         r = self.run_mirror_gate(self._OWN_522_ROOT + self._BASE_ROOT,
                                  "**2026-11-24 | 2026.12.11 | PR #523** - later PR\n\n"
@@ -77743,11 +77757,9 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertNotIn("deferred", r.stdout)
 
     def test_mirror_gate_multi_pr_legacy_header_fails_classification(self) -> None:
-        # Old 18, renamed in EP5 (ep4qx 2, ep4qc L4; was
-        # test_mirror_gate_multi_pr_entry_kept_when_any_named_pr_in_scope). Since EP4 a legacy
-        # header naming #520 and #524 fails entry classification (one header per PR) before the
-        # deferral flags are read, so this is a classification regression only; it no longer
-        # reaches the deferral decision. The shared helper's `min` rule (lint_common, "every
+        # A legacy header naming #520 and #524 fails entry classification (one header per PR)
+        # before the deferral flags are read, so this is a classification regression only; it does
+        # not reach the deferral decision. The shared helper's `min` rule (lint_common, "every
         # named PR exceeds the ceiling") is still pinned: `min` -> `max` there fails
         # test_above_store_ceiling_is_fail_closed and test_stacked_connectors_and_ambiguous_cells.
         r = self.run_mirror_gate(
@@ -77760,13 +77772,13 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertNotIn("deferred", r.stdout)
 
     def test_mirror_gate_record_key_and_deferral_share_one_pr_rule(self) -> None:
-        # Old 19, rewritten in EP5 (ep4qx 2, ep4qc L4): the record-key check in main (a mirror
-        # record defers only when its own PR is among the PRs its line's deferral flags name) is
-        # reached directly, with the shared deferral flags mocked: the #9998 line is flagged as
-        # deferring #9999 only, and the #9997 line as deferring itself. With the check, #9998 is
-        # kept (and fails as missing from root) while #9997 defers; without it both defer and the
-        # gate passes. The shared parser returns the bold-cell PR for every full-match line, so
-        # real flags cannot produce this mismatch today: the check is defence in depth.
+        # The record-key check in main (a mirror record defers only when its own PR is among the
+        # PRs its line's deferral flags name) is reached directly, with the shared deferral flags
+        # mocked: the #9998 line is flagged as deferring #9999 only, and the #9997 line as
+        # deferring itself. With the check, #9998 is kept (and fails as missing from root) while
+        # #9997 defers; without it both defer and the gate passes. The shared parser returns the
+        # bold-cell PR for every full-match line, so real flags cannot produce this mismatch today:
+        # the check is defence in depth.
         import contextlib
         import types
         from unittest import mock
@@ -77801,9 +77813,9 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertNotIn("deferred #9999", out.getvalue())
 
     def test_mirror_gate_follow_up_tail_fails_classification(self) -> None:
-        # Old 19's former EP4 case, kept under its own name in EP5: a legacy header with a
-        # trailing "(follow-up to PR #2650)" does not fully match the comparison shape, so entry
-        # classification fails it before deferral, naming both PRs. It is never deferred.
+        # A legacy header with a trailing "(follow-up to PR #2650)" does not fully match the
+        # comparison shape, so entry classification fails it before deferral, naming both PRs. It
+        # is never deferred.
         base = "**2026-12-28 | 2026.12.1353 | PR #2650** - t\n"
         work = "**2026-12-30 | 2026.12.1360 | PR #2657** - t\n\n" + base
         r = self.run_mirror_gate(
@@ -77815,10 +77827,10 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertNotIn("deferred", r.stdout)
 
     def test_mirror_gate_version_floor_fails_before_deferral(self) -> None:
-        # EP5 item 2, ep4qc L1 probe G1: with readable evidence, an old record dated on
-        # EPOCH_START at 2026.11.65 deferred as another open PR's entry, then rc 0. It now fails
-        # as an old-repository record before deferral (the 2026.12.1 lookalike in
-        # test_mirror_gate_lookalike_below_own_entry is the deferring control).
+        # With readable evidence, an old record dated on EPOCH_START at 2026.11.65 deferred as
+        # another open PR's entry, then rc 0. It now fails as an old-repository record before
+        # deferral (the 2026.12.1 lookalike in test_mirror_gate_lookalike_below_own_entry is the
+        # deferring control).
         r = self.run_mirror_gate(
             self._OWN_522_ROOT + self._BASE_ROOT,
             self._OWN_522_ROOT + "**2026-11-09 | 2026.11.65 | PR #9999** - old epoch-day record\n\n"
@@ -77830,10 +77842,8 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertNotIn("deferred", r.stdout)
 
     def test_mirror_gate_multi_pr_header_fails_before_deferral(self) -> None:
-        # Old 20 (gemini r2 finding 4), changed on purpose by EP4 (was
-        # test_mirror_gate_deferred_multi_pr_header_reports_every_pr): an entry candidate must
-        # name exactly 1 PR, so a legacy header naming open PRs #523 and #524 fails before
-        # store-scope deferral instead of deferring both.
+        # An entry candidate must name exactly 1 PR, so a legacy header naming open PRs #523 and
+        # #524 fails before store-scope deferral instead of deferring both.
         r = self.run_mirror_gate(
             self._OWN_522_ROOT + self._BASE_ROOT,
             "## 2026-11-24, Library Version 2026.12.11, PR #523 and PR #524\n\n"
@@ -77844,10 +77854,9 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertNotIn("deferred", r.stdout)
 
     def test_mirror_gate_lookalike_below_own_entry(self) -> None:
-        # Old 21, changed on purpose by option B (NOTE 1's stated residue): with readable
-        # origin/main evidence a plain, unmarked lookalike below the own entry reads as another
-        # open PR's entry and defers LOUDLY (the note names #9999). The unreadable-origin/main
-        # half, where it is evaluated, is pinned in process by
+        # As a stated residue, with readable origin/main evidence a plain, unmarked lookalike below
+        # the own entry reads as another open PR's entry and defers LOUDLY (the note names #9999).
+        # The unreadable-origin/main half, where it is evaluated, is pinned in process by
         # test_store_deferral_flags_confine_ceiling_deferral_to_the_initial_run and
         # test_open_rule_reaches_below_own_entry_and_lookalike_residue.
         r = self.run_mirror_gate(
@@ -77859,8 +77868,8 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertIn("deferred #9999", r.stdout)
 
     def test_mirror_gate_no_root_header_defers_nothing(self) -> None:
-        # Old 22. No parseable root header: no declaration, nothing deferred, the mirror-only
-        # #522 fails loudly. Kills: a None ceiling read as 0, and a silent no-deferral state.
+        # No parseable root header: no declaration, nothing deferred, the mirror-only #522 fails
+        # loudly. Kills: a None ceiling read as 0, and a silent no-deferral state.
         r = self.run_mirror_gate("# Changelog\n", "**2026-11-23 | 2026.12.10 | PR #522** - t\n",
                                  base_root_text="# Changelog\n")
         self.assertEqual(r.returncode, 1, r.stdout)
@@ -77870,10 +77879,10 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertNotIn("fail-closed", r.stdout)
 
     def test_mirror_gate_reads_raw_records_no_masking(self) -> None:
-        # Old 23 (claude r3 ERROR 1 / codex r3 ERROR 2) on the ROOT surface: literal `<!--` and
-        # `-->` in root prose span the real #522 root header, which must still be required in the
-        # mirror. Kills (M9): masking either surface read in main() (rc 0). The literal delimiter
-        # also makes the root ambiguous, so nothing is declared.
+        # On the ROOT surface: literal `<!--` and `-->` in root prose span the real #522 root
+        # header, which must still be required in the mirror. Kills (M9): masking either surface
+        # read in main() (rc 0). The literal delimiter also makes the root ambiguous, so nothing is
+        # declared.
         base = "**2026-11-22 | 2026.12.9 | PR #521** - t\n"
         work = ("**2026-11-24 | 2026.12.11 | PR #523** - own\n"
                 "Notes: the gate reads `<!--` literally.\n"
@@ -77887,7 +77896,7 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertIn("no own-PR declaration", r.stdout)
 
     def test_mirror_gate_merged_pr_without_root_header_fails(self) -> None:
-        # WARN 1 through the CLI: #523 merged on origin/main with a `Changelog:` trailer (a `(#523)`
+        # Through the CLI: #523 merged on origin/main with a `Changelog:` trailer (a `(#523)`
         # subject, no root header). Its mirror entry is evaluated and fails as on main. Kills:
         # merged status from header absence alone (rc 0, #523 deferred as another open PR).
         r = self.run_mirror_gate(
@@ -77902,10 +77911,10 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertNotIn("deferred", r.stdout)
 
     def test_mirror_gate_deleted_parent_header_does_not_declare(self) -> None:
-        # Round-7 F1 S2 through the CLI: the parent was squash-merged and its ref deleted; the
-        # unrebased child has not written its own root entry yet, so its own #2662 mirror entry is
-        # evaluated (missing from root) with a no-declaration note. Kills: the merged parent's
-        # #2653 header declaring (ceiling 2660, #2662 deferred above it, rc 0).
+        # Through the CLI: the parent was squash-merged and its ref deleted; the unrebased child
+        # has not written its own root entry yet, so its own #2662 mirror entry is evaluated
+        # (missing from root) with a no-declaration note. Kills: the merged parent's #2653 header
+        # declaring (ceiling 2660, #2662 deferred above it, rc 0).
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             self.stacked_child(root, own_entry=False, parent="squash-merged")
@@ -77921,9 +77930,9 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertNotIn("deferred", r.stdout)
 
     def test_mirror_gate_fenced_example_header_does_not_declare(self) -> None:
-        # ERROR 2 through the CLI: a fenced example header above the root entries (the branch has
-        # not written its own entry) declares nothing, so own #2662's mirror entry is evaluated.
-        # Kills: fence-blind declaration (#9999 declared, #2662 deferred as another open PR, rc 0).
+        # Through the CLI: a fenced example header above the root entries (the branch has not
+        # written its own entry) declares nothing, so own #2662's mirror entry is evaluated. Kills:
+        # fence-blind declaration (#9999 declared, #2662 deferred as another open PR, rc 0).
         base = self.header(2660)
         fence = chr(96) * 3 + "\n"
         root_text = fence + "**2026-12-31 | 2026.12.1 | PR #9999** - example\n" + fence + base
@@ -77936,10 +77945,10 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertNotIn("deferred", r.stdout)
 
     def test_gate_59_keeps_ambiguous_record_key_and_ordering_checks(self) -> None:
-        # Round-6 regression: scope never weakens the duplicate, version-agreement or ordering
-        # checks for evaluated records. Changed on purpose by EP4: the ambiguous legacy header
-        # no longer fully matches the comparison shape, so entry classification fails it before
-        # deferral, naming both PRs; a plain duplicate still fails the duplicate check.
+        # Scope never weakens the duplicate, version-agreement or ordering checks for evaluated
+        # records. The ambiguous legacy header no longer fully matches the comparison shape, so
+        # entry classification fails it before deferral, naming both PRs; a plain duplicate still
+        # fails the duplicate check.
         root, base = self.header(2661) + self.header(2659), self.header(2659)
         scope = self.scope(root, base, base)
         mirror = "## 2026-12-30, Library Version 2026.12.2662, PR #9999 (see PR #2659)\n" + root
@@ -77958,7 +77967,7 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertEqual(rc, 1, out + err)
         self.assertIn("ordering violated", out)
 
-    # ---- gate 50 main() and CLI (old tests 31-32) ----
+    # ---- gate 50 main() and CLI ----
 
     class _Stub:
         def __init__(self, text: str) -> None:
@@ -77967,13 +77976,13 @@ class StoreScopeCeilingTests(LinterTestCase):
         def read_text(self, **kwargs) -> str:
             return self._text
 
-    # ---- gate 50 Check 6 online own-PR verification (3b145 ruling 2026-10-01 12:49Z) ----
+    # ---- gate 50 Check 6 online own-PR verification ----
 
     class _GhRunner:
         """Scripted stand-in for the gate's ``_gh_runner`` seam: it answers the two local
         git reads and the one gh call from fixture values, records every argv and the gh
-        call's environment (round-3 codex R3-01 / claude F1: the GH_HOST pin), and never
-        starts a process, so these tests cannot touch git, gh or the network."""
+        call's environment (the GH_HOST pin), and never starts a process, so these tests
+        cannot touch git, gh or the network."""
 
         def __init__(self, branch="tooling/own", gh=None, gh_exc=None,
                      url="git@github.com:jposluns/grc_library.git", branch_rc=0, url_rc=0):
@@ -78000,11 +78009,10 @@ class StoreScopeCeilingTests(LinterTestCase):
     def _own_pr_json(state="OPEN", head="tooling/own", cross=False,
                      owner="jposluns", name="grc_library", number=2651, url=None):
         """The full gh answer the hardened verifier demands: state, head branch, the
-        round-2 head-repository identity fields (codex R2-01 / claude F1) and the
-        round-3 host-naming url (codex R3-01). ``cross`` takes a bool or a raw JSON
-        token (so a subcase can model null or a quoted string); ``url`` defaults to
-        the PR's canonical github.com address, takes any replacement string, or is
-        omitted entirely with ``url=False``."""
+        head-repository identity fields and the host-naming url. ``cross`` takes a
+        bool or a raw JSON token (so a subcase can model null or a quoted string);
+        ``url`` defaults to the PR's canonical github.com address, takes any
+        replacement string, or is omitted entirely with ``url=False``."""
         if cross is True or cross is False:
             cross = "true" if cross else "false"
         if url is None:
@@ -78016,14 +78024,13 @@ class StoreScopeCeilingTests(LinterTestCase):
                 f'"headRepository": {{"name": "{name}"}}{url_field}}}')
 
     def test_r8_01_legacy_tail_naming_a_pr_is_uncertain(self) -> None:
-        # Round-8 R8-01 (codex): the legacy cell runs to the end of the line and its tail was
-        # probed for `#N` alone, so an unsupported continuation naming a PR by label or bare
-        # number (`/ PR 2665`) left the parsed prefix CERTAIN. The tail is now probed with the
-        # shared case-insensitive grammar too, so any PR identity in it (labelled or bare, in any
-        # case, or with its label glued on) makes the header uncertain: evaluated, never
-        # deferred. A tail naming no PR stays certain, and a grammar connector still continues
-        # the identity itself. Kills: the `#N`-only tail probe, and a case-sensitive or
-        # label-only one.
+        # The legacy cell runs to the end of the line; in the earlier repository its tail was
+        # probed for `#N` alone, so an unsupported continuation naming a PR by label or bare number
+        # (`/ PR 2665`) left the parsed prefix CERTAIN. The tail is now probed with the shared
+        # case-insensitive grammar too, so any PR identity in it (labelled or bare, in any case, or
+        # with its label glued on) makes the header uncertain: evaluated, never deferred. A tail
+        # naming no PR stays certain, and a grammar connector still continues the identity itself.
+        # Kills: the `#N`-only tail probe, and a case-sensitive or label-only one.
         lc = self.lc
         prefix = "## 2026-09-30, Library Version 2026.09.2665, PR #2664"
         for tail in (" / PR 2665", " / pr 2665", " / PRs 2665", " / 2665", " / PR2665", " / #2665"):
@@ -78136,8 +78143,7 @@ class AIQTCutoverTests(unittest.TestCase):
             self.aiqt.validate(self.root)
 
     def test_symlinked_vendor_root_rejected(self):
-        # RBQ8-vendor-root-symlink: identical bytes behind a symlinked
-        # .claude/aiqt must not validate.
+        # Identical bytes behind a symlinked .claude/aiqt must not validate.
         if os.name != 'posix':
             self.skipTest('needs POSIX symlinks')
         vendor = self.root / '.claude/aiqt'
@@ -78148,8 +78154,7 @@ class AIQTCutoverTests(unittest.TestCase):
             self.aiqt.validate(self.root)
 
     def test_symlinked_rendered_directory_rejected(self):
-        # RBQ8-vendor-root-symlink: the rendered subdirectories are checked as
-        # path components too.
+        # The rendered subdirectories are checked as path components too.
         if os.name != 'posix':
             self.skipTest('needs POSIX symlinks')
         rendered = self.root / '.claude/rules/aiqt'
@@ -78160,7 +78165,7 @@ class AIQTCutoverTests(unittest.TestCase):
             self.aiqt.validate(self.root)
 
     def test_special_vendored_entry_rejected(self):
-        # RBQ8-traversal-special-entries at the validate() level.
+        # Traversal of special entries, at the validate() level.
         if os.name != 'posix' or not hasattr(os, 'mkfifo'):
             self.skipTest('needs POSIX FIFOs')
         os.mkfifo(self.root / '.claude/aiqt/rules/aiqt/99-FIFO.md')
@@ -78714,8 +78719,8 @@ class JoinUnderContainmentTests(unittest.TestCase):
         self.assertEqual(manifest.parent, self.root / SKILL_TOOLS_REL)
         manifest.parent.mkdir(parents=True)
         manifest.symlink_to("missing-inside-root")
-        # FX8b: the same symlink first loads a valid manifest at its target, so the load
-        # failure below comes from the missing target alone.
+        # The same symlink first loads a valid manifest at its target, so the load failure below
+        # comes from the missing target alone.
         target = manifest.parent / "missing-inside-root"
         target.write_text(json.dumps({"skills": [{"name": "fixture", "files": ["ai/ok.md"],
             "carrier_signal": "ok", "fields": [{"name": "fixture", "requires_all": ["ok"]}]}]}))
@@ -78734,7 +78739,7 @@ class JoinUnderContainmentTests(unittest.TestCase):
         self.assertNotIn("refused path", err.getvalue())
 
     def test_carrier_regular_file_manifest_parent_keeps_load_message(self):
-        # FX4: the gate 97 case of the removed regular-file-parent test, at the relocated manifest
+        # The gate 97 case of the removed regular-file-parent test, at the relocated manifest
         # parent. A regular file where the default manifest's directory belongs gives exit 2 and
         # the load message, not a misleading refused-path message.
         import contextlib
@@ -78833,7 +78838,7 @@ class DirectRunTests(unittest.TestCase):
 
 
 class ModuleFixtureOwnershipTests(unittest.TestCase):
-    """setUpModule and tearDownModule never delete fixtures they do not own (P-1.86 PR 1).
+    """setUpModule and tearDownModule never delete fixtures they do not own.
 
     Every fixture under tests/tmp belongs to the test instance that created it
     (a unique mkdtemp directory removed by addCleanup), and DirectRunTests
@@ -78895,7 +78900,7 @@ class ModuleFixtureOwnershipTests(unittest.TestCase):
 class MakeFixtureUniquenessTests(unittest.TestCase):
     """make_fixture isolates instances: the same basename from two
     LinterTestCase instances lands in two distinct unique directories, and
-    cleaning one instance leaves the other's fixture intact (P-1.86 PR 1)."""
+    cleaning one instance leaves the other's fixture intact."""
 
     def test_same_basename_from_two_instances_does_not_collide(self) -> None:
         class Probe(LinterTestCase):
@@ -79007,7 +79012,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_markdown_quoted_pointer_flagged(self) -> None:
-        # r26 D-4: a double-quoted span in Markdown prose is quotation, not an
+        # A double-quoted span in Markdown prose is quotation, not an
         # illustrative literal, so a quoted stale pointer in a scanned .md file
         # is checked; a backticked span there stays illustrative.
         root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
@@ -79020,11 +79025,12 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertNotIn("3.98", result.stdout + result.stderr)
 
     def test_markdown_fenced_block_blanked_and_prose_after_fence_scanned(self) -> None:
-        # r2 F1: a fence delimiter's backtick run (here mispaired by a stray
-        # backtick inside the block) paired into the prose around the block,
-        # hiding a pointer after the fence. Fenced blocks are blanked first
-        # through the shared fence predicate, so the fence can never shift the
-        # inline pairing, and a pointer inside the fence is code, not prose.
+        # In the earlier repository, a fence delimiter's backtick run (here
+        # mispaired by a stray backtick inside the block) paired into the
+        # prose around the block, hiding a pointer after the fence. Fenced
+        # blocks are blanked first through the shared fence predicate, so the
+        # fence can never shift the inline pairing, and a pointer inside the
+        # fence is code, not prose.
         root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
         (root / self.TOOLS_REL / "notes.md").write_text(
             "Intro prose for the fixture.\n\n"
@@ -79079,10 +79085,10 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertIn("3.99", result.stdout)
 
     def test_partial_private_sibling_stays_enforcing(self) -> None:
-        # r2 R2-04 pin, the documented reading: only an ABSENT sibling selects
-        # the degraded path. A backlog list missing inside a present sibling
-        # contributes no ids and the run stays enforcing (extra findings, the
-        # safe direction), with no degraded-skip note.
+        # The documented reading: only an ABSENT sibling selects the degraded
+        # path. A backlog list missing inside a present sibling contributes no
+        # ids and the run stays enforcing (extra findings, the safe
+        # direction), with no degraded-skip note.
         root = self.make_repo(
             "# Shaped by the apply plan (TODO 3.99).\n",
             private=self.PRIVATE_MINIMAL,  # TODO-REFERENCE.md only
@@ -79111,13 +79117,13 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertLinterFails(result, "sample-hook.py")
 
     def write_extra(self, root: Path, rel: str, text: str) -> None:
-        """One extra fixture file under the widened 3b636 roots."""
+        """One extra fixture file under the widened scan roots."""
         path = root / rel
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text, encoding="utf-8")
 
     def test_playbook_pointer_flagged(self) -> None:
-        # 3b636: the rest of .claude/ is in scope, so a positional pointer in a
+        # The rest of .claude/ is in scope, so a positional pointer in a
         # playbook fails like one in a hook.
         root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
         self.write_extra(root, ".claude/playbooks/sample.md",
@@ -79127,8 +79133,9 @@ class ToolingBacklogRefsTests(LinterTestCase):
 
     def test_playbook_stale_pointer_fails_and_closing_pr_form_passes(self) -> None:
         # The stale pointer beside the anchored one is in a playbook, which
-        # only the widened roots reach, so this fails against the
-        # pre-3b636 gate (it saw no finding at all).
+        # only the widened roots reach, so this fails against the gate as
+        # it was in the earlier repository, before the roots were widened
+        # (it saw no finding at all).
         root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
         self.write_extra(root, ".claude/playbooks/sample.md",
                          "Shaped by TODO 3.98 (closing PR #1250) as well.\n"
@@ -79164,8 +79171,8 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertLinterFails(result, ".github/workflows/sample.yml")
 
     def test_vendored_and_machine_local_paths_not_selected(self) -> None:
-        # 3b636 note 11: upstream-refreshed third-party content and
-        # gitignored machine-local state are out of scope; a vendored
+        # Upstream-refreshed third-party content and gitignored
+        # machine-local state are out of scope; a vendored
         # directory's first-party PROVENANCE.md stays scanned.
         root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
         for rel in (".claude/rules/external/vendor/rule.md",
@@ -79181,7 +79188,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertLinterFails(result, "cleanlanguage/PROVENANCE.md")
 
     def test_nested_vendored_provenance_md_not_selected(self) -> None:
-        # 3b636 r3: only each vendored directory's OWN record, at its root, is
+        # Only each vendored directory's OWN record, at its root, is
         # first-party; a nested file that shares the basename is vendored
         # content and stays out of scope, while the root record is scanned.
         root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
@@ -79195,7 +79202,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertNotIn("3.98", result.stdout + result.stderr)
 
     def test_unshipped_skill_directory_is_scanned(self) -> None:
-        # FX3b: only cleanlanguage is a third-party skill directory. A skill
+        # Only cleanlanguage is a third-party skill directory. A skill
         # directory that does not ship, such as the retired addyosmani names,
         # is project tooling like any other skill and is scanned.
         root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
@@ -79210,7 +79217,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
 
     def test_empty_root_refused(self) -> None:
-        # r26 G2: an explicitly empty --root must fail closed (exit 2), never
+        # An explicitly empty --root must fail closed (exit 2), never
         # silently rebase the scan onto the live repository.
         for args in (("--root", ""), ("--root=",)):
             with self.subTest(args=args):
@@ -79220,8 +79227,9 @@ class ToolingBacklogRefsTests(LinterTestCase):
                 self.assertNotIn("Traceback", result.stderr)
 
     def test_undecodable_scan_file_fails_closed(self) -> None:
-        # r1 QA-01 / F2: an invalid-UTF-8 scan file was silently skipped and
-        # the run reported OK. It must refuse (exit 2) naming the file.
+        # In the earlier repository, an invalid-UTF-8 scan file was silently
+        # skipped and the run reported OK. It must refuse (exit 2) naming the
+        # file.
         root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
         (root / self.TOOLS_REL / "latin1.py").write_bytes(
             b"# Shaped by TODO 3.99.\n\xff\xfe\n")
@@ -79232,8 +79240,9 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertNotIn("OK:", result.stdout)
 
     def test_undecodable_backlog_list_fails_closed(self) -> None:
-        # r1 QA-01: an invalid-UTF-8 .working/TODO.md silently emptied the live set; in
-        # degraded mode every pointer was then skipped and the run reported OK.
+        # In the earlier repository, an invalid-UTF-8 .working/TODO.md silently
+        # emptied the live set; in degraded mode every pointer was then skipped and
+        # the run reported OK.
         root = self.make_repo("# Shaped by (TODO 3.99) back then.\n")
         (root / ".working").mkdir(parents=True, exist_ok=True)
         (root / ".working/TODO.md").write_bytes(b"# TODO\xff\xfe\n")
@@ -79243,8 +79252,9 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertIn("not valid UTF-8", result.stderr)
 
     def test_unreadable_scan_file_exits_two_not_traceback(self) -> None:
-        # r1 F6: a permission-denied scan file crashed with a traceback and
-        # exit 1 (the FINDINGS code). It must refuse cleanly with exit 2.
+        # In the earlier repository, a permission-denied scan file crashed with
+        # a traceback and exit 1 (the FINDINGS code). It must refuse cleanly
+        # with exit 2.
         root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
         hidden = root / self.TOOLS_REL / "hidden.py"
         hidden.write_text("# Shaped by TODO 3.99.\n", encoding="utf-8")
@@ -79256,9 +79266,10 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertNotIn("Traceback", result.stderr)
 
     def test_unreadable_subtree_fails_closed(self) -> None:
-        # r1 QA-02: rglob silently dropped a permission-denied subdirectory, so
-        # a stale pointer inside it was invisible and the run reported OK over
-        # a partial scan. The walk must surface it (exit 2).
+        # In the earlier repository, the rglob walk silently dropped a
+        # permission-denied subdirectory, so a stale pointer inside it was
+        # invisible and the run reported OK over a partial scan. The walk must
+        # surface it (exit 2).
         root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
         hidden = root / self.TOOLS_REL / "hidden"
         hidden.mkdir()
@@ -79271,10 +79282,10 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertNotIn("OK:", result.stdout)
 
     def test_symlinked_subtree_refused(self) -> None:
-        # r2 R2-03 (wording r3 F5): os.walk lists a directory symlink in
-        # dirnames but does not descend into it, so a symlinked subtree
-        # holding a stale pointer was silently skipped and the run reported
-        # OK over a narrowed scan. It refuses (exit 2) instead.
+        # os.walk lists a directory symlink in dirnames but does not descend
+        # into it, so in the earlier repository a symlinked subtree holding
+        # a stale pointer was silently skipped and the run reported OK over
+        # a narrowed scan. It refuses (exit 2) instead.
         root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
         target = root.parent / "elsewhere"
         target.mkdir()
@@ -79286,8 +79297,8 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertNotIn("OK:", result.stdout)
 
     def test_empty_scan_set_refused(self) -> None:
-        # r1 QA-02 / F3: a --root holding .working/TODO.md but no scannable file printed
-        # OK over a zero-file scan (the 3b50b1 class). It must refuse (exit 2).
+        # In the earlier repository, a --root holding .working/TODO.md but no
+        # scannable file printed OK over a zero-file scan. It must refuse (exit 2).
         root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
         (root / self.TOOLS_REL / "sample.py").unlink()
         result = self.check(root)
@@ -79295,9 +79306,9 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertIn("empty scan set", result.stderr)
 
     def test_inaccessible_private_sibling_fails_closed(self) -> None:
-        # r1 F10: a sibling entry that exists but cannot be examined (here a
-        # dangling symlink) silently took the degraded path and exited 0. The
-        # strict lookup must refuse (exit 2) instead.
+        # In the earlier repository, a sibling entry that exists but cannot
+        # be examined (here a dangling symlink) silently took the degraded
+        # path and exited 0. The strict lookup must refuse (exit 2) instead.
         root = self.make_repo("# Shaped by (TODO 3.99) back then.\n")
         (root.parent / "grc_library_private").symlink_to(
             root.parent / "no-such-checkout")
@@ -79306,21 +79317,21 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertIn("sibling", result.stderr)
 
     def test_short_docstring_pointer_flagged(self) -> None:
-        # r1 F1: the cross-line double-quote pairing read a docstring's first
-        # two quotes as an empty span and blanked short docstrings whole, so a
-        # stale pointer there was never scanned.
+        # In the earlier repository, the cross-line double-quote pairing read
+        # a docstring's first two quotes as an empty span and blanked short
+        # docstrings whole, so a stale pointer there was never scanned.
         root = self.make_repo('"""Short module intro: TODO 3.99."""\n',
                               private=self.PRIVATE_MINIMAL)
         result = self.check(root)
         self.assertLinterFails(result, "3.99")
 
     def test_r3_01_single_quoted_example_flagged_until_backticked(self) -> None:
-        # r3 R3-01 class close: single quotes are interpreted nowhere, so a
-        # single-quoted illustrative literal is FLAGGED (ambiguity keeps real
-        # pointers flagged) and is cleared with backticks or the marker; the
-        # double-quoted twin stays blanked. Supersedes the r1 QA-03 reading,
-        # whose quote-span heuristics left shapes in which an apostrophe hid
-        # a genuine pointer in both r2 and r3.
+        # Single quotes are interpreted nowhere, so a single-quoted
+        # illustrative literal is FLAGGED (ambiguity keeps real pointers
+        # flagged) and is cleared with backticks or the marker; the
+        # double-quoted twin stays blanked. This supersedes a reading in
+        # the earlier repository whose quote-span heuristics left shapes in
+        # which an apostrophe hid a genuine pointer.
         root = self.make_repo(
             "EXAMPLE = 'TODO 3.99'\n"
             "# Example only: 'TODO 3.98'.\n",
@@ -79338,8 +79349,8 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertEqual(result2.returncode, 0, result2.stdout + result2.stderr)
 
     def test_apostrophe_does_not_hide_pointer(self) -> None:
-        # r1 QA-03 guard, the chosen reading: a possessive or contraction
-        # apostrophe never opens a quote span over a genuine pointer.
+        # The chosen reading: a possessive or contraction apostrophe
+        # never opens a quote span over a genuine pointer.
         root = self.make_repo(
             "# The plan's probe left TODO 3.99 dangling; everyone's fix pends.\n",
             private=self.PRIVATE_MINIMAL,
@@ -79348,12 +79359,12 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertLinterFails(result, "3.99")
 
     def test_elision_and_possessive_apostrophes_do_not_hide_pointer(self) -> None:
-        # r2 R2-01 / F3: an elision apostrophe, a prefixed literal's closing
-        # quote, or a blanked-backtick-adjacent apostrophe opened a span that
-        # a plural possessive closed, hiding a genuine pointer between them.
-        # Single quotes are now interpreted nowhere (r3 R3-01 closed the
-        # class), so no apostrophe shape can open or close a span and each
-        # pointer stays visible.
+        # In the earlier repository, an elision apostrophe, a prefixed
+        # literal's closing quote, or a blanked-backtick-adjacent apostrophe
+        # opened a span that a plural possessive closed, hiding a genuine
+        # pointer between them. Single quotes are now interpreted nowhere, so
+        # no apostrophe shape can open or close a span and each pointer stays
+        # visible.
         root = self.make_repo(
             "# 'Twas TODO 3.99 that caused users' failures.\n"
             "# `worker`'s implementation follows TODO 3.97 and callers' expectations.\n"
@@ -79367,9 +79378,9 @@ class ToolingBacklogRefsTests(LinterTestCase):
                 self.assertLinterFails(result, item_id)
 
     def test_wrapped_quoted_example_is_flagged_until_backticked(self) -> None:
-        # r1 QA-03 residue, stated in design note 2: a quoted example that
-        # wraps across comment lines is NOT blanked (ambiguity keeps real
-        # pointers flagged); backticks clear it.
+        # Stated in design note 2: a quoted example that wraps across
+        # comment lines is NOT blanked (ambiguity keeps real pointers flagged);
+        # backticks clear it.
         wrapped = ('# narration ("TODO\n'
                    '# section 3.99 is CLOSED") in the lead.\n')
         root = self.make_repo(wrapped, private=self.PRIVATE_MINIMAL)
@@ -79380,10 +79391,10 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_stray_backtick_cannot_blank_across_paragraphs(self) -> None:
-        # r2 F1: a stray backtick paired across blank lines with the next code
-        # span, blanking prose paragraphs away from where it opened. A span
-        # stops at a blank line, so the stray blanks at most its own
-        # paragraph.
+        # In the earlier repository, a stray backtick paired across blank
+        # lines with the next code span, blanking prose paragraphs away from
+        # where it opened. A span stops at a blank line, so the stray blanks
+        # at most its own paragraph.
         root = self.make_repo(
             "# A stray ` backtick mention sits in this paragraph.\n"
             "\n"
@@ -79394,15 +79405,15 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertLinterFails(result, "3.99")
 
     def test_p_todo_qualifier_flagged(self) -> None:
-        # r1 F4: the hyphen lookbehind rejected the P-prefixed qualifier, so a
-        # stale private-list pointer was invisible.
+        # In the earlier repository, the hyphen lookbehind rejected the
+        # P-prefixed qualifier, so a stale private-list pointer was invisible.
         root = self.make_repo("# moved from P-TODO 3.99 in the split.\n",
                               private=self.PRIVATE_MINIMAL)
         result = self.check(root)
         self.assertLinterFails(result, "P-TODO 3.99")
 
     def test_capital_section_after_qualifier_flagged(self) -> None:
-        # r1 F8: a capitalized Section AFTER the backlog qualifier carries no
+        # A capitalized Section AFTER the backlog qualifier carries no
         # document-section ambiguity and must be detected.
         root = self.make_repo("# per the plan TODO Section 3.99 rules.\n",
                               private=self.PRIVATE_MINIMAL)
@@ -79410,8 +79421,8 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertLinterFails(result, "3.99")
 
     def test_dotted_letter_child_id_checked_as_itself(self) -> None:
-        # r1 F11: a dotted-letter child pointer was read as its parent id, so
-        # a live child item raised a false finding.
+        # In the earlier repository, a dotted-letter child pointer was read as
+        # its parent id, so a live child item raised a false finding.
         todo = self.TODO_INDEX + "| 3.99.a | Live child item | `[build]` |\n"
         root = self.make_repo("# Provenance (TODO 3.99.a) of the child.\n",
                               private=self.PRIVATE_MINIMAL, todo=todo)
@@ -79419,8 +79430,8 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_external_standard_cue_not_flagged(self) -> None:
-        # r1 F7: external-standard clauses outside the census cue list (RFC,
-        # PCI DSS) were flagged as stale pointers.
+        # In the earlier repository, external-standard clauses outside the
+        # census cue list (RFC, PCI DSS) were flagged as stale pointers.
         root = self.make_repo(
             "# per RFC 9110 section 9.3, GET is safe to retry.\n",
             private=self.PRIVATE_MINIMAL,
@@ -79429,9 +79440,9 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_suffixless_shebang_script_scanned(self) -> None:
-        # r1 F9: the suffix-less git hooks and nmw-actionable were never
-        # scanned. A shebang script is in scope; a suffix-less non-script
-        # stays out.
+        # In the earlier repository, the suffix-less git hooks and
+        # nmw-actionable were never scanned. A shebang script is in scope; a
+        # suffix-less non-script stays out.
         root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
         (root / self.TOOLS_REL / "pre-push").write_text(
             "#!/bin/sh\n# Provenance (TODO 3.99) from the plan.\n", encoding="utf-8")
@@ -79443,11 +79454,12 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertNotIn("3.98", result.stdout + result.stderr)
 
     def test_shebang_interpreter_families_selected(self) -> None:
-        # r2 R2-02: a suffix-less ash hook and a shebang whose interpreter sat
-        # past byte 120 were silently out of scope. The probe now matches the
-        # promised families against the interpreter basename within the
-        # supported 256-byte shebang budget; a resolved other interpreter
-        # stays out. Over-budget inputs are pinned by test_r4_f3_mode_shebang_budget_and_explicit_exemption.
+        # In the earlier repository, a suffix-less ash hook and a shebang
+        # whose interpreter sat past byte 120 were silently out of scope.
+        # The probe now matches the promised families against the interpreter
+        # basename within the supported 256-byte shebang budget; a resolved
+        # other interpreter stays out. Over-budget inputs are pinned by
+        # test_r4_f3_mode_shebang_budget_and_explicit_exemption.
         root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
         (root / self.TOOLS_REL / "hook-ash").write_text(
             "#!/bin/ash\n# Provenance (TODO 3.99) from the plan.\n", encoding="utf-8")
@@ -79468,10 +79480,9 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertNotIn("3.96", result.stdout + result.stderr)
 
     def test_exempt_rows_suppress_their_lines(self) -> None:
-        # r1 F5 pin, widened to BOTH rows (r2 R2-05): with an id that is live
-        # NOWHERE, each EXEMPT row still suppresses exactly its keyed line,
-        # and the same sentence without the distinctive substring is NOT
-        # suppressed.
+        # Pinned for BOTH rows: with an id that is live NOWHERE, each EXEMPT
+        # row still suppresses exactly its keyed line, and the same sentence
+        # without the distinctive substring is NOT suppressed.
         rows = (
             ("lint-allowlist-spec-parity.py", "7.1",
              "# the section 7.1 domain is admitted by the allow-list.\n",
@@ -79494,10 +79505,10 @@ class ToolingBacklogRefsTests(LinterTestCase):
                 self.assertLinterFails(self.check(root2), item_id)
 
     def test_r3_01_apostrophes_and_stray_quotes_never_hide_pointer(self) -> None:
-        # r3 R3-01 (with r3 F1 and F3): the two-pass strip let a blanked
-        # backtick or quote span manufacture an apostrophe boundary, and an
-        # inch mark or a quote hugging a single-quoted literal could pair
-        # across prose. One pass, no single-quote spans, and the
+        # In the earlier repository, the two-pass strip let a blanked
+        # backtick or quote span manufacture an apostrophe boundary, and
+        # an inch mark or a quote hugging a single-quoted literal could
+        # pair across prose. One pass, no single-quote spans, and the
         # outside-abutment guards on the double quote keep every shape
         # visible.
         shapes = (
@@ -79521,9 +79532,9 @@ class ToolingBacklogRefsTests(LinterTestCase):
                 self.assertLinterFails(self.check(root), "3.99")
 
     def test_r3_01_prefixed_double_quoted_literals_still_blanked(self) -> None:
-        # r3 R3-01 guard refinement: the outside-abutment guard must not
-        # expose prefixed literals; an r-string or f-string probe is still an
-        # illustrative literal (the live witness is the raw-string regex in
+        # The outside-abutment guard must not expose prefixed literals; an
+        # r-string or f-string probe is still an illustrative literal (the
+        # live witness is the raw-string regex in
         # check-todo-rotation-on-pr.py, whose embedded stray backtick a
         # blanked r-string must keep consumed).
         root = self.make_repo(
@@ -79535,12 +79546,13 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_r3_02_unbalanced_markdown_fence_refused(self) -> None:
-        # r3 R3-02: a line-leading inline triple-backtick span, and a
-        # three-backtick line inside a four-backtick fence, both miscounted
-        # the shared fence toggle, which then read following prose as code
-        # and hid a pointer silently. An odd toggle count leaves the model
-        # inside a fence at end of file, which is undecidable, so the file
-        # is refused (exit 2), never silently blanked.
+        # In the earlier repository, a line-leading inline triple-backtick
+        # span, and a three-backtick line inside a four-backtick fence,
+        # both miscounted the shared fence toggle, which then read
+        # following prose as code and hid a pointer silently. An odd toggle
+        # count leaves the model inside a fence at end of file, which is
+        # undecidable, so the file is refused (exit 2), never silently
+        # blanked.
         cases = (
             ("inline-span-line",
              "```example``` is inline code.\n\nImplements TODO 3.99.\n"),
@@ -79560,10 +79572,11 @@ class ToolingBacklogRefsTests(LinterTestCase):
                 self.assertNotIn("OK:", result.stdout)
 
     def test_r3_03_env_shebang_grammar_selected_exactly(self) -> None:
-        # r3 R3-03 / F2: assignments, option operands and attached -S
-        # payloads were mistaken for the interpreter, so valid env shebangs
-        # were silently unselected. The documented grammar resolves each
-        # form; missing interpreters now refuse under the r4 F3 regression.
+        # In the earlier repository, assignments, option operands and
+        # attached -S payloads were mistaken for the interpreter, so valid
+        # env shebangs were silently unselected. The documented grammar
+        # resolves each form; missing interpreters now refuse, which
+        # test_r4_f3_r4_02_unknown_interpreters_refused pins.
         selected = (
             ("hook-s-assign", "#!/usr/bin/env -S PYTHONUTF8=1 python3"),
             ("hook-s-unset", "#!/usr/bin/env -S -u PYTHONPATH python3"),
@@ -79588,11 +79601,12 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertNotIn("3.98", result.stdout + result.stderr)
 
     def test_r3_04_inaccessible_symlink_target_refused(self) -> None:
-        # r3 R3-04: with the symlink's target directory unexaminable, the
-        # walk classifies the link among the filenames, and its non-scan
-        # suffix then skipped it before the symlink refusal could see it. A
-        # symlink in file position is examined BEFORE the suffix filter: an
-        # unexaminable target and a dangling link are refused (exit 2).
+        # With the symlink's target directory unexaminable, the walk
+        # classifies the link among the filenames, and in the earlier
+        # repository its non-scan suffix then skipped it before the symlink
+        # refusal could see it. A symlink in file position is examined BEFORE
+        # the suffix filter: an unexaminable target and a dangling link are
+        # refused (exit 2).
         root = self.make_repo("# A clean tool file.\n",
                               private=self.PRIVATE_MINIMAL)
         hidden = root.parent / "hidden"
@@ -79811,7 +79825,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
 
 
 class TableCellCountTests(LinterTestCase):
-    """.claude/skills/corpus-management/tools/lint-table-cell-count.py (the table cell-count gate, backlog 3b570).
+    """.claude/skills/corpus-management/tools/lint-table-cell-count.py (the table cell-count gate).
 
     Each refusal is paired with a positive control that differs only in the
     refused construct, so a gate that refused everything would fail too."""
@@ -79912,9 +79926,9 @@ class TableCellCountTests(LinterTestCase):
         self.assertClean(self.make_repo({"doc.md": "  ~~~~\n" + self.HEAD3 + "| 1 |\n  ~~~~\n"}))
 
     def test_unclosed_fence_or_html_block_holds_the_rest_of_the_file(self) -> None:
-        # Codex E1: a fence, or an HTML block of type 1 to 5, that never closes
-        # is code or raw HTML to the end of the file, so markdown-it-py renders
-        # no table after its opening line. The block is the only finding.
+        # A fence, or an HTML block of type 1 to 5, that never closes is code
+        # or raw HTML to the end of the file, so markdown-it-py renders no
+        # table after its opening line. The block is the only finding.
         table = "| a | b |\n|---|---|\n| 1 |\n"
         blocks = {"```": "```", "~~~~": "~~~~", "<!--": "-->", "<pre>": "</pre>",
                   "<?php": "?>", "<!DOCTYPE html": ">", "<![CDATA[": "]]>"}
@@ -79938,9 +79952,9 @@ class TableCellCountTests(LinterTestCase):
                 self.assertEqual(self.finding_heads(text), [finding])
 
     def test_rendered_table_before_an_unclosed_block_is_reported_with_the_block(self) -> None:
-        # Codex W1: the short row of the table markdown-it-py renders is
-        # reported, then the unclosed block after it, and the table-shaped
-        # lines inside that block are not.
+        # The short row of the table markdown-it-py renders is reported,
+        # then the unclosed block after it, and the table-shaped lines inside
+        # that block are not.
         inner = "| a | b |\n|---|---|\n| 1 |\n"
         cases = {
             self.HEAD3 + "| 1 | 2 |\n\n```\n" + inner:
@@ -79956,8 +79970,8 @@ class TableCellCountTests(LinterTestCase):
                 self.assertEqual(self.finding_heads(text), findings)
 
     def test_unclosed_fence_or_comment_is_a_finding_closed_one_is_not(self) -> None:
-        # Round 4: a fence or comment still open at the end of the file is
-        # reported at its opening line with the closer to add, and exits 1.
+        # A fence or comment still open at the end of the file is reported
+        # at its opening line with the closer to add, and exits 1.
         fence_hint = "close it with a line of ```, indented as its opening line"
         cases = {
             "Text.\n\n```text\ncode\n": f"doc.md:3 unclosed-fence: {fence_hint}",
@@ -79987,10 +80001,10 @@ class TableCellCountTests(LinterTestCase):
                 self.assertClean(self.make_repo({"doc.md": text}))
 
     def test_html_block_ended_by_its_container_is_unclosed_a_fence_is_not(self) -> None:
-        # Codex round-4 W: unclosed-html-block means the HTML syntax. A block of
-        # type 1 to 5 whose closer never appears is reported even when its block
-        # quote or list item ends it first (or markdown-it-py ends it at the
-        # final blank line), as its raw opener still reaches the page.
+        # unclosed-html-block means the HTML syntax. A block of type 1 to 5
+        # whose closer never appears is reported even when its block quote or
+        # list item ends it first (or markdown-it-py ends it at the final blank
+        # line), as its raw opener still reaches the page.
         table = "| a | b |\n|---|---|\n| 1 |\n"
         cases = {"> <!--\n> a\n\nText\n": ["doc.md:1 unclosed-html-block"],
                  "- <!--\n  a\nb\n": ["doc.md:1 unclosed-html-block"],
@@ -80009,11 +80023,10 @@ class TableCellCountTests(LinterTestCase):
                 self.assertClean(self.make_repo({"doc.md": text}))
 
     def test_list_item_html_block_also_read_as_markdown_it_py_ends_it(self) -> None:
-        # Codex round-4 ERROR, claude TCC108-LIST-ITEM-HTML-RESIDUAL: markdown-it-py
-        # 3.0.0 ends an HTML block of type 1 to 5 in a list item at a blank line
-        # indented less than the item's content column, so the table after it
-        # renders, with the closer as one more lazy row. The row findings of both
-        # readings are reported.
+        # markdown-it-py 3.0.0 ends an HTML block of type 1 to 5 in a list item at a
+        # blank line indented less than the item's content column, so the table
+        # after it renders, with the closer as one more lazy row. The row findings
+        # of both readings are reported.
         layouts = {
             "L1": ("- <!--\n\n  | a | b |\n  |---|---|\n  | 1 |\n  -->\n", 5),
             "L2": ("1. <?php\n\n   | a | b |\n   |---|---|\n   | 1 |\n   ?>\n", 5),
@@ -80036,11 +80049,10 @@ class TableCellCountTests(LinterTestCase):
                 self.assertClean(self.make_repo({"doc.md": text}))
 
     def test_list_item_html_block_blank_line_measured_inside_the_quote(self) -> None:
-        # Claude round-5 TCC108-DUAL-READING-BOUNDARIES-UNPINNED: a blank line one
-        # column short of the content column ends the block in markdown-it-py
-        # (M4), and the blank line's indent counts from inside the innermost
-        # block quote, whether the quote marker is indented (M6) or spaces
-        # follow it (M6, other direction: no table renders).
+        # A blank line one column short of the content column ends the block in
+        # markdown-it-py (M4), and the blank line's indent counts from inside the
+        # innermost block quote, whether the quote marker is indented (M6) or
+        # spaces follow it (M6, other direction: no table renders).
         rows = ["doc.md:5 header=2 row=1", "doc.md:6 header=2 row=1 lazy-row"]
         for name, text in (
                 ("M4", "- <!--\n \n  | a | b |\n  |---|---|\n  | 1 |\n  -->\n"),
@@ -80052,7 +80064,7 @@ class TableCellCountTests(LinterTestCase):
             "> - <!--\n>   \n>   | a | b |\n>   |---|---|\n>   | 1 |\n>   -->\n")}))
 
     def test_markdown_it_py_reading_adds_row_findings_only(self) -> None:
-        # Claude round-5 N1 (M1, M2 and M3) pins the documented choices. Under
+        # This pins the documented choices M1, M2 and M3. Under
         # markdown-it-py's reading F2's comment opens after the blank line and
         # never closes, but only the CommonMark reading's unclosed blocks are
         # reported (M1); the table and row counts are the CommonMark reading's,
@@ -80070,9 +80082,9 @@ class TableCellCountTests(LinterTestCase):
         self.assertClean(self.make_repo({"doc.md": "> <div>\n> x\nText\n"}))
 
     def test_only_spaces_and_tabs_make_a_blank_line_or_a_closer_tail(self) -> None:
-        # Claude TCC108-UNICODE-WHITESPACE, N1, N1b and N1c: other whitespace
-        # after a closing fence makes the line text, so the next fence line
-        # closes the fence, the table renders and the last fence never closes.
+        # N1, N1b and N1c: other whitespace after a closing fence makes the
+        # line text, so the next fence line closes the fence, the table
+        # renders and the last fence never closes.
         n1 = "```\ncode\n```{}\n```\n| a | b |\n|---|---|\n| 1 |\n```\nx\n```\n```\n"
         for tail in ("\u00a0", "\u2003", "\u000c"):
             with self.subTest(tail=repr(tail)):
@@ -80098,10 +80110,9 @@ class TableCellCountTests(LinterTestCase):
         self.assertFinding(self.make_repo({"doc.md": "\n" + tail}), "doc.md:6 header=2 row=1")
 
     def test_list_marker_digits_are_ascii(self) -> None:
-        # Claude round-5 TCC108-UNICODE-DIGIT-MARKER: CommonMark and markdown-it-py
-        # read only ASCII digits in an ordered list marker, so an Arabic-Indic
-        # "١." (U1) or a fullwidth "１." (U1f) is a lazy row, not a list item
-        # ending the table.
+        # CommonMark and markdown-it-py read only ASCII digits in an ordered list
+        # marker, so an Arabic-Indic "١." (U1) or a fullwidth "１." (U1f) is a lazy
+        # row, not a list item ending the table.
         u1 = self.HEAD3 + "| 1 | 2 | 3 |\n{}. x\n| 4 |\n"
         for digit in ("١", "１"):
             with self.subTest(digit=digit):
@@ -80118,9 +80129,9 @@ class TableCellCountTests(LinterTestCase):
         self.assertFinding(self.make_repo({"doc.md": u2.format("1")}), "doc.md:3 header=2 row=1")
 
     def test_delimiter_cells_trimmed_of_spaces_and_tabs_only(self) -> None:
-        # Codex round-5 W2: markdown-it-py admits only spaces and tabs beside a
-        # delimiter cell, so a no-break space in the row, or at either end of
-        # it, makes the line text and no table forms.
+        # markdown-it-py admits only spaces and tabs beside a delimiter cell,
+        # so a no-break space in the row, or at either end of it, makes the
+        # line text and no table forms.
         table = "| a | b |\n{}\n| 1 |\n"
         for delimiter in ("|---\u00a0|---|", "|---|---|\u00a0", "\u00a0|---|---|"):
             with self.subTest(delimiter=repr(delimiter)):
@@ -80131,10 +80142,9 @@ class TableCellCountTests(LinterTestCase):
                                    "doc.md:3 header=2 row=1")
 
     def test_unquoted_attribute_value_holds_no_control_character(self) -> None:
-        # Claude round-5 N2, A1: markdown-it-py ends an unquoted attribute value
-        # before a C0 control character, so the line starts no HTML block of
-        # type 7 and the table after it renders; without the character the
-        # block holds the table.
+        # markdown-it-py ends an unquoted attribute value before a C0 control
+        # character, so the line starts no HTML block of type 7 and the table
+        # after it renders; without the character the block holds the table.
         table = "| a | b |\n|---|---|\n| 1 |\n"
         self.assertFinding(self.make_repo({"doc.md": "<a href=x\x01>\n" + table}),
                            "doc.md:4 header=2 row=1")
@@ -80163,13 +80173,12 @@ class TableCellCountTests(LinterTestCase):
         self.assertClean(self.make_repo({"doc.md": "| a | b |\n|---|---|\n   | 1 | 2 |\n"}))
 
     def test_nul_is_read_as_a_replacement_character(self) -> None:
-        # Claude round-6 TCC108-ATTR-C0-RANGE-FAIL-OPEN (QL-nul, LL-nul and the
-        # minimised fuzz case) and codex round-6 TCC108-NUL-HTML-FALSE-FINDING:
-        # markdown-it-py reads U+0000 as U+FFFD, which an unquoted attribute
-        # value holds, so the line starts an HTML block. Its block quote or list
-        # item ends at the next line, and the table after it renders; at the
-        # top level the block holds the table, unless the next line starts no
-        # block in markdown-it-py ("<b x=" and U+0001), which then renders it.
+        # QL-nul, LL-nul and the minimised fuzz case: markdown-it-py reads
+        # U+0000 as U+FFFD, which an unquoted attribute value holds, so the line
+        # starts an HTML block. Its block quote or list item ends at the next
+        # line, and the table after it renders; at the top level the block holds
+        # the table, unless the next line starts no block in markdown-it-py ("<b
+        # x=" and U+0001), which then renders it.
         table = "| a | b |\n|---|---|\n| 1 |\n"
         for name, text, finding in (
                 ("QL-nul", "> <a href=x\x00>\n" + table, "doc.md:4 header=2 row=1"),
@@ -80182,14 +80191,13 @@ class TableCellCountTests(LinterTestCase):
         self.assertClean(self.make_repo({"doc.md": "<a href=x\x00>\n" + table}))
 
     def test_unquoted_attribute_value_read_both_ways(self) -> None:
-        # Claude round-6 TCC108-ATTR-C0-RANGE-FAIL-OPEN: markdown-it-py ends an
-        # unquoted value at U+000B, U+000C or U+001C to U+001F and reads the
-        # character as space before ">", so the line starts an HTML block that
-        # its block quote or list item ends; the CommonMark reading, whose value
-        # holds the character, finds the table after it. At the top level a
-        # value holding U+0002 (round-6 mutant h) starts a block only in the
-        # CommonMark reading, and a value of a space (mutant g) in neither, so
-        # markdown-it-py's reading finds the table.
+        # markdown-it-py ends an unquoted value at U+000B, U+000C or U+001C to
+        # U+001F and reads the character as space before ">", so the line starts
+        # an HTML block that its block quote or list item ends; the CommonMark
+        # reading, whose value holds the character, finds the table after it. At
+        # the top level a value holding U+0002 (mutant h) starts a block only in
+        # the CommonMark reading, and a value of a space (mutant g) in neither,
+        # so markdown-it-py's reading finds the table.
         table = "| a | b |\n|---|---|\n| 1 |\n"
         for name, line in (("QL-1f", "> <a href=x\x1f>"), ("QL-vt", "> <a href=x\x0b>"),
                            ("QL-ff", "> <a href=x\x0c>"), ("QL-1c", "> <a href=x\x1c>"),
@@ -80210,12 +80218,12 @@ class TableCellCountTests(LinterTestCase):
                          ["doc.md:1 unclosed-html-block"])
 
     def test_tag_names_read_under_both_case_foldings(self) -> None:
-        # Claude round-6 TCC108-ASCII-TAG-FOLD-FAIL-OPEN: markdown-it-py starts an
-        # HTML block on a tag name that matches only under Unicode case folding
-        # (a dotless i, a long s or a Kelvin sign), so the block quote or list
-        # item it is in ends at the next line and the table after it renders, and
-        # a fence or comment after the block holds no table; the CommonMark
-        # reading reads the line as text. Both readings are scanned.
+        # markdown-it-py starts an HTML block on a tag name that matches only
+        # under Unicode case folding (a dotless i, a long s or a Kelvin sign), so
+        # the block quote or list item it is in ends at the next line and the
+        # table after it renders, and a fence or comment after the block holds no
+        # table; the CommonMark reading reads the line as text. Both readings are
+        # scanned.
         table = "| a | b |\n|---|---|\n| 1 |\n"
         for name, text in (("QL-dotless-div", "> <dıv>\n"), ("QL-long-s", "> <ſcript>\n"),
                            ("QL-kelvin", "> <linK>\n"), ("LL-dotless-div", "- <dıv>\n"),
@@ -80246,7 +80254,7 @@ class TableCellCountTests(LinterTestCase):
                 self.assertEqual(self.finding_heads(text), ["doc.md:1 unclosed-html-block"])
 
     def test_round_six_surviving_mutants_are_pinned(self) -> None:
-        # Claude round-6 TCC108-R6-SURVIVING-MUTANTS k and c (g and h are in
+        # Surviving mutants k and c (g and h are in
         # test_unquoted_attribute_value_read_both_ways): "<SCRIPT>" starts a
         # type-1 block under either reading, which ends at "</script>", so the
         # table renders and the fence after it never closes (k: the CommonMark
@@ -80260,14 +80268,13 @@ class TableCellCountTests(LinterTestCase):
         self.assertClean(self.make_repo({"doc.md": "| a | b |\n|---|---|\n| 1 | 2 |\n<DIV>\n"}))
 
     def test_line_after_a_lazy_quoted_delimiter_row_is_lazy_text(self) -> None:
-        # Claude round-7 TCC108-R7-NUL-LAZY-TABLE-FAIL-OPEN (A2, A4 and the
-        # minimised form): a lazy line and a quoted delimiter row form no table
-        # in markdown-it-py, so its paragraph stays open and the next line, which
-        # leaves the quote and starts only an HTML block of type 7 (which cannot
-        # interrupt a paragraph), is lazy text too; the quoted table after it
-        # renders. markdown-it-py's reading reads it so, with U+0000 or "x"
-        # (A2-plain-x) in the attribute, while a type-6 start ends the paragraph
-        # and its block holds the table.
+        # A2, A4 and the minimised form: a lazy line and a quoted delimiter row
+        # form no table in markdown-it-py, so its paragraph stays open and the
+        # next line, which leaves the quote and starts only an HTML block of type
+        # 7 (which cannot interrupt a paragraph), is lazy text too; the quoted
+        # table after it renders. markdown-it-py's reading reads it so, with
+        # U+0000 or "x" (A2-plain-x) in the attribute, while a type-6 start ends
+        # the paragraph and its block holds the table.
         tail = "> | a | b |\n> |---|---|\n> | Z |\n"
         for name, text, finding in (
                 ("A2", "> | x |\n| y |\n> |---|\n<a href=x\x00>\n" + tail,
@@ -80294,9 +80301,9 @@ class TableCellCountTests(LinterTestCase):
                          ["doc.md:4 header=1 row=1 lazy-row", "doc.md:5 header=1 row=2"])
 
     def test_commonmark_reading_checks_rows_after_a_unicode_folded_start(self) -> None:
-        # Claude round-7 TCC108-R7-SURVIVING-MUTANTS: "<dıv>" and "<ſcript>" end
-        # the table only in markdown-it-py's reading; the CommonMark reading
-        # reads each as a lazy row, so the short row after it is checked too.
+        # Surviving mutants: "<dıv>" and "<ſcript>" end the table only in
+        # markdown-it-py's reading; the CommonMark reading reads each as a lazy
+        # row, so the short row after it is checked too.
         rows = ["doc.md:4 header=2 row=1 lazy-row", "doc.md:5 header=2 row=1"]
         for opener in ("<dıv>", "<ſcript>"):
             with self.subTest(opener=opener):
@@ -80305,40 +80312,40 @@ class TableCellCountTests(LinterTestCase):
         self.assertClean(self.make_repo({"doc.md": "| a | b |\n|---|---|\n| 1 | 2 |\n<div>\n| 3 |\n"}))
 
     def test_unquoted_attribute_value_holds_u_0021_in_both_readings(self) -> None:
-        # Codex round-7 WARN: markdown-it-py's unquoted attribute value ends at
-        # U+0000 to U+0020 only, so "!" (U+0021) is part of it, the line starts
-        # an HTML block of type 7 under both readings and the block holds the
-        # table; U+0001 ends the value in markdown-it-py's reading, which then
-        # renders the table.
+        # markdown-it-py's unquoted attribute value ends at U+0000 to U+0020
+        # only, so "!" (U+0021) is part of it, the line starts an HTML block of
+        # type 7 under both readings and the block holds the table; U+0001 ends
+        # the value in markdown-it-py's reading, which then renders the table.
         table = "| a | b |\n|---|---|\n| 1 |\n"
         self.assertClean(self.make_repo({"doc.md": "<a href=x!>\n" + table}))
         self.assertFinding(self.make_repo({"doc.md": "<a href=x\x01>\n" + table}),
                            "doc.md:4 header=2 row=1")
 
     def test_quoted_header_checks_only_quotes_the_line_leaves(self) -> None:
-        # Round-8 survivor of "quoted_header = width and QUOTE in stack[matched:]":
-        # a header line inside the quote's list item leaves only the item, so it
-        # heads the table the item's delimiter row continues; checking the whole
-        # stack for a quote makes it lazy text, as markdown-it-py reads it
-        # (CommonMark would count a row-less table), and reports nothing.
+        # A surviving mutant of "quoted_header = width and QUOTE in
+        # stack[matched:]": a header line inside the quote's list item leaves only
+        # the item, so it heads the table the item's delimiter row continues;
+        # checking the whole stack for a quote makes it lazy text, as
+        # markdown-it-py reads it (CommonMark would count a row-less table), and
+        # reports nothing.
         self.assertEqual(self.finding_heads("> - | x |\n> | y |\n>   |---|\n> | Z | Z |\n"),
                          ["doc.md:4 header=1 row=2"])
 
     def test_quoted_header_needs_a_table_width(self) -> None:
-        # Round-8 survivor of the same line without "width and": a line that
-        # heads no table is never a quoted header; reading a quoted paragraph
-        # line as one starts a table at a lazy line.
+        # A surviving mutant of the same line without "width and": a line
+        # that heads no table is never a quoted header; reading a quoted
+        # paragraph line as one starts a table at a lazy line.
         self.assertClean(self.make_repo({"doc.md": "> Text\nmore\n> a\n> b\n"}))
 
     def test_html_block_starts_read_with_python_whitespace(self) -> None:
-        # Backlog 3b617: markdown-it-py's HTML block starts take Python's \s,
-        # which also matches U+000B, U+000C, U+001C to U+001F and Unicode spaces,
-        # after a tag name, around an attribute and its "=", before ">" and to
-        # the end of the line. Such a line in a block quote or list item starts
-        # an HTML block the container ends at the next line, so the table after
-        # it renders; a third reading takes \s there. In the 3b570 Residue case
-        # a tag name that matches only under Unicode case folding comes first,
-        # and the table follows outside the block quote.
+        # markdown-it-py's HTML block starts take Python's \s, which also matches
+        # U+000B, U+000C, U+001C to U+001F and Unicode spaces, after a tag name,
+        # around an attribute and its "=", before ">" and to the end of the line.
+        # Such a line in a block quote or list item starts an HTML block the
+        # container ends at the next line, so the table after it renders; a third
+        # reading takes \s there. In the Residue case a tag name that matches
+        # only under Unicode case folding comes first, and the table follows
+        # outside the block quote.
         table = "| a | b |\n|---|---|\n{}\n"
         cases = [(f"{name}-{ord(c):02x}", f"> - {opener}\n> <a href=x{c}>\n", 5)
                  for name, opener in (("long-s-script", "<ſcript>"), ("dotless-div", "<dıv>"),
@@ -80355,7 +80362,7 @@ class TableCellCountTests(LinterTestCase):
                 self.assertClean(self.make_repo({"doc.md": lines + table.format("| 1 | 2 |")}))
 
     def test_unclosed_html_block_hint_names_its_closer(self) -> None:
-        # Claude round-4 survivor: each type's closer, not always "-->".
+        # A surviving mutant: each type's closer, not always "-->".
         closers = {"<pre>": "</script>, </pre>, </style> or </textarea>", "<!--": "-->",
                    "<?php": "?>", "<!DOCTYPE html": ">", "<![CDATA[": "]]>"}
         for opener, closer in closers.items():
@@ -80473,9 +80480,9 @@ class TableCellCountTests(LinterTestCase):
                            "doc.md:3 header=1 row=2")
 
     def test_fence_and_comment_end_with_their_container(self) -> None:
-        # Review probes A1, A2 and A1x2: a fence opened in a block quote or list
-        # item ends with that container, so a later fence line cannot close it
-        # and hide the broken table in between. A comment ends the same way.
+        # A fence opened in a block quote or list item ends with that container,
+        # so a later fence line cannot close it and hide the broken table in
+        # between. A comment ends the same way.
         cases = {
             "> ```\n> code\n\n" + self.HEAD3 + "| 1 | 2 |\n\n```\nx\n```\n": 6,
             "- item\n  ```\n  code\ndedented paragraph\n\n" + self.HEAD3 + "| 1 | 2 |\n\n```\n": 8,
@@ -80493,7 +80500,6 @@ class TableCellCountTests(LinterTestCase):
                 self.assertClean(self.make_repo({"doc.md": text}))
 
     def test_comment_opener_holding_its_closer_closes_on_its_line(self) -> None:
-        # Review probes A5 and A5b.
         for opener in ("<!-->", "<!--->", "<!-- a -->"):
             with self.subTest(opener=opener):
                 self.assertFinding(self.make_repo({"doc.md": (
@@ -80503,7 +80509,7 @@ class TableCellCountTests(LinterTestCase):
             "<!--\n\n" + self.HEAD3 + "| 1 | 2 |\n\n-->\n")}))
 
     def test_line_indented_four_columns_opens_no_fence_or_comment(self) -> None:
-        # Review probe A6: indented code, not a fence; the same for a comment.
+        # Indented code, not a fence; the same for a comment.
         tail = "\n\n" + self.HEAD3 + "| 1 | 2 |\n\n"
         self.assertFinding(self.make_repo({"doc.md": "Text.\n\n    ```" + tail + "```\nx\n```\n"}),
                            "doc.md:7 header=3 row=2")
@@ -80536,9 +80542,8 @@ class TableCellCountTests(LinterTestCase):
                            "doc.md:3 header=2 row=1 lazy-row")
 
     def test_rows_judged_in_the_enclosing_container(self) -> None:
-        # Review probes A3 and A3b: a line that leaves the table's list item, or
-        # is indented four columns past the container (not the header), ends
-        # the table.
+        # A line that leaves the table's list item, or is indented four columns
+        # past the container (not the header), ends the table.
         item = "- item\n\n  | a | b |\n  |---|---|\n"
         self.assertClean(self.make_repo({"doc.md": item + "  | 1 | 2 |\nunindented\n"}))
         self.assertClean(self.make_repo({"doc.md": "  | a | b |\n  |---|---|\n  | 1 | 2 |\n"
@@ -80576,8 +80581,8 @@ class TableCellCountTests(LinterTestCase):
             "- \u00a0\n\n  ```\ncode at col 0\n  ```\n\n" + self.HEAD3 + "| 1 |\n\n```\n")}))
 
     def test_html_block_starts_end_a_table_type_7_does_not(self) -> None:
-        # Review probe A4 and CommonMark HTML block types 1 to 6. Types 1 to 5
-        # are closed, so none is left open at the end of the file.
+        # CommonMark HTML block types 1 to 6. Types 1 to 5 are closed, so none
+        # is left open at the end of the file.
         body = self.HEAD3 + "| 1 | 2 | 3 |\n"
         for line in ('<source src="a.mp4">', "<pre>\n</pre>", "<script>\n</script>",
                      "<style>\n</style>", "<textarea>\n</textarea>", "<?php\n?>",
@@ -80609,8 +80614,8 @@ class TableCellCountTests(LinterTestCase):
         self.assertClean(self.make_repo({"doc.md": "a b\n|---|\n| 1 | 2 |\n"}))
         self.assertFinding(self.make_repo({"doc.md": "| Title |\n---\n| 1 | 2 |\n"}),
                            "doc.md:3 header=1 row=2")
-        # Claude TCC108-ESCAPED-ONLY-HEADER, E1 to E3: markdown-it-py opens a
-        # table on a header line whose only pipe is escaped.
+        # markdown-it-py opens a table on a header line whose only pipe is
+        # escaped.
         for text, finding in (("a \\| b\n|---|\n| 1 | 2 |\n", "doc.md:3 header=1 row=2"),
                               ("a \\| b\n---\n| 1 | 2 |\n", "doc.md:3 header=1 row=2"),
                               ("a \\| b\n|---|\n|\n", "doc.md:3 header=1 row=0")):
@@ -80618,15 +80623,15 @@ class TableCellCountTests(LinterTestCase):
                 self.assertFinding(self.make_repo({"doc.md": text}), finding)
 
     def test_row_of_only_a_pipe_has_no_cells(self) -> None:
-        # Claude TCC108-LONE-PIPE-CELLS: H1, a header that is only a pipe, has
-        # no cells and opens no table; H2, such a body row, is short.
+        # A header that is only a pipe has no cells and opens no table; such a
+        # body row is short.
         self.assertClean(self.make_repo({"doc.md": "|\n|---|\n| a | b |\n"}))
         self.assertFinding(self.make_repo({"doc.md": "| a |\n|---|\n|\n"}),
                            "doc.md:3 header=1 row=0")
 
     def test_crlf_and_a_lone_cr_end_a_line(self) -> None:
-        # Claude TCC108-LONE-CR: markdown-it-py ends a line at CRLF and at a
-        # lone CR, so a closing fence line ending in either still closes.
+        # markdown-it-py ends a line at CRLF and at a lone CR, so a closing
+        # fence line ending in either still closes.
         table = "| a | b |\n|---|---|\n| 1 |\n"
         for end in ("\r\n", "\r"):
             with self.subTest(end=repr(end)):
@@ -80637,8 +80642,8 @@ class TableCellCountTests(LinterTestCase):
                                    "doc.md:6 header=2 row=1")
 
     def test_html_block_start_needs_type_4_case_and_type_1_tag_boundary(self) -> None:
-        # Claude round-4 survivors: a lowercase "<!doctype" (as markdown-it-py
-        # 3.0.0 reads type 4) and "<prefix" start no HTML block.
+        # Surviving mutants: a lowercase "<!doctype" (as markdown-it-py 3.0.0
+        # reads type 4) and "<prefix" start no HTML block.
         table = "| a | b |\n|---|---|\n| 1 |\n"
         self.assertEqual(self.finding_heads("<!doctype html\n" + table + ">\n"),
                          ["doc.md:4 header=2 row=1"])
@@ -80649,27 +80654,27 @@ class TableCellCountTests(LinterTestCase):
         self.assertClean(self.make_repo({"doc.md": "<pre\n" + rows}))
 
     def test_list_item_content_column_counts_up_to_four_spaces(self) -> None:
-        # Claude round-4 survivor: four spaces after the marker set the content
+        # A surviving mutant: four spaces after the marker set the content
         # column; five make it one column past the marker.
         tail = "\n\n      | a | b |\n      |---|---|\n      | 1 |\n"
         self.assertFinding(self.make_repo({"doc.md": "-    x" + tail}), "doc.md:5 header=2 row=1")
         self.assertClean(self.make_repo({"doc.md": "-     x" + tail}))
 
     def test_setext_underline_ends_a_quoted_paragraph(self) -> None:
-        # Claude round-4 survivor: after the underline the unquoted line is no
-        # lazy paragraph text, so it heads a table.
+        # A surviving mutant: after the underline the unquoted line is no lazy
+        # paragraph text, so it heads a table.
         table = "| a | b |\n|---|---|\n| 1 |\n"
         self.assertFinding(self.make_repo({"doc.md": "> Text\n> ===\n" + table}),
                            "doc.md:5 header=2 row=1")
         self.assertClean(self.make_repo({"doc.md": "> Text\n> more\n" + table}))
 
     def test_header_line_its_list_item_does_not_continue_heads_a_table(self) -> None:
-        # Claude round-4 survivor: the line is read again outside the item.
+        # A surviving mutant: the line is read again outside the item.
         self.assertFinding(self.make_repo({"doc.md": "- Text\n| a | b |\n  |---|---|\n| 1 |\n"}),
                            "doc.md:4 header=2 row=1")
 
     def test_only_item_one_or_a_nonempty_item_interrupts_a_paragraph(self) -> None:
-        # Claude round-4 survivors: "2. x" and an empty "*" continue the
+        # Surviving mutants: "2. x" and an empty "*" continue the
         # paragraph, so the four-column lines after them are no table.
         tail = "\n    | a | b |\n    |---|---|\n    | 1 |\n"
         for item in ("2. x\n", "*"):
@@ -80681,8 +80686,8 @@ class TableCellCountTests(LinterTestCase):
                                    "doc.md:6 header=2 row=1")
 
     def test_delimiter_row_is_no_list_item_or_indented_code(self) -> None:
-        # Claude round-4 survivors (and agy TCC108-DELIMITER-LIST-EDGE): markdown-it-py
-        # refuses "- | -" and a delimiter indented four columns.
+        # Surviving mutants: markdown-it-py refuses "- | -" and a delimiter indented
+        # four columns.
         for delimiter, table in (("- | -", False), ("    |---|---|", False),
                                  ("-- | --", True), ("   |---|---|", True)):
             with self.subTest(delimiter=delimiter):
@@ -80693,16 +80698,16 @@ class TableCellCountTests(LinterTestCase):
                     self.assertClean(root)
 
     def test_html_block_type_6_ends_only_at_a_blank_line(self) -> None:
-        # Claude round-4 survivor.
+        # A surviving mutant.
         table = "| a | b |\n|---|---|\n| 1 |\n"
         self.assertClean(self.make_repo({"doc.md": "<div>\nx\n" + table}))
         self.assertFinding(self.make_repo({"doc.md": "<div>\n\n" + table}),
                            "doc.md:5 header=2 row=1")
 
-    # Backlog 3b640: markdown-it-py 3.0.0 gives a line lazy in a block quote
-    # indent -1, so a block quote nested in that one reads a block start
-    # indented four or more columns as unindented and ends there; the line
-    # renders as indented code and the table after it is checked.
+    # markdown-it-py 3.0.0 gives a line lazy in a block quote indent -1, so
+    # a block quote nested in that one reads a block start indented four or
+    # more columns as unindented and ends there; the line renders as indented
+    # code and the table after it is checked.
     NESTED_QUOTE_ARRANGEMENTS = (("> > text", "    {}", "> "),
                                  ("> > > text", ">     {}", "> "),
                                  ("> - > text", "    {}", ""))
@@ -80782,35 +80787,32 @@ class TableCellCountTests(LinterTestCase):
 
 
 class GitReadFailsClosedTests(unittest.TestCase):
-    """3b551: a git read that fails is a failure, never the benign answer.
+    """A git read that fails is a failure, never the benign answer.
 
     Each test breaks git one way (a missing object, an unreadable config file, a HEAD naming a
     missing commit, a bad ref, a corrupt index) at one call site that read the failure as absent,
     unset, detached or empty, and checks that the site now refuses or reports it. The intact twin
-    in each test keeps the site's real verdict on normal input. Round 2 also runs the absence
-    check from a subdirectory and beside a name that is not UTF-8, where an absent file must
-    still read as absent and a missing blob as a failure. Round 3 adds an absent name that is
-    itself not UTF-8 or holds a glob character, a range commit D4's history read cannot walk,
-    and a HEAD naming a missing commit beside a real root commit. Round 4 adds a HEAD or
-    origin/main ref git cannot parse and a HEAD commit whose parent line is malformed, beside
-    the cases that still have no prior state (an unborn HEAD, no repository, a root commit, a
-    shallow clone), and reads lint_common's non-UTF-8 absence in UTF-8 mode under any locale.
-    Round 5 adds a .git that git will not open beside a linked worktree, a missing HEAD~1
-    commit, and a local branch or tag named origin/main beside the remote-tracking ref.
-    Round 6 adds a .git git skips for an enclosing repository, a dangling .git symlink, a
-    broken .git file, a GIT_DIR naming a missing or broken repository, and the five names
-    rev-parse's lookup tries for HEAD and for refs/remotes/origin/main, each beside a broken
-    or absent ref.
-    Round 7 adds the ref records git skips and reports as absent (a malformed or unsorted
-    packed-refs line, a dangling loose symlink, a loose file shadowing a packed ref), a GIT_DIR
-    naming another repository beside REPO_ROOT's .git, and a work tree that is missing.
-    Round 8 adds the origin/main records quick-guard.sh's read skips, a directory of other refs
-    at an absent ref's loose path, and the files the gate reads as UTF-8.
-    Round 9 has quick-guard.sh read refs/remotes/origin/main by its full name past a local
-    branch origin/main, refuse a ref directory git cannot read, and pins each absence check.
-    Round 10 (3b647) has quick-guard.sh refuse a repository with no commits by name, and covers
-    its unreadable-origin/main refusals without directory permission bits, so also as root.
-    The rule is .claude/rules/aiqt/10-INTEG-check-fails-closed-on-unreadable.md.
+    in each test keeps the site's real verdict on normal input. The absence check also runs from
+    a subdirectory and beside a name that is not UTF-8, where an absent file must still read as
+    absent and a missing blob as a failure. The cases also cover an absent name that is itself
+    not UTF-8 or holds a glob character, a range commit D4's history read cannot walk, and a HEAD
+    naming a missing commit beside a real root commit; a HEAD or origin/main ref git cannot parse
+    and a HEAD commit whose parent line is malformed, beside the cases that still have no prior
+    state (an unborn HEAD, no repository, a root commit, a shallow clone); a .git that git will
+    not open beside a linked worktree, a missing HEAD~1 commit, and a local branch or tag named
+    origin/main beside the remote-tracking ref; a .git git skips for an enclosing repository, a
+    dangling .git symlink, a broken .git file, a GIT_DIR naming a missing or broken repository,
+    and the five names rev-parse's lookup tries for HEAD and for refs/remotes/origin/main, each
+    beside a broken or absent ref; the ref records git skips and reports as absent (a malformed
+    or unsorted packed-refs line, a dangling loose symlink, a loose file shadowing a packed ref),
+    a GIT_DIR naming another repository beside REPO_ROOT's .git, and a work tree that is missing;
+    and the origin/main records quick-guard.sh's read skips, a directory of other refs at an
+    absent ref's loose path, and the files the gate reads as UTF-8. lint_common's non-UTF-8
+    absence is read in UTF-8 mode under any locale. quick-guard.sh reads refs/remotes/origin/main
+    by its full name past a local branch origin/main, refuses a ref directory git cannot read and
+    a repository with no commits by name, and each absence check is pinned; its
+    unreadable-origin/main refusals are covered without directory permission bits, so also as
+    root. The rule is .claude/rules/aiqt/10-INTEG-check-fails-closed-on-unreadable.md.
     """
 
     ODD = "governance/" + os.fsdecode(b"\xff.md")  # a tracked name that is not UTF-8
@@ -81045,8 +81047,9 @@ class GitReadFailsClosedTests(unittest.TestCase):
         self.assertIn("not valid UTF-8", err.getvalue())
 
     def test_library_version_monotonicity_refuses_a_head_naming_a_missing_commit(self) -> None:
-        # The reviewer's fixture: HEAD~1 also fails when HEAD's own commit cannot be read, and
-        # that read as a first commit ("no prior committed state"). A root commit still does.
+        # The fixture: HEAD~1 also fails when HEAD's own commit cannot be read, and in the
+        # earlier repository that read as a first commit ("no prior committed state"). A root
+        # commit still does.
         from contextlib import redirect_stderr, redirect_stdout
         from unittest import mock
 
@@ -81095,8 +81098,8 @@ class GitReadFailsClosedTests(unittest.TestCase):
             self.assertIn("OK: no prior committed state", out, repo.name)
 
     def test_library_version_monotonicity_refuses_a_head_ref_git_cannot_parse(self) -> None:
-        # The reviewer's fixture: refs/heads/main holding garbage. rev-parse failed the same way
-        # as on an unborn branch, so it read as no prior state.
+        # The fixture: refs/heads/main holding garbage. In the earlier repository, rev-parse
+        # failed the same way as on an unborn branch, so it read as no prior state.
         repo = self.repo()
         self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n"})
         (repo / ".git" / "refs" / "heads" / "main").write_text("garbage\n", encoding="ascii")
@@ -81106,8 +81109,9 @@ class GitReadFailsClosedTests(unittest.TestCase):
         self.assertIn("cannot read HEAD: git cannot parse it or a ref it points to", err)
 
     def test_library_version_monotonicity_refuses_a_head_commit_git_cannot_parse(self) -> None:
-        # The reviewer's fixture: HEAD's commit has a malformed parent line. cat-file read the
-        # object without parsing it and HEAD~1 failed, so it read as a root commit.
+        # The fixture: HEAD's commit has a malformed parent line. In the earlier repository,
+        # cat-file read the object without parsing it and HEAD~1 failed, so it read as a root
+        # commit.
         repo = self.repo()
         self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n"})
         code, out, err = self.mono(repo)
@@ -81126,9 +81130,10 @@ class GitReadFailsClosedTests(unittest.TestCase):
                       err)
 
     def test_library_version_monotonicity_refuses_an_origin_main_git_cannot_parse(self) -> None:
-        # The reviewer's fixture: a feature branch whose regression is before HEAD~1, with
-        # refs/remotes/origin/main holding garbage. It read as no origin/main, and the gate
-        # passed against HEAD~1. A missing origin/main still falls back to HEAD~1.
+        # The fixture: a feature branch whose regression is before HEAD~1, with
+        # refs/remotes/origin/main holding garbage. In the earlier repository, it read as
+        # no origin/main, and the gate passed against HEAD~1. A missing origin/main still
+        # falls back to HEAD~1.
         repo = self.repo()
         base = self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
                                   "governance/d.md": "**Version:** 2.0.0\n"})
@@ -81152,11 +81157,11 @@ class GitReadFailsClosedTests(unittest.TestCase):
         self.assertIn("cannot read refs/remotes/origin/main: git cannot parse it", err)
 
     def test_library_version_monotonicity_reads_origin_main_by_its_full_name(self) -> None:
-        # The reviewer's fixtures: git's short-name lookup tries refs/heads/ and refs/tags/
-        # before refs/remotes/, so a local branch or tag named origin/main stood in for the
-        # remote-tracking ref. At 4c2f725e7 git skipped one holding garbage and read the local
-        # ref, and beside an intact one read the local ref first. That local ref was HEAD, so
-        # either way the gate fell back to HEAD~1 and passed (vs HEAD~1), missing the
+        # The fixtures: git's short-name lookup tries refs/heads/ and refs/tags/ before
+        # refs/remotes/, so in the earlier repository a local branch or tag named origin/main
+        # stood in for the remote-tracking ref: git skipped one holding garbage and read the
+        # local ref, and beside an intact one read the local ref first. That local ref was
+        # HEAD, so either way the gate fell back to HEAD~1 and passed (vs HEAD~1), missing the
         # regression before it.
         def feature(name, shadow, broken):
             repo = self.repo(name)
@@ -81188,11 +81193,12 @@ class GitReadFailsClosedTests(unittest.TestCase):
     LOOKUP = ("refs/{}", "refs/tags/{}", "refs/heads/{}", "refs/remotes/{}", "refs/remotes/{}/HEAD")
 
     def test_library_version_monotonicity_reads_origin_main_by_its_exact_name(self) -> None:
-        # The reviewer's fixtures: rev-parse looked up refs/remotes/origin/main the same way as a
-        # short name, so at 2378bcef9 a ref under any of the five names it also tries stood in:
-        # for one holding garbage (the shadow was HEAD, so the gate passed vs HEAD~1 and missed
-        # the regression before it) and for an absent one (the shadow at the base was compared
-        # as origin/main). A garbage origin/main now refuses; an absent one falls back to HEAD~1.
+        # The fixtures: in the earlier repository, rev-parse looked up refs/remotes/origin/main
+        # the same way as a short name, so a ref under any of the five names it also tries stood
+        # in: for one holding garbage (the shadow was HEAD, so the gate passed vs HEAD~1 and
+        # missed the regression before it) and for an absent one (the shadow at the base was
+        # compared as origin/main). A garbage origin/main now refuses; an absent one falls back
+        # to HEAD~1.
         def feature(name, shadow, state):
             repo = self.repo(name)
             base = self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
@@ -81222,10 +81228,11 @@ class GitReadFailsClosedTests(unittest.TestCase):
                 self.assertIn("monotonic non-decreasing (vs HEAD~1)", out)
 
     def test_library_version_monotonicity_reads_head_by_its_exact_name(self) -> None:
-        # The reviewer's fixtures: rev-parse looked up HEAD the same way, so a ref under any of
-        # the five names it also tries stood in for HEAD. Beside a garbage refs/heads/main, one
-        # at the root commit passed as "no prior committed state" at 2378bcef9 with a regression
-        # in the history; beside an unborn HEAD, one at the regressed commit was read as HEAD.
+        # The fixtures: in the earlier repository, rev-parse looked up HEAD the same way, so a
+        # ref under any of the five names it also tries stood in for HEAD. Beside a garbage
+        # refs/heads/main, one at the root commit passed as "no prior committed state" with a
+        # regression in the history; beside an unborn HEAD, one at the regressed commit was read
+        # as HEAD.
         def regressed(name, shadow, state):
             repo = self.repo(name)
             root = self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
@@ -81300,11 +81307,12 @@ class GitReadFailsClosedTests(unittest.TestCase):
         self.assertIn("cannot read the prior state at HEAD~1", err)
 
     def test_library_version_monotonicity_refuses_a_repository_git_will_not_open(self) -> None:
-        # The reviewer's fixtures: git rev-parse --git-dir fails on a .git that git will not
-        # open, and every such failure read as no repository, so a real regression passed as
-        # "no prior committed state". Each repository holds a regression against HEAD~1. A
-        # linked worktree, whose .git is a file, still finds it; no .git at all is still no
-        # repository (test_library_version_monotonicity_reads_no_history_as_no_prior_state).
+        # The fixtures: git rev-parse --git-dir fails on a .git that git will not open, and
+        # in the earlier repository every such failure read as no repository, so a real
+        # regression passed as "no prior committed state". Each repository holds a
+        # regression against HEAD~1. A linked worktree, whose .git is a file, still finds
+        # it; no .git at all is still no repository
+        # (test_library_version_monotonicity_reads_no_history_as_no_prior_state).
         self.env["GIT_CEILING_DIRECTORIES"] = str(self.tmp)  # git finds no repository above
 
         def regressed(name):
@@ -81364,9 +81372,9 @@ class GitReadFailsClosedTests(unittest.TestCase):
                               err)
 
     def test_library_version_monotonicity_refuses_a_git_dir_skipped_for_an_enclosing_one(self) -> None:
-        # The reviewer's fixtures: git skips a .git it cannot use (a garbage HEAD, no refs/, an
-        # empty directory, a dangling symlink) and opens the repository above it, so at
-        # 2378bcef9 rev-parse --git-dir succeeded and the gate read that unrelated history, a
+        # The fixtures: git skips a .git it cannot use (a garbage HEAD, no refs/, an empty
+        # directory, a dangling symlink) and opens the repository above it, so in the earlier
+        # repository rev-parse --git-dir succeeded and the gate read that unrelated history, a
         # root commit: "no prior committed state" with a regression in REPO_ROOT's own. A
         # nested repository git does open still finds its regression.
         self.env["GIT_CEILING_DIRECTORIES"] = str(self.tmp)  # nothing above the enclosing one
@@ -81406,11 +81414,11 @@ class GitReadFailsClosedTests(unittest.TestCase):
                               f"repository it opens has its work tree at ", err)
 
     def test_library_version_monotonicity_refuses_a_git_dir_variable_naming_no_repository(self) -> None:
-        # The reviewer's fixtures: with GIT_DIR naming a missing path or a broken repository and
-        # no .git at REPO_ROOT, rev-parse --git-dir failed and read as no repository. With a .git
-        # present it refused, but the message named that .git. GIT_DIR naming REPO_ROOT's own
-        # repository, as a git hook exports it, still finds the regression; with no .git and
-        # GIT_DIR unset there is still no repository
+        # The fixtures: with GIT_DIR naming a missing path or a broken repository and no .git at
+        # REPO_ROOT, in the earlier repository rev-parse --git-dir failed and read as no
+        # repository. With a .git present it refused, but the message named that .git. GIT_DIR
+        # naming REPO_ROOT's own repository, as a git hook exports it, still finds the
+        # regression; with no .git and GIT_DIR unset there is still no repository
         # (test_library_version_monotonicity_reads_no_history_as_no_prior_state).
         self.env["GIT_CEILING_DIRECTORIES"] = str(self.tmp)
         repo = self.repo("regressed")
@@ -81447,8 +81455,8 @@ class GitReadFailsClosedTests(unittest.TestCase):
                 self.assertIn(f"as {plain}'s repository: the repository it opens {reason}", err)
 
     def test_library_version_monotonicity_refuses_a_ref_record_git_skips(self) -> None:
-        # The reviewer's fixtures: show-ref --verify reports some ref records git skips as a ref
-        # that does not exist, and symbolic-ref -q exits 1 on them, so at 8f0149e64 HEAD's
+        # The fixtures: show-ref --verify reports some ref records git skips as a ref that does
+        # not exist, and symbolic-ref -q exits 1 on them, so in the earlier repository HEAD's
         # branch read as unborn ("no prior committed state") and origin/main as absent (vs
         # HEAD~1, missing the regression before it). for-each-ref reads every record, and the
         # loose path of a record it does not list still exists. Each intact twin finds its
@@ -81553,12 +81561,12 @@ class GitReadFailsClosedTests(unittest.TestCase):
                 self.assertIn(reason, err)
 
     def test_library_version_monotonicity_refuses_a_git_dir_naming_another_repository(self) -> None:
-        # The reviewer's fixture: with no work tree set, git takes REPO_ROOT (the -C directory)
-        # as the work tree of any non-bare repository GIT_DIR names, so at 8f0149e64 a GIT_DIR
-        # naming an unrelated repository beside REPO_ROOT's .git passed the work-tree check and
-        # its root commit read as "no prior committed state". GIT_DIR naming the git dir that
-        # discovery finds, as a hook in a plain repository or a linked worktree exports it,
-        # still finds the regression.
+        # The fixture: with no work tree set, git takes REPO_ROOT (the -C directory) as the
+        # work tree of any non-bare repository GIT_DIR names, so in the earlier repository a
+        # GIT_DIR naming an unrelated repository beside REPO_ROOT's .git passed the work-tree
+        # check and its root commit read as "no prior committed state". GIT_DIR naming the git
+        # dir that discovery finds, as a hook in a plain repository or a linked worktree
+        # exports it, still finds the regression.
         self.env["GIT_CEILING_DIRECTORIES"] = str(self.tmp)
         repo = self.repo("regressed")
         self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
@@ -81583,9 +81591,9 @@ class GitReadFailsClosedTests(unittest.TestCase):
                               f"{repo}'s repository: it is not {repo / '.git'}", err)
 
     def test_library_version_monotonicity_refuses_a_missing_work_tree(self) -> None:
-        # The reviewer's fixtures: with core.worktree or GIT_WORK_TREE naming a missing
-        # directory, rev-parse --git-dir and --show-toplevel both succeed, and the work tree
-        # they print cannot be compared with REPO_ROOT, so it is not REPO_ROOT's.
+        # The fixtures: with core.worktree or GIT_WORK_TREE naming a missing directory,
+        # rev-parse --git-dir and --show-toplevel both succeed, and the work tree they print
+        # cannot be compared with REPO_ROOT, so it is not REPO_ROOT's.
         repo = self.repo()
         self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
                            "governance/d.md": "**Version:** 2.0.0\n"})
@@ -81608,11 +81616,11 @@ class GitReadFailsClosedTests(unittest.TestCase):
             self.assertIn(refused, err)
 
     def test_library_version_monotonicity_reads_a_ref_directory_as_absent(self) -> None:
-        # The reviewer's fixture: a remote branch main/x and no main keeps the directory
-        # refs/remotes/origin/main/, which for-each-ref lists without a warning, so at 73c637e6a
-        # the loose-path check refused an absent origin/main. An unborn HEAD branch named like a
-        # directory of other branches is the same layout. A symlink to a directory there still
-        # refuses, as does a loose path git cannot name.
+        # The fixture: a remote branch main/x and no main keeps the directory
+        # refs/remotes/origin/main/, which for-each-ref lists without a warning, so in the
+        # earlier repository the loose-path check refused an absent origin/main. An unborn HEAD
+        # branch named like a directory of other branches is the same layout. A symlink to a
+        # directory there still refuses, as does a loose path git cannot name.
         import shlex
 
         readme = {"README.md": "# R\n\n**Library Version:** 2026.06.1\n"}
@@ -81659,10 +81667,10 @@ class GitReadFailsClosedTests(unittest.TestCase):
                       "rev-parse --git-path exited 128)", err)
 
     def test_library_version_monotonicity_names_the_files_it_reads_as_utf8(self) -> None:
-        # 3b624: the walk used to skip a current document that is not UTF-8, so its prior copy
-        # (here a higher version) was never compared and the gate printed OK (exit 0). It now
-        # names the document and refuses. The prior copy of a document with no version is still
-        # not read. A prior copy that is read still refuses
+        # In the earlier repository, the walk skipped a current document that is not UTF-8,
+        # so its prior copy (here a higher version) was never compared and the gate printed
+        # OK (exit 0). It now names the document and refuses. The prior copy of a document
+        # with no version is still not read. A prior copy that is read still refuses
         # (test_library_version_monotonicity_refuses_a_non_utf8_prior_blob).
         repo = self.repo()
         self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
@@ -81684,7 +81692,7 @@ class GitReadFailsClosedTests(unittest.TestCase):
                       "valid UTF-8", doc)
 
     def test_library_version_monotonicity_names_every_non_utf8_current_document(self) -> None:
-        # 3b624: every current document that is not UTF-8 gets its own line, not only the first.
+        # Every current document that is not UTF-8 gets its own line, not only the first.
         repo = self.repo()
         self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
                            "governance/d.md": "**Version:** 2.0.0\n",
@@ -81702,9 +81710,10 @@ class GitReadFailsClosedTests(unittest.TestCase):
             "unchecked."], err)
 
     def test_library_version_monotonicity_names_a_non_utf8_current_document_before_a_prior(self) -> None:
-        # 3b624 r2: the walk collected the current documents while it read prior blobs, so an
-        # undecodable prior blob, or a git failure, raised first and only the generic message
-        # printed. Every current document is now decoded before any prior blob is read.
+        # In the earlier repository, the walk collected the current documents while it read
+        # prior blobs, so an undecodable prior blob, or a git failure, raised first and only
+        # the generic message printed. Every current document is now decoded before any prior
+        # blob is read.
         repo = self.repo()
         self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
                            "governance/d.md": "**Version:** 2.0.0\n",
@@ -81725,8 +81734,9 @@ class GitReadFailsClosedTests(unittest.TestCase):
                          expected, err)
 
     def test_library_version_monotonicity_names_a_non_utf8_document_on_a_root_commit(self) -> None:
-        # 3b624 r2: with no prior state the gate printed OK before any walk, so an undecodable
-        # current document passed on a root commit. The intact twin still has no prior state.
+        # With no prior state, in the earlier repository the gate printed OK before any walk,
+        # so an undecodable current document passed on a root commit. The intact twin still
+        # has no prior state.
         repo = self.repo()
         self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
                            "governance/d.md": "**Version:** 1.0.0\n"})
@@ -81743,8 +81753,9 @@ class GitReadFailsClosedTests(unittest.TestCase):
             "monotonicity is unchecked."], err)
 
     def test_library_version_monotonicity_names_a_non_utf8_readme(self) -> None:
-        # 3b624 r2: an undecodable README.md raised in check_library_version, before the walk,
-        # and printed the generic message; it is now named like any current document.
+        # In the earlier repository, an undecodable README.md raised in check_library_version,
+        # before the walk, and printed the generic message; it is now named like any current
+        # document.
         repo = self.repo()
         self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
                            "governance/d.md": "**Version:** 1.0.0\n"})
@@ -81760,9 +81771,10 @@ class GitReadFailsClosedTests(unittest.TestCase):
             "monotonicity is unchecked."], err)
 
     def test_library_version_monotonicity_names_a_dangling_symlink_document(self) -> None:
-        # 3b624 r3: the walk caught only UnicodeDecodeError, so a dangling *.md symlink raised
-        # FileNotFoundError, a traceback with exit 1 ("versions decreased"). It is now named,
-        # exit 2, with a prior state and on a root commit. The intact twin passes.
+        # In the earlier repository, the walk caught only UnicodeDecodeError, so a dangling
+        # *.md symlink raised FileNotFoundError, a traceback with exit 1 ("versions
+        # decreased"). It is now named, exit 2, with a prior state and on a root commit. The
+        # intact twin passes.
         repo = self.repo()
         self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
                            "governance/broken.md": "**Version:** 2.0.0\n"})
@@ -81778,7 +81790,7 @@ class GitReadFailsClosedTests(unittest.TestCase):
         (root / "governance" / "broken.md").symlink_to("missing.md")
         self.git(root, "add", "-A")
         self.git(root, "commit", "-qm", "c", "--amend")
-        # r5: the document is opened with O_NOFOLLOW, so the symlink fails the open (ELOOP).
+        # The document is opened with O_NOFOLLOW, so the symlink fails the open (ELOOP).
         for fixture in (repo, root):
             code, out, err = self.mono(fixture)
             self.assertEqual(code, 2, out + err)
@@ -81788,9 +81800,10 @@ class GitReadFailsClosedTests(unittest.TestCase):
                 "cannot be read, so monotonicity is unchecked."], err)
 
     def test_library_version_monotonicity_names_a_directory_named_md(self) -> None:
-        # 3b624 r3: a directory named governance/dir.md raised IsADirectoryError, a traceback
-        # with exit 1. It is not skipped: the prior state holds a document at that path. It is
-        # named beside an undecodable document, one line each, exit 2.
+        # In the earlier repository, a directory named governance/dir.md raised
+        # IsADirectoryError, a traceback with exit 1. It is not skipped: the prior state holds
+        # a document at that path. It is named beside an undecodable document, one line each,
+        # exit 2.
         repo = self.repo()
         self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
                            "governance/dir.md": "**Version:** 2.0.0\n",
@@ -81813,9 +81826,9 @@ class GitReadFailsClosedTests(unittest.TestCase):
             "unchecked."], err)
 
     def test_library_version_monotonicity_prior_readme_names_a_non_utf8_readme(self) -> None:
-        # 3b624 r3: with --prior-readme the current README.md skipped the decode check, so one
-        # that is not UTF-8 raised UnicodeDecodeError, a traceback with exit 1. It is now named,
-        # exit 2. The intact twin passes against the same prior.
+        # In the earlier repository, with --prior-readme the current README.md skipped the
+        # decode check, so one that is not UTF-8 raised UnicodeDecodeError, a traceback with
+        # exit 1. It is now named, exit 2. The intact twin passes against the same prior.
         repo = self.repo()
         self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n"})
         prior = self.tmp / "prior.md"
@@ -81832,10 +81845,11 @@ class GitReadFailsClosedTests(unittest.TestCase):
 
     @unittest.skipIf(os.geteuid() == 0, "root ignores directory permission bits")
     def test_library_version_monotonicity_names_a_directory_it_cannot_list(self) -> None:
-        # 3b624 r4: Path.rglob dropped a directory it could not list without a word, so a
-        # tracked document in one whose version went from 2.0.0 to 1.0.0 was never compared and
-        # the gate printed OK (exit 0). The directory is now named, exit 2. An exempt directory
-        # that cannot be listed is not walked, so it still does not refuse.
+        # In the earlier repository, Path.rglob dropped a directory it could not list without
+        # a word, so a tracked document in one whose version went from 2.0.0 to 1.0.0 was
+        # never compared and the gate printed OK (exit 0). The directory is now named, exit
+        # 2. An exempt directory that cannot be listed is not walked, so it still does not
+        # refuse.
         repo = self.repo()
         self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
                            "governance/sub/x.md": "**Version:** 2.0.0\n"})
@@ -81859,11 +81873,11 @@ class GitReadFailsClosedTests(unittest.TestCase):
             "versions of the documents in it cannot be read, so monotonicity is unchecked."], err)
 
     def test_library_version_monotonicity_refuses_a_fifo_document_without_opening_it(self) -> None:
-        # 3b624 r4: the walk opened a FIFO named *.md, which blocks until a writer appears, so
-        # the gate hung. A thread here stands in for the writer, so the old code reads an empty
-        # file and prints OK instead of hanging. r5: the FIFO is opened non-blocking and refused
-        # from its descriptor without being read; a symlink to it, like any symlink, fails the
-        # O_NOFOLLOW open and is refused as an open error.
+        # In the earlier repository, the walk opened a FIFO named *.md, which blocks until a
+        # writer appears, so the gate hung. A thread here stands in for the writer, so the old
+        # code read an empty file and printed OK instead of hanging. The FIFO is now opened
+        # non-blocking and refused from its descriptor without being read; a symlink to it, like
+        # any symlink, fails the O_NOFOLLOW open and is refused as an open error.
         import threading
 
         repo = self.repo()
@@ -81906,10 +81920,10 @@ class GitReadFailsClosedTests(unittest.TestCase):
             "monotonicity is unchecked."], err)
 
     def test_library_version_monotonicity_refuses_a_symlink_to_a_regular_document(self) -> None:
-        # 3b624 r6: r5 opens each document with O_NOFOLLOW, so a symlink to a regular *.md
-        # fails the open (ELOOP) and is refused as an open error; without O_NOFOLLOW it was
-        # followed, read as the file it names, and the gate printed OK. The twin without the
-        # symlink passes.
+        # Each document is opened with O_NOFOLLOW, so a symlink to a regular *.md fails the
+        # open (ELOOP) and is refused as an open error; in the earlier repository, without
+        # O_NOFOLLOW it was followed, read as the file it names, and the gate printed OK. The
+        # twin without the symlink passes.
         repo = self.repo()
         self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
                            "governance/d.md": "**Version:** 1.0.0\n"})
@@ -81927,10 +81941,10 @@ class GitReadFailsClosedTests(unittest.TestCase):
 
     @unittest.skipUnless(hasattr(os, "O_NOCTTY"), "the platform has no O_NOCTTY")
     def test_library_version_monotonicity_opens_a_document_with_o_noctty(self) -> None:
-        # 3b643: without O_NOCTTY a gate run as a session leader with no controlling terminal
-        # could acquire a terminal device named *.md as its controlling terminal on the open.
+        # Without O_NOCTTY a gate run as a session leader with no controlling terminal could
+        # acquire a terminal device named *.md as its controlling terminal on the open.
         # read_current (which also reads README.md) opens a document once, with O_NOCTTY and the
-        # r5 flags; the twin read without the patch returns the same text.
+        # other open flags; the twin read without the patch returns the same text.
         from unittest import mock
 
         mono = load_linter_module(".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "mono_noctty_3b643")
@@ -81950,11 +81964,11 @@ class GitReadFailsClosedTests(unittest.TestCase):
 
     @unittest.skipUnless(hasattr(os, "O_NOCTTY"), "the platform has no O_NOCTTY")
     def test_library_version_monotonicity_opens_the_prior_readme_once_with_o_noctty(self) -> None:
-        # 3b643 r2: --prior-readme was checked with is_file() and then opened again by
-        # read_text(), without O_NOCTTY, so a path swapped for a terminal device between the two
-        # calls was opened without it. It is now opened once, with OPEN_FLAGS, and its type read
-        # from that descriptor; a symlink, which is_file() followed, is refused. A directory is
-        # refused as before. The intact twin passes.
+        # In the earlier repository, --prior-readme was checked with is_file() and then opened
+        # again by read_text(), without O_NOCTTY, so a path swapped for a terminal device
+        # between the two calls was opened without it. It is now opened once, with OPEN_FLAGS,
+        # and its type read from that descriptor; a symlink, which is_file() followed, is
+        # refused. A directory is refused as before. The intact twin passes.
         import contextlib
         import io
         from unittest import mock
@@ -81995,11 +82009,13 @@ class GitReadFailsClosedTests(unittest.TestCase):
             self.assertEqual(len(calls), 1, calls)
 
     def test_library_version_monotonicity_reads_a_document_from_the_descriptor_it_checked(self) -> None:
-        # 3b624 r5: r4 stat'ed a document and then opened it again by name, so a regular file
-        # swapped for a FIFO between the two calls was opened blocking and the gate hung. Here
-        # the swap is deterministic: the child replaces governance/d.md with a FIFO right after
-        # its stat (r4's type check) or right before its open (r5's), whichever comes first. The
-        # child is bounded by a timeout, since r4 blocks in the open. The intact twin passes.
+        # In the earlier repository, the gate stat'ed a document and then opened it again
+        # by name, so a regular file swapped for a FIFO between the two calls was opened
+        # blocking and the gate hung. Here the swap is deterministic: the child replaces
+        # governance/d.md with a FIFO right after its stat (that version's type check) or
+        # right before its open (the current check), whichever comes first. The child is
+        # bounded by a timeout because that version blocked in the open. The intact twin
+        # passes.
         import stat
 
         driver = (
@@ -82050,10 +82066,11 @@ class GitReadFailsClosedTests(unittest.TestCase):
         self.assertNotIn("OK:", result.stdout)
 
     def test_library_version_monotonicity_names_a_missing_readme_in_every_mode(self) -> None:
-        # 3b624 r4: a missing README.md raised FileNotFoundError in the library check, a
-        # traceback with exit 1 ("versions decreased"), with a prior state and under
-        # --prior-readme, and on a root commit was never read and the gate printed OK. It holds
-        # the Library Version, so it is named, exit 2, in all three. The intact twins pass.
+        # In the earlier repository, a missing README.md raised FileNotFoundError in the
+        # library check, a traceback with exit 1 ("versions decreased"), with a prior state
+        # and under --prior-readme, and on a root commit was never read and the gate printed
+        # OK. It holds the Library Version, so it is named, exit 2, in all three. The intact
+        # twins pass.
         line = ("ERROR: README.md does not exist; the library version cannot be read, so "
                 "monotonicity is unchecked.")
         repo = self.repo()
@@ -82078,17 +82095,18 @@ class GitReadFailsClosedTests(unittest.TestCase):
             self.assertEqual([x for x in err.splitlines() if x.startswith("ERROR: ")], [line], err)
 
     def test_library_version_monotonicity_walk_visits_the_rglob_document_set(self) -> None:
-        # 3b624 r4: the walk moved from Path.rglob("*.md") to os.walk so a directory it cannot
-        # list is reported. On an intact tree it must visit exactly the documents the rglob walk
-        # did, with the same filters: the real corpus, and a fixture with a symlinked directory
-        # (not descended), a directory and symlinks named *.md, hidden names and exempt trees.
-        # Chunk T2E: the expected set for the real corpus applies the walk's own exemption
-        # rule, lint_common in_exempt_dir, which admits the project documents under .claude
-        # and .working (PROJECT_DOCUMENT_DIRS and PROJECT_DOCUMENT_FILES, chunk FH). FX5a: the
-        # fixture's expected set is written out, so it does not depend on that rule. FX8b: the
+        # In the earlier repository the walk used Path.rglob("*.md"); it now uses os.walk so
+        # a directory it cannot list is reported. On an intact tree it must visit exactly the
+        # documents the rglob walk did, with the same filters: the real corpus, and a fixture
+        # with a symlinked directory (not descended), a directory and symlinks named *.md,
+        # hidden names and exempt trees. The expected set for the real corpus applies the walk's
+        # own exemption rule, lint_common in_exempt_dir, which admits the project documents
+        # under .claude and .working (PROJECT_DOCUMENT_DIRS and PROJECT_DOCUMENT_FILES).
+        # The fixture's expected set is written out, so it does not depend on that rule. The
         # expected set for the real corpus calls no production exemption predicate either. The
         # rule is written out below: the exempt directory names, the exempt source root, and the
-        # project documents admitted below .claude and .working. The fixture checks that rule too.
+        # project documents admitted below .claude and .working. The fixture checks that rule
+        # too.
         from unittest import mock
 
         mono = load_linter_module(".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "mono_walk_3b624")
@@ -82185,7 +82203,7 @@ class GitReadFailsClosedTests(unittest.TestCase):
             self.assertNotIn("OK:", result.stdout)
 
     def test_date_cobump_reads_an_add_beside_a_non_utf8_name(self) -> None:
-        # The reviewer's fixture: an unchanged name that is not UTF-8 beside an added file.
+        # The fixture: an unchanged name that is not UTF-8 beside an added file.
         repo = self.repo()
         base = self.commit(repo, {self.ODD: "odd\n", "governance/doc.md": self.doc("1.0.0")})
         self.commit(repo, {"governance/new.md": self.doc("2.0.0")})
@@ -82203,9 +82221,10 @@ class GitReadFailsClosedTests(unittest.TestCase):
         self.assertIn("git cat-file failed for governance/doc.md", result.stderr)
 
     def test_date_cobump_refuses_an_unreadable_range_commit(self) -> None:
-        # The reviewer's fixture: a stale-Date bump in a middle commit, then a commit to
-        # another file. With the middle commit's root tree gone git log cannot walk the range,
-        # and that read as "no range commit touched the file", skipping the Date check.
+        # The fixture: a stale-Date bump in a middle commit, then a commit to another file.
+        # With the middle commit's root tree gone git log cannot walk the range, and in the
+        # earlier repository that read as "no range commit touched the file", skipping the
+        # Date check.
         repo = self.repo()
         base = self.commit(repo, {"governance/doc.md": self.doc("1.0.0")})
         self.commit(repo, {"governance/doc.md": self.doc("1.0.1")})
@@ -82307,8 +82326,9 @@ class GitReadFailsClosedTests(unittest.TestCase):
         self.assertIn("origin/main is absent", clean.stdout)  # the degradation is announced
 
     def test_quick_guard_lists_a_changed_specification(self) -> None:
-        # FX3c: a change under .claude/skills/corpus-management/specs reaches the fast checks;
-        # before, the changed-file filter dropped it and quick-guard reported nothing to check.
+        # A change under .claude/skills/corpus-management/specs reaches the fast checks; in the
+        # earlier repository, the changed-file filter dropped it and quick-guard reported
+        # nothing to check.
         repo = self.repo()
         (repo / ".claude/skills/corpus-management/tools").mkdir(parents=True)
         shutil.copy(SKILL_ROOT / "tools" / "quick-guard.sh", repo / ".claude/skills/corpus-management/tools")
@@ -82363,13 +82383,14 @@ class GitReadFailsClosedTests(unittest.TestCase):
         refused(repo, "git ls-files --others", PATH=f"{shim}{os.pathsep}{self.env['PATH']}")
 
     def test_quick_guard_refuses_an_origin_main_git_skips(self) -> None:
-        # The reviewer's fixture: a committed governance/ delta with refs/remotes/origin/main
-        # holding garbage. rev-parse warned and exited 1, which read as an absent origin/main, so
-        # at 73c637e6a MB fell back to HEAD and quick-guard listed no changed files and exited 0.
-        # git skips the other records here with or without a warning; for-each-ref or the loose
-        # path shows each. An absent origin/main and a remote branch main/x still read as
-        # absent, and an intact origin/main finds the delta. Round 9 reads only the full name, so
-        # a dangling local branch origin/main symlink no longer refuses an absent origin/main.
+        # The fixture: a committed governance/ delta with refs/remotes/origin/main holding
+        # garbage. In the earlier repository, rev-parse warned and exited 1, which read as an
+        # absent origin/main, so MB fell back to HEAD and quick-guard listed no changed files and
+        # exited 0. git skips the other records here with or without a warning; for-each-ref or
+        # the loose path shows each. An absent origin/main and a remote branch main/x still read
+        # as absent, and an intact origin/main finds the delta. quick-guard reads only the full
+        # name, so a dangling local branch origin/main symlink does not refuse an absent
+        # origin/main.
         fixture = self.guard_fixture
 
         def loose(repo, rel="refs/remotes/origin/main"):
@@ -82469,11 +82490,11 @@ class GitReadFailsClosedTests(unittest.TestCase):
         self.assertNotIn("origin/main is absent", result.stdout)
 
     def test_quick_guard_reads_origin_main_by_its_full_name(self) -> None:
-        # codex's fixture: a local branch origin/main at HEAD beside refs/remotes/origin/main at
-        # its parent. rev-parse's short-name lookup takes refs/heads/origin/main first, so at
-        # a694c4626 the guard diffed against HEAD and listed no changed files. Given the full
-        # name, rev-parse would still read a lone refs/heads/refs/remotes/origin/main, so a
-        # full-name rev-parse read is not exact either; only show-ref's exact name counts.
+        # The fixture: a local branch origin/main at HEAD beside refs/remotes/origin/main at its
+        # parent. rev-parse's short-name lookup takes refs/heads/origin/main first, so in the
+        # earlier repository the guard diffed against HEAD and listed no changed files. Given
+        # the full name, rev-parse would still read a lone refs/heads/refs/remotes/origin/main,
+        # so a full-name rev-parse read is not exact either; only show-ref's exact name counts.
         repo, base = self.guard_fixture("local-branch-origin-main")
         self.git(repo, "update-ref", "refs/remotes/origin/main", base)
         self.git(repo, "update-ref", "refs/heads/origin/main", "HEAD")
@@ -82487,10 +82508,11 @@ class GitReadFailsClosedTests(unittest.TestCase):
 
     @unittest.skipIf(os.geteuid() == 0, "root ignores directory permission bits")
     def test_quick_guard_refuses_an_origin_main_it_cannot_read(self) -> None:
-        # claude's fixture: origin/main under a mode-000 directory. rev-parse exits 1 silently,
-        # for-each-ref lists nothing under it, and the loose path reads as no file, so at
-        # a694c4626 the guard read origin/main as absent and exited 0; symbolic-ref -q exits 128.
-        # The sibling below covers these refusals without permission bits, so also as root.
+        # The fixture: origin/main under a mode-000 directory. rev-parse exits 1 silently,
+        # for-each-ref lists nothing under it, and the loose path reads as no file, so in the
+        # earlier repository the guard read origin/main as absent and exited 0; symbolic-ref -q
+        # exits 128. The sibling below covers these refusals without permission bits, so also as
+        # root.
         for locked in ("refs/remotes/origin", "refs/remotes"):
             for packed in (False, True):
                 with self.subTest(locked=locked, packed=packed):
@@ -82509,11 +82531,11 @@ class GitReadFailsClosedTests(unittest.TestCase):
                     self.assertIn("fast-checking 1 changed .md file(s)", result.stdout, result.stderr)
 
     def test_quick_guard_refuses_an_origin_main_it_cannot_read_as_root(self) -> None:
-        # 3b647: the sibling above is skipped as root, which ignores directory permission bits.
-        # These need none. symbolic-ref -q exiting 128 (what the mode-000 directory caused) is
-        # injected by a git wrapper beside an absent origin/main. An origin/main naming a missing
-        # commit, loose, packed or in a reftable repository, fails show-ref and is still listed.
-        # A dangling symbolic origin/main in a reftable repository leaves no loose path and no
+        # The sibling above is skipped as root, which ignores directory permission bits. These
+        # need none. symbolic-ref -q exiting 128 (what the mode-000 directory caused) is injected
+        # by a git wrapper beside an absent origin/main. An origin/main naming a missing commit,
+        # loose, packed or in a reftable repository, fails show-ref and is still listed. A
+        # dangling symbolic origin/main in a reftable repository leaves no loose path and no
         # listing; symbolic-ref -q exits 0, which is not absent either.
         import shlex
 
@@ -82546,10 +82568,11 @@ class GitReadFailsClosedTests(unittest.TestCase):
             self.assert_guard_refuses(repo)
 
     def test_quick_guard_refuses_a_repository_with_no_commits(self) -> None:
-        # 3b647: with HEAD unborn, git diff HEAD failed with "bad revision 'HEAD'" after the
-        # origin/main-absent note, a refusal that did not say why. HEAD is now read first, so
-        # the refusal names it, with or without origin/main and with .md files staged or not.
-        # --quiet hides git's own report for some HEAD failures and not others; the guard refuses either way.
+        # In the earlier repository, with HEAD unborn, git diff HEAD failed with "bad revision
+        # 'HEAD'" after the origin/main-absent note, a refusal that did not say why. HEAD is
+        # now read first, so the refusal names it, with or without origin/main and with .md
+        # files staged or not. --quiet hides git's own report for some HEAD failures and not
+        # others; the guard refuses either way.
         import shlex
 
         def refused(repo, **env):
@@ -82722,9 +82745,9 @@ class IsolatedLaunchTests(LinterTestCase):
                           "assigns sys.path; remove it from INSERT_BASELINE"])
 
     def test_augmented_assignment_and_reordering_methods_are_inserts(self) -> None:
-        # Round-2 review: `sys.path[:0] += [...]` was missed (ast.AugAssign was not
-        # visited), as were the dunder and reordering methods. The controls append,
-        # extend and read sys.path.
+        # In the earlier repository, `sys.path[:0] += [...]` was missed
+        # (ast.AugAssign was not visited), as were the dunder and reordering
+        # methods. The controls append, extend and read sys.path.
         mod = self.gate()
         tools = self.fixture_tools({
             "aug_slice.py": "import sys\nsys.path[:0] += ['x']\n",
@@ -82862,7 +82885,7 @@ class IsolatedLaunchTests(LinterTestCase):
 
 
 class RegressionTimingMeasurementTests(unittest.TestCase):
-    """Per-unit timing measurement for the regression suite (3b789 PR 1).
+    """Per-unit timing measurement for the regression suite.
 
     .claude/skills/corpus-management/tools/measure-regression-timings.py groups a module's flattened
     suite into units (a maximal run of consecutive occurrences of one
@@ -82874,18 +82897,19 @@ class RegressionTimingMeasurementTests(unittest.TestCase):
     test here fails without that behaviour. The tool is wired into no
     gate surface; only the dispatch-only timing workflow runs it.
 
-    Round 2 (review round 1 fixes): each module is imported explicitly
-    before its tests load, so an import-time raise is refused (exit 2,
-    naming the module, no weights file) instead of exiting 1 and timing
-    a synthetic failed-import case as a phantom unit; the timer takes an
-    injectable clock and is asserted exactly against a fake clock; the
-    duplicate-module refusal names the duplicated module; a relative
-    --output resolves against the invoker's working directory, not the
-    repository root the tool changes into; and the docstring names the
-    audit-programme specification, the gate surfaces and the tool's
-    ordinary inventory pin row. Fixture modules that must break or stay
-    tiny live in a disposable repo skeleton holding a copy of the tool,
-    never in this repository's discovered .claude/skills/corpus-management/tests/test_*.py set.
+    Each module is imported explicitly before its tests load, so an
+    import-time raise is refused (exit 2, naming the module, no weights
+    file) instead of exiting 1 and timing a synthetic failed-import case
+    as a phantom unit; the timer takes an injectable clock and is
+    asserted exactly against a fake clock; the duplicate-module refusal
+    names the duplicated module; a relative --output resolves against
+    the invoker's working directory, not the repository root the tool
+    changes into; and the docstring names the audit-programme
+    specification, the gate surfaces and the tool's ordinary inventory
+    pin row. Fixture modules that must break or stay tiny live in a
+    disposable repo skeleton holding a copy of the tool, never in this
+    repository's discovered .claude/skills/corpus-management/tests/test_*.py
+    set.
     """
 
     TOOL = ".claude/skills/corpus-management/tools/measure-regression-timings.py"
@@ -82954,7 +82978,8 @@ class RegressionTimingMeasurementTests(unittest.TestCase):
         # An injected fake clock pins exact per-unit seconds: the clock is
         # read once when the result is configured and once per recorded
         # unit boundary, so a disabled or misattributed timer cannot pass
-        # (round 1, codex: the >= 0.0 assertion let a mutation survive).
+        # (in the earlier repository, the >= 0.0 assertion let a mutation
+        # survive).
         ticks = iter([100.0, 103.0, 107.5])
         units, seconds, result = self.mod.measure_suite(
             "tests.test_sample", suite, stream=io.StringIO(), verbosity=0,
@@ -83001,8 +83026,8 @@ class RegressionTimingMeasurementTests(unittest.TestCase):
         must stay tiny) never enters this repository's discovered set."""
         root = Path(tempfile.mkdtemp(dir=FIXTURE_DIR))
         self.addCleanup(_force_rmtree, root)
-        # Chunk FC: the tool and the suite sit at the shipped layout path; the tool
-        # reads its tests from its own skill directory (SUITE_ROOT, parents[1]).
+        # The tool and the suite sit at the shipped layout path; the tool reads its
+        # tests from its own skill directory (SUITE_ROOT, parents[1]).
         fixture_tools(root, Path(self.TOOL).name)
         tests = root / SKILL_TOOLS_REL.parent / "tests"
         tests.mkdir()
@@ -83072,13 +83097,12 @@ class RegressionTimingMeasurementTests(unittest.TestCase):
 
 class TestModuleRawCharacterTests(unittest.TestCase):
     """This module's own source holds no raw invisible, format, line-separator,
-    combining or non-ASCII space character (Unicode categories Cf, Zl, Zp and
-    Mn, and Zs other than U+0020 SPACE), no raw control character (Cc) other
-    than tab and line feed (carriage return included, since lines end in LF
-    alone), and no blank-looking character in BLANK. A fixture that needs one
-    writes it as an escape with the same value (``\\u00a0``, ``\\u200b``,
-    ``\\u2028``, ``\\u000c``), so a reader, a diff and a review see it (the 3b712
-    follow-up)."""
+    combining or non-ASCII space character (Unicode categories Cf, Zl, Zp and Mn,
+    and Zs other than U+0020 SPACE), no raw control character (Cc) other than tab
+    and line feed (carriage return included, since lines end in LF alone), and no
+    blank-looking character in BLANK. A fixture that needs one writes it as an
+    escape with the same value (``\\u00a0``, ``\\u200b``, ``\\u2028``,
+    ``\\u000c``), so a reader, a diff and a review see it."""
 
     CATEGORIES = frozenset({"Cf", "Zl", "Zp", "Zs", "Mn", "Cc"})
     # Blank-looking characters in no category above (Unicode 16.0.0): the
@@ -83111,25 +83135,23 @@ class TestModuleRawCharacterTests(unittest.TestCase):
 
 
 class WebSiteHardeningTests(unittest.TestCase):
-    """Site-hardening regression tests for the grclibrary.ai generator (PR 1,
-    re-based at the draft-site promotion).
+    """Site-hardening regression tests for the grclibrary.ai generator
+    (re-based at the draft-site promotion).
 
     W1: the dist-root ``_headers`` file carries exactly the four repo-owned
     header rules under one ``/*`` rule, emitted once, at the output root
-    alone, with the spec section 9 CSP (the old live rule's
-    style-src 'unsafe-inline' widening left with the old root tree at the
-    promotion, executing the recorded owner decision); the zone's automatic
-    headers (X-Content-Type-Options, Referrer-Policy,
+    alone, with the spec section 9 CSP (the old live rule's style-src
+    'unsafe-inline' widening left with the old root tree at the promotion);
+    the zone's automatic headers (X-Content-Type-Options, Referrer-Policy,
     Strict-Transport-Security) are never repeated in it.
     W2: the site renders a real 404 page (static noindex, root only,
     excluded from sitemap.xml). W3: ``.well-known/security.txt`` carries
-    exactly the decided RFC 9116 fields. W4: robots.txt advertises the
+    exactly the pinned RFC 9116 fields. W4: robots.txt advertises the
     sitemap. Each test fails without its feature.
     """
 
-    # The exact decided header values (owner decisions 2026-11-03 and the
-    # 2026-11-04 promotion CSP flip), in file order. Site fix F17 (item
-    # 3b788) dropped bluetooth, which Chromium does not recognize.
+    # The exact header values, in file order. The Permissions-Policy
+    # value omits bluetooth, which Chromium does not recognize.
     EXPECTED_HEADERS = {
         "Content-Security-Policy": (
             "default-src 'none'; script-src 'self' 'unsafe-inline'"
@@ -83173,7 +83195,7 @@ class WebSiteHardeningTests(unittest.TestCase):
         # The /draft/* staging block left the emitted file with the /draft/
         # prefix at the promotion; its constant stays pinned against this
         # literal (never only against build.py's own constant) for a future
-        # prefixed staging tree (round-2 fix 6).
+        # prefixed staging tree.
         self.assertEqual(
             self.web.DRAFT_HEADERS_BLOCK,
             "/draft/*\n"
@@ -83501,11 +83523,11 @@ class BaselinePinLinterTests(LinterTestCase):
         self.assertIn("4 baseline-pin finding(s).", result.stdout)
 
     def test_repository_pin_version_is_the_card_builder_release(self) -> None:
-        """Item 3b788 review: the pin named 1.9.2 while its [files] table
-        carried the 1.10.0 card builder. The builder states the package
-        version it belongs to in its VERSION constant (the package's release
-        checks fail when the two differ), so the repository pin's version is
-        that release, and gate 110 reports it."""
+        """In the earlier repository, the pin named 1.9.2 while its [files]
+        table carried the 1.10.0 card builder. The builder states the
+        package version it belongs to in its VERSION constant (the package's
+        release checks fail when the two differ), so the repository pin's
+        version is that release, and gate 110 reports it."""
         import re
         import tomllib
 
@@ -83548,9 +83570,10 @@ class BaselinePinLinterTests(LinterTestCase):
                       result.stdout)
 
     def test_tool_without_pin_entry_or_file_flagged(self) -> None:
-        """Round 2 NOTE 4: the pin must include every ``PINNED_TOOLS`` path,
-        so a pin with no palette gate entry is a finding even when the file
-        is absent too; the gate skipped that case silently (exit 0)."""
+        """The pin must include every ``PINNED_TOOLS`` path, so a pin with
+        no palette gate entry is a finding even when the file is absent too;
+        in the earlier repository the gate skipped that case silently
+        (exit 0)."""
         root = self._pin_fixture_root()
         (root / ".web" / "site-card" / "check_palette.py").unlink()
         self._write_tree_only_pin(root)
@@ -83560,10 +83583,10 @@ class BaselinePinLinterTests(LinterTestCase):
                       ".web/site-card/pin.toml and no file", result.stdout)
 
     def test_symlinked_tools_directory_refused(self) -> None:
-        """Round 2 WARN 1: a ``.web/site-card`` that is a symbolic link to a
-        byte-identical directory is refused (exit 1, naming the path), never
-        verified through the link; the pin reads through the link, so only
-        the tools-directory check catches it."""
+        """A ``.web/site-card`` that is a symbolic link to a byte-identical
+        directory is refused (exit 1, naming the path), never verified
+        through the link; the pin reads through the link, so only the
+        tools-directory check catches it."""
         root = self._pin_fixture_root()
         tools = root / ".web" / "site-card"
         moved = root / "baseline-tools-moved"
@@ -83575,11 +83598,11 @@ class BaselinePinLinterTests(LinterTestCase):
                       result.stdout)
 
     def test_regular_file_at_tools_directory_refused(self) -> None:
-        """Round 2 WARN 1: a regular file at ``.web/site-card``. Through the CLI
-        the pin under it cannot be read, a prerequisite refusal (exit 2)
-        before any tool check; ``tool_findings`` itself, given a pin that
-        names the tool, refuses the non-directory by name instead of
-        failing on the lstat beneath it."""
+        """A regular file at ``.web/site-card``. Through the CLI the pin under
+        it cannot be read, a prerequisite refusal (exit 2) before any tool
+        check; ``tool_findings`` itself, given a pin that names the tool,
+        refuses the non-directory by name instead of failing on the lstat
+        beneath it."""
         root = self._pin_fixture_root()
         tools = root / ".web" / "site-card"
         shutil.rmtree(tools)
@@ -83643,9 +83666,10 @@ class BaselinePinLinterTests(LinterTestCase):
         self.assertIn("missing", result.stderr)
 
     def test_non_string_version_refused(self) -> None:
-        """Round 1 finding 2: only the version is malformed; the ``[files]``
-        table stays valid and nonempty, so this fails when the version check
-        alone is removed (the combined fixture let that mutation survive)."""
+        """Only the version is malformed; the ``[files]`` table stays valid
+        and nonempty, so this fails when the version check alone is removed
+        (in the earlier repository, the combined fixture let that mutation
+        survive)."""
         root = self._pin_fixture_root()
         pin = root / ".web" / "site-card" / "pin.toml"
         text = pin.read_text(encoding="utf-8")
@@ -83657,9 +83681,9 @@ class BaselinePinLinterTests(LinterTestCase):
         self.assertIn("version", result.stderr)
 
     def test_empty_files_table_refused(self) -> None:
-        """Round 1 finding 2: only the ``[files]`` table is malformed (empty);
-        the version stays a valid string, so this fails when the table check
-        alone is removed."""
+        """Only the ``[files]`` table is malformed (empty); the version stays
+        a valid string, so this fails when the table check alone is
+        removed."""
         root = self._pin_fixture_root()
         (root / ".web" / "site-card" / "pin.toml").write_text(
             'version = "9.9.9"\n\n[files]\n', encoding="utf-8")
@@ -83669,9 +83693,9 @@ class BaselinePinLinterTests(LinterTestCase):
         self.assertIn("[files]", result.stderr)
 
     def test_symlinked_baseline_tree_refused(self) -> None:
-        """Round 1 finding 1: a ``.web/baseline`` that is itself a symbolic
-        link to a byte-identical directory must be refused before traversal
-        (exit 1, naming the path), never verified through the link."""
+        """A ``.web/baseline`` that is itself a symbolic link to a
+        byte-identical directory must be refused before traversal (exit 1,
+        naming the path), never verified through the link."""
         root = self._pin_fixture_root()
         real = root / ".web" / "baseline"
         moved = root / "baseline-moved"
@@ -83682,8 +83706,8 @@ class BaselinePinLinterTests(LinterTestCase):
         self.assertIn(".web/baseline: symbolic link", result.stdout)
 
     def test_symlinked_web_component_refused(self) -> None:
-        """Round 1 finding 1: a symbolic link at the ``.web`` component is
-        refused before traversal (exit 1, naming the path)."""
+        """A symbolic link at the ``.web`` component is refused before
+        traversal (exit 1, naming the path)."""
         root = self._pin_fixture_root()
         web = root / ".web"
         moved = root / "web-moved"
@@ -83694,11 +83718,11 @@ class BaselinePinLinterTests(LinterTestCase):
         self.assertIn(".web: symbolic link", result.stdout)
 
     def test_fifo_in_tree_refused_quickly(self) -> None:
-        """Round 2 finding 1 (ERROR): a FIFO in place of a pinned file is
-        refused by ``lstat`` before any open (exit 1, naming the path),
-        never opened: the unfixed gate opened it and an open FIFO with no
-        writer blocks forever, so the gate runs under a bounded timeout
-        here and the unfixed tool fails this test by exceeding it."""
+        """A FIFO in place of a pinned file is refused by ``lstat``
+        before any open (exit 1, naming the path), never opened: the
+        unfixed gate opened it and an open FIFO with no writer blocks
+        forever, so the gate runs under a bounded timeout here and the
+        unfixed tool fails this test by exceeding it."""
         root = self._pin_fixture_root()
         target = root / ".web" / "baseline" / "baseline.css"
         target.unlink()
@@ -83712,10 +83736,10 @@ class BaselinePinLinterTests(LinterTestCase):
         self.assertIn("not a regular file", result.stdout)
 
     def test_regular_file_at_baseline_refused(self) -> None:
-        """Round 2 finding 2 (WARN): a regular file in place of the
-        ``.web/baseline`` directory is refused before traversal (exit 1,
-        naming the path); the round-5 refusal had no test, so removing it
-        left every test green (the pin comparison still exited 1, but as
+        """A regular file in place of the ``.web/baseline`` directory is
+        refused before traversal (exit 1, naming the path); in the
+        earlier repository the refusal had no test, so removing it left
+        every test green (the pin comparison still exited 1, but as
         missing-file findings that never name the misshapen entry)."""
         root = self._pin_fixture_root()
         baseline = root / ".web" / "baseline"
@@ -83727,8 +83751,8 @@ class BaselinePinLinterTests(LinterTestCase):
                       result.stdout)
 
     def test_regular_file_at_web_refused(self) -> None:
-        """Round 2 finding 2 (WARN): a regular file at the ``.web``
-        component is refused before traversal (exit 1, naming the path)."""
+        """A regular file at the ``.web`` component is refused before
+        traversal (exit 1, naming the path)."""
         root = self._pin_fixture_root()
         web = root / ".web"
         shutil.rmtree(web)
@@ -83738,10 +83762,10 @@ class BaselinePinLinterTests(LinterTestCase):
         self.assertIn(".web: present but not a real directory", result.stdout)
 
     def test_version_claims_defer_to_pin(self) -> None:
-        """Round 1 finding 3: the module docstring must not hard-code a
-        baseline version (the adopted version lives in .web/site-card/pin.toml),
-        and the fixture helper's default pin version must be clearly
-        synthetic, never a plausible real baseline version."""
+        """The module docstring must not hard-code a baseline version (the
+        adopted version lives in .web/site-card/pin.toml), and the fixture
+        helper's default pin version must be clearly synthetic, never a
+        plausible real baseline version."""
         import ast
         import inspect
         source = (_resolve_path(self.SCRIPT)).read_text(encoding="utf-8")
