@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Added-line diff reading for the CHANGELOG checks (3b236, shared 3b399).
+"""Added-line diff reading for the CHANGELOG checks.
 
 The CHANGELOG checks that read the lines a change ADDS (delta gates D3
 ``.claude/skills/corpus-management/tools/check-changelog-dash-on-pr.py`` and D7 ``.claude/skills/corpus-management/tools/check-changelog-length-on-pr.py``,
 and ``.claude/skills/corpus-management/tools/preflight-changelog.py``) share this one pinned ``git diff`` and its parser.
-Each gate once split ``git diff`` text with splitlines() and skipped every line starting
-"+++", so an added line whose text starts with "++" escaped the check, and a CR, U+2028 or
-U+0085 inside an added line split it into fragments that lost their "+" marker.
+In the earlier repository, each gate split ``git diff`` text with splitlines() and
+skipped every line starting "+++", so an added line whose text starts with "++"
+escaped the check, and a CR, U+2028 or U+0085 inside an added line split it into
+fragments that lost their "+" marker.
 
 This is its own module, not part of ``lint_common``, because hooks import ``lint_common``
 and HookDescendantIsolationTests requires every subprocess call there to pass a literal
@@ -29,8 +30,8 @@ class ChangelogDiffUnreadable(ValueError):
 
 class GitQueryFailed(Exception):
     """A ``git rev-parse``, ``ls-tree`` or ``ls-files`` that a check runs before the diff failed;
-    the message names the command and git's stderr, and the caller prints it as one ERROR line
-    and exits 2 (3b399 round 5: a rev-parse failure was reported as "git diff failed")."""
+    the message names the command and git's stderr, and the caller prints it as one ERROR line and
+    exits 2 (in the earlier repository, a rev-parse failure was reported as "git diff failed")."""
 
 
 class GitSelectsAnotherTree(Exception):
@@ -49,28 +50,28 @@ def added_line_diff(revs: Iterable[str], paths: Iterable[str], *, cwd: "Path | s
     """The bytes of ``git diff <revs> -- <paths>``, run in ``cwd`` with ``env`` (None inherits
     this process's environment), for :func:`parse_added_lines` to read.
 
-    The flags override each setting known to reshape what the parser reads (3b141 QA r1): an
-    external diff driver (``diff.external``, ``GIT_EXTERNAL_DIFF``, the ``command`` of a
-    ``diff=<driver>`` attribute), a ``textconv`` filter, a ``-diff`` or ``binary`` attribute (it
-    prints "Binary files ... differ"), colour (``color.diff``, ``color.ui``), and the ``+++ b/``
-    prefix (``diff.noprefix``, ``diff.mnemonicPrefix``, ``diff.dstPrefix``). Each leaves no
-    ``+++ b/`` header or ``+`` line, so a reader found 0 added lines and passed. They also pin
-    the context (3b236 round 2): ``--inter-hunk-context=0`` (``diff.interHunkContext``),
-    ``-c diff.suppressBlankEmpty=false``, and no ``GIT_DIFF_OPTS`` in git's environment (its
-    ``--unified=<n>`` overrides ``--unified=0``), since a blank context line printed as an empty
-    line ended the round 1 hunk early and lost the added lines in the rest of that hunk. And
-    they pin the file pairing (3b399 round 3): ``--no-renames`` (``diff.renames``, which is
-    true by default), because a file that git pairs as a rename or copy of another path in
-    the same diff prints only "similarity index", "rename from" or "copy from" lines and the
-    hunk of what changed beyond that, so a new .working/CHANGELOG.md renamed or copied from the
-    detailed mirror showed no added line; and ``--no-relative`` (``diff.relative``), which run
-    from a subdirectory leaves out every file outside it. They pin the pathspec reading (3b399
-    round 4): no ``GIT_LITERAL_PATHSPECS`` in git's environment, under which git read
-    ``:(top).working/CHANGELOG.md`` as a file of that literal name and the diff came back empty, and no
-    ``GIT_GLOB_PATHSPECS``, ``GIT_NOGLOB_PATHSPECS`` or ``GIT_ICASE_PATHSPECS`` either (the
-    last also matched "changelog.md"), so a path names that file alone. And they pin the
-    submodule form (3b399 round 4): ``--submodule=short`` (``diff.submodule=log`` printed a
-    "Submodule" line with no file header in place of the gitlink's diff) and
+    The flags override each setting known to reshape what the parser reads: an external diff
+    driver (``diff.external``, ``GIT_EXTERNAL_DIFF``, the ``command`` of a ``diff=<driver>``
+    attribute), a ``textconv`` filter, a ``-diff`` or ``binary`` attribute (it prints "Binary
+    files ... differ"), colour (``color.diff``, ``color.ui``), and the ``+++ b/`` prefix
+    (``diff.noprefix``, ``diff.mnemonicPrefix``, ``diff.dstPrefix``). Each leaves no ``+++ b/``
+    header or ``+`` line, so a reader found 0 added lines and passed. They also pin the context:
+    ``--inter-hunk-context=0`` (``diff.interHunkContext``), ``-c diff.suppressBlankEmpty=false``,
+    and no ``GIT_DIFF_OPTS`` in git's environment (its ``--unified=<n>`` overrides
+    ``--unified=0``), since in the earlier repository a blank context line printed as an empty
+    line ended a hunk early and lost the added lines in the rest of that hunk. And they pin the
+    file pairing: ``--no-renames`` (``diff.renames``, which is true by default), because a file
+    that git pairs as a rename or copy of another path in the same diff prints only "similarity
+    index", "rename from" or "copy from" lines and the hunk of what changed beyond that, so in
+    the earlier repository a new .working/CHANGELOG.md renamed or copied from the detailed
+    mirror showed no added line; and ``--no-relative`` (``diff.relative``), which run from a
+    subdirectory leaves out every file outside it. They pin the pathspec reading: no
+    ``GIT_LITERAL_PATHSPECS`` in git's environment, under which, in the earlier repository, git
+    read ``:(top).working/CHANGELOG.md`` as a file of that literal name and the diff came back
+    empty, and no ``GIT_GLOB_PATHSPECS``, ``GIT_NOGLOB_PATHSPECS`` or ``GIT_ICASE_PATHSPECS``
+    either (the last also matched "changelog.md"), so a path names that file alone. And they pin
+    the submodule form: ``--submodule=short`` (in the earlier repository, ``diff.submodule=log``
+    printed a "Submodule" line with no file header in place of the gitlink's diff) and
     ``--ignore-submodules=none`` (``diff.ignoreSubmodules``), so the parser sees the mode of a
     gitlink. Not pinned: the source prefix (only the ``---`` line carries it, and the parser
     skips that line), and ``status.renames`` (it applies to ``git status``, not ``git diff``).
@@ -118,10 +119,10 @@ def foreign_repo_env() -> dict[str, str]:
     GIT_ALTERNATE_OBJECT_DIRECTORIES, GIT_COMMON_DIR, GIT_CONFIG_PARAMETERS and the rest; git
     drops the same list before it enters a submodule), and every other variable is kept. A
     pre-commit hook inherits them for the PUBLIC repository (``git commit -a`` names its
-    temporary index in GIT_INDEX_FILE), and the preflight's mirror ``git diff --cached`` in the
-    operational store read that index through them: it found no staged mirror addition, so a
-    commit the standalone aid refuses passed (3b141 QA r2). A failure to list them raises
-    :class:`GitQueryFailed`."""
+    temporary index in GIT_INDEX_FILE), and in the earlier repository the preflight's mirror
+    ``git diff --cached`` in the operational store read that index through them: it found no
+    staged mirror addition, so a commit the standalone aid refuses passed. A failure to list
+    them raises :class:`GitQueryFailed`."""
     local = set(_git_query(["rev-parse", "--local-env-vars"]).decode("utf-8").split())
     return {k: v for k, v in os.environ.items() if k not in local}
 
@@ -139,8 +140,8 @@ def check_git_selects_root(root: "Path | None" = None, *,
                            cwd: "Path | str | None" = None) -> None:
     """Raise :class:`GitSelectsAnotherTree` unless git, run in ``cwd`` with this process's
     environment (as the diff runs), selects ``root`` as its work tree (None: the work tree git
-    finds by itself) and the repository it finds there by itself (3b399 round 4; shared with D3
-    and D7 in round 5). ``GIT_WORK_TREE`` or ``core.worktree`` naming a subdirectory made the
+    finds by itself) and the repository it finds there by itself (shared with D3 and D7). In the
+    earlier repository, ``GIT_WORK_TREE`` or ``core.worktree`` naming a subdirectory made the
     preflight's working-tree diff read that directory, so it found no .working/CHANGELOG.md change and
     passed; ``GIT_DIR`` naming a sibling repository made the preflight and D3 and D7 read that
     repository ("OK: .working/CHANGELOG.md not modified"). What git finds by itself is what ``git
@@ -161,10 +162,10 @@ def refuse_links(paths: Iterable[str], rev: "str | None" = None, *,
     """Raise :class:`ChangelogDiffUnreadable` when an entry at exactly one of ``paths`` has mode
     120000 or 160000 in the tree of commit ``rev`` (``git ls-tree``, ``paths`` from the root),
     or, when ``rev`` is None, in the index (``git ls-files --stage``, ``paths`` relative to
-    ``cwd``) (3b399 round 5). :func:`parse_added_lines` sees a link's mode only when the diff
-    shows that path, so a .working/CHANGELOG.md that was already a symbolic link at the base and stayed
-    one, with a bad entry added only to the file it leads to, passed. A git failure raises
-    :class:`GitQueryFailed`."""
+    ``cwd``). :func:`parse_added_lines` sees a link's mode only when the diff shows that path, so
+    in the earlier repository a .working/CHANGELOG.md that was already a symbolic link at the base
+    and stayed one, with a bad entry added only to the file it leads to, passed. A git failure
+    raises :class:`GitQueryFailed`."""
     wanted = list(paths)
     if rev is None:
         where = "the index"
@@ -198,24 +199,24 @@ def parse_added_lines(diff: bytes) -> list[tuple[str, str]]:
     omitted count is 1): a "-" line takes one old line, a "+" line one new line, a " " line or
     an EMPTY line (a blank context line under ``diff.suppressBlankEmpty``) one of each, and a
     "\\" line ("No newline at end of file") none. So a "+" line is an added line even when its
-    text starts with "++" (3b236), and a hunk never ends before its counts are used up (3b236
-    round 2). Raises ChangelogDiffUnreadable, never yields fewer added lines, when a hunk
-    line does not fit the counts, the output ends inside a hunk, a hunk adds lines before any
-    ``+++ b/`` header, a "+" line appears outside a hunk, or an added line or a header path is
-    not valid UTF-8. It also raises when a file's new side has mode 120000 or 160000 (3b399
-    round 4): git diffs a symbolic link's target path and a gitlink's commit id, not the
-    lines of the file they lead to, so a .working/CHANGELOG.md symlinked to a file holding a bad entry
-    showed one clean added line."""
+    text starts with "++", and a hunk never ends before its counts are used up. Raises
+    ChangelogDiffUnreadable, never yields fewer added lines, when a hunk line does not fit the
+    counts, the output ends inside a hunk, a hunk adds lines before any ``+++ b/`` header, a "+"
+    line appears outside a hunk, or an added line or a header path is not valid UTF-8. It also
+    raises when a file's new side has mode 120000 or 160000: git diffs a symbolic link's target
+    path and a gitlink's commit id, not the lines of the file they lead to, so in the earlier
+    repository a .working/CHANGELOG.md symlinked to a file holding a bad entry showed one clean
+    added line."""
     return [(name, text) for name, _, text in parse_numbered_added_lines(diff)]
 
 
 def parse_numbered_added_lines(diff: bytes) -> list[tuple[str, int, str]]:
     """(file, line number, added-line-text) for every added line in ``diff``, read and refused
     exactly as :func:`parse_added_lines` reads them; the number is the line's one-based position
-    in the file's new side, counted from its hunk header's ``+c`` (3b696 round 2, for the
-    preflight's whole-file dash check)."""
+    in the file's new side, counted from its hunk header's ``+c`` (for the preflight's
+    whole-file dash check)."""
     lines = diff.split(b"\n")
-    # Split on LF only (3b236): a CR, U+2028 or U+0085 inside an added line is part of that
+    # Split on LF only: a CR, U+2028 or U+0085 inside an added line is part of that
     # line, so no fragment of it can lose its "+" marker and escape the checks.
     if lines and lines[-1] == b"":
         lines.pop()

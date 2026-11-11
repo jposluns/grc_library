@@ -5,7 +5,7 @@ Parses each active document's metadata block, computes the
 next-review-due date from the Date and Review Frequency fields, and
 reports any document that is overdue or past the action threshold.
 
-Frequency phrases recognized (FREQUENCY_MAP, fixed-phrase lookup): "12 months" / "annual" / "yearly", "24 months" / "biennial", "6 months" / "biannual" / "semi-annual", "3 months" / "quarterly", "continuous / monthly", "continuous / quarterly", "6 to 12 months". Note: biannual maps to 6 months (Phase 23.48 guard); the regression test test_biannual_is_six_months_not_two_years protects this. When a Review Frequency phrase contains "and upon material change to X" or similar, the periodic portion is used for scheduling and the event trigger is informational. When no recognized periodic phrase is present, the document is treated as event-driven and not scheduled.
+Frequency phrases recognized (FREQUENCY_MAP, fixed-phrase lookup): "12 months" / "annual" / "yearly", "24 months" / "biennial", "6 months" / "biannual" / "semi-annual", "3 months" / "quarterly", "continuous / monthly", "continuous / quarterly", "6 to 12 months". Note: biannual maps to 6 months; the regression test test_biannual_is_six_months_not_two_years protects this. When a Review Frequency phrase contains "and upon material change to X" or similar, the periodic portion is used for scheduling and the event trigger is informational. When no recognized periodic phrase is present, the document is treated as event-driven and not scheduled.
 
 Usage:
     python3 .claude/skills/corpus-management/tools/check-review-cadence.py
@@ -58,10 +58,11 @@ EXEMPT_FROM_INDEX = {
 # Intentionally empty: the per-domain walk is restricted to the DOMAINS
 # list, and an explicit path is kept only when it lies under a DOMAINS
 # directory or is a ROOT_DOCS file, so a prefix outside those directories
-# can never match. Phase 23.62 removed `.claude/skills/corpus-management/tools/` and `governance/` for that
-# reason; 3b218 removed the last entry, `guardrails/`, which went dead
-# when the pack moved from `dev-security/claude-rules/` to the root
-# (#1367). Any future entry must name a path under a DOMAINS directory.
+# can never match. The `.claude/skills/corpus-management/tools/` and
+# `governance/` entries were removed for that reason, and so was the last
+# entry, `guardrails/`, which went dead when the pack moved from
+# `dev-security/claude-rules/` to the root. Any future entry must name a
+# path under a DOMAINS directory.
 EXEMPT_DIRECTORY_PREFIXES: tuple[str, ...] = ()
 
 ROOT_DOCS = (
@@ -215,9 +216,9 @@ def main(argv: list[str]) -> int:
     rows: list[tuple[str, str, dt.date, int | None, dt.date | None, str, int, str]] = []
     skipped: list[tuple[str, str]] = []
 
-    # 3b50: a missing or out-of-tree explicit path used to be dropped silently (zero documents,
-    # an OK verdict); refuse it (exit 2). Residue: an existing in-tree path can still yield no
-    # scan through this tool's own domain and exemption filters.
+    # In the earlier repository, a missing or out-of-tree explicit path was dropped silently
+    # (zero documents, an OK verdict); refuse it (exit 2). Residue: an existing in-tree path
+    # can still yield no scan through this tool's own domain and exemption filters.
     scan_paths = [Path(p) for p in guard_explicit_paths(args.paths)] if args.paths else None
     for path in iter_active_docs(scan_paths):
         rel = path.relative_to(REPO_ROOT).as_posix()

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Citation-currency-cadence audit (gate 72) -- 1.14 Layer A (closing PR #1015).
+"""Citation-currency-cadence audit (gate 72): Layer A of the source-currency mechanism.
 
 The canonical-citations register (``governance/register-canonical-citations.md``)
-records, per externally-cited source, a ``Last verified (UTC)`` date (the SR-1
-field: present but, until this gate, inert). This gate is the EGRESS-FREE Layer A
+records, per externally-cited source, a ``Last verified (UTC)`` date (a
+field present but, until this gate, inert). This gate is the EGRESS-FREE Layer A
 of the source-currency mechanism: it reads that recorded date and warns when a
 source has drifted past its per-trust-tier re-check window. It performs pure
 date arithmetic on the recorded field; it makes NO network request (that is the
@@ -16,7 +16,7 @@ axis) and ``lint-citations.py`` on a hand-curated known-bad string (the
 enumeration axis). A source that is correctly registered and correctly current
 but whose last verification has gone stale is invisible to both; this gate adds
 that dimension. It does NOT close the require-registration gap (a source absent
-from the register entirely; GR-GAP-1); it assumes a source IS
+from the register entirely); it assumes a source IS
 registered and checks its freshness.
 
 ADVISORY (WARN) MODE, deliberately (not merely a soft rollout). The register's
@@ -31,7 +31,7 @@ one-line change once the maintainer confirms the policy and an egress-aware
 exemption path.
 
 The per-tier re-check windows below are conservative stricter-safe DEFAULTS
-pending maintainer confirmation (recorded in .working/pending-decisions.md). They
+pending maintainer confirmation. They
 are dormant today: every register row was verified within ~18 days of this gate's
 addition, so no row is near any window >= 90 days; the windows only begin to
 matter as rows age, by which point the maintainer will have confirmed or adjusted
@@ -75,7 +75,7 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 CANONICAL_REGISTER = REPO_ROOT / "governance" / "register-canonical-citations.md"
 
 # Per-trust-tier re-check windows, in days. CONSERVATIVE STRICTER-SAFE DEFAULTS
-# pending maintainer confirmation (see .working/pending-decisions.md). To change a
+# pending maintainer confirmation. To change a
 # policy window, edit the integer here.
 TIER_WINDOW_DAYS = {
     "legislation": 180,   # statutes / regulations amend on shorter, less predictable cycles
@@ -312,7 +312,7 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    # 3b50b2g: this tool takes no argument; an unknown or surplus one
+    # This tool takes no argument; an unknown or surplus one
     # used to be ignored with exit 0, so it is refused (exit 2) before the check runs.
     import os as _os
     import sys

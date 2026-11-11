@@ -48,10 +48,9 @@ if [ -n "${GIT_INDEX_FILE+set}" ]; then
     exit 1
   fi
 fi
-# Whether $1 is absent as lstat reports it (round 9, r8 review N3): status 0
-# for absence (ENOENT), 1 where it exists, 2 where it cannot be examined,
-# which test(1) alone takes for absence. lint_common takes only
-# FileNotFoundError for absence. Round 10 (r9 review W, N1): python3's
+# Whether $1 is absent as lstat reports it: status 0 for absence (ENOENT), 1
+# where it exists, 2 where it cannot be examined, which test(1) alone takes
+# for absence. lint_common takes only FileNotFoundError for absence. python3's
 # os.lstat decides by exit status (10 absent, 11 present, 12 cannot be
 # examined; any other status, python3 failing, cannot be examined), not by
 # stat(1)'s message, whose wording and -c option vary by build.
@@ -77,22 +76,22 @@ sys.exit(11)' "$1" || gone_status=$?
 # A finding that may be git worktree add or remove part-way through (an
 # entry absent, unexaminable or unreadable mid-walk) exits $unsettled: 1,
 # but 3 inside a look of settle or second_look's first look, which look
-# again (round 11, r10 review N1).
+# again.
 unsettled=1
 walk_entries=0
 refuse_unsettled() {
   echo "pre-push: refusing $1" >&2
   exit "$unsettled"
 }
-# The worktrees race rule (round 9, r8 review E1): run the look "$2..." at
-# worktrees/<id> $1 in a subshell; if it is unsettled, examine $1 again: gone,
-# skip it; still present, look once more and refuse only if that look does.
-# A symlink, a non-regular reftable entry, a bad tables.list line and the
-# walk's bounds refuse at the first look. An unsettled second look, or $1
-# unexaminable the second time, exits $unsettled (round 11, r10 review W1:
-# it exited 1), so under settle the whole check is looked at again. Keeps
-# walk_entries, the look's last line (round 10, r9 review N3: not what it
-# wrote to stderr). Keep in step with lint_common._second_look.
+# The worktrees race rule: run the look "$2..." at worktrees/<id> $1 in a
+# subshell; if it is unsettled, examine $1 again: gone, skip it; still
+# present, look once more and refuse only if that look does. A symlink, a
+# non-regular reftable entry, a bad tables.list line and the walk's bounds
+# refuse at the first look. An unsettled second look, or $1 unexaminable the
+# second time, exits $unsettled (in the earlier repository, a version of
+# this hook exited 1), so under settle the whole check is looked at again.
+# Keeps walk_entries, the look's last line (not what it wrote to stderr).
+# Keep in step with lint_common._second_look.
 second_look() {
   look_id=$1
   shift
@@ -112,18 +111,17 @@ second_look() {
   look_out="$("$@"; echo "$walk_entries")" || exit $?
   walk_entries="$(printf '%s\n' "$look_out" | tail -n 1)"
 }
-# The worktrees race rule at the top (round 10, r9 review E): run "$@" (the
-# walk of the worktrees dir and the check of each worktrees/<id> found
-# there) in a subshell; while it is unsettled (worktrees or an id in it
-# gone, back or unexaminable mid-check, as git worktree add and remove
-# leave it), run it again, at most 3 looks in all, and refuse with the
-# last look's message. Anything else it refuses at once. Each
-# worktrees/<id> keeps its own second_look inside a look, whose unsettled
-# outcome reaches settle as 3. lint_common has second_look's rule but no
-# settle: what is still unsettled after its second look refuses at once,
-# so under worktree churn it can refuse where this hook looks again (round
-# 11, r10 review N2). The common reftable's check runs under settle too,
-# and lint_common looks at it twice (round 12, r11 review W).
+# The worktrees race rule at the top: run "$@" (the walk of the worktrees
+# dir and the check of each worktrees/<id> found there) in a subshell; while
+# it is unsettled (worktrees or an id in it gone, back or unexaminable
+# mid-check, as git worktree add and remove leave it), run it again, at most
+# 3 looks in all, and refuse with the last look's message. Anything else it
+# refuses at once. Each worktrees/<id> keeps its own second_look inside a
+# look, whose unsettled outcome reaches settle as 3. lint_common has
+# second_look's rule but no settle: what is still unsettled after its second
+# look refuses at once, so under worktree churn it can refuse where this
+# hook looks again. The common reftable's check runs under settle too, and
+# lint_common looks at it twice.
 settle() {
   settle_look=1
   while :; do
@@ -167,9 +165,8 @@ check_reftable() {
     echo "pre-push: refusing $1: the reftable is a symlink; git reads refs from wherever it leads." >&2
     exit 1
   fi
-  # Not a directory refuses at the first look, as in lint_common (round 10,
-  # r9 review N2), unless it is gone since (git worktree remove) or back as
-  # a directory (git worktree add).
+  # Not a directory refuses at the first look, as in lint_common, unless it is
+  # gone since (git worktree remove) or back as a directory (git worktree add).
   if [ ! -d "$1" ]; then
     reftable_state=0
     gone "$1" || reftable_state=$?
@@ -190,7 +187,7 @@ check_reftable() {
     refuse_unsettled "$1: its entries cannot be listed."
   fi
   # An entry the listing found that is gone when examined is absence, as in
-  # lint_common (round 10, r9 review W1).
+  # lint_common.
   odd_entries=""
   for table in "$1"/* "$1"/.[!.]* "$1"/..?*; do
     if [ -f "$table" ] && [ ! -L "$table" ]; then
@@ -221,17 +218,17 @@ check_reftable() {
     echo "pre-push: refusing $1: entries in it are not regular files ($odd_entries); git reads refs from wherever they lead; keep only tables.list and its tables, as regular files." >&2
     exit 1
   fi
-  # tables.list gone when read is absence, as in lint_common (round 10, r9
-  # review W1), whether or not the reftable went with it: python3 reads it
-  # and exits 10 where the open finds it absent, as gone's probe does.
-  # Command substitution drops a NUL, so python3 writes the lines before
-  # the first one holding a NUL and exits 13, which refuses once those
-  # lines are checked, as lint_common checks lines in order (round 12, r11
-  # review N1: a NUL passed here). It opens tables.list without following a
-  # link or blocking and reads at most 1048576 bytes (round 14, r13 review
-  # N1: a FIFO hung the read, a symlink to /dev/zero made it unbounded): a
-  # symlink or anything but a regular file exits 14, more bytes 15. Keep in
-  # step with lint_common._read_tables_list.
+  # tables.list gone when read is absence, as in lint_common, whether or not
+  # the reftable went with it: python3 reads it and exits 10 where the open
+  # finds it absent, as gone's probe does. Command substitution drops a NUL,
+  # so python3 writes the lines before the first one holding a NUL and exits
+  # 13, which refuses once those lines are checked, as lint_common checks
+  # lines in order (in the earlier repository, a NUL once passed here). It
+  # opens tables.list without following a link or blocking and reads at most
+  # 1048576 bytes (in the earlier repository, a FIFO once hung the read, and
+  # a symlink to /dev/zero made it unbounded): a symlink or anything but a
+  # regular file exits 14, more bytes 15. Keep in step with
+  # lint_common._read_tables_list.
   tables_reader='import errno, os, stat, sys
 try:
     fd = os.open(sys.argv[1], os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
@@ -261,16 +258,16 @@ if nul is None:
 else:
     sys.stdout.buffer.write(b"\n".join(lines[:nul]) + b"x")
     sys.exit(13)'
-  # One lstat per table decides (round 14, r13 review N2): test -f, which
+  # One lstat per table decides: in the earlier repository, test -f, which
   # follows a link, and then test -L passed a link to another repository's
   # table that was removed between the two. One python3 per look, not per
-  # table (round 15, r14 review W: at about 12 ms a start, a look outlasted
-  # git's compaction, so worktree add -b churn refused a clean repository):
-  # it takes the lines read, on stdin, checks each non-empty one in order
-  # and writes the first that fails: 16 not a bare file name, 10 absent,
-  # 12 cannot be examined, 14 anything but a regular file; 11 where each
-  # names a regular file. Any other status, python3 failing, cannot be
-  # examined. Keep in step with lint_common._reftable_refusal.
+  # table (in the earlier repository, at about 12 ms a start, a look
+  # outlasted git's compaction, so worktree add -b churn refused a clean
+  # repository): it takes the lines read, on stdin, checks each non-empty
+  # one in order and writes the first that fails: 16 not a bare file name,
+  # 10 absent, 12 cannot be examined, 14 anything but a regular file; 11
+  # where each names a regular file. Any other status, python3 failing,
+  # cannot be examined. Keep in step with lint_common._reftable_refusal.
   table_probe='import os, stat, sys
 reftable = os.fsencode(sys.argv[1])
 for name in sys.stdin.buffer.read().split(b"\n"):
@@ -292,21 +289,22 @@ for name in sys.stdin.buffer.read().split(b"\n"):
     sys.stdout.buffer.write(name)
     sys.exit(status)
 sys.exit(11)'
-  # A table found absent has tables.list read again by the same reader
-  # (round 13, r12 review W1): git's compaction writes a new tables.list
-  # and then deletes the tables it replaced, so where its output or status
-  # changed since this look's read, look again, at most
-  # $reftable_looks looks in all; unchanged, the absent table is unsettled,
-  # as before. A state that lasts reads the same each time and never
-  # passes; a tables.list that changes at every look refuses at the bound.
-  # Output after a NUL line is not written, so a change only there reads
-  # as unchanged and refuses. Keep in step with lint_common._reftable_refusal.
+  # A table found absent has tables.list read again by the same reader:
+  # git's compaction writes a new tables.list and then deletes the tables it
+  # replaced, so where its output or status changed since this look's read,
+  # look again, at most $reftable_looks looks in all; unchanged, the absent
+  # table is unsettled, as before. A state that lasts reads the same each
+  # time and never passes; a tables.list that changes at every look refuses
+  # at the bound. Output after a NUL line is not written, so a change only
+  # there reads as unchanged and refuses. Keep in step with
+  # lint_common._reftable_refusal.
   reftable_looks=10
   reftable_look=1
   while :; do
     # The listing found tables.list a regular file or found none: absent
     # now passes; anything else is a swap since, unsettled, as in
-    # lint_common (round 12, r11 review W1: it passed in both).
+    # lint_common (in the earlier repository, versions of this hook and of
+    # lint_common both passed it).
     tables_status=0
     tables="$(python3 -I -c "$tables_reader" "$1/tables.list")" || tables_status=$?
     case "$tables_status" in
@@ -331,9 +329,9 @@ sys.exit(11)'
     reftable_state=0
     gone "$1" || reftable_state=$?
     [ "$reftable_state" != 0 ] || return 0
-    # An absent table is unsettled (round 9): git worktree remove deletes
-    # it before tables.list and the directory. One that cannot be
-    # examined, or in a reftable that cannot be, refuses at once.
+    # An absent table is unsettled: git worktree remove deletes it before
+    # tables.list and the directory. One that cannot be examined, or in a
+    # reftable that cannot be, refuses at once.
     if [ "$table_state" != 10 ] || [ "$reftable_state" = 2 ]; then
       echo "pre-push: refusing $table_message" >&2
       exit 1
@@ -358,8 +356,8 @@ sys.exit(11)'
 # deprecated core.preferSymlinkRefs (a worktree's HEAD, a per-worktree
 # symref under worktrees/<id>/refs, or a symref at any depth under the common
 # refs): a ref name under refs/, which git reads as that name and never
-# follows. git check-ref-format decides (round 9, r8 review W2: refs/heads/
-# rel@2026, café, refs/notes/n@1), with no "..". Keep in step with
+# follows. git check-ref-format decides (e.g. refs/heads/rel@2026, café,
+# refs/notes/n@1), with no "..". Keep in step with
 # lint_common._symref_link_text.
 symref_link_text() {
   case "$1" in
@@ -367,8 +365,7 @@ symref_link_text() {
     *) return 1 ;;
   esac
   # Redundant with git check-ref-format, which refuses ".." anywhere (git
-  # 2.53; r9 review W2: removing this case changes no verdict); kept so the
-  # rule reads here.
+  # 2.53; removing this case changes no verdict); kept so the rule reads here.
   case "$1" in
     *..*) return 1 ;;
   esac
@@ -378,14 +375,14 @@ symref_link_text() {
 # "refs" the common refs dir, or with $2 "worktrees" the worktrees dir:
 # worktrees itself, each worktrees/<id> and everything in each), found
 # without following links; only the symref links above pass, anywhere under
-# refs, or at worktrees/<id>/HEAD, worktrees/<id>/NOTES_MERGE_REF (round 8)
-# or under worktrees/<id>/refs. Refuse
-# too: $1 existing but not a directory, a directory that cannot be listed,
-# an entry deeper than 32 levels or more than 20000 entries. An entry gone
-# when examined, or a directory gone when listed (git worktree remove), is
-# absence, as $1 missing under a searchable parent is. Not refused: hard
-# links, bind mounts. With $2 "worktrees" each worktrees/<id> is walked whole
-# under second_look (round 9). Keep in step with lint_common._link_refusal.
+# refs, or at worktrees/<id>/HEAD, worktrees/<id>/NOTES_MERGE_REF or under
+# worktrees/<id>/refs. Refuse too: $1 existing but not a directory, a
+# directory that cannot be listed, an entry deeper than 32 levels or more
+# than 20000 entries. An entry gone when examined, or a directory gone when
+# listed (git worktree remove), is absence, as $1 missing under a searchable
+# parent is. Not refused: hard links, bind mounts. With $2 "worktrees" each
+# worktrees/<id> is walked whole under second_look. Keep in step with
+# lint_common._link_refusal.
 walk_links() {
   walk_top=$1
   walk_kind=${2-}
@@ -393,7 +390,7 @@ walk_links() {
     echo "pre-push: refusing $walk_top: it is a symlink; git reads refs and worktree HEADs from wherever it leads." >&2
     exit 1
   fi
-  # Unexaminable is unsettled (round 10, r9 review E): under settle, the
+  # Unexaminable is unsettled: under settle, the
   # worktrees dir is looked at again.
   walk_state=0
   gone "$walk_top" || walk_state=$?
@@ -406,12 +403,12 @@ walk_links() {
     2) refuse_unsettled "$walk_top: it cannot be examined." ;;
   esac
   if [ ! -d "$walk_top" ]; then
-    # Gone since it was found (round 9: git worktree remove deletes an
-    # empty worktrees), it is absent; back as a directory since (round
-    # 10, r9 review E: git worktree add makes it again), it is walked;
-    # absent again since, it is unsettled, as in check_reftable (round 14,
-    # r13 review W1: it refused as no directory, so settle could not look
-    # again); otherwise it is no directory.
+    # Gone since it was found (git worktree remove deletes an empty
+    # worktrees), it is absent; back as a directory since (git worktree add
+    # makes it again), it is walked; absent again since, it is unsettled,
+    # as in check_reftable (in the earlier repository, a version of this
+    # hook refused it as no directory, so settle could not look again);
+    # otherwise it is no directory.
     walk_state=0
     gone "$walk_top" || walk_state=$?
     case "$walk_state" in
@@ -464,7 +461,7 @@ walk_tree() {
     for walk_path in "$walk_dir"/* "$walk_dir"/.[!.]* "$walk_dir"/..?*; do
       if [ ! -e "$walk_path" ] && [ ! -L "$walk_path" ]; then
         # A pattern that matched nothing names itself; anything else
-        # absent must be absent as lstat reports it (round 9).
+        # absent must be absent as lstat reports it.
         case "$walk_path" in
           "$walk_dir/*"|"$walk_dir/.[!.]*"|"$walk_dir/..?*") continue ;;
         esac
@@ -522,8 +519,8 @@ walk_tree() {
   return 0
 }
 # A symlink anywhere in the worktrees dir or the common reftable reads
-# another repository's worktree HEADs and refs (3b620 round 4); so does one
-# anywhere in the common refs dir, or packed-refs as one (round 6).
+# another repository's worktree HEADs and refs; so does one anywhere in the
+# common refs dir, or packed-refs as one.
 worktrees="$common_git_dir/worktrees"
 walk_links "$common_git_dir/reftable"
 # refs itself as a symlink refuses below as a redirected work tree.
@@ -537,12 +534,12 @@ if [ -L "$common_git_dir/packed-refs" ]; then
 fi
 # A symlink at a fixed-name ref in the common dir $1 (ORIG_HEAD,
 # FETCH_HEAD...) reads another repository's commit, and logs as one its
-# reflog (round 7). HEAD and NOTES_MERGE_REF as symref links git writes
-# itself (core.preferSymlinkRefs) pass (round 8). Any entry named origin
-# refuses: git reads origin/<branch> there before refs/remotes (round 8).
-# An entry, or a link's text, that cannot be examined refuses; only absence
-# in a searchable directory passes, as in lint_common. Keep in step with
-# lint_common._TOP_LEVEL_REFS, _SYMREF_TOP_LEVEL and _REF_PREFIX_ENTRIES.
+# reflog. HEAD and NOTES_MERGE_REF as symref links git writes itself
+# (core.preferSymlinkRefs) pass. Any entry named origin refuses: git reads
+# origin/<branch> there before refs/remotes. An entry, or a link's text,
+# that cannot be examined refuses; only absence in a searchable directory
+# passes, as in lint_common. Keep in step with lint_common._TOP_LEVEL_REFS,
+# _SYMREF_TOP_LEVEL and _REF_PREFIX_ENTRIES.
 check_top_level() {
   for top_ref in HEAD ORIG_HEAD FETCH_HEAD MERGE_HEAD CHERRY_PICK_HEAD REVERT_HEAD \
                  BISECT_HEAD REBASE_HEAD AUTO_MERGE BISECT_EXPECTED_REV \
@@ -583,19 +580,19 @@ check_top_level() {
 }
 check_top_level "$common_git_dir"
 # git worktree add -b compacts the common reftable, whose tables.list can
-# name a table just removed: settle looks again (round 12, r11 review W).
+# name a table just removed: settle looks again.
 settle check_reftable "$common_git_dir/reftable"
-# A linked worktree keeps its HEAD and per-worktree refs in its own reftable.
-# One look, outside settle, as lint_common takes it (round 13, r12 review
-# N2): check_reftable reads a changed tables.list again, and what is still
+# A linked worktree keeps its HEAD and per-worktree refs in its own
+# reftable. One look, outside settle, as lint_common takes it:
+# check_reftable reads a changed tables.list again, and what is still
 # unsettled refuses, fail closed.
 if [ "$current_git_dir" != "$common_git_dir" ]; then
   check_reftable "$current_git_dir/reftable"
 fi
 # git log --all reads every linked worktree's HEAD from its own reftable,
-# each checked under second_look (round 9). An id absent when found is
-# skipped; one back since (round 10, r9 review E2: removed and made again)
-# is checked; one that cannot be examined is unsettled, under settle.
+# each checked under second_look. An id absent when found is skipped; one
+# back since (removed and made again) is checked; one that cannot be
+# examined is unsettled, under settle.
 check_worktree_reftables() {
   [ -d "$worktrees" ] || return 0
   for worktree_git_dir in "$worktrees"/* "$worktrees"/.[!.]* "$worktrees"/..?*; do

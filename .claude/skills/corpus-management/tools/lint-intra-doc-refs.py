@@ -55,8 +55,8 @@ EXEMPT_FILES = {
     ".working/CHANGELOG.md",
     "specification-citation-verification.md",
 }
-# Phase 23.62 removed `lint-intra-doc-refs.py` from this set: the
-# linter scans `.md` only, so the .py entry was unreachable.
+# `lint-intra-doc-refs.py` was removed from this set: the linter
+# scans `.md` only, so the .py entry was unreachable.
 
 
 def _engine():
@@ -85,7 +85,7 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument("paths", nargs="*", default=None)
     args = parser.parse_args(argv[1:])
-    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    # Explicit paths are refused when missing or outside this tree, else normalized.
     args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     targets = iter_markdown_targets(args.paths, exempt_files=EXEMPT_FILES)
     grouped: dict[Path, list[tuple[int, str, str]]] = {}

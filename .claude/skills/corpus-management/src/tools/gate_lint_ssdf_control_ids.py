@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """NIST SSDF control-identifier validity - pack engine.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
-(the SSDF id/code-shape/header regexes, _split_cells, _is_sep, _validate_ssdf_id,
-check_file) is the source of record here in the pack, moved verbatim from the grc
-gate. The SSDF valid-practice and valid-task catalogue
-is supplied by the adopter via configure(ref) (the SSDF family tuple is engine-fixed), so the engine carries no project
-catalogue; the grc wrapper (.claude/skills/corpus-management/tools/lint-ssdf-control-ids.py) supplies the catalogue,
-configures the engine, and keeps EXEMPT_SUFFIXES, a module-global check_file shim,
-main, and the exit codes.
+Engine/wrapper split: the PURE scan (the SSDF id/code-shape/header regexes,
+_split_cells, _is_sep, _validate_ssdf_id, check_file) is the source of record here
+in the pack, moved verbatim from the grc gate. The SSDF valid-practice and
+valid-task catalogue is supplied by the adopter via configure(ref) (the SSDF
+family tuple is engine-fixed), so the engine carries no project catalogue; the grc
+wrapper (.claude/skills/corpus-management/tools/lint-ssdf-control-ids.py) supplies
+the catalogue, configures the engine, and keeps EXEMPT_SUFFIXES, a module-global
+check_file shim, main, and the exit codes.
 """
 
 from __future__ import annotations

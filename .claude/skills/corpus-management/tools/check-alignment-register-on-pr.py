@@ -8,8 +8,9 @@ section asks that a standard is added "before the citing PR merges". Nothing
 enforced that: a PR could add a framework-alignment row, or name an EU
 instrument in prose, for an instrument with no register row, and the register
 (and so the standards-currency gate that reads it) would never learn of it.
-The 2026-10-04 PR #2697 is the observed case: it added Directive (EU)
-2022/2557 and Recommendation 2003/361/EC in prose, neither of which has a row.
+In the earlier repository, a change on 2026-10-04 was the observed case: it
+added Directive (EU) 2022/2557 and Recommendation 2003/361/EC in prose,
+neither of which had a row.
 
 WHAT IT CHECKS. Only lines the PR adds or changes (``git diff`` of the PR head
 against its merge base), in Markdown files under gate 6's corpus scan
@@ -33,7 +34,7 @@ exempt files and exempt directory prefixes, so this check covers what gate 6 sca
    ``Regulation (EU) No 910/2014``), compared by number against the numbers in
    the register's Standard ID, Current version and Superseded versions cells.
 
-PROVISION TAILS (3b378). A provision tail (``PROVISION_TAIL``: ``Art. 32``, ``Annex I``,
+PROVISION TAILS. A provision tail (``PROVISION_TAIL``: ``Art. 32``, ``Annex I``,
 ``: High Risk``, ``Ch 1``, ``Chapter IX``) is removed only from its first match outside
 parentheses (``strip_provision``), so ``EU AI Act Chapter IX`` is the EU AI Act and
 ``California CCPA ADMT and risk-assessment regulations (11 CCR Div 6 Ch 1 Arts 10-11)`` keeps
@@ -91,7 +92,7 @@ ID (``IEC 62443`` for the ``IEC 62443-*`` part rows). The series and suffix
 acceptance is this check's addition to gate 6: it can only make D15 report less
 than gate 6 would for the same text, never more.
 
-THE ROW-WORD RULE (3b374). A parenthetical's text names register rows through the
+THE ROW-WORD RULE. A parenthetical's text names register rows through the
 same lookups (exact, curated alias or umbrella, whole-word suffix, series stem,
 edition: ``(GDPR)`` names the EU GDPR and UK GDPR rows). It stands for the
 citation only for a row after which the TEXT AFTER IT is acceptable. That text is
@@ -258,7 +259,7 @@ after it), so ``Article 29 Working Party
 Guidelines on DPIA under Article 35 (WP 248)`` matches the WP248 row although
 its stripped form ends at ``under``, while ``... (WP 248, WP 999)``, ``... (WP
 248) and Article 36`` and ``... (replaced by EDPB Guidelines 07/2020)`` do not.
-The same WP-number rule decides a citation with no provision tail (3b374), so
+The same WP-number rule decides a citation with no provision tail, so
 ``Article 29 Working Party Guidelines on DPIA (WP 248, WP 999)`` and ``... (WP
 248) Decision 2017`` are not registered either; such a citation that carries no
 WP number is still matched on its other designators (``Opinion 05/2014``).
@@ -278,12 +279,12 @@ exception is anchored to the segment start because both corpus uses
 ``privacy/standard-pseudonymization-and-anonymization.md:150``), while after
 another citation (``GDPR Article 29 Working Party guidance``) the words follow
 the instrument actually cited, which then resolves alone as it did before
-3b367. The bare body name is not a citation (``not_citable``).
+this exception. The bare body name is not a citation (``not_citable``).
 
 WHAT IS NOT A FINDING. The exclusion policy
-(``.claude/skills/corpus-management/tools/alignment-register-exclusions.json``) encodes the maintainer decision
-of 2026-10-16 ("Tracked only"): the register covers standards and regulations
-whose currency is tracked, so RFCs, vendor guidance and books are not expected
+(``.claude/skills/corpus-management/tools/alignment-register-exclusions.json``) encodes the
+"Tracked only" rule: the register covers standards and regulations whose currency
+is tracked, so RFCs, vendor guidance and books are not expected
 in it. Each policy pattern or entry carries its class and its reason, and the
 policy file is validated on load. Generic placeholders (``N/A``, ``Internal``,
 ``sectoral laws``), bare publisher names (``NIST``, ``OWASP``) and segments
@@ -323,7 +324,7 @@ word its row does not carry warns although it names the same instrument
 initials miss two letters of the acronym and a parenthetical followed by text
 that is not only provision references, dates, editions and the row's own
 numbers and designations, nor a name of the row with the parenthetical; on 2026-10-17 the rule
-changed no whole-corpus D15 status from main (9e0554e8). Outside D15's surfaces
+changed no whole-corpus D15 status from main. Outside D15's surfaces
 it no longer registers prose fragments that main's any-parenthetical rule did
 (``Higher tier (GDPR)``, ``Managed Detection and Response (MDR)``). An Article 29 Working Party citation with a WP number and title text
 after it (``Article 29 Working Party WP248 Guidelines on DPIA``) is no longer
@@ -331,33 +332,33 @@ registered by that number (none in the corpus on 2026-10-17). A free-text cell i
 split on ``,`` before the full-form lookup, so a full-title alias or row whose
 name contains a comma (``UK ICO, Employment practices ...``) matches only in a
 list-form row or a matrix header; in a free-text cell its pieces resolve
-separately. The stripped form's own lookup still drops everything from its
-first ``(``, so with an alias ``FOO Guidance`` the name ``FOO Guidance (June
-2024) Unknown Act`` counts as registered (this predates 3b367). The full form
-still drops any four-digit year, date, version or edition parenthetical,
-whether or not it is the named document's own, and an acronym item followed by
-``s`` drops when its singular is the row's acronym (``(CCMs)`` after a CCM
-name). The date and edition items are matched as written and are case-sensitive
-(the WP-number match of an Article 29 Working Party citation reads its WP numbers
-and the dates and editions after them case-insensitively, so ``(WP 248 rev.01)``
-registers and ``(wp 248, wp 999)`` takes the same rule as ``(WP 248, WP 999)``;
-the terminal-parenthetical allowlist's WP-number item is case-sensitive, so a
-lowercase ``(wp 248)`` there is kept): ``(Mar 3, 2024)`` is
-split at its comma into ``Mar 3`` and ``2024``, and ``(rev 2)``, ``(rev.01)``,
-``(version 2)``, ``(V2)`` and ``(2024 Edition)`` match no item (``Rev`` and
-``Version`` must be capitalized, ``v`` and ``edition`` lowercase), so each is
-kept, and the citation warns only if neither the full form nor the stripped
-form resolves and the stripped form is not excluded and is a citation (false
-positives). A row's designators are read from its whole Standard ID, so a
-designator named inside a row's ID (a replaced document) counts for that row
-only within the row's issuing body: an EDPB row ``EDPB Guidelines 9/2022
+separately. The stripped form's own lookup still drops everything from its first
+``(``, so with an alias ``FOO Guidance`` the name ``FOO Guidance (June 2024)
+Unknown Act`` counts as registered (a behaviour older than the full-form lookup
+and the Article 29 Working Party exception above). The full form still drops any
+four-digit year, date, version or edition parenthetical, whether or not it is the
+named document's own, and an acronym item followed by ``s`` drops when its
+singular is the row's acronym (``(CCMs)`` after a CCM name). The date and edition
+items are matched as written and are case-sensitive (the WP-number match of an
+Article 29 Working Party citation reads its WP numbers and the dates and editions
+after them case-insensitively, so ``(WP 248 rev.01)`` registers and ``(wp 248, wp
+999)`` takes the same rule as ``(WP 248, WP 999)``; the terminal-parenthetical
+allowlist's WP-number item is case-sensitive, so a lowercase ``(wp 248)`` there
+is kept): ``(Mar 3, 2024)`` is split at its comma into ``Mar 3`` and ``2024``,
+and ``(rev 2)``, ``(rev.01)``, ``(version 2)``, ``(V2)`` and ``(2024 Edition)``
+match no item (``Rev`` and ``Version`` must be capitalized, ``v`` and ``edition``
+lowercase), so each is kept, and the citation warns only if neither the full form
+nor the stripped form resolves and the stripped form is not excluded and is a
+citation (false positives). A row's designators are read from its whole Standard
+ID, so a designator named inside a row's ID (a replaced document) counts for that
+row only within the row's issuing body: an EDPB row ``EDPB Guidelines 9/2022
 (replacing Guidelines 01/2021)`` counts ``Guidelines 1/2021``, but the WP250 in
-``EDPB Guidelines 9/2022 (replacing WP250)`` does not count for that row, since
-a WP number counts only for an Article 29 Working Party row. An acronym the
-glossary register expands is not used: the glossary is not tied to register
-rows, and a PR can add a row to it. The EDPB's endorsement of WP29 documents is
-not modelled: ``EDPB Opinion 05/2014`` and ``EDPB WP248`` are not registered by
-the Article 29 Working Party rows.
+``EDPB Guidelines 9/2022 (replacing WP250)`` does not count for that row, since a
+WP number counts only for an Article 29 Working Party row. An acronym the
+glossary register expands is not used: the glossary is not tied to register rows,
+and a PR can add a row to it. The EDPB's endorsement of WP29 documents is not
+modelled: ``EDPB Opinion 05/2014`` and ``EDPB WP248`` are not registered by the
+Article 29 Working Party rows.
 
 SIBLING PROBE (report only). When the PR changes ``.claude/skills/corpus-management/tools/alignment-register-aliases.json``
 or the register, D15 also scans the WHOLE corpus at the PR head (every in-scope document,
@@ -371,22 +372,22 @@ so on 2026-10-17 a synthetic edit that moved every date in the Last verified (UT
 all 23 register tables one day later, 217 dates in 216 of their 219 rows (189 of the 192
 Standard ID rows and the 27 rows of the AI security tooling references table, which is keyed
 by Project and which gate 6 does not parse; the other 3 rows read ``needs-reconfirm``), listed
-nothing, where taking each of those 189 Standard IDs as changed lists 86 citations). It exists because in PR #2833 (3b364) round 1
-aliased only the cited ``US TSA Pipeline Security Directives`` while the sibling row ``US TSA
-Rail Cybersecurity Directives`` kept warning until a later round. The probe resolves
-citations with the head's alias file (an absent one is an empty map), so a replay against
-another head, or a PR that deletes the file, classifies with that head's aliases; the main
-D15 check above, and both parts' exclusion policy, read the files in the checkout
-(``ALIASES_PATH``, ``EXCLUSIONS_PATH``), which in CI is the commit checked out as the head (the
-PR merge ref). D15 reads the register at ``--register-ref`` when it is given and at the head
-otherwise, and only an absent register there ends the run: it, a missing merge base and a
-failed ``git diff`` of the changed file names each end the run before the probe, with only
-its own NOTE and no probe-skipped NOTE. A head without the register does not end a run with
-a ``--register-ref`` that has one: the main check reads that ref's register, and the probe
-compares the head's absent register as one with no rows, so when the PR deletes the register
-every Standard ID of the merge base's register counts as removed. When
-the main check cannot load the register or its policy files (an unreadable
-or absent file in the checkout) it is skipped with a NOTE. The probe still lists siblings then
+nothing, where taking each of those 189 Standard IDs as changed lists 86 citations). It exists
+because, in the earlier repository, one change at first aliased only the cited ``US TSA Pipeline
+Security Directives`` while the sibling row ``US TSA Rail Cybersecurity Directives`` kept
+warning until a later fix. The probe resolves citations with the head's alias file (an absent
+one is an empty map), so a replay against another head, or a PR that deletes the file,
+classifies with that head's aliases; the main D15 check above, and both parts' exclusion policy,
+read the files in the checkout (``ALIASES_PATH``, ``EXCLUSIONS_PATH``), which in CI is the
+commit checked out as the head (the PR merge ref). D15 reads the register at ``--register-ref``
+when it is given and at the head otherwise, and only an absent register there ends the run: it,
+a missing merge base and a failed ``git diff`` of the changed file names each end the run before
+the probe, with only its own NOTE and no probe-skipped NOTE. A head without the register does
+not end a run with a ``--register-ref`` that has one: the main check reads that ref's register,
+and the probe compares the head's absent register as one with no rows, so when the PR deletes
+the register every Standard ID of the merge base's register counts as removed. When the main
+check cannot load the register or its policy files (an unreadable or absent file in the
+checkout) it is skipped with a NOTE. The probe still lists siblings then
 only when the file that failed is the checkout's alias file (absent, unreadable or malformed),
 which the probe does not read: it also needs the exclusion policy in the checkout, a register
 that parses and a head alias file that is absent or loads, and prints a NOTE that it was
@@ -407,7 +408,7 @@ instrument (``Act``, ``Directive``, ``Framework``), a topic (``Security``, ``Pri
 each describes many unrelated instruments, so a shared stop word is no evidence that two
 names denote one instrument (in the tests, ``ACME Security Directives`` is not listed beside a
 ``TSA Pipeline Security Directives`` fixture alias). Publisher acronyms stay distinctive, because the
-3b364 sibling shared only ``TSA`` with the aliased row; a year is not distinctive because
+TSA rail sibling above shared only ``TSA`` with the aliased row; a year is not distinctive because
 unrelated editions share it; a two-letter word (``EU``, ``AI``, ``UK``) is too short. The
 probe lists in two tiers, so that a citation sharing only a distinctive word is still listed
 and the noise stays visibly weak. A
@@ -418,9 +419,9 @@ with any changed entry and a distinctive word with at least one is a ``D15 SIBLI
 match)`` line after the strong ones, naming the shared
 words (``pipeline`` of ``Transportation Security Administration Pipeline Security Directives
 (SD Pipeline-2021-02G)`` beside the former alias key ``US TSA Pipeline Security Directives``
-(removed in PR #2839; a test adds it back as a fixture), which
-the 3b370 round 2 review found lost while the probe matched an entry with an acronym on its
-acronym alone; ``quebec`` beside ``Quebec Law 25``). A word match is weak evidence: on
+(since removed; a test adds it back as a fixture), which in the earlier repository was lost
+while the probe matched an entry with an acronym on its acronym alone; ``quebec`` beside
+``Quebec Law 25``). A word match is weak evidence: on
 2026-10-17 words such as ``party``, ``assessment``, ``access``, ``design``, ``provisions`` and
 ``certification`` paired unrelated instruments of different publishers, and those words are
 in the stop list, but other words still pair unrelated instruments. A changed entry with no
@@ -467,7 +468,7 @@ REGISTER_REL = "governance/register-canonical-citations.md"
 ALIASES_REL = ".claude/skills/corpus-management/tools/alignment-register-aliases.json"
 ALIASES_PATH = TOOLS / "alignment-register-aliases.json"
 EXCLUSIONS_PATH = TOOLS / "alignment-register-exclusions.json"
-# The three classes the 2026-10-16 decision names; a policy row of any other class is refused.
+# The three classes the "Tracked only" rule names; a policy row of any other class is refused.
 EXCLUSION_CLASSES = frozenset({"RFC", "vendor guidance", "book"})
 
 # First header cells meaning "each row names one framework or standard". A header cell is
@@ -647,8 +648,8 @@ SIBLING_STOP_WORDS = frozenset({
     "resilience", "risk", "safety", "security", "service", "services", "system", "systems",
     "technology",
     # generic words that named unrelated instruments of different publishers on 2026-10-17
-    # (3b370 round 1 review: "Third-Party Risk Toolkit" beside an Article 29 Working Party
-    # row, "Age Appropriate Design Code" beside EDPB Guidelines 4/2019)
+    # (for example "Third-Party Risk Toolkit" beside an Article 29 Working Party row, "Age
+    # Appropriate Design Code" beside EDPB Guidelines 4/2019)
     "access", "agentic", "application", "applications", "artificial", "assessment",
     "certification", "conduct", "design", "intelligence", "maturity", "party", "provision",
     "provisions", "right", "rights", "testing", "top", "verification", "working",
@@ -700,8 +701,8 @@ class PolicyError(ValueError):
 
 def load_exclusions(text: str) -> list[dict]:
     """Validate and compile the exclusion policy. Every row names its class (one of the three
-    the decision covers) and a reason; a pattern row must compile, an entry row names an exact
-    citation. Raises PolicyError on any malformed row."""
+    the "Tracked only" rule covers) and a reason; a pattern row must compile, an entry row
+    names an exact citation. Raises PolicyError on any malformed row."""
     data = json.loads(text)
     if not isinstance(data, dict) or data.get("schema_version") != 1:
         raise PolicyError("exclusion policy: schema_version 1 required")
@@ -1565,7 +1566,7 @@ def in_scope(rel: str) -> bool:
         return False
     if any(rel.startswith(prefix) for prefix in GATE6.EXEMPT_DIRECTORY_PREFIXES):
         return False
-    # Gate 6's scope (FX3b): a multi-part root such as the skill's specs/ is
+    # Gate 6's scope: a multi-part root such as the skill's specs/ is
     # matched by its whole prefix, not by the first path component.
     return any(rel.startswith(f"{root}/") for root in CORPUS_SCAN_DIRS)
 
@@ -1803,7 +1804,7 @@ def sibling_report(texts: dict, register_text: str, docs) -> list[str]:
 
 def git_show_listed(rev: str, rel: str) -> str:
     """Content of ``rev:rel`` for a blob git already listed at ``rev``: a nonzero exit is a
-    failed read there, never an absent file, so it raises CalledProcessError (3b577 round 5)."""
+    failed read there, never an absent file, so it raises CalledProcessError."""
     return subprocess.check_output(["git", "show", f"{rev}:{rel}"], text=True, stderr=subprocess.DEVNULL)
 
 
@@ -1811,15 +1812,15 @@ def run_sibling_probe(merge_base: str, head: str, register_text: str) -> None:
     """The report-only whole-corpus sibling probe; prints only, never affects the exit.
     Only a file git lists no entry for reads as absent: a failed read of the alias file, the
     register or a listed corpus document skips the probe with its note, never compared as an
-    absent file or dropped from the scan (3b577 round 5). A listed entry that is not a blob (a
-    gitlink) is no document, so it reads as absent and is not scanned (3b577 round 6)."""
+    absent file or dropped from the scan. A listed entry that is not a blob (a gitlink) is no
+    document, so it reads as absent and is not scanned."""
     try:
         texts = dict(
             base_aliases=git_show_strict(merge_base, ALIASES_REL), head_aliases=git_show_strict(head, ALIASES_REL),
             base_register=git_show_strict(merge_base, REGISTER_REL), head_register=git_show_strict(head, REGISTER_REL),
         )
         # Each entry is "<mode> <type> <object>\t<path>"; only a blob is read as a document.
-        # --full-tree: from a subdirectory, ls-tree lists only that subdirectory (3b551).
+        # --full-tree: from a subdirectory, ls-tree lists only that subdirectory.
         listing = git("ls-tree", "-r", "--full-tree", "-z", head).split("\0")
         names = [entry.split("\t", 1)[1] for entry in listing if entry.split(" ", 2)[1:2] == ["blob"]]
         docs = ((rel, git_show_listed(head, rel)) for rel in sorted(n for n in names if n and in_scope(n)))
@@ -1837,9 +1838,8 @@ def run(base: str | None, head: str, register_ref: str | None) -> int:
     except PrRangeError as exc:
         print(f"D15 NOTE: {exc} Advisory check skipped (fail-open).")
         return 0
-    # Only git listing no register entry at the ref (or one that is not a blob, 3b577 round 6)
-    # is an absent register; a failed listing or read is a note of its own, never reported as
-    # absent (3b577 round 5).
+    # Only git listing no register entry at the ref (or one that is not a blob) is an absent
+    # register; a failed listing or read is a note of its own, never reported as absent.
     try:
         register_text = git_show_strict(register_ref or head, REGISTER_REL)
     except (subprocess.CalledProcessError, OSError, ValueError) as exc:
@@ -1858,8 +1858,7 @@ def run(base: str | None, head: str, register_ref: str | None) -> int:
     if not any(names):
         # Refs were named but select nothing: the resolver already refuses
         # base==head, so this is a net-empty range. Still advisory (exit 0),
-        # but the verdict says nothing was evaluated, never a clean "D15 OK"
-        # (orchestrator mistake 300).
+        # but the verdict says nothing was evaluated, never a clean "D15 OK".
         head_sha, toplevel = pr_range_resolution(head)
         print(
             f"D15 NOTE: CANNOT-EVALUATE: refs were named but no files changed in the "
@@ -1881,9 +1880,9 @@ def run(base: str | None, head: str, register_ref: str | None) -> int:
     hits = []
     for rel in files:
         # Only git listing no entry at the head (a file deleted in the PR) or one that is not
-        # a blob (a gitlink, which holds no file content; 3b577 round 6) has nothing
-        # added; a failed diff or read skips the check with a note, never read as a deletion,
-        # which left the file unscanned under a clean "D15 OK" (3b577 round 5).
+        # a blob (a gitlink, which holds no file content) has nothing added; a failed diff or
+        # read skips the check with a note, never read as a deletion, which in the earlier
+        # repository left the file unscanned under a clean "D15 OK".
         try:
             diff = git("diff", "-U0", "--no-renames", merge_base, head, "--", rel)
             text = git_show_strict(head, rel)
@@ -1896,9 +1895,9 @@ def run(base: str | None, head: str, register_ref: str | None) -> int:
         for ln, surface, citation in scan_text(text, added_lines(diff), resolver):
             hits.append((rel, ln, surface, citation))
     if not hits:
-        # Zero corpus files is phrased distinctly from the counted pass: the
-        # incident's false clean printed exactly "D15 OK: 0 corpus document(s)
-        # changed", and that string must never be reproducible.
+        # Zero corpus files is phrased distinctly from the counted pass: in the
+        # earlier repository, a false clean printed exactly "D15 OK: 0 corpus
+        # document(s) changed", and that string must never be reproducible.
         if files:
             print(f"D15 OK: {len(files)} corpus document(s) changed; no added citation lacks a register row.")
         else:

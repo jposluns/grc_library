@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 #
 # tail-safe.sh: the sanctioned display-truncation wrapper for verification
-# commands (shipped PR #620; the RM-10 pipe-masking failure class).
+# commands (the pipe-masking failure class).
 #
 # THE PROBLEM IT CLOSES. Piping a verification command into a truncating
 # filter (`guard | tail`, `run_all_audits.sh | head`) masks the command's
 # exit code: the pipeline reports the FILTER's exit, so a failing gate can
-# chain into a push as if green. Six RM-10 incidents trace to this shape.
+# chain into a push as if green. In the earlier repository, six incidents
+# traced to this shape.
 #
 # WHAT IT DOES. Runs the wrapped command UNPIPED with its stdout+stderr
 # captured to a temp file, prints the last N lines of that capture, prints
@@ -27,8 +28,10 @@
 #
 # The PreToolUse hook at .claude/hooks/block-verification-pipes.py points
 # rejected pipe invocations here. Self-test is inline (--self-test) rather
-# than a .claude/skills/corpus-management/tests/ fixture so the gate-36 regression runner does not adopt a
-# non-linter tool (the audit-matrix-semantic-fit.py precedent).
+# than a .claude/skills/corpus-management/tests/ fixture so the gate-36
+# regression runner does not adopt a non-linter tool (in the earlier
+# repository, audit-matrix-semantic-fit.py kept its self-test inline for
+# the same reason).
 
 set -u
 
@@ -40,7 +43,7 @@ self_test() {
   printf '%s\n' "$out" | grep -q '^EXIT=0$' || { echo "self-test FAIL: EXIT=0 line missing"; return 1; }
   printf '%s\n' "$out" | grep -q '^c$' || { echo "self-test FAIL: tail lines missing"; return 1; }
   printf '%s\n' "$out" | grep -q '^a$' && { echo "self-test FAIL: truncation did not truncate"; return 1; }
-  # 2. failure propagation (the RM-10 case a bare pipe would mask)
+  # 2. failure propagation (the case a bare pipe would mask)
   "$0" -n 1 -- /bin/sh -c 'echo failing; exit 7' > /dev/null; rc=$?
   [ "$rc" -eq 7 ] || { echo "self-test FAIL: failure exit not propagated (rc=$rc)"; return 1; }
   # 3. stderr captured into the display

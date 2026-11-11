@@ -11,7 +11,7 @@ and a verbatim quote carried as a whole Markdown table cell, i.e. a cell whose e
 content is one straight-double-quoted span (a quoted statute or policy provision). A cell that
 mixes unquoted text with a quote is still checked, as is every non-table line.
 
-Engine/wrapper split (compile PR-9): this engine carries the PURE check (``BARE_SHALL``,
+Engine/wrapper split: this engine carries the PURE check (``BARE_SHALL``,
 ``INLINE_CODE_SPAN``, ``check_file``) and a ``run`` that groups + reports; the project wrapper
 (``.claude/skills/corpus-management/tools/lint-bare-normative-shall.py``) supplies the grc scan scope (the default roots, the
 markdown selector) and the grc-specific exempt-file set, and filters those files out before

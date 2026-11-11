@@ -7,16 +7,14 @@ semver, Date ISO-8601, Owner / Approving Authority role-based, License the canon
 value, Repository Path a self-referential link, filename prefix matching the
 Document Type, and the backslash-newline hard-break markers on the block.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE check
-(extract_metadata, check_line_break_markers, looks_role_based, normalize_link_value,
-check_file) plus the generic metadata-parsing regexes live in the pack-owned engine
-(.claude/skills/corpus-management/src/tools/gate_lint_metadata.py, source of record). This wrapper
-supplies the grc METADATA MODEL (allowed types, type-to-prefix map, required fields,
-exempt sets, role vocabularies, canonical license) and the scan scope + grouped
-reporting, and keeps module-global check_file(path) + iter_markdown_files shims so
-the scan-scope regression test (which calls mod.check_file / mod.iter_markdown_files)
-and the doctype-parity gate (which reads ALLOWED_TYPES / TYPE_TO_PREFIX from this
-file) both keep working.
+Engine/wrapper split: the PURE check (extract_metadata, check_line_break_markers,
+looks_role_based, normalize_link_value, check_file) plus the generic metadata-parsing regexes live
+in the pack-owned engine (.claude/skills/corpus-management/src/tools/gate_lint_metadata.py, source
+of record). This wrapper supplies the grc METADATA MODEL (allowed types, type-to-prefix map,
+required fields, exempt sets, role vocabularies, canonical license) and the scan scope + grouped
+reporting, and keeps module-global check_file(path) + iter_markdown_files shims so the scan-scope
+regression test (which calls mod.check_file / mod.iter_markdown_files) and the doctype-parity gate
+(which reads ALLOWED_TYPES / TYPE_TO_PREFIX from this file) both keep working.
 """
 
 from __future__ import annotations
@@ -222,11 +220,11 @@ def check_file(path: Path) -> list[str]:
 
 
 def main(argv: list[str]) -> int:
-    # 3b48: this walker resolves against REPO_ROOT, so explicit paths take the root-semantics
-    # guard (#2533): refused when missing, outside the tree, or relative while not run from
-    # the root; otherwise normalized, so a spelling such as governance/../CHANGELOG.md hits
-    # the same exemptions as .working/CHANGELOG.md.
-    args = positional_args(argv[1:], known_flags=())  # 3b50b2c: '--' separates paths (quick-guard passes one)
+    # This walker resolves against REPO_ROOT, so explicit paths take the root-semantics
+    # guard: refused when missing, outside the tree, or relative while not run from the root;
+    # otherwise normalized, so a spelling such as governance/../CHANGELOG.md hits the same
+    # exemptions as .working/CHANGELOG.md.
+    args = positional_args(argv[1:], known_flags=())  # '--' separates paths (quick-guard passes one)
     paths = guard_explicit_paths(args, repo_root=REPO_ROOT) if args else [
         "README.md",
         "NOTICE.md",

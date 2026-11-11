@@ -7,11 +7,11 @@ via a binding declaration, a file-wide "Section numbers below refer to that
 standard." sentinel after which bare §N references bind to the declared target.
 When the target is renumbered, such references silently go stale; the
 intra-document gate deliberately filters cross-document context out, so this
-class was gate-blind (the #548 / #545 escaped-miss clusters that motivated this
+class was gate-blind (escaped-miss clusters in the earlier repository motivated this
 gate). The names phase (gate 65, lint-cross-file-section-names.py) layers
 title-fit checking on top of this gate's number-existence checking.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE check
+Engine/wrapper split: the PURE check
 (extract_sections, resolve_target, binding_target, adjacent_link, check_file,
 with the tool-specific HEADING_RE / CLAUSE_RE) lives in the pack-owned engine
 (.claude/skills/corpus-management/src/tools/gate_lint_cross_file_section_refs.py, source of
@@ -84,7 +84,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("paths", nargs="*", default=None)
     args = parser.parse_args(argv)
-    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    # Explicit paths are refused when missing or outside this tree, else normalized.
     args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
 
     findings: list[str] = []

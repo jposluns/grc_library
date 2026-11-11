@@ -7,8 +7,8 @@ The gate ENGINE is pack-owned source of record at
 clause); this thin wrapper keeps the house ``python3 .claude/skills/corpus-management/tools/lint-todo-marked-done.py`` shape (gate 35
 parses exactly that) and supplies the grc-local scan configuration the pack engine deliberately does
 not carry: the AIQT bootstrap, the repo root, the markdown scope selector, and the default scan
-target (``.working/TODO.md``: the public index; the per-item detail moved to the private sibling in the
-2026-08 migration and is governed there). These wrapper bytes are HAND-MAINTAINED, not
+target (``.working/TODO.md``: the public index; the per-item detail lives in a private store
+outside this repository and is governed there). These wrapper bytes are HAND-MAINTAINED, not
 compiler-generated, so gate 99 does NOT own them; ``iter_markdown_files`` stays here so the
 scan-scope regression's ALLOW map observes it unmoved.
 
@@ -30,7 +30,7 @@ from lint_common import REPO_ROOT, guard_explicit_paths, iter_scan_roots_markdow
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / "src" / "tools"
 
-DEFAULT_PATHS = [".working/TODO.md"]  # the public index; the per-item DETAIL moved to the private sibling (2026-08 migration), governed there
+DEFAULT_PATHS = [".working/TODO.md"]  # the public index; the per-item DETAIL lives in a private store outside this repository, governed there
 
 
 def iter_markdown_files(paths: list[str]) -> list[Path]:
@@ -52,7 +52,7 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument("paths", nargs="*", default=None, help="Paths to scan.")
     args = parser.parse_args(argv[1:])
-    # Explicit paths are refused when unsound and normalized otherwise (3b21).
+    # Explicit paths are refused when unsound and normalized otherwise.
     paths = guard_explicit_paths(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     return _engine().run(iter_markdown_files(paths), repo_root=REPO_ROOT)
 

@@ -9,15 +9,15 @@ blocks (it has a normative carrier there). ``scan`` returns a per-file
 ``{term: {(normalised_minutes, raw_text), ...}}`` map; the wrapper's ``main``
 aggregates those maps across the corpus and flags any term with more than one value.
 
-Engine/wrapper split (SHARED/SAFETY lane PR-42, Pattern A): this engine carries the
-tracked-term regexes (``TERM_PATTERNS``), the fence-scan set, the unit table, the
-``normalise`` helper, and the per-file ``scan`` (which returns a dict, so the
-scan-scope regression test's capture returns ``{}`` for this gate). The project wrapper
-(``.claude/skills/corpus-management/tools/lint-cross-doc-numbers.py``) supplies the grc scan scope and the exempt-file
-set and the cross-document aggregation in ``main``, and keeps a thin module-global
-``scan`` shim delegating here so the scan-scope test (which patches ``mod.scan`` and
-runs ``main``) observes the original signature and behaviour. The engine's ``scan`` is
-scope-free and repository-root-free.
+Engine/wrapper split: this engine carries the tracked-term regexes
+(``TERM_PATTERNS``), the fence-scan set, the unit table, the ``normalise`` helper, and
+the per-file ``scan`` (which returns a dict, so the scan-scope regression test's
+capture returns ``{}`` for this gate). The project wrapper
+(``.claude/skills/corpus-management/tools/lint-cross-doc-numbers.py``) supplies the
+grc scan scope and the exempt-file set and the cross-document aggregation in ``main``,
+and keeps a thin module-global ``scan`` shim delegating here so the scan-scope test
+(which patches ``mod.scan`` and runs ``main``) observes the original signature and
+behaviour. The engine's ``scan`` is scope-free and repository-root-free.
 
 Exit codes (the wrapper returns these): 0 clean; 1 one or more divergent terms.
 """

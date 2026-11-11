@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """CSA CCM v4.1.0 / AICM v1.1.0 per-document citation validity - pack engine.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
-(Finding, the ref-independent token/heading/context regexes, the helpers
-_content_words / _bare_domain_title_mismatch / _section_kind / _divergent_controls,
-and scan_file) is the source of record here in the pack. The grc wrapper
-(.claude/skills/corpus-management/tools/lint-ccm-aicm-citations.py) supplies the CCM/AICM reference catalogue via
-configure(ref) and keeps the grc scan scope (collect_targets, EXEMPT_FILES), the
-reporting, and the exit codes.
+Engine/wrapper split: the PURE scan (Finding, the ref-independent
+token/heading/context regexes, the helpers _content_words /
+_bare_domain_title_mismatch / _section_kind / _divergent_controls, and
+scan_file) is the source of record here in the pack. The grc wrapper
+(.claude/skills/corpus-management/tools/lint-ccm-aicm-citations.py) supplies the
+CCM/AICM reference catalogue via configure(ref) and keeps the grc scan scope
+(collect_targets, EXEMPT_FILES), the reporting, and the exit codes.
 
 Catalogue-agnostic by construction: the reference catalogue (VALID_DOMAINS,
 KNOWN_BAD_DOMAINS, CCM_V41, AICM_V11, ALL_TITLES, DOMAIN_NAMES) and every
@@ -279,11 +279,11 @@ def scan_file(path: Path) -> list[Finding]:
         # domain prefix. A token whose prefix is NOT a CCM/AICM domain (valid or
         # known-bad) is invisible to Check 1 (which only policies recognized-family
         # prefixes), so an invented family like ``END-04`` or ``ISM-01`` cited in a
-        # CCM column passes silently. This check closes that blind spot (the
-        # deep-assessment r1 R11 discovery, PR #782): it reports such a token as
-        # an unknown CCM/AICM family. Scoped to the named column only, so a NIST
-        # ``AC-2`` in a NIST column or an ISO clause elsewhere is untouched. Known-bad
-        # domains (in CCM_FAMILY) stay with Check 1, so there is no double-flag.
+        # CCM column passes silently. This check closes that blind spot: it reports
+        # such a token as an unknown CCM/AICM family. Scoped to the named column
+        # only, so a NIST ``AC-2`` in a NIST column or an ISO clause elsewhere is
+        # untouched. Known-bad domains (in CCM_FAMILY) stay with Check 1, so there
+        # is no double-flag.
         if stripped.startswith("|"):
             cells = split_row(line)
             if is_separator_row(cells):
@@ -313,19 +313,19 @@ def scan_file(path: Path) -> list[Finding]:
                 # where each row names its framework in a cell (e.g.
                 # "| CSA CCM v4.1 | IAM-15: <title> |"), the code+title sit in the
                 # cell AFTER the framework-label cell, so Check 2's ROW_RE (code in
-                # the FIRST cell) never sees them. This catches the Sweep-129 GRC-01
-                # class: a code whose cited title shares NO content word with the
-                # catalogue control title (GRC-01 "Governance Program" cited as
-                # "Risk Management Framework"). EXEMPTION (domain-name-as-title,
-                # maintainer-decided 2026-08-01): a title that renders the code's
-                # DOMAIN name rather than the control title is a legitimate
-                # cite-the-domain convention, exempt when MORE THAN HALF the title's
-                # content words appear in the code's domain name (DOMAIN_NAMES,
-                # source-verified vs the CCM/AICM catalogues). FP-safe in practice:
-                # GRC-01 "Risk Management Framework" has only "risk" of 3 words in the
-                # GRC domain "Governance, Risk and Compliance" (1/3, not > 1/2) so it
-                # still flags, while IAM-15 "Identity and Access Management" has 3/3 in
-                # the IAM domain and is exempt. Family/range validity is Check 1/5's
+                # the FIRST cell) never sees them. This catches a class found in the
+                # earlier repository: a code whose cited title shares NO content word
+                # with the catalogue control title (GRC-01 "Governance Program" cited
+                # as "Risk Management Framework"). EXEMPTION (domain-name-as-title):
+                # a title that renders the code's DOMAIN name rather than the control
+                # title is a legitimate cite-the-domain convention, exempt when MORE
+                # THAN HALF the title's content words appear in the code's domain
+                # name (DOMAIN_NAMES, source-verified vs the CCM/AICM catalogues).
+                # FP-safe in practice: GRC-01 "Risk Management Framework" has
+                # only "risk" of 3 words in the GRC domain "Governance, Risk
+                # and Compliance" (1/3, not > 1/2) so it still flags, while
+                # IAM-15 "Identity and Access Management" has 3/3 in the IAM
+                # domain and is exempt. Family/range validity is Check 1/5's
                 # job, so this check skips a non-family or known-bad prefix.
                 for ci, cell in enumerate(cells):
                     if not CCM_COLUMN_HEADER_RE.search(cell) or ci + 1 >= len(cells):
@@ -355,8 +355,8 @@ def scan_file(path: Path) -> list[Finding]:
                     # ": <qualifier>", e.g. "Encryption and Key Management" from
                     # "Encryption and Key Management: PKI"), so a verbose context qualifier
                     # cannot dilute the domain-name overlap below the threshold and cry wolf on
-                    # a legitimate cite-the-domain reference (codex vpr3186 E2: the expanded
-                    # "...: Public Key Infrastructure (PKI)" form would otherwise fall to 3/6).
+                    # a legitimate cite-the-domain reference (the expanded "...: Public Key
+                    # Infrastructure (PKI)" form would otherwise fall to 3/6).
                     base6 = _content_words(title6.split(":", 1)[0])
                     dw6 = _content_words(DOMAIN_NAMES.get(dom6, ""))
                     if dw6 and base6 and len(base6 & dw6) * 2 > len(base6):
@@ -436,11 +436,11 @@ def scan_file(path: Path) -> list[Finding]:
         # that name the matrices OR sit under a CCM/AICM section, and exempting
         # historical rename-notes, so it does not fire on `.NET`, currency
         # `AUD`, "government" prose, or the corpus-internal MODEL-GOV / AI-GOV
-        # identifiers. Recall is deliberately bounded to high-confidence CCM
-        # contexts (precision-first): a bad code in a multi-framework mapping
-        # table where the CCM column is unlabelled on the row and the section
-        # heading is generic is NOT caught here; the orchestrator's apply-time
-        # standalone-token grep and the periodic /validate sweep cover that tail.
+        # identifiers. Recall is deliberately bounded to high-confidence
+        # CCM contexts (precision-first): a bad code in a multi-framework
+        # mapping table where the CCM column is unlabelled on the row and the
+        # section heading is generic is NOT caught here; that tail is left to a
+        # separate standalone-token check and to the periodic /validate sweep.
         if not HISTORICAL_RE.search(line) and (
                 section in ("ccm", "aicm") or CCM_CONTEXT_RE.search(line)):
             seen_bad: set[str] = set()

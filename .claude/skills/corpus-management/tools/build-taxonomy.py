@@ -27,7 +27,7 @@ _TOOLS_DIR = str(Path(__file__).resolve().parent)
 if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
 
-from lint_common import GENERATED_GOVERNANCE_PAGES, is_fence_line  # noqa: E402  # the shared fence predicate (3b83), stays local
+from lint_common import GENERATED_GOVERNANCE_PAGES, is_fence_line  # noqa: E402  # the shared fence predicate, stays local
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 TAXONOMY = REPO_ROOT / ".claude/skills/corpus-management/data/taxonomy.yml"
@@ -56,8 +56,8 @@ DOMAINS = [
 # section 7.2). Because the walk below is restricted to DOMAINS, the
 # exclusion is structural; do not add the registers directory here.
 
-# The library's two root specifications. They were root-level files before the
-# D-2102 layout moved them into governance/; they keep the taxonomy domain "root"
+# The library's two root specifications. They were root-level files before a
+# layout change moved them into governance/; they keep the taxonomy domain "root"
 # (the site's Library group, "plus N library specifications"), so their domain is
 # taken from this list, not from the first path segment.
 LIBRARY_ROOT_SPECS = (
@@ -76,32 +76,33 @@ def _domain_of(rel: str) -> str:
 
 EXEMPT_FROM_INDEX = {
     "privacy/annex-regional-privacy-requirements.md",
-    # The portal and scorecard that build-portal.py generates from this taxonomy:
-    # indexing them made a regenerate loop (orchestrator decision 2026-11-08).
+    # The portal and scorecard that build-portal.py generates from this taxonomy
+    # are not indexed: indexing them made a regenerate loop.
     *GENERATED_GOVERNANCE_PAGES,
 }
 
 # Directories excluded from the per-domain walk. Intentionally empty: the
 # walk is restricted to the DOMAINS list, so a prefix outside those
-# directories can never match. Phase 23.62 removed `.claude/skills/corpus-management/tools/` and `governance/`
-# for that reason (and removed EXEMPT_FILES as a whole because it was
-# defined but never read); 3b218 removed the last entry, `guardrails/`,
-# which went dead when the pack moved from `dev-security/claude-rules/`
-# to the root (#1367). Any future entry must name a path under a DOMAINS
-# directory (for example "security/<subdir>/").
+# directories can never match. An earlier change removed
+# `.claude/skills/corpus-management/tools/` and `governance/` for that
+# reason (and removed EXEMPT_FILES as a whole because it was defined but
+# never read); a later one removed the last entry, `guardrails/`, which
+# went dead when the pack moved from `dev-security/claude-rules/` to the
+# root. Any future entry must name a path under a DOMAINS directory (for
+# example "security/<subdir>/").
 EXEMPT_DIRECTORY_PREFIXES: tuple[str, ...] = ()
 
 FIELD_PATTERN = re.compile(r"^\*\*([^*]+):\*\*\s*(.*?)\s*$")
 LINK_RE = re.compile(r"\[`([^`]+)`\]\(([^)]+)\)")
 
 
-# Reading-progression rank for the per-domain document order (maintainer-directed
-# 2026-07-15, "source + type-priority ordering"). The taxonomy lists a domain's documents
-# most-foundational-first (govern -> define -> do -> reference), then alphabetically by
-# title within a type; the surfaces that render taxonomy order, notably the per-domain
-# website pages, inherit it. Ordering at the source keeps .claude/skills/corpus-management/data/taxonomy.yml, the website domain
-# pages, and the scorecard consistent (the order-insensitive lint consumers are unaffected).
-# A document type not listed here sorts AFTER all known types (rank = len), so a newly
+# Reading-progression rank for the per-domain document order, set at the source by type
+# priority. The taxonomy lists a domain's documents most-foundational-first (govern ->
+# define -> do -> reference), then alphabetically by title within a type; the surfaces that
+# render taxonomy order, notably the per-domain website pages, inherit it. Ordering at the
+# source keeps .claude/skills/corpus-management/data/taxonomy.yml, the website domain pages,
+# and the scorecard consistent (the order-insensitive lint consumers are unaffected). A
+# document type not listed here sorts AFTER all known types (rank = len), so a newly
 # introduced type is visibly last rather than silently interleaved.
 TYPE_ORDER = (
     "Principle", "Charter", "Policy", "Framework", "Standard", "Specification",
@@ -118,7 +119,7 @@ def _order_key(path: Path) -> tuple:
     most-foundational-first by ``TYPE_RANK``, then alphabetically by title, with the
     repo-relative path as a final deterministic tiebreaker (so the order is reproducible and
     the drift gate stays clean). Reads the small metadata block so type/title are available
-    before emission. Maintainer-directed 2026-07-15."""
+    before emission."""
     rel = path.relative_to(REPO_ROOT).as_posix()
     domain = _domain_of(rel)
     meta = extract_metadata(path.read_text(encoding="utf-8"))
@@ -280,9 +281,9 @@ def extract_purpose(text: str) -> str:
 def extract_sections(text: str) -> list[str]:
     """Return the ordered ``## `` section headings (the outline that proves the
     document's depth without dumping its body). Skips fenced code blocks via the
-    shared ``is_fence_line`` toggle (3b83: the private copy here was backtick-only
-    and accepted any indentation; the shared predicate also toggles on tilde
-    fences and ignores a marker indented four or more columns)."""
+    shared ``is_fence_line`` toggle (in the earlier repository, a local copy here
+    was backtick-only and accepted any indentation; the shared predicate also
+    toggles on tilde fences and ignores a marker indented four or more columns)."""
     out: list[str] = []
     in_fence = False
     for ln in text.splitlines():

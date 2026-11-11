@@ -58,7 +58,7 @@ AUDIENCES: list[tuple[str, str, list[dict]]] = [
             {"domain": "risk", "type": ("Policy", "Standard")},
             {"domain": "operations", "type": ("Framework", "Standard")},
             # The library's root specifications (taxonomy domain "root"); a path
-            # prefix stopped matching when D-2102 moved them into governance/.
+            # prefix stopped matching when a layout change moved them into governance/.
             {"domain": "root"},
         ],
     ),

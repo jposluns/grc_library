@@ -14,13 +14,13 @@ does NOT own them; the linter-regression suite (``UnbalancedFenceTests``) and ga
 entry-point existence check are the wrapper's mechanical coverage. ``iter_targets`` stays
 here (grc scan config) so the scan-scope regression's WALKERS map observes it unmoved.
 
-Scope (unchanged by the transfer): a default run walks every ``*.md`` under the
-repository root, minus both the ``DEFAULT_EXEMPT_DIRS`` path components and the
+Scope (unchanged when the engine moved to the pack): a default run walks every ``*.md``
+under the repository root, minus both the ``DEFAULT_EXEMPT_DIRS`` path components and the
 ``is_default_exempt_root`` default-root exemption (``DEFAULT_EXEMPT_ROOTS``, currently
-``.claude/skills/corpus-management/src``); explicit path arguments are scanned with ONLY the default-root
-exemption applied (no ``DEFAULT_EXEMPT_DIRS`` component filter), so an explicit ``.claude/``
-path IS scanned (the mandated new-pack-prose run) while an explicit ``.claude/skills/corpus-management/src``
-path is still default-root-exempted.
+``.claude/skills/corpus-management/src``); explicit path arguments are scanned with ONLY
+the default-root exemption applied (no ``DEFAULT_EXEMPT_DIRS`` component filter), so an
+explicit ``.claude/`` path IS scanned (the mandated new-pack-prose run) while an explicit
+``.claude/skills/corpus-management/src`` path is still default-root-exempted.
 
 Usage:
     python3 .claude/skills/corpus-management/tools/lint-unbalanced-fences.py
@@ -71,10 +71,10 @@ def iter_targets(paths: list[str]) -> list[Path]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    argv = positional_args(list(sys.argv[1:] if argv is None else argv), known_flags=())  # 3b50b2c: '--' separates paths (quick-guard passes one)
+    argv = positional_args(list(sys.argv[1:] if argv is None else argv), known_flags=())  # '--' separates paths (quick-guard passes one)
     # Explicit paths must exist, and a relative one is accepted only when run from the
     # tree root (it resolves against REPO_ROOT, not the current directory); refused with
-    # exit 2 rather than silently passing (3b21). The fence check is content-only, so an
+    # exit 2 rather than silently passing. The fence check is content-only, so an
     # absolute path in another tree is scanned soundly and stays allowed.
     if argv:
         argv = guard_explicit_paths(argv, repo_root=REPO_ROOT, allow_outside=True)

@@ -3,21 +3,22 @@
 
 THE CLASS. A corpus document carries control codes on two surfaces: the
 framework-alignment TABLE (the full mapping) and inline BODY prose (a few codes
-cited in a sentence or a `*CCM: X / AICM: Y*` annotation). When a PR corrects a
-code in the table but leaves the paired body cite pointing at the OLD code, the
-body cite is STRANDED: still a well-formed, in-catalogue citation, so no existence
-gate (48/49/54/58/61, lint-document-control-codes, lint-ccm-aicm-citations) can
-see it. It is a silent accuracy defect. Observed thrice in one session (#1895 and
-#1899 caught in-PR by QA; a P-1.57 PR-D miss survived on main and was fixed in
-#1905, found by this check's own retroactive replay).
+cited in a sentence or a `*CCM: X / AICM: Y*` annotation). When a PR corrects a code
+in the table but leaves the paired body cite pointing at the OLD code, the body cite
+is STRANDED: still a well-formed, in-catalogue citation, so no existence gate
+(48/49/54/58/61, lint-document-control-codes, lint-ccm-aicm-citations) can see it.
+It is a silent accuracy defect. In the earlier repository it was observed thrice
+in one session: twice caught before merge, each in its own pull request, and once
+surviving on main until this check's own retroactive replay found it and it was fixed.
 
 WHY DIFF-SCOPED, NOT A CORPUS-STATE LINT. Table and body are legitimately
 inconsistent in steady state (a table enumerates the full mapping; prose cites a
-few). A scan of 344 corpus docs found 27 of 29 dual-surface docs mismatch today,
-almost all legitimately. So a whole-doc set check is unusable noise. This gate
-fires ONLY on the DELTA: a code REMOVED from a table in THIS PR that still appears
-on a body line at HEAD. Measured FP rate: 0 over the last 80 commits with the
-guards below (base trigger ~16 qualifying events / 80 commits).
+few). A scan of 344 corpus docs in the earlier repository found 27 of 29
+dual-surface docs mismatched, almost all legitimately. So a whole-doc set check is
+unusable noise. This gate fires ONLY on the DELTA: a code REMOVED from a table in
+THIS PR that still appears on a body line at HEAD. Measured in the earlier
+repository, the FP rate was 0 over its last 80 commits with the guards below (base
+trigger ~16 qualifying events / 80 commits).
 
 TEMPLATE. Architecturally a sibling of D9 (check-retired-section-orphan-on-pr.py):
 deletion-triggered, merge-base-diffed, anchored-form matching, FP guards, a
@@ -29,7 +30,7 @@ RESIDUE (what D13 does NOT establish). It is deletion-triggered and same-documen
 only. It cannot see (i) a body cite wrong from birth (no table change to trigger
 on), (ii) cross-document stranding (check-class-completeness territory), (iii) a
 wrong NEW code (/matrix-fit semantic-fit territory), or (iv) prose naming a control
-by title not code. It is a targeted tripwire under the triple-family QA, the
+by title not code. It is a targeted tripwire beneath pull request review, the
 defence-in-depth default at low marginal cost.
 
 FAIL DIRECTION. Needs a resolvable merge base; when git reports there is none
@@ -38,20 +39,18 @@ cut above the base) it no-ops with a printed notice (fail-open, per the project'
 guard-malfunction stance): the pre-push runner supplies the base in every normal
 path. Otherwise every git call that bears on the verdict refuses with exit 2 on a
 git failure (dubious ownership, no repository, a missing base ref, a bad object),
-with git's message, never a skip or a clean pass (3b572). Every one also
-refuses on an OSError (git cannot be started), naming the OS error, the
-top-level read included (3b572 round 3), and every one but the top-level read
-and the git-directory reads refuses on output that is not valid UTF-8, naming
-the decoding error. The git-directory reads (require_own_git_dir in
-.claude/skills/corpus-management/tools/lint_common.py) take git's output as bytes and compare real paths as
-bytes, so output that is not valid UTF-8 never fails them (they decode only
-to format a refusal message). The
-top-level read feeds the own-repository top-level comparison (3b564) and
-decodes its output with os.fsdecode, so output that is not valid UTF-8 never
-fails the read; it reaches the comparison, which passes it only where it names
-this script's own repository.
-That SKIP runs before the own-repository checks below, so a base with no merge
-base passes even where git reads another repository (a known residual, 3b564).
+with git's message, never a skip or a clean pass. Every one also refuses on an
+OSError (git cannot be started), naming the OS error, the top-level read included,
+and every one but the top-level read and the git-directory reads refuses on output
+that is not valid UTF-8, naming the decoding error. The git-directory reads
+(require_own_git_dir in .claude/skills/corpus-management/tools/lint_common.py) take
+git's output as bytes and compare real paths as bytes, so output that is not valid
+UTF-8 never fails them (they decode only to format a refusal message). The top-level
+read feeds the own-repository top-level comparison and decodes its output with
+os.fsdecode, so output that is not valid UTF-8 never fails the read; it reaches the
+comparison, which passes it only where it names this script's own repository. That
+SKIP runs before the own-repository checks below, so a base with no merge base
+passes even where git reads another repository (a known residual).
 
 Exit codes:
     0 : no corpus document changed, no stranded body control-code, a
@@ -59,41 +58,39 @@ Exit codes:
         above); `--self-test` passing.
     1 : a body control-code is stranded by a table edit in this PR, or a
         `--self-test` case failed.
-    2 : usage error (argparse), git or environment error (git failing to
-        find the merge base for any reason other than its own no-merge-base
-        answer, git that cannot be started on any call that bears on the
-        verdict, output that is not valid UTF-8 on such a call other than
-        the top-level read and the git-directory reads, a failed read of a
-        changed document or of the commit messages (3b572), the head does not
-        resolve to a commit, git reports no work tree top level, an empty
-        one, or one that is not this script's own repository, REPO_ROOT, git
-        reads a git directory other than REPO_ROOT's own, GIT_COMMON_DIR,
-        GIT_OBJECT_DIRECTORY, GIT_ALTERNATE_OBJECT_DIRECTORIES,
-        GIT_GRAFT_FILE or GIT_SHALLOW_FILE is in the environment, or
-        GIT_WORK_TREE or GIT_INDEX_FILE points away from REPO_ROOT,
-        REPO_ROOT is not a work tree registered with the git directory git
-        reads, as a .git file naming another checkout's gives, or a
-        relocated objects directory or a git-new-workdir checkout (objects,
+    2 : usage error (argparse), git or environment error (git failing to find
+        the merge base for any reason other than its own no-merge-base answer,
+        git that cannot be started on any call that bears on the verdict, output
+        that is not valid UTF-8 on such a call other than the top-level read and
+        the git-directory reads, a failed read of a changed document or of the
+        commit messages, the head does not resolve to a commit, git reports no
+        work tree top level, an empty one, or one that is not this script's own
+        repository, REPO_ROOT, git reads a git directory other than REPO_ROOT's
+        own, GIT_COMMON_DIR, GIT_OBJECT_DIRECTORY,
+        GIT_ALTERNATE_OBJECT_DIRECTORIES, GIT_GRAFT_FILE or GIT_SHALLOW_FILE is
+        in the environment, or GIT_WORK_TREE or GIT_INDEX_FILE points away from
+        REPO_ROOT, REPO_ROOT is not a work tree registered with the git
+        directory git reads, as a .git file naming another checkout's gives, or
+        a relocated objects directory or a git-new-workdir checkout (objects,
         refs or reftable that are symbolic links), git reads a separate git
         directory that sets no core.worktree, as git init or git clone
         --separate-git-dir leaves one (in that checkout run
-        git config core.worktree "$PWD"), the changed-file diff
-        fails, the base is not a full object name, HEAD or a ref name, it
-        is hexadecimal digits but not a full object name (an abbreviated
-        object name, refused before any ref lookup: pass a fully qualified
-        ref or a full object name), git resolves it ambiguously or to
-        anything but one ref under refs/ (a describe-style name included), or
-        a call validating it (git check-ref-format, git rev-parse
-        --symbolic-full-name or git rev-parse --verify) fails with an
-        OSError other than git not being found or executable, or git
-        rev-parse --symbolic-full-name exits nonzero (a signal, 128 on an
-        internal error) and git rev-parse --verify --quiet of the name, then
-        of the name with ^{commit}, does not each answer that git does not
-        know it, exit 1 with no output (lint_common.resolve_base_ref, 3b620)),
-        or CANNOT-EVALUATE: base and head resolve to the same commit (an
-        empty range), so nothing was evaluated.
-        Known residuals (3b564): what the git-directory checks do not cover
-        is disclosed in lint_common.require_own_git_dir.
+        git config core.worktree "$PWD"), the changed-file diff fails, the base
+        is not a full object name, HEAD or a ref name, it is hexadecimal digits
+        but not a full object name (an abbreviated object name, refused before
+        any ref lookup: pass a fully qualified ref or a full object name), git
+        resolves it ambiguously or to anything but one ref under refs/ (a
+        describe-style name included), or a call validating it (git
+        check-ref-format, git rev-parse --symbolic-full-name or git rev-parse
+        --verify) fails with an OSError other than git not being found or
+        executable, or git rev-parse --symbolic-full-name exits nonzero (a
+        signal, 128 on an internal error) and git rev-parse --verify --quiet of
+        the name, then of the name with ^{commit}, does not each answer that git
+        does not know it, exit 1 with no output (lint_common.resolve_base_ref)),
+        or CANNOT-EVALUATE: base and head resolve to the same commit (an empty
+        range), so nothing was evaluated.
+        Known residuals: what the git-directory checks do not cover is disclosed
+        in lint_common.require_own_git_dir.
 """
 
 from __future__ import annotations
@@ -130,9 +127,9 @@ _CODE_ALTS = (
 CODE_RE = re.compile(r"(?<![\w.-])(" + _CODE_ALTS + r")(?![\w(-])")
 
 # A range `<CODE> to <endpoint>`, expanded before differencing so a range-to-single
-# edit is caught (naive tokenizing misses #1899). The endpoint may repeat the code's
-# stem (`PW.1 to PW.4`), echo a trailing fragment of it (`A.8.20 to 8.23`), or be a
-# bare numeric suffix (`CCC-04 to 05`). A CROSS-stem range (`IAM-01 to DSP-03`,
+# edit is caught (naive tokenizing misses it). The endpoint may repeat the code's stem
+# (`PW.1 to PW.4`), echo a trailing fragment of it (`A.8.20 to 8.23`), or be a bare
+# numeric suffix (`CCC-04 to 05`). A CROSS-stem range (`IAM-01 to DSP-03`,
 # `A.5.1 to A.6.5`, `PW.1 to RV.4`) is left verbatim: expanding it would FABRICATE
 # codes, so FP-safety wins over completeness. Same-stem-only via the stem check below.
 _CODE_GROUP = r"(?:" + _CODE_ALTS + r")"
@@ -261,9 +258,9 @@ def in_scope(rel: str) -> bool:
 def opt_out_present(base: str, head: str) -> bool:
     """True if any commit in base..head carries a non-empty `StrandedCode:` trailer.
     A bare `StrandedCode:` must NOT disable the gate (a costless bypass is no guard)."""
-    # A failed read PROPAGATES: returning False here made a git error print the
-    # FAIL that tells the author to add the trailer they may already have; the
-    # caller refuses with exit 2 instead (3b572 round 2).
+    # A failed read PROPAGATES: in the earlier repository, returning False here
+    # made a git error print the FAIL that tells the author to add the trailer
+    # they may already have; the caller refuses with exit 2 instead.
     log = git("log", f"{base}..{head}", "--format=%B")
     for line in log.splitlines():
         s = line.strip()
@@ -273,9 +270,9 @@ def opt_out_present(base: str, head: str) -> bool:
 
 
 def changed_corpus_files(merge_base: str, head: str) -> list[str]:
-    # A failed diff PROPAGATES: returning [] here made a git error print the
-    # clean "D13 OK: no corpus document changed" (a false clean, the
-    # orchestrator-mistake-300 class); the caller refuses with exit 2 instead.
+    # A failed diff PROPAGATES: in the earlier repository, returning [] here
+    # made a git error print the clean "D13 OK: no corpus document changed" (a
+    # false clean); the caller refuses with exit 2 instead.
     names = git("diff", "--name-only", merge_base, head).splitlines()
     return [n for n in names if in_scope(n)]
 
@@ -286,17 +283,18 @@ def run(base: str | None, head: str) -> int:
         base = f"refs/remotes/origin/{target}"
     # A short name such as origin/main is read from <git-dir>/origin/main
     # before refs/remotes, so it is resolved unambiguously first, and the
-    # default above is fully qualified (3b620 round 8). A base git cannot
-    # resolve, or a git that cannot be found or executed, passes unchanged
-    # to the merge-base read below; any other OSError on a validation call
-    # refuses here (3b620 round 17).
+    # default above is fully qualified. A base git cannot resolve, or a
+    # git that cannot be found or executed, passes unchanged to the
+    # merge-base read below; any other OSError on a validation call
+    # refuses here.
     base, refusal = resolve_base_ref(base, REPO_ROOT)
     if refusal:
         print(f"ERROR: {refusal} (head={head}).", file=sys.stderr)
         return 2
-    # Only git's own no-merge-base result is the documented fail-open skip; git
-    # refusing to run at all (dubious ownership, no repository, a bad object)
-    # read as that skip and passed with exit 0, so it refuses instead (3b572).
+    # Only git's own no-merge-base result is the documented fail-open skip; in
+    # the earlier repository, git refusing to run at all (dubious ownership, no
+    # repository, a bad object) read as that skip and passed with exit 0, so it
+    # refuses instead.
     try:
         merge_base = merge_base_of(base, head)
     except subprocess.CalledProcessError as exc:
@@ -311,9 +309,9 @@ def run(base: str | None, head: str) -> int:
               f"{exc}", file=sys.stderr)
         return 2
     except UnicodeDecodeError as exc:
-        # git output that is not valid UTF-8 (git's message echoing a base or
-        # head that holds such a byte) exited 1 with a traceback too; it
-        # refuses, naming the decoding error (3b572 round 3).
+        # In the earlier repository, git output that is not valid UTF-8 (git's
+        # message echoing a base or head that holds such a byte) exited 1 with
+        # a traceback too; it refuses, naming the decoding error.
         print(f"ERROR: git's output could not be decoded finding the merge base "
               f"(base={base}, head={head}): {exc}", file=sys.stderr)
         return 2
@@ -331,16 +329,16 @@ def run(base: str | None, head: str) -> int:
     try:
         # The refusal's repo= field and the comparison below. The top level is
         # read as bytes and decoded with os.fsdecode, so a path that is not
-        # valid UTF-8 still reaches the comparison (3b564). git refusing to
-        # print one (no work tree, as with GIT_DIR naming a bare repository)
-        # refuses with exit 2 (3b540 round 9).
+        # valid UTF-8 still reaches the comparison. git refusing to print one
+        # (no work tree, as with GIT_DIR naming a bare repository) refuses
+        # with exit 2.
         toplevel = os.fsdecode(subprocess.check_output(
             ["git", "-C", str(REPO_ROOT), "rev-parse", "--show-toplevel"])).strip()
     except OSError as exc:
-        # git that cannot be started degraded to a placeholder that skipped
-        # the comparison below, so a core.worktree naming another directory
-        # passed with exit 0, the one case that comparison refuses; it
-        # refuses too, naming the error (3b572 round 3).
+        # In the earlier repository, git that cannot be started degraded to a
+        # placeholder that skipped the comparison below, so a core.worktree
+        # naming another directory passed with exit 0, the one case that
+        # comparison refuses; it refuses too, naming the error.
         print(f"ERROR: git could not be run reading the top level (base={base}, head={head}): "
               f"{exc}", file=sys.stderr)
         return 2
@@ -351,7 +349,7 @@ def run(base: str | None, head: str) -> int:
         if not toplevel:
             # git older than 2.25 printed nothing and exited 0 outside a work tree
             # instead of refusing, so an empty top level is the same missing work
-            # tree and refuses the same way on any git (3b559).
+            # tree and refuses the same way on any git.
             print(f"ERROR: git rev-parse --show-toplevel printed an empty top level "
                   f"(no work tree) (base={base}, head={head}).", file=sys.stderr)
             return 2
@@ -359,7 +357,7 @@ def run(base: str | None, head: str) -> int:
         # level other than REPO_ROOT means git is reading another
         # repository; refuse it, as D9 does. Path resolves a relative top
         # level against the current directory, so it must also be absolute,
-        # as git always prints it (3b564).
+        # as git always prints it.
         top = Path(toplevel)
         if not (top.is_absolute() and top.resolve() == REPO_ROOT.resolve()):
             print(
@@ -371,7 +369,7 @@ def run(base: str | None, head: str) -> int:
             return 2
     # A top level of REPO_ROOT does not show that git reads REPO_ROOT's
     # repository (GIT_DIR naming another one still reports it), so compare
-    # the git directories too, as D9 does (3b564).
+    # the git directories too, as D9 does.
     refusal = require_own_git_dir(REPO_ROOT)
     if refusal:
         print(f"ERROR: {refusal} (base={base}, head={head}).", file=sys.stderr)
@@ -401,8 +399,9 @@ def run(base: str | None, head: str) -> int:
     for rel in files:
         if rel in deleted:
             continue
-        # A failed read PROPAGATES: skipping the document here made a git error
-        # print the clean "D13 OK: N corpus doc(s) changed" (3b572).
+        # A failed read PROPAGATES: in the earlier repository, skipping the
+        # document here made a git error print the clean "D13 OK: N corpus
+        # doc(s) changed".
         try:
             diff = git("diff", merge_base, head, "--", rel)
             head_text = git("show", f"{head}:{rel}")
@@ -456,39 +455,39 @@ def _self_test() -> int:
         if not cond:
             failures.append(name)
 
-    # Range expansion (the #1899 case).
+    # Range expansion (a range-to-single edit).
     check("range-domain", expand_ranges("| ... | CCC-04 to 05 | ...") .find("CCC-04") >= 0
           and "CCC-05" in expand_ranges("CCC-04 to 05"))
     check("range-iso", "A.5.4" in expand_ranges("A.5.1 to A.5.4") and "A.5.2" in expand_ranges("A.5.1 to A.5.4"))
-    # codex-HOLD regression: ISO echo form, SSDF dotted form, domain no-repeat form.
+    # Regression: ISO echo form, SSDF dotted form, domain no-repeat form.
     check("range-iso-echo", "A.8.23" in expand_ranges("A.8.20 to 8.23") and "A.8.21" in expand_ranges("A.8.20 to 8.23"))
     check("range-ssdf-dotted", "PW.4" in expand_ranges("PW.1 to PW.4") and "PW.3" in expand_ranges("PW.1 to PW.4"))
     check("range-domain-norepeat", "I&S-09" in expand_ranges("I&S-01 to 09") and "I&S-05" in expand_ranges("I&S-01 to 09"))
-    # codex-HOLD regression: a parenthesized body cite (SA-11) IS caught; SA-11(8) enhancement is NOT.
+    # Regression: a parenthesized body cite (SA-11) IS caught; SA-11(8) enhancement is NOT.
     check("paren-cite-caught", bool(anchored("SA-11").search("this maps to (SA-11).")))
     check("enhancement-still-excluded", not anchored("SA-11").search("addresses SA-11(8) here"))
     # still-in-table guard covers an ISO-echo range at HEAD.
     check("iso-echo-still-in-table", "A.8.23" in head_table_codes("| Net | A.8.20 to 8.23 | ... |"))
-    # codex-HOLD-2 regression: 27701 4-level code + range; Privacy-Framework -P range; nested SSDF.
+    # Regression: 27701 4-level code + range; Privacy-Framework -P range; nested SSDF.
     check("iso-27701-4level-token", "A.7.2.3" in codes_in("mapped to A.7.2.3 here"))
     check("iso-27701-4level-range", "A.7.2.4" in expand_ranges("A.7.2.3 to A.7.2.4") and "A.7.2.3" in expand_ranges("A.7.2.3 to A.7.2.4"))
     check("privacy-P-range", "CT.PO-P5" in expand_ranges("CT.PO-P1 to P5") and "CT.PO-P3" in expand_ranges("CT.PO-P1 to P5"))
     check("ssdf-nested-range", "PO.1.3" in expand_ranges("PO.1.1 to PO.1.3"))
-    # codex-HOLD-2 FP-safety: cross-stem ranges must NOT expand (no fabricated codes).
+    # FP-safety: cross-stem ranges must NOT expand (no fabricated codes).
     check("cross-stem-domain-noexpand", "IAM-02" not in expand_ranges("IAM-01 to DSP-03") and "IAM-01 to DSP-03" in expand_ranges("IAM-01 to DSP-03"))
     check("cross-stem-iso-noexpand", "A.5.2" not in expand_ranges("A.5.1 to A.6.5"))
     check("cross-stem-ssdf-noexpand", "PW.2" not in expand_ranges("PW.1 to RV.4"))
-    # #2488 regression: a task-level cite (PW.4.1) is not a cite of its parent practice (PW.4); a sentence-final period still is.
+    # Regression: a task-level cite (PW.4.1) is not a cite of its parent practice (PW.4); a sentence-final period still is.
     check("anchored-parent-not-in-task", anchored("PW.4").search("NIST SSDF PW.4.1, PW.4.4") is None)
     check("anchored-iso-parent-not-in-child", anchored("A.8").search("A.8.20") is None)
     check("anchored-sentence-period", anchored("PW.4").search("maps to PW.4.") is not None)
-    # codex-HOLD-3 regression: suffix-collision, mid-token left, and the `through` form.
+    # Regression: suffix-collision, mid-token left, and the `through` form.
     check("suffix-collision-noexpand", "IAM-02" not in expand_ranges("IAM-01 to AM-03"))
     check("midtoken-left-domain-noexpand", "IAM-02" not in expand_ranges("X-IAM-01 to 03"))
     check("midtoken-left-iso-noexpand", "A.5.2" not in expand_ranges("FOOA.5.1 to 5.3"))
     check("through-form-expands", "IAM-13" in expand_ranges("IAM-01 through IAM-15") and "IAM-15" in expand_ranges("IAM-01 through IAM-15"))
 
-    # POSITIVE: #1899-shaped. Table cell `CCC-04 to 05` -> `CCC-04`; body still cites CCC-05.
+    # POSITIVE: range narrowed to one code. Table cell `CCC-04 to 05` -> `CCC-04`; body still cites CCC-05.
     diff_1899 = (
         "--- a/dev-security/x.md\n+++ b/dev-security/x.md\n"
         "-| Build integrity | CCC-04 to 05 | ... |\n"
@@ -501,7 +500,7 @@ def _self_test() -> int:
     check("1899-still-in-table-keeps-CCC-05", "CCC-05" in removed2)
     check("1899-orphan-found", any(c == "CCC-05" for _, c, _ in body_orphans(removed2, head_1899)))
 
-    # POSITIVE: #1895-shaped. Table SA-11 -> CA-8; body still says SA-11.
+    # POSITIVE: code replaced in the table. Table SA-11 -> CA-8; body still says SA-11.
     diff_1895 = (
         "-| Pentest programme | A.8.8 | SA-11 | ... |\n"
         "+| Pentest programme | A.8.8 | CA-8 | ... |\n"

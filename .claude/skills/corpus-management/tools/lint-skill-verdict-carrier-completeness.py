@@ -80,7 +80,7 @@ if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
 
 from lint_common import PathContainmentError, is_containment_refusal, join_under  # noqa: E402
-from lint_common import is_fence_line  # noqa: E402  # the shared fence predicate (3b83), stays local
+from lint_common import is_fence_line  # noqa: E402  # the shared fence predicate, stays local
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 DEFAULT_MANIFEST_REL = ".claude/skills/corpus-management/tools/skill-verdict-fields.json"
@@ -95,9 +95,9 @@ def segment_units(text):
     A unit is a list item (with wrapped continuations), a table row, a heading line,
     or a paragraph (a run of lines between blanks). Fenced code and YAML frontmatter
     are excluded; fence lines are what the shared ``lint_common.is_fence_line``
-    recognizes (a marker after at most three spaces of indent, 3b83), so a marker
-    indented four or more columns cannot hide the units after it. The unit text joins
-    its lines with single spaces so a multi-line carrier sentence is matched as one
+    recognizes (a marker after at most three spaces of indent), so a marker indented
+    four or more columns cannot hide the units after it. The unit text joins its
+    lines with single spaces so a multi-line carrier sentence is matched as one
     string.
     """
     lines = text.splitlines()
@@ -344,7 +344,7 @@ def main(argv=None):
     ap.add_argument("--root", default=str(REPO_ROOT))
     ap.add_argument("--self-test", action="store_true")
     args = ap.parse_args(argv)
-    if args.root is not None:  # 3b50b2d1: a missing, empty or non-directory --root is refused
+    if args.root is not None:  # a missing, empty or non-directory --root is refused
         sys.path.insert(0, str(Path(__file__).resolve().parent))
         from lint_common import require_dir
         args.root = require_dir(args.root, "--root")
@@ -429,7 +429,7 @@ def _self_test():
           {"s.md": "## H\n\n- Every verdict cites the held source `path:line`; a verdict "
                    "without it is rejected.\n"},
           man([FIELD_WITH_EXC]), 1)
-    # 2b. 3b83: a fence marker indented four or more columns is content under the
+    # 2b. A fence marker indented four or more columns is content under the
     #     shared is_fence_line, so it cannot hide the defective carrier after it.
     check("indented marker does not hide a failing carrier",
           {"s.md": "## H\n\n    ```\n\n- Every verdict cites the quoted passage.\n"},

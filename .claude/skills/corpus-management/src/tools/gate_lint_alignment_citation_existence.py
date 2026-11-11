@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 """Fabricated alignment-citation existence - pack engine.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
-(the PF identifier/range regexes, _check_pf, check_file) is the source of record
-here in the pack, moved verbatim from the grc gate. P-1.63 part d added two optional
-families: OWASP ASVS requirement/section identifiers (context-gated, see _check_asvs)
-and MITRE CWE identifiers (_check_cwe); an adopter that supplies no catalogue for a
-family leaves it unchecked. The framework catalogue (the
-valid-identifier set and the framework name) is supplied by the adopter via
-configure(ref), so the engine carries no project catalogue; the grc wrapper
-(.claude/skills/corpus-management/tools/lint-alignment-citation-existence.py) imports the alignment_citation_reference
-registry, configures the engine, and keeps EXEMPT_SUFFIXES, a module-global check_file
-shim, main, and the exit codes.
+Engine/wrapper split: the PURE scan (the PF identifier/range regexes, _check_pf,
+check_file) is the source of record here in the pack, moved verbatim from the grc
+gate. Two optional families were added later: OWASP ASVS requirement/section
+identifiers (context-gated, see _check_asvs) and MITRE CWE identifiers (_check_cwe);
+an adopter that supplies no catalogue for a family leaves it unchecked. The framework
+catalogue (the valid-identifier set and the framework name) is supplied by the
+adopter via configure(ref), so the engine carries no project catalogue; the grc
+wrapper (.claude/skills/corpus-management/tools/lint-alignment-citation-existence.py)
+imports the alignment_citation_reference registry, configures the engine, and keeps
+EXEMPT_SUFFIXES, a module-global check_file shim, main, and the exit codes.
 """
 
 from __future__ import annotations
@@ -31,7 +30,7 @@ except ImportError as exc:  # fail loud: broken setup, never silently worked aro
 # Placeholders until an adopter calls configure(); the grc wrapper does so at import.
 _PF_ALL = frozenset()
 _PF_NAME = ""
-# Optional families (P-1.63 part d): an adopter that supplies no catalogue for a family
+# Optional families: an adopter that supplies no catalogue for a family
 # leaves it unchecked, so a Privacy-Framework-only configuration behaves exactly as before.
 _ASVS_REQ = frozenset()
 _ASVS_SEC = frozenset()

@@ -39,14 +39,14 @@ separator also continues the title, so the code APO12, a spaced en dash, then
 its canonical title joined to further words by an unspaced en dash (for
 example, ISO 31000 crosswalk) is a known false positive.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
-(the objective-code/title regexes, _norm, extract_title, scan_text, scan_file) is
-the source of record here in the pack, moved verbatim from the grc gate. The COBIT
-objective catalogue (code -> canonical title) is supplied by the adopter via
-configure(objectives), so the engine carries no project catalogue; the grc wrapper
-(.claude/skills/corpus-management/tools/lint-cobit-title-text.py) imports the cobit_iso31000_reference catalogue,
-configures the engine, and keeps EXEMPT_FILES, a module-global scan_file shim, main,
-and the exit codes.
+Engine/wrapper split: the PURE scan (the objective-code/title regexes,
+_norm, extract_title, scan_text, scan_file) is the source of record
+here in the pack, moved verbatim from the grc gate. The COBIT objective
+catalogue (code -> canonical title) is supplied by the adopter via
+configure(objectives), so the engine carries no project catalogue; the
+grc wrapper (.claude/skills/corpus-management/tools/lint-cobit-title-text.py)
+imports the cobit_iso31000_reference catalogue, configures the engine, and
+keeps EXEMPT_FILES, a module-global scan_file shim, main, and the exit codes.
 """
 
 from __future__ import annotations

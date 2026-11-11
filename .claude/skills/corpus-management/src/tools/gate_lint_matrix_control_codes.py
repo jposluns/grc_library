@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """Central compliance-matrix framework-control-code validity - pack engine.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
-(Finding, the header/regex constants, the row helpers split_row / is_separator_row /
-tokenize_cell, the per-framework checks check_nist_token / check_ccm_token /
-check_aicm_token / check_tsc_token, and scan_matrix) is the source of record here in the
-pack; it was moved from the grc gate and has since been extended (backlog 3.57: the
-optional AICPA TSC 2017 column and a row-width check). The five framework-reference predicates
-(is_valid_category, relocation_note, is_ccm_v41, is_aicm_only, check_iso_token), and the
-two OPTIONAL AICPA Trust Services Criteria predicates (is_valid_tsc_criterion,
-is_tsc_group_heading), are supplied by the adopter via configure(ref), so the engine is
-catalogue-free; a matrix carrying the TSC column while the TSC predicates are not
-supplied is a finding (fail closed), never an unchecked column. The grc
-wrapper (.claude/skills/corpus-management/tools/lint-matrix-control-codes.py) imports the shared reference modules,
-configures the engine, and keeps the matrix scan scope (MATRIX_PATH), a module-global
-scan_matrix(path) shim, lint_target, main, and the exit codes.
+Engine/wrapper split: the PURE scan (Finding, the header/regex constants, the
+row helpers split_row / is_separator_row / tokenize_cell, the per-framework checks
+check_nist_token / check_ccm_token / check_aicm_token / check_tsc_token, and
+scan_matrix) is the source of record here in the pack; it was moved from the
+grc gate and has since been extended (the optional AICPA TSC 2017 column and
+a row-width check). The five framework-reference predicates (is_valid_category,
+relocation_note, is_ccm_v41, is_aicm_only, check_iso_token), and the two
+OPTIONAL AICPA Trust Services Criteria predicates (is_valid_tsc_criterion,
+is_tsc_group_heading), are supplied by the adopter via configure(ref), so the
+engine is catalogue-free; a matrix carrying the TSC column while the TSC predicates
+are not supplied is a finding (fail closed), never an unchecked column. The grc wrapper
+(.claude/skills/corpus-management/tools/lint-matrix-control-codes.py) imports the shared
+reference modules, configures the engine, and keeps the matrix scan scope (MATRIX_PATH),
+a module-global scan_matrix(path) shim, lint_target, main, and the exit codes.
 """
 
 from __future__ import annotations

@@ -73,15 +73,14 @@ EXEMPT_FILES = {
     "decision-tree.md",
 }
 
-# The generated web-to-corpus link manifest (.web/corpus-link-manifest.md, and
-# that exact path only; a file of the same name elsewhere is scanned normally)
-# enumerates every GitHub target the site links, .working/TODO.md among them (document
-# pages link their sources' related documents). A row naming that file is a
-# link target, not a placeholder marker, so the literal .working/TODO.md path token is
-# skipped in a row's target and link-text cells ALONE; every other cell, and
-# everything else in those cells, stays scanned (round-2 fix 2: the former
-# whole-file EXEMPT_FILES entry blinded the gate to template text leaking into
-# the manifest).
+# The generated web-to-corpus link manifest (.web/corpus-link-manifest.md, and that
+# exact path only; a file of the same name elsewhere is scanned normally) enumerates
+# every GitHub target the site links, .working/TODO.md among them (document pages link
+# their sources' related documents). A row naming that file is a link target, not a
+# placeholder marker, so the literal .working/TODO.md path token is skipped in a row's
+# target and link-text cells ALONE; every other cell, and everything else in those
+# cells, stays scanned (the former whole-file EXEMPT_FILES entry blinded the gate to
+# template text leaking into the manifest).
 MANIFEST_REL = ".web/corpus-link-manifest.md"
 
 # A whitespace-delimited cell token that IS the .working/TODO.md path (bare or
@@ -108,12 +107,11 @@ def _mask_manifest_line(line: str) -> str:
 
 def manifest_findings(path: Path, *, patterns) -> list[tuple[int, str, str]]:
     """Findings for the generated manifest: the engine's patterns over EVERY
-    line of the file, fenced or not (round-3 fix 1b: the manifest is a
-    generated table with no legitimate code fences, so the engine's
-    fence-aware line iterator would let a fence marker, terminated or not,
-    hide leaked content from the scan), each line masked by
-    ``_mask_manifest_line`` first. Reported excerpts are the original line,
-    like the engine's."""
+    line of the file, fenced or not (the manifest is a generated table with
+    no legitimate code fences, so the engine's fence-aware line iterator
+    would let a fence marker, terminated or not, hide leaked content from
+    the scan), each line masked by ``_mask_manifest_line`` first. Reported
+    excerpts are the original line, like the engine's."""
     findings: list[tuple[int, str, str]] = []
     text = read_text_safe(path)
     if text is None:
@@ -135,8 +133,8 @@ def in_exempt_files(path: Path, *, repo_root: Path = REPO_ROOT) -> bool:
     """True when ``path`` is exempted by an ``EXEMPT_FILES`` entry.
 
     A bare entry is compared with the file name. An entry with a ``/`` is compared
-    with the path relative to ``repo_root`` (chunk CT2: path entries such as
-    ``governance/specification-master-project.md`` were compared with the file name
+    with the path relative to ``repo_root`` (path entries such as
+    ``governance/specification-master-project.md`` were once compared with the file name
     alone and so never matched). A path outside ``repo_root`` matches bare entries only.
     """
     if path.name in EXEMPT_FILES:
@@ -149,8 +147,8 @@ def is_exempt(path: Path) -> bool:
     """Return True if the file should be skipped."""
     if is_default_exempt_root(path, repo_root=REPO_ROOT):
         return True
-    # Adopter overlay-exemption (3.183): honor the adopter's private-overlay dir here too,
-    # since this gate builds its own exempt set rather than routing through is_target.
+    # Adopter overlay-exemption: honour the adopter's private-overlay dir here too, since
+    # this gate builds its own exempt set rather than routing through is_target.
     if is_adopter_exempt(path, repo_root=REPO_ROOT):
         return True
     if in_exempt_files(path):
@@ -202,7 +200,7 @@ def _engine():
 
 
 def _placeholders_config():
-    """Load the gate-12 placeholder patterns from the pack profile (Phase-4 PR-H).
+    """Load the gate-12 placeholder patterns from the pack profile.
 
     Returns ordered (compiled-pattern, label) pairs composed from the
     ``placeholders`` reference-vocabulary profile (``defaults/grc/placeholders.toml``,
@@ -212,7 +210,7 @@ def _placeholders_config():
     pack_tools = str(PACK_TOOLS)
     if pack_tools not in sys.path:
         sys.path.insert(0, pack_tools)
-    import profile_loader  # the pack-owned reference-vocabulary loader (PR-A)
+    import profile_loader  # the pack-owned reference-vocabulary loader
 
     return _engine().placeholder_patterns(profile_loader.load("placeholders")["patterns"])
 
@@ -278,17 +276,17 @@ def main(argv: list[str]) -> int:
         if args.paths:
             parser.error("--self-test takes no paths")
         return _self_test()
-    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    # Explicit paths are refused when missing or outside this tree, else normalized.
     args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     targets = iter_targets(args.paths)
     # The generated manifest takes the narrow TODO.md-token carve-out here in
     # the wrapper (project-file policy); every other target goes to the
     # engine's per-file ``scan`` whole. Only the real manifest path qualifies.
     # The wrapper groups and reports BOTH scans itself in ONE summary,
-    # mirroring the engine's ``run`` report shape (round-3 fix 1c: the former
-    # engine ``run`` call printed its own OK line before the wrapper's
-    # manifest FAIL block, a pass-then-fail contradiction, and its OK file
-    # count omitted the manifest).
+    # mirroring the engine's ``run`` report shape (the former engine ``run``
+    # call printed its own OK line before the wrapper's manifest FAIL block, a
+    # pass-then-fail contradiction, and its OK file count omitted the
+    # manifest).
     manifest_path = (REPO_ROOT / MANIFEST_REL).resolve()
     patterns = _placeholders_config()
     engine = _engine()

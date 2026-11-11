@@ -3,7 +3,7 @@
 A clause of a statute (PIPEDA s. 10.1, GDPR Art. 33) is often restated on
 several corpus surfaces. When one surface is corrected, the others keep the
 old wording unless a reviewer finds them, and reviewers tend to grep the old
-PHRASE rather than the PROVISION: the #2649 retro, where PIPEDA s. 10.1
+PHRASE rather than the PROVISION: in the earlier repository, PIPEDA s. 10.1
 qualifiers corrected on one surface survived without them on others. This
 module turns every recognizable statute-section citation into a normalized
 ``(instrument, section)`` key so two ADVISORY tools can group surfaces by
@@ -11,7 +11,7 @@ provision:
 
   - ``.claude/skills/corpus-management/tools/build-provision-index.py``: every surface per key, corpus-wide.
   - ``.claude/skills/corpus-management/tools/audit-provision-siblings.py``: for the documents a PR changes,
-    every OTHER surface citing the same provisions (for QA briefs).
+    every OTHER surface citing the same provisions (for reviewers).
 
 Extraction model (stdlib ``re``, fenced code skipped via
 ``lint_common.iter_non_code_lines``):
@@ -125,14 +125,15 @@ Extraction model (stdlib ``re``, fenced code skipped via
                  that an earlier citation on the line took as its POSTFIX
                  instrument (``Article 35 GDPR``) binds to that citation and
                  is not reused (in the EU AI annex, ``... Article 35 GDPR ...
-                 Article 27(4)`` is the AI Act's, and is no longer keyed as
-                 GDPR Art. 27); a prefix alias is reused (``GDPR Art. 33;
-                 notify (Art. 34)``). A bare citation whose only earlier
-                 aliases are bound that way falls to the heading chain
-                 only where the heading names the SAME instrument as each
-                 bound alias; a different one is refused (``## NIS2
-                 reporting`` over ``Article 33 of the GDPR ...; Article
-                 34 ...`` leaves Article 34 unresolved);
+                 Article 27(4)`` is the AI Act's, not GDPR Art. 27 (in the
+                 earlier repository it was keyed as GDPR Art. 27)); a
+                 prefix alias is reused (``GDPR Art. 33; notify
+                 (Art. 34)``). A bare citation whose only earlier aliases
+                 are bound that way falls to the heading chain only where
+                 the heading names the SAME instrument as each bound alias;
+                 a different one is refused (``## NIS2 reporting`` over
+                 ``Article 33 of the GDPR ...; Article 34 ...`` leaves
+                 Article 34 unresolved);
        heading   the nearest enclosing heading that names exactly one
                  instrument (for a citation ON a heading line, the
                  enclosing parent headings);
@@ -184,14 +185,14 @@ Extraction model (stdlib ``re``, fenced code skipped via
      as an adjectival compound (``GDPR-style``, ``GDPR-Article-26-style``)
      is not a mention.
   5. SIGNATURE PHRASES: a small seed table of phrases that restate a
-     provision WITHOUT citing it (before #2649 most PIPEDA s. 10.1 surfaces
-     carried no section number at all). A hit is reported with tier
-     ``phrase`` as an uncited-restatement CANDIDATE, only on a non-heading
-     line that carries no resolved citation, and only when the phrase's
-     instrument context is the key's instrument: the nearest alias before
-     the phrase on the line, else the first after it, else the heading
-     chain, else the Document Title (the weaker section-body tier is not
-     used for phrases).
+     provision WITHOUT citing it (in the earlier repository, before the
+     correction described above, most PIPEDA s. 10.1 surfaces carried no
+     section number at all). A hit is reported with tier ``phrase`` as an
+     uncited-restatement CANDIDATE, only on a non-heading line that carries
+     no resolved citation, and only when the phrase's instrument context is
+     the key's instrument: the nearest alias before the phrase on the line,
+     else the first after it, else the heading chain, else the Document
+     Title (the weaker section-body tier is not used for phrases).
 
 The explicit tier is trusted; every other citation tier is an INFERENCE,
 and the two tools list inferred-tier rows under ``CANDIDATE_LABEL``,
@@ -222,9 +223,9 @@ from lint_common import (
 # executive pages. CORPUS_SCAN_DIRS is the audited domains plus the
 # specifications in .claude/skills/corpus-management/specs/ and the adopter
 # guides in .claude/skills/corpus-management/docs/. This index reads the
-# adopter guides; gates 6 and 10 exclude them. Before the move the
-# specifications sat in governance/ and at the root, and the guides in a
-# top-level docs/ root.
+# adopter guides; gates 6 and 10 exclude them. In the earlier repository,
+# before the move, the specifications sat in governance/ and at the root,
+# and the guides in a top-level docs/ root.
 DEFAULT_SCAN_ROOTS: tuple[str, ...] = ("README.md", *CORPUS_SCAN_DIRS, "executive")
 
 # Generated artefacts derive their text from sources already in scope (or,
@@ -470,10 +471,10 @@ _POSTFIX_LEAD_RE = re.compile(r"\s*(?:" + _POINT + _STRUCT + r"\s*,?\s*of\s+(?:t
 _POSTFIX_CLOSE_RE = re.compile(r"\s*\)")
 _ANAPHOR_RE = re.compile(r"\b(?:its|whose|their)\s+$")
 _OF_THIS_RE = re.compile(_TAIL_LEAD + r"(?:this|that|such|said)\s+[A-Z]?[a-z]+")
-# A capitalized word after "of" names another instrument; a schedule, annex
-# or appendix tail refuses in ANY capitalization (round-7 QA: "of schedule 1"
-# and "of annex II" slipped past the [A-Z] test and re-keyed the attachment's
-# clause to the parent instrument's own section).
+# A capitalized word after "of" names another instrument; a schedule, annex or
+# appendix tail refuses in ANY capitalization (in the earlier repository, "of
+# schedule 1" and "of annex II" slipped past the [A-Z] test and re-keyed the
+# attachment's clause to the parent instrument's own section).
 _OF_OTHER_RE = re.compile(
     _TAIL_LEAD + r"(?:the\s+)?(?:[A-Z]|(?i:schedule|annex|appendix)\b)"
 )
@@ -484,8 +485,8 @@ _OF_OTHER_RE = re.compile(
 # respecting ...", "of the Regulation laying down ...", "of the Act to
 # promote ..."). The continuation words are a fixed list, so a noun continued
 # by a word outside it still reads as the bare noun (stated residue in the
-# build tool's docstring). They match case-insensitively (round-7 QA:
-# secondary sources title-case long titles, "of the Act Respecting ...").
+# build tool's docstring). They match case-insensitively (secondary sources
+# title-case long titles, "of the Act Respecting ...").
 _TITLE_CONTINUATION = (
     r"on|of|for|to|respecting|concerning|regarding|relating|governing|establishing|laying|"
     r"implementing|amending|supplementing|setting"

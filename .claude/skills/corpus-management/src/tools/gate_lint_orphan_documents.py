@@ -7,13 +7,13 @@ zero inbound references. An orphan artefact is unreachable from the library's
 reference graph. Fenced code blocks are skipped via ``aiqt_corpus`` (a link inside
 a fence is documentation, not a live reference).
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): this engine carries
-the PURE graph machinery (``LINK_RE``, ``normalise_link``, ``build_reverse_graph``),
-parameterized by ``repo_root`` so it is repository-root-free. The project wrapper
-(``.claude/skills/corpus-management/tools/lint-orphan-documents.py``) supplies the grc scan scope + artefact policy
-(``is_artefact`` / ``find_artefacts`` / ``find_all_markdown`` / ``ALWAYS_EXEMPT``)
-and the orphan aggregation + reporting in ``main``. The engine is scope-free and
-repository-root-free.
+Engine/wrapper split: this engine carries the PURE graph machinery (``LINK_RE``,
+``normalise_link``, ``build_reverse_graph``), parameterized by ``repo_root`` so it
+is repository-root-free. The project wrapper
+(``.claude/skills/corpus-management/tools/lint-orphan-documents.py``) supplies the
+grc scan scope + artefact policy (``is_artefact`` / ``find_artefacts`` /
+``find_all_markdown`` / ``ALWAYS_EXEMPT``) and the orphan aggregation + reporting
+in ``main``. The engine is scope-free and repository-root-free.
 
 Exit codes (the wrapper returns these): 0 clean; 1 one or more orphans.
 """
@@ -65,7 +65,7 @@ def build_reverse_graph(all_md: list[Path], repo_root: Path) -> dict[Path, set[P
 
     A document's link to ITSELF (a self-link, such as a Repository Path field or an in-page
     reference) is not an inbound reference: the rule requires a link from another document, so a
-    self-link-only artefact is still an orphan (P-1.89(a))."""
+    self-link-only artefact is still an orphan."""
     rev: dict[Path, set[Path]] = defaultdict(set)
     for f in all_md:
         text = read_text_safe(f)

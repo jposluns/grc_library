@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """TODO staleness audit (gate 45).
 
-Catches the recurring TODO drift patterns that have surfaced across
-four consecutive validation sweeps (Sweep 10 iter 2, iter 3 close-out,
-iter 3 catch-back, Sweep 11 iter 1). The convention amendment in
-PR #127 reframed the "Library version at HEAD" snapshot as
-"as-of-last-refresh" with explicit drift-is-expected wording (the
-version-snapshot field is intentionally allowed to drift). This gate
-catches the two harder-to-tolerate drift shapes that remain:
+Catches the recurring TODO drift patterns that surfaced across four
+consecutive validation sweeps in the earlier repository. The "Library
+version at HEAD" snapshot is "as-of-last-refresh", and its wording says
+that drift is expected (the version-snapshot field is intentionally
+allowed to drift). This gate catches the two harder-to-tolerate drift
+shapes that remain:
 
 1. **Queued-PR-already-merged**: .working/TODO.md mentions `Next, PR #N` or
    `queued PR #N` for a PR that has actually merged. This breaks the
@@ -20,12 +19,12 @@ catches the two harder-to-tolerate drift shapes that remain:
    iteration row. This breaks the resume experience because the
    maintainer reads a sweep cursor that has been superseded. (The sweep
    cursor lives in `.working/session-handoff.md`, the canonical resume
-   point, not in .working/TODO.md: the resume-metadata block was relocated there
+   point, not in .working/TODO.md: the resume-metadata block lives there
    so .working/TODO.md stays purely forward-looking.)
 
-The gate does NOT enforce the version-snapshot field's currency. Per
-the PR #127 convention amendment, that field is intentionally allowed
-to drift as PRs land between session-pause and resume.
+The gate does NOT enforce the version-snapshot field's currency: that
+field is intentionally allowed to drift as PRs land between
+session-pause and resume.
 
 The gate is a regular corpus audit gate (runs on every audit cycle,
 not just at PR time). This catches drift at audit-time before any
@@ -60,12 +59,12 @@ SWEEP_CURSOR_FILE = "session-handoff.md"
 # Queued-PR patterns. Match `Next` / `queued` / `pending` immediately
 # adjacent to `PR #<n>`, where "immediately adjacent" means only
 # whitespace, commas, colons, dashes, or em-dashes between the marker
-# word and the PR ref. The earlier 80-character window produced false
-# positives on lines where the queued PR was a placeholder (`PR #N`)
-# and the sentence later referenced a real merged PR number in a
-# parenthetical historical aside (`...(during PR #133)`). The tighter
+# word and the PR ref. In the earlier repository, an 80-character window
+# produced false positives on lines where the queued PR was a placeholder
+# (`PR #N`) and the sentence later referenced a real merged PR number in
+# a parenthetical historical aside (`...(during PR #N)`). The tighter
 # character class limits the match to the queued-PR target form
-# `Next, PR #128` / `Next: PR #128` / `queued PR #128` and excludes
+# `Next, PR #N` / `Next: PR #N` / `queued PR #N` and excludes
 # any inline word characters between the marker and the digit-bearing
 # PR ref.
 QUEUED_PR_PATTERN = re.compile(
@@ -76,7 +75,7 @@ QUEUED_PR_PATTERN = re.compile(
 # Sweep-cursor pattern. Match `Last validation sweep: Sweep N iteration M`
 # or `Last validation sweep: Sweep N iter M`. Tolerates markdown bold
 # markers (`**`) around the phrase, e.g. `**Last validation sweep**: Sweep ...`,
-# which is the typical form in .working/TODO.md.
+# which is the typical form in the session-handoff file.
 SWEEP_CURSOR_PATTERN = re.compile(
     r"\bLast\s+validation\s+sweep[*:\s]+Sweep\s+(\d+)\s+iter(?:ation)?\s+(\d+)",
     re.IGNORECASE,
@@ -198,9 +197,9 @@ def main() -> int:
     degraded: list[str] = []
     scanned = 0
     # Queued-PR check: the public index .working/TODO.md is required; the DETAIL file
-    # (TODO-REFERENCE.md) moved to the private sibling (2026-08 migration), so it
-    # is read private-first and no-ops in public CI / an adopter clone (the
-    # index-only roadmap), the same graceful-degradation the sweep-cursor uses.
+    # (TODO-REFERENCE.md) lives in a private store outside this repository, so it is
+    # read private-first and no-ops in public CI / an adopter clone (the index-only
+    # roadmap), the same graceful-degradation the sweep-cursor uses.
     todo_path = REPO_ROOT / ".working/TODO.md"
     if not todo_path.exists():
         print("ERROR: target file .working/TODO.md does not exist.", file=sys.stderr)
@@ -239,8 +238,7 @@ def main() -> int:
             all_findings.get(SWEEP_CURSOR_FILE, []) + cursor_findings
         )
     if degraded:
-        # 3b635: each skip above exits 0, so a green full-suite run must not read as a pass for
-        # them.
+        # Each skip above exits 0, so a green full-suite run must not read as a pass for them.
         print_degraded(
             "gate 45",
             f"gate 45 skipped {' and '.join(degraded)} (no private store "
@@ -277,8 +275,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    # 3b50b2g: this tool takes no argument; an unknown or surplus one
-    # used to be ignored with exit 0, so it is refused (exit 2) before the check runs.
+    # This tool takes no argument; an unknown or surplus one was ignored with exit 0
+    # in the earlier repository, so it is refused (exit 2) before the check runs.
     import os as _os
     sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
     from lint_common import strict_flags as _strict_flags

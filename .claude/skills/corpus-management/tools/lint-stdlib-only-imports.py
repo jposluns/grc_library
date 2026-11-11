@@ -44,11 +44,12 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
 # Directories whose *.py ship as the runnable toolchain (adopters execute these).
-SCAN_DIRS = (".claude/skills/corpus-management/tools", ".claude/skills/corpus-management/tests", ".web", ".claude/skills/corpus-management/src/tools", ".claude/aiqt/tools")  # vendor/: audit the vendored AIQT core imports so a future re-pin cannot slip in a third-party dep (codex #2018); .claude/skills/corpus-management/src/tools: the pack's own Python (compile PR-2) is held to the same stdlib-only bar
+SCAN_DIRS = (".claude/skills/corpus-management/tools", ".claude/skills/corpus-management/tests", ".web", ".claude/skills/corpus-management/src/tools", ".claude/aiqt/tools")  # vendor/: audit the vendored AIQT core imports so a future re-pin cannot slip in a third-party dep; .claude/skills/corpus-management/src/tools: the pack's own Python is held to the same stdlib-only bar
 
-# Sanctioned third-party dependencies (root module name -> rationale). EMPTY: the
-# toolchain is pure standard library. A future entry needs a rationale here and a
-# documented project dependency (the gate-discipline exception pattern).
+# Sanctioned third-party dependencies (root module name -> rationale). One entry
+# (idna); otherwise the toolchain is pure standard library. A future entry needs a
+# rationale here and a documented project dependency (the gate-discipline exception
+# pattern).
 ALLOWED_THIRD_PARTY: dict[str, str] = {
     "idna": "exact UTS-46 domain-label validity for the gate-22 PII email/domain "
             "boundary test (correctness-critical IDNA boundary, PRs #2430/#2431); "
@@ -60,7 +61,7 @@ ALLOWED_THIRD_PARTY: dict[str, str] = {
 # (exempt from the general scan, so their stems are not picked up by _first_party_names). They
 # are digest-verified against their pin by gate 98 (lint-aiqt-vendor-digest.py) and imported
 # through the .claude/skills/corpus-management/tools/aiqt_bootstrap.py shim, so they are sanctioned toolchain modules, not
-# third-party dependencies. The vendored module is ALSO scanned (SCAN_DIRS) so its own imports are audited. (Corpus-Management umbrella Phase-2; guardrails-coordinated 2026-09-05.)
+# third-party dependencies. The vendored module is ALSO scanned (SCAN_DIRS) so its own imports are audited.
 VENDORED_FIRST_PARTY: dict[str, str] = {
     "aiqt_corpus": "AIQT generic corpus-tool core, vendored at .claude/aiqt/tools/aiqt_corpus.py, "
                    "digest-verified by gate 98, imported via the aiqt_bootstrap shim",
@@ -75,9 +76,9 @@ def _scan_files() -> list[Path]:
             continue
         for p in sorted(base.rglob("*.py")):
             if not p.is_file() or "__pycache__" in p.parts:
-                # is_file: rglob("*.py") also matches a DIRECTORY named `*.py`;
-                # skip it (reading it would raise IsADirectoryError). Mirrors the
-                # gate-94 fix (PR #1715); r22-F4 codex follow-up.
+                # is_file: rglob("*.py") also matches a DIRECTORY named
+                # `*.py`; skip it (reading it would raise IsADirectoryError).
+                # Gate 94 applies the same skip.
                 continue
             files.append(p)
     return files

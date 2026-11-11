@@ -7,27 +7,25 @@ active document, its Owner Role, Review Frequency and Title from that document's
 own metadata header, the go-forward source of truth. This gate locks that mirror;
 the Title comparison is a ratchet against a pinned baseline of known diffs.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE check
-(cadence_tokens, find_index_table, check_row with its three comparators,
-collect_findings) plus the generic review-cadence recognizer + code-span-link
-regex live in the pack-owned engine
-(.claude/skills/corpus-management/src/tools/gate_lint_index_header_parity.py, source of record).
-This wrapper supplies the grc index register schema (the index relative path, the
-8-column header row, the column indices, the Owner/Review Frequency/Document Title
-metadata field names) + the per-document base-cadence allow-list + the title
-baseline and its classes + the --root and --strict-owner handling + the
-register-missing/unreadable/table-not-found environmental exits + the
-WARNING/DRIFT/FAIL/summary reporting.
+Engine/wrapper split: the PURE check (cadence_tokens, find_index_table, check_row
+with its three comparators, collect_findings) plus the generic review-cadence
+recognizer + code-span-link regex live in the pack-owned engine
+(.claude/skills/corpus-management/src/tools/gate_lint_index_header_parity.py,
+source of record). This wrapper supplies the grc index register schema (the index
+relative path, the 8-column header row, the column indices, the Owner/Review
+Frequency/Document Title metadata field names) + the per-document base-cadence
+allow-list + the title baseline and its classes + the --root and --strict-owner
+handling + the register-missing/unreadable/table-not-found environmental exits +
+the WARNING/DRIFT/FAIL/summary reporting.
 
-Title ratchet (3b150): titles are compared by stripped equality. The frozen
-2026-10-01 baseline, extended 2026-10-27 by #3025 with the Ecuador pair, pins 45
-exact index/header pairs: 30 deliberate-shortening privacy jurisdiction annexes
-and 15 real-drift rows. A pinned pair passes; a
-real-drift pair also prints a DRIFT work item. A NEW or CHANGED difference, a
-stale entry whose titles now agree, an empty title, a missing or repeated
-Document Title field and a malformed baseline entry are findings. A baseline path
-that matches no readable row fails on a default-root run and warns under an
-explicit --root, so partial fixture trees keep working.
+Title ratchet: titles are compared by stripped equality. The frozen 2026-10-01
+baseline, extended 2026-10-27 with the Ecuador pair, pins 45 exact index/header
+pairs: 30 deliberate-shortening privacy jurisdiction annexes and 15 real-drift
+rows. A pinned pair passes; a real-drift pair also prints a DRIFT work item. A
+NEW or CHANGED difference, a stale entry whose titles now agree, an empty title,
+a missing or repeated Document Title field and a malformed baseline entry are
+findings. A baseline path that matches no readable row fails on a default-root
+run and warns under an explicit --root, so partial fixture trees keep working.
 
 Usage:
     python3 .claude/skills/corpus-management/tools/lint-index-header-parity.py
@@ -69,7 +67,7 @@ INDEX_HEADER_CELLS = [
     "Primary Alignment Families",
     "Adoption Disposition",
 ]
-COL_TITLE = 2   # the engine's third comparator (the 3b150 title ratchet)
+COL_TITLE = 2   # the engine's third comparator (the title ratchet)
 COL_PATH = 3
 COL_OWNER = 4
 COL_FREQ = 5
@@ -119,16 +117,16 @@ BASE_CADENCE_EQUALITY_ALLOWLIST: dict[
 }
 
 
-# Frozen 2026-10-01 title evidence, extended 2026-10-27 by #3025 with the
-# Ecuador pair: 45 exact pairs, classified as 30 deliberate-shortening privacy
-# annexes and 15 real-drift rows. All 30 privacy
-# jurisdiction annexes drop Regulatory; EU, UK, US and UAE also abbreviate the
-# jurisdiction. Drift: 8 index doctype omissions, 2 header doctype omissions,
-# 1 CAPA omission, 1 IT scope omission, 1 DPIA acronym omission, 1 OT expansion
-# mismatch and 1 FAIR annotation. No family-wide convention supports those 15.
-# Every drift pair is a work item; every pair remains pinned until reconciled.
-# Re-checked against main 0375cb3a6 on 2026-10-22: 44 of 44 pairs still exact;
-# against main f209672b3 on 2026-10-30: 45 of 45 pairs still exact.
+# Frozen 2026-10-01 title evidence, extended 2026-10-27 with the Ecuador pair:
+# 45 exact pairs, classified as 30 deliberate-shortening privacy annexes and 15
+# real-drift rows. All 30 privacy jurisdiction annexes drop Regulatory; EU, UK,
+# US and UAE also abbreviate the jurisdiction. Drift: 8 index doctype
+# omissions, 2 header doctype omissions, 1 CAPA omission, 1 IT scope omission,
+# 1 DPIA acronym omission, 1 OT expansion mismatch and 1 FAIR annotation. No
+# family-wide convention supports those 15. Every drift pair is a work item;
+# every pair remains pinned until reconciled. Re-checked against main on
+# 2026-10-22: 44 of 44 pairs still exact; against main on 2026-10-30: 45 of 45
+# pairs still exact.
 # Tuple shape: (index title, header title, class, one-line rationale).
 TITLE_FIELD = "Document Title"
 TITLE_DIFF_CLASSES = ("deliberate-shortening", "real-drift")
@@ -434,7 +432,7 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--strict-owner", action="store_true",
                         help="Treat an Owner Role mismatch as a finding instead of a warning.")
     args = parser.parse_args(argv[1:])
-    if args.root is not None:  # 3b50b2d1: a missing, empty or non-directory --root is refused
+    if args.root is not None:  # a missing, empty or non-directory --root is refused
         args.root = require_dir(args.root, "--root")
     root = args.root.resolve() if args.root is not None else REPO_ROOT
 

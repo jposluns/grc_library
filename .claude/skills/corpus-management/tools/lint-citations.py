@@ -8,8 +8,8 @@ clause); this thin wrapper keeps the house ``python3 .claude/skills/corpus-manag
 parses exactly that) and supplies the grc-local configuration the pack engine deliberately
 does not carry: the AIQT bootstrap, the repo root, the framework-citation denylist config
 (the pack reference-vocabulary profile .claude/skills/corpus-management/src/defaults/grc/citations.toml, loaded
-via profile_loader.load('citations') and converted to the engine shapes in _citation_config(),
-Phase-4 PR-B), the markdown scope selector, and the default scan roots. These wrapper bytes are
+via profile_loader.load('citations') and converted to the engine shapes in _citation_config()),
+the markdown scope selector, and the default scan roots. These wrapper bytes are
 HAND-MAINTAINED, not compiler-generated, so gate 99 does NOT own them. _citation_config /
 iter_markdown_files / main stay HERE (grc config) so the scan-scope regression's ALLOW map and
 the CitationsLinterTests CLI observe them unmoved.
@@ -43,7 +43,7 @@ PACK_TOOLS = Path(__file__).resolve().parent.parent / "src" / "tools"
 
 def _citation_config():
     """Load the gate-5 denylist config from the pack profile, adapted to the
-    engine's parameter shapes (Phase-4 PR-B).
+    engine's parameter shapes.
 
     The framework-citation denylist is the pack reference-vocabulary profile
     ``.claude/skills/corpus-management/src/defaults/grc/citations.toml``, loaded via
@@ -59,7 +59,7 @@ def _citation_config():
     pack_tools = str(PACK_TOOLS)
     if pack_tools not in sys.path:
         sys.path.insert(0, pack_tools)
-    import profile_loader  # the pack-owned reference-vocabulary loader (PR-A)
+    import profile_loader  # the pack-owned reference-vocabulary loader
 
     prof = profile_loader.load("citations")
     denylist = [
@@ -103,7 +103,7 @@ def main(argv: list[str]) -> int:
         help="Paths to scan (files or directories).",
     )
     parser.add_argument(
-        # nargs="+": a bare --paths selected nothing and passed (3b21); it is now an error.
+        # nargs="+": a bare --paths selected nothing and passed; it is now an error.
         "--paths", dest="legacy_paths", nargs="+", default=None,
         help=argparse.SUPPRESS,
     )
@@ -116,7 +116,7 @@ def main(argv: list[str]) -> int:
         else DEFAULT_PATHS
     )
     if paths is not DEFAULT_PATHS and paths:
-        # Explicit paths are refused when unsound and normalized otherwise (3b21).
+        # Explicit paths are refused when unsound and normalized otherwise.
         paths = guard_explicit_paths(paths, repo_root=REPO_ROOT)
     denylist, path_exemptions = _citation_config()
     return _engine().run(

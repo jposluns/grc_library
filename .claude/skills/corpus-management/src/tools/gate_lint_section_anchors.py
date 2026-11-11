@@ -10,11 +10,11 @@ an anchor matching no heading slug in its resolved target is a finding. External
 scheme URLs (``http://``, ``https://``, ``mailto:``) and links whose target file
 does not exist (handled by the separate link-existence gate) are skipped.
 
-Engine/wrapper split (SHARED/SAFETY lane PR-35, Pattern A): this engine carries
-the pure check (``LINK_RE``, ``HEADING_RE``, ``slugify``, ``extract_anchors``,
-``scan``); the project wrapper (``.claude/skills/corpus-management/tools/lint-section-anchors.py``) supplies the grc
-scan scope (``iter_markdown_targets``) and the grouped reporting in ``main``, and
-keeps a thin module-global ``scan`` shim delegating here so the scan-scope
+Engine/wrapper split: this engine carries the pure check (``LINK_RE``,
+``HEADING_RE``, ``slugify``, ``extract_anchors``, ``scan``); the project wrapper
+(``.claude/skills/corpus-management/tools/lint-section-anchors.py``) supplies the
+grc scan scope (``iter_markdown_targets``) and the grouped reporting in ``main``,
+and keeps a thin module-global ``scan`` shim delegating here so the scan-scope
 regression test (which patches ``mod.scan`` and runs ``main``) observes the
 original signature and behaviour. ``scan`` takes ``repo_root`` as a keyword so the
 engine is repository-root-free; the wrapper supplies the grc root.

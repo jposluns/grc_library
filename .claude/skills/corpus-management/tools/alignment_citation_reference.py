@@ -7,7 +7,7 @@ identifiers the held editions of a framework actually define. The existence gate
 held reference repository at run time, so the gate works in a sibling-free clone
 (portability requirement, same design as `lint-ssdf-control-ids.py`). A maintainer-only
 parity check of these committed sets against the held `grc_library_ref` NIST Privacy Framework
-sources is a planned follow-up (P-1.63); it is NOT yet wired into `verify-reference-modules.py`,
+sources is a planned follow-up; it is NOT yet wired into `verify-reference-modules.py`,
 whose current coverage is CCM, AICM, CSF, COBIT, and ISO 31000 only. The sets here were extracted
 deterministically from the held sources and verified by count (PF 1.0: 18 categories, 100
 subcategories; PF 1.1 IPD: 24 categories, 138 subcategories).
@@ -133,7 +133,7 @@ REGISTRY = {
 }
 
 
-# --- OWASP ASVS 5.0.0 and MITRE CWE 4.20 (P-1.63 part d) ---
+# --- OWASP ASVS 5.0.0 and MITRE CWE 4.20 ---
 # Loaded from the GENERATED .claude/skills/corpus-management/tools/alignment_citation_ids.json (.claude/skills/corpus-management/tools/build-alignment-citation-registry.py
 # extracts it from the held grc_library_ref CSVs; its --check is the maintainer parity aid). The expected
 # metadata, counts and SHA-512 digests are PINNED here, in code, so a JSON-only edit (even one that also

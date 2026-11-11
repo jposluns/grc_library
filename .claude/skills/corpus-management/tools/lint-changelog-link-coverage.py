@@ -2,13 +2,13 @@
 """Enforce that file references in .working/CHANGELOG.md are markdown links.
 
 Earlier-phase CHANGELOG entries recorded file references as code-formatted
-text only (`path/to/file.md`). Phase 23.11 converted all such references to
+text only (`path/to/file.md`). A later pass converted all such references to
 markdown links so a reader can navigate from a CHANGELOG entry to the
 referenced file in one click. This linter enforces that convention going
 forward: every backtick-wrapped file-path-shaped string in .working/CHANGELOG.md
 must be wrapped in a markdown link.
 
-Root file references are written as plain text (EP13, ep13qs L4): gate 59's
+Root file references are written as plain text: gate 59's
 strict character rule refuses every backtick, square bracket and underscore in
 a root .working/CHANGELOG.md line, so the root holds no backticked reference
 for this gate to read and no Markdown link that would satisfy it. This gate
@@ -159,7 +159,7 @@ def main(argv: list[str]) -> int:
         help="Path(s) to check (default: .working/CHANGELOG.md at repo root).",
     )
     args = parser.parse_args(argv[1:])
-    # 3b50: scan() used to return no findings for a path that does not exist, so a mistyped
+    # scan() used to return no findings for a path that does not exist, so a mistyped
     # explicit path passed silently. Explicit paths are guarded (exit 2 when missing; content-
     # only, since the check is generic). The DEFAULT keeps its skip-when-absent contract, now
     # with a visible note instead of a silent pass.

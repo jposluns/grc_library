@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Table cell-count audit (gate 108, backlog 3b570).
+"""Table cell-count audit (gate 108).
 
 Every GitHub-flavoured Markdown table body row in a tracked ``.md`` file must
 split into as many cells as its header row. A renderer pads a short row with

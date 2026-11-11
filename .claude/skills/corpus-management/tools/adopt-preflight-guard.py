@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pre-flight adopter-clone guard for /adopt (§3.92.b, tool-side shipped in PR #1017).
+"""Pre-flight adopter-clone guard for /adopt.
 
 `/adopt` is the RUN-ONCE fork-onboarding that RESETS the machinery-core `.working/`
 working-state to clean adopter baselines. That reset is destructive on the WRONG
@@ -11,8 +11,8 @@ to a MECHANICAL pre-flight: /adopt step 1 invokes it, and it refuses (non-zero,
 so the destructive reset does NOT proceed) unless the clone classifies as
 `adopter`.
 
-Classification (decision D4) uses repository-local evidence only, through the one
-origin classifier the shipped tools share: `_operator_context` in
+Classification uses repository-local evidence only, through the one origin
+classifier the shipped tools share: `_operator_context` in
 `build-reference-manifest.py`, beside this file. It reads git's `origin` twice (the
 second time with no `GIT_` variable in its environment), requires both reads to
 give the same single line, and places that origin against the maintainer repository

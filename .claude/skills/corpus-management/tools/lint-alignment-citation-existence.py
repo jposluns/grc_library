@@ -7,7 +7,7 @@ section identifiers are checked only in ASVS context (see the engine); CWE ident
 everywhere. Report-only by default; --strict
 makes it a blocking gate.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan (the PF
+Engine/wrapper split: the PURE scan (the PF
 identifier/range regexes, _check_pf, check_file) is the source of record in the pack
 engine (.claude/skills/corpus-management/src/tools/gate_lint_alignment_citation_existence.py); it is
 catalogue-free and takes the framework catalogue via configure(ref). This wrapper
@@ -79,7 +79,7 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--strict", action="store_true",
                     help="exit 1 on any fabricated code (blocking-gate mode); default is report-only (exit 0)")
     args = ap.parse_args(argv[1:])
-    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    # Explicit paths are refused when missing or outside this tree, else normalized.
     args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else [str(REPO_ROOT)]
     findings: list[str] = []
     for path in iter_markdown_targets(args.paths or [str(REPO_ROOT)]):

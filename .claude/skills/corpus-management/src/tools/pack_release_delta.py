@@ -128,13 +128,13 @@ def _registers(snapshot, manifest):
 
 def _scope(snapshot):
     # Every file in the pack is a release surface except __pycache__. Following manifest
-    # references let pack-root or noncanonical references escape (3b81 QA r2 and r3, codex), and a
-    # README can be a generation source (QA r4, claude), so neither decides the scope.
+    # references let pack-root or noncanonical references escape, and a README can be a
+    # generation source, so neither decides the scope.
     return {rel for rel in snapshot.files if "__pycache__" not in PurePosixPath(rel).parts}
 
 
 def _engine_path(rel):
-    # Every Python file in the pack is engine code, wherever it sits (3b81 QA r1).
+    # Every Python file in the pack is engine code, wherever it sits.
     path = PurePosixPath(rel)
     return path.suffix == ".py" and "__pycache__" not in path.parts
 
@@ -403,7 +403,7 @@ def _waivers(snapshot):
         if type(row["approved"]) is not datetime.date:
             raise ValueError(f"{label}: approved must be a TOML date")
         if _version(row["to"], f"{label}.to") <= _version(row["from"], f"{label}.from"):
-            # An equal or backward row would waive every later unbumped change (3b81 QA r1).
+            # An equal or backward row would waive every later unbumped change.
             raise ValueError(f"{label}: to must be greater than from")
     return data["waiver"]
 

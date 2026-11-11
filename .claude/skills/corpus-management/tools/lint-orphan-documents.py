@@ -7,13 +7,12 @@ register/README/related document, or remove it if no longer needed. Entry-point
 documents reached by filename convention (root READMEs, CHANGELOG, TODO, RESUME,
 the reference manifest, domain READMEs, worklists) and pack files are exempt.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE graph
-machinery (``LINK_RE``, ``normalise_link``, ``build_reverse_graph``, parameterized
-by ``repo_root``) lives in the pack-owned engine
+Engine/wrapper split: the PURE graph machinery (``LINK_RE``, ``normalise_link``,
+``build_reverse_graph``, parameterized by ``repo_root``) lives in the pack-owned engine
 (``.claude/skills/corpus-management/src/tools/gate_lint_orphan_documents.py``, source of record). This
-wrapper supplies the grc scan scope + artefact policy (``is_artefact`` /
-``find_artefacts`` / ``find_all_markdown`` / ``ALWAYS_EXEMPT`` / ``EXEMPT_DIR_PARTS``)
-and the orphan aggregation + reporting in ``main``.
+wrapper supplies the grc scan scope + artefact policy (``is_artefact`` / ``find_artefacts`` /
+``find_all_markdown`` / ``ALWAYS_EXEMPT`` / ``EXEMPT_DIR_PARTS``) and the orphan aggregation +
+reporting in ``main``.
 
 Exit codes:
     0   every artefact has at least one inbound reference.
@@ -33,25 +32,24 @@ PACK_TOOLS = Path(__file__).resolve().parent.parent / "src" / "tools"
 
 DEFAULT_PATHS = [str(REPO_ROOT)]
 
-EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS  # narrative-root exclusion is root-anchored via is_narrative_root (P-1.25 scan-root split)
+EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS  # narrative-root exclusion is root-anchored via is_narrative_root (scan-root split)
 
 ALWAYS_EXEMPT = {
     # Entry-point documents reached by filename convention.
-    # Phase 23.62 removed `LICENSE` and `CITATION.cff` from this set:
+    # `LICENSE` and `CITATION.cff` were removed from this set:
     # `is_artefact` returns False for non-`.md` files before reaching
     # the ALWAYS_EXEMPT check, so those two entries were unreachable.
     "README.md", "NOTICE.md", "AUTHORS.md",
     ".working/CHANGELOG.md", ".working/TODO.md", "TODO-REFERENCE.md", "CONTRIBUTING.md", "SECURITY.md",
-    # RESUME.md is a manual session-resume entry point opened by filename
-    # convention (its own header: "manual entry point"), the same category as
-    # the other root entry points above. Its only markdown-linked referrer was
-    # a CHANGELOG entry body; the plain-language CHANGELOG rework (3.16 (closing PR #862))
-    # collapses bodies, so relying on that incidental link is fragile. It is
+    # RESUME.md is a manual session-resume entry point opened by filename convention (its own
+    # header: "manual entry point"), the same category as the other root entry points above.
+    # Its only markdown-linked referrer was a CHANGELOG entry body; the plain-language
+    # CHANGELOG rework collapses bodies, so relying on that incidental link is fragile. It is
     # reached by convention, not by inbound link, so it is exempt like its peers.
     "RESUME.md",
-    # Generated public bibliography (.claude/skills/corpus-management/tools/build-reference-manifest.py): reached by
-    # the /adopt bootstrap and its standalone purpose, not by an inbound corpus link,
-    # the same convention-reached category as RESUME.md (1.19.7 (closing PR #1007)).
+    # Generated public bibliography, reached by the /adopt bootstrap and its standalone
+    # purpose, not by an inbound corpus link, the same convention-reached category as
+    # RESUME.md; built by .claude/skills/corpus-management/tools/build-reference-manifest.py.
     "reference-acquisition-manifest.md",
 }
 

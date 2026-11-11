@@ -1,35 +1,32 @@
 #!/usr/bin/env python3
-"""Detect an open backlog item heading with zero or 2+ [public]/[private]
+"""Detect an open backlog item heading with zero or 2+ [public]/[private] list
+tags (gate 81).
 
-list tags (gate 81).
+Every open item (a ``| id | ... |`` index row in ``.working/TODO.md``, and a
+``### `` heading in the private sibling's backlog file, ``PTODO_REL``) must
+carry EXACTLY ONE ``[public]`` or ``[private]`` tag, the list-membership axis.
+Without a mechanical check, a new item could ship untagged, or a copy-edit could
+accidentally leave both tags on a line; this gate is that check.
 
-Every open item (a ``| id | ... |`` index row in ``.working/TODO.md``, and a ``### `` heading in the private
-``grc_library_private/P-TODO.md``) must carry EXACTLY ONE
-``[public]`` or ``[private]`` tag, the list-membership axis PR #1293
-applied to all then-open items (design of record:
-``todo-split-blocked-guardrail-design.md`` in the operational store). Nothing
-mechanical enforced that going forward, so a new item could ship untagged,
-or a copy-edit could accidentally leave both tags on a line. This gate is
-the mechanical backstop.
-
-Detection reads PUBLIC ``.working/TODO.md`` items as index rows (``lint_common.parse_todo_index``);
-private ``P-TODO.md`` items reuse audit-backlog-actionability.py's ITEM_HEADING_RE grammar
-(the two tools must never disagree on what counts as an item). Findings are
-keyed by the PHYSICAL LINE, not the captured id: ITEM_HEADING_RE's id group
-captures only a shared prefix for a lettered sub-heading (``### 3.92.a ...``,
-``### 3.92.b ...``, ``### 3.92.c ...`` all capture id ``"3.92"``), so keying
-off the captured id could hide two untagged siblings behind one tagged one.
+Detection reads PUBLIC ``.working/TODO.md`` items as index rows
+(``lint_common.parse_todo_index``); private backlog items reuse
+audit-backlog-actionability.py's ITEM_HEADING_RE grammar (the two tools must never
+disagree on what counts as an item). Findings are keyed by the PHYSICAL LINE, not
+the captured id: ITEM_HEADING_RE's id group captures only a shared prefix for a
+lettered sub-heading (``### N.M.a ...``, ``### N.M.b ...``, ``### N.M.c ...`` all
+capture id ``"N.M"``), so keying off the captured id could hide two untagged
+siblings behind one tagged one.
 
 Adopter-graceful: when the private sibling is absent (public-only clone /
-adopter checkout) the private list is simply not scanned; that is a no-op,
-not an error. A default-lookup sibling that is present but unusable (not a
+adopter checkout) the private list is simply not scanned; that is a no-op, not
+an error. A default-lookup sibling that is present but unusable (not a
 directory, a dangling link, or one that cannot be examined) is not absent: it
 fails with exit 2 naming it. So does a sibling whose contents cannot be listed,
-or whose ``P-TODO.md`` cannot be examined or is not a regular file, and so does
-a ``P-TODO.md`` or ``.working/TODO.md`` that is not valid UTF-8 (3b677). Only a sibling,
-or a ``P-TODO.md`` in a readable sibling, that is genuinely absent (no entry at
-the path) is skipped. The lookups probe with ``os.lstat``/``os.stat``, so the
-verdict is the same on Python 3.11 and 3.12+.
+or whose private backlog file cannot be examined or is not a regular file, and
+so does a private backlog file or ``.working/TODO.md`` that is not valid UTF-8.
+Only a sibling, or a private backlog file in a readable sibling, that is
+genuinely absent (no entry at the path) is skipped. The lookups probe with
+``os.lstat``/``os.stat``, so the verdict is the same on Python 3.11 and 3.12+.
 """
 from __future__ import annotations
 
@@ -94,7 +91,7 @@ def main(argv: list[str]) -> int:
              "synthetic isolation).",
     )
     args = parser.parse_args(argv[1:])
-    if args.root is not None:  # 3b50b2d1: a missing, empty or non-directory --root is refused
+    if args.root is not None:  # a missing, empty or non-directory --root is refused
         args.root = require_dir(args.root, "--root")
     if args.root is not None:
         REPO_ROOT = args.root.resolve()
@@ -110,8 +107,8 @@ def main(argv: list[str]) -> int:
         cand = REPO_ROOT / PTODO_REL
         ptodo_path = cand if cand.is_file() else None
     else:
-        # Strict (3b74): an ABSENT sibling still takes the degraded path below, but one that is
-        # present and unusable (a file, a FIFO, a dangling link, an unsearchable parent) refuses.
+        # Strict: an ABSENT sibling still takes the degraded path below, but one that is present
+        # and unusable (a file, a FIFO, a dangling link, an unsearchable parent) refuses.
         try:
             private = resolve_sibling("private", strict=True)
         except InaccessiblePath as exc:
@@ -121,9 +118,9 @@ def main(argv: list[str]) -> int:
         cand = (private / PTODO_REL) if private is not None else None
         ptodo_path = None
         if cand is not None:
-            # 3b677: probe as gate 90 does (list the sibling, then strict_kind), not with
-            # Path.is_file, which reads a file in an unsearchable sibling as absent (3.12+) or
-            # raises PermissionError (3.11). Only ENOENT in a readable sibling is absent.
+            # Probe as gate 90 does (list the sibling, then strict_kind), not with Path.is_file,
+            # which reads a file in an unsearchable sibling as absent (3.12+) or raises
+            # PermissionError (3.11). Only ENOENT in a readable sibling is absent.
             try:
                 os.listdir(private)
                 kind = strict_kind(cand)
@@ -137,7 +134,7 @@ def main(argv: list[str]) -> int:
                 return 2
             ptodo_path = cand if kind == "file" else None
 
-    # 3b677: a file that is not valid UTF-8 exits 2 naming it, as gate 90 does, not a traceback.
+    # A file that is not valid UTF-8 exits 2 naming it, as gate 90 does, not a traceback.
     reading = todo_path
     try:
         todo_text = todo_path.read_text(encoding="utf-8")
@@ -155,8 +152,8 @@ def main(argv: list[str]) -> int:
     if ptodo_text is not None:
         sources.append((PTODO_REL, ptodo_text))
     else:
-        # 3b677: the default lookup skips for an absent sibling AND for a usable sibling with no
-        # P-TODO.md in it; name the one that applies (a --root run keeps the first wording).
+        # The default lookup skips for an absent sibling AND for a usable sibling with no private
+        # backlog file in it; name the one that applies (a --root run keeps the first wording).
         if private is None:
             where = "no private sibling; public-only clone / adopter checkout"
             why = "no private sibling supplies it"
@@ -165,8 +162,7 @@ def main(argv: list[str]) -> int:
             why = f"the private sibling has no {PTODO_REL}"
         print(f"OK: {PTODO_REL} not present ({where}). Scanning {TODO_REL} only.")
         if args.root is None:
-            # 3b635: the DEFAULT lookup's skip exits 0, so a green full-suite run must not read as
-            # a pass.
+            # The DEFAULT lookup's skip exits 0, so a green full-suite run must not read as a pass.
             print_degraded(
                 "gate 81",
                 f"gate 81 skipped the {PTODO_REL} list-tag check ({why}); "
@@ -176,22 +172,22 @@ def main(argv: list[str]) -> int:
     total_items = 0
     all_findings: list[tuple[str, int, str, int]] = []
     for rel, text in sources:
-        # Both backlogs move to index form (2026-08); P-TODO.md is ### -block
-        # pre-migration. UNION both parsers (F1793-4): check index rows AND any
-        # leftover ### headings (deduped by captured id), so a mixed / half-
-        # converted file cannot let an untagged legacy item pass. A pure file has
-        # exactly one shape, so the other parser contributes nothing.
-        # F1793-7: classify index form by the header, not any parseable row, so a
-        # legacy item body table does not flip this to the index path.
+        # Both backlogs move to index form; a private backlog file may still be in
+        # pre-migration ### -block form. UNION both parsers: check index rows AND any
+        # leftover ### headings (deduped by captured id), so a mixed / half-converted
+        # file cannot let an untagged legacy item pass. A pure file has exactly one
+        # shape, so the other parser contributes nothing. Classify index form by
+        # the header, not any parseable row, so a legacy item body table does not
+        # flip this to the index path.
         if has_todo_index_header(text):
             idx_items = parse_todo_index(text)
             total_items += len(idx_items)
             for lineno, line, count in find_untagged_index(text):
                 all_findings.append((rel, lineno, line, count))
         # legacy ### headings (pure-index files carry none; their detail is in the
-        # reference file). F1793-9: count every ### heading by PHYSICAL LINE, no
-        # dedup by captured id (that key is only the numeric prefix for lettered
-        # subheadings, which would drop ### 3.92.a/.b against an index row 3.92).
+        # reference file). Count every ### heading by PHYSICAL LINE, no dedup by
+        # captured id (that key is only the numeric prefix for lettered
+        # subheadings, which would drop ### N.M.a/.b against an index row N.M).
         for line in text.splitlines():
             if ITEM_HEADING_RE.match(line):
                 total_items += 1

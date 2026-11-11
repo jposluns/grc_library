@@ -272,6 +272,7 @@ earlier repository on 2026-09-26, the manifest version was re-baselined from 0.6
 covering 79 earlier pack changes that had shipped without a bump, plus that change.
 
 ## Release history
+- **0.23.2:** internal references and review history are removed from the comments and docstrings of the pack's tool and engine sources.
 - **0.23.1:** internal references and review history are removed from the pack documentation.
 - **0.23.0** (covers every change since 0.22.2; 0.22.3 was not released): the directional-dependency
   engine (gate 53, `tools/gate_lint_directional_dependency.py`) gains the public function

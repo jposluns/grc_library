@@ -7,12 +7,12 @@ type to a list of required sections, each expressed as a list of accepted headin
 aliases (any one alias satisfies the requirement). A type absent from the model is
 unconstrained. Headings are read outside fenced code blocks.
 
-Engine/wrapper split (compile PR-11): this engine carries the PURE check
+Engine/wrapper split: this engine carries the PURE check
 (``DOCTYPE_RE``, ``HEADING_RE``, ``extract_doctype``, ``extract_headings``, ``scan``)
 and a ``run`` that groups + reports; the project wrapper
 (``.claude/skills/corpus-management/tools/lint-required-sections.py``) supplies the grc-specific section model
 (composed in ``_sections_config()`` from the ``sections`` reference-vocabulary
-profile since Phase-4 PR-C), the target selection (the exempt-file set, the narrative /
+profile), the target selection (the exempt-file set, the narrative /
 default-exempt scope predicates), and the repository root, passing the model and root
 in. This engine holds no project section-model or scan-scope policy.
 

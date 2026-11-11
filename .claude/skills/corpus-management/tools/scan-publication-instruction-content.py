@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
 """Instruction-content scan over reference-base publication extracts.
 
-WHAT THIS IS (and is NOT). An advisory dev-AID feeding the /screen-publications
-skill (2.11 (closing PR #722)), not an audit gate. It exits 0 after printing its report, and 2 on
-an internal or usage error or when any extract could not be read (an unreadable extract was not
-screened, so the run cannot report success; 3b50b2b). It performs the MECHANICAL half of the
-skill's instruction-content screen: a pattern scan over publication text extracts
-for the shapes prompt-injection and instruction-smuggling payloads take (OWASP
-LLM01:2026 prompt injection; LLM10:2026 improper output handling), plus encoding anomalies
-that can hide them. A hit is a candidate for the screening judge to read in
-context, never a verdict: legitimate security literature QUOTES injection strings
-when describing attacks, so quoted-example hits are expected and are cleared by
-the human-or-judge read, not by this scan. A clean scan is one input to the
-screening verdict, not the verdict: semantic poisoning (biased framing, false
-claims, misattributed standards content) has no lexical shape and is the skill's
-step-4 corroboration read.
+WHAT THIS IS (and is NOT). An advisory dev-AID feeding the /screen-publications skill,
+not an audit gate. It exits 0 after printing its report, and 2 on an internal or usage
+error or when any extract could not be read (an unreadable extract was not screened,
+so the run cannot report success). It performs the MECHANICAL half of the skill's
+instruction-content screen: a pattern scan over publication text extracts for the
+shapes prompt-injection and instruction-smuggling payloads take (OWASP LLM01:2026
+prompt injection; LLM10:2026 improper output handling), plus encoding anomalies that
+can hide them. A hit is a candidate for the screening judge to read in context, never
+a verdict: legitimate security literature QUOTES injection strings when describing
+attacks, so quoted-example hits are expected and are cleared by the human-or-judge
+read, not by this scan. A clean scan is one input to the screening verdict, not the
+verdict: semantic poisoning (biased framing, false claims, misattributed standards
+content) has no lexical shape and is the skill's step-4 corroboration read.
 
 Scope: the ``publications/`` bucket's ``*--full-text.md`` extracts in the sibling
 ``grc_library_ref`` checkout by default; ``--files`` scans named files instead
@@ -96,10 +95,10 @@ def main(argv: list[str] | None = None) -> int:
                     help="Scan every --full-text.md in the reference base.")
     args = ap.parse_args(argv)
 
-    # Adopter graceful-degradation (3.91 (closing PR #1011)): no explicit --files and the default
-    # ref-base (no --ref-base override) with no grc_library_ref dir -> no-op exit 0, so
-    # a bare adopter clone runs this maintainer-only advisory green rather than crashing.
-    # An explicit --files or --ref-base still proceeds (and errors below on a bad path).
+    # Adopter graceful-degradation: no explicit --files and the default ref-base (no
+    # --ref-base override) with no grc_library_ref dir -> no-op exit 0, so a bare adopter
+    # clone runs this maintainer-only advisory green rather than crashing. An explicit
+    # --files or --ref-base still proceeds (and errors below on a bad path).
     if (not args.files and args.ref_base == DEFAULT_REF_BASE
             and not args.ref_base.is_dir()):
         print("scan-publication-instruction-content: grc_library_ref not present; no-op "
@@ -107,9 +106,10 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.files:
-        # 3b50b2b: every named extract must be a readable regular file, checked before scanning.
-        # A missing or empty value used to print UNREADABLE and exit 0 with zero findings, so a
-        # screen could finish without reading the extract it was asked to screen.
+        # Every named extract must be a readable regular file, checked before scanning.
+        # In the earlier repository, a missing or empty value printed UNREADABLE and exited 0
+        # with zero findings, so a screen could finish without reading the extract it was
+        # asked to screen.
         bad: list[tuple[str, str]] = []
         for f in args.files:
             if not f.strip():
@@ -168,8 +168,9 @@ def main(argv: list[str] | None = None) -> int:
           f"are judge-reads, not verdicts: quoted attack examples in security "
           f"literature are expected hits.")
     if unreadable:
-        # 3b50b2b: an extract that could not be read was not screened; the run must not report
-        # success (it used to exit 0 and count the unreadable extract as flagged).
+        # An extract that could not be read was not screened; the run must not report
+        # success (in the earlier repository it exited 0 and counted the unreadable
+        # extract as flagged).
         print(f"ERROR: {unreadable} extract(s) could not be read and were not screened.",
               file=sys.stderr)
         return 2

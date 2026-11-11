@@ -4,7 +4,7 @@
 Flag a COBIT objective code whose paired title in the corpus is not the canonical
 COBIT 2019 objective title (a wrong-title citation the existence gate cannot see).
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan (the
+Engine/wrapper split: the PURE scan (the
 objective-code/title regexes, _norm, extract_title, scan_text, scan_file) is the
 source of record in the pack engine
 (.claude/skills/corpus-management/src/tools/gate_lint_cobit_title_text.py); it is catalogue-free and
@@ -62,12 +62,12 @@ def scan_file(path: Path) -> list[tuple[Path, int, str, str, str]]:
 
 
 def main(argv: list[str]) -> int:
-    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
-    args = positional_args(argv[1:], known_flags=())  # 3b50b2c: '--' separates paths (quick-guard passes one)
+    # Explicit paths are refused when missing or outside this tree, else normalized.
+    args = positional_args(argv[1:], known_flags=())  # '--' separates paths (quick-guard passes one)
     paths = guard_explicit_paths_cwd(args, repo_root=REPO_ROOT) if args else [str(REPO_ROOT)]
     targets = iter_markdown_targets(
         paths, exempt_dirs=DEFAULT_EXEMPT_DIRS, exempt_files=EXEMPT_FILES,
-        skip_test_scratch=True)  # 3b653: root tests/tmp fixtures vanish mid-walk
+        skip_test_scratch=True)  # root tests/tmp fixtures vanish mid-walk
     findings: list[tuple[Path, int, str, str, str]] = []
     vanished: list[Path] = []
     for path in targets:

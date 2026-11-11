@@ -8,13 +8,12 @@ procedure document that must cite the same period; the procedure value is the
 period stated after a configured anchor phrase, so an unrelated period elsewhere
 in the document is not mistaken for the retention figure.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): this engine carries
-the PURE check (``normalise``, ``register_value``, ``procedure_value``,
-``collect_findings``) plus the GENERIC period-parsing config (the number+unit regex
-and the unit-to-days table). The project wrapper
-(``.claude/skills/corpus-management/tools/lint-retention-consistency.py``) supplies the corpus config: the register
-path, the register-category-to-procedure check list, the procedure anchor phrase,
-and the ``--root`` handling and reporting.
+Engine/wrapper split: this engine carries the PURE check (``normalise``,
+``register_value``, ``procedure_value``, ``collect_findings``) plus the GENERIC
+period-parsing config (the number+unit regex and the unit-to-days table). The project
+wrapper (``.claude/skills/corpus-management/tools/lint-retention-consistency.py``)
+supplies the corpus config: the register path, the register-category-to-procedure
+check list, the procedure anchor phrase, and the ``--root`` handling and reporting.
 
 Exit codes (the wrapper returns these): 0 clean; 1 one or more findings.
 """

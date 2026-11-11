@@ -175,8 +175,8 @@ def tree_shape_findings(root: Path) -> list[str]:
             return []
         if not path.is_dir():
             return [f"{rel}: present but not a real directory"]
-    # The round-5 "resolves outside the repository root" refusal was removed
-    # as unreachable (round 2 NOTE 3): the tree path is the fixed relative
+    # A "resolves outside the repository root" refusal was removed
+    # as unreachable: the tree path is the fixed relative
     # ".web/baseline" with no ".." component, and the loop above has just
     # established that both components are real directories and not symbolic
     # links, so resolving the tree appends those two components to the
@@ -194,7 +194,7 @@ def discover_tree(root: Path) -> tuple[dict[str, Path], list[str]]:
     and so is any other non-regular entry (a FIFO, a socket, a device): the
     gate must never open one, because an opened FIFO with no writer would
     block the hash read forever and one with a writer could feed it
-    substitute bytes (round 2 finding 1).
+    substitute bytes.
     An absent tree returns an empty map, so every validly keyed pin entry
     then reports as a missing file (a key outside ``.web/baseline/`` is
     reported as a key problem instead). The caller refuses a symlinked or

@@ -239,13 +239,13 @@ CHANGELOG_PATH = ".working/CHANGELOG.md"
 REV_UNKNOWN = "UNKNOWN"
 REV_RE = re.compile(r"[0-9a-f]{40}")
 
-# Seconds each git call may take before it counts as failed (round 5, claude N5).
+# Seconds each git call may take before it counts as failed.
 GIT_TIMEOUT = 30
 
-# The only open errors that mean the path resolves to nothing (round 5, codex
-# E1; round 9, claude N5): ENOENT, which a dangling symlink also gives, and
-# ENOTDIR, where a component of the path is not a directory, so no file can be
-# at it. Every other error hides what may be there: a refusal.
+# The only open errors that mean the path resolves to nothing: ENOENT, which a
+# dangling symlink also gives, and ENOTDIR, where a component of the path is
+# not a directory, so no file can be at it. Every other error hides what may
+# be there: a refusal.
 ABSENT_ERRNOS = frozenset({errno.ENOENT, errno.ENOTDIR})
 
 # A compact CHANGELOG entry header:
@@ -262,10 +262,10 @@ ENTRY_RE = re.compile(
 COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
 
 # A MILESTONE entry (`**YYYY-MM-DD | MILESTONE:** ...`) is a persistent
-# project-milestone record, explicitly EXCLUDED from daily/weekly roll-ups
-# (maintainer-directed 2026-07-29): it floats above the day's per-PR entries
-# and is never condensed. Recognized by the `| MILESTONE` marker in the bold
-# header so a milestone written with any trailing field can never be counted.
+# project-milestone record, explicitly EXCLUDED from daily/weekly roll-ups:
+# it floats above the day's per-PR entries and is never condensed. Recognized
+# by the `| MILESTONE` marker in the bold header so a milestone written with
+# any trailing field can never be counted.
 MILESTONE_RE = re.compile(r"^\*\*\d{4}-\d{2}-\d{2}\s*\|\s*MILESTONE\b", re.IGNORECASE)
 
 
@@ -324,13 +324,13 @@ def read_changelog(path: str) -> bytes | None:
 
     ``path`` is opened exactly as given, never normalized: pathlib turns ``""``
     into ``.`` and drops a trailing ``/`` or ``/.``, which hides the ENOENT or
-    ENOTDIR the open of the given argument fails with (round 7, codex E1).
+    ENOTDIR the open of the given argument fails with.
 
     Absence is decided by the open's own error (ABSENT_ERRNOS), never by a
     separate Path.is_file(), which reports an unsearchable parent or an
-    over-long name as absent on one Python version and raises on another
-    (round 5, codex E1). Raises Refusal("unreadable") for any other error and
-    for a path that is not a regular file; the open does not wait on a FIFO.
+    over-long name as absent on one Python version and raises on another.
+    Raises Refusal("unreadable") for any other error and for a path that is
+    not a regular file; the open does not wait on a FIFO.
     """
     try:
         fd = os.open(path, os.O_RDONLY | getattr(os, "O_NONBLOCK", 0))
@@ -353,19 +353,18 @@ def checked_revision(path: Path, data: bytes) -> str:
     """Return HEAD's commit when ``data`` is exactly that commit's blob for ``path``.
 
     HEAD is resolved once, to a commit; the blob is then read at that commit
-    (``<rev>:./<name>``), never at ``HEAD`` again, so a HEAD that moves
-    between the two calls cannot bind one commit to another's bytes (round 7).
-    Anything else (no repository, git unavailable or failing, output that does
-    not decode, an untracked or edited file, a non-SHA-1 object format) returns
-    REV_UNKNOWN: the checked bytes are then not provably that revision's.
-    Replacement objects are disabled and the graft file is empty, so
-    ``<rev>:./<name>`` names the blob physically in that commit's tree (round
-    3, codex E1).
+    (``<rev>:./<name>``), never at ``HEAD`` again, so a HEAD that moves between
+    the two calls cannot bind one commit to another's bytes. Anything else (no
+    repository, git unavailable or failing, output that does not decode, an
+    untracked or edited file, a non-SHA-1 object format) returns REV_UNKNOWN:
+    the checked bytes are then not provably that revision's. Replacement
+    objects are disabled and the graft file is empty, so ``<rev>:./<name>``
+    names the blob physically in that commit's tree.
     """
     env = {**os.environ, "GIT_NO_REPLACE_OBJECTS": "1", "GIT_GRAFT_FILE": os.devnull}
 
     def git(*args: str) -> str | None:
-        # Bytes, decoded here: git's diagnostics may hold any bytes (round 3, codex E2).
+        # Bytes, decoded here: git's diagnostics may hold any bytes.
         try:
             proc = subprocess.run(
                 ["git", "--no-replace-objects", "-C", str(path.parent), *args],
@@ -389,8 +388,8 @@ def usable_stdout() -> bool:
     """False when there is no stdout a report can be written to.
 
     A process started with file descriptor 1 closed has ``sys.stdout`` None,
-    and print then writes nothing: D8 exited 0 with no output (round 11,
-    claude W3). A closed stream, or a descriptor fstat reports bad, is also
+    and print then writes nothing: in the earlier repository, D8 exited 0 with
+    no output. A closed stream, or a descriptor fstat reports bad, is also
     unusable. A stream with no descriptor (a StringIO under test) is usable:
     its writes decide. fstat reads the descriptor's state and changes nothing.
     """
@@ -410,7 +409,7 @@ def usable_stdout() -> bool:
     return True
 
 
-# The exit status of a run refused for want of a usable stdout (round 11).
+# The exit status of a run refused for want of a usable stdout.
 NO_STDOUT_EXIT = 3
 
 
@@ -423,10 +422,9 @@ def report(
 ) -> int:
     """Print the BEGIN line, the advisory lines and the END line.
 
-    ``today`` is required (round 14, claude W2): it is the date main() read
-    once and checked against, so a run that crosses UTC midnight cannot print
-    one date while it computed the due dates for another. Returns the number
-    of dates flagged.
+    ``today`` is required: it is the date main() read once and checked against,
+    so a run that crosses UTC midnight cannot print one date while it computed
+    the due dates for another. Returns the number of dates flagged.
     """
     body: list[str] = []
     if not due:
@@ -467,9 +465,9 @@ def run_digest(rev: str, today: datetime.date, body: list[str]) -> str:
 
 # The ASCII characters outside printable ASCII: C0 controls (LF and CR among
 # them) and DEL. plain() escapes these by this table and every non-ASCII
-# character by backslashreplace. Escaping only controls, U+2028, U+2029 and
-# surrogates (rounds 8 and 15) left U+2026, which a cp1252 stdout writes as
-# the byte 0x85, NEL in ISO-8859-1 (round 16, codex ERROR).
+# character by backslashreplace. In the earlier repository, escaping only
+# controls, U+2028, U+2029 and surrogates left U+2026, which a cp1252 stdout
+# writes as the byte 0x85, NEL in ISO-8859-1.
 LINE_SAFE = {c: f"\\x{c:02x}" for c in (*range(0x20), 0x7F)}
 
 
@@ -482,13 +480,13 @@ def plain(text: str) -> str:
 def say(text: str) -> None:
     """Print a human line as exactly one line of printable ASCII (plain()).
 
-    A path holding LF split the line, so a crafted path printed a complete
-    forged BEGIN/OK/END report (round 8, claude W1), and a path holding
-    U+2026 did the same through a cp1252 stdout read as ISO-8859-1 (round
-    16): the line is escaped before stdout's encoding sees it. A path or
-    error text stdout's encoding cannot represent raised UnicodeEncodeError:
-    exit 1 after a machine line saying rc=0 (round 6, claude E1); an ASCII
-    line leaves no such character.
+    In the earlier repository, a path holding LF split the line, so a
+    crafted path printed a complete forged BEGIN/OK/END report; a path
+    holding U+2026 did the same through a cp1252 stdout read as ISO-8859-1;
+    and a path or error text stdout's encoding cannot represent raised
+    UnicodeEncodeError, exiting 1 after a machine line saying rc=0. The line
+    is now escaped before stdout's encoding sees it, and an ASCII line
+    leaves no such character.
     """
     print(plain(text))
 
@@ -496,9 +494,9 @@ def say(text: str) -> None:
 class UsageParser(argparse.ArgumentParser):
     """argparse, with the program name and the usage error's message in plain().
 
-    argparse wrote an unknown argument raw on stderr, so a crafted argument
-    printed exact BEGIN and END lines with a valid digest (round 16, claude
-    W2). The usage error still exits 2.
+    In the earlier repository, argparse wrote an unknown argument raw on
+    stderr, so a crafted argument printed exact BEGIN and END lines with a
+    valid digest. The usage error still exits 2.
     """
 
     def __init__(self, *args, **kwargs) -> None:
@@ -513,8 +511,7 @@ class UsageParser(argparse.ArgumentParser):
 def refuse(token: str, today: datetime.date, shown: str, detail: str) -> None:
     """Print the machine-readable line and the human line for a run with no report.
 
-    ``shown`` is the path exactly as given, not pathlib's normalized form
-    (round 6, claude W2).
+    ``shown`` is the path exactly as given, not pathlib's normalized form.
     """
     print(f"D8 {token} today={today.isoformat()} rc=0")
     say(f"check-daily-changelog-rollup: {shown}{detail} (advisory, exit 0).")
@@ -660,11 +657,11 @@ def _self_test() -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    # A report nobody can read is not a pass (round 11, claude W3): refuse
-    # before checking anything, with a non-zero exit. The check runs before
-    # the parser is built (round 13, codex E1): Python 3.14's argparse asks
-    # stdout whether to colour help when the parser and its options are
-    # made, and a closed stream raised ValueError there (exit 1, a traceback).
+    # A report nobody can read is not a pass: refuse before checking anything,
+    # with a non-zero exit. The check runs before the parser is built: Python
+    # 3.14's argparse asks stdout whether to colour help when the parser and
+    # its options are made, and in the earlier repository a closed stream
+    # raised ValueError there (exit 1, a traceback).
     if not usable_stdout():
         if sys.stderr is not None:
             try:
@@ -697,12 +694,12 @@ def main(argv: list[str] | None = None) -> int:
         return _self_test()
 
     today = datetime.datetime.now(datetime.timezone.utc).date()
-    # The open takes the argument exactly as given (round 7, codex E1, claude
-    # W1); the normalized form serves only the revision lookup, which runs
-    # only after that open found a regular file.
+    # The open takes the argument exactly as given; the normalized form
+    # serves only the revision lookup, which runs only after that open found
+    # a regular file.
     path = Path(args.changelog)
 
-    # Each refusal is a line and exit 0, never a traceback (round 3, codex E2).
+    # Each refusal is a line and exit 0, never a traceback.
     try:
         data = read_changelog(args.changelog)
         if data is None:

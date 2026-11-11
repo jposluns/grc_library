@@ -8,12 +8,12 @@ each validated against the authoritative Annex A structure; an out-of-range,
 non-existent, wrong-theme, or inverted-range code is flagged. Both table
 orientations are handled (framework-as-column and framework-as-row).
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): this engine carries
-the PURE scan (``_check_theme``, ``_check_range``, ``findings_in``, ``scan_file``)
-plus the ISO parsing patterns. The Annex A reference is supplied by the caller as a
-predicate (``check_iso_token``) and the theme set (``iso_annex_a_ranges``), and
-``repo_root`` is passed in, so the engine is repository-root-free and holds no
-reference data; the project wrapper (``.claude/skills/corpus-management/tools/lint-document-iso-annex-a.py``) imports
+Engine/wrapper split: this engine carries the PURE scan (``_check_theme``,
+``_check_range``, ``findings_in``, ``scan_file``) plus the ISO parsing patterns.
+The Annex A reference is supplied by the caller as a predicate (``check_iso_token``)
+and the theme set (``iso_annex_a_ranges``), and ``repo_root`` is passed in, so
+the engine is repository-root-free and holds no reference data; the project wrapper
+(``.claude/skills/corpus-management/tools/lint-document-iso-annex-a.py``) imports
 the shared ISO reference, supplies those, and keeps the scan scope
 (``collect_targets``) and reporting.
 

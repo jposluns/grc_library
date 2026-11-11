@@ -17,8 +17,8 @@ Why the existing gates leave a gap:
   - Gate 31 (document-date-staleness) compares the Date against the
     file's most-recent commit date but tolerates a 1-day lag (to absorb
     timezone-boundary commits). The recurring residue this gate targets
-    ("Version bumped, Date left one day stale", observed at PR #325 on
-    the audit-programme spec and PR #352 on the pack README) falls
+    ("Version bumped, Date left one day stale", observed in the earlier
+    repository on the audit-programme spec and on the pack README) falls
     inside that 1-day tolerance, so gate 31 passes it.
 
 This gate is *delta-scoped*: it inspects only the files a PR changed
@@ -94,7 +94,7 @@ import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack .claude/skill
 from aiqt_corpus import git, head_version, parse_iso_date, parse_metadata_block  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import PrRangeError, empty_pr_range_message, git_tree_entry, resolve_pr_range  # noqa: E402  # grc-config/store, stays local
 
-# B2: neutralise inherited pathspec-mode env vars so the :(top,literal) history pathspec below is
+# Neutralize inherited pathspec-mode env vars so the :(top,literal) history pathspec below is
 # always honoured. GIT_LITERAL_PATHSPECS=1 would otherwise make :(top,literal) match literal
 # filename text (finding no commit and silently skipping the date comparison).
 for _pk in ("GIT_LITERAL_PATHSPECS", "GIT_NOGLOB_PATHSPECS", "GIT_GLOB_PATHSPECS"):
@@ -120,8 +120,8 @@ EXEMPT_FILES: frozenset[str] = frozenset(
         ".claude/skills/corpus-management/data/narrative.yml",
         "governance/portal.md",
         "governance/maturity-scorecard.md",
-        # Append-only .working logs (3.135 (closing PR #1194)): unversioned, so exempt from the
-        # per-PR Version-bump (D2) and Version-Date co-bump (D4) requirements.
+        # Append-only .working logs: unversioned, so exempt from the per-PR Version-bump
+        # (D2) and Version-Date co-bump (D4) requirements.
         ".working/validate-pr/history.md",
         ".working/improvement-log.md",
         ".working/merge-bypass-log.md",
@@ -138,20 +138,21 @@ EXEMPT_PREFIXES: tuple[str, ...] = (
     "__pycache__/",
 )
 
-# Field extraction is shared with the corpus linters (GR-3 wave 2:
-# ``aiqt_corpus.head_version`` for the Version window, and
-# ``parse_metadata_block`` + ``parse_iso_date`` for the Date). An
-# annotated or malformed Date value (``parse_iso_date`` returns
-# ``None``) is treated as a missing canonical line, a FAIL for a
-# bumped file, as under the retired private regex. One finding-text
-# delta: a shape-valid but calendar-invalid Date (e.g. 2026-02-30)
-# previously drew its own "not a valid ISO date" message; it now folds
-# into the missing-canonical-line message. The failing exit is the
-# same either way for a file a range commit touched. The parse also
-# moved AHEAD of the defensive no-range-commit skip: a calendar-invalid
-# Date on a diff-listed file no range commit touched (a merge artefact)
-# previously hit that silent skip first and passed; it now fails loud
-# on the Date before the skip is reached (the #613 sweep's L-1).
+# Field extraction is shared with the corpus linters: the Version
+# window uses ``aiqt_corpus.head_version``, and the Date uses
+# ``parse_metadata_block`` + ``parse_iso_date``. An annotated or
+# malformed Date value (``parse_iso_date`` returns ``None``) is
+# treated as a missing canonical line, a FAIL for a bumped file,
+# as under the retired private regex. One finding-text delta:
+# a shape-valid but calendar-invalid Date (e.g. 2026-02-30)
+# in the earlier repository drew its own "not a valid ISO
+# date" message; it now folds into the missing-canonical-line
+# message. The failing exit is the same either way for a file
+# a range commit touched. The parse also moved AHEAD of the
+# defensive no-range-commit skip: a calendar-invalid Date on a
+# diff-listed file no range commit touched (a merge artefact) in
+# the earlier repository hit that silent skip first and passed;
+# it now fails loud on the Date before the skip is reached.
 
 
 def promisor_remote_reason(_git=git):
@@ -166,10 +167,9 @@ def promisor_remote_reason(_git=git):
     # marker, set at clone time; a repo can carry it while remote.*.promisor is unset, so check
     # it first (else that config escapes detection and the harmful false-OK survives).
     # git not running at all (OSError) leaves the config unread, so each read declines with
-    # a reason then too, never a traceback (3b577 round 4). Exit 1 is git config's own
-    # "not set" answer; any other nonzero exit (128 for a config file git cannot parse, say)
-    # left the config unread, so it declines too rather than read as "not a partial clone"
-    # (3b577 round 5).
+    # a reason then too, never a traceback. Exit 1 is git config's own "not set" answer; any
+    # other nonzero exit (128 for a config file git cannot parse, say) left the config
+    # unread, so it declines too rather than read as "not a partial clone".
     try:
         ext = _git("config", "--get", "extensions.partialClone")
     except subprocess.CalledProcessError as exc:
@@ -215,10 +215,10 @@ def blob_at(ref: str, path: str) -> str | None:
     (read-path parity). Returns None only when lint_common.git_tree_entry finds no entry at
     ``ref:path`` (git's own answer that the path does not exist at that revision) or a
     non-blob entry there (a gitlink or a tree, which cat-file blob cannot read). Any other
-    failure is never read as absence (3b577 round 5): a failed listing, or a listed blob
-    whose read exits nonzero, raises CalledProcessError; an undecodable blob raises
+    failure is never read as absence: a failed listing, or a listed blob whose read
+    exits nonzero, raises CalledProcessError; an undecodable blob raises
     UnicodeDecodeError, and git not running at all raises OSError; the caller turns each
-    into exit 2 (3b577 round 4)."""
+    into exit 2."""
     entry = git_tree_entry(ref, path)
     if entry is None or entry[0] != "blob":
         return None
@@ -237,10 +237,9 @@ def bump_commit_date_utc(merge_base: str, head: str, path: str) -> datetime.date
     normally does): git's own answer for that is an exit 0 with no output.
     git not running at all (OSError) or output the locale codec cannot
     decode (UnicodeDecodeError) is not that answer, so it propagates for
-    main() to refuse with exit 2 (3b577 round 4); so does a nonzero exit
-    (CalledProcessError) and a stamp that is not an ISO 8601 date
-    (ValueError), which read as that answer before and skipped the file
-    unchecked (3b577 round 5)."""
+    main() to refuse with exit 2; so does a nonzero exit (CalledProcessError)
+    and a stamp that is not an ISO 8601 date (ValueError), which in the
+    earlier repository read as that answer and skipped the file unchecked."""
     stamp = git(
         "log",
         "-1",
@@ -354,7 +353,7 @@ def main(argv: list[str]) -> int:
             return 2
         except (subprocess.CalledProcessError, OSError, ValueError) as exc:
             # The path's tree entry or blob could not be read: never read as an absent
-            # (added or deleted) file, which would skip it unchecked (3b577 round 5).
+            # (added or deleted) file, which would skip it unchecked.
             print(f"ERROR: git cat-file failed for {path}: {exc}", file=sys.stderr)
             return 2
         # File added (no base) or deleted (no head) in the PR: not a bump event.

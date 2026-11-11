@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """Preflight aid: predict the per-document Version/Date co-bump (D4) for the commit you are about to make.
 
-D4 (``check-date-cobump-on-pr.py``) compares each bumped document's ``Date`` with the UTC committer date
-of the PR-range commit that touched it -- which is only known AFTER committing. This aid runs BEFORE the
-commit and PREDICTS that check for a commit made now: for every document whose ``Version`` differs from the
-base, it flags a ``Date`` that is missing, malformed, or not today's UTC date, and prints the exact metadata
-line to use. It is block-and-print (no auto-fix, no staging) and strictly read-only.
+D4 (``check-date-cobump-on-pr.py``) compares each bumped document's ``Date`` with the UTC committer date of
+the PR-range commit that touched it, which is only known AFTER committing. This aid runs BEFORE the commit
+and PREDICTS that check for a commit made now: for every document whose ``Version`` differs from the base,
+it flags a ``Date`` that is missing, malformed, or not today's UTC date, and prints the exact metadata line
+to use. It is block-and-print (no auto-fix, no staging) and strictly read-only.
 
-It predicts ``git commit``, which commits the INDEX, so it inspects the STAGED (index) content -- the exact
-bytes that will be committed -- via ``git show``. That is deliberate: reading the working tree instead would
+It predicts ``git commit``, which commits the INDEX, so it inspects the STAGED (index) content (the exact
+bytes that will be committed) via ``git show``. That is deliberate: reading the working tree instead would
 mispredict whenever the index and working tree diverge (a staged bump whose Date fix was not re-staged, a
 ``git rm --cached`` copy left on disk, a clean/smudge filter or working-tree-encoding), and would run those
 filters as a side effect. The index blob is already the converted, about-to-be-committed content, so this aid
@@ -40,17 +40,17 @@ Scope boundaries (D4 remains the post-commit authority):
   corpus never produces, and D4 remains the post-commit authority.
 - GITLINK CONVERSION: if a versioned ``.md`` is converted to a git submodule (gitlink) in the
   staged change, both the aid and D4 skip it (converged): D4 reads the entry type with
-  ``git ls-tree`` first and reads a non-blob entry as absent without reading it (3b577 round 5),
-  and the aid's ``git cat-file blob`` errors on the non-blob entry, which it reads as absent. A
-  documentation file becoming a submodule never occurs in the corpus.
+  ``git ls-tree`` first and reads a non-blob entry as absent without reading it, and the aid's
+  ``git cat-file blob`` errors on the non-blob entry, which it reads as absent. A documentation
+  file becoming a submodule never occurs in the corpus.
 - INVALID GIT CONFIG: under an INVALID git configuration value (e.g. ``log.showSignature=<not-a-bool>``)
-  git commands fail; D4 refuses such a failed read (exit 2) rather than treating it as absent content
-  (3b577 round 5), while this aid's own blob reads still skip it. Predicting D4 exactly under a broken
-  git configuration is outside the aid's contract; the misconfiguration is the operator's to fix.
+  git commands fail; D4 refuses such a failed read (exit 2) rather than treating it as absent content,
+  while this aid's own blob reads still skip it. Predicting D4 exactly under a broken git configuration
+  is outside the aid's contract; the misconfiguration is the operator's to fix.
 - PARTIAL CLONE: in a partial clone (a promisor remote) a base blob may be unavailable;
   reading it would be misread as absent and silently clear a stale bump. Both the aid and D4
-  now decline (exit 2) via the shared ``promisor_remote_reason`` (D4-owned), so the two agree
-  on every partial-clone input; CI runs in a full clone, where no promisor remote exists.
+  decline (exit 2) via the shared ``promisor_remote_reason`` (D4-owned), so the two agree on
+  every partial-clone input; CI runs in a full clone, where no promisor remote exists.
 - INTERPRETER-STARTUP .pyc: ``from __future__ import annotations`` MUST be the module's first statement
   (a language rule), so it executes before ``sys.dont_write_bytecode = True`` and, on a cold cache with
   a writable bytecode target, git-independent interpreter startup may write ``__future__``'s ``.pyc``.
@@ -82,7 +82,7 @@ os.environ["GIT_NO_LAZY_FETCH"] = "1"
 os.environ.pop("GIT_CONFIG", None)
 # Disable every file-writing git trace/logging vector. Setting each to "0" DISABLES it, which
 # (unlike deleting the var) also overrides a GLOBAL/SYSTEM ``trace2.*target`` CONFIG that a late
-# command-line ``-c`` cannot prevent, because git initialises trace2 before applying ``-c``. An
+# command-line ``-c`` cannot prevent, because git initializes trace2 before applying ``-c``. An
 # inherited ``GIT_TRACE2_EVENT=<path>`` (or a global config target) otherwise makes a git subprocess
 # WRITE a trace file, breaking this aid's strict read-only contract. Covers the known GIT_TRACE* set
 # plus any other inherited GIT_TRACE* var.
@@ -94,7 +94,7 @@ _GIT_TRACE_VARS = (
 )
 for _tv in set(_GIT_TRACE_VARS) | {_k for _k in os.environ if _k.startswith("GIT_TRACE")}:
     os.environ[_tv] = "0"
-# B4: never crash on output encoding (e.g. PYTHONIOENCODING=ascii with a non-ASCII path in a
+# Never crash on output encoding (e.g. PYTHONIOENCODING=ascii with a non-ASCII path in a
 # finding): escape unencodable characters rather than raising UnicodeEncodeError mid-print.
 for _stream in (sys.stdout, sys.stderr):
     try:
@@ -146,7 +146,7 @@ def git_show(ref: str, path: str) -> str | None:
 
 
 def index_blob(path: str) -> str | None:
-    """Stage-0 index content of ``path`` -- exactly what ``git commit`` will record -- or None if the
+    """Stage-0 index content of ``path`` (exactly what ``git commit`` will record) or None if the
     path is not in the index. Uses the EXPLICIT ``:0:<path>`` form so a filename beginning with a
     stage prefix (e.g. ``0:review.md``) is not misparsed as ``:<stage>:<path>`` and silently skipped.
     An UNDECODABLE blob raises UnicodeDecodeError, which the caller turns into a scope error."""
@@ -215,7 +215,7 @@ def _special_state() -> str | None:
         return "the index has a non-UTF-8 unmerged entry"
     # A partial clone (a promisor remote) may not hold the base commit's blobs; with lazy fetch
     # disabled (read-only), those reads would fail and be misread as absent files. Decline.
-    # Detection is now SHARED with D4 (promisor_remote_reason), which declines identically, so
+    # Detection is SHARED with D4 (promisor_remote_reason), which declines identically, so
     # the two can never drift on what counts as a partial clone; pass this aid's read-only
     # hardened git wrapper so the config queries keep fsmonitor/trace2 disabled.
     return promisor_remote_reason(_git=git)
@@ -237,7 +237,7 @@ def _resolve_base(base_arg: str | None) -> str:
     try:
         merge_base = git("merge-base", commit, "HEAD").strip()
     except subprocess.CalledProcessError as exc:
-        # B4: no common ancestor (or unborn HEAD). D4 rejects such a range (exit 2), so the aid makes
+        # No common ancestor (or unborn HEAD). D4 rejects such a range (exit 2), so the aid makes
         # no prediction and defers to D4 post-commit rather than diverging by comparing against the ref.
         raise ScopeError(
             f"'{ref}' shares no common ancestor with HEAD (or HEAD is unborn); D4 rejects such a "
@@ -261,15 +261,15 @@ def _date_field(content: str | None) -> tuple[datetime.date | None, str | None]:
 
 
 def _staged_paths() -> list[str]:
-    """Non-exempt .md paths STAGED for the prospective commit -- the index differs from HEAD, i.e.
+    """Non-exempt .md paths STAGED for the prospective commit: the index differs from HEAD, i.e.
     exactly the files ``git commit`` would record NOW (not the whole PR delta vs the base, which
     would spuriously re-flag documents correctly bumped in earlier branch commits). The Version
     event is still judged against the merge-base in ``find_findings``, so a body-only edit of an
     earlier bump is still caught. Compares stored blobs (no working-tree read, no clean/smudge
-    filter run). ``-c diff.autoRefreshIndex=false`` keeps the .git/index stat cache unwritten
-    (the git wrapper already disables fsmonitor); ``--no-relative`` keeps paths repo-root-relative.
-    Both this aid and D4 enumerate with ``-z`` (NUL-delimited, never quoted), so every filename --
-    non-ASCII, or ASCII containing a quote/backslash/control char -- is enumerated identically and
+    filter run). ``-c diff.autoRefreshIndex=false`` keeps the .git/index stat cache unwritten (the
+    git wrapper already disables fsmonitor); ``--no-relative`` keeps paths repo-root-relative. Both
+    this aid and D4 enumerate with ``-z`` (NUL-delimited, never quoted), so every filename
+    (non-ASCII, or ASCII containing a quote/backslash/control char) is enumerated identically and
     the two stay in exact parity regardless of ``core.quotePath``. A filename that is not valid
     UTF-8 raises UnicodeDecodeError here and becomes a scope error (below)."""
     args = ["-c", "diff.autoRefreshIndex=false", "diff", "--cached",
@@ -292,8 +292,8 @@ def find_findings(base: str, today: datetime.date, paths: list[str]) -> list[str
     for path in paths:
         # git_show returns None only when the blob is ABSENT (an add has no base; a staged delete
         # has no index blob) -> those are out of D4's co-bump scope and skipped. An UNDECODABLE
-        # blob is an inspection failure, not an absence: it must scope-error, never silently clear
-        # a staged stale bump (codex R5 P2).
+        # blob is an inspection failure, not an absence: it must scope-error, never silently
+        # clear a staged stale bump.
         try:
             base_content = git_show(base, path)
             index_content = index_blob(path)  # the stage-0 index blob = what git commit records

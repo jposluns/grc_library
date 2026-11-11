@@ -8,11 +8,11 @@ roots rather than walking the repository root and subtracting
 ``lint_common.AUDITED_DOMAIN_DIRS`` (by splatting it) rather than
 hardcoding the directory list inline. This guarantees that adding a
 future top-level audited directory propagates to every content linter
-from one place, closing the recurring "added the directory to the
-linters I happened to see" miss (the #336 to #338 Phase-1-migration
-sweeps surfaced it twice: gates 31 and 10 silently skipped
-``.project-governance``, the registers directory's pre-move name, because
-the migration enumerated the explicit-allow-list set incompletely).
+from one place, closing the recurring "added the directory to the linters
+I happened to see" miss (the migration sweeps surfaced it twice: gates 31
+and 10 silently skipped ``.project-governance``, the registers
+directory's pre-move name, because the migration enumerated the
+explicit-allow-list set incompletely).
 
 This gate is the mechanical backstop for
 ``.claude/skills/corpus-management/specs/specification-project-governance-separation.md`` section 7.4,
@@ -42,12 +42,12 @@ Any other enumerating file fails with the instruction to splat
 a deliberate, rationale-bearing edit to this gate, not a silent drift.
 
 The gate also asserts the source of truth is intact:
-``lint_common.AUDITED_DOMAIN_DIRS`` must contain exactly the expected
-thirteen members (the twelve domain directories plus the registers
-directory ``.claude/skills/corpus-management/registers``, formerly
+``lint_common.AUDITED_DOMAIN_DIRS`` must contain exactly the expected thirteen
+members (the twelve domain directories plus the registers directory
+``.claude/skills/corpus-management/registers``, formerly
 ``.project-governance``), and ``lint_common.CORPUS_SCAN_DIRS`` must be exactly
 ``AUDITED_DOMAIN_DIRS`` followed by the moved specification and adopter-guide
-directories (chunk CR2A, decision RBQ64), with no duplicate entry.
+directories, with no duplicate entry.
 
 Usage:
     python3 .claude/skills/corpus-management/tools/lint-scan-scope-parity.py [tools-dir]
@@ -140,9 +140,9 @@ EXPECTED_AUDITED = (
     "supply-chain",
 )
 
-# The corpus-scan roots beyond the audited domains: the moved specifications
-# (S1 and S2 from governance/, S3 from the root) and adopter guides (from docs/).
-# A deliberate second copy, like EXPECTED_AUDITED.
+# The corpus-scan roots beyond the audited domains: the moved specifications (two
+# from governance/, one from the root) and adopter guides (from docs/). A
+# deliberate second copy, like EXPECTED_AUDITED.
 EXPECTED_CORPUS_SCAN_EXTRA = (
     ".claude/skills/corpus-management/specs",
     ".claude/skills/corpus-management/docs",
@@ -160,8 +160,8 @@ def distinct_domain_literals(text: str) -> set[str]:
 
 
 def main(argv: list[str]) -> int:
-    # 3b50b2a: an explicit scan directory is validated. It used to be consumed blind, so a missing
-    # or empty value, a directory with no *.py, or even an unknown flag globbed nothing and passed.
+    # An explicit scan directory is validated. It used to be consumed blind, so a missing or empty
+    # value, a directory with no *.py, or even an unknown flag globbed nothing and passed.
     args = positional_args(argv[1:], known_flags=())
     if len(args) > 1:
         print(f"ERROR: at most one scan directory is accepted; got {len(args)}.", file=sys.stderr)
@@ -185,7 +185,7 @@ def main(argv: list[str]) -> int:
         )
 
     # Corpus-scan roots: exactly the audited run plus the two moved roots, in
-    # that order, with no entry repeated (CR2A, RBQ64).
+    # that order, with no entry repeated.
     expected_scan = (*AUDITED_DOMAIN_DIRS, *EXPECTED_CORPUS_SCAN_EXTRA)
     if tuple(CORPUS_SCAN_DIRS) != expected_scan or len(set(CORPUS_SCAN_DIRS)) != len(CORPUS_SCAN_DIRS):
         missing = set(expected_scan) - set(CORPUS_SCAN_DIRS)

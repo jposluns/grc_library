@@ -1,7 +1,7 @@
 {
-  "_comment": "Exclusion policy for .claude/skills/corpus-management/tools/check-alignment-register-on-pr.py (delta gate D15). Maintainer decision 2026-10-16 11:13Z ('Tracked only'): the canonical-citations register covers standards and regulations whose currency is tracked; RFCs, vendor guidance and books are not expected in it, so an unregistered citation of one of those classes is not reported. Every row names its class (exactly one of 'RFC', 'vendor guidance', 'book') and its reason. A 'patterns' row is a regular expression searched (case-insensitive) in the citation; an 'entries' row names one citation, matched as a whole phrase. The check validates this file on load and runs nothing if a row is malformed. A citation that has a register row resolves as registered before this policy is consulted.",
+  "_comment": "Exclusion policy for .claude/skills/corpus-management/tools/check-alignment-register-on-pr.py (delta gate D15). The 'Tracked only' rule: the canonical-citations register covers standards and regulations whose currency is tracked; RFCs, vendor guidance and books are not expected in it, so an unregistered citation of one of those classes is not reported. Every row names its class (exactly one of 'RFC', 'vendor guidance', 'book') and its reason. A 'patterns' row is a regular expression searched (case-insensitive) in the citation; an 'entries' row names one citation, matched as a whole phrase. The check validates this file on load and runs nothing if a row is malformed. A citation that has a register row resolves as registered before this policy is consulted.",
   "schema_version": 1,
-  "decision": "Maintainer decision 2026-10-16 11:13Z (Tracked only)",
+  "decision": "Tracked only",
   "patterns": [
     {
       "class": "RFC",

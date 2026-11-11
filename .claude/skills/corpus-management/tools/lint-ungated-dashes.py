@@ -15,16 +15,17 @@ entry-point existence check are the wrapper's mechanical coverage. ``_targets`` 
 
 Scope: the top-level ``.py`` and ``.sh`` files of ``.claude/skills/corpus-management/tools/``
 (tool comments and docstrings), and every file with a text suffix under ``.claude/``
-(CLAUDE.md, commands, hooks, the loaded rule copies, ``.claude/references/`` with the activity
-playbooks, and ``.claude/skills/corpus-management/src/`` with the Corpus-Management pack
-source). The ``.claude/`` walk skips 2 folders: ``.claude/skills/corpus-management/tests/``
-and ``.claude/skills/corpus-management/tools/``. In the tools folder only those top-level
-scripts are scanned, so its data files and its subfolders are not. The test suite ``.claude/skills/corpus-management/tests/`` is
-left out of the ``.claude/`` walk exactly as the pre-move gate never scanned the top-level
-``tests/``: its fixtures hold dashes on purpose as test data for the dash checks (scope parity
-with the pre-move gate). ``lint-language.py`` enforces the same no-em/en-dash house
-style on the CORPUS (``.md`` domain docs) and generator-source prose, but does not scan these
-operational surfaces; PR #1314 swept them clean and this gate prevents re-drift.
+(CLAUDE.md, commands, hooks, the loaded rule copies, ``.claude/references/`` with the
+activity playbooks, and ``.claude/skills/corpus-management/src/`` with the Corpus-Management
+pack source). The ``.claude/`` walk skips 2 folders:
+``.claude/skills/corpus-management/tests/`` and ``.claude/skills/corpus-management/tools/``.
+In the tools folder only those top-level scripts are scanned, so its data files and its
+subfolders are not. The test suite ``.claude/skills/corpus-management/tests/`` is left out of
+the ``.claude/`` walk exactly as the pre-move gate never scanned the top-level ``tests/``:
+its fixtures hold dashes on purpose as test data for the dash checks (scope parity with the
+pre-move gate). ``lint-language.py`` enforces the same no-em/en-dash house style on the
+CORPUS (``.md`` domain docs) and generator-source prose, but does not scan these operational
+surfaces; in the earlier repository they were swept clean, and this gate prevents re-drift.
 
 Exemptions (each principled, not a drive-by allow-list):
   - ``.claude/rules/external/``: the local-only rule overlay that gate 37 still supports for
@@ -156,9 +157,9 @@ def _self_test() -> int:
     def c(name, cond):
         checks.append((name, cond))
 
-    # _targets() scope (the logic that hid the .claude/skills/corpus-management/tools/*.sh gap from unit tests; dual-family
-    # finding): .claude/skills/corpus-management/tools/ scripts .py AND .sh are in scope; the local-only rule overlay
-    # that gate 37 supports (.claude/rules/external/) is excluded.
+    # _targets() scope (the logic that, in the earlier repository, hid the .claude/skills/corpus-management/tools/*.sh gap from unit tests):
+    # .claude/skills/corpus-management/tools/ scripts .py AND .sh are in scope; the local-only rule overlay that gate 37
+    # supports (.claude/rules/external/) is excluded.
     tgt = _targets()
     c("targets-includes-sh", any(t.name == "pre-push-guard.sh" for t in tgt))
     c("targets-includes-py", any(t.name == "lint-ungated-dashes.py" for t in tgt))
@@ -214,8 +215,8 @@ def main(argv) -> int:
 
 
 if __name__ == "__main__":
-    # 3b50b2g: this tool takes no argument other than --self-test; an unknown or surplus one
-    # used to be ignored with exit 0, so it is refused (exit 2) before the check runs.
+    # This tool takes no argument other than --self-test; in the earlier repository an unknown
+    # or surplus one was ignored with exit 0, so it is refused (exit 2) before the check runs.
     import os as _os
     sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
     from lint_common import strict_flags as _strict_flags

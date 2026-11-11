@@ -1,10 +1,10 @@
 """Shared helpers for the audit-programme linters in ``.claude/skills/corpus-management/tools/``.
 
-This module exposes functions that 11+ linters previously copied
-verbatim: the repository root constant, the default-exempt-directory
-set, the markdown-target eligibility check, the directory-walking
-target iterator, the UTF-8-safe text reader, and the
-fenced-code-block-aware line iterator.
+This module exposes functions that, in the earlier repository, 11+
+linters copied verbatim: the repository root constant, the
+default-exempt-directory set, the markdown-target eligibility check,
+the directory-walking target iterator, the UTF-8-safe text reader,
+and the fenced-code-block-aware line iterator.
 
 The module is deliberately minimal. It does not encapsulate per-linter
 exemption lists, per-linter regex patterns, or per-linter scan logic;
@@ -18,20 +18,20 @@ Scope notes:
 - ``REPO_ROOT`` is computed from this file's location: this file is
   ``.claude/skills/corpus-management/tools/lint_common.py``, so the repository root is
   ``parents[4]``. Linters that import this constant inherit the same value.
-- ``DEFAULT_EXEMPT_DIRS`` mirrors the set 13+ linters already defined
-  inline (``.git``, ``node_modules``, ``__pycache__``, ``.claude``,
-  ``.working``), the top-level ``references`` operational-prose dir (added
-  in #1249), plus the three in-repo sibling-repo placeholder
-  directories (``.ref``, ``.scratch``, ``.private``; closing PR
-  #994, whose stub-only invariant the sibling-repo stub-guard gate
-  enforces). Linters that need further exempt directories beyond this
-  shared default pass them via the ``exempt_dirs`` argument.
+- ``DEFAULT_EXEMPT_DIRS`` mirrors the set that, in the earlier
+  repository, 13+ linters defined inline (``.git``, ``node_modules``,
+  ``__pycache__``, ``.claude``, ``.working``), the top-level
+  ``references`` operational-prose dir, plus the three in-repo
+  sibling-repo placeholder directories (``.ref``, ``.scratch``,
+  ``.private``, whose stub-only invariant the sibling-repo stub-guard
+  gate enforces). Linters that need further exempt directories beyond
+  this shared default pass them via the ``exempt_dirs`` argument.
 - ``resolve_sibling`` / ``sibling_placeholder_present`` locate a real
-  sibling repository (``grc_library_ref`` / ``grc_library_scratch`` /
-  ``grc_library_private``) by short name, returning ``None`` when it is
+  sibling repository (``grc_library_ref``, or the ``scratch`` or
+  ``private`` sibling) by short name, returning ``None`` when it is
   absent. Sibling-reaching ADVISORY tools route their default lookup
   through these so a portable clone with no sibling degrades to an
-  advisory no-op (exit 0) rather than an error (1.19.2 (closing PR #996)).
+  advisory no-op (exit 0) rather than an error.
 - ``iter_markdown_targets`` and ``is_markdown_target`` deliberately
   accept ``Iterable[str]`` for ``exempt_files`` so callers can pass a
   ``set``, ``frozenset``, or ``list`` interchangeably.
@@ -41,7 +41,7 @@ Scope notes:
   fence-end lines are also skipped.
 - ``print_degraded`` prints the ``DEGRADED:`` line of a gate that skips a
   check because the private store is absent, plus a GitHub Actions warning
-  annotation when ``GITHUB_ACTIONS`` is ``true`` (3b635).
+  annotation when ``GITHUB_ACTIONS`` is ``true``.
 """
 
 from __future__ import annotations
@@ -69,13 +69,12 @@ REPO_ROOT: Path = Path(__file__).resolve().parents[4]
 # vendored AIQT pack under .claude/aiqt/); like that pack directory, its
 # contents are AI-context artefacts, not governed corpus documents,
 # so the corpus linters skip it.
-# ``.working`` held maintainer working state (per-run records from
-# /validate, /fitness, and other maintainer-invoked activities): frozen-state
-# archives the corpus linters skip. It has moved out of this public repository
-# into the operational store, with the private sibling's ``.working/`` retained
-# as a transitional fallback; the exempt-dir
-# entry is retained so an in-repo ``.working`` (a maintainer mid-migration state,
-# or an adopter's own) is still skipped if present.
+# ``.working`` held maintainer working state (per-run records from /validate and
+# other maintainer-invoked activities): frozen-state archives the corpus linters
+# skip. It has moved out of this public repository into the operational store,
+# with the private sibling's ``.working/`` retained as a transitional fallback;
+# the exempt-dir entry is retained so an in-repo ``.working`` (a maintainer
+# mid-migration state, or an adopter's own) is still skipped if present.
 DEFAULT_EXEMPT_DIRS: frozenset[str] = frozenset(
     {
         ".git",
@@ -84,25 +83,24 @@ DEFAULT_EXEMPT_DIRS: frozenset[str] = frozenset(
         ".claude",
         ".working",
         # .claude/references/ holds operational REFERENCE prose relocated from the
-        # gate-exempt .claude/CLAUDE.md (3.139.1 (closing PR #1249), roadmap C phase 1): the
-        # per-turn-loaded governance detail read at the PR-close-out boundary.
-        # It is operational machinery, not corpus content, so it is exempt like
-        # .claude/ (the prose was exempt in its prior home; this preserves that).
-        # NOTE (dual-family verify, PR #1249): "references" is a GENERIC dir name
-        # matched by bare component (is_target checks `part in exempt_dirs`), so a
-        # future nested `references/` under a SCANNED tree would be silently exempt.
-        # No such collision today (the reference prose now lives in .claude/references/,
-        # and skill references/ subdirs too, all under already-exempt .claude/). Top-level-anchoring is a
-        # queued morning-review item; a reviewer adding a nested references/ must
-        # weigh this.
+        # gate-exempt .claude/CLAUDE.md: the per-turn-loaded governance detail read
+        # at the PR-close-out boundary. It is operational machinery, not corpus
+        # content, so it is exempt like .claude/ (the prose was exempt in its prior
+        # home; this preserves that).
+        # NOTE: "references" is a GENERIC dir name matched by bare component
+        # (is_target checks `part in exempt_dirs`), so a future nested `references/`
+        # under a SCANNED tree would be silently exempt. No such collision today (the
+        # reference prose now lives in .claude/references/, and skill references/
+        # subdirs too, all under already-exempt .claude/). Top-level anchoring is not
+        # implemented; a change that adds a nested references/ must weigh this.
         "references",
-        # In-repo sibling-repo placeholder slots (1.22.2 (closing PR #1047)): OPTIONAL
-        # stand-ins for the grc_library_ref / grc_library_scratch / grc_library_private
-        # siblings. They are NOT shipped by default (the maintainer runs the real
-        # siblings; an adopter opts into an in-repo stub via /adopt), so these are
-        # normally absent. Kept exempt so that IF an adopter materializes one (as a
-        # README-only stub, which the stub-guard gate lint-sibling-placeholders.py
-        # keeps payload-free, or as a functional checkout), the content gates skip it.
+        # In-repo sibling-repo placeholder slots: OPTIONAL stand-ins for the
+        # grc_library_ref sibling and the scratch and private siblings. They are NOT
+        # shipped by default (the maintainer runs the real siblings; an adopter opts
+        # into an in-repo stub via /adopt), so these are normally absent. Kept exempt
+        # so that IF an adopter materializes one (as a README-only stub, which the
+        # stub-guard gate lint-sibling-placeholders.py keeps payload-free, or as a
+        # functional checkout), the content gates skip it.
         ".ref",
         ".scratch",
         ".private",
@@ -137,16 +135,16 @@ def is_default_exempt_root(
     )
 
 
-# Project-document roots admitted ahead of the ``.claude`` part check (chunk CR1,
-# orchestrator decision RBQ64: every gate examines the moved counterpart of every
-# file it examined before the move). The C1 move put the project registers, the
-# project specifications and the adopter guides under ``.claude/``, which is in
-# ``DEFAULT_EXEMPT_DIRS``; before the move the gates examined them as
-# ``.project-governance/``, ``governance/`` (and the root) and ``docs/``. Only the
-# ``DEFAULT_EXEMPT_DIRS`` components of the admitted root prefix itself (that is,
-# ``.claude``) are waived: a caller's own extra exempt directory, and every exempt
-# component below the root (``__pycache__`` and the like), still applies, and the
-# rest of ``.claude/`` stays exempt. Repository-relative POSIX paths.
+# Project-document roots admitted ahead of the ``.claude`` part check, so that
+# every gate examines the moved counterpart of every file it examined before the
+# move. The move put the project registers, the project specifications and the
+# adopter guides under ``.claude/``, which is in ``DEFAULT_EXEMPT_DIRS``; before
+# the move the gates examined them as ``.project-governance/``, ``governance/``
+# (and the root) and ``docs/``. Only the ``DEFAULT_EXEMPT_DIRS`` components of
+# the admitted root prefix itself (that is, ``.claude``) are waived: a caller's
+# own extra exempt directory, and every exempt component below the root
+# (``__pycache__`` and the like), still applies, and the rest of ``.claude/``
+# stays exempt. Repository-relative POSIX paths.
 CORPUS_MANAGEMENT_DIR = ".claude/skills/corpus-management"
 PROJECT_REGISTERS_DIR = f"{CORPUS_MANAGEMENT_DIR}/registers"
 PROJECT_SPECS_DIR = f"{CORPUS_MANAGEMENT_DIR}/specs"
@@ -156,18 +154,17 @@ PROJECT_DOCUMENT_DIRS: tuple[str, ...] = (
     PROJECT_SPECS_DIR,
     PROJECT_DOCS_DIR,
 )
-# The two maintainer files that ship in ``.working/`` (chunk CR2B, RBQ64, coverage
-# audit LOW-1). Before the move they sat at the repository root as ``CHANGELOG.md``
-# and ``TODO.md``, and the root-walking gates (13 to 18, 20 to 26, 38, 39, 50, 67,
-# 69, 80 and 97) examined them. They are admitted by name only: the rest of
-# ``.working/`` stays exempt as a working store.
+# The two maintainer files that ship in ``.working/``. Before the move they sat
+# at the repository root as ``CHANGELOG.md`` and ``TODO.md``, and the
+# root-walking gates (13 to 18, 20 to 26, 38, 39, 50, 67, 69, 80 and 97)
+# examined them. They are admitted by name only: the rest of ``.working/``
+# stays exempt as a working store.
 SHIPPED_WORKING_FILES: tuple[str, ...] = (
     ".working/CHANGELOG.md",
     ".working/TODO.md",
 )
 # The tooling and test READMEs, examined as ``tools/README.md`` and
-# ``tests/README.md`` before the move (coverage audit MED-3), and the shipped
-# ``.working/`` files above.
+# ``tests/README.md`` before the move, and the shipped ``.working/`` files above.
 PROJECT_DOCUMENT_FILES: tuple[str, ...] = (
     f"{CORPUS_MANAGEMENT_DIR}/tools/README.md",
     f"{CORPUS_MANAGEMENT_DIR}/tests/README.md",
@@ -176,8 +173,8 @@ PROJECT_DOCUMENT_FILES: tuple[str, ...] = (
 # Source trees the safety callers (``exclude_default_roots=False``: the secrets,
 # PII, internal-reference and external-link-domain gates) scanned before the move
 # as ``tools/``, ``.corpus-management/``, ``tests/``, the data files and the vendored
-# AIQT pack (coverage audit MED-1 and LOW-1). Admitted for those callers only, by
-# the same rule as the project-document roots.
+# AIQT pack. Admitted for those callers only, by the same rule as the
+# project-document roots.
 SAFETY_SOURCE_ROOTS: tuple[str, ...] = (
     f"{CORPUS_MANAGEMENT_DIR}/tools",
     f"{CORPUS_MANAGEMENT_DIR}/src",
@@ -252,9 +249,9 @@ def in_exempt_dir(
     parts when it lies outside the repository), with the ``.claude`` prefix of the
     project-document roots (``PROJECT_DOCUMENT_DIRS``, ``PROJECT_DOCUMENT_FILES``)
     and, for ``exclude_default_roots=False`` safety callers, of
-    ``SAFETY_SOURCE_ROOTS`` not counted. Chunk CR2A (RBQ64): the gates that keep
-    their own ``DEFAULT_EXEMPT_DIRS`` part check call this instead, so they see the
-    moved registers, specifications and adopter guides as :func:`is_target` does.
+    ``SAFETY_SOURCE_ROOTS`` not counted. The gates that keep their own
+    ``DEFAULT_EXEMPT_DIRS`` part check call this instead, so they see the moved
+    registers, specifications and adopter guides as :func:`is_target` does.
     """
     rel_parts = repo_relative_parts(path, repo_root=repo_root)
     if rel_parts is None:
@@ -265,20 +262,21 @@ def in_exempt_dir(
     return has_exempt_part(rel_parts, exempt_dirs, admitted_roots=admitted)
 
 
-# Root-relative test scratch tree (3b653): ``tests/tmp`` holds the regression
+# Root-relative test scratch tree: ``tests/tmp`` holds the regression
 # suite's transient per-run fixtures (gitignored as ``/tests/tmp/``; created and
 # removed while a sweep may be running), never corpus. The skip is OPT-IN
 # (``skip_test_scratch`` on :func:`iter_targets`), set only by gates 48, 61, 73
-# and 79, which crashed on a fixture the suite deleted mid-walk; every other
-# caller, including the secrets and PII gates that keep source-tree coverage,
-# still walks ``tests/tmp``. With the opt-in, a directory walk from outside it
-# prunes the tree, so it is never entered (:func:`_walk_files_pruned`).
-# Root-anchored like the default exempt roots (a nested ``tests/tmp`` elsewhere
-# is still walked), and an explicit argument naming a file or directory inside
-# it is still scanned, so the suite's own fixtures stay reachable. A symlink
-# outside the tree whose target is inside it is still listed; those gates refuse
-# it by name if it is gone when read (:func:`scan_listed`).
-# Chunk FB: the scratch tree stays at the repository root, deliberately NOT under
+# and 79, which in the earlier repository crashed on a fixture the suite
+# deleted mid-walk; every other caller, including the secrets and PII gates
+# that keep source-tree coverage, still walks ``tests/tmp``. With the opt-in,
+# a directory walk from outside it prunes the tree, so it is never entered
+# (:func:`_walk_files_pruned`). Root-anchored like the default exempt roots
+# (a nested ``tests/tmp`` elsewhere is still walked), and an explicit argument
+# naming a file or directory inside it is still scanned, so the suite's own
+# fixtures stay reachable. A symlink outside the tree whose target is inside
+# it is still listed; those gates refuse it by name if it is gone when read
+# (:func:`scan_listed`).
+# The scratch tree stays at the repository root, deliberately NOT under
 # CORPUS_MANAGEMENT_DIR. Everything under ``.claude`` is in DEFAULT_EXEMPT_DIRS, so a
 # fixture there is exempt even as an explicit argument and the linters under test
 # scan 0 files; the strict explicit-path guards refuse a fixture outside the
@@ -292,7 +290,7 @@ def _test_scratch_dir(repo_root: Path | None = None) -> Path:
 
 
 def _walk_files_pruned(top: Path, prune: Path) -> Iterator[Path]:
-    """Every non-directory entry under ``top``, never entering ``prune`` (3b653).
+    """Every non-directory entry under ``top``, never entering ``prune``.
 
     The same non-directory entries as ``top.rglob("*")`` (directory symlinks are
     not followed), except that ``prune`` is dropped from the walk before it is
@@ -344,7 +342,7 @@ def refuse_vanished(vanished: Iterable[Path], *, repo_root: Path | None = None) 
     return 2
 
 
-# The executive narrative layer (P-1.25, root ``executive/``) is OUTSIDE the
+# The executive narrative layer (root ``executive/``) is OUTSIDE the
 # corpus document model but INSIDE the repository safety gates. Corpus-MODEL
 # gates that walk the repo root exclude it via the root-anchored
 # ``is_narrative_root`` helper (NOT by unioning this component set, which would
@@ -361,7 +359,7 @@ def is_narrative_root(path: "str | Path") -> bool:
     repository-root ``executive/`` tree. Unlike a bare path-component check, a
     NESTED directory merely named ``executive`` (e.g. ``governance/executive/``)
     is NOT matched, so corpus-model gates keep scanning it. This is the sound
-    mechanism for the P-1.25 scan-root split; ``NARRATIVE_DIRS`` names the root
+    mechanism for the narrative scan-root split; ``NARRATIVE_DIRS`` names the root
     for reference but must never be unioned into a component-wise exemption."""
     candidate = Path(path)
     if not candidate.is_absolute():
@@ -373,7 +371,7 @@ def is_narrative_root(path: "str | Path") -> bool:
     return len(rel.parts) >= 1 and rel.parts[0] == "executive"
 
 
-# --- Historical-surface classification (hoisted from residual-scan.py, #1250) ---
+# --- Historical-surface classification (hoisted from residual-scan.py) ---
 # Shared by residual-scan.py and the D9 retired-section-orphan gate so the two
 # cannot drift on what counts as a LIVE surface (defence in depth). A hit is
 # LEDGER (append-only history) or FROZEN-RECORD (dated per-run archive) or LIVE;
@@ -405,25 +403,25 @@ def classify(rel: str) -> str:
 
 
 # Sibling-repo short name -> the real sibling checkout's directory name.
-# The three siblings of the public ``grc_library`` repo. See PR #996
-# (operational-state privatization + adopter-clone portability).
+# The three siblings of the public ``grc_library`` repo, kept separate for
+# operational-state privatization and adopter-clone portability.
 _SIBLING_REPO_DIRS: dict[str, str] = {
     "ref": "grc_library_ref",
-    # RETIRED 2026-09-23 (maintainer-directed); its last data reader, audit-brief-freshness.py, was
-    # retired 2026-09-24. Kept because audit-cross-repo-references.py classifies grc_library_scratch
-    # pointers through resolve_sibling and sibling_placeholder_present, which raise on an unknown
-    # name; deleting it breaks that audit on every retired-sibling pointer. Never clone/sync it.
+    # RETIRED; it no longer has a data reader. Kept because the maintainer's
+    # cross-repository reference audit classifies scratch-sibling pointers through
+    # resolve_sibling and sibling_placeholder_present, which raise on an unknown name;
+    # deleting it breaks that audit on every retired-sibling pointer. Never clone/sync it.
     "scratch": "grc_library_scratch",
     "private": "grc_library_private",
 }
 
 
 class InaccessiblePath(OSError):
-    """A path the strict lookups refuse rather than read as absent (3b74): one that is, or may be,
+    """A path the strict lookups refuse rather than read as absent: one that is, or may be,
     present but cannot be examined (a parent without search permission (EACCES), a symlink loop
     (ELOOP), a non-directory parent (ENOTDIR), an entry that cannot be followed (a dangling link, a
     link into a locked directory), or an entry of the wrong kind), and one behind a missing
-    intermediate component (ENOENT), where nothing is present; the message names which (3b677 r7)."""
+    intermediate component (ENOENT), where nothing is present; the message names which."""
 
 
 def _strict_blame_parent(p: str) -> "InaccessiblePath | None":
@@ -431,7 +429,7 @@ def _strict_blame_parent(p: str) -> "InaccessiblePath | None":
     last that is not a usable directory when followed (as the kernel follows it on lookup):
     missing, a dangling or looping symlink, not a directory, or not examinable or searchable. Its
     ``filename`` stays ``p``, the path probed, as callers report it. ``None`` when every such
-    component is a usable directory (3b677 r6)."""
+    component is a usable directory."""
     trimmed = p.rstrip(os.sep) or os.sep
     parent = os.path.dirname(trimmed)
     prefix = os.sep if os.path.isabs(trimmed) else ""
@@ -466,12 +464,12 @@ def strict_kind(path) -> "str | None":
     so only the LAST component is missing. A parent that is missing, a dangling or looping symlink,
     not a directory, not searchable, or cannot be examined is not absence: it raises
     :class:`InaccessiblePath` whose message names that component ("at <component>, a path
-    component of <path>"; ``filename`` stays the path probed) (3b677 r6). A last component
+    component of <path>"; ``filename`` stays the path probed). A last component
     that is a dangling symlink is present (``lstat`` finds it) and raises too. Any other failure
     raises :class:`InaccessiblePath`. Trailing separators are dropped before the probe, so
     ``"<dir>/link/"`` gets the verdict of ``"<dir>/link"``: the last component is probed as named
     (``lstat``, then ``stat``), not followed first, and the kind reported is that of the entry
-    (``"file"`` for ``"<dir>/afile/"``) (3b677 r7). A caller probing a deeper path whose
+    (``"file"`` for ``"<dir>/afile/"``). A caller probing a deeper path whose
     intermediate directories may legitimately be absent probes each level in turn. The probe calls
     ``os.lstat``/``os.stat`` directly, so the verdict is the same on Python 3.11, whose pathlib
     ``exists()``/``is_file()``/``is_dir()`` raise PermissionError on EACCES, and on 3.12+, whose
@@ -479,13 +477,13 @@ def strict_kind(path) -> "str | None":
     permission on a directory's contents, nor search permission on the last component.
     """
     p = os.fspath(path)
-    # 3b677 r7: os.lstat("link/") follows the link, so a dangling last component read as absent
+    # os.lstat("link/") follows the link, so a dangling last component read as absent
     # with a trailing separator; probe the name without it ("/" stays "/").
     probe = p.rstrip(os.sep) or p
     try:
         os.lstat(probe)
     except FileNotFoundError as exc:
-        # Absent only when the LAST component is the one missing (3b677 r6).
+        # Absent only when the LAST component is the one missing.
         blame = _strict_blame_parent(p)
         if blame is not None:
             raise blame from exc
@@ -551,7 +549,7 @@ def resolve_sibling(name: str, *, strict: bool = False) -> Path | None:
     wrong path is surfaced rather than papered over. Raises ``ValueError`` on
     an unknown name.
 
-    ``strict=True`` (3b74) separates ABSENT from INACCESSIBLE: ``None`` only when no entry exists
+    ``strict=True`` separates ABSENT from INACCESSIBLE: ``None`` only when no entry exists
     at the sibling path; an entry that cannot be examined, or is not a directory (a file, a dangling
     or looping symlink), raises :class:`InaccessiblePath` so the caller refuses (exit 2) instead of
     taking the absent-sibling no-op. The default is unchanged.
@@ -571,19 +569,17 @@ def resolve_sibling(name: str, *, strict: bool = False) -> Path | None:
 # into the operational store (`$GRC_STORE` or `<repo-parent>/private`; privacy:
 # it carried account identifiers and operational records adopters never need).
 # `resolve_working` is the single access point: it prefers that store, then the
-# transitional private sibling's `.working/` tree, then the in-repo
-# `.working/` (so migration states still work), and returns None when none is
-# present (public CI / adopter clone -> the reader no-ops,
-# exactly like an advisory sibling tool). See the migration plan in grc_library_private.
+# transitional private sibling's `.working/` tree, then the in-repo `.working/` (so
+# migration states still work), and returns None when none is present (public CI /
+# adopter clone -> the reader no-ops, exactly like an advisory sibling tool).
 WORKING_SUBDIR = ".working"
 
 
-# The fleet-standard operational store (adopt-with-overlay migration, 2026-08-23; decision (a)):
-# `/opt/<project>/private` (wire-orch's `@STORE@`). Files live at the store ROOT (NO `.working`
-# subdir), unlike the transitional `grc_library_private/.working/` location. It is PREFERRED over
-# both the private sibling's `.working/` and the in-repo `.working/`, so a seeded store wins while an
-# absent one falls through untouched (fallback-safe during the migration). Env `GRC_STORE` overrides
-# the default `<repo-parent>/private`.
+# The operational store. Files live at the store ROOT (NO `.working` subdir), unlike
+# the transitional private sibling's `.working/` location. It is PREFERRED over both
+# the private sibling's `.working/` and the in-repo `.working/`, so a seeded store wins
+# while an absent one falls through untouched (fallback-safe during the migration). Env
+# `GRC_STORE` overrides the default `<repo-parent>/private`.
 def _store_root(root: "Path") -> "Path":
     import os
     env = os.environ.get("GRC_STORE")
@@ -598,13 +594,12 @@ def _store_root(root: "Path") -> "Path":
 def private_store_roots(root: "Path | None" = None) -> "list[Path]":
     """The recognized PRIVATE maintainer-store roots a private-required file may live under.
 
-    Both the fleet-standard operational store (``/opt/<project>/private`` or ``$GRC_STORE``)
-    and the private sibling (``grc_library_private``) are private (maintainer-owned, not a public
-    or adopter checkout), so a private-required write guarded as "must be under a private store"
-    accepts EITHER. Returns only the roots that actually exist, resolved. Order: store first, then
-    the sibling. Used by the private-write accountability guards (e.g.
-    audit-reference-breadth --update-state) so they accept the store as a valid private location
-    (adopt-with-overlay migration, option B, 2026-08-23)."""
+    Both the operational store (``<repo-parent>/private`` or ``$GRC_STORE``) and the private
+    sibling are private (maintainer-owned, not a public or adopter checkout), so a
+    private-required write guarded as "must be under a private store" accepts EITHER. Returns
+    only the roots that actually exist, resolved. Order: store first, then the sibling. Used by
+    the private-write accountability guards (e.g. a maintainer audit's state update) so they
+    accept the store as a valid private location."""
     r = (root or REPO_ROOT).resolve()
     roots = []
     store = _store_dir(r)
@@ -620,25 +615,24 @@ def _store_dir(root: "Path", *, strict: bool = False) -> "Path | None":
     """The USABLE operational store for ``root``: :func:`_store_root` when it exists AND
     resolves OUTSIDE the public repo. A store that resolves INSIDE the repo (e.g. a relative
     ``GRC_STORE=private`` -> ``<repo>/private``) is REJECTED (returns None), preserving the
-    invariant the old hardcoded ``grc_library_private`` guard held: private maintainer content
+    invariant the old hardcoded private-sibling guard held: private maintainer content
     is never written into the public checkout. Callers then fall back to the private sibling /
     in-repo ``.working/`` (reads) or refuse (private writes).
 
-    ``strict=True`` (3b74) keeps both fallbacks (an ABSENT store and an in-repo store return None)
+    ``strict=True`` keeps both fallbacks (an ABSENT store and an in-repo store return None)
     but raises :class:`InaccessiblePath` for a store path that cannot be examined, is not a
     directory, or is a directory this account cannot search (``os.access(store, os.X_OK)``; its
-    message is "present but not searchable", 3b677 r7), which the default reads as absent. Both
+    message is "present but not searchable"), which the default reads as absent. Both
     modes also catch the RuntimeError that Python 3.11's ``resolve()`` raises on a relative
-    ``GRC_STORE`` symlink loop (it escaped as a traceback, since ``_store_root`` ran outside the
-    ``try``).
+    ``GRC_STORE`` symlink loop (in the earlier repository, it escaped as a traceback, since
+    ``_store_root`` ran outside the ``try``).
 
-    With ``GRC_STORE`` unset the store is identified by its NAME alone (``<repo-parent>/private``,
-    the fleet-standard ``/opt/<project>/private``): no marker file or other signal is consulted, so
-    under ``strict=True`` any present but unusable entry of that name refuses, whoever put it
-    there. An error from probing that entry itself (any of the shapes above) then names that
-    convention and the ``GRC_STORE`` override (3b677 r5); a store directory that passes is
-    returned, and an error from an entry beneath it (raised by a caller such as
-    :func:`resolve_working`) names only that entry."""
+    With ``GRC_STORE`` unset the store is identified by its NAME alone (``<repo-parent>/private``):
+    no marker file or other signal is consulted, so under ``strict=True`` any present but unusable
+    entry of that name refuses, whoever put it there. An error from probing that entry itself (any
+    of the shapes above) then names that convention and the ``GRC_STORE`` override; a store
+    directory that passes is returned, and an error from an entry beneath it (raised by a caller
+    such as :func:`resolve_working`) names only that entry."""
     try:
         if strict:
             # Probe the configured store AS GIVEN (a relative GRC_STORE joined to the root, not yet
@@ -649,7 +643,7 @@ def _store_dir(root: "Path", *, strict: bool = False) -> "Path | None":
             given = (Path(env) if Path(env).is_absolute() else root / env) if env else root.parent / "private"
             try:
                 usable = _strict_is_dir(given)
-                # 3b677 r7: an unsearchable store directory refuses here, with the convention
+                # An unsearchable store directory refuses here, with the convention
                 # text below, not later from resolve_working's probe of a file inside it.
                 if usable and not os.access(given, os.X_OK):
                     raise InaccessiblePath(errno.EACCES, "present but not searchable", os.fspath(given))
@@ -682,34 +676,34 @@ def _store_dir(root: "Path", *, strict: bool = False) -> "Path | None":
 
 
 def resolve_working(relpath: str, *, repo_root: Path | None = None, strict: bool = False) -> Path | None:
-    """Locate a `.working/`-tree file, preferring the operational store (`$GRC_STORE` or `<repo-parent>/private`); the private sibling `grc_library_private/.working/` is a transitional fallback.
+    """Locate a `.working/`-tree file, preferring the operational store (`$GRC_STORE` or `<repo-parent>/private`); the private sibling's `.working/` is a transitional fallback.
 
     `relpath` is POSIX-relative to the `.working/` root (e.g.
     ``"validate-pr/history.md"``). Resolution order:
       1. ``<store>/<relpath>`` where ``<store>`` is ``$GRC_STORE`` or ``<repo-parent>/private``
-         (the fleet-standard operational store, adopt-with-overlay migration 2026-08-23),
-         if the store dir is present AND the file exists there (NO ``.working`` subdir at the store);
-      2. ``grc_library_private/.working/<relpath>`` (the transitional location), if present there;
+         (the operational store), if the store dir is present AND the file exists there (NO
+         ``.working`` subdir at the store);
+      2. the private sibling's ``.working/<relpath>`` (the transitional location), if present there;
       3. ``<repo>/.working/<relpath>`` (the pre-migration in-repo location), if present;
-      4. ``None`` -- none is available (public CI / adopter clone). A reader that
+      4. ``None`` when none is available (public CI / adopter clone). A reader that
          routes through this helper then no-ops, the graceful-degradation contract the
          `.working/`-reading gates adopt when their input leaves the public repo.
 
     ``repo_root`` overrides the repository root used to locate both the private sibling
-    (``<repo_root>/../grc_library_private``) and the in-repo fallback. It defaults to
-    :data:`REPO_ROOT`, so an existing caller (the 9 rewired gates) is unchanged. Consumers
+    (beside ``<repo_root>``) and the in-repo fallback. It defaults to :data:`REPO_ROOT`,
+    so an existing caller (the 9 rewired gates) is unchanged. Consumers
     outside ``.claude/skills/corpus-management/tools/`` (a hook that knows its ``CLAUDE_PROJECT_DIR``, a tool with its own
     root) pass their own root rather than relying on this module's constant.
 
     An EXPLICIT path passed to a tool (a ``--flag``) stays the caller's concern, as with
     :func:`resolve_sibling`; this helper governs only the DEFAULT `.working/` lookup.
 
-    ``strict=True`` (3b74) raises :class:`InaccessiblePath` where the default falls through: a
+    ``strict=True`` raises :class:`InaccessiblePath` where the default falls through: a
     location that cannot be examined (an unsearchable parent, a symlink loop, a non-directory where
-    a directory belongs), or a store path (``GRC_STORE``) behind a missing intermediate component
-    (3b677 r6). An ABSENT location still falls through, so a public or adopter clone still gets
-    None; below a usable store or ``.working`` root a missing directory is absent, probed level by
-    level (:func:`strict_kind_under`). The default is unchanged.
+    a directory belongs), or a store path (``GRC_STORE``) behind a missing intermediate component.
+    An ABSENT location still falls through, so a public or adopter clone still gets None; below a
+    usable store or ``.working`` root a missing directory is absent, probed level by level
+    (:func:`strict_kind_under`). The default is unchanged.
     """
     root = (repo_root or REPO_ROOT).resolve()
     if strict:
@@ -737,7 +731,7 @@ def resolve_working(relpath: str, *, repo_root: Path | None = None, strict: bool
 
 def strict_kind_under(base, rel) -> "str | None":
     """:func:`strict_kind` of ``base / rel`` for a directory ``base``, probing each level of the
-    relative path ``rel`` in turn (3b677 r6). strict_kind reads only a missing LAST component as
+    relative path ``rel`` in turn. strict_kind reads only a missing LAST component as
     absent, so a missing intermediate directory below ``base`` (an absent ``.working`` or
     subdirectory) is absent here too (``None``), while one that is a dangling or looping link, a
     non-directory or unexaminable raises :class:`InaccessiblePath` naming it."""
@@ -787,8 +781,8 @@ def resolve_working_for_write(relpath: str, *, repo_root: Path | None = None) ->
     in-repo), whereas an EXISTING file stays wherever it already lives (existing wins). So
     while a migration INTO the selected tree is incomplete, an existing file still in the
     old tree and a new file in the selected tree split across the two; they unify only once
-    every existing file has also been copied into the selected tree. The deletion step's
-    no-leftover-in-the-old-tree QA is the control. A partial copy splits.
+    every existing file has also been copied into the selected tree. The control is the
+    deletion step's check that no file is left in the old tree. A partial copy splits.
     """
     root = (repo_root or REPO_ROOT).resolve()
     existing = resolve_working(relpath, repo_root=root)
@@ -818,24 +812,24 @@ def resolve_working_for_write_private(relpath: str, *, repo_root: Path | None = 
     exists to keep private. Resolution:
       1. the already-resolved existing file (:func:`resolve_working`), if present; else
       2. the store (``$GRC_STORE`` / ``<repo-parent>/private``) when it exists, else the
-         ``grc_library_private/.working/<relpath>`` sibling when present (both are private); else
-      3. ``None`` -- so the caller REFUSES the write rather than recreating a public
+         private sibling's ``.working/<relpath>`` when present (both are private); else
+      3. ``None``, so the caller REFUSES the write rather than recreating a public
          ``<repo>/.working/`` tree.
 
-    This is the codex-I-4/I-5 fix: post-PR2b-3 (public ``.working/`` deleted), a maintainer
-    tool in a clone WITHOUT ``_private`` would otherwise fall back to the public path and
-    silently recreate the frozen public tree. Returning ``None`` makes the caller fail
-    loud instead. Adopter/public tools that legitimately keep an in-repo ``.working/``
-    use :func:`resolve_working_for_write` (never-None) rather than this helper.
-    The caller creates the parent directory as needed.
+    With the public ``.working/`` deleted, a maintainer tool in a clone WITHOUT the private
+    sibling would otherwise fall back to the public path and silently recreate the frozen
+    public tree. Returning ``None`` makes the caller fail loud instead. Adopter/public
+    tools that legitimately keep an in-repo ``.working/`` use
+    :func:`resolve_working_for_write` (never-None) rather than this helper. The caller
+    creates the parent directory as needed.
     """
     root = (repo_root or REPO_ROOT).resolve()
     existing = resolve_working(relpath, repo_root=root)
     if existing is not None:
         return existing
-    # Prefer the fleet-standard store (a private maintainer location) for a NEW
-    # private-required record, so it unifies with the rest of the operational state
-    # (adopt-with-overlay migration, option B). Fall back to the private sibling, else None.
+    # Prefer the operational store (a private maintainer location) for a NEW
+    # private-required record, so it unifies with the rest of the operational state.
+    # Fall back to the private sibling, else None.
     store = _store_dir(root)
     if store is not None:
         return store / relpath
@@ -853,7 +847,7 @@ def _workflow_escape(text: str, *, prop: bool = False) -> str:
 
 
 def print_degraded(gate: str, text: str) -> None:
-    """Print the 3b635 store-degraded notice: ``DEGRADED: <text>`` on stdout, always.
+    """Print the store-degraded notice: ``DEGRADED: <text>`` on stdout, always.
 
     ``gate`` names the gate (``"gate 43"``, ``"delta gate D14"``). When the environment variable
     ``GITHUB_ACTIONS`` is ``"true"`` it also prints a warning annotation,
@@ -913,9 +907,9 @@ AUDITED_DOMAIN_DIRS: tuple[str, ...] = (
 )
 
 
-# Corpus-scan roots (chunk CR2A, orchestrator decision RBQ64: coverage parity with
-# the pre-move tree for every gate walker). Before the move the specifications S1
-# and S2 sat in ``governance/`` and S3 at the root, and the adopter guides in
+# Corpus-scan roots, for coverage parity with the pre-move tree for every gate
+# walker. Before the move two of the project specifications sat in
+# ``governance/`` and the third at the root, and the adopter guides in
 # ``docs/``, so the allow-list gates that walk ``AUDITED_DOMAIN_DIRS`` saw them;
 # after it they sit in ``PROJECT_SPECS_DIR`` and ``PROJECT_DOCS_DIR``, outside every
 # audited domain. The corpus document gates splat this tuple in place of
@@ -931,10 +925,9 @@ CORPUS_SCAN_DIRS: tuple[str, ...] = (
 
 # Generated pages that live in the corpus ``governance/`` directory but are not
 # corpus documents: ``.claude/skills/corpus-management/tools/build-portal.py``
-# writes them from the taxonomy (orchestrator decision 2026-11-08, chunk P).
-# They are exempt from the taxonomy (which must not index its own generated
-# pages) and from the corpus document gates, as the old ``docs/`` location
-# was. Repository-relative POSIX paths.
+# writes them from the taxonomy. They are exempt from the taxonomy (which must
+# not index its own generated pages) and from the corpus document gates, as the
+# old ``docs/`` location was. Repository-relative POSIX paths.
 GENERATED_GOVERNANCE_PAGES: frozenset[str] = frozenset(
     {
         "governance/portal.md",
@@ -947,7 +940,7 @@ GENERATED_GOVERNANCE_PAGES: frozenset[str] = frozenset(
 MARKDOWN_SUFFIXES: frozenset[str] = frozenset({".md"})
 
 
-# --- Adopter overlay-exemption config (3.183, maintainer-decided 2026-09-12) ---
+# --- Adopter overlay-exemption config ---
 # An adopter forks the corpus and keeps organization-specific values (real names,
 # internal system names, credentials) in a private-overlay directory the content gates
 # (INCLUDING the PII/secrets/placeholder scanners) must not scan. Rather than source-edit
@@ -1093,11 +1086,11 @@ def is_target(
     exempt_files_set = exempt_files if isinstance(exempt_files, (set, frozenset)) else set(exempt_files)
     if path.suffix not in suffixes_set:
         return False
-    # Adopter overlay-exemption (3.183): TOP-LEVEL-ANCHORED, applies to EVERY is_target
+    # Adopter overlay-exemption: TOP-LEVEL-ANCHORED, applies to EVERY is_target
     # caller including the safety gates, and independent of exclude_default_roots.
     if is_adopter_exempt(path, repo_root=repo_root):
         return False
-    # CR1 (RBQ64): test the exempt directories against the repository-relative
+    # Test the exempt directories against the repository-relative
     # path, so a component above the repository root never exempts a file, and
     # admit the moved project documents (and, for safety callers, the moved source
     # trees) ahead of the .claude part check.
@@ -1210,7 +1203,7 @@ def iter_targets(
                     targets.append(p)
                     seen.add(p)
         elif p.is_dir():
-            # 3b653: opt-in skip of the tests/tmp scratch (TEST_SCRATCH_ROOT) unless the walk starts inside it;
+            # Opt-in skip of the tests/tmp scratch (TEST_SCRATCH_ROOT) unless the walk starts inside it;
             # the walk prunes it, so it never lists or enters that tree.
             scratch = _test_scratch_dir(repo_root) if skip_test_scratch else None
             if scratch is not None and not p.is_relative_to(scratch):
@@ -1269,8 +1262,8 @@ def check_explicit_paths(
 
     A content linter given explicit paths is a control only if it scans what the caller
     named. :func:`iter_scan_roots_markdown` resolves each entry against ``repo_root``
-    (never the current directory) and silently drops an entry that does not exist, so
-    three inputs used to pass without scanning the intended file (P-TODO 3b21):
+    (never the current directory) and silently drops an entry that does not exist, so,
+    in the earlier repository, three inputs passed without scanning the intended file:
 
     * a path that does not exist (a typo, or a file in another worktree), which scanned
       nothing and exited 0;
@@ -1295,7 +1288,7 @@ def check_explicit_paths(
     errors: list[str] = []
     for p in paths:
         if not str(p).strip():
-            # 3b50b2a: an empty entry resolves to the tree root, so the linter would scan the
+            # An empty entry resolves to the tree root, so the linter would scan the
             # whole tree as an EXPLICIT path, bypassing its default exemptions.
             errors.append(f"{p!r}: an empty path argument is refused (it would resolve to the tree "
                           f"root and scan everything as an explicit path).")
@@ -1323,13 +1316,14 @@ def check_explicit_paths(
 
 
 def positional_args(argv: Iterable[str], known_flags: Iterable[str] = ("--self-test",)) -> list[str]:
-    """Positional (path) arguments from a hand-parsed argv, refusing what would be dropped (3b50a).
+    """Positional (path) arguments from a hand-parsed argv, refusing what would be dropped.
 
-    Several linters filtered argv with ``not a.startswith("-")``, which silently discarded an
-    unknown option AND a dash-prefixed filename even after ``--``, so ``-- -missing.md`` scanned
-    the defaults and exited 0. Every token after a ``--`` separator is positional; before it, a
-    dash token must be one of ``known_flags`` or the call prints an error and raises
-    ``SystemExit(2)``. Pass the result to the explicit-path guard.
+    In the earlier repository, several linters filtered argv with ``not a.startswith("-")``,
+    which silently discarded an unknown option AND a dash-prefixed filename even after ``--``,
+    so ``-- -missing.md`` scanned the defaults and exited 0. Every token after a ``--``
+    separator is positional; before it, a dash token must be one of ``known_flags`` or the
+    call prints an error and raises ``SystemExit(2)``. Pass the result to the explicit-path
+    guard.
     """
     argv = list(argv)
     tail: list[str] = []
@@ -1353,13 +1347,14 @@ def positional_args(argv: Iterable[str], known_flags: Iterable[str] = ("--self-t
 
 
 def strict_flags(argv: Iterable[str], allowed: Iterable[str]) -> set[str]:
-    """The flags of a tool that takes flags only, refusing anything else (3b50b2a).
+    """The flags of a tool that takes flags only, refusing anything else.
 
-    Several build and check tools tested ``"--check" in argv`` and ran their DEFAULT branch for
-    any other input, so a mistyped ``--chck`` silently regenerated a committed artefact instead of
-    checking it, and exited 0. Every token must be one of ``allowed``, given at most once; an
-    unknown flag, a positional argument, a ``--`` separator, or a repeated flag prints an error and
-    raises ``SystemExit(2)`` BEFORE the tool does anything. Returns the set of flags given.
+    In the earlier repository, several build and check tools tested ``"--check" in argv`` and
+    ran their DEFAULT branch for any other input, so a mistyped ``--chck`` silently regenerated
+    a committed artefact instead of checking it, and exited 0. Every token must be one of
+    ``allowed``, given at most once; an unknown flag, a positional argument, a ``--`` separator,
+    or a repeated flag prints an error and raises ``SystemExit(2)`` BEFORE the tool does
+    anything. Returns the set of flags given.
     """
     argv = list(argv)
     known = set(allowed)
@@ -1381,8 +1376,8 @@ def flag_before_separator(argv: Iterable[str], flag: str) -> bool:
     """True when ``flag`` appears before any ``--`` separator (a token after ``--`` is a path).
 
     Call it only AFTER :func:`positional_args` has validated the same argv, so a flag test can
-    never pre-empt the explicit-path refusal (3b50a round 2: ``-- --self-test missing.md`` ran the
-    self-test and skipped the refusal)."""
+    never pre-empt the explicit-path refusal (in the earlier repository, ``-- --self-test
+    missing.md`` ran the self-test and skipped the refusal)."""
     argv = list(argv)
     return flag in (argv[:argv.index("--")] if "--" in argv else argv)
 
@@ -1390,7 +1385,7 @@ def flag_before_separator(argv: Iterable[str], flag: str) -> bool:
 def self_test_requested(argv: Iterable[str], paths: Iterable[str]) -> bool:
     """True when ``--self-test`` was given before any ``--``; refuses (exit 2) when paths were also
     given, since a self-test would ignore them and they would escape the explicit-path guard
-    (3b50a round 3: ``--self-test -- missing.md`` exited 0)."""
+    (in the earlier repository, ``--self-test -- missing.md`` exited 0)."""
     if not flag_before_separator(argv, "--self-test"):
         return False
     paths = list(paths)
@@ -1402,10 +1397,11 @@ def self_test_requested(argv: Iterable[str], paths: Iterable[str]) -> bool:
 
 
 def require_dir(path, flag: str) -> Path:
-    """An explicit directory argument, resolved, or a refusal (stderr, SystemExit(2)) when it is not
-    an existing directory (3b50b1: several --root overrides scanned nothing and exited 0).
+    """An explicit directory argument, resolved, or a refusal (stderr, SystemExit(2)) when
+    it is not an existing directory (in the earlier repository, several --root overrides
+    scanned nothing and exited 0).
 
-    The path is checked AS GIVEN before it is resolved (3b74): the kernel follows each component in
+    The path is checked AS GIVEN before it is resolved: the kernel follows each component in
     turn, so ``missing/../real`` and ``file/../real`` do not exist, but ``resolve()`` normalizes
     them lexically into ``real`` and a root nobody named would be scanned."""
     if not str(path).strip():
@@ -1487,14 +1483,15 @@ def guard_explicit_paths_cwd(
     allow_outside: bool = False,
     base: Path | None = None,
 ) -> list[str]:
-    """Explicit-path guard for the :func:`iter_targets` family (3b48): refuse or normalize.
+    """Explicit-path guard for the :func:`iter_targets` family: refuse or normalize.
 
     :func:`iter_targets` resolves a relative entry against the CURRENT DIRECTORY (the
     conventional CLI meaning, kept here) and silently drops an entry that is neither a
-    file nor a directory, so a missing explicit path used to scan nothing and exit 0.
-    This guard resolves each user-given entry against ``base`` (default: the current
-    directory; a linter whose documented contract is ``--root``-relative passes its live
-    root) and refuses, with messages on stderr and ``SystemExit(2)``:
+    file nor a directory, so in the earlier repository a missing explicit path
+    scanned nothing and exited 0. This guard resolves each user-given entry against
+    ``base`` (default: the current directory; a linter whose documented contract is
+    ``--root``-relative passes its live root) and refuses, with messages on stderr and
+    ``SystemExit(2)``:
 
     * an entry that does not exist, since nothing would be scanned;
     * with ``allow_outside=False``, an entry that resolves outside ``repo_root``, since a
@@ -1515,7 +1512,7 @@ def guard_explicit_paths_cwd(
     out: list[str] = []
     for p in paths:
         if not str(p).strip():
-            # 3b50b2a: an empty entry resolves to the anchor directory and scans all of it.
+            # An empty entry resolves to the anchor directory and scans all of it.
             errors.append(f"{p!r}: an empty path argument is refused (it would resolve to "
                           f"{anchor} and scan everything there as an explicit path).")
             continue
@@ -1547,11 +1544,11 @@ def iter_scan_roots_markdown(
     root meta files) and subtract per-linter exempt files/prefixes at the
     call site, rather than walking the repository root and subtracting
     ``DEFAULT_EXEMPT_DIRS`` the way :func:`iter_markdown_targets` callers
-    do. A dozen linters previously carried this loop verbatim.
+    do. In the earlier repository, a dozen linters carried this loop verbatim.
 
     Each entry is taken relative to ``repo_root``: a ``.md`` FILE entry is
     included as-is; a DIRECTORY entry contributes every ``.md`` beneath it
-    recursively. The default root exemption AND the adopter overlay-exemption (3.183) are
+    recursively. The default root exemption AND the adopter overlay-exemption are
     subtracted. No other component exemptions are applied, so explicitly listed
     operational roots remain in scope.
     Otherwise, no exempt-directory subtraction happens here
@@ -1572,7 +1569,7 @@ def iter_scan_roots_markdown(
     return sorted(
         f for f in files
         if not is_default_exempt_root(f, repo_root=root)
-        and not is_adopter_exempt(f, repo_root=root)  # 3.183: honor the adopter overlay here too
+        and not is_adopter_exempt(f, repo_root=root)  # honour the adopter overlay here too
     )
 
 
@@ -1619,7 +1616,7 @@ class MetadataBlock:
 # The generic metadata field shape shared by every corpus document:
 # ``**Field:** value`` with an optional trailing backslash. This is the
 # same pattern lint-metadata.py and build-taxonomy.py use; centralized
-# here so parsers stop drifting apart (guardrail review GR-3).
+# here so parsers stop drifting apart.
 METADATA_FIELD_RE = re.compile(r"^\*\*([^*]+):\*\*\s*(.*?)\s*$")
 
 # How many leading lines of a document constitute the metadata head
@@ -1682,10 +1679,10 @@ def parse_iso_date(value: str) -> datetime.date | None:
 def head_version(text: str | None, *, head_lines: int = METADATA_HEAD_LINES) -> str | None:
     """Return the head-window ``Version`` or ``Library Version`` value, or ``None``.
 
-    The Version-window trio's shared extraction (GR-3 wave 2: gate 40
-    plus the D2 and D4 delta checks retired their identical private
-    regex for this helper). Reads via :func:`parse_metadata_block`, so
-    the corpus in-scope rule the trio shares is centralized here:
+    The Version-window trio's shared extraction (gate 40 plus the D2
+    and D4 delta checks retired their identical private regex for this
+    helper). Reads via :func:`parse_metadata_block`, so the corpus
+    in-scope rule the trio shares is centralized here:
 
     - The ``Version`` field wins, then ``Library Version`` (the README's
       CalVer line); ``README Version`` is a DISTINCT field and never
@@ -1695,7 +1692,7 @@ def head_version(text: str | None, *, head_lines: int = METADATA_HEAD_LINES) -> 
       file into scope.
     - Line-initial fields only: the retired regex tolerated leading
       whitespace before ``**Version:**``; this helper narrows to the
-      canonical line-initial shape (the documented wave-2 narrowing;
+      canonical line-initial shape (a documented narrowing;
       no corpus file carries an indented metadata field).
     - Three further edge-case divergences from the retired regex, each
       confirmed corpus-neutral at migration time (zero live instances):
@@ -1719,8 +1716,7 @@ def add_months(d: datetime.date, months: int) -> datetime.date:
     Handles month-end roll-forward: 31 January + 1 month yields 28/29
     February. Stdlib-only; avoids a dateutil dependency. Hoisted from the
     two freshness linters (citation-verification and tooling-provenance),
-    which carried identical copies of this calendar-aware arithmetic
-    (Phase 23.65 parity; 1.26.1 Family-F hoist).
+    which carried identical copies of this calendar-aware arithmetic.
     """
     total_month_index = d.month - 1 + months
     new_year = d.year + total_month_index // 12
@@ -1740,43 +1736,43 @@ def dynamic_floor(present: Iterable[int], floor: int) -> int:
     """``max(floor, oldest surviving entry)``, or ``floor`` when none survive.
 
     The shared kernel of the dynamic windowing floor (the bookkeeping-parity
-    Check-6 ``effective_floor``, which Check 1 also used until 3b206; the
+    Check-6 ``effective_floor``, which Check 1 formerly also used; the
     changelog-mirror-header-parity gate used it too until the new repository
-    removed that gate's floor in EP2): registers whose
-    aged rows are swept to the private archive scope their comparisons to
-    ``max(<fixed inception constant>, min(<surviving entries>))``, so a
-    swept-out entry is correctly out of scope rather than flagged. Each
-    gate keeps its own inception constant and row-extraction; this is only
-    the arithmetic they must not drift on.
+    removed that gate's floor): registers whose aged rows are swept to the
+    private archive scope their comparisons to ``max(<fixed inception
+    constant>, min(<surviving entries>))``, so a swept-out entry is
+    correctly out of scope rather than flagged. Each gate keeps its own
+    inception constant and row-extraction; this is only the arithmetic they
+    must not drift on.
     """
     entries = list(present)
     return max(floor, min(entries)) if entries else floor
 
 
-# --- Store-scope ceiling (maintainer option B, 2026-09-30 17:07Z; simplified 21:03Z) ---
-# A declaration or a clean-base scope (maintainer "Allow clean-base", 2026-10-22 01:29Z) enables
-# deferral. A declaration is the single new singular root header whose PR is absent from
-# the merge-base root headers and from origin/main's root headers and merge subjects. No other
-# ref is consulted. Historical edits, roll-ups, a merged PR's header and example headers do not
-# declare an own PR. Read origin/main locally, without fetching or API calls. Readers retain
-# raw lines; uncertainty widens evaluation. The invariant: a missing or wrong record for a
-# merged PR, or for the branch's own PR once declared, is never deferred, and ambiguity fails
-# closed (no deferral). A clean-base scope has no new header-like line against the merge-base,
-# a parseable root ceiling, and no root delimiters. Historical header-like lines already
-# in the merge-base (including milestones) do not invalidate it. It uses the same readable
-# origin/main evidence, protects merged PRs, and declares no own PR, so the own PR is unknown
-# and cannot be protected: a trailer-only PR (D1 `Changelog:` trailer, no root header) has its
-# own mirror and history entries deferred like any other open PR's until it merges, when
-# origin/main's merge subject protects it. A branch that adds its root header declares and
-# leaves clean-base, so its own entries are evaluated again.
+# --- Store-scope ceiling ---
+# A declaration or a clean-base scope enables deferral. A declaration is the single new
+# singular root header whose PR is absent from the merge-base root headers and from
+# origin/main's root headers and merge subjects. No other ref is consulted. Historical edits,
+# roll-ups, a merged PR's header and example headers do not declare an own PR. Read
+# origin/main locally, without fetching or API calls. Readers retain raw lines; uncertainty
+# widens evaluation. The invariant: a missing or wrong record for a merged PR, or for the
+# branch's own PR once declared, is never deferred, and ambiguity fails closed (no deferral). A
+# clean-base scope has no new header-like line against the merge-base, a parseable root
+# ceiling, and no root delimiters. Historical header-like lines already in the merge-base
+# (including milestones) do not invalidate it. It uses the same readable origin/main evidence,
+# protects merged PRs, and declares no own PR, so the own PR is unknown and cannot be
+# protected: a trailer-only PR (D1 `Changelog:` trailer, no root header) has its own mirror and
+# history entries deferred like any other open PR's until it merges, when origin/main's merge
+# subject protects it. A branch that adds its root header declares and leaves clean-base, so
+# its own entries are evaluated again.
 #
 # ONE shared, case-insensitive PR-identity grammar reads every identity (root and mirror header
 # cells and register rows alike) and, from the same matched text, every range, so identity and
-# range extraction cannot disagree (round-7 R7-01: a lowercase `pr` range was a certain identity
-# with no range spans). `\w` is Unicode-aware, so a digit run running into a Unicode letter
-# (`1309\u00e9`) is no PR number; a hyphen continues an identity only into `#` or a digit:
-# `1309-REVERTED` is no identity, while `#10-#x` keeps `#10` with an uncertain tail. A `-`
-# connector between two numbers is a range.
+# range extraction cannot disagree (in the earlier repository, a lowercase `pr` range was a
+# certain identity with no range spans). `\w` is Unicode-aware, so a digit run running into a
+# Unicode letter (`123\u00e9`) is no PR number; a hyphen continues an identity only into `#` or
+# a digit: `123-REVERTED` is no identity, while `#10-#x` keeps `#10` with an uncertain tail. A
+# `-` connector between two numbers is a range.
 _STORE_PR_NUM = r"#?\d+(?!\w|\.\d|-(?!#|\d))"
 _STORE_PR_LABEL = r"(?:PRs?\s+)?"
 _STORE_PR_IDENTITY = (
@@ -1793,9 +1789,9 @@ _STORE_PR_PART_RE = re.compile(r"\d+|-")
 # labels are case-insensitive like the grammar; the PR cell itself is read by the grammar.
 # The legacy form has no closing delimiter, so its cell runs to the end of the line, and any PR
 # identity in the tail after the identity makes it ambiguous: a `#N` token, or a run of the
-# shared grammar, labelled or bare, in any case, or with its label glued on (`/ PR 2665`,
-# `pr 2665`, `PRs 2665`, `/ 2665`, `PR2665`; round-8 R8-01). A compact or weekly cell is
-# certain only when nothing but a `(N PRs)` count follows the identity.
+# shared grammar, labelled or bare, in any case, or with its label glued on (`/ PR 123`,
+# `pr 123`, `PRs 123`, `/ 123`, `PR123`). A compact or weekly cell is certain only when
+# nothing but a `(N PRs)` count follows the identity.
 CHANGELOG_HEADER_PRS_RE = re.compile(
     r"^(?:##[ \t]+\d{4}-\d{2}-\d{2},[^\n]*?\b(?i:PRs?)[ \t]+(?P<a>#\d[^\n]*)"
     r"|\*\*\d{4}-\d{2}-\d{2} \| [0-9.]+ \| (?i:PRs?) (?P<b>#\d[^*\n]*)\*\*"
@@ -2267,23 +2263,23 @@ def is_fence_line(line: str) -> bool:
     (``~~~``), preceded by zero to three ASCII spaces (the CommonMark fence
     indent limit). Four or more leading spaces are not a fence: under
     CommonMark such a line is indented code, or a paragraph continuation, so
-    it neither opens nor closes a block (3b83). Tabs advance indentation to a
+    it neither opens nor closes a block. Tabs advance indentation to a
     multiple of four columns, so a tab before the marker also makes the line
     ineligible. This is the same rule as the AIQT generic core's
-    ``aiqt_corpus.is_fence_line`` (guardrails PR #324). Container blocks are
-    not modelled: a fence nested in a list item four or more columns in,
-    after a block-quote ``>``, or opened on the list-marker line itself
-    (``- `` then a marker) is not recognized, and a fence CommonMark closes
-    where its container ends stays open to this model until the next
-    recognized fence line. Both fence characters
-    count so that a stray CommonMark-valid ``~~~`` fence cannot silently
-    suppress scanning of everything after it (the GR-4 tilde-blindness class).
+    ``aiqt_corpus.is_fence_line``. Container blocks are not modelled: a
+    fence nested in a list item four or more columns in, after a
+    block-quote ``>``, or opened on the list-marker line itself (``- ``
+    then a marker) is not recognized, and a fence CommonMark closes where
+    its container ends stays open to this model until the next recognized
+    fence line. Both fence characters count so that a stray
+    CommonMark-valid ``~~~`` fence cannot silently suppress scanning of
+    everything after it (the tilde-blindness class).
 
     This is the SHARED fence predicate the corpus linters use for their
     in-code-block skip loops, so a fence toggle is recognized consistently
     across gates. It replaces the per-linter private ``startswith("```")``
-    checks, six of which were tilde-blind before the r5 GR-4 consolidation
-    (3.10 (closing PR #937)). A toggle is a toggle: this predicate does not pair fences by
+    checks, six of which were tilde-blind in the earlier repository before this
+    consolidation. A toggle is a toggle: this predicate does not pair fences by
     character or match fence widths, consistent with :func:`iter_non_code_lines`.
     """
     return re.match(r" {0,3}(?:`{3}|~{3})", line) is not None
@@ -2302,13 +2298,12 @@ def iter_non_code_lines(text: str) -> Iterator[tuple[int, str]]:
         convention is backtick fences and no document currently uses
         tilde fences, but a stray CommonMark-valid ``~~~`` fence would
         otherwise silently suppress scanning of everything after it,
-        so both fence characters toggle (added with the guardrail
-        review's GR-4).
+        so both fence characters toggle.
       - Up to three spaces of indentation before the fence are
         tolerated, the CommonMark limit. Four or more indentation
         columns, including a tab, are not a fence and do not toggle,
         so an indented backtick pair cannot hide the lines between
-        it from a fence-aware gate (3b83).
+        it from a fence-aware gate.
       - Fence parsing is a state toggle per fence character: every
         fence line flips ``in_code``. A line containing ``\\`\\`\\``
         inside an inline code block on its own (which is unusual but
@@ -2348,10 +2343,9 @@ def iter_non_code_lines(text: str) -> Iterator[tuple[int, str]]:
 #
 # The two cross-file reference linters (lint-cross-file-section-refs.py,
 # the numbers phase, and lint-cross-file-section-names.py, the names
-# phase) share these extraction constants. They were duplicated
-# copy-with-comment until the 2026-07-04 guardrail-review G-4 hoist;
-# this single definition is now the source of truth for both, so a
-# sentinel or window change cannot drift between the phases.
+# phase) share these extraction constants. This single definition is the
+# source of truth for both, so a sentinel or window change cannot drift
+# between the phases.
 
 # Cross-file section references: a section-number citation in prose.
 CROSS_REF_PATTERNS = [
@@ -2379,15 +2373,15 @@ CROSS_ADJACENCY_WINDOW = 40
 
 
 # ---------------------------------------------------------------------------
-# PR-delta git-range helpers (1.26.1 Family-A hoist).
+# PR-delta git-range helpers.
 #
-# The PR-time delta checks D1-D4 and D7 each carried a verbatim copy of the
-# same ~40 lines: a ``git`` subprocess wrapper, the positional-base fallback
-# to ``origin/$GITHUB_BASE_REF``, and merge-base resolution with a shared
-# error message. This is the single definition. The delta checks whose
-# range resolution deliberately differs (D5's own git plus merge-base flow,
-# D9's argless
-# origin/main default) keep their own resolution flow.
+# In the earlier repository, the PR-time delta checks D1-D4 and D7 each
+# carried a verbatim copy of the same ~40 lines: a ``git`` subprocess
+# wrapper, the positional-base fallback to ``origin/$GITHUB_BASE_REF``,
+# and merge-base resolution with a shared error message. D1-D4 and D7 now
+# share the single definition below. The delta checks whose range
+# resolution deliberately differs (D5's own git plus merge-base flow, D9's
+# argless origin/main default) keep their own resolution flow.
 
 
 def git(*args: str, raw: bool = False) -> str | bytes:
@@ -2417,7 +2411,7 @@ def tree_entry_type(ref: str, path: str, *, repo: str | os.PathLike | None = Non
     current directory, and from a subdirectory an existing entry read as absent. Entry names
     are compared as bytes with ``os.fsencode(path)``, the bytes git receives for
     ``ref:path``, so a sibling name that is not UTF-8 is never decoded. Absence is therefore
-    established, never inferred from a failed read (3b551); a bad ref or an unreadable tree
+    established, never inferred from a failed read; a bad ref or an unreadable tree
     raises ``CalledProcessError``. Runs through ``git`` above, so the hook import graph gains
     no new subprocess call."""
     prefix = () if repo is None else ("-C", str(repo))
@@ -2450,7 +2444,7 @@ def git_show(ref: str, path: str) -> str | None:
     deleted. The trailing ``--`` makes git read ``ref:path`` only as an object name: without it
     an absent path holding a glob character is taken as a pathspec and reads as ``''``. stderr
     is discarded, not decoded: git's message names the path, and a name that is not UTF-8
-    would raise before the absence check (3b551)."""
+    would raise before the absence check."""
     try:
         return subprocess.check_output(
             ["git", "show", f"{ref}:{path}", "--"],
@@ -2480,10 +2474,10 @@ def git_tree_entry(rev: str, path: str) -> tuple[str, str] | None:
     nothing). --full-tree reads ``path`` from the repository top level, as
     ``rev:path`` does, and the :(literal) prefix keeps a name that begins
     with pathspec magic literal. Any other outcome is a failure, not that
-    answer, and raises for the caller to refuse on (3b577 round 5): a
-    nonzero exit (``rev`` or a tree on the path unreadable) as
-    CalledProcessError, git not running at all as OSError, and a listing
-    that is not an ls-tree entry as ValueError."""
+    answer, and raises for the caller to refuse on: a nonzero exit (``rev``
+    or a tree on the path unreadable) as CalledProcessError, git not
+    running at all as OSError, and a listing that is not an ls-tree entry as
+    ValueError."""
     env = {k: v for k, v in os.environ.items() if k not in _TREE_ENTRY_DROPPED_ENV}
     listing = subprocess.check_output(
         ["git", "ls-tree", "-z", "--full-tree", rev, "--", f":(literal){path}"],
@@ -2503,12 +2497,11 @@ def git_show_strict(ref: str, path: str) -> str | None:
     entry that is not a blob (a gitlink or a tree), which holds no file
     content: ``git show`` exits 128 on a gitlink whose commit the repository
     does not hold and prints a held commit's log or a tree's listing, so
-    neither is read (3b577 round 6), as D4's blob_at reads them. As in
-    git_show (3b551), a failure is never read as absence (3b577 round 5):
-    the listing's own failures, and a
+    neither is read, as D4's blob_at reads them. As in git_show, a
+    failure is never read as absence: the listing's own failures, and a
     listed blob whose ``git show`` read exits nonzero, raise
-    CalledProcessError; git not running at all raises OSError, and content
-    the locale codec cannot decode UnicodeDecodeError."""
+    CalledProcessError; git not running at all raises OSError, and
+    content the locale codec cannot decode UnicodeDecodeError."""
     entry = git_tree_entry(ref, path)
     if entry is None or entry[0] != "blob":
         return None
@@ -2524,8 +2517,8 @@ class PrRangeError(Exception):
     """A PR base/head range could not be resolved.
 
     ``str(exc)`` is the exact operator-facing message the delta checks print
-    to stderr before returning exit code 2; the wording predates the hoist
-    and is shared verbatim by the refactored checks.
+    to stderr before returning exit code 2; those checks share the wording
+    verbatim.
     """
 
 
@@ -2538,19 +2531,18 @@ def pr_range_resolution(head: str) -> tuple[str, str]:
     a top level the locale codec cannot decode (UnicodeDecodeError, a path
     that is not valid UTF-8) degrades it the same way, as D12's _toplevel
     does, so resolve_pr_range, which runs this on every call, keeps the
-    gate's real verdict instead of escaping as a traceback (3b540 round 8).
-    The head SHA is not: resolve_pr_range compares it with the merge base to
-    detect a collapsed range, so its read degrades on a CalledProcessError
-    only. Any other failure there leaves the SHA unread, and the echoed ref
-    name would then read a collapsed range as a real one (3b540 round 9), so
-    such a failure -- git failing to run at all (OSError), say -- raises
-    PrRangeError instead, the refusal every resolve_pr_range caller already
-    catches (exit 2 in the strict gates, D15's fail-open NOTE): never a
-    fallback to the ref name and never a traceback (3b577).
-    empty_pr_range_message runs this a second time, outside that handler,
-    once the changed set is already empty; there the head SHA is diagnostic
-    only, so it catches the PrRangeError and degrades the SHA to a
-    placeholder instead (3b577 round 3)."""
+    gate's real verdict instead of escaping as a traceback. The head SHA is
+    not: resolve_pr_range compares it with the merge base to detect a
+    collapsed range, so its read degrades on a CalledProcessError only. Any
+    other failure there leaves the SHA unread, and the echoed ref name would
+    then read a collapsed range as a real one, so such a failure (git
+    failing to run at all, OSError, say) raises PrRangeError instead, the
+    refusal every resolve_pr_range caller already catches (exit 2 in the
+    strict gates, D15's fail-open NOTE): never a fallback to the ref name
+    and never a traceback. empty_pr_range_message runs this a second time,
+    outside that handler, once the changed set is already empty; there the
+    head SHA is diagnostic only, so it catches the PrRangeError and degrades
+    the SHA to a placeholder instead."""
     try:
         head_sha = git("rev-parse", "--verify", f"{head}^{{commit}}")
     except subprocess.CalledProcessError:
@@ -2572,19 +2564,17 @@ def pr_range_resolution(head: str) -> tuple[str, str]:
 
 def empty_pr_range_message(merge_base: str, head: str) -> str:
     """The CANNOT-EVALUATE message for a resolvable base..head whose changed
-    set is empty. A named range that selects nothing is indistinguishable from
-    a gate run against the wrong repository (a main clone whose HEAD is the
-    branch point while the change lives in a worktree printed a false clean,
-    orchestrator mistake 300), so the delta gates refuse it instead of
-    reporting a clean pass.
+    set is empty. A named range that selects nothing is indistinguishable from a
+    gate run against the wrong repository (in the earlier repository, a main clone
+    whose HEAD was the branch point while the change lived in a worktree printed a
+    false clean), so the delta gates refuse it instead of reporting a clean pass.
 
     The callers run this outside their resolve_pr_range handler, after the
     range is already found empty, so the head SHA and top level here are
     diagnostic only: a head-SHA read that fails this second time (the
     PrRangeError pr_range_resolution raises) degrades to a placeholder, and
     the top level degrades as pr_range_resolution's own read does, so the
-    refusal is still composed and never escapes as a traceback (3b577
-    round 3)."""
+    refusal is still composed and never escapes as a traceback."""
     try:
         head_sha, toplevel = pr_range_resolution(head)
     except PrRangeError:
@@ -2609,19 +2599,18 @@ def resolve_pr_range(base: str | None, head: str = "HEAD") -> tuple[str, str]:
     Raises :class:`PrRangeError` when neither is available, when
     ``git merge-base`` fails (typically a shallow checkout in CI), cannot
     run at all (OSError) or prints a merge base the locale codec cannot
-    decode (UnicodeDecodeError; 3b577 round 4), when base and head have
-    more than one merge base, or when
-    base and head resolve to the same commit: a collapsed range evaluates
-    nothing, and the main-clone-vs-worktree misrun it signals must surface
-    as a refusal, never as a clean pass (orchestrator mistake 300).
+    decode (UnicodeDecodeError), when base and head have more than one
+    merge base, or when base and head resolve to the same commit: a
+    collapsed range evaluates nothing, and the main-clone-vs-worktree
+    misrun it signals must surface as a refusal, never as a clean pass.
 
     A criss-cross history gives base and head more than one merge base, and
     ``git merge-base`` without --all prints only one of them, so a gate
     diffing against that one alone judges a change the others would show
     differently. Every caller diffs against a single merge base, so the
-    merge bases are read with --all and more than one refuses (3b577 round
-    5), as does a run that prints none; D12, whose floor comparison can be
-    made against each merge base in turn, reads them itself.
+    merge bases are read with --all and more than one refuses, as does a
+    run that prints none; D12, whose floor comparison can be made against
+    each merge base in turn, reads them itself.
     """
     if not base:
         github_base = os.environ.get("GITHUB_BASE_REF")
@@ -2643,7 +2632,7 @@ def resolve_pr_range(base: str | None, head: str = "HEAD") -> tuple[str, str]:
     except (OSError, UnicodeDecodeError) as exc:
         # git not running at all, or a merge base that cannot be decoded,
         # leaves the range unresolved: the same refusal every caller already
-        # catches, never a traceback (3b577 round 4).
+        # catches, never a traceback.
         raise PrRangeError(
             f"CANNOT-EVALUATE: git merge-base --all {base} {head} failed "
             f"({exc.__class__.__name__}: {exc}); the range is undetermined, so "
@@ -2679,12 +2668,12 @@ def resolve_pr_range(base: str | None, head: str = "HEAD") -> tuple[str, str]:
 
 
 def _existing_realpath(path: bytes) -> bytes | None:
-    """realpath of ``path`` where it exists as spelled, else None (3b564 round
-    6). Python's realpath tidies a trailing slash on a file and a path through
-    a missing component (``missing/..``), and realpath(1) builds differ on a
-    file followed by ``/.`` or ``/..``, so here the kernel must resolve the
-    spelling first, as .claude/skills/corpus-management/tools/git-hooks/pre-push's existing_realpath requires
-    with test -e (round 7)."""
+    """realpath of ``path`` where it exists as spelled, else None. Python's
+    realpath tidies a trailing slash on a file and a path through a missing
+    component (``missing/..``), and realpath(1) builds differ on a file
+    followed by ``/.`` or ``/..``, so here the kernel must resolve the
+    spelling first, as the existing_realpath of
+    .claude/skills/corpus-management/tools/git-hooks/pre-push requires with test -e."""
     try:
         os.stat(path)
     except OSError:
@@ -2692,23 +2681,23 @@ def _existing_realpath(path: bytes) -> bytes | None:
     return os.path.realpath(path)
 
 
-# Bounds on the walk of the worktrees and reftable trees (3b620 round 4): an
-# entry deeper than this many levels below the walk's top, or more entries
-# than this in one walk, refuses. git 2.53 kept a linked worktree's files at
-# most a few levels below worktrees/<id> (refs/bisect/<name>, logs/HEAD,
-# reftable/<table>), each worktree a few dozen entries, and a reftable
-# directory a few tables between compactions. .claude/skills/corpus-management/tools/git-hooks/pre-push keeps
-# the same numbers.
+# Bounds on the walk of the worktrees and reftable trees: an entry
+# deeper than this many levels below the walk's top, or more entries
+# than this in one walk, refuses. git 2.53 kept a linked worktree's
+# files at most a few levels below worktrees/<id> (refs/bisect/<name>,
+# logs/HEAD, reftable/<table>), each worktree a few dozen entries,
+# and a reftable directory a few tables between compactions.
+# .claude/skills/corpus-management/tools/git-hooks/pre-push keeps the same numbers.
 _LINK_WALK_MAX_DEPTH = 32
 _LINK_WALK_MAX_ENTRIES = 20000
 
-# Looks at one reftable's tables.list while it changes between a look's read
-# and the read after a table it names is found absent (3b620 round 13);
+# Looks at one reftable's tables.list while it changes between a
+# look's read and the read after a table it names is found absent;
 # .claude/skills/corpus-management/tools/git-hooks/pre-push keeps the same number (reftable_looks).
 _REFTABLE_LOOKS = 10
 
-# The most bytes of one tables.list either check reads (3b620 round 14, r13
-# review N1: a symbolic link to /dev/zero made the read unbounded): git 2.53
+# The most bytes of one tables.list either check reads (in the earlier
+# repository, a symbolic link to /dev/zero made the read unbounded): git 2.53
 # writes one line of a few dozen bytes per table, so 1 MiB is some twenty
 # thousand tables. .claude/skills/corpus-management/tools/git-hooks/pre-push keeps the same number.
 _TABLES_LIST_MAX_BYTES = 1 << 20
@@ -2717,17 +2706,16 @@ _TABLES_LIST_MAX_BYTES = 1 << 20
 # with the deprecated core.preferSymlinkRefs: a linked worktree's HEAD, a
 # per-worktree symbolic ref under worktrees/<id>/refs, or a symbolic ref at
 # any depth under the common refs (refs/remotes/origin/HEAD from git clone,
-# or any git symbolic-ref; round 6), naming a ref. git reads a link whose
-# text starts refs/ and is a valid ref name as that name and never follows
-# it, so git check-ref-format decides (3b620 round 9, r8 review W2: the
-# round-4 character class refused refs/heads/rel@2026, refs/heads/café,
-# refs/notes/n@1 and a worktree HEAD naming refs/heads/w@t), with no ".."
-# in the text. A git that fails to run refuses. .claude/skills/corpus-management/tools/git-hooks/pre-push's
+# or any git symbolic-ref), naming a ref. git reads a link whose text starts
+# refs/ and is a valid ref name as that name and never follows it, so git
+# check-ref-format decides (a character class the earlier repository used
+# refused refs/heads/rel@2026, refs/heads/café, refs/notes/n@1 and a
+# worktree HEAD naming refs/heads/w@t), with no ".." in the text. A git that
+# fails to run refuses. .claude/skills/corpus-management/tools/git-hooks/pre-push's
 # symref_link_text asks git the same.
 def _symref_link_text(text: bytes) -> bool:
-    # The ".." test is redundant with git check-ref-format, which refuses
-    # ".." anywhere (git 2.53; r9 review W2: removing it changes no
-    # verdict); kept so the rule reads here.
+    # The ".." test is redundant with git check-ref-format, which refuses ".." anywhere
+    # (git 2.53; removing it changes no verdict); kept so the rule reads here.
     if not text.startswith(b"refs/") or b".." in text:
         return False
     try:
@@ -2738,49 +2726,48 @@ def _symref_link_text(text: bytes) -> bool:
 
 
 # A refusal message for an entry found absent, unexaminable or unreadable
-# part-way through a walk (3b620 round 9), which the worktrees race rule
-# (_worktrees_refusal) looks at a second time; any other caller refuses it as
-# it would any message. A symbolic link, an entry that is not a regular file
-# where only one may be, a bad tables.list line and the walk's bounds are
-# never unsettled.
+# part-way through a walk, which the worktrees race rule (_worktrees_refusal)
+# looks at a second time; any other caller refuses it as it would any
+# message. A symbolic link, an entry that is not a regular file where
+# only one may be, a bad tables.list line and the walk's bounds are never
+# unsettled.
 class _Unsettled(str):
     pass
 
 # The refs git 2.53 keeps directly in a git directory under a fixed name
 # (its root refs and pseudorefs), each of which, as a symbolic link to
 # another repository's ref file or to a file holding an object name, gave
-# git rev-parse that repository's commit (3b620 round 7; HEAD so linked
-# failed closed). .claude/skills/corpus-management/tools/git-hooks/pre-push lists the same names.
+# git rev-parse that repository's commit (HEAD so linked failed closed).
+# .claude/skills/corpus-management/tools/git-hooks/pre-push lists the same names.
 _TOP_LEVEL_REFS = (b"HEAD", b"ORIG_HEAD", b"FETCH_HEAD", b"MERGE_HEAD", b"CHERRY_PICK_HEAD",
                    b"REVERT_HEAD", b"BISECT_HEAD", b"REBASE_HEAD", b"AUTO_MERGE",
                    b"BISECT_EXPECTED_REV", b"NOTES_MERGE_PARTIAL", b"NOTES_MERGE_REF",
                    b"MERGE_AUTOSTASH")
 
 # The fixed names git 2.53 writes as a symbolic link itself, in the common
-# directory and in worktrees/<id>, with core.preferSymlinkRefs (3b620 round
-# 8): HEAD, and NOTES_MERGE_REF while a git notes merge is unfinished. Merge,
-# cherry-pick, revert, rebase (--autostash too), bisect, fetch and stash
-# wrote no other link there. .claude/skills/corpus-management/tools/git-hooks/pre-push admits the same names.
+# directory and in worktrees/<id>, with core.preferSymlinkRefs: HEAD, and
+# NOTES_MERGE_REF while a git notes merge is unfinished. Merge, cherry-pick,
+# revert, rebase (--autostash too), bisect, fetch and stash wrote no other
+# link there. .claude/skills/corpus-management/tools/git-hooks/pre-push admits the same names.
 _SYMREF_TOP_LEVEL = (b"HEAD", b"NOTES_MERGE_REF")
 
 # Top-level entries in the common directory named as the first component of
 # a ref the PR gates use (origin/<target>): git rev-parse reads
 # <git-dir>/origin/main before refs/remotes/origin/main, so a directory
 # origin holding a file main, or a symbolic link origin, gave git another
-# commit for origin/main with only an ambiguity warning (3b620 round 8, r7
-# review E1). Any entry there refuses. .claude/skills/corpus-management/tools/git-hooks/pre-push refuses the
-# same names.
+# commit for origin/main with only an ambiguity warning. Any entry there
+# refuses. .claude/skills/corpus-management/tools/git-hooks/pre-push refuses the same names.
 _REF_PREFIX_ENTRIES = (b"origin",)
 
 
 def _git_symref_link(top: bytes, path: bytes, symrefs: str) -> bool:
     """Whether the symbolic link ``path`` below ``top`` is one git writes as
-    a symbolic ref (3b620 round 4): with ``symrefs`` "worktrees" (``top`` is
-    the worktrees directory) at worktrees/<id>/HEAD (or NOTES_MERGE_REF,
-    _SYMREF_TOP_LEVEL, round 8) or under worktrees/<id>/refs, with "refs"
-    (``top`` is the common refs directory, round 6) anywhere below it, with
-    text that is a plain ref name under refs/ (_SYMREF_LINK_TEXT, no ".." in
-    it; _symref_link_text). Raises OSError where the link cannot be read."""
+    a symbolic ref: with ``symrefs`` "worktrees" (``top`` is the worktrees
+    directory) at worktrees/<id>/HEAD (or NOTES_MERGE_REF, _SYMREF_TOP_LEVEL)
+    or under worktrees/<id>/refs, with "refs" (``top`` is the common refs
+    directory) anywhere below it, with text that is a plain ref name under
+    refs/ (_SYMREF_LINK_TEXT, no ".." in it; _symref_link_text). Raises
+    OSError where the link cannot be read."""
     parts = os.path.relpath(path, top).split(b"/")
     if symrefs != "refs" and not ((len(parts) == 2 and parts[1] in _SYMREF_TOP_LEVEL)
                                   or (len(parts) > 2 and parts[1] == b"refs")):
@@ -2790,24 +2777,24 @@ def _git_symref_link(top: bytes, path: bytes, symrefs: str) -> bool:
 
 def _link_refusal(top: bytes, where: str, repo_root: Path, *, symrefs: str | None = None) -> str | None:
     """A refusal message when ``top`` (in ``where``), or anything below it to
-    any depth, is a symbolic link, else None (3b620 round 4). The walk never
-    follows a link: each entry a listing finds is examined with lstat.
+    any depth, is a symbolic link, else None. The walk never follows a link:
+    each entry a listing finds is examined with lstat.
 
     Refused, naming the path: ``top`` as a symbolic link (a broken one too),
     or as something other than a directory; an entry at any depth below it
-    that is a symbolic link, except, with ``symrefs`` "worktrees" (``top`` is
-    the common directory's worktrees directory) or "refs" (its refs
-    directory, round 6), one git 2.53 writes itself in a files repository
-    with core.preferSymlinkRefs (_git_symref_link); a
-    listing, lstat or readlink failing other than by the path's absence; and
-    an entry deeper than _LINK_WALK_MAX_DEPTH levels below ``top`` or more
-    than _LINK_WALK_MAX_ENTRIES entries. Not refused: ``top`` absent, and an
+    that is a symbolic link, except, with ``symrefs`` "worktrees" (``top``
+    is the common directory's worktrees directory) or "refs" (its refs
+    directory), one git 2.53 writes itself in a files repository with
+    core.preferSymlinkRefs (_git_symref_link); a listing, lstat or readlink
+    failing other than by the path's absence; and an entry deeper than
+    _LINK_WALK_MAX_DEPTH levels below ``top`` or more than
+    _LINK_WALK_MAX_ENTRIES entries. Not refused: ``top`` absent, and an
     entry that a listing found but that is gone when examined, or a
     directory gone when listed, as during git worktree remove, which deletes
-    worktrees/<id> and then an empty worktrees (r3 review: pre-push refused
-    a third of runs during one). A hard link or bind mount below ``top`` is
-    not a symbolic link and is not refused, nor is a directory replaced by a
-    symbolic link between its lstat and its listing."""
+    worktrees/<id> and then an empty worktrees (in the earlier repository,
+    pre-push refused a third of runs during one). A hard link or bind mount
+    below ``top`` is not a symbolic link and is not refused, nor is a
+    directory replaced by a symbolic link between its lstat and its listing."""
     tail = (f"; git reads refs and each linked worktree's HEAD through it, wherever it leads, "
             f"so to read this script's repository {repo_root}'s own keep "
             f"{os.fsdecode(top)!r} free of symbolic links; .claude/skills/corpus-management/tools/git-hooks/pre-push refuses "
@@ -2859,7 +2846,7 @@ def _link_refusal(top: bytes, where: str, repo_root: Path, *, symrefs: str | Non
                     continue
                 if symrefs == "worktrees" and directory == top:
                     # Each worktrees/<id> is walked whole under the race
-                    # rule (3b620 round 9); a second look recounts it.
+                    # rule; a second look recounts it.
                     before = count
                     refusal = walk(path, depth + 1)
                     if isinstance(refusal, _Unsettled):
@@ -2876,14 +2863,14 @@ def _link_refusal(top: bytes, where: str, repo_root: Path, *, symrefs: str | Non
 
 
 def _second_look(worktree: bytes, where: str, look) -> str | None:
-    """The worktrees race rule (3b620 round 9, r8 review E1): ``look`` gave
-    an _Unsettled message for the linked worktree git directory
-    ``worktree`` (worktrees/<id> in the common directory), as it can while
-    git worktree remove deletes it or git worktree add writes it. It is
-    examined again with lstat: gone, it is skipped (git reads nothing
-    there); still present, ``look`` runs once more and its message, if any,
-    refuses. An lstat failing other than by absence refuses as unsettled,
-    as in pre-push (round 12, r11 review W2: a plain refusal here).
+    """The worktrees race rule: ``look`` gave an _Unsettled message for the
+    linked worktree git directory ``worktree`` (worktrees/<id> in the common
+    directory), as it can while git worktree remove deletes it or git
+    worktree add writes it. It is examined again with lstat: gone, it is
+    skipped (git reads nothing there); still present, ``look`` runs once
+    more and its message, if any, refuses. An lstat failing other than by
+    absence refuses as unsettled, as in pre-push (in the earlier repository
+    it was a plain refusal here).
     .claude/skills/corpus-management/tools/git-hooks/pre-push applies the same rule (second_look)."""
     try:
         os.lstat(worktree)
@@ -2901,9 +2888,9 @@ class _NotRegularFile(OSError):
 
 def _read_tables_list(path: bytes) -> bytes | None:
     """The bytes of the tables.list ``path``, or None where it holds more
-    than _TABLES_LIST_MAX_BYTES (3b620 round 14, r13 review N1). It is opened
-    without following a symbolic link and without blocking, and the open
-    descriptor must be a regular file: a FIFO swapped in hung the read, and a
+    than _TABLES_LIST_MAX_BYTES. It is opened without following a symbolic
+    link and without blocking, and the open descriptor must be a regular
+    file: in the earlier repository a FIFO swapped in hung the read, and a
     symbolic link to /dev/zero made it unbounded. Raises _NotRegularFile
     where it is a symbolic link or anything else but a regular file, and
     OSError (FileNotFoundError where absent) where it cannot be opened or
@@ -2931,32 +2918,30 @@ def _read_tables_list(path: bytes) -> bytes | None:
 
 def _reftable_refusal(reftable: bytes, where: str, repo_root: Path) -> str | None:
     """A refusal message when the reftable directory ``reftable`` in ``where``
-    can give git refs other than its own files', else None (3b620 round 2).
+    can give git refs other than its own files', else None.
 
     Refused: an entry in it that is a symbolic link, a subdirectory or
-    anything else but a regular file, and a non-empty line of its tables.list
-    that is not a bare file name (it has a "/" or a NUL, or is "." or "..")
-    or does not name a regular file in it. git 2.53 read another
-    repository's refs through a tables.list line ../../../<other>/.git/
-    reftable/<table> and through symbolic links at sub/<table>, and a linked
-    worktree's HEAD through links in its own reftable. Refused too (round 3):
-    a ``reftable`` that exists but is not a directory or is a symbolic link,
-    and any probe or read of it that fails other than by its absence, so a
-    failed probe cannot pass a layout it would refuse (r2 review E2).
-    require_own_git_dir walks for symbolic links first (_link_refusal).
-    Not refused: a reftable that is absent or gone when listed or read, or
-    a missing table once the reftable itself is gone (round 4: git worktree
-    remove deleting worktrees/<id> meanwhile), a directory with no
-    tables.list, and a table or tables.list that is a hard link to another
-    repository's. Round 10 (r9 review W1, N2), as pre-push's check_reftable
-    takes them: an entry the listing found that is gone when examined, and
-    a tables.list gone when read, are absence; a reftable that is not a
-    directory refuses at the first look. Round 13 (r12 review W1): a table
+    anything else but a regular file, and a non-empty line of its
+    tables.list that is not a bare file name (it has a "/" or a NUL, or is
+    "." or "..") or does not name a regular file in it. git 2.53 read
+    another repository's refs through a tables.list line
+    ../../../<other>/.git/reftable/<table> and through symbolic links at
+    sub/<table>, and a linked worktree's HEAD through links in its own
+    reftable. Refused too: a ``reftable`` that exists but is not a directory
+    or is a symbolic link, and any probe or read of it that fails other than
+    by its absence, so a failed probe cannot pass a layout it would refuse.
+    require_own_git_dir walks for symbolic links first (_link_refusal). Not
+    refused: a reftable that is absent or gone when listed or read, or a
+    missing table once the reftable itself is gone (git worktree remove
+    deleting worktrees/<id> meanwhile), a directory with no tables.list, and
+    a table or tables.list that is a hard link to another repository's. As
+    pre-push's check_reftable takes them: an entry the listing found that is
+    gone when examined, and a tables.list gone when read, are absence; a
+    reftable that is not a directory refuses at the first look. A table
     found absent has tables.list read again, and looked at again where it
-    changed (compaction), at most _REFTABLE_LOOKS looks. Round 14 (r13
-    review N1, N2): each table is examined with one lstat, and tables.list
-    is read without following a link or blocking (_read_tables_list); one
-    over _TABLES_LIST_MAX_BYTES refuses."""
+    changed (compaction), at most _REFTABLE_LOOKS looks. Each table is
+    examined with one lstat, and tables.list is read without following a link
+    or blocking (_read_tables_list); one over _TABLES_LIST_MAX_BYTES refuses."""
     tail = (f"; git reads refs through tables.list and the tables it names, wherever they "
             f"lead, so to read this script's repository {repo_root}'s own keep only those, as "
             f"regular files, in {os.fsdecode(reftable)!r}; .claude/skills/corpus-management/tools/git-hooks/pre-push refuses "
@@ -2981,8 +2966,7 @@ def _reftable_refusal(reftable: bytes, where: str, repo_root: Path) -> str | Non
                 try:
                     os.lstat(entry.path)
                 except FileNotFoundError:
-                    # Gone since the listing found it, as pre-push takes it
-                    # (3b620 round 10, r9 review W1).
+                    # Gone since the listing found it, as pre-push takes it.
                     continue
                 odd.append((entry.path, entry.is_symlink()))
         odd.sort()
@@ -2996,21 +2980,20 @@ def _reftable_refusal(reftable: bytes, where: str, repo_root: Path) -> str | Non
         return _Unsettled(f"could not examine the reftable {os.fsdecode(reftable)!r} in {where}: "
                           f"{exc}" + tail)
     tables_list = os.path.join(reftable, b"tables.list")
-    # A table found absent has tables.list read again (3b620 round 13, r12
-    # review W1): git's compaction writes a new tables.list and then deletes
-    # the tables it replaced, so where its bytes changed since this look's
-    # read, look again, at most _REFTABLE_LOOKS looks in all; unchanged, the
-    # absent table is unsettled, as before. A state that lasts reads the same
-    # each time and never passes; a tables.list that changes at every look
-    # refuses at the bound. pre-push's check_reftable has the same rule.
+    # A table found absent has tables.list read again: git's compaction
+    # writes a new tables.list and then deletes the tables it replaced, so
+    # where its bytes changed since this look's read, look again, at most
+    # _REFTABLE_LOOKS looks in all; unchanged, the absent table is unsettled.
+    # A state that lasts reads the same each time and never passes; a
+    # tables.list that changes at every look refuses at the bound. pre-push's
+    # check_reftable has the same rule.
     for _look in range(_REFTABLE_LOOKS):
         try:
-            # Opened, not lstat then os.path.isfile, which took a reftable it
-            # could list but not search for one with no tables.list and passed
-            # it (3b620 round 11, r10 review E1); pre-push refuses it as
-            # unsettled. The listing found it a regular file, so anything else
-            # here is a swap since, unsettled, as in pre-push; it passed
-            # (round 12, r11 review W1).
+            # Opened, not lstat then os.path.isfile, which in the earlier repository
+            # took a reftable it could list but not search for one with no
+            # tables.list and passed it; pre-push refuses it as unsettled. The
+            # listing found it a regular file, so anything else here is a swap
+            # since, unsettled, as in pre-push (the earlier repository passed it).
             data = _read_tables_list(tables_list)
         except FileNotFoundError:
             return None
@@ -3030,8 +3013,8 @@ def _reftable_refusal(reftable: bytes, where: str, repo_root: Path) -> str | Non
                 return (f"{os.fsdecode(tables_list)!r} in {where} names {os.fsdecode(name)!r}, "
                         f"not a bare file name" + tail)
             table = os.path.join(reftable, name)
-            # One lstat decides (3b620 round 14, r13 review N2): os.path.islink
-            # and then os.path.isfile, which follows a link, passed a link to
+            # One lstat decides: in the earlier repository, os.path.islink and
+            # then os.path.isfile, which follows a link, passed a link to
             # another repository's table made between the two.
             absent = False
             try:
@@ -3048,12 +3031,11 @@ def _reftable_refusal(reftable: bytes, where: str, repo_root: Path) -> str | Non
             except OSError:
                 absent = False
             # A table that is absent (not a link or other entry) is
-            # unsettled (3b620 round 9): git worktree remove deletes it
-            # before its tables.list and directory. One that cannot be
-            # examined, or in a reftable that cannot be, refuses at the
-            # first look, as in pre-push; os.path.lexists took it, and a
-            # reftable that could not be examined, for absence (round 11,
-            # r10 review E1).
+            # unsettled: git worktree remove deletes it before its
+            # tables.list and directory. One that cannot be examined, or in
+            # a reftable that cannot be, refuses at the first look, as in
+            # pre-push; in the earlier repository os.path.lexists took it,
+            # and a reftable that could not be examined, for absence.
             message = (f"{os.fsdecode(tables_list)!r} in {where} names "
                        f"{os.fsdecode(name)!r}, not a regular file in that directory" + tail)
             if not absent:
@@ -3074,8 +3056,8 @@ def _reftable_refusal(reftable: bytes, where: str, repo_root: Path) -> str | Non
 
 # git's repository-local variables (git rev-parse --local-env-vars) that move
 # the common directory, the object store or the history git reads, and that
-# git 2.53 exported to no pre-push or commit hook, so any value refuses (3b564
-# round 7). .claude/skills/corpus-management/tools/git-hooks/pre-push refuses the same names.
+# git 2.53 exported to no pre-push or commit hook, so any value refuses.
+# .claude/skills/corpus-management/tools/git-hooks/pre-push refuses the same names.
 _GIT_REDIRECT_VARIABLES = ("GIT_COMMON_DIR", "GIT_OBJECT_DIRECTORY",
                            "GIT_ALTERNATE_OBJECT_DIRECTORIES", "GIT_GRAFT_FILE",
                            "GIT_SHALLOW_FILE")
@@ -3083,222 +3065,216 @@ _GIT_REDIRECT_VARIABLES = ("GIT_COMMON_DIR", "GIT_OBJECT_DIRECTORY",
 
 def require_own_git_dir(repo_root: Path, *, from_cwd: bool = False) -> str | None:
     """A refusal message when git, under the inherited environment, reads a
-    repository other than ``repo_root``'s own, else None (3b564).
+    repository other than ``repo_root``'s own, else None.
 
-    A gate that checks the work tree top level against ``repo_root`` still
-    printed a clean verdict over another repository's history wherever that
-    top level came out as ``repo_root`` while GIT_DIR named the other
-    repository: GIT_DIR alone (git then takes the current directory, or
-    ``-C repo_root``, as the top level), GIT_DIR plus GIT_WORK_TREE naming
-    ``repo_root``, a GIT_DIR whose own core.worktree names it, and the GIT_DIR
-    git exports to the hooks of a linked worktree, which reached the main
-    checkout's copy of a gate run there. This compares ``git rev-parse
-    --absolute-git-dir`` read the way the gate runs git (``-C repo_root``, or
-    the current directory with ``from_cwd``, as D5 and tension-scan run it)
-    with the value ``repo_root`` gives with GIT_DIR and GIT_WORK_TREE removed,
-    the comparison .claude/skills/corpus-management/tools/git-hooks/pre-push makes. Both are canonicalized with
-    realpath and compared as bytes, so no path needs to decode. Either read
-    failing to run or exiting non-zero is a refusal too: the repository
-    cannot be confirmed. So is either read printing anything but an absolute
-    path, checked before realpath, which resolves a relative one against the
-    current directory: git rev-parse echoes an option it does not know and
-    exits 0, so a git without --absolute-git-dir would print the flag itself
-    for both reads, and a shim git doing that made the two compare equal
-    (3b564 round 3). Last, ``repo_root`` must be a work tree registered with
-    the git directory git reads, the check .claude/skills/corpus-management/tools/git-hooks/pre-push makes,
-    ported here: a .git in ``repo_root`` that is a symbolic link refuses, and
-    so do objects or refs in the common directory (``git rev-parse
-    --path-format=absolute --git-common-dir``, read the way the gate runs git,
-    and absolute) that are symbolic links; a .git directory must be that git
-    directory and its own common directory; a .git file must be the one that
-    git directory's gitdir file names, with the git directory in its common
-    directory's worktrees directory (a linked worktree) or, where the git
-    directory has no gitdir file and is not its parent's .git (a separate git
-    directory, as a submodule's is), its own config file must give a
-    core.worktree that resolves to ``repo_root`` and it must be its own common
-    directory, so a separate git directory that sets no core.worktree, as git
-    init or git clone --separate-git-dir leaves one, refuses with that fix. A
-    main-tree alias whose .git file names another checkout's git directory
-    gave both reads that directory while git took the alias as the top level,
-    so it passed the comparison above and the gates' top-level check (r3
-    review W1); so did an alias whose .git directory, or the git directory its
-    .git file names, has a commondir file naming another checkout's git
-    directory, or objects and refs that are symbolic links into it, since git
-    then reports the alias's own git directory but reads that checkout's
-    objects and refs (r5 review W1). Objects, refs or reftable that are
+    In the earlier repository, a gate that checks the work tree top level
+    against ``repo_root`` still printed a clean verdict over another
+    repository's history wherever that top level came out as ``repo_root``
+    while GIT_DIR named the other repository: GIT_DIR alone (git then takes
+    the current directory, or ``-C repo_root``, as the top level), GIT_DIR
+    plus GIT_WORK_TREE naming ``repo_root``, a GIT_DIR whose own
+    core.worktree names it, and the GIT_DIR git exports to the hooks of a
+    linked worktree, which reached the main checkout's copy of a gate run
+    there. This compares ``git rev-parse --absolute-git-dir`` read the way
+    the gate runs git (``-C repo_root``, or the current directory with
+    ``from_cwd``, as D5 and tension-scan run it) with the value ``repo_root``
+    gives with GIT_DIR and GIT_WORK_TREE removed, the comparison
+    .claude/skills/corpus-management/tools/git-hooks/pre-push makes. Both are
+    canonicalized with realpath and compared as bytes, so no path needs to
+    decode. Either read failing to run or exiting non-zero is a refusal too:
+    the repository cannot be confirmed. So is either read printing anything
+    but an absolute path, checked before realpath, which resolves a relative
+    one against the current directory: git rev-parse echoes an option it does
+    not know and exits 0, so a git without --absolute-git-dir would print the
+    flag itself for both reads, and in the earlier repository a shim git
+    doing that made the two compare equal. Last, ``repo_root`` must be a work
+    tree registered with the git directory git reads, the check
+    .claude/skills/corpus-management/tools/git-hooks/pre-push makes, ported
+    here: a .git in ``repo_root`` that is a symbolic link refuses, and so do
+    objects or refs in the common directory (``git rev-parse
+    --path-format=absolute --git-common-dir``, read the way the gate runs
+    git, and absolute) that are symbolic links; a .git directory must be that
+    git directory and its own common directory; a .git file must be the one
+    that git directory's gitdir file names, with the git directory in its
+    common directory's worktrees directory (a linked worktree) or, where the
+    git directory has no gitdir file and is not its parent's .git (a separate
+    git directory, as a submodule's is), its own config file must give a
+    core.worktree that resolves to ``repo_root`` and it must be its own
+    common directory, so a separate git directory that sets no core.worktree,
+    as git init or git clone --separate-git-dir leaves one, refuses with that
+    fix. In the earlier repository, a main-tree alias whose .git file names
+    another checkout's git directory gave both reads that directory while git
+    took the alias as the top level, so it passed the comparison above and
+    the gates' top-level check; so did an alias whose .git directory, or the
+    git directory its .git file names, has a commondir file naming another
+    checkout's git directory, or objects and refs that are symbolic links
+    into it, since git then reports the alias's own git directory but reads
+    that checkout's objects and refs. Objects, refs or reftable that are
     symbolic links refuse wherever they point, so a repository whose own
     objects directory was moved and linked back (a relocated objects
-    directory) and a git-new-workdir checkout, which links another
-    checkout's objects, refs and hooks, refuse too, and the message names
-    both (r6 review N2); reftable is checked because a reftable repository
-    keeps its refs there, not in refs (r6 review N3). A reftable that is a
-    directory, in the common directory and, for a linked worktree, in the git
-    directory git reads (where git 2.53 keeps that worktree's HEAD and other
-    per-worktree refs), refuses too unless every entry in it is a regular
-    file, not a symbolic link or subdirectory, and every non-empty line of
-    its tables.list is a bare file name naming one of those files
-    (_reftable_refusal), naming the path: a reftable clone whose tables.list
-    and tables were linked to another reftable repository's read that
-    repository's refs and HEAD (3b620), as did a regular tables.list naming
+    directory) and a git-new-workdir checkout, which links another checkout's
+    objects, refs and hooks, refuse too, and the message names both; reftable
+    is checked because a reftable repository keeps its refs there, not in
+    refs. A reftable that is a directory, in the common directory and, for a
+    linked worktree, in the git directory git reads (where git 2.53 keeps
+    that worktree's HEAD and other per-worktree refs), refuses too unless
+    every entry in it is a regular file, not a symbolic link or subdirectory,
+    and every non-empty line of its tables.list is a bare file name naming
+    one of those files (_reftable_refusal), naming the path: a reftable clone
+    whose tables.list and tables were linked to another reftable repository's
+    read that repository's refs and HEAD, as did a regular tables.list naming
     ../../../<other>/.git/reftable/<table> or sub/<table> with sub/<table> a
     symbolic link, and a linked worktree whose own reftable entries were
     linked to another repository's had that repository's HEAD, and each
-    passed here and in pre-push (3b620 round 2). That linked worktree's
-    reftable as a symbolic link refused as an unregistered layout; since
-    round 4 the walk below refuses it, and the common reftable as one,
-    first, naming the path. Round 3:
-    every other linked worktree's reftable (worktrees/<id>/reftable in the
-    common directory) is checked the same way and refuses as a symbolic
-    link too, since git log --all, as lint-todo-staleness.py runs it, reads
-    each worktree's HEAD, and git rev-parse worktrees/<id>/HEAD from the
-    main checkout gave another repository's HEAD through such links while
-    this and pre-push passed (r2 review E1, W1); a worktrees directory that
-    exists but cannot be listed refuses. A reftable path that exists but is
-    not a directory, or that cannot be examined, refuses: only its absence
-    passes (r2 review E2). Round 4 (_link_refusal): the common directory's
-    worktrees directory (worktrees itself, each worktrees/<id> and
-    everything in each, to any depth) and its reftable directory are walked
-    without following links, and a symbolic link anywhere in them refuses,
-    naming the path, as does either top existing as something other than a
-    directory, a listing or lstat failing other than by absence, or the walk
-    passing _LINK_WALK_MAX_DEPTH levels or _LINK_WALK_MAX_ENTRIES entries.
-    git 2.53 read another repository's worktree HEAD and refs, from
-    git rev-parse and git log --all, through worktrees as a symbolic link to
-    that repository's worktrees directory, through worktrees/<id> as a
-    symbolic link to its worktree git directory (reftable and files
-    repositories), and through a files repository's worktrees/<id>/HEAD as a
-    symbolic link to its detached HEAD, and this and pre-push passed each
-    (r3 review). The one symbolic link git 2.53 was found to write there
-    passes: a files repository with the deprecated core.preferSymlinkRefs
-    makes a linked worktree's HEAD, and a per-worktree symbolic ref under
-    worktrees/<id>/refs, a link whose text is the ref it names (refs/heads/
-    <branch>), which git reads as that name and does not follow; with that
-    setting off, and in a reftable repository either way, worktree add (with
-    --detach, -b, --lock, --orphan and --relative-paths), checkout, commit,
-    bisect, lock, unlock, move, repair, prune, remove, pack-refs, gc,
-    maintenance and reftable auto-compaction made no symbolic link in either
-    tree. An entry or directory gone when examined (git worktree remove
-    deleting worktrees/<id> meanwhile) is absence, as a missing worktrees
-    directory is; pre-push refused a third of runs during one (r3 review).
-    Round 6 (r5 review E1): the common directory's refs directory is walked
-    the same way, to any depth, in a files or a reftable repository, with
-    the same bounds and absence rules, and a packed-refs there that is a
-    symbolic link refuses, naming the path (refs itself as a symbolic link
-    is not walked and refuses as an unregistered layout, as above). A
-    worktrees/<id>/HEAD link with
-    the permitted text refs/heads/foreign, while refs/heads/foreign was a
-    symbolic link to another repository's ref file, gave git that
-    repository's ref as the worktree's HEAD, and this and pre-push passed.
-    git 2.53 with core.preferSymlinkRefs writes a symbolic ref anywhere
-    under refs (refs/remotes/origin/HEAD from git clone, any git
-    symbolic-ref, at any depth) as a link whose text is the ref it names,
-    and pack-refs and gc leave it; such a link passes there, as under
-    worktrees/<id>/refs. More than _LINK_WALK_MAX_ENTRIES loose refs and
-    directories under refs refuse; git pack-refs --all brings them under,
-    and the refusal says so. Round 7 (r6 review E, W1 and N1): each ref git
-    keeps directly in the common directory under a fixed name
+    passed here and in pre-push in the earlier repository. That linked
+    worktree's reftable as a symbolic link refused as an unregistered layout;
+    the walk below now refuses it, and the common reftable as one, first,
+    naming the path. Every other linked worktree's reftable
+    (worktrees/<id>/reftable in the common directory) is checked the same way
+    and refuses as a symbolic link too, since git log --all, as
+    lint-todo-staleness.py runs it, reads each worktree's HEAD, and git
+    rev-parse worktrees/<id>/HEAD from the main checkout gave another
+    repository's HEAD through such links while this and pre-push passed in
+    the earlier repository; a worktrees directory that exists but cannot be
+    listed refuses. A reftable path that exists but is not a directory, or
+    that cannot be examined, refuses: only its absence passes. The common
+    directory's worktrees directory (worktrees itself, each worktrees/<id>
+    and everything in each, to any depth) and its reftable directory are
+    walked without following links (_link_refusal), and a symbolic link
+    anywhere in them refuses, naming the path, as does either top existing as
+    something other than a directory, a listing or lstat failing other than
+    by absence, or the walk passing _LINK_WALK_MAX_DEPTH levels or
+    _LINK_WALK_MAX_ENTRIES entries. git 2.53 read another repository's
+    worktree HEAD and refs, from git rev-parse and git log --all, through
+    worktrees as a symbolic link to that repository's worktrees directory,
+    through worktrees/<id> as a symbolic link to its worktree git directory
+    (reftable and files repositories), and through a files repository's
+    worktrees/<id>/HEAD as a symbolic link to its detached HEAD, and this and
+    pre-push passed each in the earlier repository. The one symbolic link git
+    2.53 was found to write there passes: a files repository with the
+    deprecated core.preferSymlinkRefs makes a linked worktree's HEAD, and a
+    per-worktree symbolic ref under worktrees/<id>/refs, a link whose text is
+    the ref it names (refs/heads/<branch>), which git reads as that name and
+    does not follow; with that setting off, and in a reftable repository
+    either way, worktree add (with --detach, -b, --lock, --orphan and
+    --relative-paths), checkout, commit, bisect, lock, unlock, move, repair,
+    prune, remove, pack-refs, gc, maintenance and reftable auto-compaction
+    made no symbolic link in either tree. An entry or directory gone when
+    examined (git worktree remove deleting worktrees/<id> meanwhile) is
+    absence, as a missing worktrees directory is; in the earlier repository
+    pre-push refused a third of runs during one. The common directory's refs
+    directory is walked the same way, to any depth, in a files or a reftable
+    repository, with the same bounds and absence rules, and a packed-refs
+    there that is a symbolic link refuses, naming the path (refs itself as a
+    symbolic link is not walked and refuses as an unregistered layout, as
+    above). A worktrees/<id>/HEAD link with the permitted text
+    refs/heads/foreign, while refs/heads/foreign was a symbolic link to
+    another repository's ref file, gave git that repository's ref as the
+    worktree's HEAD, and this and pre-push passed in the earlier repository.
+    git 2.53 with core.preferSymlinkRefs writes a symbolic ref anywhere under
+    refs (refs/remotes/origin/HEAD from git clone, any git symbolic-ref, at
+    any depth) as a link whose text is the ref it names, and pack-refs and gc
+    leave it; such a link passes there, as under worktrees/<id>/refs. More
+    than _LINK_WALK_MAX_ENTRIES loose refs and directories under refs refuse;
+    git pack-refs --all brings them under, and the refusal says so. Each ref
+    git keeps directly in the common directory under a fixed name
     (_TOP_LEVEL_REFS: HEAD, ORIG_HEAD, FETCH_HEAD, MERGE_HEAD,
     CHERRY_PICK_HEAD, REVERT_HEAD, BISECT_HEAD, REBASE_HEAD, AUTO_MERGE,
     BISECT_EXPECTED_REV, NOTES_MERGE_PARTIAL, NOTES_MERGE_REF and
-    MERGE_AUTOSTASH) and logs itself are examined with lstat, and a
-    symbolic link there refuses, naming the path, as does an lstat failing
-    other than by absence: git 2.53 rev-parse gave another repository's
-    commit through each of those names but HEAD as a symbolic link to
-    that repository's ref file or to a file holding its object name, and
-    another repository's reflog (HEAD@{1}, main@{1}) through logs as a link
-    to its logs, and this and pre-push passed each. A regular file, git's
+    MERGE_AUTOSTASH) and logs itself are examined with lstat, and a symbolic
+    link there refuses, naming the path, as does an lstat failing other than
+    by absence: git 2.53 rev-parse gave another repository's commit through
+    each of those names but HEAD as a symbolic link to that repository's ref
+    file or to a file holding its object name, and another repository's
+    reflog (HEAD@{1}, main@{1}) through logs as a link to its logs, and this
+    and pre-push passed each in the earlier repository. A regular file, git's
     own symbolic ref form ("ref: refs/heads/<branch>"), passes, and so does
     HEAD as a link whose text is a ref name (_SYMREF_LINK_TEXT), which git
     2.53 writes with core.preferSymlinkRefs and reads as that name; a linked
-    worktree's own HEAD, ORIG_HEAD and the like are in worktrees/<id>,
-    walked above. Round 8 (r7 review W1): NOTES_MERGE_REF, which git 2.53
-    with core.preferSymlinkRefs leaves as such a link (text refs/notes/<n>)
-    while a git notes merge is unfinished, passes as HEAD does, in the
-    common directory and at worktrees/<id>/NOTES_MERGE_REF
-    (_SYMREF_TOP_LEVEL); merge, cherry-pick, revert, rebase (--autostash
-    too), bisect, fetch and stash wrote no other link there. Round 8 (r7
-    review E1): an entry in the common directory named origin
+    worktree's own HEAD, ORIG_HEAD and the like are in worktrees/<id>, walked
+    above. NOTES_MERGE_REF, which git 2.53 with core.preferSymlinkRefs leaves
+    as such a link (text refs/notes/<n>) while a git notes merge is
+    unfinished, passes as HEAD does, in the common directory and at
+    worktrees/<id>/NOTES_MERGE_REF (_SYMREF_TOP_LEVEL); merge, cherry-pick,
+    revert, rebase (--autostash too), bisect, fetch and stash wrote no other
+    link there. An entry in the common directory named origin
     (_REF_PREFIX_ENTRIES), whatever it is, refuses, naming the path: git
-    rev-parse origin/main read a file main in a directory origin there, or
-    in another repository through a symbolic link origin, before
+    rev-parse origin/main read a file main in a directory origin there, or in
+    another repository through a symbolic link origin, before
     refs/remotes/origin/main, warning only that the name was ambiguous, and
     the PR gates take origin/<target> as their base; the gates also resolve
-    their base unambiguously (resolve_base_ref). Round 9 (r8 review W2):
-    a link git writes passes wherever its text is a ref name under refs/ by
-    git check-ref-format (_symref_link_text), not only one in the round-4
-    character class, so HEAD naming refs/heads/rel@2026 or refs/heads/café,
+    their base unambiguously (resolve_base_ref). A link git writes passes
+    wherever its text is a ref name under refs/ by git check-ref-format
+    (_symref_link_text), not only one in the character class the earlier
+    repository used, so HEAD naming refs/heads/rel@2026 or refs/heads/café,
     NOTES_MERGE_REF naming refs/notes/n@1 and a worktree HEAD naming
-    refs/heads/w@t pass. Round 9 (r8 review E1): what the walk of
-    worktrees/<id> or the check of its reftable finds absent, unexaminable
-    or unreadable part-way through (_Unsettled: a listing or lstat failing
-    other than by absence, a table tables.list names that is absent) is
-    looked at a second time (_second_look): worktrees/<id> gone, it is
-    skipped; still present, it is walked or checked once more and refuses
-    only if that look refuses. git worktree add and remove made those states
-    (pre-push refused 103 of 939 runs, this check 2, during them). A
-    symbolic link, a non-regular entry in a reftable, a tables.list line that
-    is not a bare name and the walk's bounds refuse at the first look.
-    Paths a
-    .git file, a
-    gitdir file or core.worktree spells are compared canonically, as pre-push
-    compares them: each must exist as spelled (_existing_realpath), so a
-    trailing slash on a file, a path through a missing component and a file
-    followed by /. or /.. refuse, here and in pre-push, whichever realpath(1)
-    build it runs (round 7; r6 review W1 and N4: uutils realpath 0.10.0
-    resolves the last two, and pre-push passed them).
+    refs/heads/w@t pass. What the walk of worktrees/<id> or the check of its
+    reftable finds absent, unexaminable or unreadable part-way through
+    (_Unsettled: a listing or lstat failing other than by absence, a table
+    tables.list names that is absent) is looked at a second time
+    (_second_look): worktrees/<id> gone, it is skipped; still present, it is
+    walked or checked once more and refuses only if that look refuses. git
+    worktree add and remove made those states (in the earlier repository,
+    pre-push refused 103 of 939 runs, this check 2, during them). A symbolic
+    link, a non-regular entry in a reftable, a tables.list line that is not a
+    bare name and the walk's bounds refuse at the first look. Paths a .git
+    file, a gitdir file or core.worktree spells are compared canonically, as
+    pre-push compares them: each must exist as spelled (_existing_realpath),
+    so a trailing slash on a file, a path through a missing component and a
+    file followed by /. or /.. refuse, here and in pre-push, whichever
+    realpath(1) build it runs (uutils realpath 0.10.0 resolves the last two,
+    and in the earlier repository pre-push passed them).
 
     git's repository-local variables (``git rev-parse --local-env-vars``)
-    that move what git reads refuse too (round 7). GIT_COMMON_DIR,
-    GIT_OBJECT_DIRECTORY, GIT_ALTERNATE_OBJECT_DIRECTORIES, GIT_GRAFT_FILE and
-    GIT_SHALLOW_FILE (_GIT_REDIRECT_VARIABLES) refuse by name, whatever their
-    value, before any read: git 2.53 exported none of them to a pre-push or
+    that move what git reads refuse too. GIT_COMMON_DIR, GIT_OBJECT_DIRECTORY,
+    GIT_ALTERNATE_OBJECT_DIRECTORIES, GIT_GRAFT_FILE and GIT_SHALLOW_FILE
+    (_GIT_REDIRECT_VARIABLES) refuse by name, whatever their value,
+    before any read: git 2.53 exported none of them to a pre-push or
     commit hook in any layout tried (a checkout, a subdirectory, a linked
     worktree, a separate git directory, a submodule, git -C, --git-dir,
-    --work-tree, -c and --no-replace-objects), so none is a value git chose,
-    and with GIT_OBJECT_DIRECTORY naming another repository's objects this
-    passed, as pre-push did, while git wrote objects there (r6 review E1). The
-    three git does export refuse only where they point away from
-    ``repo_root``: GIT_DIR (exported to the hooks of a linked worktree, a
-    submodule or a separate git directory) through the git-directory
-    comparison above; GIT_WORK_TREE (passed on from git --work-tree or the
-    caller) where ``git rev-parse --show-toplevel``, read the way the gate
-    runs git, is not ``repo_root``; and GIT_INDEX_FILE (exported to commit
-    hooks, naming index, index.lock or next-index-<pid>.lock in the git
-    directory git runs in) where the index ``git rev-parse
-    --path-format=absolute --git-path index`` gives is not directly in the
-    git directory git reads. The other seven moved nothing git reads when
-    set to values naming another repository (git 2.53): GIT_CONFIG affects
-    only git config, which is given --file here; GIT_CONFIG_PARAMETERS and
-    GIT_CONFIG_COUNT add runtime configuration, as git -c does, and
-    core.worktree is read from the git directory's own config file;
-    GIT_NO_REPLACE_OBJECTS and GIT_REPLACE_REF_BASE choose replace refs
-    within the repository; GIT_PREFIX names the caller's subdirectory; and
-    GIT_IMPLICIT_WORK_TREE=0 changed no read.
+    --work-tree, -c and --no-replace-objects), so none is a value git
+    chose, and in the earlier repository, with GIT_OBJECT_DIRECTORY naming
+    another repository's objects, this passed, as pre-push did, while
+    git wrote objects there. The three git does export refuse only where
+    they point away from ``repo_root``: GIT_DIR (exported to the hooks of a
+    linked worktree, a submodule or a separate git directory) through the
+    git-directory comparison above; GIT_WORK_TREE (passed on from git
+    --work-tree or the caller) where ``git rev-parse --show-toplevel``, read
+    the way the gate runs git, is not ``repo_root``; and GIT_INDEX_FILE
+    (exported to commit hooks, naming index, index.lock or
+    next-index-<pid>.lock in the git directory git runs in) where the index
+    ``git rev-parse --path-format=absolute --git-path index`` gives is not
+    directly in the git directory git reads. The other seven moved nothing
+    git reads when set to values naming another repository (git 2.53):
+    GIT_CONFIG affects only git config, which is given --file here;
+    GIT_CONFIG_PARAMETERS and GIT_CONFIG_COUNT add runtime configuration, as
+    git -c does, and core.worktree is read from the git directory's own
+    config file; GIT_NO_REPLACE_OBJECTS and GIT_REPLACE_REF_BASE choose
+    replace refs within the repository; GIT_PREFIX names the caller's
+    subdirectory; and GIT_IMPLICIT_WORK_TREE=0 changed no read.
 
     Known residuals, each passing here as it passes pre-push: a common
     directory whose objects, refs and reftable are its own directories but
     that takes another checkout's objects from deeper inside objects (which
     is not walked: a symbolic link there, or a pack), another checkout's
     refs through a loose ref or a packed-refs file that is a hard link,
-    through a tables.list
-    or table in reftable that is a hard link to another repository's (not
-    refused: st_nlink is not relied on to tell one from an ordinary table,
-    3b620, in the common directory's reftable or any linked worktree's), or
-    through objects/info/alternates; a file anywhere in the worktrees or
-    refs directory or a reftable that is a hard link to another repository's
-    (st_nlink is not relied on there either); a worktrees directory, a
-    worktrees/<id> or anything in one, a refs directory or anything in it,
-    or a reftable directory or table, that is a bind mount of another
-    repository's; a worktrees, refs or reftable tree changed between this
-    walk and git's read (a directory replaced by a symbolic link after its
-    lstat is listed through it, or a worktrees/<id> whose first look was
-    unsettled changed before the second); the common reftable read
-    part-way through a compaction at both its looks, and the linked
+    through a tables.list or table in reftable that is a hard link to
+    another repository's (not refused: st_nlink is not relied on to tell one
+    from an ordinary table, in the common directory's reftable or any linked
+    worktree's), or through objects/info/alternates; a file anywhere in the
+    worktrees or refs directory or a reftable that is a hard link to another
+    repository's (st_nlink is not relied on there either); a worktrees
+    directory, a worktrees/<id> or anything in one, a refs directory or
+    anything in it, or a reftable directory or table, that is a bind mount
+    of another repository's; a worktrees, refs or reftable tree changed
+    between this walk and git's read (a directory replaced by a symbolic
+    link after its lstat is listed through it, or a worktrees/<id> whose
+    first look was unsettled changed before the second); the common reftable
+    read part-way through a compaction at both its looks, and the linked
     worktree's own at its one look (a table removed meanwhile refuses, fail
     closed, where tables.list reads the same after, or changed at each of
-    _REFTABLE_LOOKS looks); and a .git
-    directory that is a bind mount
-    of another checkout's, which realpath does not reveal. In the common
+    _REFTABLE_LOOKS looks); and a .git directory that is a bind mount of
+    another checkout's, which realpath does not reveal. In the common
     directory, a _TOP_LEVEL_REFS file or logs that is a hard link or bind
     mount of another repository's, a symbolic link at any other name git
     reads as a ref if asked for it by name (git 2.53 rev-parse followed one
@@ -3307,16 +3283,15 @@ def require_own_git_dir(repo_root: Path, *, from_cwd: bool = False) -> str | Non
     <git-dir>/main before refs/heads/main; resolve_base_ref refuses such a
     base in the PR gates, but other callers of git are not covered), and a
     symbolic link below logs (logs/HEAD, logs/refs/...), which is not
-    walked, are not examined. A linked checkout whose .git file
-    names a second repository's worktrees/<id>, with that directory's gitdir
-    file changed to name the checkout's .git (r5 review E2), passes here and
-    in pre-push, and both then act on the second repository as the
-    checkout's own worktree. That state is reachable with git's own
-    commands: r6 review W (codex, git 2.53) reached the same passing state
-    with git worktree repair and with git worktree move. Local state cannot
-    tell it from a genuine worktree of the second repository moved by hand
-    to the checkout's path and fixed with git worktree repair (git 2.53),
-    whose .git file and gitdir file have the same form and whose
+    walked, are not examined. A linked checkout whose .git file names a
+    second repository's worktrees/<id>, with that directory's gitdir file
+    changed to name the checkout's .git, passes here and in pre-push, and
+    both then act on the second repository as the checkout's own worktree.
+    That state is reachable with git's own commands: git worktree repair and
+    git worktree move (git 2.53) each reached the same passing state. Local
+    state cannot tell it from a genuine worktree of the second repository
+    moved by hand to the checkout's path and fixed with git worktree repair
+    (git 2.53), whose .git file and gitdir file have the same form and whose
     worktrees/<id> holds the same files git worktree add made; git keeps no
     record of the path a worktree was added at, and the checkout keeps no
     history, index or config of its own to disagree (its index and HEAD are
@@ -3356,7 +3331,7 @@ def require_own_git_dir(repo_root: Path, *, from_cwd: bool = False) -> str | Non
     try:
         # git passes GIT_WORK_TREE on to hooks and names a file in the git
         # directory it runs in with GIT_INDEX_FILE, so each refuses only
-        # where it points away from repo_root (round 7).
+        # where it points away from repo_root.
         if "GIT_WORK_TREE" in os.environ:
             top = subprocess.check_output(["git", *here, "rev-parse", "--show-toplevel"],
                                           stdin=subprocess.DEVNULL).rstrip(b"\n")
@@ -3379,23 +3354,21 @@ def require_own_git_dir(repo_root: Path, *, from_cwd: bool = False) -> str | Non
                     f"git rev-parse --git-common-dir printed {os.fsdecode(common)!r}, not an "
                     f"absolute path")
         common = os.path.realpath(common)
-        # A reftable directory of its own still gives git another
-        # repository's refs through an entry there that is a symbolic link
-        # (3b620), a tables.list line that is a path out of it, or a table in
-        # a subdirectory (3b620 round 2). A linked worktree keeps its HEAD and
-        # other per-worktree refs in reftable in its own git directory, and
-        # git log --all (lint-todo-staleness.py) reads every linked
-        # worktree's HEAD, so each worktrees/<id>/reftable is checked too
-        # (3b620 round 3). A symbolic link anywhere in the worktrees
-        # directory (worktrees itself, worktrees/<id>, a files repository's
+        # A reftable directory of its own still gives git another repository's
+        # refs through an entry there that is a symbolic link, a tables.list
+        # line that is a path out of it, or a table in a subdirectory. A linked
+        # worktree keeps its HEAD and other per-worktree refs in reftable in its
+        # own git directory, and git log --all (lint-todo-staleness.py) reads
+        # every linked worktree's HEAD, so each worktrees/<id>/reftable is
+        # checked too. A symbolic link anywhere in the worktrees directory
+        # (worktrees itself, worktrees/<id>, a files repository's
         # worktrees/<id>/HEAD) or the common reftable gave git another
-        # repository's worktree refs too (r3 review), so those trees are
-        # walked for any symbolic link first (3b620 round 4). So is the
-        # common refs directory: a permitted worktrees/<id>/HEAD link naming
-        # refs/heads/<b>, with refs/heads/<b> a link to another repository's
-        # ref file, gave git that ref (r5 review E1); a packed-refs link too.
-        # refs itself as a link is left to the registration check below,
-        # which names the git-new-workdir layout.
+        # repository's worktree refs too, so those trees are walked for any
+        # symbolic link first. So is the common refs directory: a permitted
+        # worktrees/<id>/HEAD link naming refs/heads/<b>, with refs/heads/<b> a
+        # link to another repository's ref file, gave git that ref; a
+        # packed-refs link too. refs itself as a link is left to the
+        # registration check below, which names the git-new-workdir layout.
         worktrees = os.path.join(common, b"worktrees")
         refs = os.path.join(common, b"refs")
         for top, label, symrefs in (
@@ -3415,11 +3388,10 @@ def require_own_git_dir(repo_root: Path, *, from_cwd: bool = False) -> str | Non
                     f".claude/skills/corpus-management/tools/git-hooks/pre-push refuses the same layout")
         # A symbolic link at ORIG_HEAD, FETCH_HEAD or another fixed-name ref
         # in the common directory gave git rev-parse another repository's
-        # commit, and logs as one its reflog (3b620 round 7; r6 review E, W1,
-        # N1). HEAD or NOTES_MERGE_REF as a link whose text is a ref name is
-        # git's own (core.preferSymlinkRefs) and passes (round 8). An entry
-        # named origin, whatever it is, refuses: git reads origin/<b> there
-        # before refs/remotes (round 8, r7 review E1).
+        # commit, and logs as one its reflog. HEAD or NOTES_MERGE_REF as a
+        # link whose text is a ref name is git's own (core.preferSymlinkRefs)
+        # and passes. An entry named origin, whatever it is, refuses: git
+        # reads origin/<b> there before refs/remotes.
         for name in (*_TOP_LEVEL_REFS, b"logs", *_REF_PREFIX_ENTRIES):
             path = os.path.join(common, name)
             try:
@@ -3463,19 +3435,18 @@ def require_own_git_dir(repo_root: Path, *, from_cwd: bool = False) -> str | Non
             refusal = _reftable_refusal(os.path.join(git_dir, b"reftable"), label, repo_root)
             # The common reftable gets one more look where the first was
             # unsettled, as each worktrees/<id>'s does: git worktree add -b
-            # compacts it, and its tables.list named a table just removed
-            # (3b620 round 12, r11 review W). pre-push settles it. The
-            # linked worktree's own reftable gets no second look here, as
-            # pre-push checks it once outside settle: within either look a
-            # tables.list that changed is read again (_reftable_refusal), and
-            # what is still unsettled refuses, fail closed (round 13, r12
-            # review N2; test_linked_worktree_reftable_looked_at_once).
+            # compacts it, and its tables.list named a table just removed.
+            # pre-push settles it. The linked worktree's own reftable gets no
+            # second look here, as pre-push checks it once outside settle:
+            # within either look a tables.list that changed is read again
+            # (_reftable_refusal), and what is still unsettled refuses, fail
+            # closed (test_linked_worktree_reftable_looked_at_once).
             if isinstance(refusal, _Unsettled) and git_dir == common:
                 refusal = _reftable_refusal(os.path.join(git_dir, b"reftable"), label, repo_root)
             if refusal:
                 return refusal
         # Every other linked worktree's reftable, under the worktrees race
-        # rule (_second_look, 3b620 round 9).
+        # rule (_second_look).
         for other in others:
             if os.path.realpath(other) == current:
                 continue
@@ -3487,12 +3458,11 @@ def require_own_git_dir(repo_root: Path, *, from_cwd: bool = False) -> str | Non
                                                          repo_root))
             if refusal:
                 return refusal
-        # git reads objects and refs from the common directory: a commondir
-        # file naming another checkout's git directory, or objects or refs
-        # there as symbolic links into one, gives git that checkout's while it
-        # reports this git directory (r5 review W1). A reftable repository
-        # keeps its refs in reftable (r6 review N3), and a linked worktree its
-        # per-worktree refs in its own git directory's (3b620 round 2).
+        # git reads objects and refs from the common directory: a commondir file
+        # naming another checkout's git directory, or objects or refs there as
+        # symbolic links into one, gives git that checkout's while it reports
+        # this git directory. A reftable repository keeps its refs in reftable,
+        # and a linked worktree its per-worktree refs in its own git directory's.
         if os.path.islink(dot_git) or os.path.islink(os.path.join(current, b"reftable")) or any(
                 os.path.islink(os.path.join(common, part)) for part in (b"objects", b"refs", b"reftable")):
             pass
@@ -3537,19 +3507,18 @@ def require_own_git_dir(repo_root: Path, *, from_cwd: bool = False) -> str | Non
     return None
 
 
-# A base the PR gates accept from their caller (3b620 round 8): a name with
-# ~<n> and ^<n> steps after it. Round 9 (r8 review E, W1): git, not a
-# character class, judges the name (resolve_base_ref).
+# A base the PR gates accept from their caller: a name with ~<n> and ^<n>
+# steps after it; git, not a character class, judges the name (resolve_base_ref).
 _BASE_REVISION = re.compile(r"(?P<name>[^~^]*)(?P<steps>(?:[~^][0-9]*)*)")
 _HEX_NAME = re.compile(r"[0-9a-fA-F]+")
 # The width of a full object name in each object format git 2.53 knows
-# (git rev-parse --show-object-format, 3b620 round 10).
+# (git rev-parse --show-object-format).
 _OBJECT_NAME_WIDTH = {b"sha1": 40, b"sha256": 64}
 
 
 def _base_validation_refusal(base: str, repo_root: Path, call: str, exc: OSError) -> str:
     """resolve_base_ref's refusal when a validation call fails to start
-    with an OSError other than git being absent (3b620 round 17)."""
+    with an OSError other than git being absent."""
     return (f"git could not be run validating the base {base!r} (git {call}): {exc}; it "
             f"cannot be confirmed to name this script's repository {repo_root}'s own commit")
 
@@ -3558,8 +3527,7 @@ def _base_validation_failure(base: str, repo_root: Path, results) -> str:
     """resolve_base_ref's refusal when git rev-parse --symbolic-full-name
     exits nonzero and git rev-parse --verify, of the name or of its
     ^{commit} form, does not give git's own answer for a name it does not
-    know; ``results`` is ``(call, proc)`` for each call made (3b620 rounds
-    18 and 19)."""
+    know; ``results`` is ``(call, proc)`` for each call made."""
     detail = "; ".join(
         f"git {call} exited {proc.returncode}, git said: "
         f"{proc.stderr.decode('utf-8', 'replace').strip() or '(nothing)'}"
@@ -3570,90 +3538,87 @@ def _base_validation_failure(base: str, repo_root: Path, results) -> str:
 
 
 def resolve_base_ref(base: str, repo_root: Path, *, from_cwd: bool = False) -> tuple[str, str | None]:
-    """The base a PR gate should hand git, and a refusal message or None
-    (3b620 round 8, r7 review E1).
+    """The base a PR gate should hand git, and a refusal message or None.
 
     git rev-parse origin/main read <git-dir>/origin/main, a file in a
     directory origin or a file through a symbolic link origin, before
     refs/remotes/origin/main, and warned only that the name was ambiguous;
-    a single-level name (<git-dir>/main before refs/heads/main) behaved the
-    same. So a base that names a ref is resolved here with ``git rev-parse
-    --symbolic-full-name`` (core.warnAmbiguousRefs forced on, read the way
-    the gate runs git: ``-C repo_root``, or the current directory with
-    ``from_cwd``) and handed back fully qualified, any ~<n> or ^<n> steps
-    kept; it refuses where git finds the name ambiguous (git then prints
-    nothing) or resolves it to anything but a ref under refs/ (a name found
-    only in the git directory). A full object name and HEAD, examined by
-    require_own_git_dir, pass unchanged. A name of hexadecimal digits that
-    is not a full object name (an abbreviated object name, unique or
-    ambiguous, or a ref named that way) refuses before any ref lookup,
-    telling the caller to pass a fully qualified ref or a full object name
-    (3b620 round 19). Any other form (a reflog or range expression, a name
+    a single-level name (<git-dir>/main before refs/heads/main) behaved
+    the same. So a base that names a ref is resolved here with ``git
+    rev-parse --symbolic-full-name`` (core.warnAmbiguousRefs forced on,
+    read the way the gate runs git: ``-C repo_root``, or the current
+    directory with ``from_cwd``) and handed back fully qualified, any ~<n>
+    or ^<n> steps kept; it refuses where git finds the name ambiguous (git
+    then prints nothing) or resolves it to anything but a ref under refs/
+    (a name found only in the git directory). A full object name and HEAD,
+    examined by require_own_git_dir, pass unchanged. A name of hexadecimal
+    digits that is not a full object name (an abbreviated object name,
+    unique or ambiguous, or a ref named that way) refuses before any ref
+    lookup, telling the caller to pass a fully qualified ref or a full
+    object name. Any other form (a reflog or range expression, a name
     starting with "-") refuses, and a name git resolves to no ref (a
-    describe-style <tag>-<n>-g<hex> name) refuses as above. Where rev-parse
-    --symbolic-full-name exits nonzero, the base passes unchanged only when
-    ``git rev-parse --verify --quiet --end-of-options <name>`` and then
-    ``git rev-parse --verify --quiet --end-of-options <name>^{commit}``,
-    each read the same way, both exit exactly 1 with empty stdout and empty
-    stderr (git does not know the name), so each gate keeps its own
-    handling of a missing base; any other result of any of these calls (a
-    negative return code from a signal, 128 or any other code, output, or
-    an OSError other than FileNotFoundError or PermissionError) refuses,
-    naming the calls and their return codes or the error (3b620 rounds 18
-    and 19). At the check-ref-format, rev-parse --symbolic-full-name and
-    both rev-parse --verify calls, a git that cannot be
-    found or executed (FileNotFoundError or PermissionError) passes the
-    base unchanged, so the calling gate's own git-failure handling names it;
-    any other OSError (EAGAIN, ENOMEM, EMFILE and the like, a git that
-    exists but failed to start) refuses, naming the call and the error
-    (3b620 round 17). The
-    gates build their default base fully qualified
+    describe-style <tag>-<n>-g<hex> name) refuses as above. Where
+    rev-parse --symbolic-full-name exits nonzero, the base passes
+    unchanged only when ``git rev-parse --verify --quiet --end-of-options
+    <name>`` and then ``git rev-parse --verify --quiet --end-of-options
+    <name>^{commit}``, each read the same way, both exit exactly 1 with
+    empty stdout and empty stderr (git does not know the name), so each
+    gate keeps its own handling of a missing base; any other result of any
+    of these calls (a negative return code from a signal, 128 or any other
+    code, output, or an OSError other than FileNotFoundError or
+    PermissionError) refuses, naming the calls and their return codes or
+    the error. At the check-ref-format, rev-parse --symbolic-full-name
+    and both rev-parse --verify calls, a git that cannot be found or
+    executed (FileNotFoundError or PermissionError) passes the base
+    unchanged, so the calling gate's own git-failure handling names
+    it; any other OSError (EAGAIN, ENOMEM, EMFILE and the like, a
+    git that exists but failed to start) refuses, naming the call
+    and the error. The gates build their default base fully qualified
     (refs/remotes/origin/<target>), which git reads as that ref and no
     other, and resolve it here as well.
 
-    Round 9 (r8 review E, W1): the round-8 character class refused ref
-    names git creates and resolves (feature@v1, topic#123, a!b, a'b,
-    pct%20, café) and an uppercase full object name, so a PR into such a
-    branch was refused, from GITHUB_BASE_REF too. Any name but a full
-    object name must pass git check-ref-format --allow-onelevel (which
-    refuses "..", "@{", ":", "@" alone and the other forms git never takes
-    as a ref name) and must not start with "-"; the name is then resolved
-    as above.
+    In the earlier repository, a character class refused ref names git
+    creates and resolves (feature@v1, topic#123, a!b, a'b, pct%20, café)
+    and an uppercase full object name, so a PR into such a branch was
+    refused, from GITHUB_BASE_REF too. Any name but a full object name
+    must pass git check-ref-format --allow-onelevel (which refuses "..",
+    "@{", ":", "@" alone and the other forms git never takes as a ref
+    name) and must not start with "-"; the name is then resolved as above.
 
-    Round 10 (r9 review E1): a full object name is hexadecimal digits, in
-    either case, at the width of the repository's object format as ``git
-    rev-parse --show-object-format`` reports it, read the way the gate runs
-    git (40 for sha1, 64 for sha256). git 2.53 reads hexadecimal digits at
-    any other width as a ref name first: in a sha1 repository a symbolic
-    link at <git-dir>/<64 digits> to another repository's ref file gave git
+    A full object name is hexadecimal digits, in either case, at the width
+    of the repository's object format as ``git rev-parse
+    --show-object-format`` reports it, read the way the gate runs git (40
+    for sha1, 64 for sha256). git 2.53 reads hexadecimal digits at any
+    other width as a ref name first: in a sha1 repository a symbolic link
+    at <git-dir>/<64 digits> to another repository's ref file gave git
     rev-parse that repository's commit, as did <git-dir>/<40 digits> in a
-    sha256 repository, and round 9 passed both unchanged. Such a name, or
-    any where the object format cannot be read, was a ref name here; it
-    refuses since round 19, as above.
+    sha256 repository, and in the earlier repository this check passed
+    both unchanged. Such a name, or any where the object format cannot be
+    read, was then a ref name here; it now refuses, as above.
 
-    Round 17 (r16 reviews): any OSError at check-ref-format or rev-parse
-    --symbolic-full-name passed the base unchanged, so a transient spawn
-    failure on a validation call let an unvalidated base reach the gate's
-    merge-base call while git otherwise ran; only a git that cannot be
-    found or executed passes it now, as above.
+    In the earlier repository, any OSError at check-ref-format or
+    rev-parse --symbolic-full-name passed the base unchanged, so a
+    transient spawn failure on a validation call let an unvalidated base
+    reach the gate's merge-base call while git otherwise ran; only a git
+    that cannot be found or executed passes it now, as above.
 
-    Round 18 (r17 reviews): any nonzero exit of rev-parse
+    In the earlier repository, any nonzero exit of rev-parse
     --symbolic-full-name passed the base unchanged, a git killed by a
     signal (a negative return code) or exiting 128 on an internal error as
     well as a name git does not know, so the unqualified base reached the
-    gate's merge-base call; only git's own unknown-name answer at rev-parse
-    --verify passes it now, as above. In git 2.53 that answer is exit 1
-    with no output, where a known name and a unique abbreviated object name
-    exit 0 printing the object name.
+    gate's merge-base call; only git's own unknown-name answer at
+    rev-parse --verify passes it now, as above. In git 2.53 that answer is
+    exit 1 with no output, where a known name and a unique abbreviated
+    object name exit 0 printing the object name.
 
-    Round 19 (r18 review): git 2.53's rev-parse --verify --quiet gives the
-    same answer, exit 1 with no output, for an abbreviated object name
-    whose prefix a commit and another object share (8569 in this
-    repository), so round 18 passed <prefix>~1 unchanged and the gate's
-    merge-base call resolved it. Hexadecimal digits that are not a full
-    object name now refuse before any ref lookup, and an unknown name must
-    also fail rev-parse --verify --quiet <name>^{commit}, where git
-    resolves such a prefix to its commit and exits 0, as above."""
+    git 2.53's rev-parse --verify --quiet gives the same answer, exit 1 with
+    no output, for an abbreviated object name whose prefix a commit and
+    another object share (a four-digit prefix), so in the earlier repository
+    this check passed <prefix>~1 unchanged and the gate's merge-base
+    call resolved it. Hexadecimal digits that are not a full object name
+    now refuse before any ref lookup, and an unknown name must also fail
+    rev-parse --verify --quiet <name>^{commit}, where git resolves such a
+    prefix to its commit and exits 0, as above."""
     match = _BASE_REVISION.fullmatch(base)
     name = match.group("name") if match else ""
     here = [] if from_cwd else ["-C", str(repo_root)]
@@ -3669,17 +3634,16 @@ def resolve_base_ref(base: str, repo_root: Path, *, from_cwd: bool = False) -> t
     # Hexadecimal digits that are not a full object name refuse before any
     # ref lookup: git 2.53 reads them as a ref name first and, where the
     # prefix is shared by objects of two types, rev-parse --verify --quiet
-    # exits 1 with no output, its unknown-name answer (3b620 round 19).
+    # exits 1 with no output, its unknown-name answer.
     if _HEX_NAME.fullmatch(name) and not full_object:
         return base, (f"the base {base!r} is hexadecimal digits but not a full object name "
                       f"(an abbreviated object name, which git reads as a ref name first and "
                       f"may find ambiguous), so it cannot be confirmed to name this script's "
                       f"repository {repo_root}'s own commit; pass a fully qualified ref, for "
                       f"example refs/remotes/origin/main, or a full object name")
-    # The leading "-" test is redundant with git check-ref-format, which
-    # takes such a name for an option and exits 129 (git 2.53, r9 review
-    # W2: "-", "-x", "-main", "--", "--branch", "--normalize", "--print");
-    # kept so no base reaches git as an option.
+    # The leading "-" test is redundant with git check-ref-format, which takes such a
+    # name for an option and exits 129 (git 2.53: "-", "-x", "-main", "--", "--branch",
+    # "--normalize", "--print"); kept so no base reaches git as an option.
     valid = bool(name) and not name.startswith("-")
     if valid and name != "HEAD" and not full_object:
         try:
@@ -3688,12 +3652,11 @@ def resolve_base_ref(base: str, repo_root: Path, *, from_cwd: bool = False) -> t
         except (FileNotFoundError, PermissionError):
             # git that cannot be found or executed passes the base
             # unchanged, as the docstring says, so the gate's own
-            # git-failure handling names it (D13 refuses with exit 2, 3b572;
-            # 3b620 round 16).
+            # git-failure handling names it (D13 refuses with exit 2).
             return base, None
         except OSError as exc:
-            # Any other OSError (a transient spawn failure) refuses: the
-            # base was never validated (3b620 round 17).
+            # Any other OSError (a transient spawn failure) refuses:
+            # the base was never validated.
             return base, _base_validation_refusal(base, repo_root, "check-ref-format", exc)
     if not valid:
         return base, (f"the base {base!r} is not a full object name, HEAD or a ref name (each "
@@ -3715,7 +3678,7 @@ def resolve_base_ref(base: str, repo_root: Path, *, from_cwd: bool = False) -> t
     if proc.returncode != 0:
         # Only git's own answer for a name it does not know passes the base
         # unchanged, to the gate's merge-base handling; a signal, an
-        # internal error or a name git knows refuses (3b620 round 18).
+        # internal error or a name git knows refuses.
         try:
             check = subprocess.run(["git", *here, "rev-parse", "--verify", "--quiet",
                                     "--end-of-options", name],
@@ -3727,7 +3690,7 @@ def resolve_base_ref(base: str, repo_root: Path, *, from_cwd: bool = False) -> t
         results = (("rev-parse --symbolic-full-name", proc), ("rev-parse --verify", check))
         if check.returncode == 1 and not check.stdout and not check.stderr:
             # An ambiguous object name gives the same answer; peeled to a
-            # commit, git picks the commit and exits 0 (3b620 round 19).
+            # commit, git picks the commit and exits 0.
             try:
                 peeled = subprocess.run(["git", *here, "rev-parse", "--verify", "--quiet",
                                          "--end-of-options", name + "^{commit}"],
@@ -3751,19 +3714,19 @@ def resolve_base_ref(base: str, repo_root: Path, *, from_cwd: bool = False) -> t
     return os.fsdecode(full) + steps, None
 
 
-# --- TODO index-format parsing (PR-1 rework, 2026-08) -----------------------
+# --- TODO index-format parsing ----------------------------------------------
 # .working/TODO.md is an INDEX of ``| <id> | <title> | <tags> |`` rows under ``## Priority
-# N`` bands; the per-item detail lives in the PRIVATE sibling's TODO-REFERENCE.md
-# (relocated there in the 2026-08 migration) as ``### <id>
-# <title>`` blocks. The private P-TODO.md keeps the older ``### <id>`` section
-# shape until its own consolidation. These helpers parse the index form so every
-# backlog reader shares one tested parser rather than re-deriving the grammar.
+# N`` bands; the per-item detail lives in the PRIVATE sibling's TODO-REFERENCE.md as
+# ``### <id> <title>`` blocks. A backlog file may still hold the legacy ``### <id>``
+# section shape, which has_todo_index_header tells apart from the index form. These
+# helpers parse the index form so every backlog reader shares one tested parser rather
+# than re-deriving the grammar.
 
 TODO_ID_RE = re.compile(
     r"^(?:P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+)+(?:\.[a-z]|[a-z])?|TF-\d+)$"
 )
 
-# '**Next item number: 3.110.**', optionally a '- **...** (note)' list item.
+# '**Next item number: N.M.**', optionally a '- **...** (note)' list item.
 TODO_COUNTER_RE = re.compile(
     r"^\s*-?\s*\*\*Next item number:\s*((?:\d+\.\d+)|TF-\d+)\.\*\*"
 )
@@ -3806,13 +3769,13 @@ def todo_index_ids(text: str) -> set[str]:
 def resolve_todo_reference(repo_root: "Path | None" = None) -> "Path | None":
     """The TODO detail file (``TODO-REFERENCE.md``), private-first, or ``None``.
 
-    Post-2026-08 migration the per-item DETAIL lives in the private sibling
-    (``grc_library_private/TODO-REFERENCE.md``); the public ``.working/TODO.md`` is an
-    index-only roadmap. Resolution: the private sibling's copy if present, else
-    the legacy public ``<repo>/TODO-REFERENCE.md`` (a pre-migration or adopter
-    clone), else ``None``. A detail-reading backlog gate routes through this and
-    no-ops on the detail when it returns ``None`` (public CI / adopter clone),
-    scanning only the public index; the maintainer's run reads the private copy.
+    The per-item DETAIL lives in the private sibling (``TODO-REFERENCE.md`` at
+    its root); the public ``.working/TODO.md`` is an index-only roadmap.
+    Resolution: the private sibling's copy if present, else the legacy public
+    ``<repo>/TODO-REFERENCE.md`` (an adopter or older clone), else ``None``. A
+    detail-reading backlog gate routes through this and no-ops on the detail
+    when it returns ``None`` (public CI / adopter clone), scanning only the
+    public index; a run whose private sibling holds a copy reads that copy.
     """
     root = (repo_root or REPO_ROOT).resolve()
     # scope the private-sibling lookup to THIS root (not the global sibling), so an
@@ -3838,13 +3801,13 @@ def has_todo_index_header(text: str) -> bool:
     """
     in_fence = False
     for line in text.splitlines():
-        if is_fence_line(line):   # 3b83: the shared predicate, not a private copy of it
-            in_fence = not in_fence   # F1793-11: skip fenced example tables
+        if is_fence_line(line):   # the shared predicate, not a private copy of it
+            in_fence = not in_fence   # skip fenced example tables
             continue
         if in_fence:
             continue
         s = line.strip()
-        # F1793-10: a header row STARTS with a pipe; the TERMINAL pipe is not
+        # A header row STARTS with a pipe; the TERMINAL pipe is not
         # required (a header missing it is still an index header, and
         # find_malformed_index_rows flags the malformation). Requiring it let a
         # malformed header silently misclassify an index file as legacy, hiding
@@ -3858,7 +3821,7 @@ def has_todo_index_header(text: str) -> bool:
 
 
 class PathContainmentError(ValueError):
-    """A supplied path segment cannot be safely joined beneath its base (3b295)."""
+    """A supplied path segment cannot be safely joined beneath its base."""
 
     refusal = True
 

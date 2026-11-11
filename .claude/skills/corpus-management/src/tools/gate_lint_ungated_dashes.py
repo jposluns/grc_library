@@ -18,9 +18,9 @@ spans, so a literal glyph is prose and stays flagged; the FUNCTIONAL dash litera
 linters themselves are written as Unicode escapes, so they are not literal glyphs and never
 match.
 
-Engine/wrapper split (compile PR-8): this engine carries the PURE check (``DASH``,
+Engine/wrapper split: this engine carries the PURE check (``DASH``,
 ``INLINE_CODE`` = the shared ``aiqt_corpus.CODE_SPAN_RE``, the shared fence predicate
-``aiqt_corpus.is_fence_line`` (3b83: it replaced the private ``FENCE`` regex, so a marker
+``aiqt_corpus.is_fence_line`` (it replaced the private ``FENCE`` regex, so a marker
 indented four or more columns is content here exactly as it is to the shared iterator),
 ``strip_code``, ``scan_text``, ``scan_file``), the ``pure_self_test_checks`` that exercise that check, and a
 ``run`` that iterates the given files and reports. The project wrapper
@@ -48,7 +48,7 @@ except ImportError as exc:  # fail loud: broken setup, never silently worked aro
 DASH = re.compile("[\u2014\u2013]")
 # Inline-code span: a run of N backticks, shortest content, closing run of N backticks.
 INLINE_CODE = CODE_SPAN_RE
-# Fence toggling is the shared predicate (3b83): three backticks or tildes after at most
+# Fence toggling is the shared predicate: three backticks or tildes after at most
 # three spaces of indent, exactly what aiqt_corpus.iter_non_code_lines toggles on, so this
 # gate and the shared iterator agree on which lines a fence hides.
 

@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """One-way narrative authority-boundary - pack engine.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A; narrative-family):
-the PURE scan (the link regexes + _resolves_into_narrative
-+ check_file + check_taxonomy) is the source of record here in the pack, moved verbatim
-from the grc gate. The narrative root and its two derived mention regexes are supplied
-by the adopter via configure(ref), so the engine's LOGIC is narrative-root-agnostic (its
-finding-message text and internal docstrings carry the configured root name literally, a
-byte-identity residue of the verbatim transfer); the grc
-wrapper (.claude/skills/corpus-management/tools/lint-narrative-authority-boundary.py) supplies them + the corpus scan
-scope (iter_markdown_files), configures the engine, and keeps the self-test, main,
-module-global shims (check_file / check_taxonomy), and the exit codes.
+Engine/wrapper split (narrative-family): the PURE scan (the link regexes
++ _resolves_into_narrative + check_file + check_taxonomy) is the source of
+record here in the pack, moved verbatim from the grc gate. The narrative
+root and its two derived mention regexes are supplied by the adopter via
+configure(ref), so the engine's LOGIC is narrative-root-agnostic (its
+finding-message text and internal docstrings carry the configured root name
+literally, a byte-identity residue of the verbatim transfer); the grc wrapper
+(.claude/skills/corpus-management/tools/lint-narrative-authority-boundary.py) supplies
+them + the corpus scan scope (iter_markdown_files), configures the engine, and keeps the
+self-test, main, module-global shims (check_file / check_taxonomy), and the exit codes.
 """
 
 from __future__ import annotations
@@ -63,7 +63,7 @@ EXTERNAL = re.compile(r"^(https?:|mailto:|tel:|ftp:|#)")
 # not ``]:``) or a body reference ``[text][label]``, so there is no double-count.
 # 0-3 leading spaces only (4+ is an indented code block, not a link def), an
 # optional blockquote prefix (a blockquoted ref-def still renders a link), then
-# the label. Fenced blocks are scanned too (fail closed, 3b54).
+# the label. Fenced blocks are scanned too (fail closed).
 REF_DEF_RE = re.compile(r"^ {0,3}(?:>[ \t]?)*\[[^\]]+\]:\s*<?([^\s>]+)")
 
 def _resolves_into_narrative(source: Path, target: str, root: Path) -> bool:
@@ -86,7 +86,7 @@ def check_file(path: Path, root: Path = REPO_ROOT) -> list[tuple[int, str]]:
     text = read_text_safe(path)
     if text is None:
         # Fail LOUD, not open: an unreadable corpus file cannot be cleared of
-        # executive/ references (the 1.3a fail-loud lesson).
+        # executive/ references.
         return [(0, "not readable / not utf-8 (cannot be cleared of executive/ references; fail loud)")]
     findings: list[tuple[int, str]] = []
 
@@ -103,8 +103,9 @@ def check_file(path: Path, root: Path = REPO_ROOT) -> list[tuple[int, str]]:
             )
 
     # LINK check: any markdown link resolving into the root executive/ tree.
-    # FAIL CLOSED (3b54, the gate-100 precedent): fenced code blocks are scanned too, so no block
-    # structure can hide a corpus-to-narrative link; measured cost on the live corpus: zero.
+    # FAIL CLOSED (the gate-100 precedent): fenced code blocks are scanned too, so no block
+    # structure can hide a corpus-to-narrative link; measured cost on the earlier
+    # repository's corpus was zero.
     for lineno, raw in enumerate(text.splitlines(), 1):
         for m in LINK_RE.finditer(raw):
             target = m.group(1)

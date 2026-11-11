@@ -8,17 +8,19 @@ its catalogue count, and an ISO 31000 clause number outside the standard's claus
 set. ``scan_file`` returns a per-file list of ``Finding`` records; the wrapper's
 ``main`` aggregates them across the corpus.
 
-Engine/wrapper split (SHARED/SAFETY lane PR-43, Pattern A + keyword-parameter
-variant): this engine carries the citation regexes, the ISO-clause helper, the
-``Finding`` dataclass, and the per-file ``scan_file``. The COBIT/ISO reference
-data (``COBIT_OBJECTIVES``, ``COBIT_PRACTICE_COUNTS``, ``ISO31000_CLAUSES``) is grc
-reference data shared with the COBIT title-text gate, so it stays wrapper-side in
-``.claude/skills/corpus-management/tools/cobit_iso31000_reference.py`` and is threaded in as the three keyword
-parameters ``cobit_objectives`` / ``cobit_practice_counts`` / ``iso31000_clauses``.
-The project wrapper (``.claude/skills/corpus-management/tools/lint-cobit-iso31000-citations.py``) supplies the grc
-scan scope, the exempt-file set, and those constants, and keeps a thin module-global
-``scan_file`` shim delegating here so the scan-scope regression test (which patches
-``mod.scan_file`` and runs ``main``) observes the original signature and behaviour.
+Engine/wrapper split: this engine carries the citation regexes,
+the ISO-clause helper, the ``Finding`` dataclass, and the per-file
+``scan_file``. The COBIT/ISO reference data (``COBIT_OBJECTIVES``,
+``COBIT_PRACTICE_COUNTS``, ``ISO31000_CLAUSES``) is grc reference
+data shared with the COBIT title-text gate, so it stays wrapper-side
+in ``.claude/skills/corpus-management/tools/cobit_iso31000_reference.py``
+and is threaded in as the three keyword parameters ``cobit_objectives``
+/ ``cobit_practice_counts`` / ``iso31000_clauses``. The project wrapper
+(``.claude/skills/corpus-management/tools/lint-cobit-iso31000-citations.py``)
+supplies the grc scan scope, the exempt-file set, and those constants,
+and keeps a thin module-global ``scan_file`` shim delegating here
+so the scan-scope regression test (which patches ``mod.scan_file``
+and runs ``main``) observes the original signature and behaviour.
 The engine's ``scan_file`` is scope-free and repository-root-free.
 
 Exit codes (the wrapper returns these): 0 clean; 1 one or more fabricated citations.

@@ -13,7 +13,7 @@ recognized stale, unregistered, noncanonical and unpinned citations.
 Ambiguity, candidate forms and unresolved editions remain review inventories.
 coverage_report also accepts wrapper-validated historical-context declarations;
 the engine masks only the declared occurrences inside one bound sentence, and a
-declaration that does not bind blocks in every mode (3b75).
+declaration that does not bind blocks in every mode.
 identity_counts, ratchet and count_summary let a project hold a per-identity
 count that may only fall (the grc wrapper ratchets UNPINNED per standard);
 the baseline, its file and its failure policy are the wrapper's.
@@ -27,7 +27,7 @@ Discovery reads a NIST SP 800-63 family revision suffix as an edition
 identity_key() does not: identity_key("NIST SP 800-63B-4") stays
 "nist sp 800-63b-4", so a register row or bare exception written in that
 publisher form never matches a discovered citation; write it without the
-suffix (3b425). identity_key() is left unchanged because other callers
+suffix. identity_key() is left unchanged because other callers
 (.claude/skills/corpus-management/tools/check-alignment-register-on-pr.py, .web/build.py) key table headers,
 aliases and name lists with it.
 
@@ -86,7 +86,7 @@ def compile_entry_patterns(
             # left intact.
             # A marker may carry the standard's own id prefix (COBIT lists "COBIT 5");
             # strip it, as the discovery path does, so the pattern is "COBIT 5" and not
-            # "COBIT COBIT 5" (3b38).
+            # "COBIT COBIT 5".
             superseded_core = re.sub(
                 r"^" + re.escape(str(std_id)) + r"\s+", "", superseded, flags=re.IGNORECASE
             )
@@ -99,7 +99,7 @@ def compile_entry_patterns(
             # The ID is bounded by (?<!\w) and (?!\w) rather than \b: for an ID that
             # starts and ends with a word character they are equivalent, but \b makes
             # the pattern for an ID ending in punctuation (for example a closing
-            # parenthesis) impossible to match (3b35). The marker end uses (?!\w) for the
+            # parenthesis) impossible to match. The marker end uses (?!\w) for the
             # same reason: a marker ending in ")", such as "2025 (v2.0)", could never match.
             # The negative lookahead (?![.\-][\d\w]) prevents matching inside a longer
             # version string (e.g. "PCI DSS 4.0" must NOT match within "PCI DSS 4.0.1").
@@ -134,14 +134,14 @@ def check_text(
     text: str, compiled: list[tuple[str | None, re.Pattern[str], str]],
     eligible_from: str | None = None,
 ) -> list[tuple[int, str]]:
-    """check_file over text already read (3b75: sanctioned spans masked). With
+    """check_file over text already read (sanctioned spans masked). With
     ``eligible_from``, which lines are code is decided from THAT text (the original), so masking
-    can never create or remove a fence and change what else is checked (3b75 QA r4)."""
+    can never create or remove a fence and change what else is checked."""
     findings: list[tuple[int, str]] = []
     pairs = iter_non_code_lines(text)
     if eligible_from is not None:
         keep = {ln for ln, _ in iter_non_code_lines(eligible_from)}
-        masked_lines = text.splitlines()  # the SAME line model as iter_non_code_lines (r5)
+        masked_lines = text.splitlines()  # the SAME line model as iter_non_code_lines
         pairs = [(ln, masked_lines[ln - 1]) for ln in sorted(keep) if ln - 1 < len(masked_lines)]
     for ln, line in pairs:
         line_lower = line.lower()
@@ -159,7 +159,7 @@ def _same_edition(rest: str, version: str) -> bool:
     """Whether a legacy message (after its "stale citation '<id> " prefix) names this edition:
     a legacy match counts for an occurrence only when it starts where the occurrence starts and
     reports the same edition, so an overlapping match for another stretch or a shorter edition does
-    not lend its label (3b88 QA r2)."""
+    not lend its label."""
     core = rest.split("'", 1)[0]
     left, right = edition_key(core), edition_key(version or "")
     if left is not None and right is not None:
@@ -172,7 +172,7 @@ def _legacy_match_spans(
     eligible_from: str | None = None,
 ) -> list[tuple[int, int, int, str]]:
     """Where check_text's patterns match: (line, first column, last column, message), columns
-    1-based and inclusive, over exactly the lines check_text reads (3b88)."""
+    1-based and inclusive, over exactly the lines check_text reads."""
     pairs = iter_non_code_lines(text)
     if eligible_from is not None:
         keep = {ln for ln, _ in iter_non_code_lines(eligible_from)}
@@ -240,7 +240,7 @@ IDENTIFIERS = [
         r"|IEC(?:\s*/\s*IEEE)?|ISA\s*/\s*IEC)"
         r"(?:\s+(?:TR|TS|PAS))?\s+\d{4,6}(?:-\d{1,3})*",
     ),
-    # 3b425: an explicit part or volume after a hyphenated SP number ("Part 1", "Pt. 1",
+    # An explicit part or volume after a hyphenated SP number ("Part 1", "Pt. 1",
     # "Vol. 2", "Vol 2", "Volume 2") is part of the identity, so each register row per
     # cited part matches; "Parts 1 and 2" names no single part and stays the bare number,
     # and so does a part number followed by another ("Part 1 and 2", "Part 1, 2",
@@ -323,7 +323,7 @@ def identity_key(value):
     )
     value = re.sub(r"\s*/\s*", "/", value)
     value = re.sub(r"\s+", " ", value).strip().casefold()
-    # 3b425: a NIST SP part or volume is spelled as the register spells it ("Part N",
+    # A NIST SP part or volume is spelled as the register spells it ("Part N",
     # "Vol. N"), so "Pt. 1" and "Part 1", or "Vol 2", "Volume 2" and "Vol. 2", are one identity.
     m = _NIST_PART.fullmatch(value)
     if m:
@@ -332,12 +332,12 @@ def identity_key(value):
     return value
 
 
-# 3b425: a key already casefolded, its whitespace collapsed to single spaces.
+# A key already casefolded, its whitespace collapsed to single spaces.
 _NIST_PART = re.compile(
     r"(nist sp \d{3,4}-\d+[a-z]?(?:-\d+)?) (part|pt\.?|vol(?:ume|\.)?) ?(\d+)"
 )
 
-# 3b425: NIST writes a revision of SP 800-63 and its lettered volumes A, B and C as a
+# NIST writes a revision of SP 800-63 and its lettered volumes A, B and C as a
 # trailing "-N" (SP 800-63-4, SP 800-63B-4); the volumes are lettered, never numbered, so
 # in this family alone a trailing number can only be the revision, and it is read as the
 # edition "Rev. N" of the identity without it. Every other "-N-N" stays one exact identity.
@@ -347,7 +347,7 @@ _SP63_REVISION = re.compile(r"(NIST\s+SP\s+800-63[A-C]?)-(\d+)", re.I)
 def _sp63_revision(observed):
     """(identity text, edition) of a grammar match: "NIST SP 800-63B-4" reads as
     ("NIST SP 800-63B", "Rev. 4"); any other observed text is returned unchanged with no
-    edition (3b425)."""
+    edition."""
     m = _SP63_REVISION.fullmatch(observed)
     if m:
         return m[1], "Rev. " + m[2]
@@ -619,11 +619,11 @@ def text_blocks(source, suffix):
     return blocks
 
 
-# 3b652: a parenthesised programme name whose version is read as the version of the
+# A parenthesised programme name whose version is read as the version of the
 # citation it follows ("NIST SP 800-218 (SSDF 1.1)"), mapped to the single identity it
 # names. Residual: only a name listed here is read, and only after its own identity; any
 # other parenthesised name ("(ISO 2.0)", "(SLSA 1.0)", "(CMMC 2.0)", "(AC 2.1)") stays as
-# the engine read it before 3b652, so a version written that way is not read.
+# the engine read it before this mapping, so a version written that way is not read.
 PROGRAMME_VERSIONS = {"SSDF": "nist sp 800-218"}
 
 # The version is N.N or N.N.N, the forms the register uses, with the optional "v" or
@@ -659,7 +659,8 @@ def version_after(text, end, family):
     # is often followed by a qualifier inside the parens ("(1.0 core + 1.1
     # IPD draft)" for the NIST Privacy Framework), and requiring the close
     # discarded that real edition. A rare parenthetical prose quantity
-    # ("(2022 respondents)") is the accepted residual (no corpus occurrence).
+    # ("(2022 respondents)") is the accepted residual (in the earlier
+    # repository, the corpus had no occurrence).
     if family == "ISO/IEC":
         pat = r"\s*(?::\s*|\(\s*|\s)(\d{4})" + END
     elif family == "IEEE":
@@ -709,12 +710,12 @@ def discover(source, suffix):
             if family == "NIST" and not version:
                 version, end = _programme_version(text, end, m[0])
             # The publisher's own revision suffix wins over a date or edition written after
-            # it ("SP 800-63-3 (2017)" is Rev. 3) (3b425).
+            # it ("SP 800-63-3 (2017)" is Rev. 3).
             named, revision = (
                 _sp63_revision(m[0]) if family == "NIST" else (m[0], "")
             )
             # A revision written after it that disagrees ("SP 800-63B-4 Rev. 3") keeps both,
-            # which no edition key reads, so the citation is UNRESOLVED_EDITION (3b425 r2).
+            # which no edition key reads, so the citation is UNRESOLVED_EDITION.
             written = edition_key(version) if revision else None
             if (
                 written and written.startswith("rev:")
@@ -823,7 +824,7 @@ def resolve(occurrence, entries, bare_exceptions=None):
         # A bare NIST SP number without a hyphenated part is NOT reliably a
         # series prefix (SP 330, SP 811 are concrete publications), so an
         # unmatched one stays UNREGISTERED. Registered series identities are
-        # recognized by the grammar's explicit "... series" suffix (F3a).
+        # recognized by the grammar's explicit "... series" suffix.
         return [("UNREGISTERED", "No canonical register row.")]
 
     if len(exact) != 1:
@@ -884,7 +885,7 @@ KINDS = (
     "HISTORICAL", "INVALID_EXCEPTION",
 )
 
-# 3b75: sanctioned historical-context citations. The wrapper validates each
+# Sanctioned historical-context citations. The wrapper validates each
 # declaration (policy, reason, evidence, historical wording); the engine binds
 # it to exactly one whole sentence of one Markdown file and masks ONLY the
 # declared superseded occurrences inside that sentence, so every other
@@ -895,8 +896,8 @@ _ABBREV = re.compile(r"\b(?:e\.g|i\.e|cf|etc|vs|viz|al|approx|no|fig)\.[\"')\]*_
 _INTERNAL_BREAK = re.compile(r"[.!?;:][\"')]*\s")
 # A sanctioned sentence is plain ASCII text: letters, digits, spaces and a few punctuation marks.
 # Anything that can change what renders (markup, a backslash escape, a character reference, a
-# tilde or backtick run, emphasis) is refused rather than modelled (3b75 QA r6, codex, claude),
-# and so is a non-ASCII letter, which can be a lookalike a reader and a word screen miss (r7, claude).
+# tilde or backtick run, emphasis) is refused rather than modelled, and so is a non-ASCII letter,
+# which can be a lookalike a reader and a word screen miss.
 SENTENCE_TEXT = re.compile(r"[A-Za-z0-9 .,;:'\"()/%-]+[.!?]")
 _FENCE_LINE = re.compile(r"\s*(?:```|~~~)")
 
@@ -905,9 +906,9 @@ def _simple_fences(lines):
     """True when every fence-shaped line is one a Markdown renderer reads the same way as the
     toggle line model: at column 1, a run of exactly three, an opener whose backtick info string
     carries no backtick, and a closer of the opener's character with nothing after it, with no
-    block left open (3b75 QA r6, claude: a 4-backtick fence around a 3-backtick line is one code
+    block left open (a 4-backtick fence around a 3-backtick line is one code
     block to a renderer and two toggles to the line model). The screen (``_FENCE_LINE``) is
-    DELIBERATELY broader than the shared ``aiqt_corpus.is_fence_line`` (3b83): a marker behind
+    DELIBERATELY broader than the shared ``aiqt_corpus.is_fence_line``: a marker behind
     ANY leading whitespace is screened, including one indented four or more columns, which the
     toggle model no longer reads as a fence but which a renderer could still read as a fence
     inside a container block this check does not model; every screened line that is not a
@@ -933,15 +934,15 @@ def _simple_fences(lines):
 
 
 def _whole_unit(lines, idx, start, end, sentence):
-    """True when lines[idx][start:end] is a STANDALONE PARAGRAPH (3b75 QA r3: every structural
-    branch allowed so far, table cells and list items, was talked around, so exactly one shape is
-    accepted). The line holds nothing but the sentence, starting at column 1; the sentence does not
-    begin with a list, heading, blockquote, table or indentation marker; the raw lines above and
-    below are blank (or the file boundary); and the sentence ends with `.`, `!` or `?` (not an
-    abbreviation's period) with no other sentence or clause break."""
+    """True when lines[idx][start:end] is a STANDALONE PARAGRAPH (in the earlier repository, every
+    structural branch once allowed, table cells and list items, was found to be bypassable, so
+    exactly one shape is accepted). The line holds nothing but the sentence, starting at column 1;
+    the sentence does not begin with a list, heading, blockquote, table or indentation marker; the
+    raw lines above and below are blank (or the file boundary); and the sentence ends with `.`,
+    `!` or `?` (not an abbreviation's period) with no other sentence or clause break."""
     body = sentence.rstrip()
     if not SENTENCE_TEXT.fullmatch(body):
-        return False  # plain text only, ending in a terminator (3b75 QA r4, r6)
+        return False  # plain text only, ending in a terminator
     if _INTERNAL_BREAK.search(body[:-1]) or _ABBREV.search(body):
         return False
     line = lines[idx].rstrip("\n")
@@ -951,7 +952,7 @@ def _whole_unit(lines, idx, start, end, sentence):
         return False
 
     def blank(k):
-        # Markdown blank lines are ASCII spaces and tabs only; a no-break space is text (r4).
+        # Markdown blank lines are ASCII spaces and tabs only; a no-break space is text.
         return k < 0 or k >= len(lines) or not lines[k].strip(" \t\r\n")
 
     return blank(idx - 1) and blank(idx + 1)
@@ -970,10 +971,10 @@ def apply_historical_exceptions(
     # A document whose line model is ambiguous, or that carries raw HTML, cannot carry a
     # sanction: Python and a Markdown renderer disagree on where lines end (U+2028, form feed,
     # NEL, a lone CR and kin), and raw HTML can wrap the paragraph in a container whatever the
-    # Markdown says. Deny by default (3b75 QA r5).
+    # Markdown says. Deny by default.
     # ``raw`` is the file's untranslated text: a universal-newline read has already turned a lone
-    # CR into LF (3b75 QA r6, codex). HTML comments get no carve-out: comment markers inside a
-    # code span, an escaped or a `<!-->` marker all blank real HTML to a regex (r6, all three).
+    # CR into LF. HTML comments get no carve-out: comment markers inside a code span, an escaped
+    # or a `<!-->` marker all blank real HTML to a regex.
     ambiguous = re.search(
         r"[\x0b\x0c\x1c\x1d\x1e\x85\u2028\u2029]|\r(?!\n)", source if raw is None else raw
     )
@@ -1028,7 +1029,7 @@ def apply_historical_exceptions(
                     )] == ["STALE"]
                 ):
                     hits.append(o)
-            # Exactly one occurrence, written exactly as the row's citation (3b75 QA r2): a row
+            # Exactly one occurrence, written exactly as the row's citation: a row
             # sanctions the citation it names, not every written form of the same edition.
             if ex.get("citation") is not None:  # a wrapper that names the written citation
                 hits = [
@@ -1120,8 +1121,9 @@ def coverage_report(
                     if any(ex["path"] == rel for ex in historical_exceptions) else None
                 ),
             )
-            # Discovery reads the ORIGINAL text and skips only the sanctioned spans (3b75 QA r1:
-            # masking before discovery erased a neighbouring bare series member's context).
+            # Discovery reads the ORIGINAL text and skips only the sanctioned spans:
+            # in the earlier repository, masking before discovery erased a
+            # neighbouring bare series member's context.
             sanctioned_spans = {
                 tuple(map(tuple, f["span"])) for f in sanctioned
             }
@@ -1132,7 +1134,7 @@ def coverage_report(
                 for f in sanctioned
             )
 
-        # This exact HEAD check alone controls PR1 blocking behavior.
+        # This exact HEAD check alone controls the legacy blocking behaviour.
         legacy_spans = []
         if suffix == ".md":
             legacy_spans = _legacy_match_spans(
@@ -1179,7 +1181,7 @@ def coverage_report(
                 # A normalized occurrence is legacy (BLOCKING) only where a legacy pattern for
                 # its identifier matches at its own position, and it replaces exactly the legacy
                 # findings it covers: a second citation on the line keeps its label, and another
-                # edition or spelling the legacy check misses does not inherit one (3b88).
+                # edition or spelling the legacy check misses does not inherit one.
                 (line_no, first), (_, last) = occurrence["span"]
                 prefix = ("stale citation '" + occurrence["observed"] + " ").casefold()
                 covering = {
@@ -1275,7 +1277,7 @@ def coverage_report(
 
 
 def identity_counts(report, kind):
-    """Occurrences of one finding kind per identity key, sorted by key (P-3.213 ratchet)."""
+    """Occurrences of one finding kind per identity key, sorted by key (the input to ``ratchet``)."""
     return dict(sorted(Counter(
         f["identity"] for f in report["findings"] if f["kind"] == kind
     ).items()))

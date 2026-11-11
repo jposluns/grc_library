@@ -278,7 +278,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: verifies the vendored AIQT pack .claude/aiqt/ and publishes aiqt_corpus in sys.modules
 from lint_common import CORPUS_SCAN_DIRS, GENERATED_GOVERNANCE_PAGES, require_dir  # noqa: E402  # grc-config/store, stays local
-import historical_citation_register as HCR  # noqa: E402  # 3b75: the register data and page sync
+import historical_citation_register as HCR  # noqa: E402  # the register data and page sync
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 PACK_TOOLS = REPO_ROOT / ".claude" / "skills" / "corpus-management" / "src" / "tools"
@@ -312,14 +312,13 @@ DEFAULT_PATHS = [
     "CONTRIBUTING.md",
     "governance/specification-master-project.md",
     "governance/specification-ingestion.md",
-    # Domain run splatted from lint_common (scan-scope parity gate
-    # forbids hardcoding the run). CORPUS_SCAN_DIRS adds the moved
-    # specifications and adopter guides to the audited domains. Before the
-    # move this gate read the specifications S1 and S2 in governance/, so
-    # it reads them again in the skill's specs/ directory, together with
-    # S3, which sat at the root and was outside this list. The adopter
-    # guides stay excluded by EXEMPT_DIRECTORY_PREFIXES, as they were in
-    # docs/.
+    # Domain run splatted from lint_common (scan-scope parity gate forbids
+    # hardcoding the run). CORPUS_SCAN_DIRS adds the moved specifications
+    # and adopter guides to the audited domains. Before the move this gate
+    # read two specifications in governance/, so it reads them again in
+    # the skill's specs/ directory, together with a third, which sat at
+    # the root and was outside this list. The adopter guides stay excluded
+    # by EXEMPT_DIRECTORY_PREFIXES, as they were in docs/.
     *CORPUS_SCAN_DIRS,
 ]
 
@@ -333,53 +332,52 @@ PROJECT_HEADER = [
     "Project", "Current version", "Registration date", "Topic",
     "License", "Status notes", *EVIDENCE_HEADER,
 ]
-# The promoted tree's templates (PR 2b, flipped to the site root at the
-# draft-site promotion; it was scanned under the same live rules while
-# staging, so the promotion left no exclusion to remove). The old root tree
-# .web/templates/ and the templates-v2/ and templates-v3/ staging copies were
-# removed at the promotion.
+# The promoted tree's templates (flipped to the site root at the draft-site
+# promotion; it was scanned under the same live rules while staging, so the
+# promotion left no exclusion to remove). The old root tree .web/templates/
+# and the templates-v2/ and templates-v3/ staging copies were removed at the
+# promotion.
 DRAFT_HTML_ROOT = ".web/templates-draft"
 HTML_ROOTS = (DRAFT_HTML_ROOT,)
 
-# No evidence-backed bare-publication or series exceptions approved in PR1.
+# No evidence-backed bare-publication or series exceptions are approved.
 BARE_EXCEPTIONS = {}
 
-# P-3.213: the per-standard UNPINNED baseline, a checked-in source file that may only fall.
+# The per-standard UNPINNED baseline, a checked-in source file that may only fall.
 UNPINNED_BASELINE_REL = ".claude/skills/corpus-management/tools/standards-currency-unpinned-baseline.json"
 UNPINNED_BASELINE = REPO_ROOT / UNPINNED_BASELINE_REL
 # Test seam only: the coverage-fixture tests in .claude/skills/corpus-management/tests/test_standards_currency_coverage.py
 # patch this to False because their in-memory trees hold no baseline. No CLI flag reaches it.
 UNPINNED_RATCHET = True
 
-# P-3.213 round 2: the baseline is also compared with its copy at a base revision.
-# A base whose copy of this wrapper (at its fixed path) does not contain RATCHET_MARKER
-# predates the ratchet, and only such a base with no baseline file is the bootstrap.
+# The baseline is also compared with its copy at a base revision. A base whose copy of
+# this wrapper (at its fixed path) does not contain RATCHET_MARKER predates the
+# ratchet, and only such a base with no baseline file is the bootstrap.
 RATCHET_WRAPPER_REL = ".claude/skills/corpus-management/tools/lint-standards-currency.py"
 RATCHET_MARKER = "UNPINNED_BASELINE_REL"
 CANONICAL_REGISTER_REL = "governance/register-canonical-citations.md"
-# Round 3: fully qualified. Round 4: resolved exactly (_ref), so a branch or tag whose
-# name is origin/main or refs/remotes/origin/main cannot stand in for it.
+# Fully qualified, and resolved exactly (_ref), so a branch or tag whose name is
+# origin/main or refs/remotes/origin/main cannot stand in for it.
 MAIN_REF = "refs/remotes/origin/main"
 GIT_TIMEOUT = 60
-# Round 6: git is found by shutil.which on this fixed PATH, never the inherited one, so a
-# substitute git earlier on the caller's PATH is not run; the child's PATH is set to it too.
+# Git is found by shutil.which on this fixed PATH, never the inherited one, so a substitute
+# git earlier on the caller's PATH is not run; the child's PATH is set to it too.
 GIT_SEARCH_PATH = "/usr/local/bin:/usr/bin:/bin"
 _GIT_EXECUTABLE = None  # resolved once, by _git_executable
-# Round 6: advisory lines git prints on stderr (with GIT_GRAFT_FILE set, git 2.53 prints a
-# deprecation hint); a failing call's message leaves them out so the real error shows.
-# Rebase revision (D21): a bare "hint:" line, with or without a trailing space, is one too.
+# Advisory lines git prints on stderr (with GIT_GRAFT_FILE set, git 2.53 prints a
+# deprecation hint); a failing call's message leaves them out so the real error shows. A
+# bare "hint:" line, with or without a trailing space, is one too.
 _GIT_HINT_PREFIX = "hint: "
 _GIT_HINT_BARE = "hint:"
-# Rebase revision (D21): the environment of every git call is built from nothing. These are
-# the only inherited variables passed on, because git needs them to run: HOME locates the
-# global configuration (where a CI checkout records safe.directory for the work tree). Every
-# other inherited variable, LD_PRELOAD, LD_LIBRARY_PATH and every GIT_ variable among them
-# (a pre-commit hook's GIT_DIR or GIT_INDEX_FILE, GIT_WORK_TREE, GIT_OBJECT_DIRECTORY,
+# The environment of every git call is built from nothing. These are the only inherited
+# variables passed on, because git needs them to run: HOME locates the global configuration
+# (where a CI checkout records safe.directory for the work tree). Every other inherited
+# variable, LD_PRELOAD, LD_LIBRARY_PATH and every GIT_ variable among them (a pre-commit
+# hook's GIT_DIR or GIT_INDEX_FILE, GIT_WORK_TREE, GIT_OBJECT_DIRECTORY,
 # GIT_REPLACE_REF_BASE, GIT_GRAFT_FILE and the rest), is absent.
 _GIT_ENV_INHERITED = ("HOME",)
-# Round 5: fixed values every git call gets, whatever the caller exported; PATH is
-# GIT_SEARCH_PATH (round 6) and LC_ALL is fixed (rebase revision) so git's messages are
-# untranslated and its hint lines are recognised.
+# Fixed values every git call gets, whatever the caller exported; PATH is GIT_SEARCH_PATH
+# and LC_ALL is fixed so git's messages are untranslated and its hint lines are recognized.
 _GIT_ENV = {
     # No replace ref, under refs/replace/ or any other base, substitutes an object.
     "GIT_NO_REPLACE_OBJECTS": "1",
@@ -410,14 +408,14 @@ RUNNER_ECHO_MARKER = (
 )
 RUNNER_ECHO_TOKEN_ENV = "GRC_RUNNER_ECHO_TOKEN"
 
-# 3b75: the sanctioned historical-context form. A superseded edition cited
-# as HISTORY ("the 2019 edition of ISO/IEC 27701 extended ISO/IEC
-# 27001:2013") passes only through a reviewed row of the register data file:
-# one path, one verbatim whole sentence, one registered superseded citation,
-# a reason and upstream evidence. The two wording screens are this project's
-# policy vocabulary; they refuse a present-tense claim at parse time, and the
-# engine refuses a fragment of a longer sentence at scan time. An absent
-# register sanctions nothing, so every stale citation keeps blocking.
+# The sanctioned historical-context form. A superseded edition cited as
+# HISTORY ("the 2019 edition of ISO/IEC 27701 extended ISO/IEC 27001:2013")
+# passes only through a reviewed row of the register data file: one path, one
+# verbatim whole sentence, one registered superseded citation, a reason and
+# upstream evidence. The two wording screens are this project's policy
+# vocabulary; they refuse a present-tense claim at parse time, and the engine
+# refuses a fragment of a longer sentence at scan time. An absent register
+# sanctions nothing, so every stale citation keeps blocking.
 HISTORICAL_REGISTER_REL = HCR.PAGE_REL  # the generated view (never parsed for policy)
 HISTORICAL_DATA_REL = HCR.DATA_REL  # the rows gate 6 reads
 HISTORICAL_REGISTER = REPO_ROOT / HISTORICAL_REGISTER_REL
@@ -433,12 +431,12 @@ PRESENT_TENSE = re.compile(
     r"\b(?:is|are|remains?|requires?|mandates?|specif(?:y|ies)|states?"
     r"|defines?|prescribes?|governs?|applies|apply|extends|covers"
     r"|includes|provides|must|shall|should|current(?:ly)?|today|now"
-    # 3b75 QA r1 (claude): common present-tense verbs and "still". The screen is a vocabulary
-    # heuristic on the declared text only; review of each row is the control.
+    # Common present-tense verbs and "still". The screen is a vocabulary heuristic on the
+    # declared text only; review of each row is the control.
     r"|still|sets|follows?|lists|contains|has|have|needs|establishes|supports|uses?"
     r"|relies|rely|anchors?|underpins?|forms?|serves?|drives?"
     r"|maps?|aligns?|underlies|implements?"
-    # 3b75 QA r7 (claude): further verbs common in compliance writing.
+    # Further verbs common in compliance writing.
     r"|conforms?|complies|continues?|retains?|references?|cites?|adopts?|operates?|keeps?)\b",
     re.I,
 )
@@ -558,7 +556,7 @@ _HOST = re.compile(r"(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z](?:[a-z0-9-]*[a-
 
 
 def _https_evidence_url(url: str) -> bool:
-    """True for an https URL naming a real-looking host; "https://#" names none (3b75 r5, codex)."""
+    """True for an https URL naming a real-looking host; "https://#" names none."""
     if not re.fullmatch(r"https://[^\s|<>`\\]+", url):
         return False
     try:
@@ -566,7 +564,7 @@ def _https_evidence_url(url: str) -> bool:
         host, port = parts.hostname, parts.port
     except ValueError:
         return False
-    # No credentials on a public page, and a port, when present, is a real one (r6, claude).
+    # No credentials on a public page, and a port, when present, is a real one.
     if parts.username is not None or parts.password is not None:
         return False
     if parts.netloc.endswith(":") or port == 0:
@@ -575,13 +573,13 @@ def _https_evidence_url(url: str) -> bool:
 
 
 def parse_historical_exceptions(text, entries):
-    """3b75: load and validate the historical-context exception DATA file (TOML).
+    """Load and validate the historical-context exception DATA file (TOML).
 
     The rows live in a TOML data file (historical_citation_register.load applies the structural
     checks: strict TOML, exact keys, exact types, single-line printable ASCII strings); this
     function applies the policy checks to each row. The Markdown register page is a generated
-    view and is never parsed for policy (maintainer ruling 2026-09-26, after ten QA rounds of
-    Markdown shapes that rendered differently from what a parser read)."""
+    view and is never parsed for policy (in the earlier repository, Markdown register shapes
+    rendered differently from what a parser read)."""
     engine, out, seen = _engine(), [], set()
     today = datetime.now(timezone.utc).date()
     try:
@@ -596,7 +594,7 @@ def parse_historical_exceptions(text, entries):
             raise RegisterError(f"{where}: needs a unique HCE-NNN id")
         seen.add(xid)
         if (path, sentence, citation) in seen:
-            # Two rows would sanction the one occurrence twice (3b75 QA r7, claude).
+            # Two rows would sanction the one occurrence twice.
             raise RegisterError(f"{where}: repeats another row's path, sentence and citation")
         seen.add((path, sentence, citation))
         parts = path.split("/")
@@ -658,7 +656,7 @@ def parse_historical_exceptions(text, entries):
 
 
 def uncovered_standards(entries):
-    """3b655: what this gate reads of the register rows no citation grammar reads, at run time.
+    """What this gate reads of the register rows no citation grammar reads, at run time.
 
     A row is read by the grammar only when the engine's discovery grammar, given the row's own
     Standard ID, yields a grammar occurrence with that row's identity. Every other row is sorted by
@@ -672,8 +670,8 @@ def uncovered_standards(entries):
       from the Standard ID alone or followed by its current or a listed superseded edition.
 
     The first and third lists overlap on purpose: a row that lists a superseded edition and also
-    draws a CANDIDATE is in both, and each list's printed line is worded to be true of it (3b655
-    r3: WCO SAFE Framework printed under "only a superseded edition the row lists is matched"
+    draws a CANDIDATE is in both, and each list's printed line is worded to be true of it (WCO
+    SAFE Framework was once printed under "only a superseded edition the row lists is matched"
     while it also drew a CANDIDATE). ``not_covered`` is disjoint from both by construction."""
     engine = _engine()
     out = dict(superseded_matched=[], not_covered=[], broad_channel_candidate=[])
@@ -705,7 +703,7 @@ def parse_canonical_register():
 
 
 def parse_unpinned_baseline(text, entries):
-    """P-3.213: the UNPINNED baseline, as {identity key: count}.
+    """The UNPINNED baseline, as {identity key: count}.
 
     Strict: a JSON object with an "unpinned" object and an optional "_comment"
     string, nothing else; no repeated key at any level; each key exactly a
@@ -752,7 +750,7 @@ def parse_unpinned_baseline(text, entries):
 
 
 def unpinned_ratchet_lines(report, entries, baseline):
-    """The FAIL lines of the P-3.213 UNPINNED ratchet (none when every count equals its baseline)."""
+    """The FAIL lines of the UNPINNED ratchet (none when every count equals its baseline)."""
     engine = _engine()
     names = {e["identity_key"]: e["id"] for e in entries}
     over, under = engine.ratchet(engine.identity_counts(report, "UNPINNED"), baseline)
@@ -777,9 +775,9 @@ def unpinned_ratchet_lines(report, entries, baseline):
 
 
 def _git_env():
-    """The environment of every git call, built from nothing (rebase revision): the
-    _GIT_ENV_INHERITED variables this process has, then _GIT_ENV (round 5), whose PATH is
-    GIT_SEARCH_PATH (round 6). No other inherited variable is passed."""
+    """The environment of every git call, built from nothing: the _GIT_ENV_INHERITED
+    variables this process has, then _GIT_ENV, whose PATH is GIT_SEARCH_PATH. No other
+    inherited variable is passed."""
     env = {k: os.environ[k] for k in _GIT_ENV_INHERITED if k in os.environ}
     env.update(_GIT_ENV)
     return env
@@ -787,12 +785,12 @@ def _git_env():
 
 def _git_hint(line):
     """True for an advisory line of git's stderr: "hint: ..." or a bare "hint:", with or
-    without a trailing space (rebase revision)."""
+    without a trailing space."""
     return line.startswith(_GIT_HINT_PREFIX) or line.rstrip(" ") == _GIT_HINT_BARE
 
 
 def _git_executable():
-    """The absolute path of git on GIT_SEARCH_PATH, resolved once (round 6); none there raises
+    """The absolute path of git on GIT_SEARCH_PATH, resolved once; none there raises
     RatchetBaseError naming the searched path."""
     global _GIT_EXECUTABLE
     if _GIT_EXECUTABLE is None:
@@ -839,8 +837,8 @@ def _commit(rev, what):
 
 def _ref(name):
     """The object id of the ref with exactly this full name (HEAD or refs/...), peeled to a
-    commit. Round 4: git's ref-name lookup tries several prefixes, so a tag or branch whose
-    name imitates the ref could stand in for a missing one; show-ref --verify does not."""
+    commit. Git's ref-name lookup tries several prefixes, so a tag or branch whose name
+    imitates the ref could stand in for a missing one; show-ref --verify does not."""
     try:
         out = _git("show-ref", "--verify", "--hash", name)
     except RatchetBaseError as exc:
@@ -853,8 +851,8 @@ def _ref(name):
 
 def _actions_event(environ):
     """(event name, payload object) when GITHUB_ACTIONS is exactly "true", else None (a local run).
-    Round 4: an Actions run whose GITHUB_EVENT_PATH is unset, missing, unreadable or not a
-    JSON object raises RatchetBaseError; it never falls back to the local base."""
+    An Actions run whose GITHUB_EVENT_PATH is unset, missing, unreadable or not a JSON
+    object raises RatchetBaseError; it never falls back to the local base."""
     if environ.get("GITHUB_ACTIONS") != "true":
         return None
     path = environ.get("GITHUB_EVENT_PATH", "")
@@ -908,19 +906,18 @@ def _payload_sha(event, payload, *keys):
 
 def ratchet_base(environ=None):
     """(base commit, how it was chosen) for the baseline's own ratchet; the one place the
-    base is selected (P-3.213 round 3).
+    base is selected.
 
     A run is a GitHub Actions run only when GITHUB_ACTIONS is exactly "true" and its event
     file is a readable JSON object; with GITHUB_ACTIONS exactly "true" and any other event
-    file it raises. A pull_request run's base is HEAD^1 of the merge commit
-    the checkout holds, read from git, and the payload's pull_request.base.sha must be that
-    commit or an ancestor of it. A push run's base is the payload's "before", which must be
-    a proper ancestor of HEAD. A schedule or workflow_dispatch run, and every local run,
-    takes the one merge base of HEAD and MAIN_REF. Refs are resolved exactly (_ref) and
-    only object ids reach later git calls. A REPO_ROOT that is not the top of a work tree, a
-    shallow repository (round 6), any other Actions event, an unreadable payload, a missing
-    ref or an unresolvable base raises RatchetBaseError; never falls back to the tree
-    itself."""
+    file it raises. A pull_request run's base is HEAD^1 of the merge commit the checkout
+    holds, read from git, and the payload's pull_request.base.sha must be that commit or an
+    ancestor of it. A push run's base is the payload's "before", which must be a proper
+    ancestor of HEAD. A schedule or workflow_dispatch run, and every local run, takes the
+    one merge base of HEAD and MAIN_REF. Refs are resolved exactly (_ref) and only object
+    ids reach later git calls. A REPO_ROOT that is not the top of a work tree, a shallow
+    repository, any other Actions event, an unreadable payload, a missing ref or an
+    unresolvable base raises RatchetBaseError; never falls back to the tree itself."""
     environ = os.environ if environ is None else environ
     try:
         top = Path(_git("rev-parse", "--show-toplevel").decode("utf-8").strip()).resolve()
@@ -931,8 +928,8 @@ def ratchet_base(environ=None):
             f"{REPO_ROOT} is not the top level of a git work tree (git reports {top}), "
             "so no base revision can be read"
         )
-    # Round 6: a shallow file can hide a parent and move the merge base to an older commit,
-    # so no base is computed in a shallow clone.
+    # A shallow file can hide a parent and move the merge base to an older commit, so no
+    # base is computed in a shallow clone.
     shallow = _git("rev-parse", "--is-shallow-repository").decode("ascii", "replace").strip()
     if shallow != "false":
         raise RatchetBaseError(
@@ -952,8 +949,8 @@ def ratchet_base(environ=None):
                 "pull_request run checks out and HEAD^1 is not the pull request base"
             )
         base = _commit(parents[1], "HEAD^1")
-        # Round 4: the base branch may move after the event, so base.sha need only be HEAD^1
-        # or an ancestor of it.
+        # The base branch may move after the event, so base.sha need only be HEAD^1 or an
+        # ancestor of it.
         if claimed != base and claimed not in _git(
             "merge-base", "--all", claimed, base
         ).decode("ascii").split():
@@ -1001,12 +998,13 @@ def _blob_at(rev, rel):
 
 
 def base_unpinned_counts(rev, entries):
-    """P-3.213 round 3: each standard's UNPINNED count at ``rev``, by identity key. The default
-    scope's .md and .html files (and symlinks) are read from rev's tree through git, never the
-    working tree, into a temporary directory and scanned with the same predicate and the head
-    register, so a standard whose row is new in the change counts its citations already at
-    rev (the cap on a bootstrap seed and, from round 4, on a new row's entry). Historical exceptions sanction only superseded editions, never an UNPINNED one, so
-    none are applied. Any failure raises RatchetBaseError."""
+    """Each standard's UNPINNED count at ``rev``, by identity key. The default scope's .md and
+    .html files (and symlinks) are read from rev's tree through git, never the working tree,
+    into a temporary directory and scanned with the same predicate and the head register, so a
+    standard whose row is new in the change counts its citations already at rev (the cap on a
+    bootstrap seed and on a new row's entry). Historical exceptions sanction only superseded
+    editions, never an UNPINNED one, so none are applied. Any failure raises
+    RatchetBaseError."""
     roots = [*DEFAULT_PATHS, *HTML_ROOTS]
     listing = _git("ls-tree", "-r", "-z", "--full-tree", rev, "--",
                    *(f":(literal){p}" for p in roots))
@@ -1058,8 +1056,8 @@ def base_unpinned_counts(rev, entries):
 
 
 def base_ratchet_lines(entries, baseline, environ=None):
-    """P-3.213 round 2: (FAIL or NOTE lines, base record) comparing the tree's baseline
-    with the baseline at the base revision. Raises RatchetBaseError when the base is
+    """(FAIL or NOTE lines, base record) comparing the tree's baseline with the
+    baseline at the base revision. Raises RatchetBaseError when the base is
     undeterminable or its register or baseline cannot be read (fail closed)."""
     base, how = ratchet_base(environ)
     where = f"the base revision {base[:12]} ({how})"
@@ -1075,8 +1073,8 @@ def base_ratchet_lines(entries, baseline, environ=None):
                 + ", so the baseline cannot be compared and this is not the bootstrap"
             )
         record["bootstrap"] = True
-        # Round 3: the seed is also held to each standard's count at the base, so the
-        # seeding change cannot raise a count.
+        # The seed is also held to each standard's count at the base, so the seeding
+        # change cannot raise a count.
         at_base = base_unpinned_counts(base, entries)
         names = {e["identity_key"]: e["id"] for e in entries}
         lines = [
@@ -1120,7 +1118,7 @@ def base_ratchet_lines(entries, baseline, environ=None):
                 "change."
             )
         else:
-            # Round 4: the new row's entry is capped as a bootstrap seed is, at the
+            # The new row's entry is capped as a bootstrap seed is, at the
             # standard's UNPINNED count at the base under the head register.
             if at_base is None:
                 at_base = base_unpinned_counts(base, entries)
@@ -1156,7 +1154,7 @@ def _engine():
 def iter_files(paths, *, explicit=True, root=None):
     # Preserve this wrapper API for the scan-scope regression ALLOW map.
     # The shared Markdown helper remains unchanged and Markdown-only.
-    # root (P-3.213 round 3) is the base revision's scope copy; None is REPO_ROOT.
+    # root is the base revision's scope copy; None is REPO_ROOT.
     from lint_common import is_default_exempt_root, is_adopter_exempt
 
     root = (REPO_ROOT if root is None else root).resolve()
@@ -1183,8 +1181,8 @@ def iter_files(paths, *, explicit=True, root=None):
 
     def visit(path):
         path = within(path)
-        # 3b50b1: existence is checked BEFORE the exclusion filter, so a missing explicit path
-        # under an excluded prefix is refused rather than silently dropped.
+        # Existence is checked BEFORE the exclusion filter, so a missing explicit path under
+        # an excluded prefix is refused rather than silently dropped.
         if not path.exists():
             raise OSError(f"missing/unreadable intended input: {path}")
         if excluded(path):
@@ -1238,10 +1236,10 @@ def main(argv=None):
         "--format", choices=("text", "json"), default="text"
     )
     args = parser.parse_args(argv)
-    if args.root is not None:  # 3b50b2d1: a missing, empty or non-directory --root is refused
+    if args.root is not None:  # a missing, empty or non-directory --root is refused
         args.root = require_dir(args.root, "--root")
     if args.paths is not None and any(not p.strip() for p in args.paths):
-        # 3b50b2d1: an empty --paths entry resolved to the tree root, so the run fell back to a
+        # An empty --paths entry resolved to the tree root, so the run fell back to a
         # whole-tree scan while reporting an explicit scope.
         print("ERROR: --paths: an empty path entry is refused.", file=sys.stderr)
         return 2
@@ -1264,13 +1262,13 @@ def main(argv=None):
         baseline = parse_unpinned_baseline(
             UNPINNED_BASELINE.read_bytes().decode("utf-8"), entries
         ) if ratchet else None
-        # The baseline may only fall relative to the base revision (P-3.213 round 2).
+        # The baseline may only fall relative to the base revision.
         base_lines, base_record = (
             base_ratchet_lines(entries, baseline) if ratchet else ([], None)
         )
         # Read directly: only a missing file counts as absent, so a permission or other I/O
-        # error reaches the exit-2 handler instead of reading as "no register" (3b75 QA, codex:
-        # Path.exists() swallows OSError on Python 3.14).
+        # error reaches the exit-2 handler instead of reading as "no register" (Path.exists()
+        # swallows OSError on Python 3.14).
         def _read(path):
             try:
                 return path.read_bytes().decode("utf-8")
@@ -1280,8 +1278,8 @@ def main(argv=None):
         historical = (
             parse_historical_exceptions(data_text, entries) if data_text is not None else []
         )
-        # The page's generated table must match the data (3b75 redesign). With no data file, a
-        # page that exists must show the empty table; with a data file, the page must exist.
+        # The page's generated table must match the data. With no data file, a page that
+        # exists must show the empty table; with a data file, the page must exist.
         if data_text is not None or page is not None:
             rows = HCR.load(data_text) if data_text is not None else []
             problem = HCR.sync_problem(page, rows)
@@ -1321,7 +1319,7 @@ def main(argv=None):
                 "legacy stale checks retained."
             ),
         )
-        # 3b655: advisory only; never a finding and never the exit code.
+        # Advisory only; never a finding and never the exit code.
         residual = uncovered_standards(entries)
         report.update(residual)
         trailer = []
@@ -1339,8 +1337,8 @@ def main(argv=None):
             "NOTE: standards-currency counts: " + _engine().count_summary(report)
         )
         if args.format == "text":
-            # 3b655's lines lead the trailer, so the ratchet lines, the count line and the
-            # verdict stay last (P-3.213).
+            # The uncovered-standards lines lead the trailer, so the ratchet lines, the
+            # count line and the verdict stay last.
             coverage_lines = []
             for label, ids in (
                 (

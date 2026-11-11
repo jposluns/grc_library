@@ -7,10 +7,10 @@ PR's merge-base and inspects only the lines the PR ADDS to .working/CHANGELOG.md
 if any added line contains an em dash (U+2014) or en dash (U+2013).
 
 The root .working/CHANGELOG.md is also in .claude/skills/corpus-management/tools/lint-language.py's default whole-file
-scan set. This delta gate retains the PR-diff check introduced for DD-1
-(2026-06-23): it rejects em/en dashes anywhere in added lines, including in
-code that the language gate skips. Historical lines are outside this delta
-check, but remain covered by the language gate under its normal rules.
+scan set. This delta gate retains its PR-diff check: it rejects em/en dashes
+anywhere in added lines, including in code that the language gate skips.
+Historical lines are outside this delta check, but remain covered by the
+language gate under its normal rules.
 
 Scope: root .working/CHANGELOG.md only. The detailed mirror at
 .working/changelog-details/CHANGELOG-detailed.md is maintainer working state,
@@ -44,7 +44,7 @@ import sys
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack .claude/skills/corpus-management/tools/ on sys.path
 from lint_common import PrRangeError, resolve_pr_range  # noqa: E402  # grc-config/store, stays local
-from changelog_diff import (  # noqa: E402  # shared added-line diff reader (3b399)
+from changelog_diff import (  # noqa: E402  # shared added-line diff reader
     ChangelogDiffUnreadable, GitQueryFailed, GitSelectsAnotherTree, added_line_diff,
     check_git_selects_root, parse_added_lines, refuse_links)
 
@@ -76,16 +76,16 @@ def main(argv: list[str]) -> int:
     args = parser.parse_args(argv[1:])
 
     # Unified diff of .working/CHANGELOG.md only, zero context, read by the shared pinned
-    # diff and hunk-count parser (3b399): each hunk by its header's line counts and
-    # the bytes split on LF only, so an added line whose text starts with "++" is
-    # read, and a CR, U+2028 or U+0085 inside an added line does not split it. The
-    # ":(top)" pathspec names the root .working/CHANGELOG.md from any subdirectory (3b399 round 3);
-    # the runner drops GIT_LITERAL_PATHSPECS, which made git read it as a file name (round 4).
-    # git must select the repository it finds by itself (a sibling GIT_DIR printed "not
-    # modified"), and the head's .working/CHANGELOG.md must be a regular file even when the diff does
-    # not show it (round 5). Selection is checked BEFORE range resolution (3b530): a sibling
-    # GIT_DIR usually also collapses the range, and the precise wrong-repository diagnosis
-    # must win over the generic collapsed-range refusal.
+    # diff and hunk-count parser: each hunk by its header's line counts and the bytes
+    # split on LF only, so an added line whose text starts with "++" is read, and a CR,
+    # U+2028 or U+0085 inside an added line does not split it. The ":(top)" pathspec
+    # names the root .working/CHANGELOG.md from any subdirectory; the runner drops
+    # GIT_LITERAL_PATHSPECS, under which git read it as a file name. git must select the
+    # repository it finds by itself (a sibling GIT_DIR printed "not modified"), and the
+    # head's .working/CHANGELOG.md must be a regular file even when the diff does not show
+    # it. Selection is checked BEFORE range resolution: a sibling GIT_DIR usually also
+    # collapses the range, and the precise wrong-repository diagnosis must win over the
+    # generic collapsed-range refusal.
     try:
         check_git_selects_root()
         refuse_links([CHANGELOG_PATH], args.head)

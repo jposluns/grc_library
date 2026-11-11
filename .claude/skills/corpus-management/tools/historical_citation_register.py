@@ -1,11 +1,11 @@
-"""The historical-context citation exception register: its data file, table and page sync (3b75).
+"""The historical-context citation exception register: its data file, table and page sync.
 
-The rows live in a TOML data file; the Markdown register page is a hand-written view whose table,
-between two sentinel comments, is GENERATED from the data (.claude/skills/corpus-management/tools/build-historical-citation-
-exceptions.py). Gate 6 reads the data file only, so what the page renders can never change what is
-sanctioned, and it refuses a page whose generated table differs from the data (maintainer ruling
-2026-09-26, after ten QA rounds found Markdown shapes that rendered differently from what a parser
-read).
+The rows live in a TOML data file; the Markdown register page is a hand-written
+view whose table, between two sentinel comments, is GENERATED from the data
+(.claude/skills/corpus-management/tools/build-historical-citation-exceptions.py). Gate 6
+reads the data file only, so what the page renders can never change what is sanctioned,
+and it refuses a page whose generated table differs from the data (in the earlier
+repository, Markdown shapes were found that rendered differently from what a parser read).
 
 load() applies the structural checks (strict TOML, exact keys, exact types, printable single-line
 ASCII strings); the wrapper applies the policy checks on each row. Stdlib only.
@@ -57,9 +57,9 @@ def load(text: str) -> list[dict]:
             raise RegisterDataError(f"{where}: verified must be a TOML date (YYYY-MM-DD)")
         for key in FIELDS[:-1]:
             value = row[key]
-            # A doubled space would render as one, so two rows could look the same (3b75 redesign
-            # QA r5, claude). An emoji shortcode such as :+1: may also render as a glyph; it is not
-            # refused (a pattern for it refused times and edition suffixes, r7) and is a stated residue.
+            # A doubled space would render as one, so two rows could look the same. An emoji
+            # shortcode such as :+1: may also render as a glyph; it is not refused (a pattern
+            # for it refused times and edition suffixes) and is a stated residue.
             if (not isinstance(value, str) or not _PRINTABLE.fullmatch(value)
                     or value != value.strip() or "  " in value):
                 raise RegisterDataError(f"{where}: {key} must be a non-empty single-line printable "
@@ -94,9 +94,9 @@ def sync_problem(page: str | None, rows: list[dict]) -> str | None:
     """Why the page is out of step with the data, or None when it matches."""
     if page is None:
         return f"{PAGE_REL} is missing; run python3 .claude/skills/corpus-management/tools/build-historical-citation-exceptions.py"
-    # LF line endings only: the generated block uses LF, and a CR or another separator changes
-    # where a renderer sees lines (a CRLF front-matter opener passed the r4 check; codex, claude,
-    # gemini r4).
+    # LF line endings only: the generated block uses LF, and a CR or another separator
+    # changes where a renderer sees lines (in the earlier repository, a CRLF
+    # front-matter opener passed an earlier check).
     if re.search(r"[\r\x0b\x0c\x1c\x1d\x1e\x85\u2028\u2029]", page):
         return f"{PAGE_REL}: the page must use LF line endings only"
     block = page_block(page)
@@ -105,7 +105,7 @@ def sync_problem(page: str | None, rows: list[dict]) -> str | None:
     if block != render(rows):
         return (f"{PAGE_REL}: the generated table differs from {DATA_REL}; run "
                 "python3 .claude/skills/corpus-management/tools/build-historical-citation-exceptions.py")
-    # The page must SHOW the generated table as the only table (with no math markup either) (3b75 QA, codex and claude): the
+    # The page must SHOW the generated table as the only table (with no math markup either): the
     # block stands alone at column 1, and the rest of the page carries no front matter, no raw
     # HTML or comment, no fence marker, no image, and no pipe, any of which could hide the real
     # table or show a fake one. Prose or an indented block that imitates a row is not detected;
@@ -113,11 +113,10 @@ def sync_problem(page: str | None, rows: list[dict]) -> str | None:
     start = page.index(BEGIN)
     after = start + len(block)
     if re.match(r"\A\ufeff?(?:---|\+\+\+)[ \t]*\n", page):
-        # Front matter renders as a table on GitHub (3b75 redesign QA r3, codex).
+        # Front matter renders as a table on GitHub.
         return f"{PAGE_REL}: front matter at the top of the page"
-    # A Markdown blank line may hold spaces or tabs (3b75 redesign QA r2, codex).
-    # The start and end of the file count as a boundary, so a single blank line there is enough
-    # (3b75 redesign QA r5, codex).
+    # A Markdown blank line may hold spaces or tabs.
+    # The start and end of the file count as a boundary, so a single blank line there is enough.
     if not re.search(r"(?:\A|\A[ \t]*\n|\n[ \t]*\n)\Z", page[:start]) or not re.match(
         r"(?:\n?[ \t]*\Z|\n[ \t]*\n)", page[after:]
     ):
@@ -127,19 +126,18 @@ def sync_problem(page: str | None, rows: list[dict]) -> str | None:
         if re.search(r"<[A-Za-z/!?]", line):
             return f"{PAGE_REL}: raw HTML or a comment outside the generated block"
         if "$" in line:
-            # GitHub math can draw a ruled array with no pipe (3b75 redesign QA r4, claude).
+            # GitHub math can draw a ruled array with no pipe.
             return f"{PAGE_REL}: math markup (a dollar sign) outside the generated block"
         if "```" in line or "~~~" in line:
-            # Any fence marker, wherever it sits (a quoted or listed fence too; 3b75 redesign QA r3,
-            # claude): the page's prose needs none.
+            # Any fence marker, wherever it sits (a quoted or listed fence too): the page's
+            # prose needs none.
             return f"{PAGE_REL}: a fence marker outside the generated block"
         if "![" in line:
-            # An image, inline or by reference, can show a picture of a table (3b75 redesign QA r5,
-            # claude).
+            # An image, inline or by reference, can show a picture of a table.
             return f"{PAGE_REL}: an image outside the generated block"
         if "|" in line:
-            # Any pipe: a GFM table needs one in its delimiter row, with or without outer pipes
-            # (3b75 redesign QA r2, claude, codex, gemini), so none may appear outside the block.
+            # Any pipe: a GFM table needs one in its delimiter row, with or without outer pipes,
+            # so none may appear outside the block.
             return f"{PAGE_REL}: a table (or a pipe) outside the generated block"
     return None
 

@@ -22,23 +22,23 @@ guardrail value-before-term form. This term is intentionally scanned
 inside fenced blocks because the guardrail renders its normative timeout
 row in a code fence.
 
-The dormant P1/P2/P3 acknowledgement scaffold patterns (added narrow per
-the Phase 23.26 false-positive analysis, matching 0 documents and kept
-as forward scaffolding) were RETIRED per the deep-assessment r3
-DA-gate25-scaffold finding: they matched no corpus content, so they
-added no protection while implying coverage the gate did not provide.
-The empirical rationale for NOT broadening SLA-dimension patterns to
-resolution / MTTR / convene / notification times still holds (each SLA
-dimension legitimately carries different per-Pn values across the
-corpus), so no replacement pattern is introduced; the gate stays active
-on the GDPR-breach-notification term below.
+The dormant P1/P2/P3 acknowledgement scaffold patterns (added narrow
+per a false-positive analysis in the earlier repository, where they
+matched 0 documents and were kept as forward scaffolding) were
+RETIRED: they matched none of that corpus, so they added no protection
+while implying coverage the gate did not provide. The empirical
+rationale for NOT broadening SLA-dimension patterns to resolution /
+MTTR / convene / notification times still holds (each SLA dimension
+legitimately carries different per-Pn values across the corpus), so no
+replacement pattern is introduced; the gate stays active on the
+GDPR-breach-notification term below.
 
-The GDPR-breach-notification pattern was added in Phase 23.35 after
-empirical confirmation that 8+ documents reference the statutory
-72-hour deadline and all currently agree on the value. The regex
-requires GDPR (or UK GDPR) to appear before an N-hours fragment on the
-same line, capturing the number. Any divergent value introduced by a
-future edit will produce a finding.
+The GDPR-breach-notification pattern was added after the earlier
+repository's corpus showed that 8+ documents referenced the statutory
+72-hour deadline and all agreed on the value. The regex requires GDPR
+(or UK GDPR) to appear before an N-hours fragment on the same line,
+capturing the number. Any divergent value introduced by a future edit
+will produce a finding.
 
 RTO, RPO, retention periods, P4 acknowledgement, NIS 2 reporting
 windows, and DORA reporting windows are not curated. They are either
@@ -111,7 +111,7 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument("paths", nargs="*", default=None)
     args = parser.parse_args(argv[1:])
-    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    # Explicit paths are refused when missing or outside this tree, else normalized.
     args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     targets = iter_markdown_targets(args.paths, exempt_files=EXEMPT_FILES)
     # term -> {normalised_value -> [(doc, raw_text)]}

@@ -1,12 +1,12 @@
-"""Section 7.1 publisher data: the machine-readable source of record (3b31b redesign).
+"""Section 7.1 publisher data: the machine-readable source of record.
 
 The citation-verification specification's section 7.1 carries ONE fenced block whose info string
 is exactly ``json citation-publishers``. It is the source of record for the publisher allow-list:
 ``.claude/skills/corpus-management/tools/build-citation-publishers.py`` renders the human-readable table from it between the
 ``BEGIN-GENERATED citation-publishers`` sentinels (gate 102 runs its ``--check``), and
 ``.claude/skills/corpus-management/tools/lint-allowlist-spec-parity.py`` (gate 101) compares the external-link ALLOW_LIST with the
-domains it declares. No code parses a Markdown table: nine QA rounds showed that hand-parsing a
-GFM table for a gate is an open-ended class (maintainer ruling 2026-09-24, option A).
+domains it declares. No code parses a Markdown table: in the earlier repository, hand-parsing a
+GFM table for a gate proved to be an open-ended class.
 
 Schema: a JSON array in render order; each entry is exactly
 ``{"publisher": str, "domains": [str, ...], "covers": str}``. Every rule below fails loud
@@ -26,15 +26,15 @@ BEGIN = "<!-- BEGIN-GENERATED citation-publishers -->"
 END = "<!-- END-GENERATED citation-publishers -->"
 KEYS = ("publisher", "domains", "covers")
 HOST_RE = re.compile(r"[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)+")
-# KEPT BROAD ON PURPOSE (3b83 round-4 QA): a fence-like line naming the block, in ANY fence style
+# KEPT BROAD ON PURPOSE: a fence-like line naming the block, in ANY fence style
 # (indentation, tildes, longer runs, trailing space), is counted, so a second or non-canonical
 # block cannot be silently ignored. This is a fail-closed DETECTOR, not a fence model: under the
-# 3b83 rule a fence TOGGLES only after zero to three spaces of indent (CommonMark; _fence_scan and
+# fence rule a fence TOGGLES only after zero to three spaces of indent (CommonMark; _fence_scan and
 # CLOSE_RE below keep that model), but a detector narrowed to that rule would silently IGNORE a
 # block indented four or more columns, the exact silent miss this regex exists to refuse. Every
 # counted line fails loud: a count other than one raises InputError (opener_line), and a single
 # counted opener must then be the exact canonical unindented opener (block_lines). It is one of
-# the deliberately broad fence screens listed in the pack README's 3b83 entry (another is the
+# the deliberately broad fence screens listed in the pack README (another is the
 # approvals-register refusal, _FENCE_LINE_RE in .claude/skills/corpus-management/tools/audit-backlog-actionability.py); each
 # matches a fence-shaped line at any indentation (this detector only a line naming the block),
 # and none decides which lines are fenced code (the standards-currency screen, _simple_fences,

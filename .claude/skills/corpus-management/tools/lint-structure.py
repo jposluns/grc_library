@@ -5,9 +5,9 @@ Verify that every active domain document is referenced by the central document-i
 register AND by its own domain README, and that every path those two surfaces
 reference exists on disk.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE check
-(parse_referenced_paths, iter_domain_files, collect_findings) lives in the
-pack-owned engine (.claude/skills/corpus-management/src/tools/gate_lint_structure.py, source of
+Engine/wrapper split: the PURE check (parse_referenced_paths, iter_domain_files,
+collect_findings) lives in the pack-owned engine
+(.claude/skills/corpus-management/src/tools/gate_lint_structure.py, source of
 record), fully parameterized by repo_root + the corpus structure config. This
 wrapper supplies the grc domain list, the grc index-register relative path, the grc
 exempt sets, and the --root handling and grouped reporting.
@@ -50,9 +50,7 @@ EXEMPT_FROM_INDEX = {
 # Directories whose contents are exempt from the structural-membership rule.
 # Intentionally empty: the engine walks only the DOMAINS directories and this
 # wrapper has no explicit-path mode, so a prefix outside those directories can
-# never match. 3b418 removed the last entry, `guardrails/`, which went dead
-# when the pack moved from `dev-security/claude-rules/` to the root (#1367).
-# Any future entry must name a path under a DOMAINS directory.
+# never match. Any entry must name a path under a DOMAINS directory.
 EXEMPT_DIRECTORY_PREFIXES: tuple[str, ...] = ()
 
 
@@ -77,7 +75,7 @@ def main(argv: list[str]) -> int:
         help="Override repository root (for isolation testing).",
     )
     args = parser.parse_args(argv[1:])
-    if args.root is not None:  # 3b50b2d1: a missing, empty or non-directory --root is refused
+    if args.root is not None:  # a missing, empty or non-directory --root is refused
         sys.path.insert(0, str(Path(__file__).resolve().parent))
         from lint_common import require_dir
         args.root = require_dir(args.root, "--root")

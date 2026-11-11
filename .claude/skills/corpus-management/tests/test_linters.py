@@ -42678,183 +42678,183 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
         README.md DATA F 200e0b5aed213ebc6d3cad364dbaf5e12492e008860495ec542f4ac82e1c1d22
-        adopt-bootstrap-ref.py OWN F 1c0e5ba5922d5e3558914ea164d4c553ea8dc5cf501d0a3864fbcffaf84e04c7
-        adopt-preflight-guard.py FIXED F ee7dd3404bad7ae6b955c536bb5478a1f435462b565537d5dcf56479484a55ce
+        adopt-bootstrap-ref.py OWN F ec19e2c45233ad02ca422349c0778a3c17463e6fc23fe9bf0591d822ac8d531c
+        adopt-preflight-guard.py FIXED F 73ab980af0fa53c8a485af18b7bdaee1b7bfef218c37982593e30c66d7f85f66
         aiqt_bootstrap.py PASSIVE F bc5496de79c394e76703b34380bfc1bbb9ae1a8c489aa719d0a75344d3c915dc
         aiqt_rules.py NO_FS F 12ff72ec1a760d5dc960e765db902ea0e4289959202385513ed8a1516130e5b3
         alignment-register-aliases.json DATA F 711044f7395cbd1a8d714e627e035783f3235c8a751e7f7f6c0dc5e02bbc5613
-        alignment-register-exclusions.json DATA F 1323924b4d3736994cf4d058cc033400dd26725a0af02f47c39c6923556bd78e
+        alignment-register-exclusions.json DATA F 391924062319d3d5a618b1750b37dec6c0ee0c0d21b77b26518b16e51a418f19
         alignment_citation_ids.json DATA F d0b0715098bebee865866404e4045980625b3f6e2b42ccf4b91c8b7d620e60ac
-        alignment_citation_reference.py PASSIVE F d208f32e869d34aa61eee5cac70be30d5087e454f37a7e1f53d22b90fcc058d0
-        build-alignment-citation-registry.py NO_FS F 388ff8c7716c7350bdb8a5157c067423dd4a8b59e9ccd9018b79da86ce0f3339
+        alignment_citation_reference.py PASSIVE F 06b70dfa9cff225ff5d5ddce6e46f556ec8ce7400d5e77acebbab846ef311cd0
+        build-alignment-citation-registry.py NO_FS F cd586fab699580471f86d542136c947e2b2229fe2cefa2ba5da09676b7a3f009
         build-citation-publishers.py NO_FS F 883be6f4d96edcfb940338f4a87e8f74de1e462ecd4d947bc26d50f01299a7dd
         build-corpus-management.py OWN F 99b180645666face6dd915ae22373c669aec0c388462690a3f3f86ee61caa1b7
-        build-historical-citation-exceptions.py OWN F 28648ebb217377db00442159e570440dbcb3716396a5a3e14b8c7002259a17e6
-        build-narrative-registry.py NO_FS F 032e27e068aa49a0e37a486f34cf1eabb61b8685c221dc0d2e2ee805f357f39f
-        build-portal.py NO_FS F 238debdc5b808abec17d3e7d21827c9fc29fd053af5d999d493a7d381155e815
-        build-provision-index.py ROOT F b232596f13d5276fb9a387a9eb53278cb834c77ec15163a8b75eccabdb9c0a85
-        build-public-changelog.py OWN F cf5ab5d2e0eb9af12269ee12fedfb6516801d24d8ad15c5e4bf86ad6eccc2ed9
-        build-reference-manifest.py NO_FS F 8c35622bb04788a491c73ad01962836a565a656c827dedfea819d21f7f0352d4
-        build-relationship-model.py NO_FS F 4f1985be07bd7accba4590136fff047e5edc5684c1d7f1451b7ab082923d5ddd
-        build-taxonomy.py NO_FS F 7b2c33ab4b32773deb192e34264fb7f672a64c7c408d5d988dcaab380da2af43
-        build-todo-number-allocation.py NO_FS F c43639a5293d9a8ed65bcd7d629610941c5c13d9cb9a4c2c93348efb829be534
+        build-historical-citation-exceptions.py OWN F 23f0e7d86a4cbef96158cc9f0edb1ae9dadf70e1a4ac2db7fea76ee486a11eac
+        build-narrative-registry.py NO_FS F daaf1ccac5aae35801edc076fc1eb0ed165a64f05944a8c157ea144c3585983c
+        build-portal.py NO_FS F d4f5a62383299fcf553400d0333ce8ed47376858635f4473348adb92877c9079
+        build-provision-index.py ROOT F beedab0b6d018c4c7d583e63b40c35704a65322b1b1203048d1062f8748e899a
+        build-public-changelog.py OWN F 38fc12242f4d182b91018a2047be2a6f40780a49c7edd77a2a313b19e15eff14
+        build-reference-manifest.py NO_FS F 91a2207f9721f1783979824b35f4aeada9c0ff3d47b6fa2da252261e7bf0fa72
+        build-relationship-model.py NO_FS F 6ee11b5a32fad3b6c3c7968b39f0c3f5df1aaec52cb05cd88371b0562975868c
+        build-taxonomy.py NO_FS F 79af52afff1f6e27a6e35856c8526004e84cddfc0bb87131be4e9f4267bf3712
+        build-todo-number-allocation.py NO_FS F 5f5cb253b442fa4b5d0e5781157ba2ecf666771f47eac3a4f5249513ae4136e7
         ccm_aicm_reference.py PASSIVE F 0d3218cfad279bd8f196c0d26241380220a3fc91fdb70505622fdedb5eba4733
-        changelog_diff.py PASSIVE F f7e55f77c428f8151a04cb1a0128b238a4af194fa8a9832c9f68d6fc1af9a3fd
-        check-alignment-register-on-pr.py NO_FS F d1c38262c93c543594ff197b6c52ed4ee0daf11057b985b0624bf47b482e3145
-        check-changelog-dash-on-pr.py NO_FS F ae246a045b11a2adb2ba048bb4ac30e99d577686a97cbbcdd6f0f42257d21faa
-        check-changelog-length-on-pr.py NO_FS F dd5bafe5fd12ea3a906e3e3ce79f4fb4a55bd916494e0a856e9c7d55f7a274bd
-        check-changelog-on-pr.py NO_FS F 988704bf5fc7880e6979e734eb661bc29adfd5ea1be38a4c31469d44e2b47922
-        check-changelog-preflight-commit.py NO_FS F 3549e7958e63fe73066eeb5eadf3ccc2e9c6d90f5e6529dadea9847397ec2c8b
-        check-class-completeness.py NO_FS F 9b7075b1b6eaa95e2eb1cf56204e2e31a40d79bd2c65583704a1a226a4bcf71f
-        check-claude-md-size.py NO_FS F 0063137a9ec00914945c3248d5965b6bea9f732b375bf6ed014e7977b1ae6ad8
-        check-clause-preservation.py OWN F 2982f008796c0c1b5608bf744c5cf498ac49a08019c542c0def8758810bad884
-        check-clean-language-upstream.py NO_FS F 22c4ab17845fe9858aac6e32a2aa4f54369d36594c3364dec2d0bbc939b10958
-        check-commit-on-main.py NO_FS F a3574077ddee06f6a41b6eb9e2602a3f625b95dcd9f42d9eca1a5720ebd70589
-        check-daily-changelog-rollup.py SKIP F 63007fba4919ea84500a075d2cda75a8cd8c64d99d3008f0237e69e1a16e4f1a
-        check-date-cobump-on-pr.py NO_FS F eb9d4f723e6f591620c35015c29088a56dd634174d9b51e9eaa5490e79cad4d5
-        check-dirty-tree-push.py TRANSPORT F 96833e0c6b3a2dcea78336649d492c92ec31b8317fc0fb5ca4961717316aa657
-        check-generated-commit.py NO_FS F e598d314cec35444ec503e6d3f4b7c37b362f66bd5c29c6d363c526bdd53e2d5
-        check-narrative-corpus-mixed-diff-on-pr.py NO_FS F e43c4695d96126d7641d28f7aa353ba5f7b921759092326a5bf14ee2f7a52ade
-        check-portability.sh FIXED F 6db8acf68ba0551ea3121df5c948bbe4f8e7be57280c1f60dcace4b8ba92ae19
-        check-retired-section-orphan-on-pr.py NO_FS F 6fd04e27564842955cc3729941fee9a83a1321999e0e946e62f5e220a6441f45
-        check-review-cadence.py ROOT F 2277b86f5316dcbc729e230a3ca27444e25c462ea931836d6bd4e0b39d64d5d2
-        check-stranded-control-code-on-pr.py NO_FS F 2ae031e42fcfa71b867a6c4e3157735efbad4869f0d5e5bc94f7473b629309d7
-        check-todo-floor-monotonic-on-pr.py NO_FS F 6e3d51fb8760b6f635e4a3673ac1db8092d47fab752e0b954fa5bcdd205faf79
-        check-todo-rotation-on-pr.py NO_FS F dcce3d1984ffa30b363629d88855c834b622d27a8074297e272f89798997b61f
-        check-version-bump-commit.py MESSAGE F 62aca20f0eba5e80813712f237b25901808b9bef228264bf875cd9c6f15c5243
-        check-version-bump-on-pr.py NO_FS F 8e831de0e9628775708a0651c3c56d68e02c082864b819a73058cdd75cd35383
-        citation_publishers.py PASSIVE F fde369119935dca0544558c9d4014b58b2ddd989e3777d59d9f5acdae199203b
+        changelog_diff.py PASSIVE F f2ae77440ff80bce16aca47d1a9b7a6f405183b3d0b1f49f2dcd7a344b9d0d67
+        check-alignment-register-on-pr.py NO_FS F f9ef275f8bfd97e7ab12cd03572a7de34d4f3bc051cd3e1b1d09ea30694e43a3
+        check-changelog-dash-on-pr.py NO_FS F 04ef5a5637b0126979127297baea433dbd8ab183bf0d31288e150c8e04737c81
+        check-changelog-length-on-pr.py NO_FS F 91c9308103f36414f1975e2233cd82644551ca4a3996c4a2b9310b437004434a
+        check-changelog-on-pr.py NO_FS F 00fa478d33343ae5d955e3faa7f99d9c61c6cda6f7a5e414dfcaf6ec6f7bf25b
+        check-changelog-preflight-commit.py NO_FS F 9ec0a028e7e916fdfa542f6688b909b08a1c69fe66b3a7cb82d979689885f978
+        check-class-completeness.py NO_FS F 999fa17b1d75f58c6b39cfa49d11dc5e54cf1fb4893376ee4bbe528c03597ff3
+        check-claude-md-size.py NO_FS F 5f0c8e37d4a1b36a6be924354a6cdfca69a4ba5498e77cee52012ccefc99764b
+        check-clause-preservation.py OWN F 2b7e4cf588258eda89904c36625cc42369a53a3273a920e5e03b8faafb1ea909
+        check-clean-language-upstream.py NO_FS F c35409a171a04e8a18c1a0089d597fd1823165e0d963221e040b3b2efa91e85c
+        check-commit-on-main.py NO_FS F a9672ae752b0434a1e94118bccf3dcc640bd321967ea3e6d775c0f1a8f153f7e
+        check-daily-changelog-rollup.py SKIP F 9ac1a4b9a151c9f5b9cefcb93dfceea2d194611c4fc0567e90bdbcc0158598bd
+        check-date-cobump-on-pr.py NO_FS F 302cb52aff2cc9b7a4c2a9c5f8c3646d6270bd4932dea572dcbe08e762292cb9
+        check-dirty-tree-push.py TRANSPORT F 55222e921472f5297afb9c5f98e0f5efb8f5c8d0adcca8dbe84f30012ac0f8fb
+        check-generated-commit.py NO_FS F a15e3235cc5ab50f0d3473efcfd05b56741f602ecbae59fd92b79ca1ee7f19e1
+        check-narrative-corpus-mixed-diff-on-pr.py NO_FS F ec4c08cabe08cf5c84d7a1122a3c54ecbe0a74f782396a5786f6013785b64f0f
+        check-portability.sh FIXED F 53ce8fd609c5f99cfff314dda4641f02d2a99136cba2f0e2b1d76c8e612c1538
+        check-retired-section-orphan-on-pr.py NO_FS F 0d710f974f62cd7b1cf9e80d7b8b03ce51f05784c34e6ead05db22f157d5428b
+        check-review-cadence.py ROOT F bcd4b92ee9be87833a2905a2f9aea484fec84520c85ff1aa07e85aff956b0cc1
+        check-stranded-control-code-on-pr.py NO_FS F d0631b2fca128c3457f87029e56a252e20e4be701148cc2e171c2d6cbe051b37
+        check-todo-floor-monotonic-on-pr.py NO_FS F bca2ea5684ae6828a03cea9e7e595b3ec54b81aa05acf7586460863adf3c57df
+        check-todo-rotation-on-pr.py NO_FS F d2516ba2514b6a2d2062059e2a1d4f3d0985220a2ef5f6127a7f464eea998dbc
+        check-version-bump-commit.py MESSAGE F 5a7a28391d0db1fd12176213de8b34eddf11412fc937e00bdb1d9c50e0f2aef6
+        check-version-bump-on-pr.py NO_FS F c0aaefac08a658834846417e1049dd17cdec4caae3224914fcb64c863a8b2ad1
+        citation_publishers.py PASSIVE F 8f367f75830d8b235e1019615b4e876c0ee562c6c5819e4bf4118325f1bb5dff
         cobit_iso31000_reference.py PASSIVE F 396aa674262ec1a794c27adb7ce50f8b2adbfe863eec66e7845a45a07fbd2c61
-        gate-scope-manifest.json DATA F 899ce0b1666d9caf39bb1c7cddf866f3602d91f0ac53f5c762e37b40cb821327
-        git-hooks/commit-msg MESSAGE F 16db495598a27417aa07a6f84e4e2660cd7fe1facceb07c1a9be80491e10c7f4
-        git-hooks/pre-commit FIXED F 08d1e02bcdf96561b7b3e19002ef44f3b28b89a679765ebc8f2f4a2c631e1e93
-        git-hooks/pre-push TRANSPORT F 0cb81bca5e070adface9fcff866cf6d33d4c5d4fe39d0db68e0476e291c131c8
-        historical_citation_register.py PASSIVE F ff8337f9ea4befb8f7f89ab2ed24a08d2f3937f89257449abf54ffce41d5d980
-        install-git-hooks.sh FIXED F 96cf03c60ac46d4f76b14a1604b2880e1f1240a92a086c31e92f36af3c64009b
+        gate-scope-manifest.json DATA F 71838bc8243fe92e1f13b1b53464760447eb5f4d718613aa9ee8bd0d5516cf57
+        git-hooks/commit-msg MESSAGE F 64510e0d473663d37e6416287e8edce7b4043619e64fea8c5cb2a82200a5ab97
+        git-hooks/pre-commit FIXED F 5e576c5bf6bab147625b27fa4875aa6b9b292f68292ca0085de3fa29bf387ecb
+        git-hooks/pre-push TRANSPORT F a7e4da49d2f18e10ab2f88f31bf5264485486bd206f77aed0ed68c63bbb59a33
+        historical_citation_register.py PASSIVE F ffa6d49a55cae8e0945fb64c79fc8318f10630064311772ee367d2a0e6c2cb66
+        install-git-hooks.sh FIXED F 7ea50c44609e8a39f460aaf4b2a745e100ed61d1724a3592d40478572f70c386
         iso27001_reference.py PASSIVE F 01119eacf328d0bfe36ae40f9800a6c7fe37ef895bca70b219341ac07aec53e3
         iso_27001_reference.py PASSIVE F e8789346ac57b557de2f5c93c7fc2b31651b49be25bc8180e8bdc84310b21418
-        lint-acronym-consistency.py CWD F feab99d725249427890d5a32c32d41ff6b6d0ef929e40dbaa97311182a7bbb8c
+        lint-acronym-consistency.py CWD F b5ef8c043946b895b5b8be67a58e7067ce0a4ce36737174266511ca504353055
         lint-aiqt-vendor-digest.py NO_FS F 49f26e0c53d3c6c5b88c455204bec8a092ddca252890e189f4dc988baf0e7c8d
-        lint-alignment-citation-existence.py CWD F ce3b2a02ba1d6fc99b77718fee2e908af1a793dfac90cf5e373b34b9da838c67
-        lint-allowlist-spec-parity.py NO_FS F 31a9e348330041d1237e9f60f0b4b8d8486e690370f3685a8828553b54b36d9b
-        lint-audit-gate-parity.py OWN F 2098e8b17acaaf7f2e58cfbd0b81a5a2c914799ecf524017fe558854ec975d4e
-        lint-audit-spec-detailed-prose.py OWN F ae791fa738b8b6e2c3299e79eaac07e28b174acfdcf16a0d92de024af2eea144
-        lint-bare-normative-shall.py ROOT F 961914ca91d7e70a286019f6c0aaee5b5398791dc7b4a5a4a41cdae8acafc385
-        lint-baseline-pin.py OWN F 8f66582bf204c37fe1dd4a97aa56aba1562c9c7bbde98bfc0021656141fc407c
-        lint-ccm-aicm-citations.py CWD F 1bfff249d503ff8f44b7126ea5337d8a352386ee9d5fb0fcf744db6b4b8ed1bf
-        lint-ccm-provider-member-in-range.py CWD F 206f09840a333f1942d6628e9b51c83a4b058957489d1b9d57144758a9441699
-        lint-changelog-link-coverage.py CWD F f61f00e34774091dfbf3d47449ebfebc386e152e2dfc2d2022d969fb46438ac2
-        lint-changelog-mirror-header-parity.py OWN F c48af58b593186e2d89aa2e3ed145cc5c0943db5635352e02d624cc355c84fa0
-        lint-citation-currency-cadence.py NO_FS F c9ade17f84bb47e4f021e9a1b3d686c0bfc28cc03bd7117576c430cdc93fa776
+        lint-alignment-citation-existence.py CWD F e7792b9664730a6b542285fa654de20ec9d39af7aa6cb553813ff2efa865152c
+        lint-allowlist-spec-parity.py NO_FS F e8f452096456f55cd880fdb79b01ac18cadbcbfc966b67e1ab9b9ef43e8ea1db
+        lint-audit-gate-parity.py OWN F 1796cdd7f811b4d1d472c9812a8d1cb32500eabe048a3802980b9766ebb28298
+        lint-audit-spec-detailed-prose.py OWN F 49ba119b94f997b1c35560dab6087ef16c936a09c02a84f3fa02a1925412e390
+        lint-bare-normative-shall.py ROOT F 0de8d8f46a8d953aa02ca38c8b86d8f08a5c642e1b900483f3008c2c3983e203
+        lint-baseline-pin.py OWN F 33cbe14512f04fb1da1c9c0a44e53ecaef7e618968e8314a48b812b30595035a
+        lint-ccm-aicm-citations.py CWD F b2c3b6225f1d68dcc904b167ef69963c35ac03b169d87478ac39e1f94edb6242
+        lint-ccm-provider-member-in-range.py CWD F 3b6aed2769f3d8eb23d754862c355f16e760518d051462b6a217b62a9a31ac7b
+        lint-changelog-link-coverage.py CWD F 5e0c2e8520be9e8418bf0835decd744ff234ed93b9c3a707255121120cdf9437
+        lint-changelog-mirror-header-parity.py OWN F 50b19507fd3b701b12b30b6e7c72a646c9f65e286b932d84b7b4049d7fd50775
+        lint-citation-currency-cadence.py NO_FS F 01bc84108f08b8d88711e0e8a9bb7bd5aec5b27b24e67594697dbd4d2ddbc7eb
         lint-citation-verification-freshness.py OWN F 6fef148ac78796357de64b363f2d9002b0f5030fe0924de4c5b09d44b1179ea7
-        lint-citations.py ROOT F abaab05779f502ceeaf3ef6ffab83d487adca151ed5c92601c2ddf0d305c2a15
+        lint-citations.py ROOT F 223b54a1983967480c8ae2b80e3d59c98c2921d9bf7c411913470505a7f9b060
         lint-claude-rules-sync.py OWN F 4e375feac86fed164e9bef4b5055692ee0b1e832a8bc3ab7dc54ce89fb93186d
-        lint-cobit-iso31000-citations.py CWD F b34aaaa53586804674d0bc018df4903c5077daaac3ef3b8432429f73d4f756d5
-        lint-cobit-title-text.py CWD F dc685b89c483601bde42f27a5462de846986c51687ca12c3a1184691d2e554c0
+        lint-cobit-iso31000-citations.py CWD F bdb88516b2a7be63c386f9d302b931d8ab6c070b3837e9ea6e619babad61eeff
+        lint-cobit-title-text.py CWD F effc72d7b5320bdfb6371840aa67de751c55f1f9d34f358909ac82092bedfba9
         lint-collection-enumeration-consistency.py NO_FS F e66ad0d0bf430451d1fa6d78e223a5d5af1edf31f4441731753dea061bd590bc
-        lint-cross-doc-numbers.py CWD F 843a2e5e5442c30d9dd441b5495cf70692bd620efafa4a937eb38afc5595ac3c
-        lint-cross-file-section-names.py CWD F 6b7daec039a23ddb454b749badbd03c80970ad8e2eca8212ff0db3ab9d8e87d5
-        lint-cross-file-section-refs.py CWD F 9fffd3ea3d3b7bf10276f2319919d677030e4db0243e1ca28f148971d4b30aa5
-        lint-date-format.py CWD F 700f1dce97a776483ad45e6a9094f0b0885567257605af4c5deb04fd8cb3fb03
-        lint-directional-dependency.py ROOT F 3607d5adabc5b8645b28427a6aae06764be257f3e4d42767b13bc75e3f8ae9aa
-        lint-doctype-parity.py NO_FS F 248c41ae1e79b2bd64d8c1114db43e007df22db64c3f22bb5f4d162dd382bc6a
-        lint-document-control-codes.py OWN F 9b88e4ec0a9437df01a94087a8426825ed3088078bb7f39bfec774c8066a75e7
-        lint-document-date-staleness.py CWD F 21ee2248f0948216cff864bffcd5f803bc1eda126a387115b609ff22e8279110
-        lint-document-iso-annex-a.py OWN F e5836e46ac5b37b7938e0e9b68dd8cb67022d55df72bb5486590e905f219ac58
-        lint-external-link-domains.py CWD F c5fffe3da1047022278d9e8f6e24d895c0adcba15932874572da46bd099524ad
-        lint-filename-title-alignment.py ROOT F 6ece3cfeed231c6854876ff7957b5b5cb8da12f69df54bc5717005cf360ea01d
-        lint-gate-citation-inventory.py NO_FS F 25326cb6425f1539af0d533e419d403a6b0371aaaa41c7c23d84d432f6eae0fc
-        lint-gate-count-consistency.py CWD F 6cea7e73ad7fc2a0095bdabed83815c3383c68d9a2cb5f4a4b4832dbe535e5dc
-        lint-hooks-syntax.py OWN F cafa03fa9bb16833431006d161c76a32b0c4f522cea725b2e2a4af29628db34d
-        lint-index-header-parity.py OWN F e3d6d7b6ac0e6385dc78c38ae549f3fdda6b368a7d6af7e935c71fb708af8d2f
-        lint-internal-references.py CWD F d6945e5cba6f7dec3472a8090373e2eabc83e6fcdfa9ee38dc0aaf66bf5098f6
-        lint-intra-doc-refs.py CWD F e5c27638b65ff77e79d9ba1a97c3d4abd0834306a3482c37a05b032ea2a46c6f
+        lint-cross-doc-numbers.py CWD F 1e52e0be3d4b626dbadcbb0dff30aaec11e63b6404ca5577ecf5f562ece2b94d
+        lint-cross-file-section-names.py CWD F 30e7152e52bc2a95b0c2831ddb8954222b464fe259dbbb52108df677189d0ea7
+        lint-cross-file-section-refs.py CWD F eeaf1d07db7c72f64660a0964614ccb4de1cbd648cfebf94ba96e940b0575c48
+        lint-date-format.py CWD F 4c0f03dadc20ee6e4b4cd006e448ee0e57c84b6a3a1269404e8554a4db5ee015
+        lint-directional-dependency.py ROOT F 4585487ec7ae1187a56aad3665c31928f0cc87117e4a8ed9507a26e307bc009d
+        lint-doctype-parity.py NO_FS F 5cd574d604f2625d225e5046c4b1d087bf01735e6ea6442bf603d9b308ed19ed
+        lint-document-control-codes.py OWN F eb400222d37c66dfc435cb9d56e62f725c706083d446d7db07ad88038d5f9103
+        lint-document-date-staleness.py CWD F e355085d43f49fafd9fdd77ae2081b51041ee57c4330d46e4e43541133477f3d
+        lint-document-iso-annex-a.py OWN F 2013f08f6a062b91ac609daf092fee9c3021538155ed3442e82dcfa4298cfdd9
+        lint-external-link-domains.py CWD F bb427c0ef0cf4bfc5a63e8b69f917998275d55887b832ede1a8256296e04985b
+        lint-filename-title-alignment.py ROOT F 425af063d16a333f1ae02a1b2f7afbd6cf867e4aaae3bd8ee659603f1851b58d
+        lint-gate-citation-inventory.py NO_FS F c1a197f41ac4b94e66c0616c2bec871c1201dfaf6675e70406eef66cd47418c6
+        lint-gate-count-consistency.py CWD F 44b4d1ff279fee77b244d00211c142bffa84ecf0457d7b9ed9a18b79112a8040
+        lint-hooks-syntax.py OWN F 38a691979f4132d8325eb26b1f36237aacfb3dccd3150e722f4e2f5941ba12b7
+        lint-index-header-parity.py OWN F 939dbbc98052f583961522b2bda795a4513f8caef9b32330644ebd5ac387f790
+        lint-internal-references.py CWD F e13572ec28ae1327efcfdf3c25540ce89e020ce9364023d725a08900fe9c5e45
+        lint-intra-doc-refs.py CWD F 221b24c6f3a5e9b788349f773792cb595f7e42ef0659504d51a29335045f82e3
         lint-isolated-launch.py NO_FS F 7ae93fc2d16ae06511bd9737df79b734923ec7a3edcac66ebd900883b71bce81
-        lint-language.py ROOT F c73f88e9863abd82c5dd264917fea12202aac086adf633a69bd94e161da3009f
-        lint-library-version-monotonicity.py OWN F 0b79333f9ce12179e58ff5169c2de4f3c82c102aa1630337882445d98c05fc46
-        lint-license-consistency.py CWD F d20553fc01d7ef8e1da5a7de0725dbd04f29aca2543a5e49499086c9c014c6d1
-        lint-links.py ROOT F dabb86b552db35bea36c72131c8b8aadc39ac764e984558eeb8a5da8c3f038d9
+        lint-language.py ROOT F 1860b2f568b226210676a0cf5746b2d04b83f6d6627658cf0e05175c25fcf7bc
+        lint-library-version-monotonicity.py OWN F 0816e73fb036c117a472dcbd9b7f017630b3aa24017c9b19bba25d89f5b01676
+        lint-license-consistency.py CWD F 4b79d50767f0b5a51f7734387584fd58b7d77956ecad00a2887347f84b620e9e
+        lint-links.py ROOT F 92fc6fb1c68b715455a0ca6e45437aa1809c46e404d4c0d5a0917b64f3bcf824
         lint-listing-surface-completeness.py NO_FS F 883baec9004bd08709a57c9ea64634e7e65ce275e1e104eab2259d305480ef73
-        lint-matrix-control-codes.py OWN F 4b8bce03178d6a21e6bc001b112186053125ac3e3285531f2aab5276492ddf13
-        lint-metadata-line-breaks.py ROOT F e000e749f15b403c7bbf16112fd7e8c498044573f6233f2e976b42c035218c73
-        lint-metadata.py ROOT F 7474e9cfce84b951917fafed04a4c2e0fd078935cd35cc7471c6ecb224fc524c
-        lint-narrative-authority-boundary.py ROOT F 75b9f667b9ba61f82f545456726bb2c497644875ea59c403ecf44ac1864e9d43
-        lint-narrative-boundary.py OWN F f305ddde62c248b64253334461fb33b8118cd34648916652237db714795d4ae2
+        lint-matrix-control-codes.py OWN F 88e8bb5cf39951e9d4d8684442ac272288ee5a63d171438c1fd927e2fd969864
+        lint-metadata-line-breaks.py ROOT F 8e18d7b327c86b85b7932c61dc5af33895d5b4dbaf7c8aa733755f545395bf90
+        lint-metadata.py ROOT F ab21e76f903684c8f307a01a76b42a8a48434af31be15e566730885e444b2647
+        lint-narrative-authority-boundary.py ROOT F 0568fe66b23f13179c4c3fe8a4b6464ba751454209d82ed6a1c1a0dc8073f279
+        lint-narrative-boundary.py OWN F 914931f27f1f5e1d4ca2ca83645df86dddb4a9bb14c45dbaec4fc89a515a06f1
         lint-narrative-disclaimer.py NO_FS F 9e9c956e4a5edded7cd611494c2161cac18a78741b87ffc32a26f9be65a5b8de
-        lint-narrative-metadata.py CWD F ccea34d603d1faff81a89324efaa5934c2f9356ca6a2299ef378ac9d54dc8653
-        lint-narrative-vocabulary.py CWD F 35d209d85380fbe079405afabaf96790ce3cdd1d3146ca9ead95fb88ba1ced97
-        lint-nested-markdown-links.py ROOT F ab86f6c451ec5cb8c557b89912eee9c14268d0e2cb84dadce4bf481ba2f5caa4
-        lint-orphan-documents.py NO_FS F 7dea5f362d93ef25e87676302483159360c92dcc68ba30ecb9380141911ea260
-        lint-pii-in-content.py CWD F 12cd73ece390a2ef461ef403f6ef6223b05a1bcbcabd2eb22ba81b511d33215e
-        lint-placeholder-leakage.py CWD F 09d42221d611aaf42145c752087869c2c6c102af00226f0e97e125b5e9f1022f
-        lint-positional-backlog-tokens.py ROOT F 1f5ff9801a4e7a08771bce8c8055002d8fe7006f4b46cf3278e93a640833cbd9
-        lint-ref-absence-claims.py ROOT F 06a1a1b851e86d0e003cfbb9fde82fb901441500f6884676ce0e48374a75f47f
-        lint-required-sections.py CWD F 528442ea26bacd26eb0c2834829331b8710b2325b3328d3a21800cbfc1b90750
+        lint-narrative-metadata.py CWD F 2438239d00db75202070771351cfed226a66cce1de7e8ffe3559b22800192ce8
+        lint-narrative-vocabulary.py CWD F c8fa9fd041e2ea8ea7bc246efc1100795b8e69dcab5b218d5d72ae65ca6c66a0
+        lint-nested-markdown-links.py ROOT F 36b09b7bb5221bf0c3589f22426453fee35a9744ce451cd54d3518880be0a5d8
+        lint-orphan-documents.py NO_FS F dfd0ba0a89ae03d33318d8e5801e6cd72629b4acaaf9a83b2809f099447505be
+        lint-pii-in-content.py CWD F 9d53a9367dd3c18c770459bf73ff371331bb964b2c32d82d569ebd8d0a7945f9
+        lint-placeholder-leakage.py CWD F d9503d8672f7bf079a32b99ad715c43ef5f5b2f2eb17375d2a1eb7fe5fa72832
+        lint-positional-backlog-tokens.py ROOT F 014dc171dfd4511c153270b53577d62337fe3a5216dfc4f6f95b84d8e4cc80b1
+        lint-ref-absence-claims.py ROOT F 8e4eae72e7fab0e3e8fb889d1e2d80bf4c0e0468f85bedd14fffae25d491699d
+        lint-required-sections.py CWD F d4b84278b59d2e8cb78de9953424f45417127e5ebc8d189431bc7d66f0132cd2
         lint-retention-consistency.py OWN F 721d4d56fe131183be2c9c82e0c5b1c377dca0edd9bea8d610f4819fae2288fc
-        lint-roles.py ROOT F 73070cbbf187b8f636ec46fa7cb3ff146392087cb2655e30fbb86a7a4360e8dc
-        lint-scan-scope-parity.py OWN F b73cde190442387e8c3a65824a3d63778051605f79d63d451fc857ca7094e051
-        lint-secrets-in-content.py CWD F fcded46fe7e336e0a8fa4023c8ecf9da4243153a569efed58140de82758234c7
-        lint-section-anchors.py CWD F cf292206eb98a07289897bbb245a5c6c4b81a658a9afa96435f8dd010e0ef51f
-        lint-section-placement.py CWD F e914ba93d84323cf5fa247c83cfc217d88709c21c619b52407f1b3678092dd51
-        lint-shall-near-uncertainty.py ROOT F 2991409c38c01183d72fcfbfc1bf6758a95f0cfea91e663de7c166c46f5c6f22
-        lint-sibling-placeholders.py NO_FS F 797b8c1bc25e66b973149f04c2d3f041377ad8aef4d2d6ae1651f7e36b975444
-        lint-skill-verdict-carrier-completeness.py OWN F ef309b38652400b00b26e815a7731617e60046a609d0377f5c795bb68746724b
-        lint-ssdf-control-ids.py CWD F e47480aa4721817438ef4dee1eed56afafef586568e39b047ed045ab69e7d1ee
-        lint-standards-currency.py OWN F 5f162f1d61f71bf561802e30720985e3edbf307e8f6558b417ba70d7abaa9e11
+        lint-roles.py ROOT F fa17709c4bd944b4536afd791a756e53a0f3040860c813d9c9f2412acef6e886
+        lint-scan-scope-parity.py OWN F 3896541e18c4a614d03a959b961b2c75481f3afa90d4c8b6cfb1bd19c3e94565
+        lint-secrets-in-content.py CWD F ceb378921712582961bbc775c6d60f16b83b3aa2c5c4674484206ab64d604baf
+        lint-section-anchors.py CWD F 688cdc40949395d5ddbdd41d0e1712c50d08791a7293f259a212b37e81a67e52
+        lint-section-placement.py CWD F 99618f1825b64c2734c116b941bc9d9ebc94ccdccd4011dc5a21a58714acf464
+        lint-shall-near-uncertainty.py ROOT F 7626c8ce039ceb45128e291e462870551b04242ae6c1083899dcc51a827aeac0
+        lint-sibling-placeholders.py NO_FS F 71e2d7087eaff47ca5a57e9f5ba1f9048d577bf08781069511b73c31fdd45fa8
+        lint-skill-verdict-carrier-completeness.py OWN F 972851a3cc7dfcd4751e57520bd29691b4125abda340fba62cb1761759abcd60
+        lint-ssdf-control-ids.py CWD F 15fe8459dc1a29286d72dd6fafd50687b7cfacc0bf52895f97d57aa8fdd3d051
+        lint-standards-currency.py OWN F 0c286e3697a8701bcc488517034f32120e3cfeee384e31b1b6243655e0982ab5
         lint-startup-character-ceiling.py NO_FS F d6417cd2e9987e8038f664931a8d3f8a1e54e9d28d655ea93187e1dcc2a17daf
-        lint-stdlib-only-imports.py NO_FS F 9d1a4208ba701d558b6fa81cc6ae6e287bb3ea153acbebbe241b754feca76ceb
-        lint-structure.py OWN F e3d425a59b899333d7619ac10144a6c321f1c031892e209a4a8746c4de7d64a8
-        lint-stub-documents.py CWD F 08931995bad0efe6d0c611bf315e13e69ba7da57b8323d1ed6e3179d8f8c626d
-        lint-table-cell-count.py OWN F 09f0901d07db0f8ce4536534da879480cf07bd32d48188059a78d9ce9ec42416
-        lint-todo-index-reference-parity.py OWN F 0322cc9188ff149fbbb5549252f1362f1755ef45243fdde7160169208e8424fc
-        lint-todo-list-tag.py OWN F 58dca800aa32f4c3ac1f54cb20ab9f497500b161b9de6cbe611ca284c6e08caf
-        lint-todo-marked-done.py ROOT F 384030341ae9a8916fa891e9c32f8e17d70b09f03618e8ae364a413b97cf7cb9
-        lint-todo-number-permanence.py OWN F 87564815efb4cbcc220987775cbe9faa60c97b2ae9031d5d1b331e23bd44a4b5
-        lint-todo-staleness.py NO_FS F e3857e1bc4ac5e961c465c3b2a8ed9e0de0b34a88dc3d89ad815615f049f2bf9
-        lint-tooling-backlog-refs.py OWN F 607e771c3b92ae7c591e0867da24031ea7d0e700057afeff665123a619a1cdeb
+        lint-stdlib-only-imports.py NO_FS F d08a512bb89bef359817bfb7fac4051e7e69ad971ccd6663372d6a444efa218d
+        lint-structure.py OWN F de53071ea54f72ec560227d6779f4fccb282bdf97b840f11343352566a0f5bc9
+        lint-stub-documents.py CWD F 199c52f074f3535e29694e66bb0df818e1a2bdcaee19e444a2056d1ab589422f
+        lint-table-cell-count.py OWN F 9d69877115bda788933b991e9b23e31b1029009da5b7978c7cf68ae8b6c7fce2
+        lint-todo-index-reference-parity.py OWN F 46ffb499a50fa6b5d64ac594776e5a26ad4e3c696fc48d8b5e4fc8b4646a2b22
+        lint-todo-list-tag.py OWN F 10ee5371268378b28c9097a588515231d625ab63b5e5b1b9f3533f4d85db9b2d
+        lint-todo-marked-done.py ROOT F 9d5f28f83917e26a4cd0bffde756fded4a2bf4259b809472bc1757a6dbc1b212
+        lint-todo-number-permanence.py OWN F 08d2cad0aca59c224bb36e901c8ee796a016f6b75bfa61803253fe471d196f46
+        lint-todo-staleness.py NO_FS F 6a89123607678239f036cab7bf02e0a0885216f55ba0b23fb53799e30c40cffb
+        lint-tooling-backlog-refs.py OWN F f59006b0af46722da97592748098bcb0f00544b22cbc34a64e42cde1a751a49a
         lint-tooling-provenance-freshness.py OWN F 38a5222e69c3ec9c43c1ea917f39d8b17683ae3f91b6c361e4b10a34d0f4027a
-        lint-unbalanced-fences.py ROOT F efc44ab68739892982c9da6f68197e2ac6f035ed544113013c80e4d1e233cffb
-        lint-ungated-dashes.py NO_FS F f59de21823dd85927a173159fa6026001097d609431db814f6fc3025ce4608bc
-        lint-unused-imports.py CWD F 05ca63d3f4bb0462f9866dcd7ef795ca0d0c54b9187e3a67eff39697dd7265cb
-        lint-version-bump-recency.py CWD F 6bda3d80d35330f7ebcfa06a18dab4e7161df2546cea1c5ac1879fcde080f347
-        lint-version-date-consistency.py OWN F 4b69ee3f29de310e37a7cc6981089f2e89b6ad21c2e3c3d314279ce8f75cef3d
+        lint-unbalanced-fences.py ROOT F be18adf8de595de46e7d2149a9e6c0053288f41fdecc3b8748c3a609f94ff294
+        lint-ungated-dashes.py NO_FS F 81bd8a51ed9d04864b908024f4cd4bf9d45b123075b626e2b3540accfcaedbec
+        lint-unused-imports.py CWD F ca0774461f0ea6a973bc510a7b68f51790eb3c21e2e580470af4fc64c9060b2e
+        lint-version-bump-recency.py CWD F ec40079cbc78a794fb12a21477bc94d12202bf3be324f3fb3546999e53f171e3
+        lint-version-date-consistency.py OWN F c07c0009130b660eb3ef8c3a1e06c659a99d8eea3663a2fbd84d47773c87e099
         lint-web-corpus-links.py OWN F 590157e1f8c31f8c867b1f31e5976d95a8e04ef2a00fa7a0c636589b3bb7e80a
-        lint_common.py PASSIVE F 0ec7c234d7caf333bca84672db4c61739a11c3d82328c3042886ab75b3b63228
-        matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
-        measure-regression-timings.py WRITE F c6d1f22fbc6e8663067a0cb3239f277db3e5daad7e5b8fa698dcf8f865621f99
+        lint_common.py PASSIVE F 82cad94e04db71f7568fc4725f981aa2c55ba7b63688d1815598f1ed3263bf3a
+        matrix_code_parse.py PASSIVE F 62df77ba801019b06afea2a1474836a90dc2e8385f7d99becef9d393c511f622
+        measure-regression-timings.py WRITE F 3fa6dd03e89eaf23d6b92a01f4369f11ff863a475bc81926319b7c734fa007d1
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
-        pre-push-guard.sh FIXED F baaf888d44c6c946f5c12233a32e899639a1949b062623164069a668d07332a9
+        pre-push-guard.sh FIXED F c8598577e170496c0ab4685de5bf6d954e3e10159ad81223484db04b74338831
         pre-push-hook.py TRANSPORT F e0a06be59cc3e8c0b47377b229c16ea169eba04ed717e31c9427356b85f6bb76
-        preflight-changelog.py NO_FS F 29957c73e3b649040497b2db9fcd095a8ae92627d69259795943a363ac7d514c
-        preflight-version-date.py NO_FS F fa0c5302a8b96c582ecc5cb32e74b70bfed7b26da4727839c6d0765841aee2b9
-        preflight_language_runner.py CHILD F 74bf872dffaee970bcab511f640704f8575fa5a5e652d7e9d2689573be097d55
-        provision_citations.py PASSIVE F be64f2ad5bd5f96d1e7242bda050964851ba96a44a375d6fcb8aadf17e85fc71
-        quick-guard.sh FIXED F 9be1ac996a3aeffde824bc0256cf0538f7fc75db0420a8b02e8b6b0f67c3f729
-        reconcile-regression-shards.py OWN F 85e0c4672f74ab83bdfc02e879b910ea542da2dec2438a4aa52f05285b43cd73
-        residual-scan.py NO_FS F 557ebe813cae26b5ffd5cddc9807b25136c4c2f54f29182f19dc0acb7dda2e6f
-        run-linter-regression.py FIXED F b4709d17ecccbf4bf7c7318656c9196432790eeeadb8eb61215ad22096cb57cd
-        run-pr-time-checks.sh FIXED F dc661e4567722dcafa0b15aef9fcd295a5d3e7e1eccc45903306d4d0a8f2c9cf
-        run-shell-stubbed.py NO_FS F 1a7322d9c3af47b7fb9b297ba5fe71d71089bfd1ec5f7532e493b0a98663aa5a
+        preflight-changelog.py NO_FS F f6e7709d1015847c6cf5d27886e637d58d6a62ad29d5327576c6624e9c6b460d
+        preflight-version-date.py NO_FS F 31cfe7d03173f406ba0d5b2ff2dfd0fcdf59686c94150aba3a597b3a714e0879
+        preflight_language_runner.py CHILD F 7040c5428e5838a4ceaae070e632c4a94fc8035b63a04203ade4adc2fcb33403
+        provision_citations.py PASSIVE F a65bc1c1df6d285f6a081f121762853a6eb5ef9e894ef864b5a5a7a758d8e6e7
+        quick-guard.sh FIXED F 257e7f6ec0c3daca81012f294bd90327dd4ade04c6c7771292235caff2bc949e
+        reconcile-regression-shards.py OWN F 397fea486ab474661a089a4743158522729150686312b113a9319a88e092c761
+        residual-scan.py NO_FS F c4c8e1807e87e490bdf9958f631ee9ee333c747846317014b354f81d5c7c7948
+        run-linter-regression.py FIXED F 4975b199210338878c418be2f96717dab8a1df9f58bb33a36dfe5e50e1f0b2fd
+        run-pr-time-checks.sh FIXED F cf914764adbb259130bccf9360f4c96d77f1455631dc9d3c7b4223544f494992
+        run-shell-stubbed.py NO_FS F aeec840ae479dff85edea91d17db5ab6ab31ebe980a410ff67bd0301db175376
         run_all_audits.sh FIXED F d9f60a5cca7ca9337e2aa0cf2e207efbffb2269a53820191767bcb32e7fa5067
         safe_fs.py PASSIVE F 13c29f1625ffc04ba289a42a2ba241e2d68a77c9420b114f2a96e58c4b5ad35a
-        scan-publication-instruction-content.py OWN F ad8f97941e94236419fae6fe3c9591e376de24fd8a7a5884b26899c11de16cc7
+        scan-publication-instruction-content.py OWN F 62fd62e2345b14ae59e33db7ef62cf131bdbdb9eb2f75cc3f5bab3391cbdd17f
         skill-verdict-fields.json DATA F 3a9c5b89ed3acc1a7bdbda02b5630379c1ef016fc58b34e4338a485ad3fd4cb8
         standards-currency-unpinned-baseline.json DATA F 25526fa37844734661ef142a8d54c27a79ed13df1ed3b18955343be1246d7fc5
         suggest-listing-surfaces.py SKIP F f4a5c4a4997dfeba9f870d43e92726f2c065dda377cf11d2874574dc4c4c0206
         sweep-preflight-exemptions.json DATA F 2c11643eb1082a34c9d2cafed9cf04c6481c3e8322a44f426aa0f55729ad75df
-        sweep-preflight-scanner.py NO_FS F d1bb0f1a66719510f4d40908f2407a2252ee7752fbb20ead5d667337323b8a7a
-        tail-safe.sh COMMAND F 53a9d69a2697af2f82584189b7c73115caf2279ee7df9358674366a145904000
+        sweep-preflight-scanner.py NO_FS F 0354f7c93485b246f46fdb4e10facb822349f38f813332215d16c92f635c9d5e
+        tail-safe.sh COMMAND F 1a847b4353a77cf809372510d4c51256299d456870e4a41d8f70c7332ca05a75
         todo-number-floor.json DATA F 04d57f011e4db00befe75a085b2b9d46b8dda72fa93c1969b6b193c5d167b7cf
-        todo_index_rows.py PASSIVE F f3de08f8e6de12b042a1f5a78559faf6ef5697e6ada10b1e5ddfe1375fadacf6
+        todo_index_rows.py PASSIVE F 924d3914992a9452035f1cf4f347e1843ca2f26f172d556586623420fae5affa
         tsc_reference.py PASSIVE F e8452e3c68c8fa8b3ac8cf34eaad1a4a9dbf1bf2c1bc26f49411c5a79e77d5d4
         verify-reference-modules.py OWN F 98c85d7fd833d86c55e443381e104bad155acd92ea785c08de946ac879235caa
     """
 
     # Repository-relative argument-handling dependencies outside .claude/skills/corpus-management/tools/.
     DEPENDENCIES = """
-        .claude/skills/corpus-management/src/tools/corpus_mgmt_compiler.py d40238c160a4e11c98888cc92b45c183c1316b05334f4aa48988e3d2b2d260de
-        .claude/skills/corpus-management/src/tools/pack_release_delta.py 9954156fab2677b2e68f665945703d834a704ab4374ae2eaf85010ba3a54c9ad
-        .claude/skills/corpus-management/src/tools/profile_loader.py b69c97b82136bf5d928b8f4adf8e96c0c85793cf3dd50f826fb9ea11d67d6154
+        .claude/skills/corpus-management/src/tools/corpus_mgmt_compiler.py 2f2bfa2407b38dc14b666a2833f96000e1c4bf9ae524c51d1b6f282ca380665b
+        .claude/skills/corpus-management/src/tools/pack_release_delta.py 1836a112482c4fa721817222ef559700e919b54e3df7ba98a4e94af5ffbdcf07
+        .claude/skills/corpus-management/src/tools/profile_loader.py c54f863c1d19ea5a934e05194504538a75d2b4893e7b16aa9d4c386c932bfb6b
         .claude/aiqt/tools/aiqt_corpus.py f2292eb511e960d9c38881a54bee92d0fc5c7b5cbe0c7b5cb002cb78da08245f
         .claude/hooks/block-unbumped-version-commit.py f1b83f0905556a46552d3a7eaf5c74087ea140290e0fed3142f886115869be78
     """
@@ -61033,7 +61033,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.23.1", "the C1 rebuild release adds the directional-dependency engine's public function path_in_project_gov, so gate 53's project_gov_dir may be a path of several parts (MINOR), moves the compiler's default pack root to .claude/skills/corpus-management/src and raises minimum_python from 3.11 to 3.14, on top of RBQ10, which has the compiler's managed-output stray scan skip the relocated skill directory's shipped entries (PATCH), on top of gate 36, which makes the language engine's -isation scan linear through a private helper, _isation_matches (PATCH) on top of 3b614, which rewords the core rules README to name the three managed directories and the CLAUDE.md block gate 99 owns (PATCH) on top of P-3.213, which adds the standards-currency engine's identity_counts, ratchet and count_summary functions and print_coverage's trailer parameter for the per-standard UNPINNED ratchet (MINOR) on top of 3b146, which has the gate-30 metadata line-break engine group a run by the rendered paragraph, so an indented continuation line no longer splits it (PATCH), then follows the CommonMark/GFM block structure (block quotes, list items, fences, HTML blocks, tables) so the run model agrees with the renderer (PATCH) on top of 3b662, which has the gate-18 intra-document section-reference engine recognise Canadian federal instrument identifiers such as 'ITSP.80.022' as external-framework names (PATCH) on top of 3b652, which has the standards-currency engine read a parenthesised programme-name version such as '(SSDF 1.1)' (PATCH), 3b607, which retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (0.19.0 to 0.20.0 for 3b533; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for 3b607; then 0.21.1 to 0.21.2 for 3b652; then 0.21.2 to 0.21.3 for 3b662; then 0.21.3 to 0.21.4, then 0.21.4 to 0.21.5, for 3b146; then 0.21.5 to 0.22.0 for P-3.213; then 0.22.0 to 0.22.1 for 3b614; then 0.22.1 to 0.22.2 for gate 36; then 0.22.2 to 0.22.3 for RBQ10; then 0.22.3 to 0.23.0 for the C1 release)")
+        self.assertEqual(man["pack"]["version"], "0.23.2", "the C1 rebuild release adds the directional-dependency engine's public function path_in_project_gov, so gate 53's project_gov_dir may be a path of several parts (MINOR), moves the compiler's default pack root to .claude/skills/corpus-management/src and raises minimum_python from 3.11 to 3.14, on top of RBQ10, which has the compiler's managed-output stray scan skip the relocated skill directory's shipped entries (PATCH), on top of gate 36, which makes the language engine's -isation scan linear through a private helper, _isation_matches (PATCH) on top of 3b614, which rewords the core rules README to name the three managed directories and the CLAUDE.md block gate 99 owns (PATCH) on top of P-3.213, which adds the standards-currency engine's identity_counts, ratchet and count_summary functions and print_coverage's trailer parameter for the per-standard UNPINNED ratchet (MINOR) on top of 3b146, which has the gate-30 metadata line-break engine group a run by the rendered paragraph, so an indented continuation line no longer splits it (PATCH), then follows the CommonMark/GFM block structure (block quotes, list items, fences, HTML blocks, tables) so the run model agrees with the renderer (PATCH) on top of 3b662, which has the gate-18 intra-document section-reference engine recognise Canadian federal instrument identifiers such as 'ITSP.80.022' as external-framework names (PATCH) on top of 3b652, which has the standards-currency engine read a parenthesised programme-name version such as '(SSDF 1.1)' (PATCH), 3b607, which retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (0.19.0 to 0.20.0 for 3b533; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for 3b607; then 0.21.1 to 0.21.2 for 3b652; then 0.21.2 to 0.21.3 for 3b662; then 0.21.3 to 0.21.4, then 0.21.4 to 0.21.5, for 3b146; then 0.21.5 to 0.22.0 for P-3.213; then 0.22.0 to 0.22.1 for 3b614; then 0.22.1 to 0.22.2 for gate 36; then 0.22.2 to 0.22.3 for RBQ10; then 0.22.3 to 0.23.0 for the C1 release)")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")

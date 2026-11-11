@@ -6,7 +6,7 @@ against the authoritative catalogue in :mod:`ccm_aicm_reference` (domain validit
 control-number range, per-catalogue title fit, bare-domain and bare-code checks,
 and the cross-catalogue title-confusion check).
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
+Engine/wrapper split: the PURE scan
 (Finding, the token/heading/context regexes, the helpers, and scan_file) is the
 source of record in the pack engine
 (.claude/skills/corpus-management/src/tools/gate_lint_ccm_aicm_citations.py); it is catalogue-agnostic
@@ -15,7 +15,7 @@ reference catalogue, configures the engine with it, and keeps the grc scan scope
 (main's iter_markdown_targets over REPO_ROOT with EXEMPT_FILES), the module-global
 scan_file(path) shim, the reporting, and the exit codes.
 
-Glossary domain-name check (3b296, wrapper-side): the "(CSA CCM domain) <Name>" row
+Glossary domain-name check (wrapper-side): the "(CSA CCM domain) <Name>" row
 form is a grc glossary convention, so the engine does not know it. Every row of a
 scanned ``register-glossary.md`` carrying that marker must give the EXACT
 DOMAIN_NAMES name for its code (strict: "and" for "&" is reported as a form
@@ -108,7 +108,7 @@ def scan_file(path: Path) -> list:
     return _engine().scan_file(path)
 
 
-# Glossary domain-name check (3b296). Only a file with this name is checked, so an
+# Glossary domain-name check. Only a file with this name is checked, so an
 # adopter fork without the glossary is skipped and a fixture can stand in for it.
 GLOSSARY_NAME = "register-glossary.md"
 REFERENCE_PATH = Path(__file__).resolve().parent / "ccm_aicm_reference.py"
@@ -227,7 +227,7 @@ def _name_issue(code: str, name: str) -> str | None:
 def scan_glossary(path: Path, *, listed: bool = False) -> list:
     """Check the "(CSA CCM domain) <Name>" rows of a glossary file against DOMAIN_NAMES.
 
-    ``listed`` (3b653): main() passes a file its walk listed, so a glossary gone
+    ``listed``: main() passes a file its walk listed, so a glossary gone
     when read raises FileNotFoundError for scan_listed to refuse, never a pass.
     """
     if not listed and not path.is_file():
@@ -297,12 +297,12 @@ def reference_findings() -> list:
 
 
 def main(argv: list[str]) -> int:
-    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
-    args = positional_args(argv[1:], known_flags=())  # 3b50b2c: '--' separates paths (quick-guard passes one)
+    # Explicit paths are refused when missing or outside this tree, else normalized.
+    args = positional_args(argv[1:], known_flags=())  # '--' separates paths (quick-guard passes one)
     paths = guard_explicit_paths_cwd(args, repo_root=REPO_ROOT) if args else [str(REPO_ROOT)]
     targets = iter_markdown_targets(
         paths, exempt_dirs=DEFAULT_EXEMPT_DIRS, exempt_files=EXEMPT_FILES,
-        skip_test_scratch=True)  # 3b653: root tests/tmp fixtures vanish mid-walk
+        skip_test_scratch=True)  # root tests/tmp fixtures vanish mid-walk
     all_findings: list = reference_findings()
     vanished: list[Path] = []
     for path in targets:

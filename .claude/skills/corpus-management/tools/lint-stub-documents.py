@@ -9,11 +9,10 @@ parses exactly that) and supplies the grc-local configuration the pack engine de
 carry: the AIQT bootstrap, the repo root, the target selection (the exempt files, the ``template-``
 / ``worklist-`` / ``Status: Superseded`` skips, the narrative / default-exempt predicates via
 ``is_target`` + ``iter_targets``), and the default scan root. The stub-phrase list and word-count
-threshold are profile-loaded (``defaults/grc/stubs.toml`` via ``_stubs_config()``, Phase-4 PR-G)
-and passed to the engine's generic check. These wrapper bytes are
-HAND-MAINTAINED, not compiler-generated, so gate 99 does NOT own them; ``is_target`` / ``iter_targets``
-/ ``main`` stay HERE (grc config) so the scan-scope regression's WALKER map and the CLI tests observe
-them unmoved.
+threshold are profile-loaded (``defaults/grc/stubs.toml`` via ``_stubs_config()``) and passed to the
+engine's generic check. These wrapper bytes are HAND-MAINTAINED, not compiler-generated, so gate 99
+does NOT own them; ``is_target`` / ``iter_targets`` / ``main`` stay HERE (grc config) so the
+scan-scope regression's WALKER map and the CLI tests observe them unmoved.
 
 Usage:
     python3 .claude/skills/corpus-management/tools/lint-stub-documents.py
@@ -37,11 +36,10 @@ PACK_TOOLS = Path(__file__).resolve().parent.parent / "src" / "tools"
 DEFAULT_PATHS = [str(REPO_ROOT)]
 
 
-EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS  # narrative-root exclusion is root-anchored via is_narrative_root (P-1.25 scan-root split)
+EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS  # narrative-root exclusion is root-anchored via is_narrative_root
 
 # Files exempt because they are indexes / short by design / describe the linter patterns.
-# Phase 23.62 removed `LICENSE` and `CITATION.cff` from this set: the
-# linter scans `.md` files only, so non-`.md` entries were unreachable.
+# The linter scans `.md` files only, so a non-`.md` entry here would be unreachable.
 EXEMPT_FILES = {
     "README.md",  # domain READMEs are indexes; main README is a navigation hub
     "NOTICE.md",  # license notice; short by design
@@ -119,7 +117,7 @@ def _engine():
 
 
 def _stubs_config():
-    """Load the gate-16 stub vocabulary from the pack profile (Phase-4 PR-G).
+    """Load the gate-16 stub vocabulary from the pack profile.
 
     Returns the engine's ``StubVocabulary`` composed from the ``stubs``
     reference-vocabulary profile (``defaults/grc/stubs.toml``, loaded lazily via
@@ -129,7 +127,7 @@ def _stubs_config():
     pack_tools = str(PACK_TOOLS)
     if pack_tools not in sys.path:
         sys.path.insert(0, pack_tools)
-    import profile_loader  # the pack-owned reference-vocabulary loader (PR-A)
+    import profile_loader  # the pack-owned reference-vocabulary loader
 
     return _engine().stub_vocabulary(**profile_loader.load("stubs"))
 
@@ -140,7 +138,7 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument("paths", nargs="*", default=None)
     args = parser.parse_args(argv[1:])
-    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    # Explicit paths are refused when missing or outside this tree, else normalized.
     args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     return _engine().run(iter_targets(args.paths), repo_root=REPO_ROOT, vocab=_stubs_config())
 

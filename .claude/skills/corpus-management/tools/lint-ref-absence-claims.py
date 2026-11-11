@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """Reference-absence claim audit, using the tracked acquisition manifest.
 
-Binding is line-bound under the maintainer ruling of 2026-09-30
-18:34Z, and detection fails closed under the ruling of 20:47Z. A
-canonical claim is satisfied only by its own marker opening on a source
-line the claim spans, from the line holding its first word to the line
-holding its last. No paragraph, list, table, heading or HTML block is
-modelled, so no marker is borrowed from a neighbouring line. Files are
-split into lines on newlines only, one model shared by fenced-code
-detection and claim scanning, so a Unicode line separator never moves a
-marker off its claim's line.
+Binding is line-bound, and detection fails closed. A canonical claim is
+satisfied only by its own marker opening on a source line the claim
+spans, from the line holding its first word to the line holding its
+last. No paragraph, list, table, heading or HTML block is modelled, so
+no marker is borrowed from a neighbouring line. Files are split into
+lines on newlines only, one model shared by fenced-code detection and
+claim scanning, so a Unicode line separator never moves a marker off
+its claim's line.
 
 Claims are detected on stripped copies of each file that remove inline
 markup at any position, including inside a word, and case-fold:
@@ -22,11 +21,11 @@ so the line-bound rule is applied to the original lines the claim
 spans. Because a reference label may or may not resolve and a
 commented-out claim is still a claim, four copies cover both comment
 readings and both link readings, and the offset-preserving blanked
-readings of earlier rounds are still scanned. A claim found in any
-reading is checked, and matches sharing a start keep the shortest
-span, so an inline construct the scanner cannot resolve can add a
-blocking finding but cannot hide one; an unclosed construct is read in
-whichever direction keeps the claim text visible.
+readings are scanned as well. A claim found in any reading is checked,
+and matches sharing a start keep the shortest span, so an inline
+construct the scanner cannot resolve can add a blocking finding but
+cannot hide one; an unclosed construct is read in whichever direction
+keeps the claim text visible.
 
 A marker opens with "<!-- ref-absence:" and must close before a blank
 line. An unclosed marker, or one whose text between blank lines holds an
@@ -54,16 +53,15 @@ heuristics cannot reliably infer semantics; missing-content wordings are
 distinguished from missing-source wordings only by the documented token
 windows. The audit specification records those residues.
 
-A blocking obfuscation screen (3b144, rounds 14 to 16) backs the
-readings: the canonical claim's words found in token order where no
-reading detects a claim. The screen's readable subset is small:
-letters grouped into words, whitespace, plain sentence punctuation
-(commas, periods, semicolons, colons, question and exclamation
-marks, apostrophes, quotation marks, parentheses, hyphens, dashes
-and ellipses), tags and entities matched by the screen's loose
-patterns, backslash escapes and ref-absence markers (each blanked
-before tokenizing), and
-closed link tails (blanked up to their first whitespace; a
+A blocking obfuscation screen backs the readings: the canonical
+claim's words found in token order where no reading detects a
+claim. The screen's readable subset is small: letters grouped into
+words, whitespace, plain sentence punctuation (commas, periods,
+semicolons, colons, question and exclamation marks, apostrophes,
+quotation marks, parentheses, hyphens, dashes and ellipses), tags
+and entities matched by the screen's loose patterns, backslash
+escapes and ref-absence markers (each blanked before tokenizing),
+and closed link tails (blanked up to their first whitespace; a
 destination does not render). An unclosed link tail keeps its text,
 which renders as prose, and only its "](" or "][" is blanked, and
 closed link tails are never masked across whitespace, so neither
@@ -72,8 +70,8 @@ screen checks. Tokens are the letter runs of that reading. A word
 may be read from up to four consecutive tokens, skipping letters
 only across a gap the screen cannot read; up to three junk tokens
 may sit before each later word; and the matcher backtracks over
-junk counts and over taking or skipping the optional words. Each
-of the following constructs, in or between the matched words, is
+junk counts and over taking or skipping the optional words. Each of
+the following constructs, in or between the matched words, is
 itself a finding ("unreadable markup around a possible
 reference-absence claim; write the sentence plainly"), never a
 silent pass and never an advisory downgrade: a claim word split or
@@ -83,138 +81,130 @@ markup debris ("<", ">", "&", a backslash or a caret), a footnote
 or superscript digit mark, an invisible or format character, or a
 blank-rendering filler character between claim words (a plain ASCII
 digit alone is readable prose); or a bracket beside junk tokens or
-a numeric mark between claim words. A plain-prose paraphrase
-such as "not yet held in the reference base" carries none of these
-and stays advisory; a markup-laced paraphrase, or a positive
-holding statement laced with markup, can be falsely blocked, the
+a numeric mark between claim words. A plain-prose paraphrase such
+as "not yet held in the reference base" carries none of these and
+stays advisory; a markup-laced paraphrase, or a positive holding
+statement laced with markup, can be falsely blocked, the
 fail-closed direction this gate prefers, and is resolved on review
-by rewriting the sentence plainly. Other visible characters
-between claim words (a slash, a pipe, a symbol, an emoji) are
-readable prose to the screen; the permissive reader below refuses
-them when they hide the claim phrase. A bidirectional override or
-isolate control (U+202A-U+202E, U+2066-U+2069, literal or as an
-entity) or a <bdo> element anywhere in a scanned line is a blocking
-finding naming its line: it can display letters in an order other
-than the logical order every reading scans.
+by rewriting the sentence plainly. Other visible characters between
+claim words (a slash, a pipe, a symbol, an emoji) are readable
+prose to the screen; the permissive reader below refuses them when
+they hide the claim phrase. A bidirectional override or isolate
+control (U+202A-U+202E, U+2066-U+2069, literal or as an entity) or
+a <bdo> element anywhere in a scanned line is a blocking finding
+naming its line: it can display letters in an order other than the
+logical order every reading scans.
 
-A permissive hidden-claim reader (3b144 round 16) is the second
-half of a two-reader design, in which the readings and the screen
-are the strict reader. Each paragraph is also normalized
-permissively: closed comments, images, closing link tails that
-CommonMark closes while a link opener is open (an angle-bracket or
-whitespace-free destination with an optional quoted title, or a
-reference label) and inline tags well-formed under the CommonMark
-attribute grammar are blanked; entities that decode are decoded;
-ASCII letters and digits are kept and case-folded; combining,
-format and control characters (Unicode categories Mn, Cf and Cc,
-except whitespace) and default-ignorable code points (including
-unassigned ones and the Hangul fillers) are deleted and join their
-neighbours, so a split word rejoins; and every other character
-(whitespace, delimiters, visible punctuation, symbols, emoji,
-non-ASCII letters and digits) reads as a word separator, collapsed
-to one space. Each paragraph is read twice, once with images
-blanked and once with each image read as its alt text (a Markdown
-image's alt text or an <img> tag's alt value, with unescaped
-emphasis, strong and strikethrough delimiters and code-span
-backticks deleted from a Markdown alt text, as the strict readings
-delete them elsewhere). Where the body has a non-rendering element
-(<rp>, <template>, <script>, <style>, <noscript>, or any element
-with the hidden attribute or an inline display:none), each of those
-readings is also made with the element deleted, content included,
-to its closing tag or the paragraph's end, so its neighbours join.
-Each reading's paragraphs are joined with a separator for every
-paragraph break, so a claim split across a paragraph break is read
-too. Where that
-normalization spells the canonical claim and no detected claim's
-span and no screen finding covers the spelled claim's start, the
-text is refused ("possible hidden claim"), never read silently.
-Ordinary prose with emoji, curly quotes or accents is therefore
-never flagged unless it spells the claim phrase the strict reader
-misses.
+A permissive hidden-claim reader is the second half of a two-reader
+design, in which the readings and the screen are the strict reader.
+Each paragraph is also normalized permissively: closed comments,
+images, closing link tails that CommonMark closes while a link
+opener is open (an angle-bracket or whitespace-free destination
+with an optional quoted title, or a reference label) and inline
+tags well-formed under the CommonMark attribute grammar are
+blanked; entities that decode are decoded; ASCII letters and digits
+are kept and case-folded; combining, format and control characters
+(Unicode categories Mn, Cf and Cc, except whitespace) and
+default-ignorable code points (including unassigned ones and the
+Hangul fillers) are deleted and join their neighbours, so a split
+word rejoins; and every other character (whitespace, delimiters,
+visible punctuation, symbols, emoji, non-ASCII letters and digits)
+reads as a word separator, collapsed to one space. Each paragraph
+is read twice, once with images blanked and once with each image
+read as its alt text (a Markdown image's alt text or an <img> tag's
+alt value, with unescaped emphasis, strong and strikethrough
+delimiters and code-span backticks deleted from a Markdown alt
+text, as the strict readings delete them elsewhere). Where the body
+has a non-rendering element (<rp>, <template>, <script>, <style>,
+<noscript>, or any element with the hidden attribute or an inline
+display:none), each of those readings is also made with the element
+deleted, content included, to its closing tag or the paragraph's
+end, so its neighbours join. Each reading's paragraphs are joined
+with a separator for every paragraph break, so a claim split across
+a paragraph break is read too. Where that normalization spells the
+canonical claim and no detected claim's span and no screen finding
+covers the spelled claim's start, the text is refused ("possible
+hidden claim"), never read silently. Ordinary prose with emoji,
+curly quotes or accents is therefore never flagged unless it spells
+the claim phrase the strict reader misses.
 
-Residue, shipped under the maintainer rulings of 2026-09-30 22:49Z
-and 23:04Z and narrowed by the 3b144 obfuscation screen and its
-round-16 permissive reader: detection
-does not fail closed in general. The first paragraph's "fails
-closed" and the second paragraph's "cannot hide one" and "keeps the
-claim text visible" state the design intent, not a guarantee. The
-screen catches the round-14 escapes (a quoted attribute holding ">"
-or "<", a tag outside INLINE_JOIN_TAGS or a well-formed marker
-splitting a claim word; an entity-encoded or literal soft hyphen,
-zero-width character, word joiner U+2060, combining grapheme joiner
-U+034F or variation selector inside a word; an unmatched backtick
-making a code-span link opener swallow a later linked claim; and an
-unclosed link title or tag attribute leaving its text between the
-words) and the round-15 escapes (a link tail swallowing prose
-through an angle destination or a quoted title with no unpaired
-backtick nearby; punctuation-only attribute debris between claim
-words; an unclosed link tail erasing a claim word; an invisible,
-format or blank-rendering filler character beside a claim word,
-including the braille blank U+2800 and the fillers U+3164, U+115F
-and U+1160; a numeric footnote or superscript digit beside a claim
-word; letters erased inside a claim word by entity blanking; and
-the greedy misreads of the optional words). The round-16
-permissive reader catches the screen's second review round: an
-image rendering no text between claim words; an invisible Mn
-character (a variation selector outside U+FE00-U+FE0F, a Mongolian
-free variation selector, a Khmer inherent vowel) beside a claim
-word; a malformed tag or an undecodable entity, which renders as
-text, erased by the screen's looser blanking; an invalid link
-tail's rendered prose erased by tail masking; a claim word's
-leading or trailing letters erased by entity blanking; a detected
-claim inside an attribute suppressing the refusal on the claim
-around it; and visible separators (a slash, a hyphen, a comma)
-spelling the claim that no reading matches. After the screen's
-third review round it also catches a claim word in an image's alt
-text (inline, reference-style or an <img> tag's alt value); a word
-split into five or more parts by default-ignorable code points,
-including unassigned ones (U+2065, U+FFF0-U+FFF8, U+E0000-U+E0FFF)
-and the Hangul fillers U+115F, U+1160, U+3164 and U+FFA0; and a
-claim split across a paragraph break with an image, a selector, a
-visible separator or a thematic break beside the break. After the
-fourth round it also catches letters inside a non-rendering element
-splitting a claim word and emphasis inside an image's alt text, and
-the screen refuses bidirectional overrides and isolates. Still open:
-a claim word split by well-formed tags into more pieces than the
-four-part and three-junk budgets together can reach, because the
-permissive reading reads a blanked tag as a word separator and
-does not rejoin the word. Letters reversed by inline CSS
-(unicode-bidi: bidi-override) rather than a control character or
+Accepted residue, narrowed by the obfuscation screen and its
+permissive reader: detection does not fail closed in general. The
+first paragraph's "fails closed" and the second paragraph's "cannot
+hide one" and "keeps the claim text visible" state the design
+intent, not a guarantee. The screen catches one set of escapes (a
+quoted attribute holding ">" or "<", a tag outside INLINE_JOIN_TAGS
+or a well-formed marker splitting a claim word; an entity-encoded or
+literal soft hyphen, zero-width character, word joiner U+2060,
+combining grapheme joiner U+034F or variation selector inside a
+word; an unmatched backtick making a code-span link opener swallow a
+later linked claim; and an unclosed link title or tag attribute
+leaving its text between the words) and a second set (a link tail
+swallowing prose through an angle destination or a quoted title with
+no unpaired backtick nearby; punctuation-only attribute debris
+between claim words; an unclosed link tail erasing a claim word; an
+invisible, format or blank-rendering filler character beside a claim
+word, including the braille blank U+2800 and the fillers U+3164,
+U+115F and U+1160; a numeric footnote or superscript digit beside a
+claim word; letters erased inside a claim word by entity blanking;
+and the greedy misreads of the optional words). The permissive
+reader catches further escapes: an image rendering no text between
+claim words; an invisible Mn character (a variation selector outside
+U+FE00-U+FE0F, a Mongolian free variation selector, a Khmer inherent
+vowel) beside a claim word; a malformed tag or an undecodable
+entity, which renders as text, erased by the screen's looser
+blanking; an invalid link tail's rendered prose erased by tail
+masking; a claim word's leading or trailing letters erased by entity
+blanking; a detected claim inside an attribute suppressing the
+refusal on the claim around it; and visible separators (a slash, a
+hyphen, a comma) spelling the claim that no reading matches. It also
+catches a claim word in an image's alt text (inline, reference-style
+or an <img> tag's alt value); a word split into five or more parts
+by default-ignorable code points, including unassigned ones (U+2065,
+U+FFF0-U+FFF8, U+E0000-U+E0FFF) and the Hangul fillers U+115F,
+U+1160, U+3164 and U+FFA0; and a claim split across a paragraph
+break with an image, a selector, a visible separator or a thematic
+break beside the break. It further catches letters inside a
+non-rendering element splitting a claim word and emphasis inside an
+image's alt text, and the screen refuses bidirectional overrides and
+isolates. Still open: a claim word split by well-formed tags into
+more pieces than the four-part and three-junk budgets together can
+reach, because the permissive reading reads a blanked tag as a word
+separator and does not rejoin the word. Letters reversed by inline
+CSS (unicode-bidi: bidi-override) rather than a control character or
 <bdo>, and an element hidden by a class or stylesheet rule rather
 than by its name, the hidden attribute or an inline display:none,
-are not recognized. A letter homoglyph, such as a Cyrillic
-letter shaped like a Latin one or a fullwidth or mathematical
-letter, or a blank-rendering character of letter category outside
-the default-ignorable set, reads as a different word in every
-reading, in the screen and in the permissive reading, which reads
-a non-ASCII letter as a separator. The strict reader still reads
-link titles, image alt text, comments and tag attribute values, so
-a claim spelled there in plain words is detected; the permissive
-reader blanks inline link and image titles, comments and tag
-attribute values, reads a reference definition line, destination
-and title included, as text, and, in its alt-text reading, also
-reads alt text. Plain words in an angle-bracket inline destination
-are read by the strict reader, which keeps destination text in
-some readings, so a claim spelled there is detected. A claim
-spelled only in a whitespace-free inline link or image destination,
-its words joined by hyphens, slashes or similar, is not read and
-carries no finding, and neither is one spelled with visible
-separators, such as hyphens, only in a comment or a tag attribute
-value. A permissive claim whose
+are not recognized. A letter homoglyph, such as a Cyrillic letter
+shaped like a Latin one or a fullwidth or mathematical letter, or a
+blank-rendering character of letter category outside the
+default-ignorable set, reads as a different word in every reading,
+in the screen and in the permissive reading, which reads a non-ASCII
+letter as a separator. The strict reader still reads link titles,
+image alt text, comments and tag attribute values, so a claim
+spelled there in plain words is detected; the permissive reader
+blanks inline link and image titles, comments and tag attribute
+values, reads a reference definition line, destination and title
+included, as text, and, in its alt-text reading, also reads alt
+text. Plain words in an angle-bracket inline destination are read by
+the strict reader, which keeps destination text in some readings, so
+a claim spelled there is detected. A claim spelled only in a
+whitespace-free inline link or image destination, its words joined
+by hyphens, slashes or similar, is not read and carries no finding,
+and neither is one spelled with visible separators, such as hyphens,
+only in a comment or a tag attribute value. A permissive claim whose
 spelled start lies inside a detected claim's span or a screen
-finding's span is attributed to that claim or finding; and
-a plain sentence whose words spell the canonical claim across
-sentence punctuation ("not. Held in the reference base") is
-refused, the fail-closed direction this gate prefers, resolved by
-rewriting the sentence plainly. Escaped backticks, or backticks
-paired across list items, headings, table cells, link destinations
-or attribute values, form a false code span that can keep an
-in-word comment literal; the in-word link and tag variants split
-the word and are blocked. A "<!--" in a code span or fenced block
-can pair with a later "-->", so a real fence line counts as
-comment-covered and fences pair wrongly. A fence line inside a raw
-HTML block pairs with a later fence. The remaining shapes stay
-tracked on the backlog under item 3b144's follow-up; the audit
+finding's span is attributed to that claim or finding; and a plain
+sentence whose words spell the canonical claim across sentence
+punctuation ("not. Held in the reference base") is refused, the
+fail-closed direction this gate prefers, resolved by rewriting the
+sentence plainly. Escaped backticks, or backticks paired across list
+items, headings, table cells, link destinations or attribute values,
+form a false code span that can keep an in-word comment literal; the
+in-word link and tag variants split the word and are blocked. A
+"<!--" in a code span or fenced block can pair with a later "-->",
+so a real fence line counts as comment-covered and fences pair
+wrongly. A fence line inside a raw HTML block pairs with a later
+fence. The remaining shapes stay tracked on the backlog; the audit
 specification states the same narrowed residue.
 
 Usage: python3 .claude/skills/corpus-management/tools/lint-ref-absence-claims.py [path ...]
@@ -885,14 +875,13 @@ def near_miss_hits(text: str, canonical_spans) -> "list[tuple[int, str]]":
     return hits
 
 
-# ---- Obfuscation screen (3b144) -------------------------------------
+# ---- Obfuscation screen ---------------------------------------------
 # A blocking keyword rule behind the readings: the canonical claim's
 # words found in token order where no reading detects a claim. The
 # screen fails closed on markup it cannot read exactly: any such
 # construct in or between the matched words is a finding, never a
 # silent pass and never an advisory downgrade. A plain-prose paraphrase
-# such as "not yet held in the reference base" stays advisory under the
-# 2026-09-30 00:57Z/14:05Z ruling.
+# such as "not yet held in the reference base" stays advisory.
 
 SCREEN_FILLER_CHARS = frozenset("\u2800\u3164\u115f\u1160")
 SCREEN_LETTER_FILLER_RE = re.compile("[\u3164\u115f\u1160]")
@@ -1106,7 +1095,7 @@ def obfuscated_claim_hits(body, screen, linked, claim_spans,
     return hits
 
 
-# ---- Permissive hidden-claim reader (3b144 round 16) -----------------
+# ---- Permissive hidden-claim reader ----------------------------------
 # The second reader of the two-reader design: the readings and the
 # screen above are the strict reader (what the gate already treats as
 # readable text). This reader normalizes each paragraph permissively,

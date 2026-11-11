@@ -9,8 +9,8 @@ register ``core/gates.toml``, id ``lint-language``, enforcing the pack's
 supplies the grc-local scan configuration the pack engine deliberately does not
 carry: the AIQT bootstrap, the repo root, the language VOCABULARY (the pack
 profile defaults/grc/language.toml, loaded via profile_loader.load('language')
-and composed in _language_config(), Phase-4 PR-F; the engine compiles the ise/yse
-patterns from it), the default markdown scan roots (the
+and composed in _language_config(); the engine compiles the ise/yse patterns
+from it), the default markdown scan roots (the
 AUDITED_DOMAIN_DIRS splat; the scan-scope parity gate forbids hardcoding the
 run), and lint_common's scan-root iterator (whose default-root exemption differs
 from the generic aiqt_corpus form). These wrapper bytes are HAND-MAINTAINED, not
@@ -45,7 +45,7 @@ def _engine():
 
 
 def _language_config():
-    """Load the gate-2 language vocabulary from the pack profile (Phase-4 PR-F).
+    """Load the gate-2 language vocabulary from the pack profile.
 
     Returns the engine's ``LanguageVocabulary`` composed from the pack
     reference-vocabulary profile ``.claude/skills/corpus-management/src/defaults/grc/language.toml``
@@ -56,7 +56,7 @@ def _language_config():
     pack_tools = str(PACK_TOOLS)
     if pack_tools not in sys.path:
         sys.path.insert(0, pack_tools)
-    import profile_loader  # the pack-owned reference-vocabulary loader (PR-A)
+    import profile_loader  # the pack-owned reference-vocabulary loader
 
     return _engine().language_vocabulary(**profile_loader.load("language"))
 
@@ -71,13 +71,13 @@ def iter_markdown_files(paths: list[str]) -> list:
 
 
 def main(argv: list[str] | None = None) -> int:
-    argv = positional_args(list(sys.argv[1:] if argv is None else argv), known_flags=())  # 3b50b2c: '--' separates paths (quick-guard passes one)
+    argv = positional_args(list(sys.argv[1:] if argv is None else argv), known_flags=())  # '--' separates paths (quick-guard passes one)
     gate_lint_language = _engine()
 
     if argv:
         # Explicit paths must name files in THIS tree that exist; a missing, out-of-tree,
         # or non-root-relative path is refused (exit 2) rather than silently passing, and
-        # accepted paths are normalized to repo-relative form (3b21).
+        # accepted paths are normalized to repo-relative form.
         argv = guard_explicit_paths(argv, repo_root=REPO_ROOT)
         md_input = list(argv)
         gen_input = list(argv)

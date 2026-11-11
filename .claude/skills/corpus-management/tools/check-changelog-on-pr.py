@@ -6,11 +6,10 @@ corpus gates check repository state at HEAD; this script compares HEAD to the
 PR's merge-base and asserts the diff includes .working/CHANGELOG.md, unless any commit in the PR
 range carries a `Changelog: <one-line-reason>` trailer in its message body.
 
-The former two-file lock-step (root .working/CHANGELOG.md plus a detailed mirror, introduced in
-PR #125, 2026-06-21) no longer applies to the public diff: as of PR #1235 (2026-07-29,
-the working-state move to the private sibling) the detailed mirror lives in the
-operational store (cross-repo, invisible to a public PR diff), so this
-gate enforces ONLY the root .working/CHANGELOG.md.
+The former two-file lock-step (root .working/CHANGELOG.md plus a detailed mirror, introduced on
+2026-06-21) no longer applies to the public diff: since 2026-07-29 (the working-state move to
+the private sibling) the detailed mirror lives in the operational store (cross-repo, invisible
+to a public PR diff), so this gate enforces ONLY the root .working/CHANGELOG.md.
 
 The library's CONTRIBUTING.md and audit-programme spec require a CHANGELOG entry
 for substantive batches. This script enforces that requirement mechanically at PR
@@ -53,10 +52,10 @@ from lint_common import PrRangeError, empty_pr_range_message, resolve_pr_range  
 
 CHANGELOG_PATH = ".working/CHANGELOG.md"
 
-# The detailed CHANGELOG mirror moved to the operational store
-# (`$GRC_STORE` or `<repo-parent>/private`, under changelog-details/) in the working-state
-# migration. It is a cross-repo surface, invisible to a public PR diff, so this
-# PR-time gate requires only the PUBLIC root .working/CHANGELOG.md.
+# The detailed CHANGELOG mirror moved to the operational store (`$GRC_STORE` or its
+# default location) in the working-state migration. It is a cross-repo surface,
+# invisible to a public PR diff, so this PR-time gate requires only the PUBLIC root
+# .working/CHANGELOG.md.
 
 TRAILER_PATTERN = re.compile(
     r"^\s*Changelog:\s*(\S.*?)\s*$",
@@ -93,9 +92,9 @@ def main(argv: list[str]) -> int:
         print(str(exc), file=sys.stderr)
         return 2
 
-    # Every git read below refuses with exit 2 on any failure -- a nonzero
+    # Every git read below refuses with exit 2 on any failure: a nonzero
     # exit, git not running at all (OSError), or output the locale codec
-    # cannot decode (UnicodeDecodeError) -- never a traceback (3b577 round 4).
+    # cannot decode (UnicodeDecodeError). It never ends in a traceback.
     try:
         changed_raw = git("diff", "--name-only", merge_base, head)
     except (subprocess.CalledProcessError, OSError, UnicodeDecodeError) as exc:

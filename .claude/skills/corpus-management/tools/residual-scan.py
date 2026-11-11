@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Post-fix residual scan: find every carrier of a corrected token, full lines, no truncation.
 
-The GR-12 aid (guardrail review 2026-07-02). When a fix corrects a token
-(a count, a title, a spelling, a value), the recurring miss is the SIBLING carrier:
-the named occurrence is fixed while another carrier of the same token survives in the
-same file or a parallel surface. The narrow-scan class recurred well past the GR-P3
-third-occurrence bar (the #443 bare-token lesson; four fix-named-miss-sibling
-instances in the #573/#574 window alone), so the deterministic scan step is tooling,
-not a checklist line.
+When a fix corrects a token (a count, a title, a spelling, a value), the recurring
+miss is the SIBLING carrier: the named occurrence is fixed while another carrier of
+the same token survives in the same file or a parallel surface. In the earlier
+repository the narrow-scan class recurred well past three occurrences (the point at
+which a repeated miss becomes tooling): bare-token misses were among them, and four
+fix-named-miss-sibling instances fell in a window of two pull requests alone. So the
+deterministic scan step is tooling, not a checklist line.
 
 Usage:
     python3 .claude/skills/corpus-management/tools/residual-scan.py TOKEN [TOKEN ...]
@@ -19,9 +19,8 @@ Behaviour:
   - Scans every text surface in the working tree (markdown, python, shell,
     yaml, cff, toml, txt, json; the .git tree excluded; no git-tracked filter,
     so untracked local files are scanned too, erring toward recall), never an
-    enumerated input set:
-    the completion-verification lesson is that an input-set scan self-corroborates
-    a file-discovery omission.
+    enumerated input set: an input-set scan self-corroborates a file-discovery
+    omission.
   - Matches on word boundaries by default (the bare-token discipline: a
     phrasing-specific grep misses word-order variants); --substring disables the
     boundary, --regex treats each argument as a raw regular expression, and the
@@ -29,8 +28,8 @@ Behaviour:
     character is not a word character (a leading hyphen, a flag like --all)
     cannot match under the boundary lookarounds; use --substring for those.
   - Prints every hit as path:line-number followed by the FULL line, untruncated.
-    The Sweep-82 lesson is binding: a hit is READ IN FULL before it is triaged;
-    never classify a hit from a truncated excerpt or from the match alone.
+    A hit is READ IN FULL before it is triaged; never classify a hit from a
+    truncated excerpt or from the match alone.
   - Labels each hit LIVE, FROZEN-RECORD (any dated per-run file DIRECTLY under
     a .working activity directory, depth two, any year: frozen-state archives
     quoting findings verbatim; a deeper-nested dated file conservatively
@@ -47,8 +46,8 @@ Behaviour:
 This is an aid, not a numbered audit gate: it has no fixed token vocabulary to
 gate on (the tokens are per-fix), so it cannot run unattended in CI. The
 authoritative gates still run (the full suite on the local server and in the
-nightly sweep, the CI subset in the pull-request job); this tool makes the close-out checklist's
-bare-token and full-file-grep guards a deterministic step instead of a manual one.
+nightly sweep, the CI subset in the pull-request job); this tool makes the
+bare-token and full-file-grep checks a deterministic step instead of a manual one.
 """
 
 from __future__ import annotations
@@ -67,21 +66,21 @@ TEXT_SUFFIXES = {".md", ".py", ".sh", ".yml", ".yaml", ".cff", ".toml", ".txt", 
 
 EXCLUDED_DIRS = {".git", "node_modules", "__pycache__"}
 
-# Historical-surface classification (LEDGER / FROZEN-RECORD / LIVE) is hoisted
-# to lint_common so residual-scan and the D9 orphan gate share one source
-# (roadmap C phase 2, #1250). Re-exported here under the original names for back-compat.
+# Historical-surface classification (LEDGER / FROZEN-RECORD / LIVE) lives in
+# lint_common so residual-scan and the D9 orphan gate share one source. It is
+# re-exported here for consumers that import these names from residual-scan.
 from lint_common import (  # noqa: E402
-    FROZEN_RECORD_RE,  # re-export: back-compat consumers import these FROM residual-scan (#1250)
-    LEDGER_PATHS,  # re-export: back-compat (#1250)
-    LEDGER_RE,  # re-export: back-compat (#1250)
+    FROZEN_RECORD_RE,  # re-export: back-compat consumers import these FROM residual-scan
+    LEDGER_PATHS,  # re-export: back-compat
+    LEDGER_RE,  # re-export: back-compat
     classify,
 )
 
 
 def _extra_working_root() -> Path | None:
-    """The resolved `.working/` dir when it lives OUTSIDE the public repo
-    (post-migration, in the operational store). Returns None when `.working/` is
-    still in-repo (already covered by the REPO_ROOT walk) or absent."""
+    """The resolved `.working/` dir when it lives OUTSIDE the public repo.
+    Returns None when `.working/` is in-repo (already covered by the REPO_ROOT
+    walk) or absent."""
     wd = resolve_working_dir(repo_root=REPO_ROOT)
     if wd is None:
         return None
@@ -94,8 +93,9 @@ def _extra_working_root() -> Path | None:
 
 def _rel_for(path: Path) -> str:
     """Relpath used for classification. In-repo paths are relative to REPO_ROOT;
-    an operational-store or private-sibling `.working/` file is re-rooted to a ``.working/...`` rel so
-    ``classify()`` (which keys on ``.working/`` prefixes) still matches."""
+    an out-of-repo `.working/` file (operational store or private-sibling) is
+    re-rooted to a ``.working/...`` rel so ``classify()`` (which keys on
+    ``.working/`` prefixes) still matches."""
     try:
         return path.relative_to(REPO_ROOT).as_posix()
     except ValueError:
@@ -156,7 +156,8 @@ def main() -> int:
     for path in iter_files():
         rel = _rel_for(path)  # logical key for classify()
         # Display the PHYSICAL location, not the synthetic .working/ classify-key
-        # (the store has no working/ subdir; the prefix is a classification device).
+        # (the operational store has no working/ subdir; the prefix is a
+        # classification device).
         disp = str(path) if rel.startswith(".working/") else rel
         label = classify(rel)
         try:

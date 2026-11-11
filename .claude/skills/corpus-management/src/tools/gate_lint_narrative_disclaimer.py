@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Executive-narrative authority-disclaimer presence - pack engine.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
-(disclaimer_finding, check_file) is the source of record here in the pack, moved
-verbatim from the grc gate. The required disclaimer text is supplied by the adopter
-via configure(ref), so the engine carries no project content; the grc wrapper
-(.claude/skills/corpus-management/tools/lint-narrative-disclaimer.py) supplies the disclaimer + the narrative scan
-scope (discover), configures the engine, and keeps the self-test, main, shims, and
-the exit codes.
+Engine/wrapper split: the PURE scan (disclaimer_finding, check_file) is the source
+of record here in the pack, moved verbatim from the grc gate. The required
+disclaimer text is supplied by the adopter via configure(ref), so the engine
+carries no project content; the grc wrapper
+(.claude/skills/corpus-management/tools/lint-narrative-disclaimer.py) supplies the
+disclaimer + the narrative scan scope (discover), configures the engine, and keeps
+the self-test, main, shims, and the exit codes.
 """
 
 from __future__ import annotations

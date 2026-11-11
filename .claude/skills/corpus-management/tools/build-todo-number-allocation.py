@@ -13,14 +13,14 @@ EVER allocated per PUBLIC series (bare ``N.M`` / ``TF-n``; the ``P-N.M`` private
 separate), including RETIRED numbers that no live file still holds. It is monotonic (only ever
 increases) and is bumped in the PR that allocates a new number. Because the floor is a committed
 PUBLIC file, ``--check`` verifies the block in the full suite (the ``local-quality`` run and the
-nightly sweep) and on adopter clones with NO dependency on the
-private ``grc_library_private`` sibling (the flaw of the earlier DONE-archive design, which made
-the check a maintainer-local no-op). ``gate 78`` reads the same floor for its recycle check.
+nightly sweep) and on adopter clones with NO dependency on the private sibling (the flaw of the
+earlier DONE-archive design, which made the check a maintainer-local no-op). ``gate 78`` reads
+the same floor for its recycle check.
 
 next(series) = max(floor[series], highest live public id in series) + 1. Live ids come from the
 ``.working/TODO.md`` INDEX ROWS and ``TODO-REFERENCE.md`` bare-id headings (PUBLIC files only; the
-floor covers retired numbers AND migrated bare ids that now live in the private P-TODO.md). Series 5/6/7 are
-FROZEN (render a next line, draw nothing). Series 3 draws like the other ACTIVE series.
+floor covers retired numbers AND migrated bare ids that now live in the private backlog). Series
+5/6/7 are FROZEN (render a next line, draw nothing). Series 3 draws like the other ACTIVE series.
 
 FLOOR SOUNDNESS. ``--check`` also fails if the floor is BELOW any live id (a floor set too low
 would let a counter collide with a live id), so the floor cannot silently under-record.
@@ -46,7 +46,7 @@ ACTIVE = [(1, "P1 / fix series"), (2, "P2 / content series"),
           (3, "P3 / tooling series"), (4, "P4 / adopter series")]
 FROZEN = [5, 6, 7]
 
-# C3 (r21 + closing-window residue): a FROZEN series takes NO new allocations.
+# A FROZEN series takes NO new allocations.
 # Two independent laundering paths must therefore be closed: raising its floor
 # in lock-step with a new high id, and inserting a previously unrecorded id into
 # a gap below the frozen ceiling. EXPECTED_FROZEN_FLOOR pins the immutable
@@ -135,10 +135,10 @@ def load_floor(root):
 def live_maxima(root):
     """Highest live PUBLIC ordinal per series, and highest live TF, across the PUBLIC
     files only: .working/TODO.md index rows + TODO-REFERENCE.md ``### `` bare-id headings. The
-    ``P-N.M`` private namespace is excluded. This reads NO private data (no P-TODO.md, no
-    grc_library_private): the public FLOOR is the authority for the highest EVER allocated
-    ordinal (including retired numbers AND migrated bare ids that now live in the private
-    P-TODO.md), so next = max(floor, live) is floor-dominated and fully public-deterministic.
+    ``P-N.M`` private namespace is excluded. This reads NO private data (no private backlog, no
+    private sibling): the public FLOOR is the authority for the highest EVER allocated ordinal
+    (including retired numbers AND migrated bare ids that now live in the private backlog), so
+    next = max(floor, live) is floor-dominated and fully public-deterministic.
     Retired ids are NOT here; that is what the floor is for."""
     tops, tf = {}, 0
 
@@ -244,12 +244,12 @@ def self_test():
 
     class T(unittest.TestCase):
         def test_frozen_floor_immutable(self):
-            # C3 (r21): frozen-series floor at its ceiling passes; a raise fails.
+            # A frozen-series floor at its ceiling passes; a raise fails.
             self.assertEqual(frozen_floor_violations({5: 9, 6: 6, 7: 5}), [])
             self.assertTrue(frozen_floor_violations({5: 10, 6: 6, 7: 5}))
 
         def test_splice_requires_exactly_one_sentinel(self):
-            # C4 (r21): a duplicate END sentinel must raise, not be accepted.
+            # A duplicate END sentinel must raise, not be accepted.
             good = f"a\n{BEGIN}\nX\n{END}\nb"
             self.assertIn("Y", _splice(good.replace("X", "Y"), "Y"))
             dup = f"a\n{BEGIN}\nX\n{END}\nb\n{END}\n"

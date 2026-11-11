@@ -2,32 +2,31 @@
 """Audit-spec detailed-prose presence-and-placement audit.
 
 The audit programme's specification
-(``.claude/skills/corpus-management/specs/specification-audit-programme.md``) carries, beyond the
-mechanically-gated section-6 inventory table, a detailed-prose
-enumeration: each gate's ``Gate N is ...`` description paragraph and,
-for the tail-appended gates, a ``Gate N is appended ...`` ordering
-sentence. Gate 35 checks the inventory table's parity with the three
-runtime surfaces and with the section-5 category lists, and gate 39 only
-counts the table's rows;
-neither verifies the per-gate detailed prose's presence, so a shipped
-gate whose prose pair was never written recurs silently (gate 57's pair was absent for
-several PRs until Sweep 77 found it; gate 55's description initially
-landed in section 5 instead; gates 43 and 44 carried no detailed prose
-at all until the backfill that shipped with this gate).
+(``.claude/skills/corpus-management/specs/specification-audit-programme.md``)
+carries, beyond the mechanically-gated section-6 inventory table, a
+detailed-prose enumeration: each gate's ``Gate N is ...`` description
+paragraph and, for the tail-appended gates, a ``Gate N is appended ...``
+ordering sentence. Gate 35 checks the inventory table's parity with the
+three runtime surfaces and with the section-5 category lists, and gate 39
+only counts the table's rows; neither verifies the per-gate detailed
+prose's presence, so a shipped gate whose prose pair was never written
+recurs silently (in the earlier repository, gate 57's pair was absent for
+several PRs until a sweep found it; gate 55's description initially landed
+in section 5 instead; gates 43 and 44 carried no detailed prose at all
+until the backfill that shipped with this gate).
 
 This linter closes that seam with a PRESENCE-AND-PLACEMENT check
 (deliberately not semantic: whether the prose accurately describes the
-gate remains sweep-and-review territory). Placement (P-3.230, from the
-Sweep-151 recurrence of the gate-55 class) requires each required
-NUMERIC-gate sentence (description and appended-order) to fall INSIDE
-the section-6 region (delta-gate narratives stay body-wide presence), so a description spliced
-into the section-5 category list fails instead of passing body-wide
-presence:
+gate remains sweep-and-review territory). Placement (added after a
+recurrence of the gate-55 class in the earlier repository) requires each
+required NUMERIC-gate sentence (description and appended-order) to fall
+INSIDE the section-6 region (delta-gate narratives stay body-wide
+presence), so a description spliced into the section-5 category list
+fails instead of passing body-wide presence:
 
-- It parses the section-6 inventory table for the gate numbers,
-  scoped to the section-6 region (a numeric-first-cell table elsewhere
-  in the spec must not inflate the gate set; the same #577-motivated
-  scoping gate 60 applies).
+- It parses the section-6 inventory table for the gate numbers, scoped
+  to the section-6 region (a numeric-first-cell table elsewhere in the
+  spec must not inflate the gate set; the same scoping gate 60 applies).
 - For each gate at or above ``DESCRIPTION_FLOOR`` (35), the spec body
   must contain a ``Gate N is `` sentence opener (the description).
 - For each gate at or above ``APPENDED_FLOOR`` (47), the spec body
@@ -42,10 +41,9 @@ per-gate convention at gate 47. Raising either floor retroactively
 would demand prose archaeology with no drift-prevention payoff; new
 gates always land above both floors.
 
-The DELTA-CHECK half (the r4 G-3 extension, decided 2026-07-04): the
-section-6.1 per-PR delta gates were the same seam one layer down
-(numeric-gate-only coverage), so when the spec carries a ``| Dn |``
-delta-gate table the linter additionally verifies:
+The DELTA-CHECK half: the section-6.1 per-PR delta gates were the same
+seam one layer down (numeric-gate-only coverage), so when the spec
+carries a ``| Dn |`` delta-gate table the linter additionally verifies:
 
 - every table row ``Dn`` has a ``Delta gate Dn `` narrative opener in
   the spec prose (the per-check description every D check carries);
@@ -69,10 +67,10 @@ Usage:
     python3 .claude/skills/corpus-management/tools/lint-audit-spec-detailed-prose.py \
         --spec path/to/spec.md --parity-script path/to/parity.py
 
-Tombstone rows (retired gate numbers kept under D-2251: the Gate cell is
-"*(retired YYYY-MM-DD: reason)*" and the Script cell is "n/a") are exempt
-from both prose requirements; a row carrying only one half of that shape is
-a finding.
+Tombstone rows (a retired gate keeps its number, since gate numbers are
+permanent and never reused; the Gate cell is "*(retired YYYY-MM-DD: reason)*"
+and the Script cell is "n/a") are exempt from both prose requirements; a row
+carrying only one half of that shape is a finding.
 
 Exit codes:
     0   every in-scope gate carries its required prose
@@ -106,7 +104,7 @@ ROW_RE = re.compile(r"^\|\s*(\d+)\s*\|")
 # A whole section-6 inventory row, for the tombstone test below.
 FULL_ROW_RE = re.compile(r"^\|\s*(\d+)\s*\|\s*(.+?)\s*\|\s*(.+?)\s*\|\s*$")
 
-# A retired gate keeps its number as a tombstone row (D-2251: gate numbers are
+# A retired gate keeps its number as a tombstone row (gate numbers are
 # permanent and never reused): the Gate cell is the retired marker
 # "*(retired YYYY-MM-DD: reason)*" and the Script cell is exactly "n/a", the
 # shape gate 35 accepts. A tombstoned number describes no live gate, so it is
@@ -130,8 +128,8 @@ INFORMATIONAL_MARKER = "(informational)"
 
 # Scope the row scan to the section-6 region so a numeric-first-cell
 # table elsewhere in the spec cannot inflate the gate set (gate 60's
-# #577-motivated scoping, mirrored). The ### 6.1 subsection stays
-# inside this region (its heading matches neither boundary regex).
+# scoping, mirrored). The ### 6.1 subsection stays inside this region
+# (its heading matches neither boundary regex).
 SECTION_6_RE = re.compile(r"^##\s+6[.\s]")
 SECTION_END_RE = re.compile(r"^##\s+(?!6[.\s])")
 
@@ -189,20 +187,20 @@ def parse_tombstones(text: str) -> tuple[set[int], list[str]]:
 def section_6_span(text: str) -> tuple[int, int]:
     """Character-offset span [start, end) of the section-6 region.
 
-    The placement half (P-3.230, PR #1455): presence alone let a gate's
-    description sit INSIDE the section-5 category list (gate 55 once, then
-    the gates-79-89 block found by Sweep 151), invisible to a body-wide
-    substring check. The span lets the checks require each description to
-    fall inside section 6, where the convention places it. Returns (-1, -1)
-    when no section-6 heading exists (unreachable in practice: the caller
-    has already parsed section-6 inventory rows).
+    The placement half: presence alone let a gate's description sit INSIDE
+    the section-5 category list (in the earlier repository, gate 55 once,
+    then the gates-79-89 block), invisible to a body-wide substring check.
+    The span lets the checks require each description to fall inside
+    section 6, where the convention places it. Returns (-1, -1) when no
+    section-6 heading exists (unreachable in practice: the caller has
+    already parsed section-6 inventory rows).
     """
     start = end = -1
     offset = 0
     for line in text.splitlines(keepends=True):
         if start < 0 and SECTION_6_RE.match(line):
             # Span starts AFTER the heading line: a sentence sitting on the
-            # heading itself is not body prose (codex vpr-1455 P1).
+            # heading itself is not body prose.
             start = offset + len(line)
         elif start >= 0 and SECTION_END_RE.match(line):
             end = offset

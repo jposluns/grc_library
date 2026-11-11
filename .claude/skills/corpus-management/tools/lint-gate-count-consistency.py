@@ -41,9 +41,9 @@ PACK_TOOLS = Path(__file__).resolve().parent.parent / "src" / "tools"
 SPEC_PATH = (REPO_ROOT / ".claude" / "skills" / "corpus-management" / "specs"
              / "specification-audit-programme.md")
 
-# A retired gate keeps its number as a tombstone row (D-2251): the Gate cell is
-# "*(retired YYYY-MM-DD: reason)*" and the Script cell is "n/a", the shape gate 35
-# accepts. A tombstone is a recorded gap, not a gate, so it is not counted.
+# A retired gate keeps its number as a tombstone row: the Gate cell is "*(retired
+# YYYY-MM-DD: reason)*" and the Script cell is "n/a", the shape gate 35 accepts. A
+# tombstone is a recorded gap, not a gate, so it is not counted.
 TOMBSTONE_ROW_RE = re.compile(
     r"^\|\s*\d+\s*\|\s*\*\(retired \d{4}-\d{2}-\d{2}: [^|]+\)\*\s*\|\s*n/a\s*\|$")
 
@@ -67,9 +67,9 @@ EXEMPT_FILES: frozenset[str] = frozenset(
 )
 
 # Note: the validation-sweep history file (now at
-# `.working/validate-sweeps/history.md`, relocated within `.working/`
-# in PR #118) is a historical-record artefact by purpose; the file is
-# in `.working/` which is in `DEFAULT_EXEMPT_DIRS`, so a per-file
+# `.working/validate-sweeps/history.md`, relocated within
+# `.working/`) is a historical-record artefact by purpose; the file
+# is in `.working/` which is in `DEFAULT_EXEMPT_DIRS`, so a per-file
 # exemption here is not needed.
 
 # Directory names that are out of scope for this audit, matched against single
@@ -79,13 +79,12 @@ EXEMPT_DIRS: frozenset[str] = DEFAULT_EXEMPT_DIRS
 # Repository-relative directories that are out of scope for this audit, matched
 # as a path prefix: the pack's test fixtures may embed sample counts. This entry
 # was once in EXEMPT_DIRS, where its slashes could never match a single path
-# component, so it exempted nothing (chunk T2d).
+# component, so it exempted nothing.
 EXEMPT_REL_DIRS: tuple[str, ...] = (f"{CORPUS_MANAGEMENT_DIR}/tests/fixtures",)
 
 # Moved trees this audit scanned before the move (``tools/``, ``tests/``, the
 # project documents and the vendored AIQT pack), admitted ahead of the
-# ``.claude`` component exemption (chunk CR1, coverage audit MED-2); the rest of
-# ``.claude/`` stays exempt.
+# ``.claude`` component exemption; the rest of ``.claude/`` stays exempt.
 ADMITTED_ROOTS: tuple[str, ...] = (
     *PROJECT_DOCUMENT_DIRS,
     *PROJECT_DOCUMENT_FILES,
@@ -233,8 +232,8 @@ def main(argv: list[str]) -> int:
         "skill": UNSHIPPED_COLLECTION_COUNT,
     }
 
-    # 3b48: explicit paths are refused when missing or outside this tree (the counts are
-    # this tree's inventory), else normalized.
+    # Explicit paths are refused when missing or outside this tree (the counts are this
+    # tree's inventory), else normalized.
     paths = guard_explicit_paths_cwd(argv[1:], repo_root=REPO_ROOT) if argv[1:] else []
     targets = iter_targets(paths)
     return engine.run(

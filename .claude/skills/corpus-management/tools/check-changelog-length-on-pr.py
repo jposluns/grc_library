@@ -7,18 +7,19 @@ HEAD to the PR's merge-base and inspects only the compact root .working/CHANGELO
 ENTRY lines the PR ADDS, failing if any added entry's summary exceeds a length
 ceiling.
 
-WHY THIS GATE EXISTS (maintainer-directed 2026-07-17). The root .working/CHANGELOG.md
+WHY THIS GATE EXISTS. The root .working/CHANGELOG.md
 carries one COMPACT one-line summary per change
 (``**YYYY-MM-DD | X.Y.Z | PR #N** - <short summary>``); the full maintainer-grade
-detail lives in the maintainer-grade detailed mirror (in the operational store) and in git history. Root
-summaries have drifted back into long, dense, run-on paragraphs THREE times
-(#887-901, #902-914, #919-986), each time reformatted by hand and each time
-recurring while the earlier whole-file readability check was advisory only, so
-nothing failed CI when an entry drifted long. This gate is the enforcement that
-stops the recurrence: a NEWLY-ADDED root entry that exceeds the ceiling fails the
-PR, so a long entry cannot merge. History is left untouched; only added entries
-are checked, exactly as the D3 dash gate leaves historical dashes alone and
-enforces the convention going forward.
+detail lives in the maintainer-grade detailed mirror (in the operational store) and in git history. In
+the earlier repository, root summaries drifted back into long, dense, run-on
+paragraphs THREE times (across three separate runs of pull requests), each time
+reformatted by hand and each time recurring while the earlier whole-file
+readability check was advisory only, so nothing failed CI when an entry drifted
+long. This gate is the enforcement that stops the recurrence: a NEWLY-ADDED root
+entry that exceeds the ceiling fails the PR, so a long entry cannot merge.
+History is left untouched; only added entries are checked, exactly as the D3
+dash gate leaves historical dashes alone and enforces the convention going
+forward.
 
 WHAT IT CHECKS. For each added line matching the compact-entry header form, it
 measures the summary portion (everything after ``** - ``) two ways and FAILS if
@@ -30,16 +31,17 @@ single-purpose entry runs ~40-50 words; a legitimate multi-item batch entry runs
 ~90-100 with plain short sentences) and fail the paragraph-length / dense-chain
 drift (the historical drift ran 122-262 words with 50-95-word sentences).
 
-HOW IT READS THE DIFF (3b399). The added lines come from the pinned ``git diff``
-and hunk-count parser that .claude/skills/corpus-management/tools/preflight-changelog.py uses (3b236), shared in
-``.claude/skills/corpus-management/tools/changelog_diff.py`` (``added_line_diff``, ``parse_added_lines``). It read the diff
-with splitlines() and skipped every line starting "+++", so a CR, U+2028 or
-U+0085 inside an added entry cut its summary short and the rest escaped the
-ceiling. Each added line is now read whole, split on LF only, and an entry that
-starts after any ``str.splitlines()`` boundary inside it (CR, U+2028, U+0085 and
-the rest) is checked too. A diff the parser cannot read exactly is exit 2, not a
-pass. The diff names ``:(top).working/CHANGELOG.md``, so a run from a subdirectory reads
-the root file (3b399 round 3).
+HOW IT READS THE DIFF. The added lines come from the pinned ``git diff``
+and hunk-count parser that .claude/skills/corpus-management/tools/preflight-changelog.py uses, shared in
+``.claude/skills/corpus-management/tools/changelog_diff.py`` (``added_line_diff``, ``parse_added_lines``). In the
+earlier repository this gate read the diff with splitlines() and skipped every
+line starting "+++", so a CR, U+2028 or U+0085 inside an added entry cut its
+summary short and the rest escaped the ceiling. Each added line is now read
+whole, split on LF only, and an entry that starts after any
+``str.splitlines()`` boundary inside it (CR, U+2028, U+0085 and the rest) is
+checked too. A diff the parser cannot read exactly is exit 2, not a pass. The
+diff names ``:(top).working/CHANGELOG.md``, so a run from a subdirectory reads
+the root file.
 
 The compact-entry regex and sentence split are the authoritative definitions
 for this defect class. The authoring preflight calls ``entries_in_added_line``
@@ -79,7 +81,7 @@ import sys
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack .claude/skills/corpus-management/tools/ on sys.path
 from lint_common import PrRangeError, resolve_pr_range  # noqa: E402  # grc-config/store, stays local
-from changelog_diff import (  # noqa: E402  # shared added-line diff reader (3b399)
+from changelog_diff import (  # noqa: E402  # shared added-line diff reader
     ChangelogDiffUnreadable, GitQueryFailed, GitSelectsAnotherTree, added_line_diff,
     check_git_selects_root, parse_added_lines, refuse_links)
 
@@ -92,13 +94,13 @@ DEFAULT_SENTENCE_MAX = 45
 ENTRY_RE = re.compile(r"^\*\*\d{4}-\d{2}-\d{2} \| [^|]+ \| PR #(\d+)\*\* - (.+)$")
 _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.?!)\"'])\s+")
 
-# Tiered-public-CHANGELOG note (1.19.10 (closing PR #1037)): ENTRY_RE matches ONLY the
-# per-PR compact header. In the tiered model the older weeks collapse to weekly
-# (``**Week of YYYY-MM-DD (PRs #N-#M)**``) and monthly (``**YYYY-MM (PRs ...)**``)
-# paragraph headers, which do NOT match ENTRY_RE, so those tiers are already out
-# of this gate's scope and only the CURRENT-WEEK per-PR tier is length-gated.
-# That is the intended behaviour; the model needs no change to this gate (the
-# projection is built by .claude/skills/corpus-management/tools/build-public-changelog.py).
+# Tiered-public-CHANGELOG note: ENTRY_RE matches ONLY the per-PR compact header.
+# In the tiered model the older weeks collapse to weekly (``**Week of YYYY-MM-DD
+# (PRs #N-#M)**``) and monthly (``**YYYY-MM (PRs ...)**``) paragraph headers,
+# which do NOT match ENTRY_RE, so those tiers are already out of this gate's
+# scope and only the CURRENT-WEEK per-PR tier is length-gated. That is the
+# intended behaviour; the model needs no change to this gate (the projection is
+# built by .claude/skills/corpus-management/tools/build-public-changelog.py).
 
 
 def sentence_word_counts(summary: str) -> list[int]:
@@ -119,7 +121,7 @@ def measure(summary: str) -> tuple[int, int]:
 def entries_in_added_line(text: str) -> list[tuple[str, str]]:
     """Return (pr, summary) for every compact entry in one added line.
 
-    The line is whole (3b399): a CR, U+2028 or U+0085 inside it does not end it, so an entry
+    The line is whole: a CR, U+2028 or U+0085 inside it does not end it, so an entry
     whose summary runs past such a character is measured to the end of the line. An entry may
     also START after one of them (a CR is a markdown line ending, and splitlines() readers see
     a new line there), so ENTRY_RE is tried at the start of the line and after every
@@ -138,7 +140,7 @@ def entries_in_added_line(text: str) -> list[tuple[str, str]]:
 
 def added_entries_from_diff(diff: bytes) -> list[tuple[str, str]]:
     """Return (pr, summary) for every compact entry in the added lines of a ``git diff``'s
-    bytes, read by ``changelog_diff.parse_added_lines`` (3b399): hunks by their line counts, bytes
+    bytes, read by ``changelog_diff.parse_added_lines``: hunks by their line counts, bytes
     split on LF only, so an added line whose text starts with "++" is read, and a diff it
     cannot read exactly raises ChangelogDiffUnreadable."""
     out: list[tuple[str, str]] = []
@@ -167,9 +169,9 @@ def evaluate(
 def run_git_mode(base: str | None, head: str, word_max: int, sentence_max: int) -> int:
     # git must select the repository it finds by itself (a sibling GIT_DIR printed "not
     # modified"), and the head's .working/CHANGELOG.md must be a regular file even when the diff does not
-    # show it (3b399 round 5). Selection is checked BEFORE range resolution (3b530): a sibling
-    # GIT_DIR usually also collapses the range, and the precise wrong-repository diagnosis must
-    # win over the generic collapsed-range refusal.
+    # show it. Selection is checked BEFORE range resolution: a sibling GIT_DIR usually also
+    # collapses the range, and the precise wrong-repository diagnosis must win over the generic
+    # collapsed-range refusal.
     try:
         check_git_selects_root()
         refuse_links([CHANGELOG_PATH], head)
@@ -190,8 +192,8 @@ def run_git_mode(base: str | None, head: str, word_max: int, sentence_max: int) 
         return 2
 
     try:
-        # ":(top)" names the root .working/CHANGELOG.md from any subdirectory (3b399 round 3); the runner
-        # drops GIT_LITERAL_PATHSPECS, which made git read it as a file name (round 4).
+        # ":(top)" names the root .working/CHANGELOG.md from any subdirectory; the runner drops
+        # GIT_LITERAL_PATHSPECS, under which git read it as a file name.
         diff = added_line_diff([merge_base, head], [":(top)" + CHANGELOG_PATH])
     except subprocess.CalledProcessError as exc:
         print(f"ERROR: git diff failed: {exc}", file=sys.stderr)
@@ -267,8 +269,8 @@ def _self_test() -> int:
             self.assertEqual(got, [("988", "A short summary.")])
 
         def test_an_entry_across_a_line_break_is_measured_whole(self):
-            # 3b399: an entry before or after a CR, U+2028 or U+0085 is measured to the end of
-            # the added line, so no fragment of it escapes the ceiling.
+            # An entry before or after a CR, U+2028 or U+0085 is measured to the end of the
+            # added line, so no fragment of it escapes the ceiling.
             long = " ".join(["word"] * 120) + "."
             for sep in ("\r", "\u2028", "\u0085"):
                 for text in ("**2026-07-17 | 1.0.0 | PR #9** - Short." + sep + long,

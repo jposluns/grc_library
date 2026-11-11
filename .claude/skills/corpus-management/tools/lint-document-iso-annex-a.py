@@ -6,7 +6,7 @@ framework tables (the central compliance matrix is gate 49's target and is exclu
 here). The authoritative Annex A structure lives in the shared ``iso_27001_reference``
 module, also used by gate 49.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
+Engine/wrapper split: the PURE scan
 (_check_theme, _check_range, findings_in, scan_file) plus the ISO parsing patterns
 live in the pack-owned engine (.claude/skills/corpus-management/src/tools/gate_lint_document_iso_annex_a.py,
 source of record); the engine takes the reference as a predicate (check_iso_token) +
@@ -79,7 +79,7 @@ def main(argv: list[str]) -> int:
     )
     args = parser.parse_args(argv[1:])
     explicit = bool(args.paths)
-    # 3b50b1: existence is checked on the paths AS GIVEN, before the exempt-root filter, so a
+    # Existence is checked on the paths AS GIVEN, before the exempt-root filter, so a
     # missing path under an exempt directory is refused rather than silently dropped.
     targets = collect_targets(args.paths)
     if explicit:

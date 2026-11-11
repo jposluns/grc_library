@@ -8,11 +8,11 @@ excluding filenames with those stems), cloud-region identifiers (AWS / Azure / G
 and CIDR subnets outside the documentation / private / reserved ranges. Lines inside
 fenced code blocks are skipped (the shared fence-aware scan).
 
-Engine/wrapper split (SHARED/SAFETY lane PR-39, Pattern A): this engine carries the
-detection regexes (``INTERNAL_TLD_RE``, ``AWS_REGION_RE``, ``AZURE_REGION_RE``,
-``GCP_REGION_RE``, ``CIDR_RE``), the subnet filter (``is_documentation_subnet``), and
-the pure ``scan``; the project wrapper (``.claude/skills/corpus-management/tools/lint-internal-references.py``) supplies
-the grc scan scope (the scanned-suffix set and the exempt-file set, which includes THIS
+Engine/wrapper split: this engine carries the detection regexes (``INTERNAL_TLD_RE``,
+``AWS_REGION_RE``, ``AZURE_REGION_RE``, ``GCP_REGION_RE``, ``CIDR_RE``), the subnet
+filter (``is_documentation_subnet``), and the pure ``scan``; the project wrapper
+(``.claude/skills/corpus-management/tools/lint-internal-references.py``) supplies the
+grc scan scope (the scanned-suffix set and the exempt-file set, which includes THIS
 engine because it documents the internal-reference formats by design) and the grouped
 reporting in ``main``, and keeps a thin module-global ``scan`` shim delegating here so
 the scan-scope regression test (which patches ``mod.scan`` and runs ``main``) observes

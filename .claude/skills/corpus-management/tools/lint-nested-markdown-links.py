@@ -68,10 +68,10 @@ def iter_targets(paths: list[str]) -> list[Path]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    argv = positional_args(list(sys.argv[1:] if argv is None else argv), known_flags=())  # 3b50b2c: '--' separates paths (quick-guard passes one)
+    argv = positional_args(list(sys.argv[1:] if argv is None else argv), known_flags=())  # '--' separates paths (quick-guard passes one)
     if argv:
         # Refused when missing or relative while not run from the tree root; the check is
-        # content-only, so another tree's absolute path is scanned soundly (3b21).
+        # content-only, so another tree's absolute path is scanned soundly.
         argv = guard_explicit_paths(argv, repo_root=REPO_ROOT, allow_outside=True)
     engine = _engine()
     return engine.run(iter_targets(argv), repo_root=REPO_ROOT)

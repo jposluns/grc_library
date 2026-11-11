@@ -1,7 +1,7 @@
 #!/bin/sh
-# git-native pre-commit hook: refuse a commit on a grc_library main/master checkout (P-TODO 3b17),
+# git-native pre-commit hook: refuse a commit on a grc_library main/master checkout,
 # then a commit that changes a Version or Date line or a generated output while the staged .claude/skills/corpus-management/data/taxonomy.yml,
-# governance/portal.md or governance/maturity-scorecard.md is out of sync (P-TODO 3b200), then a commit that stages
+# governance/portal.md or governance/maturity-scorecard.md is out of sync, then a commit that stages
 # .working/CHANGELOG.md while .claude/skills/corpus-management/tools/preflight-changelog.py --staged fails.
 #
 # A persistent shim installed by .claude/skills/corpus-management/tools/install-git-hooks.sh in the shared hooks dir resolves the

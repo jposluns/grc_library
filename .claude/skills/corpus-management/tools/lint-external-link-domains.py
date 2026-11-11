@@ -46,7 +46,7 @@ EXEMPT_FILES = {
     "test_linters.py",
     # Generated bibliography (.claude/skills/corpus-management/tools/build-reference-manifest.py): its upstream URLs
     # are the diverse issuer domains of the reference base, not corpus prose links,
-    # so the allow-list does not apply (1.19.7 (closing PR #1007)).
+    # so the allow-list does not apply.
     "reference-acquisition-manifest.md",
     # The pack-owned engine (gate_lint_external_link_domains.py) holds URL_RE +
     # is_allowed + scan; exempt it so its own regex source is not scanned.
@@ -78,7 +78,7 @@ ALLOW_LIST = {
     "legislation.gov.uk", "ico.org.uk", "ncsc.gov.uk", "gov.uk",
     "laws-lois.justice.gc.ca", "gazette.gc.ca", "priv.gc.ca", "cyber.gc.ca", "canada.ca",
     "legisquebec.gouv.qc.ca",
-    "bclaws.gov.bc.ca",  # BC Laws: British Columbia statute consolidations (FOIPPA, 2.25.3)
+    "bclaws.gov.bc.ca",  # BC Laws: British Columbia statute consolidations (FOIPPA)
     "wcoomd.org", "icao.int", "imo.org", "bis.org", "nerc.com",
     "aicpa.org", "aicpa-cima.com",
     "gov.br", "planalto.gov.br", "pdpc.gov.sg", "imda.gov.sg", "aiverifyfoundation.sg", "oaic.gov.au",
@@ -124,7 +124,7 @@ ALLOW_LIST = {
     "code.claude.com",  # non-publisher: tool vendor documentation
     # Common Linux Foundation domains
     "linuxfoundation.org", "openssf.org", "slsa.dev",
-    "cncf.io",  # pending-publisher: no Canonical Citations Register entry yet (spec section 7.2, 3b30 note)
+    "cncf.io",  # pending-publisher: no Canonical Citations Register entry yet (spec section 7.2)
     # OWASP CycloneDX canonical specification site (citation-verification spec section 7.2, 2026-09-24)
     "cyclonedx.org",
     # AI runtime / observability project canonical homes
@@ -137,7 +137,7 @@ ALLOW_LIST = {
     "sitemaps.org",  # non-publisher: sitemap XML namespace URI
     # SANS / CIS
     "sans.org",
-    "cisecurity.org",  # pending-publisher: CIS Controls v8.1 acquisition and register entry (3b33)
+    "cisecurity.org",  # pending-publisher: CIS Controls v8.1 acquisition and register entry
     # Library maintainer profile
     "linkedin.com",  # non-publisher: maintainer profile
     # Google Secure AI Framework
@@ -147,12 +147,12 @@ ALLOW_LIST = {
     # Commercial AI security vendors referenced in the tooling landscape register
     "lakera.ai", "promptarmor.com", "hiddenlayer.com",  # non-publisher: tool vendors
     "calypsoai.com", "mindgard.ai", "splx.ai",  # non-publisher: tool vendors
-    # (Phase 23.63 removed checkpoint.com and zscaler.com from the
+    # (checkpoint.com and zscaler.com were removed from the
     # "other commercial security vendors that may be referenced"
     # block: neither was cited in any document and the library is
     # vendor-neutral; if a future citation needs one, re-add via PR
     # with justification.)
-    # Additional publisher canonical domains (Q4 worklist coverage)
+    # Additional publisher canonical domains
     "oag.ca.gov",  # California Attorney General
     "cppa.ca.gov",  # California Privacy Protection Agency (CCPA regulations publisher)
     "dodcio.defense.gov",  # US DoD CIO
@@ -164,7 +164,7 @@ ALLOW_LIST = {
     "pcisecuritystandards.org",  # PCI Security Standards Council
     "oecd.ai", "oecd.org",  # OECD
     "wto.org",  # World Trade Organization
-    # Canonical-citations register international AI-governance Upstream check location URLs (register v1.6.7, 2.25.2)
+    # Canonical-citations register international AI-governance Upstream check location URLs (register v1.6.7)
     "unesco.org",  # UNESCO (Recommendation on the Ethics of AI)
     "coe.int",  # Council of Europe Treaty Office (Framework Convention on AI, CETS No. 225)
     "soumu.go.jp",  # Japan Ministry of Internal Affairs and Communications (G7 Hiroshima AI Process site)
@@ -187,10 +187,10 @@ ALLOW_LIST = {
     "mosti.gov.my",  # Malaysia Ministry of Science, Technology and Innovation (AIGE)
     "linddun.org",  # LINDDUN privacy threat-modelling (KU Leuven imec-DistriNet)
     "ukgovernmentbeis.github.io",  # UK AISI inspect_evals catalogue (GitHub Pages)
-    # Canonical-citations register Upstream check location URLs (register v1.5.17, 1.5 (closing PR #777) currency sweep)
+    # Canonical-citations register Upstream check location URLs (register v1.5.17 currency sweep)
     "ecfr.gov",  # US Electronic Code of Federal Regulations (CMMC 32 CFR 170 / 48 CFR DFARS acquisition rule)
     "pib.gov.in",  # India Press Information Bureau (DPDP Rules 2025 notification)
-    # Canonical-citations register workforce-monitoring soft-law Upstream check location URLs (register v1.6.11, 2.34.9)
+    # Canonical-citations register workforce-monitoring soft-law Upstream check location URLs (register v1.6.11)
     "ilo.org",  # International Labour Organization (Code of Practice on the Protection of Workers' Personal Data)
 }
 
@@ -221,7 +221,7 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument("paths", nargs="*", default=None)
     args = parser.parse_args(argv[1:])
-    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    # Explicit paths are refused when missing or outside this tree, else normalized.
     args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     targets = iter_targets(
         args.paths,
@@ -246,8 +246,8 @@ def main(argv: list[str]) -> int:
     # same name anywhere else, so no domain is added to ALLOW_LIST for it.
     targets = [t for t in targets if t != PINNED_LICENCE_TEXT]
     # Same reasoning for the ephemeral build output: .web/dist/ is the
-    # git-ignored render artefact (never committed, absent in CI), and from
-    # PR 2b it carries the draft's byte-verified copy of the pinned tree above
+    # git-ignored render artefact (never committed, absent in CI), and it
+    # carries the draft's byte-verified copy of the pinned tree above
     # (draft/assets/baseline/, the OFL licence texts included), so a local run
     # after `python3 .web/build.py` must not re-scan those verbatim files.
     # lint-standards-currency.py excludes the same tree.

@@ -17,7 +17,7 @@ ingestion specification requires every substantive content change to
 update both ``Version`` and ``Date``; existing audits enforce version
 monotonicity (gate 13) and library-level version-date consistency
 (gate 29), but neither compares the per-document ``Date`` to the
-file's git commit date. The S.4 PR (library version ``2026.06.21``,
+file's git commit date. A PR in the earlier repository (library version ``2026.06.21``,
 shipped 2026-06-19) demonstrated the gap: five governance documents
 were substantively edited but their per-document ``Date`` and
 ``Version`` fields stayed at their pre-edit values. The gap was
@@ -37,8 +37,7 @@ How the audit decides what is in scope:
      skip count is reported); a file whose Date field is PRESENT but
      malformed (a trailing annotation, a non-ISO value) is a FINDING,
      not a skip, so a formatting slip cannot silently exempt a file
-     from the staleness check (the guardrail review's GR-3 fail-loud
-     migration, wave 1).
+     from the staleness check.
   3. The file's most-recent commit date is obtained via
      ``git log -1 --follow --format=%cI -- <path>`` (committer date,
      ISO-8601 with timezone). Files with no git history (untracked
@@ -72,7 +71,7 @@ Tolerance and grandfathering:
   CHANGELOG).
 
   Files committed at or after the baseline are subject to the full
-  ``--max-lag-days`` check. The S.4 backfill PR (library version
+  ``--max-lag-days`` check. The backfill PR (library version
   ``2026.06.23``, shipped 2026-06-19) is the inflection point: every
   PR landing after it is expected to bump the per-document Date on
   every substantive content change, and this audit catches the
@@ -146,7 +145,7 @@ GIT_POOL_WORKERS = min(16, (os.cpu_count() or 4) * 2)
 # enforces. See module docstring for the rationale.
 DEFAULT_BASELINE_DATE = datetime.date(2026, 6, 19)
 
-# History reset (D7). This repository's history begins at an import commit: the
+# History reset. This repository's history begins at an import commit: the
 # rebuilt tree was committed whole, as a parentless root commit, so every file's
 # most-recent commit date became the import date while its Date still records its
 # last real edit. A file whose most-recent commit IS a root commit of this
@@ -201,7 +200,7 @@ EXEMPT_FILES: frozenset[str] = frozenset(
 # the optional trailing backslash (hard-line-break marker) and windows
 # the scan to the metadata head lines. This retired the private
 # line-end-anchored DATE_RE whose non-match silently skipped a file
-# with an annotated Date value (GR-3 wave 1).
+# with an annotated Date value.
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -375,7 +374,7 @@ def main(argv: list[str] | None = None) -> int:
         # The default root keeps its contract (a copy without git history scans nothing, exit 0).
         root: Path = Path(REPO_ROOT).resolve()
     else:
-        # 3b50b1: an EXPLICIT --root must be a directory inside a git work tree (the check reads
+        # An EXPLICIT --root must be a directory inside a git work tree (the check reads
         # its git history); a bad override used to scan nothing and exit 0.
         root = require_dir(args.root, "--root")
         problem = require_git_worktree_at(root)
@@ -393,7 +392,7 @@ def main(argv: list[str] | None = None) -> int:
     eng = _engine()
 
     # Resolve scan paths against --root.
-    # 3b48: explicit paths keep their documented --root-relative meaning and are refused
+    # Explicit paths keep their documented --root-relative meaning and are refused
     # when missing or outside --root (the check reads that tree's git history); the
     # default list may legitimately lack entries in an adopter clone, so it is not guarded.
     if args.paths:
@@ -436,14 +435,14 @@ def main(argv: list[str] | None = None) -> int:
         metadata_date, malformed_value = eng.get_metadata_date(text)
         if malformed_value is not None:
             # Present-but-malformed Date: a finding, never a skip
-            # (fail-loud per GR-3; a silent skip here exempted the
+            # (fail-loud; a silent skip here exempted the
             # file from the staleness check on a formatting slip).
             malformed.append((rel, malformed_value))
             continue
         if metadata_date is None:
             skipped_no_date += 1
             continue
-        # Future-dated Date check (R8a): a Date after today (UTC) is impossible
+        # Future-dated Date check: a Date after today (UTC) is impossible
         # for a "last updated" field. Compared to today, not the commit date,
         # and evaluated before the baseline grandfather skip so a future Date on
         # an old-commit file is still caught.
@@ -452,7 +451,7 @@ def main(argv: list[str] | None = None) -> int:
             future_findings.append((rel, metadata_date, future_lead))
         dated.append((rel, f, metadata_date))
 
-    # D7: the history-import root commits, only for this tool's own repository.
+    # The history-import root commits, only for this tool's own repository.
     import_roots: frozenset[str] = frozenset()
     if HISTORY_IMPORT_ROOT_COMMIT and root == Path(REPO_ROOT).resolve():
         import_roots = get_root_commits(root)
@@ -479,7 +478,7 @@ def main(argv: list[str] | None = None) -> int:
             # historical drift outside this audit's scope.
             continue
         if id_future is not None and id_future.result() in import_roots:
-            # Grandfathered (D7): last committed by the history-import root commit.
+            # Grandfathered: last committed by the history-import root commit.
             imported += 1
             continue
         scanned += 1

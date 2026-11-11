@@ -1,29 +1,29 @@
 #!/usr/bin/env python3
 """Reconcile the gate-36 shards: results, unit sets, credited starts.
 
-No workflow runs this now. Since the maintainer decision of 2026-11-09
-the quality workflow has 1 small GitHub job (the required check "Lint
-markdown corpus"), which runs only the section 4 CI subset of gates and
-the delta gates; its former shard and summary jobs are retired. The
+No workflow runs this. The quality workflow has 1 small GitHub job (the
+required check "Lint markdown corpus"), which runs only the section 4 CI
+subset of gates and the delta gates, and no shard or summary job. The
 full suite, gate 36 whole included, runs on the local server, which
 posts the local-quality commit status that merge requires, and in the
 nightly sweep. The pre-push guard
 (.claude/skills/corpus-management/tools/pre-push-guard.sh) runs this in its local mode,
 ``--shard-outputs`` (below), over the 6 local shards it ran itself. The
-job mode (no argument) still reads ``NEEDS_RESULTS``, a GitHub Actions
-``toJSON(needs)`` context for a lint job and every regression-shard
-job, as the retired summary job supplied it. It fails unless:
+job mode (no argument) reads ``NEEDS_RESULTS``, a GitHub Actions
+``toJSON(needs)`` context for a lint job and every regression-shard job,
+in the form a GitHub Actions summary job supplied it in the earlier
+repository. It fails unless:
 
-  1. every needed job's result is ``success`` (the round-1 rule the old
-     inline summary command enforced: a failed, cancelled or skipped
-     needed job fails the required check rather than going missing);
+  1. every needed job's result is ``success`` (a failed, cancelled or
+     skipped needed job fails the required check rather than going
+     missing);
   2. every ``regression-shard-*`` job published a ``credited`` output
      (the block-style ``module: count`` lines
      .claude/skills/corpus-management/tools/run-linter-regression.py appends to ``GITHUB_OUTPUT`` after
      validating the shard sentinel), each naming exactly the on-disk
      top-level ``.claude/skills/corpus-management/tests/test_*.py`` modules of this checkout; and
   3. summed across all shards, every module's credited-start total is
-     at least one. This restores, before merge, the serial runner's
+     at least one. This applies, before merge, the serial runner's
      refusal of a module with no credited start (its "N loaded, 0
      credited starts" refusal): one shard enforces at least one
      credited start for ITSELF, but only the cross-shard sum can see a

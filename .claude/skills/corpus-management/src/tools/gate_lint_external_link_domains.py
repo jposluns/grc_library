@@ -8,15 +8,15 @@ is a finding: an unexpected external domain in published content is a supply-cha
 vector for adopters. Lines inside fenced code blocks are skipped (the shared
 fence-aware scan).
 
-Engine/wrapper split (SHARED/SAFETY lane PR-40, Pattern A): this engine carries the
-URL regex (``URL_RE``), the host matcher (``is_allowed``), and the pure ``scan``; the
-project wrapper (``.claude/skills/corpus-management/tools/lint-external-link-domains.py``) supplies the grc scan scope
-(the scanned-suffix set and the exempt-file set) and the grc publisher allow-list, and
-keeps a thin module-global ``scan`` shim delegating here so the scan-scope regression
-test (which patches ``mod.scan`` and runs ``main``) observes the original signature and
-behaviour. ``scan`` and ``is_allowed`` take ``allow_list`` as a keyword so the engine
-carries no grc-specific allow-list; the wrapper supplies it. The engine is scope-free
-and repository-root-free.
+Engine/wrapper split: this engine carries the URL regex (``URL_RE``), the host
+matcher (``is_allowed``), and the pure ``scan``; the project wrapper
+(``.claude/skills/corpus-management/tools/lint-external-link-domains.py``) supplies
+the grc scan scope (the scanned-suffix set and the exempt-file set) and the grc
+publisher allow-list, and keeps a thin module-global ``scan`` shim delegating here so
+the scan-scope regression test (which patches ``mod.scan`` and runs ``main``)
+observes the original signature and behaviour. ``scan`` and ``is_allowed`` take
+``allow_list`` as a keyword so the engine carries no grc-specific allow-list; the
+wrapper supplies it. The engine is scope-free and repository-root-free.
 
 Exit codes (the wrapper returns these): 0 clean; 1 one or more findings.
 """

@@ -18,11 +18,11 @@ Why both invariants are needed:
 
 The first invariant catches the failure mode where an author dates a
 CHANGELOG entry for today's calendar date but carries over the prior
-month's ``YYYY.MM`` in the library version. This is what happened on
-2026-06-01 when six successive phases used ``2026.05.x`` while every
-entry was dated ``2026-06-01``; the existing version-monotonicity
-audit treats ``2026.05.x`` as monotonic (tuple comparison) and does
-not validate the month against the entry's date. Per
+month's ``YYYY.MM`` in the library version. In the earlier repository,
+this happened on 2026-06-01, when six successive entries used
+``2026.05.x`` while every entry was dated ``2026-06-01``; the
+version-monotonicity audit treats ``2026.05.x`` as monotonic (tuple
+comparison) and does not validate the month against the entry's date. Per
 ``governance/specification-master-project.md`` section 4.5, ``YYYY.MM`` is the
 year and month of the most recent merge to ``main`` and ``patch``
 resets to 0 when the month rolls over.
@@ -68,9 +68,9 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 # Heading shape:
 #   ## YYYY-MM-DD, Library Version YYYY.MM.patch
 #   ## YYYY-MM-DD, Library Version YYYY.MM.patch, PR #N
-# The trailing PR clause is the convention from PR #38 (library
-# version 2026.06.25) forward. The clause is optional so historical
-# entries that predate the convention continue to parse.
+# The trailing PR clause is the convention from library version
+# 2026.06.25 forward. It is optional, so historical entries that
+# predate the convention continue to parse.
 CHANGELOG_HEADING_RE = re.compile(
     r"^##\s+(\d{4})-(\d{2})-(\d{2}),\s+Library Version\s+(\d+)\.(\d+)\.(\d+)"
     r"(?:,\s+PR\s+#\d+)?"
@@ -78,8 +78,8 @@ CHANGELOG_HEADING_RE = re.compile(
     re.MULTILINE,
 )
 
-# The compact heading (3.16 (PR #855) root-reformat), same six capture groups,
-# optional PR clause and optional stage-3b summary tail.
+# The compact heading, same six capture groups, optional PR clause and
+# optional summary tail.
 COMPACT_HEADING_RE = re.compile(
     r"^\*\*(\d{4})-(\d{2})-(\d{2}) \| (\d+)\.(\d+)\.(\d+)"
     r"(?: \| PR #\d+)?\*\*(?: - .*)?$",
@@ -112,10 +112,11 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
-    # 3b50b2d2: an explicitly named file must be a regular file; an empty value was Path('.'),
-    # a directory read failed only with exit 1, and a wrong file passed as "nothing to verify".
-    # Explicitness is whether the flag was given at all (r2: comparing the value to the default
-    # string treated an explicitly passed default path as omitted).
+    # An explicitly named file must be a regular file (in the earlier repository, an empty
+    # value was Path('.'), a directory read failed only with exit 1, and a wrong file passed
+    # as "nothing to verify"). Explicitness is whether the flag was given at all (in the
+    # earlier repository, comparing the value to the default string treated an explicitly
+    # passed default path as omitted).
     explicit = {"--changelog": args.changelog is not None, "--readme": args.readme is not None}
     if args.changelog is None:
         args.changelog = str(REPO_ROOT / ".working/CHANGELOG.md")
@@ -132,7 +133,7 @@ def main() -> int:
 
     try:
         changelog_text = changelog_path.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError) as exc:  # 3b50b2d2: a non-UTF-8 file raised a traceback
+    except (OSError, UnicodeDecodeError) as exc:  # in the earlier repository, a non-UTF-8 file raised a traceback
         print(f"ERROR: cannot read changelog at {changelog_path}: {exc}", file=sys.stderr)
         return 2 if explicit["--changelog"] else 1
     try:

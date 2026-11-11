@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""FP-safe static unused-import gate for grc_library tooling (Fable-planned, #1698 follow-up).
+"""FP-safe static unused-import gate for this library's tooling.
 
-WHY THIS EXISTS. PRs #1697/#1698 removed unused imports by hand; #1698's AST pass
-initially over-removed three DELIBERATE back-compat re-exports in `residual-scan.py`
-(`FROZEN_RECORD_RE`, `LEDGER_PATHS`, `LEDGER_RE`), which a codex `/validate-pr` HOLD caught
-and restored. This tool detects the recurrence CLASS, but is built so it can NEVER repeat
-that over-removal: it is deliberately ASYMMETRIC (false negatives acceptable, false
-positives are not). It shipped report-only (#1702), soaked to an empty report (#1703 removed the
-last five findings), and now runs as ENFORCING gate 94 (exit 1 on findings by default; --report is
-the advisory opt-out), wired into the four gate surfaces.
+WHY THIS EXISTS. In the earlier repository, unused imports were removed by hand and then
+by an AST pass, which initially over-removed three DELIBERATE back-compat re-exports in
+`residual-scan.py` (`FROZEN_RECORD_RE`, `LEDGER_PATHS`, `LEDGER_RE`); they were then
+restored. This tool detects the recurrence CLASS, but is built so it can NEVER repeat that
+over-removal: it is deliberately ASYMMETRIC (false negatives acceptable, false positives
+are not). In the earlier repository it shipped report-only and soaked to an empty report
+(the last five findings were removed); it now runs as ENFORCING gate 94 (exit 1 on
+findings by default; --report is the advisory opt-out), wired into the four gate surfaces.
 
-SCOPE. `.claude/skills/corpus-management/tools/`, `.claude/skills/corpus-management/tests/`, `.web/`, `.claude/hooks/`, and the Corpus-Management pack's `.claude/skills/corpus-management/src/tools/` (compile PR-2; authored here, so import hygiene applies), recursive with `__pycache__` excluded: gate 71's original .claude/skills/corpus-management/tools/tests/.web scan set plus the hooks tree and the pack tools, but NOT the vendored .claude/aiqt/tools that gate 71 now also audits (unused-import hygiene does not apply to consumed code; the corpus is a non-goal). Widened from the original top-level `.claude/skills/corpus-management/tools/` + `.claude/hooks/` scan (the r22-F4 follow-up), so a dead import in a nested subdirectory, in `.claude/skills/corpus-management/tests/`, or in `.web/` is no longer invisible.
+SCOPE. `.claude/skills/corpus-management/tools/`, `.claude/skills/corpus-management/tests/`, `.web/`, `.claude/hooks/`, and the Corpus-Management pack's `.claude/skills/corpus-management/src/tools/` (authored here, so import hygiene applies), recursive with `__pycache__` excluded: gate 71's original .claude/skills/corpus-management/tools/tests/.web scan set plus the hooks tree and the pack tools, but NOT the vendored .claude/aiqt/tools that gate 71 now also audits (unused-import hygiene does not apply to consumed code; the corpus is a non-goal). Widened from the original top-level `.claude/skills/corpus-management/tools/` + `.claude/hooks/` scan, so a dead import in a nested subdirectory, in `.claude/skills/corpus-management/tests/`, or in `.web/` is no longer invisible.
 
 VERDICT. A name is flagged ONLY when a semantic (AST) pass finds no Load reference AND a
 conservative textual backstop finds no bare token AND no exclusion applies. Every ambiguity
@@ -21,7 +21,7 @@ EXCLUSIONS (each with its detection mechanism):
   2. names in a module `__all__`      -> re-export by declaration; if `__all__` is present but
                                          not statically a literal list/tuple of str, the WHOLE
                                          FILE is SKIPped (ignorance refuses to flag).
-  3. the #1250 back-compat re-export  -> an inline `# re-export` marker on the import statement
+  3. a back-compat re-export          -> an inline `# re-export` marker on the import statement
                                          (head line = statement-wide) or on an alias's own
                                          continuation line (that alias only). A bare
                                          imported-but-unused name is statically indistinguishable
@@ -45,7 +45,7 @@ EXCLUSIONS (each with its detection mechanism):
 RESIDUES (stated so nobody trusts the gate past its reach): a marker-less deliberate re-export is
 indistinguishable from dead code; a name used only via `getattr`/`globals()` is invisible unless a
 string literal names it; a name mentioned only in a comment or docstring suppresses a real finding
-(the accepted false-negative direction, the PR #1697 shape); a file that does not PARSE is SKIPped whole (printed as a SKIP line, not a finding), so gate 94 does not syntax-check the toolchain (gate 111, the hooks Python-syntax audit, covers `.claude/hooks/`; gate 71 parse-fails `.claude/skills/corpus-management/tools/`, `.claude/skills/corpus-management/tests/`, `.web/`, `.claude/skills/corpus-management/src/tools/`, and `.claude/aiqt/tools/`).
+(the accepted false-negative direction); a file that does not PARSE is SKIPped whole (printed as a SKIP line, not a finding), so gate 94 does not syntax-check the toolchain (gate 111, the hooks Python-syntax audit, covers `.claude/hooks/`; gate 71 parse-fails `.claude/skills/corpus-management/tools/`, `.claude/skills/corpus-management/tests/`, `.web/`, `.claude/skills/corpus-management/src/tools/`, and `.claude/aiqt/tools/`).
 
 Usage:
     python3 .claude/skills/corpus-management/tools/lint-unused-imports.py                 # ENFORCE (default): exit 1 on any finding (gate 94)
@@ -440,9 +440,9 @@ def main(argv=None):
     enforce = not args.report
     paths = args.paths
     if paths:
-        # 3b48: explicit files are refused when missing (was a raw FileNotFoundError
-        # traceback), else normalized; external files stay allowed (a supported case,
-        # test_external_skipped_path_does_not_crash).
+        # Explicit files are refused when missing (in the earlier repository, a missing
+        # file raised a raw FileNotFoundError traceback), else normalized; external files
+        # stay allowed (a supported case, test_external_skipped_path_does_not_crash).
         from lint_common import guard_explicit_paths_cwd
         paths = guard_explicit_paths_cwd(paths, repo_root=REPO_ROOT, allow_outside=True)
     return run(paths, enforce=enforce, ignore_markers=args.ignore_markers)

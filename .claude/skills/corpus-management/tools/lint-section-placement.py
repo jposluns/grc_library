@@ -8,8 +8,7 @@ register ``core/gates.toml``, id ``lint-section-placement``, enforcing the pack'
 ``python3 .claude/skills/corpus-management/tools/lint-section-placement.py`` shape (gate 35 parses exactly that) and supplies
 the grc-local configuration the pack engine deliberately does not carry: the AIQT bootstrap,
 the repo root, the grc PLACEMENT RULES (the pack profile defaults/grc/placement.toml, loaded via
-profile_loader.load('placement') and composed to the engine's rule tuples in _placement_config(),
-Phase-4 PR-D), the
+profile_loader.load('placement') and composed to the engine's rule tuples in _placement_config()), the
 target selection (the exempt dirs, the ``Status: Superseded`` skip, the narrative / default-exempt
 scope predicates via ``is_target`` + ``iter_targets``), and the default scan root. These wrapper
 bytes are HAND-MAINTAINED, not compiler-generated, so gate 99 does NOT own them. _placement_config,
@@ -38,11 +37,11 @@ PACK_TOOLS = Path(__file__).resolve().parent.parent / "src" / "tools"
 DEFAULT_PATHS = [str(REPO_ROOT)]
 
 
-EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS  # narrative-root exclusion is root-anchored via is_narrative_root (P-1.25 scan-root split)
+EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS  # narrative-root exclusion is root-anchored via is_narrative_root (scan-root split)
 
 def _placement_config() -> list[tuple[str, str, frozenset[str], tuple[str, int], tuple[str, ...] | None]]:
     """Load the gate-38 placement rules from the pack profile, composed to the
-    engine's exact rule shape (Phase-4 PR-D).
+    engine's exact rule shape.
 
     The model is the pack reference-vocabulary profile
     ``.claude/skills/corpus-management/src/defaults/grc/placement.toml``, loaded via
@@ -57,7 +56,7 @@ def _placement_config() -> list[tuple[str, str, frozenset[str], tuple[str, int],
     pack_tools = str(PACK_TOOLS)
     if pack_tools not in sys.path:
         sys.path.insert(0, pack_tools)
-    import profile_loader  # the pack-owned reference-vocabulary loader (PR-A)
+    import profile_loader  # the pack-owned reference-vocabulary loader
 
     prof = profile_loader.load("placement")
     return [
@@ -121,7 +120,7 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument("paths", nargs="*", default=None)
     args = parser.parse_args(argv[1:])
-    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    # Explicit paths are refused when missing or outside this tree, else normalized.
     args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     return _engine().run(iter_targets(args.paths), _placement_config(), repo_root=REPO_ROOT)
 

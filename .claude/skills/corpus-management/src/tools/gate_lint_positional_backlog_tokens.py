@@ -9,7 +9,7 @@ way. A bare single digit with no prefix and no dot is deliberately NOT matched (
 ambiguous). Blockquote lines are skipped, and inline backtick code spans are stripped
 before matching so a backticked mention does not register.
 
-Engine/wrapper split (compile PR-16): this engine carries the PURE check (``POSITIONAL_REF``,
+Engine/wrapper split: this engine carries the PURE check (``POSITIONAL_REF``,
 the code-span strip, ``check_file``) and a ``run`` that groups + reports; the project wrapper
 (``.claude/skills/corpus-management/tools/lint-positional-backlog-tokens.py``) supplies the scan scope and the grc-specific
 exempt-file set (the backlog source and append-only history). The engine's ``check_file`` is

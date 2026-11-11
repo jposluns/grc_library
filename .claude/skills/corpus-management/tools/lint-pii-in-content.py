@@ -101,7 +101,7 @@ EXEMPT_FILES = {
     ".working/CHANGELOG.md",
     # The pack-owned engine (gate_lint_pii_in_content.py) now holds the PII
     # detection regexes, so it documents the PII formats by design exactly as
-    # this wrapper did before the PR-38 transfer; exempt it for the same reason.
+    # this wrapper did before the transfer; exempt it for the same reason.
     "gate_lint_pii_in_content.py",
     # The PR-attribution check matches the attribution trailer address by design (its
     # pattern and self-test cases document the forbidden attribution shapes).
@@ -115,10 +115,10 @@ EXEMPT_FILES = {
 # Note: the template-placeholder domains (yourcompany.com,
 # your-org.com, your-org.example.com) are kept here because in a
 # template they are legitimate non-PII fill-in markers. They are
-# additionally registered as patterns in lint-placeholder-leakage.py
-# (Phase 23.63), so leaving one in production content is flagged
-# defensively by that linter while still avoiding a false-positive
-# PII finding here.
+# additionally registered as patterns in
+# lint-placeholder-leakage.py, so leaving one in production content
+# is flagged defensively by that linter while still avoiding a
+# false-positive PII finding here.
 EXAMPLE_DOMAINS = {
     # RFC 2606 reserved example domains
     "example.com", "example.org", "example.net",
@@ -132,8 +132,9 @@ EXAMPLE_DOMAINS = {
     # The library maintainer's contact domain (recorded in AUTHORS / CITATION):
     "posluns.ca",
 }
-# Phase 23.63 removed `noreply.github.com` (no corpus reference)
-# and `posluns.com` (only `.ca` is used in AUTHORS / CITATION).
+# `noreply.github.com` (no corpus reference) and `posluns.com`
+# (only `.ca` is used in AUTHORS / CITATION) were removed from
+# this set.
 
 
 def _engine():
@@ -162,7 +163,7 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument("paths", nargs="*", default=None)
     args = parser.parse_args(argv[1:])
-    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    # Explicit paths are refused when missing or outside this tree, else normalized.
     args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     targets = iter_targets(
         args.paths,

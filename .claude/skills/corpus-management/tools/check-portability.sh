@@ -1,31 +1,29 @@
 #!/usr/bin/env bash
 #
-# Adopter-clone portability check (closed in PRs #993 and #996).
+# Adopter-clone portability check.
 #
 # Guarantees the sibling-independence invariant: an adopter who clones ONLY the
-# public grc_library repo (reaching no grc_library_ref / grc_library_scratch /
-# grc_library_private sibling) can still run every audit gate green AND run the
-# advisory tools scoped in PR #996 (ref-holds; audit-brief-freshness was retired 2026-09-24)
-# without a spurious error. The corpus' QA toolchain is
-# PRODUCT (adopters clone and run it), so it must not depend on the maintainer's
-# private sibling repos. All six maintainer-cadence tools that also reach
-# grc_library_ref are now in the advisory-tool loop below (3.91 (closing PR #1011)):
+# public grc_library repo (reaching none of the maintainer's sibling repos) can
+# still run every audit gate green AND run the sibling-reaching advisory tools in
+# the loop below (ref-holds among them) without a spurious error. The corpus' QA
+# toolchain is PRODUCT (adopters clone and run it), so it must not depend on the
+# maintainer's private sibling repos. All six maintainer-cadence tools that also
+# reach the reference sibling repo are in the advisory-tool loop below:
 # audit-reference-breadth, audit-reference-acquisition-gaps, and
 # scan-publication-instruction-content each raised on an absent reference base and were
 # fixed to a graceful no-op exit 0, while audit-claim-precision, verify-reference-modules,
-# and audit-register-currency already degraded (SKIP / advisory exit 0). SCOPE NOTE
-# (3.90 (closing PR #1011)): this check exercises
-# the DEFAULT (relative) sibling-reach a bare adopter clone hits (a sibling absent
-# beside the clone); a tool reaching an ABSOLUTE sibling path (e.g. a worker's
-# /tmp/grc_library_ref) is out of this relative-clone model's scope and is covered by
-# the tool's own explicit-path handling, not by this loop.
+# and audit-register-currency already degraded (SKIP / advisory exit 0). SCOPE NOTE:
+# this check exercises the DEFAULT (relative) sibling-reach a bare adopter clone hits
+# (a sibling absent beside the clone); a tool reaching an ABSOLUTE sibling path (e.g.
+# one under a worker's /tmp) is out of this relative-clone model's scope and is
+# covered by the tool's own explicit-path handling, not by this loop.
 #
 # How it works: git-clones this repo's current HEAD into a fresh temp directory that
 # has NO sibling repos beside it, then (1) runs .claude/skills/corpus-management/tools/run_all_audits.sh inside that
 # clone and asserts it passes, and (2) runs each sibling-reaching advisory tool and
-# asserts it degrades to a graceful exit 0 (1.19.2 (closing PR #996)), not an error. If any gate or
-# advisory tool reaches a sibling repo at runtime, the sibling is absent in the temp
-# clone and the tool fails, so this check fails LOUD.
+# asserts it degrades to a graceful exit 0, not an error. If any gate or advisory
+# tool reaches a sibling repo at runtime, the sibling is absent in the temp clone
+# and the tool fails, so this check fails LOUD.
 #
 # This is the LOCAL reproduction of what CI already does implicitly (a GitHub Actions
 # runner checks out grc_library alone, with no siblings), surfaced as an explicit,
@@ -42,7 +40,7 @@
 # without siblings (likely a sibling reach); 2 = the check could not run (clone failed,
 # or the temp dir was not sibling-free).
 
-# PACKAGE NOTE (idna, PRs #2430-#2431): the one sanctioned third-party dependency
+# PACKAGE NOTE (idna): the one sanctioned third-party dependency
 # `idna` (requirements.txt) is a PACKAGE, not a sibling repo, so this sibling-absence
 # check does not exercise its absence. The PII gate that uses it imports it soft-optional
 # with a false-negative-safe stdlib fallback, so a bare clone with no `idna` still runs
@@ -77,11 +75,11 @@ echo "Running .claude/skills/corpus-management/tools/run_all_audits.sh in the si
 ( cd "$CLONE" && .claude/skills/corpus-management/tools/run_all_audits.sh )
 rc=$?
 
-# Advisory-tool graceful-degradation (1.19.2 (closing PR #996)): the sibling-reaching
-# advisory tools must no-op and exit 0 (not error) when their sibling repo is
-# absent, so an adopter running them on a sibling-free clone gets a clean advisory
-# rather than a spurious failure. ref-holds needs a query argument to reach the
-# lookup path; the others take none.
+# Advisory-tool graceful degradation: the sibling-reaching advisory tools must
+# no-op and exit 0 (not error) when their sibling repo is absent, so an adopter
+# running them on a sibling-free clone gets a clean advisory rather than a
+# spurious failure. ref-holds needs a query argument to reach the lookup path;
+# the others take none.
 adv_rc=0
 echo
 echo "Checking the sibling-reaching advisory/generator tools degrade gracefully (1.19.2 (closing PR #996), 1.19.7 (closing PR #1007)) ..."

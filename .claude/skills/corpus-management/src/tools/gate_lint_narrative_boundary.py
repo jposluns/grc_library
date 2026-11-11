@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """Symmetric narrative-boundary - pack engine.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A; narrative-family):
-the PURE symmetric scan (the fence helpers + parse_metadata_run + scan_outside_file
-+ check_inside_page) is the source of record here in the pack, moved verbatim from
-the grc gate. The narrative document type, the path-scoped entry-point exemption, the
-8-field extension set, the allowed corpus document-type set, and the two line-anchored
-markers are supplied by the adopter via configure(ref), so the engine's LOGIC is
-project-agnostic (its finding-message text carries the configured type/field names
-literally, a byte-identity residue of the verbatim transfer). The grc wrapper
-(.claude/skills/corpus-management/tools/lint-narrative-boundary.py) supplies them + the repository scan scope (discover),
-configures the engine, and keeps the self-test, main, module-global shims
-(scan_outside_file / check_inside_page), and the exit codes.
+Engine/wrapper split (narrative-family): the PURE symmetric scan (the fence
+helpers + parse_metadata_run + scan_outside_file + check_inside_page) is
+the source of record here in the pack, moved verbatim from the grc gate. The
+narrative document type, the path-scoped entry-point exemption, the 8-field
+extension set, the allowed corpus document-type set, and the two line-anchored
+markers are supplied by the adopter via configure(ref), so the engine's LOGIC
+is project-agnostic (its finding-message text carries the configured type/field
+names literally, a byte-identity residue of the verbatim transfer). The grc wrapper
+(.claude/skills/corpus-management/tools/lint-narrative-boundary.py) supplies them +
+the repository scan scope (discover), configures the engine, and keeps the self-test,
+main, module-global shims (scan_outside_file / check_inside_page), and the exit codes.
 """
 
 from __future__ import annotations
@@ -57,10 +57,10 @@ def configure(ref) -> None:
 # approximation of CommonMark, not a full parser (a backtick info string may contain
 # a backtick, and container blocks are not modelled); an opener or closer is eligible
 # only at zero to three spaces of indent, the CommonMark limit the shared
-# aiqt_corpus.is_fence_line applies (3b83; this regex states the same rule, since the
+# aiqt_corpus.is_fence_line applies (this regex states the same rule, since the
 # marker-aware model also needs the run and info string the shared boolean predicate
 # does not expose), so a marker indented four or more columns is content. A file that
-# ends inside an open fence is reported (3b54b), so the residue that remains silent is
+# ends inside an open fence is reported, so the residue that remains silent is
 # a fence boundary or extent the model gets wrong while its scan still closes before
 # the end of the file: a line mis-recognized as an opener followed by a later closer,
 # or a fence that CommonMark ends at the edge of its list or blockquote container but
@@ -154,7 +154,7 @@ def scan_outside_file(path: Path, rel: str) -> list[str]:
                 f"retyped-leak escape of the corpus metadata gate)"
             )
     if open_fence is not None:
-        # 3b54b: fail loud rather than silently skipping the rest of the file.
+        # Fail loud rather than silently skipping the rest of the file.
         findings.append(
             f"{rel}:L{open_line}: the file ends inside the fence opened here (per this gate's "
             f"marker-aware scan), so every line after it went unscanned for narrative markers; "

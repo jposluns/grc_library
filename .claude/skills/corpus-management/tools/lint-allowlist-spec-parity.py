@@ -1,23 +1,27 @@
 #!/usr/bin/env python3
 """Gate 101: external-link allow-list and citation-verification section 7.1 parity.
 
-Two surfaces list the publishers whose domains the library may link to: the
-external-link gate's ``ALLOW_LIST`` in ``.claude/skills/corpus-management/tools/lint-external-link-domains.py``
+Two surfaces list the publishers whose domains the library
+may link to: the external-link gate's ``ALLOW_LIST`` in
+``.claude/skills/corpus-management/tools/lint-external-link-domains.py``
 (gate 24) and the publisher allow-list in section 7.1 of
-``governance/specification-citation-verification.md``. They drifted apart before
-(3b30 reconciled them by hand); this gate keeps them together. Section 7.1's
-source of record is its fenced ``json citation-publishers`` block (parsed strictly by
-``.claude/skills/corpus-management/tools/citation_publishers.py``); its table is generated from the block (gate 102),
-so this gate never parses a Markdown table (3b31b redesign, maintainer ruling
-2026-09-24: nine QA rounds showed hand-parsing a GFM table is an open-ended class).
+``governance/specification-citation-verification.md``. In the
+earlier repository they drifted apart and were reconciled by hand;
+this gate keeps them together. Section 7.1's source of record is
+its fenced ``json citation-publishers`` block (parsed strictly by
+``.claude/skills/corpus-management/tools/citation_publishers.py``);
+its table is generated from the block (gate 102), so this
+gate never parses a Markdown table (in the earlier repository,
+hand-parsing a GFM table proved to be an open-ended class).
 
-Clause. Forward: every ``ALLOW_LIST`` entry is either covered by a section 7.1
-domain under gate 24's own suffix matcher, imported from its pack engine rather than
-re-implemented (the entry equals a 7.1 domain or is a subdomain of one), or carries a same-line trailing marker comment naming its
+Clause. Forward: every ``ALLOW_LIST`` entry is either covered by a section
+7.1 domain under gate 24's own suffix matcher, imported from its pack engine
+rather than re-implemented (the entry equals a 7.1 domain or is a subdomain
+of one), or carries a same-line trailing marker comment naming its
 classification with a non-empty reason:
 
     "linkedin.com",  # non-publisher: maintainer profile
-    "cisecurity.org",  # pending-publisher: CIS register entry (3b33)
+    "cisecurity.org",  # pending-publisher: CIS register entry
 
 ``non-publisher`` marks a host that is not a citation publisher (code hosting,
 identifiers, format conventions, vendors and tools, the project's own sites);
@@ -27,11 +31,12 @@ its own physical line only; a comment on a preceding line never marks an entry,
 so an entry appended to a commented group is still checked. Reverse: every
 section 7.1 domain is admitted by the allow-list under the same matcher.
 
-Fail-closed input checks: the ALLOW_LIST literal must be found and non-empty;
-the section 7.1 block must satisfy every rule of ``.claude/skills/corpus-management/tools/citation_publishers.py``
-(exactly one block inside section 7.1, strict JSON, exact schema, canonical and
-unique domains); and at least MIN_SPEC_DOMAINS domains must be declared, so a
-valid but shrunken block cannot silently shrink the checked set.
+Fail-closed input checks: the ALLOW_LIST literal must be found
+and non-empty; the section 7.1 block must satisfy every rule of
+``.claude/skills/corpus-management/tools/citation_publishers.py``
+(exactly one block inside section 7.1, strict JSON, exact schema, canonical
+and unique domains); and at least MIN_SPEC_DOMAINS domains must be declared,
+so a valid but shrunken block cannot silently shrink the checked set.
 
 Residue, stated: a marker proves a classification was asserted, not that it is
 honest; a ``non-publisher`` marker on a genuine publisher passes mechanically,
@@ -169,7 +174,7 @@ PACK_TOOLS = REPO_ROOT / ".claude" / "skills" / "corpus-management" / "src" / "t
 
 
 def _link_engine():
-    """Gate 24's pack-owned engine, the single owner of allow-list suffix matching (3b52c)."""
+    """Gate 24's pack-owned engine, the single owner of allow-list suffix matching."""
     import aiqt_bootstrap  # noqa: F401  # the AIQT generic core the engine imports, as gate 24's wrapper does
     if str(PACK_TOOLS) not in sys.path:
         sys.path.insert(0, str(PACK_TOOLS))
@@ -227,8 +232,8 @@ def main(argv: list[str]) -> int:
 
 
 if __name__ == "__main__":
-    # 3b50b2g: this tool takes no argument; an unknown or surplus one
-    # used to be ignored with exit 0, so it is refused (exit 2) before the check runs.
+    # This tool takes no argument; in the earlier repository an unknown or surplus one
+    # was ignored with exit 0, so it is refused (exit 2) before the check runs.
     import os as _os
     sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
     from lint_common import strict_flags as _strict_flags

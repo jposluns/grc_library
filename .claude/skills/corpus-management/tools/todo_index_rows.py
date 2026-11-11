@@ -7,18 +7,18 @@ Three tools read backlog items. The decision-log hook
 actionability audit (``.claude/skills/corpus-management/tools/audit-backlog-actionability.py``) produces that N and
 feeds the stop guard through ``.claude/hooks/nmw-actionable``; and gate 78
 (``.claude/skills/corpus-management/tools/lint-todo-number-permanence.py``) reads the live item ids to catch a
-recycled or duplicated number. Before P-TODO 3b121 each kept its own row grammar:
-the hook counted any ``| <id> |`` row, and counted public ``.working/TODO.md`` rows
+recycled or duplicated number. In the earlier repository each kept its own row
+grammar: the hook counted any ``| <id> |`` row, and counted public backlog rows
 without the index-header gate; the tool read only ``| <id> | <title> | <tags> |``
 rows under an index header; and gate 78 read ``lint_common.parse_todo_index``
 rows, which drop an unreadable row and ignore the header gate. The hook and gate
 78 also kept their own ``### <id>`` heading regexes, and gate 78's ended an id
-only at whitespace or a colon, so ``### RB-6. title`` was an item in the tool and
+only at whitespace or a colon, so ``### AB-1. title`` was an item in the tool and
 not live in gate 78. All three now read rows through ``index_rows`` and headings
 through ``item_headings`` / ``match_heading`` here, so they read the same items
 with the same ids. Bold-bullet items are outside this module: gate 78 reads them
 with the audit tool's own parser, and the hook keeps a replica that fixtures pin
-to it (3b119).
+to it.
 
 The row grammar:
 
@@ -26,12 +26,12 @@ The row grammar:
   ``| ID | Item | Tags |`` header row has no index rows, public or private.
 - A row CANDIDATE is a line that starts ``| <id> |`` after at most three spaces of
   indentation (Markdown renders such a line as a table row; four spaces or a tab
-  make it code), where ``<id>`` is a ``lint_common.TODO_ID_RE`` backlog id. Once
+  make it code), where ``<id>`` is a ``lint_common.TODO_ID_RE`` backlog id. When
   the header is present, candidates are read anywhere in the file, fenced text
-  included, as the counters read them before.
+  included.
 - A candidate is READABLE when it also has a title cell and a tags cell,
   ``| <id> | <title> | <tags> |``; later cells are ignored.
-- An UNREADABLE candidate (``| 1.2 | title only |``, or a row without its closing
+- An UNREADABLE candidate (``| N.M | title only |``, or a row without its closing
   pipe) fails closed: it is returned with ``readable=False``, so every reader
   keeps it as an open item. The audit tool counts it ACTIONABLE with no
   ``[BLOCKED:]`` grant, since its tags cannot be read, and gate 78 holds its id
@@ -39,20 +39,20 @@ The row grammar:
   number from gate 78; a nonzero tool exit would make the stop guard fail open
   (nmw-actionable reads a tool error as indeterminate).
 
-The heading grammar, ``ITEM_HEADING_RE`` (the audit tool's since 3b119): a line
+The heading grammar, ``ITEM_HEADING_RE`` (the audit tool's own): a line
 that starts ``### `` (one space) and then a private ``P-n.m`` id, a section number
-of two or three parts with an optional letter, or a coded id (``RB-6``,
-``GR-GAP-1``, ``TF-2``). The id ends at a word boundary, so ``### RB-6. title``
-reads as ``RB-6`` and ``### 3.92.a child`` as ``3.92``. Every such line is an item
+of two or three parts with an optional letter, or a coded id (``AB-1``,
+``AB-CD-1``). The id ends at a word boundary, so ``### AB-1. title`` reads as
+``AB-1`` and ``### N.M.a child`` as ``N.M``. Every such line is an item
 heading, inside a code fence or an HTML comment too (a masked heading is a
-one-line item, 3b119 QA r5), and no header gate applies. A heading outside the
+one-line item), and no header gate applies. A heading outside the
 grammar (a ``§`` marker, a tab or a second space after ``###``) is not an item in
 any reader; the audit tool lists it among its ITEM-LIKE lines when its lead word
 looks like an id.
 
 Lines are split with ``str.splitlines`` (CR, form feed and U+2028 end a line too),
-as the audit tool splits them. A first cell that is not a backlog id (``| 3b7 |``,
-``| RB-6 |``, the header, the separator) is not a candidate.
+as the audit tool splits them. A first cell that is not a backlog id
+(``| AB-1 |``, the header, the separator) is not a candidate.
 
 Stdlib-only Python 3.14.
 """
@@ -72,7 +72,7 @@ def _printable(text) -> str:
 
 
 # `lint_common` supplies the backlog-id grammar and the index-header gate, WITHOUT a
-# by-name import statement (3b257): hook-side, the hooks' _load_sibling loader has
+# by-name import statement: hook-side, the hooks' _load_sibling loader has
 # already executed the reviewed .claude/skills/corpus-management/tools/lint_common.py source and registered it in
 # sys.modules BEFORE this module's source runs (its dependency preload, which
 # OVERWRITES any pre-seeded entry on a production launch), so the entry consulted
@@ -111,7 +111,7 @@ if not (TODO_ID_RE.pattern.startswith("^(?:") and TODO_ID_RE.pattern.endswith(")
                       "re-derive TODO_ID_ALT in .claude/skills/corpus-management/tools/todo_index_rows.py")
 TODO_ID_ALT = TODO_ID_RE.pattern[1:-1]
 
-# A row candidate: the line starts ``| <id> |`` after at most three spaces (P-TODO 3b121 QA r1).
+# A row candidate: the line starts ``| <id> |`` after at most three spaces.
 ROW_START_RE = re.compile(r"^ {0,3}\|\s*(?P<id>" + TODO_ID_ALT + r")\s*\|")
 # A readable row: ``| <id> | <title> | <tags> |``.
 ROW_RE = re.compile(r"^ {0,3}\|\s*(?P<id>" + TODO_ID_ALT + r")\s*\|(?P<title>[^|]*)\|(?P<tags>[^|]*)\|")
