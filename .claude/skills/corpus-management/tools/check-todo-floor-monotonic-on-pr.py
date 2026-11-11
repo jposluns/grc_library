@@ -33,13 +33,13 @@ Usage:
     In that argless form every working-tree read (the tracked diff and the
     untracked listing of the collapsed-range check, and the head floor read)
     anchors to the repository top level, so a run from a subdirectory gives
-    the same verdict as a run from the root. A run from inside a NESTED git
-    repository anchors to that nested repository, not the outer one: it is
-    refused when the base ref does not resolve in the nested repository (a
-    freshly initialized one carries no refs), and otherwise evaluated
-    against the nested repository's own base and head; in both cases it is
-    never evaluated against the outer repository, so run from the outer
-    repository to check the outer floor.
+    the same verdict as a run from the root. A run from inside a
+    NESTED git repository anchors to that nested repository, not the outer
+    one: it is refused when the base ref does not resolve in the nested
+    repository (a freshly initialized one carries no refs), and
+    otherwise evaluated against the nested repository's own base and head;
+    in both cases it is never evaluated against the outer repository, so
+    run from the outer repository to check the outer floor.
 
 A collapsed range (base and head resolving to the same commit, a head that is
 already contained in the base so that it is its own merge base, or the working
