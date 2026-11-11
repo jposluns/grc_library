@@ -1,9 +1,9 @@
 # Reference-vocabulary profile: mandatory-near-uncertainty markers (grc defaults).
 #
-# Concern: uncertainty. The LIVE gate-9 configuration since Phase-4 PR-I (the FINAL
-# Phase-4 gate). .claude/skills/corpus-management/tools/lint-shall-near-uncertainty.py loads it via
+# Concern: uncertainty. The LIVE gate-9 configuration:
+# .claude/skills/corpus-management/tools/lint-shall-near-uncertainty.py loads it via
 # profile_loader.load("uncertainty"); the loader compiles the uncertainty patterns
-# and the mandatory alternation, and the engine (parameterized in PR-I) takes them +
+# and the mandatory alternation, and the engine takes them +
 # the window. Values transcribed VERBATIM from the former UNCERTAINTY_PATTERNS (8,
 # ORDER PRESERVED: check_file reports the first matching pattern per line) +
 # MANDATORY_PATTERN (stored as a regex table so its embedded SPACES survive - a

@@ -406,7 +406,7 @@ provenance = false
 regenerate = ["python3", ".claude/skills/corpus-management/tools/build-corpus-management.py"]
 
 # The rule index ships in the skill directory and is read when the skill
-# loads, on the skill's instruction, rather than at session start (3b607).
+# loads, on the skill's instruction, rather than at session start.
 [[rules]]
 id = "rule-index"
 kind = "index"

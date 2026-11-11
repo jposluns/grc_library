@@ -249,7 +249,7 @@ in that directory, other than `lint_common.py`, that calls one of the 2
 functions it imports from `lint_common`, so the 10 tools that call their
 own local `iter_targets` function are not counted. Its
 `skip_test_scratch` switch is off by default, and only 4 gates turn it
-on (3b653): gate 48
+on: gate 48
 (`.claude/skills/corpus-management/tools/lint-ccm-aicm-citations.py`),
 gate 61
 (`.claude/skills/corpus-management/tools/lint-cobit-iso31000-citations.py`),
@@ -336,8 +336,8 @@ reintroduce the leak.
 A test or a verification that has to confirm how a real shell treats a command string (whether bash joins
 a continuation, whether `sh -c` runs an argument) runs it through
 [`.claude/skills/corpus-management/tools/run-shell-stubbed.py`](../tools/run-shell-stubbed.py), never through a shell-function stub, which a
-nested `sh -c` does not inherit (that gap once let a real `gh pr merge` run during hook verification,
-backlog item 3b116). The tool runs the command in restricted bash with PATH holding only gh and git stand-ins,
+nested `sh -c` does not inherit (in the earlier repository, that gap let a real `gh pr merge` run during hook verification).
+The tool runs the command in restricted bash with PATH holding only gh and git stand-ins,
 restricted `bash` and `sh` wrappers and a few harmless utilities, and with an environment built from scratch;
 restricted mode then refuses a slash in a command name, a PATH change, `command -p`, `exec` and similar, so
 a real gh or git cannot be reached. Output redirection is refused too, and `sh` is emulated by
@@ -364,8 +364,8 @@ When a fixture targets a specific filter path or branch of a linter
 CHANGE (a widened window, a new skip class, a new verdict), verify
 before commit that the fixture FAILS against the pre-change linter
 (or a deliberately weakened copy): a fixture that passes both states
-guards nothing. The motivating catch is the #624 hollow fixture,
-whose link filename satisfied an unrelated filter path, so the new
-trailing-window code was never exercised; the #625 build applied the
-weakened-copy mutation test to all four of its fixtures as the
-standing form of this rail.
+guards nothing. The motivating catch, in the earlier repository, was a hollow fixture whose link
+filename satisfied an unrelated filter path, so the new trailing-window
+code was never exercised; the next build applied the weakened-copy
+mutation test to all four of its fixtures as the standing form of this
+rail.

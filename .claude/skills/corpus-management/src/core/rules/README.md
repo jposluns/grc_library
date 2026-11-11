@@ -6,6 +6,8 @@ Other bodies are generated to `.claude/references/corpus-management/` and read o
 the rule index, which ships with the corpus-management skill
 (`.claude/skills/corpus-management/rule-index.md`).
 Gate 37 recognizes the always-loaded files through the ownership register; gate 99 owns every
-file in `.claude/rules/corpus-management/`, `.claude/references/corpus-management/` and
-`.claude/skills/corpus-management/`, and the generated block body in `.claude/CLAUDE.md`.
+file in `.claude/rules/corpus-management/` and `.claude/references/corpus-management/`, the
+generated `SKILL.md` and `rule-index.md` in `.claude/skills/corpus-management/` (its stray scan
+skips the shipped entries there and still fails any other entry in that directory), and the
+generated block body in `.claude/CLAUDE.md`.
 Edit sources here and regenerate with `python3 .claude/skills/corpus-management/tools/build-corpus-management.py`.

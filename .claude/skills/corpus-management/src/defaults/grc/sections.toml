@@ -1,6 +1,6 @@
 # Reference-vocabulary profile: required-sections-by-doctype model (grc defaults).
 #
-# Concern: sections. The LIVE gate-19 configuration since Phase-4 PR-C:
+# Concern: sections. The LIVE gate-19 configuration:
 # .claude/skills/corpus-management/tools/lint-required-sections.py loads it via profile_loader.load("sections")
 # and composes the engine's required_map in _sections_config(); gate 67's
 # Check 2 reads the same composed map. Values transcribed VERBATIM from the

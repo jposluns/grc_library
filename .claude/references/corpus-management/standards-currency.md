@@ -11,11 +11,12 @@ identifiers followed by registered superseded markers, including v-prefixed
 versions, and preserves version-continuation boundaries and fenced-code
 exclusion.
 
-P-3.213 PR1 adds register-independent discovery for ISO/IEC-family publications,
-NIST publications and frameworks, IEEE, ETSI/CEN, and CIS Controls, ITIL, WCAG,
-COBIT and SLSA. Exact normalized identifiers resolve to register rows.
-Diagnostic spelling matches suggest corrections but are not accepted aliases.
-Parts, publication kinds and issuer identities remain distinct.
+The engine also discovers, independently of the register, ISO/IEC-family
+publications, NIST publications and frameworks, IEEE, ETSI/CEN, and CIS
+Controls, ITIL, WCAG, COBIT and SLSA. Exact normalized identifiers resolve to
+register rows. Diagnostic spelling matches suggest corrections but are not
+accepted aliases. Parts, publication kinds and issuer identities remain
+distinct.
 
 Report mode is the default during migration. Newly discovered stale forms,
 HTML findings, missing registrations, noncanonical identifiers and missing
@@ -25,10 +26,10 @@ declaration that does not bind (below); every other finding is advisory. A run
 also fails on errors that are not findings: a failure of the unpinned ratchet
 below where a project holds one, a malformed input or a failed base read
 (below), and the register and input errors in the last paragraph. Explicit
-enforce mode additionally blocks those recognized citation findings; PR1 gate
-invocations do not enable it. This rule states classes only: the project
-wrapper's module docstring holds the one authoritative list of exit statuses
-and of every condition that produces each.
+enforce mode additionally blocks those recognized citation findings; this
+library's own gate invocations do not enable it. This rule states classes
+only: the project wrapper's module docstring holds the one authoritative list
+of exit statuses and of every condition that produces each.
 
 A project may hold a per-standard ratchet on missing edition pins: a
 checked-in baseline of each standard's unpinned count, which may only fall.

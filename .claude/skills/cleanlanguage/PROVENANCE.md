@@ -4,7 +4,7 @@ This directory holds the Clean Language skill, vendored into grc_library from it
 
 - **Source (the pin):** github.com/jposluns/cleanlanguage (formerly `jposluns/ai-language`), release
   tag `v1.0.15`, commit `320b68567b3b5e307a59615d923d1bfe31282d17`, released 2026-11-08 (site:
-  cleanlanguage.ai). Vendored on 2026-11-08, replacing version 1.0.8. Upstream now ships the skill
+  cleanlanguage.ai). Vendored on 2026-11-08, replacing version 1.0.8. Upstream ships the skill
   inside a plugin: `SKILL.md` and `references/` come from `cleanlanguage/skills/cleanlanguage/`,
   `agents/openai.yaml` and the two icons under `assets/` are the plugin-level files, and `LICENSE`
   and `NOTICE.md` are the upstream repository-root files. Every file here except this one is
@@ -27,7 +27,7 @@ This directory holds the Clean Language skill, vendored into grc_library from it
 - **Purpose:** apply the Clean Language standard to public-facing prose (README, CHANGELOG
   summaries, the grclibrary.ai website copy, the adopter guide), then check that no facts were lost.
   It is not for corpus document creation: the governance documents keep their fixed section model
-  and `lint-language.py` house style. Maintainer-directed 2026-08-01.
+  and `lint-language.py` house style.
 - **Staying current (the update path):** upstream releases arrive without notice. Run
   [`.claude/skills/corpus-management/tools/check-clean-language-upstream.py`](../corpus-management/tools/check-clean-language-upstream.py)
   periodically. It compares the git blob SHA of every vendored file here with the upstream file

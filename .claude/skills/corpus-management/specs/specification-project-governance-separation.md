@@ -2,11 +2,11 @@
 
 **Document Title:** Project Governance Separation Specification\
 **Document Type:** Specification\
-**Version:** 1.0.16\
-**Date:** 2026-11-09\
+**Version:** 1.0.18\
+**Date:** 2026-11-10\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`governance/register-document-index-and-classification.md`](../../../../governance/register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](../../../../governance/framework-document-architecture-and-interrelationship.md), [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](specification-audit-programme.md), [`governance/README.md`](../../../../governance/README.md), the maintainer's private operational store\
+**Related Documents:** [`governance/register-document-index-and-classification.md`](../../../../governance/register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](../../../../governance/framework-document-architecture-and-interrelationship.md), [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](specification-audit-programme.md), [`governance/README.md`](../../../../governance/README.md)\
 **Classification:** Public\
 **Category:** Core Governance\
 **Review Frequency:** Annual and upon material change to the repository's directory model or the corpus-versus-project boundary\
@@ -18,12 +18,12 @@
 
 ## 1. Purpose
 
-This specification defines the boundary between two kinds of governance artefact that have, until now, both lived in the `governance/` domain directory:
+This specification defines the boundary between two kinds of governance artefact that both lived in the `governance/` domain directory until this specification separated them:
 
 1. **Corpus governance** (also "library governance"): the governance, risk, and compliance content the library publishes as its deliverable. An adopter reads and adapts this content.
 2. **Project governance**: the operational records of running *this* library. An adopter does not consume these; they document how the maintainer operates and audits the corpus.
 
-It states the criterion that classifies any artefact into one of the two, the dependency-direction rule that keeps the boundary clean, the destination convention for project governance (§6), the gate consequences of the split, and the phased migration procedure. It is the decision record that supersedes the deferred backlog items R2 (citation-verification cluster relocation) and is the reusable pattern a forker adapting the library-as-living-project would follow.
+It states the criterion that classifies any artefact into one of the two, the dependency-direction rule that keeps the boundary clean, the destination convention for project governance (§6), the gate consequences of the split, and the phased migration procedure. It is the reusable pattern a forker adapting the library-as-living-project would follow.
 
 The split exists because `governance/` is meant to hold governance *documents and templates*, the deliverable, and the accumulation of operational records (a live citation-verification campaign, coverage trackers, review schedules) inside it dilutes that meaning and forces an adopter to read past project-internal state to reach the content they came for.
 
@@ -41,7 +41,7 @@ The split exists because `governance/` is meant to hold governance *documents an
 ### 2.2 Out of scope
 
 - The pinned AIQT rules and their `.claude/` deployment. AIQT (https://aiqt.ai), which replaced the rules pack formerly maintained in this repository, is AI-assistant discipline distributed as a reusable product; it is neither corpus governance (it is not GRC content) nor project governance (it is not operational record). It keeps its own location and conventions.
-- The maintainer working-state records. The rebuilt public repository keeps a root `.working/` directory holding the public backlog index and the weekly `CHANGELOG.md`, while per-run records live in the maintainer's private store. That working state is distinct from the project-governance registers directory (§6), which is maintained and audited (§6.3; the broken-link gate and the §6.3 content linters cover the registers directory), and neither subsumes the other.
+- The maintainer working-state records. The rebuilt public repository keeps a root `.working/` directory holding the public backlog index and the weekly `CHANGELOG.md`; per-run records are kept in the maintainer's private store outside the repository. That working state is distinct from the project-governance registers directory (§6), which is maintained and audited (§6.3; the broken-link gate and the §6.3 content linters cover the registers directory), and neither subsumes the other.
 - The substance of any classified artefact. This specification moves artefacts and re-points citations; it does not rewrite their content.
 
 ---
@@ -66,7 +66,7 @@ Worked application to the citation-verification family, which spans the boundary
 - `template-citation-verification-worklist.md` (the blank worklist shape) is a reusable pattern → corpus.
 - `register-citation-verifications.md` and the `worklist-citation-verification-batch-*.md` files (this project's actual verification results and campaign batches) are operational instances → project.
 
-The same lens explains the earlier R1 decision: `.claude/skills/corpus-management/tools/sweep-preflight-exemptions.json` was scanner-private machine configuration, an operational instance consumed only by its scanner, and it correctly lives with that scanner in `.claude/skills/corpus-management/tools/`.
+The same lens places `.claude/skills/corpus-management/tools/sweep-preflight-exemptions.json`: it is scanner-private machine configuration, an operational instance consumed only by its scanner, so it lives with that scanner in `.claude/skills/corpus-management/tools/` rather than in the registers directory.
 
 ---
 
@@ -89,7 +89,7 @@ The registers directory is specified as audited rather than exempt, so links *wi
 
 ## 5. Classification of the current `governance/` corpus
 
-The 40 Markdown artefacts in `governance/` as of this specification's original authoring date, plus this specification itself, classify as follows. "Stays" means the artefact remains corpus governance in `governance/`. "Move (Phase 1)", "Move (Phase 2)", and "Deferred" are project-governance artefacts; the phase column records when they migrate (§8). The Phase-1 cluster and the Phase-2 review-schedule register have since migrated, and both formerly-deferred candidates are now resolved (§5.3); the tables below record the as-classified disposition of each artefact, not the live `governance/` population.
+The 40 Markdown artefacts that `governance/` held when this specification was first written, plus this specification itself, are classified as follows. §5.1 lists corpus governance, which stays in `governance/`; §5.2 and §5.4 list project governance, which lives in the registers directory (§6) or, for the §5.2 campaign bundle record and per-batch worklists, in the maintainer's private operational store; §5.3 gives the 2 classification questions and how each was settled. The §5.2 cluster and the §5.4 register have since migrated, and both classification questions are settled (§5.3); the tables give each artefact's classification, not a live listing of `governance/`.
 
 ### 5.1 Corpus governance (stays in `governance/`)
 
@@ -115,7 +115,7 @@ The 40 Markdown artefacts in `governance/` as of this specification's original a
 | `procedure-whistleblower-and-incident-reporting.md` | Procedure | Published procedure |
 | `register-ai-security-tooling-landscape.md` | Register | Adopter-facing reference landscape |
 | `register-canonical-citations.md` | Register | Reusable citation *reference* an adopter adapts; the verification *log* (`register-citation-verifications.md`) is the operational instance, not this list |
-| `register-coverage-gaps.md` | Register | Adopter-facing reference woven into the adopter guides (`governance/decision-tree.md`, `governance/template-startup-roadmap.md`) as routing logic; the honest-disclosure content an adopter references (resolved from §5.3 to stays-corpus, 2026-06-26, on the §3.1 adopter-referenced-register criterion and the §4 no-deliverable-link-into-project constraint) |
+| `register-coverage-gaps.md` | Register | Adopter-facing reference woven into the adopter guides (`governance/decision-tree.md`, `governance/template-startup-roadmap.md`) as routing logic; the honest-disclosure content an adopter references (classified corpus on the §3.1 adopter-referenced-register criterion and the §4 no-deliverable-link-into-project constraint; see §5.3) |
 | `register-data-retention-schedule.md` | Register | Adopter-facing reference content |
 | `register-digital-trust-and-assurance-metrics.md` | Register | Adopter-facing reference content |
 | `register-document-index-and-classification.md` | Register | Corpus index (corpus files only, per §4) |
@@ -130,33 +130,33 @@ The 40 Markdown artefacts in `governance/` as of this specification's original a
 | `template-document-review-record.md` | Template | Reusable template pattern |
 | `template-library-health-report.md` | Template | Reusable template pattern |
 
-### 5.2 Project governance, Move in Phase 1 (the citation-verification campaign)
+### 5.2 Project governance: the citation-verification campaign
 
 | Artefact | Type | Why project |
 | --- | --- | --- |
 | `register-citation-verifications.md` | Register | This project's actual verification results |
 | The campaign bundle record and the four per-batch worklists | Register and worklists | This project's filled-in campaign instances; at the public rebuild they moved to the maintainer's private operational store and are not in the public tree |
 
-These are the purest operational instances and their inbound corpus citations are bounded (the corpus index, the staying spec, and the staying template), so they migrate first.
+These are the purest operational instances. Before the move, their only corpus citers were the corpus index, the staying specification and the staying template, so they were the simplest cluster to separate and moved first.
 
-### 5.3 Project governance candidates, Deferred (resolved 2026-06-26)
+### 5.3 Classification questions
 
-Both deferred candidates have been resolved, each on its own merits (per the §9 maintenance rule, a resolved candidate's row moves to its destination section and the resolution is recorded):
+Under the §9 maintenance rule, a settled question's row moves to its destination section and the resolution is recorded in the change history:
 
 | Artefact | Type | Resolution |
 | --- | --- | --- |
-| `register-coverage-gaps.md` | Register | **Stays corpus** (moved to §5.1). The citation evidence showed it is woven into the adopter guides (`governance/decision-tree.md` cites it 4x as routing logic, `governance/template-startup-roadmap.md` once) and the §3.1 criterion lists adopter-referenced registers as corpus; a move would force severing adopter-guide routing with no §4-permitted re-point target (a deliverable cannot link into `.project-governance/`). |
-| `register-document-review-schedule.md` | Register | **Moved (Phase 2)** to `.project-governance/` (see §5.4). It is a §3.2 filled-in operational instance (this project's review schedule); its corpus citers were severed or re-pointed to the reusable patterns. |
+| `register-coverage-gaps.md` | Register | **Stays corpus** (moved to §5.1). The citation evidence showed it is woven into the adopter guides (`governance/decision-tree.md` cites it 4x as routing logic, `governance/template-startup-roadmap.md` once) and the §3.1 criterion lists adopter-referenced registers as corpus; a move would force severing adopter-guide routing with no §4-permitted re-point target (a deliverable cannot link into the registers directory). |
+| `register-document-review-schedule.md` | Register | **Project governance** (§5.4); it moved to the registers directory in the second move (§8.1). It is a §3.2 filled-in operational instance (this project's review schedule); its corpus citers were severed or re-pointed to the reusable patterns. |
 
-No deferred classifications remain. The deferred set was never a backlog of "move eventually"; each was an open classification question resolved on its own merits, and "stays corpus" was a legitimate outcome (realized here for `register-coverage-gaps.md`).
+No classification is pending. An open classification question is settled on its own merits, not treated as a backlog of eventual moves, and "stays corpus" is a legitimate outcome, as for `register-coverage-gaps.md`.
 
-### 5.4 Project governance, Moved in Phase 2 (the document review schedule register)
+### 5.4 Project governance: the document review schedule register
 
 | Artefact | Type | Why project |
 | --- | --- | --- |
 | `register-document-review-schedule.md` | Register | This project's filled-in review schedule (a §3.2 operational instance), distinct from the reusable review-cadence procedure (`procedure-library-quality-and-review-cadence.md`) and review-record template (`template-document-review-record.md`), which stay corpus |
 
-Phase 2 migrated this single register after Phase 1, resolving the heavier of the two deferred classifications. Its inbound corpus citations were more woven than the Phase-1 cluster's (a corpus index row, a domain README row, two staying templates' Related-Documents pointers, a staying procedure's maintenance-table row, and an adopter-template example); each was severed (the staying templates and procedure do not depend on the project instance) or re-pointed to the reusable corpus pattern (the adopter example now points to the review-cadence procedure), so no corpus deliverable links into `.project-governance/` (§4, gate 53).
+This single register migrated after the §5.2 cluster, resolving the heavier of the two classification questions. Its corpus citers were more woven than the §5.2 cluster's (a corpus index row, a domain README row, two staying templates' Related-Documents pointers, a staying procedure's maintenance-table row, and an adopter-template example). Each was severed (the staying templates and procedure do not depend on the project instance) or re-pointed to the reusable corpus pattern (the adopter example points to the review-cadence procedure), so no corpus deliverable links into the registers directory (§4, gate 53).
 
 ---
 
@@ -164,7 +164,7 @@ Phase 2 migrated this single register after Phase 1, resolving the heavier of th
 
 ### 6.1 The directory
 
-Project-governance artefacts live in `.claude/skills/corpus-management/registers/`. Their historical location was a top-level `.project-governance/` directory, whose dot prefix signalled "not the deliverable"; a reference to `.project-governance/` elsewhere in this specification reads as that former name of the registers directory.
+Project-governance artefacts live in `.claude/skills/corpus-management/registers/`. Their historical location was a top-level `.project-governance/` directory, whose dot prefix signalled "not the deliverable".
 
 ### 6.2 Its own index
 
@@ -182,11 +182,11 @@ The one sweep behaviour that changes is adopter-facing inclusion: the generators
 
 ### 7.1 Corpus index becomes corpus-only
 
-`register-document-index-and-classification.md` lists corpus files only (§4 consequence 1). When Phase 1 moved the campaign cluster, the index's rows for those artefacts were removed in the same change.
+`register-document-index-and-classification.md` lists corpus files only (§4 consequence 1). When the campaign cluster moved in the earlier repository, the index rows for those artefacts were removed in the same change.
 
 ### 7.2 Generators exclude the registers directory
 
-The taxonomy, portal, and maturity-scorecard generators derive from the published corpus; they exclude the project-governance registers so project artefacts do not appear in adopter-facing generated output. The exclusion was added to the generators when Phase 1 introduced the directory.
+The taxonomy, portal, and maturity-scorecard generators derive from the published corpus; they exclude the project-governance registers so project artefacts do not appear in adopter-facing generated output. The exclusion was added to the generators when the first move introduced the directory.
 
 ### 7.3 Path-targeted linters re-point; a direction gate enforces §4
 
@@ -196,12 +196,12 @@ The directional-dependency gate that enforces §4 is built as **gate 53** ([`.cl
 
 ### 7.4 Explicit-allow-list content linters must add the directory
 
-The content linters that implement §6.3's audit obligations fall into two file-discovery shapes, and under the former top-level `.project-governance/` name only one of them picked the directory up automatically:
+The content linters that implement §6.3's audit obligations fall into two file-discovery shapes, and under the directory's former top-level `.project-governance/` name only one of them picked the directory up automatically:
 
 - **Exempt-list walk** (the inclusive shape): the linter walks the repository root for `*.md` and subtracts `DEFAULT_EXEMPT_DIRS`. Because §6.3 deliberately keeps the registers directory out of the exempt set, these linters scanned the former top-level `.project-governance/` directory with no further change; since the move, the shared selection admits the relocated registers ahead of the `.claude/` exemption (`PROJECT_DOCUMENT_DIRS` in `lint_common.py`), so these linters still scan them. The corpus version-bump-recency audit is one such linter.
 - **Explicit allow-list** (the enumerated shape): the linter selects scan roots from a list of domain directories plus repository-root meta files. Historically each such linter hardcoded the domain run inline (in a `DEFAULT_SCAN_PATHS` tuple, a `DOMAINS` list, or a function-local list), so a new top-level directory was picked up only when `.project-governance` was added to every one of those copies by hand, and the directory was silently skipped wherever a copy was missed.
 
-The audited-domain run now has a **single source of truth**: `AUDITED_DOMAIN_DIRS` in [`.claude/skills/corpus-management/tools/lint_common.py`](../tools/lint_common.py) (the 12 domain directories plus the registers directory, as the path `.claude/skills/corpus-management/registers`). Every explicit-allow-list content linter that implements a §6.3-named obligation (metadata-block completeness, per-document version and date currency, language, citation accuracy, link coverage) splats that constant rather than hardcoding the run, so a future top-level audited directory propagates to every such linter from one place. The same applies to any further gate the maintainer classifies as part of the "full corpus audit sweep" beyond §6.3's enumerated list (the per-document review-cadence gate is one such gate, included by maintainer decision so the directory's stated review cadences are scheduled, not merely asserted). The **directory-scan-scope parity gate** (gate 52, [`.claude/skills/corpus-management/tools/lint-scan-scope-parity.py`](../tools/lint-scan-scope-parity.py)) is the mechanical backstop for this subsection: it forbids any content linter from hardcoding the domain run (it matches the literal directory names, so it is robust to all 3 historical declaration styles), with a documented `EXEMPT` set for the files that legitimately scan a *different* domain set (the section-placement gate and the taxonomy generator, which scan the corpus-document set that excludes the registers directory because those documents are outside the corpus document model, and the collection-candidate helper). The Phase-1 migration originally enumerated the explicit-allow-list set incompletely (the date-staleness and review-cadence gates were missed and silently skipped the directory until a validation sweep caught them); the single-source-of-truth refactor plus gate 52 makes that gap class structurally impossible rather than relying on each addition being remembered.
+The audited-domain run now has a **single source of truth**: `AUDITED_DOMAIN_DIRS` in [`.claude/skills/corpus-management/tools/lint_common.py`](../tools/lint_common.py) (the 12 domain directories plus the registers directory, as the path `.claude/skills/corpus-management/registers`). Every explicit-allow-list content linter that implements a §6.3-named obligation (metadata-block completeness, per-document version and date currency, language, citation accuracy, link coverage) splats that constant rather than hardcoding the run, so a future top-level audited directory propagates to every such linter from one place. The same applies to any further gate the maintainer classifies as part of the "full corpus audit sweep" beyond §6.3's enumerated list (the per-document review-cadence gate is one such gate, included so the directory's stated review cadences are scheduled, not merely asserted). The **directory-scan-scope parity gate** (gate 52, [`.claude/skills/corpus-management/tools/lint-scan-scope-parity.py`](../tools/lint-scan-scope-parity.py)) is the mechanical backstop for this subsection: it forbids any content linter from hardcoding the domain run (it matches the literal directory names, so it is robust to all 3 declaration styles above), with a documented `EXEMPT` set for the files that legitimately scan a *different* domain set (the section-placement gate and the taxonomy generator, which scan the corpus-document set that excludes the registers directory because those documents are outside the corpus document model, and the collection-candidate helper). The first migration originally enumerated the explicit-allow-list set incompletely (the date-staleness and review-cadence gates were missed and silently skipped the directory until a validation sweep caught them); the single-source-of-truth refactor plus gate 52 makes that gap class structurally impossible rather than relying on each addition being remembered.
 
 ---
 
@@ -209,13 +209,15 @@ The audited-domain run now has a **single source of truth**: `AUDITED_DOMAIN_DIR
 
 ### 8.1 Phasing
 
-- **Phase 1** moves the §5.2 citation-verification campaign cluster (six artefacts), creates `.project-governance/` and its README index, applies the §7 gate and generator changes, and re-points the two path-targeted linters. Phase 1 is a single PR scoped to the move; it ships after this specification (PR 1) merges. (Shipped in PR #336.)
-- **Phase 2** moves the §5.4 document review schedule register (one artefact) into the existing `.project-governance/` directory, severing or re-pointing its inbound corpus citations to the reusable corpus patterns, and regenerating the adopter-facing artefacts. Phase 2 is a single PR scoped to the move; it ships after the §5.3 classification is resolved. (Shipped in PR #381.)
-- **Both §5.3 deferred candidates are now resolved** (§5.3, 2026-06-26): `register-coverage-gaps.md` stays corpus (§5.1) and `register-document-review-schedule.md` moved in Phase 2 (§5.4). No deferred candidates remain.
+In the earlier repository, the migration moved the project-governance artefacts in 2 phases. Each move shipped as a single pull request scoped to that move, after this specification had merged:
+
+- **The §5.2 citation-verification campaign cluster** (six artefacts) moved first: it left `governance/`, the registers directory (§6.1) was created with its README index (§6.2), the §7 gate and generator changes applied, and the two path-targeted linters were re-pointed. That move created the directory as the top-level `.project-governance/` (§6.1) with its README index and moved the six artefacts into it. `register-citation-verifications.md` is now in the registers directory; at the public rebuild the campaign bundle record and the four per-batch worklists moved to the maintainer's private operational store (§5.2).
+- **The §5.4 document review schedule register** (one artefact) moved only once its §5.3 classification question was settled, into the directory that the first move created; its inbound corpus citations were severed or re-pointed to the reusable corpus patterns, and the adopter-facing artefacts were regenerated. After the first move, the register moved into the existing `.project-governance/` directory, and it is now in the registers directory.
+- **No classification question is pending** (§5.3): `register-coverage-gaps.md` stays corpus (§5.1) and `register-document-review-schedule.md` is project governance (§5.4).
 
 ### 8.2 Per-artefact migration discipline (applies to every move)
 
-For each artefact moved to the project-governance registers directory (historically the top-level `.project-governance/`):
+For each artefact moved to the project-governance registers directory:
 
 1. **Enumerate inbound citations.** `grep -rln "<basename>" --include="*.md"` across the repository.
 2. **Classify each citer.** Generated (regenerates clean), non-deliverable (link is acceptable), within-cluster (moves together), or corpus (must be reworked).
@@ -224,13 +226,8 @@ For each artefact moved to the project-governance registers directory (historica
 5. **Re-point any path-targeted linter or generator** that referenced the old path (§7.3).
 6. **Run the full audit sweep** and the PR-time delta gates; both must pass on the post-move state.
 
-### 8.3 Relationship to R1 and R2
-
-- **R1** (`sweep-preflight-exemptions.json`) was closed won't-move because the file already lived correctly in `.claude/skills/corpus-management/tools/`; §3.2 records why that was the right call under this criterion.
-- **R2** (the citation-verification cluster relocation) is superseded by this specification: the cluster is classified project governance (§5.2) and migrates in Phase 1 (§8.1). R2 as a standalone open decision is closed; the work it described is now the Phase-1 migration.
-
 ---
 
 ## 9. Maintenance
 
-This specification is reviewed annually and upon any material change to the repository's directory model or to the corpus-versus-project boundary. When a new artefact is created, its author classifies it under §3.2 at creation time and places it accordingly, so the corpus does not re-accumulate operational state. When a deferred §5.3 candidate is resolved, its row moves to §5.1 or §5.2 and the resolution is recorded in the change history.
+This specification is reviewed annually and upon any material change to the repository's directory model or to the corpus-versus-project boundary. When a new artefact is created, its author classifies it under §3.2 at creation time and places it accordingly, so the corpus does not re-accumulate operational state. A §5.3 classification question is settled on its own merits under §3.2; when it is, its row moves to its destination section (§5.1, §5.2 or §5.4) and the resolution is recorded in the change history.

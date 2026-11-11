@@ -1,9 +1,9 @@
 # Reference-vocabulary profile: placeholder-leakage markers (grc defaults).
 #
-# Concern: placeholders. The LIVE gate-12 configuration since Phase-4 PR-H:
+# Concern: placeholders. The LIVE gate-12 configuration:
 # .claude/skills/corpus-management/tools/lint-placeholder-leakage.py loads it via profile_loader.load("placeholders");
 # the loader compiles each nested pattern={regex,ignorecase} table, and the engine
-# (parameterized in PR-H) composes the (compiled-pattern, label) pairs. Values
+# composes the (compiled-pattern, label) pairs. Values
 # transcribed VERBATIM from the former engine PATTERNS. ORDER IS POLICY: scan reports
 # the FIRST matching entry per line, so the array order determines the label. SEPARATE
 # from gate 9 (shall-near-uncertainty) - the two share some marker tokens but keep

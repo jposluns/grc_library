@@ -1,6 +1,6 @@
 # Reference-vocabulary profile: section-placement rules (grc defaults).
 #
-# Concern: placement. The LIVE gate-38 configuration since Phase-4 PR-D:
+# Concern: placement. The LIVE gate-38 configuration:
 # .claude/skills/corpus-management/tools/lint-section-placement.py loads it via profile_loader.load("placement")
 # and rebuilds the engine's exact rule shape in _placement_config():
 # (rule_id, description, frozenset(section_aliases), (position, count),

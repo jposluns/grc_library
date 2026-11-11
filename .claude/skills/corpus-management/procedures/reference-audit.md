@@ -11,7 +11,7 @@ Portable procedure, concrete names. In this repository the procedure runs with:
 
 - Reference base: the adopting project's reference base of held source texts, located via its own indexes (an index file, a catalogue, a section index, a coverage map).
 - Acquisition bibliography: [`reference-acquisition-manifest.md`](../registers/reference-acquisition-manifest.md), the public bibliography of the sources this corpus engages, from which an adopter can build its own reference base.
-- Trust-tier assignments (load-bearing maintainer decisions): standards, frameworks, legislation, and programs are authoritative; templates are template-tier; books are recommendation-tier; publications are screen-first, excluded until screened (see [`publication-screening.md`](publication-screening.md)).
+- Trust-tier assignments (the maintainer sets them): standards, frameworks, legislation, and programs are authoritative; templates are template-tier; books are recommendation-tier; publications are screen-first, excluded until screened (see [`publication-screening.md`](publication-screening.md)).
 - Mechanical baseline: [`run_all_audits.sh`](../tools/run_all_audits.sh).
 - Worklist narrowing and per-document state: an optional deeper review may supplement the public gates by classifying item usage and pairing candidates mechanically; without one, candidates are collected by topic search, and the per-document audit state is kept in the project's own working records.
 
@@ -21,7 +21,7 @@ An adopting project maps each bullet to its own reference stores and records; th
 
 The citation gates guard what project content already cites: existence, well-formedness, currency, and (through the fit and precision audits) semantics. None of them asks the breadth question: is there a held authoritative source whose content would materially improve a project document that never engages it? The reverse blindness is the same class: a project document gets touched, and nothing checks whether the source store has gained or updated material that bears on it since the document was last assessed. Both directions are gate-blind by construction, because a gate can only inspect citations that exist; breadth is a judgement about citations and content that do not exist yet.
 
-The class is not hypothetical. The motivating incident in this corpus: an authoritative source's guidance bore on content the project already maintained, while no document engaged it, and nothing in the audit programme could have said so. The lesson had a second edge: the relevant source turned out to be unavailable rather than merely held-but-unused, so the finding was an acquisition gap, not only an engagement gap; the audit surfaces both the held-but-unused direction and the relevant-but-not-held direction.
+The class occurred in the earlier repository: an authoritative source's guidance bore on content that repository already maintained, while no document there engaged it, and nothing in its audit programme could have said so. In that case the relevant source also proved to be unavailable rather than merely held-but-unused, so the finding was an acquisition gap, not only an engagement gap; the audit surfaces both the held-but-unused direction and the relevant-but-not-held direction.
 
 Trust tiers are load-bearing, and the project's tier assignments bind this procedure. An authoritative-tier finding supports a citation-grade improvement. A template-tier finding supports a content improvement, never a normative citation. A recommendation-tier finding is never authoritative: the suggestion must be corroborated against a trusted source before anything normative rests on it. A screen-first tier is EXCLUDED by default: an item becomes a candidate only after the screening register row flips to `screened`, plus the maintainer's inclusion decision.
 
@@ -74,7 +74,7 @@ Surface confirmed findings to the maintainer directly (per finding: document pat
 ## Red Flags
 
 - Judging a pairing from the source item's title or topic labels instead of reading the held text and the document. A title-inferred verdict is the dominant failure mode.
-- Letting a recommendation-tier candidate produce a normative citation, or letting any recommendation-tier suggestion ship without its corroboration obligation named. The tier ceiling is a maintainer decision, not a heuristic.
+- Letting a recommendation-tier candidate produce a normative citation, or letting any recommendation-tier suggestion ship without its corroboration obligation named. The maintainer sets the tier ceiling; it is not a heuristic.
 - Treating the candidate worklist as a defect list. It is recall-oriented; on a well-referenced document most candidates will judge `no-fit`, and that is the design working, not wasted effort.
 - Reviewing an empty per-touch candidate set, or padding an empty run into a report. The empty set IS the steady-state result; record the one-line note and end.
 - Routing a verdict without your own re-read of the evidence. Apply-time verification is the false-positive filter; a reviewer can miss that the document already engages the source under different phrasing.
@@ -100,7 +100,7 @@ The pass is complete on a given run when:
 |---|---|
 | "The citation gates pass, so the document's referencing is fine." | The gates check what the document already cites. Breadth asks what it should engage and does not; no gate can answer that. |
 | "The topic matches, so the source belongs in the document." | Topic overlap is a recall heuristic, not a finding. Only a read of the held text against the document decides; most matches are `no-fit`. |
-| "The book says exactly what the document needs, so cite it." | Books are recommendation-tier by maintainer decision: never authoritative, never cited as a normative anchor. Corroborate against a trusted source first, or the suggestion waits. |
+| "The book says exactly what the document needs, so cite it." | Books are recommendation-tier, a tier the maintainer sets: never authoritative, never cited as a normative anchor. Corroborate against a trusted source first, or the suggestion waits. |
 | "The per-touch run found nothing, so running it was waste." | The empty set at steady state is the design working: it certifies the document was checked against the current reference base at near-zero cost, and the state record proves it. |
 | "The item is held, so the project must use it somewhere." | Some held items are legitimately outside project-content scope. The FULL-mode disposition records that judgement once, with a reason, instead of re-litigating it every run. |
 | "The state record is bookkeeping; skip the refresh this once." | The state record is the delta anchor. One skipped refresh silently re-inflates the next run's worklist and hides which source changes the document was actually assessed against. |

@@ -6,7 +6,7 @@ ownership, and clause registers against it (any disagreement is a configuration 
 renders every declared output deterministically: sorted-rule order, strict UTF-8 with LF endings, no
 timestamps, digests, or environment values in any output, atomic temp-file-plus-rename writes.
 
-Gate engines also live here as pack source of record. `gate_lint_language.py` is the engine for grc gate 2 (the language-and-style audit), transferred verbatim in compile PR-5 with only wiring deltas; its project entry point is the thin `.claude/skills/corpus-management/tools/lint-language.py` wrapper, which supplies the grc scan roots. Gate 99 owns the compiler and generated outputs, NOT the gate-engine or wrapper bytes: the engine is authored pack source (like the compiler), and the wrapper is hand-maintained project wiring; the linter-regression suite (gate 36) and the gate register's entry-point existence check cover them instead.
+Gate engines also live here as pack source of record. `gate_lint_language.py` is the engine for grc gate 2 (the language-and-style audit), transferred verbatim with only wiring deltas; its project entry point is the thin `.claude/skills/corpus-management/tools/lint-language.py` wrapper, which supplies the grc scan roots. Gate 99 owns the compiler and generated outputs, NOT the gate-engine or wrapper bytes: the engine is authored pack source (like the compiler), and the wrapper is hand-maintained project wiring; the linter-regression suite (gate 36) and the gate register's entry-point existence check cover them instead.
 
 The `index` rule kind renders `rule-index.md` in the corpus-management skill directory
 (`.claude/skills/corpus-management/`, so it is read when the skill loads, on the skill's
@@ -17,8 +17,9 @@ register's `enforces` binding supplies its tools. The two-line index header defi
 path prefixes. The compiler rejects an index over 6,000 bytes, missing gate bindings, incomplete
 clause coverage, incorrect loading destinations, missing provenance, and managed symlinks.
 The two prose conventions remain full always-loaded rules; every other rule body is on demand.
-A symlink or an unexpected file in either body directory or in the skill directory fails both
-modes; remove obsolete outputs explicitly before regenerating. Gate 37 rejects an index ownership
+A symlink or an unexpected file in either body directory, or in the skill directory outside the
+shipped entries that `CM_SKILL_SHIPPED` names (a symlink in place of one is not skipped), fails
+both modes; remove obsolete outputs explicitly before regenerating. Gate 37 rejects an index ownership
 entry under `.claude/rules/`.
 
 Modes and exit codes:
