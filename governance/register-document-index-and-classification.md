@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.242\
-**Date:** 2026-11-10\
+**Version:** 1.27.243\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -440,7 +440,7 @@ The expansion backlog is currently empty. All planned documents are active.
 
 ## Index maintenance rules
 
-1. Every active document must appear in this register, with the exception of the repository's root-level project-specification documents (`governance/specification-ingestion.md` and `governance/specification-master-project.md`), which define the library's own ingestion and project-versioning model rather than governance content and are catalogued in `.claude/skills/corpus-management/data/taxonomy.yml` only.
+1. Every active document must appear in this register.
 2. Every document path must be unique.
 3. Every document must use a role-based owner and approving authority.
 4. Every document must be checked for organization-specific and person-specific identifiers before publication.

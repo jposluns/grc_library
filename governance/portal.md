@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 .claude/skills/corpus-management/t
 **Document Title:** Adopter Portal\
 **Document Type:** Guide\
 **Version:** 1.3.2\
-**Date:** 2026-11-10\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`.claude/skills/corpus-management/docs/adopter-guide.md`](../.claude/skills/corpus-management/docs/adopter-guide.md), [`governance/decision-tree.md`](decision-tree.md), [`governance/maturity-scorecard.md`](maturity-scorecard.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
@@ -42,7 +42,7 @@ The portal is the canonical front door. The following adopter-facing documents a
 | If your question is | Read | What it gives you |
 | --- | --- | --- |
 | "Which documents are relevant to my role?" | This portal (continue reading below) | Audience-keyed groupings: CIO, Board / CEO, CISO, GRC, Security Architecture, Privacy, Compliance, Audit, Resilience, Engineering. |
-| "How do I fork the library, map roles, and decide what to change vs preserve?" | [`.claude/skills/corpus-management/docs/adopter-guide.md`](../.claude/skills/corpus-management/docs/adopter-guide.md) | Adoption principles, the three adoption modes (fork / corpus-only / pack-only), what to change after copying, what not to change, the minimum quality bar. |
+| "How do I fork the library, map roles, and decide what to change vs preserve?" | [`.claude/skills/corpus-management/docs/adopter-guide.md`](../.claude/skills/corpus-management/docs/adopter-guide.md) | Adoption principles, the three adoption modes (fork the whole repo, adopt the corpus only, adopt the pinned AIQT runtime only), what to change after copying, what not to change, the minimum quality bar. |
 | "What do I copy on Day 1?" | [`governance/template-quickstart.md`](template-quickstart.md) | A 10-minute on-ramp: the six-artefact core baseline, role-name substitution discipline, and portal pointer. Defensible floor in one session. |
 | "And what do I add later?" | [`governance/template-startup-roadmap.md`](template-startup-roadmap.md) | The long-form composition workbook: stacking modules across five dimensions (activity, data scope, audience, regulatory exposure, GRC capacity), 25 modules, three worked examples. |
 | "In what order should I read the documents that apply to me?" | [`governance/decision-tree.md`](decision-tree.md) | A dimensional questionnaire (size, sector, jurisdiction, regulated activities, technology footprint) and a sequenced reading path conditional on the answers. |

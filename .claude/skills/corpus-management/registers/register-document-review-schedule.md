@@ -2,8 +2,8 @@
 
 **Document Title:** Document Review Schedule Register\
 **Document Type:** Register\
-**Version:** 1.0.5\
-**Date:** 2026-11-09\
+**Version:** 1.0.6\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](../../../../governance/procedure-library-quality-and-review-cadence.md), [`governance/template-document-review-record.md`](../../../../governance/template-document-review-record.md), [`governance/register-document-index-and-classification.md`](../../../../governance/register-document-index-and-classification.md), [`governance/framework-continuous-assurance-and-improvement.md`](../../../../governance/framework-continuous-assurance-and-improvement.md), [`governance/procedure-continuous-improvement-register.md`](../../../../governance/procedure-continuous-improvement-register.md)\
@@ -30,7 +30,7 @@ This register applies to:
 
 1. All active documents listed in the document index and classification register.
 2. Auto-generated artefacts whose review cadence is tied to their source data.
-3. Cross-cutting artefacts (top-level README, NOTICE, SECURITY, CONTRIBUTING, the two specifications, the changelog).
+3. Cross-cutting artefacts at the repository root (README, NOTICE, SECURITY, CONTRIBUTING), together with the library specifications in `governance/` (also active documents under item 1) and the changelog at `.working/CHANGELOG.md`.
 
 It does not cover documents retired from active service; those follow the records retention schedule.
 

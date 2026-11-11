@@ -2,8 +2,8 @@
 
 **Document Title:** BASC IT Compliance Monitoring and KPIs\
 **Document Type:** Register\
-**Version:** 1.2.10\
-**Date:** 2026-11-10\
+**Version:** 1.2.11\
+**Date:** 2026-11-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`compliance/logistics/policy-basc-information-security.md`](policy-basc-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md)\
@@ -66,11 +66,12 @@ The CISO consolidates IT and cybersecurity KPI results monthly. Quarterly result
 | 1.1.0 | 2026-05-28 | Minor revision (version and date from the frontmatter; detail not previously logged in this table) |
 | 1.1.1 | 2026-05-28 | Patch revision (version and date from the frontmatter; detail not previously logged in this table) |
 | 1.2.0 | 2026-06-21 | Added Escalation Owner and Remediation Sign-off columns to align with KPI design principle 2 (a named escalation owner and a named remediation sign-off role for each KPI) established in [`operations/register-it-operations-kpis.md`](../../operations/register-it-operations-kpis.md). Also added the missing rows for 1.1.0 and 1.1.1 to this table. |
-| 1.2.1 - 1.2.6 | 2026-06 to 2026-09 | Incremental revisions recorded in the frontmatter and the root CHANGELOG; not individually logged in this table. |
+| 1.2.1 - 1.2.6 | 2026-06 to 2026-09 | Incremental revisions recorded in the frontmatter and in [`.working/CHANGELOG.md`](../../.working/CHANGELOG.md); not individually logged in this table. |
 | 1.2.7 | 2026-09-18 | Aligned the Critical patch deployment KPI to the governing tiered risk-based SLA (24 hours actively-exploited; 72 hours with a proof-of-concept; 7 days otherwise) in [`procedure-patch-management.md`](../../operations/procedure-patch-management.md) Section 1, replacing a flat 7-day ceiling. |
 | 1.2.8 | 2026-10-03 | Aligned the High vulnerability remediation KPI to the governing clock in [`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md) section 2, including its Emergency classification and reclassification rules, and raised its target from 90% to 95% to match the High vulnerability patch compliance KPI in [`operations/register-it-operations-kpis.md`](../../operations/register-it-operations-kpis.md). |
 | 1.2.9 | 2026-10-12 | Anchored the mean time to respond KPI to the Detection timestamp in [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) section 4.3 (first SOC awareness) and to the start of short-term containment, and set the P2 target to under 1 hour (was 4 hours) to match the procedure's first-60-minutes phase for P1 and P2 incidents. |
 | 1.2.10 | 2026-11-10 | Reworded earlier history rows in plain terms, removing internal review and requirement identifiers. |
+| 1.2.11 | 2026-11-12 | Named `.working/CHANGELOG.md` as the change record for the 1.2.1 to 1.2.6 revisions. |
 
 
 

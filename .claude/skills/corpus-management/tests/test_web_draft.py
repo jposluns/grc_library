@@ -17947,7 +17947,7 @@ class SiteReviewFixRound2Tests(unittest.TestCase):
         this project's website inside an adopter-facing document; the sentence
         is replaced by a neutral pointer to the cross-framework matrix, and the
         Version carries two PATCH bumps (1.12.8 to 1.12.10) and one for each
-        later change to the matrix (1.12.11 to 1.12.17)."""
+        later change to the matrix (1.12.11 to 1.12.18)."""
         text = (REPO_ROOT / "compliance" /
                 "matrix-grc-compliance-alignment.md"
                 ).read_text(encoding="utf-8")
@@ -17958,7 +17958,7 @@ class SiteReviewFixRound2Tests(unittest.TestCase):
                       "the [Cross-Framework Alignment Matrix]"
                       "(../governance/matrix-cross-framework-alignment.md).",
                       text)
-        self.assertIn("**Version:** 1.12.17\\\n", text)
+        self.assertIn("**Version:** 1.12.18\\\n", text)
 
     def test_quick_reference_purpose_matches_its_exception_rows(self):
         """In the earlier repository, the Purpose said "the absolute
@@ -18048,7 +18048,7 @@ class SiteReviewFixRound3Tests(unittest.TestCase):
         had no row; the Purpose now says it maps "the GRC library documents it
         lists". That fix carries a PATCH bump (1.12.10 to 1.12.11) with the
         Date kept, and each later change to the matrix carries another; the
-        Version is 1.12.17 and the Date 2026-11-07."""
+        Version is 1.12.18 and the Date 2026-11-12."""
         text = (REPO_ROOT / "compliance" /
                 "matrix-grc-compliance-alignment.md"
                 ).read_text(encoding="utf-8")
@@ -18057,8 +18057,8 @@ class SiteReviewFixRound3Tests(unittest.TestCase):
                       "to the control domains and section references of "
                       "ten compliance, security, assurance, and AI-control "
                       "frameworks, so a reader can trace", text)
-        self.assertIn("**Version:** 1.12.17\\\n", text)
-        self.assertIn("**Date:** 2026-11-07\\\n", text)
+        self.assertIn("**Version:** 1.12.18\\\n", text)
+        self.assertIn("**Date:** 2026-11-12\\\n", text)
 
 
 class BaselinePinGateTests(unittest.TestCase):
