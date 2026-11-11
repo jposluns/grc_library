@@ -14985,9 +14985,9 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         # placeholder. D9's orphan scan reads the working tree, so in the
         # earlier repository, with that read degraded to a placeholder, it
         # scanned this checkout instead of the head and printed "D9 OK" for a
-        # head that deletes TODO row 9.99 and commits a file citing it; the
-        # control, a normal checkout of the same head, FAILs. In the earlier
-        # repository D5, D9, D13 and tension-scan all exited 0 here.
+        # head that deletes TODO row 9.99 and commits a file citing it, and
+        # D5, D9, D13 and tension-scan all exited 0 here; the control, a
+        # normal checkout of the same head, FAILs.
         import subprocess as sp
 
         holder, env = self._no_work_tree_env()
@@ -26221,11 +26221,12 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 self.assertIn(f"line 3 ({line!r})", self._fail_lines(result.stdout, "mirror"))
 
     def test_root_byte_order_mark_is_stripped(self) -> None:
-        # In the earlier repository 1 leading U+FEFF failed the real root's title line. It is
-        # removed before the root grammar, and a per-PR line right after it is still compared.
-        # The BOM is removed before the title rule, so a BOM-prefixed root with the title passes
-        # and compares its per-PR line, while a BOM-prefixed root with no title now fails at its
-        # first line (before the title rule, it passed).
+        # In the earlier repository 1 leading U+FEFF failed the real root's title line, and a
+        # BOM-prefixed root with no title passed before the title rule. The BOM is now removed
+        # before the root grammar, and a per-PR line right after it is still compared. The BOM
+        # is removed before the title rule, so a BOM-prefixed root with the title passes and
+        # compares its per-PR line, while a BOM-prefixed root with no title now fails at its
+        # first line.
         same = self._new_headers(1)
         result = self._parity_run("\ufeff" + self.ROOT_HEAD + same + self.WEEK_TAIL, same,
                                   titled=False)
@@ -31541,8 +31542,9 @@ class MetadataLineBreaksTests(LinterTestCase):
                 result = run_linter(".claude/skills/corpus-management/tools/lint-metadata-line-breaks.py", fixture)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
-    # One test per case where the first run model disagreed with the renderer (CommonMark 0.31
-    # with GFM tables). Each failed on that engine in the earlier repository.
+    # One test per case where the linter's first run model disagreed with the renderer
+    # (CommonMark 0.31 with GFM tables). In the earlier repository each failed against the
+    # linter built on that model.
 
     def _assert_clean(self, name: str, text: str) -> None:
         result = run_linter(".claude/skills/corpus-management/tools/lint-metadata-line-breaks.py", self.make_fixture(name, text))
@@ -33410,18 +33412,18 @@ class LintCommonHelperTests(unittest.TestCase):
         """Each case runs as this account; in the earlier repository, run
         the same way, _reftable_refusal passed a reftable it could list but
         not search (os.path.isfile found no tables.list), which
-        check_reftable refuses as unsettled; took a table whose lstat failed
-        other than by absence (a name too long) for an absent one,
+        check_reftable refuses as unsettled; took a table whose lstat
+        failed other than by absence (a name too long) for an absent one,
         unsettled, where check_reftable refuses at the first look; and
         passed a reftable that could not be examined after its table was
-        found missing (os.path.lexists; its parent made unsearchable at that
-        point). Each now refuses, as pre-push does, and check_reftable
+        found missing (os.path.lexists; its parent made unsearchable at
+        that point). Each now refuses, as pre-push does, and check_reftable
         refuses a reftable whose parent cannot be searched as unexaminable.
 
         check_reftable refuses a table its probe found absent in a reftable
-        gone then finds unexaminable at the first look, as the helper does; in
-        the earlier repository, before this test checked it, removing that
-        refusal passed every test."""
+        gone then finds unexaminable at the first look, as the helper does;
+        in the earlier repository, before this test checked it, removing
+        that refusal passed every test."""
         from unittest import mock
 
         if os.geteuid() == 0:
@@ -45165,9 +45167,10 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         return {self.LANDING: text.replace(old, new)}
 
     def _id_span(self, name, written=None):
-        # The landing page links each name to its source: the "id" span holds a link
-        # whose text is the name and the external-link marker. The span of ``name``, with
-        # ``written`` as the link's name when given (the link itself unchanged).
+        # The landing page links each name but IEC 62443 to its source: the "id" span
+        # holds a link whose text is the name and the external-link marker. The span of
+        # ``name``, with ``written`` as the link's name when given (the link itself
+        # unchanged).
         text = self._source_text(self.LANDING)
         marker = self.mod.EXT_LINK_MARKER
         found = re.findall(r'(<span class="id"><a\b[^>]*>)' + re.escape(name + marker) + "</a></span>", text)
@@ -45388,7 +45391,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
                         (m.start() for m in re.finditer(r'<li><span class="id">', text))}
             read = {e.line for e in entries if e.source == f".web/{rel}"}
             self.assertEqual(id_lines - read, set(), rel)
-            # The landing and coverage lists carry the UNESCO, G7 and Council of Europe items.
+            # The 61 items include three AI-governance items: UNESCO, G7 and Council of Europe.
             self.assertEqual(len(id_lines), 61 if kind == "biblio" else 0, rel)
 
     def _biblio_hits(self, old, new):
@@ -47042,9 +47045,9 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         # After a change in the earlier repository, the For-AI allowlists are the forms
         # at the commit the test name records; the biblio allowlists are unchanged.
         # FOR_AI_DESCRIPTIONS also holds rows for the names checked in
-        # test_for_ai_names_worded_unlike_their_rows_are_checked (names joined
-        # with "and", named by a leading part or mapped in FOR_AI_NAME_ROWS);
-        # the 13 rows enumerated at that commit keep their descriptions.
+        # test_for_ai_names_worded_unlike_their_rows_are_checked (names joined with
+        # "and", named by a leading part or mapped in FOR_AI_NAME_ROWS); the 13 rows
+        # enumerated at that commit keep their descriptions.
         from collections import Counter
         agentic = "Documented in the AI and agentic development-security standard."
         self.assertEqual({row: set(texts) for row, texts in self.mod.FOR_AI_DESCRIPTIONS.items()
@@ -51188,7 +51191,8 @@ class ReferenceManifestGeneratorTests(unittest.TestCase):
         # which that read keeps (PATH is not a GIT_ variable), sets GIT_CONFIG_NOSYSTEM in the
         # environment of each git it starts, so the runner's system file stays out of both
         # reads. The second read's environment holds no GIT_ variable
-        # (test_second_origin_read_drops_every_git_variable), and the tool itself is unchanged.
+        # (test_second_origin_read_drops_every_git_variable), and the shim needs no change to
+        # the tool.
         home = Path(tempfile.mkdtemp(prefix="refman-home-"))
         self.addCleanup(shutil.rmtree, home, True)
         env["HOME"] = env["XDG_CONFIG_HOME"] = str(home)
@@ -58450,7 +58454,7 @@ class TodoNumberAllocationRobustnessTests(unittest.TestCase):
 class TodoIndexReferenceParityTests(LinterTestCase):
     """.claude/skills/corpus-management/tools/lint-todo-index-reference-parity.py (gate 90): the .working/TODO.md index and
     the TODO-REFERENCE.md detail file must be a one-to-one match (id, title, band,
-    order). Positive controls for each defect class."""
+    order). Positive controls for the defect classes the tests below name."""
 
     IDX = ("# TODO\n## Priority 1 \u2014 Fix\n| ID | Item | Tags |\n| --- | --- | --- |\n"
            "| 1.1 | alpha (H) | `[public]` |\n| 1.2 | beta (M) | `[public]` |\n")
@@ -60542,8 +60546,8 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
             if name == "lint-library-version-monotonicity.py":
                 stack.enter_context(self.patch.object(m, "git_show", return_value=None))
                 # The gate reads each document through read_current (os.open, fstat and a read
-                # from that descriptor), which the in-memory tree above does not answer, so
-                # without this patch every virtual document would be refused as unreadable.
+                # from that descriptor), which the in-memory tree above does not answer, so in
+                # the earlier repository every virtual document was refused as unreadable.
                 # read_current is the content-read boundary: a virtual document is read from
                 # the tree and recorded, and any other path goes to the production reader and
                 # its refusals.
@@ -76484,17 +76488,18 @@ class ProvisionIndexTests(LinterTestCase):
     def test_alias_led_bracket_gloss_downgrades(self) -> None:
         # Kills removing the gloss check on a bracket-lead prefix
         # (compliance/financial-services/annex-mica-implementation.md:122,
-        # where, in the earlier repository, "DORA (Art 68(7), citing DORA
-        # Arts 11-12)" made MiCA's Art 68(7) an EXPLICIT DORA record; the
-        # re-named alias inside the bracket shows the lead is a gloss, so the
-        # citation is not explicit, while the inner "DORA Arts 11-12" stays
-        # explicit). After that fix, the downgraded citation fell to the LINE
-        # tier, whose nearest earlier alias is the same DORA lead, so it was
-        # still keyed DORA Art. 68. The lead is now excluded from the inferred
-        # tiers too: in a bare row the citation is unresolved, and under the
-        # MiCA annex's own heading it resolves to MiCA. Kills removing the gloss
-        # check (first case explicit DORA) and kills not excluding the lead
-        # (both cases line DORA).
+        # where, in the earlier repository, "DORA (Art 68(7), citing DORA Arts
+        # 11-12)" made MiCA's Art 68(7) an EXPLICIT DORA record in an earlier
+        # version of the scanner; the re-named alias inside the bracket shows
+        # the lead is a gloss, so the citation is not explicit, while the inner
+        # "DORA Arts 11-12" stays explicit). In a later version of the scanner,
+        # with the gloss check alone, the downgraded citation fell to the LINE
+        # tier (an unverified candidate), whose nearest earlier alias is the
+        # same DORA lead, so it was still keyed DORA Art. 68. The lead is now
+        # excluded from the inferred tiers too: in a bare row the citation is
+        # unresolved, and under the MiCA annex's own heading it resolves to
+        # MiCA. Kills removing the gloss check (first case explicit DORA) and
+        # kills not excluding the lead (both cases line DORA).
         got = self.scan("| ICT continuity per DORA (Art 68(7), citing DORA Arts 11-12) | annex |")
         self.assertEqual(got, [(None, "68(7)", "unresolved"),
                                ("DORA Art. 11", "11", "explicit"),
@@ -76692,10 +76697,10 @@ class ProvisionIndexTests(LinterTestCase):
 
     def test_bracket_gloss_check_stops_at_bracket_close(self) -> None:
         # Kills widening the gloss check past the bracket close (post[:close] -> post;
-        # the mutant survived). dev-security/
-        # standard-security-baseline-and-standards-reference.md:198, a document the
-        # sibling audit trusts, names Quebec Law 25 AFTER the bracket closes, which is
-        # not a gloss, so the PIPEDA records stay explicit.
+        # in the earlier repository the mutant survived). dev-security/
+        # standard-security-baseline-and-standards-reference.md:198, one of the four
+        # trusted sibling documents, names Quebec Law 25 AFTER the bracket closes,
+        # which is not a gloss, so the PIPEDA records stay explicit.
         self.assertEqual(self.scan("under PIPEDA (s. 10.1(2) and (6)), and promptly under Quebec Law 25"),
                          [("PIPEDA s. 10.1", "10.1(2)", "explicit"),
                           ("PIPEDA s. 10.1", "10.1(6)", "explicit")])
@@ -83275,11 +83280,10 @@ class WebSiteHardeningTests(unittest.TestCase):
                              f"{name} is zone-owned and must never appear in _headers")
 
     def test_headers_promotion_decision_comment_beside_constant(self) -> None:
-        # Re-based at the promotion from the widening-comment test: the old
-        # live rule's style-src 'unsafe-inline' widening was recorded as
-        # removable at promotion and left with the old tree; the comment
-        # beside the constant now records the executed decision, and the
-        # emitted CSP must not carry the widening.
+        # The old live rule's style-src 'unsafe-inline' widening was
+        # recorded as removable at promotion and left with the old tree;
+        # the comment beside the constant now records the executed
+        # decision, and the emitted CSP must not carry the widening.
         source = (REPO_ROOT / ".web" / "build.py").read_text(encoding="utf-8")
         lines = source.splitlines()
         starts = [i for i, line in enumerate(lines)

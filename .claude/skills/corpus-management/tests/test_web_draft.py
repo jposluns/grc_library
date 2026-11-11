@@ -884,10 +884,10 @@ APPROVED_VALUE_PARAGRAPH = (
 )
 
 # The executive layer's authority qualifier as each of its three draft page
-# types carries it (design D sections 2 and 5 item 7), compared whole (in the
-# earlier repository, removing any clause passed every test). The subtype
-# index makes the promise per page, as executive/README.md line 7 does (it had
-# said every claim resolves to the corpus).
+# types carries it (design D sections 2 and 5 item 7), compared whole. In the
+# earlier repository, removing any clause passed every test, and line 7 of
+# executive/README.md said every claim resolves to the corpus. The subtype
+# index makes the promise per page, as that line now does.
 NARRATIVE_QUALIFIER = (
     '<p class="lead">A leadership page from the library\'s executive layer: '
     "it explains the position in plain language, and the corpus documents it "
@@ -3457,9 +3457,9 @@ class DraftSiteRenderTests(unittest.TestCase):
             # weakened guard cannot pass silently.
             self.assertNotIn("–", html, rel)
             self.assertNotIn("—", html, rel)
-            # An exact spelling list misses valid entity forms, so assert with
-            # the guard's own decoding: nothing on the page may decode to a
-            # dash, whatever its spelling.
+            # In the earlier repository, an exact spelling list missed valid
+            # entity forms, so the test asserts with the guard's own decoding:
+            # nothing on the page may decode to a dash, whatever its spelling.
             decoded = unescape(html)
             self.assertNotIn("\u2013", decoded, rel)
             self.assertNotIn("\u2014", decoded, rel)
@@ -6585,9 +6585,9 @@ class DraftSiteRenderTests(unittest.TestCase):
     def test_type_absent_from_the_route_table_fails_the_build(self):
         # In the earlier repository, the unrouted-type guard
         # (narrative_route_bodies) had no test, so a weakened guard
-        # passed; and a type present in DRAFT_NARRATIVE_SUBTYPES but
-        # absent from NARRATIVE_ROUTE_TYPES now fails the build too, even
-        # with no registry page of the type.
+        # passed. A type present in DRAFT_NARRATIVE_SUBTYPES but absent
+        # from NARRATIVE_ROUTE_TYPES fails the build too, even with no
+        # registry page of the type.
         dropped = self.mod.NARRATIVE_ROUTE_TYPES[-1]
         reduced = self.mod.NARRATIVE_ROUTE_TYPES[:-1]
         self.assertIn(dropped, self.mod.DRAFT_NARRATIVE_SUBTYPES)
@@ -6976,12 +6976,12 @@ class DraftSiteRenderTests(unittest.TestCase):
         reads as the title once they are removed, and the page's <title> keeps
         the plain title.
 
-        With the limit at 14 letters, "Trustworthiness", "Responsibilities" and
-        "Interrelationship" broke where the whole word fits on the next line.
-        Measured in the 288 px h1 box at 320 px, light and dark, every title
-        word of up to 17 letters fits with at least 12 px to spare, so the
-        limit is 17; each h1 piece of more than 14 letters, a whole word or a
-        piece of a split one, must be one of those measured
+        When the limit was 14 letters, "Trustworthiness", "Responsibilities"
+        and "Interrelationship" broke where the whole word fit on the next
+        line. Measured in the 288 px h1 box at 320 px, light and dark, every
+        title word of up to 17 letters fits with at least 12 px to spare, so
+        the limit is 17; each h1 piece of more than 14 letters, a whole word or
+        a piece of a split one, must be one of those measured
         (_MEASURED_TITLE_WORDS), since a new one, unlike a piece of 14 letters
         or fewer, could be too wide."""
         self.assertEqual(self.mod.DRAFT_TITLE_RUN_MAX, 17)
@@ -11254,8 +11254,8 @@ class DraftSiteRenderTests(unittest.TestCase):
     # -- 23. Browse adventure: card lines and intro counts ------------------
 
     # The By need card lines as rendered, in card order: the Find a solution
-    # and Write a policy lines are revised copy, the other three the approved
-    # mockup copy, unchanged.
+    # and Write a policy lines are the directed copy, the other three the
+    # approved mockup copy, unchanged.
     NEED_CARD_LINES = (
         "What the board should ask: decision briefs, oversight questions, "
         "and the evidence to expect back.",
@@ -11277,7 +11277,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         return ", ".join(items[:-1]) + ", and " + items[-1]
 
     def test_browse_need_card_lines_are_the_directed_copy(self):
-        """Two By need card lines carry their revised copy exactly and the
+        """Two By need card lines carry the directed copy exactly and the
         other three stay as approved, checked on the rendered Browse cards."""
         browse = self.draft_html["browse/index.html"]
         block = re.search(
@@ -11434,8 +11434,8 @@ class DraftSiteRenderTests(unittest.TestCase):
         "pipl": r"\bPIPL\b|Personal Information Protection Law\b",
     }
     # Plain-text names the matcher hits that name a different text than the
-    # instrument (a namesake, or guidance, a profile, or a regulation
-    # made under the instrument), or a spelling held out pending an
+    # instrument (a namesake, or guidance, a profile, or a regulation made
+    # under the instrument), or a spelling held out pending an
     # instrument-identity decision (its reason says pending). Each stays
     # unaliased, by design.
     NOT_INSTRUMENT_NAMES = {
@@ -12234,9 +12234,10 @@ class DraftSiteRenderTests(unittest.TestCase):
             "privacy/charter-privacy-management-programme.md",
     }
     # Every P-39.1 spelling the alias map must carry: the two pinned above
-    # and the two aliased before them. The alias map may carry further
-    # P-39.1 spellings; each must still resolve to quebec-law-25 alone (no
-    # count pin).
+    # and the two the alias map already carried before the two pinned
+    # spellings joined it. The alias map may carry further P-39.1
+    # spellings; each must still resolve to quebec-law-25 alone (no count
+    # pin).
     _QC_P39_1_REQUIRED = (
         "Quebec Law 25 (Canada, CQLR c. P-39.1)",
         "Quebec CQLR c. P-39.1, as amended by Law 25 (S.Q. 2021, c. 25)",
@@ -12781,7 +12782,7 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     def _wco_description_findings(self, part, description):
         """The held titles of other parts that a description of part (a
-        _wco_held_parts key) names, as in the earlier repository a wrong
+        _wco_held_parts key) names. In the earlier repository, a wrong
         attribution phrased as a description ("Annex IV K, the Crisis
         Management and Incident Recovery element") escaped every
         comparison. A held title is named when it stands in the
@@ -13505,7 +13506,8 @@ class DraftSiteRenderTests(unittest.TestCase):
         corrected to Annex IV element A and element M. Each row cites the
         element its document's alignment row cites, with the held title.
         Other pillar-only cells stay as they are, except the seven that
-        also cite an element (_WCO_ELEMENT_ROWS)."""
+        were given an Annex IV element, which they now cite alone
+        (_WCO_ELEMENT_ROWS)."""
         expected = {
             "compliance/policy-legal-and-regulatory-compliance.md":
                 "Annex IV A (Demonstrated Compliance with Customs "
@@ -15723,18 +15725,18 @@ class DraftSiteRenderTests(unittest.TestCase):
         column key names elements A, B, F, I, K, L and M, and the coverage
         row's counts for B (the two records retention rows), M, I (the IT
         infrastructure physical security row) and A and L (one row each)
-        are taken from the cells: element M is on three rows, the gap
-        assessment template and two of the rows given an element; the
-        coverage row limits element I to the IT rooms, not the building
-        perimeter; and the column key states when a cell cites an element
-        alone. A still later version of the coverage row quoted held line
-        4993, "Restricted areas should be clearly identified", which the
-        standard does not evidence; it now quotes held lines 4978 to 4979
-        and 4991 (_WCO_ELEMENT_I_HELD), restricted access and access
-        control systems, which the standard's IT room access controls
-        carry. The rest of the coverage row's wording (what each part
-        holds, "chiefly", "mostly", Pillar I's scope) is pinned as text
-        (_WCO_COVERAGE), not derived."""
+        are taken from the cells, where element M is on three rows: the gap
+        assessment template and two of the rows that gained an element with
+        B and I. The coverage row limits element I to the IT rooms, not the
+        building perimeter, and the column key states when a cell cites an
+        element alone. A still later version of the coverage row quoted
+        held line 4993, "Restricted areas should be clearly identified",
+        which the standard does not evidence; it now quotes held lines 4978
+        to 4979 and 4991 (_WCO_ELEMENT_I_HELD), restricted access and
+        access control systems, which the standard's IT room access
+        controls carry. The rest of the coverage row's wording (what each
+        part holds, "chiefly", "mostly", Pillar I's scope) is pinned as
+        text (_WCO_COVERAGE), not derived."""
         text, rows = self._compliance_matrix_rows()
         lines = text.splitlines()
         self.assertEqual(
@@ -16764,61 +16766,61 @@ class QuebecLaw25IdentityTests(unittest.TestCase):
         charter's former row, the retired "amends the Act ..." frame, a line
         that pairs the identity with an amending frame, the retired
         amending-act spelling and the former register row; and frames an
-        earlier version of the check passed because they carry no
-        unqualified P-39.1 citation of their own: an amending frame in an
-        earlier clause ("Law 25 (S.Q. 2021, c. 25) amends Quebec's privacy
-        act; see CQLR c. P-39.1, as amended by Law 25"), earlier in the same
-        clause ("Law 25 (S.Q. 2021, c. 25), amending CQLR c. P-39.1 as
-        amended by Law 25"), and in a later clause ("CQLR c. P-39.1, as
-        amended by Law 25; Law 25 (S.Q. 2021, c. 25), amending the Act"). Not
-        caught: the reworded annex entry (its "which significantly amended
-        Quebec's provincial privacy laws" states Law 25's effect after the
-        identity), the whistleblower procedure's P-39.1 citation, accurate
-        amend prose with no section citation, the bare Standard ID with a
-        section, Argentina's Law 25.326, each required alias spelling, and the
-        residual _identity_problem states: a relative clause ("Law 25 (S.Q.
-        2021, c. 25), which amends CQLR c. P-39.1, as amended by Law 25"),
-        other words between subject and verb ("Law 25 of 2021 amends"),
-        another verb form ("Law 25's amendments to") and another subject
-        ("Bill 64 amends"). One caught fixture for each part of the frame rule
-        named here, each with every P-39.1 citation followed in its clause by
-        "as amended by", so that only the frame rule catches it and it passes
-        when that part is removed from _AMENDING_FRAME_RE: the "|" delimiter
-        ("Law 25 | amends"), the "-ly" word ("Law 25 substantially amends"),
-        the "**" closing ("**Law 25**, amending"), the Law 25 subject without
-        2021, c. 25 ("Law 25 amends"), a gloss without the 2021, c. 25 subject
-        ("Law 25 (Bill 64) amends"), the amended verb form ("Law 25 amended"),
-        the 2021, c. 25 subject ("S.Q. 2021, c. 25, amending"), the ")"
-        closing ("(Law 25), amending"), the ":" delimiter ("Law 25: amends"),
-        the capital "A" (an identity cell ending in "Law 25 (Bill 64)"
-        followed by a cell that starts "Amended"), whitespace at the
-        delimiter's position with no delimiter (three spaces between "Law 25
-        (Bill 64)" and "amends"; these cases remove the pattern's whitespace
-        allowance, not whitespace in the fixture input: it stays caught when
-        _AMENDING_FRAME_RE drops only its allowance before, or only its
-        allowance after, that position, and passes when it drops both or drops
-        its allowance before a gloss) and a digit in the "ly" word ("Law 25
-        2ly amends"). The "," delimiter, the "amends" and "amending" forms and
-        the lowercase "a" have no fixture of their own: each fixture named
-        here that uses one of them fails when it is removed, but also depends
-        on another part. The counts (any number of closings or glosses, at
-        most one delimiter or "ly" word, none or more whitespace characters at
-        each optional position, one or more after the "ly" word), whitespace
-        other than a space, the whitespace before a gloss and an underscore in
-        the "ly" word have no fixture of their own either. Also caught: an
-        accurate effect statement, "Law 25 amended Quebec's provincial privacy
-        laws" in the sentence after a qualified identity. It is rejected
-        because the frame rule bans Law 25 as the subject of an amend verb
-        anywhere in a checked line, whatever the sentence says; the reworded
-        annex entry says the same and passes only because its "which" comes
-        between the subject and the verb. Not caught, as further residuals: a
-        hyphen ("Law 25 - amending"), single-asterisk italics ("*Law 25*,
-        amending"), square brackets ("Law 25 [S.Q. 2021, c. 25], amending")
-        and a nested gloss ("Law 25 (Bill 64 (2021)) amends"); the allowed
-        marks out of order or not adjacent ("**Law 25 (Bill 64)**, amending",
-        "Law 25 substantially, amending", "Law 25, (Bill 64) amending", "Law
-        25 **, amending" and "Law 25 (Bill 64)) amends"); and a bare "ly",
-        which is not an "ly" word ("Law 25 ly amends")."""
+        earlier version of the check passed because they carry no unqualified
+        P-39.1 citation of their own: an amending frame in an earlier clause
+        ("Law 25 (S.Q. 2021, c. 25) amends Quebec's privacy act; see CQLR c.
+        P-39.1, as amended by Law 25"), earlier in the same clause ("Law 25
+        (S.Q. 2021, c. 25), amending CQLR c. P-39.1 as amended by Law 25"),
+        and in a later clause ("CQLR c. P-39.1, as amended by Law 25; Law 25
+        (S.Q. 2021, c. 25), amending the Act"). Not caught: the reworded annex
+        entry (its "which significantly amended Quebec's provincial privacy
+        laws" states Law 25's effect after the identity), the whistleblower
+        procedure's P-39.1 citation, accurate amend prose with no section
+        citation, the bare Standard ID with a section, Argentina's Law 25.326,
+        each required alias spelling, and the residual _identity_problem
+        states: a relative clause ("Law 25 (S.Q. 2021, c. 25), which amends
+        CQLR c. P-39.1, as amended by Law 25"), other words between subject
+        and verb ("Law 25 of 2021 amends"), another verb form ("Law 25's
+        amendments to") and another subject ("Bill 64 amends"). One caught
+        fixture for each part of the frame rule named here, each with every
+        P-39.1 citation followed in its clause by "as amended by", so that
+        only the frame rule catches it and it passes when that part is removed
+        from _AMENDING_FRAME_RE: the "|" delimiter ("Law 25 | amends"), the
+        "-ly" word ("Law 25 substantially amends"), the "**" closing ("**Law
+        25**, amending"), the Law 25 subject without 2021, c. 25 ("Law 25
+        amends"), a gloss without the 2021, c. 25 subject ("Law 25 (Bill 64)
+        amends"), the amended verb form ("Law 25 amended"), the 2021, c. 25
+        subject ("S.Q. 2021, c. 25, amending"), the ")" closing ("(Law 25),
+        amending"), the ":" delimiter ("Law 25: amends"), the capital "A" (an
+        identity cell ending in "Law 25 (Bill 64)" followed by a cell that
+        starts "Amended"), whitespace at the delimiter's position with no
+        delimiter (three spaces between "Law 25 (Bill 64)" and "amends"; these
+        cases remove the pattern's whitespace allowance, not whitespace in the
+        fixture input: it stays caught when _AMENDING_FRAME_RE drops only its
+        allowance before, or only its allowance after, that position, and
+        passes when it drops both or drops its allowance before a gloss) and a
+        digit in the "ly" word ("Law 25 2ly amends"). The "," delimiter, the
+        "amends" and "amending" forms and the lowercase "a" have no fixture of
+        their own: each fixture named here that uses one of them fails when it
+        is removed, but also depends on another part. The counts (any number
+        of closings or glosses, at most one delimiter or "ly" word, none or
+        more whitespace characters at each optional position, one or more
+        after the "ly" word), whitespace other than a space, the whitespace
+        before a gloss and an underscore in the "ly" word have no fixture of
+        their own either. Also caught: an accurate effect statement, "Law 25
+        amended Quebec's provincial privacy laws" in the sentence after a
+        qualified identity. It is rejected because the frame rule bans Law 25
+        as the subject of an amend verb anywhere in a checked line, whatever
+        the sentence says; the reworded annex entry says the same and passes
+        only because its "which" comes between the subject and the verb. Not
+        caught, as further residuals: a hyphen ("Law 25 - amending"),
+        single-asterisk italics ("*Law 25*, amending"), square brackets ("Law
+        25 [S.Q. 2021, c. 25], amending") and a nested gloss ("Law 25 (Bill 64
+        (2021)) amends"); the allowed marks out of order or not adjacent
+        ("**Law 25 (Bill 64)**, amending", "Law 25 substantially, amending",
+        "Law 25, (Bill 64) amending", "Law 25 **, amending" and "Law 25 (Bill
+        64)) amends"); and a bare "ly", which is not an "ly" word ("Law 25 ly
+        amends")."""
         title = self.P39_1_TITLE
         lines = (
             # (line, selected, caught): caught means selected and flagged.
@@ -17944,8 +17946,8 @@ class SiteReviewFixRound2Tests(unittest.TestCase):
         """In the earlier repository, the compliance matrix's Purpose described
         this project's website inside an adopter-facing document; the sentence
         is replaced by a neutral pointer to the cross-framework matrix, and the
-        Version carries two PATCH bumps for that change (1.12.8 to 1.12.10) and
-        one for each later change to the matrix (1.12.11 to 1.12.17)."""
+        Version carries two PATCH bumps (1.12.8 to 1.12.10) and one for each
+        later change to the matrix (1.12.11 to 1.12.17)."""
         text = (REPO_ROOT / "compliance" /
                 "matrix-grc-compliance-alignment.md"
                 ).read_text(encoding="utf-8")
@@ -17962,8 +17964,7 @@ class SiteReviewFixRound2Tests(unittest.TestCase):
         """In the earlier repository, the Purpose said "the absolute
         prohibitions" though section 2 says some rows are exceptionable; the
         Purpose now says "the prohibitions and their exception requirements",
-        and the Version carries the branch's two PATCH bumps (1.1.30 to
-        1.1.32)."""
+        and the Version carries two PATCH bumps (1.1.30 to 1.1.32)."""
         text = (REPO_ROOT / "dev-security" /
                 "standard-security-quick-reference.md"
                 ).read_text(encoding="utf-8")
@@ -19907,12 +19908,12 @@ class PromotedRouteCoverageTests(unittest.TestCase):
 
 
 class ProgrammeClaimsTests(unittest.TestCase):
-    """The programme-claims change: the BASC, PIP, NEEC and UK AEO-S
-    relationship claims held back in the earlier repository, checked against
-    the held texts, and the small fixes routed to this change, among them those
-    the per-touch reference audit found. Held paths are under the reference
-    corpus; line numbers are those of the held full-text extracts, counting
-    only LF as a line end (the repository's convention for held extracts, as in
+    """Tests of the BASC, PIP, NEEC and UK AEO-S relationship claims held back
+    in the earlier repository, checked against the held texts, and of related
+    small fixes, among them reference fixes in documents the change touched.
+    Held paths are under the reference corpus; line numbers are those of
+    the held full-text extracts, counting only LF as a line end (the
+    repository's convention for held extracts, as in
     .claude/skills/corpus-management/tools/audit-reference-breadth.py), so
     a form feed or a Unicode line separator inside a line does not start a
     new one.
@@ -20499,19 +20500,19 @@ class ProgrammeClaimsTests(unittest.TestCase):
                           if name.search(line)],
                          self._COMPENDIUM_NEEC_NAME_LINES)
 
-    # -- routed from the per-touch reference audit.
+    # -- reference fixes in touched documents.
     # The ANPD cookies guide (frameworks/Brazil-ANPD/), lines 128 to 130,
     # names "Lei nº" / "13.709, de 14 de agosto de 2018", then, after an en
     # dash, "Lei Geral de Proteção de Dados Pes-" / "soais (lgpd)"; its
-    # title page names the
-    # "Autoridade Nacional de Proteção de Dados" (lines 46 to 47). The held
-    # LGPD (legislation/Brazil/) creates the ANPD in Article 55-A. Its
-    # superseded wordings name the Autoridade Nacional de Proteção de Dados
-    # (lines 1879 to 1880, 2019, and line 1941, 2022); the Medida
-    # Provisória nº 1.317, de 2025 wording (lines 1970 to 1981) and the
-    # current wording, "(Redação dada pela Lei nº 15.452, de 2026)" (lines
-    # 1984 to 2045), both read "Fica criada a Agência Nacional de Proteção
-    # de Dados", the current one "(ANPD)" (line 1985).
+    # title page names the "Autoridade Nacional de Proteção de Dados"
+    # (lines 46 to 47). The held LGPD (legislation/Brazil/) creates the
+    # ANPD in Article 55-A. Its superseded wordings name the Autoridade
+    # Nacional de Proteção de Dados (lines 1879 to 1880, 2019, and line
+    # 1941, 2022); the Medida Provisória nº 1.317, de 2025 wording (lines
+    # 1970 to 1981) and the current wording, "(Redação dada pela Lei nº
+    # 15.452, de 2026)" (lines 1984 to 2045), both read "Fica criada a
+    # Agência Nacional de Proteção de Dados", the current one "(ANPD)"
+    # (line 1985).
     _LGPD_ROW = (
         "| **LGPD** | Lei Geral de Proteção de Dados Pessoais, Lei nº "
         "13.709/2018 (Brazilian general data protection law), as the ANPD's "
@@ -21396,15 +21397,14 @@ class ProgrammeClaimsTests(unittest.TestCase):
         """In the earlier repository, the UK annex's purpose said AEO-S
         "specifically requires documented security controls covering IT
         systems, access controls, personnel security, and cybersecurity". HMRC
-        section 11 names no cybersecurity or IT control. The purpose now gives
-        what sections 11.1 to 11.3 hold. In the earlier repository, a later
-        version of the purpose made the IT scoping the annex's own, as an
-        earlier fix had for the UK procedure: it took section 11's silence for
-        the handbook's and made every IT control the organization's scoping.
-        The purpose now also gives the record keeping criterion's IT security
-        measures (sections 1.4, 8.1 and 8.9 to 8.12), keeping the organization's
-        scoping for the controls no held section names, as multi-factor
-        authentication and encryption."""
+        section 11 names no cybersecurity or IT control. A later version of the
+        purpose made the IT scoping the annex's own, as the UK procedure's
+        purpose did; that version took section 11's silence for the handbook's
+        and made every IT control the organization's scoping. The purpose now
+        gives what sections 11.1 to 11.3 hold and the record keeping
+        criterion's IT security measures (sections 1.4, 8.1 and 8.9 to 8.12),
+        keeping the organization's scoping for the controls no held section
+        names, as multi-factor authentication and encryption."""
         purpose = self._section_lines(self.UK_ANNEX, "## Purpose")
         lead = [line for line in purpose if line.strip()]
         self.assertIn(self._UK_ANNEX_CRITERIA, lead[0])
@@ -24268,9 +24268,9 @@ class ProgrammeClaimsTests(unittest.TestCase):
         must still be present. In the manifest, an occurrence is set aside only
         inside the title cell of a row with the generator's five-column shape
         (_manifest_title_cell); every other cell of such a row, every other
-        manifest line and every other file is checked as before. This test
-        reads no catalogue, so it runs without the reference corpus and CI
-        still checks every document; the held-source check
+        manifest line and every other file is checked. This test reads no
+        catalogue, so it runs without the reference corpus and CI checks every
+        document; the held-source check
         test_reference_manifest_set_aside_titles_are_catalogue_titles fails a
         set-aside title cell that is not a catalogue title. The corpus-wide
         scan runs after the planted lines, so a corpus finding cannot hide a
@@ -25638,12 +25638,11 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
     document; and the claim units are assembled from wrapped paragraphs
     (_paragraphs), so a claim wrapped across lines is read whole.
 
-    A word-list denial guard (its selector, its reviewed set of denials
-    with their supporting records and held absences, and its self-check
-    over the review forms) was taken out of this class after new escapes
-    were found in it. This class keeps the corrections and the tests that
-    pin them; the section 11 statements that guard selected are pinned
-    exactly by test_section_11_silence_on_it_cites_section_8.
+    This class has no word-list denial guard (a selector, a reviewed set
+    of denials with their supporting records and held absences, and a
+    self-check over the review forms); it keeps the corrections and the
+    tests that pin them, and the section 11 statements are pinned exactly
+    by test_section_11_silence_on_it_cites_section_8.
 
     Each section 11 pin carries its own section 8.1 pointer text; the held
     absences back the "computer system only" statements, catch an incident
@@ -26513,12 +26512,11 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
         The register carries the rule paragraph once, with its exact text
         (_MSC_STATUS_RULE), and every Status cell of every control table holds
         a value the rule defines (_MSC_STATUS_VALUES). The test
-        MscRegisterRound2Tests
-        test_msc_register_marks_no_unreviewed_row_implemented checks the rule's
-        first sentence as a substring and that no Implemented row lacks a Last
-        Reviewed date; it checks neither the Not assessed sentence, nor that
-        the rule appears once, nor which values the Status cells hold, which
-        this test does."""
+        test_msc_register_marks_no_unreviewed_row_implemented (in
+        MscRegisterRound2Tests) checks the rule's first sentence as a substring
+        and that no Implemented row lacks a Last Reviewed date; it checks
+        neither the Not assessed sentence, nor that the rule appears once, nor
+        which values the Status cells hold, which this test does."""
         lines = self._lines(self.MSC_REGISTER)
         rules = [line for line in lines if line.startswith("**Status ")]
         self.assertEqual(rules, [self._MSC_STATUS_RULE])
@@ -26588,10 +26586,8 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
     # control, or names the computer system only as a risk-assessment area,
     # as (path, first line of its paragraph or table row, the statement, the
     # text of its section 8.1 pointer in that paragraph or row). These exact
-    # pins replace the selection the denial guard supplied before that guard
-    # was taken out of this class. The pointer text is pinned too, so
-    # another section 8.1 citation in the same paragraph cannot stand in for
-    # it.
+    # pins select the statements. The pointer text is pinned too, so another
+    # section 8.1 citation in the same paragraph cannot stand in for it.
     _IT_MEASURES_8_1 = ("appropriate information technology security "
                         "measures to protect computer systems from "
                         "unauthorized intrusion and to secure documentation "
@@ -26687,15 +26683,14 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
         marks, and the pointer deleted there would otherwise stay
         satisfied.
 
-        The statements were selected by the denial guard until it was taken
-        out of this class, so each is now pinned (_SECTION_11_IT_SILENCES):
-        it occurs in exactly one paragraph or table row of its document,
-        that paragraph or row starts on the recorded line, and it carries a
-        section 8.1 citation, so deleting a pointer fails. The routed row
-        occurs once, on its recorded line, and the pinned documents are
-        exactly the carriers. Residual: this test reads only the pinned
-        statements, so a new statement of section 11's silence elsewhere is
-        left to review.
+        Each statement is pinned (_SECTION_11_IT_SILENCES): it occurs in
+        exactly one paragraph or table row of its document, that paragraph
+        or row starts on the recorded line, and it carries a section 8.1
+        citation, so deleting a pointer fails. The routed row occurs once,
+        on its recorded line, and the pinned documents are exactly the
+        carriers. Residual: this test reads only the pinned statements, so
+        a new statement of section 11's silence elsewhere is left to
+        review.
 
         In the earlier repository, the section 8.1 citation could stand
         anywhere in the paragraph, and supply matrix line 46 cites §8.1 a
@@ -27297,10 +27292,10 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
         34. In the register parser each opening fence line starts a unit
         and each closing fence line ends one, quoted or not, and each unit
         keeps its first line number; for its other callers, which name no
-        starts or ends, _paragraphs reads the text by its default rules. Flip:
-        reading the text without the fence lines as bounds joins
-        "**Example:**", the code and the claim under the closing fence into one
-        unit at line 3."""
+        starts or ends, _paragraphs reads the text by its default rules.
+        Flip: reading the text without the fence lines as bounds joins
+        "**Example:**", the code and the claim under the closing fence into
+        one unit at line 3."""
         text = ("# Ticket Scheme\n"
                 "## HMRC criteria\n"
                 "**Example:**\n"
