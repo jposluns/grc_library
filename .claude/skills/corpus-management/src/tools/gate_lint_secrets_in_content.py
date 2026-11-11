@@ -8,14 +8,15 @@ twelve characters in the finding so the linter output never echoes a full value.
 Lines inside fenced code blocks are skipped (the shared fence-aware scan), and at
 most one finding is reported per line.
 
-Engine/wrapper split (SHARED/SAFETY lane PR-37, Pattern A): this engine carries the
-detection vocabulary (``SECRET_PATTERNS``) and the pure ``scan``; the project
-wrapper (``.claude/skills/corpus-management/tools/lint-secrets-in-content.py``) supplies the grc scan scope (the
-scanned-suffix set and the exempt-file set, which includes THIS engine because it
-documents the secret formats by design) and the grouped reporting in ``main``, and
-keeps a thin module-global ``scan`` shim delegating here so the scan-scope
-regression test (which patches ``mod.scan`` and runs ``main``) observes the original
-signature and behaviour. The engine's ``scan`` is scope-free and repository-root-free.
+Engine/wrapper split: this engine carries the detection vocabulary
+(``SECRET_PATTERNS``) and the pure ``scan``; the project wrapper
+(``.claude/skills/corpus-management/tools/lint-secrets-in-content.py``)
+supplies the grc scan scope (the scanned-suffix set and the exempt-file
+set, which includes THIS engine because it documents the secret formats by
+design) and the grouped reporting in ``main``, and keeps a thin module-global
+``scan`` shim delegating here so the scan-scope regression test (which
+patches ``mod.scan`` and runs ``main``) observes the original signature
+and behaviour. The engine's ``scan`` is scope-free and repository-root-free.
 
 Exit codes (the wrapper returns these): 0 clean; 1 one or more findings.
 """

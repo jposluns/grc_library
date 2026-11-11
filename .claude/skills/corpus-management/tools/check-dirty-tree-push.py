@@ -12,9 +12,8 @@ file edited after the add) cannot be pushed unnoticed.
 WHY a RAW hook, not the pre-commit framework: the pre-commit framework's
 pre-push stage runs `staged_files_only`, which STASHES unstaged tracked edits
 before invoking the hook, so the hook would see a clean tree and MISS the exact
-unstaged git-add-drop case it exists to catch (verified empirically; codex
-finding, OF-2026-09-20-dirty-tree-push-hook-defects). A raw hook runs before any
-stashing and reads the real tree.
+unstaged git-add-drop case it exists to catch (verified empirically). A raw
+hook runs before any stashing and reads the real tree.
 
 WHY stdin ref-scoping: an unconditional pre-push check wrongly blocks a
 branch deletion (`git push origin :b`), a tag push (including a tag pointing at
@@ -344,14 +343,15 @@ def _integration_self_test():
         push("refs/heads/main", "refs/heads/clean", False)
 
         tracked.write_text("dirty main checkout\n", encoding="utf-8")
-        # Real git push supplies the exact pre-push records for these F1 cases.
+        # Real git push supplies the exact pre-push records for these destination cases.
         push(head, "refs/heads/from-sha", True)
         push("refs/tags/at-head", "refs/heads/from-tag", True)
         push("main", "refs/tags/from-branch", False)
         push("refs/heads/main", "refs/heads/from-main", True)
         push("HEAD", "refs/heads/from-head", True)
 
-        # F2 through _pre_push(), the tracked shim, AND the installed shim.
+        # Stdin records through _pre_push(), the tracked shim, AND the installed shim: a
+        # malformed one refuses, a well-formed tag push passes.
         for argv in (
             [sys.executable, repo / ".claude/skills/corpus-management/tools/check-dirty-tree-push.py", "--pre-push"],
             ["sh", repo / ".claude/skills/corpus-management/tools/git-hooks/pre-push"],
@@ -430,14 +430,14 @@ def _self_test():
         ([f"refs/heads/main {OTHER} refs/heads/main {Z40}"], HEAD, False),   # older/other sha -> allow
         ([f"(delete) {Z40} refs/heads/old {OTHER}"], HEAD, False),           # deletion -> allow
         ([f"refs/tags/v1 {OTHER} refs/tags/v1 {Z40}"], HEAD, False),         # tag (non-HEAD) -> allow
-        ([f"refs/tags/v1 {HEAD} refs/tags/v1 {OTHER}"], HEAD, False),        # TAG AT HEAD -> allow (codex F1)
+        ([f"refs/tags/v1 {HEAD} refs/tags/v1 {OTHER}"], HEAD, False),        # TAG AT HEAD -> allow
         ([f"HEAD {HEAD} refs/heads/x {OTHER}"], HEAD, True),                 # bare HEAD ref -> check
         ([f"refs/notes/commits {HEAD} refs/notes/commits {OTHER}"], HEAD, False),  # notes at HEAD -> allow
         ([], HEAD, False),                                                    # nothing to push
         (["", "   "], HEAD, False),                                           # blank lines only
         ([f"refs/heads/main {HEAD} refs/heads/main {OTHER}"], None, False),  # HEAD unknown
         ([f"refs/heads/x {OTHER} refs/heads/y {Z40}", f"refs/heads/m {HEAD} refs/heads/n {OTHER}"], HEAD, True),  # HEAD among several
-        (["garbage"], HEAD, True),                                            # malformed non-empty -> conservative (gemini F2)
+        (["garbage"], HEAD, True),                                            # malformed non-empty -> conservative
         ([f"only three {HEAD}"], HEAD, True),                                 # <4 fields -> conservative
     ]
     push_cases.extend([
@@ -462,7 +462,7 @@ def _self_test():
         ], HEAD, True),
         ([f"HEAD {'a' * 64} refs/heads/x {'0' * 64}"], "a" * 64, True),
         ([f"HEAD {'a' * 64} refs/tags/x {'0' * 64}"], "a" * 64, False),
-        # Unicode-whitespace ref names are VALID git refs and must not falsely trigger (codex P2):
+        # Unicode-whitespace ref names are VALID git refs and must not falsely trigger:
         ([f"refs/heads/old\u00a0branch {OTHER} refs/heads/old\u00a0branch {Z40}"], HEAD, False),  # older branch (not HEAD) -> no check
         ([f"refs/heads/main {HEAD} refs/tags/dest\u00a0tag {Z40}"], HEAD, False),  # HEAD -> tag dest -> no check
         ([f"refs/heads/main {HEAD} refs/heads/uni\u00a0branch {Z40}"], HEAD, True),  # HEAD -> valid unicode-ws branch -> check
@@ -502,7 +502,7 @@ def _self_test():
 
 
 def main(argv):
-    if argv[1:] == ["--self-test"]:  # 3b50b2f: only the documented forms are accepted; anything else is a usage error (exit 2)
+    if argv[1:] == ["--self-test"]:  # only the documented forms are accepted; anything else is a usage error (exit 2)
         return _self_test()
     if len(argv) > 1 and argv[1] == "--pre-push":
         # git passes the remote name and URL to a pre-push hook: at most two positionals. A remote

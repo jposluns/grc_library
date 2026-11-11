@@ -9,7 +9,7 @@
 #   git push -u origin <branch>
 #
 # A direct run remains available; every guarded push runs the guard again.
-# Hook output streams through a regular file; direct pipes retain RM-10 refusal.
+# Hook output streams through a regular file; direct pipes retain the pipe refusal.
 # Git --no-verify and core.hooksPath can bypass hooks; see .claude/skills/corpus-management/tools/README.md.
 #
 # A push whose every changed path is site-only, and that clears every check
@@ -17,13 +17,12 @@
 # below; any other push runs the full guard. Both paths run every runner gate
 # except the linter regression test suite (gate 36) gate by gate. The FULL
 # guard then runs gate 36 WHOLE, with the private store present, as six
-# parallel local shards (maintainer decision 2026-11-05 09:08 EST, replacing
-# the reviewed store-dependent list); the fast path leaves gate 36 to the
-# local server run. Since the maintainer decision of 2026-11-09 the quality
-# workflow runs only the CI subset of gates and the delta gates on each pull
-# request, in 1 job ("Lint markdown corpus"); the full suite, gate 36 whole
-# included, runs on the local server, which posts the local-quality commit
-# status that merge requires. The full guard runs, stopping on the first failure:
+# parallel local shards (replacing an earlier store-dependent list); the fast
+# path leaves gate 36 to the local server run. The quality workflow runs only
+# the CI subset of gates and the delta gates on each pull request, in 1 job
+# ("Lint markdown corpus"); the full suite, gate 36 whole included, runs on the
+# local server, which posts the local-quality commit status that merge
+# requires. The full guard runs, stopping on the first failure:
 #
 #   1. Every .claude/skills/corpus-management/tools/run_all_audits.sh gate except gate 36, in runner order, by
 #      the runner's own name and command, read from its run_gate lines at run
@@ -35,14 +34,14 @@
 #      (gates 6, 72 and 106). When the gate-list reading fails, the guard
 #      FAILS CLOSED to running .claude/skills/corpus-management/tools/run_all_audits.sh whole, gate 36
 #      included, so doubt never drops a check.
-#   1b. Gate 36 whole, as REGRESSION_SHARD_COUNT (6, set by the maintainer
-#      decision of 2026-11-05) parallel local shards: .claude/skills/corpus-management/tools/run-linter-regression.py
+#   1b. Gate 36 whole, as REGRESSION_SHARD_COUNT (6) parallel local shards:
+#      .claude/skills/corpus-management/tools/run-linter-regression.py
 #      --shard i/6, each in its OWN temporary detached checkout of the exact
 #      commit being pushed (git worktree add --detach into a mktemp
 #      directory), so no shard's fixtures under the root tests/tmp are seen by
-#      another shard's whole-repository scan (round-4 finding: one shared
-#      working tree failed VanishingScratchTests). Beside each checkout sit
-#      symbolic links to whichever of this clone's own siblings exist (the
+#      another shard's whole-repository scan (in the earlier repository, one
+#      shared working tree failed VanishingScratchTests). Beside each checkout
+#      sit symbolic links to whichever of this clone's own siblings exist (the
 #      private store <repo-parent>/private, grc_library_private,
 #      grc_library_ref and grc_library_scratch), and a relative GRC_STORE is
 #      made absolute, so the store is reachable as it is for the serial run.
@@ -93,7 +92,7 @@
 #   3. .web/build.py --check         - web-generator health (parse + render, no write).
 #
 # It then prints one ADVISORY that never blocks: build-reference-manifest.py --check
-# (reference-manifest drift against the grc_library_ref sibling; P-TODO 3b62).
+# (reference-manifest drift against the grc_library_ref sibling).
 #
 # Leftover report (strictly read-only; on both paths, before the gates): an
 # interrupt, a KILL or a crash can leave shard checkouts, their shard
@@ -209,8 +208,8 @@
 # or degrade where the store is absent have run here. A green fast path
 # covers less (see its residual below).
 #
-# Site-only fast path (maintainer directive 2026-11-04: accelerated pushes when
-# the change is web site content, not corpus or tooling).
+# Site-only fast path (accelerated pushes when the change is web site content,
+# not corpus or tooling).
 #
 #   Changed set: every record of the committed diff from the merge base of
 #   BASE_REF (origin/main by default, the base .claude/skills/corpus-management/tools/run-pr-time-checks.sh uses)
@@ -251,18 +250,17 @@
 #   .web/baseline/ files) except a .py file, anything under .web/site-card/ except
 #   a .py file, .claude/skills/corpus-management/tests/test_web_draft.py, and the per-PR close-out surfaces
 #   .working/CHANGELOG.md, README.md and NOTICE.md at the repository root. README.md and
-#   NOTICE.md belong: a site PR bumps the README library version (60d550d58),
-#   and a baseline or licence change updates NOTICE.md; 65669d0c6 and
-#   8fee33861 each change only .web/, .web/site-card/, .claude/skills/corpus-management/tests/test_web_draft.py,
+#   NOTICE.md belong: a site PR bumps the README library version, and a baseline
+#   or licence change updates NOTICE.md; in the earlier repository two site
+#   changes each changed only .web/, .web/site-card/, .claude/skills/corpus-management/tests/test_web_draft.py,
 #   .working/CHANGELOG.md, README.md and NOTICE.md. Both files are corpus-adjacent, so
-#   every gate that scans them still runs. A .py file under .web/ (the
-#   generator .web/build.py among them) or .web/site-card/ is tooling; the linter
-#   regression suite tests .web/build.py and the .web/site-card/ scripts, and the
-#   fast path does not run that suite, so a change to any such file takes the
-#   full guard (maintainer decision 2026-11-04 13:02Z, scope B, read strictly:
-#   Python tooling takes the full guard). Any other
-#   path (a corpus document, .claude/skills/corpus-management/tools/, any other test, .claude/,
-#   .claude/skills/corpus-management/src/, .github/, a generated registry) means the full guard.
+#   every gate that scans them still runs. A .py file under .web/ (the generator
+#   .web/build.py among them) or .web/site-card/ is tooling; the linter regression
+#   suite tests .web/build.py and the .web/site-card/ scripts, and the fast path
+#   does not run that suite, so a change to any such file takes the full guard.
+#   Any other path (a corpus document, .claude/skills/corpus-management/tools/,
+#   any other test, .claude/, .claude/skills/corpus-management/src/, .github/, a
+#   generated registry) means the full guard.
 #
 #   The fast path runs, stopping on the first failure:
 #     1. .claude/skills/corpus-management/tools/run-pr-time-checks.sh (unchanged; every delta gate, D3 included).
@@ -283,35 +281,32 @@
 #   It prints one FAST PATH line naming the changed paths, then the reference
 #   manifest advisory, then a PASS line with the elapsed time.
 #
-#   The skip lives here alone (maintainer decisions 2026-11-04 13:02Z and
-#   17:36 EST, and 2026-11-05 09:08 EST): the guard lists the runner's gates
-#   itself and runs each gate except 36, one at a time, on BOTH paths, then, on the
-#   full path only, gate 36 as local shards, so .claude/skills/corpus-management/tools/run_all_audits.sh takes
-#   no skip option or variable and still runs gate 36 whole when invoked
-#   directly (as the nightly sweep does). .github/workflows/quality.yml runs
-#   only the CI subset that section 4 of the audit programme specification
-#   names (gate 36 is not in it); the gate-parity gate keeps that subset,
-#   run_all_audits.sh and the pre-commit file in lock-step with section 6.
+#   The skip lives here alone: the guard lists the runner's gates itself and runs
+#   each gate except 36, one at a time, on BOTH paths, then, on the full path
+#   only, gate 36 as local shards, so .claude/skills/corpus-management/tools/run_all_audits.sh
+#   takes no skip option or variable and still runs gate 36 whole when invoked
+#   directly (as the nightly sweep does). .github/workflows/quality.yml runs only
+#   the CI subset that section 4 of the audit programme specification names (gate
+#   36 is not in it); the gate-parity gate keeps that subset, run_all_audits.sh and
+#   the pre-commit file in lock-step with section 6.
 #
-#   Skipped locally on the FAST PATH only, disclosed as left to the
-#   local-quality run: gate 36
-#   (every .claude/skills/corpus-management/tests/test_*.py module and the completeness checks
-#   .claude/skills/corpus-management/tools/run-linter-regression.py makes; the fast path still runs
-#   .claude/skills/corpus-management/tests/test_web_draft.py directly as its own step). On both paths, when
-#   the gate list is read from the runner, the full guard's former
-#   run_all_audits.sh summary line is not printed.
-#   The local server runs gate 36 whole for the pull request head, and
-#   merge requires the local-quality commit status it posts.
+#   Skipped locally on the FAST PATH only, disclosed as left to the local-quality
+#   run: gate 36 (every .claude/skills/corpus-management/tests/test_*.py module
+#   and the completeness checks .claude/skills/corpus-management/tools/run-linter-regression.py makes; the
+#   fast path still runs .claude/skills/corpus-management/tests/test_web_draft.py
+#   directly as its own step). On both paths, when the gate list is read from the
+#   runner, the full guard's former run_all_audits.sh summary line is not printed.
+#   The local server runs gate 36 whole for the pull request head, and merge
+#   requires the local-quality commit status it posts.
 #
-#   Residual (what is lost on the fast path): local detection, before the
-#   push, of a gate 36 failure a site-only change causes; that failure first
-#   shows in the local server run, and a failed or missing local-quality
-#   status still blocks the merge. A gate 36 test that needs the private
-#   store skips or degrades where it is absent, so it runs before merge only
-#   where the store is present, such as a full-path push from a clone that
-#   has it. On the fast path a
-#   passing gate's DUE-SOON, WARN and NOTE lines are not shown before the
-#   push (the full path shows them, as the runner does).
+#   Residual (what is lost on the fast path): local detection, before the push,
+#   of a gate 36 failure a site-only change causes; that failure first shows in
+#   the local server run, and a failed or missing local-quality status still
+#   blocks the merge. A gate 36 test that needs the private store skips or
+#   degrades where it is absent, so it runs before merge only where the store
+#   is present, such as a full-path push from a clone that has it. On the fast
+#   path a passing gate's DUE-SOON, WARN and NOTE lines are not shown before
+#   the push (the full path shows them, as the runner does).
 #
 # Scope boundary: this guard gates PUSHES (the full guard's two post-commit /
 # pre-push runners plus `.web/build.py --check` when .web/build.py is present,
@@ -330,31 +325,31 @@
 #   BASE_REF=origin/develop .claude/skills/corpus-management/tools/pre-push-guard.sh   # non-default base
 #
 # Exit codes: 1 for an installed-hook check failure; 0 only if the gate steps, the local gate 36 shards and their reconcile, run-pr-time-checks.sh and the web check (when .web/build.py is present) pass, or on the fast path only if every fast-path check passes; 3 if the guard REFUSES to run
-# because stdout is piped (the RM-10 self-defence below, before any runner
-# starts); 4 if grc_library_private is required but absent (the _private check
-# below); 5 if the tracked working tree is dirty or its state cannot be read
-# (the attestation-soundness check below). At the local gate 36 shards (step
-# 1b): the first failing shard's own exit status, in shard order, when any
-# shard fails; otherwise 2 when the shard run cannot be set up or a shard
-# exited 0 without writing its step outputs; otherwise the reconcile's own
-# status when it fails (1 for a failure, 2 for a refusal); 130, 143 or 129
-# when SIGINT, SIGTERM or SIGHUP interrupts the step. Otherwise the first
-# failing blocking check's non-zero rc (that check's own diagnostics are
+# because stdout is piped (the pipe self-defence below, before any runner
+# starts); 4 if grc_library_private is required but absent (the
+# grc_library_private check below); 5 if the tracked working tree is dirty or
+# its state cannot be read (the attestation-soundness check below). At the
+# local gate 36 shards (step 1b): the first failing shard's own exit status, in
+# shard order, when any shard fails; otherwise 2 when the shard run cannot be
+# set up or a shard exited 0 without writing its step outputs; otherwise the
+# reconcile's own status when it fails (1 for a failure, 2 for a refusal); 130,
+# 143 or 129 when SIGINT, SIGTERM or SIGHUP interrupts the step. Otherwise the
+# first failing blocking check's non-zero rc (that check's own diagnostics are
 # printed above).
 
 set -u
 
-# RM-10 pipe self-defence (shipped PR #620, maintainer-approved
-# 2026-07-03): refuse to run with stdout PIPED into another command, the
-# shape that masks this guard's exit code (`guard | tail && push` pushes
-# past a failing guard). Detection is `[ -p /dev/stdout ]`, not the
-# spec's literal `[ -t 1 ]`: in this execution environment a plain
-# invocation's stdout is a regular FILE (the harness capture), so a
-# tty-check would fail every sanctioned run, while a pipe-check fails
-# exactly the masking shape and passes both sanctioned patterns (plain
-# run, and file-redirect capture `guard > log; CODE=$?`). CI is
-# unaffected (it invokes the runners directly, and its stdout is not this
-# guard's concern). Documented override for a deliberate, judged pipe:
+# Pipe self-defence: refuse to run with stdout PIPED into another command, the
+# shape that masks this guard's exit code (`guard | tail && push` pushes past a
+# failing guard). Detection is `[ -p /dev/stdout ]`, not the spec's literal
+# `[ -t 1 ]`: a tty-check fails every run whose stdout is a regular FILE, and
+# in the earlier repository's execution environment a plain invocation's stdout
+# was one (the harness capture), so there a tty-check would have failed every
+# sanctioned run, while a pipe-check fails exactly the masking shape and passes
+# both sanctioned patterns (plain run, and file-redirect capture
+# `guard > log; CODE=$?`). CI is unaffected (it invokes the runners directly,
+# and its stdout is not this guard's concern). Documented override for a
+# deliberate, judged pipe:
 #   PRE_PUSH_GUARD_ALLOW_PIPE=1 .claude/skills/corpus-management/tools/pre-push-guard.sh | ...
 # The sanctioned display-truncation path is .claude/skills/corpus-management/tools/tail-safe.sh, which
 # captures to a regular file (so it passes this check) and preserves the
@@ -371,12 +366,13 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
 REPO_NAME="$(basename "${REPO_ROOT}")"
 cd "${REPO_ROOT}"
 
-# _private defence-in-depth (1.19.8 (closing PR #1030) layered assurance): on the maintainer's
-# OWN clone (origin is jposluns/grc_library), grc_library_private is a REQUIRED operational
-# dependency. Fail LOUD at push time if it is absent, so a push authored without it (the
-# Bash-write path the PreToolUse Edit/Write hook does not gate) is caught here too. This is
-# identity-conditional: an adopter clone (any other origin) and CI are exempt (they legitimately
-# have no _private). Exit 4 is the _private-refuse code (3 the pipe-refuse above, 5 the dirty-tree refuse below).
+# grc_library_private defence-in-depth (layered assurance): on the maintainer's OWN clone (origin
+# is jposluns/grc_library), grc_library_private is a REQUIRED operational dependency. Fail LOUD at
+# push time if it is absent, so a push authored without it (the Bash-write path the PreToolUse
+# Edit/Write hook does not gate) is caught here too. This is identity-conditional: an adopter
+# clone (any other origin) and CI are exempt (they legitimately have no grc_library_private).
+# Exit 4 is the grc_library_private refuse code (3 the pipe-refuse above, 5 the dirty-tree refuse
+# below).
 _origin="$(git remote get-url origin 2>/dev/null || true)"
 # Boundary-anchored (a "/" or ":" before the owner) so a fork owner ending in "jposluns"
 # is not misread as the maintainer.
@@ -389,19 +385,19 @@ case "${_origin}" in
     ;;
 esac
 
-# Working-tree-vs-committed-tree attestation soundness (git-add-drop backstop,
-# 2026-09-19). The runners below read the WORKING TREE, but `git push` ships the
-# COMMITTED tree (HEAD). When a tracked file is modified or staged the two differ,
-# so a green run here can still flip CI red: the #2378 signature (a
-# regenerated-but-unstaged generated artefact, an unstaged stale-count fix, any
-# unstaged edit to a gate-read file all present local-green / CI-red). Refuse on a
-# dirty tracked tree so the working-tree attestation equals HEAD for tracked
-# content and the "from HEAD" runs below are sound. Untracked new files (??) are
-# out of scope here (a first-generation output never `git add`ed); a queued
-# commit-time hook (2a) will backstop that case. FAIL CLOSED: if `git status`
-# itself errors, the tree state cannot be attested, so refuse rather than treat an
-# empty result as clean (ignorance must refuse, not permit; the guard-input
-# soundness discipline). Exit 5 is the dirty-tree / unattestable-tree refuse code.
+# Working-tree-vs-committed-tree attestation soundness (a backstop for a change
+# left out of git add). The runners below read the WORKING TREE, but `git push`
+# ships the COMMITTED tree (HEAD). When a tracked file is modified or staged the
+# two differ, so a green run here can still flip CI red: the signature seen in
+# the earlier repository (a regenerated-but-unstaged generated artefact, an
+# unstaged stale-count fix, any unstaged edit to a gate-read file all present
+# local-green / CI-red). Refuse on a dirty tracked tree so the working-tree
+# attestation equals HEAD for tracked content and the "from HEAD" runs below
+# are sound. Untracked new files (??) are out of scope here (a first-generation
+# output never `git add`ed). FAIL CLOSED: if `git status` itself errors, the
+# tree state cannot be attested, so refuse rather than treat an empty result as
+# clean (ignorance must refuse, not permit; the guard-input soundness
+# discipline). Exit 5 is the dirty-tree / unattestable-tree refuse code.
 # Deliberate override, rare and announced on the console like the pipe override:
 # PRE_PUSH_GUARD_ALLOW_DIRTY=1.
 if [ -z "${PRE_PUSH_GUARD_ALLOW_DIRTY:-}" ]; then
@@ -766,14 +762,14 @@ def uses(pid, roots):
     # process shares one memory map. When the leader has exited while other
     # threads run, its entries are gone, so each thread is read whole. So
     # is each other thread when the leader, read whole, showed no mapping
-    # or is exiting (leader_exiting) while other threads run (round 9,
-    # claude NOTE 2): an exiting leader lets go of the shared memory map for
-    # itself before its working directory and root (as a probe in that
-    # review saw; not reproduced here), so it can be read whole with no
-    # mapping while the other threads still map files. A thread whose
-    # entries are missing counts as read only when it is then seen to have
-    # exited or to be exiting (thread_ended with exiting); a thread that
-    # cannot be read otherwise makes the process one that cannot be read.
+    # or is exiting (leader_exiting) while other threads run: an exiting
+    # leader lets go of the shared memory map for itself before its working
+    # directory and root (as a probe in the earlier repository saw; not
+    # reproduced here), so it can be read whole with no mapping while the
+    # other threads still map files. A thread whose entries are missing
+    # counts as read only when it is then seen to have exited or to be
+    # exiting (thread_ended with exiting); a thread that cannot be read
+    # otherwise makes the process one that cannot be read.
     hits = {}
     base = "/proc/%s/" % pid
     leader = True
@@ -1742,8 +1738,8 @@ BASE_REF="${BASE_REF:-origin/main}"
 # The runner's linter regression suite gate (gate 36), as "runner name|command":
 # the one runner gate the fast path does not run whole.
 REGRESSION_GATE="Linter regression test suite|.claude/skills/corpus-management/tools/run-linter-regression.py"
-# The full guard's local gate 36 shard count (maintainer decision 2026-11-05).
-# The quality workflow runs no shard job now; a regression test pins both.
+# The full guard's local gate 36 shard count. The quality workflow runs no shard
+# job; a regression test pins both.
 REGRESSION_SHARD_COUNT=6
 # The siblings each shard checkout's parent links back to this clone's own,
 # so a shard reaches the private store and siblings as the serial run does.
@@ -2347,9 +2343,9 @@ else
         echo "pre-push-guard: NOTE: the runner's gate list cannot be read (${runner_gates_reason}); failing closed to the whole runner, gate 36 included." >&2
         # Capture the runner's exit code from the BARE command, not from inside an
         # `if ! cmd` test: `rc=$?` after `if ! cmd; then` would capture the negated
-        # status (0), making the guard exit 0 on failure. (improvement-log #439 HIGH:
-        # the original `if ! cmd; then rc=$?` form exited 0 on a failing runner and
-        # let `&& git push` proceed. set -u is on and the guard does not set -e, but
+        # status (0), making the guard exit 0 on failure. (In the earlier repository,
+        # the form `if ! cmd; then rc=$?` exited 0 on a failing runner and let
+        # `&& git push` proceed. set -u is on and the guard does not set -e, but
         # an inherited errexit (SHELLOPTS) is possible: it ends the guard at the
         # failing runner, before the report below, with that runner's rc, so the
         # exit code still reaches the caller.)
@@ -2389,7 +2385,7 @@ else
     fi
 fi
 
-# Advisory, never blocking: reference-acquisition manifest drift (P-TODO 3b62). The manifest
+# Advisory, never blocking: reference-acquisition manifest drift. The manifest
 # lists every trusted-bucket entry in the grc_library_ref sibling, and its --check is not a CI
 # gate (CI has no grc_library_ref), so a reference ingest leaves it stale until someone
 # regenerates it. Failing here would force an unrelated PR to carry the regeneration, so the
@@ -2397,8 +2393,8 @@ fi
 # not check) only when no repository-redirecting git variable is set, git reads this checkout's own
 # repository and the raw origin read is one clean line that the generator positively places as a
 # non-maintainer origin (an https, http or ssh URL or a user@host:owner/repo form) and a second
-# origin read with every GIT_ variable removed agrees (the generator's docstring gives the rule); anywhere else it exits 4 (cannot evaluate,
-# 3b796), which the could-not-run advisory below reports without blocking. Known residuals (the
+# origin read with every GIT_ variable removed agrees (the generator's docstring gives the rule); anywhere else it exits 4 (cannot evaluate),
+# which the could-not-run advisory below reports without blocking. Known residuals (the
 # generator's docstring lists them in full): git configuration that the generator's two origin
 # reads share (the repository's own config, the HOME and XDG global files, the
 # system file), such as a url.<base>.insteadOf rewrite or a remote.origin.url, that makes the

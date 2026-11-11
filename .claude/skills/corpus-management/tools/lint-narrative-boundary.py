@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Symmetric narrative-boundary gate (P-1.25 Phase 1.3; spec Gates item 3).
+"""Symmetric narrative-boundary gate (spec Gates item 3).
 
 Enforces the two-sided placement boundary of
 ``governance/specification-executive-narrative.md`` ("Placement and audit scope" and
@@ -34,8 +34,8 @@ Scope notes:
     all 8 extension fields) is documentation, not a leak, so lines inside
     fenced code blocks never match. This is why the specification itself
     needs no named exemption. A file that ends inside a fence left open by
-    this marker-aware scan is a fail-loud finding naming the opener line
-    (3b54b), so an unclosed fence cannot silently hide the rest of a file.
+    this marker-aware scan is a fail-loud finding naming the opener line,
+    so an unclosed fence cannot silently hide the rest of a file.
   - Detection is LINE-ANCHORED (``**Field:** ...`` at line start), matching
     the corpus metadata-field shape; prose that DISCUSSES a field name in a
     list item or sentence does not match.
@@ -243,7 +243,7 @@ def _self_test() -> int:
         expect("nested-readme-not-exempt", run(root), "must carry Document Type")
         (root / "executive" / "sub" / "README.md").unlink()
 
-        # F1: the pack/reference trees are SCANNED (not the shared corpus exempt set);
+        # The pack/reference trees are SCANNED (not the shared corpus exempt set);
         # a narrative leak there is caught, while vendored dirs stay skipped.
         (root / ".claude").mkdir()
         (root / ".claude" / "leak.md").write_text(valid_page)
@@ -276,13 +276,13 @@ def _self_test() -> int:
         fenced = root / "doc.md"
         fenced.write_text("```\n**Document Type:** Executive Narrative\\\n**Audience:** x\\\n```\n")
         expect("outside-fenced-pass", scan_outside_file(fenced, "governance/doc.md"), None)
-        # F4: a ~~~-fenced block containing a ``` line + metadata must NOT toggle
+        # A ~~~-fenced block containing a ``` line + metadata must NOT toggle
         # out of code (the fence closes only on the same marker char), so the
         # metadata line is content, not a false leak.
         mixedfence = root / "mixed-fence.md"
         mixedfence.write_text("# D\n\nExample:\n\n~~~\n```\n**Document Type:** Executive Narrative\\\n**Audience:** x\\\n~~~\n\nProse.\n")
         expect("outside-mixed-fence-noescape", scan_outside_file(mixedfence, "governance/mixed-fence.md"), None)
-        # 3b83: a marker indented four or more columns is content (the shared 0-3
+        # A marker indented four or more columns is content (the shared 0-3
         # space indent rule), so it cannot open a block that would hide a later
         # leak, and inside an open fence it is not a closer.
         indentleak = root / "indent-leak.md"
@@ -291,7 +291,7 @@ def _self_test() -> int:
         indentclose = root / "indent-close.md"
         indentclose.write_text("# D\n\n```\n    ```\n**Document Type:** Executive Narrative\\\n```\n\nProse.\n")
         expect("outside-indented-marker-not-a-closer", scan_outside_file(indentclose, "governance/indent-close.md"), None)
-        # 3b54b: a file ending inside an open fence fails loud (the remainder, here a
+        # A file ending inside an open fence fails loud (the remainder, here a
         # real leak, would otherwise go unscanned); a 4-backtick opener is not closed by
         # a 3-backtick line.
         openfence = root / "open-fence.md"
@@ -302,7 +302,7 @@ def _self_test() -> int:
         prose = root / "prose.md"
         prose.write_text("1. **Narrative Type:** one of the seven subtypes.\nThe **Audience:** value is fixed.\n")
         expect("outside-prose-pass", scan_outside_file(prose, "governance/prose.md"), None)
-        # F3: an unreadable / non-UTF-8 file outside executive/ fails LOUD, not open.
+        # An unreadable / non-UTF-8 file outside executive/ fails LOUD, not open.
         unreadable = root / "binary.md"
         unreadable.write_bytes(b"\xff\xfe not utf-8 \x00")
         expect("outside-unreadable-failloud", scan_outside_file(unreadable, "risk/binary.md"), "not readable")
@@ -320,7 +320,7 @@ def _self_test() -> int:
         noext = root / "brief-noext.md"
         noext.write_text(valid_page.replace("**Audience:** x\\\n", ""))
         expect("inside-missing-ext", check_inside_page(noext, "executive/brief-noext.md"), "missing narrative-extension field 'Audience'")
-        # F2: a page whose only field-shaped lines sit inside a fence has NO real
+        # A page whose only field-shaped lines sit inside a fence has NO real
         # metadata (the inside check is fence-aware), so it fails the type requirement.
         fenced_only = root / "brief-fenced.md"
         fenced_only.write_text("# Brief\n\n```markdown\n**Document Type:** Executive Narrative\\\n**Audience:** x\\\n```\n\nNo real metadata block.\n")
@@ -339,9 +339,9 @@ def _self_test() -> int:
 
 def main(argv: list[str]) -> int:
     if "--self-test" in argv[1:]:
-        # 3b50b1 r3: --self-test takes no other argument (no --root). Combined with --root, the self-test ran and the root was
+        # --self-test takes no other argument (no --root). Combined with --root, the self-test ran and the root was
         # silently dropped (exit 0 that validated nothing of the named tree); refuse instead.
-        if argv[1:] != ["--self-test"]:  # exactly one --self-test and nothing else (r4)
+        if argv[1:] != ["--self-test"]:  # exactly one --self-test and nothing else
             print("ERROR: --self-test takes no --root or other argument; run the self-test and "
                   "the root scan separately.", file=sys.stderr)
             return 2
@@ -352,10 +352,10 @@ def main(argv: list[str]) -> int:
     k = 0
     while k < len(args):
         arg = args[k]
-        # 3b50b1: --root VALUE and --root=VALUE are both honoured; a missing, empty or
-        # non-directory value is refused (it used to scan nothing and exit 0, and the = form was
-        # silently ignored). r3: every argument is parsed, so a repeated --root or an unknown
-        # argument (a typo such as --roott) is refused instead of silently scanning the default.
+        # --root VALUE and --root=VALUE are both honoured; a missing, empty or non-directory
+        # value is refused (it used to scan nothing and exit 0, and the = form was silently
+        # ignored). Every argument is parsed, so a repeated --root or an unknown argument (a
+        # typo such as --roott) is refused instead of silently scanning the default.
         if arg == "--root" or arg.startswith("--root="):
             if seen_root:
                 print("ERROR: --root given more than once.", file=sys.stderr)

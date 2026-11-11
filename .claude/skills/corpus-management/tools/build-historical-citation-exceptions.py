@@ -29,7 +29,7 @@ def main(argv=None) -> int:
     data, page_path = args.root / H.DATA_REL, args.root / H.PAGE_REL
     try:
         # Read directly: only a missing data file means "no rows"; any other I/O error exits 2
-        # (Path.exists() swallows OSError on Python 3.14; 3b75 redesign QA r2, codex, gemini).
+        # (Path.exists() swallows OSError on Python 3.14).
         try:
             text = data.read_bytes().decode("utf-8")
         except FileNotFoundError:
@@ -44,7 +44,7 @@ def main(argv=None) -> int:
         if new != page:
             print(f"DRIFT: {H.PAGE_REL} differs from {H.DATA_REL}; run without --check", file=sys.stderr)
             return 1
-        problem = H.sync_problem(page, rows)  # the same page checks gate 6 applies (r4, claude, gemini)
+        problem = H.sync_problem(page, rows)  # the same page checks gate 6 applies
         if problem:
             print(f"PAGE: {problem}", file=sys.stderr)
             return 1
@@ -55,7 +55,7 @@ def main(argv=None) -> int:
         print(f"Wrote {H.PAGE_REL} ({len(rows)} row(s)).")
     else:
         print(f"OK: {H.PAGE_REL} already in sync ({len(rows)} row(s)).")
-    problem = H.sync_problem(new, rows)  # report a page gate 6 would refuse (3b75 r5, claude)
+    problem = H.sync_problem(new, rows)  # report a page gate 6 would refuse
     if problem:
         print(f"PAGE: {problem}", file=sys.stderr)
         return 1

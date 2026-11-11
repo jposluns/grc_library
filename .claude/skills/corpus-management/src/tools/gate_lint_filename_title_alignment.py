@@ -9,12 +9,12 @@ below a minimum (default 1, i.e. flag only zero-overlap files). A document with 
 field, or whose filename does not start with a known document-type prefix, or whose either
 token set is empty, is not applicable and not flagged.
 
-Engine/wrapper split (compile PR-18): this engine carries the PURE check (the title-field
+Engine/wrapper split: this engine carries the PURE check (the title-field
 pattern, the stopword set, ``parse_title``, ``normalise_tokens``, ``filename_stem_after_doctype``,
 ``check_file``) and a ``run`` that computes the overlap + reports; the project wrapper
 (``.claude/skills/corpus-management/tools/lint-filename-title-alignment.py``) supplies the scan scope, the grc document-type
 prefix set and the grc synonym map (profile-loaded from defaults/grc/alignment.toml and
-composed in the wrapper's _alignment_config() since Phase-4 PR-E; gate 67 cross-checks the
+composed in the wrapper's _alignment_config(); gate 67 cross-checks the
 doctypes via that function), and the minimum-overlap threshold,
 passing the synonyms, doctypes, and threshold in. This engine holds no scan-scope, doctype, or
 synonym policy.

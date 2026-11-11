@@ -3,20 +3,21 @@
 
 Detect runs of ``**Field:**`` lines that lack a Markdown hard-break marker on the
 non-last lines of the run. A run is the rendered paragraph: the lines that render
-into one paragraph, including a block quote or list item paragraph, form one run
-(3b146). Without a hard-break, GitHub renders the metadata block as a single
-soft-wrapped paragraph rather than as a vertical list of labelled facts. Two
-hard-break markers are accepted: a trailing backslash or two-or-more trailing
-spaces. Code blocks, HTML blocks and tables are not runs, so a metadata-format
-example inside a fence is not a false positive; the last line of a run is exempt.
+into one paragraph, including a block quote or list item paragraph, form one run.
+Without a hard-break, GitHub renders the metadata block as a single soft-wrapped
+paragraph rather than as a vertical list of labelled facts. Two hard-break
+markers are accepted: a trailing backslash or two-or-more trailing spaces. Code
+blocks, HTML blocks and tables are not runs, so a metadata-format example inside
+a fence is not a false positive; the last line of a run is exempt.
 
-Engine/wrapper split (SHARED/SAFETY lane, Pattern A): the PURE check (``META_LINE``,
-``has_hard_break``, ``scan_file``) lives in the pack-owned engine
-(``.claude/skills/corpus-management/src/tools/gate_lint_metadata_line_breaks.py``, source of record).
-This wrapper supplies the grc scan scope (``DEFAULT_TARGETS`` / ``iter_target_files``)
-and the grouped reporting, and keeps a thin module-global ``scan_file`` shim
-delegating to the engine so the scan-scope regression test (which patches
-``mod.scan_file`` and runs ``main``) observes the original signature and behaviour.
+Engine/wrapper split: the PURE check (``META_LINE``, ``has_hard_break``, ``scan_file``)
+lives in the pack-owned engine
+(``.claude/skills/corpus-management/src/tools/gate_lint_metadata_line_breaks.py``,
+source of record). This wrapper supplies the grc scan scope (``DEFAULT_TARGETS`` /
+``iter_target_files``) and the grouped reporting, and keeps a thin module-global
+``scan_file`` shim delegating to the engine so the scan-scope regression test (which
+patches ``mod.scan_file`` and runs ``main``) observes the original signature and
+behaviour.
 
 Usage:
 
@@ -108,8 +109,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.paths:
-        # 3b50: refuse (exit 2) a missing or out-of-tree explicit path; out-of-tree reporting
-        # used to raise a ValueError traceback, and a missing path passed silently.
+        # Refuse (exit 2) a missing or out-of-tree explicit path; out-of-tree reporting used
+        # to raise a ValueError traceback, and a missing path passed silently.
         files = []
         for raw in guard_explicit_paths(args.paths):
             target = Path(raw)

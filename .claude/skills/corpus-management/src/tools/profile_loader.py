@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reference-vocabulary profile loader (Corpus-Management pack, Phase-4 PR-A).
+"""Reference-vocabulary profile loader (Corpus-Management pack).
 
 Loads one CONCERN's reference-vocabulary profile from the pack's defaults tree
 (``defaults/grc/<concern>.toml``), optionally overlaid by an adopter's own

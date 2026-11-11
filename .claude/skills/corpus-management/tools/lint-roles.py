@@ -49,12 +49,12 @@ PACK_TOOLS = Path(__file__).resolve().parent.parent / "src" / "tools"
 # external named entities the library legitimately references.
 #
 # Every entry here must appear as an Owner or Approving Authority in at
-# least one document. Phase 23.63 removed three entries that did not
-# satisfy this criterion: `Privacy Maintainer` and `Risk Maintainer`
-# had zero corpus occurrences (the bare role names were never used as
+# least one document. Three entries that did not satisfy this criterion
+# were removed: `Privacy Maintainer` and `Risk Maintainer` had zero
+# corpus occurrences (the bare role names were never used as
 # Owner/Approving Authority), and `Supplier Risk Maintainer` is in fact
-# defined in governance/register-role-authority.md; keeping a copy
-# here was redundant and contradicted the set's purpose.
+# defined in governance/register-role-authority.md; keeping a copy here
+# was redundant and contradicted the set's purpose.
 # The five maintainer / library-meta roles formerly listed here (Governance
 # Library Maintainer, Compliance Maintainer, Security Architecture Maintainer,
 # GRC Programme Manager, Information Security Maintainer) were promoted to rows
@@ -143,7 +143,7 @@ def main(argv: list[str]) -> int:
         print("FAIL: could not load role authority register.")
         return 2
 
-    # Explicit paths are refused when unsound and normalized otherwise (3b21).
+    # Explicit paths are refused when unsound and normalized otherwise.
     paths = guard_explicit_paths(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     files = iter_markdown_files(paths)
     return _engine().run(files, known=known, repo_root=REPO_ROOT)

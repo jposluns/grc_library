@@ -8,17 +8,16 @@ the canonical value, the Repository Path a self-referential link, and the filena
 prefix matching the Document Type. It also verifies the backslash-newline hard-break
 markers on the metadata block.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): this engine carries
-the PURE check (``extract_metadata``, ``check_line_break_markers``,
-``looks_role_based``, ``normalize_link_value``, ``check_file``) plus the GENERIC
-metadata-parsing regexes (field, raw-field, link, semver, ISO-date). The corpus's
-METADATA MODEL is project configuration and is supplied by the wrapper
-(``.claude/skills/corpus-management/tools/lint-metadata.py``): the allowed Document Types, the type-to-filename-prefix
-map, the required-field list, the exempt files / directory prefixes / prefix-exempt
-basenames, the role-suffix and role-stem vocabularies, the canonical license value,
-and the exempt-root predicate. Keeping the model wrapper-side also preserves the
-project's cross-surface doctype-enumeration parity check, which reads the allowed
-types from the wrapper.
+Engine/wrapper split: this engine carries the PURE check (``extract_metadata``,
+``check_line_break_markers``, ``looks_role_based``, ``normalize_link_value``,
+``check_file``) plus the GENERIC metadata-parsing regexes (field, raw-field,
+link, semver, ISO-date). The corpus's METADATA MODEL is project configuration and is
+supplied by the wrapper (``.claude/skills/corpus-management/tools/lint-metadata.py``):
+the allowed Document Types, the type-to-filename-prefix map, the required-field
+list, the exempt files / directory prefixes / prefix-exempt basenames, the role-suffix
+and role-stem vocabularies, the canonical license value, and the exempt-root
+predicate. Keeping the model wrapper-side also preserves the project's cross-surface
+doctype-enumeration parity check, which reads the allowed types from the wrapper.
 
 Exit codes (the wrapper returns these): 0 clean; 1 one or more findings.
 """

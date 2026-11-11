@@ -434,7 +434,7 @@ CUTOFF_PR = 1
 EPOCH_START = "2026-11-09"
 EPOCH_START_DATE = datetime.date.fromisoformat(EPOCH_START)
 
-# The first Library Version shipped by a new-repository PR (EP5; main starts at 2026.11.65). A
+# The first Library Version shipped by a new-repository PR (main starts at 2026.11.65). A
 # line that fully matches a comparison shape with a version below it is an old-repository
 # record, whatever its date, and fails before any deferral: a date alone cannot tell an old
 # record dated on EPOCH_START from a new one.
@@ -443,15 +443,15 @@ VERSION_FLOOR_TUPLE = tuple(int(part) for part in VERSION_FLOOR.split("."))
 
 # The shape patterns below (HEADER_RE, COMPACT_HEADER_RE, LEGACY_LEAD_RE, WEEK_HEADING_RE,
 # WEEK_ROLLUP_RE, MILESTONE_RE, LOOSE_DATE_RE and PR_TOKEN_RE) are ASCII-only, so a digit
-# outside 0-9 (a full-width digit, for example) never reads as part of a date, a version or a
-# PR number. The candidate detectors (DATE_LIKE_RE, DATE_ANY_RE, CANONICAL_OPENING_RE and
-# LEAD_TOKEN_RE) are
-# Unicode-wide on purpose, so such a line is still a candidate and then fails.
+# outside 0-9 (a full-width digit, for example) never reads as part of a date, a version or a PR
+# number. The candidate detectors (DATE_LIKE_RE, DATE_ANY_RE, CANONICAL_OPENING_RE and
+# LEAD_TOKEN_RE) are Unicode-wide on purpose, so such a line is still a candidate and then
+# fails.
 
 # The legacy comparison shape, matched in full:
 # "## 2026-11-10, Library Version 2026.11.2, PR #2". The bare "Version" label of the mirror's
 # older entries is read as the same shape. Groups: (1) the date, (2,3,4) the version, (5) the PR.
-# EP7 (ep6qc L4): no leading zero in the PR number or in a version part, apart from the 2-digit
+# No leading zero in the PR number or in a version part, apart from the 2-digit
 # month of the CalVer YYYY.MM.patch form (01 to 09), so "PR #02" and "2026.11.067" are not
 # comparison shapes and fail as candidates.
 _SHAPE_VERSION = r"([1-9][0-9]*)\.(0|[1-9][0-9]*|0[1-9])\.(0|[1-9][0-9]*)"
@@ -459,9 +459,9 @@ HEADER_RE = re.compile(
     r"^## (\d{4}-\d{2}-\d{2}), (?:Library )?Version " + _SHAPE_VERSION + r", PR #([1-9][0-9]*)$",
     re.ASCII)
 
-# The compact comparison shape (the 3.16 (PR #855) root-reformat), matched in full, with or
-# without the stage-3b ``- summary`` tail:
-# ``**2026-07-08 | 2026.07.201 | PR #713**`` or the same followed by
+# The compact comparison shape (from the root reformat), matched in full, with or
+# without the ``- summary`` tail:
+# ``**2026-11-10 | 2026.11.67 | PR #1**`` or the same followed by
 # `` - <summary>``. Groups: (1) the date, (2,3,4) the version triple, (5) the PR.
 COMPACT_HEADER_RE = re.compile(
     r"^\*\*(\d{4}-\d{2}-\d{2}) \| " + _SHAPE_VERSION + r" \| PR #([1-9][0-9]*)\*\*(?: - .*)?$",
@@ -488,57 +488,56 @@ CANDIDATE_MARKERS = ("## ", "- **", "**")
 # A date-like token: 3 runs of digits joined by "-" or "/", such as 2026-11-9, 2026/11/10 or
 # 2026-06-21. Unicode-wide, so a date in full-width digits is a candidate and then fails. An X.Y.Z
 # token joined by dots (a version such as 2026.11.66 or a section number such as 6.1.2) is not
-# date-like (EP6, ep5qc L1).
+# date-like.
 DATE_LIKE_RE = re.compile(r"\d+[-/]\d+[-/]\d+")
 
-# A canonical opening (EP8c, ep7qx 2 and ep7qc L2): the heading text of a "## " line, or the
-# first bold span of a "**" or "- **" line, starts (after optional spaces) with "Week of" or
-# with a date-like token that ends the text or is followed, after optional spaces, by "," and
-# a "Version" or "Library Version" label, an X.Y.Z version or a numbered PR identity that ends
-# the text (an optional ":" or "." aside) or is followed by "," or "|" (EP9d, ep9qg L5), so
-# "**2026-11-10, PR #1 follow-up:** none." is a body line, or by "|"
-# and an X.Y.Z version or "MILESTONE:" (EP9b, ep8qg L5), the cell joints of the 2 comparison shapes and the milestone form. A dated note
-# such as "**2026-11-10:** the maintainer ruled.", "- **2026-11-10, 17:07Z:** the maintainer
-# ruled option B." or "**2026-11-10 | review:** done." or a heading such as
-# "## Ruling of 2026-11-10" or "## Follow-up for PR #1" has none, so it is a body line unless it
-# holds a date, a version and a PR identity (the content rule) or starts with a comparison-like
-# triple (TRIPLE_RE).
+# A canonical opening: the heading text of a "## " line, or the first bold span of a "**" or
+# "- **" line, starts (after optional spaces) with "Week of" or with a date-like token that
+# ends the text or is followed, after optional spaces, by "," and a "Version" or "Library
+# Version" label, an X.Y.Z version or a numbered PR identity that ends the text (an optional
+# ":" or "." aside) or is followed by "," or "|", so "**2026-11-10, PR #1 follow-up:** none."
+# is a body line, or by "|" and an X.Y.Z version or "MILESTONE:", the cell joints of the 2
+# comparison shapes and the milestone form. A dated note such as "**2026-11-10:** the
+# maintainer ruled.", "- **2026-11-10, 17:07Z:** the maintainer ruled option B." or
+# "**2026-11-10 | review:** done." or a heading such as "## Ruling of 2026-11-10" or
+# "## Follow-up for PR #1" has none, so it is a body line unless it holds a date, a version
+# and a PR identity (the content rule) or starts with a comparison-like triple (TRIPLE_RE).
 CANONICAL_OPENING_RE = re.compile(
     r"\s*(?:Week of|\d+[-/]\d+[-/]\d+\s*(?:$"
     r"|,\s*(?i:(?:Library\s+)?Version\b|v?\d+\.\d+\.\d+"
     r"|(?:(?:PRs?|pull)\s*#?\s*|#)\d+(?=\s*(?:[,|]|[:.]?\s*$)))"
     r"|\|\s*(?:[vV]?\d+\.\d+\.\d+|(?i:MILESTONE):)))")
 
-# The cell form of a canonical opening: heading text or a first bold span that holds a "|" cell
-# separator together with an X.Y.Z version token (VERSION_TOKEN_RE) or a numbered PR identity
-# (PR_IDENTITY_RE: a PR or PRs label or the word pull followed by a number, with or without
-# "#", or a #N token, case-insensitive, that ends its cell: only spaces and an optional ":" or
-# "." come before the next "|" or the end of the text; EP9d, ep9qg L5), so
-# "**PR #5 | 2026.12.5**" and "**2026-11-10 | PR #2**" are candidates (EP5, ep4qc L2 W5) while
-# "**Gate 59 | 2026-11-10 review:**" and "**2026-11-10 | PR #1 review:** done." are not. A heading such as
-# "## Pull-request checklist" names no number.
+# The cell form of a canonical opening: heading text or a first bold span that holds a "|"
+# cell separator together with an X.Y.Z version token (VERSION_TOKEN_RE) or a numbered PR
+# identity (PR_IDENTITY_RE: a PR or PRs label or the word pull followed by a number, with or
+# without "#", or a #N token, case-insensitive, that ends its cell: only spaces and an
+# optional ":" or "." come before the next "|" or the end of the text), so
+# "**PR #5 | 2026.12.5**" and "**2026-11-10 | PR #2**" are candidates while
+# "**Gate 59 | 2026-11-10 review:**" and "**2026-11-10 | PR #1 review:** done." are not. A
+# heading such as "## Pull-request checklist" names no number.
 VERSION_TOKEN_RE = re.compile(r"\d+\.\d+\.\d+")
 PR_IDENTITY_RE = re.compile(r"(?:\b(?:PRs?|pull)\s*#?\s*|#)\d+(?=\s*[:.]?\s*(?:\||$))",
                             re.IGNORECASE)
 
 # An inline code span; removed (replaced by a space) before any detection, so an archive note
-# that quotes a record in backticks is body text (EP6, ep5qc L1).
+# that quotes a record in backticks is body text.
 CODE_SPAN_RE = re.compile(r"(`+).*?\1")
 
 # Markdown link syntax; flatten() reads it as its link text and URL before mirror content
-# detection (EP7), so a linked date or PR cell is still read. No summary tail is read through it:
-# the strict character rule refuses square brackets in every root line (EP12) and in every mirror
-# canonical line (EP13), so neither holds a link.
+# detection, so a linked date or PR cell is still read. No summary tail is read through it:
+# the strict character rule refuses square brackets in every root line and in every mirror
+# canonical line, so neither holds a link.
 LINK_RE = re.compile(r"!?\[([^\]]*)\]\(\s*<?([^)\s>]*)>?(?:\s+[^)]*)?\)")
 
-# The date-like forms of the content rule (EP7, widened in EP8c after ep7qc L1 and ep7qa): 3 runs
-# of digits joined by "-", "/" or a Unicode dash from U+2010 to U+2015 (a "T" time suffix may
-# follow); a dot-joined year-first date with a month of 1 to 12 and a day of 1 to 31
-# (2026.11.10); a dot-joined day-first date with a day of 1 to 31, a month of 1 to 12 and a
-# 4-digit year (10.11.2026), whose first part is at most 31 and whose last part has 4 digits, so
-# a YYYY.MM.patch version such as 2026.11.67 never matches it; a day and a month name with a
-# year, joined by spaces (10 November 2026, November 10, 2026) or by those dashes (10-Nov-2026,
-# 2026-Nov-10); and the 8-digit form YYYYMMDD with a year from 2000 to 2099 (20261110).
+# The date-like forms of the content rule: 3 runs of digits joined by "-", "/" or a Unicode
+# dash from U+2010 to U+2015 (a "T" time suffix may follow); a dot-joined year-first date
+# with a month of 1 to 12 and a day of 1 to 31 (2026.11.10); a dot-joined day-first date with
+# a day of 1 to 31, a month of 1 to 12 and a 4-digit year (10.11.2026), whose first part is
+# at most 31 and whose last part has 4 digits, so a YYYY.MM.patch version such as 2026.11.67
+# never matches it; a day and a month name with a year, joined by spaces (10 November 2026,
+# November 10, 2026) or by those dashes (10-Nov-2026, 2026-Nov-10); and the 8-digit form
+# YYYYMMDD with a year from 2000 to 2099 (20261110).
 _DATE_SEP = r"[-/\u2010-\u2015]"
 _MONTH = (r"(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?"
           r"|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)")
@@ -554,43 +553,41 @@ _DATE_ANY = (r"\d+" + _DATE_SEP + r"\d+" + _DATE_SEP + r"\d+|" + _DOT_DATE + "|"
              + "|" + _DAY_MONTH + "|" + _MONTH_DAY + "|" + _DASH_MONTH + "|" + _BASIC_DATE)
 DATE_ANY_RE = re.compile(_DATE_ANY, re.IGNORECASE)
 
-# An X.Y.Z version token for the content rule and the root grammar (EP7): a leading "v" and a
+# An X.Y.Z version token for the content rule and the root grammar: a leading "v" and a
 # suffix such as "-rc1" may come with it; a 4-part dotted number is not one.
 VERSION_ANY_RE = re.compile(r"(?<![\w.])v?\d+\.\d+\.\d+(?!\.\d)", re.IGNORECASE)
 
-# A CalVer library version token (EP9b, the orchestrator decision after rounds 7 and 8): an
-# optional "v" or "V", then "20" and 2 digits, a dot, 1 or 2 digits, a dot and digits, not
-# preceded by a digit. Every per-PR record carries one, so the root's intro, its bullets below the
-# first "## Week of" heading and a canonical root line's summary tail hold none, read as written
-# (EP13: the root read removes nothing); a non-CalVer X.Y.Z such as 1.0.2 or 4.0.3 is allowed
-# there.
+# A CalVer library version token: an optional "v" or "V", then "20" and 2 digits, a dot, 1 or 2
+# digits, a dot and digits, not preceded by a digit. Every per-PR record carries one, so the
+# root's intro, its bullets below the first "## Week of" heading and a canonical root line's
+# summary tail hold none, read as written (the root read removes nothing); a non-CalVer X.Y.Z
+# such as 1.0.2 or 4.0.3 is allowed there.
 CALVER_RE = re.compile(r"(?<![0-9])[vV]?20[0-9]{2}\.[0-9]{1,2}\.[0-9]+")
 
-# The strict character rule (EP12 for the root, after rounds 9 to 12 each found a new Markdown form
-# that hid a CalVer version there; EP13 adds the backtick and "*" and the mirror's canonical
-# lines, ep13qs M1 and ep13qx M1; EP13b turns it into an allowlist after ep13qg M2 found GitHub
-# inline math, such as $2026$.11.67, hiding one): a root line that is not blank, and a mirror line
-# that fully matches the canonical compact shape (COMPACT_HEADER_RE), holds only the characters
-# below (ASCII letters, digits, the space and . , : ; - ' " ( ) / # | & % + ? ! = @), "*" only as
-# the 2 bold delimiters of a canonical header (its leading "**" and the "**" that closes its
-# date | version | PR header), and no HTML character reference (an "&" followed by a name, by "#"
-# and decimal digits or by "#x" and hexadecimal digits, and then ";"). A plain "&" is allowed.
-# Every other character is refused, so each new renderer syntax is refused unless this set names
-# its characters. With links, tags, escapes, code spans, emphasis, inline math, brace groups and
-# every character outside printable ASCII refused, those lines are read as written: no link
-# scanner, second read, character-reference decoding, invisible-character removal, NFKC,
-# backtick removal or emphasis removal applies to them.
+# The strict character rule (an allowlist, because new Markdown forms, GitHub inline math such
+# as $2026$.11.67 among them, were found in the earlier repository to hide a CalVer version): a
+# root line that is not blank, and a mirror line that fully matches the canonical compact shape
+# (COMPACT_HEADER_RE), holds only the characters below (ASCII letters, digits, the space and
+# . , : ; - ' " ( ) / # | & % + ? ! = @), "*" only as the 2 bold delimiters of a canonical
+# header (its leading "**" and the "**" that closes its date | version | PR header), and no HTML
+# character reference (an "&" followed by a name, by "#" and decimal digits or by "#x" and
+# hexadecimal digits, and then ";"). A plain "&" is allowed. Every other character is refused,
+# so each new renderer syntax is refused unless this set names its characters. With links,
+# tags, escapes, code spans, emphasis, inline math, brace groups and every character outside
+# printable ASCII refused, those lines are read as written: no link scanner, second read,
+# character-reference decoding, invisible-character removal, NFKC, backtick removal or
+# emphasis removal applies to them.
 ROOT_ALLOWED_CHARS = frozenset("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
                                " .,:;-'\"()/#|&%+?!=@")
 ROOT_CHAR_REFERENCE_RE = re.compile(r"&(?:[A-Za-z][A-Za-z0-9]*|#[0-9]+|#[xX][0-9A-Fa-f]+);")
 
-# A labelled PR identity (EP8, ep7qc M1 and L2), case-insensitive, with the number as the only
-# group that matched: PR or PRs followed by an optional "-", ":", "." or "#", an optional "no."
-# or "number" and an optional "#" (PR #N, PR N, PRN, PR-N, PR: N, PR. N, PR no. N, PR number N);
-# GH-N; owner/repo#N (an owner that starts with a letter or "_" and is not part of a URL path
-# or a longer word) or the bare grc_library#N, the repository's own name only (EP8b), so a word
-# such as issue#42 written with no space is not read as a PR; and pull N, pull request N,
-# pull-request N or a pull/N URL.
+# A labelled PR identity, case-insensitive, with the number as the only group that
+# matched: PR or PRs followed by an optional "-", ":", "." or "#", an optional "no." or
+# "number" and an optional "#" (PR #N, PR N, PRN, PR-N, PR: N, PR. N, PR no. N,
+# PR number N); GH-N; owner/repo#N (an owner that starts with a letter or "_" and is not
+# part of a URL path or a longer word) or the bare grc_library#N, the repository's own
+# name only, so a word such as issue#42 written with no space is not read as a PR; and
+# pull N, pull request N, pull-request N or a pull/N URL.
 _PR_LABELLED = (
     r"\bPRs?\s*(?:[-:.#]\s*)?(?:(?:no\.?|number)\s*)?#?\s*(\d+)"
     r"|\bGH-(\d+)"
@@ -598,11 +595,11 @@ _PR_LABELLED = (
     r"|\bpull(?:[\s-]+request)?\s*[-#/]?\s*(\d+)")
 LABELLED_PR_RE = re.compile(_PR_LABELLED, re.IGNORECASE)
 
-# A numbered PR identity for the content rule and the intro (EP7, widened in EP8): a labelled PR
+# A numbered PR identity for the content rule and the intro: a labelled PR
 # identity or a bare #N token.
 PR_ANY_RE = re.compile(_PR_LABELLED + r"|(?<![\w&])#(\d+)", re.IGNORECASE)
 
-# Markdown emphasis markers (EP8, ep7qx 1), removed before any version, date or PR detection: a
+# Markdown emphasis markers, removed before any version, date or PR detection: a
 # run of "*" that touches a character other than a space on either side, and a run of "_" that
 # opens emphasis (no letter or digit before it, a character other than a space after it) or
 # closes it (a character other than a space before it, no letter or digit after it). A "* " list
@@ -611,9 +608,9 @@ EMPHASIS_RE = re.compile(
     r"\*+(?=\S)|(?<=\S)\*+|(?<![^\W_])_+(?=[^\s_])|(?<=[^\s_])_+(?![^\W_])")
 
 # A markup-only opening (spaces, tabs, a no-break space, a byte order mark, quote markers, then
-# list markers, "1." numbers or "#" heading markers, each followed by a space or a tab), and the
-# bold milestone form behind one (EP7, ep6qc M2): "* **2026-07-29 | MILESTONE:** ..." is a
-# milestone moved off column 0, so it is a candidate that the milestone exemption never excuses.
+# list markers, "1." numbers or "#" heading markers, each followed by a space or a tab), and
+# the bold milestone form behind one: "* **2026-07-29 | MILESTONE:** ..." is a milestone moved
+# off column 0, so it is a candidate that the milestone exemption never excuses.
 OPENING_RE = re.compile(r"[ \t\u00a0\ufeff>]*(?:(?:[-*+]|\d+[.)]|#{1,6})[ \t\u00a0]+)*")
 LOOSE_MILESTONE_RE = re.compile(r"\*\*\s*[^\s|*]+\s*\|\s*MILESTONE:", re.IGNORECASE)
 
@@ -621,15 +618,15 @@ LOOSE_MILESTONE_RE = re.compile(r"\*\*\s*[^\s|*]+\s*\|\s*MILESTONE:", re.IGNOREC
 # en dash or em dash followed by a space, with bold or underscore markers allowed around it.
 _JOINT = r"[\s*_]*(?:[,|;]|[-\u2013\u2014](?=\s))[\s*_]*"
 
-# A comparison-like triple at the start of a line's content (EP5, anchored in EP6 after ep5qc L1):
-# an opening of markup only (non-word characters, underscores and ordered-list numbers such as
-# "1."), then a date-like token, an X.Y.Z version (optionally labelled or prefixed "v") and a PR
-# cell (PR #N, PR N, PRN, pull N, pull request N, #N, or a bare number that closes its cell,
-# optionally after "(" or "["), joined by _JOINT (the version and the PR cell may also be joined
-# by an opening "(" or "["). Unicode-wide (digits and spaces), so a no-break space or full-width
-# digits do not hide a line. Used with match(), so a triple that follows words on its line is
-# body text. A line holding one must be a column-0 full match of a comparison shape or fail. An
-# underscore may touch the date (``__2026-11-10 | ...__``); a dot cannot directly precede it.
+# A comparison-like triple at the start of a line's content: an opening of markup only
+# (non-word characters, underscores and ordered-list numbers such as "1."), then a date-like
+# token, an X.Y.Z version (optionally labelled or prefixed "v") and a PR cell (PR #N, PR N,
+# PRN, pull N, pull request N, #N, or a bare number that closes its cell, optionally after "("
+# or "["), joined by _JOINT (the version and the PR cell may also be joined by an opening "("
+# or "["). Unicode-wide (digits and spaces), so a no-break space or full-width digits do not
+# hide a line. Used with match(), so a triple that follows words on its line is body text. A
+# line holding one must be a column-0 full match of a comparison shape or fail. An underscore
+# may touch the date (``__2026-11-10 | ...__``); a dot cannot directly precede it.
 TRIPLE_RE = re.compile(
     r"(?:[\W_]|\d+[.)](?=\s))*?"
     r"(?<!\.)\d+[-/]\d+[-/]\d+(?![^\W_])"
@@ -644,12 +641,12 @@ TRIPLE_RE = re.compile(
 LEAD_TOKEN_RE = re.compile(r"\w+(?:[-/.]\w+)*")
 
 # A year-first date with "-" or "/" separators and 1 or 2 digit months and days. The first one on
-# a line (its first date cell) decides whether the line is an old-repository record (EP6).
+# a line (its first date cell) decides whether the line is an old-repository record.
 LOOSE_DATE_RE = re.compile(r"(?<![0-9])([0-9]{4})([-/])([0-9]{1,2})\2([0-9]{1,2})(?![0-9])",
                            re.ASCII)
 
 # The other date forms that decide an old-repository record when a line has no year-first date
-# joined by "-" or "/" (EP7): a day and a month name with a year, then a dot-joined date.
+# joined by "-" or "/": a day and a month name with a year, then a dot-joined date.
 MONTHS = {name: number for number, name in enumerate(
     ("jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"), start=1)}
 NAMED_DATE_RE = re.compile(
@@ -659,16 +656,15 @@ NAMED_DATE_RE = re.compile(
 DOT_DATE_RE = re.compile(r"(?<![\w.])([0-9]{4})\.([0-9]{1,2})\.([0-9]{1,2})(?![\w]|\.[0-9])",
                          re.ASCII)
 
-# The parts of the other DATE_ANY_RE tokens that decide an old-repository record when a line has
-# no year-first date joined by ASCII "-" or "/" (EP9b, the EP8c open item): 3 runs of digits joined
-# by "-", "/" or a Unicode dash (year-first when the first run has 4 digits, day-first when the
-# last has), a day-first dot-joined date, a day and a month name joined by dashes in either order,
-# and the 8-digit form. These parts patterns are ASCII-only, like the other shape patterns, so a
-# date in full-width digits yields no date parts here (_date_parts returns None) and never
-# decides an old-repository record. DATE_ANY_RE itself stays Unicode-wide on purpose, like the
-# other candidate detectors (EP9d, ep9qa date wording): the mirror's content rule reads it
-# without NFKC, so a mirror line whose only date is in full-width digits is still a candidate
-# and then fails.
+# The parts of the other DATE_ANY_RE tokens that decide an old-repository record when a line
+# has no year-first date joined by ASCII "-" or "/": 3 runs of digits joined by "-", "/" or a
+# Unicode dash (year-first when the first run has 4 digits, day-first when the last has), a
+# day-first dot-joined date, a day and a month name joined by dashes in either order, and the
+# 8-digit form. These parts patterns are ASCII-only, like the other shape patterns, so a date
+# in full-width digits yields no date parts here (_date_parts returns None) and never decides
+# an old-repository record. DATE_ANY_RE itself stays Unicode-wide on purpose, like the other
+# candidate detectors: the mirror's content rule reads it without NFKC, so a mirror line whose
+# only date is in full-width digits is still a candidate and then fails.
 _SEP_PARTS_RE = re.compile(r"([0-9]+)" + _DATE_SEP + r"([0-9]+)" + _DATE_SEP + r"([0-9]+)",
                            re.ASCII)
 _DMY_DOT_PARTS_RE = re.compile(r"([0-9]{1,2})\.([0-9]{1,2})\.([0-9]{4})", re.ASCII)
@@ -685,7 +681,7 @@ EXPECTED_SHAPES = ("**YYYY-MM-DD | X.Y.Z | PR #N** (optionally followed by \" - 
                    "are ## Week of YYYY-MM-DD, **Week of YYYY-MM-DD (PRs #A-#B)** and "
                    "**YYYY-MM-DD | MILESTONE:**")
 
-# The root grammar (EP6): the title line, the opening of an intro line, the heading that ends the
+# The root grammar: the title line, the opening of an intro line, the heading that ends the
 # per-PR region, and the canonical per-PR shape named in every root failure message.
 ROOT_TITLE = "# Changelog"
 INTRO_START_RE = re.compile(r"[^\W\d_]")
@@ -721,7 +717,7 @@ def pr_headers(
     zeros preserved), for failure messages. Dates are checked by ``entry_findings``, not here.
     With ``root=True`` (the root ``.working/CHANGELOG.md``) the text is split on LF only
     (``lf_lines``), as ``root_findings`` splits it, so the line numbers match the strict
-    character rule's (EP13b); otherwise (the mirror) it is split with ``str.splitlines``, as
+    character rule's; otherwise (the mirror) it is split with ``str.splitlines``, as
     ``entry_findings`` and the store-scope deferral flags split it.
     """
     records: list[tuple[int, int, tuple[int, int, int] | None, str]] = []
@@ -758,7 +754,7 @@ def _valid_date(text: str) -> datetime.date | None:
 
 def flatten(line: str) -> str:
     """``line`` with inline code spans removed, Markdown links read as their text and URL, and
-    Markdown emphasis markers removed (EP8, ep7qx 1)."""
+    Markdown emphasis markers removed."""
     return EMPHASIS_RE.sub("", LINK_RE.sub(r"\1 \2", CODE_SPAN_RE.sub(" ", line)))
 
 
@@ -780,14 +776,14 @@ def version_and_date(text: str) -> bool:
 
 def content_triple(text: str) -> bool:
     """``True`` when ``text`` holds a date-like token, an ``X.Y.Z`` version and a numbered PR
-    identity, in any order (EP7); the date and the version must be separate tokens."""
+    identity, in any order; the date and the version must be separate tokens."""
     return PR_ANY_RE.search(text) is not None and version_and_date(text)
 
 
 def root_character_findings(line: str) -> list[tuple[int, str]]:
     """``(column, what)`` for each character and each HTML character reference in ``line`` (a root
     line, or a mirror line that fully matches ``COMPACT_HEADER_RE``) that the strict character rule
-    refuses (EP12; EP13; an allowlist since EP13b), in column order. ``column`` counts characters
+    refuses (an allowlist), in column order. ``column`` counts characters
     from 1; ``what`` names a refused character by its code point (every character that is not in
     ``ROOT_ALLOWED_CHARS`` and is not a ``*`` that is one of the 2 bold delimiters of a canonical
     header: the leading ``**`` and the ``**`` that closes the ``date | version | PR`` header) or
@@ -810,25 +806,25 @@ def root_character_findings(line: str) -> list[tuple[int, str]]:
 
 def calver_versions(line: str) -> list[str]:
     """The CalVer library version tokens (``CALVER_RE``) in the root line ``line``, read as
-    written (EP9b; EP13, ep13qs M1: the strict character rule refuses every backtick and every
+    written (the strict character rule refuses every backtick and every
     ``*`` but a canonical header's bold delimiters, so the root read removes nothing). A root
     bullet below the first ``## Week of`` heading or a canonical root line's summary tail fails
-    when this is not empty; it replaces the EP8 version-with-date and version-with-labelled-PR
+    when this is not empty; it replaces the earlier version-with-date and version-with-labelled-PR
     rules there. Each version is listed once, in the order read."""
     return list(dict.fromkeys(CALVER_RE.findall(line)))
 
 
 def root_tail_versions(line: str, match: re.Match) -> list[str]:
-    """The CalVer library versions a canonical root line's summary tail holds (EP9b); ``match`` is
+    """The CalVer library versions a canonical root line's summary tail holds; ``match`` is
     the ``COMPACT_HEADER_RE`` match of ``line``."""
     return calver_versions(line[match.end(5) + 2:])
 
 
 def tail_prs(line: str, match: re.Match) -> list[int]:
-    """The other PRs a canonical compact mirror line's summary tail names as a record (EP8, ep7qc
-    L3); the root reads its tails with ``root_tail_versions`` instead (EP9b).
+    """The other PRs a canonical compact mirror line's summary tail names as a record; the root
+    reads its tails with ``root_tail_versions`` instead.
 
-    The tail is read as written, as the root reads its lines (EP13, ep13qx M1, ep13qa M1): the
+    The tail is read as written, as the root reads its lines: the
     strict character rule holds every mirror canonical line, so the tail holds no link, code
     span, emphasis, escape, character reference or character outside printable ASCII to read
     around (``entry_findings``).
@@ -846,7 +842,7 @@ def tail_prs(line: str, match: re.Match) -> list[int]:
 
 def misplaced_milestone(text: str) -> bool:
     """``True`` when ``text`` holds the bold milestone form behind a non-empty markup-only
-    opening (EP7, ep6qc M2), such as ``* **2026-07-29 | MILESTONE:** split landed.``."""
+    opening, such as ``* **2026-07-29 | MILESTONE:** split landed.``."""
     opening = OPENING_RE.match(text)
     return opening.end() > 0 and LOOSE_MILESTONE_RE.match(text, opening.end()) is not None
 
@@ -855,14 +851,13 @@ def candidate_text(line: str) -> tuple[str, str] | None:
     """``(rest, span)`` when ``line`` is an entry candidate by its canonical opening, else
     ``None``.
 
-    The opening rule (EP4, narrowed in EP5, corrected in EP6, narrowed to canonical openings in
-    EP8c after ep7qx 2 and ep7qc L2): a line that starts at column 0 with ``## ``, ``**`` or
+    The opening rule: a line that starts at column 0 with ``## ``, ``**`` or
     ``- **`` (a list-item bold line) is a candidate when its heading text (after ``## ``) or its
     first bold span (after ``**`` or ``- **``) matches ``CANONICAL_OPENING_RE`` (it starts with
     ``Week of`` or with a date-like token that ends that text or is followed by ``,`` and a
     ``Version`` label, a version or a numbered PR identity that ends that text or is followed
-    by ``,`` or ``|``, or by ``|`` and an ``X.Y.Z`` version or ``MILESTONE:``; EP9b, ep8qg L5;
-    EP9d, ep9qg L5) or is in the cell form (it holds a ``|`` cell separator together with an
+    by ``,`` or ``|``, or by ``|`` and an ``X.Y.Z`` version or ``MILESTONE:``)
+    or is in the cell form (it holds a ``|`` cell separator together with an
     ``X.Y.Z`` version or a numbered PR identity that ends its cell).
     ``rest`` is the line after its marker and ``span`` is the heading text or the first bold
     span (the rest of the line when the bold span is not closed). The caller passes the line with
@@ -887,9 +882,9 @@ def _first_date(text: str) -> tuple[str, datetime.date | None] | None:
     The first year-first date joined by ASCII ``-`` or ``/`` decides; when there is none, the
     first ``DATE_ANY_RE`` token in any other form apart from a dot-joined year-first date
     (``_date_parts``: a date joined by a Unicode dash, a day-first date with a 4-digit year, a day
-    and a month name with a year, or the 8-digit form; EP7, widened in EP9b after the EP8c open
-    item, so ``21-Jun-2026`` decides before the version ``2026.06.9``); when there is neither,
-    the first dot-joined year-first date (EP7). ``date`` is ``None`` when the token is not a
+    and a month name with a year, or the 8-digit form, so
+    ``21-Jun-2026`` decides before the version ``2026.06.9``); when there is neither,
+    the first dot-joined year-first date. ``date`` is ``None`` when the token is not a
     calendar date.
     """
     m = LOOSE_DATE_RE.search(text)
@@ -916,7 +911,7 @@ def _first_date(text: str) -> tuple[str, datetime.date | None] | None:
 def _date_parts(token: str) -> tuple[str, str, str] | None:
     """``(year, month, day)`` of a ``DATE_ANY_RE`` token, or ``None`` for a dot-joined year-first
     date (read last, by ``DOT_DATE_RE``) and for 3 runs of digits with no 4-digit year at either
-    end (EP9b)."""
+    end."""
     m = _SEP_PARTS_RE.fullmatch(token)
     if m is not None:
         first, middle, last = m.groups()
@@ -938,7 +933,7 @@ def _old_date(text: str) -> str | None:
     """The first date in ``text`` (``_first_date``) when it is a calendar date before
     ``EPOCH_START``.
 
-    Only the first date cell decides (EP6, ep5qc L1): a new entry that cites an older date later
+    Only the first date cell decides: a new entry that cites an older date later
     on its line is not an old-repository record.
     """
     first = _first_date(text)
@@ -952,7 +947,7 @@ class EntryFindings:
 
     ``old`` holds ``(lineno, prs, date)``, ``unparseable`` holds ``(lineno, token)``,
     ``unreadable`` holds ``(lineno, line)``, ``multi`` holds ``(lineno, prs)`` and ``floor``
-    holds ``(lineno, pr, version_text)``. ``below`` stays empty (EP9b, ep8qg L7): every
+    holds ``(lineno, pr, version_text)``. ``below`` stays empty: every
     comparison shape needs a PR number of 1 or more, so ``PR #0`` fails as ``unreadable``; it is
     kept so that ``shape_findings`` keeps its return shape. The root alone
     fills ``grammar`` (``(lineno, line)``, a line above its first ``## Week of`` heading outside
@@ -960,10 +955,10 @@ class EntryFindings:
     heading) and ``weekly`` (``(lineno, line)``, any other line at or below that heading that is
     not a valid ``## Week of`` heading, a blank line or an allowed ``- `` bullet) and
     ``calver_tail`` (``(lineno, pr, versions)``, a canonical line whose summary tail holds a
-    CalVer library version; EP9b) and ``chars`` (``(lineno, column, what)``, a character or an
-    HTML character reference the strict character rule refuses; EP12), which every mirror
-    canonical line fills too (EP13). ``tail`` holds ``(lineno, pr, other_prs)`` for a canonical
-    compact mirror line whose summary tail names another PR's record (EP8, ep7qc L3).
+    CalVer library version) and ``chars`` (``(lineno, column, what)``, a character or an
+    HTML character reference the strict character rule refuses), which every mirror
+    canonical line fills too. ``tail`` holds ``(lineno, pr, other_prs)`` for a canonical
+    compact mirror line whose summary tail names another PR's record.
     """
 
     def __init__(self) -> None:
@@ -997,13 +992,13 @@ def _classify_line(found: EntryFindings, lineno: int, line: str, root: bool = Fa
     """Classify one line by the mirror rules; ``True`` when it recorded a failure in ``found``.
 
     ``root`` is true for a root line, whose summary tail ``root_findings`` reads by the CalVer
-    rule instead of the mirror's tail rule (EP9b).
+    rule instead of the mirror's tail rule.
 
     A table row is skipped, inline code spans are removed and Markdown links are flattened before
     detection, and Markdown emphasis markers are removed before the content rule and the date
-    reading (``flatten``, EP8). A line that starts with a comparison-like triple (``TRIPLE_RE``),
-    holds a date, a version and a PR identity in any order (``content_triple``, EP7) or holds the
-    milestone form behind an opening (``misplaced_milestone``, EP7) and is not a column-0 full
+    reading (``flatten``). A line that starts with a comparison-like triple (``TRIPLE_RE``),
+    holds a date, a version and a PR identity in any order (``content_triple``) or holds the
+    milestone form behind an opening (``misplaced_milestone``) and is not a column-0 full
     match of a comparison shape fails first: as ``old`` when its first date (``_first_date``: the
     first year-first date joined by ``-`` or ``/``, else the first date in another form the
     content rule reads apart from a dot-joined year-first date, else the first dot-joined
@@ -1022,19 +1017,19 @@ def _classify_line(found: EntryFindings, lineno: int, line: str, root: bool = Fa
     4. a line that fully matches one of the 2 comparison shapes is compared; a version below
        ``VERSION_FLOOR`` makes it an old-repository record (``floor``) whatever its date, and a
        compact mirror line whose summary tail holds an ``X.Y.Z`` version and a labelled PR
-       identity naming another number fails as ``tail`` (EP8, ep7qc L3). The shapes read only
+       identity naming another number fails as ``tail``. The shapes read only
        a PR number of 1 or more, so ``PR #0`` (below ``CUTOFF_PR``) matches no shape and fails
-       as ``unreadable`` under rule 7 (EP9b, ep8qg L7);
+       as ``unreadable`` under rule 7;
     5. a date that is not a valid ASCII ``YYYY-MM-DD`` calendar date in a matched shape, or a
        date-like token right after the marker, fails as ``unparseable``; a date elsewhere on a
        line that matches no shape (``- 2026/11/09 | 2026.11.66 | PR #1``) is not read here, and
-       the line fails as ``unreadable`` (EP9b, ep8qg L7);
+       the line fails as ``unreadable``;
     6. a legacy-shaped line naming more than 1 PR fails as ``multi`` (one header per PR);
     7. every other candidate fails as ``unreadable``, with a message naming the expected shapes
        (a malformed bold ``Week of`` line among them).
     """
     if line.lstrip(" \t").startswith("|"):
-        return False  # a table row (EP6, ep5qc L1)
+        return False  # a table row
     scan = CODE_SPAN_RE.sub(" ", line)
     plain = flatten(line)
     full = HEADER_RE.match(line) or COMPACT_HEADER_RE.match(line)
@@ -1044,7 +1039,7 @@ def _classify_line(found: EntryFindings, lineno: int, line: str, root: bool = Fa
     if candidate is None:
         if not loose:
             return False
-        # A triple behind any other opening (EP5): never compared, always a failure.
+        # A triple behind any other opening: never compared, always a failure.
         old = _old_date(plain)
         if old is not None:
             found.old.append((lineno, _named_prs(line), old))
@@ -1094,7 +1089,7 @@ def entry_findings(text: str) -> EntryFindings:
     Lines are read raw, with no cutoff and no deferral, over the same ``splitlines()`` view as
     ``pr_headers``, so the line numbers agree. See ``_classify_line`` for the rules. Every line
     that fully matches ``COMPACT_HEADER_RE`` also meets the strict character rule
-    (``root_character_findings``; EP13, ep13qx M1), and its line ending must be LF, CR LF or the
+    (``root_character_findings``), and its line ending must be LF, CR LF or the
     end of the file: a line that ``splitlines()`` ends at another line boundary (a vertical tab,
     a form feed, U+001C to U+001E, U+0085, U+2028 or U+2029, none of which ends a line in
     Markdown) fails as ``chars`` at the column of that character.
@@ -1114,30 +1109,30 @@ def entry_findings(text: str) -> EntryFindings:
 
 
 def root_findings(text: str) -> EntryFindings:
-    """Check the root ``text`` against the root grammar (EP6, EP7, EP8); fail every other line.
+    """Check the root ``text`` against the root grammar; fail every other line.
 
-    ``main`` removes at most 1 leading byte order mark, once, before it calls this (EP7, ep6qc L3;
-    EP13b): this function removes none, so a byte order mark left in ``text`` fails line 1 by the
-    strict character rule. The text is split on LF only (``lf_lines``; EP13). Every line that is
-    not blank then meets the strict character rule (EP12; EP13; an allowlist since EP13b): each
+    ``main`` removes at most 1 leading byte order mark, once, before it calls this:
+    this function removes none, so a byte order mark left in ``text`` fails line 1 by the
+    strict character rule. The text is split on LF only (``lf_lines``). Every line that is
+    not blank then meets the strict character rule (an allowlist): each
     character outside ``ROOT_ALLOWED_CHARS``, each ``*`` other than a canonical header's 2 bold
     delimiters and each HTML character reference fails as ``chars``, with its column
     (``root_character_findings``). The intro,
-    weekly-bullet and summary-tail rules read each line as written (EP13), and every other line
+    weekly-bullet and summary-tail rules read each line as written, and every other line
     through the mirror rules. Above the first ``## Week of``
     heading (the whole file when it has none) only these lines pass: the ``# Changelog`` title as
-    the first non-blank line (EP8, ep7qa: when the first non-blank line of the file is anything
+    the first non-blank line (when the first non-blank line of the file is anything
     else, that line fails as ``grammar``, and an empty root fails at line 1), the intro paragraph directly after it (blank lines may come
     between; each line starts with a letter and holds no date-like token, no ``X.Y.Z`` version,
     no CalVer library version and no numbered PR identity (``PR_ANY_RE``: a labelled PR identity
     or a bare ``#N``)), blank lines (empty or only spaces and tabs) and canonical per-PR lines
     (``COMPACT_HEADER_RE`` in full, then the mirror rules' date and ``VERSION_FLOOR`` checks, and
-    a summary tail that holds no CalVer library version, else ``calver_tail``; EP9b). Every
+    a summary tail that holds no CalVer library version, else ``calver_tail``). Every
     other line there fails: with its mirror-rule failure when the
     mirror rules fail it, otherwise as ``old`` when its first date is before ``EPOCH_START``, and
-    otherwise as ``grammar``. At and below that heading (EP7) only ``## Week of`` headings with a
+    otherwise as ``grammar``. At and below that heading only ``## Week of`` headings with a
     valid date, blank lines and ``- `` bullets for which ``calver_versions`` is empty (no
-    CalVer library version; EP9b, which replaces the EP8 version-with-date and
+    CalVer library version, which replaces the earlier version-with-date and
     version-with-labelled-PR rules) pass: a comparison-shape line fails as ``late``, a weekly heading with an invalid date as
     ``unparseable`` and every other line as ``weekly``.
     """
@@ -1149,7 +1144,7 @@ def root_findings(text: str) -> EntryFindings:
                                for column, what in root_character_findings(line))
     week = next((i for i, line in enumerate(lines) if line.startswith(WEEK_PREFIX)), len(lines))
     state = "start"  # start, then title, then intro, then body
-    untitled = None  # the first non-blank line when it is not the title (EP8, ep7qa)
+    untitled = None  # the first non-blank line when it is not the title
     for index, line in enumerate(lines[:week]):
         lineno = index + 1
         if line.strip(" \t") == "":
@@ -1164,7 +1159,7 @@ def root_findings(text: str) -> EntryFindings:
                 continue
             untitled = (lineno, line)
         elif state in ("title", "intro"):
-            # EP12 and EP13: the strict character rule above leaves no link, escape, code span,
+            # The strict character rule above leaves no link, escape, code span,
             # emphasis or hidden character to read around, so the line is read as written.
             if INTRO_START_RE.match(line) and not (
                     DATE_LIKE_RE.search(line) or VERSION_ANY_RE.search(line)
@@ -1209,13 +1204,13 @@ def root_findings(text: str) -> EntryFindings:
 
 
 def strip_bom(text: str) -> str:
-    """``text`` without 1 leading U+FEFF byte order mark (EP7, ep6qc L3). ``main`` calls it once per
-    surface; a second leading mark stays and fails line 1 by the strict character rule (EP13b)."""
+    """``text`` without 1 leading U+FEFF byte order mark. ``main`` calls it once per
+    surface; a second leading mark stays and fails line 1 by the strict character rule."""
     return text[1:] if text.startswith("\ufeff") else text
 
 
 def lf_lines(text: str) -> list[str]:
-    """The root ``text`` split into lines on LF only (EP13, ep13qx L1 and ep13qs L1). A CR
+    """The root ``text`` split into lines on LF only. A CR
     directly before an LF is part of that line ending and removed; every other character (a lone
     CR, a vertical tab, a form feed, U+001C to U+001E, U+0085, U+2028 and U+2029 among them)
     stays in its line, where the strict character rule refuses it, so line numbers count LF line
@@ -1246,8 +1241,8 @@ def shape_findings(text: str) -> tuple[list[tuple[int, str]], list[tuple[int, in
     """``(unreadable, below)`` from ``entry_findings``.
 
     ``unreadable`` holds ``(lineno, line)`` for each entry candidate that matches no
-    comparison shape and no named exempt shape. ``below`` is always empty (EP9b, ep8qg L7;
-    EP9d, ep9qg L4): every comparison shape needs a PR number of 1 or more, so a line naming
+    comparison shape and no named exempt shape. ``below`` is always empty:
+    every comparison shape needs a PR number of 1 or more, so a line naming
     ``PR #0`` (below ``CUTOFF_PR``) is in ``unreadable``; it is kept for the return shape.
     """
     found = entry_findings(text)
@@ -1345,7 +1340,7 @@ def print_shape_failures(where: str, unreadable: list[tuple[int, str]],
                          expected: str = EXPECTED_SHAPES) -> None:
     """Print the FAIL lines for entry candidates the comparison cannot fully read.
 
-    No below-``CUTOFF_PR`` line is printed (EP9d, ep9qg L4): a ``PR #0`` line matches no
+    No below-``CUTOFF_PR`` line is printed: a ``PR #0`` line matches no
     comparison shape, so it is printed with the unreadable lines.
     """
     if unreadable:
@@ -1428,12 +1423,12 @@ def version_mismatches(
     """PRs present in BOTH files whose Library Versions DIFFER.
 
     Returns ``(pr, root_version_text, mirror_version_text)`` triples, ordered by
-    PR. The gate previously checked set parity of PR numbers and strict
-    monotonicity WITHIN each file, but never that a PR present in both carried
-    the SAME version in each, so a mirror could record a version that was never
-    shipped while both files stayed independently monotonic and their PR sets
-    matched (PR #1155: root and README both said 2026.07.642, the mirror said
-    2026.07.641).
+    PR. In the earlier repository the gate checked set parity of PR numbers and
+    strict monotonicity WITHIN each file, but never that a PR present in both
+    carried the SAME version in each, so a mirror could record a version that
+    was never shipped while both files stayed independently monotonic and their
+    PR sets matched (there, one PR's root and README entries both said
+    2026.07.642 while the mirror said 2026.07.641).
 
     Two deliberate exclusions, and 1 tightening:
 
@@ -1441,7 +1436,7 @@ def version_mismatches(
       already tolerates for the ordering assertion; such a pair is SKIPPED here
       too rather than reported, so this check cannot start failing on a shape the
       rest of the gate accepts.
-    - EP7 (ep6qc L4): the version texts must also be identical, so a zero-padded part on one
+    - The version texts must also be identical, so a zero-padded part on one
       side only (``2026.06.9`` against ``2026.6.9``) is a disagreement.
     - A PR appearing MORE THAN ONCE in either file is already a failure via the
       existing duplicate checks, so this join assumes at most one record per PR
@@ -1478,10 +1473,10 @@ def main(argv: list[str]) -> int:
     args = parser.parse_args(argv)
 
     if args.root is not None:
-        # EXPLICIT --root stays verbatim: the regression fixtures build a
-        # synthetic tree with its own .working/changelog-details/, read as given.
-        # 3b50b1: an explicit --root must be a directory holding both inputs; a missing input
-        # used to raise a traceback (rc 1, the findings code).
+        # EXPLICIT --root stays verbatim: the regression fixtures build a synthetic tree
+        # with its own .working/changelog-details/, read as given. An explicit --root
+        # must be a directory holding both inputs; in the earlier repository a missing
+        # input raised a traceback (rc 1, the findings code).
         root = require_dir(args.root, "--root")
         root_changelog = root / ROOT_CHANGELOG_REL
         detailed_mirror = root / DETAILED_MIRROR_REL
@@ -1495,18 +1490,18 @@ def main(argv: list[str]) -> int:
         root_changelog = REPO_ROOT / ROOT_CHANGELOG_REL
         resolved = resolve_working("changelog-details/CHANGELOG-detailed.md")
         if resolved is None:
-            # The detailed mirror is maintainer-only working state. Once
-            # `.working/` moves to the operational store it is absent in public CI
-            # and adopter clones; on the maintainer's machine the operational store (or the
-            # private-sibling fallback) supplies it and per-PR header parity, version
-            # agreement, and ordering are all enforced. Every root check that needs no mirror
-            # runs here too (a readable UTF-8 root, entry classification, and the
-            # root's duplicate and ordering checks), so a bad root fails in CI.
+            # The detailed mirror is maintainer-only working state. Once `.working/` moves
+            # to the operational store it is absent in public CI and adopter clones; on the
+            # maintainer's machine the operational store (or the private-sibling fallback)
+            # supplies it and per-PR header parity, version agreement, and ordering are all
+            # enforced. Every root check that needs no mirror runs here too (a readable
+            # UTF-8 root, entry classification, and the root's duplicate and ordering
+            # checks), so a bad root fails in CI.
             root_text, root_err = read_surface(root_changelog)
             if root_text is None:
                 print_unreadable_files([(f"root {ROOT_CHANGELOG_REL}", root_err)])
                 return 1
-            root_text = strip_bom(root_text)  # at most 1 byte order mark, once (EP13b)
+            root_text = strip_bom(root_text)  # at most 1 byte order mark, once
             root_found = root_findings(root_text)
             root_skip = root_found.lines()
             root_records = [r for r in pr_headers(root_text, cutoff=CUTOFF_PR, root=True)
@@ -1556,10 +1551,10 @@ def main(argv: list[str]) -> int:
         detailed_mirror = resolved
         scope_root = REPO_ROOT
 
-    # Both surfaces are read RAW (the 2026-09-30 ruling: no example masking anywhere in the store
-    # scope), exactly as the pre-store-scope gate read them, so no record can be removed from
-    # evaluation by a mask. No floor is computed (EP2): every post-epoch header is compared in
-    # both files, and only store-scope deferral below removes a mirror header, with a note.
+    # Both surfaces are read RAW (no example masking anywhere in the store scope), exactly as
+    # the pre-store-scope gate read them, so no record can be removed from evaluation by a
+    # mask. No floor is computed: every post-epoch header is compared in both files, and only
+    # store-scope deferral below removes a mirror header, with a note.
     root_text, root_err = read_surface(root_changelog)
     mirror_text, mirror_err = read_surface(detailed_mirror)
     unreadable_files = [(where, err) for where, err in (
@@ -1568,8 +1563,8 @@ def main(argv: list[str]) -> int:
     if unreadable_files:
         print_unreadable_files(unreadable_files)
         return 1
-    root_text = strip_bom(root_text)  # at most 1 byte order mark, once (EP13b)
-    mirror_text = strip_bom(mirror_text)  # EP8 (ep7qc L5): as for the root
+    root_text = strip_bom(root_text)  # at most 1 byte order mark, once
+    mirror_text = strip_bom(mirror_text)  # as for the root
     cutoff = CUTOFF_PR
     # Entry classification, on the raw surfaces and BEFORE any deferral: the root must follow
     # its grammar (root_findings) and every mirror entry candidate must fully match a

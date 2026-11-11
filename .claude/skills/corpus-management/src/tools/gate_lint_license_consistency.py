@@ -7,14 +7,15 @@ NOT fence-aware: it scans raw physical lines), its value taken after the label w
 a trailing CommonMark hard-break backslash stripped; a value differing from the
 canonical string is a finding.
 
-Engine/wrapper split (SHARED/SAFETY lane PR-34, Pattern A): this engine carries the
-canonical string (``CANONICAL_LICENSE``) and the pure ``scan``; the project wrapper
-(``.claude/skills/corpus-management/tools/lint-license-consistency.py``) supplies the grc scan scope
-(``iter_markdown_targets``) and the grc-specific exempt-file set (files whose License
-value is nuanced by design, e.g. ``NOTICE.md``), the grouped reporting in ``main``,
-and keeps a thin module-global ``scan`` shim delegating here so the scan-scope
-regression test (which patches ``mod.scan`` and runs ``main``) observes the original
-signature and behaviour. The engine's ``scan`` is scope-free and repo_root-free.
+Engine/wrapper split: this engine carries the canonical string
+(``CANONICAL_LICENSE``) and the pure ``scan``; the project wrapper
+(``.claude/skills/corpus-management/tools/lint-license-consistency.py``) supplies
+the grc scan scope (``iter_markdown_targets``) and the grc-specific exempt-file
+set (files whose License value is nuanced by design, e.g. ``NOTICE.md``), the
+grouped reporting in ``main``, and keeps a thin module-global ``scan`` shim
+delegating here so the scan-scope regression test (which patches ``mod.scan`` and
+runs ``main``) observes the original signature and behaviour. The engine's
+``scan`` is scope-free and repo_root-free.
 
 Exit codes (the wrapper returns these): 0 clean; 1 one or more findings.
 """

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Run a shell command string with gh and git replaced by recording stand-ins (P-TODO 3b116).
+"""Run a shell command string with gh and git replaced by recording stand-ins.
 
 Hook and guard verification sometimes has to confirm how a real shell treats a command string (does bash
 join this continuation, does `sh -c` run this). Doing that with a shell-FUNCTION stub is unsafe: a nested
-`sh -c` does not inherit bash functions, and on 2026-09-27 such a check ran the real `gh pr merge 1`
-against the live repository (no effect, the PR was long merged). A first design here layered environment
-tricks and name-matching refusals; review showed ordinary shell forms defeat each of those, so this version
-leans on an enforcement mechanism bash itself provides:
+`sh -c` does not inherit bash functions. In the earlier repository, on 2026-09-27, such a check ran a
+real `gh pr merge` against the live repository (no effect, the pull request was long merged), and a
+previous design there layered environment tricks and name-matching refusals; ordinary shell forms defeat
+each of those, so this version leans on an enforcement mechanism bash itself provides:
 
   1. Restricted bash (`bash --norc --noprofile -r`) runs the command, with PATH set to a read-only directory
      holding only: gh and git stand-ins (isolated Python recorders, not shells, so no function the command
@@ -50,26 +50,25 @@ Exit codes: 0 ran (or self-test passed); 1 self-test failed; 2 usage error; 3 pr
 still alive at the kill deadline or the shell could not be reaped within the cleanup deadlines.
 
 Self-test stage sigterm-cleans-up: when its wait for the SIGTERMed probe's exit reaches the deadline, it prints,
-before killing the probe and on stderr, lines prefixed `sigterm-cleans-up: probe-exit-wait-timeout: ` (3b363):
-the /proc status lines State, SigPnd, ShdPnd, SigBlk, SigIgn and SigCgt, the wchan and the open file descriptors
-(count and the escaped readlink targets of the first 32) of the probe, then of its direct children (the fixture
-watcher among them), the run's session, the probe's process group and its session, in that order (at most 64
-after the probe), then the Python thread stacks (faulthandler on SIGUSR1) of the probe and of the fixture watcher.
-Only those two are signalled, as they are known to run faulthandler on SIGUSR1: the probe registers the watcher's
-pid, start time and dump descriptor on a pipe the stage reads (a failed registration leaves the watcher
-unregistered and the probe unchanged), and each is signalled through a pidfd after its identity is checked; the
-probe is identified as the stage's unreaped child, so its pid cannot be reused and its start time is not checked,
-and where no pidfd can be opened it alone is signalled by os.kill, which a line states before its dump; a
-failed pidfd signal to the probe is retried by os.kill and both outcomes are stated (round 5). No other process
-is signalled, and a failed signal becomes that target's own line. The collection runs in a forked child process
-that closes every inherited descriptor except its output pipe and the stack and registry pipes' read ends (those
-listed in /proc/self/fd, whatever the descriptor limit; only if that is unreadable, every one below 65536), then
-puts /dev/null on descriptors 0 to 2; the stage reads it for at most 5 s, then SIGKILLs it and waits up to 1 s
-more for the reap, so the capture takes at most about 6 s, before the probe is killed. A cut-short capture and a
-failed reap are each stated; after a failed reap, the child, holding only those three descriptors and /dev/null,
-may remain until it exits. The stage's process gains no thread; the output, prefix and newlines
-included, is at most 16384 characters. The capture never raises, and leaves the stage's verdict, failure name and
-deadline unchanged.
+before killing the probe and on stderr, lines prefixed `sigterm-cleans-up: probe-exit-wait-timeout: `: the /proc
+status lines State, SigPnd, ShdPnd, SigBlk, SigIgn and SigCgt, the wchan and the open file descriptors (count and
+the escaped readlink targets of the first 32) of the probe, then of its direct children (the fixture watcher among
+them), the run's session, the probe's process group and its session, in that order (at most 64 after the probe),
+then the Python thread stacks (faulthandler on SIGUSR1) of the probe and of the fixture watcher. Only those two
+are signalled, as they are known to run faulthandler on SIGUSR1: the probe registers the watcher's pid, start time
+and dump descriptor on a pipe the stage reads (a failed registration leaves the watcher unregistered and the probe
+unchanged), and each is signalled through a pidfd after its identity is checked; the probe is identified as the
+stage's unreaped child, so its pid cannot be reused and its start time is not checked, and where no pidfd can be
+opened it alone is signalled by os.kill, which a line states before its dump; a failed pidfd signal to the probe
+is retried by os.kill and both outcomes are stated. No other process is signalled, and a failed signal becomes
+that target's own line. The collection runs in a forked child process that closes every inherited descriptor
+except its output pipe and the stack and registry pipes' read ends (those listed in /proc/self/fd, whatever the
+descriptor limit; only if that is unreadable, every one below 65536), then puts /dev/null on descriptors 0 to 2;
+the stage reads it for at most 5 s, then SIGKILLs it and waits up to 1 s more for the reap, so the capture takes
+at most about 6 s, before the probe is killed. A cut-short capture and a failed reap are each stated; after a
+failed reap, the child, holding only those three descriptors and /dev/null, may remain until it exits. The stage's
+process gains no thread; the output, prefix and newlines included, is at most 16384 characters. The capture never
+raises, and leaves the stage's verdict, failure name and deadline unchanged.
 """
 from __future__ import annotations
 
@@ -78,7 +77,7 @@ import functools
 import shlex
 import threading
 import contextlib
-# Imported here, not in _capture_isolate, so a full descriptor table cannot fail the import (3b363 round 8).
+# Imported here, not in _capture_isolate, so a full descriptor table cannot fail the import.
 import fcntl
 import io
 import json
@@ -95,16 +94,16 @@ import time
 DEFAULT_STUBS = ("gh", "git")
 BASH = "/bin/bash"
 # Harmless utilities: none can run another program, open a network connection, or change PATH.
-# Audited (3b116 QA r3): none has an option that runs another program or writes file content. sort (its
+# Audited: none has an option that runs another program or writes file content. sort (its
 # --compress-program runs a program; -o writes a file), touch and chmod (which let the command plant or
 # enable a script) are deliberately absent.
 WHITELIST = ("cat", "sleep", "true", "false", "head", "tail", "tr", "wc", "grep", "mkdir", "ls", "basename",
              "dirname", "seq")
 INVALID_HOST = "stubbed-shell.invalid"
 # The stand-in is an isolated Python recorder, not a shell: a bash stand-in runs unrestricted and imports
-# SHELLOPTS and PS4 from the environment, so a command could make it run a program through PS4 (3b116 QA r3,
-# r5; restricted bash passes no exported function to a child here, so functions were not the route).
-# One JSON line per call, so no argument (a separator byte, a newline) can split or forge a record (QA r7).
+# SHELLOPTS and PS4 from the environment, so a command could make it run a program through PS4 (restricted
+# bash passes no exported function to a child here, so functions were not the route).
+# One JSON line per call, so no argument (a separator byte, a newline) can split or forge a record.
 SHIM = """#!{python} -I
 import json, sys
 with open({log!r}, "a", encoding="utf-8") as fh:
@@ -121,7 +120,7 @@ os.execve({real!r}, [{name!r}] + args, env)
 """
 # Nested shells start restricted bash again with no startup files. The wrapper admits only short options that
 # neither load a file nor make the shell interactive or a login shell: an interactive shell reads HOME's
-# history file and a startup file runs before restriction applies (3b116 QA r3, r8). Long options are refused.
+# history file and a startup file runs before restriction applies. Long options are refused.
 SHELL_WRAPPER = """#!{python} -I
 import os, sys
 args = sys.argv[1:]
@@ -209,8 +208,7 @@ def _session_members(sid: int) -> "list[tuple[int, str]]":
 
 
 GRACE_SECONDS = 2.0
-# One finite wait of a run with timeout=None; the loop around it never ends the
-# run itself (3b419).
+# One finite wait of a run with timeout=None; the loop around it never ends the run itself.
 UNTIMED_WAIT_POLL_SECONDS = 1.0
 _CLEANUP_SIGNALS = {signal.SIGTERM, signal.SIGHUP, signal.SIGINT}
 
@@ -222,7 +220,7 @@ def _live(members) -> "list[int]":
 def _session_survivors(sid: int, timeout: float = 5.0) -> "list[int]":
     """Live members of a finished run's session, read once none is left or timeout has passed (a test helper).
     A killed process stays in /proc as a zombie until its reaper collects it, and a loaded host delays that; a
-    zombie is dead, so it is not a survivor and the wait does not stay for it (3b125, QA r1)."""
+    zombie is dead, so it is not a survivor and the wait does not stay for it."""
     deadline = time.monotonic() + timeout
     live = _live(_session_members(sid))
     while live and time.monotonic() < deadline:
@@ -232,11 +230,11 @@ def _session_survivors(sid: int, timeout: float = 5.0) -> "list[int]":
 
 
 def _kill_session(sid: int) -> bool:
-    """Kill every process in the run's session. start_new_session makes the shell a session leader; `set -m`
-    moves a child into a new process group but not out of the session, and setsid is not reachable (3b116
-    QA r3). A fork loop can outpace killing, so members are first STOPPED until a pass finds none still
-    running (a stopped process cannot fork), then killed until the session is empty (3b116 QA r6). True when
-    the session is empty; False if members remained at the deadline."""
+    """Kill every process in the run's session. start_new_session makes the shell a session leader;
+    `set -m` moves a child into a new process group but not out of the session, and setsid is not
+    reachable. A fork loop can outpace killing, so members are first STOPPED until a pass finds none still
+    running (a stopped process cannot fork), then killed until the session is empty. True when the session
+    is empty; False if members remained at the deadline."""
     deadline = time.monotonic() + 5.0
     while time.monotonic() < deadline:
         running = [pid for pid, state in _session_members(sid) if state not in ("T", "t", "Z", "X")]
@@ -251,8 +249,8 @@ def _kill_session(sid: int) -> bool:
         members = [pid for pid, state in _session_members(sid) if state not in ("Z", "X")]
         if not members:
             return True
-        # Stop every member again before killing any: a job-control group orphaned by a kill is sent SIGCONT
-        # by the kernel and could resume forking (3b116 QA r9).
+        # Stop every member again before killing any: a job-control group orphaned by a kill is sent
+        # SIGCONT by the kernel and could resume forking.
         for pid in members:
             try:
                 os.kill(pid, signal.SIGSTOP)
@@ -284,12 +282,11 @@ def _prepare(tmp: str, stubs) -> tuple[str, str, str]:
         real = shutil.which(util, path="/usr/bin:/bin")
         if real and not os.path.exists(os.path.join(bindir, util)):
             # A wrapper, not a symlink: restricted mode limits command names, not arguments, so the utility
-            # itself refuses a path argument; it cannot read or create anything outside the work dir
-            # (3b116 QA r6).
+            # itself refuses a path argument; it cannot read or create anything outside the work dir.
             with open(os.path.join(bindir, util), "w", encoding="utf-8") as fh:
                 fh.write(UTIL_WRAPPER.format(python=sys.executable, name=util, real=real))
             os.chmod(os.path.join(bindir, util), 0o755)
-    os.chmod(bindir, 0o555)  # nothing can be planted on PATH (3b116 QA r3)
+    os.chmod(bindir, 0o555)  # nothing can be planted on PATH
     return bindir, home, log
 
 
@@ -297,23 +294,22 @@ class _Terminated(Exception):
     pass
 
 
-# 3b281 round 4: a finally cannot protect its own body, so with the three
-# unblocked a further signal delivered during cleanup could still interrupt
-# _kill_session or the reap. While the cleanup of a shell (grace loop, kill,
-# reap, output collection, temp removal, mask restore) is in progress, _on_signal therefore
-# records the first cleanup signal instead of raising; _run_shells raises it,
-# as the same _Terminated the handler would have raised, once the mask
-# restore is done. run() also defers during its handler restore and raises
-# from its own drain. The mask-based blocking stays as the first line of
-# defence. This covers only SIGTERM and SIGHUP (the signals _on_signal is
-# installed for): SIGINT keeps the default handler, so a KeyboardInterrupt
-# arriving while the three are unblocked can still cut _kill_session short
-# (the nested finally still reaps), a stated residual. Only the main thread
-# activates, drains or resets this state (CPython runs Python signal handlers
-# in the main thread, so _on_signal itself always runs there): a run on a
-# non-main thread must neither activate, clear nor drain the record the main
-# thread holds (3b281 round 5, item 1). The dict is mutated, never rebound,
-# so self-test clones of _run_shells share it with the real handler.
+# A finally cannot protect its own body, so with the three unblocked a further
+# signal delivered during cleanup could still interrupt _kill_session or the
+# reap. While the cleanup of a shell (grace loop, kill, reap, output collection,
+# temp removal, mask restore) is in progress, _on_signal therefore records the
+# first cleanup signal instead of raising; _run_shells raises it, as the same
+# _Terminated the handler would have raised, once the mask restore is done.
+# run() also defers during its handler restore and raises from its own drain.
+# The mask-based blocking stays as the first line of defence. This covers only
+# SIGTERM and SIGHUP (the signals _on_signal is installed for): SIGINT keeps the
+# default handler, so a KeyboardInterrupt arriving while the three are unblocked
+# can still cut _kill_session short (the nested finally still reaps), a stated
+# residual. Only the main thread activates, drains or resets this state (CPython
+# runs Python signal handlers in the main thread, so _on_signal itself always
+# runs there): a run on a non-main thread must neither activate, clear nor drain
+# the record the main thread holds. The dict is mutated, never rebound, so
+# self-test clones of _run_shells share it with the real handler.
 _DEFERRED = {"active": False, "pending": None}
 
 
@@ -345,8 +341,10 @@ def _drain_deferral():
 def run(command: str, shells=("bash", "sh"), stubs=DEFAULT_STUBS, timeout: int = 30) -> list[dict]:
     """Run command under each shell (restricted bash; sh as restricted bash --posix); one result dict each."""
     results = []
-    # SIGTERM and SIGHUP are turned into an exception so the finally blocks kill the session and remove the temp
-    # dir (only SIGINT did before; QA r8). Handlers are installed only from the main thread.
+    # SIGTERM and SIGHUP are turned into an exception (as Python's default SIGINT handler does), so the finally
+    # blocks kill the session and remove the temp dir (in the earlier repository, under an earlier version of
+    # run(), only SIGINT did).
+    # Handlers are installed only from the main thread.
     saved_handlers = {}
     if threading.current_thread() is threading.main_thread():
         # An interrupted earlier run may have skipped its final drain.
@@ -415,14 +413,14 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                    "GIT_CONFIG_NOSYSTEM": "1", "GIT_TERMINAL_PROMPT": "0"}
             argv = [BASH, "--norc", "--noprofile"] + (["--posix"] if shell == "sh" else []) + ["-r", "-c", command]
             # The command runs in its own subdirectory: restricted mode refuses a slash in a builtin's file
-            # name, so it cannot overwrite the call log or captured output one level up (3b116 QA r5).
+            # name, so it cannot overwrite the call log or captured output one level up.
             work = os.path.join(tmp, "work")
             os.makedirs(work)
             out_path, err_path = os.path.join(tmp, "stdout"), os.path.join(tmp, "stderr")
             with open(out_path, "w") as o_fh, open(err_path, "w") as e_fh:
-                # 3b281: the spawn is a short critical section. A cleanup signal
-                # arriving between session creation and the try below would skip
-                # the session kill, so the three are blocked across the spawn and
+                # The spawn is a short critical section. A cleanup signal arriving
+                # between session creation and the try below would skip the
+                # session kill, so the three are blocked across the spawn and
                 # delivered at the mask restore just inside the try, where the
                 # finally already guarantees cleanup. pthread_sigmask changes one
                 # thread's mask and preexec_fn forks, so the window closes only
@@ -431,15 +429,15 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                 # the stated residual (another thread would receive the signal
                 # regardless, and fork with live threads can deadlock preexec_fn).
                 # threading.active_count counts only threads known to the
-                # threading module: threads started by C extensions or raw
-                # _thread are invisible, so such a caller is treated as
-                # single-threaded here, a further stated residual.
+                # threading module: threads started by C extensions or raw _thread
+                # are invisible, so such a caller is treated as single-threaded
+                # here, a further stated residual.
                 if (threading.current_thread() is threading.main_thread()
                         and threading.active_count() == 1):
                     # Query with a no-op first, then block: the blocking call can
                     # itself deliver a pending signal on return, and saving and
                     # blocking in one call could then leave the three blocked
-                    # with no mask recorded to restore (3b281 round 1).
+                    # with no mask recorded to restore.
                     spawn_mask = signal.pthread_sigmask(signal.SIG_BLOCK, ())
                     signal.pthread_sigmask(signal.SIG_BLOCK, _CLEANUP_SIGNALS)
                 # The child sets exactly spawn_mask before exec: a restore, not an
@@ -492,7 +490,7 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                         # no timeout, and a pending signal raises after one of
                         # the finite wait's sleeps (each requested for at most
                         # 0.05s, read in the Python 3.14.4 Popen._wait source;
-                        # a request, not a wall-clock bound) (3b419).
+                        # a request, not a wall-clock bound).
                         while True:
                             try:
                                 rc = p.wait(timeout=UNTIMED_WAIT_POLL_SECONDS)
@@ -504,27 +502,25 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                 except subprocess.TimeoutExpired:
                     rc, timed_out = None, f"timed out after {timeout}s"
                 finally:
-                    # A second signal must not cut cleanup short (3b116 QA r9). Two layers
-                    # protect this shell's cleanup until its temp dir is removed. First the
-                    # mask: the three are BLOCKED, not ignored (a signal arriving meanwhile
-                    # is delivered afterwards, the run still stops, and nothing ignored is
-                    # inherited by the next shell; fix-check after QA r9). Any main-thread
-                    # caller blocks here, whether or not the spawn was eligible. Second,
-                    # because a finally cannot protect its own body, _on_signal DEFERS
-                    # while the flag below is set: if the three end up unblocked (both
-                    # block attempts below can raise), a SIGTERM or SIGHUP delivered during
-                    # the grace loop, kill, reap, output collection, temp removal or
-                    # mask restore is recorded, not raised, and is raised as
-                    # _Terminated after the mask restore (3b281 round 4).
+                    # A second signal must not cut cleanup short. Two layers protect this
+                    # shell's cleanup until its temp dir is removed. First the mask: the
+                    # three are BLOCKED, not ignored (a signal arriving meanwhile is
+                    # delivered afterwards, the run still stops, and nothing ignored is
+                    # inherited by the next shell). Any main-thread caller blocks here,
+                    # whether or not the spawn was eligible. Second, because a finally
+                    # cannot protect its own body, _on_signal DEFERS while the flag below
+                    # is set: if the three end up unblocked (both block attempts below can
+                    # raise), a SIGTERM or SIGHUP delivered during the grace loop, kill,
+                    # reap, output collection, temp removal or mask restore is recorded,
+                    # not raised, and is raised as _Terminated after the mask restore.
                     # Residuals, stated plainly: a signal landing between entering this
-                    # finally and the protected try still raises before cleanup began
-                    # (the activation itself now sits inside that try, so a raise taken
-                    # during it still reaches the kill and the reap; round 5, item 3);
-                    # SIGINT keeps the default handler and is covered only by the mask; and
-                    # for a multi-threaded caller the mask protects cleanup only when its
-                    # other threads also block the three (the kernel may deliver to another
-                    # thread regardless) - the same residual as the spawn window (3b281
-                    # rounds 2 and 3).
+                    # finally and the protected try still raises before cleanup began (the
+                    # activation itself sits inside that try, so a raise taken during it
+                    # still reaches the kill and the reap); SIGINT keeps the default
+                    # handler and is covered only by the mask; and for a multi-threaded
+                    # caller the mask protects cleanup only when its other threads also
+                    # block the three (the kernel may deliver to another thread
+                    # regardless), the same residual as the spawn window.
                     # pthread_sigmask runs pending Python signal handlers when it returns,
                     # so either call below can still raise (with deferral active, only
                     # through a handler other than _on_signal, such as SIGINT's); the
@@ -533,11 +529,11 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                     reaped = True
                     try:
                         if threading.current_thread() is threading.main_thread():
-                            # Entry ordering and thread scope (3b281 round 5, items
-                            # 1 and 3): only the main thread owns the deferral;
-                            # pending is cleared before activation, so a record a
-                            # signal makes between the two statements is never
-                            # wiped; and both sit inside this protected try, so a
+                            # Entry ordering and thread scope: only the main
+                            # thread owns the deferral; pending is cleared
+                            # before activation, so a record a signal makes
+                            # between the two statements is never wiped; and
+                            # both sit inside this protected try, so a
                             # _Terminated raised during them still reaches the
                             # kill and the reap in the finallys below.
                             _DEFERRED["pending"] = None
@@ -547,18 +543,18 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                             # already recorded. When spawn_mask is set the two are
                             # normally equal, but only if the restore at the top of
                             # the try actually ran; spawn_mask therefore takes
-                            # precedence at the restore below (3b281 round 4).
+                            # precedence at the restore below.
                             cleanup_mask = signal.pthread_sigmask(signal.SIG_BLOCK, ())
                             signal.pthread_sigmask(signal.SIG_BLOCK, _CLEANUP_SIGNALS)
                     finally:
                         try:
                             # If the query above raised (a signal was already
                             # pending), the three are not yet blocked; retry the
-                            # query-then-block once, recording cleanup_mask before
-                            # blocking as above, so the grace loop below normally
-                            # runs with the three blocked (3b281 round 3). An
-                            # earlier record is kept: the mask cannot have changed
-                            # if the blocking call never ran.
+                            # query-then-block once, recording cleanup_mask
+                            # before blocking as above, so the grace loop below
+                            # normally runs with the three blocked. An earlier
+                            # record is kept: the mask cannot have changed if the
+                            # blocking call never ran.
                             if threading.current_thread() is threading.main_thread():
                                 current = signal.pthread_sigmask(signal.SIG_BLOCK, ())
                                 if not _CLEANUP_SIGNALS <= current:
@@ -568,14 +564,14 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                         finally:
                             # Even if both block attempts raised, the kill and the
                             # reap still run: the grace loop sits in its own try
-                            # whose finally performs them (3b281 round 3), and the
-                            # reap sits in its own finally around the kill, so an
-                            # OSError (or anything else) raised by _kill_session
-                            # cannot skip p.wait() (3b281 round 4, gemini W).
+                            # whose finally performs them, and the reap sits in its
+                            # own finally around the kill, so an OSError (or
+                            # anything else) raised by _kill_session cannot skip
+                            # p.wait().
                             try:
                                 grace_end = time.monotonic() + GRACE_SECONDS
                                 while time.monotonic() < grace_end and _live(_session_members(p.pid)):
-                                    time.sleep(0.02)  # let a backgrounded call finish recording (QA r8)
+                                    time.sleep(0.02)  # let a backgrounded call finish recording
                                 killed = len(_live(_session_members(p.pid)))
                             finally:
                                 try:
@@ -640,17 +636,16 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
             # include the three if the restore at the top of the try was
             # skipped (for example a non-cleanup handler raising between the
             # spawn and that restore), so spawn_mask is restored first and
-            # cleanup_mask only when the spawn never recorded one (3b281
-            # round 4, after rounds 1-3). On the main thread - the deferral
-            # belongs to it alone (3b281 round 5, item 1) - the recorded
+            # cleanup_mask only when the spawn never recorded one. On the
+            # main thread (the deferral belongs to it alone), the recorded
             # signal is then taken before the flag is cleared, in the same
             # protected region as the restore, so a signal the restore itself
             # delivered is recorded while still active and neither wiped nor
-            # skipped (round 5, item 3); it is raised here, after the restore,
-            # as the _Terminated _on_signal would have raised (replacing, with
-            # chaining, an exception already propagating: the run stops either
-            # way). This clearing covers every path, including reentry for the
-            # next shell and the self-test clones.
+            # skipped; it is raised here, after the restore, as the
+            # _Terminated _on_signal would have raised (replacing, with
+            # chaining, an exception already propagating: the run stops
+            # either way). This clearing covers every path, including reentry
+            # for the next shell and the self-test clones.
             try:
                 _rmtree(tmp)
             finally:
@@ -668,7 +663,7 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
 
 
 def _printable(line: str) -> str:
-    """Control characters escaped, so the command's output cannot rewrite the report on a terminal (QA r7)."""
+    """Control characters escaped, so the command's output cannot rewrite the report on a terminal."""
     return "".join(c if c.isprintable() or c == "\t" else repr(c)[1:-1] for c in line)
 
 
@@ -683,7 +678,7 @@ def main(argv=None) -> int:
         return _self_test()
     if not args.command:
         ap.error("a command string is required")
-    for name in args.stub:  # a plain name only: it becomes a file in the PATH dir (QA r7)
+    for name in args.stub:  # a plain name only: it becomes a file in the PATH dir
         if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", name) or name in ("bash", "sh") + WHITELIST:
             print(f"ERROR: --stub {name!r}: not a plain executable name, or a name the tool reserves.", file=sys.stderr)
             return 2
@@ -701,19 +696,18 @@ def main(argv=None) -> int:
         if not r["reaped"]:
             print("WARNING: shell could not be reaped within the cleanup deadlines")
         for c in r["calls"]:
-            print("STUB " + _printable(c[5:]))  # a call argument cannot forge a report line (QA r8)
-        # The command's own output is prefixed, so it cannot pass for a report line (3b116 QA r6).
+            print("STUB " + _printable(c[5:]))  # a call argument cannot forge a report line
+        # The command's own output is prefixed, so it cannot pass for a report line.
         for label in ("stdout", "stderr"):
             if r[label]:
                 print(f"-- {label}\n" + "\n".join("| " + _printable(line)
                                                        for line in r[label].rstrip("\n").split("\n")))
-    return 3 if uncontained else 0  # an uncontained run is not a normal result (QA r7)
+    return 3 if uncontained else 0  # an uncontained run is not a normal result
 
 
-# The loaded-host reproduction for 3b125: adopt an exited orphan (PR_SET_CHILD_SUBREAPER, 36).
-# waitid(WNOWAIT) observes its exit without reaping it; reap only after checking the real zombie.
-# Where the subreaper cannot be set (a non-Linux host, or a container that blocks prctl), the probe says so and
-# why, and runs nothing (3b125 QA r1).
+# The loaded-host reproduction: adopt an exited orphan (PR_SET_CHILD_SUBREAPER, 36). waitid(WNOWAIT) observes
+# its exit without reaping it; reap only after checking the real zombie. Where the subreaper cannot be set (a
+# non-Linux host, or a container that blocks prctl), the probe says so and why, and runs nothing.
 SLOW_REAPER_PROBE = r"""
 import ctypes, json, os, runpy, sys, types
 try:
@@ -789,10 +783,10 @@ def _test_children(pid):
 
 def _test_stage(name):
     # Append, so a write torn by the supervisor's kill leaves the previous
-    # complete line as the one it reports (3b352).
-    # Best effort: a failed record must not change the outcome (3b352 R1).
+    # complete line as the one it reports.
+    # Best effort: a failed record must not change the outcome.
     # A leading newline ends any earlier short write, so a later record never
-    # completes it into a fused name (3b352 R3).
+    # completes it into a fused name.
     path = globals().get("_TEST_IN_FLIGHT")
     if path:
         try:
@@ -908,7 +902,7 @@ def _supervise_test(callback, ceiling, name, cleanup_wait=TEST_WAIT, report=True
             time.sleep(0.02)
         clean = not owned()
         if failure:
-            # Name the check the killed worker last started (3b352).
+            # Name the check the killed worker last started.
             name += ":in-flight=" + _test_in_flight(parent)
             failure = name
         _rmtree(parent)
@@ -927,7 +921,7 @@ def _supervise_test(callback, ceiling, name, cleanup_wait=TEST_WAIT, report=True
 
 
 def _cleanup_deadline_check():
-    # C1: exercise the public self-test supervisor, not just its helper.
+    # Exercise the public self-test supervisor, not just its helper.
     # A second supervisor bounds this regression if that wiring is removed.
     with tempfile.NamedTemporaryFile() as ready:
         def probe():
@@ -937,10 +931,10 @@ def _cleanup_deadline_check():
                     def failed_kill(sid):
                         with open(ready.name, "w") as stream:
                             stream.write(str(sid))
-                        # The reap after the kill is bounded (3b281 round 5,
-                        # item 2), so a kill that merely fails no longer hangs
-                        # the cleanup; the modelled hang moves into the kill
-                        # itself, which this supervisor must still bound.
+                        # The reap after the kill is bounded, so a kill that
+                        # merely fails does not hang the cleanup; the
+                        # modelled hang sits in the kill itself, which this
+                        # supervisor must still bound.
                         while True:
                             time.sleep(60)
                     globals()["_kill_session"] = failed_kill
@@ -961,9 +955,9 @@ def _cleanup_deadline_check():
 
 
 def _in_flight_stages_check():
-    # 3b352: a deadline failure names the check in flight. Stub the worker
-    # and the clock: the deadline passes only once the stub has recorded its
-    # stages, so no stage write races a wall-clock ceiling.
+    # A deadline failure names the check in flight. Stub the worker and the
+    # clock: the deadline passes only once the stub has recorded its stages,
+    # so no stage write races a wall-clock ceiling.
     import types
     fn = _supervise_test
     g = dict(fn.__globals__)
@@ -973,7 +967,7 @@ def _in_flight_stages_check():
         reads = []
         def clock():
             # The first read sets the deadline: real time, so a stub that is
-            # already ready cannot push the deadline away (3b352 R1).
+            # already ready cannot push the deadline away.
             reads.append(None)
             ready.seek(0)
             return time.monotonic() + (TEST_WAIT if len(reads) > 1 and ready.read() else 0.0)
@@ -991,7 +985,7 @@ def _in_flight_stages_check():
             reads.clear()
             def worker():
                 if stage == "short":
-                    # A short write of one stage, then a later stage (3b352 R3).
+                    # A short write of one stage, then a later stage.
                     g["os"] = types.SimpleNamespace(
                         **{**vars(os), "write": lambda fd, data: os.write(fd, data[:3])})
                     g["_test_stage"]("alpha")
@@ -1322,16 +1316,17 @@ def _unreaped_reporting_check(audit=False):
 
 
 # sha256 of the residual comment between Popen and the cleanup try in
-# _run_shells, its lines stripped and joined with "\n" (3b341 item (b)).
+# _run_shells, its lines stripped and joined with "\n".
 SPAWN_RESIDUAL_SHA256 = "b567af6b255e331f97dfb59d79506ac4593083beb344f07c14bad5276d29e8ea"
 
 
 def _spawn_residual_pin_check():
-    # Decision V keeps the Popen-to-try window, so this pins the source rather
-    # than running anything: exactly one p = subprocess.Popen(...) statement
-    # in a statement list of _run_shells, then only the
-    # residual comment and timed_out = "", then the try whose finally cleans
-    # up. Editing the comment or that ordering fails until both match again.
+    # The Popen-to-try window is kept as an accepted residual, so this pins
+    # the source rather than running anything: exactly one
+    # p = subprocess.Popen(...) statement in a statement list of
+    # _run_shells, then only the residual comment and timed_out = "", then
+    # the try whose finally cleans up. Editing the comment or that ordering
+    # fails until both match again.
     import ast
     import hashlib
     try:
@@ -1370,32 +1365,30 @@ def _policy_checks():
     """Exercise unchanged production code using a clock advanced by work.
 
     The signal oracle requires an exception AND cleanup. Recording a signal
-    then returning from wait is a failure (the strengthened round-5 oracle).
-    Timeout goes through public run, so dropping its argument fails.
-    Every route also asserts the caller's signal mask (3b281 round 1): equal
-    before and after the route, in force inside wait, and carried into the
-    child by a mask-restoring preexec_fn where a route exercises the mask.
-    Round 2 (3b281) adds: a modelled _rmtree that raises after marking
-    removal, a cleanup re-block that raises the way a pending handler would,
-    and a modelled second thread with a TERM arriving during cleanup.
-    Round 3 (3b281) adds: a reap oracle on every route that creates a
-    process, an ineligible-spawn route whose first block of the three raises
-    after setting the mask, and a route where the cleanup query and its
-    retry both raise and a further TERM lands inside the grace loop.
-    Round 4 (3b281) adds: a TERM delivered inside the kill with the three
-    unblocked, held by the handler deferral until after the mask restore; a
-    kill that raises OSError while the reap still runs; retry-success routes
-    (eligible and ineligible spawn) where only the first cleanup query raises
-    and the retry blocks the grace TERM; and a skipped top-of-try restore
-    proving spawn_mask takes restore precedence.
-    Round 5 (3b281) adds: a kill that raises with the shell still alive, so
-    the bounded reap must SIGKILL and reap it while the original exception
-    propagates; a run whose current_thread is modelled as non-main while the
-    main thread holds an active deferral with a recorded signal, which must
-    survive unchanged; and the modelled raising queries now raise
-    KeyboardInterrupt, so the deferral routes can end in a _Terminated for
-    SIGTERM only through the deferred raise at the end of a shell, chained
-    over that KeyboardInterrupt.
+    then returning from wait is a failure. Timeout goes through public run, so
+    dropping its argument fails. Every route also asserts the caller's signal
+    mask: equal before and after the route, in force inside wait, and carried
+    into the child by a mask-restoring preexec_fn where a route exercises the
+    mask. The routes also cover: a modelled _rmtree that raises after marking
+    removal; a cleanup re-block that raises the way a pending handler would; a
+    modelled second thread with a TERM arriving during cleanup; an
+    ineligible-spawn route whose first block of the three raises after setting
+    the mask; a route where the cleanup query and its retry both raise and a
+    further TERM lands inside the grace loop; a TERM delivered inside the kill
+    with the three unblocked, held by the handler deferral until after the
+    mask restore; a kill that raises OSError while the reap still runs;
+    retry-success routes (eligible and ineligible spawn) where only the first
+    cleanup query raises and the retry blocks the grace TERM; a skipped
+    top-of-try restore proving spawn_mask takes restore precedence; a kill
+    that raises with the shell still alive, so the bounded reap must SIGKILL
+    and reap it while the original exception propagates; and a run whose
+    current_thread is modelled as non-main while the main thread holds an
+    active deferral with a recorded signal, which must survive unchanged.
+    Every route that creates a process also asserts the reap or, where the
+    modelled shell cannot be killed, that no reap happened. The modelled
+    raising queries raise KeyboardInterrupt, so the deferral routes can end in
+    a _Terminated for SIGTERM only through the deferred raise at the end of a
+    shell, chained over that KeyboardInterrupt.
     """
     import types
     results = [
@@ -1485,7 +1478,7 @@ def _policy_checks():
                     # the post-kill reap inside the cleanup finally runs with
                     # the three deliberately blocked, so its mask is not
                     # checked; the reap itself is recorded and required on
-                    # every route that created a process (3b281 round 3)
+                    # every route that created a process
                     state["reaped"] = True
                     self.returncode = 0
                     return 0
@@ -1495,8 +1488,7 @@ def _policy_checks():
                         raise KeyboardInterrupt()
                     # The kill raised with the shell still alive: a reap would
                     # block until the shell is killed, so an unbounded wait
-                    # models the hang and a bounded one times out (3b281
-                    # round 5, item 2; codex CLEANUP-REAP-HANG).
+                    # models the hang and a bounded one times out.
                     if timeout is None:
                         raise AssertionError("unbounded reap would hang")
                     raise subprocess.TimeoutExpired("model", timeout)
@@ -1505,7 +1497,7 @@ def _policy_checks():
                     state["unmasked"] = True
                 if at_spawn:
                     # A deferral design that only acts when the command ends
-                    # reaches wait; the at-spawn signal must preempt it (3b281).
+                    # reaches wait; the at-spawn signal must preempt it.
                     state["late"] = True
                     return 0
                 if route == "timeout":
@@ -1520,7 +1512,7 @@ def _policy_checks():
                 return 0
             def kill(self):
                 # The bounded reap sends SIGKILL, which also ends a stopped
-                # shell; the next wait can then reap it (3b281 round 5, item 2).
+                # shell; the next wait can then reap it.
                 state["sigkilled"] = True
                 if not unkillable:
                     state["live"] = False
@@ -1563,7 +1555,7 @@ def _policy_checks():
                 # routes, the one the retry performed) must already be in
                 # force, so a TERM sent now stays pending until the mask
                 # restore after the kill and the reap, where the deferral
-                # turns it into _Terminated (3b281 rounds 2 and 4).
+                # turns it into _Terminated.
                 state["cleanup_blocked"] = _CLEANUP_SIGNALS <= signal.pthread_sigmask(
                     signal.SIG_BLOCK, ())
                 os.kill(os.getpid(), signal.SIGTERM)
@@ -1571,7 +1563,7 @@ def _policy_checks():
             if in_kill:
                 # TERM delivered inside the kill with the three unblocked
                 # (both cleanup block attempts raised): only the deferral in
-                # _on_signal lets the kill finish (3b281 round 4, item 1).
+                # _on_signal lets the kill finish.
                 state["kill_unblocked"] = not (_CLEANUP_SIGNALS <= signal.pthread_sigmask(
                     signal.SIG_BLOCK, ()))
                 os.kill(os.getpid(), signal.SIGTERM)
@@ -1579,7 +1571,7 @@ def _policy_checks():
             if kill_raises_alive:
                 # Raised with the shell still alive and possibly stopped: the
                 # bounded reap in the finally must SIGKILL and reap it while
-                # this exception propagates (3b281 round 5, item 2).
+                # this exception propagates.
                 state["kill_raised"] = True
                 if route in ("kill-fails-shell-unkillable", "caller-except-shell-unkillable"):
                     return False
@@ -1591,7 +1583,7 @@ def _policy_checks():
             return True
         def spawn(*a, **kw):
             # An at-spawn route delivers the signal inside the Popen call, in
-            # the window between session creation and the cleanup try (3b281).
+            # the window between session creation and the cleanup try.
             state["preexec"] = kw.get("preexec_fn")
             state["blocked_at_spawn"] = _CLEANUP_SIGNALS <= signal.pthread_sigmask(
                 signal.SIG_BLOCK, ())
@@ -1657,9 +1649,9 @@ def _policy_checks():
             # pthread_sigmask runs pending Python handlers when it returns,
             # so a block of the three can raise after the mask is already
             # set. For cleanup-block-raises the second block of the three is
-            # the cleanup re-block (the first is the spawn's) (3b281 round
-            # 2); for the threads route the spawn is ineligible, so the
-            # cleanup's block is the first and only one (3b281 round 3).
+            # the cleanup re-block (the first is the spawn's); for the
+            # threads route the spawn is ineligible, so the cleanup's block
+            # is the first and only one.
             failing_block = 2 if route == "cleanup-block-raises" else 1
             class SignalModel:
                 blocks = 0
@@ -1677,12 +1669,12 @@ def _policy_checks():
         if query_raises or in_kill:
             # The cleanup query itself raises (a pending signal is delivered
             # when pthread_sigmask returns), and so does the retry's query:
-            # the grace loop and the kill then run with the three unblocked
-            # (3b281 rounds 3 and 4). The first query is the spawn's.
+            # the grace loop and the kill then run with the three unblocked.
+            # The first query is the spawn's.
             raising_queries = (2, 3)
         elif route == "cleanup-query-raises-retry-TERM":
             # Only the first cleanup query raises; the retry must record the
-            # mask and block the three (3b281 round 4, claude W1).
+            # mask and block the three.
             raising_queries = (2,)
         elif route == "cleanup-query-raises-retry-threads":
             # Ineligible spawn, so the cleanup query is the first the model
@@ -1702,8 +1694,7 @@ def _policy_checks():
                             # deferral routes the propagating error must be the
                             # drained _Terminated for SIGTERM chained over
                             # this, so removing the deferred raise at the end
-                            # of a shell is observable (3b281 round 5, item 4;
-                            # claude W3).
+                            # of a shell is observable.
                             raise KeyboardInterrupt()
                     return result
             g["signal"] = QueryModel()
@@ -1713,8 +1704,8 @@ def _policy_checks():
                 # handler raised first, so the three stay blocked and the
                 # cleanup query records a cleanup_mask that diverges from
                 # spawn_mask; only spawn_mask, which must take precedence at
-                # the restore, returns the true caller mask (3b281 round 4,
-                # item 3; gemini error). The second setmask is that restore.
+                # the restore, returns the true caller mask. The second
+                # setmask is that restore.
                 setmasks = 0
                 def __getattr__(self, name):
                     return getattr(signal, name)
@@ -1729,7 +1720,7 @@ def _policy_checks():
             # current_thread is modelled as non-main (a fresh sentinel object
             # each call), so the clone takes every non-main path
             # deterministically while the route still runs on the real main
-            # thread (3b281 round 5, item 1).
+            # thread.
             g["threading"] = types.SimpleNamespace(
                 current_thread=lambda: object(),
                 main_thread=threading.main_thread,
@@ -1795,18 +1786,18 @@ def _policy_checks():
         ok = (after == mask_before and not state["unmasked"]
               and not state["late"] and state["removed"])
         if route != "popen-raises" and not unkillable:
-            # 3b281 round 3 (codex W): every route that creates a process
-            # must observe the reap, the modelled post-kill p.wait().
+            # Every route that creates a process must observe the reap,
+            # the modelled post-kill p.wait().
             ok = ok and state["reaped"]
         if route == "popen-raises":
             # Popen raised while the three were blocked; the outer finally
-            # must still restore the saved mask (3b281 round 1).
+            # must still restore the saved mask.
             ok = (ok and state["blocked_at_spawn"] and restoring
                   and isinstance(error, PopenRaised) and not state["killed"])
         elif route == "rmtree-raises":
             # _rmtree marked removal then raised: the error propagates, the
             # session was already killed, and `after` above proves the nested
-            # finally still restored the caller's mask (3b281 round 2).
+            # finally still restored the caller's mask.
             ok = (ok and state["killed"] and isinstance(error, RmtreeRaised)
                   and state["elapsed"] == 2.0)
         elif route == "cleanup-block-raises":
@@ -1830,9 +1821,8 @@ def _policy_checks():
             # query-then-block performs the first block of the three; it
             # raised after setting the mask, with cleanup_mask already
             # recorded by the query, so the kill, the reap and the mask
-            # restore still ran and _Terminated propagated (3b281 round 3,
-            # claude W2). A merged query+block would lose the only record of
-            # the caller's mask.
+            # restore still ran and _Terminated propagated. A merged
+            # query+block would lose the only record of the caller's mask.
             ok = (ok and state["killed"] and not state["blocked_at_spawn"]
                   and pe is None and isinstance(error, _Terminated)
                   and state["elapsed"] == 2.0)
@@ -1840,8 +1830,7 @@ def _policy_checks():
             # The cleanup query raised, the retry's query raised too, and a
             # further TERM was delivered inside the grace loop's sleep: the
             # nested finally still killed the session, reaped it, and the
-            # outer finally restored the mask (3b281 round 3, codex
-            # CLEANUP-QUERY-INTERRUPTION).
+            # outer finally restored the mask.
             ok = (ok and state["killed"] and state["blocked_at_spawn"]
                   and state["grace_delivered"] is True
                   and isinstance(error, _Terminated))
@@ -1849,8 +1838,7 @@ def _policy_checks():
             # TERM delivered inside _kill_session with the three unblocked
             # (both cleanup block attempts raised): the handler deferral let
             # the kill complete and the reap run, and _Terminated was raised
-            # only after the mask restore (3b281 round 4, item 1; claude W2,
-            # codex CLEANUP-KILL-INTERRUPTION).
+            # only after the mask restore.
             ok = (ok and state["killed"] and state["blocked_at_spawn"]
                   and state["kill_unblocked"] is True
                   and state["elapsed"] == 2.0 and isinstance(error, _Terminated)
@@ -1858,10 +1846,9 @@ def _policy_checks():
                   and isinstance(error.__context__, KeyboardInterrupt))
         elif kill_raises:
             # The modelled kill raised OSError: the reap in its own finally
-            # still ran (asserted here explicitly as well as generically;
-            # 3b281 round 5, item 4, claude N3), the temp dir went, the mask
-            # was restored, and the OSError propagated (3b281 round 4,
-            # item 2; gemini W).
+            # still ran (asserted here explicitly as well as generically),
+            # the temp dir went, the mask was restored, and the OSError
+            # propagated.
             ok = (ok and state["killed"] and state["reaped"]
                   and isinstance(error, KillRaised) and state["elapsed"] == 2.0)
         elif fallback:
@@ -1898,10 +1885,10 @@ def _policy_checks():
                 if route == "kill-sweep-oserror":
                     ok = ok and ("member", 9, signal.SIGKILL) in state["signals"]
         elif kill_raises_alive:
-            # The modelled kill raised with the shell still alive: the bounded
-            # reap timed out, SIGKILLed the shell, reaped it, the temp dir
-            # went, the mask was restored, and the original exception still
-            # propagated (3b281 round 5, item 2; codex CLEANUP-REAP-HANG).
+            # The modelled kill raised with the shell still alive: the
+            # bounded reap timed out, SIGKILLed the shell, reaped it, the
+            # temp dir went, the mask was restored, and the original
+            # exception still propagated.
             ok = (ok and state["sigkilled"] and state["killed"]
                   and state["reaped"] and isinstance(error, KillRaised)
                   and state["elapsed"] == 2.0)
@@ -1920,9 +1907,8 @@ def _policy_checks():
             # Production cleanup ran with current_thread modelled as non-main
             # while the main thread held an active deferral with a recorded
             # SIGTERM: the non-main run neither activated, cleared nor drained
-            # it - the record survived unchanged - and the run completed with
-            # no error, no spawn block and no preexec_fn (3b281 round 5,
-            # item 1; claude E1, gemini errors).
+            # it (the record survived unchanged), and the run completed with
+            # no error, no spawn block and no preexec_fn.
             ok = (ok and state["killed"] and error is None
                   and answer is not None and not state["blocked_at_spawn"]
                   and pe is None and state["elapsed"] == 2.0
@@ -1932,8 +1918,7 @@ def _policy_checks():
             # Only the first cleanup query raised; the retry recorded the
             # mask and blocked the three, so the TERM sent at the first grace
             # sleep stayed pending through the full grace, the kill and the
-            # reap, and was raised only after the restore (3b281 round 4,
-            # item 4; claude W1).
+            # reap, and was raised only after the restore.
             ok = (ok and state["killed"] and state["cleanup_blocked"] is True
                   and state["elapsed"] == 2.0 and isinstance(error, _Terminated)
                   and error.args == (signal.SIGTERM,)
@@ -1948,9 +1933,8 @@ def _policy_checks():
         elif restore_skipped:
             # The restore at the top of the try never ran, so cleanup_mask
             # recorded the spawn-blocked mask; only spawn_mask, which takes
-            # restore precedence, returns the true caller mask - the generic
-            # after == mask_before above is the oracle (3b281 round 4,
-            # item 3; gemini error).
+            # restore precedence, returns the true caller mask, and the
+            # generic after == mask_before above is the oracle.
             ok = (ok and state["killed"] and state["blocked_at_spawn"]
                   and state["elapsed"] == 2.0 and isinstance(error, _Terminated))
         else:
@@ -1990,16 +1974,16 @@ def _policy_checks():
 
 SIGNAL_PROBE = r"""
 import faulthandler, os, runpy, signal, subprocess, sys
-# The parent's exit-wait timeout asks for every thread's stack (3b363).
+# The parent's exit-wait timeout asks for every thread's stack.
 faulthandler.register(signal.SIGUSR1, file=int(sys.argv[4]), all_threads=True)
 t = runpy.run_path(sys.argv[1])
 fd = int(sys.argv[2])
 g = t["run"].__globals__
 # The fixture watcher is forked with faulthandler still registered; register it
-# as a stack-dump target by pid, start time and dump descriptor (3b363 round 3).
+# as a stack-dump target by pid, start time and dump descriptor.
 # A failed registration leaves the watcher unregistered and the probe unchanged;
 # the line is shorter than PIPE_BUF, so the non-blocking write is whole or
-# fails with nothing written (round 4). Only a termination passes through.
+# fails with nothing written. Only a termination passes through.
 watch = g["_fixture_watch"]
 def registered_watch():
     watcher, writer = watch()
@@ -2047,7 +2031,7 @@ _CAPTURE_STATUS = ("State", "SigPnd", "ShdPnd", "SigBlk", "SigIgn", "SigCgt")
 
 
 def _capture_read(path):
-    """The text of a /proc file for _probe_capture (a seam the 3b363 tests slow down or fail)."""
+    """The text of a /proc file for _probe_capture (a seam the capture tests slow down or fail)."""
     with open(path, encoding="utf-8", errors="replace") as fh:
         return fh.read()
 
@@ -2062,26 +2046,26 @@ def _capture_readlink(path):
 
 def _capture_isolate(keep, ceiling=1 << 16):
     """In _probe_capture's forked child, close every descriptor except those in keep, move each kept one at
-    0, 1 or 2 above 2, then put /dev/null on 0, 1 and 2 (3b363 round 5); returns lines naming what could not
-    be done, and a dict from each kept descriptor that was moved to its new number.
+    0, 1 or 2 above 2, then put /dev/null on 0, 1 and 2; returns lines naming what could not be done, and a
+    dict from each kept descriptor that was moved to its new number.
 
     The descriptors closed first are the ones actually open outside keep, listed from /proc/self/fd, so one
-    above a lowered soft RLIMIT_NOFILE, or above any limit, is closed as well, and the time taken follows the
-    number open, not the limit. The listing's own descriptor is excluded: os.listdir has closed it before the
-    loop, and closing a number that is no longer open (EBADF) is skipped. Only if /proc/self/fd cannot be
-    listed does it fall back to os.closerange over [0, ceiling) outside keep, called only for nonempty ranges,
-    as os.closerange(0, 0) closes every descriptor; a descriptor at or above ceiling (65536 by default) then
-    stays open, and a returned line says the fallback was used. Closing comes before the moves (round 7), so
-    a full descriptor table has room for them. Then each descriptor in keep numbered 0, 1 or 2 is duplicated
-    with fcntl F_DUPFD to a number above 2, which the caller must use from then on (round 6); one that cannot
-    be duplicated stays where it is, and a returned line says so. Then /dev/null is opened read-write and
-    dup2'd onto each of 0, 1 and 2 except a kept descriptor that could not be moved, replacing the old number
-    of each moved one, so a stray write to 0, 1 or 2 (from stderr or a finalizer) reaches /dev/null and not a
-    descriptor later opened at that number. An old number that /dev/null cannot be put on is closed instead,
-    so no kept descriptor stays open at two numbers. So each of 0, 1 and 2 ends on /dev/null unless a
-    returned line names a step that failed for it. A descriptor in keep that was not moved is neither closed
-    nor replaced; one that was moved stays open at the number moved gives for it, and only its old number is
-    replaced (or closed).
+    above a lowered soft RLIMIT_NOFILE, or above any limit, is closed as well, and the time taken follows
+    the number open, not the limit. The listing's own descriptor is excluded: os.listdir has closed it
+    before the loop, and closing a number that is no longer open (EBADF) is skipped. Only if /proc/self/fd
+    cannot be listed does it fall back to os.closerange over [0, ceiling) outside keep, called only for
+    nonempty ranges, as os.closerange(0, 0) closes every descriptor; a descriptor at or above ceiling
+    (65536 by default) then stays open, and a returned line says the fallback was used. Closing comes
+    before the moves, so a full descriptor table has room for them. Then each descriptor in keep numbered
+    0, 1 or 2 is duplicated with fcntl F_DUPFD to a number above 2, which the caller must use from then on;
+    one that cannot be duplicated stays where it is, and a returned line says so. Then /dev/null is opened
+    read-write and dup2'd onto each of 0, 1 and 2 except a kept descriptor that could not be moved,
+    replacing the old number of each moved one, so a stray write to 0, 1 or 2 (from stderr or a finalizer)
+    reaches /dev/null and not a descriptor later opened at that number. An old number that /dev/null cannot
+    be put on is closed instead, so no kept descriptor stays open at two numbers. So each of 0, 1 and 2
+    ends on /dev/null unless a returned line names a step that failed for it. A descriptor in keep that was
+    not moved is neither closed nor replaced; one that was moved stays open at the number moved gives for
+    it, and only its old number is replaced (or closed).
     """
     notes, moved = [], {}
     keep = set(keep)
@@ -2092,8 +2076,8 @@ def _capture_isolate(keep, ceiling=1 << 16):
         notes.append(f"capture child: /proc/self/fd unreadable ({exc!r}); closed descriptors below {ceiling} only")
         low = 0
         for fd in sorted(keep):
-            # Each range stops at ceiling, even below a kept descriptor above it (round 8). An empty range is
-            # skipped: os.closerange(0, 0) closes every descriptor (round 7).
+            # Each range stops at ceiling, even below a kept descriptor above it. An empty range is skipped:
+            # os.closerange(0, 0) closes every descriptor.
             high = min(fd, ceiling)
             if low < high:
                 os.closerange(low, high)
@@ -2146,7 +2130,7 @@ def _capture_isolate(keep, ceiling=1 << 16):
 
 
 def _probe_capture(pid, sid, stack_fd, budget=5.0, limit=16384, members=64, fds=32, prefix="", registry_fd=None):
-    """Evidence lines for a probe that missed its exit deadline (3b363); never raises.
+    """Evidence lines for a probe that missed its exit deadline; never raises.
 
     Processes, in this order: the probe; its direct children (PPid is the
     probe, so the fixture watcher in its own session is included); then the
@@ -2163,33 +2147,33 @@ def _probe_capture(pid, sid, stack_fd, budget=5.0, limit=16384, members=64, fds=
 
     Thread stacks: faulthandler writes them to stack_fd on SIGUSR1. SigCgt
     shows only that some handler is installed, and a process with its own
-    SIGUSR1 handler may exit when signalled (round 3), so only processes known
-    to run faulthandler on SIGUSR1 are signalled, in this order: the probe,
-    which SIGNAL_PROBE registers with faulthandler first and which must be the
+    SIGUSR1 handler may exit when signalled, so only processes known to run
+    faulthandler on SIGUSR1 are signalled, in this order: the probe, which
+    SIGNAL_PROBE registers with faulthandler first and which must be the
     caller's unreaped child, so its pid cannot be reused while the capture
-    runs; then each target registered on registry_fd as a line "pid starttime
-    fd", which SIGNAL_PROBE writes for the fixture watcher it forks
-    (faulthandler stays registered across the fork, writing to fd). No other
-    process is signalled, whatever its SigCgt or descriptors. Each target is
-    opened with os.pidfd_open before its checks: for a registered target, the
-    start time in /proc/<pid>/stat must equal the registered one, so the pidfd
-    is that process and not a reused pid; then its status must show it alive
-    with SIGUSR1 caught; for a registered target, its descriptor fd must link
-    to the stack pipe. Only then is SIGUSR1 sent, by signal.pidfd_send_signal
-    on that pidfd, so a pid reused after the checks cannot receive it;
-    otherwise the line says why no stacks were requested. Where os.pidfd_open
-    is unavailable or fails, the probe alone is signalled by os.kill, which is
-    safe because it is the caller's unreaped child (its pid cannot be reused;
-    its start time is not checked), and a line naming that fallback and the
-    pidfd error precedes its dump; a registered target is then not signalled.
-    For the probe, pidfd_send_signal raising anything but ProcessLookupError
-    is retried by os.kill, on the same grounds, and the probe's line states
-    both outcomes (round 5). Any other error in a target's checks or signal,
-    including pidfd_send_signal raising PermissionError, OSError or
-    AttributeError for a registered target, becomes that target's reason
-    line, and the next target is still tried. Residual: a target
-    that execs between its checks and the signal gets SIGUSR1 with its default
-    action; neither the probe nor the watcher execs.
+    runs; then each target registered on registry_fd as a line
+    "pid starttime fd", which SIGNAL_PROBE writes for the fixture watcher it
+    forks (faulthandler stays registered across the fork, writing to fd). No
+    other process is signalled, whatever its SigCgt or descriptors. Each
+    target is opened with os.pidfd_open before its checks: for a registered
+    target, the start time in /proc/<pid>/stat must equal the registered one,
+    so the pidfd is that process and not a reused pid; then its status must
+    show it alive with SIGUSR1 caught; for a registered target, its descriptor
+    fd must link to the stack pipe. Only then is SIGUSR1 sent, by
+    signal.pidfd_send_signal on that pidfd, so a pid reused after the checks
+    cannot receive it; otherwise the line says why no stacks were requested.
+    Where os.pidfd_open is unavailable or fails, the probe alone is signalled
+    by os.kill, which is safe because it is the caller's unreaped child (its
+    pid cannot be reused; its start time is not checked), and a line naming
+    that fallback and the pidfd error precedes its dump; a registered target
+    is then not signalled. For the probe, pidfd_send_signal raising anything
+    but ProcessLookupError is retried by os.kill, on the same grounds, and the
+    probe's line states both outcomes. Any other error in a target's checks or
+    signal, including pidfd_send_signal raising PermissionError, OSError or
+    AttributeError for a registered target, becomes that target's reason line,
+    and the next target is still tried. Residual: a target that execs between
+    its checks and the signal gets SIGUSR1 with its default action; neither
+    the probe nor the watcher execs.
 
     One pipe serves every target. Bytes already in it before a target is
     signalled are counted on a line of their own and attributed to no
@@ -2202,26 +2186,25 @@ def _probe_capture(pid, sid, stack_fd, budget=5.0, limit=16384, members=64, fds=
     forked for the capture, which sends its lines to the caller over a pipe.
     The caller reads that pipe for at most budget seconds from entry, then
     SIGKILLs and reaps the child, waiting at most 1 s more for the reap and
-    saying so if it did not happen (a child already reaped elsewhere counts
-    as reaped), and returns what it received, with a first line saying the
-    capture was cut short when it was. So the capture adds no thread to the
-    caller, and once it returns no capture process is left that could send
-    a signal unless the reap failed. Before collecting, the child closes
-    every descriptor it inherited except its output pipe, stack_fd and
-    registry_fd, then puts /dev/null on 0, 1 and 2 (_capture_isolate, round
-    5): the descriptors closed are those listed in /proc/self/fd, whatever
-    the soft or hard descriptor limit, and only if that listing fails, every
-    one below 65536 (one at or above it then stays open, and a line says the
-    fallback was used). If the reap still fails (the SIGKILLed child has not
-    yet exited, for example while in uninterruptible sleep on a /proc read),
-    a child remains that holds only those three and /dev/null: the write end
-    of its output pipe, whose read end the caller has closed, and the
-    caller's read ends stack_fd and registry_fd; it holds none of the
-    caller's other pipes, so
-    the caller's cleanup does not wait on it. The scan and the descriptions stop
-    min(2.5, budget / 2) seconds before the budget, which is left for the
-    stacks. The fork is a plain os.fork: in a multi-threaded caller the child
-    could block on a lock another thread held, which the budget bounds.
+    saying so if it did not happen (a child already reaped elsewhere counts as
+    reaped), and returns what it received, with a first line saying the capture
+    was cut short when it was. So the capture adds no thread to the caller, and
+    once it returns no capture process is left that could send a signal unless
+    the reap failed. Before collecting, the child closes every descriptor it
+    inherited except its output pipe, stack_fd and registry_fd, then puts
+    /dev/null on 0, 1 and 2 (_capture_isolate): the descriptors closed are
+    those listed in /proc/self/fd, whatever the soft or hard descriptor limit,
+    and only if that listing fails, every one below 65536 (one at or above it
+    then stays open, and a line says the fallback was used). If the reap still
+    fails (the SIGKILLed child has not yet exited, for example while in
+    uninterruptible sleep on a /proc read), a child remains that holds only
+    those three and /dev/null: the write end of its output pipe, whose read end
+    the caller has closed, and the caller's read ends stack_fd and registry_fd;
+    it holds none of the caller's other pipes, so the caller's cleanup does not
+    wait on it. The scan and the descriptions stop min(2.5, budget / 2) seconds
+    before the budget, which is left for the stacks. The fork is a plain
+    os.fork: in a multi-threaded caller the child could block on a lock another
+    thread held, which the budget bounds.
 
     Characters: limit bounds the whole returned text, counted as the sum of
     len(line) + 1 (one newline each) over the returned lines, including
@@ -2290,7 +2273,7 @@ def _probe_capture(pid, sid, stack_fd, budget=5.0, limit=16384, members=64, fds=
             # Sends SIGUSR1 to p through a pidfd (the probe, known None, by
             # os.kill when no pidfd opens or the pidfd send fails) and returns
             # None, or says why not; notes gets how a sent signal was sent
-            # when it was not by the pidfd (round 5).
+            # when it was not by the pidfd.
             try:
                 pidfd = os.pidfd_open(p)
             except Exception as exc:
@@ -2476,7 +2459,7 @@ def _probe_capture(pid, sid, stack_fd, budget=5.0, limit=16384, members=64, fds=
                 # /dev/null on 0 to 2), so a child that outlives its reap
                 # holds no other pipe open.
                 notes, moved = _capture_isolate({out_w, stack_fd, registry_fd} - {None})
-                # A kept descriptor at 0 to 2 now has a new number (round 6); collect reads stack_fd and
+                # A kept descriptor at 0 to 2 now has a new number; collect reads stack_fd and
                 # registry_fd from this scope, so rebinding them here moves its reads too.
                 stack_fd, registry_fd = moved.get(stack_fd, stack_fd), moved.get(registry_fd, registry_fd)
                 child_main(moved.get(out_w, out_w), notes)
@@ -2568,14 +2551,15 @@ def _sigterm_cleanup_check(failures, timeout=TEST_WAIT, _exit_wait=None):
     # production spawn window itself is covered by the at-spawn policy routes,
     # so TERM is sent only after readiness. Read a pipe for readiness and wait
     # on process exit. Readiness has its own deadline; the exit wait starts at
-    # TERM and covers the probe's bounded cleanup (3b348): the grace loop, the
+    # TERM and covers the probe's bounded cleanup: the grace loop, the
     # self-test kill bound (5s scaled by 24, equal to TEST_WAIT), two reap
     # waits and the fixture watcher (TEST_WAIT). The survivors wait uses the
     # remaining deadline. Neither depends on a command sleep.
     # When the exit wait reaches its deadline, before the finally kills and
     # reaps the probe, _probe_capture's lines go to stderr, each prefixed
-    # "sigterm-cleans-up: probe-exit-wait-timeout: " (3b363: the cause of the
-    # codex timeouts is unknown, so the next one carries its own evidence).
+    # "sigterm-cleans-up: probe-exit-wait-timeout: " (the cause of the
+    # timeouts seen in the earlier repository is unknown, so the next one
+    # carries its own evidence).
     # _exit_wait replaces that deadline for the forced-timeout test only.
     import selectors
     parent = tempfile.mkdtemp(prefix="stubbed-sigterm-test-")
@@ -2583,8 +2567,8 @@ def _sigterm_cleanup_check(failures, timeout=TEST_WAIT, _exit_wait=None):
     hold_r = hold_w = stack_r = stack_w = reg_r = reg_w = None
     proc, sid = None, None
     def fail(stage):
-        # 3b281 B3: a stalled stage must not impersonate a cleanup leak; every
-        # failure path names its stage. No ceiling or timing change.
+        # A stalled stage must not impersonate a cleanup leak; every failure
+        # path names its stage. Naming the stage changes no ceiling or timing.
         failures.append(("sigterm-cleans-up:" + stage, False))
         return False
     try:
@@ -2696,8 +2680,8 @@ with t["_self_test_limits"]():
 """
 
 
-# The kernel functions /proc/<pid>/task/<tid>/wchan named on the 3b419 host
-# (Linux 7.0) for a thread in a blocking waitpid and for one in the
+# The kernel functions /proc/<pid>/task/<tid>/wchan named on a
+# Linux 7.0 host for a thread in a blocking waitpid and for one in the
 # time.sleep of a finite Popen wait.
 UNTIMED_WAIT_KERNEL_WAITS = ("do_wait", "hrtimer_nanosleep")
 
@@ -2712,8 +2696,8 @@ def _probe_main_wchan(pid):
 
 
 def _untimed_wait_term_check(failures, timeout=TEST_WAIT, _exit_wait=None):
-    # 3b419: with timeout=None, a TERM whose C-level handler runs while the
-    # main thread is in the blocking waitpid sets the pending flag without
+    # With timeout=None, a TERM whose C-level handler runs while the main
+    # thread is in the blocking waitpid sets the pending flag without
     # interrupting it. TERM is sent only after the probe's main thread wrote
     # "sid" (TERM blocked there), its idle thread wrote "idle" (TERM open
     # there), the main thread's wchan named a kernel wait, and then, read once
@@ -2738,9 +2722,9 @@ def _untimed_wait_term_check(failures, timeout=TEST_WAIT, _exit_wait=None):
     # TERM after its current sleep, whose requested duration is at most 0.05s
     # (a request, not a wall-clock bound). Without the production slices the
     # held command never exits and the exit wait reaches its deadline. A wchan
-    # that never names an accepted wait fails as kernel-wait-timeout:<last
-    # value read> (None if unreadable). The deadline matches
-    # sigterm-cleans-up; _exit_wait replaces it for the tests only.
+    # that never names an accepted wait fails as
+    # kernel-wait-timeout:<last value read> (None if unreadable). The deadline
+    # matches sigterm-cleans-up; _exit_wait replaces it for the tests only.
     import selectors
     parent = tempfile.mkdtemp(prefix="stubbed-untimed-test-")
     ready_r, ready_w = os.pipe()
@@ -2848,7 +2832,7 @@ with t["_self_test_limits"]() as failures:
                 # The signal lands in the real spawn window: the session
                 # already exists, but run has not yet entered the try whose
                 # finally kills it; only the production mask block across
-                # the spawn holds the SIGTERM until inside that try (3b339).
+                # the spawn holds the SIGTERM until inside that try.
                 state["sid"] = self.pid
                 # The survivors-based leak observation relies on CPython running
                 # the unblocked handler inside os.kill. Requiring term_pending
@@ -2860,10 +2844,10 @@ with t["_self_test_limits"]() as failures:
     try:
         # A shell-builtin loop, deliberately: it needs no PATH lookup, so on
         # the unfixed code (spawn block removed) the shell keeps running and
-        # the leak is observed. "sleep 3600" did not discriminate in the
-        # orchestrator's check (no survivors on the fix or the flip); the
-        # likely cause, not verified, is that the raise removes the PATH
-        # directory before the shell resolves sleep (3b339).
+        # the leak is observed. In the earlier repository, "sleep 3600" did
+        # not discriminate (no survivors with the spawn block in place or
+        # removed); the likely cause, not verified, is that the raise removes
+        # the PATH directory before the shell resolves sleep.
         invoked_run(g["SPAWN_WINDOW_COMMAND"], shells=("bash",), timeout=30)
     except t["_Terminated"]:
         terminated = True
@@ -2879,15 +2863,15 @@ print(json.dumps(dict(terminated=terminated, sid=sid, survivors=survivors,
 
 
 def _spawn_window_sigterm_check(failures, probe=SPAWN_WINDOW_PROBE):
-    # A REAL SIGTERM delivered inside the REAL spawn window (3b339): the
-    # probe's Popen subclass signals its own process right after
-    # super().__init__ returns, between session creation and the mask
-    # restore inside the try, so the mask block across the spawn is the only
-    # thing standing between the signal and a skipped session kill. The
-    # at-spawn policy routes model this window; this check exercises it end
-    # to end with a real child session. The probe kills a leaked session
-    # itself, its fixture watcher sweeps one if the probe dies, and the
-    # bounded communicate below bounds the whole probe.
+    # A REAL SIGTERM delivered inside the REAL spawn window: the probe's
+    # Popen subclass signals its own process right after super().__init__
+    # returns, between session creation and the mask restore inside the try,
+    # so the mask block across the spawn is the only thing standing between
+    # the signal and a skipped session kill. The at-spawn policy routes
+    # model this window; this check exercises it end to end with a real
+    # child session. The probe kills a leaked session itself, its fixture
+    # watcher sweeps one if the probe dies, and the bounded communicate
+    # below bounds the whole probe.
     def fail(stage):
         failures.append(("sigterm-in-spawn-window:" + stage, False))
         return False
@@ -3122,7 +3106,7 @@ def _self_test_body(policy, failures) -> int:
     checks.append(("argument-boundaries-kept", r["argv"] == [["gh", "pr", "merge", "a b", ""]]))
     # Every route to a real program that ordinary shell syntax offers is refused. The target is the harmless
     # /usr/bin/id, so a regression can only ever run id; each case names the refusal it expects and the
-    # stand-in calls it expects, and no case may show id's output (3b116 QA r6).
+    # stand-in calls it expects, and no case may show id's output.
     slash = "restricted: cannot specify `/' in command names"
     for label, cmd, expect, calls in (
             ("slash-path", "/usr/bin/id", slash, []), ("path-change", "PATH=/usr/bin; id", "PATH: readonly variable", []),
@@ -3137,7 +3121,7 @@ def _self_test_body(policy, failures) -> int:
             ("touch", "touch x", "touch: command not found", []), ("login-shell", "bash -l -c '/usr/bin/id'", "refused: option -l", []),
             ("interactive-shell", "HOME=\"$PWD\" bash -i -c 'set -o history; history -s x'", "refused: option -i", []),
             ("rcfile", "bash --rcfile x -c true", "refused: option --rcfile", []),
-            # An unrestricted bash stand-in would import SHELLOPTS and PS4 (3b116 QA r5).
+            # An unrestricted bash stand-in would import SHELLOPTS and PS4.
             ("ps4-xtrace", "PS4='$(/usr/bin/id)'; export PS4; set -o xtrace; export SHELLOPTS; gh x", slash, ["STUB gh x"]),
             ("bash-cmds", "BASH_CMDS[e]=/usr/bin/id; e", "/usr/bin/id: restricted", []),
             ("history-path", "set -o history; history -w \"$HOME/.bashrc\"", ".bashrc: restricted", []),
@@ -3149,7 +3133,7 @@ def _self_test_body(policy, failures) -> int:
         rr = run(cmd, shells=("bash",))[0]
         checks.append((f"refused:{label}", expect in rr["stderr"] and rr["calls"] == calls
                        and "uid=" not in rr["stdout"] + rr["stderr"]))
-    # A fork loop is contained: the session kill repeats until the session is empty (3b116 QA r6).
+    # A fork loop is contained: the session kill repeats until the session is empty.
     _test_stage("command-timeout-through-run")
     timed, contained = _command_timeout_check(failures)
     checks.append(("command-timeout-through-run", timed))
@@ -3166,8 +3150,8 @@ def _self_test_body(policy, failures) -> int:
     tok, host, home, path, benv = (r["stdout"].split("|") + [""] * 5)[:5]
     checks.append(("environment-built-from-scratch", tok == "stubbed-shell-invalid" and host == INVALID_HOST
                    and "stubbed-shell-" in home and path.endswith("/bin") and ":" not in path and benv == "unset"))
-    # An inherited BASH_ENV would run at startup, before restriction applies; the probe file calls the gh
-    # stand-in, so if it ever ran the call would be recorded (QA r7: the old probe used touch, not on PATH).
+    # An inherited BASH_ENV would run at startup, before restriction applies; the probe file calls the gh stand-in,
+    # so if it ever ran the call would be recorded (in the earlier repository, a probe used touch, not on PATH).
     _test_stage("inherited-BASH_ENV-never-runs")
     env_dir = tempfile.mkdtemp(prefix="stubbed-shell-test-")
     env_file = os.path.join(env_dir, "env.sh")
@@ -3186,7 +3170,7 @@ def _self_test_body(policy, failures) -> int:
     r = run("printf() { /usr/bin/id; }; export -f printf; gh pr merge 5", shells=("bash",))[0]
     checks.append(("exported-function-cannot-hijack-stand-in", r["calls"] == ["STUB gh pr merge 5"]
                    and "uid=" not in r["stdout"]))
-    # The PATH directory is read-only (tested on the directory itself; QA r7).
+    # The PATH directory is read-only (tested on the directory itself).
     _test_stage("path-dir-read-only")
     probe_tmp = tempfile.mkdtemp(prefix="stubbed-shell-test-")
     try:
@@ -3202,9 +3186,9 @@ def _self_test_body(policy, failures) -> int:
         checks.append(("inherited-function-ignored", r["calls"] == ["STUB gh pr merge 4"]))
     finally:
         os.environ.pop("BASH_FUNC_gh%%", None) if saved is None else os.environ.__setitem__("BASH_FUNC_gh%%", saved)
-    # Nothing in the run's session survives it, in the background or under job control (QA r7: the session is
-    # observed directly after the run returns). A killed child its reaper has not yet collected is still listed,
-    # as a zombie, so only a live member fails the check, awaited (bounded) in case one is still dying (3b125).
+    # Nothing in the run's session survives it, in the background or under job control (the session is observed
+    # directly after the run returns). A killed child its reaper has not yet collected is still listed, as a
+    # zombie, so only a live member fails the check, awaited (bounded) in case one is still dying.
     # The lifetime watcher kills these sessions even if the self-test is SIGKILLed.
     # 3600s exceeds this check's ceilings; natural exit cannot hide missing cleanup.
     for label, cmd in (("background", "sleep 3600 & echo started"), ("job-control", "set -m; sleep 3600 & echo started")):
@@ -3215,10 +3199,9 @@ def _self_test_body(policy, failures) -> int:
         if survivors:
             _kill_session(r["session"])
     # Behind a reaper that has not collected (the loaded-host case, made certain), the exited child is a zombie and is
-    # not a survivor: exactly one scan and no retry sleep, with no elapsed-time assertion. The check
-    # fails unless the probe adopted the orphan and the zombie was really there (3b125). A probe that could not
-    # set the subreaper is a skip, named in the result line with its reason; one that crashed or printed nothing
-    # still fails (3b125 QA r1).
+    # not a survivor: exactly one scan and no retry sleep, with no elapsed-time assertion. The check fails unless the
+    # probe adopted the orphan and the zombie was really there. A probe that could not set the subreaper is a skip,
+    # named in the result line with its reason; one that crashed or printed nothing still fails.
     _test_stage("slow-reaper-zombie-not-a-survivor")
     reason = globals().get("_TEST_SUBREAPER_SKIP", "")
     if reason:
@@ -3251,7 +3234,7 @@ def _self_test_body(policy, failures) -> int:
     checks.append(("spawn-window-command-bounded", r["rc"] == 0 and "timed out" not in r["stderr"]))
     _test_stage("sigterm-in-spawn-window-cleans-up")
     checks.append(("sigterm-in-spawn-window-cleans-up", _spawn_window_sigterm_check(failures)))
-    # A signal blocked during one shell's cleanup is not inherited, ignored, by the next shell (fix-check).
+    # A signal blocked during one shell's cleanup is not inherited, ignored, by the next shell.
     _test_stage("no-ignored-signals-inherited")
     rr = run("trap -p TERM HUP INT", shells=("bash", "sh"))
     # (an ignored signal prints as trap -- '' SIG; POSIX mode prints a default one as trap -- - SIG)
@@ -3268,7 +3251,7 @@ def _self_test_body(policy, failures) -> int:
     _test_stage("stub-name-validated")
     checks.append(("stub-name-validated", main(["--stub", "../x", "true"]) == 2 and main(["--stub", "bash", "true"]) == 2))
     # A tree the command cannot leave behind is still removed: made directly, since the command itself can no
-    # longer create a nested path (QA r8).
+    # longer create a nested path.
     _test_stage("read-only-tree-cleaned")
     ro = tempfile.mkdtemp(prefix="stubbed-shell-test-")
     os.makedirs(os.path.join(ro, "d", "e"))
@@ -3277,10 +3260,10 @@ def _self_test_body(policy, failures) -> int:
     os.chmod(os.path.join(ro, "d"), 0)
     _rmtree(ro)
     checks.append(("read-only-tree-cleaned", not os.path.exists(ro)))
-    # --norc --noprofile are what stop a startup file the command writes with history -w (3b116 QA r5); here
-    # nothing is refused, so the evidence is that the planted program never ran.
+    # --norc --noprofile are what stop a startup file the command writes with history -w; here nothing is
+    # refused, so the evidence is that the planted program never ran.
     # Regression guards only: a plain non-interactive nested shell reads no startup file even without --norc and
-    # --noprofile, so these do not test those flags (3b116 QA r9); the -i/-l refusals and the BASH_ENV case do.
+    # --noprofile, so these do not test those flags; the -i/-l refusals and the BASH_ENV case do.
     # The cat proves the file was planted.
     for label, name in (("rc-file", ".bashrc"), ("profile-file", ".bash_profile")):
         _test_stage(f"startup-file-not-read:{label}")
@@ -3288,11 +3271,11 @@ def _self_test_body(policy, failures) -> int:
                  "HOME=\"$PWD\" bash -c true", shells=("bash",))[0]
         checks.append((f"startup-file-not-read:{label}",
                        "/usr/bin/id" in rr["stdout"] and "uid=" not in rr["stdout"] + rr["stderr"]))
-    # Loader variables do not reach the real program (3b116 QA r8): one ld.so complaint (Python's), not two.
+    # Loader variables do not reach the real program: one ld.so complaint (Python's), not two.
     _test_stage("loader-vars-dropped")
     rr = run("LD_PRELOAD=nonexistent-3b116.so wc -c nofile", shells=("bash",))[0]
     checks.append(("loader-vars-dropped", rr["stderr"].count("nonexistent-3b116.so") == 1))
-    # A forged report line or a non-UTF-8 argument cannot hide a later call (3b116 QA r8).
+    # A forged report line or a non-UTF-8 argument cannot hide a later call.
     _test_stage("report-lines-escaped")
     rep = subprocess.run([sys.executable, "-I", "-B", "-c",
                           "import runpy,sys; t=runpy.run_path(sys.argv[1]); "
@@ -3302,7 +3285,7 @@ def _self_test_body(policy, failures) -> int:
                           'gh pr view 1 "$(printf "\\n== bash rc=0\\nSTUB git push")"; gh "$(printf "\\377")"; gh pr merge 8'],
                          capture_output=True, text=True, errors="replace", timeout=TEST_PROCESS_WAIT)
     lines = rep.stdout.splitlines()
-    # Argument boundaries survive into the printed report (3b116 QA r9).
+    # Argument boundaries survive into the printed report.
     _test_stage("report-argument-boundaries")
     r = run("gh 'pr merge' 1; gh pr merge ''", shells=("bash",))[0]
     checks.append(("report-argument-boundaries", r["calls"] == ["STUB gh 'pr merge' 1", "STUB gh pr merge ''"]))

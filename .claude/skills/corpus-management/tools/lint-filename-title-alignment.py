@@ -39,8 +39,7 @@ EXEMPT_DIRECTORY_PREFIXES: tuple[str, ...] = (
 )
 # The old ``docs/`` prefix exempted the generated portal pages; after the move
 # they live in ``governance/``, so only those pages are exempt
-# (``lint_common.GENERATED_GOVERNANCE_PAGES``), never the governance domain
-# (chunk CR1, coverage audit HIGH-4).
+# (``lint_common.GENERATED_GOVERNANCE_PAGES``), never the governance domain.
 
 # Files exempt from the filename-title alignment rule. Intentionally
 # empty: the current corpus has zero false positives, and the linter's
@@ -59,11 +58,11 @@ EXEMPT_FILENAMES: set[str] = {
 # ``AUDITED_DOMAIN_DIRS`` declaration in ``lint_common`` (the scan-scope
 # parity gate forbids hardcoding the run here).
 # The project specifications that sat in ``governance/`` before the move are
-# scanned in their new home (chunk CR1, coverage audit HIGH-2).
+# scanned in their new home.
 DEFAULT_PATHS = [*AUDITED_DOMAIN_DIRS, PROJECT_SPECS_DIR]
 
 def _alignment_config() -> tuple[dict[str, str], set[str]]:
-    """Load the gate-7 alignment vocabulary from the pack profile (Phase-4 PR-E).
+    """Load the gate-7 alignment vocabulary from the pack profile.
 
     Returns ``(synonyms, doctypes)`` composed from the pack reference-vocabulary
     profile ``.claude/skills/corpus-management/src/defaults/grc/alignment.toml``, loaded via
@@ -79,7 +78,7 @@ def _alignment_config() -> tuple[dict[str, str], set[str]]:
     pack_tools = str(PACK_TOOLS)
     if pack_tools not in sys.path:
         sys.path.insert(0, pack_tools)
-    import profile_loader  # the pack-owned reference-vocabulary loader (PR-A)
+    import profile_loader  # the pack-owned reference-vocabulary loader
 
     prof = profile_loader.load("alignment")
     synonyms = {str(k): str(v) for k, v in prof["synonyms"].items()}
@@ -134,7 +133,7 @@ def main() -> int:
         else DEFAULT_PATHS
     )
     if paths is not DEFAULT_PATHS and paths:
-        # Explicit paths are refused when unsound and normalized otherwise (3b21).
+        # Explicit paths are refused when unsound and normalized otherwise.
         paths = guard_explicit_paths(paths, repo_root=REPO_ROOT)
     synonyms, doctypes = _alignment_config()
     return _engine().run(

@@ -25,18 +25,18 @@ link to the document, reads its metadata header, and compares:
   are findings; an unchanged pinned pair passes, and one whose class is in
   ``title_worklist_classes`` is returned as a ``DRIFT:``-prefixed work item.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): this engine
-carries the PURE check (``cadence_tokens``, ``find_index_table``, ``check_row``,
-``collect_findings``) plus the GENERIC review-cadence recognizer vocabulary
-(``CADENCE_PHRASES`` / ``CADENCE_EVENT_RE``) and the code-span-link regex. It is
-repository-root-free (``collect_findings`` takes ``repo_root``) and carries no
-project register schema: the index relative path, the 8-column header schema, the
-column indices, the metadata field names, the per-document base-cadence
-allow-list, and the title field, baseline and class names are supplied by the
-wrapper. The linked-document read stays in the engine (an ``OSError`` or a
-``UnicodeError`` there is a per-row finding, not an environmental exit), while the
-register-missing / register-unreadable environmental error paths stay in the
-wrapper (Pattern-A precedent: standards-currency, gate 6).
+Engine/wrapper split: this engine carries the PURE check (``cadence_tokens``,
+``find_index_table``, ``check_row``, ``collect_findings``) plus the GENERIC
+review-cadence recognizer vocabulary (``CADENCE_PHRASES`` / ``CADENCE_EVENT_RE``)
+and the code-span-link regex. It is repository-root-free (``collect_findings``
+takes ``repo_root``) and carries no project register schema: the index relative
+path, the 8-column header schema, the column indices, the metadata field names,
+the per-document base-cadence allow-list, and the title field, baseline and class
+names are supplied by the wrapper. The linked-document read stays in the engine
+(an ``OSError`` or a ``UnicodeError`` there is a per-row finding, not an
+environmental exit), while the register-missing / register-unreadable
+environmental error paths stay in the wrapper (as in the standards-currency engine
+and wrapper split, gate 6).
 
 ``collect_findings`` returns ``(findings, warnings, rows_checked, title_worklist)``,
 or ``None`` when the index table's header row is not found (the wrapper turns that

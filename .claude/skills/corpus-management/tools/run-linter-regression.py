@@ -14,17 +14,17 @@ Discovers every top-level ``.claude/skills/corpus-management/tests/test_*.py`` f
 module name), prints the module list it runs, and runs all of the
 modules in ONE ``unittest`` invocation, so a new test file is in the
 gate by existing rather than by a hand-maintained module list or a
-per-class re-export in ``.claude/skills/corpus-management/tests/test_linters.py`` (the 3b525 finding:
-the hand-maintained list ran two modules and covered the other test
-files only through such re-exports, which a new file or class silently
-misses). Only top-level ``.claude/skills/corpus-management/tests/test_*.py`` files are in scope: a
-``test_*.py`` file inside a ``.claude/skills/corpus-management/tests/`` SUBDIRECTORY is a refusal (exit
-2, naming the nested file), never a silent omission, and so is a
-``.claude/skills/corpus-management/tests/`` subdirectory that cannot be inspected at all (a symlinked
-subdirectory, an unreadable one, or a ``test_*`` package directory).
+per-class re-export in ``.claude/skills/corpus-management/tests/test_linters.py`` (in the earlier
+repository, the hand-maintained list ran two modules and covered the
+other test files only through such re-exports, which a new file or
+class silently misses). Only top-level ``.claude/skills/corpus-management/tests/test_*.py`` files are
+in scope: a ``test_*.py`` file inside a ``.claude/skills/corpus-management/tests/`` SUBDIRECTORY is a
+refusal (exit 2, naming the nested file), never a silent omission, and
+so is a ``.claude/skills/corpus-management/tests/`` subdirectory that cannot be inspected at all (a
+symlinked subdirectory, an unreadable one, or a ``test_*`` package
+directory).
 
-Refusals never soften to green (the 3b525 round-1 and round-2
-findings):
+Refusals never soften to green:
 
 * Before running anything, ``main`` re-enumerates ``.claude/skills/corpus-management/tests/`` with
   ``os.walk`` (not the discovery glob) and refuses (exit 2) when the
@@ -38,7 +38,7 @@ findings):
 * The child driver repeats the enumeration itself against its OWN
   ``sys.argv`` and refuses (exit 2) when the two differ, so a filter
   applied to the child's argv, or inside the driver, cannot drop a
-  module (the round-2 finding: the parent validated only its own
+  module (in the earlier repository, the parent validated only its own
   module list, not what the child ran).
 * A discovered file whose import raises ANYTHING, ``BaseException``
   included (an import-time ``SystemExit(0)`` must not become a green
@@ -68,9 +68,9 @@ findings):
   a pipe; the driver reads it and rebinds its stdin to ``os.devnull``,
   closing the pipe, before importing any test module), never on argv
   and never in the environment, so it never appears in ``sys.argv``,
-  ``os.environ`` or ``/proc/<pid>/cmdline`` (the 3b525 round-3
-  finding: on argv, a ``load_tests`` could read the nonce and forge
-  the sentinel). What the nonce and sentinel defend against:
+  ``os.environ`` or ``/proc/<pid>/cmdline`` (in the earlier
+  repository, with the nonce on argv, a ``load_tests`` could read it
+  and forge the sentinel). What the nonce and sentinel defend against:
   accidental early exits (a premature ``SystemExit`` before the
   sentinel), grandchild or stray output standing in for the summary
   or the sentinel, dropped modules, and zero-test modules. What they
@@ -102,83 +102,79 @@ findings):
   record: a class cleanup's ``SkipTest`` after a skipped
   ``setUpClass`` is recorded under the same ``setUpClass`` name, and
   such further records of one run, told apart from a later run's by
-  arriving back to back (no start and no other skip record in
-  between) with the same holder and the same ``_previousTestClass``
-  on the result, are discarded, not credited to a later run) and
-  reports them as ``notStarted`` in the
-  sentinel, so a run unittest itself reports green with such skips in
-  a module that otherwise ran is not refused, while a dropped test
-  (which no skip record accounts for) still is. Both hold only for a
-  suite that runs its cases in its flattened order (see the
-  reordering-suite residual below). The grouping of records into
-  runs depends on unittest's private _previousTestClass attribute
-  and its set-up order (set to a run's class only after that class's
-  set-up; read in CPython 3.14 and 3.11 ``suite.py``), which unittest
-  does not document, so a change there could misgroup records (an
-  accepted residual). When the result object has no
+  arriving back to back (no start and no other skip record in between)
+  with the same holder and the same ``_previousTestClass`` on the
+  result, are discarded, not credited to a later run) and reports them
+  as ``notStarted`` in the sentinel, so a run unittest itself reports
+  green with such skips in a module that otherwise ran is not refused,
+  while a dropped test (which no skip record accounts for) still is.
+  Both hold only for a suite that runs its cases in its flattened
+  order (see the reordering-suite residual below). The grouping of
+  records into runs depends on unittest's private _previousTestClass
+  attribute and its set-up order (set to a run's class only after that
+  class's set-up; read in CPython 3.14 and 3.11 ``suite.py``), which
+  unittest does not document, so a change there could misgroup records
+  (an accepted residual). When the result object has no
   ``_previousTestClass`` attribute at all as a ``setUpClass`` skip
   record arrives, the run is refused (exit 2, naming
   ``_previousTestClass`` and the Python version), never grouped by a
-  default; ``None``, its value before the first test, is an answer
-  (the 3b525 round-16 review, agy). ``notStarted`` counts
-  only these ``setUpClass`` skips: a test of a skip-decorated class
-  reaches ``startTest`` (``testsRun`` counts it), and a test a
-  ``SkipTest`` in ``setUpModule`` kept from starting is not counted,
-  so it can only make that reconciliation fail (a handed module with
-  no credited start is refused by the next bullet; a helper module
-  outside the run list, whose class a handed module loaded, is
-  refused by the reconciliation).
-* Every module must earn at least one CREDITED START (the 3b525
-  round-8 W1 finding: a file on the run list is not a file whose
-  tests ran). This per-module rule is separate from the sentinel's
-  ``notStarted`` count above. A credited start is a test from this
-  module's loaded suite that reaches ``startTest`` outside a
-  skip-decorated class: a started test is credited to the handed
-  module whose suite, as ``unittest.main`` loads it (one suite per
-  module, in argv order), contains it, whatever the test's type
-  (``TestCase``, ``unittest.FunctionTestCase``, a doctest case, or any
-  other test object). Credit is per suite OCCURRENCE, not per case
-  object: the driver lists every occurrence in flattened suite order
-  (holding each case alive until the run ends, so no id or identity
-  is reused) and matches each start, by identity, to the next pending
-  occurrence of that object. Before the run, a case object that
-  appears in more than one handed module's flattened suite is refused
-  (exit 2, naming the modules): with one object in two modules'
-  suites, forward matching plus a ``setUpClass``-skipped class between
-  the occurrences credited the wrong module, giving a false pass or a
-  false refusal (the 3b525 round-12 review, codex E1 and E2), so
-  every occurrence a start can match lies in one module's suite.
-  The gate checks that each module's suite starts
-  something, not who wrote the test's code (rounds 9 and 10 tried to
-  credit the module defining the code, and every variant refused
-  legitimate modules or credited crafted ones). Before crediting, the
-  driver checks the pairing: ``unittest.main`` must load exactly one
-  suite per handed module, each with the case count the driver's own
-  load found for that module; otherwise it refuses (exit 2, naming
-  the mismatch) rather than guess (a ``load_tests`` that returns a
-  different case count on a second load fails this; one that returns
-  different cases in the same number does not, see the residuals
-  below). When unittest itself
-  reports the run green, the driver refuses (exit 2, naming the file)
-  a module with no credited start, as ".claude/skills/corpus-management/tests/X.py: N loaded, 0
-  credited starts" plus the definition above; the refusal names no
-  cause. Skips: a test that a ``SkipTest``
-  raised in ``setUpModule`` or ``setUpClass`` kept from ``startTest``
-  is not a credited start, and neither is a test whose class is
-  skip-marked by a class decorator (``unittest.skip``, or ``skipIf``
-  or ``skipUnless`` whose condition skips, on the class or a base
-  class), even though unittest calls ``startTest`` for such a test
-  before it reads the class flag (the 3b525 round-8 review N1); the
-  flag is read from ``test.__class__``, as unittest reads it. So a
-  module whose every loaded case is skipped at class level, by
-  either means, is a refusal. A module whose loaded suite holds no
-  cases is refused earlier, before the run, by the zero-test-cases
-  check above. Accepted residuals: the pairing check compares case
-  counts per suite, not case identity, so a second load that returns
-  different cases in the same number passes it, and its cases are
-  credited as ``unittest.main`` loaded them; a start is matched to the
-  next pending occurrence in unittest's run order, so a test that
-  itself starts another loaded case object (outside the suite's own
+  default; ``None``, its value before the first test, is an answer.
+  ``notStarted`` counts only these ``setUpClass`` skips: a test of a
+  skip-decorated class reaches ``startTest`` (``testsRun`` counts it),
+  and a test a ``SkipTest`` in ``setUpModule`` kept from starting is
+  not counted, so it can only make that reconciliation fail (a handed
+  module with no credited start is refused by the next bullet; a
+  helper module outside the run list, whose class a handed module
+  loaded, is refused by the reconciliation).
+* Every module must earn at least one CREDITED START (a file on the
+  run list is not a file whose tests ran). This per-module rule is
+  separate from the sentinel's ``notStarted`` count above. A credited
+  start is a test from this module's loaded suite that reaches
+  ``startTest`` outside a skip-decorated class: a started test is
+  credited to the handed module whose suite, as ``unittest.main``
+  loads it (one suite per module, in argv order), contains it,
+  whatever the test's type (``TestCase``, ``unittest.FunctionTestCase``,
+  a doctest case, or any other test object). Credit is per suite
+  OCCURRENCE, not per case object: the driver lists every occurrence
+  in flattened suite order (holding each case alive until the run
+  ends, so no id or identity is reused) and matches each start, by
+  identity, to the next pending occurrence of that object. Before the
+  run, a case object that appears in more than one handed module's
+  flattened suite is refused (exit 2, naming the modules): with one
+  object in two modules' suites, forward matching plus a
+  ``setUpClass``-skipped class between the occurrences credited the
+  wrong module in the earlier repository, giving a false pass or a
+  false refusal, so every occurrence a start can match lies in one
+  module's suite. The gate checks that each module's suite starts
+  something, not who wrote the test's code (in the earlier repository,
+  two successive designs credited the module defining the code, and
+  every variant refused legitimate modules or credited crafted ones).
+  Before crediting, the driver checks the pairing: ``unittest.main``
+  must load exactly one suite per handed module, each with the case
+  count the driver's own load found for that module; otherwise it
+  refuses (exit 2, naming the mismatch) rather than guess (a
+  ``load_tests`` that returns a different case count on a second load
+  fails this; one that returns different cases in the same number does
+  not, see the residuals below). When unittest itself reports the run
+  green, the driver refuses (exit 2, naming the file) a module with no
+  credited start, as ".claude/skills/corpus-management/tests/X.py: N loaded, 0 credited starts" plus
+  the definition above; the refusal names no cause. Skips: a test that
+  a ``SkipTest`` raised in ``setUpModule`` or ``setUpClass`` kept from
+  ``startTest`` is not a credited start, and neither is a test whose
+  class is skip-marked by a class decorator (``unittest.skip``, or
+  ``skipIf`` or ``skipUnless`` whose condition skips, on the class or
+  a base class), even though unittest calls ``startTest`` for such a
+  test before it reads the class flag; the flag is read from
+  ``test.__class__``, as unittest reads it. So a module whose every
+  loaded case is skipped at class level, by either means, is a
+  refusal. A module whose loaded suite holds no cases is refused
+  earlier, before the run, by the zero-test-cases check above.
+  Accepted residuals: the pairing check compares case counts per
+  suite, not case identity, so a second load that returns different
+  cases in the same number passes it, and its cases are credited as
+  ``unittest.main`` loaded them; a start is matched to the next
+  pending occurrence in unittest's run order, so a test that itself
+  starts another loaded case object (outside the suite's own
   iteration) can move the match (test code controlling the run is the
   in-process residual below); a suite that reorders, drops or
   substitutes cases, in its own ``run`` or its ``__iter__``, and a
@@ -189,20 +185,20 @@ findings):
   reordering suite holds a ``setUpClass``-skipped class can be falsely
   refused, and a dropping suite can produce a false pass without a
   shared case object; no current module uses such a suite or test
-  object); a module that only imports and loads
-  another module's ``TestCase`` classes earns credit for their
-  started tests (borrowing; no current module does this; the gate
-  checks that each module's suite starts something, not who wrote
-  it); a test skipped individually (a skip decorator on the test
-  method, or ``self.skipTest`` inside the test or its ``setUp``) is a
-  credited start, so a module whose every test is skipped
-  individually is not refused; and test code can forge the result
-  in-process (the ``__main__.nonce`` residual above).
+  object); a module that only imports and loads another module's
+  ``TestCase`` classes earns credit for their started tests
+  (borrowing; no current module does this; the gate checks that each
+  module's suite starts something, not who wrote it); a test skipped
+  individually (a skip decorator on the test method, or
+  ``self.skipTest`` inside the test or its ``setUp``) is a credited
+  start, so a module whose every test is skipped individually is not
+  refused; and test code can forge the result in-process (the
+  ``__main__.nonce`` residual above).
 * A run unittest itself reports as failed (``wasSuccessful()`` False,
   including an error, not a skip, raised by ``setUpModule`` or
   ``setUpClass``) is never turned into that zero-started refusal: the
   driver exits 1 with unittest's own failure report, and this script
-  forwards the 1 (the 3b525 round-8 review N2: such a run printed a
+  forwards the 1 (in the earlier repository, such a run printed a
   refusal naming a ``SkipTest`` cause it did not have and exited 2).
 * A green child exit additionally needs unittest's own ``Ran N
   tests`` line with N at least 1 somewhere in its stderr.
@@ -220,10 +216,8 @@ its one extra, last line.
 Exit code is otherwise forwarded from unittest: 0 if all tests pass,
 non-zero on failure (1 when unittest reports a failure or an error).
 
-Shard mode (maintainer directive 2026-11-04, the 3b789 gate 36 split;
-since the maintainer decision of 2026-11-09 only the pre-push guard's
-local shards use it):
-``--shard I/K`` runs one deterministic slice of the same suite, and
+Shard mode (no caller other than the pre-push guard's local shards uses
+it): ``--shard I/K`` runs one deterministic slice of the same suite, and
 ``--verify-shards K`` checks the slicing without running a test. A UNIT
 is a maximal run of consecutive occurrences of one class object within
 one module's loaded suite, flattened in suite order, exactly the unit
@@ -270,13 +264,13 @@ the shard's own suite load found, and ``selection``, that of its
 selected units, published as the ``units_sha256`` and
 ``selected_sha256`` outputs. The reconcile step
 (.claude/skills/corpus-management/tools/reconcile-regression-shards.py) sums the counts across all
-shards and fails when any discovered module's total is zero, restoring
+shards and fails when any discovered module's total is zero, applying
 before merge the serial runner's refusal of a module with no credited
 start, and fails unless every shard's ``units_sha256`` is the same, so
 two runners that discovered different suites cannot pass as one
 partition; a shard output that is missing, malformed, or naming a
 module set other than the on-disk .claude/skills/corpus-management/tests/test_*.py files is a refusal
-there, never a pass. No workflow runs shards now: the quality
+there, never a pass. No workflow runs shards: the quality
 workflow's 1 small GitHub job runs only the section 4 CI subset of
 gates and the delta gates, and the full suite, gate 36 whole included,
 runs on the local server for the local-quality commit status and in
@@ -312,13 +306,13 @@ import sys
 import unittest
 from pathlib import Path
 
-# Two anchors (decision D1, unit U037). SUITE_ROOT is the skill directory
-# that holds tests/: discovery, the completeness check, the child's cwd
-# (tests.X imports) and its scandir("tests") are suite uses, and every
-# function parameter named repo_root takes this suite anchor (the gate 36
-# fixtures pass their own temporary suite root under that name).
-# REPO_ROOT is the repository root, stated literally for this file's
-# location (<root>/.claude/skills/corpus-management/tools/), and anchors
+# Two anchors. SUITE_ROOT is the skill directory that holds tests/:
+# discovery, the completeness check, the child's cwd (tests.X imports)
+# and its scandir("tests") are suite uses, and every function parameter
+# named repo_root takes this suite anchor (the gate 36 fixtures pass
+# their own temporary suite root under that name). REPO_ROOT is the
+# repository root, stated literally for this file's location
+# (<root>/.claude/skills/corpus-management/tools/), and anchors
 # repository-relative paths such as the shard-weights file.
 SUITE_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = Path(__file__).resolve().parents[4]

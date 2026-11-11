@@ -213,17 +213,17 @@ WORKFLOW_PATH = ".github/workflows/quality.yml"
 RUNNER_PATH = ".claude/skills/corpus-management/tools/run_all_audits.sh"
 PRECOMMIT_PATH = ".pre-commit-config.yaml"
 # The PR-time runner where the D-numbered delta gates are actually invoked (the
-# positive-signal surface for the delta-gate parity guard, 3.99 (closing PR #1087)).
+# positive-signal surface for the delta-gate parity guard).
 PRTIME_PATH = ".claude/skills/corpus-management/tools/run-pr-time-checks.sh"
 
 # Workflow steps that are setup, not audit gates. These names are
-# excluded from the workflow's audit-gate list before comparison. Each is
-# additionally pinned to its exact accepted shape (round-2 hardening): the
-# keys it may hold, the exact `with:` values, and either the exact run
-# command or a `uses:` value pinned to the named action at a FULL 40-hex
-# commit SHA (a trailing " # v..." version comment is tolerated). Anything
-# else is a ParseError, so a setup-named step cannot smuggle other content
-# past the by-name exclusion.
+# excluded from the workflow's audit-gate list before comparison. Each
+# is additionally pinned to its exact accepted shape: the keys it may
+# hold, the exact `with:` values, and either the exact run command or
+# a `uses:` value pinned to the named action at a FULL 40-hex commit
+# SHA (a trailing " # v..." version comment is tolerated). Anything
+# else is a ParseError, so a setup-named step cannot smuggle other
+# content past the by-name exclusion.
 WORKFLOW_SETUP_STEPS = {"Checkout", "Set up Python", "Install pinned dependencies"}
 WORKFLOW_SETUP_STEP_ORDER = ("Checkout", "Set up Python",
                              "Install pinned dependencies")
@@ -301,11 +301,11 @@ PRECOMMIT_NON_GATE_HOOKS = {"Regenerate taxonomy, narrative registry, portal, ma
 # flags are.
 SCRIPT_RE = re.compile(r"python3\s+(?:-I\s+)?(.claude/skills/corpus-management/tools/[A-Za-z0-9_.\-]+\.py)")
 
-# Gate lines are matched against a closed allowlist (3b646 round 4, maintainer option A).
-# Rounds 1 to 3 read the shell grammar and refused the shapes known to hide an
-# interpreter; each round found a new one (a second call, a quoted option, a glob-expanded
-# interpreter). Now a gate command must be exactly GATE_COMMAND, from its first character
-# to its last after trailing spaces and tabs are dropped:
+# Gate lines are matched against a closed allowlist. Versions in the earlier repository
+# read the shell grammar and refused the shapes known to hide an interpreter; each was
+# found to miss another (a second call, a quoted option, a glob-expanded interpreter).
+# Now a gate command must be exactly GATE_COMMAND, from its first character to its last
+# after trailing spaces and tabs are dropped:
 #
 #   python3 [-I] .claude/skills/corpus-management/tools/NAME.py [ARG ...]
 #
@@ -321,11 +321,11 @@ SCRIPT_RE = re.compile(r"python3\s+(?:-I\s+)?(.claude/skills/corpus-management/t
 #   - runner: every line that is not a comment and holds the word run_gate is either a
 #     line in RUNNER_NON_GATE_LINES (the function definition) or matches RUNNER_LINE_RE
 #     from column 0: run_gate "LABEL" GATE_COMMAND, LABEL in RUNNER_LABEL's characters.
-#   - both YAML surfaces (3b646 round 6): the file is read into a tree and must match its
-#     fixed skeleton, WORKFLOW_SKELETON or PRECOMMIT_SKELETON, the structure the current
-#     files use. Round 5 allowlisted line shapes but not structure, so a `- name:` or
-#     `- id:` line was read as a step or hook at any column under any key, and a comment
-#     line was skipped while a quoted value was still open. Now:
+#   - both YAML surfaces: the file is read into a tree and must match its fixed skeleton,
+#     WORKFLOW_SKELETON or PRECOMMIT_SKELETON, the structure the current files use. In the
+#     earlier repository line shapes alone were allowlisted, so a `- name:` or `- id:` line
+#     was read as a step or hook at any column under any key, and a comment line was skipped
+#     while a quoted value was still open. Now:
 #       * _yaml_lines: every line is blank, a comment, an unquoted `key:` or `key: value`
 #         line (after an optional `- `) or a plain `- word` item; no value begins with a
 #         quote or another YAML indicator (YAML_VALUE_INDICATORS), apart from the exact
@@ -340,13 +340,12 @@ SCRIPT_RE = re.compile(r"python3\s+(?:-I\s+)?(.claude/skills/corpus-management/t
 #         matches the skeleton's item, and pinned scalars hold their pinned values. A
 #         step is therefore only an item of jobs.lint.steps, with its dash at column 6
 #         and its keys at column 8, and a hook only an item of repos[].hooks, likewise.
-#     A comment line is skipped only where no value is open: a value never opens a quote
-#     or a flow collection (both refused at their first character, except the one-line
-#     PRECOMMIT_FLOW_LISTS values and the one-line WORKFLOW_PINNED_QUOTED_VALUES value,
-#     each of which closes on its own line), a plain value never continues on a later
-#     line, and
-#     the only multi-line value, a `run: |` block scalar, consumes its lines as text
-#     before comments are looked for (so a `#` line inside it is text, as YAML reads it).
+#     A comment line is skipped only where no value is open: a value never opens a quote or
+#     a flow collection (both refused at their first character, except the one-line
+#     PRECOMMIT_FLOW_LISTS values and the one-line WORKFLOW_PINNED_QUOTED_VALUES value, each
+#     of which closes on its own line), a plain value never continues on a later line, and
+#     the only multi-line value, a `run: |` block scalar, consumes its lines as text before
+#     comments are looked for (so a `#` line inside it is text, as YAML reads it).
 #   - workflow: a step whose first key is not `- name:` is a finding. A step whose name is
 #     not excluded is a gate step: it has exactly the keys name and run, and its run
 #     value matches GATE_COMMAND.
@@ -421,7 +420,7 @@ def _gate_argv(match: re.Match[str]) -> tuple[str, ...]:
     return tuple(match.group("args").split())
 
 
-# The canonical argv of every live section 6 gate, by gate number (ep8qs M2). Generated
+# The canonical argv of every live section 6 gate, by gate number. Generated
 # from the runner of 2026-11-09 (section 6 rows zipped with its run_gate lines) and then
 # maintained by hand: a gate added, retired or given a new flag changes its entry here in
 # the same change. The runner, the pre-commit hooks and, for a CI-subset gate, the
@@ -537,7 +536,7 @@ def _extract_argv(command: str, script_path: str) -> tuple[str, ...]:
 # and the rest of the row (which contains the script link).
 SPEC_ROW_RE = re.compile(r"^\|\s*(\d+)\s*\|\s*(.+?)\s*\|\s*(.+?)\s*\|\s*$")
 
-# A retired gate keeps its number as a tombstone row (D-2251: gate numbers are
+# A retired gate keeps its number as a tombstone row (gate numbers are
 # permanent and never reused): the Gate cell is the one-line retired marker
 # "*(retired YYYY-MM-DD: reason)*" and the Script cell is exactly "n/a". A
 # tombstone row has no script link and runs on no execution surface, so it is
@@ -618,7 +617,7 @@ def parse_spec_inventory(path: Path) -> list[tuple[int, int, str, str]]:
     return rows
 
 
-# Section-5 grouped list (3b158). A line opening with CATEGORY_ITEM_RE is a
+# Section-5 grouped list. A line opening with CATEGORY_ITEM_RE is a
 # category item and must match CATEGORY_LIST_RE; only group 1, the leading
 # "(gates ...)" list, is read, so later "(gate N)" glosses stay prose. The item
 # shape is wide (any numbered or bulleted line opening with "*" or "_"
@@ -823,7 +822,7 @@ YAML_STRUCTURE = ("a gate YAML surface is accepted only in the fixed structure o
 # Characters YAML (1.1, as PyYAML reads it) takes as a line break besides LF.
 YAML_OTHER_BREAKS = ("\r", "\x85", "\u2028", "\u2029")
 
-# The fixed skeletons (3b646 round 6). A dict is a mapping that may hold only its keys, and
+# The fixed skeletons. A dict is a mapping that may hold only its keys, and
 # an _Exact one must hold every one of them; a one-item list is a list whose items match
 # that item; a frozenset is a plain value pinned to its members; and a tuple names the node
 # kinds allowed: a plain "scalar", "empty" (a key with no value) or a `|` "block" scalar.
@@ -838,11 +837,10 @@ WORKFLOW_STEP_SKELETON = {
     "with": {"fetch-depth": _SCALAR, "python-version": _SCALAR},
     "env": {"BASE_SHA": _SCALAR, "HEAD_SHA": _SCALAR},
 }
-# The one pull-request job (maintainer decision 2026-11-09): on pull_request only,
-# jobs exactly {lint}, the job named WORKFLOW_JOB_NAME (the required check). The
-# retired gate-36 shard form (regression-shard jobs and a summary job) is refused by
-# the skeleton, and any workflow line naming REGRESSION_SCRIPT_NAME by
-# _check_no_regression_step.
+# The one pull-request job: on pull_request only, jobs exactly {lint}, the job named
+# WORKFLOW_JOB_NAME (the required check). The retired gate-36 shard form
+# (regression-shard jobs and a summary job) is refused by the skeleton, and any
+# workflow line naming REGRESSION_SCRIPT_NAME by _check_no_regression_step.
 WORKFLOW_JOB_NAME = "Lint markdown corpus"
 WORKFLOW_SKELETON = _Exact({
     "name": _SCALAR,
@@ -897,7 +895,7 @@ def parse_ci_subset(path: Path) -> tuple[int, list[int]]:
     lineno = index + 1
     line = lines[index]
     visible, _ = _scan_markup(lines)
-    # The opener must itself open the fence at top level (ep8qs L5): the lines before
+    # The opener must itself open the fence at top level: the lines before
     # it leave no fence or HTML comment open, so a block shown as an example inside an
     # outer fence (a 4-backtick one, say) is fence text and not the subset.
     top_level = 0 < index and not _scan_markup(lines[:index - 1])[1]
@@ -1059,12 +1057,14 @@ SPECIAL_KINDS = ((stat.S_ISDIR, "a directory"), (stat.S_ISFIFO, "a FIFO"),
 
 def _surface_kind(path: Path) -> str | None:
     """What is at ``path``, from lstat and, for a symbolic link, stat of its target, so
-    that nothing is opened to find out (3b675 round 4: round 3 read whatever was present at
-    .claude/skills/corpus-management/tools/run-pr-time-checks.sh, and a FIFO there blocked the gate). None when lstat finds
-    no entry (ENOENT); REGULAR_FILE for a regular file or a link to one; otherwise the
-    kind, such as "a FIFO", "a symbolic link loop" or "a symbolic link to a directory".
-    Any other lstat or stat failure (a parent without search permission, a parent that is
-    not a directory) is a ParseError, never read as absent."""
+    that nothing is opened to find out (in the earlier repository, a version of this
+    gate read whatever was present at
+    .claude/skills/corpus-management/tools/run-pr-time-checks.sh, and a FIFO there
+    blocked the gate). None when lstat finds no entry (ENOENT); REGULAR_FILE for a
+    regular file or a link to one; otherwise the kind, such as "a FIFO", "a symbolic
+    link loop" or "a symbolic link to a directory". Any other lstat or stat failure (a
+    parent without search permission, a parent that is not a directory) is a
+    ParseError, never read as absent."""
     def unexaminable(exc: OSError) -> ParseError:
         return ParseError(f"{path.relative_to(REPO_ROOT)}: cannot be examined "
                           f"({type(exc).__name__}: {exc.strerror or exc})")
@@ -1093,13 +1093,13 @@ def _surface_kind(path: Path) -> str | None:
 
 def _read_utf8(path: Path) -> str:
     """The text of ``path``, decoded as UTF-8 with no newline translation. Every file the
-    gate reads goes through here (3b675 round 2), so a file that is not valid UTF-8 is a
+    gate reads goes through here, so a file that is not valid UTF-8 is a
     ParseError (exit 2), never a decode traceback. UTF-16 with a byte-order mark is not
     valid UTF-8; BOM-less UTF-16 of ASCII text is, so it is read as UTF-8 and fails, if at
     all, on its content. Only a regular file, or a symbolic link to one, is opened: anything
-    else present is a ParseError naming its kind (3b675 round 4; see _surface_kind). A file
+    else present is a ParseError naming its kind (see _surface_kind). A file
     that cannot be read (any OSError but FileNotFoundError, such as a mode-000 file) is a
-    ParseError too (3b675 round 3); a missing file raises FileNotFoundError, for the caller
+    ParseError too; a missing file raises FileNotFoundError, for the caller
     to refuse or tolerate. The kind is checked by name and the file then opened by name, so
     a regular file replaced by a FIFO between the two is not caught."""
     kind = _surface_kind(path)
@@ -1388,7 +1388,7 @@ def parse_workflow(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
                                    "is not read as a step (a step's first key is `- name:`)")
         step_name = step.get("name").value
         if step_name in WORKFLOW_SETUP_STEPS:
-            # Pinned exactly (round-2 hardening): the by-name exclusion alone
+            # Pinned exactly: the by-name exclusion alone
             # would let a setup-named step carry arbitrary content.
             _check_setup_step(path, step, "lint job")
             continue
@@ -1499,8 +1499,8 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
     return entries
 
 
-# --- Additive hardening of the exclusion allow-lists + the D-numbered delta gates
-# (3.99 (closing PR #1087)). These guards ADD to the parity audit; they do not weaken the
+# --- Additive hardening of the exclusion allow-lists + the D-numbered delta gates.
+# These guards ADD to the parity audit; they do not weaken the
 # name/script row-parity above. Gap (i): the three exclusion allow-lists are
 # themselves unguarded, so a real §6 gate mistakenly added to an exclusion set
 # would be silently masked from parity. Each guard cross-checks every exclusion
@@ -1543,7 +1543,7 @@ def _wf_step_script(wf_lines: list[str], name: str) -> str | None:
 def verify_exclusion_and_delta_guards(
     root: Path, spec_scripts: set[str]
 ) -> list[str]:
-    """Additive 3.99 (closing PR #1087) guards over the exclusion allow-lists and the D-numbered
+    """Additive guards over the exclusion allow-lists and the D-numbered
     delta gates. Returns a (possibly empty) list of findings. Never mutates the
     row-parity result; the caller appends these to its findings."""
     findings: list[str] = []
@@ -1552,8 +1552,8 @@ def verify_exclusion_and_delta_guards(
     pc_lines = _read_utf8(root / PRECOMMIT_PATH).splitlines()
     prtime = (root / PRTIME_PATH)
     # Absent (lstat finds no entry) is tolerated for a portable clone. Anything present goes
-    # to _read_utf8, so an unreadable file is a ParseError (3b675 round 3) and anything but a
-    # regular file is one without being opened (round 4).
+    # to _read_utf8, so an unreadable file is a ParseError and anything but a
+    # regular file is one without being opened.
     prtime_present = _surface_kind(prtime) is not None
     prtime_lines: list[str] = []
     if prtime_present:
@@ -1632,7 +1632,7 @@ def verify_exclusion_and_delta_guards(
                 break
         dmap[num] = (nm, scr)
     # A present runner that is empty, or has no D-number line, would pass the check below
-    # with nothing checked (3b675 round 3).
+    # with nothing checked.
     if prtime_present and not prtime_lines:
         raise ParseError(f"{PRTIME_PATH}: is present but empty, so the D-number "
                          f"parity check has nothing to check")
@@ -1686,7 +1686,7 @@ def main(argv: list[str]) -> int:
              "isolation).",
     )
     args = parser.parse_args(argv)
-    if args.root is not None:  # 3b50b2d1: a missing, empty or non-directory --root is refused
+    if args.root is not None:  # a missing, empty or non-directory --root is refused
         sys.path.insert(0, str(Path(__file__).resolve().parent))
         from lint_common import require_dir
         args.root = require_dir(args.root, "--root")
@@ -1708,7 +1708,7 @@ def main(argv: list[str]) -> int:
             print(f"ERROR: required file not found: {p.relative_to(REPO_ROOT)}",
                   file=sys.stderr)
             return 2
-        if kind != REGULAR_FILE:  # 3b675 round 4: present, so not "not found"
+        if kind != REGULAR_FILE:  # present, so not "not found"
             print(f"ERROR: {p.relative_to(REPO_ROOT)}: is not a regular file ({kind})",
                   file=sys.stderr)
             return 2
@@ -1728,7 +1728,7 @@ def main(argv: list[str]) -> int:
 
     findings: list[str] = []
 
-    # Section-5 grouped-list coverage (3b158), against the section-6 numbers.
+    # Section-5 grouped-list coverage, against the section-6 numbers.
     try:
         findings.extend(verify_category_coverage(
             spec_path, {gate_num for (_, gate_num, _, _) in spec}
@@ -1740,8 +1740,8 @@ def main(argv: list[str]) -> int:
         print(f"ERROR: section-5 categories: {exc}", file=sys.stderr)
         return 2
 
-    # The CI subset (maintainer decision 2026-11-09): its numbers against the
-    # section 6 live rows, and the workflow's gate steps against the subset rows.
+    # The CI subset: its numbers against the section 6 live rows, and the workflow's
+    # gate steps against the subset rows.
     findings.extend(verify_ci_subset(subset_line, subset,
                                      [gate_num for (_, gate_num, _, _) in spec]))
     ci_rows = [row for row in spec if row[1] in set(subset)]
@@ -1874,7 +1874,7 @@ def main(argv: list[str]) -> int:
                 f"identical flags."
             )
 
-    # Canonical argv (ep8qs M2): each surface against GATE_ARGV, so a drift shared by
+    # Canonical argv: each surface against GATE_ARGV, so a drift shared by
     # every surface that runs the gate is still caught.
     findings.extend(verify_canonical_argv(spec, [
         (WORKFLOW_PATH, wf_by_num),
@@ -1882,7 +1882,7 @@ def main(argv: list[str]) -> int:
         (PRECOMMIT_PATH, {row[1]: pc for row, pc in zip(spec, precommit)}),
     ]))
 
-    # Additive 3.99 (closing PR #1087) guards: cross-check the exclusion allow-lists against a
+    # Additive guards: cross-check the exclusion allow-lists against a
     # positive signal, and check the D-numbered delta gates' cross-surface parity.
     spec_scripts = {script for (_, _, _, script) in spec}
     try:

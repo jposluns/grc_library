@@ -3,13 +3,13 @@
 distinctive string BEFORE committing, so a fix applied to ONE instance is applied (or
 routed) at the WIDTH OF THE CLASS, not just the one file the change started in.
 
-The dual-family ``/validate-pr`` repeatedly caught the SAME defect surviving in OTHER
-files after one instance was fixed (#1296 single-file install, #1297 register-column
-overclaim): the fix-at-class-width discipline was applied REACTIVELY. This aid applies it
-PROACTIVELY. When a change fixes a distinctive factual phrase or claim in one document,
-run this with that phrase (or its distinctive bare token) and it prints the occurrences it
-can find across the corpus, so each is fixed or routed in the SAME change and the sweep
-finds none.
+In the earlier repository, ``/validate-pr`` reviews repeatedly caught the SAME defect
+surviving in OTHER files after one instance was fixed (a single-file install defect and a
+register-column overclaim): the fix-at-class-width discipline was applied REACTIVELY. This
+aid applies it PROACTIVELY. When a change fixes a distinctive factual phrase or claim in
+one document, run this with that phrase (or its distinctive bare token) and it prints the
+occurrences it can find across the corpus, so each is fixed or routed in the SAME change
+and the sweep finds none.
 
 It is an ADVISORY aid, NOT a gate: the matches include the intended fix and legitimate
 unrelated senses (it is FP-aware), so it REPORTS for human triage and its reporting path
@@ -34,7 +34,7 @@ Exit codes: the advisory reporting path is 0 always (it reports; it never blocks
 2 on a usage error (no string given); 1 only from ``--self-test`` on a self-test failure
 (which is how the wired regression test detects rot).
 
---attest MODE (P-1.67): run the probe for ONE token over the GIT-TRACKED corpus set and
+--attest MODE: run the probe for ONE token over the GIT-TRACKED corpus set and
 emit the paste-ready ledger clause ``[class: "<token>" @ <count>]`` as the last stdout line.
 Counting over the git-tracked intersection (not the raw working tree) keeps the attested
 count and the D14 reproduce-count on the same universe, so an untracked scratch file can
@@ -97,7 +97,7 @@ def find_occurrences(
             for s, needle in needles:
                 if not needle:
                     continue
-                # F4 (codex QA #1989): count EVERY occurrence on the line, not just whether
+                # Count EVERY occurrence on the line, not just whether
                 # the line matches, so a second instance on the SAME physical line (plausible
                 # in a table row) is not invisible to the D14 growth check. One record per
                 # occurrence; the attest and reproduce sides both count this way, so they stay
@@ -125,7 +125,7 @@ def validate_attest_token(token: str) -> str | None:
 
 def format_attest_clause(token: str, count: int) -> str:
     """PURE. The paste-ready Disposition-cell clause. A literal ``|`` is escaped as ``\\|``
-    so the clause survives the ledger's markdown-table cell (the #1208 pipe lesson);
+    so the clause survives the ledger's markdown-table cell (an unescaped pipe splits it);
     the consumers (the open-findings hook and D14) unescape it."""
     escaped = token.replace("|", "\\|")
     return f'[class: "{escaped}" @ {count}]'
@@ -151,7 +151,7 @@ def attest_file_set(root: Path = REPO_ROOT, tracked: set[str] | None = None) -> 
     tests (the pure half); the default observes git (the thin observer)."""
     if tracked is None:
         tracked = _git_tracked(root)
-    # F3 (codex QA #1989): derive from `git ls-files` (the authoritative tracked set),
+    # Derive from `git ls-files` (the authoritative tracked set),
     # NOT from the rglob discovery intersected with git. A tracked markdown path that is
     # locally ABSENT (an unstaged deletion) or a broken symlink would be dropped by an
     # rglob+is_file discovery and silently vanish from the probe, letting a sibling in that
@@ -192,7 +192,7 @@ def _self_test() -> int:
         (root / "bad.md").write_bytes(b"\xff\xfe not utf-8 \x80\x81")
         _, skipped = find_occurrences(["7 years"], corpus_files(root), root=root)
         checks.append(("unreadable-file-reported-skipped", skipped == ["bad.md"]))
-        # --- P-1.67 attestation helpers -----------------------------------------
+        # --- attestation helpers ------------------------------------------------
         checks.append(("attest-clause-shape",
                        format_attest_clause("7 years", 3) == '[class: "7 years" @ 3]'))
         checks.append(("attest-clause-pipe-escaped",
@@ -204,7 +204,7 @@ def _self_test() -> int:
         checks.append(("attest-token-plain-ok", validate_attest_token("7 years") is None))
         afs = attest_file_set(root, tracked={"a.md"})
         checks.append(("attest-set-git-tracked-only", [f.name for f in afs] == ["a.md"]))
-        # F3 (codex QA #1989): a tracked-but-locally-absent markdown path stays in the
+        # A tracked-but-locally-absent markdown path stays in the
         # attest set (not silently dropped) and is reported SKIPPED by the reader, so the
         # D14 reproduce-check fails closed on it rather than under-counting.
         afs3 = attest_file_set(root, tracked={"a.md", "ghost.md"})
@@ -212,7 +212,7 @@ def _self_test() -> int:
                        sorted(f.name for f in afs3) == ["a.md", "ghost.md"]))
         _, sk3 = find_occurrences(["7 years"], afs3, root=root)
         checks.append(("F3-tracked-absent-file-reported-skipped", "ghost.md" in sk3))
-        # F4 (codex QA #1989): two occurrences on ONE physical line count as two, so a
+        # Two occurrences on ONE physical line count as two, so a
         # same-line sibling is not invisible to the growth check.
         (root / "sameline.md").write_text("dup_tok here and dup_tok again on one line\n",
                                            encoding="utf-8")

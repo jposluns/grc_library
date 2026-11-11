@@ -8,7 +8,7 @@ same two resolvable-target classes (adjacent-link and binding-declaration), plus
 the table-row seam gate 62 excludes (an anchored-title reference to a number that
 is not a numbered heading in the target, on a table row).
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE check
+Engine/wrapper split: the PURE check
 (normalize_title, extract_titles, resolve_target, binding_target, adjacent_link,
 title_candidate, check_file, with the tool-specific TITLE_HEADING_RE /
 PAREN_TITLE_RE / QUOTE_TITLE_RE) lives in the pack-owned engine
@@ -82,7 +82,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("paths", nargs="*", default=None)
     args = parser.parse_args(argv)
-    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    # Explicit paths are refused when missing or outside this tree, else normalized.
     args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
 
     findings: list[str] = []

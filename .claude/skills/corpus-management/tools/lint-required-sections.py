@@ -8,8 +8,7 @@ register ``core/gates.toml``, id ``lint-required-sections``, enforcing the pack'
 ``python3 .claude/skills/corpus-management/tools/lint-required-sections.py`` shape (gate 35 parses exactly that) and supplies
 the grc-local configuration the pack engine deliberately does not carry: the AIQT bootstrap,
 the repo root, the grc SECTION MODEL (the pack profile defaults/grc/sections.toml, loaded via
-profile_loader.load('sections') and composed to the engine's required_map in _sections_config(),
-Phase-4 PR-C), the
+profile_loader.load('sections') and composed to the engine's required_map in _sections_config()), the
 target selection (the exempt-file set, the ``Status: Superseded`` lifecycle skip, the
 narrative / default-exempt scope predicates via ``is_target`` + ``iter_targets``), and the
 default scan root. These wrapper bytes are HAND-MAINTAINED, not compiler-generated, so gate 99
@@ -40,16 +39,15 @@ DEFAULT_PATHS = [str(REPO_ROOT)]
 
 # Directory-walk exemption: shared default set from lint_common (plus the
 # root-anchored executive/ narrative-tree exclusion via is_narrative_root,
-# P-1.25 scan-root split). The
-# is_target function reads each file's metadata to check for the
-# Status: Superseded lifecycle exemption (re-keyed from the former
-# Classification: Deprecated overload, the L-j migration), so this linter
-# cannot use the shared iter_markdown_targets helper as-is.
-EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS  # narrative-root exclusion is root-anchored via is_narrative_root (P-1.25 scan-root split)
+# the scan-root split). The is_target function reads each file's metadata
+# to check for the Status: Superseded lifecycle exemption (re-keyed from
+# the former Classification: Deprecated overload), so this linter cannot
+# use the shared iter_markdown_targets helper as-is.
+EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS  # narrative-root exclusion is root-anchored via is_narrative_root (scan-root split)
 
 def _sections_config() -> dict[str, list[list[str]]]:
     """Load the gate-19 section model from the pack profile, composed to the
-    engine's required_map shape (Phase-4 PR-C).
+    engine's required_map shape.
 
     The model is the pack reference-vocabulary profile
     ``.claude/skills/corpus-management/src/defaults/grc/sections.toml``, loaded via
@@ -67,7 +65,7 @@ def _sections_config() -> dict[str, list[list[str]]]:
     pack_tools = str(PACK_TOOLS)
     if pack_tools not in sys.path:
         sys.path.insert(0, pack_tools)
-    import profile_loader  # the pack-owned reference-vocabulary loader (PR-A)
+    import profile_loader  # the pack-owned reference-vocabulary loader
 
     prof = profile_loader.load("sections")
     options = [str(o) for o in prof["orientation_options"]]
@@ -76,9 +74,9 @@ def _sections_config() -> dict[str, list[list[str]]]:
 
 EXEMPT_FILES: set[str] = {
     # README files use a simpler shape than canonical artefacts.
-    # Phase 23.73b removed `CITATION.cff` and `LICENSE`: this linter scans
-    # `.md` files only (see `is_target`), so non-`.md` entries were
-    # unreachable defensive listings.
+    # `CITATION.cff` and `LICENSE` were removed: this linter scans `.md`
+    # files only (see `is_target`), so non-`.md` entries were unreachable
+    # defensive listings.
     "README.md",
     "NOTICE.md",
     "AUTHORS.md",
@@ -147,7 +145,7 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument("paths", nargs="*", default=None)
     args = parser.parse_args(argv[1:])
-    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    # Explicit paths are refused when missing or outside this tree, else normalized.
     args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     return _engine().run(iter_targets(args.paths), _sections_config(), repo_root=REPO_ROOT)
 

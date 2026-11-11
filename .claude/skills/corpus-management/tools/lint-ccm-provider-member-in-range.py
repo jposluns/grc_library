@@ -4,7 +4,7 @@
 Flag a CCM family-range citation (e.g. "CCC-01 to 09") that sweeps in a
 provider-to-tenant ("directional") control member on an internal-scope document.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
+Engine/wrapper split: the PURE scan
 (RANGE_RE, swept_members, the inline-code-span scan, scan_text; fenced blocks are scanned, fail closed) is the source
 of record in the pack engine
 (.claude/skills/corpus-management/src/tools/gate_lint_ccm_provider_member_in_range.py); it carries no
@@ -36,7 +36,7 @@ DIRECTIONAL_PROVIDER_MEMBERS: frozenset[str] = frozenset(
 # The convention's 'where the citing document is internal in scope' qualification
 # (compliance/matrix-grc-compliance-alignment.md) is enforced by this explicit, reviewed set of
 # repo-relative paths whose content is PROVIDER-facing (a provider's duties to its tenants), not by
-# inferring scope from prose (3b52). It is empty: the corpus is an adopter-organization library
+# inferring scope from prose. It is empty: the corpus is an adopter-organization library
 # with no provider-facing document. Residue, stated: a listed path is exempt because scope was
 # asserted here, which proves the assertion was made, not that it is right.
 PROVIDER_FACING_DOCS: frozenset[str] = frozenset()
@@ -77,7 +77,7 @@ def scan_targets(roots: list[Path] | None = None) -> list[Path]:
 
 def main(argv: list[str]) -> int:
     root = Path(REPO_ROOT)
-    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    # Explicit paths are refused when missing or outside this tree, else normalized.
     scan_roots = [Path(p) for p in guard_explicit_paths_cwd(argv[1:], repo_root=root)] if argv[1:] else [root]
     all_findings: list[str] = []
     try:

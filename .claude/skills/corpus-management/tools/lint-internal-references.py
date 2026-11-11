@@ -62,7 +62,7 @@ EXEMPT_FILES = {
     "test_linters.py",
     # The pack-owned engine (gate_lint_internal_references.py) now holds the
     # detection regexes, so it documents the internal-reference formats by design
-    # exactly as this wrapper did before the PR-39 transfer; exempt it likewise.
+    # exactly as this wrapper did before the transfer; exempt it likewise.
     "gate_lint_internal_references.py",
 }
 
@@ -92,7 +92,7 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument("paths", nargs="*", default=None)
     args = parser.parse_args(argv[1:])
-    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    # Explicit paths are refused when missing or outside this tree, else normalized.
     args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     targets = iter_targets(
         args.paths,

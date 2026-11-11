@@ -65,15 +65,15 @@ def _engine():
 
 
 def _uncertainty_config():
-    """Load the gate-9 mandatory-near-uncertainty vocabulary from the pack profile
-    (Phase-4 PR-I). Returns the engine's ``UncertaintyVocabulary`` composed from the
-    ``uncertainty`` profile (``defaults/grc/uncertainty.toml``, loaded lazily via
+    """Load the gate-9 mandatory-near-uncertainty vocabulary from the pack profile.
+    Returns the engine's ``UncertaintyVocabulary`` composed from the ``uncertainty``
+    profile (``defaults/grc/uncertainty.toml``, loaded lazily via
     ``profile_loader.load('uncertainty')``, patterns compiled by the loader).
     Fail-closed on a malformed profile."""
     pack_tools = str(PACK_TOOLS)
     if pack_tools not in sys.path:
         sys.path.insert(0, pack_tools)
-    import profile_loader  # the pack-owned reference-vocabulary loader (PR-A)
+    import profile_loader  # the pack-owned reference-vocabulary loader
 
     return _engine().uncertainty_vocabulary(**profile_loader.load("uncertainty"))
 
@@ -83,7 +83,7 @@ def main(argv: list[str]) -> int:
     parser.add_argument("paths", nargs="*", default=None, help="Paths to scan.")
     args = parser.parse_args(argv[1:])
 
-    # Explicit paths are refused when unsound and normalized otherwise (3b21).
+    # Explicit paths are refused when unsound and normalized otherwise.
     paths = guard_explicit_paths(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     files = [
         f for f in iter_markdown_files(paths)

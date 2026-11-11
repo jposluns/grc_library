@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """Executive-narrative vocabulary - pack engine.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
-(the shall/dash/quote/link regexes + matching logic; _has_citation, _strip_link_targets,
-_noncode_lines, _shall_is_qualified, scan_page_text, check_file) is the source of record
-here in the pack, moved verbatim from the grc gate. The absolutes denylist and the
-external-standard citation vocabulary are supplied by the adopter via configure(ref), so
-the engine carries no project vocabulary; the grc wrapper (.claude/skills/corpus-management/tools/lint-narrative-vocabulary.py)
-supplies them, configures the engine, and keeps the narrative scan scope (discover), the
-self-test, main, module-global shims (scan_page_text / check_file), and the exit codes.
+Engine/wrapper split: the PURE scan (the shall/dash/quote/link regexes + matching logic;
+_has_citation, _strip_link_targets, _noncode_lines, _shall_is_qualified, scan_page_text,
+check_file) is the source of record here in the pack, moved verbatim from the grc gate.
+The absolutes denylist and the external-standard citation vocabulary are supplied by the
+adopter via configure(ref), so the engine carries no project vocabulary; the grc wrapper
+(.claude/skills/corpus-management/tools/lint-narrative-vocabulary.py) supplies them,
+configures the engine, and keeps the narrative scan scope (discover), the self-test,
+main, module-global shims (scan_page_text / check_file), and the exit codes.
 """
 
 from __future__ import annotations
@@ -96,8 +96,8 @@ def _noncode_lines(text: str) -> list[tuple[int, str | None]]:
     ``` closes only on ```, and one opened by ~~~ only on ~~~, so a mismatched
     marker inside a block (``` inside a ~~~ fence) is content, not a toggle.
     A line is ELIGIBLE as a marker only where the shared ``aiqt_corpus.is_fence_line``
-    accepts it (a marker after at most three spaces of indent, the CommonMark limit;
-    3b83), so a marker indented four or more columns is content: it neither opens a
+    accepts it (a marker after at most three spaces of indent, the CommonMark limit),
+    so a marker indented four or more columns is content: it neither opens a
     block that would hide the lines after it nor closes an open one. The marker
     PAIRING stays this engine's own model, which gate 66's toggle certificate does
     not cover.
@@ -162,7 +162,7 @@ def scan_page_text(text: str) -> list[tuple[int, str, str]]:
         if raw is None:  # fence-boundary sentinel: a boundary, not a scannable line
             continue
         stripped = CODE_SPAN_RE.sub("", raw)  # backticked word-references never match
-        prose = _strip_link_targets(stripped)  # absolutes scan VISIBLE prose only (F3)
+        prose = _strip_link_targets(stripped)  # absolutes scan VISIBLE prose only
         if DASH_RE.search(stripped):
             findings.append((lineno, "dash",
                              "em/en dash in narrative prose (the dash ban applies to the "
@@ -196,12 +196,12 @@ def scan_page_text(text: str) -> list[tuple[int, str, str]]:
                                  f"narrative page states contribution, dependency, prevention, "
                                  f"or evidence, never an absolute)"))
     for lineno, raw in noncode:
-        if raw is None:  # F2: a fence boundary never joins two paragraphs across it
+        if raw is None:  # a fence boundary never joins two paragraphs across it
             _flush_para(); para = []
             continue
         stripped = CODE_SPAN_RE.sub("", raw)
         if stripped.strip():
-            para.append((lineno, _strip_link_targets(stripped)))  # F3: multi-word absolutes ignore URLs
+            para.append((lineno, _strip_link_targets(stripped)))  # multi-word absolutes ignore URLs
         else:
             _flush_para(); para = []
     _flush_para()
@@ -212,6 +212,6 @@ def check_file(path: Path, rel: str) -> list[str]:
     text = read_text_safe(path)
     if text is None:
         # Fail LOUD, not open: an executive/ page that cannot be read cannot be
-        # cleared of the vocabulary rules (the 1.3a fail-loud lesson).
+        # cleared of the vocabulary rules.
         return [f"{rel}: not readable / not utf-8 (cannot be checked for the narrative vocabulary rules; fail loud)"]
     return [f"{rel}:L{lineno}: {msg}" for lineno, _cls, msg in scan_page_text(text)]

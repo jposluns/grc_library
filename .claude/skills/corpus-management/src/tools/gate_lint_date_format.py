@@ -11,14 +11,14 @@ template or worklist file (whose own metadata carries fill-in markers by
 design), detected by the ``template-`` / ``worklist-`` filename prefix; in any
 other file a placeholder Date is a finding.
 
-Engine/wrapper split (SHARED/SAFETY lane PR-33, Pattern A): this engine carries
-the PURE check (``ISO_DATE_RE``, ``validate_date``, ``PLACEHOLDER_VALUES``, and
-``scan``); the project wrapper (``.claude/skills/corpus-management/tools/lint-date-format.py``) supplies the grc
-scan scope (``iter_markdown_targets``) and the grouped reporting in ``main``, and
-keeps a thin module-global ``scan`` shim delegating here, so the scan-scope
-regression test (which patches ``mod.scan`` and runs ``main``) observes the
-original signature and behaviour. The engine's ``scan`` is generic (no scan-scope
-or repository-root policy).
+Engine/wrapper split: this engine carries the PURE check (``ISO_DATE_RE``,
+``validate_date``, ``PLACEHOLDER_VALUES``, and ``scan``); the project wrapper
+(``.claude/skills/corpus-management/tools/lint-date-format.py``) supplies the
+grc scan scope (``iter_markdown_targets``) and the grouped reporting in
+``main``, and keeps a thin module-global ``scan`` shim delegating here, so the
+scan-scope regression test (which patches ``mod.scan`` and runs ``main``)
+observes the original signature and behaviour. The engine's ``scan`` is generic
+(no scan-scope or repository-root policy).
 
 Exit codes (the wrapper returns these): 0 clean; 1 one or more findings.
 """

@@ -11,17 +11,17 @@ as unknown. The engine handles both table orientations: framework-as-column (a
 table whose header names a NIST CSF column) and framework-as-row (a row whose
 first cell names NIST CSF, with the codes in the second cell).
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): this engine carries
-the PURE scan (``check_code``, ``codes_in``, ``scan_file``) plus the NIST-CSF
-parsing patterns (the label regex and the FUNCTION.CATEGORY token regex). The
-framework CATALOGUE is supplied by the caller as two required predicates
-(``is_valid_category`` and ``relocation_note``) and two optional keyword predicates
-(``is_valid_subcategory`` and ``withdrawal_note``; when omitted, the check stays at
-the Category level), and ``repo_root`` is passed in, so the engine is
-repository-root-free and holds no catalogue of its own; the project wrapper
-(``.claude/skills/corpus-management/tools/lint-document-control-codes.py``) imports the shared NIST CSF reference,
-supplies those predicates, and keeps the scan scope (``collect_targets``) and
-reporting.
+Engine/wrapper split: this engine carries the PURE scan (``check_code``,
+``codes_in``, ``scan_file``) plus the NIST-CSF parsing patterns (the label regex
+and the FUNCTION.CATEGORY token regex). The framework CATALOGUE is supplied by the
+caller as two required predicates (``is_valid_category`` and ``relocation_note``)
+and two optional keyword predicates (``is_valid_subcategory`` and
+``withdrawal_note``; when omitted, the check stays at the Category level), and
+``repo_root`` is passed in, so the engine is repository-root-free and holds no
+catalogue of its own; the project wrapper
+(``.claude/skills/corpus-management/tools/lint-document-control-codes.py``) imports
+the shared NIST CSF reference, supplies those predicates, and keeps the scan scope
+(``collect_targets``) and reporting.
 
 Exit codes (the wrapper returns these): 0 clean; 1 findings; 2 explicit target not found.
 """

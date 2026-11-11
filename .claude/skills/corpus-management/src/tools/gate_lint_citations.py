@@ -7,7 +7,7 @@ identifier to use instead. A line outside a fenced code block that contains a
 denylisted term is flagged, unless the document's path is on that term's exemption
 list. Lines inside fenced code blocks are not scanned.
 
-Engine/wrapper split (compile PR-12): this engine carries the PURE check
+Engine/wrapper split: this engine carries the PURE check
 (``check_file``) and a ``run`` that groups + reports; the project wrapper
 (``.claude/skills/corpus-management/tools/lint-citations.py``) supplies the grc-specific denylist and per-term path
 exemptions, the scan scope, and the repository root, passing them in. This engine

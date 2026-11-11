@@ -79,7 +79,7 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument("paths", nargs="*", default=None, help="Paths to scan.")
     args = parser.parse_args(argv[1:])
-    # Explicit paths are refused when unsound and normalized otherwise (3b21).
+    # Explicit paths are refused when unsound and normalized otherwise.
     paths = guard_explicit_paths(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     files = [
         f for f in iter_markdown_files(paths)

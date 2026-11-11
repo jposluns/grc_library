@@ -106,13 +106,12 @@ CONTRADICTORY_NATURE_PAIRS = (
 
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
-# The source's own source-class boundary (the _comment's batch 14 rounds
-# 6 and 7 ruling, maintainer rulings 2026-10-24): a corpus document whose
-# Document Type is Template, Annex or Plan stays out of the model. A
-# registry node whose corpus document states one of these types therefore
-# violates the source's own rule and is a hard error. The type is read
-# from the document's metadata block, never inferred from the node id or
-# the filename (as ruled, Document Type governs).
+# The source's own source-class boundary (stated in the source's
+# _comment): a corpus document whose Document Type is Template, Annex or
+# Plan stays out of the model. A registry node whose corpus document
+# states one of these types therefore violates the source's own rule and
+# is a hard error. The type is read from the document's metadata block,
+# never inferred from the node id or the filename (Document Type governs).
 EXCLUDED_DOCUMENT_TYPES = frozenset(("Template", "Annex", "Plan"))
 # Principle is deliberately absent: the source's _comment keeps Principle documents out "until a node class exists for them", a different mechanism than this type exclusion.
 
@@ -134,11 +133,10 @@ _DOCUMENT_TYPE_FIELD_KEY = _normalize_type("Document Type")
 
 def _is_excluded_type(value: str) -> bool:
     """True when the Document Type's FIRST normalized word is an excluded
-    type (review round 2, fix 3): a trailing annotation such as
-    "Annex (draft)" normalizes to "annex (draft)", which a whole-value
-    comparison would wave through, so the comparison key is the value's
-    first word. A distinct longer type ("Annexure") shares no first word
-    and still passes."""
+    type: a trailing annotation such as "Annex (draft)" normalizes to
+    "annex (draft)", which a whole-value comparison would wave through, so
+    the comparison key is the value's first word. A distinct longer type
+    ("Annexure") shares no first word and still passes."""
     words = _normalize_type(value).split(" ")
     return bool(words) and words[0] in _EXCLUDED_TYPE_KEYS
 
@@ -147,12 +145,10 @@ def document_type_of(path: Path) -> str | None:
     """The Document Type stated in a corpus document's OWN metadata
     block, or None when the block or the field is absent.
 
-    Boundary rule (review round 2, fix 1; head-window ordering review
-    round 3; inclusive start window review round 4): the metadata block
-    STARTS at the first metadata-shaped line (lint_common's
-    METADATA_FIELD_RE) that lies outside a fenced code block and on
-    lines 1 to METADATA_HEAD_LINES inclusive, the same start window
-    lint_common.parse_metadata_block scans
+    Boundary rule: the metadata block STARTS at the first metadata-shaped
+    line (lint_common's METADATA_FIELD_RE) that lies outside a fenced
+    code block and on lines 1 to METADATA_HEAD_LINES inclusive, the same
+    start window lint_common.parse_metadata_block scans
     (text.splitlines()[:head_lines]), and ENDS at the first following
     line that is not metadata-shaped (a blank line, body prose, or a
     fence delimiter), so only the document's own contiguous metadata
@@ -161,12 +157,12 @@ def document_type_of(path: Path) -> str | None:
     inside a fence: once lineno exceeds METADATA_HEAD_LINES with no
     block started, the scan stops, so no metadata block can start
     after line METADATA_HEAD_LINES, even when a fenced block spans
-    the window boundary (round 3's probe: a 39-line fence kept the
-    old scan alive and a block after the fence was read; round 4's
-    probe: the earlier ``lineno >= METADATA_HEAD_LINES`` stop ended
-    the scan ON line METADATA_HEAD_LINES, so a block starting exactly
-    there was invisible here while lint_common reads it, a fail-open
-    gap for this exclusion check).
+    the window boundary (in the earlier repository, a 39-line fence
+    kept the old scan alive and a block after the fence was read, and
+    an earlier ``lineno >= METADATA_HEAD_LINES`` stop ended the scan
+    ON line METADATA_HEAD_LINES, so a block starting exactly there was
+    invisible here while lint_common reads it, a fail-open gap for this
+    exclusion check).
     Fence state is tracked with lint_common's shared is_fence_line
     toggle, so a ``**Document Type:**`` line inside a fenced body
     example never counts, wherever the example sits.
@@ -189,12 +185,11 @@ def document_type_of(path: Path) -> str | None:
         if not in_block and lineno > METADATA_HEAD_LINES:
             # The start window is lines 1 to METADATA_HEAD_LINES
             # inclusive, exactly lint_common.parse_metadata_block's
-            # window (round 4: the earlier ``>=`` stop skipped a block
-            # starting on line METADATA_HEAD_LINES that lint_common
-            # reads). No block starts deeper, fenced or not: checked
-            # BEFORE the fence-state shortcuts, so an open fence
-            # spanning the window boundary cannot keep the scan alive
-            # into the body (head-window ordering, round 3).
+            # window (in the earlier repository, a ``>=`` stop skipped a
+            # block starting on line METADATA_HEAD_LINES that lint_common
+            # reads). No block starts deeper, fenced or not: checked BEFORE
+            # the fence-state shortcuts, so an open fence spanning the
+            # window boundary cannot keep the scan alive into the body.
             break
         if is_fence_line(line):
             in_code = not in_code
@@ -224,8 +219,8 @@ def validate_excluded_document_types(nodes: list) -> list[str]:
     exists, so a missing or mistyped path would otherwise skip this
     check silently. A corpus_path that is absolute, or whose resolved
     form leaves REPO_ROOT, is refused as a node-shape error before any
-    read (review round 2, fix 2). Nodes without a usable id or corpus_path stay the
-    node-shape rules' concern, and a resolvable document that states no
+    read. Nodes without a usable id or corpus_path stay the node-shape
+    rules' concern, and a resolvable document that states no
     Document Type stays the corpus linters' concern
     (.claude/skills/corpus-management/tools/lint-metadata.py enforces the canonical metadata block)."""
     errors: list[str] = []
@@ -236,11 +231,11 @@ def validate_excluded_document_types(nodes: list) -> list[str]:
         corpus_path = node.get("corpus_path")
         if not (_is_nonempty_str(nid) and _is_nonempty_str(corpus_path)):
             continue
-        # Containment BEFORE any read (review round 2, fix 2): pathlib
-        # joining replaces REPO_ROOT entirely when corpus_path is
-        # absolute, and a ".." component (or a symlink, which resolve()
-        # follows) can leave the repository, so either shape is a
-        # node-shape error and the document is never opened.
+        # Containment BEFORE any read: pathlib joining replaces REPO_ROOT
+        # entirely when corpus_path is absolute, and a ".." component (or
+        # a symlink, which resolve() follows) can leave the repository, so
+        # either shape is a node-shape error and the document is never
+        # opened.
         if Path(corpus_path).is_absolute():
             errors.append(
                 f"{nid}: [node-shape] corpus_path {corpus_path!r} is an "

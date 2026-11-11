@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gate-name-citation inventory audit (gate 77; backlog item 3.56a (closing PR #1139) guard 2, private list).
+"""Gate-name-citation inventory audit (gate 77).
 
 Wiring sections, command stubs, and the CLAUDE.md files cite gates by number
 AND name, for example ``gate 35 (gate-name parity)`` or ``the
@@ -11,8 +11,7 @@ that the audit-programme specification's section 6 inventory records for that
 NUMBER, and flags a citation whose name shares NO significant token with the
 number's current canonical name (the shape a renumber produces).
 
-FP-safety (census-derived, backlog item 3.56a (closing PR #1139), private list; the census is
-``grc_library_scratch:results/research-guard2-gatename-citation-census.md``):
+FP-safety (derived from a census of the gate-name citations):
 
   * SCOPE: it scans only the CITATION surfaces (pack ``SKILL.md`` files, the
     ``.claude/commands/`` stubs, the pack ``CLAUDE.md`` and the project
@@ -71,33 +70,33 @@ SPEC = ".claude/skills/corpus-management/specs/specification-audit-programme.md"
 # The section 6 inventory row: `| N | Canonical Name | [`.claude/skills/corpus-management/tools/...`](...) |`.
 _INV_ROW = re.compile(r"^\|\s*(\d+)\s*\|\s*([^|]+?)\s*\|")
 
-# Section-6 region delimiters (3.109 F2 scoping; F3 container-awareness). ATX headings
-# allow up to 3 leading spaces and a space OR tab after the ``N.``; the region scan is
-# FENCE- and CONTAINER-aware (the _BlockScan block-structure scanner below), so
-# heading-shaped or inventory-shaped text inside a code block, a blockquote, or a
-# list item cannot start, truncate, or inject rows into the region, while an indented
+# Section-6 region delimiters (scoping and container-awareness). ATX headings allow up
+# to 3 leading spaces and a space OR tab after the ``N.``; the region scan is FENCE-
+# and CONTAINER-aware (the _BlockScan block-structure scanner below), so
+# heading-shaped or inventory-shaped text inside a code block, a blockquote, or a list
+# item cannot start, truncate, or inject rows into the region, while an indented
 # heading at true top level still bounds it.
 # A fenced-code-block delimiter: 3+ backticks or 3+ tildes, up to 3 leading spaces,
 # optionally followed by an info string. CommonMark closes a fence only with the SAME
-# marker char, a run at least as long, and no info string (3.109 F2).
+# marker char, a run at least as long, and no info string.
 _FENCE_LINE = re.compile(r"^[ ]{0,3}(`{3,}|~{3,})[ \t]*(.*)$")
 
 # CommonMark line endings are LF, CR, or CRLF only. Python's str.splitlines() ALSO
 # breaks on U+0085/U+2028/U+2029/U+000B/U+000C, which would let a Unicode separator
 # after a fence marker masquerade as a bare closing fence; split on the CommonMark set
-# so those code points stay line CONTENT (3.109 F2).
+# so those code points stay line CONTENT.
 _LINE_SPLIT = re.compile(r"\r\n|\r|\n")
 
 
 def _fence_info(line: str):
     """``(marker_char, run_length, has_info_string)`` for a fence-delimiter line, else None.
 
-    CommonMark conformance (3.109 F2): a BACKTICK fence's info string may not contain a
-    backtick, so such a line is not a fence delimiter at all (a tilde fence's info may
-    contain anything). ``has_info_string`` is taken WITHOUT stripping, because the
-    ``[ \t]+`` in :data:`_FENCE_LINE` already consumed the only whitespace a CLOSING
-    fence may carry (ASCII space/tab); any remainder, including non-ASCII whitespace such
-    as U+00A0, is an info string, so the line cannot close a fence."""
+    CommonMark conformance: a BACKTICK fence's info string may not contain a backtick, so
+    such a line is not a fence delimiter at all (a tilde fence's info may contain
+    anything). ``has_info_string`` is taken WITHOUT stripping, because the ``[ \t]+`` in
+    :data:`_FENCE_LINE` already consumed the only whitespace a CLOSING fence may carry
+    (ASCII space/tab); any remainder, including non-ASCII whitespace such as U+00A0, is
+    an info string, so the line cannot close a fence."""
     m = _FENCE_LINE.match(line)
     if not m:
         return None
@@ -108,7 +107,7 @@ def _fence_info(line: str):
     return run[0], len(run), bool(info)
 
 
-# ---- CommonMark block-structure scan (3.109 F3: container-aware region) ----
+# ---- CommonMark block-structure scan (container-aware region) ----
 # The section-6 boundaries and the inventory rows are TOP-LEVEL constructs: a
 # heading-shaped or row-shaped line nested in a BLOCKQUOTE or a LIST ITEM (or in
 # a fence inside one) is that container's content, never a region boundary or an
@@ -133,7 +132,7 @@ def _fence_info(line: str):
 # reviews before they reach section 6; and the gate checks gate-name citations,
 # not markdown rendering. Full CommonMark conformance would need a complete
 # stdlib parser (gate 71 forbids a markdown library); deferred as disproportionate
-# to this latent scoping fix (see the PR record for the residue detail).
+# to this latent scoping fix.
 
 _BLANK_LINE = re.compile(r"^[ \t]*$")
 _ATX_LINE = re.compile(r"^[ ]{0,3}#{1,6}(?:[ \t]|$)")
@@ -327,12 +326,12 @@ def _section6_lines(spec_text: str) -> list[str]:
     """The TOP-LEVEL leaf lines of the section-6 region: from the ``## 6. ``
     heading through the line before the next top-level ``## N. `` heading, with
     every line that sits inside a fenced code block OR inside a blockquote or
-    list-item container removed (3.109 F2/F3). Block-structure-aware
-    (:class:`_BlockScan`) so a heading-shaped or row-shaped line nested in a
-    fence or a container cannot start, truncate, or inject rows into the
-    region, while an indented heading at true top level still bounds it. Empty
-    list when no section-6 heading exists; RAISES when more than one real
-    section-6 heading exists (ambiguous: fail loud rather than guess)."""
+    list-item container removed. Block-structure-aware (:class:`_BlockScan`) so
+    a heading-shaped or row-shaped line nested in a fence or a container cannot
+    start, truncate, or inject rows into the region, while an indented heading
+    at true top level still bounds it. Empty list when no section-6 heading
+    exists; RAISES when more than one real section-6 heading exists (ambiguous:
+    fail loud rather than guess)."""
     scan = _BlockScan()
     rows: list[tuple[str, bool, bool, bool]] = []  # (text, visible, is_top, is_section6)
     for ln in _LINE_SPLIT.split(spec_text):
@@ -372,17 +371,17 @@ def parse_inventory(spec_text: str) -> dict[int, str]:
     """Parse the section 6 inventory table: {gate_number: canonical name}.
 
     Scoped to the section-6 region via :func:`_section6_lines` (fence- and
-    container-aware, whitespace-tolerant) so a row, heading, or fence nested in
-    a blockquote or a list item is that container's content (3.109 F3), and so
-    an inventory-shaped table row ELSEWHERE in the spec (an
-    example in section 9, a category table in section 5, a fenced sample) is not
-    misread as a gate inventory row (3.109 F2). A spec with no section-6 heading
-    RAISES, so a structurally-absent section-6 fails loud (main() maps it to exit 2)
-    even when stray numeric rows exist elsewhere, which the pre-fix whole-spec parse
-    would have silently collected; a direct caller likewise cannot mistake an absent
-    section for valid data. (A truly-empty PARSED inventory was already caught by the
-    ``if not inv`` guard in main(); this closes the different miss where section 6 is
-    gone but numeric rows elsewhere would have masqueraded as the inventory.)"""
+    container-aware, whitespace-tolerant) so a row, heading, or fence nested in a
+    blockquote or a list item is that container's content, and so an inventory-shaped
+    table row ELSEWHERE in the spec (an example in section 9, a category table in
+    section 5, a fenced sample) is not misread as a gate inventory row. A spec with
+    no section-6 heading RAISES, so a structurally-absent section-6 fails loud
+    (main() maps it to exit 2) even when stray numeric rows exist elsewhere, which
+    the pre-fix whole-spec parse would have silently collected; a direct caller
+    likewise cannot mistake an absent section for valid data. (A truly-empty PARSED
+    inventory was already caught by the ``if not inv`` guard in main(); this closes
+    the different miss where section 6 is gone but numeric rows elsewhere would have
+    masqueraded as the inventory.)"""
     region = _section6_lines(spec_text)
     if not region:
         raise ValueError("section-6 gate inventory region not found in the spec")
@@ -550,7 +549,7 @@ def _self_test() -> int:
                                    35: "Gate-name parity audit"})
 
         def test_inventory_row_outside_section6_ignored(self):
-            # 3.109 F2: an inventory-shaped row in a LATER section must NOT be read
+            # An inventory-shaped row in a LATER section must NOT be read
             # as a gate (parse_inventory previously scanned the whole spec).
             spec = ("## 6. Gate inventory (current)\n"
                     "| 31 | Document Date staleness audit | x |\n"
@@ -560,7 +559,7 @@ def _self_test() -> int:
                              {31: "Document Date staleness audit"})
 
         def test_missing_section6_raises(self):
-            # 3.109 F2: a structurally-absent section 6 fails loud (main -> exit 2)
+            # A structurally-absent section 6 fails loud (main -> exit 2)
             # even when numeric rows exist elsewhere, rather than masquerading as data.
             with self.assertRaises(ValueError):
                 parse_inventory("## 9. Other\n| 31 | Document Date staleness audit | x |\n")
@@ -576,7 +575,7 @@ def _self_test() -> int:
 
         def test_fenced_headings_and_rows_ignored(self):
             # a fenced ## 6./## 7. or | N | must not start, end, or inject a row
-            # into the region (3.109 F2 fence-awareness)
+            # into the region (fence-awareness)
             spec = ("```\n## 6. Fake heading in a fence\n| 98 | Phantom Pre | z |\n```\n"
                     "## 6. Gate inventory (current)\n"
                     "| 31 | Document Date staleness audit | x |\n"
@@ -593,7 +592,7 @@ def _self_test() -> int:
                 parse_inventory("## 6. One\n| 31 | A | x |\n## 6. Two\n| 35 | B | y |\n")
 
         def test_nested_fence_length_matching(self):
-            # 3.109 F2: a 3-backtick line does NOT close a 4-backtick fence, so the
+            # A 3-backtick line does NOT close a 4-backtick fence, so the
             # inner heading/row stays fenced and the real section 6 is not swallowed.
             spec = ("````markdown\n```\n## 6. Fake\n| 98 | Phantom | z |\n````\n"
                     "## 6. Real\n| 31 | Real | x |\n## 7. End\n| 99 | out | z |\n")
@@ -607,13 +606,13 @@ def _self_test() -> int:
             self.assertEqual(parse_inventory(spec), {31: "Real", 35: "Also Real"})
 
         def test_backtick_info_string_with_backtick_is_not_a_fence(self):
-            # 3.109 F2-A: a backtick fence's info string may not contain a backtick, so
+            # A backtick fence's info string may not contain a backtick, so
             # ```` aa ``` does NOT open a fence and the real section 6 is not swallowed.
             spec = ("```` aa ```\n## 6. Real\n| 31 | Real | x |\n## 7. End\n")
             self.assertEqual(parse_inventory(spec), {31: "Real"})
 
         def test_unicode_line_separators_not_line_breaks(self):
-            # 3.109 F2: only LF/CR/CRLF end a line in CommonMark; a Unicode separator
+            # Only LF/CR/CRLF end a line in CommonMark; a Unicode separator
             # after a fence marker must NOT read as a bare close (which splitlines() would
             # allow by breaking the line there), so the inner row stays fenced.
             for sep in ("\u0085", "\u2028", "\u2029", "\u000b", "\u000c"):
@@ -622,7 +621,7 @@ def _self_test() -> int:
                 self.assertEqual(parse_inventory(spec), {31: "Real"}, repr(sep))
 
         def test_nonascii_whitespace_after_close_is_not_a_close(self):
-            # 3.109 F2-B: only ASCII space/tab may follow a closing fence; a U+00A0 keeps
+            # Only ASCII space/tab may follow a closing fence; a U+00A0 keeps
             # the fence OPEN, so the inner row stays fenced (no phantom injected).
             spec = ("## 6. Real\n| 31 | Real | x |\n"
                     "```\n```\u00a0\n| 98 | Phantom | z |\n```\n"
@@ -630,7 +629,7 @@ def _self_test() -> int:
             self.assertEqual(parse_inventory(spec), {31: "Real"})
 
         def test_list_nested_fence_ignored(self):
-            # 3.109 F3 (the codex case): the fence opens INSIDE the list item,
+            # The fence opens INSIDE the list item,
             # so the heading-shaped line is fenced CODE per CommonMark, never a
             # boundary; the col-0 row after the item closes is top-level again.
             spec = ("## 6. Real\n| 31 | Real | x |\n"
@@ -697,7 +696,7 @@ def _self_test() -> int:
             # the same 2-space ``## 7.`` shape that bounds the region at true
             # top level (test_boundary_whitespace_tolerant) is item CONTENT
             # here (indent 2 >= content indent 2): only block structure can
-            # distinguish the two (3.109 F3).
+            # distinguish the two.
             spec = ("## 6. Real\n| 31 | Real | x |\n"
                     "- item\n  ## 7. Fake inside item\n"
                     "| 35 | Also Real | y |\n## 7. End\n")
@@ -737,8 +736,8 @@ def _self_test() -> int:
 
 
 if __name__ == "__main__":
-    # 3b50b2g: this tool takes no argument other than --self-test; an unknown or surplus one
-    # used to be ignored with exit 0, so it is refused (exit 2) before the check runs.
+    # This tool takes no argument other than --self-test; an unknown or surplus one used to
+    # be ignored with exit 0, so it is refused (exit 2) before the check runs.
     import os as _os
     sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
     from lint_common import strict_flags as _strict_flags

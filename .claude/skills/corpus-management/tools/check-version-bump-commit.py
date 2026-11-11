@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Git-native commit-msg check: refuse a commit whose staged versioned document changed its body
-without its own Version change (P-TODO 3b25, 2026-09-24).
+without its own Version change.
 
 Why a git hook. The PreToolUse guard .claude/hooks/block-unbumped-version-commit.py resolves the
 repository from its OWN location, so a commit made in a linked worktree (`git -C <worktree> commit`)
-is never checked by it: on 2026-09-24 three worktree commits changed document bodies without their
-per-commit bump and only gate 40 caught them, at pre-push. git runs commit-msg inside every commit,
-in the committing worktree, with that worktree's index, however the command was spelled.
+is never checked by it: on 2026-09-24, in the earlier repository, three worktree commits changed
+document bodies without their per-commit bump and only gate 40 caught them, at pre-push. git runs
+commit-msg inside every commit, in the committing worktree, with that worktree's index, however the
+command was spelled.
 
 Why commit-msg and not pre-commit. The sanctioned opt-out is a `VersionBump: none <reason>` line in the
 commit MESSAGE, which does not exist yet when pre-commit runs.
@@ -23,7 +24,7 @@ than a refusal naming the fix.
 Allowed without checking: a commit that concludes a merge, cherry-pick, or revert (the staged diff
 then carries other commits' changes); the override GRC_ALLOW_UNBUMPED_COMMIT=1. A message carrying
 `VersionBump: none <reason>` (comment lines ignored) excuses the root README.md only: every other
-staged document is still checked and refused when unbumped (3b102). A checkout without the guard file (older branch)
+staged document is still checked and refused when unbumped. A checkout without the guard file (older branch)
 is allowed (fail OPEN, stated). A git error while checking REFUSES, naming the override (ignorance
 refuses, as in check-commit-on-main.py).
 
@@ -52,8 +53,8 @@ def decide(allow, sequencer, opt_out, ok, bad):
     if sequencer:
         return 0, ""
     if opt_out:
-        # The escape covers README.md only (3b102); any other unbumped document is still refused.
-        # An unreadable state cannot show the offenders are README.md only, so it refuses (3b102 QA r2).
+        # The escape covers README.md only; any other unbumped document is still refused.
+        # An unreadable state cannot show the offenders are README.md only, so it refuses.
         if not ok:
             return 1, ("check-version-bump-commit: REFUSING the commit: the staged state could not be read, "
                        "so it is unknown whether `VersionBump: none` covers only README.md. "
@@ -96,30 +97,31 @@ _AUTO_COMMENT_CHARS = "#;@!$%^&|:"   # git's candidates for core.commentChar=aut
 def read_message(path):
     """Read the message file as git wrote it: bytes decoded with NO newline translation, since
     read_text() turns a stray CR into a line break git never sees and can manufacture an opt-out
-    line (3b25 r6, codex)."""
+    line."""
     return Path(path).read_bytes().decode("utf-8", errors="replace")
 
 
 def message_opts_out(text, guard, comment_char="#"):
-    """PURE. Does the message carry the opt-out? Mirrors git's strip cleanup: text from the exact
-    scissors line down is dropped (`git commit -v` appends the diff there; 3b25 r1), and lines that
-    begin with the comment character are dropped. For core.commentChar=auto git picks the character
-    BEFORE editing and it cannot be recovered from the final message, so lines beginning with ANY of
-    git's candidates are dropped: that can only IGNORE an opt-out (refuse), never count a stripped
-    comment as one (3b25 r3, codex P1: hard-coding '#' let a ';' comment line falsely allow). Residue, stated:
-    under --cleanup=whitespace or verbatim git KEEPS comment-looking lines and text below a scissors
-    line, which this treats as removed, so an opt-out written there is ignored: that errs only toward
-    REFUSING, never toward a false allow, and the override remains (3b25 r2 codex/gemini)."""
+    """PURE. Does the message carry the opt-out? Mirrors git's strip cleanup: text from the
+    exact scissors line down is dropped (`git commit -v` appends the diff there), and lines that
+    begin with the comment character are dropped. For core.commentChar=auto git picks the
+    character BEFORE editing and it cannot be recovered from the final message, so lines
+    beginning with ANY of git's candidates are dropped: that can only IGNORE an opt-out
+    (refuse), never count a stripped comment as one (in the earlier repository, a version that
+    hard-coded '#' let a ';' comment line falsely allow). Residue, stated: under
+    --cleanup=whitespace or verbatim git KEEPS comment-looking lines and text below a scissors
+    line, which this treats as removed, so an opt-out written there is ignored: that errs only
+    toward REFUSING, never toward a false allow, and the override remains."""
     chars = _AUTO_COMMENT_CHARS if comment_char == "auto" else (comment_char[:1] or "#")
     kept = []
-    for line in text.split("\n"):   # git's lines are \n-only; splitlines() also splits on \v, NEL, U+2028 (3b25 r5 claude)
+    for line in text.split("\n"):   # git's lines are \n-only; splitlines() also splits on \v, NEL, U+2028
         if line[:1] and line[:1] in chars and line.rstrip() == line[:1] + _SCISSORS:
             break
         if line[:1] and line[:1] in chars:
             continue
         kept.append(line)
     # Line by line: OPT_OUT's `\s*` would otherwise match across a newline, so removing a comment line
-    # between "VersionBump:" and "none" could MANUFACTURE an opt-out (3b25 r4, codex).
+    # between "VersionBump:" and "none" could MANUFACTURE an opt-out.
     return any(guard.OPT_OUT.search(line) for line in kept)
 
 
@@ -135,12 +137,12 @@ def _gitz(guard, root, *args):
 
 
 def staged_offenders(root, guard):
-    """Thin observer, PER FILE, from STAGED content (3b25 r1 codex): no diff-header parsing (so
+    """Thin observer, PER FILE, from STAGED content: no diff-header parsing (so
     diff.noprefix, quoted names, and paths containing ' b/' cannot hide an offender); a rename is
     diffed old->new so a renamed document with a body edit is not mistaken for a new one; only a
     structurally reported deletion is skipped, and any other read failure raises (ignorance refuses)."""
     # --raw carries the index modes, so a submodule (gitlink, mode 160000) at a *.md path is
-    # skipped rather than read as a document blob (3b25 r2 codex/gemini).
+    # skipped rather than read as a document blob.
     raw = _gitz(guard, root, "diff", "--cached", "--raw", "-M", "-z").split("\0")
     entries, k = [], 0
     while k < len(raw) and raw[k]:
@@ -157,7 +159,7 @@ def staged_offenders(root, guard):
             continue
         text = guard.git(root, "show", f":{new}")   # a non-deleted entry must be readable
         if not (guard.version_key(new).search(text.removeprefix(guard.BOM))
-                or text.startswith(guard.BOM * 2)):  # a malformed double BOM is judged, not skipped  # own key (3b80); BOM (3b86)
+                or text.startswith(guard.BOM * 2)):  # a malformed double BOM is judged, not skipped  # own key; BOM
             continue
         paths = [old, new] if old else [new]
         diff = _gitz(guard, root, "diff", "--cached", "-M", "--no-ext-diff", "--no-color",
@@ -189,11 +191,11 @@ def _commit_msg(msgfile):
             return 0
         text = read_message(msgfile)
         sequencer, opt_out = _in_sequencer(root), message_opts_out(text, guard, _comment_char(root))
-        # The escape no longer skips the read: decide() excuses README.md only (3b102 QA r1).
+        # The escape no longer skips the read: decide() excuses README.md only.
         bad = [] if sequencer else staged_offenders(root, guard)
         ok = True
     except Exception:
-        # decide() refuses an unreadable state, with or without the escape (3b102 QA r2).
+        # decide() refuses an unreadable state, with or without the escape.
         bad, ok = [], False
     code, msg = decide(bool(os.environ.get(_OVERRIDE)), sequencer, opt_out, ok, bad)
     if msg:
@@ -308,7 +310,7 @@ def _integration_self_test():
                  extra={_OVERRIDE: "1"})
         if cp.returncode != 0:
             failures.append(f"the override did not allow the commit: {cp.stderr.strip()}")
-        # --- 3b25 r1 regressions (codex, gemini, claude) ---
+        # --- regression cases ---
         # (a) diff.noprefix cannot hide an offender (no diff-header parsing any more).
         must(["git", "config", "diff.noprefix", "true"])
         doc(repo / "d.md", "1.0.1", "noprefix body")
@@ -340,7 +342,7 @@ def _integration_self_test():
         if cp.returncode == 0 or "without a Version change" not in cp.stderr:
             failures.append("a renamed document with an unbumped body edit was allowed")
         must(["git", "reset", "-q", "--hard"])
-        # --- P-TODO 3b80: README.md's own key is **README Version:** (no fenced **Version:** template) ---
+        # --- README.md's own key is **README Version:** (no fenced **Version:** template) ---
         def readme(version, body):
             (repo / "README.md").write_text(
                 f"**Date:** 2026-01-01\\\n**README Version:** {version}\\\n\n---\n\n{body}\n")
@@ -377,7 +379,7 @@ def _self_test():
     try:
         _cr_text = read_message(_crp)
     finally:
-        _os.unlink(_crp)  # removed even when the read fails (3b103 QA r3)
+        _os.unlink(_crp)  # removed even when the read fails
     cases = [
         ("a stray CR in a comment line is not translated into an opt-out line",
          message_opts_out(_cr_text, _G), False),
@@ -419,7 +421,7 @@ def _self_test():
 
 
 def main(argv):
-    if argv[1:] == ["--self-test"]:  # 3b50b2f: only the documented forms are accepted; anything else is a usage error (exit 2)
+    if argv[1:] == ["--self-test"]:  # only the documented forms are accepted; anything else is a usage error (exit 2)
         return _self_test()
     if len(argv) == 3 and argv[1] == "--commit-msg" and not argv[2].startswith("-"):
         return _commit_msg(argv[2])

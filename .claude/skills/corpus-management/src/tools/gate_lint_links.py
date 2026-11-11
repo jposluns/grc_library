@@ -7,7 +7,7 @@ inside the repository. External targets (http/https/mailto/tel/ftp, or a pure
 resolution; a link inside a fenced code block is illustrative content and is
 skipped (the shared fence-aware scan toggles on each fence line).
 
-Engine/wrapper split (compile PR-10): this engine carries the PURE check
+Engine/wrapper split: this engine carries the PURE check
 (``LINK_RE``, ``EXTERNAL``, ``resolve_link``, ``check_file``) and a ``run`` that
 groups + reports; the project wrapper (``.claude/skills/corpus-management/tools/lint-links.py``) supplies the grc
 scan scope (the default roots, the markdown selector) and the repository root, so

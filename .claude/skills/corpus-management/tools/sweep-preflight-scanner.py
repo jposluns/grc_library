@@ -25,21 +25,23 @@ history register accumulates findings):
 
   PF-01 stale-skill-count: "N skills" / "N pack skills" where N is not
         the actual count of subdirectories under the configured skill
-        collection (CANONICAL_COLLECTIONS; none since guardrails/skills/ stopped shipping).
+        collection (CANONICAL_COLLECTIONS, which configures none: the
+        skill collection, guardrails/skills/, no longer ships).
   PF-02 stale-rule-count: "N rules" / "N governance rules" where N is
         not the actual count of *.md files under the configured rule
-        collection (CANONICAL_COLLECTIONS; none since guardrails/governance/ stopped shipping).
+        collection (CANONICAL_COLLECTIONS, which configures none: the
+        rule collection, guardrails/governance/, no longer ships).
   PF-03 stale-collection-mention: any "N <collection-name>" where N is
         a digit and <collection-name> matches a known collection from
         the validation-sweep skill's collection list, and N does not
         match the canonical count.
   PF-04 stale-version-literal: any "currently <version>" / "the current
         <version>" / "now at <version>" where the captured version does
-        not match any of the canonical library, pack, or spec versions.
-        Motivated by the Sweep 4 finding in .claude/skills/corpus-management/docs/adopter-guide.md:57
-        ("ships with its own version sequence (currently `1.22.0`)").
+        not match any of the canonical library, pack, or spec versions
+        (in the earlier repository, .claude/skills/corpus-management/docs/adopter-guide.md:57
+        read "ships with its own version sequence (currently `1.22.0`)").
 
-Noise reduction (added 2026-06-20):
+Noise reduction:
 - Heuristic context-aware skips: section references (`Section N`),
   legal bill references (`AB 1394`), year-adjacent legal references
   (`The 2025 Rules`), version-history table rows (markdown rows with
@@ -108,9 +110,9 @@ HISTORICAL_KEYWORDS = (
 )
 
 # Heuristic regex patterns that flag a line as sweep-history narrative.
-# The .working/validate-sweeps/history.md file quotes past findings extensively;
-# these patterns identify lines that are narrating past sweep state
-# rather than asserting current canonical state.
+# The validation-sweep history register quotes past findings extensively;
+# these patterns identify lines that are narrating past sweep state rather
+# than asserting current canonical state.
 SWEEP_NARRATIVE_PATTERNS = (
     re.compile(r"\bSweep\s+\d+\b"),
     re.compile(r"\b[Ss]ubagent\s+[ABC]\b"),
@@ -305,8 +307,8 @@ def iter_targets() -> list[Path]:
         if is_default_exempt_root(path, repo_root=REPO_ROOT):
             continue
         rel = path.relative_to(REPO_ROOT).as_posix()
-        # Chunk FH (RBQ64): in_exempt_dir admits the project documents that moved
-        # under .claude ahead of the .claude part check, as is_target does.
+        # in_exempt_dir admits the project documents that moved under .claude
+        # ahead of the .claude part check, as is_target does.
         if in_exempt_dir(path, DEFAULT_EXEMPT_DIRS, repo_root=REPO_ROOT):
             continue
         if rel in EXEMPT_FILES:
@@ -518,8 +520,8 @@ def main(argv: list[str]) -> int:
 
 
 if __name__ == "__main__":
-    # 3b50b2g: this tool takes no argument; an unknown or surplus one
-    # used to be ignored with exit 0, so it is refused (exit 2) before the check runs.
+    # This tool takes no argument; an unknown or surplus one was ignored with exit 0
+    # in the earlier repository, so it is refused (exit 2) before the check runs.
     import os as _os
     sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
     from lint_common import strict_flags as _strict_flags

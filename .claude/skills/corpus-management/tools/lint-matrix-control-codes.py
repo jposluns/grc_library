@@ -4,23 +4,21 @@
 Validate every framework-control code in the central compliance matrix
 (compliance/matrix-grc-compliance-alignment.md): CSA CCM v4.1 / AICM v1.1 column
 membership, ISO/IEC 27001:2022 Annex A membership + clause format, and NIST CSF 2.0
-well-formedness + Category membership. The optional AICPA TSC 2017 column (backlog 3.57)
-is validated for 2017 Trust Services Criteria criterion membership (the 61-criterion
-closed set in .claude/skills/corpus-management/tools/tsc_reference.py).
+well-formedness + Category membership. The optional AICPA TSC 2017 column is validated
+for 2017 Trust Services Criteria criterion membership (the 61-criterion closed set in
+.claude/skills/corpus-management/tools/tsc_reference.py).
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
-(Finding, the header/regex constants, the row helpers, the per-framework checks, and
-scan_matrix) is the source of record in the pack engine
-(.claude/skills/corpus-management/src/tools/gate_lint_matrix_control_codes.py); it is catalogue-free and
-takes the five framework-reference predicates, plus the two optional TSC predicates,
-via configure(ref). This wrapper imports
-the shared grc reference modules, configures the engine, and keeps the matrix scan
-scope (MATRIX_PATH), a module-global scan_matrix(path) shim, lint_target, main, and
-the exit codes: 0 clean, 1 on findings, 2 when a target is missing, cannot be read as UTF-8, or
-holds no matrix table (a header row naming both the ISO/IEC 27001:2022 and NIST CSF 2.0 columns),
-since such a target selects nothing to check (P-TODO 3b57; no caller passes arbitrary filenames:
-pre-commit sets pass_filenames false, and quick-guard and run_all_audits.sh (the full suite, in
-the local-quality run and the nightly sweep) run it with no arguments).
+Engine/wrapper split: the PURE scan (Finding, the header/regex constants, the row helpers, the
+per-framework checks, and scan_matrix) is the source of record in the pack engine
+(.claude/skills/corpus-management/src/tools/gate_lint_matrix_control_codes.py); it is
+catalogue-free and takes the five framework-reference predicates, plus the two optional TSC
+predicates, via configure(ref). This wrapper imports the shared grc reference modules, configures
+the engine, and keeps the matrix scan scope (MATRIX_PATH), a module-global scan_matrix(path) shim,
+lint_target, main, and the exit codes: 0 clean, 1 on findings, 2 when a target is missing, cannot
+be read as UTF-8, or holds no matrix table (a header row naming both the ISO/IEC 27001:2022 and
+NIST CSF 2.0 columns), since such a target selects nothing to check (no caller passes arbitrary
+filenames: pre-commit sets pass_filenames false, and quick-guard and run_all_audits.sh (the full
+suite, in the local-quality run and the nightly sweep) run it with no arguments).
 """
 
 from __future__ import annotations
@@ -35,8 +33,8 @@ import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack .claude/aiqt/
 from ccm_aicm_reference import is_aicm_only, is_ccm_v41  # noqa: E402  # grc reference catalogue
 from iso_27001_reference import check_iso_token  # noqa: E402  # shared with gate 58
 from nist_csf_reference import is_valid_category, relocation_note  # noqa: E402  # shared with gate 54
-from tsc_reference import is_tsc_group_heading, is_valid_tsc_criterion  # noqa: E402  # grc reference catalogue (3.57)
-from lint_common import REPO_ROOT, is_fence_line  # noqa: E402  # grc-config/store, fence predicate (3b83); stay local
+from tsc_reference import is_tsc_group_heading, is_valid_tsc_criterion  # noqa: E402  # grc reference catalogue
+from lint_common import REPO_ROOT, is_fence_line  # noqa: E402  # grc-config/store, fence predicate; stay local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / "src" / "tools"
 
@@ -83,13 +81,13 @@ def has_matrix_table(text: str) -> bool:
     return False
 
 
-# The canonical matrix's exact table model (3.57): the only pipe lines it may carry are
-# its mapping tables (this exact header), the framework-key table and the coverage-summary
+# The canonical matrix's exact table model: the only pipe lines it may carry are its
+# mapping tables (this exact header), the framework-key table and the coverage-summary
 # table, each a header, a separator of the same width, then rows of that width. Any other
 # pipe line (a misspelt or dropped label in any header, a row cut off from its table by a
 # blank line, a row without its leading pipe, a mapping row inside an auxiliary table, a
-# surplus or missing cell) is a finding, so the engine can never silently skip a table,
-# a column or a row of the canonical matrix. Grc configuration, not engine behaviour.
+# surplus or missing cell) is a finding, so the engine can never silently skip a table, a
+# column or a row of the canonical matrix. Grc configuration, not engine behaviour.
 CANONICAL_TABLE_HEADERS = {
     "| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO/IEC 27001:2022 "
     "| NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S | AICPA TSC 2017 |": "mapping",
@@ -108,11 +106,11 @@ TABLE_LINE_ALLOWED = frozenset(chr(c) for c in range(0x20, 0x7F)) - {"<", "\\"} 
 # anywhere in the file, since the checker and a renderer would disagree about the lines.
 NON_COMMONMARK_BREAKS = frozenset("\x0b\x0c\x1c\x1d\x1e\x85\u2028\u2029")
 # An HTML block opener at any indentation. The fence half of the same refusal is the shared
-# is_fence_line (3b83): a marker after at most three spaces of indent. A marker indented four or
-# more columns, or behind a tab, is read like any other line (after a blank line it is not a
-# finding; directly after a table it is refused as a trailing line): at top level it is indented
-# code or paragraph text, and a fence it opens inside a list item ends with that item, so it
-# cannot hide a table, every line of which must start at column 1.
+# is_fence_line: a marker after at most three spaces of indent. A marker indented four or more
+# columns, or behind a tab, is read like any other line (after a blank line it is not a finding;
+# directly after a table it is refused as a trailing line): at top level it is indented code or
+# paragraph text, and a fence it opens inside a list item ends with that item, so it cannot hide
+# a table, every line of which must start at column 1.
 HTML_BLOCK_RE = re.compile(r"^\s*<[A-Za-z/!?]")
 DELIM_CELL_RE = re.compile(r"^:?-+:?$")
 
@@ -148,7 +146,7 @@ def canonical_structure_findings(text: str) -> list:
         # The canonical matrix carries no code fences and no HTML: a table inside either
         # does not render as a table, and inline or container-prefixed HTML (a blockquoted
         # tag, an unclosed <div hidden>) can hide the tables after it, so a fence line (the
-        # shared is_fence_line, 3b83) and any "<" anywhere in the file are refused outright.
+        # shared is_fence_line) and any "<" anywhere in the file are refused outright.
         if is_fence_line(line) or HTML_BLOCK_RE.match(line) or "<" in line:
             refuse(lineno, "a code fence or an HTML block (a table inside one does not render)")
             width, expect_sep = None, False
@@ -197,11 +195,10 @@ def lint_target(target: Path) -> int:
     if not target.is_file():
         print(f"ERROR: target not found: {target}", file=sys.stderr)
         return 2
-    # 3b50b2d2: an unreadable (or non-UTF-8) file used to print OK after checking nothing.
-    # 3b57: so did a readable file with no matrix table; it is now refused too, because it
-    # selects nothing to check (quick-guard runs this gate fixed-target, with no arguments,
-    # since #1246, so it no longer needs the table-less-input pass NormalizedPositionalArgsTests
-    # required).
+    # An unreadable (or non-UTF-8) file used to print OK after checking nothing. So did a
+    # readable file with no matrix table; it is now refused too, because it selects nothing to
+    # check (quick-guard runs this gate fixed-target, with no arguments, so it no longer needs
+    # the table-less-input pass NormalizedPositionalArgsTests required).
     try:
         text = target.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError) as exc:

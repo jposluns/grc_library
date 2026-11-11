@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate .claude/skills/corpus-management/tools/alignment_citation_ids.json, the committed identifier catalogue that the
 fabricated-citation existence gate (gate 96) validates OWASP ASVS and MITRE CWE citations
-against (P-TODO P-1.63 part d).
+against.
 
 The catalogue is extracted from the held sources in the grc_library_ref sibling:
 - OWASP ASVS 5.0.0 requirements CSV (columns chapter_id, section_id, req_id), and the retained
@@ -23,13 +23,12 @@ Usage:
   python3 .claude/skills/corpus-management/tools/build-alignment-citation-registry.py --check    # exit 1 on drift, writes nothing
 Exit codes: 0 in sync or written; 1 --check drift; 2 grc_library_ref absent or present but
 unusable (not a directory, a dangling link, or one that cannot be examined, or a source in it
-that cannot be examined, is not a regular file, cannot be read or is not valid UTF-8, 3b677), a
+that cannot be examined, is not a regular file, cannot be read or is not valid UTF-8), a
 source file genuinely absent from a usable sibling, or a source malformed (missing column,
 malformed or duplicate identifier, or CSV the csv module refuses, such as a field over its
-limit; the message names the file, 3b677 r7, and the physical line the csv module was parsing
-when it refused, 3b677 r8). The probes use os.lstat/os.stat, so the verdict is the same
-on Python 3.11 and 3.12+. This is a
-maintainer parity aid: --check needs the reference sibling and is not a CI gate.
+limit; the message names the file and the physical line the csv module was parsing when it
+refused). The probes use os.lstat/os.stat, so the verdict is the same on Python 3.11 and 3.12+.
+This is a maintainer parity aid: --check needs the reference sibling and is not a CI gate.
 """
 
 from __future__ import annotations
@@ -73,11 +72,11 @@ MIN_ASVS4_REQS, MIN_ASVS4_SECTIONS, MIN_ASVS4_CHAPTERS = 250, 55, 14
 
 
 class _Undecodable(ValueError):
-    """A held source in the sibling that is not valid UTF-8 (3b677)."""
+    """A held source in the sibling that is not valid UTF-8."""
 
 
 class _CountedLines:
-    """The file's physical lines, counted as the csv reader takes them (3b677 r8)."""
+    """The file's physical lines, counted as the csv reader takes them."""
 
     def __init__(self, fh) -> None:
         self._fh = fh
@@ -102,14 +101,14 @@ def _read_csv(path: Path, needed: tuple[str, ...]) -> list[dict]:
                 raise ValueError(f"{path.name}: missing column(s) {missing}")
             return list(reader)
         except csv.Error as exc:
-            # 3b677 r7: csv.Error (a field over the csv module's limit, for example) is not a
+            # csv.Error (a field over the csv module's limit, for example) is not a
             # ValueError, so it escaped main as a traceback naming no file; exit 2 naming it.
-            # 3b677 r8: on csv.Error reader.line_num is still the end of the last completed
+            # On csv.Error reader.line_num is still the end of the last completed
             # record, one too low for a one-line record and further off when a quoted field spans
             # lines. The reader raises while parsing the last line it took, so name that one.
             raise ValueError(f"{path}: malformed CSV at line {lines.count} ({exc})") from exc
         except UnicodeDecodeError as exc:
-            # 3b677: name the source; the bare codec message names no file.
+            # Name the source; the bare codec message names no file.
             raise _Undecodable(f"cannot decode {path} as UTF-8 ({exc.reason} at byte "
                                f"{exc.start})") from exc
 
@@ -191,7 +190,7 @@ def render(data: dict) -> str:
 def main(argv: list[str]) -> int:
     check = "--check" in lint_common.strict_flags(argv[1:], ("--check",))
     try:
-        # Strict (3b74): a present but unusable sibling is named as such, not reported as absent.
+        # Strict: a present but unusable sibling is named as such, not reported as absent.
         ref = lint_common.resolve_sibling("ref", strict=True)
     except lint_common.InaccessiblePath as exc:
         print(f"build-alignment-citation-registry: the grc_library_ref sibling is present but "
@@ -202,9 +201,9 @@ def main(argv: list[str]) -> int:
               "this repository or launch with --add-dir (this parity aid needs the held sources).",
               file=sys.stderr)
         return 2
-    # 3b677: probe each source with strict_kind before the read, so one that cannot be examined
+    # Probe each source with strict_kind before the read, so one that cannot be examined
     # (an unsearchable sibling, a dangling link) is named as unusable, not reported missing.
-    # 3b677 r6: level by level, so a missing source directory is still reported missing.
+    # Level by level, so a missing source directory is still reported missing.
     for src in (ASVS_SRC, ASVS4_SRC, CWE_SRC):
         try:
             kind = lint_common.strict_kind_under(ref, src)

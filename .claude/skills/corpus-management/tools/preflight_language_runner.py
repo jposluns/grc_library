@@ -2,7 +2,7 @@
 """Isolated gate-2 language-engine runner for .claude/skills/corpus-management/tools/preflight-changelog.py.
 
 Runs in a CHILD process (``sys.executable -I``) so that no engine code ever
-executes in the preflight process (3b201, /validate-pr round 5). Protocol:
+executes in the preflight process. Protocol:
 
   argv[1]  path to gate 2's project entry point (.claude/skills/corpus-management/tools/lint-language.py)
   stdin    one JSON object ``{"nonce": str, "texts": [str, ...]}``
@@ -23,36 +23,34 @@ to either hook before sealing deny the result. After the last matcher call and
 BEFORE any matcher result is read, the runner refuses with status 72, without a
 result line, while any thread registered with the ``threading`` module, other
 than the runner's own main thread, is alive (``threading.enumerate()``): a
-matcher that handed its work to a
-still-running registered thread has returned a result it has not finished
-producing (round 8, E1). Only
-after that check are the results copied into an immutable snapshot (validated
-string pairs in new tuples), so a list an engine thread could still mutate is
-never what gets sealed. Immediately before sealing, ``gc.collect()`` runs under
-the fault hooks (surfacing pending destructor faults, retained cycles
-included), the result is refused with status 71, without a result line, unless
-BOTH hooks are still this runner's own handler (an identity check) and no fault
-was recorded, and the thread-liveness check runs once more (status 72): an
-engine that merely restored the interpreter's default hooks, turning a fault
-into discarded stderr noise, cannot seal a result, and neither can one whose
-registered worker thread is still running. A ``spelling_matches`` result is accepted only as
-a list or tuple of two-item list/tuple string pairs; any other return (a str,
-dict, set, generator or other iterable included) raises, ending the child
-without a result line. Propagating exceptions and early exits before the result
-is written leave no valid result; exceptions caught by engine code are not
-detected. The parent rejects nonzero exits, timeouts and missing, extra,
-malformed or invalid results. Residuals, stated: an engine that REPLACES a
-fault hook, absorbs a fault under the replacement, and restores this runner's
-own handler before sealing defeats the identity check; like a child that
-deliberately forges a well-formed marked line, that is outside the threat model
-(faults, not malice); see the preflight's module docstring. A thread started
-below the ``threading`` module (``_thread.start_new_thread``) never appears in
+matcher that handed its work to a still-running registered thread has returned
+a result it has not finished producing. Only after that check are the results
+copied into an immutable snapshot (validated string pairs in new tuples), so a
+list an engine thread could still mutate is never what gets sealed. Immediately
+before sealing, ``gc.collect()`` runs under the fault hooks (surfacing pending
+destructor faults, retained cycles included), the result is refused with status
+71, without a result line, unless BOTH hooks are still this runner's own
+handler (an identity check) and no fault was recorded, and the thread-liveness
+check runs once more (status 72): an engine that merely restored the
+interpreter's default hooks, turning a fault into discarded stderr noise,
+cannot seal a result, and neither can one whose registered worker thread is
+still running. A ``spelling_matches`` result is accepted only as a list or
+tuple of two-item list/tuple string pairs; any other return (a str, dict, set,
+generator or other iterable included) raises, ending the child without a result
+line. Propagating exceptions and early exits before the result is written leave
+no valid result; exceptions caught by engine code are not detected. The parent
+rejects nonzero exits, timeouts and missing, extra, malformed or invalid
+results. Residuals, stated: an engine that REPLACES a fault hook, absorbs a
+fault under the replacement, and restores this runner's own handler before
+sealing defeats the identity check; like a child that deliberately forges a
+well-formed marked line, that is outside the threat model (faults, not malice);
+see the preflight's module docstring. A thread started below the ``threading``
+module (``_thread.start_new_thread``) never appears in
 ``threading.enumerate()`` and is invisible to the liveness check, and a result
 deferred through a signal handler runs no thread at all; both are a disclosed
-residual (follow-up 3b253). An engine that
-forks a helper WITHOUT exec leaves the saved result descriptor open in the
-helper, so the parent never sees end-of-output and refuses at its timeout:
-fail closed, availability only, never a wrong verdict.
+residual. An engine that forks a helper WITHOUT exec leaves the saved result
+descriptor open in the helper, so the parent never sees end-of-output and
+refuses at its timeout: fail closed, availability only, never a wrong verdict.
 """
 import gc
 import importlib.util
@@ -75,10 +73,10 @@ def _refuse_live_engine_threads(_exit=os._exit, _enumerate=threading.enumerate,
     the ``threading`` module, other than the main thread, is alive: a matcher
     that handed its work to such a thread has returned a result it has not
     finished producing, and sealing it would turn unfinished work into a
-    verdict (round 8, E1). Threads started below the ``threading`` module and
-    results deferred through a signal handler are invisible here: a disclosed
-    residual (follow-up 3b253). The callables are bound at definition time,
-    before any engine code runs."""
+    verdict. Threads started below the ``threading`` module and results
+    deferred through a signal handler are invisible here: a disclosed
+    residual. The callables are bound at definition time, before any engine
+    code runs."""
     for thread in _enumerate():
         if thread is not _main_thread():
             _exit(72)
@@ -91,7 +89,7 @@ def _snapshot(raw_results):
     pairs. A str, dict, set or generator would otherwise iterate into zero or
     garbled pairs and become a sealed verdict. Called only AFTER the
     thread-liveness check, so a list an engine thread could still be filling
-    is never what this reads (round 8, E1)."""
+    is never what this reads."""
     findings = []
     for result in raw_results:
         if not isinstance(result, (list, tuple)):
@@ -127,9 +125,9 @@ def main() -> None:
             raise TypeError(f"language engine {name} must be callable")
     checks = engine.compile_language(mod._language_config())
     raw_results = [engine.spelling_matches(text, checks) for text in texts]
-    # Round 8, E1: refuse unfinished matcher work BEFORE any result is read,
-    # and snapshot only after that: an asynchronous matcher's still-empty
-    # (or still-growing) list never becomes a sealed verdict.
+    # Refuse unfinished matcher work BEFORE any result is read, and snapshot
+    # only after that: an asynchronous matcher's still-empty (or
+    # still-growing) list never becomes a sealed verdict.
     _refuse_live_engine_threads()
     findings = _snapshot(raw_results)
     # Drop the engine's objects before the pre-seal collection: a retained
@@ -143,7 +141,7 @@ def main() -> None:
     # are still this runner's own handler and no fault was recorded. An engine
     # that restored the interpreter's default hooks cannot turn a masked fault
     # into a sealed result. The thread-liveness check runs once more: a thread
-    # still alive at sealing cannot seal either (round 8, E1).
+    # still alive at sealing cannot seal either.
     gc.collect()
     if (sys.unraisablehook is not _exit_on_fault
             or threading.excepthook is not _exit_on_fault or _FAULTS):

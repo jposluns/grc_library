@@ -13,17 +13,16 @@ URL scheme in the same token is never treated as a citation), and postal
 street-address fragments.
 Lines inside fenced code blocks are skipped (the shared fence-aware scan).
 
-Engine/wrapper split (SHARED/SAFETY lane PR-38, Pattern A): this engine carries the
-detection regexes (``EMAIL_RE``, ``US_SSN_RE``, ``US_PHONE_RE``, ``IPV4_RE``,
-``STREET_RE``), the IP filters (``is_documentation_ip``, ``is_version_ip``, ``is_citation_ip``),
-and the pure ``scan``; the project wrapper (``.claude/skills/corpus-management/tools/lint-pii-in-content.py``) supplies the grc
-scan scope (the scanned-suffix set and the exempt-file set, which includes THIS engine
-because it documents the PII formats by design) and the grc example-domain allow-list,
-and keeps a thin module-global ``scan`` shim delegating here so the scan-scope
-regression test (which patches ``mod.scan`` and runs ``main``) observes the original
-signature and behaviour. ``scan`` takes ``example_domains`` as a keyword so the engine
-carries no grc-specific allow-list; the wrapper supplies it. The engine is scope-free
-and repository-root-free.
+Engine/wrapper split: this engine carries the detection regexes (``EMAIL_RE``, ``US_SSN_RE``,
+``US_PHONE_RE``, ``IPV4_RE``, ``STREET_RE``), the IP filters (``is_documentation_ip``,
+``is_version_ip``, ``is_citation_ip``), and the pure ``scan``; the project wrapper
+(``.claude/skills/corpus-management/tools/lint-pii-in-content.py``) supplies the grc scan
+scope (the scanned-suffix set and the exempt-file set, which includes THIS engine because it
+documents the PII formats by design) and the grc example-domain allow-list, and keeps a thin
+module-global ``scan`` shim delegating here so the scan-scope regression test (which patches
+``mod.scan`` and runs ``main``) observes the original signature and behaviour. ``scan`` takes
+``example_domains`` as a keyword so the engine carries no grc-specific allow-list; the wrapper
+supplies it. The engine is scope-free and repository-root-free.
 
 Exit codes (the wrapper returns these): 0 clean; 1 one or more findings.
 """
@@ -197,26 +196,26 @@ def _label_starts(ch: str) -> bool:
 
     Uses EXACT UTS-46 domain-label validity via the ``idna`` package when installed (the
     primary path, ``_idna_label_continues``); when ``idna`` is absent (a bare adopter clone),
-    it falls back to the FALSE-NEGATIVE-SAFE approximation described here. The D-220 QA panel
-    proved this fallback is the safe MINIMAL boundary because NO Unicode-general-category
-    boundary set is safe: IDNA-valid characters hide in ``Po`` (the Tibetan tsheg,
-    katakana middle dot), ``Cf`` (ZWJ), ``Sk`` (U+0375) and ``So`` (U+06FD/U+06FE). So
-    the boundary test is deliberately MINIMAL: after NFKC normalisation, a character is
-    a boundary only when its first normalised codepoint is whitespace, a dot separator
-    (handled by the caller), or an ASCII PUNCTUATION character. Every other character
-    RETAINS the address for scanning: an ASCII alphanumeric or ``-`` (a normal label
-    char) and every non-ASCII character (a possible IDN label char). The safety property
-    is set INCLUSION, not the stronger and false claim that no IDNA character maps to
-    ASCII (a fullwidth letter such as U+FF41 does NFKC-map to ASCII, but to an
-    alphanumeric, which the ASCII branch retains): the only characters granted a boundary
-    are whitespace, dot separators, and codepoints whose NFKC form begins with ASCII
-    punctuation, and that boundary set was verified EMPIRICALLY (over every
-    boundary-classified code-point, against ``idna.encode(uts46=True, std3_rules=True)``)
-    to contain no character IDNA accepts as a domain-label continuation. A real (possibly
-    IDN) domain whose ASCII prefix looks reserved therefore can never be wrongly exempted. Residual cost: a harmless over-flag of a
-    reserved/example email placed immediately (no separating space) against an exotic
-    non-ASCII symbol, curly quote, CJK bracket or zero-width character, which plain-ASCII
-    fixtures never produce (ASCII spaces, quotes, brackets and punctuation stay exempt)."""
+    it falls back to the FALSE-NEGATIVE-SAFE approximation described here. This fallback is
+    the safe MINIMAL boundary because NO Unicode-general-category boundary set is safe:
+    IDNA-valid characters hide in ``Po`` (the Tibetan tsheg, katakana middle dot), ``Cf``
+    (ZWJ), ``Sk`` (U+0375) and ``So`` (U+06FD/U+06FE). So the boundary test is deliberately
+    MINIMAL: after NFKC normalization, a character is a boundary only when its first
+    normalized codepoint is whitespace, a dot separator (handled by the caller), or an ASCII
+    PUNCTUATION character. Every other character RETAINS the address for scanning: an ASCII
+    alphanumeric or ``-`` (a normal label char) and every non-ASCII character (a possible IDN
+    label char). The safety property is set INCLUSION, not the stronger and false claim that
+    no IDNA character maps to ASCII (a fullwidth letter such as U+FF41 does NFKC-map to
+    ASCII, but to an alphanumeric, which the ASCII branch retains): the only characters
+    granted a boundary are whitespace, dot separators, and codepoints whose NFKC form begins
+    with ASCII punctuation, and that boundary set was verified EMPIRICALLY (over every
+    boundary-classified code-point, against ``idna.encode(uts46=True, std3_rules=True)``) to
+    contain no character IDNA accepts as a domain-label continuation. A real (possibly IDN)
+    domain whose ASCII prefix looks reserved therefore can never be wrongly exempted.
+    Residual cost: a harmless over-flag of a reserved/example email placed immediately (no
+    separating space) against an exotic non-ASCII symbol, curly quote, CJK bracket or
+    zero-width character, which plain-ASCII fixtures never produce (ASCII spaces, quotes,
+    brackets and punctuation stay exempt)."""
     norm = unicodedata.normalize("NFKC", ch)
     if not norm:
         return False                              # default-ignorable / empty: boundary

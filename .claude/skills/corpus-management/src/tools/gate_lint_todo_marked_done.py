@@ -9,7 +9,7 @@ done in place. A line is read outside fenced code blocks, and inline backtick co
 are stripped first, so a backticked mention of a marker (naming ``~~`` or ``[done]`` in
 prose) does not register.
 
-Engine/wrapper split (compile PR-15): this engine carries the PURE check (the three
+Engine/wrapper split: this engine carries the PURE check (the three
 done-marker patterns, the code-span strip, ``check_file``) and a ``run`` that groups +
 reports; the project wrapper (``.claude/skills/corpus-management/tools/lint-todo-marked-done.py``) supplies the scan scope
 (which backlog file) and the repository root. This engine holds no scan-scope policy and

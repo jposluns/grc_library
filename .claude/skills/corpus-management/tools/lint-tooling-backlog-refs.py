@@ -1,29 +1,27 @@
 #!/usr/bin/env python3
 """Tooling backlog-reference audit (grc gate 107): the provenance-sweep recurrence backstop.
 
-WHAT IT CATCHES. The 2026-08 provenance sweep (PRs #1764, #1767, #1768, #1770,
-#1786, #1788, #1789; the item-15 / P-1.51 lane) re-pointed retired positional
-backlog pointers in tool and hook provenance prose (``TODO N.M``,
-``TODO section N.M``, ``section N.M``, ``section-N.M``) to the durable
-``N.M (closing PR #X)`` form. Nothing mechanical stopped the class from
-recurring: gate 69 (lint-positional-backlog-tokens) scans corpus MARKDOWN only,
-and ``.claude/skills/corpus-management/tools/`` / ``.claude/hooks/`` are outside its scope. This gate is the
-backstop (backlog item 3b151): it scans ``.py``, ``.sh``, ``.md``, ``.json``,
+WHAT IT CATCHES. A 2026-08 provenance sweep in the earlier repository
+re-pointed retired positional backlog pointers in tool and hook provenance
+prose (``TODO N.M``, ``TODO section N.M``, ``section N.M``, ``section-N.M``)
+to the durable ``N.M (closing PR #X)`` form. Nothing mechanical stopped the
+class from recurring: gate 69 (lint-positional-backlog-tokens) scans corpus
+MARKDOWN only, and ``.claude/skills/corpus-management/tools/`` / ``.claude/hooks/`` are outside its scope. This
+gate is the backstop: it scans ``.py``, ``.sh``, ``.md``, ``.json``,
 ``.yml`` and ``.yaml`` files, plus suffix-less scripts whose shebang names a
 Python or Bourne-family shell interpreter (note 10; the ``.claude/skills/corpus-management/tools/git-hooks/``
 trio, the nmw-actionable hook) and the registered rule-overlay
 ``PROVENANCE.txt`` records, under ``.claude/skills/corpus-management/tools/``, ``.claude/`` and
-``.github/`` (note 11; backlog item 3b636 widened the roots from
-``.claude/hooks/`` after a live pointer survived in a playbook), for a
-qualified positional backlog pointer and fails when the pointer names an item
-that is no longer live, because a positional number is only a sound citation
-while its item is open; a closed item's number must be anchored to its
-closing PR.
+``.github/`` (note 11; in the earlier repository, a live pointer in a playbook
+survived a ``.claude/hooks/``-only scan), for a qualified positional backlog
+pointer and fails when the pointer names an item that is no longer live,
+because a positional number is only a sound citation while its item is
+open; a closed item's number must be anchored to its closing PR.
 
 DETECTION, stated because each choice has a false-positive or false-negative
-cost (all measured against the repo at adoption; the raw census had ~95 hits
-and three survivors: two enumerated in ``EXEMPT``, the third reworded at
-source):
+cost (all measured in the earlier repository at adoption, where the raw census
+had ~95 hits and three survivors: two enumerated in ``EXEMPT``, the third
+reworded at source):
 
   1. LINE-WRAP TOLERANCE. Each file is read as ONE wrap-joined text: comment
      leaders (leading ``#`` runs) are blanked length-preservingly and newlines
@@ -37,74 +35,74 @@ source):
      double-quoted spans are blanked (length-preservingly) BEFORE matching,
      in ONE pass, so every boundary guard below reads the ORIGINAL source
      context and a span blanked earlier can never manufacture an opener or
-     closer for a later one (3b151 QA r3: the previous second pass did
-     exactly that). A backtick span pairs sequentially across line wraps
-     (300-character cap) but NEVER across a blank line (3b151 QA r2:
-     unbounded pairing let one stray backtick blank prose paragraphs away),
-     so a stray unpaired backtick can blank at most the rest of its own
-     paragraph. A double-quoted span is blanked when it opens and closes on
-     one physical line, its opening quote carries at most two attached
-     string-prefix letters (``r``, ``b``, ``u``, ``f`` in either case, so a
-     prefixed ``r``- or ``f``-string literal still blanks), and no word
-     character, apostrophe or double quote abuts the OUTSIDE of either end,
-     so a digit-adjacent inch mark cannot OPEN a span, but it can close a
-     stray earlier opener; a quote hugging another quote cannot pair. A
-     SINGLE quote is interpreted NOWHERE: apostrophes are prose
-     characters (3b151 QA r3: two rounds of single-quote span heuristics
-     each left a shape in which an apostrophe hid a genuine pointer; the
-     claim is now exact by construction), so a single-quoted example is
-     simply flagged and is cleared with backticks or the rule-6 marker. A
-     double-quote triple delimiter (a run of three double quotes, with an
-     optional string prefix so a raw docstring cannot mispair) is consumed
-     as a bare token, so a docstring's PROSE IS SCANNED like comment prose
-     (3b151 QA r1: the previous cross-line double-quote pairing read a
-     docstring's first two quotes as an empty span and blanked most
-     docstrings whole) and the delimiter can never mispair with a later
-     double quote. The raw census is dominated by self-test probes and
-     docstring examples (the rotation-gate form examples, the hook
-     disposition-grammar probes), and every one of them is double-quoted or
-     backticked. In ``.md`` files and the registered ``PROVENANCE.txt``
-     records (Markdown content, note 11), fence state is computed FIRST on RAW
-     lines through the shared ``aiqt_corpus.is_fence_line`` predicate, then
-     fenced lines are blanked. This is the same toggle model corpus gates
-     use (a toggle is a toggle: fences
-     are paired by neither delimiter character nor width), so a fence
+     closer for a later one (in the earlier repository, a former second
+     pass did exactly that). A backtick span pairs sequentially across line
+     wraps (300-character cap) but NEVER across a blank line (in the earlier
+     repository, unbounded pairing once let one stray backtick blank prose
+     paragraphs away), so a stray unpaired backtick can blank at most the
+     rest of its own paragraph. A double-quoted span is blanked when it
+     opens and closes on one physical line, its opening quote carries at
+     most two attached string-prefix letters (``r``, ``b``, ``u``, ``f`` in
+     either case, so a prefixed ``r``- or ``f``-string literal still
+     blanks), and no word character, apostrophe or double quote abuts the
+     OUTSIDE of either end, so a digit-adjacent inch mark cannot OPEN a
+     span, but it can close a stray earlier opener; a quote hugging another
+     quote cannot pair. A SINGLE quote is interpreted NOWHERE: apostrophes
+     are prose characters (in the earlier repository, two former
+     single-quote span heuristics each left a shape in which an apostrophe
+     hid a genuine pointer; the claim is now exact by construction), so a
+     single-quoted example is simply flagged and is cleared with backticks
+     or the rule-6 marker. A double-quote triple delimiter (a run of three
+     double quotes, with an optional string prefix so a raw docstring cannot
+     mispair) is consumed as a bare token, so a docstring's PROSE IS SCANNED
+     like comment prose (in the earlier repository, a former cross-line
+     double-quote pairing read a docstring's first two quotes as an empty
+     span and blanked most docstrings whole) and the delimiter can never
+     mispair with a later double quote. The raw census is dominated by
+     self-test probes and docstring examples (the rotation-gate form
+     examples, the hook disposition-grammar probes), and every one of them
+     is double-quoted or backticked. In ``.md`` files and the registered
+     ``PROVENANCE.txt`` records (Markdown content, note 11), fence state is
+     computed FIRST on RAW lines through the shared
+     ``aiqt_corpus.is_fence_line`` predicate, then fenced lines are blanked.
+     This is the same toggle model corpus gates use (a toggle is a toggle:
+     fences are paired by neither delimiter character nor width), so a fence
      delimiter's backtick run can never pair into the prose around the
-     block (3b151 QA r2); a file whose fence-shaped lines toggle an ODD
-     number of times leaves the model inside a fence at end of file, where
-     an unterminated fence and a miscounted fence-shaped prose line are
-     indistinguishable, so the file is REFUSED (note 9, exit 2), never
-     silently blanked to its end (3b151 QA r3: a line-leading inline
-     triple-backtick span, and a three-backtick line inside a four-backtick
-     fence, both miscounted the toggle and hid following prose); then ONLY
-     the inline backtick spans are blanked: a double-quoted span in
-     Markdown prose is quotation, not an illustrative literal, so a pointer
-     inside it is still checked. ``.json`` files are read raw, because
-     their content is entirely quoted (the publication-manifest rationale
-     strings are genuine prose); JSON escapes are not decoded, so an
-     escaped pointer can evade detection. ``.yml`` / ``.yaml`` files (the
-     workflows, the playbook manifest) are read raw the same way, only their
-     leading ``#`` comment leaders blanked: a quoted YAML scalar is prose
-     (a step name, a description), not an illustrative literal. RESIDUE: a genuine pointer inside a
-     SAME-LINE double-quoted provenance string is stripped (a quoted
-     pointer is read as a mention; silently missed); a pair of stray double
-     quotes on one physical line, each end clear of word characters,
-     apostrophes and double quotes on the outside, is read as a literal and
-     hides what sits between them (including an inch-mark closer); a stray
-     backtick, including one in a single-quoted literal, can blank
-     prose up to the end of its own paragraph; and in ``.md`` files and the
-     registered ``PROVENANCE.txt`` records an EVEN number of miscounted
-     fence-shaped prose lines hides the prose between them, while an odd
-     number is refused loudly. All remain accepted
-     FN-safety costs, each bounded as stated. On the false-positive side, a
-     quoted example that wraps across lines, ANY single-quoted example, a
-     double-quoted example abutting a word character or another quote, and
-     prose inside a triple-quoted string are all still checked and so can
-     be flagged: ambiguity keeps real pointers flagged, and such an example
-     is cleared with backticks or the rule-6 marker.
+     block; a file whose fence-shaped lines toggle an ODD number of times
+     leaves the model inside a fence at end of file, where an unterminated
+     fence and a miscounted fence-shaped prose line are indistinguishable,
+     so the file is REFUSED (note 9, exit 2), never silently blanked to its
+     end (in the earlier repository, a former version let a line-leading
+     inline triple-backtick span, and a three-backtick line inside a
+     four-backtick fence, both miscount the toggle and hide following
+     prose); then ONLY the inline backtick spans are blanked: a
+     double-quoted span in Markdown prose is quotation, not an illustrative
+     literal, so a pointer inside it is still checked. ``.json`` files are
+     read raw, because their content is entirely quoted (the
+     publication-manifest rationale strings are genuine prose); JSON escapes
+     are not decoded, so an escaped pointer can evade detection. ``.yml`` /
+     ``.yaml`` files (the workflows, the playbook manifest) are read raw the
+     same way, only their leading ``#`` comment leaders blanked: a quoted
+     YAML scalar is prose (a step name, a description), not an illustrative
+     literal. RESIDUE: a genuine pointer inside a SAME-LINE double-quoted
+     provenance string is stripped (a quoted pointer is read as a mention;
+     silently missed); a pair of stray double quotes on one physical line,
+     each end clear of word characters, apostrophes and double quotes on the
+     outside, is read as a literal and hides what sits between them
+     (including an inch-mark closer); a stray backtick, including one in a
+     single-quoted literal, can blank prose up to the end of its own
+     paragraph; and in ``.md`` files and the registered ``PROVENANCE.txt``
+     records an EVEN number of miscounted fence-shaped prose lines hides the
+     prose between them, while an odd number is refused loudly. All remain
+     accepted FN-safety costs, each bounded as stated. On the false-positive
+     side, a quoted example that wraps across lines, ANY single-quoted
+     example, a double-quoted example abutting a word character or another
+     quote, and prose inside a triple-quoted string are all still checked
+     and so can be flagged: ambiguity keeps real pointers flagged, and such
+     an example is cleared with backticks or the rule-6 marker.
 
   3. QUALIFIED FORMS ONLY. A match requires the ``TODO`` qualifier (optionally
-     carrying the private list's ``P-`` prefix, and optionally followed by
+     carrying the private backlog's ``P-`` prefix, and optionally followed by
      ``section`` / ``Section``) or the lowercase ``section`` / ``section-``
      qualifier, followed by a dotted number whose FIRST component is a single
      digit (the live backlog series) and whose tail may carry the child-item
@@ -149,23 +147,24 @@ source):
   7. EXEMPT. A small dict keyed by (repo-relative file, id, distinctive
      substring of the pointer's source line), gate-78 style, so an exemption
      cannot silently widen to a different line. Seeded with the two exempted
-     census survivors (the third was reworded at source); both exempted ids
-     also collide with a backlog number live at adoption (one private, one
-     public), so the rows keep those document references green after the
-     unrelated backlog items close; see the rationales on the rows.
+     census survivors (the third was reworded at source); in the earlier
+     repository at adoption, both exempted ids also collided with a live
+     backlog number (one private, one public), so the rows keep those
+     document references green after the unrelated backlog items close; see
+     the rationales on the rows.
 
   8. OPEN-VERSUS-DELETED, WITH GATE-78 GRACEFUL DEGRADATION. The live set is
-     read from ``.working/TODO.md`` plus, when the private sibling is reachable,
-     ``TODO-REFERENCE.md``, ``P-TODO.md`` and ``P-TODO-REFERENCE.md``, all
+     read from ``TODO_REL`` plus, when the private sibling is reachable,
+     the three private backlog files in ``PRIVATE_BACKLOG_FILES``, all
      through the shared ``.claude/skills/corpus-management/tools/todo_index_rows.py`` grammar (index rows and
      item headings), the same reader gates 78 and 90 use, so redirect stubs
      held as headings in the reference file stay live. A pointer at a live
-     item passes (the sweep deliberately left then-live refs in place). When
-     the private sibling is unreachable (public CI, adopter clones), an id
-     absent from ``.working/TODO.md`` cannot be proven deleted, so the pointer is
-     reported as a SKIPPED unresolved reference and the gate exits 0 for that
-     class, exactly as gate 78 downgrades its recycled-number check when the
-     DONE ledger is absent.
+     item passes (in the earlier repository, the sweep deliberately left
+     then-live refs in place). When the private sibling is unreachable
+     (public CI, adopter clones), an id absent from ``TODO_REL`` cannot be
+     proven deleted, so the pointer is reported as a SKIPPED unresolved
+     reference and the gate exits 0 for that class, exactly as gate 78
+     downgrades its recycled-number check when the DONE ledger is absent.
 
   9. FAIL-CLOSED INPUTS. Errors name the path and exit 2, even under
      --report. Every enumerated entry is classified with os.lstat and, for
@@ -185,8 +184,8 @@ source):
   10. INTERPRETER SELECTION. Every regular file is probed regardless of
       suffix. An executable mode bit or a shebang requires a resolvable
       interpreter. INTERPRETER_EXEMPT may explicitly waive resolution for a
-      repo-relative file with a reviewed nonempty rationale; it is empty at
-      adoption. Exempt files still undergo classification/read checks and
+      repo-relative file with a reviewed nonempty rationale; it ships
+      empty. Exempt files still undergo classification/read checks and
       suffix-based scanning. Missing, invalid UTF-8, NUL-containing,
       over-256-byte or unresolved shebangs are refused with the diagnostic
       "cannot determine interpreter; add a supported shebang or exempt it
@@ -204,10 +203,11 @@ source):
       matching python with a word-character/dot suffix, or sh/ash/dash/bash/
       ksh/mksh/zsh, selects a suffix-less script. The .py/.sh/.md/.json/.yml/
       .yaml suffixes are always selected. Other resolved interpreters and
-      other suffixes remain outside prose scope. At adoption the suffix-less
-      selection is the .claude/skills/corpus-management/tools/git-hooks trio and .claude/hooks/nmw-actionable.
+      other suffixes remain outside prose scope. In the earlier repository,
+      the suffix-less selection at adoption was the .claude/skills/corpus-management/tools/git-hooks
+      trio and .claude/hooks/nmw-actionable.
 
-  11. ROOTS AND WHAT THEY LEAVE OUT (3b636). The roots are ``.claude/skills/corpus-management/tools/``, the
+  11. ROOTS AND WHAT THEY LEAVE OUT. The roots are ``.claude/skills/corpus-management/tools/``, the
       whole of ``.claude/`` (hooks, playbooks, commands, references, rules,
       skills, ``CLAUDE.md``, ``settings.json``) and ``.github/``. Two
       ``.gitignore``-listed, machine-local paths are pruned after
@@ -243,16 +243,16 @@ Usage:
     python3 .claude/skills/corpus-management/tools/lint-tooling-backlog-refs.py --report
     python3 .claude/skills/corpus-management/tools/lint-tooling-backlog-refs.py --root <dir>
 
-``--report`` prints findings but always exits 0 (the plan's report-first mode;
-the wired surfaces run the gate enforcing); a note-9 input error still exits 2.
+``--report`` prints findings but always exits 0 (a report-first mode; the
+wired surfaces run the gate enforcing); a note-9 input error still exits 2.
 ``--root`` rebases the scan for the regression fixtures; under it the private
-sibling is resolved as the given root's ``../grc_library_private``, mirroring
-``lint_common.resolve_sibling``.
+sibling is resolved as the given root's parent joined with
+``PRIVATE_SIBLING_DIR``, mirroring ``lint_common.resolve_sibling``.
 
 Exit codes:
     0   no findings (including degraded-skip runs and --report runs).
     1   one or more findings.
-    2   .working/TODO.md is missing, an explicit --root is refused, or a note-9
+    2   ``TODO_REL`` is missing, an explicit --root is refused, or a note-9
         fail-closed input error (an unreadable or undecodable file, an
         inaccessible subtree, symlink or sibling, an odd fence-toggle count
         in a scanned Markdown file, an empty scan set).
@@ -282,7 +282,7 @@ from lint_common import (
 import aiqt_bootstrap  # noqa: F401  # shared vendored core on sys.path
 from aiqt_corpus import is_fence_line
 
-# The one index-row and item-heading grammar the backlog readers share (P-TODO 3b121).
+# The one index-row and item-heading grammar the backlog readers share.
 from todo_index_rows import index_rows, item_headings
 
 TODO_REL = ".working/TODO.md"
@@ -301,7 +301,7 @@ SKIP_REL_PATHS = frozenset({".claude/hooks/.state", ".claude/settings.local.json
 # would break the upstream drift checks. Files under these directories are
 # still classified and read, but only each directory's OWN first-party record
 # (THIRD_PARTY_RECORD_PATHS, at the directory's root) is selected: a nested
-# file that merely shares the basename is vendored content (3b636 r3).
+# file that merely shares the basename is vendored content.
 # cleanlanguage is the only third-party skill directory: the other shipped
 # skills (adopt, corpus-management) and any other skill under .claude/skills/
 # are project tooling and stay scanned.
@@ -320,12 +320,12 @@ THIRD_PARTY_RECORD_PATHS = frozenset(f"{d}/PROVENANCE.md" for d in THIRD_PARTY_D
 # No rule overlay ships, so the set is empty.
 MARKDOWN_RECORD_PATHS: frozenset[str] = frozenset()
 # A suffix-less file is scanned too when its shebang names an interpreter whose
-# comment and quote shapes the literal strip already handles (the git hooks and
-# nmw-actionable carried provenance prose no suffix rule reached, 3b151 QA r1).
-# The probe matches the interpreter's BASENAME, resolved through the exact
-# ``env`` grammar of design note 10 (3b151 QA r3): python under any version
-# suffix, and the Bourne-family shells (3b151 QA r2: the old pattern missed
-# ``ash`` and read only 120 bytes).
+# comment and quote shapes the literal strip already handles (in the earlier
+# repository, the git hooks and nmw-actionable carried provenance prose no
+# suffix rule reached). The probe matches the interpreter's BASENAME, resolved
+# through the exact ``env`` grammar of design note 10: python under any version
+# suffix, and the Bourne-family shells (in the earlier repository, a previous
+# pattern missed ``ash`` and read only 120 bytes).
 SHEBANG_PY_NAME = re.compile(r"python[\w.]*")
 SHEBANG_SH_NAME = re.compile(r"sh|ash|dash|bash|ksh|mksh|zsh")
 # Bound supported shebangs explicitly; an incomplete probe is never a verdict.
@@ -350,7 +350,7 @@ BACKTICK_ONLY_SUFFIXES = frozenset({".md"})
 SKIP_DIR_PARTS = frozenset({"__pycache__", "tests", "fixtures"})
 
 # A qualified positional backlog pointer (design note 3). Case-sensitive
-# qualifier (optionally P- prefixed, the private list's stem) and lowercase
+# qualifier (optionally P- prefixed, the private backlog's stem) and lowercase
 # bare section; Section is accepted only after the qualifier, where no
 # document-section ambiguity exists. The id's first component is a single
 # digit, its tail may carry the TODO_ID_RE child-item letter, and the token
@@ -364,8 +364,8 @@ TODO_QUALIFIED = re.compile(r"^(?:P-)?TODO\b")
 # The durable re-pointed form, immediately after the id (design note 4).
 PR_ANCHOR_AFTER = re.compile(r"^\s*\((?:closing|introducing)\s+PR\s+#[0-9]+\s*\)")
 # Census-derived document-section / external-standard cues (design note 5).
-# RFC through SOC were added post-census (3b151 QA r1: external standards the
-# census never saw still cite sections and clauses).
+# RFC through SOC are not census-derived: external standards the census never
+# saw still cite sections and clauses.
 DOC_SECTION_CUE = re.compile(
     r"(?i)\.md\b|\bspecs?\b|\bspecification|§|\bheading|\btable\b|\brows?\b"
     r"|\binventory\b|\bclause|\bchapter|\bblock\b|\bpublisher|\bsource of record\b"
@@ -389,7 +389,7 @@ COMMENT_LEAD = re.compile(r"(?m)^[ \t]*#+ ?")
 # identifiers are assembled so a tool cannot leak, or here mispair, on
 # itself). Alternatives bind in order: backtick spans (these may wrap lines
 # under the 300-character cap but never cross a BLANK line, so a stray
-# backtick blanks at most the rest of its own paragraph, 3b151 QA r2); a
+# backtick blanks at most the rest of its own paragraph); a
 # double-quote triple delimiter with an optional string prefix, consumed as a
 # bare token, so a docstring's prose stays scanned and a raw docstring's
 # prefix cannot peel an empty span off the delimiter; and a SAME-LINE
@@ -399,7 +399,7 @@ COMMENT_LEAD = re.compile(r"(?m)^[ \t]*#+ ?")
 # span, but can close a stray opener (design note 2). Single quotes appear
 # only inside the outside-abutment guards: the pattern never pairs them, so
 # no apostrophe shape can open or close a span. Applied in ONE pass, so every
-# guard reads the original source context (3b151 QA r3).
+# guard reads the original source context.
 _DQ = chr(34)
 _SQ = chr(39)
 # A backtick span's interior: anything but a backtick, with a newline allowed
@@ -422,8 +422,8 @@ BACKTICK_SPAN = re.compile("(`+)" + _BT_BODY + "{0,300}?\\1")
 # (repo-relative file, id, distinctive substring of the pointer's source line)
 # -> rationale. Substring-keyed, not line-keyed, for the gate-78 reason: a line
 # key lapses on any unrelated edit that shifts the file. The two rows are the
-# legitimate survivors of the census at adoption (grc_library bd04eaf3); the third
-# survivor, a stale `formerly TODO 3.148` pointer in lint-paired-skill-step-parity.py,
+# legitimate survivors of the census at adoption in the earlier repository; the
+# third survivor, a stale positional pointer in lint-paired-skill-step-parity.py,
 # was reworded at source instead of exempted.
 EXEMPT: dict[tuple[str, str, str], str] = {
     (".claude/skills/corpus-management/tools/lint-allowlist-spec-parity.py", "7.1",
@@ -472,10 +472,9 @@ def _blank_md_fences(text: str) -> tuple[str, bool]:
     toggle model every corpus gate uses, pairing fences by neither delimiter
     character nor width. Runs BEFORE the inline backtick pass, so a fence
     delimiter's backtick run can never pair into the prose around the block
-    (design note 2; 3b151 QA r2). Returns the blanked text and whether the
-    toggling is BALANCED; an unbalanced file is undecidable under the toggle
-    model and must be refused by the caller (note 9; 3b151 QA r3), never
-    silently blanked to its end."""
+    (design note 2). Returns the blanked text and whether the toggling is
+    BALANCED; an unbalanced file is undecidable under the toggle model and
+    must be refused by the caller (note 9), never silently blanked to its end."""
     out: list[str] = []
     in_code = False
     for line in text.split("\n"):
@@ -537,9 +536,9 @@ def candidate_refs(path: Path, text: str, markdown: bool = False) -> list[Candid
     # A suffix-less path reaches this gate only through the shebang probe, so
     # it takes the .py/.sh literal strip.
     if path.suffix in LITERAL_STRIP_SUFFIXES or not path.suffix:
-        # ONE pass (3b151 QA r3): every boundary guard reads the original
-        # source context, so a span blanked earlier can never manufacture an
-        # opener or closer for a later one.
+        # ONE pass: every boundary guard reads the original source context,
+        # so a span blanked earlier can never manufacture an opener or closer
+        # for a later one.
         stripped = CODE_OR_STRING_SPAN.sub(_blank, cueview)
     elif markdown:
         stripped = BACKTICK_SPAN.sub(_blank, COMMENT_LEAD.sub(_blank, fenceless))
@@ -582,7 +581,7 @@ def candidate_refs(path: Path, text: str, markdown: bool = False) -> list[Candid
 
 def load_live_ids(todo_path: Path, private_dir: Path | None) -> set[str]:
     """The live backlog ids (design note 8): index rows and item headings of
-    .working/TODO.md plus every reachable private backlog file, through the shared
+    ``TODO_REL`` plus every reachable private backlog file, through the shared
     todo_index_rows grammar. An ABSENT list contributes no ids: only an
     absent SIBLING selects the note-8 degraded path (``main``'s concern), so
     a list missing inside a present sibling keeps the run enforcing, the safe
@@ -817,7 +816,7 @@ def main(argv: list[str]) -> int:
 
     # The private sibling: ABSENT selects the note-8 degraded path; an entry
     # that exists but is not an examinable directory refuses instead (note 9;
-    # strict resolution, 3b74), so a broken sibling can never silently read as
+    # strict resolution), so a broken sibling can never silently read as
     # the sibling-less adopter state.
     try:
         if args.root is not None:
@@ -862,8 +861,8 @@ def main(argv: list[str]) -> int:
         return 2
 
     if skipped:
-        # 3b635: the degraded skip exits 0, so a green full-suite run must not read as a pass for
-        # the references it could not check (a reference live in .working/TODO.md was checked).
+        # The degraded skip exits 0, so a green full-suite run must not read as a pass for
+        # the references it could not check (a reference live in TODO_REL was checked).
         print_degraded("gate 107",
                        f"gate 107 skipped the open-versus-deleted check of "
                        f"{len(skipped)} positional reference(s) (no {PRIVATE_SIBLING_DIR} sibling "

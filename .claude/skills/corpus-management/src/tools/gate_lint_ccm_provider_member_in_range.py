@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """CCM family-range provider-to-tenant member direction - pack engine.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
-(RANGE_RE, swept_members, the inline-code-span scan, and scan_text; fenced blocks are
-scanned, fail closed) is the
-source of record here in the pack, moved verbatim from the grc gate. The set of
-directional provider-to-tenant control members is supplied by the adopter via
-configure(directional_members), so the engine carries no project catalogue; the
-grc wrapper (.claude/skills/corpus-management/tools/lint-ccm-provider-member-in-range.py) supplies
-DIRECTIONAL_PROVIDER_MEMBERS, configures the engine, and keeps the scan scope
-(scan_targets), a module-global scan_text shim, main, and the exit codes.
+Engine/wrapper split: the PURE scan (RANGE_RE, swept_members, the
+inline-code-span scan, and scan_text; fenced blocks are scanned,
+fail closed) is the source of record here in the pack, moved verbatim
+from the grc gate. The set of directional provider-to-tenant control
+members is supplied by the adopter via configure(directional_members),
+so the engine carries no project catalogue; the grc wrapper
+(.claude/skills/corpus-management/tools/lint-ccm-provider-member-in-range.py)
+supplies DIRECTIONAL_PROVIDER_MEMBERS, configures the engine, and keeps the scan
+scope (scan_targets), a module-global scan_text shim, main, and the exit codes.
 """
 
 from __future__ import annotations
@@ -39,12 +39,12 @@ def swept_members(fam: str, start: int, end: int) -> list[str]:
     return [f"{fam}-{n:02d}" for n in range(start, end + 1)]
 
 
-# FAIL CLOSED on block structure (maintainer ruling 2026-09-24, 3b52): fenced code blocks are NOT
-# skipped, so no Markdown block structure (a fence, a list container, indentation) can hide an
-# active citation; a range written as an example inside a fence is flagged, and the author writes
-# it as a blockquote line or an inline code span instead. Four QA rounds showed that modelling
-# CommonMark block structure by hand is an open-ended class, and the fail-closed rule costs zero
-# findings on the live corpus. Inline code spans ARE skipped, by the spec's own line-local rule.
+# FAIL CLOSED on block structure: fenced code blocks are NOT skipped, so no Markdown block
+# structure (a fence, a list container, indentation) can hide an active citation; a range
+# written as an example inside a fence is flagged, and the author writes it as a blockquote line
+# or an inline code span instead. In the earlier repository, modelling CommonMark block
+# structure by hand proved an open-ended class, and the fail-closed rule cost zero findings on
+# its corpus. Inline code spans ARE skipped, by the spec's own line-local rule.
 
 
 def _strip_code_spans(line: str) -> str:

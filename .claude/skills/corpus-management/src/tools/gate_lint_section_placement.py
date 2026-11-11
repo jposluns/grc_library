@@ -8,7 +8,7 @@ applies to. A rule scoped to document types is checked only for a document of on
 those types; an unscoped rule is checked for every scanned document. Headings are read
 outside fenced code blocks.
 
-Engine/wrapper split (compile PR-13): this engine carries the PURE check
+Engine/wrapper split: this engine carries the PURE check
 (``DOCTYPE_RE``, ``HEADING_RE``, ``extract_doctype``, ``normalise_heading``,
 ``extract_headings``, ``check_placement``, ``scan``) and a ``run`` that groups +
 reports; the project wrapper (``.claude/skills/corpus-management/tools/lint-section-placement.py``) supplies the

@@ -8,16 +8,16 @@ same two resolvable-target classes (adjacent-link and binding-declaration), plus
 the table-row seam gate 62 excludes: an anchored-title reference to a number that
 is not a numbered heading in the target, on a table row, is this gate's to fail.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): this engine
-carries the PURE check (``normalize_title``, ``extract_titles``,
-``resolve_target``, ``binding_target``, ``adjacent_link``, ``title_candidate``,
-``check_file``) with the tool-specific title regexes (``TITLE_HEADING_RE`` /
-``PAREN_TITLE_RE`` / ``QUOTE_TITLE_RE``); it is parameterized by ``repo_root`` and
-the shared cross-file reference-extraction config (``ref_patterns`` /
-``md_link_re`` / ``binding_sentinel`` / ``external_context_re`` /
-``adjacency_window``), so the engine is repository-root-free and scan-scope-free.
-The project wrapper (``.claude/skills/corpus-management/tools/lint-cross-file-section-names.py``) supplies
-``REPO_ROOT``, that CROSS_* config from ``lint_common`` (shared with the
+Engine/wrapper split: this engine carries the PURE check (``normalize_title``,
+``extract_titles``, ``resolve_target``, ``binding_target``, ``adjacent_link``,
+``title_candidate``, ``check_file``) with the tool-specific title regexes
+(``TITLE_HEADING_RE`` / ``PAREN_TITLE_RE`` / ``QUOTE_TITLE_RE``); it is
+parameterized by ``repo_root`` and the shared cross-file reference-extraction
+config (``ref_patterns`` / ``md_link_re`` / ``binding_sentinel`` /
+``external_context_re`` / ``adjacency_window``), so the engine is
+repository-root-free and scan-scope-free. The project wrapper
+(``.claude/skills/corpus-management/tools/lint-cross-file-section-names.py``)
+supplies ``REPO_ROOT``, that CROSS_* config from ``lint_common`` (shared with the
 numbers-phase sibling gate 62 so the two cannot drift), the grc scan scope
 (``iter_markdown_targets`` / ``EXEMPT_FILES``) and the reporting in ``main``, and
 keeps a module-global ``check_file`` shim delegating here so the scan-scope

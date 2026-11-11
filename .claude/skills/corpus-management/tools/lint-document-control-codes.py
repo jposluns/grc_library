@@ -10,7 +10,7 @@ OSCAL catalogue). A code's Category is checked first; a suffixed code under a va
 Category must then be a live two-digit CSF 2.0 Subcategory (``DE.CM-09``), so a
 withdrawn one (``DE.CM-07``) or an unknown or one-digit one (``DE.CM-7``) is flagged.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
+Engine/wrapper split: the PURE scan
 (check_code, codes_in, scan_file) plus the NIST-CSF parsing patterns live in the
 pack-owned engine (.claude/skills/corpus-management/src/tools/gate_lint_document_control_codes.py,
 source of record); the engine takes the catalogue as two predicates
@@ -87,7 +87,7 @@ def main(argv: list[str]) -> int:
     )
     args = parser.parse_args(argv[1:])
     explicit = bool(args.paths)
-    # 3b50b1: existence is checked on the paths AS GIVEN, before the exempt-root filter, so a
+    # Existence is checked on the paths AS GIVEN, before the exempt-root filter, so a
     # missing path under an exempt directory is refused rather than silently dropped.
     targets = collect_targets(args.paths)
     if explicit:

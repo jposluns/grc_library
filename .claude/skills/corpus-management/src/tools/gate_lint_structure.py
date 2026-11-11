@@ -7,15 +7,15 @@ resolvable: every active domain document is referenced by the central index
 register AND by its own domain README, and every path those two surfaces
 reference actually exists on disk.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): this engine
-carries the PURE check (``parse_referenced_paths``, ``iter_domain_files``,
-``collect_findings``), fully parameterized by ``repo_root`` and the corpus
-structure config (the domain list, the index-register relative path, the
-files exempt from the membership rule, and the exempt directory prefixes). It
-holds no repository-root or domain policy of its own. The project wrapper
-(``.claude/skills/corpus-management/tools/lint-structure.py``) supplies the grc domain list, the grc index-register
-path, the grc exempt sets, and the ``--root`` handling and grouped reporting in
-``main``.
+Engine/wrapper split: this engine carries the PURE check
+(``parse_referenced_paths``, ``iter_domain_files``, ``collect_findings``),
+fully parameterized by ``repo_root`` and the corpus structure config (the
+domain list, the index-register relative path, the files exempt from the
+membership rule, and the exempt directory prefixes). It holds no
+repository-root or domain policy of its own. The project wrapper
+(``.claude/skills/corpus-management/tools/lint-structure.py``) supplies the grc
+domain list, the grc index-register path, the grc exempt sets, and the
+``--root`` handling and grouped reporting in ``main``.
 
 Exit codes (the wrapper returns these): 0 clean; 1 one or more findings.
 """

@@ -2,19 +2,19 @@
 # Install the git-native hooks the pre-commit framework does not manage.
 #
 # Currently: a pre-push dirty-tracked-tree backstop (.claude/skills/corpus-management/tools/git-hooks/pre-push), a pre-commit
-# refusal of commits on a main/master checkout (.claude/skills/corpus-management/tools/git-hooks/pre-commit, P-TODO 3b17), of a
+# refusal of commits on a main/master checkout (.claude/skills/corpus-management/tools/git-hooks/pre-commit), of a
 # commit that changes a Version or Date line or a generated output while the staged .claude/skills/corpus-management/data/taxonomy.yml,
 # governance/portal.md or governance/maturity-scorecard.md is out of sync (the same tracked file, via
-# .claude/skills/corpus-management/tools/check-generated-commit.py, P-TODO 3b200), and of a commit that stages .working/CHANGELOG.md while
+# .claude/skills/corpus-management/tools/check-generated-commit.py), and of a commit that stages .working/CHANGELOG.md while
 # .claude/skills/corpus-management/tools/preflight-changelog.py --staged fails (the same tracked file, via
 # .claude/skills/corpus-management/tools/check-changelog-preflight-commit.py), and a
-# commit-msg per-commit Version-bump check (.claude/skills/corpus-management/tools/git-hooks/commit-msg, P-TODO 3b25), which also runs
+# commit-msg per-commit Version-bump check (.claude/skills/corpus-management/tools/git-hooks/commit-msg), which also runs
 # a local unmanaged hook kept as commit-msg-local.
 # Run once per clone, alongside `pre-commit install`. Idempotent; refuses rather
 # than clobbering an existing foreign hook, and refuses under a set core.hooksPath
 # (or when git config cannot read it).
 #
-# KNOWN LIMITATION (routed hardening, PR #2429): the check-then-link/compare
+# KNOWN LIMITATION: the check-then-link/compare
 # publish path has a residual TOCTOU window against a CONCURRENT adversarial
 # writer to the shared hooks directory (e.g. a symlink swapped in between the
 # existence check and the ln/cmp). This does NOT enable a dirty-push bypass
@@ -39,7 +39,7 @@ root="$(git rev-parse --show-toplevel)"
 # core.hooksPath: detect PRESENCE by `git config --get` EXIT STATUS. A present-
 # but-empty value still redirects git's hook lookup, so a `[ -n "$value" ]` test
 # would miss it. Exit 1 is unset; any other status is a config read failure (an
-# unreadable or malformed file), which refuses rather than reading as unset (3b551).
+# unreadable or malformed file), which refuses rather than reading as unset.
 hooks_path_rc=0
 git -C "$root" config --get core.hooksPath >/dev/null || hooks_path_rc=$?
 case "$hooks_path_rc" in

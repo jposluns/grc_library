@@ -7,7 +7,7 @@ appears within a small line window of an uncertainty marker (``TBD``, ``TODO``,
 next to an unfinished-content marker is a drafting hazard. Both markers are read outside
 fenced code blocks (a marker inside a fence is example syntax, not prose).
 
-Engine/wrapper split (compile PR-14; vocab externalized in Phase-4 PR-I): this engine carries
+Engine/wrapper split (vocab externalized): this engine carries
 the PURE check ALGORITHM (the two-pass window scan, fence exclusion, ``check_file``) and takes
 the uncertainty + mandatory patterns + the window as an ``UncertaintyVocabulary`` (moved to the
 ``uncertainty`` reference-vocabulary profile, ``defaults/grc/uncertainty.toml``); a ``run`` groups
@@ -35,7 +35,7 @@ except ImportError as exc:  # fail loud: broken setup, never silently worked aro
     ) from exc
 
 class UncertaintyVocabulary(NamedTuple):
-    """The adopter-overridable mandatory-near-uncertainty vocabulary (Phase-4 PR-I).
+    """The adopter-overridable mandatory-near-uncertainty vocabulary.
 
     The check ALGORITHM (the two-pass window scan, fence exclusion) stays in this
     engine; only these DATA move to the ``uncertainty`` reference-vocabulary

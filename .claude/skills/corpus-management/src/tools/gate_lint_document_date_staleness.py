@@ -8,14 +8,14 @@ most-recent git commit date (it must not lag by more than a tolerated number of
 whole days) and to the current UTC date (a "last updated" Date cannot be in the
 future).
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): this engine
-carries the PURE check (``get_metadata_date``, ``future_lead_days``,
-``commit_lag_days``); the project wrapper
-(``.claude/skills/corpus-management/tools/lint-document-date-staleness.py``) supplies the OBSERVER and policy that
-are inherently project- and environment-specific: the git commit-date lookup
-(``git log --follow``), the concurrency pool, the "today (UTC)" clock, the scan
-scope, the baseline/lag/future thresholds, and the reporting. The wrapper keeps
-the module-global ``read_text_safe`` its scan-scope regression test patches, reads
+Engine/wrapper split: this engine carries the PURE check (``get_metadata_date``,
+``future_lead_days``, ``commit_lag_days``); the project wrapper
+(``.claude/skills/corpus-management/tools/lint-document-date-staleness.py``)
+supplies the OBSERVER and policy that are inherently project- and
+environment-specific: the git commit-date lookup (``git log --follow``), the
+concurrency pool, the "today (UTC)" clock, the scan scope, the
+baseline/lag/future thresholds, and the reporting. The wrapper keeps the
+module-global ``read_text_safe`` its scan-scope regression test patches, reads
 each file, and passes the TEXT to ``get_metadata_date`` here, so the engine never
 touches the filesystem, git, or the clock.
 
@@ -50,7 +50,7 @@ def get_metadata_date(text: str) -> tuple[datetime.date | None, str | None]:
       - ``(None, raw_value)``: a Date field is PRESENT but its value is
         not exactly an ISO date (trailing annotation, malformed value).
         The caller reports a finding; silently skipping here was the
-        fail-open the GR-3 migration closed.
+        fail-open that a migration in the earlier repository closed.
     """
     block = parse_metadata_block(text)
     if "Date" not in block.fields:

@@ -82,8 +82,7 @@ Modes:
   that is missing, shapeless, or unverifiable is a configuration error
   (exit 2), never silently replaced by environment discovery or the
   in-repository copy, and after binding, the installed ``aiqt_corpus``
-  module's origin must equal ``<root>/tools/aiqt_corpus.py``
-  (RBQ27-c3-standalone-compiler, RBQ33-c3-explicit-root-fallback).
+  module's origin must equal ``<root>/tools/aiqt_corpus.py``.
 
 Exit codes: 0 clean; 1 drift findings (``--check``); 2 configuration or
 internal error (unparseable or invalid manifest / gensrc / ownership /
@@ -115,7 +114,7 @@ CM_RULES = PurePosixPath(".claude/rules/corpus-management")
 CM_REFERENCES = PurePosixPath(".claude/references/corpus-management")
 CM_SKILL = PurePosixPath(".claude/skills/corpus-management")
 ALWAYS_LOADED = {"language-convention", "normative-wording"}
-# Shipped, non-generated entries of the relocated skill directory (RBQ10): the
+# Shipped, non-generated entries of the relocated skill directory: the
 # compiler owns only its declared targets there (SKILL.md, rule-index.md), so
 # these subtrees and files are skipped by the stray scan. Any other entry,
 # including a stray file beside the managed targets, still fails.
@@ -163,10 +162,9 @@ def _ensure_aiqt(aiqt_root: Path | None) -> str | None:
     verified bytes; a set override never falls back inside the shim either.
     After the shim returns, the installed module's origin must equal
     ``<root>/tools/aiqt_corpus.py``, so the explicitly selected root is the
-    copy that was actually bound, never another one
-    (RBQ33-c3-explicit-root-fallback). Nothing from the pack is put on
-    ``sys.path``, so a module rewritten after verification can never run
-    (RBQ27-c3-standalone-compiler)."""
+    copy that was actually bound, never another one. Nothing from the pack
+    is put on ``sys.path``, so a module rewritten after verification can
+    never run."""
     global _read_text_safe
     if _read_text_safe is not None:
         return None
@@ -655,7 +653,7 @@ def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str
     # set before the (optional) gates block so the profiles block can read it
     # whether or not a gates register is declared.
     seen_gate_ids: set[str] = set()
-    # --- Gate-register well-formedness (validate-when-declared; compile PR-5). ---
+    # --- Gate-register well-formedness (validate-when-declared). ---
     # The gates register is validated only when the manifest declares it, so the
     # minimal-adoption pack shape (ownership + clauses only) stays valid. When
     # declared, each gate names its pack ENGINE source (validated to exist inside
@@ -732,7 +730,7 @@ def load_and_validate(root: Path, pack_root: Path) -> tuple[list[Rule], list[str
                             problems.append(f"{where}: 'entry_point' wrapper does not exist: "
                                             f"{entry_point}")
 
-    # --- Profiles-register well-formedness (validate-when-declared; Phase-4 PR-A). ---
+    # --- Profiles-register well-formedness (validate-when-declared). ---
     # Reference-vocabulary profiles (defaults/grc/<concern>.toml) are pack SOURCE:
     # the compiler VALIDATES them (envelope + regex tables, via the pack loader) but
     # never OWNS or generates them, so no profile is an owned_target and gate 99 never

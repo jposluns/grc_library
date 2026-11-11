@@ -4,10 +4,10 @@
 github.com/jposluns/cleanlanguage, so a maintainer-invisible upstream update is surfaced.
 
 The skill is Jeff Posluns's, vendored into this repo (see the skill's PROVENANCE.md). Upstream
-advances without a heads-up, so a MONTHLY time-bounded follow-up in the private P-TODO.md
-(relocated from .working/TODO.md by #1458; /orch reads both lists' time-bounded sections) runs this at /orch.
-It compares each vendored file's git blob SHA (``git hash-object``) against the upstream blob SHA
-(``gh api ... contents ... --jq .sha``); a mismatch is DRIFT, meaning re-fetch and re-vendor.
+advances without a heads-up, so a monthly time-bounded follow-up in the maintainer's private
+backlog runs this check in the maintainer's own workflow. It compares each vendored file's git
+blob SHA (``git hash-object``) against the upstream blob SHA (``gh api ... contents ... --jq
+.sha``); a mismatch is DRIFT, meaning re-fetch and re-vendor.
 
 The tracked set is EVERY vendored file, keyed by its LOCAL path with its correct UPSTREAM path.
 They differ: from release v1.0.15 upstream ships the skill in a plugin, with ``SKILL.md`` and
@@ -15,7 +15,7 @@ They differ: from release v1.0.15 upstream ships the skill in a plugin, with ``S
 plugin-level files under ``cleanlanguage/``, and ``LICENSE`` and ``NOTICE.md`` as upstream REPO-ROOT
 files.
 The two binary icon assets and the legal files (LICENSE / NOTICE) are tracked too, so an upstream
-attribution or licence change does not go silent (defence in depth, codex vpr1328 findings 2 and 3).
+attribution or licence change does not go silent (defence in depth).
 
 ADVISORY (not a gate): it REPORTS drift for the maintainer to action, and exits 0 on both in-sync
 and drift so it never blocks; exit 2 only if the local skill dir or ``gh`` is unavailable (so a
@@ -60,8 +60,8 @@ def classify(local_shas: dict[str, str | None], upstream_shas: dict[str, str | N
     """PURE: return the sorted list of files that DRIFT (local != upstream, or either side
     missing). A file missing on EITHER side is drift, whether it is present-with-value-None or
     ABSENT as a key: the union of both key sets is iterated so an upstream-only or local-only file
-    is never silently treated as in-sync (codex vpr1328 finding 1: iterating only local keys missed
-    a file present upstream but absent locally)."""
+    is never silently treated as in-sync (in the earlier repository, a version iterated only local
+    keys and so missed a file present upstream but absent locally)."""
     drift = []
     for f in set(local_shas) | set(upstream_shas):
         loc, up = local_shas.get(f), upstream_shas.get(f)
@@ -99,9 +99,9 @@ def _self_test() -> int:
     checks.append(("missing-upstream-none-drift", classify({"a": "x"}, {"a": None}) == ["a"]))
     # missing local (present-None) -> drift
     checks.append(("missing-local-none-drift", classify({"a": None}, {"a": "x"}) == ["a"]))
-    # ABSENT KEY upstream-only (local key entirely missing) -> drift (finding 1)
+    # ABSENT KEY upstream-only (local key entirely missing) -> drift
     checks.append(("absent-local-key-drift", classify({}, {"a": "x"}) == ["a"]))
-    # ABSENT KEY local-only (upstream key entirely missing) -> drift (finding 1)
+    # ABSENT KEY local-only (upstream key entirely missing) -> drift
     checks.append(("absent-upstream-key-drift", classify({"a": "x"}, {}) == ["a"]))
     # mixed, one changed one same -> only the changed one, sorted
     checks.append(("mixed", classify({"a": "x", "b": "y"}, {"a": "x", "b": "z"}) == ["b"]))

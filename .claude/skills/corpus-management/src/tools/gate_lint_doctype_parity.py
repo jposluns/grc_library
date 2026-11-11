@@ -17,16 +17,15 @@ across every surface that restates it. The check has four categories:
 - An anchor that cannot be located on its surface is itself a hard parity failure
   (the enumeration the check keys on is gone).
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): this engine carries
-the PURE check (``name_is_cell``, ``doctype_region``, ``collect_findings``) plus the
-generic cell/item regex. It is repository-root-free (the wrapper reads the surface
-files and passes their text) and carries NO project schema and NO project
-vocabulary: the canonical sets, the companion-config sets, the per-surface region
-anchors, and every finding-message TEMPLATE are supplied by the wrapper. The engine
-emits no literal finding text of its own; it fills each wrapper-supplied template's
-``{tokens}`` slot with ``str(sorted(...))`` and appends the wrapper's pre-formed
-anchor-absent message verbatim, so no project schema word is ever hard-coded in an
-engine message.
+Engine/wrapper split: this engine carries the PURE check (``name_is_cell``,
+``doctype_region``, ``collect_findings``) plus the generic cell/item regex. It is
+repository-root-free (the wrapper reads the surface files and passes their text) and
+carries NO project schema and NO project vocabulary: the canonical sets, the
+companion-config sets, the per-surface region anchors, and every finding-message
+TEMPLATE are supplied by the wrapper. The engine emits no literal finding text of
+its own; it fills each wrapper-supplied template's ``{tokens}`` slot with
+``str(sorted(...))`` and appends the wrapper's pre-formed anchor-absent message
+verbatim, so no project schema word is ever hard-coded in an engine message.
 
 ``collect_findings`` returns the ordered list of failure strings (empty when parity
 holds); the wrapper owns the FAIL header, the per-line printing, and the summary /

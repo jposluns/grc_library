@@ -109,22 +109,22 @@ PATTERNS: list[tuple[str, re.Pattern[str], str]] = [
     ),
     ("all N gates", re.compile(r"\ball\s+(\d+)\s+gates?\b", re.IGNORECASE), "gate_digit"),
     # P6: bare "<two-digit number> gates" without preceding qualifier.
-    # Narrower than the other patterns and added after a Sweep finding
-    # in .claude/skills/corpus-management/tools/README.md where prose used a bare "<stale-count> gates"
-    # phrasing without an "audit" or "all" qualifier; patterns P1-P5
-    # missed it. Requires the captured number to be at least 10 (two
-    # digits) to avoid matching small physical-gate references that
-    # may legitimately appear (e.g. "5 gates of NAND").
+    # Narrower than the other patterns; in the earlier repository,
+    # prose in .claude/skills/corpus-management/tools/README.md used a bare "<stale-count> gates"
+    # phrasing without an "audit" or "all" qualifier, which patterns
+    # P1-P5 missed. Requires the captured number to be at least 10
+    # (two digits) to avoid matching small physical-gate references
+    # that may legitimately appear (e.g. "5 gates of NAND").
     ("N gates", re.compile(r"\b(\d{2,})\s+gates?(?![-\w])", re.IGNORECASE), "gate_digit"),
     # P7: "<two-digit N> <single-word> gates" where the intervening
-    # word is a short adjective (e.g. "<N> corpus gates"; "N audit
-    # gates" already covered by P2 but the broader shape needed
-    # explicit coverage). Added after a Sweep cycle iteration
-    # surfaced a stale-count "<N> corpus gates" prose pattern in
-    # both .claude/skills/corpus-management/tools/run_all_audits.sh and .claude/skills/corpus-management/tools/check-changelog-on-pr.py;
-    # P6 missed both because a single word ("corpus") intervenes
-    # between the digit and "gates". Negative lookahead matches P6's,
-    # plus the intervening word is limited to short (<= 12 char)
+    # word is a short adjective (e.g. "<N> corpus gates";
+    # "N audit gates" already covered by P2 but the broader shape
+    # needed explicit coverage). In the earlier repository, a
+    # stale-count "<N> corpus gates" prose pattern appeared in both
+    # .claude/skills/corpus-management/tools/run_all_audits.sh and .claude/skills/corpus-management/tools/check-changelog-on-pr.py; P6
+    # missed both because a single word ("corpus") intervenes between
+    # the digit and "gates". Negative lookahead matches P6's, plus
+    # the intervening word is limited to short (<= 12 char)
     # alphabetic strings to avoid matching unrelated multi-word
     # constructs.
     (
@@ -139,9 +139,9 @@ PATTERNS: list[tuple[str, re.Pattern[str], str]] = [
     # referred to by its audits rather than its gates ("the N automated
     # audits"); this idiom carries the gate count but uses "audits" as
     # the noun, so patterns P1-P7 (which all anchor on "gate(s)") miss
-    # it. Added after PR #272's /validate-pr cross-reference check found
-    # a stale "the <N> automated audits" phrasing in the library-health
-    # report template that no P1-P7 pattern caught. Narrow by design: it requires the
+    # it. Added after a stale "the <N> automated audits" phrasing was
+    # found in the earlier repository's library-health report template
+    # that no P1-P7 pattern caught. Narrow by design: it requires the
     # exact "automated audits" phrasing (not a bare "N audits", which
     # would false-positive on audit-event counts), so it matches only
     # references to the audit programme's gate set.
@@ -257,7 +257,7 @@ def scan_file(path: Path, counts: dict[str, int]) -> list[Finding]:
     except FileNotFoundError:
         # A file can vanish between rglob discovery and read when the
         # regression suite runs concurrently in the same tree and drops a
-        # temp fixture (the routed #577 sweep I2); serial CI is unaffected.
+        # temp fixture; serial CI is unaffected.
         # Treat exactly like an unreadable file: skip.
         return []
     if text is None:
@@ -274,9 +274,9 @@ def scan_file(path: Path, counts: dict[str, int]) -> list[Finding]:
     # heading, and comment lines frequently carry gate-count idioms (a shell
     # ``# ... N gates ...`` banner, a module-docstring-adjacent comment). Treating
     # a ``#``-comment line as a heading made gate 39 BLIND to a stale count in it
-    # (the gate-80 vpr gF6 finding, 3.195 (closing PR #1287): a stale count idiom in a shell comment in
-    # .claude/skills/corpus-management/tools/quick-guard.sh line 9 that this gate skipped as a "heading"). So the
-    # heading / version-history logic is applied to MARKDOWN files only; in a
+    # (in the earlier repository, it skipped a stale count idiom in a shell comment in
+    # .claude/skills/corpus-management/tools/quick-guard.sh line 9 as a "heading"). So
+    # the heading / version-history logic is applied to MARKDOWN files only; in a
     # non-markdown file every line (comments included) is scanned, and the
     # tightly-anchored patterns (P1-P12) keep that false-positive-safe.
     is_markdown = path.suffix == ".md"

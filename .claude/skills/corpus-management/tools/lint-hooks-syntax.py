@@ -2,10 +2,10 @@
 """Public hooks syntax, self-test, launcher-isolation and registration-parity audit (gate 111).
 
 This one tracked tool carries gate 111, the re-scoped public successor of the retired gates
-95 (hooks syntax) and 105 (hook-launcher isolation) under decision D3. With no mode argument
-it runs the four gate 111 checks described below, in this order: the compile check, the
-self-test run, the launcher-isolation check and the registration-parity check. With
-`--launcher-isolation` as its FIRST argument it runs the launcher-isolation check alone.
+95 (hooks syntax) and 105 (hook-launcher isolation). With no mode argument it runs the four
+gate 111 checks described below, in this order: the compile check, the self-test run, the
+launcher-isolation check and the registration-parity check. With `--launcher-isolation` as
+its FIRST argument it runs the launcher-isolation check alone.
 
 Every hook in `.claude/hooks/*.py` is executable machinery: the Claude Code harness
 invokes each hook that `.claude/settings.json` names at hook-fire time with the absolute
@@ -21,20 +21,20 @@ Before the retired gate 95, no gate covered that. Gate 71 (stdlib-only imports) 
 scan `.claude/hooks/`; gate 94 (static unused-import) scans `.claude/hooks/` but SKIPs
 a file it cannot parse, by design (its verdicts are about imports, and its ignorance
 refuses to flag). So a `.claude/hooks/*.py` with a syntax error could be committed and
-ship gate-green (the r22 guardrail-review coverage finding this check closes).
+ship gate-green.
 
 Compile check: `compile(source_bytes, path, "exec")` every `*.py` under `.claude/hooks/`
 (recursive, `__pycache__` excluded; the directory is flat today, and recursion keeps a
-future helper subdirectory in scope by construction, a property gate 94's scan shares since its
-r22-F4 widening). `compile` runs the FULL compile-stage check the interpreter
+future helper subdirectory in scope by construction, a property gate 94's scan shares
+since it was widened). `compile` runs the FULL compile-stage check the interpreter
 performs (it catches `return` / `break` / `continue` / `yield` / `nonlocal` at module
-scope and other errors that a bare `ast.parse` accepts), but it never imports or
-executes the module, so no hook side effect can fire during this check. Compiling RAW
-BYTES (not a pre-decoded str) honours PEP 263 coding declarations and a leading UTF-8
-BOM, so the check matches `python3 hook.py` compilability rather than diverging from it
-in the false-positive direction. On SyntaxError (which subsumes IndentationError,
-TabError, and an encoding-declaration error) the gate prints `path:line: <message>` and
-fails; a file with null bytes fails the same way.
+scope and other errors that a bare `ast.parse` accepts), but it never imports or executes
+the module, so no hook side effect can fire during this check. Compiling RAW BYTES (not a
+pre-decoded str) honours PEP 263 coding declarations and a leading UTF-8 BOM, so the check
+matches `python3 hook.py` compilability rather than diverging from it in the
+false-positive direction. On SyntaxError (which subsumes IndentationError, TabError, and
+an encoding-declaration error) the gate prints `path:line: <message>` and fails; a file
+with null bytes fails the same way.
 
 Compile-check residues, stated: a compile under THIS interpreter proves compilability for the
 Python version CI runs, not for every interpreter an adopter might use; and the DEFAULT hooks
@@ -42,42 +42,40 @@ directory, when missing or empty, compiles 0 files (an adopter fork without the 
 tree compiles nothing), so the compile check proves "everything present compiles", never "the
 hooks are present" (the registration-parity check below is what fails a registered hook that is
 absent). An EXPLICIT --hooks-dir that is empty, not a directory, or holds no hook file is
-refused instead (3b50b2d1).
+refused instead.
 
-Self-test run (chunk G): every scanned file that OFFERS `--self-test`, decided statically as a
-file that parses and holds the exact string constant `--self-test` somewhere in its syntax
-tree, is run as `<this interpreter> -I <hook> --self-test`, one at a time, with the repository
-root as the working directory, stdin closed, and the runner's echo token
-(`GRC_RUNNER_ECHO_TOKEN`) removed from its environment. Each run is bounded by a timeout
-(`--self-test-timeout`, default 120 seconds); on a timeout the run's whole process group is
-killed. A nonzero exit, a timeout, or a run that cannot start fails the gate with the hook's
-path and the last lines of its output. Residues: the offer is detected by the literal
-constant, so a self-test reached by another spelling is not run; a file that does not parse
-is not run (the compile check already fails it); and a self-test proves only what its own cases
-assert.
+Self-test run: every scanned file that OFFERS `--self-test`, decided statically as a file
+that parses and holds the exact string constant `--self-test` somewhere in its syntax tree,
+is run as `<this interpreter> -I <hook> --self-test`, one at a time, with the repository root
+as the working directory, stdin closed, and the runner's echo token (`GRC_RUNNER_ECHO_TOKEN`)
+removed from its environment. Each run is bounded by a timeout (`--self-test-timeout`,
+default 120 seconds); on a timeout the run's whole process group is killed. A nonzero exit, a
+timeout, or a run that cannot start fails the gate with the hook's path and the last lines of
+its output. Residues: the offer is detected by the literal constant, so a self-test reached
+by another spelling is not run; a file that does not parse is not run (the compile check
+already fails it); and a self-test proves only what its own cases assert.
 
-Launcher-isolation check (the retired gate 105, folded into gate 111 at chunk CR2B,
-orchestrator decision RBQ64): read `.claude/settings.json` (or `--settings F`) as
-strict JSON (a duplicate key, and a `NaN`, `Infinity` or `-Infinity` constant, are
-refused), collect every `"type": "command"` entry under `hooks`, and require each
-command to launch Python isolated: an absolute `python3` or `python3.N` interpreter
-given `-I`, or all of `-P`, `-E` and `-s`, then a literal script operand under
-`"$CLAUDE_PROJECT_DIR"/.claude/hooks/`. The only modelled prefix is an
+Launcher-isolation check (the retired gate 105, folded into gate 111): read
+`.claude/settings.json` (or `--settings F`) as strict JSON (a duplicate key, and a `NaN`,
+`Infinity` or `-Infinity` constant, are refused), collect every `"type": "command"` entry
+under `hooks`, and require each command to launch Python isolated: an absolute `python3` or
+`python3.N` interpreter given `-I`, or all of `-P`, `-E` and `-s`, then a literal script
+operand under `"$CLAUDE_PROJECT_DIR"/.claude/hooks/`. The only modelled prefix is an
 `ORCH_LEASE_FILE="$CLAUDE_PROJECT_DIR"/literal/path` assignment. The grammar is narrow on
 purpose: anything it does not model (shell control, redirection or expansion syntax, a
 wrapper or non-Python program, `-c`, `-m`, stdin, `-W`, `-X`, or any other unmodelled
 option, such as the Python 2 `-Q`) is refused rather than guessed at.
 
-Registration-parity check (chunk G): from the same strictly read settings, every command hook
-must name a hook file `"$CLAUDE_PROJECT_DIR"/.claude/hooks/<path>.py` that exists in the hooks
-directory (a registered-but-absent hook is a silently dead control), and every `*.py` hook in
-the hooks directory whose file name does not start with `_` (a `_`-prefixed file is a helper
-module the hooks import, never registered) must be registered by at least one command (an
-unregistered hook never fires). A mismatch either way fails the gate with the path. Residues:
-parity is by path, not by event or matcher, so a hook registered under the wrong event still
-passes; and when `--hooks-dir` is given WITHOUT `--settings`, parity is skipped with a NOTE
-line, because the live settings register the live hooks, not a fixture directory (the runner
-never passes `--hooks-dir`).
+Registration-parity check: from the same strictly read settings, every command hook must name a
+hook file `"$CLAUDE_PROJECT_DIR"/.claude/hooks/<path>.py` that exists in the hooks directory (a
+registered-but-absent hook is a silently dead control), and every `*.py` hook in the hooks
+directory whose file name does not start with `_` (a `_`-prefixed file is a helper module the
+hooks import, never registered) must be registered by at least one command (an unregistered
+hook never fires). A mismatch either way fails the gate with the path. Residues: parity is by
+path, not by event or matcher, so a hook registered under the wrong event still passes; and
+when `--hooks-dir` is given WITHOUT `--settings`, parity is skipped with a NOTE line, because
+the live settings register the live hooks, not a fixture directory (the runner never passes
+`--hooks-dir`).
 
 The default run exits with the highest exit code of the four checks.
 
@@ -456,11 +454,11 @@ def main(argv: list[str] | None = None) -> int:
                     help="seconds each hook self-test may run before it fails the gate "
                          f"(default: {SELF_TEST_TIMEOUT:g})")
     args = ap.parse_args(argv)
-    # 3b50: an EXPLICIT --hooks-dir that is missing used to compile zero files and print OK;
-    # refuse it (exit 2). The DEFAULT keeps its documented contract: an adopter fork without the
-    # hook tree compiles zero files.
+    # An EXPLICIT --hooks-dir that is missing used to compile zero files and print OK; refuse it
+    # (exit 2). The DEFAULT keeps its documented contract: an adopter fork without the hook tree
+    # compiles zero files.
     if args.hooks_dir is not None and not args.hooks_dir.strip():
-        # 3b50b2d1: an empty value is Path(".") and compiled the whole current directory.
+        # An empty value is Path(".") and compiled the whole current directory.
         print("ERROR: --hooks-dir needs a directory argument (an empty value is refused).",
               file=sys.stderr)
         return 2
@@ -469,8 +467,8 @@ def main(argv: list[str] | None = None) -> int:
               file=sys.stderr)
         return 2
     if args.hooks_dir is not None and not _scan_files(Path(args.hooks_dir)):
-        # 3b50b2d1: an explicit directory with no hook file compiled nothing and printed OK. The
-        # predicate is the scan's own file set (recursive, regular files, no __pycache__), so a
+        # An explicit directory with no hook file compiled nothing and printed OK. The predicate
+        # is the scan's own file set (recursive, regular files, no __pycache__), so a
         # nested-only tree is scanned and a directory merely named *.py is not a hook.
         print(f"ERROR: --hooks-dir {args.hooks_dir}: holds no *.py hook file; nothing would be "
               f"compiled.", file=sys.stderr)
@@ -497,8 +495,8 @@ def main(argv: list[str] | None = None) -> int:
     else:
         print(f"OK: hook self-tests passed ({ran} hook file(s) offering {SELF_TEST_FLAG} run, "
               f"each bounded by {args.self_test_timeout:g} s).")
-    # Gate 111 also runs the launcher-isolation check of the retired gate 105 (D3,
-    # RBQ64 coverage parity), so the settings launchers stay checked.
+    # Gate 111 also runs the launcher-isolation check of the retired gate 105
+    # (coverage parity), so the settings launchers stay checked.
     launcher_args = [] if args.settings is None else ["--settings", args.settings]
     rc = max(rc, launcher_main(launcher_args))
     if args.hooks_dir is not None and args.settings is None:

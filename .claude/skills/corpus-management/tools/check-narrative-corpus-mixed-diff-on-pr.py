@@ -204,7 +204,7 @@ def _self_test() -> int:
         # excludes it as "not a domain"), so a narrative page plus a registers edit
         # is NOT a corpus-content mixed diff.
         ("registers-not-corpus", ["executive/page.md", PROJECT_REGISTERS_DIR + "/record.md"], False),
-        # F1: a NESTED executive README is authored narrative content (the exemption
+        # A NESTED executive README is authored narrative content (the exemption
         # is path-scoped to the top-level executive/README.md only).
         ("nested-narrative-readme-plus-corpus", ["executive/sub/README.md", "risk/x.md"], True),
         # A non-md executive file is not narrative content.
@@ -284,7 +284,7 @@ def main(argv: list[str]) -> int:
     except (subprocess.CalledProcessError, OSError, UnicodeDecodeError) as exc:
         # git not running at all (OSError), or a raw -z path the locale codec
         # cannot decode (UnicodeDecodeError), refuses as a nonzero exit does,
-        # never a traceback (3b577 round 4).
+        # never a traceback.
         print(f"ERROR: git diff failed: {exc}", file=sys.stderr)
         return 2
 

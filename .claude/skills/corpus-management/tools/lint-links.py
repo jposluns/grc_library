@@ -90,7 +90,7 @@ def _engine():
 
 
 def main(argv: list[str]) -> int:
-    # Explicit paths are refused when unsound and normalized otherwise (3b21).
+    # Explicit paths are refused when unsound and normalized otherwise.
     paths = guard_explicit_paths(argv[1:], repo_root=REPO_ROOT) if argv[1:] else None
     try:
         files = iter_markdown_files(paths)

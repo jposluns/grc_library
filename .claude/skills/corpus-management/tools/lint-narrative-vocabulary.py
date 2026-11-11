@@ -5,13 +5,12 @@ Flag narrative-vocabulary defects on executive pages: absolutes ("guarantee",
 "eliminates", "makes impossible", "removes all risk" and inflections), an unqualified
 "shall", and em/en dashes.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan (the
-shall/dash/quote/link regexes + matching logic + the scan functions) is the source of
-record in the pack engine (.claude/skills/corpus-management/src/tools/gate_lint_narrative_vocabulary.py);
-it is vocabulary-free and takes the absolutes denylist + external-standard vocabulary via
-configure(ref). This wrapper supplies the grc vocabulary, configures the engine, and keeps
-the narrative scan scope (discover), the self-test, main, module-global shims
-(scan_page_text / check_file), and the exit codes.
+Engine/wrapper split: the PURE scan (the shall/dash/quote/link regexes + matching logic + the scan
+functions) is the source of record in the pack engine
+(.claude/skills/corpus-management/src/tools/gate_lint_narrative_vocabulary.py); it is vocabulary-free and
+takes the absolutes denylist + external-standard vocabulary via configure(ref). This wrapper supplies the
+grc vocabulary, configures the engine, and keeps the narrative scan scope (discover), the self-test,
+main, module-global shims (scan_page_text / check_file), and the exit codes.
 """
 
 from __future__ import annotations
@@ -125,28 +124,28 @@ def _self_test() -> int:
     expect("multi-class", "It guarantees success \u2014 and shall be adopted.\n",
            ["dash", "absolute", "shall"])
 
-    # F1: a multi-word absolute wrapped across a soft line break must not escape.
+    # A multi-word absolute wrapped across a soft line break must not escape.
     expect("absolute-makes-impossible-softbreak", "The control makes\nit impossible to bypass review.\n", ["absolute"])
-    # F3: a mismatched fence marker inside a fenced block must not toggle out, so
+    # A mismatched fence marker inside a fenced block must not toggle out, so
     # prose after the block is still scanned.
     expect("absolute-mixed-fence-noescape", "~~~\n```\nexample\n~~~\nThe control guarantees success.\n", ["absolute"])
-    # 3b83: a marker indented four or more columns is content (the shared 0-3 space
+    # A marker indented four or more columns is content (the shared 0-3 space
     # indent rule), so a pair of them cannot hide the absolute between them, and an
     # indented marker inside an open fence is not a closer.
     expect("absolute-indented-marker-no-hide", "    ```\nThe control guarantees success.\n    ```\n", ["absolute"])
     expect("absolute-indented-marker-not-a-closer", "```\n    ```\nguarantees\n```\nProse after.\n", [])
 
-    # F2: a fenced block physically BETWEEN a blockquoted 'shall' and a later
+    # A fenced block physically BETWEEN a blockquoted 'shall' and a later
     # citation must NOT collapse into false adjacency, so the shall is UNqualified.
     expect("shall-fence-separated-unqualified",
            "> The org shall comply.\n```text\nexample fenced line\n```\n[ISO 27001](https://iso.org/iso)\n",
            ["shall"])
-    # F3: an absolute inside a link DESTINATION (not visible prose) must PASS;
+    # An absolute inside a link DESTINATION (not visible prose) must PASS;
     # the same absolute in visible link TEXT (or plain prose) still FAILS.
     expect("absolute-in-link-url-pass", "See the [source](https://iso.org/guarantee) page.\n", [])
     expect("absolute-in-link-text-flagged", "See the [guarantee](https://iso.org/x) page.\n", ["absolute"])
     expect("absolute-in-refdef-url-pass", "[n]: https://iso.org/guarantee\n", [])
-    # F3 negative-of-negative: a line that LOOKS like a ref-def but renders as
+    # Negative of the negative: a line that LOOKS like a ref-def but renders as
     # visible prose keeps its absolute scanned (only the dest token is blanked).
     expect("fake-refdef-prose-absolute-flagged", "[note]: The guarantee applies.\n", ["absolute"])
     # A real ref-def whose TITLE or LABEL contains an absolute is link metadata, not
@@ -177,7 +176,7 @@ def main(argv: list[str]) -> int:
     args = positional_args(argv[1:])
     if self_test_requested(argv[1:], args):
         return _self_test()
-    # 3b50: a missing path used to raise a FileNotFoundError traceback (rc 1, the findings code);
+    # A missing path used to raise a FileNotFoundError traceback (rc 1, the findings code);
     # refuse it with exit 2. Content-only: the vocabulary check is sound on any narrative file.
     files = ([Path(a) for a in guard_explicit_paths_cwd(args, allow_outside=True)]
              if args else discover())

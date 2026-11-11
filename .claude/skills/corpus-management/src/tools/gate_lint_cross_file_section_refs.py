@@ -43,20 +43,19 @@ targets with zero numbered headings and
 zero inline clauses; bare references with no adjacent link and no active binding;
 name-based references and range second endpoints.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): this engine
-carries the PURE check (``extract_sections``, ``resolve_target``,
-``binding_target``, ``adjacent_link``, ``check_file``) with the tool-specific
-heading model (``HEADING_RE`` / ``CLAUSE_RE``); it is parameterized by
-``repo_root`` and the shared cross-file reference-extraction config
-(``ref_patterns`` / ``md_link_re`` / ``binding_sentinel`` /
+Engine/wrapper split: this engine carries the PURE check (``extract_sections``,
+``resolve_target``, ``binding_target``, ``adjacent_link``, ``check_file``) with
+the tool-specific heading model (``HEADING_RE`` / ``CLAUSE_RE``); it is
+parameterized by ``repo_root`` and the shared cross-file reference-extraction
+config (``ref_patterns`` / ``md_link_re`` / ``binding_sentinel`` /
 ``external_context_re`` / ``adjacency_window``), so the engine is
 repository-root-free and scan-scope-free. The project wrapper
-(``.claude/skills/corpus-management/tools/lint-cross-file-section-refs.py``) supplies ``REPO_ROOT``, the shared
-CROSS_* config from ``lint_common``, the grc scan scope
-(``iter_markdown_targets`` / ``EXEMPT_FILES``) and the reporting in ``main``, and
-keeps a module-global ``check_file`` shim delegating here so the scan-scope
-regression test (which patches ``mod.check_file`` and runs ``main``) observes the
-original signature and behaviour.
+(``.claude/skills/corpus-management/tools/lint-cross-file-section-refs.py``)
+supplies ``REPO_ROOT``, the shared CROSS_* config from ``lint_common``, the grc
+scan scope (``iter_markdown_targets`` / ``EXEMPT_FILES``) and the reporting in
+``main``, and keeps a module-global ``check_file`` shim delegating here so the
+scan-scope regression test (which patches ``mod.check_file`` and runs ``main``)
+observes the original signature and behaviour.
 
 Exit codes (the wrapper returns these): 0 clean; 1 one or more findings.
 """

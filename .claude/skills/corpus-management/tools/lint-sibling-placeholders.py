@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """Sibling-repo stub-guard audit (gate 70), guard-if-present-as-stub.
 
-The sibling repositories (``grc_library_ref`` / ``grc_library_private``, plus the
-retired ``grc_library_scratch``, whose adopter ``.scratch`` stand-in stays supported) are SEPARATE repositories that live beside this one at
-origin; they are NOT shipped inside the public repo. The maintainer runs the
-real siblings beside this clone; an adopter chooses how to run (their own
-siblings, or the in-repo ``.<name>`` placeholder stub that the ``/adopt`` flow
-creates on request, or nothing). So the in-repo ``.ref`` / ``.scratch`` /
-``.private`` directories are NOT committed to this repo by default, and their
-absence is the normal state, not a defect.
+The sibling repositories (a reference repository and a private one, plus a
+retired scratch repository, whose adopter ``.scratch`` stand-in stays supported)
+are SEPARATE repositories that live beside this one at origin; they are NOT
+shipped inside the public repo. The maintainer runs the real siblings beside
+this clone; an adopter chooses how to run (their own siblings, or the in-repo
+``.<name>`` placeholder stub that the ``/adopt`` flow creates on request, or
+nothing). So the in-repo ``.ref`` / ``.scratch`` / ``.private`` directories are
+NOT committed to this repo by default, and their absence is the normal state,
+not a defect.
 
 This gate is therefore GUARD-IF-PRESENT-AS-STUB. For each of the three slots:
 
@@ -139,8 +140,8 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    # 3b50b2g: this tool takes no argument; an unknown or surplus one
-    # used to be ignored with exit 0, so it is refused (exit 2) before the check runs.
+    # This tool takes no argument; an unknown or surplus one used to be ignored with
+    # exit 0, so it is refused (exit 2) before the check runs.
     import os as _os
     sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
     from lint_common import strict_flags as _strict_flags

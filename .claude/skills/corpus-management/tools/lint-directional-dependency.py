@@ -30,7 +30,7 @@ from lint_common import AUDITED_DOMAIN_DIRS, PROJECT_SPECS_DIR, REPO_ROOT, guard
 PACK_TOOLS = REPO_ROOT / ".claude" / "skills" / "corpus-management" / "src" / "tools"
 
 # The grc project-internal governance directory a deliverable-corpus document must not link into
-# (decision D5: the registers directory, formerly .project-governance). It is the exact string
+# (the registers directory, formerly .project-governance). It is the exact string
 # lint_common.AUDITED_DOMAIN_DIRS carries, so the derivation of DEFAULT_CORPUS_ROOTS below removes
 # it; a repository-relative POSIX path, matched by the engine as a contiguous run of path parts.
 PROJECT_GOV_DIR = ".claude/skills/corpus-management/registers"
@@ -63,7 +63,7 @@ ROOT_DELIVERABLE_DOCS: tuple[str, ...] = (
 # project-governance directory (derived from the single source of truth so
 # a future audited domain propagates here, and so this gate does not
 # itself hardcode the domain run), the moved specifications directory, plus
-# the root deliverable documents. D5 / RBQ64 (chunk CR2A): before the move this
+# the root deliverable documents. Before the move this
 # gate scanned S1 and S2 in governance/ and S3 at the root, so the specifications
 # are scanned as corpus documents and may not link into the registers directory;
 # the adopter guides (formerly docs/) were outside this gate's roots and stay out.
@@ -116,7 +116,7 @@ def main(argv: list[str]) -> int:
     explicit = positional_args(argv[1:])
     if self_test_requested(argv[1:], explicit):
         return _engine()._self_test()
-    # 3b50: refuse (exit 2) a missing explicit path instead of passing silently. Content-only:
+    # Refuse (exit 2) a missing explicit path instead of passing silently. Content-only:
     # the check resolves each link against the file's own location and tests it against this
     # tree's project-governance directory, which is sound for a file in another tree (the
     # regression fixtures live in temp directories by design).

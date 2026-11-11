@@ -264,8 +264,8 @@ def rebased(base: str, base_dir: str, text: str, text_dir: str):
             substitutions += 1
         i, j = end_base.start(), end_text.start()
         suffix = base.startswith(("#", "?"), i)
-    # Backstop (3b204): cannot fail while target_error or unit_error is in
-    # force; each keeps "(" out of changed segments, so the counts match.
+    # Backstop: cannot fail while target_error or unit_error is in force;
+    # each keeps "(" out of changed segments, so the counts match.
     if base.count("](") != text.count("]("):
         return first, (f"'](' count differs: {base.count('](')} in BASE, "
                        f"{text.count('](')} at the destination")

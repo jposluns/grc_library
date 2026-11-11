@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
-# quick-guard.sh - a FAST local ITERATION aid, NOT the push gate (3.137a (closing PR #1245)).
+# quick-guard.sh - a FAST local ITERATION aid, NOT the push gate.
 #
 # Runs the "fast-ready" gates while iterating, in two groups: per-file-sound
 # gates on ONLY the changed .md files, plus a few FIXED-TARGET gates (matrix /
 # CHANGELOG) in default mode (they validate one specific file, so feeding them
-# an arbitrary changed doc would spuriously FAIL, Sweep-133), so a developer
-# gets a quick sound subset-check. It NEVER prints "safe to push" and MUST NOT be the left side of
-# `&& git push`. The full 95-gate .claude/skills/corpus-management/tools/pre-push-guard.sh remains the AUTHORITY
-# and still runs once before every push; it catches everything this omits.
+# an arbitrary changed doc would spuriously FAIL), so a developer gets a quick
+# sound subset-check. It NEVER prints "safe to push" and MUST NOT be the left
+# side of `&& git push`. The full 95-gate .claude/skills/corpus-management/tools/pre-push-guard.sh
+# remains the AUTHORITY and still runs once before every push; it catches
+# everything this omits.
 #
 # Residual NOT covered here (run the full guard to catch these): the
 # register/edge-guarded gates (a change to a central register can false-clean a
@@ -24,10 +25,10 @@ cd "$(dirname "$0")/../../../.." || exit 2
 # a graceful degradation for an iteration aid, and it is announced; the full
 # pre-push-guard.sh (which runs the history-aware gates against the real merge
 # base) is unaffected. Any OTHER git failure exits 2 rather than reading as "no
-# changed files" (3b551). A repository with no commits (an unborn HEAD) refuses
+# changed files". A repository with no commits (an unborn HEAD) refuses
 # too, before origin/main is read: every listing diffs against HEAD or a merge
 # base with it, and rev-parse cannot tell an unborn HEAD from one git cannot read,
-# so it is not treated as having no prior state (3b647). --quiet hides git's own report
+# so it is not treated as having no prior state. --quiet hides git's own report
 # for some of these failures (for example an unborn HEAD, a garbage or unreadable ref, or
 # a tag naming a missing commit) and not for others (for example dubious ownership, a bad
 # config or a corrupt object), whose report appears above the refusal; either way the
@@ -104,14 +105,12 @@ echo "------------------------------------------------------------"
 
 # The fast-ready gates, in two groups:
 #  - CHANGED-FILE gates (FAST_TOOLS): per-file-sound, so they run on ONLY the
-#    changed .md files. Includes the refactored gate check-review-cadence
-#    (gate 10). All accept a uniform
-#    positional list of .md paths (3.137a (closing PR #1245)).
+#    changed .md files, check-review-cadence (gate 10) included. All accept a
+#    uniform positional list of .md paths.
 #  - FIXED-TARGET gates (FAST_FIXED_TARGET): each validates ONE specific file
 #    (the compliance matrix / .working/CHANGELOG.md). Feeding them an arbitrary changed
-#    doc makes them mis-validate it AS that file and spuriously FAIL (Sweep-133
-#    finding), so they run in DEFAULT (no-arg) mode and always check their own
-#    correct target.
+#    doc makes them mis-validate it AS that file and spuriously FAIL, so they run in
+#    DEFAULT (no-arg) mode and always check their own correct target.
 FAST_TOOLS=(
   lint-metadata.py lint-language.py lint-citations.py lint-filename-title-alignment.py
   lint-shall-near-uncertainty.py lint-placeholder-leakage.py
@@ -132,7 +131,7 @@ FAST_FIXED_TARGET=(
 
 FAILED=()
 for tool in "${FAST_TOOLS[@]}"; do
-  # 3b50b2c: "--" ends option parsing, so a changed file whose name begins with "-" is read as
+  # "--" ends option parsing, so a changed file whose name begins with "-" is read as
   # a path; every FAST_TOOL accepts it (QuickGuardSeparatorTests keeps that true).
   out="$(python3 ".claude/skills/corpus-management/tools/$tool" -- "${CHANGED[@]}" 2>&1)"; rc=$?
   if [ "$rc" -ne 0 ]; then

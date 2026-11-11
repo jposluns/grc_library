@@ -2,7 +2,7 @@
 """Metadata-block line-break audit (grc gate): pack-owned engine (source of record).
 
 Detect runs of ``**Field:**`` metadata lines that lack a Markdown hard-break marker
-on the non-last lines of the run. A run is the rendered paragraph (3b146): the lines
+on the non-last lines of the run. A run is the rendered paragraph: the lines
 that render into one paragraph form one run, whatever their indentation, read without
 their block quote and list item markers, so an indented or lazy continuation line
 between metadata lines does not split it. ``scan_file`` follows the GFM specification's
@@ -28,14 +28,15 @@ the gate checks only the lines of its paragraph before that line, and no line fr
 line to the next blank line outside every container. Tabs are expanded to four-column
 stops before the structure is read, and lines are split at newlines only.
 
-Engine/wrapper split (SHARED/SAFETY lane, Pattern A): this engine carries the PURE
-check (``META_LINE``, ``has_hard_break``, ``scan_file``); the project wrapper
-(``.claude/skills/corpus-management/tools/lint-metadata-line-breaks.py``) supplies the grc scan scope
-(``DEFAULT_TARGETS`` / ``iter_target_files``) and the grouped reporting in ``main``,
-and keeps a thin module-global ``scan_file`` shim delegating here, so the
-scan-scope regression test (which patches ``mod.scan_file`` and runs ``main``)
-observes the original signature and behaviour. The engine's check is generic (no
-scan-scope or repository-root policy).
+Engine/wrapper split: this engine carries the PURE check (``META_LINE``,
+``has_hard_break``, ``scan_file``); the project wrapper
+(``.claude/skills/corpus-management/tools/lint-metadata-line-breaks.py``) supplies
+the grc scan scope (``DEFAULT_TARGETS`` / ``iter_target_files``) and the grouped
+reporting in ``main``, and keeps a thin module-global ``scan_file`` shim
+delegating here, so the scan-scope regression test (which patches
+``mod.scan_file`` and runs ``main``) observes the original signature and
+behaviour. The engine's check is generic (no scan-scope or repository-root
+policy).
 
 Exit codes (the wrapper returns these): 0 clean; 1 one or more findings.
 """
@@ -55,7 +56,7 @@ except ImportError as exc:  # fail loud: broken setup, never silently worked aro
 
 # A field name starts with a letter and runs, without an asterisk, to the closing colon, so a
 # hyphen, slash, parenthesis or underscore in it (an SPDX-License-Identifier-style key, an
-# "Owner/Approver" key) cannot split a run and hide a missing hard break before it (P-1.89(b)).
+# "Owner/Approver" key) cannot split a run and hide a missing hard break before it.
 META_LINE = re.compile(r"^\*\*[A-Za-z][^*]*?:\*\*")
 
 
@@ -68,7 +69,7 @@ def has_hard_break(line: str) -> bool:
     return False
 
 
-# 3b146: a run is the rendered paragraph, not a stretch of consecutive metadata lines. The
+# A run is the rendered paragraph, not a stretch of consecutive metadata lines. The
 # scan follows the GFM 0.29-gfm block structure: block quote and list item containers (so a
 # quoted or list-item paragraph is a run, read without its markers), lazy continuation lines,
 # fenced code (a closing fence uses the opening character, at least as many times), indented
@@ -338,7 +339,7 @@ def scan_file(path: Path) -> list[tuple[int, int]]:
                 leaf = ("table",)
                 continue
             if not _leaf_interrupts(rest):
-                # A paragraph continuation line, at any indentation (3b146).
+                # A paragraph continuation line, at any indentation.
                 para.append((lineno, rest, raw))
                 continue
             flush()

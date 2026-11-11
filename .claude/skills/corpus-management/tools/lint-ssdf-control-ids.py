@@ -4,12 +4,13 @@
 Flag a NIST SSDF (SP 800-218 / 800-218A) control identifier that is not a valid
 practice/task id, or a non-SSDF code sitting in an SSDF-labelled column.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan (the
-SSDF regexes, _split_cells, _is_sep, _validate_ssdf_id, check_file) is the source of
-record in the pack engine (.claude/skills/corpus-management/src/tools/gate_lint_ssdf_control_ids.py);
-it is catalogue-free and takes the SSDF catalogue via configure(ref). This wrapper
-supplies the catalogue (valid practices/tasks; the family tuple is engine-fixed), configures the engine,
-and keeps EXEMPT_SUFFIXES, a module-global check_file shim, main, and the exit codes.
+Engine/wrapper split: the PURE scan (the SSDF regexes, _split_cells, _is_sep,
+_validate_ssdf_id, check_file) is the source of record in the pack engine
+(.claude/skills/corpus-management/src/tools/gate_lint_ssdf_control_ids.py); it is
+catalogue-free and takes the SSDF catalogue via configure(ref). This wrapper supplies
+the catalogue (valid practices/tasks; the family tuple is engine-fixed), configures the
+engine, and keeps EXEMPT_SUFFIXES, a module-global check_file shim, main, and the exit
+codes.
 """
 
 from __future__ import annotations
@@ -80,11 +81,11 @@ def main(argv: list[str]) -> int:
     ap.add_argument("paths", nargs="*", default=None,
                     help="files or directories to scan (default: the whole repository)")
     args = ap.parse_args(argv[1:])
-    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    # Explicit paths are refused when missing or outside this tree, else normalized.
     args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else [str(REPO_ROOT)]
     findings: list[str] = []
     vanished: list[Path] = []
-    for path in iter_markdown_targets(args.paths or [str(REPO_ROOT)], skip_test_scratch=True):  # 3b653: root tests/tmp fixtures vanish mid-walk
+    for path in iter_markdown_targets(args.paths or [str(REPO_ROOT)], skip_test_scratch=True):  # root tests/tmp fixtures vanish mid-walk
         rel = path.relative_to(REPO_ROOT).as_posix()
         if rel.endswith(EXEMPT_SUFFIXES):
             continue

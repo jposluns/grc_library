@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Git-native pre-commit guard: refuse a commit on a grc_library ``main``/``master`` checkout.
 
-P-TODO 3b17 (2026-09-24). ``.claude/hooks/block-branch-to-main-edit.py`` refuses an Edit/Write to a
-grc_library file while HEAD is ``main``, but a file written through Bash (python, sed, a heredoc)
-bypasses it: on 2026-09-24 01:04Z a gate edit was made on ``main`` after a merge and caught only by
+``.claude/hooks/block-branch-to-main-edit.py`` refuses an Edit/Write to a grc_library file while HEAD
+is ``main``, but a file written through Bash (python, sed, a heredoc) bypasses it: on 2026-09-24
+01:04Z, in the earlier repository, a gate edit was made on ``main`` after a merge and caught only by
 chance before the commit. The durable step to refuse is the COMMIT. A PreToolUse shell parser would have
 to model ``cd``, ``git -C``, subshells, and ``switch``/``checkout`` sequences; this check runs INSIDE
 ``git commit`` itself, so it sees every commit path (any tool, any worktree) and reads the committing
@@ -12,7 +12,7 @@ push to ``main``; this catches the mistake one step earlier, before a commit has
 
 Installed by ``.claude/skills/corpus-management/tools/install-git-hooks.sh`` as a shim in the SHARED hooks dir of the grc_library
 repository, so it runs for the main checkout and every linked worktree (and for no other repository:
-sibling repos such as grc_library_private have their own hooks dir and legitimately commit on main).
+sibling repos have their own hooks dir and legitimately commit on main).
 The shim execs the ACTIVE checkout's ``.claude/skills/corpus-management/tools/git-hooks/pre-commit``, which execs this file.
 
 Decision (``decide``, pure):
@@ -74,7 +74,7 @@ def decide(allow, head_ok, branch):
 def read_head():
     """Thin observer: (head_ok, branch). ``git symbolic-ref -q HEAD`` exits 1 (quietly) when HEAD
     is not a symbolic ref, which is also what a HEAD naming a missing or corrupt object gives, so
-    detachment is confirmed by ``git rev-parse --verify`` resolving HEAD to a commit (3b551). Any
+    detachment is confirmed by ``git rev-parse --verify`` resolving HEAD to a commit. Any
     other failure (not a repository, a corrupt HEAD, git missing) is unreadable."""
     try:
         cp = subprocess.run(["git", "symbolic-ref", "-q", "HEAD"],
@@ -225,7 +225,7 @@ def _self_test():
 
 
 def main(argv):
-    if argv[1:] == ["--self-test"]:  # 3b50b2f: only the documented forms are accepted; anything else is a usage error (exit 2)
+    if argv[1:] == ["--self-test"]:  # only the documented forms are accepted; anything else is a usage error (exit 2)
         return _self_test()
     if argv[1:] == ["--pre-commit"]:
         return _pre_commit()

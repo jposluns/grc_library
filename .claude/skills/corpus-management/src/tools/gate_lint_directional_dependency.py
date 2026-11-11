@@ -6,14 +6,14 @@ directory: a link (inline ``](dest)``, titled, angle-bracketed, or a reference-s
 definition) whose target resolves into the ``project_gov_dir`` subtree violates the
 one-way dependency rule (a deliverable document must not depend on project-internal
 governance). External targets (http/https/mailto/tel/ftp/#) are ignored. Fenced code
-blocks are scanned too (fail closed, 3b54): no block structure can hide such a link, so an
+blocks are scanned too (fail closed): no block structure can hide such a link, so an
 example drops the link syntax and keeps a plain path mention (backticked or not).
 
 ``project_gov_dir`` is a POSIX directory path of one or more parts (for example
 ``.claude/skills/corpus-management/registers``); a resolved target is inside it when that
 run of parts occurs contiguously in the target's resolved path parts.
 
-Engine/wrapper split (compile PR-20): this engine carries the PURE check (the link and
+Engine/wrapper split: this engine carries the PURE check (the link and
 ref-def patterns, ``path_in_project_gov``, ``links_into_project_gov``,
 ``check_file``, a ``_self_test``) and a ``run`` that groups + reports, taking the
 project-governance directory path and the repository root in. The project wrapper
@@ -56,9 +56,10 @@ def links_into_project_gov(source: Path, target: str, project_gov_dir: str) -> b
 
 def check_file(path: Path, *, project_gov_dir: str) -> list[tuple[int, str]]:
     findings: list[tuple[int, str]] = []
-    # FAIL CLOSED (3b54, the gate-100 precedent): fenced code blocks are scanned too, so no block
-    # structure can hide a link into project governance; an example drops the link syntax and
-    # keeps a plain path mention. Measured cost on the live corpus: zero findings.
+    # FAIL CLOSED (the gate-100 precedent): fenced code blocks are scanned
+    # too, so no block structure can hide a link into project governance;
+    # an example drops the link syntax and keeps a plain path mention.
+    # Measured cost on the earlier repository's corpus: zero findings.
     with path.open("r", encoding="utf-8") as fh:
         for lineno, raw in enumerate(fh, 1):
             line = raw.rstrip("\n")

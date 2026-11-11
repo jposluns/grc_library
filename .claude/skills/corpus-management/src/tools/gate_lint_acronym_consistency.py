@@ -8,14 +8,15 @@ finding; an acronym not in the glossary, or an overlap, is accepted. The glossar
 is parsed from a caller-supplied register file (``parse_glossary``) into an
 acronym-to-significant-words map.
 
-Engine/wrapper split (SHARED/SAFETY lane PR-41, Pattern A + 2nd seam): this engine
-carries the vocab (``GLOSSARY_ROW_RE``, ``INLINE_DEF_RE``, ``STOPWORDS``) and both
-pure functions (``parse_glossary`` taking the glossary path as a parameter, and
+Engine/wrapper split: this engine carries the vocab (``GLOSSARY_ROW_RE``,
+``INLINE_DEF_RE``, ``STOPWORDS``) and both pure functions
+(``parse_glossary`` taking the glossary path as a parameter, and
 ``scan`` taking the parsed glossary map). The project wrapper
-(``.claude/skills/corpus-management/tools/lint-acronym-consistency.py``) supplies the grc glossary-register PATH and
-the grc scan scope, and keeps TWO thin module-global shims, ``parse_glossary`` and
-``scan``, delegating here, because the scan-scope regression test patches BOTH of
-those wrapper globals; keeping both as wrapper shims preserves that interception.
+(``.claude/skills/corpus-management/tools/lint-acronym-consistency.py``)
+supplies the grc glossary-register PATH and the grc scan scope, and keeps
+TWO thin module-global shims, ``parse_glossary`` and ``scan``, delegating
+here, because the scan-scope regression test patches BOTH of those wrapper
+globals; keeping both as wrapper shims preserves that interception.
 The engine functions are scope-free and repository-root-free.
 
 Exit codes (the wrapper returns these): 0 clean; 1 one or more findings.

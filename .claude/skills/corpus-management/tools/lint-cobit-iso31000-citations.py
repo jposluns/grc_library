@@ -106,7 +106,7 @@ def scan_file(path: Path) -> list:
 def _display_path(path: Path) -> str:
     """Repo-relative POSIX path for display, falling back to the absolute path for a
     target outside REPO_ROOT (a hand-invocation on an external file), so the findings
-    loop never raises ValueError from ``relative_to`` (deep-assessment r5 Low-3 / 3.98 (closing PR #1010))."""
+    loop never raises ValueError from ``relative_to``."""
     try:
         return path.relative_to(REPO_ROOT).as_posix()
     except ValueError:
@@ -114,12 +114,12 @@ def _display_path(path: Path) -> str:
 
 
 def main(argv: list[str]) -> int:
-    # 3b48: explicit paths are refused when missing (a content check on the held COBIT and ISO 31000 catalogues; #1010 made out-of-tree reporting sound), else normalized.
-    args = positional_args(argv[1:], known_flags=())  # 3b50b2c: '--' separates paths (quick-guard passes one)
+    # Explicit paths are refused when missing (a content check on the held COBIT and ISO 31000 catalogues; out-of-tree reporting is sound), else normalized.
+    args = positional_args(argv[1:], known_flags=())  # '--' separates paths (quick-guard passes one)
     paths = guard_explicit_paths_cwd(args, repo_root=REPO_ROOT, allow_outside=True) if args else [str(REPO_ROOT)]
     targets = iter_markdown_targets(
         paths, exempt_dirs=DEFAULT_EXEMPT_DIRS, exempt_files=EXEMPT_FILES,
-        skip_test_scratch=True)  # 3b653: root tests/tmp fixtures vanish mid-walk
+        skip_test_scratch=True)  # root tests/tmp fixtures vanish mid-walk
     all_findings: list[Finding] = []
     vanished: list[Path] = []
     for path in targets:

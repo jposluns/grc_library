@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the public reference-acquisition manifest (1.19.7 (closing PR #1007)).
+"""Generate the public reference-acquisition manifest.
 
 The manifest [`.claude/skills/corpus-management/registers/reference-acquisition-manifest.md`] is a PUBLIC BIBLIOGRAPHY of the
 corpus's citation-source reference base: for each trusted-bucket entry in
@@ -18,10 +18,10 @@ never reproduces source prose. The manifest is a bibliography, never the texts.
 **Sibling-independence:** this is a maintainer tool. It locates the real
 `grc_library_ref` sibling via `lint_common.resolve_sibling("ref", strict=True)`. With that
 sibling absent, regenerating NO-OPS (exit 0) in every context, for an adopter's portable clone.
-`--check` with it absent never reports a success it did not earn (3b796). It keeps the explicit
+`--check` with it absent never reports a success it did not earn. It keeps the explicit
 static-ship no-op (exit 0, saying it did not check) only in a positively placed adopter clone,
-decided from repository-local evidence alone (decision D4: no separate identity probe is run, and
-the maintainer repository is declared in this tool as `MAINTAINER_ORIGIN_OWNER_REPO`), when all of
+decided from repository-local evidence alone (no separate identity probe is run, and the
+maintainer repository is declared in this tool as `MAINTAINER_ORIGIN_OWNER_REPO`), when all of
 these hold: no repository-redirecting variable is set (GIT_DIR, GIT_WORK_TREE, or one of
 `lint_common._GIT_REDIRECT_VARIABLES`), whatever it names, so an adopter whose git exports GIT_DIR
 to a linked worktree's hooks sees exit 4 too; `lint_common.require_own_git_dir` confirms git reads
@@ -31,7 +31,7 @@ origin, run with every `GIT_` variable removed from its environment, passes the 
 and gives the identical value; and that value is an `https://`, `http://` or `ssh://` URL or a
 `user@host:owner/repo` form whose path is exactly `owner/repo` (an optional `.git` or trailing
 slash aside) and is not the maintainer's `jposluns/grc_library` on any host. `adopt-preflight-guard.py`
-classifies through the same `_operator_context`. D4's degrade path: a clone whose origin is the
+classifies through the same `_operator_context`. The degrade path: a clone whose origin is the
 maintainer repository on `github.com` exits 4 (cannot evaluate) with one line naming the missing
 sibling, and so does every context the check cannot decide (a local-path, `file://`, `git://`,
 userless `host:path` or otherwise unplaced origin, an SSH host alias or other host serving
@@ -50,15 +50,15 @@ type name, read without running code the exception's class or metaclass defines 
 when it cannot be read).
 SIGCHLD is held at its default disposition around all of this tool's subprocess work on this path,
 from before the repository check's first git read until the second origin read has finished, and
-the caller's disposition is put back after, on every path (3b796 rounds 10 and 11): with SIGCHLD
-ignored the kernel reaps each child itself, so Python's subprocess reports a git read's exit
-status as 0 whatever git exited with. Off the main thread, or where the disposition cannot be read
-or set, nothing is run, not even the repository check, and the line gives that fixed cause; when
-setting it raises, the caller's disposition is still put back, and the cause stays the fixed one
-unless putting it back raises too, which gives the could-not-be-put-back cause instead (3b796
-round 12). A platform without SIGCHLD has nothing to hold. Placing the origin and the agreement
-check run in this process on the two validated values. An exception in this tool's own parts, a
-SystemExit included, gives that line too; only KeyboardInterrupt passes through.
+the caller's disposition is put back after, on every path: with SIGCHLD ignored the kernel reaps
+each child itself, so Python's subprocess reports a git read's exit status as 0 whatever git
+exited with. Off the main thread, or where the disposition cannot be read or set, nothing is run,
+not even the repository check, and the line gives that fixed cause; when setting it raises, the
+caller's disposition is still put back, and the cause stays the fixed one unless putting it back
+raises too, which gives the could-not-be-put-back cause instead. A platform without SIGCHLD has
+nothing to hold. Placing the origin and the agreement check run in this process on the two
+validated values. An exception in this tool's own parts, a SystemExit included, gives that line
+too; only KeyboardInterrupt passes through.
 Residuals: an interrupt that lands at the instant the caller's SIGCHLD disposition is put back
 leaves SIGCHLD at its default, and so does a failure to put it back, which gives its own fixed
 cause naming the exception's type, also when setting it had raised first; the hold is
@@ -85,7 +85,7 @@ the second read gets no `GIT_` variable: a difference it makes to the origin mak
 disagree, and `--check` exits 4 with the disagreement cause. A sibling that is
 present but unusable (not a directory, a dangling link, or one that cannot be examined) is not
 absent: it fails with exit 2 naming it, as does a `catalogue.yml` in it that cannot be examined,
-is not a regular file, cannot be read or is not valid UTF-8 (3b677). A `catalogue.yml` genuinely
+is not a regular file, cannot be read or is not valid UTF-8. A `catalogue.yml` genuinely
 absent from a usable sibling exits 2 as not found. The probes use `os.lstat`/`os.stat`, so the
 verdict is the same on Python 3.11 and 3.12+. It is NEVER a CI gate, and
 `check-portability.sh`, which runs the regenerate path, stays green. `--check` only refuses to
@@ -146,7 +146,7 @@ PUBLIC_WORDING = (
 
 
 # The YAML 1.1 double-quoted escape set (the one yaml.safe_load implements), plus the three
-# hex forms; \x, \u and \U carry 2, 4 and 8 hex digits (P-TODO 3b63).
+# hex forms; \x, \u and \U carry 2, 4 and 8 hex digits.
 _DQ_ESCAPES = {"0": "\0", "a": "\a", "b": "\b", "t": "\t", "\t": "\t", "n": "\n",
                "v": "\v", "f": "\f", "r": "\r", "e": "\x1b", " ": " ", '"': '"',
                "/": "/", "\\": "\\", "N": "\x85", "_": "\xa0", "L": "\u2028",
@@ -203,7 +203,7 @@ def _scalar(v: str):
     if v == "false":
         return False
     # A bare null or ~ is YAML's null (yaml.safe_load gives None); a bare decimal integer is an
-    # int. Without this, an unquoted null reached render() as the literal text "null" (3b63).
+    # int. Without this, an unquoted null reached render() as the literal text "null".
     if v in ("null", "~", "Null", "NULL", ""):
         return None
     if re.fullmatch(r"[-+]?(0|[1-9][0-9]*)", v):
@@ -225,9 +225,9 @@ def _parse_catalogue(text: str) -> dict:
     bucket = None
     entry = None
     # Split on the three ASCII line-break forms only. str.splitlines also splits on U+2028,
-    # U+2029, U+0085 and other separators, which would truncate a value that carries one
-    # (P-TODO 3b63). A raw one inside a quoted value is kept verbatim here, where
-    # yaml.safe_load would fold it into a space; the catalogue carries none.
+    # U+2029, U+0085 and other separators, which would truncate a value that carries one. A raw
+    # one inside a quoted value is kept verbatim here, where yaml.safe_load would fold it into a
+    # space; the catalogue carries none.
     for raw in re.split(r"\r\n|\r|\n", text):
         if not raw.strip() or raw.lstrip().startswith("#"):
             continue
@@ -252,7 +252,7 @@ def _parse_catalogue(text: str) -> dict:
 
 def _text(v) -> str:
     """A parsed catalogue value as display text: None (a YAML null) is empty, anything else is
-    str(v), so an int 0 stays "0" rather than vanishing through an `or ""` (P-TODO 3b63)."""
+    str(v), so an int 0 stays "0" rather than vanishing through an `or ""`."""
     return "" if v is None else str(v)
 
 
@@ -384,14 +384,14 @@ def render(catalogue: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
-# 3b796: --check with no sibling outside a positively placed adopter clone. Distinct from 1
-# (DRIFT), 2 (an unusable sibling or catalogue, or a bad flag) and 3 (an internal error).
+# --check with no sibling outside a positively placed adopter clone. Distinct from 1 (DRIFT),
+# 2 (an unusable sibling or catalogue, or a bad flag) and 3 (an internal error).
 EXIT_CANNOT_EVALUATE = 4
 
 
 # Variables that point git at another repository's git directory, work tree, common directory,
-# objects or history (3b796 round 2). Any of them set makes the origin read undecidable, whatever
-# it names: the read then need not be this checkout's own origin.
+# objects or history. Any of them set makes the origin read undecidable, whatever it names: the
+# read then need not be this checkout's own origin.
 _REDIRECT_VARIABLES = ("GIT_DIR", "GIT_WORK_TREE") + tuple(lint_common._GIT_REDIRECT_VARIABLES)
 
 # The origin forms the decision can place: an https, http or ssh URL, and the user@host:path form,
@@ -475,7 +475,7 @@ def _unplaced_reason(origin: str) -> str:
 
 
 def _context_from_reads(origin: "str | None", plain: "str | None", maintainer: str) -> str:
-    """PURE decision (D4): "maintainer", "adopter" or "undecidable", from the origin
+    """PURE decision: "maintainer", "adopter" or "undecidable", from the origin
     ``_origin_from_read`` validated in this tool's own read, the origin it validated in the second
     read made with no ``GIT_`` variable (each None when the read was refused) and the maintainer
     owner/repo. Only a positively placed origin that both reads gave identically decides;
@@ -533,7 +533,7 @@ _UNREADABLE_TYPE_NAME = "an exception whose type name could not be read"
 
 def _type_name(exc: BaseException) -> str:
     """``exc``'s type name for the diagnostic, read without running code that the exception's class
-    or metaclass defines (3b796 round 7). ``type(exc).__name__`` goes through the metaclass, whose
+    or metaclass defines. ``type(exc).__name__`` goes through the metaclass, whose
     ``__name__`` (a property, say) can raise, a SystemExit included, inside an ``except`` body,
     where no clause of that ``try`` catches it. ``type`` with one argument and type's own
     ``__name__`` descriptor run no such code, and ``str.__str__`` turns a str subclass stored as the
@@ -549,25 +549,25 @@ def _type_name(exc: BaseException) -> str:
         return _UNREADABLE_TYPE_NAME
 
 
-# Decision D4: the maintainer repository, declared in this shipped tool; no separate identity
-# probe ships. .claude/skills/corpus-management/tools/install-git-hooks.sh and
+# The maintainer repository, declared in this shipped tool; no separate identity probe ships.
+# .claude/skills/corpus-management/tools/install-git-hooks.sh and
 # .claude/skills/corpus-management/tools/pre-push-hook.py name the same owner/repo.
 MAINTAINER_ORIGIN_OWNER_REPO = "jposluns/grc_library"
-# 3b796 round 10: the fixed causes when SIGCHLD cannot be held at its default disposition for the
-# check's subprocess work, so nothing is run (see _operator_context; round 11 widened the hold to
-# every git read on this path).
+# The fixed causes when SIGCHLD cannot be held at its default disposition for the check's
+# subprocess work, so nothing is run (see _operator_context; the hold covers every git read on
+# this path).
 _SIGCHLD_OFF_MAIN_THREAD = ("SIGCHLD cannot be held at its default disposition off the main "
                             "thread, so the origin was not read")
 _SIGCHLD_UNREADABLE = "the SIGCHLD disposition could not be read, so the origin was not read"
 _SIGCHLD_UNSETTABLE = ("SIGCHLD could not be set to its default disposition, so the origin was "
                        "not read")
-# 3b796 round 11: the fixed cause, before the exception's type name, when the caller's SIGCHLD
-# disposition could not be put back after the hold.
+# The fixed cause, before the exception's type name, when the caller's SIGCHLD disposition could
+# not be put back after the hold.
 _SIGCHLD_NOT_RESTORED = "the caller's SIGCHLD disposition could not be put back"
 
 
 def _read_origin_plain() -> "tuple[int, bytes, bytes]":
-    """The second raw origin read (D4): the same command as ``_read_origin``, run with every
+    """The second raw origin read: the same command as ``_read_origin``, run with every
     variable whose name begins with GIT_ removed from its environment, so configuration those
     variables supply reaches only the first read. Nothing is stripped or translated."""
     env = {name: value for name, value in os.environ.items()
@@ -579,30 +579,29 @@ def _read_origin_plain() -> "tuple[int, bytes, bytes]":
 
 def _operator_context() -> "tuple[str, str | None]":
     """The operator context and, when it is "undecidable", why, as one line (else None), from
-    repository-local evidence only (decision D4): refused redirects first, then this tool's own raw
-    origin read, then a second read with no ``GIT_`` variable that must give the same value, placed
-    against ``MAINTAINER_ORIGIN_OWNER_REPO``. SIGCHLD that cannot be held at its default
-    disposition for this function's subprocess work (off the main thread, or a disposition that
-    cannot be read or set; 3b796 round 10) is "undecidable" with nothing run, and so is a caller's
-    disposition that cannot be put back after (3b796 round 11). The hold covers every git read
-    here, the repository check's and both origin reads, so each sees git's real exit status (under
-    an inherited ignored SIGCHLD, Python's subprocess reports a git exit as 0). Placing the origin
-    and the agreement check then run on the validated values only. Any exception in this tool's
-    parts (the repository check and the origin reads; placing the origin), a SystemExit included,
-    is "undecidable" with the part that failed and the type name ``_type_name`` reads, and only
-    KeyboardInterrupt passes through. Residuals: git configuration both reads share (the
-    repository's config, the HOME and XDG global files, the system file) changes both reads alike,
-    so a rewrite there that turns a maintainer origin into a fork URL still takes the no-op;
-    configuration this process's ``GIT_`` variables supply (``GIT_CONFIG_COUNT`` and its pairs,
-    ``GIT_CONFIG_PARAMETERS`` from ``git -c``, ``GIT_CONFIG_GLOBAL``, ``GIT_CONFIG_SYSTEM``,
-    ``GIT_CONFIG_NOSYSTEM``, and ``safe.directory`` supplied that way) reaches only the first read,
-    so a difference it makes to the origin makes the two reads disagree: "undecidable", exit 4; and
-    the SIGCHLD residuals the module docstring lists. Reached by --check on the absent-sibling
-    branch, and by adopt-preflight-guard.py."""
+    repository-local evidence only: refused redirects first, then this tool's own raw origin read,
+    then a second read with no ``GIT_`` variable that must give the same value, placed against
+    ``MAINTAINER_ORIGIN_OWNER_REPO``. SIGCHLD that cannot be held at its default disposition for
+    this function's subprocess work (off the main thread, or a disposition that cannot be read or
+    set) is "undecidable" with nothing run, and so is a caller's disposition that cannot be put
+    back after. The hold covers every git read here, the repository check's and both origin reads,
+    so each sees git's real exit status (under an inherited ignored SIGCHLD, Python's subprocess
+    reports a git exit as 0). Placing the origin and the agreement check then run on the validated
+    values only. Any exception in this tool's parts (the repository check and the origin reads;
+    placing the origin), a SystemExit included, is "undecidable" with the part that failed and the
+    type name ``_type_name`` reads, and only KeyboardInterrupt passes through. Residuals: git
+    configuration both reads share (the repository's config, the HOME and XDG global files, the
+    system file) changes both reads alike, so a rewrite there that turns a maintainer origin into
+    a fork URL still takes the no-op; configuration this process's ``GIT_`` variables supply
+    (``GIT_CONFIG_COUNT`` and its pairs, ``GIT_CONFIG_PARAMETERS`` from ``git -c``,
+    ``GIT_CONFIG_GLOBAL``, ``GIT_CONFIG_SYSTEM``, ``GIT_CONFIG_NOSYSTEM``, and ``safe.directory``
+    supplied that way) reaches only the first read, so a difference it makes to the origin makes
+    the two reads disagree: "undecidable", exit 4; and the SIGCHLD residuals the module docstring
+    lists. Reached by --check on the absent-sibling branch, and by adopt-preflight-guard.py."""
     sigchld = getattr(signal, "SIGCHLD", None)
     if sigchld is None:
         return _context_under_hold()
-    # 3b796 rounds 10 and 11, as .claude/skills/corpus-management/tools/preflight-changelog.py holds it for its runner: the
+    # As .claude/skills/corpus-management/tools/preflight-changelog.py holds it for its runner, the
     # refusals come before any child runs, the repository check's git reads included.
     if threading.current_thread() is not threading.main_thread():
         return "undecidable", _SIGCHLD_OFF_MAIN_THREAD
@@ -615,9 +614,9 @@ def _operator_context() -> "tuple[str, str | None]":
     if inherited is None:
         return "undecidable", _SIGCHLD_UNREADABLE
     # The caller's disposition is recorded BEFORE the swap and the restore below is armed from
-    # the swap attempt on, even when the swap raises (round 11, codex W1: a swap that raises may
-    # have changed it all the same, and putting back a disposition that was never swapped changes
-    # nothing). No return inside this try, so the restore's outcome can still decide the result.
+    # the swap attempt on, even when the swap raises (a swap that raises may have changed it all
+    # the same, and putting back a disposition that was never swapped changes nothing). No return
+    # inside this try, so the restore's outcome can still decide the result.
     not_restored = None
     try:
         try:
@@ -637,16 +636,16 @@ def _operator_context() -> "tuple[str, str | None]":
         except BaseException as exc:  # noqa: BLE001 (deliberate: never ends --check without the
             # line; an exception already on its way, an interrupt included, still goes on)
             not_restored = _type_name(exc)
-    # Round 12 (claude N1): a restore that fails gives its own cause on every path, after a swap
-    # that raised as well, since SIGCHLD may then be left at its default.
+    # A restore that fails gives its own cause on every path, after a swap that raised as well,
+    # since SIGCHLD may then be left at its default.
     if not_restored is not None:
         return "undecidable", f"{_SIGCHLD_NOT_RESTORED} ({not_restored})"
     return result
 
 
 def _context_under_hold() -> "tuple[str, str | None]":
-    """``_operator_context``'s work once SIGCHLD is held at its default disposition (3b796 round
-    11): the repository check, the two origin reads, then placing the origin (D4)."""
+    """``_operator_context``'s work once SIGCHLD is held at its default disposition: the
+    repository check, the two origin reads, then placing the origin."""
     try:
         redirect = _repository_redirect()
         if redirect is not None:
@@ -697,7 +696,7 @@ def _one_line(text: str) -> str:
 
 
 def _check_without_sibling() -> int:
-    """--check with the sibling absent (3b796): adopter no-op, else cannot evaluate."""
+    """--check with the sibling absent: adopter no-op, else cannot evaluate."""
     context, reason = _operator_context()
     if context == "adopter":
         print("build-reference-manifest --check: grc_library_ref not present; no-op, did not check "
@@ -713,11 +712,11 @@ def _check_without_sibling() -> int:
 
 
 def main() -> int:
-    # 3b50b2a: parse strictly first, so a mistyped --check can never fall through to the WRITE
-    # below (and is refused even in an adopter clone, before the no-op branch).
+    # Parse strictly first, so a mistyped --check can never fall through to the WRITE below (and
+    # is refused even in an adopter clone, before the no-op branch).
     check = "--check" in lint_common.strict_flags(sys.argv[1:], ("--check",))
     try:
-        # Strict (3b74): only an ABSENT sibling takes the no-op; a present but unusable one refuses.
+        # Strict: only an ABSENT sibling takes the no-op; a present but unusable one refuses.
         ref = lint_common.resolve_sibling("ref", strict=True)
     except lint_common.InaccessiblePath as exc:
         print(f"build-reference-manifest: the grc_library_ref sibling is present but unusable "
@@ -727,13 +726,14 @@ def main() -> int:
         if check:
             return _check_without_sibling()
         # Regenerate with no reference sibling: no-op (exit 0); the committed manifest is used
-        # as-is. (Maintainer-side absence is caught loud at /orch, and by --check above.)
+        # as-is. (Maintainer-side absence is caught loudly in the maintainer's own workflow, and
+        # by --check above.)
         note = ("build-reference-manifest: grc_library_ref not present; "
                 "no-op (the committed manifest ships statically for adopters).")
         print(note)
         return 0
     catalogue_path = ref / "catalogue.yml"
-    # 3b677: strict_kind, not Path.is_file, which reads a catalogue in an unsearchable sibling
+    # Uses strict_kind, not Path.is_file, which reads a catalogue in an unsearchable sibling
     # as absent (3.12+) or raises PermissionError (3.11). Only ENOENT is "not found".
     try:
         kind = lint_common.strict_kind(catalogue_path)
@@ -744,7 +744,7 @@ def main() -> int:
               f"(cannot read {exc.filename or catalogue_path}: {exc.strerror}).", file=sys.stderr)
         return 2
     except UnicodeDecodeError as exc:
-        # 3b677: a catalogue that is not valid UTF-8 exits 2 naming it, not exit 3 with a traceback.
+        # A catalogue that is not valid UTF-8 exits 2 naming it, not exit 3 with a traceback.
         print(f"build-reference-manifest: the grc_library_ref sibling is present but unusable "
               f"(cannot decode {catalogue_path} as UTF-8: {exc.reason} at byte {exc.start}).",
               file=sys.stderr)
@@ -779,10 +779,9 @@ if __name__ == "__main__":
     # rule and its residual); 1 --check DRIFT only; 2 catalogue missing, a present but unusable
     # sibling or catalogue (including one not valid UTF-8), or a bad flag; 3 an unexpected internal
     # error; 4 --check cannot evaluate (no sibling in a clone whose origin is the maintainer
-    # repository, or in any context that cannot be decided, 3b796). Python's own uncaught-exception
-    # exit is 1, the same as DRIFT, so an unexpected error is mapped to 3 to keep 1 meaning drift
-    # (P-TODO 3b62: the pre-push guard reports drift from this code and must not misreport a crash
-    # as drift).
+    # repository, or in any context that cannot be decided). Python's own uncaught-exception exit
+    # is 1, the same as DRIFT, so an unexpected error is mapped to 3 to keep 1 meaning drift (the
+    # pre-push guard reports drift from this code and must not misreport a crash as drift).
     try:
         sys.exit(main())
     except SystemExit:

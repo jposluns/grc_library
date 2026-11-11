@@ -21,12 +21,12 @@ preflight inherits the hook's environment, so it diffs the index git named in GI
 `git commit -a` or `git commit <path>` is about to commit). Its diff of a mirror kept in ANOTHER
 repository (the operational store or the private sibling) runs without the variables that
 `git rev-parse --local-env-vars` names as local to one repository (GIT_INDEX_FILE and GIT_DIR among
-them), so it reads that repository's own index (3b141 QA r2: under `git commit -a` it read this
-repository's temporary index there, found no staged mirror addition, and let a failing commit
-through). The preflight's own `git diff` overrides
+them), so it reads that repository's own index (in the earlier repository, under `git commit -a`
+it read this repository's temporary index there, found no staged mirror addition, and let a
+failing commit through). The preflight's own `git diff` overrides
 every setting that would reshape what it parses (an external diff driver, textconv, a -diff or binary
 attribute, colour, the `+++ b/` prefix) and exits 2 when that diff fails, rather than finding no added
-line and passing (3b141 QA r1). This check's own `git diff` passes --no-ext-diff and --no-textconv too
+line and passing. This check's own `git diff` passes --no-ext-diff and --no-textconv too
 (its --name-only output uses neither today). Diff presentation settings are also pinned for both,
 appended last to GIT_CONFIG_PARAMETERS (the channel `git -c` uses; the last value wins):
 diff.noprefix, diff.mnemonicPrefix, diff.srcPrefix/dstPrefix and color.diff=always each reshape the
@@ -36,10 +36,10 @@ override the same settings.
 
 Allowed without checking: the override GRC_ALLOW_FAILING_CHANGELOG_COMMIT=1, honoured only when the
 value is exactly "1" (as the GRC_ALLOW_BULK_ADD and GRC_ALLOW_PR_ATTRIBUTION hooks read theirs), so
-"0", "false" or an empty value is not the override (3b141 QA r1). A commit that does not stage
+"0", "false" or an empty value is not the override. A commit that does not stage
 .working/CHANGELOG.md is not judged, an initial commit on an unborn HEAD included: there the staged state is
-read against the empty tree, as there is no HEAD to diff against (3b141 QA r4). A commit that concludes a
-conflicted merge, cherry-pick, or revert is checked like any other (3b141 QA r1), whether `git commit`
+read against the empty tree, as there is no HEAD to diff against. A commit that concludes a
+conflicted merge, cherry-pick, or revert is checked like any other, whether `git commit`
 or `git merge|cherry-pick|revert --continue` makes it (each runs pre-commit; a rebase does not, see
 the residue below): .working/CHANGELOG.md is the file most likely to conflict (every PR adds an entry in the
 same place), so the resolution is a hand edit of exactly the kind this check exists for. The other
@@ -49,12 +49,12 @@ these commits because a Version bump belongs to a PR, which a merge does not hav
 a line, which it does. It REFUSES, naming the override (ignorance refuses, as in
 check-version-bump-commit.py): a git error while reading the staged state; a staged .working/CHANGELOG.md on
 an unborn HEAD (the preflight diffs against HEAD, so it has nothing to check against and exits 2);
-a staged .working/CHANGELOG.md in a checkout without .claude/skills/corpus-management/tools/preflight-changelog.py (3b141 QA r4: this once
-failed open, silently, for an "older branch", but no older branch reaches this check: the tracked
-shim runs it only in a tree that carries it, and the preflight predates it, so only a working tree
-that has deleted or renamed the preflight gets here); and a preflight that cannot be started or
-exits other than 0 (its 1 is a finding or a crash, its 2 a git error or a gate-2 language
-engine it could not load or use).
+a staged .working/CHANGELOG.md in a checkout without .claude/skills/corpus-management/tools/preflight-changelog.py (in
+the earlier repository this failed open, silently, for an "older branch", but no older branch
+reaches this check: the tracked shim runs it only in a tree that carries it, and the preflight
+predates it, so only a working tree that has deleted or renamed the preflight gets here); and a
+preflight that cannot be started or exits other than 0 (its 1 is a finding or a crash, its 2 a git
+error or a gate-2 language engine it could not load or use).
 
 Residue, stated: the preflight's full detailed-mirror link scan runs on every call, so a dangling link
 in the mirror refuses a CHANGELOG commit that did not touch the mirror (as the `&&` chain does; fix
@@ -65,7 +65,7 @@ staged in that repository's own index, whatever this commit's `-a` or pathspec (
 commits are outside this hook); `git commit --amend` checks only what the amend adds to HEAD, as the
 preflight does; a merge that git commits itself (a clean `git merge` runs pre-merge-commit, not
 pre-commit) is not checked; nor is a commit that git's sequencer makes itself, for which git runs no
-pre-commit hook (3b141 QA r2): every `git rebase` pick, including one concluded by
+pre-commit hook: every `git rebase` pick, including one concluded by
 `git rebase --continue` after a .working/CHANGELOG.md conflict, a cherry-pick or revert that applies
 cleanly, and a `git am` commit (git am runs pre-applypatch, not pre-commit). No hook can refuse those commits (post-rewrite runs after they exist). A conflict resolved at
 a rebase stop IS checked when `git commit` concludes it before `git rebase --continue`, and a root
@@ -88,8 +88,8 @@ _PINNED = ("diff.noprefix=false", "diff.mnemonicPrefix=false", "diff.srcPrefix=a
 
 def override_set(environ):
     """PURE. The override is honoured only when its value is exactly "1", as the GRC_ALLOW_BULK_ADD and
-    GRC_ALLOW_PR_ATTRIBUTION hooks read theirs (3b141 QA r1: any non-empty value, "0" included, once
-    skipped the check)."""
+    GRC_ALLOW_PR_ATTRIBUTION hooks read theirs (in the earlier repository, any non-empty value, "0"
+    included, once skipped the check)."""
     return environ.get(_OVERRIDE) == "1"
 
 
@@ -150,7 +150,7 @@ def head_born(root):
 def changelog_staged(root):
     """Thin observer: does the index being committed carry a non-deleted .working/CHANGELOG.md change? It reads
     the index named in GIT_INDEX_FILE against HEAD, or against the empty tree when HEAD is unborn, so an
-    initial commit that does not stage .working/CHANGELOG.md is not judged (3b141 QA r4). A git error raises
+    initial commit that does not stage .working/CHANGELOG.md is not judged. A git error raises
     (ignorance refuses), and so does a staged .working/CHANGELOG.md on an unborn HEAD, which the preflight
     (diffing against HEAD) cannot check. --no-ext-diff and --no-textconv are passed although
     --name-only output uses neither today."""
@@ -166,8 +166,9 @@ def changelog_staged(root):
 
 
 def run_preflight(root):
-    """(exit_code, report) of the ACTIVE checkout's preflight on the staged diff; (None, reason) when it
-    could not be started, as in a checkout without it (3b141 QA r4: that once failed open, silently)."""
+    """(exit_code, report) of the ACTIVE checkout's preflight on the staged diff; (None,
+    reason) when it could not be started, as in a checkout without it (in the earlier
+    repository that failed open, silently)."""
     if not (root / _PREFLIGHT).is_file():
         return None, f"check-changelog-preflight-commit: {_PREFLIGHT.as_posix()} is not in this checkout."
     try:
@@ -224,7 +225,7 @@ def _integration_self_test():
                     ".claude/skills/corpus-management/tools/aiqt_bootstrap.py", ".claude/skills/corpus-management/tools/lint-language.py",
                     # aiqt_bootstrap loads its pin verifier from its own directory (_load_verifier).
                     ".claude/skills/corpus-management/tools/aiqt_rules.py",
-                    # The repository pin the AIQT_PACK_ROOT override is admitted against (RBQ14).
+                    # The repository pin the AIQT_PACK_ROOT override is admitted against.
                     ".claude/aiqt/PIN.toml",
                     ".claude/skills/corpus-management/src/tools/gate_lint_language.py",
                     ".claude/skills/corpus-management/src/tools/profile_loader.py",
@@ -255,7 +256,7 @@ def _integration_self_test():
         def refused(cp, reason="--staged failed on the staged"):
             """The check refused for REASON: by default the preflight's finding (its exit 1), so a case
             expecting that finding fails when the check refused for another reason instead, a git error
-            reading the staged state or a preflight that did not complete (3b141 QA r2)."""
+            reading the staged state or a preflight that did not complete."""
             return (cp.returncode != 0 and "check-changelog-preflight-commit: REFUSING" in cp.stderr
                     and reason in cp.stderr)
 
@@ -270,12 +271,13 @@ def _integration_self_test():
         must(["git", "config", "commit.gpgsign", "false"])
         cp = run(["sh", ".claude/skills/corpus-management/tools/install-git-hooks.sh"])
         expect(cp.returncode == 0, f"the installer failed: {cp.stderr.strip()}")
-        # An initial commit on an unborn HEAD that does not stage .working/CHANGELOG.md is not judged (3b141 QA
-        # r4: reading the staged state against HEAD, which an unborn branch lacks, would refuse it). It
+        # An initial commit on an unborn HEAD that does not stage .working/CHANGELOG.md is not judged
+        # (reading the staged state against HEAD, which an unborn branch lacks, would refuse it). It
         # is made on another branch, so that feature stays unborn for the case after it.
         must(["git", "symbolic-ref", "HEAD", "refs/heads/first"])
         # The gate-2 engine the preflight loads is committed with .claude/skills/corpus-management/tools/, so a linked worktree carries
-        # it (3b201: untracked, it was absent there, and that case passed on the preflight's crash).
+        # it (in the earlier repository, untracked, it was absent there, and that case passed on the
+        # preflight's crash).
         must(["git", "add", ".claude/skills/corpus-management/tools", ".claude/skills/corpus-management/src",
               ".claude/aiqt/PIN.toml"])
         cp = run(["git", "commit", "-q", "-m", "first"])
@@ -289,8 +291,8 @@ def _integration_self_test():
         cp = run(["git", "commit", "-q", "-m", "init"])
         expect(refused(cp, "could not be read") and _OVERRIDE in cp.stderr,
                "a staged .working/CHANGELOG.md on an unborn HEAD was not refused")
-        # The preflight itself fails closed on a git error (3b141 QA r1): `git diff HEAD` on an unborn
-        # HEAD fails, which it once reported as 0 added lines and a pass (exit 0).
+        # The preflight itself fails closed on a git error: `git diff HEAD` on an unborn HEAD
+        # fails, which in the earlier repository it reported as 0 added lines and a pass (exit 0).
         for args in ([], ["--staged"]):
             cp = run([sys.executable, _PREFLIGHT, *args])
             expect(cp.returncode == 2 and "git diff failed" in cp.stderr,
@@ -308,13 +310,13 @@ def _integration_self_test():
                "a staged CHANGELOG dash was not refused with the preflight's report and the override")
         cp = run(["git", "commit", "-q", "-m", "dashed"], extra={_OVERRIDE: "0"})
         expect(refused(cp), f"{_OVERRIDE}=0 was taken as the override")
-        # A gate-2 spelling in a staged entry refuses with the preflight's report too (3b201).
+        # A gate-2 spelling in a staged entry refuses with the preflight's report too.
         changelog.write_text("# Changelog\n\na centralised entry\n", encoding="utf-8")
         must(["git", "add", _CHANGELOG])
         cp = run(["git", "commit", "-q", "-m", "spelling"])
         expect(refused(cp) and "gate 2 spelling [ise]: centralised" in cp.stderr,
                f"a staged CHANGELOG -ise spelling was not refused with the preflight's report: {cp.stderr.strip()}")
-        # The dash check is the preflight's own line model (gate 51 retired, 2026-11-08): an added
+        # The dash check is the preflight's own line model (gate 51 is retired): an added
         # line with an em dash and one with an en dash are each refused, by the preflight and by the
         # hook, and a clean added line passes the preflight.
         for what, line in (("an em dash (U+2014)", "an entry \u2014 with an em dash\n"),
@@ -356,9 +358,9 @@ def _integration_self_test():
             must(["git", "config", "--unset", key])
         cp = run(["git", "-c", "diff.noprefix=true", "commit", "-q", "-m", "git -c"])
         expect(refused(cp), "`git -c diff.noprefix=true commit` hid a staged CHANGELOG dash from the preflight")
-        # Settings that hand the preflight's diff to something else cannot hide the dash either (3b141
-        # QA r1): an external diff driver that succeeds silently (as difftastic succeeds with its own
-        # format), a textconv filter, and a -diff attribute ("Binary files ... differ").
+        # Settings that hand the preflight's diff to something else cannot hide the dash either: an
+        # external diff driver that succeeds silently (as difftastic succeeds with its own format), a
+        # textconv filter, and a -diff attribute ("Binary files ... differ").
         attributes = repo / ".git" / "info" / "attributes"
         attributes.parent.mkdir(parents=True, exist_ok=True)
         for what, config, attrs, extra in (
@@ -387,7 +389,7 @@ def _integration_self_test():
         must(["git", "add", "other.txt"])
         cp = run(["git", "commit", "-q", "-m", "no changelog"])
         expect(cp.returncode == 0, f"a commit not staging .working/CHANGELOG.md was judged: {cp.stderr.strip()}")
-        # The pins, appended to a caller's `git -c` values, parse in a real git (3b141 QA r2).
+        # The pins, appended to a caller's `git -c` values, parse in a real git.
         (repo / "other.txt").write_text("1b\n", encoding="utf-8")
         must(["git", "add", "other.txt"])
         cp = run(["git", "-c", "diff.noprefix=true", "commit", "-q", "-m", "git -c, no changelog"])
@@ -401,7 +403,7 @@ def _integration_self_test():
         # .working/CHANGELOG.md that the merge and worktree cases below append to.
         shutil.rmtree(mirror.parent)
         must(["git", "commit", "-q", "-m", "clean again"])
-        # A commit concluding a conflicted merge is checked (3b141 QA r1): .working/CHANGELOG.md is the file most
+        # A commit concluding a conflicted merge is checked: .working/CHANGELOG.md is the file most
         # likely to conflict, and its resolution is typed by hand.
         must(["git", "switch", "-q", "-c", "side"])
         append("side entry\n")
@@ -429,8 +431,8 @@ def _integration_self_test():
         cp = run(["git", "-C", str(linked), "commit", "-q", "-m", "worktree"], cwd=base)
         expect(refused(cp) and "em/en dash in prose" in cp.stderr,
                "a CHANGELOG dash committed with git -C in a linked worktree was not refused")
-        # A mirror kept in a SEPARATE repository (the operational store, <repo-parent>/private) is
-        # judged by that repository's own index (3b141 QA r2): the hook's GIT_INDEX_FILE, which
+        # A mirror kept in a SEPARATE repository (the operational store) is judged by that
+        # repository's own index: in the earlier repository the hook's GIT_INDEX_FILE, which
         # `commit -a` and a pathspec commit point at this repository's temporary index, once reached
         # the mirror's diff, so a staged mirror dash that the standalone preflight refuses passed.
         store = repo.parent / "private"
@@ -465,7 +467,7 @@ def _integration_self_test():
                f"a clean staged store-mirror entry was refused or not silent: {cp.stderr.strip()}")
         shutil.rmtree(store)
         # A gate-2 language engine the preflight cannot load refuses as a preflight that did not
-        # complete, with the preflight's named reason rather than a traceback (3b201).
+        # complete, with the preflight's named reason rather than a traceback.
         engine = repo / ".claude" / "skills" / "corpus-management" / "src" / "tools" / "gate_lint_language.py"
         engine_text = engine.read_text(encoding="utf-8")
         engine.unlink()
@@ -477,8 +479,8 @@ def _integration_self_test():
                and "Traceback" not in cp.stderr,
                f"a missing gate-2 language engine did not refuse with a named reason: {cp.stderr.strip()}")
         engine.write_text(engine_text, encoding="utf-8")
-        # A preflight that does not complete refuses, and so does one that is absent (3b141 QA r4: that
-        # once failed open, silently).
+        # A preflight that does not complete refuses, and so does one that is absent (in the
+        # earlier repository, that failed open, silently).
         preflight = repo / _PREFLIGHT
         real = preflight.read_text(encoding="utf-8")
         preflight.write_text("import sys\nsys.exit(2)\n", encoding="utf-8")
@@ -510,7 +512,7 @@ def _integration_self_test():
 
 
 def _hook_path_cases():
-    """The live hook's path to the preflight (run_preflight; R2b, RBQ64-preflight-hook-old-path): it names
+    """The live hook's path to the preflight (run_preflight): it names
     the preflight beside this tool under the repository root, that file is in this checkout, and
     run_preflight starts it in a checkout laid out that way. The expected path comes from this file's own
     location, not from _PREFLIGHT, so the old <root>/tools/ path fails here. Returns (name, got, want)."""
@@ -566,7 +568,7 @@ def _self_test():
 
 
 def main(argv):
-    if argv[1:] == ["--self-test"]:  # 3b50b2f: only the documented forms are accepted; anything else is a usage error (exit 2)
+    if argv[1:] == ["--self-test"]:  # Only the documented forms are accepted; anything else is a usage error (exit 2)
         return _self_test()
     if argv[1:] == ["--pre-commit"]:
         return _pre_commit()

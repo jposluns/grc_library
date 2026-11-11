@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """Listing-surface completeness - pack engine.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
-(the path/taxonomy regexes, Finding, active_documents, paths_in_section,
-paths_in_file, is_register_required, domain_of, check_register, check_domain_readmes)
-is the source of record here in the pack, moved verbatim from the grc gate. The
-corpus layout config (repo root, taxonomy path, register path, register section) is
-supplied by the adopter via configure(ref), so the engine carries no project layout;
-the grc wrapper (.claude/skills/corpus-management/tools/lint-listing-surface-completeness.py) supplies the config,
-configures the engine, and keeps module-global shims (active_documents / check_register
-/ check_domain_readmes, called by its in-process regression), main, and the exit codes.
+Engine/wrapper split: the PURE scan (the path/taxonomy regexes, Finding,
+active_documents, paths_in_section, paths_in_file, is_register_required,
+domain_of, check_register, check_domain_readmes) is the source of record here
+in the pack, moved verbatim from the grc gate. The corpus layout config (repo
+root, taxonomy path, register path, register section) is supplied by the adopter
+via configure(ref), so the engine carries no project layout; the grc wrapper
+(.claude/skills/corpus-management/tools/lint-listing-surface-completeness.py)
+supplies the config, configures the engine, and keeps module-global
+shims (active_documents / check_register / check_domain_readmes,
+called by its in-process regression), main, and the exit codes.
 """
 
 from __future__ import annotations

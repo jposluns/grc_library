@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """Executive-narrative metadata contract - pack engine.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A; narrative-family, the last
-narrative gate): the PURE metadata-contract scan (parse_metadata_block, _metadata_run_lines,
-check_hard_breaks, _normalise_corpus_target, audit_page) is the source of record here in the
-pack, moved verbatim from the grc gate. The project-content sets (narrative document type,
-entry-point exemption, canonical + extension field orders, the subtype table, the status and
-claim-class vocabularies, the corpus domain prefixes + root corpus docs, and the repository
-root) are supplied by the adopter via configure(ref), so the engine is project-agnostic (its
-finding-message text carries the configured names literally, a byte-identity residue of the
-verbatim transfer). The markdown pin/body-link structural regexes are engine-fixed. The grc
-wrapper (.claude/skills/corpus-management/tools/lint-narrative-metadata.py) supplies the content sets + the page scan scope
-(discover_pages), configures the engine, and keeps the self-test, main, and the module-global
-audit_page shim.
+Engine/wrapper split (narrative-family): the PURE metadata-contract scan
+(parse_metadata_block, _metadata_run_lines, check_hard_breaks, _normalise_corpus_target,
+audit_page) is the source of record here in the pack, moved verbatim from the
+grc gate. The project-content sets (narrative document type, entry-point exemption,
+canonical + extension field orders, the subtype table, the status and claim-class
+vocabularies, the corpus domain prefixes + root corpus docs, and the repository root)
+are supplied by the adopter via configure(ref), so the engine is project-agnostic (its
+finding-message text carries the configured names literally, a byte-identity residue of
+the verbatim transfer). The markdown pin/body-link structural regexes are engine-fixed.
+The grc wrapper (.claude/skills/corpus-management/tools/lint-narrative-metadata.py)
+supplies the content sets + the page scan scope (discover_pages), configures
+the engine, and keeps the self-test, main, and the module-global audit_page shim.
 """
 
 from __future__ import annotations

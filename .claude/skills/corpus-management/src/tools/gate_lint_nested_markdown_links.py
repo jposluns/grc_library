@@ -6,8 +6,8 @@ No scanned markdown file may contain a nested markdown link of the form
 GitHub-flavoured Markdown as a broken literal ``[`` followed by a dangling ``](url)``.
 The class is GATE-BLIND to the link-coverage gate (a nested link still contains a
 well-formed inner link) and to the broken-link gate (the inner link resolves), so this
-gate closes that blind spot; it is preventive (the corpus census found zero after the
-originating cleanup).
+gate closes that blind spot; it is preventive (in the earlier repository, a corpus
+census found zero after the cleanup that prompted the gate).
 
 Detection (the load-bearing constraint): for each non-fenced line (via the shared
 fence-aware ``aiqt_corpus.iter_non_code_lines`` iterator) inline code spans are first
@@ -16,7 +16,7 @@ inside backticks is NOT flagged while a REAL malformation, whose live ``[[``, ``
 ``)](`` brackets survive masking, still exposes its ``[[X](url)](url)`` structure. The
 nested-link regex is then applied to the masked line.
 
-Engine/wrapper split (compile PR-7): this engine carries the pure check (the regexes,
+Engine/wrapper split: this engine carries the pure check (the regexes,
 ``find_nested_links`` + ``run``); the project wrapper (``.claude/skills/corpus-management/tools/lint-nested-markdown-links.py``)
 supplies the grc scan configuration (the default ``*.md`` walk minus ``DEFAULT_EXEMPT_DIRS``
 / ``is_default_exempt_root``, and the explicit-path iterator) and the AIQT bootstrap.

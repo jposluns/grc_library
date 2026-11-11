@@ -17,7 +17,7 @@ across many other surfaces, and this gate checks that the enumerations agree:
 The gate treats `lint-metadata.py` as the single source of truth; a surface that
 diverges is the failure, and the fix is to update the surface, never the gate.
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE check
+Engine/wrapper split: the PURE check
 (`name_is_cell`, `doctype_region`, the four-category reconciliation `collect_findings`)
 plus the generic cell/item regex live in the pack-owned engine
 (.claude/skills/corpus-management/src/tools/gate_lint_doctype_parity.py, source of record). This wrapper
@@ -30,7 +30,7 @@ re-exports `name_is_cell` / `doctype_region` and keeps `canonical_sets` +
 direct-load regression (.claude/skills/corpus-management/tests/test_linters.py DoctypeParityTests, which monkeypatches
 `canonical_sets` and calls the helpers) keeps working; `main()` stays no-arg.
 
-Region-scoping (#729): each name/prefix check is scoped to the surface's specific
+Region-scoping: each name/prefix check is scoped to the surface's specific
 doctype table/list block via the anchor maps below, closing the former out-of-region
 false-pass vector. An absent anchor is itself a hard parity failure.
 
@@ -87,7 +87,7 @@ def read(rel: str) -> str:
     return (REPO_ROOT / rel).read_text(encoding="utf-8")
 
 
-# Per-surface doctype-region anchors (#729). Module-level so the anchor-resolution
+# Per-surface doctype-region anchors. Module-level so the anchor-resolution
 # regression can iterate them. Each anchor is a heading (block runs to the next
 # same-or-shallower heading) or, for the heading-less AI-ingestion numbered list,
 # the distinctive prefix-list line.
@@ -219,7 +219,7 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    # 3b50b2g: this tool takes no argument; an unknown or surplus one
+    # This tool takes no argument; an unknown or surplus one
     # used to be ignored with exit 0, so it is refused (exit 2) before the check runs.
     import os as _os
     sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))

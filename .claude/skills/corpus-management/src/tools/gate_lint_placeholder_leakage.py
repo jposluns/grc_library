@@ -4,7 +4,7 @@
 A production library document containing a placeholder marker is either a stub leaked into
 production or a template artefact that escaped its template directory, and either is a credibility
 problem for adopters. This engine carries the PURE check ALGORITHM over a placeholder-marker pattern set
-(the ``placeholders`` reference-vocabulary profile since Phase-4 PR-H: TODO / TBD / FIXME / XXX / (placeholder) / [Unverified] / Coming soon, the
+(the ``placeholders`` reference-vocabulary profile: TODO / TBD / FIXME / XXX / (placeholder) / [Unverified] / Coming soon, the
 angle-bracket ``<role>`` / ``<date>`` / ``<version>`` family, and the template-placeholder
 organization domains), a fence-aware ``scan`` (fenced code blocks are skipped so example syntax
 does not false-positive), and a ``run`` that groups + reports.
@@ -14,8 +14,8 @@ scan scope (default roots, the markdown selector, the exempt-file / exempt-dir /
 worklist- prefix policy via ``iter_targets`` + ``is_exempt``) and filters those files out before
 delegating, so this engine holds no project-file policy. The pattern set is a generic
 placeholder-marker inventory, supplied by the ``placeholders`` profile
-(``defaults/grc/placeholders.toml``, loaded via the wrapper's ``_placeholders_config()`` since
-Phase-4 PR-H) and passed to the check, like the stub-phrase list migrated in PR-G.
+(``defaults/grc/placeholders.toml``, loaded via the wrapper's ``_placeholders_config()``)
+and passed to the check, like the stub-phrase list moved to the ``stubs`` profile.
 
 Exit codes (the wrapper returns these): 0 clean; 1 one or more findings.
 """
@@ -38,7 +38,7 @@ except ImportError as exc:  # fail loud: broken setup, never silently worked aro
 # angle-bracket-syntax to avoid false matches on prose.
 def placeholder_patterns(patterns) -> tuple[tuple["re.Pattern[str]", str], ...]:
     """Compose the loaded ``placeholders`` profile into ordered (compiled, label)
-    pairs (Phase-4 PR-H); fail closed.
+    pairs; fail closed.
 
     ``patterns`` is the profile's ``patterns`` array: each item a table with a
     ``label`` string and a ``pattern`` that profile_loader has already compiled

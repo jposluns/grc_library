@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """Project the root .working/CHANGELOG.md into the tiered public form (1.19.10 (closing PR #1037)).
 
-The tiered public-CHANGELOG model (maintainer-approved, locked at the #1020
-handoff): the public root ``.working/CHANGELOG.md`` keeps only a recency-tiered
-projection, while the full per-PR record (the compact root entries and the
-detailed mirror) is the private source. FOUR tiers (1.22.5 (closing PR #1048) added the
-daily tier on top of the original three), by the entry date relative to the run's
-"current day" and "current week":
+The tiered public-CHANGELOG model: the public root ``.working/CHANGELOG.md``
+keeps only a recency-tiered projection, while the full per-PR record (the
+compact root entries and the detailed mirror) is the private source. FOUR tiers
+(a later change added the daily tier on top of the original three), by the entry
+date relative to the run's "current day" and "current week":
 
   1. CURRENT DAY: the per-PR compact entries are kept VERBATIM
      (``**YYYY-MM-DD | X.Y.Z | PR #N** - <summary>``).
@@ -25,14 +24,14 @@ WHY A SCAFFOLD, NOT A FULL GENERATOR. A week can hold dozens of PRs; a faithful
 a mechanical join, so this tool cannot write the final prose. It produces the
 tiered STRUCTURE and, for each collapsed week/month, a placeholder paragraph
 carrying the PR range and the constituent per-PR summaries as raw material, which
-the orchestrator/maintainer condenses at the one-time tiering migration (closing
-PR #1037, slice 2). This is the "maintainer-side generated projection" the
-model names: the tool scaffolds, a human authors the summary.
+the orchestrator/maintainer condenses at the one-time tiering migration. This is
+the "maintainer-side generated projection" the model names: the tool scaffolds,
+a human authors the summary.
 
 NOT A CI --check GATE. Unlike the taxonomy/portal generators, this projection is
-NOT verified by CI: its source (the full per-PR record) moves to
-``grc_library_private`` in PR #1037, and no public gate may reach a
-private sibling (the sibling-independence invariant, ``check-portability.sh``).
+NOT verified by CI: its source (the full per-PR record) lives in a private
+sibling, and no public gate may reach a private sibling (the
+sibling-independence invariant, ``check-portability.sh``).
 It is a maintainer-side generator run when the tiering is refreshed.
 
 D7 INTERACTION. The PR-time length gate D7 (``check-changelog-length-on-pr.py``)
@@ -48,13 +47,13 @@ Modes (mutually exclusive; default --dry-run):
     --emit PATH   write the tiered projection to PATH (default: stdout is NOT
                   used; PATH must be given). This produces a SCAFFOLD whose
                   weekly/monthly paragraphs are placeholders to be authored; it
-                  is the slice-2 migration input, not a finished artefact.
-    --condense-completed-week   the RECURRING weekly-rollup wiring (closing PR
-                  #1120). At a week boundary it condenses the public root's
-                  COMPLETED-week per-PR entries (those in ISO weeks strictly
-                  before --as-of's week; the current week stays per-PR) into one
-                  weekly placeholder each and appends them to the private
-                  full-source, mirroring the sweep tool's emit-verify-prune:
+                  is the migration input, not a finished artefact.
+    --condense-completed-week   the RECURRING weekly-rollup wiring. At a week
+                  boundary it condenses the public root's COMPLETED-week per-PR
+                  entries (those in ISO weeks strictly before --as-of's week;
+                  the current week stays per-PR) into one weekly placeholder
+                  each and appends them to the private full-source, mirroring
+                  the sweep tool's emit-verify-prune:
                   --emit-private PATH appends the completed entries (dedup-safe),
                   then --prune (with --verify-private PATH) rewrites the public
                   root once the private side is confirmed, guarded by a re-parse
@@ -63,9 +62,9 @@ Modes (mutually exclusive; default --dry-run):
                   the orchestrator (this tool scaffolds, a human condenses), so
                   the first restructuring run is an ATTENDED close-out step. This
                   is an AVAILABLE close-out step, NOT auto-run and NOT a CI gate.
-                  This recurring mode is week-based by the design closed in PR #1120;
-                  the finer daily tier (PR #1048) applies only to the
-                  one-time --emit projection scaffold, not this recurring path.
+                  This recurring mode is week-based by design; the finer daily
+                  tier applies only to the one-time --emit projection scaffold,
+                  not this recurring path.
     --self-test   run the inline unit tests and exit.
 
 Options:
@@ -136,10 +135,10 @@ def tier_of(d: datetime.date, as_of: datetime.date, current_week: datetime.date,
             window_start: datetime.date) -> str:
     """Return 'current', 'daily', 'weekly', or 'monthly' for an entry date.
 
-    Daily model (1.22.5 (closing PR #1048)): the CURRENT DAY (``as_of``) is kept per-PR
-    verbatim; each PREVIOUS DAY still within the current week collapses to ONE
-    daily summary paragraph; older weeks/months collapse as before. A previous
-    day is condensed once the next day begins (the day-boundary trigger)."""
+    Daily model: the CURRENT DAY (``as_of``) is kept per-PR verbatim; each
+    PREVIOUS DAY still within the current week collapses to ONE daily summary
+    paragraph; older weeks/months collapse as before. A previous day is
+    condensed once the next day begins (the day-boundary trigger)."""
     if d == as_of:
         return "current"
     if monday_of(d) >= current_week:

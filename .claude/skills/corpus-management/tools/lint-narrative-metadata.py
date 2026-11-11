@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Narrative metadata gate (P-1.25 Phase 1.2).
+"""Narrative metadata gate.
 
 Validates every executive narrative page under the root ``executive/`` tree
 against the Executive Narrative Authoring Specification
@@ -245,7 +245,7 @@ def main(argv: list[str]) -> int:
     if self_test_requested(argv[1:], args):
         return _self_test()
     if args:
-        # 3b50: a missing path used to raise a FileNotFoundError traceback (rc 1); refuse it,
+        # A missing path used to raise a FileNotFoundError traceback (rc 1); refuse it,
         # and an out-of-tree page (its pins resolve against THIS corpus), with exit 2.
         pages = [Path(a) for a in guard_explicit_paths_cwd(args)]
     else:

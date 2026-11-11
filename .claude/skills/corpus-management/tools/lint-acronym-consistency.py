@@ -70,7 +70,7 @@ EXEMPT_FILES = {
     # The CHANGELOG describes the patterns and is allowed to use them freely.
     ".working/CHANGELOG.md",
     # Generated bibliography (.claude/skills/corpus-management/tools/build-reference-manifest.py): its cells are
-    # verbatim source titles/issuers, not authored prose (1.19.7 (closing PR #1007)).
+    # verbatim source titles/issuers, not authored prose.
     "reference-acquisition-manifest.md",
 }
 
@@ -121,7 +121,7 @@ def main(argv: list[str]) -> int:
              "actual repository root derived from this file's location.",
     )
     args = parser.parse_args(argv[1:])
-    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    # Explicit paths are refused when missing or outside this tree, else normalized.
     args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     if args.root is not None:
         GLOSSARY = args.root.resolve() / "governance" / "register-glossary.md"
@@ -151,7 +151,7 @@ def main(argv: list[str]) -> int:
             exempt_dirs=DEFAULT_EXEMPT_DIRS,
             exempt_files=EXEMPT_FILES,
         )
-        if not is_narrative_root(t)  # house-style gate: root executive/ excluded (P-1.25)
+        if not is_narrative_root(t)  # house-style gate: root executive/ excluded
     ]
     grouped: dict[Path, list[tuple[int, str, str, str]]] = {}
     for t in targets:

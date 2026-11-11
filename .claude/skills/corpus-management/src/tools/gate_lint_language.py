@@ -2,16 +2,16 @@
 """Language and style audit ENGINE (Corpus-Management pack source of record).
 
 This is the pack-owned engine for grc gate 2; the project entry point is the
-thin Model-2 wrapper ``.claude/skills/corpus-management/tools/lint-language.py`` (supplying the grc scan roots
-and their iteration, and the language vocabulary via the ``language`` profile
-since Phase-4 PR-F). Pack register ``core/gates.toml`` id ``lint-language``,
-enforcing the ``language-convention`` clause. No standalone ``main()`` here for
-compile PR-5 (a CLI needs the PR-6 vocabulary/config split); run via the wrapper.
-The check ALGORITHM below is preserved from the former ``.claude/skills/corpus-management/tools/lint-language.py``;
-the vocabulary DATA moved to the ``language`` reference-vocabulary profile
-(``defaults/grc/language.toml``, Phase-4 PR-F) and is passed in via run(), with the
-ise/yse patterns compiled from it (byte-identical to the former hardcoded
-ISE_PATTERN / YSE_PATTERN for the shipped plain-word vocabulary).
+thin Model-2 wrapper ``.claude/skills/corpus-management/tools/lint-language.py``
+(supplying the grc scan roots and their iteration, and the language vocabulary via
+the ``language`` profile). Pack register ``core/gates.toml`` id ``lint-language``,
+enforcing the ``language-convention`` clause. There is no standalone ``main()``
+here; run the engine via the wrapper. The check ALGORITHM below is preserved
+from the former ``.claude/skills/corpus-management/tools/lint-language.py``;
+the vocabulary DATA moved to the ``language`` reference-vocabulary
+profile (``defaults/grc/language.toml``) and is passed in via run(),
+with the ise/yse patterns compiled from it (byte-identical to the former
+hardcoded ISE_PATTERN / YSE_PATTERN for the shipped plain-word vocabulary).
 
 Language and style audit for the GRC Documentation Library.
 
@@ -130,7 +130,7 @@ Checks for:
   (two or more letters after a dot, under the host case rules, applied to the
   labels before the character; the letters
   directly before the character count), and not at all when no such label
-  precedes it, as when the character is in the first label (since 3b366):
+  precedes it, as when the character is in the first label:
   an "https" URL whose host is "x.org" followed by "é", then the path
   "/organisations", is masked through "x.org" and reports "organisations",
   and "https://café.org/for-organisations" is not masked. The
@@ -225,7 +225,7 @@ GENERATED_DOCS = frozenset({"governance/portal.md", "governance/maturity-scoreca
 # emitted-prose string literals are scanned for the three prose house-style
 # rules (dash, -ise, ensure that) so a house-style violation in
 # generator-authored prose is caught at gate time rather than only at the
-# next corpus-wide sweep (Sweep 78 B-1, the low-severity cleanup batch: a Commonwealth
+# next corpus-wide sweep (in the earlier repository, a Commonwealth
 # `customised` was hard-coded in build-portal.py, blind to the .md scan).
 GENERATOR_SOURCES = (
     ".claude/skills/corpus-management/tools/build-narrative-registry.py",
@@ -235,36 +235,35 @@ GENERATOR_SOURCES = (
 
 # governance/worked-example.md is the meta-tutorial that demonstrates the
 # document-creation process, so it deliberately contains examples of the very
-# things other gates forbid: the
-# lowercase tutorial step headings ("## Step 1: pick the document type"), and
-# the word "ensure" while teaching the ensure-that rule. It is therefore exempt
-# from the heading-case and ensure checks (the same
-# meta-demonstration exemption the AI ingestion instruction already carries for
-# "ensure"); dash and -ise enforcement still apply.
+# things other gates forbid: the lowercase tutorial step headings
+# ("## Step 1: pick the document type"), and the word "ensure" while teaching
+# the ensure-that rule. It is therefore exempt from the heading-case and ensure
+# checks (the same meta-demonstration exemption the AI ingestion instruction
+# already carries for "ensure"); dash and -ise enforcement still apply.
 WORKED_EXAMPLE = "governance/worked-example.md"
 
 # Each stem carries all four regular inflections of the Commonwealth `-ise`
 # verb: base (`-ise`), third-person singular (`-ises`), past / participle
 # (`-ised`), and present participle (`-ising`). The `-ises` form was added
-# 2026-06-30 (#480 /validate-pr finding: `recognises` and the other
+# 2026-06-30 (in the earlier repository, `recognises` and the other
 # third-person forms passed gate 2 because only three of the four inflections
 # were listed); keep all four present for any stem added later. Prefixed
 # derivatives (unauthorised, unrecognised, reorganise, deprioritise, ...) are
-# matched through the `ise_prefixes` list (3b234 round 4): the letter-bounded
-# construction does not match a covered stem inside a prefixed word, so any run
-# of listed prefixes, with a hyphen after up to three of them, may precede a stem
-# inside the same bounds. Only the base stem is listed; a prefixed word that is
-# not a run of listed prefixes before a listed stem (immobilise) is listed as its
-# own stem. A word is only matched when a listed stem ends it, so a word that
+# matched through the `ise_prefixes` list: the letter-bounded construction does
+# not match a covered stem inside a prefixed word, so any run of listed
+# prefixes, with a hyphen after up to three of them, may precede a stem inside
+# the same bounds. Only the base stem is listed; a prefixed word that is not a
+# run of listed prefixes before a listed stem (immobilise) is listed as its own
+# stem. A word is only matched when a listed stem ends it, so a word that
 # merely begins with a prefix (premise, devise, comprise, disguise) is never
-# reported. Each stem also carries its
-# derivational forms: the -isable adjective and the -iser / -isers agent
-# nouns (a false-negative verifier on the 2026-07-02 harmonization sweep
-# found the derivational family escaping both the sweep and the gate). The
-# verb form "analyses" (vs the every-dialect noun plural of "analysis") is
-# grammar-ambiguous and deliberately NOT matched; it is caught editorially.
+# reported. Each stem also carries its derivational forms: the -isable
+# adjective and the -iser / -isers agent nouns (on 2026-07-02, in the earlier
+# repository, the derivational family was found escaping both a corpus-wide
+# sweep and the gate). The verb form "analyses" (vs the every-dialect noun
+# plural of "analysis") is grammar-ambiguous and deliberately NOT matched; it
+# is caught editorially.
 class LanguageVocabulary(NamedTuple):
-    """The adopter-overridable language vocabulary (Phase-4 PR-F).
+    """The adopter-overridable language vocabulary.
 
     The check ALGORITHM stays in this engine; only these vocabulary DATA sets
     move to the ``language`` reference-vocabulary profile and are passed in.
@@ -308,7 +307,7 @@ def language_vocabulary(
 
 
 class IsePrefixScan(NamedTuple):
-    """The ise pattern split into parts for the linear-time scan (3b234 round 6)."""
+    """The ise pattern split into parts for the linear-time scan."""
     start: "re.Pattern[str]"
     prefixes: tuple["re.Pattern[str]", ...]
     stem: "re.Pattern[str]"
@@ -321,7 +320,7 @@ class LanguageChecks(NamedTuple):
     ise_scan: "IsePrefixScan | None" = None
 
 
-# The three spelling checks bound a word by ASCII letters, not by `\b` (3b372):
+# The three spelling checks bound a word by ASCII letters, not by `\b`:
 # `\b` treats "_", digits and non-ASCII letters as word characters, so a word
 # in "_" / "__" emphasis, in a snake_case name, glued to a digit or glued to a
 # non-ASCII letter ("_organisations_", "éorganisations") was not reported. The
@@ -359,16 +358,16 @@ def compile_language(vocab: LanguageVocabulary) -> LanguageChecks:
     The alternation is the former hardcoded ISE_PATTERN / YSE_PATTERN one for
     the shipped (plain-word) vocabulary: the stems carry no regex metacharacters,
     so re.escape is a no-op and the enumerated seven ise inflections match the
-    former f-string construction exactly. Since 3b372 it is bounded by
-    ``_NO_LETTER_BEFORE`` / ``_NO_LETTER_AFTER`` instead of ``\\b``. Since 3b234
-    round 4 any run of ``ise_prefixes`` may precede the stem inside those bounds,
-    with a "-" after up to three of them, and the whole word, prefixes included,
-    is reported; a chain with more hyphens is reported from its last three
+    former f-string construction exactly. It is now bounded by
+    ``_NO_LETTER_BEFORE`` / ``_NO_LETTER_AFTER`` instead of ``\\b``, and any run
+    of ``ise_prefixes`` may precede the stem inside those bounds, with a "-"
+    after up to three of them, and the whole word, prefixes included, is
+    reported; a chain with more hyphens is reported from its last three
     hyphenated groups. With no prefixes listed the pattern is the one above.
-    With prefixes listed, ``ise_words`` runs the pattern through ``ise_scan``
-    (3b234 round 6), which reports exactly what the pattern reports. An empty
-    prefix or stem raises ValueError (3b407): ``language_vocabulary`` already
-    rejects one, but a vocabulary built directly would otherwise reach the scan.
+    With prefixes listed, ``ise_words`` runs the pattern through ``ise_scan``,
+    which reports exactly what the pattern reports. An empty prefix or stem
+    raises ValueError: ``language_vocabulary`` already rejects one, but a
+    vocabulary built directly would otherwise reach the scan.
     """
     if any(not prefix for prefix in vocab.ise_prefixes):
         raise ValueError("ise_prefixes: expected nonempty prefixes")
@@ -408,8 +407,8 @@ def compile_language(vocab: LanguageVocabulary) -> LanguageChecks:
 
 
 # The ise pattern with prefixes is quadratic in Python's backtracking engine on a
-# long prefix run holding a character that folds to an ASCII letter of a prefix
-# (3b234 round 6): in "mi\u017f" * n + "x" (U+017F, long s, folds to "s") the pattern
+# long prefix run holding a character that folds to an ASCII letter of a prefix:
+# in "mi\u017f" * n + "x" (U+017F, long s, folds to "s") the pattern
 # consumes the whole run as prefixes, and because the ASCII-only letter bound
 # allows a fresh attempt after every U+017F, each attempt walks the rest of the
 # run again (about 29 seconds for n = 4000). U+0130 and U+0131 (dotted and
@@ -419,9 +418,10 @@ def compile_language(vocab: LanguageVocabulary) -> LanguageChecks:
 # per text, in the backtracking engine's order (more prefixes before fewer, a
 # further hyphenated group before the unhyphenated run, prefixes and stem forms
 # in listed order), so it reports the same words as the pattern in time linear
-# in the length of the text. The memo and the search stack hold small integers
-# (3b407): the tuple-keyed memo and the list frames of round 6 cost about 250 MB
-# for a one-line word of a million characters, the arrays below about 10 MB.
+# in the length of the text. The memo and the search stack hold small integers:
+# in the earlier repository, an earlier version of this scan with a tuple-keyed
+# memo and list frames cost about 250 MB for a one-line word of a million
+# characters, and the arrays below cost about 10 MB.
 _ISE_HYPHEN_GROUPS = 3
 
 # The parts of an ise_words state, in its two low bits; "S" is never stacked.
@@ -429,7 +429,7 @@ _ISE_G, _ISE_H0, _ISE_H1, _ISE_T, _ISE_S = range(5)
 
 
 def ise_words(text: str, language: LanguageChecks) -> list[str]:
-    """The words the ise pattern reports in ``text``, in order (3b234 round 6)."""
+    """The words the ise pattern reports in ``text``, in order."""
     scan = language.ise_scan
     if scan is None:
         return [m.group(0) for m in language.ise_pattern.finditer(text)]
@@ -458,7 +458,7 @@ def ise_words(text: str, language: LanguageChecks) -> list[str]:
             m = prefixes[index].match(text, x)
             index += 1
             # A zero-width prefix match would make the state its own child and
-            # loop without end (3b407); compile_language rejects empty prefixes.
+            # loop without end; compile_language rejects empty prefixes.
             if m and m.end() > x:
                 return _ISE_T if part == _ISE_T else _ISE_H1, groups, m.end(), index
         if index == count:
@@ -500,7 +500,7 @@ def ise_words(text: str, language: LanguageChecks) -> list[str]:
     pos = 0
     # Every start moves pos past it, even when its word is zero-width (a
     # hand-built stem pattern that matches empty), and search() reads a pos past
-    # the end as the end, so the loop stops there (3b407 round 2).
+    # the end as the end, so the loop stops there.
     while pos <= len(text) and (m := scan.start.search(text, pos)) is not None:
         end = solve(m.start())
         if end is None:
@@ -553,7 +553,7 @@ def _isation_matches(text: str) -> list["re.Match[str]"]:
 # Verbatim Commonwealth-spelling spans are masked out of a line before the three
 # spelling checks run (dash / ensure / heading checks are unaffected). The spans
 # themselves live in the ``allowed_commonwealth_spans`` field of the ``language``
-# reference-vocabulary profile (``defaults/grc/language.toml``) since Phase-4 PR-F;
+# reference-vocabulary profile (``defaults/grc/language.toml``);
 # add one ONLY for a verbatim quote of an external instrument or an official proper
 # name, never for ordinary prose. The shipped four are the GDPR Article 25(1)
 # official-text quote, the OECD's official English name, the Article 29 Working
@@ -569,12 +569,12 @@ def mask_allowed_spans(line: str, spans: tuple[str, ...]) -> str:
     return line
 
 
-# Scheme-qualified http(s) URL tokens are masked out of the three spelling checks
-# (3b366): a URL is an external identifier whose spelling the library cannot change
+# Scheme-qualified http(s) URL tokens are masked out of the three spelling checks:
+# a URL is an external identifier whose spelling the library cannot change
 # (the UK ICO `for-organisations` guidance path). The mask applies wherever the token
 # occurs (a bare URL, an inline code span, a link target, a reference-style link
 # definition, an autolink, a generator string literal). The scheme (any case, ASCII
-# letters only: "httpſ" with U+017F, long s, is not a scheme, 3b372) must be
+# letters only: "httpſ" with U+017F, long s, is not a scheme) must be
 # preceded by a non-word character or by a "_" or "__" emphasis delimiter that is
 # itself preceded by a non-word character ("_https://" is recognized, "xhttps://"
 # and "x_https://" are not), and followed by a real authority: dot-separated host
@@ -633,7 +633,7 @@ def mask_allowed_spans(line: str, spans: tuple[str, ...]) -> str:
 # masked only up to the end of the last ASCII label before the character that
 # _URL_HOST accepts as a top-level label (the letters directly before the
 # character count), and not at all when no such label precedes it, as when the
-# character is in the first label (since 3b366): an "https" URL whose host is
+# character is in the first label: an "https" URL whose host is
 # "x.org" followed by "é", then the path "/organisations", is masked through
 # "x.org" and reports "organisations", and "https://café.org/for-organisations"
 # is not masked.
@@ -699,8 +699,8 @@ def spelling_matches(text: str, language: LanguageChecks) -> list[tuple[str, str
     return found
 
 EM_DASH_PATTERN = re.compile(r"[\u2014\u2013]")  # em dash or en dash
-# The ensure check uses the same ASCII-letter bounds as the spelling checks
-# (3b372), so "_ensure_", "ensure2", "éensure" and "ensure_x" are reported; a run
+# The ensure check uses the same ASCII-letter bounds as the spelling checks,
+# so "_ensure_", "ensure2", "éensure" and "ensure_x" are reported; a run
 # of "_" or "*" emphasis may close the word before "that" ("_ensure_ that"), while
 # emphasis on "that" itself ("ensure _that_") is still reported.
 ENSURE_PATTERN = re.compile(

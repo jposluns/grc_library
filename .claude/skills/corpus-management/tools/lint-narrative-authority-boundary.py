@@ -5,11 +5,10 @@ The corpus is the sole normative surface and never references the narrative laye
 corpus document metadata field or link, and no .claude/skills/corpus-management/data/taxonomy.yml row, may reference the
 executive/ narrative tree (the one-way authority boundary).
 
-Engine/wrapper split (Group-A content-generic lane, Pattern A; narrative-family): the
-PURE scan (the link regexes + _resolves_into_narrative + check_file +
-check_taxonomy) is the source of record in the pack engine
-(.claude/skills/corpus-management/src/tools/gate_lint_narrative_authority_boundary.py); it is
-narrative-root-agnostic and takes the narrative root + its mention regexes via
+Engine/wrapper split (narrative family): the PURE scan (the link regexes +
+_resolves_into_narrative + check_file + check_taxonomy) is the source of record in the pack
+engine (.claude/skills/corpus-management/src/tools/gate_lint_narrative_authority_boundary.py);
+it is narrative-root-agnostic and takes the narrative root + its mention regexes via
 configure(ref). This wrapper supplies the grc narrative root + corpus scan scope
 (iter_markdown_files over the audited domains), configures the engine, and keeps the
 self-test, main, module-global shims (check_file / check_taxonomy), and the exit codes.
@@ -42,11 +41,11 @@ FIELD_MENTION_RE = re.compile(r"(?<![\w.-])executive/")
 # (a document row or a related_documents entry) is a defect.
 TAXONOMY_MENTION_RE = re.compile(r"[\"'](?:\.\./)*executive/")
 
-# Root-level deliverable documents (the published library specifications and
-# front matter). Matches gate 53's root set PLUS the narrative authoring
-# specification (deliberately in scope: it is a corpus document and must
-# itself honour the one-way rule; it passes because its executive-path
-# examples are inline-code prose; fenced blocks are scanned too, fail closed, 3b54).
+# Root-level deliverable documents (the published library specifications and front
+# matter). Matches gate 53's root set PLUS the narrative authoring specification
+# (deliberately in scope: it is a corpus document and must itself honour the one-way
+# rule; it passes because its executive-path examples are inline-code prose; fenced
+# blocks are scanned too, fail closed).
 ROOT_DELIVERABLE_DOCS: tuple[str, ...] = (
     "README.md",
     "NOTICE.md",
@@ -59,9 +58,9 @@ ROOT_DELIVERABLE_DOCS: tuple[str, ...] = (
 # Deliverable-corpus scan roots, derived from the single source of truth
 # (adding a future audited domain propagates here; the scan-scope parity
 # discipline forbids hardcoding the domain run). The project registers
-# directory is left out, as ``.project-governance`` was before the C1 move
-# (chunk CT2: the filter still named ``.project-governance``, matched nothing,
-# and so let the registers into the scan).
+# directory is left out, as ``.project-governance`` was before the move (the
+# filter once still named ``.project-governance``, matched nothing, and so let
+# the registers into the scan).
 DEFAULT_CORPUS_ROOTS: list[str] = [
     *(d for d in CORPUS_SCAN_DIRS if d != PROJECT_REGISTERS_DIR),
     *ROOT_DELIVERABLE_DOCS,
@@ -149,7 +148,7 @@ def _self_test() -> int:
                       "# A\n\n**Document Title:** A\\\n**Related Documents:** "
                       "[`risk/annex-b.md`](annex-b.md)\n\n---\n\nSee `executive/README.md` for framing.\n")
         expect("clean-corpus-doc", check_file(clean, root), None)
-        # FAIL CLOSED (3b54): a fenced example link into executive/ is scanned and flagged.
+        # FAIL CLOSED: a fenced example link into executive/ is scanned and flagged.
         fenced_link = write("risk/policy-fencedlink.md",
                             "# A\n\n---\n\n```markdown\n[`executive/brief-x.md`](../executive/brief-x.md)\n```\n")
         expect("fenced-link-flagged", check_file(fenced_link, root), "corpus-to-narrative link")
@@ -165,25 +164,25 @@ def _self_test() -> int:
                          "# B\n\n---\n\nExplained by [brief](../executive/brief-x.md).\n")
         expect("body-link-flagged", check_file(bad_link, root), "corpus-to-narrative link")
 
-        # F1: a titled or angle-bracket body link must NOT fail open.
+        # A titled or angle-bracket body link must NOT fail open.
         titled = write("risk/policy-titled.md", "# T\n\n---\n\nExplained by [brief](../executive/brief-x.md \"Exec brief\").\n")
         expect("body-titled-link-flagged", check_file(titled, root), "corpus-to-narrative link")
         angle = write("risk/policy-angle.md", "# A\n\n---\n\nExplained by [brief](<../executive/brief-x.md>).\n")
         expect("body-angle-link-flagged", check_file(angle, root), "corpus-to-narrative link")
-        # F1: a reference-STYLE link into executive/ (body ref use, ref-def below)
+        # A reference-STYLE link into executive/ (body ref use, ref-def below)
         # renders as a corpus-to-narrative link and must be flagged.
         ref_style = write("risk/policy-ref.md", "# R\n\n---\n\nExplained by [brief][n].\n\n[n]: ../executive/brief-x.md\n")
         expect("ref-style-link-flagged", check_file(ref_style, root), "corpus-to-narrative link")
-        # F1 negative: a ref-def into a corpus doc, or an external URL, must pass.
+        # Negative: a ref-def into a corpus doc, or an external URL, must pass.
         ref_clean = write("risk/policy-ref-clean.md", "# R\n\n---\n\nSee [b][n] and [x][h].\n\n[n]: ../risk/annex-b.md\n[h]: https://iso.org/x\n")
         expect("ref-style-clean-pass", check_file(ref_clean, root), None)
-        # F1: a BLOCKQUOTED ref-def into executive/ still renders a link -> flag.
+        # A BLOCKQUOTED ref-def into executive/ still renders a link -> flag.
         bq_ref = write("risk/policy-bqref.md", "# R\n\n---\n\n> See [b][n].\n> [n]: ../executive/brief-x.md\n")
         expect("ref-style-blockquote-flagged", check_file(bq_ref, root), "corpus-to-narrative link")
-        # F1 neg: a 4-space-indented ref-def is a CODE block, not a link -> pass.
+        # Negative: a 4-space-indented ref-def is a CODE block, not a link -> pass.
         indent_ref = write("risk/policy-indentref.md", "# R\n\n---\n\n    [n]: ../executive/brief-x.md\n")
         expect("ref-style-indented-code-pass", check_file(indent_ref, root), None)
-        # FAIL CLOSED (3b54): a ref-def inside a fence is scanned and flagged.
+        # FAIL CLOSED: a ref-def inside a fence is scanned and flagged.
         fenced_ref = write("risk/policy-fencedref.md", "# R\n\n---\n\n~~~\n```\n[n]: ../executive/brief-x.md\n~~~\n")
         expect("ref-style-fenced-flagged", check_file(fenced_ref, root), "corpus-to-narrative link")
 
@@ -249,7 +248,7 @@ def main(argv: list[str]) -> int:
     explicit = positional_args(argv[1:])
     if self_test_requested(argv[1:], explicit):
         return _self_test()
-    # 3b50: refuse (exit 2) a missing or out-of-tree explicit path; the check also reads this
+    # Refuse (exit 2) a missing or out-of-tree explicit path; the check also reads this
     # checkout's taxonomy, so another tree's file cannot be judged soundly here.
     paths = guard_explicit_paths(explicit) if explicit else DEFAULT_CORPUS_ROOTS
     files = iter_markdown_files(paths)

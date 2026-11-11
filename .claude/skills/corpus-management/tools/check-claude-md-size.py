@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Delta gate D10: CLAUDE.md size ratchet (roadmap C phase 2, #1250).
+"""Delta gate D10: CLAUDE.md size ratchet.
 
 `.claude/CLAUDE.md` is loaded EVERY turn, so its length is a per-turn token +
-performance tax. Phase 1 (3.139.1) cut it from 1971 to 1506 lines by relocating
-the PR-lifecycle prose to `.claude/playbooks/pr-lifecycle.md`. This gate LOCKS IN that
-gain and prevents regrowth: it FAILS when CLAUDE.md exceeds a hand-maintained
-ceiling constant.
+performance tax. In the earlier repository, an earlier change cut it from 1971
+to 1506 lines by relocating the PR-lifecycle prose to
+`.claude/playbooks/pr-lifecycle.md`. This gate LOCKS IN that gain and prevents
+regrowth: it FAILS when CLAUDE.md exceeds a hand-maintained ceiling constant.
 
 The ceiling is a DOWNWARD RATCHET BY DEFAULT: the maintainer lowers it as CLAUDE.md
 shrinks, and raises it only by explicit authorization for an intentional canonical
-addition (as for the #1482 Five Rules of AIQT). Every
+addition (as for the Five Rules of AIQT). Every
 future relocation PR that shrinks CLAUDE.md also lowers CEILING in the same PR,
 marching toward the ~800-900 goal and making each gain permanent. The gate never
 fails on a decrease; it fails on any increase past the constant, which forces new
@@ -25,7 +25,7 @@ not apply to an explicit-path read), so like D8 it needs no merge base.
 The startup census also enforces Unicode characters, independently of line count.
 It includes unscoped non-Markdown provenance and reports all CLAUDE files separately.
 
-PROXY NOTE (dual-family verify, #1250): LINE COUNT and the startup CHARACTER count
+PROXY NOTE: LINE COUNT and the startup CHARACTER count
 are proxies for the every-turn TOKEN load. Content packed into fewer, longer lines
 passes the line ratchet, but its characters still count against the startup
 character ceiling this gate enforces (gate 106,
@@ -51,39 +51,37 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 CLAUDE_MD = REPO_ROOT / ".claude" / "CLAUDE.md"
 
 # Downward ratchet BY DEFAULT. LOWER this as CLAUDE.md shrinks; raise it ONLY by explicit
-# maintainer authorization for an intentional canonical addition (see the #1482 note below). Current
-# size at #1250 adoption: 1506 lines (CEILING then 1550). Roadmap C parts 2-4
-# (#1278-1284) + the TODO-split #1301 brought CLAUDE.md to 918, but the ceiling
-# was left at its adoption value (~630 lines of slack, so the gains were NOT
-# locked in); #1302 lowers it to 945 (~3% headroom over 918) to ratchet the gain
-# in, per the downward-ratchet discipline the maintainer set.
-# #1482 raises 945 -> 962 for the maintainer-directed verbatim authoring of the
-# canonical Five Rules of AIQT into the PRIMORDIAL RULE section (2026-08-11); a deliberate
-# one-time upward bump for a locked canonical addition, not drift. The downward-ratchet
-# convention resumes from here.
-# #1775 raises 962 -> 1023 for the maintainer-authorized (AskUser, 2026-08-28) adoption of the
-# no-manufactured-winddown interim rule (fleet share); an intentional canonical
-# behavioural addition, reconciles when the guardrails/AIQT pack ships.
-# #2365 relocates the block-on-open-findings mechanics to references/hook-open-findings-guard.md
-# (batch-3 CLAUDE.md-D10 decision) and adds the guard's mis-filed second condition; net ratchet
-# 1023 -> 1022. Downward-ratchet convention resumes.
-# 3b177-c relocates the addyosmani overlay from .claude/rules/external/ to five
-# .claude/skills/addyosmani-<name>/ skill directories and condenses the external-overlay
-# paragraph to ten lines; net ratchet 1022 -> 1021. Downward-ratchet convention resumes.
-# 3b177-d lowers 1021 -> 781 (skills/playbook relocation + SUPERSEDED deletion); downward ratchet resumes.
-# 3b177-e lowers 781 -> 468 and the startup character ceiling 288490 -> 245289 (set from the draft's
-# 458 lines + 10 and 244289 + 1000; restored clauses since then still fit); downward ratchet continues.
-# 3b304 W1-b lowers the startup character ceiling 245289 -> 233300 (the overlay tails leave the
-# generated compatibility rule; measured 232696 plus a reserve of at least 600, rounded up to 50).
-# 3b607 PR 1 lowers the startup character ceiling 233300 -> 228150 (the corpus-management rule
-# index moves into the corpus-management skill and .claude/CLAUDE.md points corpus work to it;
-# measured 227529 after rebasing onto the quotation policy (227391 on the original base) plus a
-# reserve of at least 600, rounded up to 50).
+# maintainer authorization for an intentional canonical addition (see the Five Rules note
+# below). History in the earlier repository: at adoption CLAUDE.md was 1506 lines (CEILING
+# then 1550). Later relocations and a TODO split brought CLAUDE.md to 918, but the ceiling
+# was left at its adoption value (~630 lines of slack, so the gains were NOT locked in); it
+# was then lowered to 945 (~3% headroom over 918) to ratchet the gain in, per the
+# downward-ratchet discipline.
+# It was raised 945 -> 962 for the verbatim authoring of the canonical Five Rules of AIQT into
+# the PRIMORDIAL RULE section; a deliberate one-time upward bump for a locked canonical
+# addition, not drift. The downward-ratchet convention resumed from there.
+# It was raised 962 -> 1023 for the adoption of the no-manufactured-winddown interim rule
+# (fleet share); an intentional canonical behavioural addition, meant to reconcile once the
+# guardrails/AIQT pack shipped.
+# Relocating the block-on-open-findings mechanics to references/hook-open-findings-guard.md
+# and adding the guard's mis-filed second condition gave a net ratchet of 1023 -> 1022.
+# Relocating the addyosmani overlay from .claude/rules/external/ to five
+# .claude/skills/addyosmani-<name>/ skill directories and condensing the external-overlay
+# paragraph to ten lines gave a net ratchet of 1022 -> 1021.
+# It was then lowered 1021 -> 781 (skills/playbook relocation + SUPERSEDED deletion), and
+# 781 -> 468 with the startup character ceiling 288490 -> 245289 (set from the draft's 458
+# lines + 10 and 244289 + 1000; clauses restored after that still fitted).
+# The startup character ceiling was lowered 245289 -> 233300 (the overlay tails left the
+# generated compatibility rule; measured 232696 plus a reserve of at least 600, rounded up to
+# 50), then 233300 -> 228150 (the corpus-management rule index moved into the
+# corpus-management skill and .claude/CLAUDE.md pointed corpus work to it; measured 227529
+# after rebasing onto the quotation policy (227391 on the original base) plus a reserve of at
+# least 600, rounded up to 50). The downward-ratchet convention continues from here.
 # Consumer: gate 106 (.claude/skills/corpus-management/tools/lint-startup-character-ceiling.py) reads CLAUDE_MD, CEILING,
 # STARTUP_CHARACTER_CEILING and STARTUP_HEADROOM_WARNING by name, with line_count(),
 # evaluate() and census(); renaming any of them makes gate 106 exit 2.
 CEILING = 468
-STARTUP_CHARACTER_CEILING = 228150  # 3b607 PR 1; final backlog goal remains 150000
+STARTUP_CHARACTER_CEILING = 228150  # the final backlog goal remains 150000
 # Startup headroom (ceiling minus measured characters) below which D10 and gate 106 warn.
 STARTUP_HEADROOM_WARNING = 250
 

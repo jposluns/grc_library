@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Git-native pre-commit check: refuse a commit that changes a document's leading metadata block (or a
-generated output) while the staged .claude/skills/corpus-management/data/taxonomy.yml, governance/portal.md or governance/maturity-scorecard.md is out of sync
-(P-TODO 3b200, 2026-10-03).
+generated output) while the staged .claude/skills/corpus-management/data/taxonomy.yml, governance/portal.md or governance/maturity-scorecard.md is out of sync.
 
 Why a git hook. Gate 33 (.claude/skills/corpus-management/tools/build-taxonomy.py --check and .claude/skills/corpus-management/tools/build-portal.py --check) finds a stale
-generated output only when the audit suite runs, after the commit: twice on 2026-10-03 (#2683 and 3b197) a
-Version or Date change was committed without the regenerated outputs. git runs pre-commit inside every
-commit, in the committing worktree, with the index being committed, however the command was spelled.
+generated output only when the audit suite runs, after the commit: twice on 2026-10-03, in the
+earlier repository, a Version or Date change was committed without the regenerated outputs.
+git runs pre-commit inside every commit, in the committing worktree, with the index being
+committed, however the command was spelled.
 
 Why pre-commit and not commit-msg. This check has no message opt-out, so it runs before the message is
 written, from the tracked .claude/skills/corpus-management/tools/git-hooks/pre-commit, after check-commit-on-main.py and before

@@ -8,7 +8,7 @@ under threshold is flagged; a stub phrase is flagged even in a longer body, beca
 mixing finished content with a stub marker is itself a defect. Code-fenced lines are not
 counted toward the word count.
 
-Engine/wrapper split (compile PR-17; vocab externalized in Phase-4 PR-G): this engine
+Engine/wrapper split (vocab externalized): this engine
 carries the PURE check ALGORITHM (``extract_body``, ``count_substantive_words``, ``scan``)
 and takes the stub-phrase list + word-count threshold as a ``StubVocabulary`` (moved to the
 ``stubs`` reference-vocabulary profile, ``defaults/grc/stubs.toml``); a ``run`` groups +
@@ -38,12 +38,12 @@ except ImportError as exc:  # fail loud: broken setup, never silently worked aro
 
 
 # Stub-indicator phrases + the word-count threshold are the adopter-overridable
-# vocabulary (the ``stubs`` profile, defaults/grc/stubs.toml, since Phase-4 PR-G).
+# vocabulary (the ``stubs`` profile, defaults/grc/stubs.toml).
 # A document is flagged if it is under threshold, OR if it carries any stub phrase
 # (even over threshold, because mixing finished content with stub markers is itself
 # a defect).
 class StubVocabulary(NamedTuple):
-    """The adopter-overridable stub-document vocabulary (Phase-4 PR-G).
+    """The adopter-overridable stub-document vocabulary.
 
     The check ALGORITHM (body extraction, word counting, case-insensitive
     substring match) stays in this engine; only these DATA move to the

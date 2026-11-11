@@ -21,15 +21,14 @@ An uncued stale internal mark on a regime line (for example,
 ``GDPR §33 and §99.99 apply.``) is not checked. References and headings are
 compared at full numeric depth.
 
-Engine/wrapper split (SHARED/SAFETY lane PR-36, Pattern A): this engine carries the
-pure check (``HEADING_RE``, ``REF_PATTERNS``, ``extract_sections``,
-``is_cross_doc_context``, ``scan``); the project wrapper
-(``.claude/skills/corpus-management/tools/lint-intra-doc-refs.py``) supplies the grc scan scope (``iter_markdown_targets``)
-and the grc-specific exempt-file set (meta-documents that legitimately discuss section
-references), the grouped reporting in ``main``, and keeps a thin module-global ``scan``
-shim delegating here so the scan-scope regression test (which patches ``mod.scan`` and
-runs ``main``) observes the original signature and behaviour. ``scan`` is scope-free and
-repository-root-free.
+Engine/wrapper split: this engine carries the pure check (``HEADING_RE``,
+``REF_PATTERNS``, ``extract_sections``, ``is_cross_doc_context``, ``scan``); the project
+wrapper (``.claude/skills/corpus-management/tools/lint-intra-doc-refs.py``) supplies the
+grc scan scope (``iter_markdown_targets``) and the grc-specific exempt-file set
+(meta-documents that legitimately discuss section references), the grouped reporting in
+``main``, and keeps a thin module-global ``scan`` shim delegating here so the scan-scope
+regression test (which patches ``mod.scan`` and runs ``main``) observes the original
+signature and behaviour. ``scan`` is scope-free and repository-root-free.
 
 Exit codes (the wrapper returns these): 0 clean; 1 one or more findings.
 """
@@ -79,13 +78,13 @@ def is_cross_doc_context(line: str, ref_start: int) -> bool:
       a `.md` filename, plus a TRAILING-60-char window for the same two
       signals (mirroring gate 62's bidirectional adjacency, so a
       "see section 5.4 in [foo](foo.md)" line, link AFTER the reference,
-      is claimed by the cross-doc side here as gate 62 claims it (the
-      r3 O-F1 seam). The mirror is approximate, not exact: gate 62's
-      adjacency window is 40 chars and pipe-bounded while this filter
-      accepts a bare ".md" or "](" within 60 chars of the reference
-      start, so a link 41-60 chars after a reference is disclaimed
-      here yet unclaimed by gates 62 and 65 (an accepted heuristic band, the
-      same shape as the pre-existing preceding-side window).
+      is claimed by the cross-doc side here as gate 62 claims it). The
+      mirror is approximate, not exact: gate 62's adjacency window is 40
+      chars and pipe-bounded while this filter accepts a bare ".md" or "]("
+      within 60 chars of the reference start, so a link 41-60 chars after a
+      reference is disclaimed here yet unclaimed by gates 62 and 65 (an
+      accepted heuristic band, the same shape as the pre-existing
+      preceding-side window).
     - Doctype words and most external-framework names: whole-line scans (ISO,
       NIST, OWASP, CSA, MITRE, COBIT, BASC, etc).
       Framework-mapping tables typically reference external framework

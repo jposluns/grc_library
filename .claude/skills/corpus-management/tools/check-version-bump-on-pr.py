@@ -62,9 +62,9 @@ EXEMPT_FILES: frozenset[str] = frozenset(
         "governance/maturity-scorecard.md",
         # Generated from grc_library_ref/catalogue.yml with a schema-only Version;
         # regenerated not edited, so exempt like the other generated artefacts and
-        # matching gate 40 (lint-version-bump-recency) EXEMPT_FILES (parity, #1380).
+        # matching gate 40 (lint-version-bump-recency) EXEMPT_FILES (parity).
         ".claude/skills/corpus-management/registers/reference-acquisition-manifest.md",
-        # Append-only .working logs (3.135 (closing PR #1194)): unversioned, so exempt from the
+        # Append-only .working logs: unversioned, so exempt from the
         # per-PR Version-bump (D2) and Version-Date co-bump (D4) requirements.
         ".working/validate-pr/history.md",
         ".working/improvement-log.md",
@@ -124,8 +124,7 @@ def main(argv: list[str]) -> int:
 
     # The git reads below refuse with exit 2, never a traceback, when git
     # cannot run at all (OSError) or prints output the locale codec cannot
-    # decode (UnicodeDecodeError), as the diff already did on a nonzero exit
-    # (3b577 round 4).
+    # decode (UnicodeDecodeError), as the diff already did on a nonzero exit.
     try:
         changed_raw = git("diff", "--name-only", merge_base, head)
     except (subprocess.CalledProcessError, OSError, UnicodeDecodeError) as exc:
@@ -149,9 +148,9 @@ def main(argv: list[str]) -> int:
         try:
             # git_show_strict returns None only when git lists no entry at
             # the path (it does not exist at that revision) or one that is
-            # not a blob (a gitlink, 3b577 round 6); a failed listing or
+            # not a blob (a gitlink); a failed listing or
             # read, git not running, or a blob that is not valid UTF-8
-            # refuses instead of reading as an absent file (3b577 round 5).
+            # refuses instead of reading as an absent file.
             base_content = git_show_strict(merge_base, path)
             head_content = git_show_strict(head, path)
         except (subprocess.CalledProcessError, OSError, ValueError) as exc:

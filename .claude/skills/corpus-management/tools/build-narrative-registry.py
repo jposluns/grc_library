@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Generate `.claude/skills/corpus-management/data/narrative.yml` from the metadata of every executive narrative page.
 
-Phase 1.2b of the executive narrative layer (the gate-family items 9/10
-substrate). Authored from a verified worker draft.
+Part of the executive narrative layer (the substrate for spec Gates
+items 9 and 10, the three-way bijection and the orphan/listing gate).
 
 `.claude/skills/corpus-management/data/narrative.yml` is the generated, machine-readable registry of the narrative
 layer: the analogue of `.claude/skills/corpus-management/data/taxonomy.yml` for the root `executive/` tree
@@ -188,8 +188,8 @@ def extract_pins(corpus_sources_value: str) -> list[str]:
 def derive_tags(ntype: str, nstatus: str, pins: list[str]) -> list[str]:
     """Mechanical derived tags: subtype, status, and domain coverage from the
     pin PATHS' top-level domain directories. Deliberately minimal: richer topic
-    / audience-facet tagging is a policy decision deferred to the maintainer
-    (see delivery notes); nothing here is guessed from prose."""
+    / audience-facet tagging is a policy decision deferred to the maintainer;
+    nothing here is guessed from prose."""
     tags: set[str] = set()
     if ntype:
         tags.add(f"type:{_slug(ntype)}")

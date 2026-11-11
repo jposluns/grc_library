@@ -1,23 +1,20 @@
 #!/usr/bin/env python3
 """Measure wall seconds per unit of the linter regression test suite.
 
-PR 1 of the gate 36 split plan (backlog item 3b789): before the suite
-can be split across parallel shards, the split needs per-unit timings.
-This tool runs the regression suite's test modules in one process,
-times each unit, and writes ``.claude/skills/corpus-management/tests/regression-shard-weights.json``,
-the weights file the planned ``--shard`` mode of
-``.claude/skills/corpus-management/tools/run-linter-regression.py`` will read to balance the shards.
-Weights only affect where a test would run, never whether it runs; this
-tool changes no gate. No gate surface runs it: the gate inventory in
-the audit-programme specification
+Splitting the gate 36 suite across parallel shards needs per-unit timings.
+This tool runs the regression suite's test modules in one process, times
+each unit, and writes ``.claude/skills/corpus-management/tests/regression-shard-weights.json``,
+the weights file the ``--shard`` mode of ``.claude/skills/corpus-management/tools/run-linter-regression.py``
+reads to balance the shards. Weights only affect where a test would run,
+never whether it runs; this tool changes no gate. No gate surface runs it:
+the gate inventory in the audit-programme specification
 (``.claude/skills/corpus-management/specs/specification-audit-programme.md``, section 6),
 ``.github/workflows/quality.yml``, ``.claude/skills/corpus-management/tools/run_all_audits.sh`` and the
 pre-commit configuration do not list it. Like every ``.claude/skills/corpus-management/tools/`` file it
 has an ordinary inventory pin row in ``ExplicitPathCliInventoryTests``
 (``.claude/skills/corpus-management/tests/test_linters.py``), which pins its bytes and path policy
-without running it. No workflow runs it now: the dispatch-only
-regression-timings workflow was deleted (maintainer decision 2026-11-09),
-and gate 36 is sharded only locally, so it is run by hand on the local server.
+without running it. No workflow runs it either: gate 36 is sharded only
+locally, so it is run by hand on the local server.
 
 A UNIT is a maximal run of consecutive occurrences of one class object
 within one module's loaded suite, flattened in suite order, so a unit
@@ -88,7 +85,7 @@ import time
 import unittest
 from pathlib import Path
 
-# Two anchors (decision D1, unit U037), as in run-linter-regression.py.
+# Two anchors, as in run-linter-regression.py.
 # SUITE_ROOT is the skill directory that holds tests/ (discovery, the
 # importable root and the working directory of the in-process run).
 # REPO_ROOT is the repository root, stated literally for this file's
@@ -133,7 +130,7 @@ def flatten(suite):
 
 
 def unit_key(module: str, qualname: str, ordinal: int) -> str:
-    """The unit key the plan's shard rule defines: module:qualname#ordinal."""
+    """The unit key the module docstring defines: module:qualname#ordinal."""
     return "%s:%s#%d" % (module, qualname, ordinal)
 
 

@@ -8,11 +8,11 @@ most three spaces of indent, the CommonMark limit) as a state TOGGLE, so an
 UNBALANCED fence (an odd number of fence lines) leaves the iterator "inside a
 code block" for the remainder of the file, silently suppressing every
 downstream fence-aware check's scanning of everything after it. Detection here
-calls that same predicate rather than a private copy of it (3b83), so "this
+calls that same predicate rather than a private copy of it, so "this
 gate passes" and "the iterator scans the whole file" are the same statement by
 construction; the fence syntax is therefore deliberately NOT configurable.
 
-Engine/wrapper split (compile PR-6): this engine carries the pure check
+Engine/wrapper split: this engine carries the pure check
 (``fence_lines`` + ``run``); the project wrapper
 (``.claude/skills/corpus-management/tools/lint-unbalanced-fences.py``) supplies the grc scan configuration
 (the default ``*.md`` walk minus ``DEFAULT_EXEMPT_DIRS`` / ``is_default_exempt_root``,

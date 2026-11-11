@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Provision-restatement index: every corpus surface citing each statute provision (advisory).
 
-WHY. Correcting one clause of a statute on one surface left the same
-provision restated on other surfaces with dropped qualifiers, because
-reviewers grepped the old PHRASE, not the PROVISION (the #2649 retro:
-PIPEDA s. 10.1). This index groups every surface by provision key, so the
-question "where else is PIPEDA s. 10.1 restated?" has a mechanical answer.
+WHY. In the earlier repository, correcting one clause of a statute on one
+surface left the same provision restated on other surfaces with dropped
+qualifiers, because reviewers grepped the old PHRASE, not the PROVISION
+(PIPEDA s. 10.1 was such a case). This index groups every surface by
+provision key, so the question "where else is PIPEDA s. 10.1 restated?" has
+a mechanical answer.
 
 WHAT. For every normalized key (``PIPEDA s. 10.1``, ``GDPR Art. 33``), each
 surface and line citing it, with the pinpoint as cited (``10.1(3)``; a bare
@@ -15,8 +16,8 @@ continuation shows its full form, ``53(1)(b)``) and the resolution tier
 seed table (tier ``phrase``). In the text report each key's explicit-tier
 rows are listed first; every inferred-tier row, and every phrase row, is
 listed after them under the label ``unverified candidates (inferred
-instrument)``, four QA rounds found misattribution families that are,
-after the round-3 and round-4 explicit-tier fixes, confined to the inferred
+instrument)``: the misattribution families found in earlier versions of
+this index are, after the explicit-tier fixes, confined to the inferred
 tiers, so those rows are candidates a reviewer confirms, not verified
 surfaces (in the JSON, each record's ``tier`` field carries the same
 information). ``--key`` takes a provision as typed (``PIPEDA s.10.1(3)``)
@@ -39,17 +40,18 @@ Exit codes:
 
 RESIDUE (stated, not hidden):
   - False negatives: a restatement that neither cites the section nor uses a
-    seeded signature phrase is invisible (the pre-#2649 shape of most PIPEDA
-    s. 10.1 surfaces); an instrument outside the alias table, a citation
-    whose inference is refused, and a heading-less bare citation in a
-    document naming no instrument all land in the unresolved bucket
-    (``--show-unresolved``), not under a key; ``Section`` / ``§`` citations
-    count only with the instrument adjacent; Recitals, Schedules, Annexes and
-    ``Principle 4.3`` forms are not parsed, and a citation continued by ``of
-    Schedule 1`` or ``of Annex III`` is refused outright rather than keyed
-    (a schedule or annex numbers its own clauses, so the parent Act's
-    section numbering does not cover them); a range indexes its endpoints
-    only when it is wider than MAX_RANGE_SPAN, starts at a decimal section
+    seeded signature phrase is invisible (the shape most PIPEDA s. 10.1
+    surfaces had in the earlier repository before their correction); an
+    instrument outside the alias table, a citation whose inference is
+    refused, and a heading-less bare citation in a document naming no
+    instrument all land in the unresolved bucket (``--show-unresolved``),
+    not under a key; ``Section`` / ``§`` citations count only with the
+    instrument adjacent; Recitals, Schedules, Annexes and ``Principle 4.3``
+    forms are not parsed, and a citation continued by ``of Schedule 1``
+    or ``of Annex III`` is refused outright rather than keyed (a schedule
+    or annex numbers its own clauses, so the parent Act's section
+    numbering does not cover them); a range indexes its endpoints only
+    when it is wider than MAX_RANGE_SPAN, starts at a decimal section
     (``PIPEDA ss. 10.1 to 10.3`` keys s. 10.1 and s. 10.3, not s. 10.2;
     ``HIPAA §164.400 to 414`` keys neither 164.402 nor the other real
     even-numbered sections inside it), is unresolved, or resolves to an
@@ -200,7 +202,7 @@ def main(argv: "list[str]") -> int:
     args = parser.parse_args(argv[1:])
 
     keys = parse_key_args(args.key)
-    # Explicit paths are refused when unsound and normalized otherwise (3b21).
+    # Explicit paths are refused when unsound and normalized otherwise.
     roots = guard_explicit_paths(args.paths, repo_root=REPO_ROOT) if args.paths else list(DEFAULT_SCAN_ROOTS)
     files = corpus_files(roots)
     citations = scan_files(files)
