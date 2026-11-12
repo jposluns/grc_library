@@ -2298,7 +2298,7 @@ run_gate36_shards() {
                 echo "pre-push guard: WARNING: the shard checkout ${tree} was not removed by git worktree remove; ${left} and its registration is no longer listed by git worktree list." >&2
             fi
         done
-        echo "pre-push guard: gate 36 passed as ${count} local shards in $((SECONDS - started))s; ${#unremoved[@]} of ${count} shard checkouts could not be removed by git worktree remove (named above)."
+        echo "pre-push guard: gate 36 passed as ${count} local shards in $((SECONDS - started))s; ${#unremoved[@]} of ${count} shard checkouts could not be removed by git worktree remove."
         return 0
     fi
     echo "pre-push guard: gate 36 passed as ${count} local shards in $((SECONDS - started))s; the shard checkouts were removed."

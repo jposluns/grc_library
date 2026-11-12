@@ -19588,21 +19588,25 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                 self.assertEqual((parent / name / "nested" / "keep.md").read_text(encoding="utf-8"),
                                  name + "\n")
 
-    # The launcher of
-    # test_interrupt_stops_every_shard_group_and_keeps_the_checkouts: it
-    # makes itself the child subreaper (prctl PR_SET_CHILD_SUBREAPER, 36),
-    # starts argv[2:] (the guard), passes SIGINT on to it, reaps the guard
-    # and every orphan of its run, writes the guard's pid and then "pid
-    # signal" for each orphan a signal ended to argv[1], and, once the
-    # guard has ended, reaps for up to 60 more seconds until no child is
-    # left; it exits with the guard's status (128 + its signal if a signal
-    # ended it).
-    # When prctl is refused, as a seccomp profile may refuse it, it starts
-    # nothing, writes "SKIP: " and the reason (the text of the errno) to
-    # argv[1] and exits 77, and the test is skipped with that reason, so
-    # the cause is given rather than a bare mismatch of exit statuses (the
-    # launcher's status 125 where 130 is expected, which an earlier form of
-    # this test reported only as "130 != 125").
+    # test_interrupt_stops_every_shard_group_and_keeps_the_checkouts runs
+    # its guard under this launcher. The launcher makes itself the child
+    # subreaper (prctl PR_SET_CHILD_SUBREAPER, 36), starts argv[2:] (the
+    # guard), passes SIGINT on to it, reaps the guard and every orphan of
+    # its run, writes the guard's pid and then "pid signal" for each orphan
+    # a signal ended to argv[1], and, once the guard has ended, reaps for
+    # up to 60 more seconds until no child is left; it exits with the
+    # guard's status (128 + its signal if a signal ended it). In the case
+    # that test covers, a SIGINT during the shard step, the guard's INT
+    # trap in .claude/skills/corpus-management/tools/pre-push-guard.sh
+    # (shard_interrupted INT 130, which ends through shard_fail) makes the
+    # guard exit 130, and the test compares the launcher's exit status with
+    # the 130 it expects.
+    # When prctl is refused, as a seccomp profile may refuse it, the
+    # launcher starts nothing, writes "SKIP: prctl(PR_SET_CHILD_SUBREAPER)
+    # failed: " and, as the reason, the text of the errno to argv[1] and
+    # exits 77, and the test is skipped with that reason before that
+    # comparison, so the cause is given rather than a failure that does not
+    # name it.
     SUBREAPER = (
         "import ctypes, os, signal, subprocess, sys, time\n"
         "if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0):\n"
@@ -20500,25 +20504,26 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                      start_new_session=False, extra_env=None):
         """A live process for this test (the one place this class starts a
         helper that it holds alive by a stdin pipe and awaits by a startup
-        handshake; its guard runs, ended_pid's process and SUBREAPER's
-        launcher are started elsewhere): isolated Python (-I) running code
-        with args, or command (bash running a script whose own Python
-        processes it starts with -I), started with this fixture's built
-        environment (self.env), not this process's, in cwd (this fixture's
-        directory, outside any leftover, by default).
-        start_poisoned starts it, so while it starts, this process's own
-        environment names poison (poison_directory's by default) as
-        PYTHONHOME and PYTHONPATH: a Python that read it as PYTHONHOME would
-        stop at its encodings import, since it holds no standard library, and
-        one that read it only as PYTHONPATH would stop at its
-        sitecustomize.py, which exits at once, so a process that took this
-        process's environment and was not isolated would not start. Its stdin
-        is a pipe this test holds, so it lives until it ends by itself or
-        this test's cleanup closes that pipe and reaps it (end_live_helper),
-        with no time limit of its own. Its first line on stdout is its
-        startup handshake, awaited for up to 60 seconds; then /proc shows
-        that its environment is exactly self.env (Python may add LC_CTYPE,
-        PEP 538) and, for code, that its command line has -I.
+        handshake; elsewhere this class starts other processes, among them
+        its guard runs, ended_pid's process, SUBREAPER's launcher and the
+        isolated Python report processes of report_all_read and
+        report_alone): isolated Python (-I) running code with args, or
+        command (bash running a script whose own Python processes it starts
+        with -I), started with this fixture's built environment (self.env),
+        not this process's, in cwd (this fixture's directory, outside any
+        leftover, by default). start_poisoned starts it, so while it starts,
+        this process's own environment names poison (poison_directory's by
+        default) as PYTHONHOME and PYTHONPATH: a Python that read it as
+        PYTHONHOME would stop at its encodings import, since it holds no
+        standard library, and one that read it only as PYTHONPATH would stop
+        at its sitecustomize.py, which exits at once, so a process that took
+        this process's environment and was not isolated would not start. Its
+        stdin is a pipe this test holds, so it lives until it ends by itself
+        or this test's cleanup closes that pipe and reaps it
+        (end_live_helper), with no time limit of its own. Its first line on
+        stdout is its startup handshake, awaited for up to 60 seconds; then
+        /proc shows that its environment is exactly self.env (Python may add
+        LC_CTYPE, PEP 538) and, for code, that its command line has -I.
         start_new_session starts it in a session (and process group) of its
         own. extra_env adds variables to self.env for it, and its environment
         is then exactly both. Returns (its Popen, that line)."""
@@ -22677,18 +22682,20 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         shutil.rmtree(gone)
         if git_log.exists():
             git_log.unlink()
-        # The report alone reads the inventory NO_OTHER_PROCESS sets, which
-        # is deterministic (a live helper of this test, so it still has a
-        # process to scan), on the clock CLOCKED_REPORT sets, its wait for
-        # the worker lasting until the worker ends, so no real scan bound,
-        # join or alarm applies to the outcome it checks. NO_CHILD's audit
-        # hook comes first, so it notes any such event of those preludes
-        # too. The inventory also holds a process of this user made
-        # non-dumpable (NON_DUMPABLE, as in
-        # test_unreadable_process_blocks_removal_whoever_owns_it), which no
-        # unprivileged process can read, so the report's path for an
-        # unreadable process runs under the audit hook on every host, and
-        # the leftover is INSPECT for it.
+        # The report alone reads the deterministic inventory
+        # NO_OTHER_PROCESS sets, on the clock CLOCKED_REPORT sets, its wait
+        # for the worker lasting until the worker ends, so no real scan
+        # bound, join or alarm applies to the outcome it checks. NO_CHILD's
+        # audit hook comes first, so it notes any such event of those
+        # preludes too. That inventory holds this test's live helper
+        # (FIXTURE_PIDS names its pid), and the live helper is what keeps a
+        # process for the report to scan. The inventory also holds a
+        # process of this user made non-dumpable (NON_DUMPABLE, as in
+        # test_unreadable_process_blocks_removal_whoever_owns_it) where
+        # this host refuses to read its cwd, so the report's path for an
+        # unreadable process runs under the audit hook and the leftover is
+        # INSPECT for it; where its cwd can be read, as by a process with
+        # CAP_SYS_PTRACE, it is left out of the inventory.
         import select
         helper = self.live_helper()
         unreadable, _line = self.live_process(self.NON_DUMPABLE)
@@ -23593,7 +23600,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         commands = self.failed_removal_commands(result.stderr)
         self.assertEqual(commands, [["git", "worktree", "remove", "--force", "--", broken[0]]],
                          result.stderr)
-        self.assertIn("1 of 6 shard checkouts could not be removed by git worktree remove",
+        self.assertIn("1 of 6 shard checkouts could not be removed by git worktree remove.\n",
                       result.stdout)
         self.assertNotIn("checkouts were removed", output)
         self.assertEqual(os.listdir(self.shard_tmp), [])
@@ -23625,7 +23632,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, output)
         broken = [run["cwd"] for run in self.shard_runs() if run["argv"][2] == "2/6"]
         self.assertEqual(len(broken), 1, output)
-        self.assertIn("1 of 6 shard checkouts could not be removed by git worktree remove",
+        self.assertIn("1 of 6 shard checkouts could not be removed by git worktree remove.\n",
                       result.stdout)
         # The registrations first: the other one survives the run.
         after = self.git("worktree", "list", "--porcelain").stdout
@@ -23675,7 +23682,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                          result.stderr)
         self.assertEqual(self.printed_removal_commands(result.stderr), [], result.stderr)
         self.assertNotIn("git worktree prune", output)
-        self.assertIn("1 of 6 shard checkouts could not be removed by git worktree remove",
+        self.assertIn("1 of 6 shard checkouts could not be removed by git worktree remove.\n",
                       result.stdout)
         self.assertNotIn("checkouts were removed", output)
         worktrees = self.git("worktree", "list", "--porcelain").stdout
@@ -23712,7 +23719,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             self.assertEqual(self.printed_removal_commands(result.stderr, directory), [],
                              result.stderr)
         self.assertNotIn("git worktree prune", output)
-        self.assertIn("1 of 6 shard checkouts could not be removed by git worktree remove",
+        self.assertIn("1 of 6 shard checkouts could not be removed by git worktree remove.\n",
                       result.stdout)
         self.assertNotIn("checkouts were removed", output)
         self.assertEqual(os.listdir(self.shard_tmp), [])
@@ -23766,7 +23773,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             self.assertEqual(self.printed_removal_commands(result.stderr, directory), [],
                              result.stderr)
         self.assertNotIn("git worktree prune", output)
-        self.assertIn("1 of 6 shard checkouts could not be removed by git worktree remove",
+        self.assertIn("1 of 6 shard checkouts could not be removed by git worktree remove.\n",
                       result.stdout)
         self.assertNotIn("checkouts were removed", output)
         worktrees = self.git("worktree", "list", "--porcelain").stdout
@@ -23924,7 +23931,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
                                                 registration=self.REGISTRATION_UNREAD)
         self.assertEqual(commands, [["git", "worktree", "remove", "--force", "--", broken[0]]],
                          result.stderr)
-        self.assertIn("1 of 6 shard checkouts could not be removed by git worktree remove",
+        self.assertIn("1 of 6 shard checkouts could not be removed by git worktree remove.\n",
                       result.stdout)
         self.assertNotIn("checkouts were removed", output)
         self.assertEqual(os.listdir(self.shard_tmp), [])
@@ -43282,7 +43289,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F 62df77ba801019b06afea2a1474836a90dc2e8385f7d99becef9d393c511f622
         measure-regression-timings.py WRITE F 3fa6dd03e89eaf23d6b92a01f4369f11ff863a475bc81926319b7c734fa007d1
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
-        pre-push-guard.sh FIXED F c8598577e170496c0ab4685de5bf6d954e3e10159ad81223484db04b74338831
+        pre-push-guard.sh FIXED F 8573366d92190f0ef0d9965317cc93bc74f6cd9c1098b9632cd532929e7e8cbd
         pre-push-hook.py TRANSPORT F e0a06be59cc3e8c0b47377b229c16ea169eba04ed717e31c9427356b85f6bb76
         preflight-changelog.py NO_FS F f6e7709d1015847c6cf5d27886e637d58d6a62ad29d5327576c6624e9c6b460d
         preflight-version-date.py NO_FS F 31cfe7d03173f406ba0d5b2ff2dfd0fcdf59686c94150aba3a597b3a714e0879
