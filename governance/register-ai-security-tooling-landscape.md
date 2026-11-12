@@ -2,7 +2,7 @@
 
 **Document Title:** AI Security Tooling Landscape Register\
 **Document Type:** Register\
-**Version:** 1.1.16\
+**Version:** 1.1.17\
 **Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -893,7 +893,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 
 - **Scope**: Claude Code secure-coding-rules repository with AI/agent/MCP/RAG security baselines.
 - **License**: MIT.
-- **Library reference status**: Cited in [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md); mentioned once in [`standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), whose SAST tooling row notes that TikiTribe's Markdown context-rule files are a different artefact type from a Semgrep rule configuration; cited in the Canonical Citations Register.
+- **Library reference status**: Cited in [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md); mentioned once in [`standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), whose SAST tooling row notes that TikiTribe's Markdown context-rule files are a different artefact type from a Semgrep rule configuration; referenced most often among the AI guides in [`guide-ai-security-technical-implementation.md`](../ai/guide-ai-security-technical-implementation.md) and [`guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md); cited in the Canonical Citations Register.
 - **Key capabilities**:
   - 6 _core files: owasp-2025.md, ai-security.md, agent-security.md, mcp-security.md, rag-security.md, graph-database-security.md.
   - 12 languages: cpp, csharp, go, java, javascript, julia, python, r, ruby, rust, sql, typescript.
