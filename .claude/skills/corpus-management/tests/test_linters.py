@@ -56348,43 +56348,6 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
         )
         self.assertIn("OK", result.stdout)
 
-
-    # The reality fixture, captured from a real gh run, verbatim: gh's stderr when the token cannot read the PR's
-    # check rollup.
-    _MWG_ROLLUP_FORBIDDEN = ("GraphQL: Resource not accessible by personal access token (repository.pullRequest."
-                             "statusCheckRollup.nodes.0.commit.statusCheckRollup.contexts.nodes.0)\n")
-
-    def _mwg_drive_processes(self, mod, rollup_result, runs, repo, *flags):
-        """main() with subprocess.run stubbed (patched and restored by mock.patch.object), so the real gh()
-        runs but no gh process does. The rollup query returns ``rollup_result`` (exit status, stderr); the PR
-        read without the rollup, the runs read and the merge succeed. Returns (exit code, gh calls, stderr)."""
-        import contextlib
-        import json
-        from unittest import mock
-        head = "3f0c9e71a2b48d5609ce17f4b23a8d60e95c1b7a"
-        calls = []
-
-        def fake_run(cmd, **kw):
-            a = tuple(cmd[1:])
-            calls.append(a)
-            self.assertEqual((cmd[0], kw.get("capture_output"), kw.get("text")), ("gh", True, True))
-            if a[:2] == ("pr", "view"):
-                fields = a[a.index("--json") + 1].split(",")
-                if "statusCheckRollup" in fields:
-                    return subprocess.CompletedProcess(cmd, rollup_result[0], "", rollup_result[1])
-                full = {"state": "OPEN", "headRefOid": head, "number": 1, "title": "t"}
-                return subprocess.CompletedProcess(cmd, 0, json.dumps({k: full[k] for k in fields}), "")
-            if a[:1] == ("api",):
-                page = {"total_count": len(runs), "workflow_runs": runs}
-                return subprocess.CompletedProcess(cmd, 0, json.dumps(page), "")
-            return subprocess.CompletedProcess(cmd, 0, "", "")
-        err = io.StringIO()
-        with mock.patch.object(mod.subprocess, "run", fake_run), \
-                mock.patch.object(mod, "open_findings_block", lambda root, ledger=None: (0, "")), \
-                contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
-            rc = mod.main(["merge-when-green.py", "1", *(["--repo", repo] if repo else []), *flags])
-        return rc, calls, err.getvalue()
-
     def test_check_clean_language_upstream_self_test_passes(self) -> None:
         # The clean-language upstream-drift check's classify() self-test (drift on a changed /
         # missing-either-side blob SHA), wired here so the monthly-check logic cannot silently
