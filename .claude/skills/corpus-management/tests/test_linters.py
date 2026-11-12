@@ -36265,7 +36265,9 @@ class VanishingScratchTests(LinterTestCase):
     path inside it is still scanned); the shared walk's default is off, so every
     other caller still scans it. A listed file gone when read, including gate 48's
     glossary gone before its second read, is refused by name with exit 2, never a
-    traceback and never a silent skip.
+    traceback and never a silent skip. The secrets and PII gates do not opt in, so
+    their default runs still list tests/tmp; each refuses a listed file gone when
+    read the same way, after reporting the findings in the files it did read.
 
     Two gates with their own directory walk, the stub-document and
     orphan-document gates, call the same pruned walk directly instead of the
@@ -36469,16 +36471,153 @@ class VanishingScratchTests(LinterTestCase):
 
         A synthetic GitHub-PAT-shaped token (the SecretsLinterTests pattern) planted
         under tests/tmp is reported by a default run with no path arguments.
+
+        The default walk runs unpatched over the whole tree; only the per-file read
+        is narrowed to this test's own fixture. Other classes create and remove
+        fixtures in the shared tests/tmp, and a whole-tree read refuses any listed
+        file gone when read (exit 2), so it cannot be asserted clean under a
+        concurrent run.
         """
+        from unittest.mock import patch
+        script = ".claude/skills/corpus-management/tools/lint-secrets-in-content.py"
         fake_token = "ghp_" + "A" * 36
         fixture = self.make_fixture(
             "vanish-secrets-residue.md", VALID_METADATA + f"\n\nExample token: {fake_token}.\n")
-        result = subprocess.run(
-            [sys.executable, str(SKILL_ROOT / "tools" / "lint-secrets-in-content.py")],
-            cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=600)
-        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        mod = load_linter_module(script, "_vanish_secrets_default")
+        real = mod.scan
+        own = fixture.resolve()
+        listed: list[Path] = []
+
+        def scan_own_fixture_only(path):
+            listed.append(path)
+            return real(path) if path == own else []
+
+        out, err = io.StringIO(), io.StringIO()
+        with patch.object(mod, "scan", scan_own_fixture_only), \
+                patch("sys.stdout", out), patch("sys.stderr", err):
+            rc = mod.main([script])
+        rel = own.relative_to(REPO_ROOT.resolve()).as_posix()
+        self.assertTrue(own in listed, f"the default run did not list {rel}")
+        self.assertEqual(rc, 1, out.getvalue() + err.getvalue())
+        self.assertIn(f"=== {rel} ===", out.getvalue())
+
+    def test_secrets_gate_listed_file_gone_when_read_is_refused(self) -> None:
+        """The secrets gate refuses a listed file gone when read by name, exit 2.
+
+        Its default run lists tests/tmp, so a concurrent run's fixture removed
+        between the listing and the read raised an uncaught FileNotFoundError:
+        exit 1 (the findings code) with empty stdout.
+        """
+        from unittest.mock import patch
+        script = ".claude/skills/corpus-management/tools/lint-secrets-in-content.py"
+        fixture = self.make_fixture("vanish-secrets-gone.md", "# Doc\n")
+        mod = load_linter_module(script, "_vanish_secrets_gone")
+        listed = mod.iter_targets
+
+        def list_then_remove(*args, **kwargs):
+            found = listed(*args, **kwargs)
+            fixture.unlink()
+            return found
+
+        err = io.StringIO()
+        with patch.object(mod, "iter_targets", list_then_remove), \
+                patch("sys.stderr", err), patch("sys.stdout", io.StringIO()):
+            rc = mod.main([script, str(fixture)])
+        self.assertEqual(rc, 2, err.getvalue())
         rel = fixture.resolve().relative_to(REPO_ROOT.resolve()).as_posix()
-        self.assertIn(f"=== {rel} ===", result.stdout)
+        self.assertIn(f"ERROR: {rel}: listed for scanning but gone when read", err.getvalue())
+        self.assertNotIn("Traceback", err.getvalue())
+
+    def _run_listing_then_removing(self, script, unique, gone, argv):
+        """Run a gate in process; its listing step removes ``gone`` before any read.
+
+        Only the gate's ``iter_targets`` is wrapped: the real walk lists the files,
+        then ``gone`` is unlinked, and the gate's own ``scan`` reads every listed file
+        from disk. Returns the exit code, stdout, stderr and the listed paths.
+        """
+        from unittest.mock import patch
+        mod = load_linter_module(script, unique)
+        listed = mod.iter_targets
+        found: list[Path] = []
+
+        def list_then_remove(*args, **kwargs):
+            found.extend(listed(*args, **kwargs))
+            gone.unlink()
+            return list(found)
+
+        out, err = io.StringIO(), io.StringIO()
+        with patch.object(mod, "iter_targets", list_then_remove), \
+                patch("sys.stdout", out), patch("sys.stderr", err):
+            rc = mod.main([script, *argv])
+        return rc, out.getvalue(), err.getvalue(), found
+
+    def test_secrets_gate_reports_findings_before_refusing_a_vanished_file(self) -> None:
+        """A secret found in one listed file is still reported when another vanishes.
+
+        The refusal (exit 2) follows the findings in the files the gate did read, so
+        a fixture a concurrent run removes never hides a secret found elsewhere.
+        Every read is real; only the listing step removes one listed file.
+        """
+        script = ".claude/skills/corpus-management/tools/lint-secrets-in-content.py"
+        fake_token = "ghp_" + "A" * 36
+        kept = self.make_fixture(
+            "vanish-secrets-kept.md", VALID_METADATA + f"\n\nExample token: {fake_token}.\n")
+        gone = self.make_fixture("vanish-secrets-dropped.md", "# Doc\n")
+        rc, out, err, found = self._run_listing_then_removing(
+            script, "_vanish_secrets_kept", gone, [str(kept.parent)])
+        root = REPO_ROOT.resolve()
+        self.assertEqual(sorted(found), sorted([kept.resolve(), gone.resolve()]))
+        self.assertEqual(rc, 2, out + err)
+        self.assertIn(f"=== {kept.resolve().relative_to(root).as_posix()} ===", out)
+        self.assertIn("FAIL: 1 suspected secret(s) across 1 file(s).", out)
+        self.assertIn(
+            f"ERROR: {gone.resolve().relative_to(root).as_posix()}: listed for scanning but gone when read", err)
+        self.assertNotIn("Traceback", err)
+
+    def test_pii_gate_listed_file_gone_when_read_is_refused(self) -> None:
+        """The PII gate refuses a listed file gone when read by name, exit 2.
+
+        Like the secrets gate, its default run lists tests/tmp, so a fixture a
+        concurrent run removed between the listing and the read raised an uncaught
+        FileNotFoundError. A finding in a file it did read is still reported first.
+        """
+        script = ".claude/skills/corpus-management/tools/lint-pii-in-content.py"
+        kept = self.make_fixture(
+            "vanish-pii-kept.md", VALID_METADATA + "\n\nContact real.person@realcorp.io here.\n")
+        gone = self.make_fixture("vanish-pii-gone.md", "# Doc\n")
+        rc, out, err, found = self._run_listing_then_removing(
+            script, "_vanish_pii_gone", gone, [str(kept.parent)])
+        root = REPO_ROOT.resolve()
+        self.assertEqual(sorted(found), sorted([kept.resolve(), gone.resolve()]))
+        self.assertEqual(rc, 2, out + err)
+        self.assertIn(f"=== {kept.resolve().relative_to(root).as_posix()} ===", out)
+        self.assertIn("FAIL: 1 suspected PII finding(s) across 1 file(s).", out)
+        self.assertIn(
+            f"ERROR: {gone.resolve().relative_to(root).as_posix()}: listed for scanning but gone when read", err)
+        self.assertNotIn("Traceback", err)
+
+    def test_default_run_reads_real_files_and_refuses_a_vanished_one(self) -> None:
+        """The secrets and PII gates' default runs, with no mock of scan, refuse a vanished file.
+
+        Each gate walks the whole tree with its own default listing and reads every
+        listed file from disk. The listing step is wrapped only to remove this test's
+        own tests/tmp fixture after it is listed and before it is read. The run exits
+        2 naming that fixture, which also shows the default walk lists tests/tmp. A
+        file another run removes meanwhile is refused the same way and only adds a
+        line, so the assertions hold under a concurrent run.
+        """
+        for script in (".claude/skills/corpus-management/tools/lint-secrets-in-content.py",
+                       ".claude/skills/corpus-management/tools/lint-pii-in-content.py"):
+            with self.subTest(gate=script):
+                stem = Path(script).stem
+                gone = self.make_fixture(f"vanish-real-read-{stem}.md", "# Doc\n")
+                rc, out, err, found = self._run_listing_then_removing(
+                    script, f"_vanish_real_read_{stem.replace('-', '_')}", gone, [])
+                rel = gone.resolve().relative_to(REPO_ROOT.resolve()).as_posix()
+                self.assertTrue(gone.resolve() in found, f"the default run did not list {rel}")
+                self.assertEqual(rc, 2, out + err)
+                self.assertIn(f"ERROR: {rel}: listed for scanning but gone when read", err)
+                self.assertNotIn("Traceback", err)
 
     def test_listed_file_gone_when_read_is_refused_by_name(self) -> None:
         from unittest.mock import patch
@@ -43105,7 +43244,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-narrative-vocabulary.py CWD F c8fa9fd041e2ea8ea7bc246efc1100795b8e69dcab5b218d5d72ae65ca6c66a0
         lint-nested-markdown-links.py ROOT F 36b09b7bb5221bf0c3589f22426453fee35a9744ce451cd54d3518880be0a5d8
         lint-orphan-documents.py NO_FS F de61adef06e991b75b527360833df9a086556eb7b197722c3e36daf5cd0fda56
-        lint-pii-in-content.py CWD F 9d53a9367dd3c18c770459bf73ff371331bb964b2c32d82d569ebd8d0a7945f9
+        lint-pii-in-content.py CWD F 286d96a428c153f484fe84fcf0142775eff985f1cc730adaf3726bed31599caf
         lint-placeholder-leakage.py CWD F d9503d8672f7bf079a32b99ad715c43ef5f5b2f2eb17375d2a1eb7fe5fa72832
         lint-positional-backlog-tokens.py ROOT F 014dc171dfd4511c153270b53577d62337fe3a5216dfc4f6f95b84d8e4cc80b1
         lint-ref-absence-claims.py ROOT F 8e4eae72e7fab0e3e8fb889d1e2d80bf4c0e0468f85bedd14fffae25d491699d
@@ -43113,7 +43252,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-retention-consistency.py OWN F 721d4d56fe131183be2c9c82e0c5b1c377dca0edd9bea8d610f4819fae2288fc
         lint-roles.py ROOT F fa17709c4bd944b4536afd791a756e53a0f3040860c813d9c9f2412acef6e886
         lint-scan-scope-parity.py OWN F 3896541e18c4a614d03a959b961b2c75481f3afa90d4c8b6cfb1bd19c3e94565
-        lint-secrets-in-content.py CWD F ceb378921712582961bbc775c6d60f16b83b3aa2c5c4674484206ab64d604baf
+        lint-secrets-in-content.py CWD F 1c210aa09247efe62684ddaef51f91693e10fef228562e275865d538898a5a4e
         lint-section-anchors.py CWD F 688cdc40949395d5ddbdd41d0e1712c50d08791a7293f259a212b37e81a67e52
         lint-section-placement.py CWD F 99618f1825b64c2734c116b941bc9d9ebc94ccdccd4011dc5a21a58714acf464
         lint-shall-near-uncertainty.py ROOT F 7626c8ce039ceb45128e291e462870551b04242ae6c1083899dcc51a827aeac0
