@@ -243,7 +243,7 @@ adopter relies on are:
   task catalogue; gate 47, the corpus layout (repository root, taxonomy path, register path and
   register section); gate 89, `configure(disclaimer)`; gate 88, the absolutes denylist and the
   external-standard citation vocabulary; gate 87, the narrative root and its two mention regexes;
-  gate 86, the narrative document type, the entry-point exemption, the 8-field extension set, the
+  gate 86, the narrative document type, the entry-point exemption, the 7-field extension set, the
   allowed corpus document types and the two marker regexes; and gate 84, ten project-content sets.
 - **Gate 73 (COBIT titles):** besides Manage, Managed, Ensure and Ensured, which match
   case-insensitively, a title may open with Managing, Ensuring or the Monitor, Evaluate, Assess,
@@ -272,6 +272,7 @@ earlier repository on 2026-09-26, the manifest version was re-baselined from 0.6
 covering 79 earlier pack changes that had shipped without a bump, plus that change.
 
 ## Release history
+- **0.23.4:** the narrative-boundary and narrative-metadata engines, the narrative-boundary gate entry and the pack documentation count the narrative extension as 7 fields, now that narrative pages drop the Review Record field.
 - **0.23.3:** the listing-surface completeness gate's docstrings name the library root specifications by their home in governance/.
 - **0.23.2:** internal references and review history are removed from the comments and docstrings of the pack's tool and engine sources.
 - **0.23.1:** internal references and review history are removed from the pack documentation.

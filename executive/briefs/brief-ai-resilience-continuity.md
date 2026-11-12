@@ -2,8 +2,8 @@
 
 **Document Title:** What the governing body should require for AI resilience and continuity\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.7\
-**Date:** 2026-08-17\
+**Version:** 0.0.8\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/policy-business-continuity-and-disaster-recovery.md`](../../resilience/policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md), [`ai/plan-ai-incident-response.md`](../../ai/plan-ai-incident-response.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`resilience/policy-business-continuity-and-disaster-recovery.md`](../../resilience/policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-business-impact-analysis.md`](../../resilience/procedure-business-impact-analysis.md), [`resilience/procedure-backup-and-recovery.md`](../../resilience/procedure-backup-and-recovery.md), [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md), [`ai/plan-ai-incident-response.md`](../../ai/plan-ai-incident-response.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md), [`ai/standard-ai-security-and-risk.md`](../../ai/standard-ai-security-and-risk.md), [`ai/procedure-foundation-model-lifecycle.md`](../../ai/procedure-foundation-model-lifecycle.md), [`supply-chain/register-concentration-risk.md`](../../supply-chain/register-concentration-risk.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](../../supply-chain/standard-cloud-exit-and-data-portability.md), [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-005\
 **Last Reviewed:** 2026-08-07
 
 ---

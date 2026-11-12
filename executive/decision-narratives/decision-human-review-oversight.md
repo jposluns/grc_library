@@ -2,8 +2,8 @@
 
 **Document Title:** Choosing between human review, human oversight, and autonomous authority for AI-assisted work\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.6\
-**Date:** 2026-10-25\
+**Version:** 0.0.7\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-security-and-risk.md`](../../ai/standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-access-and-agent-permissions.md`](../../ai/standard-ai-access-and-agent-permissions.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`ai/standard-ai-security-and-risk.md`](../../ai/standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](../../ai/standard-ai-model-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-access-and-agent-permissions.md`](../../ai/standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](../../ai/framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../../ai/procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](../../ai/template-ai-system-register.md), [`ai/register-model-registry.md`](../../ai/register-model-registry.md), [`ai/standard-ai-testing-validation-and-documentation.md`](../../ai/standard-ai-testing-validation-and-documentation.md), [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md), [`risk/procedure-risk-acceptance.md`](../../risk/procedure-risk-acceptance.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-014\
 **Last Reviewed:** 2026-08-15
 
 ---

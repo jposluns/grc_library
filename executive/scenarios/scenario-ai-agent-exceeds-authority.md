@@ -2,8 +2,8 @@
 
 **Document Title:** When an AI agent acts beyond its granted authority\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.2\
-**Date:** 2026-08-15\
+**Version:** 0.0.3\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-access-and-agent-permissions.md`](../../ai/standard-ai-access-and-agent-permissions.md), [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md), [`ai/plan-ai-incident-response.md`](../../ai/plan-ai-incident-response.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`ai/standard-ai-access-and-agent-permissions.md`](../../ai/standard-ai-access-and-agent-permissions.md), [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md), [`ai/plan-ai-incident-response.md`](../../ai/plan-ai-incident-response.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md), [`governance/register-role-authority.md`](../../governance/register-role-authority.md), [`ai/register-mcp-server.md`](../../ai/register-mcp-server.md), [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`ai/template-ai-system-register.md`](../../ai/template-ai-system-register.md), [`ai/framework-ai-governance-and-risk.md`](../../ai/framework-ai-governance-and-risk.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-011\
 **Last Reviewed:** 2026-08-15
 
 ---

@@ -2,8 +2,8 @@
 
 **Document Title:** What the governing body should require for AI data governance and classification\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.7\
-**Date:** 2026-08-16\
+**Version:** 0.0.8\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-security-and-risk.md`](../../ai/standard-ai-security-and-risk.md), [`security/standard-data-classification-and-handling.md`](../../security/standard-data-classification-and-handling.md), [`ai/procedure-training-data-governance.md`](../../ai/procedure-training-data-governance.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`ai/standard-ai-security-and-risk.md`](../../ai/standard-ai-security-and-risk.md), [`security/standard-data-classification-and-handling.md`](../../security/standard-data-classification-and-handling.md), [`ai/procedure-training-data-governance.md`](../../ai/procedure-training-data-governance.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`ai/standard-ai-data-quality-and-readiness-validation.md`](../../ai/standard-ai-data-quality-and-readiness-validation.md), [`ai/template-dataset-datasheet.md`](../../ai/template-dataset-datasheet.md), [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md), [`privacy/register-cross-border-data-flow.md`](../../privacy/register-cross-border-data-flow.md), [`ai/standard-ai-access-and-agent-permissions.md`](../../ai/standard-ai-access-and-agent-permissions.md), [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md), [`architecture/standard-data-architecture.md`](../../architecture/standard-data-architecture.md), [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../../ai/procedure-integrated-ai-and-privacy-assessment.md), [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-004\
 **Last Reviewed:** 2026-08-07
 
 ---

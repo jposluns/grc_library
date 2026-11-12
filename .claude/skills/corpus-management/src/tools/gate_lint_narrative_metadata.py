@@ -150,19 +150,19 @@ def audit_page(path: Path) -> list[str]:
     for fld in CANONICAL_FIELDS:
         if fld not in meta:
             findings.append(f"{rel}: missing canonical field: {fld}")
-    # Extension 8 present.
+    # Extension 7 present.
     for fld in EXTENSION_FIELDS:
         if fld not in meta:
             findings.append(f"{rel}: missing narrative-extension field: {fld}")
-    # Order: the block order must equal canonical-13 then extension-8 (for the fields present).
+    # Order: the block order must equal canonical-13 then extension-7 (for the fields present).
     known = set(CANONICAL_FIELDS + EXTENSION_FIELDS)
     unknown = [fld for fld in order if fld not in known]
     if unknown:
-        findings.append(f"{rel}: unexpected metadata field(s) (the 8-field extension must follow the 13 canonical fields immediately, no interposed fields): {unknown}")
+        findings.append(f"{rel}: unexpected metadata field(s) (the 7-field extension must follow the 13 canonical fields immediately, no interposed fields): {unknown}")
     expected_order = [f for f in CANONICAL_FIELDS + EXTENSION_FIELDS if f in meta]
     present_in_block = [f for f in order if f in known]
     if present_in_block != expected_order:
-        findings.append(f"{rel}: metadata fields out of canonical order (expected 13 canonical then 8 extension)")
+        findings.append(f"{rel}: metadata fields out of canonical order (expected 13 canonical then 7 extension)")
 
     # Narrative Type / Status / prefix / status-parity.
     ntype = meta.get("Narrative Type")

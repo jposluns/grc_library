@@ -2,8 +2,8 @@
 
 **Document Title:** What the governing body should ask about risk appetite, the register, acceptances, early-warning indicators, and board reporting\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.2\
-**Date:** 2026-09-13\
+**Version:** 0.0.3\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/template-risk-appetite-statement.md`](../../risk/template-risk-appetite-statement.md), [`risk/template-enterprise-risk-register.md`](../../risk/template-enterprise-risk-register.md), [`risk/register-key-risk-indicators.md`](../../risk/register-key-risk-indicators.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`risk/template-risk-appetite-statement.md`](../../risk/template-risk-appetite-statement.md), [`risk/template-enterprise-risk-register.md`](../../risk/template-enterprise-risk-register.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`risk/procedure-risk-acceptance.md`](../../risk/procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md), [`risk/register-key-risk-indicators.md`](../../risk/register-key-risk-indicators.md), [`risk/template-board-risk-report.md`](../../risk/template-board-risk-report.md), [`risk/register-assurance-map.md`](../../risk/register-assurance-map.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-028\
 **Last Reviewed:** 2026-09-13
 
 ---

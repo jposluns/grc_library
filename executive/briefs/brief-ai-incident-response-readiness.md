@@ -2,8 +2,8 @@
 
 **Document Title:** What the governing body should require for AI incident-response readiness before production\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.5\
-**Date:** 2026-08-08\
+**Version:** 0.0.6\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/plan-ai-incident-response.md`](../../ai/plan-ai-incident-response.md), [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md), [`ai/standard-ai-security-and-risk.md`](../../ai/standard-ai-security-and-risk.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`ai/plan-ai-incident-response.md`](../../ai/plan-ai-incident-response.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md), [`ai/standard-ai-security-and-risk.md`](../../ai/standard-ai-security-and-risk.md), [`ai/framework-ai-governance-and-risk.md`](../../ai/framework-ai-governance-and-risk.md), [`ai/procedure-ai-model-lifecycle-management.md`](../../ai/procedure-ai-model-lifecycle-management.md), [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`resilience/template-tabletop-exercise.md`](../../resilience/template-tabletop-exercise.md), [`ai/charter-ai-governance-council.md`](../../ai/charter-ai-governance-council.md), [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-003\
 **Last Reviewed:** 2026-08-06
 
 ---

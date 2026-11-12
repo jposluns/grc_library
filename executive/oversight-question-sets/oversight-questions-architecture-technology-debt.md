@@ -2,8 +2,8 @@
 
 **Document Title:** What the governing body should ask about enterprise architecture and accumulated technology debt\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.2\
-**Date:** 2026-08-16\
+**Version:** 0.0.3\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](../../architecture/framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](../../architecture/standard-architecture-decision-records.md), [`architecture/standard-technology-radar.md`](../../architecture/standard-technology-radar.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`architecture/framework-enterprise-architecture.md`](../../architecture/framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](../../architecture/standard-architecture-decision-records.md), [`architecture/standard-technology-radar.md`](../../architecture/standard-technology-radar.md), [`architecture/procedure-architecture-review.md`](../../architecture/procedure-architecture-review.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`risk/template-board-risk-report.md`](../../risk/template-board-risk-report.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md), [`operations/procedure-patch-management.md`](../../operations/procedure-patch-management.md), [`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-007\
 **Last Reviewed:** 2026-08-15
 
 ---

@@ -2,8 +2,8 @@
 
 **Document Title:** From AI idea to retirement: the governed life of an AI system\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.8\
-**Date:** 2026-10-25\
+**Version:** 0.0.9\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](../../ai/framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../../ai/procedure-ai-system-impact-assessment.md), [`ai/procedure-ai-model-lifecycle-management.md`](../../ai/procedure-ai-model-lifecycle-management.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md), [`ai/framework-ai-governance-and-risk.md`](../../ai/framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](../../ai/template-ai-system-register.md), [`ai/procedure-ai-system-impact-assessment.md`](../../ai/procedure-ai-system-impact-assessment.md), [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md), [`ai/procedure-training-data-governance.md`](../../ai/procedure-training-data-governance.md), [`ai/standard-ai-security-and-risk.md`](../../ai/standard-ai-security-and-risk.md), [`ai/standard-ai-access-and-agent-permissions.md`](../../ai/standard-ai-access-and-agent-permissions.md), [`ai/standard-ai-testing-validation-and-documentation.md`](../../ai/standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-evaluation.md`](../../ai/procedure-ai-evaluation.md), [`ai/charter-ai-governance-council.md`](../../ai/charter-ai-governance-council.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md), [`ai/procedure-ai-model-lifecycle-management.md`](../../ai/procedure-ai-model-lifecycle-management.md), [`ai/plan-ai-incident-response.md`](../../ai/plan-ai-incident-response.md), [`ai/procedure-ai-audit.md`](../../ai/procedure-ai-audit.md), [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md), [`supply-chain/template-supplier-offboarding-evidence.md`](../../supply-chain/template-supplier-offboarding-evidence.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-008\
 **Last Reviewed:** 2026-08-15
 
 ---

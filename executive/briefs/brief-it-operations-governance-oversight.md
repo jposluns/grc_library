@@ -2,8 +2,8 @@
 
 **Document Title:** What the governing body should require for IT operations governance oversight\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.1\
-**Date:** 2026-09-13\
+**Version:** 0.0.2\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/framework-it-service-management.md`](../../operations/framework-it-service-management.md), [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md), [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`operations/framework-it-service-management.md`](../../operations/framework-it-service-management.md), [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md), [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md), [`operations/procedure-patch-management.md`](../../operations/procedure-patch-management.md), [`operations/procedure-release-management.md`](../../operations/procedure-release-management.md), [`operations/standard-production-security-requirements.md`](../../operations/standard-production-security-requirements.md), [`operations/standard-service-level-management.md`](../../operations/standard-service-level-management.md), [`operations/register-it-operations-kpis.md`](../../operations/register-it-operations-kpis.md), [`operations/register-it-security-operations.md`](../../operations/register-it-security-operations.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-030\
 **Last Reviewed:** 2026-09-13
 
 ---

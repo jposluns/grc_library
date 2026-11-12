@@ -2,8 +2,8 @@
 
 **Document Title:** How leadership can know, with evidence, whether the organization's legal and regulatory obligations are identified and met\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.6\
-**Date:** 2026-09-12\
+**Version:** 0.0.7\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-legal-and-regulatory-compliance.md`](../../compliance/policy-legal-and-regulatory-compliance.md), [`compliance/register-compliance-obligations-template.md`](../../compliance/register-compliance-obligations-template.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md), [`risk/template-board-risk-report.md`](../../risk/template-board-risk-report.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md), [`compliance/register-compliance-obligations-template.md`](../../compliance/register-compliance-obligations-template.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../../compliance/policy-legal-and-regulatory-compliance.md), [`compliance/policy-compliance-and-audit-management.md`](../../compliance/policy-compliance-and-audit-management.md), [`compliance/standard-internal-audit.md`](../../compliance/standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](../../compliance/procedure-audit-planning.md), [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md), [`compliance/template-regulator-interaction.md`](../../compliance/template-regulator-interaction.md), [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md), [`risk/template-board-risk-report.md`](../../risk/template-board-risk-report.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-023\
 **Last Reviewed:** 2026-09-12
 
 ---

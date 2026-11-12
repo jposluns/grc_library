@@ -3,8 +3,8 @@
 
 **Document Title:** From policy intent to independent assurance: the journey of a privileged-access control\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.1\
-**Date:** 2026-08-17\
+**Version:** 0.0.2\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md), [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md)\
@@ -20,7 +20,6 @@
 **Corpus Sources:** [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md), [`security/procedure-access-control.md`](../../security/procedure-access-control.md), [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md), [`risk/register-assurance-map.md`](../../risk/register-assurance-map.md), [`risk/template-board-risk-report.md`](../../risk/template-board-risk-report.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-018\
 **Last Reviewed:** 2026-08-17
 
 ---

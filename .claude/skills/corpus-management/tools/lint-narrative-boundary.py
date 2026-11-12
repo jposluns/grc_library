@@ -18,7 +18,7 @@ SYMMETRIC:
   extension-field check.
 
   INSIDE the root ``executive/`` tree: every page must carry
-  ``Document Type: Executive Narrative`` and the full 8-field
+  ``Document Type: Executive Narrative`` and the full 7-field
   narrative-extension block, and must NOT carry a corpus document type. The
   single named, PATH-scoped exemption is the entry point
   ``executive/README.md`` (the hand-curated concern framing, not a narrative
@@ -31,7 +31,7 @@ Scope notes:
     root files, ``.claude/skills/corpus-management/tests/``, and every README are covered.
   - Detection is FENCE-AWARE: the authoring specification's example
     metadata block (a fenced illustration carrying the narrative type and
-    all 8 extension fields) is documentation, not a leak, so lines inside
+    all 7 extension fields) is documentation, not a leak, so lines inside
     fenced code blocks never match. This is why the specification itself
     needs no named exemption. A file that ends inside a fence left open by
     this marker-aware scan is a fail-loud finding naming the opener line,
@@ -75,7 +75,7 @@ BOUNDARY_SKIP_DIRS = frozenset({".git", "node_modules", "__pycache__"})
 NARRATIVE_DOCUMENT_TYPE = "Executive Narrative"
 ENTRY_POINT = "executive/README.md"
 
-# The 8 narrative-extension fields (spec, "Canonical metadata and narrative
+# The 7 narrative-extension fields (spec, "Canonical metadata and narrative
 # extension"). Presence of ANY of these outside executive/ is a defect;
 # presence of ALL of them is required on every page inside executive/.
 EXTENSION_FIELDS: tuple[str, ...] = (
@@ -85,7 +85,6 @@ EXTENSION_FIELDS: tuple[str, ...] = (
     "Corpus Sources",
     "External Sources",
     "Claim Classes Present",
-    "Review Record",
     "Last Reviewed",
 )
 

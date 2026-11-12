@@ -2,8 +2,8 @@
 
 **Document Title:** When the enterprise identity provider can no longer be trusted\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.1\
-**Date:** 2026-08-17\
+**Version:** 0.0.2\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`risk/register-scenario-risk-catalogue.md`](../../risk/register-scenario-risk-catalogue.md), [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`resilience/procedure-business-impact-analysis.md`](../../resilience/procedure-business-impact-analysis.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md), [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-015\
 **Last Reviewed:** 2026-08-17
 
 ---

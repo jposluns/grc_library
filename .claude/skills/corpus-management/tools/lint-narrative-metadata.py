@@ -13,7 +13,7 @@ narrative page; per the spec's placement/entry-point exemption).
 Checks per narrative page:
   - Document Type is exactly ``Executive Narrative``.
   - The 13 canonical fields are present, in canonical order.
-  - The 8 narrative-extension fields are present, in order, after ``License``.
+  - The 7 narrative-extension fields are present, in order, after ``License``.
   - ``Narrative Type`` is one of the seven closed subtypes.
   - ``Narrative Status`` is one of the three closed values AND matches the fixed
     subtype-to-status mapping.
@@ -68,7 +68,6 @@ EXTENSION_FIELDS: list[str] = [
     "Corpus Sources",
     "External Sources",
     "Claim Classes Present",
-    "Review Record",
     "Last Reviewed",
 ]
 
@@ -164,7 +163,6 @@ def _self_test() -> int:
 **Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md)\\
 **External Sources:** None\\
 **Claim Classes Present:** citation\\
-**Review Record:** NR-2026-001\\
 **Last Reviewed:** 2026-08-05
 
 ---

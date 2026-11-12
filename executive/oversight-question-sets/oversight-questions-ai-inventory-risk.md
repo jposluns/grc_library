@@ -2,8 +2,8 @@
 
 **Document Title:** What the governing body should ask about the organization's AI inventory, risks, incidents, suppliers, and change\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.6\
-**Date:** 2026-10-25\
+**Version:** 0.0.7\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md), [`ai/template-ai-system-register.md`](../../ai/template-ai-system-register.md), [`ai/register-ai-risk.md`](../../ai/register-ai-risk.md), [`ai/plan-ai-incident-response.md`](../../ai/plan-ai-incident-response.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../../supply-chain/procedure-third-party-ai-due-diligence.md), [`risk/template-board-risk-report.md`](../../risk/template-board-risk-report.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md), [`governance/guideline-minimum-viable-governance-structure.md`](../../governance/guideline-minimum-viable-governance-structure.md), [`ai/template-ai-system-register.md`](../../ai/template-ai-system-register.md), [`ai/register-model-registry.md`](../../ai/register-model-registry.md), [`ai/framework-ai-governance-and-risk.md`](../../ai/framework-ai-governance-and-risk.md), [`ai/register-ai-risk.md`](../../ai/register-ai-risk.md), [`risk/template-risk-appetite-statement.md`](../../risk/template-risk-appetite-statement.md), [`ai/procedure-ai-system-impact-assessment.md`](../../ai/procedure-ai-system-impact-assessment.md), [`risk/procedure-risk-acceptance.md`](../../risk/procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md), [`risk/template-board-risk-report.md`](../../risk/template-board-risk-report.md), [`ai/plan-ai-incident-response.md`](../../ai/plan-ai-incident-response.md), [`ai/standard-ai-security-and-risk.md`](../../ai/standard-ai-security-and-risk.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../../supply-chain/procedure-third-party-ai-due-diligence.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/register-concentration-risk.md`](../../supply-chain/register-concentration-risk.md), [`supply-chain/template-supplier-offboarding-evidence.md`](../../supply-chain/template-supplier-offboarding-evidence.md), [`ai/procedure-ai-model-lifecycle-management.md`](../../ai/procedure-ai-model-lifecycle-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-013\
 **Last Reviewed:** 2026-08-15
 
 ---

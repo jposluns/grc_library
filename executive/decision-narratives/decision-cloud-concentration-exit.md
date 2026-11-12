@@ -2,8 +2,8 @@
 
 **Document Title:** Choosing how much cloud and supplier concentration to accept and what exit readiness to maintain\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.3\
-**Date:** 2026-09-12\
+**Version:** 0.0.4\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/register-concentration-risk.md`](../../supply-chain/register-concentration-risk.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](../../supply-chain/standard-cloud-exit-and-data-portability.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`supply-chain/register-concentration-risk.md`](../../supply-chain/register-concentration-risk.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](../../supply-chain/standard-cloud-exit-and-data-portability.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](../../supply-chain/procedure-supplier-exit-and-data-return.md), [`supply-chain/standard-supplier-resilience-monitoring.md`](../../supply-chain/standard-supplier-resilience-monitoring.md), [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](../../supply-chain/procedure-fourth-party-and-nth-party-risk.md), [`supply-chain/template-supplier-offboarding-evidence.md`](../../supply-chain/template-supplier-offboarding-evidence.md), [`risk/template-risk-appetite-statement.md`](../../risk/template-risk-appetite-statement.md), [`risk/procedure-risk-acceptance.md`](../../risk/procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md), [`resilience/procedure-business-impact-analysis.md`](../../resilience/procedure-business-impact-analysis.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-021\
 **Last Reviewed:** 2026-09-12
 
 ---

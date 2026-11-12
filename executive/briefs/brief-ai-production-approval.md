@@ -2,8 +2,8 @@
 
 **Document Title:** What the governing body should require before an AI system goes into production\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.7\
-**Date:** 2026-08-16\
+**Version:** 0.0.8\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md), [`ai/standard-ai-security-and-risk.md`](../../ai/standard-ai-security-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../../ai/procedure-ai-system-impact-assessment.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md), [`ai/standard-ai-security-and-risk.md`](../../ai/standard-ai-security-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../../ai/procedure-ai-system-impact-assessment.md), [`ai/framework-ai-governance-and-risk.md`](../../ai/framework-ai-governance-and-risk.md), [`ai/framework-ai-model-risk.md`](../../ai/framework-ai-model-risk.md), [`ai/template-ai-system-register.md`](../../ai/template-ai-system-register.md), [`ai/plan-ai-incident-response.md`](../../ai/plan-ai-incident-response.md), [`security/standard-data-classification-and-handling.md`](../../security/standard-data-classification-and-handling.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md), [`supply-chain/template-supplier-offboarding-evidence.md`](../../supply-chain/template-supplier-offboarding-evidence.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-002\
 **Last Reviewed:** 2026-08-06
 
 ---

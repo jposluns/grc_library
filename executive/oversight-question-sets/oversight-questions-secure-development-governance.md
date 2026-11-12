@@ -2,8 +2,8 @@
 
 **Document Title:** What the governing body should ask about the organization's secure-development model, code review, dependencies, pipelines, and release quality\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.1\
-**Date:** 2026-09-13\
+**Version:** 0.0.2\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](../../dev-security/policy-secure-development-and-engineering.md), [`dev-security/procedure-secure-code-review.md`](../../dev-security/procedure-secure-code-review.md), [`dev-security/register-compliance-controls-and-gap-register.md`](../../dev-security/register-compliance-controls-and-gap-register.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`dev-security/policy-secure-development-and-engineering.md`](../../dev-security/policy-secure-development-and-engineering.md), [`dev-security/procedure-secure-code-review.md`](../../dev-security/procedure-secure-code-review.md), [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md), [`dev-security/standard-devops-security-requirements.md`](../../dev-security/standard-devops-security-requirements.md), [`dev-security/guideline-ai-coding-assistant-security.md`](../../dev-security/guideline-ai-coding-assistant-security.md), [`dev-security/standard-quality-assurance-and-testing.md`](../../dev-security/standard-quality-assurance-and-testing.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/register-compliance-controls-and-gap-register.md`](../../dev-security/register-compliance-controls-and-gap-register.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-034\
 **Last Reviewed:** 2026-09-13
 
 ---

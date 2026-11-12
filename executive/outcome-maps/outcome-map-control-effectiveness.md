@@ -2,8 +2,8 @@
 
 **Document Title:** How leadership can know, with evidence, whether the controls it relies on are operating\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.4\
-**Date:** 2026-08-16\
+**Version:** 0.0.5\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/framework-document-architecture-and-interrelationship.md`](../../governance/framework-document-architecture-and-interrelationship.md), [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md), [`governance/framework-continuous-assurance-and-improvement.md`](../../governance/framework-continuous-assurance-and-improvement.md), [`risk/register-assurance-map.md`](../../risk/register-assurance-map.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`governance/framework-document-architecture-and-interrelationship.md`](../../governance/framework-document-architecture-and-interrelationship.md), [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../../governance/register-digital-trust-and-assurance-metrics.md), [`governance/framework-continuous-assurance-and-improvement.md`](../../governance/framework-continuous-assurance-and-improvement.md), [`risk/register-assurance-map.md`](../../risk/register-assurance-map.md), [`risk/template-board-risk-report.md`](../../risk/template-board-risk-report.md), [`risk/register-key-risk-indicators.md`](../../risk/register-key-risk-indicators.md), [`compliance/template-audit-evidence-package.md`](../../compliance/template-audit-evidence-package.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md), [`governance/guideline-minimum-viable-governance-structure.md`](../../governance/guideline-minimum-viable-governance-structure.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-010\
 **Last Reviewed:** 2026-08-15
 
 ---
