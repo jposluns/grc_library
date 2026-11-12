@@ -5832,6 +5832,64 @@ class StubDocumentTests(LinterTestCase):
         result = run_linter(".claude/skills/corpus-management/tools/lint-stub-documents.py", fixture)
         self.assertLinterFails(result, "stub")
 
+    def test_default_walk_skips_root_test_scratch(self) -> None:
+        # A fixture a killed test run left under the root tests/tmp is not a
+        # stub document: the directory walk prunes that tree, so the default
+        # run neither lists nor reports it. A nested tests/tmp is still walked,
+        # and an explicit file or a walk that starts inside the scratch tree is
+        # still scanned, so the suite's own fixtures stay reachable. The private
+        # root sits outside the repository, so no concurrent run sees it.
+        from contextlib import redirect_stdout
+        from unittest.mock import patch
+        mod = load_linter_module(
+            ".claude/skills/corpus-management/tools/lint-stub-documents.py", "_stub_scratch_walk")
+        root = self._fixture_base("stub-scratch-root-").resolve()
+        corpus = root / "governance" / "short.md"
+        nested = root / "governance" / "tests" / "tmp" / "nested.md"
+        left = root / "tests" / "tmp" / "currency-ratchet-left" / "ai" / "doc.md"
+        for path in (corpus, nested, left):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("# Short\n\nTiny.\n", encoding="utf-8")
+        out = io.StringIO()
+        with patch.object(mod, "REPO_ROOT", root), patch.object(mod, "DEFAULT_PATHS", [str(root)]), \
+                patch.object(_lint_common, "REPO_ROOT", root):
+            self.assertEqual(sorted(mod.iter_targets([str(root)])), sorted([corpus, nested]))
+            self.assertEqual(mod.iter_targets([str(left)]), [left])
+            self.assertEqual(mod.iter_targets([str(root / "tests" / "tmp")]), [left])
+            with redirect_stdout(out):
+                code = mod.main([mod.__file__])
+        self.assertEqual(code, 1, out.getvalue())
+        self.assertIn("=== governance/short.md ===", out.getvalue())
+        self.assertIn("=== governance/tests/tmp/nested.md ===", out.getvalue())
+        self.assertNotIn("currency-ratchet-left", out.getvalue())
+
+    def test_listed_file_gone_when_read_is_refused_by_name(self) -> None:
+        # A file listed for scanning and removed before the engine reads it (a
+        # concurrent run deleting its scratch) is refused by name with exit 2:
+        # never a FileNotFoundError traceback and never a silent pass.
+        from contextlib import redirect_stderr, redirect_stdout
+        from unittest.mock import patch
+        script = ".claude/skills/corpus-management/tools/lint-stub-documents.py"
+        fixture = self.make_fixture("stub-vanish-when-read.md", "# Short\n\nTiny.\n")
+        mod = load_linter_module(script, "_stub_vanish_when_read")
+        listed = mod.iter_targets
+        found: list[Path] = []
+
+        def list_then_remove(paths):
+            found.extend(listed(paths))
+            fixture.unlink()
+            return list(found)
+
+        out, err = io.StringIO(), io.StringIO()
+        with patch.object(mod, "iter_targets", list_then_remove), \
+                redirect_stdout(out), redirect_stderr(err):
+            code = mod.main([script, str(fixture)])
+        self.assertEqual(found, [fixture.resolve()])
+        self.assertEqual(code, 2, out.getvalue() + err.getvalue())
+        rel = fixture.resolve().relative_to(REPO_ROOT.resolve()).as_posix()
+        self.assertIn(f"ERROR: {rel}: listed for scanning but gone when read", err.getvalue())
+        self.assertEqual(out.getvalue(), "")
+
 
 class SectionAnchorTests(LinterTestCase):
     """.claude/skills/corpus-management/tools/lint-section-anchors.py"""
@@ -31907,40 +31965,114 @@ class OrphanDocumentsTests(LinterTestCase):
     """.claude/skills/corpus-management/tools/lint-orphan-documents.py
 
     The linter walks the entire repository to build the inbound-reference
-    graph and flags artefacts with zero inbound references. To trigger a
-    finding, we place a fixture with a canonical metadata block in
-    ``tests/tmp/`` (where no other document references it). The linter
-    scans this directory by default (not on the exemption list) so the
-    fixture appears in its artefact set and is flagged as orphan.
+    graph and flags artefacts with zero inbound references. Its walk prunes
+    the root ``tests/tmp/`` scratch tree, so a fixture there is never seen.
+    These tests instead run the gate's ``main`` in process against a private
+    repository-shaped root outside the repository (``_fixture_base``), with
+    ``REPO_ROOT`` pointed at it; a fixture there that no other document
+    references is flagged as orphan.
 
     The fixture's metadata gives it a Document Type and filename
     consistent with library conventions; that satisfies the artefact-
     detection criteria the linter uses.
     """
 
+    def _run_at_root(self, files: dict[str, str]) -> subprocess.CompletedProcess:
+        """Run the gate against a private root holding ``files`` (relative path to content)."""
+        from contextlib import redirect_stdout
+        from unittest.mock import patch
+        root = self._fixture_base("orphan-root-").resolve()
+        for rel, content in files.items():
+            path = root / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content, encoding="utf-8")
+        mod = load_linter_module(
+            ".claude/skills/corpus-management/tools/lint-orphan-documents.py", "_orphan_at_root")
+        out = io.StringIO()
+        with patch.object(mod, "REPO_ROOT", root), patch.object(_lint_common, "REPO_ROOT", root), \
+                redirect_stdout(out):
+            code = mod.main([mod.__file__])
+        return subprocess.CompletedProcess([mod.__file__], code, out.getvalue(), "")
+
     def test_unreferenced_artefact_flagged(self) -> None:
         # The orphan-documents linter requires a canonical metadata
-        # block for artefact detection. The fixture's Repository Path
-        # points inside .claude/skills/corpus-management/tests/tmp/ where no other document references
-        # it.
+        # block for artefact detection. No other document in the private
+        # root references the fixture.
         body = VALID_METADATA.replace(
             ".claude/skills/corpus-management/tests/tmp/standard-test.md",
-            ".claude/skills/corpus-management/tests/tmp/standard-unreferenced-orphan.md",
+            "governance/standard-unreferenced-orphan.md",
         )
-        self.make_fixture("standard-unreferenced-orphan.md", body)
-        result = run_linter(".claude/skills/corpus-management/tools/lint-orphan-documents.py")
-        self.assertLinterFails(result, "standard-unreferenced-orphan.md")
+        result = self._run_at_root({"governance/standard-unreferenced-orphan.md": body})
+        self.assertLinterFails(result, "governance/standard-unreferenced-orphan.md")
 
     def test_self_link_is_not_an_inbound_reference(self) -> None:
         # The rule needs a link from ANOTHER document, so an artefact whose only inbound
         # link is its own (here an in-page self-link) is still an orphan.
         body = VALID_METADATA.replace(
             ".claude/skills/corpus-management/tests/tmp/standard-test.md",
-            ".claude/skills/corpus-management/tests/tmp/standard-selflink-orphan.md",
+            "governance/standard-selflink-orphan.md",
         ) + "\nSee [this document](standard-selflink-orphan.md).\n"
-        self.make_fixture("standard-selflink-orphan.md", body)
+        result = self._run_at_root({"governance/standard-selflink-orphan.md": body})
+        self.assertLinterFails(result, "governance/standard-selflink-orphan.md")
+
+    def test_root_test_scratch_is_neither_artefact_nor_referrer(self) -> None:
+        # A fixture a killed test run left under the root tests/tmp is not an
+        # orphan, and its link is not an inbound reference, so the document it
+        # links to is still an orphan. A nested tests/tmp is still walked.
+        result = self._run_at_root({
+            "governance/standard-linked-from-scratch.md": "# Linked only from scratch\n",
+            "tests/tmp/currency-ratchet-left/ai/doc.md":
+                "See [the standard](../../../../governance/standard-linked-from-scratch.md).\n",
+            "governance/tests/tmp/standard-nested.md": "# Nested\n",
+        })
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertEqual(result.stdout.splitlines()[1:3], [
+            "  governance/standard-linked-from-scratch.md",
+            "  governance/tests/tmp/standard-nested.md",
+        ], result.stdout)
+        self.assertNotIn("currency-ratchet-left", result.stdout)
+
+    def test_listed_file_gone_when_read_is_refused_by_name(self) -> None:
+        # A file the walk listed and a concurrent run removed before the reference
+        # graph read it is refused by name with exit 2: the graph is incomplete, so
+        # the gate neither reports orphans from it nor stops on a traceback.
+        from contextlib import redirect_stderr, redirect_stdout
+        from unittest.mock import patch
+        root = self._fixture_base("orphan-vanish-").resolve()
+        gone = root / "governance" / "standard-gone.md"
+        kept = root / "governance" / "standard-kept.md"
+        for path in (gone, kept):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("# Doc\n", encoding="utf-8")
+        mod = load_linter_module(
+            ".claude/skills/corpus-management/tools/lint-orphan-documents.py", "_orphan_vanish_when_read")
+        listed = mod.find_all_markdown
+        found: list[Path] = []
+
+        def list_then_remove():
+            found.extend(listed())
+            gone.unlink()
+            return list(found)
+
+        out, err = io.StringIO(), io.StringIO()
+        with patch.object(mod, "REPO_ROOT", root), patch.object(_lint_common, "REPO_ROOT", root), \
+                patch.object(mod, "find_all_markdown", list_then_remove), \
+                redirect_stdout(out), redirect_stderr(err):
+            code = mod.main([mod.__file__])
+        self.assertEqual(sorted(found), sorted([gone, kept]))
+        self.assertEqual(code, 2, out.getvalue() + err.getvalue())
+        self.assertIn(
+            "ERROR: governance/standard-gone.md: listed for scanning but gone when read", err.getvalue())
+        self.assertNotIn("standard-kept.md", err.getvalue())
+        self.assertEqual(out.getvalue(), "")
+
+    def test_repository_run_reports_without_crashing(self) -> None:
+        # The gate runs as a subprocess against the repository itself: whatever
+        # the tree holds, it reports a pass or findings (exit 0 or 1) and never
+        # stops on an uncaught exception.
         result = run_linter(".claude/skills/corpus-management/tools/lint-orphan-documents.py")
-        self.assertLinterFails(result, "standard-selflink-orphan.md")
+        self.assertIn(result.returncode, (0, 1), result.stdout + result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
 
 
 class LintCommonHelperTests(unittest.TestCase):
@@ -36132,6 +36264,10 @@ class VanishingScratchTests(LinterTestCase):
     other caller still scans it. A listed file gone when read, including gate 48's
     glossary gone before its second read, is refused by name with exit 2, never a
     traceback and never a silent skip.
+
+    Two gates with their own directory walk, the stub-document and
+    orphan-document gates, call the same pruned walk directly instead of the
+    opt-in, and refuse a listed file gone when read the same way.
     """
 
     GATES = (
@@ -36256,6 +36392,41 @@ class VanishingScratchTests(LinterTestCase):
             and f".claude/skills/corpus-management/tools/{p.name}" not in self.GATES and p.name != "lint_common.py")
         self.assertEqual(others, [])
 
+    # Tools that call the pruned walk directly rather than through the opt-in.
+    PRUNED_WALK_CALLERS = (
+        "lint-orphan-documents.py",
+        "lint-stub-documents.py",
+    )
+
+    # Tools that resolve the scratch tree through test_scratch_dir.
+    SCRATCH_DIR_CALLERS = (
+        "lint-orphan-documents.py",
+        "lint-stub-documents.py",
+    )
+
+    def test_pruned_walk_callers_are_the_known_set(self) -> None:
+        """Exactly the known tools call the pruned walk and test_scratch_dir, by public name.
+
+        lint_common defines walk_files_pruned and test_scratch_dir and keeps no
+        private-name alias of either. Any other tool under tools/ that names
+        either helper, by any spelling, must be reviewed and added to its set here.
+        """
+        import lint_common
+        for private in ("_walk_files_pruned", "_test_scratch_dir"):
+            self.assertFalse(hasattr(lint_common, private), private)
+        for helper, known in (("walk_files_pruned", self.PRUNED_WALK_CALLERS),
+                              ("test_scratch_dir", self.SCRATCH_DIR_CALLERS)):
+            with self.subTest(helper=helper):
+                callers = sorted(
+                    p.name for p in (SKILL_ROOT / "tools").rglob("*.py")
+                    if p.name != "lint_common.py" and helper in p.read_text(encoding="utf-8"))
+                self.assertEqual(callers, sorted(known))
+            for name in known:
+                with self.subTest(helper=helper, tool=name):
+                    text = (SKILL_ROOT / "tools" / name).read_text(encoding="utf-8")
+                    self.assertRegex(text, rf"from lint_common import [^\n]*\b{helper}\b")
+                    self.assertNotIn(f"_{helper}", text)
+
     def test_alias_outside_scratch_gone_when_read_is_refused(self) -> None:
         """A symlink outside tests/tmp to a file inside it is listed by the opt-in walk.
 
@@ -36340,6 +36511,111 @@ class VanishingScratchTests(LinterTestCase):
 
         with self.assertRaises(FileNotFoundError):
             lint_common.scan_listed(scan, target, vanished)
+        self.assertEqual(vanished, [])
+
+    def test_listed_file_gone_under_relative_spelling_is_refused(self) -> None:
+        """run_listed matches a missing file to a listed one by resolved path too.
+
+        The listing holds the absolute path, and the engine opens the same file
+        by a path relative to the working directory. Once the file is gone the
+        FileNotFoundError names the relative spelling, which still matches the
+        listed file, so it is recorded and refused by name, never raised.
+        """
+        from unittest.mock import patch
+        import lint_common
+        target = self.make_fixture("vanish-relative-spelling.md", "# Doc\n")
+        listed = [target.resolve()]
+        spelling = Path(os.path.relpath(listed[0], Path.cwd()))
+        self.assertFalse(spelling.is_absolute(), spelling)
+        self.assertNotIn(spelling, listed)
+        target.unlink()
+        vanished: list[Path] = []
+
+        def run():
+            return spelling.read_text(encoding="utf-8")
+
+        self.assertIsNone(lint_common.run_listed(run, listed, vanished))
+        self.assertEqual(vanished, [spelling])
+        err = io.StringIO()
+        with patch("sys.stderr", err):
+            self.assertEqual(lint_common.refuse_vanished(vanished), 2)
+        rel = listed[0].relative_to(REPO_ROOT.resolve()).as_posix()
+        self.assertIn(f"ERROR: {rel}: listed for scanning but gone when read", err.getvalue())
+        # A missing file listed under no spelling still raises.
+        other = Path(os.path.relpath(listed[0].parent / "other-missing.md", Path.cwd()))
+        with self.assertRaises(FileNotFoundError):
+            lint_common.run_listed(lambda: other.read_text(encoding="utf-8"), listed, [])
+
+    def test_unresolvable_spelling_is_not_matched_and_error_propagates(self) -> None:
+        """run_listed does not match a missing file whose spelling cannot be resolved.
+
+        With the working directory removed, Path.resolve() of a relative spelling
+        fails (os.getcwd() raises). The spelling then counts as unmatched, so the
+        engine's own FileNotFoundError propagates, chained from the resolve error,
+        and nothing is recorded. The resolve error never replaces it.
+        """
+        import lint_common
+        target = self.make_fixture("vanish-unresolvable.md", "# Doc\n")
+        listed = [target.resolve()]
+        removed = self._fixture_base("vanish-removed-cwd-")
+        original = os.getcwd()
+        self.addCleanup(os.chdir, original)
+        os.chdir(removed)
+        removed.rmdir()
+        spelling = Path(target.name)
+        raised: list[FileNotFoundError] = []
+        vanished: list[Path] = []
+
+        def run():
+            try:
+                return spelling.read_text(encoding="utf-8")
+            except FileNotFoundError as exc:
+                raised.append(exc)
+                raise
+
+        try:
+            with self.assertRaises(OSError) as caught:
+                lint_common.run_listed(run, listed, vanished)
+        finally:
+            os.chdir(original)
+        self.assertEqual(len(raised), 1)
+        self.assertIs(caught.exception, raised[0])
+        self.assertEqual(caught.exception.filename, target.name)
+        self.assertIsInstance(caught.exception.__cause__, OSError)
+        self.assertEqual(vanished, [])
+
+    def test_resolve_runtime_error_is_not_matched_and_error_propagates(self) -> None:
+        """run_listed leaves a missing file unmatched when Path.resolve() raises RuntimeError.
+
+        The missing file's spelling differs from the listed one, so matching
+        needs Path.resolve(), patched here to raise RuntimeError. The file is
+        left unmatched, so the engine's own FileNotFoundError propagates,
+        chained from the RuntimeError, and nothing is recorded. The resolve
+        error never replaces it.
+        """
+        from unittest.mock import patch
+        import lint_common
+        target = self.make_fixture("vanish-resolve-runtime-error.md", "# Doc\n")
+        listed = [target.resolve()]
+        spelling = Path(os.path.relpath(listed[0], Path.cwd()))
+        self.assertNotIn(spelling, listed)
+        target.unlink()
+        raised: list[FileNotFoundError] = []
+        vanished: list[Path] = []
+
+        def run():
+            try:
+                return spelling.read_text(encoding="utf-8")
+            except FileNotFoundError as exc:
+                raised.append(exc)
+                raise
+
+        with self.assertRaises(FileNotFoundError) as caught, \
+                patch.object(Path, "resolve", side_effect=RuntimeError("resolve failed")):
+            lint_common.run_listed(run, listed, vanished)
+        self.assertEqual(len(raised), 1)
+        self.assertIs(caught.exception, raised[0])
+        self.assertIsInstance(caught.exception.__cause__, RuntimeError)
         self.assertEqual(vanished, [])
 
 
@@ -42784,7 +43060,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-narrative-metadata.py CWD F 2438239d00db75202070771351cfed226a66cce1de7e8ffe3559b22800192ce8
         lint-narrative-vocabulary.py CWD F c8fa9fd041e2ea8ea7bc246efc1100795b8e69dcab5b218d5d72ae65ca6c66a0
         lint-nested-markdown-links.py ROOT F 36b09b7bb5221bf0c3589f22426453fee35a9744ce451cd54d3518880be0a5d8
-        lint-orphan-documents.py NO_FS F dfd0ba0a89ae03d33318d8e5801e6cd72629b4acaaf9a83b2809f099447505be
+        lint-orphan-documents.py NO_FS F de61adef06e991b75b527360833df9a086556eb7b197722c3e36daf5cd0fda56
         lint-pii-in-content.py CWD F 9d53a9367dd3c18c770459bf73ff371331bb964b2c32d82d569ebd8d0a7945f9
         lint-placeholder-leakage.py CWD F d9503d8672f7bf079a32b99ad715c43ef5f5b2f2eb17375d2a1eb7fe5fa72832
         lint-positional-backlog-tokens.py ROOT F 014dc171dfd4511c153270b53577d62337fe3a5216dfc4f6f95b84d8e4cc80b1
@@ -42804,7 +43080,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-startup-character-ceiling.py NO_FS F d6417cd2e9987e8038f664931a8d3f8a1e54e9d28d655ea93187e1dcc2a17daf
         lint-stdlib-only-imports.py NO_FS F d08a512bb89bef359817bfb7fac4051e7e69ad971ccd6663372d6a444efa218d
         lint-structure.py OWN F de53071ea54f72ec560227d6779f4fccb282bdf97b840f11343352566a0f5bc9
-        lint-stub-documents.py CWD F 199c52f074f3535e29694e66bb0df818e1a2bdcaee19e444a2056d1ab589422f
+        lint-stub-documents.py CWD F f6a84d2355991104d7f59180c710bde8a63b97da42cef89b8a3fcceb29294982
         lint-table-cell-count.py OWN F 9d69877115bda788933b991e9b23e31b1029009da5b7978c7cf68ae8b6c7fce2
         lint-todo-index-reference-parity.py OWN F 46ffb499a50fa6b5d64ac594776e5a26ad4e3c696fc48d8b5e4fc8b4646a2b22
         lint-todo-list-tag.py OWN F 10ee5371268378b28c9097a588515231d625ab63b5e5b1b9f3533f4d85db9b2d
@@ -42819,7 +43095,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-version-bump-recency.py CWD F ec40079cbc78a794fb12a21477bc94d12202bf3be324f3fb3546999e53f171e3
         lint-version-date-consistency.py OWN F c07c0009130b660eb3ef8c3a1e06c659a99d8eea3663a2fbd84d47773c87e099
         lint-web-corpus-links.py OWN F 590157e1f8c31f8c867b1f31e5976d95a8e04ef2a00fa7a0c636589b3bb7e80a
-        lint_common.py PASSIVE F 82cad94e04db71f7568fc4725f981aa2c55ba7b63688d1815598f1ed3263bf3a
+        lint_common.py PASSIVE F 91dd0425ff9aae5d86504ac94fa4964988d899f38715295566434c17d1e2daec
         matrix_code_parse.py PASSIVE F 62df77ba801019b06afea2a1474836a90dc2e8385f7d99becef9d393c511f622
         measure-regression-timings.py WRITE F 3fa6dd03e89eaf23d6b92a01f4369f11ff863a475bc81926319b7c734fa007d1
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7

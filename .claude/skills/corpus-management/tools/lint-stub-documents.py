@@ -18,7 +18,8 @@ Usage:
     python3 .claude/skills/corpus-management/tools/lint-stub-documents.py
     python3 .claude/skills/corpus-management/tools/lint-stub-documents.py path1 path2 ...
 
-Exit codes are the engine's: 0 clean; 1 finding(s).
+Exit codes are the engine's: 0 clean; 1 finding(s). A listed file gone when the
+engine reads it is refused by name with 2 (``lint_common.refuse_vanished``).
 """
 
 from __future__ import annotations
@@ -29,7 +30,7 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: verifies the vendored AIQT pack .claude/aiqt/ and publishes aiqt_corpus in sys.modules
-from lint_common import guard_explicit_paths_cwd, is_default_exempt_root, DEFAULT_EXEMPT_DIRS, in_exempt_dir, is_narrative_root, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import guard_explicit_paths_cwd, is_default_exempt_root, DEFAULT_EXEMPT_DIRS, in_exempt_dir, is_narrative_root, REPO_ROOT, refuse_vanished, run_listed, test_scratch_dir, walk_files_pruned  # noqa: E402  # grc-config/store, stays local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / "src" / "tools"
 
@@ -91,8 +92,17 @@ def is_target(path: Path) -> bool:
 
 
 def iter_targets(paths: list[str]) -> list[Path]:
+    """Explicit files, plus every target under each directory.
+
+    A directory walk prunes the root ``tests/tmp`` scratch tree
+    (lint_common.TEST_SCRATCH_ROOT) and never enters it, so a fixture a killed
+    test run left there is not reported as a stub. A walk that starts inside
+    that tree, and an explicit file in it, are still scanned, so the suite's
+    own fixtures stay reachable.
+    """
     targets: list[Path] = []
     seen: set[Path] = set()
+    scratch = test_scratch_dir(REPO_ROOT)
     for raw in paths:
         p = Path(raw).resolve()
         if p.is_file() and is_target(p):
@@ -100,7 +110,11 @@ def iter_targets(paths: list[str]) -> list[Path]:
                 targets.append(p)
                 seen.add(p)
         elif p.is_dir():
-            for f in p.rglob("*.md"):
+            if p.is_relative_to(scratch):
+                walk = p.rglob("*.md")
+            else:
+                walk = (f for f in walk_files_pruned(p, scratch) if f.suffix == ".md")
+            for f in walk:
                 if is_target(f) and f not in seen:
                     targets.append(f)
                     seen.add(f)
@@ -140,7 +154,16 @@ def main(argv: list[str]) -> int:
     args = parser.parse_args(argv[1:])
     # Explicit paths are refused when missing or outside this tree, else normalized.
     args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
-    return _engine().run(iter_targets(args.paths), repo_root=REPO_ROOT, vocab=_stubs_config())
+    engine = _engine()
+    vocab = _stubs_config()
+    targets = iter_targets(args.paths)
+    # A listed file removed before the engine reads it (a concurrent run deleting
+    # its scratch) is refused by name, never a traceback and never a silent pass.
+    vanished: list[Path] = []
+    code = run_listed(lambda: engine.run(targets, repo_root=REPO_ROOT, vocab=vocab), targets, vanished)
+    if vanished:
+        return refuse_vanished(vanished, repo_root=REPO_ROOT)
+    return code
 
 
 if __name__ == "__main__":

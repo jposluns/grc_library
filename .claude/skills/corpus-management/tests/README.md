@@ -298,7 +298,17 @@ fixture left by a crashed test can trip one of the 14 root
 walkers in the main `.claude/skills/corpus-management/tools/run_all_audits.sh` sweep, and a fixture the
 suite deletes mid-walk can still stop one of them with a
 `FileNotFoundError`. Gates with their own walk are outside this
-switch.
+switch. Two of them prune the root `tests/tmp/` tree from their own
+directory walk with the same helper, so crash residue there is never a
+finding: the stub-document gate
+(`.claude/skills/corpus-management/tools/lint-stub-documents.py`), which
+still scans an explicit path under that tree or a walk that starts
+inside it, and the orphan-document gate
+(`.claude/skills/corpus-management/tools/lint-orphan-documents.py`), for
+which a link from residue is not an inbound reference either. A file
+either gate lists and then finds gone when it reads it is refused by
+name with exit 2 (`lint_common.run_listed`), never a traceback and
+never skipped.
 Crash residue is deliberately NOT removed by the next run: a sweep
 cannot tell a crashed run's files from a live run's, so an automatic
 sweep could only ever delete fixtures a concurrently running instance
