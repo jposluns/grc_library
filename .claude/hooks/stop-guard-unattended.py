@@ -124,13 +124,21 @@ CONSOLE AND DETAIL LOG (maintainer-directed 2026-11-04: refusal detail belongs o
 the operator view). This changes only how a block is worded and routed, never whether the hook
 blocks. On a block, run() appends the full detail (decide()'s complete reason plus every
 actionable item's ID and title) to a per-session log,
-<store>/stop-hook-detail/stop-guard.<first 12 characters of session_id>.log (each entry's header
-carries the whole session_id), where <store> is the directory of _GRC_STATE_FILE (GRC_STORE or
-<repo-parent>/private, the lease's store). A store inside this checkout (_GRC_REPO_ROOT), or
-inside any git working tree (a `.git` entry in the store directory or any ancestor up to the
-filesystem root, lexically or after resolving symlinks, or `git rev-parse
---is-inside-work-tree` succeeding there with every inherited GIT_* variable removed), is
-refused before anything is created. The diagnostic is then three short lines
+<root>/stop-hook-detail/stop-guard.<first 12 characters of session_id>.log (each entry's header
+carries the whole session_id), where <root> is the fixed per-account detail log root
+<home>/.local/state/grc (_open_detail_root), the same root
+block-turn-end-with-outstanding-work.py uses, through helpers identical in both hooks. <home>
+is the password-database home of the effective uid (_detail_home); neither HOME nor
+XDG_STATE_HOME is read, so a session's environment cannot move the log (tests replace it
+through _DETAIL_HOME). The log is never written into the store (the directory of
+_GRC_STATE_FILE: GRC_STORE or <repo-parent>/private, the lease's store), and detail logs already
+in <store>/stop-hook-detail are neither moved nor deleted. A root inside this checkout
+(_GRC_REPO_ROOT), or inside any git working tree or bare repository (a `.git` entry in the root
+or any ancestor up to the filesystem root, lexically or after resolving symlinks, or `git
+rev-parse --is-inside-work-tree` exiting 0, as it does in a working tree and inside a bare
+repository, run with every inherited GIT_* variable removed in the deepest level of the root's
+path that exists), is refused before anything is created. The diagnostic is then three short
+lines
 (_short_refusal), each at most _MAX_LINE_CHARS: what blocked with the actionable count, WHY
 with the live group count and the required count (decide()'s max(operator share, 3), from
 _required_groups) on every wording, the shortest being "WHY: live 1/5 required; log: " (hook
@@ -141,48 +149,69 @@ the message did not name it) as one shell word (_shell_word) with decide()'s con
 followed by the log path. When the escape path and the log path do not both fit that line, the
 escape path keeps the CONSIDER INSTEAD line, with the condition when it fits and "(condition
 in log)" when it does not, and the log path moves to the end of the WHY line; there is never a
-fourth line. No item ID or title appears
-in that form. PATH BUDGET: the log path adds 45 characters to the store path (with a
-12-character session prefix), so the short form fits a store path of at most 84 characters
-while the required count has at most two digits, as run()'s always has (_SLOT_SHARE_MAX is
-64; hook escaping round 4, claude N3: a longer required count leaves less), and of 86 while
-it has one digit (the default floor is 3): the shortest WHY
-wording, "WHY: live <live>/<required> required; log: ", leaves 129 to 131 characters for the
-log path (82 when no required count is passed, as before round 3, where the shortest wording
-leaves 127); a longer store path, an
-escape path longer than 101 characters (shell-quoted), or a log or escape path with any non-printable
-character (a newline, a carriage return or a terminal escape, tested with _printable), takes
-the fallback below. The full detail (every item ID and title) is built only after the time
-budget and the session_id have been checked, inside the deadline-controlled write thread, so
-a very large item list cannot push the refusal past the budget. The log is created without
-following symlinks (the store directory, the subdirectory and the file are opened with
-O_NOFOLLOW); the subdirectory must be owned by this uid with no group or other write bit; the
-file must be regular, mode 0600, owned by this uid and singly linked; and after the write the
-advertised path must still name the written file (lstat st_dev and st_ino against the
-descriptor's fstat). Building the detail, the resolution, checks, open and write run in a
-daemon thread. TIME BUDGET: the Stop hook timeout in .claude/settings.json is 10 seconds and
-the producer alone may take PRODUCER_TIMEOUT_S (8), so the whole run is kept within
-_RUN_BUDGET_S (8.5) seconds of this module starting to execute (main() sets _RUN_DEADLINE):
-the thread is joined for at most min(_DETAIL_TIMEOUT_S, time left in that budget), and with
-less than _MIN_WRITE_S left, or no usable session_id, no detail is built and no write is
-attempted. The remaining 1.5 seconds cover interpreter startup and compiling this file,
-_diagnostic's 0.2-second fork wait and exit. If the log cannot be written (no usable
-session_id in the Stop payload, a missing store, a store inside this checkout or a git
-working tree, a timeout, a spent budget, or any open, check or write failure), or the log
-path and the escape path cannot both be shown within the three lines, the fallback is
-emitted instead (_fallback_refusal): decide()'s reason, then
-one NOTE line naming the failure, then the actionable count only. This fails open to
-visibility, never to silence, and keeps #2291: no item ID or title reaches the diagnostic on
-either path. Every fallback line is clamped to _MAX_LINE_CHARS and _MAX_LINE_BYTES, so the
-fallback always fits _diagnostic's PIPE_BUF cap with the NOTE intact. decide() writes the
-declared-wait path as one printable shell word (_shell_word), so a newline or terminal escape
-in it cannot start a diagnostic line on the fallback (the detail log carries the same text), and the
-producer's fail-open NOTICE escapes the producer's stderr and path the same way. Exit status,
-the escape and stop_hook_active handling are unchanged. RESIDUE: ancestors above the store directory are
-not checked for symlinks; the log is appended to without rotation; two sessions whose ids
-share their first 12 characters share one log file (each entry names its session); a write
-that times out may still complete later in the abandoned thread, and the process exit can
-still wait on a syscall the kernel does not let a fatal signal interrupt.
+fourth line. No item ID or title appears in that form. PATH BUDGET: the log path adds 45
+characters to the root path (with a 12-character session prefix), so the short form fits a root
+path of at most 84 characters while the required count has at most two digits, as run()'s always
+has (_SLOT_SHARE_MAX is 64; hook escaping round 4, claude N3: a longer required count leaves
+less), and of 86 while it has one digit (the default floor is 3), that is a home of at most 67
+or 69 characters (the root adds 17): the shortest WHY wording,
+"WHY: live <live>/<required> required; log: ", leaves 129 to 131 characters for the log path
+(82 when no required count is passed, as before round 3, where the shortest wording leaves
+127); a longer root path, an escape
+path longer than 101 characters (shell-quoted), or a log or escape path with any non-printable
+character (a newline, a carriage return, a terminal escape or a Unicode space separator other
+than the ASCII space, tested with _printable), takes the fallback below. The full detail (every
+item ID and title) is built only after the time budget
+and the session_id have been checked, inside the deadline-controlled write thread, so a very
+large item list cannot push the refusal past the budget. The root is opened without following a
+symlink anywhere on its path ("/" first, then each component relative to the one before, with
+O_NOFOLLOW), and each open directory is checked with fstat: every directory above the home owned
+by root or this uid with no group or other write bit, unless root-owned and sticky; the home,
+.local and .local/state owned by this uid with no group or other write bit; grc owned by this
+uid with no group or other access. Missing directories from .local down are created with mode
+0700; nothing is created at or above the home, and no existing directory is changed. A `.git`
+entry in grc or in the subdirectory is refused, and the git working tree check runs again after
+the walk, whether or not a directory was created, immediately before the root is returned for
+the write, so a `.git` planted meanwhile at a level that already existed is refused too. The
+subdirectory must be owned by this uid with no group or other access; the file must be regular,
+mode 0600, owned by this uid and singly linked; and after the write the advertised path must
+still name the written file (lstat st_dev and st_ino against the descriptor's fstat). Building
+the detail, the resolution, checks, open and write run in a daemon thread. TIME BUDGET: the Stop
+hook timeout in .claude/settings.json is 10 seconds and the producer alone may take
+PRODUCER_TIMEOUT_S (8), so the whole run is kept within _RUN_BUDGET_S (8.5) seconds of this
+module starting to execute (main() sets _RUN_DEADLINE): the thread is joined for at most
+min(_DETAIL_TIMEOUT_S, time left in that budget), and with less than _MIN_WRITE_S left, or no
+usable session_id, no detail is built and no write is attempted. The remaining 1.5 seconds cover
+interpreter startup and compiling this file, _diagnostic's 0.2-second fork wait and exit. If the
+log cannot be written (no usable session_id in the Stop payload, no password-database entry or
+an unusable home, a root inside this checkout, a git working tree or a bare repository, a
+symlink, a wrong owner or mode, a timeout, a spent budget, or any open, check or write failure),
+or the log path and the
+escape path cannot both be shown within the three lines, the fallback is emitted instead
+(_fallback_refusal): decide()'s reason, then one NOTE line naming the failure (_note_line: the
+cause's type and reason and, for an OSError naming one path, that path; when the line would
+exceed _MAX_LINE_CHARS, only the path is shortened (_shorten_path), to the room the form, the
+state, the reason and the quoting around the path (the ": '" before it and the "'" after it)
+leave of _MAX_LINE_CHARS, so the entry it names, such as a .git, is shown only when that room
+holds its name, and the path can shrink to the elision mark alone; when even the mark does not
+fit, and for any other cause whose line is too long, the whole line is cut to _MAX_LINE_CHARS
+ending in the mark (_clamp), which drops the end of the line, then the path, then the end of the
+reason), then the actionable count only. This fails open to visibility, never to silence, and
+keeps #2291: no item ID or title reaches the diagnostic on either path. Every fallback line is
+clamped to _MAX_LINE_CHARS and _MAX_LINE_BYTES, so the fallback always fits _diagnostic's
+PIPE_BUF cap with the NOTE intact. decide() writes the declared-wait path as one printable shell
+word (_shell_word), so a newline or terminal escape in it cannot start a diagnostic line on the
+fallback (the detail log carries the same text), and the producer's fail-open NOTICE escapes the
+producer's stderr and path the same way. Exit status, the escape and stop_hook_active handling
+are unchanged. RESIDUE: a home kept in a git working tree or a bare repository refuses every
+log (visibly, through the NOTE), with no second location; a bare repository is not seen when
+git's configuration sets safe.bareRepository to explicit; a `.git` planted above grc, or in grc
+itself, between the last git working tree
+check and the file open is not seen (only this uid or root can plant one there); the log is
+appended to without rotation; two sessions whose ids share their first 12 characters share one
+log file (each entry names its session); a write that times out may still complete later in the
+abandoned thread, and the process exit can still wait on a syscall the kernel does not let a
+fatal signal interrupt.
 
 Self-test: python3 .claude/hooks/stop-guard-unattended.py --self-test.
 Self-contained: grc file/producer fixtures replace lab_infra tooling fixtures; registry cases remain.
@@ -1067,6 +1096,17 @@ _DETAIL_SUBDIR = "stop-hook-detail"
 _DETAIL_NAME = "stop-guard"
 _SESSION_PREFIX_CHARS = 12
 _DETAIL_TIMEOUT_S = 2.0
+# The detail log root, <home>/.local/state/grc, under the password-database home of the effective
+# uid (_detail_home). No environment variable moves it; tests set _DETAIL_HOME (None: the lookup).
+_DETAIL_ROOT_PARTS = (".local", "state", "grc")
+_DETAIL_HOME = None
+# The mark _shorten_path puts where it drops part of a path a NOTE line names, and _clamp
+# puts at the end of a line it cuts.
+_ELISION = "..."
+# Set to 1 to let a self-test real detail log write skip, with the reason, on a host whose
+# temporary directory cannot provide a fixture home that meets the root's rule; unset, it fails.
+# tests/test_linters.py applies the same rule with the same variable.
+_UNSAFE_TMP_SKIP_ENV = "GRC_ALLOW_UNSAFE_TMP_SKIP"
 # TIME BUDGET: the whole run stays within _RUN_BUDGET_S of _LOADED_AT, under the 10-second Stop
 # hook timeout in .claude/settings.json with margin; _RUN_DEADLINE is set by main() only.
 _RUN_BUDGET_S = 8.5
@@ -1081,7 +1121,9 @@ _MAX_LINE_BYTES = 640
 
 
 def _printable(value):
-    """Escape control and other non-printable characters for the log and the fallback."""
+    """``value`` as text with every character that is not printable shown as its ascii()
+    escape: a control character, and a Unicode space separator (category Zs) other than the
+    ASCII space, among others. Used for console lines and the detail log in both Stop hooks."""
     return "".join(ch if ch.isprintable() else ascii(ch)[1:-1] for ch in str(value))
 
 
@@ -1168,12 +1210,16 @@ def _declared_wait_line(escape_path):
     return _WAIT_TOO_LONG % (_grc_escape_dir_label(), _WAIT_LOGGED)
 
 
-def _clamp(line):
-    """One diagnostic line cut to _MAX_LINE_CHARS characters and _MAX_LINE_BYTES encoded bytes."""
-    line = line[:_MAX_LINE_CHARS]
-    while len(line.encode("utf-8", "backslashreplace")) > _MAX_LINE_BYTES:
+def _clamp(line, limit=_MAX_LINE_CHARS):
+    """``line`` as one console line of at most ``limit`` characters (``limit`` at least
+    len(_ELISION)) and _MAX_LINE_BYTES encoded bytes: whole when it fits both, else cut to fit
+    them, ending in _ELISION."""
+    if len(line) <= limit and len(line.encode("utf-8", "backslashreplace")) <= _MAX_LINE_BYTES:
+        return line
+    line = line[:limit - len(_ELISION)]
+    while len((line + _ELISION).encode("utf-8", "backslashreplace")) > _MAX_LINE_BYTES:
         line = line[:-1]
-    return line
+    return line + _ELISION
 
 
 def _first_fit(forms, values, what):
@@ -1202,7 +1248,7 @@ def _short_refusal(count, live_groups, log_path, escape_path, required=None):
     then shows the fallback.
     PATH BUDGET: with ``required`` given, as run() does, the shortest WHY wording leaves 129 to
     131 characters for the log path while the required count has at most two digits (as run()'s
-    always has), so the store path may be at most 84, or 86 with a one-digit required count;
+    always has), so the root path may be at most 84, or 86 with a one-digit required count;
     without it, 127 and 82 (see CONSOLE AND DETAIL LOG); the escape
     path at most 101 as shell-quoted."""
     if _printable(log_path) != log_path:
@@ -1248,37 +1294,47 @@ def _fallback_refusal(reason, count, state, why):
     count only (#2291: no item ID or title reaches the diagnostic). Every line is clamped, and
     the reason keeps at most _MAX_REASON_LINES lines, so the text fits _diagnostic's PIPE_BUF cap.
     When the detail log was not written, a too-long declared-wait line says so instead of
-    pointing at the log (round 5, claude W1)."""
+    pointing at the log (round 5, claude W1). ``why`` is the failure, an exception or text
+    naming one, which _note_line renders, keeping its reason whole only when the line has room
+    for it."""
     lines = reason.split("\n")[:_MAX_REASON_LINES]
     if state == "not written":
         lines = [_WAIT_UNLOGGED.get(line, line) for line in lines]
     lines = [_clamp(line) for line in lines]
-    lines.append(_clamp("NOTE: detail log %s (%s); reason shown here." % (state, why)))
+    form = "NOTE: detail log %s (%s); reason shown here."
+    try:
+        lines.append(_note_line(form, state, why))
+    except Exception:
+        lines.append(_clamp(form % (state, type(why).__name__)))
     lines.append(_clamp("Actionable items: %d (IDs and titles are not shown here, #2291)." % count))
     return "\n".join(lines)
 
 
-def _append_private(directory, name, text):
-    """Append ``text`` to ``directory/_DETAIL_SUBDIR/name`` without following a symlink at the
-    directory, the subdirectory or the file. The subdirectory must be owned by this uid with no
-    group or other write bit; the file must be a singly linked regular file owned by this uid,
-    mode 0600; after the write the returned path must still name the written file (same st_dev
-    and st_ino). Any failure raises; the caller then fails open to the diagnostic."""
+def _append_private(top, directory, name, text):
+    """Append ``text`` to ``directory/_DETAIL_SUBDIR/name``, where ``top`` is the descriptor
+    _open_detail_root returned for ``directory`` (the caller closes it), without following a
+    symlink at the subdirectory or the file. The subdirectory must be owned by this uid with no
+    group or other access and hold no `.git` entry; the file must be a singly linked regular
+    file owned by this uid, mode 0600; after the write the returned path must still name the
+    written file (same st_dev and st_ino). Any failure raises; the caller then fails open."""
     flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
-    top = os.open(directory, flags)
     try:
-        try:
-            os.mkdir(_DETAIL_SUBDIR, 0o700, dir_fd=top)
-        except FileExistsError:
-            pass
-        sub = os.open(_DETAIL_SUBDIR, flags, dir_fd=top)
-    finally:
-        os.close(top)
+        os.mkdir(_DETAIL_SUBDIR, 0o700, dir_fd=top)
+    except FileExistsError:
+        pass
+    sub = os.open(_DETAIL_SUBDIR, flags, dir_fd=top)
     try:
         info = os.fstat(sub)
         if (not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid()
-                or info.st_mode & (stat.S_IWGRP | stat.S_IWOTH)):
+                or info.st_mode & 0o077):
             raise PermissionError(errno.EPERM, "detail log directory is not private", _DETAIL_SUBDIR)
+        try:
+            os.stat(".git", dir_fd=sub, follow_symlinks=False)
+        except FileNotFoundError:
+            pass
+        else:
+            raise PermissionError(errno.EPERM, "detail log directory holds a .git entry",
+                                  os.path.join(os.fspath(directory), _DETAIL_SUBDIR, ".git"))
         fd = os.open(name, os.O_WRONLY | os.O_APPEND | os.O_CREAT | os.O_NOFOLLOW
                      | os.O_NONBLOCK | os.O_CLOEXEC, 0o600, dir_fd=sub)
     finally:
@@ -1305,12 +1361,16 @@ def _append_private(directory, name, text):
 
 
 def _git_tree_marker(directory, timeout):
-    """What places ``directory`` inside a git working tree, or None: the first `.git` entry (of
-    any type) in it or an ancestor up to the filesystem root, on the lexical path and on the
-    resolved path, then `git rev-parse --is-inside-work-tree` exiting 0 there with every
-    inherited GIT_* variable removed (so neither GIT_DIR nor a ceiling changes discovery),
-    bounded by ``timeout``. A missing git binary leaves the `.git` walk as the check; any other
-    failure raises."""
+    """What places ``directory`` inside a git working tree or a bare repository, or None: the
+    first `.git` entry (of any type) in it or an ancestor up to the filesystem root, on the
+    lexical path and on the resolved path, then `git rev-parse --is-inside-work-tree` exiting 0
+    with every inherited GIT_* variable removed (so neither GIT_DIR nor a ceiling changes
+    discovery), bounded by ``timeout``. git runs in the deepest of ``directory`` and its
+    ancestors that exists (lexically), so a directory not yet created is checked where it
+    would be created; inside a bare repository git prints "false" and still exits 0, so a bare
+    repository is found before anything is created in it, unless git's own configuration sets
+    safe.bareRepository to explicit (git then refuses the repository and exits nonzero). A
+    missing git binary leaves the `.git` walk as the check; any other failure raises."""
     lexical = Path(os.path.abspath(directory))
     for start in (lexical, lexical.resolve()):
         for candidate in (start, *start.parents):
@@ -1320,6 +1380,8 @@ def _git_tree_marker(directory, timeout):
                 continue
             return str(candidate / ".git")
     root = lexical
+    while root != root.parent and not os.path.lexists(root):
+        root = root.parent
     env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
     env["LC_ALL"] = "C"
     try:
@@ -1329,6 +1391,176 @@ def _git_tree_marker(directory, timeout):
     except FileNotFoundError:
         return None
     return "git rev-parse" if result.returncode == 0 else None
+
+
+def _refuse_git_tree(root, timeout):
+    """Raise PermissionError when ``root`` is inside a git working tree or a bare repository
+    (_git_tree_marker, within ``timeout`` seconds); the reason says "git working tree" for
+    both. The error's path is the `.git` entry found, so a NOTE line that must shorten it still
+    ends with that entry; when only git rev-parse placed the root in a repository, as for a
+    bare repository, the path is the root and the reason says so."""
+    marker = _git_tree_marker(root, timeout)
+    if marker is None:
+        return
+    if marker == "git rev-parse":
+        raise PermissionError(errno.EPERM, "detail log root is inside a git working tree "
+                              "(git rev-parse)", root)
+    raise PermissionError(errno.EPERM, "detail log root is inside a git working tree", marker)
+
+
+def _shorten_path(path, room):
+    """``path`` in at most max(``room``, len(_ELISION)) characters: whole when it fits; else its
+    middle components replaced by _ELISION, keeping as many of its last components as fit (the
+    last names the offending entry, such as a .git) and its first component when that fits
+    too, as in "/var/.../home/.git". Only a last component longer than ``room`` allows is
+    itself cut, from the left, behind _ELISION; with ``room`` at most len(_ELISION), only
+    _ELISION is left."""
+    if len(path) <= room:
+        return path
+    parts = path.split("/")
+    lead = 2 if parts[0] == "" else 1
+    head = "/".join(parts[:lead])
+    for keep in range(len(parts) - lead, 0, -1):
+        tail = "/".join(parts[-keep:])
+        for shown in (head + "/" + _ELISION + "/" + tail, _ELISION + "/" + tail):
+            if len(shown) <= room:
+                return shown
+    last = parts[-1]
+    return _ELISION + last[len(last) - max(room - len(_ELISION), 0):]
+
+
+def _note_line(form, state, cause):
+    """``form``, a NOTE line with %s for the log state and then the cause, filled with
+    ``state`` and ``cause`` (an exception, or text already naming one), at most
+    _MAX_LINE_CHARS characters. Only the cause is escaped with _printable; ``form`` and
+    ``state`` are fixed internal strings and go in as given. The cause is the text itself, or
+    the exception's type and its reason text. For an OSError that names one path (a filename
+    and no filename2), the reason is "<type>: [Errno N] <strerror>" and the path follows it in
+    single quotes, as "<reason>: '<path>'", the reason and the path each escaped on its own
+    before the path is shortened. The path gets the room the form, the state, the reason and
+    that quoting (the ": '" before the path and the "'" after it) leave of _MAX_LINE_CHARS:
+    _shorten_path cuts the path only when it is longer than that room, so the reason stays
+    whole and the path keeps as many of its last components as fit (the last names the
+    offending entry, such as a .git, only when the room holds its name). Every line then goes
+    through _clamp, which cuts a line longer than _MAX_LINE_CHARS to end in _ELISION: an
+    OSError line when that room is shorter than both _ELISION and the path, and any other
+    cause's line when its text is too long. The end of the form goes first, then the path, if
+    any, then the end of the reason, so the reason is kept whole only when it ends within the
+    first _MAX_LINE_CHARS - len(_ELISION) characters of the line."""
+    if not isinstance(cause, BaseException):
+        return _clamp(form % (state, _printable(str(cause))))
+    name = type(cause).__name__
+    named = cause.filename if isinstance(cause, OSError) else None
+    if named is None or cause.filename2 is not None:
+        return _clamp(form % (state, _printable("%s: %s" % (name, cause))))
+    try:
+        path = os.fsdecode(named)
+    except TypeError:
+        path = str(named)
+    reason = _printable("%s: [Errno %s] %s" % (name, cause.errno, cause.strerror))
+    path = _printable(path)
+    room = _MAX_LINE_CHARS - len(form % (state, "%s: ''" % reason))
+    return _clamp(form % (state, "%s: '%s'" % (reason, _shorten_path(path, room))))
+
+
+def _detail_home():
+    """The home of this process's effective uid in the password database (pwd.getpwuid), or
+    _DETAIL_HOME when a test sets it. HOME and XDG_STATE_HOME are never read, so a session's
+    environment cannot move the detail log. Raises KeyError when the uid has no entry, and
+    PermissionError unless the home is an absolute, normalized path below the filesystem root."""
+    home = _DETAIL_HOME
+    if home is None:
+        home = pwd.getpwuid(os.geteuid()).pw_dir
+    home = os.fspath(home)
+    if (not os.path.isabs(home) or os.path.normpath(home) != home or home.startswith("//")
+            or home == "/"):
+        raise PermissionError(errno.EPERM, "home directory is not an absolute normalized path "
+                              "below the filesystem root", home)
+    return home
+
+
+def _open_detail_root(checkout, timeout):
+    """Open the detail log root, <home>/.local/state/grc (_detail_home, _DETAIL_ROOT_PARTS), and
+    return (its directory descriptor, its path); the caller closes the descriptor. A root
+    inside ``checkout``, or inside any git working tree or bare repository (_git_tree_marker,
+    whose git leg runs in the deepest existing level of the root's path, within ``timeout``
+    seconds), is refused before anything is created. "/" is opened and then each component
+    relative to the one before with O_NOFOLLOW, so a symlink anywhere on the path is refused,
+    and every open directory is checked with fstat, never by path: each directory above the
+    home must be owned by root or this uid with no group or other write bit, unless it is
+    root-owned and sticky; the home, .local and .local/state must be owned by this uid with no
+    group or other write bit; grc must be owned by this uid with no group or other access.
+    Missing directories from .local down are created with mode 0700, and one that already
+    exists is trusted only through the fstat of the descriptor then opened; nothing is created
+    at or above the home, and no existing directory is changed. A `.git` entry in grc is
+    refused, and the git working tree check (_refuse_git_tree) runs again after the walk,
+    whether or not this call created a directory, immediately before the root is returned for
+    the write. A failed open or mkdir names the whole path it reached. Any failure raises; the
+    caller then fails open."""
+    started = time.monotonic()
+    home = _detail_home()
+    root = os.path.join(home, *_DETAIL_ROOT_PARTS)
+    if Path(root).resolve().is_relative_to(Path(checkout).resolve()):
+        raise PermissionError(errno.EPERM, "detail log root resolves inside this checkout", root)
+    _refuse_git_tree(root, timeout - (time.monotonic() - started))
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+    euid = os.geteuid()
+    writable = stat.S_IWGRP | stat.S_IWOTH
+
+    def descend(parent, name, path):
+        # On failure the caller still holds ``parent`` and closes it.
+        try:
+            child = os.open(name, flags, dir_fd=parent)
+        except OSError as exc:
+            if exc.errno in (errno.ELOOP, errno.ENOTDIR):
+                raise PermissionError(errno.EPERM, "symlink or non-directory in detail log root "
+                                      "path", path) from exc
+            raise OSError(exc.errno, exc.strerror, path) from exc
+        os.close(parent)
+        return child
+
+    path = "/"
+    fd = os.open(path, flags)
+    try:
+        for name in [part for part in home.split("/") if part]:
+            info = os.fstat(fd)
+            if not (info.st_uid in (0, euid) and not info.st_mode & writable
+                    or info.st_uid == 0 and info.st_mode & stat.S_ISVTX):
+                raise PermissionError(errno.EPERM, "directory above the home is not owned by "
+                                      "root or this uid, or others can write it", path)
+            path = os.path.join(path, name)
+            fd = descend(fd, name, path)
+        for name in ("",) + _DETAIL_ROOT_PARTS:
+            if name:
+                path = os.path.join(path, name)
+                try:
+                    os.mkdir(name, 0o700, dir_fd=fd)
+                except FileExistsError:
+                    pass
+                except OSError as exc:
+                    raise OSError(exc.errno, exc.strerror, path) from exc
+                fd = descend(fd, name, path)
+            info = os.fstat(fd)
+            private = name == _DETAIL_ROOT_PARTS[-1]
+            if (not stat.S_ISDIR(info.st_mode) or info.st_uid != euid
+                    or info.st_mode & (0o077 if private else writable)):
+                raise PermissionError(errno.EPERM, "detail log root path component must be owned "
+                                      "by this uid with no group or other %s"
+                                      % ("access" if private else "write bit"), path)
+        try:
+            os.stat(".git", dir_fd=fd, follow_symlinks=False)
+        except FileNotFoundError:
+            pass
+        else:
+            raise PermissionError(errno.EPERM, "detail log root holds a .git entry",
+                                  os.path.join(root, ".git"))
+        # Again whether or not a directory was created, immediately before the write, so a
+        # .git planted at a level that already existed, after the first check, is refused too.
+        _refuse_git_tree(root, timeout - (time.monotonic() - started))
+    except BaseException:
+        os.close(fd)
+        raise
+    return fd, root
 
 
 def _log_session(payload):
@@ -1356,22 +1588,22 @@ def _detail_text(reason, actionable):
 
 
 def _write_detail_log(detail, payload, timeout=_DETAIL_TIMEOUT_S):
-    """Append the full refusal detail to this session's log and return its path, or raise. A
-    store inside this checkout or inside any git working tree is refused before anything is
-    created (the same refusals block-turn-end-with-outstanding-work.py applies)."""
+    """Append the full refusal detail to this session's log under the detail log root
+    (_open_detail_root) and return its path, or raise. A root inside this checkout or inside any
+    git working tree or bare repository is refused before anything is created, as in
+    block-turn-end-with-outstanding-work.py; the store (_GRC_STATE_FILE) is never written."""
     started = time.monotonic()
     session = _log_session(payload)
-    directory = os.path.dirname(_GRC_STATE_FILE)
-    if Path(directory).resolve().is_relative_to(Path(_GRC_REPO_ROOT).resolve()):
-        raise PermissionError(errno.EPERM, "store resolves inside this checkout", directory)
-    marker = _git_tree_marker(directory, timeout - (time.monotonic() - started))
-    if marker is not None:
-        raise PermissionError(errno.EPERM, "store is inside a git working tree (%s)" % marker,
-                              directory)
-    stamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    name = "%s.%s.log" % (_DETAIL_NAME, session[:_SESSION_PREFIX_CHARS])
-    return _append_private(directory, name, "=== %s stop-guard-unattended session %s ===\n%s\n\n"
-                           % (stamp, session, detail))
+    top, directory = _open_detail_root(Path(_GRC_REPO_ROOT),
+                                       timeout - (time.monotonic() - started))
+    try:
+        stamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        name = "%s.%s.log" % (_DETAIL_NAME, session[:_SESSION_PREFIX_CHARS])
+        return _append_private(top, directory, name,
+                               "=== %s stop-guard-unattended session %s ===\n%s\n\n"
+                               % (stamp, session, detail))
+    finally:
+        os.close(top)
 
 
 def _write_bound():
@@ -1428,11 +1660,7 @@ def _route_refusal(reason, actionable, live_groups, payload, required=None):
                               required=required)
     except Exception as exc:
         try:
-            why = _printable("%s: %s" % (type(exc).__name__, exc))
-        except Exception:
-            why = type(exc).__name__
-        try:
-            return _fallback_refusal(reason, len(actionable), state, why)
+            return _fallback_refusal(reason, len(actionable), state, exc)
         except Exception:
             return reason
 
@@ -1501,6 +1729,30 @@ def main(argv):
     if payload is None:
         return 0  # uncertain payload -> fail open (preserve the stop_hook_active loop-guard's reliability)
     return run(repo_root(), payload)
+
+
+# The check tests/test_linters.py (StopHookDetailRootTests._unsafe_above) applies to TMPDIR before
+# a real detail log write, the same source (a test compares them), used by the self-test's own
+# real writes, so the self-test fails or skips for exactly the reason the suite gives.
+def _unsafe_above(path):
+    """Why a directory above `path` ("/" first) is a symlink, cannot be opened for reading by
+    this uid, or fails the root's rule for directories above the home (owned by root or this
+    uid with no group or other write bit, or root-owned and sticky), or None."""
+    import stat
+    euid = os.geteuid()
+    for directory in reversed(Path(path).parents):
+        info = os.lstat(directory)
+        if stat.S_ISLNK(info.st_mode):
+            return "%s is a symlink" % directory
+        if not os.access(directory, os.R_OK | os.X_OK):
+            return ("%s cannot be opened for reading by uid %d (the hook opens every "
+                    "directory on the path)" % (directory, euid))
+        if not (info.st_uid in (0, euid) and not info.st_mode & 0o022
+                or info.st_uid == 0 and info.st_mode & stat.S_ISVTX):
+            return ("%s has owner uid %d and mode %04o (the rule needs root or uid %d as owner "
+                    "with no group or other write bit, or a root-owned sticky directory)"
+                    % (directory, info.st_uid, stat.S_IMODE(info.st_mode), euid))
+    return None
 
 
 def _self_test():
@@ -1628,6 +1880,12 @@ def _self_test():
             owner_env = mock.patch.dict(os.environ, {"ORCH_OWNER": "fixture"})
             owner_env.start()
             self.addCleanup(owner_env.stop)
+            # No inherited GRC_DROP_ROOT reaches decide()'s declared-wait line, here or in a hook
+            # process a test starts from os.environ (owner_env restores it after the test); a
+            # test that needs the setting sets its own. The hint test keeps the environment this
+            # hook loaded with, since MODE_SET_HINT was resolved from it then.
+            if self._testMethodName != "test_grc_hint_names_the_file_the_reader_uses":
+                os.environ.pop("GRC_DROP_ROOT", None)
             self.surviving_members = {}
 
         def assert_mutation_detected(self, case, changes, mismatch, witness, faults=None):
@@ -2544,6 +2802,23 @@ def _self_test():
                 self.assertEqual(run(d, {"stop_hook_active": False}), 0)
 
 
+    def fixture_home(case, parent):
+        """A fixture home <parent>/home, mode 0700, for a real detail log write. When a directory
+        above it fails the check tests/test_linters.py applies (_unsafe_above: a symlink, a
+        directory this uid cannot open for reading, or one outside the detail log root's owner
+        and mode rule), TMPDIR on this host cannot hold a safe root: ``case`` fails with the
+        reason, or skips with it when _UNSAFE_TMP_SKIP_ENV is set to 1."""
+        home = os.path.join(parent, "home")
+        os.mkdir(home, 0o700)
+        os.chmod(home, 0o700)
+        why = _unsafe_above(home)
+        if why is not None:
+            why = "this host cannot provide a safe temporary home root: " + _printable(why)
+            if os.environ.get(_UNSAFE_TMP_SKIP_ENV) == "1":
+                case.skipTest("%s (%s=1)" % (why, _UNSAFE_TMP_SKIP_ENV))
+            case.fail("%s; set %s=1 to skip instead" % (why, _UNSAFE_TMP_SKIP_ENV))
+        return home
+
     class GRCAdapterTests(unittest.TestCase):
         # A's adapter cases also isolate the new registry from the host.
         setUp = T.setUp
@@ -2559,19 +2834,26 @@ def _self_test():
             self.assertLess(len(reason), 1200)
 
         def test_route_logs_detail_and_returns_three_lines(self):
-            # The real write lands under TMPDIR; the console assertion follows the PATH BUDGET,
-            # so the result does not depend on how long TMPDIR is.
+            # The real write lands under a fixture home in TMPDIR (_DETAIL_HOME); the console
+            # assertion follows the PATH BUDGET, so the result does not depend on how long
+            # TMPDIR is.
+            # A short declared-wait directory, so the escape path fits the short form whatever
+            # the checkout's path (test_route_at_a_long_checkout_path is the long path).
             many = [("%d" % i, "title%d" % i) for i in range(500)]
-            _b, reason = decide("unattended", False, many, 1, (None, "absent"))
-            with tempfile.TemporaryDirectory() as d:
-                with mock.patch.dict(globals(), _GRC_STATE_FILE=os.path.join(d, "session-state.md")):
+            with tempfile.TemporaryDirectory() as d, \
+                    mock.patch.dict(os.environ, GRC_DROP_ROOT="/w"):
+                _b, reason = decide("unattended", False, many, 1, (None, "absent"))
+                home = fixture_home(self, d)
+                with mock.patch.dict(globals(), _DETAIL_HOME=home):
                     short = _route_refusal(reason, many, 1, {"session_id": "self-test-1"})
-                log = os.path.join(d, _DETAIL_SUBDIR, "stop-guard.self-test-1.log")
+                escape = _grc_escape_file()
+                log = os.path.join(home, *_DETAIL_ROOT_PARTS, _DETAIL_SUBDIR,
+                                   "stop-guard.self-test-1.log")
                 self.assertEqual(stat.S_IMODE(os.lstat(log).st_mode), 0o600)
                 with open(log, encoding="utf-8") as fh:
                     logged = fh.read()
             if len(log) <= _MAX_LINE_CHARS - len("WHY: below the group floor; log: "):
-                self.assertEqual(short, _short_refusal(500, 1, log, _grc_escape_file()))
+                self.assertEqual(short, _short_refusal(500, 1, log, escape))
                 self.assertEqual(len(short.splitlines()), 3)
             else:
                 self.assertIn("NOTE: detail log written but not summarized (ValueError", short)
@@ -2579,6 +2861,26 @@ def _self_test():
             self.assertIn(reason, logged)
             self.assertIn("  - 499: title499", logged)
             self.assertIn("session self-test-1 ===", logged)
+
+        def test_route_logs_under_home_when_store_is_git_tree(self):
+            # The store sits inside a git working tree; the log still lands under the clean
+            # fixture home's detail root, and nothing is written in the store.
+            items = [("X-1", "t")]
+            _b, reason = decide("unattended", False, items, 1, (None, "absent"))
+            with tempfile.TemporaryDirectory() as d:
+                home = fixture_home(self, d)
+                store = os.path.join(d, "outer", "private")
+                os.makedirs(store)
+                os.mkdir(os.path.join(d, "outer", ".git"))
+                with mock.patch.dict(globals(), _DETAIL_HOME=home,
+                                     _GRC_STATE_FILE=os.path.join(store, "session-state.md")):
+                    routed = _route_refusal(reason, items, 1, {"session_id": "self-test-2"})
+                log = os.path.join(home, *_DETAIL_ROOT_PARTS, _DETAIL_SUBDIR,
+                                   "stop-guard.self-test-2.log")
+                self.assertEqual(stat.S_IMODE(os.lstat(log).st_mode), 0o600)
+                self.assertEqual(os.listdir(store), [])
+            self.assertNotIn("NOTE: detail log not written", routed)
+            self.assertNotIn("inside a git working tree", routed)
 
         def test_short_form_on_a_short_fixed_directory(self):
             # A short fixed directory, so this result never depends on TMPDIR.
@@ -2662,14 +2964,53 @@ def _self_test():
 
         def test_route_without_session_keeps_reason_and_count(self):
             items = [("X-917", "zq-title-probe")]
-            _b, reason = decide("unattended", False, items, 0, (None, "absent"))
-            with mock.patch.dict(globals(), _append_private=mock.Mock()) as patched:
-                routed = _route_refusal(reason, items, 0, {})
-                patched["_append_private"].assert_not_called()
+            # A short declared-wait directory, so decide()'s wait line is the whole command and
+            # the fallback shows the reason unchanged, whatever the checkout's path (the long
+            # path is test_route_at_a_long_checkout_path).
+            with mock.patch.dict(os.environ, GRC_DROP_ROOT="/w"):
+                _b, reason = decide("unattended", False, items, 0, (None, "absent"))
+                with mock.patch.dict(globals(), _append_private=mock.Mock()) as patched:
+                    routed = _route_refusal(reason, items, 0, {})
+                    patched["_append_private"].assert_not_called()
             self.assertTrue(routed.startswith(reason + "\nNOTE: detail log not written (ValueError"))
             self.assertIn("\nActionable items: 1 ", routed)
             self.assertNotIn("zq-title-probe", routed)  # #2291: count only on the fallback too
             self.assertNotIn("X-917", routed)
+
+        def test_route_at_a_long_checkout_path(self):
+            # The checkout's parent is nested directories in a temporary directory, so the
+            # default declared-wait path is longer than one console line. After a written log
+            # the escape path does not fit the short form, so the fallback shows decide()'s
+            # reason, whose wait line names the sentinel's directory and points at the log, and
+            # the log has the whole command; without a log the fallback rewords that line to say
+            # no log was written. Neither shows any part of the path.
+            items = [("X-1", "t")]
+            log = "/s/" + _DETAIL_SUBDIR + "/stop-guard.self-test-3.log"
+            with tempfile.TemporaryDirectory() as d, mock.patch.dict(os.environ):
+                os.environ.pop("GRC_DROP_ROOT", None)
+                parent = os.path.join(d, *("nested-%02d-%s" % (n, "d" * 30) for n in range(5)))
+                os.makedirs(parent)
+                escape = os.path.join(parent, "grc_working", ".allow-idle-stop")
+                self.assertGreater(len(escape), _MAX_LINE_CHARS)
+                with mock.patch.dict(globals(), _GRC_PARENT=parent):
+                    self.assertEqual(_grc_escape_file(), escape)
+                    _b, reason = decide("unattended", False, items, 0, (None, "absent"))
+                    with mock.patch.dict(globals(), _bounded_write=mock.Mock(return_value=log)):
+                        written = _route_refusal(reason, items, 0, {"session_id": "self-test-3"})
+                    unlogged = _route_refusal(reason, items, 0, {})
+                    detail = _detail_text(reason, items)
+            wait = _WAIT_TOO_LONG % ("<repo-parent>/grc_working", _WAIT_LOGGED)
+            self.assertIn(wait, reason.split("\n"))
+            self.assertTrue(written.startswith(reason + "\nNOTE: detail log written but not "
+                                               "summarized (ValueError"), written)
+            self.assertIn("Declared wait command: touch " + _shell_word(escape), detail)
+            self.assertTrue(unlogged.startswith(reason.replace(wait, _WAIT_UNLOGGED[wait])
+                                                + "\nNOTE: detail log not written (ValueError"),
+                            unlogged)
+            for text in (written, unlogged):
+                self.assertNotIn(parent, text)
+                self.assertNotIn("touch /", text)
+                self.assertLessEqual(max(map(len, text.splitlines())), _MAX_LINE_CHARS)
 
         # ---- default file-based mode adapter ----
         def test_grc_mode_map_reads_the_leading_token(self):
@@ -3343,6 +3684,11 @@ def _self_test():
                 _SLOT_SHARE_EXPECT_UID=os.geteuid())
             patcher.start()
             self.addCleanup(patcher.stop)
+            # As in T.setUp: no inherited GRC_DROP_ROOT reaches decide()'s declared-wait line.
+            environ = mock.patch.dict(os.environ)
+            environ.start()
+            self.addCleanup(environ.stop)
+            os.environ.pop("GRC_DROP_ROOT", None)
 
         @contextlib.contextmanager
         def groups(self, count=3):
