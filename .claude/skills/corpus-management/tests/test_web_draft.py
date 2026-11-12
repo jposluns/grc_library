@@ -1848,7 +1848,7 @@ class RepoLinkAllowListTests(unittest.TestCase):
         prose = f"- [x]({root}) and `x"
         autolink = f"see <{root}> and <https://www.iso.org/a`b>"
         cases = (
-            ("in a link destination (the round 7 case)",
+            ("in a link destination before the root link",
              f"- [y](z`a) [x]({root}) `note`", "line 1 column 8",
              "a backtick"),
             ("in prose", prose,
@@ -4078,16 +4078,16 @@ class DraftSiteRenderTests(unittest.TestCase):
             "disclaimer (section 5(a))", page,
             "the 5(a) summary keeps the clause's qualifiers and carries the "
             "closing limit that the disclaimer may not apply where the law "
-            "does not allow it (round-4 NOTE)")
+            "does not allow it")
         self.assertIn(
             "and, to the extent possible and where the law allows such a "
             "limit, the licensor is not liable for losses arising out of the "
             "licence or the use of the material (5(b))", page,
             "the 5(b) summary keeps the clause's 'to the extent possible' "
             "qualifier, covers losses arising out of the licence as well as "
-            "use of the material (round-2 NOTE), and carries the closing "
+            "use of the material, and carries the closing "
             "limit that the limitation may not apply where the law does not "
-            "allow it (round-3 NOTE)")
+            "allow it")
         self.assertIn(
             "keep, where the licensor supplied them,", page,
             "the 3(a)(1)(A) summary keeps the 'if it is supplied by the "
@@ -16270,7 +16270,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertIn(f'<span class="n">{count} citations</span>',
                       entries.group(1),
                       "the landing count is computed from the register and "
-                      "uses the standards page's own unit (round 2 note)")
+                      "uses the standards page's own unit")
 
     def test_standards_representative_citations(self):
         """Each representative heading equals its literal (ISO/IEC and IEC
@@ -16379,7 +16379,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             [unescape(h) for h in h1s],
             ["The standards and frameworks in the canonical citations "
              "register."],
-            "the standards page carries exactly the decided h1")
+            "the standards page carries exactly the pinned h1")
         self.assertNotIn("the corpus cites", html)
 
     def test_standards_display_rules_on_synthetic_rows(self):
@@ -19765,7 +19765,7 @@ class PromotedRouteCoverageTests(unittest.TestCase):
             with self.subTest(retired=old_url):
                 self.assertIsNone(
                     self._resolve(old_url),
-                    f"{old_url}: D-2258 retired this route with no redirect")
+                    f"{old_url}: this route is retired with no redirect")
         for out_rel in inventory:
             self.assertTrue(out_rel.startswith("draft/"), out_rel)
             promoted_rel = self.MOVED.get(out_rel, out_rel[len("draft/"):])
