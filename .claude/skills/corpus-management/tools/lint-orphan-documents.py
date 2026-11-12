@@ -17,6 +17,8 @@ reporting in ``main``.
 Exit codes:
     0   every artefact has at least one inbound reference.
     1   one or more orphan artefacts with zero inbound references.
+    2   a listed file was gone when the reference graph read it; refused by
+        name (``lint_common.refuse_vanished``).
 """
 
 from __future__ import annotations
@@ -26,7 +28,7 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack .claude/aiqt/tools/ (aiqt_corpus via sys.modules, not sys.path)
-from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, in_exempt_dir, is_narrative_root, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, in_exempt_dir, is_narrative_root, REPO_ROOT, refuse_vanished, run_listed, test_scratch_dir, walk_files_pruned  # noqa: E402  # grc-config/store, stays local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / "src" / "tools"
 
@@ -81,16 +83,28 @@ def is_artefact(path: Path) -> bool:
     return True
 
 
+def _markdown_files() -> list[Path]:
+    """Every ``.md`` file under REPO_ROOT, never entering the root ``tests/tmp`` tree.
+
+    That tree (lint_common.TEST_SCRATCH_ROOT) holds the regression suite's
+    transient fixtures, never corpus. A fixture a killed test run left there is
+    neither an artefact nor a referrer: it is not reported as an orphan, and its
+    links cannot hide a real one.
+    """
+    scratch = test_scratch_dir(REPO_ROOT)
+    return [p for p in walk_files_pruned(REPO_ROOT, scratch) if p.suffix == ".md"]
+
+
 def find_artefacts() -> list[Path]:
     return [
-        p for p in REPO_ROOT.rglob("*.md")
+        p for p in _markdown_files()
         if is_artefact(p)
     ]
 
 
 def find_all_markdown() -> list[Path]:
     return [
-        p for p in REPO_ROOT.rglob("*.md")
+        p for p in _markdown_files()
         if p.suffix == ".md" and not in_exempt_dir(p, EXEMPT_DIR_PARTS, repo_root=REPO_ROOT) and not is_narrative_root(p)
         and not is_default_exempt_root(p, repo_root=REPO_ROOT)
     ]
@@ -108,7 +122,12 @@ def main(argv: list[str]) -> int:
     args = parser.parse_args(argv[1:])
     artefacts = find_artefacts()
     all_md = find_all_markdown()
-    rev = build_reverse_graph(all_md)
+    # A listed file removed before the graph reads it (a concurrent run deleting
+    # its scratch) is refused by name, never a traceback and never a silent pass.
+    vanished: list[Path] = []
+    rev = run_listed(lambda: build_reverse_graph(all_md), all_md, vanished)
+    if vanished:
+        return refuse_vanished(vanished, repo_root=REPO_ROOT)
     orphans: list[Path] = []
     for a in artefacts:
         if a not in rev or not rev[a]:

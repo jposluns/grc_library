@@ -54,7 +54,7 @@ import re
 import stat as _stat
 import subprocess
 import sys
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable, Iterator, Sequence
 from pathlib import Path, PureWindowsPath
 from typing import NamedTuple
 
@@ -267,15 +267,20 @@ def in_exempt_dir(
 # removed while a sweep may be running), never corpus. The skip is OPT-IN
 # (``skip_test_scratch`` on :func:`iter_targets`), set only by gates 48, 61, 73
 # and 79, which in the earlier repository crashed on a fixture the suite
-# deleted mid-walk; every other caller, including the secrets and PII gates
-# that keep source-tree coverage, still walks ``tests/tmp``. With the opt-in,
-# a directory walk from outside it prunes the tree, so it is never entered
-# (:func:`_walk_files_pruned`). Root-anchored like the default exempt roots
+# deleted mid-walk. Two gates with their own directory walk call the same
+# pruned walk directly instead: the stub-document gate
+# (``lint-stub-documents.py``), and the orphan-document gate
+# (``lint-orphan-documents.py``), for which a link from the scratch tree is not
+# an inbound reference either. Every other caller, including the secrets and
+# PII gates that keep source-tree coverage, still walks ``tests/tmp``. With the
+# opt-in, a directory walk from outside it prunes the tree, so it is never
+# entered (:func:`walk_files_pruned`). Root-anchored like the default exempt roots
 # (a nested ``tests/tmp`` elsewhere is still walked), and an explicit argument
 # naming a file or directory inside it is still scanned, so the suite's own
 # fixtures stay reachable. A symlink outside the tree whose target is inside
-# it is still listed; those gates refuse it by name if it is gone when read
-# (:func:`scan_listed`).
+# it is still listed; gates 48, 61, 73 and 79 refuse it by name if it is gone
+# when read (:func:`scan_listed`). The stub-document and orphan-document gates
+# refuse a listed file gone when read the same way (:func:`run_listed`).
 # The scratch tree stays at the repository root, deliberately NOT under
 # CORPUS_MANAGEMENT_DIR. Everything under ``.claude`` is in DEFAULT_EXEMPT_DIRS, so a
 # fixture there is exempt even as an explicit argument and the linters under test
@@ -284,12 +289,12 @@ def in_exempt_dir(
 TEST_SCRATCH_ROOT: tuple[str, ...] = ("tests", "tmp")
 
 
-def _test_scratch_dir(repo_root: Path | None = None) -> Path:
+def test_scratch_dir(repo_root: Path | None = None) -> Path:
     """Resolved :data:`TEST_SCRATCH_ROOT` (``tests/tmp``) under ``repo_root`` (default :data:`REPO_ROOT`)."""
     return (REPO_ROOT if repo_root is None else Path(repo_root)).resolve().joinpath(*TEST_SCRATCH_ROOT)
 
 
-def _walk_files_pruned(top: Path, prune: Path) -> Iterator[Path]:
+def walk_files_pruned(top: Path, prune: Path) -> Iterator[Path]:
     """Every non-directory entry under ``top``, never entering ``prune``.
 
     The same non-directory entries as ``top.rglob("*")`` (directory symlinks are
@@ -322,6 +327,48 @@ def scan_listed(scan, path: Path, vanished: list[Path]) -> list:
             raise
         vanished.append(path)
         return []
+
+
+def run_listed(run, listed: Sequence[Path], vanished: list[Path]):
+    """Run ``run()``, which reads the files in ``listed``; record a listed file that vanished.
+
+    The batch form of :func:`scan_listed`, for a gate whose engine reads every
+    listed file in one call. The caller passes as ``listed`` the same sequence
+    the engine reads, so every listed file ``run()`` opens is in it; it is
+    copied once into a set before ``run()`` is called. If a listed file is gone
+    when read, that file is appended to ``vanished`` and ``None`` returned, so
+    the caller ends with :func:`refuse_vanished` (fail closed, naming the file)
+    instead of a FileNotFoundError traceback or a silent skip. The missing
+    file matches a listed one by its spelling or, failing that, by its
+    resolved path (``Path.resolve()``, not strict, with the listed paths
+    resolved once), so a different spelling of a listed file, such as a
+    relative one, is still refused. The call stops at the first such file,
+    so only that one is named. If the missing spelling or a listed path
+    cannot be resolved (``Path.resolve()`` raises OSError or RuntimeError, as
+    when the working directory was removed), the missing file is left
+    unmatched, and the original FileNotFoundError propagates, chained from the
+    resolve error. Any other FileNotFoundError (a file not in ``listed`` under
+    any spelling) still raises.
+    """
+    names = set(map(Path, listed))
+    try:
+        return run()
+    except FileNotFoundError as exc:
+        if exc.filename is None:
+            raise
+        gone = Path(exc.filename)
+        if gone not in names:
+            # If the missing spelling or a listed path cannot be resolved, the
+            # missing file is left unmatched: the original error propagates,
+            # chained from the resolve error.
+            try:
+                matched = gone.resolve() in {p.resolve() for p in names}
+            except (OSError, RuntimeError) as resolve_exc:
+                raise exc from resolve_exc
+            if not matched:
+                raise
+        vanished.append(gone)
+        return None
 
 
 def refuse_vanished(vanished: Iterable[Path], *, repo_root: Path | None = None) -> int:
@@ -1205,9 +1252,9 @@ def iter_targets(
         elif p.is_dir():
             # Opt-in skip of the tests/tmp scratch (TEST_SCRATCH_ROOT) unless the walk starts inside it;
             # the walk prunes it, so it never lists or enters that tree.
-            scratch = _test_scratch_dir(repo_root) if skip_test_scratch else None
+            scratch = test_scratch_dir(repo_root) if skip_test_scratch else None
             if scratch is not None and not p.is_relative_to(scratch):
-                walk: Iterable[Path] = _walk_files_pruned(p, scratch)
+                walk: Iterable[Path] = walk_files_pruned(p, scratch)
             else:
                 walk = p.rglob("*")
             for f in walk:
