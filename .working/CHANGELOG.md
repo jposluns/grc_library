@@ -2,6 +2,7 @@
 
 This file records the GRC Library's changes as weekly summaries, one section per ISO week that had changes, newest first. Until a week is rolled up, each pull request merged in it also has its own line above that week's summary. The library as a whole is versioned by Calendar Versioning (CalVer).
 
+**2026-11-12 | 2026.11.88 | PR #24** - governance: The executive narrative specification and its subtype template describe a 7-field narrative extension without the Review Record field, and no longer point at review evidence held outside the library. The audit programme specification counts 7 narrative extension fields. The narrative pages and tools still carry the field until the next pull request moves them.
 **2026-11-12 | 2026.11.87 | PR #23** - tests: The secrets and PII gates refuse by name, with exit 2, a listed file that is gone when they read it, as six other gates already do, so a test fixture deleted mid-walk no longer stops them with a traceback. The test suite README names the eight gates that refuse such a file and the twelve that can still stop on one.
 **2026-11-12 | 2026.11.86 | PR #22** - tests: The linter tests drop an unused helper for driving the merge-when-green tool, and the captured error text it used; no test called it.
 **2026-11-12 | 2026.11.85 | PR #21** - tests: Test case labels and assertion messages in the linter tests and web draft tests drop review-round and reviewer-family prefixes, review notes and decision references, and the pack-version assertion message opens by describing 0.23.3, the version it asserts.
