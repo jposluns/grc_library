@@ -2,7 +2,7 @@
 
 **Document Title:** AI Security Tooling Landscape Register\
 **Document Type:** Register\
-**Version:** 1.1.17\
+**Version:** 1.1.18\
 **Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -1243,7 +1243,7 @@ Per-entry verification status transitions:
 
 ### Provenance freshness linter
 
-The linter [`.claude/skills/corpus-management/tools/lint-tooling-provenance-freshness.py`](../.claude/skills/corpus-management/tools/lint-tooling-provenance-freshness.py) (shipped as gate 28 of the audit programme per [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](../.claude/skills/corpus-management/specs/specification-audit-programme.md) §6) flags entries whose latest provenance row is past the cadence above. It parses each entry's `Date assessed` and `Verification status` and computes age using calendar-aware month arithmetic; output is structurally similar to [`.claude/skills/corpus-management/tools/check-review-cadence.py`](../.claude/skills/corpus-management/tools/check-review-cadence.py).
+The linter [`.claude/skills/corpus-management/tools/lint-tooling-provenance-freshness.py`](../.claude/skills/corpus-management/tools/lint-tooling-provenance-freshness.py) (gate 28 of the audit programme per [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](../.claude/skills/corpus-management/specs/specification-audit-programme.md) §6, "Gate inventory (current)") flags entries whose latest provenance row is past the cadence above. It parses each entry's `Date assessed` and `Verification status` and computes age using calendar-aware month arithmetic; output is structurally similar to [`.claude/skills/corpus-management/tools/check-review-cadence.py`](../.claude/skills/corpus-management/tools/check-review-cadence.py).
 
 ---
 

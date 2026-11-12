@@ -3,34 +3,31 @@
 
 The change-tracking discipline keeps two CHANGELOG surfaces in lock-step:
 the adopter-facing root ``.working/CHANGELOG.md`` (compact one-line ``date | version | PR`` entries) and
-the maintainer-grade detailed mirror (full structured entries, now
+the maintainer-grade detailed mirror (full structured entries,
 resolved from the operational store). Delta check D1
-enforces, per commit, that a PR touches the root ``.working/CHANGELOG.md`` (before
-PR #1235 it required BOTH files; the detailed mirror has since moved to the
-operational store, cross-repo and outside the public
-diff, so D1 no longer requires it); it does NOT check that the two carry
+enforces, per commit, that a PR touches the root ``.working/CHANGELOG.md`` (the
+detailed mirror lives in the operational store, cross-repo and outside the
+public diff, so D1 does not require it); it does NOT check that the two carry
 the SAME set of per-PR
 entry headers (matched in BOTH the compact ``**date | version | PR #N**``
 form and the legacy ``## YYYY-MM-DD, Library Version X, PR #N`` form). That cross-commit
 integrity is gate-blind: a later PR's commit can overwrite an earlier
 PR's detailed-mirror header in place, orphaning the earlier bodies under
-the wrong header (the #388 defect, where #386/#387 were orphaned under
-#388 and fixed in #392).
+the wrong header.
 
 This gate closes that gap: it parses the per-PR header set from each
 file and requires them to match, so a lost or duplicated detailed-mirror
 header fails the build instead of surfacing only at a later manual sweep.
 
-It also asserts CROSS-FILE VERSION AGREEMENT (added in PR #1158): a PR present in
+It also asserts CROSS-FILE VERSION AGREEMENT: a PR present in
 BOTH files must carry the SAME ``Library Version`` in each. Set parity plus
 per-file monotonicity left this gate-blind, because two files can each be
-independently monotonic while disagreeing on one shared PR's version: PR #1155
-shipped ``2026.07.642`` (root ``.working/CHANGELOG.md`` and ``README.md`` at its merge
-commit) while the detailed mirror recorded ``2026.07.641``, a version never
-shipped at all, and the gate passed. Every compared header carries a parseable
+independently monotonic while disagreeing on one shared PR's version: the
+root ``.working/CHANGELOG.md`` can carry one version for a PR while the detailed
+mirror carries another, and set parity and monotonicity both still pass. Every compared header carries a parseable
 ``X.Y.Z`` version (entry classification, below, fails any other), and a PR
 duplicated within one file is already caught by the duplicate check rather
-than by this join. The 2 version texts must also be identical (EP7, ep6qc L4), so
+than by this join. The 2 version texts must also be identical, so
 ``2026.06.9`` in one file against ``2026.6.9`` in the other disagrees.
 
 It also asserts Library-Version ORDERING (the GR-1 extension): entries

@@ -80,7 +80,12 @@ def is_cross_doc_context(line: str, ref_start: int) -> bool:
       "see section 5.4 in [foo](foo.md)" line, link AFTER the reference,
       is claimed by the cross-doc side here as gate 62 claims it). The
       mirror is approximate, not exact: gate 62's adjacency window is 40
-      chars and pipe-bounded while this filter accepts a bare ".md" or "]("
+      characters on either side of the reference (from its end to a
+      following link's start, or from a preceding link's end to the
+      reference's start),
+      inside one cell split on unescaped pipes outside matched code spans
+      (gate 65 stops at any pipe), while this filter accepts a bare ".md"
+      or "]("
       within 60 chars of the reference start, so a link 41-60 chars after a
       reference is disclaimed here yet unclaimed by gates 62 and 65 (an
       accepted heuristic band, the same shape as the pre-existing

@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verifications Register\
 **Document Type:** Register\
-**Version:** 1.1.2\
-**Date:** 2026-07-02\
+**Version:** 1.1.3\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../../../../governance/specification-citation-verification.md), [`governance/register-canonical-citations.md`](../../../../governance/register-canonical-citations.md), [`governance/register-document-index-and-classification.md`](../../../../governance/register-document-index-and-classification.md)\
@@ -110,7 +110,7 @@ This section is updated at the end of each verification batch. It summarizes, fo
 
 - [`governance/specification-citation-verification.md`](../../../../governance/specification-citation-verification.md): the methodology this register implements.
 - [`governance/register-canonical-citations.md`](../../../../governance/register-canonical-citations.md): the register whose entries are verified here.
-- [`.claude/skills/corpus-management/tools/lint-citation-verification-freshness.py`](../tools/lint-citation-verification-freshness.py): linter that flags entries older than 12 months. Shipped as gate 27 of the audit programme per [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](../specs/specification-audit-programme.md) §6.
+- [`.claude/skills/corpus-management/tools/lint-citation-verification-freshness.py`](../tools/lint-citation-verification-freshness.py): linter that flags entries older than 12 months; it is gate 27 of the audit programme per [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](../specs/specification-audit-programme.md) §6, "Gate inventory (current)".
 
 ---
 

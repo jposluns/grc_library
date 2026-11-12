@@ -29,9 +29,10 @@ patterns, the markdown-link pattern, the binding sentinel, the external-context
 vocabulary, and the adjacency window) and the exempt-file set are project
 configuration and are not part of this clause; a reference that resolves cleanly,
 and a document that cites none, contribute no findings.
-Table delimiters are unescaped pipes outside matched inline code spans. An
-unmatched backtick run is literal, and backslashes inside code spans are literal;
-escaped pipes and pipes inside code spans remain within their cells. In a table
+Every line is split into cells on unescaped pipes outside matched inline code
+spans, and every cell is checked. An unmatched backtick run is literal, and
+backslashes inside code spans are literal; escaped pipes and pipes inside code
+spans remain within their cells. In a table
 row, a reference to a heading in the citing document remains local when no
 link precedes it in the cell and a nearby following markdown link appears in
 parentheses after non-whitespace descriptive text. The parenthesized link must

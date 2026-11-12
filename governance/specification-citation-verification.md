@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.43\
-**Date:** 2026-11-10\
+**Version:** 1.2.44\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`.claude/skills/corpus-management/tools/lint-standards-currency.py`](../.claude/skills/corpus-management/tools/lint-standards-currency.py), [`governance/specification-ingestion.md`](specification-ingestion.md)\
@@ -170,7 +170,7 @@ For the `/matrix-fit` semantic-fit audit, the control-title ground truth is the 
 
 The verification process operates against an explicit allow-list of publisher canonical domains. Additions to the allow-list are recorded in this specification with the date and the standard or family of standards that necessitated the addition.
 
-### 7.1 Initial allow-list
+### 7.1 Allow-listed publishers
 
 The fenced `json citation-publishers` block at the end of this section is the source of record for the publisher allow-list. The table below is generated from it by [`.claude/skills/corpus-management/tools/build-citation-publishers.py`](../.claude/skills/corpus-management/tools/build-citation-publishers.py) and is never hand-edited; gate 102 fails on any drift, and gate 101 compares the external-link allow-list with the block's domains.
 
@@ -834,7 +834,7 @@ Provenance entries in the AI Security Tooling Landscape Register ([`register-ai-
 - **Commercial vendor entries**: re-verification every 6 months (vendor product pages change frequently; Wayback snapshot is the integrity anchor).
 - **Triggering events forcing immediate re-verification**: project archival, license change, vendor acquisition, major version release with material capability change.
 
-The linter [`.claude/skills/corpus-management/tools/lint-tooling-provenance-freshness.py`](../.claude/skills/corpus-management/tools/lint-tooling-provenance-freshness.py) (shipped as gate 28 of the audit programme per [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](../.claude/skills/corpus-management/specs/specification-audit-programme.md) §6) reads the tooling register's per-entry Provenance block and flags entries whose latest `Date assessed` is past the cadence above.
+The linter [`.claude/skills/corpus-management/tools/lint-tooling-provenance-freshness.py`](../.claude/skills/corpus-management/tools/lint-tooling-provenance-freshness.py) (gate 28 of the audit programme per [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](../.claude/skills/corpus-management/specs/specification-audit-programme.md) §6, "Gate inventory (current)") reads the tooling register's per-entry Provenance block and flags entries whose latest `Date assessed` is past the cadence above.
 
 ### 12.3 Load-bearing version-currency re-check (advisory, column-driven)
 
