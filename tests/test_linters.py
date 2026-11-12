@@ -32,6 +32,7 @@ Stdlib-only Python 3.11 (unittest, tempfile, subprocess).
 
 from __future__ import annotations
 
+import contextlib
 import io
 import json
 import os
@@ -121,6 +122,43 @@ def _force_rmtree(path) -> None:
             except OSError:
                 pass
     shutil.rmtree(path, ignore_errors=True)
+
+
+@contextlib.contextmanager
+def short_temp_dir():
+    """A new directory, mode 0700, made directly in the temporary directory, as a context
+    manager that yields its path as a string and removes it on exit. It takes the shortest
+    name free there of one to three lowercase letters or digits, so the name holds no link
+    delimiter or cross-repo marker and, while such a name is free, adds at most four
+    characters to the temporary directory's path (once all 47,988 are taken,
+    tempfile.mkdtemp names it, which adds more). A test whose subject is a path's length or
+    its text builds its paths
+    under it, so the names tempfile picks do not decide whether the test can run; a
+    temporary directory whose own path leaves no room for the test fails it, naming the
+    path, or, for a length test (StopHookDetailRootTests._unsafe_tmp), skips it when
+    GRC_ALLOW_UNSAFE_TMP_SKIP is set to 1."""
+    import itertools
+    import string
+    parent = tempfile.gettempdir()
+    alphabet = string.ascii_lowercase + string.digits
+    path = None
+    for size in range(1, 4):
+        for letters in itertools.product(alphabet, repeat=size):
+            candidate = os.path.join(parent, "".join(letters))
+            try:
+                os.mkdir(candidate, 0o700)
+            except FileExistsError:
+                continue
+            path = candidate
+            break
+        if path is not None:
+            break
+    if path is None:
+        path = tempfile.mkdtemp(prefix="")
+    try:
+        yield path
+    finally:
+        _force_rmtree(path)
 
 
 def setUpModule() -> None:
@@ -59074,14 +59112,17 @@ class PreflightChangelogMirrorTests(unittest.TestCase):
 
     def test_working_root_source_is_unjudgeable(self):
         mod = self._load("_pcl_empty_working_rel")
-        with tempfile.TemporaryDirectory() as td:
+        with short_temp_dir() as td:
             base = Path(td)
             root = base / "public"
             root.mkdir()
             (base / "real.md").write_text("ok")
-            if ")" in str(base) or "#" in str(base) or any(
-                    marker in str(base) for marker in mod.CROSS_REPO_MARKERS):
-                self.skipTest("temporary path contains a link delimiter or cross-repo marker")
+            # The link carries base whole. The test's own directory name holds no link
+            # delimiter or cross-repo marker; one in the host's temporary directory fails the
+            # test, naming the path, since the link would then not name base/real.md.
+            self.assertFalse(")" in str(base) or "#" in str(base) or any(
+                marker in str(base) for marker in mod.CROSS_REPO_MARKERS),
+                "temporary path %s contains a link delimiter or cross-repo marker" % base)
             target = ".working/" + str(base.relative_to("/")) + "/real.md"
             self.assertEqual(mod.unresolved_link_targets(
                 ".working", f"[x]({target})", root, source_path=base / "store"),
@@ -59340,13 +59381,16 @@ class AuditCrossRepoReferencesTests(unittest.TestCase):
 
     def test_working_root_source_is_unjudgeable(self):
         mod = self._load()
-        with tempfile.TemporaryDirectory() as td:
+        with short_temp_dir() as td:
             base = Path(td)
             root = base / "public"
             root.mkdir()
             (base / "real.md").write_text("ok")
-            if ")" in str(base) or "#" in str(base):
-                self.skipTest("temporary path contains a link delimiter")
+            # The link carries base whole. The test's own directory name holds no link
+            # delimiter; one in the host's temporary directory fails the test, naming the
+            # path, since the link would then not name base/real.md.
+            self.assertFalse(")" in str(base) or "#" in str(base),
+                             "temporary path %s contains a link delimiter" % base)
             target = ".working/" + str(base.relative_to("/")) + "/real.md"
             self.assertEqual(mod.classify_link(
                 target, root / ".working", root, physical_source=base / "store"),
@@ -79112,17 +79156,21 @@ class BlockingHookMessageContractTests(unittest.TestCase):
     def test_stop_hooks_log_name_fits_path_budget(self):
         """The log name is the short guard name and the first 12 characters of the session id,
         so a 36-character id fits the documented root-path budget exactly; one more character
-        falls back. Each entry's header still carries the whole session id."""
+        falls back. Each entry's header still carries the whole session id. A temporary
+        directory too long for the budget fails the test, naming the directory and the budget,
+        or skips it when GRC_ALLOW_UNSAFE_TMP_SKIP is set to 1
+        (StopHookDetailRootTests._unsafe_tmp)."""
         session = "0123abcd-4567-89ef-0123-456789abcdef"
         # Round 3 (codex W2): run() passes the required count (3 here), whose compact wording
         # "WHY: live 0/3 required; log: " is four characters shorter than the count-free one.
         budgets = {"block-turn-end-with-outstanding-work": 79, "stop-guard-unattended": 86}
-        with tempfile.TemporaryDirectory() as probe:
-            if len(probe) + 2 > min(budgets.values()):
-                self.skipTest("TMPDIR is too long to build the budget-length root path")
         for hook, budget in budgets.items():
-            with self.subTest(hook=hook), tempfile.TemporaryDirectory() as td:
+            with self.subTest(hook=hook), short_temp_dir() as td:
                 pad = budget - len(td) - 1
+                if pad < 1:
+                    StopHookDetailRootTests._unsafe_tmp(
+                        self, "temporary directory %s is too long to build the %d-character "
+                        "root path" % (td, budget))
                 store = Path(td) / ("s" * pad)
                 self.assertEqual(len(str(store)), budget)
                 store.mkdir()
@@ -79182,6 +79230,20 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         clamped = mod._clamp("Declared wait: touch /" + "\udcff" * 300)
         self.assertLessEqual(len(clamped.encode("utf-8", "backslashreplace")), 640)
         self.assertLess(len(clamped), 160)
+
+    def test_stop_guard_clamp_ends_a_cut_line_in_elision(self):
+        """Stop-guard's _clamp returns a line that fits whole, with no mark, and ends a line it
+        cuts, by characters or by bytes, in _ELISION ("..."), so a cut fallback line is visible."""
+        mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "_stop_clamp_elision")
+        self.assertEqual(mod._ELISION, "...")
+        fits = "x" * mod._MAX_LINE_CHARS
+        self.assertEqual(mod._clamp(fits), fits)
+        self.assertEqual(mod._clamp(fits + "y"), "x" * (mod._MAX_LINE_CHARS - 3) + "...")
+        by_bytes = mod._clamp("\udcff" * 150)
+        self.assertTrue(by_bytes.endswith("..."), ascii(by_bytes))
+        self.assertLessEqual(len(by_bytes.encode("utf-8", "backslashreplace")),
+                             mod._MAX_LINE_BYTES)
+        self.assertLess(len(by_bytes), 150)
 
     # ---- Round 4 (2026-11-05): detail built inside the deadline, escaped items, escape path ----
     def test_stop_guard_large_list_builds_no_detail_when_ineligible(self):
@@ -79642,6 +79704,35 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         with self.assertRaises(ValueError), patch.object(mod, "HELD_FILE", held), \
                 patch.object(mod, "ESCAPE_FILE", escape):
             mod.summarize(many, "/s" + budget)
+
+    def test_turn_end_console_keeps_space_separators(self):
+        """Turn-end's console shows a Unicode space separator (category Zs, here U+00A0) as it
+        is in summarize(), the fallback list, the held path, the last-resort form and
+        _console_path; only the NOTE line's cause and the detail log's held path line escape
+        it (_printable)."""
+        from unittest.mock import patch
+        mod = load_linter_module(".claude/hooks/block-turn-end-with-outstanding-work.py",
+                                 "_turn_end_space_separator")
+        nbsp = "\u00a0"
+        branches = [("claude/a" + nbsp + "b", "1")]
+        held = Path("/h/held" + nbsp + "x/held-branches.txt")
+        log = "/s" + nbsp + "/turn-end.x.log"
+        with patch.object(mod, "HELD_FILE", held), \
+                patch.object(mod, "ESCAPE_FILE", Path("/w/.allow-stop")):
+            short = mod.summarize(branches, log).split("\n")
+            fallback = mod.decide(False, False, branches, shown=8, note="NOTE: x").split("\n")
+            detail = mod.decide(False, False, branches)
+            last = mod._last_resort(detail, branches, "NOTE: x").split("\n")
+            self.assertEqual(mod._console_path(held), str(held))
+        self.assertIn("claude/a" + nbsp + "b (+1)", short[0])
+        self.assertEqual(short[2], "CONSIDER INSTEAD: merge, or hold in " + str(held)
+                         + "; genuine block (once, after recording it): touch /w/.allow-stop"
+                         + "; log: " + log)
+        for lines in (fallback, last):
+            self.assertIn("    - claude/a" + nbsp + "b (+1)", lines)
+            self.assertIn("      " + str(held), lines)
+        self.assertIn("      /h/held\\xa0x/held-branches.txt", detail.split("\n"))
+        self.assertNotIn(str(held), detail)
 
     def test_stop_guard_short_form_shows_required_count(self):
         """The short form's WHY line shows decide()'s required live group count (the larger of
@@ -80328,7 +80419,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             self._assert_names_path(self._stop_log(hook, store, "s-1").read_text(encoding="utf-8"),
                                     "Declared wait command: touch ", long_path)
 
-    def test_stop_guard_store_budget_holds_for_every_reachable_required_count(self):
+    def test_stop_guard_root_budget_holds_for_every_reachable_required_count(self):
         """claude N3: the documented 84-character root floor holds for every required count
         run() can pass (max(share, 3) with the share at most _SLOT_SHARE_MAX, so two digits at
         most), and the docstring states that condition rather than a bare floor."""
@@ -80695,11 +80786,15 @@ class StopHookDetailRootTests(unittest.TestCase):
         return home
 
     def _unsafe_tmp(self, why):
-        """Fail with ``why``, or skip with it when UNSAFE_TMP_SKIP_ENV is set to 1."""
+        """Fail with ``why``, or skip with it when UNSAFE_TMP_SKIP_ENV is set to 1. It reads that
+        name from this class, so a test of another class calls it as
+        StopHookDetailRootTests._unsafe_tmp(self, why), as BlockingHookMessageContractTests
+        does."""
+        variable = StopHookDetailRootTests.UNSAFE_TMP_SKIP_ENV
         why = "this host cannot provide a safe temporary home root: " + why
-        if os.environ.get(self.UNSAFE_TMP_SKIP_ENV) == "1":
-            self.skipTest(why + " (%s=1)" % self.UNSAFE_TMP_SKIP_ENV)
-        self.fail(why + "; set %s=1 to skip instead" % self.UNSAFE_TMP_SKIP_ENV)
+        if os.environ.get(variable) == "1":
+            self.skipTest(why + " (%s=1)" % variable)
+        self.fail(why + "; set %s=1 to skip instead" % variable)
 
     def _walkable_home(self, home):
         """For a test whose subject lies at or below ``home`` (which need not exist): the
@@ -80800,32 +80895,49 @@ class StopHookDetailRootTests(unittest.TestCase):
 
     def test_stop_hooks_log_written_when_store_is_git_tree(self):
         """The operator store is inside a git working tree and the fixture home is clean: the
-        log is written under the home's detail root, mode 0600, the console shows the short
-        form (past the PATH BUDGET, the written-but-not-summarized fallback), and the store
-        stays empty."""
+        log is written under the home's detail root, mode 0600, and the store stays empty. The
+        home is under a short directory the test makes in the temporary directory
+        (short_temp_dir), and its name is sized so that each hook's root is exactly at its
+        PATH BUDGET in one leg, where the console shows the three-line short form with the log
+        path, and one character past it (further only when the temporary directory itself is
+        too long) in the other, where it shows the written-but-not-summarized fallback, so
+        neither leg depends on the host's path length. The session id has 36 characters, so the
+        log name holds the whole 12-character session prefix the PATH BUDGET assumes. A
+        temporary directory too long for a root within the budget fails that leg, naming the
+        directory and the budget, or skips it when UNSAFE_TMP_SKIP_ENV is set to 1
+        (_unsafe_tmp)."""
         import stat
         from unittest.mock import patch
+        session = "0123abcd-4567-89ef-0123-456789abcdef"
+        suffix = len(str(self._root("/")))  # what the root adds to the home
         for hook in self.STOP_LOG_HOOKS:
-            with self.subTest(hook=hook), tempfile.TemporaryDirectory() as td:
-                home = self._safe_home(td)
-                outer = Path(td) / "outer"
-                self._git_init(outer)
-                store = outer / "private"
-                store.mkdir()
-                with patch.dict(os.environ, {"GRC_STORE": str(store)}):
-                    _items, status, text = self._stop_block(
-                        hook, td, 4, {"session_id": "s-1"}, None, store=store, home=home,
-                        **self._generous_bounds(hook))
-                self.assertEqual(status, 2)
-                log = self._log(hook, home)
-                self.assertEqual(stat.S_IMODE(os.lstat(log).st_mode), 0o600, text)
-                self.assertNotIn("NOTE: detail log not written", text)
-                if len(str(self._root(home))) <= self.ROOT_BUDGETS[hook]:
-                    self.assertEqual(len(text.split("\n")), 3, text)
-                    self.assertIn(str(log), text)
-                else:
-                    self.assertIn("NOTE: detail log written but not summarized", text)
-                self.assertEqual(list(store.iterdir()), [])
+            budget = self.ROOT_BUDGETS[hook]
+            for leg, within in (("within budget", True), ("past budget", False)):
+                with self.subTest(hook=hook, leg=leg), short_temp_dir() as td:
+                    size = budget - len(td) - 1 - suffix
+                    if within and size < 1:
+                        self._unsafe_tmp("temporary directory %s is too long for a detail log "
+                                         "root within the %d-character PATH BUDGET" % (td, budget))
+                    home = self._safe_home(td, "h" * (size if within else max(size + 1, 1)))
+                    self.assertEqual(len(str(self._root(home))) <= budget, within, home)
+                    outer = Path(td) / "outer"
+                    self._git_init(outer)
+                    store = outer / "private"
+                    store.mkdir()
+                    with patch.dict(os.environ, {"GRC_STORE": str(store)}):
+                        _items, status, text = self._stop_block(
+                            hook, td, 4, {"session_id": session}, None, store=store, home=home,
+                            **self._generous_bounds(hook))
+                    self.assertEqual(status, 2)
+                    log = self._log(hook, home, session)
+                    self.assertEqual(stat.S_IMODE(os.lstat(log).st_mode), 0o600, text)
+                    self.assertNotIn("NOTE: detail log not written", text)
+                    if within:
+                        self.assertEqual(len(text.split("\n")), 3, text)
+                        self.assertIn(str(log), text)
+                    else:
+                        self.assertIn("NOTE: detail log written but not summarized", text)
+                    self.assertEqual(list(store.iterdir()), [])
 
     def test_stop_hooks_long_checkout_path_never_cuts_the_wait_path(self):
         """The checkout sits under nested directories in the test's temporary directory, so
@@ -80834,17 +80946,21 @@ class StopHookDetailRootTests(unittest.TestCase):
         log holds the whole touch command. Turn-end shows the three-line short form with the log
         path and leaves the escape path to the log (a regression pin); stop-guard shows the
         written-but-not-summarized fallback, whose declared-wait line names the sentinel and its
-        directory and points at the log. The detail log root is a directory in the temporary
-        directory (_root_opener), so TMPDIR's ancestors do not matter; a TMPDIR too long for the
-        log path's own budget skips."""
+        directory and points at the log. The test's directories are under a short directory it
+        makes in the temporary directory (short_temp_dir), and the detail log root is a
+        directory there (_root_opener), so TMPDIR's ancestors do not matter and the root fits
+        the log path's own budget; a temporary directory whose own path leaves no room for it
+        fails the test, naming the directory and the budget, or skips it when
+        UNSAFE_TMP_SKIP_ENV is set to 1 (_unsafe_tmp)."""
         from unittest.mock import patch
         for hook in self.STOP_LOG_HOOKS:
-            with self.subTest(hook=hook), tempfile.TemporaryDirectory() as td, \
-                    patch.dict(os.environ):
+            with self.subTest(hook=hook), short_temp_dir() as td, patch.dict(os.environ):
                 os.environ.pop("GRC_DROP_ROOT", None)
                 root = self._mkdirs(td, "r")
                 if len(str(root)) > self.ROOT_BUDGETS[hook]:
-                    self.skipTest("temporary directory %s is past the PATH BUDGET" % td)
+                    self._unsafe_tmp("temporary directory %s is too long for a detail log root "
+                                     "within the %d-character PATH BUDGET"
+                                     % (td, self.ROOT_BUDGETS[hook]))
                 parent = self._mkdirs(td, *("nested-%02d-%s" % (n, "d" * 30) for n in range(5)))
                 repo = self._mkdirs(parent, "grc_library")
                 if hook == "stop-guard-unattended":
@@ -80881,16 +80997,19 @@ class StopHookDetailRootTests(unittest.TestCase):
         declared-wait path cannot fit one console line, leaves each subject test with the
         verdict it has with none. The subjects drive stop-guard's real block path and assert the
         three-line short form, whose action line carries the declared-wait path, so the
-        inherited value fails them unless setUp removes it."""
+        inherited value fails them unless setUp removes it. With none set, each subject must
+        pass (or skip, only when UNSAFE_TMP_SKIP_ENV is set to 1), so a subject that fails with
+        and without the setting fails this test too."""
         from unittest.mock import patch
         drop_root = "/" + "/".join(["d" * 60] * 3)
+        expected = (("pass", "skip") if os.environ.get(self.UNSAFE_TMP_SKIP_ENV) == "1"
+                    else ("pass",))
         self.assertGreater(len(os.path.join(drop_root, ".allow-idle-stop")), 160)
         for name in ("test_stop_hooks_console_short_form",
                      "test_stop_hooks_log_name_fits_path_budget"):
             verdicts, shown = {}, {}
             for label, value in (("none", None), ("long", drop_root)):
                 with patch.dict(os.environ):
-                    os.environ.pop("GRC_DROP_ROOT", None)
                     if value is not None:
                         os.environ["GRC_DROP_ROOT"] = value
                     result = unittest.TestResult()
@@ -80901,6 +81020,7 @@ class StopHookDetailRootTests(unittest.TestCase):
                 shown[label] = "".join(text for _case, text in
                                        result.errors + result.failures)[-3000:]
             with self.subTest(test=name):
+                self.assertIn(verdicts["none"], expected, shown)
                 self.assertEqual(verdicts["long"], verdicts["none"], shown)
 
     def test_stop_hooks_git_tree_store_is_never_written(self):
@@ -81226,8 +81346,11 @@ class StopHookDetailRootTests(unittest.TestCase):
                             **self._generous_bounds(hook))
                     self.assertEqual(status, 2)
                     self._assert_fallback(hook, items, text)
+                    notes = [line for line in text.split("\n")
+                             if line.startswith("NOTE: detail log ")]
+                    self.assertEqual(len(notes), 1, text)
                     self.assertIn("KeyError" if case == "no-password-entry"
-                                  else "absolute normalized path", text)
+                                  else "absolute normalized path", notes[0])
 
     def test_stop_hooks_concurrent_first_run(self):
         """Both hooks creating the root at once on an empty home both write their logs, and
@@ -81459,7 +81582,7 @@ class StopHookDetailRootTests(unittest.TestCase):
                 for opt_in in (False, True):
                     with self.subTest(hook=hook, opt_in=opt_in):
                         env = {key: value for key, value in os.environ.items()
-                               if key != variable}
+                               if key not in {variable, "GRC_DROP_ROOT"}}
                         env["TMPDIR"] = str(shared)
                         if opt_in:
                             env[variable] = "1"
@@ -81507,7 +81630,9 @@ class StopHookDetailRootTests(unittest.TestCase):
     def test_stop_hooks_root_path_budget(self):
         """Homes of 62 characters (turn-end) and 67 (stop-guard, with two-digit live and
         required counts) keep the short form with the log path on one line; one more character
-        gives the written-but-not-summarized fallback."""
+        gives the written-but-not-summarized fallback. A temporary directory too long for a
+        home of that size fails the test, naming the directory and the size, or skips it when
+        UNSAFE_TMP_SKIP_ENV is set to 1 (_unsafe_tmp)."""
         session = "0123abcd-4567-89ef-0123-456789abcdef"
         widths = {"block-turn-end-with-outstanding-work": (62, {}),
                   "stop-guard-unattended": (67, {"read_slot_share": lambda: (11, "grc"),
@@ -81515,10 +81640,11 @@ class StopHookDetailRootTests(unittest.TestCase):
                                                  "_grc_escape_file": lambda: "/w/.allow-idle-stop"})}
         for hook, (width, extra) in widths.items():
             for size, short in ((width, True), (width + 1, False)):
-                with self.subTest(hook=hook, home=size), tempfile.TemporaryDirectory() as td:
+                with self.subTest(hook=hook, home=size), short_temp_dir() as td:
                     pad = size - len(td) - 1
                     if pad < 1:
-                        self.skipTest("TMPDIR is too long to build a %d-character home" % size)
+                        self._unsafe_tmp("temporary directory %s is too long to build a "
+                                         "%d-character home" % (td, size))
                     home = self._safe_home(td, "h" * pad)
                     self.assertEqual(len(str(home)), size)
                     items, status, text = self._stop_block(
@@ -81586,7 +81712,7 @@ class StopHookDetailRootTests(unittest.TestCase):
                 self.assertRaises(OSError):
             mod._bounded_write("detail", {"session_id": "s-1"})
         self.assertGreater(clock.readings, 1)
-        self.assertTrue(seen)
+        self.assertEqual(len(seen), 1, seen)
         for timeout in seen:
             self.assertLessEqual(timeout, remaining)
         self.assertFalse(os.path.lexists(absent))

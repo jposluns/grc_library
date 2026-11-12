@@ -205,7 +205,10 @@ fallback (the detail log carries the same text), and the producer's fail-open NO
 producer's stderr and path the same way. Exit status, the escape and stop_hook_active handling
 are unchanged. RESIDUE: a home kept in a git working tree or a bare repository refuses every
 log (visibly, through the NOTE), with no second location; a bare repository is not seen when
-git's configuration sets safe.bareRepository to explicit; a `.git` planted above grc, or in grc
+git's configuration sets safe.bareRepository to explicit; inferred, not run: git's
+safe.directory ownership check makes `git rev-parse` exit 128 inside a bare repository owned by
+another uid (such as root, which the walk accepts above the home), so such a repository holding
+the home is not seen either; a `.git` planted above grc, or in grc
 itself, between the last git working tree
 check and the file open is not seen (only this uid or root can plant one there); the log is
 appended to without rotation; two sessions whose ids share their first 12 characters share one
@@ -1213,7 +1216,9 @@ def _declared_wait_line(escape_path):
 def _clamp(line, limit=_MAX_LINE_CHARS):
     """``line`` as one console line of at most ``limit`` characters (``limit`` at least
     len(_ELISION)) and _MAX_LINE_BYTES encoded bytes: whole when it fits both, else cut to fit
-    them, ending in _ELISION."""
+    them, ending in _ELISION ("..."), so a cut line always ends in "..." and a reader can tell
+    it was cut. In stop-guard-unattended.py that includes each fallback line: the reason lines,
+    the NOTE line and the actionable count line."""
     if len(line) <= limit and len(line.encode("utf-8", "backslashreplace")) <= _MAX_LINE_BYTES:
         return line
     line = line[:limit - len(_ELISION)]
@@ -1296,7 +1301,9 @@ def _fallback_refusal(reason, count, state, why):
     When the detail log was not written, a too-long declared-wait line says so instead of
     pointing at the log (round 5, claude W1). ``why`` is the failure, an exception or text
     naming one, which _note_line renders, keeping its reason whole only when the line has room
-    for it."""
+    for it. When _note_line itself raises, the NOTE gives only the type name of ``why`` (the
+    exception's type name; str for text), so the failure's paths and message stay out of the
+    console."""
     lines = reason.split("\n")[:_MAX_REASON_LINES]
     if state == "not written":
         lines = [_WAIT_UNLOGGED.get(line, line) for line in lines]
@@ -2995,15 +3002,23 @@ def _self_test():
                 with mock.patch.dict(globals(), _GRC_PARENT=parent):
                     self.assertEqual(_grc_escape_file(), escape)
                     _b, reason = decide("unattended", False, items, 0, (None, "absent"))
-                    with mock.patch.dict(globals(), _bounded_write=mock.Mock(return_value=log)):
+                    recorded = []
+
+                    def write(reason_given, actionable_given, _payload):
+                        # The detail _bounded_write builds from the arguments it is handed.
+                        recorded.append(_detail_text(reason_given, actionable_given))
+                        return log
+                    writer = mock.Mock(side_effect=write)
+                    with mock.patch.dict(globals(), _bounded_write=writer):
                         written = _route_refusal(reason, items, 0, {"session_id": "self-test-3"})
                     unlogged = _route_refusal(reason, items, 0, {})
-                    detail = _detail_text(reason, items)
             wait = _WAIT_TOO_LONG % ("<repo-parent>/grc_working", _WAIT_LOGGED)
             self.assertIn(wait, reason.split("\n"))
             self.assertTrue(written.startswith(reason + "\nNOTE: detail log written but not "
                                                "summarized (ValueError"), written)
-            self.assertIn("Declared wait command: touch " + _shell_word(escape), detail)
+            self.assertEqual(writer.call_count, 1)
+            self.assertEqual(len(recorded), 1)
+            self.assertIn("Declared wait command: touch " + _shell_word(escape), recorded[0])
             self.assertTrue(unlogged.startswith(reason.replace(wait, _WAIT_UNLOGGED[wait])
                                                 + "\nNOTE: detail log not written (ValueError"),
                             unlogged)

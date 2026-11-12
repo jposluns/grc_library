@@ -96,19 +96,20 @@ lint_common.resolve_working, whose transitional fallback can name a `.working` d
 a git checkout. The text returned
 to the harness is then three short lines (summarize()), each at most _MAX_LINE_CHARS
 characters: what blocked, with the branch count and at most the first _SHOWN_ITEMS branches
-(each escaped with _printable, then cut to _MAX_ITEM_CHARS); WHY; and the one action that
+(each escaped with _console_text, then cut to _MAX_ITEM_CHARS); WHY; and the one action that
 clears it, which names the held-branches record path and the one-shot escape (touch of
 ESCAPE_FILE) when they fit, so the reader learns the remedy without opening the log (as
 stop-guard-unattended.py keeps its escape on the console, #2496): both, else the escape alone,
 else the held path alone, each with the log path ending the action line or, failing that, the
 WHY line; when neither path fits, the action names only the log path (the log holds both). A
-held or escape path that is unset or has any non-printable character stays in the log only.
+held or escape path that is unset or has any character _console_text escapes stays in the log
+only.
 PATH BUDGET: the log path adds 43 characters to the root path (with a 12-character session
 prefix), so the short form fits a root path of at most 79 characters (60 with the longer
 wording; a shorter one still when the held path or the escape is shown), that is a home of at
-most 62 characters (the root adds 17); a longer root path, or a log path with any non-printable
-character (a newline, a carriage return, a terminal escape or a Unicode space separator other
-than the ASCII space, tested with _printable), falls back as below. A root inside this checkout,
+most 62 characters (the root adds 17); a longer root path, or a log path with any character
+_console_text escapes (a newline, a carriage return or a terminal escape; a Unicode space
+separator is kept), falls back as below. A root inside this checkout,
 or inside any git working tree or bare repository (a `.git` entry in the root or any ancestor up
 to the filesystem root, lexically or after resolving symlinks, or `git rev-parse
 --is-inside-work-tree` exiting 0, as it does in a working tree and inside a bare repository, run
@@ -143,20 +144,24 @@ for any other cause whose line is too long, the whole line is cut to _MAX_LINE_C
 the mark (_clamp), which drops the end of the line, then the path, then the end of the reason),
 then the branch list cut at the first _FALLBACK_ITEMS branches (the pre-2026-11-04 console cap)
 with one line counting the rest, the held-branches path and the one-shot escape. Every branch
-item the fallback shows is escaped with _printable, and so is every item of the last-resort form
-(the full detail with the NOTE after it, used when the fallback cannot be rendered), so a
+item the fallback shows is escaped with _console_text, and so is every item of the last-resort
+form (the full detail with the NOTE after it, used when the fallback cannot be rendered), so a
 newline or terminal escape in a git error text cannot start a console line on any path; the
 detail log keeps the raw text. The held-branches path and the one-shot escape path are escaped
-with _printable wherever decide() renders them (the fallback, the last-resort form and the
-detail log alike), and so is the escape path in main()'s cannot-format refusal and every path
-the hook-helper-isolation refusal names, so a newline or terminal escape in a path cannot start
-a console line either. This fails open to visibility, never to silence: the count is always
+wherever decide() renders them (the held path with _console_text on the fallback and the
+last-resort form and with _printable in the detail log; the escape path as one shell word,
+_shell_word, on all three), and so is the escape path in main()'s cannot-format refusal and
+every path the hook-helper-isolation refusal names, so a newline or terminal escape in a path
+cannot start a console line either. This fails open to visibility, never to silence: the
+count is always
 shown, and when the log was written the full list is there. RESIDUE: when the log was not
 written, branches past the first _FALLBACK_ITEMS are named nowhere, as before 2026-11-04. Exit
 status, the escape and stop_hook_active handling are unchanged. RESIDUE: a home kept in a git
 working tree or a bare repository refuses every log (visibly, through the NOTE), with no second
 location; a bare repository is not seen when git's configuration sets safe.bareRepository to
-explicit; a `.git`
+explicit; inferred, not run: git's safe.directory ownership check makes `git rev-parse` exit 128
+inside a bare repository owned by another uid (such as root, which the walk accepts above the
+home), so such a repository holding the home is not seen either; a `.git`
 planted above grc, or in grc itself, between the last git working tree check and the file open
 is not seen (only this uid or root can plant one there); the log is appended to without
 rotation; two sessions
@@ -412,14 +417,26 @@ def _shell_word(text) -> str:
     return "$'" + "".join(out) + "'"
 
 
-def _branch_display(ref: bytes) -> str:
-    """A branch ref shown without its refs/heads/ prefix: a byte that is not UTF-8 and every
-    character that is neither printable nor a Unicode space separator are escaped, so a space
-    separator a branch name holds is shown as it is (_printable, by contrast, escapes it)."""
+def _console_text(value):
+    """``value`` as console text: every character that is neither printable nor a Unicode space
+    separator (category Zs) shown as its ascii() escape, so a newline, a carriage return or a
+    terminal escape cannot start a console line and a space separator is shown as it is."""
     import unicodedata
-    text = ref.removeprefix(b"refs/heads/").decode("utf-8", errors="backslashreplace")
     return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
-                   else ascii(char)[1:-1] for char in text)
+                   else ascii(char)[1:-1] for char in str(value))
+
+
+def _branch_display(ref: bytes) -> str:
+    """A branch ref shown without its refs/heads/ prefix: a byte that is not UTF-8 is escaped,
+    and so is every character that is neither printable nor a Unicode space separator
+    (_console_text), so a space separator (category Zs) a branch name holds is shown as it is.
+    The console keeps that rule in summarize(), the fallback list, the held path, the
+    last-resort form and _console_path, which all use _console_text. Of this hook's output,
+    only the detail log (its held path line) and the NOTE line's cause (_note_line, which both
+    Stop hooks share) use _printable, which escapes a space separator too; this hook has no
+    declared-wait line."""
+    text = ref.removeprefix(b"refs/heads/").decode("utf-8", errors="backslashreplace")
+    return _console_text(text)
 
 
 def _git_display(output: bytes) -> str:
@@ -537,13 +554,16 @@ def unmerged_branches() -> list:
 
 
 def decide(stop_hook_active: bool, escape: bool, branches: list,
-           shown: int | None = None, note: str | None = None) -> str | None:
+           shown: int | None = None, note: str | None = None,
+           console: bool | None = None) -> str | None:
     """Pure decision, so it is testable without a repository. Returns the FULL detail (every
     branch); main() routes it to the detail log and shows summarize() on the console. The
     console fallback (_route_refusal) passes ``shown``, which keeps that many branches, each
-    escaped with _printable (the detail log form keeps the raw text), and counts the rest on
-    one line, and ``note``, placed before the list. The held-branches path and the one-shot
-    escape path are escaped with _printable on every form."""
+    escaped with _console_text (the detail log form keeps the raw text), and counts the rest on
+    one line, and ``note``, placed before the list. The held-branches path is escaped with
+    _console_text on a console form (``shown`` given, or ``console`` true, as _last_resort
+    passes) and with _printable on the detail log form; the one-shot escape path is one shell
+    word (_shell_word) on every form."""
     if stop_hook_active or escape:
         return None
     if not branches:
@@ -559,13 +579,15 @@ def decide(stop_hook_active: bool, escape: bool, branches: list,
         if shown is None:
             lines += ["    - %s (+%s)" % (n, a) for n, a in listed]
         else:
-            lines += ["    - " + _printable("%s (+%s)" % (n, a)) for n, a in listed]
+            lines += ["    - " + _console_text("%s (+%s)" % (n, a)) for n, a in listed]
         if len(listed) < len(branches):
             lines.append("    ... and %d more, not shown here" % (len(branches) - len(listed)))
         lines.append("    Held-branches record path:")
         # Show the ACTUAL resolved held-branches path (resolve_working -> local store), never a
         # hardcoded sibling path, so the remediation the guard prints follows the store migration.
-        lines.append("      %s" % (_printable(str(HELD_FILE)) if HELD_FILE is not None
+        on_console = shown is not None if console is None else console
+        held = _console_text if on_console else _printable
+        lines.append("      %s" % (held(str(HELD_FILE)) if HELD_FILE is not None
                                    else "the held-branches file (resolved via lint_common.resolve_working)"))
     lines += [
         "",
@@ -580,7 +602,9 @@ def decide(stop_hook_active: bool, escape: bool, branches: list,
 def _clamp(line, limit=_MAX_LINE_CHARS):
     """``line`` as one console line of at most ``limit`` characters (``limit`` at least
     len(_ELISION)) and _MAX_LINE_BYTES encoded bytes: whole when it fits both, else cut to fit
-    them, ending in _ELISION."""
+    them, ending in _ELISION ("..."), so a cut line always ends in "..." and a reader can tell
+    it was cut. In stop-guard-unattended.py that includes each fallback line: the reason lines,
+    the NOTE line and the actionable count line."""
     if len(line) <= limit and len(line.encode("utf-8", "backslashreplace")) <= _MAX_LINE_BYTES:
         return line
     line = line[:limit - len(_ELISION)]
@@ -591,17 +615,18 @@ def _clamp(line, limit=_MAX_LINE_CHARS):
 
 def _console_path(path) -> str | None:
     """``path`` as console text for the short form, or None when it is unset or holds any
-    non-printable character: the short form then leaves that path to the detail log (which
-    escapes it) rather than show an escaped path that a reader could take for the literal one."""
+    character _console_text escapes (a Unicode space separator is kept): the short form then
+    leaves that path to the detail log (which escapes it) rather than show an escaped path that
+    a reader could take for the literal one."""
     if path is None:
         return None
     text = str(path)
-    return text if _printable(text) == text else None
+    return text if _console_text(text) == text else None
 
 
 def summarize(branches: list, log_path: str) -> str:
     """The three console lines, each at most _MAX_LINE_CHARS: what blocked (the count, then at
-    most the first _SHOWN_ITEMS branches, each escaped with _printable and then cut to
+    most the first _SHOWN_ITEMS branches, each escaped with _console_text and then cut to
     _MAX_ITEM_CHARS, so a newline or terminal escape in a git error text cannot break the
     three-line form), WHY, and the one action that clears it, with the detail log path.
     The action names the held-branches record path (HELD_FILE) and the one-shot escape
@@ -610,15 +635,15 @@ def summarize(branches: list, log_path: str) -> str:
     keeps its escape there, #2496): first both, then the escape alone, then the held path
     alone. Each wording is tried with the log path ending the action line, then with the log
     path ending the WHY line; when none fits, the action names only the log path, which holds
-    both. A held or escape path that is unset or has any non-printable character is left to
-    the log. The count precedes the list so a cut line keeps it. A log path with any
-    non-printable character, or one that cannot fit whole, raises before its length is used,
-    and the caller then shows the fallback. PATH BUDGET: with the shortest wording the log
-    path may be at most 122 characters, so the store path at most 79 (see CONSOLE AND DETAIL
+    both. A held or escape path that is unset or has any character _console_text escapes is
+    left to the log. The count precedes the list so a cut line keeps it. A log path with any
+    character _console_text escapes, or one that cannot fit whole, raises before its length is
+    used, and the caller then shows the fallback. PATH BUDGET: with the shortest wording the log
+    path may be at most 122 characters, so the root path at most 79 (see CONSOLE AND DETAIL
     LOG); every wording that names the held path or the escape needs a shorter log path."""
-    if _printable(log_path) != log_path:
+    if _console_text(log_path) != log_path:
         raise ValueError("detail log path has a non-printable character")
-    shown = [_clamp(_printable("%s (+%s)" % (name, ahead)), _MAX_ITEM_CHARS)
+    shown = [_clamp(_console_text("%s (+%s)" % (name, ahead)), _MAX_ITEM_CHARS)
              for name, ahead in branches[:_SHOWN_ITEMS]]
     if len(branches) > _SHOWN_ITEMS:
         head = "%d branch(es) outstanding or not verifiable; first %d: " % (len(branches), len(shown))
@@ -963,7 +988,8 @@ def _route_refusal(detail: str, branches: list, payload) -> str:
     rest counted (fail open to visibility, never to silence); the NOTE names the failure
     (_note_line, which keeps its reason whole only when the line has room for it). Should that
     rendering fail, or lack the NOTE, the full detail is shown with the NOTE after it
-    (_last_resort)."""
+    (_last_resort). When _note_line itself raises, the NOTE gives only the exception's type
+    name, so the exception's paths and message stay out of the console."""
     state = "not written"
     try:
         path = _bounded_write(detail, payload)
@@ -985,15 +1011,17 @@ def _route_refusal(detail: str, branches: list, payload) -> str:
 
 
 def _last_resort(detail: str, branches: list, note: str) -> str:
-    """The full detail with ``note`` after it, every branch item escaped with _printable so a
-    raw newline inside an item cannot start a console line. When the escaped items cannot be
-    rendered, the whole detail is escaped onto one line instead (visible, never silent)."""
+    """The full detail with ``note`` after it, every branch item and the held path escaped with
+    _console_text so a raw newline inside an item cannot start a console line. When the escaped
+    items cannot be rendered, the whole detail is escaped onto one line instead (visible, never
+    silent)."""
     try:
-        safe = decide(False, False, [(_printable(str(n)), _printable(str(a))) for n, a in branches])
+        safe = decide(False, False, [(_console_text(n), _console_text(a)) for n, a in branches],
+                      console=True)
     except Exception:
         safe = None
     if not isinstance(safe, str):
-        safe = _printable(detail)
+        safe = _console_text(detail)
     return safe + "\n" + note
 
 
@@ -1237,14 +1265,13 @@ def self_test() -> int:
         print("FAIL summarize did not put the held path and the escape on the console")
 
     # No usable session_id: the refusal stays visible with the NOTE before the list, and
-    # nothing is written: the fixture home is never created.
+    # nothing is written: the detail log root is never opened and nothing is appended.
     import tempfile
     detail = decide(False, False, many)
-    with tempfile.TemporaryDirectory() as parent:
-        absent = os.path.join(parent, "home")
-        with mock.patch.object(module, "_DETAIL_HOME", absent):
-            routed = _route_refusal(detail, many, {})
-        wrote = os.path.lexists(absent)
+    with mock.patch.object(module, "_open_detail_root") as opener, \
+            mock.patch.object(module, "_append_private") as appender:
+        routed = _route_refusal(detail, many, {})
+    wrote = opener.called or appender.called
     if ("NOTE: detail log not written" not in routed or wrote
             or not routed.startswith("BLOCKED (turn-end-outstanding-work): ")
             or routed.index("NOTE:") > routed.index("Branches outstanding")
