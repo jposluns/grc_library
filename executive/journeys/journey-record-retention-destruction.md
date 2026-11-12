@@ -2,8 +2,8 @@
 
 **Document Title:** From retention rule to destruction evidence: the governed journey of a record\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.1\
-**Date:** 2026-08-17\
+**Version:** 0.0.2\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md), [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md), [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md), [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`resilience/procedure-backup-and-recovery.md`](../../resilience/procedure-backup-and-recovery.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](../../supply-chain/procedure-supplier-exit-and-data-return.md), [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md), [`compliance/template-audit-evidence-package.md`](../../compliance/template-audit-evidence-package.md), [`risk/register-assurance-map.md`](../../risk/register-assurance-map.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-019\
 **Last Reviewed:** 2026-08-17
 
 ---

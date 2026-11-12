@@ -2,8 +2,8 @@
 
 **Document Title:** When a release-signing key is compromised after software reaches production\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.1\
-**Date:** 2026-08-17\
+**Version:** 0.0.2\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-devops-security-requirements.md`](../../dev-security/standard-devops-security-requirements.md), [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`dev-security/standard-devops-security-requirements.md`](../../dev-security/standard-devops-security-requirements.md), [`operations/procedure-release-management.md`](../../operations/procedure-release-management.md), [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](../../security/procedure-cryptographic-key-operations.md), [`security/procedure-key-escrow-and-recovery.md`](../../security/procedure-key-escrow-and-recovery.md), [`operations/standard-certificate-authority-management.md`](../../operations/standard-certificate-authority-management.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-016\
 **Last Reviewed:** 2026-08-17
 
 ---

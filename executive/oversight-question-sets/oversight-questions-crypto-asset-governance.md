@@ -2,8 +2,8 @@
 
 **Document Title:** What the governing body should ask about the organization's crypto-asset classification, custody, reserves, disclosure, providers, and smart-contract risk\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.2\
-**Date:** 2026-09-13\
+**Version:** 0.0.3\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`crypto/framework-crypto-asset-governance.md`](../../crypto/framework-crypto-asset-governance.md), [`crypto/register-crypto-asset-inventory.md`](../../crypto/register-crypto-asset-inventory.md), [`crypto/standard-digital-asset-custody.md`](../../crypto/standard-digital-asset-custody.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`crypto/framework-crypto-asset-governance.md`](../../crypto/framework-crypto-asset-governance.md), [`crypto/register-crypto-asset-inventory.md`](../../crypto/register-crypto-asset-inventory.md), [`crypto/standard-digital-asset-custody.md`](../../crypto/standard-digital-asset-custody.md), [`crypto/standard-crypto-asset-reserve-and-prudential-requirements.md`](../../crypto/standard-crypto-asset-reserve-and-prudential-requirements.md), [`crypto/standard-crypto-asset-white-paper-disclosure.md`](../../crypto/standard-crypto-asset-white-paper-disclosure.md), [`crypto/standard-crypto-asset-regulatory-submission.md`](../../crypto/standard-crypto-asset-regulatory-submission.md), [`crypto/standard-crypto-asset-service-provider-vetting.md`](../../crypto/standard-crypto-asset-service-provider-vetting.md), [`crypto/standard-smart-contract-and-oracle-risk.md`](../../crypto/standard-smart-contract-and-oracle-risk.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-025\
 **Last Reviewed:** 2026-09-12
 
 ---

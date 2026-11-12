@@ -3,8 +3,8 @@
 
 **Document Title:** When a customer-data service must move after its legal operating boundary changes\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.1\
-**Date:** 2026-08-17\
+**Version:** 0.0.2\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/register-cross-border-data-flow.md`](../../privacy/register-cross-border-data-flow.md), [`architecture/procedure-architecture-review.md`](../../architecture/procedure-architecture-review.md)\
@@ -20,7 +20,6 @@
 **Corpus Sources:** [`risk/register-scenario-risk-catalogue.md`](../../risk/register-scenario-risk-catalogue.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../../compliance/policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/register-cross-border-data-flow.md`](../../privacy/register-cross-border-data-flow.md), [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md), [`architecture/procedure-architecture-review.md`](../../architecture/procedure-architecture-review.md), [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](../../supply-chain/standard-cloud-exit-and-data-portability.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-017\
 **Last Reviewed:** 2026-08-17
 
 ---

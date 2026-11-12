@@ -2,8 +2,8 @@
 
 **Document Title:** What happens when a critical AI supplier fails\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.2\
-**Date:** 2026-08-30\
+**Version:** 0.0.3\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/procedure-third-party-ai-due-diligence.md`](../../supply-chain/procedure-third-party-ai-due-diligence.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md), [`ai/plan-ai-incident-response.md`](../../ai/plan-ai-incident-response.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`supply-chain/procedure-third-party-ai-due-diligence.md`](../../supply-chain/procedure-third-party-ai-due-diligence.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../../supply-chain/procedure-supplier-ongoing-monitoring.md), [`ai/plan-ai-incident-response.md`](../../ai/plan-ai-incident-response.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md), [`supply-chain/register-concentration-risk.md`](../../supply-chain/register-concentration-risk.md), [`ai/register-model-registry.md`](../../ai/register-model-registry.md), [`ai/template-ai-vendor-security-questionnaire.md`](../../ai/template-ai-vendor-security-questionnaire.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](../../supply-chain/procedure-supplier-exit-and-data-return.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-012\
 **Last Reviewed:** 2026-08-15
 
 ---

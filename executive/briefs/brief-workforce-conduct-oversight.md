@@ -2,8 +2,8 @@
 
 **Document Title:** What the governing body should require for workforce, conduct, and operating-model oversight\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.1\
-**Date:** 2026-08-15\
+**Version:** 0.0.2\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md), [`governance/register-role-authority.md`](../../governance/register-role-authority.md), [`governance/guideline-minimum-viable-governance-structure.md`](../../governance/guideline-minimum-viable-governance-structure.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md), [`governance/procedure-whistleblower-and-incident-reporting.md`](../../governance/procedure-whistleblower-and-incident-reporting.md), [`governance/register-role-authority.md`](../../governance/register-role-authority.md), [`governance/guideline-minimum-viable-governance-structure.md`](../../governance/guideline-minimum-viable-governance-structure.md), [`security/standard-personnel-security-screening.md`](../../security/standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](../../security/procedure-onboarding-and-offboarding.md), [`security/standard-security-awareness-and-training.md`](../../security/standard-security-awareness-and-training.md), [`security/policy-acceptable-use.md`](../../security/policy-acceptable-use.md), [`security/procedure-security-disciplinary-process.md`](../../security/procedure-security-disciplinary-process.md), [`security/framework-insider-risk-programme.md`](../../security/framework-insider-risk-programme.md), [`ai/guideline-ethical-ai-use.md`](../../ai/guideline-ethical-ai-use.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-009\
 **Last Reviewed:** 2026-08-15
 
 ---

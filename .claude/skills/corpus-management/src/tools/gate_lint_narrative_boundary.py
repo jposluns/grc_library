@@ -4,7 +4,7 @@
 Engine/wrapper split (narrative-family): the PURE symmetric scan (the fence
 helpers + parse_metadata_run + scan_outside_file + check_inside_page) is
 the source of record here in the pack, moved verbatim from the grc gate. The
-narrative document type, the path-scoped entry-point exemption, the 8-field
+narrative document type, the path-scoped entry-point exemption, the 7-field
 extension set, the allowed corpus document-type set, and the two line-anchored
 markers are supplied by the adopter via configure(ref), so the engine's LOGIC
 is project-agnostic (its finding-message text carries the configured type/field
@@ -188,6 +188,6 @@ def check_inside_page(path: Path, rel: str) -> list[str]:
         if fld not in meta:
             findings.append(
                 f"{rel}: missing narrative-extension field {fld!r} (every narrative "
-                f"page carries the full 8-field extension block)"
+                f"page carries the full 7-field extension block)"
             )
     return findings

@@ -2,8 +2,8 @@
 
 **Document Title:** How leadership can know, with evidence, whether critical services could continue and recover after a disruption\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.3\
-**Date:** 2026-09-12\
+**Version:** 0.0.4\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md), [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md), [`resilience/register-resilience-metrics-and-testing-log.md`](../../resilience/register-resilience-metrics-and-testing-log.md), [`risk/template-board-risk-report.md`](../../risk/template-board-risk-report.md)\
@@ -19,7 +19,6 @@
 **Corpus Sources:** [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md), [`resilience/procedure-business-impact-analysis.md`](../../resilience/procedure-business-impact-analysis.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](../../resilience/policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](../../resilience/plan-business-continuity-and-crisis-management.md), [`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md), [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md), [`resilience/register-resilience-metrics-and-testing-log.md`](../../resilience/register-resilience-metrics-and-testing-log.md), [`resilience/template-lessons-learned.md`](../../resilience/template-lessons-learned.md), [`risk/template-board-risk-report.md`](../../risk/template-board-risk-report.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-020\
 **Last Reviewed:** 2026-09-12
 
 ---
