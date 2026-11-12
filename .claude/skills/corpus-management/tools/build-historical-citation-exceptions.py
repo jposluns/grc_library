@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render the historical-context citation exception table from its data file (3b75).
+"""Render the historical-context citation exception table from its data file.
 
 Writes the generated block of .claude/skills/corpus-management/registers/register-historical-citation-exceptions.md from
 .claude/skills/corpus-management/registers/register-historical-citation-exceptions.toml. An absent data file renders an

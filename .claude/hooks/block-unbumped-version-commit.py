@@ -638,7 +638,7 @@ def self_test() -> int:
 
     # --- the opt-out ---
     ck("the opt-out phrase is recognized", bool(OPT_OUT.search("m 'x\n\nVersionBump: none typo only'")), True)
-    ck("the escape excuses README.md only (3b102)", escape_filter(["README.md", "governance/x.md"], True), ["governance/x.md"])
+    ck("the escape excuses README.md only", escape_filter(["README.md", "governance/x.md"], True), ["governance/x.md"])
     ck("without the escape every offender stays", escape_filter(["README.md", "governance/x.md"], False), ["README.md", "governance/x.md"])
     ck("a mention of versions is not an opt-out", bool(OPT_OUT.search("bump the version")), False)
 
@@ -695,7 +695,7 @@ def self_test() -> int:
     ck("bump_semver keeps trailing text", bump_semver("**Version:** 1.10.87 (per-doc)\\"), "**Version:** 1.10.88 (per-doc)\\")
     ck("bump_semver returns None on a bracketed-template Version", bump_semver("**Version:** <x.y.z: new docs start at 0.0.1>\\"), None)
     ck("bump_semver returns None with no Version line", bump_semver("just body text"), None)
-    ck("bump_semver ignores a fenced/body Version example (F1 hardening)",
+    ck("bump_semver ignores a fenced/body Version example",
        bump_semver("**README Version:** 9.9.9\\\n\nbody\n\n```\n**Version:** 1.0.0\n```\n"), None)
     ck("bump_semver still bumps a real metadata Version above a body example",
        bump_semver("**Version:** 2.3.4\\\n\nbody\n\n```\n**Version:** 1.0.0\n```\n"),
@@ -832,7 +832,7 @@ def self_test() -> int:
     ck("commit_target: any -C on the commit steps aside", commit_target(f"git -C {_W} commit -m x", "/r"), None)
     ck("commit_target: any cd before the commit is undeterminable", commit_target("cd /a && git -C b commit", "/r"), None)
     ck("commit_target: several -C operands step aside", commit_target(f"git -C {_W} -C b commit", "/r"), None)
-    ck("commit_target: a trailing .. cancelling a /proc/self step steps aside (3b25 r10)",
+    ck("commit_target: a trailing .. cancelling a /proc/self step steps aside",
        commit_target(f"git -C {_W} -C /proc/self/cwd/../../.. commit -m x", "/r"), None)
     ck("commit_target: a -C step that does not exist steps aside", commit_target("git -C /nonexistent/w commit", "/r"), None)
     ck("commit_target: a missing intermediate cancelled by .. steps aside",

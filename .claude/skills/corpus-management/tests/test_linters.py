@@ -2746,7 +2746,7 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertLinterFails(result, "COBIT")
         # The legacy-API finding message names the id once, not "COBIT COBIT 5".
         mod = load_linter_module(
-            ".claude/skills/corpus-management/src/tools/gate_lint_standards_currency.py", "gate_currency_3b38"
+            ".claude/skills/corpus-management/src/tools/gate_lint_standards_currency.py", "gate_currency_message_once"
         )
         messages = [
             msg
@@ -2943,7 +2943,7 @@ class StandardsCurrencyTests(LinterTestCase):
         from unittest import mock
 
         root = self._not_covered_root(self.COVERED_ROW, self.UNCOVERED_ROW)
-        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-standards-currency.py", "currency_3b655")
+        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-standards-currency.py", "currency_not_covered")
         engine = mod._engine()
         original = engine.discover
 
@@ -3012,7 +3012,7 @@ class StandardsCurrencyTests(LinterTestCase):
     REGISTER_REL = "governance/register-canonical-citations.md"
     # The base's copy of the wrapper: one that holds the ratchet names UNPINNED_BASELINE_REL.
     RATCHET_WRAPPER = 'UNPINNED_BASELINE_REL = ".claude/skills/corpus-management/tools/standards-currency-unpinned-baseline.json"\n'
-    PRE_RATCHET_WRAPPER = '"""Standards-currency audit, before P-3.213."""\n'
+    PRE_RATCHET_WRAPPER = '"""Standards-currency audit, before the ratchet."""\n'
     SAME = object()
 
     @staticmethod
@@ -13680,7 +13680,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
 
     # A marker no git argv holds: _base_validation_fault then faults no call
     # and only traces merge-base.
-    NO_FAULT = "--3b620-no-fault"
+    NO_FAULT = "--no-fault-marker"
 
     def _base_validation_fault(self, script, cwd, env, marker, kind, said="",
                                base="origin/main"):
@@ -13856,7 +13856,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
             "os.nice(19)\n"
             "fmt, prefix = sys.argv[1], sys.argv[2]\n"
             "for n in range(2000000):\n"
-            "    body = b'3b620 round 19 %d\\n' % n\n"
+            "    body = b'prefix search %d\\n' % n\n"
             "    if hashlib.new(fmt, b'blob %d\\0' % len(body) + body).hexdigest()"
             ".startswith(prefix):\n"
             "        sys.stdout.write(body.decode('ascii'))\n"
@@ -16192,7 +16192,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
             "    if pid:\n"
             "        fifo = os.open(ready, os.O_RDONLY | os.O_NONBLOCK)\n"
             "        try:\n"
-            "            # Round 6: read to EOF, so the child has closed the FIFO before its descriptors are listed.\n"
+            "            # Read to EOF, so the child has closed the FIFO before its descriptors are listed.\n"
             "            got, until = b'', time.monotonic() + 60\n"
             "            while select.select([fifo], [], [], max(0, until - time.monotonic()))[0]:\n"
             "                chunk = os.read(fifo, 16)\n"
@@ -16835,7 +16835,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         import importlib.util
         from unittest.mock import patch
         spec = importlib.util.spec_from_file_location(
-            "_vbump_guard_3b84", REPO_ROOT / ".claude" / "hooks" / "block-unbumped-version-commit.py")
+            "_vbump_guard_lone_cr", REPO_ROOT / ".claude" / "hooks" / "block-unbumped-version-commit.py")
         guard = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(guard)
         real_read, real_write = Path.read_text, Path.write_text
@@ -16883,11 +16883,11 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         import importlib.util
         import json
         spec = importlib.util.spec_from_file_location(
-            "_vbump_guard_3b86", REPO_ROOT / ".claude" / "hooks" / "block-unbumped-version-commit.py")
+            "_vbump_guard_auto_bump", REPO_ROOT / ".claude" / "hooks" / "block-unbumped-version-commit.py")
         guard = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(guard)
         cspec = importlib.util.spec_from_file_location(
-            "_vbump_check_3b86", SKILL_ROOT / "tools" / "check-version-bump-commit.py")
+            "_vbump_check_auto_bump", SKILL_ROOT / "tools" / "check-version-bump-commit.py")
         check = importlib.util.module_from_spec(cspec)
         cspec.loader.exec_module(check)
         bom = "\ufeff".encode("utf-8")
@@ -17013,7 +17013,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         not an offender; without it (or with only **Library Version:** bumped) it still is."""
         import importlib.util
         spec = importlib.util.spec_from_file_location(
-            "_vbump_guard_3b80", REPO_ROOT / ".claude" / "hooks" / "block-unbumped-version-commit.py")
+            "_vbump_guard_readme_version", REPO_ROOT / ".claude" / "hooks" / "block-unbumped-version-commit.py")
         guard = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(guard)
         head = "diff --git a/README.md b/README.md\n"
@@ -17097,7 +17097,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         import importlib.util
         from unittest.mock import Mock
         spec = importlib.util.spec_from_file_location(
-            "_vbump_guard_3b80r3", REPO_ROOT / ".claude" / "hooks" / "block-unbumped-version-commit.py")
+            "_vbump_guard_decline", REPO_ROOT / ".claude" / "hooks" / "block-unbumped-version-commit.py")
         guard = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(guard)
         guard.git = Mock(return_value="")
@@ -25283,7 +25283,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         state (its note says so). None when no mirror is present; the calling test skips
         (NO_ROOT_HEADER_REASON) when the root has no per-PR header, so there is no ceiling to bound
         the mirror by."""
-        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "_mp_3b656_head")
+        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "_mp_head")
         mirror_path = mod.resolve_working(self.MIRROR_REL)
         if mirror_path is None:
             return None
@@ -25399,7 +25399,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         # A branch one merge behind main sees a store mirror carrying one header newer
         # than its root CHANGELOG; it must pass.
         from unittest import mock
-        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "_mp_3b656")
+        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "_mp_one_ahead")
         changelog = self.ROOT_FIXTURE
         _, pr, version, _ = mod.pr_headers(changelog, cutoff=0)[0]
         newer = pr + 1
@@ -25416,7 +25416,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         # The bound keeps discriminating: a store mirror missing the checkout's newest root
         # header must fail and name it.
         from unittest import mock
-        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "_mp_3b656_miss")
+        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "_mp_miss")
         changelog = self.ROOT_FIXTURE
         lineno, pr, _, _ = mod.pr_headers(changelog, cutoff=0)[0]
         lines = changelog.splitlines(keepends=True)
@@ -25464,7 +25464,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     def test_head_parity_flags_a_header_missing_inside_the_window(self) -> None:
         # A header missing strictly between the checkout's newest and the mirror's oldest
         # must fail and be named, not only a missing newest header.
-        result, records = self._head_parity_dropping(self.MIDDLE, "_mp_3b656_mid")
+        result, records = self._head_parity_dropping(self.MIDDLE, "_mp_mid")
         pr = records[self.MIDDLE][1]
         self.assertLess(records[-1][1], pr)
         self.assertLess(pr, records[0][1])
@@ -25474,7 +25474,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     def test_head_parity_catches_a_missing_oldest_header(self) -> None:
         # The gate has no floor for post-epoch headers, so a mirror missing the root's oldest
         # header no longer raises a floor past it; the header is compared, fails and is named.
-        result, records = self._head_parity_dropping(-1, "_mp_3b656_floor")
+        result, records = self._head_parity_dropping(-1, "_mp_floor")
         oldest = records[-1][1]
         self.assertEqual(result.returncode, 1, result.stdout)
         self.assertIn(f"MISSING from the detailed mirror (>= #1): #{oldest}\n", result.stdout)
@@ -31197,12 +31197,12 @@ class ReviewCadenceTests(LinterTestCase):
         for rel in collections:
             self.assertTrue(any((REPO_ROOT / rel).glob("*.md")),
                             f"live tree should hold the pinned rule collection {rel}/")
-        live = load_linter_module(".claude/skills/corpus-management/tools/check-review-cadence.py", "_check_review_cadence_3b218_live")
+        live = load_linter_module(".claude/skills/corpus-management/tools/check-review-cadence.py", "_check_review_cadence_live")
         scanned = [f.relative_to(REPO_ROOT).as_posix() for f in live.iter_active_docs()]
         self.assertTrue(scanned)
         self.assertEqual([r for r in scanned
                           if any(r.startswith(f"{c}/") for c in collections)], [])
-        mod = load_linter_module(".claude/skills/corpus-management/tools/check-review-cadence.py", "_check_review_cadence_3b218")
+        mod = load_linter_module(".claude/skills/corpus-management/tools/check-review-cadence.py", "_check_review_cadence_scope")
         registers = next(d for d in mod.DOMAINS if d.startswith(".claude/"))
         root = Path(tempfile.mkdtemp(prefix="cadence-scope-")).resolve()
         self.addCleanup(shutil.rmtree, root, ignore_errors=True)
@@ -32003,7 +32003,7 @@ class StructureLinterTests(LinterTestCase):
         # fixture holds them as non-walked files.
         from lint_common import CORPUS_MANAGEMENT_DIR, PROJECT_DOCS_DIR, PROJECT_REGISTERS_DIR
 
-        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-structure.py", "_lint_structure_3b418")
+        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-structure.py", "_lint_structure_scope")
         eng = mod._engine()
 
         def walk(root: Path) -> list[str]:
@@ -33262,9 +33262,9 @@ class LintCommonHelperTests(unittest.TestCase):
                   command readlink "$@"
                 }
                 python3() {
-                  # An lstat probe only (gone's, and since round 14
-                  # check_reftable's table probe, given the reftable since
-                  # round 15), not check_reftable's read.
+                  # An lstat probe only (gone's, and check_reftable's
+                  # table probe, given the reftable), not check_reftable's
+                  # read.
                   case "$3" in *os.lstat*) ;; *) command python3 "$@"; return ;; esac
                   last=; for last; do :; done
                   if [ "$step" = walk ] && [ "$last" = "$v/zz" ] &&
@@ -36307,7 +36307,7 @@ class OverlapHazardTests(LinterTestCase):
     def test_recency_walk_passes_with_hostile_fixtures_outside_its_root(self) -> None:
         if os.name != "posix" or os.geteuid() == 0:
             self.skipTest("needs POSIX permissions that bind the current user")
-        recency = load_linter_module(".claude/skills/corpus-management/tools/lint-version-bump-recency.py", "_recency_overlap_3b156")
+        recency = load_linter_module(".claude/skills/corpus-management/tools/lint-version-bump-recency.py", "_recency_overlap")
         versioned = "# Doc\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\nBody.\n"
         base = self._fixture_base("recency-overlap-")
         root = base / "repo"
@@ -36429,7 +36429,7 @@ class VanishingScratchTests(LinterTestCase):
         script = ".claude/skills/corpus-management/tools/lint-ccm-aicm-citations.py"
         glossary = self.make_fixture(
             "register-glossary.md", "| **GRC** | Governance, Risk, and Compliance. |\n")
-        mod = load_linter_module(script, "_vanish_3b653_glossary")
+        mod = load_linter_module(script, "_vanish_glossary")
         real = mod.scan_file
         read: list[Path] = []
 
@@ -36454,7 +36454,7 @@ class VanishingScratchTests(LinterTestCase):
         from unittest.mock import patch
         for script in self.GATES:
             with self.subTest(gate=script):
-                mod = load_linter_module(script, f"_optin_3b653_{Path(script).stem.replace('-', '_')}")
+                mod = load_linter_module(script, f"_optin_{Path(script).stem.replace('-', '_')}")
                 seen: list[dict] = []
 
                 def record(*args, _seen=seen, **kwargs):
@@ -36523,7 +36523,7 @@ class VanishingScratchTests(LinterTestCase):
             alias.symlink_to(target)
         except (OSError, NotImplementedError) as exc:
             self.skipTest(f"symlinks unavailable: {exc}")
-        mod = load_linter_module(script, "_vanish_3b653_alias")
+        mod = load_linter_module(script, "_vanish_alias")
         listed = mod.iter_markdown_targets
         found: list[Path] = []
 
@@ -36701,7 +36701,7 @@ class VanishingScratchTests(LinterTestCase):
             with self.subTest(gate=script):
                 fixture = self.make_fixture(
                     f"vanish-{Path(script).stem}.md", "# Doc\n\nAPO12 PO.1.1\n")
-                mod = load_linter_module(script, f"_vanish_3b653_{Path(script).stem.replace('-', '_')}")
+                mod = load_linter_module(script, f"_vanish_{Path(script).stem.replace('-', '_')}")
                 listed = mod.iter_markdown_targets
 
                 def list_then_remove(*args, _listed=listed, _fixture=fixture, **kwargs):
@@ -37631,7 +37631,7 @@ class CcmAicmCitationTests(LinterTestCase):
     def test_glossary_absent_or_without_marker_rows_skipped(self) -> None:
         # An adopter fork without the glossary is skipped with no finding; a
         # glossary with no marker rows passes.
-        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-ccm-aicm-citations.py", "_ccm_glossary_3b296")
+        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-ccm-aicm-citations.py", "_ccm_glossary_absent")
         plain = self.make_fixture(
             "register-glossary.md",
             "| **GRC** | Governance, Risk, and Compliance. |\n",
@@ -40714,7 +40714,7 @@ class ExplicitPathGuardTests(LinterTestCase):
 
     def test_missing_path_refused(self) -> None:
         for script in self.ALL:
-            result = run_linter(script, "no/such/file-3b21.md")
+            result = run_linter(script, "no/such/file.md")
             self.assertEqual(result.returncode, 2, script + result.stdout + result.stderr)
             self.assertIn("does not exist", result.stderr, script)
 
@@ -40824,10 +40824,10 @@ class ExplicitPathGuardCwdTests(LinterTestCase):
 
     def test_missing_path_refused(self) -> None:
         for script in self.MARKDOWN:
-            result = run_linter(script, "no/such/file-3b48.md")
+            result = run_linter(script, "no/such/file.md")
             self.assertEqual(result.returncode, 2, script + result.stdout + result.stderr)
             self.assertIn("does not exist", result.stderr, script)
-        result = run_linter(".claude/skills/corpus-management/tools/lint-unused-imports.py", "--paths", "no/such/file-3b48.py")
+        result = run_linter(".claude/skills/corpus-management/tools/lint-unused-imports.py", "--paths", "no/such/file.py")
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
         self.assertNotIn("Traceback", result.stderr)
 
@@ -40860,7 +40860,7 @@ class ExplicitPathGuardCwdTests(LinterTestCase):
     def test_version_recency_failed_git_query_is_not_absent_history(self) -> None:
         # In the earlier repository a failed per-file `git log` read as "no history" and
         # the audit exited 0.
-        m = load_linter_module(".claude/skills/corpus-management/tools/lint-version-bump-recency.py", "vbr_gitfail_3b48")
+        m = load_linter_module(".claude/skills/corpus-management/tools/lint-version-bump-recency.py", "vbr_gitfail")
         real_git = m.git
 
         def failing_git(*args):
@@ -40931,13 +40931,13 @@ class ExplicitPathGuardCwdTests(LinterTestCase):
             (spelled.returncode, spelled.stdout, spelled.stderr),
         )
         self.assertNotIn("missing required metadata field", spelled.stdout)
-        self.assertEqual(run_linter(".claude/skills/corpus-management/tools/lint-metadata.py", "no/such/file-3b48.md").returncode, 2)
+        self.assertEqual(run_linter(".claude/skills/corpus-management/tools/lint-metadata.py", "no/such/file.md").returncode, 2)
 
     def test_date_staleness_paths_stay_root_relative(self) -> None:
         # Documented contract: positional paths are relative to --root, not the cwd.
         result = self._run_from(SKILL_ROOT / "tools", ".claude/skills/corpus-management/tools/lint-document-date-staleness.py", "README.md")
         self.assertNotEqual(result.returncode, 2, result.stdout + result.stderr)
-        missing = run_linter(".claude/skills/corpus-management/tools/lint-document-date-staleness.py", "no/such/file-3b48.md")
+        missing = run_linter(".claude/skills/corpus-management/tools/lint-document-date-staleness.py", "no/such/file.md")
         self.assertEqual(missing.returncode, 2, missing.stdout + missing.stderr)
 
     def test_in_tree_positive_control_still_fails(self) -> None:
@@ -41005,7 +41005,7 @@ class ExplicitPathGuardOwnWalkerTests(LinterTestCase):
 
     def test_missing_path_refused_without_traceback(self) -> None:
         for script in self.STRICT + self.CONTENT_ONLY:
-            result = run_linter(script, "no/such/file-3b50.md")
+            result = run_linter(script, "no/such/file.md")
             self.assertEqual(result.returncode, 2, script + result.stdout + result.stderr)
             self.assertIn("does not exist", result.stderr, script)
             self.assertNotIn("Traceback", result.stderr, script)
@@ -41030,7 +41030,7 @@ class ExplicitPathGuardOwnWalkerTests(LinterTestCase):
         self.assertIn(".claude/skills/corpus-management/tools/lint_common.py", result.stdout + result.stderr)
 
     def test_hooks_syntax_refuses_a_missing_dir(self) -> None:
-        result = run_linter(".claude/skills/corpus-management/tools/lint-hooks-syntax.py", "--hooks-dir", "no/such/hooks-3b50")
+        result = run_linter(".claude/skills/corpus-management/tools/lint-hooks-syntax.py", "--hooks-dir", "no/such/hooks")
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
         self.assertIn("not a directory", result.stderr)
 
@@ -41043,10 +41043,10 @@ class ExplicitPathGuardOwnWalkerTests(LinterTestCase):
                                    (("--bogus",), "unknown option"),
                                    # a --self-test after '--' is a path, never a flag, and an
                                    # unknown option is refused before any self-test runs
-                                   (("--", "--self-test", "no/such/file-3b50.md"), "does not exist"),
+                                   (("--", "--self-test", "no/such/file.md"), "does not exist"),
                                    (("--bogus", "--self-test"), "unknown option"),
                                    # a self-test must not swallow explicit paths
-                                   (("--self-test", "--", "no/such/file-3b50.md"), "takes no paths"),
+                                   (("--self-test", "--", "no/such/file.md"), "takes no paths"),
                                    # a repeated flag is refused, never collapsed
                                    (("--self-test", "--self-test"), "more than once")):
                 result = run_linter(script, *args)
@@ -43224,7 +43224,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         build-alignment-citation-registry.py NO_FS F cd586fab699580471f86d542136c947e2b2229fe2cefa2ba5da09676b7a3f009
         build-citation-publishers.py NO_FS F 883be6f4d96edcfb940338f4a87e8f74de1e462ecd4d947bc26d50f01299a7dd
         build-corpus-management.py OWN F 99b180645666face6dd915ae22373c669aec0c388462690a3f3f86ee61caa1b7
-        build-historical-citation-exceptions.py OWN F 23f0e7d86a4cbef96158cc9f0edb1ae9dadf70e1a4ac2db7fea76ee486a11eac
+        build-historical-citation-exceptions.py OWN F af5228d9ba0f537f6aa8f338b3c8975dbab27ddcc2b505f9de484106dfc31abd
         build-narrative-registry.py NO_FS F 8c68374bcddb319e009ef9845357c98560faa038cf27b9dfa0ef904b58a8e5ae
         build-portal.py NO_FS F 30abe0839d1de66e772ed49e1d66abf6433e8f6a68941fdb6b528dafaceb07b5
         build-provision-index.py ROOT F beedab0b6d018c4c7d583e63b40c35704a65322b1b1203048d1062f8748e899a
@@ -43242,7 +43242,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-preflight-commit.py NO_FS F 9ec0a028e7e916fdfa542f6688b909b08a1c69fe66b3a7cb82d979689885f978
         check-class-completeness.py NO_FS F 999fa17b1d75f58c6b39cfa49d11dc5e54cf1fb4893376ee4bbe528c03597ff3
         check-claude-md-size.py NO_FS F 5f0c8e37d4a1b36a6be924354a6cdfca69a4ba5498e77cee52012ccefc99764b
-        check-clause-preservation.py OWN F 2b7e4cf588258eda89904c36625cc42369a53a3273a920e5e03b8faafb1ea909
+        check-clause-preservation.py OWN F 96d156bb17eb92ea45d096dae64345313ba8962de62b38a413a988aa7f8c8737
         check-clean-language-upstream.py NO_FS F c35409a171a04e8a18c1a0089d597fd1823165e0d963221e040b3b2efa91e85c
         check-commit-on-main.py NO_FS F a9672ae752b0434a1e94118bccf3dcc640bd321967ea3e6d775c0f1a8f153f7e
         check-daily-changelog-rollup.py SKIP F 9ac1a4b9a151c9f5b9cefcb93dfceea2d194611c4fc0567e90bdbcc0158598bd
@@ -43256,7 +43256,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-stranded-control-code-on-pr.py NO_FS F d0631b2fca128c3457f87029e56a252e20e4be701148cc2e171c2d6cbe051b37
         check-todo-floor-monotonic-on-pr.py NO_FS F 3d8a8e64f47f3055e85fff8a27fd741b8e84ff6a6c29046576c3331cf2889bd3
         check-todo-rotation-on-pr.py NO_FS F d2516ba2514b6a2d2062059e2a1d4f3d0985220a2ef5f6127a7f464eea998dbc
-        check-version-bump-commit.py MESSAGE F 5a7a28391d0db1fd12176213de8b34eddf11412fc937e00bdb1d9c50e0f2aef6
+        check-version-bump-commit.py MESSAGE F dff25752daf9574afb2cfe538f624bd9d075fcc1e1511166997d9ebdefc8e0df
         check-version-bump-on-pr.py NO_FS F c0aaefac08a658834846417e1049dd17cdec4caae3224914fcb64c863a8b2ad1
         citation_publishers.py PASSIVE F 8f367f75830d8b235e1019615b4e876c0ee562c6c5819e4bf4118325f1bb5dff
         cobit_iso31000_reference.py PASSIVE F 396aa674262ec1a794c27adb7ce50f8b2adbfe863eec66e7845a45a07fbd2c61
@@ -43272,7 +43272,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-aiqt-vendor-digest.py NO_FS F 49f26e0c53d3c6c5b88c455204bec8a092ddca252890e189f4dc988baf0e7c8d
         lint-alignment-citation-existence.py CWD F e7792b9664730a6b542285fa654de20ec9d39af7aa6cb553813ff2efa865152c
         lint-allowlist-spec-parity.py NO_FS F e8f452096456f55cd880fdb79b01ac18cadbcbfc966b67e1ab9b9ef43e8ea1db
-        lint-audit-gate-parity.py OWN F 1796cdd7f811b4d1d472c9812a8d1cb32500eabe048a3802980b9766ebb28298
+        lint-audit-gate-parity.py OWN F ec6314a8a36fd1e145dad84c209323407f3d380f756a466ee48f00cc208f28e9
         lint-audit-spec-detailed-prose.py OWN F 49ba119b94f997b1c35560dab6087ef16c936a09c02a84f3fa02a1925412e390
         lint-bare-normative-shall.py ROOT F 0de8d8f46a8d953aa02ca38c8b86d8f08a5c642e1b900483f3008c2c3983e203
         lint-baseline-pin.py OWN F 33cbe14512f04fb1da1c9c0a44e53ecaef7e618968e8314a48b812b30595035a
@@ -43306,7 +43306,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-intra-doc-refs.py CWD F 221b24c6f3a5e9b788349f773792cb595f7e42ef0659504d51a29335045f82e3
         lint-isolated-launch.py NO_FS F 7ae93fc2d16ae06511bd9737df79b734923ec7a3edcac66ebd900883b71bce81
         lint-language.py ROOT F 1860b2f568b226210676a0cf5746b2d04b83f6d6627658cf0e05175c25fcf7bc
-        lint-library-version-monotonicity.py OWN F 0816e73fb036c117a472dcbd9b7f017630b3aa24017c9b19bba25d89f5b01676
+        lint-library-version-monotonicity.py OWN F 46e0c1f3d2551fbb1fd4ced97cc220b4a61e3a3d8be826c9c1df5d2a46976d6a
         lint-license-consistency.py CWD F 4b79d50767f0b5a51f7734387584fd58b7d77956ecad00a2887347f84b620e9e
         lint-links.py ROOT F 92fc6fb1c68b715455a0ca6e45437aa1809c46e404d4c0d5a0917b64f3bcf824
         lint-listing-surface-completeness.py NO_FS F 883baec9004bd08709a57c9ea64634e7e65ce275e1e104eab2259d305480ef73
@@ -43335,7 +43335,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-sibling-placeholders.py NO_FS F 71e2d7087eaff47ca5a57e9f5ba1f9048d577bf08781069511b73c31fdd45fa8
         lint-skill-verdict-carrier-completeness.py OWN F 972851a3cc7dfcd4751e57520bd29691b4125abda340fba62cb1761759abcd60
         lint-ssdf-control-ids.py CWD F 15fe8459dc1a29286d72dd6fafd50687b7cfacc0bf52895f97d57aa8fdd3d051
-        lint-standards-currency.py OWN F 0c286e3697a8701bcc488517034f32120e3cfeee384e31b1b6243655e0982ab5
+        lint-standards-currency.py OWN F 9d32271adbdc1da6c287e8226a92fac0ee5c431bdb27d84bfe530b5f668914c3
         lint-startup-character-ceiling.py NO_FS F d6417cd2e9987e8038f664931a8d3f8a1e54e9d28d655ea93187e1dcc2a17daf
         lint-stdlib-only-imports.py NO_FS F d08a512bb89bef359817bfb7fac4051e7e69ad971ccd6663372d6a444efa218d
         lint-structure.py OWN F de53071ea54f72ec560227d6779f4fccb282bdf97b840f11343352566a0f5bc9
@@ -43344,14 +43344,14 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-todo-index-reference-parity.py OWN F 46ffb499a50fa6b5d64ac594776e5a26ad4e3c696fc48d8b5e4fc8b4646a2b22
         lint-todo-list-tag.py OWN F 10ee5371268378b28c9097a588515231d625ab63b5e5b1b9f3533f4d85db9b2d
         lint-todo-marked-done.py ROOT F 9d5f28f83917e26a4cd0bffde756fded4a2bf4259b809472bc1757a6dbc1b212
-        lint-todo-number-permanence.py OWN F 08d2cad0aca59c224bb36e901c8ee796a016f6b75bfa61803253fe471d196f46
+        lint-todo-number-permanence.py OWN F abc29a18bbb34d57abdf9d72ff70a46150c1d99322312fa3818dd1a3fa589c19
         lint-todo-staleness.py NO_FS F 6a89123607678239f036cab7bf02e0a0885216f55ba0b23fb53799e30c40cffb
         lint-tooling-backlog-refs.py OWN F f59006b0af46722da97592748098bcb0f00544b22cbc34a64e42cde1a751a49a
         lint-tooling-provenance-freshness.py OWN F 38a5222e69c3ec9c43c1ea917f39d8b17683ae3f91b6c361e4b10a34d0f4027a
         lint-unbalanced-fences.py ROOT F be18adf8de595de46e7d2149a9e6c0053288f41fdecc3b8748c3a609f94ff294
         lint-ungated-dashes.py NO_FS F 81bd8a51ed9d04864b908024f4cd4bf9d45b123075b626e2b3540accfcaedbec
         lint-unused-imports.py CWD F ca0774461f0ea6a973bc510a7b68f51790eb3c21e2e580470af4fc64c9060b2e
-        lint-version-bump-recency.py CWD F ec40079cbc78a794fb12a21477bc94d12202bf3be324f3fb3546999e53f171e3
+        lint-version-bump-recency.py CWD F 8fd558e8fb978be293e66ee1af301c13f517d582bf101f2969c94a8e771d5a72
         lint-version-date-consistency.py OWN F c07c0009130b660eb3ef8c3a1e06c659a99d8eea3663a2fbd84d47773c87e099
         lint-web-corpus-links.py OWN F 590157e1f8c31f8c867b1f31e5976d95a8e04ef2a00fa7a0c636589b3bb7e80a
         lint_common.py PASSIVE F 91dd0425ff9aae5d86504ac94fa4964988d899f38715295566434c17d1e2daec
@@ -43369,7 +43369,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         residual-scan.py NO_FS F c4c8e1807e87e490bdf9958f631ee9ee333c747846317014b354f81d5c7c7948
         run-linter-regression.py FIXED F 4975b199210338878c418be2f96717dab8a1df9f58bb33a36dfe5e50e1f0b2fd
         run-pr-time-checks.sh FIXED F cf914764adbb259130bccf9360f4c96d77f1455631dc9d3c7b4223544f494992
-        run-shell-stubbed.py NO_FS F aeec840ae479dff85edea91d17db5ab6ab31ebe980a410ff67bd0301db175376
+        run-shell-stubbed.py NO_FS F 33f6d5720cf04af0bb7fb2254a6c2fa5d6d803c329ea8e243d41ad7fc4f4cc87
         run_all_audits.sh FIXED F d9f60a5cca7ca9337e2aa0cf2e207efbffb2269a53820191767bcb32e7fa5067
         safe_fs.py PASSIVE F 13c29f1625ffc04ba289a42a2ba241e2d68a77c9420b114f2a96e58c4b5ad35a
         scan-publication-instruction-content.py OWN F 62fd62e2345b14ae59e33db7ef62cf131bdbdb9eb2f75cc3f5bab3391cbdd17f
@@ -43391,7 +43391,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         .claude/skills/corpus-management/src/tools/pack_release_delta.py 1836a112482c4fa721817222ef559700e919b54e3df7ba98a4e94af5ffbdcf07
         .claude/skills/corpus-management/src/tools/profile_loader.py c54f863c1d19ea5a934e05194504538a75d2b4893e7b16aa9d4c386c932bfb6b
         .claude/aiqt/tools/aiqt_corpus.py f2292eb511e960d9c38881a54bee92d0fc5c7b5cbe0c7b5cb002cb78da08245f
-        .claude/hooks/block-unbumped-version-commit.py f1b83f0905556a46552d3a7eaf5c74087ea140290e0fed3142f886115869be78
+        .claude/hooks/block-unbumped-version-commit.py 0db1edd838740ff54edecec6bc03e52232febac402266e49cec499ef88ae4a2e
     """
 
     POLICIES = frozenset(
@@ -44605,11 +44605,11 @@ class UnbalancedFenceTests(LinterTestCase):
         # The engine counts fence lines with aiqt_corpus.is_fence_line
         # itself, not a private copy, so the gate cannot drift from the
         # iterator's toggle model when the core's predicate changes.
-        load_linter_module(".claude/skills/corpus-management/tools/aiqt_bootstrap.py", "aiqt_bootstrap_3b83")
+        load_linter_module(".claude/skills/corpus-management/tools/aiqt_bootstrap.py", "aiqt_bootstrap_fence")
         import aiqt_corpus
 
         engine = load_linter_module(
-            ".claude/skills/corpus-management/src/tools/gate_lint_unbalanced_fences.py", "gate_unbalanced_fences_3b83"
+            ".claude/skills/corpus-management/src/tools/gate_lint_unbalanced_fences.py", "gate_unbalanced_fences_shared"
         )
         self.assertIs(engine.is_fence_line, aiqt_corpus.is_fence_line)
         text = "a\n```\nb\n    ```\n  ~~~\n\t```\n\u00a0~~~\n"
@@ -45238,7 +45238,7 @@ class BuildTaxonomySectionOutlineTests(unittest.TestCase):
     indented backtick marker silently hid every later ``## `` heading."""
 
     def test_extract_sections_uses_the_shared_fence_model(self):
-        bt = load_linter_module(".claude/skills/corpus-management/tools/build-taxonomy.py", "build_taxonomy_3b83")
+        bt = load_linter_module(".claude/skills/corpus-management/tools/build-taxonomy.py", "build_taxonomy_fence")
         text = ("# T\n\n## One\n\n    ```\n## Two\n    ```\n\n"
                 "~~~\n## Fenced away\n~~~\n\n```\n## Also fenced\n```\n\n## Three\n")
         self.assertEqual(bt.extract_sections(text), ["One", "Two", "Three"])
@@ -45283,12 +45283,12 @@ class BuildTaxonomyWalkScopeTests(unittest.TestCase):
         for rel in collections:
             self.assertTrue(any((REPO_ROOT / rel).glob("*.md")),
                             f"live tree should hold the pinned rule collection {rel}/")
-        live = load_linter_module(".claude/skills/corpus-management/tools/build-taxonomy.py", "build_taxonomy_3b218_live")
+        live = load_linter_module(".claude/skills/corpus-management/tools/build-taxonomy.py", "build_taxonomy_live")
         scanned = [f.relative_to(REPO_ROOT).as_posix() for f in live.iter_all_docs()]
         self.assertTrue(scanned)
         self.assertEqual([r for r in scanned
                           if any(r.startswith(f"{c}/") for c in collections)], [])
-        bt = load_linter_module(".claude/skills/corpus-management/tools/build-taxonomy.py", "build_taxonomy_3b218")
+        bt = load_linter_module(".claude/skills/corpus-management/tools/build-taxonomy.py", "build_taxonomy_scope")
         root = Path(tempfile.mkdtemp(prefix="taxonomy-scope-")).resolve()
         self.addCleanup(shutil.rmtree, root, ignore_errors=True)
         for rel in ("governance/a.md", *(f"{c}/b.md" for c in collections),
@@ -45567,7 +45567,7 @@ class GeneratorSortKeyParityTests(unittest.TestCase):
         self.assertIn(
             'd["title"].lower()', web_key.group(0),
             ".web/build.py sort key must be case-insensitive on the title (.lower()); "
-            "a case-sensitive key diverges from the canonical taxonomy order (Sweep 105 A-1).",
+            "a case-sensitive key diverges from the canonical taxonomy order.",
         )
         self.assertIn(
             'd["path"]', web_key.group(0),
@@ -45659,7 +45659,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
     def _load_module(cls):
         import importlib.util
         spec = importlib.util.spec_from_file_location(
-            "web_build_3b380_mod", REPO_ROOT / ".web" / "build.py"
+            "web_build_mod", REPO_ROOT / ".web" / "build.py"
         )
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
@@ -51559,7 +51559,7 @@ class ReferenceManifestGeneratorTests(unittest.TestCase):
         # hex and named double-quote escapes resolve as yaml.safe_load does; a bare null is None
         # (so render() shows a blank cell, not the text "null"); a bare decimal integer is an
         # int.
-        mod = self._load("_refman_parse_3b63")
+        mod = self._load("_refman_parse_catalogue")
         cat = mod._parse_catalogue(
             "standards:\r\n"
             '  - title: "Line\u2028Sep kept"\r\n'
@@ -56379,7 +56379,7 @@ class TodoIndexRowGrammarParityTests(unittest.TestCase):
 
     def test_shared_grammar(self):
         import lint_common
-        rows = self._load("_3b121_rows", ".claude/skills/corpus-management/tools/todo_index_rows.py")
+        rows = self._load("_shared_grammar_rows", ".claude/skills/corpus-management/tools/todo_index_rows.py")
         self.assertEqual(rows.TODO_ID_ALT, lint_common.TODO_ID_RE.pattern[1:-1])
         for tok in ("1.1", "3.92.a", "1.19.10a", "P-1.5", "P-1.25.12", "TF-2"):
             self.assertTrue(lint_common.TODO_ID_RE.fullmatch(tok), tok)
@@ -56468,7 +56468,7 @@ class TodoIndexRowGrammarParityTests(unittest.TestCase):
         # coded-id heading (### RB-6) that the audit tool counted as an item. Gate 78's heading ids now equal the
         # tool's heading items here. audit-backlog-actionability.py (and gate 78's _audit_tool) do not ship, so
         # gate 78's heading ids are pinned to the items that tool counted here.
-        g = self._load("_3b121_gate78", ".claude/skills/corpus-management/tools/lint-todo-number-permanence.py")
+        g = self._load("_shared_grammar_gate78", ".claude/skills/corpus-management/tools/lint-todo-number-permanence.py")
         text = ("## Q\n### RB-6 coded item\n### GR-GAP-1: gap\n### 3.9 numeric\n### P-1.5 private\n"
                 "### TF-2 tf\n### PR #1 follow-ups\n")
         want = sorted(["RB-6", "GR-GAP-1", "3.9", "P-1.5", "TF-2"])
@@ -58309,7 +58309,7 @@ class TodoNumberPermanenceTests(LinterTestCase):
             import shutil
             shutil.rmtree(root, ignore_errors=True)
 
-    def test_ok_line_names_only_lists_read_3b639(self) -> None:
+    def test_ok_line_names_only_lists_read(self) -> None:
         """The OK line names only the lists actually read. With no P-TODO.md (under --root, or on a default run with
         no private sibling or no P-TODO.md in it) it says .working/TODO.md alone and prints gate 81's explicit
         not-present line; with P-TODO.md present it names both. Exit status is 0 throughout."""
@@ -58318,7 +58318,7 @@ class TodoNumberPermanenceTests(LinterTestCase):
         both = "live backlog item(s) (.working/TODO.md + P-TODO.md)"
         only = "live backlog item(s) (.working/TODO.md),"
         absent = "OK: P-TODO.md not present ("
-        root, result = self._run("perm-3b639-todo-only", todo, "# DONE\n")
+        root, result = self._run("perm-todo-only", todo, "# DONE\n")
         try:
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertIn(only, result.stdout)
@@ -58327,7 +58327,7 @@ class TodoNumberPermanenceTests(LinterTestCase):
             self.assertIn("Scanning .working/TODO.md only.", result.stdout)
         finally:
             shutil.rmtree(root, ignore_errors=True)
-        root, result = self._run("perm-3b639-both", todo, "# DONE\n",
+        root, result = self._run("perm-both-lists", todo, "# DONE\n",
                                  ptodo="# P-TODO\n\n### P-1.1 A private item\n\nBody.\n")
         try:
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -58336,7 +58336,7 @@ class TodoNumberPermanenceTests(LinterTestCase):
         finally:
             shutil.rmtree(root, ignore_errors=True)
         # Default run (no --root): no private sibling, then a private sibling with no P-TODO.md in it.
-        root = Path(tempfile.mkdtemp(prefix="perm-3b639-default-", dir=FIXTURE_DIR))
+        root = Path(tempfile.mkdtemp(prefix="perm-default-sibling-", dir=FIXTURE_DIR))
         try:
             (root / ".working").mkdir(parents=True, exist_ok=True)
             (root / ".working/TODO.md").write_text(
@@ -58359,12 +58359,12 @@ class TodoNumberPermanenceTests(LinterTestCase):
         finally:
             shutil.rmtree(root, ignore_errors=True)
 
-    def test_skip_and_degraded_name_which_absence_3b677(self) -> None:
+    def test_skip_and_degraded_name_which_absence(self) -> None:
         """The default run skips P-TODO.md for an absent private sibling AND for a usable sibling
         with no P-TODO.md in it. The skip line and the DEGRADED notice each name the case that
         applies, so the second never reads as "no private sibling". Exit status is 0 in both."""
         import contextlib
-        root = Path(tempfile.mkdtemp(prefix="perm-3b677-why-", dir=FIXTURE_DIR))
+        root = Path(tempfile.mkdtemp(prefix="perm-skip-reason-", dir=FIXTURE_DIR))
         try:
             (root / ".working").mkdir(parents=True, exist_ok=True)
             (root / ".working/TODO.md").write_text(
@@ -58845,41 +58845,41 @@ class TodoNumberPermanenceTests(LinterTestCase):
             "fenced bullet not live": ("## Q\n```\n- **3b7 example** x\n```\n", "# DONE\n### PR #1: 3b7: done (2026-09-01)\n", 0),
         }
         for name, (ptodo, done, want) in cases.items():
-            rc, out = self._rc("perm-3b120", todo, done, ptodo)
+            rc, out = self._rc("perm-bullets", todo, done, ptodo)
             self.assertEqual(rc, want, f"{name}:\n{out}")
             # A clean case also passes when P-TODO.md is not read, so it must show the read-both label.
             self.assertNotIn("OK: P-TODO.md not present (", out, name)
             if want == 0:
                 self.assertIn("live backlog item(s) (.working/TODO.md + P-TODO.md),", out, name)
         # A bullet id live in both lists is a cross-list duplicate.
-        rc, out = self._rc("perm-3b120-cross", "# TODO\n- **3b7 [public] fix** x\n", "# DONE\n",
+        rc, out = self._rc("perm-bullets-cross", "# TODO\n- **3b7 [public] fix** x\n", "# DONE\n",
                            "## Q\n- **3b7 fix** x\n")
         self.assertEqual(rc, 1, out)
         self.assertIn("3b7", out)
         self.assertNotIn("\u00a73b7", out)  # a queue id prints without a section marker
         # An unclosed fence in P-TODO.md hides later bullets, so the gate reports it.
-        rc, out = self._rc("perm-3b120-unclosed", "# TODO\n", "# DONE\n", "## Q\n```\n- **3b7 fix** x\n")
+        rc, out = self._rc("perm-bullets-unclosed", "# TODO\n", "# DONE\n", "## Q\n```\n- **3b7 fix** x\n")
         self.assertEqual(rc, 1, out)
         self.assertIn("unclosed", out)
-        rc, out = self._rc("perm-3b120-unclosed-pub", "# TODO\n```\n- **3b7 [public] fix** x\n", "# DONE\n", "## Q\n")
+        rc, out = self._rc("perm-bullets-unclosed-pub", "# TODO\n```\n- **3b7 [public] fix** x\n", "# DONE\n", "## Q\n")
         self.assertEqual(rc, 1, out)
         self.assertIn(".working/TODO.md:2", out)
-        rc, out = self._rc("perm-3b120-unclosed-pub-comment", "# TODO\n<!-- note\n- **3b7 [public] fix** x\n",
+        rc, out = self._rc("perm-bullets-unclosed-pub-comment", "# TODO\n<!-- note\n- **3b7 [public] fix** x\n",
                            "# DONE\n", "## Q\n")
         self.assertEqual(rc, 1, out)
         self.assertIn(".working/TODO.md:2", out)
         self.assertIn("FAIL: 1 item-number permanence finding(s)", out)
         # A recycle finding prints a queue id without a section marker.
-        rc, out = self._rc("perm-3b120-recycle-mark", "# TODO\n", "# DONE\n### PR #1: 3b7: done (2026-09-01)\n",
+        rc, out = self._rc("perm-bullets-recycle-mark", "# TODO\n", "# DONE\n### PR #1: 3b7: done (2026-09-01)\n",
                            "## Q\n- **3b7 fix** x\n")
         self.assertEqual(rc, 1, out)
         self.assertIn("  3b7: live at", out)
         self.assertNotIn("\u00a73b7", out)
-        rc, out = self._rc("perm-3b120-unclosed-comment", "# TODO\n", "# DONE\n", "## Q\n<!-- note\n- **3b7 fix** x\n")
+        rc, out = self._rc("perm-bullets-unclosed-comment", "# TODO\n", "# DONE\n", "## Q\n<!-- note\n- **3b7 fix** x\n")
         self.assertEqual(rc, 1, out)
         self.assertIn("P-TODO.md:2", out)
         # An untagged coded bullet is not an item, so it cannot make a cross-list duplicate.
-        rc, out = self._rc("perm-3b120-untagged", "# TODO\n- **RB-6 [public] fix** x\n", "# DONE\n",
+        rc, out = self._rc("perm-bullets-untagged", "# TODO\n- **RB-6 [public] fix** x\n", "# DONE\n",
                            "## Q\n- **RB-6 fix** x\n")
         self.assertEqual(rc, 0, out)
         self.assertIn("OK: 1 live backlog item(s) (.working/TODO.md + P-TODO.md),", out)  # P-TODO.md read
@@ -58896,8 +58896,10 @@ class TodoNumberPermanenceTests(LinterTestCase):
             "perm_bullets", SKILL_ROOT / "tools" / "lint-todo-number-permanence.py")
         g = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(g)
+        # Synthetic fixture data: made-up backlog ids, one of them multi-digit.
         text = ("## Q\n- **3b7 x** a\n- **P-1.5 y:** b\n- **RB-9 [private] z** c\n- **4.6 [public] w** d\n"
                 "```\n- **3b8 fenced** e\n```\n### 9.9 item\n- **3b9 body** f\n## R\n- **3b10 z** g\n")
+        # Synthetic fixture data: the multi-digit id comes back whole.
         self.assertEqual(sorted(g.parse_live_bullets(text)), sorted(["3b7", "P-1.5", "RB-9", "4.6", "3b10"]))
         # A repeated bullet id keeps every declaring line.
         self.assertEqual(g.parse_live_bullets("## Q\n- **3b7 a** x\n\n- **3b7 b** y\n"), {"3b7": [2, 4]})
@@ -60317,13 +60319,13 @@ class TagGateTests(LinterTestCase):
         result = run_linter(".claude/skills/corpus-management/tools/lint-todo-list-tag.py", "--root", str(root))
         return root, result
 
-    def test_skip_and_degraded_name_which_absence_3b677(self):
+    def test_skip_and_degraded_name_which_absence(self):
         """The default run skips P-TODO.md for an absent private sibling AND for a usable sibling
         with no P-TODO.md in it. The skip line and the DEGRADED notice each name the case that
         applies, so the second never reads as "no private sibling". Exit status is 0 in both."""
         import contextlib
         import importlib.util
-        root = Path(tempfile.mkdtemp(prefix="tag-3b677-why-", dir=FIXTURE_DIR))
+        root = Path(tempfile.mkdtemp(prefix="tag-skip-reason-", dir=FIXTURE_DIR))
         try:
             (root / ".working").mkdir(parents=True, exist_ok=True)
             (root / ".working/TODO.md").write_text(
@@ -60347,7 +60349,7 @@ class TagGateTests(LinterTestCase):
             )
             for resolved, skip, degraded, wrong in cases:
                 spec = importlib.util.spec_from_file_location(
-                    "tag_3b677", SKILL_ROOT / "tools" / "lint-todo-list-tag.py")
+                    "tag_skip_reason", SKILL_ROOT / "tools" / "lint-todo-list-tag.py")
                 m = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(m)
                 m.REPO_ROOT = root
@@ -61532,7 +61534,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.23.5", "0.23.5 has the cross-file section-names engine's docstring and table-line comment and its rule clause say that both cross-file gates scan table cells, and that on a table line this gate also fails an anchored title whose number is not a numbered heading in the target, an inline clause included, and the cross-file section-reference engine's docstring, its rule clause and the pack README's gate 62 note say that gate 62 splits every line into cells on unescaped pipes outside matched code spans and checks every cell, with the leading-pipe condition only on its local-section exception; the cross-file section-names gate's text states that gate 62 does not report every number this gate reports, giving examples; the intra-document section-reference engine's docstring describes gate 62's adjacency window as cell-bound (PATCH), on top of 0.23.4, which has the narrative-boundary and narrative-metadata engines, the narrative-boundary gate entry and the pack documentation count the narrative extension as 7 fields, now that narrative pages drop the Review Record field (PATCH), on top of 0.23.3, which has the listing-surface completeness gate's docstrings name the library root specifications by their home in governance/ (PATCH), on top of 0.23.2, which removes internal references and review history from the comments and docstrings of the pack's tool and engine sources (PATCH), on top of 0.23.1, which removes them from the pack documentation (PATCH), on top of the C1 rebuild release, 0.23.0, which covers every change since 0.22.2 (0.22.3 was not released): among other changes, it adds the directional-dependency engine's public function path_in_project_gov, so gate 53's project_gov_dir may be a path of several parts (MINOR), moves the compiler's default pack root to .claude/skills/corpus-management/src, folds in RBQ10, which has the compiler's stray scan skip the skill directory's shipped entries, and raises minimum_python from 3.11 to 3.14, on top of the gate-2 change, which makes the language engine's -isation scan linear through a private helper, _isation_matches (PATCH) on top of the change that rewords the core rules README to name the three managed directories and the CLAUDE.md block gate 99 owns (PATCH) on top of the change that adds the standards-currency engine's identity_counts, ratchet and count_summary functions and print_coverage's trailer parameter for the per-standard UNPINNED ratchet (MINOR) on top of the change that has the gate-30 metadata line-break engine group a run by the rendered paragraph, so an indented continuation line no longer splits it (PATCH), then follows the CommonMark/GFM block structure (block quotes, list items, fences, HTML blocks, tables) so the run model agrees with the renderer (PATCH) on top of the change that has the gate-18 intra-document section-reference engine recognize Canadian federal instrument identifiers such as 'ITSP.80.022' as external-framework names (PATCH) on top of the change that has the standards-currency engine read a parenthesized programme-name version such as '(SSDF 1.1)' (PATCH), the change that retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (the pack's release history in src/README.md starts at 0.22.2, so the bumps before it are described here from the change record rather than from that history: 0.19.0 to 0.20.0 for an earlier change this message does not name; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for the rule-index retarget; then 0.21.1 to 0.21.2 for the programme-name version reading; then 0.21.2 to 0.21.3 for the Canadian instrument identifiers; then 0.21.3 to 0.21.4, then 0.21.4 to 0.21.5, for the gate-30 run model; then 0.21.5 to 0.22.0 for the standards-currency ratchet; then 0.22.0 to 0.22.1 for the core rules README rewording; then 0.22.1 to 0.22.2 for the gate-2 -isation change; then 0.22.2 to 0.23.0 for the C1 release, which includes RBQ10 (0.22.3 was not released); then 0.23.0 to 0.23.1 for removing internal references and review history from the pack documentation; then 0.23.1 to 0.23.2 for removing internal references and review history from the comments and docstrings of the pack's tool and engine sources)")
+        self.assertEqual(man["pack"]["version"], "0.23.6", "0.23.6 removes internal work references from two notes in core/id-history.toml; ids, events and dates are unchanged (PATCH). The release history in src/README.md describes each version from 0.22.2")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")
@@ -63922,7 +63924,7 @@ class HookLauncherIsolationGateTests(unittest.TestCase):
         self.assertEqual(r.returncode, 0, 'live .claude/settings.json has a non-isolated Python hook launcher:\n' + r.stdout + r.stderr)
 
     def test_missing_or_empty_explicit_settings_refused(self):
-        for args in (('--settings', 'no/such/settings-3b257.json'), ('--settings=',)):
+        for args in (('--settings', 'no/such/settings.json'), ('--settings=',)):
             r = self._run(*args)
             self.assertEqual(r.returncode, 2, (args, r.stdout, r.stderr))
             self.assertIn('ERROR: settings.json:', r.stderr)
@@ -72979,8 +72981,8 @@ class BlockVerificationPipesTests(unittest.TestCase):
                      dont_inherit=True), module.__dict__)
         return module
 
-    def _3b562_generated_expansions(self):
-        # The generator behind test_3b562_bash53_forms_beyond_exact_spellings
+    def _bash53_generated_expansions(self):
+        # The generator behind test_bash53_forms_beyond_exact_spellings
         # (whose comment states its coverage): (expansion, shape) pairs, the
         # shape naming the prefix, the parameter, the operator family and
         # spelling, the operand position holding a command substitution
@@ -73059,7 +73061,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
                                       slot, named)))
         return expansions
 
-    def test_3b613_generated_dot_patterns(self):
+    def test_generated_dot_patterns(self):
         # Cross the eight trim/replace operators, three ordinary dot
         # prefixes, two substitution spellings and both quoting contexts.
         # The fourth prefix contains a double quote and an early "}": it
@@ -73126,7 +73128,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
                                 for quoted in (True, False)]
                 self.assertEqual(escaped, expected)
 
-    def test_3b562_bash53_forms_beyond_exact_spellings(self):
+    def test_bash53_forms_beyond_exact_spellings(self):
         # The exact-spelling cases spell each bash-5.3 form one way (a
         # blank after "${" or "${|", a plain NAME before @P, no other
         # operator) and always inside double quotes. A tab or a newline
@@ -73306,7 +73308,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
             ('echo "${x-${ false; }}" | head -1; echo rc=$?',
              'M2 M2g M2h M2o'),
         ]
-        # The generated rows (_3b562_generated_expansions) are, inside
+        # The generated rows (_bash53_generated_expansions) are, inside
         # double quotes and unquoted, the cross-product of the operator
         # spellings in the Parameter Expansion section of the bash 5.3 man
         # page (roff source lines; .TH date 2025 April 7) and the
@@ -73390,7 +73392,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
         # a length is inferred, not cited. -, =, ? and + use their word in
         # one branch only (3678-3724). The hook refuses each row by its
         # shape either way.
-        expansions = self._3b562_generated_expansions()
+        expansions = self._bash53_generated_expansions()
         quotings = ((True, 'echo "%s" | head -1; echo rc=$?'),
                     (False, "printf '%%s' %s | tail -1; echo rc=$?"))
         generated = [(template % expansion, shape, quoted)
@@ -80675,7 +80677,7 @@ class TableCellCountTests(LinterTestCase):
 
     def test_markdown_it_py_reading_adds_row_findings_only(self) -> None:
         # This pins the documented choices M1, M2 and M3. Under
-        # markdown-it-py's reading F2's comment opens after the blank line and
+        # markdown-it-py's reading the first document's comment opens after the blank line and
         # never closes, but only the CommonMark reading's unclosed blocks are
         # reported (M1); the table and row counts are the CommonMark reading's,
         # in which the table-shaped lines stay inside the comment (M2); and a
@@ -81047,7 +81049,7 @@ class TableCellCountTests(LinterTestCase):
         self.assertRefused(not_git, "git ls-files failed")
         git_tree = self.make_repo({"doc.md": self.HEAD3 + "| 1 | 2 | 3 |\n"})
         self.assertRefused(git_tree, "cannot run git ls-files",
-                           env={**fixture_git_environment(), "PATH": "/nonexistent-3b570"})
+                           env={**fixture_git_environment(), "PATH": "/nonexistent-dir"})
         self.assertClean(git_tree)
 
     def test_empty_listing_refused_one_file_passes(self) -> None:
@@ -81059,7 +81061,7 @@ class TableCellCountTests(LinterTestCase):
         self.assertClean(root)
 
     def test_empty_or_missing_root_refused(self) -> None:
-        for args in (("--root=",), ("--root", "/nonexistent-3b570")):
+        for args in (("--root=",), ("--root", "/nonexistent-dir")):
             with self.subTest(args=args):
                 result = run_linter(self.GATE, *args)
                 self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
@@ -81496,14 +81498,14 @@ class GitReadFailsClosedTests(unittest.TestCase):
         from unittest import mock
 
         with self.inside(repo, **env):
-            mono = load_linter_module(".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "mono_ref_3b551")
+            mono = load_linter_module(".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "mono_ref")
             with mock.patch.object(mono, "REPO_ROOT", repo), redirect_stdout(io.StringIO()) as out, \
                     redirect_stderr(io.StringIO()) as err:
                 code = mono.main(list(argv))
         return code, out.getvalue(), err.getvalue()
 
     def test_lint_common_git_show_raises_on_a_git_failure(self) -> None:
-        lc = load_linter_module(".claude/skills/corpus-management/tools/lint_common.py", "lc_git_show_3b551")
+        lc = load_linter_module(".claude/skills/corpus-management/tools/lint_common.py", "lc_git_show")
         repo = self.repo()
         self.commit(repo, {"a.md": "hello\n", "dir/b.md": "b\n"})
         # A gitlink (submodule entry) whose commit is not in this repository is not a file.
@@ -81527,7 +81529,7 @@ class GitReadFailsClosedTests(unittest.TestCase):
     def test_tree_entry_type_lists_the_full_tree_from_a_subdirectory(self) -> None:
         # Without --full-tree, ls-tree lists only the invocation directory, so from a
         # subdirectory an entry outside it read as absent and a failed read became None.
-        lc = load_linter_module(".claude/skills/corpus-management/tools/lint_common.py", "lc_full_tree_3b551")
+        lc = load_linter_module(".claude/skills/corpus-management/tools/lint_common.py", "lc_full_tree")
         repo = self.repo()
         self.commit(repo, {"governance/doc.md": "d\n", ".claude/skills/corpus-management/tools/keep.txt": "k\n"})
         for sub in ("governance", ".claude/skills/corpus-management/tools"):
@@ -81544,7 +81546,7 @@ class GitReadFailsClosedTests(unittest.TestCase):
     def test_tree_entry_type_compares_names_as_bytes(self) -> None:
         # A sibling name that is not UTF-8 made the text decode raise, so an absent file read
         # as an error; an entry is still found beside it.
-        lc = load_linter_module(".claude/skills/corpus-management/tools/lint_common.py", "lc_bytes_3b551")
+        lc = load_linter_module(".claude/skills/corpus-management/tools/lint_common.py", "lc_bytes")
         repo = self.repo()
         self.commit(repo, {self.ODD: "odd\n", "governance/doc.md": "d\n"})
         with self.inside(repo):
@@ -81572,7 +81574,7 @@ class GitReadFailsClosedTests(unittest.TestCase):
                              str(SKILL_ROOT / "tools"), "governance/doc.md", *absent)
         self.assertEqual(result.stdout, "['d\\n', None, None]\n", result.stderr)
         with self.inside(repo):
-            d4 = load_linter_module(".claude/skills/corpus-management/tools/check-date-cobump-on-pr.py", "d4_odd_absent_3b551")
+            d4 = load_linter_module(".claude/skills/corpus-management/tools/check-date-cobump-on-pr.py", "d4_odd_absent")
             self.assertEqual(d4.blob_at("HEAD", "governance/doc.md"), "d\n")
             for name in absent:
                 self.assertIsNone(d4.blob_at("HEAD", name), ascii(name))
@@ -81582,11 +81584,11 @@ class GitReadFailsClosedTests(unittest.TestCase):
         # exits 0 and prints nothing, so both git_show helpers read an absent file as ''.
         from unittest import mock
 
-        lc = load_linter_module(".claude/skills/corpus-management/tools/lint_common.py", "lc_glob_3b551")
+        lc = load_linter_module(".claude/skills/corpus-management/tools/lint_common.py", "lc_glob")
         repo = self.repo()
         self.commit(repo, {"governance/a*b.md": "glob\n", "governance/doc.md": "d\n"})
         with self.inside(repo):
-            mono = load_linter_module(".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "mono_glob_3b551")
+            mono = load_linter_module(".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "mono_glob")
             with mock.patch.object(mono, "REPO_ROOT", repo):
                 for show in (lc.git_show, mono.git_show):
                     self.assertEqual(show("HEAD", "governance/a*b.md"), "glob\n")
@@ -81607,7 +81609,7 @@ class GitReadFailsClosedTests(unittest.TestCase):
         self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n",
                            "governance/d.md": "**Version:** 1.0.0\n"})
         with self.inside(repo):
-            mono = load_linter_module(".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "mono_3b551")
+            mono = load_linter_module(".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "mono_unreadable_prior")
             with mock.patch.object(mono, "REPO_ROOT", repo):
                 with redirect_stdout(io.StringIO()) as out:
                     self.assertEqual(mono.main([]), 1, "an intact prior state must find the regression")
@@ -81628,7 +81630,7 @@ class GitReadFailsClosedTests(unittest.TestCase):
                            self.ODD: "**Version:** 1.0.0\n"})
         self.commit(repo, {"governance/new.md": "**Version:** 1.0.0\n"})
         with self.inside(repo):
-            mono = load_linter_module(".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "mono_odd_3b551")
+            mono = load_linter_module(".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "mono_odd")
             with mock.patch.object(mono, "REPO_ROOT", repo):
                 with redirect_stdout(io.StringIO()) as out, redirect_stderr(io.StringIO()) as err:
                     self.assertEqual(mono.main([]), 0, out.getvalue() + err.getvalue())
@@ -81643,7 +81645,7 @@ class GitReadFailsClosedTests(unittest.TestCase):
                            "governance/d.md": "**Version:** 1.0.0\n"})
         self.commit(repo, {"governance/d.md": "**Version:** 1.0.1\n"})
         with self.inside(repo):
-            mono = load_linter_module(".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "mono_utf8_3b551")
+            mono = load_linter_module(".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "mono_utf8")
             with mock.patch.object(mono, "REPO_ROOT", repo):
                 with redirect_stdout(io.StringIO()) as out:
                     self.assertEqual(mono.main([]), 0, "an intact UTF-8 prior must compare")
@@ -81671,7 +81673,7 @@ class GitReadFailsClosedTests(unittest.TestCase):
         self.commit(repo, first)
         self.commit(repo, {"governance/d.md": "**Version:** 1.0.0\n"})
         with self.inside(root):
-            mono = load_linter_module(".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "mono_head_3b551")
+            mono = load_linter_module(".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "mono_head")
             with mock.patch.object(mono, "REPO_ROOT", root):
                 with redirect_stdout(io.StringIO()) as out:
                     self.assertEqual(mono.main([]), 0, "a root commit has no prior state")
@@ -82294,7 +82296,7 @@ class GitReadFailsClosedTests(unittest.TestCase):
         self.assertIn("ERROR: governance/d.md is not valid UTF-8; its version cannot be read, so "
                       "monotonicity is unchecked.", err)
         self.assertNotIn("governance/e.md", err)
-        mono = load_linter_module(".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "mono_utf8_doc_3b551")
+        mono = load_linter_module(".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "mono_utf8_doc")
         doc = " ".join(mono.__doc__.split())
         self.assertNotIn("current README.md or a prior file is not valid UTF-8", doc)
         self.assertNotIn("is skipped, so its prior copy is not read", doc)
@@ -82557,7 +82559,7 @@ class GitReadFailsClosedTests(unittest.TestCase):
         # other open flags; the twin read without the patch returns the same text.
         from unittest import mock
 
-        mono = load_linter_module(".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "mono_noctty_3b643")
+        mono = load_linter_module(".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "mono_noctty")
         doc = self.tmp / "d.md"
         doc.write_text("**Version:** 1.0.0\n", encoding="utf-8")
         problems = []
@@ -82584,7 +82586,7 @@ class GitReadFailsClosedTests(unittest.TestCase):
         from unittest import mock
 
         mono = load_linter_module(".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py",
-                                  "mono_prior_noctty_3b643")
+                                  "mono_prior_noctty")
         repo = self.repo()
         self.commit(repo, {"README.md": "# R\n\n**Library Version:** 2026.06.1\n"})
         self.addCleanup(setattr, mono, "REPO_ROOT", mono.REPO_ROOT)
@@ -82633,7 +82635,7 @@ class GitReadFailsClosedTests(unittest.TestCase):
             "from pathlib import Path\n"
             "tool, repo, target = sys.argv[1], Path(sys.argv[2]), sys.argv[3]\n"
             "sys.path.insert(0, os.path.dirname(tool))\n"
-            "spec = importlib.util.spec_from_file_location('mono_swap_3b624', tool)\n"
+            "spec = importlib.util.spec_from_file_location('mono_swap', tool)\n"
             "mono = importlib.util.module_from_spec(spec)\n"
             "spec.loader.exec_module(mono)\n"
             "mono.REPO_ROOT = repo\n"
@@ -82719,7 +82721,7 @@ class GitReadFailsClosedTests(unittest.TestCase):
         # too.
         from unittest import mock
 
-        mono = load_linter_module(".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "mono_walk_3b624")
+        mono = load_linter_module(".claude/skills/corpus-management/tools/lint-library-version-monotonicity.py", "mono_walk")
 
         exempt_names = {".git", "node_modules", "__pycache__", ".claude", ".working", "references",
                         ".ref", ".scratch", ".private"}
@@ -82853,7 +82855,7 @@ class GitReadFailsClosedTests(unittest.TestCase):
         repo = self.repo()
         self.commit(repo, {"a.md": "x\n"})
         with self.inside(repo):
-            d4 = load_linter_module(".claude/skills/corpus-management/tools/check-date-cobump-on-pr.py", "d4_promisor_3b551")
+            d4 = load_linter_module(".claude/skills/corpus-management/tools/check-date-cobump-on-pr.py", "d4_promisor")
 
             def failing(*codes):
                 """A git config stub failing with ``codes`` in turn, then the last code."""
@@ -83649,7 +83651,7 @@ class RegressionTimingMeasurementTests(unittest.TestCase):
     def test_import_error_module_refused_without_weights_file(self):
         root = self._tool_fixture_repo(
             "test_broken_import",
-            "raise ImportError('synthetic import failure, 3b789 PR 1')\n")
+            "raise ImportError('synthetic import failure')\n")
         result = subprocess.run(
             [sys.executable, str(root / self.TOOL), "tests.test_broken_import"],
             cwd=str(root), capture_output=True, text=True)

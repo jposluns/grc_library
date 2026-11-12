@@ -11,8 +11,8 @@ targets re-based; like MOVED it needs another tracked file and an empty reason.
 It compares raw unit text (CR and line terminators included, nothing
 normalized): an unconsumed destination unit must equal the BASE unit except for
 substituted target segments. Every target starts after its "](" and any leading
-ASCII space, tab, LF, CR, FF or VT. FF and VT stay deliberately (backlog
-3b204): markdown-it-py 3.0.0's commonmark preset renders a "](" they follow
+ASCII space, tab, LF, CR, FF or VT. FF and VT stay deliberately:
+markdown-it-py 3.0.0's commonmark preset renders a "](" they follow
 as prose, where the refusals below are only stricter and a re-based segment
 is disclosed prose like any "](" below, while Python-Markdown 3.10.2 skips
 them and links '[a](<FF>(x).md)' to "(x).md", a "(" target that dropping
