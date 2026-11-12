@@ -36,9 +36,9 @@ contiguous D1..HIGHEST_DELTA_GATE apart from retired numbers (D6, retired 2026-0
 D14, retired 2026-11-08). See ``verify_exclusion_and_delta_guards``.
 
 It also checks the spec's section 5 "Gate categories" grouped list against
-the section-6 inventory (backlog 3b158): every inventory gate number appears
-exactly once across the section-5 category lists, and those lists name no
-number the inventory lacks. Only the parenthesized list that opens a
+the section-6 inventory: every inventory gate number appears exactly
+once across the section-5 category lists, and those lists name no number
+the inventory lacks. Only the parenthesized list that opens a
 top-level numbered category item counts, ``N. **Category** (gates 12, 21):``
 at column 0; numbers later on that line (a ``(gate 40)`` gloss) or in other
 section-5 paragraphs are prose and are not read. HTML comments and fenced
@@ -92,15 +92,15 @@ inventory, this linter confirms that:
     cross-surface comparison cannot see, is a finding too, as is a live gate
     with no GATE_ARGV entry or an entry for a number that is not a live gate.
 
-Each gate line is matched against a closed allowlist, not read as shell (3b646,
-maintainer option A): the command must be exactly ``python3 [-I] .claude/skills/corpus-management/tools/X.py``
+Each gate line is matched against a closed allowlist, not read as shell: the command
+must be exactly ``python3 [-I] .claude/skills/corpus-management/tools/X.py``
 followed by plain arguments (GATE_COMMAND), a runner line must be
 ``run_gate "LABEL" <command>`` at column 0 or the ``run_gate() {`` definition, a
 gate workflow step has only the keys name and run, and a gate pre-commit hook has
 language system, pass_filenames false and no args; no gate value may continue on a
 deeper-indented line. The two YAML surfaces are accepted only in the structure the
-current files use (3b646 round 6, the maintainer's 23:20Z rule carried from line shapes
-to structure). Every line is blank, a comment, an unquoted ``key:`` or ``key: value``
+current files use: the closed allowlist for line shapes carries over to structure.
+Every line is blank, a comment, an unquoted ``key:`` or ``key: value``
 line or a plain ``- word`` list item, apart from the text lines of an excluded step's
 ``run: |`` block scalar; no value begins with a quote or another YAML indicator, apart
 from the exact pre-commit ``types:`` and ``types_or:`` lists the hooks use and the one

@@ -38,7 +38,7 @@ note = "compile PR-6: gate-wave second gate transfer (grc gate 66; Model-2 wrapp
 id = "corpus-scan-integrity"
 event = "created"
 date = 2026-09-10
-note = "compile PR-6: new pack-internal clause (balanced fences precede any fence-aware gate's soundness); generated AI-facing rule (compile PR-6, Option A) like language-convention"
+note = "compile PR-6: new pack-internal clause (balanced fences precede any fence-aware gate's soundness); generated AI-facing rule (compile PR-6) like language-convention"
 
 [[events]]
 id = "lint-nested-markdown-links"
@@ -242,7 +242,7 @@ note = "compile PR-23: new pack-internal clause (a prose reference to a governed
 id = "rule-index"
 event = "created"
 date = 2026-10-02
-note = "3b177-b: compact always-loaded index for on-demand rule bodies; prose conventions remain always loaded"
+note = "compact always-loaded index for on-demand rule bodies; prose conventions remain always loaded"
 
 [[events]]
 id = "corpus-management-skill"

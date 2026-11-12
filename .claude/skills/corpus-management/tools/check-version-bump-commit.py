@@ -267,7 +267,7 @@ def _integration_self_test():
             failures.append("a body-only change without a Version bump was not refused")
         cp = run(["git", "commit", "-q", "-m", "body only\n\nVersionBump: none (test)"])
         if cp.returncode == 0 or "covers README.md only" not in cp.stderr:
-            failures.append("the VersionBump opt-out let a non-README document through (3b102)")
+            failures.append("the VersionBump opt-out let a non-README document through")
         must(["git", "restore", "--staged", "d.md"])
         (repo / "README.md").write_text(readme_text("readme two"))
         must(["git", "add", "README.md"])
@@ -386,7 +386,7 @@ def _self_test():
         ("override allows", decide(True, False, False, True, ["a.md"])[0], 0),
         ("sequencer state allows", decide(False, True, False, True, ["a.md"])[0], 0),
         ("opt-out allows a README.md-only body change", decide(False, False, True, True, ["README.md"])[0], 0),
-        ("opt-out does not excuse another document (3b102)", decide(False, False, True, True, ["README.md", "a.md"])[0], 1),
+        ("opt-out does not excuse another document", decide(False, False, True, True, ["README.md", "a.md"])[0], 1),
         ("opt-out on an unreadable state refuses", decide(False, False, True, False, [])[0], 1),
         ("unreadable state refuses", decide(False, False, False, False, [])[0], 1),
         ("an offender refuses", decide(False, False, False, True, ["a.md"])[0], 1),

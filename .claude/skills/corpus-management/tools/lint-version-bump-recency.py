@@ -414,8 +414,7 @@ def report_unreadable_path(exc: OSError) -> None:
     print(
         f"ERROR: cannot read a path under --root ({exc}); an unreadable "
         f"directory, file or symlink target would otherwise be skipped "
-        f"silently, so the audit stops instead of passing over it (3b89 "
-        f"rounds 5-6).",
+        f"silently, so the audit stops instead of passing over it.",
         file=sys.stderr,
     )
 
@@ -608,7 +607,7 @@ def main(argv: list[str]) -> int:
             f"mark. The line-anchored Version readers (this audit's scope "
             f"check and git log -G query, and delta gates D2 and D4) cannot "
             f"see a Version on line 1 behind it, so each such file is refused "
-            f"rather than skipped (3b89). Remove the BOM.",
+            f"rather than skipped. Remove the BOM.",
             file=sys.stderr,
         )
     if loop_rels:
@@ -617,8 +616,7 @@ def main(argv: list[str]) -> int:
             f"chains past the kernel's link limit: stat fails with ELOOP on "
             f"both, neither can be read, and resolving a true loop raises on "
             f"Python 3.12 and earlier, so each is a finding, never a crash or "
-            f"a silent skip (3b89 rounds 5-6). Remove, shorten or retarget "
-            f"the link.",
+            f"a silent skip. Remove, shorten or retarget the link.",
             file=sys.stderr,
         )
     if findings:

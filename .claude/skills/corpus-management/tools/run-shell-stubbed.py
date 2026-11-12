@@ -448,19 +448,18 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                                      start_new_session=True,
                                      preexec_fn=None if spawn_mask is None else functools.partial(
                                          signal.pthread_sigmask, signal.SIG_SETMASK, spawn_mask))
-                # Residual (3b341 item (b), decision V, 2026-10-14): a Python
-                # signal handler the caller installed for a signal other than
-                # the three (SIGALRM or SIGUSR1, for example) can run and raise
-                # after Popen has created the shell and before the try below
-                # is entered; Popen's own error path closes its pipes but
-                # neither kills nor waits for a child it created (read in the
-                # Python 3.14.4 source). The shell is then neither reaped nor
-                # killed with its session here; the outer finally still tries
-                # to remove the temp dir, restores the mask and drains the
-                # deferral, and an exception propagates (the handler's, or one
-                # chained over it) with no result.
+                # Residual: a Python signal handler the caller installed for a
+                # signal other than the three (SIGALRM or SIGUSR1, for example)
+                # can run and raise after Popen has created the shell and
+                # before the try below is entered; Popen's own error path
+                # closes its pipes but neither kills nor waits for a child it
+                # created (read in the Python 3.14.4 source). The shell is then
+                # neither reaped nor killed with its session here; the outer
+                # finally still tries to remove the temp dir, restores the mask
+                # and drains the deferral, and an exception propagates (the
+                # handler's, or one chained over it) with no result.
                 # Accepted: blocking every signal across this window was not
-                # adopted, and the spawn mask belongs to 3b281 part B2.
+                # adopted, and the spawn mask is handled as separate work.
                 # Bounds: for an eligible spawn the three are blocked here, so
                 # no TERM, HUP or INT handler can raise in the window (an
                 # ineligible spawn, or one whose caller has threads invisible
@@ -1317,7 +1316,7 @@ def _unreaped_reporting_check(audit=False):
 
 # sha256 of the residual comment between Popen and the cleanup try in
 # _run_shells, its lines stripped and joined with "\n".
-SPAWN_RESIDUAL_SHA256 = "b567af6b255e331f97dfb59d79506ac4593083beb344f07c14bad5276d29e8ea"
+SPAWN_RESIDUAL_SHA256 = "722ca5e444554b5d04f10bf0d5d1d87943df5cf91bf8d80d8d8ade8d412332c5"
 
 
 def _spawn_residual_pin_check():
@@ -3273,8 +3272,8 @@ def _self_test_body(policy, failures) -> int:
                        "/usr/bin/id" in rr["stdout"] and "uid=" not in rr["stdout"] + rr["stderr"]))
     # Loader variables do not reach the real program: one ld.so complaint (Python's), not two.
     _test_stage("loader-vars-dropped")
-    rr = run("LD_PRELOAD=nonexistent-3b116.so wc -c nofile", shells=("bash",))[0]
-    checks.append(("loader-vars-dropped", rr["stderr"].count("nonexistent-3b116.so") == 1))
+    rr = run("LD_PRELOAD=nonexistent-preload.so wc -c nofile", shells=("bash",))[0]
+    checks.append(("loader-vars-dropped", rr["stderr"].count("nonexistent-preload.so") == 1))
     # A forged report line or a non-UTF-8 argument cannot hide a later call.
     _test_stage("report-lines-escaped")
     rep = subprocess.run([sys.executable, "-I", "-B", "-c",

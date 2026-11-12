@@ -37,7 +37,7 @@ six narrative types, each from the
 page's Markdown source by the constrained stdlib renderer below), the error page ``404.html``
 (noindex, excluded from the sitemap; Cloudflare Pages serves
 it with status 404 for any missing path), the link-preview card
-``images/grclibrary-card.png`` (item 3b788: copied byte-for-byte from
+``images/grclibrary-card.png`` (copied byte-for-byte from
 ``.web/static/images/grclibrary-card.png`` once its SHA-256 matches
 ``CARD_SHA256`` and its header reads as a 1200 by 630 PNG; every indexable
 page's head gets the sister sites' og: and twitter: tag set through
@@ -79,7 +79,7 @@ matrix, the reverse framework-control crosswalk, and the canonical citations
 register (``compliance/matrix-grc-compliance-alignment.md``,
 ``governance/matrix-reverse-framework-control-crosswalk.md``,
 ``governance/register-canonical-citations.md``), each parsed structurally and
-loud on schema change; and (site a9, maintainer decision 2026-11-03) the
+loud on schema change; and (maintainer decision 2026-11-03) the
 top-level ``.claude/skills/corpus-management/docs/*.md`` adopter documents,
 each read for its own canonical metadata block, purpose paragraph, and
 section outline. Its draft-only file checks read no file content: the adopter
@@ -157,13 +157,13 @@ DEFAULT_OUT = WEB_DIR / "dist"
 # corpus/GitHub target the indexable root variant's pages link, with its website location and link text.
 # Gate 75 (.claude/skills/corpus-management/tools/lint-web-corpus-links.py) resolves its targets against the repo.
 CORPUS_LINK_MANIFEST = WEB_DIR / "corpus-link-manifest.md"
-# The link-preview card (item 3b788, the family-card design of item 3b762
-# ported to the promoted tree). The rendered card is committed under
-# .web/static/images/ and copied byte-for-byte into every build at
-# images/grclibrary-card.png, an image file and never a page, so it stays out
-# of sitemap.xml (render_site lists rendered .html pages alone). A card whose
-# SHA-256 differs from CARD_SHA256, or that is not a PNG of exactly CARD_WIDTH
-# by CARD_HEIGHT, fails every build and --check (load_card_bytes).
+# The link-preview card (the sister sites' family-card design, ported to the
+# promoted tree). The rendered card is committed under .web/static/images/ and
+# copied byte-for-byte into every build at images/grclibrary-card.png, an
+# image file and never a page, so it stays out of sitemap.xml (render_site
+# lists rendered .html pages alone). A card whose SHA-256 differs from
+# CARD_SHA256, or that is not a PNG of exactly CARD_WIDTH by CARD_HEIGHT,
+# fails every build and --check (load_card_bytes).
 CARD_SOURCE = WEB_DIR / "static" / "images" / "grclibrary-card.png"
 CARD_OUT_REL = "images/grclibrary-card.png"
 CARD_SHA256 = "a8f10266d2544a46c839e305595e9c0ca148c6f7d9f7c58d13cf6d432b248c94"
@@ -251,7 +251,7 @@ PARTIALS = {
 
 # The licence sentence closing every generated page description: CC BY-SA 4.0
 # covers the library's own text only, matching each document's License field,
-# and quoted third-party material keeps its own terms under NOTICE.md (3b550).
+# and quoted third-party material keeps its own terms under NOTICE.md.
 LICENCE_SEO_SUFFIX = (
     "Its own text is under CC BY-SA 4.0; quoted third-party material keeps "
     "its own terms (see NOTICE.md)."
@@ -377,10 +377,10 @@ _ROOT_HREF_RE = re.compile(r'(?i)href' + r'\s*=\s*["\']?/')
 GITHUB_BLOB_BASE = "https://github.com/jposluns/grc_library/blob/main/"
 
 # The manifest's llms.txt rows are parsed back from the RENDERED llms.txt
-# Markdown itself (_llms_markdown_rows; round 4, item 1), the same way its
+# Markdown itself (_llms_markdown_rows), the same way its
 # HTML rows come from the rendered pages, so no parallel curated list exists
-# to drift from the emitted map (the former CURATED_CORPUS_LINKS, the TODO
-# 3.75 follow-up). The manifest's domain-page and type-page rows re-derive
+# to drift from the emitted map (the former CURATED_CORPUS_LINKS). The
+# manifest's domain-page and type-page rows re-derive
 # from the same `figures` the pages render from. The repo-root and on-site
 # (SITE_BASE) links in llms.txt are NOT corpus-path targets and are
 # deliberately excluded.
@@ -410,7 +410,7 @@ DRAFT_CSP = (
 # Access-Control-Allow-Origin and Strict-Transport-Security automatically,
 # so none of those is repeated here. bluetooth is not a Permissions-Policy
 # feature Chromium recognizes, so naming it logged one console warning per
-# page load (item 3b788); the list carries recognized features only.
+# page load; the list carries recognized features only.
 HEADERS_FILE = (
     "/*\n"
     f"  Content-Security-Policy: {DRAFT_CSP}\n"
@@ -428,14 +428,14 @@ HEADERS_FILE = (
 # through the splat (the promoted tree is the draft tree with the prefix
 # stripped, so every target exists by construction); the old About page's
 # contributor content moved to /contributors/; the old rule-pack page's
-# subject is now the AIQT project. Round-2 fix 7: the splat covers only
+# subject is now the AIQT project. The splat covers only
 # paths under /draft/, and Pages matches rules literally, so the slashless
 # and explicit index.html spellings of each redirected address carry their
 # own rules (/draft itself lands on the promoted root). The site's prose
 # spells "Licence" (Canadian spelling) while the route is /license/, so the
 # /licence/ spelling a reader types lands on the page instead of the 404
-# (item 3b788), in the same three spellings as the other redirects. Site
-# review F16: the decision narratives index moved from /decide/choices/ to
+# page, in the same three spellings as the other redirects. The decision
+# narratives index moved from /decide/choices/ to
 # /decide/decision-narratives/, so the old address redirects in the same
 # three spellings, and so does its pre-promotion /draft/ address, listed
 # ahead of the splat so the first matching rule lands it in one hop.
@@ -677,7 +677,7 @@ def load_narratives():
 # Purpose intro, as it reads after link and code-span flattening (the opening
 # pronoun varies). The domain template's hardcoded Note callout states the
 # same rule on every domain page, so the lead drops its own copy and all 12
-# pages state it exactly once (site triage F01).
+# pages state it exactly once.
 _DOMAIN_LEAD_LICENCE_RE = re.compile(
     r"\s*(?:All|Its|Their) original content is released under CC BY-SA 4\.0; "
     r"a quotation that NOTICE\.md allows or keeps under its transition clause "
@@ -835,7 +835,7 @@ def compute_figures():
         # Secondary key mirrors .claude/skills/corpus-management/tools/build-taxonomy.py: case-insensitive title then
         # repo-relative path tiebreaker, so the on-site domain-page order matches the
         # canonical .claude/skills/corpus-management/data/taxonomy.yml / portal.md order (a case-sensitive title key here made
-        # e.g. "eIDAS ..." sort to the end of its type; Sweep 105 finding A-1).
+        # e.g. "eIDAS ..." sort to the end of its type).
         ddocs = sorted(
             ddocs,
             key=lambda d: (TYPE_RANK.get(d["type"], len(TYPE_ORDER)), d["title"].lower(), d["path"]),
@@ -993,7 +993,7 @@ NARRATIVE_ROUTE_PREFIX = "decisions/"
 NARRATIVE_SHELL_IDS = {
     # The shell's ids are every id its narrative.html carries (the
     # skip-link target and two heading anchors; the copy-status live region
-    # left with opt-in copy.js, review round 2 item 4: no draft page loads
+    # left with opt-in copy.js: no draft page loads
     # copy.js, so no template carries the region it would write to).
     "templates-draft": {
         "narr-intro", "main-content", "source", "domains",
@@ -1185,8 +1185,8 @@ def _narrative_body_lines(text, source_rel):
 
 
 def _reject_nested_block(content, source_rel, container):
-    """Reject a nested BLOCK construct hiding behind a container marker
-    (E1, QA round 2): a blockquote's, list item's (unordered or ordered),
+    """Reject a nested BLOCK construct hiding behind a container marker:
+    a blockquote's, list item's (unordered or ordered),
     or table cell's INNER content flows only through the inline renderer,
     so a block construct after the marker or inside the cell ('> ###
     heading', '- - nested list', '1. > quote', '| ### x |', '- ---',
@@ -1764,7 +1764,7 @@ def render_narrative_body(text, source_rel, reserved_shell_ids=None):
                 # A literal '{' differs after the inline pass ('{'->'&#123;')
                 # but a lone '}' is identical on both sides, so both braces are
                 # rejected EXPLICITLY here rather than relying on the escape
-                # asymmetry (F2, round-2 QA).
+                # asymmetry.
                 raise BuildError(
                     f"{source_rel}: inline markup or a literal brace in a "
                     f"section heading unsupported (a heading is plain text, "
@@ -1792,7 +1792,7 @@ def render_narrative_body(text, source_rel, reserved_shell_ids=None):
                 # A literal '{' differs after the inline pass ('{'->'&#123;')
                 # but a lone '}' is identical on both sides, so both braces are
                 # rejected EXPLICITLY here rather than relying on the escape
-                # asymmetry (F2, round-2 QA).
+                # asymmetry.
                 raise BuildError(
                     f"{source_rel}: inline markup or a literal brace in a "
                     f"section heading unsupported (a heading is plain text, "
@@ -1881,7 +1881,7 @@ def narrative_route_bodies(figures, variant, seen_out_rels):
     # type would otherwise fall through the filter below and silently
     # skip on-site rendering (PR-2b widened the tuple to all six
     # published types; this check keeps the widening honest). The
-    # subtype-index table joins the union (round-2 fix 5): a type with a
+    # subtype-index table joins the union: a type with a
     # DRAFT_NARRATIVE_SUBTYPES entry but no route would publish an index
     # whose pages the reading room never renders.
     unrouted = sorted(
@@ -1978,8 +1978,8 @@ _META_DESCRIPTION_RE = re.compile(
 
 
 def draft_head_tag_block(template_name, rendered, page_url):
-    """The injected head block for one indexable promoted page (item 3b788,
-    the family-card tag set of item 3b762): the self-canonical, then the og:
+    """The injected head block for one indexable promoted page (the sister
+    sites' family-card tag set): the self-canonical, then the og:
     and twitter: tags the sister sites carry, with og:url the page's own
     canonical URL, og:title the page's one rendered <title> text,
     og:description the page's one rendered meta description, and the
@@ -2066,10 +2066,10 @@ def render_page(template_name, figures, variant, template_dir, partials, extra=N
     if extra:
         values.update(extra)
     # The footer's site bar marks this site among the 7 family sites with
-    # aria-current="page" on every page, the base behaviour (review round 2
-    # item 1: baseline.css styles only the "page" form on .family .card, so
-    # the round-1 aria-current="true" off the home page dropped the visual
-    # current-site marker there). Semantically the card marks the current
+    # aria-current="page" on every page, the base behaviour (baseline.css
+    # styles only the "page" form on .family .card, so an earlier
+    # aria-current="true" off the home page dropped the visual current-site
+    # marker there). Semantically the card marks the current
     # SITE of the set, not the current page; a template request asks the
     # baseline owner to style aria-current="true" so grc can switch later.
     values["FOOTER_HOME_CURRENT"] = ' aria-current="page"'
@@ -2106,15 +2106,14 @@ def render_page(template_name, figures, variant, template_dir, partials, extra=N
         else:
             rendered = rendered.replace("</head>", f"{metadata}\n</head>", 1)
     elif variant.draft_rules and out_rel != "404.html":
-        # Promoted draft-rules pages carry an injected self-canonical plus
-        # the link-preview tag set (item 3b788, the family-card design of
-        # item 3b762 ported from the removed template trees): the templates
-        # carry no canonical or card tag of their own (draft_head_tag_block
-        # fails the build on one instead of substituting), so this injection
-        # is the sole source, as the noindex injection above was
-        # pre-promotion. The 404 page is excluded, matching its sitemap
-        # exclusion; it carries a static noindex meta in its template and
-        # none of the link-preview tags.
+        # Promoted draft-rules pages carry an injected self-canonical plus the
+        # link-preview tag set (the sister sites' family-card design, ported
+        # from the removed template trees): the templates carry no canonical
+        # or card tag of their own (draft_head_tag_block fails the build on
+        # one instead of substituting), so this injection is the sole source,
+        # as the noindex injection above was pre-promotion. The 404 page is
+        # excluded, matching its sitemap exclusion; it carries a static
+        # noindex meta in its template and none of the link-preview tags.
         if out_rel is None:
             raise BuildError(f"indexable variant page {template_name} has no output path")
         metadata = draft_head_tag_block(
@@ -2202,11 +2201,10 @@ def render_llms_txt(figures, variant):
     notes). Corpus artefacts link to GitHub (the source material); site pages
     link to grclibrary.ai. All links resolve to real, verified artefacts.
     Every corpus blob link is emitted through ``repo_blob_url`` and the root
-    through ``repo_root_url`` (the emission ledger, round 2 of the
-    link-guard follow-up), so the ledger cross-check binds these links to
-    the manifest's llms.txt rows, themselves parsed back from this emitted
-    Markdown (round 4, item 1), one to one. Round 9: the map is read back
-    by a line grammar of exactly the shapes written here (``_llms_links``),
+    through ``repo_root_url`` (the emission ledger), so the ledger
+    cross-check binds these links to the manifest's llms.txt rows,
+    themselves parsed back from this emitted Markdown, one to one. The map
+    is read back by a line grammar of exactly the shapes written here (``_llms_links``),
     so a new line shape, or a parenthesis, bracket or URL in the prose,
     fails the build until that grammar admits it; the summary's NOTICE.md
     pointer is therefore written after a semicolon, not in parentheses."""
@@ -2242,20 +2240,19 @@ def render_llms_txt(figures, variant):
 # from the taxonomy, the narrative registry or the crosswalk model).
 # `render_corpus_link_manifest` scans the RENDERED pages for these so the
 # manifest (and therefore gate 75) reaches every one; before that scan
-# existed, 48 distinct targets were linked by the site and covered by no gate
-# (Sweep 120 F2). Round 4 replaces the regex extraction wholesale: three
-# review rounds each found new delimiter edge cases (a quoted value cut at a
-# closing parenthesis, angle bracket, backslash or single quote; sibling and
-# spelling variants at the repository-name boundary), so link URLs are now
-# collected by PARSING the HTML output (html.parser) and classified with
+# existed, 48 distinct targets were linked by the site and covered by no
+# gate. A regex extraction kept missing delimiter edge cases (a quoted value
+# cut at a closing parenthesis, angle bracket, backslash or single quote;
+# sibling and spelling variants at the repository-name boundary), so link
+# URLs are collected by PARSING the HTML output (html.parser) and classified with
 # urllib.parse, never by a pattern over the raw text.
 
 
 class _OutputLinkParser(HTMLParser):
     """Collects EVERY attribute value of an HTML output, whole as the parser
     decodes it (quoted or not, character references decoded), with the
-    anchor's own text for an ``<a href>``. Round 1 of the link-guard
-    follow-up widens the walk from href and src to every attribute (action,
+    anchor's own text for an ``<a href>``. The walk covers every attribute,
+    not only href and src (action,
     formaction, srcset, a meta refresh content, data-* and the rest), so no
     attribute carries an unwalked URL. ``values`` holds ``[tag, attribute
     name, value, anchor text or None]`` entries in document order; a value
@@ -2322,8 +2319,8 @@ def _manifest_target(url):
     case-insensitive, the repository segment exactly grc_library, so no
     grc_library-prefixed sibling ever matches), with the target
     percent-decoded and taken whole up to the query or fragment. The bare
-    blob base links no corpus target. Round 2 of the link-guard follow-up
-    (fix 3): a target segment that is a dot segment (``.``, ``..``, or any
+    blob base links no corpus target. A target segment that is a dot
+    segment (``.``, ``..``, or any
     casing of ``%2e`` inside the segment, encoded or decoded), or a target
     carrying ``;``, is rejected, so a counted manifest row can never carry
     one."""
@@ -2354,7 +2351,7 @@ def _manifest_target(url):
     return target
 
 
-# WHATWG URL cleaning (round 5 of the link-guard follow-up): the
+# WHATWG URL cleaning: the
 # transformations a browser applies to a destination string BEFORE parsing
 # it, so every scan compares the URL the browser will read, never the raw
 # attribute text. ASCII whitespace characters, as the URL standard uses the
@@ -2368,11 +2365,11 @@ def _clean_destination_value(value):
     """One parsed destination, WHATWG-cleaned: leading and trailing C0
     control and space characters stripped, every ASCII tab, newline and
     carriage return removed, and backslash read as slash in an http(s) URL
-    (the special-scheme rule). Round 5: browsers remove these characters or
+    (the special-scheme rule). Browsers remove these characters or
     read them as a slash, so a destination carrying one is compared in the
     form the browser resolves, and a spelling such as ``ROOT&#10;/tree/...``
     or ``ROOT\\tree\\...`` can no longer fake a destination boundary.
-    Round 6, item 3: the backslash-as-slash reading stops at the first
+    The backslash-as-slash reading stops at the first
     ``?`` or ``#``, because the WHATWG special-scheme parser reads a
     backslash as a slash only in its scheme, authority and path states;
     in the query and fragment states a backslash is an ordinary character,
@@ -2402,13 +2399,13 @@ def _srcset_candidates(value, where):
     HTML image-candidate grammar: a URL is a maximal run of
     non-whitespace characters; a URL ending in commas ends its candidate
     there (trailing commas are separators, so a counted URL directly
-    followed by a comma is a clean candidate, round 5); otherwise at most
+    followed by a comma is a clean candidate); otherwise at most
     one descriptor may follow, ending at the next comma, and it must be a
     width, density or height descriptor. A candidate with any other
     descriptor is refused outright: the generator never emits one, and a
     whitespace-faked candidate split (``srcset="ROOT&#9;/x.png"``) would
     otherwise read as a URL a ledger entry authorizes while no browser
-    fetches it (round 5)."""
+    fetches it."""
     pos, n = 0, len(value)
     while pos < n:
         while pos < n and (value[pos] in _ASCII_WS or value[pos] == ","):
@@ -2448,8 +2445,8 @@ def _meta_refresh_url(value):
     optionally ``url`` and ``=`` (case-insensitive, whitespace allowed
     around them), after which THE REST OF THE VALUE is the URL (a quoted
     URL ends at its matching quote). Returns None when the value does not
-    parse as a refresh (the whole value is then the destination). Round 5:
-    the old regex cut the URL at the first whitespace, so a tab inside the
+    parse as a refresh (the whole value is then the destination). A former
+    regex cut the URL at the first whitespace, so a tab inside the
     URL (``url=ROOT&#9;/tree/main/ai``) faked a destination boundary the
     browser never sees."""
     i, n = 0, len(value)
@@ -2524,32 +2521,31 @@ def _staging_prefixes():
 
 
 # ---------------------------------------------------------------------------
-# The repository-link emission ledger and its allow-list check (rounds 2 and
-# 3 of the link-guard follow-up). Five review rounds each found new URL
-# spellings that passed the occurrence denylist; classifying URL spellings is
-# a denylist over an open space and does not converge. Replaced by an
+# The repository-link emission ledger and its allow-list check. An
+# occurrence denylist kept passing new URL spellings; classifying URL
+# spellings is a denylist over an open space and does not converge. Replaced
+# by an
 # ALLOW-LIST that does not depend on URL syntax: the generator records every
 # repository link it emits (the ledger, one ledger per render, bound to that
 # render's result), and the check binds every occurrence of the owner token
 # ("jposluns") in a decoded view of every output file to one specific
-# ledger entry, each entry consumed exactly once (round 3, item 7), so
-# neither an unledgered spelling nor a repeated copy of a ledgered link can
-# pass, whatever the spelling. Round 5 removes span matching from the check
-# entirely: a round 4 review found that the fixed boundary set over the
+# ledger entry, each entry consumed exactly once, so neither an unledgered
+# spelling nor a repeated copy of a ledgered link can pass, whatever the
+# spelling. The check does no span matching: a fixed boundary set over the
 # decoded view (quotes, parentheses, angle brackets and whitespace removal
 # points) let tab, newline, carriage return, backslash, quote and
 # parenthesis spellings fake a destination boundary the browser never sees,
-# and that its "=" exception was a page-wide flag. A ledger entry is now
+# and its "=" exception was a page-wide flag. A ledger entry is
 # consumed only by a destination the output's OWN parsers read
 # (``_output_destinations``), WHATWG-cleaned, equal to the entry's emitted
 # string exactly, with multiplicity.
 #
-# Residual (disclose-guard-residuals): what the round 5 check still cannot
+# Residuals (disclose-guard-residuals): what the check still cannot
 # catch. (1) It counts the owner token only in a view decoded REPEATEDLY
 # (HTML character references, percent-encoding and the \/ \uXXXX \u{XXXXXX}
 # \xXX and CSS backslash-hex escapes) until the text stops changing, with
 # ASCII whitespace and backslashes then removed, so %256a, \x256a, \u{6a}
-# and the CSS \6a form all resolve (round 3, item 3), but a spelling that
+# and the CSS \6a form all resolve, but a spelling that
 # never contains the token in that view still evades the count: base64 or
 # any other encoding assembled by script at view time (data: URLs,
 # String.fromCharCode, concatenation), a non-ASCII separator inside the
@@ -2565,19 +2561,19 @@ def _staging_prefixes():
 # destination; any such divergence still has to keep the occurrence count
 # equal to the consumed entries' token count to pass. A <base> element,
 # which would rebase every relative URL, is refused in every HTML output
-# as well as in every template (round 6, item 2). (3) The CSS url()
+# as well as in every template. (3) The CSS url()
 # reader applies only to copied stylesheet assets, whose bytes a pin
 # already verifies; a url() in a rendered page is never a destination.
 # (4) Every output that is neither HTML nor a stylesheet is read by an
 # ALLOW-LIST grammar of exactly the shapes this build emits, never by a
-# general Markdown or text reader (round 9; rounds 6 to 8 read a
-# CommonMark subset, and each review found a spelling it misread), and
+# general Markdown or text reader (a CommonMark-subset reader kept
+# misreading spellings), and
 # any other shape fails the build naming the file, line and column.
 # llms.txt: a blank line, a "# " or "## " heading, a "> " block-quote
 # line, or a "- [label](https://...)" list item whose further links join
 # with ", " and which ends there, with "." or with ": " and a note; no
-# backtick, backslash, <, & (so no character reference can spell a URL;
-# round 10, item 4) or control character other than LF anywhere, a
+# backtick, backslash, <, & (so no character reference can spell a
+# URL) or control character other than LF anywhere, a
 # > only as a line-opening block-quote marker, and no [ ] ( ) or
 # http:, https:, ftp: or www. text in any prose part (a heading, a
 # block-quote line, a label or a note). A destination is taken ONLY from
@@ -2587,14 +2583,14 @@ def _staging_prefixes():
 # definition, raw HTML, URL autolink or code span. A GFM email or
 # mailto: or xmpp: autolink can still render from prose; it cannot be
 # a repository URL, and an owner-token spelling in one still fails the
-# occurrence count (round 10 review). robots.txt: comment,
+# occurrence count. robots.txt: comment,
 # blank, User-agent, Allow and Sitemap lines; _headers: rule paths,
 # indented header lines of the emitted header names and detach lines;
 # security.txt: the six RFC 9116 fields emitted. Each is read by its own
 # line format, with no Markdown reading at all, and a destination comes
 # only from a Sitemap value or a Contact, Encryption, Policy or
 # Canonical value (_headers carries no destination field). _redirects
-# has NO grammar (round 10, item 1): Cloudflare Pages substitutes a
+# has NO grammar: Cloudflare Pages substitutes a
 # source's * and :name placeholders into a target (:splat, :name), and
 # reads a target that opens // or /\ as another host, so a literal
 # target read by a grammar is not the URL served; the _redirects output
@@ -2609,7 +2605,7 @@ def _staging_prefixes():
 # stylesheet, such as the Markdown NOTICE.md files, scripts, fonts and
 # images) is read by NO grammar: it is published only as one whole
 # pin-verified copy (``_ledger_copied_output``), whether or not it
-# carries the owner token (round 10, item 3), and its owner-token
+# carries the owner token, and its owner-token
 # occurrences pass only as that copy's own, so for those files the pin,
 # not a parse, bounds what they carry. What remains outside the
 # grammars: the rules REDIRECTS_FILE itself defines are bound by review
@@ -2627,7 +2623,7 @@ def _staging_prefixes():
 # an admitted destination that some consumer does not read as a link,
 # which still consumes its entry and gains its manifest row. (5) The
 # backslash-as-slash cleaning applies up to the first ? or #, matching
-# the WHATWG special-scheme parser states (round 6, item 3); query and
+# the WHATWG special-scheme parser states; query and
 # fragment text is compared byte for byte.
 # ---------------------------------------------------------------------------
 
@@ -2646,7 +2642,7 @@ _LEDGER_OTHER = "other"
 # unattached on exit. The ledger itself is one plain dict per render (output
 # path to entry list), created by render_site or render_draft_variant and
 # passed EXPLICITLY to verification, so no allowance survives from one
-# render into another (round 3, item 8). Entries are
+# render into another. Entries are
 # ``(emitted string, kind, target or None, owner-token count)``.
 _PENDING_REPO_EMISSIONS = []
 
@@ -2687,7 +2683,7 @@ def _retract_repo_emission(emitted, kind, target=None):
     """Withdraw ONE pending recorded emission that a later rewrite removed
     from the output before the output was known (the draft narrative body
     relinks a corpus citation from its GitHub blob URL to the on-site
-    document page, site triage F30, after render_narrative_body recorded
+    document page, after render_narrative_body recorded
     that blob URL). Exactly one pending entry equal to ``(emitted, kind,
     target)`` is removed, so the ledger records only what reaches the
     output; with no such entry the build fails. A retraction can only
@@ -2711,11 +2707,11 @@ def _ledger_copied_output(ledger, out_rel, data):
     check already verified. Nothing is generated into these files. The
     copies include Markdown files (assets/baseline/NOTICE.md and
     assets/baseline/marks/NOTICE.md) as well as scripts, fonts and images;
-    round 9 reads none of them with any link grammar (only an HTML or
+    no link grammar reads any of them (only an HTML or
     stylesheet copy has a destination reader), so a copy outside those two
     kinds passes the allow-list only as this one whole-file entry, and an
-    owner token in it is bounded by the pin, not by a parse. Round 10,
-    item 3: every copy is ledgered, a token-free one with a zero-token
+    owner token in it is bounded by the pin, not by a parse. Every copy
+    is ledgered, a token-free one with a zero-token
     entry, so the whole-file entries are the pin-verified copy set and an
     output no grammar reads that is not in it fails the build even when
     it carries no owner token."""
@@ -2740,16 +2736,16 @@ _OWNER_TOKEN = _REPO_OWNER
 _OWNER_NAME_CHARS = frozenset("abcdefghijklmnopqrstuvwxyz0123456789-")
 
 # The backslash escape forms the decoded view resolves: the ES2015
-# \u{XXXXXX} code point form (leading zeros allowed, as ES allows them;
-# round 4, item 5), the JavaScript/JSON \uXXXX and \xXX forms, the \/
+# \u{XXXXXX} code point form (leading zeros allowed, as ES allows
+# them), the JavaScript/JSON \uXXXX and \xXX forms, the \/
 # solidus, and the CSS backslash-hex form with one optional terminating
-# ASCII whitespace character, consumed as CSS consumes it (round 3, item 3).
+# ASCII whitespace character, consumed as CSS consumes it.
 # The CSS form is held to TWO to six hex digits: every token letter needs
 # two (j is \6a), a one-digit escape yields only a control character, and
 # decoding one-digit forms would eat the hex-letter neighbour of every
 # literal backslash (\C of \CONTRIBUTING.md), mangling reports for nothing.
 # The consumed terminating whitespace is captured so the decode can keep a
-# boundary where it stood (round 4, item 2).
+# boundary where it stood.
 _JS_ESCAPE_RE = re.compile(
     r"\\u\{(0*[0-9a-fA-F]{1,6})\}"
     r"|\\u([0-9a-fA-F]{4})"
@@ -2779,7 +2775,7 @@ def _decode_js_escape(match):
         return match.group(0)
     if match.group(4) is not None:
         # The CSS form keeps a boundary at the decoded sequence position on
-        # BOTH sides (round 4, item 2: consuming the terminating whitespace
+        # BOTH sides (consuming the terminating whitespace
         # outright glued "\41 jposluns" into a longer owner name, and
         # "jposluns\2d " grew a hyphen with no boundary, each counting 0):
         # the leading backslash and the kept (or restored) whitespace are
@@ -2796,7 +2792,7 @@ def _decoded_token_view(text):
     """The decoded view the allow-list counts over, with its boundary map:
     HTML character references (the standard library html module),
     percent-encoding and the backslash escape forms above are decoded
-    REPEATEDLY until the text stops changing (round 3, item 3: one pass
+    REPEATEDLY until the text stops changing (one pass
     leaves %256a as %6a, and the percent sign a decoded \\x25 assembles
     appears only after the percent pass already ran), then every ASCII
     whitespace character and backslash is removed. Returns
@@ -2832,7 +2828,7 @@ def _decoded_token_view(text):
 
 def _match_view_lower(view):
     """The view lowercased for matching, per character and
-    length-preserving (round 3, item 4: str.lower expands U+0130 to two
+    length-preserving (str.lower expands U+0130 to two
     characters, drifting every later offset off the boundary map and off
     the view itself); a character whose lowercase form is not one character
     is kept as it is, which cannot hide the ASCII owner token."""
@@ -2880,7 +2876,7 @@ class _SourceEmissionParser(HTMLParser):
     committed, reviewed inputs the generator renders), for extracting the
     repository links a template emits into every page rendered from it.
     Each text node carries its enclosing element's tag, so an allow-list
-    entry binds to where the text appears (round 4, item 3), and a
+    entry binds to where the text appears, and a
     ``<base>`` start tag is counted for refusal."""
 
     def __init__(self):
@@ -2910,10 +2906,10 @@ class _SourceEmissionParser(HTMLParser):
 
 # The short, reviewed allow-list of deliberate owner-token template
 # emissions that are neither a counted corpus blob URL nor the exact
-# repository root (round 3, item 1): each key BINDS one emission to its
+# repository root: each key BINDS one emission to its
 # template or partial source, its tag, its attribute (None for a text
-# node) and the EXACT parser-decoded value it carries (round 4, item 3:
-# keyed by value alone, ANY template element could re-emit a reviewed
+# node) and the EXACT parser-decoded value it carries (keyed
+# by value alone, ANY template element could re-emit a reviewed
 # value and take its grant); each dict value is the reason the emission is
 # deliberate. Any other owner-token value or text node in a template or
 # partial fails the build naming the template and the value, so a template
@@ -2936,15 +2932,15 @@ def _source_repo_emissions(source, text):
     allowed ONLY as a counted corpus blob URL (which must then gain its
     manifest row through the ledger cross-check), the exact repository
     root, or a TEMPLATE_EMISSION_ALLOWLIST entry BOUND to this source, tag
-    and attribute or enclosing-text tag (round 4, item 3); anything else
-    raises naming the template and the value (round 3, item 1: before, any
+    and attribute or enclosing-text tag; anything else
+    raises naming the template and the value (formerly any
     owner-token value or text node was ledgered as kind other, so a
     template carrying a tree link, a raw.githubusercontent.com link or a
     plain mention minted its own allowance). A ``<base>`` element is
-    refused outright (round 4, item 3): it would rebase every relative URL
+    refused outright: it would rebase every relative URL
     the rendered page carries. The allowance a source grants
     must equal the owner-token count of its RAW text under the same
-    decoding the rendered output gets (round 3, item 2), so a spelling the
+    decoding the rendered output gets, so a spelling the
     parser reads differently from the served bytes (a doubly encoded
     reference, a token in an HTML comment the parser surfaces nowhere)
     fails here, at the template, instead of granting allowance the output
@@ -3014,11 +3010,11 @@ def _source_repo_emissions(source, text):
 
 class _GuardOutputParser(HTMLParser):
     """Attribute values and text nodes of a rendered HTML output, each
-    with the source line html.parser reports for it (round 5): the
+    with the source line html.parser reports for it: the
     allow-list's destinations come from this parse, never from spans of
     the raw or decoded text, so no boundary character set exists to fake.
     Text inside a <script> or <style> element arrives as a text node
-    too. A ``<base>`` start tag is counted for refusal (round 6, item 2),
+    too. A ``<base>`` start tag is counted for refusal,
     as the template parser already does: it would rebase every relative
     URL the rendered page carries."""
 
@@ -3051,12 +3047,11 @@ class _GuardOutputParser(HTMLParser):
 
 
 # ---------------------------------------------------------------------------
-# Round 9: allow-list grammars for every output that is neither HTML nor a
-# stylesheet (residual item 4 above). Rounds 6 to 8 read llms.txt, and with
-# it robots.txt, sitemap.xml, _headers, _redirects and security.txt, by one
-# shared CommonMark-subset reader, and each review found a spelling that
-# reader read differently from a renderer or from the format's own
-# consumer. Each of those outputs is now read by a grammar of exactly the
+# Allow-list grammars for every output that is neither HTML nor a
+# stylesheet (residual (4) above). One shared CommonMark-subset reader for
+# llms.txt, robots.txt, sitemap.xml, _headers, _redirects and security.txt
+# kept reading spellings differently from a renderer or from the format's
+# own consumer. Each of those outputs is read by a grammar of exactly the
 # shapes the generator emits; any other shape fails the build naming the
 # file, line and column, and a destination is taken only from the one
 # shape of each format that carries a URL.
@@ -3108,10 +3103,10 @@ def _refuse_text_controls(rel, text, grammar):
             f"the {grammar} grammar")
 
 
-# The llms.txt grammar (round 9, item 1): the line shapes render_llms_txt
+# The llms.txt grammar: the line shapes render_llms_txt
 # writes and nothing else. A prose part is a heading's text, a block-quote
 # line's text, a link label or a list-item note.
-# Round 10, item 4: an & anywhere (the emitted text has none), so no
+# An & is refused anywhere (the emitted text has none), so no
 # entity or character reference can spell a URL a renderer decodes.
 _LLMS_ANYWHERE = {"`": "a backtick", "\\": "a backslash", "<": "a <",
                   "&": "an &"}
@@ -3130,7 +3125,7 @@ _LLMS_SHAPES = (
 def _llms_prescan(rel, text):
     """The characters llms.txt refuses ANYWHERE, first in document order:
     a control character other than LF, a backtick, a backslash, a <, an
-    & (round 10, item 4), and a > anywhere but column 1 (where it can
+    &, and a > anywhere but column 1 (where it can
     only open a block-quote line, which the line grammar then holds to
     ``> `` and prose)."""
     for i, ch in enumerate(text):
@@ -3213,7 +3208,7 @@ def _llms_item(rel, text, start, end):
 
 
 def _llms_links(rel, text):
-    """Read llms.txt by its line grammar (round 9, item 1) and return
+    """Read llms.txt by its line grammar and return
     ``(label, destination, destination offset)`` for every list-item
     link, in document order. Admitted: a blank line, a ``# `` or ``## ``
     heading, a ``> `` block-quote line, and a ``- [label](https://...)``
@@ -3251,7 +3246,7 @@ def _llms_destinations(rel, text):
     ]
 
 
-# robots.txt (round 9, item 2): the lines render_robots_txt writes. A
+# robots.txt: the lines render_robots_txt writes. A
 # value never holds a space or a # (which RFC 9309 parsers read as a
 # comment), so the value read here is the value every parser reads; the
 # Sitemap value alone is a destination.
@@ -3283,7 +3278,7 @@ def _robots_destinations(rel, text):
     return destinations
 
 
-# _headers (round 9, item 2): Cloudflare Pages rule paths at column 1,
+# _headers: Cloudflare Pages rule paths at column 1,
 # then two-space-indented header lines and "! " detach lines, of the
 # header names this build emits. No emitted header carries a link
 # destination (the CSP's host sources are not links), so _headers yields
@@ -3321,7 +3316,7 @@ def _headers_destinations(rel, text):
     return []
 
 
-# _redirects (round 10, item 1): no grammar at all. Round 9 read
+# _redirects: no grammar at all. A former grammar read
 # "source target 301" triples and compared each literal target, but
 # Cloudflare Pages substitutes a source's * and :name placeholders into
 # the target (:splat, :name) and reads a target opening // or /\ as
@@ -3332,8 +3327,8 @@ def _headers_destinations(rel, text):
 
 
 def _redirects_destinations(rel, text):
-    """Hold _redirects to REDIRECTS_FILE byte for byte (round 10, item
-    1): any other content fails the build naming the line and column of
+    """Hold _redirects to REDIRECTS_FILE byte for byte: any other
+    content fails the build naming the line and column of
     the first difference. The output yields no destination."""
     expected = REDIRECTS_FILE
     if text != expected:
@@ -3346,7 +3341,7 @@ def _redirects_destinations(rel, text):
     return []
 
 
-# security.txt (round 9, item 2): the six RFC 9116 fields this build
+# security.txt: the six RFC 9116 fields this build
 # emits, one "Field: value" per line; the URI-valued fields (with no
 # space in the value) are the destinations.
 _SECURITY_FIELDS = {
@@ -3383,9 +3378,9 @@ def _security_destinations(rel, text):
     return destinations
 
 
-# sitemap.xml (round 9, item 3): markup that can assemble text the raw
-# and decoded views never see is refused before any XML parse (round 8
-# review: "jpo<![CDATA[sluns]]>" inside a <loc> assembled an unledgered
+# sitemap.xml: markup that can assemble text the raw
+# and decoded views never see is refused before any XML parse
+# ("jpo<![CDATA[sluns]]>" inside a <loc> assembled an unledgered
 # repository URL); the document is then read with xml.etree.ElementTree
 # and held to the urlset/url/loc shape, and each <loc> is a destination.
 _SITEMAP_NS = "{http://www.sitemaps.org/schemas/sitemap/0.9}"
@@ -3476,9 +3471,9 @@ def _xml_destinations(rel, text):
 
 # The grammar of each output, by its name: the HTML and stylesheet
 # readers, the sitemap XML grammar, one line format per text output, and
-# the exact-content check of _redirects (round 10, item 1). An output
+# the exact-content check of _redirects. An output
 # with no grammar (a copied asset other than HTML or a stylesheet) is
-# read by none and must be a pin-verified copy (residual item 4).
+# read by none and must be a pin-verified copy (residual (4) above).
 _LINE_FORMAT_READERS = {
     "llms.txt": _llms_destinations,
     "robots.txt": _robots_destinations,
@@ -3503,7 +3498,7 @@ def _output_grammar(rel):
 
 def _ungrammared_refusal(rel, text):
     """The refusal for an output no grammar reads that is not exactly one
-    whole pin-verified copy (round 10, item 3: token-free or not), or
+    whole pin-verified copy (token-free or not), or
     whose owner-token occurrences or ledger entries are not exactly that
     copy's: names the first line carrying an occurrence, else line 1."""
     number, column, excerpt = 1, 1, text
@@ -3524,7 +3519,7 @@ def _ungrammared_refusal(rel, text):
     )
 
 
-# A CSS url() value, read only in copied stylesheet assets (round 5): a
+# A CSS url() value, read only in copied stylesheet assets: a
 # <style> body or a style attribute of a rendered page is never a
 # destination, so a url() there can consume no ledger entry.
 _CSS_URL_RE = re.compile(
@@ -3534,16 +3529,16 @@ _CSS_URL_RE = re.compile(
 
 def _output_destinations(rel, text):
     """Every destination of one output, each from the output's OWN parser
-    and with its position (round 5): ``("url", where, cleaned value)`` for
+    and with its position: ``("url", where, cleaned value)`` for
     an HTML attribute URL candidate (srcset candidates and the meta
     refresh URL included), a CSS url() value of a stylesheet asset, or a
     destination field of a sitemap or line-format output; ``("text",
     where, data)`` for an HTML text node, which only an exact kind-other
-    ledger entry (a reviewed template text emission) can consume. Round 6: a
-    ``<base>`` start tag in an HTML output is refused outright (item 2),
-    as the template parser already does. Round 9: every other output is
-    read by its own allow-list grammar (``_output_grammar``; residual item
-    4), which takes a destination only from the shape that carries one
+    ledger entry (a reviewed template text emission) can consume. A
+    ``<base>`` start tag in an HTML output is refused outright,
+    as the template parser already does. Every other output is
+    read by its own allow-list grammar (``_output_grammar``; residual
+    (4) above), which takes a destination only from the shape that carries one
     and refuses any other shape by line and column; an output no grammar
     reads is refused here."""
     destinations = []
@@ -3608,10 +3603,10 @@ def _ledger_location(variant, rel):
 
 def _verify_repo_token_allowlist(variant, pages, ledger):
     """The allow-list check, per output file (HTML and non-HTML alike,
-    llms.txt included), round 5: destinations come from the output's own
+    llms.txt included): destinations come from the output's own
     parsers (``_output_destinations``), never from spans of the raw or
-    decoded text; the round 4 fixed boundary set and its "=" exception are
-    gone. Every token-bearing ledger entry must be consumed by exactly one
+    decoded text, so no fixed boundary set or "=" exception applies.
+    Every token-bearing ledger entry must be consumed by exactly one
     parsed destination whose WHATWG-cleaned value equals the entry's
     emitted string EXACTLY, with multiplicity (a destination consumes at
     most one entry, so a second entry needs a second equal destination,
@@ -3640,19 +3635,19 @@ def _verify_repo_token_allowlist(variant, pages, ledger):
         occurrences = _owner_token_occurrences(view, removed_before)
         grammar = _output_grammar(rel)
         if not entries and not occurrences and grammar == "css":
-            # An HTML output is always parsed (round 6, item 2), so a
-            # <base> element is refused even on a token-free page; round
-            # 9 reads the sitemap and every line-format output on every
+            # An HTML output is always parsed, so a
+            # <base> element is refused even on a token-free page; the
+            # sitemap and every line-format output are read on every
             # build too, so a shape outside its grammar (a CDATA section
             # that assembles the token the views never see, say) fails
-            # even where no token is visible; round 10, item 3 checks an
-            # output no grammar reads on every build as well.
+            # even where no token is visible; an output no grammar reads
+            # is checked on every build as well.
             continue
         if grammar is None:
-            # No grammar reads this output (round 9, residual item 4):
+            # No grammar reads this output (residual (4) above):
             # it passes only as one whole pin-verified copy
             # (_ledger_copied_output ledgers every copy, token-free ones
-            # included; round 10, item 3) whose entries grant exactly
+            # included) whose entries grant exactly
             # its occurrences.
             whole = [e for e in entries
                      if e[1] == _LEDGER_OTHER and e[0] == text]
@@ -3721,8 +3716,8 @@ def _verify_repo_ledger_rows(rows, ledger_counted):
     """The manifest/ledger cross-check: every manifest row corresponds to a
     counted ledger entry MATCHED in the output at the same target and
     location (``_verify_repo_token_allowlist`` returns these, so a counted
-    row is only ever derived from a link proven to survive into the output,
-    round 3, item 7), and every matched counted entry outside a staging
+    row is only ever derived from a link proven to survive into the
+    output), and every matched counted entry outside a staging
     tree appears as a manifest row."""
     missing = sorted(set(rows) - ledger_counted)
     if missing:
@@ -3745,15 +3740,14 @@ def _verify_repo_ledger_rows(rows, ledger_counted):
 def _llms_markdown_rows(text):
     """``(target, link text)`` for every counted corpus destination parsed
     from the llms.txt Markdown, in document order and WITH multiplicity
-    (round 4, item 1: the manifest's llms.txt rows come from the parsed
+    (the manifest's llms.txt rows come from the parsed
     destinations of the emitted map itself, as the HTML rows come from the
     rendered pages, not from a curated parallel list a destination edit
-    could drift from). Round 9: read by the llms.txt line grammar
+    could drift from). Read by the llms.txt line grammar
     (``_llms_links``), the same reading the allow-list consumes
     destinations by, so the rows and the guard can never read one map two
     ways; the grammar admits only the shapes ``render_llms_txt`` writes and
-    refuses any other by line and column (rounds 5 to 8 read a CommonMark
-    subset here instead)."""
+    refuses any other by line and column."""
     rows = []
     for label, dest, _ in _llms_links("llms.txt", text):
         target = _manifest_target(_clean_destination_value(dest))
@@ -3769,32 +3763,31 @@ def render_corpus_link_manifest(figures, variant, pages, ledger):
     RENDERED HTML pages of the indexable root variant alone (a staging
     tree's outputs are out of the manifest's declared scope) plus the
     corpus destinations parsed from the RENDERED llms.txt map itself
-    (``_llms_markdown_rows``, round 4, item 1), so the manifest
+    (``_llms_markdown_rows``), so the manifest
     cannot drift from the emitted links, whatever machinery emitted them.
-    Round 4: link URLs come whole from html.parser and are classified by
+    Link URLs come whole from html.parser and are classified by
     ``_manifest_target`` (urllib.parse), never by a pattern over the raw
-    text; round 1 of the link-guard follow-up widened the walk to EVERY
+    text; the walk covers EVERY
     attribute value (``_html_attribute_values``). The link text is the
     anchor's own text as the parser gives it (whitespace collapsed to keep
     the table rows well formed, a ``class="vh"`` span's hidden text
     excluded; the target's basename when the URL is not an anchor's href or
     the anchor has no text; the FIRST link's text wins for a repeated
     (target, page) pair, except that a later anchor's own text replaces a
-    file-name FALLBACK, round 2 of the link-guard follow-up). The repo-root
+    file-name FALLBACK). The repo-root
     and on-site links are not corpus-path targets and are excluded, matching
     the gate's scope. ``pages`` is the render_site output (dist-relative
-    path, content). Round 2 of the link-guard follow-up replaces the
-    occurrence denylist wholesale: the allow-list check
+    path, content). In place of an occurrence denylist, the allow-list
+    check
     (``_verify_repo_token_allowlist``) fails the build on any owner-token
     occurrence the emission ledger does not cover, in any output and any
     spelling, consuming every ledger entry by one PARSED destination whose
-    cleaned value equals it exactly, with multiplicity (round 3, item 7;
-    round 5 removed span matching), and the ledger cross-check
+    cleaned value equals it exactly, with multiplicity (no span
+    matching), and the ledger cross-check
     (``_verify_repo_ledger_rows``) binds the MATCHED counted
     entries and the manifest rows one to one, so no emitted spelling can
     bypass gate 75. ``ledger`` is the ledger of exactly this render
-    (render_site binds it to its result as ``pages.repo_ledger``, round 3,
-    item 8)."""
+    (render_site binds it to its result as ``pages.repo_ledger``)."""
     rows = {}  # (target, location) -> link_text, dedup-safe and deterministic
     fallback = set()  # rows labelled by the file-name fallback so far
     staging = _staging_prefixes()
@@ -3803,7 +3796,7 @@ def render_corpus_link_manifest(figures, variant, pages, ledger):
             continue
         if rel == "llms.txt" and isinstance(content, str):
             # The llms.txt rows, parsed from the emitted map itself with
-            # multiplicity (round 4, item 1); the FIRST link's text wins
+            # multiplicity; the FIRST link's text wins
             # for a repeated target, like the HTML rows below.
             for target, label in _llms_markdown_rows(content):
                 rows.setdefault((target, "llms.txt"), label)
@@ -3929,7 +3922,7 @@ def parse_taxonomy_full(text):
 def _doc_route_stem(path):
     """The route stem under documents/ for one document path: a corpus
     document's path without .md, or, for an adopter document (a top-level
-    *.md under ADOPTER_DOCS_HOME), ADOPTER_ROUTE_AREA/<name> (D-2257: the
+    *.md under ADOPTER_DOCS_HOME), ADOPTER_ROUTE_AREA/<name> (the
     adopter route is keyed by the adopter area, independent of the file's
     repository location). A corpus path that would land in the adopter
     route is a build error, so the two route spaces cannot collide."""
@@ -3940,7 +3933,7 @@ def _doc_route_stem(path):
     if stem.startswith(ADOPTER_ROUTE_AREA + "/"):
         raise BuildError(
             f"draft: document path '{path}' would publish under the adopter "
-            f"route /documents/{ADOPTER_ROUTE_AREA}/ (D-2257), which is "
+            f"route /documents/{ADOPTER_ROUTE_AREA}/, which is "
             f"reserved for {ADOPTER_DOCS_HOME}/*.md"
         )
     return stem
@@ -3977,8 +3970,7 @@ def _doc_page_url(base, path):
 # root specifications live in no corpus domain; their one area label is
 # "Library", shown the same way on the type pages and the documents index. The
 # adopter area (ADOPTER_DOCS_AREA, the .claude/skills/corpus-management/docs/
-# files) is labelled by what every file in it is, an adopter document (site
-# a9 round-4 WARN 1).
+# files) is labelled by what every file in it is, an adopter document.
 _DRAFT_DOMAIN_LABEL_OVERRIDES = {
     "ai": "AI", ROOT_DOMAIN: "Library", "docs": "Adopter documents",
 }
@@ -4015,7 +4007,7 @@ def draft_type_plural(type_name):
         ) from None
 
 
-# The adopter-document layer (site a9, maintainer decision 2026-11-03 14:59Z):
+# The adopter-document layer (maintainer decision 2026-11-03 14:59Z):
 # every top-level .claude/skills/corpus-management/docs/*.md adopter document
 # gets a draft document page and a row in the draft's generated listings,
 # like a corpus document. The adopter documentation lives in the skill's
@@ -4035,8 +4027,8 @@ def draft_type_plural(type_name):
 # directory. ADOPTER_DOCS_AREA is the area key the records carry in place
 # of a corpus domain (a registry key, never a path). ADOPTER_ROUTE_AREA is
 # the public route segment of every adopter document page,
-# /documents/adopter/<name>/ (maintainer decision D-2257-ADOPTER-ROUTE,
-# 2026-11-08): the route is keyed by the adopter area, never by
+# /documents/adopter/<name>/ (maintainer decision 2026-11-08): the route is
+# keyed by the adopter area, never by
 # ADOPTER_DOCS_HOME, so no public route, link or sitemap entry carries the
 # dot-prefixed skill directory.
 ADOPTER_DOCS_HOME = ".claude/skills/corpus-management/docs"
@@ -4046,8 +4038,8 @@ ADOPTER_ROUTE_AREA = "adopter"
 
 _ADOPTER_FIELD_RE = re.compile(r"^\*\*([^*]+):\*\*\s*(.*?)\s*$")
 # Any Markdown link in a Related Documents value; the kept form is a
-# backticked text over a .md target (round-3 note 5: every other link was
-# dropped silently, so each one now fails the build).
+# backticked text over a .md target (every other link was once dropped
+# silently, so each one now fails the build).
 _ADOPTER_LINK_RE = re.compile(r"\[([^\]]*)\]\(([^)]*)\)")
 _ADOPTER_LINK_TEXT_RE = re.compile(r"^`[^`]+`$")
 
@@ -4064,7 +4056,7 @@ ADOPTER_REQUIRED_FIELDS = (
 # gate applies to the corpus documents (the VERSION_RE of the engine behind gate
 # lint-metadata, .claude/skills/corpus-management/tools/lint-metadata.py) and the maturity heuristic reads
 # (.claude/skills/corpus-management/tools/build-portal.py classify_maturity), restricted to ASCII digits
-# (round-4 WARN 2: the round-3 no-leading-zero rule refused versions the
+# (a former no-leading-zero rule refused versions the
 # corpus gate accepts). A leading zero is accepted, as there. Then the ISO
 # calendar-date form.
 _ADOPTER_VERSION_RE = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+$")
@@ -4079,8 +4071,8 @@ _ADOPTER_RUNIN_RE = re.compile(r"^\*\*[^*]{1,40}?[.:]\*\*\s+")
 def _tracked_repo_files():
     """The set of git-tracked repo-relative paths (paths only, never file
     content), the authority for the adopter Related Documents check: every
-    kept target must be a tracked file inside the repository (round-4 note
-    4). Fails LOUD when git cannot answer, like _tracked_executive_paths,
+    kept target must be a tracked file inside the repository. Fails LOUD
+    when git cannot answer, like _tracked_executive_paths,
     with the same one-invocation safe.directory trust."""
     try:
         proc = subprocess.run(
@@ -4120,7 +4112,7 @@ def _adopter_flatten(text):
     (mirrors the taxonomy generator's flattener for corpus purposes). A
     leading bold run-in label is dropped, not flattened: it labels the
     paragraph in source, and a lede that kept it would open "Purpose. A
-    public bibliography..." (round-2 note 1)."""
+    public bibliography..."."""
     text = _ADOPTER_RUNIN_RE.sub("", text)
     text = re.sub(r"\[`?([^\]`]+)`?\]\([^)]*\)", r"\1", text)
     text = re.sub(r"\*\*([^*]+)\*\*", r"\1", text)
@@ -4134,7 +4126,7 @@ def _adopter_metadata(text, rel):
     (mirrors the taxonomy generator's metadata reader). Only lines before the
     first code fence, horizontal rule, or section heading are read, so a
     fenced example document (governance/worked-example.md carries a whole one) can
-    never read as the file's own block (round-2 error 1), and a file with no
+    never read as the file's own block, and a file with no
     leading block fails the build loudly instead of rendering something
     else."""
     fields = {}
@@ -4152,8 +4144,8 @@ def _adopter_metadata(text, rel):
             value = value.strip()
             if value.endswith("\\"):
                 value = value[:-1].rstrip()
-            # A repeated field name would overwrite the first value silently
-            # (round-3 WARN 2), so the page could show either; refuse it.
+            # A repeated field name would overwrite the first value
+            # silently, so the page could show either; refuse it.
             name = name.strip()
             if name in fields:
                 raise BuildError(
@@ -4306,16 +4298,16 @@ def parse_adopter_docs():
                 f"adopter doc {rel} has document type '{doc_type}' outside "
                 "DRAFT_TYPE_PLURALS (add one to .web/build.py)"
             )
-        # The link TARGET names the related file (round-2 fix 7: the link
-        # text is display prose and nothing holds it to the repo path);
+        # The link TARGET names the related file (the link text is
+        # display prose and nothing holds it to the repo path);
         # normalize it relative to ADOPTER_DOCS_HOME, the adopter file's own
         # directory, where these links resolve from.
         # A link without backticked text or a .md target, and any entry
         # that is not a link at all, fails the build instead of dropping
-        # from the page silently (round-3 note 5). A kept target must be a
+        # from the page silently. A kept target must be a
         # tracked file inside the repository: an absolute URL, a path
         # outside the repository, and a missing file each rendered as a
-        # broken link (round-4 note 4).
+        # broken link.
         related = []
         value = meta["Related Documents"]
         for m in _ADOPTER_LINK_RE.finditer(value):
@@ -4378,7 +4370,7 @@ def parse_adopter_docs():
 # DRAFT_TYPE_PLURALS: a registry narrative_type with no entry is a build
 # error, so a new narrative type cannot publish without its index. Each slug
 # is its heading in kebab case, at most a leading qualifier dropped (briefs,
-# question-sets). Site review F16: the decision narratives index sat at
+# question-sets). The decision narratives index sat at
 # decide/choices/, a third name beside its heading and its
 # decisions/decision-narratives/ pages; its slug is now the heading whole,
 # since "narratives" alone would name all six kinds, and _redirects maps the
@@ -4891,7 +4883,7 @@ DRAFT_NEEDS = (
 # The govern path's staged-step artefacts, template placeholder -> (repo
 # path, link label). The adopter documents (.claude/skills/corpus-management/docs/)
 # are outside .claude/skills/corpus-management/data/taxonomy.yml
-# (design D gap G1) but render draft document pages since site a9, so each
+# (design D gap G1) but render draft document pages, so each
 # link resolves to the artefact's draft document page where the taxonomy or
 # the adopter documents carry it, else to its GitHub source, and a path
 # missing from the repository fails the build instead of publishing a dead
@@ -4929,8 +4921,8 @@ DRAFT_GOVERN_ARTEFACTS = {
 # programme-maturity concern page appended in draft_govern_values. Each type
 # maps to its role clause, the clause the Lands sentence carries, so the
 # sentence's type count and clauses come from this one table. The clauses
-# read generic singular, the type's role (site review batch B5 F40:
-# "roadmaps stage it" overstated a type holding one corpus document; the
+# read generic singular, the type's role ("roadmaps stage it"
+# overstated a type holding one corpus document; the
 # rows beside the sentence carry the honest counts).
 DRAFT_GOVERN_LANDING_DOMAINS = ("governance", "compliance")
 DRAFT_GOVERN_LANDING_TYPES = {
@@ -4999,7 +4991,7 @@ def _draft_wrapping_path(text):
     """Escaped ``text`` with a <wbr> after each slash (after the pair in
     "//"), so a web address or corpus path shown as link text can wrap where
     the browser finds no other break; unbroken, one widened its page past
-    320 px (item 3b788). The text still reads, and copies, the same."""
+    320 px. The text still reads, and copies, the same."""
     return re.sub("/(?!/)", "/<wbr>", _esc(text))
 
 
@@ -5010,11 +5002,10 @@ def _draft_wrapping_path(text):
 # light and dark), every one of 17 letters or fewer fits with at least 12 px
 # to spare, the widest "Pseudonymization" (16 letters, 275.2 px in the dark
 # scheme), while "Telecommunications" (18 letters, 307.4 px in dark) runs
-# 19 px past the box and widened its page to 323 px (item 3b788). At the
-# widest rate measured, "Management"'s 19.6 px a letter, only 14 letters
-# (274 px) fit, so the test holds each h1 piece of more than 14 letters, a
-# whole word or a piece of a split one, to the ones measured (item 3b788 lows
-# round 1).
+# 19 px past the box and widened its page to 323 px. At the widest rate
+# measured, "Management"'s 19.6 px a letter, only 14 letters (274 px) fit, so
+# the test holds each h1 piece of more than 14 letters, a whole word or a
+# piece of a split one, to the ones measured.
 DRAFT_TITLE_RUN_MAX = 17
 _DRAFT_TITLE_RUN_RE = re.compile(rf"[^\W\d_]{{{DRAFT_TITLE_RUN_MAX + 1},}}")
 _DRAFT_VOWELS = frozenset("aeiouyAEIOUY")
@@ -5064,7 +5055,7 @@ _DRAFT_NARR_LINK_RE = re.compile(
 )
 # A body table sits in the baseline's .tablewrap, so a table wider than the
 # page scrolls inside that box and not the page: the outcome maps' nowrap
-# uppercase headers made the page 522 px wide at 320 px (item 3b788).
+# uppercase headers made the page 522 px wide at 320 px.
 _DRAFT_NARR_TABLE_RE = re.compile(r"<table>(.*?)</table>", re.S)
 
 # ---------------------------------------------------------------------------
@@ -5115,11 +5106,11 @@ CROSSWALK_COMPLIANCE_COLUMNS = (
 )
 
 # The compliance matrix's own statement that its AICPA TSC 2017 column is
-# still being populated, with the condition on that column's N/A (batch 3
-# round 4 item 1). The AICPA TSC instrument page says the column is being
+# still being populated, with the condition on that column's N/A. The
+# AICPA TSC instrument page says the column is being
 # populated only while the matrix carries this sentence, so it is pinned here.
 # It may stand only in the reading-guide paragraph: anywhere else in the
-# matrix it fails the build (batch 3 follow-up round 2 item 1). A reworded
+# matrix it fails the build. A reworded
 # status outside the "How to use this matrix" section is not read and does
 # not fail the build.
 CROSSWALK_TSC_POPULATING = (
@@ -5129,8 +5120,8 @@ CROSSWALK_TSC_POPULATING = (
     "assert that no criterion applies."
 )
 
-# The compliance matrix's reading-guide paragraph without that sentence (batch
-# 3 round 6 item 1). The paragraph is pinned whole: it reads exactly this
+# The compliance matrix's reading-guide paragraph without that sentence. The
+# paragraph is pinned whole: it reads exactly this
 # (the column is not being populated) or this, a space, and
 # CROSSWALK_TSC_POPULATING (it is), and any other text fails the build, so no
 # rewording of the status can pass as either form. It is found by position,
@@ -5152,7 +5143,7 @@ CROSSWALK_TSC_READING_GUIDE = (
 CROSSWALK_COMPLIANCE_KEY_HEADER = ("Column", "Framework", "Reference Basis")
 
 # The compliance matrix's "How to use this matrix" section, pinned whole from
-# its heading to the --- that ends it (batch 3 follow-up round 2 item 1): the
+# its heading to the --- that ends it: the
 # heading, a blank line, CROSSWALK_TSC_SECTION_OPENING (the intro and
 # representative-citation paragraphs and the framework column key list), a
 # blank line, the reading-guide paragraph in one of its two forms, a blank
@@ -5246,7 +5237,7 @@ CROSSWALK_CELL_ID_CAP = 6
 # The crosswalk table's pinned column (spec 7.31 pin-cap and pin-r<N>,
 # restated in 7.34 item 1.3): the domain names are 1 or 2 short words, so
 # its cap is 10rem, not the default 15rem. No crosswalk table is
-# table.fixed (review round 1 WARN): baseline.css gives a table width: 100%
+# table.fixed: baseline.css gives a table width: 100%
 # and table.fixed a 56rem minimum, and in fixed layout every column has a
 # set width (the pinned one from its cells), so a table wider than its
 # columns spreads the rest over all of them, the pinned column past its cap.
@@ -5256,8 +5247,8 @@ CROSSWALK_CELL_ID_CAP = 6
 # goes to the data columns, which set no width, and the pinned column is
 # never wider than its cap; so there is no colgroup. A column is at least
 # as wide as its header, which keeps 1 line outside table.fixed, so the
-# full table still grows past the page and scrolls sideways (review rounds
-# 2 and 3, measured in headless Chrome: the full
+# full table still grows past the page and scrolls sideways (measured in
+# headless Chrome: the full
 # table scrolled at 390px and 1512px, and the pinned column was never wider
 # than its 160px cap).
 CROSSWALK_PIN_CLASS = "pin-r10"
@@ -5428,11 +5419,11 @@ CROSSWALK_BY_KEY = {inst.key: inst for inst in CROSSWALK_INSTRUMENTS}
 # vanishing. An alias naming no configured instrument, or an instrument whose
 # register_id resolves to no register row, is a build error. A spelling on a
 # concern page that cites an instrument by one of its clauses, articles or
-# control identifiers names that instrument and is aliased too (integration
-# round 2 ERROR: the concern pages showed such names as plain text beside a
+# control identifiers names that instrument and is aliased too (the concern
+# pages showed such names as plain text beside a
 # linked short form), and so is every other taxonomy spelling naming exactly
-# one instrument, wherever it sits (XW-GDPR-CHIP-2128 review follow-up 2:
-# spellings such as "GDPR Art. 15" and "COBIT 2019 DSS05" rendered unlinked
+# one instrument, wherever it sits (spellings such as "GDPR Art. 15" and
+# "COBIT 2019 DSS05" rendered unlinked
 # and counted on no page); an unaliased spelling counts toward no
 # instrument. Guidance, a profile, or a regulation made under an instrument
 # is a separate text and is not aliased.
@@ -5619,8 +5610,8 @@ CROSSWALK_ALIASES = {
 
 # Exact taxonomy framework strings that join several texts with " / ",
 # " and " or ", ": each part, in order, with the instrument it names, or
-# None for a part naming a text that is no crosswalk instrument (integration
-# round 3 WARN: the Data Protection Act 2018 and ISO/IEC 27002 linked whole
+# None for a part naming a text that is no crosswalk instrument (the Data
+# Protection Act 2018 and ISO/IEC 27002 once linked whole
 # to the UK GDPR and ISO/IEC 27001 pages; ISO/IEC 27002 has since gained its
 # own page, so that part now names it). The parts rejoined with one of
 # CROSSWALK_ALIAS_PARTS_JOINERS must give the string back, every key must
@@ -5629,12 +5620,12 @@ CROSSWALK_ALIASES = {
 # each instrument it names and nothing it does not. Only the listed strings
 # are split: " and " and ", " also sit inside many single names in the
 # taxonomy ("DORA Articles 17 and 19", "CSA Security Trust Assurance and
-# Risk (STAR)", "CSA CCM v4.1 SEF-08, SEF-03"), so no other string is split
-# on them (item 3b788 draft round 2). A string joining texts none of which
-# is a crosswalk instrument stays whole (finding XW-GDPR-CHIP-2128 sweep).
+# Risk (STAR)", "CSA CCM v4.1 SEF-08, SEF-03"), so no other string is split on
+# them. A string joining texts none of which is a crosswalk instrument stays
+# whole.
 # A part that is a filler word naming no text at all carries
-# CROSSWALK_PART_FILLER instead of None (XW-GDPR-CHIP-2128 review follow-up
-# 1: the "equivalents" part of "GDPR / UK GDPR / equivalents" rendered as a
+# CROSSWALK_PART_FILLER instead of None (the "equivalents" part of
+# "GDPR / UK GDPR / equivalents" rendered as a
 # search chip, and its search found unrelated documents). Each such part is
 # marked here by hand, never inferred from the word: it renders as plain,
 # unlinked text inside its document chip, counts toward no instrument and is
@@ -5650,8 +5641,8 @@ CROSSWALK_ALIAS_PARTS = {
         ("CTPAT", "ctpat"), ("PIP", "pip"), ("BASC", "basc")),
     "EU AI Act, GDPR": (
         ("EU AI Act", "eu-ai-act"), ("GDPR", "gdpr")),
-    # Finding XW-GDPR-CHIP-2128: the BMS overlay annex's one chip linked
-    # none of the three texts it names.
+    # Split so the BMS overlay annex's one chip, which linked none of the
+    # three texts it names, links each instrument it names.
     "GDPR / UK GDPR / CCPA": (
         ("GDPR", "gdpr"), ("UK GDPR", "gdpr"), ("CCPA", None)),
     "GDPR / UK GDPR / equivalents": (
@@ -5674,7 +5665,7 @@ CROSSWALK_ALIAS_PARTS = {
 
 # Exact taxonomy framework strings naming a text that is NO crosswalk
 # instrument, mapped to the one display spelling the concern pages show for
-# that text (review round 2 item 4: the round-1 dedupe collapsed only the
+# that text (an earlier dedupe collapsed only the
 # instrument-aliased spellings, so near-duplicate plain names such as
 # "ETSI EN 304 223 V2.1.1" beside "ETSI EN 304 223 V2.1.1 (2025-12)" still
 # sat side by side). Like the instrument maps, only exact spellings are
@@ -5740,14 +5731,14 @@ def crosswalk_parts_joiner(name, parts):
 
 def normalize_concern_frameworks(names):
     """The concern page's framework list, normalized against the committed
-    alias maps before listing and counting (full-site review B4 F07: one
+    alias maps before listing and counting (one
     chip per raw taxonomy spelling put EU AI Act and EU AI Act (2024) side
     by side, both linking one instrument page). Every spelling either
     instrument map resolves collapses into one entry per instrument it
     names, shown as the instrument's short label; a compound's part naming
     no instrument, and a spelling outside both maps, each stay one
-    plain-text entry, normalized through CONCERN_PLAIN_ALIASES (review
-    round 2 item 4) so near-duplicate spellings of one non-instrument text
+    plain-text entry, normalized through CONCERN_PLAIN_ALIASES so
+    near-duplicate spellings of one non-instrument text
     collapse too. A filler part (CROSSWALK_PART_FILLER) names no text and
     is no entry at all. Returns (display, key) pairs, key None for plain
     text, sorted by display."""
@@ -5925,7 +5916,7 @@ def refuse_draft_page(out_rel, html):
     for what, pattern in _DRAFT_REFUSALS:
         if pattern.search(html):
             raise BuildError(f"draft refusal guard: {out_rel} contains {what}")
-    # Round-3 WARN: an exact spelling list missed valid entity forms (no
+    # An exact spelling list missed valid entity forms (no
     # trailing semicolon, leading zeros, the Windows-1252 code points), each
     # of which a browser decodes to a dash. Decode once and scan for the
     # literal characters instead, so every spelling that renders as a dash is
@@ -6230,8 +6221,8 @@ def _draft_series(items):
 
 def draft_landing_values(figures, docs_by_path):
     gov = _draft_domain_page(figures, DRAFT_EXAMPLE_DOMAIN)
-    # Site review batch B5 F24: the Open a document card never named its
-    # target; the description opens with the example document's taxonomy
+    # The Open a document card names its target: the description opens
+    # with the example document's taxonomy
     # title, so a renamed document renames the card on the next build.
     example = docs_by_path[DRAFT_EXAMPLE_DOC]
     return {
@@ -6281,7 +6272,7 @@ def draft_browse_values(figures, adopter_docs, xw):
         for g in adopter_docs
     )
     # The type counts here are corpus counts while the search page's list
-    # carries the adopter documents too (site a9 round-3 WARN 1), so this
+    # carries the adopter documents too, so this
     # line states each scope from the same figures and both pools read true
     # where shown and where they lead.
     total, root = figures["total"], figures["root_count"]
@@ -6294,8 +6285,8 @@ def draft_browse_values(figures, adopter_docs, xw):
         f"{'document' if n_guides == 1 else 'documents'} listed below "
         f"{'is' if n_guides == 1 else 'are'} not counted here."
     )
-    # Site review batch B5 F27: the meta's "plus N library specifications"
-    # and the Specification type row read as a contradiction; one clause
+    # The meta's "plus N library specifications" and the Specification
+    # type row read as a contradiction, so one clause
     # splits the row's count, present exactly when the two numbers differ.
     spec_total = dict(figures["types"]).get("Specification", 0)
     if root and spec_total > root:
@@ -6311,7 +6302,7 @@ def draft_browse_values(figures, adopter_docs, xw):
         "the library specifications."
     )
     # A full sentence, singular for one file, naming the metadata block each
-    # entry is read from (round-3 note 4).
+    # entry is read from.
     if n_guides == 1:
         guide_intro = (
             f"The {n_guides} adopter document in the Adopter documents area is "
@@ -6326,7 +6317,7 @@ def draft_browse_values(figures, adopter_docs, xw):
             "Each entry is read from the leading metadata block of its file, "
             "so the list follows the repository at every build."
         )
-    # Site review batch B5 F09: the By instrument heading sat over a lone
+    # The By instrument heading once sat over a lone
     # sentence with no list, unlike its sibling sections, and its full-table
     # count was never squared with the number of instrument pages. One row
     # per configured instrument, in configured order, each landing on its
@@ -6421,7 +6412,7 @@ def _draft_search_row(d, facets=False):
     # Every corpus document gets a row, and its data-search text carries the
     # title, type, area, the full purpose, and the framework names, with
     # whitespace collapsed, so a query matches everything the page says it
-    # matches (round-1 defects: a 36-row cap left most queries empty, and a
+    # matches (a former 36-row cap left most queries empty, and a
     # 200-character purpose cut lost matches for the page's own examples).
     haystack = " ".join(" ".join(
         [d.get("title", ""), d.get("type", ""), label,
@@ -6447,7 +6438,7 @@ def draft_search_values(full_docs, adopter_docs):
     # type and area chips and the "Recently updated" framing duplicated
     # Browse and are gone; the full list stays as search.js's scope and as
     # the page's content without script. Every corpus domain document and
-    # every adopter document (ADOPTER_DOCS_HOME) gets a row (site a9), one
+    # every adopter document (ADOPTER_DOCS_HOME) gets a row, one
     # dated pool. The
     # scope runs in results mode (spec 7.29): with script no row shows until
     # the reader types, so no sentence may say the rows are listed below,
@@ -6465,10 +6456,10 @@ def draft_search_values(full_docs, adopter_docs):
     # every row carries it; a purpose only some rows state is qualified with
     # the generated count of rows that do. Frameworks are never counted: a
     # raw taxonomy frameworks list can hold extraction fragments rather than
-    # frameworks (review round 2 WARN), so the clause is qualified in words
+    # frameworks, so the clause is qualified in words
     # and stays true however that data stands. Browse calls the groupings
-    # domains, so the prompt does too (review round 2 NOTE); with the adopter
-    # documents in the pool (site a9) the adopter area is no domain, so the
+    # domains, so the prompt does too; with the adopter
+    # documents in the pool the adopter area is no domain, so the
     # prompt counts the two pools apart and the field is the row's area.
     n_adopter = len(adopter_docs)
     noun = "document" if len(rows) == 1 else "documents"
@@ -6488,7 +6479,7 @@ def draft_search_values(full_docs, adopter_docs):
     clauses.insert(0, "by " + ", ".join(fields[:-1]) + ", and " + fields[-1])
     if len(clauses) > 1:
         clauses[-1] = "and " + clauses[-1]
-    # Site review batch B5 F08 and F11: the prompt said domains and area in
+    # The prompt once said domains and area in
     # one sentence without tying the two words together, and the library
     # specifications dropped out of the pool with no word on it. One sentence
     # defines area where the adopter documents make the two differ, and one
@@ -6520,7 +6511,7 @@ def draft_search_values(full_docs, adopter_docs):
         **_draft_nav("search"),
         "SEARCH_PROMPT": head + ", ".join(clauses) + "." + tail,
         # The status prompt names the fields a row's data-search text holds,
-        # never the whole document (round-1 NOTE: "it holds every word" read
+        # never the whole document ("it holds every word" read
         # as full text, which only GitHub searches); purpose and frameworks
         # are qualified, as the prompt above qualifies them.
         "SEARCH_STATUS_PROMPT": (
@@ -6561,7 +6552,7 @@ def draft_documents_values(full_docs):
     # specifications included, as the type pages do.
     by_type = Counter(d.get("type", "") for d in full_docs)
     # A chip filters the rows below, so its count is recounted from those
-    # rows alone (round-1 ERROR on this page: a chip that linked a type page
+    # rows alone (a chip that once linked a type page
     # counted other documents than its landing showed); the chip links its
     # own facet address, never a page with a different count.
     type_names = {type_slug(d.get("type", "")): d.get("type", "")
@@ -6658,9 +6649,9 @@ def draft_domain_values(dp, docs_by_path, next_url, next_label,
         **_draft_nav("browse"),
         "DOMAIN_LABEL": _esc(label),
         "DOMAIN_META": f"{dp['count']} {noun}. {_esc(dp['scope'])}.",
-        # The page's meta description (item 3b788), fed to the injected
-        # og:description by draft_head_tag_block: the domain, its recomputed
-        # count and its curated scope line.
+        # The page's meta description, fed to the injected og:description by
+        # draft_head_tag_block: the domain, its recomputed count and its
+        # curated scope line.
         "DOMAIN_DESC": _esc(
             f"The {label} domain of the open GRC Library: {dp['count']} "
             f"{noun}. {dp['scope']}."
@@ -6696,7 +6687,7 @@ def draft_loaded_scripts(htmls, prefix):
 
 def draft_disclosure_values(scripts):
     """Entry 6's evidence links every runtime script the draft pages load,
-    generated from the rendered pages (round-2 NOTE: a typed list left out
+    generated from the rendered pages (a typed list once left out
     rail.js)."""
     links = " ".join(
         f'<a href="{_esc(repo_blob_url(".web/baseline/" + name))}"'
@@ -6723,11 +6714,10 @@ def draft_license_values(pin_path=None):
 def draft_doc_purpose(doc):
     """A document's taxonomy purpose, or a generated line when it has none
     (shared by the document page lead and the type page rows). A purpose
-    ending with a colon introduces a list the lead never shows (item 3b788
-    site review F10: six leads ended mid-promise), so the trailing
-    colon-terminated fragment is dropped back to the last whole sentence,
-    and a purpose that is only that fragment keeps its text with the colon
-    closed to a full stop."""
+    ending with a colon introduces a list the lead never shows (six leads
+    once ended mid-promise), so the trailing colon-terminated
+    fragment is dropped back to the last whole sentence, and a purpose that is
+    only that fragment keeps its text with the colon closed to a full stop."""
     purpose = doc.get("purpose", "")
     if not purpose:
         purpose = (
@@ -6748,10 +6738,10 @@ def draft_type_values(tp, docs_by_path, next_url, next_label, adopter_docs=()):
     # related-documents list does; their area label is the documents index's.
     # The adopter documents (ADOPTER_DOCS_HOME) of the type follow in their own
     # labelled
-    # list (integration round 2 WARN: the page said every document of the
+    # list (the page once said every document of the
     # type while listing only the corpus ones); the corpus list stays apart,
-    # so the index's type chip still counts its corpus-area rows (site f1:
-    # a chip counts the rows it filters, which no library specification is).
+    # so the index's type chip still counts its corpus-area rows (a chip
+    # counts the rows it filters, which no library specification is).
     rows = []
     for d in tp["docs"]:
         doc = docs_by_path.get(d["path"], d)
@@ -6819,8 +6809,8 @@ def draft_type_values(tp, docs_by_path, next_url, next_label, adopter_docs=()):
     # them from this page's own lists and says so when the library
     # specifications or the adopter documents this page also lists stay out.
     # The sentence follows the adopter block, so a part names its whole as
-    # the page's documents, never "these" (batch 3 round 2 WARN: "these"
-    # read as the adopter documents just above it).
+    # the page's documents, never "these" ("these" read as the adopter
+    # documents just above it).
     in_index = [d for d in tp["docs"] if d["domain"] != ROOT_DOMAIN]
     filter_section = ""
     if in_index:
@@ -6834,14 +6824,14 @@ def draft_type_values(tp, docs_by_path, next_url, next_label, adopter_docs=()):
             held = (f"the {len(in_index)} of this page's {total} documents "
                     "that sit in a corpus area")
         # One document leaves the area chips and the text filter nothing to
-        # narrow, so the clause saying they narrow "them" goes (round-1
-        # NOTE: Checklists and Roadmaps each list one document); rows that
+        # narrow, so the clause saying they narrow "them" goes
+        # (Checklists and Roadmaps each list one document); rows that
         # all sit in one area leave the area chips nothing to narrow, so only
         # the text filter is named (integration note: Guides, Principles,
         # SOPs and Specifications each sit in one area). From the 1.7.0
         # baseline an area chip holding none of the type's rows is
         # unavailable there, which narrows nothing either, so the clause
-        # names only the area chips holding them (adoption round-2 NOTE).
+        # names only the area chips holding them.
         if len(in_index) == 1:
             narrow = ""
         elif len({d["domain"] for d in in_index}) == 1:
@@ -6859,9 +6849,9 @@ def draft_type_values(tp, docs_by_path, next_url, next_label, adopter_docs=()):
         **_draft_nav("browse"),
         "TYPE_HEADING": _esc(draft_type_plural(tp["type"])),
         "TYPE_META": f"{meta}. {_esc(tp['scope'])}.",
-        # The page's meta description (item 3b788), fed to the injected
-        # og:description by draft_head_tag_block: the type, its recomputed
-        # counts and its TYPE_SCOPE line.
+        # The page's meta description, fed to the injected og:description by
+        # draft_head_tag_block: the type, its recomputed counts and its
+        # TYPE_SCOPE line.
         "TYPE_DESC": _esc(
             f"{draft_type_plural(tp['type'])} in the open GRC Library: "
             f"{meta}. {tp['scope']}."
@@ -6895,10 +6885,10 @@ def draft_document_values(doc, docs_by_path):
             for s in sections
         ]
         items = "\n".join(f"<li>{label}</li>" for label in labels)
-        # More than 15 single-word headings (the glossary's letter index)
-        # read as one bullet per line down the page (item 3b788 site review
-        # F22), so such an outline takes the stylesheet's multi-column plan
-        # idiom; any other outline stays a plain list.
+        # More than 15 single-word headings (the glossary's letter index) read
+        # as one bullet per line down the page, so
+        # such an outline takes the stylesheet's multi-column plan idiom; any
+        # other outline stays a plain list.
         ul_class = (
             ' class="plan three"'
             if sum(1 for label in labels if " " not in label) > 15
@@ -6908,9 +6898,9 @@ def draft_document_values(doc, docs_by_path):
     # The record's Type opens its /types/ page (every rendered document's
     # type has one: an adopter type no taxonomy document carries fails the
     # build) and Category opens the document's domain page, where one
-    # exists (the root and adopter areas have none). Item 3b788 site review
-    # F04: both rendered as plain text, so a document page carried no link
-    # to its own domain or type hub.
+    # exists (the root and adopter areas have none). Both once rendered as
+    # plain text, so a document page carried no link to its own domain or
+    # type hub.
     record_rows = []
     for field, key in DRAFT_RECORD_FIELDS:
         if not doc.get(key):
@@ -6933,12 +6923,11 @@ def draft_document_values(doc, docs_by_path):
         # map resolves, and any other name or part keeps the search already
         # run for it (the ?q= address search.js reads on load, spec 7.29;
         # design B 5.5: a bare search link lost the framework the reader
-        # clicked). Item 3b788 site review F15: every chip searched even
+        # clicked). Every chip once searched even
         # where the instrument page exists, while the concern pages already
         # linked the same names to their crosswalk pages. A filler part
         # (CROSSWALK_PART_FILLER) names no text, so it stays plain, unlinked
-        # text: its search found unrelated documents (XW-GDPR-CHIP-2128
-        # review follow-up 1).
+        # text: its search found unrelated documents.
         chips = []
         for f in doc["frameworks"]:
             key = CROSSWALK_ALIASES.get(f)
@@ -7025,7 +7014,7 @@ def draft_narrative_body(body_html, source_rel, pages_by_path=None):
     target is a page in ``pages_by_path`` (the merged taxonomy-plus-adopter
     lookup) outside the root domain lands on its on-site document page
     instead: the briefs cited every governing document as raw Markdown on
-    GitHub although the site renders a page for each (site triage F30). The
+    GitHub although the site renders a page for each. The
     page's own "Read the source on GitHub" link keeps the explicit GitHub
     route, and a target with no page (a README, a root specification, a
     sibling narrative source) keeps its blob link in the external form."""
@@ -7064,8 +7053,8 @@ def draft_narrative_body(body_html, source_rel, pages_by_path=None):
         )
     # The wrapper is a keyboard focus stop (tabindex="0"), so it carries a
     # name AT can announce: role="region" plus an aria-label naming the
-    # table from its preceding section heading (review round 2 item 4: the
-    # round-1 "Table n" told a reader which table, not what it holds; the
+    # table from its preceding section heading (a former
+    # "Table n" told a reader which table, not what it holds; the
     # constrained renderer has no table captions, so the nearest heading is
     # the table's name). Several tables under one heading are told apart by
     # position, and a table before any heading keeps the counted fallback.
@@ -7118,9 +7107,9 @@ def draft_narrative_values(page, body_html, toc, pages_by_path=None):
         **_draft_nav("decisions"),
         "NARRATIVE_TYPE": _esc(page["narrative_type"]),
         "NARRATIVE_H1": _esc(page["title"]),
-        # The page's meta description (item 3b788), fed to the injected
-        # og:description by draft_head_tag_block: the registry title, the
-        # narrative type and the layer's standing qualifier.
+        # The page's meta description, fed to the injected og:description by
+        # draft_head_tag_block: the registry title, the narrative type and the
+        # layer's standing qualifier.
         "NARRATIVE_DESC": _esc(
             f"{page['title']}: a {page['narrative_type'].lower()} page from "
             "the GRC Library's executive layer. It explains and advises; "
@@ -7175,9 +7164,9 @@ def draft_subtype_values(figures, narrative_type):
         **_draft_nav("decisions"),
         "SUBTYPE_LABEL": _esc(label),
         "SUBTYPE_META": f"{len(members)} {noun}. {_esc(question)}",
-        # The page's meta description (item 3b788), fed to the injected
-        # og:description by draft_head_tag_block: the subtype label, its
-        # recomputed count and its board question.
+        # The page's meta description, fed to the injected og:description by
+        # draft_head_tag_block: the subtype label, its recomputed count and
+        # its board question.
         "SUBTYPE_DESC": _esc(
             f"{label} in the GRC Library's executive layer: {len(members)} "
             f"{noun}. {question}"
@@ -7203,7 +7192,7 @@ def _concern_gap_mark(concern):
     where no leadership page maps to the concern, else nothing. The row's
     counts sit in its <small> line instead: .plan li .n is nowrap in a
     minmax(0, 1fr) auto grid, so a full count there took the row at 320 px
-    and shrank the question column to nothing (item 3b788)."""
+    and shrank the question column to nothing."""
     if concern["mapped_pages"]:
         return ""
     return '<span class="n">declared gap</span>'
@@ -7290,9 +7279,9 @@ def draft_concern_values(concern):
     ]
     # The sentences that describe what this page links are chosen by whether
     # the concern has mapped pages, so each stays true on a declared-gap page
-    # (round-1 review: three intros claimed leadership pages a gap page lacks),
-    # and the shelf sentences agree in number with the shelf (round-3: a
-    # one-document gap shelf read as plural).
+    # (three intros once claimed leadership pages a gap page lacks),
+    # and the shelf sentences agree in number with the shelf (a
+    # one-document gap shelf once read as plural).
     one_doc = len(docs) == 1
     if one_doc:
         shelf_close = (
@@ -7371,8 +7360,8 @@ def draft_concern_values(concern):
         for d in docs
     )
     if concern["frameworks"]:
-        # The list arrives normalized from draft_concern_join (full-site
-        # review B4 F07): one chip per crosswalk instrument the documents'
+        # The list arrives normalized from draft_concern_join: one chip
+        # per crosswalk instrument the documents'
         # alignments name, as its short label, linking its instrument page
         # (the crosswalk ships on this branch); a cited text naming no
         # instrument stays plain text, never a guessed link.
@@ -7490,7 +7479,7 @@ def draft_comply_values(figures, docs_by_path, xw):
     the corpus" alike), each row landing on its instrument page with the
     generated count of library documents the matrices map to it or whose
     framework alignment names it in a form the committed alias maps carry
-    (integration round 3 WARN: a name in any other form is not counted, and
+    (a name in any other form is not counted, and
     the page says so); the sentence saying how the crosswalk
     shows them, generated from the same main_table split the crosswalk table
     and its "Also in the corpus" index use; the not-listed branch; and the
@@ -7508,8 +7497,8 @@ def draft_comply_values(figures, docs_by_path, xw):
         # design C 3.4 column kept while the matrix populates it) says why
         # the 0 stands beside instruments with counts, generated from the
         # same parsed matrix status the crosswalk caveats use, so the note
-        # disappears the moment mappings land (site triage F28). The note
-        # is a sentence, so it ends with a full stop (review round 3 item 2).
+        # disappears the moment mappings land. The note
+        # is a sentence, so it ends with a full stop.
         note = ""
         if inst.main_table and not paths:
             note = (
@@ -7613,7 +7602,7 @@ def draft_solutions_values(figures, concerns):
             noun = ("governing document" if len(page["sources"]) == 1
                     else "governing documents")
             # The count sits in the wrapping <small> line, the .n slot
-            # keeps only the page kind (item 3b788, as on the concern rows).
+            # keeps only the page kind, as on the concern rows.
             main = (
                 f'<a href="{_esc(narrative_page_url(page))}">'
                 f'{_esc(page["title"])}</a>'
@@ -7687,7 +7676,7 @@ def _draft_domain_names_policies(figures, docs_by_path, domain):
     """Whether at least one of ``domain``'s documents names a policy among
     its Related Documents (a path whose file name starts ``policy-``), the
     checkable trace of the domain working under policies it does not
-    publish itself (review round 2 item 4: the generated sentence claimed
+    publish itself (a former generated sentence claimed
     the domains "rely on the overarching security and governance policies",
     which no gate checked)."""
     for d in _draft_domain_page(figures, domain)["docs"]:
@@ -7726,10 +7715,10 @@ def draft_policies_values(figures, docs_by_path):
     ]
     policy_count = _draft_type_entry(figures, "Policy")["count"]
     template_count = _draft_type_entry(figures, "Template")["count"]
-    # Site review batch B5 F41: the domains outside the subject list had no
-    # pointer to where their governing intent lives. One generated sentence
+    # The domains outside the subject list had no
+    # pointer to where their governing intent lives, so one generated sentence
     # names them, in the domains' display order, present exactly when such
-    # domains exist. Review round 2 item 4: the sentence said the domains
+    # domains exist. The sentence once said the domains
     # "rely on the overarching security and governance policies", a claim
     # nothing checked; it now states only what each domain's documents show
     # (a Related Documents entry naming a policy), recomputed per build.
@@ -7791,7 +7780,7 @@ _XW_TOPIC_NOTE_RE = re.compile(r"\.?\s*\bNote:.*\Z")
 def _xw_plain(text):
     """Flatten a register or matrix cell for display: markdown links become
     their text, HTML comments drop, code spans drop their backticks (raw
-    Markdown never reaches a page, round 2 note), whitespace collapses."""
+    Markdown never reaches a page), whitespace collapses."""
     text = _XW_COMMENT_RE.sub("", text)
     text = _XW_MD_LINK_RE.sub(r"\1", text)
     text = text.replace("`", "")
@@ -7853,8 +7842,8 @@ def _parse_citations_register_sections(text, require_heading):
     """The shared reader under parse_citations_register_sections (the
     section reader, which requires every register table to sit under a
     ``##`` heading) and parse_citations_register (the flat view, which
-    keeps its old input contract and reads a heading-free table too,
-    round 2 fix 7): only rows under the register's exact seven-column
+    keeps its old input contract and reads a heading-free table too):
+    only rows under the register's exact seven-column
     header are read, so a prose section and a table of another schema
     (the AI security tooling references) contribute no rows. Structural
     and loud, like parse_taxonomy: a malformed row, a duplicate Standard
@@ -7913,7 +7902,7 @@ def _parse_citations_register_sections(text, require_heading):
             "id": standard_id,
             "version": cells[1],
             "date": cells[2],
-            # Register-internal notes never reach a page (round-2 fix 1).
+            # Register-internal notes never reach a page.
             "topic": _XW_TOPIC_NOTE_RE.sub("", _xw_plain(cells[3])),
             "upstream": cells[5],
             "verified": cells[6],
@@ -7931,8 +7920,8 @@ def parse_citations_register_sections(text):
 
     The section reader (the standards page lists every register row grouped
     by its ``##`` section), so a table above the first ``##`` heading is a
-    BuildError here; the flat view keeps its old heading-free contract
-    (round 2 fix 7). The shared reader carries the structural checks."""
+    BuildError here; the flat view keeps its old heading-free contract.
+    The shared reader carries the structural checks."""
     return _parse_citations_register_sections(text, require_heading=True)
 
 
@@ -7941,7 +7930,7 @@ def parse_citations_register(text):
 
     The flat view, which keeps its old input contract: a table above the
     first ``##`` heading (or with no heading at all) still returns the flat
-    dict (round 2 fix 7); the section requirement belongs to the standards
+    dict; the section requirement belongs to the standards
     page's section reader only. The shared reader carries the loud
     structural checks: only rows under the register's exact seven-column
     header are read; a malformed row, a duplicate Standard ID, or a
@@ -8048,10 +8037,10 @@ def parse_compliance_matrix(text):
 
 def parse_compliance_tsc_status(text):
     """Whether the compliance alignment matrix says its AICPA TSC 2017 column
-    is being populated (batch 3 round 4 item 1), read from its reading-guide
-    paragraph alone (batch 3 round 6 item 1), the last paragraph of its "How
+    is being populated, read from its reading-guide
+    paragraph alone, the last paragraph of its "How
     to use this matrix" section. That section, from its heading to the ---
-    that ends it, is pinned whole (batch 3 follow-up round 2 item 1): it must
+    that ends it, is pinned whole: it must
     read exactly CROSSWALK_TSC_SECTION_HEADING, CROSSWALK_TSC_SECTION_OPENING
     and the reading-guide paragraph, each followed by a blank line, then ---,
     with the paragraph in one of two forms: CROSSWALK_TSC_READING_GUIDE, a
@@ -8070,9 +8059,9 @@ def parse_compliance_tsc_status(text):
 
     Not refused: a reworded status sentence outside the section (any text
     other than CROSSWALK_TSC_POPULATING up to whitespace). Telling one from
-    an unrelated sentence would take phrase matching, which rounds 4 and 5
-    showed misses rewordings and fails the build on an unrelated "populated"
-    (batch 3 round 6 item 2), so outside the section the matrix is read for
+    an unrelated sentence would take phrase matching, which misses
+    rewordings and fails the build on an unrelated "populated", so outside
+    the section the matrix is read for
     that one sentence alone and the status comes from the section."""
     forms = {
         f"{CROSSWALK_TSC_READING_GUIDE} {CROSSWALK_TSC_POPULATING}": True,
@@ -8089,15 +8078,15 @@ def parse_compliance_tsc_status(text):
         "populated) or CROSSWALK_TSC_READING_GUIDE alone (it is not): "
         f"form 1: {populating} form 2: {bare}"
     )
-    # The instruction is one fixed sentence (batch 3 follow-up round 4
-    # item 1): naming one constant by similarity or line position named
+    # The instruction is one fixed sentence: naming one constant by
+    # similarity or line position named
     # the reading guide for a reworded status sentence, so updating it
     # passed with the status False, and on a layout line named a
     # constant that cannot make the section pass. The status rule names
-    # every other pinned constant (batch 3 follow-up round 5 item 1): a
+    # every other pinned constant: a
     # status sentence moved into the opening or a paragraph of its own
     # passes once that constant is updated, with the status False. Every
-    # section error carries both (batch 3 follow-up round 6 item 1): a
+    # section error carries both: a
     # status sentence moved into the heading takes the heading count
     # error, and passes once the heading is updated, with the status False.
     update = (
@@ -8201,7 +8190,7 @@ def parse_reverse_matrix(text):
             continue
         cells = _xw_table_cells(line)
         if state == "outside" and current is not None:
-            # Round-2 fix 4: inside an instrument section, a table line
+            # Inside an instrument section, a table line
             # after the table closed (a blank line inside the table, a
             # second table, or a stray row) must never be dropped silently.
             raise BuildError(
@@ -8381,8 +8370,8 @@ def build_crosswalk(full_docs):
                     f"crosswalk: compliance matrix cites {r['path']} which "
                     "is not in the taxonomy (renamed or removed?)"
                 )
-    # Every reverse matrix row's paths, for every instrument (round-2 fix 6:
-    # instruments with a compliance column render reverse rows too, so a
+    # Every reverse matrix row's paths, for every instrument (instruments
+    # with a compliance column render reverse rows too, so a
     # stale path must fail the build here, never a KeyError at render).
     for heading, section in reverse_sections.items():
         for r in section["rows"]:
@@ -8465,8 +8454,7 @@ def build_crosswalk(full_docs):
         # matrix's cited documents grouped by their path's domain.
         by_domain = {}
         # The compliance matrix column's rows and how many are N/A, so a
-        # caveat about the column's N/A is generated from the matrix (batch 3
-        # round 3 item 2).
+        # caveat about the column's N/A is generated from the matrix.
         column_rows = column_na = 0
         if inst.compliance_column:
             for domain in domains:
@@ -8597,8 +8585,8 @@ def render_crosswalk_table(xw, keys, full):
     # Where every column shares one group (the Privacy, Trade and Canada
     # views today) the side list names each column's group instead, and the
     # tag, one line in spaced capitals, set each count-only column's width:
-    # the Trade view scrolled sideways by 99px at 1512px (review round 2
-    # WARN, measured in headless Chrome). The site cannot change the
+    # the Trade view scrolled sideways by 99px at 1512px (measured in
+    # headless Chrome). The site cannot change the
     # template's header CSS, so such a table's headers carry neither.
     grouped = len({xw["instruments"][k]["inst"].group for k in keys}) > 1
     head = ['<th scope="col">Domain</th>']
@@ -8640,7 +8628,7 @@ def render_crosswalk_table(xw, keys, full):
                 # A plain space, outside the hidden tail, separates the codes
                 # from the count link in every cell, capped or not, so read
                 # aloud the last code or "and more" never runs into the
-                # count's number ("A.622", "more22"; batch 3 round 2 NOTE).
+                # count's number ("A.622", "more22").
                 tail = (
                     '<span class="vh">, and more</span>'
                     if len(ids) > CROSSWALK_CELL_ID_CAP else ""
@@ -8701,13 +8689,13 @@ def _xw_table_intro(xw, keys, full):
     control areas, where a cell with a recorded mapping shows the count
     alone. The count-alone clauses cover only a cell with a recorded
     mapping, since a td.na cell in the same column shows CROSSWALK_NA_WORD
-    and no count (review round 1 WARN). On the crosswalk page (``full``) the
+    and no count. On the crosswalk page (``full``) the
     counts name the full table; a topic view's counts name the columns here.
     The sentences say what a cell means to the reader, which documents
     address the instrument and which of its identifiers they address, never
     which generator table a value came from: the matrix-by-matrix
-    attribution lives in the caveat block and on the instrument pages (site
-    triage F35). The opening sentence says
+    attribution lives in the caveat block and on the instrument pages. The
+    opening sentence says
     what every column is: an instrument the
     matrices carry, as a compliance alignment matrix column or in a reverse
     framework control crosswalk section (build_crosswalk refuses a
@@ -8789,20 +8777,20 @@ def render_crosswalk_caveats(xw, keys=(), inst=None):
     The AICPA TSC caveat describes what the reader sees, a cell reading
     CROSSWALK_NA_WORD here for the matrix's N/A, so it renders only where the
     page's table has that column (``keys``, the table's columns; an
-    instrument page has none) (batch 3 round 2 NOTE: since f2 no cell shows
-    N/A, and the caveat sat on pages with no such column). A cell reads it
+    instrument page has none) (no cell shows N/A, and the caveat once sat
+    on pages with no such column). A cell reads it
     where every row the matrix lists for its domain is N/A, and the matrix
     lists only some of a
-    domain's documents, so the sentence names those rows (batch 3 round 3
-    item 1). The AICPA TSC instrument page (``inst``) carries its own
+    domain's documents, so the sentence names those rows. The AICPA TSC
+    instrument page (``inst``) carries its own
     caveat, its N/A rows counted from the matrix, so it stays true as the
-    column is filled (batch 3 round 3 item 2). It says the column is being
+    column is filled. It says the column is being
     populated, and keeps the matrix's condition on each N/A, only while the
     matrix itself says so (``column_populating``); once the matrix drops that
     sentence, an N/A there means no direct mapping, as in every other column,
-    and no caveat of its own renders (batch 3 round 4 item 1). A view page
+    and no caveat of its own renders. A view page
     says the column is being populated on the same parsed status, so view
-    and instrument pages agree in every state (batch 3 round 5 item 2)."""
+    and instrument pages agree in every state."""
     tsc = ""
     col = next((k for k in keys
                 if CROSSWALK_BY_KEY[k].compliance_column == "AICPA TSC 2017"),
@@ -8881,7 +8869,7 @@ def render_crosswalk_rail(xw, current=None, instrument=None):
     visitor could see; the rail now navigates to the static view pages and
     the crosswalk page loads no matrix script. The instrument pages carry
     the same rail with ``instrument`` set: the hub and views offered the
-    sideways paths that an instrument page then dropped (site triage F02),
+    sideways paths that an instrument page then dropped,
     so the rail renders there too, its own instrument marked current and no
     view marked (an instrument page shows no view)."""
 
@@ -9094,8 +9082,8 @@ def _xw_register_block(inst, row):
         )
     # The register's Last verified column mixes two cell forms, "verified
     # <date>" and the bare date, so the verbatim cell read "Last verified
-    # (UTC): verified 2026-09-25" on some pages and "2026-08-30" on others
-    # (site triage F19). The label already says verified, so the page shows
+    # (UTC): verified 2026-09-25" on some pages and "2026-08-30" on others.
+    # The label already says verified, so the page shows
     # the date alone; the register column itself stays as committed (no
     # corpus bump).
     verified = row["verified"]
@@ -9117,7 +9105,7 @@ def _xw_register_block(inst, row):
 
 # The register's citing convention (its Conventions section) joins the
 # Standard ID and the Current version only in the exact publisher forms that
-# are safe by construction (round 3 review: guessing which part of a
+# are safe by construction (guessing which part of a
 # free-text version cell is redundant dropped recorded identifiers):
 # "ISO/IEC 42006:2025" for an ISO or IEC edition whose version is exactly a
 # four-digit year, "IEEE 2883-2022" for an IEEE one. Every other entry is
@@ -9130,7 +9118,7 @@ _STANDARDS_SLUG_RE = re.compile(r"[^a-z0-9]+")
 
 def _standards_version_display(row):
     """One register row's "Current version:" line for the standards page, or
-    None where the entry shows no line (round 3 review): the register's
+    None where the entry shows no line: the register's
     Current version cell verbatim (plain text via _xw_plain), never dropped
     or shortened. "continuous" is spelled out as "continuous (no fixed
     edition)"; "-" (no recorded version) shows nothing; and a version the
@@ -9155,7 +9143,7 @@ def _standards_version_display(row):
 def _standards_citation(row):
     """One register row's entry heading: the Standard ID verbatim, joined
     with the Current version only in the exact publisher forms that are safe
-    by construction (round 3 review): an ISO or IEC ID with a version that
+    by construction: an ISO or IEC ID with a version that
     is exactly a four-digit year joined with a colon, an IEEE ID with one
     joined with a hyphen, as the publishers write them. Every other heading
     is the ID alone; _standards_version_display carries the cell."""
@@ -9187,7 +9175,7 @@ def draft_standards_values(xw):
     decisions 2026-11-04 16:09 EST): every citations-register row, grouped
     by register section in register order, each entry headed by the row's
     Standard ID (joined with its Current version only in the safe publisher
-    forms, round 3 review) over the register's Current version cell
+    forms) over the register's Current version cell
     verbatim where the heading does not carry it whole, its Topic,
     and its Upstream check location as the one external link, labelled as
     the register labels it ("none recorded" for "-"); a row whose Standard
@@ -9247,8 +9235,8 @@ def draft_standards_values(xw):
                     f'{_esc(xw["instruments"][inst.key]["display"])}</a>.'
                 )
             # The register's Current version cell, verbatim, wherever the
-            # heading does not already carry it whole (round 3 review:
-            # nothing in the cell is ever dropped or shortened).
+            # heading does not already carry it whole (nothing in the
+            # cell is ever dropped or shortened).
             line = _standards_version_display(row)
             version_line = ""
             if line is not None:
@@ -9267,8 +9255,8 @@ def draft_standards_values(xw):
             f'<h2 id="{slug}">{_esc(heading)}</h2>\n'
             "<ul>\n" + "\n".join(items) + "\n</ul>"
         )
-    # The main-table count, the crosswalk page's own figure (round 1
-    # review: counting every register_id took in the "Also in the corpus"
+    # The main-table count, the crosswalk page's own figure (counting
+    # every register_id took in the "Also in the corpus"
     # pages, which the main table carries no cells for).
     main_count = sum(1 for inst in CROSSWALK_INSTRUMENTS if inst.main_table)
     return {
@@ -9311,19 +9299,18 @@ def draft_crosswalk_instrument_values(xw, inst):
     )
     if inst.reverse_pointer:
         # The combined trade section's rows all carry CTPAT MSC domain area
-        # labels, with no per-programme rows to split. Round-2 fix 5 rendered
-        # its table once, on the pointer target's page, and pointed there;
-        # site review F34: each programme the section names now renders the
-        # whole section's table too, and names the section.
+        # labels, with no per-programme rows to split. Each programme the
+        # section names renders the whole section's table, not only the
+        # pointer target's page, and names the section.
         target = xw["instruments"][inst.reverse_pointer]
         rows = target["reverse_rows"]
         area_label = target["reverse_area_label"]
-        # Review of 50b453ea3: these pages carried this section as
-        # id="reverse-crosswalk" before F34, so the section label keeps that
+        # These pages carried this section as id="reverse-crosswalk"
+        # before, so the section label keeps that
         # id and an outside link to the old anchor still lands here. The
         # pointer target's own page never had it and stays unchanged.
         label_id = ' id="reverse-crosswalk"'
-        # The same review NOTE: one sentence held the matrix's purpose as a
+        # One sentence once held the matrix's purpose as a
         # colon clause inside its naming of this programme; two plain
         # sentences carry the same facts and links.
         intro = (
@@ -9388,7 +9375,7 @@ def draft_crosswalk_instrument_values(xw, inst):
                 # The identifiers sit in the row's wrapping <small> line:
                 # .plan li .n is nowrap in a minmax(0, 1fr) auto grid, so a
                 # list of up to 140 characters there widened the page past
-                # 320, 360 and 390 px (item 3b788, as on the concern rows).
+                # 320, 360 and 390 px (as on the concern rows).
                 tail = (
                     f'<small>{_esc(", ".join(ids))}</small>'
                     if ids else
@@ -9436,7 +9423,7 @@ def draft_crosswalk_instrument_values(xw, inst):
     row = data["register"]
     if row is not None:
         # The lead carries the instrument's descriptive name alone; the full
-        # Topic cell stays on the register record (round-2 fix 1).
+        # Topic cell stays on the register record.
         lead_tail = _xw_topic_name(row["topic"]) or row["topic"]
     else:
         lead_tail = (
@@ -9461,7 +9448,7 @@ def draft_crosswalk_instrument_values(xw, inst):
 def render_draft_variant(figures, variant, ledger=None):
     """Render the whole /draft tree: the fixed pages, one page per corpus
     domain, one page per document type, one page per non-root corpus
-    document, one page per adopter document (ADOPTER_DOCS_HOME, site a9),
+    document, one page per adopter document (ADOPTER_DOCS_HOME),
     with
     narrative_routes the narrative subtype indexes and the
     reading room, and the pin-verified
@@ -9479,8 +9466,7 @@ def render_draft_variant(figures, variant, ledger=None):
         )
     # Browse and the documents index call every root document a library
     # specification ("plus N library specifications"), so a root document of
-    # any other type fails the build instead of publishing a false sentence
-    # (site a9 round-4 note 3).
+    # any other type fails the build instead of publishing a false sentence.
     for d in full_docs:
         if d.get("domain") == ROOT_DOMAIN \
                 and d.get("type") != "Specification":
@@ -9490,7 +9476,7 @@ def render_draft_variant(figures, variant, ledger=None):
                 "and the documents index call every root document a library "
                 "specification)"
             )
-    # The adopter documents (ADOPTER_DOCS_HOME, site a9): rendered and listed
+    # The adopter documents (ADOPTER_DOCS_HOME): rendered and listed
     # beside the
     # corpus documents, each from its own metadata record. The merged lookup
     # lets a Related Documents entry or a govern artefact link naming an
@@ -9521,8 +9507,8 @@ def render_draft_variant(figures, variant, ledger=None):
     pages = []
     used = set()
     extras_keys = set()
-    # One emission ledger per render, bound to this render's result (round
-    # 3, item 8): a direct render_draft_variant call gets its own fresh
+    # One emission ledger per render, bound to this render's result: a
+    # direct render_draft_variant call gets its own fresh
     # dict, and render_site passes one run ledger across its variants, so
     # no allowance survives from one render into another. The pending
     # buffer is transient within the render: cleared here, checked empty
@@ -9531,8 +9517,8 @@ def render_draft_variant(figures, variant, ledger=None):
         ledger = {}
     _PENDING_REPO_EMISSIONS.clear()
     # The repository links each template or partial source emits into every
-    # page rendered from it (the emission ledger, round 2 of the link-guard
-    # follow-up): extracted ONCE per source from the committed template text,
+    # page rendered from it (the emission ledger): extracted ONCE per source
+    # from the committed template text,
     # then attached to each rendered page together with the generated links
     # the extras builders recorded through repo_blob_url/record_repo_emission
     # while this page's values were built.
@@ -9601,8 +9587,8 @@ def render_draft_variant(figures, variant, ledger=None):
 
     # The domain pages' Next chain is the site tour: Browse opens the first
     # domain, each domain the next, and the last the example document.
-    # domain.html labels each link "Next on the tour" (site review F29: the
-    # last jump, to a document, read as unrelated without the label).
+    # domain.html labels each link "Next on the tour" (the last jump, to a
+    # document, read as unrelated without the label).
     domain_seq = figures["domain_pages"]
     for idx, dp in enumerate(domain_seq):
         if idx + 1 < len(domain_seq):
@@ -9716,7 +9702,7 @@ def render_draft_variant(figures, variant, ledger=None):
         emit(template_name, out_rel, draft_disclosure_values(scripts))
         pages.insert(slot, pages.pop())
 
-    # Extras keys join the unused-value check (round 3, item 6): a recorded
+    # Extras keys join the unused-value check: a recorded
     # link inside an extras value whose key no template ever substitutes
     # would otherwise attach silent allowance to a page that never carries
     # the link.
@@ -9739,9 +9725,9 @@ def render_draft_variant(figures, variant, ledger=None):
         pages.append((asset_rel, data))
         _ledger_copied_output(ledger, output_rel_for(variant, asset_rel),
                               data)
-    # The link-preview card (item 3b788): its hash-verified raw bytes, never
-    # re-encoded, published beside the baseline assets. A non-.html output
-    # never lands in the sitemap (render_site lists rendered pages alone).
+    # The link-preview card: its hash-verified raw bytes, never re-encoded,
+    # published beside the baseline assets. A non-.html output never lands in
+    # the sitemap (render_site lists rendered pages alone).
     card = load_card_bytes()
     pages.append((CARD_OUT_REL, card))
     _ledger_copied_output(ledger, output_rel_for(variant, CARD_OUT_REL), card)
@@ -9772,7 +9758,7 @@ def render_variant(figures, variant, ledger=None):
 class RenderedPages(list):
     """render_site's output list with that render's own emission ledger
     bound to it (``repo_ledger``), so verification reads the allowance of
-    exactly this render and of no other (round 3, item 8)."""
+    exactly this render and of no other."""
 
     def __init__(self, ledger):
         super().__init__()
@@ -9799,7 +9785,7 @@ def render_site(figures):
         if variant.indexable:
             # Only rendered .html pages belong in the sitemap: the variant's
             # output also carries the copied baseline assets (fonts, CSS, JS,
-            # logos, licence texts), which are not pages (round-2 fix 1), and
+            # logos, licence texts), which are not pages, and
             # the error page is served for missing paths and must never be
             # crawled, so it stays out of the sitemap's page list.
             html_page_rels = [
@@ -9878,7 +9864,7 @@ def bare_root_relative_hrefs():
     return hits
 
 
-# Hand-written standard editions (3b380). Most site figures are generated, but a few
+# Hand-written standard editions. Most site figures are generated, but a few
 # lists name standards by hand, and their editions drifted behind the citations
 # register until PR #2846 corrected them. The register is the authority; this check
 # compares the hand-written editions with it and does not generate the lists.
@@ -10013,8 +9999,8 @@ FOR_AI_DESCRIPTIONS = {
         "ISO/IEC 27701:2025 is documented in the privacy programme charter and the privacy and data "
         "governance policy; the GDPR is documented in the EU privacy annex.",
     }),
-    # The international AI-governance rows the For-AI pages name by their Standard IDs
-    # (backlog 2.25.2), each credited to the register as the OECD entry is.
+    # The international AI-governance rows the For-AI pages name by their Standard IDs,
+    # each credited to the register as the OECD entry is.
     "UNESCO Recommendation on the Ethics of AI": frozenset({"Cited in the canonical citations register."}),
     "G7 Hiroshima Process International Code of Conduct": frozenset({
         "Cited in the canonical citations register.",
@@ -10159,7 +10145,7 @@ FOR_AI_NAME_TEXTS = {
     "NIST SP 800-218A": frozenset({", Secure Software Development for Generative AI."}),
     "MITRE ATLAS": frozenset({", adversarial threat landscape for AI systems."}),
     "OECD Recommendation on AI": frozenset({"(OECD/LEGAL/0449)."}),
-    # Added by backlog 2.25.2 (the names of three register rows, so not unchecked).
+    # The names of three register rows, so not unchecked.
     "UNESCO Recommendation on the Ethics of AI": frozenset({"(adopted 23 November 2021)."}),
     "G7 Hiroshima Process International Code of Conduct": frozenset({"(30 October 2023)."}),
     "Council of Europe Framework Convention on AI": frozenset({"(CETS No. 225)."}),
@@ -11640,12 +11626,11 @@ def stale_standard_editions(texts=None):
 def generator_ok_line(page_rels, artefact_count, out_dir, written, summary):
     """The OK line of a writing run, its counts labelled apart: the dist
     HTML pages, the other dist files written beside them (assets, feeds and
-    control files; review round 2 item 4: "wrote 540 page(s)" counted 44
-    non-HTML files as pages), and the committed artefact(s) (item 3b788:
-    one log said "wrote 541 page(s)" and then "540 pages" for the same
-    build, because the first count silently included the corpus-link
-    manifest). ``page_rels`` is every dist path written; an HTML page is
-    one ending ``.html``."""
+    control files; a single "wrote 540 page(s)" count once took in 44
+    non-HTML files as pages), and the committed artefact(s) (a single page
+    count once read 541 in one line and 540 in another for the same build,
+    because it silently included the corpus-link manifest). ``page_rels`` is
+    every dist path written; an HTML page is one ending ``.html``."""
     html_count = sum(1 for rel in page_rels if rel.endswith(".html"))
     other_count = len(page_rels) - html_count
     return (
@@ -11733,7 +11718,7 @@ def main(argv=None):
                 file=sys.stderr,
             )
             return 1
-        # Hand-written standard editions (3b380) must match the citations register.
+        # Hand-written standard editions must match the citations register.
         try:
             edition_hits = stale_standard_editions()
         except BuildError as e:

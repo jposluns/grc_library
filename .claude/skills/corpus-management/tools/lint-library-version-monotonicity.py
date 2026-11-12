@@ -81,7 +81,7 @@ Exit codes:
         regular file, not UTF-8 or cannot be read, and every directory the
         walk cannot list, one stderr line each, sorted by path, and exits 2
         without comparing anything, so in that run a version that decreased
-        and a library FAIL are not reported (3b624). Otherwise it then reads
+        and a library FAIL are not reported. Otherwise it then reads
         the prior README.md, and a document's prior copy only when its
         current copy has a version; a prior file that is not UTF-8 is
         reported by the generic message, unnamed. With --prior-readme, once
@@ -112,8 +112,8 @@ Exit codes:
     FIFO's open can block, as before; where it lacks O_NOCTTY, opening a
     terminal device can still make it the controlling terminal. The
     --prior-readme file is opened once with the same flags, and its type is
-    read from that descriptor (3b643 r2), so a symlink passed as
-    --prior-readme is refused, not followed.
+    read from that descriptor, so a symlink passed as --prior-readme is
+    refused, not followed.
 """
 
 from __future__ import annotations

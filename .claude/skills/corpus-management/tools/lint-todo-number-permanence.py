@@ -884,8 +884,8 @@ EXEMPT: dict[tuple[str, str], str] = {
         "PARTIAL CLOSE against a still-open umbrella (DONE #2576, 2026-09-25). P-1.63 "
         "(the SCAN-FIRST stranded/fabricated-code remediation program) stays live at "
         "P-TODO.md: #2576 shipped only part (d), extending gate 96 to OWASP ASVS and "
-        "MITRE CWE; the umbrella's other parts and its routed follow-up (P-TODO 3b65) "
-        "remain open."
+        "MITRE CWE; the umbrella's other parts and its routed follow-up (tracked in "
+        "P-TODO.md) remain open."
     ),
     ("P-1.63", "matrix batch-5c"): (
         "PARTIAL CLOSE. PR #2375 removed 17 mis-fit control codes from the master matrix (adjacent-but-not-core, per the DIRECT source-verified-fit threshold): LOG-15/16 @153, DSP-03 @155/@279, DSP-21 @179/@280, GRC-13 @84/@279, DSP-20 @55, AIS-04/05/07/TVM-06 @352, AIS-04/05/09 @384, AIS-04 @400. "

@@ -6,20 +6,22 @@ This wrapper owns the canonical-register schema, roots, exclusions and CLI.
 
 PR1 defaults to report mode. Exactly two kinds of finding block in that mode:
 those of the unchanged legacy Markdown stale check and a historical exception
-row that does not bind (INVALID_EXCEPTION, which blocks in every mode; 3b75
-below). Every other finding is advisory. A run also exits non-zero on errors
-that are not findings: an UNPINNED ratchet failure below, and the register,
-input and ratchet-base errors. Explicit enforce mode supports migration
-fixtures; no gate invocation enables it in PR1. Every exit status is listed once,
-under "Exit codes" at the end, by the handler or return in main() that produces it.
+row that does not bind (INVALID_EXCEPTION, which blocks in every mode; see
+Historical exceptions below). Every other finding is advisory. A run also exits
+non-zero on errors that are not findings: an UNPINNED ratchet failure below,
+and the register, input and ratchet-base errors. Explicit enforce mode supports
+migration fixtures; no gate invocation enables it in PR1. Every exit status is
+listed once, under "Exit codes" at the end, by the handler or return in main()
+that produces it.
 
-3b75: a superseded edition cited as history passes only through a reviewed row
-of the TOML data file `.claude/skills/corpus-management/registers/register-historical-citation-exceptions.toml`;
+Historical exceptions: a superseded edition cited as history passes only
+through a reviewed row of the TOML data file
+`.claude/skills/corpus-management/registers/register-historical-citation-exceptions.toml`;
 everything else keeps blocking. The Markdown page of the same name is a generated view,
 never parsed for policy; this gate refuses a page whose generated table differs from the
 data (.claude/skills/corpus-management/tools/build-historical-citation-exceptions.py regenerates it).
 
-P-3.213 ratchet (maintainer ruling 2026-10-27, option A): a default-scope run
+UNPINNED ratchet: a default-scope run
 compares each standard's UNPINNED count with the checked-in baseline
 `.claude/skills/corpus-management/tools/standards-currency-unpinned-baseline.json` (source, keyed by register
 Standard ID), which may only fall. A count above its baseline fails and names
@@ -29,30 +31,30 @@ baseline would let a later change add that many new unpinned citations
 unnoticed. A missing, unreadable or malformed baseline fails (statuses under
 Exit codes).
 
-The baseline itself ratchets (P-3.213 round 2): the same run reads the baseline
+The baseline itself ratchets: the same run reads the baseline
 as it stood at a base revision and fails when an entry is above its base value,
 or when an entry has no base entry although the base register already lists
 that standard (a standard registered at the base had no unpinned citation there,
 so a new entry is a rise). An entry with no base entry is allowed only for a
 standard whose register row is new in the same change, compared by identity
-key, so a renamed Standard ID is not new, and (P-3.213 round 4) only up to that
+key, so a renamed Standard ID is not new, and only up to that
 standard's UNPINNED count at the base, measured as the bootstrap measures it
 below, so adding the row cannot raise the count. Conversely a register row whose
 standard has a base entry cannot be removed in the change, which would move
 its citations to the unratcheted UNREGISTERED count.
 
-One function, ratchet_base, selects the base revision (P-3.213 round 3). Every
+One function, ratchet_base, selects the base revision. Every
 ref it uses (HEAD and refs/remotes/origin/main) is resolved exactly, by its full
 name, and only the resolved object id is passed to later git calls, so a branch
-or tag whose name imitates a ref cannot stand in for it (round 4). A run is a
+or tag whose name imitates a ref cannot stand in for it. A run is a
 GitHub Actions run only when GITHUB_ACTIONS is exactly the string "true" and
 GITHUB_EVENT_PATH names a readable file holding a JSON object; when GITHUB_ACTIONS is
 exactly "true" and the event file is unset, missing, unreadable or not a JSON object,
-the run fails closed (round 4), and a run with any other GITHUB_ACTIONS value, or none,
+the run fails closed, and a run with any other GITHUB_ACTIONS value, or none,
 is local. In a pull_request run the base is HEAD^1 of the checked-out
 merge commit, read from git, and the payload's pull_request.base.sha must be that
-commit or an ancestor of it (the base branch may have moved after the event;
-round 4). In a push run the base is the payload's "before", which must be a
+commit or an ancestor of it (the base branch may have moved after the event).
+In a push run the base is the payload's "before", which must be a
 proper ancestor of HEAD. A schedule or workflow_dispatch run (the nightly sweep,
 through .claude/skills/corpus-management/tools/run_all_audits.sh), and every local run (.claude/skills/corpus-management/tools/run_all_audits.sh,
 pre-commit, a direct run), takes the one merge base of HEAD and
@@ -73,8 +75,8 @@ file is always compared as above.
 Every git call the ratchet makes (the work-tree and shallow checks, the refs, the base
 and the parent, the commit and ancestry checks, and the tree and blob reads) goes
 through one helper, _git, so git cannot substitute an object or a parent for the ones
-the object ids name (round 5). Its environment is an allowlist built from nothing
-(rebase revision): of the inherited variables only HOME, which git needs to find its
+the object ids name. Its environment is an allowlist built from nothing:
+of the inherited variables only HOME, which git needs to find its
 global configuration, is passed on (_GIT_ENV_INHERITED), and every other one is absent,
 so no GIT_ variable can point git at another repository or substitute an object
 (GIT_DIR, GIT_INDEX_FILE, GIT_OBJECT_DIRECTORY, GIT_REPLACE_REF_BASE and GIT_GRAFT_FILE
@@ -84,7 +86,7 @@ GIT_NO_REPLACE_OBJECTS=1 (no replace ref substitutes an object), GIT_GRAFT_FILE=
 GIT_CONFIG_NOSYSTEM=1 (the system configuration is not read), LC_ALL=C and the fixed
 PATH below. Every call also passes
 -c core.commitGraph=false, so the commit-graph file cannot substitute a commit's
-parents. The helper runs git by absolute path (round 6): git is resolved once with
+parents. The helper runs git by absolute path: git is resolved once with
 shutil.which on the fixed GIT_SEARCH_PATH (/usr/local/bin:/usr/bin:/bin), never the
 inherited PATH, and the child's PATH is set to that same value, so a substitute git
 earlier on the caller's PATH is not run; no git there fails closed naming the
@@ -121,7 +123,7 @@ stops earlier prints none: --help, a usage error, a refused --root or --paths, a
 every other error status under Exit codes. A --format json run prints no NOTE line
 and carries the totals in its report's inventories instead.
 
-Exit codes. This is the one authoritative list of gate 6's exit statuses (P-3.213):
+Exit codes. This is the one authoritative list of gate 6's exit statuses:
 the standards-currency rule, the audit programme specification, the pack README and
 the engine docstring point here (the rule and the README also name classes of exit),
 so a change to an exit path updates this list and no other. It is organized by main()'s
