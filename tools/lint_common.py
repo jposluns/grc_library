@@ -248,11 +248,29 @@ FROZEN_RECORD_RE = re.compile(r"^\.working/[^/]+/\d{4}-")
 # Per-activity append-only history tables.
 LEDGER_RE = re.compile(r"^\.working/[^/]+/history\.md$")
 
+# THIS repository's legacy detailed mirror, relative to the operational store
+# root (legacy split, maintainer-decided 2026-11-11). As that decision records
+# it, the store is shared with the successor repository (grc_library_new),
+# whose own mirror-parity gate owns the shared
+# changelog-details/CHANGELOG-detailed.md and rejects every record from before
+# its epoch (that gate is outside this tree), so this repository's archived
+# entries live in this separate legacy file. Defined ONCE here; every reader
+# of the mirror in this tree (gate 59, gate 50, tools/preflight-changelog.py
+# and the self-test of tools/check-changelog-preflight-commit.py) imports this
+# constant rather than repeating the literal, so those readers cannot disagree
+# on the location. The private sibling's roll-up tool is outside this tree,
+# which does not show whether it reads this constant.
+STORE_MIRROR_REL = "changelog-details/CHANGELOG-detailed-grc_library.md"
+
 # Top-level append-only ledgers. Logical `.working/` names also
 # classify the operational store records resolved outside this checkout.
+# Both detailed-mirror keys are listed: the legacy file is this repository's
+# LIVE mirror, and the shared name is the successor-owned file this
+# repository's records mentioned before the legacy split.
 LEDGER_PATHS = (
     "CHANGELOG.md",
     ".working/changelog-details/CHANGELOG-detailed.md",
+    ".working/" + STORE_MIRROR_REL,
     ".working/DONE.md",
     ".working/improvement-log.md",
 )

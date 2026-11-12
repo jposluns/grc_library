@@ -18663,7 +18663,13 @@ class PrePushGuardTests(unittest.TestCase):
         import stat
         import tempfile
 
-        tmp = Path(tempfile.mkdtemp(prefix="lint-guard-test-"))
+        # The fixture tree is the only entry of a holder directory of its own, removed when the
+        # test ends, so nothing in an inherited TMPDIR sits beside it (lint_common takes
+        # <parent>/private as the operational store by its name alone).
+        holder = Path(tempfile.mkdtemp(prefix="lint-guard-test-"))
+        self.addCleanup(shutil.rmtree, holder, True)
+        tmp = holder / "repo"
+        tmp.mkdir()
         tools = tmp / "tools"
         tools.mkdir()
         shutil.copy(REPO_ROOT / "tools" / "pre-push-guard.sh", tools / "pre-push-guard.sh")
@@ -18696,9 +18702,22 @@ class PrePushGuardTests(unittest.TestCase):
             path.chmod(path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
         return tmp, shutil
 
+    @staticmethod
+    def _fixture_env(tmp: Path) -> dict:
+        """The environment for the guard and the fixture's own git commands. The guard and what
+        it runs (install-git-hooks.sh --check, lint_common) find the operational store through
+        GRC_STORE, the repository through git's GIT_* variables and git's upward search, and
+        temporary directories through TMPDIR, so each is cleared or pinned to the fixture's
+        holder: no GIT_* variable, no system or global git config, no GRC_STORE, git's search
+        stopping at the holder and TMPDIR the holder."""
+        env = fixture_git_environment()
+        env.pop("GRC_STORE", None)
+        env["GIT_CEILING_DIRECTORIES"] = str(tmp.parent)
+        env["TMPDIR"] = str(tmp.parent)
+        return env
+
     def _run_guard(self, tmp: Path, allow_pipe: bool = True, allow_dirty: bool = True,
                    extra_env=None):
-        import os
         import subprocess as sp
 
         # capture_output wires the guard's stdout to a PIPE, which the
@@ -18706,7 +18725,7 @@ class PrePushGuardTests(unittest.TestCase):
         # documented override is the sanctioned way to run a deliberate,
         # judged pipe, which is exactly what this harness capture is. The
         # refusal path itself is pinned by test_piped_stdout_refused.
-        env = dict(os.environ)
+        env = self._fixture_env(tmp)
         if allow_pipe:
             env["PRE_PUSH_GUARD_ALLOW_PIPE"] = "1"
         else:
@@ -18924,7 +18943,7 @@ class PrePushGuardTests(unittest.TestCase):
                          ["config", "user.name", "t"], ["add", "-A"],
                          ["commit", "-q", "-m", "init"]):
                 sp.run(["git", "-C", str(tmp), *args], check=True,
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, env=self._fixture_env(tmp))
             # dirty a tracked file
             (tmp / "tools" / "run_all_audits.sh").write_text(
                 "#!/bin/bash\nexit 0\n# dirtied\n", encoding="utf-8")
@@ -18951,6 +18970,40 @@ class PrePushGuardTests(unittest.TestCase):
             self.assertIn("PRE_PUSH_GUARD_ALLOW_DIRTY", result.stderr)
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_inherited_store_tempdir_and_git_variables_leave_verdicts_unchanged(self) -> None:
+        """A store, a temporary directory or a repository the caller's environment names does
+        not change a verdict. A usable store makes install-git-hooks.sh --check look for the
+        repository, which the fixture is not; a directory named private beside the fixture is a
+        usable store by its name alone; and GIT_DIR gives git another repository to attest."""
+        from unittest import mock
+        outside = Path(tempfile.mkdtemp(prefix="lint-guard-env-"))
+        self.addCleanup(shutil.rmtree, outside, True)
+        store = outside / "store"
+        store.mkdir()
+        (store / "pending-decisions.md").write_text("- stand-in store entry\n", encoding="utf-8")
+        tempdir = outside / "tmp"
+        (tempdir / "private").mkdir(parents=True)
+        empty_repo = outside / "empty-repo"
+        subprocess.run(["git", "init", "-q", str(empty_repo)], check=True, capture_output=True,
+                       env=fixture_git_environment())
+        cases = (
+            ("GRC_STORE", {"GRC_STORE": str(store)}, None, {}, 0),
+            ("TMPDIR", {"TMPDIR": str(tempdir)}, str(tempdir), {}, 0),
+            ("GIT_DIR", {"GIT_DIR": str(empty_repo / ".git")}, None, {"allow_dirty": False}, 5),
+        )
+        for name, variables, base, run_args, expected in cases:
+            with self.subTest(inherited=name), mock.patch.dict(os.environ, variables), \
+                    mock.patch.object(tempfile, "tempdir", base or str(outside)):
+                tmp, _ = self._build_guard_dir(first_rc=0, second_rc=0)
+                try:
+                    self.assertTrue(tmp.is_relative_to(outside),
+                                    f"the fixture {tmp} is outside the test's root {outside}")
+                    result = self._run_guard(tmp, **run_args)
+                finally:
+                    shutil.rmtree(tmp, ignore_errors=True)
+                self.assertEqual(result.returncode, expected,
+                                 f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}")
 
 
 class PrePushGuardFastPathTests(unittest.TestCase):
@@ -24984,7 +25037,12 @@ class ListingSurfaceCompletenessTests(LinterTestCase):
 class ChangelogMirrorHeaderParityTests(LinterTestCase):
     """tools/lint-changelog-mirror-header-parity.py"""
 
-    MIRROR_REL = "changelog-details/CHANGELOG-detailed.md"
+    # This repository's legacy detailed mirror in the operational store. The
+    # store is shared with the successor repository, whose own gate reads the
+    # shared changelog-details/CHANGELOG-detailed.md and rejects pre-epoch
+    # records, so this repository's gate reads its own legacy file instead
+    # (the gate's STORE_MIRROR_REL).
+    MIRROR_REL = "changelog-details/CHANGELOG-detailed-grc_library.md"
 
     def _head_parity_result(
         self, changelog: str | None = None
@@ -25043,6 +25101,49 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             f"mirror (headers up to PR #{ceiling}) should carry the same per-PR headers.\n"
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
+
+    def test_store_lookup_reads_the_legacy_mirror_not_the_shared_one(self) -> None:
+        # The operational store is shared with the successor repository, whose
+        # own mirror-parity gate owns changelog-details/CHANGELOG-detailed.md
+        # and rejects every record from before its epoch. This repository's
+        # gate must read only its own legacy mirror file: with the legacy file
+        # present, the default run checks parity against it; with ONLY the
+        # shared file present, the default run skips (no mirror for THIS
+        # repository) instead of reading the shared file and failing on the
+        # successor's records.
+        mod = load_linter_module(
+            "tools/lint-changelog-mirror-header-parity.py", "_mp_legacy_split")
+        self.assertEqual(mod.STORE_MIRROR_REL, self.MIRROR_REL)
+        self.assertNotEqual(mod.STORE_MIRROR_REL,
+                            "changelog-details/CHANGELOG-detailed.md")
+        changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+
+        def gate(store: str) -> subprocess.CompletedProcess:
+            return subprocess.run(
+                [sys.executable, "-B",
+                 str(REPO_ROOT / "tools" / "lint-changelog-mirror-header-parity.py")],
+                cwd=str(REPO_ROOT), capture_output=True, text=True,
+                env=dict(os.environ, GRC_STORE=store),
+            )
+
+        with tempfile.TemporaryDirectory() as store:
+            (Path(store) / "changelog-details").mkdir()
+            # The shared mirror deliberately mismatches this repository's root.
+            (Path(store) / "changelog-details" / "CHANGELOG-detailed.md").write_text(
+                "**2026-11-09 | 2026.11.66 | PR #1** - successor entry.\n",
+                encoding="utf-8",
+            )
+            only_shared = gate(store)
+            # The legacy mirror carries the root's own headers, so parity holds.
+            (Path(store) / self.MIRROR_REL).write_text(changelog, encoding="utf-8")
+            with_legacy = gate(store)
+        self.assertEqual(only_shared.returncode, 0,
+                         only_shared.stdout + only_shared.stderr)
+        self.assertIn("skipping the header-parity", only_shared.stdout)
+        self.assertNotIn("FAIL", only_shared.stdout)
+        self.assertEqual(with_legacy.returncode, 0,
+                         with_legacy.stdout + with_legacy.stderr)
+        self.assertIn("OK: root and detailed-mirror", with_legacy.stdout)
 
     def test_head_parity_passes_with_mirror_one_header_ahead(self) -> None:
         # 3b656 regression: a branch one merge behind main sees a store mirror carrying
@@ -39303,6 +39404,163 @@ class WorkingProseHygieneTests(LinterTestCase):
         result = run_linter("tools/lint-working-prose-hygiene.py", control)
         self.assertLinterFails(result, "prose-dash")
 
+    def _run_gate51_with_store(self, store: Path, *paths: str) -> subprocess.CompletedProcess:
+        """Gate 51's real CLI with the fixture directory as the operational store."""
+        return subprocess.run(
+            [sys.executable, str(REPO_ROOT / "tools" / "lint-working-prose-hygiene.py"),
+             *paths],
+            cwd=str(REPO_ROOT), capture_output=True, text=True,
+            env=dict(os.environ, GRC_STORE=str(store)),
+        )
+
+    def test_handbacks_directory_exempt(self) -> None:
+        # The store-root research/handbacks/ tree holds VERBATIM worker
+        # hand-back prose, kept byte-exact as evidence; like guardrail seeds it
+        # is foreign prose the store house-style does not apply to, so
+        # is_handback_evidence exempts it (store-root-anchored match, the
+        # is_narrative_root pattern, NOT a bare name-component match). The
+        # fixture store lives OUTSIDE the repository: resolve_working rejects
+        # an in-repo store by design.
+        base = Path(os.path.realpath(tempfile.mkdtemp(prefix="handbacks-exempt-")))
+        self.addCleanup(_force_rmtree, base)
+        handback_dir = base / "research" / "handbacks" / "rebuild-classify"
+        handback_dir.mkdir(parents=True, exist_ok=True)
+        handback = handback_dir / "plan.md"
+        handback.write_text(
+            "# Hand-back\n\nPart 3 — implementation plan carries an em-dash.\n",
+            encoding="utf-8",
+        )
+        exempt = self._run_gate51_with_store(base, str(handback))
+        self.assertEqual(
+            exempt.returncode, 0,
+            f"a worker hand-back under the store's research/handbacks/ must be exempt.\n"
+            f"stdout:\n{exempt.stdout}\nstderr:\n{exempt.stderr}",
+        )
+        # Companion: the SAME em-dash prose elsewhere in the store (a research/
+        # file NOT under research/handbacks/) is still scanned and flagged.
+        control = base / "research" / "notes-em-dash.md"
+        control.write_text(
+            "# Note\n\nPart 3 — implementation plan carries an em-dash.\n",
+            encoding="utf-8",
+        )
+        result = self._run_gate51_with_store(base, str(control))
+        self.assertLinterFails(result, "prose-dash")
+
+    def test_handbacks_directory_elsewhere_is_still_scanned(self) -> None:
+        # The exemption is anchored at the store-root research/handbacks/ tree
+        # ONLY: a directory merely named `handbacks` anywhere else in the store
+        # (here under validate-pr/, and a nested notes/research/handbacks/) is
+        # still scanned, so maintainer prose cannot silently leave gate 51
+        # coverage by its directory name (the lint_common NARRATIVE_DIRS
+        # over-match hazard).
+        base = Path(os.path.realpath(tempfile.mkdtemp(prefix="handbacks-elsewhere-")))
+        self.addCleanup(_force_rmtree, base)
+        for rel in ("validate-pr/handbacks", "notes/research/handbacks"):
+            d = base / rel
+            d.mkdir(parents=True, exist_ok=True)
+            (d / "notes.md").write_text(
+                "# Note\n\nPart 3 — implementation plan carries an em-dash.\n",
+                encoding="utf-8",
+            )
+            with self.subTest(rel=rel):
+                result = self._run_gate51_with_store(base, str(d / "notes.md"))
+                self.assertLinterFails(result, "prose-dash")
+
+    def test_unresolvable_path_is_scanned_not_exempted(self) -> None:
+        # is_handback_evidence returns False when Path.resolve raises OSError (or
+        # ValueError), so a path it cannot resolve is NOT exempt: it reaches
+        # check_file and is scanned, and a read error there is not swallowed
+        # (read_text_safe catches only UnicodeDecodeError). A store file outside
+        # research/handbacks/ therefore stays scanned, and a hand-back file whose
+        # path cannot be resolved is scanned too (over-report, never a silent pass).
+        from contextlib import redirect_stdout
+        from unittest import mock
+        mod = load_linter_module(
+            "tools/lint-working-prose-hygiene.py", f"_gate51_unresolvable_{self._testMethodName}")
+        base = Path(os.path.realpath(tempfile.mkdtemp(prefix="handbacks-unresolvable-")))
+        self.addCleanup(_force_rmtree, base)
+        outside = base / "research" / "notes.md"
+        inside = base / "research" / "handbacks" / "plan.md"
+        inside.parent.mkdir(parents=True)
+        for f in (outside, inside):
+            f.write_text(
+                "# Note\n\nPart 3 \u2014 implementation plan carries an em-dash.\n",
+                encoding="utf-8",
+            )
+        real_resolve = Path.resolve
+
+        def unresolvable(target):
+            def resolve(path, strict=False):
+                if path == target:
+                    raise OSError(40, "cannot resolve", str(path))
+                return real_resolve(path, strict=strict)
+            return resolve
+
+        # Control: with every path resolvable only the hand-back file is exempt.
+        self.assertFalse(mod.is_handback_evidence(outside, base))
+        self.assertTrue(mod.is_handback_evidence(inside, base))
+        # A path that cannot be resolved (the file itself, or the store root for
+        # every file) is never exempt.
+        for label, target, unexempt in (("outside file", outside, (outside,)),
+                                        ("hand-back file", inside, (inside,)),
+                                        ("store root", base, (outside, inside))):
+            with self.subTest(unresolvable=label), \
+                    mock.patch.object(Path, "resolve", unresolvable(target)):
+                for path in unexempt:
+                    self.assertFalse(mod.is_handback_evidence(path, base), path)
+        # The default store walk scans (and reports) the file it cannot resolve.
+        for label, target in (("outside file", outside), ("hand-back file", inside)):
+            out = io.StringIO()
+            with self.subTest(walk=label), \
+                    mock.patch.object(mod, "default_scan_root", return_value=base), \
+                    mock.patch.object(Path, "resolve", unresolvable(target)), \
+                    redirect_stdout(out):
+                rc = mod.main(["lint-working-prose-hygiene.py"])
+            self.assertEqual(rc, 1, out.getvalue())
+            self.assertIn(f"=== {target.as_posix()} ===", out.getvalue())
+
+    def test_readable_md_symlink_follows_the_handback_exemption_where_it_resolves(self) -> None:
+        # The research/handbacks/ exemption is read where a readable .md file resolves: a link
+        # inside the tree to a file outside it is scanned, and a link outside the tree to a
+        # hand-back is exempt, like the file it points at.
+        base = Path(os.path.realpath(tempfile.mkdtemp(prefix="readable-md-symlink-handbacks-")))
+        self.addCleanup(_force_rmtree, base)
+        store = base / "store"
+        handbacks = store / "research" / "handbacks"
+        notes = store / "notes"
+        handbacks.mkdir(parents=True)
+        notes.mkdir()
+        dash = "# Note\n\nPart 3 \u2014 implementation plan carries an em-dash.\n"
+        (notes / "outside.md").write_text(dash, encoding="utf-8")
+        (handbacks / "plan.md").write_text(dash, encoding="utf-8")
+        readable_in = handbacks / "to-outside.md"
+        readable_in.symlink_to(notes / "outside.md")
+        readable_out = notes / "to-handback.md"
+        readable_out.symlink_to(handbacks / "plan.md")
+        result = self._run_gate51_with_store(store)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(f"=== {readable_in.as_posix()} ===\n  L3 [prose-dash]", result.stdout)
+        self.assertNotIn(f"=== {readable_out.as_posix()} ===", result.stdout)
+        self.assertNotIn(f"=== {(handbacks / 'plan.md').as_posix()} ===", result.stdout)
+
+    def test_readable_md_symlink_is_scanned_and_the_ok_line_names_the_store(self) -> None:
+        # A symlink to a readable .md file is scanned like any other file in the store walk,
+        # and the pass line names the store scope. The fixture store lives OUTSIDE the
+        # repository (in the temporary directory): resolve_working rejects an in-repo store
+        # by design.
+        base = Path(os.path.realpath(tempfile.mkdtemp(prefix="readable-md-symlink-")))
+        self.addCleanup(_force_rmtree, base)
+        notes = base / "store" / "notes"
+        notes.mkdir(parents=True)
+        clean = notes / "clean.md"
+        clean.write_text("# Note\n\nPlain prose with no dash.\n", encoding="utf-8")
+        (notes / "linked.md").symlink_to(clean)
+        # The symlink counts as a file, so the walk scans two files and passes.
+        control = self._run_gate51_with_store(base / "store")
+        self.assertEqual(control.returncode, 0, control.stdout + control.stderr)
+        self.assertIn("OK: no prose em/en-dashes in 2 store or .working/ file(s).",
+                      control.stdout)
+
     # 3b696: gate 51's own fence and code-span model. Each case below names the rule it pins
     # (see the gate docstring). A case marked "fails on dde3e287d" failed against the toggle and
     # the `(`+)(.+?)\1` stripper; the others are guards that both agree on.
@@ -45129,7 +45387,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         adopt-bootstrap-ref.py OWN F 2c56acda4d74183039a3eeba0d0ec6d06456c6c4d55b5f30ce9f5be240f829ab
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
         aiqt_bootstrap.py PASSIVE F 2d094f059929c9ce413f4aabb02fff22f45c553759eb6956574240b094462353
-        aiqt_rules.py NO_FS F 6b7434723d46b37f5016d5b1f986b98de9c28d299b40fca34f434471d21e86e6
+        aiqt_rules.py NO_FS F 21c90dc9027d3c498ed7e4919b31b09df22a78d5975396d3c6541c5395d36d1b
         alignment-register-aliases.json DATA F 7aba74ebc7e34d89145f754cc53763e03df0bbf7f366765bbd94df5e47fdb812
         alignment-register-exclusions.json DATA F ae28ec61a6a973f24a33af86957dff0d1f0d0740dc82b5aec393a5bb882c3df0
         alignment_citation_ids.json DATA F cfa3de2c52597f242d12bfce2d71756e897c173de8df9a1577aed4f42b571d56
@@ -45168,11 +45426,11 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         ccm_aicm_reference.py PASSIVE F 1ed15d9b1bd4cfd1162df3e720b5aa6058c3cba3cb1f626fcf2e1ee605c17e71
         changelog_diff.py PASSIVE F 8311b75d1b8c3ed0ce72ed8342cbcf8cc6243073356ddcce2662e197c0069b3a
         check-alignment-register-on-pr.py NO_FS F 66bcdc0724ea2394bd35e29b8f78fb7313a5c755493f914656ce376364a4c0d9
-        check-changelog-dash-on-pr.py NO_FS F c4a4ed41c310deedab000b034124e1c08482c59da539907d9d22fd5faeb0089e
+        check-changelog-dash-on-pr.py NO_FS F 7d46ed6fffc03aa15151dae8d2b8f251617f4b73b9235ab1ac0231e68753ce2a
         check-changelog-length-on-pr.py NO_FS F dd81f8c07f2ab5045bc492e1d59ebab939585c01355d1ca0d7baf0fed08c84a1
         check-changelog-on-pr.py NO_FS F e762e152f63d454d5915d219ce71329993c57b3bb780b860c0d3ec9938fdbd0e
-        check-changelog-preflight-commit.py NO_FS F 12b94eff89cd413ba3b3f87c9ae07702316f9ba3614b36318731179664f20268
-        check-class-attestation-on-pr.py NO_FS F bd15aaad43f488b824b69539041c1455de9208cbafebe725207a462210dae8fb
+        check-changelog-preflight-commit.py NO_FS F 8b6661d3820df2989dcbe98b65703573eef1eff4ecacdc946c0935292fee571e
+        check-class-attestation-on-pr.py NO_FS F 03e56a06770650479858c8a2cad1755aa4789532a6535fdfc1187e780b8fccf3
         check-class-completeness.py NO_FS F 8f1c8316f2c89a07294fd0434163c72a70b6170388398aa82666859f15181a70
         check-claude-md-size.py NO_FS F 0c2c447fbeb2df2e88a61eca220cfd5f1a41ab8aca24b90936e832c1b52f1a95
         check-clause-preservation.py OWN F 43d6804eccf05f9c2434da4ec879246d48cc80081b8c852e86437cf38c65c664
@@ -45221,11 +45479,11 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
         lint-baseline-pin.py OWN F 38eb62fa2d783bbc91988f631c7d48af7c6476c6876362a3154052df458f985d
-        lint-bookkeeping-parity.py NO_FS F e5e59ca9188608b97c1598cc78253b63b670cf706c224ffbaa77c975a32abcf7
+        lint-bookkeeping-parity.py NO_FS F 8641ed080b92c71a2ef5458f137e27842da44800790d7629de205d20213e7abd
         lint-ccm-aicm-citations.py CWD F 6a1eb4d255f76d35ed337441b0f7127ffd6d943d8c47730921e6f872491685a7
         lint-ccm-provider-member-in-range.py CWD F 8c0f050c7b64e301190c3350398a52e9267e05f2274fa46fb5d31dc7fc6c4871
         lint-changelog-link-coverage.py CWD F 0eb2c21687bcae9e697ab26d0273e766530ec144f1417ac04309badae1bd1bd2
-        lint-changelog-mirror-header-parity.py OWN F 6a56d8085fff041fc01f3e7f55ae2046feb41bf3c71ede186c6be469d6699cb2
+        lint-changelog-mirror-header-parity.py OWN F 7c618c68d3c07729bb453a26763d346a542a5d61c84034f9d6ca60a320d14052
         lint-citation-currency-cadence.py NO_FS F 5dba5f4f0c3ec6482ca0e465d221fe1d44010bed5c47b2af235672069cf0cadd
         lint-citation-verification-freshness.py OWN F 057d0deb7b8442828df3042e47923cf1febf446ab77bf5f816f31bba9dc3949d
         lint-citations.py ROOT F 83bf87b4c7ab8d59c1835f4eee4bd75d9a55e5accb60b062463f6b74dc9d5437
@@ -45312,8 +45570,8 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-version-date-consistency.py OWN F f9956da5ff7492dc60c99939c1e10b650fc2ffbc51a00f28bf51e53ae863f472
         lint-web-corpus-links.py OWN F 24a8298d028a1b6eaf4b2bcfdac19dda0935c2165c74f4050d7bc0094a0b750b
         lint-worker-id-anonymity.py ROOT F 67a9a21df757ee66a8bf7eb774df851b79738ce25a356979f889a4f26c26803c
-        lint-working-prose-hygiene.py CWD F e0920226da77581df8ade337e5ed3464901b0cc92d7198fe95cef46ee461d220
-        lint_common.py PASSIVE F efce3cc8569ef9bf07cd677d12f119482097b766b6e8f587acd07986527abe87
+        lint-working-prose-hygiene.py CWD F 062ea412cfecf48aa8d14c61cb016325307136c5b9d820b18cfe6b5c51d21908
+        lint_common.py PASSIVE F c3f9567cb927a4a4599fc2704a690a93d145aef8edfa2a90eb660b246aadbedd
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
@@ -45321,7 +45579,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         open-findings-row.py OWN F 384a6ab6aad0e0ceebc7f6beaa82f9174030a824c1a48f48f222dc69ebcb5e69
         pre-push-guard.sh FIXED F e082e92fe082af59cee69da9d2a329dacf1cdf4e8e4d600f4c5b6fc2ce89dabf
         pre-push-hook.py TRANSPORT F d193c170d963cbca2e64bb76ce0b1dfbe7999b9f5af6c0701ae11d95f9d7f659
-        preflight-changelog.py NO_FS F bc91a3dc87ba0615f3def6bdddc3d4bc774e1c3389ca9f67b334c9e014f929a2
+        preflight-changelog.py NO_FS F a50874e9bb41aaf17949348e2ea14633f4f6e44b05ff24e4461dc05c74316911
         preflight-version-date.py NO_FS F a12ecf5ae928da5048eed6f282876a3ad2de92a51cc266eda65c8d5b2a613088
         preflight_language_runner.py CHILD F 5022c1d1ea1b9d289710b26c96ba615ad303bee4850723fcf12d99a8e247d0c7
         provision_citations.py PASSIVE F e8d87a091a4932ec7caa9908785f51bb696eca08073fce848a80721c3b654bc3
@@ -54744,7 +55002,7 @@ class StoreDegradedNoticeTests(unittest.TestCase):
                     f"<!-- gate50-floor: #{pr} -->\n")
         self._write(mod.VALIDATE_PR_HISTORY, register)
         self._write(mod.IMPROVEMENT_LOG, register)
-        for rel in ("changelog-details/CHANGELOG-detailed.md", "deep-assessment/register.md",
+        for rel in (mod.STORE_MIRROR_REL, "deep-assessment/register.md",
                     "merge-bypass-log.md"):
             self._write(rel, "# fixture\n")
         files = {mod.CHANGELOG_PATH: f"**2026-10-03 | 2026.10.1 | PR #{pr}** - x\n",
@@ -54767,7 +55025,7 @@ class StoreDegradedNoticeTests(unittest.TestCase):
     def test_gate59_changelog_mirror_header_parity(self) -> None:
         from unittest.mock import Mock
         mod = self._load("lint-changelog-mirror-header-parity.py")
-        self._write("changelog-details/CHANGELOG-detailed.md", "# Detailed changelog\n")
+        self._write(mod.STORE_MIRROR_REL, "# Detailed changelog\n")
         root = self.store / "root"
         root.mkdir()
         (root / mod.ROOT_CHANGELOG_REL).write_text("# Changelog\n", encoding="utf-8")
@@ -58703,7 +58961,7 @@ class PreflightChangelogMirrorTests(unittest.TestCase):
     def _write_mirror(self, root, body):
         d = root / ".working" / "changelog-details"
         d.mkdir(parents=True)
-        (d / "CHANGELOG-detailed.md").write_text(body, encoding="utf-8")
+        (d / "CHANGELOG-detailed-grc_library.md").write_text(body, encoding="utf-8")
         return d
 
     def test_dangling_in_mirror_flagged(self):
@@ -59230,7 +59488,7 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
             td = os.path.realpath(td)
             root, _ = self._repo(td)
             store = Path(td) / "private"
-            mirror = store / "changelog-details" / "CHANGELOG-detailed.md"
+            mirror = store / "changelog-details" / "CHANGELOG-detailed-grc_library.md"
             mirror.parent.mkdir(parents=True)
             mirror.write_text("# Detailed\n", encoding="utf-8")
             env = self._env(td)
@@ -59251,7 +59509,7 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
                 lines = mod.added_lines(True, root=root)
                 foreign = mod._foreign_repo_env()
             self.assertIn(("CHANGELOG.md", self.ADDED), lines)
-            self.assertIn(("changelog-details/CHANGELOG-detailed.md", self.ADDED), lines)
+            self.assertIn(("changelog-details/CHANGELOG-detailed-grc_library.md", self.ADDED), lines)
             for name in ("GIT_INDEX_FILE", "GIT_DIR"):
                 self.assertNotIn(name, foreign)
             self.assertEqual(foreign.get("GRC_STORE"), str(store))
@@ -59315,7 +59573,7 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
         # or rename metadata: a copy under diff.renames=copies, and a staged `git mv` of the mirror
         # under git's default diff.renames=true. The 120-word entry then passed ("OK", exit 0) in
         # both modes. Each row fails on 3231c303. Mutation killed: dropping --no-renames.
-        mirror = ".working/changelog-details/CHANGELOG-detailed.md"
+        mirror = ".working/changelog-details/CHANGELOG-detailed-grc_library.md"
         body = ("# Detailed\n\n**2026-07-17 | 2026.07.476 | PR #988** - "
                 + " ".join(["word"] * 120) + ".\n")
         rows = (("copy", (("diff.renames", "copies"),)), ("rename", ()))
@@ -59413,7 +59671,7 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
         # not the lines of the file they lead to, so a CHANGELOG.md or in-repo mirror linked to
         # notes.md, which holds a dash line, was read as one line of link text. Now exit 2 with
         # one ERROR line naming the file and its mode.
-        mirror = ".working/changelog-details/CHANGELOG-detailed.md"
+        mirror = ".working/changelog-details/CHANGELOG-detailed-grc_library.md"
         rows = (("CHANGELOG.md", "symlink", True), ("CHANGELOG.md", "symlink", False),
                 (mirror, "symlink", True), (mirror, "symlink", False),
                 ("CHANGELOG.md", "gitlink", True))
@@ -59449,7 +59707,7 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
                 self.assertRegex(result.stderr, "^ERROR: the CHANGELOG diff could not be read: "
                                  + re.escape(rel) + " has mode " + mode + r" .*\n$")
 
-    MIRROR = ".working/changelog-details/CHANGELOG-detailed.md"
+    MIRROR = ".working/changelog-details/CHANGELOG-detailed-grc_library.md"
 
     @staticmethod
     def _aid(root, env, staged, extra_env=None):
@@ -59522,7 +59780,7 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
                         tempfile.TemporaryDirectory() as td:
                     root, env, git = self._cli_fixture(os.path.realpath(td))
                     (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
-                    target = root / "notes-dir" / "changelog-details" / "CHANGELOG-detailed.md"
+                    target = root / "notes-dir" / "changelog-details" / "CHANGELOG-detailed-grc_library.md"
                     target.parent.mkdir(parents=True)
                     target.write_text("# Detailed\n", encoding="utf-8")
                     (root / link).parent.mkdir(parents=True, exist_ok=True)
@@ -59577,7 +59835,7 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
                     git("commit", "-q", "--no-verify", "-m", "init")
                     repo = Path(td) / "ops"
                     store = repo / "store" if layout == "below a subdirectory" else repo
-                    mirror = store / "changelog-details" / "CHANGELOG-detailed.md"
+                    mirror = store / "changelog-details" / "CHANGELOG-detailed-grc_library.md"
                     mirror.parent.mkdir(parents=True)
                     mirror.write_text("# Detailed\n", encoding="utf-8")
 
@@ -59605,15 +59863,15 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
                                          r"rerun\.\n$")
                     else:
                         self.assertEqual(result.returncode, 1, report)
-                        self.assertIn("changelog-details/CHANGELOG-detailed.md: em/en dash in "
-                                      "prose", report)
+                        self.assertIn("changelog-details/CHANGELOG-detailed-grc_library.md: "
+                                      "em/en dash in prose", report)
 
     def _store(self, td, env, track=True):
         """The operational store repository ``<td>/ops``: a committed detailed mirror, then ADDED
         appended and staged. With ``track`` False only notes.md is committed and the mirror is
         never added. Returns the store, its mirror and its git runner."""
         store = Path(td) / "ops"
-        mirror = store / "changelog-details" / "CHANGELOG-detailed.md"
+        mirror = store / "changelog-details" / "CHANGELOG-detailed-grc_library.md"
         mirror.parent.mkdir(parents=True)
         (store / "notes.md").write_text("# Notes\n", encoding="utf-8")
         mirror.write_text("# Detailed\n", encoding="utf-8")
@@ -59651,8 +59909,8 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
                 report = result.stdout + result.stderr
                 if staged:
                     self.assertEqual(result.returncode, 1, report)
-                    self.assertIn("FAIL changelog-details/CHANGELOG-detailed.md: em/en dash in "
-                                  "prose", report)
+                    self.assertIn("FAIL changelog-details/CHANGELOG-detailed-grc_library.md: "
+                                  "em/en dash in prose", report)
                 else:
                     self.assertEqual(result.returncode, 0, report)
                     self.assertIn("OK: 0 added CHANGELOG line(s) (working-tree)", report)
@@ -59685,13 +59943,14 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
                         self.assertEqual(result.returncode, 2, report)
                         self.assertRegex(
                             result.stderr, r"^ERROR: the CHANGELOG diff could not be read: "
-                            r"changelog-details/CHANGELOG-detailed\.md is in neither the index "
+                            r"changelog-details/CHANGELOG-detailed-grc_library\.md is in neither "
+                            r"the index "
                             r"nor the HEAD tree of the repository that git selects in .*/ops "
                             r"\(.*\), so its diff would show no line\n$")
                     else:
                         self.assertEqual(result.returncode, 1, report)
-                        self.assertIn("FAIL changelog-details/CHANGELOG-detailed.md: em/en dash "
-                                      "in prose", report)
+                        self.assertIn("FAIL changelog-details/CHANGELOG-detailed-grc_library.md: "
+                                      "em/en dash in prose", report)
 
     def test_a_changelog_path_that_cannot_be_examined_exits_2(self):
         # 3b399 round 6 (claude N2 3B399-ISSYMLINK-DOC): the work-tree link check used
@@ -59759,7 +60018,7 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
                     if removal == "deleted":
                         store_mirror.unlink()
                     else:
-                        store_git("rm", "-q", "changelog-details/CHANGELOG-detailed.md")
+                        store_git("rm", "-q", "changelog-details/CHANGELOG-detailed-grc_library.md")
                     self._sibling(td, env)
                     result = self._aid(root, env, staged, {"GRC_STORE": str(store)})
                     report = result.stdout + result.stderr
@@ -59835,8 +60094,8 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
                                          [locked] + r" .*\n$")
                     else:
                         self.assertEqual(result.returncode, 1, report)
-                        self.assertIn("FAIL changelog-details/CHANGELOG-detailed.md: em/en dash "
-                                      "in prose", report)
+                        self.assertIn("FAIL changelog-details/CHANGELOG-detailed-grc_library.md: "
+                                      "em/en dash in prose", report)
 
     def test_a_store_behind_a_missing_component_is_not_called_may_exist(self):
         # 3b677 r7: _inaccessible_reason said "may exist but this account cannot examine it" for
@@ -59930,7 +60189,7 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
                     store_env = {}
                     if kind == "store":
                         repo, mirror, _ = self._store(td, env)
-                        rel = "changelog-details/CHANGELOG-detailed.md"
+                        rel = "changelog-details/CHANGELOG-detailed-grc_library.md"
                         store_env = {"GRC_STORE": str(repo)}
                     else:
                         repo, mirror = self._sibling(td, env)
@@ -60008,7 +60267,7 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
                             store, _, store_git = self._store(td, env)
                             if not dash:
                                 store_git("reset", "-q", "--hard")
-                            label = "changelog-details/CHANGELOG-detailed.md"
+                            label = "changelog-details/CHANGELOG-detailed-grc_library.md"
                         else:
                             store = Path(td) / "ops"
                             self._repo_without_mirror(store, env)
@@ -60094,8 +60353,8 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
                         self.assertIn("OK: 0 added CHANGELOG line(s)", report)
                     elif layout == "archived beside a store":
                         self.assertEqual(result.returncode, 1, report)
-                        self.assertIn("FAIL changelog-details/CHANGELOG-detailed.md: em/en dash "
-                                      "in prose", report)
+                        self.assertIn("FAIL changelog-details/CHANGELOG-detailed-grc_library.md: "
+                                      "em/en dash in prose", report)
                     else:
                         self.assertEqual(result.returncode, 2, report)
                         self.assertRegex(
@@ -82315,7 +82574,8 @@ class RealPathMessageTests(unittest.TestCase):
 
 
 class SelfTestTempdirTests(unittest.TestCase):
-    """3b103: a hook or tool self-test that makes temp directories leaves none behind."""
+    """3b103: a hook or tool self-test that makes temp directories leaves none behind. The
+    answered-question hook's self-test also keeps its verdict whatever store GRC_STORE names."""
 
     ALLOCATORS = ("mkdtemp", "mkstemp", "mktemp", "TemporaryDirectory", "NamedTemporaryFile")
 
@@ -82437,6 +82697,100 @@ class SelfTestTempdirTests(unittest.TestCase):
                                      env=env, capture_output=True, text=True, timeout=600)
                 self.assertEqual(run.returncode, 0, run.stdout[-400:] + run.stderr[-400:])
                 self.assertEqual(sorted(os.listdir(tmp)), [])
+
+    def test_answered_question_self_test_ignores_inherited_store(self) -> None:
+        # The hook reads its decision stores through lint_common, which prefers the store GRC_STORE
+        # names over the self-test's fixture stores. A stand-in store whose pending-decisions.md
+        # records 3.6 (a key the boundary fixture asks about) and none of the fixture's own keys
+        # must leave every verdict unchanged, as must GRC_STORE unset.
+        hook = REPO_ROOT / ".claude" / "hooks" / "block-answered-question.py"
+        with tempfile.TemporaryDirectory() as tmp:
+            store = Path(tmp) / "store"
+            store.mkdir()
+            (store / "pending-decisions.md").write_text(
+                "- **3.6** decided: keep the existing wording.\n", encoding="utf-8")
+            (store / "DONE.md").write_text("", encoding="utf-8")
+            work = Path(tmp) / "work"
+            work.mkdir()
+            base = {k: v for k, v in os.environ.items() if k != "GRC_STORE"}
+            for label, env in (("unset", base), ("stand-in store", dict(base, GRC_STORE=str(store)))):
+                with self.subTest(GRC_STORE=label):
+                    run = subprocess.run([sys.executable, "-B", str(hook), "--self-test"],
+                                         cwd=REPO_ROOT, env=dict(env, TMPDIR=str(work)),
+                                         capture_output=True, text=True, timeout=120)
+                    self.assertEqual(run.returncode, 0, run.stdout[-400:] + run.stderr[-1600:])
+                    self.assertEqual(sorted(os.listdir(work)), [])
+
+    def test_answered_question_self_test_ignores_a_store_by_name(self) -> None:
+        # With GRC_STORE unset, lint_common takes the directory named private beside a fixture root
+        # as the operational store by its name alone. Before each verdict, the driver plants a
+        # stand-in store of that name, recording 3.6 (a key the boundary fixture asks about) and
+        # none of the fixture's own keys, in the parent of the directory tempfile.mkdtemp made for
+        # the fixture root the self-test reads. Before each fixture root had a holder directory,
+        # tempfile.mkdtemp made the fixture root itself, so that parent is where the plant sat
+        # beside it. The driver reports each fixture root read, the directory made for it and every
+        # directory it planted into; the test checks the plant sits in the parent of that made
+        # directory, that every verdict stays unchanged and that the self-test's root, plant
+        # included, is removed afterwards.
+        hook = REPO_ROOT / ".claude" / "hooks" / "block-answered-question.py"
+        driver = (
+            "import json, os, runpy, shutil, sys, tempfile\n"
+            "hook, stand_in = sys.argv[1], sys.argv[2]\n"
+            "made, planted, reads = [], [], []\n"
+            "real_mkdtemp = tempfile.mkdtemp\n"
+            "def mkdtemp(*args, **kwargs):\n"
+            "    path = real_mkdtemp(*args, **kwargs)\n"
+            "    made.append(path)\n"
+            "    return path\n"
+            "tempfile.mkdtemp = mkdtemp\n"
+            "names = runpy.run_path(hook, run_name='answered_question_driver')\n"
+            "hook_globals = names['decide'].__globals__\n"
+            "real_decide = hook_globals['decide']\n"
+            "def decide(payload, project_dir):\n"
+            "    holding = [m for m in made if os.path.commonpath([m, project_dir]) == m]\n"
+            "    made_for = max(holding, key=len) if holding else None\n"
+            "    if made_for is not None:\n"
+            "        target = os.path.dirname(made_for)\n"
+            "        if not os.path.exists(os.path.join(target, 'private')):\n"
+            "            shutil.copytree(stand_in, os.path.join(target, 'private'))\n"
+            "            planted.append(target)\n"
+            "    reads.append([project_dir, made_for])\n"
+            "    return real_decide(payload, project_dir)\n"
+            "hook_globals['decide'] = decide\n"
+            "code = hook_globals['main']([hook, '--self-test'])\n"
+            "print('driver report ' + json.dumps({'planted': planted, 'reads': reads}), flush=True)\n"
+            "sys.exit(code)\n"
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            stand_in = Path(tmp) / "stand-in"
+            stand_in.mkdir()
+            (stand_in / "pending-decisions.md").write_text(
+                "- **3.6** decided: keep the existing wording.\n", encoding="utf-8")
+            (stand_in / "DONE.md").write_text("", encoding="utf-8")
+            work = Path(tmp) / "work"
+            work.mkdir()
+            env = {k: v for k, v in os.environ.items() if k != "GRC_STORE"}
+            run = subprocess.run([sys.executable, "-I", "-B", "-c", driver, str(hook), str(stand_in)],
+                                 cwd=REPO_ROOT, env=dict(env, TMPDIR=str(work)),
+                                 capture_output=True, text=True, timeout=120)
+            report = [line[len("driver report "):] for line in run.stdout.splitlines()
+                      if line.startswith("driver report ")]
+            self.assertEqual(len(report), 1, run.stdout[-400:] + run.stderr[-1600:])
+            report = json.loads(report[0])
+            planted = [Path(p) for p in report["planted"]]
+            self.assertTrue(planted, report)
+            for target in planted:
+                # Inside the self-test's root, never beside it in the inherited TMPDIR.
+                self.assertTrue(target.is_relative_to(work) and target != work, report)
+            self.assertTrue(report["reads"], "the self-test read no fixture root")
+            for fixture, made_for in report["reads"]:
+                with self.subTest(fixture=fixture):
+                    self.assertIsNotNone(made_for, "no directory tempfile.mkdtemp made holds this fixture root")
+                    self.assertTrue(Path(fixture).is_relative_to(made_for), report)
+                    self.assertIn(Path(made_for).parent, planted,
+                                  "the plant is not in the parent of the directory made for this fixture root")
+            self.assertEqual(run.returncode, 0, run.stdout[-400:] + run.stderr[-1600:])
+            self.assertEqual(sorted(os.listdir(work)), [])
 
 
 class OpenFindingsRowTests(unittest.TestCase):
@@ -87859,7 +88213,7 @@ class StoreScopeCeilingTests(LinterTestCase):
         working = dict([
             ("validate-pr/history.md", self._Stub(self._HDR + self._LATER_PR_ROWS + self._OWN_PR_ROWS)),
             ("improvement-log.md", self._Stub(retro)),
-            ("changelog-details/CHANGELOG-detailed.md", self._Stub(
+            (self.lc.STORE_MIRROR_REL, self._Stub(
                 "**2026-10-01 | 2026.09.1357 | PR #2653** - later, mirror-only\n" + self.MARKER)),
         ])
         live = self.lc.StoreScope(2650, 2650, 2650, None)
@@ -87870,7 +88224,7 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertNotIn("worker-provenance", err)
         self.assertIn("validate-pr/history.md:3: deferred #2652", out)
         self.assertIn("improvement-log.md:1: deferred #2652", out)
-        self.assertIn("CHANGELOG-detailed.md:1: deferred #2653", out)
+        self.assertIn("CHANGELOG-detailed-grc_library.md:1: deferred #2653", out)
         self.assertIn("declared own PR #2650, ceiling #2650", out)
         for note in ("store scope fail-closed: the merge-base changelog with origin/main is "
                      "unreadable; every store entry is evaluated.",
@@ -87882,6 +88236,30 @@ class StoreScopeCeilingTests(LinterTestCase):
                 self.assertNotIn("deferred", out)
                 self.assertIn("[row-integrity] PR #2652", err)
                 self.assertIn("worker-provenance marker", err)
+
+    def test_gate_50_store_lookup_reads_the_legacy_mirror_not_the_shared_one(self) -> None:
+        # Legacy split (2026-11-11), the gate 59 test's sibling: the operational store is
+        # shared with the successor repository, whose own gate owns
+        # changelog-details/CHANGELOG-detailed.md. Gate 50's worker-provenance check must read
+        # only this repository's legacy mirror (lint_common.STORE_MIRROR_REL): a violation
+        # placed ONLY in the shared file is never reported (that file is the successor's), a
+        # violation in the legacy file is, and the deferral note names the legacy path.
+        legacy = self.lc.STORE_MIRROR_REL
+        self.assertEqual(legacy, "changelog-details/CHANGELOG-detailed-grc_library.md")
+        files = dict([("CHANGELOG.md", "**2026-09-29 | 2026.09.1354 | PR #2649** - t\n"),
+                      ("TODO.md", "")])
+        bad = "**2026-09-29 | 2026.09.1354 | PR #2649** - t\n- **Worker provenance:** no path\n"
+        clean = "**2026-09-29 | 2026.09.1354 | PR #2649** - t\n"
+        scope = self.lc.StoreScope(None, None, None, None)
+        rc, out, err = self._gate_50_main(
+            files, {"changelog-details/CHANGELOG-detailed.md": self._Stub(bad)}, scope)
+        self.assertNotIn("worker-provenance", err)
+        self.assertIn("worker-provenance attestation", out)  # skipped: no legacy mirror
+        rc, out, err = self._gate_50_main(
+            files, {legacy: self._Stub(bad),
+                    "changelog-details/CHANGELOG-detailed.md": self._Stub(clean)}, scope)
+        self.assertEqual(rc, 1, err)
+        self.assertIn("worker-provenance marker", err)
 
     def test_gate_50_main_reports_each_deferral_and_runs_all_checks(self) -> None:
         # Round-6 regression: under a real scope every check still reports, each deferral prints
@@ -87895,7 +88273,7 @@ class StoreScopeCeilingTests(LinterTestCase):
                 + self.pending_rows(2653)
                 + "| 2026-09-30 | #2658 | c | T | SHIP |\n")),
             ("improvement-log.md", self._Stub("| 2026-09-30 | #2658 (/retro) | a | lesson |\n")),
-            ("changelog-details/CHANGELOG-detailed.md", self._Stub(
+            (self.lc.STORE_MIRROR_REL, self._Stub(
                 self.header(2661) + "- **Worker provenance:** no path\n"
                 + self.header(2660) + "- **Worker provenance:** no path\n")),
             ("deep-assessment/register.md", self._Stub("| r2 | x |\n| r1 | x |\n")),
@@ -88362,7 +88740,7 @@ class StoreScopeCeilingTests(LinterTestCase):
                 "| 2026-09-30 | #522 (/retro) | a | lesson |\n"
                 "| 2026-07-01 | #520 (/retro) | a | lesson |\n", encoding="utf-8")
             (store / "changelog-details").mkdir()
-            (store / "changelog-details" / "CHANGELOG-detailed.md").write_text(
+            (store / "changelog-details" / "CHANGELOG-detailed-grc_library.md").write_text(
                 "**2026-07-04 | 2026.07.11 | PR #523** - later PR\n"
                 "- **Worker provenance:** no path recorded\n\n"
                 "**2026-07-03 | 2026.07.10 | PR #522** - own\n"
@@ -88380,7 +88758,7 @@ class StoreScopeCeilingTests(LinterTestCase):
             )
         self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
         self.assertIn("validate-pr/history.md:3: deferred #523", r.stdout)
-        self.assertIn("CHANGELOG-detailed.md:1: deferred #523", r.stdout)
+        self.assertIn("CHANGELOG-detailed-grc_library.md:1: deferred #523", r.stdout)
         self.assertIn("declared own PR #522", r.stdout)
         self.assertNotIn("PR #523", r.stderr)
         self.assertIn("[row-integrity] PR #522", r.stderr)

@@ -346,9 +346,34 @@ def _self_test() -> int:
             }
         }
 
+    def fixture_root():
+        # With GRC_STORE unset, lint_common takes the directory named private beside a fixture
+        # root as the operational store by its name alone. Each fixture root is therefore the only
+        # entry of a holder directory made for it, inside this self-test's temporary root, so no
+        # entry of the inherited TMPDIR or of that root sits beside it.
+        # If the fixture root cannot be made, its holder is removed before the error propagates.
+        holder = Path(tempfile.mkdtemp())
+        fixture = holder / "fixture"
+        try:
+            fixture.mkdir()
+        except BaseException:
+            _shu.rmtree(holder, ignore_errors=True)
+            raise
+        return str(fixture)
+
     class T(unittest.TestCase):
         def setUp(self):
-            self.d = tempfile.mkdtemp()
+            # lint_common prefers the store GRC_STORE names over this fixture's own stores, so an
+            # inherited GRC_STORE would decide the verdicts. Clear it for each test. The cleanup
+            # that restores it, or removes it again when it was unset, is registered before it is
+            # cleared, so its prior state, including its absence, returns even on an exception.
+            saved = _os.environ.get("GRC_STORE")
+            if saved is None:
+                self.addCleanup(_os.environ.pop, "GRC_STORE", None)
+            else:
+                self.addCleanup(_os.environ.__setitem__, "GRC_STORE", saved)
+            _os.environ.pop("GRC_STORE", None)
+            self.d = fixture_root()
             wk = Path(self.d) / ".working"
             wk.mkdir()
             (wk / "pending-decisions.md").write_text(STORE, encoding="utf-8")
@@ -411,7 +436,7 @@ def _self_test() -> int:
             self.assertTrue(block)
 
         def test_fail_open_no_stores(self):
-            block, _ = decide(payload_for("§3.69?"), tempfile.mkdtemp())
+            block, _ = decide(payload_for("§3.69?"), fixture_root())
             self.assertFalse(block)
 
     result = unittest.TextTestRunner(verbosity=2).run(
