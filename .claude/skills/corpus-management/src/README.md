@@ -195,10 +195,11 @@ adopter relies on are:
   compared at full numeric depth. Residual: an intra-document reference on a line that also names
   one of these instruments, or an uncued mark on a regime line, is not checked; line 104 of
   `security/standard-authentication-and-password-management.md` is one known instance.
-- **Gate 62 (cross-file section references):** references in table cells are checked, splitting
-  on unescaped pipes outside matched code spans, on a line whose first non-whitespace character is
-  a pipe; cross-file headings and cited references are cut to four levels, and an inline clause is
-  a target section only at two to four levels.
+- **Gate 62 (cross-file section references):** every line is split into cells on unescaped pipes
+  outside matched code spans, and every cell is checked, so references in table cells are checked.
+  The local-section exception applies only on a line whose first non-whitespace character is a
+  pipe. Cross-file headings and cited references are cut to four levels, and an inline clause is a
+  target section only at two to four levels.
 - **Gate 22 (PII):** the public `is_citation_ip(line, start, end)` filter skips an IPv4-shaped match
   that is a four-part standard clause number cited directly after a section sign, "section",
   "sections", "clause", "clauses" or a standard designator (IEEE, ISO/IEC, ISO, IEC, NIST, SP or
@@ -272,6 +273,7 @@ earlier repository on 2026-09-26, the manifest version was re-baselined from 0.6
 covering 79 earlier pack changes that had shipped without a bump, plus that change.
 
 ## Release history
+- **0.23.5:** the cross-file section-names engine's docstring and table-line comment and its rule clause say that both cross-file gates scan table cells, and that on a table line this gate also fails an anchored title whose number is not a numbered heading in the target, an inline clause included. The cross-file section-reference engine's docstring, its rule clause and this README's gate 62 note say that gate 62 splits every line into cells on unescaped pipes outside matched code spans and checks every cell, and that the leading-pipe condition belongs only to its local-section exception; the cross-file section-names gate's text states that gate 62 does not report every number this gate reports, giving examples; the intra-document section-reference engine's docstring describes gate 62's adjacency window as cell-bound.
 - **0.23.4:** the narrative-boundary and narrative-metadata engines, the narrative-boundary gate entry and the pack documentation count the narrative extension as 7 fields, now that narrative pages drop the Review Record field.
 - **0.23.3:** the listing-surface completeness gate's docstrings name the library root specifications by their home in governance/.
 - **0.23.2:** internal references and review history are removed from the comments and docstrings of the pack's tool and engine sources.

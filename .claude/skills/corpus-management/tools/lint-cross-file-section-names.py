@@ -4,9 +4,14 @@
 The names phase layers title-fit checking on top of the numbers phase (gate 62,
 lint-cross-file-section-refs): a reference pairing a section NUMBER with a heading
 TITLE must cite the title's actual number in the resolved target. It fires on the
-same two resolvable-target classes (adjacent-link and binding-declaration), plus
-the table-row seam gate 62 excludes (an anchored-title reference to a number that
-is not a numbered heading in the target, on a table row).
+same two resolvable-target classes (adjacent-link and binding-declaration). Both
+gates scan table cells: gate 62 splits every line into cells on unescaped pipes
+outside matched code spans and checks every cell. On a table line (any line
+holding a pipe) this gate also fails an anchored-title reference to a number
+that is not a numbered heading in the target, including these two cases: an
+absent number, which gate 62 also reports in the cell except in some cases (for
+example where its local-section exception applies); and a number that names
+only an inline clause, which gate 62 accepts.
 
 Engine/wrapper split: the PURE check
 (normalize_title, extract_titles, resolve_target, binding_target, adjacent_link,

@@ -39,8 +39,8 @@
 #      --shard i/6, each in its OWN temporary detached checkout of the exact
 #      commit being pushed (git worktree add --detach into a mktemp
 #      directory), so no shard's fixtures under the root tests/tmp are seen by
-#      another shard's whole-repository scan (in the earlier repository, one
-#      shared working tree failed VanishingScratchTests). Beside each checkout
+#      another shard's whole-repository scan (one shared working tree fails
+#      VanishingScratchTests). Beside each checkout
 #      sit symbolic links to whichever of this clone's own siblings exist (the
 #      private store <repo-parent>/private, grc_library_private,
 #      grc_library_ref and grc_library_scratch), and a relative GRC_STORE is
@@ -250,10 +250,10 @@
 #   .web/baseline/ files) except a .py file, anything under .web/site-card/ except
 #   a .py file, .claude/skills/corpus-management/tests/test_web_draft.py, and the per-PR close-out surfaces
 #   .working/CHANGELOG.md, README.md and NOTICE.md at the repository root. README.md and
-#   NOTICE.md belong: a site PR bumps the README library version, and a baseline
-#   or licence change updates NOTICE.md; in the earlier repository two site
-#   changes each changed only .web/, .web/site-card/, .claude/skills/corpus-management/tests/test_web_draft.py,
-#   .working/CHANGELOG.md, README.md and NOTICE.md. Both files are corpus-adjacent, so
+#   NOTICE.md belong: a site PR also bumps the README library version, and a
+#   site-template baseline or font-licence change also updates NOTICE.md; without
+#   these two files in the set, such a PR would leave the site-only paths and take
+#   the full guard. Both files are corpus-adjacent, so
 #   every gate that scans them still runs. A .py file under .web/ (the generator
 #   .web/build.py among them) or .web/site-card/ is tooling; the linter regression
 #   suite tests .web/build.py and the .web/site-card/ scripts, and the fast path
@@ -343,12 +343,16 @@ set -u
 # shape that masks this guard's exit code (`guard | tail && push` pushes past a
 # failing guard). Detection is `[ -p /dev/stdout ]`, not the spec's literal
 # `[ -t 1 ]`: a tty-check fails every run whose stdout is a regular FILE, and
-# in the earlier repository's execution environment a plain invocation's stdout
-# was one (the harness capture), so there a tty-check would have failed every
-# sanctioned run, while a pipe-check fails exactly the masking shape and passes
-# both sanctioned patterns (plain run, and file-redirect capture
-# `guard > log; CODE=$?`). CI is unaffected (it invokes the runners directly,
-# and its stdout is not this guard's concern). Documented override for a
+# every guard run the installed pre-push hook starts is one
+# (.claude/skills/corpus-management/tools/pre-push-hook.py runs this guard with
+# its stdout on a regular file that it copies to the hook's stdout as the run
+# proceeds, and tail-safe.sh below captures to one). A tty-check would fail
+# those sanctioned runs, while a pipe-check fails the masking shape (and every
+# other stdout pipe, including the command substitution noted below) and
+# passes both sanctioned patterns (plain run, and file-redirect capture
+# `guard > log; CODE=$?`, the shape tail-safe.sh uses and pre-push-hook.py
+# follows in Python). CI is unaffected (it invokes the runners directly, and
+# its stdout is not this guard's concern). Documented override for a
 # deliberate, judged pipe:
 #   PRE_PUSH_GUARD_ALLOW_PIPE=1 .claude/skills/corpus-management/tools/pre-push-guard.sh | ...
 # The sanctioned display-truncation path is .claude/skills/corpus-management/tools/tail-safe.sh, which
@@ -388,8 +392,8 @@ esac
 # Working-tree-vs-committed-tree attestation soundness (a backstop for a change
 # left out of git add). The runners below read the WORKING TREE, but `git push`
 # ships the COMMITTED tree (HEAD). When a tracked file is modified or staged the
-# two differ, so a green run here can still flip CI red: the signature seen in
-# the earlier repository (a regenerated-but-unstaged generated artefact, an
+# two differ, so a green run here can still flip CI red (a
+# regenerated-but-unstaged generated artefact, an
 # unstaged stale-count fix, any unstaged edit to a gate-read file all present
 # local-green / CI-red). Refuse on a dirty tracked tree so the working-tree
 # attestation equals HEAD for tracked content and the "from HEAD" runs below
@@ -763,10 +767,9 @@ def uses(pid, roots):
     # threads run, its entries are gone, so each thread is read whole. So
     # is each other thread when the leader, read whole, showed no mapping
     # or is exiting (leader_exiting) while other threads run: an exiting
-    # leader lets go of the shared memory map for itself before its working
-    # directory and root (as a probe in the earlier repository saw; not
-    # reproduced here), so it can be read whole with no mapping while the
-    # other threads still map files. A thread whose entries are missing
+    # leader can let go of the shared memory map for itself before its
+    # working directory and root, so it can be read whole with no mapping
+    # while the other threads still map files. A thread whose entries are missing
     # counts as read only when it is then seen to have exited or to be
     # exiting (thread_ended with exiting); a thread that cannot be read
     # otherwise makes the process one that cannot be read.
@@ -2342,10 +2345,10 @@ else
         # gate 36 included; doubt never drops a check.
         echo "pre-push-guard: NOTE: the runner's gate list cannot be read (${runner_gates_reason}); failing closed to the whole runner, gate 36 included." >&2
         # Capture the runner's exit code from the BARE command, not from inside an
-        # `if ! cmd` test: `rc=$?` after `if ! cmd; then` would capture the negated
-        # status (0), making the guard exit 0 on failure. (In the earlier repository,
-        # the form `if ! cmd; then rc=$?` exited 0 on a failing runner and let
-        # `&& git push` proceed. set -u is on and the guard does not set -e, but
+        # `if ! cmd` test. The form `if ! cmd; then rc=$?` exits 0 on a failing
+        # runner: `rc=$?` in the `then` branch captures the negated status (0),
+        # so the guard exits 0 on failure and `&& git push` proceeds past a
+        # failing runner. (set -u is on and the guard does not set -e, but
         # an inherited errexit (SHELLOPTS) is possible: it ends the guard at the
         # failing runner, before the report below, with that runner's rc, so the
         # exit code still reaches the caller.)

@@ -4,9 +4,16 @@
 The names phase layers title-fit checking on top of the numbers phase (gate 62,
 cross-file-section-refs): a reference that pairs a section NUMBER with a heading
 TITLE must cite the title's actual number in the resolved target. It fires on the
-same two resolvable-target classes (adjacent-link and binding-declaration), plus
-the table-row seam gate 62 excludes: an anchored-title reference to a number that
-is not a numbered heading in the target, on a table row, is this gate's to fail.
+same two resolvable-target classes (adjacent-link and binding-declaration). Both
+gates scan table cells as well as prose: gate 62 splits every line into cells on
+unescaped pipes outside matched code spans and checks every cell, while this
+gate treats any ``|`` between a reference and its link as a barrier, escaped or
+inside a code span. On a table line (any line holding a ``|``) this gate also
+fails an anchored-title reference to a number that is not a numbered heading in
+the target, including these two cases: an absent number, which gate 62 also
+reports in the cell except in some cases (for example where its local-section
+exception applies); and a number that names only an inline clause, which
+gate 62 accepts.
 
 Engine/wrapper split: this engine carries the PURE check (``normalize_title``,
 ``extract_titles``, ``resolve_target``, ``binding_target``, ``adjacent_link``,
@@ -190,8 +197,12 @@ def check_file(
                 own_title = titles.get(number)
                 if own_title is None:
                     if "|" in line:
-                        # Table row: gate 62 excludes it, so the anchored-title
-                        # + absent-number shape is this gate's to fail.
+                        # Table line (any line holding a pipe): gate 62 also
+                        # checks every cell and reports an absent number except
+                        # in some cases (for example where its local-section
+                        # exception applies); this gate fails any anchored
+                        # title whose number is not a numbered heading, an
+                        # inline clause included.
                         anchors = ", ".join(sorted(anchor_numbers))
                         findings.append(
                             f"{path.relative_to(repo_root)}:{lineno}: "

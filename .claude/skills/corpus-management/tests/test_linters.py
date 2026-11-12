@@ -6270,8 +6270,9 @@ class CrossFileSectionRefTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_table_row_without_leading_pipe_residual_is_reported(self) -> None:
-        # Documented residual: only a line beginning with a pipe is a table row
-        # for the local-section exception, so this valid row is read as prose.
+        # Documented residual: the local-section exception applies only to a
+        # line beginning with a pipe, so for that exception this valid row is
+        # read as prose, while its cells are still split and checked.
         self.make_fixture("t.md", self.TARGET_BODY)
         citer = VALID_METADATA + (
             "\n\n## 8. Exceptions\n\nRole | Detail\n--- | ---\n"
@@ -30976,8 +30977,7 @@ class ChangelogLinkCoverageTests(LinterTestCase):
 def _pinned_rule_collections() -> tuple[str, ...]:
     """Repository paths of the pinned AIQT rule collections, from aiqt_rules.
 
-    The rule pack that shipped as a top-level ``guardrails/`` directory in the
-    earlier repository now ships as the vendored, byte-pinned collections under
+    The rule pack ships as the vendored, byte-pinned collections under
     ``.claude/aiqt/rules/`` and their rendered copies under ``.claude/rules/``.
     Derived from the validator's own constants so a layout change there moves
     these tests too.
@@ -43279,7 +43279,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-ccm-aicm-citations.py CWD F b2c3b6225f1d68dcc904b167ef69963c35ac03b169d87478ac39e1f94edb6242
         lint-ccm-provider-member-in-range.py CWD F 3b6aed2769f3d8eb23d754862c355f16e760518d051462b6a217b62a9a31ac7b
         lint-changelog-link-coverage.py CWD F 5e0c2e8520be9e8418bf0835decd744ff234ed93b9c3a707255121120cdf9437
-        lint-changelog-mirror-header-parity.py OWN F 809eb17f57cdbaf87caf249176ef57775e220bbd9505567ff684288cf3fdff48
+        lint-changelog-mirror-header-parity.py OWN F f0c62caaa13c8d790cd3d02159d5c9ec7491b8694b4ade30d3c165ba1503f38e
         lint-citation-currency-cadence.py NO_FS F 01bc84108f08b8d88711e0e8a9bb7bd5aec5b27b24e67594697dbd4d2ddbc7eb
         lint-citation-verification-freshness.py OWN F 6fef148ac78796357de64b363f2d9002b0f5030fe0924de4c5b09d44b1179ea7
         lint-citations.py ROOT F 223b54a1983967480c8ae2b80e3d59c98c2921d9bf7c411913470505a7f9b060
@@ -43288,7 +43288,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-cobit-title-text.py CWD F effc72d7b5320bdfb6371840aa67de751c55f1f9d34f358909ac82092bedfba9
         lint-collection-enumeration-consistency.py NO_FS F e66ad0d0bf430451d1fa6d78e223a5d5af1edf31f4441731753dea061bd590bc
         lint-cross-doc-numbers.py CWD F 1e52e0be3d4b626dbadcbb0dff30aaec11e63b6404ca5577ecf5f562ece2b94d
-        lint-cross-file-section-names.py CWD F 30e7152e52bc2a95b0c2831ddb8954222b464fe259dbbb52108df677189d0ea7
+        lint-cross-file-section-names.py CWD F 6e20b7114ab82452d0d9711e80c85235882baae36e108bae7a8ab25eb5830283
         lint-cross-file-section-refs.py CWD F eeaf1d07db7c72f64660a0964614ccb4de1cbd648cfebf94ba96e940b0575c48
         lint-date-format.py CWD F 4c0f03dadc20ee6e4b4cd006e448ee0e57c84b6a3a1269404e8554a4db5ee015
         lint-directional-dependency.py ROOT F e34d800e4ba3efd13da0bf8cdd64aa991be7ebbaa8cb844ea845f516018cad6c
@@ -43358,7 +43358,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F 62df77ba801019b06afea2a1474836a90dc2e8385f7d99becef9d393c511f622
         measure-regression-timings.py WRITE F 3fa6dd03e89eaf23d6b92a01f4369f11ff863a475bc81926319b7c734fa007d1
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
-        pre-push-guard.sh FIXED F 8573366d92190f0ef0d9965317cc93bc74f6cd9c1098b9632cd532929e7e8cbd
+        pre-push-guard.sh FIXED F e4d2b19b22ddd163aaad73c9135ab4763c7816110915deb3c4ef97be1c6364ca
         pre-push-hook.py TRANSPORT F e0a06be59cc3e8c0b47377b229c16ea169eba04ed717e31c9427356b85f6bb76
         preflight-changelog.py NO_FS F f6e7709d1015847c6cf5d27886e637d58d6a62ad29d5327576c6624e9c6b460d
         preflight-version-date.py NO_FS F 31cfe7d03173f406ba0d5b2ff2dfd0fcdf59686c94150aba3a597b3a714e0879
@@ -44685,7 +44685,7 @@ class CrossFileSectionNamesTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_table_row_checked(self) -> None:
-        # Deliberate divergence from gate 62: table rows are scanned.
+        # Table lines are scanned, as gate 62 also checks every table cell.
         self._target()
         citer = self.make_fixture(
             "names-table.md",
@@ -44735,8 +44735,9 @@ class CrossFileSectionNamesTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_table_row_absent_number_fails(self) -> None:
-        # On a table row (which gate 62 excludes), an anchored title
-        # claim whose cited number is absent fails HERE.
+        # On a table row, an anchored title claim whose cited number is
+        # absent fails here. Gate 62 also reports it in the cell: the citer has
+        # no section 9 of its own, so its local-section exception does not apply.
         self._target()
         citer = self.make_fixture(
             "names-table-absent.md",
@@ -61531,7 +61532,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.23.4", "0.23.4 has the narrative-boundary and narrative-metadata engines, the narrative-boundary gate entry and the pack documentation count the narrative extension as 7 fields, now that narrative pages drop the Review Record field (PATCH), on top of 0.23.3, which has the listing-surface completeness gate's docstrings name the library root specifications by their home in governance/ (PATCH), on top of 0.23.2, which removes internal references and review history from the comments and docstrings of the pack's tool and engine sources (PATCH), on top of 0.23.1, which removes them from the pack documentation (PATCH), on top of the C1 rebuild release, 0.23.0, which covers every change since 0.22.2 (0.22.3 was not released): among other changes, it adds the directional-dependency engine's public function path_in_project_gov, so gate 53's project_gov_dir may be a path of several parts (MINOR), moves the compiler's default pack root to .claude/skills/corpus-management/src, folds in RBQ10, which has the compiler's stray scan skip the skill directory's shipped entries, and raises minimum_python from 3.11 to 3.14, on top of the gate-2 change, which makes the language engine's -isation scan linear through a private helper, _isation_matches (PATCH) on top of the change that rewords the core rules README to name the three managed directories and the CLAUDE.md block gate 99 owns (PATCH) on top of the change that adds the standards-currency engine's identity_counts, ratchet and count_summary functions and print_coverage's trailer parameter for the per-standard UNPINNED ratchet (MINOR) on top of the change that has the gate-30 metadata line-break engine group a run by the rendered paragraph, so an indented continuation line no longer splits it (PATCH), then follows the CommonMark/GFM block structure (block quotes, list items, fences, HTML blocks, tables) so the run model agrees with the renderer (PATCH) on top of the change that has the gate-18 intra-document section-reference engine recognize Canadian federal instrument identifiers such as 'ITSP.80.022' as external-framework names (PATCH) on top of the change that has the standards-currency engine read a parenthesized programme-name version such as '(SSDF 1.1)' (PATCH), the change that retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (the pack's release history in src/README.md starts at 0.22.2, so the bumps before it are described here from the change record rather than from that history: 0.19.0 to 0.20.0 for an earlier change this message does not name; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for the rule-index retarget; then 0.21.1 to 0.21.2 for the programme-name version reading; then 0.21.2 to 0.21.3 for the Canadian instrument identifiers; then 0.21.3 to 0.21.4, then 0.21.4 to 0.21.5, for the gate-30 run model; then 0.21.5 to 0.22.0 for the standards-currency ratchet; then 0.22.0 to 0.22.1 for the core rules README rewording; then 0.22.1 to 0.22.2 for the gate-2 -isation change; then 0.22.2 to 0.23.0 for the C1 release, which includes RBQ10 (0.22.3 was not released); then 0.23.0 to 0.23.1 for removing internal references and review history from the pack documentation; then 0.23.1 to 0.23.2 for removing internal references and review history from the comments and docstrings of the pack's tool and engine sources)")
+        self.assertEqual(man["pack"]["version"], "0.23.5", "0.23.5 has the cross-file section-names engine's docstring and table-line comment and its rule clause say that both cross-file gates scan table cells, and that on a table line this gate also fails an anchored title whose number is not a numbered heading in the target, an inline clause included, and the cross-file section-reference engine's docstring, its rule clause and the pack README's gate 62 note say that gate 62 splits every line into cells on unescaped pipes outside matched code spans and checks every cell, with the leading-pipe condition only on its local-section exception; the cross-file section-names gate's text states that gate 62 does not report every number this gate reports, giving examples; the intra-document section-reference engine's docstring describes gate 62's adjacency window as cell-bound (PATCH), on top of 0.23.4, which has the narrative-boundary and narrative-metadata engines, the narrative-boundary gate entry and the pack documentation count the narrative extension as 7 fields, now that narrative pages drop the Review Record field (PATCH), on top of 0.23.3, which has the listing-surface completeness gate's docstrings name the library root specifications by their home in governance/ (PATCH), on top of 0.23.2, which removes internal references and review history from the comments and docstrings of the pack's tool and engine sources (PATCH), on top of 0.23.1, which removes them from the pack documentation (PATCH), on top of the C1 rebuild release, 0.23.0, which covers every change since 0.22.2 (0.22.3 was not released): among other changes, it adds the directional-dependency engine's public function path_in_project_gov, so gate 53's project_gov_dir may be a path of several parts (MINOR), moves the compiler's default pack root to .claude/skills/corpus-management/src, folds in RBQ10, which has the compiler's stray scan skip the skill directory's shipped entries, and raises minimum_python from 3.11 to 3.14, on top of the gate-2 change, which makes the language engine's -isation scan linear through a private helper, _isation_matches (PATCH) on top of the change that rewords the core rules README to name the three managed directories and the CLAUDE.md block gate 99 owns (PATCH) on top of the change that adds the standards-currency engine's identity_counts, ratchet and count_summary functions and print_coverage's trailer parameter for the per-standard UNPINNED ratchet (MINOR) on top of the change that has the gate-30 metadata line-break engine group a run by the rendered paragraph, so an indented continuation line no longer splits it (PATCH), then follows the CommonMark/GFM block structure (block quotes, list items, fences, HTML blocks, tables) so the run model agrees with the renderer (PATCH) on top of the change that has the gate-18 intra-document section-reference engine recognize Canadian federal instrument identifiers such as 'ITSP.80.022' as external-framework names (PATCH) on top of the change that has the standards-currency engine read a parenthesized programme-name version such as '(SSDF 1.1)' (PATCH), the change that retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (the pack's release history in src/README.md starts at 0.22.2, so the bumps before it are described here from the change record rather than from that history: 0.19.0 to 0.20.0 for an earlier change this message does not name; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for the rule-index retarget; then 0.21.1 to 0.21.2 for the programme-name version reading; then 0.21.2 to 0.21.3 for the Canadian instrument identifiers; then 0.21.3 to 0.21.4, then 0.21.4 to 0.21.5, for the gate-30 run model; then 0.21.5 to 0.22.0 for the standards-currency ratchet; then 0.22.0 to 0.22.1 for the core rules README rewording; then 0.22.1 to 0.22.2 for the gate-2 -isation change; then 0.22.2 to 0.23.0 for the C1 release, which includes RBQ10 (0.22.3 was not released); then 0.23.0 to 0.23.1 for removing internal references and review history from the pack documentation; then 0.23.1 to 0.23.2 for removing internal references and review history from the comments and docstrings of the pack's tool and engine sources)")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")

@@ -20,8 +20,9 @@ The engine fires ONLY on two high-confidence resolvable-target classes:
    a ``.md`` link binds every SUBSEQUENT bare reference in the file to that
    target (the last link ending before the sentinel).
 
-Table pipes split reference cells outside matched code spans; an unmatched
-backtick is literal and backslashes inside code are literal. A local heading
+Every line is split into cells on unescaped pipes outside matched code spans,
+and every cell is checked; an unmatched backtick is literal and backslashes
+inside code are literal. A local heading
 reference in a table cell is excluded when real descriptive text intervenes
 before a nearby following parenthesized link with a matching closing parenthesis,
 and no link precedes that mark in the cell. "Of the target" describes the

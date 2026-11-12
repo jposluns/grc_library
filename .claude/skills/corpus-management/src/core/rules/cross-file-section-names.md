@@ -7,9 +7,13 @@ citation names a target section by number AND quotes or parenthesizes a title, t
 quoted title must belong to the numbered heading actually cited. The check fires on
 the same two resolvable-target classes (an adjacent-link reference, and a
 binding-declaration reference that binds subsequent bare references to a declared
-target), and it owns one seam the numbers phase excludes: on a table row, an
-anchored-title reference to a number that is not a numbered heading in the target
-is flagged here. A title candidate is a parenthetical or a double-quoted run
+target). Both phases scan table cells as well as prose: the numbers phase splits
+every line into cells on unescaped pipes outside matched inline code spans and
+checks every cell. On a table line (any line
+holding a pipe) this check also flags an anchored-title reference to a number
+that is not a numbered heading in the target, including a number that names only
+an inline clause, which the numbers phase accepts. A title candidate is a
+parenthetical or a double-quoted run
 immediately after the reference; titles are read from markdown headings (an inline
 clause carries no title). A candidate that matches no heading title in the target
 is not treated as a title claim (it may be ordinary prose); only a candidate that
