@@ -2,8 +2,8 @@
 
 **Document Title:** Executive Narrative Authoring Specification\
 **Document Type:** Specification\
-**Version:** 0.1.4\
-**Date:** 2026-11-10\
+**Version:** 0.2.1\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-master-project.md`](specification-master-project.md), [`governance/specification-ingestion.md`](specification-ingestion.md), [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md)\
@@ -82,7 +82,7 @@ No other subtype may be introduced without a version bump to this specification 
 
 ## Canonical metadata and narrative extension
 
-Every narrative page begins with the corpus's 13 canonical metadata fields, in canonical order, followed immediately by the 8-field narrative extension, as one continuous metadata block using the backslash hard-break convention (every line except the block's last line ends with `\`).
+Every narrative page begins with the corpus's 13 canonical metadata fields, in canonical order, followed immediately by the 7-field narrative extension, as one continuous metadata block using the backslash hard-break convention (every line except the block's last line ends with `\`).
 
 ```markdown
 # Page Title
@@ -106,11 +106,10 @@ Every narrative page begins with the corpus's 13 canonical metadata fields, in c
 **Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md), [`supply-chain/register-concentration-risk.md`](../../supply-chain/register-concentration-risk.md)\
 **External Sources:** ISO 31000:2018, NIST CSF (or: None)\
 **Claim Classes Present:** citation, sourced, composite\
-**Review Record:** NR-YYYY-NNN\
 **Last Reviewed:** YYYY-MM-DD
 ```
 
-The eight extension fields:
+The seven extension fields:
 
 1. **Narrative Type:** one of the seven subtypes, matching the filename prefix.
 2. **Narrative Status:** one of `Non-normative`, `Advisory`, `Explanatory` (closed set; see the narrative status section). The value is fixed by the subtype table, not chosen by the author.
@@ -118,8 +117,7 @@ The eight extension fields:
 4. **Corpus Sources:** the corpus source list. Each entry is a plain markdown link to the corpus document (a path reference, no version suffix). Every corpus document the page relies on for any claim must be listed here; a corpus link in the body absent from this field is a defect. At least one entry is mandatory. Exactly one entry per distinct corpus dependency (no duplicate references to the same target). The list records dependency PATHS only: an executive page refers to corpus documents but never depends on their VERSIONS, so a corpus version bump never invalidates a narrative page.
 5. **External Sources:** the named public standards, frameworks, or regulations the page's `sourced` claims rest on, drawn only from the ingestion specification's preserve-without-substitution list, or `None`.
 6. **Claim Classes Present:** the subset of `citation`, `sourced`, `composite` that appears on the page.
-7. **Review Record:** the identifier of the page's review record, which holds the full per-claim matrices (see the claim classes section). This is an identifier, not a repository path, so a public page never links into a private record store. Review records are project-governance operational records; they live in the maintainer's private working store, not in the published corpus.
-8. **Last Reviewed:** ISO 8601 date of the most recent human review of the page. The executive-review cadence is a 6-month advisory (an editorial freshness signal), not a gated CI requirement and not a revalidation against source versions.
+7. **Last Reviewed:** ISO 8601 date of the most recent human review of the page. The executive-review cadence is a 6-month advisory (an editorial freshness signal), not a gated CI requirement and not a revalidation against source versions.
 
 The `Approving Authority` field is retained from the canonical model, but on a narrative page it denotes publication approval only. It confers no normative authority, and the page states as much through the universal disclaimer: a narrative page is never a parent of, or an authority over, any corpus document.
 
@@ -155,7 +153,7 @@ Every substantive claim on a narrative page belongs to exactly one class:
 - **sourced.** The claim rests on a named external public standard, framework, or regulation. On-page form: the claim names the standard inline, and the standard appears in `External Sources`. Only standards on the ingestion specification's preserve-without-substitution list qualify; the verbatim-reproduction rules from the ingestion specification apply unchanged.
 - **composite.** The claim is synthesized across multiple corpus or external sources and has no single anchor. On-page form: no inline anchor is required, but the page's limitations section must acknowledge that composite content requires the adopting organization's own validation.
 
-Public pages show citations and the composite and sourced labels. The full per-claim matrices (claim text, class, contributing sources, verification date, verifier role) live in the page's review record, referenced by the `Review Record` identifier. They never appear on-page: the page stays readable for its audience, and the audit trail stays complete for the maintainer.
+Public pages show citations and the composite and sourced labels. They do not show a per-claim breakdown of class, contributing sources, or verification, so the page stays readable for its audience.
 
 Explanatory pages may carry `citation` and `sourced` claims freely and `composite` claims only sparingly. A page whose claims are predominantly `composite` is a signal that it is original analysis rather than narrative translation, and original analysis belongs in the corpus, not the narrative layer.
 
@@ -290,7 +288,9 @@ The narrative layer follows a stated release and retirement principle.
 
 ## The narrative registry
 
-`.claude/skills/corpus-management/data/narrative.yml` is the generated, machine-readable registry of the narrative layer, the analogue of `.claude/skills/corpus-management/data/taxonomy.yml` for `executive/`. It is regenerated from page metadata, never hand-edited, and carries per page: path, title, narrative type, narrative status, version, date, corpus source reference paths, external sources, claim classes present, review record identifier, last-reviewed date, and any derived tags.
+`.claude/skills/corpus-management/data/narrative.yml` is the generated, machine-readable registry of the narrative layer, the analogue of `.claude/skills/corpus-management/data/taxonomy.yml` for `executive/`. It is regenerated from page metadata, never hand-edited, and carries per page: path, title, narrative type, narrative status, version, date, corpus source reference paths, external sources, claim classes present, last-reviewed date, and any derived tags.
+
+The registry's top-level `schema_version` changes whenever the row shape changes in a way a reader could depend on: a key removed, renamed or retyped, or a new required key. Version 2 drops the per-page review record identifier that version 1 rows carried.
 
 Derived tags (topic, domain coverage, audience facets) live only here. They never appear in page headers and never appear in `.claude/skills/corpus-management/data/taxonomy.yml`, which remains corpus-only by construction. No narrative row is ever added to `.claude/skills/corpus-management/data/taxonomy.yml`; the two registries join only at render time.
 
@@ -308,7 +308,7 @@ Narrative pages inherit the ingestion specification's language and organization-
 4. The organization-neutrality rules of the ingestion specification's Appendix A apply to narrative content without exception; scenarios and stories are composite and fictional by construction.
 5. Plain executive register: a narrative page is written to be read in minutes by a non-specialist. Corpus terminology is used accurately but explained on first use.
 
-The separation invariant is the design requirement for all of the above and is not claimed as wholly mechanically proven: the string-level checks (disclaimer presence, the causal denylist, the qualified-shall rule, the dash ban) prove string properties only. Zero authority confusion and zero unsupported claims are review outcomes backed by the per-claim matrices and recorded review evidence.
+The separation invariant is the design requirement for all of the above and is not claimed as wholly mechanically proven: the string-level checks (disclaimer presence, the causal denylist, the qualified-shall rule, the dash ban) prove string properties only. Zero authority confusion and zero unsupported claims are review outcomes judged against the page content, not properties the gates prove.
 
 ---
 
@@ -319,7 +319,7 @@ This section records the gate intent this specification creates. The narrative g
 1. **Type containment (existing, partial).** `Executive Narrative` stays out of the corpus metadata gate's allowed types permanently. An ordinary unchanged-copy leak into a scanned corpus location fails that gate loudly on the invalid type (a copied page also trips the Repository-Path check). This is PARTIAL: a leak named `README.md` in a corpus subdirectory (caught only by the loose domain-README check) and a leak retyped to a valid corpus type with narrative-extension fields both escape the existing gate. Closing those escapes is the symmetric boundary gate (item 3); the existing residual only guarantees that, for an unchanged non-README copy, the invalid-type failure cannot be silenced except by adding the type. The invariant to protect is that no one adds the type.
 2. **Scan-scope split (existing).** The narrative-directory set and the gate-scope manifest exist and are regression-checked; the safety root-walkers cover `executive/` and the link gate already includes it. The by-name inclusion of `governance/specification-executive-narrative.md` in the corpus metadata gate's root scan set is in place, so this specification is itself governed as a corpus document. No prefix-exemption is needed (the file is `Document Type: Specification` with the matching `specification-` prefix, so it passes the prefix check normally).
 3. **Symmetric narrative-boundary gate (existing, gate 86).** Outside `executive/`: reject narrative document types or narrative-extension fields anywhere, README paths included (the README skip becomes path-scoped, not basename-keyed). Inside `executive/`: require the `Executive Narrative` type and the narrative-extension block on every page, and reject corpus document types. Honest residue: a file stripped of both its type marker and all narrative-only fields is not detectable by repository-state rules and is covered by review only.
-4. **Narrative metadata gate (existing, gate 84).** Validates every file under `executive/` (except the named `executive/README.md` entry point): the 13 canonical fields plus the 8 extension fields, closed vocabularies for Narrative Type and Narrative Status, the type-to-prefix and type-to-subdirectory parity from the subtype table, the fixed subtype-to-status mapping, `Document Type: Executive Narrative` exactly, at least one `Corpus Sources` reference, and reference syntax (a plain markdown link with no version suffix). It also enforces body-link completeness: every corpus document linked in the page body must appear in `Corpus Sources` (a body corpus link absent from the list is a defect). The shared line-break gate does NOT scan `executive/`, so this narrative metadata gate owns the backslash hard-break validation for narrative pages (the append itself needs no change to the shared checker, whose generic last-line exemption already tolerates the extended block; the coverage of `executive/` is the new gate's obligation).
+4. **Narrative metadata gate (existing, gate 84).** Validates every file under `executive/` (except the named `executive/README.md` entry point): the 13 canonical fields plus the 7 extension fields, closed vocabularies for Narrative Type and Narrative Status, the type-to-prefix and type-to-subdirectory parity from the subtype table, the fixed subtype-to-status mapping, `Document Type: Executive Narrative` exactly, at least one `Corpus Sources` reference, and reference syntax (a plain markdown link with no version suffix). It also enforces body-link completeness: every corpus document linked in the page body must appear in `Corpus Sources` (a body corpus link absent from the list is a defect). The shared line-break gate does NOT scan `executive/`, so this narrative metadata gate owns the backslash hard-break validation for narrative pages (the append itself needs no change to the shared checker, whose generic last-line exemption already tolerates the extended block; the coverage of `executive/` is the new gate's obligation).
 5. **Disclaimer presence gate (existing, gate 89).** The universal authority disclaimer, verbatim, as the first body content after the metadata block's closing `---` separator and before the first section heading, on every page (the entry-point `executive/README.md` exempt). String-level presence-and-position only; a fenced or indented copy of the disclaimer does not satisfy it (it is body content that is not the rendered disclaimer), and fail-loud on an unreadable page.
 6. **Vocabulary gate (existing, gate 88).** No `guarantee` or the listed absolutes anywhere in narrative prose (page-wide, no causal-statement classification needed); no unqualified `shall` (with the qualified-shall definition as the sole exception); no em or en dashes. The existing bare-shall, language, and dash gates do not cover `executive/`, so narrative coverage needs its own wiring, not an `AUDITED_DOMAIN_DIRS` edit, which would wrongly pull `executive/` into every content gate.
 7. **One-way authority boundary gate (existing source half, gate 87).** Corpus documents must not reference `executive/` in any field; gate 87 enforces this by scanning corpus document fields AND the generated `.claude/skills/corpus-management/data/taxonomy.yml` (so an `executive/` target that reached the taxonomy is caught). Modelled on the existing directional-dependency gate (gate 53). Two obligations of this item are NOT yet built and remain design work for a later phase: making the taxonomy GENERATOR itself reject `executive/` targets at emission time (gate 87 is the post-hoc scan backstop, not a generator change), and the typed-edge endpoint/direction-matrix validation, which is DEFERRED to the renderer (item 12): typed edges are derived at render time from the registry (see the Related Documents section), the generated `.claude/skills/corpus-management/data/narrative.yml` carries no edge data, so there are no edge instances for a corpus gate to validate, and an endpoint/direction validator belongs with the renderer that emits edges rather than as a standalone corpus gate now.

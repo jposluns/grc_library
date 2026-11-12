@@ -257,7 +257,7 @@ _149 documents._
 | [governance/procedure-whistleblower-and-incident-reporting.md](../governance/procedure-whistleblower-and-incident-reporting.md) | Whistleblower and Incident Reporting Procedure | Procedure | 1.0.22 | 2026-11-01 |
 | [governance/template-citation-verification-worklist.md](../governance/template-citation-verification-worklist.md) | Citation Verification Worklist Template | Template | 1.0.4 | 2026-07-02 |
 | [governance/template-document-review-record.md](../governance/template-document-review-record.md) | Document Review Record Template | Template | 1.0.10 | 2026-10-16 |
-| [governance/template-executive-narrative-subtypes.md](../governance/template-executive-narrative-subtypes.md) | Executive Narrative Subtype Templates | Template | 1.0.5 | 2026-09-25 |
+| [governance/template-executive-narrative-subtypes.md](../governance/template-executive-narrative-subtypes.md) | Executive Narrative Subtype Templates | Template | 1.0.6 | 2026-11-12 |
 | [governance/template-implementation-roadmap.md](../governance/template-implementation-roadmap.md) | Adopter Implementation Roadmap Template | Template | 1.0.9 | 2026-10-26 |
 | [governance/template-library-health-report.md](../governance/template-library-health-report.md) | Library Health Report Template | Template | 1.0.11 | 2026-11-10 |
 | [governance/worked-example.md](../governance/worked-example.md) | Worked Example: Converting a Draft into a CC BY-SA 4.0 Artefact | Guide | 1.0.7 | 2026-08-15 |
@@ -409,7 +409,7 @@ _79 documents._
 | [governance/principle-capability-is-not-authority.md](../governance/principle-capability-is-not-authority.md) | Capability Is Not Authority Principle | Principle | 0.0.4 | 2026-11-08 |
 | [governance/principle-fail-closed-automation.md](../governance/principle-fail-closed-automation.md) | Fail-Closed Automation Principle | Principle | 0.0.5 | 2026-11-03 |
 | [governance/principle-integrity-and-trustworthiness.md](../governance/principle-integrity-and-trustworthiness.md) | Integrity and Trustworthiness Principle | Principle | 0.0.15 | 2026-11-08 |
-| [governance/specification-executive-narrative.md](../governance/specification-executive-narrative.md) | Executive Narrative Authoring Specification | Specification | 0.1.4 | 2026-11-10 |
+| [governance/specification-executive-narrative.md](../governance/specification-executive-narrative.md) | Executive Narrative Authoring Specification | Specification | 0.2.1 | 2026-11-12 |
 | [governance/standard-delegation-of-authority.md](../governance/standard-delegation-of-authority.md) | Delegation-of-Authority Standard | Standard | 0.0.2 | 2026-08-31 |
 | [governance/standard-emergency-authority.md](../governance/standard-emergency-authority.md) | Emergency Authority Standard | Standard | 0.0.3 | 2026-08-31 |
 | [governance/standard-semantic-continuity-in-migration-and-retirement.md](../governance/standard-semantic-continuity-in-migration-and-retirement.md) | Semantic Continuity in Migration and Retirement Standard | Standard | 0.0.8 | 2026-10-27 |

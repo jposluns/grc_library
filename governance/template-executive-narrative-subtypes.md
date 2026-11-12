@@ -2,8 +2,8 @@
 
 **Document Title:** Executive Narrative Subtype Templates\
 **Document Type:** Template\
-**Version:** 1.0.5\
-**Date:** 2026-09-25\
+**Version:** 1.0.6\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-executive-narrative.md`](specification-executive-narrative.md)\
@@ -24,7 +24,7 @@ The templates live here, in the governance domain, rather than under the `execut
 
 1. Copy the fenced skeleton for the subtype you are authoring (the content inside the triple-backtick block, not the fence markers).
 2. Create the new file under the subtype's subdirectory in `executive/`, named with the subtype's filename prefix (for example `executive/briefs/brief-<topic>.md` for an Executive Brief). Each subtype's subdirectory is fixed by the subtype table in the specification, and the narrative metadata gate enforces it. Keep the file name to the subtype prefix plus three or four further words naming the topic (for example `executive/briefs/brief-ai-supply-chain-oversight.md`); the page title, not the file name, carries the full leadership question.
-3. Replace every bracketed placeholder and each example value. In particular: set a real `Corpus Sources` list (each entry a plain markdown link to a corpus document the page relies on, with no version suffix), the correct `Narrative Type` and its fixed `Narrative Status`, the present `Claim Classes Present`, a `Review Record` identifier, and a `Last Reviewed` date.
+3. Replace every bracketed placeholder and each example value. In particular: set a real `Corpus Sources` list (each entry a plain markdown link to a corpus document the page relies on, with no version suffix), the correct `Narrative Type` and its fixed `Narrative Status`, the present `Claim Classes Present`, and a `Last Reviewed` date.
 4. Keep the authority disclaimer verbatim as the first body content after the metadata block; it is fixed by the specification and identical on every page.
 5. Run the narrative gates against the new page before committing.
 
@@ -56,7 +56,6 @@ The example values in each skeleton are chosen so that a skeleton copied to its 
 **Corpus Sources:** [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation\
-**Review Record:** NR-2026-001\
 **Last Reviewed:** 2026-08-06
 
 ---
@@ -110,7 +109,6 @@ At minimum: this page creates no compliance; the adopting organization validates
 **Corpus Sources:** [`risk/register-scenario-risk-catalogue.md`](../../risk/register-scenario-risk-catalogue.md)\
 **External Sources:** None\
 **Claim Classes Present:** composite\
-**Review Record:** NR-2026-001\
 **Last Reviewed:** 2026-08-06
 
 ---
@@ -168,7 +166,6 @@ State the illustrative and composite nature: fictional, no likelihood or frequen
 **Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md)\
 **External Sources:** ISO 31000:2018\
 **Claim Classes Present:** citation, sourced, composite\
-**Review Record:** NR-2026-001\
 **Last Reviewed:** 2026-08-06
 
 ---
@@ -226,7 +223,6 @@ This page creates no compliance and prescribes no outcome; the adopting organiza
 **Corpus Sources:** [`ai/guide-ai-board-oversight.md`](../../ai/guide-ai-board-oversight.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation\
-**Review Record:** NR-2026-001\
 **Last Reviewed:** 2026-08-06
 
 ---
@@ -284,7 +280,6 @@ This page organizes questioning; it prescribes no answer and creates no complian
 **Corpus Sources:** [`risk/register-scenario-risk-catalogue.md`](../../risk/register-scenario-risk-catalogue.md)\
 **External Sources:** None\
 **Claim Classes Present:** composite\
-**Review Record:** NR-2026-001\
 **Last Reviewed:** 2026-08-06
 
 ---
@@ -342,7 +337,6 @@ State the illustrative and composite nature: fictional, no likelihood or frequen
 **Corpus Sources:** [`governance/charter-governance-library.md`](../../governance/charter-governance-library.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
-**Review Record:** NR-2026-001\
 **Last Reviewed:** 2026-08-06
 
 ---
@@ -404,7 +398,6 @@ This page explains a path; it creates no compliance and prescribes no outcome. C
 **Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md)\
 **External Sources:** None\
 **Claim Classes Present:** citation\
-**Review Record:** NR-2026-001\
 **Last Reviewed:** 2026-08-06
 
 ---
@@ -441,7 +434,7 @@ This page maps contributions; it creates no compliance, presents no adoption as 
 
 ## 4. Conformance notes
 
-- The metadata field order is the thirteen canonical fields followed by the eight narrative-extension fields, ending on `Last Reviewed` (the block's bare last line, no trailing backslash).
+- The metadata field order is the thirteen canonical fields followed by the seven narrative-extension fields, ending on `Last Reviewed` (the block's bare last line, no trailing backslash).
 - Every `Corpus Sources` entry references a corpus document that lives outside `executive/`; a reference to a sibling under `executive/` or an out-of-corpus path is rejected by the narrative metadata gate.
 - Narrative prose states contribution, dependency, prevention, or evidence, and avoids absolutes and unqualified archaic normative verbs; the vocabulary gate scans every narrative page.
 - Em dashes and en dashes are not used anywhere; commas, colons, and parentheses carry the same load.
