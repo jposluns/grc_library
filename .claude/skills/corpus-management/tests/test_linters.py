@@ -11485,12 +11485,12 @@ class NarrativeCorpusMixedDiffOnPrTests(DeltaGateRepoTestCase):
             1, "D11 should FAIL on a nested executive README plus a corpus edit",
         )
 
-    def test_narrative_plus_root_spec_fails(self) -> None:
-        # A root-level governed corpus doc (specification-*) IS corpus content.
+    def test_narrative_plus_governance_spec_fails(self) -> None:
+        # A governed corpus doc (specification-*) in governance/ IS corpus content.
         self._run(
             {"README.md": "# R\n"},
             {"executive/page.md": "# N\n", "governance/specification-master-project.md": "# S\n"},
-            1, "D11 should FAIL on a narrative page plus a root corpus specification",
+            1, "D11 should FAIL on a narrative page plus a governed corpus specification",
         )
 
     def test_boundary_crossing_rename_fails(self) -> None:
@@ -25193,16 +25193,18 @@ class ListingSurfaceCompletenessTests(LinterTestCase):
         )
         self.assertIn(fake, ai_findings[0].missing)
 
-    def test_root_level_meta_spec_exempt_from_register(self) -> None:
-        # A root-level meta-specification (no domain prefix) is exempt
-        # from the register-completeness rule: adding one to the active
-        # set must NOT produce a register finding.
+    def test_slash_less_path_exempt_from_register(self) -> None:
+        # A path with no "/" (no domain prefix) is exempt from the
+        # register-completeness rule: adding one to the active set must NOT
+        # produce a register finding. The library specifications sit in
+        # governance/, not at the repository root; the path below is a
+        # synthetic probe.
         mod = self._load_module()
         active = mod.active_documents() | {"specification-fake-root-meta.md"}
         finding = mod.check_register(active)
         self.assertIsNone(
             finding,
-            "root-level meta-specs are exempt; adding one should not flag",
+            "a path with no slash is exempt; adding one should not flag",
         )
 
 
@@ -42990,7 +42992,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-date-cobump-on-pr.py NO_FS F 302cb52aff2cc9b7a4c2a9c5f8c3646d6270bd4932dea572dcbe08e762292cb9
         check-dirty-tree-push.py TRANSPORT F 55222e921472f5297afb9c5f98e0f5efb8f5c8d0adcca8dbe84f30012ac0f8fb
         check-generated-commit.py NO_FS F a15e3235cc5ab50f0d3473efcfd05b56741f602ecbae59fd92b79ca1ee7f19e1
-        check-narrative-corpus-mixed-diff-on-pr.py NO_FS F ec4c08cabe08cf5c84d7a1122a3c54ecbe0a74f782396a5786f6013785b64f0f
+        check-narrative-corpus-mixed-diff-on-pr.py NO_FS F 3260adf3c9d26de4dd19d6414c39d893bbe78ba336c96e31eefccbb4cae9e7da
         check-portability.sh FIXED F 53ce8fd609c5f99cfff314dda4641f02d2a99136cba2f0e2b1d76c8e612c1538
         check-retired-section-orphan-on-pr.py NO_FS F 0d710f974f62cd7b1cf9e80d7b8b03ce51f05784c34e6ead05db22f157d5428b
         check-review-cadence.py ROOT F bcd4b92ee9be87833a2905a2f9aea484fec84520c85ff1aa07e85aff956b0cc1
@@ -43032,7 +43034,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-cross-file-section-names.py CWD F 30e7152e52bc2a95b0c2831ddb8954222b464fe259dbbb52108df677189d0ea7
         lint-cross-file-section-refs.py CWD F eeaf1d07db7c72f64660a0964614ccb4de1cbd648cfebf94ba96e940b0575c48
         lint-date-format.py CWD F 4c0f03dadc20ee6e4b4cd006e448ee0e57c84b6a3a1269404e8554a4db5ee015
-        lint-directional-dependency.py ROOT F 4585487ec7ae1187a56aad3665c31928f0cc87117e4a8ed9507a26e307bc009d
+        lint-directional-dependency.py ROOT F e34d800e4ba3efd13da0bf8cdd64aa991be7ebbaa8cb844ea845f516018cad6c
         lint-doctype-parity.py NO_FS F 5cd574d604f2625d225e5046c4b1d087bf01735e6ea6442bf603d9b308ed19ed
         lint-document-control-codes.py OWN F eb400222d37c66dfc435cb9d56e62f725c706083d446d7db07ad88038d5f9103
         lint-document-date-staleness.py CWD F e355085d43f49fafd9fdd77ae2081b51041ee57c4330d46e4e43541133477f3d
@@ -43054,7 +43056,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-matrix-control-codes.py OWN F 88e8bb5cf39951e9d4d8684442ac272288ee5a63d171438c1fd927e2fd969864
         lint-metadata-line-breaks.py ROOT F 8e18d7b327c86b85b7932c61dc5af33895d5b4dbaf7c8aa733755f545395bf90
         lint-metadata.py ROOT F ab21e76f903684c8f307a01a76b42a8a48434af31be15e566730885e444b2647
-        lint-narrative-authority-boundary.py ROOT F 0568fe66b23f13179c4c3fe8a4b6464ba751454209d82ed6a1c1a0dc8073f279
+        lint-narrative-authority-boundary.py ROOT F 9f742c770fc0acf74dcfdb167447211a01a9e5579d28845fc2d5c15fcaa2d98c
         lint-narrative-boundary.py OWN F 914931f27f1f5e1d4ca2ca83645df86dddb4a9bb14c45dbaec4fc89a515a06f1
         lint-narrative-disclaimer.py NO_FS F 9e9c956e4a5edded7cd611494c2161cac18a78741b87ffc32a26f9be65a5b8de
         lint-narrative-metadata.py CWD F 2438239d00db75202070771351cfed226a66cce1de7e8ffe3559b22800192ce8
@@ -43116,7 +43118,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         scan-publication-instruction-content.py OWN F 62fd62e2345b14ae59e33db7ef62cf131bdbdb9eb2f75cc3f5bab3391cbdd17f
         skill-verdict-fields.json DATA F 3a9c5b89ed3acc1a7bdbda02b5630379c1ef016fc58b34e4338a485ad3fd4cb8
         standards-currency-unpinned-baseline.json DATA F 25526fa37844734661ef142a8d54c27a79ed13df1ed3b18955343be1246d7fc5
-        suggest-listing-surfaces.py SKIP F f4a5c4a4997dfeba9f870d43e92726f2c065dda377cf11d2874574dc4c4c0206
+        suggest-listing-surfaces.py SKIP F 1fc1c10ac7ec86e31942c812521708f89b1c37237d01b078caa2e42886e5ba63
         sweep-preflight-exemptions.json DATA F 2c11643eb1082a34c9d2cafed9cf04c6481c3e8322a44f426aa0f55729ad75df
         sweep-preflight-scanner.py NO_FS F 0354f7c93485b246f46fdb4e10facb822349f38f813332215d16c92f635c9d5e
         tail-safe.sh COMMAND F 1a847b4353a77cf809372510d4c51256299d456870e4a41d8f70c7332ca05a75
@@ -61309,7 +61311,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.23.2", "the C1 rebuild release adds the directional-dependency engine's public function path_in_project_gov, so gate 53's project_gov_dir may be a path of several parts (MINOR), moves the compiler's default pack root to .claude/skills/corpus-management/src and raises minimum_python from 3.11 to 3.14, on top of RBQ10, which has the compiler's managed-output stray scan skip the relocated skill directory's shipped entries (PATCH), on top of gate 36, which makes the language engine's -isation scan linear through a private helper, _isation_matches (PATCH) on top of 3b614, which rewords the core rules README to name the three managed directories and the CLAUDE.md block gate 99 owns (PATCH) on top of P-3.213, which adds the standards-currency engine's identity_counts, ratchet and count_summary functions and print_coverage's trailer parameter for the per-standard UNPINNED ratchet (MINOR) on top of 3b146, which has the gate-30 metadata line-break engine group a run by the rendered paragraph, so an indented continuation line no longer splits it (PATCH), then follows the CommonMark/GFM block structure (block quotes, list items, fences, HTML blocks, tables) so the run model agrees with the renderer (PATCH) on top of 3b662, which has the gate-18 intra-document section-reference engine recognise Canadian federal instrument identifiers such as 'ITSP.80.022' as external-framework names (PATCH) on top of 3b652, which has the standards-currency engine read a parenthesised programme-name version such as '(SSDF 1.1)' (PATCH), 3b607, which retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (0.19.0 to 0.20.0 for 3b533; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for 3b607; then 0.21.1 to 0.21.2 for 3b652; then 0.21.2 to 0.21.3 for 3b662; then 0.21.3 to 0.21.4, then 0.21.4 to 0.21.5, for 3b146; then 0.21.5 to 0.22.0 for P-3.213; then 0.22.0 to 0.22.1 for 3b614; then 0.22.1 to 0.22.2 for gate 36; then 0.22.2 to 0.22.3 for RBQ10; then 0.22.3 to 0.23.0 for the C1 release)")
+        self.assertEqual(man["pack"]["version"], "0.23.3", "the C1 rebuild release adds the directional-dependency engine's public function path_in_project_gov, so gate 53's project_gov_dir may be a path of several parts (MINOR), moves the compiler's default pack root to .claude/skills/corpus-management/src and raises minimum_python from 3.11 to 3.14, on top of RBQ10, which has the compiler's managed-output stray scan skip the relocated skill directory's shipped entries (PATCH), on top of gate 36, which makes the language engine's -isation scan linear through a private helper, _isation_matches (PATCH) on top of 3b614, which rewords the core rules README to name the three managed directories and the CLAUDE.md block gate 99 owns (PATCH) on top of P-3.213, which adds the standards-currency engine's identity_counts, ratchet and count_summary functions and print_coverage's trailer parameter for the per-standard UNPINNED ratchet (MINOR) on top of 3b146, which has the gate-30 metadata line-break engine group a run by the rendered paragraph, so an indented continuation line no longer splits it (PATCH), then follows the CommonMark/GFM block structure (block quotes, list items, fences, HTML blocks, tables) so the run model agrees with the renderer (PATCH) on top of 3b662, which has the gate-18 intra-document section-reference engine recognise Canadian federal instrument identifiers such as 'ITSP.80.022' as external-framework names (PATCH) on top of 3b652, which has the standards-currency engine read a parenthesised programme-name version such as '(SSDF 1.1)' (PATCH), 3b607, which retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (0.19.0 to 0.20.0 for 3b533; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for 3b607; then 0.21.1 to 0.21.2 for 3b652; then 0.21.2 to 0.21.3 for 3b662; then 0.21.3 to 0.21.4, then 0.21.4 to 0.21.5, for 3b146; then 0.21.5 to 0.22.0 for P-3.213; then 0.22.0 to 0.22.1 for 3b614; then 0.22.1 to 0.22.2 for gate 36; then 0.22.2 to 0.22.3 for RBQ10; then 0.22.3 to 0.23.0 for the C1 release; then 0.23.2 to 0.23.3 for the listing-surface completeness gate's docstrings, release history entry 0.23.3)")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")
@@ -64688,15 +64690,20 @@ class SuggestListingSurfacesTests(unittest.TestCase):
         self.assertIn("python3 .claude/skills/corpus-management/tools/build-narrative-registry.py && python3 .web/build.py", line)
         self.assertNotIn("build-taxonomy", line)
 
-    def test_root_level_regenerate_line_only_for_an_indexed_root_spec(self):
-        # .claude/skills/corpus-management/data/taxonomy.yml indexes (domain "root") only the root files iter_all_docs() in
-        # .claude/skills/corpus-management/tools/build-taxonomy.py names, so only those get the corpus generators.
+    def test_governance_specification_gets_the_corpus_generators(self):
+        # A governance/ path takes the domain branch like any domain document, so it gets
+        # the corpus generators whatever the root list in
+        # .claude/skills/corpus-management/tools/build-taxonomy.py holds; only a slash-less
+        # path depends on that list.
         r = self._run("governance/specification-master-project.md")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         line = next(row for row in r.stdout.splitlines() if "[regenerate]" in row)
         self.assertIn("python3 .claude/skills/corpus-management/tools/build-taxonomy.py && python3 .claude/skills/corpus-management/tools/build-portal.py", line)
         self.assertNotIn("build-narrative-registry", line)
-        # A new root-level document must first be added to that list; regenerating does nothing.
+
+    def test_slash_less_path_the_root_list_omits_must_be_added_first(self):
+        # A slash-less path the root list does not name must first be added to that
+        # list; regenerating does nothing.
         r = self._run("specification-proposed-listing-probe.md")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertNotIn("[regenerate]", r.stdout)
@@ -64782,13 +64789,13 @@ class SuggestListingSurfacesTests(unittest.TestCase):
     def test_indexed_root_documents_are_read_from_build_taxonomy(self):
         helper = load_linter_module(".claude/skills/corpus-management/tools/suggest-listing-surfaces.py", "_sls_roots")
         indexed = helper.indexed_root_documents()
-        self.assertIsNotNone(indexed, "could not parse the root-file list in .claude/skills/corpus-management/tools/build-taxonomy.py")
+        self.assertIsNotNone(indexed, "could not parse the root-specification list in .claude/skills/corpus-management/tools/build-taxonomy.py")
         for name in ("governance/specification-master-project.md", "governance/specification-ingestion.md"):
             self.assertIn(name, indexed)
         td = Path(tempfile.mkdtemp(prefix="sls-roots-"))
         self.addCleanup(shutil.rmtree, td)
         self.assertIsNone(helper.indexed_root_documents(td))
-        # The builder names its root files in LIBRARY_ROOT_SPECS; a loop over another
+        # The builder names its library root specifications in LIBRARY_ROOT_SPECS; a loop over another
         # constant (the domain list, walked first) is skipped, and a second binding or a
         # binding to anything but literal strings reads as unknown.
         builder = td / ".claude/skills/corpus-management/tools/build-taxonomy.py"
@@ -64817,17 +64824,87 @@ class SuggestListingSurfacesTests(unittest.TestCase):
         # time, so patching REPO_ROOT alone would still read the real builder: wrap it as well.
         real = helper.indexed_root_documents
         out = io.StringIO()
-        # A root-level document is one with no directory part; the library root
-        # specifications now sit in governance/, a domain with a README.
+        # A root-level document is one with no directory part, so it never takes
+        # the domain README branch; the library root specifications sit in
+        # governance/, a domain with a README.
         with patch.object(helper, "REPO_ROOT", td), \
                 patch.object(helper, "indexed_root_documents", lambda: real(td)), \
                 redirect_stdout(out):
             helper.report_one("specification-proposed-listing-probe.md")
         self.assertIn("Root-level document", out.getvalue())
+        self.assertIn("not at the repository root", out.getvalue())
+        self.assertNotIn("meta-specifications", out.getvalue())
         self.assertIn("[unknown]", out.getvalue())
         self.assertIn("root specifications iter_all_docs()", out.getvalue())
         self.assertNotIn("[add]", out.getvalue())
         self.assertNotIn("[regenerate]", out.getvalue())
+
+    def test_slash_less_path_the_builder_lists_gets_its_generators(self):
+        # The real builder lists only governance/ paths, so no real slash-less path
+        # reaches the "indexes it" branch; a fixture builder that lists one must get
+        # the corpus generators and no advice to confirm or move an intended path.
+        from contextlib import redirect_stdout, redirect_stderr
+        from unittest.mock import patch
+        path_patch = patch.object(sys, "path", list(sys.path))
+        path_patch.start()
+        self.addCleanup(path_patch.stop)
+        helper = load_linter_module(".claude/skills/corpus-management/tools/suggest-listing-surfaces.py", "_sls_listed_root")
+        td = Path(tempfile.mkdtemp(prefix="sls-listed-root-"))
+        self.addCleanup(shutil.rmtree, td)
+        listed, unlisted = "specification-listed-root-probe.md", "specification-unlisted-root-probe.md"
+        for rel, body in {
+            listed: "# Listed root\n",
+            ".claude/skills/corpus-management/tools/build-taxonomy.py": (
+                f"LIBRARY_ROOT_SPECS = ({listed!r},)\n"
+                "def iter_all_docs():\n"
+                "    for name in LIBRARY_ROOT_SPECS:\n"
+                "        yield name\n"
+            ),
+            ".claude/skills/corpus-management/tools/build-portal.py": "",
+            ".claude/skills/corpus-management/tools/build-narrative-registry.py": "",
+            ".web/build.py": "",
+            ".claude/skills/corpus-management/tools/pre-push-guard.sh": (
+                "python3 .claude/skills/corpus-management/tools/build-taxonomy.py --check\n"
+                "python3 .claude/skills/corpus-management/tools/build-portal.py --check\n"
+                "python3 .claude/skills/corpus-management/tools/build-narrative-registry.py --check\n"
+                "python3 .web/build.py --check\n"
+            ),
+        }.items():
+            path = td / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(body, encoding="utf-8")
+        real_indexed = helper.indexed_root_documents
+        real_guard = helper.guard_generators
+
+        def run(doc):
+            out, err = io.StringIO(), io.StringIO()
+            with patch.object(helper, "REPO_ROOT", td), \
+                    patch.object(helper, "indexed_root_documents", lambda: real_indexed(td)), \
+                    patch.object(helper, "guard_generators", lambda: real_guard(td)), \
+                    redirect_stdout(out), redirect_stderr(err):
+                code = helper.main(["suggest", doc])
+            self.assertEqual(code, 0, out.getvalue() + err.getvalue())
+            self.assertEqual(err.getvalue(), "")
+            return out.getvalue()
+
+        report = run(listed)
+        self.assertIn("names as a library root specification", report)
+        self.assertIn('taxonomy.yml indexes it (domain "root")', report)
+        line = next(row for row in report.splitlines() if "[regenerate]" in row)
+        self.assertIn("python3 .claude/skills/corpus-management/tools/build-taxonomy.py && "
+                      "python3 .claude/skills/corpus-management/tools/build-portal.py", line)
+        self.assertNotIn("build-narrative-registry", line)
+        self.assertNotIn("confirm", report.lower())
+        self.assertNotIn("not at the repository root", report)
+        self.assertNotIn("[add]", report)
+        # A slash-less path the builder does not list keeps the confirmation and [add].
+        report = run(unlisted)
+        self.assertIn("confirm this root-level path is intended", report)
+        self.assertIn("not at the repository root", report)
+        self.assertIn("[add]", report)
+        self.assertIn("root-specification list", report)
+        self.assertNotIn("[regenerate]", report)
+        self.assertNotIn("names as a library root specification", report)
 
     def test_unreadable_or_partial_derivation_reports_unknown(self):
         from contextlib import redirect_stdout

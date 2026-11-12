@@ -30,7 +30,7 @@ Scope, and why it is drawn this way:
   directories. This covers the governed specifications and instructions wherever
   the move put them: ``governance/specification-*.md`` (for example
   ``governance/specification-executive-narrative.md`` itself, a corpus document
-  that is not a ``.claude/skills/corpus-management/data/taxonomy.yml`` row) and
+  that ``.claude/skills/corpus-management/data/taxonomy.yml`` lists) and
   ``.claude/skills/corpus-management/specs/{specification,instruction}-*.md``.
   A ``specification-*`` / ``instruction-*`` ``.md`` at the repository root (the
   prefix set gate 1 governs, the pre-move home of the root specifications) still
@@ -122,8 +122,8 @@ def is_narrative_content(path: str) -> bool:
 # instruction documents (gate 1 governs them by prefix) live in ``governance/`` and
 # in the project specification directory after the move, both corpus-scan roots,
 # including governance/specification-executive-narrative.md, a corpus document per
-# the spec Gates item 2 that is not a .claude/skills/corpus-management/data/taxonomy.yml
-# row. A specification-* / instruction-* ``.md`` at the repository root is still
+# the spec Gates item 2 that .claude/skills/corpus-management/data/taxonomy.yml
+# lists. A specification-* / instruction-* ``.md`` at the repository root is still
 # matched by prefix. The root bookkeeping/meta surfaces (README, NOTICE, CONTRIBUTING,
 # AUTHORS, SECURITY) carry none of those prefixes and are correctly excluded, and the
 # generated pages in ``governance/`` (lint_common GENERATED_GOVERNANCE_PAGES) are
@@ -188,13 +188,13 @@ def _self_test() -> int:
         ("narrative-plus-portal", ["executive/page.md", "governance/portal.md"], False),
         # .claude/skills/corpus-management/tools/ is not a corpus content document.
         ("narrative-plus-tool", ["executive/page.md", ".claude/skills/corpus-management/tools/x.py"], False),
-        # A root governed corpus doc (specification-* / instruction-*) IS corpus
-        # content, even the narrative spec itself (a corpus document per gate 1
-        # that is not a .claude/skills/corpus-management/data/taxonomy.yml row): a narrative page plus a root-spec edit
-        # crosses the boundary.
-        ("both-root-spec-executive", ["executive/page.md", "governance/specification-executive-narrative.md"], True),
-        ("both-root-spec-master", ["executive/page.md", "governance/specification-master-project.md"], True),
-        ("both-root-instruction", ["executive/page.md", ".claude/skills/corpus-management/specs/instruction-ai-document-ingestion.md"], True),
+        # A governed corpus doc (specification-* / instruction-*) IS corpus content
+        # wherever the move put it, even the narrative spec itself (a corpus document
+        # per gate 1 that .claude/skills/corpus-management/data/taxonomy.yml lists): a
+        # narrative page plus a specification edit crosses the boundary.
+        ("both-governance-spec-executive", ["executive/page.md", "governance/specification-executive-narrative.md"], True),
+        ("both-governance-spec-master", ["executive/page.md", "governance/specification-master-project.md"], True),
+        ("both-specs-instruction", ["executive/page.md", ".claude/skills/corpus-management/specs/instruction-ai-document-ingestion.md"], True),
         # A root bookkeeping/meta .md (no specification-/instruction- prefix) is
         # NOT corpus content, so it does not trip the boundary.
         ("narrative-plus-root-security", ["executive/page.md", "SECURITY.md"], False),

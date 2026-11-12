@@ -325,7 +325,8 @@ def type_slug(type_name):
     return re.sub(r"[^a-z0-9]+", "-", type_name.lower()).strip("-")
 
 
-# The taxonomy marks the root-level specification documents with this domain.
+# The library specifications in governance/ are the documents the taxonomy
+# marks with this domain.
 ROOT_DOMAIN = "root"
 
 # Reading-progression rank for the per-domain document list on each domain page
@@ -6740,8 +6741,9 @@ def draft_doc_purpose(doc):
 
 def draft_type_values(tp, docs_by_path, next_url, next_label, adopter_docs=()):
     # One row per document of the type, in the shared type-page order (area,
-    # then title), each with its area and purpose. Root-level specifications
-    # have no draft document page, so they link their GitHub source, as the
+    # then title), each with its area and purpose. The library specifications
+    # in governance/ that the taxonomy marks with the domain "root" have no
+    # draft document page, so they link their GitHub source, as the
     # related-documents list does; their area label is the documents index's.
     # The adopter documents (ADOPTER_DOCS_HOME) of the type follow in their own
     # labelled

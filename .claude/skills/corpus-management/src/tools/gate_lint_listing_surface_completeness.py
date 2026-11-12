@@ -115,9 +115,9 @@ def is_register_required(path: str) -> bool:
     """Whether an active document must appear in the index register.
 
     Domain-prefixed documents (those with a "/" in the path) are
-    required. Root-level documents (no "/") are exempt: the register is
-    domain-organized and root-level meta-specifications are
-    library-infrastructure, not indexed GRC content.
+    required. A path with no "/" is exempt because the register is
+    domain-organized. The library specifications no longer sit at the
+    repository root, so this exemption does not cover them.
     """
     return "/" in path
 

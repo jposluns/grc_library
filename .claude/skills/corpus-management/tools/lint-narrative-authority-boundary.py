@@ -41,11 +41,13 @@ FIELD_MENTION_RE = re.compile(r"(?<![\w.-])executive/")
 # (a document row or a related_documents entry) is a defect.
 TAXONOMY_MENTION_RE = re.compile(r"[\"'](?:\.\./)*executive/")
 
-# Root-level deliverable documents (the published library specifications and front
-# matter). Matches gate 53's root set PLUS the narrative authoring specification
-# (deliberately in scope: it is a corpus document and must itself honour the one-way
-# rule; it passes because its executive-path examples are inline-code prose; fenced
-# blocks are scanned too, fail closed).
+# Deliverable documents named by path: the front matter at the repository root, the
+# two library specifications in governance/ and the ingestion instruction in the
+# project specification directory. Matches gate 53's ROOT_DELIVERABLE_DOCS PLUS
+# the narrative authoring specification (deliberately in scope: it is a corpus
+# document and must itself honour the one-way rule; it passes because its
+# executive-path examples are inline-code prose; fenced blocks are scanned too,
+# fail closed).
 ROOT_DELIVERABLE_DOCS: tuple[str, ...] = (
     "README.md",
     "NOTICE.md",

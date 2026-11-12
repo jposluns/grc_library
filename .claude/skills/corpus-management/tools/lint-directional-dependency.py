@@ -48,9 +48,9 @@ if PROJECT_GOV_DIR not in AUDITED_DOMAIN_DIRS:
 # likewise absent from the scan roots below.
 EXEMPT_PREFIXES: tuple[str, ...] = (".claude/skills/corpus-management/src/",)
 
-# Root-level deliverable documents (the published library specifications
-# and front matter), matching the broken-link checker's root set minus
-# the tooling/generated surfaces it additionally scans.
+# Deliverable documents named by path: the front matter at the repository
+# root, the two library specifications in governance/ and the ingestion
+# instruction in the project specification directory.
 ROOT_DELIVERABLE_DOCS: tuple[str, ...] = (
     "README.md",
     "NOTICE.md",

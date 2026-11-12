@@ -97,9 +97,10 @@ OUTPUTS = {
     ".claude/skills/corpus-management/tools/build-narrative-registry.py": ".claude/skills/corpus-management/data/narrative.yml",
     ".web/build.py": ".web/corpus-link-manifest.md",
 }
-# .claude/skills/corpus-management/data/taxonomy.yml indexes only the root-level files named in this builder's iter_all_docs().
+# .claude/skills/corpus-management/data/taxonomy.yml indexes under domain "root" only the library root
+# specifications this builder's iter_all_docs() names; they sit in governance/, not at the repository root.
 TAXONOMY_BUILDER = ".claude/skills/corpus-management/tools/build-taxonomy.py"
-# The module-level constant naming the root files the builder's iter_all_docs() adds.
+# The module-level constant naming the library root specifications the builder's iter_all_docs() adds.
 ROOT_SPECS_CONSTANT = "LIBRARY_ROOT_SPECS"
 
 # Words too common to be useful for keyword-overlap ranking.
@@ -221,13 +222,13 @@ def guard_generators(root: Path = REPO_ROOT) -> list[str] | None:
 
 
 def indexed_root_documents(root: Path = REPO_ROOT) -> tuple[str, ...] | None:
-    """Root-level files .claude/skills/corpus-management/tools/build-taxonomy.py indexes, read from its source.
+    """Library root specifications .claude/skills/corpus-management/tools/build-taxonomy.py indexes, read from its source.
 
     Parses the builder (never imports it) and returns the strings that a ``for`` loop in
     ``iter_all_docs()`` walks: the module-level ``ROOT_SPECS_CONSTANT``
     (``LIBRARY_ROOT_SPECS``) bound once to a tuple or list of string literals, or an
     inline tuple of string literals. A loop over any other name, such as the domain list,
-    is not the root-file list. The first such loop in ast.walk order wins when there are
+    is not the root-specification list. The first such loop in ast.walk order wins when there are
     several. Returns None when the builder cannot be read or parsed, when no such loop is
     found, or when the constant is bound more than once or to anything else. A
     containment refusal propagates.
@@ -417,27 +418,38 @@ def report_one(doc_path: str, plan=None, indexed=_UNPLANNED, generators=_UNPLANN
     if title:
         print(f"    title: {title}  (type: {doc_type or 'unknown'})")
     if domain is None:
-        print(
-            "    Root-level document (no domain prefix). The domain-index "
-            "register and domain READMEs do not index root-level "
-            "meta-specifications, so no hand-edited MECHANICAL surface applies. "
-            "Confirm this is an intentional root-level document."
-        )
         if indexed is _UNPLANNED:
             indexed = indexed_root_documents()
+        if indexed is not None and doc_path in indexed:
+            # The builder already names this path as a library root specification, so the
+            # root-level placement is intended: report the generators, and do not ask the
+            # author to confirm the path or say the specifications sit elsewhere.
+            print(
+                "    Root-level document (no domain prefix) that "
+                f"{TAXONOMY_BUILDER} names as a library root specification. The "
+                "domain-index register and domain READMEs list only documents under a "
+                "domain directory, so no hand-edited MECHANICAL surface applies."
+            )
+            print("    .claude/skills/corpus-management/data/taxonomy.yml indexes it (domain \"root\"), so the corpus generators apply.")
+            report_regenerate(domain, generators)
+            return
+        print(
+            "    Root-level document (no domain prefix). The domain-index "
+            "register and domain READMEs list only documents under a domain "
+            "directory, so no hand-edited MECHANICAL surface applies. The library "
+            "specifications sit in governance/, not at the repository root; "
+            "confirm this root-level path is intended."
+        )
         if indexed is None:
             print(
                 f"    [unknown] could not read the root specifications iter_all_docs() in "
                 f"{TAXONOMY_BUILDER} indexes; check whether it names {doc_path} before regenerating."
             )
-        elif doc_path in indexed:
-            print("    .claude/skills/corpus-management/data/taxonomy.yml indexes it (domain \"root\"), so the corpus generators apply.")
-            report_regenerate(domain, generators)
         else:
             print(
                 f"    [add] {TAXONOMY_BUILDER} indexes only its named root specifications "
                 f"({', '.join(indexed)}), so .claude/skills/corpus-management/data/taxonomy.yml does not index this document and "
-                f"regenerating does nothing for it. First add it to the root-file list in "
+                f"regenerating does nothing for it. First add it to the root-specification list in "
                 f"iter_all_docs() in {TAXONOMY_BUILDER}; the regenerate line then applies "
                 f"(rerun this tool)."
             )
@@ -464,10 +476,10 @@ def report_one(doc_path: str, plan=None, indexed=_UNPLANNED, generators=_UNPLANN
         )
     else:
         # No README for this first-path-segment: it is not a real corpus domain
-        # (e.g. governance/, a root meta-dir) or the domain's README is missing. An
-        # advisory tool must not crash (read_text_safe does not swallow a
-        # FileNotFoundError, by design), so report it instead of reading a
-        # non-existent file.
+        # (for example a mistyped domain name; governance/ is a domain with a
+        # README) or the domain's README is missing. An advisory tool must not
+        # crash (read_text_safe does not swallow a FileNotFoundError, by design),
+        # so report it instead of reading a non-existent file.
         print(
             f"    [n/a] {readme} does not exist -- '{domain}/' is not a corpus "
             f"domain with a README (no MECHANICAL domain-README surface applies)."
