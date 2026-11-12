@@ -25220,6 +25220,9 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
 
     MIRROR_REL = "changelog-details/CHANGELOG-detailed.md"
 
+    # A path relative to the shared store's root (the predecessor's legacy mirror), not a repository identity.
+    PREDECESSOR_LEGACY_MIRROR_REL = "changelog-details/CHANGELOG-detailed-grc_library.md"
+
     NO_ROOT_HEADER_REASON = (
         "the root CHANGELOG has no per-PR header (a weekly-only root); root/mirror header "
         "parity at HEAD has nothing to compare"
@@ -25324,6 +25327,72 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             f"mirror (headers up to PR #{ceiling}) should carry the same per-PR headers.\n"
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
+
+    def test_mirror_is_not_the_old_repository_legacy_mirror(self) -> None:
+        # Which file the gate takes as its mirror: DETAILED_MIRROR_REL is not the
+        # predecessor's legacy mirror under .working/ and is this repository's
+        # MIRROR_REL there, the source passes that constant to the default run's
+        # store lookup, and the source does not name the legacy mirror file. The
+        # next test checks that the gate does not resolve or read that file.
+        legacy = self.PREDECESSOR_LEGACY_MIRROR_REL
+        mod = load_linter_module(
+            ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py",
+            "_mp_legacy_name")
+        self.assertNotEqual(mod.DETAILED_MIRROR_REL, ".working/" + legacy)
+        self.assertEqual(mod.DETAILED_MIRROR_REL, ".working/" + self.MIRROR_REL)
+        source = Path(mod.__file__).read_text(encoding="utf-8")
+        self.assertIn('resolve_working(DETAILED_MIRROR_REL[len(".working/"):])', source)
+        self.assertNotIn(Path(legacy).stem, source)
+
+    def test_store_holding_only_the_legacy_mirror_is_not_read(self) -> None:
+        # A store holding only the predecessor's legacy mirror supplies no mirror to
+        # this gate: the default run looks up only MIRROR_REL, finds none, does not
+        # read the legacy file and takes its no-mirror path (the root's own checks,
+        # then the DEGRADED skip line). The legacy file holds a pre-epoch record that
+        # fails the gate if it is read as the mirror.
+        import contextlib
+        from unittest import mock
+        mod = load_linter_module(
+            ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py",
+            "_mp_legacy_read")
+        real_resolve, real_read = mod.resolve_working, mod.read_surface
+        looked_up, read = [], []
+        with tempfile.TemporaryDirectory() as tmp:
+            repo, store = Path(tmp) / "repo", Path(tmp) / "store"
+            (repo / ".working").mkdir(parents=True)
+            root_changelog = repo / ".working/CHANGELOG.md"
+            root_changelog.write_text(self._titled(self._new_headers(1)), encoding="utf-8")
+            legacy = store / self.PREDECESSOR_LEGACY_MIRROR_REL
+            legacy.parent.mkdir(parents=True)
+            legacy.write_text("**2026-10-30 | 2026.10.1760 | PR #3127** - old record\n",
+                              encoding="utf-8")
+
+            def resolve(relpath, **kwargs):
+                # The temporary repository stands in for the checkout, so no private
+                # sibling or in-repo mirror of the real checkout can be resolved instead.
+                looked_up.append(relpath)
+                return real_resolve(relpath, repo_root=repo, **kwargs)
+
+            def read_surface(path):
+                read.append(Path(path))
+                return real_read(path)
+
+            out = io.StringIO()
+            with mock.patch.dict(os.environ, {"GRC_STORE": str(store)}), \
+                    mock.patch.object(mod, "REPO_ROOT", repo), \
+                    mock.patch.object(mod, "resolve_working", resolve), \
+                    mock.patch.object(mod, "read_surface", read_surface), \
+                    contextlib.redirect_stdout(out):
+                # The store is live: asked for the legacy file by name, the lookup finds it.
+                found = real_resolve(self.PREDECESSOR_LEGACY_MIRROR_REL, repo_root=repo)
+                got = mod.main([])
+        self.assertEqual(found, legacy)
+        self.assertEqual(looked_up, [self.MIRROR_REL])
+        self.assertIn(root_changelog, read)
+        self.assertNotIn(legacy, read)
+        self.assertEqual(got, 0, out.getvalue())
+        self.assertIn("DEGRADED: gate 59 skipped", out.getvalue())
+        self.assertNotIn("#3127", out.getvalue())
 
     def test_head_parity_passes_with_mirror_one_header_ahead(self) -> None:
         # A branch one merge behind main sees a store mirror carrying one header newer
@@ -43210,7 +43279,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-ccm-aicm-citations.py CWD F b2c3b6225f1d68dcc904b167ef69963c35ac03b169d87478ac39e1f94edb6242
         lint-ccm-provider-member-in-range.py CWD F 3b6aed2769f3d8eb23d754862c355f16e760518d051462b6a217b62a9a31ac7b
         lint-changelog-link-coverage.py CWD F 5e0c2e8520be9e8418bf0835decd744ff234ed93b9c3a707255121120cdf9437
-        lint-changelog-mirror-header-parity.py OWN F 50b19507fd3b701b12b30b6e7c72a646c9f65e286b932d84b7b4049d7fd50775
+        lint-changelog-mirror-header-parity.py OWN F 809eb17f57cdbaf87caf249176ef57775e220bbd9505567ff684288cf3fdff48
         lint-citation-currency-cadence.py NO_FS F 01bc84108f08b8d88711e0e8a9bb7bd5aec5b27b24e67594697dbd4d2ddbc7eb
         lint-citation-verification-freshness.py OWN F 6fef148ac78796357de64b363f2d9002b0f5030fe0924de4c5b09d44b1179ea7
         lint-citations.py ROOT F 223b54a1983967480c8ae2b80e3d59c98c2921d9bf7c411913470505a7f9b060
