@@ -36,6 +36,8 @@ Usage:
 Exit codes:
     0   no findings
     1   one or more suspected secret patterns present
+    2   a listed file was gone when read (removed mid-scan); the scan is incomplete,
+        so it refuses to pass after reporting any findings in the files it read
 """
 
 from __future__ import annotations
@@ -45,7 +47,7 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack .claude/aiqt/tools/ (aiqt_corpus via sys.modules, not sys.path)
-from lint_common import guard_explicit_paths_cwd, REPO_ROOT, iter_targets  # noqa: E402  # grc-config/store, stays local
+from lint_common import guard_explicit_paths_cwd, REPO_ROOT, iter_targets, refuse_vanished, scan_listed  # noqa: E402  # grc-config/store, stays local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / "src" / "tools"
 
@@ -108,11 +110,15 @@ def main(argv: list[str]) -> int:
         exempt_files=EXEMPT_FILES,
     )
     grouped: dict[Path, list[tuple[int, str, str]]] = {}
+    vanished: list[Path] = []
     for t in targets:
-        findings = scan(t)
+        # The default walk lists tests/tmp, whose fixtures a concurrent run can remove mid-scan.
+        findings = scan_listed(lambda: scan(t), t, vanished)
         if findings:
             grouped[t] = findings
     if not grouped:
+        if vanished:
+            return refuse_vanished(vanished)
         print(f"OK: no suspected secret patterns (scanned {len(targets)} files).")
         return 0
     total = 0
@@ -132,6 +138,9 @@ def main(argv: list[str]) -> int:
         "purge from git history. If the match is documentation prose, change "
         "the example value to one that does not match the secret pattern."
     )
+    # The findings in the files read are reported first; a vanished file still refuses the pass.
+    if vanished:
+        return refuse_vanished(vanished)
     return 1
 
 

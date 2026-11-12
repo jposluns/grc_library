@@ -283,7 +283,10 @@ default depends on their default roots:
   `.claude/skills/corpus-management/tools/lint-license-consistency.py`, `.claude/skills/corpus-management/tools/lint-pii-in-content.py`,
   `.claude/skills/corpus-management/tools/lint-secrets-in-content.py` and
   `.claude/skills/corpus-management/tools/lint-section-anchors.py`. The secrets and PII gates keep this
-  source-tree coverage on purpose.
+  source-tree coverage on purpose. Because they still list `tests/tmp/`,
+  each refuses by name, with exit 2, a file it lists and then finds gone
+  when it reads it, after reporting the findings in the files it did
+  read; never a traceback and never skipped.
 - 3 have narrower default roots that do not include `tests/tmp/`:
   `.claude/skills/corpus-management/tools/lint-document-control-codes.py` and
   `.claude/skills/corpus-management/tools/lint-document-iso-annex-a.py` walk the audited domain
@@ -296,7 +299,7 @@ default depends on their default roots:
 covers it. So a
 fixture left by a crashed test can trip one of the 14 root
 walkers in the main `.claude/skills/corpus-management/tools/run_all_audits.sh` sweep, and a fixture the
-suite deletes mid-walk can still stop one of them with a
+suite deletes mid-walk can still stop one of the other 12 with a
 `FileNotFoundError`. Gates with their own walk are outside this
 switch. Two of them prune the root `tests/tmp/` tree from their own
 directory walk with the same helper, so crash residue there is never a
@@ -309,6 +312,20 @@ which a link from residue is not an inbound reference either. A file
 either gate lists and then finds gone when it reads it is refused by
 name with exit 2 (`lint_common.run_listed`), never a traceback and
 never skipped.
+
+So 8 gates refuse by name, with exit 2, a listed file gone when read.
+6 do so through `lint_common`'s `scan_listed` and `refuse_vanished`:
+`.claude/skills/corpus-management/tools/lint-ccm-aicm-citations.py`,
+`.claude/skills/corpus-management/tools/lint-cobit-iso31000-citations.py`,
+`.claude/skills/corpus-management/tools/lint-cobit-title-text.py`,
+`.claude/skills/corpus-management/tools/lint-pii-in-content.py`,
+`.claude/skills/corpus-management/tools/lint-secrets-in-content.py` and
+`.claude/skills/corpus-management/tools/lint-ssdf-control-ids.py`.
+The orphan-document and stub-document gates do so through
+`lint_common`'s `run_listed` and `refuse_vanished`:
+`.claude/skills/corpus-management/tools/lint-orphan-documents.py` and
+`.claude/skills/corpus-management/tools/lint-stub-documents.py`.
+
 Crash residue is deliberately NOT removed by the next run: a sweep
 cannot tell a crashed run's files from a live run's, so an automatic
 sweep could only ever delete fixtures a concurrently running instance
