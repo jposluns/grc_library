@@ -12,8 +12,8 @@ scan set. This delta gate retains the PR-diff check introduced for DD-1
 code that the language gate skips. Historical lines are outside this delta
 check, but remain covered by the language gate under its normal rules.
 
-Scope: root CHANGELOG.md only. The detailed mirror at
-.working/changelog-details/CHANGELOG-detailed.md is maintainer working state,
+Scope: root CHANGELOG.md only. The detailed mirror (this repository's legacy
+store file, lint_common.STORE_MIRROR_REL) is maintainer working state,
 exempt from the corpus gates, and is not checked here.
 
 Usage:

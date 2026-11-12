@@ -206,6 +206,7 @@ def _integration_self_test():
     real commits. Returns (failures, number of checks)."""
     import shutil
     import tempfile
+    from lint_common import STORE_MIRROR_REL  # the legacy mirror's one definition
     src = Path(__file__).resolve().parents[1]
     failures, checks = [], []
 
@@ -353,7 +354,7 @@ def _integration_self_test():
         must(["git", "checkout", "--", _CHANGELOG])
         # The trigger is a staged CHANGELOG.md: the preflight's full-mirror scan fails on this dangling
         # link, which refuses a CHANGELOG commit and leaves every other commit alone.
-        mirror = repo / ".working" / "changelog-details" / "CHANGELOG-detailed.md"
+        mirror = repo / ".working" / STORE_MIRROR_REL
         mirror.parent.mkdir(parents=True)
         mirror.write_text("[gone](no-such-file.md)\n", encoding="utf-8")
         (repo / "other.txt").write_text("1\n", encoding="utf-8")
@@ -405,7 +406,7 @@ def _integration_self_test():
         # `commit -a` and a pathspec commit point at this repository's temporary index, once reached
         # the mirror's diff, so a staged mirror dash that the standalone preflight refuses passed.
         store = repo.parent / "private"
-        store_mirror = store / "changelog-details" / "CHANGELOG-detailed.md"
+        store_mirror = store / STORE_MIRROR_REL
         store_mirror.parent.mkdir(parents=True)
         store_mirror.write_text("# Detailed\n\n", encoding="utf-8")
         must(["git", "init", "-q", "-b", "store"], cwd=store)

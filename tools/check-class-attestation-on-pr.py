@@ -57,6 +57,29 @@ SINGLE GRAMMAR OWNER. The row parser and the attestation grammar are loaded from
 open-findings hook itself (importlib), and the matcher from check-class-completeness.py, so
 there is exactly ONE parser and ONE matcher; this gate re-implements neither.
 
+LEDGER SCOPE. The operational store's open-findings ledger is shared with the successor
+repository (grc_library_new), whose class tokens are counted over a different corpus. A
+`[repo: <name>]` clause is the row's repository tag only when it is the final token of the
+Disposition cell (nothing but whitespace follows it). A row belongs to the successor only
+when its Disposition cell ends with exactly one `[repo: grc_library_new]` tag AND its Found
+cell is exactly one ISO date on or after 2026-11-08, the first day of the successor
+(``row_repository``). Such a row is skipped and its finding id is listed in a note, so every
+exclusion is visible. A row with no tag, or ending with `[repo: grc_library]`, is this
+repository's row and is checked exactly as before. Every other tag fails closed as an
+unclassifiable repository tag, on any scanned row whatever its disposition: two or more tags,
+any other value, a successor tag whose Found cell is earlier than 2026-11-08 or is not exactly
+one ISO date, and a tag anywhere else in the Disposition cell (for example one quoted inside a
+ROUTED or FIXED text), which never excludes the row. A near miss (`[repository: ...]`, an
+unclosed `[repo: ...`) is not a tag, so the row is checked as this repository's. A tag inside a
+`[class: "..."]` span belongs to the declared token and is ignored (the same overlap rule
+``class_attestation_state`` applies to exempt clauses). The step runs right after the
+malformed-row failure and before the disposition, class-token and date-floor tests, so a
+malformed row still fails as malformed and a bad or misplaced tag fails closed whatever the
+row's Found date. No row dated before 2026-11-08 can be excluded. RESIDUE, ACCEPTED:
+a row of this repository dated on or after 2026-11-08 that is deliberately mis-tagged as the
+successor's would be excluded. The tag is author-declared, the same trust model this gate
+already applies to the token and the count; the exclusion note makes any mis-tag visible.
+
 Usage:
     python3 tools/check-class-attestation-on-pr.py
     python3 tools/check-class-attestation-on-pr.py --floor 2026-09-04
@@ -106,6 +129,14 @@ SHIP_FLOOR = datetime.date(2026, 9, 5)
 
 FOUND_DATE_RE = re.compile(r"(\d{4}-\d{2}-\d{2})")
 
+# Ledger scope (see LEDGER SCOPE in the module docstring). A `[repo: <name>]` clause in the
+# Disposition cell names the repository that owns the row; no clause means this repository.
+REPO_TAG_RE = re.compile(r"\[repo:\s*([^\]\r\n]*?)\s*\]", re.IGNORECASE)
+THIS_REPOSITORY = "grc_library"
+FOREIGN_REPOSITORIES = ("grc_library_new",)
+# The first day of the successor repository: no row of it can be found earlier.
+SUCCESSOR_FIRST_FOUND = datetime.date(2026, 11, 8)
+
 
 def _load(path: Path, name: str):
     """Load a repo module by path (the lint-audit-spec-detailed-prose precedent for
@@ -139,6 +170,45 @@ def in_window(found_cell: str, floor: datetime.date) -> bool:
         return True
 
 
+def row_repository(found_cell: str, disp: str, hook) -> str:
+    """PURE. 'own' | 'foreign' | 'bad': which repository a well-formed ledger row belongs to.
+
+    Reads the RAW Disposition cell. `[repo: ...]` clauses that fall inside a
+    `[class: "<token>" @ n]` span (``hook.CLASS_ATTEST_RE``) are part of the declared token and
+    are ignored. Any other `[repo: ...]` clause is the row's repository tag only when it is the
+    final token of the cell (nothing but whitespace after it). No tag, or exactly one final
+    `[repo: grc_library]`, is 'own'. Exactly one final `[repo: grc_library_new]` is 'foreign'
+    only when the Found cell is exactly one ISO date (the full match ``in_window`` uses) on or
+    after SUCCESSOR_FIRST_FOUND. Everything else is 'bad' (fail-closed): two or more tags, a tag
+    anywhere but the final token, any other value, or a successor tag with an earlier, annotated
+    or invalid Found date."""
+    class_spans = [m.span() for m in hook.CLASS_ATTEST_RE.finditer(disp)]
+    tags = [
+        m
+        for m in REPO_TAG_RE.finditer(disp)
+        if not any(a <= m.start() and m.end() <= b for (a, b) in class_spans)
+    ]
+    if not tags:
+        return "own"
+    if len(tags) > 1:
+        return "bad"
+    if disp[tags[0].end():].strip():
+        return "bad"
+    value = tags[0].group(1)
+    if value == THIS_REPOSITORY:
+        return "own"
+    if value not in FOREIGN_REPOSITORIES:
+        return "bad"
+    m = FOUND_DATE_RE.fullmatch((found_cell or "").strip())
+    if not m:
+        return "bad"
+    try:
+        found_date = datetime.date.fromisoformat(m.group(1))
+    except ValueError:
+        return "bad"
+    return "foreign" if found_date >= SUCCESSOR_FIRST_FOUND else "bad"
+
+
 def evaluate(rows_full: list, hook, probe, floor: datetime.date = SHIP_FLOOR):
     """PURE decision core (the thin observers live in main; this is the testable half).
 
@@ -155,6 +225,7 @@ def evaluate(rows_full: list, hook, probe, floor: datetime.date = SHIP_FLOOR):
     """
     failures: list[str] = []
     notes: list[str] = []
+    excluded: list[str] = []
     for found, _sev, finding, disp in rows_full:
         if disp is None:
             # FAIL-CLOSED (P-1.70): a malformed row (cell count != 5 after border-trim) has no
@@ -169,6 +240,22 @@ def evaluate(rows_full: list, hook, probe, floor: datetime.date = SHIP_FLOOR):
                 f"sub-table, it does not belong in `## Open` or `## Closed today`; place it in a "
                 f"dated archive section."
             )
+            continue
+        # LEDGER SCOPE: a row whose Disposition cell ends with the successor repository's tag is
+        # skipped and listed in a note; any other or misplaced tag fails closed whatever the row's
+        # disposition or date; an untagged row is unchanged.
+        scope = row_repository(found, disp, hook)
+        if scope == "bad":
+            failures.append(
+                f"unclassifiable repository tag on ledger row {finding[:120]!r}: the Disposition "
+                f"cell may carry at most one [repo: {THIS_REPOSITORY}] or "
+                f"[repo: {FOREIGN_REPOSITORIES[0]}] clause, only as the cell's final token, and "
+                f"the successor's tag needs a Found cell that is exactly one ISO date on or after "
+                f"{SUCCESSOR_FIRST_FOUND.isoformat()}."
+            )
+            continue
+        if scope == "foreign":
+            excluded.append(hook.leading_class_token(finding) or finding[:60])
             continue
         if not hook.is_fixed_disposition(disp):
             continue
@@ -225,6 +312,11 @@ def evaluate(rows_full: list, hook, probe, floor: datetime.date = SHIP_FLOOR):
                 f"--attest and update the clause) after confirming the growth is a "
                 f"legitimate unrelated sense."
             )
+    if excluded:
+        notes.append(
+            f"{len(excluded)} ledger row(s) tagged [repo: {FOREIGN_REPOSITORIES[0]}] excluded "
+            f"from this repository's check: {', '.join(excluded)}"
+        )
     return failures, notes
 
 
@@ -369,6 +461,107 @@ def _self_test() -> int:
         fails, _ = run(ledger(("2026-09-04", "warning", "[pipe-class] escaped pipe",
                                'FIXED #1990 [class: "weird \\| token" @ 1]')), probe)
         checks.append(("escaped-pipe-token-round-trips", fails == []))
+
+        # LEDGER SCOPE: rows tagged as the successor repository's are excluded and listed in a
+        # note; untagged and own-tagged rows are checked as before; every other tag fails closed.
+        succ = ("2026-11-10", "warning", "[successor-class] a successor row",
+                'FIXED #3 [class: "non-EU/UK scoping caveat" @ 0] [repo: grc_library_new]')
+        fails, notes = run(ledger(succ), probe)
+        checks.append(("scope-successor-tagged-row-excluded-with-note",
+                       fails == [] and len(notes) == 1 and "successor-class" in notes[0]))
+
+        fails, _ = run(ledger(succ, ("2026-11-10", "warning", "[own-untagged] the same row",
+                                     'FIXED #3 [class: "non-EU/UK scoping caveat" @ 0]')), probe)
+        checks.append(("scope-untagged-own-row-still-checked",
+                       len(fails) == 1 and "own-untagged" in fails[0]))
+
+        fails, _ = run(ledger(succ, ("2026-11-10", "warning", "[own-tagged] own tag",
+                                     'FIXED #3 [class: "non-EU/UK scoping caveat" @ 0] '
+                                     "[repo: grc_library]")), probe)
+        checks.append(("scope-own-tagged-row-still-checked",
+                       len(fails) == 1 and "own-tagged" in fails[0]))
+
+        fails, _ = run(ledger(("2026-11-10", "warning", "[unknown-tag] attested row",
+                               'FIXED #3 [class: "non-EU/UK scoping caveat" @ 3] '
+                               "[repo: grc_library_other]")), probe)
+        checks.append(("scope-unknown-tag-fails-closed",
+                       len(fails) == 1 and "repository tag" in fails[0]))
+
+        fails, _ = run(ledger(("2026-11-10", "warning", "[two-tags] attested row",
+                               'FIXED #3 [class: "non-EU/UK scoping caveat" @ 3] '
+                               "[repo: grc_library_new] [repo: grc_library_new]")), probe)
+        checks.append(("scope-two-tags-fail-closed",
+                       len(fails) == 1 and "repository tag" in fails[0]))
+
+        fails, _ = run(ledger(("2026-11-07", "warning", "[too-early] attested row",
+                               'FIXED #3 [class: "non-EU/UK scoping caveat" @ 3] '
+                               "[repo: grc_library_new]")), probe)
+        checks.append(("scope-successor-tag-before-first-day-fails-closed",
+                       len(fails) == 1 and "repository tag" in fails[0]))
+
+        fails, _ = run(ledger(("2026-11-10 typo", "warning", "[unclear-date] attested row",
+                               'FIXED #3 [class: "non-EU/UK scoping caveat" @ 3] '
+                               "[repo: grc_library_new]")), probe)
+        checks.append(("scope-successor-tag-unclear-found-fails-closed",
+                       len(fails) == 1 and "repository tag" in fails[0]))
+
+        (root / "d.md").write_text(
+            "a tag [repo: grc_library_new] here\n"
+            "again a tag [repo: grc_library_new] here\n", encoding="utf-8")
+        files = matcher.corpus_files(root)
+        fails, _ = run(ledger(succ, ("2026-11-10", "warning", "[tag-in-token] token row",
+                                     'FIXED #3 [class: "tag [repo: grc_library_new] here" @ 1]')),
+                       probe)
+        checks.append(("scope-tag-inside-class-token-ignored",
+                       len(fails) == 1 and "tag-in-token" in fails[0]
+                       and "2 occurrence(s) now vs 1 attested" in fails[0]))
+
+        fails, _ = run(ledger(succ, ("2026-11-10", "warning", "[near-miss] not a tag",
+                                     'FIXED #3 [class: "non-EU/UK scoping caveat" @ 0] '
+                                     "[repository: grc_library_new]")), probe)
+        checks.append(("scope-near-miss-tag-still-checked",
+                       len(fails) == 1 and "near-miss" in fails[0]))
+
+        # A tag is the row's repository tag only as the Disposition cell's final token: there it
+        # excludes the row as before; anywhere else in the cell it fails closed and never
+        # excludes the row, whatever the row's disposition or Found date.
+        fails, notes = run(ledger(("2026-11-10", "warning", "[final-tag] routed successor row",
+                                   "ROUTED TODO 3.73 [repo: grc_library_new]")), probe)
+        checks.append(("scope-tag-as-final-token-excluded",
+                       fails == [] and len(notes) == 1 and "final-tag" in notes[0]))
+
+        fails, notes = run(ledger(("2026-11-10", "warning", "[quoted-routed] routed row",
+                                   'ROUTED TODO 3.73 (it quotes "[repo: grc_library_new]" here)')),
+                           probe)
+        checks.append(("scope-tag-quoted-in-routed-text-fails-closed",
+                       len(fails) == 1 and "repository tag" in fails[0]
+                       and "quoted-routed" in fails[0] and notes == []))
+
+        fails, notes = run(ledger(("2026-11-10", "warning", "[mid-fixed] attested row",
+                                   'FIXED #3 [class: "non-EU/UK scoping caveat" @ 3] '
+                                   "[repo: grc_library_new] then more text")), probe)
+        checks.append(("scope-tag-inside-fixed-text-fails-closed",
+                       len(fails) == 1 and "repository tag" in fails[0]
+                       and "mid-fixed" in fails[0] and notes == []))
+
+        fails, notes = run(ledger(("2026-08-01", "warning", "[own-mid] pre-floor attested row",
+                                   "FIXED #3 per [repo: grc_library] "
+                                   '[class: "non-EU/UK scoping caveat" @ 3]')), probe)
+        checks.append(("scope-own-tag-not-final-below-floor-fails-closed",
+                       len(fails) == 1 and "repository tag" in fails[0]
+                       and "own-mid" in fails[0] and notes == []))
+
+        closed_succ = ("## Open\n"
+                       "| Found | Severity | Finding | Source | Disposition |\n"
+                       "| --- | --- | --- | --- | --- |\n"
+                       "## Closed today\n"
+                       "| Found | Severity | Finding | Source | Disposition |\n"
+                       "| --- | --- | --- | --- | --- |\n"
+                       "| 2026-11-10 | warning | [successor-closed] a successor row | probe | "
+                       'FIXED #3 [class: "non-EU/UK scoping caveat" @ 0] [repo: grc_library_new] |\n')
+        fails, notes = run(closed_succ, probe)
+        checks.append(("scope-successor-row-in-closed-today-excluded",
+                       fails == [] and len(notes) == 1 and "successor-closed" in notes[0]))
 
         # P-1.70 part-2b: the mis-filed-row detector fires end-to-end. A finding-row spliced into a
         # legend section, and a row after a phantom backtick-`## ` heading, are both detected; a clean

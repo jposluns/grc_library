@@ -59,7 +59,7 @@ OVERLAY_DIGESTS: dict[str, str] = {
     ".claude/references/governance/artefact-and-branch-discipline.md":
         "1413817589f0116a1350920f67c545a4a4b74207a97819e86b2367eba453dcde",
     ".claude/references/governance/change-tracking.md":
-        "22a467ea46473a353d8ac9ad9f3b24d8b565fd1e7c8c898d59a27cd5eba9b67b",
+        "468b782521040197dde797e71504d2d17ec8c1db0821a5eeea35e660c67277b9",
     ".claude/references/governance/clarify-before-acting.md":
         "ba680bc2e68e2b3c734704348ccac1f4676f1fbb4a8eaf6d5ba6194b8cbf6d31",
     ".claude/references/governance/decision-classification-before-enacting.md":

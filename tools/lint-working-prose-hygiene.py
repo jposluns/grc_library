@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prose-hygiene audit for the `.working/` maintainer working tree (gate 51).
+"""Prose-hygiene audit for the operational store tree, the resolve_working root (gate 51).
 
 The corpus-wide language gate (`lint-language.py`, gate 2) forbids em-dashes
 and en-dashes in prose, but it exempts the `.working/` tree (the
@@ -8,22 +8,29 @@ conformance pass (#353) brought `.working/` prose into line with the house
 style, leaving a small set of *intentional* em/en-dash literals inside inline
 code spans (regex character classes such as ``[\u2013\u2014]``, frozen historical
 quotes, the house-style rule's own glyph examples). This gate ratchets that
-conformance: it forbids em/en-dashes in `.working/` PROSE while ALLOWING them
-inside inline code spans, so the conformance cannot silently regress.
+conformance: it forbids em/en-dashes in the PROSE of the operational store
+tree (see Scope, below) while ALLOWING them inside inline code spans, so the
+conformance cannot silently regress.
 
 The principled boundary (established by the #353 bulk apply): a dash is a
 prose violation only if it appears outside an inline code span and outside a
 fenced code block. Dashes inside code spans are content (a regex literal, a
 quoted format string), not prose, and are left untouched.
 
-Scope is the `.working/` tree ONLY, minus any `guardrail-seeds` directory
-(see EXEMPT_DIRS: a directory-NAME-component match, so the guardrail-seed pipeline
-inbox and everything under it is skipped; it holds verbatim foreign seed prose,
-exempt from the store house-style). Keep maintainer control docs and records OUT
-of a `guardrail-seeds` directory so they stay scanned. The corpus proper is covered by
+Scope is the operational STORE tree ONLY (the resolve_working root: the store,
+else the private sibling's `.working/`, else the in-repo `.working/`), minus
+any `guardrail-seeds` directory (see EXEMPT_DIRS: a directory-NAME-component
+match, so the guardrail-seed pipeline inbox and everything under it is
+skipped; it holds verbatim foreign seed prose, exempt from the store
+house-style) and minus the store-root-anchored `research/handbacks/` tree
+(see is_handback_evidence: the store's worker hand-back evidence is verbatim
+foreign worker prose; a directory merely named `handbacks` anywhere else is
+still scanned). Keep maintainer control docs and records OUT of a
+`guardrail-seeds` directory and OUT of `research/handbacks/` so they stay
+scanned. The corpus proper is covered by
 `lint-language.py`, whose default whole-file scan also covers the root
 `CHANGELOG.md`. The D3 dash gate (`check-changelog-dash-on-pr.py`) additionally
-checks every added CHANGELOG line, including code. This working-tree gate
+checks every added CHANGELOG line, including code. This store-tree gate
 does not scan the root `CHANGELOG.md` by default.
 
 Detection logic (3b696): the gate carries its own fence and code-span model,
@@ -458,6 +465,29 @@ def display_path(path: Path) -> str:
 # `guardrail-seeds` dir under the store is skipped), so keep maintainer control
 # docs and migration records OUTSIDE such a directory to keep them scanned.
 EXEMPT_DIRS = frozenset({".git", "node_modules", "__pycache__", "guardrail-seeds"})
+
+
+def is_handback_evidence(path: Path, store_root: Path | None) -> bool:
+    """Store-root-anchored hand-back test: True iff ``path``, once resolved (so a
+    symlink counts where its target lies, not where the link sits), lies under the
+    store-root ``research/handbacks/`` tree. That tree holds the store's worker
+    hand-back evidence: a hand-back is a VERBATIM foreign worker report, kept
+    byte-exact as evidence, so the store house-style does not apply to it and
+    forcing it would corrupt the record. Unlike a bare name-component match, a
+    directory merely named ``handbacks`` anywhere else (nested, or outside
+    ``research/``) is NOT matched and stays scanned. This is the same root-anchored
+    mechanism ``lint_common.is_narrative_root`` uses for the narrative layer,
+    for the over-match hazard its ``NARRATIVE_DIRS`` comment states.
+    ``store_root`` is the resolve_working root (``default_scan_root``); with no
+    store present nothing is exempt."""
+    if store_root is None:
+        return False
+    try:
+        rel = Path(path).resolve().relative_to(Path(store_root).resolve())
+    except (ValueError, OSError):
+        return False
+    return rel.parts[:2] == ("research", "handbacks")
+
 
 EM_DASH_PATTERN = re.compile(r"[\u2014\u2013]")  # em dash or en dash
 
@@ -1177,6 +1207,12 @@ def main(argv: list[str]) -> int:
     files = iter_markdown_targets(
         paths, exempt_dirs=EXEMPT_DIRS, exclude_default_roots=False,
     )
+    # Store-root-anchored exemption (is_handback_evidence): applied to the
+    # final file list, so it covers the default walk and explicit path
+    # arguments alike, and a `handbacks` directory outside the store-root
+    # research/handbacks/ tree stays scanned.
+    store_root = default_scan_root()
+    files = [f for f in files if not is_handback_evidence(f, store_root)]
 
     grouped: dict[str, list[tuple[int, str, str]]] = defaultdict(list)
     total = unclosed = 0
@@ -1189,7 +1225,7 @@ def main(argv: list[str]) -> int:
                 total += 1
 
     if not grouped:
-        print(f"OK: no prose em/en-dashes in {len(files)} .working/ file(s).")
+        print(f"OK: no prose em/en-dashes in {len(files)} store or .working/ file(s).")
         return 0
 
     for relpath in sorted(grouped):

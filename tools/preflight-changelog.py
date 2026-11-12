@@ -261,7 +261,8 @@ if _TOOLS_DIR not in sys.path:
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import CODE_SPAN_RE  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import (  # noqa: E402  # grc-config/store, stays local
-    REPO_ROOT, _SIBLING_REPO_DIRS, InaccessiblePath, _store_dir, _strict_is_dir, resolve_working)
+    REPO_ROOT, STORE_MIRROR_REL, _SIBLING_REPO_DIRS, InaccessiblePath, _store_dir,
+    _strict_is_dir, resolve_working)
 # The added-line diff, its parser and the repository-selection and link checks are shared with
 # the D3 and D7 delta gates (3b399); the foreign environment keeps its earlier private name here.
 # The aid reads added lines with their numbers (3b696 round 2), for the whole-file dash check.
@@ -615,9 +616,12 @@ def d7_length_findings(lines):
     ]
 
 
+# The mirror entry is this repository's legacy detailed mirror
+# (lint_common.STORE_MIRROR_REL under its logical .working/ prefix); the shared
+# changelog-details/CHANGELOG-detailed.md is owned by the successor repository.
 CHANGELOG_FILES = (
     "CHANGELOG.md",
-    ".working/changelog-details/CHANGELOG-detailed.md",
+    ".working/" + STORE_MIRROR_REL,
 )
 
 EM_DASH = "\u2014"
@@ -829,7 +833,12 @@ def unresolved_link_targets(
 # resolver only strips single-backtick code spans); there are 0 fenced-block
 # links in the mirror today, so no false positive arises. If a future
 # fenced-block illustrative link appears, add ```-fence tracking here.
-DETAILED_MIRROR_REL = ".working/changelog-details/CHANGELOG-detailed.md"
+# The logical path of THIS repository's legacy detailed mirror: the store rel
+# path comes from lint_common.STORE_MIRROR_REL (defined once, imported by every
+# reader), under the .working/ prefix the sibling fallback and the in-repo
+# layout use. The shared changelog-details/CHANGELOG-detailed.md belongs to the
+# successor repository and is never preflighted here.
+DETAILED_MIRROR_REL = ".working/" + STORE_MIRROR_REL
 
 
 def unresolved_links_in_mirror(root: Path | None = None, *,

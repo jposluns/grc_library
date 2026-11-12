@@ -117,7 +117,9 @@ python3 -I tools/open-findings-row.py --set-disposition --id ID [--ledger PATH] 
   The new row must have a valid ISO Found date (`YYYY-MM-DD`), or `found-not-iso` refuses it.
   Note dispositions are not grammar-checked, as here, but their columns and clause count are.
   Refusing an unattested `FIXED` class row is deliberately stricter than the merge guard warning,
-  matching the D14 pre-push check.
+  matching the D14 pre-push check for this repository's rows. D14 skips a row tagged as the
+  successor repository's (a final `[repo: grc_library_new]` token in the Disposition cell, Found
+  on or after 2026-11-08), while this refusal reads no repository tag and still covers that row.
 - **`--open`.** Records an `error` or `warning` row with an empty disposition. Without the flag such a
   row is refused. With it, an empty error row makes the merge guard block the merge while an empty warning row is
   surfaced without blocking. Either row must not land in `## Closed today`, which this hook does not scan.

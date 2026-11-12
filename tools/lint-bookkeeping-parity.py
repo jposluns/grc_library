@@ -362,7 +362,7 @@ from collections.abc import Callable
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import SIMPLE_CODE_SPAN_RE, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT, StoreScope, STORE_PR_IDENTITY_RE, changelog_entry_boundary, above_store_ceiling, store_deferral_note, store_history_prs, store_row_prs, dynamic_floor, print_degraded, resolve_working, store_deferral_flags, store_scope  # noqa: E402  # grc-config/store, stays local
+from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT, STORE_MIRROR_REL, StoreScope, STORE_PR_IDENTITY_RE, changelog_entry_boundary, above_store_ceiling, store_deferral_note, store_history_prs, store_row_prs, dynamic_floor, print_degraded, resolve_working, store_deferral_flags, store_scope  # noqa: E402  # grc-config/store, stays local
 
 
 CHANGELOG_PATH = "CHANGELOG.md"
@@ -1832,7 +1832,10 @@ def main() -> int:
     # gate keeps its full strength on the maintainer's machine.
     vp_path = resolve_working("validate-pr/history.md")
     retro_path = resolve_working("improvement-log.md")
-    detailed_path = resolve_working("changelog-details/CHANGELOG-detailed.md")
+    # This repository's legacy detailed mirror (lint_common.STORE_MIRROR_REL):
+    # the shared changelog-details/CHANGELOG-detailed.md is owned by the
+    # successor repository's gate and never read here.
+    detailed_path = resolve_working(STORE_MIRROR_REL)
     register_path = resolve_working("deep-assessment/register.md")
     bypass_path = resolve_working("merge-bypass-log.md")
 
@@ -1937,7 +1940,7 @@ def main() -> int:
         flags = store_deferral_flags(lines, scope)
         for lineno, ((deferred, prs), line) in enumerate(zip(flags, lines), 1):
             if deferred and changelog_entry_boundary(line):
-                print(store_deferral_note(prs, scope, "changelog-details/CHANGELOG-detailed.md", lineno))
+                print(store_deferral_note(prs, scope, STORE_MIRROR_REL, lineno))
         all_findings.extend(worker_provenance_findings(detailed_text, ceiling=ceiling))
 
     if register_text is None:

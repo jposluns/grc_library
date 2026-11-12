@@ -292,8 +292,10 @@ default depends on their default roots:
   `tools/lint-document-date-staleness.py` walks its fixed list of
   root-level documents, `docs/`, `guardrails/` and the audited domain
   directories; and `tools/lint-working-prose-hygiene.py` walks the
-  `.working/` tree (the operational store first) and passes without
-  scanning anything when no such tree is present.
+  operational store tree (the `lint_common.resolve_working` root: the
+  store, else the private sibling's `.working/`, else the in-repo
+  `.working/`), skipping the store-root `research/handbacks/` tree, and
+  passes without scanning anything when no such tree is present.
 
 `tests/tmp/` is not in `DEFAULT_EXEMPT_DIRS`. So a
 fixture left by a crashed test can trip one of the fourteen root

@@ -523,8 +523,13 @@ is external. Two mechanisms:
    - **The ROOT CHANGELOG never loses history; it is SUMMARIZED, never removed (maintainer-directed 2026-07-26).** [`CHANGELOG.md`](../../CHANGELOG.md) is one of the few history/status files that must go back to the PROJECT START and is NEVER swept, pruned, or moved to `_private`: old per-PR entries are only summarized IN PLACE (daily then weekly roll-ups condense them to `**date | version | PRs #A-#B (N PRs)**` and `**Week of ...**` blocks that STAY in the root). Only the DETAILED mirror (`/opt/grc/private/changelog-details/`) is swept to `_private`; the root roll-up and the mirror sweep are SEPARATE processes, and no move-to-`_private` process touches the root. The ONLY sanctioned removal from the root is a surgical edit fixing an AI error (for example expunging leaked private info). #1177 wrongly REMOVED six weekly summaries from the root; #1192 restored them, and the D8 reminder plus this rule foreclose the recurrence.
    - **Detailed-mirror current-week sweep** (the changelog-restructure current-week model;
      the pack rule's current-period-model section is the authoritative description): the
-     detailed mirror (the operational store's `changelog-details/CHANGELOG-detailed.md`,
-     resolved via `lint_common.resolve_working`; Option C, closed in #2067)
+     detailed mirror (this repository's legacy file in the operational store,
+     `changelog-details/CHANGELOG-detailed-grc_library.md`, resolved via
+     `lint_common.resolve_working`; Option C, closed in #2067; the legacy split
+     (maintainer-decided 2026-11-11) gives this repository its own mirror file
+     because, as that decision records it, the store is now shared with the
+     successor repository, whose gate owns the shared
+     `changelog-details/CHANGELOG-detailed.md`; that gate is outside this tree)
      is intended to hold only the CURRENT week's entries, with completed weeks (and, per
      PR #1034, the aged roll-up ROWS of `validate-pr/history.md` and `improvement-log.md`)
      swept to the `grc_library_private` archive as weekly Monday-dated files by

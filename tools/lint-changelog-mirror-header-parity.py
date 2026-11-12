@@ -91,6 +91,20 @@ archived in the pushed private sibling (``grc_library_private/changelog-archive/
 and git history retains every entry regardless. (The former in-public-repo
 sweep script was retired with the working-state move to the private sibling.)
 
+Legacy mirror split (maintainer-decided, 2026-11-11). As that decision
+records it, the operational store is now shared with the successor
+repository (``grc_library_new``), whose own mirror-parity gate reads the
+shared ``changelog-details/CHANGELOG-detailed.md`` and fails any record dated
+before its epoch or versioned below its floor, so this repository's archived
+per-PR entries cannot be restored there; that gate is outside this tree, so
+its behaviour is stated here as decided, not verified. This gate therefore
+reads this repository's own legacy mirror,
+``changelog-details/CHANGELOG-detailed-grc_library.md`` (``STORE_MIRROR_REL``),
+which holds the entries archived from the shared mirror, and never reads the
+shared file, so it cannot fail on the shared file's records (the regression
+tests pin this side). That the successor's gate never reads the legacy file
+is likewise the decision's statement, not something this tree shows.
+
 The ordering assertion reuses the same ``CUTOFF_PR`` scope: the only
 non-decreasing pairs in either file's history sit in the 2026-06-21
 PR #170-#175 window, far below the cutoff, so the scoped assertion is
@@ -162,11 +176,22 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT, dynamic_floor, print_degraded, require_dir, resolve_working, store_deferral_note, store_deferral_flags, store_scope  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, STORE_MIRROR_REL, dynamic_floor, print_degraded, require_dir, resolve_working, store_deferral_note, store_deferral_flags, store_scope  # noqa: E402  # grc-config/store, stays local
 
-# Paths of the two surfaces, relative to the repository root.
+# Paths of the two surfaces. ROOT_CHANGELOG_REL is relative to the repository
+# root. STORE_MIRROR_REL (defined once, in lint_common, and imported by every
+# reader of the mirror in this tree) is relative to the operational store root
+# and names THIS repository's legacy detailed mirror: under the legacy split
+# (maintainer-decided 2026-11-11) the store is shared with the successor
+# repository (grc_library_new), and this repository's archived entries live in
+# a separate legacy mirror file, the only mirror this gate's default run reads
+# (the module docstring states what that decision records about the
+# successor's gate). FIXTURE_MIRROR_REL is the synthetic path an explicit
+# --root fixture tree supplies, relative to that root; the regression fixtures
+# build it verbatim. It is deliberately not named DETAILED_MIRROR_REL, which in
+# tools/preflight-changelog.py names the live legacy mirror instead.
 ROOT_CHANGELOG_REL = "CHANGELOG.md"
-DETAILED_MIRROR_REL = ".working/changelog-details/CHANGELOG-detailed.md"
+FIXTURE_MIRROR_REL = ".working/changelog-details/CHANGELOG-detailed.md"
 
 # Compare only PRs at or above this number. The three pre-cutoff root
 # headers with no detailed-mirror counterpart (#268, #353, #462) are an
@@ -353,7 +378,7 @@ def main(argv: list[str]) -> int:
         # used to raise a traceback (rc 1, the findings code).
         root = require_dir(args.root, "--root")
         root_changelog = root / ROOT_CHANGELOG_REL
-        detailed_mirror = root / DETAILED_MIRROR_REL
+        detailed_mirror = root / FIXTURE_MIRROR_REL
         missing = [str(p) for p in (root_changelog, detailed_mirror) if not p.is_file()]
         if missing:
             print(f"ERROR: --root {args.root}: required input(s) missing: {', '.join(missing)}",
@@ -362,7 +387,7 @@ def main(argv: list[str]) -> int:
         scope_root = root
     else:
         root_changelog = REPO_ROOT / ROOT_CHANGELOG_REL
-        resolved = resolve_working("changelog-details/CHANGELOG-detailed.md")
+        resolved = resolve_working(STORE_MIRROR_REL)
         if resolved is None:
             # The detailed mirror is maintainer-only working state. Once
             # `.working/` moves to the operational store it is absent in public CI
