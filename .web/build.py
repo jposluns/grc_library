@@ -325,8 +325,9 @@ def type_slug(type_name):
     return re.sub(r"[^a-z0-9]+", "-", type_name.lower()).strip("-")
 
 
-# The library specifications in governance/ are the documents the taxonomy
-# marks with this domain.
+# The taxonomy marks with this domain the two library specifications in
+# governance/: governance/specification-master-project.md and
+# governance/specification-ingestion.md.
 ROOT_DOMAIN = "root"
 
 # Reading-progression rank for the per-domain document list on each domain page

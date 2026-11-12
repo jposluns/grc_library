@@ -36586,6 +36586,48 @@ class VanishingScratchTests(LinterTestCase):
         self.assertIsInstance(caught.exception.__cause__, OSError)
         self.assertEqual(vanished, [])
 
+    def test_unresolvable_listed_path_is_not_matched_and_error_propagates(self) -> None:
+        """run_listed does not match a missing file to a listed path that cannot be resolved.
+
+        The listing holds a path relative to the working directory, which is
+        then removed, and the engine opens the absolute spelling of that file.
+        Path.resolve() of the relative listed path fails (os.getcwd() raises),
+        so the missing file counts as unmatched: the engine's own
+        FileNotFoundError propagates, chained from the resolve error, and
+        nothing is recorded. The resolve error never replaces it.
+        """
+        import lint_common
+        removed = self._fixture_base("vanish-removed-cwd-listed-").resolve()
+        name = "vanish-unresolvable-listed.md"
+        listed = [Path(name)]
+        spelling = removed / name
+        self.assertTrue(spelling.is_absolute(), spelling)
+        self.assertNotIn(spelling, listed)
+        original = os.getcwd()
+        self.addCleanup(os.chdir, original)
+        os.chdir(removed)
+        removed.rmdir()
+        raised: list[FileNotFoundError] = []
+        vanished: list[Path] = []
+
+        def run():
+            try:
+                return spelling.read_text(encoding="utf-8")
+            except FileNotFoundError as exc:
+                raised.append(exc)
+                raise
+
+        try:
+            with self.assertRaises(FileNotFoundError) as caught:
+                lint_common.run_listed(run, listed, vanished)
+        finally:
+            os.chdir(original)
+        self.assertEqual(len(raised), 1)
+        self.assertIs(caught.exception, raised[0])
+        self.assertEqual(caught.exception.filename, str(spelling))
+        self.assertIsInstance(caught.exception.__cause__, OSError)
+        self.assertEqual(vanished, [])
+
     def test_resolve_runtime_error_is_not_matched_and_error_propagates(self) -> None:
         """run_listed leaves a missing file unmatched when Path.resolve() raises RuntimeError.
 
