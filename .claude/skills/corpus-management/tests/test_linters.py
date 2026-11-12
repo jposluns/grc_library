@@ -4726,87 +4726,87 @@ class RefAbsenceClaimsTests(LinterTestCase):
     M = '<!-- ref-absence: NONESUCH-99999 -->'
     C = 'X is not held in the reference base.'
     ESCAPES = (
-        ('r10-claude-heading-before', '## The decree is not held in the reference base\nIntro prose. ' + M, 1, 1),
-        ('r10-claude-heading-marker', '## Decree ' + M + '\n' + C, 2, 2),
-        ('r10-claude-quoted-heading', '> # ' + C + '\nprose ' + M, 1, 1),
-        ('r10-claude-quote-comment', '> ' + C + '\n' + M, 1, 1),
-        ('r10-claude-ordered-lookalike', 'X is not held in the reference base as amended in\n2019. ' + M, 1, 1),
-        ('r10-claude-pipe-line', 'X is not held in the reference base as amended\n| see note ' + M, 1, 1),
-        ('r10-claude-pipeless-table', 'a | b\n--- | ---\n' + C + ' | x\nnext | ' + M, 3, 3),
-        ('r10-claude-emphasis', 'X is not held in the *reference base*.', 1, 1),
-        ('r10-claude-link', 'X is not held in the [reference base](../x.md).', 1, 1),
-        ('r10-codex-comment-line', C + '\n' + M, 1, 1),
-        ('r10-codex-div-comment', C + '\n<div>\n' + M, 1, 1),
-        ('r10-codex-heading-after', '# Context ' + M + '\n' + C, 2, 2),
-        ('r10-codex-bare-hash', C + '\n#\nSee the portal. ' + M, 1, 1),
-        ('r10-codex-table-rows', 'Source | Status\n--- | ---\nX | ' + C + '\nY | Context ' + M, 3, 3),
-        ('r10-codex-ordered-two', C + '\n2. Confirm current guidance. ' + M, 1, 1),
-        ('r10-gemini-pipe-wrap', 'X is not held in the reference base when\n| to combine flags. ' + M, 1, 1),
-        ('r10-gemini-split-emphasis', 'X is not held in the *reference* base.', 1, 1),
-        ('r11-claude-type7-heading', '<abbr>ICO</abbr> guidance: ' + C + '\n## Next section ' + M, 1, 1),
-        ('r11-claude-type7-list', '<abbr>ICO</abbr> guidance: ' + C + '\n- item ' + M, 1, 1),
-        ('r11-claude-type7-quote', '<abbr>ICO</abbr> guidance: ' + C + '\n> quoted ' + M, 1, 1),
-        ('r11-claude-type7-row', '<abbr>ICO</abbr> guidance: ' + C + '\n| a | b ' + M + ' |', 1, 1),
-        ('r11-claude-type7-break', '<abbr>ICO</abbr> guidance: ' + C + '\n***\nContext ' + M, 1, 1),
-        ('r11-claude-autolink', '<https://ico.org.uk> says ' + C + '\n## Next section ' + M, 1, 1),
-        ('r11-claude-code-span-comment', 'Write `<!--` to open a comment.\n\n' + C + '\n\n## Heading\n\nOther para ' + M, 3, 3),
-        ('r11-claude-draft-comment', 'Note <!-- draft\n' + C + '\n\nOther para. ' + M, 2, 2),
-        ('r11-claude-rows-after-table', '| a | b |\n|---|---|\n| x | y |\n' + C + '\nmore ' + M, 4, 4),
-        ('r11-claude-quote-depth', '> ' + C + '\n> > more ' + M, 1, 1),
-        ('r11-claude-heading-bound', C + '\n## Heading ' + M, 1, 1),
-        ('r11-claude-header-row', C + '\nA ' + M + ' | B\n--- | ---', 1, 1),
-        ('r11-claude-marker-above', M + '\n' + C, 2, 2),
-        ('r11-claude-adjacent-html', M + '\n<div>' + C + '</div>', 2, 2),
-        ('r11-codex-comment-blank', C + ' <!-- note\n\n--> Context ' + M, 1, 1),
-        ('r11-codex-comment-heading', C + ' <!-- note\n# Context --> ' + M, 1, 1),
-        ('r11-codex-pipeless-rows', 'Source | Status\n--- | ---\n' + C + '\nContext ' + M, 3, 3),
-        ('r11-codex-inner-link', 'X is not [held](../README.md) in the reference base.', 1, 1),
-        ('r11-gemini-lazy-ordered', '> X is not held\n2. in the reference base.', 1, 2),
-        ('r12-claude-tag-row', 'Source | Status\n--- | ---\n<abbr>ICO</abbr> guidance | pending\nDecree | ' + C + '\nPortal | Context ' + M, 4, 4),
-        ('r12-claude-autolink-row', 'Source | Status\n--- | ---\n<https://ico.org.uk> | pending\nDecree | ' + C + '\nPortal | Context ' + M, 4, 4),
-        ('r12-claude-close-tag-row', '| Source | Status |\n| --- | --- |\n</span> | x\nDecree | ' + C + '\nPortal | Context ' + M, 4, 4),
-        ('r12-claude-br-row', 'Source | Status\n--- | ---\n<br> | pending\nDecree | ' + C + '\nPortal | Context ' + M, 4, 4),
-        ('r12-claude-widget-row', 'Source | Status\n--- | ---\n<widget>\nDecree | ' + C + '\nPortal | Context ' + M, 4, 4),
-        ('r12-claude-setext-row-1', 'Source | Status\n--- | ---\nRow | a\n=\n' + C + '\nContext ' + M, 5, 5),
-        ('r12-claude-setext-row-2', 'Source | Status\n--- | ---\nRow | a\n==\n' + C + '\nContext ' + M, 5, 5),
-        ('r12-claude-setext-row-3', 'Source | Status\n--- | ---\nRow | a\n===\n' + C + '\nContext ' + M, 5, 5),
-        ('r12-claude-setext-row-dash', 'Source | Status\n--- | ---\nRow | a\n--\n' + C + '\nContext ' + M, 5, 5),
-        ('r12-claude-angle-destination', 'X is [not](<a(b.md>) held in the reference base.', 1, 1),
-        ('r12-claude-title-paren', 'X is [not](a.md "t(") held in the reference base.', 1, 1),
-        ('r12-claude-escaped-paren', 'X is [not](a\\(b.md) held in the reference base.', 1, 1),
-        ('r12-claude-type6-blank', '<div>\n' + C + '\n\nContext ' + M, 2, 2),
-        ('r12-claude-type7-link-wrap', '<abbr>ICO</abbr> says X is [not](x)\nheld in the reference base.', 1, 2),
-        ('r12-claude-wide-list-marker', '- ' + C + '\n-     code ' + M, 1, 1),
-        ('r12-claude-wide-list-first', '-     code ' + M + '\n' + C, 2, 2),
-        ('r12-claude-em-tag', 'X is not <em>held</em> in the reference base.', 1, 1),
-        ('r12-claude-entity', 'X is not held in the reference&nbsp;base.', 1, 1),
-        ('r12-claude-hard-break', 'X is not held in the reference\\\nbase.', 1, 2),
-        ('r12-claude-comment-line-text', '<!-- a --> X is not held in the reference\nbase.', 1, 2),
-        ('r12-codex-table-setext', 'A | B\n--- | ---\nrow\n===\n' + C + '\nContext ' + M, 5, 5),
-        ('r12-codex-destination-newline', 'X is not [held](\n<x>) in the reference base.', 1, 2),
-        ('r12-codex-destination-lines', 'X is not [held](\n<x>\n) in the reference base.', 1, 3),
-        ('r12-codex-neighbour-link', 'X is [not] [held](x) in the reference base.\n\n[not]: y', 1, 1),
-        ('r12-gemini-inline-tag-line', C + '\n<a href="link">link</a> ' + M, 1, 1),
-        ('r12-gemini-tag-wrap', 'X is not\n<abbr>held</abbr> in the reference base.', 1, 2),
-        ('r13-codex-comment-link-opener', '<!-- [x]( -->\nX is not [held](x) in the reference base.\n)', 2, 2),
-        ('r13-codex-codespan-link-opener', '`[x](` X is not [held](x) in the reference base. )', 1, 1),
-        ('r13-codex-strong-in-word', 'X is not he**ld** in the reference base.', 1, 1),
-        ('r13-codex-codespan-in-word', 'X is not h`eld` in the reference base.', 1, 1),
-        ('r13-codex-link-in-word', 'X is not [he](x)ld in the reference base.', 1, 1),
-        ('r13-codex-strong-in-word-wrap', 'X is not he**ld**\nin the reference base.', 1, 2),
-        ('r13-claude-underscore-claim', '_X is not held in the reference base_.', 1, 1),
-        ('r13-claude-underscore-not', 'X is _not_ held in the reference base.', 1, 1),
-        ('r13-claude-underscore-base', 'X is not held in the reference _base_.', 1, 1),
-        ('r13-claude-strong-underscore', '__not held in the reference base__', 1, 1),
-        ('r13-claude-underscore-wrap', '_X is not\nheld in the reference base_.', 1, 2),
-        ('r13-claude-comment-fences', '<!--\n```\n-->\n' + C + '\n<!--\n```\n-->', 4, 4),
-        ('r13-claude-literal-labels', 'X is [not held in the][reference base]', 1, 1),
-        ('r13-claude-inline-gap', 'X is not <em>held</em> in the ][reference base', 1, 1),
-        ('r13-claude-comment-loose', '<!-- X is not [held](x in the reference base -->', 1, 1),
+        ('heading-before', '## The decree is not held in the reference base\nIntro prose. ' + M, 1, 1),
+        ('heading-marker', '## Decree ' + M + '\n' + C, 2, 2),
+        ('quoted-heading', '> # ' + C + '\nprose ' + M, 1, 1),
+        ('quote-comment', '> ' + C + '\n' + M, 1, 1),
+        ('ordered-lookalike', 'X is not held in the reference base as amended in\n2019. ' + M, 1, 1),
+        ('pipe-line', 'X is not held in the reference base as amended\n| see note ' + M, 1, 1),
+        ('pipeless-table', 'a | b\n--- | ---\n' + C + ' | x\nnext | ' + M, 3, 3),
+        ('emphasis', 'X is not held in the *reference base*.', 1, 1),
+        ('link', 'X is not held in the [reference base](../x.md).', 1, 1),
+        ('comment-line', C + '\n' + M, 1, 1),
+        ('div-comment', C + '\n<div>\n' + M, 1, 1),
+        ('heading-after', '# Context ' + M + '\n' + C, 2, 2),
+        ('bare-hash', C + '\n#\nSee the portal. ' + M, 1, 1),
+        ('table-rows', 'Source | Status\n--- | ---\nX | ' + C + '\nY | Context ' + M, 3, 3),
+        ('ordered-two', C + '\n2. Confirm current guidance. ' + M, 1, 1),
+        ('pipe-wrap', 'X is not held in the reference base when\n| to combine flags. ' + M, 1, 1),
+        ('split-emphasis', 'X is not held in the *reference* base.', 1, 1),
+        ('type7-heading', '<abbr>ICO</abbr> guidance: ' + C + '\n## Next section ' + M, 1, 1),
+        ('type7-list', '<abbr>ICO</abbr> guidance: ' + C + '\n- item ' + M, 1, 1),
+        ('type7-quote', '<abbr>ICO</abbr> guidance: ' + C + '\n> quoted ' + M, 1, 1),
+        ('type7-row', '<abbr>ICO</abbr> guidance: ' + C + '\n| a | b ' + M + ' |', 1, 1),
+        ('type7-break', '<abbr>ICO</abbr> guidance: ' + C + '\n***\nContext ' + M, 1, 1),
+        ('autolink', '<https://ico.org.uk> says ' + C + '\n## Next section ' + M, 1, 1),
+        ('code-span-comment', 'Write `<!--` to open a comment.\n\n' + C + '\n\n## Heading\n\nOther para ' + M, 3, 3),
+        ('draft-comment', 'Note <!-- draft\n' + C + '\n\nOther para. ' + M, 2, 2),
+        ('rows-after-table', '| a | b |\n|---|---|\n| x | y |\n' + C + '\nmore ' + M, 4, 4),
+        ('quote-depth', '> ' + C + '\n> > more ' + M, 1, 1),
+        ('heading-bound', C + '\n## Heading ' + M, 1, 1),
+        ('header-row', C + '\nA ' + M + ' | B\n--- | ---', 1, 1),
+        ('marker-above', M + '\n' + C, 2, 2),
+        ('adjacent-html', M + '\n<div>' + C + '</div>', 2, 2),
+        ('comment-blank', C + ' <!-- note\n\n--> Context ' + M, 1, 1),
+        ('comment-heading', C + ' <!-- note\n# Context --> ' + M, 1, 1),
+        ('pipeless-rows', 'Source | Status\n--- | ---\n' + C + '\nContext ' + M, 3, 3),
+        ('inner-link', 'X is not [held](../README.md) in the reference base.', 1, 1),
+        ('lazy-ordered', '> X is not held\n2. in the reference base.', 1, 2),
+        ('tag-row', 'Source | Status\n--- | ---\n<abbr>ICO</abbr> guidance | pending\nDecree | ' + C + '\nPortal | Context ' + M, 4, 4),
+        ('autolink-row', 'Source | Status\n--- | ---\n<https://ico.org.uk> | pending\nDecree | ' + C + '\nPortal | Context ' + M, 4, 4),
+        ('close-tag-row', '| Source | Status |\n| --- | --- |\n</span> | x\nDecree | ' + C + '\nPortal | Context ' + M, 4, 4),
+        ('br-row', 'Source | Status\n--- | ---\n<br> | pending\nDecree | ' + C + '\nPortal | Context ' + M, 4, 4),
+        ('widget-row', 'Source | Status\n--- | ---\n<widget>\nDecree | ' + C + '\nPortal | Context ' + M, 4, 4),
+        ('setext-row-1', 'Source | Status\n--- | ---\nRow | a\n=\n' + C + '\nContext ' + M, 5, 5),
+        ('setext-row-2', 'Source | Status\n--- | ---\nRow | a\n==\n' + C + '\nContext ' + M, 5, 5),
+        ('setext-row-3', 'Source | Status\n--- | ---\nRow | a\n===\n' + C + '\nContext ' + M, 5, 5),
+        ('setext-row-dash', 'Source | Status\n--- | ---\nRow | a\n--\n' + C + '\nContext ' + M, 5, 5),
+        ('angle-destination', 'X is [not](<a(b.md>) held in the reference base.', 1, 1),
+        ('title-paren', 'X is [not](a.md "t(") held in the reference base.', 1, 1),
+        ('escaped-paren', 'X is [not](a\\(b.md) held in the reference base.', 1, 1),
+        ('type6-blank', '<div>\n' + C + '\n\nContext ' + M, 2, 2),
+        ('type7-link-wrap', '<abbr>ICO</abbr> says X is [not](x)\nheld in the reference base.', 1, 2),
+        ('wide-list-marker', '- ' + C + '\n-     code ' + M, 1, 1),
+        ('wide-list-first', '-     code ' + M + '\n' + C, 2, 2),
+        ('em-tag', 'X is not <em>held</em> in the reference base.', 1, 1),
+        ('entity', 'X is not held in the reference&nbsp;base.', 1, 1),
+        ('hard-break', 'X is not held in the reference\\\nbase.', 1, 2),
+        ('comment-line-text', '<!-- a --> X is not held in the reference\nbase.', 1, 2),
+        ('table-setext', 'A | B\n--- | ---\nrow\n===\n' + C + '\nContext ' + M, 5, 5),
+        ('destination-newline', 'X is not [held](\n<x>) in the reference base.', 1, 2),
+        ('destination-lines', 'X is not [held](\n<x>\n) in the reference base.', 1, 3),
+        ('neighbour-link', 'X is [not] [held](x) in the reference base.\n\n[not]: y', 1, 1),
+        ('inline-tag-line', C + '\n<a href="link">link</a> ' + M, 1, 1),
+        ('tag-wrap', 'X is not\n<abbr>held</abbr> in the reference base.', 1, 2),
+        ('comment-link-opener', '<!-- [x]( -->\nX is not [held](x) in the reference base.\n)', 2, 2),
+        ('codespan-link-opener', '`[x](` X is not [held](x) in the reference base. )', 1, 1),
+        ('strong-in-word', 'X is not he**ld** in the reference base.', 1, 1),
+        ('codespan-in-word', 'X is not h`eld` in the reference base.', 1, 1),
+        ('link-in-word', 'X is not [he](x)ld in the reference base.', 1, 1),
+        ('strong-in-word-wrap', 'X is not he**ld**\nin the reference base.', 1, 2),
+        ('underscore-claim', '_X is not held in the reference base_.', 1, 1),
+        ('underscore-not', 'X is _not_ held in the reference base.', 1, 1),
+        ('underscore-base', 'X is not held in the reference _base_.', 1, 1),
+        ('strong-underscore', '__not held in the reference base__', 1, 1),
+        ('underscore-wrap', '_X is not\nheld in the reference base_.', 1, 2),
+        ('comment-fences', '<!--\n```\n-->\n' + C + '\n<!--\n```\n-->', 4, 4),
+        ('literal-labels', 'X is [not held in the][reference base]', 1, 1),
+        ('inline-gap', 'X is not <em>held</em> in the ][reference base', 1, 1),
+        ('comment-loose', '<!-- X is not [held](x in the reference base -->', 1, 1),
     )
     del M, C
 
-    def test_review_round_escapes_block_or_bind_on_claim_lines(self):
+    def test_escapes_block_or_bind_on_claim_lines(self):
         for label, body, first, last in self.ESCAPES:
             with self.subTest(label=label):
                 self.assertClaimBlocks(body + '\n', first, last)
@@ -5054,59 +5054,59 @@ class RefAbsenceClaimsTests(LinterTestCase):
         # row was HIDDEN (exit 0) before the screen shipped.
         for label, body in (
             # HTML stripping hides a claim.
-            ('r14-attr-gt', 'X is not <span title="a>b">held</span> in the reference base.'),
-            ('r14-attr-lt', 'X is not <span title="a<b">held</span> in the reference base.'),
-            ('r14-tag-split-word', 'X is not he<ruby></ruby>ld in the reference base.'),
-            ('r14-br-split-word', 'X is not he<br>ld in the reference base.'),
-            ('r14-marker-split-word', 'The decree is not held. X is not he<!-- ref-absence: NONESUCH-99997 -->ld in the reference base.'),
+            ('attr-gt', 'X is not <span title="a>b">held</span> in the reference base.'),
+            ('attr-lt', 'X is not <span title="a<b">held</span> in the reference base.'),
+            ('tag-split-word', 'X is not he<ruby></ruby>ld in the reference base.'),
+            ('br-split-word', 'X is not he<br>ld in the reference base.'),
+            ('marker-split-word', 'The decree is not held. X is not he<!-- ref-absence: NONESUCH-99997 -->ld in the reference base.'),
             # Entity-encoded or literal invisible characters split a word.
-            ('r14-soft-hyphen-entity', 'X is not he&shy;ld in the reference base.'),
-            ('r14-zero-width-entity', 'X is not he&#8203;ld in the reference base.'),
-            ('r14-word-joiner', 'X is not he\u2060ld in the reference base.'),
-            ('r14-grapheme-joiner', 'X is not he\u034fld in the reference base.'),
-            ('r14-variation-selector', 'X is not he\ufe0fld in the reference base.'),
+            ('soft-hyphen-entity', 'X is not he&shy;ld in the reference base.'),
+            ('zero-width-entity', 'X is not he&#8203;ld in the reference base.'),
+            ('word-joiner', 'X is not he\u2060ld in the reference base.'),
+            ('grapheme-joiner', 'X is not he\u034fld in the reference base.'),
+            ('variation-selector', 'X is not he\ufe0fld in the reference base.'),
             # An unmatched backtick shifts code-span pairing, so a
             # code-span "](" goes live and swallows the later linked claim.
-            ('r14-unmatched-backtick-swallow', 'stray ` here. `see ](x for` X is [not](a) held in the reference base. )'),
+            ('unmatched-backtick-swallow', 'stray ` here. `see ](x for` X is [not](a) held in the reference base. )'),
             # Unclosed constructs leave text between the claim words.
-            ('r14-unclosed-link-title', 'X is [not](d "foo held in the reference base.'),
-            ('r14-unclosed-tag-attribute', 'X is not <span title="foo held in the reference base.'),
+            ('unclosed-link-title', 'X is [not](d "foo held in the reference base.'),
+            ('unclosed-tag-attribute', 'X is not <span title="foo held in the reference base.'),
             # The screen fails closed on markup it cannot read exactly. In
             # the earlier repository, each row was HIDDEN (exit 0) before
             # the screen failed closed on it.
-            ('r15-angle-destination-swallows-prose', "See [a](x<y) and X is not [held](z) in the reference base, so a>b)."),
-            ('r15-quoted-title-swallows-prose', "See [a](x 'y) and X is not [held](z) in the reference base. It's ok)."),
-            ('r15-attr-debris-no-junk-token', 'X is not <span title="a>">held</span> in the reference base.'),
-            ('r15-unclosed-title-no-junk-token', 'X is [not](d " held in the reference base.'),
-            ('r15-unclosed-tail-erases-in', 'X is not [held](in the reference base.'),
-            ('r15-unclosed-tail-erases-held', 'X is [not](held in the reference base.'),
-            ('r15-word-joiner-beside-space', 'X is not \u2060held in the reference base.'),
-            ('r15-word-joiner-between-spaces', 'X is not \u2060 held in the reference base.'),
-            ('r15-braille-blank-for-space', 'X is not\u2800held in the reference base.'),
-            ('r15-hangul-filler-for-space', 'X is not\u3164held in the reference base.'),
-            ('r15-numeric-footnote', 'X is not held[^1] in the reference base.\n\n[^1]: A note.'),
-            ('r15-reference-digit', 'X is not held[1] in the reference base.\n\n[1]: https://example.invalid/'),
-            ('r15-sup-tag-digit', 'X is not held<sup>1</sup> in the reference base.'),
-            ('r15-bare-superscript-digit', 'X is not held\u00b9 in the reference base.'),
-            ('r15-entity-erased-letter', 'X is not h&#101;&shy;ld in the reference base.'),
-            ('r15-entity-erased-letter-tag', 'X is not h&#101;<ruby></ruby>ld in the reference base.'),
-            ('r15-optional-article-backtrack', 'X is not he&shy;ld in reference base, and the copy is lost.'),
-            ('r15-optional-currently-backtrack', 'X is not held in the <span title="a>currently">reference</span> base.'),
-            ('r15-exactly-three-junk-tokens', 'X is not <b>alpha beta gamma</b> held in the reference base.'),
-            ('r15-exactly-four-part-word', 'X is not h<x></x>e<x></x>l<x></x>d in the reference base.'),
+            ('angle-destination-swallows-prose', "See [a](x<y) and X is not [held](z) in the reference base, so a>b)."),
+            ('quoted-title-swallows-prose', "See [a](x 'y) and X is not [held](z) in the reference base. It's ok)."),
+            ('attr-debris-no-junk-token', 'X is not <span title="a>">held</span> in the reference base.'),
+            ('unclosed-title-no-junk-token', 'X is [not](d " held in the reference base.'),
+            ('unclosed-tail-erases-in', 'X is not [held](in the reference base.'),
+            ('unclosed-tail-erases-held', 'X is [not](held in the reference base.'),
+            ('word-joiner-beside-space', 'X is not \u2060held in the reference base.'),
+            ('word-joiner-between-spaces', 'X is not \u2060 held in the reference base.'),
+            ('braille-blank-for-space', 'X is not\u2800held in the reference base.'),
+            ('hangul-filler-for-space', 'X is not\u3164held in the reference base.'),
+            ('numeric-footnote', 'X is not held[^1] in the reference base.\n\n[^1]: A note.'),
+            ('reference-digit', 'X is not held[1] in the reference base.\n\n[1]: https://example.invalid/'),
+            ('sup-tag-digit', 'X is not held<sup>1</sup> in the reference base.'),
+            ('bare-superscript-digit', 'X is not held\u00b9 in the reference base.'),
+            ('entity-erased-letter', 'X is not h&#101;&shy;ld in the reference base.'),
+            ('entity-erased-letter-tag', 'X is not h&#101;<ruby></ruby>ld in the reference base.'),
+            ('optional-article-backtrack', 'X is not he&shy;ld in reference base, and the copy is lost.'),
+            ('optional-currently-backtrack', 'X is not held in the <span title="a>currently">reference</span> base.'),
+            ('exactly-three-junk-tokens', 'X is not <b>alpha beta gamma</b> held in the reference base.'),
+            ('exactly-four-part-word', 'X is not h<x></x>e<x></x>l<x></x>d in the reference base.'),
             # Mutation-survivor pins. Each row blocks through the
             # screen; a mutant dropping its rule falls through to the
             # permissive refusal, whose message differs, so this
             # assertion still kills the mutant.
-            ('r16-pin-variation-selector-between-words', 'X is not \ufe0fheld in the reference base.'),
-            ('r16-pin-grapheme-joiner-between-words', 'X is not \u034f held in the reference base.'),
-            ('r16-pin-image-with-alt', 'X is not ![alt](p.png) held in the reference base.'),
-            ('r16-pin-debris-lt', 'X is not < held in the reference base.'),
-            ('r16-pin-debris-gt', 'X is not > held in the reference base.'),
-            ('r16-pin-debris-amp', 'X is not & held in the reference base.'),
-            ('r16-pin-debris-backslash', 'X is not \\ held in the reference base.'),
-            ('r16-pin-debris-caret', 'X is not ^ held in the reference base.'),
-            ('r16-pin-no-evidence-anchor-overlap', 'X is not held in our reference not base he\ufe0fld in the reference base.'),
+            ('pin-variation-selector-between-words', 'X is not \ufe0fheld in the reference base.'),
+            ('pin-grapheme-joiner-between-words', 'X is not \u034f held in the reference base.'),
+            ('pin-image-with-alt', 'X is not ![alt](p.png) held in the reference base.'),
+            ('pin-debris-lt', 'X is not < held in the reference base.'),
+            ('pin-debris-gt', 'X is not > held in the reference base.'),
+            ('pin-debris-amp', 'X is not & held in the reference base.'),
+            ('pin-debris-backslash', 'X is not \\ held in the reference base.'),
+            ('pin-debris-caret', 'X is not ^ held in the reference base.'),
+            ('pin-no-evidence-anchor-overlap', 'X is not held in our reference not base he\ufe0fld in the reference base.'),
         ):
             with self.subTest(label=label):
                 findings = self.blocking(body + '\n')
@@ -5185,95 +5185,95 @@ class RefAbsenceClaimsTests(LinterTestCase):
         for label, body in (
             # An empty-alt or reference-style image between claim
             # words renders no text.
-            ('r16-empty-alt-image', 'X is not ![](p.png) held in the reference base.'),
-            ('r16-empty-alt-emphasis', 'X is *not* ![](p.png) held in the reference base.'),
-            ('r16-empty-alt-late', 'X is not held in the reference ![](p.png) base.'),
-            ('r16-reference-image', 'X is not ![][p] held in the reference base.\n\n[p]: p.png'),
-            ('r16-empty-alt-was-advisory', 'X is not held ![](x.png) in the reference base.'),
+            ('empty-alt-image', 'X is not ![](p.png) held in the reference base.'),
+            ('empty-alt-emphasis', 'X is *not* ![](p.png) held in the reference base.'),
+            ('empty-alt-late', 'X is not held in the reference ![](p.png) base.'),
+            ('reference-image', 'X is not ![][p] held in the reference base.\n\n[p]: p.png'),
+            ('empty-alt-was-advisory', 'X is not held ![](x.png) in the reference base.'),
             # Invisible Mn characters outside U+FE00-U+FE0F beside
             # a claim word.
-            ('r16-variation-selector-17', 'X is not \U000e0100held in the reference base.'),
-            ('r16-mongolian-selector', 'X is not \u180bheld in the reference base.'),
-            ('r16-mongolian-selector-after', 'X is not held\u180b in the reference base.'),
-            ('r16-khmer-inherent-vowel', 'X is not\u17b5 held in the reference base.'),
-            ('r16-selector-after-strike', 'X is not ~~held~~\U000e0100 in the reference base.'),
+            ('variation-selector-17', 'X is not \U000e0100held in the reference base.'),
+            ('mongolian-selector', 'X is not \u180bheld in the reference base.'),
+            ('mongolian-selector-after', 'X is not held\u180b in the reference base.'),
+            ('khmer-inherent-vowel', 'X is not\u17b5 held in the reference base.'),
+            ('selector-after-strike', 'X is not ~~held~~\U000e0100 in the reference base.'),
             # A malformed tag or an entity that does not decode
             # renders as text, but the screen blanks it.
-            ('r16-malformed-tag-prose', '<b X is not he\u00adld in the reference base, really>'),
-            ("r16-malformed-tag-attr", "<i x='a' X is not he&shy;ld in the reference base.>"),
-            ('r16-fake-entity', 'X is not &held; in the reference base.'),
+            ('malformed-tag-prose', '<b X is not he\u00adld in the reference base, really>'),
+            ("malformed-tag-attr", "<i x='a' X is not he&shy;ld in the reference base.>"),
+            ('fake-entity', 'X is not &held; in the reference base.'),
             # An invalid link tail renders as prose, but the screen
             # blanks it up to its first whitespace; a bare tail with
             # no link opener renders literally too.
-            ('r16-invalid-tail-swallows-held', 'X is [not](held in the reference base.)'),
-            ('r16-invalid-tail-swallows-in', 'X is not [held](in the reference base.)'),
-            ('r16-bare-tail-no-opener', 'X is not ](held) in the reference base.'),
+            ('invalid-tail-swallows-held', 'X is [not](held in the reference base.)'),
+            ('invalid-tail-swallows-in', 'X is not [held](in the reference base.)'),
+            ('bare-tail-no-opener', 'X is not ](held) in the reference base.'),
             # Letters erased from a claim word's edges by entity
             # blanking, a former residue of the screen.
-            ('r16-erased-trailing-letter', 'X is not hel&#100;&shy; in the reference base.'),
-            ('r16-erased-leading-letters', 'X is not &#104;&shy;eld in the reference base.'),
+            ('erased-trailing-letter', 'X is not hel&#100;&shy; in the reference base.'),
+            ('erased-leading-letters', 'X is not &#104;&shy;eld in the reference base.'),
             # A different detected claim inside an attribute no longer
             # suppresses the refusal on the claim around it.
-            ('r16-attr-claim-overlap', 'X is not <span title="\nY is not held in the reference base. <!-- ref-absence: Y-NONESUCH -->\n">he\u2060ld</span> in the reference base.'),
+            ('attr-claim-overlap', 'X is not <span title="\nY is not held in the reference base. <!-- ref-absence: Y-NONESUCH -->\n">he\u2060ld</span> in the reference base.'),
             # Visible separators the screen reads as plain prose
             # while no reading matches the claim.
-            ('r16-slash-separators', 'X is not/held/in/the/reference/base.'),
-            ('r16-hyphen-joined', 'The decree is not-held in the reference base.'),
-            ('r16-comma-separator', 'The decree is not, held in the reference base.'),
+            ('slash-separators', 'X is not/held/in/the/reference/base.'),
+            ('hyphen-joined', 'The decree is not-held in the reference base.'),
+            ('comma-separator', 'The decree is not, held in the reference base.'),
             # A claim word in an image's alt text, read in the
             # permissive reader's alt-text reading.
-            ('rev3-alt-inline', 'X is not ![held](x.png) in the reference base.'),
-            ('rev3-alt-reference', 'X is not ![held][i] in the reference base.\n\n[i]: x.png'),
-            ('rev3-alt-wholly-after-word', 'X is not ![held in the reference base](x.png).'),
-            ('rev3-alt-was-advisory', 'X is not held ![in the](x.png) reference base.'),
-            ('rev3-alt-html-img', 'X is not <img alt="held" src="x.png"> in the reference base.'),
+            ('alt-inline', 'X is not ![held](x.png) in the reference base.'),
+            ('alt-reference', 'X is not ![held][i] in the reference base.\n\n[i]: x.png'),
+            ('alt-wholly-after-word', 'X is not ![held in the reference base](x.png).'),
+            ('alt-was-advisory', 'X is not held ![in the](x.png) reference base.'),
+            ('alt-html-img', 'X is not <img alt="held" src="x.png"> in the reference base.'),
             # Default-ignorable code points, unassigned ones and the
             # Hangul fillers included, split a word into five parts,
             # past the screen's four-part budget.
-            ('rev3-cn-2065-five-part', 'X is not held in the r\u2065e\u2065f\u2065e\u2065rence base.'),
-            ('rev3-cn-fff0-five-part', 'X is not held in the r\ufff0e\ufff0f\ufff0e\ufff0rence base.'),
-            ('rev3-cn-e0080-five-part', 'X is not held in the r\U000e0080e\U000e0080f\U000e0080e\U000e0080rence base.'),
-            ('rev3-cn-e0fff-five-part', 'X is not held in the r\U000e0fffe\U000e0ffff\U000e0fffe\U000e0fffrence base.'),
-            ('rev3-hangul-filler-five-part', 'X is not held in the r\u1160e\u1160f\u1160e\u1160rence base.'),
-            ('rev3-halfwidth-filler', 'X is not he\uffa0ld in the reference base.'),
+            ('cn-2065-five-part', 'X is not held in the r\u2065e\u2065f\u2065e\u2065rence base.'),
+            ('cn-fff0-five-part', 'X is not held in the r\ufff0e\ufff0f\ufff0e\ufff0rence base.'),
+            ('cn-e0080-five-part', 'X is not held in the r\U000e0080e\U000e0080f\U000e0080e\U000e0080rence base.'),
+            ('cn-e0fff-five-part', 'X is not held in the r\U000e0fffe\U000e0ffff\U000e0fffe\U000e0fffrence base.'),
+            ('hangul-filler-five-part', 'X is not held in the r\u1160e\u1160f\u1160e\u1160rence base.'),
+            ('halfwidth-filler', 'X is not he\uffa0ld in the reference base.'),
             # Five-part Mn splits. U+180B and U+E0100 are also
             # default-ignorable, so the U+0301 row is the one a
             # mutant dropping "Mn" fails.
-            ('rev3-mongolian-selector-five-part', 'X is not held in the r\u180be\u180bf\u180be\u180brence base.'),
-            ('rev3-selector-17-five-part', 'X is not held in the r\U000e0100e\U000e0100f\U000e0100e\U000e0100rence base.'),
-            ('rev3-combining-mark-five-part', 'X is not held in the r\u0301e\u0301f\u0301e\u0301rence base.'),
+            ('mongolian-selector-five-part', 'X is not held in the r\u180be\u180bf\u180be\u180brence base.'),
+            ('selector-17-five-part', 'X is not held in the r\U000e0100e\U000e0100f\U000e0100e\U000e0100rence base.'),
+            ('combining-mark-five-part', 'X is not held in the r\u0301e\u0301f\u0301e\u0301rence base.'),
             # A claim split across a paragraph break, read with
             # paragraph breaks as separators.
-            ('rev3-empty-alt-paragraph', 'X is not ![](p.png)\n\nheld in the reference base.'),
-            ('rev3-selector-paragraph', 'X is not \U000e0100\n\nheld in the reference base.'),
-            ('rev3-slash-paragraph', 'X is not\n\nheld/in the reference base.'),
-            ('rev3-hyphen-paragraph', 'X is not\n\nheld-in the reference base.'),
-            ('rev3-emoji-paragraph', 'X is not\n\n\U0001f512\n\nheld in the reference base.'),
-            ('rev3-thematic-break-paragraph', 'X is not\n\n---\n\nheld in the reference base.'),
+            ('empty-alt-paragraph', 'X is not ![](p.png)\n\nheld in the reference base.'),
+            ('selector-paragraph', 'X is not \U000e0100\n\nheld in the reference base.'),
+            ('slash-paragraph', 'X is not\n\nheld/in the reference base.'),
+            ('hyphen-paragraph', 'X is not\n\nheld-in the reference base.'),
+            ('emoji-paragraph', 'X is not\n\n\U0001f512\n\nheld in the reference base.'),
+            ('thematic-break-paragraph', 'X is not\n\n---\n\nheld in the reference base.'),
             # Letters inside a non-rendering element, deleted with the
             # element in the hidden-content reading so the neighbours
             # join.
-            ('rev4-rp-one-letter', 'X is not he<rp>x</rp>ld in the reference base.'),
-            ('rev4-rp-two-letters', 'X is not he<rp>xy</rp>ld in the reference base.'),
-            ('rev4-rp-junk-words', 'X is not <rp>a b c d</rp> held in the reference base.'),
-            ('rev4-hidden-attribute', 'X is not he<span hidden>x</span>ld in the reference base.'),
-            ('rev4-display-none', 'X is not he<span style="display:none">x</span>ld in the reference base.'),
-            ('rev4-template', 'X is not he<template>x</template>ld in the reference base.'),
-            ('rev4-script', 'X is not he<script>x</script>ld in the reference base.'),
-            ('rev4-style', 'X is not he<style>x</style>ld in the reference base.'),
-            ('rev4-noscript', 'X is not he<noscript>x</noscript>ld in the reference base.'),
-            ('rev4-hidden-junk-words', 'X is not <span hidden>a b c d</span> held in the reference base.'),
-            ('rev4-hidden-nested', 'X is not he<span hidden><span>x</span>y</span>ld in the reference base.'),
+            ('rp-one-letter', 'X is not he<rp>x</rp>ld in the reference base.'),
+            ('rp-two-letters', 'X is not he<rp>xy</rp>ld in the reference base.'),
+            ('rp-junk-words', 'X is not <rp>a b c d</rp> held in the reference base.'),
+            ('hidden-attribute', 'X is not he<span hidden>x</span>ld in the reference base.'),
+            ('display-none', 'X is not he<span style="display:none">x</span>ld in the reference base.'),
+            ('template', 'X is not he<template>x</template>ld in the reference base.'),
+            ('script', 'X is not he<script>x</script>ld in the reference base.'),
+            ('style', 'X is not he<style>x</style>ld in the reference base.'),
+            ('noscript', 'X is not he<noscript>x</noscript>ld in the reference base.'),
+            ('hidden-junk-words', 'X is not <span hidden>a b c d</span> held in the reference base.'),
+            ('hidden-nested', 'X is not he<span hidden><span>x</span>y</span>ld in the reference base.'),
             # Emphasis inside image alt text, deleted as the strict
             # readings delete it elsewhere.
-            ('rev4-alt-emphasis', 'X is not held in the ![r*e*f*e*rence](x.png) base.'),
-            ('rev4-alt-strong', 'X is not held in the ![r**e**f**e**rence](x.png) base.'),
-            ('rev4-alt-underscore', 'X is not held in the ![r_e_f_e_rence](x.png) base.'),
-            ('rev4-alt-strike-reference', 'X is not held in the ![r~~e~~f~~e~~rence][i] base.\n\n[i]: x.png'),
-            ('rev4-alt-code-span', 'X is not held in the ![r`e`f`e`rence](x.png) base.'),
+            ('alt-emphasis', 'X is not held in the ![r*e*f*e*rence](x.png) base.'),
+            ('alt-strong', 'X is not held in the ![r**e**f**e**rence](x.png) base.'),
+            ('alt-underscore', 'X is not held in the ![r_e_f_e_rence](x.png) base.'),
+            ('alt-strike-reference', 'X is not held in the ![r~~e~~f~~e~~rence][i] base.\n\n[i]: x.png'),
+            ('alt-code-span', 'X is not held in the ![r`e`f`e`rence](x.png) base.'),
             # Fail closed: a plain sentence spelling the claim across
             # sentence punctuation is refused and resolved by rewriting.
-            ('r16-sentence-boundary', 'The copy is not. Held in the reference base is the annex.'),
+            ('sentence-boundary', 'The copy is not. Held in the reference base is the annex.'),
         ):
             with self.subTest(label=label):
                 findings = self.blocking(body + '\n')
@@ -5317,15 +5317,15 @@ class RefAbsenceClaimsTests(LinterTestCase):
         # line, whether or not a claim is spelled.
         bidi = 'bidirectional override or isolate control'
         for label, line in (
-            ('rev4-rlo-reversed-claim', 'X is \u202eesab ecnerefer eht ni dleh ton\u202c.'),
-            ('rev4-rlo-hex-entity', 'X is &#x202E;esab ecnerefer eht ni dleh ton&#x202C;.'),
-            ('rev4-rlo-decimal-entity', 'X is &#8238;esab ecnerefer eht ni dleh ton&#8236;.'),
-            ('rev4-bdo-reversed-claim', 'X is <bdo dir="rtl">esab ecnerefer eht ni dleh ton</bdo>.'),
-            ('rev4-rlo-reversed-word', 'X is not \u202edleh\u202c in the reference base.'),
-            ('rev4-bdo-reversed-word', 'X is not <BDO dir="rtl">dleh</BDO> in the reference base.'),
-            ('rev4-lre', 'Plain \u202atext\u202c here.'),
-            ('rev4-rli-isolate', 'X is \u2067esab ecnerefer eht ni dleh ton\u2069.'),
-            ('rev4-fsi-isolate', 'Plain \u2068text\u2069 here.'),
+            ('rlo-reversed-claim', 'X is \u202eesab ecnerefer eht ni dleh ton\u202c.'),
+            ('rlo-hex-entity', 'X is &#x202E;esab ecnerefer eht ni dleh ton&#x202C;.'),
+            ('rlo-decimal-entity', 'X is &#8238;esab ecnerefer eht ni dleh ton&#8236;.'),
+            ('bdo-reversed-claim', 'X is <bdo dir="rtl">esab ecnerefer eht ni dleh ton</bdo>.'),
+            ('rlo-reversed-word', 'X is not \u202edleh\u202c in the reference base.'),
+            ('bdo-reversed-word', 'X is not <BDO dir="rtl">dleh</BDO> in the reference base.'),
+            ('lre', 'Plain \u202atext\u202c here.'),
+            ('rli-isolate', 'X is \u2067esab ecnerefer eht ni dleh ton\u2069.'),
+            ('fsi-isolate', 'Plain \u2068text\u2069 here.'),
         ):
             with self.subTest(label=label):
                 findings = self.blocking('# T\n\n' + line + '\n')
@@ -61353,7 +61353,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.23.3", "the C1 rebuild release adds the directional-dependency engine's public function path_in_project_gov, so gate 53's project_gov_dir may be a path of several parts (MINOR), moves the compiler's default pack root to .claude/skills/corpus-management/src and raises minimum_python from 3.11 to 3.14, on top of RBQ10, which has the compiler's managed-output stray scan skip the relocated skill directory's shipped entries (PATCH), on top of gate 36, which makes the language engine's -isation scan linear through a private helper, _isation_matches (PATCH) on top of 3b614, which rewords the core rules README to name the three managed directories and the CLAUDE.md block gate 99 owns (PATCH) on top of P-3.213, which adds the standards-currency engine's identity_counts, ratchet and count_summary functions and print_coverage's trailer parameter for the per-standard UNPINNED ratchet (MINOR) on top of 3b146, which has the gate-30 metadata line-break engine group a run by the rendered paragraph, so an indented continuation line no longer splits it (PATCH), then follows the CommonMark/GFM block structure (block quotes, list items, fences, HTML blocks, tables) so the run model agrees with the renderer (PATCH) on top of 3b662, which has the gate-18 intra-document section-reference engine recognise Canadian federal instrument identifiers such as 'ITSP.80.022' as external-framework names (PATCH) on top of 3b652, which has the standards-currency engine read a parenthesised programme-name version such as '(SSDF 1.1)' (PATCH), 3b607, which retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (0.19.0 to 0.20.0 for 3b533; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for 3b607; then 0.21.1 to 0.21.2 for 3b652; then 0.21.2 to 0.21.3 for 3b662; then 0.21.3 to 0.21.4, then 0.21.4 to 0.21.5, for 3b146; then 0.21.5 to 0.22.0 for P-3.213; then 0.22.0 to 0.22.1 for 3b614; then 0.22.1 to 0.22.2 for gate 36; then 0.22.2 to 0.22.3 for RBQ10; then 0.22.3 to 0.23.0 for the C1 release; then 0.23.2 to 0.23.3 for the listing-surface completeness gate's docstrings, release history entry 0.23.3)")
+        self.assertEqual(man["pack"]["version"], "0.23.3", "0.23.3 has the listing-surface completeness gate's docstrings name the library root specifications by their home in governance/ (PATCH), on top of 0.23.2, which removes internal references and review history from the comments and docstrings of the pack's tool and engine sources (PATCH), on top of 0.23.1, which removes them from the pack documentation (PATCH), on top of the C1 rebuild release, 0.23.0, which covers every change since 0.22.2 (0.22.3 was not released): among other changes, it adds the directional-dependency engine's public function path_in_project_gov, so gate 53's project_gov_dir may be a path of several parts (MINOR), moves the compiler's default pack root to .claude/skills/corpus-management/src, folds in RBQ10, which has the compiler's stray scan skip the skill directory's shipped entries, and raises minimum_python from 3.11 to 3.14, on top of the gate-2 change, which makes the language engine's -isation scan linear through a private helper, _isation_matches (PATCH) on top of the change that rewords the core rules README to name the three managed directories and the CLAUDE.md block gate 99 owns (PATCH) on top of the change that adds the standards-currency engine's identity_counts, ratchet and count_summary functions and print_coverage's trailer parameter for the per-standard UNPINNED ratchet (MINOR) on top of the change that has the gate-30 metadata line-break engine group a run by the rendered paragraph, so an indented continuation line no longer splits it (PATCH), then follows the CommonMark/GFM block structure (block quotes, list items, fences, HTML blocks, tables) so the run model agrees with the renderer (PATCH) on top of the change that has the gate-18 intra-document section-reference engine recognize Canadian federal instrument identifiers such as 'ITSP.80.022' as external-framework names (PATCH) on top of the change that has the standards-currency engine read a parenthesized programme-name version such as '(SSDF 1.1)' (PATCH), the change that retargets the rule index into the corpus-management skill (PATCH: register value changes, a private compiler constant and a wider private drift scan), and the quotation policy, which reserves shall for a quotation the adopting library's quotation policy allows or a transition clause of it keeps (the pack's release history in src/README.md starts at 0.22.2, so the bumps before it are described here from the change record rather than from that history: 0.19.0 to 0.20.0 for an earlier change this message does not name; 0.20.0 to 0.20.1, then MINOR by judgement 0.20.1 to 0.21.0, for the quotation policy; then 0.21.0 to 0.21.1 for the rule-index retarget; then 0.21.1 to 0.21.2 for the programme-name version reading; then 0.21.2 to 0.21.3 for the Canadian instrument identifiers; then 0.21.3 to 0.21.4, then 0.21.4 to 0.21.5, for the gate-30 run model; then 0.21.5 to 0.22.0 for the standards-currency ratchet; then 0.22.0 to 0.22.1 for the core rules README rewording; then 0.22.1 to 0.22.2 for the gate-2 -isation change; then 0.22.2 to 0.23.0 for the C1 release, which includes RBQ10 (0.22.3 was not released); then 0.23.0 to 0.23.1 for removing internal references and review history from the pack documentation; then 0.23.1 to 0.23.2 for removing internal references and review history from the comments and docstrings of the pack's tool and engine sources)")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")
@@ -68000,7 +68000,7 @@ class AIQTVendorDigestTests(LinterTestCase):
             self.assertNotIn(
                 "legitimate ``sys.path`` entry that cannot be scrubbed "
                 "away", text,
-                f"the {where} docstring must not repeat the false round-9 "
+                f"the {where} docstring must not repeat the false "
                 "premise that the repository root is a dotted route to "
                 "the in-repo pack (RBQ43-c3-repo-root-premise)")
         self.assertIn("RBQ43-c3-repo-root-premise", docs["module"],
@@ -83638,7 +83638,7 @@ class WebSiteHardeningTests(unittest.TestCase):
             " font-src 'self'; img-src 'self'; base-uri 'none';"
             " form-action 'none'; frame-ancestors 'none'\n"
             "  X-Robots-Tag: noindex\n",
-            "DRAFT_HEADERS_BLOCK must be the decided /draft/* block, byte "
+            "DRAFT_HEADERS_BLOCK must be the expected /draft/* block, byte "
             "for byte, including the literal X-Robots-Tag: noindex line")
         self.assertNotIn("/draft/*", content,
                          "no staging block on the promoted site (the table "
@@ -83663,7 +83663,7 @@ class WebSiteHardeningTests(unittest.TestCase):
             f"  {name}: {value}\n" for name, value in self.EXPECTED_HEADERS.items()
         )
         self.assertEqual(live, expected_live,
-                         "the /* rule must carry exactly the decided headers, "
+                         "the /* rule must carry exactly the expected headers, "
                          "byte for byte")
         self.assertEqual(content, self.web.render_headers_file())
 
