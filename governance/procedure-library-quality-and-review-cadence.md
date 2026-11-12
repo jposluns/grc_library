@@ -2,8 +2,8 @@
 
 **Document Title:** Library Quality and Review Cadence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.29\
-**Date:** 2026-11-09\
+**Version:** 1.0.30\
+**Date:** 2026-11-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`governance/specification-master-project.md`](specification-master-project.md), [`governance/specification-ingestion.md`](specification-ingestion.md)\
@@ -31,7 +31,7 @@ This procedure applies to:
 1. Every active document in the library across all domains.
 2. Auto-generated artefacts (taxonomy, narrative registry, portal, maturity scorecard, relationship model, and the generated `## Number allocation` block).
 3. Tooling under `.claude/skills/corpus-management/tools/` that supports library quality.
-4. Cross-cutting artefacts at the repository root (README, NOTICE, SECURITY, CONTRIBUTING, the two specifications, the changelog).
+4. Cross-cutting artefacts at the repository root (README, NOTICE, SECURITY, CONTRIBUTING), together with the library specifications in `governance/` (also active documents under item 1) and the changelog at `.working/CHANGELOG.md`.
 
 It does not govern external consumers' own forks; it governs the canonical repository.
 

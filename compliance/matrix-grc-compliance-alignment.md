@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.12.17\
-**Date:** 2026-11-07\
+**Version:** 1.12.18\
+**Date:** 2026-11-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
@@ -440,7 +440,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ## Framework coverage summary
 
-This matrix is being expanded toward comprehensive coverage of the library's substantive documents (policies, standards, procedures, guidelines, frameworks, plans, charters, templates, annexes, and substantive registers across every domain). Library-infrastructure and meta artefacts (the framework matrices and crosswalks themselves, worklists, root meta-specifications, the document index, and generated portals or scorecards) are out of scope. Coverage is added domain by domain, so the matrix is a living document rather than a fixed-size snapshot; the table below therefore describes where each framework's coverage concentrates rather than a per-framework document count, which would drift as the expansion proceeds.
+This matrix is being expanded toward comprehensive coverage of the library's substantive documents (policies, standards, procedures, guidelines, frameworks, plans, charters, templates, annexes, and substantive registers across every domain). Library-infrastructure and meta artefacts (the framework matrices and crosswalks themselves, worklists, the library specifications, the document index, and generated portals or scorecards) are out of scope. Coverage is added domain by domain, so the matrix is a living document rather than a fixed-size snapshot; the table below therefore describes where each framework's coverage concentrates rather than a per-framework document count, which would drift as the expansion proceeds.
 
 | Framework | Coverage emphasis |
 | --- | --- |

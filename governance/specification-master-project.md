@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.7.16\
-**Date:** 2026-11-10\
+**Version:** 1.7.17\
+**Date:** 2026-11-12\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`governance/specification-ingestion.md`](specification-ingestion.md), [`.claude/skills/corpus-management/specs/instruction-ai-document-ingestion.md`](../.claude/skills/corpus-management/specs/instruction-ai-document-ingestion.md), [`README.md`](../README.md), [`NOTICE.md`](../NOTICE.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md)\
@@ -242,8 +242,8 @@ Examples: `2026.05.0`, `2026.05.7`, `2026.06.0`, `2026.12.42`.
 > These historical gaps do not violate the go-forward sequential intent. No current gate detects
 > them. The library-version monotonicity gate asserts only that the version never decreases. The
 > CHANGELOG mirror-parity gate (gate 59) asserts that `Library Version` values strictly decrease
-> top-down in the root CHANGELOG and, where the detailed private copy is present, in that copy too,
-> and that both record the same version for each PR; without the copy, only the root's checks run
+> top-down in [`.working/CHANGELOG.md`](../.working/CHANGELOG.md) and, where the detailed private copy is present, in that copy too,
+> and that both record the same version for each PR; without the copy, only the checks on `.working/CHANGELOG.md` run
 > and the copy's ordering and version-agreement checks are skipped. A skipped number satisfies every
 > one of these checks; a forward-looking continuity check remains planned under the Corpus-Management discipline roadmap (item 4.1 of the public working backlog in [`.working/TODO.md`](../.working/TODO.md)).
 

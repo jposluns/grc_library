@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Domain README\
 **Document Type:** Register\
-**Version:** 1.4.18\
-**Date:** 2026-11-08\
+**Version:** 1.4.19\
+**Date:** 2026-11-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -62,7 +62,7 @@ Developer-facing security requirements covering:
 ### Registers
 - **Compliance controls and gap register**: template for tracking development security control gaps against applicable standards and frameworks
 
-See the **Claude Code rules pack** section below for the draggable rule files and the AI-assisted setup generator.
+The draggable rule files and the AI-assisted setup that formerly shipped here are now published by the AIQT project (https://aiqt.ai); see the **Claude Code rules pack** section below.
 
 ---
 

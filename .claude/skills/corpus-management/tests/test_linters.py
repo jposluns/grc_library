@@ -42691,7 +42691,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         build-corpus-management.py OWN F 99b180645666face6dd915ae22373c669aec0c388462690a3f3f86ee61caa1b7
         build-historical-citation-exceptions.py OWN F 23f0e7d86a4cbef96158cc9f0edb1ae9dadf70e1a4ac2db7fea76ee486a11eac
         build-narrative-registry.py NO_FS F daaf1ccac5aae35801edc076fc1eb0ed165a64f05944a8c157ea144c3585983c
-        build-portal.py NO_FS F d4f5a62383299fcf553400d0333ce8ed47376858635f4473348adb92877c9079
+        build-portal.py NO_FS F 30abe0839d1de66e772ed49e1d66abf6433e8f6a68941fdb6b528dafaceb07b5
         build-provision-index.py ROOT F beedab0b6d018c4c7d583e63b40c35704a65322b1b1203048d1062f8748e899a
         build-public-changelog.py OWN F 38fc12242f4d182b91018a2047be2a6f40780a49c7edd77a2a313b19e15eff14
         build-reference-manifest.py NO_FS F 91a2207f9721f1783979824b35f4aeada9c0ff3d47b6fa2da252261e7bf0fa72

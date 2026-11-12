@@ -1,12 +1,12 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Date:** 2026-11-11\
+**Date:** 2026-11-12\
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **SPDX-License-Identifier:** CC-BY-SA-4.0\
-**Library Version:** 2026.11.79 (CalVer, library-wide; see [`governance/specification-master-project.md`](governance/specification-master-project.md) §4.5)\
-**README Version:** 1.11.932 (semantic per-document version for this file)
+**Library Version:** 2026.11.80 (CalVer, library-wide; see [`governance/specification-master-project.md`](governance/specification-master-project.md) §4.5)\
+**README Version:** 1.11.933 (semantic per-document version for this file)
 
 ---
 
@@ -70,7 +70,7 @@ An adopter can engage with this repository at any of three levels:
 
 - **Adopt the corpus only.** You want the Markdown artefacts as a starting point and have your own maintenance workflow (or no AI assistance in the loop). Take the domain directories you need; ignore [`.claude/skills/corpus-management/tools/`](.claude/skills/corpus-management/tools/) and the pinned AIQT snapshot. If you share an adaptation, the CC BY-SA 4.0 ShareAlike term requires you to license your own contributions to it under CC BY-SA 4.0, a later CC BY-SA version, or a BY-SA-compatible licence. The library's own text stays under CC BY-SA 4.0; quoted or vendored material keeps its own terms (see [`NOTICE.md`](NOTICE.md)).
 
-- **Adopt the pinned AIQT runtime and retained GRC procedures.** The exact snapshot is pinned in `.claude/aiqt/PIN.toml` (the upstream release-root digest) and inventoried by the vendored upstream release manifest (`.claude/aiqt/.aiqt/manifest.toml`); the rendered rule copies under `.claude/rules/aiqt/` and `.claude/rules/security/` carry the declared scope insertions. See the AIQT project (https://aiqt.ai) for installation. The upstream snapshot is separately Apache-2.0 with its LICENSE and NOTICE retained; GRC-original compatibility and procedures remain CC BY-SA 4.0.
+- **Adopt the pinned AIQT runtime only.** The exact snapshot is pinned in `.claude/aiqt/PIN.toml` (the upstream release-root digest) and inventoried by the vendored upstream release manifest (`.claude/aiqt/.aiqt/manifest.toml`); the rendered rule copies under `.claude/rules/aiqt/` and `.claude/rules/security/` carry the declared scope insertions. See the AIQT project (https://aiqt.ai) for installation. The upstream snapshot is separately Apache-2.0 with its LICENSE and NOTICE retained; GRC-original compatibility and procedures remain CC BY-SA 4.0.
 
 The third mode is an emergent use that has been adopted by developers in practice; it is supported alongside the primary fork-the-whole-repo path.
 
@@ -88,7 +88,7 @@ The third mode is an emergent use that has been adopted by developers in practic
 
 4. **Validate applicability.** Not every document applies to every organization. Validate that each document's scope, jurisdictional references, and control requirements match your operating environment, sector, and regulatory obligations before adoption.
 
-5. **Review the contribution and authoring specifications.** If extending or maintaining the library, see the root-level specification files described in the section below.
+5. **Review the contribution and authoring specifications.** If extending or maintaining the library, see the specification and authoring files described in the section below.
 
 ---
 
@@ -157,8 +157,8 @@ Repository infrastructure directories (not used for governance artefacts):
                 taxonomy generator, narrative registry generator, adopter portal generator.
 /.claude/skills/corpus-management/docs
                 Adopter-facing documentation that is not a governance artefact: adopter guide,
-                worked example. (The auto-generated portal and maturity scorecard live in
-                `governance/`.)
+                multi-entity adoption guide, worked adoption example. (The auto-generated
+                portal and maturity scorecard live in `governance/`.)
 /executive      Executive narrative layer (early): non-normative, advisory, and
                 explanatory leadership-facing material ABOUT the corpus. Outside the corpus
                 document model (its own document class, registry, and gate family); inside the repository
@@ -219,7 +219,7 @@ Examples:
 
 ## Specification and authoring files
 
-Four root-level files govern how the library is maintained and extended:
+Four files, in `governance/` and `.claude/skills/corpus-management/specs/`, govern how the library is maintained and extended:
 
 | File | Purpose |
 | --- | --- |
