@@ -1488,7 +1488,9 @@ def main(argv: list[str]) -> int:
         scope_root = root
     else:
         root_changelog = REPO_ROOT / ROOT_CHANGELOG_REL
-        resolved = resolve_working("changelog-details/CHANGELOG-detailed.md")
+        # The store holds the .working/ tree's files at its root, so the lookup takes the
+        # mirror's path below .working/ from the one constant --root also reads.
+        resolved = resolve_working(DETAILED_MIRROR_REL[len(".working/"):])
         if resolved is None:
             # The detailed mirror is maintainer-only working state. Once `.working/` moves
             # to the operational store it is absent in public CI and adopter clones; on the
