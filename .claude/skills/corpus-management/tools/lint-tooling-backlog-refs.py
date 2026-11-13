@@ -113,9 +113,9 @@ reworded at source):
      without the qualifier (measured: always a document section here), a
      lowercase or mixed-case spelling of the qualifier, a hyphenated
      qualifier-to-number join, an intervening word between the qualifier and
-     the number (``item``), and the ``§``- or ``P-``-prefixed id
-     shapes are OUT of scope (gate 69's class in markdown; stated residue
-     here).
+     the number (``item``, outside generated data, note 12), and the
+     ``§``- or ``P-``-prefixed id shapes are OUT of scope (gate 69's class
+     in markdown; stated residue here).
 
   4. PR-ANCHORED POINTERS PASS. A pointer immediately followed by
      ``(closing PR #X)`` or ``(introducing PR #X)`` is the durable re-pointed
@@ -124,15 +124,24 @@ reworded at source):
      closing parenthesis; matching uses text before literal blanking.
 
   5. DOCUMENT-SECTION AND EXTERNAL-STANDARD EXCLUSION. A ``section``-form
-     match (not ``TODO``-qualified) is excluded when a census-derived cue
-     (for example a ``.md`` filename, ``spec``, ``specification``, ``heading``,
-     ``table``, ``row``, ``block``, ``publisher``, ``ISO``, ``NIST``,
-     ``Article``, ``RFC``) appears within a short window around the match. The
-     cue scan runs on the UNSTRIPPED reading (same coordinates: the blanking
-     is length-preserving), so a cue inside backticks still counts. This keeps
-     the frequent spec-section citations out of the net. RESIDUE: a genuine
-     backlog ``section``-form pointer next to a cue word is suppressed; the
-     ``TODO``-qualified form is never cue-suppressed.
+     match (not ``TODO``- or ``backlog``-qualified) is excluded when a
+     census-derived cue (for example a ``.md`` filename, ``spec``,
+     ``specification``, ``heading``, ``table``, ``row``, ``block``,
+     ``publisher``, ``ISO``, ``NIST``, ``Article``, ``RFC``) appears within a
+     short window around the match. The cue scan runs on the UNSTRIPPED
+     reading (same coordinates: the blanking is length-preserving), so a cue
+     inside backticks still counts. This keeps the frequent spec-section
+     citations out of the net. One cue was added for a landing-clone guard
+     run's finding outside generated data: ``GFM``, the GitHub Flavored
+     Markdown specification, whose ``section 6.10``
+     ``.claude/skills/corpus-management/src/tools/gate_lint_metadata_line_breaks.py``
+     cites. The run's other findings were all in ``taxonomy.yml``, which
+     note 12 handles, so no cue names their documents: the cue match ignores
+     case, and a cue that is also an ordinary word (``handbook``) would hide
+     a genuine pointer beside it. RESIDUE: a genuine backlog
+     ``section``-form pointer next to a cue word is suppressed; the
+     ``TODO``-qualified form and, in generated data, the ``backlog item``
+     form (note 12) are never cue-suppressed.
 
   6. MARKER. ``todo-ref-ok: <reason>`` on the pointer's first line or the line
      above clears a deliberate mention. A marker with an EMPTY reason clears
@@ -238,6 +247,45 @@ reworded at source):
       RESIDUE: a backlog pointer pasted into
       vendored content is not seen.
 
+  12. GENERATED DATA. The generator-owned outputs under
+      ``.claude/skills/corpus-management/data/`` (``GENERATED_DATA_PATHS``)
+      are ``taxonomy.yml``, which ``build-taxonomy.py`` writes (its
+      ``TAXONOMY``), and ``narrative.yml``, which
+      ``build-narrative-registry.py`` writes (its ``REGISTRY_NAME``); a
+      test compares the list with both constants. Both files are selected
+      and read as raw YAML like any other ``.yml`` file, with two
+      differences. First, the bare ``section N.M`` form (lowercase
+      ``section`` and only whitespace before the number, with no ``TODO``
+      or ``backlog`` qualifier) is not matched there. The evidence is
+      ``taxonomy.yml``'s: it copies corpus document metadata, a
+      landing-clone guard run read eight bare section numbers in it as
+      stale pointers, and they cite sections of the HMRC AEO handbook, a
+      Quebec statute and, in ``the procedure, section 4.3``, a corpus
+      procedure. In ``narrative.yml`` the bare form
+      is set aside as a precaution, because its titles are copied
+      ``executive/`` page metadata; no finding there motivated it.
+      Second, in these files only, ``TODO item(s) N.M`` and ``backlog
+      item(s) N.M`` (gate 69's item qualifiers, which note 3 otherwise
+      leaves out) are added, with ``P-TODO item(s) N.M`` as well, because
+      no other gate reads these files: gate 69 reads corpus Markdown only,
+      and ``narrative.yml``'s ``executive/`` source is outside every
+      positional-backlog gate.
+      Every qualified form (``TODO N.M``, ``P-TODO N.M``, ``TODO section
+      N.M``, ``P-TODO section N.M``, ``TODO item(s) N.M``, ``P-TODO
+      item(s) N.M`` and ``backlog item(s) N.M``) is matched in these files
+      and is never cue-suppressed. The hyphen-joined ``section-N.M`` form
+      is matched there too, under the note-5 cue rule.
+      ``relationship-model-source.json`` is the hand-maintained input that
+      ``build-relationship-model.py`` reads (its output lies outside the
+      scan roots), not a generator output, so the bare form is matched in it
+      as in any scanned file; a new generator writing under ``data/`` adds
+      its output here. RESIDUE: a genuine backlog pointer in the bare
+      ``section N.M`` form in generated data is not seen, and no other gate
+      sees it either (gate 69 has no bare ``section`` form, and does not
+      read ``executive/``); a ``section-N.M`` pointer beside a cue word is
+      suppressed, which in ``narrative.yml`` includes a page's ``.md`` path,
+      written on the line directly above its title.
+
 Usage:
     python3 .claude/skills/corpus-management/tools/lint-tooling-backlog-refs.py
     python3 .claude/skills/corpus-management/tools/lint-tooling-backlog-refs.py --report
@@ -315,6 +363,16 @@ THIRD_PARTY_DIRS = (
     + (VENDORED_AIQT_DIR,)
 )
 THIRD_PARTY_RECORD_PATHS = frozenset(f"{d}/PROVENANCE.md" for d in THIRD_PARTY_DIRS)
+# Generator-owned outputs under data/ (design note 12), each the write target of
+# one generator: build-taxonomy.py (TAXONOMY) and build-narrative-registry.py
+# (REGISTRY_NAME); a test compares this set with both constants. Selected and
+# scanned with GENERATED_DATA_REF: the copied document metadata cites document
+# sections in the bare section form, so that form alone is not matched there,
+# and the TODO item, P-TODO item and backlog item forms, which BACKLOG_REF does
+# not match, are.
+GENERATED_DATA_DIR = ".claude/skills/corpus-management/data"
+GENERATED_DATA_PATHS = frozenset(
+    f"{GENERATED_DATA_DIR}/{name}" for name in ("taxonomy.yml", "narrative.yml"))
 # Exactly the rule-overlay PROVENANCE.txt records listed here are selected and
 # read as Markdown, whatever their suffix (note 11); no other .txt file is.
 # No rule overlay ships, so the set is empty.
@@ -356,16 +414,33 @@ SKIP_DIR_PARTS = frozenset({"__pycache__", "tests", "fixtures"})
 # digit, its tail may carry the TODO_ID_RE child-item letter, and the token
 # ends cleanly (a trailing sentence period still matches, a longer dotted tail
 # or a word character does not).
+_POINTER_ID = r"(?P<id>[1-9]\.\d+(?:\.\d+)*(?:\.?[a-z])?)(?!\w)(?!\.\d)"
 BACKLOG_REF = re.compile(
     r"(?<![\w-])(?:(?:P-)?TODO\s+(?:[Ss]ection[-\s]+)?|section[-\s]+)"
-    r"(?P<id>[1-9]\.\d+(?:\.\d+)*(?:\.?[a-z])?)(?!\w)(?!\.\d)"
+    + _POINTER_ID
 )
-TODO_QUALIFIED = re.compile(r"^(?:P-)?TODO\b")
+# The pattern for GENERATED_DATA_PATHS (design note 12): the bare section form
+# (section and whitespace only) is left out, the hyphen-joined section- form
+# stays, and gate 69's item qualifiers (TODO item(s), backlog item(s)) are
+# added, with P-TODO item(s) as well, because no other gate reads these files.
+GENERATED_DATA_REF = re.compile(
+    r"(?<![\w-])(?:(?:P-)?TODO\s+(?:[Ss]ection[-\s]+|[Ii]tems?\s+)?"
+    r"|[Bb]acklog\s+items?\s+|section\s*-[-\s]*)"
+    + _POINTER_ID
+)
+# Keyword-qualified matches are never cue-suppressed (design note 5); the
+# backlog keyword occurs only in GENERATED_DATA_REF matches.
+TODO_QUALIFIED = re.compile(r"^(?:(?:P-)?TODO|[Bb]acklog)\b")
 # The durable re-pointed form, immediately after the id (design note 4).
 PR_ANCHOR_AFTER = re.compile(r"^\s*\((?:closing|introducing)\s+PR\s+#[0-9]+\s*\)")
 # Census-derived document-section / external-standard cues (design note 5).
 # RFC through SOC are not census-derived: external standards the census never
-# saw still cite sections and clauses.
+# saw still cite sections and clauses. GFM is not census-derived either: it
+# names the GitHub Flavored Markdown specification, which
+# src/tools/gate_lint_metadata_line_breaks.py cites by section, the one finding
+# of a landing-clone guard run outside generated data (design note 12 handles
+# the rest). The match ignores case, so no cue is added that no scanned file
+# needs.
 DOC_SECTION_CUE = re.compile(
     r"(?i)\.md\b|\bspecs?\b|\bspecification|§|\bheading|\btable\b|\brows?\b"
     r"|\binventory\b|\bclause|\bchapter|\bblock\b|\bpublisher|\bsource of record\b"
@@ -373,6 +448,7 @@ DOC_SECTION_CUE = re.compile(
     r"|\bCOBIT\b|\bCWE\b|\bASVS\b|\bCSF\b|\bSSDF\b|\bMiCA\b|\bArticle\b|\bTSC\b"
     r"|\bCCM\b|\bAICM\b|\bGDPR\b|\bCPPA\b"
     r"|\bRFC\b|\bPCI\b|\bDSS\b|\bFIPS\b|\bOWASP\b|\bHIPAA\b|\bSOC\b"
+    r"|\bGFM\b"
 )
 CUE_WINDOW_BEFORE = 110
 CUE_WINDOW_AFTER = 80
@@ -512,13 +588,15 @@ def _marker_reasons(text: str) -> dict[int, list[str]]:
     return reasons
 
 
-def candidate_refs(path: Path, text: str, markdown: bool = False) -> list[Candidate]:
+def candidate_refs(path: Path, text: str, markdown: bool = False,
+                   generated: bool = False) -> list[Candidate]:
     """All positional backlog pointers in one file, after the literal strip, the
     PR-anchor pass, the cue pass and the marker pass. PURE detection over one
     file's text (the EXEMPT rows and the open-versus-deleted check are
     ``run_scan``'s concern); raises :class:`GateInputError` for a Markdown
     file whose fence toggling is unbalanced (note 9). ``markdown`` reads a
-    registered non-``.md`` record as Markdown (note 11)."""
+    registered non-``.md`` record as Markdown (note 11); ``generated`` reads
+    a ``GENERATED_DATA_PATHS`` file with ``GENERATED_DATA_REF`` (note 12)."""
     lines = text.split("\n")
     markers = _marker_reasons(text)
     markdown = markdown or path.suffix in BACKTICK_ONLY_SUFFIXES
@@ -551,7 +629,8 @@ def candidate_refs(path: Path, text: str, markdown: bool = False) -> list[Candid
         offsets.append(offsets[-1] + len(ln) + 1)
 
     out: list[Candidate] = []
-    for m in BACKLOG_REF.finditer(joined):
+    pointer_re = GENERATED_DATA_REF if generated else BACKLOG_REF
+    for m in pointer_re.finditer(joined):
         lineno = bisect.bisect_right(offsets, m.start())
         if PR_ANCHOR_AFTER.match(cue_joined[m.end():]):
             continue
@@ -778,7 +857,8 @@ def run_scan(root: Path, files: list[Path], live: set[str], degraded: bool
             errors.append(f"{rel}: unreadable ({exc})")
             continue
         try:
-            cands = candidate_refs(path, text, rel in MARKDOWN_RECORD_PATHS)
+            cands = candidate_refs(path, text, rel in MARKDOWN_RECORD_PATHS,
+                                   rel in GENERATED_DATA_PATHS)
         except GateInputError as exc:
             errors.append(f"{rel}: {exc}")
             continue
