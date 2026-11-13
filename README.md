@@ -1,12 +1,12 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Date:** 2026-11-12\
+**Date:** 2026-11-13\
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **SPDX-License-Identifier:** CC-BY-SA-4.0\
-**Library Version:** 2026.11.93 (CalVer, library-wide; see [`governance/specification-master-project.md`](governance/specification-master-project.md) §4.5)\
-**README Version:** 1.11.946 (semantic per-document version for this file)
+**Library Version:** 2026.11.94 (CalVer, library-wide; see [`governance/specification-master-project.md`](governance/specification-master-project.md) §4.5)\
+**README Version:** 1.11.947 (semantic per-document version for this file)
 
 ---
 
