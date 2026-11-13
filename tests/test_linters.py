@@ -45430,7 +45430,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-length-on-pr.py NO_FS F dd81f8c07f2ab5045bc492e1d59ebab939585c01355d1ca0d7baf0fed08c84a1
         check-changelog-on-pr.py NO_FS F e762e152f63d454d5915d219ce71329993c57b3bb780b860c0d3ec9938fdbd0e
         check-changelog-preflight-commit.py NO_FS F 8b6661d3820df2989dcbe98b65703573eef1eff4ecacdc946c0935292fee571e
-        check-class-attestation-on-pr.py NO_FS F 03e56a06770650479858c8a2cad1755aa4789532a6535fdfc1187e780b8fccf3
+        check-class-attestation-on-pr.py NO_FS F 95b0b69b18c1fe28af7c6cbf3a8f364d3018d64dd6b2f30591959b9f41a5da22
         check-class-completeness.py NO_FS F 8f1c8316f2c89a07294fd0434163c72a70b6170388398aa82666859f15181a70
         check-claude-md-size.py NO_FS F 0c2c447fbeb2df2e88a61eca220cfd5f1a41ab8aca24b90936e832c1b52f1a95
         check-clause-preservation.py OWN F 43d6804eccf05f9c2434da4ec879246d48cc80081b8c852e86437cf38c65c664

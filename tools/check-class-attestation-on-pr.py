@@ -531,6 +531,7 @@ def _self_test() -> int:
                        fails == [] and len(notes) == 1 and "final-tag" in notes[0]))
 
         fails, notes = run(ledger(("2026-11-10", "warning", "[quoted-routed] routed row",
+                                   # todo-ref-ok: self-test fixture ledger row text, not a backlog pointer
                                    'ROUTED TODO 3.73 (it quotes "[repo: grc_library_new]" here)')),
                            probe)
         checks.append(("scope-tag-quoted-in-routed-text-fails-closed",
