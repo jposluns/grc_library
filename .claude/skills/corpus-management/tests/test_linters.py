@@ -43346,7 +43346,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-todo-marked-done.py ROOT F 9d5f28f83917e26a4cd0bffde756fded4a2bf4259b809472bc1757a6dbc1b212
         lint-todo-number-permanence.py OWN F abc29a18bbb34d57abdf9d72ff70a46150c1d99322312fa3818dd1a3fa589c19
         lint-todo-staleness.py NO_FS F 6a89123607678239f036cab7bf02e0a0885216f55ba0b23fb53799e30c40cffb
-        lint-tooling-backlog-refs.py OWN F f59006b0af46722da97592748098bcb0f00544b22cbc34a64e42cde1a751a49a
+        lint-tooling-backlog-refs.py OWN F be54fcdef171bc30e7d0393ca2c097904f464cad7bde9a233f7ee663edd741a5
         lint-tooling-provenance-freshness.py OWN F 38a5222e69c3ec9c43c1ea917f39d8b17683ae3f91b6c361e4b10a34d0f4027a
         lint-unbalanced-fences.py ROOT F be18adf8de595de46e7d2149a9e6c0053288f41fdecc3b8748c3a609f94ff294
         lint-ungated-dashes.py NO_FS F 81bd8a51ed9d04864b908024f4cd4bf9d45b123075b626e2b3540accfcaedbec
@@ -79551,6 +79551,15 @@ class ToolingBacklogRefsTests(LinterTestCase):
 
     PRIVATE_MINIMAL = {"TODO-REFERENCE.md": "# reference detail\n"}
 
+    # A private sibling holding a P-TODO.md index, so the private lists resolve
+    # and the run is enforcing; none of the fixture pointers below is live.
+    PRIVATE_P_TODO = {"P-TODO.md": (
+        "# P-TODO\n\n## Priority 1\n\n"
+        "| ID | Item | Tags |\n"
+        "| --- | --- | --- |\n"
+        "| 3.51 | Live private fixture item | `[private]` |\n"
+    )}
+
     def make_repo(self, tool_text: str, *, private: dict[str, str] | None = None,
                   hook_text: str = "", todo: str | None = None) -> Path:
         """A fixture repo root (.working/TODO.md, .claude/skills/corpus-management/tools/, .claude/hooks/) with an optional
@@ -80424,6 +80433,208 @@ class ToolingBacklogRefsTests(LinterTestCase):
             with self.subTest(text=text):
                 self.assertEqual([c.item_id for c in gate.candidate_refs(
                     Path("sample.py"), text)], ["3.99"])
+
+    # One taxonomy.yml-shaped and one narrative.yml-shaped fixture, each
+    # written at its GENERATED_DATA_PATHS path (design note 12); PROSE is the
+    # copied metadata text under test. The narrative entry omits its path and
+    # source lines, whose .md names are cues (design note 5) that would set
+    # aside the section- form beside them; NARRATIVE_WITH_PATH below keeps
+    # the real file's path line above the title.
+    GENERATED_FIXTURES = (
+        (".claude/skills/corpus-management/data/taxonomy.yml",
+         "documents:\n"
+         "  - id: sample-procedure\n"
+         "    purpose: \"PROSE\"\n"),
+        (".claude/skills/corpus-management/data/narrative.yml",
+         "schema_version: 2\n"
+         "pages:\n"
+         "- title: \"PROSE\"\n"
+         "  narrative_type: \"Executive Brief\"\n"
+         "  narrative_status: \"Explanatory\"\n"),
+    )
+
+    def test_generated_data_qualified_pointer_forms_reported(self) -> None:
+        # Design note 12: generated data stays scanned, so a TODO- or
+        # backlog-qualified pointer, or a hyphen-joined section- pointer,
+        # copied into taxonomy.yml or narrative.yml is still a finding (gate
+        # 69 reads neither file, and narrative.yml's executive/ source is
+        # outside every positional-backlog gate).
+        # The item word may be capitalized after the file stem (Item,
+        # Items), and the word backlog may be capitalized (Backlog).
+        forms = ("TODO 3.99", "P-TODO 3.99", "TODO section 3.99",
+                 "TODO item 3.99", "P-TODO item 3.99", "backlog item 3.99",
+                 "TODO Item 3.99", "P-TODO Items 3.99", "Backlog item 3.99",
+                 "section-3.99")
+        for rel, shape in self.GENERATED_FIXTURES:
+            for form in forms:
+                with self.subTest(file=rel, form=form):
+                    root = self.make_repo(
+                        "# A clean tool file.\n", private=self.PRIVATE_P_TODO)
+                    self.write_extra(root, rel, shape.replace(
+                        "PROSE", f"Shaped by the apply plan ({form}) in the sweep."))
+                    result = self.check(root)
+                    self.assertEqual(result.returncode, 1,
+                                     result.stdout + result.stderr)
+                    self.assertIn(f"=== {rel} ===", result.stdout)
+                    self.assertIn(f"{form!r} points at 3.99", result.stdout)
+
+    def test_generated_data_bare_section_not_reported(self) -> None:
+        # GUARD (passes before and after round 2): in the generated files
+        # only the bare section form is set aside, because the copied
+        # metadata cites sections of the documents it describes (design
+        # note 12); a bare section 8.9 there is not a finding.
+        for rel, shape in self.GENERATED_FIXTURES:
+            with self.subTest(file=rel):
+                root = self.make_repo(
+                    "# A clean tool file.\n", private=self.PRIVATE_P_TODO)
+                self.write_extra(root, rel, shape.replace(
+                    "PROSE", "Detail sits under back-up and recovery "
+                    "(section 8.9) of the guide."))
+                result = self.check(root)
+                self.assertEqual(result.returncode, 0,
+                                 result.stdout + result.stderr)
+                self.assertNotIn("8.9", result.stdout)
+
+    def test_generated_data_backlog_capital_item_not_reported(self) -> None:
+        # GUARD: after the word backlog only a lowercase item word is
+        # accepted (design note 12, as gate 69's backlog item(s)), so the
+        # word backlog followed by a capital Item and a dotted number is
+        # accepted residue in the generated files, not a finding.
+        for rel, shape in self.GENERATED_FIXTURES:
+            for form in ("backlog Item 3.99", "Backlog Items 3.99"):
+                with self.subTest(file=rel, form=form):
+                    root = self.make_repo(
+                        "# A clean tool file.\n", private=self.PRIVATE_P_TODO)
+                    self.write_extra(root, rel, shape.replace(
+                        "PROSE", f"Shaped by the apply plan ({form}) in the sweep."))
+                    result = self.check(root)
+                    self.assertEqual(result.returncode, 0,
+                                     result.stdout + result.stderr)
+                    self.assertNotIn("3.99", result.stdout)
+
+    # A narrative.yml entry shaped like the real file: its
+    # - path: "executive/<name>.md" line sits directly above its title, so
+    # the .md cue (design note 5) falls inside the window before a pointer
+    # in the title.
+    NARRATIVE_WITH_PATH = (
+        "schema_version: 2\n"
+        "pages:\n"
+        "- path: \"executive/briefs/brief-sample.md\"\n"
+        "  title: \"PROSE\"\n"
+        "  narrative_type: \"Executive Brief\"\n"
+        "  narrative_status: \"Explanatory\"\n"
+    )
+
+    def test_narrative_title_beside_path_cue(self) -> None:
+        # Design notes 5 and 12: beside the page's .md path, a keyword-
+        # qualified pointer in a narrative.yml title is still reported,
+        # the backlog item form included, with a lowercase or capital B
+        # (the [Bb]acklog alternative of TODO_QUALIFIED keeps the cue
+        # from clearing either spelling), while the
+        # hyphen-joined section- form is cleared by the cue (without the
+        # path line it is reported, as the fixtures above show).
+        rel = ".claude/skills/corpus-management/data/narrative.yml"
+        cases = (("backlog item 3.99", True), ("Backlog item 3.99", True),
+                 ("TODO item 3.99", True), ("P-TODO item 3.99", True),
+                 ("TODO 3.99", True), ("TODO Item 3.99", True),
+                 ("section-3.99", False))
+        for form, reported in cases:
+            with self.subTest(form=form):
+                root = self.make_repo(
+                    "# A clean tool file.\n", private=self.PRIVATE_P_TODO)
+                self.write_extra(root, rel, self.NARRATIVE_WITH_PATH.replace(
+                    "PROSE", f"Shaped by the apply plan ({form}) in the sweep."))
+                result = self.check(root)
+                if reported:
+                    self.assertEqual(result.returncode, 1,
+                                     result.stdout + result.stderr)
+                    self.assertIn(f"=== {rel} ===", result.stdout)
+                    self.assertIn(f"{form!r} points at 3.99", result.stdout)
+                else:
+                    self.assertEqual(result.returncode, 0,
+                                     result.stdout + result.stderr)
+                    self.assertNotIn("3.99", result.stdout)
+
+    def test_scanned_data_file_bare_section_reported(self) -> None:
+        # GUARD (passes before and after round 2): the bare section form is
+        # set aside only in the generated files; in the hand-maintained
+        # relationship-model-source.json beside them it is still a finding.
+        root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_P_TODO)
+        self.write_extra(
+            root, ".claude/skills/corpus-management/data/relationship-model-source.json",
+            '{"note": "shaped by the apply plan (section 3.98) in the sweep"}\n')
+        result = self.check(root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("relationship-model-source.json", result.stdout)
+        self.assertIn("'section 3.98' points at 3.98", result.stdout)
+
+    def test_generated_data_paths_match_generator_constants(self) -> None:
+        # GUARD (passes before and after round 2): GENERATED_DATA_PATHS is
+        # exactly the two generators' write targets, read from their own
+        # constants (build-taxonomy.py TAXONOMY, build-narrative-registry.py
+        # REGISTRY_NAME), so a moved or renamed output fails here.
+        gate = load_linter_module(self.GATE, "tbr_generated_paths")
+        taxonomy = load_linter_module(
+            ".claude/skills/corpus-management/tools/build-taxonomy.py",
+            "tbr_build_taxonomy")
+        narrative = load_linter_module(
+            ".claude/skills/corpus-management/tools/build-narrative-registry.py",
+            "tbr_build_narrative_registry")
+        written = {
+            taxonomy.TAXONOMY.relative_to(taxonomy.REPO_ROOT).as_posix(),
+            Path(narrative.REGISTRY_NAME).as_posix(),
+        }
+        self.assertEqual(set(gate.GENERATED_DATA_PATHS), written)
+
+    def test_removed_cue_words_do_not_suppress(self) -> None:
+        # Design note 5: handbook, HMRC, AEO and CommonMark are not cues (no
+        # scanned file needs them, and the cue match ignores case, so the
+        # ordinary word handbook would hide a real pointer); a genuine
+        # section pointer beside one in a scanned tool is reported.
+        for word in ("handbook", "HMRC", "AEO", "CommonMark"):
+            with self.subTest(word=word):
+                root = self.make_repo(
+                    f"# Per the {word} notes the apply plan (section 3.99) stands.\n",
+                    private=self.PRIVATE_P_TODO,
+                )
+                result = self.check(root)
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertIn("'section 3.99' points at 3.99", result.stdout)
+
+    def test_gfm_section_cue_not_flagged(self) -> None:
+        # GUARD (passes before and after round 2). Design note 5: GFM names
+        # an external specification, so its section number next to the cue
+        # is not a backlog pointer (the citation at
+        # gate_lint_metadata_line_breaks.py, GFM 0.29 section 6.10).
+        root = self.make_repo(
+            "# Tag names are ASCII only (GFM 0.29 section 6.10), so every pattern\n"
+            "# that folds case is also re.ASCII.\n",
+            private=self.PRIVATE_P_TODO,
+        )
+        result = self.check(root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_section_pointer_without_cue_still_flagged(self) -> None:
+        # The gate is not weakened: a backlog-shaped section pointer that is
+        # not a live id, with no cue in its window, is still a finding.
+        root = self.make_repo(
+            "# Shaped by the apply plan (section 3.99) in the sweep.\n",
+            private=self.PRIVATE_P_TODO,
+        )
+        result = self.check(root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("'section 3.99' points at 3.99", result.stdout)
+
+    def test_todo_qualified_pointer_beside_new_cue_still_flagged(self) -> None:
+        # The TODO-qualified form is never cue-suppressed, so a GFM mention
+        # beside it does not hide a pointer that is not live.
+        root = self.make_repo(
+            "# Per GFM 0.29 the plan (TODO section 3.99) stands.\n",
+            private=self.PRIVATE_P_TODO,
+        )
+        result = self.check(root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("'TODO section 3.99' points at 3.99", result.stdout)
 
     def test_live_repo_is_clean(self) -> None:
         # Green on the real repo in both the maintainer environment and
