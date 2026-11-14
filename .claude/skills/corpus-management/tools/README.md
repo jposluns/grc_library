@@ -93,7 +93,7 @@ pre-commit run --all-files
 
 ## Continuous integration
 
-[`.github/workflows/quality.yml`](../../../../.github/workflows/quality.yml) runs on every pull request. Its 1 job, `Lint markdown corpus`, runs only the CI subset of gates that the audit programme specification's section 4 `ci-pr-subset` block names, then the 13 per-PR delta gates. It uses Python 3.14 from `actions/setup-python` and installs the pinned `requirements.txt` (the one sanctioned third-party dependency, `idna`). The full gate suite runs on the local server, which posts the `local-quality` commit status; merge requires both that status and the `Lint markdown corpus` check. [`.github/workflows/nightly-sweep.yml`](../../../../.github/workflows/nightly-sweep.yml) runs the whole local audit runner on `main` on a nightly schedule.
+[`.github/workflows/quality.yml`](../../../../.github/workflows/quality.yml) runs on every pull request. Its 1 job, `Lint markdown corpus`, runs only the CI subset of gates that the audit programme specification's section 4 `ci-pr-subset` block names, then the 13 per-PR delta gates. It uses Python 3.14 from `actions/setup-python` and installs the pinned `requirements.txt` (the one sanctioned third-party dependency, `idna`). The full gate suite runs on the local server, which posts the `local-quality` commit status; merge requires both that status and the `Lint markdown corpus` check. [`.github/workflows/nightly-sweep.yml`](../../../../.github/workflows/nightly-sweep.yml) runs the whole local audit runner on `main` on a nightly schedule. [`.github/workflows/pr-attribution.yml`](../../../../.github/workflows/pr-attribution.yml) runs one more pull-request job, `PR attribution (title and body)`, on the opened, edited, synchronize and reopened events, so an edited title or body is checked again: [`check-pr-attribution.py`](check-pr-attribution.py) reads the pull request's title and body from the event payload and fails (exit 1) when either carries AI-assistant attribution (Claude/Anthropic). It is not an audit gate, and gate 35 does not read that workflow.
 
 ## Exemptions
 
@@ -412,7 +412,7 @@ of each checkout. It is known from then until a passing step 1b removes
 its shard directory and checkouts (and, with them, those records), or for
 as long as a failed or interrupted run lasts.
 A fast-path run and a whole-runner fallback (the gate list cannot be read)
-never write one; a full run has none before step 1b (gates 1 to 35, and
+never write one; a full run has none before step 1b (step 1, every runner gate but gate 36, and
 step 1b until its `guard-owner` record is written) or after a passing step
 1b (steps 2 and 3); and the scan does not read the records of another
 clone's run whose shard directory is under another `TMPDIR`. A process of

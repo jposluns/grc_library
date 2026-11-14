@@ -2,8 +2,8 @@
 
 **Document Title:** Reverse Framework Control Crosswalk Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.20\
-**Date:** 2026-10-27\
+**Version:** 1.0.21\
+**Date:** 2026-11-14\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`NOTICE.md`](../NOTICE.md)\
@@ -161,7 +161,7 @@ This matrix does not reproduce restricted third-party framework text, does not e
 | --- | --- | --- |
 | Article 5 Prohibited AI practices | [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md) | Regulatory interpretation |
 | Article 9 Risk management system for high-risk AI | [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](../ai/procedure-ai-model-risk-assessment.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) | Regulatory interpretation |
-| Article 10 Data and data governance | [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md) | Regulatory interpretation |
+| Article 10 Data and data governance (as amended by Regulation (EU) 2026/1744, which deleted Article 10(5) and inserted Article 4a on processing special categories of personal data for bias detection and correction) | [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md) | Regulatory interpretation |
 | Article 11 Technical documentation; Annex IV | [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md), [`ai/template-model-card.md`](../ai/template-model-card.md), [`ai/template-system-card.md`](../ai/template-system-card.md), [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md) | Regulatory interpretation |
 | Article 12 Record-keeping | [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md), [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) | Regulatory interpretation |
 | Article 14 Human oversight | [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md) | Regulatory interpretation |

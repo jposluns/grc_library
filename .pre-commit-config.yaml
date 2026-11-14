@@ -250,7 +250,7 @@ repos:
         types: [markdown]
 
       - id: regenerate-derived-artefacts
-        name: Regenerate taxonomy, narrative registry, portal, maturity scorecard, relationship model, and number-allocation block
+        name: Regenerate taxonomy, narrative registry, portal, maturity scorecard, relationship model, number-allocation block, and citation-publisher table
         entry: bash -c 'python3 .claude/skills/corpus-management/tools/build-taxonomy.py && python3 .claude/skills/corpus-management/tools/build-narrative-registry.py && python3 .claude/skills/corpus-management/tools/build-portal.py && python3 .claude/skills/corpus-management/tools/build-relationship-model.py && python3 .claude/skills/corpus-management/tools/build-todo-number-allocation.py && python3 .claude/skills/corpus-management/tools/build-citation-publishers.py'
         language: system
         pass_filenames: false

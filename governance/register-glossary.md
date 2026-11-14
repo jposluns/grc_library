@@ -2,8 +2,8 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.26\
-**Date:** 2026-11-06\
+**Version:** 1.4.27\
+**Date:** 2026-11-14\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md), [`README.md`](../README.md)\
@@ -141,6 +141,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **ERM** | Enterprise Risk Management. |
 | **ESG** | Environmental, Social, and Governance. |
 | **ESMA** | European Securities and Markets Authority. |
+| **ETSI** | European Telecommunications Standards Institute (per the EU AI Act, Regulation (EU) 2024/1689, Article 67(5), which the amending Regulation (EU) 2026/1744 leaves unchanged). Publishes EN 304 223 (baseline cyber security requirements for AI models and systems) and the Securing Artificial Intelligence (SAI) reports. See [`ai/matrix-etsi-sai-baseline-alignment.md`](../ai/matrix-etsi-sai-baseline-alignment.md). |
 
 ## F
 

@@ -2,8 +2,8 @@
 
 **Document Title:** United States HIPAA Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.4\
-**Date:** 2026-10-26\
+**Version:** 0.0.5\
+**Date:** 2026-11-14\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/healthcare/README.md`](README.md), [`compliance/healthcare/annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md), [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](procedure-hipaa-operational-compliance.md), [`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This annex describes how an organization subject to the US Health Insurance Portability and Accountability Act (HIPAA) can use the core GRC library to meet HIPAA's operational obligations, and where HIPAA requires artefacts and processes the library does not itself produce. It deepens the sector-generic [healthcare annex](annex-healthcare-sector-requirements.md) into a rule-by-rule operational view: role determination, the Security Rule safeguard families, the Privacy Rule use-and-disclosure core, the Breach Notification Rule mechanics and timelines, the enforcement and penalty structure, and the mapping of these obligations to library documents through the NIST SP 800-66r2 implementation crosswalk.
+This annex describes how an organization subject to the US Health Insurance Portability and Accountability Act (HIPAA) can use the core GRC library to meet HIPAA's operational obligations, and where HIPAA requires artefacts and processes the library does not itself produce. It deepens the sector-generic [healthcare annex](annex-healthcare-sector-requirements.md) into a rule-by-rule operational view: role determination, the Security Rule safeguard families, the Privacy Rule use-and-disclosure core, the Breach Notification Rule mechanics and timelines, the enforcement and penalty structure, and the mapping of the Security Rule safeguards to library documents through the NIST SP 800-66r2 implementation crosswalk, which addresses only the Security Rule and does not directly address the Privacy, Breach Notification or Enforcement Rules.
 
 This annex does not reproduce the text of 45 CFR Parts 160, 162, and 164, the HHS Office for Civil Rights (OCR) guidance, or the NIST SP 800-66r2 crosswalk tables. Adopting organizations consume those from the official source. The annex cites obligations by their regulatory section identifier so a reader can locate the controlling text.
 

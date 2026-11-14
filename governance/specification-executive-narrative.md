@@ -2,11 +2,11 @@
 
 **Document Title:** Executive Narrative Authoring Specification\
 **Document Type:** Specification\
-**Version:** 0.2.1\
-**Date:** 2026-11-12\
+**Version:** 0.2.2\
+**Date:** 2026-11-14\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`governance/specification-master-project.md`](specification-master-project.md), [`governance/specification-ingestion.md`](specification-ingestion.md), [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md)\
+**Related Documents:** [`governance/specification-master-project.md`](specification-master-project.md), [`governance/specification-ingestion.md`](specification-ingestion.md), [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/template-executive-narrative-subtypes.md`](template-executive-narrative-subtypes.md)\
 **Classification:** Public\
 **Category:** Core Governance\
 **Review Frequency:** Annual and upon material change to the narrative layer, its metadata model, its subtype set, or its gate wiring\

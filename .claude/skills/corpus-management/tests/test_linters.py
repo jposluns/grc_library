@@ -43212,12 +43212,12 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F 200e0b5aed213ebc6d3cad364dbaf5e12492e008860495ec542f4ac82e1c1d22
+        README.md DATA F 67fe21d3b7f132009e1e6e14899a090f897ede778d89cea59053ca2f3e20ced7
         adopt-bootstrap-ref.py OWN F ec19e2c45233ad02ca422349c0778a3c17463e6fc23fe9bf0591d822ac8d531c
         adopt-preflight-guard.py FIXED F 73ab980af0fa53c8a485af18b7bdaee1b7bfef218c37982593e30c66d7f85f66
         aiqt_bootstrap.py PASSIVE F bc5496de79c394e76703b34380bfc1bbb9ae1a8c489aa719d0a75344d3c915dc
         aiqt_rules.py NO_FS F 12ff72ec1a760d5dc960e765db902ea0e4289959202385513ed8a1516130e5b3
-        alignment-register-aliases.json DATA F 711044f7395cbd1a8d714e627e035783f3235c8a751e7f7f6c0dc5e02bbc5613
+        alignment-register-aliases.json DATA F 7d9b0be1db9dcc1f81870c96309e2837cdf7da6fc16a78ea4f4b4ccca4e7b7e8
         alignment-register-exclusions.json DATA F 391924062319d3d5a618b1750b37dec6c0ee0c0d21b77b26518b16e51a418f19
         alignment_citation_ids.json DATA F d0b0715098bebee865866404e4045980625b3f6e2b42ccf4b91c8b7d620e60ac
         alignment_citation_reference.py PASSIVE F 06b70dfa9cff225ff5d5ddce6e46f556ec8ce7400d5e77acebbab846ef311cd0
@@ -43251,6 +43251,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-generated-commit.py NO_FS F a15e3235cc5ab50f0d3473efcfd05b56741f602ecbae59fd92b79ca1ee7f19e1
         check-narrative-corpus-mixed-diff-on-pr.py NO_FS F 3260adf3c9d26de4dd19d6414c39d893bbe78ba336c96e31eefccbb4cae9e7da
         check-portability.sh FIXED F 53ce8fd609c5f99cfff314dda4641f02d2a99136cba2f0e2b1d76c8e612c1538
+        check-pr-attribution.py OWN F 8c05f4d1521d9b854e701cd460ac2b4ca864c7cd590c1cc4935040a1a9fb8784
         check-retired-section-orphan-on-pr.py NO_FS F 0d710f974f62cd7b1cf9e80d7b8b03ce51f05784c34e6ead05db22f157d5428b
         check-review-cadence.py ROOT F bcd4b92ee9be87833a2905a2f9aea484fec84520c85ff1aa07e85aff956b0cc1
         check-stranded-control-code-on-pr.py NO_FS F d0631b2fca128c3457f87029e56a252e20e4be701148cc2e171c2d6cbe051b37
@@ -43260,7 +43261,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-version-bump-on-pr.py NO_FS F c0aaefac08a658834846417e1049dd17cdec4caae3224914fcb64c863a8b2ad1
         citation_publishers.py PASSIVE F 8f367f75830d8b235e1019615b4e876c0ee562c6c5819e4bf4118325f1bb5dff
         cobit_iso31000_reference.py PASSIVE F 396aa674262ec1a794c27adb7ce50f8b2adbfe863eec66e7845a45a07fbd2c61
-        gate-scope-manifest.json DATA F 71838bc8243fe92e1f13b1b53464760447eb5f4d718613aa9ee8bd0d5516cf57
+        gate-scope-manifest.json DATA F 7c109a7b0898253bcf0a19c80f6da07ca6e532274661dd7d51c494b1ad7afe16
         git-hooks/commit-msg MESSAGE F 64510e0d473663d37e6416287e8edce7b4043619e64fea8c5cb2a82200a5ab97
         git-hooks/pre-commit FIXED F 5e576c5bf6bab147625b27fa4875aa6b9b292f68292ca0085de3fa29bf387ecb
         git-hooks/pre-push TRANSPORT F a7e4da49d2f18e10ab2f88f31bf5264485486bd206f77aed0ed68c63bbb59a33
@@ -43272,7 +43273,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-aiqt-vendor-digest.py NO_FS F 49f26e0c53d3c6c5b88c455204bec8a092ddca252890e189f4dc988baf0e7c8d
         lint-alignment-citation-existence.py CWD F e7792b9664730a6b542285fa654de20ec9d39af7aa6cb553813ff2efa865152c
         lint-allowlist-spec-parity.py NO_FS F e8f452096456f55cd880fdb79b01ac18cadbcbfc966b67e1ab9b9ef43e8ea1db
-        lint-audit-gate-parity.py OWN F ec6314a8a36fd1e145dad84c209323407f3d380f756a466ee48f00cc208f28e9
+        lint-audit-gate-parity.py OWN F be641875ea2914ae89f9098149176e64529a8722e3fa33cec3856094996ed572
         lint-audit-spec-detailed-prose.py OWN F 49ba119b94f997b1c35560dab6087ef16c936a09c02a84f3fa02a1925412e390
         lint-bare-normative-shall.py ROOT F 0de8d8f46a8d953aa02ca38c8b86d8f08a5c642e1b900483f3008c2c3983e203
         lint-baseline-pin.py OWN F 33cbe14512f04fb1da1c9c0a44e53ecaef7e618968e8314a48b812b30595035a
@@ -84613,6 +84614,218 @@ class BaselinePinLinterTests(LinterTestCase):
         pinned bytes (the gate's default-root contract)."""
         result = run_linter(self.SCRIPT)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+
+class PrAttributionCheckTests(LinterTestCase):
+    """.claude/skills/corpus-management/tools/check-pr-attribution.py and its workflow.
+
+    The check refuses a pull request whose title or body carries AI-assistant
+    attribution (Claude/Anthropic). .github/workflows/pr-attribution.yml runs it
+    on pull_request (opened, edited, synchronize, reopened) and the tool reads the
+    title and body from the event payload. These tests pin its refusal and pass
+    cases on each input form, its exit codes, its self-test, the workflow wiring
+    and its inventory pin.
+    """
+
+    SCRIPT = ".claude/skills/corpus-management/tools/check-pr-attribution.py"
+    WORKFLOW = ".github/workflows/pr-attribution.yml"
+    JOB_NAME = "PR attribution (title and body)"
+    RUN = "python3 .claude/skills/corpus-management/tools/check-pr-attribution.py"
+    GEN = "Generated with [Claude Code](https://claude.com/claude-code)"
+
+    def _tool(self) -> Path:
+        tool = _resolve_path(self.SCRIPT)
+        self.assertTrue(tool.is_file(), f"{self.SCRIPT} is missing")
+        return tool
+
+    def _run(self, *args, env=None) -> subprocess.CompletedProcess:
+        return subprocess.run([sys.executable, str(self._tool()), *map(str, args)],
+                              cwd=str(REPO_ROOT), capture_output=True, text=True,
+                              timeout=60, env=env)
+
+    @staticmethod
+    def _event(base: Path, name: str, event) -> Path:
+        path = base / (name + ".json")
+        path.write_text(json.dumps(event), encoding="utf-8")
+        return path
+
+    # The tool's own self-test case count: the 37 entries of the cases list plus the five
+    # event cases in self_test() of check-pr-attribution.py (it reports len(cases) + 5). The
+    # tool does not expose its case lists, so this is a literal; change it with those lists.
+    SELF_TEST_CASES = 42
+
+    def test_self_test_passes(self) -> None:
+        result = self._run("--self-test")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        summary = re.findall(r"(?m)^self-test: (\d+)/(\d+) passed$", result.stdout)
+        self.assertEqual(len(summary), 1, result.stdout)
+        passed, total = map(int, summary[0])
+        # A self-test that ran no cases ('0/0', or a summary whose total is a fixed
+        # addend) must not pass: the count is the tool's own and every case printed PASS.
+        self.assertGreater(total, 0, result.stdout)
+        self.assertEqual((passed, total), (self.SELF_TEST_CASES, self.SELF_TEST_CASES),
+                         result.stdout)
+        self.assertEqual(len(re.findall(r"(?m)^PASS: ", result.stdout)), self.SELF_TEST_CASES,
+                         result.stdout)
+        self.assertNotRegex(result.stdout, r"(?m)^FAIL: ")
+
+    def test_deeply_nested_event_is_malformed_input(self) -> None:
+        """An event JSON nested past the parser's recursion limit is malformed input: the
+        tool prints its own ERROR line and exits 2 (its documented code), never a traceback.
+        The nesting sits under a key the tool ignores, beside a clean title and body, so a
+        host whose stack let the parse succeed would exit 0 and fail here: the test passes
+        only through the recursion path, and it asserts that path's own message."""
+        base = self._fixture_base("pr-attribution-deep-")
+        path = base / "deep.json"
+        self.assertFalse(path.resolve().is_relative_to(REPO_ROOT.resolve()), path)
+        depth = 200000
+        path.write_text('{"pull_request": {"title": "t", "body": "Plain body.", "ignored": '
+                        + "[" * depth + "]" * depth + "}}", encoding="utf-8")
+        result = self._run("--event", path)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr[-2000:])
+        self.assertNotIn("Traceback", result.stderr)
+        self.assertNotIn("OK: ", result.stdout)
+        self.assertIn(f"ERROR: {path}: the event JSON is nested too deeply to parse\n",
+                      result.stderr)
+
+    def test_event_payload_refusal_and_pass_cases(self) -> None:
+        base = self._fixture_base("pr-attribution-event-")
+        trailer = "Co-Authored-By: Claude <noreply@anthropic.com>"
+        for name, event, rc in (
+            ("dirty-body", {"pull_request": {"title": "t", "body": "x\n\n" + self.GEN}}, 1),
+            ("dirty-title", {"pull_request": {"title": "t " + self.GEN, "body": ""}}, 1),
+            ("trailer-body", {"pull_request": {"title": "t", "body": "Body.\n\n" + trailer}}, 1),
+            ("clean", {"pull_request": {"title": "t", "body": "claude SHIP; CLAUDE.md"}}, 0),
+            ("null-body", {"pull_request": {"title": "t", "body": None}}, 0),
+            ("not-a-pr", {"issue": {}}, 2),
+            ("absent-body", {"pull_request": {"title": "t"}}, 2),
+            ("non-string-title", {"pull_request": {"title": 5, "body": ""}}, 2),
+            ("non-string-body", {"pull_request": {"title": "t", "body": []}}, 2),
+        ):
+            with self.subTest(name=name):
+                result = self._run("--event", self._event(base, name, event))
+                self.assertEqual(result.returncode, rc, name + ": " + result.stdout + result.stderr)
+                self.assertNotIn("Traceback", result.stderr)
+                if rc == 0:
+                    self.assertIn("OK: no Claude/Anthropic attribution", result.stdout)
+                elif rc == 1:
+                    self.assertRegex(result.stderr, r"(?m)^FAIL: PR (title|body) line \d+: ")
+                else:
+                    self.assertRegex(result.stderr, r"(?m)^ERROR: ")
+        for name, path in (("absent file", base / "absent.json"), ("not JSON", base / "bad.json")):
+            with self.subTest(name=name):
+                if name == "not JSON":
+                    path.write_text("{not json", encoding="utf-8")
+                result = self._run("--event", path)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertNotIn("Traceback", result.stderr)
+
+    def test_github_event_path_is_the_default_input(self) -> None:
+        base = self._fixture_base("pr-attribution-env-")
+        dirty = self._event(base, "dirty", {"pull_request": {"title": "t", "body": self.GEN}})
+        clean = self._event(base, "clean", {"pull_request": {"title": "t", "body": "Plain body."}})
+        env = {k: v for k, v in os.environ.items() if k != "GITHUB_EVENT_PATH"}
+        for path, rc in ((dirty, 1), (clean, 0)):
+            with self.subTest(path=path.name):
+                result = self._run(env={**env, "GITHUB_EVENT_PATH": str(path)})
+                self.assertEqual(result.returncode, rc, result.stdout + result.stderr)
+        unset = self._run(env=env)
+        self.assertEqual(unset.returncode, 2, unset.stdout + unset.stderr)
+        self.assertIn("GITHUB_EVENT_PATH is unset", unset.stderr)
+
+    def test_text_file_refusal_and_pass_cases(self) -> None:
+        base = self._fixture_base("pr-attribution-text-")
+        clean = base / "clean.md"
+        clean.write_text("Adds a check.\n\nEdits .claude/CLAUDE.md; claude SHIP.\n", encoding="utf-8")
+        dirty = base / "dirty.md"
+        dirty.write_text("Adds a check.\n\n" + self.GEN + "\n", encoding="utf-8")
+        ok = self._run("--text-file", clean)
+        self.assertEqual(ok.returncode, 0, ok.stdout + ok.stderr)
+        fail = self._run("--text-file", dirty)
+        self.assertEqual(fail.returncode, 1, fail.stdout + fail.stderr)
+        self.assertIn("FAIL: PR body line 3: ", fail.stderr)
+        missing = self._run("--text-file", base / "absent.md")
+        self.assertEqual(missing.returncode, 2, missing.stdout + missing.stderr)
+        self.assertNotIn("Traceback", missing.stderr)
+
+    def test_only_documented_argument_forms_accepted(self) -> None:
+        base = self._fixture_base("pr-attribution-argv-")
+        text = base / "body.md"
+        text.write_text("Plain PR body.\n", encoding="utf-8")
+        for args in (("--text-file", text, "--stray"), ("--stray",), ("--event",),
+                     ("--event", "--self-test"), ("--text-file", "--self-test"),
+                     ("--self-test", "--stray")):
+            with self.subTest(args=args):
+                result = self._run(*args)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn("usage", result.stderr.lower())
+                self.assertNotIn("Traceback", result.stderr)
+
+    def test_refused_and_accepted_text_shapes(self) -> None:
+        self._tool()
+        mod = load_linter_module(self.SCRIPT, "_pr_attribution_shapes")
+        for text, expect in (
+            ("Generated by Claude Code", True), ("Generated\nwith Claude Code", True),
+            ("Co-Authored-By: Claude <noreply@anthropic.com>", True),
+            ("see https://claude.ai/code/session_x", True),
+            ("Generated with [Claude Code](https://claude.com/claude-code)", True),
+            ("governance/portal.md is generated with build-portal.py (claude SHIP)", False),
+            ("Generated with CLAUDE.md as the fixture", False),
+            ("Generated with **Claude Code**", True), ("Generated by the Claude app", True),
+            ("Generated by _Claude_", True), ("Generated by Claude-3.5-Sonnet", True),
+            ("Generated with _CLAUDE.md_ as the fixture", False),
+            ("Generated by [Claude][1]", True), ("Generated by Claude_Code", True),
+            ("Co-Authored-By: Claude_Bot <bot@example.org>", True),
+            ("**Co-Authored-By**: Claude Code <bot@example.org>", True),
+            ("Generated with C**laud**e", True),
+            ("[Generated with](https://example.org/t) Claude Code", True),
+            ("Generated by [C**laud**e][1]", True), ("Generated with C**laud**e_Code", True),
+            ("Generated with [CLAUDE.md][1] as the fixture.", False),
+            ("the Claude-family verifier returned HOLD", False),
+        ):
+            with self.subTest(text=text):
+                self.assertEqual(bool(mod.findings(text)), expect, text)
+
+    def test_workflow_runs_the_tool_on_pull_request(self) -> None:
+        path = _resolve_path(self.WORKFLOW)
+        self.assertTrue(path.is_file(), f"{self.WORKFLOW} is missing")
+        wf = path.read_text(encoding="utf-8")
+        self.assertEqual(re.findall(r"(?m)^([a-z][a-z_-]*):", wf),
+                         ["name", "on", "permissions", "jobs"])
+        self.assertIn("\non:\n  pull_request:\n    types: [opened, edited, synchronize, reopened]\n\n",
+                      wf)
+        self.assertIn("\npermissions:\n  contents: read\n", wf)
+        jobs = wf.split("\njobs:\n", 1)[1]
+        self.assertEqual(re.findall(r"(?m)^  ([^ \n][^:\n]*):", jobs), ["pr-attribution"])
+        self.assertEqual(re.findall(r"(?m)^    name: (.+)$", jobs), [self.JOB_NAME])
+        self.assertEqual(re.findall(r"(?m)^\s+run: (.+)$", wf), [self.RUN])
+        # Every action is pinned by a full commit SHA with a version comment, the same
+        # pins the repository's other pull-request workflow uses.
+        uses = re.findall(r"(?m)^\s+(?:- )?uses: (.+)$", wf)
+        self.assertTrue(uses)
+        for value in uses:
+            self.assertRegex(value, r"^[\w.-]+/[\w.-]+@[0-9a-f]{40} # v\d[\w.]*$")
+        quality = _resolve_path(".github/workflows/quality.yml").read_text(encoding="utf-8")
+        self.assertLessEqual(set(uses), set(re.findall(r"(?m)^\s+(?:- )?uses: (.+)$", quality)))
+        # The pull request text is read from the event file, never interpolated.
+        self.assertNotIn("${{", wf)
+        self.assertNotIn("pull_request_target", wf)
+        self.assertNotRegex(wf, r"(?m)^\s*if:", "no job or step may be conditionally skipped")
+        self.assertNotIn("continue-on-error", wf)
+        self.assertNotIn("check-pr-attribution.py", quality)
+        self._tool()
+
+    def test_inventory_pin_and_scope_class(self) -> None:
+        data = self._tool().read_bytes()
+        rows = ExplicitPathCliInventoryTests._rows(ExplicitPathCliInventoryTests.INVENTORY, 4)
+        self.assertIn("check-pr-attribution.py", rows)
+        policy, mode, digest = rows["check-pr-attribution.py"]
+        self.assertEqual(policy, "OWN")
+        self.assertEqual((mode, digest),
+                         ExplicitPathCliInventoryTests._pin("check-pr-attribution.py", data))
+        manifest = json.loads(_resolve_path("tools/gate-scope-manifest.json").read_text(
+            encoding="utf-8"))
+        self.assertIn("check-pr-attribution.py", manifest["classes"]["operational-meta"])
 
 
 if __name__ == "__main__":
