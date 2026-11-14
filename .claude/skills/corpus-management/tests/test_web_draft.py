@@ -17947,7 +17947,7 @@ class SiteReviewFixRound2Tests(unittest.TestCase):
         this project's website inside an adopter-facing document; the sentence
         is replaced by a neutral pointer to the cross-framework matrix, and the
         Version carries two PATCH bumps (1.12.8 to 1.12.10) and one for each
-        later change to the matrix (1.12.11 to 1.12.18)."""
+        later change to the matrix (1.12.11 to 1.12.21)."""
         text = (REPO_ROOT / "compliance" /
                 "matrix-grc-compliance-alignment.md"
                 ).read_text(encoding="utf-8")
@@ -17958,7 +17958,7 @@ class SiteReviewFixRound2Tests(unittest.TestCase):
                       "the [Cross-Framework Alignment Matrix]"
                       "(../governance/matrix-cross-framework-alignment.md).",
                       text)
-        self.assertIn("**Version:** 1.12.18\\\n", text)
+        self.assertIn("**Version:** 1.12.21\\\n", text)
 
     def test_quick_reference_purpose_matches_its_exception_rows(self):
         """In the earlier repository, the Purpose said "the absolute
@@ -18048,7 +18048,7 @@ class SiteReviewFixRound3Tests(unittest.TestCase):
         had no row; the Purpose now says it maps "the GRC library documents it
         lists". That fix carries a PATCH bump (1.12.10 to 1.12.11) with the
         Date kept, and each later change to the matrix carries another; the
-        Version is 1.12.18 and the Date 2026-11-12."""
+        Version is 1.12.21 and the Date 2026-11-14."""
         text = (REPO_ROOT / "compliance" /
                 "matrix-grc-compliance-alignment.md"
                 ).read_text(encoding="utf-8")
@@ -18057,8 +18057,8 @@ class SiteReviewFixRound3Tests(unittest.TestCase):
                       "to the control domains and section references of "
                       "ten compliance, security, assurance, and AI-control "
                       "frameworks, so a reader can trace", text)
-        self.assertIn("**Version:** 1.12.18\\\n", text)
-        self.assertIn("**Date:** 2026-11-12\\\n", text)
+        self.assertIn("**Version:** 1.12.21\\\n", text)
+        self.assertIn("**Date:** 2026-11-14\\\n", text)
 
 
 class BaselinePinGateTests(unittest.TestCase):
@@ -19918,7 +19918,7 @@ class ProgrammeClaimsTests(unittest.TestCase):
     a form feed or a Unicode line separator inside a line does not start a
     new one.
 
-    The class has 77 tests: 64 corpus regression tests, 7 self-checks and
+    The class has 78 tests: 65 corpus regression tests, 7 self-checks and
     6 held-source consistency checks.
 
     The corpus regression tests read the corpus files directly (no site
@@ -20475,6 +20475,58 @@ class ProgrammeClaimsTests(unittest.TestCase):
         self.assertNotIn("substantively equivalent",
                          "\n".join(self._lines(self.IT_REGISTER)))
 
+    # The CTPAT IT register's IT-6 row. BASC International Security
+    # Standard 6.0.3 clause 3.2.2 (lines 354 to 356): "The company must
+    # establish and maintain a documented annual training program / to make
+    # personnel aware of their responsibility to recognize potential
+    # security / vulnerabilities related to the BASC CSMS, including at
+    # least:", with "Prevention of cybercrimes." among its items (line 371).
+    # The held CTPAT job aid sets no frequency: line 54 offers "Upon Hire /
+    # Semi-Annually / Annually / Only on Cause / Other" as checklist answers.
+    _IT_6_BASC = (
+        "For its own programme, BASC International Security Standard 6.0.3 "
+        "requires the company to \"establish and maintain a documented "
+        "annual training program to make personnel aware of their "
+        "responsibility to recognize potential security vulnerabilities "
+        "related to the BASC CSMS\", covering, among other items, "
+        "\"Prevention of cybercrimes\" (clause 3.2.2); that annual training "
+        "is BASC's requirement, not a CTPAT one.")
+    _IT_6_FREQUENCY = (
+        "The held CTPAT job aid sets no training frequency (it lists upon "
+        "hire, semi-annually, annually, only on cause and other as checklist "
+        "answers), so the frequency of this training for CTPAT is left to "
+        "the organization's own training programme.")
+
+    def test_ctpat_it_register_it_6_annual_training_is_basc_only(self):
+        """In the earlier repository, the CTPAT IT register's IT-6 row
+        paraphrased BASC 6.0.3 clause 3.2.2 as training "to make personnel
+        aware of security vulnerabilities related to the BASC CSMS",
+        dropping the clause's "their responsibility to recognize
+        potential", and its Implementation Evidence cell asked for "annual
+        security awareness attestations" while the row leaves the CTPAT
+        frequency to the organization's own programme. The row now quotes
+        the clause and calls its annual training BASC's own requirement,
+        not a CTPAT one, and the Evidence cell sets no annual requirement;
+        no held CTPAT text states one."""
+        # The criteria table's row; the BASC alignment table's IT-6 row
+        # starts "| IT-6 | BASC:".
+        rows = [line for line in self._lines(self.IT_REGISTER)
+                if line.startswith("| IT-6 | **Cyber Threat Awareness "
+                                   "Training**:")]
+        self.assertEqual(len(rows), 1, rows)
+        row = rows[0]
+        self.assertEqual(row.count(self._IT_6_BASC), 1)
+        self.assertEqual(row.count(self._IT_6_FREQUENCY), 1)
+        self.assertNotIn("aware of security vulnerabilities", row)
+        cells = [cell.strip() for cell in row.split("|")]
+        self.assertEqual(cells[4], "Training completion reports; security "
+                                   "awareness attestations")
+        # Outside the BASC sentence and the job aid's list of answers, the
+        # row names no annual requirement.
+        rest = row.replace(self._IT_6_BASC, "").replace(
+            self._IT_6_FREQUENCY, "")
+        self.assertNotRegex(rest, r"(?i)annual")
+
     # The search results the comment above _SUPPLY_CHAIN_NEEC_CTPAT
     # reports, as claims checked against the held Compendium: the generic
     # phrase "certified companies" is on these lines, and no line names the
@@ -20739,15 +20791,19 @@ class ProgrammeClaimsTests(unittest.TestCase):
         AEO Compendium" as the AEO-S key reference, and the class-wide
         search found the MSC register's "HMRC AEO Compendium application
         documentation". The AEO Compendium is a WCO publication; the matrix
-        now cites the HMRC handbook the library holds."""
+        now cites the HMRC handbook the library holds. The key reference
+        then named only section 11, though the matrix also relies on the
+        record keeping criterion; it now names section 8 as well."""
         found = [f"{rel}: {line[:60]}" for rel, line in self._corpus_lines()
                  if "HMRC AEO Compendium" in line]
         self.assertEqual(found, [])
         self.assertIn(
-            "| AEO-S (UK) | HMRC: https://www.gov.uk/guidance/apply-for-"
-            "authorised-economic-operator-status | UK HMRC AEO security and "
+            "| AEO-S (UK) | HMRC: https://www.gov.uk/guidance/authorised-"
+            "economic-operator-certification | UK HMRC AEO security and "
             "safety "
-            "criteria handbook (Customs Technical Handbook, section 11) |",
+            "criteria handbook (Customs Technical Handbook, section 11); UK "
+            "HMRC AEO record keeping criterion (Customs Technical Handbook, "
+            "section 8) |",
             self._lines(self.SUPPLY_MATRIX))
 
     # -- class-wide search: settled reuse and recognition in changed files.
@@ -20836,10 +20892,22 @@ class ProgrammeClaimsTests(unittest.TestCase):
         """In the earlier repository, the compliance matrix's column key,
         and the build's pin of it, wrote "Authorized Economic Operator
         (Security and Safety)", a second AEO-S form. Both now give the
-        single expansion."""
+        single expansion. The row then called the whole column IT
+        scoping, though its cells carry non-IT areas; it now gives the
+        scoping in IT and non-IT areas and the record keeping heading
+        8.10 Protection of computer systems (held record keeping line
+        152). The row then read as saying the handbook both names and
+        does not name an information systems area; it now says the
+        section 11 headings name none and the computer systems heading is
+        under the record keeping criterion."""
         mod = _load_build()
-        row = (f"| AEO/AEO-S | UK HMRC {self._AEO_S_EXPANSION} | Requirement "
-               "area headings |")
+        row = (f"| AEO/AEO-S | UK HMRC {self._AEO_S_EXPANSION} | The "
+               "organization's own scoping of the HMRC criteria, in IT and "
+               "non-IT areas, not HMRC requirement area headings. The held "
+               "handbook's security and safety criteria headings (section "
+               "11, 11.1 to 11.17) name no information systems area; its "
+               "computer systems heading is under the record keeping "
+               "criterion, as 8.10 Protection of computer systems |")
         lines = self._lines(self.COMPLIANCE_MATRIX)
         self.assertEqual(lines.count(row), 1)
         self.assertIn(row, mod.CROSSWALK_TSC_SECTION_OPENING.split("\n"))
@@ -21099,10 +21167,20 @@ class ProgrammeClaimsTests(unittest.TestCase):
         "among the AEO-S criteria: appropriate information technology "
         "security measures to protect computer systems from unauthorized "
         "intrusion and to secure documentation and data (section 8.1), with "
-        "detail under back-up, recovery, fallback and archiving (section "
-        "8.9), protection of computer systems (section 8.10), access rights "
-        "procedures (section 8.11) and documentation security (section "
-        "8.12). Section 1.2 of this procedure gives the organization's "
+        "detail under back-up, recovery, fallback and archiving, where there "
+        "should be satisfactory procedures in place for archiving records and "
+        "information and for protection against the loss of information and "
+        "where the handbook says what those procedures should include "
+        "(section 8.9), protection of computer systems, where there should be "
+        "appropriate security measures and where the handbook lists actions "
+        "businesses should consider (section 8.10), access rights procedures, "
+        "where the handbook says what those procedures should include "
+        "(section 8.11) and documentation security, where businesses should "
+        "ensure that actions have been taken to protect information and "
+        "documents from unauthorized access, abuse, intended destruction and "
+        "loss, and where the handbook lists what those actions should "
+        "normally include (section 8.12). Section 1.2 of this procedure gives "
+        "the organization's "
         "mapping of its evidence areas to those sections; where no held "
         "section names a control, as with multi-factor authentication, this "
         "procedure treats it as the organization's own scoping of the "
@@ -21384,10 +21462,20 @@ class ProgrammeClaimsTests(unittest.TestCase):
         "lists among the AEO-S criteria: appropriate information technology "
         "security measures to protect computer systems from unauthorized "
         "intrusion and to secure documentation and data (section 8.1), with "
-        "detail under back-up, recovery, fallback and archiving (section "
-        "8.9), protection of computer systems (section 8.10), access rights "
-        "procedures (section 8.11) and documentation security (section "
-        "8.12). The mapping of each control below to those sections is the "
+        "detail under back-up, recovery, fallback and archiving, where there "
+        "should be satisfactory procedures in place for archiving records and "
+        "information and for protection against the loss of information and "
+        "where the handbook says what those procedures should include "
+        "(section 8.9), protection of computer systems, where there should be "
+        "appropriate security measures and where the handbook lists actions "
+        "businesses should consider (section 8.10), access rights procedures, "
+        "where the handbook says what those procedures should include "
+        "(section 8.11) and documentation security, where businesses should "
+        "ensure that actions have been taken to protect information and "
+        "documents from unauthorized access, abuse, intended destruction and "
+        "loss, and where the handbook lists what those actions should "
+        "normally include (section 8.12). The mapping of each control below "
+        "to those sections is the "
         "organization's own; where no held section names a control, as "
         "with multi-factor authentication and encryption, this annex treats "
         "it as the organization's own scoping of the criteria, to be "
@@ -21596,7 +21684,10 @@ class ProgrammeClaimsTests(unittest.TestCase):
             "safety criteria (UK HMRC AEO security and safety criteria "
             "handbook, section 11) and the record keeping criterion's IT "
             "security measures (HMRC Customs Technical Handbook (AEO), "
-            "sections 8.1 and 8.9 to 8.12), and recommends that the business "
+            "section 8.1), gives detail in sections 8.9 to 8.12 of that "
+            "handbook as what there should be, what procedures should "
+            "include, what businesses should consider or what actions should "
+            "normally include, and recommends that the business "
             "continue to self-assess its compliance with the conditions of "
             "the authorization (section 12.2), the held basis of this "
             "procedure; no held section names a self-assessment submission "
@@ -21633,8 +21724,15 @@ class ProgrammeClaimsTests(unittest.TestCase):
         "building and boundary security); for cargo units, procedures for "
         "how incidents are reported and recorded and what action is to be "
         "taken, including reporting to law enforcement or senior management "
-        f"(§11.12, cargo security); {_SECTION_12_4_CLAUSE}; the "
-        "organization maps these to IT incidents as its own scoping | "
+        f"(§11.12, cargo security); {_SECTION_12_4_CLAUSE}; under the record "
+        "keeping criterion, among what the handbook says actions should "
+        "normally include, dealing with incidents which compromise document "
+        "security and documented remedial action taken as a result of any "
+        "actual incidents if applicable (§8.12, documentation security), and "
+        "among the actions it says businesses should consider, logs where "
+        "each user and their actions are recorded (§8.10, protection of "
+        "computer systems), neither stated as a requirement; the organization "
+        "maps these to IT incidents as its own scoping | "
         "Candidate overlap, subject to HMRC acceptance; the HMRC notification "
         "(§12.4) is made on form C122, apart from any CBP notification |")
 
@@ -21690,7 +21788,15 @@ class ProgrammeClaimsTests(unittest.TestCase):
             "boundary security) and, for cargo units, incident reporting and "
             "recording and the action to be taken, including reporting to law "
             "enforcement or senior management (§11.12, cargo security); "
-            f"{self._SECTION_12_4_CLAUSE}; CBSA supplement needed |", rows[0])
+            f"{self._SECTION_12_4_CLAUSE}; under the record keeping "
+            "criterion, among what the handbook says actions should normally "
+            "include, dealing with incidents which compromise document "
+            "security and documented remedial action taken as a result of any "
+            "actual incidents if applicable (§8.12, documentation security), "
+            "and among the actions it says businesses should consider, logs "
+            "where each user and their actions are recorded (§8.10, "
+            "protection of computer systems), neither stated as a "
+            "requirement; CBSA supplement needed |", rows[0])
         self.assertNotIn("Incident reporting to HMRC", text)
         self.assertNotIn("HMRC submission guidance", text)
 
@@ -21721,8 +21827,19 @@ class ProgrammeClaimsTests(unittest.TestCase):
             "appropriate information technology security measures to protect "
             "computer systems from unauthorized intrusion and to secure "
             "documentation and data, with detail in §8.9 to §8.12: back-up, "
-            "recovery, fallback and archiving, protection of computer "
-            "systems, access rights procedures and documentation security), "
+            "recovery, fallback and archiving, where there should be "
+            "satisfactory procedures in place for archiving records and "
+            "information and for protection against the loss of information "
+            "and where the handbook says what those procedures should include "
+            "(§8.9), protection of computer systems, where there should be "
+            "appropriate security measures and where the handbook lists "
+            "actions businesses should consider (§8.10), access rights "
+            "procedures, where the handbook says what those procedures should "
+            "include (§8.11) and documentation security, where businesses "
+            "should ensure that actions have been taken to protect "
+            "information and documents from unauthorized access, abuse, "
+            "intended destruction and loss, and where the handbook lists what "
+            "those actions should normally include (§8.12)), "
             "against "
             "HMRC's notification of changes (handbook §12.4), which names "
             "disclosure of security incidents and changes to accounting or "
@@ -21823,8 +21940,9 @@ class ProgrammeClaimsTests(unittest.TestCase):
         ("Access control: least privilege",
          "least privilege, since access rights procedures should include how "
          "authorization for access is issued and the level of access to the "
-         "computer systems, with access to sensitive information limited to "
-         "staff authorized to apply changes and additions to it (§8.11), but "
+         "computer systems, with access to sensitive information that the "
+         "handbook says should be limited to staff authorized to apply "
+         "changes and additions to it (§8.11), but "
          "no held section states least privilege;"),
         ("Network security (firewall, IDS)",
          "network security, since firewalls are named among the security "
@@ -21872,9 +21990,10 @@ class ProgrammeClaimsTests(unittest.TestCase):
         Business Continuity cell, an uncited ~, cites the same sections with
         its reason in the lead-in. Least privilege was ✓ (§8.11), but section
         8.11 (lines 164 and 165) asks how authorization for access is issued
-        and the level of access, with access to sensitive information limited
-        to authorized staff, and no held section names least privilege; the
-        row keeps its name and is ~ (§8.11). Security awareness training ~
+        and the level of access, with access to sensitive information that it
+        says should be limited to staff authorized to apply changes and
+        additions to it, and no held section names least privilege; the row
+        keeps its name and is ~ (§8.11). Security awareness training ~
         (§11.15) rests on security and safety training (held security line
         163), not IT security awareness, and Network security ~ (§8.10) on
         firewalls (record keeping lines 153 and 158) with no intrusion
@@ -21961,8 +22080,8 @@ class ProgrammeClaimsTests(unittest.TestCase):
         self.assertEqual(self._matrix_cell("| **Business Continuity** |", 3),
                          "~ (§8.9, §8.10, §8.12)")
         self.assertIn(
-            "The back-up, recovery, fallback and archiving section asks for "
-            "satisfactory procedures for archiving records and information "
+            "The back-up, recovery, fallback and archiving section says there should be "
+            "satisfactory procedures in place for archiving records and information "
             "and for protection against the loss of information (§8.9), which "
             "is not business continuity, and a business continuity or "
             "disaster recovery plan is among the actions businesses should "
@@ -22942,7 +23061,10 @@ class ProgrammeClaimsTests(unittest.TestCase):
         and 8.9 to 8.12) as the held provisions nearest to the IT rows they
         cover, and section 12.2's recommended continuing self-assessment as
         the one nearest to the self-assessment row; no held section names an
-        annual cycle or multi-factor authentication."""
+        annual cycle or multi-factor authentication. The section 8.10 items
+        it listed read as named requirements; it now gives them as the
+        actions the handbook says businesses should consider (held record
+        keeping line 154)."""
         purpose = self._section_lines(self.GAP_TEMPLATE, "## Purpose")
         self.assertIn(
             "The Programme Source column names the programmes whose "
@@ -22962,14 +23084,20 @@ class ProgrammeClaimsTests(unittest.TestCase):
             "among the AEO-S criteria, asks for appropriate information "
             "technology security measures to protect computer systems from "
             "unauthorized intrusion and to secure documentation and data "
-            "(section 8.1), with detail under back-up, recovery, fallback and "
-            "archiving (section 8.9), protection of computer systems, naming "
-            "firewalls, anti-virus and other malware protection, a business "
-            "continuity or disaster recovery plan, back-up routines, logs of "
-            "each user and their actions and periodic vulnerability "
-            "management (section 8.10), access rights procedures, including "
-            "the format for setting passwords (section 8.11), and "
-            "documentation security (section 8.12); those sections are the "
+            "(section 8.1), with detail, which the record keeping section "
+            "states not as a requirement but as what there should be, what "
+            "procedures should include, what businesses should consider or "
+            "what actions should normally include, under back-up, recovery, "
+            "fallback and archiving (section 8.9), protection of computer "
+            "systems, where the actions it says businesses should consider "
+            "name firewalls, anti-virus and other malware protection, a "
+            "business continuity or disaster recovery plan, back-up "
+            "routines, logs of each user and their actions and periodic "
+            "vulnerability management (section 8.10), access rights "
+            "procedures, where the format for setting passwords is among "
+            "what it says those procedures should include (section 8.11), "
+            "and documentation security (section 8.12); those sections are "
+            "the "
             "held provisions nearest to the access control, vulnerability "
             "management, network and firewall, business continuity and IT "
             "recovery, and audit logging rows, and no held section names "
@@ -24047,6 +24175,14 @@ class ProgrammeClaimsTests(unittest.TestCase):
                          "contracts"),
         (HELD_HMRC, 143, "The business’s’ requirements"),
         (CTPAT_CHECKLIST, 4, "US Customs and Border Protection, CTPAT"),
+        (CTPAT_CHECKLIST, 54, "If so, how often: Upon Hire / Semi-Annually / "
+                              "Annually / Only on Cause / Other"),
+        (BASC_603, 354, "3.2.2 The company must establish and maintain a "
+                        "documented annual training program"),
+        (BASC_603, 355, "to make personnel aware of their responsibility to "
+                        "recognize potential security"),
+        (BASC_603, 356, "vulnerabilities related to the BASC CSMS"),
+        (BASC_603, 371, "Prevention of cybercrimes."),
     )
 
     def test_cited_held_lines_carry_their_text(self):
@@ -24130,19 +24266,22 @@ class ProgrammeClaimsTests(unittest.TestCase):
     # Retention now rests on section 8.1's "procedures in place to archive
     # and retrieve records and information" (held record keeping line
     # 25) and section 8.9 (lines 149 to 151), and the IT scope names the
-    # section 8 headings it maps to.
+    # section 8 headings it maps to, with the handbook's framing of the
+    # section 8.10 and 8.12 items (held record keeping lines 154 and 170).
     _UK_ANNEX_SCOPE = (
         "This document addresses only the organization's IT and "
         "cybersecurity controls for the computer system area (section 11.2) "
         "and for the record keeping criterion's IT security measures "
         "(section 8.1), mapped by the organization to access rights "
-        "procedures (section 8.11), protection of computer systems, which "
-        "names firewalls, anti-virus and other malware protection, back-up "
+        "procedures (section 8.11), protection of computer systems, where "
+        "the actions the handbook says businesses should consider name "
+        "firewalls, anti-virus and other malware protection, back-up "
         "routines, user logs and periodic vulnerability management (section "
         "8.10), back-up, recovery, fallback and archiving (section 8.9) and "
-        "documentation security, which names dealing with incidents which "
-        "compromise document security and testing systems against "
-        "unauthorized access (section 8.12); for personnel screening for IT "
+        "documentation security, where it says actions should normally "
+        "include dealing with incidents which compromise document security "
+        "and testing systems against unauthorized access (section 8.12), "
+        "neither list stated as a requirement; for personnel screening for IT "
         "access (section 11.7); and for records retention, which it scopes "
         "from the record keeping criterion's procedures to archive and "
         "retrieve records and information (sections 8.1 and 8.9), no held "
@@ -24365,33 +24504,39 @@ class ProgrammeClaimsTests(unittest.TestCase):
         self.assertNotIn("- All evidence items as submitted.", lines)
 
     def test_hmrc_aeo_guidance_address_uses_the_gov_uk_spelling(self):
-        """In the earlier repository, the supply chain matrix's AEO-S key
-        reference linked the gov.uk guidance page at an -ized address. A live
-        check found that address returned 404 and the -ised address returned
-        200; no held text carries either, so the live check is the only
-        evidence. The link now uses the -ised address, as gov.uk spells it,
-        while the surrounding prose keeps the library's -ize spelling. The link
-        is scheme-qualified because the language lint masks only http(s) URL
-        tokens; a bare -ised address is reported as a spelling finding. The
-        citations register's AEO/AEOS (UK) row names a different page
-        (authorised-economic-operator-certification) and is unchanged."""
+        """The supply chain matrix's AEO-S key reference and the citations
+        register's AEO/AEOS (UK) row link the same gov.uk page, the one the
+        held HMRC Customs Technical Handbook (AEO) introduction links for the
+        types of AEO status (authorised-economic-operator-certification).
+        The link uses the -ised address, as gov.uk spells it, while the
+        surrounding prose keeps the library's -ize spelling. The link is
+        scheme-qualified because the language lint masks only http(s) URL
+        tokens; a bare -ised address is reported as a spelling finding. A
+        live check found the -ized apply-for address returned 404, so no
+        line carries it."""
         dead = "apply-for-" + "authorized-economic-operator-status"
         found = [f"{rel}:{number}" for rel, number, line in self._md_lines()
                  if dead in line]
         self.assertEqual(found, [])
+        address = ("https://www.gov.uk/guidance/authorised-economic-"
+                   "operator-certification")
         prefix = "| AEO-S (UK) | HMRC: "
-        self.assertEqual(
-            self._matrix_cell(prefix, 2),
-            "HMRC: https://www.gov.uk/guidance/apply-for-authorised-"
-            "economic-operator-status")
+        self.assertEqual(self._matrix_cell(prefix, 2), f"HMRC: {address}")
         self.assertIn("UK HMRC AEO security and safety criteria handbook",
                       self._matrix_cell(prefix, 3))
+        rows = [line for line in self._lines(
+                    "governance/register-canonical-citations.md")
+                if line.startswith("| AEO/AEOS (UK) |")]
+        self.assertEqual(len(rows), 1, rows)
+        self.assertEqual(rows[0].split("|")[6].strip(), address)
 
     # HMRC section 11.2's "computer system, accounting records and
     # documents" (line 38). No held HMRC line names a retention period.
     # The scope now gives the organization's mapping of each evidence area
     # to the held section 8 heading that holds it (held record keeping
-    # lines 25, 149 to 177), and to sections 11.2 and 11.7.
+    # lines 25, 149 to 177), and to sections 11.2 and 11.7, with the
+    # handbook's framing of the section 8.10 and 8.12 items (lines 154 and
+    # 170).
     _UK_PROCEDURE_1_2_SCOPE = (
         "This procedure covers only the IT and cybersecurity elements of the "
         "AEO-S self-assessment. The organization maps its evidence areas to "
@@ -24400,7 +24545,8 @@ class ProgrammeClaimsTests(unittest.TestCase):
         "rights procedures (section 8.11), except multi-factor "
         "authentication, which no held section names; system protection "
         "(section 4.2) to protection of computer systems (section 8.10), "
-        "which names firewalls and anti-virus and other malware protection; "
+        "where the actions the handbook says businesses should consider "
+        "name firewalls and anti-virus and other malware protection; "
         "incident detection and response (section 4.3) to the user logs of "
         "section 8.10 and to dealing with incidents which compromise "
         "document security (section 8.12); personnel screening (section "
@@ -24414,7 +24560,10 @@ class ProgrammeClaimsTests(unittest.TestCase):
         "section 8.10; and the records retention evidence in section 4.8 to "
         "the procedures to archive and retrieve records and information "
         "(sections 8.1 and 8.9), no held section setting a retention period. "
-        "It does not cover:")
+        "The section 8.10 items named here are among the actions the "
+        "handbook says businesses should consider, and the section 8.12 "
+        "items among what it says actions should normally include; it "
+        "states neither list as a requirement. It does not cover:")
 
     def test_uk_procedure_scope_includes_its_records_retention_evidence(self):
         """In the earlier repository, the UK procedure's section 1.2 excluded
@@ -24727,8 +24876,9 @@ class MscRegisterRound3Tests(unittest.TestCase):
     cause-to-be-procured limb, the disclosure's content and by that person,
     with its antecedent a person, and the permission to make the
     authorization on the same document as the disclosure; subparagraph (B)'s
-    trigger, in connection with that application, notice, summary of rights
-    and consent; subparagraph (C)'s scope, with the Secretary of
+    trigger, in connection with that application, notice, summary of rights,
+    the summary section's redesignation as section 1681m(a)(4) (a deletion
+    of its own) and consent; subparagraph (C)'s scope, with the Secretary of
     Transportation's power and the cause-to-be-procured limb); the IT-5 rail
     note; CV-1 to CV-5 (CV-1 with used for the transportation of cargo within
     its supply chain); and, in the AEO-S table, the Corporate Security row
@@ -24820,6 +24970,7 @@ class MscRegisterRound3Tests(unittest.TestCase):
             "be obtained for employment purposes",
             "together with a summary of the consumer's rights under section "
             "1681m(a)(3)",
+            "(redesignated section 1681m(a)(4) by Pub. L. 111-203)",
             "the consumer have consented, orally, in writing or "
             "electronically, to the procurement of the report by that "
             "person",
@@ -24962,7 +25113,9 @@ class MscRegisterRound3Tests(unittest.TestCase):
             "unless ",
             "a person ",
             "together with a summary of the consumer's rights under section "
-            "1681m(a)(3), ",
+            "1681m(a)(3) (redesignated section 1681m(a)(4) by Pub. L. "
+            "111-203), ",
+            " (redesignated section 1681m(a)(4) by Pub. L. 111-203)",
             ", whose only interaction with the person in connection with the "
             "application, when the report is procured or caused to be "
             "procured, has been by mail, telephone, computer or other "
@@ -26607,7 +26760,7 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
         (ProgrammeClaimsTests.UK_PROCEDURE, 25,
          "The handbook's section 11 does not name cybersecurity;",
          _IT_MEASURES_8_1 + "section 8.1)"),
-        (ProgrammeClaimsTests.IT_REGISTER, 61,
+        (ProgrammeClaimsTests.IT_REGISTER, 63,
          "The held HMRC criteria (UK HMRC AEO security and safety criteria "
          "handbook, section 11) set out no IT control requirement:",
          _IT_MEASURES_8_1 + "section 8.1)"),
