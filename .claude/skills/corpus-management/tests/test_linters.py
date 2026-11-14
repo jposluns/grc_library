@@ -36242,7 +36242,7 @@ class ClaudeRulesSyncTests(LinterTestCase):
         self.assertIn("internal error", buf.getvalue())
 
     def test_real_validator_detects_drifted_rendered_rule(self) -> None:
-        # RBQ8-sync-real-validator: drive the gate as a subprocess through its
+        # Drive the gate as a subprocess through its
         # REAL validator (aiqt_rules.validate, nothing stubbed) against copied
         # AIQT trees with one drifted rendered rule; the drift must be exit 1.
         root = self._fixture_base("sync-real-validator-")
@@ -43216,7 +43216,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         adopt-bootstrap-ref.py OWN F ec19e2c45233ad02ca422349c0778a3c17463e6fc23fe9bf0591d822ac8d531c
         adopt-preflight-guard.py FIXED F 73ab980af0fa53c8a485af18b7bdaee1b7bfef218c37982593e30c66d7f85f66
         aiqt_bootstrap.py PASSIVE F bc5496de79c394e76703b34380bfc1bbb9ae1a8c489aa719d0a75344d3c915dc
-        aiqt_rules.py NO_FS F 12ff72ec1a760d5dc960e765db902ea0e4289959202385513ed8a1516130e5b3
+        aiqt_rules.py NO_FS F dda2a6a5a217513fc2848e59029e111402fe85e8e765d6b9de7186bd8d9472d9
         alignment-register-aliases.json DATA F 7d9b0be1db9dcc1f81870c96309e2837cdf7da6fc16a78ea4f4b4ccca4e7b7e8
         alignment-register-exclusions.json DATA F 391924062319d3d5a618b1750b37dec6c0ee0c0d21b77b26518b16e51a418f19
         alignment_citation_ids.json DATA F d0b0715098bebee865866404e4045980625b3f6e2b42ccf4b91c8b7d620e60ac
@@ -43251,7 +43251,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-generated-commit.py NO_FS F a15e3235cc5ab50f0d3473efcfd05b56741f602ecbae59fd92b79ca1ee7f19e1
         check-narrative-corpus-mixed-diff-on-pr.py NO_FS F 3260adf3c9d26de4dd19d6414c39d893bbe78ba336c96e31eefccbb4cae9e7da
         check-portability.sh FIXED F 53ce8fd609c5f99cfff314dda4641f02d2a99136cba2f0e2b1d76c8e612c1538
-        check-pr-attribution.py OWN F 8c05f4d1521d9b854e701cd460ac2b4ca864c7cd590c1cc4935040a1a9fb8784
+        check-pr-attribution.py OWN F a926f479d86540bdb68ef86bb9d906e39373e9c85e168265e5e5052587809949
         check-retired-section-orphan-on-pr.py NO_FS F 0d710f974f62cd7b1cf9e80d7b8b03ce51f05784c34e6ead05db22f157d5428b
         check-review-cadence.py ROOT F bcd4b92ee9be87833a2905a2f9aea484fec84520c85ff1aa07e85aff956b0cc1
         check-stranded-control-code-on-pr.py NO_FS F d0631b2fca128c3457f87029e56a252e20e4be701148cc2e171c2d6cbe051b37
@@ -43322,7 +43322,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-nested-markdown-links.py ROOT F 36b09b7bb5221bf0c3589f22426453fee35a9744ce451cd54d3518880be0a5d8
         lint-orphan-documents.py NO_FS F de61adef06e991b75b527360833df9a086556eb7b197722c3e36daf5cd0fda56
         lint-pii-in-content.py CWD F 286d96a428c153f484fe84fcf0142775eff985f1cc730adaf3726bed31599caf
-        lint-placeholder-leakage.py CWD F d9503d8672f7bf079a32b99ad715c43ef5f5b2f2eb17375d2a1eb7fe5fa72832
+        lint-placeholder-leakage.py CWD F d531485bd45d8e2d60b753835d565a5ebb1eb25903bf18bc16b408aea49987c7
         lint-positional-backlog-tokens.py ROOT F 014dc171dfd4511c153270b53577d62337fe3a5216dfc4f6f95b84d8e4cc80b1
         lint-ref-absence-claims.py ROOT F 8e4eae72e7fab0e3e8fb889d1e2d80bf4c0e0468f85bedd14fffae25d491699d
         lint-required-sections.py CWD F d4b84278b59d2e8cb78de9953424f45417127e5ebc8d189431bc7d66f0132cd2

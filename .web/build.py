@@ -9824,7 +9824,7 @@ def render_site(figures):
     return pages
 
 
-# Conservative literal-figure detector (P-1.25.26 / S2). The CalVer (YYYY.MM.NNN)
+# Conservative literal-figure detector. The CalVer (YYYY.MM.NNN)
 # is the most distinctive corpus figure (it changes every PR), so a hardcoded
 # CalVer literal in a template is an unambiguous regression from the {{CALVER}}
 # token. Bare counts are deliberately NOT flagged (too false-positive-prone for a
@@ -11702,7 +11702,7 @@ def main(argv=None):
                 file=sys.stderr,
             )
             return 1
-        # Conservative literal-figure detector (P-1.25.26 / S2): corpus figures
+        # Conservative literal-figure detector: corpus figures
         # must come from generator tokens, never be hardcoded in a template.
         literal_hits = hardcoded_calver_literals()
         if literal_hits:

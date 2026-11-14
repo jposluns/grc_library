@@ -43,10 +43,12 @@ import sys
 
 # Strict attribution shapes. Each is an attribution LINE pattern, not a model-family mention:
 # "claude SHIP", "CLAUDE.md", "claude-attribution" must all pass.
-# The patterns run over THREE views of the text (the text is normalized, never the patterns widened
-# per delimiter): the raw text; Markdown formatting characters replaced by spaces (so '[Claude][1]'
-# and 'Claude_Code' keep their word boundaries); and the same characters deleted (so in-word
-# formatting such as 'C**laud**e' or a bold '**Co-Authored-By**:' label rejoins). Newlines survive
+# The patterns run over SEVEN views of the text (the text is normalized, never the patterns widened
+# per delimiter): the raw text and, for the raw text and for its copy with link syntax reduced to
+# its visible text, three translations each: Markdown formatting characters replaced by spaces (so
+# '[Claude][1]' and 'Claude_Code' keep their word boundaries); the same characters deleted (so
+# in-word formatting such as 'C**laud**e' or a bold '**Co-Authored-By**:' label rejoins); and
+# emphasis and code markers deleted with underscores and brackets spaced. Newlines survive
 # every view, so a match is reported as its line of the ORIGINAL text. Threat model, stated: this
 # catches accidental or harness-added attribution in its ordinary Markdown shapes; deliberate
 # obfuscation is a visible integrity breach in the PR text, not a parsing target.
