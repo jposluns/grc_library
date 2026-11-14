@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Programme Specification\
 **Document Type:** Specification\
-**Version:** 1.17.370\
-**Date:** 2026-11-13\
+**Version:** 1.17.371\
+**Date:** 2026-11-14\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../../../../governance/specification-citation-verification.md), [`governance/register-document-index-and-classification.md`](../../../../governance/register-document-index-and-classification.md), [`governance/charter-governance-library.md`](../../../../governance/charter-governance-library.md), [`.working/CHANGELOG.md`](../../../../.working/CHANGELOG.md), [`.working/TODO.md`](../../../../.working/TODO.md)\
@@ -54,6 +54,7 @@ The audit gates are held on 3 parity surfaces, the GitHub Actions workflow, the 
 | Surface | File | Invocation | Blocking? |
 | --- | --- | --- | --- |
 | GitHub Actions | [`.github/workflows/quality.yml`](../../../../.github/workflows/quality.yml) | Automatic on pull-request events; runs the CI subset below and the per-PR delta gates (section 6.1) | Yes; its `Lint markdown corpus` check is required for merge |
+| Pull-request attribution check | [`.github/workflows/pr-attribution.yml`](../../../../.github/workflows/pr-attribution.yml) | Automatic on pull-request events (opened, edited, synchronize, reopened, so an edited title or body is checked again): its `PR attribution (title and body)` job runs [`.claude/skills/corpus-management/tools/check-pr-attribution.py`](../tools/check-pr-attribution.py), which reads the title and body from the event payload and fails on AI-assistant attribution (Claude/Anthropic) in either. Not an audit gate: it runs no section 6 gate and no delta gate, and gate 35 does not read this workflow | Only when branch protection lists its `PR attribution (title and body)` check as required |
 | Local audit runner | [`.claude/skills/corpus-management/tools/run_all_audits.sh`](../tools/run_all_audits.sh) | `.claude/skills/corpus-management/tools/run_all_audits.sh` (or `FAIL_FAST=1 ...`), run by hand, by the `local-quality` run and by the nightly sweep; the pre-push guard runs its gates one by one, gate 36 as 6 local shards on its full path | Through the `local-quality` run, which merge requires; a run by hand blocks nothing by itself |
 | Local server `local-quality` run | The local server's own configuration, outside this repository | Automatic on each pull-request head: the local audit runner whole (gate 36 included), `python3 .web/build.py --check` and `python3 .claude/skills/corpus-management/tools/run-linter-regression.py --verify-shards 6` | Yes; the `local-quality` commit status it posts is required for merge |
 | Nightly sweep | [`.github/workflows/nightly-sweep.yml`](../../../../.github/workflows/nightly-sweep.yml) | Scheduled nightly on `main`, or by hand (`workflow_dispatch`): the local audit runner whole, then the shard partition check and the web generator health check as their own steps | No; a failure flags drift on `main` for the maintainer |

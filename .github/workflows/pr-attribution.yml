@@ -1,0 +1,35 @@
+name: Pull request attribution
+
+# Not an audit gate. Refuses a pull request whose title or body carries
+# AI-assistant attribution (Claude/Anthropic): a Co-Authored-By trailer naming
+# either, a generated-with line naming either, a Claude Code link or the
+# Anthropic noreply address. It is a workflow of its own, not a job or step in
+# quality.yml: gate 35 pins quality.yml to one pull_request trigger with no
+# event types and one job, and this check needs the edited type so that a
+# changed title or body is checked again, re-running only this small job.
+# The tool reads the title and body from the event payload file in Python; no
+# workflow expression places pull request text in a shell command.
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+# Least-privilege token: this job only reads the checked-out tool and the event payload.
+permissions:
+  contents: read
+
+jobs:
+  pr-attribution:
+    name: PR attribution (title and body)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14"
+
+      - name: Check the pull request title and body for attribution
+        run: python3 .claude/skills/corpus-management/tools/check-pr-attribution.py
