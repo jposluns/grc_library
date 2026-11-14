@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.244\
+**Version:** 1.27.245\
 **Date:** 2026-11-14\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -432,9 +432,7 @@ The following 2 governance documents are generated from [`.claude/skills/corpus-
 
 ## Expansion backlog
 
-The following document families are planned for addition as original library content:
-
-The expansion backlog is currently empty. All planned documents are active.
+No document family is reserved in this index for addition; every document listed above is active. Planned coverage not yet in the library is recorded in the *Planned* rows of the [Coverage Gap Analysis Register](register-coverage-gaps.md), each with its backlog topic or an unscheduled backlog candidate, and enters this index when its document is added.
 
 ---
 

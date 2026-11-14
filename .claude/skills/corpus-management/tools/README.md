@@ -412,7 +412,7 @@ of each checkout. It is known from then until a passing step 1b removes
 its shard directory and checkouts (and, with them, those records), or for
 as long as a failed or interrupted run lasts.
 A fast-path run and a whole-runner fallback (the gate list cannot be read)
-never write one; a full run has none before step 1b (gates 1 to 35, and
+never write one; a full run has none before step 1b (step 1, every runner gate but gate 36, and
 step 1b until its `guard-owner` record is written) or after a passing step
 1b (steps 2 and 3); and the scan does not read the records of another
 clone's run whose shard directory is under another `TMPDIR`. A process of

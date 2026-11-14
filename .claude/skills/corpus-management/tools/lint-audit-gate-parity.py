@@ -283,14 +283,15 @@ HIGHEST_DELTA_GATE = 15
 # Pre-commit hooks that are setup or regeneration steps, not audit
 # gates. These are excluded from the pre-commit-to-spec parity check.
 # The regenerate-derived-artefacts hook runs the build scripts in
-# write mode so .claude/skills/corpus-management/data/taxonomy.yml / .claude/skills/corpus-management/data/narrative.yml / governance/portal.md / governance/maturity-scorecard.md / governance/relationship-model.generated.json / the .working/TODO.md number-allocation block
+# write mode so .claude/skills/corpus-management/data/taxonomy.yml / .claude/skills/corpus-management/data/narrative.yml / governance/portal.md / governance/maturity-scorecard.md / governance/relationship-model.generated.json / the .working/TODO.md number-allocation block /
+# the governance/specification-citation-verification.md section 7.1 citation-publisher table
 # are refreshed. The ordering differs by artefact: for .claude/skills/corpus-management/data/taxonomy.yml / governance/portal.md /
 # governance/maturity-scorecard.md the --check gates run BEFORE this regen hook (check-then-regen:
 # the gates fail loud on drift first, then the regen auto-fixes the local tree), while the
-# .claude/skills/corpus-management/data/narrative.yml --check, the relationship-model-in-sync --check, and the number-allocation --check (gate 91, always_run) run AFTER this hook, so those artefacts are instead protected by
+# .claude/skills/corpus-management/data/narrative.yml --check, the relationship-model-in-sync --check, the number-allocation --check (gate 91, always_run), and the citation-publisher table --check (gate 102, always_run) run AFTER this hook, so those artefacts are instead protected by
 # pre-commit's modification detection plus the later check; this hook is not
 # itself a verification gate.
-PRECOMMIT_NON_GATE_HOOKS = {"Regenerate taxonomy, narrative registry, portal, maturity scorecard, relationship model, and number-allocation block"}
+PRECOMMIT_NON_GATE_HOOKS = {"Regenerate taxonomy, narrative registry, portal, maturity scorecard, relationship model, number-allocation block, and citation-publisher table"}
 
 # Regex to extract the .claude/skills/corpus-management/tools/X.py portion of a `python3 .claude/skills/corpus-management/tools/X.py ...` or
 # `python3 -I .claude/skills/corpus-management/tools/X.py ...` style command. Captures the script's

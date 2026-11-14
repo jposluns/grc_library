@@ -2,8 +2,8 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.56\
-**Date:** 2026-11-12\
+**Version:** 1.1.57\
+**Date:** 2026-11-14\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-glossary.md`](register-glossary.md), [`README.md`](../README.md), [`.working/TODO.md`](../.working/TODO.md)\
@@ -171,7 +171,7 @@ Regulations and frameworks named in the library but without dedicated operationa
 | ISO 14001 (environmental management) | Referenced | Out of scope | n/a | ESG content references it (e.g. the IT-financial-management standard's sustainability crosswalk); not in scope for dedicated treatment |
 | PCI DSS 4.0.1 | Referenced | Deferred | Backlog candidate: PCI DSS payments annex (not currently scheduled in TODO; the financial-services TODO item covers country regulators only) | Payments-specific; would fit under financial-services or as a sector annex |
 | Basel III | Referenced | Deferred | Backlog candidate: Basel III banking annex (not currently scheduled in TODO; the financial-services TODO item covers country regulators only) | Banking-specific; would fit under financial-services |
-| IEC 62443 (OT security) | Referenced | Planned | Backlog candidate: IEC 62443 depth annex (not currently scheduled in TODO; the OT suite itself is in the library, see section 4) | High-priority for industrial/energy/logistics sectors |
+| IEC 62443 (OT security) | Partial | Planned | Backlog candidate: IEC 62443 depth annex (not currently scheduled in TODO; the OT suite itself is in the library, see section 5, Technical capability areas) | High-priority for industrial/energy/logistics sectors. The OT/ICS Security Standard in [`operations/ot/`](../operations/ot/) aligns to IEC 62443 as its primary framework, with zone and conduit risk assessment per IEC 62443-3-2:2020 and security-level targets and achievement per IEC 62443-3-3:2013; the dedicated depth annex remains the gap |
 | NERC CIP | Referenced | Planned | TODO backlog: energy and utilities country regulator overlays | High-priority for energy sector |
 | SWIFT CSP (Customer Security Programme) | Referenced | Deferred | Backlog candidate: SWIFT CSP annex (not currently scheduled in TODO; the financial-services TODO item covers country regulators only). The financial-services annex names SWIFT CSP in its regime table and attestation row ([`compliance/financial-services/annex-financial-services-sector-requirements.md`](../compliance/financial-services/annex-financial-services-sector-requirements.md)) | Financial-services payment networks |
 | SOC 2 (Trust Services Criteria) | Referenced | Deferred | Backlog candidate: SOC 2 TSC-to-document mapping (not currently scheduled in TODO) | Named as a target attestation corpus-wide (the audit-evidence and regulator-interaction templates, the glossary, the maturity self-assessment) but no matrix maps the Trust Services Criteria (the CC-series common criteria plus the Availability, Confidentiality, Processing Integrity, and Privacy categories) to library documents |

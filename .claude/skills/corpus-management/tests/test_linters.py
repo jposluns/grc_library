@@ -43212,7 +43212,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F 200e0b5aed213ebc6d3cad364dbaf5e12492e008860495ec542f4ac82e1c1d22
+        README.md DATA F c8a217ec7a7b6de7cd3514817cbd41e5f83861c75f3d2c915816af2dc61546c5
         adopt-bootstrap-ref.py OWN F ec19e2c45233ad02ca422349c0778a3c17463e6fc23fe9bf0591d822ac8d531c
         adopt-preflight-guard.py FIXED F 73ab980af0fa53c8a485af18b7bdaee1b7bfef218c37982593e30c66d7f85f66
         aiqt_bootstrap.py PASSIVE F bc5496de79c394e76703b34380bfc1bbb9ae1a8c489aa719d0a75344d3c915dc
@@ -43272,7 +43272,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-aiqt-vendor-digest.py NO_FS F 49f26e0c53d3c6c5b88c455204bec8a092ddca252890e189f4dc988baf0e7c8d
         lint-alignment-citation-existence.py CWD F e7792b9664730a6b542285fa654de20ec9d39af7aa6cb553813ff2efa865152c
         lint-allowlist-spec-parity.py NO_FS F e8f452096456f55cd880fdb79b01ac18cadbcbfc966b67e1ab9b9ef43e8ea1db
-        lint-audit-gate-parity.py OWN F ec6314a8a36fd1e145dad84c209323407f3d380f756a466ee48f00cc208f28e9
+        lint-audit-gate-parity.py OWN F be641875ea2914ae89f9098149176e64529a8722e3fa33cec3856094996ed572
         lint-audit-spec-detailed-prose.py OWN F 49ba119b94f997b1c35560dab6087ef16c936a09c02a84f3fa02a1925412e390
         lint-bare-normative-shall.py ROOT F 0de8d8f46a8d953aa02ca38c8b86d8f08a5c642e1b900483f3008c2c3983e203
         lint-baseline-pin.py OWN F 33cbe14512f04fb1da1c9c0a44e53ecaef7e618968e8314a48b812b30595035a
