@@ -16206,6 +16206,133 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"--self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: OK", result.stdout)
 
+    def test_run_shell_stubbed_session_scan_reads_a_non_utf8_command_name(self) -> None:
+        """_session_members read /proc/<pid>/stat as strict UTF-8 and caught only OSError, so one process on the
+        host whose command name held a byte that is not UTF-8 (0xff) raised UnicodeDecodeError, which failed the
+        tool's self-test and test_run_shell_stubbed_self_test. The scan and _fixture_identity beside it run here
+        over a fake /proc: a session leader named with 0xff, a member whose name holds 0xfe and a closing
+        parenthesis, a process of another session, an entry without a stat file and a non-numeric entry. The scan
+        returns the (pid, state) pairs of the session and _fixture_identity the leader's start time; neither
+        raises. The third read, SIGNAL_PROBE's registered_watch, runs in the next test."""
+        tail = b" 0 -1 4194304 0 0 0 0 0 0 0 0 20 0 1 0 %d 0 0\n"
+        entries = {
+            "41": b"41 (bad\xff name) S 1 41 41" + tail % 5001,
+            "42": b"42 (x) \xfe) R 41 41 41" + tail % 5002,
+            "43": b"43 (other) S 1 43 99" + tail % 5003,
+            "44": None,
+            "self": b"45 (self) S 1 41 41" + tail % 5004,
+        }
+        driver = (
+            "import json, os, runpy, sys, types\n"
+            "t = runpy.run_path(sys.argv[1])\n"
+            "root = sys.argv[2]\n"
+            "real_open = open\n"
+            "def fake_open(path, *args, **kwargs):\n"
+            "    assert path.startswith('/proc/'), path\n"
+            "    return real_open(root + path[len('/proc'):], *args, **kwargs)\n"
+            "def listdir(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return os.listdir(root)\n"
+            "for name in ('_session_members', '_fixture_identity'):\n"
+            "    fn = t[name]\n"
+            "    g = dict(fn.__globals__)\n"
+            "    g.update(open=fake_open, os=types.SimpleNamespace(listdir=listdir))\n"
+            "    call = types.FunctionType(fn.__code__, g, fn.__name__, fn.__defaults__)\n"
+            "    try:\n"
+            "        value = call(41)\n"
+            "    except Exception as exc:\n"
+            "        print('RESULT', name, 'raised', type(exc).__name__, exc)\n"
+            "    else:\n"
+            "        print('RESULT', name, json.dumps(sorted(value) if isinstance(value, list) else value))\n"
+        )
+        with tempfile.TemporaryDirectory(prefix="session-scan-test-") as tmp:
+            for entry, data in entries.items():
+                (Path(tmp) / entry).mkdir()
+                if data is not None:
+                    (Path(tmp) / entry / "stat").write_bytes(data)
+            result = self._run_selftest([sys.executable, "-I", "-B", "-c", driver,
+                                         str(REPO_ROOT / "tools" / "run-shell-stubbed.py"), tmp], timeout=120)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertIn('RESULT _session_members [[41, "S"], [42, "R"]]\n', result.stdout, detail)
+        self.assertIn('RESULT _fixture_identity "5001"\n', result.stdout, detail)
+
+    def test_run_shell_stubbed_signal_probe_registers_a_watcher_with_a_non_utf8_command_name(self) -> None:
+        """The third /proc/<pid>/stat read made lenient beside _session_members is SIGNAL_PROBE's
+        registered_watch, which reads the fixture watcher's start time and writes "<pid> <start time> <dump fd>"
+        to the registry descriptor. That read sits inside "except Exception: pass", so a strict decode of a
+        command name holding 0xff did not raise: it left the watcher unregistered, and the test above still passed
+        with only this read reverted. Here the tool's own SIGNAL_PROBE text runs as _sigterm_cleanup_check runs it
+        (python -I -B -c, then the tool path and the ready, hold, dump and registry descriptors), except that the
+        path names a stand-in for the tool. The stand-in supplies the four names the probe takes from the tool
+        (run, _fixture_watch, _Terminated and _self_test_limits): its _fixture_watch returns watcher pid 41
+        without forking; its _self_test_limits calls _fixture_watch through its module globals on entry, as the
+        tool's does through _fixture_lifetime, and so reaches registered_watch; its run reports its call; and it
+        binds the probe's global name open (not builtins.open) to a function that serves /proc paths from a fake
+        /proc in which 41's command name holds 0xff and a closing parenthesis. The probe exits 0 after calling
+        run, registered_watch returns the watcher after one read, of /proc/41/stat, and the registry receives
+        "41 5001 <dump fd>"."""
+        tail = b" 0 -1 4194304 0 0 0 0 0 0 0 0 20 0 1 0 %d 0 0\n"
+        standin = (
+            "import contextlib, sys\n"
+            "opened = []\n"
+            "real_open = open\n"
+            "def probe_open(path, *args, **kwargs):\n"
+            "    opened.append(path)\n"
+            "    assert path.startswith('/proc/'), path\n"
+            "    return real_open(ROOT + path[len('/proc'):], *args, **kwargs)\n"
+            "sys.modules['__main__'].open = probe_open\n"
+            "class _Terminated(BaseException):\n"
+            "    pass\n"
+            "@contextlib.contextmanager\n"
+            "def _self_test_limits():\n"
+            "    print('WATCH', _fixture_watch(), opened, flush=True)\n"
+            "    yield\n"
+            "def _fixture_watch():\n"
+            "    return 41, 'writer'\n"
+            "def run(*args, **kwargs):\n"
+            "    print('RUN', args, flush=True)\n"
+        )
+        driver = (
+            "import json, os, runpy, subprocess, sys\n"
+            "probe = runpy.run_path(sys.argv[1])['SIGNAL_PROBE']\n"
+            "ready_r, ready_w = os.pipe()\n"
+            "hold_r, hold_w = os.pipe()\n"
+            "stack_r, stack_w = os.pipe()\n"
+            "reg_r, reg_w = os.pipe()\n"
+            "result = subprocess.run(\n"
+            "    [sys.executable, '-I', '-B', '-c', probe,\n"
+            "     sys.argv[2], str(ready_w), str(hold_r), str(stack_w), str(reg_w)],\n"
+            "    capture_output=True, text=True, timeout=60, pass_fds=(ready_w, hold_r, stack_w, reg_w))\n"
+            "for fd in (ready_w, hold_r, hold_w, stack_w, reg_w):\n"
+            "    os.close(fd)\n"
+            "registry = b''\n"
+            "while True:\n"
+            "    chunk = os.read(reg_r, 4096)\n"
+            "    if not chunk:\n"
+            "        break\n"
+            "    registry += chunk\n"
+            "for fd in (ready_r, stack_r, reg_r):\n"
+            "    os.close(fd)\n"
+            "print(json.dumps({'rc': result.returncode, 'stdout': result.stdout, 'stderr': result.stderr,\n"
+            "                  'registry': registry.decode('utf-8', 'replace'), 'dump_fd': stack_w}))\n"
+        )
+        with tempfile.TemporaryDirectory(prefix="signal-probe-watch-test-") as tmp:
+            watcher = Path(tmp) / "proc" / "41"
+            watcher.mkdir(parents=True)
+            (watcher / "stat").write_bytes(b"41 (watch\xff) er) S 1 41 41" + tail % 5001)
+            standin_path = Path(tmp) / "stand-in-tool.py"
+            standin_path.write_text("ROOT = " + repr(str(Path(tmp) / "proc")) + "\n" + standin, encoding="utf-8")
+            result = self._run_selftest([sys.executable, "-I", "-B", "-c", driver,
+                                         str(REPO_ROOT / "tools" / "run-shell-stubbed.py"), str(standin_path)],
+                                        timeout=120)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        out = json.loads(result.stdout)
+        self.assertEqual(out["rc"], 0, detail)
+        self.assertEqual(out["stdout"], "WATCH (41, 'writer') ['/proc/41/stat']\nRUN ('hold',)\n", detail)
+        self.assertEqual(out["registry"], f"41 5001 {out['dump_fd']}\n", detail)
+
     def test_run_shell_stubbed_self_test_behind_a_slow_reaper(self) -> None:
         """P-TODO 3b125: the run-shell-stubbed self-test passes on a loaded host whose reaper is slow. The run's
         killed children are adopted by a parent that never reaps them (PR_SET_CHILD_SUBREAPER), so each stays a
@@ -45630,7 +45757,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         residual-scan.py NO_FS F fd8ff448f4d83f48d3e1116ac9b10d3c5ab8ed4d959ae888924679dd37cb194f
         run-linter-regression.py FIXED F 2c0d701c578569c68c73e4f697425cf0638e49baa9e93d3994ae44de98bb8e17
         run-pr-time-checks.sh FIXED F 2caed4bb6e25ef2dd77397ca021c6af8752991b3a80d5a0c3fc83a38df384c35
-        run-shell-stubbed.py NO_FS F 556659e54a9251c84983cf4b46ee1b9ec75297400cae3e4953ed75a03ccdce66
+        run-shell-stubbed.py NO_FS F f95cb3aae829b74081d9ac6a0b9f1c74d7c9b1ac554c81797191cd08a9630fe7
         run_all_audits.sh FIXED F ec86a76e9dec99394069b2fccab2fb84c152f9e9a16214f02358d8e2c60862fc
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900

@@ -198,7 +198,8 @@ def _session_members(sid: int) -> "list[tuple[int, str]]":
         if not entry.isdigit():
             continue
         try:
-            with open(f"/proc/{entry}/stat", encoding="utf-8") as fh:
+            # A command name may hold any byte; errors="replace" keeps the read from raising.
+            with open(f"/proc/{entry}/stat", encoding="utf-8", errors="replace") as fh:
                 fields = fh.read().rsplit(")", 1)[1].split()
         except OSError:
             continue
@@ -1027,7 +1028,7 @@ def _self_test() -> int:
 def _fixture_identity(pid):
     """Return the session leader's Linux start time, or None."""
     try:
-        with open(f"/proc/{pid}/stat") as stream:
+        with open(f"/proc/{pid}/stat", encoding="utf-8", errors="replace") as stream:
             fields = stream.read().rsplit(")", 1)[1].split()
         return fields[19] if int(fields[3]) == pid else None
     except (OSError, ValueError, IndexError):
@@ -2003,7 +2004,7 @@ watch = g["_fixture_watch"]
 def registered_watch():
     watcher, writer = watch()
     try:
-        with open(f"/proc/{watcher}/stat") as stream:
+        with open(f"/proc/{watcher}/stat", encoding="utf-8", errors="replace") as stream:
             started = stream.read().rsplit(")", 1)[1].split()[19]
         registry = int(sys.argv[5])
         os.set_blocking(registry, False)
