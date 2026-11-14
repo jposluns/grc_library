@@ -62,7 +62,7 @@ VENDORED_RULES_DIR = "rules"
 FIXED_VENDORED = {"tools/aiqt_corpus.py", "LICENSE", "NOTICE"}
 RENDER_SUBDIRS = ("aiqt", "security")
 
-# Supported schema declarations (RBQ8-schema-versions): the pin record and the
+# Supported schema declarations: the pin record and the
 # vendored upstream manifest must declare exactly these versions.
 PIN_SCHEMA_VERSION = 1
 MANIFEST_FORMAT_VERSION = 1
@@ -94,7 +94,7 @@ def _read_bytes(path, what):
     non-following lstat BEFORE the file is opened, the open itself is
     non-following and non-blocking, and the descriptor's type is re-checked,
     so a special file swapped into place can neither redirect the read nor
-    block it (RBQ11-metadata-fifo-hang)."""
+    block it."""
     path = Path(path)
     try:
         mode = os.lstat(path).st_mode
@@ -190,8 +190,7 @@ def _load_pin_file(path):
         raise ValueError("pin record is malformed: [source] must be a table")
     problems = []
     schema = pin.get("schema-version")
-    # Exact int TYPE, not value equality: bool(True) and float(1.0) both == 1
-    # (RBQ11-float-schema-versions).
+    # Exact int TYPE, not value equality: bool(True) and float(1.0) both == 1.
     if type(schema) is not int or schema != PIN_SCHEMA_VERSION:
         problems.append("schema-version must be the integer {} (found {!r})"
                         .format(PIN_SCHEMA_VERSION, schema))
@@ -213,8 +212,7 @@ def _load_pin_file(path):
 def _manifest_rows(manifest):
     """The validated path -> (bytes, sha256) inventory from a parsed manifest."""
     fmt = manifest.get("format-version")
-    # Exact int TYPE, not value equality: bool(True) and float(1.0) both == 1
-    # (RBQ11-float-schema-versions).
+    # Exact int TYPE, not value equality: bool(True) and float(1.0) both == 1.
     if type(fmt) is not int or fmt != MANIFEST_FORMAT_VERSION:
         raise ValueError("vendored manifest format-version must be the integer {} "
                          "(found {!r})".format(MANIFEST_FORMAT_VERSION, fmt))
@@ -285,7 +283,7 @@ def verify_vendor_dir(vendor):
         raise ValueError("release root mismatch: vendored manifest digest {} does not match "
                          "the pinned release root {}".format(digest, pinned))
     record = _read_bytes(vendor / ROOT_RECORD_REL, "vendored root record")
-    # Exact bytes (RBQ11-root-record-whitespace): the record must equal
+    # Exact bytes: the record must equal
     # b"sha256:" + digest + b"\n"; any whitespace variation is drift.
     if record != ("sha256:" + digest + "\n").encode("ascii"):
         raise ValueError("vendored root record {!r} disagrees with the manifest digest: the "

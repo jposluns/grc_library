@@ -12,7 +12,7 @@ grc exempt policy (``is_exempt`` with the exempt-file set, the exempt-dir set, a
 ``worklist-`` filename-prefix carve-outs). The wrapper filters exempt files out before delegating, so
 the engine holds no project-file policy; it drives the engine's per-file ``scan`` and prints ONE
 combined report in the engine's ``run`` shape, with the generated manifest's wrapper-local scan
-(``manifest_findings``) counted and grouped alongside (round-3 fix 1c). These wrapper bytes are
+(``manifest_findings``) counted and grouped alongside. These wrapper bytes are
 HAND-MAINTAINED, not compiler-generated, so gate 99 does NOT own them.
 
 Boundary with the shall-near-uncertainty audit (``lint-shall-near-uncertainty.py``): the two share

@@ -10342,7 +10342,7 @@ class DraftSiteRenderTests(unittest.TestCase):
 
         def served(files):
             return [rel for rel in files if rel.endswith("site-card.example.toml")]
-        # FX5a control: both searches find a planted copy, so an empty result
+        # Control: both searches find a planted copy, so an empty result
         # below means that no copy exists.
         with tempfile.TemporaryDirectory() as td:
             planted = Path(td) / "nested" / "site-card.example.toml"
@@ -20498,16 +20498,16 @@ class ProgrammeClaimsTests(unittest.TestCase):
         "the organization's own training programme.")
 
     def test_ctpat_it_register_it_6_annual_training_is_basc_only(self):
-        """In the earlier repository, the CTPAT IT register's IT-6 row
-        paraphrased BASC 6.0.3 clause 3.2.2 as training "to make personnel
-        aware of security vulnerabilities related to the BASC CSMS",
-        dropping the clause's "their responsibility to recognize
-        potential", and its Implementation Evidence cell asked for "annual
-        security awareness attestations" while the row leaves the CTPAT
-        frequency to the organization's own programme. The row now quotes
-        the clause and calls its annual training BASC's own requirement,
-        not a CTPAT one, and the Evidence cell sets no annual requirement;
-        no held CTPAT text states one."""
+        """The CTPAT IT register's IT-6 row earlier read "Provide annual
+        cybersecurity awareness training to all personnel with system
+        access", and its Implementation Evidence cell asked for "annual
+        security awareness attestations", though no held CTPAT text sets a
+        training frequency. The row now trains personnel with system
+        access as applicable to their functions or positions, quotes BASC
+        6.0.3 clause 3.2.2 and calls its annual training BASC's own
+        requirement, not a CTPAT one, leaves the CTPAT frequency to the
+        organization's own training programme, and the Evidence cell sets
+        no annual requirement."""
         # The criteria table's row; the BASC alignment table's IT-6 row
         # starts "| IT-6 | BASC:".
         rows = [line for line in self._lines(self.IT_REGISTER)
@@ -20517,7 +20517,7 @@ class ProgrammeClaimsTests(unittest.TestCase):
         row = rows[0]
         self.assertEqual(row.count(self._IT_6_BASC), 1)
         self.assertEqual(row.count(self._IT_6_FREQUENCY), 1)
-        self.assertNotIn("aware of security vulnerabilities", row)
+        self.assertNotIn("Provide annual cybersecurity awareness training", row)
         cells = [cell.strip() for cell in row.split("|")]
         self.assertEqual(cells[4], "Training completion reports; security "
                                    "awareness attestations")

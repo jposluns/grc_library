@@ -2,7 +2,7 @@
 
 **Document Title:** Supply Chain Security Programme Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.19\
+**Version:** 1.0.20\
 **Date:** 2026-11-14\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -61,7 +61,7 @@ The following matrix maps the common supply chain security domains against each 
 | **Incident Reporting to Authority** | ✓ | ✓ (§12.4: disclosure of security incidents to HMRC, as a change that may affect AEO status) | ✓ | ✓ | ✓ | ✓ | ~ | Unverifiable | ✓ |
 | **Security Assessment / Audit** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Unverifiable | ✓ |
 | **Business Continuity** | ~ | ~ (§8.9, §8.10, §8.12) | ~ | ~ | ~ | ~ | ~ | Unverifiable | ✓ |
-| **Risk Assessment** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Unverifiable | ~ |
+| **Risk Assessment** | ✓ | ✓ | ✓ | ✓ (Partners in Protection (PIP) security requirements: a written risk assessment, reviewed at least once per year) | ✓ | ✓ | ✓ | Unverifiable | ~ |
 | **Customs Compliance Record** | ~ | ✓ (§1.4, §7.1) | ✓ | ~ | N/A | ✓ | ✓ | Unverifiable | ~ |
 | **Financial Solvency** | ~ | ✓ (§1.4, §9.1) | ✓ | ~ | N/A | ✓ | ✓ | Unverifiable | ✓ |
 
@@ -171,7 +171,7 @@ The following evidence types are candidate overlaps: each may be collected once 
 | CTPAT | CBP: www.cbp.gov/border-security/ports-entry/cargo-security/CTPAT | MSC document published on CBP portal |
 | AEO-S (UK) | HMRC: https://www.gov.uk/guidance/authorised-economic-operator-certification | UK HMRC AEO security and safety criteria handbook (Customs Technical Handbook, section 11); UK HMRC AEO record keeping criterion (Customs Technical Handbook, section 8) |
 | AEO (EU) | European Commission DG TAXUD | Union Customs Code (Regulation EU 952/2013) |
-| PIP | CBSA: www.cbsa-asfc.gc.ca/security-securite/pip-pep | PIP Partnership Agreement |
+| PIP | CBSA: www.cbsa-asfc.gc.ca/security-securite/pip-pep | PIP Partnership Agreement; Partners in Protection (PIP) security requirements (public criteria summary) |
 | BASC | World BASC Organization (WBO) | BASC Standards and Requirements |
 | NEEC | SAT: www.sat.gob.mx | NEEC Programme Documentation |
 | OEA | Receita Federal do Brasil | OEA Programme Documentation |
