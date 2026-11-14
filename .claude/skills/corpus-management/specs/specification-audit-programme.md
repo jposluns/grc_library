@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Programme Specification\
 **Document Type:** Specification\
-**Version:** 1.17.371\
+**Version:** 1.17.372\
 **Date:** 2026-11-14\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -121,7 +121,7 @@ The row order is specified to match the execution order in [`.claude/skills/corp
 | 29 | Version-date consistency audit | [`.claude/skills/corpus-management/tools/lint-version-date-consistency.py`](../tools/lint-version-date-consistency.py) |
 | 30 | Metadata-block line-break audit | [`.claude/skills/corpus-management/tools/lint-metadata-line-breaks.py`](../tools/lint-metadata-line-breaks.py) |
 | 31 | Document Date staleness audit | [`.claude/skills/corpus-management/tools/lint-document-date-staleness.py`](../tools/lint-document-date-staleness.py) |
-| 32 | *(retired 2026-11-08: the distributed skill layout whose `derives_from` frontmatter it audited left the public repository at the rebuild; the number is retired, never reused)* | n/a |
+| 32 | *(retired 2026-11-08: the distributed skill layout whose `derives_from` frontmatter it audited left the public repository at the rebuild; earlier name 'Skill derives-from reference audit'; basis D-2102 (decision D-2338, authority Governance Library Maintainer; retirement authorized by the maintainer 2026-11-13); the number is retired, never reused)* | n/a |
 | 33 | Machine-readable taxonomy in sync | [`.claude/skills/corpus-management/tools/build-taxonomy.py`](../tools/build-taxonomy.py) |
 | 34 | Adopter portal and maturity scorecard in sync | [`.claude/skills/corpus-management/tools/build-portal.py`](../tools/build-portal.py) |
 | 35 | Gate-name parity audit | [`.claude/skills/corpus-management/tools/lint-audit-gate-parity.py`](../tools/lint-audit-gate-parity.py) |
@@ -131,17 +131,17 @@ The row order is specified to match the execution order in [`.claude/skills/corp
 | 39 | Cross-file gate-count consistency audit | [`.claude/skills/corpus-management/tools/lint-gate-count-consistency.py`](../tools/lint-gate-count-consistency.py) |
 | 40 | Corpus version-bump-recency audit | [`.claude/skills/corpus-management/tools/lint-version-bump-recency.py`](../tools/lint-version-bump-recency.py) |
 | 41 | Collection-enumeration consistency audit | [`.claude/skills/corpus-management/tools/lint-collection-enumeration-consistency.py`](../tools/lint-collection-enumeration-consistency.py) |
-| 42 | *(retired 2026-11-08: the external rule overlays and registered external skills it audited left the public repository at the rebuild; the number is retired, never reused)* | n/a |
-| 43 | *(retired 2026-11-08: the validation-sweep history register it read is maintainer-side, outside the public repository; the number is retired, never reused)* | n/a |
-| 44 | *(retired 2026-11-08: the paired distributed-skill surfaces it compared left the public repository; gate 97 covers the enrolled verdict carriers; the number is retired, never reused)* | n/a |
+| 42 | *(retired 2026-11-08: the external rule overlays and registered external skills it audited left the public repository at the rebuild; earlier name 'External-overlay license consistency audit'; basis D-2102 (decision D-2338, authority Governance Library Maintainer; retirement authorized by the maintainer 2026-11-13); the number is retired, never reused)* | n/a |
+| 43 | *(retired 2026-11-08: the validation-sweep history register it read is maintainer-side, outside the public repository; earlier name 'Follow-up ageing audit'; basis D-2102 (decision D-2338, authority Governance Library Maintainer; retirement authorized by the maintainer 2026-11-13); the number is retired, never reused)* | n/a |
+| 44 | *(retired 2026-11-08: the paired distributed-skill surfaces it compared left the public repository; gate 97 covers the enrolled verdict carriers; earlier name 'Paired-skill step-parity audit'; basis D-2102 (decision D-2338, authority Governance Library Maintainer; retirement authorized by the maintainer 2026-11-13); the number is retired, never reused)* | n/a |
 | 45 | TODO staleness audit | [`.claude/skills/corpus-management/tools/lint-todo-staleness.py`](../tools/lint-todo-staleness.py) |
-| 46 | *(retired 2026-11-08: the overnight-work file it audited is maintainer-side, outside the public repository; the number is retired, never reused)* | n/a |
+| 46 | *(retired 2026-11-08: the overnight-work file it audited is maintainer-side, outside the public repository; earlier name 'Overnight-work file audit'; basis D-2102 (decision D-2338, authority Governance Library Maintainer; retirement authorized by the maintainer 2026-11-13); the number is retired, never reused)* | n/a |
 | 47 | Listing-surface completeness audit | [`.claude/skills/corpus-management/tools/lint-listing-surface-completeness.py`](../tools/lint-listing-surface-completeness.py) |
 | 48 | CSA CCM/AICM citation-accuracy audit | [`.claude/skills/corpus-management/tools/lint-ccm-aicm-citations.py`](../tools/lint-ccm-aicm-citations.py) |
 | 49 | Matrix control-code validity audit | [`.claude/skills/corpus-management/tools/lint-matrix-control-codes.py`](../tools/lint-matrix-control-codes.py) |
 | 100 | CCM provider-member range-direction audit | [`.claude/skills/corpus-management/tools/lint-ccm-provider-member-in-range.py`](../tools/lint-ccm-provider-member-in-range.py) |
-| 50 | *(retired 2026-11-08: the per-PR QA records it demanded are maintainer-side, outside the public repository; the number is retired, never reused)* | n/a |
-| 51 | *(retired 2026-11-08: the maintainer working records it scanned moved to the private store; `.working/` now carries public placeholders; the number is retired, never reused)* | n/a |
+| 50 | *(retired 2026-11-08: the per-PR QA records it demanded are maintainer-side, outside the public repository; earlier name 'Bookkeeping-parity audit'; basis D-2102 (decision D-2338, authority Governance Library Maintainer; retirement authorized by the maintainer 2026-11-13); the number is retired, never reused)* | n/a |
+| 51 | *(retired 2026-11-08: the maintainer working records it scanned moved to the private store; `.working/` now carries public placeholders; earlier name 'Working-tree prose-hygiene audit'; basis D-2102 (decision D-2338, authority Governance Library Maintainer; retirement authorized by the maintainer 2026-11-13); the number is retired, never reused)* | n/a |
 | 52 | Directory-scan-scope parity audit | [`.claude/skills/corpus-management/tools/lint-scan-scope-parity.py`](../tools/lint-scan-scope-parity.py) |
 | 53 | Corpus-to-project directional-dependency audit | [`.claude/skills/corpus-management/tools/lint-directional-dependency.py`](../tools/lint-directional-dependency.py) |
 | 54 | Per-document NIST CSF 2.0 control-code validity audit | [`.claude/skills/corpus-management/tools/lint-document-control-codes.py`](../tools/lint-document-control-codes.py) |
@@ -150,10 +150,10 @@ The row order is specified to match the execution order in [`.claude/skills/corp
 | 57 | Backlog marked-done audit | [`.claude/skills/corpus-management/tools/lint-todo-marked-done.py`](../tools/lint-todo-marked-done.py) |
 | 58 | Per-document ISO Annex A validity audit | [`.claude/skills/corpus-management/tools/lint-document-iso-annex-a.py`](../tools/lint-document-iso-annex-a.py) |
 | 59 | CHANGELOG mirror header-parity audit | [`.claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py`](../tools/lint-changelog-mirror-header-parity.py) |
-| 60 | *(retired 2026-11-08: the guardrail-review history it compared against is maintainer-side, outside the public repository; the number is retired, never reused)* | n/a |
+| 60 | *(retired 2026-11-08: the guardrail-review history it compared against is maintainer-side, outside the public repository; earlier name 'Guardrail-review cadence audit'; basis D-2102 (decision D-2338, authority Governance Library Maintainer; retirement authorized by the maintainer 2026-11-13); the number is retired, never reused)* | n/a |
 | 61 | COBIT/ISO 31000 citation-existence audit | [`.claude/skills/corpus-management/tools/lint-cobit-iso31000-citations.py`](../tools/lint-cobit-iso31000-citations.py) |
 | 62 | Cross-file section-reference audit | [`.claude/skills/corpus-management/tools/lint-cross-file-section-refs.py`](../tools/lint-cross-file-section-refs.py) |
-| 63 | *(retired 2026-11-08: the maintainer session-concurrency record it shape-checked is maintainer-side, outside the public repository; the number is retired, never reused)* | n/a |
+| 63 | *(retired 2026-11-08: the maintainer session-concurrency record it shape-checked is maintainer-side, outside the public repository; earlier name 'Session-state lease audit'; basis D-2102 (decision D-2338, authority Governance Library Maintainer; retirement authorized by the maintainer 2026-11-13); the number is retired, never reused)* | n/a |
 | 64 | Audit-spec detailed-prose presence audit | [`.claude/skills/corpus-management/tools/lint-audit-spec-detailed-prose.py`](../tools/lint-audit-spec-detailed-prose.py) |
 | 65 | Cross-file section-name audit | [`.claude/skills/corpus-management/tools/lint-cross-file-section-names.py`](../tools/lint-cross-file-section-names.py) |
 | 66 | Unbalanced-fence audit | [`.claude/skills/corpus-management/tools/lint-unbalanced-fences.py`](../tools/lint-unbalanced-fences.py) |
@@ -164,16 +164,16 @@ The row order is specified to match the execution order in [`.claude/skills/corp
 | 71 | Stdlib-only import audit | [`.claude/skills/corpus-management/tools/lint-stdlib-only-imports.py`](../tools/lint-stdlib-only-imports.py) |
 | 72 | Citation-currency-cadence audit | [`.claude/skills/corpus-management/tools/lint-citation-currency-cadence.py`](../tools/lint-citation-currency-cadence.py) |
 | 73 | COBIT objective title-text audit | [`.claude/skills/corpus-management/tools/lint-cobit-title-text.py`](../tools/lint-cobit-title-text.py) |
-| 74 | *(retired 2026-11-08: the rules README scope table it checked left the public repository with the distributed rule set; the number is retired, never reused)* | n/a |
+| 74 | *(retired 2026-11-08: the rules README scope table it checked left the public repository with the distributed rule set; earlier name 'Rule-scope-table completeness audit'; basis D-2102 (decision D-2338, authority Governance Library Maintainer; retirement authorized by the maintainer 2026-11-13); the number is retired, never reused)* | n/a |
 | 75 | Web-to-corpus link-target integrity audit | [`.claude/skills/corpus-management/tools/lint-web-corpus-links.py`](../tools/lint-web-corpus-links.py) |
-| 76 | *(retired 2026-11-08: statically vacuous after the distributed skill tree left the public repository; the number is retired, never reused)* | n/a |
+| 76 | *(retired 2026-11-08: statically vacuous after the distributed skill tree left the public repository; earlier name 'Skill-body internal-reference audit'; basis D-2102 (decision D-2338, authority Governance Library Maintainer; retirement authorized by the maintainer 2026-11-13); the number is retired, never reused)* | n/a |
 | 77 | Gate-name-citation inventory audit | [`.claude/skills/corpus-management/tools/lint-gate-citation-inventory.py`](../tools/lint-gate-citation-inventory.py) |
 | 78 | Backlog item-number permanence audit | [`.claude/skills/corpus-management/tools/lint-todo-number-permanence.py`](../tools/lint-todo-number-permanence.py) |
 | 79 | NIST SSDF control-id validity audit | [`.claude/skills/corpus-management/tools/lint-ssdf-control-ids.py`](../tools/lint-ssdf-control-ids.py) |
-| 80 | *(retired 2026-11-08: the playbook tree it checked is maintainer-side, outside the public repository; the number is retired, never reused)* | n/a |
+| 80 | *(retired 2026-11-08: the playbook tree it checked is maintainer-side, outside the public repository; earlier name 'Playbook-pointer-integrity audit'; basis D-2102 (decision D-2338, authority Governance Library Maintainer; retirement authorized by the maintainer 2026-11-13); the number is retired, never reused)* | n/a |
 | 81 | Backlog list-tag audit | [`.claude/skills/corpus-management/tools/lint-todo-list-tag.py`](../tools/lint-todo-list-tag.py) |
 | 82 | Ungated-surface dash audit | [`.claude/skills/corpus-management/tools/lint-ungated-dashes.py`](../tools/lint-ungated-dashes.py) |
-| 83 | *(retired 2026-11-08: the publication manifest it synchronized left the public repository with the distributed rule set; the number is retired, never reused)* | n/a |
+| 83 | *(retired 2026-11-08: the publication manifest it synchronized left the public repository with the distributed rule set; earlier name 'Publication-manifest sync audit'; basis D-2102 (decision D-2338, authority Governance Library Maintainer; retirement authorized by the maintainer 2026-11-13); the number is retired, never reused)* | n/a |
 | 84 | Narrative metadata audit | [`.claude/skills/corpus-management/tools/lint-narrative-metadata.py`](../tools/lint-narrative-metadata.py) |
 | 85 | Narrative registry sync | [`.claude/skills/corpus-management/tools/build-narrative-registry.py`](../tools/build-narrative-registry.py) |
 | 86 | Narrative boundary audit | [`.claude/skills/corpus-management/tools/lint-narrative-boundary.py`](../tools/lint-narrative-boundary.py) |
@@ -185,16 +185,16 @@ The row order is specified to match the execution order in [`.claude/skills/corp
 | 92 | Index-header parity audit | [`.claude/skills/corpus-management/tools/lint-index-header-parity.py`](../tools/lint-index-header-parity.py) |
 | 93 | Relationship model in sync | [`.claude/skills/corpus-management/tools/build-relationship-model.py`](../tools/build-relationship-model.py) |
 | 94 | Static unused-import audit | [`.claude/skills/corpus-management/tools/lint-unused-imports.py`](../tools/lint-unused-imports.py) |
-| 95 | *(retired 2026-11-08: retired as numbered; the public hooks-syntax check returns re-scoped as gate 111; the number is retired, never reused)* | n/a |
+| 95 | *(retired 2026-11-08: retired as numbered; the public hooks-syntax check returns re-scoped as gate 111; earlier name 'Hooks Python-syntax audit'; basis RBQ4, an orchestrator decision (decision D-2338, authority Governance Library Maintainer; retirement authorized by the maintainer 2026-11-13); the number is retired, never reused)* | n/a |
 | 96 | Alignment-citation existence audit | [`.claude/skills/corpus-management/tools/lint-alignment-citation-existence.py`](../tools/lint-alignment-citation-existence.py) |
 | 97 | Skill verdict carrier-completeness audit | [`.claude/skills/corpus-management/tools/lint-skill-verdict-carrier-completeness.py`](../tools/lint-skill-verdict-carrier-completeness.py) |
 | 98 | AIQT vendor digest audit | [`.claude/skills/corpus-management/tools/lint-aiqt-vendor-digest.py`](../tools/lint-aiqt-vendor-digest.py) |
 | 99 | Corpus-management generated outputs in sync | [`.claude/skills/corpus-management/tools/build-corpus-management.py`](../tools/build-corpus-management.py) |
 | 101 | Allow-list and publisher-table parity audit | [`.claude/skills/corpus-management/tools/lint-allowlist-spec-parity.py`](../tools/lint-allowlist-spec-parity.py) |
 | 102 | Citation-publisher table in sync with its source of record | [`.claude/skills/corpus-management/tools/build-citation-publishers.py`](../tools/build-citation-publishers.py) |
-| 103 | *(retired 2026-11-08: the operational records it scanned for per-operator identifiers are maintainer-side; the tracked tree carries none; the number is retired, never reused)* | n/a |
+| 103 | *(retired 2026-11-08: the operational records it scanned for per-operator identifiers are maintainer-side; the tracked tree carries none; earlier name 'Worker-id anonymity audit'; basis D-2102 (decision D-2338, authority Governance Library Maintainer; retirement authorized by the maintainer 2026-11-13); the number is retired, never reused)* | n/a |
 | 104 | Reference-absence claim audit | [`.claude/skills/corpus-management/tools/lint-ref-absence-claims.py`](../tools/lint-ref-absence-claims.py) |
-| 105 | *(retired 2026-11-08: retired as numbered with gate 95; the tracked hooks' registration parity is covered by gate 111; the number is retired, never reused)* | n/a |
+| 105 | *(retired 2026-11-08: retired as numbered with gate 95; the tracked hooks' registration parity is covered by gate 111; earlier name 'Hook-launcher isolation audit'; basis RBQ4, an orchestrator decision (decision D-2338, authority Governance Library Maintainer; retirement authorized by the maintainer 2026-11-13); the number is retired, never reused)* | n/a |
 | 106 | Startup character and core-line ceiling audit | [`.claude/skills/corpus-management/tools/lint-startup-character-ceiling.py`](../tools/lint-startup-character-ceiling.py) |
 | 107 | Tooling backlog-reference audit | [`.claude/skills/corpus-management/tools/lint-tooling-backlog-refs.py`](../tools/lint-tooling-backlog-refs.py) |
 | 108 | Table cell-count audit | [`.claude/skills/corpus-management/tools/lint-table-cell-count.py`](../tools/lint-table-cell-count.py) |
@@ -305,7 +305,7 @@ A delta gate inspects the change set of a pull request, not the repository state
 | D11 | Narrative-corpus mixed-diff check | [`.claude/skills/corpus-management/tools/check-narrative-corpus-mixed-diff-on-pr.py`](../tools/check-narrative-corpus-mixed-diff-on-pr.py) | GitHub Actions (PR event) + pre-push runner |
 | D12 | Number-floor monotonicity check | [`.claude/skills/corpus-management/tools/check-todo-floor-monotonic-on-pr.py`](../tools/check-todo-floor-monotonic-on-pr.py) | GitHub Actions (PR event) + pre-push runner |
 | D13 | Stranded-control-code check | [`.claude/skills/corpus-management/tools/check-stranded-control-code-on-pr.py`](../tools/check-stranded-control-code-on-pr.py) | GitHub Actions (PR event) + pre-push runner |
-| D14 | *(retired 2026-11-08: the class-completeness attestation read the maintainer's open-findings ledger, which moved to the private operational store at the public rebuild; the number is retired, never reused)* | n/a | n/a |
+| D14 | *(retired 2026-11-08: the class-completeness attestation read the maintainer's open-findings ledger, which moved to the private operational store at the public rebuild; earlier name 'Class-completeness attestation check'; basis D-2102 (decision D-2338, authority Governance Library Maintainer; retirement authorized by the maintainer 2026-11-13); the number is retired, never reused)* | n/a | n/a |
 | D15 | Alignment-citation register check | [`.claude/skills/corpus-management/tools/check-alignment-register-on-pr.py`](../tools/check-alignment-register-on-pr.py) | GitHub Actions (PR event) + pre-push runner |
 
 Delta gates D1, D2, D3, D4, D7, D11 and D15 resolve the pull request range with one shared resolver ([`lint_common.resolve_pr_range`](../tools/lint_common.py)), and each compares the head with a single merge base. A criss-cross history can give the base and the head more than one merge base, and a comparison with any one of them can hide a change that another shows. The resolver therefore refuses such a range and names every merge base: D1, D2, D3, D4, D7 and D11 exit 2, and D15 prints a note and exits zero. Merging the base into the branch, or rebasing the branch onto the base, leaves one merge base. D12 reads its merge bases itself, as its paragraph below describes.
