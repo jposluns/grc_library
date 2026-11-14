@@ -2,8 +2,8 @@
 
 **Document Title:** Training Data Governance Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.16\
-**Date:** 2026-10-30\
+**Version:** 0.0.17\
+**Date:** 2026-11-14\
 **Owner:** AI Data Steward\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/standard-pseudonymization-and-anonymization.md`](../privacy/standard-pseudonymization-and-anonymization.md), [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md)\
@@ -204,7 +204,7 @@ Where a retrieval index materially shapes model output:
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| EU AI Act | Articles 10 (data and data governance), 11 (technical documentation) | Training data obligations |
+| EU AI Act | Articles 10 (data and data governance, as amended by Regulation (EU) 2026/1744, which deleted Article 10(5) and inserted Article 4a on processing special categories of personal data for bias detection and correction), 11 (technical documentation) | Training data obligations |
 | EU GPAI Code of Practice (Copyright Chapter, July 2025) | Commitment 1 / Measures 1.1 to 1.3 (copyright policy; lawful-access crawling; identify and comply with text-and-data-mining rights reservations under Article 4(3) of Directive (EU) 2019/790) | Article 56 co-regulatory instrument for demonstrating AI Act Article 53(1)(c) compliance; applies where the organization is a GPAI provider |
 | ISO/IEC 42001:2023 | §7.5 documented information | AI management system |
 | GDPR (EU) / UK GDPR | Articles 5, 6, 9, 17, 25, 30, 35; EU Art 22 / UK Arts 22A-22D | Lawful basis, subject rights, by design, ROPA, DPIA |

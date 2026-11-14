@@ -2,8 +2,8 @@
 
 **Document Title:** AI Algorithmic Compliance Checklist\
 **Document Type:** Checklist\
-**Version:** 1.0.32\
-**Date:** 2026-11-05\
+**Version:** 1.0.33\
+**Date:** 2026-11-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -71,7 +71,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ## Section b: data and privacy compliance
 
-*Synthesized from: GDPR Art. 5, 9, 22, 25, 35; EU AI Act Art. 10, 13; ISO/IEC 42001:2023 §8.4; ISO/IEC 27701:2025*
+*Synthesized from: GDPR Art. 5, 9, 22, 25, 35; EU AI Act Art. 10 (as amended by Regulation (EU) 2026/1744, which deleted Art. 10(5) and inserted Art. 4a on processing special categories of personal data for bias detection and correction), 13; ISO/IEC 42001:2023 §8.4; ISO/IEC 27701:2025*
 
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|
