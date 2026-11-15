@@ -45741,7 +45741,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
         merge-grc-library-new.py NO_FS F 9f68ec62a0bf11de86b974a364090a3041439064e1ee38f626c7b7358a29005b
-        merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
+        merge-when-green.py NO_FS F 493d94a7663bb8c9c75f81160c88b2dc0be78179d2048e0ae08a2a8eed2b4080
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
         pre-push-guard.sh FIXED F e082e92fe082af59cee69da9d2a329dacf1cdf4e8e4d600f4c5b6fc2ce89dabf
@@ -62450,7 +62450,7 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
                 calls.append(a)
                 if a[:2] == ("pr", "view"):
                     return json.dumps({"state": "OPEN", "statusCheckRollup": [], "headRefOid": head,
-                                       "number": 1, "title": "t"})
+                                       "number": 1, "title": "t", "url": f"https://github.com/{repo}/pull/1"})
                 if a[:1] == ("api",):
                     return json.dumps({"total_count": len(runs), "workflow_runs": runs})
                 return ""
@@ -62506,7 +62506,8 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
                 fields = a[a.index("--json") + 1].split(",")
                 if "statusCheckRollup" in fields:
                     return subprocess.CompletedProcess(cmd, rollup_result[0], "", rollup_result[1])
-                full = {"state": "OPEN", "headRefOid": head, "number": 1, "title": "t"}
+                full = {"state": "OPEN", "headRefOid": head, "number": 1, "title": "t",
+                        "url": f"https://github.com/{repo or 'jposluns/grc_library'}/pull/1"}
                 return subprocess.CompletedProcess(cmd, 0, json.dumps({k: full[k] for k in fields}), "")
             if a[:1] == ("api",):
                 page = {"total_count": len(runs), "workflow_runs": runs}
@@ -62533,7 +62534,8 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
         self.assertEqual(rc, 0, err)
         views = [c for c in calls if c[:2] == ("pr", "view")]
         self.assertEqual(len(views), 2)
-        self.assertEqual(views[1], ("pr", "view", "1", "--repo", repo, "--json", "number,title,state,headRefOid"))
+        self.assertEqual(views[1], ("pr", "view", "1", "--repo", repo, "--json",
+                                    "number,title,state,headRefOid,url"))
         self.assertIn(("api", f"repos/{repo}/actions/runs?head_sha={head}&per_page=100"), calls)
         merges = [c for c in calls if c[:2] == ("pr", "merge")]
         self.assertEqual(len(merges), 1)
@@ -62569,6 +62571,128 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
                 self.assertEqual(rc, 2)
                 self.assertEqual([c[:2] for c in calls], [("pr", "view")])
                 self.assertIn(result[1].splitlines()[0], err)
+
+    # 3b882 part 3 (plan section 1, test T7): a grc_library_new PR merges only through
+    # tools/merge-grc-library-new.py. merge-when-green refuses it with exit 1, naming that tool, and makes no
+    # merge call, whether --repo names that repository (in any case, URL or ssh spelling) or the PR URL that
+    # gh pr view reports belongs to it; a missing or unreadable URL also refuses. gh is stubbed (patched and
+    # restored by mock.patch.object), so no real gh runs.
+    _MWG_NEW_TOOL = "python3 tools/merge-grc-library-new.py"
+    _MWG_HEAD = "3f0c9e71a2b48d5609ce17f4b23a8d60e95c1b7a"
+
+    def _mwg_drive_url(self, mod, url, repo, *flags, omit_url=False):
+        """main() with gh stubbed: an open PR, green on the default required checks, whose view reports
+        ``url`` (left out when ``omit_url``), returning only the requested --json fields, as the real gh does.
+        Returns (exit code, gh calls, stderr)."""
+        import contextlib
+        import json
+        from unittest import mock
+        rollup = [{"__typename": "CheckRun", "name": n, "status": "COMPLETED", "conclusion": "SUCCESS",
+                   "workflowName": mod.REQUIRED_WORKFLOWS.get(n)} for n in mod.REQUIRED_CHECKS]
+        calls = []
+
+        def gh(*a):
+            calls.append(a)  # every call, a merge included, is recorded before dispatch
+            if a[:2] == ("pr", "view"):
+                full = {"state": "OPEN", "statusCheckRollup": rollup, "headRefOid": self._MWG_HEAD,
+                        "number": 1, "title": "t"}
+                if not omit_url:
+                    full["url"] = url
+                fields = a[a.index("--json") + 1].split(",")
+                return json.dumps({k: full[k] for k in fields if k in full})
+            return ""
+        err = io.StringIO()
+        with mock.patch.object(mod, "gh", gh), \
+                mock.patch.object(mod, "open_findings_block", lambda root, ledger=None: (0, "")), \
+                contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+            rc = mod.main(["merge-when-green.py", "1", *(["--repo", repo] if repo else []), *flags])
+        return rc, calls, err.getvalue()
+
+    def test_merge_when_green_refuses_grc_library_new_repo_spellings(self) -> None:
+        # T7 (a): --repo that normalizes to jposluns/grc_library_new refuses before any gh call, so before
+        # any merge call, even when the server would report a grc_library URL.
+        mod = load_linter_module("tools/merge-when-green.py", "_mwg_new_repo_spellings")
+        grc_url = "https://github.com/jposluns/grc_library/pull/1"
+        for spelling in (
+            "jposluns/grc_library_new",
+            "JPOSLUNS/GRC_LIBRARY_NEW",
+            "JPosluns/Grc_Library_New",
+            "jposluns/grc_library_new/",
+            "jposluns/grc_library_new.git",
+            "github.com/jposluns/grc_library_new",
+            "https://github.com/jposluns/grc_library_new",
+            "https://github.com/jposluns/grc_library_new/",
+            "https://github.com/jposluns/grc_library_new.git",
+            "https://github.com/jposluns/grc_library_new.git/",
+            "HTTPS://GitHub.com/JPosluns/GRC_Library_New.GIT",
+            "ssh://git@github.com/jposluns/grc_library_new.git",
+            "git@github.com:jposluns/grc_library_new.git",
+            "git@github.com:jposluns/grc_library_new",
+            "GIT@GITHUB.COM:JPOSLUNS/GRC_LIBRARY_NEW.GIT",
+        ):
+            for flags in (["--admin"], [], ["--dry-run"]):
+                with self.subTest(spelling=spelling, flags=flags):
+                    rc, calls, err = self._mwg_drive_url(mod, grc_url, spelling, *flags)
+                    self.assertEqual(rc, 1, err)
+                    self.assertEqual(calls, [])
+                    self.assertIn(self._MWG_NEW_TOOL, err)
+
+    def test_merge_when_green_refuses_grc_library_new_pr_url(self) -> None:
+        # T7 (b): the PR URL that gh pr view reports decides, however the command was spelled: a
+        # grc_library_new URL refuses with no --repo, and also when --repo names another repository.
+        mod = load_linter_module("tools/merge-when-green.py", "_mwg_new_pr_url")
+        new_url = "https://github.com/jposluns/grc_library_new/pull/1"
+        for label, url, repo in (
+            ("no --repo", new_url, None),
+            ("upper-case URL", "https://github.com/JPOSLUNS/GRC_LIBRARY_NEW/pull/1", None),
+            ("mixed-case URL", "https://github.com/JPosluns/Grc_Library_New/pull/31", None),
+            ("--repo names grc_library", new_url, "jposluns/grc_library"),
+        ):
+            for flags in (["--admin"], ["--dry-run"]):
+                with self.subTest(label, flags=flags):
+                    rc, calls, err = self._mwg_drive_url(mod, url, repo, *flags)
+                    self.assertEqual(rc, 1, err)
+                    self.assertFalse([c for c in calls if c[:2] == ("pr", "merge")])
+                    self.assertIn(self._MWG_NEW_TOOL, err)
+                    self.assertIn("url", calls[0][calls[0].index("--json") + 1].split(","))
+
+    def test_merge_when_green_refuses_a_missing_or_unreadable_pr_url(self) -> None:
+        # T7 (b): without a readable PR URL the repository is unknown, so the merge refuses.
+        mod = load_linter_module("tools/merge-when-green.py", "_mwg_unreadable_pr_url")
+        for label, url, omit in (
+            ("missing", None, True),
+            ("null", None, False),
+            ("a number", 1, False),
+            ("empty", "", False),
+            ("a repository URL, not a PR URL", "https://github.com/jposluns/grc_library", False),
+            ("owner and name only", "jposluns/grc_library", False),
+            ("PR number not decimal", "https://github.com/jposluns/grc_library/pull/x1", False),
+        ):
+            with self.subTest(label):
+                rc, calls, err = self._mwg_drive_url(mod, url, "jposluns/grc_library", "--admin", omit_url=omit)
+                self.assertEqual(rc, 1, err)
+                self.assertFalse([c for c in calls if c[:2] == ("pr", "merge")])
+                self.assertIn(self._MWG_NEW_TOOL, err)
+
+    def test_merge_when_green_still_merges_a_grc_library_pr(self) -> None:
+        # T7: grc_library is unchanged: with its own URL reported (and now read), the merge goes ahead,
+        # pinned to the evaluated head. A near-miss name is not grc_library_new.
+        mod = load_linter_module("tools/merge-when-green.py", "_mwg_grc_library_allowed")
+        grc_url = "https://github.com/jposluns/grc_library/pull/1"
+        for repo, url in (
+            (None, grc_url),
+            ("jposluns/grc_library", grc_url),
+            ("https://github.com/jposluns/grc_library.git", grc_url),
+            ("jposluns/grc_library_newer", "https://github.com/jposluns/grc_library_newer/pull/1"),
+        ):
+            with self.subTest(repo=repo):
+                rc, calls, err = self._mwg_drive_url(mod, url, repo, "--admin")
+                self.assertEqual(rc, 0, err)
+                self.assertIn("url", calls[0][calls[0].index("--json") + 1].split(","))
+                merges = [c for c in calls if c[:2] == ("pr", "merge")]
+                self.assertEqual(len(merges), 1)
+                self.assertEqual(merges[0][merges[0].index("--match-head-commit") + 1], self._MWG_HEAD)
+                self.assertIn("--admin", merges[0])
 
     def test_check_clean_language_upstream_self_test_passes(self) -> None:
         # P-1.13: the clean-language upstream-drift check's classify() self-test (drift on a
