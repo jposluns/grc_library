@@ -1219,7 +1219,9 @@ def main(argv: list[str]) -> int:
     print("Fix the artefact (renumber the new item, or advance the counter); do not")
     print("weaken this gate. A legitimate partial-close entry against a still-open")
     print("umbrella item goes in EXEMPT, keyed by its id and a distinctive heading")
-    print("substring, with the entry's date and that heading as the value.")
+    print("substring, valued '<date>; heading: <substring>' with the entry's date, or")
+    print("'date not recorded' when it has none; a family row's substring may match")
+    print("several of that same id's partial-close headings.")
     return 1
 
 

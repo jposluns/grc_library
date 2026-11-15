@@ -896,10 +896,11 @@ class LanguageLinterTests(LinterTestCase):
         self.assertLinterFails(
             run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] organisations")
 
-    def test_url_mask_glued_sentence_strike_and_bracket_prose_still_flagged(self) -> None:
-        # A capitalized sentence glued to a path-less host, prose after "~~" and
-        # a bracketed authority that is not an IPv6 literal are outside the
-        # token and still flagged.
+    def test_url_mask_glued_sentence_strike_bracket_and_bad_escape_prose_still_flagged(self) -> None:
+        # A capitalized sentence glued to a path-less host, prose after "~~",
+        # a bracketed authority that is not an IPv6 literal and prose glued
+        # after an invalid percent escape ("%GG") are outside the token and
+        # still flagged.
         for index, (body, word) in enumerate((
                 ("See https://ico.org.uk.Organisations must register.\n", "Organisations"),
                 ("See ~~https://x.org/a~~organisations here.\n", "organisations"),
@@ -907,7 +908,7 @@ class LanguageLinterTests(LinterTestCase):
                 ("See https://x.org/%GGorganisations here.\n", "GGorganisations"))):
             with self.subTest(body=body):
                 fixture = self.make_fixture(
-                    f"standard-url-round3-{index}.md", VALID_METADATA + "\n\n" + body)
+                    f"standard-url-glued-prose-{index}.md", VALID_METADATA + "\n\n" + body)
                 self.assertLinterFails(
                     run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] " + word)
 
@@ -945,7 +946,7 @@ class LanguageLinterTests(LinterTestCase):
                 ("See https://x.org/a(b,)Organisations here.\n", "Organisations"))):
             with self.subTest(body=body):
                 fixture = self.make_fixture(
-                    f"standard-url-round4-{index}.md", VALID_METADATA + "\n\n" + body)
+                    f"standard-url-glued-extra-{index}.md", VALID_METADATA + "\n\n" + body)
                 self.assertLinterFails(
                     run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] " + word)
 
@@ -959,7 +960,7 @@ class LanguageLinterTests(LinterTestCase):
                 "See __https://x.org/a__$organisations here.\n")):
             with self.subTest(body=body):
                 fixture = self.make_fixture(
-                    f"standard-url-round5-{index}.md", VALID_METADATA + "\n\n" + body)
+                    f"standard-url-glued-tail-{index}.md", VALID_METADATA + "\n\n" + body)
                 self.assertLinterFails(
                     run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] organisations")
 
@@ -8051,7 +8052,7 @@ class PreflightVersionDateTests(LinterTestCase):
             self._stage(sp, tmp)
             env = dict(_os.environ)
             env["PREFLIGHT_VD_TODAY"] = self.TODAY
-            env["AIQT_PACK_ROOT"] = "~nonexistent_r11_user/pack"
+            env["AIQT_PACK_ROOT"] = "~nonexistent_tilde_user/pack"
             r = sp2.run([sys.executable, str(REPO_ROOT / ".claude/skills/corpus-management/tools/preflight-version-date.py"),
                          "--base", base], capture_output=True, text=True, cwd=str(tmp), env=env)
             self.assertEqual(r.returncode, 2, f"bad pack root must be a clean scope error: {r.stderr}")
@@ -22071,13 +22072,13 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.git("worktree", "lock", "--reason", "kept for a reason", str(checkouts[0]))
         self.git("worktree", "lock", str(checkouts[1]))
         loose = Path(self.tmp.name) / "on-branch"
-        self.git("worktree", "add", "-b", "round5-loose", str(loose), "HEAD")
+        self.git("worktree", "add", "-b", "loose-ref-branch", str(loose), "HEAD")
         packed = Path(self.tmp.name) / "on-packed-branch"
-        self.git("worktree", "add", "-b", "round5-packed", str(packed), "HEAD")
+        self.git("worktree", "add", "-b", "packed-ref-branch", str(packed), "HEAD")
         self.git("pack-refs", "--all")
-        self.git("update-ref", "refs/heads/round5-loose", "HEAD")
+        self.git("update-ref", "refs/heads/loose-ref-branch", "HEAD")
         common = self.common_dir()
-        self.assertFalse(Path(common, "refs", "heads", "round5-packed").exists())
+        self.assertFalse(Path(common, "refs", "heads", "packed-ref-branch").exists())
         read = subprocess.run([sys.executable, "-I", "-c", self.REGISTRATIONS, self.report_code(),
                                common], cwd=self.root, env=self.env, capture_output=True,
                               text=True, timeout=60)
@@ -22093,7 +22094,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual({r["locked"] for r in listed}, {None, "", "kept for a reason"}, listed)
         self.assertEqual(len([r for r in listed if r["prunable"]]), 1, listed)
         self.assertEqual({r["branch"] for r in listed},
-                         {None, "refs/heads/round5-loose", "refs/heads/round5-packed"}, listed)
+                         {None, "refs/heads/loose-ref-branch", "refs/heads/packed-ref-branch"}, listed)
         self.assertEqual(records, listed)
         self.assertTrue(all(not r["head_problem"] for r in got["records"]), got)
         for path in (checkouts[0], checkouts[1]):
@@ -25720,7 +25721,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         # Latin-1 byte passed and claimed the epoch rule passed.
         rc, out = self._no_mirror_run(
             "**2026-10-30 | 2026.10.1 | PR #3127** - caf\xe9\n".encode("latin-1"),
-            "_mp_ep3_nomirror_latin1")
+            "_mp_nomirror_latin1")
         self.assertEqual(rc, 1, out)
         self.assertIn("FAIL: root .working/CHANGELOG.md is not valid UTF-8", out)
         self.assertNotIn("passed", out)
@@ -25759,7 +25760,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         rc, out = self._no_mirror_run(
             ("**2026-11-10 | 2026.12.1 | PR #1** - a\n"
              "**2026-11-09 | 2026.12.1 | PR #1** - b\n").encode("utf-8"),
-            "_mp_ep3_nomirror_dup")
+            "_mp_nomirror_dup")
         self.assertEqual(rc, 1, out)
         self.assertIn("appearing more than once in root .working/CHANGELOG.md (>= #1): #1", out)
         self.assertIn("root .working/CHANGELOG.md Library Version ordering violated", out)
@@ -26022,7 +26023,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         ("M1 zero-width space", "\u200b**2026-11-10 | 2026.11.67 | PR #2**"),
         ("M2 PR first, cells", "**PR #2** | 2026-11-10 | 2026.11.67"),
         ("M2 PR first, list item", "- **PR #2:** 2026-11-10, Library Version 2026.11.67"),
-        ("ep5qx 1 linked PR cell", "* **2026-11-10 | 2026.11.67 | [PR #2](../../pull/2)**"),
+        ("single linked PR cell", "* **2026-11-10 | 2026.11.67 | [PR #2](../../pull/2)**"),
     )
 
     # Old records (some PR first) in root form. The link target of the linked old record, which
@@ -26059,7 +26060,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         found = mod.root_findings(text)
         self.assertEqual(found.lines(), set())
         self.assertTrue(mod.pr_headers(text))
-        rc, out = self._no_mirror_run(text.encode("utf-8"), "_mp_ep6_real_root_run")
+        rc, out = self._no_mirror_run(text.encode("utf-8"), "_mp_real_root_run")
         self.assertEqual(rc, 0, out)
 
     def test_root_grammar_fails_every_probe_in_root_form(self) -> None:
@@ -27267,7 +27268,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 self.assertEqual(result.returncode, 0, result.stdout)
                 self.assertNotIn("strict character rule", result.stdout)
         # The real root passes the strict character rule unchanged.
-        mod = self._mirror_parity_gate("_mp_ep12_real_root")
+        mod = self._mirror_parity_gate("_mp_real_root_second")
         text = (REPO_ROOT / ".working" / "CHANGELOG.md").read_text(encoding="utf-8")
         found = mod.root_findings(text)
         self.assertEqual(found.chars, [])
@@ -27397,7 +27398,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         # No path reads a line through the link scanner, the second read, ROOT_IGNORABLE, the Cf
         # and Cc removal, NFKC or html.unescape any more, so they are deleted, and the root
         # read, which removed backticks and emphasis, is deleted too.
-        mod = self._mirror_parity_gate("_mp_ep13_removed")
+        mod = self._mirror_parity_gate("_mp_removed_mirror")
         for name in ("root_read", "root_reads", "root_flatten", "root_links", "root_link_urls",
                      "root_unlinked_reads", "_root_plain", "_root_inline_end",
                      "_root_bracket_end", "ROOT_IGNORABLE", "BACKSLASH_ESCAPE_RE",
@@ -27429,7 +27430,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             failed = self._fail_lines(result.stdout, "root")
             self.assertIn("line 12 column 16: character U+2028 outside printable ASCII", failed)
             self.assertIn("line 13 column 11: refused character '~' (U+007E)", failed)
-        mod = self._mirror_parity_gate("_mp_ep13_lf")
+        mod = self._mirror_parity_gate("_mp_lf_mirror")
         with self.subTest(where="CR LF"):
             found = mod.root_findings(("# Changelog\n\n" + same).replace("\n", "\r\n"))
             self.assertFalse(found, sorted(found.lines()))
@@ -27498,7 +27499,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                       "&amp;", "&#46;", "&#x2E;"):
             with self.subTest(token=token):
                 self._root_strict_fails(f"- Tooling note {token} here.", "bullet", token)
-        mod = self._mirror_parity_gate("_mp_ep13b_allowlist")
+        mod = self._mirror_parity_gate("_mp_allowlist")
         self.assertEqual(mod.ROOT_ALLOWED_CHARS, frozenset(self.ROOT_ALLOWED))
         self.assertFalse(hasattr(mod, "ROOT_REFUSED_CHARS"))
         for code in range(0x20, 0x7f):
@@ -27541,20 +27542,20 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertIn("line 1 column 1: character U+FEFF outside printable ASCII",
                       self._fail_lines(result.stdout, "root"))
         rc, out = self._no_mirror_run(("\ufeff\ufeff# Changelog\n" + same).encode("utf-8"),
-                                      "_mp_ep13b_two_boms", titled=False)
+                                      "_mp_two_boms", titled=False)
         self.assertEqual(rc, 1, out)
         self.assertIn("line 1 column 1: character U+FEFF outside printable ASCII", out)
         rc, out = self._no_mirror_run(("\ufeff# Changelog\n" + same).encode("utf-8"),
-                                      "_mp_ep13b_one_bom", titled=False)
+                                      "_mp_one_bom", titled=False)
         self.assertEqual(rc, 0, out)
-        mod = self._mirror_parity_gate("_mp_ep13b_bom")
+        mod = self._mirror_parity_gate("_mp_bom")
         self.assertEqual(mod.root_findings("\ufeff# Changelog\n\n" + same).chars,
                          [(1, 1, "character U+FEFF outside printable ASCII")])
 
     def test_root_pr_headers_split_on_lf_only(self) -> None:
         # In the earlier repository pr_headers split the root with str.splitlines(), so a form
         # feed in an earlier line moved its line numbers off the strict character rule's.
-        mod = self._mirror_parity_gate("_mp_ep13b_pr_headers")
+        mod = self._mirror_parity_gate("_mp_pr_headers")
         text = ("# Changelog\n\nIntro\x0cmore.\n\n"
                 "**2026-11-10 | 2026.12.2 | PR #2** - tooling: a $b\n")
         found = mod.root_findings(text)
@@ -29543,9 +29544,9 @@ class AuditGateParityTests(LinterTestCase):
     def _assert_yaml_refused(self, parser: str, base: str, cases, message: str) -> None:
         """``base`` parses to its one gate; ``base`` plus each case is a ParseError
         matching ``message``."""
-        agp = self._gate_parity_module(f"_agp_r5_{parser}")
+        agp = self._gate_parity_module(f"_agp_parser_{parser}")
         parse = getattr(agp, parser)
-        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r5-", dir=FIXTURE_DIR))
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-parser-", dir=FIXTURE_DIR))
         try:
             path = root / "surface.yaml"
             path.write_text(base, encoding="utf-8")
@@ -29599,8 +29600,8 @@ class AuditGateParityTests(LinterTestCase):
             "      - id: b\n        name: B\n        entry: python3 .claude/skills/corpus-management/tools/b.py\n"
             "        language: system\n        always_run: true\n"),
             "does not have pass_filenames: false")
-        agp = self._gate_parity_module("_agp_r5_pass_filenames")
-        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r5-", dir=FIXTURE_DIR))
+        agp = self._gate_parity_module("_agp_pass_filenames")
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-parser-", dir=FIXTURE_DIR))
         try:
             path = root / "surface.yaml"
             for text in (without, without + "        pass_filenames: true\n"):
@@ -29626,8 +29627,8 @@ class AuditGateParityTests(LinterTestCase):
         # trailing comment on a uses: value, a with: mapping, comment lines between steps,
         # an excluded step's `run: |` block (whose `#` and quoted lines are its text), and a
         # gate hook's pinned types_or: list.
-        agp = self._gate_parity_module("_agp_r5_accepted")
-        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r5-", dir=FIXTURE_DIR))
+        agp = self._gate_parity_module("_agp_parser_accepted")
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-parser-", dir=FIXTURE_DIR))
         try:
             workflow, precommit = root / "quality.yml", root / "pre-commit.yaml"
             # Each setup step's shape is pinned (a full 40-hex SHA, the step's own
@@ -29661,7 +29662,7 @@ class AuditGateParityTests(LinterTestCase):
         """Gate 35 over a copy of the real surfaces, with each (surface, old, new) edit
         replacing the FIRST occurrence of ``old`` in that surface by ``new`` (the
         workflow has 1 job, lint, since the gate-36 shard jobs were retired)."""
-        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r6-", dir=FIXTURE_DIR))
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-residual-", dir=FIXTURE_DIR))
         try:
             for name in self._ISOLATED_SURFACES:
                 text = (_resolve_path(name)).read_text(encoding="utf-8")
@@ -29729,8 +29730,8 @@ class AuditGateParityTests(LinterTestCase):
     def test_python_version_is_one_pinned_quoted_value(self) -> None:
         # Failed in the earlier repository under the first fixed-skeleton version of the
         # reader, where the quoted line was refused as a value that begins with a quote.
-        agp = self._gate_parity_module("_agp_r6b_pinned")
-        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r6b-", dir=FIXTURE_DIR))
+        agp = self._gate_parity_module("_agp_pinned")
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-pinned-", dir=FIXTURE_DIR))
         try:
             workflow = root / "quality.yml"
             workflow.write_text(self._WORKFLOW_JOB_HEAD + self._WF_CHECKOUT_STEP
@@ -29819,7 +29820,7 @@ class AuditGateParityTests(LinterTestCase):
         # counted gates inside other keys' values and skipped comment lines YAML read as
         # value text. The residuals now name what the skeleton leaves unpinned, in gate 35
         # and the spec.
-        agp = self._gate_parity_module("_agp_r6_residuals")
+        agp = self._gate_parity_module("_agp_residuals")
         spec = (REPO_ROOT / ".claude/skills/corpus-management/specs/specification-audit-programme.md").read_text(
             encoding="utf-8")
         texts = {"gate 35": " ".join(agp.__doc__.split()),
@@ -30079,7 +30080,7 @@ class AuditGateParityTests(LinterTestCase):
         # Every current hook is read, in the runner's order and count; every current
         # workflow gate step is read, in the runner's order, and they are exactly the
         # runner's gates the CI subset names.
-        agp = self._gate_parity_module("_agp_r6_current")
+        agp = self._gate_parity_module("_agp_current")
         runner = agp.parse_runner(_resolve_path(agp.RUNNER_PATH))
         self.assertEqual([e[1:] for e in agp.parse_precommit(_resolve_path(agp.PRECOMMIT_PATH))],
                          [e[1:] for e in runner])
@@ -31077,11 +31078,11 @@ class SkillSpecsGateScopeTests(unittest.TestCase):
 
     def test_cross_file_refs_matches_path_qualified_exempt_entry(self) -> None:
         self._cross_file_exempt_case(".claude/skills/corpus-management/tools/lint-cross-file-section-refs.py",
-                                     "xfile_refs_fx3b")
+                                     "xfile_refs_skill_specs")
 
     def test_cross_file_names_matches_path_qualified_exempt_entry(self) -> None:
         self._cross_file_exempt_case(".claude/skills/corpus-management/tools/lint-cross-file-section-names.py",
-                                     "xfile_names_fx3b")
+                                     "xfile_names_skill_specs")
 
 
 # The project document directories under .claude that the root-walking gates must reach,
@@ -43216,7 +43217,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         README.md DATA F 67fe21d3b7f132009e1e6e14899a090f897ede778d89cea59053ca2f3e20ced7
         adopt-bootstrap-ref.py OWN F ec19e2c45233ad02ca422349c0778a3c17463e6fc23fe9bf0591d822ac8d531c
         adopt-preflight-guard.py FIXED F 73ab980af0fa53c8a485af18b7bdaee1b7bfef218c37982593e30c66d7f85f66
-        aiqt_bootstrap.py PASSIVE F 4f022a8e1ce1c7aa0be2018431fa82024257e64545b224ae22d20c149bcb95d4
+        aiqt_bootstrap.py PASSIVE F e96062b129567ff3754f41d5fab54015037bad6ebcedc287a911e63449aaf87a
         aiqt_rules.py NO_FS F dda2a6a5a217513fc2848e59029e111402fe85e8e765d6b9de7186bd8d9472d9
         alignment-register-aliases.json DATA F 7d9b0be1db9dcc1f81870c96309e2837cdf7da6fc16a78ea4f4b4ccca4e7b7e8
         alignment-register-exclusions.json DATA F 391924062319d3d5a618b1750b37dec6c0ee0c0d21b77b26518b16e51a418f19
@@ -43241,7 +43242,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-length-on-pr.py NO_FS F 91c9308103f36414f1975e2233cd82644551ca4a3996c4a2b9310b437004434a
         check-changelog-on-pr.py NO_FS F 00fa478d33343ae5d955e3faa7f99d9c61c6cda6f7a5e414dfcaf6ec6f7bf25b
         check-changelog-preflight-commit.py NO_FS F 9ec0a028e7e916fdfa542f6688b909b08a1c69fe66b3a7cb82d979689885f978
-        check-class-completeness.py NO_FS F 0edb5f31d87cd64b56f7972cf21e1a3c63ddb44281639e752d8bca871d443242
+        check-class-completeness.py NO_FS F 59d3731a5bccafb1b8613678e2b241ebbaa32d93797203d73875820da3db7145
         check-claude-md-size.py NO_FS F 5f0c8e37d4a1b36a6be924354a6cdfca69a4ba5498e77cee52012ccefc99764b
         check-clause-preservation.py OWN F 96d156bb17eb92ea45d096dae64345313ba8962de62b38a413a988aa7f8c8737
         check-clean-language-upstream.py NO_FS F 68e539ea645383d29ec9ded3cb44012af2afcfc78f820c172070a8c492665159
@@ -43346,7 +43347,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-todo-index-reference-parity.py OWN F 46ffb499a50fa6b5d64ac594776e5a26ad4e3c696fc48d8b5e4fc8b4646a2b22
         lint-todo-list-tag.py OWN F 10ee5371268378b28c9097a588515231d625ab63b5e5b1b9f3533f4d85db9b2d
         lint-todo-marked-done.py ROOT F 9d5f28f83917e26a4cd0bffde756fded4a2bf4259b809472bc1757a6dbc1b212
-        lint-todo-number-permanence.py OWN F e893a1575e3e47f7e4d89ef02a40ca4545250b890b943171c8ce843c85a4e039
+        lint-todo-number-permanence.py OWN F 02579a0c37b6758b229c9292938c1171c64ebed49d25011e402f5f15440a03ea
         lint-todo-staleness.py NO_FS F 6a89123607678239f036cab7bf02e0a0885216f55ba0b23fb53799e30c40cffb
         lint-tooling-backlog-refs.py OWN F be54fcdef171bc30e7d0393ca2c097904f464cad7bde9a233f7ee663edd741a5
         lint-tooling-provenance-freshness.py OWN F ab5b885be8a4a7af28e6c441ea4439cc32ce553a6167946ec40d49f50f0f6b02
@@ -43376,7 +43377,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         safe_fs.py PASSIVE F 13c29f1625ffc04ba289a42a2ba241e2d68a77c9420b114f2a96e58c4b5ad35a
         scan-publication-instruction-content.py OWN F 62fd62e2345b14ae59e33db7ef62cf131bdbdb9eb2f75cc3f5bab3391cbdd17f
         skill-verdict-fields.json DATA F 3a9c5b89ed3acc1a7bdbda02b5630379c1ef016fc58b34e4338a485ad3fd4cb8
-        standards-currency-unpinned-baseline.json DATA F ebcdc57e3556a9c948f21c984dea6050679865a9f497e9206f6d6bb79f9f8559
+        standards-currency-unpinned-baseline.json DATA F a8acbbc26630f704a95ea6f790debc8315a53d20c8191e9c6e4fcacd9772055a
         suggest-listing-surfaces.py SKIP F 51981aba8f7c07cfee1a5536e13e38cec4314973a3eca3630d8c726d9ed7ffd4
         sweep-preflight-exemptions.json DATA F 2c11643eb1082a34c9d2cafed9cf04c6481c3e8322a44f426aa0f55729ad75df
         sweep-preflight-scanner.py NO_FS F 0354f7c93485b246f46fdb4e10facb822349f38f813332215d16c92f635c9d5e
@@ -52125,7 +52126,7 @@ class ReferenceManifestGeneratorTests(unittest.TestCase):
 
             def __call__(self, *_args):
                 raise object.__getattribute__(self, "exc")
-        for label, exc in (("an ordinary exception", RuntimeError("refman-sentinel-n2")),
+        for label, exc in (("an ordinary exception", RuntimeError("refman-sentinel-ordinary")),
                            ("a SystemExit", SystemExit(0))):
             with self.subTest(f"in process, reading the type name raises {label}"):
                 mod = self._load("_refman_unreadable_name")
@@ -52137,7 +52138,7 @@ class ReferenceManifestGeneratorTests(unittest.TestCase):
                 self.assertEqual(len(err.splitlines()), 1, err)
                 self.assertIn("cannot decide (the repository check or the origin reads failed "
                               "(an exception whose type name could not be read))", err)
-                self.assertNotIn("refman-sentinel-n2", err)
+                self.assertNotIn("refman-sentinel-ordinary", err)
         with self.subTest("in process, reading the type name raises KeyboardInterrupt"):
             mod = self._load("_refman_unreadable_interrupt")
             mod.type = _Unreadable(KeyboardInterrupt())
@@ -54450,8 +54451,8 @@ BAI07, CSA CCM v4.1 AIS domain, and OWASP ASVS v5.
             from cobit_iso31000_reference import COBIT_OBJECTIVES
             engines = []
             for name, source in (
-                ("_cobit_base_r6", base_source),
-                ("_cobit_new_r6", source_path.read_text(encoding="utf-8")),
+                ("_cobit_base_title", base_source),
+                ("_cobit_new_title", source_path.read_text(encoding="utf-8")),
             ):
                 engine = types.ModuleType(name)
                 exec(compile(source, name, "exec"), engine.__dict__)
@@ -68863,7 +68864,7 @@ class AIQTVendorDigestTests(LinterTestCase):
             sys.modules["aiqt_corpus"] = impostor
             with patch.dict(os.environ,
                             {"AIQT_PACK_ROOT":
-                             "~no_such_user_zz9_rbq53/pack"}):
+                             "~no_such_user_tilde_override/pack"}):
                 os.environ.pop("GRC_AIQT_PACK", None)
                 with self.assertRaises(RuntimeError):
                     mod.ensure_on_path()
@@ -68914,8 +68915,8 @@ class AIQTVendorDigestTests(LinterTestCase):
             # to `except Exception` left all 104 tests passing, so these
             # routes pin the breadth: the unmarked module is removed and the
             # SAME exception object propagates unchanged.
-            for exc in (KeyboardInterrupt("rbq57-interrupt"),
-                        SystemExit("rbq57-exit")):
+            for exc in (KeyboardInterrupt("sentinel-interrupt"),
+                        SystemExit("sentinel-exit")):
                 with self.subTest(route=type(exc).__name__):
                     impostor = types.ModuleType("aiqt_corpus")
                     sys.modules["aiqt_corpus"] = impostor
@@ -68997,7 +68998,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                     "the racing run's publication of the same object "
                     "must not be retracted by this run's failure "
                     "(guards against a failing run unpublishing a verified module, "
-                    "a racing publication of the same object)")
+                    "removing or unpublishing a racing publication of the same object)")
                 self.assertIs(importlib.import_module("aiqt_corpus"),
                               verified)
                 # Failing re-run case: a later run that fails (shapeless
@@ -69051,8 +69052,9 @@ class AIQTVendorDigestTests(LinterTestCase):
                 stale, normalized,
                 f"the stale absolute claim {stale!r} must be gone: it "
                 "held only for a different module object or only for "
-                "ImportError failures (guards against a racing publication of the same object, "
-                "cleanup skipped on a non-ImportError failure)")
+                "ImportError failures (a racing publication of the same object is a disclosed "
+                "limit of the identity check; guards against cleanup skipped on a "
+                "non-ImportError failure)")
         helper_doc = " ".join(mod._remove_refused_module.__doc__.split())
         self.assertIn("OBJECT IDENTITY", helper_doc,
                       "the helper must state that its checks are object "
@@ -74620,7 +74622,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         for hook in self.WORD_HOOKS:
             with self.subTest(site=hook + " _shell_word"):
                 mod = load_linter_module(".claude/hooks/%s.py" % hook,
-                                         "_fx4_word_" + hook.replace("-", "_"))
+                                         "_odd_word_" + hook.replace("-", "_"))
                 self.assertEqual(mod._shell_word("-drop/.x"), "./-drop/.x")
                 self.assertEqual(mod._shell_word("-a b/.x"), "'./-a b/.x'")
                 self.assertEqual(mod._shell_word("-a\nb/.x"), "$'./-a\\nb/.x'")
@@ -75658,23 +75660,23 @@ class ClausePreservationTests(unittest.TestCase):
         "dot_component": ("Read [x](a/x.md) now.\n", "Read [x](../a/./x.md) now.\n",
                           "'.' path component", (DOT_RULE,)),
         # Rows: a ")" the renderer does not treat as the end of a target.
-        "r6_escaped_fragment": ("R [a](x.md#f\\)](y.md)) n.\n",
+        "escaped_fragment_case": ("R [a](x.md#f\\)](y.md)) n.\n",
                                 "R [a](../p/x.md#f\\)](../p/y.md)) n.\n",
                                 "backslash in the BASE unit at raw offset 12",
                                 (BACKSLASH_RULE,), SIBLINGS),
-        "r6_escaped_query": ("R [a](x.md?q=\\)](y.md)) n.\n",
+        "escaped_query_case": ("R [a](x.md?q=\\)](y.md)) n.\n",
                              "R [a](../p/x.md?q=\\)](../p/y.md)) n.\n",
                              "backslash in the BASE unit at raw offset 13",
                              (BACKSLASH_RULE,), SIBLINGS),
-        "r6_escaped_anchor_only": ("R [a](x.md#f\\)](y.md)) n.\n",
+        "escaped_anchor_only_case": ("R [a](x.md#f\\)](y.md)) n.\n",
                                    "R [a](x.md#f\\)](../p/y.md)) n.\n",
                                    "backslash in the BASE unit at raw offset 12",
                                    (BACKSLASH_RULE,), SIBLINGS),
-        "r6_balanced_parentheses": ("R [a](https://e.com/W_(b)#s](y.md)) n.\n",
+        "balanced_parentheses_case": ("R [a](https://e.com/W_(b)#s](y.md)) n.\n",
                                     "R [a](https://e.com/W_(b)#s](../p/y.md)) n.\n",
                                     "'(' in a link target in the BASE unit at raw offset 22",
                                     (LINK_PAREN_RULE,), SIBLINGS),
-        "r6_angle_destination": ("R [a](<https://e.com/x#f)](y.md z>) n.\n",
+        "angle_destination_case": ("R [a](<https://e.com/x#f)](y.md z>) n.\n",
                                  "R [a](<https://e.com/x#f)](../p/y.md z>) n.\n",
                                  "'<' in the BASE unit at raw offset 6", (LESS_RULE,), SIBLINGS),
         "codex_escaped_fragment": ("[x](a.md#f\\)](b.md))\n", "[x](../a.md#f\\)](../b.md))\n",
@@ -75898,17 +75900,17 @@ class ClausePreservationTests(unittest.TestCase):
         self.rejected("final_dotdot_dir")
 
     def test_rebased_rejects_escaped_parenthesis(self):
-        for name in ("r6_escaped_fragment", "r6_escaped_query", "r6_escaped_anchor_only",
+        for name in ("escaped_fragment_case", "escaped_query_case", "escaped_anchor_only_case",
                      "codex_escaped_fragment", "codex_escaped_query",
                      "codex_escaped_fragment_kept", "codex_escaped_query_kept"):
             with self.subTest(name=name):
                 self.rejected(name)
 
     def test_rebased_rejects_balanced_parentheses(self):
-        self.rejected("r6_balanced_parentheses")
+        self.rejected("balanced_parentheses_case")
 
     def test_rebased_rejects_angle_destination(self):
-        self.rejected("r6_angle_destination")
+        self.rejected("angle_destination_case")
 
     def test_rebased_rejects_backslash_anywhere(self):
         self.rejected("backslash_prose")

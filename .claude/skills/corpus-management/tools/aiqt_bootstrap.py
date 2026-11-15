@@ -41,7 +41,7 @@ run, or a racing run, even as the SAME pre-existing object -- is
 never removed or unpublished by another run's failure, only by a
 check that actually refused it
 (guards against a failing run unpublishing a verified module,
-a racing publication of the same object). The SAME pack file imported under a DOTTED or other module name
+removing or unpublishing a racing publication of the same object). The SAME pack file imported under a DOTTED or other module name
 is NOT covered by the guard (the disclosed residual of a pack file imported under a dotted name): the guard
 protects the BARE NAME ``aiqt_corpus`` and nothing else. As a CLASS,
 ANY ``sys.path`` entry from which the pack's files can be reached under
@@ -50,7 +50,9 @@ name, without the installation marker -- a pack root, a pack root's
 parent, an identifier-named ancestor of a pack root, an entry holding
 a symlink (at any depth) to a pack directory
 (the disclosed residual of a dotted route through a symlinked directory), the empty entry or ``.`` while the
-working directory is such a place (the disclosed residual of an unscrubbed empty sys.path entry), and
+working directory is such a place (removed when the scrub sees it, which guards against an unscrubbed
+empty sys.path entry; the residual is an empty entry whose working directory becomes a pack place
+after the scrub), and
 any other such route; those are EXAMPLES, and no list of such routes
 here is complete. As a SECOND, BEST-EFFORT layer the shim removes the
 entry shapes it recognises: every ``sys.path`` entry whose RESOLVED
@@ -183,7 +185,9 @@ directory (``import xtools.aiqt_corpus`` through an entry whose
 ``yclaude`` link targets a pack root's parent:
 a dotted route through a symlinked directory, a disclosed residual the scrub does not
 recognise); and the empty entry or ``.`` while the working directory
-is such a place (the disclosed residual of an unscrubbed empty sys.path entry); the REPOSITORY ROOT does
+is such a place (removed when the scrub sees it, which guards against an unscrubbed empty sys.path
+entry; the residual is an empty entry whose working directory becomes a pack place after the
+scrub); the REPOSITORY ROOT does
 NOT carry a dotted route of its own -- ``.claude`` is not a Python
 identifier, so every dotted spelling through a repository-root entry
 fails with ``ModuleNotFoundError`` (corrects the premise of a repository root wrongly treated as a dotted route; the
@@ -1034,8 +1038,9 @@ def _remove_refused_module(refused) -> None:
     from a racing acceptance or publication of the SAME object, so a
     caller must pass only a module it actually refused -- or, on the
     failure path, an UNMARKED pre-existing module -- never a marked,
-    verified module (guards against a racing publication of the same object,
-    a failing run unpublishing a verified module). ``None`` is a no-op."""
+    verified module (a racing publication of the same object is a disclosed
+    limit of this identity check; the caller's marker check, not this helper,
+    guards against a failing run unpublishing a verified module). ``None`` is a no-op."""
     if refused is None:
         return
     _imp.acquire_lock()
@@ -1083,7 +1088,7 @@ def ensure_on_path() -> Path:
     unpublished by another run's failure, whether this run, an earlier
     run, or a racing run published it
     (guards against a failing run unpublishing a verified module,
-    a racing publication of the same object); the same pack
+    removing or unpublishing a racing publication of the same object); the same pack
     file imported under a DOTTED or other name is outside the guard
     (the disclosed residual of a pack file imported under a dotted name). Every bootstrap run re-fronts the
     guard with ONE atomic slice assignment of ``sys.meta_path`` that puts
@@ -1256,7 +1261,7 @@ def ensure_on_path() -> Path:
         # object meanwhile: the helper's object-identity check alone
         # cannot protect the same object, so this marker check does
         # (guards against a failing run unpublishing a verified module,
-        # a racing publication of the same object). A DIFFERENT module object
+        # removing or unpublishing a racing publication of the same object). A DIFFERENT module object
         # swapped in meanwhile is left alone by the helper's identity
         # check.
         if not _marked_for_verified_bytes(preexisting):

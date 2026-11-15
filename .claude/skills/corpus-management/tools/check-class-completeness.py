@@ -143,9 +143,10 @@ def _git_tracked(root: Path) -> set[str]:
 
 
 def attest_file_set(root: Path = REPO_ROOT, tracked: set[str] | None = None) -> list[Path]:
-    """The GIT-TRACKED corpus markdown set an attestation counts over: ``corpus_files``
-    intersected with ``git ls-files``, so an untracked scratch ``.md`` can neither inflate an
-    attested count nor spuriously fail the D14 reproduce-check. Working-tree CONTENT of
+    """The GIT-TRACKED corpus markdown set an attestation counts over: the ``git ls-files``
+    paths that ``is_markdown_target`` accepts, kept even when locally absent (NOT
+    ``corpus_files``, which needs a locally present file), so an untracked scratch ``.md``
+    can neither inflate an attested count nor spuriously fail the D14 reproduce-check. Working-tree CONTENT of
     tracked paths is what is read, so uncommitted edits to tracked files are counted (the
     attest reflects the fixed state before its commit). ``tracked`` is injectable for
     tests (the pure half); the default observes git (the thin observer)."""
@@ -203,7 +204,12 @@ def _self_test() -> int:
         checks.append(("attest-token-newline-refused", validate_attest_token("a\nb") is not None))
         checks.append(("attest-token-plain-ok", validate_attest_token("7 years") is None))
         afs = attest_file_set(root, tracked={"a.md"})
-        checks.append(("attest-set-git-tracked-only", [f.name for f in afs] == ["a.md"]))
+        # b.md is present on disk and found by corpus_files but is NOT in the tracked
+        # set, so the git-tracked set must exclude it.
+        checks.append(("attest-set-git-tracked-only",
+                       (root / "b.md").is_file()
+                       and "b.md" in {f.name for f in corpus_files(root)}
+                       and [f.name for f in afs] == ["a.md"]))
         # A tracked-but-locally-absent markdown path stays in the
         # attest set (not silently dropped) and is reported SKIPPED by the reader, so the
         # D14 reproduce-check fails closed on it rather than under-counting.
