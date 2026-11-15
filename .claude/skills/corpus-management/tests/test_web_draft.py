@@ -161,7 +161,7 @@ What is locked here, each test failing without its feature:
    the Related Documents check's file-presence and resolution clauses are
    exercised on fixtures; and the target variable inside that check does not
    shadow the parse loop's own file variable.
-23. Browse adventure: the By need card lines are the directed copy; the comply
+23. Browse adventure: the By need card lines are the pinned copy; the comply
    instruments intro gives the crosswalk table's instrument count and names
    its Also in the corpus instruments, as the rendered crosswalk shows them;
    the govern and comply annex sentences give the whole annex page's count and
@@ -1067,7 +1067,11 @@ class RepoLinkAllowListTests(unittest.TestCase):
         # decode, or keep whitespace or backslashes in the view): every
         # spelling resolves to the owner token in the decoded view, so
         # each fails the allow-list, in a synthetic HTML page and a
-        # synthetic text output alike, with no ledger entry.
+        # synthetic text output alike, with no ledger entry. The markup
+        # cases need no decoding: each carries the repository URL, plain
+        # or newline-split, in a meta refresh, a style url(), a base
+        # href, a srcset or a form action, and each fails in a synthetic
+        # HTML page alone, with no ledger entry.
         tree = "https://github.com/jposluns/grc_library/tree/main/ai"
         spellings = (
             ("charref slashes",
@@ -3579,7 +3583,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         return [unescape(re.sub(r"<[^>]+>", "", item))
                 for item in re.findall(r"<li>(.*?)</li>", block.group(1))]
 
-    def test_concern_chips_carry_no_near_duplicate_plain_names(self):
+    def test_concern_chips_carry_no_listed_plain_alias_spelling(self):
         """In the earlier repository, a dedupe collapsed only the
         instrument-aliased spellings, so near-duplicate plain names (ETSI EN
         304 223 with and without its date, OECD AI Principles with its dated
@@ -7209,7 +7213,7 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     # -- rendered-site fixes: chips, register rows, page leads ---------------
 
-    def test_b4_concern_chips_disambiguate_the_devops_dora(self):
+    def test_concern_chips_disambiguate_the_devops_dora(self):
         """In the earlier repository, /decide/resilience/ showed the plain chip
         "DORA accelerate metrics" beside linked EU DORA chips, one short name
         for two unrelated texts. The corpus names the DevOps research programme
@@ -7233,7 +7237,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 seen = True
         self.assertTrue(seen, "the disambiguated DevOps DORA chip renders")
 
-    def test_b4_register_carries_the_aeo_row_and_the_page_shows_it(self):
+    def test_register_carries_the_aeo_row_and_the_page_shows_it(self):
         """In the earlier repository, /crosswalk/aeo/ disclosed that the
         canonical citations register carries no row for the programme, while
         the disclosure page says hand-written editions are checked against the
@@ -7253,7 +7257,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertNotIn('<dl class="record side">', page)
         self.assertIn("<dt>Standard ID</dt>", page)
 
-    def test_b4_the_three_fallback_lead_documents_carry_purposes(self):
+    def test_the_three_fallback_lead_documents_carry_purposes(self):
         """In the earlier repository, three documents had no Purpose text, so
         their pages led with the generated fallback ("A matrix in the
         Compliance area of the GRC Library."). Each carries a taxonomy purpose,
@@ -7274,7 +7278,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 self.assertNotIn("area of the GRC Library.", html)
                 self.assertIn(self.mod._esc(doc["purpose"]), html)
 
-    def test_b4_the_dev_security_lead_uses_display_names(self):
+    def test_the_dev_security_lead_uses_display_names(self):
         """In the earlier repository, /dev-security/ rendered raw directory
         syntax from its README ("the same shape as content in security/, risk/,
         and the other domain directories"). The README names the domains by
@@ -7284,7 +7288,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertNotIn("domain directories", html)
         self.assertIn("the Security and Risk domains", html)
 
-    def test_b4_the_checklist_purpose_expands_aigc_on_first_use(self):
+    def test_the_checklist_purpose_expands_aigc_on_first_use(self):
         """In the earlier repository, the checklist purpose said "used by the
         AIGC and CISO" with AIGC unexpanded, its first use on the document page
         and on /types/checklist/. The corpus expands it to the glossary
@@ -11253,8 +11257,8 @@ class DraftSiteRenderTests(unittest.TestCase):
     # -- 23. Browse adventure: card lines and intro counts ------------------
 
     # The By need card lines as rendered, in card order: the Find a solution
-    # and Write a policy lines are the directed copy, the other three the
-    # approved mockup copy, unchanged.
+    # and Write a policy lines are reworded, the other three the approved
+    # mockup copy, unchanged.
     NEED_CARD_LINES = (
         "What the board should ask: decision briefs, oversight questions, "
         "and the evidence to expect back.",
@@ -11275,9 +11279,10 @@ class DraftSiteRenderTests(unittest.TestCase):
             return " and ".join(items)
         return ", ".join(items[:-1]) + ", and " + items[-1]
 
-    def test_browse_need_card_lines_are_the_directed_copy(self):
-        """Two By need card lines carry the directed copy exactly and the
-        other three stay as approved, checked on the rendered Browse cards."""
+    def test_browse_need_card_lines_match_the_pinned_copy(self):
+        """The five By need card lines equal NEED_CARD_LINES exactly, in
+        card order (two reworded lines and three approved ones), checked on
+        the rendered Browse cards."""
         browse = self.draft_html["browse/index.html"]
         block = re.search(
             r'<h2 id="need">By need</h2>\s*<div class="wide">'
@@ -12832,7 +12837,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         Security, Security and Partnership); compound wording that ends in
         a one-word held title and another kind's noun is read as naming
         that title under the kind-noun rule, though the compound names no
-        part (finding WCO-SWEEP-REV7-0922), so "Annex IV F, the information
+        part (a disclosed limit), so "Annex IV F, the information
         technology element" (names Technology) and "Section VI, the crisis
         communication section" (names Communication) are reported; a
         multi-word held title used as ordinary words is reported whatever
@@ -13154,7 +13159,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         order emphasis, footnote marker, full stop, so emphasis after a
         full stop ("Pillar II Standard 2 (Security).**") and a closing
         curly quotation mark (U+201D) after a citation are reported as
-        trailing text (finding WCO-SWEEP-REV7-0922); a lone capital letter
+        trailing text (a disclosed limit); a lone capital letter
         used as an ordinary word inside a description ("the U.S. rules",
         "the A-to-M list", the pronoun "I") is reported too; a part name
         with a lowercase or numeric identifier inside a description ("the
@@ -13606,8 +13611,8 @@ class DraftSiteRenderTests(unittest.TestCase):
         held title (_WCO_ELEMENT_ROWS); four stay pillar-only
         (_WCO_PILLAR_ONLY_ROWS). No single held element clearly fits the
         library charter, the BASC programme overview or the logistics
-        sector annex; for the full CTPAT minimum security criteria register
-        (review round 2, codex NOTE), no single element adequately
+        sector annex; for the full CTPAT minimum security criteria register,
+        no single element adequately
         represents the document's breadth. Each pinned cell passes the
         matrix guard, and the matrix's pillar-only cells are exactly the
         four, so a new pillar-only cell, or one of the seven losing its
@@ -13630,7 +13635,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             self.test_wco_safe_pillar_only_cells_reviewed_for_elements
             .__doc__.split())
         self.assertIn("for the full CTPAT minimum security criteria "
-                      "register (review round 2, codex NOTE), no single "
+                      "register, no single "
                       "element adequately represents the document's "
                       "breadth", doc)
         self.assertNotRegex(doc, r"clearly fits [^.;]*CTPAT")
@@ -14832,8 +14837,8 @@ class DraftSiteRenderTests(unittest.TestCase):
                     self.assertTrue(any(": unread text after it:" in finding
                                         for finding in findings), findings)
                 self.assertIn(shown, unread)
-        self.assertIn("finding WCO-SWEEP-REV7-0922", described)
-        self.assertIn("finding WCO-SWEEP-REV7-0922", unread)
+        self.assertIn("(a disclosed limit)", described)
+        self.assertIn("(a disclosed limit)", unread)
 
     def test_wco_safe_alignment_references_name_held_parts(self):
         """In the earlier repository, framework-alignment tables gave WCO
@@ -19069,9 +19074,9 @@ class DraftTemplateTypedCountTests(unittest.TestCase):
                 )
 
 
-class SiteB5FixTests(unittest.TestCase):
-    """42: cross-site wording and counts, one test per confirmed finding,
-    each failing without its fix on the rendered pages."""
+class SiteCrossPageWordingAndCountTests(unittest.TestCase):
+    """42: cross-site wording and counts, one test per rule, each checked on
+    the rendered pages."""
 
     @classmethod
     def setUpClass(cls):
@@ -19126,7 +19131,8 @@ class SiteB5FixTests(unittest.TestCase):
                     if i.main_table])
         total = len(self.mod.CROSSWALK_INSTRUMENTS)
         self.assertNotEqual(main, total,
-                            "the finding's shape: the two counts differ")
+                            "the main-table and instrument page counts "
+                            "differ")
         self.assertIn(
             f"against {main} standards, laws, frameworks, and programmes "
             "in its full table", browse)
@@ -19143,7 +19149,7 @@ class SiteB5FixTests(unittest.TestCase):
         search = self.draft_html["search/index.html"]
         root = [d for d in self._taxonomy_by_path().values()
                 if d.get("domain") == self.mod.ROOT_DOMAIN]
-        self.assertTrue(root, "the finding's shape: root specifications")
+        self.assertTrue(root, "the taxonomy holds root specifications")
         self.assertIn(
             f"The {len(root)} library specifications, read on GitHub, have "
             "no row here.", search)
@@ -19199,7 +19205,7 @@ class SiteB5FixTests(unittest.TestCase):
         spec_total = dict(self.figures["types"]).get("Specification", 0)
         root = self.figures["root_count"]
         self.assertGreater(spec_total, root,
-                           "the finding's shape: domain specifications")
+                           "some specifications sit in the domains")
         self.assertIn(
             f"Of the Specification row's {spec_total}, {spec_total - root} "
             f"sit in the domains and {root} are the library specifications.",
@@ -19251,7 +19257,8 @@ class SiteB5FixTests(unittest.TestCase):
         missing = [domain for domain, _ in self.figures["domains"]
                    if domain not in covered]
         self.assertGreater(len(missing), 1,
-                           "the finding's shape: uncovered domains")
+                           "more than one domain has no policy or "
+                           "template")
         full = self.mod.parse_taxonomy_full(
             self.mod.TAXONOMY.read_text(encoding="utf-8"))
         naming = [domain for domain in missing
@@ -19288,11 +19295,11 @@ class SiteB5FixTests(unittest.TestCase):
                               "the card names the other need paths")
 
 
-class SiteB8FixTests(unittest.TestCase):
+class SiteNarrativeIndexTourAndTradeTableTests(unittest.TestCase):
     """47: the decision narratives index takes its kind's name, the domain
     pages label their tour steps, and every trade programme page renders
-    the shared control-area table; one test per finding, each failing
-    without its fix on the rendered pages."""
+    the shared control-area table; one test per rule, each checked on
+    the rendered pages."""
 
     @classmethod
     def setUpClass(cls):
