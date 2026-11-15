@@ -97,10 +97,18 @@ def load_tool():
     return mod
 
 
+# Decision D5: each required workflow is bound to its own file, as gh api lists them for
+# grc_library_new, and counts only from a pull_request run.
+WORKFLOW_PATHS = {"Repository quality checks": ".github/workflows/quality.yml",
+                  "Pull request attribution": ".github/workflows/pr-attribution.yml"}
+
+
 def run(name, conclusion="success", status="completed", sha=HEAD, run_id=43583397326,
-        created="2026-11-14T10:30:00Z"):
+        created="2026-11-14T10:30:00Z", path=None, event="pull_request"):
+    if path is None:
+        path = WORKFLOW_PATHS.get(name, ".github/workflows/other.yml")
     return {"id": run_id, "name": name, "head_sha": sha, "status": status,
-            "conclusion": conclusion, "created_at": created}
+            "conclusion": conclusion, "created_at": created, "path": path, "event": event}
 
 
 class FakeGh:
@@ -368,18 +376,37 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
 
     def test_T5_line_breaking_title_characters_keep_one_row(self):
         # Every character str.splitlines() treats as a line boundary, and any other control
-        # character, becomes a space, so the row stays one line of six cells.
-        for char in ("\v", "\f", "\x1c", "\x1d", "\x1e", "\x85", "\u2028", "\u2029", "\r",
-                     "\x00", "\x1b"):
+        # character, becomes a space in a cell, so the row stays one line of six cells. A title
+        # holding a newline fails the one-line D3 suffix check, so it is refused before any
+        # merge call and no row is printed.
+        for char in ("\n", "\v", "\f", "\x1c", "\x1d", "\x1e", "\x85", "\u2028", "\u2029",
+                     "\r", "\x00", "\x1b"):
             with self.subTest(char=repr(char)):
+                self.assertEqual(self.mod._cell(f"a{char}b"), "a b")
                 title = f"content: a{char}b (CalVer 2026.11.69, README 1.11.919)"
                 fake = FakeGh(view={"title": title}, message=title + " (#31)\n\n" + BODY)
                 code, out, err = self.merge(fake)
+                if char == "\n":
+                    self.assertEqual(code, 1, err)
+                    self.assertEqual((out, fake.merge_calls()), ("", []))
+                    continue
                 self.assertEqual(code, 0, err)
                 lines = out.splitlines()
                 self.assertEqual(len(lines), 1, repr(out))
                 self.assertEqual(len(gfm_cells(lines[0])), 6, repr(lines[0]))
                 self.assertNotIn(char, lines[0])
+
+    def test_row_present_digit_check_follows_the_whole_lead(self):
+        # agy LOW: the digit check sits after the whole lead, #N, or #N (/retro) in the retro
+        # register, as row_present's docstring says; this keeps the current refusals.
+        v_row, r_row = VALIDATE_ROW, RETRO_ROW
+        self.assertTrue(self.mod.row_present(v_row, 31, retro=False))
+        self.assertFalse(self.mod.row_present(v_row.replace("#31", "#310"), 31, retro=False))
+        self.assertFalse(self.mod.row_present(v_row.replace("#31", "#31\uff13"), 31, retro=False))
+        self.assertTrue(self.mod.row_present(r_row, 31, retro=True))
+        self.assertFalse(self.mod.row_present(r_row.replace("#31", "#310"), 31, retro=True))
+        self.assertFalse(self.mod.row_present(r_row.replace("(/retro)", "(/retro)2026"), 31,
+                                              retro=True))
 
     def snapshot(self):
         return {p: (p.read_bytes() if p.is_file() else None)
@@ -516,6 +543,58 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         code, out, err = self.merge(fake)
         self.assertEqual(code, 0, err)
 
+    def assert_ci_refused(self, cases):
+        for name, (runs, culprit) in cases.items():
+            with self.subTest(case=name):
+                fake = FakeGh(runs=runs)
+                code, out, err = self.merge(fake)
+                self.assertEqual(code, 1, err)
+                self.assertIn(culprit, err)
+                self.assertEqual(fake.merge_calls(), [])
+                self.assertEqual(out, "")
+
+    def test_D5_required_workflows_bound_to_their_files(self):
+        self.assertEqual(self.mod.WORKFLOW_PATHS, WORKFLOW_PATHS)
+        self.assertEqual(set(self.mod.WORKFLOW_PATHS), set(self.mod.REQUIRED_WORKFLOWS))
+        self.assertEqual(self.mod.CI_EVENT, "pull_request")
+
+    def test_D5_same_named_run_from_another_file_refused_before_merge(self):
+        # claude F1: a PR could add a workflow file that reuses a required name. Only the bound
+        # file may satisfy it, and a same-named run from any other path refuses, even beside a
+        # green run from the bound file (as evaluate_runs in merge-when-green.py does).
+        decoy = ".github/workflows/decoy.yml"
+        self.assert_ci_refused({
+            "decoy only": ([run(QUALITY, path=decoy), run(ATTRIBUTION, run_id=2)], QUALITY),
+            "decoy green after the real run failed": ([
+                run(QUALITY, conclusion="failure", run_id=1, created="2026-11-14T10:00:00Z"),
+                run(QUALITY, path=decoy, run_id=3, created="2026-11-14T11:00:00Z"),
+                run(ATTRIBUTION, run_id=2)], QUALITY),
+            "decoy beside a green real run": ([
+                run(QUALITY), run(QUALITY, path=decoy, run_id=3), run(ATTRIBUTION, run_id=2)],
+                QUALITY),
+            "attribution decoy": ([
+                run(QUALITY), run(ATTRIBUTION, run_id=2), run(ATTRIBUTION, path=decoy, run_id=3)],
+                ATTRIBUTION),
+            "no path reported": ([run(QUALITY, path=""), run(ATTRIBUTION, run_id=2)], QUALITY),
+        })
+
+    def test_D5_only_a_pull_request_run_counts(self):
+        # claude F1: a later workflow_dispatch or push run on the head never stands in for the
+        # pull_request run of a required workflow.
+        def later(event):
+            return [run(QUALITY, conclusion="failure", run_id=1, created="2026-11-14T10:00:00Z"),
+                    run(QUALITY, event=event, run_id=3, created="2026-11-14T11:00:00Z"),
+                    run(ATTRIBUTION, run_id=2)]
+        self.assert_ci_refused({
+            "workflow_dispatch success after a failed pull_request run": (
+                later("workflow_dispatch"), QUALITY),
+            "push success after a failed pull_request run": (later("push"), QUALITY),
+            "workflow_dispatch only": ([run(QUALITY, event="workflow_dispatch"),
+                                        run(ATTRIBUTION, run_id=2)], QUALITY),
+            "no event reported": ([run(QUALITY, event=None), run(ATTRIBUTION, run_id=2)],
+                                  QUALITY),
+        })
+
     # Plan section 3: the open-findings check, reused from merge-when-green.py.
 
     def install_open_findings(self, rows):
@@ -548,13 +627,53 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertEqual(code, 0, err)
         self.assertEqual(fake.merge_calls(), [MERGE_ARGV])
 
-    def test_open_findings_unloadable_merge_when_green_refuses(self):
-        fake = FakeGh()
-        with mock.patch.object(self.mod, "MERGE_WHEN_GREEN", self.root / "absent.py"):
-            code, out, err = self.merge(fake)
-        self.assertEqual(code, 2, err)
-        self.assertEqual(fake.calls, [])
-        self.assertIn("merge-when-green", err)
+    def test_open_findings_second_ledger_read_never_allows_a_merge(self):
+        # codex MED 1: the ledger is read once and that text is judged. A second read that
+        # raises PermissionError (merge-when-green's open_findings_block allows on any read
+        # error) must never let a merge through.
+        self.install_open_findings(OPEN_ERROR)
+        real = Path.read_text
+        reads = []
+
+        def read_text(path, *args, **kwargs):
+            if Path(path).name == "open-findings.md":
+                reads.append(str(path))
+                if len(reads) > 1:
+                    raise PermissionError(13, "Permission denied", str(path))
+            return real(path, *args, **kwargs)
+        for dry_run in (False, True):
+            with self.subTest(dry_run=dry_run):
+                reads.clear()
+                fake = FakeGh()
+                with mock.patch.object(Path, "read_text", autospec=True, side_effect=read_text):
+                    code, out, err = self.merge(fake, dry_run=dry_run)
+                self.assertNotEqual(code, 0, err)
+                self.assertEqual(fake.merge_calls(), [])
+                self.assertEqual(fake.calls, [])
+                self.assertEqual(len(reads), 1, reads)
+                self.assertIn("a live defect", err)
+
+    def test_open_findings_parse_failure_refuses_before_any_gh_call(self):
+        # codex MED 1: a ledger the hook cannot parse refuses (merge-when-green allows it).
+        hook = self.root / ".claude" / "hooks" / HOOK_NAME
+        hook.write_text(hook.read_text(encoding="utf-8") + "\n\ndef parse_open_rows(text):\n"
+                        "    raise ValueError('unparseable ledger')\n", encoding="utf-8")
+        self.assert_refused_before_gh("open-findings")
+
+    def test_open_findings_agrees_with_merge_when_green_on_a_readable_ledger(self):
+        # The tool judges the text it read with the hook's own parse and decision, the two
+        # calls merge-when-green.py's open_findings_block() makes, so on a readable ledger the
+        # two tools never disagree.
+        spec = importlib.util.spec_from_file_location(
+            "_mgln_test_merge_when_green", REPO_ROOT / "tools" / "merge-when-green.py")
+        mwg = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mwg)
+        ledger = Path(self.tmp.name) / "ledger.md"
+        for rows in ("", OPEN_ERROR, FIXED_ERROR, FIXED_ERROR + OPEN_ERROR):
+            with self.subTest(rows=rows):
+                ledger.write_text(LEDGER_HEAD + rows, encoding="utf-8")
+                self.assertEqual(self.mod.open_findings(REPO_ROOT, ledger),
+                                 mwg.open_findings_block(REPO_ROOT, ledger))
 
     def test_open_findings_is_merge_when_green_decision_on_the_real_hook(self):
         ledger = Path(self.tmp.name) / "ledger.md"
@@ -625,6 +744,17 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assert_refused_before_gh(LOG_REL)
         self.assertEqual(moved.read_text(encoding="utf-8"), LOG_SHAPE)
 
+    def test_log_preflight_in_store_symlink_refuses_before_any_gh_call(self):
+        # codex MED 2: the append opens the log with O_NOFOLLOW, so a final-component symlink,
+        # even to a writable file inside the store, would refuse the row after the merge. The
+        # pre-flight refuses it before any gh call.
+        target = self.store / "real-merge-bypass-log.md"
+        os.replace(self.log, target)
+        self.log.symlink_to(target.name)
+        self.assertTrue(self.log.resolve().is_relative_to(self.store.resolve()))
+        self.assert_refused_before_gh("symlink")
+        self.assertEqual(target.read_text(encoding="utf-8"), LOG_SHAPE)
+
     # Part 2d item 1: the header is the first table line; text before it is allowed.
 
     def test_log_preflight_accepts_the_real_log_shape(self):
@@ -649,7 +779,8 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertEqual(len(fake.merge_calls()), 0)
                 self.assertIn("DRY RUN", err)
 
-    # Part 2d item 2: the last non-blank line must be a table line, so the row lands in the table.
+    # Part 2d item 2: the last line itself must be a table line, with no blank or
+    # whitespace-only line after it, so the row lands in the table.
 
     def test_log_preflight_last_line_not_a_table_line_refuses_before_any_gh_call(self):
         for text in (HEADER + "\n" + OLD_LOG_ROW + "\nprose after the table\n",
@@ -674,8 +805,10 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertEqual(self.log.read_text(encoding="utf-8"), LOG_SHAPE)
 
     def test_log_preflight_checks_writability_without_writing(self):
-        # The check is os.access on the resolved file, after the D1 store check; it opens
-        # nothing for writing, so the log's bytes and modification time stay as they were.
+        # The check is os.access for reading and writing (what the append's O_RDWR needs) on
+        # the log path itself, a final symlink being refused first, after the D1 store check;
+        # it opens nothing for writing, so the log's bytes and modification time stay as they
+        # were.
         before = (self.log.read_bytes(), self.log.stat().st_mtime_ns)
         seen = []
         real = os.access
@@ -686,7 +819,8 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         with mock.patch.object(self.mod.os, "access", side_effect=access):
             code, out, err = self.merge(FakeGh(), dry_run=True)
         self.assertEqual(code, 0, err)
-        self.assertIn((self.log.resolve(), os.W_OK), seen)
+        self.assertIn((self.log.resolve(), os.R_OK | os.W_OK),
+                      [(path.resolve(), mode) for path, mode in seen])
         self.assertEqual((self.log.read_bytes(), self.log.stat().st_mtime_ns), before)
 
     # Part 2c item 2: the printed row is appended to the log and read back.

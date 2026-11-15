@@ -45740,7 +45740,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint_common.py PASSIVE F c3f9567cb927a4a4599fc2704a690a93d145aef8edfa2a90eb660b246aadbedd
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
-        merge-grc-library-new.py NO_FS F 78f189059d7d39e56261934ddf352cb9eaf6be51e1288edcdc85a0329323634d
+        merge-grc-library-new.py NO_FS F 888b3d57124aeb85b19a6edf3a2b97d086bbe230b5f79190f38ba471e1faf0be
         merge-when-green.py NO_FS F 493d94a7663bb8c9c75f81160c88b2dc0be78179d2048e0ae08a2a8eed2b4080
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
@@ -62309,7 +62309,10 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
         self.assertIn(self.SANCTIONED, source)
         # The refusal names the merge tool and states the plan section 4 residual.
         for fragment in ("built at runtime", "gh aliases", "web UI", "direct pushes to main",
-                         "MCP merge tools under other names", "over-refusal"):
+                         "MCP merge tools under other names", "over-refusal",
+                         "never names grc_library_new", "mergePullRequest by node id",
+                         "repositories/<id>/pulls/N/merge", "another directory name",
+                         "gh repo set-default"):
             self.assertIn(fragment, source)
 
     def test_h5_malformed_stdin(self):
@@ -81344,6 +81347,21 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         registered = self._registered_blocking_hooks()
         self.assertEqual(len(registered), 19)
         self.assertEqual(registered, set(self._case_registry()))
+        # codex LOW: a hook registered under two matchers keeps its name when one entry goes,
+        # so each required (event, matcher, hook) combination is asserted on its own.
+        settings = json.loads((REPO_ROOT / ".claude" / "settings.json").read_text(encoding="utf-8"))
+        combos = set()
+        for event, groups in settings["hooks"].items():
+            for entry in groups:
+                for hook in entry.get("hooks", []):
+                    for name in re.findall(r"\.claude/hooks/([a-z0-9-]+)\.py",
+                                           hook.get("command", "")):
+                        combos.add((event, entry.get("matcher"), name))
+        for want in (("PreToolUse", "Bash", "block-new-merge-outside-tool"),
+                     ("PreToolUse", "mcp__github__merge_pull_request",
+                      "block-new-merge-outside-tool")):
+            with self.subTest(combination=want):
+                self.assertIn(want, combos)
         for hook, cases in self._case_registry().items():
             self.assertTrue(cases, hook)
             self.assertEqual(len(cases), len({c["id"] for c in cases}), hook)

@@ -143,12 +143,15 @@ drive end-to-end on the maintainer's behalf:
    the tool refuses unless: the PR's /validate-pr and /retro rows, each tagged
    `[repo: grc_library_new]`, are in `validate-pr/history-grc_library_new.md` and
    `improvement-log-grc_library_new.md` in the operational store; the admin-merge log there is
-   writable, has the expected header and ends in its table; no undispositioned `error` finding
-   is open (an unreadable ledger or check refuses); gh reports the PR OPEN on base `main` in
+   a regular file (not a symlink) it can read and write, has the expected header and ends in
+   its table; no undispositioned `error` finding is open (an unreadable or unparseable ledger,
+   or an unloadable check, refuses); gh reports the PR OPEN on base `main` in
    grc_library_new; the head is a 40-character lowercase hex SHA, which it pins; the title
    ends with
-   `(CalVer <v>, README <v>)`; and the latest runs of "Repository quality checks" and "Pull
-   request attribution" on that head concluded success. It then squash-merges with an
+   `(CalVer <v>, README <v>)`; and the latest `pull_request` runs of "Repository quality
+   checks" (`.github/workflows/quality.yml`) and "Pull request attribution"
+   (`.github/workflows/pr-attribution.yml`) on that head concluded success, with no
+   same-named run from any other workflow file. It then squash-merges with an
    explicit subject and body, `--match-head-commit` and `--admin`, and reads the merge commit
    back: a trailer, a message that differs from the one sent, or a parent count other than one
    exits 3 with `MERGED BUT`. It prints the admin-merge log row, PR cell
@@ -159,7 +162,10 @@ drive end-to-end on the maintainer's behalf:
    grc_library_new clone) and mentions a pull-request merge. It matches text only, so it also
    refuses commit messages, greps, echo and heredoc bodies that name both, and its refusal
    names what it does not close (commands built at runtime, gh aliases, web UI merges, direct
-   pushes to main).
+   pushes to main, and merges whose text never names grc_library_new: a GraphQL
+   `mergePullRequest` by node id, a REST `repositories/<id>/pulls/N/merge` call, or
+   `gh pr merge N` from a grc_library_new clone under another directory name or from a clone
+   where `gh repo set-default` points at grc_library_new).
    The maintainer does not gate-keep merges of PRs they have personally authored.
    **CORRECTED 2026-07-25 (codex deep-assessment M-04): a plain merge attempt does NOT
    resolve `mergeable_state: blocked`.** This file previously claimed it did; that was

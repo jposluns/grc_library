@@ -9,9 +9,9 @@ QA rows for the PR are in this repository's own registers in the operational sto
 
 A row is a Markdown table line outside any fenced block that begins with ``|`` and has at least
 three cells, whose first cell is an ISO date (ASCII digits, ``YYYY-MM-DD``) and whose second cell
-starts with ``#N`` not followed by a digit (of any script) and contains the literal tag
-``[repo: grc_library_new]``. In the improvement log the second cell must start with
-``#N (/retro)``. So ``#3`` and ``#310`` never stand for ``#31``, a ``[repo: grc_library]`` or
+starts with the lead ``#N`` (in the improvement log ``#N (/retro)``), the whole lead not followed
+by a digit (of any script), and contains the literal tag ``[repo: grc_library_new]``. So ``#3``
+and ``#310`` never stand for ``#31``, a ``[repo: grc_library]`` or
 untagged row never counts, and a row quoted inside a fence never counts.
 
 Decision D1: the registers are read only from the operational store found by lint_common's strict
@@ -27,23 +27,26 @@ through gh():
 
 0. Part 2c, before any gh call: the admin-merge log pre-flight resolves
    ``merge-bypass-log.md`` with lint_common.resolve_working(strict=True), accepts it only inside
-   the operational store (decision D1, as for the registers), reads it and refuses unless the
-   resolved file is writable by this user (os.access, nothing is opened for writing), its header
+   the operational store (decision D1, as for the registers), reads it and refuses unless it is
+   a regular file and not a symlink (the append never follows a final symlink) that this user
+   may read and write (os.access on the path itself, nothing is opened for writing), its header
    (the first line that begins with ``|``; a title, prose or a list may come before it) equals
    LOG_HEADER, and its last non-blank line is a table line with no blank line after it, so the
    appended row lands inside the table (part 2d). Then plan section 3: the open-findings check
-   refuses while the
-   ledger holds an undispositioned ``error`` finding. It is merge-when-green.py's own
-   open_findings_block(), loaded by path the way that tool loads the hook, so the two tools can
-   never disagree; but it fails closed here: an absent or unloadable hook, a merge-when-green.py
-   that cannot be loaded, or no readable ledger ``open-findings.md`` inside the operational store
-   refuses (merge-when-green.py itself allows the first and the last).
+   refuses while the ledger holds an undispositioned ``error`` finding. The ledger
+   ``open-findings.md`` is read once from the operational store and that text is judged by the
+   open-findings hook's own parse_open_rows() and decide_exit(), loaded by path: the two calls
+   merge-when-green.py's open_findings_block() makes, so the two tools agree on a readable
+   ledger. It fails closed here: an absent or unloadable hook, no readable ledger inside the
+   operational store, or a ledger the hook cannot parse or judge refuses (merge-when-green.py
+   itself allows an absent hook, an unreadable ledger and an unparseable one).
 1. ``gh pr view`` must report the PR OPEN on base ``main``, its own number and URL in
    grc_library_new, and a 40-character lowercase hex head SHA, which is pinned from here on.
 2. Decision D3: the title must end with the ``(CalVer <v>, README <v>)`` suffix.
-3. Decision D5: the Actions runs for the pinned head SHA are read, and the latest run of every
-   workflow in REQUIRED_WORKFLOWS must be completed with conclusion success; a pending, failed,
-   missing or unreadable result refuses.
+3. Decision D5: the Actions runs for the pinned head SHA are read, and the latest
+   ``pull_request`` run of every workflow in REQUIRED_WORKFLOWS, from its own file in
+   WORKFLOW_PATHS, must be completed with conclusion success; a pending, failed, missing or
+   unreadable result refuses, as does a same-named run from any other workflow file.
 4. ``--dry-run`` stops here. Otherwise the PR is squash-merged with an explicit subject
    (``<title> (#N)``) and body, pinned with ``--match-head-commit``, with ``--admin``.
 5. The merged commit is read back; any trailer line (Co-authored-by, Signed-off-by or any other),
@@ -74,7 +77,9 @@ commit, or the append or read-back of the log row, failed.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import importlib.util
+import io
 import json
 import os
 import re
@@ -106,8 +111,12 @@ VIEW_FIELDS = "number,title,state,headRefOid,baseRefName,url"
 # Decision D5: the workflows in grc_library_new whose latest run on the pinned head must have
 # concluded success: both workflow names a grc_library_new head must pass (3b882 P2b).
 REQUIRED_WORKFLOWS = ("Repository quality checks", "Pull request attribution")
-# Plan section 3: the open-findings check is merge-when-green.py's own, loaded by path.
-MERGE_WHEN_GREEN = TOOLS_DIR / "merge-when-green.py"
+# Each required workflow counts only from its own workflow file, as gh api lists them for
+# grc_library_new, and only from a pull_request run; a same-named run from another file refuses
+# (evaluate_runs in merge-when-green.py binds the same way).
+WORKFLOW_PATHS = {"Repository quality checks": ".github/workflows/quality.yml",
+                  "Pull request attribution": ".github/workflows/pr-attribution.yml"}
+CI_EVENT = "pull_request"
 # Decision D2: the admin-merge log's header; the row printed has one cell per column.
 LOG_HEADER = "| Date (UTC) | PR | CI state at merge | Mechanism | Justification | Change |"
 # Part 2c: the store-relative admin-merge log (gate 50 Check 6 reads the same file), the
@@ -158,10 +167,12 @@ def _table_rows(text: str):
 def row_present(text: str, pr: int, *, retro: bool) -> bool:
     """Whether ``text`` holds a dated table row for grc_library_new PR ``pr``.
 
-    The second cell must start with ``#<pr>`` not followed by a digit (or ``#<pr> (/retro)`` when
-    ``retro``) and contain the ``[repo: grc_library_new]`` tag."""
-    head = f"#{pr} (/retro)" if retro else f"#{pr}"
-    lead = re.compile(re.escape(head) + r"(?!\d)")
+    The second cell must start with the lead, ``#<pr>``, or ``#<pr> (/retro)`` when ``retro``.
+    The digit check sits after the whole lead: no digit (of any script) may follow ``#<pr>``, or
+    follow ``(/retro)`` when ``retro``. The cell must also contain the
+    ``[repo: grc_library_new]`` tag."""
+    lead_text = f"#{pr} (/retro)" if retro else f"#{pr}"
+    lead = re.compile(re.escape(lead_text) + r"(?!\d)")  # the digit check after the whole lead
     for cells in _table_rows(text):
         if _DATE.fullmatch(cells[0]) and lead.match(cells[1]) and REPO_TAG in cells[1]:
             return True
@@ -282,18 +293,31 @@ def log_shape_problem(text: str) -> str:
 
 
 def log_preflight(root: Path) -> Path:
-    """Parts 2c and 2d: the admin-merge log inside the operational store (D1), a readable regular
-    file that this user may write (os.access on the resolved file; nothing is opened for
-    writing), with the shape log_shape_problem() accepts; or :class:`RegisterError` naming it."""
+    """Parts 2c and 2d: the admin-merge log inside the operational store (D1), a regular file and
+    not a symlink, that this user may read and write, with the shape log_shape_problem() accepts;
+    or :class:`RegisterError` naming it. append_log_row() opens the log for reading and writing
+    with O_NOFOLLOW, so a final-component symlink (even to a file inside the store) or a file
+    this user cannot read and write would be refused only after the merge: both refuse here.
+    os.access runs on the path itself, and nothing is opened for writing."""
+    import stat
+
     path = resolve_in_store(root, LOG_REL, "admin-merge log")
+    try:
+        info = os.lstat(path)
+    except OSError as exc:
+        raise RegisterError(f"admin-merge log {path}: cannot be examined: {exc}") from exc
+    if stat.S_ISLNK(info.st_mode):
+        raise RegisterError(f"admin-merge log {path}: a symlink, which the append never follows "
+                            "(O_NOFOLLOW), so the row could not be appended after the merge")
     text = read_in_store(path, "admin-merge log")
     try:
-        writable = os.access(path.resolve(), os.W_OK)
-    except (OSError, RuntimeError) as exc:
-        raise RegisterError(f"admin-merge log {path}: cannot be resolved: {exc}") from exc
+        writable = os.access(path, os.R_OK | os.W_OK)
+    except OSError as exc:
+        raise RegisterError(f"admin-merge log {path}: cannot be examined: {exc}") from exc
     if not writable:
-        raise RegisterError(f"admin-merge log {path}: not writable by this user, so the row could "
-                            "not be appended after the merge")
+        raise RegisterError(f"admin-merge log {path}: not writable by this user (the append opens "
+                            "it for reading and writing), so the row could not be appended after "
+                            "the merge")
     problem = log_shape_problem(text)
     if problem:
         raise RegisterError(f"admin-merge log {path}: {problem}")
@@ -404,9 +428,11 @@ def message_trailers(message: str) -> list[str]:
 
 def ci_check(text: str, head: str) -> tuple[int, list[str], dict]:
     """Decision D5 on the ``actions/runs?head_sha=`` JSON: ``(0, [], {name: run id})`` when the
-    latest run of every required workflow on ``head`` completed with success; 1 naming each
-    workflow whose run is missing, pending or not successful; 2 when the list cannot be read or
-    is incomplete."""
+    latest ``pull_request`` run on ``head`` of every required workflow, from its own file in
+    WORKFLOW_PATHS, completed with success; 1 naming each workflow whose run is missing, pending
+    or not successful, or that is also reported from another workflow file (a name collision:
+    only its own file may satisfy it, as in merge-when-green.py's evaluate_runs); 2 when the list
+    cannot be read or is incomplete."""
     try:
         data = json.loads(text)
     except json.JSONDecodeError as exc:
@@ -420,9 +446,17 @@ def ci_check(text: str, head: str) -> tuple[int, list[str], dict]:
                    f"{len(runs)} listed"], {}
     problems, green = [], {}
     for name in REQUIRED_WORKFLOWS:
-        mine = [r for r in runs if r.get("name") == name and r.get("head_sha") == head]
+        path = WORKFLOW_PATHS[name]
+        named = [r for r in runs if r.get("name") == name]
+        foreign = [r for r in named if r.get("path") != path]
+        if foreign:
+            problems.append(f"required workflow {name!r} is also reported from "
+                            f"{foreign[0].get('path')!r}, not only {path!r} (a name collision); "
+                            "only its own file may satisfy it")
+            continue
+        mine = [r for r in named if r.get("head_sha") == head and r.get("event") == CI_EVENT]
         if not mine:
-            problems.append(f"required workflow {name!r}: no run on {head}")
+            problems.append(f"required workflow {name!r}: no {CI_EVENT} run from {path} on {head}")
             continue
         latest = max(mine, key=lambda r: (str(r.get("created_at") or ""),
                                           r.get("id") if isinstance(r.get("id"), int) else -1))
@@ -435,14 +469,16 @@ def ci_check(text: str, head: str) -> tuple[int, list[str], dict]:
 
 
 def open_findings(root: Path, ledger=None) -> tuple[int, str]:
-    """Plan section 3: ``(exit code, message)`` from merge-when-green.py's open_findings_block().
+    """Plan section 3: ``(exit code, message)`` from the open-findings hook's own decision.
 
-    That tool is loaded by path, as it loads the open-findings hook, and its function runs the
-    hook's own parse and decision on the ledger, so the two merge tools can never disagree. 1 means
-    an undispositioned ``error`` finding (or a mis-filed finding row) is open. Part 2c item 3: the
-    check fails closed with 2 where merge-when-green.py allows or cannot run: the hook absent or
-    not loadable, merge-when-green.py not loadable, or (``ledger`` not given) no readable ledger
-    ``open-findings.md`` inside the operational store (decision D1)."""
+    The ledger is read once and that text is judged by the hook's parse_open_rows() and
+    decide_exit(), loaded by path: the two calls merge-when-green.py's open_findings_block()
+    makes, so the two merge tools agree on a readable ledger. The ledger is never read a second
+    time (open_findings_block rereads it and allows on any read or parse error). 1 means an
+    undispositioned ``error`` finding (or a mis-filed finding row) is open. Part 2c item 3: the
+    check fails closed with 2: the hook absent or not loadable, no readable ledger (``ledger``
+    when given, else ``open-findings.md`` inside the operational store, decision D1), or a
+    ledger the hook cannot parse or judge."""
     hook = Path(root) / HOOK_REL
     if not hook.is_file():
         return 2, f"the open-findings hook {hook} is absent; refusing to merge unchecked"
@@ -454,21 +490,21 @@ def open_findings(root: Path, ledger=None) -> tuple[int, str]:
     except Exception as exc:  # noqa: BLE001 - any load failure refuses
         return 2, (f"the open-findings hook {hook} could not be loaded ({exc}); refusing to merge "
                    "unchecked")
-    if ledger is None:
-        try:
-            ledger = resolve_in_store(Path(root), LEDGER_REL, "open-findings ledger")
-            read_in_store(ledger, "open-findings ledger")
-        except RegisterError as exc:
-            return 2, f"{exc}; refusing to merge unchecked"
     try:
-        spec = importlib.util.spec_from_file_location("_mgln_merge_when_green", MERGE_WHEN_GREEN)
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
-        block = mod.open_findings_block
-    except Exception as exc:  # noqa: BLE001 - any load failure refuses
-        return 2, (f"merge-when-green.py ({MERGE_WHEN_GREEN}) could not be loaded for the "
-                   f"open-findings check ({exc}); refusing to merge unchecked")
-    return block(root, ledger)
+        if ledger is None:
+            ledger = resolve_in_store(Path(root), LEDGER_REL, "open-findings ledger")
+        text = read_in_store(Path(ledger), "open-findings ledger")
+    except RegisterError as exc:
+        return 2, f"{exc}; refusing to merge unchecked"
+    err = io.StringIO()
+    try:
+        rows = hook_mod.parse_open_rows(text)
+        with contextlib.redirect_stderr(err):
+            code = hook_mod.decide_exit(rows, text)
+    except Exception as exc:  # noqa: BLE001 - any parse or decision failure refuses
+        return 2, (f"the open-findings ledger {ledger} could not be parsed or judged ({exc}); "
+                   "refusing to merge unchecked")
+    return (1 if code else 0), err.getvalue().strip()
 
 
 def _cell(text: str) -> str:
