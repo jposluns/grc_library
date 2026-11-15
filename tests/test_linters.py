@@ -45740,7 +45740,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint_common.py PASSIVE F c3f9567cb927a4a4599fc2704a690a93d145aef8edfa2a90eb660b246aadbedd
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
-        merge-grc-library-new.py NO_FS F 9f68ec62a0bf11de86b974a364090a3041439064e1ee38f626c7b7358a29005b
+        merge-grc-library-new.py NO_FS F 78f189059d7d39e56261934ddf352cb9eaf6be51e1288edcdc85a0329323634d
         merge-when-green.py NO_FS F 493d94a7663bb8c9c75f81160c88b2dc0be78179d2048e0ae08a2a8eed2b4080
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e

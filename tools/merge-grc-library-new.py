@@ -27,8 +27,12 @@ through gh():
 
 0. Part 2c, before any gh call: the admin-merge log pre-flight resolves
    ``merge-bypass-log.md`` with lint_common.resolve_working(strict=True), accepts it only inside
-   the operational store (decision D1, as for the registers), reads it and refuses unless its
-   first line equals LOG_HEADER. Then plan section 3: the open-findings check refuses while the
+   the operational store (decision D1, as for the registers), reads it and refuses unless the
+   resolved file is writable by this user (os.access, nothing is opened for writing), its header
+   (the first line that begins with ``|``; a title, prose or a list may come before it) equals
+   LOG_HEADER, and its last non-blank line is a table line with no blank line after it, so the
+   appended row lands inside the table (part 2d). Then plan section 3: the open-findings check
+   refuses while the
    ledger holds an undispositioned ``error`` finding. It is merge-when-green.py's own
    open_findings_block(), loaded by path the way that tool loads the hook, so the two tools can
    never disagree; but it fails closed here: an absent or unloadable hook, a merge-when-green.py
@@ -253,13 +257,46 @@ def read_in_store(path: Path, what: str) -> str:
         raise RegisterError(f"{what} {path}: cannot be read: {exc}") from exc
 
 
+def log_shape_problem(text: str) -> str:
+    """Part 2d items 1 and 2: "" when ``text`` has the admin-merge log's shape, else the problem.
+
+    The header is the first line that begins with ``|`` (a title, a licence line, prose or a list
+    may come before it) and must equal LOG_HEADER. The last non-blank line must be a table line
+    with no blank line after it, so a row appended to the file lands inside the table."""
+    lines = text.split("\n")
+    header = next((line for line in lines if line.startswith("|")), None)
+    if header is None:
+        return "no table header line (no line begins with |)"
+    if header != LOG_HEADER:
+        return f"header line {header!r} is not {LOG_HEADER!r}"
+    body = lines[:-1] if lines[-1] == "" else lines
+    filled = [i for i, line in enumerate(body) if line.strip()]
+    last = body[filled[-1]]
+    if not last.startswith("|"):
+        return (f"last non-blank line {last!r} is not a table line, so an appended row would "
+                "land outside the table")
+    if filled[-1] != len(body) - 1:
+        return ("a blank line follows the last table line, so an appended row would land "
+                "outside the table")
+    return ""
+
+
 def log_preflight(root: Path) -> Path:
-    """Part 2c item 1: the admin-merge log inside the operational store, readable, its first line
-    equal to LOG_HEADER; or :class:`RegisterError` naming it."""
+    """Parts 2c and 2d: the admin-merge log inside the operational store (D1), a readable regular
+    file that this user may write (os.access on the resolved file; nothing is opened for
+    writing), with the shape log_shape_problem() accepts; or :class:`RegisterError` naming it."""
     path = resolve_in_store(root, LOG_REL, "admin-merge log")
-    first = read_in_store(path, "admin-merge log").split("\n", 1)[0]
-    if first != LOG_HEADER:
-        raise RegisterError(f"admin-merge log {path}: header line {first!r} is not {LOG_HEADER!r}")
+    text = read_in_store(path, "admin-merge log")
+    try:
+        writable = os.access(path.resolve(), os.W_OK)
+    except (OSError, RuntimeError) as exc:
+        raise RegisterError(f"admin-merge log {path}: cannot be resolved: {exc}") from exc
+    if not writable:
+        raise RegisterError(f"admin-merge log {path}: not writable by this user, so the row could "
+                            "not be appended after the merge")
+    problem = log_shape_problem(text)
+    if problem:
+        raise RegisterError(f"admin-merge log {path}: {problem}")
     return path
 
 
@@ -601,6 +638,8 @@ def self_test() -> int:
 
     v_row = "| 2026-11-14 | #31 [repo: grc_library_new] | train 1 | claude | IDS | done |"
     r_row = "| 2026-11-14 | #31 (/retro) [NEW31-RETRO] [repo: grc_library_new] | t | a | b | c |"
+    log_shape = ("# Merge-bypass log\n\n**License:** CC BY-SA 4.0\n\nProse.\n\n- a list item\n\n"
+                 + LOG_HEADER + "\n| 2026-11-14 | #3132 | ci | admin squash | why | change |\n")
     cases = [
         ("both rows", missing_rows(v_row, r_row, 31), []),
         ("validate-pr missing", missing_rows("", r_row, 31), ["validate-pr"]),
@@ -629,6 +668,15 @@ def self_test() -> int:
         ("clean message", message_trailers("content: s\n\nSquash merge of #31 at abc."), []),
         ("cell escapes backslash and pipe", _cell("a \\| b"), "a \\\\\\| b"),
         ("cell blanks line separators", _cell("a\u2028b\x85c\vd\re"), "a b c d e"),
+        ("log: real shape", log_shape_problem(log_shape), ""),
+        ("log: header only", log_shape_problem(LOG_HEADER + "\n"), ""),
+        ("log: no table line", "no table header" in log_shape_problem("# t\n\nprose\n"), True),
+        ("log: first table line differs",
+         "is not" in log_shape_problem("| a | b | c |\n" + log_shape), True),
+        ("log: prose after the table",
+         "outside the table" in log_shape_problem(log_shape + "prose\n"), True),
+        ("log: blank line after the table",
+         "outside the table" in log_shape_problem(log_shape + "\n"), True),
     ]
     failures = [f"{name}: got {got}, want {want}" for name, got, want in cases if got != want]
     saved = os.environ.get("GRC_STORE")

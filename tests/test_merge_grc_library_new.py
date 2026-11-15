@@ -3,7 +3,9 @@ argv (T3), the read-back of the merged commit (T4), the admin-merge log row prin
 output (T5), the title suffix (T6, decision D3) and the CI check on the pinned head (decision D5);
 part P2b: both required workflows (D5), the log-row cell escaping (T5) and the open-findings check
 reused from merge-when-green.py (plan section 3); part P2c: the admin-merge log pre-flight before any
-gh call, the row appended to the log and read back, and the open-findings check failing closed.
+gh call, the row appended to the log and read back, and the open-findings check failing closed;
+part P2d: the pre-flight reads the log's real shape (text before the header, the header as the
+first table line, a table line last) and refuses a log it could not append to.
 
 Every gh call is stubbed through the tool's gh() seam, so nothing contacts a network, and every
 test points GRC_STORE at a temporary directory, so none reads the operational store.
@@ -47,6 +49,26 @@ FIXED_ERROR = "| 2026-11-15 | error | a fixed defect | probe | FIXED #1 |\n"
 LOG_REL = "merge-bypass-log.md"
 HOOK_NAME = "block-on-open-findings.py"
 OLD_LOG_ROW = "| 2026-09-20 | #2408 | green | admin squash | review | content |"
+# Part 2d: the true shape of the admin-merge log (texts/log-shape.md): a title, a licence line,
+# prose and a list before the table, the header with no separator row, then data rows, ending
+# with a data row and a newline.
+LOG_SHAPE = (
+    "# Merge-bypass log\n"
+    "\n"
+    "**License:** CC BY-SA 4.0\n"
+    "\n"
+    "Every merge since this log was created that used the admin merge path on a protected "
+    "branch, one row each. (A synthetic stand-in for the real preamble, which runs about 30 "
+    "lines of prose, lists and blank lines before the table.)\n"
+    "\n"
+    "- a list item in the preamble\n"
+    "\n"
+    + HEADER + "\n"
+    "| 2026-09-20 | #2408 | Repository quality checks completed/success | admin squash "
+    "(merge-when-green.py --admin) | branch protection | example change |\n"
+    "| 2026-11-14 | #3132 | Repository quality checks completed/success | admin squash "
+    "(merge-when-green.py --admin) | branch protection | example change |\n"
+)
 
 
 def gfm_cells(row):
@@ -139,7 +161,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.install_hook()
         (self.store / "open-findings.md").write_text(LEDGER_HEAD, encoding="utf-8")
         self.log = self.store / LOG_REL
-        self.log.write_text(HEADER + "\n", encoding="utf-8")
+        self.log.write_text(LOG_SHAPE, encoding="utf-8")
         patcher = mock.patch.dict(os.environ, {"GRC_STORE": str(self.store)})
         patcher.start()
         self.addCleanup(patcher.stop)
@@ -563,9 +585,11 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assert_refused_before_gh(LOG_REL)
 
     def test_log_preflight_header_mismatch_refuses_before_any_gh_call(self):
-        for text in ("", "\n" + HEADER + "\n", HEADER.replace("Change", "Changes") + "\n",
-                     HEADER + " \n", "# Merge bypass log\n\n" + HEADER + "\n",
-                     HEADER.replace("| ", "|", 1) + "\n"):
+        for text in ("", "# Merge-bypass log\n\nprose only, no table\n",
+                     HEADER.replace("Change", "Changes") + "\n",
+                     HEADER + " \n", HEADER.replace("| ", "|", 1) + "\n",
+                     "# t\n\n| a | b | c |\n\n" + HEADER + "\n" + OLD_LOG_ROW + "\n",
+                     LOG_SHAPE.replace(HEADER, HEADER.replace("PR", "Pull request"))):
             with self.subTest(text=text):
                 self.log.write_text(text, encoding="utf-8")
                 self.assert_refused_before_gh("header")
@@ -599,7 +623,71 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                          HEADER + "\n")
         self.log.symlink_to(moved)
         self.assert_refused_before_gh(LOG_REL)
-        self.assertEqual(moved.read_text(encoding="utf-8"), HEADER + "\n")
+        self.assertEqual(moved.read_text(encoding="utf-8"), LOG_SHAPE)
+
+    # Part 2d item 1: the header is the first table line; text before it is allowed.
+
+    def test_log_preflight_accepts_the_real_log_shape(self):
+        self.assertEqual(self.log.read_text(encoding="utf-8"), LOG_SHAPE)
+        code, out, err = self.merge(FakeGh(), dry_run=True)
+        self.assertEqual(code, 0, err)
+        self.assertEqual(self.log.read_text(encoding="utf-8"), LOG_SHAPE)
+        code, out, err = self.merge(FakeGh())
+        self.assertEqual(code, 0, err)
+        self.assertEqual(len(out.splitlines()), 1, out)
+        self.assertEqual(self.log.read_text(encoding="utf-8"), LOG_SHAPE + out)
+
+    def test_log_preflight_text_before_the_header_is_allowed(self):
+        for text in ("\n" + HEADER + "\n", "# Merge bypass log\n\n" + HEADER + "\n",
+                     "# t\n\n- a | b list item\n  | indented, not a table line\n\n" + HEADER
+                     + "\n" + OLD_LOG_ROW + "\n"):
+            with self.subTest(text=text):
+                self.log.write_text(text, encoding="utf-8")
+                fake = FakeGh()
+                code, out, err = self.merge(fake, dry_run=True)
+                self.assertEqual(code, 0, err)
+                self.assertEqual(len(fake.merge_calls()), 0)
+                self.assertIn("DRY RUN", err)
+
+    # Part 2d item 2: the last non-blank line must be a table line, so the row lands in the table.
+
+    def test_log_preflight_last_line_not_a_table_line_refuses_before_any_gh_call(self):
+        for text in (HEADER + "\n" + OLD_LOG_ROW + "\nprose after the table\n",
+                     HEADER + "\n" + OLD_LOG_ROW + "\nprose after the table",
+                     HEADER + "\n\n- a list after the table\n\n",
+                     HEADER + "\n" + OLD_LOG_ROW + "\n\n",
+                     HEADER + "\n" + OLD_LOG_ROW + "\n \t\n",
+                     LOG_SHAPE + "\nA closing paragraph.\n"):
+            with self.subTest(text=text):
+                self.log.write_text(text, encoding="utf-8")
+                self.assert_refused_before_gh("outside the table")
+                self.assertEqual(self.log.read_text(encoding="utf-8"), text)
+
+    # Part 2d item 3: a log that cannot be opened for append refuses before the merge.
+
+    @unittest.skipIf(hasattr(os, "geteuid") and os.geteuid() == 0,
+                     "root may write a file whatever its mode")
+    def test_log_preflight_unwritable_log_refuses_before_any_gh_call(self):
+        self.log.chmod(0o444)
+        self.addCleanup(self.log.chmod, 0o644)
+        self.assert_refused_before_gh("not writable")
+        self.assertEqual(self.log.read_text(encoding="utf-8"), LOG_SHAPE)
+
+    def test_log_preflight_checks_writability_without_writing(self):
+        # The check is os.access on the resolved file, after the D1 store check; it opens
+        # nothing for writing, so the log's bytes and modification time stay as they were.
+        before = (self.log.read_bytes(), self.log.stat().st_mtime_ns)
+        seen = []
+        real = os.access
+
+        def access(path, mode, *args, **kwargs):
+            seen.append((Path(path), mode))
+            return real(path, mode, *args, **kwargs)
+        with mock.patch.object(self.mod.os, "access", side_effect=access):
+            code, out, err = self.merge(FakeGh(), dry_run=True)
+        self.assertEqual(code, 0, err)
+        self.assertIn((self.log.resolve(), os.W_OK), seen)
+        self.assertEqual((self.log.read_bytes(), self.log.stat().st_mtime_ns), before)
 
     # Part 2c item 2: the printed row is appended to the log and read back.
 
@@ -608,13 +696,13 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertEqual(code, 0, err)
         lines = out.splitlines()
         self.assertEqual(len(lines), 1, out)
-        self.assertEqual(self.log.read_text(encoding="utf-8"), HEADER + "\n" + lines[0] + "\n")
+        self.assertEqual(self.log.read_text(encoding="utf-8"), LOG_SHAPE + lines[0] + "\n")
 
     def test_log_row_appended_after_a_failed_readback(self):
         fake = FakeGh(message=SUBJECT + "\n\n" + BODY + "\n\nCo-authored-by: a <b@example.com>\n")
         code, out, err = self.merge(fake)
         self.assertEqual(code, 3, err)
-        self.assertEqual(self.log.read_text(encoding="utf-8"), HEADER + "\n" + out)
+        self.assertEqual(self.log.read_text(encoding="utf-8"), LOG_SHAPE + out)
 
     def test_log_without_a_final_newline_gets_the_row_on_its_own_line(self):
         self.log.write_text(HEADER + "\n" + OLD_LOG_ROW, encoding="utf-8")
