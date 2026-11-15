@@ -45645,7 +45645,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
         lint-baseline-pin.py OWN F 38eb62fa2d783bbc91988f631c7d48af7c6476c6876362a3154052df458f985d
-        lint-bookkeeping-parity.py NO_FS F 8641ed080b92c71a2ef5458f137e27842da44800790d7629de205d20213e7abd
+        lint-bookkeeping-parity.py NO_FS F 406bf52274edb019b6718d3df297ad9cc0e0e77c06e4c45162f9186885c78404
         lint-ccm-aicm-citations.py CWD F 6a1eb4d255f76d35ed337441b0f7127ffd6d943d8c47730921e6f872491685a7
         lint-ccm-provider-member-in-range.py CWD F 8c0f050c7b64e301190c3350398a52e9267e05f2274fa46fb5d31dc7fc6c4871
         lint-changelog-link-coverage.py CWD F 0eb2c21687bcae9e697ab26d0273e766530ec144f1417ac04309badae1bd1bd2
@@ -45740,7 +45740,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint_common.py PASSIVE F c3f9567cb927a4a4599fc2704a690a93d145aef8edfa2a90eb660b246aadbedd
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
-        merge-grc-library-new.py NO_FS F bfebeb650b31c26fdda680924207808032b74991964c1aa8aa1f20e0cd3a1e9e
+        merge-grc-library-new.py NO_FS F 5b53e13eb17b1f423a315e2be8b03b74045ad1197cc3f4499c82d62418381413
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
@@ -90513,6 +90513,67 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertIn("[bypass-log] PR #2651", err)
         self.assertEqual(runner.calls, [])
         self.assertNotIn("declared own PR", out)
+
+    _TAGGED_LOG = (
+        "| Date (UTC) | PR | CI state at merge | Mechanism | Justification | Change |\n"
+        "| --- | --- | --- | --- | --- | --- |\n"
+        "| 2026-11-15 | #31 [repo: grc_library_new] | green | admin squash | j | c |\n"
+        "| 2026-11-15 | #2408 [repo: grc_library] | green | admin squash | j | c |\n"
+        "| 2026-09-20 | #2407 | green | admin squash | j | c |\n")
+
+    def test_gate_50_check6_tagged_row_counts_for_its_own_repository_only(self) -> None:
+        # 3b882 decision D2: a PR cell '#N [repo: grc_library_new]' (the form
+        # tools/merge-grc-library-new.py prints) counts for PR N of grc_library_new only and
+        # never as grc_library PR N; '[repo: grc_library]' names this repository explicitly.
+        self.assertEqual(self.bp.parse_bypass_prs(self._TAGGED_LOG), {2407, 2408})
+        self.assertEqual(self.bp.parse_bypass_prs(self._TAGGED_LOG, repo="grc_library"),
+                         {2407, 2408})
+        self.assertEqual(self.bp.parse_bypass_prs(self._TAGGED_LOG, repo="grc_library_new"), {31})
+        self.assertEqual(self.bp.parse_bypass_prs("", repo="grc_library_new"), set())
+
+    def test_gate_50_check6_bare_row_keeps_its_grc_library_meaning(self) -> None:
+        # A bare '#N' still means grc_library PR N, and never counts for grc_library_new.
+        bare = "| 2026-07-25 | #1174 | --admin |\n| 2026-07-25 |  #1175  | x |\n"
+        self.assertEqual(self.bp.parse_bypass_prs(bare), {1174, 1175})
+        self.assertEqual(self.bp.parse_bypass_prs(bare, repo="grc_library_new"), set())
+        # Near misses count for no repository: text after the tag, a tag without its space, an
+        # owner-prefixed cell (the pre-tool bypass rows) and a tag before the number.
+        near = ("| 2026-11-15 | #31 [repo: grc_library_new] extra | x |\n"
+                "| 2026-11-15 | #32 [repo:grc_library_new] | x |\n"
+                "| 2026-11-13 | jposluns/grc_library_new #30 | x |\n"
+                "| 2026-11-15 | [repo: grc_library_new] #33 | x |\n")
+        for repo in ("grc_library", "grc_library_new"):
+            with self.subTest(repo=repo):
+                self.assertEqual(self.bp.parse_bypass_prs(near, repo=repo), set())
+
+    def _check6_tagged_main(self, own_row: str):
+        """Gate 50's main() as in _check6_main, own PR #2651 uncertain (so never exempt), with the
+        merge-bypass log holding rows for #2654 and #2600 plus ``own_row``."""
+        root = (self.header(2665) + self.header(2654) + self.header(2651) + self.header(2600))
+        files = dict([("CHANGELOG.md", root), ("TODO.md", "")])
+        working = dict([("merge-bypass-log.md", self._Stub(
+            "| 2026-09-30 | #2654 | --admin |\n" + own_row + "| 2026-07-01 | #2600 | --admin |\n"))])
+        scope = self.lc.StoreScope(2665, 2651, 2665, None, (), (), False)
+        runner = self._GhRunner(gh=(0, "{}", ""))
+        with self.patch.object(self.bp, "_gh_runner", runner):
+            rc, out, err = self._gate_50_main(files, working, scope)
+        self.assertEqual(runner.calls, [])
+        return rc, out, err
+
+    def test_gate_50_main_check6_tagged_new_repo_row_never_satisfies_a_grc_library_demand(self) -> None:
+        # Through main(): a grc_library_new row for #2651 leaves grc_library #2651's demand.
+        rc, out, err = self._check6_tagged_main(
+            "| 2026-11-15 | #2651 [repo: grc_library_new] | --admin |\n")
+        self.assertEqual(rc, 1, out + err)
+        self.assertIn("[bypass-log] PR #2651", err)
+
+    def test_gate_50_main_check6_bare_or_own_repo_tagged_row_satisfies_the_demand(self) -> None:
+        for row in ("| 2026-11-15 | #2651 | --admin |\n",
+                    "| 2026-11-15 | #2651 [repo: grc_library] | --admin |\n"):
+            with self.subTest(row=row):
+                rc, out, err = self._check6_tagged_main(row)
+                self.assertEqual(rc, 0, out + err)
+                self.assertNotIn("[bypass-log]", err)
 
     def test_gate_50_cli_runs_every_check_against_fixture_store(self) -> None:
         # Old 32 (r4, all three families): the REAL CLI in a fixture repository (REPO_ROOT comes

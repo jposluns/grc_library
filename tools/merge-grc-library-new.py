@@ -22,8 +22,13 @@ cannot be read or decoded as UTF-8 refuses, naming it.
 
 ``--check-rows`` is read-only: it never calls gh, writes no file and makes no network call.
 
-Merge mode (``<PR>``, part P2a), after the row check passes, every gh call going through gh():
+Merge mode (``<PR>``, parts P2a and P2b), after the row check passes, every gh call going
+through gh():
 
+0. Plan section 3: the open-findings check refuses while the ledger holds an undispositioned
+   ``error`` finding, before any gh call. It is merge-when-green.py's own open_findings_block(),
+   loaded by path the way that tool loads the hook, so the two tools can never disagree; a
+   merge-when-green.py that cannot be loaded refuses.
 1. ``gh pr view`` must report the PR OPEN on base ``main``, its own number and URL in
    grc_library_new, and a 40-character lowercase hex head SHA, which is pinned from here on.
 2. Decision D3: the title must end with the ``(CalVer <v>, README <v>)`` suffix.
@@ -36,7 +41,9 @@ Merge mode (``<PR>``, part P2a), after the row check passes, every gh call going
    a message other than the one sent, or other than one parent fails loudly with ``MERGED BUT``.
 6. Decision D2: the admin-merge log row, its PR cell in the tagged form
    ``#N [repo: grc_library_new]``, is printed to standard output only (everything else goes to
-   standard error). This part writes no store file; the operator records the row.
+   standard error). This part writes no store file; the operator records the row. In each
+   cell every backslash and every pipe is escaped with a backslash, and every line-breaking or
+   other control character becomes a space, so the row is always one line of six cells.
 
 Usage:
     python3 tools/merge-grc-library-new.py <PR> [--dry-run]
@@ -45,6 +52,7 @@ Usage:
 
 Exit codes: 0 both rows present, the dry run passed, the merge read back clean, or the self-test
 passed; 1 refused (a row is missing, or the PR state, head, title or CI does not allow a merge);
+(or an undispositioned error finding is open, or the open-findings check cannot be loaded);
 2 usage error, the store or a register cannot be found or read, or a gh call failed (before the
 merge, or the merge call itself, whose state must then be read before any retry); 3 merged but the
 read-back failed.
@@ -52,6 +60,7 @@ read-back failed.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import os
 import re
@@ -59,6 +68,7 @@ import shlex
 import subprocess
 import sys
 import time
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -80,8 +90,10 @@ MERGE_REPO = "jposluns/grc_library_new"
 PR_URL = "https://github.com/" + MERGE_REPO + "/pull/{pr}"
 VIEW_FIELDS = "number,title,state,headRefOid,baseRefName,url"
 # Decision D5: the workflows in grc_library_new whose latest run on the pinned head must have
-# concluded success (the one workflow name in grc_library_new's list at 3b882 P2a).
-REQUIRED_WORKFLOWS = ("Repository quality checks",)
+# concluded success: both workflow names a grc_library_new head must pass (3b882 P2b).
+REQUIRED_WORKFLOWS = ("Repository quality checks", "Pull request attribution")
+# Plan section 3: the open-findings check is merge-when-green.py's own, loaded by path.
+MERGE_WHEN_GREEN = TOOLS_DIR / "merge-when-green.py"
 # Decision D2: the admin-merge log's header; the row printed has one cell per column.
 LOG_HEADER = "| Date (UTC) | PR | CI state at merge | Mechanism | Justification | Change |"
 READBACK_ATTEMPTS = 5
@@ -285,8 +297,38 @@ def ci_check(text: str, head: str) -> tuple[int, list[str], dict]:
     return (1 if problems else 0), problems, green
 
 
+def open_findings(root: Path, ledger=None) -> tuple[int, str]:
+    """Plan section 3: ``(exit code, message)`` from merge-when-green.py's open_findings_block().
+
+    That tool is loaded by path, as it loads the open-findings hook, and its function runs the
+    hook's own parse and decision on the ledger, so the two merge tools can never disagree. 1 means
+    an undispositioned ``error`` finding (or a mis-filed finding row) is open, or the hook cannot be
+    loaded; a merge-when-green.py that cannot be loaded refuses too."""
+    try:
+        spec = importlib.util.spec_from_file_location("_mgln_merge_when_green", MERGE_WHEN_GREEN)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        block = mod.open_findings_block
+    except Exception as exc:  # noqa: BLE001 - any load failure refuses
+        return 1, (f"merge-when-green.py ({MERGE_WHEN_GREEN}) could not be loaded for the "
+                   f"open-findings check ({exc}); refusing to merge unchecked")
+    return block(root, ledger)
+
+
 def _cell(text: str) -> str:
-    return str(text).replace("\r", " ").replace("\n", " ").replace("|", "\\|")
+    """One log-row cell: a backslash or pipe is escaped (GFM reads only an unescaped pipe as a
+    cell boundary, so a bare backslash before a pipe would otherwise unescape it), and every
+    control or line-separator character, all that str.splitlines() breaks on included, becomes
+    a space."""
+    out = []
+    for char in str(text):
+        if char in "\\|":
+            out.append("\\" + char)
+        elif unicodedata.category(char) in ("Cc", "Zl", "Zp"):
+            out.append(" ")
+        else:
+            out.append(char)
+    return "".join(out)
 
 
 def _read_merge_commit(pr: int, gh, sleep) -> tuple[str | None, str]:
@@ -323,6 +365,10 @@ def run_merge(pr: int, *, root: Path, gh, dry_run: bool = False, sleep=time.slee
         err(line)
     if code:
         return code
+    blocked, why = open_findings(root)
+    if blocked:
+        err(f"REFUSED: open-findings check: {why}")
+        return 1
     try:
         view = json.loads(gh("pr", "view", str(pr), "--repo", MERGE_REPO, "--json", VIEW_FIELDS))
     except (subprocess.CalledProcessError, OSError, json.JSONDecodeError) as exc:
@@ -402,7 +448,8 @@ def run_merge(pr: int, *, root: Path, gh, dry_run: bool = False, sleep=time.slee
                   for name in REQUIRED_WORKFLOWS) + " (merge-grc-library-new.py fail-closed)",
         f"admin squash (merge-grc-library-new.py --admin), head pinned to {head}",
         f"branch protection requires PR review; /validate-pr and /retro rows present for "
-        f"#{pr} {REPO_TAG}; title carries the CalVer and README suffix",
+        f"#{pr} {REPO_TAG}; no undispositioned error finding; title carries the CalVer and "
+        "README suffix",
         f"{title}; merge commit {oid or 'not read'}; read-back {readback}; command: {command}",
     ]
     print("| " + " | ".join(_cell(c) for c in cells) + " |")
@@ -448,6 +495,8 @@ def self_test() -> int:
         ("co-authored trailer", message_trailers("s\n\nb\n\nCo-authored-by: a <b>"),
          ["Co-authored-by: a <b>"]),
         ("clean message", message_trailers("content: s\n\nSquash merge of #31 at abc."), []),
+        ("cell escapes backslash and pipe", _cell("a \\| b"), "a \\\\\\| b"),
+        ("cell blanks line separators", _cell("a\u2028b\x85c\vd\re"), "a b c d e"),
     ]
     failures = [f"{name}: got {got}, want {want}" for name, got, want in cases if got != want]
     saved = os.environ.get("GRC_STORE")

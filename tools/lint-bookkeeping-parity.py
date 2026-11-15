@@ -213,7 +213,10 @@ highest PR, because after the synchronous cutover its QA rows are written pre-me
 own PR, while Check 6 EXCLUDES it, because a bypass row records a post-merge fact. A row
 counts by PRESENCE whatever its Mechanism cell says, so a future protection change that
 permits a plain merge is recorded honestly rather than forced to keep reading
-`--admin`. An empty or absent log no-ops rather than flagging the whole history. One
+`--admin`. The log is shared with grc_library_new (3b882 decision D2): a PR cell of exactly
+`#N [repo: <name>]` counts for PR N of that repository only, so a `#N [repo: grc_library_new]`
+row, the form tools/merge-grc-library-new.py prints, never counts as grc_library PR N, while a
+bare `#N` keeps its meaning of grc_library PR N. An empty or absent log no-ops rather than flagging the whole history. One
 exemption (3b145, VERIFY ONLINE / FAIL CLOSED, maintainer ruling 2026-10-01 12:49Z): the
 branch's DECLARED OWN PR (the store-scope declaration below) is skipped even when it is
 not the highest number, because a rebased branch carries the headers of PRs that merged
@@ -1012,15 +1015,28 @@ def _deferred_mirror_prs(detailed_text: str, ceiling: int | StoreScope | None) -
 
 
 BYPASS_ROW_PR = re.compile(r"^\|[^|]*\|\s*#(\d+)\s*\|")
+# 3b882 decision D2: the shared log's tagged PR cell, '#N [repo: <name>]' and nothing else.
+BYPASS_ROW_TAGGED_PR = re.compile(r"^\|[^|]*\|\s*#(\d+) \[repo: ([A-Za-z0-9_.-]+)\]\s*\|")
 BYPASS_LOG_REL = "merge-bypass-log.md"
+# The repository a bare '#N' PR cell stands for: this one.
+BYPASS_BARE_REPO = "grc_library"
 
 
-def parse_bypass_prs(text: str) -> set[int]:
-    """The set of PR numbers carrying a merge-bypass-log row."""
+def parse_bypass_prs(text: str, *, repo: str = BYPASS_BARE_REPO) -> set[int]:
+    """The set of ``repo``'s PR numbers carrying a merge-bypass-log row.
+
+    A bare ``#N`` PR cell is grc_library PR N, as it always was; a cell of exactly
+    ``#N [repo: <name>]`` is PR N of ``<name>`` only (decision D2), so a grc_library_new row
+    never counts as, or masks, a grc_library row. Any other PR cell counts for no repository."""
     prs: set[int] = set()
     for line in text.splitlines():
         m = BYPASS_ROW_PR.match(line)
         if m:
+            if repo == BYPASS_BARE_REPO:
+                prs.add(int(m.group(1)))
+            continue
+        m = BYPASS_ROW_TAGGED_PR.match(line)
+        if m and m.group(2) == repo:
             prs.add(int(m.group(1)))
     return prs
 
@@ -1962,7 +1978,7 @@ def main() -> int:
         # called lazily at the moment the exemption would bite. Every failure keeps the
         # demand and prints why.
         all_findings.extend(bypass_log_findings(
-            changelog, parse_bypass_prs(bypass_text),
+            changelog, parse_bypass_prs(bypass_text, repo=BYPASS_BARE_REPO),
             own_pr=scope.own_pr if scope.open_rule else None,
             verify=lambda pr: check6_own_pr_exemption(changelog_text, pr)))
 

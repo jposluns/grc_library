@@ -1,6 +1,8 @@
 """Tests for tools/merge-grc-library-new.py, part P2a of the 3b882 merge-tool plan: the merge
 argv (T3), the read-back of the merged commit (T4), the admin-merge log row printed to standard
-output (T5), the title suffix (T6, decision D3) and the CI check on the pinned head (decision D5).
+output (T5), the title suffix (T6, decision D3) and the CI check on the pinned head (decision D5);
+part P2b: both required workflows (D5), the log-row cell escaping (T5) and the open-findings check
+reused from merge-when-green.py (plan section 3).
 
 Every gh call is stubbed through the tool's gh() seam, so nothing contacts a network, and every
 test points GRC_STORE at a temporary directory, so none reads the operational store.
@@ -35,6 +37,31 @@ HEADER = "| Date (UTC) | PR | CI state at merge | Mechanism | Justification | Ch
 NOW = datetime(2026, 11, 15, 14, 0, tzinfo=timezone.utc)
 MERGE_ARGV = ["pr", "merge", "31", "--repo", REPO, "--squash", "--subject", SUBJECT,
               "--body", BODY, "--match-head-commit", HEAD, "--admin"]
+QUALITY = "Repository quality checks"
+ATTRIBUTION = "Pull request attribution"
+LEDGER_HEAD = ("## Open\n| Date | Severity | Finding | Source | Disposition |\n"
+               "| --- | --- | --- | --- | --- |\n")
+OPEN_ERROR = "| 2026-11-15 | error | a live defect | probe |  |\n"
+FIXED_ERROR = "| 2026-11-15 | error | a fixed defect | probe | FIXED #1 |\n"
+
+
+def gfm_cells(row):
+    """The cells of a table row split as GFM does: a backslash escapes the character after it,
+    so only an unescaped pipe separates cells (a backslash-backslash pair escapes itself)."""
+    cells, cur, i = [], "", 0
+    while i < len(row):
+        if row[i] == "\\" and i + 1 < len(row):
+            cur += row[i:i + 2]
+            i += 2
+            continue
+        if row[i] == "|":
+            cells.append(cur)
+            cur = ""
+        else:
+            cur += row[i]
+        i += 1
+    cells.append(cur)
+    return cells[1:-1]
 
 
 def load_tool():
@@ -58,7 +85,7 @@ class FakeGh:
         self.view = {"number": 31, "title": TITLE, "state": "OPEN", "headRefOid": HEAD,
                      "baseRefName": "main", "url": f"https://github.com/{REPO}/pull/31"}
         self.view.update(over.pop("view", {}))
-        runs = over.pop("runs", [run("Repository quality checks")])
+        runs = over.pop("runs", [run(QUALITY), run(ATTRIBUTION, run_id=43583397345)])
         self.runs = over.pop("runs_text", json.dumps({"total_count": len(runs), "workflow_runs": runs}))
         self.runs_error = over.pop("runs_error", None)
         self.merged = over.pop("merged", [{"state": "MERGED", "mergeCommit": {"oid": OID}}])
@@ -287,6 +314,42 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         row = out.splitlines()[0]
         self.assertEqual(len(re.split(r"(?<!\\)\|", row)[1:-1]), 6, row)
         self.assertIn("a \\| b", row)
+        self.assertEqual(len(gfm_cells(row)), 6, row)
+
+    def test_T5_backslash_before_a_pipe_does_not_split_a_cell(self):
+        # A title holding "\|" must not become "\\|" (an escaped backslash, then a bare pipe
+        # that GFM reads as a cell boundary); every backslash is escaped as well.
+        for title in ("content: a \\| b (CalVer 2026.11.69, README 1.11.919)",
+                      "content: a \\\\| b (CalVer 2026.11.69, README 1.11.919)",
+                      "content: a \\ b | c \\ (CalVer 2026.11.69, README 1.11.919)"):
+            with self.subTest(title=title):
+                fake = FakeGh(view={"title": title}, message=title + " (#31)\n\n" + BODY)
+                code, out, err = self.merge(fake)
+                self.assertEqual(code, 0, err)
+                lines = out.splitlines()
+                self.assertEqual(len(lines), 1, out)
+                cells = gfm_cells(lines[0])
+                self.assertEqual(len(cells), 6, lines[0])
+                self.assertEqual(cells[1].strip(), "#31 [repo: grc_library_new]")
+        fake = FakeGh(view={"title": "content: a \\| b (CalVer 2026.11.69, README 1.11.919)"},
+                      message="content: a \\| b (CalVer 2026.11.69, README 1.11.919) (#31)\n\n" + BODY)
+        code, out, err = self.merge(fake)
+        self.assertIn("a \\\\\\| b", out)
+
+    def test_T5_line_breaking_title_characters_keep_one_row(self):
+        # Every character str.splitlines() treats as a line boundary, and any other control
+        # character, becomes a space, so the row stays one line of six cells.
+        for char in ("\v", "\f", "\x1c", "\x1d", "\x1e", "\x85", "\u2028", "\u2029", "\r",
+                     "\x00", "\x1b"):
+            with self.subTest(char=repr(char)):
+                title = f"content: a{char}b (CalVer 2026.11.69, README 1.11.919)"
+                fake = FakeGh(view={"title": title}, message=title + " (#31)\n\n" + BODY)
+                code, out, err = self.merge(fake)
+                self.assertEqual(code, 0, err)
+                lines = out.splitlines()
+                self.assertEqual(len(lines), 1, repr(out))
+                self.assertEqual(len(gfm_cells(lines[0])), 6, repr(lines[0]))
+                self.assertNotIn(char, lines[0])
 
     def test_T5_writes_no_file(self):
         before = sorted(p for p in Path(self.tmp.name).rglob("*"))
@@ -325,7 +388,36 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
     # D5: every required workflow concluded success on the pinned head.
 
     def test_D5_required_workflows_from_the_new_repository(self):
-        self.assertEqual(self.mod.REQUIRED_WORKFLOWS, ("Repository quality checks",))
+        # Both workflow names in texts/required-workflows.txt (3b882 P2b item 1).
+        self.assertEqual(self.mod.REQUIRED_WORKFLOWS, (QUALITY, ATTRIBUTION))
+
+    def test_D5_only_one_required_workflow_green_refused_before_merge(self):
+        cases = {
+            "quality only": ([run(QUALITY)], ATTRIBUTION),
+            "attribution only": ([run(ATTRIBUTION, run_id=2)], QUALITY),
+            "attribution failed": ([run(QUALITY), run(ATTRIBUTION, conclusion="failure", run_id=2)],
+                                   ATTRIBUTION),
+            "attribution pending": ([run(QUALITY), run(ATTRIBUTION, status="in_progress",
+                                                       conclusion=None, run_id=2)], ATTRIBUTION),
+            "quality failed": ([run(QUALITY, conclusion="failure"), run(ATTRIBUTION, run_id=2)],
+                               QUALITY),
+            "attribution on another head": ([run(QUALITY), run(ATTRIBUTION, sha="b" * 40, run_id=2)],
+                                            ATTRIBUTION),
+        }
+        for name, (runs, culprit) in cases.items():
+            with self.subTest(case=name):
+                fake = FakeGh(runs=runs)
+                code, out, err = self.merge(fake)
+                self.assertEqual(code, 1, err)
+                self.assertIn(culprit, err)
+                self.assertEqual(fake.merge_calls(), [])
+                self.assertEqual(out, "")
+
+    def test_D5_row_names_both_green_runs(self):
+        code, out, err = self.merge(FakeGh())
+        self.assertEqual(code, 0, err)
+        self.assertIn(f"{QUALITY} completed/success on {HEAD} (run 43583397326)", out)
+        self.assertIn(f"{ATTRIBUTION} completed/success on {HEAD} (run 43583397345)", out)
 
     def test_D5_runs_read_by_pinned_head(self):
         fake = FakeGh()
@@ -380,9 +472,57 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
     def test_D5_latest_success_after_an_older_failure_allowed(self):
         q = "Repository quality checks"
         fake = FakeGh(runs=[run(q, conclusion="failure", run_id=1, created="2026-11-14T10:00:00Z"),
-                            run(q, run_id=2, created="2026-11-14T11:00:00Z")])
+                            run(q, run_id=2, created="2026-11-14T11:00:00Z"),
+                            run(ATTRIBUTION, run_id=3)])
         code, out, err = self.merge(fake)
         self.assertEqual(code, 0, err)
+
+    # Plan section 3: the open-findings check, reused from merge-when-green.py.
+
+    def install_open_findings(self, rows):
+        """A copy of the open-findings hook in the fixture repository (so merge-when-green's
+        open_findings_block finds it) and a ledger in the fixture store."""
+        hooks = self.root / ".claude" / "hooks"
+        hooks.mkdir(parents=True)
+        name = "block-on-open-findings.py"
+        (hooks / name).write_bytes((REPO_ROOT / ".claude" / "hooks" / name).read_bytes())
+        (self.store / "open-findings.md").write_text(LEDGER_HEAD + rows, encoding="utf-8")
+
+    def test_open_findings_undispositioned_error_refuses_before_any_gh_call(self):
+        self.install_open_findings(OPEN_ERROR)
+        for dry_run in (False, True):
+            with self.subTest(dry_run=dry_run):
+                fake = FakeGh()
+                code, out, err = self.merge(fake, dry_run=dry_run)
+                self.assertEqual(code, 1, err)
+                self.assertEqual(fake.calls, [])
+                self.assertIn("a live defect", err)
+                self.assertIn("REFUSED", err)
+                self.assertEqual(out, "")
+
+    def test_open_findings_dispositioned_error_allows_the_merge(self):
+        self.install_open_findings(FIXED_ERROR)
+        fake = FakeGh()
+        code, out, err = self.merge(fake)
+        self.assertEqual(code, 0, err)
+        self.assertEqual(fake.merge_calls(), [MERGE_ARGV])
+
+    def test_open_findings_unloadable_merge_when_green_refuses(self):
+        fake = FakeGh()
+        with mock.patch.object(self.mod, "MERGE_WHEN_GREEN", self.root / "absent.py"):
+            code, out, err = self.merge(fake)
+        self.assertEqual(code, 1, err)
+        self.assertEqual(fake.calls, [])
+        self.assertIn("merge-when-green", err)
+
+    def test_open_findings_is_merge_when_green_decision_on_the_real_hook(self):
+        ledger = Path(self.tmp.name) / "ledger.md"
+        ledger.write_text(LEDGER_HEAD + OPEN_ERROR, encoding="utf-8")
+        code, message = self.mod.open_findings(REPO_ROOT, ledger)
+        self.assertEqual(code, 1)
+        self.assertIn("a live defect", message)
+        ledger.write_text(LEDGER_HEAD + FIXED_ERROR, encoding="utf-8")
+        self.assertEqual(self.mod.open_findings(REPO_ROOT, ledger), (0, ""))
 
     # The command line, and --check-rows staying read-only.
 
