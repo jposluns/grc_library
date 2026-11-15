@@ -946,7 +946,7 @@ class LanguageLinterTests(LinterTestCase):
                 ("See https://x.org/a(b,)Organisations here.\n", "Organisations"))):
             with self.subTest(body=body):
                 fixture = self.make_fixture(
-                    f"standard-url-glued-extra-{index}.md", VALID_METADATA + "\n\n" + body)
+                    f"standard-url-emphasis-digit-escape-{index}.md", VALID_METADATA + "\n\n" + body)
                 self.assertLinterFails(
                     run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] " + word)
 
@@ -960,7 +960,7 @@ class LanguageLinterTests(LinterTestCase):
                 "See __https://x.org/a__$organisations here.\n")):
             with self.subTest(body=body):
                 fixture = self.make_fixture(
-                    f"standard-url-glued-tail-{index}.md", VALID_METADATA + "\n\n" + body)
+                    f"standard-url-closer-punctuation-{index}.md", VALID_METADATA + "\n\n" + body)
                 self.assertLinterFails(
                     run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] organisations")
 
@@ -27268,7 +27268,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 self.assertEqual(result.returncode, 0, result.stdout)
                 self.assertNotIn("strict character rule", result.stdout)
         # The real root passes the strict character rule unchanged.
-        mod = self._mirror_parity_gate("_mp_real_root_second")
+        mod = self._mirror_parity_gate("_mp_real_root_strict_chars")
         text = (REPO_ROOT / ".working" / "CHANGELOG.md").read_text(encoding="utf-8")
         found = mod.root_findings(text)
         self.assertEqual(found.chars, [])
@@ -29800,11 +29800,11 @@ class AuditGateParityTests(LinterTestCase):
             ("P30b top-level key", "is at column 6 below the key 'x' at column 0", (
                 (self._PC, "      - id: lint-isolated-launch\n",
                  "x:\n      - id: lint-isolated-launch\n"),)),
-            ("W41b matrix list at its key's column", "is at column 8 below the key 'x' at column 8", (
+            ("matrix list at its key's column", "is at column 8 below the key 'x' at column 8", (
                 (self._WF, last_step, ""),
                 (self._WF, self._WF_TAIL,
                  self._WF_TAIL + "    strategy:\n      matrix:\n        x:\n" + nested(last_step, 2)))),
-            ("W41b matrix list two columns deeper", "has the key 'strategy'", (
+            ("matrix list two columns deeper", "has the key 'strategy'", (
                 (self._WF, last_step, ""),
                 (self._WF, self._WF_TAIL,
                  self._WF_TAIL + "    strategy:\n      matrix:\n        x:\n" + nested(last_step, 4)))),
@@ -29909,10 +29909,10 @@ class AuditGateParityTests(LinterTestCase):
         # the job holds only name, runs-on and steps.
         hooks_split = "        types: [markdown]\n\n      # Gate 2 checks"
         self._assert_yaml_edits_refused((
-            ("W36 job if", "has the key 'if'", (
+            ("job if", "has the key 'if'", (
                 (self._WF, "    runs-on: ubuntu-latest\n",
                  "    runs-on: ubuntu-latest\n    if: false\n"),)),
-            ("W37b second steps", "repeats the key 'steps'", (
+            ("second steps", "repeats the key 'steps'", (
                 (self._WF, "\n" + self._WF_METADATA, ""),
                 (self._WF, "    steps:\n", "    steps:\n" + self._WF_METADATA + "    steps:\n"))),
             ("second hooks", "repeats the key 'hooks'", (
@@ -32741,7 +32741,7 @@ class LintCommonHelperTests(unittest.TestCase):
         reftable = reftable_of(clone("dotdot"))
         (reftable / "tables.list").write_text(
             "".join(f"../../../table/.git/reftable/{name}\n" for name in names), encoding="utf-8")
-        refused["tables.list naming ../ paths (E1)"] = (td / "dotdot", reftable / "tables.list",
+        refused["tables.list naming ../ paths"] = (td / "dotdot", reftable / "tables.list",
                                                         table)
         reftable = reftable_of(clone("subdir-links"))
         (reftable / "sub").mkdir()
@@ -32750,7 +32750,7 @@ class LintCommonHelperTests(unittest.TestCase):
         (reftable / "tables.list").write_text("".join(f"sub/{name}\n" for name in names),
                                               encoding="utf-8")
         # The walk for symbolic links names the link inside sub.
-        refused["sub/<table> links (E2)"] = (td / "subdir-links", reftable / "sub" / min(names),
+        refused["sub/<table> links"] = (td / "subdir-links", reftable / "sub" / min(names),
                                              table)
         reftable = reftable_of(clone("one-linked"))
         for name in names:
@@ -32788,15 +32788,15 @@ class LintCommonHelperTests(unittest.TestCase):
             entry.unlink()
         for entry in (table / ".git" / "worktrees" / "their-worktree" / "reftable").iterdir():
             (reftable / entry.name).symlink_to(entry)
-        refused["a linked worktree's reftable linked (W1)"] = (
+        refused["a linked worktree's reftable linked"] = (
             td / "linked-worktree", min(reftable.iterdir()), td / "their-worktree")
         # git log --all reads that worktree's HEAD from the main checkout
         # and from every other worktree too.
         self.assertEqual(git("-C", str(main), "rev-parse", "worktrees/linked-worktree/HEAD"),
                          git("-C", str(td / "their-worktree"), "rev-parse", "HEAD"))
-        refused["another linked worktree's reftable linked, from the main checkout (E1)"] = (
+        refused["another linked worktree's reftable linked, from the main checkout"] = (
             main, min(reftable.iterdir()), None)
-        refused["another linked worktree's reftable linked, from a worktree (E1)"] = (
+        refused["another linked worktree's reftable linked, from a worktree"] = (
             td / "main-worktree", min(reftable.iterdir()), None)
         aliased_main = clone("aliased-main")
         git("-C", str(aliased_main), "worktree", "add", "-q", "--detach",
@@ -32811,7 +32811,7 @@ class LintCommonHelperTests(unittest.TestCase):
         reftable = notdir / ".git" / "worktrees" / "notdir-worktree" / "reftable"
         shutil.rmtree(reftable)
         reftable.write_bytes(b"")
-        refused["another linked worktree's reftable not a directory (E2)"] = (notdir, reftable, None)
+        refused["another linked worktree's reftable not a directory"] = (notdir, reftable, None)
 
         hook = SKILL_ROOT / "tools" / "git-hooks" / "pre-push"
         with mock.patch.dict(os.environ, env, clear=True):
@@ -35822,7 +35822,7 @@ class DocumentDateStalenessTests(LinterTestCase):
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
     def test_future_dated_date_flagged(self) -> None:
-        # R8a: a metadata Date AFTER today (UTC) is impossible for a
+        # A metadata Date AFTER today (UTC) is impossible for a
         # "last updated" field and must fail, even when the commit date
         # is otherwise fine (the lag check alone leaves a future Date
         # gate-invisible). A far-future date is used so the assertion is
@@ -39773,8 +39773,7 @@ class VerifyReferenceModulesOscalTests(unittest.TestCase):
 
 # WorkingProseHygieneTests retired; its subject, lint-working-prose-hygiene.py (gate 51), does
 # not ship. In the earlier repository its one test pinned the audit programme specification's
-# wording about that gate's docstring; its R19_BREAKS and R20_SHAPES tables had no remaining
-# test.
+# wording about that gate's docstring; its line-break and shape tables had no remaining test.
 
 
 class ScanScopeParityTests(LinterTestCase):
@@ -58704,7 +58703,7 @@ class TodoNumberPermanenceTests(LinterTestCase):
             "perm-subbullet",
             "# TODO\n\n## Priority 5\n\n**Next item number: 5.10.**\n\n"
             "### 5.9 AI jurisdiction overlays\n\nBody.\n",
-            "# DONE\n\n### TODO §5.9-R1 + §6.3-R3 (deep-assessment r1): stale "
+            "# DONE\n\n### TODO §5.9-R1 + §6.3-R3 (deep assessment): stale "
             "sub-bullets closed as already-resolved (2026-07-12)\n\nBody.\n",
         )
         try:
@@ -77683,9 +77682,9 @@ class StoreScopeCeilingTests(LinterTestCase):
     _OWN_522_ROOT = "**2026-11-23 | 2026.12.10 | PR #522** - own\n\n"
     _HDR = "| Date | PR | Families | Tier | Disposition |\n|---|---|---|---|---|\n"
     _LATER_PR_ROWS = ("| 2026-09-30 | #2652 | c | T | SHIP final |\n"
-                      "| 2026-09-30 | #2652 | c | T | IN PROGRESS: r1 dispatched |\n")
+                      "| 2026-09-30 | #2652 | c | T | IN PROGRESS: review dispatched |\n")
     _OWN_PR_ROWS = ("| 2026-09-30 | #2650 | c | T | SHIP final |\n"
-                    "| 2026-09-30 | #2650 | c | T | IN PROGRESS: r1 dispatched |\n")
+                    "| 2026-09-30 | #2650 | c | T | IN PROGRESS: review dispatched |\n")
     MARKER = "- **Worker provenance:** applied, path not recorded\n"
 
     @staticmethod
@@ -77857,7 +77856,7 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.git(root, "commit", "-q", "-m", "child work")
         if parent in ("advanced", "merge-committed"):
             self.git(root, "checkout", "-q", "parent")
-            self.git(root, "commit", "-q", "--allow-empty", "-m", "parent r2")
+            self.git(root, "commit", "-q", "--allow-empty", "-m", "parent advances")
         self.git(root, "checkout", "-q", "main")
         if parent == "squash-merged":
             (root / ".working").mkdir(parents=True, exist_ok=True)
@@ -80914,27 +80913,27 @@ class TableCellCountTests(LinterTestCase):
         self.assertClean(self.make_repo({"doc.md": "> <div>\n> x\nText\n"}))
 
     def test_only_spaces_and_tabs_make_a_blank_line_or_a_closer_tail(self) -> None:
-        # N1, N1b and N1c: other whitespace after a closing fence makes the
-        # line text, so the next fence line closes the fence, the table
-        # renders and the last fence never closes.
-        n1 = "```\ncode\n```{}\n```\n| a | b |\n|---|---|\n| 1 |\n```\nx\n```\n```\n"
+        # Other whitespace after a closing fence (NBSP, EM SPACE, FORM FEED)
+        # makes the line text, so the next fence line closes the fence, the
+        # table renders and the last fence never closes.
+        closer_tail = "```\ncode\n```{}\n```\n| a | b |\n|---|---|\n| 1 |\n```\nx\n```\n```\n"
         for tail in ("\u00a0", "\u2003", "\u000c"):
             with self.subTest(tail=repr(tail)):
-                self.assertEqual(self.finding_heads(n1.format(tail)),
+                self.assertEqual(self.finding_heads(closer_tail.format(tail)),
                                  ["doc.md:7 header=2 row=1", "doc.md:11 unclosed-fence"])
         for tail in (" ", "\t"):
             with self.subTest(tail=repr(tail)):
-                self.assertClean(self.make_repo({"doc.md": n1.format(tail)}))
-        # N2: a line holding an NBSP is not blank, so it ends the list item and
+                self.assertClean(self.make_repo({"doc.md": closer_tail.format(tail)}))
+        # A line holding an NBSP is not blank, so it ends the list item and
         # the fence in it.
-        n2 = "- item\n  ```\n  code\n{}\n  | a | b |\n  |---|---|\n  | 1 |\n  ```\n"
-        self.assertEqual(self.finding_heads(n2.format("\u00a0")),
+        list_item = "- item\n  ```\n  code\n{}\n  | a | b |\n  |---|---|\n  | 1 |\n  ```\n"
+        self.assertEqual(self.finding_heads(list_item.format("\u00a0")),
                          ["doc.md:7 header=2 row=1", "doc.md:8 unclosed-fence"])
-        self.assertClean(self.make_repo({"doc.md": n2.format("")}))
-        # N4: nor does it end an HTML block of type 6.
-        n4 = "<div>\n{}\n| a | b |\n|---|---|\n| 1 |\n"
-        self.assertClean(self.make_repo({"doc.md": n4.format("\u00a0")}))
-        self.assertFinding(self.make_repo({"doc.md": n4.format(" ")}), "doc.md:5 header=2 row=1")
+        self.assertClean(self.make_repo({"doc.md": list_item.format("")}))
+        # Nor does such a line end an HTML block of type 6.
+        html_block = "<div>\n{}\n| a | b |\n|---|---|\n| 1 |\n"
+        self.assertClean(self.make_repo({"doc.md": html_block.format("\u00a0")}))
+        self.assertFinding(self.make_repo({"doc.md": html_block.format(" ")}), "doc.md:5 header=2 row=1")
         # Such a line is paragraph text, so "2. x" after it cannot interrupt
         # the paragraph, and the four-column lines are no table.
         tail = "2. x\n\n    | a | b |\n    |---|---|\n    | 1 |\n"
@@ -83970,15 +83969,15 @@ class WebSiteHardeningTests(unittest.TestCase):
     """Site-hardening regression tests for the grclibrary.ai generator
     (re-based at the draft-site promotion).
 
-    W1: the dist-root ``_headers`` file carries exactly the four repo-owned
+    The dist-root ``_headers`` file carries exactly the four repo-owned
     header rules under one ``/*`` rule, emitted once, at the output root
     alone, with the spec section 9 CSP (the old live rule's style-src
     'unsafe-inline' widening left with the old root tree at the promotion);
     the zone's automatic headers (X-Content-Type-Options, Referrer-Policy,
     Strict-Transport-Security) are never repeated in it.
-    W2: the site renders a real 404 page (static noindex, root only,
-    excluded from sitemap.xml). W3: ``.well-known/security.txt`` carries
-    exactly the pinned RFC 9116 fields. W4: robots.txt advertises the
+    The site renders a real 404 page (static noindex, root only,
+    excluded from sitemap.xml). ``.well-known/security.txt`` carries
+    exactly the pinned RFC 9116 fields. robots.txt advertises the
     sitemap. Each test fails without its feature.
     """
 
@@ -84111,7 +84110,7 @@ class WebSiteHardeningTests(unittest.TestCase):
             "the shared topbar partial must be rendered into the 404 page")
 
     def test_404_excluded_from_sitemap(self) -> None:
-        self.assertIn("404.html", self.by_rel, "the 404 page must render (W2)")
+        self.assertIn("404.html", self.by_rel, "the 404 page must render")
         sitemap = self._sole("sitemap.xml")
         # "/404.html", not the bare substring "404": a future URL containing
         # 404 in a slug or count must not trip the error-page exclusion check.
