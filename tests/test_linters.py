@@ -26138,6 +26138,12 @@ class PIIContentTests(LinterTestCase):
             ("Contact git@github.com.mirror-xyz.net here.\n", "git@github.com.mirror-xyz.net"),
             ("Contact git@github.com\uff0emirror-xyz.net here.\n", "git@github.com"),
             ("Contact GIT@github.com here.\n", "GIT@github.com"),
+            # 3b882 fix round 4 (round 3 codex and claude F2): the engine captures only the
+            # git@ suffix of these lookalikes, so the character before it must not be a
+            # local-part character.
+            ("Contact o'git@github.com here.\n", "git@github.com"),
+            ("Contact alice!git@gitlab.com here.\n", "git@gitlab.com"),
+            ("Contact a/git@github.com here.\n", "git@github.com"),
         ):
             with self.subTest(body=body):
                 fixture = self.make_fixture("standard-forge-narrow.md", VALID_METADATA + "\n\n" + body)
@@ -26149,9 +26155,13 @@ class PIIContentTests(LinterTestCase):
         # it covers neither of them, nor jane@github.com.
         wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_forge_allowance")
         engine = wrapper._engine()
-        for line in ("jane@github.com here", "git@example.org here", "git@github.com.other.example here"):
+        for line in ("jane@github.com here", "git@example.org here", "git@github.com.other.example here",
+                     "o'git@github.com here", "alice!git@gitlab.com here", "a/git@github.com here",
+                     "x -git@github.com", "{git@gitlab.com}", "~git@github.com", "=git@gitlab.com"):
             with self.subTest(line=line):
                 self.assertEqual(wrapper._forge_service_matches(engine, line), [])
+        self.assertEqual(wrapper._forge_service_matches(engine, "ssh://git@github.com/x (git@gitlab.com)"),
+                         ["git@github.com", "git@gitlab.com"])
         self.assertEqual(wrapper._forge_service_matches(engine, "git@github.com: and git@gitlab.com/x"),
                          ["git@github.com", "git@gitlab.com"])
 
@@ -45740,7 +45750,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-orphan-documents.py NO_FS F 7a5e4c9ba00700be7e6e97a67d6e24b8365f5e4463af5c5cc12f79a5a45f8ecd
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
-        lint-pii-in-content.py CWD F 52e8e2d116545e3f16b6d6dfe9dc7cf81df9938f4c79dc187cd83fec28afaffb
+        lint-pii-in-content.py CWD F a7a3a26dfe303a22af9bec89b68a30b8d8c5db3f2f27dd19c6ef6b63a24e45ad
         lint-placeholder-leakage.py CWD F 011f3e7a9a38fc875d6ec0458f9ff22fdbcc6f531a1d316fc4229b6e791c7eea
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a
@@ -45786,7 +45796,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
         merge-grc-library-new.py NO_FS F 3a51445fbdbc3c6cdc77cfb557bcbb0c4ca935dcf9a386a84a3cc963affe0a88
-        merge-when-green.py NO_FS F 277f6df4fa0c644e89256049b6e0982a8c299f5f292aea448e8c24e58937e0f2
+        merge-when-green.py NO_FS F b6e65eb3308a23c0f15923f82ede4bf9d1126e1dea6771402edb548a01802f17
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
         pre-push-guard.sh FIXED F e082e92fe082af59cee69da9d2a329dacf1cdf4e8e4d600f4c5b6fc2ce89dabf
@@ -62330,6 +62340,45 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
             with self.subTest(command=command):
                 self._refused(command)
         self._refused("gh pr view 33 && echo merge", cwd="/home/u/grc_library_new")
+
+    def test_h1_auto_merge_branch_merge_and_rest_merges_naming_grc_library_new_are_refused(self):
+        # 3b882 fix round 4 (round 3 claude F1): an auto-merge, a branch merge and a REST merges
+        # call that name grc_library_new are refused; the same text naming grc_library is not.
+        new = self.NEW
+        auto = ("gh api graphql -F owner=jposluns -F name=%s -f query='mutation($id:ID!)"
+                "{enablePullRequestAutoMerge(input:{pullRequestId:$id,mergeMethod:SQUASH})"
+                "{clientMutationId}}' -F id=PR_x")
+        branch = ("gh api graphql -F owner=jposluns -F name=%s -f query='mutation($id:ID!)"
+                  "{mergeBranch(input:{repositoryId:$id,base:\"main\",head:\"feature\"})"
+                  "{clientMutationId}}' -F id=R_x")
+        rest = "gh api -X POST repos/jposluns/%s/merges -f base=main -f head=feature"
+        commands = (
+            auto % "grc_library_new",
+            branch % "grc_library_new",
+            rest % "grc_library_new",
+            "gh api --method POST /repos/%s/merges -f base=main -f head=feature" % new,
+            "gh api -X POST https://api.github.com/repos/%s/merges -f base=main" % new,
+            "gh api -X POST repos/jposluns/grc%5Flibrary_new/merges -f base=main -f head=x",
+            "GH API GRAPHQL -F NAME=GRC_LIBRARY_NEW -F QUERY='MUTATION{ENABLEPULLREQUESTAUTOMERGE}'",
+        )
+        for command in commands:
+            with self.subTest(command=command):
+                self._refused(command)
+        for command in (auto % "grc_library", branch % "grc_library", rest % "grc_library"):
+            with self.subTest(allowed=command):
+                self._allowed(command)
+        with self.subTest(cwd="grc_library_new clone"):
+            self._refused("gh api -X POST repos/{owner}/{repo}/merges -f base=main -f head=x",
+                          cwd="/home/u/grc_library_new")
+        # The hook residual and the playbook name what stays outside.
+        source = self.HOOK.read_text(encoding="utf-8")
+        playbook = (REPO_ROOT / ".claude" / "playbooks" / "pr-lifecycle.md").read_text(encoding="utf-8")
+        playbook = " ".join(playbook.split())
+        for fragment in ("enablePullRequestAutoMerge", "mergeBranch", "repositories/<id>/merges",
+                         "enqueuePullRequest", "auto-merge enabled earlier"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, source)
+                self.assertIn(fragment, playbook)
 
     def test_h4_hook_reads_nothing_and_parses_no_shell(self):
         import ast

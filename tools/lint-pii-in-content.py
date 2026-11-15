@@ -151,6 +151,24 @@ EXAMPLE_DOMAINS = {
 # any other local part at github.com or gitlab.com, and git at any other
 # domain, is reported as before.
 FORGE_SERVICE_ADDRESSES = frozenset({"git@github.com", "git@gitlab.com"})
+# 3b882 fix round 4: the engine's EMAIL_RE starts a match at a word boundary, so for
+# o'git@github.com or alice!git@gitlab.com it captures only the git@ suffix. The
+# allowance applies only when the character before the match cannot sit in a local
+# part: not an RFC 5322 atext character or dot, and not a non-ASCII character (RFC 6531),
+# except whitespace, or the "/" that ends the "://" of an ssh:// remote.
+_LOCAL_PART_CHARS = frozenset(
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&'*+-/=?^_`{|}~."
+)
+
+
+def _local_part_complete(line: str, start: int) -> bool:
+    """True when the match at ``start`` is the whole local part, not a suffix of a longer one."""
+    if start == 0 or line[:start].endswith("://"):
+        return True
+    before = line[start - 1]
+    if before.isspace():
+        return True
+    return before.isascii() and before not in _LOCAL_PART_CHARS
 
 
 def _engine():
@@ -194,9 +212,11 @@ def _forge_service_matches(engine, line: str) -> list[str]:
     """The matches on one line that the FORGE_SERVICE_ADDRESSES allowance covers: an
     engine EMAIL_RE match whose text is exactly one of those addresses and whose domain
     is the whole domain, not an ASCII prefix the regex truncated (the engine's own
-    completeness rule, as for its example-domain exemption)."""
+    completeness rule, as for its example-domain exemption), and whose local part is the
+    whole local part (_local_part_complete)."""
     return [m.group(0) for m in engine.EMAIL_RE.finditer(line)
-            if m.group(0) in FORGE_SERVICE_ADDRESSES and engine._email_domain_complete(line, m.end())]
+            if m.group(0) in FORGE_SERVICE_ADDRESSES and engine._email_domain_complete(line, m.end())
+            and _local_part_complete(line, m.start())]
 
 
 def main(argv: list[str]) -> int:

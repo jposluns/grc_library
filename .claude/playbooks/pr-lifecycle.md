@@ -159,13 +159,18 @@ drive end-to-end on the maintainer's behalf:
    read-back exits 3 and prints the row to add by hand. The hook
    `.claude/hooks/block-new-merge-outside-tool.py` refuses any other Bash command or
    `mcp__github__merge_pull_request` call that names grc_library_new (or runs from a
-   grc_library_new clone) and mentions a pull-request merge. It matches text only, so it also
+   grc_library_new clone) and mentions a pull-request merge, an auto-merge (a GraphQL
+   `enablePullRequestAutoMerge`), a branch merge (a GraphQL `mergeBranch`) or a REST
+   `repos/<owner>/<repo>/merges` call. It matches text only, so it also
    refuses commit messages, greps, echo and heredoc bodies that name both, and its refusal
    names what it does not close (commands built at runtime; shell quoting, backslash escapes or
    brace expansion that split a word, such as `p''r` or a brace list in the repository name;
-   gh aliases; web UI merges; direct pushes to main; and merges whose text never names
-   grc_library_new: a GraphQL
-   `mergePullRequest` by node id, a REST `repositories/<id>/pulls/N/merge` call, or
+   gh aliases; web UI merges; direct pushes to main; a merge queue entry (a GraphQL
+   `enqueuePullRequest`), even one that names grc_library_new; GitHub completing an
+   auto-merge enabled earlier (from the web UI or before this hook); and merges whose text
+   never names grc_library_new: a GraphQL
+   `mergePullRequest`, `enablePullRequestAutoMerge` or `mergeBranch` by node id, a REST
+   `repositories/<id>/pulls/N/merge` or `repositories/<id>/merges` call, or
    `gh pr merge N` from a grc_library_new clone under another directory name or from a clone
    where `gh repo set-default` points at grc_library_new).
    The maintainer does not gate-keep merges of PRs they have personally authored.

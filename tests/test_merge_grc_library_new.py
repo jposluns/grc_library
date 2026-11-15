@@ -595,6 +595,20 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                                   QUALITY),
         })
 
+    def test_D5_later_failed_non_pull_request_run_does_not_refuse(self):
+        # 3b882 fix round 4 (round 3 agy M1): the latest pull_request run is judged, so a later
+        # failed workflow_dispatch (or push) run on the head never refuses a green pull_request run.
+        for event in ("workflow_dispatch", "push"):
+            with self.subTest(event=event):
+                fake = FakeGh(runs=[
+                    run(QUALITY, run_id=1, created="2026-11-14T10:00:00Z"),
+                    run(QUALITY, conclusion="failure", event=event, run_id=3,
+                        created="2026-11-14T11:00:00Z"),
+                    run(ATTRIBUTION, run_id=2)])
+                code, out, err = self.merge(fake)
+                self.assertEqual(code, 0, err)
+                self.assertEqual(len(fake.merge_calls()), 1)
+
     # Plan section 3: the open-findings check, reused from merge-when-green.py.
 
     def install_open_findings(self, rows):

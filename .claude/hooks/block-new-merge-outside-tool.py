@@ -36,6 +36,10 @@ MERGE_PATTERNS = tuple(re.compile(p, re.DOTALL) for p in (
     r"mergepullrequest",
     r"merge_pull_request",
     r"merge-when-green",
+    # 3b882 fix round 4: an auto-merge, a branch merge and a REST branch-merge call.
+    r"enablepullrequestautomerge",
+    r"mergebranch",
+    r"repos/[^/\s]+/[^/\s]+/merges\b",
 ))
 
 REASON = (
@@ -45,7 +49,9 @@ REASON = (
     "python3 tools/merge-grc-library-new.py, which checks the /validate-pr and /retro rows, "
     "the title, the head's CI and the merge commit. This hook matches text only and accepts "
     "over-refusal: any command that names grc_library_new, or runs from a grc_library_new "
-    "clone, and mentions a pull-request merge is refused, including commit messages, greps, "
+    "clone, and mentions a pull-request merge, an auto-merge (GraphQL "
+    "enablePullRequestAutoMerge), a branch merge (GraphQL mergeBranch) or a REST "
+    "repos/<owner>/<repo>/merges call is refused, including commit messages, greps, "
     "echo and heredoc bodies. Residual not closed by this hook: commands built at runtime "
     "(command substitution, variables, base64, a script file run later, a Python subprocess "
     "call); shell quoting, backslash escapes or brace expansion that split a word (p and r "
@@ -53,9 +59,13 @@ REASON = (
     "name); gh aliases that hide pr merge; a merge run from a grc_library_new clone when the "
     "payload cwd is elsewhere and the text names neither; "
     "merges whose text never names grc_library_new (a GraphQL "
-    "mergePullRequest by node id, a REST repositories/<id>/pulls/N/merge call, or gh pr "
+    "mergePullRequest by node id, an enablePullRequestAutoMerge or mergeBranch mutation by "
+    "node id, a REST repositories/<id>/pulls/N/merge or repositories/<id>/merges call, or gh pr "
     "merge N from a grc_library_new clone under another directory name or from a clone "
-    "where gh repo set-default points at grc_library_new); MCP merge tools under other names; "
+    "where gh repo set-default points at grc_library_new); a merge queue entry (GraphQL "
+    "enqueuePullRequest), even one that names grc_library_new; GitHub completing an "
+    "auto-merge enabled earlier (from the web UI or before this hook); "
+    "MCP merge tools under other names; "
     "merges from the web UI, from other machines or from other accounts; and "
     "direct pushes to main.\n"
     "CONSIDER INSTEAD: run python3 tools/merge-grc-library-new.py <PR number> (add --dry-run "

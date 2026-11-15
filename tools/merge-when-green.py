@@ -521,6 +521,7 @@ def _self_test_actions_fallback() -> list[tuple[str, bool]]:
     denied = lambda err=fx, rc=1: subprocess.CalledProcessError(rc, ["gh"], "", err)
     for name, exc, want in [
         ("forbidden-fixture", denied(), True),
+        ("forbidden-no-trailing-newline", denied(fx.rstrip("\n")), True),
         ("forbidden-rollup-root", denied(fx.split(".nodes")[0] + ")\n"), True),
         ("forbidden-integration-token-not", denied(fx.replace("personal access token", "integration")), False),
         ("forbidden-pr-path-not", denied(fx.split(".statusCheckRollup")[0] + ")\n"), False),
@@ -540,7 +541,8 @@ def _self_test_actions_fallback() -> list[tuple[str, bool]]:
     ]:
         checks.append((name, rollup_forbidden(exc) == want))
     # The rstrip carries the fixture's trailing newline: the pattern alone refuses it, so this check fails
-    # without the rstrip (3b882 fix round 3; a stderr with no trailing newline matches either way).
+    # without the rstrip (3b882 fix round 3; a stderr with no trailing newline matches either way,
+    # which forbidden-no-trailing-newline above pins, restored in 3b882 fix round 4).
     checks.append(("forbidden-trailing-newline-stripped",
                    _ROLLUP_FORBIDDEN.fullmatch(fx) is None and rollup_forbidden(denied())))
     # gh() captures stderr, so the error can reach rollup_forbidden(): subprocess.run is stubbed here.
