@@ -45800,7 +45800,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint_common.py PASSIVE F c3f9567cb927a4a4599fc2704a690a93d145aef8edfa2a90eb660b246aadbedd
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
-        merge-grc-library-new.py NO_FS F 3c7f95634cabcab5160122a1c5900b04f45082781415e85f039da6aa668e6d83
+        merge-grc-library-new.py NO_FS F c6cdf1c73e2fd5bccc6101128416ae784d8c2ba76d0ebe6175dfe5b4003b9493
         merge-when-green.py NO_FS F e9e37be72ea1b004c377a7f40af143ebc8d61ea7ed6e881f918faebc760328cf
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
@@ -62329,7 +62329,10 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
         playbook = " ".join(playbook.split())
         for fragment in ("relative tools/ path would run that clone's copy of the tool",
                          "the merge tool command run from a grc_library_new clone under another "
-                         "directory name"):
+                         "directory name",
+                         # 3b882 fix round 6 (round 5 claude F1)
+                         "the sanctioned relative command runs the copy of the tool in the cwd, "
+                         "from any checkout"):
             with self.subTest(fragment=fragment):
                 self.assertIn(fragment, " ".join(source.replace('"\n    "', "").split()))
                 self.assertIn(fragment, playbook)
@@ -62347,6 +62350,32 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
         ):
             with self.subTest(command=command):
                 self._refused(command)
+
+    def test_h2_merge_tool_variant_spellings_from_a_grc_library_new_clone_are_refused(self):
+        # 3b882 fix round 6 (round 5 agy-B F1): a spelling that misses the sanctioned fullmatch
+        # (a trailing, doubled, leading or tab space, ./tools/, -I or another interpreter path)
+        # fell to rule 2, which had no merge pattern for the tool, so it ran the clone's copy.
+        tool = "tools/merge-grc-library-new.py"
+        spellings = (
+            "python3 %s 31 " % tool,
+            "python3  %s 31" % tool,
+            "python3 %s  31" % tool,
+            " python3 %s 31" % tool,
+            "python3\t%s 31" % tool,
+            "python3 ./%s 31" % tool,
+            "python3 -I %s 31" % tool,
+            "/usr/bin/python3 %s 31" % tool,
+            "python3 %s 31 --dry-run " % tool,
+            "python3 %s 31  --dry-run" % tool,
+            "python3 %s --check-rows 31" % tool.upper(),
+        )
+        for command in spellings:
+            for cwd in ("/home/u/grc_library_new", "/home/u/grc_library_new/tools",
+                        "/home/u/GRC_Library_New"):
+                with self.subTest(command=command, cwd=cwd):
+                    self._refused(command, cwd=cwd)
+            with self.subTest(command=command, cwd="grc_library"):
+                self._allowed(command, cwd="/home/u/grc_library")
 
     def test_h3_accepted_over_refusal_is_pinned_as_refused(self):
         for command in (

@@ -595,6 +595,53 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         code, out, err = self.merge(fake)
         self.assertEqual(code, 0, err)
 
+    def test_D5_malformed_run_record_refused_before_merge(self):
+        # 3b882 fix round 6 (round 5 codex F1): a required workflow's pull_request runs are
+        # ordered by created_at, then id, so each must carry a positive integer id and a
+        # parseable created_at. A failed run with no created_at used to sort below a dated
+        # success, and a green run with a missing or string id was accepted; each now refuses
+        # with exit 2 before any merge call.
+        dated = run(QUALITY, run_id=2, created="2026-11-14T11:00:00Z")
+        failed = run(QUALITY, conclusion="failure", run_id=5)
+        del failed["created_at"]
+        no_id = run(QUALITY)
+        del no_id["id"]
+        cases = {
+            "missing created_at": [dated, failed, run(ATTRIBUTION, run_id=3)],
+            "missing id": [no_id, run(ATTRIBUTION, run_id=3)],
+            "string id": [run(QUALITY, run_id="43583397326"), run(ATTRIBUTION, run_id=3)],
+            "zero id": [run(QUALITY, run_id=0), run(ATTRIBUTION, run_id=3)],
+            "boolean id": [run(QUALITY, run_id=True), run(ATTRIBUTION, run_id=3)],
+            "unparseable created_at": [dated, run(QUALITY, conclusion="failure", run_id=5,
+                                                  created="yesterday"), run(ATTRIBUTION, run_id=3)],
+            "created_at without a zone": [run(QUALITY, created="2026-11-14T11:00:00"),
+                                          run(ATTRIBUTION, run_id=3)],
+            "malformed attribution run": [run(QUALITY), run(ATTRIBUTION, run_id=None)],
+        }
+        for name, runs in cases.items():
+            for dry_run in (False, True):
+                with self.subTest(case=name, dry_run=dry_run):
+                    fake = FakeGh(runs=runs)
+                    code, out, err = self.merge(fake, dry_run=dry_run)
+                    self.assertEqual(code, 2, err)
+                    self.assertIn("malformed", err)
+                    self.assertEqual(fake.merge_calls(), [])
+                    self.assertEqual(out, "")
+
+    def test_D5_runs_ordered_by_parsed_created_at(self):
+        # 3b882 fix round 6: created_at is compared as a time, not as text, so a later failed
+        # run written with an offset still outranks an earlier success.
+        fake = FakeGh(runs=[run(QUALITY, run_id=1, created="2026-11-14T11:00:00Z"),
+                            run(QUALITY, conclusion="failure", run_id=2,
+                                created="2026-11-14T12:30:00+01:00"),
+                            run(QUALITY, conclusion="failure", run_id=4,
+                                created="2026-11-14T11:30:00.250+00:00"),
+                            run(ATTRIBUTION, run_id=3)])
+        code, out, err = self.merge(fake)
+        self.assertEqual(code, 1, err)
+        self.assertIn("latest run 4", err)
+        self.assertEqual(fake.merge_calls(), [])
+
     def assert_ci_refused(self, cases):
         for name, (runs, culprit) in cases.items():
             with self.subTest(case=name):
@@ -693,7 +740,10 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertEqual(code, 0, err)
         self.assertEqual(fake.merge_calls(), [MERGE_ARGV])
 
-    def test_open_findings_second_ledger_read_never_allows_a_merge(self):
+    def test_open_findings_reads_a_clean_ledger_once_and_the_merge_goes_ahead(self):
+        # 3b882 fix round 6 (round 5 claude F2, codex F2): renamed from
+        # test_open_findings_second_ledger_read_never_allows_a_merge, which no longer fit: the
+        # test asserts one ledger read and, on that clean ledger, a merge that goes ahead.
         # codex MED 1: the ledger is read once and that text is judged. A second read that
         # raises PermissionError (merge-when-green's open_findings_block allows on any read
         # error) must never decide a merge. 3b882 fix round 5 (round 4 agy-B): the ledger is
@@ -987,6 +1037,13 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 contextlib.redirect_stdout(io.StringIO()) as out, \
                 contextlib.redirect_stderr(io.StringIO()):
             self.assertEqual(self.mod.main(["31", "--dry-run"]), 0)
+        # 3b882 fix round 6 (round 5 agy-B F2): main() must have called the patched gh helper
+        # (the PR view and the Actions runs read), not merely returned 0.
+        self.assertTrue(fake.calls, "main() made no gh call")
+        self.assertIn(["pr", "view", "31", "--repo", REPO, "--json",
+                       "number,title,state,headRefOid,baseRefName,url"], fake.calls)
+        self.assertTrue(any(c[0] == "api" and "/actions/runs?head_sha=" + HEAD in c[1]
+                            for c in fake.calls), fake.calls)
         self.assertEqual(fake.merge_calls(), [])
         self.assertEqual(out.getvalue(), "")
 

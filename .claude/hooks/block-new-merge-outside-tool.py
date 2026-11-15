@@ -13,7 +13,9 @@ Rule (plan 3b882m section 4):
      the payload cwd does not name grc_library_new; exit 2 when it does, since the relative
      tools/ path would run that clone's copy of the tool (3b882 fix round 5).
   2. Otherwise exit 2 when (a) the normalized text, or the payload cwd, names
-     grc_library_new and (b) the normalized text matches one of the merge patterns.
+     grc_library_new and (b) the normalized text matches one of the merge patterns. The
+     merge tool's name is one of them (3b882 fix round 6), so any other spelling of the
+     tool command (a trailing or doubled space, ./tools/, -I) from such a cwd refuses.
   3. Every other input exits 0.
 
 The normalized text is NFKC, percent-decoded, NFKC again and casefolded. For Bash it is
@@ -42,6 +44,8 @@ MERGE_PATTERNS = tuple(re.compile(p, re.DOTALL) for p in (
     r"enablepullrequestautomerge",
     r"mergebranch",
     r"repos/[^/\s]+/[^/\s]+/merges\b",
+    # 3b882 fix round 6: the merge tool itself, in any spelling the sanctioned fullmatch misses.
+    r"merge-grc-library-new",
 ))
 
 REASON = (
@@ -54,9 +58,12 @@ REASON = (
     "clone, and mentions a pull-request merge, an auto-merge (GraphQL "
     "enablePullRequestAutoMerge), a branch merge (GraphQL mergeBranch) or a REST "
     "repos/<owner>/<repo>/merges call is refused, including commit messages, greps, "
-    "echo and heredoc bodies. The merge tool command itself is refused when the payload cwd "
-    "names grc_library_new, since its relative tools/ path would run that clone's copy of "
-    "the tool. Residual not closed by this hook: commands built at runtime "
+    "echo and heredoc bodies. The merge tool command itself, in any spelling, is refused "
+    "when the payload cwd names grc_library_new, since its relative tools/ path would run "
+    "that clone's copy of the tool. Residual not closed by this hook: "
+    "the sanctioned relative command runs the copy of the tool in the cwd, from any "
+    "checkout (a grc_library worktree on an unmerged branch, or a stale or edited copy), "
+    "and the hook does not check which copy that is; commands built at runtime "
     "(command substitution, variables, base64, a script file run later, a Python subprocess "
     "call); shell quoting, backslash escapes or brace expansion that split a word (p and r "
     "split by empty quotes, a backslash inside merge, or a brace list inside the repository "

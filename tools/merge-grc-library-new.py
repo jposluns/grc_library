@@ -482,13 +482,40 @@ def read_runs(head: str, gh) -> tuple[int, list[str], str]:
                f"in {RUNS_MAX_PAGES} pages"], ""
 
 
+def run_record_problem(r: dict) -> str:
+    """3b882 fix round 6: "" when the run ``r`` has a positive integer id and a created_at that
+    parses as a time with a zone, else the problem. ci_check() orders a workflow's runs by these
+    two, so a record missing either cannot be placed and refuses."""
+    run_id = r.get("id")
+    if not isinstance(run_id, int) or isinstance(run_id, bool) or run_id < 1:
+        return f"id {run_id!r} is not a positive integer"
+    created = r.get("created_at")
+    try:
+        when = datetime.fromisoformat(created[:-1] + "+00:00" if created.endswith("Z")
+                                      else created)
+    except (AttributeError, TypeError, ValueError):
+        return f"created_at {created!r} is not a parseable timestamp"
+    if when.tzinfo is None:
+        return f"created_at {created!r} has no time zone"
+    return ""
+
+
+def _run_order(r: dict) -> tuple[datetime, int]:
+    """The ordering key of a run that run_record_problem() accepted."""
+    created = r["created_at"]
+    when = datetime.fromisoformat(created[:-1] + "+00:00" if created.endswith("Z") else created)
+    return when, r["id"]
+
+
 def ci_check(text: str, head: str) -> tuple[int, list[str], dict]:
     """Decision D5 on the ``actions/runs?head_sha=`` JSON: ``(0, [], {name: run id})`` when the
     latest ``pull_request`` run on ``head`` of every required workflow, from its own file in
     WORKFLOW_PATHS, completed with success; 1 naming each workflow whose run is missing, pending
     or not successful, or that is also reported from another workflow file (a name collision:
     only its own file may satisfy it, as in merge-when-green.py's evaluate_runs); 2 when the list
-    cannot be read or is incomplete."""
+    cannot be read or is incomplete, or (3b882 fix round 6) when a ``pull_request`` run of a
+    required workflow on ``head`` lacks a positive integer id or a parseable created_at with a
+    zone: such a run cannot be ordered, so it refuses instead of sorting as oldest."""
     try:
         data = json.loads(text)
     except json.JSONDecodeError as exc:
@@ -500,7 +527,7 @@ def ci_check(text: str, head: str) -> tuple[int, list[str], dict]:
     if not isinstance(total, int) or isinstance(total, bool) or total > len(runs):
         return 2, [f"Actions runs for {head} incomplete: total_count {total!r}, "
                    f"{len(runs)} listed"], {}
-    problems, green = [], {}
+    problems, green, malformed_seen = [], {}, False
     for name in REQUIRED_WORKFLOWS:
         path = WORKFLOW_PATHS[name]
         named = [r for r in runs if r.get("name") == name]
@@ -514,13 +541,21 @@ def ci_check(text: str, head: str) -> tuple[int, list[str], dict]:
         if not mine:
             problems.append(f"required workflow {name!r}: no {CI_EVENT} run from {path} on {head}")
             continue
-        latest = max(mine, key=lambda r: (str(r.get("created_at") or ""),
-                                          r.get("id") if isinstance(r.get("id"), int) else -1))
+        malformed = [(r, run_record_problem(r)) for r in mine if run_record_problem(r)]
+        if malformed:
+            for r, why in malformed:
+                problems.append(f"required workflow {name!r}: run record on {head} is malformed "
+                                f"({why}); it cannot be ordered, so the merge is refused")
+            malformed_seen = True
+            continue
+        latest = max(mine, key=_run_order)
         if latest.get("status") != "completed" or latest.get("conclusion") != "success":
             problems.append(f"required workflow {name!r}: latest run {latest.get('id')} on {head} "
                             f"is {latest.get('status')}/{latest.get('conclusion')}")
         else:
             green[name] = latest.get("id")
+    if malformed_seen:
+        return 2, problems, {}
     return (1 if problems else 0), problems, green
 
 
@@ -762,7 +797,10 @@ def self_test() -> int:
         ("cell blanks line separators", _cell("a\u2028b\x85c\vd\re"), "a b c d e"),
         ("log: real shape", log_shape_problem(log_shape), ""),
         ("log: header only", log_shape_problem(LOG_HEADER + "\n"), ""),
-        ("log: no table line", "no table header" in log_shape_problem("# t\n\nprose\n"), True),
+        ("log: no table header", "no table header" in log_shape_problem("# t\n\nprose\n"), True),
+        # 3b882 fix round 6 (round 5 agy-A F3): a table header, then no table line after it.
+        ("log: no table line",
+         "is not a table line" in log_shape_problem("# t\n\n" + LOG_HEADER + "\n\nprose\n"), True),
         ("log: first table line differs",
          "is not" in log_shape_problem("| a | b | c |\n" + log_shape), True),
         ("log: prose after the table",
