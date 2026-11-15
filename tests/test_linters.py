@@ -26110,6 +26110,51 @@ class PIIContentTests(LinterTestCase):
         result = run_linter("tools/lint-pii-in-content.py", fixture)
         self.assertLinterFails(result, "phone")
 
+    def test_forge_ssh_service_address_not_flagged(self) -> None:
+        # 3b882 fix round 3 (maintainer decision 2026-11-15): the SSH service address of a
+        # code-hosting site, local part exactly git at exactly github.com or gitlab.com, is a
+        # remote spelling and not a person, so it is not reported in the ssh or scp form.
+        fixture = self.make_fixture(
+            "standard-forge-ssh.md",
+            VALID_METADATA
+            + "\n\nClone ssh://git@github.com/org/repo.git or git@github.com:org/repo.git,"
+            " or git@gitlab.com:org/repo.git.\n",
+        )
+        result = run_linter("tools/lint-pii-in-content.py", fixture)
+        self.assertEqual(
+            result.returncode,
+            0,
+            "a forge SSH service address must not be reported.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_forge_allowance_is_narrow(self) -> None:
+        # 3b882 fix round 3: the allowance covers only those two exact addresses. Another local
+        # part at a forge domain, git at another domain, a longer domain that begins with
+        # github.com (whole or behind a fullwidth dot) and another letter case stay reported.
+        for body, needle in (
+            ("Contact jane@github.com here.\n", "jane@github.com"),
+            ("Contact git@forge-host-xyz.net here.\n", "git@forge-host-xyz.net"),
+            ("Contact git@github.com.mirror-xyz.net here.\n", "git@github.com.mirror-xyz.net"),
+            ("Contact git@github.com\uff0emirror-xyz.net here.\n", "git@github.com"),
+            ("Contact GIT@github.com here.\n", "GIT@github.com"),
+        ):
+            with self.subTest(body=body):
+                fixture = self.make_fixture("standard-forge-narrow.md", VALID_METADATA + "\n\n" + body)
+                result = run_linter("tools/lint-pii-in-content.py", fixture)
+                self.assertEqual(result.returncode, 1, f"{body!r} must stay reported.\nstdout:\n{result.stdout}")
+                self.assertIn(needle, result.stdout)
+        # git@example.org and git@github.com.other.example are not reported at all, through the
+        # EXAMPLE_DOMAINS and reserved .example layers, so the allowance itself is checked for them:
+        # it covers neither of them, nor jane@github.com.
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_forge_allowance")
+        engine = wrapper._engine()
+        for line in ("jane@github.com here", "git@example.org here", "git@github.com.other.example here"):
+            with self.subTest(line=line):
+                self.assertEqual(wrapper._forge_service_matches(engine, line), [])
+        self.assertEqual(wrapper._forge_service_matches(engine, "git@github.com: and git@gitlab.com/x"),
+                         ["git@github.com", "git@gitlab.com"])
+
 
 class InternalReferencesTests(LinterTestCase):
     """tools/lint-internal-references.py"""
@@ -45695,7 +45740,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-orphan-documents.py NO_FS F 7a5e4c9ba00700be7e6e97a67d6e24b8365f5e4463af5c5cc12f79a5a45f8ecd
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
-        lint-pii-in-content.py CWD F 3892a7ab7f09960df0bdeb187a3e2b61f406483620d6baa1eaa238ea91166d8e
+        lint-pii-in-content.py CWD F 52e8e2d116545e3f16b6d6dfe9dc7cf81df9938f4c79dc187cd83fec28afaffb
         lint-placeholder-leakage.py CWD F 011f3e7a9a38fc875d6ec0458f9ff22fdbcc6f531a1d316fc4229b6e791c7eea
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a
@@ -45741,7 +45786,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
         merge-grc-library-new.py NO_FS F 3a51445fbdbc3c6cdc77cfb557bcbb0c4ca935dcf9a386a84a3cc963affe0a88
-        merge-when-green.py NO_FS F 7d0fc9002072b9b27f9380bb3df1326a1f567ddd18191f7ec9cda83df704ee11
+        merge-when-green.py NO_FS F 277f6df4fa0c644e89256049b6e0982a8c299f5f292aea448e8c24e58937e0f2
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
         pre-push-guard.sh FIXED F e082e92fe082af59cee69da9d2a329dacf1cdf4e8e4d600f4c5b6fc2ce89dabf

@@ -49,6 +49,15 @@ Exemption layers:
   - Per-file exemptions: a small set of AI security guides and
     research notes whose content legitimately includes IP-shaped
     threat indicators or address examples.
+  - Forge SSH service addresses (FORGE_SERVICE_ADDRESSES): exactly
+    ``git@github.com`` and ``git@gitlab.com``, the SSH service address of
+    a code-hosting site as written in an ssh:// or scp-style remote, are
+    not flagged. They name a hosting service's shared login, not a
+    person. The match is exact and case-sensitive, and only when the
+    engine's regex captured the whole domain, so another local part at
+    those domains, ``git`` at any other domain, and a longer domain that
+    begins with ``github.com`` are reported as before (maintainer
+    decision 2026-11-15, 3b882 fix round 3).
   - CHANGELOG.md is exempt because it can describe sanitization fixes
     that quote (now-removed) PII.
   - Fenced code blocks are skipped so example syntax does not produce
@@ -135,6 +144,14 @@ EXAMPLE_DOMAINS = {
 # Phase 23.63 removed `noreply.github.com` (no corpus reference)
 # and `posluns.com` (only `.ca` is used in AUTHORS / CITATION).
 
+# Forge SSH service addresses (maintainer decision 2026-11-15, 3b882 fix
+# round 3): the SSH service address of a code-hosting site, as written in an
+# ssh:// or scp-style remote, names the service's shared login, not a person.
+# Only these two exact addresses are allowed. This is not a domain allowance:
+# any other local part at github.com or gitlab.com, and git at any other
+# domain, is reported as before.
+FORGE_SERVICE_ADDRESSES = frozenset({"git@github.com", "git@gitlab.com"})
+
 
 def _engine():
     """Import the pack-owned engine, ensuring its tools/ dir is importable."""
@@ -152,8 +169,34 @@ def scan(path: Path) -> list[tuple[int, str, str]]:
     test patches ``mod.scan`` and runs ``main``; the detection regexes and the
     check live in the pack engine (gate_lint_pii_in_content.py). The engine takes
     the grc example-domain allow-list as a keyword; the wrapper supplies it here.
+    The wrapper then drops the email findings the FORGE_SERVICE_ADDRESSES
+    allowance covers, one per covered match on the same line.
     """
-    return _engine().scan(path, example_domains=EXAMPLE_DOMAINS)
+    engine = _engine()
+    findings = engine.scan(path, example_domains=EXAMPLE_DOMAINS)
+    if not any(label == "email address" and value in FORGE_SERVICE_ADDRESSES
+               for _, label, value in findings):
+        return findings
+    allowed: dict[tuple[int, str], int] = {}
+    for lineno, line in engine.iter_non_code_lines(engine.read_text_safe(path) or ""):
+        for value in _forge_service_matches(engine, line):
+            allowed[(lineno, value)] = allowed.get((lineno, value), 0) + 1
+    kept = []
+    for lineno, label, value in findings:
+        if label == "email address" and allowed.get((lineno, value), 0) > 0:
+            allowed[(lineno, value)] -= 1
+            continue
+        kept.append((lineno, label, value))
+    return kept
+
+
+def _forge_service_matches(engine, line: str) -> list[str]:
+    """The matches on one line that the FORGE_SERVICE_ADDRESSES allowance covers: an
+    engine EMAIL_RE match whose text is exactly one of those addresses and whose domain
+    is the whole domain, not an ASCII prefix the regex truncated (the engine's own
+    completeness rule, as for its example-domain exemption)."""
+    return [m.group(0) for m in engine.EMAIL_RE.finditer(line)
+            if m.group(0) in FORGE_SERVICE_ADDRESSES and engine._email_domain_complete(line, m.end())]
 
 
 def main(argv: list[str]) -> int:

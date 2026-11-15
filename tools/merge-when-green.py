@@ -521,7 +521,6 @@ def _self_test_actions_fallback() -> list[tuple[str, bool]]:
     denied = lambda err=fx, rc=1: subprocess.CalledProcessError(rc, ["gh"], "", err)
     for name, exc, want in [
         ("forbidden-fixture", denied(), True),
-        ("forbidden-no-trailing-newline", denied(fx.rstrip("\n")), True),
         ("forbidden-rollup-root", denied(fx.split(".nodes")[0] + ")\n"), True),
         ("forbidden-integration-token-not", denied(fx.replace("personal access token", "integration")), False),
         ("forbidden-pr-path-not", denied(fx.split(".statusCheckRollup")[0] + ")\n"), False),
@@ -540,6 +539,10 @@ def _self_test_actions_fallback() -> list[tuple[str, bool]]:
          denied("GraphQL: Could not resolve to a PullRequest with the number of 181. (repository.pullRequest)\n"), False),
     ]:
         checks.append((name, rollup_forbidden(exc) == want))
+    # The rstrip carries the fixture's trailing newline: the pattern alone refuses it, so this check fails
+    # without the rstrip (3b882 fix round 3; a stderr with no trailing newline matches either way).
+    checks.append(("forbidden-trailing-newline-stripped",
+                   _ROLLUP_FORBIDDEN.fullmatch(fx) is None and rollup_forbidden(denied())))
     # gh() captures stderr, so the error can reach rollup_forbidden(): subprocess.run is stubbed here.
     seen, captured, real_run = [], None, subprocess.run
     subprocess.run = lambda cmd, **kw: (seen.append((cmd, kw)), subprocess.CompletedProcess(cmd, 1, "", fx))[1]
@@ -838,13 +841,12 @@ def _self_test() -> int:
         # before any gh call; a grc_library_new PR URL refuses however the command was spelled, and so does a
         # missing or unreadable URL; none makes a merge call, and the message names the tool.
         new_url = "https://github.com/jposluns/grc_library_new/pull/1"
-        ssh_user, host = "git", "github.com"  # ssh and scp forms: user@host, not an address
         for label, flags, url in (
             ("repo-plain", ["--repo", "jposluns/grc_library_new"], ok_url),
             ("repo-upper", ["--repo", "JPosluns/GRC_Library_New"], ok_url),
             ("repo-https-git-slash", ["--repo", "https://github.com/jposluns/grc_library_new.git/"], ok_url),
-            ("repo-ssh-url", ["--repo", f"ssh://{ssh_user}@{host}/jposluns/grc_library_new.git"], ok_url),
-            ("repo-scp", ["--repo", f"{ssh_user}@{host}:jposluns/grc_library_new.git"], ok_url),
+            ("repo-ssh-url", ["--repo", "ssh://git@github.com/jposluns/grc_library_new.git"], ok_url),
+            ("repo-scp", ["--repo", "git@github.com:jposluns/grc_library_new.git"], ok_url),
             ("url-no-repo", [], new_url),
             ("url-upper", [], "https://github.com/JPOSLUNS/GRC_LIBRARY_NEW/pull/1"),
             ("url-repo-other", ["--repo", "jposluns/grc_library"], new_url),
@@ -986,12 +988,11 @@ def _self_test() -> int:
     checks.append(("foreign-reason-names-workflow", "from workflow 'Repository quality checks'" in r_foreign))
     # The exact default list is pinned: the main() cases build rollups from REQUIRED_CHECKS itself, so
     # they cannot notice a name dropped from it (3b104 QA r4).
-    ssh_user, host = "git", "github.com"  # ssh and scp forms: user@host, not an address
     checks.append(("normalize-repo-new-forms", all(normalize_repo(s) == _NEW_REPO for s in (
         "jposluns/grc_library_new", "JPOSLUNS/GRC_LIBRARY_NEW", "jposluns/grc_library_new.git/",
         "github.com/jposluns/grc_library_new", "https://github.com/jposluns/grc_library_new.git",
-        "HTTPS://GitHub.com/JPosluns/GRC_Library_New.GIT", f"ssh://{ssh_user}@{host}/jposluns/grc_library_new.git",
-        f"{ssh_user}@{host}:jposluns/grc_library_new.git", f"{ssh_user}@{host}:jposluns/grc_library_new"))))
+        "HTTPS://GitHub.com/JPosluns/GRC_Library_New.GIT", "ssh://git@github.com/jposluns/grc_library_new.git",
+        "git@github.com:jposluns/grc_library_new.git", "git@github.com:jposluns/grc_library_new"))))
     checks.append(("normalize-repo-others-not-new", all(normalize_repo(s) != _NEW_REPO for s in (
         "jposluns/grc_library", "jposluns/grc_library_ref", "jposluns/grc_library_newer", "other/grc_library_new"))))
     checks.append(("pr-url-repo", pr_url_repo("https://github.com/JPosluns/GRC_Library_New/pull/31") == _NEW_REPO
