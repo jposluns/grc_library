@@ -43345,7 +43345,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-todo-index-reference-parity.py OWN F 46ffb499a50fa6b5d64ac594776e5a26ad4e3c696fc48d8b5e4fc8b4646a2b22
         lint-todo-list-tag.py OWN F 10ee5371268378b28c9097a588515231d625ab63b5e5b1b9f3533f4d85db9b2d
         lint-todo-marked-done.py ROOT F 9d5f28f83917e26a4cd0bffde756fded4a2bf4259b809472bc1757a6dbc1b212
-        lint-todo-number-permanence.py OWN F abc29a18bbb34d57abdf9d72ff70a46150c1d99322312fa3818dd1a3fa589c19
+        lint-todo-number-permanence.py OWN F e893a1575e3e47f7e4d89ef02a40ca4545250b890b943171c8ce843c85a4e039
         lint-todo-staleness.py NO_FS F 6a89123607678239f036cab7bf02e0a0885216f55ba0b23fb53799e30c40cffb
         lint-tooling-backlog-refs.py OWN F be54fcdef171bc30e7d0393ca2c097904f464cad7bde9a233f7ee663edd741a5
         lint-tooling-provenance-freshness.py OWN F 38a5222e69c3ec9c43c1ea917f39d8b17683ae3f91b6c361e4b10a34d0f4027a
@@ -43375,7 +43375,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         safe_fs.py PASSIVE F 13c29f1625ffc04ba289a42a2ba241e2d68a77c9420b114f2a96e58c4b5ad35a
         scan-publication-instruction-content.py OWN F 62fd62e2345b14ae59e33db7ef62cf131bdbdb9eb2f75cc3f5bab3391cbdd17f
         skill-verdict-fields.json DATA F 3a9c5b89ed3acc1a7bdbda02b5630379c1ef016fc58b34e4338a485ad3fd4cb8
-        standards-currency-unpinned-baseline.json DATA F 38fc3b5fec40360554169349b86b75db3025b0d5d3232072b633e61d07f9dc6d
+        standards-currency-unpinned-baseline.json DATA F ebcdc57e3556a9c948f21c984dea6050679865a9f497e9206f6d6bb79f9f8559
         suggest-listing-surfaces.py SKIP F 1fc1c10ac7ec86e31942c812521708f89b1c37237d01b078caa2e42886e5ba63
         sweep-preflight-exemptions.json DATA F 2c11643eb1082a34c9d2cafed9cf04c6481c3e8322a44f426aa0f55729ad75df
         sweep-preflight-scanner.py NO_FS F 0354f7c93485b246f46fdb4e10facb822349f38f813332215d16c92f635c9d5e
