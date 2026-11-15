@@ -25,10 +25,15 @@ cannot be read or decoded as UTF-8 refuses, naming it.
 Merge mode (``<PR>``, parts P2a and P2b), after the row check passes, every gh call going
 through gh():
 
-0. Plan section 3: the open-findings check refuses while the ledger holds an undispositioned
-   ``error`` finding, before any gh call. It is merge-when-green.py's own open_findings_block(),
-   loaded by path the way that tool loads the hook, so the two tools can never disagree; a
-   merge-when-green.py that cannot be loaded refuses.
+0. Part 2c, before any gh call: the admin-merge log pre-flight resolves
+   ``merge-bypass-log.md`` with lint_common.resolve_working(strict=True), accepts it only inside
+   the operational store (decision D1, as for the registers), reads it and refuses unless its
+   first line equals LOG_HEADER. Then plan section 3: the open-findings check refuses while the
+   ledger holds an undispositioned ``error`` finding. It is merge-when-green.py's own
+   open_findings_block(), loaded by path the way that tool loads the hook, so the two tools can
+   never disagree; but it fails closed here: an absent or unloadable hook, a merge-when-green.py
+   that cannot be loaded, or no readable ledger ``open-findings.md`` inside the operational store
+   refuses (merge-when-green.py itself allows the first and the last).
 1. ``gh pr view`` must report the PR OPEN on base ``main``, its own number and URL in
    grc_library_new, and a 40-character lowercase hex head SHA, which is pinned from here on.
 2. Decision D3: the title must end with the ``(CalVer <v>, README <v>)`` suffix.
@@ -40,22 +45,27 @@ through gh():
 5. The merged commit is read back; any trailer line (Co-authored-by, Signed-off-by or any other),
    a message other than the one sent, or other than one parent fails loudly with ``MERGED BUT``.
 6. Decision D2: the admin-merge log row, its PR cell in the tagged form
-   ``#N [repo: grc_library_new]``, is printed to standard output only (everything else goes to
-   standard error). This part writes no store file; the operator records the row. In each
-   cell every backslash and every pipe is escaped with a backslash, and every line-breaking or
-   other control character becomes a space, so the row is always one line of six cells.
+   ``#N [repo: grc_library_new]``, is printed to standard output (everything else goes to
+   standard error), then appended to the log found by the pre-flight with one write to a
+   descriptor opened in append mode (never created, never through a final symlink), and the
+   file is read back: its last line must equal the row. A failed append or read-back exits 3
+   and prints the row to standard error, to be added by hand. ``--dry-run`` and
+   ``--check-rows`` never write. In each cell every backslash and every pipe is escaped with a
+   backslash, and every line-breaking or other control character becomes a space, so the row is
+   always one line of six cells.
 
 Usage:
     python3 tools/merge-grc-library-new.py <PR> [--dry-run]
     python3 tools/merge-grc-library-new.py --check-rows <PR>
     python3 tools/merge-grc-library-new.py --self-test
 
-Exit codes: 0 both rows present, the dry run passed, the merge read back clean, or the self-test
-passed; 1 refused (a row is missing, or the PR state, head, title or CI does not allow a merge);
-(or an undispositioned error finding is open, or the open-findings check cannot be loaded);
-2 usage error, the store or a register cannot be found or read, or a gh call failed (before the
-merge, or the merge call itself, whose state must then be read before any retry); 3 merged but the
-read-back failed.
+Exit codes: 0 both rows present, the dry run passed, the merge read back clean and its log row
+was appended, or the self-test passed; 1 refused (a row is missing, the PR state, head, title or CI
+does not allow a merge, or an undispositioned error finding is open); 2 usage error, the store, a
+register, the admin-merge log or the open-findings ledger cannot be found, read or accepted, the
+open-findings check cannot be loaded, or a gh call failed (before the merge, or the merge call
+itself, whose state must then be read before any retry); 3 merged but the read-back of the merge
+commit, or the append or read-back of the log row, failed.
 """
 from __future__ import annotations
 
@@ -96,6 +106,11 @@ REQUIRED_WORKFLOWS = ("Repository quality checks", "Pull request attribution")
 MERGE_WHEN_GREEN = TOOLS_DIR / "merge-when-green.py"
 # Decision D2: the admin-merge log's header; the row printed has one cell per column.
 LOG_HEADER = "| Date (UTC) | PR | CI state at merge | Mechanism | Justification | Change |"
+# Part 2c: the store-relative admin-merge log (gate 50 Check 6 reads the same file), the
+# open-findings ledger, and the hook whose decision functions judge it.
+LOG_REL = "merge-bypass-log.md"
+LEDGER_REL = "open-findings.md"
+HOOK_REL = Path(".claude") / "hooks" / "block-on-open-findings.py"
 READBACK_ATTEMPTS = 5
 READBACK_DELAY = 2
 _HEAD = re.compile(r"[0-9a-f]{40}", re.ASCII)
@@ -204,6 +219,91 @@ def read_register(store: Path, rel: str) -> str:
         raise RegisterError(f"{path}: cannot be read: {exc}") from exc
 
 
+def resolve_in_store(root: Path, rel: str, what: str) -> Path:
+    """``rel`` by lint_common.resolve_working(strict=True), accepted only as ``<store>/<rel>``
+    resolving inside the operational store (decision D1), or :class:`RegisterError` naming it."""
+    if str(TOOLS_DIR) not in sys.path:
+        sys.path.insert(0, str(TOOLS_DIR))
+    import lint_common
+
+    store = find_store(root)
+    try:
+        path = lint_common.resolve_working(rel, repo_root=root.resolve(), strict=True)
+    except lint_common.InaccessiblePath as exc:
+        raise RegisterError(f"{what} ({rel}) {exc.filename}: {exc.strerror}") from exc
+    if path is None:
+        raise RegisterError(f"{what} {store / rel}: absent from the operational store")
+    try:
+        inside = path == store / rel and path.resolve().is_relative_to(store.resolve())
+    except (OSError, RuntimeError) as exc:
+        raise RegisterError(f"{what} {path}: cannot be resolved: {exc}") from exc
+    if not inside:
+        raise RegisterError(f"{what} {path}: outside the operational store {store} (the sibling "
+                            "and in-repo .working/ fallbacks are never used)")
+    return path
+
+
+def read_in_store(path: Path, what: str) -> str:
+    """The UTF-8 text of the regular file ``path``, or :class:`RegisterError` naming it."""
+    try:
+        if not path.is_file():
+            raise RegisterError(f"{what} {path}: not a regular file")
+        return path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        raise RegisterError(f"{what} {path}: cannot be read: {exc}") from exc
+
+
+def log_preflight(root: Path) -> Path:
+    """Part 2c item 1: the admin-merge log inside the operational store, readable, its first line
+    equal to LOG_HEADER; or :class:`RegisterError` naming it."""
+    path = resolve_in_store(root, LOG_REL, "admin-merge log")
+    first = read_in_store(path, "admin-merge log").split("\n", 1)[0]
+    if first != LOG_HEADER:
+        raise RegisterError(f"admin-merge log {path}: header line {first!r} is not {LOG_HEADER!r}")
+    return path
+
+
+def _log_last_line(path: Path) -> str | None:
+    """The last line of the log as read back from disk."""
+    lines = path.read_bytes().decode("utf-8").split("\n")
+    if lines and lines[-1] == "":
+        lines.pop()
+    return lines[-1] if lines else None
+
+
+def append_log_row(path: Path, row: str) -> str:
+    """Part 2c item 2: append ``row`` to the log with one write to a descriptor opened in append
+    mode (never created, never through a final symlink), then read the file back. Returns "" when
+    the last line equals ``row``, else the problem. A newline goes first when the file lacks one."""
+    import stat
+
+    data = row.encode("utf-8") + b"\n"
+    try:
+        fd = os.open(path, os.O_RDWR | os.O_APPEND | getattr(os, "O_NOFOLLOW", 0))
+        try:
+            info = os.fstat(fd)
+            if not stat.S_ISREG(info.st_mode):
+                return f"append to {path} refused: not a regular file"
+            if info.st_size:
+                os.lseek(fd, -1, os.SEEK_END)
+                if os.read(fd, 1) != b"\n":
+                    data = b"\n" + data
+            written = os.write(fd, data)
+        finally:
+            os.close(fd)
+    except OSError as exc:
+        return f"append to {path} failed: {exc}"
+    if written != len(data):
+        return f"append to {path} wrote {written} of {len(data)} bytes"
+    try:
+        last = _log_last_line(path)
+    except (OSError, UnicodeDecodeError) as exc:
+        return f"read-back of {path} failed: {exc}"
+    if last != row:
+        return f"read-back of {path}: its last line is {last!r}, not the row"
+    return ""
+
+
 def check_rows(pr: int, *, root: Path = REPO_ROOT) -> tuple[int, list[str]]:
     """Read both registers from the operational store and check PR ``pr``'s rows.
 
@@ -302,15 +402,34 @@ def open_findings(root: Path, ledger=None) -> tuple[int, str]:
 
     That tool is loaded by path, as it loads the open-findings hook, and its function runs the
     hook's own parse and decision on the ledger, so the two merge tools can never disagree. 1 means
-    an undispositioned ``error`` finding (or a mis-filed finding row) is open, or the hook cannot be
-    loaded; a merge-when-green.py that cannot be loaded refuses too."""
+    an undispositioned ``error`` finding (or a mis-filed finding row) is open. Part 2c item 3: the
+    check fails closed with 2 where merge-when-green.py allows or cannot run: the hook absent or
+    not loadable, merge-when-green.py not loadable, or (``ledger`` not given) no readable ledger
+    ``open-findings.md`` inside the operational store (decision D1)."""
+    hook = Path(root) / HOOK_REL
+    if not hook.is_file():
+        return 2, f"the open-findings hook {hook} is absent; refusing to merge unchecked"
+    try:
+        spec = importlib.util.spec_from_file_location("_mgln_open_findings_hook", hook)
+        hook_mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(hook_mod)
+        hook_mod.parse_open_rows, hook_mod.decide_exit  # noqa: B018 - both must exist
+    except Exception as exc:  # noqa: BLE001 - any load failure refuses
+        return 2, (f"the open-findings hook {hook} could not be loaded ({exc}); refusing to merge "
+                   "unchecked")
+    if ledger is None:
+        try:
+            ledger = resolve_in_store(Path(root), LEDGER_REL, "open-findings ledger")
+            read_in_store(ledger, "open-findings ledger")
+        except RegisterError as exc:
+            return 2, f"{exc}; refusing to merge unchecked"
     try:
         spec = importlib.util.spec_from_file_location("_mgln_merge_when_green", MERGE_WHEN_GREEN)
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
         block = mod.open_findings_block
     except Exception as exc:  # noqa: BLE001 - any load failure refuses
-        return 1, (f"merge-when-green.py ({MERGE_WHEN_GREEN}) could not be loaded for the "
+        return 2, (f"merge-when-green.py ({MERGE_WHEN_GREEN}) could not be loaded for the "
                    f"open-findings check ({exc}); refusing to merge unchecked")
     return block(root, ledger)
 
@@ -365,10 +484,15 @@ def run_merge(pr: int, *, root: Path, gh, dry_run: bool = False, sleep=time.slee
         err(line)
     if code:
         return code
+    try:
+        log_path = log_preflight(root)
+    except RegisterError as exc:
+        err(f"REFUSED: {exc}")
+        return 2
     blocked, why = open_findings(root)
     if blocked:
         err(f"REFUSED: open-findings check: {why}")
-        return 1
+        return blocked
     try:
         view = json.loads(gh("pr", "view", str(pr), "--repo", MERGE_REPO, "--json", VIEW_FIELDS))
     except (subprocess.CalledProcessError, OSError, json.JSONDecodeError) as exc:
@@ -452,14 +576,22 @@ def run_merge(pr: int, *, root: Path, gh, dry_run: bool = False, sleep=time.slee
         "README suffix",
         f"{title}; merge commit {oid or 'not read'}; read-back {readback}; command: {command}",
     ]
-    print("| " + " | ".join(_cell(c) for c in cells) + " |")
+    row = "| " + " | ".join(_cell(c) for c in cells) + " |"
+    print(row, flush=True)
+    log_problem = append_log_row(log_path, row)
     if failures:
         for line in failures:
             err(f"MERGED BUT {line}")
         err(f"MERGED BUT the read-back of #{pr} failed: a finding row is required; the merge "
             "cannot be undone. The log row above records the failure.")
+    if log_problem:
+        err(f"MERGED BUT the log row was not written: {log_problem}; add this row to {log_path} "
+            "by hand:")
+        err(row)
+    if failures or log_problem:
         return 3
-    err(f"merged #{pr} as {oid}; read-back clean (no trailer, message as sent, one parent)")
+    err(f"merged #{pr} as {oid}; read-back clean (no trailer, message as sent, one parent); "
+        f"log row appended to {log_path} and read back")
     return 0
 
 

@@ -2,7 +2,8 @@
 argv (T3), the read-back of the merged commit (T4), the admin-merge log row printed to standard
 output (T5), the title suffix (T6, decision D3) and the CI check on the pinned head (decision D5);
 part P2b: both required workflows (D5), the log-row cell escaping (T5) and the open-findings check
-reused from merge-when-green.py (plan section 3).
+reused from merge-when-green.py (plan section 3); part P2c: the admin-merge log pre-flight before any
+gh call, the row appended to the log and read back, and the open-findings check failing closed.
 
 Every gh call is stubbed through the tool's gh() seam, so nothing contacts a network, and every
 test points GRC_STORE at a temporary directory, so none reads the operational store.
@@ -43,6 +44,9 @@ LEDGER_HEAD = ("## Open\n| Date | Severity | Finding | Source | Disposition |\n"
                "| --- | --- | --- | --- | --- |\n")
 OPEN_ERROR = "| 2026-11-15 | error | a live defect | probe |  |\n"
 FIXED_ERROR = "| 2026-11-15 | error | a fixed defect | probe | FIXED #1 |\n"
+LOG_REL = "merge-bypass-log.md"
+HOOK_NAME = "block-on-open-findings.py"
+OLD_LOG_ROW = "| 2026-09-20 | #2408 | green | admin squash | review | content |"
 
 
 def gfm_cells(row):
@@ -132,6 +136,10 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.store = parent / "store"
         (self.store / "validate-pr").mkdir(parents=True)
         self.write_rows(VALIDATE_ROW, RETRO_ROW)
+        self.install_hook()
+        (self.store / "open-findings.md").write_text(LEDGER_HEAD, encoding="utf-8")
+        self.log = self.store / LOG_REL
+        self.log.write_text(HEADER + "\n", encoding="utf-8")
         patcher = mock.patch.dict(os.environ, {"GRC_STORE": str(self.store)})
         patcher.start()
         self.addCleanup(patcher.stop)
@@ -351,11 +359,20 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertEqual(len(gfm_cells(lines[0])), 6, repr(lines[0]))
                 self.assertNotIn(char, lines[0])
 
-    def test_T5_writes_no_file(self):
-        before = sorted(p for p in Path(self.tmp.name).rglob("*"))
+    def snapshot(self):
+        return {p: (p.read_bytes() if p.is_file() else None)
+                for p in sorted(Path(self.tmp.name).rglob("*")) if "__pycache__" not in p.parts}
+
+    def test_T5_dry_run_writes_no_file_and_the_merge_changes_only_the_log(self):
+        before = self.snapshot()
+        code, out, err = self.merge(FakeGh(), dry_run=True)
+        self.assertEqual(code, 0, err)
+        self.assertEqual(self.snapshot(), before)
         code, out, err = self.merge(FakeGh())
         self.assertEqual(code, 0, err)
-        self.assertEqual(sorted(p for p in Path(self.tmp.name).rglob("*")), before)
+        after = self.snapshot()
+        changed = sorted(p for p in set(before) | set(after) if before.get(p) != after.get(p))
+        self.assertEqual(changed, [self.log])
 
     def test_T5_no_row_without_a_merge(self):
         for fake in (FakeGh(view={"title": "no suffix"}),
@@ -482,11 +499,13 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
     def install_open_findings(self, rows):
         """A copy of the open-findings hook in the fixture repository (so merge-when-green's
         open_findings_block finds it) and a ledger in the fixture store."""
-        hooks = self.root / ".claude" / "hooks"
-        hooks.mkdir(parents=True)
-        name = "block-on-open-findings.py"
-        (hooks / name).write_bytes((REPO_ROOT / ".claude" / "hooks" / name).read_bytes())
+        self.install_hook()
         (self.store / "open-findings.md").write_text(LEDGER_HEAD + rows, encoding="utf-8")
+
+    def install_hook(self):
+        hooks = self.root / ".claude" / "hooks"
+        hooks.mkdir(parents=True, exist_ok=True)
+        (hooks / HOOK_NAME).write_bytes((REPO_ROOT / ".claude" / "hooks" / HOOK_NAME).read_bytes())
 
     def test_open_findings_undispositioned_error_refuses_before_any_gh_call(self):
         self.install_open_findings(OPEN_ERROR)
@@ -511,7 +530,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         fake = FakeGh()
         with mock.patch.object(self.mod, "MERGE_WHEN_GREEN", self.root / "absent.py"):
             code, out, err = self.merge(fake)
-        self.assertEqual(code, 1, err)
+        self.assertEqual(code, 2, err)
         self.assertEqual(fake.calls, [])
         self.assertIn("merge-when-green", err)
 
@@ -523,6 +542,140 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertIn("a live defect", message)
         ledger.write_text(LEDGER_HEAD + FIXED_ERROR, encoding="utf-8")
         self.assertEqual(self.mod.open_findings(REPO_ROOT, ledger), (0, ""))
+
+    # Part 2c: a refusal before any gh call, dry run or not.
+
+    def assert_refused_before_gh(self, needle):
+        for dry_run in (False, True):
+            with self.subTest(dry_run=dry_run):
+                fake = FakeGh()
+                code, out, err = self.merge(fake, dry_run=dry_run)
+                self.assertEqual(code, 2, err)
+                self.assertEqual(fake.calls, [])
+                self.assertEqual(out, "")
+                self.assertIn("REFUSED", err)
+                self.assertIn(needle, err)
+
+    # Part 2c item 1: the admin-merge log pre-flight.
+
+    def test_log_preflight_missing_log_refuses_before_any_gh_call(self):
+        os.replace(self.log, Path(self.tmp.name) / "moved-log.md")
+        self.assert_refused_before_gh(LOG_REL)
+
+    def test_log_preflight_header_mismatch_refuses_before_any_gh_call(self):
+        for text in ("", "\n" + HEADER + "\n", HEADER.replace("Change", "Changes") + "\n",
+                     HEADER + " \n", "# Merge bypass log\n\n" + HEADER + "\n",
+                     HEADER.replace("| ", "|", 1) + "\n"):
+            with self.subTest(text=text):
+                self.log.write_text(text, encoding="utf-8")
+                self.assert_refused_before_gh("header")
+
+    def test_log_preflight_unreadable_log_refuses_before_any_gh_call(self):
+        self.log.write_bytes(b"\xff" + HEADER.encode() + b"\n")
+        self.assert_refused_before_gh(LOG_REL)
+        if hasattr(os, "geteuid") and os.geteuid() != 0:
+            self.log.write_text(HEADER + "\n", encoding="utf-8")
+            self.log.chmod(0)
+            self.addCleanup(self.log.chmod, 0o644)
+            self.assert_refused_before_gh(LOG_REL)
+            self.log.chmod(0o644)
+        os.replace(self.log, Path(self.tmp.name) / "moved-log.md")
+        self.log.mkdir()
+        self.assert_refused_before_gh(LOG_REL)
+
+    def test_log_preflight_outside_the_store_refuses_before_any_gh_call(self):
+        # Decision D1: the private sibling and in-repo .working/ fallbacks never stand in, and a
+        # store entry that resolves outside the store is refused.
+        moved = Path(self.tmp.name) / "moved-log.md"
+        os.replace(self.log, moved)
+        sibling = Path(self.tmp.name) / "grc_library_private" / ".working"
+        sibling.mkdir(parents=True)
+        (sibling / LOG_REL).write_text(HEADER + "\n", encoding="utf-8")
+        (self.root / ".working").mkdir()
+        (self.root / ".working" / LOG_REL).write_text(HEADER + "\n", encoding="utf-8")
+        self.assert_refused_before_gh(LOG_REL)
+        self.assertEqual((sibling / LOG_REL).read_text(encoding="utf-8"), HEADER + "\n")
+        self.assertEqual((self.root / ".working" / LOG_REL).read_text(encoding="utf-8"),
+                         HEADER + "\n")
+        self.log.symlink_to(moved)
+        self.assert_refused_before_gh(LOG_REL)
+        self.assertEqual(moved.read_text(encoding="utf-8"), HEADER + "\n")
+
+    # Part 2c item 2: the printed row is appended to the log and read back.
+
+    def test_log_row_appended_exactly_once(self):
+        code, out, err = self.merge(FakeGh())
+        self.assertEqual(code, 0, err)
+        lines = out.splitlines()
+        self.assertEqual(len(lines), 1, out)
+        self.assertEqual(self.log.read_text(encoding="utf-8"), HEADER + "\n" + lines[0] + "\n")
+
+    def test_log_row_appended_after_a_failed_readback(self):
+        fake = FakeGh(message=SUBJECT + "\n\n" + BODY + "\n\nCo-authored-by: a <b@example.com>\n")
+        code, out, err = self.merge(fake)
+        self.assertEqual(code, 3, err)
+        self.assertEqual(self.log.read_text(encoding="utf-8"), HEADER + "\n" + out)
+
+    def test_log_without_a_final_newline_gets_the_row_on_its_own_line(self):
+        self.log.write_text(HEADER + "\n" + OLD_LOG_ROW, encoding="utf-8")
+        code, out, err = self.merge(FakeGh())
+        self.assertEqual(code, 0, err)
+        self.assertEqual(self.log.read_text(encoding="utf-8"),
+                         HEADER + "\n" + OLD_LOG_ROW + "\n" + out)
+
+    def test_log_append_failure_exits_3_and_prints_the_row_to_stderr(self):
+        fake = FakeGh()
+
+        def swap(*args):
+            if list(args[:2]) == ["pr", "merge"]:
+                os.replace(self.log, Path(self.tmp.name) / "moved-log.md")
+                self.log.mkdir()
+            return fake(*args)
+        code, out, err = self.merge(swap)
+        self.assertEqual(code, 3, err)
+        self.assertEqual(len(fake.merge_calls()), 1)
+        row = out.splitlines()[0]
+        self.assertIn(row, err.splitlines())
+        self.assertIn("by hand", err)
+
+    def test_log_readback_mismatch_or_error_exits_3_and_prints_the_row_to_stderr(self):
+        for patch in ({"return_value": "| other |"}, {"side_effect": OSError("read failed")}):
+            with self.subTest(patch=patch):
+                self.log.write_text(HEADER + "\n", encoding="utf-8")
+                with mock.patch.object(self.mod, "_log_last_line", **patch):
+                    code, out, err = self.merge(FakeGh())
+                self.assertEqual(code, 3, err)
+                self.assertIn(out.splitlines()[0], err.splitlines())
+                self.assertIn("by hand", err)
+
+    # Part 2c item 3: the open-findings check fails closed.
+
+    def test_open_findings_hook_absent_refuses_before_any_gh_call(self):
+        os.replace(self.root / ".claude" / "hooks" / HOOK_NAME, Path(self.tmp.name) / "moved-hook.py")
+        self.assert_refused_before_gh("open-findings")
+
+    def test_open_findings_hook_unloadable_refuses_before_any_gh_call(self):
+        (self.root / ".claude" / "hooks" / HOOK_NAME).write_text(
+            "raise RuntimeError('broken')\n", encoding="utf-8")
+        self.assert_refused_before_gh("open-findings")
+
+    def test_open_findings_no_ledger_in_the_store_refuses_before_any_gh_call(self):
+        moved = Path(self.tmp.name) / "moved-ledger.md"
+        os.replace(self.store / "open-findings.md", moved)
+        self.assert_refused_before_gh("open-findings")
+        # Decision D1: a ledger in the private sibling or the in-repo .working/ never stands in.
+        sibling = Path(self.tmp.name) / "grc_library_private" / ".working"
+        sibling.mkdir(parents=True)
+        (sibling / "open-findings.md").write_text(LEDGER_HEAD, encoding="utf-8")
+        (self.root / ".working").mkdir()
+        (self.root / ".working" / "open-findings.md").write_text(LEDGER_HEAD, encoding="utf-8")
+        self.assert_refused_before_gh("open-findings")
+        (self.store / "open-findings.md").symlink_to(moved)
+        self.assert_refused_before_gh("open-findings")
+
+    def test_open_findings_unreadable_ledger_refuses_before_any_gh_call(self):
+        (self.store / "open-findings.md").write_bytes(b"\xff" + LEDGER_HEAD.encode())
+        self.assert_refused_before_gh("open-findings")
 
     # The command line, and --check-rows staying read-only.
 
