@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Class-completeness pre-commit aid (P-1.5): surface every corpus occurrence of a
+"""Class-completeness pre-commit aid: surface every corpus occurrence of a
 distinctive string BEFORE committing, so a fix applied to ONE instance is applied (or
 routed) at the WIDTH OF THE CLASS, not just the one file the change started in.
 
@@ -233,7 +233,7 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--self-test", action="store_true", help="run the built-in self-test")
     ap.add_argument("--attest", action="store_true",
                     help="probe ONE token over the git-tracked corpus set and emit the "
-                         "paste-ready [class: ...] ledger clause (P-1.67)")
+                         "paste-ready [class: ...] ledger clause")
     args = ap.parse_args(argv[1:])
     if args.self_test:
         return _self_test()

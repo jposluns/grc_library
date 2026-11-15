@@ -184,7 +184,7 @@ def _ensure_aiqt(aiqt_root: Path | None) -> str | None:
             return (
                 f"--aiqt-root {aiqt_root}: no regular PIN.toml at {pin}; an explicit "
                 f"AIQT root is strict and is never replaced by environment discovery "
-                f"or the in-repository copy (RBQ33-c3-explicit-root-fallback)"
+                f"or the in-repository copy (an override falling back to another pack)"
             )
         shim = _locate_bootstrap()
         if shim is None:
@@ -211,7 +211,7 @@ def _ensure_aiqt(aiqt_root: Path | None) -> str | None:
                 f"--aiqt-root {aiqt_root}: the bound aiqt_corpus origin {origin!r} is "
                 f"not the explicit root's {str(root / 'tools' / 'aiqt_corpus.py')!r}; "
                 f"the explicitly selected root must be the copy actually installed "
-                f"(RBQ33-c3-explicit-root-fallback)"
+                f"(an override falling back to another pack)"
             )
     try:
         from aiqt_corpus import read_text_safe

@@ -43240,10 +43240,10 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-length-on-pr.py NO_FS F 91c9308103f36414f1975e2233cd82644551ca4a3996c4a2b9310b437004434a
         check-changelog-on-pr.py NO_FS F 00fa478d33343ae5d955e3faa7f99d9c61c6cda6f7a5e414dfcaf6ec6f7bf25b
         check-changelog-preflight-commit.py NO_FS F 9ec0a028e7e916fdfa542f6688b909b08a1c69fe66b3a7cb82d979689885f978
-        check-class-completeness.py NO_FS F 999fa17b1d75f58c6b39cfa49d11dc5e54cf1fb4893376ee4bbe528c03597ff3
+        check-class-completeness.py NO_FS F 5b1ca1d1b7754bdb70ed17cf0a1a9c62e94eab93e4b19f685404e2c02d1c579a
         check-claude-md-size.py NO_FS F 5f0c8e37d4a1b36a6be924354a6cdfca69a4ba5498e77cee52012ccefc99764b
         check-clause-preservation.py OWN F 96d156bb17eb92ea45d096dae64345313ba8962de62b38a413a988aa7f8c8737
-        check-clean-language-upstream.py NO_FS F c35409a171a04e8a18c1a0089d597fd1823165e0d963221e040b3b2efa91e85c
+        check-clean-language-upstream.py NO_FS F 68e539ea645383d29ec9ded3cb44012af2afcfc78f820c172070a8c492665159
         check-commit-on-main.py NO_FS F a9672ae752b0434a1e94118bccf3dcc640bd321967ea3e6d775c0f1a8f153f7e
         check-daily-changelog-rollup.py SKIP F 9ac1a4b9a151c9f5b9cefcb93dfceea2d194611c4fc0567e90bdbcc0158598bd
         check-date-cobump-on-pr.py NO_FS F 302cb52aff2cc9b7a4c2a9c5f8c3646d6270bd4932dea572dcbe08e762292cb9
@@ -43375,7 +43375,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         safe_fs.py PASSIVE F 13c29f1625ffc04ba289a42a2ba241e2d68a77c9420b114f2a96e58c4b5ad35a
         scan-publication-instruction-content.py OWN F 62fd62e2345b14ae59e33db7ef62cf131bdbdb9eb2f75cc3f5bab3391cbdd17f
         skill-verdict-fields.json DATA F 3a9c5b89ed3acc1a7bdbda02b5630379c1ef016fc58b34e4338a485ad3fd4cb8
-        standards-currency-unpinned-baseline.json DATA F 25526fa37844734661ef142a8d54c27a79ed13df1ed3b18955343be1246d7fc5
+        standards-currency-unpinned-baseline.json DATA F 38fc3b5fec40360554169349b86b75db3025b0d5d3232072b633e61d07f9dc6d
         suggest-listing-surfaces.py SKIP F 1fc1c10ac7ec86e31942c812521708f89b1c37237d01b078caa2e42886e5ba63
         sweep-preflight-exemptions.json DATA F 2c11643eb1082a34c9d2cafed9cf04c6481c3e8322a44f426aa0f55729ad75df
         sweep-preflight-scanner.py NO_FS F 0354f7c93485b246f46fdb4e10facb822349f38f813332215d16c92f635c9d5e
@@ -43388,7 +43388,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Repository-relative argument-handling dependencies outside .claude/skills/corpus-management/tools/.
     DEPENDENCIES = """
-        .claude/skills/corpus-management/src/tools/corpus_mgmt_compiler.py 2f2bfa2407b38dc14b666a2833f96000e1c4bf9ae524c51d1b6f282ca380665b
+        .claude/skills/corpus-management/src/tools/corpus_mgmt_compiler.py 06bbda5f23f55f471fe510a0635d987a9784c576093c62aff169b42beeebf665
         .claude/skills/corpus-management/src/tools/pack_release_delta.py 1836a112482c4fa721817222ef559700e919b54e3df7ba98a4e94af5ffbdcf07
         .claude/skills/corpus-management/src/tools/profile_loader.py c54f863c1d19ea5a934e05194504538a75d2b4893e7b16aa9d4c386c932bfb6b
         .claude/aiqt/tools/aiqt_corpus.py f2292eb511e960d9c38881a54bee92d0fc5c7b5cbe0c7b5cb002cb78da08245f
@@ -61535,7 +61535,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.23.6", "0.23.6 removes internal work references from two notes in core/id-history.toml; ids, events and dates are unchanged (PATCH). The release history in src/README.md describes each version from 0.22.2")
+        self.assertEqual(man["pack"]["version"], "0.23.7", "0.23.7 removes internal work references from the lint-standards-currency origin in core/gates.toml and from two --aiqt-root refusal messages in tools/corpus_mgmt_compiler.py; no gate, register key or outcome changes (PATCH). The release history in src/README.md describes each version from 0.22.2")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")

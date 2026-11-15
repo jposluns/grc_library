@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Clean-Language skill upstream-drift check (P-1.13): report when the vendored
+"""Clean-Language skill upstream-drift check: report when the vendored
 `.claude/skills/cleanlanguage/` skill has diverged from its upstream at
 github.com/jposluns/cleanlanguage, so a maintainer-invisible upstream update is surfaced.
 
