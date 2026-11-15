@@ -43215,7 +43215,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         README.md DATA F 67fe21d3b7f132009e1e6e14899a090f897ede778d89cea59053ca2f3e20ced7
         adopt-bootstrap-ref.py OWN F ec19e2c45233ad02ca422349c0778a3c17463e6fc23fe9bf0591d822ac8d531c
         adopt-preflight-guard.py FIXED F 73ab980af0fa53c8a485af18b7bdaee1b7bfef218c37982593e30c66d7f85f66
-        aiqt_bootstrap.py PASSIVE F 7ca1565068a5ef6ba6c93bee56f74409dd2cb0c96d8bdb2b5a86b3382441fa5b
+        aiqt_bootstrap.py PASSIVE F 4f022a8e1ce1c7aa0be2018431fa82024257e64545b224ae22d20c149bcb95d4
         aiqt_rules.py NO_FS F dda2a6a5a217513fc2848e59029e111402fe85e8e765d6b9de7186bd8d9472d9
         alignment-register-aliases.json DATA F 7d9b0be1db9dcc1f81870c96309e2837cdf7da6fc16a78ea4f4b4ccca4e7b7e8
         alignment-register-exclusions.json DATA F 391924062319d3d5a618b1750b37dec6c0ee0c0d21b77b26518b16e51a418f19
@@ -67063,6 +67063,10 @@ class AIQTVendorDigestTests(LinterTestCase):
                 mod.find_pack_tools()
 
     def test_module_swapped_after_verification_runs_verified_bytes(self):
+        """A module file rewritten after verification never runs: either
+        outcome is accepted, the import running the verified bytes or the
+        bootstrap refusing with ImportError; the test fails only when the
+        swapped-in bytes run or the module origin is not the pack file."""
         # The bytes that execute as aiqt_corpus are the bytes
         # verify_vendor_dir() validated (captured and digest-checked by
         # _verified, executed by ensure_on_path), never a re-read of
@@ -68259,11 +68263,11 @@ class AIQTVendorDigestTests(LinterTestCase):
                 os.environ.pop("GRC_AIQT_PACK", None)
                 mod.ensure_on_path()
                 self.assertNotIn(str(pack), sys.path,
-                                 "a pack-root entry must be scrubbed "
-                                 "(corrects the premise of a repository root wrongly treated as a dotted route)")
+                                 "a pack-root entry must be scrubbed: it is a "
+                                 "recognized dotted route to the pack file")
                 self.assertNotIn(str(pack.parent), sys.path,
                                  "a pack-root-parent entry must be "
-                                 "scrubbed (corrects the premise of a repository root wrongly treated as a dotted route)")
+                                 "scrubbed: it is a recognized dotted route to the pack file")
                 self.assertIn(str(base), sys.path,
                               "a repository-root-shaped entry (its "
                               "pack-root grandchild sits below the "
@@ -69051,11 +69055,13 @@ class AIQTVendorDigestTests(LinterTestCase):
         helper_doc = " ".join(mod._remove_refused_module.__doc__.split())
         self.assertIn("OBJECT IDENTITY", helper_doc,
                       "the helper must state that its checks are object "
-                      "identity (guards against a racing publication of the same object)")
+                      "identity, which cannot tell a refusal from a racing "
+                      "publication of the same object")
         self.assertIn("DIFFERENT module object", helper_doc,
                       "the helper may claim to leave alone only a "
                       "DIFFERENT module object, never any racing "
-                      "publication (guards against a racing publication of the same object)")
+                      "publication: identity alone cannot tell a refusal "
+                      "from a racing publication of the same object")
         marked_doc = " ".join(
             mod._marked_for_verified_bytes.__doc__.split())
         self.assertIn("a failing run unpublishing a verified module", marked_doc,
