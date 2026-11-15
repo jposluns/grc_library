@@ -11443,7 +11443,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             "DORA here is DevOps Research and Assessment",
         "DORA (DevOps Research and Assessment) accelerate metrics":
             "DORA here is DevOps Research and Assessment, expanded in the "
-            "corpus name itself (full-site review B4 F07)",
+            "corpus name itself",
         "DORA RTS (EU) 2025/301":
             "a delegated regulation (RTS) made under DORA",
         "DORA RTS (EU) 2025/532":
