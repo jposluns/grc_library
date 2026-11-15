@@ -935,7 +935,7 @@ class HistoricalContextTests(unittest.TestCase):
         )
 
 
-class HistoricalContextRoundTwoTests(unittest.TestCase):
+class HistoricalContextRegressionTests(unittest.TestCase):
     """Each counterexample is a regression."""
     invoke = CitationCoverageTests.invoke
     run_json = HistoricalContextTests.run_json
@@ -1138,7 +1138,7 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
                 finally:
                     os.chmod(root / H.DATA_REL, 0o600)
 
-    def test_round_three_structural_rules(self):
+    def test_sentence_structural_rules(self):
         # The sentence is the WHOLE of its line or cell.
         for doc, sent in [
             ("The earlier ISO/IEC 27001:2013 edition, e.g.\n",
@@ -1221,7 +1221,7 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
             self.assertEqual(code, 1, body)
             self.assertIn(message, err, body)
 
-    def test_round_five_containers_and_parsing(self):
+    def test_containers_and_parsing(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
         # A code span in the sentence could, once masked, expose a fence that hides a later
         # citation; it is refused, and the later citation still blocks.
@@ -1253,7 +1253,7 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
             self.assertEqual(code, 1, register)
             self.assertIn(message, err, register)
 
-    def test_round_nine_guards(self):
+    def test_absolute_path_and_input_guards(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
         # The absolute-path guard.
         code, _, err = self.run_json("\n" + s + "\n\n", hx(hrow(s, path="/ai/citation.md")))
@@ -1263,7 +1263,7 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
         self.assertIn("HCE-001: the document's fenced blocks are not all simple three-character fences",
                       assert_refused(self, "```\nx\n```y\n\n" + s + "\n\n", s))
 
-    def test_round_eight_lookalikes_and_rows(self):
+    def test_lookalikes_and_rows(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
         # A non-ASCII lookalike letter hides a present-tense verb from the word screen and from
         # the reviewer; the data file refuses non-ASCII text, and the engine alone refuses the
@@ -1288,7 +1288,7 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
         code, found, _ = self.run_json("\n" + s + "\n\n", hx(hrow(s)))
         self.assertEqual((code, [f["kind"] for f in found]), (0, ["HISTORICAL"]))
 
-    def test_round_seven_markup_and_line_model(self):
+    def test_markup_and_line_model(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
         tbl = "<table><tr><th>Current baseline</th></tr><tr><td>"
         # Comment markers a regex pairs but a renderer does not (in a code span, in a fence,
@@ -1350,7 +1350,7 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("not valid TOML", err)
 
-    def test_round_six_line_model_and_html(self):
+    def test_line_model_and_html(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
         # With NO exceptions, a U+2028 earlier in the file must not shift which line the legacy
         # check reads; the stale citation keeps blocking.

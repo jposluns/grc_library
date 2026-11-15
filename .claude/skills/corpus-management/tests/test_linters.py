@@ -2982,8 +2982,8 @@ class StandardsCurrencyTests(LinterTestCase):
         # adopter guides, excluded in docs/ before the move, stay excluded in
         # the skill's docs/ directory. The expected directories are written out
         # here, not read from lint_common.
-        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-standards-currency.py", "currency_fx3a_scope")
-        root = Path(tempfile.mkdtemp(prefix="currency-fx3a-")).resolve()
+        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-standards-currency.py", "currency_planted_scope")
+        root = Path(tempfile.mkdtemp(prefix="currency-planted-")).resolve()
         self.addCleanup(shutil.rmtree, root, ignore_errors=True)
         planted = (
             "governance/a.md",
@@ -6244,7 +6244,7 @@ class CrossFileSectionRefTests(LinterTestCase):
         result = run_linter(".claude/skills/corpus-management/tools/lint-cross-file-section-refs.py", fixture)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
-    def test_round_two_table_local_exception_requires_description_and_close(self) -> None:
+    def test_table_local_exception_requires_description_and_close(self) -> None:
         self.make_fixture("t.md", self.TARGET_BODY + "\n\n## 4. Other\n")
         for line, should_fail in (
             ("| Owner | §8 ([t](t.md)) |", True),
@@ -6255,7 +6255,7 @@ class CrossFileSectionRefTests(LinterTestCase):
         ):
             with self.subTest(line=line):
                 citer = VALID_METADATA + f"\n\n## 8. Exceptions\n\n{line}\n"
-                fixture = self.make_fixture("standard-round-two-cross-ref.md", citer)
+                fixture = self.make_fixture("standard-table-exception-cross-ref.md", citer)
                 result = run_linter(".claude/skills/corpus-management/tools/lint-cross-file-section-refs.py", fixture)
                 if should_fail:
                     self.assertLinterFails(result, "§8")
@@ -25639,7 +25639,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         # root header fails in CI too; a clean root skips only the mirror checks.
         import contextlib
         from unittest import mock
-        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "_mp_ep2_nomirror")
+        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "_mp_nomirror")
         for root_text, rc in (("**2026-11-08 | 2026.12.1 | PR #3127** - old\n", 1),
                               (self._new_headers(1), 0)):
             with tempfile.TemporaryDirectory() as tmp:
@@ -26054,7 +26054,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         # test was written) has 0 root-grammar failures and still compares its PR #1 line.
         mod = load_linter_module(
             ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py",
-            "_mp_ep6_real_root")
+            "_mp_real_root")
         text = (REPO_ROOT / ".working/CHANGELOG.md").read_text(encoding="utf-8")
         found = mod.root_findings(text)
         self.assertEqual(found.lines(), set())
@@ -27115,7 +27115,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     # A real-world link whose URL holds balanced parentheses and no version.
     WIKIPEDIA_LINK = "[patches](https://en.wikipedia.org/wiki/Patch_(computing))"
 
-    def _ep11a_gate(self, name: str):
+    def _mirror_parity_gate(self, name: str):
         return load_linter_module(
             ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", name)
 
@@ -27203,7 +27203,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     # across 2 links (or a link the scanner misread) or behind a C1 numeric character reference
     # that html.unescape remapped. Each now fails by the strict character rule, named at its
     # first refused character or reference.
-    ROUND12_FORMS = (
+    LINKED_VERSION_FORMS = (
         ('- 2026-06-21 | [2026](u "a\\"b)c").[06](u "a\\"b)c").9 | PR #3127', "["),
         ("- 2026-06-21 | [20](u\\)x)[26](v\\)y).06.9 | PR #3127", "["),
         ("- 2026-06-21 | [20](u&#41;x)[26](v&#41;y).06.9 | PR #3127", "["),
@@ -27218,7 +27218,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         ("- Released 2026&#159;.11.67 in PR #3.", "&#159;"))
 
     def test_hiding_forms_are_refused_in_bullets_and_tail(self) -> None:
-        for probe, token in self.ROUND12_FORMS:
+        for probe, token in self.LINKED_VERSION_FORMS:
             with self.subTest(where="bullet", probe=probe):
                 self._root_strict_fails(probe, "bullet", token)
         with self.subTest(where="tail"):
@@ -27267,7 +27267,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 self.assertEqual(result.returncode, 0, result.stdout)
                 self.assertNotIn("strict character rule", result.stdout)
         # The real root passes the strict character rule unchanged.
-        mod = self._ep11a_gate("_mp_ep12_real_root")
+        mod = self._mirror_parity_gate("_mp_ep12_real_root")
         text = (REPO_ROOT / ".working" / "CHANGELOG.md").read_text(encoding="utf-8")
         found = mod.root_findings(text)
         self.assertEqual(found.chars, [])
@@ -27311,25 +27311,25 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     # character rule now refuses every backtick and every "*" but the 2 bold delimiters of a
     # canonical header, and the root reads each line as written. The last 2 forms join or split
     # a version with "*" and with a backtick at once.
-    ROUND13_JOIN_FORMS = (
+    JOINED_VERSION_FORMS = (
         ("- Released build 3*2026.06.9 to adopters.", "*"),
         ("- Released `PR #3`2026.06.9 to adopters.", "`"),
         ("- Released 3`2026.06.9` to adopters.", "`"),
         ("- Released build 3*2026*.06.9 to adopters.", "*"),
         ("- Released 2026`.06.9` to adopters.", "`"))
-    ROUND13_JOIN_TAILS = ((" - Released build 3*2026.06.9", "*"),
+    JOINED_VERSION_TAILS = ((" - Released build 3*2026.06.9", "*"),
                           (" - Released `PR #3`2026.06.9", "`"),
                           (" - Released build 3*2026*.06.9", "*"),
                           (" - Released 2026`.06.9`", "`"))
 
     def test_root_join_and_split_forms_are_refused(self) -> None:
-        for probe, token in self.ROUND13_JOIN_FORMS:
+        for probe, token in self.JOINED_VERSION_FORMS:
             with self.subTest(where="bullet", probe=probe):
                 self._root_strict_fails(probe, "bullet", token)
             intro = "Versions follow" + probe[len("- Released"):]
             with self.subTest(where="intro", probe=intro):
                 self._root_strict_fails(intro, "intro", token)
-        for tail, token in self.ROUND13_JOIN_TAILS:
+        for tail, token in self.JOINED_VERSION_TAILS:
             with self.subTest(where="tail", tail=tail):
                 self._root_strict_fails(tail, "tail", token)
 
@@ -27357,11 +27357,11 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     # record there. Header parity compares only the PR number and the version of a canonical line,
     # not the whole line, so every mirror canonical line now meets the root's strict character
     # rule, and its tail is read as written.
-    ROUND13_MIRROR_TWO_LINKS = ' - also lands PR #3127 at [2026](u "a\\"b)c").[06](u "a\\"b)c").9'
+    MIRROR_TWO_LINK_TAIL = ' - also lands PR #3127 at [2026](u "a\\"b)c").[06](u "a\\"b)c").9'
 
     def test_mirror_canonical_lines_meet_the_strict_rule(self) -> None:
         with self.subTest(form="two links"):
-            self._mirror_strict_fails(self.ROUND13_MIRROR_TWO_LINKS, "[")
+            self._mirror_strict_fails(self.MIRROR_TWO_LINK_TAIL, "[")
         for tail, token in ((" - also lands PR #3127 at 3*2026.06.9", "*"),
                             (" - also lands `PR #3127` at `2026.06.9`", "`"),
                             (" - also lands PR #3127 at 2026&#46;06.9", "&#46;"),
@@ -27397,7 +27397,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         # No path reads a line through the link scanner, the second read, ROOT_IGNORABLE, the Cf
         # and Cc removal, NFKC or html.unescape any more, so they are deleted, and the root
         # read, which removed backticks and emphasis, is deleted too.
-        mod = self._ep11a_gate("_mp_ep13_removed")
+        mod = self._mirror_parity_gate("_mp_ep13_removed")
         for name in ("root_read", "root_reads", "root_flatten", "root_links", "root_link_urls",
                      "root_unlinked_reads", "_root_plain", "_root_inline_end",
                      "_root_bracket_end", "ROOT_IGNORABLE", "BACKSLASH_ESCAPE_RE",
@@ -27429,7 +27429,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             failed = self._fail_lines(result.stdout, "root")
             self.assertIn("line 12 column 16: character U+2028 outside printable ASCII", failed)
             self.assertIn("line 13 column 11: refused character '~' (U+007E)", failed)
-        mod = self._ep11a_gate("_mp_ep13_lf")
+        mod = self._mirror_parity_gate("_mp_ep13_lf")
         with self.subTest(where="CR LF"):
             found = mod.root_findings(("# Changelog\n\n" + same).replace("\n", "\r\n"))
             self.assertFalse(found, sorted(found.lines()))
@@ -27469,14 +27469,14 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     # digits, the space, . , : ; - ' " ( ) / # | & % + ? ! = @ and "*" only as a canonical
     # header's 2 bold delimiters; every other character fails with its line, column and code
     # point.
-    ROUND13B_MATH_FORMS = ("- Released $2026$.11.67 in PR #2.",
+    MATH_SPAN_VERSION_FORMS = ("- Released $2026$.11.67 in PR #2.",
                            "- Released $2{}026.11.67$ in PR #2.",
                            "- 2026-06-21 | $20{26}.06.9$ | PR #3127")
     ROOT_ALLOWED = ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
                     " .,:;-'\"()/#|&%+?!=@")
 
     def test_inline_math_forms_are_refused(self) -> None:
-        for probe in self.ROUND13B_MATH_FORMS:
+        for probe in self.MATH_SPAN_VERSION_FORMS:
             with self.subTest(where="bullet", probe=probe):
                 self._root_strict_fails(probe, "bullet", "$")
         with self.subTest(where="intro"):
@@ -27498,7 +27498,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                       "&amp;", "&#46;", "&#x2E;"):
             with self.subTest(token=token):
                 self._root_strict_fails(f"- Tooling note {token} here.", "bullet", token)
-        mod = self._ep11a_gate("_mp_ep13b_allowlist")
+        mod = self._mirror_parity_gate("_mp_ep13b_allowlist")
         self.assertEqual(mod.ROOT_ALLOWED_CHARS, frozenset(self.ROOT_ALLOWED))
         self.assertFalse(hasattr(mod, "ROOT_REFUSED_CHARS"))
         for code in range(0x20, 0x7f):
@@ -27547,14 +27547,14 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         rc, out = self._no_mirror_run(("\ufeff# Changelog\n" + same).encode("utf-8"),
                                       "_mp_ep13b_one_bom", titled=False)
         self.assertEqual(rc, 0, out)
-        mod = self._ep11a_gate("_mp_ep13b_bom")
+        mod = self._mirror_parity_gate("_mp_ep13b_bom")
         self.assertEqual(mod.root_findings("\ufeff# Changelog\n\n" + same).chars,
                          [(1, 1, "character U+FEFF outside printable ASCII")])
 
     def test_root_pr_headers_split_on_lf_only(self) -> None:
         # In the earlier repository pr_headers split the root with str.splitlines(), so a form
         # feed in an earlier line moved its line numbers off the strict character rule's.
-        mod = self._ep11a_gate("_mp_ep13b_pr_headers")
+        mod = self._mirror_parity_gate("_mp_ep13b_pr_headers")
         text = ("# Changelog\n\nIntro\x0cmore.\n\n"
                 "**2026-11-10 | 2026.12.2 | PR #2** - tooling: a $b\n")
         found = mod.root_findings(text)
@@ -29535,8 +29535,8 @@ class AuditGateParityTests(LinterTestCase):
     # The YAML surfaces accept only the block-mapping line shapes the current steps and
     # hooks use. In the earlier repository each test below passed: the fixture's extra
     # step or hook was skipped, or the hook was accepted.
-    _R5_WORKFLOW = _WORKFLOW_HEAD + "      - name: A\n        run: python3 .claude/skills/corpus-management/tools/a.py\n"
-    _R5_PRECOMMIT = (_PRECOMMIT_HEAD + "      - id: a\n        name: A\n"
+    _ONE_STEP_WORKFLOW = _WORKFLOW_HEAD + "      - name: A\n        run: python3 .claude/skills/corpus-management/tools/a.py\n"
+    _ONE_HOOK_PRECOMMIT = (_PRECOMMIT_HEAD + "      - id: a\n        name: A\n"
                      "        entry: python3 .claude/skills/corpus-management/tools/a.py\n        language: system\n"
                      "        pass_filenames: false\n        always_run: true\n")
 
@@ -29560,38 +29560,38 @@ class AuditGateParityTests(LinterTestCase):
 
     def test_quoted_key_is_refused(self) -> None:
         not_plain = "is not an unquoted key directly followed by a colon"
-        self._assert_yaml_refused("parse_workflow", self._R5_WORKFLOW, (
+        self._assert_yaml_refused("parse_workflow", self._ONE_STEP_WORKFLOW, (
             '      - "name": B\n        "run": python3 -B .claude/skills/corpus-management/tools/b.py\n',
             "      - 'name': B\n        'run': python3 -B .claude/skills/corpus-management/tools/b.py\n",
             '      - name: B\n        "run": python3 -B .claude/skills/corpus-management/tools/b.py\n'), not_plain)
-        self._assert_yaml_refused("parse_precommit", self._R5_PRECOMMIT, (
+        self._assert_yaml_refused("parse_precommit", self._ONE_HOOK_PRECOMMIT, (
             '      - "id": b\n        "name": B\n        "entry": python3 -B .claude/skills/corpus-management/tools/b.py\n'
             '        "language": system\n',), not_plain)
 
     def test_space_before_colon_is_refused(self) -> None:
         not_plain = "is not an unquoted key directly followed by a colon"
-        self._assert_yaml_refused("parse_workflow", self._R5_WORKFLOW, (
+        self._assert_yaml_refused("parse_workflow", self._ONE_STEP_WORKFLOW, (
             "      - run : python3 -B .claude/skills/corpus-management/tools/b.py\n",
             "      - name: B\n        run : python3 -B .claude/skills/corpus-management/tools/b.py\n"), not_plain)
-        self._assert_yaml_refused("parse_precommit", self._R5_PRECOMMIT, (
+        self._assert_yaml_refused("parse_precommit", self._ONE_HOOK_PRECOMMIT, (
             "      - id : b\n        name: B\n        entry : python3 -B .claude/skills/corpus-management/tools/b.py\n"
             "        language: system\n",), not_plain)
 
     def test_flow_mapping_is_refused(self) -> None:
         not_plain = "is not an unquoted key directly followed by a colon"
-        self._assert_yaml_refused("parse_precommit", self._R5_PRECOMMIT, (
+        self._assert_yaml_refused("parse_precommit", self._ONE_HOOK_PRECOMMIT, (
             "      - {id: b, name: B, entry: python3 -B .claude/skills/corpus-management/tools/b.py, language: system}\n",),
             not_plain)
-        self._assert_yaml_refused("parse_workflow", self._R5_WORKFLOW, (
+        self._assert_yaml_refused("parse_workflow", self._ONE_STEP_WORKFLOW, (
             "      - {name: B, run: python3 -B .claude/skills/corpus-management/tools/b.py}\n",), not_plain)
-        self._assert_yaml_refused("parse_workflow", self._R5_WORKFLOW, (
+        self._assert_yaml_refused("parse_workflow", self._ONE_STEP_WORKFLOW, (
             "      - name: Checkout\n        with: {run: python3 -B .claude/skills/corpus-management/tools/b.py}\n",),
             "with value that begins with '{'")
 
     def test_precommit_pass_filenames_must_be_false(self) -> None:
         # pre-commit appends the staged file names to the entry unless pass_filenames is
         # false, so the gate would run with arguments the other surfaces do not pass.
-        base = self._R5_PRECOMMIT
+        base = self._ONE_HOOK_PRECOMMIT
         without = base.replace("        pass_filenames: false\n", "")
         self._assert_yaml_refused("parse_precommit", base, (
             "      - id: b\n        name: B\n        entry: python3 .claude/skills/corpus-management/tools/b.py\n"
@@ -29615,10 +29615,10 @@ class AuditGateParityTests(LinterTestCase):
     def test_step_or_hook_with_another_first_key_is_refused(self) -> None:
         # An item at the steps' or hooks' dash column that opens with another key is not
         # read as a step or hook, so it would run unchecked.
-        self._assert_yaml_refused("parse_workflow", self._R5_WORKFLOW, (
+        self._assert_yaml_refused("parse_workflow", self._ONE_STEP_WORKFLOW, (
             "      - uses: ./.github/actions/x\n        name: B\n",),
             "step whose first key is 'uses'")
-        self._assert_yaml_refused("parse_precommit", self._R5_PRECOMMIT, (
+        self._assert_yaml_refused("parse_precommit", self._ONE_HOOK_PRECOMMIT, (
             "      - name: B\n        id: b\n",), "hook whose first key is 'name'")
 
     def test_current_yaml_line_shapes_are_accepted(self) -> None:
@@ -29644,7 +29644,7 @@ class AuditGateParityTests(LinterTestCase):
                 "        if: github.event_name == 'pull_request'\n        run: |\n"
                 "          echo \"a\n\n          # text, not a comment\n"
                 "            echo 'b\n", encoding="utf-8")
-            precommit.write_text(self._R5_PRECOMMIT.replace(
+            precommit.write_text(self._ONE_HOOK_PRECOMMIT.replace(
                 "        always_run: true\n", "        types_or: [markdown, python, shell]\n"),
                 encoding="utf-8")
             for parse, path in ((agp.parse_workflow, workflow), (agp.parse_precommit, precommit)):
@@ -30992,7 +30992,7 @@ def _pinned_rule_collections() -> tuple[str, ...]:
     return vendored + rendered
 
 
-class Fx3bScopeTests(unittest.TestCase):
+class SkillSpecsGateScopeTests(unittest.TestCase):
     """Scope fixes that follow gate 6's widening to the skill's specs/."""
 
     SPEC = ".claude/skills/corpus-management/specs/specification-audit-programme.md"
@@ -31032,7 +31032,7 @@ class Fx3bScopeTests(unittest.TestCase):
 
     def test_d15_scope_follows_gate_6(self) -> None:
         mod = load_linter_module(".claude/skills/corpus-management/tools/check-alignment-register-on-pr.py",
-                                 "d15_scope_fx3b")
+                                 "d15_scope_skill_specs")
         self.assertTrue(mod.in_scope(self.SPEC))
         self.assertTrue(mod.in_scope("ai/framework-ai-assurance-evidence.md"))
         self.assertFalse(mod.in_scope(".claude/skills/corpus-management/docs/guide.md"))
@@ -31041,7 +31041,7 @@ class Fx3bScopeTests(unittest.TestCase):
 
     def test_review_cadence_excludes_ingestion_instruction_by_name(self) -> None:
         mod = load_linter_module(".claude/skills/corpus-management/tools/check-review-cadence.py",
-                                 "review_cadence_fx3b")
+                                 "review_cadence_skill_specs")
         rels = {p.relative_to(REPO_ROOT).as_posix() for p in mod.iter_active_docs()}
         self.assertNotIn(self.INGESTION, rels)
         self.assertIn(self.SPEC, rels)
@@ -31232,8 +31232,8 @@ class ReviewCadenceTests(LinterTestCase):
         # specs/ directory. The adopter guides, outside this gate in docs/ before
         # the move, stay outside in the skill's docs/ directory. The expected
         # directories are written out here, not read from lint_common.
-        mod = load_linter_module(".claude/skills/corpus-management/tools/check-review-cadence.py", "_check_review_cadence_fx3a")
-        root = Path(tempfile.mkdtemp(prefix="cadence-fx3a-")).resolve()
+        mod = load_linter_module(".claude/skills/corpus-management/tools/check-review-cadence.py", "_check_review_cadence_planted")
+        root = Path(tempfile.mkdtemp(prefix="cadence-planted-")).resolve()
         self.addCleanup(shutil.rmtree, root, ignore_errors=True)
         planted = (
             "governance/a.md",
@@ -43915,12 +43915,12 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
             with self.subTest(forged=forged):
                 self.assertTrue(self._parent_launch_violations(forged.encode(), child))
 
-    _R4_LAUNCH = 'subprocess.run([sys.executable, "-I", str(_RUNNER), str(_GATE)])\n'
-    _R4_GATE = '_GATE = Path(_DIR) / "gate.py"\n'
-    _R4_PARENT = ('"""Starts runner.py."""\nimport subprocess, sys\nfrom pathlib import Path\n'
+    _RUNNER_LAUNCH_LINE = 'subprocess.run([sys.executable, "-I", str(_RUNNER), str(_GATE)])\n'
+    _GATE_PATH_LINE = '_GATE = Path(_DIR) / "gate.py"\n'
+    _RUNNER_PARENT_SOURCE = ('"""Starts runner.py."""\nimport subprocess, sys\nfrom pathlib import Path\n'
                   "_DIR = str(Path(__file__).resolve().parent)\n"
-                  '_RUNNER = Path(_DIR) / "runner.py"\n' + _R4_GATE + _R4_LAUNCH)
-    _R4_ENTRY = "child argv entry not built from the parent's own directory: str(_GATE)"
+                  '_RUNNER = Path(_DIR) / "runner.py"\n' + _GATE_PATH_LINE + _RUNNER_LAUNCH_LINE)
+    _CHILD_ENTRY_FINDING = "child argv entry not built from the parent's own directory: str(_GATE)"
 
     def test_child_rebound_file_is_not_an_anchor(self):
         codex = ("import subprocess, sys\nfrom pathlib import Path\n"
@@ -43931,17 +43931,17 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         for forged in (
                 codex,
                 codex.replace("sys.executable, ", 'sys.executable, "-I", '),
-                self._R4_PARENT.replace(imports, imports + "from os import curdir as __file__\n"),
-                self._R4_PARENT.replace(imports, imports + "match sys.argv:\n"
+                self._RUNNER_PARENT_SOURCE.replace(imports, imports + "from os import curdir as __file__\n"),
+                self._RUNNER_PARENT_SOURCE.replace(imports, imports + "match sys.argv:\n"
                                         "    case [_, __file__]:\n        pass\n"),
-                self._R4_PARENT.replace(imports, imports + "def _f():\n    global __file__\n"
+                self._RUNNER_PARENT_SOURCE.replace(imports, imports + "def _f():\n    global __file__\n"
                                         "    __file__ = sys.argv[1]\n_f()\n"),
-                self._R4_PARENT.replace(imports, imports + "sys.modules[__name__].__file__ = sys.argv[1]\n")):
+                self._RUNNER_PARENT_SOURCE.replace(imports, imports + "sys.modules[__name__].__file__ = sys.argv[1]\n")):
             with self.subTest(forged=forged):
-                self.assertIn(self._R4_ENTRY, self._parent_launch_violations(forged.encode(), "runner.py"))
+                self.assertIn(self._CHILD_ENTRY_FINDING, self._parent_launch_violations(forged.encode(), "runner.py"))
 
     def test_every_binding_form_counts_against_a_single_binding(self):
-        parent, gate, launch = self._R4_PARENT, self._R4_GATE, self._R4_LAUNCH
+        parent, gate, launch = self._RUNNER_PARENT_SOURCE, self._GATE_PATH_LINE, self._RUNNER_LAUNCH_LINE
         self.assertEqual(self._parent_launch_violations(parent.encode(), "runner.py"), [])
         for forged in (
                 parent.replace(gate, gate + "match sys.argv:\n    case [_, _GATE, *_]:\n        pass\n"),
@@ -43953,10 +43953,10 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
                 parent.replace(gate, gate + "try:\n    pass\nexcept OSError as _GATE:\n    pass\n"),
                 parent.replace(gate, gate + "sys.modules[__name__]._GATE = sys.argv[1]\n")):
             with self.subTest(forged=forged):
-                self.assertIn(self._R4_ENTRY, self._parent_launch_violations(forged.encode(), "runner.py"))
+                self.assertIn(self._CHILD_ENTRY_FINDING, self._parent_launch_violations(forged.encode(), "runner.py"))
 
     def test_launch_takes_only_the_list_reviewed_keywords_and_isolation(self):
-        parent = self._R4_PARENT
+        parent = self._RUNNER_PARENT_SOURCE
         accepted = parent.replace("str(_GATE)])", "str(_GATE)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, "
                                   "stderr=subprocess.DEVNULL, start_new_session=True)")
         self.assertEqual(self._parent_launch_violations(accepted.encode(), "runner.py"), [])
@@ -43994,11 +43994,11 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
                 self.assertIn(line, live)
                 self.assertEqual(self._parent_launch_violations(
                     live.replace(line, forged).encode(), child), expected)
-        parent, gate = self._R4_PARENT, self._R4_GATE
+        parent, gate = self._RUNNER_PARENT_SOURCE, self._GATE_PATH_LINE
         nested = parent.replace(gate, gate.replace('"gate.py"', '"sub/gate.py"'))
         self.assertEqual(self._parent_launch_violations(nested.encode(), "runner.py"), [])
         forged = parent.replace(gate, gate.replace('"gate.py"', '"/tmp/gate.py"'))
-        self.assertEqual(self._parent_launch_violations(forged.encode(), "runner.py"), [self._R4_ENTRY])
+        self.assertEqual(self._parent_launch_violations(forged.encode(), "runner.py"), [self._CHILD_ENTRY_FINDING])
 
     def test_shadowed_str_or_Path_bound_in_any_form_is_refused(self):
         codex = ("import subprocess, sys\nfrom pathlib import Path\n"
@@ -44024,13 +44024,13 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
                     f"try:\n    pass\nexcept OSError as {name}:\n    pass\n",
                     f"match sys.argv:\n    case [_, {name}]:\n        pass\n",
                     f"import builtins\nbuiltins.{name} = repr\n"):
-                forged = self._R4_PARENT.replace(imports, imports + binding)
+                forged = self._RUNNER_PARENT_SOURCE.replace(imports, imports + binding)
                 with self.subTest(forged=forged):
                     self.assertIn(f"{name} bound other than by an import",
                                   self._parent_launch_violations(forged.encode(), "runner.py"))
 
     def test_launch_keywords_take_no_integer_file_descriptor(self):
-        parent = self._R4_PARENT
+        parent = self._RUNNER_PARENT_SOURCE
         for value in ("None", "True", "False"):
             accepted = parent.replace("str(_GATE)])", f"str(_GATE)], stdin={value})")
             with self.subTest(accepted=accepted):
@@ -45248,7 +45248,7 @@ class BuildTaxonomySectionOutlineTests(unittest.TestCase):
     def test_extract_purpose_skips_fenced_blocks(self):
         # A ## Purpose heading inside a fenced example is not the
         # document's purpose, in the heading search or in the fallback.
-        bt = load_linter_module(".claude/skills/corpus-management/tools/build-taxonomy.py", "build_taxonomy_fx7a")
+        bt = load_linter_module(".claude/skills/corpus-management/tools/build-taxonomy.py", "build_taxonomy_fenced_purpose")
         meta = "# T\n\n**Version:** 1.0.0\\\n**Date:** 2026-01-01\n\n---\n\n"
         text = (meta + "Real intro.\n\n## Steps\n\n```\n## Purpose\n\nFenced purpose.\n```\n\n"
                 "~~~\n## Purpose\n\nTilde purpose.\n~~~\n")
@@ -45259,7 +45259,7 @@ class BuildTaxonomySectionOutlineTests(unittest.TestCase):
     def test_extract_purpose_falls_back_to_overview(self):
         # With no Purpose heading and no intro paragraph, the first
         # paragraph under ## Overview is the purpose.
-        bt = load_linter_module(".claude/skills/corpus-management/tools/build-taxonomy.py", "build_taxonomy_fx7b")
+        bt = load_linter_module(".claude/skills/corpus-management/tools/build-taxonomy.py", "build_taxonomy_overview_purpose")
         text = ("# T\n\n**Version:** 1.0.0\\\n**Date:** 2026-01-01\n\n---\n\n"
                 "## Overview\n\nOverview paragraph.\n\n### Sub\n\nLater.\n\n## Next\n")
         self.assertEqual(bt.extract_purpose(text), "Overview paragraph.")
@@ -46382,7 +46382,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         return next(ln for ln in register.splitlines() if ln.startswith(f"| {row} | ")).split(" | ")[1]
 
     # Each of these suffixes fails after every accepted prefix of both statute rows.
-    STATUTE_ROUND_5_SUFFIXES = (
+    STATUTE_ENDING_SUFFIXES = (
         "; the successor Privacy Law 2026 commences and ends the 1988 Act",
         "; Act No. 5 of 2026 commences",
         "; Bill 2026 commences",
@@ -46431,7 +46431,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             ("2023 (Act enacted 2023-08-11)", "2023", india),
             (india_current, "2023", india),
         ):
-            for suffix in self.STATUTE_ROUND_5_SUFFIXES + (", replacing", " (successor)", " (ended)"):
+            for suffix in self.STATUTE_ENDING_SUFFIXES + (", replacing", " (successor)", " (ended)"):
                 self.assertFalse(match(listed, prefix + suffix, row), prefix + suffix)
         for current in (
             # A form repeated, or a form of the other row.
@@ -46603,7 +46603,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
 
     # Listed editions that carry an EU instrument number but do not begin "Regulation" or
     # "Directive", per landing row, with the topic they replace.
-    ROUND_7_UNREADABLE_CITATIONS = (
+    UNREADABLE_REPEAL_CITATIONS = (
         ("EU GDPR", "Regulation (EU) 2016/679", (
             "(EU) 2016/679 (repealed)",
             "regulation (EU) 2016/679 (repealed)",
@@ -46629,7 +46629,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         # allowlist cannot read fails, however it begins, and says how to fix it.
         match = self.mod.edition_matches
         rows = {"EU GDPR": "EU GDPR", "EU NIS2": "EU NIS 2 Directive", "EU AI Act": "EU AI Act"}
-        for name, topic, shapes in self.ROUND_7_UNREADABLE_CITATIONS:
+        for name, topic, shapes in self.UNREADABLE_REPEAL_CITATIONS:
             row = rows[name]
             current = self._register_current(row)
             self.assertTrue(match(topic, current, row), (topic, current))
@@ -46655,7 +46655,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             self.assertEqual(e.status, "match", e)
 
     # Ending wording by stem, each in an amending Act name.
-    ROUND_7_ENDING_ACT_WORDS = (
+    ENDING_ACT_WORDS = (
         "Repeal", "Repealing", "Rescind", "Rescission", "Revoke", "Revocation", "Lapse", "Lapsing",
         "Cease", "Cessation", "Supersede", "Supersession", "Expire", "Expiration", "Expiry",
         "Dissolve", "Dissolution", "Discontinue", "Discontinuance", "Closure", "Winding Up",
@@ -46668,7 +46668,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         self.assertEqual(self.mod.STATUTE_AMENDING_ACTS,
                          frozenset({"the Privacy and Other Legislation Amendment Act 2024"}))
         self.assertTrue(match("1988", self._register_current(au), au))
-        for word in self.ROUND_7_ENDING_ACT_WORDS:
+        for word in self.ENDING_ACT_WORDS:
             for act in (f"the Privacy {word} Amendment Act 2026", f"the Privacy and Other Legislation "
                         f"{word} Amendment Act 2024"):
                 note = f", as amended by {act} (Cth) No. 1, 2026 (Royal Assent 1 January 2026)"
@@ -54400,7 +54400,7 @@ BAI07, CSA CCM v4.1 AIS domain, and OWASP ASVS v5.
             "APO12: Managed Risk\x60Adjusted Performance",
         ):
             with self.subTest(line=line):
-                fixture = self.make_fixture("round6.md", "# Fixture\n\n" + line + "\n")
+                fixture = self.make_fixture("cobit-title-line.md", "# Fixture\n\n" + line + "\n")
                 result = run_linter(self.SCRIPT, fixture)
                 self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
                 self.assertEqual(result.stdout.count("[cobit-title]"), 1)
@@ -56063,7 +56063,7 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
         # Rows against the aid's own model: a dash after a tag whose unquoted attribute value holds
         # U+0001, and one inside the span after such a tag, are both findings, since nothing is
         # exempt; an en dash too. The control row (a hyphen) is no finding.
-        mod = self._load("_pcl_r18_attr_aid")
+        mod = self._load("_pcl_attr_aid")
         for line in ('a <b x=\x01 y="`"> — `', '`x` <b a=\x01 c="`"> `y — z`',
                      'a <b x=\x01 y="`"> – `'):
             with self.subTest(line=line):
@@ -56127,7 +56127,7 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
         # (commonmark_lines), and the dash after it, or inside a span crossing it, is a finding.
         # Row 1 also runs through the CLI in both modes. In the earlier repository row 1 failed
         # against the code before the fix, which gave no finding and exited 0.
-        mod = self._load("_pcl_r19_break_aid")
+        mod = self._load("_pcl_break_aid")
         for line in ("x [a](u`\u2028v) — `", "x `u\u2028v — w` y"):
             with self.subTest(line=line):
                 self.assertEqual(mod.commonmark_lines(line), [line])
@@ -56411,7 +56411,7 @@ class TodoIndexRowGrammarParityTests(unittest.TestCase):
         # The gate 78 part of the removed three-reader test. Gate 78 reads rows and headings through
         # todo_index_rows and keeps neither parser that module replaced. The hook and the audit tool
         # that test also read do not ship.
-        g = self._load("_fx4_gate78_mod", ".claude/skills/corpus-management/tools/lint-todo-number-permanence.py")
+        g = self._load("_gate78_mod", ".claude/skills/corpus-management/tools/lint-todo-number-permanence.py")
         self.assertEqual(g.index_rows.__module__, "todo_index_rows")
         self.assertEqual(g.item_headings.__module__, "todo_index_rows")
         for gone in ("parse_todo_index", "LIVE_HEADING_RE"):
@@ -56421,7 +56421,7 @@ class TodoIndexRowGrammarParityTests(unittest.TestCase):
         # The gate 78 part of the removed divergence 2 test (header gate). Rows without the index
         # header are not live, rows under it keep their own line numbers, and an item moved to the
         # private list is therefore not a duplicate.
-        g = self._load("_fx4_gate78_d2", ".claude/skills/corpus-management/tools/lint-todo-number-permanence.py")
+        g = self._load("_gate78_dup", ".claude/skills/corpus-management/tools/lint-todo-number-permanence.py")
         text = "# TODO\n| 1.1 | a | `[public]` |\n| 2.3 | b | `[public]` |\n"
         self.assertEqual(g.parse_live_list(text), {})
         self.assertEqual(g.parse_live_list(self.HDR + text), {"1.1": [4], "2.3": [5]})
@@ -56432,7 +56432,7 @@ class TodoIndexRowGrammarParityTests(unittest.TestCase):
         # The gate 78 part of the removed all-shapes test. One fixture holds every row, heading
         # and bullet shape the readers differed on; gate 78's live ids are the ids the audit tool
         # counted, and RB-6 keeps its own line.
-        g = self._load("_fx4_gate78_all", ".claude/skills/corpus-management/tools/lint-todo-number-permanence.py")
+        g = self._load("_gate78_all", ".claude/skills/corpus-management/tools/lint-todo-number-permanence.py")
         text = (self.HDR
                 + "| 1.1 | readable | `[public]` |\n"
                 + "   | 1.2 | indented three spaces | `[public]` |\n"
@@ -56458,7 +56458,7 @@ class TodoIndexRowGrammarParityTests(unittest.TestCase):
     def test_gate78_indented_row_cross_list_duplicate_end_to_end(self):
         # The gate 78 part of the removed indented-row test. A public row indented by one space is
         # live, and the same id in the private list is reported with both locations.
-        g = self._load("_fx4_gate78_ind", ".claude/skills/corpus-management/tools/lint-todo-number-permanence.py")
+        g = self._load("_gate78_ind", ".claude/skills/corpus-management/tools/lint-todo-number-permanence.py")
         text = self.HDR + " | 3.1 | fine | `[public]` |\n"
         self.assertEqual(g.parse_live_list(text), {"3.1": [3]})
         r = self._gate78(text, "## Q\n- **3.1 [private] copied** x\n")
@@ -64497,7 +64497,7 @@ class HookScriptOperandTests(unittest.TestCase):
         for command in ('/usr/bin/python3 -I', '/usr/bin/python3 -I --', '/usr/bin/python3 -I -W ignore'):
             self._refused(command)
 
-class HookRoundSevenTests(unittest.TestCase):
+class HookCommandGrammarTests(unittest.TestCase):
 
     def _gate(self, command, expected=2):
         import json
@@ -64598,8 +64598,8 @@ class HookRoundSevenTests(unittest.TestCase):
             self.assertTrue(argv[2].startswith('$CLAUDE_PROJECT_DIR/.claude/hooks/'), argv)
 
 
-class HookRoundEightTests(unittest.TestCase):
-    _gate = HookRoundSevenTests._gate
+class HookProjectAnchorGrammarTests(unittest.TestCase):
+    _gate = HookCommandGrammarTests._gate
 
     def test_project_anchor_grammar(self):
         anchor = '"$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'
@@ -64797,8 +64797,8 @@ class HookRoundEightTests(unittest.TestCase):
                         self.assertEqual(blocked, expected, (has_private, mode, bash_command))
 
 
-class HookRoundNineTests(unittest.TestCase):
-    _gate = HookRoundSevenTests._gate
+class HookLeaseAssignmentGrammarTests(unittest.TestCase):
+    _gate = HookCommandGrammarTests._gate
     ANCHOR = '"$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'
 
     def test_lease_assignment_grammar(self):
@@ -65673,11 +65673,11 @@ class AlignmentCitationExistenceTests(LinterTestCase):
         self.assertLinterFails(self._run("asvs-403fab.md", "ASVS 4.0.3 requirement V9.9.9.\n"), "V9.9.9")
 
     def test_table_and_exclusion_seams(self) -> None:
-        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-r5.md", body))
-        r = self._run("asvs-r5.md", "ASVS maps CWE-4.14 terms.\n")
+        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-seams.md", body))
+        r = self._run("asvs-seams.md", "ASVS maps CWE-4.14 terms.\n")
         self.assertEqual(r.returncode, 0, r.stdout)
-        self.assertLinterFails(self._run("asvs-r5b.md", "OWASP ASVS: **3** levels; L1 includes V1.2.99.\n"), "V1.2.99")
-        self.assertLinterFails(self._run("asvs-r5c.md",
+        self.assertLinterFails(self._run("asvs-seams-b.md", "OWASP ASVS: **3** levels; L1 includes V1.2.99.\n"), "V1.2.99")
+        self.assertLinterFails(self._run("asvs-seams-c.md",
                                          "| Requirement ID | OWASP ASVS |\n|---|---|\n| V1.2.99 | Implemented |\n"), "V1.2.99")
 
     # --- signalled columns and header cells ---
@@ -70389,7 +70389,7 @@ class LanguageEngineProfileTests(unittest.TestCase):
 
     # Further forms that passed in the earlier repository, and the bases
     # they need, with the -isation noun where the word exists.
-    ROUND4_FORMS = {
+    LISTED_ISE_FORMS = {
         "underemphasise": False, "overoptimise": False, "miscategorise": True,
         "restandardise": True, "preinitialise": True, "deoptimise": True,
         "revitalise": True, "desensitise": True, "decriminalise": True,
@@ -70397,7 +70397,7 @@ class LanguageEngineProfileTests(unittest.TestCase):
         "legitimise": True, "delegitimise": True, "apologise": False,
         "vitalise": True, "sensitise": True, "criminalise": True,
     }
-    ROUND4_BASES = ("mobilise", "legitimise", "apologise", "vitalise", "sensitise",
+    LISTED_ISE_BASES = ("mobilise", "legitimise", "apologise", "vitalise", "sensitise",
                     "criminalise", "immobilise")
     # Words that end in "ise" in every dialect, several after a listed prefix.
     ISE_CONTROLS = (
@@ -70408,22 +70408,22 @@ class LanguageEngineProfileTests(unittest.TestCase):
         "promise", "raise", "praise", "noise", "poise", "cruise", "bruise", "rise",
         "wise", "guise", "arise", "apprise")
 
-    def round4_words(self, stem):
+    def ise_inflections(self, stem):
         return (stem, stem + "d", stem + "s", stem[:-1] + "ing")
 
     def test_listed_ise_bases_and_forms_flagged(self):
-        for stem in self.ROUND4_BASES:
+        for stem in self.LISTED_ISE_BASES:
             self.assertIn(stem, self.vocab.ise_stems)
         self.assertNotIn("aestheticise", self.vocab.ise_stems)
-        for stem, noun in self.ROUND4_FORMS.items():
+        for stem, noun in self.LISTED_ISE_FORMS.items():
             ize = stem[:-3] + "ize"
             with self.subTest(stem=stem):
-                for word in self.round4_words(stem):
+                for word in self.ise_inflections(stem):
                     for value in (word, word.upper(), word.capitalize()):
                         for generator in (False, True):
                             self.assertEqual(self.scan(value, generator=generator),
                                              [("ise", 1, value)])
-                for word in self.round4_words(ize):
+                for word in self.ise_inflections(ize):
                     self.assertEqual(self.scan(word), [])
                 if noun:
                     word = stem[:-1] + "ation"
@@ -70733,11 +70733,11 @@ class LanguageEngineProfileTests(unittest.TestCase):
     def test_preflight_flags_the_listed_ise_forms(self):
         # .claude/skills/corpus-management/tools/preflight-changelog.py runs the same engine across its process
         # boundary, so it must report exactly what gate 2 reports.
-        preflight = load_linter_module(".claude/skills/corpus-management/tools/preflight-changelog.py", "_preflight_round4")
+        preflight = load_linter_module(".claude/skills/corpus-management/tools/preflight-changelog.py", "_preflight_listed_ise_forms")
         texts = []
-        for stem in self.ROUND4_FORMS:
+        for stem in self.LISTED_ISE_FORMS:
             ize = stem[:-3] + "ize"
-            texts += [*self.round4_words(stem), *self.round4_words(ize),
+            texts += [*self.ise_inflections(stem), *self.ise_inflections(ize),
                       stem[:-1] + "ation"]
         texts += ["re-organised", "non-re-standardised", "unreorganised",
                   *self.ISE_CONTROLS]
@@ -74592,7 +74592,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         """The branch-to-main part of the removed printed-path test. A project directory
         holding a newline or an ESC is shown escaped in the refusal."""
         from unittest.mock import patch
-        branch = load_linter_module(".claude/hooks/block-branch-to-main-edit.py", "_fx4_esc_branch")
+        branch = load_linter_module(".claude/hooks/block-branch-to-main-edit.py", "_odd_char_branch")
         for label, raw, shown in self.ODD_PATH_CHARS:
             with self.subTest(char=label), tempfile.TemporaryDirectory() as td:
                 odd = Path(td).resolve() / ("odd" + raw + "dir")
@@ -74606,7 +74606,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         the refusal names an unusual project path as one printable shell word that bash reads
         back as that exact path."""
         from unittest.mock import patch
-        branch = load_linter_module(".claude/hooks/block-branch-to-main-edit.py", "_fx4_word_branch")
+        branch = load_linter_module(".claude/hooks/block-branch-to-main-edit.py", "_odd_segment_branch")
         with tempfile.TemporaryDirectory() as td:
             odd = Path(td).resolve() / ("odd" + self.ODD_SEGMENT + "dir")
             with patch.object(branch, "_current_branch", lambda root: "main"):
@@ -78907,7 +78907,7 @@ class AIQTCutoverTests(unittest.TestCase):
         self.assertEqual(leftovers, [])
 
 
-class AIQTRoundTwoTests(unittest.TestCase):
+class AIQTBoundaryRegressionTests(unittest.TestCase):
     """Boundary regressions, including real entry points and negative controls."""
 
     load = staticmethod(AIQTCutoverTests.load)
@@ -80257,7 +80257,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertIn("dangling.assets", result2.stderr)
 
     def test_fence_text_in_headings_does_not_open_a_fence(self) -> None:
-        gate = load_linter_module(self.GATE, "tbr_r4_f1")
+        gate = load_linter_module(self.GATE, "tbr_fence_heading")
         from aiqt_corpus import is_fence_line
         for heading in ("# ``` x", "## ```a", "#```"):
             for count in (1, 2):
@@ -80274,7 +80274,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
 
     def test_every_unclassifiable_entry_refused(self) -> None:
         from unittest.mock import patch
-        gate = load_linter_module(self.GATE, "tbr_r4_f2")
+        gate = load_linter_module(self.GATE, "tbr_opaque_assets")
         root = self.make_repo("# Clean.\n", private=self.PRIVATE_MINIMAL)
         targets = [root / self.TOOLS_REL / name for name in
                    ("opaque.assets", "ordinary.assets", "fixtures")]
@@ -80297,7 +80297,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
 
     def test_non_scan_file_read_failure_refused(self) -> None:
         from unittest.mock import patch
-        gate = load_linter_module(self.GATE, "tbr_r4_f2_read")
+        gate = load_linter_module(self.GATE, "tbr_opaque_assets_read")
         root = self.make_repo("# Clean.\n", private=self.PRIVATE_MINIMAL)
         target = root / self.TOOLS_REL / "opaque.assets"
         target.write_text("data", encoding="utf-8")
@@ -80319,7 +80319,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
             "-S --unknown python3", "-S ${INTERPRETER}", "-S #comment python3",
             "-S 9FLAG=value python3", "-S -u ${NAME} python3",
         )
-        gate = load_linter_module(self.GATE, "tbr_r4_f3")
+        gate = load_linter_module(self.GATE, "tbr_shebang_tails")
         root = self.make_repo("# Clean.\n", private=self.PRIVATE_MINIMAL)
         for suffix in ("", ".assets", ".py"):
             for tail in tails:
@@ -80340,7 +80340,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertNotIn("OK:", result.stdout)
 
     def test_mode_shebang_budget_and_explicit_exemption(self) -> None:
-        gate = load_linter_module(self.GATE, "tbr_r4_f3_mode")
+        gate = load_linter_module(self.GATE, "tbr_shebang_mode")
         root = self.make_repo("# Clean.\n", private=self.PRIVATE_MINIMAL)
         path = root / self.TOOLS_REL / "hook"
         cases = (b"no shebang\n", b"#!\n", b"#!/usr/bin/env \xff\n",
@@ -80369,7 +80369,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertTrue(any(c.item_id == "3.99" for _, c in findings))
 
     def test_supported_env_operands_and_other_interpreter(self) -> None:
-        gate = load_linter_module(self.GATE, "tbr_r4_f3_supported")
+        gate = load_linter_module(self.GATE, "tbr_env_operands")
         root = self.make_repo("# Clean.\n", private=self.PRIVATE_MINIMAL)
         for tail in ("-S -a label python3", "-S --argv0 label python3",
                      "-S -i -u FOO -C / python3", "-S -- python3",
@@ -80387,7 +80387,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertNotIn(path, files)
 
     def test_html_marker_boundaries(self) -> None:
-        gate = load_linter_module(self.GATE, "tbr_r4_01")
+        gate = load_linter_module(self.GATE, "tbr_html_marker")
         cases = (
             "TODO 3.99. <!-- todo-ref-ok: -->",
             "TODO 3.99. <!-- todo-ref-ok: --> outside reason",
@@ -80416,7 +80416,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
                 Path("notes.md"), text)], ["3.99"])
 
     def test_complete_pr_anchor_required(self) -> None:
-        gate = load_linter_module(self.GATE, "tbr_r4_03")
+        gate = load_linter_module(self.GATE, "tbr_pr_anchor")
         for verb in ("closing", "introducing"):
             for tail in ("#123garbage", "#123", "#123abc)", "#123.4)", "#１２３)", "#123`garbage`)"):
                 with self.subTest(verb=verb, tail=tail):
@@ -80428,13 +80428,13 @@ class ToolingBacklogRefsTests(LinterTestCase):
                 self.assertEqual(gate.candidate_refs(Path("sample.py"), text), [])
 
     def test_inch_mark_residue_documented(self) -> None:
-        gate = load_linter_module(self.GATE, "tbr_r4_f4")
+        gate = load_linter_module(self.GATE, "tbr_inch_mark")
         self.assertIn("it can close", gate.__doc__)
         text = '# Use a " separator; TODO 3.99 asks for a 6" pipe.\n'
         self.assertEqual(gate.candidate_refs(Path("sample.py"), text), [])
 
     def test_both_double_quote_abutment_guards(self) -> None:
-        gate = load_linter_module(self.GATE, "tbr_r4_f5")
+        gate = load_linter_module(self.GATE, "tbr_quote_abutment")
         for text in ('# the "cfg""TODO 3.99" x\n',
                      '# the "TODO 3.99""cfg" x\n'):
             with self.subTest(text=text):
@@ -81083,7 +81083,7 @@ class TableCellCountTests(LinterTestCase):
             with self.subTest(text=text):
                 self.assertEqual(self.finding_heads(text), ["doc.md:1 unclosed-html-block"])
 
-    def test_round_six_surviving_mutants_are_pinned(self) -> None:
+    def test_script_block_surviving_mutants_are_pinned(self) -> None:
         # Surviving mutants k and c (g and h are in
         # test_unquoted_attribute_value_read_both_ways): "<SCRIPT>" starts a
         # type-1 block under either reading, which ends at "</script>", so the

@@ -79,7 +79,7 @@ matrix, the reverse framework-control crosswalk, and the canonical citations
 register (``compliance/matrix-grc-compliance-alignment.md``,
 ``governance/matrix-reverse-framework-control-crosswalk.md``,
 ``governance/register-canonical-citations.md``), each parsed structurally and
-loud on schema change; and (maintainer decision 2026-11-03) the
+loud on schema change; and the
 top-level ``.claude/skills/corpus-management/docs/*.md`` adopter documents,
 each read for its own canonical metadata block, purpose paragraph, and
 section outline. Its draft-only file checks read no file content: the adopter
@@ -229,7 +229,7 @@ DRAFT_PAGES = (
 
 # The site variant table: exactly one indexable root variant (the promoted
 # baseline-template tree; the old root and the v2/v3 staging trees are removed
-# at the draft-site promotion, maintainer decision 2026-11-04). A future
+# at the draft-site promotion). A future
 # staging variant belongs in this table, so the template source, URL prefix,
 # and indexability policy stay coupled.
 VARIANTS = (
@@ -331,7 +331,7 @@ def type_slug(type_name):
 ROOT_DOMAIN = "root"
 
 # Reading-progression rank for the per-domain document list on each domain page
-# (maintainer-directed 2026-07-15, "source + type-priority ordering"): a domain's
+# (source + type-priority ordering): a domain's
 # documents read most-foundational-first (govern -> define -> do -> reference), then
 # alphabetically by title within a type, instead of alphabetically by type string.
 # This MUST stay in sync with ``TYPE_ORDER`` in ``.claude/skills/corpus-management/tools/build-taxonomy.py`` (the
@@ -423,7 +423,7 @@ HEADERS_FILE = (
 )
 
 # The ``_redirects`` rules Cloudflare Pages applies from the dist root,
-# emitted at the draft-site promotion (maintainer decisions 2026-11-04):
+# emitted at the draft-site promotion:
 # every pre-promotion /draft/ address maps to its promoted root address
 # through the splat (the promoted tree is the draft tree with the prefix
 # stripped, so every target exists by construction); the old About page's
@@ -4027,7 +4027,7 @@ def draft_type_plural(type_name):
 # directory. ADOPTER_DOCS_AREA is the area key the records carry in place
 # of a corpus domain (a registry key, never a path). ADOPTER_ROUTE_AREA is
 # the public route segment of every adopter document page,
-# /documents/adopter/<name>/ (maintainer decision 2026-11-08): the route is
+# /documents/adopter/<name>/: the route is
 # keyed by the adopter area, never by
 # ADOPTER_DOCS_HOME, so no public route, link or sitemap entry carries the
 # dot-prefixed skill directory.
@@ -5079,9 +5079,9 @@ _DRAFT_NARR_TABLE_RE = re.compile(r"<table>(.*?)</table>", re.S)
 # crosswalk page is a left-rail page (spec 7.32) whose side list carries the
 # Views links, one per topic view of design C 3.7 (the views stay by
 # topic), and every instrument by
-# group; each view is a plain link to its view page (maintainer defect
-# report 2026-11-04: the matrix.js preset form switched columns out of
-# sight, so the rail navigates and no page loads matrix.js).
+# group; each view is a plain link to its view page (a preset form that
+# switched columns in place did so out of sight, so the rail navigates
+# and no page loads matrix.js).
 
 CROSSWALK_COMPLIANCE_MATRIX = (
     REPO_ROOT / "compliance" / "matrix-grc-compliance-alignment.md"
@@ -5573,7 +5573,7 @@ CROSSWALK_ALIASES = {
     "PIPEDA Sch 1 Principle 3 (withdrawal of consent)": "pipeda",
     "PIPEDA Sch 1 Principle 9 (amendment)": "pipeda",
     "PIPEDA Sch 1 Principle 9 (Individual Access)": "pipeda",
-    # QC-LAW25-RESEARCH-0405 (maintainer decision 2026-11-06): the
+    # QC-LAW25-RESEARCH-0405: the
     # quebec-law-25 instrument is CQLR c. P-39.1 as amended by S.Q. 2021,
     # c. 25 (Law 25), not the amending act, so every P-39.1 spelling is an
     # alias and no spelling names the amending act alone.
@@ -5770,8 +5770,8 @@ def normalize_concern_frameworks(names):
 class CrosswalkPreset(NamedTuple):
     """One topic view (design C 3.7): a page at crosswalk/view/<slug>/
     rendering its topic's columns, linked as a plain Views link in the
-    crosswalk side list (design C 3.8; the matrix.js preset form left with
-    the maintainer defect report 2026-11-04, the rail links navigate)."""
+    crosswalk side list (design C 3.8; there is no matrix.js preset form,
+    the rail links navigate)."""
 
     slug: str
     label: str
@@ -6532,7 +6532,7 @@ def draft_documents_values(full_docs):
     """The full document index (design A PR A3, design B section 4 without a
     template change): every non-root corpus document, one row each in title
     order, filtered on the page by the baseline search.js. Type and area are
-    search.js facet groups (spec 7.29; maintainer 2026-11-03: All Documents
+    search.js facet groups (spec 7.29; All Documents
     carries the filters, and type is a filter of it, not a separate
     heading), each chip's count recounted from the rows it filters and each
     chip a plain link to its facet address. From the 1.7.0 baseline both groups
@@ -8576,7 +8576,7 @@ def render_crosswalk_table(xw, keys, full):
     alone has one, and it is never wider than its cap. The wrapper is the
     focusable region named by the caption's words; it scrolls sideways
     only, at the table's full height. No page marks the table data-matrix
-    or loads matrix.js (maintainer defect report 2026-11-04: the rail views
+    or loads matrix.js (the rail views
     navigate instead), so a page's columns never change and no table takes
     the spec 7.34 column highlight, a matrix.js feature; ``full`` scopes
     the caption to the full table."""
@@ -8985,9 +8985,9 @@ def draft_crosswalk_values(xw, preset=None):
     """Per-page values for the crosswalk table page: the full table when
     ``preset`` is None, else that topic's columns only, the page its view
     link in the side list opens (design C 3.7). No page carries matrix.js,
-    a preset, or a status line (maintainer defect report 2026-11-04 20:10
-    EST: the in-place column switch happened below the fold, so a rail
-    click showed the visitor nothing; the views are plain links now)."""
+    a preset, or a status line (an in-place column switch would happen
+    below the fold, so a rail click would show the visitor nothing; the
+    views are plain links)."""
     main_keys = [i.key for i in CROSSWALK_INSTRUMENTS if i.main_table]
     if preset is None:
         keys = main_keys
@@ -9568,8 +9568,8 @@ def render_draft_variant(figures, variant, ledger=None):
             figures, docs_by_path, crosswalk),
         "solutions.html": lambda: draft_solutions_values(figures, concerns),
         "policies.html": lambda: draft_policies_values(figures, docs_by_path),
-        # Static template prose carried over from the old root at promotion
-        # (maintainer decisions 2026-11-04): the Contributors page and the
+        # Static template prose carried over from the old root at promotion:
+        # the Contributors page and the
         # For-AI page. Neither belongs to a top-bar section.
         "contributors.html": _draft_nav,
         "for-ai.html": _draft_nav,

@@ -278,7 +278,7 @@ class ReleaseDeltaTests(unittest.TestCase):
                 if action == "edit":
                     self.assertIn("strengthening vs clarifying is not machine-decidable", output)
 
-    def test_round_one_refactors_and_scope(self):
+    def test_refactors_engine_scope_and_waiver_path(self):
         # Renaming a key-set variable or adding a private helper that assigns `keys` is not a
         # configuration change; an engine outside tools/ is classified; the manifest's declared
         # waiver path must be the supported one.
