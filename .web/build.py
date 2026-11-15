@@ -4007,7 +4007,7 @@ def draft_type_plural(type_name):
         ) from None
 
 
-# The adopter-document layer (maintainer decision 2026-11-03 14:59Z):
+# The adopter-document layer:
 # every top-level .claude/skills/corpus-management/docs/*.md adopter document
 # gets a draft document page and a row in the draft's generated listings,
 # like a corpus document. The adopter documentation lives in the skill's
@@ -4847,9 +4847,9 @@ DRAFT_EXAMPLE_DOC = "governance/policy-exception-and-risk-acceptance-management.
 # The landing tile's example domain (the mockup's "Open a domain: Governance").
 DRAFT_EXAMPLE_DOMAIN = "governance"
 
-# The browse page's "By need" entries (approved mockup copy, with the Find a
-# solution and Write a policy lines changed by maintainer directive
-# 2026-11-03 17:55Z; the mockup's placeholder targets, two Browse anchors,
+# The browse page's "By need" entries (approved mockup copy, except the
+# Find a solution and Write a policy lines, which differ from the mockup; the
+# mockup's placeholder targets, two Browse anchors,
 # the search page and one example document, are retired for the five need
 # pages of the Browse adventure, design D section 3). (title, tag, href,
 # line).
@@ -5077,8 +5077,8 @@ _DRAFT_NARR_TABLE_RE = re.compile(r"<table>(.*?)</table>", re.S)
 # two alignment matrices, the canonical citations register, and .claude/skills/corpus-management/data/taxonomy.yml,
 # structural and loud on schema change exactly like parse_taxonomy. The
 # crosswalk page is a left-rail page (spec 7.32) whose side list carries the
-# Views links, one per topic view of design C 3.7 (maintainer decision
-# 2026-11-03 18:53Z: the views stay by topic), and every instrument by
+# Views links, one per topic view of design C 3.7 (the views stay by
+# topic), and every instrument by
 # group; each view is a plain link to its view page (maintainer defect
 # report 2026-11-04: the matrix.js preset form switched columns out of
 # sight, so the rail navigates and no page loads matrix.js).
@@ -5779,8 +5779,8 @@ class CrosswalkPreset(NamedTuple):
     related: tuple    # instrument-page keys linked beneath the view's table
 
 
-# The topic views of design C 3.7 (maintainer decision 2026-11-03 18:53Z:
-# the views stay by topic). A topic may take columns from several instrument
+# The topic views of design C 3.7, which stay by topic. A topic may take
+# columns from several instrument
 # groups, and one column may sit in several topics.
 CROSSWALK_TOPICS = (
     CrosswalkPreset("security", "Security",
@@ -6140,7 +6140,7 @@ def run_palette_gate(palettes=None, gate=None, pin_path=None, baseline=None):
 
 def _draft_nav(current=None):
     """The topbar partial's per-page current-page markers. Each bar link
-    opens its own page (maintainer decision 2026-11-03 23:27Z), and a page
+    opens its own page, and a page
     marks the link of the section it belongs to: the need, domain and type
     pages under Browse, every document page under All Documents, the decide
     hub, concern, subtype index and reading-room pages under Decisions, and
@@ -6237,8 +6237,8 @@ def draft_landing_values(figures, docs_by_path):
         "XW_INSTRUMENT_COUNT": str(
             len([i for i in CROSSWALK_INSTRUMENTS if i.main_table])
         ),
-        # The Standards Start here entry's count (maintainer decisions
-        # 2026-11-04 16:09 EST), recounted from the register at build time so
+        # The Standards Start here entry's count, recounted from the
+        # register at build time so
         # the landing claim that every count is computed stays true.
         "STANDARDS_ROW_COUNT": str(sum(
             len(rows) for _, rows in parse_citations_register_sections(
@@ -6439,7 +6439,7 @@ def _draft_search_row(d, facets=False):
 
 
 def draft_search_values(full_docs, adopter_docs):
-    # The search page is just a search (maintainer, 2026-11-03 14:29Z): the
+    # The search page is just a search: the
     # type and area chips and the "Recently updated" framing duplicated
     # Browse and are gone; the full list stays as search.js's scope and as
     # the page's content without script. Every corpus domain document and
@@ -6880,7 +6880,7 @@ def draft_document_values(doc, docs_by_path):
     )
     # Spec 7.6 allows two rails only, so a document page takes the logo-only
     # rail; the source document's outline is body content, a plain list
-    # under its own heading (maintainer, 2026-11-03 12:16Z).
+    # under its own heading.
     rail = f'<div class="rail">{logo}</div>'
     outline_section = ""
     sections = doc.get("sections", [])
@@ -8651,8 +8651,8 @@ def render_crosswalk_table(xw, keys, full):
         f"Corpus domains by instruments, {len(keys)} in the full table"
         if full else f"Corpus domains by {len(keys)} {noun}"
     )
-    # The box scrolls sideways only (maintainer 2026-11-04 12:58Z: the
-    # crosswalk must not scroll vertically). baseline.css caps a
+    # The box scrolls sideways only (the crosswalk must not scroll
+    # vertically). baseline.css caps a
     # .tablewrap.bounded, and any .tablewrap holding table.sticky, at 75vh
     # with overflow: auto, and the horizontal scrollbar's gutter counts
     # against that cap, so a table within a gutter of 75vh scrolled
@@ -8850,7 +8850,7 @@ def render_crosswalk_caveats(xw, keys=(), inst=None):
         + ": the alignment is not an official mapping, certification claim, "
         "legal opinion, or reproduction of third-party framework "
         "content.</p>",
-        # The breadth pointer (maintainer decisions 2026-11-04 16:09 EST):
+        # The breadth pointer:
         # the crosswalk maps depth for its instruments; every register row,
         # mapped here or not, is listed on the standards page.
         "<p>The standards, laws, frameworks, and programmes in the "
@@ -8862,9 +8862,9 @@ def render_crosswalk_caveats(xw, keys=(), inst=None):
 
 
 def render_crosswalk_rail(xw, current=None, instrument=None):
-    """The crosswalk side list (spec 7.32; maintainer direction 2026-11-03
-    15:06Z and 15:09Z: one side rail, on the left, which the right rail
-    stood in for until the template carried it): the Views list, All plus
+    """The crosswalk side list (spec 7.32; one side rail, on the left, which
+    the right rail stood in for until the template carried it): the Views
+    list, All plus
     one view per topic, then every instrument under its group, the "Also
     in the corpus" instruments included, each linking its page. Every view
     is a plain link to the page that shows it, and the current page's view
@@ -9176,8 +9176,8 @@ def _standards_section_slug(heading):
 
 
 def draft_standards_values(xw):
-    """Per-page values for the standards page at standards/ (maintainer
-    decisions 2026-11-04 16:09 EST): every citations-register row, grouped
+    """Per-page values for the standards page at standards/: every
+    citations-register row, grouped
     by register section in register order, each entry headed by the row's
     Standard ID (joined with its Current version only in the safe publisher
     forms) over the register's Current version cell

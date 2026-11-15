@@ -4021,8 +4021,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                          "the complete approved value paragraph stays, word "
                          "for word, with only the computed total substituted")
         self.assertNotIn("<a", value.group(1),
-                         "the value paragraph keeps no licence link "
-                         "(maintainer 2026-11-03 02:19Z)")
+                         "the value paragraph keeps no licence link")
 
     def test_about_line_has_one_space_after_each_dot_and_none_before(self):
         """Spec 7.24 from 1.7.0 (required on every site): one ordinary space
