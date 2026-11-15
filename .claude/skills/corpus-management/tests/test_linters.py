@@ -43215,7 +43215,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         README.md DATA F 67fe21d3b7f132009e1e6e14899a090f897ede778d89cea59053ca2f3e20ced7
         adopt-bootstrap-ref.py OWN F ec19e2c45233ad02ca422349c0778a3c17463e6fc23fe9bf0591d822ac8d531c
         adopt-preflight-guard.py FIXED F 73ab980af0fa53c8a485af18b7bdaee1b7bfef218c37982593e30c66d7f85f66
-        aiqt_bootstrap.py PASSIVE F 11969de50382b2224387035423639217c2e29ea409e8032ab5f9d76c9807ef2a
+        aiqt_bootstrap.py PASSIVE F 7ca1565068a5ef6ba6c93bee56f74409dd2cb0c96d8bdb2b5a86b3382441fa5b
         aiqt_rules.py NO_FS F dda2a6a5a217513fc2848e59029e111402fe85e8e765d6b9de7186bd8d9472d9
         alignment-register-aliases.json DATA F 7d9b0be1db9dcc1f81870c96309e2837cdf7da6fc16a78ea4f4b4ccca4e7b7e8
         alignment-register-exclusions.json DATA F 391924062319d3d5a618b1750b37dec6c0ee0c0d21b77b26518b16e51a418f19
@@ -43388,7 +43388,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Repository-relative argument-handling dependencies outside .claude/skills/corpus-management/tools/.
     DEPENDENCIES = """
-        .claude/skills/corpus-management/src/tools/corpus_mgmt_compiler.py 06bbda5f23f55f471fe510a0635d987a9784c576093c62aff169b42beeebf665
+        .claude/skills/corpus-management/src/tools/corpus_mgmt_compiler.py a75b7071eaffcae67ea821ad2950e00a25824a53447e2a471a114fa17afe3e5f
         .claude/skills/corpus-management/src/tools/pack_release_delta.py 1836a112482c4fa721817222ef559700e919b54e3df7ba98a4e94af5ffbdcf07
         .claude/skills/corpus-management/src/tools/profile_loader.py c54f863c1d19ea5a934e05194504538a75d2b4893e7b16aa9d4c386c932bfb6b
         .claude/aiqt/tools/aiqt_corpus.py f2292eb511e960d9c38881a54bee92d0fc5c7b5cbe0c7b5cb002cb78da08245f
@@ -67139,7 +67139,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                 patch.dict(os.environ, {"AIQT_PACK_ROOT": str(pack)}):
             os.environ.pop("GRC_AIQT_PACK", None)
             with self.assertRaisesRegex(ImportError,
-                                        re.escape("verified ones (a module file swapped after verification)")):
+                                        re.escape("executed bytes could differ from the verified ones.")):
                 mod.find_pack_tools()
 
     def test_concurrent_import_during_bootstrap_cannot_run_disk_bytes(self):
@@ -67243,7 +67243,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                              timeout=30)
         self.assertEqual(res.returncode, 1, res.stdout + res.stderr)
         self.assertIn("REFUSED:", res.stdout)
-        self.assertIn("verified ones (a module file swapped after verification)", res.stdout)
+        self.assertIn("executed bytes could differ from the verified ones.", res.stdout)
         self.assertNotIn("PASSED", res.stdout)
 
     def test_verified_loader_compiles_without_inherited_flags(self):
@@ -67915,7 +67915,7 @@ class AIQTVendorDigestTests(LinterTestCase):
             with patch.dict(os.environ, {"AIQT_PACK_ROOT": str(pack)}):
                 os.environ.pop("GRC_AIQT_PACK", None)
                 with self.assertRaisesRegex(
-                        ImportError, re.escape("an unresolvable sys.path entry")):
+                        ImportError, re.escape("uninspectable sys.path entry in place.")):
                     mod.ensure_on_path()
         finally:
             sys.modules.pop("aiqt_corpus", None)
@@ -68173,17 +68173,17 @@ class AIQTVendorDigestTests(LinterTestCase):
             self.assertNotIn("keeps names OTHER than", text,
                              f"the {where} docstring must not claim the "
                              "scrub keeps other names unimportable "
-                             "(a pack file imported under a dotted name)")
+                             "(the disclosed residual of a pack file imported under a dotted name)")
             self.assertNotIn("keeps OTHER names", text,
                              f"the {where} docstring must not claim the "
                              "scrub keeps other names unimportable "
-                             "(a pack file imported under a dotted name)")
+                             "(the disclosed residual of a pack file imported under a dotted name)")
             self.assertNotIn(
                 "legitimate ``sys.path`` entry that cannot be scrubbed "
                 "away", text,
                 f"the {where} docstring must not repeat the false "
                 "premise that the repository root is a dotted route to "
-                "the in-repo pack (a repository root wrongly treated as a dotted route)")
+                "the in-repo pack (corrects the premise of a repository root wrongly treated as a dotted route)")
         self.assertIn("a repository root wrongly treated as a dotted route", docs["module"],
                       "REMAINING must name the corrected premise")
         self.assertIn("``.claude`` is not a Python identifier",
@@ -68230,7 +68230,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                           "REFUSED tools.aiqt_corpus"],
                          "no dotted spelling may reach the in-repo pack "
                          "through a repository-root entry "
-                         "(a repository root wrongly treated as a dotted route)")
+                         "(corrects the premise of a repository root wrongly treated as a dotted route)")
         self.assertEqual(lines[3],
                          f"LOADED tools.aiqt_corpus {expected_file}",
                          "a pack-root entry is a real dotted route")
@@ -68260,10 +68260,10 @@ class AIQTVendorDigestTests(LinterTestCase):
                 mod.ensure_on_path()
                 self.assertNotIn(str(pack), sys.path,
                                  "a pack-root entry must be scrubbed "
-                                 "(a repository root wrongly treated as a dotted route)")
+                                 "(corrects the premise of a repository root wrongly treated as a dotted route)")
                 self.assertNotIn(str(pack.parent), sys.path,
                                  "a pack-root-parent entry must be "
-                                 "scrubbed (a repository root wrongly treated as a dotted route)")
+                                 "scrubbed (corrects the premise of a repository root wrongly treated as a dotted route)")
                 self.assertIn(str(base), sys.path,
                               "a repository-root-shaped entry (its "
                               "pack-root grandchild sits below the "
@@ -68333,7 +68333,7 @@ class AIQTVendorDigestTests(LinterTestCase):
             self.assertIs(sys.meta_path[0], mod._NAME_GUARD,
                           "a re-run must put the guard back at the FRONT "
                           "of sys.meta_path, displacing a finder inserted "
-                          "ahead of it (a finder left in front of the guard)")
+                          "ahead of it (guards against a finder left in front of the guard)")
             self.assertIn(front, sys.meta_path,
                           "the foreign finder is displaced, not removed")
             self.assertGreater(sys.meta_path.index(front),
@@ -68372,7 +68372,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                 self.assertFalse(
                     mod._pack_tools_entry(entry),
                     "a non-str entry must be reported unmatched, never "
-                    "raise (a non-str sys.path entry)")
+                    "raise (guards against a non-str sys.path entry)")
         saved_module = sys.modules.pop("aiqt_corpus", None)
         saved_path = list(sys.path)
         saved_meta = list(sys.meta_path)
@@ -68388,7 +68388,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                 except TypeError as exc:
                     self.fail("ensure_on_path() raised TypeError on a "
                               f"non-str sys.path entry: {exc} "
-                              "(a non-str sys.path entry)")
+                              "(guards against a non-str sys.path entry)")
             self.assertEqual(str(tools), str(pack / "tools"),
                              "the bootstrap must complete normally with "
                              "non-str entries present")
@@ -68497,7 +68497,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                     f"guard after a {op} step: a concurrent import's "
                     "unlocked list(sys.meta_path) snapshot can land in "
                     "exactly that gap and fall through to sys.path "
-                    "(a guardless gap during the re-front)")
+                    "(guards against a guardless gap during the re-front)")
             self.assertIs(sys.meta_path[0], guard,
                           "after the re-run the guard is at index 0")
             self.assertEqual(
@@ -68542,7 +68542,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                     "aiqt_corpus", sys.modules,
                     "the refused pre-bootstrap module must be removed "
                     "from sys.modules, not left importable "
-                    "(an unmarked pre-guard module left importable)")
+                    "(guards against an unmarked pre-guard module left importable)")
                 with self.assertRaises(ModuleNotFoundError):
                     importlib.import_module("aiqt_corpus")
         finally:
@@ -68604,7 +68604,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                                  "the empty entry must be resolved against "
                                  "the working directory and scrubbed "
                                  "exactly like '.' when that directory is "
-                                 "a pack place (an unscrubbed empty sys.path entry)")
+                                 "a pack place (guards against an unscrubbed empty sys.path entry)")
                 self.assertEqual(lines[1], "DOT SCRUBBED",
                                  "'.' must keep being scrubbed at a pack "
                                  "place: '' and '.' are the same route")
@@ -68613,7 +68613,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                         lines[2], f"REFUSED {dotted}",
                         "no dotted spelling may reach the pack through "
                         "the empty entry after the scrub "
-                        "(an unscrubbed empty sys.path entry)")
+                        "(guards against an unscrubbed empty sys.path entry)")
 
     def test_every_refusal_path_removes_unmarked_module(self):
         # In the earlier repository, the bootstrap removed a refused
@@ -68658,7 +68658,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                     "aiqt_corpus", sys.modules,
                     "a pre-existing module seen by a FAILING bootstrap "
                     "must be removed from sys.modules "
-                    "(a refused module left in sys.modules)")
+                    "(guards against a refused module left in sys.modules)")
                 with self.assertRaises(ModuleNotFoundError):
                     importlib.import_module("aiqt_corpus")
                 # Case B: the mid-install marker check. A successful run
@@ -68674,7 +68674,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                     "aiqt_corpus", sys.modules,
                     "a module refused by the mid-install marker check "
                     "must be removed from sys.modules "
-                    "(a refused module left in sys.modules)")
+                    "(guards against a refused module left in sys.modules)")
                 # Case C: the after-installation re-check. An installer
                 # that leaves an unmarked module behind stands in for a
                 # racing publisher.
@@ -68692,7 +68692,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                     "aiqt_corpus", sys.modules,
                     "a module refused by the after-installation re-check "
                     "must be removed from sys.modules "
-                    "(a refused module left in sys.modules)")
+                    "(guards against a refused module left in sys.modules)")
                 with self.assertRaises(ModuleNotFoundError):
                     importlib.import_module("aiqt_corpus")
         finally:
@@ -68866,7 +68866,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                 "aiqt_corpus", sys.modules,
                 "a RuntimeError bootstrap failure must remove the "
                 "unmarked pre-existing module "
-                "(cleanup skipped on a non-ImportError failure)")
+                "(guards against cleanup skipped on a non-ImportError failure)")
             with self.assertRaises(ModuleNotFoundError):
                 importlib.import_module("aiqt_corpus")
             # Routes 2 and 3: _load_verifier raises OSError (aiqt_rules.py
@@ -68900,7 +68900,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                         "aiqt_corpus", sys.modules,
                         f"a bootstrap failure via the {label} route must "
                         "remove the unmarked pre-existing module "
-                        "(cleanup skipped on a non-ImportError failure)")
+                        "(guards against cleanup skipped on a non-ImportError failure)")
                     with self.assertRaises(ModuleNotFoundError):
                         importlib.import_module("aiqt_corpus")
             # Routes 4 and 5: BaseException failures that are NOT Exception
@@ -68926,12 +68926,12 @@ class AIQTVendorDigestTests(LinterTestCase):
                         ctx.exception, exc,
                         "the failure handler must re-raise the SAME "
                         "exception object unchanged "
-                        "(a failure handler narrowed below BaseException)")
+                        "(guards against a failure handler narrowed below BaseException)")
                     self.assertNotIn(
                         "aiqt_corpus", sys.modules,
                         "a KeyboardInterrupt or SystemExit bootstrap "
                         "failure must remove the unmarked pre-existing "
-                        "module (cleanup skipped on a non-ImportError failure, "
+                        "module (guards against cleanup skipped on a non-ImportError failure, "
                         "a failure handler narrowed below BaseException)")
                     with self.assertRaises(ModuleNotFoundError):
                         importlib.import_module("aiqt_corpus")
@@ -68986,12 +68986,12 @@ class AIQTVendorDigestTests(LinterTestCase):
                     sys.modules.get("aiqt_corpus"), verified,
                     "a marked, verified module must survive another "
                     "run's failure "
-                    "(a failing run unpublishing a verified module)")
+                    "(guards against a failing run unpublishing a verified module)")
                 self.assertIs(
                     mod._NAME_GUARD._module, verified,
                     "the racing run's publication of the same object "
                     "must not be retracted by this run's failure "
-                    "(a failing run unpublishing a verified module, "
+                    "(guards against a failing run unpublishing a verified module, "
                     "a racing publication of the same object)")
                 self.assertIs(importlib.import_module("aiqt_corpus"),
                               verified)
@@ -69006,7 +69006,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                     sys.modules.get("aiqt_corpus"), verified,
                     "a failing re-run must not remove the marked module "
                     "an earlier successful run left "
-                    "(a failing run unpublishing a verified module)")
+                    "(guards against a failing run unpublishing a verified module)")
                 self.assertIs(importlib.import_module("aiqt_corpus"),
                               verified)
         finally:
@@ -69046,16 +69046,16 @@ class AIQTVendorDigestTests(LinterTestCase):
                 stale, normalized,
                 f"the stale absolute claim {stale!r} must be gone: it "
                 "held only for a different module object or only for "
-                "ImportError failures (a racing publication of the same object, "
+                "ImportError failures (guards against a racing publication of the same object, "
                 "cleanup skipped on a non-ImportError failure)")
         helper_doc = " ".join(mod._remove_refused_module.__doc__.split())
         self.assertIn("OBJECT IDENTITY", helper_doc,
                       "the helper must state that its checks are object "
-                      "identity (a racing publication of the same object)")
+                      "identity (guards against a racing publication of the same object)")
         self.assertIn("DIFFERENT module object", helper_doc,
                       "the helper may claim to leave alone only a "
                       "DIFFERENT module object, never any racing "
-                      "publication (a racing publication of the same object)")
+                      "publication (guards against a racing publication of the same object)")
         marked_doc = " ".join(
             mod._marked_for_verified_bytes.__doc__.split())
         self.assertIn("a failing run unpublishing a verified module", marked_doc,
@@ -69093,7 +69093,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                     f"the {where} docstring, on a namespace read that raises, may not overclaim the "
                     f"protection: {stale!r} must be narrowed to "
                     "``Exception`` "
-                    "(a descriptor that raises BaseException)")
+                    "(the disclosed residual of a descriptor that raises BaseException)")
             for required in ("``Exception``", "``BaseException``",
                              "in-process forgery",
                              "a descriptor that raises BaseException"):
@@ -69102,7 +69102,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                     f"the {where} docstring must disclose the "
                     "BaseException-raising descriptor residual: missing "
                     f"{required!r} "
-                    "(a descriptor that raises BaseException)")
+                    "(the disclosed residual of a descriptor that raises BaseException)")
 
     def test_refused_midinstall_publication_is_retracted(self):
         # The guard retraction in _remove_refused_module is load-bearing
@@ -69154,11 +69154,11 @@ class AIQTVendorDigestTests(LinterTestCase):
                 "aiqt_corpus", sys.modules,
                 "the module refused by the after-installation re-check "
                 "must be removed from sys.modules "
-                "(a refused module left in sys.modules)")
+                "(guards against a refused module left in sys.modules)")
             self.assertIsNot(
                 mod._NAME_GUARD._module, foreign,
                 "the mid-install publication of the refused module must "
-                "be retracted (a mid-install publication left in the guard, "
+                "be retracted (guards against a mid-install publication left in the guard, "
                 "a guard serving a refused module to a later import)")
             with self.assertRaises(ModuleNotFoundError):
                 importlib.import_module("aiqt_corpus")
@@ -69204,12 +69204,12 @@ class AIQTVendorDigestTests(LinterTestCase):
                     mod._verified_corpus_source, captured,
                     "a refused unpinned override's bytes must never "
                     "replace the captured verified bytes "
-                    "(a refused override's bytes taken as the reference)")
+                    "(guards against a refused override's bytes taken as the reference)")
                 self.assertIs(
                     sys.modules.get("aiqt_corpus"), verified,
                     "the earlier run's verified module must survive a "
                     "refused unpinned override's failing re-run "
-                    "(a refused override's bytes taken as the reference)")
+                    "(guards against a refused override's bytes taken as the reference)")
                 self.assertIs(importlib.import_module("aiqt_corpus"),
                               verified)
         finally:
@@ -69255,7 +69255,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                     "aiqt_corpus", sys.modules,
                     "a wrong-digest marker must be treated as unmarked "
                     "once bytes were captured "
-                    "(a marker accepted without its digest compared)")
+                    "(guards against a marker accepted without its digest compared)")
                 with self.assertRaises(ModuleNotFoundError):
                     importlib.import_module("aiqt_corpus")
         finally:
@@ -69310,7 +69310,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                             "aiqt_corpus", sys.modules,
                             "an entry without __dict__ must be treated "
                             "as unmarked and removed by the failure "
-                            "handler (an entry with no mapping namespace)")
+                            "handler (guards against an entry with no mapping namespace)")
                         with self.assertRaises(ModuleNotFoundError):
                             importlib.import_module("aiqt_corpus")
                 # Acceptance-check site: a successful discovery must
@@ -69395,7 +69395,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                         "an entry whose __dict__ descriptor raises must "
                         "be treated as unmarked and removed by the "
                         "failure handler "
-                        "(a namespace read that raises)")
+                        "(guards against a namespace read that raises)")
                     with self.assertRaises(ModuleNotFoundError):
                         importlib.import_module("aiqt_corpus")
                 # Acceptance-check site: a successful discovery must
@@ -69410,7 +69410,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                         "aiqt_corpus", sys.modules,
                         "an entry whose __dict__ descriptor raises must "
                         "be refused and removed by the acceptance check "
-                        "(a namespace read that raises)")
+                        "(guards against a namespace read that raises)")
                     with self.assertRaises(ModuleNotFoundError):
                         importlib.import_module("aiqt_corpus")
                 # Mid-install site: a raising entry that appears while
@@ -69432,7 +69432,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                         "aiqt_corpus", sys.modules,
                         "an entry whose __dict__ descriptor raises must "
                         "be refused and removed by the mid-install check "
-                        "(a namespace read that raises)")
+                        "(guards against a namespace read that raises)")
                     with self.assertRaises(ModuleNotFoundError):
                         importlib.import_module("aiqt_corpus")
         finally:
@@ -69498,13 +69498,13 @@ class AIQTVendorDigestTests(LinterTestCase):
             ["BOOTSTRAP FAILED", "KEPT True", "SERVED True"],
             "the self-marked planted module must survive the no-bytes "
             "failure corner and be served by a later plain import: the "
-            "DISCLOSED keep choice (a planted module that sets its own marker); if "
+            "DISCLOSED keep choice (the disclosed residual of a planted module that sets its own marker); if "
             "this behaviour changes, the disclosure must change with it")
         self.assertEqual(
             results["unmarked-control"],
             ["BOOTSTRAP FAILED", "KEPT False", "SERVED refused"],
             "the unmarked control must still be removed and fail closed "
-            "(cleanup skipped on a non-ImportError failure)")
+            "(guards against cleanup skipped on a non-ImportError failure)")
         # The disclosure itself: present, and the refuted claims gone.
         mod = load_linter_module("tools/aiqt_bootstrap.py",
                                  "aiqt_bootstrap_selfmarked")
@@ -69517,17 +69517,17 @@ class AIQTVendorDigestTests(LinterTestCase):
                 required, marked_doc,
                 "the marker helper must disclose the self-marked planted "
                 f"corner accurately: missing {required!r} "
-                "(a planted module that sets its own marker)")
+                "(the disclosed residual of a planted module that sets its own marker)")
         self.assertIn("a planted module that sets its own marker", module_doc,
                       "the module docstring must carry the self-marked "
-                      "disclosure too (a planted module that sets its own marker)")
+                      "disclosure too (the disclosed residual of a planted module that sets its own marker)")
         for stale in ("carries no marker at all",
                       "loses nothing a later run's acceptance check "
                       "would not refuse"):
             self.assertNotIn(
                 stale, marked_doc,
                 f"the refuted claim {stale!r} must be gone "
-                "(a planted module that sets its own marker)")
+                "(the disclosed residual of a planted module that sets its own marker)")
 
     def test_compiler_pin_precheck_fires_without_the_shim(self):
         # The compiler's own PIN.toml pre-check must refuse a pin-less
