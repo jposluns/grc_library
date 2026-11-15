@@ -136,7 +136,31 @@ drive end-to-end on the maintainer's behalf:
    (never a bare `mcp__github__merge_pull_request` or `gh pr merge`): it refuses unless the
    required checks succeeded and pins the merge to the head commit it evaluated with
    `--match-head-commit`, so a push landing after the green read is never merged unchecked
-   (3b106). The maintainer does not gate-keep merges of PRs they have personally authored.
+   (3b106). A grc_library_new PR merges ONLY through
+   `python3 tools/merge-grc-library-new.py <N>` (add `--dry-run` to run every check and stop
+   before the merge); `tools/merge-when-green.py` refuses grc_library_new, by `--repo` in any
+   spelling and by the PR URL gh reports, and names that tool (3b882). Before any merge call
+   the tool refuses unless: the PR's /validate-pr and /retro rows, each tagged
+   `[repo: grc_library_new]`, are in `validate-pr/history-grc_library_new.md` and
+   `improvement-log-grc_library_new.md` in the operational store; the admin-merge log there is
+   writable, has the expected header and ends in its table; no undispositioned `error` finding
+   is open (an unreadable ledger or check refuses); gh reports the PR OPEN on base `main` in
+   grc_library_new; the head is a 40-character lowercase hex SHA, which it pins; the title
+   ends with
+   `(CalVer <v>, README <v>)`; and the latest runs of "Repository quality checks" and "Pull
+   request attribution" on that head concluded success. It then squash-merges with an
+   explicit subject and body, `--match-head-commit` and `--admin`, and reads the merge commit
+   back: a trailer, a message that differs from the one sent, or a parent count other than one
+   exits 3 with `MERGED BUT`. It prints the admin-merge log row, PR cell
+   `#N [repo: grc_library_new]`, appends it to the log and reads it back; a failed append or
+   read-back exits 3 and prints the row to add by hand. The hook
+   `.claude/hooks/block-new-merge-outside-tool.py` refuses any other Bash command or
+   `mcp__github__merge_pull_request` call that names grc_library_new (or runs from a
+   grc_library_new clone) and mentions a pull-request merge. It matches text only, so it also
+   refuses commit messages, greps, echo and heredoc bodies that name both, and its refusal
+   names what it does not close (commands built at runtime, gh aliases, web UI merges, direct
+   pushes to main).
+   The maintainer does not gate-keep merges of PRs they have personally authored.
    **CORRECTED 2026-07-25 (codex deep-assessment M-04): a plain merge attempt does NOT
    resolve `mergeable_state: blocked`.** This file previously claimed it did; that was
    false against the live protection config, which requires one approval, so the plain
@@ -158,7 +182,13 @@ drive end-to-end on the maintainer's behalf:
    in flight, floors the window at the log's own oldest row, and counts a row by its
    PRESENCE whatever its Mechanism cell says, so a future plain merge is recorded honestly
    rather than forced to keep reading `--admin`. Write the row AFTER the merge from the
-   OBSERVED CI state, never in anticipation of one.
+   OBSERVED CI state, never in anticipation of one. The log is shared with grc_library_new
+   (3b882 decision D2): a PR cell of exactly `#N [repo: <name>]` counts for PR N of that
+   repository only, so a `#N [repo: grc_library_new]` row never counts as, or masks,
+   grc_library PR N, while a bare `#N` still means grc_library PR N. Check 6 requires rows for
+   grc_library PRs only. For a grc_library_new merge, `tools/merge-grc-library-new.py` writes
+   its row itself after the merge; add a row by hand only when the tool reports
+   `MERGED BUT the log row was not written` and prints the row.
 8. After merge: sync local `main`, delete the feature branch locally, confirm the
    remote branch is gone.
 9. After every merge (durable across sessions): consult the `## Up next` queue at the top of the
