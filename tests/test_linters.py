@@ -26144,6 +26144,10 @@ class PIIContentTests(LinterTestCase):
             ("Contact o'git@github.com here.\n", "git@github.com"),
             ("Contact alice!git@gitlab.com here.\n", "git@gitlab.com"),
             ("Contact a/git@github.com here.\n", "git@github.com"),
+            # 3b882 fix round 5 (round 4 claude F1): a non-ASCII character directly before
+            # git@ (U+2019, U+00BF) is reported too; before.isascii() keeps it so.
+            ("Contact \u2019git@github.com here.\n", "git@github.com"),
+            ("Contact \u00bfgit@github.com here.\n", "git@github.com"),
         ):
             with self.subTest(body=body):
                 fixture = self.make_fixture("standard-forge-narrow.md", VALID_METADATA + "\n\n" + body)
@@ -26157,7 +26161,8 @@ class PIIContentTests(LinterTestCase):
         engine = wrapper._engine()
         for line in ("jane@github.com here", "git@example.org here", "git@github.com.other.example here",
                      "o'git@github.com here", "alice!git@gitlab.com here", "a/git@github.com here",
-                     "x -git@github.com", "{git@gitlab.com}", "~git@github.com", "=git@gitlab.com"):
+                     "x -git@github.com", "{git@gitlab.com}", "~git@github.com", "=git@gitlab.com",
+                     "\u2019git@github.com here", "\u00bfgit@github.com here"):
             with self.subTest(line=line):
                 self.assertEqual(wrapper._forge_service_matches(engine, line), [])
         self.assertEqual(wrapper._forge_service_matches(engine, "ssh://git@github.com/x (git@gitlab.com)"),
@@ -45795,8 +45800,8 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint_common.py PASSIVE F c3f9567cb927a4a4599fc2704a690a93d145aef8edfa2a90eb660b246aadbedd
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
-        merge-grc-library-new.py NO_FS F 3a51445fbdbc3c6cdc77cfb557bcbb0c4ca935dcf9a386a84a3cc963affe0a88
-        merge-when-green.py NO_FS F b6e65eb3308a23c0f15923f82ede4bf9d1126e1dea6771402edb548a01802f17
+        merge-grc-library-new.py NO_FS F 3c7f95634cabcab5160122a1c5900b04f45082781415e85f039da6aa668e6d83
+        merge-when-green.py NO_FS F e9e37be72ea1b004c377a7f40af143ebc8d61ea7ed6e881f918faebc760328cf
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
         pre-push-guard.sh FIXED F e082e92fe082af59cee69da9d2a329dacf1cdf4e8e4d600f4c5b6fc2ce89dabf
@@ -62312,9 +62317,22 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
         ):
             with self.subTest(command=command):
                 self._allowed(command)
+        # 3b882 fix round 5 (round 4 claude F2): run from a grc_library_new clone, the relative
+        # tools/ path would run that clone's copy of the tool, so the sanctioned text refuses.
         for command in (self.SANCTIONED + " 33", self.SANCTIONED + " 33 --dry-run"):
-            with self.subTest(command=command, cwd="grc_library_new"):
-                self._allowed(command, cwd="/home/u/grc_library_new")
+            for cwd in ("/home/u/grc_library_new", "/home/u/grc_library_new/tools",
+                        "/home/u/GRC_Library_New"):
+                with self.subTest(command=command, cwd=cwd):
+                    self._refused(command, cwd=cwd)
+        source = self.HOOK.read_text(encoding="utf-8")
+        playbook = (REPO_ROOT / ".claude" / "playbooks" / "pr-lifecycle.md").read_text(encoding="utf-8")
+        playbook = " ".join(playbook.split())
+        for fragment in ("relative tools/ path would run that clone's copy of the tool",
+                         "the merge tool command run from a grc_library_new clone under another "
+                         "directory name"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, " ".join(source.replace('"\n    "', "").split()))
+                self.assertIn(fragment, playbook)
         self._allowed(dict(tool_name=self.MCP, tool_input=dict(
             owner="jposluns", repo="grc_library", pullNumber=3200)))
         self._allowed(dict(tool_name="Bash", tool_input=dict(command="gh pr view 33")),

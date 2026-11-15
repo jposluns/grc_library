@@ -9,7 +9,9 @@ Registered in .claude/settings.json twice: matcher Bash, and matcher
 mcp__github__merge_pull_request (decision D4).
 
 Rule (plan 3b882m section 4):
-  1. Allow when the raw Bash command fully matches the sanctioned pattern, ASCII only.
+  1. Allow when the raw Bash command fully matches the sanctioned pattern, ASCII only, and
+     the payload cwd does not name grc_library_new; exit 2 when it does, since the relative
+     tools/ path would run that clone's copy of the tool (3b882 fix round 5).
   2. Otherwise exit 2 when (a) the normalized text, or the payload cwd, names
      grc_library_new and (b) the normalized text matches one of the merge patterns.
   3. Every other input exits 0.
@@ -52,7 +54,9 @@ REASON = (
     "clone, and mentions a pull-request merge, an auto-merge (GraphQL "
     "enablePullRequestAutoMerge), a branch merge (GraphQL mergeBranch) or a REST "
     "repos/<owner>/<repo>/merges call is refused, including commit messages, greps, "
-    "echo and heredoc bodies. Residual not closed by this hook: commands built at runtime "
+    "echo and heredoc bodies. The merge tool command itself is refused when the payload cwd "
+    "names grc_library_new, since its relative tools/ path would run that clone's copy of "
+    "the tool. Residual not closed by this hook: commands built at runtime "
     "(command substitution, variables, base64, a script file run later, a Python subprocess "
     "call); shell quoting, backslash escapes or brace expansion that split a word (p and r "
     "split by empty quotes, a backslash inside merge, or a brace list inside the repository "
@@ -62,7 +66,9 @@ REASON = (
     "mergePullRequest by node id, an enablePullRequestAutoMerge or mergeBranch mutation by "
     "node id, a REST repositories/<id>/pulls/N/merge or repositories/<id>/merges call, or gh pr "
     "merge N from a grc_library_new clone under another directory name or from a clone "
-    "where gh repo set-default points at grc_library_new); a merge queue entry (GraphQL "
+    "where gh repo set-default points at grc_library_new); the merge tool command run from a "
+    "grc_library_new clone under another directory name, which runs that clone's copy of "
+    "the tool; a merge queue entry (GraphQL "
     "enqueuePullRequest), even one that names grc_library_new; GitHub completing an "
     "auto-merge enabled earlier (from the web UI or before this hook); "
     "MCP merge tools under other names; "
@@ -103,7 +109,7 @@ def decide(raw):
         if not isinstance(command, str):
             return False
         if SANCTIONED.fullmatch(command):
-            return False
+            return NEW in cwd
         text = normalize(command)
     else:
         parts = [tool] + [tool_input.get(k) for k in ("owner", "repo")]

@@ -161,7 +161,9 @@ drive end-to-end on the maintainer's behalf:
    `mcp__github__merge_pull_request` call that names grc_library_new (or runs from a
    grc_library_new clone) and mentions a pull-request merge, an auto-merge (a GraphQL
    `enablePullRequestAutoMerge`), a branch merge (a GraphQL `mergeBranch`) or a REST
-   `repos/<owner>/<repo>/merges` call. It matches text only, so it also
+   `repos/<owner>/<repo>/merges` call. It also refuses the merge tool command itself when
+   the payload cwd names grc_library_new, since its relative tools/ path would run that
+   clone's copy of the tool. It matches text only, so it also
    refuses commit messages, greps, echo and heredoc bodies that name both, and its refusal
    names what it does not close (commands built at runtime; shell quoting, backslash escapes or
    brace expansion that split a word, such as `p''r` or a brace list in the repository name;
@@ -172,7 +174,9 @@ drive end-to-end on the maintainer's behalf:
    `mergePullRequest`, `enablePullRequestAutoMerge` or `mergeBranch` by node id, a REST
    `repositories/<id>/pulls/N/merge` or `repositories/<id>/merges` call, or
    `gh pr merge N` from a grc_library_new clone under another directory name or from a clone
-   where `gh repo set-default` points at grc_library_new).
+   where `gh repo set-default` points at grc_library_new; and the merge tool command run
+   from a grc_library_new clone under another directory name, which runs that clone's copy
+   of the tool).
    The maintainer does not gate-keep merges of PRs they have personally authored.
    **CORRECTED 2026-07-25 (codex deep-assessment M-04): a plain merge attempt does NOT
    resolve `mergeable_state: blocked`.** This file previously claimed it did; that was

@@ -122,6 +122,7 @@ class FakeGh:
         runs = over.pop("runs", [run(QUALITY), run(ATTRIBUTION, run_id=43583397345)])
         self.runs = over.pop("runs_text", json.dumps({"total_count": len(runs), "workflow_runs": runs}))
         self.runs_error = over.pop("runs_error", None)
+        self.pages = over.pop("pages", None)
         self.merged = over.pop("merged", [{"state": "MERGED", "mergeCommit": {"oid": OID}}])
         self.message = over.pop("message", SUBJECT + "\n\n" + BODY)
         self.parents = over.pop("parents", [{"sha": "d" * 40}])
@@ -144,6 +145,12 @@ class FakeGh:
         if args[0] == "api" and "/actions/runs" in args[1]:
             if self.runs_error:
                 raise self.runs_error
+            if self.pages is not None:
+                found = re.search(r"[?&]page=([0-9]+)(?:&|$)", args[1])
+                index = int(found.group(1)) - 1 if found else 0
+                if not 0 <= index < len(self.pages):
+                    raise AssertionError(f"unexpected runs page {args[1]}")
+                return self.pages[index]
             return self.runs
         if args[0] == "api" and "/commits/" in args[1]:
             return json.dumps({"sha": OID, "commit": {"message": self.message},
@@ -489,7 +496,52 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         fake = FakeGh()
         self.merge(fake)
         api = [c for c in fake.calls if c[0] == "api" and "/actions/runs" in c[1]]
-        self.assertEqual(api, [["api", f"repos/{REPO}/actions/runs?head_sha={HEAD}&per_page=100"]])
+        self.assertEqual(api, [["api", f"repos/{REPO}/actions/runs?head_sha={HEAD}&per_page=100&page=1"]])
+
+    def test_D5_two_page_head_read_in_full(self):
+        # 3b882 fix round 5 (round 4 agy-A finding 1): a head with more runs than one page holds
+        # is read page by page until every run is read, then judged as one list.
+        first = [run("Other workflow", run_id=1000 + i) for i in range(99)] + [run(QUALITY, run_id=2000)]
+        second = [run(ATTRIBUTION, run_id=2001)]
+        fake = FakeGh(pages=[json.dumps({"total_count": 101, "workflow_runs": first}),
+                             json.dumps({"total_count": 101, "workflow_runs": second})])
+        code, out, err = self.merge(fake)
+        self.assertEqual(code, 0, err)
+        self.assertEqual(fake.merge_calls(), [MERGE_ARGV])
+        api = [c for c in fake.calls if c[0] == "api" and "/actions/runs" in c[1]]
+        self.assertEqual(api, [["api", f"repos/{REPO}/actions/runs?head_sha={HEAD}&per_page=100&page={n}"]
+                               for n in (1, 2)])
+        self.assertIn(f"{QUALITY} completed/success on {HEAD} (run 2000)", out)
+        self.assertIn(f"{ATTRIBUTION} completed/success on {HEAD} (run 2001)", out)
+
+    def test_D5_page_ending_early_or_inconsistent_refused_before_merge(self):
+        # 3b882 fix round 5 (round 4 agy-A finding 1): a page that ends before total_count is
+        # reached, or a malformed, over-full or inconsistent page, refuses with exit 2; part of
+        # the list is never judged, even when the runs read so far are green.
+        full = [run("Other workflow", run_id=1000 + i) for i in range(100)]
+        both = [run(QUALITY, run_id=1), run(ATTRIBUTION, run_id=2)]
+
+        def page(total, runs):
+            return json.dumps({"total_count": total, "workflow_runs": runs})
+        cases = {
+            "second page ends early": [page(201, full), page(201, both)],
+            "second page empty": [page(101, full), page(101, [])],
+            "first page ends early": [page(3, both)],
+            "total_count changes": [page(101, full), page(102, [run(QUALITY, run_id=1)])],
+            "more runs than total_count": [page(101, full), page(101, both)],
+            "run id repeated": [page(101, full), page(101, [run(QUALITY, run_id=1000)])],
+            "second page not JSON": [page(101, full), "<html>"],
+            "second page without a run list": [page(101, full), json.dumps({"total_count": 101})],
+            "second page total_count not an integer": [page(101, full), page("101", both[:1])],
+            "page holds more than per_page": [page(102, full + both)],
+        }
+        for name, pages in cases.items():
+            with self.subTest(case=name):
+                fake = FakeGh(pages=pages)
+                code, out, err = self.merge(fake)
+                self.assertEqual(code, 2, err)
+                self.assertEqual(fake.merge_calls(), [])
+                self.assertEqual(out, "")
 
     def test_D5_not_green_refused_before_merge(self):
         q = "Repository quality checks"
@@ -644,8 +696,11 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
     def test_open_findings_second_ledger_read_never_allows_a_merge(self):
         # codex MED 1: the ledger is read once and that text is judged. A second read that
         # raises PermissionError (merge-when-green's open_findings_block allows on any read
-        # error) must never let a merge through.
-        self.install_open_findings(OPEN_ERROR)
+        # error) must never decide a merge. 3b882 fix round 5 (round 4 agy-B): the ledger is
+        # clean, so the first read alone allows and only a second read could take part; the
+        # tool must read it exactly once (an open ledger refused on the first read, so the old
+        # case passed whether or not a second read happened).
+        self.install_open_findings(FIXED_ERROR)
         real = Path.read_text
         reads = []
 
@@ -661,11 +716,10 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 fake = FakeGh()
                 with mock.patch.object(Path, "read_text", autospec=True, side_effect=read_text):
                     code, out, err = self.merge(fake, dry_run=dry_run)
-                self.assertNotEqual(code, 0, err)
-                self.assertEqual(fake.merge_calls(), [])
-                self.assertEqual(fake.calls, [])
                 self.assertEqual(len(reads), 1, reads)
-                self.assertIn("a live defect", err)
+                self.assertEqual(code, 0, err)
+                self.assertNotIn("Permission denied", err)
+                self.assertEqual(fake.merge_calls(), [] if dry_run else [MERGE_ARGV])
 
     def test_open_findings_parse_failure_refuses_before_any_gh_call(self):
         # codex MED 1: a ledger the hook cannot parse refuses (merge-when-green allows it).

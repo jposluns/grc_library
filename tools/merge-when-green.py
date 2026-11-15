@@ -728,7 +728,9 @@ def _self_test() -> int:
     crw = lambda n, s, c: dict(cr(n, s, c), workflowName=REQUIRED_WORKFLOWS.get(n))
     rollups = {
         "skipped": [crw(lint, "COMPLETED", "SKIPPED")] + [crw(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS[1:]],
-        "green": [crw(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS],
+        # 3b882 fix round 5 (round 4 agy-A finding 2): the green rollup also carries a check
+        # named Custom check, so require-custom-present shows a custom name accepted.
+        "green": [crw(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS + ("Custom check",)],
         # 3b105 QA r1: main() must hand the workflow map to evaluate(); these pass on names alone.
         "foreign": [dict(cr(n, "COMPLETED", "SUCCESS"), workflowName="Other") for n in REQUIRED_CHECKS],
         "no-workflow": [cr(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS],
@@ -766,8 +768,8 @@ def _self_test() -> int:
         # --require replaces the list and must be enforced; --require-none must reach evaluate() as ()
         # (3b104 QA r3): a custom name missing from a green rollup refuses, and require-none passes it.
         globals()["gh"] = lambda *a: view(rollups["green"], fields=json_arg(a))
-        for label, flags, want_rc in (("require-custom-missing", ["--require", "Custom check"], 1),
-                                      ("require-custom-present", ["--require", lint], 0)):
+        for label, flags, want_rc in (("require-custom-missing", ["--require", "Absent check"], 1),
+                                      ("require-custom-present", ["--require", "Custom check"], 0)):
             with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
                 rc = main(["merge-when-green.py", "1", "--dry-run", *flags])
             checks.append((f"main-{label}", rc == want_rc))

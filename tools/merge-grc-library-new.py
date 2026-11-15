@@ -426,6 +426,62 @@ def message_trailers(message: str) -> list[str]:
     return found
 
 
+RUNS_PER_PAGE = 100
+RUNS_MAX_PAGES = 50
+
+
+def read_runs(head: str, gh) -> tuple[int, list[str], str]:
+    """Decision D5: every page of ``actions/runs?head_sha=<head>``, RUNS_PER_PAGE runs a page
+    (3b882 fix round 5: a head with more runs than one page holds is read in full), joined into
+    one ``{"total_count", "workflow_runs"}`` JSON text for ci_check(). ``(0, [], text)`` once
+    the runs read reach total_count; ``(2, [problem], "")`` when a page cannot be read, is not a
+    list of run objects with a non-negative integer total_count, holds more than RUNS_PER_PAGE
+    runs, reports a total_count other than page 1's, repeats a run id, brings the runs read past
+    total_count, ends early (fewer than RUNS_PER_PAGE runs before total_count is reached) or
+    when RUNS_MAX_PAGES pages do not reach total_count. A short or inconsistent read refuses;
+    part of the list is never judged."""
+    runs, ids, total = [], set(), None
+    for page in range(1, RUNS_MAX_PAGES + 1):
+        where = f"Actions runs for {head} page {page}"
+        try:
+            text = gh("api", f"repos/{MERGE_REPO}/actions/runs?head_sha={head}"
+                             f"&per_page={RUNS_PER_PAGE}&page={page}")
+        except (subprocess.CalledProcessError, OSError) as exc:
+            return 2, [f"{where} unreadable: {_describe(exc)}"], ""
+        try:
+            data = json.loads(text)
+        except json.JSONDecodeError as exc:
+            return 2, [f"{where} unreadable: {exc}"], ""
+        listed = data.get("workflow_runs") if isinstance(data, dict) else None
+        if not isinstance(listed, list) or not all(isinstance(r, dict) for r in listed):
+            return 2, [f"{where} unreadable: no list of run objects"], ""
+        count = data.get("total_count")
+        if not isinstance(count, int) or isinstance(count, bool) or count < 0:
+            return 2, [f"{where} unreadable: total_count {count!r}"], ""
+        if total is None:
+            total = count
+        elif count != total:
+            return 2, [f"{where} inconsistent: total_count {count}, page 1 gave {total}"], ""
+        if len(listed) > RUNS_PER_PAGE:
+            return 2, [f"{where} malformed: {len(listed)} runs, more than {RUNS_PER_PAGE}"], ""
+        for r in listed:
+            run_id = r.get("id")
+            if isinstance(run_id, int) and not isinstance(run_id, bool):
+                if run_id in ids:
+                    return 2, [f"{where} inconsistent: run {run_id} listed twice"], ""
+                ids.add(run_id)
+        runs.extend(listed)
+        if len(runs) > total:
+            return 2, [f"{where} inconsistent: {len(runs)} runs read, total_count {total}"], ""
+        if len(runs) == total:
+            return 0, [], json.dumps({"total_count": total, "workflow_runs": runs})
+        if len(listed) < RUNS_PER_PAGE:
+            return 2, [f"{where} incomplete: the page ended after {len(listed)} runs with "
+                       f"{len(runs)} of total_count {total} read"], ""
+    return 2, [f"Actions runs for {head} incomplete: {len(runs)} of total_count {total} read "
+               f"in {RUNS_MAX_PAGES} pages"], ""
+
+
 def ci_check(text: str, head: str) -> tuple[int, list[str], dict]:
     """Decision D5 on the ``actions/runs?head_sha=`` JSON: ``(0, [], {name: run id})`` when the
     latest ``pull_request`` run on ``head`` of every required workflow, from its own file in
@@ -592,11 +648,11 @@ def run_merge(pr: int, *, root: Path, gh, dry_run: bool = False, sleep=time.slee
         for line in problems:
             err(f"REFUSED: {line}")
         return 1
-    try:
-        runs_text = gh("api", f"repos/{MERGE_REPO}/actions/runs?head_sha={head}&per_page=100")
-    except (subprocess.CalledProcessError, OSError) as exc:
-        err(f"REFUSED: Actions runs for {head} unreadable: {_describe(exc)}")
-        return 2
+    read_code, read_lines, runs_text = read_runs(head, gh)
+    if read_code:
+        for line in read_lines:
+            err(f"REFUSED: {line} (decision D5)")
+        return read_code
     ci_code, ci_lines, green = ci_check(runs_text, head)
     if ci_code:
         for line in ci_lines:
