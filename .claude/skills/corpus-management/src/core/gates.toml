@@ -125,7 +125,7 @@ title = "Standards-currency audit"
 source = "tools/gate_lint_standards_currency.py"
 enforces = "standards-currency"
 entry_point = ".claude/skills/corpus-management/tools/lint-standards-currency.py"
-origin = "grc_library gate 6; pack engine owns legacy stale detection plus register-independent citation discovery, comparison and reporting. The project wrapper owns strict register parsing, roots, exclusions, evidence-backed pin exceptions and CLI. The gate defaults to report: only legacy Markdown stale findings block; coverage and newly discovered findings are advisory."
+origin = "grc_library gate 6; pack engine owns legacy stale detection plus register-independent citation discovery, comparison and reporting. The project wrapper owns strict register parsing, roots, exclusions, evidence-backed pin exceptions and CLI. The gate defaults to report mode, in which a run blocks only on a legacy Markdown stale finding, an INVALID_EXCEPTION (a historical exception row that does not bind, which blocks in every mode) or, in a default-scope run, a failing UNPINNED ratchet line; coverage and newly discovered findings are advisory. Register, input and ratchet-base errors also fail the run (the wrapper's Exit codes list gives each status)."
 
 [[gates]]
 id = "lint-directional-dependency"

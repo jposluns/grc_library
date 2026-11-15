@@ -58413,10 +58413,9 @@ class TodoNumberPermanenceTests(LinterTestCase):
         return mod
 
     def test_pid_retired_recycle_flagged(self) -> None:
-        # Positive control: a replay of the recycled P-3.247 incident. A LIVE
-        # private-list P-id whose number DONE.md retired must be flagged; in the
-        # earlier repository, before the P_RETIRED_RE pass, this was a silent
-        # false-negative.
+        # Positive control: a private-list P-id whose number DONE.md has retired is
+        # reused for a new LIVE item and must be flagged; in the earlier repository,
+        # before the P_RETIRED_RE pass, this was a silent false-negative.
         root, result = self._run(
             "perm-pid-recycle",
             "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n",
