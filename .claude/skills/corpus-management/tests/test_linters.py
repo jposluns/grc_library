@@ -900,9 +900,8 @@ class LanguageLinterTests(LinterTestCase):
         # A capitalized sentence glued to a path-less host, prose after "~~"
         # and a bracketed authority that is not an IPv6 literal are outside
         # the token and still flagged. At an invalid percent escape ("%GG")
-        # the token stops before the percent sign, so the prose glued after
-        # the URL begins with the invalid escape text (GG) and is still
-        # flagged as "GGorganisations".
+        # the token stops before the percent sign, so the glued text
+        # begins with %GG and the flagged word is "GGorganisations".
         for index, (body, word) in enumerate((
                 ("See https://ico.org.uk.Organisations must register.\n", "Organisations"),
                 ("See ~~https://x.org/a~~organisations here.\n", "organisations"),
@@ -43243,7 +43242,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-length-on-pr.py NO_FS F 91c9308103f36414f1975e2233cd82644551ca4a3996c4a2b9310b437004434a
         check-changelog-on-pr.py NO_FS F 00fa478d33343ae5d955e3faa7f99d9c61c6cda6f7a5e414dfcaf6ec6f7bf25b
         check-changelog-preflight-commit.py NO_FS F 9ec0a028e7e916fdfa542f6688b909b08a1c69fe66b3a7cb82d979689885f978
-        check-class-completeness.py NO_FS F a692cd9423f597117eef7664a33ee9606b650ef6577affe67630e5cfd36c131a
+        check-class-completeness.py NO_FS F 73b08c1b5a3c539010e3fa016d9f1d8d6f7e3fb8d795ba38ea6998c998d0e538
         check-claude-md-size.py NO_FS F 5f0c8e37d4a1b36a6be924354a6cdfca69a4ba5498e77cee52012ccefc99764b
         check-clause-preservation.py OWN F 96d156bb17eb92ea45d096dae64345313ba8962de62b38a413a988aa7f8c8737
         check-clean-language-upstream.py NO_FS F 68e539ea645383d29ec9ded3cb44012af2afcfc78f820c172070a8c492665159
@@ -43348,7 +43347,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-todo-index-reference-parity.py OWN F 46ffb499a50fa6b5d64ac594776e5a26ad4e3c696fc48d8b5e4fc8b4646a2b22
         lint-todo-list-tag.py OWN F 10ee5371268378b28c9097a588515231d625ab63b5e5b1b9f3533f4d85db9b2d
         lint-todo-marked-done.py ROOT F 9d5f28f83917e26a4cd0bffde756fded4a2bf4259b809472bc1757a6dbc1b212
-        lint-todo-number-permanence.py OWN F 3490a75e4d2ee2ea0e446cdbd0f9e31af048e3ce7796def689725cef7b906bc3
+        lint-todo-number-permanence.py OWN F 7f9a8b614f3637dc9465ec9f60d08a5743125a9c940dd6cc87909c781c50e0b7
         lint-todo-staleness.py NO_FS F 6a89123607678239f036cab7bf02e0a0885216f55ba0b23fb53799e30c40cffb
         lint-tooling-backlog-refs.py OWN F be54fcdef171bc30e7d0393ca2c097904f464cad7bde9a233f7ee663edd741a5
         lint-tooling-provenance-freshness.py OWN F ab5b885be8a4a7af28e6c441ea4439cc32ce553a6167946ec40d49f50f0f6b02
@@ -80489,8 +80488,8 @@ class ToolingBacklogRefsTests(LinterTestCase):
                     self.assertIn(f"{form!r} points at 3.99", result.stdout)
 
     def test_generated_data_bare_section_not_reported(self) -> None:
-        # GUARD: before and after the change, in the generated files
-        # only the bare section form is set aside, because the copied
+        # GUARD: in the generated files only the bare section form is
+        # set aside, because the copied
         # metadata cites sections of the documents it describes (design
         # note 12); a bare section 8.9 there is not a finding.
         for rel, shape in self.GENERATED_FIXTURES:
@@ -80566,8 +80565,8 @@ class ToolingBacklogRefsTests(LinterTestCase):
                     self.assertNotIn("3.99", result.stdout)
 
     def test_scanned_data_file_bare_section_reported(self) -> None:
-        # GUARD: before and after the change, the bare section form is
-        # set aside only in the generated files; in the hand-maintained
+        # GUARD: the bare section form is set aside only in the
+        # generated files; in the hand-maintained
         # relationship-model-source.json beside them it is still a finding.
         root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_P_TODO)
         self.write_extra(
@@ -80579,8 +80578,8 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertIn("'section 3.98' points at 3.98", result.stdout)
 
     def test_generated_data_paths_match_generator_constants(self) -> None:
-        # GUARD: before and after the change, GENERATED_DATA_PATHS is
-        # exactly the two generators' write targets, read from their own
+        # GUARD: GENERATED_DATA_PATHS is exactly the two generators'
+        # write targets, read from their own
         # constants (build-taxonomy.py TAXONOMY, build-narrative-registry.py
         # REGISTRY_NAME), so a moved or renamed output fails here.
         gate = load_linter_module(self.GATE, "tbr_generated_paths")
@@ -80612,8 +80611,8 @@ class ToolingBacklogRefsTests(LinterTestCase):
                 self.assertIn("'section 3.99' points at 3.99", result.stdout)
 
     def test_gfm_section_cue_not_flagged(self) -> None:
-        # GUARD: before and after the change, a GFM section cue is not
-        # flagged. Design note 5: GFM names
+        # GUARD: a GFM section cue is not flagged. Design note 5: GFM
+        # names
         # an external specification, so its section number next to the cue
         # is not a backlog pointer (the citation at
         # gate_lint_metadata_line_breaks.py, GFM 0.29 section 6.10).

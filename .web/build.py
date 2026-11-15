@@ -4164,7 +4164,7 @@ def _adopter_metadata(text, rel):
 
 def _adopter_first_paragraph(lines):
     """First real prose paragraph, skipping sub-headings, stopping at the next
-    top-level section or a horizontal rule."""
+    second-level section (a ``## `` heading) or a horizontal rule."""
     para = []
     for nxt in lines:
         st = nxt.strip()
@@ -8867,11 +8867,10 @@ def render_crosswalk_rail(xw, current=None, instrument=None):
     one view per topic, then every instrument under its group, the "Also
     in the corpus" instruments included, each linking its page. Every view
     is a plain link to the page that shows it, and the current page's view
-    is marked. Maintainer defect report 2026-11-04 20:10 EST: as matrix.js
-    presets the view links switched columns in place while the matrix sat
-    below the fold at every width, so a rail click changed nothing the
-    visitor could see; the rail now navigates to the static view pages and
-    the crosswalk page loads no matrix script. The instrument pages carry
+    is marked. The rail navigates to the static view pages and the
+    crosswalk page loads no matrix script: the matrix sits below the fold
+    at every width, so view links that switched columns in place would
+    change nothing the visitor could see. The instrument pages carry
     the same rail with ``instrument`` set: the hub and views offered the
     sideways paths that an instrument page then dropped,
     so the rail renders there too, its own instrument marked current and no
@@ -9064,12 +9063,9 @@ def _xw_register_block(inst, row):
     The record renders in the main column, never as a ``side`` record:
     the baseline rule ``.doc > .side { grid-column: 1; grid-row: span 7 }``
     (baseline.css) puts a side record in the label column, and the section
-    label that follows it here is a label-column item too, so it had to
-    clear the whole 7-row span and the main column sat empty for the
-    record's full height under the lead (maintainer defect report
-    2026-11-04 20:11 EST: "a massive gap below the first sentence" on
-    /crosswalk/mitre-atlas/, and the same gap on every instrument page
-    with a register row)."""
+    label that follows it here is a label-column item too, so it would
+    clear the whole 7-row span and leave the main column empty for the
+    record's full height under the lead."""
     if row is None:
         return (
             "<p>The canonical citations register carries no row for this "
