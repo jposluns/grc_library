@@ -12811,14 +12811,15 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         # D12 compares against the PR's merge base, as the specification says,
         # not against the base itself. Each fixture forks feat from a base
         # whose floor is 32, then main moves on and origin/main follows, so
-        # feat is stale. A change and its revert (P14a) or an empty commit
-        # (P14b) changed nothing since the fork, and a head AT the fork point
-        # (P14c, the wrong-clone shape) selects nothing, so each refuses (exit
-        # 2), as D1 refuses the same ranges. A README-only branch after main
-        # raised the floor (P14d) did not lower it, so it gets the monotonic
-        # OK against the fork point's floor. In the earlier repository every
-        # run compared with origin/main itself: P14a and P14c printed the
-        # monotonic OK (exit 0), and P14b and P14d the false FAIL
+        # feat is stale. A change and its revert or an empty commit changed
+        # nothing since the fork, and a head AT the fork point (the
+        # wrong-clone shape) selects nothing, so each refuses (exit 2), as D1
+        # refuses the same ranges. A README-only branch after main raised the
+        # floor did not lower it, so it gets the monotonic OK against the
+        # fork point's floor. In the earlier repository every run compared
+        # with origin/main itself: the change and revert and the head at the
+        # fork point printed the monotonic OK (exit 0), and the empty commit
+        # and the README-only branch the false FAIL
         # "floor decreased 33 -> 32" (exit 1), in both forms.
         def change_and_revert(git, tmp, floor):
             floor.write_text('{"2": 33}\n', encoding="utf-8")
@@ -12838,13 +12839,13 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         argless_empty = "shows no tracked change against the merge base"
         monotonic = "is monotonic vs the floor at the merge base"
         for probe, build, main_raises_floor, rc, named_phrase, argless_phrase in (
-            ("P14a change and revert", change_and_revert, False, 2,
+            ("change and revert", change_and_revert, False, 2,
              "no files changed", argless_empty),
-            ("P14b empty commit", empty_commit, True, 2,
+            ("empty commit", empty_commit, True, 2,
              "no files changed", argless_empty),
-            ("P14c head at the fork point", at_fork, False, 2,
+            ("head at the fork point", at_fork, False, 2,
              "is an ancestor of base", argless_empty),
-            ("P14d README only", readme_only, True, 0, monotonic, monotonic),
+            ("README only", readme_only, True, 0, monotonic, monotonic),
         ):
             for form in ("named", "argless"):
                 with self.subTest(probe=probe, form=form):
@@ -25844,20 +25845,20 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     # repository each was neither compared nor failed, so the gate passed comparing only #1.
     # The mirror-side leading-space probe and the pre-epoch probes are separate tests.
     NEW_TRIPLE_PROBES = (
-        ("S1 leading space", " **2026-11-10 | 2026.12.2 | PR #2**"),
-        ("S2 level 1", "# 2026-11-10, Library Version 2026.12.2, PR #2"),
-        ("S3 level 3", "### 2026-11-10, Library Version 2026.12.2, PR #2"),
-        ("S4 tab after ##", "##\t2026-11-10, Library Version 2026.12.2, PR #2"),
-        ("S5 underscore bold", "__2026-11-10 | 2026.12.2 | PR #2__"),
-        ("S6 star bullet", "* **2026-11-10 | 2026.12.2 | PR #2**"),
-        ("S7 plus bullet", "+ **2026-11-10 | 2026.12.2 | PR #2**"),
-        ("S8 numbered item", "1. **2026-11-10 | 2026.12.2 | PR #2**"),
-        ("S9 quote", "> **2026-11-10 | 2026.12.2 | PR #2**"),
-        ("S10 setext", "2026-11-10, Library Version 2026.12.2, PR #2\n" + "-" * 44),
-        ("S11 BOM", "\ufeff**2026-11-10 | 2026.12.2 | PR #2**"),
-        ("S13 doubled bold", "** **2026-11-10 | 2026.12.2 | PR #2**"),
-        ("S14 Pr label", "**2026-11-10 | 2026.12.2 | Pr #2**"),
-        ("S18 no-break space after ##", "##\u00a02026-11-10, Library Version 2026.12.2, PR #2"),
+        ("leading space", " **2026-11-10 | 2026.12.2 | PR #2**"),
+        ("level 1", "# 2026-11-10, Library Version 2026.12.2, PR #2"),
+        ("level 3", "### 2026-11-10, Library Version 2026.12.2, PR #2"),
+        ("tab after ##", "##\t2026-11-10, Library Version 2026.12.2, PR #2"),
+        ("underscore bold", "__2026-11-10 | 2026.12.2 | PR #2__"),
+        ("star bullet", "* **2026-11-10 | 2026.12.2 | PR #2**"),
+        ("plus bullet", "+ **2026-11-10 | 2026.12.2 | PR #2**"),
+        ("numbered item", "1. **2026-11-10 | 2026.12.2 | PR #2**"),
+        ("quote", "> **2026-11-10 | 2026.12.2 | PR #2**"),
+        ("setext", "2026-11-10, Library Version 2026.12.2, PR #2\n" + "-" * 44),
+        ("BOM", "\ufeff**2026-11-10 | 2026.12.2 | PR #2**"),
+        ("doubled bold", "** **2026-11-10 | 2026.12.2 | PR #2**"),
+        ("Pr label", "**2026-11-10 | 2026.12.2 | Pr #2**"),
+        ("no-break space after ##", "##\u00a02026-11-10, Library Version 2026.12.2, PR #2"),
         ("tab before bold", "\t**2026-11-10 | 2026.12.2 | PR #2**"),
         ("no-break space before bold", "\u00a0**2026-11-10 | 2026.12.2 | PR #2**"),
         ("indented list item", "  - **2026-11-10 | 2026.12.2 | PR #2**"),
@@ -26002,27 +26003,27 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     # rather than from a quoted line (the bold date with "### " or "  - " in front, and the
     # "Also:" list).
     ROOT_NEW_PROBES = (
-        ("M1 bold date only", "* **2026-11-10** | 2026.11.67 | PR #2"),
-        ("M1 bold date only, level 3", "### **2026-11-10** | 2026.11.67 | PR #2"),
-        ("M1 bold date only, indented item", "  - **2026-11-10** | 2026.11.67 | PR #2"),
-        ("M1 linked PR cell", "* **2026-11-10 | 2026.11.67 | [PR #2](https://example.invalid/pull/2)**"),
-        ("M1 hyphen joints", "### 2026-11-10 - Library Version 2026.11.67 - PR #2"),
-        ("M1 em dash joints", "* 2026-11-10 — 2026.11.67 — PR #2"),
-        ("M1 code spans", "* `2026-11-10` | `2026.11.67` | PR #2"),
-        ("M1 parenthesized PR", "### 2026-11-10, Library Version 2026.11.67 (PR #2)"),
-        ("M1 PR before version", "### 2026-11-10, PR #2, Library Version 2026.11.67"),
-        ("M1 month-name date", "### 10 Nov 2026, Library Version 2026.11.67, PR #2"),
-        ("M1 v prefix", "**2026-11-10 | v2026.11.67 | PR #2**"),
-        ("M1 Pull request label", "**2026-11-10 | 2026.11.67 | Pull request #2**"),
-        ("M1 (#N) cell", "**2026-11-10 | 2026.11.67 | (#2)**"),
-        ("M1 bracketed date", "**[2026-11-10] | 2026.11.67 | PR #2**"),
-        ("M1 Version: label", "### 2026-11-10, Version: 2026.11.67, PR #2"),
-        ("M1 semicolons", "**2026-11-10; 2026.11.67; PR #2**"),
-        ("M1 timestamp", "**2026-11-10T12:00Z | 2026.11.67 | PR #2**"),
-        ("M1 pre-release version", "**2026-11-10 | 2026.11.67-rc1 | PR #2**"),
-        ("M1 zero-width space", "\u200b**2026-11-10 | 2026.11.67 | PR #2**"),
-        ("M2 PR first, cells", "**PR #2** | 2026-11-10 | 2026.11.67"),
-        ("M2 PR first, list item", "- **PR #2:** 2026-11-10, Library Version 2026.11.67"),
+        ("bold date only", "* **2026-11-10** | 2026.11.67 | PR #2"),
+        ("bold date only, level 3", "### **2026-11-10** | 2026.11.67 | PR #2"),
+        ("bold date only, indented item", "  - **2026-11-10** | 2026.11.67 | PR #2"),
+        ("linked PR cell", "* **2026-11-10 | 2026.11.67 | [PR #2](https://example.invalid/pull/2)**"),
+        ("hyphen joints", "### 2026-11-10 - Library Version 2026.11.67 - PR #2"),
+        ("em dash joints", "* 2026-11-10 — 2026.11.67 — PR #2"),
+        ("code spans", "* `2026-11-10` | `2026.11.67` | PR #2"),
+        ("parenthesized PR", "### 2026-11-10, Library Version 2026.11.67 (PR #2)"),
+        ("PR before version", "### 2026-11-10, PR #2, Library Version 2026.11.67"),
+        ("month-name date", "### 10 Nov 2026, Library Version 2026.11.67, PR #2"),
+        ("v prefix", "**2026-11-10 | v2026.11.67 | PR #2**"),
+        ("Pull request label", "**2026-11-10 | 2026.11.67 | Pull request #2**"),
+        ("(#N) cell", "**2026-11-10 | 2026.11.67 | (#2)**"),
+        ("bracketed date", "**[2026-11-10] | 2026.11.67 | PR #2**"),
+        ("Version: label", "### 2026-11-10, Version: 2026.11.67, PR #2"),
+        ("semicolons", "**2026-11-10; 2026.11.67; PR #2**"),
+        ("timestamp", "**2026-11-10T12:00Z | 2026.11.67 | PR #2**"),
+        ("pre-release version", "**2026-11-10 | 2026.11.67-rc1 | PR #2**"),
+        ("zero-width space", "\u200b**2026-11-10 | 2026.11.67 | PR #2**"),
+        ("PR first, cells", "**PR #2** | 2026-11-10 | 2026.11.67"),
+        ("PR first, list item", "- **PR #2:** 2026-11-10, Library Version 2026.11.67"),
         ("single linked PR cell", "* **2026-11-10 | 2026.11.67 | [PR #2](../../pull/2)**"),
     )
 
@@ -26215,12 +26216,12 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         result = self._parity_run(same, same + "**Week of 2026-11-02 (PRs #1-#2)** Summary.\n")
         self.assertEqual(result.returncode, 0, result.stdout)
 
-    # Intro lines holding a PR identity or a version (I1 to I7).
+    # Intro lines holding a PR identity or a version.
     INTRO_PROBES = (
-        ("I1", "PR #2 shipped Library Version 2026.11.67 on 10 November 2026.", False),
-        ("I2", "PR #2 | 2026.11.67 | 2026.11.10", False),
-        ("I3", "PR #3127 | 2026.06.9 | 21 Jun 2026", True),
-        ("I5", "Version 2026.11.67, PR #2, merged 2026.11.10.", False),
+        ("shipped sentence", "PR #2 shipped Library Version 2026.11.67 on 10 November 2026.", False),
+        ("PR, version, dotted date", "PR #2 | 2026.11.67 | 2026.11.10", False),
+        ("old PR, version, date", "PR #3127 | 2026.06.9 | 21 Jun 2026", True),
+        ("version, PR, merged date", "Version 2026.11.67, PR #2, merged 2026.11.10.", False),
         ("qx new", "November 10, 2026 | 2026.11.67 | PR #2", False),
         ("qx old", "November 7, 2026 | 2026.11.65 | PR #3127", True),
         ("version only", "Versions follow 2026.11.66 and later.", False),
@@ -26243,7 +26244,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 else:
                     self.assertIn(f"line 3 ({intro!r})", result.stdout)
                     self.assertIn("**YYYY-MM-DD | X.Y.Z | PR #N** at column 0", result.stdout)
-        # I7 (a second intro line) and I4 (2 such lines).
+        # A second intro line, and two such lines.
         for intro, linenos in (("This file records changes.\nLatest: PR #2 at 2026.11.67.", (4,)),
                                ("PR #2 | 2026.11.67 | 2026.11.10\nPR #3 | 2026.11.68 | 2026.11.11",
                                 (3, 4))):
@@ -26252,7 +26253,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 self.assertEqual(result.returncode, 1, result.stdout)
                 for lineno in linenos:
                     self.assertIn(f"line {lineno} ('", result.stdout)
-        # I6: the old record in both files fails in both.
+        # The old record in both files fails in both.
         line = "PR #3127 | 2026.06.9 | 21 Jun 2026"
         result = self._parity_run("# Changelog\n\n" + line + "\n\n" + same, same + line + "\n")
         self.assertEqual(result.returncode, 1, result.stdout)
@@ -73987,7 +73988,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
 class BlockingHookMessageContractTests(unittest.TestCase):
     """Per-rendered-message refusal inventory and contract."""
 
-    P = "/__p195__/grc_library"
+    P = "/__hook_contract__/grc_library"
     SHIPPED_HOOKS = ("block-branch-to-main-edit", "block-bulk-git-add",
                      "block-repeated-tool-failure", "block-unbumped-version-commit",
                      "block-verification-pipes")
@@ -74207,8 +74208,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     return spy
 
                 stack.enter_context(patch.dict(os.environ, {
-                    "CLAUDE_PROJECT_DIR": self.P, "GRC_DROP_ROOT": "/__p195__/drop",
-                    "GRC_STORE": "/__p195__/private", "HOME": "/__p195__/home",
+                    "CLAUDE_PROJECT_DIR": self.P, "GRC_DROP_ROOT": "/__hook_contract__/drop",
+                    "GRC_STORE": "/__hook_contract__/private", "HOME": "/__hook_contract__/home",
                     "PATH": "/usr/bin:/bin",
                 }, clear=True))
                 p(sys, "dont_write_bytecode", True)
@@ -74249,7 +74250,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 m(common, "resolve_working", None)  # also covers import-time HELD_FILE
                 state = importlib.import_module("_hook_state")
                 recorder = m(state, "record_block", None)
-                mod = load_linter_module(script, "_p195_" + hook.replace("-", "_"))
+                mod = load_linter_module(script, "_hook_contract_" + hook.replace("-", "_"))
                 self.assertEqual(mod.__file__, filename)
                 p(Path, "resolve", lambda path, **kw: Path(os.path.abspath(path)))
                 p(sys, "stdout", stdout)
@@ -74778,7 +74779,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
 
         def render(text, **kwargs):
             namespace = {}
-            exec(compile(text, "<p195-synthetic>", "exec"), namespace)
+            exec(compile(text, "<hook-contract-synthetic>", "exec"), namespace)
             return namespace["main"](**kwargs)
 
         self.assertEqual(render(source), render(changed_docs))
@@ -82344,17 +82345,17 @@ class GitReadFailsClosedTests(unittest.TestCase):
         head_main, origin_main = f"cannot read HEAD ({main}): ", f"cannot read {origin}: "
         listing = "git lists it, or cannot list every ref (git for-each-ref exited {})"
         fixtures = []
-        repo = regressed("A4a-packed-head-39-hex")
+        repo = regressed("packed-head-39-hex")
         pack(repo, line_of(main, lambda line: line[1:]))
         fixtures.append((repo, head_main + listing.format(128)))
-        repo = regressed("A4b-packed-head-39-hex-no-header")
+        repo = regressed("packed-head-39-hex-no-header")
         edit = line_of(main, lambda line: line[1:])
         pack(repo, lambda lines: [line for line in edit(lines) if not line.startswith("#")])
         fixtures.append((repo, head_main + listing.format(128)))
-        repo = feature("A4c-packed-origin-39-hex")
+        repo = feature("packed-origin-39-hex")
         pack(repo, line_of(origin, lambda line: line[1:]))
         fixtures.append((repo, origin_main + listing.format(128)))
-        repo = regressed("A4e-packed-unsorted")
+        repo = regressed("packed-unsorted")
         self.git(repo, "tag", "a")
         self.git(repo, "tag", "b")
         # The header still claims sorted, so git's lookup bisects and misses the moved line.
@@ -82362,24 +82363,24 @@ class GitReadFailsClosedTests(unittest.TestCase):
                                   + [line for line in lines if line.endswith(f" {main}\n")]))
         self.assertIn("sorted", (repo / ".git" / "packed-refs").read_text(encoding="ascii"))
         fixtures.append((repo, head_main + listing.format(0)))
-        repo = feature("A4f-packed-origin-trailing-junk")
+        repo = feature("packed-origin-trailing-junk")
         pack(repo, line_of(origin, lambda line: line[:-1] + " junk\n"))
         fixtures.append((repo, origin_main + listing.format(0)))
-        repo = regressed("A5a-dangling-head-symlink-over-packed")
+        repo = regressed("dangling-head-symlink-over-packed")
         pack(repo)
         dangle(repo, main)
         fixtures.append((repo, head_main + listing.format(0)))
-        repo = regressed("A5b-dangling-head-symlink")
+        repo = regressed("dangling-head-symlink")
         dangle(repo, main)
         fixtures.append((repo, head_main + os.path.join(".git", main) + " exists"))
-        repo = feature("A5c-dangling-origin-symlink")
+        repo = feature("dangling-origin-symlink")
         dangle(repo, origin)
         fixtures.append((repo, origin_main + os.path.join(".git", origin) + " exists"))
-        repo = feature("A6a-loose-file-over-packed-origin")
+        repo = feature("loose-file-over-packed-origin")
         pack(repo)
         shadow(repo, "refs/remotes/origin")
         fixtures.append((repo, origin_main + listing.format(0)))
-        repo = regressed("A6b-loose-file-over-packed-head", branch="feature/x")
+        repo = regressed("loose-file-over-packed-head", branch="feature/x")
         pack(repo)
         shadow(repo, "refs/heads/feature")
         fixtures.append((repo, "cannot read HEAD (refs/heads/feature/x): " + listing.format(0)))

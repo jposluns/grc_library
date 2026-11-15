@@ -6528,7 +6528,7 @@ def draft_search_values(full_docs, adopter_docs):
 
 
 def draft_documents_values(full_docs):
-    """The full document index (design A PR A3, design B section 4 without a
+    """The full document index (design A, design B section 4 without a
     template change): every non-root corpus document, one row each in title
     order, filtered on the page by the baseline search.js. Type and area are
     search.js facet groups (spec 7.29; All Documents

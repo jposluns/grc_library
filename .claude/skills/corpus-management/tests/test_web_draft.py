@@ -9782,14 +9782,13 @@ class DraftSiteRenderTests(unittest.TestCase):
         build passing with the paragraph's status.
 
         The paragraph was then read only up to its first blank line, so the
-        status sentence moved into a paragraph of its own after it (probe A04),
-        or replaced by a reworded one there (probe A05), passed with the status
-        False.
+        status sentence moved into a paragraph of its own after it, or
+        replaced by a reworded one there, passed with the status False.
 
         Reading the whole paragraph still passed with the status False when the
         sentence moved before the key table or into another key row. The whole
         "How to use this matrix" section is pinned in its two forms, and every
-        refusal names the matrix file. Refused in the section: either probe,
+        refusal names the matrix file. Refused in the section: both of those,
         nothing after the paragraph, no blank line between the key table and
         the paragraph, and the sentence moved into the intro paragraph, into a
         paragraph of its own above the key list (also reworded), into the AICPA
@@ -9854,9 +9853,9 @@ class DraftSiteRenderTests(unittest.TestCase):
             ("missing", None),
             ("key table header changed", key),
             ("key table repeated", key),
-            ("A04, sentence moved into a paragraph of its own",
+            ("sentence moved into a paragraph of its own",
              f"{guide}\n\n{pinned}"),
-            ("A05, reworded sentence in a paragraph of its own",
+            ("reworded sentence in a paragraph of its own",
              f"{guide}\n\n{reworded}"),
             ("nothing after the paragraph", None),
             ("no blank line under the key table", None),
@@ -10055,21 +10054,21 @@ class DraftSiteRenderTests(unittest.TestCase):
 
         That message forbade folding a status sentence only into
         CROSSWALK_TSC_READING_GUIDE, so one moved into a paragraph of its own
-        before the bare reading guide (P5) or onto the end of the intro
-        paragraph (P6) passed once that pin was updated, with the status False.
+        before the bare reading guide or onto the end of the intro paragraph
+        passed once that pin was updated, with the status False.
         The status rule is independent of destination: a status sentence,
         changed or moved, belongs only in CROSSWALK_TSC_POPULATING at the end
         of the reading-guide line, never in CROSSWALK_TSC_SECTION_HEADING,
         CROSSWALK_TSC_SECTION_OPENING or CROSSWALK_TSC_READING_GUIDE. The blank
         lines named as fixed in parse_compliance_tsc_status are those between
         the heading, the opening, the reading-guide paragraph and the closing
-        ---. Samples added: P5 and P6.
+        ---. Samples added: those two.
 
         The instruction and the status rule were then given only in the line
         mismatch error, so a status sentence moved into the section heading
-        (P9) took the heading count error without them, and passed once
+        took the heading count error without them, and passed once
         CROSSWALK_TSC_SECTION_HEADING was updated, with the status False. Every
-        section error carries both. Sample added: P9.
+        section error carries both. Sample added: that one.
 
         No sample reached the heading count error with two headings or the
         missing closing --- error, so either could lose the instruction and the
@@ -10106,14 +10105,14 @@ class DraftSiteRenderTests(unittest.TestCase):
         fixed += rule
         moved = "The AICPA TSC 2017 column is still being filled in."
         reworded = source.replace(current, f"{guide} {moved}")
-        # P5 and P6: the status reworded and moved out of the reading-guide
+        # The status reworded and moved out of the reading-guide
         # line, which passes with the status False once its pin is updated.
         placed = (
-            ("P5 status as its own paragraph before the bare reading guide",
+            ("status as its own paragraph before the bare reading guide",
              source.replace(f"\n\n{current}\n\n",
                             f"\n\n{moved}\n\n{guide}\n\n"),
              guide),
-            ("P6 status appended to the intro paragraph",
+            ("status appended to the intro paragraph",
              bare.replace(intro, f"{intro} {moved}"), intro),
         )
         cases = (
@@ -10145,15 +10144,16 @@ class DraftSiteRenderTests(unittest.TestCase):
                 self.assertIn(".web/build.py", message)
                 self.assertIn(f"where the pin has {shown!r}; {fixed}",
                               message)
-        # P9: the status moved into the heading, which takes the heading
+        # The status moved into the heading, which takes the heading
         # count error and passes with the status False once its pin is
         # updated.
         heading = f"{self.mod.CROSSWALK_TSC_SECTION_HEADING}\n"
         self.assertEqual(source.count(heading), 1)
-        headed = ("P9 status in the section heading",
+        headed = ("status in the section heading",
                   bare.replace(heading, f"{heading[:-1]} ({moved})\n"))
         # The heading count and closing --- errors, which no line mismatch
-        # reaches: P9 (no heading), the heading repeated (two) and no ---
+        # reaches: the status in the heading (no heading), the heading
+        # repeated (two) and no ---
         # left after the heading.
         structural = (
             (*headed, f"0 {heading[:-1]!r} headings instead of one"),
