@@ -62135,6 +62135,201 @@ class TodoIndexRowGrammarParityTests(unittest.TestCase):
         self.assertIn("FAIL: 1 item-number permanence finding(s)", r.stdout)
 
 
+class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
+    """.claude/hooks/block-new-merge-outside-tool.py, part P4 of the 3b882 merge-tool plan
+    (section 4 the hook, section 5 tests H1 to H5). The hook runs as a subprocess with a JSON
+    payload on stdin, in a temporary working directory; it reads no store, so no GRC_STORE is
+    needed. A refusal must exit 2 with the hook's own BLOCKED marker, so a missing hook file
+    (python3 exits 2 with "can't open file") never passes a refusal case."""
+
+    HOOK = REPO_ROOT / ".claude" / "hooks" / "block-new-merge-outside-tool.py"
+    MARKER = "BLOCKED (new-merge-outside-tool): "
+    NEW = "jposluns/grc_library_new"
+    MCP = "mcp__github__merge_pull_request"
+    SANCTIONED = "python3 tools/merge-grc-library-new.py"
+
+    def _run(self, payload=None, *, cwd="/home/u/grc_library", raw=None):
+        import json
+        if raw is None:
+            if isinstance(payload, str):
+                payload = dict(tool_name="Bash", tool_input=dict(command=payload))
+            payload = dict(dict(hook_event_name="PreToolUse", session_id="h", cwd=cwd), **payload)
+            raw = json.dumps(payload).encode("utf-8")
+        with tempfile.TemporaryDirectory() as td:
+            return subprocess.run([sys.executable, "-I", str(self.HOOK)], input=raw, cwd=td,
+                                  capture_output=True, timeout=60)
+
+    def _refused(self, payload=None, **kw):
+        proc = self._run(payload, **kw)
+        err = proc.stderr.decode("utf-8", "replace")
+        self.assertEqual(proc.returncode, 2, (payload, kw, err))
+        self.assertTrue(err.startswith(self.MARKER), (payload, kw, err))
+        self.assertIn(self.SANCTIONED, err)
+        self.assertNotIn("Traceback", err)
+        self.assertEqual(proc.stdout, b"")
+
+    def _allowed(self, payload=None, **kw):
+        proc = self._run(payload, **kw)
+        err = proc.stderr.decode("utf-8", "replace")
+        self.assertEqual(proc.returncode, 0, (payload, kw, err))
+        self.assertEqual((proc.stdout, err), (b"", ""), (payload, kw))
+
+    def test_h1_merge_spellings_naming_grc_library_new_are_refused(self):
+        new = self.NEW
+        fullwidth = "".join(chr(ord(c) + 0xFEE0) for c in "grc_library_new")
+        commands = (
+            # texts/text-guard-findings.md line 4
+            "gh pr -R %s merge 31" % new,
+            "gh pr --repo %s merge" % new,
+            "gh pr merge 31 -R git@github.com:%s" % new,
+            "gh pr merge 31 -R ssh://git@github.com/%s" % new,
+            "gh pr merge 2>/dev/null -R %s" % new,
+            # line 6
+            "gh pr merge -dR %s 31" % new,
+            "gh pr merge -sb 31 32 -R %s" % new,
+            "export GH_REPO=%s; gh pr merge 31" % new,
+            "GH_REPO=%s gh pr merge 31" % new,
+            "env -i GH_REPO=%s gh pr merge 31" % new,
+            "time GH_REPO=%s gh pr merge 31" % new,
+            "cd ../grc_library_new && gh pr merge 12",
+            "(cd ../grc_library_new; gh pr merge 12)",
+            "gh pr merge 31 -R %s https://github.com/jposluns/grc_library/pull/31" % new,
+            "echo 31 | xargs -I{} gh pr merge {} -R %s" % new,
+            "gh pr merge {31,32} -R %s" % new,
+            "python3 tools/merge-when-green.py 31 --require-none --repo %s --admin" % new,
+            # line 11
+            'bash -c -- "gh pr merge 33 -R %s"' % new,
+            "env - gh pr merge 33 -R %s" % new,
+            # line 14
+            "gh pr merge 33 -R %s --squash --help=false" % new,
+            "/usr/bin/time gh pr merge 33 -R %s --squash" % new,
+            # line 16
+            "setsid gh pr merge 33 -R %s" % new,
+            "stdbuf -o0 gh pr merge 33 -R %s" % new,
+            "ionice gh pr merge 33 -R %s" % new,
+            "flock /tmp/l gh pr merge 33 -R %s" % new,
+            "doas gh pr merge 33 -R %s" % new,
+            "coproc gh pr merge 33 -R %s" % new,
+            "script -qc 'gh pr merge 33 -R %s'" % new,
+            "su -c 'gh pr merge 33 -R %s'" % new,
+            "m() { gh pr merge \"$@\"; }; m 33 -R %s" % new,
+            "uv run gh pr merge 33 -R %s" % new,
+            "GIT_DIR=../grc_library_new/.git gh pr merge 33",
+            "gh pr merge \uff13\uff13 -R %s" % new,
+            # plan section 5 H1
+            "gh api -X PUT repos/%s/pulls/33/merge" % new,
+            "gh api --method PUT repos/%s/pulls/33/merge -f merge_method=squash" % new,
+            "gh pr merge 33 -R jposluns/grc%5Flibrary_new",
+            "gh pr merge 33 -R jposluns/%s" % fullwidth,
+            "GH PR MERGE 33 -R JPOSLUNS/GRC_LIBRARY_NEW",
+            "gh api graphql -F owner=jposluns -F name=grc_library_new "
+            "-f query='mutation { mergePullRequest(input: {pullRequestId: $id}) { clientMutationId } }'",
+            "python3 tools/merge-when-green.py 33 --repo %s --admin" % new,
+            "python3 tools/merge-when-green.py 33 --repo https://github.com/JPOSLUNS/GRC_LIBRARY_NEW",
+        )
+        for command in commands:
+            with self.subTest(command=command):
+                self._refused(command)
+        for cwd in ("/home/u/grc_library_new", "/home/u/grc_library_new/tools", "/home/u/GRC_Library_New"):
+            with self.subTest(cwd=cwd):
+                self._refused("gh pr merge 33", cwd=cwd)
+                self._refused("gh pr merge 33 --squash --admin", cwd=cwd)
+        for owner, repo in (("jposluns", "grc_library_new"), ("JPOSLUNS", "GRC_Library_New"),
+                            ("jposluns", fullwidth)):
+            with self.subTest(owner=owner, repo=repo):
+                self._refused(dict(tool_name=self.MCP, tool_input=dict(
+                    owner=owner, repo=repo, pullNumber=33, merge_method="squash")))
+        with self.subTest(mcp="cwd only"):
+            self._refused(dict(tool_name=self.MCP, tool_input=dict(pullNumber=33)),
+                          cwd="/home/u/grc_library_new")
+
+    def test_h2_sanctioned_and_unrelated_commands_are_allowed(self):
+        for command in (
+            self.SANCTIONED + " 33",
+            self.SANCTIONED + " 33 --dry-run",
+            self.SANCTIONED + " 999999",
+            "gh pr view 33 -R %s" % self.NEW,
+            "gh pr checks 33 -R %s" % self.NEW,
+            "gh pr merge 3200 -R jposluns/grc_library",
+            "gh pr merge 3200 --squash",
+            "python3 tools/merge-when-green.py 3200 --repo jposluns/grc_library --admin",
+            "pwd",
+        ):
+            with self.subTest(command=command):
+                self._allowed(command)
+        for command in (self.SANCTIONED + " 33", self.SANCTIONED + " 33 --dry-run"):
+            with self.subTest(command=command, cwd="grc_library_new"):
+                self._allowed(command, cwd="/home/u/grc_library_new")
+        self._allowed(dict(tool_name=self.MCP, tool_input=dict(
+            owner="jposluns", repo="grc_library", pullNumber=3200)))
+        self._allowed(dict(tool_name="Bash", tool_input=dict(command="gh pr view 33")),
+                      cwd="/home/u/grc_library_new")
+        # The sanctioned pattern must match the WHOLE raw command, ASCII only.
+        for command in (
+            self.SANCTIONED + " 33; gh pr merge 33 -R %s" % self.NEW,
+            self.SANCTIONED + " 33 && gh pr merge 33 -R %s" % self.NEW,
+            self.SANCTIONED + " 33\ngh pr merge 33 -R %s" % self.NEW,
+            self.SANCTIONED + " 33 --dry-run # gh pr merge 33 -R %s" % self.NEW,
+            "gh pr merge 33 -R %s; " % self.NEW + self.SANCTIONED + " 33",
+        ):
+            with self.subTest(command=command):
+                self._refused(command)
+
+    def test_h3_accepted_over_refusal_is_pinned_as_refused(self):
+        for command in (
+            'git commit -m "docs: gh pr merge for grc_library_new goes through the tool"',
+            "grep -rn 'gh pr merge' docs/grc_library_new-notes.md",
+            "echo gh pr merge 31 -R %s" % self.NEW,
+            "cat <<'EOF'\ngh pr merge 31 -R %s\nEOF" % self.NEW,
+        ):
+            with self.subTest(command=command):
+                self._refused(command)
+        self._refused("gh pr view 33 && echo merge", cwd="/home/u/grc_library_new")
+
+    def test_h4_hook_reads_nothing_and_parses_no_shell(self):
+        import ast
+        source = self.HOOK.read_text(encoding="utf-8")
+        tree = ast.parse(source)
+        imported = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                imported.update(alias.name.split(".")[0] for alias in node.names)
+            elif isinstance(node, ast.ImportFrom):
+                imported.add((node.module or "").split(".")[0])
+        for forbidden in ("lint_common", "subprocess", "shlex", "_hook_state", "_hookutil",
+                          "socket", "urllib.request", "http", "importlib"):
+            self.assertNotIn(forbidden, imported)
+        self.assertNotIn("open(", source)
+        names = {n.id for n in ast.walk(tree) if isinstance(n, ast.Name)}
+        attrs = {n.attr for n in ast.walk(tree) if isinstance(n, ast.Attribute)}
+        for call in ("open", "exec", "eval", "__import__"):
+            self.assertNotIn(call, names)
+        for attr in ("read_text", "read_bytes", "open", "system", "popen", "environ", "getenv"):
+            self.assertNotIn(attr, attrs)
+        self.assertIn(self.SANCTIONED, source)
+        # The refusal names the merge tool and states the plan section 4 residual.
+        for fragment in ("built at runtime", "gh aliases", "web UI", "direct pushes to main",
+                         "MCP merge tools under other names", "over-refusal"):
+            self.assertIn(fragment, source)
+
+    def test_h5_malformed_stdin(self):
+        trigger = "gh pr merge 33 -R %s" % self.NEW
+        for raw in (b"", b"not json", b"[]", b"null", b"42", b'"gh pr merge 33"',
+                    b"\xff\xfe\x00 gh pr merge 33", b'{"tool_name": "Bash"',
+                    b'{"tool_name": "Bash", "tool_input": "x"}',
+                    b'{"tool_name": "Bash", "tool_input": {"command": 7}}',
+                    b'{"tool_name": "Bash", "tool_input": {"command": null}, "cwd": 3}'):
+            with self.subTest(raw=raw):
+                self._allowed(raw=raw)
+        for raw in (trigger.encode("utf-8"), b"{" + trigger.encode("utf-8"),
+                    b"\xff " + trigger.encode("utf-8"),
+                    b'{"tool_name": "Bash", "tool_input": {"command": "' + trigger.encode("utf-8") + b'"'):
+            with self.subTest(raw=raw):
+                self._refused(raw=raw)
+        # A parsed payload whose command is not a string still refuses on its cwd and tool name.
+        self._refused(dict(tool_name=self.MCP, tool_input=[]), cwd="/home/u/grc_library_new")
+
+
 class MergeGrcLibraryNewRowCheckTests(unittest.TestCase):
     """tools/merge-grc-library-new.py, part P1 of the 3b882 merge-tool plan: the register row
     check (T1), the refusal of a store or register it cannot read (T2), decision D1 (registers are
@@ -71753,9 +71948,10 @@ class HookRoundEightTests(unittest.TestCase):
                    for event, groups in settings['hooks'].items()
                    for group in groups for hook in group['hooks']
                    if hook.get('type') == 'command']
-        self.assertEqual(len(entries), 25)
+        self.assertEqual(len(entries), 27)
         marker_names = {
             'block-on-open-findings': ('open-findings', 'open-findings-misfiled'),
+            'block-new-merge-outside-tool': ('new-merge-outside-tool',),
             'block-wrong-repo-tool': ('wrong-repo-tool-abspath',
                                      'wrong-repo-tool-sibling', 'wrong-repo-git'),
             'block-turn-end-with-outstanding-work': ('turn-end-outstanding-work',),
@@ -71939,6 +72135,8 @@ class HookRoundEightTests(unittest.TestCase):
                                 'Task': {'description': 'Inspect fixture', 'prompt': 'Read the fixture.',
                                          'subagent_type': 'general-purpose'},
                                 'Read': {'file_path': str(project / 'README.md')},
+                                'mcp__github__merge_pull_request': {
+                                    'owner': 'jposluns', 'repo': 'grc_library', 'pullNumber': 1},
                             }
                             payload = dict(hook_event_name=event, cwd=str(project),
                                            session_id='launcher-smoke', tool_name=tool,
@@ -78477,6 +78675,16 @@ class BlockingHookMessageContractTests(unittest.TestCase):
              "Generated with"),
         ):
             add(name, command, evidence=(fragment,))
+        add = group("block-new-merge-outside-tool", "run")
+        for name, tool, tool_input in (
+            ("bash-pr-merge", "Bash", {"command": "gh pr merge 33 -R jposluns/grc_library_new"}),
+            ("bash-api-merge", "Bash",
+             {"command": "gh api -X PUT repos/jposluns/grc_library_new/pulls/33/merge"}),
+            ("mcp-merge", "mcp__github__merge_pull_request",
+             {"owner": "jposluns", "repo": "grc_library_new", "pullNumber": 33}),
+        ):
+            add(name, (tool, tool_input),
+                evidence=("python3 tools/merge-grc-library-new.py", "direct pushes to main"))
         add = group("block-on-open-findings", "give",
                     ("decide_exit", "print('\\n'.join(lines),", 1), "open-findings")
         for name in ("error", "error-many", "error-precedence"):
@@ -78816,6 +79024,9 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 elif hook in ("block-bulk-git-add", "block-verification-pipes",
                               "block-claude-attribution"):
                     bash(arg)
+                elif hook == "block-new-merge-outside-tool":
+                    tool, tool_input = arg
+                    payload.update(tool_name=tool, tool_input=tool_input)
                 elif hook == "block-on-open-findings":
                     bash("gh pr create")
                     header = ("## Open\n| Found | Severity | Finding | Source | Disposition |\n"
@@ -81131,7 +81342,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
 
     def test_population_matches_registered_blocking_hooks(self):
         registered = self._registered_blocking_hooks()
-        self.assertEqual(len(registered), 18)
+        self.assertEqual(len(registered), 19)
         self.assertEqual(registered, set(self._case_registry()))
         for hook, cases in self._case_registry().items():
             self.assertTrue(cases, hook)
