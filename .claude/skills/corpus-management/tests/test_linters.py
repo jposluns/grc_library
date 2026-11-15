@@ -43215,7 +43215,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         README.md DATA F 67fe21d3b7f132009e1e6e14899a090f897ede778d89cea59053ca2f3e20ced7
         adopt-bootstrap-ref.py OWN F ec19e2c45233ad02ca422349c0778a3c17463e6fc23fe9bf0591d822ac8d531c
         adopt-preflight-guard.py FIXED F 73ab980af0fa53c8a485af18b7bdaee1b7bfef218c37982593e30c66d7f85f66
-        aiqt_bootstrap.py PASSIVE F bc5496de79c394e76703b34380bfc1bbb9ae1a8c489aa719d0a75344d3c915dc
+        aiqt_bootstrap.py PASSIVE F 3f8b2c1697d282edb21f1af242e511e35adb5f8bbae1f1e3d2cdc497cd405c5d
         aiqt_rules.py NO_FS F dda2a6a5a217513fc2848e59029e111402fe85e8e765d6b9de7186bd8d9472d9
         alignment-register-aliases.json DATA F 7d9b0be1db9dcc1f81870c96309e2837cdf7da6fc16a78ea4f4b4ccca4e7b7e8
         alignment-register-exclusions.json DATA F 391924062319d3d5a618b1750b37dec6c0ee0c0d21b77b26518b16e51a418f19
@@ -67140,7 +67140,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                 patch.dict(os.environ, {"AIQT_PACK_ROOT": str(pack)}):
             os.environ.pop("GRC_AIQT_PACK", None)
             with self.assertRaisesRegex(ImportError,
-                                        "RBQ26-c3-module-swap-race"):
+                                        re.escape("verified ones (a module file swapped after verification)")):
                 mod.find_pack_tools()
 
     def test_concurrent_import_during_bootstrap_cannot_run_disk_bytes(self):
@@ -67244,7 +67244,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                              timeout=30)
         self.assertEqual(res.returncode, 1, res.stdout + res.stderr)
         self.assertIn("REFUSED:", res.stdout)
-        self.assertIn("RBQ26-c3-module-swap-race", res.stdout)
+        self.assertIn("verified ones (a module file swapped after verification)", res.stdout)
         self.assertNotIn("PASSED", res.stdout)
 
     def test_verified_loader_compiles_without_inherited_flags(self):
@@ -67916,7 +67916,7 @@ class AIQTVendorDigestTests(LinterTestCase):
             with patch.dict(os.environ, {"AIQT_PACK_ROOT": str(pack)}):
                 os.environ.pop("GRC_AIQT_PACK", None)
                 with self.assertRaisesRegex(
-                        ImportError, "RBQ38-c3-realpath-valueerror"):
+                        ImportError, re.escape("an unresolvable sys.path entry")):
                     mod.ensure_on_path()
         finally:
             sys.modules.pop("aiqt_corpus", None)
@@ -68185,7 +68185,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                 f"the {where} docstring must not repeat the false "
                 "premise that the repository root is a dotted route to "
                 "the in-repo pack (RBQ43-c3-repo-root-premise)")
-        self.assertIn("RBQ43-c3-repo-root-premise", docs["module"],
+        self.assertIn("a repository root wrongly treated as a dotted route", docs["module"],
                       "REMAINING must name the corrected premise")
         self.assertIn("``.claude`` is not a Python identifier",
                       docs["module"],
@@ -68728,8 +68728,8 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIn("path of Python identifiers", docs["module"],
                       "the module docstring must state the dotted routes "
                       "as a class over identifier paths")
-        for marker in ("RBQ48-c3-symlink-dotted-route",
-                       "RBQ48-c3-empty-entry-route",
+        for marker in ("a dotted route through a symlinked directory",
+                       "an unscrubbed empty sys.path entry",
                        "any other such route",
                        "no list of such routes here is complete"):
             self.assertIn(marker, docs["module"],
@@ -68742,7 +68742,7 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIn("RECOGNISES", docs["scrub"],
                       "the scrub must claim only the entry shapes it "
                       "recognises")
-        self.assertIn("RBQ48-c3-empty-entry-route", docs["dotted"],
+        self.assertIn("an unscrubbed empty sys.path entry", docs["dotted"],
                       "_pack_dotted_entry must document the empty entry "
                       "resolved exactly like '.'")
         for where, doc_text in docs.items():
@@ -68778,7 +68778,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                 mod._scrub_pack_tools_entries.__doc__.split()),
         }
         for where in ("module", "dotted", "scrub"):
-            self.assertIn("RBQ48-c3-symlink-dotted-route", docs[where],
+            self.assertIn("a dotted route through a symlinked directory", docs[where],
                           f"the {where} docstring must disclose the "
                           "symlink-in-plain-entry dotted route as a "
                           "residual the scrub does not recognise")
@@ -69059,19 +69059,19 @@ class AIQTVendorDigestTests(LinterTestCase):
                       "publication (RBQ53-c3-left-alone-wording)")
         marked_doc = " ".join(
             mod._marked_for_verified_bytes.__doc__.split())
-        self.assertIn("RBQ51-c3-handler-unpublishes-verified", marked_doc,
+        self.assertIn("a failing run unpublishing a verified module", marked_doc,
                       "the marker helper must state why a marked module "
                       "survives another run's failure")
         for where, doc in (("module", " ".join(mod.__doc__.split())),
                            ("ensure_on_path",
                             " ".join(mod.ensure_on_path.__doc__.split()))):
-            self.assertIn("RBQ53-c3-non-importerror-failure", doc,
+            self.assertIn("cleanup skipped on a non-ImportError failure", doc,
                           f"the {where} docstring must document the "
                           "failure path as covering every exception type")
             self.assertIn("UNMARKED", doc,
                           f"the {where} docstring must scope the "
                           "failure-path removal to an unmarked module")
-            self.assertIn("RBQ51-c3-handler-unpublishes-verified", doc,
+            self.assertIn("a failing run unpublishing a verified module", doc,
                           f"the {where} docstring must state the "
                           "marked-module guarantee")
         # In the earlier repository, the docstring wording overclaimed
@@ -69097,7 +69097,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                     "(RBQ59-c3-baseexception-descriptor-wording)")
             for required in ("``Exception``", "``BaseException``",
                              "in-process forgery",
-                             "RBQ59-c3-baseexception-descriptor-wording"):
+                             "a descriptor that raises BaseException"):
                 self.assertIn(
                     required, doc,
                     f"the {where} docstring must disclose the "
@@ -69512,14 +69512,14 @@ class AIQTVendorDigestTests(LinterTestCase):
         marked_doc = " ".join(
             mod._marked_for_verified_bytes.__doc__.split())
         module_doc = " ".join(mod.__doc__.split())
-        for required in ("RBQ57-c3-self-marked-planted", "SELF-MARKED",
+        for required in ("a planted module that sets its own marker", "SELF-MARKED",
                          "NO acceptance check"):
             self.assertIn(
                 required, marked_doc,
                 "the marker helper must disclose the self-marked planted "
                 f"corner accurately: missing {required!r} "
                 "(RBQ57-c3-self-marked-planted)")
-        self.assertIn("RBQ57-c3-self-marked-planted", module_doc,
+        self.assertIn("a planted module that sets its own marker", module_doc,
                       "the module docstring must carry the self-marked "
                       "disclosure too (RBQ57-c3-self-marked-planted)")
         for stale in ("carries no marker at all",
