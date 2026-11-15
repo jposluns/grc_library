@@ -27739,8 +27739,9 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
 
     def test_low_numbered_new_pr_is_in_scope(self) -> None:
-        # The earlier repository had a floor of 463 and exempted #462; numbering restarted at
-        # #1, so a new root header below 463 and missing from the mirror must fail and be named.
+        # The earlier repository had a floor of 463 and exempted the PR just below it; numbering
+        # restarted at #1, so a new root header below 463 and missing from the mirror must fail
+        # and be named.
         result = self._parity_run(self._new_headers(463, 462, 1), self._new_headers(463, 1))
         self.assertEqual(result.returncode, 1, result.stdout)
         self.assertIn("MISSING from the detailed mirror (>= #1): #462\n", result.stdout)
@@ -54438,7 +54439,7 @@ BAI07, CSA CCM v4.1 AIS domain, and OWASP ASVS v5.
         lines = self.COBIT_BASE_FIXTURE.read_bytes().splitlines(keepends=True)
         base_bytes = b"".join(lines[self.COBIT_BASE_HEADER_LINES:])
         self.assertEqual(hashlib.sha256(base_bytes).hexdigest(), self.COBIT_BASE_SHA256,
-                         "the vendored base engine must be the commit 9d7c9e5d bytes")
+                         "the vendored base engine must be the earlier repository's bytes")
         base_source = base_bytes.decode("utf-8")
         saved_path = sys.path[:]
         try:
