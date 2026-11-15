@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Merge tool for jposluns/grc_library_new (3b882), part P1: the register row check.
+"""Merge tool for jposluns/grc_library_new (3b882): the register row check (P1), then the merge.
 
 The grc_library_new squash merge is to go only through this tool, which refuses unless both
 QA rows for the PR are in this repository's own registers in the operational store:
@@ -20,22 +20,46 @@ never from the private sibling or the in-repo ``.working/`` fallbacks, and never
 resolves inside the repository. A store or register that is absent, is not what it should be, or
 cannot be read or decoded as UTF-8 refuses, naming it.
 
-This part is read-only: it never merges, writes no file and makes no network call. The merge,
-the read-back, the admin-merge log row and the hook are later parts of the plan.
+``--check-rows`` is read-only: it never calls gh, writes no file and makes no network call.
+
+Merge mode (``<PR>``, part P2a), after the row check passes, every gh call going through gh():
+
+1. ``gh pr view`` must report the PR OPEN on base ``main``, its own number and URL in
+   grc_library_new, and a 40-character lowercase hex head SHA, which is pinned from here on.
+2. Decision D3: the title must end with the ``(CalVer <v>, README <v>)`` suffix.
+3. Decision D5: the Actions runs for the pinned head SHA are read, and the latest run of every
+   workflow in REQUIRED_WORKFLOWS must be completed with conclusion success; a pending, failed,
+   missing or unreadable result refuses.
+4. ``--dry-run`` stops here. Otherwise the PR is squash-merged with an explicit subject
+   (``<title> (#N)``) and body, pinned with ``--match-head-commit``, with ``--admin``.
+5. The merged commit is read back; any trailer line (Co-authored-by, Signed-off-by or any other),
+   a message other than the one sent, or other than one parent fails loudly with ``MERGED BUT``.
+6. Decision D2: the admin-merge log row, its PR cell in the tagged form
+   ``#N [repo: grc_library_new]``, is printed to standard output only (everything else goes to
+   standard error). This part writes no store file; the operator records the row.
 
 Usage:
+    python3 tools/merge-grc-library-new.py <PR> [--dry-run]
     python3 tools/merge-grc-library-new.py --check-rows <PR>
     python3 tools/merge-grc-library-new.py --self-test
 
-Exit codes: 0 both rows present (or the self-test passed); 1 a row is missing (each missing row
-is named); 2 usage error, or the store or a register cannot be found or read (each is named).
+Exit codes: 0 both rows present, the dry run passed, the merge read back clean, or the self-test
+passed; 1 refused (a row is missing, or the PR state, head, title or CI does not allow a merge);
+2 usage error, the store or a register cannot be found or read, or a gh call failed (before the
+merge, or the merge call itself, whose state must then be read before any retry); 3 merged but the
+read-back failed.
 """
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
+import shlex
+import subprocess
 import sys
+import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 TOOLS_DIR = Path(__file__).resolve().parent
@@ -51,6 +75,22 @@ _DATE = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", re.ASCII)
 _PR_ARG = re.compile(r"[1-9][0-9]{0,5}", re.ASCII)
 # A CommonMark fence line: up to three spaces, then three or more backticks or tildes.
 _FENCE = re.compile(r" {0,3}(`{3,}|~{3,})")
+
+MERGE_REPO = "jposluns/grc_library_new"
+PR_URL = "https://github.com/" + MERGE_REPO + "/pull/{pr}"
+VIEW_FIELDS = "number,title,state,headRefOid,baseRefName,url"
+# Decision D5: the workflows in grc_library_new whose latest run on the pinned head must have
+# concluded success (the one workflow name in grc_library_new's list at 3b882 P2a).
+REQUIRED_WORKFLOWS = ("Repository quality checks",)
+# Decision D2: the admin-merge log's header; the row printed has one cell per column.
+LOG_HEADER = "| Date (UTC) | PR | CI state at merge | Mechanism | Justification | Change |"
+READBACK_ATTEMPTS = 5
+READBACK_DELAY = 2
+_HEAD = re.compile(r"[0-9a-f]{40}", re.ASCII)
+# Decision D3: the suffix used in recent grc_library titles, "(CalVer 2026.11.68, README 1.11.918)".
+_TITLE = re.compile(r"[^\n]* \(CalVer [0-9]{4}\.[0-9]{1,2}\.[0-9]{1,4}, "
+                    r"README [0-9]{1,4}\.[0-9]{1,4}\.[0-9]{1,5}\)", re.ASCII)
+_TRAILER = re.compile(r"[A-Za-z][A-Za-z0-9-]*:[ \t]+\S", re.ASCII)
 
 
 class RegisterError(Exception):
@@ -178,6 +218,204 @@ def check_rows(pr: int, *, root: Path = REPO_ROOT) -> tuple[int, list[str]]:
                for _name, rel, kind in REGISTERS]
 
 
+def gh(*args: str) -> str:
+    """Run gh and return its stdout; the one seam for every gh call (stubbed in tests).
+
+    As in merge-when-green.py: stderr is captured, so a failure carries it in the raised
+    CalledProcessError; after a success it is passed through."""
+    done = subprocess.run(["gh", *args], text=True, capture_output=True)
+    if done.returncode != 0:
+        raise subprocess.CalledProcessError(done.returncode, done.args, done.stdout, done.stderr)
+    if done.stderr:
+        sys.stderr.write(done.stderr)
+    return done.stdout
+
+
+def _describe(exc: BaseException) -> str:
+    detail = getattr(exc, "stderr", None)
+    if isinstance(detail, str) and detail.strip():
+        return f"{exc}: {detail.strip()}"
+    return str(exc)
+
+
+def title_has_suffix(title: str) -> bool:
+    """Decision D3: the title ends with " (CalVer <v>, README <v>)" (ASCII digits, one line)."""
+    return isinstance(title, str) and _TITLE.fullmatch(title) is not None
+
+
+def message_trailers(message: str) -> list[str]:
+    """The lines after the subject shaped like a trailer, or naming Co-authored-by in any case."""
+    found = []
+    for line in message.split("\n")[1:]:
+        line = line.rstrip("\r")
+        if _TRAILER.match(line) or "co-authored-by" in line.casefold():
+            found.append(line)
+    return found
+
+
+def ci_check(text: str, head: str) -> tuple[int, list[str], dict]:
+    """Decision D5 on the ``actions/runs?head_sha=`` JSON: ``(0, [], {name: run id})`` when the
+    latest run of every required workflow on ``head`` completed with success; 1 naming each
+    workflow whose run is missing, pending or not successful; 2 when the list cannot be read or
+    is incomplete."""
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError as exc:
+        return 2, [f"Actions runs for {head} unreadable: {exc}"], {}
+    runs = data.get("workflow_runs") if isinstance(data, dict) else None
+    if not isinstance(runs, list) or not all(isinstance(r, dict) for r in runs):
+        return 2, [f"Actions runs for {head} unreadable: no list of run objects"], {}
+    total = data.get("total_count")
+    if not isinstance(total, int) or isinstance(total, bool) or total > len(runs):
+        return 2, [f"Actions runs for {head} incomplete: total_count {total!r}, "
+                   f"{len(runs)} listed"], {}
+    problems, green = [], {}
+    for name in REQUIRED_WORKFLOWS:
+        mine = [r for r in runs if r.get("name") == name and r.get("head_sha") == head]
+        if not mine:
+            problems.append(f"required workflow {name!r}: no run on {head}")
+            continue
+        latest = max(mine, key=lambda r: (str(r.get("created_at") or ""),
+                                          r.get("id") if isinstance(r.get("id"), int) else -1))
+        if latest.get("status") != "completed" or latest.get("conclusion") != "success":
+            problems.append(f"required workflow {name!r}: latest run {latest.get('id')} on {head} "
+                            f"is {latest.get('status')}/{latest.get('conclusion')}")
+        else:
+            green[name] = latest.get("id")
+    return (1 if problems else 0), problems, green
+
+
+def _cell(text: str) -> str:
+    return str(text).replace("\r", " ").replace("\n", " ").replace("|", "\\|")
+
+
+def _read_merge_commit(pr: int, gh, sleep) -> tuple[str | None, str]:
+    """Poll for the merge commit OID: ``(oid, "")`` or ``(None, last problem)``."""
+    last = "not read"
+    for attempt in range(READBACK_ATTEMPTS):
+        if attempt:
+            sleep(READBACK_DELAY)
+        try:
+            state = json.loads(gh("pr", "view", str(pr), "--repo", MERGE_REPO, "--json",
+                                  "state,mergeCommit"))
+        except (subprocess.CalledProcessError, OSError, json.JSONDecodeError) as exc:
+            last = f"gh pr view failed: {_describe(exc)}"
+            continue
+        if not isinstance(state, dict):
+            last = f"gh pr view gave {state!r}"
+            continue
+        commit = state.get("mergeCommit")
+        oid = commit.get("oid") if isinstance(commit, dict) else None
+        if state.get("state") == "MERGED" and isinstance(oid, str) and _HEAD.fullmatch(oid):
+            return oid, ""
+        last = f"state {state.get('state')!r}, mergeCommit {commit!r}"
+    return None, f"no merge commit after {READBACK_ATTEMPTS} reads ({last})"
+
+
+def run_merge(pr: int, *, root: Path, gh, dry_run: bool = False, sleep=time.sleep,
+              now: datetime | None = None) -> int:
+    """Merge mode: the row check, then items (a) to (e) of 3b882 P2a; see the module docstring."""
+    def err(line: str) -> None:
+        print(line, file=sys.stderr)
+
+    code, lines = check_rows(pr, root=root)
+    for line in lines:
+        err(line)
+    if code:
+        return code
+    try:
+        view = json.loads(gh("pr", "view", str(pr), "--repo", MERGE_REPO, "--json", VIEW_FIELDS))
+    except (subprocess.CalledProcessError, OSError, json.JSONDecodeError) as exc:
+        err(f"REFUSED: gh pr view {pr} --repo {MERGE_REPO} failed: {_describe(exc)}")
+        return 2
+    if not isinstance(view, dict):
+        err(f"REFUSED: gh pr view {pr} gave {view!r}")
+        return 2
+    head, title = view.get("headRefOid"), view.get("title")
+    problems = []
+    if view.get("number") != pr:
+        problems.append(f"gh reports PR number {view.get('number')!r}, not {pr}")
+    if view.get("state") != "OPEN":
+        problems.append(f"PR #{pr} is {view.get('state')!r}, not OPEN")
+    if view.get("baseRefName") != "main":
+        problems.append(f"PR #{pr} base is {view.get('baseRefName')!r}, not main")
+    if view.get("url") != PR_URL.format(pr=pr):
+        problems.append(f"PR URL {view.get('url')!r} is not {PR_URL.format(pr=pr)}")
+    if not (isinstance(head, str) and _HEAD.fullmatch(head)):
+        problems.append(f"head {head!r} is not a 40-character lowercase hex SHA")
+    if not title_has_suffix(title):
+        problems.append(f"title {title!r} lacks the (CalVer <v>, README <v>) suffix (decision D3)")
+    if problems:
+        for line in problems:
+            err(f"REFUSED: {line}")
+        return 1
+    try:
+        runs_text = gh("api", f"repos/{MERGE_REPO}/actions/runs?head_sha={head}&per_page=100")
+    except (subprocess.CalledProcessError, OSError) as exc:
+        err(f"REFUSED: Actions runs for {head} unreadable: {_describe(exc)}")
+        return 2
+    ci_code, ci_lines, green = ci_check(runs_text, head)
+    if ci_code:
+        for line in ci_lines:
+            err(f"REFUSED: {line} (decision D5)")
+        return ci_code
+    subject = f"{title} (#{pr})"
+    body = f"Squash merge of #{pr} at {head[:12]}."
+    argv = ["pr", "merge", str(pr), "--repo", MERGE_REPO, "--squash", "--subject", subject,
+            "--body", body, "--match-head-commit", head, "--admin"]
+    command = shlex.join(["gh", *argv])
+    if dry_run:
+        err(f"DRY RUN: every check passed for #{pr} at {head}; would run: {command}")
+        return 0
+    try:
+        gh(*argv)
+    except (subprocess.CalledProcessError, OSError) as exc:
+        err(f"MERGE CALL FAILED, merge state unknown: {command}: {_describe(exc)}; read the PR "
+            "state before any retry")
+        return 2
+    oid, missing = _read_merge_commit(pr, gh, sleep)
+    failures = [missing] if oid is None else []
+    if oid is not None:
+        try:
+            data = json.loads(gh("api", f"repos/{MERGE_REPO}/commits/{oid}"))
+            message, parents = data["commit"]["message"], data["parents"]
+            if not isinstance(message, str) or not isinstance(parents, list):
+                raise TypeError("commit message or parents of the wrong type")
+        except (subprocess.CalledProcessError, OSError, json.JSONDecodeError, KeyError,
+                TypeError) as exc:
+            failures.append(f"merge commit {oid} unreadable: {_describe(exc)}")
+        else:
+            trailers = message_trailers(message)
+            if trailers:
+                failures.append(f"merge commit {oid} carries trailer(s): {'; '.join(trailers)}")
+            if message.rstrip("\n") != subject + "\n\n" + body:
+                failures.append(f"merge commit {oid} message differs from what was sent: "
+                                f"{message!r}")
+            if len(parents) != 1:
+                failures.append(f"merge commit {oid} has {len(parents)} parents, not 1")
+    when = (now or datetime.now(timezone.utc)).strftime("%Y-%m-%d")
+    readback = ("clean, no trailer" if not failures else "FAILED: " + "; ".join(failures))
+    cells = [
+        when,
+        f"#{pr} {REPO_TAG}",
+        "; ".join(f"{name} completed/success on {head} (run {green[name]})"
+                  for name in REQUIRED_WORKFLOWS) + " (merge-grc-library-new.py fail-closed)",
+        f"admin squash (merge-grc-library-new.py --admin), head pinned to {head}",
+        f"branch protection requires PR review; /validate-pr and /retro rows present for "
+        f"#{pr} {REPO_TAG}; title carries the CalVer and README suffix",
+        f"{title}; merge commit {oid or 'not read'}; read-back {readback}; command: {command}",
+    ]
+    print("| " + " | ".join(_cell(c) for c in cells) + " |")
+    if failures:
+        for line in failures:
+            err(f"MERGED BUT {line}")
+        err(f"MERGED BUT the read-back of #{pr} failed: a finding row is required; the merge "
+            "cannot be undone. The log row above records the failure.")
+        return 3
+    err(f"merged #{pr} as {oid}; read-back clean (no trailer, message as sent, one parent)")
+    return 0
+
+
 def self_test() -> int:
     """Exercise the pure row check and the store reads against temporary fixtures only."""
     import tempfile
@@ -205,6 +443,11 @@ def self_test() -> int:
         ("prose line", missing_rows("Moved #31 " + REPO_TAG + " on 2026-11-14.", r_row, 31),
          ["validate-pr"]),
         ("undated row", missing_rows(v_row.replace("2026-11-14", "PR"), r_row, 31), ["validate-pr"]),
+        ("title suffix", title_has_suffix("x (CalVer 2026.11.69, README 1.11.919)"), True),
+        ("title without suffix", title_has_suffix("x (CalVer 2026.11.69)"), False),
+        ("co-authored trailer", message_trailers("s\n\nb\n\nCo-authored-by: a <b>"),
+         ["Co-authored-by: a <b>"]),
+        ("clean message", message_trailers("content: s\n\nSquash merge of #31 at abc."), []),
     ]
     failures = [f"{name}: got {got}, want {want}" for name, got, want in cases if got != want]
     saved = os.environ.get("GRC_STORE")
@@ -252,18 +495,31 @@ def self_test() -> int:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Check grc_library_new's QA register rows for a PR (read-only).")
-    mode = parser.add_mutually_exclusive_group(required=True)
+        description="Merge a grc_library_new PR after its QA rows, title and CI are checked, or "
+                    "check its QA register rows only (read-only).")
+    parser.add_argument("pr", nargs="?", metavar="PR",
+                        help="merge this PR (rows, title, CI, squash merge, read-back, log row)")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="with PR: run every check and stop before the merge")
+    mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--check-rows", metavar="PR",
                       help="exit 0 only when both the /validate-pr and /retro rows are present")
     mode.add_argument("--self-test", action="store_true", help="run the built-in self-test")
     args = parser.parse_args(argv)
+    chosen = (args.pr is not None) + (args.check_rows is not None) + bool(args.self_test)
+    if chosen != 1 or (args.dry_run and args.pr is None):
+        print("usage error: give exactly one of PR, --check-rows PR or --self-test; --dry-run "
+              "goes only with PR", file=sys.stderr)
+        return 2
     if args.self_test:
         return self_test()
-    if not _PR_ARG.fullmatch(args.check_rows):
-        print(f"usage error: --check-rows takes a PR number (1 to 999999, no leading zero), "
-              f"got {args.check_rows!r}", file=sys.stderr)
+    given = args.pr if args.pr is not None else args.check_rows
+    if not _PR_ARG.fullmatch(given):
+        print(f"usage error: a PR number is 1 to 999999 with no leading zero, got {given!r}",
+              file=sys.stderr)
         return 2
+    if args.pr is not None:
+        return run_merge(int(given), root=REPO_ROOT, gh=gh, dry_run=args.dry_run, sleep=time.sleep)
     code, lines = check_rows(int(args.check_rows))
     for line in lines:
         print(line, file=sys.stderr if code else sys.stdout)
