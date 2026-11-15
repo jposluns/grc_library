@@ -206,6 +206,7 @@ def _self_test() -> int:
         afs = attest_file_set(root, tracked={"a.md"})
         # b.md is present on disk and found by corpus_files but is NOT in the tracked
         # set, so the git-tracked set must exclude it.
+        # The check now also confirms that b.md is on disk and found by corpus_files.
         checks.append(("attest-set-git-tracked-only",
                        (root / "b.md").is_file()
                        and "b.md" in {f.name for f in corpus_files(root)}

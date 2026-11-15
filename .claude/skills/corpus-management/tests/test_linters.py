@@ -897,10 +897,12 @@ class LanguageLinterTests(LinterTestCase):
             run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] organisations")
 
     def test_url_mask_glued_sentence_strike_bracket_and_bad_escape_prose_still_flagged(self) -> None:
-        # A capitalized sentence glued to a path-less host, prose after "~~",
-        # a bracketed authority that is not an IPv6 literal and prose glued
-        # after an invalid percent escape ("%GG") are outside the token and
-        # still flagged.
+        # A capitalized sentence glued to a path-less host, prose after "~~"
+        # and a bracketed authority that is not an IPv6 literal are outside
+        # the token and still flagged. At an invalid percent escape ("%GG")
+        # the token stops before the percent sign, so the prose glued after
+        # the URL begins with the invalid escape text (GG) and is still
+        # flagged as "GGorganisations".
         for index, (body, word) in enumerate((
                 ("See https://ico.org.uk.Organisations must register.\n", "Organisations"),
                 ("See ~~https://x.org/a~~organisations here.\n", "organisations"),
@@ -12811,15 +12813,14 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         # D12 compares against the PR's merge base, as the specification says,
         # not against the base itself. Each fixture forks feat from a base
         # whose floor is 32, then main moves on and origin/main follows, so
-        # feat is stale. A change and its revert or an empty commit changed
-        # nothing since the fork, and a head AT the fork point (the
-        # wrong-clone shape) selects nothing, so each refuses (exit 2), as D1
-        # refuses the same ranges. A README-only branch after main raised the
-        # floor did not lower it, so it gets the monotonic OK against the
-        # fork point's floor. In the earlier repository every run compared
-        # with origin/main itself: the change and revert and the head at the
-        # fork point printed the monotonic OK (exit 0), and the empty commit
-        # and the README-only branch the false FAIL
+        # feat is stale. A change and its revert (P14a) or an empty commit
+        # (P14b) changed nothing since the fork, and a head AT the fork point
+        # (P14c, the wrong-clone shape) selects nothing, so each refuses (exit
+        # 2), as D1 refuses the same ranges. A README-only branch after main
+        # raised the floor (P14d) did not lower it, so it gets the monotonic
+        # OK against the fork point's floor. In the earlier repository every
+        # run compared with origin/main itself: P14a and P14c printed the
+        # monotonic OK (exit 0), and P14b and P14d the false FAIL
         # "floor decreased 33 -> 32" (exit 1), in both forms.
         def change_and_revert(git, tmp, floor):
             floor.write_text('{"2": 33}\n', encoding="utf-8")
@@ -12839,13 +12840,13 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         argless_empty = "shows no tracked change against the merge base"
         monotonic = "is monotonic vs the floor at the merge base"
         for probe, build, main_raises_floor, rc, named_phrase, argless_phrase in (
-            ("change and revert", change_and_revert, False, 2,
+            ("P14a change and revert", change_and_revert, False, 2,
              "no files changed", argless_empty),
-            ("empty commit", empty_commit, True, 2,
+            ("P14b empty commit", empty_commit, True, 2,
              "no files changed", argless_empty),
-            ("head at the fork point", at_fork, False, 2,
+            ("P14c head at the fork point", at_fork, False, 2,
              "is an ancestor of base", argless_empty),
-            ("README only", readme_only, True, 0, monotonic, monotonic),
+            ("P14d README only", readme_only, True, 0, monotonic, monotonic),
         ):
             for form in ("named", "argless"):
                 with self.subTest(probe=probe, form=form):
@@ -25845,20 +25846,20 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     # repository each was neither compared nor failed, so the gate passed comparing only #1.
     # The mirror-side leading-space probe and the pre-epoch probes are separate tests.
     NEW_TRIPLE_PROBES = (
-        ("leading space", " **2026-11-10 | 2026.12.2 | PR #2**"),
-        ("level 1", "# 2026-11-10, Library Version 2026.12.2, PR #2"),
-        ("level 3", "### 2026-11-10, Library Version 2026.12.2, PR #2"),
-        ("tab after ##", "##\t2026-11-10, Library Version 2026.12.2, PR #2"),
-        ("underscore bold", "__2026-11-10 | 2026.12.2 | PR #2__"),
-        ("star bullet", "* **2026-11-10 | 2026.12.2 | PR #2**"),
-        ("plus bullet", "+ **2026-11-10 | 2026.12.2 | PR #2**"),
-        ("numbered item", "1. **2026-11-10 | 2026.12.2 | PR #2**"),
-        ("quote", "> **2026-11-10 | 2026.12.2 | PR #2**"),
-        ("setext", "2026-11-10, Library Version 2026.12.2, PR #2\n" + "-" * 44),
-        ("BOM", "\ufeff**2026-11-10 | 2026.12.2 | PR #2**"),
-        ("doubled bold", "** **2026-11-10 | 2026.12.2 | PR #2**"),
-        ("Pr label", "**2026-11-10 | 2026.12.2 | Pr #2**"),
-        ("no-break space after ##", "##\u00a02026-11-10, Library Version 2026.12.2, PR #2"),
+        ("S1 leading space", " **2026-11-10 | 2026.12.2 | PR #2**"),
+        ("S2 level 1", "# 2026-11-10, Library Version 2026.12.2, PR #2"),
+        ("S3 level 3", "### 2026-11-10, Library Version 2026.12.2, PR #2"),
+        ("S4 tab after ##", "##\t2026-11-10, Library Version 2026.12.2, PR #2"),
+        ("S5 underscore bold", "__2026-11-10 | 2026.12.2 | PR #2__"),
+        ("S6 star bullet", "* **2026-11-10 | 2026.12.2 | PR #2**"),
+        ("S7 plus bullet", "+ **2026-11-10 | 2026.12.2 | PR #2**"),
+        ("S8 numbered item", "1. **2026-11-10 | 2026.12.2 | PR #2**"),
+        ("S9 quote", "> **2026-11-10 | 2026.12.2 | PR #2**"),
+        ("S10 setext", "2026-11-10, Library Version 2026.12.2, PR #2\n" + "-" * 44),
+        ("S11 BOM", "\ufeff**2026-11-10 | 2026.12.2 | PR #2**"),
+        ("S13 doubled bold", "** **2026-11-10 | 2026.12.2 | PR #2**"),
+        ("S14 Pr label", "**2026-11-10 | 2026.12.2 | Pr #2**"),
+        ("S18 no-break space after ##", "##\u00a02026-11-10, Library Version 2026.12.2, PR #2"),
         ("tab before bold", "\t**2026-11-10 | 2026.12.2 | PR #2**"),
         ("no-break space before bold", "\u00a0**2026-11-10 | 2026.12.2 | PR #2**"),
         ("indented list item", "  - **2026-11-10 | 2026.12.2 | PR #2**"),
@@ -26003,27 +26004,27 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     # rather than from a quoted line (the bold date with "### " or "  - " in front, and the
     # "Also:" list).
     ROOT_NEW_PROBES = (
-        ("bold date only", "* **2026-11-10** | 2026.11.67 | PR #2"),
-        ("bold date only, level 3", "### **2026-11-10** | 2026.11.67 | PR #2"),
-        ("bold date only, indented item", "  - **2026-11-10** | 2026.11.67 | PR #2"),
-        ("linked PR cell", "* **2026-11-10 | 2026.11.67 | [PR #2](https://example.invalid/pull/2)**"),
-        ("hyphen joints", "### 2026-11-10 - Library Version 2026.11.67 - PR #2"),
-        ("em dash joints", "* 2026-11-10 — 2026.11.67 — PR #2"),
-        ("code spans", "* `2026-11-10` | `2026.11.67` | PR #2"),
-        ("parenthesized PR", "### 2026-11-10, Library Version 2026.11.67 (PR #2)"),
-        ("PR before version", "### 2026-11-10, PR #2, Library Version 2026.11.67"),
-        ("month-name date", "### 10 Nov 2026, Library Version 2026.11.67, PR #2"),
-        ("v prefix", "**2026-11-10 | v2026.11.67 | PR #2**"),
-        ("Pull request label", "**2026-11-10 | 2026.11.67 | Pull request #2**"),
-        ("(#N) cell", "**2026-11-10 | 2026.11.67 | (#2)**"),
-        ("bracketed date", "**[2026-11-10] | 2026.11.67 | PR #2**"),
-        ("Version: label", "### 2026-11-10, Version: 2026.11.67, PR #2"),
-        ("semicolons", "**2026-11-10; 2026.11.67; PR #2**"),
-        ("timestamp", "**2026-11-10T12:00Z | 2026.11.67 | PR #2**"),
-        ("pre-release version", "**2026-11-10 | 2026.11.67-rc1 | PR #2**"),
-        ("zero-width space", "\u200b**2026-11-10 | 2026.11.67 | PR #2**"),
-        ("PR first, cells", "**PR #2** | 2026-11-10 | 2026.11.67"),
-        ("PR first, list item", "- **PR #2:** 2026-11-10, Library Version 2026.11.67"),
+        ("M1 bold date only", "* **2026-11-10** | 2026.11.67 | PR #2"),
+        ("M1 bold date only, level 3", "### **2026-11-10** | 2026.11.67 | PR #2"),
+        ("M1 bold date only, indented item", "  - **2026-11-10** | 2026.11.67 | PR #2"),
+        ("M1 linked PR cell", "* **2026-11-10 | 2026.11.67 | [PR #2](https://example.invalid/pull/2)**"),
+        ("M1 hyphen joints", "### 2026-11-10 - Library Version 2026.11.67 - PR #2"),
+        ("M1 em dash joints", "* 2026-11-10 — 2026.11.67 — PR #2"),
+        ("M1 code spans", "* `2026-11-10` | `2026.11.67` | PR #2"),
+        ("M1 parenthesized PR", "### 2026-11-10, Library Version 2026.11.67 (PR #2)"),
+        ("M1 PR before version", "### 2026-11-10, PR #2, Library Version 2026.11.67"),
+        ("M1 month-name date", "### 10 Nov 2026, Library Version 2026.11.67, PR #2"),
+        ("M1 v prefix", "**2026-11-10 | v2026.11.67 | PR #2**"),
+        ("M1 Pull request label", "**2026-11-10 | 2026.11.67 | Pull request #2**"),
+        ("M1 (#N) cell", "**2026-11-10 | 2026.11.67 | (#2)**"),
+        ("M1 bracketed date", "**[2026-11-10] | 2026.11.67 | PR #2**"),
+        ("M1 Version: label", "### 2026-11-10, Version: 2026.11.67, PR #2"),
+        ("M1 semicolons", "**2026-11-10; 2026.11.67; PR #2**"),
+        ("M1 timestamp", "**2026-11-10T12:00Z | 2026.11.67 | PR #2**"),
+        ("M1 pre-release version", "**2026-11-10 | 2026.11.67-rc1 | PR #2**"),
+        ("M1 zero-width space", "\u200b**2026-11-10 | 2026.11.67 | PR #2**"),
+        ("M2 PR first, cells", "**PR #2** | 2026-11-10 | 2026.11.67"),
+        ("M2 PR first, list item", "- **PR #2:** 2026-11-10, Library Version 2026.11.67"),
         ("single linked PR cell", "* **2026-11-10 | 2026.11.67 | [PR #2](../../pull/2)**"),
     )
 
@@ -26216,12 +26217,12 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         result = self._parity_run(same, same + "**Week of 2026-11-02 (PRs #1-#2)** Summary.\n")
         self.assertEqual(result.returncode, 0, result.stdout)
 
-    # Intro lines holding a PR identity or a version.
+    # Intro lines holding a PR identity or a version (I1 to I7).
     INTRO_PROBES = (
-        ("shipped sentence", "PR #2 shipped Library Version 2026.11.67 on 10 November 2026.", False),
-        ("PR, version, dotted date", "PR #2 | 2026.11.67 | 2026.11.10", False),
-        ("old PR, version, date", "PR #3127 | 2026.06.9 | 21 Jun 2026", True),
-        ("version, PR, merged date", "Version 2026.11.67, PR #2, merged 2026.11.10.", False),
+        ("I1", "PR #2 shipped Library Version 2026.11.67 on 10 November 2026.", False),
+        ("I2", "PR #2 | 2026.11.67 | 2026.11.10", False),
+        ("I3", "PR #3127 | 2026.06.9 | 21 Jun 2026", True),
+        ("I5", "Version 2026.11.67, PR #2, merged 2026.11.10.", False),
         ("qx new", "November 10, 2026 | 2026.11.67 | PR #2", False),
         ("qx old", "November 7, 2026 | 2026.11.65 | PR #3127", True),
         ("version only", "Versions follow 2026.11.66 and later.", False),
@@ -26244,7 +26245,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 else:
                     self.assertIn(f"line 3 ({intro!r})", result.stdout)
                     self.assertIn("**YYYY-MM-DD | X.Y.Z | PR #N** at column 0", result.stdout)
-        # A second intro line, and two such lines.
+        # I7 (a second intro line) and I4 (2 such lines).
         for intro, linenos in (("This file records changes.\nLatest: PR #2 at 2026.11.67.", (4,)),
                                ("PR #2 | 2026.11.67 | 2026.11.10\nPR #3 | 2026.11.68 | 2026.11.11",
                                 (3, 4))):
@@ -26253,7 +26254,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 self.assertEqual(result.returncode, 1, result.stdout)
                 for lineno in linenos:
                     self.assertIn(f"line {lineno} ('", result.stdout)
-        # The old record in both files fails in both.
+        # I6: the old record in both files fails in both.
         line = "PR #3127 | 2026.06.9 | 21 Jun 2026"
         result = self._parity_run("# Changelog\n\n" + line + "\n\n" + same, same + line + "\n")
         self.assertEqual(result.returncode, 1, result.stdout)
@@ -29793,19 +29794,19 @@ class AuditGateParityTests(LinterTestCase):
                      "        run: python3 .claude/skills/corpus-management/tools/lint-hooks-syntax.py\n")
         nested = lambda text, by: "".join(" " * by + line + "\n" for line in text.splitlines())
         self._assert_yaml_edits_refused((
-            ("repo key", "has the key 'x'", (
+            ("P29 repo key", "has the key 'x'", (
                 (self._PC, "    hooks:\n" + metadata_hook, "    x:\n" + metadata_hook + "    hooks:\n"),)),
-            ("regen hook key", "is at column 8 below the key 'x' at column 8", (
+            ("P31b regen hook key", "is at column 8 below the key 'x' at column 8", (
                 (self._PC, "        types: [markdown]\n\n" + parity_hook,
                  "        types: [markdown]\n        x:\n" + nested(parity_hook, 2)),)),
-            ("top-level key", "is at column 6 below the key 'x' at column 0", (
+            ("P30b top-level key", "is at column 6 below the key 'x' at column 0", (
                 (self._PC, "      - id: lint-isolated-launch\n",
                  "x:\n      - id: lint-isolated-launch\n"),)),
-            ("matrix list at its key's column", "is at column 8 below the key 'x' at column 8", (
+            ("W41b matrix list at its key's column", "is at column 8 below the key 'x' at column 8", (
                 (self._WF, last_step, ""),
                 (self._WF, self._WF_TAIL,
                  self._WF_TAIL + "    strategy:\n      matrix:\n        x:\n" + nested(last_step, 2)))),
-            ("matrix list two columns deeper", "has the key 'strategy'", (
+            ("W41b matrix list two columns deeper", "has the key 'strategy'", (
                 (self._WF, last_step, ""),
                 (self._WF, self._WF_TAIL,
                  self._WF_TAIL + "    strategy:\n      matrix:\n        x:\n" + nested(last_step, 4)))),
@@ -29871,9 +29872,9 @@ class AuditGateParityTests(LinterTestCase):
         parity = ("        entry: python3 .claude/skills/corpus-management/tools/lint-audit-gate-parity.py\n"
                   "        language: system\n        pass_filenames: false\n")
         self._assert_yaml_edits_refused((
-            ("files selector", selectors, (
+            ("P32 files", selectors, (
                 (self._PC, self._PC_LANGUAGE_FILES, "        files: ^$\n"),)),
-            ("types list", "has a types list other than [markdown]", (
+            ("P33 types", "has a types list other than [markdown]", (
                 (self._PC, self._PC_LINKS, self._PC_LINKS.replace("[markdown]", "[directory]")),)),
             ("always_run false", selectors, (
                 (self._PC, parity + "        always_run: true\n",
@@ -29910,10 +29911,10 @@ class AuditGateParityTests(LinterTestCase):
         # the job holds only name, runs-on and steps.
         hooks_split = "        types: [markdown]\n\n      # Gate 2 checks"
         self._assert_yaml_edits_refused((
-            ("job if", "has the key 'if'", (
+            ("W36 job if", "has the key 'if'", (
                 (self._WF, "    runs-on: ubuntu-latest\n",
                  "    runs-on: ubuntu-latest\n    if: false\n"),)),
-            ("second steps", "repeats the key 'steps'", (
+            ("W37b second steps", "repeats the key 'steps'", (
                 (self._WF, "\n" + self._WF_METADATA, ""),
                 (self._WF, "    steps:\n", "    steps:\n" + self._WF_METADATA + "    steps:\n"))),
             ("second hooks", "repeats the key 'hooks'", (
@@ -43242,7 +43243,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-length-on-pr.py NO_FS F 91c9308103f36414f1975e2233cd82644551ca4a3996c4a2b9310b437004434a
         check-changelog-on-pr.py NO_FS F 00fa478d33343ae5d955e3faa7f99d9c61c6cda6f7a5e414dfcaf6ec6f7bf25b
         check-changelog-preflight-commit.py NO_FS F 9ec0a028e7e916fdfa542f6688b909b08a1c69fe66b3a7cb82d979689885f978
-        check-class-completeness.py NO_FS F 59d3731a5bccafb1b8613678e2b241ebbaa32d93797203d73875820da3db7145
+        check-class-completeness.py NO_FS F a692cd9423f597117eef7664a33ee9606b650ef6577affe67630e5cfd36c131a
         check-claude-md-size.py NO_FS F 5f0c8e37d4a1b36a6be924354a6cdfca69a4ba5498e77cee52012ccefc99764b
         check-clause-preservation.py OWN F 96d156bb17eb92ea45d096dae64345313ba8962de62b38a413a988aa7f8c8737
         check-clean-language-upstream.py NO_FS F 68e539ea645383d29ec9ded3cb44012af2afcfc78f820c172070a8c492665159
@@ -43347,7 +43348,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-todo-index-reference-parity.py OWN F 46ffb499a50fa6b5d64ac594776e5a26ad4e3c696fc48d8b5e4fc8b4646a2b22
         lint-todo-list-tag.py OWN F 10ee5371268378b28c9097a588515231d625ab63b5e5b1b9f3533f4d85db9b2d
         lint-todo-marked-done.py ROOT F 9d5f28f83917e26a4cd0bffde756fded4a2bf4259b809472bc1757a6dbc1b212
-        lint-todo-number-permanence.py OWN F 02579a0c37b6758b229c9292938c1171c64ebed49d25011e402f5f15440a03ea
+        lint-todo-number-permanence.py OWN F 3490a75e4d2ee2ea0e446cdbd0f9e31af048e3ce7796def689725cef7b906bc3
         lint-todo-staleness.py NO_FS F 6a89123607678239f036cab7bf02e0a0885216f55ba0b23fb53799e30c40cffb
         lint-tooling-backlog-refs.py OWN F be54fcdef171bc30e7d0393ca2c097904f464cad7bde9a233f7ee663edd741a5
         lint-tooling-provenance-freshness.py OWN F ab5b885be8a4a7af28e6c441ea4439cc32ce553a6167946ec40d49f50f0f6b02
@@ -80488,7 +80489,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
                     self.assertIn(f"{form!r} points at 3.99", result.stdout)
 
     def test_generated_data_bare_section_not_reported(self) -> None:
-        # GUARD (passes before and after round 2): in the generated files
+        # GUARD: before and after the change, in the generated files
         # only the bare section form is set aside, because the copied
         # metadata cites sections of the documents it describes (design
         # note 12); a bare section 8.9 there is not a finding.
@@ -80565,7 +80566,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
                     self.assertNotIn("3.99", result.stdout)
 
     def test_scanned_data_file_bare_section_reported(self) -> None:
-        # GUARD (passes before and after round 2): the bare section form is
+        # GUARD: before and after the change, the bare section form is
         # set aside only in the generated files; in the hand-maintained
         # relationship-model-source.json beside them it is still a finding.
         root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_P_TODO)
@@ -80578,7 +80579,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertIn("'section 3.98' points at 3.98", result.stdout)
 
     def test_generated_data_paths_match_generator_constants(self) -> None:
-        # GUARD (passes before and after round 2): GENERATED_DATA_PATHS is
+        # GUARD: before and after the change, GENERATED_DATA_PATHS is
         # exactly the two generators' write targets, read from their own
         # constants (build-taxonomy.py TAXONOMY, build-narrative-registry.py
         # REGISTRY_NAME), so a moved or renamed output fails here.
@@ -80611,7 +80612,8 @@ class ToolingBacklogRefsTests(LinterTestCase):
                 self.assertIn("'section 3.99' points at 3.99", result.stdout)
 
     def test_gfm_section_cue_not_flagged(self) -> None:
-        # GUARD (passes before and after round 2). Design note 5: GFM names
+        # GUARD: before and after the change, a GFM section cue is not
+        # flagged. Design note 5: GFM names
         # an external specification, so its section number next to the cue
         # is not a backlog pointer (the citation at
         # gate_lint_metadata_line_breaks.py, GFM 0.29 section 6.10).
@@ -80860,18 +80862,18 @@ class TableCellCountTests(LinterTestCase):
         # after it renders, with the closer as one more lazy row. The row findings
         # of both readings are reported.
         layouts = {
-            "comment in a bullet item": ("- <!--\n\n  | a | b |\n  |---|---|\n  | 1 |\n  -->\n", 5),
-            "processing instruction in an ordered item": ("1. <?php\n\n   | a | b |\n   |---|---|\n   | 1 |\n   ?>\n", 5),
-            "comment in a quoted bullet item": ("> - <!--\n>\n>   | a | b |\n>   |---|---|\n>   | 1 |\n>   -->\n", 5),
-            "comment in a nested bullet item": ("- a\n  - <!--\n  \n    | a | b |\n    |---|---|\n    | 1 |\n    -->\n", 6),
-            "pre block in a bullet item": ("- <pre>\n\n  | a | b |\n  |---|---|\n  | 1 |\n  </pre>\n", 5),
+            "L1": ("- <!--\n\n  | a | b |\n  |---|---|\n  | 1 |\n  -->\n", 5),
+            "L2": ("1. <?php\n\n   | a | b |\n   |---|---|\n   | 1 |\n   ?>\n", 5),
+            "L4": ("> - <!--\n>\n>   | a | b |\n>   |---|---|\n>   | 1 |\n>   -->\n", 5),
+            "L5": ("- a\n  - <!--\n  \n    | a | b |\n    |---|---|\n    | 1 |\n    -->\n", 6),
+            "L6": ("- <pre>\n\n  | a | b |\n  |---|---|\n  | 1 |\n  </pre>\n", 5),
         }
         for name, (text, line) in layouts.items():
             with self.subTest(layout=name):
                 self.assertEqual(self.finding_heads(text),
                                  [f"doc.md:{line} header=2 row=1",
                                   f"doc.md:{line + 1} header=2 row=1 lazy-row"])
-        # A blank line indented to the content column ends the block in
+        # L1b: a blank line indented to the content column ends the block in
         # neither reading, and neither does one in a block quote inside the
         # item or one outside any list item.
         for text in ("- <!--\n  \n  | a | b |\n  |---|---|\n  | 1 |\n  -->\n",
@@ -80882,13 +80884,13 @@ class TableCellCountTests(LinterTestCase):
 
     def test_list_item_html_block_blank_line_measured_inside_the_quote(self) -> None:
         # A blank line one column short of the content column ends the block in
-        # markdown-it-py, and the blank line's indent counts from inside the
-        # innermost block quote, whether the quote marker is indented or
-        # spaces follow it (the other direction: no table renders).
+        # markdown-it-py (M4), and the blank line's indent counts from inside the
+        # innermost block quote, whether the quote marker is indented (M6) or
+        # spaces follow it (M6, other direction: no table renders).
         rows = ["doc.md:5 header=2 row=1", "doc.md:6 header=2 row=1 lazy-row"]
         for name, text in (
-                ("short blank line", "- <!--\n \n  | a | b |\n  |---|---|\n  | 1 |\n  -->\n"),
-                ("indented quote marker", "   > - <!--\n   >\n   >   | a | b |\n   >   |---|---|\n   >   | 1 |\n"
+                ("M4", "- <!--\n \n  | a | b |\n  |---|---|\n  | 1 |\n  -->\n"),
+                ("M6", "   > - <!--\n   >\n   >   | a | b |\n   >   |---|---|\n   >   | 1 |\n"
                        "   >   -->\n")):
             with self.subTest(probe=name):
                 self.assertEqual(self.finding_heads(text), rows)
@@ -80896,13 +80898,13 @@ class TableCellCountTests(LinterTestCase):
             "> - <!--\n>   \n>   | a | b |\n>   |---|---|\n>   | 1 |\n>   -->\n")}))
 
     def test_markdown_it_py_reading_adds_row_findings_only(self) -> None:
-        # This pins three documented choices. Under
+        # This pins the documented choices M1, M2 and M3. Under
         # markdown-it-py's reading the first document's comment opens after the blank line and
         # never closes, but only the CommonMark reading's unclosed blocks are
-        # reported; the table and row counts are the CommonMark reading's,
-        # in which the table-shaped lines stay inside the comment; and a
+        # reported (M1); the table and row counts are the CommonMark reading's,
+        # in which the table-shaped lines stay inside the comment (M2); and a
         # block of type 6 or 7 ends at a blank line, so it is never unclosed,
-        # even when its block quote ends it.
+        # even when its block quote ends it (M3).
         self.assertClean(self.make_repo({"doc.md": "- <pre>\n\n  <!--\n  </pre>\n"}))
         for text, counts in (("- <!--\n\n  | a | b |\n  |---|---|\n  | 1 | 2 |\n\n  -->\n",
                               "(0 tables, 0 body rows)"),
@@ -80914,27 +80916,27 @@ class TableCellCountTests(LinterTestCase):
         self.assertClean(self.make_repo({"doc.md": "> <div>\n> x\nText\n"}))
 
     def test_only_spaces_and_tabs_make_a_blank_line_or_a_closer_tail(self) -> None:
-        # Other whitespace after a closing fence (NBSP, EM SPACE, FORM FEED)
-        # makes the line text, so the next fence line closes the fence, the
-        # table renders and the last fence never closes.
-        closer_tail = "```\ncode\n```{}\n```\n| a | b |\n|---|---|\n| 1 |\n```\nx\n```\n```\n"
+        # N1, N1b and N1c: other whitespace after a closing fence makes the
+        # line text, so the next fence line closes the fence, the table
+        # renders and the last fence never closes.
+        n1 = "```\ncode\n```{}\n```\n| a | b |\n|---|---|\n| 1 |\n```\nx\n```\n```\n"
         for tail in ("\u00a0", "\u2003", "\u000c"):
             with self.subTest(tail=repr(tail)):
-                self.assertEqual(self.finding_heads(closer_tail.format(tail)),
+                self.assertEqual(self.finding_heads(n1.format(tail)),
                                  ["doc.md:7 header=2 row=1", "doc.md:11 unclosed-fence"])
         for tail in (" ", "\t"):
             with self.subTest(tail=repr(tail)):
-                self.assertClean(self.make_repo({"doc.md": closer_tail.format(tail)}))
-        # A line holding an NBSP is not blank, so it ends the list item and
+                self.assertClean(self.make_repo({"doc.md": n1.format(tail)}))
+        # N2: a line holding an NBSP is not blank, so it ends the list item and
         # the fence in it.
-        list_item = "- item\n  ```\n  code\n{}\n  | a | b |\n  |---|---|\n  | 1 |\n  ```\n"
-        self.assertEqual(self.finding_heads(list_item.format("\u00a0")),
+        n2 = "- item\n  ```\n  code\n{}\n  | a | b |\n  |---|---|\n  | 1 |\n  ```\n"
+        self.assertEqual(self.finding_heads(n2.format("\u00a0")),
                          ["doc.md:7 header=2 row=1", "doc.md:8 unclosed-fence"])
-        self.assertClean(self.make_repo({"doc.md": list_item.format("")}))
-        # Nor does such a line end an HTML block of type 6.
-        html_block = "<div>\n{}\n| a | b |\n|---|---|\n| 1 |\n"
-        self.assertClean(self.make_repo({"doc.md": html_block.format("\u00a0")}))
-        self.assertFinding(self.make_repo({"doc.md": html_block.format(" ")}), "doc.md:5 header=2 row=1")
+        self.assertClean(self.make_repo({"doc.md": n2.format("")}))
+        # N4: nor does it end an HTML block of type 6.
+        n4 = "<div>\n{}\n| a | b |\n|---|---|\n| 1 |\n"
+        self.assertClean(self.make_repo({"doc.md": n4.format("\u00a0")}))
+        self.assertFinding(self.make_repo({"doc.md": n4.format(" ")}), "doc.md:5 header=2 row=1")
         # Such a line is paragraph text, so "2. x" after it cannot interrupt
         # the paragraph, and the four-column lines are no table.
         tail = "2. x\n\n    | a | b |\n    |---|---|\n    | 1 |\n"
@@ -80943,22 +80945,22 @@ class TableCellCountTests(LinterTestCase):
 
     def test_list_marker_digits_are_ascii(self) -> None:
         # CommonMark and markdown-it-py read only ASCII digits in an ordered list
-        # marker, so an Arabic-Indic "١." or a fullwidth "１." is a lazy
+        # marker, so an Arabic-Indic "١." (U1) or a fullwidth "１." (U1f) is a lazy
         # row, not a list item ending the table.
-        lazy_marker = self.HEAD3 + "| 1 | 2 | 3 |\n{}. x\n| 4 |\n"
+        u1 = self.HEAD3 + "| 1 | 2 | 3 |\n{}. x\n| 4 |\n"
         for digit in ("١", "１"):
             with self.subTest(digit=digit):
-                self.assertEqual(self.finding_heads(lazy_marker.format(digit)),
+                self.assertEqual(self.finding_heads(u1.format(digit)),
                                  ["doc.md:4 header=3 row=1 lazy-row", "doc.md:5 header=3 row=1"])
-        self.assertClean(self.make_repo({"doc.md": lazy_marker.format("1")}))
-        # The line is text, so it opens no fence and the table after it renders.
-        fence_marker = "{}. ```\n   | a | b |\n   |---|---|\n   | 1 |\n"
-        self.assertEqual(self.finding_heads(fence_marker.format("١")), ["doc.md:4 header=2 row=1"])
-        self.assertEqual(self.finding_heads(fence_marker.format("1")), ["doc.md:1 unclosed-fence"])
-        # The line is text, so with the delimiter it heads no table.
-        header_marker = "{}. | a | b |\n   |---|---|\n   | 1 |\n"
-        self.assertClean(self.make_repo({"doc.md": header_marker.format("١")}))
-        self.assertFinding(self.make_repo({"doc.md": header_marker.format("1")}), "doc.md:3 header=2 row=1")
+        self.assertClean(self.make_repo({"doc.md": u1.format("1")}))
+        # U8: the line is text, so it opens no fence and the table after it renders.
+        u8 = "{}. ```\n   | a | b |\n   |---|---|\n   | 1 |\n"
+        self.assertEqual(self.finding_heads(u8.format("١")), ["doc.md:4 header=2 row=1"])
+        self.assertEqual(self.finding_heads(u8.format("1")), ["doc.md:1 unclosed-fence"])
+        # U2: the line is text, so with the delimiter it heads no table.
+        u2 = "{}. | a | b |\n   |---|---|\n   | 1 |\n"
+        self.assertClean(self.make_repo({"doc.md": u2.format("١")}))
+        self.assertFinding(self.make_repo({"doc.md": u2.format("1")}), "doc.md:3 header=2 row=1")
 
     def test_delimiter_cells_trimmed_of_spaces_and_tabs_only(self) -> None:
         # markdown-it-py admits only spaces and tabs beside a delimiter cell,
@@ -81100,20 +81102,20 @@ class TableCellCountTests(LinterTestCase):
         self.assertClean(self.make_repo({"doc.md": "| a | b |\n|---|---|\n| 1 | 2 |\n<DIV>\n"}))
 
     def test_line_after_a_lazy_quoted_delimiter_row_is_lazy_text(self) -> None:
-        # Two lazy layouts and the minimised form: a lazy line and a quoted delimiter row
+        # A2, A4 and the minimised form: a lazy line and a quoted delimiter row
         # form no table in markdown-it-py, so its paragraph stays open and the
         # next line, which leaves the quote and starts only an HTML block of type
         # 7 (which cannot interrupt a paragraph), is lazy text too; the quoted
         # table after it renders. markdown-it-py's reading reads it so, with
-        # U+0000 or "x" in the attribute, while a type-6 start ends
+        # U+0000 or "x" (A2-plain-x) in the attribute, while a type-6 start ends
         # the paragraph and its block holds the table.
         tail = "> | a | b |\n> |---|---|\n> | Z |\n"
         for name, text, finding in (
-                ("lazy table line", "> | x |\n| y |\n> |---|\n<a href=x\x00>\n" + tail,
+                ("A2", "> | x |\n| y |\n> |---|\n<a href=x\x00>\n" + tail,
                  "doc.md:7 header=2 row=1"),
-                ("lazy table line, plain x", "> | x |\n| y |\n> |---|\n<a href=xx>\n" + tail,
+                ("A2-plain-x", "> | x |\n| y |\n> |---|\n<a href=xx>\n" + tail,
                  "doc.md:7 header=2 row=1"),
-                ("lazy text line", "> Text | x\nmore | y\n> ---|---\n<i x=\x00>\n" + tail,
+                ("A4", "> Text | x\nmore | y\n> ---|---\n<i x=\x00>\n" + tail,
                  "doc.md:7 header=2 row=1"),
                 ("minimised", ">|\n-||\n>-|-\n<a f=\x00>\n>a||\n>-|-\n>Z",
                  "doc.md:7 header=2 row=1 lazy-row"),
@@ -82345,17 +82347,17 @@ class GitReadFailsClosedTests(unittest.TestCase):
         head_main, origin_main = f"cannot read HEAD ({main}): ", f"cannot read {origin}: "
         listing = "git lists it, or cannot list every ref (git for-each-ref exited {})"
         fixtures = []
-        repo = regressed("packed-head-39-hex")
+        repo = regressed("A4a-packed-head-39-hex")
         pack(repo, line_of(main, lambda line: line[1:]))
         fixtures.append((repo, head_main + listing.format(128)))
-        repo = regressed("packed-head-39-hex-no-header")
+        repo = regressed("A4b-packed-head-39-hex-no-header")
         edit = line_of(main, lambda line: line[1:])
         pack(repo, lambda lines: [line for line in edit(lines) if not line.startswith("#")])
         fixtures.append((repo, head_main + listing.format(128)))
-        repo = feature("packed-origin-39-hex")
+        repo = feature("A4c-packed-origin-39-hex")
         pack(repo, line_of(origin, lambda line: line[1:]))
         fixtures.append((repo, origin_main + listing.format(128)))
-        repo = regressed("packed-unsorted")
+        repo = regressed("A4e-packed-unsorted")
         self.git(repo, "tag", "a")
         self.git(repo, "tag", "b")
         # The header still claims sorted, so git's lookup bisects and misses the moved line.
@@ -82363,24 +82365,24 @@ class GitReadFailsClosedTests(unittest.TestCase):
                                   + [line for line in lines if line.endswith(f" {main}\n")]))
         self.assertIn("sorted", (repo / ".git" / "packed-refs").read_text(encoding="ascii"))
         fixtures.append((repo, head_main + listing.format(0)))
-        repo = feature("packed-origin-trailing-junk")
+        repo = feature("A4f-packed-origin-trailing-junk")
         pack(repo, line_of(origin, lambda line: line[:-1] + " junk\n"))
         fixtures.append((repo, origin_main + listing.format(0)))
-        repo = regressed("dangling-head-symlink-over-packed")
+        repo = regressed("A5a-dangling-head-symlink-over-packed")
         pack(repo)
         dangle(repo, main)
         fixtures.append((repo, head_main + listing.format(0)))
-        repo = regressed("dangling-head-symlink")
+        repo = regressed("A5b-dangling-head-symlink")
         dangle(repo, main)
         fixtures.append((repo, head_main + os.path.join(".git", main) + " exists"))
-        repo = feature("dangling-origin-symlink")
+        repo = feature("A5c-dangling-origin-symlink")
         dangle(repo, origin)
         fixtures.append((repo, origin_main + os.path.join(".git", origin) + " exists"))
-        repo = feature("loose-file-over-packed-origin")
+        repo = feature("A6a-loose-file-over-packed-origin")
         pack(repo)
         shadow(repo, "refs/remotes/origin")
         fixtures.append((repo, origin_main + listing.format(0)))
-        repo = regressed("loose-file-over-packed-head", branch="feature/x")
+        repo = regressed("A6b-loose-file-over-packed-head", branch="feature/x")
         pack(repo)
         shadow(repo, "refs/heads/feature")
         fixtures.append((repo, "cannot read HEAD (refs/heads/feature/x): " + listing.format(0)))
