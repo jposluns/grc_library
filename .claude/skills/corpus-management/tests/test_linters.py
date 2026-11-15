@@ -43215,7 +43215,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         README.md DATA F 67fe21d3b7f132009e1e6e14899a090f897ede778d89cea59053ca2f3e20ced7
         adopt-bootstrap-ref.py OWN F ec19e2c45233ad02ca422349c0778a3c17463e6fc23fe9bf0591d822ac8d531c
         adopt-preflight-guard.py FIXED F 73ab980af0fa53c8a485af18b7bdaee1b7bfef218c37982593e30c66d7f85f66
-        aiqt_bootstrap.py PASSIVE F 3f8b2c1697d282edb21f1af242e511e35adb5f8bbae1f1e3d2cdc497cd405c5d
+        aiqt_bootstrap.py PASSIVE F 11969de50382b2224387035423639217c2e29ea409e8032ab5f9d76c9807ef2a
         aiqt_rules.py NO_FS F dda2a6a5a217513fc2848e59029e111402fe85e8e765d6b9de7186bd8d9472d9
         alignment-register-aliases.json DATA F 7d9b0be1db9dcc1f81870c96309e2837cdf7da6fc16a78ea4f4b4ccca4e7b7e8
         alignment-register-exclusions.json DATA F 391924062319d3d5a618b1750b37dec6c0ee0c0d21b77b26518b16e51a418f19

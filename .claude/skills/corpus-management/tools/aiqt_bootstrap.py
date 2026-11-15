@@ -19,7 +19,7 @@ onward: from then on no ``sys.path`` entry of any shape -- literal,
 symlinked, retargeted after the scrub, relative and re-resolved after a
 chdir, or a plain directory holding a symlink named ``aiqt_corpus.py`` --
 can make the on-disk file importable under that bare name
-(RBQ38-c3-scrub-toctou, RBQ38-c3-file-symlink-alias). An import of the
+(a sys.path entry retargeted after the scrub, a module symlink inside a plain entry). An import of the
 name made BEFORE the guard is first installed resolves through
 ``sys.path`` like any other import; the module it leaves behind
 carries no installation marker -- unless the planted file's own body
@@ -34,15 +34,15 @@ module from ``sys.modules`` under the import lock (when
 the name still binds that same object), through ONE shared helper,
 before the error propagates, so a later import of the name in this
 process fails closed through the unpublished guard instead of
-returning the unmarked module (RBQ43-c3-prebootstrap-module-stays,
-RBQ48-c3-other-refusal-paths); a module that carries the installation
+returning the unmarked module (an unmarked pre-guard module left importable,
+a refused module left in sys.modules); a module that carries the installation
 marker for the verified bytes -- published by this run, an earlier
 run, or a racing run, even as the SAME pre-existing object -- is
 never removed or unpublished by another run's failure, only by a
 check that actually refused it
 (a failing run unpublishing a verified module,
-RBQ53-c3-left-alone-wording). The SAME pack file imported under a DOTTED or other module name
-is NOT covered by the guard (RBQ40-c3-dotted-name-residual): the guard
+a racing publication of the same object). The SAME pack file imported under a DOTTED or other module name
+is NOT covered by the guard (a pack file imported under a dotted name): the guard
 protects the BARE NAME ``aiqt_corpus`` and nothing else. As a CLASS,
 ANY ``sys.path`` entry from which the pack's files can be reached under
 a path of Python identifiers can import the same file under another
@@ -56,8 +56,8 @@ here is complete. As a SECOND, BEST-EFFORT layer the shim removes the
 entry shapes it recognises: every ``sys.path`` entry whose RESOLVED
 path (``os.path.realpath``; the empty entry resolves against the
 current working directory, exactly like ``.``) is a pack ``tools/``
-directory (RBQ34-c3-symlink-alias, RBQ33-c3-stale-path-race,
-RBQ28-c3-tools-on-path, RBQ27-c3-concurrent-import), a pack ROOT, or a
+directory (a pack tools directory reached through a symlink, a stale module trusted by its origin,
+a pack tools directory on sys.path, a concurrent import during verification), a pack ROOT, or a
 pack root's PARENT (a repository root wrongly treated as a dotted route,
 an unscrubbed empty sys.path entry). The repository root carries NO dotted
 route of its own to the in-repo pack: ``.claude`` is not a Python
@@ -83,7 +83,7 @@ Discovery:
 
 1. ``AIQT_PACK_ROOT`` (the AIQT-standard name) or ``GRC_AIQT_PACK`` env var
    (explicit override for a non-default layout or a test harness). A set,
-   non-empty override is STRICT (RBQ33-c3-explicit-root-fallback): the named
+   non-empty override is STRICT (an override falling back to another pack): the named
    root must carry a regular ``tools/aiqt_corpus.py`` and a regular
    ``PIN.toml`` (checked with a non-following lstat) and must then verify as
    above, or the shim raises ``ImportError``. There is NO fallback: a named
@@ -92,16 +92,16 @@ Discovery:
    instead of silently selecting another pack. An override must additionally
    not be or cross a symlinked path component (checked without following
    links, before any verification, and the path is never resolve()d:
-   RBQ11-bootstrap-symlinked-override), and its verified release root must
+   an override through a symlinked path), and its verified release root must
    equal THIS repository's committed ``.claude/aiqt/PIN.toml`` release root; a
    self-consistent pack pinned to a different root is refused, and a missing
    or unreadable repository pin refuses every override
-   (RBQ11-override-not-pinned). The repository pin is read only through
+   (an override pinned to another release root). The repository pin is read only through
    link-free, expected-type path components, so a symlinked ``.claude/aiqt``
    cannot hand the override its own trust anchor
-   (RBQ14-repo-pin-symlinked-vendor), and the release root compared is the
+   (a symlinked vendor directory supplying the pin), and the release root compared is the
    one verification itself validated, never a re-read of the override's pin
-   record (RBQ14-pin-reread-race).
+   record (an override pin record swapped after verification).
 2. With no override set: the in-repo vendored location
    ``<repo>/.claude/aiqt/``, the digest-verified copy CI and dev both use
    (this file lives at ``<repo>/.claude/skills/corpus-management/tools/``, so
@@ -123,19 +123,19 @@ The consumer's ``import aiqt_corpus`` runs the VERIFIED bytes, not a re-read:
 after verification succeeds, the shim reads ``tools/aiqt_corpus.py`` once
 more THROUGH THE VERIFIER'S non-following, nonblocking regular-file reader
 (so a symlink, FIFO, or other special file swapped into place is refused,
-never followed or blocked on: RBQ27-c3-capture-fifo), refuses unless those
+never followed or blocked on: a FIFO or symlink swapped in before capture), refuses unless those
 bytes still match the file's manifest row (a module file swapped after verification), then
 compiles exactly those captured bytes with ``dont_inherit=True`` (so the
 verified code runs with default compiler flags, not with this shim's
-``from __future__ import annotations``: RBQ28-c3-compile-inherit) and
+``from __future__ import annotations``: compiler flags inherited from this shim) and
 executes them into a FRESH module object that is NOT yet in ``sys.modules``,
-while holding NO import lock (RBQ33-c3-import-lock-deadlock): a concurrent
+while holding NO import lock (a deadlock on the import lock): a concurrent
 ``import aiqt_corpus`` during execution finds no ``aiqt_corpus`` in
 ``sys.modules`` and is refused by the name guard on ``sys.meta_path`` BEFORE
 ``sys.path`` is ever consulted for the name, so it fails closed with
 ``ModuleNotFoundError``; it can neither wait on a lock the shim holds, nor
 see a half-built module, nor import the on-disk file
-(RBQ27-c3-concurrent-import, RBQ38-c3-scrub-toctou). Only after execution completes is the module
+(a concurrent import during verification, a sys.path entry retargeted after the scrub). Only after execution completes is the module
 published in ``sys.modules``, under the interpreter's global import lock
 held just for that dictionary check-and-insert (no module code runs under
 it). The loader marks the module it built with an installation marker (the
@@ -143,9 +143,9 @@ SHA-256 of the captured verified bytes): an ``aiqt_corpus`` already in
 ``sys.modules`` is accepted ONLY when it carries that marker for the bytes
 this bootstrap verified AND its origin resolves to the located copy's
 ``tools/aiqt_corpus.py`` -- never by origin alone
-(RBQ33-c3-stale-path-race) -- and ``ensure_on_path()`` re-checks both the
+(a stale module trusted by its origin) -- and ``ensure_on_path()`` re-checks both the
 marker and the origin again AFTER installation
-(RBQ33-c3-origin-recheck-comment).
+(an installation never re-checked).
 
 REMAINING, disclosed: the byte pinning covers only ``tools/aiqt_corpus.py``
 (today the only vendored code the shim imports, itself stdlib-only); any
@@ -155,8 +155,8 @@ by ``sys.path`` matching: the guard never consults ``sys.path`` for
 ``aiqt_corpus``, so no entry of any shape -- a literal pack ``tools/``
 entry, a symlinked alias, a symlink retargeted AFTER the scrub, a path
 created or renamed into place, a relative entry re-resolved after a chdir
-(RBQ38-c3-scrub-toctou), a plain directory holding a symlink named
-``aiqt_corpus.py`` (RBQ38-c3-file-symlink-alias), a bind mount, a
+(a sys.path entry retargeted after the scrub), a plain directory holding a symlink named
+``aiqt_corpus.py`` (a module symlink inside a plain entry), a bind mount, a
 hard-linked copy, an entry re-inserted after bootstrap begins, or the ``''``
 entry -- can decide what ``import aiqt_corpus`` yields. What the name guard
 does NOT cover, disclosed: code that loads the pack file BY PATH
@@ -217,8 +217,8 @@ import lock (when the name still binds the same object), through ONE
 shared helper, before the error propagates, so a later
 ``import aiqt_corpus`` in this process fails closed through the
 unpublished guard instead of returning the unmarked module
-(RBQ43-c3-prebootstrap-module-stays,
-RBQ48-c3-other-refusal-paths); a module carrying the installation
+(an unmarked pre-guard module left importable,
+a refused module left in sys.modules); a module carrying the installation
 marker for the verified bytes is never removed or unpublished by
 another run's failure (a failing run unpublishing a verified module). The
 installation marker is an ordinary module attribute: code already
@@ -264,7 +264,7 @@ _verified_corpus_source: bytes | None = None
 # captured (and the origin matches too); a module that reached sys.modules
 # any other way -- an import of the on-disk file through a stale sys.path
 # entry above all -- carries no marker and is refused, whatever its origin
-# claims (RBQ33-c3-stale-path-race).
+# claims (a stale module trusted by its origin).
 _INSTALL_MARKER_ATTR = "__aiqt_bootstrap_installed_digest__"
 
 
@@ -277,17 +277,17 @@ def _module_marker(module):
     refused and removed like any other impostor -- never an
     ``AttributeError`` that would replace the original bootstrap error
     inside the failure handler and leave the object importable
-    (RBQ57-c3-no-dict-module). Any entry whose NAMESPACE CANNOT BE
+    (an entry with no mapping namespace). Any entry whose NAMESPACE CANNOT BE
     READ, or whose MARKER LOOKUP RAISES an ``Exception`` -- a
     ``__dict__`` descriptor raising any ``Exception``, where plain
     ``getattr`` suppresses only ``AttributeError`` -- is treated as
     UNMARKED the same way, never an exception that would replace the
-    original bootstrap error (RBQ58-c3-dict-descriptor-raises). ONLY
+    original bootstrap error (a namespace read that raises). ONLY
     ``Exception`` is caught -- catching ``BaseException`` here would
     swallow a REAL ``KeyboardInterrupt`` landing in this window -- so
     a descriptor raising a ``BaseException`` subclass still CRASHES
     the read and the entry SURVIVES: a DISCLOSED residual of the same
-    in-process forgery class as RBQ57/RBQ58
+    in-process forgery class as the two cases above
     (a descriptor that raises BaseException)."""
     try:
         namespace = getattr(module, "__dict__", None)
@@ -303,7 +303,7 @@ class _PublishedVerifiedLoader(importlib.abc.Loader):
     resolves through the name guard after publication (the name was popped
     from ``sys.modules``): ``create_module`` returns the published module
     object itself and ``exec_module`` runs nothing, so no disk bytes are
-    read or executed on this path (RBQ38-c3-scrub-toctou)."""
+    read or executed on this path (a sys.path entry retargeted after the scrub)."""
 
     def __init__(self, module) -> None:
         self._module = module
@@ -322,7 +322,7 @@ class _PublishedVerifiedLoader(importlib.abc.Loader):
 
 class _AiqtCorpusNameGuard(importlib.abc.MetaPathFinder):
     """Owns the module NAME ``aiqt_corpus`` from the front of
-    ``sys.meta_path`` (RBQ38-c3-scrub-toctou, RBQ38-c3-file-symlink-alias):
+    ``sys.meta_path`` (a sys.path entry retargeted after the scrub, a module symlink inside a plain entry):
 
     - it never consults ``sys.path`` for the name, so no path entry of any
       shape -- literal, symlinked, retargeted after the scrub, relative and
@@ -343,7 +343,7 @@ class _AiqtCorpusNameGuard(importlib.abc.MetaPathFinder):
     ``aiqt_corpus``: code that loads the pack file by PATH, or under
     ANOTHER module name (a dotted import through any ``sys.path`` entry
     from which the pack's files are reachable under identifier names:
-    RBQ40-c3-dotted-name-residual), or that removes
+    a pack file imported under a dotted name), or that removes
     this finder from ``sys.meta_path``, is outside it and disclosed under
     REMAINING in the module docstring."""
 
@@ -369,7 +369,7 @@ class _AiqtCorpusNameGuard(importlib.abc.MetaPathFinder):
         module): every bootstrap run calls this through
         ``_install_name_guard()`` BEFORE any discovery or verification, so
         an import inside the new run's verification window is refused even
-        when an earlier run had published (RBQ38-c3-scrub-toctou)."""
+        when an earlier run had published (a sys.path entry retargeted after the scrub)."""
         self._module = None
         self._origin = None
 
@@ -410,18 +410,18 @@ def _install_name_guard() -> None:
     ONE atomic slice assignment that puts the guard first and drops every
     other copy of it and every stale tagged guard, so a finder that was
     placed in front of it between runs is displaced behind it by the next
-    bootstrap (RBQ40-c3-guard-not-refronted) and the guard is never ABSENT
+    bootstrap (a finder left in front of the guard) and the guard is never ABSENT
     from ``sys.meta_path`` for even an instant of a re-run: the importer's
     UNLOCKED ``list(sys.meta_path)`` snapshot (taken before any import
     lock) can never land in a guardless gap, as the two-step
-    remove-then-insert form allowed (RBQ43-c3-refront-race). Retraction
+    remove-then-insert form allowed (a guardless gap during the re-front). Retraction
     opens no window of its own: it only unpublishes while the guard stays
     in place. A finder inserted in front AFTER the last bootstrap run,
     with no further run, stays in front and is disclosed under REMAINING. Any earlier publication is RETRACTED
     here, so the verification window of THIS run fails closed too. The
     guard STAYS installed after bootstrap: an unpublished guard left by a
     FAILED bootstrap keeps the name failing closed rather than reopening
-    ``sys.path`` (RBQ38-c3-scrub-toctou, RBQ38-c3-file-symlink-alias)."""
+    ``sys.path`` (a sys.path entry retargeted after the scrub, a module symlink inside a plain entry)."""
     _imp.acquire_lock()
     try:
         _NAME_GUARD.retract()
@@ -433,7 +433,7 @@ def _install_name_guard() -> None:
         # ONE list mutation: the new contents are built first, then written
         # with a single slice assignment, so during a re-run sys.meta_path
         # never passes through a state without the guard
-        # (RBQ43-c3-refront-race).
+        # (a guardless gap during the re-front).
         sys.meta_path[:] = refronted
     finally:
         _imp.release_lock()
@@ -466,11 +466,11 @@ def _verified(pack_root: Path, what: str) -> tuple[Path, str, bytes]:
     ImportError (fail loud, never fall through). Returns the pack root
     together with the release root the verifier itself validated, so a later
     comparison never has to re-read the pack's pin record
-    (RBQ14-pin-reread-race). Also RETURNS the captured bytes of
+    (an override pin record swapped after verification). Also RETURNS the captured bytes of
     ``tools/aiqt_corpus.py``: the file is read once more AFTER verification,
     through the verifier's own non-following, nonblocking regular-file reader
     (so a symlink or FIFO swapped into place is refused, never followed or
-    blocked on: RBQ27-c3-capture-fifo), and refused unless those bytes still
+    blocked on: a FIFO or symlink swapped in before capture), and refused unless those bytes still
     match the file's manifest row; ``ensure_on_path()`` later executes
     exactly the captured bytes, so a rewrite of the module between
     verification and import is refused here or has no effect
@@ -480,7 +480,7 @@ def _verified(pack_root: Path, what: str) -> tuple[Path, str, bytes]:
     ``_pinned_to_repository``), so the bytes of a self-consistent but
     REFUSED pack can never become the reference the failure handler
     validates installation markers against
-    (RBQ57-c3-refused-override-bytes)."""
+    (a refused override's bytes taken as the reference)."""
     rules = _load_verifier()
     try:
         pin, inventory = rules.verify_vendor_dir(pack_root)
@@ -519,11 +519,11 @@ class _VerifiedSourceLoader(importlib.abc.Loader):
     runs is the code that was verified (a module file swapped after verification). The
     compile uses ``dont_inherit=True``: the verified bytes get the default
     compiler flags, not this shim's ``from __future__ import annotations``
-    (RBQ28-c3-compile-inherit). After a successful execution the loader sets
+    (compiler flags inherited from this shim). After a successful execution the loader sets
     the installation marker (the SHA-256 of the executed bytes) on the
     module, so the bootstrap can later tell a module it built from the
     captured bytes apart from one that reached ``sys.modules`` any other way
-    (RBQ33-c3-stale-path-race)."""
+    (a stale module trusted by its origin)."""
 
     def __init__(self, origin: str, source: bytes) -> None:
         self._origin = origin
@@ -551,7 +551,7 @@ def _install_verified_corpus(tools: Path) -> None:
     ``import aiqt_corpus`` during execution finds nothing and fails closed
     with ``ModuleNotFoundError`` -- it can neither block on a lock this shim
     holds (the deadlock when another thread is partway through importing a
-    dependency such as ``subprocess``: RBQ33-c3-import-lock-deadlock) nor
+    dependency such as ``subprocess``: a deadlock on the import lock) nor
     see a partially initialized module. Only after execution completes is
     the module published, under the global import lock held just for the
     ``sys.modules`` check-and-insert (no module code runs under it). An
@@ -559,13 +559,13 @@ def _install_verified_corpus(tools: Path) -> None:
     when it carries this bootstrap's installation marker for the same
     verified bytes (another ``ensure_on_path()`` won the publish race);
     anything else is refused and REMOVED from ``sys.modules`` through the
-    one shared helper (RBQ48-c3-other-refusal-paths).
+    one shared helper (a refused module left in sys.modules).
     ``ensure_on_path()`` re-checks the installed
     module's marker and origin after this returns
-    (RBQ33-c3-origin-recheck-comment). A failed execution publishes
+    (an installation never re-checked). A failed execution publishes
     nothing. A successful publication also hands the module to the
     ``sys.meta_path`` name guard, which from then on serves ONLY the
-    published verified module (RBQ38-c3-scrub-toctou)."""
+    published verified module (a sys.path entry retargeted after the scrub)."""
     source = _verified_corpus_source
     if source is None:
         raise ImportError(
@@ -579,7 +579,7 @@ def _install_verified_corpus(tools: Path) -> None:
     spec.has_location = True
     module = importlib.util.module_from_spec(spec)
     # Execute the captured verified bytes into the unpublished module,
-    # holding no import lock (RBQ33-c3-import-lock-deadlock).
+    # holding no import lock (a deadlock on the import lock).
     loader.exec_module(module)
     _imp.acquire_lock()
     try:
@@ -591,7 +591,7 @@ def _install_verified_corpus(tools: Path) -> None:
             # The refused module must not stay importable: the one shared
             # helper removes it before the error propagates (the import
             # lock is reentrant for this thread)
-            # (RBQ48-c3-other-refusal-paths).
+            # (a refused module left in sys.modules).
             _remove_refused_module(existing)
             raise ImportError(
                 "an aiqt_corpus appeared in sys.modules while the verified module "
@@ -606,7 +606,7 @@ def _install_verified_corpus(tools: Path) -> None:
             published = existing
         # From now on the name guard serves ONLY this published verified
         # module; an import of the name never consults sys.path
-        # (RBQ38-c3-scrub-toctou, RBQ38-c3-file-symlink-alias).
+        # (a sys.path entry retargeted after the scrub, a module symlink inside a plain entry).
         _NAME_GUARD.publish(published)
     finally:
         _imp.release_lock()
@@ -617,7 +617,7 @@ def _refuse_symlinked_override(root: Path, what: str) -> None:
     the named path and every ancestor are checked with a non-following lstat
     BEFORE verification and WITHOUT any resolve(), so the pack the verifier
     reads is exactly the pack the path names and a link cannot redirect it
-    (RBQ11-bootstrap-symlinked-override). A component that cannot be checked
+    (an override through a symlinked path). A component that cannot be checked
     refuses too (fail closed)."""
     for component in (root, *root.parents):
         try:
@@ -681,7 +681,7 @@ def _repository_pin_path(repo_root: Path) -> Path:
     expected, link-free components: the repository root, ``.claude`` and
     ``.claude/aiqt`` must be real directories and ``PIN.toml`` a regular
     file, each checked with a non-following lstat BEFORE the record is read
-    (RBQ14-repo-pin-symlinked-vendor). Any symlink, wrong type, or
+    (a symlinked vendor directory supplying the pin). Any symlink, wrong type, or
     uncheckable component refuses with the same fixed text (fail closed):
     otherwise a symlinked ``.claude/aiqt`` would let an override supply both
     the candidate pack and the repository trust anchor it is compared
@@ -703,14 +703,14 @@ def _repository_pin_path(repo_root: Path) -> Path:
 
 def _pinned_to_repository(pack_root: Path, pack_pin: str, what: str) -> Path:
     """Refuse an override whose VERIFIED release root is not THIS repository's
-    committed pin (RBQ11-override-not-pinned): a pack that is merely
+    committed pin (an override pinned to another release root): a pack that is merely
     self-consistent carries no authority here. ``pack_pin`` is the release
     root verify_vendor_dir() already validated for ``pack_root``; the
     override's own PIN.toml is deliberately NOT re-read here, so a pin record
     swapped in after verification cannot change the compared value
-    (RBQ14-pin-reread-race). The repository pin itself is read only through
+    (an override pin record swapped after verification). The repository pin itself is read only through
     link-free, expected-type path components
-    (RBQ14-repo-pin-symlinked-vendor). A missing or unreadable repository pin
+    (a symlinked vendor directory supplying the pin). A missing or unreadable repository pin
     record refuses every override (fail closed)."""
     rules = _load_verifier()
     here = Path(__file__).resolve()
@@ -746,21 +746,21 @@ def _pack_tools_entry(entry: str) -> bool:
     ``.aiqt`` -- in its parent. Deciding on the RESOLVED path, never on the
     entry's spelling, also matches an entry that reaches the pack through a
     symlink of ANY name -- an aliased directory, a link named ``tools`` in
-    a markerless parent, or a chain of links (RBQ34-c3-symlink-alias). The
+    a markerless parent, or a chain of links (a pack tools directory reached through a symlink). The
     match decides ONCE, at scrub time, on the ENTRY alone, so it
     deliberately claims no more than that: it cannot see an entry whose
     target changes afterwards (a symlink retargeted, a path created or
     renamed into place, or a relative entry re-resolved after a chdir:
-    RBQ38-c3-scrub-toctou), a plain directory holding a symlink named
+    a sys.path entry retargeted after the scrub), a plain directory holding a symlink named
     ``aiqt_corpus.py`` to the pack's file (only the entry is resolved,
-    never the files under it: RBQ38-c3-file-symlink-alias), a bind mount,
+    never the files under it: a module symlink inside a plain entry), a bind mount,
     or a hard-linked copy; for the name ``aiqt_corpus`` every one of those
     is closed by the name guard, not here (see REMAINING in the module
     docstring). An entry that is not a ``str`` -- bytes, an int, or any
     other object put on ``sys.path`` -- is reported unmatched too, never a
     ``TypeError``: the import system's own ``PathFinder`` skips such
     entries, and so do this scrub and the masquerade scan
-    (RBQ40-c3-nonstr-path-typeerror). An entry the filesystem refuses to
+    (a non-str sys.path entry). An entry the filesystem refuses to
     inspect -- an ``OSError``, or a ``ValueError`` such as an embedded NUL
     byte (an unresolvable sys.path entry) -- is reported unmatched instead
     of raising out of the scrub. The empty entry is resolved against the
@@ -768,7 +768,7 @@ def _pack_tools_entry(entry: str) -> bool:
     same rule (an unscrubbed empty sys.path entry)."""
     if not isinstance(entry, str):
         # Skipped exactly as PathFinder skips it; never a TypeError out of
-        # the scrub (RBQ40-c3-nonstr-path-typeerror).
+        # the scrub (a non-str sys.path entry).
         return False
     try:
         base = Path(os.path.realpath(entry))
@@ -852,16 +852,16 @@ def _scrub_pack_tools_entries() -> None:
     """SECOND, BEST-EFFORT layer: remove every ``sys.path`` entry that
     RESOLVES to a
     pack ``tools/`` directory (``_pack_tools_entry``: a literal entry or a
-    symlinked alias of any name, RBQ34-c3-symlink-alias), to a pack ROOT,
+    symlinked alias of any name, a pack tools directory reached through a symlink), to a pack ROOT,
     or to a pack root's PARENT (``_pack_dotted_entry``, with the empty
     entry resolved against the current working directory exactly like
     ``.``: a repository root wrongly treated as a dotted route, an unscrubbed empty sys.path entry) at
     the START
     of bootstrap, BEFORE any discovery or verification
-    (RBQ33-c3-stale-path-race). For the bare name ``aiqt_corpus`` the
+    (a stale module trusted by its origin). For the bare name ``aiqt_corpus`` the
     guarantee is the ``sys.meta_path`` name guard, which never consults
     ``sys.path``; this scrub removes the entry shapes it RECOGNISES and
-    claims NO more (RBQ28-c3-tools-on-path): the repository root carries
+    claims NO more (a pack tools directory on sys.path): the repository root carries
     no dotted route of its own to the in-repo pack (``.claude`` is not a
     Python
     identifier) and is kept, and the pack file stays importable under a
@@ -891,19 +891,19 @@ def find_pack_tools() -> Path | None:
     ``tools/aiqt_corpus.py`` and a regular ``PIN.toml``, be link-free,
     verify, and carry the repository's own pinned release root, or this
     raises ImportError with NO fallback to discovery or the in-repo copy
-    (RBQ33-c3-explicit-root-fallback). An in-repo copy that carries the pack
+    (an override falling back to another pack). An in-repo copy that carries the pack
     shape but does not verify raises ImportError instead of being skipped.
     The captured verified bytes are assigned to
     ``_verified_corpus_source`` HERE, only after the selected copy is
     ADMITTED -- for an override, only after ``_pinned_to_repository``
     -- never inside ``_verified()``, so a refused pack's bytes never
-    become the reference (RBQ57-c3-refused-override-bytes)."""
+    become the reference (a refused override's bytes taken as the reference)."""
     global _verified_corpus_source
     # 1. explicit override: AIQT_PACK_ROOT is the AIQT-standard name; GRC_AIQT_PACK
     #    is accepted too. A set, non-empty variable is strict: the named root must
     #    be link-free, carry a regular tools/aiqt_corpus.py and a regular PIN.toml,
     #    verify, and match the repository pin, or ImportError is raised -- never a
-    #    fall-through (RBQ33-c3-explicit-root-fallback). The path is normalized
+    #    fall-through (an override falling back to another pack). The path is normalized
     #    textually (os.path.abspath touches no filesystem link) and never
     #    resolve()d.
     for var in ("AIQT_PACK_ROOT", "GRC_AIQT_PACK"):
@@ -921,7 +921,7 @@ def find_pack_tools() -> Path | None:
             # the bytes an earlier run verified, or the failure handler
             # would validate that run's marked module against the
             # refused digest, treat it as unmarked and remove it
-            # (RBQ57-c3-refused-override-bytes).
+            # (a refused override's bytes taken as the reference).
             _verified_corpus_source = data
             return admitted / "tools"
 
@@ -951,7 +951,7 @@ def _accept_installed(module, expected: Path, when: str) -> None:
       bootstrap or by another instance of this same shim that verified the
       same bytes; a module that reached ``sys.modules`` any other way is
       refused whatever its origin, because an origin can be worn by a module
-      imported from the on-disk file (RBQ33-c3-stale-path-race); and
+      imported from the on-disk file (a stale module trusted by its origin); and
     - its origin resolves to the located copy's ``tools/aiqt_corpus.py``.
     """
     source = _verified_corpus_source
@@ -1001,12 +1001,12 @@ def _marked_for_verified_bytes(module) -> bool:
     code in this process -- is disclosed as outside this shim's threat
     model; the failure path still removes every UNMARKED impostor. A
     missing or non-mapping ``__dict__`` is unmarked
-    (RBQ57-c3-no-dict-module); an entry whose namespace cannot be read
+    (an entry with no mapping namespace); an entry whose namespace cannot be read
     or whose marker lookup raises an ``Exception`` is unmarked
-    (RBQ58-c3-dict-descriptor-raises); a ``__dict__`` descriptor
+    (a namespace read that raises); a ``__dict__`` descriptor
     raising a ``BaseException`` subclass still crashes the read and
     the entry survives, a disclosed residual of the same in-process
-    forgery class as RBQ57/RBQ58
+    forgery class as the two cases above
     (a descriptor that raises BaseException); ``None`` is
     unmarked."""
     if module is None:
@@ -1032,14 +1032,14 @@ def _remove_refused_module(refused) -> None:
     (cleanup skipped on a non-ImportError failure), after an UNMARKED pre-existing
     module was seen go through
     this ONE helper before the error propagates
-    (RBQ43-c3-prebootstrap-module-stays, RBQ48-c3-other-refusal-paths).
+    (an unmarked pre-guard module left importable, a refused module left in sys.modules).
     Both checks are OBJECT IDENTITY (``is``) against the refused object:
     a DIFFERENT module object another thread swapped in or published
     meanwhile is left alone, but identity alone cannot tell a refusal
     from a racing acceptance or publication of the SAME object, so a
     caller must pass only a module it actually refused -- or, on the
     failure path, an UNMARKED pre-existing module -- never a marked,
-    verified module (RBQ53-c3-left-alone-wording,
+    verified module (a racing publication of the same object,
     a failing run unpublishing a verified module). ``None`` is a no-op."""
     if refused is None:
         return
@@ -1066,8 +1066,8 @@ def ensure_on_path() -> Path:
     with ``ModuleNotFoundError``, whatever ``sys.path`` holds -- a literal
     pack entry, a symlinked alias, a symlink retargeted AFTER the scrub, a
     relative entry re-resolved after a chdir, or a plain directory holding
-    a symlink named ``aiqt_corpus.py`` (RBQ38-c3-scrub-toctou,
-    RBQ38-c3-file-symlink-alias) -- and once published the guard serves
+    a symlink named ``aiqt_corpus.py`` (a sys.path entry retargeted after the scrub,
+    a module symlink inside a plain entry) -- and once published the guard serves
     ONLY the published verified module. The guard covers the bare name
     ``aiqt_corpus`` only, from the first time it is installed; an import
     made before then resolves through ``sys.path`` and the module it left
@@ -1082,31 +1082,31 @@ def ensure_on_path() -> Path:
     under the import lock (when the name still binds the same object),
     before the error propagates, so the name then
     fails closed for the rest of the process
-    (RBQ43-c3-prebootstrap-module-stays,
-    RBQ48-c3-other-refusal-paths); a module that carries the
+    (an unmarked pre-guard module left importable,
+    a refused module left in sys.modules); a module that carries the
     installation marker for the verified bytes is never removed or
     unpublished by another run's failure, whether this run, an earlier
     run, or a racing run published it
     (a failing run unpublishing a verified module,
-    RBQ53-c3-left-alone-wording); the same pack
+    a racing publication of the same object); the same pack
     file imported under a DOTTED or other name is outside the guard
-    (RBQ40-c3-dotted-name-residual). Every bootstrap run re-fronts the
+    (a pack file imported under a dotted name). Every bootstrap run re-fronts the
     guard with ONE atomic slice assignment of ``sys.meta_path`` that puts
     the guard first and drops duplicate and stale tagged guards, so a
     finder placed in front of it between runs is displaced on the next
-    run (RBQ40-c3-guard-not-refronted) and the guard is never absent from
+    run (a finder left in front of the guard) and the guard is never absent from
     ``sys.meta_path`` for any instant of the re-front
-    (RBQ43-c3-refront-race). As a SECOND, BEST-EFFORT layer, every
+    (a guardless gap during the re-front). As a SECOND, BEST-EFFORT layer, every
     ``sys.path``
     entry whose RESOLVED path is a pack ``tools/`` directory (spelled
-    literally or through a symlink of any name: RBQ34-c3-symlink-alias),
+    literally or through a symlink of any name: a pack tools directory reached through a symlink),
     a pack ROOT, or a pack root's PARENT is removed when the scrub
     recognises that shape (the empty entry resolves against the current
     working directory, exactly like ``.``: a repository root wrongly treated as a dotted route,
     an unscrubbed empty sys.path entry), and no pack
     directory is ever placed on ``sys.path``
-    (RBQ27-c3-concurrent-import, RBQ28-c3-tools-on-path,
-    RBQ33-c3-stale-path-race); the repository root carries NO dotted
+    (a concurrent import during verification, a pack tools directory on sys.path,
+    a stale module trusted by its origin); the repository root carries NO dotted
     route of its own to the in-repo pack (``.claude`` is not a Python
     identifier)
     and is kept; what remains outside the guard -- the CLASS of dotted
@@ -1118,7 +1118,7 @@ def ensure_on_path() -> Path:
     and never a complete list. A ``sys.path`` entry that is not a
     ``str`` is SKIPPED by the scrub and by the masquerade scan, exactly as
     the import system skips it, and never raises ``TypeError``
-    (RBQ40-c3-nonstr-path-typeerror). Bytecode writing is additionally
+    (a non-str sys.path entry). Bytecode writing is additionally
     disabled for this process, so nothing can write ``__pycache__`` inside
     the digest-pinned vendor tree.
 
@@ -1127,7 +1127,7 @@ def ensure_on_path() -> Path:
     falls back); if an ``aiqt_corpus`` already in ``sys.modules`` does not
     carry this bootstrap's installation marker for the verified bytes with
     an origin at the located copy -- presence, origin, or both are never
-    enough (RBQ33-c3-stale-path-race); or if an importable ``aiqt_corpus``
+    enough (a stale module trusted by its origin); or if an importable ``aiqt_corpus``
     exists anywhere on ``sys.path`` (an installed copy in site-packages or a
     planted file), which could masquerade as the vendored module for tooling
     that inspects the import system -- that scan reads ``sys.path`` directly
@@ -1140,17 +1140,17 @@ def ensure_on_path() -> Path:
     bytes are executed into a fresh unpublished module with NO import lock
     held (a concurrent import fails closed with ``ModuleNotFoundError``
     instead of deadlocking or seeing a partial module:
-    RBQ33-c3-import-lock-deadlock), the module is published under the global
+    a deadlock on the import lock), the module is published under the global
     import lock held only for the ``sys.modules`` insert, and the installed
     module's marker and origin are then RE-CHECKED before this returns
-    (RBQ33-c3-origin-recheck-comment), so the consumer's
+    (an installation never re-checked), so the consumer's
     ``import aiqt_corpus`` never re-reads the module file after verification
     (a module file swapped after verification).
     """
     # FIRST, before any discovery or verification: own the module name.
     # The guard refuses every import of aiqt_corpus until the verified
-    # module is published, whatever sys.path holds (RBQ38-c3-scrub-toctou,
-    # RBQ38-c3-file-symlink-alias).
+    # module is published, whatever sys.path holds (a sys.path entry retargeted after the scrub,
+    # a module symlink inside a plain entry).
     _install_name_guard()
     # The vendor tree must stay byte-identical to its manifest (gate 98):
     # nothing may create tools/__pycache__ inside it.
@@ -1159,13 +1159,13 @@ def ensure_on_path() -> Path:
     # importable when this bootstrap FAILS for any reason, before (or
     # at) the acceptance check: the failure handler at the bottom
     # removes it through the one shared helper, whatever the exception
-    # type (RBQ48-c3-other-refusal-paths,
+    # type (a refused module left in sys.modules,
     # cleanup skipped on a non-ImportError failure).
     preexisting = sys.modules.get("aiqt_corpus")
     try:
         # SECOND layer, before discovery or verification: no sys.path
         # entry the scrub recognises may reach a pack
-        # (RBQ33-c3-stale-path-race).
+        # (a stale module trusted by its origin).
         _scrub_pack_tools_entries()
         tools = find_pack_tools()
         if tools is None:
@@ -1201,8 +1201,8 @@ def ensure_on_path() -> Path:
                 # object, so a later import of the name in this process
                 # fails closed through the unpublished guard instead of
                 # returning the unmarked module
-                # (RBQ43-c3-prebootstrap-module-stays,
-                # RBQ48-c3-other-refusal-paths).
+                # (an unmarked pre-guard module left importable,
+                # a refused module left in sys.modules).
                 _remove_refused_module(existing)
                 raise
             _NAME_GUARD.publish(existing)
@@ -1229,7 +1229,7 @@ def ensure_on_path() -> Path:
             )
         _install_verified_corpus(tools)
         # Re-check the INSTALLED module's marker and origin after
-        # installation (RBQ33-c3-origin-recheck-comment): what sys.modules
+        # installation (an installation never re-checked): what sys.modules
         # now holds must be a module built from the captured verified
         # bytes at the located copy's path, not whatever won a publish
         # race.
@@ -1245,7 +1245,7 @@ def ensure_on_path() -> Path:
         except ImportError:
             # The after-installation re-check refuses the same way: the
             # refused module must not stay importable or stay published
-            # (RBQ48-c3-other-refusal-paths).
+            # (a refused module left in sys.modules).
             _remove_refused_module(installed)
             raise
         return tools
@@ -1263,9 +1263,9 @@ def ensure_on_path() -> Path:
         # object meanwhile: the helper's object-identity check alone
         # cannot protect the same object, so this marker check does
         # (a failing run unpublishing a verified module,
-        # RBQ53-c3-left-alone-wording). A DIFFERENT module object
+        # a racing publication of the same object). A DIFFERENT module object
         # swapped in meanwhile is left alone by the helper's identity
-        # check (RBQ48-c3-other-refusal-paths).
+        # check (a refused module left in sys.modules).
         if not _marked_for_verified_bytes(preexisting):
             _remove_refused_module(preexisting)
         raise
