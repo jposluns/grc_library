@@ -29792,12 +29792,12 @@ class AuditGateParityTests(LinterTestCase):
                      "        run: python3 .claude/skills/corpus-management/tools/lint-hooks-syntax.py\n")
         nested = lambda text, by: "".join(" " * by + line + "\n" for line in text.splitlines())
         self._assert_yaml_edits_refused((
-            ("P29 repo key", "has the key 'x'", (
+            ("repo key", "has the key 'x'", (
                 (self._PC, "    hooks:\n" + metadata_hook, "    x:\n" + metadata_hook + "    hooks:\n"),)),
-            ("P31b regen hook key", "is at column 8 below the key 'x' at column 8", (
+            ("regen hook key", "is at column 8 below the key 'x' at column 8", (
                 (self._PC, "        types: [markdown]\n\n" + parity_hook,
                  "        types: [markdown]\n        x:\n" + nested(parity_hook, 2)),)),
-            ("P30b top-level key", "is at column 6 below the key 'x' at column 0", (
+            ("top-level key", "is at column 6 below the key 'x' at column 0", (
                 (self._PC, "      - id: lint-isolated-launch\n",
                  "x:\n      - id: lint-isolated-launch\n"),)),
             ("matrix list at its key's column", "is at column 8 below the key 'x' at column 8", (
@@ -29870,9 +29870,9 @@ class AuditGateParityTests(LinterTestCase):
         parity = ("        entry: python3 .claude/skills/corpus-management/tools/lint-audit-gate-parity.py\n"
                   "        language: system\n        pass_filenames: false\n")
         self._assert_yaml_edits_refused((
-            ("P32 files", selectors, (
+            ("files selector", selectors, (
                 (self._PC, self._PC_LANGUAGE_FILES, "        files: ^$\n"),)),
-            ("P33 types", "has a types list other than [markdown]", (
+            ("types list", "has a types list other than [markdown]", (
                 (self._PC, self._PC_LINKS, self._PC_LINKS.replace("[markdown]", "[directory]")),)),
             ("always_run false", selectors, (
                 (self._PC, parity + "        always_run: true\n",
@@ -34659,18 +34659,18 @@ class LintCommonHelperTests(unittest.TestCase):
         their_ref = theirs / ".git" / "refs" / "heads" / "main"
         refused = {}  # label: (roots run from, the path both name)
         passes = {}  # label: roots run from
-        ours = repo("e1")
-        git("-C", str(ours), "worktree", "add", "-q", "--detach", str(td / "e1-wt"))
-        head = ours / ".git" / "worktrees" / "e1-wt" / "HEAD"
+        ours = repo("head-link")
+        git("-C", str(ours), "worktree", "add", "-q", "--detach", str(td / "head-link-wt"))
+        head = ours / ".git" / "worktrees" / "head-link-wt" / "HEAD"
         head.unlink()
         head.symlink_to("refs/heads/foreign")
         foreign = ours / ".git" / "refs" / "heads" / "foreign"
         foreign.symlink_to(their_ref)
         # git reads the other repository's ref as the worktree's HEAD.
-        self.assertEqual(git("-C", str(td / "e1-wt"), "rev-parse", "HEAD"),
+        self.assertEqual(git("-C", str(td / "head-link-wt"), "rev-parse", "HEAD"),
                          git("-C", str(theirs), "rev-parse", "main"))
-        refused["E1: a permitted worktree HEAD link naming a linked common ref"] = (
-            [ours, td / "e1-wt"], foreign)
+        refused["a permitted worktree HEAD link naming a linked common ref"] = (
+            [ours, td / "head-link-wt"], foreign)
         ours = repo("deep")
         deep = ours / ".git" / "refs" / "tags" / "a" / "b"
         deep.mkdir(parents=True)
@@ -38931,7 +38931,7 @@ class DocumentControlCodeTests(LinterTestCase):
     # The earlier token regex, the reference for the omitted-predicate findings.
     BASE_NIST_CODE_RE = re.compile(r"\b((?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2})(?:-\d+)?\b")
 
-    E1_CELLS = (
+    HYPHEN_WORD_CELLS = (
         "GV.OC-PR.IP",
         "GV.OC–PR.IP",
         "DE.CM—ID.BE",
@@ -38972,16 +38972,16 @@ class DocumentControlCodeTests(LinterTestCase):
                     ))
         return expected
 
-    def test_e1_hyphen_followed_by_word_is_not_a_suffix(self) -> None:
+    def test_hyphen_followed_by_word_is_not_a_suffix(self) -> None:
         # A hyphen plus a Category or a word is not a suffix. Without the predicates
         # the findings equal the reconstructed baseline's; with them, the second
         # Category or CSF 1.1 code is reported as before, prose reports nothing, and
         # DE.CM-07a is an unknown Subcategory.
-        mod = load_linter_module(self.SCRIPT, "_document_control_e1")
+        mod = load_linter_module(self.SCRIPT, "_document_control_hyphen_word")
         engine = mod._engine()
-        body = "".join(f"| Control {i} | {cell} | LOG-01 |\n" for i, cell in enumerate(self.E1_CELLS))
+        body = "".join(f"| Control {i} | {cell} | LOG-01 |\n" for i, cell in enumerate(self.HYPHEN_WORD_CELLS))
         fixture = self.make_fixture(
-            "fake-doc-e1-cells.md",
+            "fake-doc-hyphen-word-cells.md",
             "# X\n\n## Control mapping\n\n"
             "| Control Area | NIST CSF | CSA CCM v4.1 |\n| --- | --- | --- |\n" + body,
         )
@@ -80859,18 +80859,18 @@ class TableCellCountTests(LinterTestCase):
         # after it renders, with the closer as one more lazy row. The row findings
         # of both readings are reported.
         layouts = {
-            "L1": ("- <!--\n\n  | a | b |\n  |---|---|\n  | 1 |\n  -->\n", 5),
-            "L2": ("1. <?php\n\n   | a | b |\n   |---|---|\n   | 1 |\n   ?>\n", 5),
-            "L4": ("> - <!--\n>\n>   | a | b |\n>   |---|---|\n>   | 1 |\n>   -->\n", 5),
-            "L5": ("- a\n  - <!--\n  \n    | a | b |\n    |---|---|\n    | 1 |\n    -->\n", 6),
-            "L6": ("- <pre>\n\n  | a | b |\n  |---|---|\n  | 1 |\n  </pre>\n", 5),
+            "comment in a bullet item": ("- <!--\n\n  | a | b |\n  |---|---|\n  | 1 |\n  -->\n", 5),
+            "processing instruction in an ordered item": ("1. <?php\n\n   | a | b |\n   |---|---|\n   | 1 |\n   ?>\n", 5),
+            "comment in a quoted bullet item": ("> - <!--\n>\n>   | a | b |\n>   |---|---|\n>   | 1 |\n>   -->\n", 5),
+            "comment in a nested bullet item": ("- a\n  - <!--\n  \n    | a | b |\n    |---|---|\n    | 1 |\n    -->\n", 6),
+            "pre block in a bullet item": ("- <pre>\n\n  | a | b |\n  |---|---|\n  | 1 |\n  </pre>\n", 5),
         }
         for name, (text, line) in layouts.items():
             with self.subTest(layout=name):
                 self.assertEqual(self.finding_heads(text),
                                  [f"doc.md:{line} header=2 row=1",
                                   f"doc.md:{line + 1} header=2 row=1 lazy-row"])
-        # L1b: a blank line indented to the content column ends the block in
+        # A blank line indented to the content column ends the block in
         # neither reading, and neither does one in a block quote inside the
         # item or one outside any list item.
         for text in ("- <!--\n  \n  | a | b |\n  |---|---|\n  | 1 |\n  -->\n",
@@ -80881,13 +80881,13 @@ class TableCellCountTests(LinterTestCase):
 
     def test_list_item_html_block_blank_line_measured_inside_the_quote(self) -> None:
         # A blank line one column short of the content column ends the block in
-        # markdown-it-py (M4), and the blank line's indent counts from inside the
-        # innermost block quote, whether the quote marker is indented (M6) or
-        # spaces follow it (M6, other direction: no table renders).
+        # markdown-it-py, and the blank line's indent counts from inside the
+        # innermost block quote, whether the quote marker is indented or
+        # spaces follow it (the other direction: no table renders).
         rows = ["doc.md:5 header=2 row=1", "doc.md:6 header=2 row=1 lazy-row"]
         for name, text in (
-                ("M4", "- <!--\n \n  | a | b |\n  |---|---|\n  | 1 |\n  -->\n"),
-                ("M6", "   > - <!--\n   >\n   >   | a | b |\n   >   |---|---|\n   >   | 1 |\n"
+                ("short blank line", "- <!--\n \n  | a | b |\n  |---|---|\n  | 1 |\n  -->\n"),
+                ("indented quote marker", "   > - <!--\n   >\n   >   | a | b |\n   >   |---|---|\n   >   | 1 |\n"
                        "   >   -->\n")):
             with self.subTest(probe=name):
                 self.assertEqual(self.finding_heads(text), rows)
@@ -80895,13 +80895,13 @@ class TableCellCountTests(LinterTestCase):
             "> - <!--\n>   \n>   | a | b |\n>   |---|---|\n>   | 1 |\n>   -->\n")}))
 
     def test_markdown_it_py_reading_adds_row_findings_only(self) -> None:
-        # This pins the documented choices M1, M2 and M3. Under
+        # This pins three documented choices. Under
         # markdown-it-py's reading the first document's comment opens after the blank line and
         # never closes, but only the CommonMark reading's unclosed blocks are
-        # reported (M1); the table and row counts are the CommonMark reading's,
-        # in which the table-shaped lines stay inside the comment (M2); and a
+        # reported; the table and row counts are the CommonMark reading's,
+        # in which the table-shaped lines stay inside the comment; and a
         # block of type 6 or 7 ends at a blank line, so it is never unclosed,
-        # even when its block quote ends it (M3).
+        # even when its block quote ends it.
         self.assertClean(self.make_repo({"doc.md": "- <pre>\n\n  <!--\n  </pre>\n"}))
         for text, counts in (("- <!--\n\n  | a | b |\n  |---|---|\n  | 1 | 2 |\n\n  -->\n",
                               "(0 tables, 0 body rows)"),
@@ -80942,22 +80942,22 @@ class TableCellCountTests(LinterTestCase):
 
     def test_list_marker_digits_are_ascii(self) -> None:
         # CommonMark and markdown-it-py read only ASCII digits in an ordered list
-        # marker, so an Arabic-Indic "١." (U1) or a fullwidth "１." (U1f) is a lazy
+        # marker, so an Arabic-Indic "١." or a fullwidth "１." is a lazy
         # row, not a list item ending the table.
-        u1 = self.HEAD3 + "| 1 | 2 | 3 |\n{}. x\n| 4 |\n"
+        lazy_marker = self.HEAD3 + "| 1 | 2 | 3 |\n{}. x\n| 4 |\n"
         for digit in ("١", "１"):
             with self.subTest(digit=digit):
-                self.assertEqual(self.finding_heads(u1.format(digit)),
+                self.assertEqual(self.finding_heads(lazy_marker.format(digit)),
                                  ["doc.md:4 header=3 row=1 lazy-row", "doc.md:5 header=3 row=1"])
-        self.assertClean(self.make_repo({"doc.md": u1.format("1")}))
-        # U8: the line is text, so it opens no fence and the table after it renders.
-        u8 = "{}. ```\n   | a | b |\n   |---|---|\n   | 1 |\n"
-        self.assertEqual(self.finding_heads(u8.format("١")), ["doc.md:4 header=2 row=1"])
-        self.assertEqual(self.finding_heads(u8.format("1")), ["doc.md:1 unclosed-fence"])
-        # U2: the line is text, so with the delimiter it heads no table.
-        u2 = "{}. | a | b |\n   |---|---|\n   | 1 |\n"
-        self.assertClean(self.make_repo({"doc.md": u2.format("١")}))
-        self.assertFinding(self.make_repo({"doc.md": u2.format("1")}), "doc.md:3 header=2 row=1")
+        self.assertClean(self.make_repo({"doc.md": lazy_marker.format("1")}))
+        # The line is text, so it opens no fence and the table after it renders.
+        fence_marker = "{}. ```\n   | a | b |\n   |---|---|\n   | 1 |\n"
+        self.assertEqual(self.finding_heads(fence_marker.format("١")), ["doc.md:4 header=2 row=1"])
+        self.assertEqual(self.finding_heads(fence_marker.format("1")), ["doc.md:1 unclosed-fence"])
+        # The line is text, so with the delimiter it heads no table.
+        header_marker = "{}. | a | b |\n   |---|---|\n   | 1 |\n"
+        self.assertClean(self.make_repo({"doc.md": header_marker.format("١")}))
+        self.assertFinding(self.make_repo({"doc.md": header_marker.format("1")}), "doc.md:3 header=2 row=1")
 
     def test_delimiter_cells_trimmed_of_spaces_and_tabs_only(self) -> None:
         # markdown-it-py admits only spaces and tabs beside a delimiter cell,
@@ -81099,20 +81099,20 @@ class TableCellCountTests(LinterTestCase):
         self.assertClean(self.make_repo({"doc.md": "| a | b |\n|---|---|\n| 1 | 2 |\n<DIV>\n"}))
 
     def test_line_after_a_lazy_quoted_delimiter_row_is_lazy_text(self) -> None:
-        # A2, A4 and the minimised form: a lazy line and a quoted delimiter row
+        # Two lazy layouts and the minimised form: a lazy line and a quoted delimiter row
         # form no table in markdown-it-py, so its paragraph stays open and the
         # next line, which leaves the quote and starts only an HTML block of type
         # 7 (which cannot interrupt a paragraph), is lazy text too; the quoted
         # table after it renders. markdown-it-py's reading reads it so, with
-        # U+0000 or "x" (A2-plain-x) in the attribute, while a type-6 start ends
+        # U+0000 or "x" in the attribute, while a type-6 start ends
         # the paragraph and its block holds the table.
         tail = "> | a | b |\n> |---|---|\n> | Z |\n"
         for name, text, finding in (
-                ("A2", "> | x |\n| y |\n> |---|\n<a href=x\x00>\n" + tail,
+                ("lazy table line", "> | x |\n| y |\n> |---|\n<a href=x\x00>\n" + tail,
                  "doc.md:7 header=2 row=1"),
-                ("A2-plain-x", "> | x |\n| y |\n> |---|\n<a href=xx>\n" + tail,
+                ("lazy table line, plain x", "> | x |\n| y |\n> |---|\n<a href=xx>\n" + tail,
                  "doc.md:7 header=2 row=1"),
-                ("A4", "> Text | x\nmore | y\n> ---|---\n<i x=\x00>\n" + tail,
+                ("lazy text line", "> Text | x\nmore | y\n> ---|---\n<i x=\x00>\n" + tail,
                  "doc.md:7 header=2 row=1"),
                 ("minimised", ">|\n-||\n>-|-\n<a f=\x00>\n>a||\n>-|-\n>Z",
                  "doc.md:7 header=2 row=1 lazy-row"),
