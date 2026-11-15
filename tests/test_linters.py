@@ -45740,6 +45740,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint_common.py PASSIVE F c3f9567cb927a4a4599fc2704a690a93d145aef8edfa2a90eb660b246aadbedd
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
+        merge-grc-library-new.py NO_FS F f861d25186e87c19b7c26c253b48e6801d01272f75bb8b27548225f25d4d1fbb
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
@@ -62132,6 +62133,240 @@ class TodoIndexRowGrammarParityTests(unittest.TestCase):
         self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
         self.assertIn("RB-6: TODO.md:2 AND P-TODO.md:2", r.stdout)
         self.assertIn("FAIL: 1 item-number permanence finding(s)", r.stdout)
+
+
+class MergeGrcLibraryNewRowCheckTests(unittest.TestCase):
+    """tools/merge-grc-library-new.py, part P1 of the 3b882 merge-tool plan: the register row
+    check (T1), the refusal of a store or register it cannot read (T2), decision D1 (registers are
+    read only from the operational store, never a sibling or in-repo fallback) and the tool's own
+    --self-test. Every test points GRC_STORE at a temporary directory, so none reads the
+    operational store."""
+
+    TOOL = "tools/merge-grc-library-new.py"
+    VALIDATE_REL = "validate-pr/history-grc_library_new.md"
+    RETRO_REL = "improvement-log-grc_library_new.md"
+    VALIDATE_ROW = ("| 2026-11-14 | #31 [repo: grc_library_new] | train 1 | claude (executed) "
+                    "| VPR31NEW-C1 | dispositioned |")
+    RETRO_ROW = ("| 2026-11-14 | #31 (/retro) [NEW31-RETRO] [repo: grc_library_new] | Train 1 "
+                 "| went well | went badly | cause | actions |")
+    PREAMBLE_V = ("# PR-Scoped Validation History: grc_library_new\n\n"
+                  "Per-PR /validate-pr rows for jposluns/grc_library_new. Append below.\n\n")
+    PREAMBLE_R = ("# Improvement Log: grc_library_new\n\n"
+                  "Per-PR /retro rows for jposluns/grc_library_new. Append below.\n\n")
+
+    def setUp(self):
+        self.mod = load_linter_module(self.TOOL, "_merge_grc_library_new_rows")
+
+    def _missing(self, validate, retro, pr=31):
+        return self.mod.missing_rows(self.PREAMBLE_V + validate + "\n",
+                                     self.PREAMBLE_R + retro + "\n", pr)
+
+    def _store(self, tmp, validate=None, retro=None):
+        store = Path(tmp) / "store"
+        (store / "validate-pr").mkdir(parents=True)
+        if validate is not None:
+            (store / self.VALIDATE_REL).write_text(self.PREAMBLE_V + validate + "\n", encoding="utf-8")
+        if retro is not None:
+            (store / self.RETRO_REL).write_text(self.PREAMBLE_R + retro + "\n", encoding="utf-8")
+        return store
+
+    def _run(self, store, *args):
+        env = dict(os.environ)
+        env["GRC_STORE"] = str(store)
+        return subprocess.run([sys.executable, "-I", str(REPO_ROOT / self.TOOL), *args],
+                              cwd=str(REPO_ROOT), env=env, capture_output=True, text=True,
+                              timeout=120)
+
+    # T1: the pure row check.
+
+    def test_T1_both_rows_present_none_missing(self):
+        self.assertEqual(self._missing(self.VALIDATE_ROW, self.RETRO_ROW), [])
+
+    def test_T1_validate_row_missing(self):
+        self.assertEqual(self._missing("", self.RETRO_ROW), ["validate-pr"])
+
+    def test_T1_retro_row_missing(self):
+        self.assertEqual(self._missing(self.VALIDATE_ROW, ""), ["retro"])
+
+    def test_T1_both_rows_missing_in_order(self):
+        self.assertEqual(self._missing("", ""), ["validate-pr", "retro"])
+
+    def test_T1_near_miss_other_pr_numbers(self):
+        # #3 and #310 are other PRs, never #31; a digit of any script after #31 extends the number.
+        for other in ("#3", "#310", "#31٣"):
+            with self.subTest(other=other):
+                self.assertEqual(
+                    self._missing(self.VALIDATE_ROW.replace("#31", other),
+                                  self.RETRO_ROW.replace("#31", other)),
+                    ["validate-pr", "retro"])
+        self.assertEqual(self._missing(self.VALIDATE_ROW, self.RETRO_ROW, pr=3),
+                         ["validate-pr", "retro"])
+
+    def test_T1_near_miss_fullwidth_digits(self):
+        wide = "#３１"
+        self.assertEqual(self._missing(self.VALIDATE_ROW.replace("#31", wide),
+                                       self.RETRO_ROW.replace("#31", wide)),
+                         ["validate-pr", "retro"])
+
+    def test_T1_near_miss_grc_library_tag(self):
+        tag, other = "[repo: grc_library_new]", "[repo: grc_library]"
+        self.assertEqual(self._missing(self.VALIDATE_ROW.replace(tag, other),
+                                       self.RETRO_ROW.replace(tag, other)),
+                         ["validate-pr", "retro"])
+
+    def test_T1_near_miss_untagged_row(self):
+        tag = " [repo: grc_library_new]"
+        self.assertEqual(self._missing(self.VALIDATE_ROW.replace(tag, ""),
+                                       self.RETRO_ROW.replace(tag, "")),
+                         ["validate-pr", "retro"])
+
+    def test_T1_near_miss_retro_row_without_retro_marker(self):
+        self.assertEqual(self._missing(self.VALIDATE_ROW, self.RETRO_ROW.replace(" (/retro)", "")),
+                         ["retro"])
+
+    def test_T1_near_miss_tag_outside_the_pr_cell_or_no_date(self):
+        rows = ("| PR | #31 [repo: grc_library_new] | x |",
+                "| 2026-11-14 | train 1 | #31 [repo: grc_library_new] |",
+                "| 2026-11-14 | #31 [repo: grc_library_new] |",
+                "Moved #31 [repo: grc_library_new] here on 2026-11-14.",
+                " | 2026-11-14 | #31 [repo: grc_library_new] | indented | x |")
+        for row in rows:
+            with self.subTest(row=row):
+                self.assertEqual(self._missing(row, self.RETRO_ROW), ["validate-pr"])
+
+    def test_T1_near_miss_fenced_rows(self):
+        for fence in ("```", "~~~~", "   ```text"):
+            with self.subTest(fence=fence):
+                close = fence.strip().rstrip("text")
+                self.assertEqual(
+                    self._missing(f"{fence}\n{self.VALIDATE_ROW}\n{close}",
+                                  f"{fence}\n{self.RETRO_ROW}\n{close}"),
+                    ["validate-pr", "retro"])
+        # An unclosed fence runs to the end of the text; a closed one does not hide later rows,
+        # and a shorter or different closing fence does not close it.
+        self.assertEqual(self._missing("```\n" + self.VALIDATE_ROW, self.RETRO_ROW), ["validate-pr"])
+        self.assertEqual(self._missing("```\nx\n```\n" + self.VALIDATE_ROW, self.RETRO_ROW), [])
+        self.assertEqual(self._missing("````\nx\n```\n" + self.VALIDATE_ROW + "\n````",
+                                       self.RETRO_ROW), ["validate-pr"])
+        self.assertEqual(self._missing("~~~\nx\n```\n" + self.VALIDATE_ROW + "\n~~~",
+                                       self.RETRO_ROW), ["validate-pr"])
+
+    def test_T1_crlf_rows_still_match(self):
+        self.assertEqual(self.mod.missing_rows(self.VALIDATE_ROW + "\r\n", self.RETRO_ROW + "\r\n", 31), [])
+
+    # T1 through the read-only --check-rows mode.
+
+    def test_T1_cli_both_rows_present_exits_0(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            result = self._run(self._store(tmp, self.VALIDATE_ROW, self.RETRO_ROW), "--check-rows", "31")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn(self.VALIDATE_REL, result.stdout)
+        self.assertIn(self.RETRO_REL, result.stdout)
+
+    def test_T1_cli_validate_row_missing_exits_1_naming_it(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            result = self._run(self._store(tmp, self.VALIDATE_ROW.replace("#31", "#310"), self.RETRO_ROW),
+                               "--check-rows", "31")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(self.VALIDATE_REL, result.stderr)
+        self.assertNotIn(self.RETRO_REL, result.stderr)
+
+    def test_T1_cli_retro_row_missing_exits_1_naming_it(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            result = self._run(self._store(tmp, self.VALIDATE_ROW, ""), "--check-rows", "31")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(self.RETRO_REL, result.stderr)
+        self.assertNotIn(self.VALIDATE_REL, result.stderr)
+
+    def test_T1_cli_rows_only_in_grc_library_registers_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = self._store(tmp)
+            (store / "validate-pr" / "history.md").write_text(self.VALIDATE_ROW + "\n", encoding="utf-8")
+            (store / "improvement-log.md").write_text(self.RETRO_ROW + "\n", encoding="utf-8")
+            result = self._run(store, "--check-rows", "31")
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn(self.VALIDATE_REL, result.stderr)
+        self.assertIn(self.RETRO_REL, result.stderr)
+
+    # T2: a store or register that cannot be read refuses (exit 2), naming it.
+
+    def test_T2_store_absent_or_a_file_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            absent = self._run(Path(tmp) / "absent", "--check-rows", "31")
+            (Path(tmp) / "file").write_text("x", encoding="utf-8")
+            a_file = self._run(Path(tmp) / "file", "--check-rows", "31")
+        self.assertEqual(absent.returncode, 2, absent.stdout + absent.stderr)
+        self.assertIn("store", absent.stderr)
+        self.assertEqual(a_file.returncode, 2, a_file.stdout + a_file.stderr)
+        self.assertIn(str(Path(tmp) / "file"), a_file.stderr)
+
+    def test_T2_register_absent_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            result = self._run(self._store(tmp, self.VALIDATE_ROW, None), "--check-rows", "31")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn(self.RETRO_REL, result.stderr)
+        self.assertNotIn(self.VALIDATE_REL, result.stderr)
+
+    def test_T2_register_invalid_utf8_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = self._store(tmp, None, self.RETRO_ROW)
+            (store / self.VALIDATE_REL).write_bytes(b"\xff\xfe" + self.VALIDATE_ROW.encode() + b"\n")
+            result = self._run(store, "--check-rows", "31")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn(self.VALIDATE_REL, result.stderr)
+
+    def test_T2_register_a_directory_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = self._store(tmp, self.VALIDATE_ROW, None)
+            (store / self.RETRO_REL).mkdir()
+            result = self._run(store, "--check-rows", "31")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn(self.RETRO_REL, result.stderr)
+
+    def test_T2_register_mode_000_refused(self):
+        if os.geteuid() == 0:
+            self.skipTest("root reads a mode 000 file")
+        with tempfile.TemporaryDirectory() as tmp:
+            store = self._store(tmp, self.VALIDATE_ROW, self.RETRO_ROW)
+            target = store / self.VALIDATE_REL
+            target.chmod(0)
+            try:
+                result = self._run(store, "--check-rows", "31")
+            finally:
+                target.chmod(0o600)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn(self.VALIDATE_REL, result.stderr)
+
+    def test_T2_bad_pr_number_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = self._store(tmp, self.VALIDATE_ROW, self.RETRO_ROW)
+            for arg in ("031", "0", "3x", "３１", ""):
+                with self.subTest(arg=arg):
+                    result = self._run(store, "--check-rows", arg)
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+
+    # D1: never a sibling or in-repo fallback, and never a store inside the repository.
+
+    def test_D1_sibling_and_in_repo_fallbacks_are_never_read(self):
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as tmp:
+            parent = Path(tmp)
+            root = parent / "repo"
+            for base in (root / ".working", parent / "grc_library_private" / ".working",
+                         root / "store"):
+                (base / "validate-pr").mkdir(parents=True)
+                (base / self.VALIDATE_REL).write_text(self.VALIDATE_ROW + "\n", encoding="utf-8")
+                (base / self.RETRO_REL).write_text(self.RETRO_ROW + "\n", encoding="utf-8")
+            for store in (parent / "absent", root / "store"):
+                with self.subTest(store=store), mock.patch.dict(os.environ, {"GRC_STORE": str(store)}):
+                    code, lines = self.mod.check_rows(31, root=root)
+                    self.assertEqual(code, 2, lines)
+
+    def test_self_test_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            result = self._run(Path(tmp) / "absent", "--self-test")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("OK", result.stdout)
 
 
 class OrchestratorAdvisoryToolTests(unittest.TestCase):
