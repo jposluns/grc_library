@@ -312,9 +312,8 @@ non-decreasing pairs (its 2026-06-21 window) are dated before ``EPOCH_START``,
 so they fail as old-repository records rather than as ordering violations, and
 no second baseline constant is needed.
 
-Store scope (maintainer ruling 2026-09-30 17:07Z, option B, simplified 21:03Z;
-clean-base allowed 2026-10-22 01:29Z; shared with gate 50 through
-``lint_common.store_scope``). The detailed mirror lives
+Store scope (shared with gate 50 through ``lint_common.store_scope``). The
+detailed mirror lives
 in the operational store every open branch shares, so another open PR's in-flight
 mirror entry would otherwise read as MISSING from this branch's root. A mirror
 record defers only when all of these hold: this branch has a clean-base scope (see

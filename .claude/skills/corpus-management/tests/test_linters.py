@@ -43281,7 +43281,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-ccm-aicm-citations.py CWD F b2c3b6225f1d68dcc904b167ef69963c35ac03b169d87478ac39e1f94edb6242
         lint-ccm-provider-member-in-range.py CWD F 3b6aed2769f3d8eb23d754862c355f16e760518d051462b6a217b62a9a31ac7b
         lint-changelog-link-coverage.py CWD F 5e0c2e8520be9e8418bf0835decd744ff234ed93b9c3a707255121120cdf9437
-        lint-changelog-mirror-header-parity.py OWN F f6b36647730954fcb1c9a1dcdf2f5f23c02b31ba5d269dab65a6d5e67a31f541
+        lint-changelog-mirror-header-parity.py OWN F 40485f1f4f78ad5b0cb731e03dfbcdcc6b823d8a6f51632954f5b5424184e88f
         lint-citation-currency-cadence.py NO_FS F 01bc84108f08b8d88711e0e8a9bb7bd5aec5b27b24e67594697dbd4d2ddbc7eb
         lint-citation-verification-freshness.py OWN F 79cb0052bf58680bc98f3d8ca9efd21ea06d2eedecee4ca500df567ffd0a6d0d
         lint-citations.py ROOT F 223b54a1983967480c8ae2b80e3d59c98c2921d9bf7c411913470505a7f9b060
