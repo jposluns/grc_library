@@ -106,13 +106,13 @@ def _self_test() -> int:
         # A fenced example of the disclaimer earlier does not satisfy it (must be
         # real body content after the metadata run).
         ("fenced-disclaimer-only", "# T\n\n**Document Title:** T\\\n```\n" + DISCLAIMER + "\n```\n---\n\n" + section, True),
-        # F1: an INDENTED disclaimer is a Markdown code block, not a blockquote, so
+        # An INDENTED disclaimer is a Markdown code block, not a blockquote, so
         # it does not satisfy the requirement (rstrip-only comparison).
         ("indented-code-disclaimer", meta + "    " + DISCLAIMER + "\n" + section, True),
-        # F2: a fenced block BEFORE the disclaimer means the disclaimer is not the
+        # A fenced block BEFORE the disclaimer means the disclaimer is not the
         # first body content.
         ("fence-before-disclaimer", meta + "```\nexample\n```\n\n" + DISCLAIMER + "\n" + section, True),
-        # F3: ordinary body bold text plus a later `---` must NOT forge the
+        # Ordinary body bold text plus a later `---` must NOT forge the
         # metadata-close anchor (no real leading metadata field run).
         ("forged-metadata-close", "# T\n\nSome **bold** body text.\n\n---\n\n" + DISCLAIMER + "\n" + section, True),
         # A blank line between the field run and the closing `---` is tolerated.

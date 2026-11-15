@@ -55,7 +55,7 @@ def regenerate(text: str) -> str:
 
 
 def main(argv: list[str]) -> int:
-    # 3b50b2a: parse strictly before anything else. A membership test used to let a mistyped
+    # Parse strictly before anything else. A membership test used to let a mistyped
     # --check fall through to the in-place WRITE below (exit 0, spec regenerated, no check run).
     flags = strict_flags(argv, ("--check", "--self-test"))
     if flags == {"--check", "--self-test"}:

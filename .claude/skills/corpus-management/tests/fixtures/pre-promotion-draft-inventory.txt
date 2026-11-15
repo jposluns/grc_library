@@ -1,6 +1,6 @@
 # The pre-promotion /draft/ output inventory, pinned as literals.
-# Every dist-relative output path of the draft tree rendered by main 716a3f53b
-# (the last pre-promotion main), one per line, listed from that commit's own
+# Every dist-relative output path of the draft tree rendered by the last
+# pre-promotion main, one per line, listed from that commit's own
 # .web/build.py render. The promoted-route splat test resolves every path here
 # against the promoted outputs, so a page dropped at or after the promotion
 # fails the test instead of silently shrinking a derived list.
