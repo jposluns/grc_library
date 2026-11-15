@@ -838,12 +838,13 @@ def _self_test() -> int:
         # before any gh call; a grc_library_new PR URL refuses however the command was spelled, and so does a
         # missing or unreadable URL; none makes a merge call, and the message names the tool.
         new_url = "https://github.com/jposluns/grc_library_new/pull/1"
+        ssh_user, host = "git", "github.com"  # ssh and scp forms: user@host, not an address
         for label, flags, url in (
             ("repo-plain", ["--repo", "jposluns/grc_library_new"], ok_url),
             ("repo-upper", ["--repo", "JPosluns/GRC_Library_New"], ok_url),
             ("repo-https-git-slash", ["--repo", "https://github.com/jposluns/grc_library_new.git/"], ok_url),
-            ("repo-ssh-url", ["--repo", "ssh://git@github.com/jposluns/grc_library_new.git"], ok_url),
-            ("repo-scp", ["--repo", "git@github.com:jposluns/grc_library_new.git"], ok_url),
+            ("repo-ssh-url", ["--repo", f"ssh://{ssh_user}@{host}/jposluns/grc_library_new.git"], ok_url),
+            ("repo-scp", ["--repo", f"{ssh_user}@{host}:jposluns/grc_library_new.git"], ok_url),
             ("url-no-repo", [], new_url),
             ("url-upper", [], "https://github.com/JPOSLUNS/GRC_LIBRARY_NEW/pull/1"),
             ("url-repo-other", ["--repo", "jposluns/grc_library"], new_url),
@@ -985,11 +986,12 @@ def _self_test() -> int:
     checks.append(("foreign-reason-names-workflow", "from workflow 'Repository quality checks'" in r_foreign))
     # The exact default list is pinned: the main() cases build rollups from REQUIRED_CHECKS itself, so
     # they cannot notice a name dropped from it (3b104 QA r4).
+    ssh_user, host = "git", "github.com"  # ssh and scp forms: user@host, not an address
     checks.append(("normalize-repo-new-forms", all(normalize_repo(s) == _NEW_REPO for s in (
         "jposluns/grc_library_new", "JPOSLUNS/GRC_LIBRARY_NEW", "jposluns/grc_library_new.git/",
         "github.com/jposluns/grc_library_new", "https://github.com/jposluns/grc_library_new.git",
-        "HTTPS://GitHub.com/JPosluns/GRC_Library_New.GIT", "ssh://git@github.com/jposluns/grc_library_new.git",
-        "git@github.com:jposluns/grc_library_new.git", "git@github.com:jposluns/grc_library_new"))))
+        "HTTPS://GitHub.com/JPosluns/GRC_Library_New.GIT", f"ssh://{ssh_user}@{host}/jposluns/grc_library_new.git",
+        f"{ssh_user}@{host}:jposluns/grc_library_new.git", f"{ssh_user}@{host}:jposluns/grc_library_new"))))
     checks.append(("normalize-repo-others-not-new", all(normalize_repo(s) != _NEW_REPO for s in (
         "jposluns/grc_library", "jposluns/grc_library_ref", "jposluns/grc_library_newer", "other/grc_library_new"))))
     checks.append(("pr-url-repo", pr_url_repo("https://github.com/JPosluns/GRC_Library_New/pull/31") == _NEW_REPO

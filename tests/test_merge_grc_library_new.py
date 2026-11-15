@@ -836,6 +836,10 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         fake = FakeGh(message=SUBJECT + "\n\n" + BODY + "\n\nCo-authored-by: a <b@example.com>\n")
         code, out, err = self.merge(fake)
         self.assertEqual(code, 3, err)
+        # The row was printed, naming the tagged PR cell, and appended: a tool that appends
+        # and prints nothing leaves out empty and the log unchanged, and fails here.
+        self.assertTrue(out.startswith("| 2026-11-15 | #31 [repo: grc_library_new] | "), out)
+        self.assertTrue(out.endswith(" |\n"), out)
         self.assertEqual(self.log.read_text(encoding="utf-8"), LOG_SHAPE + out)
 
     def test_log_without_a_final_newline_gets_the_row_on_its_own_line(self):

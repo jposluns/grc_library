@@ -161,8 +161,10 @@ drive end-to-end on the maintainer's behalf:
    `mcp__github__merge_pull_request` call that names grc_library_new (or runs from a
    grc_library_new clone) and mentions a pull-request merge. It matches text only, so it also
    refuses commit messages, greps, echo and heredoc bodies that name both, and its refusal
-   names what it does not close (commands built at runtime, gh aliases, web UI merges, direct
-   pushes to main, and merges whose text never names grc_library_new: a GraphQL
+   names what it does not close (commands built at runtime; shell quoting, backslash escapes or
+   brace expansion that split a word, such as `p''r` or a brace list in the repository name;
+   gh aliases; web UI merges; direct pushes to main; and merges whose text never names
+   grc_library_new: a GraphQL
    `mergePullRequest` by node id, a REST `repositories/<id>/pulls/N/merge` call, or
    `gh pr merge N` from a grc_library_new clone under another directory name or from a clone
    where `gh repo set-default` points at grc_library_new).

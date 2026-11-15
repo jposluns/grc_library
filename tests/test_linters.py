@@ -45740,8 +45740,8 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint_common.py PASSIVE F c3f9567cb927a4a4599fc2704a690a93d145aef8edfa2a90eb660b246aadbedd
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
-        merge-grc-library-new.py NO_FS F 888b3d57124aeb85b19a6edf3a2b97d086bbe230b5f79190f38ba471e1faf0be
-        merge-when-green.py NO_FS F 493d94a7663bb8c9c75f81160c88b2dc0be78179d2048e0ae08a2a8eed2b4080
+        merge-grc-library-new.py NO_FS F 3a51445fbdbc3c6cdc77cfb557bcbb0c4ca935dcf9a386a84a3cc963affe0a88
+        merge-when-green.py NO_FS F 7d0fc9002072b9b27f9380bb3df1326a1f567ddd18191f7ec9cda83df704ee11
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
         pre-push-guard.sh FIXED F e082e92fe082af59cee69da9d2a329dacf1cdf4e8e4d600f4c5b6fc2ce89dabf
@@ -62312,8 +62312,11 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
                          "MCP merge tools under other names", "over-refusal",
                          "never names grc_library_new", "mergePullRequest by node id",
                          "repositories/<id>/pulls/N/merge", "another directory name",
-                         "gh repo set-default"):
+                         "gh repo set-default",
+                         "shell quoting, backslash escapes or brace expansion that split a word"):
             self.assertIn(fragment, source)
+        # The docstring states the text checked for a non-shell tool, owner/repo included.
+        self.assertIn("the text also carries owner/repo", ast.get_docstring(tree))
 
     def test_h5_malformed_stdin(self):
         trigger = "gh pr merge 33 -R %s" % self.NEW
@@ -71831,7 +71834,7 @@ class HookRoundSevenTests(unittest.TestCase):
                 for value in node:
                     yield from commands(value)
         commands = list(commands(json.loads((REPO_ROOT / '.claude/settings.json').read_text())))
-        self.assertEqual(len(commands), 25)
+        self.assertEqual(len(commands), 27)
         for command in commands:
             argv = shlex.split(command)
             if command.endswith("/clock-inject.py"):

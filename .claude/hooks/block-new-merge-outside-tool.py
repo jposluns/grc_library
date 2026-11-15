@@ -15,7 +15,8 @@ Rule (plan 3b882m section 4):
   3. Every other input exits 0.
 
 The normalized text is NFKC, percent-decoded, NFKC again and casefolded. For Bash it is
-the command; for any other tool it is the tool name with the input's owner and repo. A
+the command; for any other tool it is the tool name with the input's owner and repo,
+then owner and repo joined by a slash, so the text also carries owner/repo. A
 payload that is not a JSON object is checked on its raw text. The hook reads no store,
 no network and no file, and parses no shell syntax: it matches text only, so it accepts
 over-refusal (a commit message, grep, echo or heredoc body that names both).
@@ -47,7 +48,9 @@ REASON = (
     "clone, and mentions a pull-request merge is refused, including commit messages, greps, "
     "echo and heredoc bodies. Residual not closed by this hook: commands built at runtime "
     "(command substitution, variables, base64, a script file run later, a Python subprocess "
-    "call); gh aliases that hide pr merge; a merge run from a grc_library_new clone when the "
+    "call); shell quoting, backslash escapes or brace expansion that split a word (p and r "
+    "split by empty quotes, a backslash inside merge, or a brace list inside the repository "
+    "name); gh aliases that hide pr merge; a merge run from a grc_library_new clone when the "
     "payload cwd is elsewhere and the text names neither; "
     "merges whose text never names grc_library_new (a GraphQL "
     "mergePullRequest by node id, a REST repositories/<id>/pulls/N/merge call, or gh pr "

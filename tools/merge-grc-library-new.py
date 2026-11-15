@@ -196,7 +196,7 @@ def find_store(root: Path) -> Path:
     Only ``_store_dir(root, strict=True)`` is consulted (decision D1): the private sibling and the
     in-repo ``.working/`` fallbacks of ``resolve_working`` are never probed or read."""
     if str(TOOLS_DIR) not in sys.path:
-        sys.path.insert(0, str(TOOLS_DIR))
+        sys.path.append(str(TOOLS_DIR))
     import lint_common
 
     try:
@@ -214,7 +214,7 @@ def find_store(root: Path) -> Path:
 def read_register(store: Path, rel: str) -> str:
     """The text of ``<store>/<rel>``, or :class:`RegisterError` naming it."""
     if str(TOOLS_DIR) not in sys.path:
-        sys.path.insert(0, str(TOOLS_DIR))
+        sys.path.append(str(TOOLS_DIR))
     import lint_common
 
     path = store / rel
@@ -238,7 +238,7 @@ def resolve_in_store(root: Path, rel: str, what: str) -> Path:
     """``rel`` by lint_common.resolve_working(strict=True), accepted only as ``<store>/<rel>``
     resolving inside the operational store (decision D1), or :class:`RegisterError` naming it."""
     if str(TOOLS_DIR) not in sys.path:
-        sys.path.insert(0, str(TOOLS_DIR))
+        sys.path.append(str(TOOLS_DIR))
     import lint_common
 
     store = find_store(root)
