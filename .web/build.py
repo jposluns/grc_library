@@ -134,7 +134,7 @@ import subprocess
 import sys
 import unicodedata
 import urllib.parse
-from collections import Counter
+from collections import Counter, namedtuple
 from html import unescape as html_unescape
 from html.parser import HTMLParser
 from pathlib import Path
@@ -695,25 +695,30 @@ def read_domain_purpose(domain):
     callout already states it, so the lead never repeats it. Every corpus domain
     README follows the section model and carries a Purpose section; a missing
     file or missing section is a coupling breakage the generator-health check
-    must surface. The Purpose heading and the level-two heading or thematic
-    break that ends the section are read through the shared anchored check
-    (_adopter_heading, _ADOPTER_RULE_RE): each is the whole line after at most
-    three spaces, so a line indented by four spaces or a tab is section text."""
+    must surface. Every line is read through the shared section reader
+    _md_read: the Purpose heading is a level-two heading outside any fence,
+    and the section ends where _MD_SECTION_ENDS["domain purpose"] states (a
+    level-one or level-two heading or a thematic break). A fence line, a line
+    inside a fenced block and a deeper heading are paragraph breaks, never
+    section text, so a heading or rule inside a fence ends nothing; a line
+    indented by four spaces or a tab is section text."""
     p = REPO_ROOT / domain / "README.md"
     if not p.is_file():
         raise BuildError(f"domain README not found at {p}")
-    # Collect the section's lines (stripped), stopping at the next level-two
-    # heading or thematic break, each matched on the unstripped line.
+    ends = _MD_SECTION_ENDS["domain purpose"]
     lines = []
     in_purpose = False
-    for line in p.read_text(encoding="utf-8").splitlines():
+    for item in _md_read(p.read_text(encoding="utf-8").splitlines()):
         if not in_purpose:
-            if _adopter_heading_text(line, 2) == "Purpose":
+            if _md_heading_text(item, 2) == "Purpose":
                 in_purpose = True
             continue
-        if _adopter_heading(line, 2, 2) or _ADOPTER_RULE_RE.match(line):
+        if _md_ends(item, ends):
             break
-        lines.append(line.strip())
+        if item.kind in ("fence", "code", "heading"):
+            lines.append("")
+            continue
+        lines.append(item.line.strip())
 
     i = 0
     while i < len(lines) and not lines[i]:
@@ -1058,7 +1063,6 @@ _NARR_MD_EM_RE = re.compile(r"\*([^*\s](?:[^*]*[^*\s])?)\*")
 _NARR_MD_UNDERSCORE_EM_RE = re.compile(r"(?<![A-Za-z0-9])_[^_\s][^_]*_(?![A-Za-z0-9])")
 _NARR_MD_AUTOLINK_RE = re.compile(r"<[a-z][a-z0-9+.-]*:")
 _NARR_MD_SCHEME_RE = re.compile(r"^[a-z][a-z0-9+.-]*:", re.I)
-_NARR_MD_HR_RE = re.compile(r"^(-{3,}|\*{3,}|_{3,})$")
 _NARR_MD_SETEXT_UNDERLINE_RE = re.compile(r"^(=+|-{2})[ \t]*$")
 _NARR_MD_SPACED_BREAK_RE = re.compile(r"^([-*_=])(?:[ \t]+\1)+[ \t]*$")
 _NARR_MD_RAW_HTML_RE = re.compile(r"<[A-Za-z/!?]")
@@ -1163,25 +1167,35 @@ def narrative_source_file(rel_path, tracked, seen, root=None):
 
 def _narrative_body_lines(text, source_rel):
     """Return the BODY lines of one narrative source: everything after the
-    first metadata terminator (a thematic break, read through the shared
-    anchored check _ADOPTER_RULE_RE, so ``---``, ``***`` or ``___`` within
-    three spaces ends the block and a rule indented by four spaces or a tab
-    does not), with the trailing corpus
+    first metadata terminator (a thematic break outside any fence, read
+    through the shared section reader _md_read and stated in
+    _MD_SECTION_ENDS["narrative metadata"], so any CommonMark break form
+    within three spaces ends the block and a rule indented by four spaces or
+    a tab does not); the first non-blank line must be a level-one heading
+    with its title text, read the same way; with the trailing corpus
     ``**End of Document**`` terminator required and dropped (the page chrome
     supplies the title and the closing sections, so neither the H1, the
     metadata block, nor the terminator is rendered). Loud on document-model
     drift: a missing leading H1, a missing metadata terminator, or a missing
     document terminator each raise BuildError."""
     lines = text.splitlines()
-    first_content = next((ln for ln in lines if ln.strip()), "")
-    if not _adopter_heading(first_content, 1, 1):
-        raise BuildError(f"{source_rel}: narrative source has no leading '# ' title line")
-    for i, ln in enumerate(lines):
-        if _ADOPTER_RULE_RE.match(ln):
-            body = lines[i + 1:]
-            break
-    else:
-        raise BuildError(f"{source_rel}: no '---' metadata terminator found")
+    items = list(_md_read(lines))
+    first = next((it for it in items if it.line.strip()), None)
+    if first is None or _md_heading_text(first, 1) in (None, ""):
+        raise BuildError(
+            f"{source_rel}: narrative source has no leading '# ' title line "
+            f"(the first non-blank line must be a level-one ATX heading with "
+            f"its title text, '# Title' or '#' and a tab, after at most three "
+            f"spaces)")
+    ends = _MD_SECTION_ENDS["narrative metadata"]
+    end = next((it.index for it in items if _md_ends(it, ends)), None)
+    if end is None:
+        raise BuildError(
+            f"{source_rel}: no metadata terminator found (a thematic break "
+            f"outside any fence: three or more of one of '-', '*' or '_', "
+            f"spaces or tabs between them allowed, after at most three "
+            f"spaces, such as '---')")
+    body = lines[end + 1:]
     non_blank = [j for j, ln in enumerate(body) if ln.strip()]
     if not non_blank or body[non_blank[-1]].strip() != _NARR_TERMINATOR:
         raise BuildError(
@@ -1247,8 +1261,9 @@ def _classify_narrative_line(line, source_rel):
             f"{source_rel}: a pipe is only supported inside a '|'-led and "
             f"'|'-terminated table row: {line[:60]!r}"
         )
-    if _adopter_heading(line, 1):
-        # A heading is recognized by the shared anchored check, so a
+    kind = _md_classify(line)[0]
+    if kind == "heading":
+        # A heading is recognized by the shared section reader, so a
         # hash-led line that is no ATX heading ('#tag', seven hashes) is
         # prose, as in the adopter reads; of the headings, only the strict
         # '## Text' / '### Text' form renders.
@@ -1291,8 +1306,16 @@ def _classify_narrative_line(line, source_rel):
         raise BuildError(
             f"{source_rel}: spaced thematic breaks unsupported: {line[:60]!r}"
         )
-    if _NARR_MD_HR_RE.match(line):
-        raise BuildError(f"{source_rel}: horizontal rules unsupported: {line[:60]!r}")
+    # Every other thematic-break form the shared section reader finds
+    # ('--- -', '*** *', '-- --', '---' with trailing space) is refused too.
+    if kind == "rule":
+        spaced = len(line.split()) > 1
+        raise BuildError(
+            f"{source_rel}: "
+            f"{'spaced thematic breaks' if spaced else 'horizontal rules'} "
+            f"unsupported (the body admits no thematic break in any form: "
+            f"three or more of one of '-', '*' or '_', spaces or tabs between "
+            f"them allowed): {line[:60]!r}")
     if line == "-" or (line.startswith("- ") and not line[2:].strip()):
         raise BuildError(f"{source_rel}: empty list item: {line[:60]!r}")
     if line.startswith("- "):
@@ -1327,8 +1350,13 @@ def _classify_narrative_line(line, source_rel):
             f"{source_rel}: only flat '- ' unordered and 'N. ' ordered lists "
             f"are supported: {line[:60]!r}"
         )
-    if line.startswith(("```", "~~~")):
-        raise BuildError(f"{source_rel}: fenced code unsupported: {line[:60]!r}")
+    # A fence the shared section reader opens is refused; so is any other
+    # line led by three backticks or tildes (a backtick run whose info string
+    # holds a backtick opens no fence, but would render as a code span).
+    if kind == "fence" or line.startswith(("```", "~~~")):
+        raise BuildError(
+            f"{source_rel}: fenced code unsupported (no line may open with "
+            f"three or more backticks or tildes): {line[:60]!r}")
     # A raw HTML tag or block opener at line start ('<div>', '</div>',
     # '<!-- -->', '<!DOCTYPE', '<?'): rejected here as a block-level
     # construct; the inline escaper independently rejects the same shape
@@ -4125,12 +4153,15 @@ def _adopter_fence_line(line):
 # A thematic break is three or more of one of "-", "*" or "_", with spaces or
 # tabs between them and nothing else on the line. An ATX heading is one to six
 # hashes followed by a space, a tab or the line end; seven or more hashes make a
-# plain line. Every heading, rule and section read in this file goes through
-# these two: the adopter reads below, the domain Purpose read, the narrative
-# title, metadata terminator and line classifier, the llms.txt grammar and the
-# crosswalk register and matrix section reads. The narrative classifier and
-# the llms.txt grammar admit a heading only in its strict form (the hashes at
-# the line start, then one space), read through _adopter_marker_end.
+# plain line. Every heading, rule, fence and section read in this file goes
+# through these two by way of the shared section reader (_md_classify for a
+# line read alone, _md_read for a run of lines with fence tracking): the
+# adopter metadata, lede, intro and outline reads below, the domain Purpose
+# read, the narrative title, metadata terminator and line classifier, the
+# llms.txt grammar and the crosswalk register, matrix and reading-guide
+# section reads. The narrative classifier and the llms.txt grammar admit a
+# heading only in its strict form (the hashes at the line start, then one
+# space), read through _adopter_marker_end.
 _ADOPTER_RULE_RE = re.compile(r" {0,3}([-*_])[ \t]*(?:\1[ \t]*){2,}$")
 _ADOPTER_HEADING_RE = re.compile(r" {0,3}(#{1,6})(?:[ \t]|$)")
 
@@ -4145,10 +4176,91 @@ def _adopter_heading(line, low, high=None):
 
 def _adopter_heading_text(line, level):
     """The text of ``line`` when it is an ATX heading of exactly ``level``
-    hashes (see _adopter_heading), stripped; None otherwise."""
-    if not _adopter_heading(line, level, level):
+    hashes (see _adopter_heading), stripped; None otherwise. Read through
+    _md_classify, so a line read alone takes the same check as _md_read."""
+    kind, got, heading = _md_classify(line)
+    return heading if kind == "heading" and got == level else None
+
+
+# The shared section reader. A fence opens after at most three spaces with
+# three or more backticks or three or more tildes; a backtick fence's info
+# string holds no backtick. It closes, as CommonMark states, only on a line of
+# the same mark at least as long as the opener, after at most three spaces,
+# with nothing after it but spaces or tabs; an unclosed fence runs to the end
+# of the input. Outside a fence a line is a thematic break (_ADOPTER_RULE_RE),
+# an ATX heading of one to six hashes (_adopter_heading; its text may be
+# empty, and a read that needs a title checks the text), or a plain line.
+_MD_FENCE_OPEN_RE = re.compile(r" {0,3}(`{3,}|~{3,})(.*)$")
+_MD_FENCE_CLOSE_RE = re.compile(r" {0,3}(`{3,}|~{3,})[ \t]*$")
+_MdLine = namedtuple("_MdLine", "index line kind level text")
+
+# Where each section read stops, stated once per read: the heading levels
+# that end it wherever they fall, and whether a thematic break ends it. A
+# read that also stops at a softer boundary once its paragraph has started
+# (a blank line, a deeper heading, a fence) states that in its own code.
+_MD_SECTION_ENDS = {
+    "domain purpose": ((1, 2), True),
+    "narrative metadata": ((), True),
+    "adopter metadata": ((2,), True),
+    "adopter lede": ((1, 2), True),
+    "adopter intro": ((2,), False),
+    "compliance tsc section": ((), True),
+}
+
+
+def _md_fence_open(line):
+    """``(mark, length)`` when ``line`` opens a fence, else None."""
+    m = _MD_FENCE_OPEN_RE.match(line)
+    if not m or (m.group(1)[0] == "`" and "`" in m.group(2)):
         return None
-    return line[_ADOPTER_HEADING_RE.match(line).end():].strip()
+    return m.group(1)[0], len(m.group(1))
+
+
+def _md_classify(line):
+    """``(kind, level, text)`` for one line read alone, outside any fence:
+    ``fence`` (an opening fence line), ``rule``, ``heading`` (with its level
+    and stripped text) or ``text``."""
+    if _md_fence_open(line):
+        return "fence", 0, None
+    if _ADOPTER_RULE_RE.match(line):
+        return "rule", 0, None
+    if _adopter_heading(line, 1):
+        m = _ADOPTER_HEADING_RE.match(line)
+        return "heading", len(m.group(1)), line[m.end():].strip()
+    return "text", 0, None
+
+
+def _md_read(lines):
+    """Yield one _MdLine per line, tracking fences: ``fence`` for an opening
+    or closing fence line, ``code`` for a line inside a fence, else the kind
+    _md_classify gives."""
+    fence = None
+    for i, line in enumerate(lines):
+        if fence is not None:
+            m = _MD_FENCE_CLOSE_RE.match(line)
+            if m and m.group(1)[0] == fence[0] and len(m.group(1)) >= fence[1]:
+                fence = None
+                yield _MdLine(i, line, "fence", 0, None)
+            else:
+                yield _MdLine(i, line, "code", 0, None)
+            continue
+        kind, level, heading = _md_classify(line)
+        if kind == "fence":
+            fence = _md_fence_open(line)
+        yield _MdLine(i, line, kind, level, heading)
+
+
+def _md_heading_text(item, level):
+    """The text of ``item`` when it is a heading of exactly ``level``."""
+    return item.text if item.kind == "heading" and item.level == level else None
+
+
+def _md_ends(item, ends):
+    """True when ``item`` ends a read whose ``_MD_SECTION_ENDS`` entry is
+    ``ends``."""
+    levels, rule = ends
+    return ((item.kind == "rule" and rule)
+            or (item.kind == "heading" and item.level in levels))
 
 
 def _adopter_marker_end(line, level):
@@ -4156,7 +4268,7 @@ def _adopter_marker_end(line, level):
     the line start followed by one space: the offset just after that space
     when ``line`` is an ATX heading of exactly ``level`` hashes (see
     _adopter_heading) in that form; None for any other line."""
-    if not _adopter_heading(line, level, level):
+    if _adopter_heading_text(line, level) is None:
         return None
     hashes = _ADOPTER_HEADING_RE.match(line).span(1)
     if hashes[0] != 0 or line[hashes[1]:hashes[1] + 1] != " ":
@@ -4197,10 +4309,11 @@ def _adopter_metadata(text, rel):
     and ``### Scope`` do not)."""
     fields = {}
     seen = False
-    for line in text.splitlines():
+    ends = _MD_SECTION_ENDS["adopter metadata"]
+    for item in _md_read(text.splitlines()):
+        line = item.line
         s = line.strip()
-        if (_adopter_fence_line(line) or _ADOPTER_RULE_RE.match(line)
-                or _adopter_heading(line, 2, 2)):
+        if item.kind == "fence" or _md_ends(item, ends):
             break
         if not s and seen:
             break
@@ -4241,21 +4354,20 @@ def _adopter_first_paragraph(lines):
     here. A rule must be the whole line; a heading carries its text after its
     hashes and the space or tab that follows them (see _adopter_heading)."""
     para = []
-    in_fence = False
-    for nxt in lines:
-        st = nxt.strip()
-        if _adopter_fence_line(nxt):
+    ends = _MD_SECTION_ENDS["adopter lede"]
+    for item in _md_read(lines):
+        st = item.line.strip()
+        if item.kind == "fence":
             # A fence opened after the prose ends it, as a fenced code block
             # interrupts a paragraph; one before the prose is skipped whole.
             if para:
                 break
-            in_fence = not in_fence
             continue
-        if in_fence:
+        if item.kind == "code":
             continue
-        if _ADOPTER_RULE_RE.match(nxt) or _adopter_heading(nxt, 1, 2):
+        if _md_ends(item, ends):
             break
-        if _adopter_heading(nxt, 3):
+        if item.kind == "heading":
             if para:
                 break
             continue
@@ -4272,39 +4384,43 @@ def _adopter_purpose(text):
     ``## Overview`` heading outside any code fence, else the intro paragraph
     between the metadata block and the first section (the worked examples
     carry no Overview heading). Empty string only if neither is present.
-    Both reads take the shared anchored check: the Purpose or Overview
-    heading is a level-two heading within three spaces; in the intro read a
-    title is a one-hash heading, a thematic break is skipped before the
-    paragraph and ends it once started, a deeper heading likewise, and a line
-    indented by four spaces or a tab is prose."""
+    Both reads take the shared section reader _md_read: the Purpose or
+    Overview heading is a level-two heading within three spaces outside any
+    fence; the intro read ends where _MD_SECTION_ENDS["adopter intro"] states
+    (a level-two heading), a title, a deeper heading, a thematic break and a
+    fence are skipped before the paragraph and end it once started, a line
+    inside a fence is code, and a line indented by four spaces or a tab is
+    prose."""
     lines = text.splitlines()
-    in_fence = False
-    for i, ln in enumerate(lines):
-        if _adopter_fence_line(ln):
-            in_fence = not in_fence
-            continue
-        if in_fence:
-            continue
-        heading = _adopter_heading_text(ln, 2)
+    for item in _md_read(lines):
+        heading = _md_heading_text(item, 2)
         if heading is not None and re.match(r"(?:\d+\.\s+)?(?:Purpose|Overview)\b",
                                             heading, re.I):
-            return _adopter_flatten(_adopter_first_paragraph(lines[i + 1:]))
+            return _adopter_flatten(_adopter_first_paragraph(lines[item.index + 1:]))
     started = False
     para = []
-    for ln in lines:
+    ends = _MD_SECTION_ENDS["adopter intro"]
+    for item in _md_read(lines):
+        ln = item.line
         st = ln.strip()
-        # Only a level-two heading within three spaces ends the intro read; an
-        # indented "## " line is a code line.
-        if _adopter_heading(ln, 2, 2):
+        # A fence before the intro prose is skipped whole; one after it ends
+        # the paragraph, as a fenced code block interrupts a paragraph.
+        if item.kind == "fence":
+            if para:
+                break
+            continue
+        if item.kind == "code":
+            continue
+        if _md_ends(item, ends):
             break
-        if _adopter_heading(ln, 1, 1):
+        # A title, a deeper heading or a thematic break is skipped before the
+        # paragraph and ends it once started.
+        if item.kind in ("heading", "rule"):
+            if para:
+                break
             continue
         if re.match(r"^\*\*[^*]+:\*\*", ln):
             started = True
-            continue
-        if _ADOPTER_RULE_RE.match(ln) or _adopter_heading(ln, 3):
-            if para:
-                break
             continue
         if not st:
             if para:
@@ -4320,18 +4436,9 @@ def _adopter_purpose(text):
 def _adopter_sections(text):
     """The ordered level-two headings outside code fences (the page outline),
     each within three spaces, as the metadata and intro reads take them."""
-    out = []
-    in_fence = False
-    for ln in text.splitlines():
-        if _adopter_fence_line(ln):
-            in_fence = not in_fence
-            continue
-        if in_fence:
-            continue
-        heading = _adopter_heading_text(ln, 2)
-        if heading:
-            out.append(heading)
-    return out
+    return [heading for heading in (
+        _md_heading_text(item, 2) for item in _md_read(text.splitlines()))
+        if heading]
 
 
 def parse_adopter_docs():
@@ -7956,13 +8063,14 @@ def _parse_citations_register_sections(text, require_heading):
     seen = set()
     heading = None
     state = "outside"  # outside -> header -> rows
-    for line in text.splitlines():
-        section = _adopter_heading_text(line, 2)
+    for item in _md_read(text.splitlines()):
+        line = item.line
+        section = _md_heading_text(item, 2)
         if section is not None:
             heading = section
             state = "outside"
             continue
-        if not line.strip().startswith("|"):
+        if item.kind in ("fence", "code") or not line.strip().startswith("|"):
             state = "outside"
             continue
         cells = _xw_table_cells(line)
@@ -8059,8 +8167,11 @@ def parse_compliance_matrix(text):
     rows_by_domain = {}
     domain = None
     state = "outside"
-    for line in text.splitlines():
-        section = _adopter_heading_text(line, 2)
+    for item in _md_read(text.splitlines()):
+        line = item.line
+        if item.kind in ("fence", "code"):
+            line = ""
+        section = _md_heading_text(item, 2)
         m = re.fullmatch(r"(.+) domain", section) if section is not None else None
         if m:
             slug = m.group(1).strip().lower().replace(" ", "-")
@@ -8206,8 +8317,9 @@ def parse_compliance_tsc_status(text):
     )
     where = f"crosswalk: {CROSSWALK_COMPLIANCE_MATRIX_PATH}:"
     lines = text.splitlines()
-    heads = [i for i, line in enumerate(lines)
-             if _adopter_heading_text(line, 2)
+    items = list(_md_read(lines))
+    heads = [it.index for it in items
+             if _md_heading_text(it, 2)
              == _adopter_heading_text(CROSSWALK_TSC_SECTION_HEADING, 2)]
     if len(heads) != 1:
         raise BuildError(
@@ -8215,12 +8327,13 @@ def parse_compliance_tsc_status(text):
             f"instead of one; {update}{accepted}"
         )
     start = heads[0]
-    # The section ends at its first thematic break, read through the shared
-    # anchored check. The pin closes it with exactly ---, so a break in any
-    # other form ("***", "- - -", an indented "---") ending the section is
-    # the missing-closing-rule error, not a line mismatch against the pin.
-    end = next((i for i in range(start, len(lines))
-                if _ADOPTER_RULE_RE.match(lines[i])), None)
+    # The section ends at its first thematic break outside any fence, read
+    # through the shared section reader and stated in _MD_SECTION_ENDS. The
+    # pin closes it with exactly ---, so a break in any other form ("***",
+    # "- - -", an indented "---") ending the section is the
+    # missing-closing-rule error, not a line mismatch against the pin.
+    ends = _MD_SECTION_ENDS["compliance tsc section"]
+    end = next((it.index for it in items[start:] if _md_ends(it, ends)), None)
     if end is None or lines[end] != "---":
         other = ("" if end is None else
                  f"line {end + 1} reads {lines[end]!r}, a thematic break "
@@ -8289,14 +8402,16 @@ def parse_reverse_matrix(text):
     heading = None
     current = None
     state = "outside"
-    for line in text.splitlines():
-        section = _adopter_heading_text(line, 2)
+    for item in _md_read(text.splitlines()):
+        line = item.line
+        section = _md_heading_text(item, 2)
         if section is not None:
             heading = section
             current = None
             state = "outside"
             continue
-        if heading is None or not line.strip().startswith("|"):
+        if (heading is None or item.kind in ("fence", "code")
+                or not line.strip().startswith("|")):
             state = "outside"
             continue
         cells = _xw_table_cells(line)

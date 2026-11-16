@@ -18656,6 +18656,234 @@ class SharedBoundaryCheckRoutingTests(unittest.TestCase):
         self.assertIn(("rule", "---"), seen)
 
 
+class SectionReaderShapeTableTests(unittest.TestCase):
+    """One table of Markdown line shapes run through every read that finds a
+    heading, a thematic break, a fence or a section end. Each shape carries a
+    category (a rule, a heading of a level with or without text, a fenced
+    block holding a heading and a rule, or a plain line) and each read states
+    the outcome it gives for each category, so a read that mishandles any
+    shape fails here naming the read and the shape."""
+
+    # Every CommonMark thematic-break form within three spaces.
+    RULES = ("---", "***", "___", "- - -", "* * *", "_ _ _", "--- -", "-- --",
+             "*** *", "_ __", "___ _", "-----", "--- ", " ---", "   ***",
+             "*\t*\t*")
+    # Headings: level one to three with and without text, within three spaces.
+    HEADINGS = (("# Title", "h1"), ("#\tTitle", "h1"), ("   # Title", "h1"),
+                ("#", "h1-bare"), ("# ", "h1-bare"),
+                ("## Section", "h2"), ("   ## Section", "h2"), ("##\tSection", "h2"),
+                ("##", "h2-bare"), ("## ", "h2-bare"),
+                ("### Deeper", "h3"), ("  ### Deeper", "h3"), ("###", "h3-bare"))
+    # Lines that are neither: indented by four spaces or a tab, text after the
+    # marks, two marks, seven hashes, or hashes with no space.
+    TEXT = ("    ---", "\t***", "    ## Code", "\t# Code", "--- x", "--",
+            "#hashtag", "####### seven", "    ```")
+    # Fenced blocks, each holding a heading and a rule that are code.
+    FENCES = ("```\n## inside\n---\n```",
+              "~~~\n## inside\n***\n~~~",
+              "````\n```\n## inside\n- - -\n````",
+              "~~~~\n~~~\n# inside\n___\n~~~~",
+              "~~~\n```\n# inside\n---\n~~~",
+              "   ```\n## inside\n---\n   ```",
+              "```\n## inside\n``` not a closing fence\n---\n```",
+              "```py\n# inside\n***\n```")
+
+    # The outcome each read gives per category. "go": the read goes on past
+    # the shape; "stop": the shape ends the read; "refuse": a BuildError;
+    # "section": the shape is taken as a section heading; "none": it is not.
+    EXPECTED = {
+        "domain purpose": {"rule": "stop", "h1": "stop", "h1-bare": "stop",
+                           "h2": "stop", "h2-bare": "stop", "h3": "stop",
+                           "h3-bare": "stop", "text": "go", "fence": "go"},
+        "narrative title": {"rule": "refuse", "h1": "go", "h1-bare": "refuse",
+                            "h2": "refuse", "h2-bare": "refuse", "h3": "refuse",
+                            "h3-bare": "refuse", "text": "refuse", "fence": "refuse"},
+        "narrative terminator": {"rule": "stop", "h1": "go", "h1-bare": "go",
+                                 "h2": "go", "h2-bare": "go", "h3": "go",
+                                 "h3-bare": "go", "text": "go", "fence": "go"},
+        "adopter metadata": {"rule": "stop", "h1": "go", "h1-bare": "go",
+                             "h2": "stop", "h2-bare": "stop", "h3": "go",
+                             "h3-bare": "go", "text": "go", "fence": "stop"},
+        "adopter lede": {"rule": "stop", "h1": "stop", "h1-bare": "stop",
+                         "h2": "stop", "h2-bare": "stop", "h3": "stop",
+                         "h3-bare": "stop", "text": "go", "fence": "go"},
+        "adopter intro": {"rule": "stop", "h1": "stop", "h1-bare": "stop",
+                          "h2": "stop", "h2-bare": "stop", "h3": "stop",
+                          "h3-bare": "stop", "text": "go", "fence": "go"},
+        "adopter outline": {"rule": "none", "h1": "none", "h1-bare": "none",
+                            "h2": "section", "h2-bare": "none", "h3": "none",
+                            "h3-bare": "none", "text": "none", "fence": "none"},
+        "citations register": {"rule": "refuse", "h1": "refuse", "h1-bare": "refuse",
+                               "h2": "section", "h2-bare": "section", "h3": "refuse",
+                               "h3-bare": "refuse", "text": "refuse", "fence": "refuse"},
+    }
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = _load_build()
+
+    def _shapes(self):
+        for rule in self.RULES:
+            yield rule, "rule"
+        yield from self.HEADINGS
+        for line in self.TEXT:
+            yield line, "text"
+        for fence in self.FENCES:
+            yield fence, "fence"
+
+    def _run(self, call):
+        try:
+            return call()
+        except self.mod.BuildError:
+            return "refuse"
+
+    def _domain_purpose(self, body):
+        root = Path(tempfile.mkdtemp(prefix="shape-table-"))
+        saved = self.mod.REPO_ROOT
+        try:
+            (root / "fixture").mkdir()
+            (root / "fixture" / "README.md").write_text(body, encoding="utf-8")
+            self.mod.REPO_ROOT = root
+            return self.mod.read_domain_purpose("fixture")
+        finally:
+            self.mod.REPO_ROOT = saved
+            shutil.rmtree(root, ignore_errors=True)
+
+    @staticmethod
+    def _placed(prefix, shape, fence):
+        """A fenced block is placed before the prose, so a read that takes
+        the heading or rule inside it as structure misses the prose; any
+        other shape is placed straight after the first prose line."""
+        if fence:
+            return f"{prefix}{shape}\n\nOmega.\n"
+        return f"{prefix}Alpha.\n{shape}\nOmega.\n"
+
+    @staticmethod
+    def _reached(got):
+        if got == "refuse":
+            return got
+        return "go" if "Omega" in got else "stop"
+
+    def _shape_outcome(self, site, shape, category):
+        fence = category == "fence"
+        mod = self.mod
+        end = mod._NARR_TERMINATOR
+        if site == "domain purpose":
+            return self._reached(self._run(lambda: self._domain_purpose(
+                self._placed("# D\n\n## Purpose\n\n", shape, fence))))
+        if site == "narrative title":
+            got = self._run(lambda: mod._narrative_body_lines(
+                f"{shape}\n**F:** v\n---\nBody.\n\n{end}\n", "executive/x.md"))
+            return "refuse" if got == "refuse" else "go"
+        if site == "narrative terminator":
+            got = self._run(lambda: mod._narrative_body_lines(
+                f"# T\n**F:** v\n{shape}\n---\nBody.\n\n{end}\n", "executive/x.md"))
+            if got == "refuse":
+                return got
+            return "go" if got == ["Body.", ""] else "stop"
+        if site == "adopter metadata":
+            got = self._run(lambda: mod._adopter_metadata(
+                f"**Owner:** A\\\n{shape}\n**Version:** 1.0.0\n", "probe.md"))
+            if got == "refuse":
+                return got
+            return "go" if "Version" in got else "stop"
+        if site == "adopter lede":
+            return self._reached(self._run(lambda: mod._adopter_purpose(
+                self._placed("## Purpose\n\n", shape, fence))))
+        if site == "adopter intro":
+            return self._reached(self._run(lambda: mod._adopter_purpose(
+                self._placed("**Owner:** A\n\n", shape, fence))))
+        if site == "adopter outline":
+            got = self._run(lambda: mod._adopter_sections(shape + "\n"))
+            return "section" if got not in ("refuse", []) else "none"
+        if site == "citations register":
+            header = ("| Standard ID | Current version | Publication date | Topic "
+                      "| Superseded versions | Upstream check location "
+                      "| Last verified (UTC) |")
+            table = "\n".join((header, "| --- " * 7 + "|",
+                               "| S-1 | 1 | 2026-01-01 | T | none | U | 2026-01-02 |"))
+            got = self._run(lambda: mod._parse_citations_register_sections(
+                f"{shape}\n\n{table}\n", True))
+            return "refuse" if got == "refuse" else "section"
+        raise AssertionError(site)
+
+    def test_every_read_gives_its_stated_outcome_for_every_shape(self):
+        wrong = []
+        for site, outcomes in self.EXPECTED.items():
+            for shape, category in self._shapes():
+                got = self._shape_outcome(site, shape, category)
+                if got != outcomes[category]:
+                    wrong.append(f"{site}: {shape!r} ({category}) gave {got}, "
+                                 f"expected {outcomes[category]}")
+        self.assertEqual(wrong, [], "\n" + "\n".join(wrong))
+
+    def test_line_classifier_refuses_every_rule_heading_and_fence_it_does_not_render(self):
+        """The narrative line classifier renders only '## Text' and '### Text'
+        headings; every thematic-break form, every fence, a heading with no
+        text and any indented line fail the build, and a hash-led line that is
+        no heading is prose."""
+        wrong = []
+        expected = {"h2": "h2", "h3": "h3"}
+        for shape, category in self._shapes():
+            first = shape.split("\n")[0]
+            want = expected.get(category, "refuse")
+            if category == "text" and first in ("#hashtag", "####### seven", "--- x"):
+                want = "p"
+            if first != first.lstrip():
+                want = "refuse"
+            if category == "h2" and first not in ("## Section",):
+                want = "refuse"
+            if category == "h3" and first != "### Deeper":
+                want = "refuse"
+            got = self._run(lambda: self.mod._classify_narrative_line(
+                first, "executive/x.md"))
+            if got != want:
+                wrong.append(f"line classifier: {first!r} ({category}) gave {got}, "
+                             f"expected {want}")
+        self.assertEqual(wrong, [], "\n" + "\n".join(wrong))
+
+    def test_llms_heading_read_admits_only_the_strict_title_and_section_forms(self):
+        wrong = []
+        for shape, category in self._shapes():
+            want = "go" if shape in ("# Title", "## Section") else "refuse"
+            got = self._run(lambda: self.mod._llms_links("llms.txt", shape + "\n"))
+            got = "refuse" if got == "refuse" else "go"
+            if got != want:
+                wrong.append(f"llms.txt: {shape!r} ({category}) gave {got}, "
+                             f"expected {want}")
+        self.assertEqual(wrong, [], "\n" + "\n".join(wrong))
+
+    def test_refusal_messages_state_the_accepted_forms(self):
+        end = self.mod._NARR_TERMINATOR
+        with self.assertRaisesRegex(self.mod.BuildError,
+                                    r"no leading '# ' title line.*'# Title'.*three spaces"):
+            self.mod._narrative_body_lines(f"#\n**F:** v\n---\nBody.\n\n{end}\n",
+                                           "executive/x.md")
+        with self.assertRaisesRegex(self.mod.BuildError,
+                                    r"metadata terminator.*'-', '\*' or '_'.*three spaces"):
+            self.mod._narrative_body_lines(f"# T\n**F:** v\nBody.\n\n{end}\n",
+                                           "executive/x.md")
+        for line in ("--- -", "***"):
+            with self.subTest(line=line):
+                with self.assertRaisesRegex(self.mod.BuildError,
+                                            r"unsupported.*'-', '\*' or '_'"):
+                    self.mod._classify_narrative_line(line, "executive/x.md")
+
+    def test_fence_reader_follows_the_commonmark_closing_rule(self):
+        """A fence closes only on a line of the same mark, at least as long as
+        the opener, with nothing after it but spaces or tabs; an unclosed fence
+        runs to the end of the input; a backtick fence's info string holds no
+        backtick."""
+        kinds = lambda text: [it.kind for it in self.mod._md_read(text.split("\n"))]
+        self.assertEqual(kinds("````\n```\n````\n# T"),
+                         ["fence", "code", "fence", "heading"])
+        self.assertEqual(kinds("~~~\n```\n~~~"), ["fence", "code", "fence"])
+        self.assertEqual(kinds("```\n``` x\n---"), ["fence", "code", "code"])
+        self.assertEqual(kinds("```a`b\n# T"), ["text", "heading"])
+        self.assertEqual(kinds("~~~a`b\n# T"), ["fence", "code"])
+        self.assertEqual(kinds("    ```\n# T"), ["text", "heading"])
+
+
 class AdopterDocsFixtureTests(unittest.TestCase):
     """18, 19 and 21: the .claude/skills/corpus-management/docs/ metadata
     reader's loud failure classes, on fixtures (only the leading block is
