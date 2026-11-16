@@ -50,8 +50,11 @@ name, without the installation marker -- a pack root, a pack root's
 parent, an identifier-named ancestor of a pack root, an entry holding
 a symlink (at any depth) to a pack directory
 (the disclosed residual of a dotted route through a symlinked directory), the empty entry or ``.`` while the
-working directory is such a place (removed when the scrub sees it, which guards against an unscrubbed
-empty sys.path entry; the residual is an empty entry whose working directory becomes a pack place
+working directory is such a place (the scrub removes it only when, at scrub time, the working
+directory is a pack root or a pack root's parent, or a pack ``tools/`` directory as below, which
+guards against an unscrubbed empty sys.path entry; the residual is an empty entry or ``.`` whose
+working directory is, at scrub time, an identifier-named ancestor two or more levels above an
+override pack root or a directory holding a symlink to a pack directory, or becomes such a place
 after the scrub), and
 any other such route; those are EXAMPLES, and no list of such routes
 here is complete. As a SECOND, BEST-EFFORT layer the shim removes the
@@ -185,9 +188,12 @@ directory (``import xtools.aiqt_corpus`` through an entry whose
 ``yclaude`` link targets a pack root's parent:
 a dotted route through a symlinked directory, a disclosed residual the scrub does not
 recognise); and the empty entry or ``.`` while the working directory
-is such a place (removed when the scrub sees it, which guards against an unscrubbed empty sys.path
-entry; the residual is an empty entry whose working directory becomes a pack place after the
-scrub); the REPOSITORY ROOT does
+is such a place (the scrub removes it only when, at scrub time, the working directory is a pack
+root or a pack root's parent, or a pack ``tools/`` directory, which guards against an unscrubbed
+empty sys.path entry; the residual, established by execution, is an empty entry or ``.`` whose
+working directory is, at scrub time, an identifier-named ancestor two or more levels above an
+override pack root or a directory holding a symlink to a pack directory, and an empty entry or
+``.`` whose working directory becomes such a place after the scrub); the REPOSITORY ROOT does
 NOT carry a dotted route of its own -- ``.claude`` is not a Python
 identifier, so every dotted spelling through a repository-root entry
 fails with ``ModuleNotFoundError`` (corrects the premise of a repository root wrongly treated as a dotted route; the
@@ -748,7 +754,7 @@ def _pack_tools_entry(entry: str) -> bool:
     ``sys.path`` for the name). True when a ``sys.path`` entry REACHES a
     pack ``tools/`` directory by its RESOLVED path:
     ``os.path.realpath(entry)`` is a directory named ``tools`` with an
-    ``aiqt_corpus.py`` beside it and a pack marker -- ``PIN.toml`` or
+    ``aiqt_corpus.py`` inside it and a pack marker -- ``PIN.toml`` or
     ``.aiqt`` -- in its parent. Deciding on the RESOLVED path, never on the
     entry's spelling, also matches an entry that reaches the pack through a
     symlink of ANY name -- an aliased directory, a link named ``tools`` in

@@ -106,6 +106,9 @@ def _self_test() -> int:
             print("FAIL self-test: a missing target was not flagged"); ok = False
         if "../../../etc/passwd" not in reasons:
             print("FAIL self-test: an escaped target was not flagged"); ok = False
+        elif reasons["../../../etc/passwd"] != "resolves outside repo":
+            # A missing-file reason here means the escape check did not run.
+            print("FAIL self-test: an escaped target was not reported as outside the repository"); ok = False
         if "ai" not in reasons:
             print("FAIL self-test: a directory target was not flagged"); ok = False
         if ok:

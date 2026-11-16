@@ -611,7 +611,7 @@ EXEMPT: dict[tuple[str, str], str] = {
         "date not recorded; heading: P-3.217 HIGH citation defects"
     ),
     ("P-3.217", "P-3.217 residue M16/M17"): (
-        "date not recorded; heading: P-3.217 residue M16/M17"
+        "date not recorded; heading: P-3.217 residue"
     ),
     ("P-3.217", "P-3.217 HIGH-tier disposition"): (
         "date not recorded; heading: P-3.217 HIGH-tier disposition"

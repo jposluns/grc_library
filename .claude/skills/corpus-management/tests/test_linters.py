@@ -43226,7 +43226,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         README.md DATA F 67fe21d3b7f132009e1e6e14899a090f897ede778d89cea59053ca2f3e20ced7
         adopt-bootstrap-ref.py OWN F ec19e2c45233ad02ca422349c0778a3c17463e6fc23fe9bf0591d822ac8d531c
         adopt-preflight-guard.py FIXED F 73ab980af0fa53c8a485af18b7bdaee1b7bfef218c37982593e30c66d7f85f66
-        aiqt_bootstrap.py PASSIVE F da761d1e837ac501cb24a2941fde25f6bfab8c53be9c641e6d8c190bd024ef95
+        aiqt_bootstrap.py PASSIVE F 8c3f73d691f1609fb50745a815e19ba99d36194350bbe4596f4aa140e0182f6f
         aiqt_rules.py NO_FS F dda2a6a5a217513fc2848e59029e111402fe85e8e765d6b9de7186bd8d9472d9
         alignment-register-aliases.json DATA F 7d9b0be1db9dcc1f81870c96309e2837cdf7da6fc16a78ea4f4b4ccca4e7b7e8
         alignment-register-exclusions.json DATA F 391924062319d3d5a618b1750b37dec6c0ee0c0d21b77b26518b16e51a418f19
@@ -43347,7 +43347,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-sibling-placeholders.py NO_FS F 71e2d7087eaff47ca5a57e9f5ba1f9048d577bf08781069511b73c31fdd45fa8
         lint-skill-verdict-carrier-completeness.py OWN F 972851a3cc7dfcd4751e57520bd29691b4125abda340fba62cb1761759abcd60
         lint-ssdf-control-ids.py CWD F 15fe8459dc1a29286d72dd6fafd50687b7cfacc0bf52895f97d57aa8fdd3d051
-        lint-standards-currency.py OWN F 9d32271adbdc1da6c287e8226a92fac0ee5c431bdb27d84bfe530b5f668914c3
+        lint-standards-currency.py OWN F efd89c4c4397bd6c05e993d541b5f6a97861abe5705e44fabb9517d2944d1d10
         lint-startup-character-ceiling.py NO_FS F d6417cd2e9987e8038f664931a8d3f8a1e54e9d28d655ea93187e1dcc2a17daf
         lint-stdlib-only-imports.py NO_FS F d08a512bb89bef359817bfb7fac4051e7e69ad971ccd6663372d6a444efa218d
         lint-structure.py OWN F de53071ea54f72ec560227d6779f4fccb282bdf97b840f11343352566a0f5bc9
@@ -43356,7 +43356,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-todo-index-reference-parity.py OWN F 46ffb499a50fa6b5d64ac594776e5a26ad4e3c696fc48d8b5e4fc8b4646a2b22
         lint-todo-list-tag.py OWN F 10ee5371268378b28c9097a588515231d625ab63b5e5b1b9f3533f4d85db9b2d
         lint-todo-marked-done.py ROOT F 9d5f28f83917e26a4cd0bffde756fded4a2bf4259b809472bc1757a6dbc1b212
-        lint-todo-number-permanence.py OWN F 26cebc7ab1d0730036e5a0343ea786ed66dbb805da2961c9c781ab5b7ae4d0da
+        lint-todo-number-permanence.py OWN F 0847e95df63248e2466a0be1494fe00e2cbbf627402a72118445305a67f4569b
         lint-todo-staleness.py NO_FS F 6a89123607678239f036cab7bf02e0a0885216f55ba0b23fb53799e30c40cffb
         lint-tooling-backlog-refs.py OWN F be54fcdef171bc30e7d0393ca2c097904f464cad7bde9a233f7ee663edd741a5
         lint-tooling-provenance-freshness.py OWN F ab5b885be8a4a7af28e6c441ea4439cc32ce553a6167946ec40d49f50f0f6b02
@@ -43365,7 +43365,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-unused-imports.py CWD F ca0774461f0ea6a973bc510a7b68f51790eb3c21e2e580470af4fc64c9060b2e
         lint-version-bump-recency.py CWD F 8fd558e8fb978be293e66ee1af301c13f517d582bf101f2969c94a8e771d5a72
         lint-version-date-consistency.py OWN F c07c0009130b660eb3ef8c3a1e06c659a99d8eea3663a2fbd84d47773c87e099
-        lint-web-corpus-links.py OWN F b835e135600bb869382fc297560d78514f214513e3f78b534a46902ea01873fa
+        lint-web-corpus-links.py OWN F e69c56be54024ab612c87f8a39f39807334f029426e5e266f860f41ff251479f
         lint_common.py PASSIVE F 91dd0425ff9aae5d86504ac94fa4964988d899f38715295566434c17d1e2daec
         matrix_code_parse.py PASSIVE F 62df77ba801019b06afea2a1474836a90dc2e8385f7d99becef9d393c511f622
         measure-regression-timings.py WRITE F 3fa6dd03e89eaf23d6b92a01f4369f11ff863a475bc81926319b7c734fa007d1

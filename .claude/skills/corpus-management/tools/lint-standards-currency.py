@@ -4,13 +4,13 @@
 The pack engine owns citation extraction, comparison and reporting.
 This wrapper owns the canonical-register schema, roots, exclusions and CLI.
 
-PR1 defaults to report mode. Exactly two kinds of finding block in that mode:
+The gate defaults to report mode. Exactly two kinds of finding block in that mode:
 those of the unchanged legacy Markdown stale check and a historical exception
 row that does not bind (INVALID_EXCEPTION, which blocks in every mode; see
 Historical exceptions below). Every other finding is advisory. A run also exits
 non-zero on errors that are not findings: an UNPINNED ratchet failure below,
 and the register, input and ratchet-base errors. Explicit enforce mode supports
-migration fixtures; no gate invocation enables it in PR1. Every exit status is
+migration fixtures; no gate invocation enables it. Every exit status is
 listed once, under "Exit codes" at the end, by the handler or return in main()
 that produces it.
 
