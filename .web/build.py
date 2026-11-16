@@ -1165,6 +1165,11 @@ def narrative_source_file(rel_path, tracked, seen, root=None):
     return path
 
 
+# One line of a narrative metadata block: the corpus '**Field:** value'
+# form, flush left (the same pattern as the corpus metadata field reader).
+_NARR_METADATA_LINE_RE = re.compile(r"^\*\*([^*]+):\*\*\s*(.*?)\s*$")
+
+
 def _narrative_body_lines(text, source_rel):
     """Return the BODY lines of one narrative source: everything after the
     first metadata terminator (a thematic break outside any fence, read
@@ -1172,11 +1177,17 @@ def _narrative_body_lines(text, source_rel):
     _MD_SECTION_ENDS["narrative metadata"], so any CommonMark break form
     within three spaces ends the block and a rule indented by four spaces or
     a tab does not); the first non-blank line must be a level-one heading
-    with its title text, read the same way; with the trailing corpus
-    ``**End of Document**`` terminator required and dropped (the page chrome
-    supplies the title and the closing sections, so neither the H1, the
-    metadata block, nor the terminator is rendered). Loud on document-model
-    drift: a missing leading H1, a missing metadata terminator, or a missing
+    with its title text, read the same way; every line between that title
+    and the terminator must be blank or a flush-left '**Field:** value'
+    line (_NARR_METADATA_LINE_RE), so a file whose metadata block lacks its
+    terminator is refused at its first other line instead of being read up
+    to a thematic break in its body, which would drop the body above that
+    break; with the trailing corpus ``**End of Document**`` terminator
+    required and dropped (the page chrome supplies the title and the
+    closing sections, so neither the H1, the metadata block, nor the
+    terminator is rendered). Loud on document-model drift: a missing leading
+    H1, a missing metadata terminator, a line before the terminator that is
+    not a metadata line (named by file and line number), or a missing
     document terminator each raise BuildError."""
     lines = text.splitlines()
     items = list(_md_read(lines))
@@ -1195,6 +1206,15 @@ def _narrative_body_lines(text, source_rel):
             f"outside any fence: three or more of one of '-', '*' or '_', "
             f"spaces or tabs between them allowed, after at most three "
             f"spaces, such as '---')")
+    for number in range(first.index + 1, end):
+        line = lines[number]
+        if line.strip() and not _NARR_METADATA_LINE_RE.match(line):
+            raise BuildError(
+                f"{source_rel}: line {number + 1}: {line!r} before the metadata "
+                f"terminator is not a metadata line (between the title and the "
+                f"first thematic break each line is blank or a flush-left "
+                f"'**Field:** value' line; a metadata block missing its "
+                f"terminator is refused, not read up to a rule in the body)")
     body = lines[end + 1:]
     non_blank = [j for j, ln in enumerate(body) if ln.strip()]
     if not non_blank or body[non_blank[-1]].strip() != _NARR_TERMINATOR:

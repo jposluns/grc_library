@@ -1234,8 +1234,9 @@ class HistoricalContextRegressionTests(unittest.TestCase):
         masked = "            ```was```.\nPCI DSS 4.0 x\n"
         original = "ISO/IEC 27001:2013 ```was```.\nPCI DSS 4.0 x\n"
         self.assertEqual(eng.check_text(masked, compiled, eligible_from=original), [(2, "PCI")])
-        # Twelve spaces of indentation are not a fence in either text, so the case above holds
-        # whichever text decides eligibility. Below, the masked text alone would open a fence
+        # Line 1 opens no fence in either text (the masked line starts with twelve spaces and
+        # the original with text), so the case above holds whichever text decides
+        # eligibility. Below, the masked text alone would open a fence
         # (hiding line 2) or lose one (exposing line 2); the original decides both.
         self.assertEqual(eng.check_text("```was```.\nPCI DSS 4.0 x\n", compiled, eligible_from=original),
                          [(2, "PCI")])

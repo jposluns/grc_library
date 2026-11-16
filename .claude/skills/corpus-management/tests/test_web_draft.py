@@ -18606,11 +18606,56 @@ class SharedBoundaryCheckRoutingTests(unittest.TestCase):
                 body = self.mod._narrative_body_lines(
                     self._narrative(f"# T\n**F:** v\n{rule}\n"), "executive/x.md")
                 self.assertEqual(body, ["Body.", ""])
+        # A rule indented by four spaces or a tab is no terminator: it is read
+        # as a line of the metadata block that is not a field line, so it is
+        # refused there by its line number (were it taken as the terminator,
+        # the '---' below it would open the body and nothing would be refused).
         for label, line in (("four-space rule", "    ---"), ("tab rule", "\t---")):
             with self.subTest(case=label):
-                body = self.mod._narrative_body_lines(
-                    self._narrative(f"# T\n**F:** v\n{line}\n---\n"), "executive/x.md")
-                self.assertEqual(body, ["Body.", ""])
+                with self.assertRaisesRegex(
+                        self.mod.BuildError,
+                        "^" + re.escape(f"executive/x.md: line 3: {line!r} ")):
+                    self.mod._narrative_body_lines(
+                        self._narrative(f"# T\n**F:** v\n{line}\n---\n"), "executive/x.md")
+
+    def test_narrative_without_a_metadata_terminator_is_refused_not_read_to_a_body_rule(self):
+        """A narrative whose metadata block lacks its terminator would take the
+        first thematic break in its body as the terminator and silently drop
+        the body above that break; the first line that is not a metadata line
+        is refused instead, naming the file and the line."""
+        text = self._narrative("# T\n\n**F:** v\n\nBody one.\n\n---\n\n", "Body two.\n")
+        with self.assertRaisesRegex(
+                self.mod.BuildError,
+                "^" + re.escape("executive/x.md: line 5: 'Body one.' ")):
+            self.mod._narrative_body_lines(text, "executive/x.md")
+
+    def test_narrative_metadata_block_refuses_each_shape_that_is_not_a_field_line(self):
+        """Between the title and the first thematic break only blank lines and
+        '**Field:** value' lines may stand; every other shape is refused at its
+        own first line, naming the file and the line."""
+        shapes = (("plain text", "Intro."), ("level-one heading", "# Again"),
+                  ("level-two heading", "## S"), ("bare level-two heading", "##"),
+                  ("level-three heading", "### S"), ("list item", "- item"),
+                  ("quote", "> quote"), ("table row", "| a | b |"),
+                  ("rule indented by four spaces", "    ---"), ("rule after a tab", "\t***"),
+                  ("indented field", "  **G:** w"), ("field with no closing marks", "**G: w"),
+                  ("html comment", "<!-- note -->"),
+                  ("backtick fence", "```\n## inside\n---\n```"),
+                  ("tilde fence", "~~~\n***\n~~~"))
+        for label, shape in shapes:
+            first = shape.split("\n")[0]
+            with self.subTest(shape=label):
+                with self.assertRaisesRegex(
+                        self.mod.BuildError,
+                        "^" + re.escape(f"executive/x.md: line 4: {first!r} ")):
+                    self.mod._narrative_body_lines(
+                        self._narrative(f"# T\n\n**F:** v\\\n{shape}\n\n---\n"),
+                        "executive/x.md")
+
+    def test_narrative_metadata_block_of_field_and_blank_lines_is_read(self):
+        text = self._narrative(
+            "\n# T\n\n**F:** v\\\n**G:** w x\\\n\n**H:**\n\n---\n")
+        self.assertEqual(self.mod._narrative_body_lines(text, "executive/x.md"), ["Body.", ""])
 
     def test_narrative_classifier_reads_headings_through_the_shared_check(self):
         seen = self._consulted(
@@ -18698,9 +18743,12 @@ class SectionReaderShapeTableTests(unittest.TestCase):
         "narrative title": {"rule": "refuse", "h1": "go", "h1-bare": "refuse",
                             "h2": "refuse", "h2-bare": "refuse", "h3": "refuse",
                             "h3-bare": "refuse", "text": "refuse", "fence": "refuse"},
-        "narrative terminator": {"rule": "stop", "h1": "go", "h1-bare": "go",
-                                 "h2": "go", "h2-bare": "go", "h3": "go",
-                                 "h3-bare": "go", "text": "go", "fence": "go"},
+        # The shape sits between the metadata block and its terminator: a
+        # thematic break is the terminator ("stop"); any other shape is a
+        # line of the metadata block that is not a field line ("refuse").
+        "narrative terminator": {"rule": "stop", "h1": "refuse", "h1-bare": "refuse",
+                                 "h2": "refuse", "h2-bare": "refuse", "h3": "refuse",
+                                 "h3-bare": "refuse", "text": "refuse", "fence": "refuse"},
         "adopter metadata": {"rule": "stop", "h1": "go", "h1-bare": "go",
                              "h2": "stop", "h2-bare": "stop", "h3": "go",
                              "h3-bare": "go", "text": "go", "fence": "stop"},
