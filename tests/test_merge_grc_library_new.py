@@ -413,6 +413,42 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertFalse(self.mod.row_present(r_row.replace("(/retro)", "(/retro)2026"), 31,
                                               retro=True))
 
+    def test_row_present_refuses_a_lead_that_runs_on(self):
+        # 3b882 fix round 10 (round 9 agy-A F1): the lead ends only at a space, a closing bracket
+        # or the end of the cell, so a letter, an underscore, a full stop or a hyphen after #31
+        # (or after #31 (/retro) in the retro register) makes another identity, never PR 31.
+        for form in ("#31a", "#31_x", "#31.", "#31-1"):
+            tail = form[len("#31"):]
+            with self.subTest(form=form):
+                self.assertFalse(self.mod.row_present(VALIDATE_ROW.replace("#31", form), 31,
+                                                      retro=False))
+                self.assertFalse(self.mod.row_present(RETRO_ROW.replace("#31", form), 31,
+                                                      retro=True))
+                self.assertFalse(self.mod.row_present(
+                    RETRO_ROW.replace("(/retro)", "(/retro)" + tail), 31, retro=True))
+                self.assertIsNone(self.mod._pr_lead(31, retro=False).match(form))
+                self.assertIsNone(self.mod._pr_lead(31, retro=True).match(form + " (/retro)"))
+                self.assertIsNone(self.mod._pr_lead(31, retro=True).match("#31 (/retro)" + tail))
+
+    def test_row_present_accepts_a_lead_that_ends_with_the_pr_number(self):
+        # 3b882 fix round 10 (round 9 agy-A F1): the accepted ends of the lead, a space, a closing
+        # bracket or the end of the cell, and the (/retro) suffix after #31 in the retro register.
+        self.assertTrue(self.mod.row_present(VALIDATE_ROW, 31, retro=False))
+        self.assertTrue(self.mod.row_present(RETRO_ROW, 31, retro=True))
+        self.assertTrue(self.mod.row_present(VALIDATE_ROW.replace("#31 ", "#31] "), 31,
+                                             retro=False))
+        self.assertTrue(self.mod.row_present(RETRO_ROW.replace("(/retro) ", "(/retro)] "), 31,
+                                             retro=True))
+        for retro, cells in ((False, ("#31", "#31 x", "#31]")),
+                             (True, ("#31 (/retro)", "#31 (/retro) x", "#31 (/retro)]"))):
+            for cell in cells:
+                with self.subTest(cell=cell):
+                    self.assertIsNotNone(self.mod._pr_lead(31, retro=retro).match(cell))
+        # The non-retro lead is #31 alone, so #31 (/retro) still holds it; the retro lead needs
+        # the suffix, so a bare #31 never stands for the retro row.
+        self.assertIsNotNone(self.mod._pr_lead(31, retro=False).match("#31 (/retro)"))
+        self.assertIsNone(self.mod._pr_lead(31, retro=True).match("#31"))
+
     def snapshot(self):
         # Every entry under the temporary root: a file by its bytes, a symlink by its target, a
         # directory and anything else by its kind, so a created directory shows as a change

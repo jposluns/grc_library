@@ -9,9 +9,10 @@ QA rows for the PR are in this repository's own registers in the operational sto
 
 A row is a Markdown table line outside any fenced block that begins with ``|`` and has at least
 three cells, whose first cell is an ISO date (ASCII digits, ``YYYY-MM-DD``) and whose second cell
-starts with the lead ``#N`` (in the improvement log ``#N (/retro)``), the whole lead not followed
-by a digit (of any script), and contains the literal tag ``[repo: grc_library_new]``. So ``#3``
-and ``#310`` never stand for ``#31``, a ``[repo: grc_library]`` or
+starts with the lead ``#N`` (in the improvement log ``#N (/retro)``), the whole lead followed
+by a space, a closing bracket (``]``) or the end of the cell, and contains the literal tag
+``[repo: grc_library_new]``. So ``#3``, ``#310``, ``#31a``, ``#31_x``, ``#31.`` and ``#31-1``
+never stand for ``#31``, a ``[repo: grc_library]`` or
 untagged row never counts, and a row quoted inside a fence never counts.
 
 Decision D1: the registers are read only from the operational store found by lint_common's strict
@@ -166,15 +167,24 @@ def _table_rows(text: str):
             yield [c.strip() for c in cells]
 
 
+def _pr_lead(pr: int, *, retro: bool) -> re.Pattern:
+    """The lead a row's second cell must start with: ``#<pr>``, or ``#<pr> (/retro)`` when
+    ``retro``, the whole lead followed by a space, a closing bracket (``]``) or the end of the
+    (stripped) cell, so the lead ends only where the PR number ends: a digit of any script, a
+    letter, an underscore, a full stop, a hyphen or any other character after it refuses."""
+    lead_text = f"#{pr} (/retro)" if retro else f"#{pr}"
+    return re.compile(re.escape(lead_text) + r"(?=[ \]]|\Z)")
+
+
 def row_present(text: str, pr: int, *, retro: bool) -> bool:
     """Whether ``text`` holds a dated table row for grc_library_new PR ``pr``.
 
-    The second cell must start with the lead, ``#<pr>``, or ``#<pr> (/retro)`` when ``retro``.
-    The digit check sits after the whole lead: no digit (of any script) may follow ``#<pr>``, or
-    follow ``(/retro)`` when ``retro``. The cell must also contain the
-    ``[repo: grc_library_new]`` tag."""
-    lead_text = f"#{pr} (/retro)" if retro else f"#{pr}"
-    lead = re.compile(re.escape(lead_text) + r"(?!\d)")  # the digit check after the whole lead
+    The second cell must start with the lead (_pr_lead), ``#<pr>``, or ``#<pr> (/retro)`` when
+    ``retro``, the whole lead followed by a space, a closing bracket (``]``) or the end of the
+    cell: so ``#310``, ``#31a``, ``#31_x``, ``#31.`` and ``#31-1`` never stand for ``#31``, and
+    ``#31 (/retro)2026`` never stands for the retro row of ``#31``. The cell must also contain
+    the ``[repo: grc_library_new]`` tag."""
+    lead = _pr_lead(pr, retro=retro)
     for cells in _table_rows(text):
         if _DATE.fullmatch(cells[0]) and lead.match(cells[1]) and REPO_TAG in cells[1]:
             return True
@@ -573,7 +583,8 @@ def open_findings(root: Path, ledger=None) -> tuple[int, str]:
     The ledger is read once and that text is judged by the hook's parse_open_rows() and
     decide_exit(), loaded by path: the two calls merge-when-green.py's open_findings_block()
     makes, so the two merge tools agree on a readable ledger. The ledger is never read a second
-    time (open_findings_block rereads it and allows on any read or parse error). 1 means an
+    time (open_findings_block also reads it only once, but allows on a missing hook or ledger
+    and on any read or parse error). 1 means an
     undispositioned ``error`` finding (or a mis-filed finding row) is open. Part 2c item 3: the
     check fails closed with 2: the hook absent or not loadable, no readable ledger (``ledger``
     when given, else ``open-findings.md`` inside the operational store, decision D1), or a
@@ -819,10 +830,13 @@ def self_test() -> int:
         ("log: real shape", log_shape_problem(log_shape), ""),
         ("log: header only", log_shape_problem(LOG_HEADER + "\n"), ""),
         ("log: no table header", "no table header" in log_shape_problem("# t\n\nprose\n"), True),
-        # 3b882 fix round 8 (round 7 agy-A F2): a title and a table header, then no table line.
+        # 3b882 fix round 8 (round 7 agy-A F2): a title and a table header, then no data row.
         # The header is the last non-blank line and a table line with no blank line after it, so
-        # log_shape_problem accepts it (no problem), as it accepts a header-only log.
-        ("log: no table line", log_shape_problem("# t\n\n" + LOG_HEADER + "\n"), ""),
+        # log_shape_problem accepts it (no problem), as it accepts a header-only log. 3b882 fix
+        # round 10 (round 9 agy-A F2): the header is itself a table line, so the label says no
+        # data row rather than no table line.
+        ("log: title and header, no data row",
+         log_shape_problem("# t\n\n" + LOG_HEADER + "\n"), ""),
         # 3b882 fix round 6 (round 5 agy-A F3): prose after the header is not a table line.
         ("log: prose after the header",
          "is not a table line" in log_shape_problem("# t\n\n" + LOG_HEADER + "\n\nprose\n"), True),
