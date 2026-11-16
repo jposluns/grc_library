@@ -26169,8 +26169,11 @@ class PIIContentTests(LinterTestCase):
         # reported; the same addresses with a repository path are allowed.
         self.assertEqual(wrapper._forge_service_matches(engine, "ssh://git@github.com/x (git@gitlab.com)"), [])
         self.assertEqual(wrapper._forge_service_matches(engine, "git@github.com: and git@gitlab.com/x"), [])
+        # The token rule: a remote wrapped in parentheses is not a whole whitespace-delimited
+        # token, so it is refused, and its @ is then another @ in the paragraph, which refuses
+        # every remote in it (fails closed).
         self.assertEqual(wrapper._forge_service_matches(engine, "ssh://git@github.com/o/x (git@gitlab.com:o/r)"),
-                         ["git@github.com", "git@gitlab.com"])
+                         [])
         self.assertEqual(wrapper._forge_service_matches(engine, "git@github.com:o/r and ssh://git@gitlab.com/o/x"),
                          ["git@github.com", "git@gitlab.com"])
 
@@ -26338,7 +26341,6 @@ class PIIContentTests(LinterTestCase):
         for body in (
             "Clone git@github.com:org/repo.git here.\n",
             "Clone ssh://git@github.com/org/repo.git here.\n",
-            "Clone git@gitlab.com:group/sub/repo.git here.\n",
             "Clone ssh://git@gitlab.com/group/repo here.\n",
             'Clone git@github.com:org/repo.git here.\n\nSay "hi".\n',
         ):
@@ -26353,9 +26355,11 @@ class PIIContentTests(LinterTestCase):
             ("ssh://git@github.com/o/r", ["git@github.com"]),
             ("git@gitlab.com:o/r", ["git@gitlab.com"]),
             ("ssh://git@gitlab.com/o/r", ["git@gitlab.com"]),
-            ("(git@github.com:o/r.git)", ["git@github.com"]),
-            ("<ssh://git@gitlab.com/o/r>", ["git@gitlab.com"]),
-            ("x = 'ssh://git@github.com/o/r.git'", ["git@github.com"]),
+            # The token rule: a remote wrapped in a parenthesis, angle brackets or quotes is not
+            # a whole whitespace-delimited token, so it fails closed.
+            ("(git@github.com:o/r.git)", []),
+            ("<ssh://git@gitlab.com/o/r>", []),
+            ("x = 'ssh://git@github.com/o/r.git'", []),
         ):
             with self.subTest(line=line):
                 self.assertEqual(wrapper._forge_service_matches(engine, line), expected)
@@ -26525,8 +26529,7 @@ class PIIContentTests(LinterTestCase):
         # Remotes alone in their paragraph, on one line or on two, are still allowed.
         self.assertEqual(wrapper._allowed_spans(engine, "Clone git@github.com:o/r or\ngit@gitlab.com:o/x"),
                          [(6, 20), (28, 42)])
-        for body in ("See (git@github.com:o/r.git) here.\n",
-                     "Clone git@github.com:o/r or\ngit@gitlab.com:o/x here.\n\nMail x@corp-mail-xyz.example.\n"):
+        for body in ("Clone git@github.com:o/r or\ngit@gitlab.com:o/x here.\n\nMail x@corp-mail-xyz.example.\n",):
             with self.subTest(body=body):
                 fixture = self.make_fixture("standard-git-remote-alone.md", VALID_METADATA + "\n\n" + body)
                 result = run_linter("tools/lint-pii-in-content.py", fixture)
@@ -26561,6 +26564,71 @@ class PIIContentTests(LinterTestCase):
             with self.subTest(fragment=fragment):
                 self.assertIn(fragment, doc)
         self.assertNotIn("The rule looks for any later double quote, not for an @ after one", doc)
+
+    def test_git_remote_token_rule_fails_closed_on_wider_forms(self) -> None:
+        # The allowance needs the whole token, delimited by an ASCII space, a tab or the ends of
+        # the line, to be exactly one remote form with an OWNER/REPO path. A deeper path, or a
+        # remote wrapped in a parenthesis, angle brackets or quotes, now fails closed.
+        self._assert_remote_bodies_reported("standard-git-remote-token-refused.md", (
+            ("Clone git@gitlab.com:group/sub/repo.git here.\n", "git@gitlab.com"),
+            ("See (git@github.com:o/r.git) here.\n", "git@github.com"),
+            ("See <ssh://git@gitlab.com/o/r> here.\n", "git@gitlab.com"),
+            ("Set x = 'ssh://git@github.com/o/r.git' here.\n", "git@github.com"),
+            ("Clone git@github.com:o/r! now.\n", "git@github.com"),
+            ("Clone git@github.com:o/r]. now.\n", "git@github.com"),
+            ("Clone git@github.com:o/r\r\n", "git@github.com"),
+        ))
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_token_refused")
+        engine = wrapper._engine()
+        for line in ("git@gitlab.com:group/sub/repo.git", "(git@github.com:o/r)", "<ssh://git@gitlab.com/o/r>",
+                     "git@github.com:o/r!", "git@github.com:o/r?", "git@github.com:o/r]", "git@github.com:o/r'",
+                     "git@github.com:o/r,,", "git@github.com:o/r\x0c", "ssh://git@github.com/o/r/",
+                     "ssh://git@github.com/o", "git@github.com:o/r\u00e9", "git@github.com:o\u00e9/r"):
+            with self.subTest(line=line):
+                self.assertEqual(wrapper._forge_service_matches(engine, line), [])
+        # Exactly one of . , ; : ) may follow the token before a space, a tab or the line end.
+        for line in ("git@github.com:o/r.", "git@github.com:o/r.git,", "x\tssh://git@gitlab.com/o/r;",
+                     "ssh://git@github.com/o.x/r_y-z.git: done", "(see git@gitlab.com:o/r) now"):
+            with self.subTest(line=line):
+                self.assertEqual(len(wrapper._forge_service_matches(engine, line)), 1)
+        fixture = self.make_fixture("standard-git-remote-token-allowed.md", VALID_METADATA
+                                    + "\n\nClone git@github.com:o/r.git, then git@gitlab.com:o/r; or"
+                                    " ssh://git@github.com/o/r: done.\n\n> git@gitlab.com:o/r\n")
+        result = run_linter("tools/lint-pii-in-content.py", fixture)
+        self.assertEqual(result.returncode, 0, f"stdout:\n{result.stdout}")
+        doc = " ".join(wrapper.__doc__.split())
+        for fragment in ("only when the whole whitespace-delimited token that contains it is exactly that form",
+                         "Every other match, whatever precedes or follows it, is reported"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, doc)
+
+    def test_git_remote_token_rule_refuses_markup_unicode_space_and_nfkc_continuations(self) -> None:
+        # An HTML tag or comment, a non-ASCII space, or a character whose NFKC form ends in a dot
+        # or a closing parenthesis can hide a longer local part (alicegit@github.com or the
+        # obsolete alice.git@github.com), and so can a dot on the line before a block quote
+        # marker. Each stays reported.
+        cases = (
+            ("Mail alice<b></b>git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice<!---->git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice.<!---->git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice.<!----> git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice.<b></b>\n git@gitlab.com:o/r now.\n", "git@gitlab.com"),
+            ("Mail alice\u2488 git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice.\u2474 git@github.com:o/r now.\n", "git@github.com"),
+            ("Clone alice\u00a0git@github.com:o/r now.\n", "git@github.com"),
+            ("Clone alice\u2003git@github.com:o/r now.\n", "git@github.com"),
+            ("Clone alice\u202fgit@gitlab.com:o/r now.\n", "git@gitlab.com"),
+            ("Clone alice\u3000ssh://git@github.com/o/r now.\n", "git@github.com"),
+            ("> Mail alice.\n> git@github.com:o/r now.\n", "git@github.com"),
+        )
+        self._assert_remote_bodies_reported("standard-git-remote-markup-space-nfkc.md", cases)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_markup_space_nfkc")
+        engine = wrapper._engine()
+        for body, _ in cases:
+            with self.subTest(paragraph=body):
+                self.assertEqual(wrapper._allowed_spans(engine, body.rstrip("\n")), [])
+        # A block quote marker alone before a remote is not a local-part continuation.
+        self.assertEqual(wrapper._allowed_spans(engine, "> Clone it\n> git@github.com:o/r"), [(13, 27)])
 
 
 class InternalReferencesTests(LinterTestCase):
@@ -46147,7 +46215,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-orphan-documents.py NO_FS F 7a5e4c9ba00700be7e6e97a67d6e24b8365f5e4463af5c5cc12f79a5a45f8ecd
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
-        lint-pii-in-content.py CWD F 54518aece05a7191683ea89a09ba25f0d7e89a5c25c0bc758a051b15ae1fec2e
+        lint-pii-in-content.py CWD F 1834b164ab49b860d4fd8ba044ee9956d17b8bf058fd1990a588e59701058ba3
         lint-placeholder-leakage.py CWD F 011f3e7a9a38fc875d6ec0458f9ff22fdbcc6f531a1d316fc4229b6e791c7eea
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a
