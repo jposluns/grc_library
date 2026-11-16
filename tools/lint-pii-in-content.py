@@ -83,23 +83,45 @@ Exemption layers:
     because a double quote can open an RFC 5322 quoted local part, which can
     hold white space and parentheses, and white space, a comment or a folded
     line break can separate its closing quote from the @ after it, so the
-    match may be inside a longer address at another domain. A quoted local
-    part can itself be folded across lines and close on a later line, so the
-    allowance is also refused when a double quote, or the character
-    reference &quot;, &#34; or &#x22;, appears anywhere after the match in
-    the rest of its paragraph (up to the next empty line, since a fold
-    always continues on a line that starts with white space). The rule looks
-    for any later double quote, not for an @ after one, so no quoting,
-    spacing, comment or folding form can hide a second address. The accepted
-    over-refusal: an allowed address followed later on the line by any double
-    quote is reported, even when the match is the whole local part, as in a
-    double-quoted remote such as a string value, and so is one followed by a
-    double quote later in its paragraph. After another URI scheme (an
-    https:// credential such as https://git@github.com, or
-    mailto:git@github.com) it is still reported, since neither is an ssh://
-    or scp-style remote. Write a remote as one of the four forms with its
-    repository path on one line, with no double quote after it in its
-    paragraph.
+    match may be inside a longer address at another domain.
+    Lines and paragraphs: the allowance reads the file without newline
+    translation and splits it into physical lines at LF only, so a carriage
+    return, form feed, vertical tab, U+0085, U+2028 or U+2029 does not end a
+    line. A paragraph is a run of physical lines up to the next line that
+    holds no character at all; a line of only white space does not end it,
+    because an obsolete RFC 5322 fold can continue across such a line.
+    Within the match's paragraph the allowance is refused when any of these
+    holds. A quote mark appears anywhere after the match in the rest of its
+    paragraph: a double quote, a character whose NFKC form is one, or a
+    character reference that renders a double quote or an apostrophe
+    (&quot;, &apos; or a decimal or hexadecimal reference to 34 or 39, in
+    any letter case, with any leading zeros, with or without its final
+    semicolon), since a quoted local part can be folded and close on a later
+    line. The nearest character before the form, skipping white space and
+    line breaks, is a dot, a closing parenthesis, a character whose NFKC form
+    is either, or the end of a character reference, since an obsolete local
+    part such as alice. git@github.com:o/r or alice.(c)git@github.com:o/r is
+    the address alice.git@github.com. The paragraph holds an @ sign, a
+    character whose NFKC form is one or a character reference that renders
+    one, other than the @ of a match that passes every other test here; then
+    every match in the paragraph is refused, since a longer address that
+    holds the match inside a quoted string, a comment or a domain literal
+    (x(git@github.com:o/r)@corp.example, user@(git@github.com:o/r)host.example
+    or user@[git@github.com:o/r]) needs a second @. With these refusals no
+    quoting, spacing, comment or folding form can hide a second address
+    around an allowed match, since RFC 5322 folding never crosses a line
+    that holds no character. The accepted over-refusal: an allowed address
+    followed later on the line by any double quote is reported, even when
+    the match is the whole local part, as in a double-quoted remote such as
+    a string value, and so is one followed by a quote mark later in its
+    paragraph, one after a sentence-ending dot or a closing parenthesis
+    (Clone it. git@github.com:o/r), and every remote in a paragraph that
+    holds any other @. After another URI scheme (an https:// credential such
+    as https://git@github.com, or mailto:git@github.com) it is still
+    reported, since neither is an ssh:// or scp-style remote. Write a remote
+    as one of the four forms with its repository path on one physical line,
+    with no dot or closing parenthesis before it and no quote mark after it
+    or other @ anywhere in its paragraph.
   - CHANGELOG.md is exempt because it can describe sanitization fixes
     that quote (now-removed) PII.
   - Fenced code blocks are skipped so example syntax does not produce
@@ -117,8 +139,10 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import bisect
 import re
 import sys
+import unicodedata
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
@@ -202,9 +226,17 @@ _REPO_PATH_RE = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_.\-]*(?:/[A-Za-z0-9_][A-Za-z
 # Characters that may appear in a URI scheme: one directly before "ssh://" makes it
 # part of another scheme (such as xssh://), not the ssh:// form.
 _SCHEME_CHARS = frozenset("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-.")
-# A double quote or its HTML character reference: a quoted local part around the match
-# needs one of these after it to close.
-_QUOTE_MARKS = ('"', "&quot;", "&#34;", "&#x22;")
+# A quote mark: a double quote, a character whose NFKC form is one (U+FF02), or a character
+# reference that renders a double quote or an apostrophe, in any letter case, with any leading
+# zeros and with or without its final semicolon. A quoted local part around the match needs one
+# of these after it to close.
+_QUOTE_RE = re.compile(r'["\uff02]|&(?:quot|apos|#0*3[49]|#x0*2[27]);?', re.IGNORECASE)
+# An @ sign: the character itself, a character whose NFKC form is one (U+FE6B, U+FF20), or a
+# character reference that renders one. A longer address around an allowed match needs one.
+_AT_RE = re.compile(r"[@\ufe6b\uff20]|&(?:commat|#0*64|#x0*40);?", re.IGNORECASE)
+# A character reference ending at the end of the searched text: it may render a dot, white space
+# or a local-part character, so a remote form right after one is refused.
+_REFERENCE_END_RE = re.compile(r"&(?:#[0-9]+|#x[0-9a-f]+|[a-z][a-z0-9]*);?\Z", re.IGNORECASE)
 # The engine's EMAIL_RE starts a match at a word boundary, so for
 # o'git@github.com or alice!git@gitlab.com it captures only the git@ suffix. The
 # allowance applies only when the character before the match cannot sit in a local
@@ -217,9 +249,9 @@ _QUOTE_MARKS = ('"', "&quot;", "&#34;", "&#x22;")
 # white space and parentheses, and white space, a comment or a folded line break can separate
 # its closing quote from the @ after it: whatever comes before the match, it may be inside a
 # longer address when a double quote appears anywhere after it on the line, so the allowance is
-# then refused. Testing for any later double quote, not for an @ after one, leaves no quoting
-# form that hides a second address; the cost is that an allowed address followed later on the
-# line by any double quote is reported.
+# then refused. The paragraph tests in _allowed_spans add the rest of the paragraph, quote
+# character references, a dot or comment before the form and any other @ sign; the cost is that
+# an allowed address followed later on the line by any double quote is reported.
 _LOCAL_PART_CHARS = frozenset(
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&'*+-/=?^_`{|}~."
 )
@@ -272,19 +304,73 @@ def _git_remote_form(line: str, start: int, end: int) -> bool:
 
 
 def _quote_follows(text: str) -> bool:
-    """True when ``text`` holds a double quote or its character reference (_QUOTE_MARKS)."""
-    lowered = text.lower()
-    return any(mark in lowered for mark in _QUOTE_MARKS)
+    """True when ``text`` holds a quote mark (_QUOTE_RE): a double quote, a character whose
+    NFKC form is one, or a character reference that renders a double quote or an apostrophe."""
+    return _QUOTE_RE.search(text) is not None
 
 
-def _rest_of_paragraph(lines: list[str], lineno: int) -> str:
-    """The lines after line ``lineno`` (one-based) up to the next empty line, joined."""
-    rest = []
-    for following in lines[lineno:]:
-        if following == "":
-            break
-        rest.append(following)
-    return "\n".join(rest)
+def _local_part_continues_before(text: str, pos: int) -> bool:
+    """True when the text before ``pos`` may continue a local part through the obsolete
+    RFC 5322 syntax: after skipping white space and line breaks, it ends in a dot, a closing
+    parenthesis (a comment), a character whose NFKC form is either, or a character reference."""
+    i = pos
+    while i > 0 and text[i - 1].isspace():
+        i -= 1
+    if i == 0:
+        return False
+    if text[i - 1] in ".)" or unicodedata.normalize("NFKC", text[i - 1]) in (".", ")"):
+        return True
+    return _REFERENCE_END_RE.search(text, 0, i) is not None
+
+
+def _paragraphs(text: str) -> list[tuple[int, str]]:
+    """``(offset, paragraph)`` for each run of LF-delimited physical lines that hold at least
+    one character. Only LF ends a line, and only a line with no character at all ends a
+    paragraph: a line of only white space, a carriage return, a form feed, a vertical tab,
+    U+0085, U+2028 and U+2029 do not."""
+    result = []
+    start = None
+    offset = 0
+    for line in text.split("\n"):
+        if line == "":
+            if start is not None:
+                result.append((start, text[start:offset - 1]))
+                start = None
+        elif start is None:
+            start = offset
+        offset += len(line) + 1
+    if start is not None:
+        result.append((start, text[start:]))
+    return result
+
+
+def _allowed_spans(engine, paragraph: str) -> list[tuple[int, int]]:
+    """The ``(start, end)`` offsets in ``paragraph`` of the matches the git remote form
+    allowance covers. Each is an engine EMAIL_RE match on one LF-delimited physical line whose
+    text is exactly one of FORGE_SERVICE_ADDRESSES, whose domain is the whole domain (the
+    engine's completeness rule), that is exactly the user and host of a git remote form with a
+    repository path (_git_remote_form), whose local part is the whole local part
+    (_local_part_complete), with no quote mark after it in the rest of the paragraph
+    (_quote_follows) and no dot, closing parenthesis or character reference before its form
+    (_local_part_continues_before). When the paragraph holds any @ sign (_AT_RE) other than
+    the @ of such a match, no match in it is covered."""
+    spans = []
+    offset = 0
+    for line in paragraph.split("\n"):
+        for m in engine.EMAIL_RE.finditer(line):
+            start, end = m.start(), m.end()
+            lead = start - len("ssh://") if line[:start].endswith("ssh://") else start
+            if (m.group(0) in FORGE_SERVICE_ADDRESSES and engine._email_domain_complete(line, end)
+                    and _git_remote_form(line, start, end)
+                    and _local_part_complete(line, start)
+                    and not _quote_follows(paragraph[offset + end:])
+                    and not _local_part_continues_before(paragraph, offset + lead)):
+                spans.append((offset + start, offset + end))
+        offset += len(line) + 1
+    own_at = {start + len("git") for start, _ in spans}
+    if any(m.start() not in own_at for m in _AT_RE.finditer(paragraph)):
+        return []
+    return spans
 
 
 def _engine():
@@ -304,18 +390,31 @@ def scan(path: Path) -> list[tuple[int, str, str]]:
     check live in the pack engine (gate_lint_pii_in_content.py). The engine takes
     the grc example-domain allow-list as a keyword; the wrapper supplies it here.
     The wrapper then drops the email findings the git remote form allowance covers,
-    one per covered match on the same line, given the rest of that line's paragraph.
+    one per covered match on the same engine line. The allowance reads the file itself
+    without newline translation and works on LF-delimited physical lines and paragraphs
+    (_paragraphs, _allowed_spans); each covered match is mapped back to the engine's line
+    number, which splits at every line break str.splitlines knows. The engine's lines and
+    the untranslated text's str.splitlines lines are the same lines.
     """
     engine = _engine()
     findings = engine.scan(path, example_domains=EXAMPLE_DOMAINS)
     if not any(label == "email address" and value in FORGE_SERVICE_ADDRESSES
                for _, label, value in findings):
         return findings
+    try:
+        text = path.read_bytes().decode("utf-8")
+    except UnicodeDecodeError:
+        return findings
+    line_starts = []
+    position = 0
+    for piece in text.splitlines(keepends=True):
+        line_starts.append(position)
+        position += len(piece)
     allowed: dict[tuple[int, str], int] = {}
-    text = engine.read_text_safe(path) or ""
-    lines = text.splitlines()
-    for lineno, line in engine.iter_non_code_lines(text):
-        for value in _forge_service_matches(engine, line, _rest_of_paragraph(lines, lineno)):
+    for offset, paragraph in _paragraphs(text):
+        for start, end in _allowed_spans(engine, paragraph):
+            lineno = bisect.bisect_right(line_starts, offset + start)
+            value = paragraph[start:end]
             allowed[(lineno, value)] = allowed.get((lineno, value), 0) + 1
     kept = []
     for lineno, label, value in findings:
@@ -327,19 +426,19 @@ def scan(path: Path) -> list[tuple[int, str, str]]:
 
 
 def _forge_service_matches(engine, line: str, following: str = "") -> list[str]:
-    """The matches on one line that the git remote form allowance covers: an engine
+    """The matches on one physical line that the git remote form allowance covers, when
+    ``following`` is the rest of its paragraph (the line opens the paragraph): an engine
     EMAIL_RE match whose text is exactly one of FORGE_SERVICE_ADDRESSES, whose domain is
     the whole domain, not an ASCII prefix the regex truncated (the engine's own
     completeness rule, as for its example-domain exemption), that is exactly the user and
     host of a git remote form with a repository path (_git_remote_form), whose local part
-    is the whole local part (_local_part_complete), and with no double quote or quote
-    character reference after it on the line or in ``following``, the rest of its
-    paragraph (_quote_follows)."""
-    return [m.group(0) for m in engine.EMAIL_RE.finditer(line)
-            if m.group(0) in FORGE_SERVICE_ADDRESSES and engine._email_domain_complete(line, m.end())
-            and _git_remote_form(line, m.start(), m.end())
-            and _local_part_complete(line, m.start())
-            and not _quote_follows(line[m.end():] + "\n" + following)]
+    is the whole local part (_local_part_complete), with no quote mark after it on the line
+    or in ``following`` (_quote_follows), no dot, closing parenthesis or character reference
+    before its form (_local_part_continues_before), and no other @ sign in the paragraph
+    (_allowed_spans)."""
+    paragraph = line + "\n" + following if following else line
+    return [paragraph[start:end] for start, end in _allowed_spans(engine, paragraph)
+            if end <= len(line)]
 
 
 def main(argv: list[str]) -> int:

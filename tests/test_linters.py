@@ -26410,6 +26410,158 @@ class PIIContentTests(LinterTestCase):
             with self.subTest(fragment=fragment):
                 self.assertIn(fragment, doc)
 
+    def _assert_remote_bodies_reported(self, name: str, cases) -> None:
+        for body, needle in cases:
+            with self.subTest(body=body):
+                fixture = self.make_fixture(name, VALID_METADATA + "\n\n" + body)
+                result = run_linter("tools/lint-pii-in-content.py", fixture)
+                self.assertEqual(result.returncode, 1, f"{body!r} must stay reported.\nstdout:\n{result.stdout}")
+                self.assertIn(needle, result.stdout)
+
+    def test_git_remote_allowance_reads_lf_delimited_physical_lines(self) -> None:
+        # str.splitlines also breaks at a carriage return, form feed, vertical tab, U+2028 and
+        # U+2029, so two of them in a row would look like an empty line and end the paragraph
+        # before the closing quote of a quoted local part. Only LF ends a physical line here.
+        cases = (
+            ('"jane git@github.com:o/r\x0c\x0c "@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@github.com:o/r\x0c\n "@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@github.com:o/r\x0b\x0b "@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@github.com:o/r\u2028\u2028 "@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@github.com:o/r\u2029\n "@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@gitlab.com:o/r\r\r "@corp-mail-xyz.net\n', "git@gitlab.com"),
+            ('"jane git@gitlab.com:o/r\x85\x85 "@corp-mail-xyz.net\n', "git@gitlab.com"),
+        )
+        self._assert_remote_bodies_reported("standard-git-remote-physical-lines.md", cases)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_physical_lines")
+        engine = wrapper._engine()
+        for body, _ in cases:
+            with self.subTest(paragraph=body):
+                self.assertEqual(wrapper._allowed_spans(engine, body.rstrip("\n")), [])
+        self.assertEqual(wrapper._paragraphs("a\x0c\x0cb\r\rc\n\nd"), [(0, "a\x0c\x0cb\r\rc"), (9, "d")])
+
+    def test_git_remote_allowance_paragraph_ends_only_at_a_line_with_no_character(self) -> None:
+        # An obsolete RFC 5322 fold can continue across a line of only white space, so such a
+        # line does not end the paragraph: a quote mark after it still refuses the allowance.
+        self._assert_remote_bodies_reported("standard-git-remote-space-line.md", (
+            ('Clone git@github.com:o/r here.\n   \nSay "hi".\n', "git@github.com"),
+            ('"jane git@github.com:o/r\n   \n "@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@gitlab.com:o/r\n\t\n "@corp-mail-xyz.net\n', "git@gitlab.com"),
+        ))
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_space_line")
+        self.assertEqual(wrapper._paragraphs("a\n  \nb\n\nc\n"), [(0, "a\n  \nb"), (8, "c")])
+        doc = " ".join(wrapper.__doc__.split())
+        for fragment in ("splits it into physical lines at LF only",
+                         "A paragraph is a run of physical lines up to the next line that holds no character at all",
+                         "a line of only white space does not end it"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, doc)
+        self.assertNotIn("up to the next empty line", doc)
+
+    def test_git_remote_allowance_refuses_every_quote_character_reference(self) -> None:
+        # HTML and CommonMark render a numeric reference with leading zeros, in either letter
+        # case and in some cases without its semicolon, as the character it names.
+        cases = (
+            ("&#034;jane git@github.com:o/r &#034;@corp-mail-xyz.net\n", "git@github.com"),
+            ("&#x0022;jane git@github.com:o/r &#x0022;@corp-mail-xyz.net\n", "git@github.com"),
+            ("&#34;jane git@github.com:o/r &#034;@corp-mail-xyz.net\n", "git@github.com"),
+            ("&#34;jane git@gitlab.com:o/r &#00034;@corp-mail-xyz.net\n", "git@gitlab.com"),
+            ("&#34;jane git@github.com:o/r &#x022;@corp-mail-xyz.net\n", "git@github.com"),
+            ("&#34;jane git@github.com:o/r &#X00022;@corp-mail-xyz.net\n", "git@github.com"),
+            ("&QUOT;jane git@github.com:o/r\n &QUOT;@corp-mail-xyz.net\n", "git@github.com"),
+            ("\uff02jane git@github.com:o/r \uff02@corp-mail-xyz.net\n", "git@github.com"),
+        )
+        self._assert_remote_bodies_reported("standard-git-remote-quote-reference.md", cases)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_quote_reference")
+        engine = wrapper._engine()
+        for following in (" &#034;", " &#x0022;", " &#00034;", " &#x022;", " &#x00022;", " &#34",
+                          " &quot", " &apos;", " &#39;", " &#x27;", " &#0039;", " \uff02"):
+            with self.subTest(following=following):
+                self.assertTrue(wrapper._quote_follows(following))
+                self.assertEqual(wrapper._forge_service_matches(engine, "jane git@github.com:o/r", following), [])
+        self.assertEqual(wrapper._forge_service_matches(engine, "Clone git@github.com:o/r", "then push."),
+                         ["git@github.com"])
+
+    def test_git_remote_allowance_refuses_obsolete_local_part_syntax(self) -> None:
+        # RFC 5322 obs-local-part lets white space, a comment or a fold sit after a dot, so
+        # alice. git@github.com is the address alice.git@github.com, another user at github.com.
+        # A character reference before the form may render a dot or a local-part character.
+        cases = (
+            ("Mail alice. git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice.(c)git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice.\n git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice. ssh://git@gitlab.com/o/r now.\n", "git@gitlab.com"),
+            ("Mail alice\uff0e git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail &#39;git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice&#46; git@gitlab.com:o/r now.\n", "git@gitlab.com"),
+        )
+        self._assert_remote_bodies_reported("standard-git-remote-obsolete-local-part.md", cases)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_obsolete")
+        engine = wrapper._engine()
+        for body, _ in cases:
+            with self.subTest(paragraph=body):
+                self.assertEqual(wrapper._allowed_spans(engine, body.rstrip("\n")), [])
+
+    def test_git_remote_allowance_refuses_a_comment_or_domain_literal_around_the_remote(self) -> None:
+        # A remote ending at ")" can close an RFC 5322 comment inside a longer address, and a
+        # comment or domain literal after another address's @ can hold one; each such address
+        # needs a second @, so any other @ in the paragraph refuses every remote in it.
+        cases = (
+            ("x(git@github.com:o/r)@corp-mail-xyz.net\n", "git@github.com"),
+            ("x(ssh://git@github.com/o/r)@corp-mail-xyz.net\n", "git@github.com"),
+            ("x(git@github.com:o/r) @corp-mail-xyz.net\n", "git@github.com"),
+            ("x(git@gitlab.com:o/r)\n @corp-mail-xyz.net\n", "git@gitlab.com"),
+            ("user@(git@github.com:o/r)corp-mail-xyz.net\n", "git@github.com"),
+            ("user@[git@gitlab.com:o/r]\n", "git@gitlab.com"),
+            ("x(git@github.com:o/r)&#64;corp-mail-xyz.net\n", "git@github.com"),
+            ("x(git@github.com:o/r)\uff20corp-mail-xyz.net\n", "git@github.com"),
+            ("x.(git@github.com:o/r) git@gitlab.com:a/b\n", "git@gitlab.com"),
+        )
+        self._assert_remote_bodies_reported("standard-git-remote-comment.md", cases)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_comment")
+        engine = wrapper._engine()
+        for body, _ in cases:
+            with self.subTest(paragraph=body):
+                self.assertEqual(wrapper._allowed_spans(engine, body.rstrip("\n")), [])
+        # Remotes alone in their paragraph, on one line or on two, are still allowed.
+        self.assertEqual(wrapper._allowed_spans(engine, "Clone git@github.com:o/r or\ngit@gitlab.com:o/x"),
+                         [(6, 20), (28, 42)])
+        for body in ("See (git@github.com:o/r.git) here.\n",
+                     "Clone git@github.com:o/r or\ngit@gitlab.com:o/x here.\n\nMail x@corp-mail-xyz.example.\n"):
+            with self.subTest(body=body):
+                fixture = self.make_fixture("standard-git-remote-alone.md", VALID_METADATA + "\n\n" + body)
+                result = run_linter("tools/lint-pii-in-content.py", fixture)
+                self.assertEqual(result.returncode, 0, f"{body!r} must pass.\nstdout:\n{result.stdout}")
+
+    def test_git_remote_allowance_refuses_a_remote_after_a_non_ascii_character(self) -> None:
+        # RFC 6531 admits non-ASCII characters in a local part, so a complete remote form right
+        # after U+2019 or U+00BF may be the end of a longer address. Unlike the bare addresses
+        # in test_forge_allowance_is_narrow, these carry a repository path, so only the
+        # non-ASCII checks before the match refuse them.
+        cases = (
+            ("Clone \u2019git@github.com:o/r here.\n", "git@github.com"),
+            ("Clone \u00bfgit@gitlab.com:o/r here.\n", "git@gitlab.com"),
+            ("Clone \u2019ssh://git@github.com/o/r here.\n", "git@github.com"),
+            ("Clone \u00bfssh://git@gitlab.com/o/r here.\n", "git@gitlab.com"),
+        )
+        self._assert_remote_bodies_reported("standard-git-remote-non-ascii.md", cases)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_non_ascii")
+        engine = wrapper._engine()
+        for body, _ in cases:
+            with self.subTest(line=body):
+                self.assertEqual(wrapper._forge_service_matches(engine, body.rstrip("\n")), [])
+
+    def test_git_remote_allowance_docstring_states_the_paragraph_refusals(self) -> None:
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_doc")
+        doc = " ".join(wrapper.__doc__.split())
+        for fragment in ("or a decimal or hexadecimal reference to 34 or 39, in any letter case, with any leading zeros",
+                         "is a dot, a closing parenthesis, a character whose NFKC form is either, "
+                         "or the end of a character reference",
+                         "other than the @ of a match that passes every other test here",
+                         "every remote in a paragraph that holds any other @"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, doc)
+        self.assertNotIn("The rule looks for any later double quote, not for an @ after one", doc)
+
 
 class InternalReferencesTests(LinterTestCase):
     """tools/lint-internal-references.py"""
@@ -45995,7 +46147,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-orphan-documents.py NO_FS F 7a5e4c9ba00700be7e6e97a67d6e24b8365f5e4463af5c5cc12f79a5a45f8ecd
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
-        lint-pii-in-content.py CWD F 2f474996f717f09204de1628bfed1225d9266f99d00b35ce7e5462fdf608410a
+        lint-pii-in-content.py CWD F 54518aece05a7191683ea89a09ba25f0d7e89a5c25c0bc758a051b15ae1fec2e
         lint-placeholder-leakage.py CWD F 011f3e7a9a38fc875d6ec0458f9ff22fdbcc6f531a1d316fc4229b6e791c7eea
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a
