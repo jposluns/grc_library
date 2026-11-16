@@ -933,7 +933,7 @@ class LanguageLinterTests(LinterTestCase):
     def test_url_mask_emphasis_comma_digit_upper_label_bad_query_key_nested_colon_and_paren_flagged(self) -> None:
         """Prose after a closing "_" or "__" emphasis delimiter, path text after
         a comma and a digit run before "/", an all-uppercase label glued to a
-        lowercase host, a query whose key holds an invalid escape, a non-scheme
+        lowercase host, a query whose key is followed by an invalid escape, a non-scheme
         "://" and text after ",)" inside parentheses are outside the URL token
         and still flagged.
 
@@ -6256,6 +6256,8 @@ class CrossFileSectionRefTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_table_local_exception_requires_description_and_close(self) -> None:
+        # The target lacks section 8, so a row the local-section exception
+        # does not cover is read as a citation of the target and fails.
         self.make_fixture("t.md", self.TARGET_BODY + "\n\n## 4. Other\n")
         for line, should_fail in (
             ("| Owner | §8 ([t](t.md)) |", True),
@@ -6270,6 +6272,24 @@ class CrossFileSectionRefTests(LinterTestCase):
                 result = run_linter(".claude/skills/corpus-management/tools/lint-cross-file-section-refs.py", fixture)
                 if should_fail:
                     self.assertLinterFails(result, "§8")
+                else:
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        # The target now holds section 8, so a row read as a citation of the
+        # target resolves (the first row shows it); a row whose exception
+        # path leaves its parenthesis unclosed still fails, by its own refusal.
+        self.make_fixture("t.md", self.TARGET_BODY + "\n\n## 4. Other\n\n## 8. Exceptions\n")
+        for line, should_fail in (
+            ("| Owner | §8 ([t](t.md)) |", False),
+            ("| Owner | Section 8 exception path ([policy](t.md) §2) |", False),
+            ("| Owner | Section 8 exception path ([policy](t.md) §2 |", True),
+        ):
+            with self.subTest(line=line, target_holds_section_8=True):
+                citer = VALID_METADATA + f"\n\n## 8. Exceptions\n\n{line}\n"
+                fixture = self.make_fixture("standard-table-exception-cross-ref.md", citer)
+                result = run_linter(".claude/skills/corpus-management/tools/lint-cross-file-section-refs.py", fixture)
+                if should_fail:
+                    self.assertLinterFails(result, "§8")
+                    self.assertIn("no closing parenthesis", result.stdout)
                 else:
                     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 

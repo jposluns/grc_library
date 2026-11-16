@@ -458,6 +458,7 @@ What is locked here, each test failing without its feature:
 
 from __future__ import annotations
 
+import datetime
 import functools
 import hashlib
 import importlib.util
@@ -18516,6 +18517,25 @@ class AdopterDocsFixtureTests(unittest.TestCase):
             self.mod._adopter_purpose("## Purpose\n\nFirst prose line.\n# Next Part\n"),
             "First prose line.")
 
+    def test_lede_stops_at_an_indented_heading(self):
+        """A heading written after leading whitespace is still a heading:
+        once the prose starts, the lede ends at an indented ``# ``, ``## ``
+        or ``### `` heading, an indented ``### `` heading before the prose is
+        skipped, and an indented ``## `` heading before it ends the lede, so
+        heading text never enters the lede."""
+        for text, lede in (
+                ("## Purpose\n\nFirst prose line.\n  ## Next Part\n",
+                 "First prose line."),
+                ("## Purpose\n\nFirst prose line.\n  # Next Part\n",
+                 "First prose line."),
+                ("## Purpose\n\nFirst prose line.\n   ### Sub part\n",
+                 "First prose line."),
+                ("## Purpose\n\n  ### Sub part\n\nFirst prose line.\n",
+                 "First prose line."),
+                ("## Purpose\n\n  ## Next Part\n\nLater prose.\n", "")):
+            with self.subTest(text=text):
+                self.assertEqual(self.mod._adopter_purpose(text), lede)
+
     def _block(self, overrides=None, drop=(), extra=()):
         fields = [(n, v) for n, v in self.FIELDS if n not in drop]
         if overrides:
@@ -24755,8 +24775,8 @@ class MscRegisterProgrammeClaimsTests(unittest.TestCase):
         organization-specific evidence and a Last Reviewed date, yet in the
         earlier repository every Implemented row had a blank Last Reviewed.
         No row in any table of the register is Implemented without a Last
-        Reviewed date (YYYY-MM-DD); a blank cell or non-date text such as TBD
-        counts as no date."""
+        Reviewed date (YYYY-MM-DD); a blank cell, non-date text such as TBD
+        or an impossible calendar date such as 2026-02-30 counts as no date."""
         lines = self._lines(self.MSC_REGISTER)
         self.assertIn(
             "**Status rule:** a Status of Implemented is the organization's "
@@ -24764,10 +24784,19 @@ class MscRegisterProgrammeClaimsTests(unittest.TestCase):
             "organization-specific evidence and Last Reviewed carries a date.",
             "\n".join(lines))
         def unreviewed(status, reviewed):
-            return status == "Implemented" and not re.fullmatch(
-                r"\d{4}-\d{2}-\d{2}", reviewed)
-        for cell in ("", "TBD", "pending"):
+            if status != "Implemented":
+                return False
+            if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", reviewed):
+                return True
+            try:
+                datetime.date.fromisoformat(reviewed)
+            except ValueError:
+                return True
+            return False
+        for cell in ("", "TBD", "pending", "2026-99-99", "2026-02-30",
+                     "2026-13-01", "2026-00-10", "2025-02-29"):
             self.assertTrue(unreviewed("Implemented", cell), cell)
+        self.assertFalse(unreviewed("Implemented", "2024-02-29"))
         self.assertFalse(unreviewed("Implemented", "2026-11-15"))
         offending, rows, header = [], 0, None
         for line in lines:
@@ -25245,7 +25274,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
     # earlier repository gave it when these tests were written (register
     # lines 21, 50, 53, 92, 119, 140, 150 to 154, 164, 167 and 171; index
     # line 375).
-    _PINNED_PURPOSE = (
+    _EARLIER_PURPOSE = (
         "This register documents the organization's implementation status "
         "against the CTPAT Minimum Security Criteria in eight domains: "
         "corporate security, physical security, access controls, personnel "
@@ -25260,7 +25289,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "(register-ctpat-united-states-it-controls.md), "
         "which focuses specifically on IT and cybersecurity criteria."
     )
-    _PINNED_CS3 = (
+    _EARLIER_CS3 = (
         "| CS-3 | Security assessment conducted to identify vulnerabilities "
         "| Annual security risk and threat assessment of the organization's "
         "supply chain operations, with the measures taken against each risk "
@@ -25273,7 +25302,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "the risk assessment | Risk and threat assessment report; gap "
         "assessment record | Not assessed | |"
     )
-    _PINNED_CS6 = (
+    _EARLIER_CS6 = (
         "| CS-6 | Contingency plans for emergency security situations and "
         "for disaster or terrorist incident recovery, with periodic employee "
         "training and plan testing (held source: WCO SAFE (2025), Annex IV L "
@@ -25281,7 +25310,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "IT-9) | Not yet documented | Security contingency plan; training "
         "and test records | Not assessed | |"
     )
-    _PINNED_FCRA = (
+    _EARLIER_FCRA = (
         "*PE-1 and PE-5 in the United States: where screening uses a "
         "consumer report for employment purposes, the Fair Credit Reporting "
         "Act (15 U.S.C. 1681b(b)(2)(A)) bars procuring the report unless a "
@@ -25291,7 +25320,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "writing; subparagraph (B) covers applications made by mail, "
         "telephone, computer or similar means.*"
     )
-    _PINNED_BP5 = (
+    _EARLIER_BP5 = (
         "| BP-5 | Business partner screening against money laundering and "
         "terrorism financing: verify partner identity and legal status, "
         "conduct legal, criminal and financial background checks taking "
@@ -25303,7 +25332,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "CBP text confirms this as a CTPAT criterion) | Not yet documented | "
         "Partner screening records | Not assessed | |"
     )
-    _PINNED_RAIL = (
+    _EARLIER_RAIL = (
         "*IT-5 for rail carriers: a freight railroad carrier identified in "
         "49 CFR 1580.101, or another TSA-designated freight railroad, must "
         "also report cybersecurity incidents to CISA Central as soon as "
@@ -25313,24 +25342,24 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "notification; confirm the directive in force before relying on "
         "these terms.*"
     )
-    _PINNED_CV1 = (
+    _EARLIER_CV1 = (
         "| CV-1 | Transport conveyances used for cargo in the supply chain "
         "are capable of being effectively secured (Annex IV H, item a) | Not "
         "yet documented | Conveyance security procedure | Not assessed | |"
     )
-    _PINNED_CV2 = (
+    _EARLIER_CV2 = (
         "| CV-2 | Conveyances secured when left unattended and checked for "
         "security breaches on return (Annex IV H, item b) | Not yet "
         "documented | Conveyance security procedure; check records | Not "
         "assessed | |"
     )
-    _PINNED_CV3 = (
+    _EARLIER_CV3 = (
         "| CV-3 | Conveyance operators trained to maintain the security of "
         "the conveyance and the cargo at all times while in custody (Annex "
         "IV H, item c) | Not yet documented | Training records | Not "
         "assessed | |"
     )
-    _PINNED_CV4 = (
+    _EARLIER_CV4 = (
         "| CV-4 | Inspection of the conveyance structure, including the "
         "reliability of its access controls, using a seven-point inspection "
         "(front wall, left side, right side, floor, ceiling or roof, inside "
@@ -25340,7 +25369,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "f; Annex IV H, item e) | Not yet documented | Inspection checklist; "
         "inspection records | Not assessed | |"
     )
-    _PINNED_CV5 = (
+    _EARLIER_CV5 = (
         "| CV-5 | Operators report actual or suspicious incidents to the "
         "organization's security staff and to Customs, with records kept; "
         "any unusual, suspicious or actual breach of conveyance security "
@@ -25348,7 +25377,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "and f) | Not yet documented | Incident reports; notification "
         "records | Not assessed | |"
     )
-    _PINNED_CORPORATE = (
+    _EARLIER_CORPORATE = (
         "| Corporate Security | HMRC AEO application documentation, "
         "including a security and safety risk and threat assessment covering "
         "all premises relevant to customs-related activities and a security "
@@ -25360,7 +25389,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "safety requirements and any specific legal requirements that may "
         "apply to the business (§11.1) |"
     )
-    _PINNED_PERSONNEL = (
+    _EARLIER_PERSONNEL = (
         "| Personnel Security | Pre-employment screening of staff in "
         "sensitive areas that, at minimum, verifies identity, confirms the "
         "right to work in the UK, confirms the employee has declared any "
@@ -25373,7 +25402,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "employment guidance says criminal records checks can in most cases "
         "take place as part of pre-employment vetting |"
     )
-    _PINNED_CONVEYANCE = (
+    _EARLIER_CONVEYANCE = (
         "| Conveyance and Cargo Unit Security | HMRC's cargo security "
         "criterion covers cargo units, which include containers, tankers, "
         "vans, lorries, vehicles and pipelines: procedures to examine the "
@@ -25390,7 +25419,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "boundary security, asks how security incidents are reported and "
         "dealt with and names no recipient) |"
     )
-    _PINNED_INDEX = (
+    _EARLIER_INDEX = (
         "| Compliance | Register | US CTPAT Minimum Security Criteria "
         "Controls Register | "
         "[`compliance/logistics/register-ctpat-united-states-msc-controls.md`"
@@ -25403,23 +25432,23 @@ class MscRegisterClaimPinTests(unittest.TestCase):
     # claim: its row's earlier text; the Personnel Security pins share one
     # earlier row.
     _COUNTEREXAMPLES = {
-        "purpose": _PINNED_PURPOSE,
-        "CS-3": _PINNED_CS3,
-        "CS-6": _PINNED_CS6,
-        "fcra-note": _PINNED_FCRA,
-        "BP-5": _PINNED_BP5,
-        "rail-note": _PINNED_RAIL,
-        "CV-1": _PINNED_CV1,
-        "CV-2": _PINNED_CV2,
-        "CV-3": _PINNED_CV3,
-        "CV-4": _PINNED_CV4,
-        "CV-5": _PINNED_CV5,
-        "aeo-corporate": _PINNED_CORPORATE,
-        "personnel": _PINNED_PERSONNEL,
-        "personnel-contracts": _PINNED_PERSONNEL,
-        "ICO": _PINNED_PERSONNEL,
-        "aeo-conveyance": _PINNED_CONVEYANCE,
-        "index-frameworks": _PINNED_INDEX,
+        "purpose": _EARLIER_PURPOSE,
+        "CS-3": _EARLIER_CS3,
+        "CS-6": _EARLIER_CS6,
+        "fcra-note": _EARLIER_FCRA,
+        "BP-5": _EARLIER_BP5,
+        "rail-note": _EARLIER_RAIL,
+        "CV-1": _EARLIER_CV1,
+        "CV-2": _EARLIER_CV2,
+        "CV-3": _EARLIER_CV3,
+        "CV-4": _EARLIER_CV4,
+        "CV-5": _EARLIER_CV5,
+        "aeo-corporate": _EARLIER_CORPORATE,
+        "personnel": _EARLIER_PERSONNEL,
+        "personnel-contracts": _EARLIER_PERSONNEL,
+        "ICO": _EARLIER_PERSONNEL,
+        "aeo-conveyance": _EARLIER_CONVEYANCE,
+        "index-frameworks": _EARLIER_INDEX,
     }
 
     # claim, held path (reference corpus), line, text the line carries.
@@ -26669,20 +26698,35 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
         Not assessed, and its Implementation Description is pinned exactly
         (_MSC_BP3_DESCRIPTION). The route wording itself is checked by
         test_supplier_monitoring_names_no_hmrc_portal across _ROUTE_FILES,
-        which includes this register."""
-        lines = self._lines(self.MSC_REGISTER)
-        hedged = []
-        for i, line in enumerate(lines):
-            if not line.startswith("| Control ID |"):
-                continue
-            header = [cell.strip() for cell in line.split("|")]
-            for row in lines[i + 2:]:
-                if not row.startswith("|"):
-                    break
-                row_cells = [cell.strip() for cell in row.split("|")]
-                if self._HEDGE.search(row):
-                    hedged.append((row_cells[1],
-                                   dict(zip(header, row_cells))))
+        which includes this register. In a control table HMRC is named only
+        as a route for verifying partner status, so a control row that names
+        HMRC without the hedge fails; a synthetic table checks that the scan
+        reports such a row and passes a hedged one."""
+        def scan(lines):
+            hedged, unhedged = [], []
+            for i, line in enumerate(lines):
+                if not line.startswith("| Control ID |"):
+                    continue
+                header = [cell.strip() for cell in line.split("|")]
+                for row in lines[i + 2:]:
+                    if not row.startswith("|"):
+                        break
+                    row_cells = [cell.strip() for cell in row.split("|")]
+                    if self._HEDGE.search(row):
+                        hedged.append((row_cells[1],
+                                       dict(zip(header, row_cells))))
+                    elif re.search(r"\bHMRC\b", row):
+                        unhedged.append(row_cells[1])
+            return hedged, unhedged
+        synthetic = [
+            "| Control ID | Implementation Description | Status |",
+            "|---|---|---|",
+            "| BP-9 | Partner AEO-S status verified via HMRC | Not assessed |",
+            "| BP-10 | Verification via HMRC (route not confirmed by a held "
+            "source) | Not assessed |"]
+        self.assertEqual(scan(synthetic)[1], ["BP-9"])
+        hedged, unhedged = scan(self._lines(self.MSC_REGISTER))
+        self.assertEqual(unhedged, [])
         self.assertEqual([control for control, _ in hedged], ["BP-3"])
         self.assertEqual([control for control, cells in hedged
                           if cells["Status"] == "Implemented"], [])

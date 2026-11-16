@@ -25,7 +25,10 @@ and every cell is checked; an unmatched backtick is literal and backslashes
 inside code are literal. A local heading
 reference in a table cell is excluded when real descriptive text intervenes
 before a nearby following parenthesized link with a matching closing parenthesis,
-and no link precedes that mark in the cell. "Of the target" describes the
+and no link precedes that mark in the cell. A cell of that shape whose
+parenthesis is not closed after the link is refused as malformed, whether or
+not the target holds the cited number, instead of being checked as a citation
+of the target. "Of the target" describes the
 target, so it is checked. Prose remains subject to the adjacent-link check.
 Only explicit "of [the] target" wording is treated as a target citation in
 this table-cell exception; "of the policy" remains a documented residual.
@@ -239,8 +242,18 @@ def check_file(
                             and number in own_sections and following is not None
                             and not any(m.end() <= match.start() for m in md_link_re.finditer(cell))
                             and re.fullmatch(r"\s+[^()]*\S[^()]*\(\s*", intervening)
-                            and not re.match(r"\s+of\s+(?:the\s+)?target\b", intervening, re.I)
-                            and re.match(r"[^()]*\)", cell[following.end():])):
+                            and not re.match(r"\s+of\s+(?:the\s+)?target\b", intervening, re.I)):
+                        if re.match(r"[^()]*\)", cell[following.end():]):
+                            continue
+                        # Without its closing parenthesis the row would fall
+                        # through to the target check and pass whenever the
+                        # target holds the same number, so refuse it here.
+                        findings.append(
+                            f"{path.relative_to(repo_root)}:{lineno}: local section "
+                            f"§{number} is followed by descriptive text and a "
+                            f"parenthesized link with no closing parenthesis in "
+                            f"its table cell"
+                        )
                         continue
                     if link is not None:
                         target = resolve_target(path, link, repo_root)

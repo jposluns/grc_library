@@ -1253,9 +1253,15 @@ class HistoricalContextRegressionTests(unittest.TestCase):
             self.assertEqual(code, 1, register)
             self.assertIn(message, err, register)
 
-    def test_absolute_path_and_fence_guards(self):
+    def test_leading_slash_refused_by_canonical_path_rule_and_fence_guard(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
-        # The absolute-path guard.
+        # There is no separate absolute-path check: a leading slash leaves an
+        # empty first path component, which the canonical repo .md path rule
+        # refuses. The same row without the slash is accepted, so the slash
+        # alone causes the refusal.
+        code, found, _ = self.run_json("\n" + s + "\n\n", hx(hrow(s)))
+        self.assertEqual(code, 0)
+        self.assertIn("HISTORICAL", [f["kind"] for f in found])
         code, _, err = self.run_json("\n" + s + "\n\n", hx(hrow(s, path="/ai/citation.md")))
         self.assertEqual(code, 1)
         self.assertIn("path must be a canonical repo .md path", err)
