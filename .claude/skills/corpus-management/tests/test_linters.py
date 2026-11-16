@@ -6321,8 +6321,8 @@ class CrossFileSectionRefTests(LinterTestCase):
             ("| Owner | Section 8 exception path ([policy](t.md) §2) |", False),
             ("| Owner | Section 8 exception path ([policy](t.md) §2 |", True),
             ("| Owner | Section 8 exception path ([policy](t.md) (see §2)) |", False),
-            # The nested parenthetical closes, but nothing closes the
-            # link's own parenthesis.
+            # The link target "(t.md)" and the nested parenthetical close,
+            # but nothing closes the parenthesis opened before the link.
             ("| Owner | Section 8 exception path ([policy](t.md) (see §2) |", True),
         ):
             with self.subTest(line=line, target_holds_section_8=True):
@@ -34731,18 +34731,18 @@ class LintCommonHelperTests(unittest.TestCase):
         their_ref = theirs / ".git" / "refs" / "heads" / "main"
         refused = {}  # label: (roots run from, the path both name)
         passes = {}  # label: roots run from
-        ours = repo("head-link")
-        git("-C", str(ours), "worktree", "add", "-q", "--detach", str(td / "head-link-wt"))
-        head = ours / ".git" / "worktrees" / "head-link-wt" / "HEAD"
+        ours = repo("e1")
+        git("-C", str(ours), "worktree", "add", "-q", "--detach", str(td / "e1-wt"))
+        head = ours / ".git" / "worktrees" / "e1-wt" / "HEAD"
         head.unlink()
         head.symlink_to("refs/heads/foreign")
         foreign = ours / ".git" / "refs" / "heads" / "foreign"
         foreign.symlink_to(their_ref)
         # git reads the other repository's ref as the worktree's HEAD.
-        self.assertEqual(git("-C", str(td / "head-link-wt"), "rev-parse", "HEAD"),
+        self.assertEqual(git("-C", str(td / "e1-wt"), "rev-parse", "HEAD"),
                          git("-C", str(theirs), "rev-parse", "main"))
         refused["E1: a permitted worktree HEAD link naming a linked common ref"] = (
-            [ours, td / "head-link-wt"], foreign)
+            [ours, td / "e1-wt"], foreign)
         ours = repo("deep")
         deep = ours / ".git" / "refs" / "tags" / "a" / "b"
         deep.mkdir(parents=True)
@@ -43313,7 +43313,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-length-on-pr.py NO_FS F 91c9308103f36414f1975e2233cd82644551ca4a3996c4a2b9310b437004434a
         check-changelog-on-pr.py NO_FS F 00fa478d33343ae5d955e3faa7f99d9c61c6cda6f7a5e414dfcaf6ec6f7bf25b
         check-changelog-preflight-commit.py NO_FS F 9ec0a028e7e916fdfa542f6688b909b08a1c69fe66b3a7cb82d979689885f978
-        check-class-completeness.py NO_FS F 73db3e70b35f291dfc57c1ebc7a5bd689a5772fd58b5adb0b5bd69e572450189
+        check-class-completeness.py NO_FS F e45962012dcfbfb81895f9910ee0d8901f359040c0897a3517e742bdef25d32a
         check-claude-md-size.py NO_FS F 5f0c8e37d4a1b36a6be924354a6cdfca69a4ba5498e77cee52012ccefc99764b
         check-clause-preservation.py OWN F 96d156bb17eb92ea45d096dae64345313ba8962de62b38a413a988aa7f8c8737
         check-clean-language-upstream.py NO_FS F 68e539ea645383d29ec9ded3cb44012af2afcfc78f820c172070a8c492665159
@@ -56673,6 +56673,40 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
                     self.assertEqual(out.count("=== "), 1, out)
                     self.assertIn("ADVISORY: 3 occurrence(s) across 1 searched corpus file(s)", out)
 
+    def test_check_class_completeness_counts_strings_equal_under_ignore_case_once(self) -> None:
+        # Under -i the search lowercases each string, so strings that differ only in case
+        # find the same hits; they are listed and totalled once, under the first spelling
+        # given. Without -i they are different searches and each keeps its own count.
+        import contextlib
+        from unittest import mock
+        mod = load_linter_module(".claude/skills/corpus-management/tools/check-class-completeness.py",
+                                 "class_completeness_case_repeat")
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as td:
+            doc = Path(td) / "doc.md"
+            doc.write_text("a needle here\nanother Needle, and a NEEDLE\n", encoding="utf-8")
+            for argv, blocks, total in (
+                    (["-i", "needle", "Needle"], ["=== 3 occurrence(s) of 'needle' ==="], 3),
+                    (["-i", "NEEDLE", "needle", "Needle"], ["=== 3 occurrence(s) of 'NEEDLE' ==="], 3),
+                    (["-i", "needle", "needle"], ["=== 3 occurrence(s) of 'needle' ==="], 3),
+                    (["needle", "Needle"], ["=== 1 occurrence(s) of 'needle' ===",
+                                            "=== 1 occurrence(s) of 'Needle' ==="], 2)):
+                with self.subTest(argv=argv):
+                    buf = io.StringIO()
+                    with mock.patch.object(mod, "corpus_files", return_value=[doc]), \
+                            contextlib.redirect_stdout(buf):
+                        rc = mod.main(["check-class-completeness.py", *argv])
+                    out = buf.getvalue()
+                    self.assertEqual(rc, 0, out)
+                    for block in blocks:
+                        self.assertEqual(out.count(block), 1, out)
+                    self.assertEqual(out.count("=== "), len(blocks), out)
+                    self.assertIn(f"ADVISORY: {total} occurrence(s) across 1 searched corpus file(s)", out)
+            # The search itself counts a string given twice once, whoever calls it.
+            occ, _ = mod.find_occurrences(["needle", "needle"], [doc], root=Path(td))
+            self.assertEqual(len(occ["needle"]), 1)
+            occ, _ = mod.find_occurrences(["needle", "needle"], [doc], ignore_case=True, root=Path(td))
+            self.assertEqual(len(occ["needle"]), 3)
+
     def test_check_clean_language_upstream_self_test_passes(self) -> None:
         # The clean-language upstream-drift check's classify() self-test (drift on a changed /
         # missing-either-side blob SHA), wired here so the monthly-check logic cannot silently
@@ -58579,31 +58613,31 @@ class TodoNumberPermanenceTests(LinterTestCase):
     # todo-number-exempt.json holds: a family row and a single-entry row, each keyed by a
     # private backlog id, which the public tool no longer carries.
     PEXEMPT_FIXTURE = {"rows": [
-        ["P-1.25", "P-1.25 Phase", "date not recorded; heading: P-1.25 Phase"],
+        ["P-9.3", "P-9.3 Phase", "date not recorded; heading: P-9.3 Phase"],
         ["P-9.2", "P-9.2 first slice",
          "2026-09-23; heading: P-9.2 first slice"],
     ]}
-    PEXEMPT_DONE = ("# DONE\n\n### PR #1423: P-1.25 Phase 1 - narrative disclaimer-presence "
-                    "gate (gate 89) (2026-08-06)\n\nBody.\n\n"
+    PEXEMPT_DONE = ("# DONE\n\n### PR #1423: P-9.3 Phase 1 - a synthetic partial "
+                    "close (2026-08-06)\n\nBody.\n\n"
                     "### PR #1500: P-9.2 first slice (2026-09-23)\n\nBody.\n")
-    PEXEMPT_PTODO = ("# P-TODO\n\n### P-1.25 Executive narrative umbrella (live)\n\nBody.\n\n"
+    PEXEMPT_PTODO = ("# P-TODO\n\n### P-9.3 A synthetic family umbrella (live)\n\nBody.\n\n"
                      "### P-9.2 A synthetic umbrella (live)\n\nBody.\n")
 
     def test_pid_exempt_partial_close(self) -> None:
-        # EXEMPT positive control: a live P-1.25 umbrella with a 'P-1.25 Phase N'
+        # EXEMPT positive control: a live P-9.3 umbrella with a 'P-9.3 Phase N'
         # partial-close DONE heading passes via the family EXEMPT row.
         root, result = self._run(
             "perm-pid-exempt",
             "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n",
-            "# DONE\n\n### PR #1423: P-1.25 Phase 1 - narrative disclaimer-presence "
-            "gate (gate 89) (2026-08-06)\n\nBody.\n",
-            ptodo="# P-TODO\n\n### P-1.25 Executive narrative umbrella (live)\n\nBody.\n",
+            "# DONE\n\n### PR #1423: P-9.3 Phase 1 - a synthetic partial "
+            "close (2026-08-06)\n\nBody.\n",
+            ptodo="# P-TODO\n\n### P-9.3 A synthetic family umbrella (live)\n\nBody.\n",
             # The family row is read from the private store, not from the public tool.
             pexempt=self.PEXEMPT_FIXTURE,
         )
         try:
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            # The exemption is only exercised if the live P-1.25 in P-TODO.md was read.
+            # The exemption is only exercised if the live P-9.3 in P-TODO.md was read.
             self.assertIn("OK: 2 live backlog item(s) (.working/TODO.md + P-TODO.md),", result.stdout)
             self.assertNotIn("OK: P-TODO.md not present (", result.stdout)
         finally:
@@ -58630,7 +58664,7 @@ class TodoNumberPermanenceTests(LinterTestCase):
                                  "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n",
                                  self.PEXEMPT_DONE, ptodo=self.PEXEMPT_PTODO)
         try:
-            self.assertLinterFails(result, "P-1.25")
+            self.assertLinterFails(result, "P-9.3")
             self.assertIn("P-9.2", result.stdout)
         finally:
             shutil.rmtree(root, ignore_errors=True)
@@ -58681,17 +58715,17 @@ class TodoNumberPermanenceTests(LinterTestCase):
                                   if ln.startswith("DEGRADED: gate 78 skipped ")]), 1, out)
             rc, out, err, m = run(store)
             self.assertEqual(rc, 1, out + err)
-            self.assertIn("P-1.25", out)
+            self.assertIn("P-9.3", out)
             self.assertIn("P-9.2", out)
             pexempt = store / "todo-number-exempt.json"
             pexempt.write_text(_json.dumps(self.PEXEMPT_FIXTURE), encoding="utf-8")
             rc, out, err, m = run(store)
             self.assertEqual(rc, 0, out + err)
             self.assertEqual(set(m.PRIVATE_EXEMPT),
-                             {("P-1.25", "P-1.25 Phase"),
+                             {("P-9.3", "P-9.3 Phase"),
                               ("P-9.2", "P-9.2 first slice")})
             for label, body in (("not JSON", "{rows"),
-                                ("a row of two parts", '{"rows": [["P-1.25", "P-1.25 Phase"]]}'),
+                                ("a row of two parts", '{"rows": [["P-9.3", "P-9.3 Phase"]]}'),
                                 ("no rows list", '{"row": []}')):
                 with self.subTest(malformed=label):
                     pexempt.write_text(body, encoding="utf-8")

@@ -18594,8 +18594,78 @@ class AdopterDocsFixtureTests(unittest.TestCase):
                 ("## Heading", {"Owner": "A"}),
                 ("---", {"Owner": "A"})):
             with self.subTest(middle=middle):
-                text = "**Owner:** A\\\n" + middle + "\\\n**Version:** 1.0.0\n"
+                # The middle line carries no hard-break backslash: "---\\" is not a
+                # rule, so a backslash there would hide whether the rule stops the read.
+                text = "**Owner:** A\\\n" + middle + "\n**Version:** 1.0.0\n"
                 self.assertEqual(self.mod._adopter_metadata(text, "probe.md"), fields)
+
+    def test_metadata_read_stops_at_an_anchored_heading_or_any_rule_form(self):
+        """Every line that ends the leading metadata read is matched whole and after
+        at most three spaces: a ``## `` heading (a tab after the hashes, or none
+        before the line end, also opens one) and a thematic break of three or more
+        ``-``, ``*`` or ``_`` marks, spaces between them allowed. Text after the
+        marks, a different hash count, a backslash, or four spaces or a tab before
+        the line leave it a plain line, and the read goes on."""
+        both = {"Owner": "A", "Version": "1.0.0"}
+        stop = {"Owner": "A"}
+        for middle, fields in (
+                ("--- followed by text", both),
+                ("---\\", both),
+                ("##not a heading", both),
+                ("### Deeper", both),
+                ("    ***", both),
+                ("\t___", both),
+                ("    - - -", both),
+                ("**_**", both),
+                ("--", both),
+                ("##", stop),
+                ("##\tHeading", stop),
+                ("   ##  Heading", stop),
+                ("***", stop),
+                ("   ___", stop),
+                ("- - -", stop),
+                ("* * *  ", stop),
+                ("-----", stop),
+                ("--- ", stop)):
+            with self.subTest(middle=middle):
+                text = "**Owner:** A\\\n" + middle + "\n**Version:** 1.0.0\n"
+                self.assertEqual(self.mod._adopter_metadata(text, "probe.md"), fields)
+
+    def test_first_paragraph_stops_at_an_anchored_rule_or_heading_only(self):
+        """The lede read ends at a thematic break or a ``# `` or ``## `` heading only
+        when it starts within three spaces and the whole line is that mark; an
+        indented ``---`` (four spaces or a tab) is an indented code line, and text
+        after the marks is prose, so the paragraph goes on."""
+        for body, lede in (
+                ("First line.\n    ---\nSecond line.\n", "First line. --- Second line."),
+                ("First line.\n\t---\nSecond line.\n", "First line. --- Second line."),
+                ("First line.\n    ***\nSecond line.\n", "First line. *** Second line."),
+                ("First line.\n--- not a rule\nSecond line.\n",
+                 "First line. --- not a rule Second line."),
+                ("First line.\n#not a heading\nSecond line.\n",
+                 "First line. #not a heading Second line."),
+                ("First line.\n   ---\nSecond line.\n", "First line."),
+                ("First line.\n***\nSecond line.\n", "First line."),
+                ("First line.\n_ _ _\nSecond line.\n", "First line."),
+                ("First line.\n##\nSecond line.\n", "First line."),
+                ("First line.\n#\tTitle\nSecond line.\n", "First line."),
+                ("First line.\n   ### Deeper\nSecond line.\n", "First line.")):
+            with self.subTest(body=body):
+                self.assertEqual(self.mod._adopter_purpose("## Purpose\n\n" + body), lede)
+
+    def test_intro_read_stops_only_at_a_level_two_heading_within_three_spaces(self):
+        """Without a Purpose or Overview heading the intro paragraph after the
+        metadata block is read; a ``## `` line stops it only within three spaces,
+        so a four-space or tab-indented ``## `` line is a code line, not a section."""
+        head = "**Owner:** A\n\n"
+        for body, lede in (
+                ("Intro line.\n    ## not a heading\n", "Intro line. ## not a heading"),
+                ("Intro line.\n\t## not a heading\n", "Intro line. ## not a heading"),
+                ("    ## Code\nIntro line.\n", "## Code Intro line."),
+                ("   ## Section\nIntro line.\n", ""),
+                ("## Section\nIntro line.\n", "")):
+            with self.subTest(body=body):
+                self.assertEqual(self.mod._adopter_purpose(head + body), lede)
 
     def _block(self, overrides=None, drop=(), extra=()):
         fields = [(n, v) for n, v in self.FIELDS if n not in drop]

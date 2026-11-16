@@ -81,7 +81,8 @@ def find_occurrences(
     reading the given files, so it is directly unit-testable."""
     out: dict[str, list[tuple[str, int, str]]] = {s: [] for s in strings}
     skipped: list[str] = []
-    needles = [(s, s.lower() if ignore_case else s) for s in strings]
+    # A string given twice is searched once, so its hits are not appended twice.
+    needles = [(s, s.lower() if ignore_case else s) for s in dict.fromkeys(strings)]
     for f in files:
         try:
             rel = str(f.relative_to(root))
@@ -296,10 +297,15 @@ def main(argv: list[str]) -> int:
         print(format_attest_clause(token, len(hits)))
         return 0
     files = corpus_files()
-    # A string given twice is searched and counted once: find_occurrences keys its result by
-    # string, so a repeated needle would append each hit twice to the one list, and the loop
-    # below would print and total that list twice (guards against an inflated count).
-    args.strings = list(dict.fromkeys(args.strings))
+    # Strings the search treats as equal are searched and counted once, under the first
+    # spelling given: find_occurrences lowercases each string under -i, so strings that
+    # differ only in case find the same hits, and without -i only an identical string does.
+    # Each copy would otherwise be listed and totalled again (guards against an inflated
+    # count).
+    first = {}
+    for s in args.strings:
+        first.setdefault(s.lower() if args.ignore_case else s, s)
+    args.strings = list(first.values())
     occ, skipped = find_occurrences(args.strings, files, ignore_case=args.ignore_case)
     total = 0
     for s in args.strings:

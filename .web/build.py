@@ -4107,6 +4107,21 @@ def _adopter_fence_line(line):
     return stripped.startswith("```") or stripped.startswith("~~~")
 
 
+# A line that ends an adopter read is matched whole and after at most three
+# spaces, as in CommonMark: four spaces or a tab make an indented code line.
+# A thematic break is three or more of one of "-", "*" or "_", with spaces or
+# tabs between them and nothing else on the line.
+_ADOPTER_RULE_RE = re.compile(r" {0,3}([-*_])[ \t]*(?:\1[ \t]*){2,}$")
+
+
+def _adopter_heading(line, low, high=None):
+    """True when ``line`` is an ATX heading of ``low`` to ``high`` hashes
+    (no upper bound when ``high`` is None) after at most three spaces, the
+    hashes followed by a space, a tab or the line end."""
+    m = re.match(r" {0,3}(#+)(?:[ \t]|$)", line)
+    return bool(m) and len(m.group(1)) >= low and (high is None or len(m.group(1)) <= high)
+
+
 def _adopter_flatten(text):
     """Reduce inline Markdown in a one-paragraph string to display-ready prose
     (mirrors the taxonomy generator's flattener for corpus purposes). A
@@ -4130,14 +4145,18 @@ def _adopter_metadata(text, rel):
     leading block fails the build loudly instead of rendering something
     else. The section heading that stops the read is a level-two ``## ``
     heading; a ``# `` title line, which opens a file above its block, does
-    not stop it. A heading or rule stops the read only when indented by at
-    most three spaces: four spaces or a tab before ``## `` or ``---`` make
-    an indented code line, not a heading or rule, and the read goes on."""
+    not stop it. The rule is any thematic break (``---``, ``***``, ``___``,
+    spaces between the marks allowed). A heading or rule stops the read only
+    when it is the whole line and is indented by at most three spaces: text
+    after ``---`` makes a plain line, and four spaces or a tab before ``## ``
+    or ``---`` make an indented code line, not a heading or rule, so the read
+    goes on."""
     fields = {}
     seen = False
     for line in text.splitlines():
         s = line.strip()
-        if _adopter_fence_line(line) or re.match(r" {0,3}(?:---|## )", line):
+        if (_adopter_fence_line(line) or _ADOPTER_RULE_RE.match(line)
+                or _adopter_heading(line, 2, 2)):
             break
         if not s and seen:
             break
@@ -4166,19 +4185,20 @@ def _adopter_metadata(text, rel):
 
 
 def _adopter_first_paragraph(lines):
-    """First real prose paragraph. It stops at a horizontal rule (``---``) or
-    a ``# `` or ``## `` heading wherever one falls, and, once the paragraph has
-    started, also at a blank line or a deeper heading (``### `` and below);
-    blank lines and deeper headings before the paragraph are skipped. A
-    heading is recognized after at most three leading spaces, as in
-    CommonMark; four spaces or a tab before a hash make an indented code
-    line, which is not a heading."""
+    """First real prose paragraph. It stops at a horizontal rule (any
+    thematic break: ``---``, ``***``, ``___``) or a ``# `` or ``## `` heading
+    wherever one falls, and, once the paragraph has started, also at a blank
+    line or a deeper heading (``### `` and below); blank lines and deeper
+    headings before the paragraph are skipped. A heading or rule is
+    recognized only as the whole line after at most three leading spaces, as
+    in CommonMark; four spaces or a tab before a hash or a rule make an
+    indented code line, which is prose here."""
     para = []
     for nxt in lines:
         st = nxt.strip()
-        if st == "---" or re.match(r"^ {0,3}##?\s", nxt):
+        if _ADOPTER_RULE_RE.match(nxt) or _adopter_heading(nxt, 1, 2):
             break
-        if re.match(r"^ {0,3}#{3,}\s", nxt):
+        if _adopter_heading(nxt, 3):
             if para:
                 break
             continue
@@ -4210,7 +4230,9 @@ def _adopter_purpose(text):
     para = []
     for ln in lines:
         st = ln.strip()
-        if st.startswith("## "):
+        # Only a level-two heading within three spaces ends the intro read; an
+        # indented "## " line is a code line.
+        if _adopter_heading(ln, 2, 2):
             break
         if st.startswith("# "):
             continue
