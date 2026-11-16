@@ -686,7 +686,9 @@ def _load_private_exempt(text: str) -> dict[tuple[str, str], str]:
     """Parse the private exemption file: a JSON object whose ``rows`` member is a list of
     ``[id, distinctive heading substring, value]`` string triples. Raises ``ValueError``
     naming the first malformed part (guards against a malformed row silently exempting
-    nothing, or everything)."""
+    nothing, or everything). A field that is empty or only whitespace is malformed: a
+    whitespace-only heading substring occurs in ordinary headings, so it would exempt
+    every retirement of its id."""
     import json
     data = json.loads(text)
     if not isinstance(data, dict) or not isinstance(data.get("rows"), list):
@@ -694,8 +696,11 @@ def _load_private_exempt(text: str) -> dict[tuple[str, str], str]:
     rows: dict[tuple[str, str], str] = {}
     for n, row in enumerate(data["rows"], 1):
         if (not isinstance(row, list) or len(row) != 3
-                or not all(isinstance(part, str) and part for part in row)):
-            raise ValueError(f"row {n} is not three nonempty strings")
+                or not all(isinstance(part, str) for part in row)):
+            raise ValueError(f"row {n} is not three strings")
+        for field, part in zip(("id", "heading marker", "value"), row):
+            if not part.strip():
+                raise ValueError(f"row {n} has an empty or whitespace-only {field} field")
         rows[(row[0], row[1])] = row[2]
     return rows
 

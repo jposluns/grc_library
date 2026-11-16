@@ -261,6 +261,16 @@ def main(argv: list[str]) -> int:
         ap.print_usage(sys.stderr)
         print("ERROR: give at least one distinctive string (or --self-test).", file=sys.stderr)
         return 2
+    # Strings the search treats as equal are searched and counted once, under the first
+    # spelling given: find_occurrences lowercases each string under -i, so strings that
+    # differ only in case find the same hits, and without -i only an identical string does.
+    # Each copy would otherwise be listed and totalled again (guards against an inflated
+    # count). The merge comes before the --attest one-token check, so an identical token
+    # repeated there is one token, not a refusal.
+    first = {}
+    for s in args.strings:
+        first.setdefault(s.lower() if args.ignore_case else s, s)
+    args.strings = list(first.values())
     if args.attest:
         if len(args.strings) != 1:
             print("ERROR: --attest takes exactly one distinctive token.", file=sys.stderr)
@@ -297,15 +307,6 @@ def main(argv: list[str]) -> int:
         print(format_attest_clause(token, len(hits)))
         return 0
     files = corpus_files()
-    # Strings the search treats as equal are searched and counted once, under the first
-    # spelling given: find_occurrences lowercases each string under -i, so strings that
-    # differ only in case find the same hits, and without -i only an identical string does.
-    # Each copy would otherwise be listed and totalled again (guards against an inflated
-    # count).
-    first = {}
-    for s in args.strings:
-        first.setdefault(s.lower() if args.ignore_case else s, s)
-    args.strings = list(first.values())
     occ, skipped = find_occurrences(args.strings, files, ignore_case=args.ignore_case)
     total = 0
     for s in args.strings:

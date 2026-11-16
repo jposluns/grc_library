@@ -18667,6 +18667,76 @@ class AdopterDocsFixtureTests(unittest.TestCase):
             with self.subTest(body=body):
                 self.assertEqual(self.mod._adopter_purpose(head + body), lede)
 
+    def test_purpose_heading_is_read_only_within_three_spaces(self):
+        """A Purpose or Overview heading is a level-two heading within three
+        spaces; four spaces or a tab make an indented code line, so an example
+        under it never replaces the real intro."""
+        intro = "**Owner:** A\n\nReal intro.\n\n"
+        for text, lede in (
+                (intro + "    ## Purpose\n\nExample only.\n", "Real intro."),
+                (intro + "\t## Overview\n\nExample only.\n", "Real intro."),
+                (intro + "     ## 1. Purpose\n\nExample only.\n", "Real intro."),
+                ("   ## Purpose\n\nThe lede.\n", "The lede."),
+                ("## 2. Overview\n\nThe lede.\n", "The lede."),
+                ("##\tPurpose\n\nThe lede.\n", "The lede."),
+                ("### Purpose\n\nNot a lede heading.\n", "")):
+            with self.subTest(text=text):
+                self.assertEqual(self.mod._adopter_purpose(text), lede)
+
+    def test_intro_read_uses_the_shared_rule_and_heading_check(self):
+        """The intro read after the metadata block takes the same anchored rule and
+        heading check as the other adopter reads: a thematic break of any form ends
+        a started paragraph and is skipped before it, a deeper heading within three
+        spaces ends a started paragraph, a title is a one-hash heading within three
+        spaces, and four spaces or a tab make an indented code line, which is prose."""
+        head = "**Owner:** A\n\n"
+        for body, lede in (
+                ("Real intro.\n___\nOther prose.\n", "Real intro."),
+                ("Intro line.\n***\nSecond.\n", "Intro line."),
+                ("Intro line.\n---\nSecond.\n", "Intro line."),
+                ("Intro line.\n- - -\nSecond.\n", "Intro line."),
+                ("Intro line.\n * * * \nSecond.\n", "Intro line."),
+                ("Intro line.\n   ### Deeper\nSecond.\n", "Intro line."),
+                ("Intro line.\n###### Six\nSecond.\n", "Intro line."),
+                ("Intro line.\n    ---\nSecond.\n", "Intro line. --- Second."),
+                ("Intro line.\n\t***\nSecond.\n", "Intro line. *** Second."),
+                ("Intro line.\n    # code line\nSecond.\n", "Intro line. # code line Second."),
+                ("Intro line.\n--- not a rule\nSecond.\n", "Intro line. --- not a rule Second."),
+                ("Intro line.\n####### literal\nSecond.\n", "Intro line. ####### literal Second."),
+                ("---\nIntro line.\n", "Intro line."),
+                ("___\n\n### Deeper\n\nIntro line.\n", "Intro line.")):
+            with self.subTest(body=body):
+                self.assertEqual(self.mod._adopter_purpose(head + body), lede)
+        for text, lede in (
+                ("#\tTitle\n**Owner:** A\n\nIntro line.\n", "Intro line."),
+                ("   # Title\n**Owner:** A\n\nIntro line.\n", "Intro line."),
+                ("**Owner:** A\n    # code title\nIntro line.\n", "# code title Intro line.")):
+            with self.subTest(text=text):
+                self.assertEqual(self.mod._adopter_purpose(text), lede)
+
+    def test_heading_check_caps_at_six_hashes(self):
+        """An ATX heading has one to six hashes: seven or more make a plain line,
+        which stays in the lede, while six hashes still end it."""
+        self.assertTrue(self.mod._adopter_heading("###### Six", 3))
+        self.assertFalse(self.mod._adopter_heading("####### Seven", 3))
+        self.assertFalse(self.mod._adopter_heading("#######", 1))
+        for body, lede in (
+                ("Real intro.\n####### literal\nMore prose.\n",
+                 "Real intro. ####### literal More prose."),
+                ("Real intro.\n###### Six\nMore prose.\n", "Real intro.")):
+            with self.subTest(body=body):
+                self.assertEqual(self.mod._adopter_purpose("## Purpose\n\n" + body), lede)
+
+    def test_outline_read_takes_a_level_two_heading_within_three_spaces(self):
+        """The page outline lists the level-two headings the other reads stop at:
+        one to three leading spaces and a tab after the hashes are allowed; four
+        spaces or a tab before them make a code line, and other levels are left out."""
+        self.assertEqual(
+            self.mod._adopter_sections(
+                "   ## Indented\n## Plain\n    ## Code\n\t## Tab\n##\tTabbed\n"
+                "### Deeper\n# Title\n ## One space ##\n"),
+            ["Indented", "Plain", "Tabbed", "One space ##"])
+
     def _block(self, overrides=None, drop=(), extra=()):
         fields = [(n, v) for n, v in self.FIELDS if n not in drop]
         if overrides:

@@ -43330,7 +43330,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-length-on-pr.py NO_FS F 91c9308103f36414f1975e2233cd82644551ca4a3996c4a2b9310b437004434a
         check-changelog-on-pr.py NO_FS F 00fa478d33343ae5d955e3faa7f99d9c61c6cda6f7a5e414dfcaf6ec6f7bf25b
         check-changelog-preflight-commit.py NO_FS F 9ec0a028e7e916fdfa542f6688b909b08a1c69fe66b3a7cb82d979689885f978
-        check-class-completeness.py NO_FS F e45962012dcfbfb81895f9910ee0d8901f359040c0897a3517e742bdef25d32a
+        check-class-completeness.py NO_FS F 7106c760a62cca34fbb1decad46883dd761121328a6acea0fc6761cef5177c42
         check-claude-md-size.py NO_FS F 5f0c8e37d4a1b36a6be924354a6cdfca69a4ba5498e77cee52012ccefc99764b
         check-clause-preservation.py OWN F 96d156bb17eb92ea45d096dae64345313ba8962de62b38a413a988aa7f8c8737
         check-clean-language-upstream.py NO_FS F 68e539ea645383d29ec9ded3cb44012af2afcfc78f820c172070a8c492665159
@@ -43435,7 +43435,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-todo-index-reference-parity.py OWN F 46ffb499a50fa6b5d64ac594776e5a26ad4e3c696fc48d8b5e4fc8b4646a2b22
         lint-todo-list-tag.py OWN F 10ee5371268378b28c9097a588515231d625ab63b5e5b1b9f3533f4d85db9b2d
         lint-todo-marked-done.py ROOT F 9d5f28f83917e26a4cd0bffde756fded4a2bf4259b809472bc1757a6dbc1b212
-        lint-todo-number-permanence.py OWN F 3f7117eef630156c5253f38e4a5f2532b237b49d7335914b5d73fa97457bf5fb
+        lint-todo-number-permanence.py OWN F 41d2c6d12caff8d1510bd43db0ed219eab697f2e0bf245eebdc1f00c2763a175
         lint-todo-staleness.py NO_FS F 6a89123607678239f036cab7bf02e0a0885216f55ba0b23fb53799e30c40cffb
         lint-tooling-backlog-refs.py OWN F be54fcdef171bc30e7d0393ca2c097904f464cad7bde9a233f7ee663edd741a5
         lint-tooling-provenance-freshness.py OWN F ab5b885be8a4a7af28e6c441ea4439cc32ce553a6167946ec40d49f50f0f6b02
@@ -56724,6 +56724,32 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
             occ, _ = mod.find_occurrences(["needle", "needle"], [doc], ignore_case=True, root=Path(td))
             self.assertEqual(len(occ["needle"]), 3)
 
+    def test_check_class_completeness_attest_merges_a_repeated_token(self) -> None:
+        # An identical token given twice under --attest is one token: the repeat is merged
+        # before the one-token check, so the clause and count match a single-token run.
+        # Two different tokens are still refused.
+        import contextlib
+        from unittest import mock
+        mod = load_linter_module(".claude/skills/corpus-management/tools/check-class-completeness.py",
+                                 "class_completeness_attest_repeat")
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as td:
+            doc = Path(td) / "doc.md"
+            doc.write_text("a needle here\nanother needle, and a needle\n", encoding="utf-8")
+            outs = {}
+            for argv, want in ((["--attest", "needle"], 0),
+                               (["--attest", "needle", "needle"], 0),
+                               (["--attest", "needle", "other"], 2)):
+                with self.subTest(argv=argv):
+                    buf, err = io.StringIO(), io.StringIO()
+                    with mock.patch.object(mod, "attest_file_set", return_value=[doc]), \
+                            contextlib.redirect_stdout(buf), contextlib.redirect_stderr(err):
+                        rc = mod.main(["check-class-completeness.py", *argv])
+                    self.assertEqual(rc, want, buf.getvalue() + err.getvalue())
+                    outs[tuple(argv)] = buf.getvalue()
+            self.assertIn('[class: "needle" @ 3]', outs[("--attest", "needle")])
+            self.assertEqual(outs[("--attest", "needle", "needle")],
+                             outs[("--attest", "needle")])
+
     def test_check_clean_language_upstream_self_test_passes(self) -> None:
         # The clean-language upstream-drift check's classify() self-test (drift on a changed /
         # missing-either-side blob SHA), wired here so the monthly-check logic cannot silently
@@ -58756,6 +58782,44 @@ class TodoNumberPermanenceTests(LinterTestCase):
             self.assertIn(f"{pexempt} is present but is not a regular file", err)
         finally:
             shutil.rmtree(root, ignore_errors=True)
+
+    def test_private_exempt_row_with_a_blank_field_is_refused(self) -> None:
+        """A loaded exemption row whose id, heading marker or value is empty or only
+        whitespace exits 2 naming the row and the field: a whitespace-only marker is a
+        substring of ordinary headings, so it would exempt every retirement of its id.
+        Without an exemption file the recycled ids are reported (exit 1)."""
+        todo = "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n"
+        root, result = self._run("perm-pexempt-none", todo, self.PEXEMPT_DONE,
+                                 ptodo=self.PEXEMPT_PTODO)
+        try:
+            self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+            self.assertIn("P-9.3", result.stdout)
+            self.assertIn("P-9.2", result.stdout)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+        good = self.PEXEMPT_FIXTURE["rows"][1]
+        for label, row, field in (
+                ("space heading marker", ["P-9.3", " ", "date not recorded; heading: "],
+                 "heading marker"),
+                ("tab heading marker", ["P-9.3", "\t", "date not recorded; heading: "],
+                 "heading marker"),
+                ("empty heading marker", ["P-9.3", "", "date not recorded; heading: "],
+                 "heading marker"),
+                ("whitespace id", ["  ", "P-9.3 Phase", "date not recorded; heading: P-9.3 Phase"],
+                 "id"),
+                ("whitespace value", ["P-9.3", "P-9.3 Phase", " "], "value")):
+            with self.subTest(malformed=label):
+                root, result = self._run("perm-pexempt-blank", todo, self.PEXEMPT_DONE,
+                                         ptodo=self.PEXEMPT_PTODO,
+                                         pexempt={"rows": [good, row]})
+                try:
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                    self.assertIn("ERROR: cannot parse ", result.stderr)
+                    self.assertIn(f"row 2 has an empty or whitespace-only {field} field",
+                                  result.stderr)
+                    self.assertNotIn("OK:", result.stdout)
+                finally:
+                    shutil.rmtree(root, ignore_errors=True)
 
     def test_pid_token_boundaries(self) -> None:
         # Direct parse_retired boundary controls: undotted 'P-384' (NIST curve)
@@ -61809,7 +61873,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.23.7", "0.23.7 removes internal work references from the lint-standards-currency origin in core/gates.toml and from two --aiqt-root refusal messages in tools/corpus_mgmt_compiler.py; gate 62 refuses as malformed a table cell whose local-section exception path leaves its link's parenthesis unclosed and accepts as local a closed exception path holding a nested parenthetical, which it formerly checked against the target, and the corpus-scan-integrity origin in core/clauses.toml is reworded; no gate or register key changes (PATCH); the residual lists in tools/gate_lint_language.py's docstring and URL-mask comment now name the comma-and-digit path form. The release history in src/README.md describes each version from 0.22.2")
+        self.assertEqual(man["pack"]["version"], "0.23.7", "0.23.7 removes internal work references from the lint-standards-currency origin in core/gates.toml and from two --aiqt-root refusal messages in tools/corpus_mgmt_compiler.py; gate 62 refuses as malformed a table cell whose local-section exception path leaves its link's parenthesis unclosed and accepts as local a closed exception path holding a nested parenthetical, which it formerly checked against the target, and the corpus-scan-integrity origin in core/clauses.toml is reworded; no gate or register key changes (PATCH); the residual lists in tools/gate_lint_language.py's docstring and URL-mask comment now name the comma-and-digit path form; the compiler now refuses an explicit --aiqt-root unless its tools/aiqt_corpus.py is a regular file, so a symlinked core, formerly accepted, is refused, and that refusal now reads 'no regular tools/aiqt_corpus.py there'. The release history in src/README.md describes each version from 0.22.2")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")

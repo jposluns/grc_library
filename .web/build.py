@@ -4110,16 +4110,27 @@ def _adopter_fence_line(line):
 # A line that ends an adopter read is matched whole and after at most three
 # spaces, as in CommonMark: four spaces or a tab make an indented code line.
 # A thematic break is three or more of one of "-", "*" or "_", with spaces or
-# tabs between them and nothing else on the line.
+# tabs between them and nothing else on the line. An ATX heading is one to six
+# hashes followed by a space, a tab or the line end; seven or more hashes make a
+# plain line. Every heading, rule and section read below goes through these two.
 _ADOPTER_RULE_RE = re.compile(r" {0,3}([-*_])[ \t]*(?:\1[ \t]*){2,}$")
+_ADOPTER_HEADING_RE = re.compile(r" {0,3}(#{1,6})(?:[ \t]|$)")
 
 
 def _adopter_heading(line, low, high=None):
     """True when ``line`` is an ATX heading of ``low`` to ``high`` hashes
-    (no upper bound when ``high`` is None) after at most three spaces, the
+    (up to six when ``high`` is None) after at most three spaces, the
     hashes followed by a space, a tab or the line end."""
-    m = re.match(r" {0,3}(#+)(?:[ \t]|$)", line)
-    return bool(m) and len(m.group(1)) >= low and (high is None or len(m.group(1)) <= high)
+    m = _ADOPTER_HEADING_RE.match(line)
+    return bool(m) and low <= len(m.group(1)) <= (6 if high is None else high)
+
+
+def _adopter_heading_text(line, level):
+    """The text of ``line`` when it is an ATX heading of exactly ``level``
+    hashes (see _adopter_heading), stripped; None otherwise."""
+    if not _adopter_heading(line, level, level):
+        return None
+    return line[_ADOPTER_HEADING_RE.match(line).end():].strip()
 
 
 def _adopter_flatten(text):
@@ -4214,7 +4225,12 @@ def _adopter_purpose(text):
     """The document's lede: the first paragraph under a ``## Purpose`` or
     ``## Overview`` heading outside any code fence, else the intro paragraph
     between the metadata block and the first section (the worked examples
-    carry no Overview heading). Empty string only if neither is present."""
+    carry no Overview heading). Empty string only if neither is present.
+    Both reads take the shared anchored check: the Purpose or Overview
+    heading is a level-two heading within three spaces; in the intro read a
+    title is a one-hash heading, a thematic break is skipped before the
+    paragraph and ends it once started, a deeper heading likewise, and a line
+    indented by four spaces or a tab is prose."""
     lines = text.splitlines()
     in_fence = False
     for i, ln in enumerate(lines):
@@ -4223,8 +4239,9 @@ def _adopter_purpose(text):
             continue
         if in_fence:
             continue
-        if re.match(r"^##\s+(?:\d+\.\s+)?(?:Purpose|Overview)\b",
-                    ln.strip(), re.I):
+        heading = _adopter_heading_text(ln, 2)
+        if heading is not None and re.match(r"(?:\d+\.\s+)?(?:Purpose|Overview)\b",
+                                            heading, re.I):
             return _adopter_flatten(_adopter_first_paragraph(lines[i + 1:]))
     started = False
     para = []
@@ -4234,12 +4251,14 @@ def _adopter_purpose(text):
         # indented "## " line is a code line.
         if _adopter_heading(ln, 2, 2):
             break
-        if st.startswith("# "):
+        if _adopter_heading(ln, 1, 1):
             continue
         if re.match(r"^\*\*[^*]+:\*\*", ln):
             started = True
             continue
-        if st == "---" or re.match(r"^#{3,}\s", ln):
+        if _ADOPTER_RULE_RE.match(ln) or _adopter_heading(ln, 3):
+            if para:
+                break
             continue
         if not st:
             if para:
@@ -4253,7 +4272,8 @@ def _adopter_purpose(text):
 
 
 def _adopter_sections(text):
-    """The ordered ``## `` headings outside code fences (the page outline)."""
+    """The ordered level-two headings outside code fences (the page outline),
+    each within three spaces, as the metadata and intro reads take them."""
     out = []
     in_fence = False
     for ln in text.splitlines():
@@ -4262,9 +4282,9 @@ def _adopter_sections(text):
             continue
         if in_fence:
             continue
-        m = re.match(r"^##\s+(.+?)\s*$", ln)
-        if m:
-            out.append(m.group(1).strip())
+        heading = _adopter_heading_text(ln, 2)
+        if heading:
+            out.append(heading)
     return out
 
 
