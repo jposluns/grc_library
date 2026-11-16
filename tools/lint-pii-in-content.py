@@ -67,17 +67,22 @@ Exemption layers:
     because the backtick and the apostrophe are RFC 5322 local-part
     characters, so the match may be the end of a longer local part and
     the allowance fails closed. An address right after a double quote is
-    still reported when a double quote directly followed by @ comes later on
+    still reported when a double quote appears anywhere after the match on
     the line, and so is an address after any other character (white space, a
-    parenthesis, ssh:// or the start of the line included) when such a quote
-    follows it, because a double quote can open an RFC 5322 quoted local part,
-    which can hold white space and parentheses, so the match is then inside a
-    longer address at another domain; a double-quoted remote with no such
-    closing quote, such as a string value, is allowed. After another URI
-    scheme (an https:// credential
-    such as https://git@github.com, or mailto:git@github.com) it is still reported,
-    since neither is an ssh:// or scp-style remote. Write such an
-    address after whitespace, after ssh://, or in parentheses.
+    parenthesis, ssh:// or the start of the line included) when one does,
+    because a double quote can open an RFC 5322 quoted local part, which can
+    hold white space and parentheses, and white space, a comment or a folded
+    line break can separate its closing quote from the @ after it, so the
+    match may be inside a longer address at another domain. The rule looks
+    for any later double quote, not for an @ after one, so no quoting,
+    spacing, comment or folding form can hide a second address. The accepted
+    over-refusal: an allowed address followed later on the line by any double
+    quote is reported, even when the match is the whole local part, as in a
+    double-quoted remote such as a string value. After another URI scheme (an
+    https:// credential such as https://git@github.com, or
+    mailto:git@github.com) it is still reported, since neither is an ssh://
+    or scp-style remote. Write such an address after whitespace, after
+    ssh://, or in parentheses, with no double quote later on the line.
   - CHANGELOG.md is exempt because it can describe sanitization fixes
     that quote (now-removed) PII.
   - Fenced code blocks are skipped so example syntax does not produce
@@ -180,17 +185,26 @@ FORGE_SERVICE_ADDRESSES = frozenset({"git@github.com", "git@gitlab.com"})
 # character, but a match right after it (user@git@github.com) is the end of a longer
 # address, not a whole local part. Nor ":", which ends a URI scheme such as mailto:.
 # A double quote is no atext character, but it can open a quoted local part, which can hold
-# white space and parentheses: whatever comes before the match, it is not known to be the whole
-# local part when a double quote directly followed by @ comes later on the line, since a quoted
-# string may then close into a longer address.
+# white space and parentheses, and white space, a comment or a folded line break can separate
+# its closing quote from the @ after it: whatever comes before the match, it may be inside a
+# longer address when a double quote appears anywhere after it on the line, so the allowance is
+# then refused. Testing for any later double quote, not for an @ after one, leaves no quoting
+# form that hides a second address; the cost is that an allowed address followed later on the
+# line by any double quote is reported.
 _LOCAL_PART_CHARS = frozenset(
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&'*+-/=?^_`{|}~."
 )
 
 
 def _local_part_complete(line: str, start: int) -> bool:
-    """True when the match at ``start`` is the whole local part, not a suffix of a longer one."""
-    if '"@' in line[start:]:
+    """True when the match at ``start`` can be taken as the whole local part.
+
+    False when it may be the suffix of a longer one: after a local-part character, @ or a URI
+    scheme's colon, or when a double quote appears anywhere after the match on the line, since
+    that quote may close a quoted local part around it. The last test also refuses some
+    matches that are whole local parts (accepted over-refusal).
+    """
+    if '"' in line[start:]:
         return False
     if start == 0 or line[:start].endswith("ssh://"):
         return True
