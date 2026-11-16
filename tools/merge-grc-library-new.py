@@ -7,13 +7,13 @@ QA rows for the PR are in this repository's own registers in the operational sto
 * the /validate-pr row in ``validate-pr/history-grc_library_new.md``;
 * the /retro row in ``improvement-log-grc_library_new.md``.
 
-A row is a Markdown table line outside any fenced block that begins with ``|`` and has at least
-three cells, whose first cell is an ISO date (ASCII digits, ``YYYY-MM-DD``) and whose second cell
+A row is a Markdown table line outside any fenced block and any HTML comment block (``<!--``
+to ``-->``) that begins with ``|`` and has at least three cells, whose first cell is an ISO date (ASCII digits, ``YYYY-MM-DD``) and whose second cell
 starts with the lead ``#N`` (in the improvement log ``#N (/retro)``), the whole lead followed
 by a space, a closing bracket (``]``) or the end of the cell, and contains the literal tag
 ``[repo: grc_library_new]``. So ``#3``, ``#310``, ``#31a``, ``#31_x``, ``#31.`` and ``#31-1``
 never stand for ``#31``, a ``[repo: grc_library]`` or
-untagged row never counts, and a row quoted inside a fence never counts.
+untagged row never counts, and a row quoted inside a fence or a comment never counts.
 
 The registers are read only from the operational store found by lint_common's strict
 store resolver (``_store_dir(root, strict=True)``: ``$GRC_STORE``, else ``<repo-parent>/private``),
@@ -107,6 +107,8 @@ _DATE = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", re.ASCII)
 _PR_ARG = re.compile(r"[1-9][0-9]{0,5}", re.ASCII)
 # A CommonMark fence line: up to three spaces, then three or more backticks or tildes.
 _FENCE = re.compile(r" {0,3}(`{3,}|~{3,})")
+# An HTML comment block opener: up to three spaces, then <!--.
+_COMMENT_OPEN = re.compile(r" {0,3}<!--")
 
 MERGE_REPO = "jposluns/grc_library_new"
 PR_URL = "https://github.com/" + MERGE_REPO + "/pull/{pr}"
@@ -141,14 +143,22 @@ class RegisterError(Exception):
 
 
 def _table_rows(text: str):
-    """Yield the cells of each table line outside fenced blocks.
+    """Yield the cells of each table line outside fenced blocks and HTML comment blocks.
 
     A fence opens on a fence line and closes on a line of the same character, at least as long,
-    with nothing after it but spaces or tabs; an unclosed fence runs to the end of the text. A
-    table line begins with ``|`` (no indentation) and has at least three cells."""
+    with nothing after it but spaces or tabs; an unclosed fence runs to the end of the text. An
+    HTML comment block opens on a line that begins (after up to three spaces) with ``<!--`` and
+    runs to the first line holding ``-->`` after it; an unclosed one runs to the end of the text.
+    A line inside it does not render, so it is never a row. A table line begins with ``|`` (no
+    indentation) and has at least three cells."""
     fence = None
+    comment = False
     for line in text.split("\n"):
         line = line.rstrip("\r")
+        if comment:
+            if "-->" in line:
+                comment = False
+            continue
         match = _FENCE.match(line)
         if fence is not None:
             if (match and match.group(1)[0] == fence[0] and len(match.group(1)) >= len(fence)
@@ -157,6 +167,10 @@ def _table_rows(text: str):
             continue
         if match:
             fence = match.group(1)
+            continue
+        opened = _COMMENT_OPEN.match(line)
+        if opened:
+            comment = "-->" not in line[opened.end():]
             continue
         if not line.startswith("|"):
             continue
@@ -700,7 +714,7 @@ def run_merge(pr: int, *, root: Path, gh, dry_run: bool = False, sleep=time.slee
     if not title_has_suffix(title):
         problems.append(f"title {title!r} lacks the (CalVer <v>, README <v>) suffix or holds a "
                         "control, line-breaking or format character (a merged title must end with "
-                        "that suffix and hold only printable characters)")
+                        "that suffix and hold no character of Unicode category Cc, Zl, Zp or Cf)")
     if problems:
         for line in problems:
             err(f"REFUSED: {line}")
@@ -806,8 +820,9 @@ def self_test() -> int:
         ("retro marker absent", missing_rows(v_row, r_row.replace(" (/retro)", ""), 31), ["retro"]),
         ("fenced rows", missing_rows("```\n" + v_row + "\n```", "~~~\n" + r_row + "\n~~~", 31),
          ["validate-pr", "retro"]),
-        # A row inside the closed fence in each register, so
-        # this fails with fence parsing removed ([]) or with a fence that never closes.
+        # Each register holds a row inside a closed fence; the validate-pr register also holds
+        # the same row after the fence, which counts only once the fence closes. So this fails
+        # with fence parsing removed ([]) or with a fence that never closes (both missing).
         ("closed fence",
          missing_rows("```\n" + v_row + "\n```\n" + v_row, "```\n" + r_row + "\n```\n", 31),
          ["retro"]),

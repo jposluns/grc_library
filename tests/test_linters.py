@@ -26170,6 +26170,27 @@ class PIIContentTests(LinterTestCase):
         self.assertEqual(wrapper._forge_service_matches(engine, "git@github.com: and git@gitlab.com/x"),
                          ["git@github.com", "git@gitlab.com"])
 
+    def test_forge_allowance_needs_an_ssh_remote_not_another_uri_scheme(self) -> None:
+        # Only an ssh:// prefix or an scp-style remote is an SSH remote; an https:// credential
+        # or a mailto: link at a forge address stays reported.
+        for body, needle in (
+            ("Open https://git@github.com/org/repo here.\n", "git@github.com"),
+            ("Write to mailto:git@gitlab.com here.\n", "git@gitlab.com"),
+        ):
+            with self.subTest(body=body):
+                fixture = self.make_fixture("standard-forge-scheme.md", VALID_METADATA + "\n\n" + body)
+                result = run_linter("tools/lint-pii-in-content.py", fixture)
+                self.assertEqual(result.returncode, 1, f"{body!r} must stay reported.\nstdout:\n{result.stdout}")
+                self.assertIn(needle, result.stdout)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_forge_scheme")
+        engine = wrapper._engine()
+        for line in ("https://git@github.com/o/r", "http://git@gitlab.com/o/r", "mailto:git@github.com",
+                     "x:git@gitlab.com"):
+            with self.subTest(line=line):
+                self.assertEqual(wrapper._forge_service_matches(engine, line), [])
+        self.assertEqual(wrapper._forge_service_matches(engine, "ssh://git@github.com/o/r"),
+                         ["git@github.com"])
+
     def test_forge_allowance_fails_closed_inside_backticks_and_single_quotes(self) -> None:
         # The backtick and the apostrophe are
         # RFC 5322 local-part characters, so a forge address wrapped in them may be the suffix of
@@ -45804,7 +45825,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-orphan-documents.py NO_FS F 7a5e4c9ba00700be7e6e97a67d6e24b8365f5e4463af5c5cc12f79a5a45f8ecd
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
-        lint-pii-in-content.py CWD F 09d58875f8d9129a1f0a211ecacd5959a9dd4dfe82ba8b62dc08e3c8775aed6e
+        lint-pii-in-content.py CWD F ff0eae1c28d6ab1ea8201d818306eb6ae2b2cb10803a38ff05e30117f945b27d
         lint-placeholder-leakage.py CWD F 011f3e7a9a38fc875d6ec0458f9ff22fdbcc6f531a1d316fc4229b6e791c7eea
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a
@@ -45849,8 +45870,8 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint_common.py PASSIVE F c3f9567cb927a4a4599fc2704a690a93d145aef8edfa2a90eb660b246aadbedd
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
-        merge-grc-library-new.py NO_FS F a0e27e125fe9c02b2326fedee26c6c2c8205e3eb2aaa47b456669f49e7a43d29
-        merge-when-green.py NO_FS F 592e6b36c135c9adabfecf622e6d833e2496e0aeb61f577b3183ade5498a71cf
+        merge-grc-library-new.py NO_FS F 92bd7f0676a96fe304f355a5a29716a7e5d0bd4196d12da2acc939350b96f426
+        merge-when-green.py NO_FS F 612cc1e236ebf5e5764146ad74efbc785f403dd2a6855b608628061a9625496b
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
         pre-push-guard.sh FIXED F e082e92fe082af59cee69da9d2a329dacf1cdf4e8e4d600f4c5b6fc2ce89dabf
@@ -62505,9 +62526,15 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
                         "/home/u/grc%5Flibrary_new", "C:\\Users\\u\\grc_library_new"):
                 with self.subTest(command=command, refused_cwd=cwd):
                     self._refused(command, cwd=cwd)
-        # Rules 2 and 2a still read the cwd as text, so from such a parent a merge or a tools/
-        # glob stays refused (accepted over-refusal).
-        self._refused("gh pr merge 33", cwd="/home/grc_library_new_fan/grc_library")
+        # The merge-pattern rule matches the cwd by whole path component too, so from such a
+        # parent a grc_library merge is allowed; the tools/ glob rule still reads the cwd as
+        # text (accepted over-refusal).
+        for command in ("gh pr merge 33",
+                        "gh pr merge 5 --repo jposluns/grc_library --squash",
+                        "python3 tools/merge-when-green.py 5 --repo jposluns/grc_library --admin"):
+            with self.subTest(command=command, parent_cwd=True):
+                self._allowed(command, cwd="/home/grc_library_new_fan/grc_library")
+                self._refused(command, cwd="/home/grc_library_new_fan/grc_library_new")
         self._refused("ls tools/*.py", cwd="/home/grc_library_new_fan/grc_library")
         source = " ".join(self.HOOK.read_text(encoding="utf-8").replace('"\n    "', "").split())
         playbook = (REPO_ROOT / ".claude" / "playbooks" / "pr-lifecycle.md").read_text(encoding="utf-8")
@@ -62519,6 +62546,9 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
                 self.assertIn(fragment, source)
                 self.assertIn(fragment, playbook)
         self.assertIn("a whole path component", source)
+        self.assertIn("that cwd test matches a whole path component", source)
+        self.assertIn("the cwd is matched by whole path component here", playbook)
+        self.assertNotIn("or runs from a grc_library_new clone,", source)
         self.assertNotIn("When the payload cwd names grc_library_new, the sanctioned command is "
                          "refused too", source)
 

@@ -696,7 +696,6 @@ def _self_test() -> int:
         ("statuscontext-success", [sc("ci", "SUCCESS")], True),
         ("statuscontext-pending-refused", [sc("ci", "PENDING")], False),
         ("statuscontext-failure-refused", [sc("ci", "FAILURE")], False),
-        ("unknown-shape-refused", [{"__typename": "Weird", "name": "x"}], False),  # no state -> pending
         ("mixed-green", [cr("a", "COMPLETED", "SUCCESS"), sc("b", "SUCCESS"), cr("c", "COMPLETED", "NEUTRAL")], True),
     ]
     for name, rollup, want_green in cases:

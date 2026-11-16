@@ -15,11 +15,12 @@ Rule:
      run that clone's copy of the tool. A parent directory whose name
      only contains grc_library_new, such as /home/grc_library_new_fan/grc_library, does not
      refuse it.
-  2. Otherwise exit 2 when (a) the normalized text, or the payload cwd, names
-     grc_library_new (here the cwd is read as text, so a longer directory name that contains
-     grc_library_new counts) and (b) the normalized text matches one of the merge patterns. The
-     merge tool's name is one of them, so any other spelling of the
-     tool command (a trailing or doubled space, ./tools/, -I) from such a cwd refuses. From
+  2. Otherwise exit 2 when (a) the normalized text names grc_library_new, or a directory of
+     the normalized payload cwd is named grc_library_new (a whole path component, as in rule
+     1, so /home/grc_library_new_fan/grc_library does not count), and (b) the normalized text
+     matches one of the merge patterns. The merge tool's name is one of them, so any other
+     spelling of the tool command (a trailing or doubled space, ./tools/, -I) from such a cwd
+     refuses. From
      any other cwd such a spelling refuses only when its text names grc_library_new (a path
      through such a clone): the tool's own hyphenated name merge-grc-library-new does not,
      so python3 ./tools/merge-grc-library-new.py 31 from a grc_library checkout is allowed.
@@ -74,13 +75,18 @@ REASON = (
     "WHY: a grc_library_new squash merge goes only through "
     "python3 tools/merge-grc-library-new.py, which checks the /validate-pr and /retro rows, "
     "the title, the head's CI and the merge commit. This hook matches text only and accepts "
-    "over-refusal: any command that names grc_library_new, or runs from a grc_library_new "
-    "clone, and mentions a pull-request merge, an auto-merge (GraphQL "
+    "over-refusal: any command that names grc_library_new, or runs from a directory with a "
+    "path component named grc_library_new, and mentions a pull-request merge, an auto-merge "
+    "(GraphQL "
     "enablePullRequestAutoMerge), a branch merge (GraphQL mergeBranch) or a REST "
     "repos/<owner>/<repo>/merges call is refused, including commit messages, greps, "
-    "echo and heredoc bodies. The merge tool command in any literal spelling other than the "
-    "sanctioned one is refused when the payload cwd names grc_library_new or the command names "
-    "grc_library_new (a path through such a clone); from any other cwd, a spelling that does "
+    "echo and heredoc bodies; that cwd test matches a whole path component, so a merge run "
+    "from a directory whose name only contains grc_library_new, such as "
+    "/home/grc_library_new_fan/grc_library, is not refused by it. The merge tool command in "
+    "any literal spelling other than the "
+    "sanctioned one is refused when a directory of the payload cwd is named grc_library_new or "
+    "the command names grc_library_new (a path through such a clone); from any other cwd, a "
+    "spelling that does "
     "not name grc_library_new (python3 ./tools/merge-grc-library-new.py N from a grc_library "
     "checkout) is allowed, since the tool's own hyphenated name does not name grc_library_new. "
     "When a directory of the payload cwd is named grc_library_new, the sanctioned command is "
@@ -184,7 +190,7 @@ def decide(raw):
         text = text + " " + normalize("/".join(
             tool_input.get(k) if isinstance(tool_input.get(k), str) else ""
             for k in ("owner", "repo")))
-    return (NEW in text or NEW in cwd) and merge_text(text)
+    return (NEW in text or cwd_is_new_clone(cwd)) and merge_text(text)
 
 
 def main():

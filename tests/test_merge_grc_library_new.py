@@ -1,8 +1,9 @@
 """Tests for tools/merge-grc-library-new.py: the merge
 argv, the read-back of the merged commit, the admin-merge log row printed to standard
 output, the title suffix and the CI check on the pinned head;
-both required workflows, the log-row cell escaping and the open-findings check
-reused from merge-when-green.py; the admin-merge log pre-flight before any
+both required workflows, the log-row cell escaping and the open-findings check, which loads
+the open-findings hook by path and judges the ledger with the same two hook calls
+merge-when-green.py makes; the admin-merge log pre-flight before any
 gh call, the row appended to the log and read back, and the open-findings check failing closed;
 the pre-flight reads the log's real shape (text before the header, the header as the
 first table line, a table line last) and refuses a log it could not append to.
@@ -401,6 +402,36 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertEqual(code, 1, err)
                 self.assertEqual((out, fake.merge_calls()), ("", []))
 
+    def test_row_present_needs_the_repository_tag_after_the_lead(self):
+        # The lead alone (#31 followed by any text) is not enough: the row counts only when the
+        # tag [repo: grc_library_new] follows the lead in the same cell.
+        self.assertTrue(self.mod.row_present(VALIDATE_ROW, 31, retro=False))
+        self.assertTrue(self.mod.row_present(RETRO_ROW, 31, retro=True))
+        for cell in ("#31", "#31 x", "#31 [repo: grc_library]", "#31 repo: grc_library_new"):
+            row = f"| 2026-11-14 | {cell} | train 1 | claude |"
+            with self.subTest(cell=cell):
+                self.assertIsNotNone(self.mod._pr_lead(31, retro=False).match(cell))
+                self.assertFalse(self.mod.row_present(row, 31, retro=False))
+        untagged_retro = RETRO_ROW.replace(" [repo: grc_library_new]", "")
+        self.assertNotIn("[repo:", untagged_retro)
+        self.assertFalse(self.mod.row_present(untagged_retro, 31, retro=True))
+
+    def test_row_inside_an_html_comment_block_never_counts(self):
+        # A row inside a multi-line HTML comment does not render, so it never counts; a row
+        # after the comment closes does.
+        for opener in ("<!--", "   <!-- withdrawn", "<!-- withdrawn row:"):
+            commented = f"{opener}\n{VALIDATE_ROW}\n-->\n"
+            with self.subTest(opener=opener):
+                self.assertFalse(self.mod.row_present(commented, 31, retro=False))
+                self.assertTrue(self.mod.row_present(commented + VALIDATE_ROW + "\n", 31,
+                                                     retro=False))
+        self.assertFalse(self.mod.row_present("<!--\n" + RETRO_ROW + "\n", 31, retro=True))
+        self.assertEqual(self.mod.missing_rows("<!--\n" + VALIDATE_ROW + "\n-->",
+                                               "<!--\n" + RETRO_ROW + "\n-->", 31),
+                         ["validate-pr", "retro"])
+        # A one-line comment closes on its own line, so the row after it counts.
+        self.assertTrue(self.mod.row_present("<!-- note -->\n" + VALIDATE_ROW, 31, retro=False))
+
     def test_row_present_digit_check_follows_the_whole_lead(self):
         # The digit check sits after the whole lead, #N, or #N (/retro) in the retro
         # register, as row_present's docstring says; this keeps the current refusals.
@@ -707,8 +738,9 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         fake = FakeGh(view={"title": "content: no suffix"})
         code, out, err = self.merge(fake)
         self.assertEqual(code, 1, err)
-        self.assertIn("(a merged title must end with that suffix and hold only printable "
-                      "characters)", err)
+        self.assertIn("(a merged title must end with that suffix and hold no character of "
+                      "Unicode category Cc, Zl, Zp or Cf)", err)
+        self.assertNotIn("printable", err)
         self.assertNotIn("(decision", err)
         self.assertEqual(fake.merge_calls(), [])
 
@@ -939,12 +971,22 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                                  mwg.open_findings_block(REPO_ROOT, ledger))
 
     def test_open_findings_is_merge_when_green_decision_on_the_real_hook(self):
+        # On the same ledger, judged by the repository's real hook, this tool's result equals
+        # merge-when-green.py's own open_findings_block() on that ledger, and is the expected
+        # refusal of an open error and allowance of a fixed one.
+        spec = importlib.util.spec_from_file_location(
+            "_mgln_test_merge_when_green_real_hook", REPO_ROOT / "tools" / "merge-when-green.py")
+        mwg = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mwg)
         ledger = Path(self.tmp.name) / "ledger.md"
         ledger.write_text(LEDGER_HEAD + OPEN_ERROR, encoding="utf-8")
         code, message = self.mod.open_findings(REPO_ROOT, ledger)
+        self.assertEqual((code, message), mwg.open_findings_block(REPO_ROOT, ledger))
         self.assertEqual(code, 1)
         self.assertIn("a live defect", message)
         ledger.write_text(LEDGER_HEAD + FIXED_ERROR, encoding="utf-8")
+        self.assertEqual(self.mod.open_findings(REPO_ROOT, ledger),
+                         mwg.open_findings_block(REPO_ROOT, ledger))
         self.assertEqual(self.mod.open_findings(REPO_ROOT, ledger), (0, ""))
 
     # A refusal before any gh call, dry run or not.

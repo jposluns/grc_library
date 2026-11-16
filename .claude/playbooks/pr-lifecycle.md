@@ -162,11 +162,13 @@ drive end-to-end on the maintainer's behalf:
    read-back exits 3 and prints the row to add by hand. The hook
    `.claude/hooks/block-new-merge-outside-tool.py` refuses any other Bash command or
    `mcp__github__merge_pull_request` call that names grc_library_new (or runs from a
-   grc_library_new clone) and mentions a pull-request merge, an auto-merge (a GraphQL
+   directory with a path component named grc_library_new) and mentions a pull-request merge, an auto-merge (a GraphQL
    `enablePullRequestAutoMerge`), a branch merge (a GraphQL `mergeBranch`) or a REST
-   `repos/<owner>/<repo>/merges` call. It refuses the merge tool command in any literal
-   spelling other than the sanctioned one when the payload cwd names grc_library_new or the
-   command names grc_library_new (a path through such a clone); from any other cwd, a spelling
+   `repos/<owner>/<repo>/merges` call (the cwd is matched by whole path component here, so a
+   merge from a directory whose name only contains grc_library_new, such as
+   `/home/grc_library_new_fan/grc_library`, is not refused). It refuses the merge tool command
+   in any literal spelling other than the sanctioned one when a directory of the payload cwd is
+   named grc_library_new or the command names grc_library_new (a path through such a clone); from any other cwd, a spelling
    that does not name grc_library_new (such as `python3 ./tools/merge-grc-library-new.py N`
    from a grc_library checkout) is allowed, since the tool's own hyphenated name does not name
    grc_library_new. When a directory of the payload cwd is named grc_library_new, it also
@@ -226,8 +228,8 @@ drive end-to-end on the maintainer's behalf:
    in flight, floors the window at the log's own oldest row, and counts a row by its
    PRESENCE whatever its Mechanism cell says, so a future plain merge is recorded honestly
    rather than forced to keep reading `--admin`. Write the row AFTER the merge from the
-   OBSERVED CI state, never in anticipation of one. The log is shared with grc_library_new
-   (3b882 decision D2): a PR cell of exactly `#N [repo: <name>]` counts for PR N of that
+   OBSERVED CI state, never in anticipation of one. The log is shared with grc_library_new:
+   a PR cell of exactly `#N [repo: <name>]` counts for PR N of that
    repository only, so a `#N [repo: grc_library_new]` row never counts as, or masks,
    grc_library PR N, while a bare `#N` still means grc_library PR N. Check 6 requires rows for
    grc_library PRs only. For a grc_library_new merge, `tools/merge-grc-library-new.py` writes

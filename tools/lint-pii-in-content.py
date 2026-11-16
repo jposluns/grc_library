@@ -66,7 +66,9 @@ Exemption layers:
     such as `git@github.com`, or 'git@gitlab.com') is still reported,
     because the backtick and the apostrophe are RFC 5322 local-part
     characters, so the match may be the end of a longer local part and
-    the allowance fails closed. Write such an
+    the allowance fails closed. After another URI scheme (an https:// credential
+    such as https://git@github.com, or mailto:git@github.com) it is still reported,
+    since neither is an ssh:// or scp-style remote. Write such an
     address after whitespace, after ssh://, or in parentheses.
   - CHANGELOG.md is exempt because it can describe sanitization fixes
     that quote (now-removed) PII.
@@ -165,9 +167,10 @@ FORGE_SERVICE_ADDRESSES = frozenset({"git@github.com", "git@gitlab.com"})
 # o'git@github.com or alice!git@gitlab.com it captures only the git@ suffix. The
 # allowance applies only when the character before the match cannot sit in a local
 # part: not an RFC 5322 atext character or dot, and not a non-ASCII character (RFC 6531),
-# except whitespace, or the "/" that ends the "://" of an ssh:// remote. Nor
-# "@", which is no local-part character, but a match right after it (user@git@github.com)
-# is the end of a longer address, not a whole local part.
+# except whitespace, or the "/" that ends an ssh:// prefix (another scheme's "://", such
+# as https://, marks a URL credential, not an SSH remote). Nor "@", which is no local-part
+# character, but a match right after it (user@git@github.com) is the end of a longer
+# address, not a whole local part. Nor ":", which ends a URI scheme such as mailto:.
 _LOCAL_PART_CHARS = frozenset(
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&'*+-/=?^_`{|}~."
 )
@@ -175,12 +178,12 @@ _LOCAL_PART_CHARS = frozenset(
 
 def _local_part_complete(line: str, start: int) -> bool:
     """True when the match at ``start`` is the whole local part, not a suffix of a longer one."""
-    if start == 0 or line[:start].endswith("://"):
+    if start == 0 or line[:start].endswith("ssh://"):
         return True
     before = line[start - 1]
     if before.isspace():
         return True
-    return before.isascii() and before != "@" and before not in _LOCAL_PART_CHARS
+    return before.isascii() and before not in "@:" and before not in _LOCAL_PART_CHARS
 
 
 def _engine():
