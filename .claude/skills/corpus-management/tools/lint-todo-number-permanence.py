@@ -681,6 +681,25 @@ def parse_counters(text: str) -> dict[str, tuple[str, int]]:
 # sibling or the file is absent, so a private-id partial close then has no exemption.
 PRIVATE_EXEMPT: dict[tuple[str, str], str] = {}
 
+# The documented row forms: the id is a private backlog id, and the value is
+# '<date>; heading: <substring>' or 'date not recorded; heading: <substring>'.
+_PEXEMPT_ID_RE = re.compile(r"P-\d+(?:\.\d+){1,2}[a-z]?")
+_PEXEMPT_VALUE_RE = re.compile(r"(?:\d{4}-\d\d-\d\d|date not recorded); heading: .*\S.*")
+# A marker token that is part of the 'PR #<n>:' heading prefix.
+_PEXEMPT_PREFIX_TOKEN_RE = re.compile(r"(?:PR|#\d*:?|PR#\d*:?)")
+
+
+def _marker_has_own_text(item_id: str, marker: str) -> bool:
+    """True when ``marker`` holds a token that is neither part of ``item_id`` nor part
+    of the 'PR #<n>:' heading prefix. Every retirement heading of an id carries the id
+    and, usually, that prefix, so a marker made only of them would match each one."""
+    for token in marker.split():
+        token = token.strip(":,;.()")
+        if not token or token in item_id or _PEXEMPT_PREFIX_TOKEN_RE.fullmatch(token):
+            continue
+        return True
+    return False
+
 
 def _load_private_exempt(text: str) -> dict[tuple[str, str], str]:
     """Parse the private exemption file: a JSON object whose ``rows`` member is a list of
@@ -688,7 +707,10 @@ def _load_private_exempt(text: str) -> dict[tuple[str, str], str]:
     naming the first malformed part (guards against a malformed row silently exempting
     nothing, or everything). A field that is empty or only whitespace is malformed: a
     whitespace-only heading substring occurs in ordinary headings, so it would exempt
-    every retirement of its id."""
+    every retirement of its id. So is a row outside the documented form: an id that is
+    not a private backlog id, a value that is not '<date>; heading: <substring>', and a
+    heading marker with no text beyond the id and the 'PR #<n>:' heading prefix (the id,
+    a part of it or the prefix is found in every retirement heading of that id)."""
     import json
     data = json.loads(text)
     if not isinstance(data, dict) or not isinstance(data.get("rows"), list):
@@ -701,7 +723,16 @@ def _load_private_exempt(text: str) -> dict[tuple[str, str], str]:
         for field, part in zip(("id", "heading marker", "value"), row):
             if not part.strip():
                 raise ValueError(f"row {n} has an empty or whitespace-only {field} field")
-        rows[(row[0], row[1])] = row[2]
+        item_id, marker, value = row
+        if not _PEXEMPT_ID_RE.fullmatch(item_id):
+            raise ValueError(f"row {n} id {item_id!r} is not a private backlog id (P-<n>.<m>)")
+        if not _PEXEMPT_VALUE_RE.fullmatch(value):
+            raise ValueError(f"row {n} value {value!r} is not in the "
+                             "'<date>; heading: <substring>' form")
+        if not _marker_has_own_text(item_id, marker):
+            raise ValueError(f"row {n} heading marker {marker!r} holds no text beyond the id "
+                             "and the 'PR #<n>:' heading prefix")
+        rows[(item_id, marker)] = value
     return rows
 
 

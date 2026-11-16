@@ -43435,7 +43435,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-todo-index-reference-parity.py OWN F 46ffb499a50fa6b5d64ac594776e5a26ad4e3c696fc48d8b5e4fc8b4646a2b22
         lint-todo-list-tag.py OWN F 10ee5371268378b28c9097a588515231d625ab63b5e5b1b9f3533f4d85db9b2d
         lint-todo-marked-done.py ROOT F 9d5f28f83917e26a4cd0bffde756fded4a2bf4259b809472bc1757a6dbc1b212
-        lint-todo-number-permanence.py OWN F 41d2c6d12caff8d1510bd43db0ed219eab697f2e0bf245eebdc1f00c2763a175
+        lint-todo-number-permanence.py OWN F 1590135b4ac58f3b1ed3d209c1bf17674bd2c851ff588aaa4e3e6e1327cf8153
         lint-todo-staleness.py NO_FS F 6a89123607678239f036cab7bf02e0a0885216f55ba0b23fb53799e30c40cffb
         lint-tooling-backlog-refs.py OWN F be54fcdef171bc30e7d0393ca2c097904f464cad7bde9a233f7ee663edd741a5
         lint-tooling-provenance-freshness.py OWN F ab5b885be8a4a7af28e6c441ea4439cc32ce553a6167946ec40d49f50f0f6b02
@@ -58818,6 +58818,70 @@ class TodoNumberPermanenceTests(LinterTestCase):
                     self.assertIn(f"row 2 has an empty or whitespace-only {field} field",
                                   result.stderr)
                     self.assertNotIn("OK:", result.stdout)
+                finally:
+                    shutil.rmtree(root, ignore_errors=True)
+
+    def test_private_exempt_row_outside_the_documented_form_is_refused(self) -> None:
+        """A loaded exemption row exits 2 naming the row unless its id is a private
+        backlog id, its value is '<date>; heading: <substring>' (or 'date not recorded;
+        heading: <substring>'), and its heading marker holds text beyond the id and the
+        'PR #<n>:' heading prefix. A marker that is only the id, a part of the id or
+        the heading prefix is found in every retirement heading of that id, so it would
+        exempt every reuse of the number; the gate would then pass a recycled id."""
+        todo = "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n"
+        good = self.PEXEMPT_FIXTURE["rows"][1]
+        value = "date not recorded; heading: P-9.3 Phase"
+        marker_reason = "holds no text beyond the id and the 'PR #<n>:' heading prefix"
+        id_reason = "is not a private backlog id"
+        value_reason = "is not in the '<date>; heading: <substring>' form"
+        for label, row, reason in (
+                ("marker is the id", ["P-9.3", "P-9.3", value], marker_reason),
+                ("marker is a one-letter part of the id", ["P-9.3", "P", value],
+                 marker_reason),
+                ("marker is a leading part of the id", ["P-9.3", "P-9", value],
+                 marker_reason),
+                ("marker is the id with a trailing space", ["P-9.3", "P-9.3 ", value],
+                 marker_reason),
+                ("marker is the heading prefix start", ["P-9.3", "PR #", value],
+                 marker_reason),
+                ("marker is the heading prefix", ["P-9.3", "PR #1423:", value],
+                 marker_reason),
+                ("marker is the heading prefix and the id",
+                 ["P-9.3", "PR #1423: P-9.3", value], marker_reason),
+                ("id is a public id", ["9.3", "P-9.3 Phase", value], id_reason),
+                ("id is padded", [" P-9.3", "P-9.3 Phase", value], id_reason),
+                ("id is not an id", ["P-9.3 Phase", "P-9.3 Phase", value], id_reason),
+                ("value has no heading part", ["P-9.3", "P-9.3 Phase", "2026-08-06"],
+                 value_reason),
+                ("value has no date part", ["P-9.3", "P-9.3 Phase", "heading: P-9.3 Phase"],
+                 value_reason),
+                ("value date is not ISO", ["P-9.3", "P-9.3 Phase",
+                                           "2026-8-6; heading: P-9.3 Phase"], value_reason),
+                ("value heading is blank", ["P-9.3", "P-9.3 Phase",
+                                            "2026-08-06; heading:  "], value_reason)):
+            with self.subTest(malformed=label):
+                root, result = self._run("perm-pexempt-form", todo, self.PEXEMPT_DONE,
+                                         ptodo=self.PEXEMPT_PTODO,
+                                         pexempt={"rows": [good, row]})
+                try:
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                    self.assertIn("ERROR: cannot parse ", result.stderr)
+                    self.assertIn("row 2 ", result.stderr)
+                    self.assertIn(reason, result.stderr)
+                    self.assertNotIn("OK:", result.stdout)
+                finally:
+                    shutil.rmtree(root, ignore_errors=True)
+        # The documented rows still load: a marker with text beyond the id, with or
+        # without the heading prefix, and either value form.
+        for label, rows in (
+                ("fixture rows", self.PEXEMPT_FIXTURE["rows"]),
+                ("marker after the heading prefix",
+                 [["P-9.3", "PR #1423: P-9.3 Phase", value], good])):
+            with self.subTest(accepted=label):
+                root, result = self._run("perm-pexempt-form-ok", todo, self.PEXEMPT_DONE,
+                                         ptodo=self.PEXEMPT_PTODO, pexempt={"rows": rows})
+                try:
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                 finally:
                     shutil.rmtree(root, ignore_errors=True)
 

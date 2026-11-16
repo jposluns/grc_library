@@ -695,19 +695,23 @@ def read_domain_purpose(domain):
     callout already states it, so the lead never repeats it. Every corpus domain
     README follows the section model and carries a Purpose section; a missing
     file or missing section is a coupling breakage the generator-health check
-    must surface."""
+    must surface. The Purpose heading and the level-two heading or thematic
+    break that ends the section are read through the shared anchored check
+    (_adopter_heading, _ADOPTER_RULE_RE): each is the whole line after at most
+    three spaces, so a line indented by four spaces or a tab is section text."""
     p = REPO_ROOT / domain / "README.md"
     if not p.is_file():
         raise BuildError(f"domain README not found at {p}")
-    # Collect the section's lines (stripped), stopping at the next heading / rule.
+    # Collect the section's lines (stripped), stopping at the next level-two
+    # heading or thematic break, each matched on the unstripped line.
     lines = []
     in_purpose = False
     for line in p.read_text(encoding="utf-8").splitlines():
         if not in_purpose:
-            if re.match(r"^##\s+Purpose\s*$", line):
+            if _adopter_heading_text(line, 2) == "Purpose":
                 in_purpose = True
             continue
-        if line.strip().startswith("## ") or line.strip() == "---":
+        if _adopter_heading(line, 2, 2) or _ADOPTER_RULE_RE.match(line):
             break
         lines.append(line.strip())
 
@@ -4112,7 +4116,9 @@ def _adopter_fence_line(line):
 # A thematic break is three or more of one of "-", "*" or "_", with spaces or
 # tabs between them and nothing else on the line. An ATX heading is one to six
 # hashes followed by a space, a tab or the line end; seven or more hashes make a
-# plain line. Every heading, rule and section read below goes through these two.
+# plain line. Every adopter heading, rule and section read below, and the
+# domain Purpose read in read_domain_purpose, goes through these two; the other
+# boundary reads in this file keep their own checks.
 _ADOPTER_RULE_RE = re.compile(r" {0,3}([-*_])[ \t]*(?:\1[ \t]*){2,}$")
 _ADOPTER_HEADING_RE = re.compile(r" {0,3}(#{1,6})(?:[ \t]|$)")
 

@@ -18500,6 +18500,52 @@ EXEMPT_GENERATED_PAGES = frozenset({
     "governance/portal.md", "governance/maturity-scorecard.md"})
 
 
+class DomainPurposeBoundaryTests(unittest.TestCase):
+    """read_domain_purpose finds the Purpose heading and ends the section with
+    the shared anchored check: a heading or thematic break is the whole line
+    after at most three spaces, and a line indented by four spaces or a tab is
+    section text, as in the adopter reads."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = _load_build()
+
+    def _purpose(self, body):
+        root = Path(tempfile.mkdtemp(prefix="domain-purpose-"))
+        saved = self.mod.REPO_ROOT
+        try:
+            (root / "fixture").mkdir()
+            (root / "fixture" / "README.md").write_text(body, encoding="utf-8")
+            self.mod.REPO_ROOT = root
+            return self.mod.read_domain_purpose("fixture")
+        finally:
+            self.mod.REPO_ROOT = saved
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_indented_code_lines_do_not_end_the_section(self):
+        for label, line in (("four-space heading", "    ## kept"),
+                            ("tab heading", "\t## kept"),
+                            ("four-space rule", "    ---")):
+            with self.subTest(case=label):
+                got = self._purpose(f"# D\n\n## Purpose\n\nAlpha.\n{line}\nOmega.\n")
+                self.assertEqual(got, f"Alpha. {line.strip()} Omega.")
+
+    def test_purpose_heading_within_three_spaces_is_read(self):
+        self.assertEqual(self._purpose("# D\n\n   ## Purpose\n\nAlpha.\n"), "Alpha.")
+        with self.assertRaises(self.mod.BuildError):
+            self._purpose("# D\n\n    ## Purpose\n\nAlpha.\n")
+
+    def test_anchored_heading_or_any_thematic_break_ends_the_section(self):
+        for label, line in (("flush heading", "## Next"),
+                            ("three-space heading", "   ## Next"),
+                            ("dash rule", "---"),
+                            ("star rule", "***"),
+                            ("spaced underscore rule", "_ _ _")):
+            with self.subTest(case=label):
+                got = self._purpose(f"# D\n\n## Purpose\n\nAlpha.\n{line}\nOmega.\n")
+                self.assertEqual(got, "Alpha.")
+
+
 class AdopterDocsFixtureTests(unittest.TestCase):
     """18, 19 and 21: the .claude/skills/corpus-management/docs/ metadata
     reader's loud failure classes, on fixtures (only the leading block is
