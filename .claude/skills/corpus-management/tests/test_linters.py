@@ -930,13 +930,20 @@ class LanguageLinterTests(LinterTestCase):
                 self.assertLinterFails(
                     run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] organisations")
 
-    def test_url_mask_emphasis_digit_and_query_end_still_flagged(self) -> None:
-        # Prose right after a closing "_" / "__" emphasis delimiter, a digit run
-        # before "/", an all-uppercase label glued to a lowercase host, a query
-        # key holding an invalid escape before "=" (this gate's token rule ends
-        # the token at the "?", as such a key never reaches "=", so the whole
-        # query text is checked), a non-scheme
-        # "://" and ",)" inside parentheses are outside the token and still flagged.
+    def test_url_mask_emphasis_comma_digit_upper_label_bad_query_key_nested_colon_and_paren_flagged(self) -> None:
+        """Prose after a closing "_" or "__" emphasis delimiter, path text after
+        a comma and a digit run before "/", an all-uppercase label glued to a
+        lowercase host, a query whose key holds an invalid escape, a non-scheme
+        "://" and text after ",)" inside parentheses are outside the URL token
+        and still flagged.
+
+        The query case follows the gate's own token rule: "?" continues the
+        token only when "a query key, any run (possibly empty) of letters,
+        digits, ".", "_", "~", "+", "-" or %XX escapes, reaches "="", and
+        otherwise ends it. An invalid escape such as "%zz" is not a key
+        character, so in "?organisations%zz=1" the key stops at the "%" and
+        does not reach the "=" after it; the token ends at the "?" and the
+        query text is checked."""
         for index, (body, word) in enumerate((
                 ("See _https://x.org/a_(organisations) here.\n", "organisations"),
                 ("See __https://x.org/a__(organisations) here.\n", "organisations"),
@@ -43219,7 +43226,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         README.md DATA F 67fe21d3b7f132009e1e6e14899a090f897ede778d89cea59053ca2f3e20ced7
         adopt-bootstrap-ref.py OWN F ec19e2c45233ad02ca422349c0778a3c17463e6fc23fe9bf0591d822ac8d531c
         adopt-preflight-guard.py FIXED F 73ab980af0fa53c8a485af18b7bdaee1b7bfef218c37982593e30c66d7f85f66
-        aiqt_bootstrap.py PASSIVE F 58476a2cd3a8c9cd8577bdbe1f8bed3e350661bf9b832110a99927f1632b30ef
+        aiqt_bootstrap.py PASSIVE F da761d1e837ac501cb24a2941fde25f6bfab8c53be9c641e6d8c190bd024ef95
         aiqt_rules.py NO_FS F dda2a6a5a217513fc2848e59029e111402fe85e8e765d6b9de7186bd8d9472d9
         alignment-register-aliases.json DATA F 7d9b0be1db9dcc1f81870c96309e2837cdf7da6fc16a78ea4f4b4ccca4e7b7e8
         alignment-register-exclusions.json DATA F 391924062319d3d5a618b1750b37dec6c0ee0c0d21b77b26518b16e51a418f19
@@ -43244,7 +43251,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-length-on-pr.py NO_FS F 91c9308103f36414f1975e2233cd82644551ca4a3996c4a2b9310b437004434a
         check-changelog-on-pr.py NO_FS F 00fa478d33343ae5d955e3faa7f99d9c61c6cda6f7a5e414dfcaf6ec6f7bf25b
         check-changelog-preflight-commit.py NO_FS F 9ec0a028e7e916fdfa542f6688b909b08a1c69fe66b3a7cb82d979689885f978
-        check-class-completeness.py NO_FS F df6260fa152c94495c6fc72b1d2cae29f9c4bd24c8e188500f068e5c52da0eb3
+        check-class-completeness.py NO_FS F d68b26ef430cb97944269e7aa911510897bc9c4002ad3c241a7a4bd09b58d70f
         check-claude-md-size.py NO_FS F 5f0c8e37d4a1b36a6be924354a6cdfca69a4ba5498e77cee52012ccefc99764b
         check-clause-preservation.py OWN F 96d156bb17eb92ea45d096dae64345313ba8962de62b38a413a988aa7f8c8737
         check-clean-language-upstream.py NO_FS F 68e539ea645383d29ec9ded3cb44012af2afcfc78f820c172070a8c492665159
@@ -61550,7 +61557,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.23.7", "0.23.7 removes internal work references from the lint-standards-currency origin in core/gates.toml and from two --aiqt-root refusal messages in tools/corpus_mgmt_compiler.py; no gate, register key or outcome changes (PATCH). The release history in src/README.md describes each version from 0.22.2")
+        self.assertEqual(man["pack"]["version"], "0.23.7", "0.23.7 removes internal work references from the lint-standards-currency origin in core/gates.toml and from two --aiqt-root refusal messages in tools/corpus_mgmt_compiler.py; no gate, register key or outcome changes (PATCH); the residual lists in tools/gate_lint_language.py's docstring and URL-mask comment now name the comma-and-digit path form. The release history in src/README.md describes each version from 0.22.2")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")
@@ -68392,7 +68399,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                 self.assertFalse(
                     mod._pack_tools_entry(entry),
                     "a non-str entry must be reported unmatched, never "
-                    "raise (guards against a non-str sys.path entry)")
+                    "raise (guards against a TypeError out of the scrub)")
         saved_module = sys.modules.pop("aiqt_corpus", None)
         saved_path = list(sys.path)
         saved_meta = list(sys.meta_path)
@@ -68408,7 +68415,8 @@ class AIQTVendorDigestTests(LinterTestCase):
                 except TypeError as exc:
                     self.fail("ensure_on_path() raised TypeError on a "
                               f"non-str sys.path entry: {exc} "
-                              "(guards against a non-str sys.path entry)")
+                              "(guards against a TypeError out of the scrub on a "
+                              "non-str entry)")
             self.assertEqual(str(tools), str(pack / "tools"),
                              "the bootstrap must complete normally with "
                              "non-str entries present")

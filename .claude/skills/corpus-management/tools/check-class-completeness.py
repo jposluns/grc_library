@@ -113,7 +113,11 @@ def validate_attest_token(token: str) -> str | None:
     The clause delimits the token with double quotes inside a markdown table cell, so a
     quote, a line break or a trailing backslash (which would sit before the closing
     quote) cannot be carried; the author picks a different distinctive token rather
-    than the tool inventing an escaping scheme two parsers must agree on."""
+    than the tool inventing an escaping scheme two parsers must agree on. Every trailing
+    backslash run is refused, an even run included, by design: an even run leaves the
+    closing quote unescaped only for a reader that treats backslash as an escape, so
+    refusing every trailing run keeps the end of the token independent of how any
+    consumer reads backslashes."""
     if not token.strip():
         return "empty token"
     if '"' in token:
@@ -208,6 +212,8 @@ def _self_test() -> int:
         checks.append(("attest-token-newline-refused", validate_attest_token("a\nb") is not None))
         checks.append(("attest-token-trailing-backslash-refused",
                        validate_attest_token("token\\") is not None))
+        checks.append(("attest-token-even-trailing-backslash-run-refused",
+                       validate_attest_token("token\\\\") is not None))
         checks.append(("attest-token-plain-ok", validate_attest_token("7 years") is None))
         afs = attest_file_set(root, tracked={"a.md"})
         # The tracked set is injected here, so _git_tracked itself is not

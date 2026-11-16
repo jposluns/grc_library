@@ -308,13 +308,19 @@ class ReleaseDeltaTests(unittest.TestCase):
             self.assertIn("[release].waivers must be", output)
 
     def test_dot_slash_reference_stays_in_scope(self):
-        # A reference written ./path is the same file to the compiler.
+        # The scope is every pack file under its own pack-relative path and no reference
+        # is resolved into it, so a file named only by ./path references stays in scope and
+        # is reported once, under its own path, never under the reference text. Under the
+        # current scope the ./ form cannot change this outcome; the check bites a scope
+        # built from the references, which fails it unless ./path is resolved (FLOOR NONE).
         with self.repo() as repo:
             repo.replace("core/clauses.toml", 'source = "core/policies/note.md"', 'source = "./core/policies/note.md"')
             repo.replace("gensrc.toml", '["core/policies/note.md"]', '["./core/policies/note.md"]')
             repo.checkpoint()
             repo.replace("core/policies/note.md", "Pack policy.", "Changed policy.")
-            self.assertIn("core/policies/note.md", self.expect(repo, "PATCH"))
+            output = self.expect(repo, "PATCH")
+            self.assertIn("core/policies/note.md: pack surface changed", output)
+            self.assertNotIn("./core/policies/note.md", output)
 
     def test_engine_public_api_and_configuration(self):
         cases = [

@@ -307,7 +307,9 @@ class _PublishedVerifiedLoader(importlib.abc.Loader):
     resolves through the name guard after publication (the name was popped
     from ``sys.modules``): ``create_module`` returns the published module
     object itself and ``exec_module`` runs nothing, so no disk bytes are
-    read or executed on this path (guards against a sys.path entry retargeted after the scrub)."""
+    read or executed on this path (guards against a module file swapped after
+    verification). The name guard, which never consults ``sys.path`` for the
+    name, is what guards against a sys.path entry retargeted after the scrub."""
 
     def __init__(self, module) -> None:
         self._module = module
@@ -766,15 +768,16 @@ def _pack_tools_entry(entry: str) -> bool:
     other object put on ``sys.path`` -- is reported unmatched too, never a
     ``TypeError``: the import system's own ``PathFinder`` skips such
     entries, and so do this scrub and the masquerade scan
-    (guards against a non-str sys.path entry). An entry the filesystem refuses to
-    inspect -- an ``OSError``, or a ``ValueError`` such as an embedded NUL
-    byte (guards against an unresolvable sys.path entry) -- is reported unmatched instead
-    of raising out of the scrub. The empty entry is resolved against the
+    (guards against a TypeError out of the scrub on a non-str entry). An entry
+    the filesystem refuses to inspect -- an ``OSError``, or a ``ValueError``
+    such as an embedded NUL byte -- is reported unmatched instead of raising
+    out of the scrub; the masquerade scan then refuses that unresolvable
+    entry with ``ImportError``. The empty entry is resolved against the
     current working directory, exactly like ``.``, and matched by the
     same rule (guards against an unscrubbed empty sys.path entry)."""
     if not isinstance(entry, str):
-        # Skipped exactly as PathFinder skips it; never a TypeError out of
-        # the scrub (guards against a non-str sys.path entry).
+        # Skipped exactly as PathFinder skips it and left on sys.path
+        # (guards against a TypeError out of the scrub on a non-str entry).
         return False
     try:
         base = Path(os.path.realpath(entry))
@@ -1123,7 +1126,8 @@ def ensure_on_path() -> Path:
     and never a complete list. A ``sys.path`` entry that is not a
     ``str`` is SKIPPED by the scrub and by the masquerade scan, exactly as
     the import system skips it, and never raises ``TypeError``
-    (guards against a non-str sys.path entry). Bytecode writing is additionally
+    (guards against a TypeError out of the scrub or the scan on a non-str
+    entry). Bytecode writing is additionally
     disabled for this process, so nothing can write ``__pycache__`` inside
     the digest-pinned vendor tree.
 
