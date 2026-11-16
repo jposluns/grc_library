@@ -50,12 +50,14 @@ name, without the installation marker -- a pack root, a pack root's
 parent, an identifier-named ancestor of a pack root, an entry holding
 a symlink (at any depth) to a pack directory
 (the disclosed residual of a dotted route through a symlinked directory), the empty entry or ``.`` while the
-working directory is such a place (the scrub removes it only when, at scrub time, the working
-directory is a pack root or a pack root's parent, or a pack ``tools/`` directory as below, which
+working directory is such a place (the scrub removes it when, at scrub time, the working
+directory is a pack root, a pack root's parent, a directory holding a depth-one symlink to a
+pack root (the child test follows that link), or a pack ``tools/`` directory as below, which
 guards against an unscrubbed empty sys.path entry; the residual is an empty entry or ``.`` whose
 working directory is, at scrub time, an identifier-named ancestor two or more levels above an
-override pack root or a directory holding a symlink to a pack directory, or becomes such a place
-after the scrub), and
+override pack root, a directory holding a symlink to a pack root's parent or to a pack ``tools/``
+directory, or a directory holding a symlink to a pack directory two or more levels down, or
+becomes such a place after the scrub), and
 any other such route; those are EXAMPLES, and no list of such routes
 here is complete. As a SECOND, BEST-EFFORT layer the shim removes the
 entry shapes it recognises: every ``sys.path`` entry whose RESOLVED
@@ -188,11 +190,13 @@ directory (``import xtools.aiqt_corpus`` through an entry whose
 ``yclaude`` link targets a pack root's parent:
 a dotted route through a symlinked directory, a disclosed residual the scrub does not
 recognise); and the empty entry or ``.`` while the working directory
-is such a place (the scrub removes it only when, at scrub time, the working directory is a pack
-root or a pack root's parent, or a pack ``tools/`` directory, which guards against an unscrubbed
-empty sys.path entry; the residual, established by execution, is an empty entry or ``.`` whose
-working directory is, at scrub time, an identifier-named ancestor two or more levels above an
-override pack root or a directory holding a symlink to a pack directory, and an empty entry or
+is such a place (the scrub removes it when, at scrub time, the working directory is a pack
+root, a pack root's parent, a directory holding a depth-one symlink to a pack root (the child
+test follows that link), or a pack ``tools/`` directory, which guards against an unscrubbed
+empty sys.path entry; the residual is an empty entry or ``.`` whose working directory is, at
+scrub time, an identifier-named ancestor two or more levels above an override pack root, a
+directory holding a symlink to a pack root's parent or to a pack ``tools/`` directory, or a
+directory holding a symlink to a pack directory two or more levels down, and an empty entry or
 ``.`` whose working directory becomes such a place after the scrub); the REPOSITORY ROOT does
 NOT carry a dotted route of its own -- ``.claude`` is not a Python
 identifier, so every dotted spelling through a repository-root entry

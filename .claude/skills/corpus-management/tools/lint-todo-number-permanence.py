@@ -340,7 +340,9 @@ THREEB_LEAD_PARTIAL_RE = re.compile(
     r"^(?:[\w.-]|\s*[:,-]?\s*\(|\s*[:,-]?\s*(?:parts?|partial(?:ly)?|phase|slice|split)\b)", re.IGNORECASE)
 
 # (id, distinctive DONE.md heading substring) -> the exempted entry's date and
-# that heading (no code reads the values; _exempt matches the keys). Each row is a
+# that heading (no code reads the values; _exempt matches the keys). A value's
+# heading text leaves out finding ids, so it can be shorter than its key's
+# substring (the key keeps them, since it must match the entry). Each row is a
 # pre-rule grandfather (a number reassigned before the permanent-id rule) or a
 # partial close recorded against a still-open umbrella item; both classes are
 # described below. Keyed by a heading SUBSTRING, not
@@ -1226,7 +1228,8 @@ def main(argv: list[str]) -> int:
     print("weaken this gate. A legitimate partial-close entry against a still-open")
     print("umbrella item goes in EXEMPT, keyed by its id and a distinctive heading")
     print("substring, valued '<date>; heading: <substring>' with the entry's date, or")
-    print("'date not recorded; heading: <substring>' when it has none; a family row's")
+    print("'date not recorded; heading: <substring>' when it has none, the value's")
+    print("heading text leaving out finding ids that the key keeps; a family row's")
     print("substring may match several of that same id's partial-close headings.")
     return 1
 

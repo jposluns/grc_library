@@ -170,9 +170,13 @@ def _ensure_aiqt(aiqt_root: Path | None) -> str | None:
         return None
     if aiqt_root is not None:
         root = Path(os.path.abspath(aiqt_root.expanduser()))
-        if not (root / "tools" / "aiqt_corpus.py").is_file():
+        try:
+            core_mode = os.lstat(root / "tools" / "aiqt_corpus.py").st_mode
+        except OSError:
+            core_mode = None
+        if core_mode is None or not stat.S_ISREG(core_mode):
             return (
-                f"--aiqt-root {aiqt_root}: no tools/aiqt_corpus.py there; pass the "
+                f"--aiqt-root {aiqt_root}: no regular tools/aiqt_corpus.py there; pass the "
                 f"AIQT pack root directory whose tools/ holds the AIQT generic core"
             )
         pin = root / "PIN.toml"

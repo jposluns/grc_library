@@ -3655,6 +3655,28 @@ class DraftSiteRenderTests(unittest.TestCase):
                     r'<div class="tablewrap" tabindex="0" role="region" '
                     r'aria-label="[^"]+">', html))
         self.assertTrue(labelled, "named narrative table regions render")
+        # Each label is the text of the h2 or h3 heading that precedes
+        # its table, with a ", table n" suffix only where one heading
+        # holds several tables.
+        compared = 0
+        for rel, html in self.draft_html.items():
+            if not rel.startswith("decisions/"):
+                continue
+            headings = [
+                (m.start(), " ".join(re.sub(r"<[^>]+>", "", m.group(2)).split()))
+                for m in re.finditer(r"<h([23])(?:\s[^>]*)?>(.*?)</h\1>", html, re.S)]
+            for m in re.finditer(
+                    r'<div class="tablewrap" tabindex="0" role="region" '
+                    r'aria-label="([^"]+)">', html):
+                before = [text for start, text in headings if start < m.start()]
+                self.assertTrue(before, f"{rel}: a named table has a preceding heading")
+                heading, label = before[-1], m.group(1)
+                self.assertTrue(
+                    label == heading
+                    or re.fullmatch(re.escape(heading) + r", table \d+", label),
+                    f"{rel}: label {label!r} is not its preceding heading {heading!r}")
+                compared += 1
+        self.assertEqual(compared, labelled, "every named region is compared")
         self.assertIn(
             '<div class="tablewrap" tabindex="0" role="region" '
             'aria-label="Contribution map">',
@@ -18533,6 +18555,22 @@ class AdopterDocsFixtureTests(unittest.TestCase):
                 ("## Purpose\n\n  ### Sub part\n\nFirst prose line.\n",
                  "First prose line."),
                 ("## Purpose\n\n  ## Next Part\n\nLater prose.\n", "")):
+            with self.subTest(text=text):
+                self.assertEqual(self.mod._adopter_purpose(text), lede)
+
+    def test_lede_heading_allows_at_most_three_leading_spaces(self):
+        """A heading may be indented by at most three spaces; four spaces
+        or a tab before a hash make an indented code line, not a heading,
+        so it neither ends the paragraph nor is skipped as a heading."""
+        for text, lede in (
+                ("## Purpose\n\nFirst prose line.\n   # Next Part\n",
+                 "First prose line."),
+                ("## Purpose\n\nFirst prose line.\n    # not a heading\n",
+                 "First prose line. # not a heading"),
+                ("## Purpose\n\nFirst prose line.\n    ## not a heading\n",
+                 "First prose line. ## not a heading"),
+                ("## Purpose\n\nFirst prose line.\n\t### not a heading\n",
+                 "First prose line. ### not a heading")):
             with self.subTest(text=text):
                 self.assertEqual(self.mod._adopter_purpose(text), lede)
 

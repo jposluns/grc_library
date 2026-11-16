@@ -4128,7 +4128,9 @@ def _adopter_metadata(text, rel):
     fenced example document (governance/worked-example.md carries a whole one) can
     never read as the file's own block, and a file with no
     leading block fails the build loudly instead of rendering something
-    else."""
+    else. The section heading that stops the read is a level-two ``## ``
+    heading; a ``# `` title line, which opens a file above its block, does
+    not stop it."""
     fields = {}
     seen = False
     for line in text.splitlines():
@@ -4167,14 +4169,15 @@ def _adopter_first_paragraph(lines):
     a ``# `` or ``## `` heading wherever one falls, and, once the paragraph has
     started, also at a blank line or a deeper heading (``### `` and below);
     blank lines and deeper headings before the paragraph are skipped. A
-    heading is recognized after any leading whitespace."""
+    heading is recognized after at most three leading spaces, as in
+    CommonMark; four spaces or a tab before a hash make an indented code
+    line, which is not a heading."""
     para = []
     for nxt in lines:
         st = nxt.strip()
-        head = nxt.lstrip()
-        if st == "---" or re.match(r"^##?\s", head):
+        if st == "---" or re.match(r"^ {0,3}##?\s", nxt):
             break
-        if re.match(r"^#{3,}\s", head):
+        if re.match(r"^ {0,3}#{3,}\s", nxt):
             if para:
                 break
             continue

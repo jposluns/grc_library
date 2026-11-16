@@ -959,6 +959,25 @@ class LanguageLinterTests(LinterTestCase):
                     f"standard-url-emphasis-digit-escape-{index}.md", VALID_METADATA + "\n\n" + body)
                 self.assertLinterFails(
                     run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] " + word)
+        # The valid URL portion before each break is still masked: a word
+        # the rule would flag in prose sits inside it and is not reported,
+        # while the text after the break is.
+        for index, (body, word) in enumerate((
+                ("See _https://x.org/authorisations_(organisations) here.\n", "organisations"),
+                ("See __https://x.org/authorisations__(organisations) here.\n", "organisations"),
+                ("See _https://x.org/authorisations_.organisations here.\n", "organisations"),
+                ("See __https://x.org/authorisations__,organisations here.\n", "organisations"),
+                ("See https://x.org/authorisations,1/organisations here.\n", "organisations"),
+                ("See https://authorisations.org.uk.ORGANISATIONS here.\n", "ORGANISATIONS"),
+                ("See https://x.org/authorisations?organisations%zz=1 here.\n", "organisations"),
+                ("See https://x.org/authorisations/a://organisations here.\n", "organisations"),
+                ("See https://x.org/authorisations(b,)Organisations here.\n", "Organisations"))):
+            with self.subTest(body=body, masked="authorisations"):
+                fixture = self.make_fixture(
+                    f"standard-url-emphasis-digit-escape-masked-{index}.md", VALID_METADATA + "\n\n" + body)
+                result = run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture)
+                self.assertLinterFails(result, "[isation] " + word)
+                self.assertNotIn("authorisations", result.stdout + result.stderr)
 
     def test_url_mask_closer_before_punctuation_flagged(self) -> None:
         # Prose after a closing "_" / "__" followed by punctuation that a URL
@@ -6265,6 +6284,9 @@ class CrossFileSectionRefTests(LinterTestCase):
             ("| Owner | §8 of the target ([t](t.md)) |", True),
             ("| Owner | Section 8 exception path ([policy](t.md) §2) |", False),
             ("| Owner | Section 8 exception path ([policy](t.md) §2 |", True),
+            # A nested parenthetical inside a closed exception path is
+            # balanced, so the path is closed and the row stays local.
+            ("| Owner | Section 8 exception path ([policy](t.md) (see §2)) |", False),
         ):
             with self.subTest(line=line):
                 citer = VALID_METADATA + f"\n\n## 8. Exceptions\n\n{line}\n"
@@ -6282,6 +6304,10 @@ class CrossFileSectionRefTests(LinterTestCase):
             ("| Owner | §8 ([t](t.md)) |", False),
             ("| Owner | Section 8 exception path ([policy](t.md) §2) |", False),
             ("| Owner | Section 8 exception path ([policy](t.md) §2 |", True),
+            ("| Owner | Section 8 exception path ([policy](t.md) (see §2)) |", False),
+            # The nested parenthetical closes, but nothing closes the
+            # link's own parenthesis.
+            ("| Owner | Section 8 exception path ([policy](t.md) (see §2) |", True),
         ):
             with self.subTest(line=line, target_holds_section_8=True):
                 citer = VALID_METADATA + f"\n\n## 8. Exceptions\n\n{line}\n"
@@ -43246,7 +43272,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         README.md DATA F 67fe21d3b7f132009e1e6e14899a090f897ede778d89cea59053ca2f3e20ced7
         adopt-bootstrap-ref.py OWN F ec19e2c45233ad02ca422349c0778a3c17463e6fc23fe9bf0591d822ac8d531c
         adopt-preflight-guard.py FIXED F 73ab980af0fa53c8a485af18b7bdaee1b7bfef218c37982593e30c66d7f85f66
-        aiqt_bootstrap.py PASSIVE F 8c3f73d691f1609fb50745a815e19ba99d36194350bbe4596f4aa140e0182f6f
+        aiqt_bootstrap.py PASSIVE F 7983ebe474dde8114bf93cf96fac9db4b00d5d2831c3175fdda8a393b602b4af
         aiqt_rules.py NO_FS F dda2a6a5a217513fc2848e59029e111402fe85e8e765d6b9de7186bd8d9472d9
         alignment-register-aliases.json DATA F 7d9b0be1db9dcc1f81870c96309e2837cdf7da6fc16a78ea4f4b4ccca4e7b7e8
         alignment-register-exclusions.json DATA F 391924062319d3d5a618b1750b37dec6c0ee0c0d21b77b26518b16e51a418f19
@@ -43376,7 +43402,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-todo-index-reference-parity.py OWN F 46ffb499a50fa6b5d64ac594776e5a26ad4e3c696fc48d8b5e4fc8b4646a2b22
         lint-todo-list-tag.py OWN F 10ee5371268378b28c9097a588515231d625ab63b5e5b1b9f3533f4d85db9b2d
         lint-todo-marked-done.py ROOT F 9d5f28f83917e26a4cd0bffde756fded4a2bf4259b809472bc1757a6dbc1b212
-        lint-todo-number-permanence.py OWN F 0847e95df63248e2466a0be1494fe00e2cbbf627402a72118445305a67f4569b
+        lint-todo-number-permanence.py OWN F 002df1b230d466a8125e028e86a3aaa8b21d195627066ee1d73031878e7cfa86
         lint-todo-staleness.py NO_FS F 6a89123607678239f036cab7bf02e0a0885216f55ba0b23fb53799e30c40cffb
         lint-tooling-backlog-refs.py OWN F be54fcdef171bc30e7d0393ca2c097904f464cad7bde9a233f7ee663edd741a5
         lint-tooling-provenance-freshness.py OWN F ab5b885be8a4a7af28e6c441ea4439cc32ce553a6167946ec40d49f50f0f6b02
@@ -43419,7 +43445,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Repository-relative argument-handling dependencies outside .claude/skills/corpus-management/tools/.
     DEPENDENCIES = """
-        .claude/skills/corpus-management/src/tools/corpus_mgmt_compiler.py a75b7071eaffcae67ea821ad2950e00a25824a53447e2a471a114fa17afe3e5f
+        .claude/skills/corpus-management/src/tools/corpus_mgmt_compiler.py 3b2855d56d438b8766ea414ab415e1f76afbe57f09ce3faccb27c9866627ac8c
         .claude/skills/corpus-management/src/tools/pack_release_delta.py 1836a112482c4fa721817222ef559700e919b54e3df7ba98a4e94af5ffbdcf07
         .claude/skills/corpus-management/src/tools/profile_loader.py c54f863c1d19ea5a934e05194504538a75d2b4893e7b16aa9d4c386c932bfb6b
         .claude/aiqt/tools/aiqt_corpus.py f2292eb511e960d9c38881a54bee92d0fc5c7b5cbe0c7b5cb002cb78da08245f
@@ -61577,7 +61603,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.23.7", "0.23.7 removes internal work references from the lint-standards-currency origin in core/gates.toml and from two --aiqt-root refusal messages in tools/corpus_mgmt_compiler.py; no gate, register key or outcome changes (PATCH); the residual lists in tools/gate_lint_language.py's docstring and URL-mask comment now name the comma-and-digit path form. The release history in src/README.md describes each version from 0.22.2")
+        self.assertEqual(man["pack"]["version"], "0.23.7", "0.23.7 removes internal work references from the lint-standards-currency origin in core/gates.toml and from two --aiqt-root refusal messages in tools/corpus_mgmt_compiler.py; gate 62 refuses as malformed a table cell whose local-section exception path leaves its link's parenthesis unclosed, and the corpus-scan-integrity origin in core/clauses.toml is reworded; no gate or register key changes (PATCH); the residual lists in tools/gate_lint_language.py's docstring and URL-mask comment now name the comma-and-digit path form. The release history in src/README.md describes each version from 0.22.2")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")
@@ -69606,6 +69632,32 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIn("no regular PIN.toml at", output)
         self.assertNotIn("PERMISSIVE-SHIM-BOUND", output)
         self.assertNotIn("pack root not found", output)
+
+    def test_compiler_module_precheck_refuses_a_symlinked_core(self):
+        # The compiler's own pre-check reads tools/aiqt_corpus.py with a
+        # non-following lstat, so a symlink there is refused BY ITSELF,
+        # even beside a regular PIN.toml. The permissive stand-in shim
+        # would bind any root, so a following check lets the run reach
+        # the shim (PERMISSIVE-SHIM-BOUND appears) instead.
+        base = self._fixture_base("compiler-module-precheck-")
+        compiler = self._compiler_with_permissive_shim(base)
+        root = base / "pack"
+        (root / "tools").mkdir(parents=True)
+        real = base / "elsewhere-aiqt_corpus.py"
+        real.write_text("# core\n", encoding="utf-8")
+        (root / "tools" / "aiqt_corpus.py").symlink_to(real)
+        (root / "PIN.toml").write_text("", encoding="utf-8")
+        env = {k: v for k, v in os.environ.items()
+               if k not in ("AIQT_PACK_ROOT", "GRC_AIQT_PACK")}
+        with tempfile.TemporaryDirectory() as tmp:
+            res = subprocess.run(
+                [sys.executable, "-I", str(compiler), "--check",
+                 "--root", tmp, "--aiqt-root", str(root)],
+                capture_output=True, text=True, env=env, timeout=120)
+        output = res.stdout + res.stderr
+        self.assertEqual(res.returncode, 2, output)
+        self.assertIn("no regular tools/aiqt_corpus.py there", output)
+        self.assertNotIn("PERMISSIVE-SHIM-BOUND", output)
 
     def test_compiler_origin_postcheck_fires_without_the_shim(self):
         # The compiler's own post-bind origin check must refuse BY ITSELF

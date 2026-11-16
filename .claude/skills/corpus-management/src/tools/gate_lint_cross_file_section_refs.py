@@ -243,7 +243,18 @@ def check_file(
                             and not any(m.end() <= match.start() for m in md_link_re.finditer(cell))
                             and re.fullmatch(r"\s+[^()]*\S[^()]*\(\s*", intervening)
                             and not re.match(r"\s+of\s+(?:the\s+)?target\b", intervening, re.I)):
-                        if re.match(r"[^()]*\)", cell[following.end():]):
+                        # Scan with balanced parentheses: a nested
+                        # parenthetical inside the exception path does not
+                        # close the link's own parenthesis.
+                        depth = 1
+                        for ch in cell[following.end():]:
+                            if ch == "(":
+                                depth += 1
+                            elif ch == ")":
+                                depth -= 1
+                                if depth == 0:
+                                    break
+                        if depth == 0:
                             continue
                         # Without its closing parenthesis the row would fall
                         # through to the target check and pass whenever the

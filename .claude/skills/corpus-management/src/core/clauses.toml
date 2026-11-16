@@ -25,7 +25,7 @@ origin = "grc_library .claude/CLAUDE.md Conventions section (transferred in comp
 id = "corpus-scan-integrity"
 title = "Corpus scan integrity (balanced fences; no file ends inside an open code block)"
 source = "core/rules/corpus-scan-integrity.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-unbalanced-fences.py gate rationale (new clause added with the transfer of the grc gate 66 engine into the pack; generated AI-facing rule via gensrc, kind=file, like language-convention, as the maintainer decided on 2026-09-10)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-unbalanced-fences.py gate rationale (new clause added with the transfer of the grc gate 66 engine into the pack; by maintainer decision a generated AI-facing rule via gensrc, kind=file, like language-convention)"
 
 [[clauses]]
 id = "markdown-link-integrity"
