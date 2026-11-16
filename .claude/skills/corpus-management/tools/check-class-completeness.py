@@ -215,16 +215,16 @@ def _self_test() -> int:
         # attest set (not silently dropped) and is reported SKIPPED by the reader, so the
         # D14 reproduce-check fails closed on it rather than under-counting.
         afs3 = attest_file_set(root, tracked={"a.md", "ghost.md"})
-        checks.append(("attest-set-keeps-tracked-absent",
+        checks.append(("F3-attest-set-keeps-tracked-absent",
                        sorted(f.name for f in afs3) == ["a.md", "ghost.md"]))
         _, sk3 = find_occurrences(["7 years"], afs3, root=root)
-        checks.append(("tracked-absent-file-reported-skipped", "ghost.md" in sk3))
+        checks.append(("F3-tracked-absent-file-reported-skipped", "ghost.md" in sk3))
         # Two occurrences on ONE physical line count as two, so a
         # same-line sibling is not invisible to the growth check.
         (root / "sameline.md").write_text("dup_tok here and dup_tok again on one line\n",
                                            encoding="utf-8")
         occ4, _ = find_occurrences(["dup_tok"], corpus_files(root), root=root)
-        checks.append(("same-line-occurrences-counted-twice", len(occ4["dup_tok"]) == 2))
+        checks.append(("F4-same-line-occurrences-counted-twice", len(occ4["dup_tok"]) == 2))
     bad = [n for n, ok in checks if not ok]
     if bad:
         print(f"check-class-completeness self-test: FAIL {bad}")

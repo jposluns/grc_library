@@ -19113,8 +19113,9 @@ class SiteCrossPageWordingAndCountTests(unittest.TestCase):
 
     def test_index_and_search_define_area_against_domain(self):
         """Sitewide prose counts domains while the index and the search page
-        count areas; each page that says areas ties the word to the domains
-        once."""
+        count areas; each page that says areas carries a sentence tying the
+        word to the domains (its presence is checked, not that it appears
+        once)."""
         index = self.draft_html["documents/index.html"]
         self.assertIn(" areas, ", index)
         self.assertIn("An area here is a corpus domain.", index)
@@ -19144,6 +19145,11 @@ class SiteCrossPageWordingAndCountTests(unittest.TestCase):
         main = len([i for i in self.mod.CROSSWALK_INSTRUMENTS
                     if i.main_table])
         total = len(self.mod.CROSSWALK_INSTRUMENTS)
+        # A current corpus fact, pinned on purpose: only while the two counts
+        # differ can the two assertIn checks below tell which placeholder
+        # carries which count, and the template's "Also in the corpus
+        # instruments" clause presumes instrument pages outside the full
+        # table. If the counts ever match, revisit that wording and this test.
         self.assertNotEqual(main, total,
                             "the main-table and instrument page counts "
                             "differ")
@@ -19270,6 +19276,10 @@ class SiteCrossPageWordingAndCountTests(unittest.TestCase):
                    if d["domain"] != self.mod.ROOT_DOMAIN}
         missing = [domain for domain, _ in self.figures["domains"]
                    if domain not in covered]
+        # A current corpus fact, pinned on purpose: the page generator has
+        # separate sentences for one, several and no uncovered domains, and
+        # this test checks the several-domain sentence below. If the count
+        # changes, the test must check the sentence that then renders.
         self.assertGreater(len(missing), 1,
                            "more than one domain has no policy or "
                            "template")
@@ -24737,13 +24747,21 @@ class MscRegisterProgrammeClaimsTests(unittest.TestCase):
         """The status rule says Implemented stands only with
         organization-specific evidence and a Last Reviewed date, yet in the
         earlier repository every Implemented row had a blank Last Reviewed.
-        Each such row, in every table of the register, is now Not assessed."""
+        No row in any table of the register is Implemented without a Last
+        Reviewed date (YYYY-MM-DD); a blank cell or non-date text such as TBD
+        counts as no date."""
         lines = self._lines(self.MSC_REGISTER)
         self.assertIn(
             "**Status rule:** a Status of Implemented is the organization's "
             "own assertion and stands only when the Evidence Location names "
             "organization-specific evidence and Last Reviewed carries a date.",
             "\n".join(lines))
+        def unreviewed(status, reviewed):
+            return status == "Implemented" and not re.fullmatch(
+                r"\d{4}-\d{2}-\d{2}", reviewed)
+        for cell in ("", "TBD", "pending"):
+            self.assertTrue(unreviewed("Implemented", cell), cell)
+        self.assertFalse(unreviewed("Implemented", "2026-11-15"))
         offending, rows, header = [], 0, None
         for line in lines:
             if not line.startswith("|"):
@@ -24760,7 +24778,7 @@ class MscRegisterProgrammeClaimsTests(unittest.TestCase):
             rows += 1
             status = cells[header.index("Status")]
             reviewed = cells[header.index("Last Reviewed")]
-            if status == "Implemented" and not reviewed:
+            if unreviewed(status, reviewed):
                 offending.append(cells[0])
         self.assertGreaterEqual(rows, 50)
         self.assertEqual(offending, [])

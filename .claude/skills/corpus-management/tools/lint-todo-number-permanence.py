@@ -351,7 +351,8 @@ THREEB_LEAD_PARTIAL_RE = re.compile(
 # substring matching a batch of the SAME id's headings, e.g. 'P-N.M Phase'):
 # these are id-scoped by _exempt so they still cannot widen to a DIFFERENT item,
 # only to more of the same live id's own partial closes.
-# The DONE.md entries these rows name live in the private operational store.
+# The DONE.md entries these rows name live in the private operational store;
+# with --root, the entries are read from that root's .working/DONE.md instead.
 #
 # THIS DICT'S COMPLETENESS, NOT THE PARSE, IS THIS GATE'S FALSE-POSITIVE SURFACE:
 # the parse cannot tell a partial or sub-item close from a full retirement, so
