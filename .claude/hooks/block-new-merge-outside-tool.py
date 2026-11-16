@@ -27,12 +27,18 @@ Rule (plan 3b882m section 4):
   2a. From such a cwd, a Bash command whose normalized text names tools/ together with a
      glob character (*, ? or [) also exits 2, since the shell's pathname expansion can reach
      the clone's copy of the tool (3b882 fix round 7). This over-refuses any such command,
-     one that runs no merge (ls tools/*.py) included.
+     one that runs no merge (ls tools/*.py) included, and, as the cwd is read as text here,
+     one run from a directory whose name only contains grc_library_new, where no such clone
+     is involved (3b882 fix round 11).
   3. Every other input exits 0.
 
 The normalized text is NFKC, percent-decoded, NFKC again and casefolded. For Bash it is
-the command; for any other tool it is the tool name with the input's owner and repo,
-then owner and repo joined by a slash, so the text also carries owner/repo. A
+the command; for any other tool it is the tool name with every string value of the input,
+nested values included (an MCP GraphQL query and its variables, or a REST endpoint and its
+body; 3b882 fix round 11), then owner and repo joined by a slash,
+so the text also carries owner/repo. The hook runs only for the tool names
+.claude/settings.json registers it for (Bash and mcp__github__merge_pull_request); a call
+to an MCP tool under another name never reaches it. A
 payload that is not a JSON object is checked on its raw text. The hook reads no store,
 no network and no file, and parses no shell syntax: it matches text only, so it accepts
 over-refusal (a commit message, grep, echo or heredoc body that names both).
@@ -79,12 +85,15 @@ REASON = (
     "not name grc_library_new (python3 ./tools/merge-grc-library-new.py N from a grc_library "
     "checkout) is allowed, since the tool's own hyphenated name does not name grc_library_new. "
     "When a directory of the payload cwd is named grc_library_new, the sanctioned command is "
-    "refused too (a parent directory whose name only contains grc_library_new, such as "
+    "refused too, since its relative tools/ path would run that clone's copy of the tool (a "
+    "parent directory whose name only contains grc_library_new, such as "
     "/home/grc_library_new_fan/grc_library, does not refuse it); when the payload cwd names "
     "grc_library_new anywhere, so is any command that names "
-    "tools/ together with a glob character (*, ? or [), since its relative tools/ path would run "
-    "that clone's copy of the tool; this also refuses such a command that runs no merge "
-    "(an ls tools/*.py included). Residual not closed by this hook: "
+    "tools/ together with a glob character (*, ? or [), since, when the cwd is a "
+    "grc_library_new clone, the shell's pathname expansion can reach that clone's copy of the "
+    "tool. That check reads the cwd as text, so it also refuses such a command from a directory "
+    "whose name only contains grc_library_new, where no such clone is involved, and one that "
+    "runs no merge (an ls tools/*.py included). Residual not closed by this hook: "
     "the sanctioned relative command runs the copy of the tool in the cwd, from any "
     "checkout (a grc_library worktree on an unmerged branch, or a stale or edited copy), "
     "and the hook does not check which copy that is; commands built at runtime "
@@ -105,7 +114,9 @@ REASON = (
     "the tool; a merge queue entry (GraphQL "
     "enqueuePullRequest), even one that names grc_library_new; GitHub completing an "
     "auto-merge enabled earlier (from the web UI or before this hook); "
-    "MCP merge tools under other names; "
+    "MCP merge tools under other names (this hook is registered in .claude/settings.json only "
+    "for Bash and mcp__github__merge_pull_request, so an MCP GraphQL or REST tool call under "
+    "another name does not run it); "
     "merges from the web UI, from other machines or from other accounts; and "
     "direct pushes to main.\n"
     "CONSIDER INSTEAD: run python3 tools/merge-grc-library-new.py <PR number> (add --dry-run "
@@ -127,6 +138,22 @@ def cwd_is_new_clone(cwd):
     """Whether a directory of the normalized ``cwd`` is named exactly grc_library_new: a whole
     path component, split at / or \\ (3b882 fix round 9), not a substring of a longer name."""
     return NEW in re.split(r"[/\\]", cwd)
+
+
+def string_values(value):
+    """Every string in ``value``: the value itself, or the values of a mapping and the items of
+    a list, nested ones included, in order (3b882 fix round 11). Iterative, so the walk adds no
+    recursion depth."""
+    found, stack = [], [value]
+    while stack:
+        item = stack.pop()
+        if isinstance(item, str):
+            found.append(item)
+        elif isinstance(item, dict):
+            stack.extend(reversed(list(item.values())))
+        elif isinstance(item, list):
+            stack.extend(reversed(item))
+    return found
 
 
 def decide(raw):
@@ -154,8 +181,7 @@ def decide(raw):
         if NEW in cwd and "tools/" in text and any(c in text for c in GLOB_CHARS):
             return True
     else:
-        parts = [tool] + [tool_input.get(k) for k in ("owner", "repo")]
-        text = normalize(" ".join(p if isinstance(p, str) else "" for p in parts))
+        text = normalize(" ".join([tool] + string_values(tool_input)))
         text = text + " " + normalize("/".join(
             tool_input.get(k) if isinstance(tool_input.get(k), str) else ""
             for k in ("owner", "repo")))

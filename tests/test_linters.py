@@ -45850,7 +45850,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
         merge-grc-library-new.py NO_FS F 9910f5b826b2a22072907e6fa455e85ef4444285eebb7039d5cdd6bf4ce65554
-        merge-when-green.py NO_FS F 9f59dd45329481042b04c7cc1ddb2da1edde3a4bc54b0a35e522c79603832a86
+        merge-when-green.py NO_FS F fc15c6a11ef66baf460411a2a6dfdbe93982d6649926ff7b6b8331160a2bd816
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
         pre-push-guard.sh FIXED F e082e92fe082af59cee69da9d2a329dacf1cdf4e8e4d600f4c5b6fc2ce89dabf
@@ -62573,6 +62573,48 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
             with self.subTest(fragment=fragment):
                 self.assertIn(fragment, source)
                 self.assertIn(fragment, playbook)
+
+    # 3b882 fix round 11 (round 10 agy-B F1): for a tool other than Bash the hook read only the
+    # tool name, owner and repo, so an MCP GraphQL query or REST endpoint naming grc_library_new
+    # and a merge was allowed. It now reads every string value of tool_input, nested ones included.
+    MCP_GRAPHQL = "mcp__github__graphql"
+    MCP_REST = "mcp__github__call_rest_api"
+
+    def test_h1_mcp_graphql_merge_mutation_naming_grc_library_new_is_refused(self):
+        merge = "mutation($id:ID!){mergePullRequest(input:{pullRequestId:$id}){clientMutationId}}"
+        auto = ("mutation($id:ID!){enablePullRequestAutoMerge(input:{pullRequestId:$id,"
+                "mergeMethod:SQUASH}){clientMutationId}}")
+        for tool_input in (
+                dict(query=merge, variables=dict(owner="jposluns", name="grc_library_new", id="PR_x")),
+                dict(query=auto, variables=dict(owner="jposluns", name="GRC_Library_New", id="PR_x")),
+                dict(query='query{repository(owner:"jposluns",name:"grc_library_new"){id}} ' + merge),
+                dict(requests=[dict(query=merge, variables=dict(repo="jposluns/grc%5Flibrary_new"))])):
+            with self.subTest(tool_input=tool_input):
+                self._refused(dict(tool_name=self.MCP_GRAPHQL, tool_input=tool_input))
+
+    def test_h1_mcp_rest_merges_endpoint_naming_grc_library_new_is_refused(self):
+        for tool_input in (
+                dict(method="POST", endpoint="repos/jposluns/grc_library_new/merges",
+                     body=dict(base="main", head="feature")),
+                dict(method="POST", endpoint="/repos/%s/merges" % self.NEW),
+                dict(method="PUT", endpoint="repos/jposluns/grc_library_new/pulls/33/merge",
+                     body=dict(merge_method="squash")),
+                dict(method="POST", endpoint="repos/{owner}/{repo}/merges",
+                     params=dict(owner="jposluns", repo="grc_library_new"))):
+            with self.subTest(tool_input=tool_input):
+                self._refused(dict(tool_name=self.MCP_REST, tool_input=tool_input))
+
+    def test_h2_mcp_graphql_and_rest_merges_naming_another_repository_are_allowed(self):
+        merge = "mutation($id:ID!){mergePullRequest(input:{pullRequestId:$id}){clientMutationId}}"
+        for tool, tool_input in (
+                (self.MCP_GRAPHQL, dict(query=merge, variables=dict(owner="jposluns",
+                                                                    name="grc_library", id="PR_x"))),
+                (self.MCP_REST, dict(method="POST", endpoint="repos/jposluns/grc_library/merges",
+                                     body=dict(base="main", head="feature"))),
+                (self.MCP_REST, dict(method="PUT", endpoint="repos/jposluns/grc_library/pulls/3200/merge",
+                                     body=dict(merge_method="squash")))):
+            with self.subTest(tool=tool, tool_input=tool_input):
+                self._allowed(dict(tool_name=tool, tool_input=tool_input))
 
     def test_h4_hook_reads_nothing_and_parses_no_shell(self):
         import ast

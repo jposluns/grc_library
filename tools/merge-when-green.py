@@ -421,7 +421,8 @@ def open_findings_block(root, ledger=None) -> tuple[int, str]:
     shell command text, which a merge through this tool can evade in many shell forms; checking here
     makes the rule hold for every invocation. It reuses the hook's parse and decision functions, so the
     two can never disagree. No hook file (an adopter checkout) or no readable ledger allows, matching the
-    hook's fail-open posture; a hook file that exists but cannot be loaded REFUSES (ignorance refuses)."""
+    hook's fail-open posture; a hook file that exists but cannot be loaded REFUSES (ignorance refuses).
+    It reads the ledger once and judges that same text with parse_open_rows and decide_exit."""
     import contextlib
     import importlib.util
     import io

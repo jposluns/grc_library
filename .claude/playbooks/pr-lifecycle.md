@@ -170,12 +170,15 @@ drive end-to-end on the maintainer's behalf:
    that does not name grc_library_new (such as `python3 ./tools/merge-grc-library-new.py N`
    from a grc_library checkout) is allowed, since the tool's own hyphenated name does not name
    grc_library_new. When a directory of the payload cwd is named grc_library_new, it also
-   refuses the sanctioned command (a parent directory whose name only contains
-   grc_library_new, such as `/home/grc_library_new_fan/grc_library`, does not refuse it);
-   when the payload cwd names grc_library_new anywhere, it refuses any command that names
-   tools/ together with a glob character (`*`, `?` or `[`), since its relative tools/ path
-   would run that clone's copy of the tool; that also refuses such a command that runs no
-   merge, such as `ls tools/*.py`. It matches text only, so it also
+   refuses the sanctioned command, since its relative tools/ path would run that clone's copy
+   of the tool (a parent directory whose name only contains grc_library_new, such as
+   `/home/grc_library_new_fan/grc_library`, does not refuse it); when the payload cwd names
+   grc_library_new anywhere, it refuses any command that names tools/ together with a glob
+   character (`*`, `?` or `[`), since, when the cwd is a grc_library_new clone, the shell's
+   pathname expansion can reach that clone's copy of the tool. That check reads the cwd as
+   text, so it also refuses such a command from a directory whose name only contains
+   grc_library_new, where no such clone is involved, and one that runs no merge, such as
+   `ls tools/*.py`. It matches text only, so it also
    refuses commit messages, greps, echo and heredoc bodies that name both, and its refusal
    names what it does not close (the sanctioned relative command runs the copy of the tool
    in the cwd, from any checkout, such as a grc_library worktree on an unmerged branch or a
@@ -186,7 +189,10 @@ drive end-to-end on the maintainer's behalf:
    such as `t*/` in place of tools/, a glob run from a cwd inside tools/, or an extended glob
    when extglob is on;
    gh aliases that hide pr merge; a merge run from a grc_library_new clone when the payload
-   cwd is elsewhere and the text names neither; MCP merge tools under other names; merges
+   cwd is elsewhere and the text names neither; MCP merge tools under other names (the hook
+   is registered in `.claude/settings.json` only for Bash and
+   `mcp__github__merge_pull_request`, so an MCP GraphQL or REST tool call under another name
+   does not run it); merges
    from the web UI, from other machines or from other accounts; direct pushes to main; a
    merge queue entry (a GraphQL
    `enqueuePullRequest`), even one that names grc_library_new; GitHub completing an

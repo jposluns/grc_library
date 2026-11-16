@@ -430,7 +430,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertIsNone(self.mod._pr_lead(31, retro=True).match(form + " (/retro)"))
                 self.assertIsNone(self.mod._pr_lead(31, retro=True).match("#31 (/retro)" + tail))
 
-    def test_row_present_accepts_a_lead_that_ends_with_the_pr_number(self):
+    def test_row_present_accepts_the_lead_ends_and_a_retro_row_needs_the_retro_suffix(self):
         # 3b882 fix round 10 (round 9 agy-A F1): the accepted ends of the lead, a space, a closing
         # bracket or the end of the cell, and the (/retro) suffix after #31 in the retro register.
         self.assertTrue(self.mod.row_present(VALIDATE_ROW, 31, retro=False))
