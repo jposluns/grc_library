@@ -1009,8 +1009,9 @@ class LanguageLinterTests(LinterTestCase):
                 self.assertNotIn("authorisations", result.stdout + result.stderr)
 
     def test_url_mask_closer_before_punctuation_flagged(self) -> None:
-        # Prose after a closing "_" / "__" followed by punctuation that a URL
-        # path could hold ("#", "-", "&", "$") is outside the token.
+        # Prose after a closing "_" / "__" followed by punctuation that the URL
+        # token otherwise continues through ("-", "&" and "$" in a path, "#" as
+        # the start of a fragment) is outside the token.
         for index, body in enumerate((
                 "See _https://x.org/a_#organisations here.\n",
                 "See __https://x.org/a__-organisations here.\n",
@@ -1021,6 +1022,20 @@ class LanguageLinterTests(LinterTestCase):
                     f"standard-url-closer-punctuation-{index}.md", VALID_METADATA + "\n\n" + body)
                 self.assertLinterFails(
                     run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] organisations")
+        # The URL before the closing delimiter is still masked: a word the rule
+        # would flag in prose sits in its path and is not reported, so the case
+        # above fails for the delimiter, not because no URL was masked.
+        for index, body in enumerate((
+                "See _https://x.org/authorisations_#organisations here.\n",
+                "See __https://x.org/authorisations__-organisations here.\n",
+                "See _https://x.org/authorisations_&organisations here.\n",
+                "See __https://x.org/authorisations__$organisations here.\n")):
+            with self.subTest(body=body, masked="authorisations"):
+                fixture = self.make_fixture(
+                    f"standard-url-closer-punctuation-masked-{index}.md", VALID_METADATA + "\n\n" + body)
+                result = run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture)
+                self.assertLinterFails(result, "[isation] organisations")
+                self.assertNotIn("authorisations", result.stdout + result.stderr)
 
     def test_spelling_word_bounded_by_letters_flagged(self) -> None:
         # The spelling checks bound a word by ASCII letters, not \b, so a word in
@@ -43471,7 +43486,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-todo-index-reference-parity.py OWN F 46ffb499a50fa6b5d64ac594776e5a26ad4e3c696fc48d8b5e4fc8b4646a2b22
         lint-todo-list-tag.py OWN F 10ee5371268378b28c9097a588515231d625ab63b5e5b1b9f3533f4d85db9b2d
         lint-todo-marked-done.py ROOT F 9d5f28f83917e26a4cd0bffde756fded4a2bf4259b809472bc1757a6dbc1b212
-        lint-todo-number-permanence.py OWN F 1590135b4ac58f3b1ed3d209c1bf17674bd2c851ff588aaa4e3e6e1327cf8153
+        lint-todo-number-permanence.py OWN F 630435005f78b9509ad5a4c8d4e4a2314d999778f99fe62c4935391908ca6e22
         lint-todo-staleness.py NO_FS F 6a89123607678239f036cab7bf02e0a0885216f55ba0b23fb53799e30c40cffb
         lint-tooling-backlog-refs.py OWN F be54fcdef171bc30e7d0393ca2c097904f464cad7bde9a233f7ee663edd741a5
         lint-tooling-provenance-freshness.py OWN F ab5b885be8a4a7af28e6c441ea4439cc32ce553a6167946ec40d49f50f0f6b02
@@ -58916,6 +58931,78 @@ class TodoNumberPermanenceTests(LinterTestCase):
             with self.subTest(accepted=label):
                 root, result = self._run("perm-pexempt-form-ok", todo, self.PEXEMPT_DONE,
                                          ptodo=self.PEXEMPT_PTODO, pexempt={"rows": rows})
+                try:
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                finally:
+                    shutil.rmtree(root, ignore_errors=True)
+
+    def test_private_exempt_marker_binds_to_the_retirement_headings(self) -> None:
+        """A loaded marker is checked against the retirement headings the gate reads for
+        its id. It exits 2 naming the row when it is found in a heading that holds only the
+        id and the 'PR #<n>:' prefix, when it matches none of the id's retirement headings,
+        or when it matches every one of two or more of them and is not in the family form
+        (the id, one space and one word starting with a letter, as in 'P-9.3 Phase'). A
+        value date that is not a calendar date exits 2 naming the row."""
+        todo = "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n"
+        value = "date not recorded; heading: x"
+        ptodo93 = "# P-TODO\n\n### P-9.3 A live umbrella\n\nBody.\n"
+        two_bang = ("# DONE\n\n### PR #1: P-9.3 phase one done! (2026-08-01)\n\nBody.\n\n"
+                    "### PR #2: P-9.3 phase two done! (2026-08-02)\n\nBody.\n")
+        two_dash = ("# DONE\n\n### PR #1: P-9.3 \u2014 phase one (2026-08-01)\n\nBody.\n\n"
+                    "### PR #2: P-9.3 \u2014 phase two (2026-08-02)\n\nBody.\n")
+        two_family = ("# DONE\n\n### PR #1: P-9.3 Phase 1 slice (2026-08-01)\n\nBody.\n\n"
+                      "### PR #2: P-9.3 Phase 2 slice (2026-08-02)\n\nBody.\n")
+        one_160 = "# DONE\n\n### PR #10: P-1.60 part 1 rollout (2026-08-01)\n\nBody.\n"
+        ptodo160 = "# P-TODO\n\n### P-1.60 A live umbrella\n\nBody.\n"
+        generic = "holds no text beyond the id and the 'PR #<n>:' heading prefix"
+        every = "matches every one of the 2 retirement headings the gate reads for P-9.3"
+        bad_date = "has a date that is not a calendar date"
+        for label, done, ptodo, row, reason in (
+                ("a fragment of the heading prefix", self.PEXEMPT_DONE, self.PEXEMPT_PTODO,
+                 ["P-9.3", "R #", value], generic),
+                ("a numbered heading prefix", self.PEXEMPT_DONE, self.PEXEMPT_PTODO,
+                 ["P-9.3", "PR #1423:", value], "a pull request number names the pull request"),
+                ("a part of the id found in every heading", one_160, ptodo160,
+                 ["P-1.60", "1", value], generic),
+                ("punctuation found in every heading", two_bang, ptodo93,
+                 ["P-9.3", "!", value], every),
+                ("the id and a dash found in every heading", two_dash, ptodo93,
+                 ["P-9.3", "P-9.3 \u2014", value], every),
+                ("a word found in every heading, not in the family form", two_family, ptodo93,
+                 ["P-9.3", "slice", value], every),
+                ("a marker found in no heading", self.PEXEMPT_DONE, self.PEXEMPT_PTODO,
+                 ["P-9.3", "no such text", value],
+                 "matches none of the 1 retirement heading(s) the gate reads for P-9.3"),
+                ("an impossible month", self.PEXEMPT_DONE, self.PEXEMPT_PTODO,
+                 ["P-9.3", "P-9.3 Phase", "2026-13-45; heading: P-9.3 Phase"], bad_date),
+                ("an all-zero date", self.PEXEMPT_DONE, self.PEXEMPT_PTODO,
+                 ["P-9.3", "P-9.3 Phase", "0000-00-00; heading: P-9.3 Phase"], bad_date),
+                ("a day past the month's end", self.PEXEMPT_DONE, self.PEXEMPT_PTODO,
+                 ["P-9.3", "P-9.3 Phase", "2026-02-30; heading: P-9.3 Phase"], bad_date)):
+            with self.subTest(refused=label):
+                root, result = self._run("perm-pexempt-bind", todo, done, ptodo=ptodo,
+                                         pexempt={"rows": [row]})
+                try:
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                    self.assertIn("ERROR: cannot parse ", result.stderr)
+                    self.assertIn("row 1 ", result.stderr)
+                    self.assertIn(reason, result.stderr)
+                    self.assertNotIn("OK:", result.stdout)
+                finally:
+                    shutil.rmtree(root, ignore_errors=True)
+        for label, done, ptodo, rows in (
+                ("the family form matching every heading", two_family, ptodo93,
+                 [["P-9.3", "P-9.3 Phase", value]]),
+                ("one marker per heading", two_family, ptodo93,
+                 [["P-9.3", "Phase 1 slice", value], ["P-9.3", "Phase 2 slice", value]]),
+                ("own text of the one heading", one_160, ptodo160,
+                 [["P-1.60", "rollout", value]]),
+                ("a leap day", self.PEXEMPT_DONE, self.PEXEMPT_PTODO,
+                 [["P-9.3", "P-9.3 Phase", "2024-02-29; heading: P-9.3 Phase"],
+                  self.PEXEMPT_FIXTURE["rows"][1]])):
+            with self.subTest(accepted=label):
+                root, result = self._run("perm-pexempt-bind-ok", todo, done, ptodo=ptodo,
+                                         pexempt={"rows": rows})
                 try:
                     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                 finally:

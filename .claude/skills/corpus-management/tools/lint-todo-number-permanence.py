@@ -260,6 +260,7 @@ import argparse
 import os
 import re
 import sys
+from datetime import date as _date
 from pathlib import Path
 
 from lint_common import InaccessiblePath, print_degraded, resolve_working, resolve_sibling, require_dir, strict_kind
@@ -684,38 +685,83 @@ PRIVATE_EXEMPT: dict[tuple[str, str], str] = {}
 # The documented row forms: the id is a private backlog id, and the value is
 # '<date>; heading: <substring>' or 'date not recorded; heading: <substring>'.
 _PEXEMPT_ID_RE = re.compile(r"P-\d+(?:\.\d+){1,2}[a-z]?")
-_PEXEMPT_VALUE_RE = re.compile(r"(?:\d{4}-\d\d-\d\d|date not recorded); heading: .*\S.*")
-# A marker token that is part of the 'PR #<n>:' heading prefix.
-_PEXEMPT_PREFIX_TOKEN_RE = re.compile(r"(?:PR|#\d*:?|PR#\d*:?)")
+_PEXEMPT_VALUE_RE = re.compile(r"(?P<date>\d{4}-\d\d-\d\d|date not recorded); heading: .*\S.*")
+# The lead of a retirement heading before the id: '### ' and an optional 'PR #<n>:' prefix.
+_PEXEMPT_HEADING_LEAD_RE = re.compile(r"### (?:PR ?#\d+:? )?")
+_PEXEMPT_PR_NUMBER_RE = re.compile(r"PR ?#(\d+)")
 
 
-def _marker_has_own_text(item_id: str, marker: str) -> bool:
-    """True when ``marker`` holds a token that is neither part of ``item_id`` nor part
-    of the 'PR #<n>:' heading prefix. Every retirement heading of an id carries the id
-    and, usually, that prefix, so a marker made only of them would match each one."""
-    for token in marker.split():
-        token = token.strip(":,;.()")
-        if not token or token in item_id or _PEXEMPT_PREFIX_TOKEN_RE.fullmatch(token):
-            continue
-        return True
-    return False
+def _family_form(item_id: str, marker: str) -> bool:
+    """The documented family form: the id, one space and one word that starts with an
+    ASCII letter and holds only ASCII letters, digits and inner hyphens ('P-9.3 Phase').
+    A family row names a batch of the same id's partial closes, so it alone may match
+    every retirement heading of its id."""
+    return re.fullmatch(re.escape(item_id) + r" [A-Za-z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)*",
+                        marker) is not None
 
 
-def _load_private_exempt(text: str) -> dict[tuple[str, str], str]:
+def _generic_headings(item_id: str, headings: "list[str]") -> "list[str]":
+    """Headings that hold nothing beyond the id and the heading prefix: '### <id>' and
+    '### PR #<n>: <id>', followed by a space or a colon, for a placeholder pull request
+    number and for each heading lead and pull request number found in ``headings``. A
+    marker found in one of these is found in a retirement heading that has no text of
+    its own, so it does not tell one retirement of the id from another."""
+    leads = {"### ", "### PR #0: "}
+    for heading in headings:
+        lead = _PEXEMPT_HEADING_LEAD_RE.match(heading)
+        if lead:
+            leads.add(lead.group(0))
+        for number in _PEXEMPT_PR_NUMBER_RE.findall(heading):
+            leads.add(f"### PR #{number}: ")
+    return [lead + item_id + end for lead in sorted(leads) for end in (" ", ":")]
+
+
+def _check_marker_binding(n: int, item_id: str, marker: str, headings: "list[str]") -> None:
+    """Refuse row ``n`` unless its marker binds to the retirement headings the gate reads
+    for ``item_id`` (``headings``) the way an exemption must: it is not found in a heading
+    that holds only the id and the 'PR #<n>:' prefix, it matches at least one of
+    ``headings`` when the id has any, and it does not match every one of them when the id
+    has two or more, unless the row is in the family form (``_family_form``). A row for an
+    id with no retirement heading exempts nothing yet, so only the first rule applies."""
+    if any(marker in generic for generic in _generic_headings(item_id, headings)):
+        raise ValueError(
+            f"row {n} heading marker {marker!r} holds no text beyond the id and the "
+            f"'PR #<n>:' heading prefix: it is found in a heading that holds only those, "
+            f"so it would match every retirement heading of {item_id} (a pull request "
+            f"number names the pull request, which can record more than one entry for "
+            f"the same id, not the entry)")
+    if not headings:
+        return
+    hits = sum(1 for heading in headings if marker in heading)
+    if hits == 0:
+        raise ValueError(
+            f"row {n} heading marker {marker!r} matches none of the {len(headings)} "
+            f"retirement heading(s) the gate reads for {item_id}")
+    if len(headings) >= 2 and hits == len(headings) and not _family_form(item_id, marker):
+        raise ValueError(
+            f"row {n} heading marker {marker!r} matches every one of the {len(headings)} "
+            f"retirement headings the gate reads for {item_id} and is not in the family "
+            f"form '<id> <word>'")
+
+
+def _load_private_exempt(text: str, done_text: "str | None" = None) -> dict[tuple[str, str], str]:
     """Parse the private exemption file: a JSON object whose ``rows`` member is a list of
     ``[id, distinctive heading substring, value]`` string triples. Raises ``ValueError``
     naming the first malformed part (guards against a malformed row silently exempting
     nothing, or everything). A field that is empty or only whitespace is malformed: a
     whitespace-only heading substring occurs in ordinary headings, so it would exempt
     every retirement of its id. So is a row outside the documented form: an id that is
-    not a private backlog id, a value that is not '<date>; heading: <substring>', and a
-    heading marker with no text beyond the id and the 'PR #<n>:' heading prefix (the id,
-    a part of it or the prefix is found in every retirement heading of that id)."""
+    not a private backlog id, and a value that is not '<date>; heading: <substring>' or
+    whose date is not a calendar date. With ``done_text`` (the DONE.md the gate reads,
+    empty when there is none), each marker is checked against the retirement headings
+    the gate reads for its id (``_check_marker_binding``)."""
     import json
     data = json.loads(text)
     if not isinstance(data, dict) or not isinstance(data.get("rows"), list):
         raise ValueError("the file is not a JSON object with a 'rows' list")
     rows: dict[tuple[str, str], str] = {}
+    retired = parse_retired(done_text) if done_text is not None else {}
+    headings = done_headings(done_text) if done_text is not None else {}
     for n, row in enumerate(data["rows"], 1):
         if (not isinstance(row, list) or len(row) != 3
                 or not all(isinstance(part, str) for part in row)):
@@ -726,12 +772,20 @@ def _load_private_exempt(text: str) -> dict[tuple[str, str], str]:
         item_id, marker, value = row
         if not _PEXEMPT_ID_RE.fullmatch(item_id):
             raise ValueError(f"row {n} id {item_id!r} is not a private backlog id (P-<n>.<m>)")
-        if not _PEXEMPT_VALUE_RE.fullmatch(value):
+        value_form = _PEXEMPT_VALUE_RE.fullmatch(value)
+        if not value_form:
             raise ValueError(f"row {n} value {value!r} is not in the "
                              "'<date>; heading: <substring>' form")
-        if not _marker_has_own_text(item_id, marker):
-            raise ValueError(f"row {n} heading marker {marker!r} holds no text beyond the id "
-                             "and the 'PR #<n>:' heading prefix")
+        if value_form.group("date") != "date not recorded":
+            try:
+                _date.fromisoformat(value_form.group("date"))
+            except ValueError:
+                raise ValueError(f"row {n} value {value!r} has a date that is not a "
+                                 "calendar date") from None
+        if done_text is not None:
+            _check_marker_binding(n, item_id, marker,
+                                  [headings.get(ln, "") for ln in
+                                   sorted(set(retired.get(item_id, [])))])
         rows[(item_id, marker)] = value
     return rows
 
@@ -978,7 +1032,7 @@ def main(argv: list[str]) -> int:
     PRIVATE_EXEMPT = {}
     if pexempt_text is not None:
         try:
-            PRIVATE_EXEMPT = _load_private_exempt(pexempt_text)
+            PRIVATE_EXEMPT = _load_private_exempt(pexempt_text, done_text)
         except ValueError as exc:
             print(f"ERROR: cannot parse {pexempt_path}: {exc}.", file=sys.stderr)
             return 2
