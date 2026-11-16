@@ -932,10 +932,20 @@ class LanguageLinterTests(LinterTestCase):
 
     def test_url_mask_emphasis_comma_digit_upper_label_bad_query_key_nested_colon_and_paren_flagged(self) -> None:
         """Prose after a closing "_" or "__" emphasis delimiter, path text after
-        a comma and a digit run before "/", an all-uppercase label glued to a
-        lowercase host, a query whose key is followed by an invalid escape, a non-scheme
-        "://" and text after ",)" inside parentheses are outside the URL token
-        and still flagged.
+        a comma and a digit run before "/", an all-uppercase label after a host
+        label with a lowercase letter, a query whose key is followed by an invalid
+        escape, a non-scheme "://" and text after ",)" inside parentheses are
+        outside the URL token and still flagged.
+
+        The host case follows the gate's host rule: an all-uppercase top-level
+        label is accepted only when no host label holds a lowercase letter, so
+        in "ico.org.uk.ORGANISATIONS" the host ends at ".uk" and
+        ".ORGANISATIONS" is checked as prose. The rule does not tell a word
+        from a real top-level label, so a real all-uppercase top-level label
+        after a host label with a lowercase letter is checked the same way (an
+        under-mask that fails safe as a false positive), while a host written
+        wholly in capitals, such as "X.ORG.UK", is masked with its uppercase
+        label.
 
         The query case follows the gate's own token rule: "?" continues the
         token only when "a query key, any run (possibly empty) of letters,
@@ -43272,7 +43282,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         README.md DATA F 67fe21d3b7f132009e1e6e14899a090f897ede778d89cea59053ca2f3e20ced7
         adopt-bootstrap-ref.py OWN F ec19e2c45233ad02ca422349c0778a3c17463e6fc23fe9bf0591d822ac8d531c
         adopt-preflight-guard.py FIXED F 73ab980af0fa53c8a485af18b7bdaee1b7bfef218c37982593e30c66d7f85f66
-        aiqt_bootstrap.py PASSIVE F 7983ebe474dde8114bf93cf96fac9db4b00d5d2831c3175fdda8a393b602b4af
+        aiqt_bootstrap.py PASSIVE F acd00711161471af6622fca1126aa7235d5725e33bbace8e74666e17d8b4de87
         aiqt_rules.py NO_FS F dda2a6a5a217513fc2848e59029e111402fe85e8e765d6b9de7186bd8d9472d9
         alignment-register-aliases.json DATA F 7d9b0be1db9dcc1f81870c96309e2837cdf7da6fc16a78ea4f4b4ccca4e7b7e8
         alignment-register-exclusions.json DATA F 391924062319d3d5a618b1750b37dec6c0ee0c0d21b77b26518b16e51a418f19

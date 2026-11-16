@@ -781,8 +781,14 @@ def _pack_tools_entry(entry: str) -> bool:
     (guards against a TypeError out of the scrub on a non-str entry). An entry
     the filesystem refuses to inspect -- an ``OSError``, or a ``ValueError``
     such as an embedded NUL byte -- is reported unmatched instead of raising
-    out of the scrub; the masquerade scan then refuses that unresolvable
-    entry with ``ImportError``. The empty entry is resolved against the
+    out of the scrub. The masquerade scan refuses with ``ImportError`` only
+    an entry for which ``PathFinder`` itself raises ``OSError`` or
+    ``ValueError``, such as an entry with an embedded NUL byte (a
+    ``ValueError``). An entry the scan cannot stat -- a missing path, a
+    path component too long for the filesystem (``ENAMETOOLONG``) or a
+    symlink loop (``ELOOP``) -- is skipped by the scan without an error, so
+    ``ensure_on_path`` completes with that entry still on ``sys.path``.
+    The empty entry is resolved against the
     current working directory, exactly like ``.``, and matched by the
     same rule (guards against an unscrubbed empty sys.path entry)."""
     if not isinstance(entry, str):
@@ -1151,9 +1157,12 @@ def ensure_on_path() -> Path:
     planted file), which could masquerade as the vendored module for tooling
     that inspects the import system -- that scan reads ``sys.path`` directly
     through ``importlib.machinery.PathFinder``, bypassing the name guard,
-    and an entry the scan cannot inspect (one with an embedded NUL byte,
-    for example) refuses with ``ImportError`` too, never a raw
-    ``ValueError`` (guards against an unresolvable sys.path entry).
+    and an ``OSError`` or ``ValueError`` the scan raises (an entry with an
+    embedded NUL byte raises ``ValueError``) refuses with ``ImportError``
+    too, never the raw exception (guards against an unresolvable sys.path
+    entry); an entry the scan skips without an error, such as a missing
+    path, a path component too long for the filesystem or a symlink loop,
+    stays on ``sys.path`` and is not refused.
 
     When ``aiqt_corpus`` is not already installed, the captured verified
     bytes are executed into a fresh unpublished module with NO import lock
