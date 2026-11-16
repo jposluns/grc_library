@@ -42,7 +42,8 @@ through gh():
    itself allows an absent hook, an unreadable ledger and an unparseable one).
 1. ``gh pr view`` must report the PR OPEN on base ``main``, its own number and URL in
    grc_library_new, and a 40-character lowercase hex head SHA, which is pinned from here on.
-2. Decision D3: the title must end with the ``(CalVer <v>, README <v>)`` suffix.
+2. Decision D3: the title must end with the ``(CalVer <v>, README <v>)`` suffix and hold no
+   control, line-breaking or format character (Unicode category Cc, Zl, Zp or Cf).
 3. Decision D5: the Actions runs for the pinned head SHA are read, and the latest
    ``pull_request`` run of every workflow in REQUIRED_WORKFLOWS, from its own file in
    WORKFLOW_PATHS, must be completed with conclusion success; a pending, failed, missing or
@@ -58,8 +59,9 @@ through gh():
    file is read back: its last line must equal the row. A failed append or read-back exits 3
    and prints the row to standard error, to be added by hand. ``--dry-run`` and
    ``--check-rows`` never write. In each cell every backslash and every pipe is escaped with a
-   backslash, and every line-breaking or other control character becomes a space, so the row is
-   always one line of six cells.
+   backslash, and every line-breaking, other control or format character (category Cf, such
+   as a bidi override or a zero-width space) becomes a space, so the row is always one line
+   of six cells and shows what it holds.
 
 Usage:
     python3 tools/merge-grc-library-new.py <PR> [--dry-run]
@@ -413,11 +415,13 @@ def _describe(exc: BaseException) -> str:
 
 def title_has_suffix(title: str) -> bool:
     """Decision D3: the title ends with " (CalVer <v>, README <v>)" (ASCII digits, one line). A
-    title holding any control or line-breaking character (Unicode category Cc, Zl or Zp: a
-    newline, carriage return, vertical tab, form feed, NEL, U+2028 or U+2029 among them) is
-    refused (3b882 fix round 7)."""
+    title holding any control, line-breaking or format character (Unicode category Cc, Zl, Zp
+    or Cf: a newline, carriage return, vertical tab, form feed, NEL, U+2028 or U+2029 (3b882 fix
+    round 7), and a bidi override or isolate such as U+202E or U+2066, a zero-width space
+    U+200B, a byte order mark U+FEFF or a soft hyphen U+00AD (3b882 fix round 8) among them) is
+    refused, so the squash subject and the admin-merge log row show what they hold."""
     return (isinstance(title, str) and _TITLE.fullmatch(title) is not None
-            and not any(unicodedata.category(c) in ("Cc", "Zl", "Zp") for c in title))
+            and not any(unicodedata.category(c) in ("Cc", "Zl", "Zp", "Cf") for c in title))
 
 
 def message_trailers(message: str) -> list[str]:
@@ -605,13 +609,14 @@ def open_findings(root: Path, ledger=None) -> tuple[int, str]:
 def _cell(text: str) -> str:
     """One log-row cell: a backslash or pipe is escaped (GFM reads only an unescaped pipe as a
     cell boundary, so a bare backslash before a pipe would otherwise unescape it), and every
-    control or line-separator character, all that str.splitlines() breaks on included, becomes
+    control or line-separator character, all that str.splitlines() breaks on included, and
+    every format character (category Cf, such as U+202E or U+200B; 3b882 fix round 8) becomes
     a space."""
     out = []
     for char in str(text):
         if char in "\\|":
             out.append("\\" + char)
-        elif unicodedata.category(char) in ("Cc", "Zl", "Zp"):
+        elif unicodedata.category(char) in ("Cc", "Zl", "Zp", "Cf"):
             out.append(" ")
         else:
             out.append(char)
@@ -683,7 +688,7 @@ def run_merge(pr: int, *, root: Path, gh, dry_run: bool = False, sleep=time.slee
         problems.append(f"head {head!r} is not a 40-character lowercase hex SHA")
     if not title_has_suffix(title):
         problems.append(f"title {title!r} lacks the (CalVer <v>, README <v>) suffix or holds a "
-                        "control or line-breaking character (decision D3)")
+                        "control, line-breaking or format character (decision D3)")
     if problems:
         for line in problems:
             err(f"REFUSED: {line}")
@@ -797,16 +802,25 @@ def self_test() -> int:
         ("title without suffix", title_has_suffix("x (CalVer 2026.11.69)"), False),
         ("title with a carriage return", title_has_suffix("x\ry (CalVer 2026.11.69, README 1.11.919)"),
          False),
+        ("title with a right-to-left override",
+         title_has_suffix("x\u202ey (CalVer 2026.11.69, README 1.11.919)"), False),
+        ("title with a zero-width space",
+         title_has_suffix("x\u200by (CalVer 2026.11.69, README 1.11.919)"), False),
         ("co-authored trailer", message_trailers("s\n\nb\n\nCo-authored-by: a <b>"),
          ["Co-authored-by: a <b>"]),
         ("clean message", message_trailers("content: s\n\nSquash merge of #31 at abc."), []),
         ("cell escapes backslash and pipe", _cell("a \\| b"), "a \\\\\\| b"),
         ("cell blanks line separators", _cell("a\u2028b\x85c\vd\re"), "a b c d e"),
+        ("cell blanks format characters", _cell("a\u202eb\u200bc\ufeffd\u00ade"), "a b c d e"),
         ("log: real shape", log_shape_problem(log_shape), ""),
         ("log: header only", log_shape_problem(LOG_HEADER + "\n"), ""),
         ("log: no table header", "no table header" in log_shape_problem("# t\n\nprose\n"), True),
-        # 3b882 fix round 6 (round 5 agy-A F3): a table header, then no table line after it.
-        ("log: no table line",
+        # 3b882 fix round 8 (round 7 agy-A F2): a title and a table header, then no table line.
+        # The header is the last non-blank line and a table line with no blank line after it, so
+        # log_shape_problem accepts it (no problem), as it accepts a header-only log.
+        ("log: no table line", log_shape_problem("# t\n\n" + LOG_HEADER + "\n"), ""),
+        # 3b882 fix round 6 (round 5 agy-A F3): prose after the header is not a table line.
+        ("log: prose after the header",
          "is not a table line" in log_shape_problem("# t\n\n" + LOG_HEADER + "\n\nprose\n"), True),
         ("log: first table line differs",
          "is not" in log_shape_problem("| a | b | c |\n" + log_shape), True),

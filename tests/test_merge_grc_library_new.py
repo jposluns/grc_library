@@ -381,11 +381,11 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         code, out, err = self.merge(fake)
         self.assertIn("a \\\\\\| b", out)
 
-    def test_T5_line_breaking_title_characters_keep_one_row(self):
-        # Every character str.splitlines() treats as a line boundary, and any other control
-        # character, becomes a space in a cell, so the row stays one line of six cells. A title
-        # holding one fails the D3 title check (3b882 fix round 7), so it is refused before any
-        # merge call and no row is printed.
+    def test_T5_title_suffix_refuses_line_breaking_characters(self):
+        # 3b882 fix round 8 (round 7 agy-B F2): this checks the D3 title suffix refusal of every
+        # character str.splitlines() treats as a line boundary, and of other control characters
+        # (3b882 fix round 7): such a title is refused before any merge call, so no row is
+        # printed. It also checks that _cell turns the same character into a space.
         for char in ("\n", "\v", "\f", "\x1c", "\x1d", "\x1e", "\x85", "\u2028", "\u2029",
                      "\r", "\x00", "\x1b"):
             with self.subTest(char=repr(char)):
@@ -479,6 +479,42 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                     self.assertEqual(code, 1, err)
                     self.assertIn("CalVer", err)
                     self.assertEqual((out, fake.merge_calls()), ("", []))
+
+    # 3b882 fix round 8 (round 7 claude F1): format characters (Unicode category Cf).
+    FORMAT_CHARACTERS = ("\u202e", "\u200b", "\u2066", "\ufeff", "\u00ad", "\u200e", "\u200f",
+                         "\u2067", "\u2068", "\u2069", "\u202a", "\u202d", "\u061c", "\u200d")
+
+    def test_T6_title_with_a_format_character_refused_before_merge(self):
+        # A bidi override or isolate, a zero-width space or joiner, a byte order mark or a soft
+        # hyphen would reach the squash subject and the admin-merge log row unchanged, where it
+        # can make them display other than what they hold; the D3 check refuses each one,
+        # anywhere in the title.
+        import unicodedata
+        for char in self.FORMAT_CHARACTERS:
+            self.assertEqual(unicodedata.category(char), "Cf", repr(char))
+            for title in (f"content: a{char}b (CalVer 2026.11.69, README 1.11.919)",
+                          f"{char}content: ab (CalVer 2026.11.69, README 1.11.919)",
+                          f"content: ab (CalVer 2026.11.69, README 1.11.919){char}"):
+                with self.subTest(char=repr(char), title=repr(title)):
+                    self.assertFalse(self.mod.title_has_suffix(title))
+                    fake = FakeGh(view={"title": title})
+                    code, out, err = self.merge(fake)
+                    self.assertEqual(code, 1, err)
+                    self.assertIn("format character", err)
+                    self.assertEqual((out, fake.merge_calls()), ("", []))
+
+    def test_T5_format_characters_become_spaces_in_a_cell(self):
+        # The same characters in any other cell text become a space, so the log row shows what
+        # it holds.
+        for char in self.FORMAT_CHARACTERS:
+            with self.subTest(char=repr(char)):
+                self.assertEqual(self.mod._cell(f"a{char}b"), "a b")
+
+    def test_title_has_suffix_docstring_names_format_characters(self):
+        doc = " ".join(self.mod.title_has_suffix.__doc__.split())
+        self.assertIn("Cc, Zl, Zp or Cf", doc)
+        cell = " ".join(self.mod._cell.__doc__.split())
+        self.assertIn("format character", cell)
 
     def test_T6_title_with_suffix_allowed(self):
         for title in (TITLE, "tools: y (CalVer 2026.9.3, README 1.10.4)"):

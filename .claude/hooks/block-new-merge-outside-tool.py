@@ -15,7 +15,11 @@ Rule (plan 3b882m section 4):
   2. Otherwise exit 2 when (a) the normalized text, or the payload cwd, names
      grc_library_new and (b) the normalized text matches one of the merge patterns. The
      merge tool's name is one of them (3b882 fix round 6), so any other spelling of the
-     tool command (a trailing or doubled space, ./tools/, -I) from such a cwd refuses.
+     tool command (a trailing or doubled space, ./tools/, -I) from such a cwd refuses. From
+     any other cwd such a spelling refuses only when its text names grc_library_new (a path
+     through such a clone): the tool's own hyphenated name merge-grc-library-new does not,
+     so python3 ./tools/merge-grc-library-new.py 31 from a grc_library checkout is allowed
+     (3b882 fix round 8).
   2a. From such a cwd, a Bash command whose normalized text names tools/ together with a
      glob character (*, ? or [) also exits 2, since the shell's pathname expansion can reach
      the clone's copy of the tool (3b882 fix round 7). This over-refuses any such command,
@@ -65,8 +69,13 @@ REASON = (
     "clone, and mentions a pull-request merge, an auto-merge (GraphQL "
     "enablePullRequestAutoMerge), a branch merge (GraphQL mergeBranch) or a REST "
     "repos/<owner>/<repo>/merges call is refused, including commit messages, greps, "
-    "echo and heredoc bodies. When the payload cwd names grc_library_new, the merge tool "
-    "command itself is refused in any literal spelling, and so is any command that names "
+    "echo and heredoc bodies. The merge tool command in any literal spelling other than the "
+    "sanctioned one is refused when the payload cwd names grc_library_new or the command names "
+    "grc_library_new (a path through such a clone); from any other cwd, a spelling that does "
+    "not name grc_library_new (python3 ./tools/merge-grc-library-new.py N from a grc_library "
+    "checkout) is allowed, since the tool's own hyphenated name does not name grc_library_new. "
+    "When the payload cwd names grc_library_new, the sanctioned command is refused too, and so "
+    "is any command that names "
     "tools/ together with a glob character (*, ? or [), since its relative tools/ path would run "
     "that clone's copy of the tool; this also refuses such a command that runs no merge "
     "(an ls tools/*.py included). Residual not closed by this hook: "

@@ -57,7 +57,14 @@ Exemption layers:
     engine's regex captured the whole domain, so another local part at
     those domains, ``git`` at any other domain, and a longer domain that
     begins with ``github.com`` are reported as before (maintainer
-    decision 2026-11-15, 3b882 fix round 3).
+    decision 2026-11-15, 3b882 fix round 3). The allowance also needs
+    the match to be the whole local part (_local_part_complete): an
+    address wrapped in backticks or single quotes (a Markdown code span
+    such as `git@github.com`, or 'git@gitlab.com') is still reported,
+    because the backtick and the apostrophe are RFC 5322 local-part
+    characters, so the match may be the end of a longer local part and
+    the allowance fails closed (3b882 fix round 8). Write such an
+    address after whitespace, after ssh://, or in parentheses.
   - CHANGELOG.md is exempt because it can describe sanitization fixes
     that quote (now-removed) PII.
   - Fenced code blocks are skipped so example syntax does not produce

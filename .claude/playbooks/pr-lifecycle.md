@@ -148,21 +148,29 @@ drive end-to-end on the maintainer's behalf:
    or an unloadable check, refuses); gh reports the PR OPEN on base `main` in
    grc_library_new; the head is a 40-character lowercase hex SHA, which it pins; the title
    ends with
-   `(CalVer <v>, README <v>)`; and the latest `pull_request` runs of "Repository quality
+   `(CalVer <v>, README <v>)` and holds no control, line-breaking or format character
+   (Unicode category Cc, Zl, Zp or Cf, such as a newline, a bidi override like U+202E, a
+   zero-width space U+200B or a soft hyphen U+00AD); and the latest `pull_request` runs of "Repository quality
    checks" (`.github/workflows/quality.yml`) and "Pull request attribution"
    (`.github/workflows/pr-attribution.yml`) on that head concluded success, with no
    same-named run from any other workflow file. It then squash-merges with an
    explicit subject and body, `--match-head-commit` and `--admin`, and reads the merge commit
    back: a trailer, a message that differs from the one sent, or a parent count other than one
    exits 3 with `MERGED BUT`. It prints the admin-merge log row, PR cell
-   `#N [repo: grc_library_new]`, appends it to the log and reads it back; a failed append or
+   `#N [repo: grc_library_new]` (any control, line-breaking or format character in a cell
+   becomes a space), appends it to the log and reads it back; a failed append or
    read-back exits 3 and prints the row to add by hand. The hook
    `.claude/hooks/block-new-merge-outside-tool.py` refuses any other Bash command or
    `mcp__github__merge_pull_request` call that names grc_library_new (or runs from a
    grc_library_new clone) and mentions a pull-request merge, an auto-merge (a GraphQL
    `enablePullRequestAutoMerge`), a branch merge (a GraphQL `mergeBranch`) or a REST
-   `repos/<owner>/<repo>/merges` call. When the payload cwd names grc_library_new, it also
-   refuses the merge tool command itself in any literal spelling, and any command that names
+   `repos/<owner>/<repo>/merges` call. It refuses the merge tool command in any literal
+   spelling other than the sanctioned one when the payload cwd names grc_library_new or the
+   command names grc_library_new (a path through such a clone); from any other cwd, a spelling
+   that does not name grc_library_new (such as `python3 ./tools/merge-grc-library-new.py N`
+   from a grc_library checkout) is allowed, since the tool's own hyphenated name does not name
+   grc_library_new. When the payload cwd names grc_library_new, it also refuses the
+   sanctioned command, and any command that names
    tools/ together with a glob character (`*`, `?` or `[`), since its relative tools/ path
    would run that clone's copy of the tool; that also refuses such a command that runs no
    merge, such as `ls tools/*.py`. It matches text only, so it also
