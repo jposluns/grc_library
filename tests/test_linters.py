@@ -45800,8 +45800,8 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint_common.py PASSIVE F c3f9567cb927a4a4599fc2704a690a93d145aef8edfa2a90eb660b246aadbedd
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
-        merge-grc-library-new.py NO_FS F c6cdf1c73e2fd5bccc6101128416ae784d8c2ba76d0ebe6175dfe5b4003b9493
-        merge-when-green.py NO_FS F e9e37be72ea1b004c377a7f40af143ebc8d61ea7ed6e881f918faebc760328cf
+        merge-grc-library-new.py NO_FS F 17b806e955086f192b7ccf0c3e15a2ac915147b625bc39b5edbbae5cd07d7829
+        merge-when-green.py NO_FS F 9f59dd45329481042b04c7cc1ddb2da1edde3a4bc54b0a35e522c79603832a86
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
         pre-push-guard.sh FIXED F e082e92fe082af59cee69da9d2a329dacf1cdf4e8e4d600f4c5b6fc2ce89dabf
@@ -62376,6 +62376,37 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
                     self._refused(command, cwd=cwd)
             with self.subTest(command=command, cwd="grc_library"):
                 self._allowed(command, cwd="/home/u/grc_library")
+
+    def test_h2_glob_spellings_of_the_merge_tool_from_a_grc_library_new_clone_are_refused(self):
+        # 3b882 fix round 7 (round 6 claude F1): the shell expands a glob beside tools/ to the
+        # clone's copy of the tool, so from a grc_library_new cwd a command naming tools/ with
+        # a glob character (*, ? or [) refuses; from a grc_library cwd it stays allowed.
+        spellings = (
+            "python3 tools/merge-grc-l*-new.py 31",
+            "python3 tools/merge-grc-library-ne?.py 31",
+            "python3 tools/merge-grc-library-[n]ew.py 31",
+            "python3 tools/*-new.py 31",
+        )
+        for command in spellings:
+            for cwd in ("/home/u/grc_library_new", "/home/u/grc_library_new/tools",
+                        "/home/u/GRC_Library_New"):
+                with self.subTest(command=command, cwd=cwd):
+                    self._refused(command, cwd=cwd)
+            with self.subTest(command=command, cwd="grc_library"):
+                self._allowed(command, cwd="/home/u/grc_library")
+        # The stated over-refusal: such a command refuses even when it runs no merge.
+        self._refused("ls tools/*.py", cwd="/home/u/grc_library_new")
+        self._allowed("ls tools/*.py", cwd="/home/u/grc_library")
+        source = " ".join(self.HOOK.read_text(encoding="utf-8").replace('"\n    "', "").split())
+        playbook = (REPO_ROOT / ".claude" / "playbooks" / "pr-lifecycle.md").read_text(encoding="utf-8")
+        playbook = " ".join(playbook.split())
+        for fragment in ("names tools/ together with a glob character",
+                         "pathname expansion that reaches the merge tool without a glob character "
+                         "beside tools/"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, source)
+                self.assertIn(fragment, playbook)
+        self.assertNotIn("in any spelling, is refused", source)
 
     def test_h3_accepted_over_refusal_is_pinned_as_refused(self):
         for command in (

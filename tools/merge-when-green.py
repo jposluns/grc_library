@@ -72,7 +72,8 @@ ACTIONS_FALLBACK = {"jposluns/grc_library_ref": {"validate": ".github/workflows/
 _FALLBACK_EVENT = "pull_request"  # a required workflow counts only from a run on this event
 # The one gh failure that engages the fallback before any rollup is read (3b132 QA r1): the token cannot read
 # the rollup's contexts, so `gh pr view --json statusCheckRollup,...` exits 1 with exactly this one line on
-# stderr (the reality fixture, jposluns/grc_library_ref #181). Anything else, an added line included, is not it.
+# stderr (the reality fixture, jposluns/grc_library_ref #181). Exactly one trailing newline is removed first;
+# anything else, an added line or a second trailing newline included, is not it (3b882 fix round 7).
 _ROLLUP_FORBIDDEN = re.compile(r"GraphQL: Resource not accessible by personal access token "
                                r"\(repository\.pullRequest\.statusCheckRollup(?:\.[A-Za-z0-9_]+)*\)")
 _VIEW_FIELDS = "number,title,state,headRefOid,url"  # the PR read again without its rollup
@@ -256,14 +257,14 @@ def evaluate_runs(payload, head: str, workflows: dict) -> tuple[bool, str]:
 
 def rollup_forbidden(exc: BaseException) -> bool:
     """PURE: whether a failed gh call is exactly the rollup permission error (3b132 QA r1): exit status 1 and
-    a stderr that is that one line. Another message (an integration token's included), a path outside the
+    a stderr that is that one line, with at most one trailing newline. Another message (an integration token's included), a path outside the
     rollup, another exit status, any other output, or no captured stderr is not, and the caller then stops
     as on any gh failure.
     RESIDUE, stated: this matches the gh CLI's wording as captured in the reality fixture. A gh release that
     rewords the error, or a response carrying more than one error, is not matched, so the fallback is
     unreachable again for it: that refuses, and never merges."""
     return (isinstance(exc, subprocess.CalledProcessError) and exc.returncode == 1
-            and isinstance(exc.stderr, str) and _ROLLUP_FORBIDDEN.fullmatch(exc.stderr.rstrip("\n")) is not None)
+            and isinstance(exc.stderr, str) and _ROLLUP_FORBIDDEN.fullmatch(exc.stderr.removesuffix("\n")) is not None)
 
 
 class _Unreadable(Exception):
@@ -522,6 +523,7 @@ def _self_test_actions_fallback() -> list[tuple[str, bool]]:
     for name, exc, want in [
         ("forbidden-fixture", denied(), True),
         ("forbidden-no-trailing-newline", denied(fx.rstrip("\n")), True),
+        ("forbidden-two-trailing-newlines-not", denied(fx + "\n"), False),
         ("forbidden-rollup-root", denied(fx.split(".nodes")[0] + ")\n"), True),
         ("forbidden-integration-token-not", denied(fx.replace("personal access token", "integration")), False),
         ("forbidden-pr-path-not", denied(fx.split(".statusCheckRollup")[0] + ")\n"), False),
@@ -540,9 +542,10 @@ def _self_test_actions_fallback() -> list[tuple[str, bool]]:
          denied("GraphQL: Could not resolve to a PullRequest with the number of 181. (repository.pullRequest)\n"), False),
     ]:
         checks.append((name, rollup_forbidden(exc) == want))
-    # The rstrip carries the fixture's trailing newline: the pattern alone refuses it, so this check fails
-    # without the rstrip (3b882 fix round 3; a stderr with no trailing newline matches either way,
-    # which forbidden-no-trailing-newline above pins, restored in 3b882 fix round 4).
+    # The removesuffix carries the fixture's one trailing newline: the pattern alone refuses it, so this check
+    # fails without it (3b882 fix round 3; a stderr with no trailing newline matches either way, which
+    # forbidden-no-trailing-newline above pins, restored in 3b882 fix round 4). A second trailing newline is
+    # not removed, so forbidden-two-trailing-newlines-not above refuses it (3b882 fix round 7).
     checks.append(("forbidden-trailing-newline-stripped",
                    _ROLLUP_FORBIDDEN.fullmatch(fx) is None and rollup_forbidden(denied())))
     # gh() captures stderr, so the error can reach rollup_forbidden(): subprocess.run is stubbed here.

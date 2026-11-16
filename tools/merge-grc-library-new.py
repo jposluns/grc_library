@@ -412,8 +412,12 @@ def _describe(exc: BaseException) -> str:
 
 
 def title_has_suffix(title: str) -> bool:
-    """Decision D3: the title ends with " (CalVer <v>, README <v>)" (ASCII digits, one line)."""
-    return isinstance(title, str) and _TITLE.fullmatch(title) is not None
+    """Decision D3: the title ends with " (CalVer <v>, README <v>)" (ASCII digits, one line). A
+    title holding any control or line-breaking character (Unicode category Cc, Zl or Zp: a
+    newline, carriage return, vertical tab, form feed, NEL, U+2028 or U+2029 among them) is
+    refused (3b882 fix round 7)."""
+    return (isinstance(title, str) and _TITLE.fullmatch(title) is not None
+            and not any(unicodedata.category(c) in ("Cc", "Zl", "Zp") for c in title))
 
 
 def message_trailers(message: str) -> list[str]:
@@ -678,7 +682,8 @@ def run_merge(pr: int, *, root: Path, gh, dry_run: bool = False, sleep=time.slee
     if not (isinstance(head, str) and _HEAD.fullmatch(head)):
         problems.append(f"head {head!r} is not a 40-character lowercase hex SHA")
     if not title_has_suffix(title):
-        problems.append(f"title {title!r} lacks the (CalVer <v>, README <v>) suffix (decision D3)")
+        problems.append(f"title {title!r} lacks the (CalVer <v>, README <v>) suffix or holds a "
+                        "control or line-breaking character (decision D3)")
     if problems:
         for line in problems:
             err(f"REFUSED: {line}")
@@ -790,6 +795,8 @@ def self_test() -> int:
         ("undated row", missing_rows(v_row.replace("2026-11-14", "PR"), r_row, 31), ["validate-pr"]),
         ("title suffix", title_has_suffix("x (CalVer 2026.11.69, README 1.11.919)"), True),
         ("title without suffix", title_has_suffix("x (CalVer 2026.11.69)"), False),
+        ("title with a carriage return", title_has_suffix("x\ry (CalVer 2026.11.69, README 1.11.919)"),
+         False),
         ("co-authored trailer", message_trailers("s\n\nb\n\nCo-authored-by: a <b>"),
          ["Co-authored-by: a <b>"]),
         ("clean message", message_trailers("content: s\n\nSquash merge of #31 at abc."), []),

@@ -384,7 +384,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
     def test_T5_line_breaking_title_characters_keep_one_row(self):
         # Every character str.splitlines() treats as a line boundary, and any other control
         # character, becomes a space in a cell, so the row stays one line of six cells. A title
-        # holding a newline fails the one-line D3 suffix check, so it is refused before any
+        # holding one fails the D3 title check (3b882 fix round 7), so it is refused before any
         # merge call and no row is printed.
         for char in ("\n", "\v", "\f", "\x1c", "\x1d", "\x1e", "\x85", "\u2028", "\u2029",
                      "\r", "\x00", "\x1b"):
@@ -393,15 +393,8 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 title = f"content: a{char}b (CalVer 2026.11.69, README 1.11.919)"
                 fake = FakeGh(view={"title": title}, message=title + " (#31)\n\n" + BODY)
                 code, out, err = self.merge(fake)
-                if char == "\n":
-                    self.assertEqual(code, 1, err)
-                    self.assertEqual((out, fake.merge_calls()), ("", []))
-                    continue
-                self.assertEqual(code, 0, err)
-                lines = out.splitlines()
-                self.assertEqual(len(lines), 1, repr(out))
-                self.assertEqual(len(gfm_cells(lines[0])), 6, repr(lines[0]))
-                self.assertNotIn(char, lines[0])
+                self.assertEqual(code, 1, err)
+                self.assertEqual((out, fake.merge_calls()), ("", []))
 
     def test_row_present_digit_check_follows_the_whole_lead(self):
         # agy LOW: the digit check sits after the whole lead, #N, or #N (/retro) in the retro
@@ -416,8 +409,28 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                                               retro=True))
 
     def snapshot(self):
-        return {p: (p.read_bytes() if p.is_file() else None)
+        # Every entry under the temporary root: a file by its bytes, a symlink by its target, a
+        # directory and anything else by its kind, so a created directory shows as a change
+        # (3b882 fix round 7).
+        def entry(p):
+            if p.is_symlink():
+                return ("symlink", str(p.readlink()))
+            if p.is_file():
+                return ("file", p.read_bytes())
+            return ("dir",) if p.is_dir() else ("other",)
+        return {p: entry(p)
                 for p in sorted(Path(self.tmp.name).rglob("*")) if "__pycache__" not in p.parts}
+
+    @staticmethod
+    def changed_paths(before, after):
+        return sorted(p for p in set(before) | set(after) if before.get(p) != after.get(p))
+
+    def test_T5_snapshot_sees_a_created_directory(self):
+        # 3b882 fix round 7 (round 6 agy-B F2): a created directory, empty or not, is a change.
+        before = self.snapshot()
+        created = Path(self.tmp.name) / "created-by-the-tool"
+        created.mkdir()
+        self.assertEqual(self.changed_paths(before, self.snapshot()), [created])
 
     def test_T5_dry_run_writes_no_file_and_the_merge_changes_only_the_log(self):
         before = self.snapshot()
@@ -426,9 +439,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertEqual(self.snapshot(), before)
         code, out, err = self.merge(FakeGh())
         self.assertEqual(code, 0, err)
-        after = self.snapshot()
-        changed = sorted(p for p in set(before) | set(after) if before.get(p) != after.get(p))
-        self.assertEqual(changed, [self.log])
+        self.assertEqual(self.changed_paths(before, self.snapshot()), [self.log])
 
     def test_T5_no_row_without_a_merge(self):
         for fake in (FakeGh(view={"title": "no suffix"}),
@@ -452,6 +463,22 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertEqual(code, 1, err)
                 self.assertIn("CalVer", err)
                 self.assertEqual(fake.merge_calls(), [])
+
+    def test_T6_title_with_a_control_or_line_breaking_character_refused_before_merge(self):
+        # 3b882 fix round 7 (round 6 agy-B F1): the suffix check refused a newline only; a
+        # carriage return, vertical tab or any other control or line-breaking character is
+        # refused too, anywhere in the title.
+        for char in ("\r", "\r\n", "\v", "\f", "\t", "\x00", "\x1b", "\x1c", "\x1d", "\x1e",
+                     "\x7f", "\x85", "\x9b", "\u2028", "\u2029"):
+            for title in (f"content: a{char}b (CalVer 2026.11.69, README 1.11.919)",
+                          f"content: ab (CalVer 2026.11.69, README 1.11.919){char}"):
+                with self.subTest(title=repr(title)):
+                    self.assertFalse(self.mod.title_has_suffix(title))
+                    fake = FakeGh(view={"title": title})
+                    code, out, err = self.merge(fake)
+                    self.assertEqual(code, 1, err)
+                    self.assertIn("CalVer", err)
+                    self.assertEqual((out, fake.merge_calls()), ("", []))
 
     def test_T6_title_with_suffix_allowed(self):
         for title in (TITLE, "tools: y (CalVer 2026.9.3, README 1.10.4)"):
@@ -780,8 +807,9 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
 
     def test_open_findings_agrees_with_merge_when_green_on_a_readable_ledger(self):
         # The tool judges the text it read with the hook's own parse and decision, the two
-        # calls merge-when-green.py's open_findings_block() makes, so on a readable ledger the
-        # two tools never disagree.
+        # calls merge-when-green.py's open_findings_block() makes, so on a readable, parseable
+        # ledger the two tools agree. On a readable ledger the hook cannot parse they differ:
+        # merge-when-green.py allows it, and this tool refuses it.
         spec = importlib.util.spec_from_file_location(
             "_mgln_test_merge_when_green", REPO_ROOT / "tools" / "merge-when-green.py")
         mwg = importlib.util.module_from_spec(spec)
@@ -950,7 +978,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertEqual(len(lines), 1, out)
         self.assertEqual(self.log.read_text(encoding="utf-8"), LOG_SHAPE + lines[0] + "\n")
 
-    def test_log_row_appended_after_a_failed_readback(self):
+    def test_log_row_appended_after_a_failed_commit_readback(self):
         fake = FakeGh(message=SUBJECT + "\n\n" + BODY + "\n\nCo-authored-by: a <b@example.com>\n")
         code, out, err = self.merge(fake)
         self.assertEqual(code, 3, err)

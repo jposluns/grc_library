@@ -16,6 +16,10 @@ Rule (plan 3b882m section 4):
      grc_library_new and (b) the normalized text matches one of the merge patterns. The
      merge tool's name is one of them (3b882 fix round 6), so any other spelling of the
      tool command (a trailing or doubled space, ./tools/, -I) from such a cwd refuses.
+  2a. From such a cwd, a Bash command whose normalized text names tools/ together with a
+     glob character (*, ? or [) also exits 2, since the shell's pathname expansion can reach
+     the clone's copy of the tool (3b882 fix round 7). This over-refuses any such command,
+     one that runs no merge (ls tools/*.py) included.
   3. Every other input exits 0.
 
 The normalized text is NFKC, percent-decoded, NFKC again and casefolded. For Bash it is
@@ -44,9 +48,12 @@ MERGE_PATTERNS = tuple(re.compile(p, re.DOTALL) for p in (
     r"enablepullrequestautomerge",
     r"mergebranch",
     r"repos/[^/\s]+/[^/\s]+/merges\b",
-    # 3b882 fix round 6: the merge tool itself, in any spelling the sanctioned fullmatch misses.
+    # 3b882 fix round 6: the merge tool itself, in any literal spelling the sanctioned fullmatch
+    # misses. A glob spelling is refused separately (GLOB_CHARS, fix round 7).
     r"merge-grc-library-new",
 ))
+# 3b882 fix round 7: shell pathname expansion characters; beside tools/ they may reach the tool.
+GLOB_CHARS = "*?["
 
 REASON = (
     "BLOCKED (new-merge-outside-tool): this call would merge a grc_library_new pull request "
@@ -58,16 +65,21 @@ REASON = (
     "clone, and mentions a pull-request merge, an auto-merge (GraphQL "
     "enablePullRequestAutoMerge), a branch merge (GraphQL mergeBranch) or a REST "
     "repos/<owner>/<repo>/merges call is refused, including commit messages, greps, "
-    "echo and heredoc bodies. The merge tool command itself, in any spelling, is refused "
-    "when the payload cwd names grc_library_new, since its relative tools/ path would run "
-    "that clone's copy of the tool. Residual not closed by this hook: "
+    "echo and heredoc bodies. When the payload cwd names grc_library_new, the merge tool "
+    "command itself is refused in any literal spelling, and so is any command that names "
+    "tools/ together with a glob character (*, ? or [), since its relative tools/ path would run "
+    "that clone's copy of the tool; this also refuses such a command that runs no merge "
+    "(an ls tools/*.py included). Residual not closed by this hook: "
     "the sanctioned relative command runs the copy of the tool in the cwd, from any "
     "checkout (a grc_library worktree on an unmerged branch, or a stale or edited copy), "
     "and the hook does not check which copy that is; commands built at runtime "
     "(command substitution, variables, base64, a script file run later, a Python subprocess "
     "call); shell quoting, backslash escapes or brace expansion that split a word (p and r "
     "split by empty quotes, a backslash inside merge, or a brace list inside the repository "
-    "name); gh aliases that hide pr merge; a merge run from a grc_library_new clone when the "
+    "name); pathname expansion that reaches the merge tool without a glob character beside "
+    "tools/ (a glob such as t*/ or */ in place of tools/, a glob run from a cwd inside tools/, "
+    "or an extended glob such as @(new) when extglob is on); "
+    "gh aliases that hide pr merge; a merge run from a grc_library_new clone when the "
     "payload cwd is elsewhere and the text names neither; "
     "merges whose text never names grc_library_new (a GraphQL "
     "mergePullRequest by node id, an enablePullRequestAutoMerge or mergeBranch mutation by "
@@ -118,6 +130,8 @@ def decide(raw):
         if SANCTIONED.fullmatch(command):
             return NEW in cwd
         text = normalize(command)
+        if NEW in cwd and "tools/" in text and any(c in text for c in GLOB_CHARS):
+            return True
     else:
         parts = [tool] + [tool_input.get(k) for k in ("owner", "repo")]
         text = normalize(" ".join(p if isinstance(p, str) else "" for p in parts))
