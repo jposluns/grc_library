@@ -4137,17 +4137,6 @@ def _tracked_repo_files():
     return tracked
 
 
-def _adopter_fence_line(line):
-    """A code-fence marker line (backtick or tilde, indented under four
-    columns), mirroring the taxonomy generator's shared fence predicate so a
-    heading inside a fenced example (governance/worked-example.md carries a whole
-    example document in a fence) never reads as structure."""
-    stripped = line.lstrip(" ")
-    if len(line) - len(stripped) >= 4:
-        return False
-    return stripped.startswith("```") or stripped.startswith("~~~")
-
-
 # A line that ends an adopter read is matched whole and after at most three
 # spaces, as in CommonMark: four spaces or a tab make an indented code line.
 # A thematic break is three or more of one of "-", "*" or "_", with spaces or
@@ -4345,10 +4334,15 @@ def _adopter_first_paragraph(lines):
     """First real prose paragraph. It stops at a horizontal rule (any
     thematic break: ``---``, ``***``, ``___``) or a ``# `` or ``## `` heading
     wherever one falls, and, once the paragraph has started, also at a blank
-    line, a deeper heading (``### `` and below) or a code-fence line (see
-    _adopter_fence_line); blank lines, deeper headings and whole fenced code
-    blocks before the paragraph are skipped, and a line inside a fenced block
-    is code, never a heading, rule or prose. A heading or rule is recognized
+    line, a deeper heading (``### `` and below) or an opening fence line;
+    blank lines, deeper headings and whole fenced code blocks before the
+    paragraph are skipped, and a line inside a fenced block is code, never a
+    heading, rule or prose. Fences are read by the shared section reader
+    (_md_read): a fence opens after at most three spaces with three or more
+    backticks or tildes, and closes only on a line of the same mark at least
+    as long as the opener with nothing after it but spaces or tabs, so a
+    shorter run, the other mark or a run with text after it inside a fenced
+    block is code and does not close it. A heading or rule is recognized
     only after at most three leading spaces, as in CommonMark; four spaces or
     a tab before a hash or a rule make an indented code line, which is prose
     here. A rule must be the whole line; a heading carries its text after its

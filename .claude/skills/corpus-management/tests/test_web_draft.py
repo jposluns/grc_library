@@ -18716,11 +18716,34 @@ class SectionReaderShapeTableTests(unittest.TestCase):
         "citations register": {"rule": "refuse", "h1": "refuse", "h1-bare": "refuse",
                                "h2": "section", "h2-bare": "section", "h3": "refuse",
                                "h3-bare": "refuse", "text": "refuse", "fence": "refuse"},
+        # The shape sits between a domain heading of the live matrix and its
+        # table: a level-two heading ends the domain section, so the domain
+        # keeps no row ("stop"); any other shape leaves the table in it.
+        "compliance matrix": {"rule": "go", "h1": "go", "h1-bare": "go",
+                              "h2": "stop", "h2-bare": "stop", "h3": "go",
+                              "h3-bare": "go", "text": "go", "fence": "go"},
+        # The shape sits between an instrument heading and its table: only a
+        # level-two heading takes the table into a section of its own.
+        "reverse matrix": {"rule": "none", "h1": "none", "h1-bare": "none",
+                           "h2": "section", "h2-bare": "section", "h3": "none",
+                           "h3-bare": "none", "text": "none", "fence": "none"},
+        # The shape sits just before the --- that closes the live matrix's
+        # pinned reading-guide section: a thematic break ends the section
+        # there ("stop"); any other shape is read as a section line and is
+        # reported as the first line off the pin ("go").
+        "compliance tsc section": {"rule": "stop", "h1": "go", "h1-bare": "go",
+                                   "h2": "go", "h2-bare": "go", "h3": "go",
+                                   "h3-bare": "go", "text": "go", "fence": "go"},
     }
+
+    _REVERSE_TABLE = ("| Area | Library documents | Alignment type |\n"
+                      "| --- | --- | --- |\n"
+                      "| A.1 | [`x/a.md`](../x/a.md) | Industry practice |\n")
 
     @classmethod
     def setUpClass(cls):
         cls.mod = _load_build()
+        cls.matrix = cls.mod.CROSSWALK_COMPLIANCE_MATRIX.read_text(encoding="utf-8")
 
     def _shapes(self):
         for rule in self.RULES:
@@ -18805,6 +18828,36 @@ class SectionReaderShapeTableTests(unittest.TestCase):
             got = self._run(lambda: mod._parse_citations_register_sections(
                 f"{shape}\n\n{table}\n", True))
             return "refuse" if got == "refuse" else "section"
+        if site == "compliance matrix":
+            heading = "## Governance domain\n"
+            self.assertEqual(self.matrix.count(heading), 1)
+            try:
+                mod.parse_compliance_matrix(
+                    self.matrix.replace(heading, f"{heading}\n{shape}\n"))
+            except mod.BuildError as e:
+                return ("stop" if str(e).endswith("with zero rows: governance")
+                        else "refuse")
+            return "go"
+        if site == "reverse matrix":
+            got = self._run(lambda: mod.parse_reverse_matrix(
+                f"## X instrument\n\n{shape}\n\n{self._REVERSE_TABLE}"))
+            if got == "refuse":
+                return got
+            return "none" if list(got) == ["X instrument"] else "section"
+        if site == "compliance tsc section":
+            lines = self.matrix.split("\n")
+            start = lines.index(mod.CROSSWALK_TSC_SECTION_HEADING)
+            close = lines.index("---", start)
+            text = "\n".join(lines[:close] + shape.split("\n") + [""] + lines[close:])
+            try:
+                mod.parse_compliance_tsc_status(text)
+            except mod.BuildError as e:
+                if "a thematic break other than ---" in str(e):
+                    return "stop"
+                first = shape.split("\n")[0]
+                return ("go" if f"reads {first!r} where the pin has '---'" in str(e)
+                        else "refuse")
+            return "stop"
         raise AssertionError(site)
 
     def test_every_read_gives_its_stated_outcome_for_every_shape(self):
@@ -18816,6 +18869,31 @@ class SectionReaderShapeTableTests(unittest.TestCase):
                     wrong.append(f"{site}: {shape!r} ({category}) gave {got}, "
                                  f"expected {outcomes[category]}")
         self.assertEqual(wrong, [], "\n" + "\n".join(wrong))
+
+    def test_crosswalk_matrix_readers_read_no_table_line_inside_a_fence(self):
+        """A table, or a table line, inside a fenced example is code to both
+        crosswalk matrix readers: a fenced instrument table ahead of the real
+        one neither adds rows nor interrupts the real table, and a fenced
+        table line between a domain heading and its table is not read as a
+        row of that domain."""
+        mod = self.mod
+        fenced = ("```\n| Area | Library documents | Alignment type |\n"
+                  "| --- | --- | --- |\n"
+                  "| A.9 | [`x/z.md`](../x/z.md) | Industry practice |\n```\n")
+        for fence in (fenced, fenced.replace("```", "~~~~")):
+            with self.subTest(reverse=fence.split("\n")[0]):
+                sections = mod.parse_reverse_matrix(
+                    f"## X instrument\n\n{fence}\n{self._REVERSE_TABLE}")
+                self.assertEqual(list(sections), ["X instrument"])
+                self.assertEqual([row["paths"] for row in sections["X instrument"]["rows"]],
+                                 [["x/a.md"]])
+        heading = "## Governance domain\n"
+        _, plain = mod.parse_compliance_matrix(self.matrix)
+        for fence in ("```\n| not | a | row |\n```\n", "~~~\n| not | a | row |\n~~~\n"):
+            with self.subTest(matrix=fence.split("\n")[0]):
+                _, rows = mod.parse_compliance_matrix(
+                    self.matrix.replace(heading, f"{heading}\n{fence}"))
+                self.assertEqual(rows, plain)
 
     def test_line_classifier_refuses_every_rule_heading_and_fence_it_does_not_render(self):
         """The narrative line classifier renders only '## Text' and '### Text'
@@ -27373,6 +27451,10 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
         self.assertEqual([line for line in lines if re.search(
             r"(?i)partially implemented", line)], [])
         used = {}
+        # Every row is checked, not only the last row read for a Control ID:
+        # a control listed twice keeps one value in ``used``, so an undefined
+        # value in its earlier row would otherwise go unchecked.
+        undefined = []
         for i, line in enumerate(lines):
             if not line.startswith("| Control ID |"):
                 continue
@@ -27382,9 +27464,12 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
                     break
                 cells = [cell.strip() for cell in row.split("|")]
                 used[cells[1]] = cells[status]
+                if cells[status] not in self._MSC_STATUS_VALUES:
+                    undefined.append((cells[1], cells[status]))
         self.assertGreaterEqual(len(used), 50)
         self.assertEqual({control: value for control, value in used.items()
                           if value not in self._MSC_STATUS_VALUES}, {})
+        self.assertEqual(undefined, [])
 
     # Each carrier of section 12.2, as (path, claim unit start).
     _SECTION_12_2_CARRIERS = (

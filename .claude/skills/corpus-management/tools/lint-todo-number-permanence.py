@@ -719,10 +719,13 @@ def _generic_headings(item_id: str, headings: "list[str]") -> "list[str]":
 def _check_marker_binding(n: int, item_id: str, marker: str, headings: "list[str]") -> None:
     """Refuse row ``n`` unless its marker binds to the retirement headings the gate reads
     for ``item_id`` (``headings``) the way an exemption must: it is not found in a heading
-    that holds only the id and the 'PR #<n>:' prefix, it matches at least one of
-    ``headings`` when the id has any, and it does not match every one of them when the id
-    has two or more, unless the row is in the family form (``_family_form``). A row for an
-    id with no retirement heading exempts nothing yet, so only the first rule applies."""
+    that holds only the id and the 'PR #<n>:' prefix, and, when the id has any of
+    ``headings``, a row not in the family form (``_family_form``) matches exactly one of
+    them, while a family row matches at least one. A marker matching two or more headings
+    would exempt each of them, so only a family row, which names a batch of the id's
+    partial closes, may do that; a row matching two of three headings is refused as one
+    matching all of them is. A row for an id with no retirement heading exempts nothing
+    yet, so only the first rule applies."""
     if any(marker in generic for generic in _generic_headings(item_id, headings)):
         raise ValueError(
             f"row {n} heading marker {marker!r} holds no text beyond the id and the "
@@ -737,11 +740,16 @@ def _check_marker_binding(n: int, item_id: str, marker: str, headings: "list[str
         raise ValueError(
             f"row {n} heading marker {marker!r} matches none of the {len(headings)} "
             f"retirement heading(s) the gate reads for {item_id}")
-    if len(headings) >= 2 and hits == len(headings) and not _family_form(item_id, marker):
+    if hits >= 2 and not _family_form(item_id, marker):
+        if hits == len(headings):
+            raise ValueError(
+                f"row {n} heading marker {marker!r} matches every one of the "
+                f"{len(headings)} retirement headings the gate reads for {item_id} and "
+                f"is not in the family form '<id> <word>'")
         raise ValueError(
-            f"row {n} heading marker {marker!r} matches every one of the {len(headings)} "
+            f"row {n} heading marker {marker!r} matches {hits} of the {len(headings)} "
             f"retirement headings the gate reads for {item_id} and is not in the family "
-            f"form '<id> <word>'")
+            f"form '<id> <word>' (a row not in the family form must match exactly one)")
 
 
 def _load_private_exempt(text: str, done_text: "str | None" = None) -> dict[tuple[str, str], str]:
