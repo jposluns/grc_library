@@ -744,7 +744,8 @@ def _self_test() -> int:
     head = "3f0c9e71a2b48d5609ce17f4b23a8d60e95c1b7a"  # realistic, so a hard-coded SHA cannot coincide
     ok_url = "https://github.com/jposluns/grc_library/pull/1"
     def view(r, h=head, fields=None, state="OPEN", url=ok_url):
-        # Only the requested --json fields come back, as from the real gh (3b106 QA r3); url=None leaves it out.
+        # Only the requested --json fields come back, as from the real gh (3b106 QA r3).
+        # url=None leaves it out.
         full = {"state": state, "statusCheckRollup": r, "headRefOid": h, "number": 1, "title": "t", "url": url}
         wanted = full.keys() if fields is None else [f for f in fields.split(",") if f]
         return json.dumps({k: full[k] for k in wanted if k in full and not (k == "url" and url is None)})

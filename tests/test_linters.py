@@ -45849,8 +45849,8 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint_common.py PASSIVE F c3f9567cb927a4a4599fc2704a690a93d145aef8edfa2a90eb660b246aadbedd
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
-        merge-grc-library-new.py NO_FS F 8d02db178136a17753a350adf26a273c339bec0e3f9eb99497c870f7f71ed578
-        merge-when-green.py NO_FS F 3afb786447d824dfd29952f6d5dd1db5241b7d39c10fe2d873ce30eab8decfad
+        merge-grc-library-new.py NO_FS F a8f845f97af59e1dce5ec45b5400b98e75882c7b14688161027d959f2cda4e61
+        merge-when-green.py NO_FS F 592e6b36c135c9adabfecf622e6d833e2496e0aeb61f577b3183ade5498a71cf
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
         pre-push-guard.sh FIXED F e082e92fe082af59cee69da9d2a329dacf1cdf4e8e4d600f4c5b6fc2ce89dabf
@@ -62324,7 +62324,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
             "uv run gh pr merge 33 -R %s" % new,
             "GIT_DIR=../grc_library_new/.git gh pr merge 33",
             "gh pr merge \uff13\uff13 -R %s" % new,
-            # plan section 5 H1
+            # The REST merge endpoint, reached through gh api with PUT.
             "gh api -X PUT repos/%s/pulls/33/merge" % new,
             "gh api --method PUT repos/%s/pulls/33/merge -f merge_method=squash" % new,
             "gh pr merge 33 -R jposluns/grc%5Flibrary_new",
@@ -62635,7 +62635,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
         for attr in ("read_text", "read_bytes", "open", "system", "popen", "environ", "getenv"):
             self.assertNotIn(attr, attrs)
         self.assertIn(self.SANCTIONED, source)
-        # The refusal names the merge tool and states the plan section 4 residual.
+        # The refusal names the merge tool and states the residual cases it does not catch.
         for fragment in ("built at runtime", "gh aliases", "web UI", "direct pushes to main",
                          "MCP merge tools under other names", "over-refusal",
                          "never names grc_library_new", "mergePullRequest by node id",

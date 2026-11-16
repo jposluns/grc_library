@@ -23,17 +23,17 @@ cannot be read or decoded as UTF-8 refuses, naming it.
 
 ``--check-rows`` is read-only: it never calls gh, writes no file and makes no network call.
 
-Merge mode (``<PR>``, parts P2a and P2b), after the row check passes, every gh call going
+Merge mode (``<PR>``), after the row check passes, every gh call going
 through gh():
 
-0. Part 2c, before any gh call: the admin-merge log pre-flight resolves
+0. Before any gh call: the admin-merge log pre-flight resolves
    ``merge-bypass-log.md`` with lint_common.resolve_working(strict=True), accepts it only inside
    the operational store (decision D1, as for the registers), reads it and refuses unless it is
    a regular file and not a symlink (the append never follows a final symlink) that this user
    may read and write (os.access on the path itself, nothing is opened for writing), its header
    (the first line that begins with ``|``; a title, prose or a list may come before it) equals
    LOG_HEADER, and its last non-blank line is a table line with no blank line after it, so the
-   appended row lands inside the table (part 2d). Then plan section 3: the open-findings check
+   appended row lands inside the table. Then the open-findings check
    refuses while the ledger holds an undispositioned ``error`` finding. The ledger
    ``open-findings.md`` is read once from the operational store and that text is judged by the
    open-findings hook's own parse_open_rows() and decide_exit(), loaded by path: the two calls
@@ -122,7 +122,7 @@ WORKFLOW_PATHS = {"Repository quality checks": ".github/workflows/quality.yml",
 CI_EVENT = "pull_request"
 # Decision D2: the admin-merge log's header; the row printed has one cell per column.
 LOG_HEADER = "| Date (UTC) | PR | CI state at merge | Mechanism | Justification | Change |"
-# Part 2c: the store-relative admin-merge log (gate 50 Check 6 reads the same file), the
+# The store-relative admin-merge log (gate 50 Check 6 reads the same file), the
 # open-findings ledger, and the hook whose decision functions judge it.
 LOG_REL = "merge-bypass-log.md"
 LEDGER_REL = "open-findings.md"
@@ -281,7 +281,7 @@ def read_in_store(path: Path, what: str) -> str:
 
 
 def log_shape_problem(text: str) -> str:
-    """Part 2d items 1 and 2: "" when ``text`` has the admin-merge log's shape, else the problem.
+    """Return "" when ``text`` has the admin-merge log's shape, else the problem.
 
     The header is the first line that begins with ``|`` (a title, a licence line, prose or a list
     may come before it) and must equal LOG_HEADER. The last non-blank line must be a table line
@@ -305,7 +305,7 @@ def log_shape_problem(text: str) -> str:
 
 
 def log_preflight(root: Path) -> Path:
-    """Parts 2c and 2d: the admin-merge log inside the operational store (D1), a regular file and
+    """The admin-merge log inside the operational store (D1), a regular file and
     not a symlink, that this user may read and write, with the shape log_shape_problem() accepts;
     or :class:`RegisterError` naming it. append_log_row() opens the log for reading and writing
     with O_NOFOLLOW, so a final-component symlink (even to a file inside the store) or a file
@@ -345,7 +345,7 @@ def _log_last_line(path: Path) -> str | None:
 
 
 def append_log_row(path: Path, row: str) -> str:
-    """Part 2c item 2: append ``row`` to the log with one write to a descriptor opened in append
+    """Append ``row`` to the log with one write to a descriptor opened in append
     mode (never created, never through a final symlink), then read the file back. Returns "" when
     the last line equals ``row``, else the problem. A newline goes first when the file lacks one."""
     import stat
@@ -578,14 +578,14 @@ def ci_check(text: str, head: str) -> tuple[int, list[str], dict]:
 
 
 def open_findings(root: Path, ledger=None) -> tuple[int, str]:
-    """Plan section 3: ``(exit code, message)`` from the open-findings hook's own decision.
+    """``(exit code, message)`` from the open-findings hook's own decision.
 
     The ledger is read once and that text is judged by the hook's parse_open_rows() and
     decide_exit(), loaded by path: the two calls merge-when-green.py's open_findings_block()
     makes, so the two merge tools agree on a readable ledger. The ledger is never read a second
     time (open_findings_block also reads it only once, but allows on a missing hook or ledger
     and on any read or parse error). 1 means an
-    undispositioned ``error`` finding (or a mis-filed finding row) is open. Part 2c item 3: the
+    undispositioned ``error`` finding (or a mis-filed finding row) is open. The
     check fails closed with 2: the hook absent or not loadable, no readable ledger (``ledger``
     when given, else ``open-findings.md`` inside the operational store, decision D1), or a
     ledger the hook cannot parse or judge."""

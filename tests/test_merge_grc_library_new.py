@@ -49,7 +49,7 @@ FIXED_ERROR = "| 2026-11-15 | error | a fixed defect | probe | FIXED #1 |\n"
 LOG_REL = "merge-bypass-log.md"
 HOOK_NAME = "block-on-open-findings.py"
 OLD_LOG_ROW = "| 2026-09-20 | #2408 | green | admin squash | review | content |"
-# Part 2d: the true shape of the admin-merge log (texts/log-shape.md): a title, a licence line,
+# The true shape of the admin-merge log (texts/log-shape.md): a title, a licence line,
 # prose and a list before the table, the header with no separator row, then data rows, ending
 # with a data row and a newline.
 LOG_SHAPE = (
@@ -96,7 +96,7 @@ def gfm_cells(row):
 
 
 def load_tool():
-    spec = importlib.util.spec_from_file_location("_merge_grc_library_new_p2a", TOOL)
+    spec = importlib.util.spec_from_file_location("_merge_grc_library_new_under_test", TOOL)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
@@ -828,11 +828,13 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertEqual(code, 0, err)
                 self.assertEqual(len(fake.merge_calls()), 1)
 
-    # Plan section 3: the open-findings check, reused from merge-when-green.py.
+    # The open-findings check: the tool's open_findings loads the hook copy installed below, which
+    # judges the ledger the same way as open_findings_block in merge-when-green.py.
 
     def install_open_findings(self, rows):
-        """A copy of the open-findings hook in the fixture repository (so merge-when-green's
-        open_findings_block finds it) and a ledger in the fixture store."""
+        """A copy of the open-findings hook in the fixture repository, which is what the tool's
+        open_findings loads (it judges the ledger the same way as open_findings_block), and a
+        ledger in the fixture store."""
         self.install_hook()
         (self.store / "open-findings.md").write_text(LEDGER_HEAD + rows, encoding="utf-8")
 
@@ -923,7 +925,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         ledger.write_text(LEDGER_HEAD + FIXED_ERROR, encoding="utf-8")
         self.assertEqual(self.mod.open_findings(REPO_ROOT, ledger), (0, ""))
 
-    # Part 2c: a refusal before any gh call, dry run or not.
+    # A refusal before any gh call, dry run or not.
 
     def assert_refused_before_gh(self, needle):
         for dry_run in (False, True):
@@ -936,7 +938,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertIn("REFUSED", err)
                 self.assertIn(needle, err)
 
-    # Part 2c item 1: the admin-merge log pre-flight.
+    # The admin-merge log pre-flight.
 
     def test_log_preflight_missing_log_refuses_before_any_gh_call(self):
         os.replace(self.log, Path(self.tmp.name) / "moved-log.md")
@@ -994,7 +996,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assert_refused_before_gh("symlink")
         self.assertEqual(target.read_text(encoding="utf-8"), LOG_SHAPE)
 
-    # Part 2d item 1: the header is the first table line; text before it is allowed.
+    # The log header is the first table line; text before it is allowed.
 
     def test_log_preflight_accepts_the_real_log_shape(self):
         self.assertEqual(self.log.read_text(encoding="utf-8"), LOG_SHAPE)
@@ -1018,7 +1020,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertEqual(len(fake.merge_calls()), 0)
                 self.assertIn("DRY RUN", err)
 
-    # Part 2d item 2: the last line itself must be a table line, with no blank or
+    # The log's last line itself must be a table line, with no blank or
     # whitespace-only line after it, so the row lands in the table.
 
     def test_log_preflight_last_line_not_a_table_line_refuses_before_any_gh_call(self):
@@ -1033,7 +1035,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assert_refused_before_gh("outside the table")
                 self.assertEqual(self.log.read_text(encoding="utf-8"), text)
 
-    # Part 2d item 3: a log that cannot be opened for append refuses before the merge.
+    # A log that cannot be opened for append refuses before the merge.
 
     @unittest.skipIf(hasattr(os, "geteuid") and os.geteuid() == 0,
                      "root may write a file whatever its mode")
@@ -1062,7 +1064,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                       [(path.resolve(), mode) for path, mode in seen])
         self.assertEqual((self.log.read_bytes(), self.log.stat().st_mtime_ns), before)
 
-    # Part 2c item 2: the printed row is appended to the log and read back.
+    # The printed row is appended to the log and read back.
 
     def test_log_row_appended_exactly_once(self):
         code, out, err = self.merge(FakeGh())
@@ -1113,7 +1115,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertIn(out.splitlines()[0], err.splitlines())
                 self.assertIn("by hand", err)
 
-    # Part 2c item 3: the open-findings check fails closed.
+    # The open-findings check fails closed.
 
     def test_open_findings_hook_absent_refuses_before_any_gh_call(self):
         os.replace(self.root / ".claude" / "hooks" / HOOK_NAME, Path(self.tmp.name) / "moved-hook.py")
