@@ -26111,9 +26111,7 @@ class PIIContentTests(LinterTestCase):
         self.assertLinterFails(result, "phone")
 
     def test_forge_ssh_service_address_not_flagged(self) -> None:
-        # Maintainer decision 2026-11-15: the SSH service address of a
-        # code-hosting site, local part exactly git at exactly github.com or gitlab.com, is a
-        # remote spelling and not a person, so it is not reported in the ssh or scp form.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         fixture = self.make_fixture(
             "standard-forge-ssh.md",
             VALID_METADATA
@@ -26129,24 +26127,18 @@ class PIIContentTests(LinterTestCase):
         )
 
     def test_forge_allowance_is_narrow(self) -> None:
-        # The allowance covers only those two exact addresses. Another local
-        # part at a forge domain, git at another domain, a longer domain that begins with
-        # github.com (whole or behind a fullwidth dot) and another letter case stay reported.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         for body, needle in (
             ("Contact jane@github.com here.\n", "jane@github.com"),
             ("Contact git@forge-host-xyz.net here.\n", "git@forge-host-xyz.net"),
             ("Contact git@github.com.mirror-xyz.net here.\n", "git@github.com.mirror-xyz.net"),
             ("Contact git@github.com\uff0emirror-xyz.net here.\n", "git@github.com"),
             ("Contact GIT@github.com here.\n", "GIT@github.com"),
-            # The engine captures only the
-            # git@ suffix of these lookalikes, so the character before it must not be a
-            # local-part character.
+            # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
             ("Contact o'git@github.com here.\n", "git@github.com"),
             ("Contact alice!git@gitlab.com here.\n", "git@gitlab.com"),
             ("Contact a/git@github.com here.\n", "git@github.com"),
-            # A non-ASCII character directly before git@ (U+2019, U+00BF) is reported too. These
-            # bare addresses have no OWNER/REPO path, and the whole-token rule refuses any token
-            # that is not exactly one remote form, which a character before git@ also breaks.
+            # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
             ("Contact \u2019git@github.com here.\n", "git@github.com"),
             ("Contact \u00bfgit@github.com here.\n", "git@github.com"),
         ):
@@ -26155,9 +26147,7 @@ class PIIContentTests(LinterTestCase):
                 result = run_linter("tools/lint-pii-in-content.py", fixture)
                 self.assertEqual(result.returncode, 1, f"{body!r} must stay reported.\nstdout:\n{result.stdout}")
                 self.assertIn(needle, result.stdout)
-        # git@example.org and git@github.com.other.example are not reported at all, through the
-        # EXAMPLE_DOMAINS and reserved .example layers, so the allowance itself is checked for them:
-        # it covers neither of them, nor jane@github.com.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_forge_allowance")
         engine = wrapper._engine()
         for line in ("jane@github.com here", "git@example.org here", "git@github.com.other.example here",
@@ -26166,21 +26156,17 @@ class PIIContentTests(LinterTestCase):
                      "\u2019git@github.com here", "\u00bfgit@github.com here"):
             with self.subTest(line=line):
                 self.assertEqual(wrapper._forge_service_matches(engine, line), [])
-        # Without an owner/repository path neither address is a git remote form, so both stay
-        # reported; the same addresses with a repository path are allowed.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         self.assertEqual(wrapper._forge_service_matches(engine, "ssh://git@github.com/x (git@gitlab.com)"), [])
         self.assertEqual(wrapper._forge_service_matches(engine, "git@github.com: and git@gitlab.com/x"), [])
-        # The token rule: a remote wrapped in parentheses is not a whole whitespace-delimited
-        # token, so it is refused, and its @ is then another @ in the paragraph, which refuses
-        # every remote in it (fails closed).
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         self.assertEqual(wrapper._forge_service_matches(engine, "ssh://git@github.com/o/x (git@gitlab.com:o/r)"),
                          [])
         self.assertEqual(wrapper._forge_service_matches(engine, "git@github.com:o/r and ssh://git@gitlab.com/o/x"),
                          ["git@github.com", "git@gitlab.com"])
 
     def test_forge_allowance_needs_an_ssh_remote_not_another_uri_scheme(self) -> None:
-        # Only an ssh:// prefix or an scp-style remote is an SSH remote; an https:// credential
-        # or a mailto: link at a forge address stays reported.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         for body, needle in (
             ("Open https://git@github.com/org/repo here.\n", "git@github.com"),
             ("Write to mailto:git@gitlab.com here.\n", "git@gitlab.com"),
@@ -26200,9 +26186,7 @@ class PIIContentTests(LinterTestCase):
                          ["git@github.com"])
 
     def test_forge_allowance_fails_closed_inside_backticks_and_single_quotes(self) -> None:
-        # The backtick and the apostrophe are
-        # RFC 5322 local-part characters, so a forge address wrapped in them may be the suffix of
-        # a longer local part. It stays reported (fail closed), and the module docstring says so.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         for body, needle in (
             ("Contact `git@github.com` here.\n", "git@github.com"),
             ("Contact 'git@gitlab.com' here.\n", "git@gitlab.com"),
@@ -26226,12 +26210,7 @@ class PIIContentTests(LinterTestCase):
                 self.assertIn(fragment, doc)
 
     def test_forge_allowance_fails_closed_after_a_double_quote(self) -> None:
-        # A double quote can open an RFC 5322 quoted local part, so a forge address right after
-        # one, with any double quote later on the line, may sit inside a longer address at
-        # another domain. It stays reported (fail closed), and the module docstring says so;
-        # a double-quoted remote is reported too, the accepted over-refusal of that rule.
-        # A quoted local part can hold white space or a parenthesis, so the address stays
-        # reported whatever character comes right before it.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         for body, needle in (
             ('Write to "git@github.com"@corp-mail-xyz.net here.\n', "git@github.com"),
             ('Write to "git@gitlab.com"@corp-mail-xyz.net here.\n', "git@gitlab.com"),
@@ -26262,10 +26241,7 @@ class PIIContentTests(LinterTestCase):
                       " ".join(wrapper.__doc__.split()))
 
     def test_forge_allowance_fails_closed_before_any_later_double_quote(self) -> None:
-        # RFC 5322 lets white space, a comment or a folded line break sit between a quoted
-        # local part's closing quote and its @, so no test for an @ after the quote can catch
-        # every form. The allowance is refused whenever a double quote appears anywhere after
-        # the match on the line, so each of these lines stays reported.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         for body, needle in (
             ('"jane git@github.com" @corp-mail-xyz.net\n', "git@github.com"),
             ('"jane git@github.com"(work)@corp-mail-xyz.net\n', "git@github.com"),
@@ -26286,7 +26262,7 @@ class PIIContentTests(LinterTestCase):
                      '"jane git@github.com"(c)@corp-mail-xyz.net', '"jane git@github.com" (c) @corp-mail-xyz.net'):
             with self.subTest(line=line):
                 self.assertEqual(wrapper._forge_service_matches(engine, line), [])
-        # A double quote before the match, with none after it on the line, leaves the allowance.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         self.assertEqual(wrapper._forge_service_matches(engine, 'Say "hi", then clone git@github.com:o/r'),
                          ["git@github.com"])
         fixture = self.make_fixture("standard-forge-no-later-quote.md", VALID_METADATA
@@ -26295,8 +26271,7 @@ class PIIContentTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, f"stdout:\n{result.stdout}")
 
     def test_forge_allowance_docstrings_state_the_later_double_quote_rule(self) -> None:
-        # The module docstring states the rule, says the match may (not must) be inside a
-        # longer address, and names the accepted over-refusal; the helper's docstring agrees.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_forge_quote_doc")
         doc = " ".join(wrapper.__doc__.split())
         for fragment in ("still reported when a double quote appears anywhere after the match on the line",
@@ -26313,9 +26288,7 @@ class PIIContentTests(LinterTestCase):
                 self.assertIn(fragment, helper_doc)
 
     def _assert_forge_address_after_an_at_sign_reported(self, line: str, needle: str) -> None:
-        # For user@git@github.com the engine reports
-        # git@github.com. A match right after "@" is not a whole local part, so the forge
-        # allowance must not drop it, and the module docstring says so.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         fixture = self.make_fixture("standard-forge-after-at.md", VALID_METADATA + "\n\n" + line + "\n")
         result = run_linter("tools/lint-pii-in-content.py", fixture)
         self.assertEqual(result.returncode, 1, f"{line!r} must stay reported.\nstdout:\n{result.stdout}")
@@ -26336,9 +26309,7 @@ class PIIContentTests(LinterTestCase):
                                                              "git@gitlab.com")
 
     def test_git_remote_forms_with_a_repository_path_pass(self) -> None:
-        # Each exact git remote form, user and host exact and followed by an owner/repository
-        # path on the same line, is a remote spelling and not a person, so it is not reported.
-        # A double quote in a later paragraph does not refuse it.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         for body in (
             "Clone git@github.com:org/repo.git here.\n",
             "Clone ssh://git@github.com/org/repo.git here.\n",
@@ -26356,8 +26327,7 @@ class PIIContentTests(LinterTestCase):
             ("ssh://git@github.com/o/r", ["git@github.com"]),
             ("git@gitlab.com:o/r", ["git@gitlab.com"]),
             ("ssh://git@gitlab.com/o/r", ["git@gitlab.com"]),
-            # The token rule: a remote wrapped in a parenthesis, angle brackets or quotes is not
-            # a whole whitespace-delimited token, so it fails closed.
+            # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
             ("(git@github.com:o/r.git)", []),
             ("<ssh://git@gitlab.com/o/r>", []),
             ("x = 'ssh://git@github.com/o/r.git'", []),
@@ -26366,10 +26336,7 @@ class PIIContentTests(LinterTestCase):
                 self.assertEqual(wrapper._forge_service_matches(engine, line), expected)
 
     def test_git_remote_forms_refuse_folded_quoted_near_miss_and_split_matches(self) -> None:
-        # Only an exact remote form on one line, with no double quote after it in its paragraph
-        # that could close a quoted local part around it, is allowed. A quoted local part can be
-        # folded across lines and close before an @ at another domain on a later line, so each
-        # of these stays reported.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         for body, needle in (
             ('"jane git@github.com\n more"@corp-mail-xyz.net\n', "git@github.com"),
             ('"jane git@github.com\n "@corp-mail-xyz.net\n', "git@github.com"),
@@ -26424,9 +26391,7 @@ class PIIContentTests(LinterTestCase):
                 self.assertIn(needle, result.stdout)
 
     def test_git_remote_allowance_reads_lf_delimited_physical_lines(self) -> None:
-        # str.splitlines also breaks at a carriage return, form feed, vertical tab, U+2028 and
-        # U+2029, so two of them in a row would look like an empty line and end the paragraph
-        # before the closing quote of a quoted local part. Only LF ends a physical line here.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         cases = (
             ('"jane git@github.com:o/r\x0c\x0c "@corp-mail-xyz.net\n', "git@github.com"),
             ('"jane git@github.com:o/r\x0c\n "@corp-mail-xyz.net\n', "git@github.com"),
@@ -26445,8 +26410,7 @@ class PIIContentTests(LinterTestCase):
         self.assertEqual(wrapper._paragraphs("a\x0c\x0cb\r\rc\n\nd"), [(0, "a\x0c\x0cb\r\rc"), (9, "d")])
 
     def test_git_remote_allowance_paragraph_ends_only_at_a_line_with_no_character(self) -> None:
-        # An obsolete RFC 5322 fold can continue across a line of only white space, so such a
-        # line does not end the paragraph: a quote mark after it still refuses the allowance.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         self._assert_remote_bodies_reported("standard-git-remote-space-line.md", (
             ('Clone git@github.com:o/r here.\n   \nSay "hi".\n', "git@github.com"),
             ('"jane git@github.com:o/r\n   \n "@corp-mail-xyz.net\n', "git@github.com"),
@@ -26463,8 +26427,7 @@ class PIIContentTests(LinterTestCase):
         self.assertNotIn("up to the next empty line", doc)
 
     def test_git_remote_allowance_refuses_every_quote_character_reference(self) -> None:
-        # HTML and CommonMark render a numeric reference with leading zeros, in either letter
-        # case and in some cases without its semicolon, as the character it names.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         cases = (
             ("&#034;jane git@github.com:o/r &#034;@corp-mail-xyz.net\n", "git@github.com"),
             ("&#x0022;jane git@github.com:o/r &#x0022;@corp-mail-xyz.net\n", "git@github.com"),
@@ -26487,9 +26450,7 @@ class PIIContentTests(LinterTestCase):
                          ["git@github.com"])
 
     def test_git_remote_allowance_refuses_obsolete_local_part_syntax(self) -> None:
-        # RFC 5322 obs-local-part lets white space, a comment or a fold sit after a dot, so
-        # alice. git@github.com is the address alice.git@github.com, another user at github.com.
-        # A character reference before the form may render a dot or a local-part character.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         cases = (
             ("Mail alice. git@github.com:o/r now.\n", "git@github.com"),
             ("Mail alice.(c)git@github.com:o/r now.\n", "git@github.com"),
@@ -26507,9 +26468,7 @@ class PIIContentTests(LinterTestCase):
                 self.assertEqual(wrapper._allowed_spans(engine, body.rstrip("\n")), [])
 
     def test_git_remote_allowance_refuses_a_comment_or_domain_literal_around_the_remote(self) -> None:
-        # A remote ending at ")" can close an RFC 5322 comment inside a longer address, and a
-        # comment or domain literal after another address's @ can hold one; each such address
-        # needs a second @, so any other @ in the paragraph refuses every remote in it.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         cases = (
             ("x(git@github.com:o/r)@corp-mail-xyz.net\n", "git@github.com"),
             ("x(ssh://git@github.com/o/r)@corp-mail-xyz.net\n", "git@github.com"),
@@ -26527,7 +26486,7 @@ class PIIContentTests(LinterTestCase):
         for body, _ in cases:
             with self.subTest(paragraph=body):
                 self.assertEqual(wrapper._allowed_spans(engine, body.rstrip("\n")), [])
-        # Remotes alone in their paragraph, on one line or on two, are still allowed.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         self.assertEqual(wrapper._allowed_spans(engine, "Clone git@github.com:o/r or\ngit@gitlab.com:o/x"),
                          [(6, 20), (28, 42)])
         for body in ("Clone git@github.com:o/r or\ngit@gitlab.com:o/x here.\n\nMail x@corp-mail-xyz.example.\n",):
@@ -26537,11 +26496,7 @@ class PIIContentTests(LinterTestCase):
                 self.assertEqual(result.returncode, 0, f"{body!r} must pass.\nstdout:\n{result.stdout}")
 
     def test_git_remote_allowance_refuses_a_remote_after_a_non_ascii_character(self) -> None:
-        # RFC 6531 admits non-ASCII characters in a local part, so a complete remote form right
-        # after U+2019 or U+00BF may be the end of a longer address. Unlike the bare addresses
-        # in test_forge_allowance_is_narrow, these carry a repository path, so only the
-        # whole-token rule refuses them: the non-ASCII character is part of the token, so the
-        # token is not exactly one remote form.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         cases = (
             ("Clone \u2019git@github.com:o/r here.\n", "git@github.com"),
             ("Clone \u00bfgit@gitlab.com:o/r here.\n", "git@gitlab.com"),
@@ -26568,9 +26523,7 @@ class PIIContentTests(LinterTestCase):
         self.assertNotIn("The rule looks for any later double quote, not for an @ after one", doc)
 
     def test_git_remote_token_rule_fails_closed_on_wider_forms(self) -> None:
-        # The allowance needs the whole token, delimited by an ASCII space, a tab or the ends of
-        # the line, to be exactly one remote form with an OWNER/REPO path. A deeper path, or a
-        # remote wrapped in a parenthesis, angle brackets or quotes, now fails closed.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         self._assert_remote_bodies_reported("standard-git-remote-token-refused.md", (
             ("Clone git@gitlab.com:group/sub/repo.git here.\n", "git@gitlab.com"),
             ("See (git@github.com:o/r.git) here.\n", "git@github.com"),
@@ -26588,7 +26541,7 @@ class PIIContentTests(LinterTestCase):
                      "ssh://git@github.com/o", "git@github.com:o/r\u00e9", "git@github.com:o\u00e9/r"):
             with self.subTest(line=line):
                 self.assertEqual(wrapper._forge_service_matches(engine, line), [])
-        # Exactly one of . , ; : ) may follow the token before a space, a tab or the line end.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         for line in ("git@github.com:o/r.", "git@github.com:o/r.git,", "x\tssh://git@gitlab.com/o/r;",
                      "ssh://git@github.com/o.x/r_y-z.git: done", "(see git@gitlab.com:o/r) now"):
             with self.subTest(line=line):
@@ -26605,10 +26558,7 @@ class PIIContentTests(LinterTestCase):
                 self.assertIn(fragment, doc)
 
     def test_git_remote_token_rule_refuses_markup_unicode_space_and_nfkc_continuations(self) -> None:
-        # An HTML tag or comment, a non-ASCII space, or a character whose NFKC form ends in a dot
-        # or a closing parenthesis can hide a longer local part (alicegit@github.com or the
-        # obsolete alice.git@github.com), and so can a dot on the line before a block quote
-        # marker. Each stays reported.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         cases = (
             ("Mail alice<b></b>git@github.com:o/r now.\n", "git@github.com"),
             ("Mail alice<!---->git@github.com:o/r now.\n", "git@github.com"),
@@ -26629,8 +26579,71 @@ class PIIContentTests(LinterTestCase):
         for body, _ in cases:
             with self.subTest(paragraph=body):
                 self.assertEqual(wrapper._allowed_spans(engine, body.rstrip("\n")), [])
-        # A block quote marker alone before a remote is not a local-part continuation.
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         self.assertEqual(wrapper._allowed_spans(engine, "> Clone it\n> git@github.com:o/r"), [(13, 27)])
+
+    def _assert_remote_after_a_dot_behind_delimiters_reported(self, body: str, needle: str) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        self._assert_remote_bodies_reported("standard-git-remote-delimited-dot.md", ((body, needle),))
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_delimited_dot")
+        self.assertEqual(wrapper._allowed_spans(wrapper._engine(), body.rstrip("\n")), [])
+
+    def test_git_remote_allowance_refuses_a_dot_behind_strong_emphasis(self) -> None:
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail **alice.** git@github.com:o/r now.\n",
+                                                               "git@github.com")
+        self._assert_remote_after_a_dot_behind_delimiters_reported("> Mail **alice.**\n> git@github.com:o/r now.\n",
+                                                               "git@github.com")
+
+    def test_git_remote_allowance_refuses_a_dot_behind_emphasis(self) -> None:
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail *alice.* git@github.com:o/r now.\n",
+                                                               "git@github.com")
+
+    def test_git_remote_allowance_refuses_a_dot_behind_underscore_emphasis(self) -> None:
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail _alice._ git@gitlab.com:o/r now.\n",
+                                                               "git@gitlab.com")
+
+    def test_git_remote_allowance_refuses_a_dot_behind_a_code_span(self) -> None:
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail `alice.` git@github.com:o/r now.\n",
+                                                               "git@github.com")
+
+    def test_git_remote_allowance_refuses_a_dot_behind_strikethrough(self) -> None:
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail ~~alice.~~ git@github.com:o/r now.\n",
+                                                               "git@github.com")
+
+    def test_git_remote_allowance_allows_a_remote_after_an_emphasised_word_with_no_dot(self) -> None:
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_emphasis_no_dot")
+        engine = wrapper._engine()
+        for line in ("Mail **alice** git@github.com:o/r now.", "Mail *alice* git@github.com:o/r now.",
+                     "Mail _alice_ git@gitlab.com:o/r now.", "Mail `alice` git@github.com:o/r now.",
+                     "Mail ~~alice~~ git@github.com:o/r now.", "> **Clone it**\n> git@github.com:o/r"):
+            with self.subTest(line=line):
+                self.assertEqual(len(wrapper._allowed_spans(engine, line)), 1)
+        fixture = self.make_fixture("standard-git-remote-emphasis-no-dot.md", VALID_METADATA
+                                    + "\n\nMail **alice** git@github.com:o/r now.\n")
+        result = run_linter("tools/lint-pii-in-content.py", fixture)
+        self.assertEqual(result.returncode, 0, f"stdout:\n{result.stdout}")
+
+    def test_remote_rule_comments_point_to_the_module_docstring(self) -> None:
+        import ast
+
+        pointer = '# Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.'
+        lines = Path(__file__).resolve().read_text(encoding="utf-8").split("\n")
+        tree = ast.parse("\n".join(lines))
+        cls = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == "PIIContentTests")
+        methods = [n for n in cls.body if isinstance(n, ast.FunctionDef)
+                   and ("forge" in n.name or "remote" in n.name)]
+        self.assertGreaterEqual(len(methods), 30)
+        pointed = 0
+        for node in methods:
+            for number in range(node.lineno, node.end_lineno + 1):
+                stripped = lines[number - 1].strip()
+                if stripped.startswith("#"):
+                    with self.subTest(method=node.name, line=number):
+                        self.assertEqual(stripped, pointer)
+                    pointed += 1
+        self.assertGreater(pointed, 0)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_pointer")
+        self.assertIn("  - Git remote forms (FORGE_SERVICE_ADDRESSES,", wrapper.__doc__)
 
 
 class InternalReferencesTests(LinterTestCase):
@@ -46217,7 +46230,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-orphan-documents.py NO_FS F 7a5e4c9ba00700be7e6e97a67d6e24b8365f5e4463af5c5cc12f79a5a45f8ecd
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
-        lint-pii-in-content.py CWD F 030c109ef5a3c5cacd4ec535642d748b79584176abd39d1f6f9f876d428fab90
+        lint-pii-in-content.py CWD F 145b53229642e3661dafd941097219969ecab58152e353e1e3cf3c8fc049116e
         lint-placeholder-leakage.py CWD F 011f3e7a9a38fc875d6ec0458f9ff22fdbcc6f531a1d316fc4229b6e791c7eea
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a
