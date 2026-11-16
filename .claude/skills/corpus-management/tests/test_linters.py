@@ -2982,14 +2982,17 @@ class StandardsCurrencyTests(LinterTestCase):
         import contextlib
         from unittest import mock
 
-        root = self._not_covered_root(self.COVERED_ROW, self.UNCOVERED_ROW)
+        # The unmatched row sits on the Not covered line until a reader is gained for it;
+        # the row with a superseded edition sits on the Superseded editions matched line.
+        root = self._not_covered_root(self.COVERED_ROW, self.UNCOVERED_ROW, self.UNMATCHED_ROW)
+        gained = ("Example Widget Norm", "Example Gadget Rule")
         mod = load_linter_module(".claude/skills/corpus-management/tools/lint-standards-currency.py", "currency_not_covered")
         engine = mod._engine()
         original = engine.discover
 
         def with_widget_reader(source, suffix):
             found = original(source, suffix)
-            if source == "Example Widget Norm":
+            if source in gained:
                 found.append(dict(channel="grammar", identity=engine.identity_key(source)))
             return found
 
@@ -3004,6 +3007,9 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertEqual(code, 0, before)
         self.assertTrue(
             self._residual_line(before, self.SUPERSEDED_MATCHED).endswith(": Example Widget Norm")
+        )
+        self.assertTrue(
+            self._residual_line(before, self.NOT_COVERED).endswith(": Example Gadget Rule"), before
         )
         code, after = run(mock.patch.object(engine, "discover", with_widget_reader))
         self.assertEqual(code, 0, after)
@@ -32807,7 +32813,7 @@ class LintCommonHelperTests(unittest.TestCase):
         reftable = reftable_of(clone("dotdot"))
         (reftable / "tables.list").write_text(
             "".join(f"../../../table/.git/reftable/{name}\n" for name in names), encoding="utf-8")
-        refused["tables.list naming ../ paths"] = (td / "dotdot", reftable / "tables.list",
+        refused["tables.list naming ../ paths (E1)"] = (td / "dotdot", reftable / "tables.list",
                                                         table)
         reftable = reftable_of(clone("subdir-links"))
         (reftable / "sub").mkdir()
@@ -32816,7 +32822,7 @@ class LintCommonHelperTests(unittest.TestCase):
         (reftable / "tables.list").write_text("".join(f"sub/{name}\n" for name in names),
                                               encoding="utf-8")
         # The walk for symbolic links names the link inside sub.
-        refused["sub/<table> links"] = (td / "subdir-links", reftable / "sub" / min(names),
+        refused["sub/<table> links (E2)"] = (td / "subdir-links", reftable / "sub" / min(names),
                                              table)
         reftable = reftable_of(clone("one-linked"))
         for name in names:
@@ -32854,15 +32860,15 @@ class LintCommonHelperTests(unittest.TestCase):
             entry.unlink()
         for entry in (table / ".git" / "worktrees" / "their-worktree" / "reftable").iterdir():
             (reftable / entry.name).symlink_to(entry)
-        refused["a linked worktree's reftable linked"] = (
+        refused["a linked worktree's reftable linked (W1)"] = (
             td / "linked-worktree", min(reftable.iterdir()), td / "their-worktree")
         # git log --all reads that worktree's HEAD from the main checkout
         # and from every other worktree too.
         self.assertEqual(git("-C", str(main), "rev-parse", "worktrees/linked-worktree/HEAD"),
                          git("-C", str(td / "their-worktree"), "rev-parse", "HEAD"))
-        refused["another linked worktree's reftable linked, from the main checkout"] = (
+        refused["another linked worktree's reftable linked, from the main checkout (E1)"] = (
             main, min(reftable.iterdir()), None)
-        refused["another linked worktree's reftable linked, from a worktree"] = (
+        refused["another linked worktree's reftable linked, from a worktree (E1)"] = (
             td / "main-worktree", min(reftable.iterdir()), None)
         aliased_main = clone("aliased-main")
         git("-C", str(aliased_main), "worktree", "add", "-q", "--detach",
@@ -32877,7 +32883,7 @@ class LintCommonHelperTests(unittest.TestCase):
         reftable = notdir / ".git" / "worktrees" / "notdir-worktree" / "reftable"
         shutil.rmtree(reftable)
         reftable.write_bytes(b"")
-        refused["another linked worktree's reftable not a directory"] = (notdir, reftable, None)
+        refused["another linked worktree's reftable not a directory (E2)"] = (notdir, reftable, None)
 
         hook = SKILL_ROOT / "tools" / "git-hooks" / "pre-push"
         with mock.patch.dict(os.environ, env, clear=True):
@@ -34735,7 +34741,7 @@ class LintCommonHelperTests(unittest.TestCase):
         # git reads the other repository's ref as the worktree's HEAD.
         self.assertEqual(git("-C", str(td / "head-link-wt"), "rev-parse", "HEAD"),
                          git("-C", str(theirs), "rev-parse", "main"))
-        refused["a permitted worktree HEAD link naming a linked common ref"] = (
+        refused["E1: a permitted worktree HEAD link naming a linked common ref"] = (
             [ours, td / "head-link-wt"], foreign)
         ours = repo("deep")
         deep = ours / ".git" / "refs" / "tags" / "a" / "b"
@@ -43282,7 +43288,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         README.md DATA F 67fe21d3b7f132009e1e6e14899a090f897ede778d89cea59053ca2f3e20ced7
         adopt-bootstrap-ref.py OWN F ec19e2c45233ad02ca422349c0778a3c17463e6fc23fe9bf0591d822ac8d531c
         adopt-preflight-guard.py FIXED F 73ab980af0fa53c8a485af18b7bdaee1b7bfef218c37982593e30c66d7f85f66
-        aiqt_bootstrap.py PASSIVE F acd00711161471af6622fca1126aa7235d5725e33bbace8e74666e17d8b4de87
+        aiqt_bootstrap.py PASSIVE F 1f617d3d14213da6e225dabc21c49c253a3738531304e5c7924e87878c1d2206
         aiqt_rules.py NO_FS F dda2a6a5a217513fc2848e59029e111402fe85e8e765d6b9de7186bd8d9472d9
         alignment-register-aliases.json DATA F 7d9b0be1db9dcc1f81870c96309e2837cdf7da6fc16a78ea4f4b4ccca4e7b7e8
         alignment-register-exclusions.json DATA F 391924062319d3d5a618b1750b37dec6c0ee0c0d21b77b26518b16e51a418f19
@@ -43307,7 +43313,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-length-on-pr.py NO_FS F 91c9308103f36414f1975e2233cd82644551ca4a3996c4a2b9310b437004434a
         check-changelog-on-pr.py NO_FS F 00fa478d33343ae5d955e3faa7f99d9c61c6cda6f7a5e414dfcaf6ec6f7bf25b
         check-changelog-preflight-commit.py NO_FS F 9ec0a028e7e916fdfa542f6688b909b08a1c69fe66b3a7cb82d979689885f978
-        check-class-completeness.py NO_FS F d68b26ef430cb97944269e7aa911510897bc9c4002ad3c241a7a4bd09b58d70f
+        check-class-completeness.py NO_FS F 73db3e70b35f291dfc57c1ebc7a5bd689a5772fd58b5adb0b5bd69e572450189
         check-claude-md-size.py NO_FS F 5f0c8e37d4a1b36a6be924354a6cdfca69a4ba5498e77cee52012ccefc99764b
         check-clause-preservation.py OWN F 96d156bb17eb92ea45d096dae64345313ba8962de62b38a413a988aa7f8c8737
         check-clean-language-upstream.py NO_FS F 68e539ea645383d29ec9ded3cb44012af2afcfc78f820c172070a8c492665159
@@ -43412,7 +43418,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-todo-index-reference-parity.py OWN F 46ffb499a50fa6b5d64ac594776e5a26ad4e3c696fc48d8b5e4fc8b4646a2b22
         lint-todo-list-tag.py OWN F 10ee5371268378b28c9097a588515231d625ab63b5e5b1b9f3533f4d85db9b2d
         lint-todo-marked-done.py ROOT F 9d5f28f83917e26a4cd0bffde756fded4a2bf4259b809472bc1757a6dbc1b212
-        lint-todo-number-permanence.py OWN F 002df1b230d466a8125e028e86a3aaa8b21d195627066ee1d73031878e7cfa86
+        lint-todo-number-permanence.py OWN F 3f7117eef630156c5253f38e4a5f2532b237b49d7335914b5d73fa97457bf5fb
         lint-todo-staleness.py NO_FS F 6a89123607678239f036cab7bf02e0a0885216f55ba0b23fb53799e30c40cffb
         lint-tooling-backlog-refs.py OWN F be54fcdef171bc30e7d0393ca2c097904f464cad7bde9a233f7ee663edd741a5
         lint-tooling-provenance-freshness.py OWN F ab5b885be8a4a7af28e6c441ea4439cc32ce553a6167946ec40d49f50f0f6b02
@@ -56644,6 +56650,29 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
             with self.subTest(case_id=case_id):
                 self.assertIn(f'checks.append(("{case_id}",', source)
 
+    def test_check_class_completeness_counts_a_repeated_string_once(self) -> None:
+        # A string given twice on the command line is listed and totalled once; before,
+        # each hit was appended once per copy and the list printed once per copy, so the
+        # advisory total grew with the square of the repetitions.
+        import contextlib
+        from unittest import mock
+        mod = load_linter_module(".claude/skills/corpus-management/tools/check-class-completeness.py",
+                                 "class_completeness_repeat")
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as td:
+            doc = Path(td) / "doc.md"
+            doc.write_text("a needle here\nanother needle, and a needle\n", encoding="utf-8")
+            for argv in (["needle"], ["needle", "needle"], ["needle", "needle", "needle"]):
+                with self.subTest(argv=argv):
+                    buf = io.StringIO()
+                    with mock.patch.object(mod, "corpus_files", return_value=[doc]), \
+                            contextlib.redirect_stdout(buf):
+                        rc = mod.main(["check-class-completeness.py", *argv])
+                    out = buf.getvalue()
+                    self.assertEqual(rc, 0, out)
+                    self.assertEqual(out.count("=== 3 occurrence(s) of 'needle' ==="), 1, out)
+                    self.assertEqual(out.count("=== "), 1, out)
+                    self.assertIn("ADVISORY: 3 occurrence(s) across 1 searched corpus file(s)", out)
+
     def test_check_clean_language_upstream_self_test_passes(self) -> None:
         # The clean-language upstream-drift check's classify() self-test (drift on a changed /
         # missing-either-side blob SHA), wired here so the monthly-check logic cannot silently
@@ -58287,7 +58316,7 @@ class TodoNumberPermanenceTests(LinterTestCase):
             m.find_stale_counters({}, {}, {"2": ("2.33", 10)}, floor={"2": 32}))
 
     def _run(self, name: str, todo: str, done: str | None, ptodo: str | None = None,
-             floor: dict | None = None):
+             floor: dict | None = None, pexempt: dict | None = None):
         """Build a synthetic {.working/TODO.md, .working/DONE.md} root and run the gate.
 
         Returns the completed process. The caller cleans up via the returned
@@ -58320,6 +58349,9 @@ class TodoNumberPermanenceTests(LinterTestCase):
             (root / ".working" / "DONE.md").write_text(done, encoding="utf-8")
         if ptodo is not None:
             (root / "P-TODO.md").write_text(ptodo, encoding="utf-8")
+        if pexempt is not None:
+            import json as _json
+            (root / "todo-number-exempt.json").write_text(_json.dumps(pexempt), encoding="utf-8")
         if floor is not None:
             import json as _json
             (root / ".claude/skills/corpus-management/tools").mkdir(parents=True, exist_ok=True)
@@ -58543,6 +58575,20 @@ class TodoNumberPermanenceTests(LinterTestCase):
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
 
+    # A fixture private store's exemption rows, in the format the private sibling's
+    # todo-number-exempt.json holds: a family row and a single-entry row, each keyed by a
+    # private backlog id, which the public tool no longer carries.
+    PEXEMPT_FIXTURE = {"rows": [
+        ["P-1.25", "P-1.25 Phase", "date not recorded; heading: P-1.25 Phase"],
+        ["P-9.2", "P-9.2 first slice",
+         "2026-09-23; heading: P-9.2 first slice"],
+    ]}
+    PEXEMPT_DONE = ("# DONE\n\n### PR #1423: P-1.25 Phase 1 - narrative disclaimer-presence "
+                    "gate (gate 89) (2026-08-06)\n\nBody.\n\n"
+                    "### PR #1500: P-9.2 first slice (2026-09-23)\n\nBody.\n")
+    PEXEMPT_PTODO = ("# P-TODO\n\n### P-1.25 Executive narrative umbrella (live)\n\nBody.\n\n"
+                     "### P-9.2 A synthetic umbrella (live)\n\nBody.\n")
+
     def test_pid_exempt_partial_close(self) -> None:
         # EXEMPT positive control: a live P-1.25 umbrella with a 'P-1.25 Phase N'
         # partial-close DONE heading passes via the family EXEMPT row.
@@ -58552,6 +58598,8 @@ class TodoNumberPermanenceTests(LinterTestCase):
             "# DONE\n\n### PR #1423: P-1.25 Phase 1 - narrative disclaimer-presence "
             "gate (gate 89) (2026-08-06)\n\nBody.\n",
             ptodo="# P-TODO\n\n### P-1.25 Executive narrative umbrella (live)\n\nBody.\n",
+            # The family row is read from the private store, not from the public tool.
+            pexempt=self.PEXEMPT_FIXTURE,
         )
         try:
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -58560,6 +58608,103 @@ class TodoNumberPermanenceTests(LinterTestCase):
             self.assertNotIn("OK: P-TODO.md not present (", result.stdout)
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
+
+    def test_public_exempt_rows_name_no_private_backlog_id(self) -> None:
+        # The public tool keeps only rows without a private backlog id; a private-id row in
+        # EXEMPT would publish that id, and the private rows start empty until main() reads
+        # the private store.
+        m = self._perm_module()
+        pid = re.compile(r"\bP-\d+\.\d+")
+        leaked = [k for k, v in m.EXEMPT.items()
+                  if pid.search(k[0]) or pid.search(k[1]) or pid.search(v)]
+        self.assertEqual(leaked, [])
+        self.assertEqual(m.PRIVATE_EXEMPT, {})
+        self.assertIn(("3.57", "apply wave complete"), m.EXEMPT)
+        self.assertEqual(m.PEXEMPT_REL, "todo-number-exempt.json")
+
+    def test_pid_partial_close_flagged_without_the_private_exempt_file(self) -> None:
+        # With the private list present but no exemption file beside it, a private-id
+        # partial close has no row and is reported (fail closed); with the fixture store
+        # file it passes. Both live ids are named, so neither row lives in the tool.
+        root, result = self._run("perm-pid-no-pexempt",
+                                 "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n",
+                                 self.PEXEMPT_DONE, ptodo=self.PEXEMPT_PTODO)
+        try:
+            self.assertLinterFails(result, "P-1.25")
+            self.assertIn("P-9.2", result.stdout)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+        root, result = self._run("perm-pid-pexempt",
+                                 "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n",
+                                 self.PEXEMPT_DONE, ptodo=self.PEXEMPT_PTODO,
+                                 pexempt=self.PEXEMPT_FIXTURE)
+        try:
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("OK: 3 live backlog item(s) (.working/TODO.md + P-TODO.md),", result.stdout)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_private_exempt_store_read_through_the_sibling_resolver(self) -> None:
+        """The default lookup reads the exemption rows from the private sibling that
+        resolve_sibling returns, the resolver the private list is read through. With the
+        store absent the private list and its rows are skipped together (exit 0, one
+        DEGRADED notice); with the store present the fixture rows exempt both partial
+        closes; a malformed file or a directory in its place exits 2 naming it."""
+        import contextlib
+        import json as _json
+        root = Path(tempfile.mkdtemp(prefix="perm-pexempt-store-", dir=FIXTURE_DIR))
+        try:
+            (root / ".working").mkdir(parents=True, exist_ok=True)
+            (root / ".working/TODO.md").write_text(
+                "# TODO\n\n| ID | Item | Tags |\n| --- | --- | --- |\n| 2.3 | A public item | `[public]` |\n",
+                encoding="utf-8")
+            done = root / ".working" / "DONE.md"
+            done.write_text(self.PEXEMPT_DONE, encoding="utf-8")
+            store = root / "private"
+            store.mkdir()
+            (store / "P-TODO.md").write_text(self.PEXEMPT_PTODO, encoding="utf-8")
+
+            def run(resolved):
+                m = self._perm_module()
+                m.REPO_ROOT = root
+                m.resolve_working = lambda _rel, **_kw: done
+                m.resolve_sibling = lambda _name, _s=resolved, **_kw: _s
+                out, err = io.StringIO(), io.StringIO()
+                with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                    rc = m.main(["lint-todo-number-permanence.py"])
+                return rc, out.getvalue(), err.getvalue(), m
+
+            rc, out, err, m = run(None)
+            self.assertEqual(rc, 0, out + err)
+            self.assertEqual(m.PRIVATE_EXEMPT, {})
+            self.assertEqual(len([ln for ln in out.splitlines()
+                                  if ln.startswith("DEGRADED: gate 78 skipped ")]), 1, out)
+            rc, out, err, m = run(store)
+            self.assertEqual(rc, 1, out + err)
+            self.assertIn("P-1.25", out)
+            self.assertIn("P-9.2", out)
+            pexempt = store / "todo-number-exempt.json"
+            pexempt.write_text(_json.dumps(self.PEXEMPT_FIXTURE), encoding="utf-8")
+            rc, out, err, m = run(store)
+            self.assertEqual(rc, 0, out + err)
+            self.assertEqual(set(m.PRIVATE_EXEMPT),
+                             {("P-1.25", "P-1.25 Phase"),
+                              ("P-9.2", "P-9.2 first slice")})
+            for label, body in (("not JSON", "{rows"),
+                                ("a row of two parts", '{"rows": [["P-1.25", "P-1.25 Phase"]]}'),
+                                ("no rows list", '{"row": []}')):
+                with self.subTest(malformed=label):
+                    pexempt.write_text(body, encoding="utf-8")
+                    rc, out, err, _m = run(store)
+                    self.assertEqual(rc, 2, out + err)
+                    self.assertIn(f"ERROR: cannot parse {pexempt}", err)
+            pexempt.rename(store / "moved-aside.json")
+            pexempt.mkdir()
+            rc, out, err, _m = run(store)
+            self.assertEqual(rc, 2, out + err)
+            self.assertIn(f"{pexempt} is present but is not a regular file", err)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
 
     def test_pid_token_boundaries(self) -> None:
         # Direct parse_retired boundary controls: undotted 'P-384' (NIST curve)
@@ -61613,7 +61758,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.23.7", "0.23.7 removes internal work references from the lint-standards-currency origin in core/gates.toml and from two --aiqt-root refusal messages in tools/corpus_mgmt_compiler.py; gate 62 refuses as malformed a table cell whose local-section exception path leaves its link's parenthesis unclosed, and the corpus-scan-integrity origin in core/clauses.toml is reworded; no gate or register key changes (PATCH); the residual lists in tools/gate_lint_language.py's docstring and URL-mask comment now name the comma-and-digit path form. The release history in src/README.md describes each version from 0.22.2")
+        self.assertEqual(man["pack"]["version"], "0.23.7", "0.23.7 removes internal work references from the lint-standards-currency origin in core/gates.toml and from two --aiqt-root refusal messages in tools/corpus_mgmt_compiler.py; gate 62 refuses as malformed a table cell whose local-section exception path leaves its link's parenthesis unclosed and accepts as local a closed exception path holding a nested parenthetical, which it formerly checked against the target, and the corpus-scan-integrity origin in core/clauses.toml is reworded; no gate or register key changes (PATCH); the residual lists in tools/gate_lint_language.py's docstring and URL-mask comment now name the comma-and-digit path form. The release history in src/README.md describes each version from 0.22.2")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")

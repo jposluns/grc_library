@@ -4130,13 +4130,14 @@ def _adopter_metadata(text, rel):
     leading block fails the build loudly instead of rendering something
     else. The section heading that stops the read is a level-two ``## ``
     heading; a ``# `` title line, which opens a file above its block, does
-    not stop it."""
+    not stop it. A heading or rule stops the read only when indented by at
+    most three spaces: four spaces or a tab before ``## `` or ``---`` make
+    an indented code line, not a heading or rule, and the read goes on."""
     fields = {}
     seen = False
     for line in text.splitlines():
         s = line.strip()
-        if _adopter_fence_line(line) or s.startswith("---") \
-                or s.startswith("## "):
+        if _adopter_fence_line(line) or re.match(r" {0,3}(?:---|## )", line):
             break
         if not s and seen:
             break

@@ -81,8 +81,10 @@ false-negative cost:
      yield nothing, not the parent ``P-N.M``), (b) skips an id preceded by
      a destination cue (``absorbed into P-N.M``) or followed by a creation
      participle (``P-N.M created``), both naming a LIVE id, and (c) relies
-     on the same EXEMPT dict for live-umbrella partial closes (the P-id
-     section, including two same-id FAMILY rows). Series P-1 has NO public
+     on the EXEMPT rows for live-umbrella partial closes (the P-id rows,
+     including two same-id FAMILY rows, are read from the private sibling's
+     ``todo-number-exempt.json``, so this public file names no private
+     id; with no sibling there is no private list to check either). Series P-1 has NO public
      floor backstop, so this pass is its ONLY recycle protection.
 
      ACCEPTED LIMITATION (bare in-paren ids). The P-pass strips parentheticals
@@ -178,7 +180,9 @@ false-negative cost:
      still-open umbrella item legitimately names a live number (for example
      ``### TODO §N.M (apply wave complete; item stays open for the matrix
      TSC-column residual): ...``). Those are listed in ``EXEMPT`` keyed by
-     ``(id, distinctive_heading_substring)`` with the entry's date, so an
+     ``(id, distinctive_heading_substring)`` with the entry's date (a row
+     keyed by a private backlog id goes in the private sibling's
+     ``todo-number-exempt.json`` instead, read into ``PRIVATE_EXEMPT``), so an
      exemption cannot silently widen to a different entry. In the earlier
      repository, a line-number key was tried first and REJECTED on
      measurement: one unrelated PR shifted both entries by 4 lines and both
@@ -269,6 +273,10 @@ DONE_REL = ".working/DONE.md"
 # The private backlog list lives ONLY in the private sibling (no in-repo
 # fallback, unlike .working/); absent for public CI / adopter clones.
 PTODO_REL = "P-TODO.md"
+# The partial-close exemption rows keyed by a private backlog id live beside the private list,
+# in the same sibling, so the public tool names no private id. Format: a JSON object
+# {"rows": [[id, distinctive heading substring, "<date>; heading: <substring>"], ...]}.
+PEXEMPT_REL = "todo-number-exempt.json"
 
 # Live index rows and '### <id>' headings are read through .claude/skills/corpus-management/tools/todo_index_rows.py (index_rows, item_headings),
 # the grammar the audit tool and the decision-log hook count with (design note 5). The gate keeps no
@@ -351,7 +359,7 @@ THREEB_LEAD_PARTIAL_RE = re.compile(
 # entries by 4 lines and both exemptions lapsed), which would make the gate
 # unusable per-commit. Each § substring below was checked to match exactly ONE of
 # DONE.md's entry headings, so an exemption cannot widen to another entry. The
-# P-id partial-close section adds two FAMILY rows (a distinctive id-prefixed
+# P-id partial-close rows (read from the private sibling, see PEXEMPT_REL) add two FAMILY rows (a distinctive id-prefixed
 # substring matching a batch of the SAME id's headings, e.g. 'P-N.M Phase'):
 # these are id-scoped by _exempt so they still cannot widen to a DIFFERENT item,
 # only to more of the same live id's own partial closes.
@@ -409,266 +417,9 @@ EXEMPT: dict[tuple[str, str], str] = {
     ("5.9", "NYC-LL144"): (
         "2026-07-24; heading: NYC-LL144"
     ),
-    # --- P-id partial closes. The private backlog ids (P-N.M) that
-    #     P_RETIRED_RE detects. Each is a live private backlog umbrella whose
-    #     DONE headings closed one phase/batch/sub-item. Two are FAMILY rows
-    #     (a distinctive id-prefixed substring matching a batch of same-id
-    #     headings): scoped to the id by _exempt, so a family row cannot
-    #     widen to a different item, only to more of the SAME live id's own
-    #     partial closes, which is acceptable because recycling that id is
-    #     forbidden anyway. ---
-    ("P-1.25", "P-1.25 Phase"): (
-        "date not recorded; heading: P-1.25 Phase"
-    ),
-    ("P-1.77", "P-1.77 pt1 gate-98 whole-pin canonical-form schema"): (
-        "2026-09-06; heading: P-1.77 pt1 gate-98 whole-pin canonical-form schema"
-    ),
-    ("P-1.77", "P-1.77 pt2 gate-35 argv-parity"): (
-        "2026-09-07; heading: P-1.77 pt2 gate-35 argv-parity"
-    ),
-    ("P-1.60", "P-1.60 batch 1"): (
-        "2026-09-07; heading: P-1.60 batch 1"
-    ),
-    ("P-1.60", "P-1.60 batch 2"): (
-        "2026-09-07; heading: P-1.60 batch 2"
-    ),
-    ("P-1.60", "P-1.60 batch 3"): (
-        "2026-09-07; heading: P-1.60 batch 3"
-    ),
-    ("P-1.60", "P-1.60 batch 4a"): (
-        "2026-09-07; heading: P-1.60 batch 4a"
-    ),
-    ("P-1.60", "P-1.60 batch 5"): (
-        "2026-09-07; heading: P-1.60 batch 5"
-    ),
-    ("P-1.60", "P-1.60 batch 6"): (
-        "2026-09-07; heading: P-1.60 batch 6"
-    ),
-    ("P-1.60", "P-1.60 batch 8"): (
-        "2026-09-07; heading: P-1.60 batch 8"
-    ),
-    ("P-1.60", "P-1.60 batch 9"): (
-        "2026-09-07; heading: P-1.60 batch 9"
-    ),
-    ("P-1.60", "P-1.60 batch 10"): (
-        "2026-09-07; heading: P-1.60 batch 10"
-    ),
-    ("P-1.60", "P-1.60 batch 11"): (
-        "2026-09-07; heading: P-1.60 batch 11"
-    ),
-    ("P-1.60", "P-1.60 batch 12"): (
-        "2026-09-07; heading: P-1.60 batch 12"
-    ),
-    ("P-1.60", "P-1.60 batch 13"): (
-        "2026-09-07; heading: P-1.60 batch 13"
-    ),
-    ("P-1.60", "P-1.60 batch 15a"): (
-        "2026-09-07; heading: P-1.60 batch 15a"
-    ),
-    ("P-1.60", "P-1.60 batch 15b"): (
-        "2026-09-07; heading: P-1.60 batch 15b"
-    ),
-    ("P-1.60", "P-1.60 batch 16"): (
-        "2026-09-07; heading: P-1.60 batch 16"
-    ),
-    ("P-1.60", "P-1.60 batch 17"): (
-        "2026-09-07; heading: P-1.60 batch 17"
-    ),
-    ("P-1.60", "P-1.60 batch 18"): (
-        "2026-09-07; heading: P-1.60 batch 18"
-    ),
-    ("P-1.60", "P-1.60 batch 19"): (
-        "2026-09-07; heading: P-1.60 batch 19"
-    ),
-    ("P-1.60", "P-1.60 batch 20"): (
-        "2026-09-07; heading: P-1.60 batch 20"
-    ),
-    ("P-1.60", "P-1.60 batch 21"): (
-        "2026-09-07; heading: P-1.60 batch 21"
-    ),
-    ("P-1.60", "P-1.60 batch 22"): (
-        "2026-09-07; heading: P-1.60 batch 22"
-    ),
-    ("P-1.60", "P-1.60 batch 23"): (
-        "2026-09-07; heading: P-1.60 batch 23"
-    ),
-    ("P-1.60", "P-1.60 CCM-Hybrid batch-1 -"): (
-        "2026-09-08; heading: P-1.60 CCM-Hybrid batch-1 -"
-    ),
-    ("P-1.60", "P-1.60 CCM-Hybrid batch-2 -"): (
-        "2026-09-08; heading: P-1.60 CCM-Hybrid batch-2 -"
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 1"): (
-        "2026-09-13; heading: P-1.60 ai-slice control-fit remediation batch 1"
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 2"): (
-        "2026-09-13; heading: P-1.60 ai-slice control-fit remediation batch 2"
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 3"): (
-        "2026-09-13; heading: P-1.60 ai-slice control-fit remediation batch 3"
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 4"): (
-        "2026-09-13; heading: P-1.60 ai-slice control-fit remediation batch 4"
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 5"): (
-        "2026-09-13; heading: P-1.60 ai-slice control-fit remediation batch 5"
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 6"): (
-        "2026-09-13; heading: P-1.60 ai-slice control-fit remediation batch 6"
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 7"): (
-        "2026-09-13; heading: P-1.60 ai-slice control-fit remediation batch 7"
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 8"): (
-        "2026-09-13; heading: P-1.60 ai-slice control-fit remediation batch 8"
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 9"): (
-        "2026-09-13; heading: P-1.60 ai-slice control-fit remediation batch 9"
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 10"): (
-        "2026-09-13; heading: P-1.60 ai-slice control-fit remediation batch 10"
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 11"): (
-        "2026-09-13; heading: P-1.60 ai-slice control-fit remediation batch 11"
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 12"): (
-        "2026-09-13; heading: P-1.60 ai-slice control-fit remediation batch 12"
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 13"): (
-        "2026-09-13; heading: P-1.60 ai-slice control-fit remediation batch 13"
-    ),
-    ("P-1.60", "P-1.60 non-ai security-domain control-fit batch 1"): (
-        "2026-09-13; heading: P-1.60 non-ai security-domain control-fit batch 1"
-    ),
-    ("P-1.60", "P-1.60 non-ai security batch 2"): (
-        "2026-09-13; heading: P-1.60 non-ai security batch 2"
-    ),
-    ("P-1.60", "P-1.60 non-ai security batch 3"): (
-        "2026-09-13; heading: P-1.60 non-ai security batch 3"
-    ),
-    ("P-1.60", "P-1.60 security batch 4"): (
-        "2026-09-13; heading: P-1.60 security batch 4"
-    ),
-    ("P-1.60", "P-1.60 security batch 5"): (
-        "2026-09-13; heading: P-1.60 security batch 5"
-    ),
-    ("P-1.60", "P-1.60 security batch 6"): (
-        "2026-09-13; heading: P-1.60 security batch 6"
-    ),
-    ("P-1.60", "P-1.60 security batch 7"): (
-        "2026-09-13; heading: P-1.60 security batch 7"
-    ),
-    ("P-1.60", "P-1.60 security batch 8"): (
-        "2026-09-13; heading: P-1.60 security batch 8"
-    ),
-    ("P-1.60", "P-1.60 security batch 9"): (
-        "2026-09-13; heading: P-1.60 security batch 9"
-    ),
-    ("P-1.60", "P-1.60 security batch 10"): (
-        "2026-09-13; heading: P-1.60 security batch 10"
-    ),
-    ("P-1.60", "P-1.60 security batch 11"): (
-        "2026-09-13; heading: P-1.60 security batch 11"
-    ),
-    ("P-1.60", "P-1.60 security batch 12"): (
-        "2026-09-13; heading: P-1.60 security batch 12"
-    ),
-    ("P-1.60", "P-1.60 security batch 13"): (
-        "2026-09-13; heading: P-1.60 security batch 13"
-    ),
-    ("P-1.60", "P-1.60 security batch 14"): (
-        "2026-09-13; heading: P-1.60 security batch 14"
-    ),
-    ("P-1.60", "P-1.60 operations batch 1"): (
-        "2026-09-13; heading: P-1.60 operations batch 1"
-    ),
-    ("P-1.60", "P-1.60 operations batch 2"): (
-        "2026-09-13; heading: P-1.60 operations batch 2"
-    ),
-    ("P-3.202", "P-3.202 synchronous-model cutover-leftover"): (
-        "date not recorded; heading: P-3.202 synchronous-model cutover-leftover"
-    ),
-    ("P-3.209", "P-3.209 batch"): (
-        "date not recorded; heading: P-3.209 batch"
-    ),
-    ("P-3.209", "P-3.209 cadence-consistency findings"): (
-        "date not recorded; heading: P-3.209 cadence-consistency findings"
-    ),
-    ("P-1.31", "P-1.31 item"): (
-        "date not recorded; heading: P-1.31 item"
-    ),
-    ("P-3.214", "P-3.214 ISO 19011:2018"): (
-        "date not recorded; heading: P-3.214 ISO 19011:2018"
-    ),
-    ("P-3.214", "P-3.214 currency"): (
-        "date not recorded; heading: P-3.214 currency"
-    ),
-    ("P-3.214", "P-3.214 B-3"): (
-        "date not recorded; heading: P-3.214 B-3"
-    ),
-    ("P-3.214", "P-3.214 confirmed errors"): (
-        "date not recorded; heading: P-3.214 confirmed errors"
-    ),
-    ("P-3.217", "P-3.217 HIGH citation defects"): (
-        "date not recorded; heading: P-3.217 HIGH citation defects"
-    ),
-    ("P-3.217", "P-3.217 residue M16/M17"): (
-        "date not recorded; heading: P-3.217 residue"
-    ),
-    ("P-3.217", "P-3.217 HIGH-tier disposition"): (
-        "date not recorded; heading: P-3.217 HIGH-tier disposition"
-    ),
-    ("P-1.70", "P-1.70 part 3"): (
-        "2026-09-05; heading: P-1.70 part 3"
-    ),
-    ("P-1.70", "P-1.70 part-2b"): (
-        "2026-09-05; heading: P-1.70 part-2b"
-    ),
-    ("P-1.36", "grc-machinery guardrail inventory-and-classify"): (
-        "2026-09-17; heading: grc-machinery guardrail inventory-and-classify"
-    ),
-    ("P-1.36", "CONSIDER-INSTEAD hook-message form"): (
-        "2026-09-18; heading: CONSIDER-INSTEAD hook-message form"
-    ),
-    ("P-1.63", "P-1.63(d) gate 96 checks OWASP ASVS"): (
-        "2026-09-25; heading: P-1.63(d) gate 96 checks OWASP ASVS"
-    ),
-    ("P-1.63", "matrix batch-5c"): (
-        "2026-09-18; heading: matrix batch-5c"
-    ),
-    ("P-1.63", "matrix batch-5b"): (
-        "2026-09-18; heading: matrix batch-5b"
-    ),
-    ("P-1.63", "matrix batch-5a"): (
-        "2026-09-18; heading: matrix batch-5a"
-    ),
-    ("P-1.63", "matrix batch-4b"): (
-        "2026-09-18; heading: matrix batch-4b"
-    ),
-    ("P-1.63", "matrix batch-4a"): (
-        "2026-09-18; heading: matrix batch-4a"
-    ),
-    ("P-1.63", "matrix batch-3a"): (
-        "2026-09-18; heading: matrix batch-3a"
-    ),
-    ("P-1.63", "matrix batch-2b"): (
-        "2026-09-18; heading: matrix batch-2b"
-    ),
-    ("P-1.63", "matrix campaign batch-2a"): (
-        "2026-09-18; heading: matrix campaign batch-2a"
-    ),
-    ("P-1.63", "matrix campaign batch-1a"): (
-        "2026-09-18; heading: matrix campaign batch-1a"
-    ),
-    ("P-1.63", "stranded matrix CCM code fix (GRC-01 dropped)"): (
-        "2026-09-17; heading: stranded matrix CCM code fix (GRC-01 dropped)"
-    ),
-    ("P-3.213", "P-3.213 PR1 citation-coverage discovery"): (
-        "2026-09-23; heading: P-3.213 PR1 citation-coverage discovery"
-    ),
-    ("P-3.213", "P-3.213 part (gate 6 ratchet) merged, item stays open"): (
-        "2026-10-28; heading: P-3.213 part (gate 6 ratchet) merged, item stays open"
-    ),
+    # Rows keyed by a private backlog id (P-N.M) are not kept in this public file: they live in
+    # the private sibling's todo-number-exempt.json and are read into PRIVATE_EXEMPT at run time
+    # (see _load_private_exempt).
 }
 
 
@@ -926,9 +677,32 @@ def parse_counters(text: str) -> dict[str, tuple[str, int]]:
     return counters
 
 
+# The private-id rows read from the private sibling's PEXEMPT_REL by main(); empty when the
+# sibling or the file is absent, so a private-id partial close then has no exemption.
+PRIVATE_EXEMPT: dict[tuple[str, str], str] = {}
+
+
+def _load_private_exempt(text: str) -> dict[tuple[str, str], str]:
+    """Parse the private exemption file: a JSON object whose ``rows`` member is a list of
+    ``[id, distinctive heading substring, value]`` string triples. Raises ``ValueError``
+    naming the first malformed part (guards against a malformed row silently exempting
+    nothing, or everything)."""
+    import json
+    data = json.loads(text)
+    if not isinstance(data, dict) or not isinstance(data.get("rows"), list):
+        raise ValueError("the file is not a JSON object with a 'rows' list")
+    rows: dict[tuple[str, str], str] = {}
+    for n, row in enumerate(data["rows"], 1):
+        if (not isinstance(row, list) or len(row) != 3
+                or not all(isinstance(part, str) and part for part in row)):
+            raise ValueError(f"row {n} is not three nonempty strings")
+        rows[(row[0], row[1])] = row[2]
+    return rows
+
+
 def _exempt(item_id: str, heading: str) -> bool:
     """True if (id, heading) matches a recorded partial-close exemption."""
-    for (exempt_id, marker) in EXEMPT:
+    for (exempt_id, marker) in (*EXEMPT, *PRIVATE_EXEMPT):
         if exempt_id == item_id and marker in heading:
             return True
     return False
@@ -1012,7 +786,7 @@ def find_cross_list_collisions(
 
 
 def main(argv: list[str]) -> int:
-    global REPO_ROOT
+    global REPO_ROOT, PRIVATE_EXEMPT
     parser = argparse.ArgumentParser(
         description="Detect a recycled TODO item number or a stale item-number counter."
     )
@@ -1089,6 +863,8 @@ def main(argv: list[str]) -> int:
     if args.root is not None:
         cand = REPO_ROOT / PTODO_REL   # verbatim under an explicit synthetic root
         ptodo_path = cand if cand.is_file() else None
+        pexempt = REPO_ROOT / PEXEMPT_REL
+        pexempt_path = pexempt if pexempt.is_file() else None
     else:
         # Strict: an ABSENT sibling still takes the degraded path below, but one that is
         # present and unusable (a file, a FIFO, a dangling link, an unsearchable parent) refuses.
@@ -1100,6 +876,7 @@ def main(argv: list[str]) -> int:
             return 2
         cand = (private / PTODO_REL) if private is not None else None
         ptodo_path = None
+        pexempt_path = None
         if cand is not None:
             # Probe as gate 90 does (list the sibling, then strict_kind), not with
             # Path.is_file, which reads a file in an unsearchable sibling as absent (3.12+) or
@@ -1107,6 +884,8 @@ def main(argv: list[str]) -> int:
             try:
                 os.listdir(private)
                 kind = strict_kind(cand)
+                pexempt = private / PEXEMPT_REL
+                pexempt_kind = strict_kind(pexempt)
             except OSError as exc:
                 print(f"ERROR: the private sibling is present but unusable: cannot examine "
                       f"{exc.filename or cand} ({exc.strerror}).", file=sys.stderr)
@@ -1116,6 +895,11 @@ def main(argv: list[str]) -> int:
                       f"but is not a regular file.", file=sys.stderr)
                 return 2
             ptodo_path = cand if kind == "file" else None
+            if pexempt_kind not in (None, "file"):
+                print(f"ERROR: the private sibling is present but unusable: {pexempt} is present "
+                      f"but is not a regular file.", file=sys.stderr)
+                return 2
+            pexempt_path = pexempt if pexempt_kind == "file" else None
         # The DEFAULT lookup's skips exit 0, so a green full-suite run must not read as a pass.
         # Each skip names its own cause; the private list is skipped for an absent sibling AND
         # for a usable sibling with no private list in it, so the notice says which.
@@ -1142,6 +926,10 @@ def main(argv: list[str]) -> int:
         )
         reading = ptodo_path
         ptodo_text = ptodo_path.read_text(encoding="utf-8") if ptodo_path is not None else ""
+        reading = pexempt_path
+        pexempt_text = (
+            pexempt_path.read_text(encoding="utf-8") if pexempt_path is not None else None
+        )
     except OSError as exc:
         print(f"ERROR: cannot read a required file: {exc}", file=sys.stderr)
         return 2
@@ -1149,6 +937,15 @@ def main(argv: list[str]) -> int:
         print(f"ERROR: cannot decode {reading} as UTF-8 ({exc.reason} at byte {exc.start}).",
               file=sys.stderr)
         return 2
+    # An absent sibling or file leaves no private-id row (the private list is skipped with the
+    # sibling); a present but malformed file exits 2 naming it rather than exempting nothing.
+    PRIVATE_EXEMPT = {}
+    if pexempt_text is not None:
+        try:
+            PRIVATE_EXEMPT = _load_private_exempt(pexempt_text)
+        except ValueError as exc:
+            print(f"ERROR: cannot parse {pexempt_path}: {exc}.", file=sys.stderr)
+            return 2
     # Name only the lists actually read, and say so explicitly when the private list is absent (gate 81's style).
     lists_read = f"{TODO_REL} + {PTODO_REL}" if ptodo_path is not None else TODO_REL
     if ptodo_path is None:
@@ -1226,7 +1023,8 @@ def main(argv: list[str]) -> int:
     print("its item, and every edit advances its section's 'Next item number' counter.")
     print("Fix the artefact (renumber the new item, or advance the counter); do not")
     print("weaken this gate. A legitimate partial-close entry against a still-open")
-    print("umbrella item goes in EXEMPT, keyed by its id and a distinctive heading")
+    print("umbrella item goes in EXEMPT (a private backlog id's row goes in the private")
+    print(f"sibling's {PEXEMPT_REL} instead), keyed by its id and a distinctive heading")
     print("substring, valued '<date>; heading: <substring>' with the entry's date, or")
     print("'date not recorded; heading: <substring>' when it has none, the value's")
     print("heading text leaving out finding ids that the key keeps; a family row's")

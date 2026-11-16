@@ -1503,11 +1503,15 @@ class RepoLinkAllowListTests(unittest.TestCase):
         self.assertIn(f"| {target} | /synthetic/ | one |", text)
 
     def test_faked_boundaries_fail(self):
-        # Faked boundaries (flips: skip a WHATWG cleaning step so a tab,
-        # newline, carriage return or backslash still splits a
-        # destination, restore the old refresh regex that cut the URL at
-        # whitespace, drop the srcset descriptor refusal, or re-admit the
-        # quote and parenthesis boundary set): browsers remove tab,
+        # Faked boundaries (flips: restore the old refresh regex that cut
+        # the URL at whitespace, drop the srcset descriptor refusal, or
+        # re-admit the quote and parenthesis boundary set; skipping the
+        # WHATWG removal of tab, newline and carriage return does NOT fail
+        # this test, since the uncleaned destination consumes nothing
+        # either and fails with the same message, so
+        # test_cleaned_destinations_consume_entries and
+        # test_cleaning_strips_newline_and_carriage_return_separately
+        # guard that step instead): browsers remove tab,
         # newline and carriage return inside a URL and read a backslash as
         # a slash, and a quote or parenthesis is URL material, so each
         # spelling below is one DIFFERENT destination; it can consume
@@ -18573,6 +18577,25 @@ class AdopterDocsFixtureTests(unittest.TestCase):
                  "First prose line. ### not a heading")):
             with self.subTest(text=text):
                 self.assertEqual(self.mod._adopter_purpose(text), lede)
+
+    def test_metadata_read_stops_only_at_a_heading_or_rule_indented_three_spaces_at_most(self):
+        """Four spaces or a tab before ``## `` or ``---`` make an indented code
+        line, not a heading or rule, so the leading metadata read goes on past
+        it; with at most three spaces it is a heading or rule and stops the
+        read."""
+        both = {"Owner": "A", "Version": "1.0.0"}
+        for middle, fields in (
+                ("    ## not a heading", both),
+                ("    ---", both),
+                ("\t## not a heading", both),
+                ("\t---", both),
+                ("   ## Heading", {"Owner": "A"}),
+                ("   ---", {"Owner": "A"}),
+                ("## Heading", {"Owner": "A"}),
+                ("---", {"Owner": "A"})):
+            with self.subTest(middle=middle):
+                text = "**Owner:** A\\\n" + middle + "\\\n**Version:** 1.0.0\n"
+                self.assertEqual(self.mod._adopter_metadata(text, "probe.md"), fields)
 
     def _block(self, overrides=None, drop=(), extra=()):
         fields = [(n, v) for n, v in self.FIELDS if n not in drop]

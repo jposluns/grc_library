@@ -296,6 +296,10 @@ def main(argv: list[str]) -> int:
         print(format_attest_clause(token, len(hits)))
         return 0
     files = corpus_files()
+    # A string given twice is searched and counted once: find_occurrences keys its result by
+    # string, so a repeated needle would append each hit twice to the one list, and the loop
+    # below would print and total that list twice (guards against an inflated count).
+    args.strings = list(dict.fromkeys(args.strings))
     occ, skipped = find_occurrences(args.strings, files, ignore_case=args.ignore_case)
     total = 0
     for s in args.strings:

@@ -788,6 +788,10 @@ def _pack_tools_entry(entry: str) -> bool:
     path component too long for the filesystem (``ENAMETOOLONG``) or a
     symlink loop (``ELOOP``) -- is skipped by the scan without an error, so
     ``ensure_on_path`` completes with that entry still on ``sys.path``.
+    A symlink loop is skipped only while ``sys.path_importer_cache`` holds
+    no finder for that entry: when an earlier scan cached a finder (the
+    entry was a directory then and became a loop later), ``PathFinder``
+    raises ``OSError`` for it, and the scan refuses it like any other.
     The empty entry is resolved against the
     current working directory, exactly like ``.``, and matched by the
     same rule (guards against an unscrubbed empty sys.path entry)."""
@@ -1161,8 +1165,10 @@ def ensure_on_path() -> Path:
     embedded NUL byte raises ``ValueError``) refuses with ``ImportError``
     too, never the raw exception (guards against an unresolvable sys.path
     entry); an entry the scan skips without an error, such as a missing
-    path, a path component too long for the filesystem or a symlink loop,
-    stays on ``sys.path`` and is not refused.
+    path, a path component too long for the filesystem or a symlink loop
+    with no finder cached for it in ``sys.path_importer_cache``, stays on
+    ``sys.path`` and is not refused (a loop whose entry already has a
+    cached finder raises ``OSError`` and is refused).
 
     When ``aiqt_corpus`` is not already installed, the captured verified
     bytes are executed into a fresh unpublished module with NO import lock
