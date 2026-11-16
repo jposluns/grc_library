@@ -148,7 +148,8 @@ def _table_rows(text: str):
     A fence opens on a fence line and closes on a line of the same character, at least as long,
     with nothing after it but spaces or tabs; an unclosed fence runs to the end of the text. An
     HTML comment block opens on a line that begins (after up to three spaces) with ``<!--`` and
-    runs to the first line holding ``-->`` after it; an unclosed one runs to the end of the text.
+    runs to the first line holding ``-->``, the opener line included, as CommonMark ends it (so
+    ``<!-->`` and ``<!--->`` close on their own line); an unclosed one runs to the end of the text.
     A line inside it does not render, so it is never a row. A table line begins with ``|`` (no
     indentation) and has at least three cells."""
     fence = None
@@ -170,7 +171,9 @@ def _table_rows(text: str):
             continue
         opened = _COMMENT_OPEN.match(line)
         if opened:
-            comment = "-->" not in line[opened.end():]
+            # The end marker may share characters with the opener (<!--> and <!--->), so it is
+            # searched from the opener's start; only spaces come before the opener.
+            comment = "-->" not in line[opened.end() - len("<!--"):]
             continue
         if not line.startswith("|"):
             continue
@@ -184,8 +187,9 @@ def _table_rows(text: str):
 def _pr_lead(pr: int, *, retro: bool) -> re.Pattern:
     """The lead a row's second cell must start with: ``#<pr>``, or ``#<pr> (/retro)`` when
     ``retro``, the whole lead followed by a space, a closing bracket (``]``) or the end of the
-    (stripped) cell, so the lead ends only where the PR number ends: a digit of any script, a
-    letter, an underscore, a full stop, a hyphen or any other character after it refuses."""
+    (stripped) cell. The boundary applies to the whole lead, after the PR number in ``#<pr>``
+    and after the closing parenthesis in ``#<pr> (/retro)``: a digit of any script, a letter,
+    an underscore, a full stop, a hyphen or any other character right after the lead refuses."""
     lead_text = f"#{pr} (/retro)" if retro else f"#{pr}"
     return re.compile(re.escape(lead_text) + r"(?=[ \]]|\Z)")
 
@@ -837,8 +841,11 @@ def self_test() -> int:
          title_has_suffix("x\u202ey (CalVer 2026.11.69, README 1.11.919)"), False),
         ("title with a zero-width space",
          title_has_suffix("x\u200by (CalVer 2026.11.69, README 1.11.919)"), False),
-        ("co-authored trailer", message_trailers("s\n\nb\n\nCo-authored-by: a <b>"),
-         ["Co-authored-by: a <b>"]),
+        # The second trailer has no colon, so _TRAILER does not match it and only the
+        # case-insensitive co-authored-by fallback finds it.
+        ("co-authored trailer",
+         message_trailers("s\n\nb\n\nCo-authored-by: a <b>\nCo-Authored-By a <c>"),
+         ["Co-authored-by: a <b>", "Co-Authored-By a <c>"]),
         ("clean message", message_trailers("content: s\n\nSquash merge of #31 at abc."), []),
         ("cell escapes backslash and pipe", _cell("a \\| b"), "a \\\\\\| b"),
         ("cell blanks line separators", _cell("a\u2028b\x85c\vd\re"), "a b c d e"),

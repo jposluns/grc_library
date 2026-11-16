@@ -684,6 +684,7 @@ def _self_test() -> int:
         ("queued-refused", [cr("a", "QUEUED", None)], False),
         ("failure-refused", [cr("a", "COMPLETED", "SUCCESS"), cr("b", "COMPLETED", "FAILURE")], False),
         ("completed-null-conclusion-refused", [cr("a", "COMPLETED", None)], False),
+        ("unknown-shape-refused", [{"__typename": "Weird", "name": "x"}], False),
         ("unknown-shape-with-state-SUCCESS-refused", [{"__typename": "Weird", "name": "x", "state": "SUCCESS"}], False),
         ("non-dict-entry-refused", ["not-a-dict"], False),
         ("timed-out-refused", [cr("a", "COMPLETED", "TIMED_OUT")], False),

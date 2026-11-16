@@ -432,6 +432,18 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         # A one-line comment closes on its own line, so the row after it counts.
         self.assertTrue(self.mod.row_present("<!-- note -->\n" + VALIDATE_ROW, 31, retro=False))
 
+    def test_short_comment_opener_closes_on_its_own_line(self):
+        # CommonMark ends an HTML comment block on the first line holding -->, the opener
+        # line included, so <!--> and <!---> close at once and the row after them renders.
+        for opener in ("<!-->", "<!--->", "   <!-->"):
+            with self.subTest(opener=opener):
+                self.assertTrue(self.mod.row_present(f"{opener}\n{VALIDATE_ROW}\n", 31,
+                                                     retro=False))
+                self.assertTrue(self.mod.row_present(f"{opener}\n{RETRO_ROW}\n", 31,
+                                                     retro=True))
+        # An opener with nothing after it still runs to the next line holding -->.
+        self.assertFalse(self.mod.row_present(f"<!--\n{VALIDATE_ROW}\n", 31, retro=False))
+
     def test_row_present_digit_check_follows_the_whole_lead(self):
         # The digit check sits after the whole lead, #N, or #N (/retro) in the retro
         # register, as row_present's docstring says; this keeps the current refusals.
