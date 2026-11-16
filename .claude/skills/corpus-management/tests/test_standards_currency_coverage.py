@@ -1224,7 +1224,8 @@ class HistoricalContextRegressionTests(unittest.TestCase):
     def test_containers_and_parsing(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
         # A code span in the sentence could, once masked, expose a fence that hides a later
-        # citation; it is refused, and the later citation still blocks.
+        # citation; the declaration is refused, so nothing in the document is sanctioned or
+        # masked. This checks the refusal only, not the later citation's own finding.
         fence = "ISO/IEC 27001:2013 ```was the previous edition```."
         assert_refused(self, "\n" + fence + "\n\nPCI DSS 4.0 governs certification.\n", fence)
         # Legacy-check line eligibility comes from the original text, not the masked one.
@@ -1233,6 +1234,13 @@ class HistoricalContextRegressionTests(unittest.TestCase):
         masked = "            ```was```.\nPCI DSS 4.0 x\n"
         original = "ISO/IEC 27001:2013 ```was```.\nPCI DSS 4.0 x\n"
         self.assertEqual(eng.check_text(masked, compiled, eligible_from=original), [(2, "PCI")])
+        # Twelve spaces of indentation are not a fence in either text, so the case above holds
+        # whichever text decides eligibility. Below, the masked text alone would open a fence
+        # (hiding line 2) or lose one (exposing line 2); the original decides both.
+        self.assertEqual(eng.check_text("```was```.\nPCI DSS 4.0 x\n", compiled, eligible_from=original),
+                         [(2, "PCI")])
+        self.assertEqual(eng.check_text("   \nPCI DSS 4.0 x\n   \n", compiled,
+                                        eligible_from="```\nPCI DSS 4.0 x\n```\n"), [])
         # A no-break-space line is not a Markdown blank line.
         code, found, _ = self.run_json("Our programme relies on\n\u00a0\n" + s + "\n\u00a0\n", hx(hrow(s)))
         self.assertEqual(code, 1)
@@ -1253,7 +1261,7 @@ class HistoricalContextRegressionTests(unittest.TestCase):
             self.assertEqual(code, 1, register)
             self.assertIn(message, err, register)
 
-    def test_leading_slash_refused_by_canonical_path_rule_and_fence_guard(self):
+    def test_leading_slash_refused_by_canonical_path_rule_and_text_after_fence_by_fence_guard(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
         # There is no separate absolute-path check: a leading slash leaves an
         # empty first path component, which the canonical repo .md path rule
@@ -1265,7 +1273,9 @@ class HistoricalContextRegressionTests(unittest.TestCase):
         code, _, err = self.run_json("\n" + s + "\n\n", hx(hrow(s, path="/ai/citation.md")))
         self.assertEqual(code, 1)
         self.assertIn("path must be a canonical repo .md path", err)
-        # A fence line carrying text after its run does not close the block.
+        # Separately, with a slash-free row: a fence line carrying text after its run does not
+        # close the block, and the fence guard refuses the document. The fence guard does not
+        # look at the path, so it plays no part in refusing the leading slash.
         self.assertIn("HCE-001: the document's fenced blocks are not all simple three-character fences",
                       assert_refused(self, "```\nx\n```y\n\n" + s + "\n\n", s))
 

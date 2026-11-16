@@ -913,6 +913,23 @@ class LanguageLinterTests(LinterTestCase):
                 self.assertLinterFails(
                     run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] " + word)
 
+    def test_url_mask_glued_sentence_strike_and_bad_escape_keep_url_portion_masked(self) -> None:
+        # The glued-prose cases above pass even with no URL mask at all, since
+        # the prose is flagged either way. Here a word the rule would flag sits
+        # inside the valid URL portion before each break: it is not reported,
+        # while the glued text after the break is. A bracketed authority that
+        # is not an IPv6 literal masks nothing, so it has no masked portion.
+        for index, (body, word) in enumerate((
+                ("See https://authorisations.org.uk.Organisations must register.\n", "Organisations"),
+                ("See ~~https://x.org/authorisations~~organisations here.\n", "organisations"),
+                ("See https://x.org/authorisations%GGorganisations here.\n", "GGorganisations"))):
+            with self.subTest(body=body, masked="authorisations"):
+                fixture = self.make_fixture(
+                    f"standard-url-glued-prose-masked-{index}.md", VALID_METADATA + "\n\n" + body)
+                result = run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture)
+                self.assertLinterFails(result, "[isation] " + word)
+                self.assertNotIn("authorisations", result.stdout + result.stderr)
+
     def test_url_after_emphasis_underscore_exempt(self) -> None:
         # A URL in Markdown underscore emphasis is recognized (the
         # citation-verification worklist form), while a scheme embedded in
