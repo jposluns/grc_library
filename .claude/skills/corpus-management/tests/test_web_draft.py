@@ -1069,9 +1069,14 @@ class RepoLinkAllowListTests(unittest.TestCase):
         # each fails the allow-list, in a synthetic HTML page and a
         # synthetic text output alike, with no ledger entry. The markup
         # cases need no decoding: each carries the repository URL, plain
-        # or newline-split, in a meta refresh, a style url(), a base
+        # or newline-split, in a meta refresh, a style url(), a link
         # href, a srcset or a form action, and each fails in a synthetic
-        # HTML page alone, with no ledger entry.
+        # HTML page alone, with no ledger entry, while the same markup
+        # carrying a neutral URL renders, so only the URL detection can
+        # fail the case. A base href is not a case here: a <base> element
+        # is refused whatever it carries, so it cannot show the URL is
+        # detected (test_template_allowlist_binds_source_tag_and_attribute
+        # and the output <base> refusal test pin that refusal).
         tree = "https://github.com/jposluns/grc_library/tree/main/ai"
         spellings = (
             ("charref slashes",
@@ -1134,25 +1139,27 @@ class RepoLinkAllowListTests(unittest.TestCase):
                     with self.assertRaises(self.mod.BuildError) as ctx:
                         self.manifest([(rel, template.format(bad))])
                     self.assertIn(rel, str(ctx.exception))
+        neutral = "https://www.iso.org/x/y"
+        refresh = '<meta http-equiv="refresh" content="0; url={}">'
         markups = (
-            ("meta refresh",
-             f'<meta http-equiv="refresh" content="0; url={tree}">'),
-            ("newline-split meta refresh URL",
-             '<meta http-equiv="refresh" content="0; '
-             'url=https://github.com/jpos\nluns/grc_library/tree/main/ai">'),
+            ("meta refresh", refresh, tree),
+            ("newline-split meta refresh URL", refresh,
+             "https://github.com/jpos\nluns/grc_library/tree/main/ai"),
             ("style url()",
-             f'<style>body {{ background: url({tree}/x.png) }}</style>'),
-            ("base href",
-             '<base href="https://github.com/jposluns/grc_library'
-             '/tree/main/">'),
-            ("srcset", f'<img srcset="{tree}/x.png 1x, /y.png 2x">'),
-            ("form action", f'<form action="{tree}"></form>'),
+             '<style>body {{ background: url({}/x.png) }}</style>', tree),
+            ("link href", '<link rel="stylesheet" href="{}/x.css">', tree),
+            ("srcset", '<img srcset="{}/x.png 1x, /y.png 2x">', tree),
+            ("form action", '<form action="{}"></form>', tree),
         )
-        for label, markup in markups:
+        for label, template, url in markups:
             with self.subTest(spelling=label):
+                self.manifest([("synthetic/index.html",
+                                template.format(neutral))])
                 with self.assertRaises(self.mod.BuildError) as ctx:
-                    self.manifest([("synthetic/index.html", markup)])
+                    self.manifest([("synthetic/index.html",
+                                    template.format(url))])
                 self.assertIn("synthetic/index.html", str(ctx.exception))
+                self.assertIn("owner-token destination", str(ctx.exception))
 
     def test_counted_links_pass_including_srcset_with_a_comma(self):
         # In the earlier repository, a counted srcset URL followed by a

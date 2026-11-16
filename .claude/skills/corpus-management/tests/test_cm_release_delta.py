@@ -281,11 +281,18 @@ class ReleaseDeltaTests(unittest.TestCase):
     def test_refactors_engine_scope_and_waiver_path(self):
         # Renaming a key-set variable or adding a private helper that assigns `keys` is not a
         # configuration change; an engine outside tools/ is classified; the manifest's declared
-        # waiver path must be the supported one.
+        # waiver path must be the supported one. Any edit to tools/engine.py is at least
+        # PATCH, so the first case also requires that no accepted-key set line is emitted
+        # and gives one private helper a literal key set (flips: key each declaration by
+        # its own name instead of the module union, or read private scopes, even when a
+        # non-literal value there is ignored; either adds an accepted-key line, MINOR or
+        # MAJOR, or fails the read).
         with self.repo() as repo:
             repo.replace("tools/engine.py", "    gate_keys = ", "    allowed_gate_keys = ")
-            repo.replace("tools/engine.py", "def _private():", "def _helper(d):\n    keys = sorted(d)\n    return keys\n\ndef _private():")
-            self.expect(repo, "PATCH")
+            repo.replace("tools/engine.py", "def _private():", "def _helper(d):\n    keys = sorted(d)\n    return keys\n\n"
+                         "def _defaults():\n    keys = {\"internal\"}\n    return keys\n\ndef _private():")
+            output = self.expect(repo, "PATCH")
+            self.assertNotIn("accepted-key set", output)
         with self.repo() as repo:
             repo.write("engines/language.py", "def run():\n    return 1\n")
             repo.checkpoint()

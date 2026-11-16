@@ -340,8 +340,10 @@ THREEB_LEAD_PARTIAL_RE = re.compile(
     r"^(?:[\w.-]|\s*[:,-]?\s*\(|\s*[:,-]?\s*(?:parts?|partial(?:ly)?|phase|slice|split)\b)", re.IGNORECASE)
 
 # (id, distinctive DONE.md heading substring) -> the exempted entry's date and
-# that heading (no code reads the values; _exempt matches the keys). A partial close
-# recorded against a still-open umbrella item. Keyed by a heading SUBSTRING, not
+# that heading (no code reads the values; _exempt matches the keys). Each row is a
+# pre-rule grandfather (a number reassigned before the permanent-id rule) or a
+# partial close recorded against a still-open umbrella item; both classes are
+# described below. Keyed by a heading SUBSTRING, not
 # by line number: a line key looked tighter but re-fired on any unrelated edit
 # that shifted DONE.md (measured in the earlier repository: one PR moved two
 # entries by 4 lines and both exemptions lapsed), which would make the gate

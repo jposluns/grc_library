@@ -111,8 +111,9 @@ def validate_attest_token(token: str) -> str | None:
     """PURE. None when the token can be carried by the quoted clause; else the reason.
 
     The clause delimits the token with double quotes inside a markdown table cell, so a
-    quote or a line break cannot be carried; the author picks a different distinctive
-    token rather than the tool inventing an escaping scheme two parsers must agree on."""
+    quote, a line break or a trailing backslash (which would sit before the closing
+    quote) cannot be carried; the author picks a different distinctive token rather
+    than the tool inventing an escaping scheme two parsers must agree on."""
     if not token.strip():
         return "empty token"
     if '"' in token:
@@ -120,6 +121,9 @@ def validate_attest_token(token: str) -> str | None:
                 'one cannot be carried; pick a different distinctive token')
     if "\n" in token or "\r" in token:
         return "a token cannot span lines"
+    if token.endswith("\\"):
+        return ("a token ending in a backslash would sit before the closing double quote of the "
+                "clause; pick a different distinctive token")
     return None
 
 
@@ -202,6 +206,8 @@ def _self_test() -> int:
                        validate_attest_token('has "quote"') is not None))
         checks.append(("attest-token-empty-refused", validate_attest_token("  ") is not None))
         checks.append(("attest-token-newline-refused", validate_attest_token("a\nb") is not None))
+        checks.append(("attest-token-trailing-backslash-refused",
+                       validate_attest_token("token\\") is not None))
         checks.append(("attest-token-plain-ok", validate_attest_token("7 years") is None))
         afs = attest_file_set(root, tracked={"a.md"})
         # The tracked set is injected here, so _git_tracked itself is not
