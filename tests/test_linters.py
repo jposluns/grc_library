@@ -26540,7 +26540,8 @@ class PIIContentTests(LinterTestCase):
         # RFC 6531 admits non-ASCII characters in a local part, so a complete remote form right
         # after U+2019 or U+00BF may be the end of a longer address. Unlike the bare addresses
         # in test_forge_allowance_is_narrow, these carry a repository path, so only the
-        # non-ASCII checks before the match refuse them.
+        # whole-token rule refuses them: the non-ASCII character is part of the token, so the
+        # token is not exactly one remote form.
         cases = (
             ("Clone \u2019git@github.com:o/r here.\n", "git@github.com"),
             ("Clone \u00bfgit@gitlab.com:o/r here.\n", "git@gitlab.com"),
