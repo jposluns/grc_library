@@ -213,7 +213,7 @@ highest PR, because after the synchronous cutover its QA rows are written pre-me
 own PR, while Check 6 EXCLUDES it, because a bypass row records a post-merge fact. A row
 counts by PRESENCE whatever its Mechanism cell says, so a future protection change that
 permits a plain merge is recorded honestly rather than forced to keep reading
-`--admin`. The log is shared with grc_library_new (decision D2): a PR cell of exactly
+`--admin`. The log is shared with grc_library_new: a PR cell of exactly
 `#N [repo: <name>]` counts for PR N of that repository only, so a `#N [repo: grc_library_new]`
 row, the form tools/merge-grc-library-new.py prints, never counts as grc_library PR N, while a
 bare `#N` keeps its meaning of grc_library PR N. An empty or absent log no-ops rather than flagging the whole history. One
@@ -1015,7 +1015,7 @@ def _deferred_mirror_prs(detailed_text: str, ceiling: int | StoreScope | None) -
 
 
 BYPASS_ROW_PR = re.compile(r"^\|[^|]*\|\s*#(\d+)\s*\|")
-# Decision D2: the shared log's tagged PR cell, '#N [repo: <name>]' and nothing else.
+# The shared log's tagged PR cell, '#N [repo: <name>]' and nothing else.
 BYPASS_ROW_TAGGED_PR = re.compile(r"^\|[^|]*\|\s*#(\d+) \[repo: ([A-Za-z0-9_.-]+)\]\s*\|")
 BYPASS_LOG_REL = "merge-bypass-log.md"
 # The repository a bare '#N' PR cell stands for: this one.
@@ -1026,7 +1026,7 @@ def parse_bypass_prs(text: str, *, repo: str = BYPASS_BARE_REPO) -> set[int]:
     """The set of ``repo``'s PR numbers carrying a merge-bypass-log row.
 
     A bare ``#N`` PR cell is grc_library PR N, as it always was; a cell of exactly
-    ``#N [repo: <name>]`` is PR N of ``<name>`` only (decision D2), so a grc_library_new row
+    ``#N [repo: <name>]`` is PR N of ``<name>`` only, so a grc_library_new row
     never counts as, or masks, a grc_library row. Any other PR cell counts for no repository."""
     prs: set[int] = set()
     for line in text.splitlines():

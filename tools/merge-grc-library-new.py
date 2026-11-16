@@ -15,7 +15,7 @@ by a space, a closing bracket (``]``) or the end of the cell, and contains the l
 never stand for ``#31``, a ``[repo: grc_library]`` or
 untagged row never counts, and a row quoted inside a fence never counts.
 
-Decision D1: the registers are read only from the operational store found by lint_common's strict
+The registers are read only from the operational store found by lint_common's strict
 store resolver (``_store_dir(root, strict=True)``: ``$GRC_STORE``, else ``<repo-parent>/private``),
 never from the private sibling or the in-repo ``.working/`` fallbacks, and never from a store that
 resolves inside the repository. A store or register that is absent, is not what it should be, or
@@ -28,7 +28,7 @@ through gh():
 
 0. Before any gh call: the admin-merge log pre-flight resolves
    ``merge-bypass-log.md`` with lint_common.resolve_working(strict=True), accepts it only inside
-   the operational store (decision D1, as for the registers), reads it and refuses unless it is
+   the operational store (as for the registers), reads it and refuses unless it is
    a regular file and not a symlink (the append never follows a final symlink) that this user
    may read and write (os.access on the path itself, nothing is opened for writing), its header
    (the first line that begins with ``|``; a title, prose or a list may come before it) equals
@@ -43,9 +43,9 @@ through gh():
    itself allows an absent hook, an unreadable ledger and an unparseable one).
 1. ``gh pr view`` must report the PR OPEN on base ``main``, its own number and URL in
    grc_library_new, and a 40-character lowercase hex head SHA, which is pinned from here on.
-2. Decision D3: the title must end with the ``(CalVer <v>, README <v>)`` suffix and hold no
+2. The title must end with the ``(CalVer <v>, README <v>)`` suffix and hold no
    control, line-breaking or format character (Unicode category Cc, Zl, Zp or Cf).
-3. Decision D5: the Actions runs for the pinned head SHA are read, and the latest
+3. The Actions runs for the pinned head SHA are read, and the latest
    ``pull_request`` run of every workflow in REQUIRED_WORKFLOWS, from its own file in
    WORKFLOW_PATHS, must be completed with conclusion success; a pending, failed, missing or
    unreadable result refuses, as does a same-named run from any other workflow file.
@@ -53,7 +53,7 @@ through gh():
    (``<title> (#N)``) and body, pinned with ``--match-head-commit``, with ``--admin``.
 5. The merged commit is read back; any trailer line (Co-authored-by, Signed-off-by or any other),
    a message other than the one sent, or other than one parent fails loudly with ``MERGED BUT``.
-6. Decision D2: the admin-merge log row, its PR cell in the tagged form
+6. The admin-merge log row, its PR cell in the tagged form (the log is shared)
    ``#N [repo: grc_library_new]``, is printed to standard output (everything else goes to
    standard error), then appended to the log found by the pre-flight with one write to a
    descriptor opened in append mode (never created, never through a final symlink), and the
@@ -111,7 +111,7 @@ _FENCE = re.compile(r" {0,3}(`{3,}|~{3,})")
 MERGE_REPO = "jposluns/grc_library_new"
 PR_URL = "https://github.com/" + MERGE_REPO + "/pull/{pr}"
 VIEW_FIELDS = "number,title,state,headRefOid,baseRefName,url"
-# Decision D5: the workflows in grc_library_new whose latest run on the pinned head must have
+# The workflows in grc_library_new whose latest run on the pinned head must have
 # concluded success: both workflow names a grc_library_new head must pass.
 REQUIRED_WORKFLOWS = ("Repository quality checks", "Pull request attribution")
 # Each required workflow counts only from its own workflow file, as gh api lists them for
@@ -120,7 +120,7 @@ REQUIRED_WORKFLOWS = ("Repository quality checks", "Pull request attribution")
 WORKFLOW_PATHS = {"Repository quality checks": ".github/workflows/quality.yml",
                   "Pull request attribution": ".github/workflows/pr-attribution.yml"}
 CI_EVENT = "pull_request"
-# Decision D2: the admin-merge log's header; the row printed has one cell per column.
+# The shared admin-merge log's header; the row printed has one cell per column.
 LOG_HEADER = "| Date (UTC) | PR | CI state at merge | Mechanism | Justification | Change |"
 # The store-relative admin-merge log (gate 50 Check 6 reads the same file), the
 # open-findings ledger, and the hook whose decision functions judge it.
@@ -130,7 +130,7 @@ HOOK_REL = Path(".claude") / "hooks" / "block-on-open-findings.py"
 READBACK_ATTEMPTS = 5
 READBACK_DELAY = 2
 _HEAD = re.compile(r"[0-9a-f]{40}", re.ASCII)
-# Decision D3: the suffix used in recent grc_library titles, "(CalVer 2026.11.68, README 1.11.918)".
+# The title suffix used in recent grc_library titles, "(CalVer 2026.11.68, README 1.11.918)".
 _TITLE = re.compile(r"[^\n]* \(CalVer [0-9]{4}\.[0-9]{1,2}\.[0-9]{1,4}, "
                     r"README [0-9]{1,4}\.[0-9]{1,4}\.[0-9]{1,5}\)", re.ASCII)
 _TRAILER = re.compile(r"[A-Za-z][A-Za-z0-9-]*:[ \t]+\S", re.ASCII)
@@ -205,7 +205,7 @@ def missing_rows(validate_text: str, retro_text: str, pr: int) -> list[str]:
 def find_store(root: Path) -> Path:
     """The operational store by lint_common's strict resolver, or :class:`RegisterError`.
 
-    Only ``_store_dir(root, strict=True)`` is consulted (decision D1): the private sibling and the
+    Only ``_store_dir(root, strict=True)`` is consulted: the private sibling and the
     in-repo ``.working/`` fallbacks of ``resolve_working`` are never probed or read."""
     if str(TOOLS_DIR) not in sys.path:
         sys.path.append(str(TOOLS_DIR))
@@ -248,7 +248,7 @@ def read_register(store: Path, rel: str) -> str:
 
 def resolve_in_store(root: Path, rel: str, what: str) -> Path:
     """``rel`` by lint_common.resolve_working(strict=True), accepted only as ``<store>/<rel>``
-    resolving inside the operational store (decision D1), or :class:`RegisterError` naming it."""
+    resolving inside the operational store, or :class:`RegisterError` naming it."""
     if str(TOOLS_DIR) not in sys.path:
         sys.path.append(str(TOOLS_DIR))
     import lint_common
@@ -305,7 +305,7 @@ def log_shape_problem(text: str) -> str:
 
 
 def log_preflight(root: Path) -> Path:
-    """The admin-merge log inside the operational store (D1), a regular file and
+    """The admin-merge log inside the operational store only, a regular file and
     not a symlink, that this user may read and write, with the shape log_shape_problem() accepts;
     or :class:`RegisterError` naming it. append_log_row() opens the log for reading and writing
     with O_NOFOLLOW, so a final-component symlink (even to a file inside the store) or a file
@@ -424,7 +424,7 @@ def _describe(exc: BaseException) -> str:
 
 
 def title_has_suffix(title: str) -> bool:
-    """Decision D3: the title ends with " (CalVer <v>, README <v>)" (ASCII digits, one line). A
+    """The title ends with " (CalVer <v>, README <v>)" (ASCII digits, one line). A
     title holding any control, line-breaking or format character (Unicode category Cc, Zl, Zp
     or Cf: a newline, carriage return, vertical tab, form feed, NEL, U+2028 or U+2029,
     and a bidi override or isolate such as U+202E or U+2066, a zero-width space
@@ -449,7 +449,7 @@ RUNS_MAX_PAGES = 50
 
 
 def read_runs(head: str, gh) -> tuple[int, list[str], str]:
-    """Decision D5: every page of ``actions/runs?head_sha=<head>``, RUNS_PER_PAGE runs a page
+    """Every page of ``actions/runs?head_sha=<head>``, RUNS_PER_PAGE runs a page
     (a head with more runs than one page holds is read in full), joined into
     one ``{"total_count", "workflow_runs"}`` JSON text for ci_check(). ``(0, [], text)`` once
     the runs read reach total_count; ``(2, [problem], "")`` when a page cannot be read, is not a
@@ -526,7 +526,7 @@ def _run_order(r: dict) -> tuple[datetime, int]:
 
 
 def ci_check(text: str, head: str) -> tuple[int, list[str], dict]:
-    """Decision D5 on the ``actions/runs?head_sha=`` JSON: ``(0, [], {name: run id})`` when the
+    """CI check on the ``actions/runs?head_sha=`` JSON: ``(0, [], {name: run id})`` when the
     latest ``pull_request`` run on ``head`` of every required workflow, from its own file in
     WORKFLOW_PATHS, completed with success; 1 naming each workflow whose run is missing, pending
     or not successful, or that is also reported from another workflow file (a name collision:
@@ -587,7 +587,7 @@ def open_findings(root: Path, ledger=None) -> tuple[int, str]:
     and on any read or parse error). 1 means an
     undispositioned ``error`` finding (or a mis-filed finding row) is open. The
     check fails closed with 2: the hook absent or not loadable, no readable ledger (``ledger``
-    when given, else ``open-findings.md`` inside the operational store, decision D1), or a
+    when given, else ``open-findings.md`` inside the operational store only), or a
     ledger the hook cannot parse or judge."""
     hook = Path(root) / HOOK_REL
     if not hook.is_file():
@@ -699,7 +699,8 @@ def run_merge(pr: int, *, root: Path, gh, dry_run: bool = False, sleep=time.slee
         problems.append(f"head {head!r} is not a 40-character lowercase hex SHA")
     if not title_has_suffix(title):
         problems.append(f"title {title!r} lacks the (CalVer <v>, README <v>) suffix or holds a "
-                        "control, line-breaking or format character (decision D3)")
+                        "control, line-breaking or format character (a merged title must end with "
+                        "that suffix and hold only printable characters)")
     if problems:
         for line in problems:
             err(f"REFUSED: {line}")
@@ -707,12 +708,12 @@ def run_merge(pr: int, *, root: Path, gh, dry_run: bool = False, sleep=time.slee
     read_code, read_lines, runs_text = read_runs(head, gh)
     if read_code:
         for line in read_lines:
-            err(f"REFUSED: {line} (decision D5)")
+            err(f"REFUSED: {line} (both required workflows must succeed on the pinned head)")
         return read_code
     ci_code, ci_lines, green = ci_check(runs_text, head)
     if ci_code:
         for line in ci_lines:
-            err(f"REFUSED: {line} (decision D5)")
+            err(f"REFUSED: {line} (both required workflows must succeed on the pinned head)")
         return ci_code
     subject = f"{title} (#{pr})"
     body = f"Squash merge of #{pr} at {head[:12]}."

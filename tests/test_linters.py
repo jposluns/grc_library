@@ -45754,7 +45754,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
         lint-baseline-pin.py OWN F 38eb62fa2d783bbc91988f631c7d48af7c6476c6876362a3154052df458f985d
-        lint-bookkeeping-parity.py NO_FS F 37f898bf9223d7b41f23ce3a078a02594335f0fa2ab541fd11d1880a8522a51c
+        lint-bookkeeping-parity.py NO_FS F 3f7d9bb3894f37fc218d768cc7107aa91c8d6b269dfe77cce39b78024d9ddb97
         lint-ccm-aicm-citations.py CWD F 6a1eb4d255f76d35ed337441b0f7127ffd6d943d8c47730921e6f872491685a7
         lint-ccm-provider-member-in-range.py CWD F 8c0f050c7b64e301190c3350398a52e9267e05f2274fa46fb5d31dc7fc6c4871
         lint-changelog-link-coverage.py CWD F 0eb2c21687bcae9e697ab26d0273e766530ec144f1417ac04309badae1bd1bd2
@@ -45849,7 +45849,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint_common.py PASSIVE F c3f9567cb927a4a4599fc2704a690a93d145aef8edfa2a90eb660b246aadbedd
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
-        merge-grc-library-new.py NO_FS F a8f845f97af59e1dce5ec45b5400b98e75882c7b14688161027d959f2cda4e61
+        merge-grc-library-new.py NO_FS F a0e27e125fe9c02b2326fedee26c6c2c8205e3eb2aaa47b456669f49e7a43d29
         merge-when-green.py NO_FS F 592e6b36c135c9adabfecf622e6d833e2496e0aeb61f577b3183ade5498a71cf
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
@@ -62245,7 +62245,7 @@ class TodoIndexRowGrammarParityTests(unittest.TestCase):
 
 
 class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
-    """.claude/hooks/block-new-merge-outside-tool.py, tests H1 to H5. The hook runs as a subprocess with a JSON
+    """.claude/hooks/block-new-merge-outside-tool.py. The hook runs as a subprocess with a JSON
     payload on stdin, in a temporary working directory; it reads no store, so no GRC_STORE is
     needed. A refusal must exit 2 with the hook's own BLOCKED marker, so a missing hook file
     (python3 exits 2 with "can't open file") never passes a refusal case."""
@@ -62282,7 +62282,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, (payload, kw, err))
         self.assertEqual((proc.stdout, err), (b"", ""), (payload, kw))
 
-    def test_h1_merge_spellings_naming_grc_library_new_are_refused(self):
+    def test_merge_spellings_naming_grc_library_new_are_refused(self):
         new = self.NEW
         fullwidth = "".join(chr(ord(c) + 0xFEE0) for c in "grc_library_new")
         commands = (
@@ -62351,7 +62351,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
             self._refused(dict(tool_name=self.MCP, tool_input=dict(pullNumber=33)),
                           cwd="/home/u/grc_library_new")
 
-    def test_h2_sanctioned_and_unrelated_commands_are_allowed(self):
+    def test_sanctioned_and_unrelated_commands_are_allowed(self):
         for command in (
             self.SANCTIONED + " 33",
             self.SANCTIONED + " 33 --dry-run",
@@ -62404,7 +62404,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
             with self.subTest(command=command):
                 self._refused(command)
 
-    def test_h2_merge_tool_variant_spellings_from_a_grc_library_new_clone_are_refused(self):
+    def test_merge_tool_variant_spellings_from_a_grc_library_new_clone_are_refused(self):
         # A spelling that misses the sanctioned fullmatch
         # (a trailing, doubled, leading or tab space, ./tools/, -I or another interpreter path)
         # fell to rule 2, which had no merge pattern for the tool, so it ran the clone's copy.
@@ -62430,7 +62430,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
             with self.subTest(command=command, cwd="grc_library"):
                 self._allowed(command, cwd="/home/u/grc_library")
 
-    def test_h2_glob_spellings_of_the_merge_tool_from_a_grc_library_new_clone_are_refused(self):
+    def test_glob_spellings_of_the_merge_tool_from_a_grc_library_new_clone_are_refused(self):
         # The shell expands a glob beside tools/ to the
         # clone's copy of the tool, so from a grc_library_new cwd a command naming tools/ with
         # a glob character (*, ? or [) refuses; from a grc_library cwd it stays allowed.
@@ -62461,7 +62461,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
                 self.assertIn(fragment, playbook)
         self.assertNotIn("in any spelling, is refused", source)
 
-    def test_h2_merge_tool_variant_spelling_refused_only_from_or_through_a_new_clone(self):
+    def test_merge_tool_variant_spelling_refused_only_from_or_through_a_new_clone(self):
         # The tool's hyphenated name
         # merge-grc-library-new does not name grc_library_new, so a variant spelling refuses
         # only from a grc_library_new cwd, or from any cwd when its text names grc_library_new
@@ -62489,7 +62489,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
         self.assertNotIn("names grc_library_new, the merge tool command itself is refused in any "
                          "literal spelling", source)
 
-    def test_h2_sanctioned_command_refused_only_when_a_cwd_component_is_grc_library_new(self):
+    def test_sanctioned_command_refused_only_when_a_cwd_component_is_grc_library_new(self):
         # The sanctioned command is refused only when a
         # directory of the payload cwd is named grc_library_new (a whole path component, any
         # case); a grc_library clone under a parent whose name merely contains grc_library_new
@@ -62522,7 +62522,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
         self.assertNotIn("When the payload cwd names grc_library_new, the sanctioned command is "
                          "refused too", source)
 
-    def test_h3_accepted_over_refusal_is_pinned_as_refused(self):
+    def test_accepted_over_refusal_is_pinned_as_refused(self):
         for command in (
             'git commit -m "docs: gh pr merge for grc_library_new goes through the tool"',
             "grep -rn 'gh pr merge' docs/grc_library_new-notes.md",
@@ -62533,7 +62533,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
                 self._refused(command)
         self._refused("gh pr view 33 && echo merge", cwd="/home/u/grc_library_new")
 
-    def test_h1_auto_merge_branch_merge_and_rest_merges_naming_grc_library_new_are_refused(self):
+    def test_auto_merge_branch_merge_and_rest_merges_naming_grc_library_new_are_refused(self):
         # An auto-merge, a branch merge and a REST merges
         # call that name grc_library_new are refused; the same text naming grc_library is not.
         new = self.NEW
@@ -62578,7 +62578,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
     MCP_GRAPHQL = "mcp__github__graphql"
     MCP_REST = "mcp__github__call_rest_api"
 
-    def test_h1_mcp_graphql_merge_mutation_naming_grc_library_new_is_refused(self):
+    def test_mcp_graphql_merge_mutation_naming_grc_library_new_is_refused(self):
         merge = "mutation($id:ID!){mergePullRequest(input:{pullRequestId:$id}){clientMutationId}}"
         auto = ("mutation($id:ID!){enablePullRequestAutoMerge(input:{pullRequestId:$id,"
                 "mergeMethod:SQUASH}){clientMutationId}}")
@@ -62590,7 +62590,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
             with self.subTest(tool_input=tool_input):
                 self._refused(dict(tool_name=self.MCP_GRAPHQL, tool_input=tool_input))
 
-    def test_h1_mcp_rest_merges_endpoint_naming_grc_library_new_is_refused(self):
+    def test_mcp_rest_merges_endpoint_naming_grc_library_new_is_refused(self):
         for tool_input in (
                 dict(method="POST", endpoint="repos/jposluns/grc_library_new/merges",
                      body=dict(base="main", head="feature")),
@@ -62602,7 +62602,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
             with self.subTest(tool_input=tool_input):
                 self._refused(dict(tool_name=self.MCP_REST, tool_input=tool_input))
 
-    def test_h2_mcp_graphql_and_rest_merges_naming_another_repository_are_allowed(self):
+    def test_mcp_graphql_and_rest_merges_naming_another_repository_are_allowed(self):
         merge = "mutation($id:ID!){mergePullRequest(input:{pullRequestId:$id}){clientMutationId}}"
         for tool, tool_input in (
                 (self.MCP_GRAPHQL, dict(query=merge, variables=dict(owner="jposluns",
@@ -62614,7 +62614,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
             with self.subTest(tool=tool, tool_input=tool_input):
                 self._allowed(dict(tool_name=tool, tool_input=tool_input))
 
-    def test_h4_hook_reads_nothing_and_parses_no_shell(self):
+    def test_hook_reads_nothing_and_parses_no_shell(self):
         import ast
         source = self.HOOK.read_text(encoding="utf-8")
         tree = ast.parse(source)
@@ -62646,7 +62646,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
         # The docstring states the text checked for a non-shell tool, owner/repo included.
         self.assertIn("the text also carries owner/repo", ast.get_docstring(tree))
 
-    def test_h5_malformed_stdin(self):
+    def test_malformed_stdin_refuses_only_on_a_merge_in_its_text_or_cwd(self):
         trigger = "gh pr merge 33 -R %s" % self.NEW
         for raw in (b"", b"not json", b"[]", b"null", b"42", b'"gh pr merge 33"',
                     b"\xff\xfe\x00 gh pr merge 33", b'{"tool_name": "Bash"',
@@ -62666,7 +62666,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
 
 class MergeGrcLibraryNewRowCheckTests(unittest.TestCase):
     """tools/merge-grc-library-new.py: the register row
-    check (T1), the refusal of a store or register it cannot read (T2), decision D1 (registers are
+    check, the refusal of a store or register it cannot read, the store-only rule (registers are
     read only from the operational store, never a sibling or in-repo fallback) and the tool's own
     --self-test. Every test points GRC_STORE at a temporary directory, so none reads the
     operational store."""
@@ -62706,21 +62706,21 @@ class MergeGrcLibraryNewRowCheckTests(unittest.TestCase):
                               cwd=str(REPO_ROOT), env=env, capture_output=True, text=True,
                               timeout=120)
 
-    # T1: the pure row check.
+    # The pure row check.
 
-    def test_T1_both_rows_present_none_missing(self):
+    def test_row_check_both_rows_present_none_missing(self):
         self.assertEqual(self._missing(self.VALIDATE_ROW, self.RETRO_ROW), [])
 
-    def test_T1_validate_row_missing(self):
+    def test_row_check_validate_row_missing(self):
         self.assertEqual(self._missing("", self.RETRO_ROW), ["validate-pr"])
 
-    def test_T1_retro_row_missing(self):
+    def test_row_check_retro_row_missing(self):
         self.assertEqual(self._missing(self.VALIDATE_ROW, ""), ["retro"])
 
-    def test_T1_both_rows_missing_in_order(self):
+    def test_row_check_both_rows_missing_in_order(self):
         self.assertEqual(self._missing("", ""), ["validate-pr", "retro"])
 
-    def test_T1_near_miss_other_pr_numbers(self):
+    def test_row_check_near_miss_other_pr_numbers(self):
         # #3 and #310 are other PRs, never #31; a digit of any script after #31 extends the number.
         for other in ("#3", "#310", "#31٣"):
             with self.subTest(other=other):
@@ -62731,29 +62731,29 @@ class MergeGrcLibraryNewRowCheckTests(unittest.TestCase):
         self.assertEqual(self._missing(self.VALIDATE_ROW, self.RETRO_ROW, pr=3),
                          ["validate-pr", "retro"])
 
-    def test_T1_near_miss_fullwidth_digits(self):
+    def test_row_check_near_miss_fullwidth_digits(self):
         wide = "#３１"
         self.assertEqual(self._missing(self.VALIDATE_ROW.replace("#31", wide),
                                        self.RETRO_ROW.replace("#31", wide)),
                          ["validate-pr", "retro"])
 
-    def test_T1_near_miss_grc_library_tag(self):
+    def test_row_check_near_miss_grc_library_tag(self):
         tag, other = "[repo: grc_library_new]", "[repo: grc_library]"
         self.assertEqual(self._missing(self.VALIDATE_ROW.replace(tag, other),
                                        self.RETRO_ROW.replace(tag, other)),
                          ["validate-pr", "retro"])
 
-    def test_T1_near_miss_untagged_row(self):
+    def test_row_check_near_miss_untagged_row(self):
         tag = " [repo: grc_library_new]"
         self.assertEqual(self._missing(self.VALIDATE_ROW.replace(tag, ""),
                                        self.RETRO_ROW.replace(tag, "")),
                          ["validate-pr", "retro"])
 
-    def test_T1_near_miss_retro_row_without_retro_marker(self):
+    def test_row_check_near_miss_retro_row_without_retro_marker(self):
         self.assertEqual(self._missing(self.VALIDATE_ROW, self.RETRO_ROW.replace(" (/retro)", "")),
                          ["retro"])
 
-    def test_T1_near_miss_tag_outside_the_pr_cell_or_no_date(self):
+    def test_row_check_near_miss_tag_outside_the_pr_cell_or_no_date(self):
         rows = ("| PR | #31 [repo: grc_library_new] | x |",
                 "| 2026-11-14 | train 1 | #31 [repo: grc_library_new] |",
                 "| 2026-11-14 | #31 [repo: grc_library_new] |",
@@ -62763,7 +62763,7 @@ class MergeGrcLibraryNewRowCheckTests(unittest.TestCase):
             with self.subTest(row=row):
                 self.assertEqual(self._missing(row, self.RETRO_ROW), ["validate-pr"])
 
-    def test_T1_near_miss_fenced_rows(self):
+    def test_row_check_near_miss_fenced_rows(self):
         for fence in ("```", "~~~~", "   ```text"):
             with self.subTest(fence=fence):
                 close = fence.strip().rstrip("text")
@@ -62783,19 +62783,19 @@ class MergeGrcLibraryNewRowCheckTests(unittest.TestCase):
         self.assertEqual(self._missing("~~~\nx\n```\n" + self.VALIDATE_ROW + "\n~~~",
                                        self.RETRO_ROW), ["validate-pr"])
 
-    def test_T1_crlf_rows_still_match(self):
+    def test_row_check_crlf_rows_still_match(self):
         self.assertEqual(self.mod.missing_rows(self.VALIDATE_ROW + "\r\n", self.RETRO_ROW + "\r\n", 31), [])
 
-    # T1 through the read-only --check-rows mode.
+    # The row check through the read-only --check-rows mode.
 
-    def test_T1_cli_both_rows_present_exits_0(self):
+    def test_check_rows_cli_both_rows_present_exits_0(self):
         with tempfile.TemporaryDirectory() as tmp:
             result = self._run(self._store(tmp, self.VALIDATE_ROW, self.RETRO_ROW), "--check-rows", "31")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn(self.VALIDATE_REL, result.stdout)
         self.assertIn(self.RETRO_REL, result.stdout)
 
-    def test_T1_cli_validate_row_missing_exits_1_naming_it(self):
+    def test_check_rows_cli_validate_row_missing_exits_1_naming_it(self):
         with tempfile.TemporaryDirectory() as tmp:
             result = self._run(self._store(tmp, self.VALIDATE_ROW.replace("#31", "#310"), self.RETRO_ROW),
                                "--check-rows", "31")
@@ -62803,14 +62803,14 @@ class MergeGrcLibraryNewRowCheckTests(unittest.TestCase):
         self.assertIn(self.VALIDATE_REL, result.stderr)
         self.assertNotIn(self.RETRO_REL, result.stderr)
 
-    def test_T1_cli_retro_row_missing_exits_1_naming_it(self):
+    def test_check_rows_cli_retro_row_missing_exits_1_naming_it(self):
         with tempfile.TemporaryDirectory() as tmp:
             result = self._run(self._store(tmp, self.VALIDATE_ROW, ""), "--check-rows", "31")
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertIn(self.RETRO_REL, result.stderr)
         self.assertNotIn(self.VALIDATE_REL, result.stderr)
 
-    def test_T1_cli_rows_only_in_grc_library_registers_refused(self):
+    def test_check_rows_cli_rows_only_in_grc_library_registers_refused(self):
         with tempfile.TemporaryDirectory() as tmp:
             store = self._store(tmp)
             (store / "validate-pr" / "history.md").write_text(self.VALIDATE_ROW + "\n", encoding="utf-8")
@@ -62820,9 +62820,9 @@ class MergeGrcLibraryNewRowCheckTests(unittest.TestCase):
         self.assertIn(self.VALIDATE_REL, result.stderr)
         self.assertIn(self.RETRO_REL, result.stderr)
 
-    # T2: a store or register that cannot be read refuses (exit 2), naming it.
+    # A store or register that cannot be read refuses (exit 2), naming it.
 
-    def test_T2_store_absent_or_a_file_refused(self):
+    def test_store_absent_or_a_file_refused(self):
         with tempfile.TemporaryDirectory() as tmp:
             absent = self._run(Path(tmp) / "absent", "--check-rows", "31")
             (Path(tmp) / "file").write_text("x", encoding="utf-8")
@@ -62832,14 +62832,14 @@ class MergeGrcLibraryNewRowCheckTests(unittest.TestCase):
         self.assertEqual(a_file.returncode, 2, a_file.stdout + a_file.stderr)
         self.assertIn(str(Path(tmp) / "file"), a_file.stderr)
 
-    def test_T2_register_absent_refused(self):
+    def test_register_absent_refused(self):
         with tempfile.TemporaryDirectory() as tmp:
             result = self._run(self._store(tmp, self.VALIDATE_ROW, None), "--check-rows", "31")
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
         self.assertIn(self.RETRO_REL, result.stderr)
         self.assertNotIn(self.VALIDATE_REL, result.stderr)
 
-    def test_T2_register_invalid_utf8_refused(self):
+    def test_register_invalid_utf8_refused(self):
         with tempfile.TemporaryDirectory() as tmp:
             store = self._store(tmp, None, self.RETRO_ROW)
             (store / self.VALIDATE_REL).write_bytes(b"\xff\xfe" + self.VALIDATE_ROW.encode() + b"\n")
@@ -62847,7 +62847,7 @@ class MergeGrcLibraryNewRowCheckTests(unittest.TestCase):
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
         self.assertIn(self.VALIDATE_REL, result.stderr)
 
-    def test_T2_register_a_directory_refused(self):
+    def test_register_a_directory_refused(self):
         with tempfile.TemporaryDirectory() as tmp:
             store = self._store(tmp, self.VALIDATE_ROW, None)
             (store / self.RETRO_REL).mkdir()
@@ -62855,7 +62855,7 @@ class MergeGrcLibraryNewRowCheckTests(unittest.TestCase):
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
         self.assertIn(self.RETRO_REL, result.stderr)
 
-    def test_T2_register_mode_000_refused(self):
+    def test_register_mode_000_refused(self):
         if os.geteuid() == 0:
             self.skipTest("root reads a mode 000 file")
         with tempfile.TemporaryDirectory() as tmp:
@@ -62869,7 +62869,7 @@ class MergeGrcLibraryNewRowCheckTests(unittest.TestCase):
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
         self.assertIn(self.VALIDATE_REL, result.stderr)
 
-    def test_T2_bad_pr_number_refused(self):
+    def test_bad_pr_number_refused(self):
         with tempfile.TemporaryDirectory() as tmp:
             store = self._store(tmp, self.VALIDATE_ROW, self.RETRO_ROW)
             for arg in ("031", "0", "3x", "３１", ""):
@@ -62877,9 +62877,9 @@ class MergeGrcLibraryNewRowCheckTests(unittest.TestCase):
                     result = self._run(store, "--check-rows", arg)
                     self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
 
-    # D1: never a sibling or in-repo fallback, and never a store inside the repository.
+    # Never a sibling or in-repo fallback, and never a store inside the repository.
 
-    def test_D1_sibling_and_in_repo_fallbacks_are_never_read(self):
+    def test_sibling_and_in_repo_fallbacks_are_never_read(self):
         from unittest import mock
         with tempfile.TemporaryDirectory() as tmp:
             parent = Path(tmp)
@@ -63104,7 +63104,7 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
                 self.assertEqual([c[:2] for c in calls], [("pr", "view")])
                 self.assertIn(result[1].splitlines()[0], err)
 
-    # Test T7: a grc_library_new PR merges only through
+    # A grc_library_new PR merges only through
     # tools/merge-grc-library-new.py. merge-when-green refuses it with exit 1, naming that tool, and makes no
     # merge call, whether --repo names that repository (in any case, URL or ssh spelling) or the PR URL that
     # gh pr view reports belongs to it; a missing or unreadable URL also refuses. gh is stubbed (patched and
@@ -63141,7 +63141,7 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
         return rc, calls, err.getvalue()
 
     def test_merge_when_green_refuses_grc_library_new_repo_spellings(self) -> None:
-        # T7 (a): --repo that normalizes to jposluns/grc_library_new refuses before any gh call, so before
+        # A --repo that normalizes to jposluns/grc_library_new refuses before any gh call, so before
         # any merge call, even when the server would report a grc_library URL.
         mod = load_linter_module("tools/merge-when-green.py", "_mwg_new_repo_spellings")
         grc_url = "https://github.com/jposluns/grc_library/pull/1"
@@ -63170,7 +63170,7 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
                     self.assertIn(self._MWG_NEW_TOOL, err)
 
     def test_merge_when_green_refuses_grc_library_new_pr_url(self) -> None:
-        # T7 (b): the PR URL that gh pr view reports decides, however the command was spelled: a
+        # The PR URL that gh pr view reports decides, however the command was spelled: a
         # grc_library_new URL refuses with no --repo, and also when --repo names another repository.
         mod = load_linter_module("tools/merge-when-green.py", "_mwg_new_pr_url")
         new_url = "https://github.com/jposluns/grc_library_new/pull/1"
@@ -63189,7 +63189,7 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
                     self.assertIn("url", calls[0][calls[0].index("--json") + 1].split(","))
 
     def test_merge_when_green_refuses_a_missing_or_unreadable_pr_url(self) -> None:
-        # T7 (b): without a readable PR URL the repository is unknown, so the merge refuses.
+        # Without a readable PR URL the repository is unknown, so the merge refuses.
         mod = load_linter_module("tools/merge-when-green.py", "_mwg_unreadable_pr_url")
         for label, url, omit in (
             ("missing", None, True),
@@ -63207,7 +63207,7 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
                 self.assertIn(self._MWG_NEW_TOOL, err)
 
     def test_merge_when_green_still_merges_a_grc_library_pr(self) -> None:
-        # T7: grc_library is unchanged: with its own URL reported (and now read), the merge goes ahead,
+        # grc_library is unchanged: with its own URL reported (and now read), the merge goes ahead,
         # pinned to the evaluated head. A near-miss name is not grc_library_new.
         mod = load_linter_module("tools/merge-when-green.py", "_mwg_grc_library_allowed")
         grc_url = "https://github.com/jposluns/grc_library/pull/1"
@@ -91209,7 +91209,7 @@ class StoreScopeCeilingTests(LinterTestCase):
         "| 2026-09-20 | #2407 | green | admin squash | j | c |\n")
 
     def test_gate_50_check6_tagged_row_counts_for_its_own_repository_only(self) -> None:
-        # Decision D2: a PR cell '#N [repo: grc_library_new]' (the form
+        # The shared log's tagged form: a PR cell '#N [repo: grc_library_new]' (the form
         # tools/merge-grc-library-new.py prints) counts for PR N of grc_library_new only and
         # never as grc_library PR N; '[repo: grc_library]' names this repository explicitly.
         self.assertEqual(self.bp.parse_bypass_prs(self._TAGGED_LOG), {2407, 2408})

@@ -1,7 +1,7 @@
 """Tests for tools/merge-grc-library-new.py: the merge
-argv (T3), the read-back of the merged commit (T4), the admin-merge log row printed to standard
-output (T5), the title suffix (T6, decision D3) and the CI check on the pinned head (decision D5);
-both required workflows (D5), the log-row cell escaping (T5) and the open-findings check
+argv, the read-back of the merged commit, the admin-merge log row printed to standard
+output, the title suffix and the CI check on the pinned head;
+both required workflows, the log-row cell escaping and the open-findings check
 reused from merge-when-green.py; the admin-merge log pre-flight before any
 gh call, the row appended to the log and read back, and the open-findings check failing closed;
 the pre-flight reads the log's real shape (text before the header, the header as the
@@ -102,7 +102,7 @@ def load_tool():
     return mod
 
 
-# Decision D5: each required workflow is bound to its own file, as gh api lists them for
+# Each required workflow is bound to its own file, as gh api lists them for
 # grc_library_new, and counts only from a pull_request run.
 WORKFLOW_PATHS = {"Repository quality checks": ".github/workflows/quality.yml",
                   "Pull request attribution": ".github/workflows/pr-attribution.yml"}
@@ -199,21 +199,21 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                                       sleep=self.sleeps.append, now=NOW)
         return code, out.getvalue(), err.getvalue()
 
-    # T3: the merge argv, and no merge call on any refusal or a dry run.
+    # The merge argv, and no merge call on any refusal or a dry run.
 
-    def test_T3_merge_argv_is_exact(self):
+    def test_merge_argv_is_exact(self):
         fake = FakeGh()
         code, out, err = self.merge(fake)
         self.assertEqual(code, 0, err)
         self.assertEqual(fake.merge_calls(), [MERGE_ARGV])
 
-    def test_T3_view_is_pinned_to_the_new_repository(self):
+    def test_view_is_pinned_to_the_new_repository(self):
         fake = FakeGh()
         self.merge(fake)
         self.assertEqual(fake.calls[0], ["pr", "view", "31", "--repo", REPO, "--json",
                                          "number,title,state,headRefOid,baseRefName,url"])
 
-    def test_T3_rows_refused_makes_no_gh_call(self):
+    def test_rows_refused_makes_no_gh_call(self):
         self.write_rows(VALIDATE_ROW, "")
         fake = FakeGh()
         code, out, err = self.merge(fake)
@@ -221,7 +221,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertEqual(fake.calls, [])
         self.assertEqual(out, "")
 
-    def test_T3_bad_pr_state_head_base_url_or_number_makes_no_merge_call(self):
+    def test_bad_pr_state_head_base_url_or_number_makes_no_merge_call(self):
         cases = {
             "closed": {"state": "CLOSED"},
             "merged": {"state": "MERGED"},
@@ -241,7 +241,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertEqual(fake.merge_calls(), [])
                 self.assertEqual(out, "")
 
-    def test_T3_unreadable_view_makes_no_merge_call(self):
+    def test_unreadable_view_makes_no_merge_call(self):
         def broken(*args):
             raise subprocess.CalledProcessError(1, ["gh", *args], "", "HTTP 401")
         code, out, err = self.merge(broken)
@@ -249,7 +249,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertIn("HTTP 401", err)
         self.assertEqual(out, "")
 
-    def test_T3_dry_run_makes_no_merge_call(self):
+    def test_dry_run_makes_no_merge_call(self):
         fake = FakeGh()
         code, out, err = self.merge(fake, dry_run=True)
         self.assertEqual(code, 0, err)
@@ -257,21 +257,21 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertIn("DRY RUN", err)
         self.assertEqual(out, "")
 
-    def test_T3_merge_call_error_exits_2_loudly(self):
+    def test_merge_call_error_exits_2_loudly(self):
         fake = FakeGh(merge_error=subprocess.CalledProcessError(1, ["gh"], "", "merge refused"))
         code, out, err = self.merge(fake)
         self.assertEqual(code, 2, err)
         self.assertIn("merge refused", err)
         self.assertEqual(len(fake.merge_calls()), 1)
 
-    # T4: the read-back of the merged commit.
+    # The read-back of the merged commit.
 
-    def test_T4_clean_message_exits_0(self):
+    def test_readback_clean_message_exits_0(self):
         code, out, err = self.merge(FakeGh())
         self.assertEqual(code, 0, err)
         self.assertNotIn("MERGED BUT", err)
 
-    def test_T4_trailers_fail_loud_and_the_row_records_them(self):
+    def test_readback_trailers_fail_loud_and_the_row_records_them(self):
         for trailer in ("Co-authored-by: a <b@example.com>", "co-authored-by: a <b@example.com>",
                         "Signed-off-by: a <b@example.com>"):
             with self.subTest(trailer=trailer):
@@ -284,7 +284,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertIn("trailer", out.splitlines()[0])
                 self.assertIn(trailer.split(":")[0], out.splitlines()[0])
 
-    def test_T4_message_differs_fails_loud(self):
+    def test_readback_message_differs_fails_loud(self):
         for message in ("other subject\n\n" + BODY, SUBJECT + "\n\nother body", SUBJECT):
             with self.subTest(message=message):
                 code, out, err = self.merge(FakeGh(message=message))
@@ -293,7 +293,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertIn("differs", err)
                 self.assertEqual(len(out.splitlines()), 1)
 
-    def test_T4_merge_commit_stays_null_after_retries(self):
+    def test_readback_merge_commit_stays_null_after_retries(self):
         fake = FakeGh(merged=[{"state": "OPEN", "mergeCommit": None}])
         code, out, err = self.merge(fake)
         self.assertEqual(code, 3, err)
@@ -303,19 +303,19 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertEqual(self.sleeps, [2, 2, 2, 2])
         self.assertEqual(len(out.splitlines()), 1)
 
-    def test_T4_merge_commit_appears_on_a_later_poll(self):
+    def test_readback_merge_commit_appears_on_a_later_poll(self):
         fake = FakeGh(merged=[{"state": "OPEN", "mergeCommit": None},
                               {"state": "MERGED", "mergeCommit": {"oid": OID}}])
         code, out, err = self.merge(fake)
         self.assertEqual(code, 0, err)
         self.assertEqual(self.sleeps, [2])
 
-    def test_T4_two_parents_fail_loud(self):
+    def test_readback_two_parents_fail_loud(self):
         code, out, err = self.merge(FakeGh(parents=[{"sha": "d" * 40}, {"sha": "e" * 40}]))
         self.assertEqual(code, 3, err)
         self.assertIn("parent", err)
 
-    def test_T4_unreadable_commit_fails_loud(self):
+    def test_readback_unreadable_commit_fails_loud(self):
         fake = FakeGh()
         real = fake.__call__
 
@@ -329,12 +329,12 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertIn("MERGED BUT", err)
         self.assertIn("HTTP 502", err)
 
-    # T5: the admin-merge log row, printed to standard output only.
+    # The admin-merge log row, printed to standard output only.
 
-    def test_T5_header_matches_the_admin_merge_log(self):
+    def test_header_matches_the_admin_merge_log(self):
         self.assertEqual(self.mod.LOG_HEADER, HEADER)
 
-    def test_T5_one_tagged_row_on_stdout(self):
+    def test_one_tagged_row_on_stdout(self):
         code, out, err = self.merge(FakeGh())
         self.assertEqual(code, 0, err)
         lines = out.splitlines()
@@ -349,13 +349,13 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertIn(shlex.join(["gh", *MERGE_ARGV]).replace("|", "\\|"), row)
         self.assertNotIn(row, err)
 
-    def test_T5_row_is_not_a_bare_pr_cell(self):
-        # Decision D2: the tagged form, never a bare '#N' that gate 50 Check 6 would read as a
+    def test_row_is_not_a_bare_pr_cell(self):
+        # The shared log's tagged form, never a bare '#N' that gate 50 Check 6 would read as a
         # grc_library PR.
         code, out, err = self.merge(FakeGh())
         self.assertIsNone(re.match(r"^\|[^|]*\|\s*#(\d+)\s*\|", out.splitlines()[0]))
 
-    def test_T5_pipes_in_the_title_are_escaped(self):
+    def test_pipes_in_the_title_are_escaped(self):
         title = "content: a | b (CalVer 2026.11.69, README 1.11.919)"
         subject = title + " (#31)"
         fake = FakeGh(view={"title": title}, message=subject + "\n\n" + BODY)
@@ -366,7 +366,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertIn("a \\| b", row)
         self.assertEqual(len(gfm_cells(row)), 6, row)
 
-    def test_T5_backslash_before_a_pipe_does_not_split_a_cell(self):
+    def test_backslash_before_a_pipe_does_not_split_a_cell(self):
         # A title holding "\|" must not become "\\|" (an escaped backslash, then a bare pipe
         # that GFM reads as a cell boundary); every backslash is escaped as well.
         for title in ("content: a \\| b (CalVer 2026.11.69, README 1.11.919)",
@@ -386,8 +386,8 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         code, out, err = self.merge(fake)
         self.assertIn("a \\\\\\| b", out)
 
-    def test_T5_title_suffix_refuses_line_breaking_characters(self):
-        # This checks the D3 title suffix refusal of every
+    def test_title_suffix_refuses_line_breaking_characters(self):
+        # This checks the title suffix refusal of every
         # character str.splitlines() treats as a line boundary, and of other control characters:
         # such a title is refused before any merge call, so no row is
         # printed. It also checks that _cell turns the same character into a space.
@@ -475,21 +475,21 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
     def changed_paths(before, after):
         return sorted(p for p in set(before) | set(after) if before.get(p) != after.get(p))
 
-    def test_T5_snapshot_sees_a_created_directory(self):
+    def test_snapshot_sees_a_created_directory(self):
         # A created directory, empty or not, is a change.
         before = self.snapshot()
         created = Path(self.tmp.name) / "created-by-the-tool"
         created.mkdir()
         self.assertEqual(self.changed_paths(before, self.snapshot()), [created])
 
-    def test_T5_snapshot_sees_a_mode_change(self):
+    def test_snapshot_sees_a_mode_change(self):
         # A mode change to an existing file, with its bytes
         # unchanged, is a change.
         before = self.snapshot()
         self.log.chmod(self.log.stat().st_mode ^ 0o100)
         self.assertEqual(self.changed_paths(before, self.snapshot()), [self.log])
 
-    def test_T5_dry_run_writes_no_file_and_the_merge_changes_only_the_log(self):
+    def test_dry_run_writes_no_file_and_the_merge_changes_only_the_log(self):
         before = self.snapshot()
         code, out, err = self.merge(FakeGh(), dry_run=True)
         self.assertEqual(code, 0, err)
@@ -498,16 +498,16 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertEqual(code, 0, err)
         self.assertEqual(self.changed_paths(before, self.snapshot()), [self.log])
 
-    def test_T5_no_row_without_a_merge(self):
+    def test_no_row_without_a_merge(self):
         for fake in (FakeGh(view={"title": "no suffix"}),
                      FakeGh(runs=[run("Repository quality checks", conclusion="failure")])):
             code, out, err = self.merge(fake)
             self.assertEqual(code, 1, err)
             self.assertEqual(out, "")
 
-    # T6: decision D3, the (CalVer ..., README ...) title suffix.
+    # The (CalVer ..., README ...) suffix a merged title must end with.
 
-    def test_T6_title_without_suffix_refused_before_merge(self):
+    def test_title_without_suffix_refused_before_merge(self):
         for title in ("content: no suffix",
                       "content: x (CalVer 2026.11.69)",
                       "content: x (CalVer 2026.11.69, README 1.11.919) trailing",
@@ -521,7 +521,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertIn("CalVer", err)
                 self.assertEqual(fake.merge_calls(), [])
 
-    def test_T6_title_with_a_control_or_line_breaking_character_refused_before_merge(self):
+    def test_title_with_a_control_or_line_breaking_character_refused_before_merge(self):
         # The suffix check once refused a newline only; a
         # carriage return, vertical tab or any other control or line-breaking character is
         # refused too, anywhere in the title.
@@ -541,10 +541,10 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
     FORMAT_CHARACTERS = ("\u202e", "\u200b", "\u2066", "\ufeff", "\u00ad", "\u200e", "\u200f",
                          "\u2067", "\u2068", "\u2069", "\u202a", "\u202d", "\u061c", "\u200d")
 
-    def test_T6_title_with_a_format_character_refused_before_merge(self):
+    def test_title_with_a_format_character_refused_before_merge(self):
         # A bidi override or isolate, a zero-width space or joiner, a byte order mark or a soft
         # hyphen would reach the squash subject and the admin-merge log row unchanged, where it
-        # can make them display other than what they hold; the D3 check refuses each one,
+        # can make them display other than what they hold; the title check refuses each one,
         # anywhere in the title.
         import unicodedata
         for char in self.FORMAT_CHARACTERS:
@@ -560,7 +560,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                     self.assertIn("format character", err)
                     self.assertEqual((out, fake.merge_calls()), ("", []))
 
-    def test_T5_format_characters_become_spaces_in_a_cell(self):
+    def test_format_characters_become_spaces_in_a_cell(self):
         # The same characters in any other cell text become a space, so the log row shows what
         # it holds.
         for char in self.FORMAT_CHARACTERS:
@@ -573,18 +573,18 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         cell = " ".join(self.mod._cell.__doc__.split())
         self.assertIn("format character", cell)
 
-    def test_T6_title_with_suffix_allowed(self):
+    def test_title_with_suffix_allowed(self):
         for title in (TITLE, "tools: y (CalVer 2026.9.3, README 1.10.4)"):
             with self.subTest(title=title):
                 self.assertTrue(self.mod.title_has_suffix(title))
 
-    # D5: every required workflow concluded success on the pinned head.
+    # Every required workflow must have concluded success on the pinned head.
 
-    def test_D5_required_workflows_from_the_new_repository(self):
+    def test_ci_required_workflows_from_the_new_repository(self):
         # Both workflow names in texts/required-workflows.txt.
         self.assertEqual(self.mod.REQUIRED_WORKFLOWS, (QUALITY, ATTRIBUTION))
 
-    def test_D5_only_one_required_workflow_green_refused_before_merge(self):
+    def test_ci_only_one_required_workflow_green_refused_before_merge(self):
         cases = {
             "quality only": ([run(QUALITY)], ATTRIBUTION),
             "attribution only": ([run(ATTRIBUTION, run_id=2)], QUALITY),
@@ -606,19 +606,19 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertEqual(fake.merge_calls(), [])
                 self.assertEqual(out, "")
 
-    def test_D5_row_names_both_green_runs(self):
+    def test_ci_row_names_both_green_runs(self):
         code, out, err = self.merge(FakeGh())
         self.assertEqual(code, 0, err)
         self.assertIn(f"{QUALITY} completed/success on {HEAD} (run 43583397326)", out)
         self.assertIn(f"{ATTRIBUTION} completed/success on {HEAD} (run 43583397345)", out)
 
-    def test_D5_runs_read_by_pinned_head(self):
+    def test_ci_runs_read_by_pinned_head(self):
         fake = FakeGh()
         self.merge(fake)
         api = [c for c in fake.calls if c[0] == "api" and "/actions/runs" in c[1]]
         self.assertEqual(api, [["api", f"repos/{REPO}/actions/runs?head_sha={HEAD}&per_page=100&page=1"]])
 
-    def test_D5_two_page_head_read_in_full(self):
+    def test_ci_two_page_head_read_in_full(self):
         # A head with more runs than one page holds
         # is read page by page until every run is read, then judged as one list.
         first = [run("Other workflow", run_id=1000 + i) for i in range(99)] + [run(QUALITY, run_id=2000)]
@@ -634,7 +634,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertIn(f"{QUALITY} completed/success on {HEAD} (run 2000)", out)
         self.assertIn(f"{ATTRIBUTION} completed/success on {HEAD} (run 2001)", out)
 
-    def test_D5_page_ending_early_or_inconsistent_refused_before_merge(self):
+    def test_ci_page_ending_early_or_inconsistent_refused_before_merge(self):
         # A page that ends before total_count is
         # reached, or a malformed, over-full or inconsistent page, refuses with exit 2; part of
         # the list is never judged, even when the runs read so far are green.
@@ -663,7 +663,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertEqual(fake.merge_calls(), [])
                 self.assertEqual(out, "")
 
-    def test_D5_not_green_refused_before_merge(self):
+    def test_ci_not_green_refused_before_merge(self):
         q = "Repository quality checks"
         cases = {
             "failure": [run(q, conclusion="failure")],
@@ -690,7 +690,29 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertIn(q, err)
                 self.assertEqual(fake.merge_calls(), [])
 
-    def test_D5_unreadable_runs_refused_before_merge(self):
+    def test_refusals_state_the_rule_they_apply(self):
+        # An operator reads the refusal, so it names the rule in words, not a planning label.
+        ci_rule = "(both required workflows must succeed on the pinned head)"
+        cases = {
+            "not green": FakeGh(runs=[run("Repository quality checks", conclusion="failure")]),
+            "unreadable": FakeGh(runs_text="<html>"),
+        }
+        for name, fake in cases.items():
+            with self.subTest(case=name):
+                code, out, err = self.merge(fake)
+                self.assertNotEqual(code, 0, err)
+                self.assertIn(ci_rule, err)
+                self.assertNotIn("(decision", err)
+                self.assertEqual(fake.merge_calls(), [])
+        fake = FakeGh(view={"title": "content: no suffix"})
+        code, out, err = self.merge(fake)
+        self.assertEqual(code, 1, err)
+        self.assertIn("(a merged title must end with that suffix and hold only printable "
+                      "characters)", err)
+        self.assertNotIn("(decision", err)
+        self.assertEqual(fake.merge_calls(), [])
+
+    def test_ci_unreadable_runs_refused_before_merge(self):
         cases = {
             "gh error": {"runs_error": subprocess.CalledProcessError(1, ["gh"], "", "HTTP 403")},
             "not JSON": {"runs_text": "<html>"},
@@ -707,7 +729,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertEqual(code, 2, err)
                 self.assertEqual(fake.merge_calls(), [])
 
-    def test_D5_latest_success_after_an_older_failure_allowed(self):
+    def test_ci_latest_success_after_an_older_failure_allowed(self):
         q = "Repository quality checks"
         fake = FakeGh(runs=[run(q, conclusion="failure", run_id=1, created="2026-11-14T10:00:00Z"),
                             run(q, run_id=2, created="2026-11-14T11:00:00Z"),
@@ -715,7 +737,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         code, out, err = self.merge(fake)
         self.assertEqual(code, 0, err)
 
-    def test_D5_malformed_run_record_refused_before_merge(self):
+    def test_ci_malformed_run_record_refused_before_merge(self):
         # A required workflow's pull_request runs are
         # ordered by created_at, then id, so each must carry a positive integer id and a
         # parseable created_at. A failed run with no created_at used to sort below a dated
@@ -748,7 +770,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                     self.assertEqual(fake.merge_calls(), [])
                     self.assertEqual(out, "")
 
-    def test_D5_runs_ordered_by_parsed_created_at(self):
+    def test_ci_runs_ordered_by_parsed_created_at(self):
         # created_at is compared as a time, not as text, so a later failed
         # run written with an offset still outranks an earlier success.
         fake = FakeGh(runs=[run(QUALITY, run_id=1, created="2026-11-14T11:00:00Z"),
@@ -772,12 +794,12 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertEqual(fake.merge_calls(), [])
                 self.assertEqual(out, "")
 
-    def test_D5_required_workflows_bound_to_their_files(self):
+    def test_ci_required_workflows_bound_to_their_files(self):
         self.assertEqual(self.mod.WORKFLOW_PATHS, WORKFLOW_PATHS)
         self.assertEqual(set(self.mod.WORKFLOW_PATHS), set(self.mod.REQUIRED_WORKFLOWS))
         self.assertEqual(self.mod.CI_EVENT, "pull_request")
 
-    def test_D5_same_named_run_from_another_file_refused_before_merge(self):
+    def test_ci_same_named_run_from_another_file_refused_before_merge(self):
         # A PR could add a workflow file that reuses a required name. Only the bound
         # file may satisfy it, and a same-named run from any other path refuses, even beside a
         # green run from the bound file (as evaluate_runs in merge-when-green.py does).
@@ -797,7 +819,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
             "no path reported": ([run(QUALITY, path=""), run(ATTRIBUTION, run_id=2)], QUALITY),
         })
 
-    def test_D5_only_a_pull_request_run_counts(self):
+    def test_ci_only_a_pull_request_run_counts(self):
         # A later workflow_dispatch or push run on the head never stands in for the
         # pull_request run of a required workflow.
         def later(event):
@@ -814,7 +836,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                                   QUALITY),
         })
 
-    def test_D5_later_failed_non_pull_request_run_does_not_refuse(self):
+    def test_ci_later_failed_non_pull_request_run_does_not_refuse(self):
         # The latest pull_request run is judged, so a later
         # failed workflow_dispatch (or push) run on the head never refuses a green pull_request run.
         for event in ("workflow_dispatch", "push"):
@@ -968,7 +990,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assert_refused_before_gh(LOG_REL)
 
     def test_log_preflight_outside_the_store_refuses_before_any_gh_call(self):
-        # Decision D1: the private sibling and in-repo .working/ fallbacks never stand in, and a
+        # The private sibling and in-repo .working/ fallbacks never stand in, and a
         # store entry that resolves outside the store is refused.
         moved = Path(self.tmp.name) / "moved-log.md"
         os.replace(self.log, moved)
@@ -1047,7 +1069,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
 
     def test_log_preflight_checks_writability_without_writing(self):
         # The check is os.access for reading and writing (what the append's O_RDWR needs) on
-        # the log path itself, a final symlink being refused first, after the D1 store check;
+        # the log path itself, a final symlink being refused first, after the store check;
         # it opens nothing for writing, so the log's bytes and modification time stay as they
         # were.
         before = (self.log.read_bytes(), self.log.stat().st_mtime_ns)
@@ -1130,7 +1152,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         moved = Path(self.tmp.name) / "moved-ledger.md"
         os.replace(self.store / "open-findings.md", moved)
         self.assert_refused_before_gh("open-findings")
-        # Decision D1: a ledger in the private sibling or the in-repo .working/ never stands in.
+        # A ledger in the private sibling or the in-repo .working/ never stands in.
         sibling = Path(self.tmp.name) / "grc_library_private" / ".working"
         sibling.mkdir(parents=True)
         (sibling / "open-findings.md").write_text(LEDGER_HEAD, encoding="utf-8")

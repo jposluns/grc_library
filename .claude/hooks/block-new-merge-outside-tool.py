@@ -6,7 +6,7 @@ The only sanctioned path for a grc_library_new squash merge is
 /validate-pr and /retro rows, the title, the head's CI and the merge commit itself.
 
 Registered in .claude/settings.json twice: matcher Bash, and matcher
-mcp__github__merge_pull_request (decision D4).
+mcp__github__merge_pull_request, so a merge through the GitHub MCP tool is checked too.
 
 Rule:
   1. Allow when the raw Bash command fully matches the sanctioned pattern, ASCII only, and
