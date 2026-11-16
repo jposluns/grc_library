@@ -57,16 +57,16 @@ Exemption layers:
     engine's regex captured the whole domain, so another local part at
     those domains, ``git`` at any other domain, and a longer domain that
     begins with ``github.com`` are reported as before (maintainer
-    decision 2026-11-15, 3b882 fix round 3). The allowance also needs
+    decision 2026-11-15). The allowance also needs
     the match to be the whole local part (_local_part_complete): a match
     right after @ (user@git@github.com or user@git@gitlab.com) is still
     reported, because the engine reports only its git@ suffix and that
-    suffix is the end of a longer address, not a whole local part (3b882
-    fix round 9); an address wrapped in backticks or single quotes (a Markdown code span
+    suffix is the end of a longer address, not a whole local part;
+    an address wrapped in backticks or single quotes (a Markdown code span
     such as `git@github.com`, or 'git@gitlab.com') is still reported,
     because the backtick and the apostrophe are RFC 5322 local-part
     characters, so the match may be the end of a longer local part and
-    the allowance fails closed (3b882 fix round 8). Write such an
+    the allowance fails closed. Write such an
     address after whitespace, after ssh://, or in parentheses.
   - CHANGELOG.md is exempt because it can describe sanitization fixes
     that quote (now-removed) PII.
@@ -154,19 +154,19 @@ EXAMPLE_DOMAINS = {
 # Phase 23.63 removed `noreply.github.com` (no corpus reference)
 # and `posluns.com` (only `.ca` is used in AUTHORS / CITATION).
 
-# Forge SSH service addresses (maintainer decision 2026-11-15, 3b882 fix
-# round 3): the SSH service address of a code-hosting site, as written in an
+# Forge SSH service addresses (maintainer decision 2026-11-15): the SSH
+# service address of a code-hosting site, as written in an
 # ssh:// or scp-style remote, names the service's shared login, not a person.
 # Only these two exact addresses are allowed. This is not a domain allowance:
 # any other local part at github.com or gitlab.com, and git at any other
 # domain, is reported as before.
 FORGE_SERVICE_ADDRESSES = frozenset({"git@github.com", "git@gitlab.com"})
-# 3b882 fix round 4: the engine's EMAIL_RE starts a match at a word boundary, so for
+# The engine's EMAIL_RE starts a match at a word boundary, so for
 # o'git@github.com or alice!git@gitlab.com it captures only the git@ suffix. The
 # allowance applies only when the character before the match cannot sit in a local
 # part: not an RFC 5322 atext character or dot, and not a non-ASCII character (RFC 6531),
-# except whitespace, or the "/" that ends the "://" of an ssh:// remote. 3b882 fix round 9:
-# nor "@", which is no local-part character, but a match right after it (user@git@github.com)
+# except whitespace, or the "/" that ends the "://" of an ssh:// remote. Nor
+# "@", which is no local-part character, but a match right after it (user@git@github.com)
 # is the end of a longer address, not a whole local part.
 _LOCAL_PART_CHARS = frozenset(
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&'*+-/=?^_`{|}~."

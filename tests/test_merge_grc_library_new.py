@@ -1,10 +1,10 @@
-"""Tests for tools/merge-grc-library-new.py, part P2a of the 3b882 merge-tool plan: the merge
+"""Tests for tools/merge-grc-library-new.py: the merge
 argv (T3), the read-back of the merged commit (T4), the admin-merge log row printed to standard
 output (T5), the title suffix (T6, decision D3) and the CI check on the pinned head (decision D5);
-part P2b: both required workflows (D5), the log-row cell escaping (T5) and the open-findings check
-reused from merge-when-green.py (plan section 3); part P2c: the admin-merge log pre-flight before any
+both required workflows (D5), the log-row cell escaping (T5) and the open-findings check
+reused from merge-when-green.py; the admin-merge log pre-flight before any
 gh call, the row appended to the log and read back, and the open-findings check failing closed;
-part P2d: the pre-flight reads the log's real shape (text before the header, the header as the
+the pre-flight reads the log's real shape (text before the header, the header as the
 first table line, a table line last) and refuses a log it could not append to.
 
 Every gh call is stubbed through the tool's gh() seam, so nothing contacts a network, and every
@@ -78,7 +78,7 @@ def gfm_cells(row):
     This over-approximates GFM: GFM's backslash escape applies only before ASCII punctuation,
     while this helper treats a backslash as escaping any character after it. The two differ
     only when that character is not ASCII punctuation, so it is never a pipe or a backslash,
-    and the split is the same (3b882 fix round 9)."""
+    and the split is the same."""
     cells, cur, i = [], "", 0
     while i < len(row):
         if row[i] == "\\" and i + 1 < len(row):
@@ -387,9 +387,9 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertIn("a \\\\\\| b", out)
 
     def test_T5_title_suffix_refuses_line_breaking_characters(self):
-        # 3b882 fix round 8 (round 7 agy-B F2): this checks the D3 title suffix refusal of every
-        # character str.splitlines() treats as a line boundary, and of other control characters
-        # (3b882 fix round 7): such a title is refused before any merge call, so no row is
+        # This checks the D3 title suffix refusal of every
+        # character str.splitlines() treats as a line boundary, and of other control characters:
+        # such a title is refused before any merge call, so no row is
         # printed. It also checks that _cell turns the same character into a space.
         for char in ("\n", "\v", "\f", "\x1c", "\x1d", "\x1e", "\x85", "\u2028", "\u2029",
                      "\r", "\x00", "\x1b"):
@@ -402,7 +402,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertEqual((out, fake.merge_calls()), ("", []))
 
     def test_row_present_digit_check_follows_the_whole_lead(self):
-        # agy LOW: the digit check sits after the whole lead, #N, or #N (/retro) in the retro
+        # The digit check sits after the whole lead, #N, or #N (/retro) in the retro
         # register, as row_present's docstring says; this keeps the current refusals.
         v_row, r_row = VALIDATE_ROW, RETRO_ROW
         self.assertTrue(self.mod.row_present(v_row, 31, retro=False))
@@ -414,7 +414,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                                               retro=True))
 
     def test_row_present_refuses_a_lead_that_runs_on(self):
-        # 3b882 fix round 10 (round 9 agy-A F1): the lead ends only at a space, a closing bracket
+        # The lead ends only at a space, a closing bracket
         # or the end of the cell, so a letter, an underscore, a full stop or a hyphen after #31
         # (or after #31 (/retro) in the retro register) makes another identity, never PR 31.
         for form in ("#31a", "#31_x", "#31.", "#31-1"):
@@ -431,7 +431,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertIsNone(self.mod._pr_lead(31, retro=True).match("#31 (/retro)" + tail))
 
     def test_row_present_accepts_the_lead_ends_and_a_retro_row_needs_the_retro_suffix(self):
-        # 3b882 fix round 10 (round 9 agy-A F1): the accepted ends of the lead, a space, a closing
+        # The accepted ends of the lead, a space, a closing
         # bracket or the end of the cell, and the (/retro) suffix after #31 in the retro register.
         self.assertTrue(self.mod.row_present(VALIDATE_ROW, 31, retro=False))
         self.assertTrue(self.mod.row_present(RETRO_ROW, 31, retro=True))
@@ -448,12 +448,19 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         # the suffix, so a bare #31 never stands for the retro row.
         self.assertIsNotNone(self.mod._pr_lead(31, retro=False).match("#31 (/retro)"))
         self.assertIsNone(self.mod._pr_lead(31, retro=True).match("#31"))
+        # row_present itself: a retro register row whose lead lacks the (/retro) suffix is
+        # refused, though the same row is a valid non-retro row, and the row with it is accepted.
+        no_suffix = RETRO_ROW.replace("#31 (/retro) ", "#31 ")
+        self.assertNotIn("(/retro)", no_suffix)
+        self.assertTrue(self.mod.row_present(no_suffix, 31, retro=False))
+        self.assertFalse(self.mod.row_present(no_suffix, 31, retro=True))
+        self.assertTrue(self.mod.row_present(RETRO_ROW, 31, retro=True))
 
     def snapshot(self):
         # Every entry under the temporary root: a file by its bytes, a symlink by its target, a
-        # directory and anything else by its kind, so a created directory shows as a change
-        # (3b882 fix round 7); each with its st_mode (lstat, so a symlink's own), so a mode
-        # change to any entry shows as a change too (3b882 fix round 9).
+        # directory and anything else by its kind, so a created directory shows as a change;
+        # each with its st_mode (lstat, so a symlink's own), so a mode
+        # change to any entry shows as a change too.
         def entry(p):
             mode = p.lstat().st_mode
             if p.is_symlink():
@@ -469,14 +476,14 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         return sorted(p for p in set(before) | set(after) if before.get(p) != after.get(p))
 
     def test_T5_snapshot_sees_a_created_directory(self):
-        # 3b882 fix round 7 (round 6 agy-B F2): a created directory, empty or not, is a change.
+        # A created directory, empty or not, is a change.
         before = self.snapshot()
         created = Path(self.tmp.name) / "created-by-the-tool"
         created.mkdir()
         self.assertEqual(self.changed_paths(before, self.snapshot()), [created])
 
     def test_T5_snapshot_sees_a_mode_change(self):
-        # 3b882 fix round 9 (round 8 agy-B F2): a mode change to an existing file, with its bytes
+        # A mode change to an existing file, with its bytes
         # unchanged, is a change.
         before = self.snapshot()
         self.log.chmod(self.log.stat().st_mode ^ 0o100)
@@ -515,7 +522,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertEqual(fake.merge_calls(), [])
 
     def test_T6_title_with_a_control_or_line_breaking_character_refused_before_merge(self):
-        # 3b882 fix round 7 (round 6 agy-B F1): the suffix check refused a newline only; a
+        # The suffix check once refused a newline only; a
         # carriage return, vertical tab or any other control or line-breaking character is
         # refused too, anywhere in the title.
         for char in ("\r", "\r\n", "\v", "\f", "\t", "\x00", "\x1b", "\x1c", "\x1d", "\x1e",
@@ -530,7 +537,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                     self.assertIn("CalVer", err)
                     self.assertEqual((out, fake.merge_calls()), ("", []))
 
-    # 3b882 fix round 8 (round 7 claude F1): format characters (Unicode category Cf).
+    # Format characters (Unicode category Cf).
     FORMAT_CHARACTERS = ("\u202e", "\u200b", "\u2066", "\ufeff", "\u00ad", "\u200e", "\u200f",
                          "\u2067", "\u2068", "\u2069", "\u202a", "\u202d", "\u061c", "\u200d")
 
@@ -574,7 +581,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
     # D5: every required workflow concluded success on the pinned head.
 
     def test_D5_required_workflows_from_the_new_repository(self):
-        # Both workflow names in texts/required-workflows.txt (3b882 P2b item 1).
+        # Both workflow names in texts/required-workflows.txt.
         self.assertEqual(self.mod.REQUIRED_WORKFLOWS, (QUALITY, ATTRIBUTION))
 
     def test_D5_only_one_required_workflow_green_refused_before_merge(self):
@@ -612,7 +619,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertEqual(api, [["api", f"repos/{REPO}/actions/runs?head_sha={HEAD}&per_page=100&page=1"]])
 
     def test_D5_two_page_head_read_in_full(self):
-        # 3b882 fix round 5 (round 4 agy-A finding 1): a head with more runs than one page holds
+        # A head with more runs than one page holds
         # is read page by page until every run is read, then judged as one list.
         first = [run("Other workflow", run_id=1000 + i) for i in range(99)] + [run(QUALITY, run_id=2000)]
         second = [run(ATTRIBUTION, run_id=2001)]
@@ -628,7 +635,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertIn(f"{ATTRIBUTION} completed/success on {HEAD} (run 2001)", out)
 
     def test_D5_page_ending_early_or_inconsistent_refused_before_merge(self):
-        # 3b882 fix round 5 (round 4 agy-A finding 1): a page that ends before total_count is
+        # A page that ends before total_count is
         # reached, or a malformed, over-full or inconsistent page, refuses with exit 2; part of
         # the list is never judged, even when the runs read so far are green.
         full = [run("Other workflow", run_id=1000 + i) for i in range(100)]
@@ -709,7 +716,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertEqual(code, 0, err)
 
     def test_D5_malformed_run_record_refused_before_merge(self):
-        # 3b882 fix round 6 (round 5 codex F1): a required workflow's pull_request runs are
+        # A required workflow's pull_request runs are
         # ordered by created_at, then id, so each must carry a positive integer id and a
         # parseable created_at. A failed run with no created_at used to sort below a dated
         # success, and a green run with a missing or string id was accepted; each now refuses
@@ -742,7 +749,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                     self.assertEqual(out, "")
 
     def test_D5_runs_ordered_by_parsed_created_at(self):
-        # 3b882 fix round 6: created_at is compared as a time, not as text, so a later failed
+        # created_at is compared as a time, not as text, so a later failed
         # run written with an offset still outranks an earlier success.
         fake = FakeGh(runs=[run(QUALITY, run_id=1, created="2026-11-14T11:00:00Z"),
                             run(QUALITY, conclusion="failure", run_id=2,
@@ -771,7 +778,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertEqual(self.mod.CI_EVENT, "pull_request")
 
     def test_D5_same_named_run_from_another_file_refused_before_merge(self):
-        # claude F1: a PR could add a workflow file that reuses a required name. Only the bound
+        # A PR could add a workflow file that reuses a required name. Only the bound
         # file may satisfy it, and a same-named run from any other path refuses, even beside a
         # green run from the bound file (as evaluate_runs in merge-when-green.py does).
         decoy = ".github/workflows/decoy.yml"
@@ -791,7 +798,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         })
 
     def test_D5_only_a_pull_request_run_counts(self):
-        # claude F1: a later workflow_dispatch or push run on the head never stands in for the
+        # A later workflow_dispatch or push run on the head never stands in for the
         # pull_request run of a required workflow.
         def later(event):
             return [run(QUALITY, conclusion="failure", run_id=1, created="2026-11-14T10:00:00Z"),
@@ -808,7 +815,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         })
 
     def test_D5_later_failed_non_pull_request_run_does_not_refuse(self):
-        # 3b882 fix round 4 (round 3 agy M1): the latest pull_request run is judged, so a later
+        # The latest pull_request run is judged, so a later
         # failed workflow_dispatch (or push) run on the head never refuses a green pull_request run.
         for event in ("workflow_dispatch", "push"):
             with self.subTest(event=event):
@@ -854,12 +861,12 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertEqual(fake.merge_calls(), [MERGE_ARGV])
 
     def test_open_findings_reads_a_clean_ledger_once_and_the_merge_goes_ahead(self):
-        # 3b882 fix round 6 (round 5 claude F2, codex F2): renamed from
+        # Renamed from
         # test_open_findings_second_ledger_read_never_allows_a_merge, which no longer fit: the
         # test asserts one ledger read and, on that clean ledger, a merge that goes ahead.
-        # codex MED 1: the ledger is read once and that text is judged. A second read that
+        # The ledger is read once and that text is judged. A second read that
         # raises PermissionError (merge-when-green's open_findings_block allows on any read
-        # error) must never decide a merge. 3b882 fix round 5 (round 4 agy-B): the ledger is
+        # error) must never decide a merge. The ledger is
         # clean, so the first read alone allows and only a second read could take part; the
         # tool must read it exactly once (an open ledger refused on the first read, so the old
         # case passed whether or not a second read happened).
@@ -885,7 +892,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 self.assertEqual(fake.merge_calls(), [] if dry_run else [MERGE_ARGV])
 
     def test_open_findings_parse_failure_refuses_before_any_gh_call(self):
-        # codex MED 1: a ledger the hook cannot parse refuses (merge-when-green allows it).
+        # A ledger the hook cannot parse refuses (merge-when-green allows it).
         hook = self.root / ".claude" / "hooks" / HOOK_NAME
         hook.write_text(hook.read_text(encoding="utf-8") + "\n\ndef parse_open_rows(text):\n"
                         "    raise ValueError('unparseable ledger')\n", encoding="utf-8")
@@ -977,7 +984,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         self.assertEqual(moved.read_text(encoding="utf-8"), LOG_SHAPE)
 
     def test_log_preflight_in_store_symlink_refuses_before_any_gh_call(self):
-        # codex MED 2: the append opens the log with O_NOFOLLOW, so a final-component symlink,
+        # The append opens the log with O_NOFOLLOW, so a final-component symlink,
         # even to a writable file inside the store, would refuse the row after the merge. The
         # pre-flight refuses it before any gh call.
         target = self.store / "real-merge-bypass-log.md"
@@ -1151,7 +1158,7 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
                 contextlib.redirect_stdout(io.StringIO()) as out, \
                 contextlib.redirect_stderr(io.StringIO()):
             self.assertEqual(self.mod.main(["31", "--dry-run"]), 0)
-        # 3b882 fix round 6 (round 5 agy-B F2): main() must have called the patched gh helper
+        # main() must have called the patched gh helper
         # (the PR view and the Actions runs read), not merely returned 0.
         self.assertTrue(fake.calls, "main() made no gh call")
         self.assertIn(["pr", "view", "31", "--repo", REPO, "--json",

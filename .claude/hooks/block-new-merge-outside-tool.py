@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PreToolUse hook: refuse a grc_library_new merge outside the merge tool (3b882 part 4).
+"""PreToolUse hook: refuse a grc_library_new merge outside the merge tool.
 
 The only sanctioned path for a grc_library_new squash merge is
 ``python3 tools/merge-grc-library-new.py <PR number> [--dry-run]``, which checks the
@@ -8,34 +8,33 @@ The only sanctioned path for a grc_library_new squash merge is
 Registered in .claude/settings.json twice: matcher Bash, and matcher
 mcp__github__merge_pull_request (decision D4).
 
-Rule (plan 3b882m section 4):
+Rule:
   1. Allow when the raw Bash command fully matches the sanctioned pattern, ASCII only, and
      no directory of the normalized payload cwd is named grc_library_new (a whole path
      component, split at / or \\); exit 2 when one is, since the relative tools/ path would
-     run that clone's copy of the tool (3b882 fix round 5). A parent directory whose name
+     run that clone's copy of the tool. A parent directory whose name
      only contains grc_library_new, such as /home/grc_library_new_fan/grc_library, does not
-     refuse it (3b882 fix round 9).
+     refuse it.
   2. Otherwise exit 2 when (a) the normalized text, or the payload cwd, names
      grc_library_new (here the cwd is read as text, so a longer directory name that contains
      grc_library_new counts) and (b) the normalized text matches one of the merge patterns. The
-     merge tool's name is one of them (3b882 fix round 6), so any other spelling of the
+     merge tool's name is one of them, so any other spelling of the
      tool command (a trailing or doubled space, ./tools/, -I) from such a cwd refuses. From
      any other cwd such a spelling refuses only when its text names grc_library_new (a path
      through such a clone): the tool's own hyphenated name merge-grc-library-new does not,
-     so python3 ./tools/merge-grc-library-new.py 31 from a grc_library checkout is allowed
-     (3b882 fix round 8).
+     so python3 ./tools/merge-grc-library-new.py 31 from a grc_library checkout is allowed.
   2a. From such a cwd, a Bash command whose normalized text names tools/ together with a
      glob character (*, ? or [) also exits 2, since the shell's pathname expansion can reach
-     the clone's copy of the tool (3b882 fix round 7). This over-refuses any such command,
+     the clone's copy of the tool. This over-refuses any such command,
      one that runs no merge (ls tools/*.py) included, and, as the cwd is read as text here,
      one run from a directory whose name only contains grc_library_new, where no such clone
-     is involved (3b882 fix round 11).
+     is involved.
   3. Every other input exits 0.
 
 The normalized text is NFKC, percent-decoded, NFKC again and casefolded. For Bash it is
 the command; for any other tool it is the tool name with every string value of the input,
 nested values included (an MCP GraphQL query and its variables, or a REST endpoint and its
-body; 3b882 fix round 11), then owner and repo joined by a slash,
+body), then owner and repo joined by a slash,
 so the text also carries owner/repo. The hook runs only for the tool names
 .claude/settings.json registers it for (Bash and mcp__github__merge_pull_request); a call
 to an MCP tool under another name never reaches it. A
@@ -58,15 +57,15 @@ MERGE_PATTERNS = tuple(re.compile(p, re.DOTALL) for p in (
     r"mergepullrequest",
     r"merge_pull_request",
     r"merge-when-green",
-    # 3b882 fix round 4: an auto-merge, a branch merge and a REST branch-merge call.
+    # An auto-merge, a branch merge and a REST branch-merge call.
     r"enablepullrequestautomerge",
     r"mergebranch",
     r"repos/[^/\s]+/[^/\s]+/merges\b",
-    # 3b882 fix round 6: the merge tool itself, in any literal spelling the sanctioned fullmatch
-    # misses. A glob spelling is refused separately (GLOB_CHARS, fix round 7).
+    # The merge tool itself, in any literal spelling the sanctioned fullmatch
+    # misses. A glob spelling is refused separately (GLOB_CHARS).
     r"merge-grc-library-new",
 ))
-# 3b882 fix round 7: shell pathname expansion characters; beside tools/ they may reach the tool.
+# Shell pathname expansion characters; beside tools/ they may reach the tool.
 GLOB_CHARS = "*?["
 
 REASON = (
@@ -136,13 +135,13 @@ def merge_text(text):
 
 def cwd_is_new_clone(cwd):
     """Whether a directory of the normalized ``cwd`` is named exactly grc_library_new: a whole
-    path component, split at / or \\ (3b882 fix round 9), not a substring of a longer name."""
+    path component, split at / or \\, not a substring of a longer name."""
     return NEW in re.split(r"[/\\]", cwd)
 
 
 def string_values(value):
     """Every string in ``value``: the value itself, or the values of a mapping and the items of
-    a list, nested ones included, in order (3b882 fix round 11). Iterative, so the walk adds no
+    a list, nested ones included, in order. Iterative, so the walk adds no
     recursion depth."""
     found, stack = [], [value]
     while stack:

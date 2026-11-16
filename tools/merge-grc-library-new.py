@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Merge tool for jposluns/grc_library_new (3b882): the register row check (P1), then the merge.
+"""Merge tool for jposluns/grc_library_new: the register row check, then the merge.
 
 The grc_library_new squash merge is to go only through this tool, which refuses unless both
 QA rows for the PR are in this repository's own registers in the operational store:
@@ -112,7 +112,7 @@ MERGE_REPO = "jposluns/grc_library_new"
 PR_URL = "https://github.com/" + MERGE_REPO + "/pull/{pr}"
 VIEW_FIELDS = "number,title,state,headRefOid,baseRefName,url"
 # Decision D5: the workflows in grc_library_new whose latest run on the pinned head must have
-# concluded success: both workflow names a grc_library_new head must pass (3b882 P2b).
+# concluded success: both workflow names a grc_library_new head must pass.
 REQUIRED_WORKFLOWS = ("Repository quality checks", "Pull request attribution")
 # Each required workflow counts only from its own workflow file, as gh api lists them for
 # grc_library_new, and only from a pull_request run; a same-named run from another file refuses
@@ -426,9 +426,9 @@ def _describe(exc: BaseException) -> str:
 def title_has_suffix(title: str) -> bool:
     """Decision D3: the title ends with " (CalVer <v>, README <v>)" (ASCII digits, one line). A
     title holding any control, line-breaking or format character (Unicode category Cc, Zl, Zp
-    or Cf: a newline, carriage return, vertical tab, form feed, NEL, U+2028 or U+2029 (3b882 fix
-    round 7), and a bidi override or isolate such as U+202E or U+2066, a zero-width space
-    U+200B, a byte order mark U+FEFF or a soft hyphen U+00AD (3b882 fix round 8) among them) is
+    or Cf: a newline, carriage return, vertical tab, form feed, NEL, U+2028 or U+2029,
+    and a bidi override or isolate such as U+202E or U+2066, a zero-width space
+    U+200B, a byte order mark U+FEFF or a soft hyphen U+00AD among them) is
     refused, so the squash subject and the admin-merge log row show what they hold."""
     return (isinstance(title, str) and _TITLE.fullmatch(title) is not None
             and not any(unicodedata.category(c) in ("Cc", "Zl", "Zp", "Cf") for c in title))
@@ -450,7 +450,7 @@ RUNS_MAX_PAGES = 50
 
 def read_runs(head: str, gh) -> tuple[int, list[str], str]:
     """Decision D5: every page of ``actions/runs?head_sha=<head>``, RUNS_PER_PAGE runs a page
-    (3b882 fix round 5: a head with more runs than one page holds is read in full), joined into
+    (a head with more runs than one page holds is read in full), joined into
     one ``{"total_count", "workflow_runs"}`` JSON text for ci_check(). ``(0, [], text)`` once
     the runs read reach total_count; ``(2, [problem], "")`` when a page cannot be read, is not a
     list of run objects with a non-negative integer total_count, holds more than RUNS_PER_PAGE
@@ -501,7 +501,7 @@ def read_runs(head: str, gh) -> tuple[int, list[str], str]:
 
 
 def run_record_problem(r: dict) -> str:
-    """3b882 fix round 6: "" when the run ``r`` has a positive integer id and a created_at that
+    """"" when the run ``r`` has a positive integer id and a created_at that
     parses as a time with a zone, else the problem. ci_check() orders a workflow's runs by these
     two, so a record missing either cannot be placed and refuses."""
     run_id = r.get("id")
@@ -531,7 +531,7 @@ def ci_check(text: str, head: str) -> tuple[int, list[str], dict]:
     WORKFLOW_PATHS, completed with success; 1 naming each workflow whose run is missing, pending
     or not successful, or that is also reported from another workflow file (a name collision:
     only its own file may satisfy it, as in merge-when-green.py's evaluate_runs); 2 when the list
-    cannot be read or is incomplete, or (3b882 fix round 6) when a ``pull_request`` run of a
+    cannot be read or is incomplete, or when a ``pull_request`` run of a
     required workflow on ``head`` lacks a positive integer id or a parseable created_at with a
     zone: such a run cannot be ordered, so it refuses instead of sorting as oldest."""
     try:
@@ -621,7 +621,7 @@ def _cell(text: str) -> str:
     """One log-row cell: a backslash or pipe is escaped (GFM reads only an unescaped pipe as a
     cell boundary, so a bare backslash before a pipe would otherwise unescape it), and every
     control or line-separator character, all that str.splitlines() breaks on included, and
-    every format character (category Cf, such as U+202E or U+200B; 3b882 fix round 8) becomes
+    every format character (category Cf, such as U+202E or U+200B) becomes
     a space."""
     out = []
     for char in str(text):
@@ -659,7 +659,7 @@ def _read_merge_commit(pr: int, gh, sleep) -> tuple[str | None, str]:
 
 def run_merge(pr: int, *, root: Path, gh, dry_run: bool = False, sleep=time.sleep,
               now: datetime | None = None) -> int:
-    """Merge mode: the row check, then items (a) to (e) of 3b882 P2a; see the module docstring."""
+    """Merge mode: the row check, then the numbered merge steps of the module docstring."""
     def err(line: str) -> None:
         print(line, file=sys.stderr)
 
@@ -805,7 +805,7 @@ def self_test() -> int:
         ("retro marker absent", missing_rows(v_row, r_row.replace(" (/retro)", ""), 31), ["retro"]),
         ("fenced rows", missing_rows("```\n" + v_row + "\n```", "~~~\n" + r_row + "\n~~~", 31),
          ["validate-pr", "retro"]),
-        # 3b882 fix round 9 (round 8 agy-A F2): a row inside the closed fence in each register, so
+        # A row inside the closed fence in each register, so
         # this fails with fence parsing removed ([]) or with a fence that never closes.
         ("closed fence",
          missing_rows("```\n" + v_row + "\n```\n" + v_row, "```\n" + r_row + "\n```\n", 31),
@@ -830,14 +830,14 @@ def self_test() -> int:
         ("log: real shape", log_shape_problem(log_shape), ""),
         ("log: header only", log_shape_problem(LOG_HEADER + "\n"), ""),
         ("log: no table header", "no table header" in log_shape_problem("# t\n\nprose\n"), True),
-        # 3b882 fix round 8 (round 7 agy-A F2): a title and a table header, then no data row.
+        # A title and a table header, then no data row.
         # The header is the last non-blank line and a table line with no blank line after it, so
-        # log_shape_problem accepts it (no problem), as it accepts a header-only log. 3b882 fix
-        # round 10 (round 9 agy-A F2): the header is itself a table line, so the label says no
+        # log_shape_problem accepts it (no problem), as it accepts a header-only log. The
+        # header is itself a table line, so the label says no
         # data row rather than no table line.
         ("log: title and header, no data row",
          log_shape_problem("# t\n\n" + LOG_HEADER + "\n"), ""),
-        # 3b882 fix round 6 (round 5 agy-A F3): prose after the header is not a table line.
+        # Prose after the header is not a table line.
         ("log: prose after the header",
          "is not a table line" in log_shape_problem("# t\n\n" + LOG_HEADER + "\n\nprose\n"), True),
         ("log: first table line differs",

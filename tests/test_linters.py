@@ -26111,7 +26111,7 @@ class PIIContentTests(LinterTestCase):
         self.assertLinterFails(result, "phone")
 
     def test_forge_ssh_service_address_not_flagged(self) -> None:
-        # 3b882 fix round 3 (maintainer decision 2026-11-15): the SSH service address of a
+        # Maintainer decision 2026-11-15: the SSH service address of a
         # code-hosting site, local part exactly git at exactly github.com or gitlab.com, is a
         # remote spelling and not a person, so it is not reported in the ssh or scp form.
         fixture = self.make_fixture(
@@ -26129,7 +26129,7 @@ class PIIContentTests(LinterTestCase):
         )
 
     def test_forge_allowance_is_narrow(self) -> None:
-        # 3b882 fix round 3: the allowance covers only those two exact addresses. Another local
+        # The allowance covers only those two exact addresses. Another local
         # part at a forge domain, git at another domain, a longer domain that begins with
         # github.com (whole or behind a fullwidth dot) and another letter case stay reported.
         for body, needle in (
@@ -26138,13 +26138,13 @@ class PIIContentTests(LinterTestCase):
             ("Contact git@github.com.mirror-xyz.net here.\n", "git@github.com.mirror-xyz.net"),
             ("Contact git@github.com\uff0emirror-xyz.net here.\n", "git@github.com"),
             ("Contact GIT@github.com here.\n", "GIT@github.com"),
-            # 3b882 fix round 4 (round 3 codex and claude F2): the engine captures only the
+            # The engine captures only the
             # git@ suffix of these lookalikes, so the character before it must not be a
             # local-part character.
             ("Contact o'git@github.com here.\n", "git@github.com"),
             ("Contact alice!git@gitlab.com here.\n", "git@gitlab.com"),
             ("Contact a/git@github.com here.\n", "git@github.com"),
-            # 3b882 fix round 5 (round 4 claude F1): a non-ASCII character directly before
+            # A non-ASCII character directly before
             # git@ (U+2019, U+00BF) is reported too; before.isascii() keeps it so.
             ("Contact \u2019git@github.com here.\n", "git@github.com"),
             ("Contact \u00bfgit@github.com here.\n", "git@github.com"),
@@ -26171,7 +26171,7 @@ class PIIContentTests(LinterTestCase):
                          ["git@github.com", "git@gitlab.com"])
 
     def test_forge_allowance_fails_closed_inside_backticks_and_single_quotes(self) -> None:
-        # 3b882 fix round 8 (round 7 agy-A F1 and F3): the backtick and the apostrophe are
+        # The backtick and the apostrophe are
         # RFC 5322 local-part characters, so a forge address wrapped in them may be the suffix of
         # a longer local part. It stays reported (fail closed), and the module docstring says so.
         for body, needle in (
@@ -26197,7 +26197,7 @@ class PIIContentTests(LinterTestCase):
                 self.assertIn(fragment, doc)
 
     def _assert_forge_address_after_an_at_sign_reported(self, line: str, needle: str) -> None:
-        # 3b882 fix round 9 (round 8 agy-A F1 and F3): for user@git@github.com the engine reports
+        # For user@git@github.com the engine reports
         # git@github.com. A match right after "@" is not a whole local part, so the forge
         # allowance must not drop it, and the module docstring says so.
         fixture = self.make_fixture("standard-forge-after-at.md", VALID_METADATA + "\n\n" + line + "\n")
@@ -45754,7 +45754,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
         lint-baseline-pin.py OWN F 38eb62fa2d783bbc91988f631c7d48af7c6476c6876362a3154052df458f985d
-        lint-bookkeeping-parity.py NO_FS F 406bf52274edb019b6718d3df297ad9cc0e0e77c06e4c45162f9186885c78404
+        lint-bookkeeping-parity.py NO_FS F 37f898bf9223d7b41f23ce3a078a02594335f0fa2ab541fd11d1880a8522a51c
         lint-ccm-aicm-citations.py CWD F 6a1eb4d255f76d35ed337441b0f7127ffd6d943d8c47730921e6f872491685a7
         lint-ccm-provider-member-in-range.py CWD F 8c0f050c7b64e301190c3350398a52e9267e05f2274fa46fb5d31dc7fc6c4871
         lint-changelog-link-coverage.py CWD F 0eb2c21687bcae9e697ab26d0273e766530ec144f1417ac04309badae1bd1bd2
@@ -45804,7 +45804,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-orphan-documents.py NO_FS F 7a5e4c9ba00700be7e6e97a67d6e24b8365f5e4463af5c5cc12f79a5a45f8ecd
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
-        lint-pii-in-content.py CWD F d27b015bbc48466f46dd98f8e19a247d72078db68f7fafffc7742a8359449cc2
+        lint-pii-in-content.py CWD F 09d58875f8d9129a1f0a211ecacd5959a9dd4dfe82ba8b62dc08e3c8775aed6e
         lint-placeholder-leakage.py CWD F 011f3e7a9a38fc875d6ec0458f9ff22fdbcc6f531a1d316fc4229b6e791c7eea
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a
@@ -45849,8 +45849,8 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint_common.py PASSIVE F c3f9567cb927a4a4599fc2704a690a93d145aef8edfa2a90eb660b246aadbedd
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
-        merge-grc-library-new.py NO_FS F 9910f5b826b2a22072907e6fa455e85ef4444285eebb7039d5cdd6bf4ce65554
-        merge-when-green.py NO_FS F fc15c6a11ef66baf460411a2a6dfdbe93982d6649926ff7b6b8331160a2bd816
+        merge-grc-library-new.py NO_FS F 8d02db178136a17753a350adf26a273c339bec0e3f9eb99497c870f7f71ed578
+        merge-when-green.py NO_FS F 3afb786447d824dfd29952f6d5dd1db5241b7d39c10fe2d873ce30eab8decfad
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
         pre-push-guard.sh FIXED F e082e92fe082af59cee69da9d2a329dacf1cdf4e8e4d600f4c5b6fc2ce89dabf
@@ -62245,8 +62245,7 @@ class TodoIndexRowGrammarParityTests(unittest.TestCase):
 
 
 class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
-    """.claude/hooks/block-new-merge-outside-tool.py, part P4 of the 3b882 merge-tool plan
-    (section 4 the hook, section 5 tests H1 to H5). The hook runs as a subprocess with a JSON
+    """.claude/hooks/block-new-merge-outside-tool.py, tests H1 to H5. The hook runs as a subprocess with a JSON
     payload on stdin, in a temporary working directory; it reads no store, so no GRC_STORE is
     needed. A refusal must exit 2 with the hook's own BLOCKED marker, so a missing hook file
     (python3 exits 2 with "can't open file") never passes a refusal case."""
@@ -62366,7 +62365,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
         ):
             with self.subTest(command=command):
                 self._allowed(command)
-        # 3b882 fix round 5 (round 4 claude F2): run from a grc_library_new clone, the relative
+        # Run from a grc_library_new clone, the relative
         # tools/ path would run that clone's copy of the tool, so the sanctioned text refuses.
         for command in (self.SANCTIONED + " 33", self.SANCTIONED + " 33 --dry-run"):
             for cwd in ("/home/u/grc_library_new", "/home/u/grc_library_new/tools",
@@ -62379,10 +62378,9 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
         for fragment in ("relative tools/ path would run that clone's copy of the tool",
                          "the merge tool command run from a grc_library_new clone under another "
                          "directory name",
-                         # 3b882 fix round 6 (round 5 claude F1)
                          "the sanctioned relative command runs the copy of the tool in the cwd, "
                          "from any checkout",
-                         # 3b882 fix round 9 (round 8 claude F1): the three items REASON names as
+                         # The three items REASON names as
                          # not closed, worded as in REASON.
                          "gh aliases that hide pr merge; a merge run from a grc_library_new clone "
                          "when the payload cwd is elsewhere and the text names neither",
@@ -62407,7 +62405,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
                 self._refused(command)
 
     def test_h2_merge_tool_variant_spellings_from_a_grc_library_new_clone_are_refused(self):
-        # 3b882 fix round 6 (round 5 agy-B F1): a spelling that misses the sanctioned fullmatch
+        # A spelling that misses the sanctioned fullmatch
         # (a trailing, doubled, leading or tab space, ./tools/, -I or another interpreter path)
         # fell to rule 2, which had no merge pattern for the tool, so it ran the clone's copy.
         tool = "tools/merge-grc-library-new.py"
@@ -62433,7 +62431,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
                 self._allowed(command, cwd="/home/u/grc_library")
 
     def test_h2_glob_spellings_of_the_merge_tool_from_a_grc_library_new_clone_are_refused(self):
-        # 3b882 fix round 7 (round 6 claude F1): the shell expands a glob beside tools/ to the
+        # The shell expands a glob beside tools/ to the
         # clone's copy of the tool, so from a grc_library_new cwd a command naming tools/ with
         # a glob character (*, ? or [) refuses; from a grc_library cwd it stays allowed.
         spellings = (
@@ -62464,7 +62462,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
         self.assertNotIn("in any spelling, is refused", source)
 
     def test_h2_merge_tool_variant_spelling_refused_only_from_or_through_a_new_clone(self):
-        # 3b882 fix round 8 (round 7 agy-B F1 and F3): the tool's hyphenated name
+        # The tool's hyphenated name
         # merge-grc-library-new does not name grc_library_new, so a variant spelling refuses
         # only from a grc_library_new cwd, or from any cwd when its text names grc_library_new
         # (a path through such a clone); the REASON text and the playbook say exactly that.
@@ -62492,7 +62490,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
                          "literal spelling", source)
 
     def test_h2_sanctioned_command_refused_only_when_a_cwd_component_is_grc_library_new(self):
-        # 3b882 fix round 9 (round 8 agy-B F1): the sanctioned command is refused only when a
+        # The sanctioned command is refused only when a
         # directory of the payload cwd is named grc_library_new (a whole path component, any
         # case); a grc_library clone under a parent whose name merely contains grc_library_new
         # keeps it.
@@ -62536,7 +62534,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
         self._refused("gh pr view 33 && echo merge", cwd="/home/u/grc_library_new")
 
     def test_h1_auto_merge_branch_merge_and_rest_merges_naming_grc_library_new_are_refused(self):
-        # 3b882 fix round 4 (round 3 claude F1): an auto-merge, a branch merge and a REST merges
+        # An auto-merge, a branch merge and a REST merges
         # call that name grc_library_new are refused; the same text naming grc_library is not.
         new = self.NEW
         auto = ("gh api graphql -F owner=jposluns -F name=%s -f query='mutation($id:ID!)"
@@ -62574,7 +62572,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
                 self.assertIn(fragment, source)
                 self.assertIn(fragment, playbook)
 
-    # 3b882 fix round 11 (round 10 agy-B F1): for a tool other than Bash the hook read only the
+    # For a tool other than Bash the hook once read only the
     # tool name, owner and repo, so an MCP GraphQL query or REST endpoint naming grc_library_new
     # and a merge was allowed. It now reads every string value of tool_input, nested ones included.
     MCP_GRAPHQL = "mcp__github__graphql"
@@ -62667,7 +62665,7 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
 
 
 class MergeGrcLibraryNewRowCheckTests(unittest.TestCase):
-    """tools/merge-grc-library-new.py, part P1 of the 3b882 merge-tool plan: the register row
+    """tools/merge-grc-library-new.py: the register row
     check (T1), the refusal of a store or register it cannot read (T2), decision D1 (registers are
     read only from the operational store, never a sibling or in-repo fallback) and the tool's own
     --self-test. Every test points GRC_STORE at a temporary directory, so none reads the
@@ -62776,7 +62774,7 @@ class MergeGrcLibraryNewRowCheckTests(unittest.TestCase):
         # An unclosed fence runs to the end of the text; a closed one does not hide later rows,
         # and a shorter or different closing fence does not close it.
         self.assertEqual(self._missing("```\n" + self.VALIDATE_ROW, self.RETRO_ROW), ["validate-pr"])
-        # 3b882 fix round 9 (round 8 agy-A F2): the closed fence holds a row in each register, so
+        # The closed fence holds a row in each register, so
         # the case fails both with fence parsing removed ([]) and with a fence that never closes.
         self.assertEqual(self._missing("```\n" + self.VALIDATE_ROW + "\n```\n" + self.VALIDATE_ROW,
                                        "```\n" + self.RETRO_ROW + "\n```\n"), ["retro"])
@@ -63106,7 +63104,7 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
                 self.assertEqual([c[:2] for c in calls], [("pr", "view")])
                 self.assertIn(result[1].splitlines()[0], err)
 
-    # 3b882 part 3 (plan section 1, test T7): a grc_library_new PR merges only through
+    # Test T7: a grc_library_new PR merges only through
     # tools/merge-grc-library-new.py. merge-when-green refuses it with exit 1, naming that tool, and makes no
     # merge call, whether --repo names that repository (in any case, URL or ssh spelling) or the PR URL that
     # gh pr view reports belongs to it; a missing or unreadable URL also refuses. gh is stubbed (patched and
@@ -81683,7 +81681,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         registered = self._registered_blocking_hooks()
         self.assertEqual(len(registered), 19)
         self.assertEqual(registered, set(self._case_registry()))
-        # codex LOW: a hook registered under two matchers keeps its name when one entry goes,
+        # A hook registered under two matchers keeps its name when one entry goes,
         # so each required (event, matcher, hook) combination is asserted on its own.
         settings = json.loads((REPO_ROOT / ".claude" / "settings.json").read_text(encoding="utf-8"))
         combos = set()
@@ -91211,7 +91209,7 @@ class StoreScopeCeilingTests(LinterTestCase):
         "| 2026-09-20 | #2407 | green | admin squash | j | c |\n")
 
     def test_gate_50_check6_tagged_row_counts_for_its_own_repository_only(self) -> None:
-        # 3b882 decision D2: a PR cell '#N [repo: grc_library_new]' (the form
+        # Decision D2: a PR cell '#N [repo: grc_library_new]' (the form
         # tools/merge-grc-library-new.py prints) counts for PR N of grc_library_new only and
         # never as grc_library PR N; '[repo: grc_library]' names this repository explicitly.
         self.assertEqual(self.bp.parse_bypass_prs(self._TAGGED_LOG), {2407, 2408})

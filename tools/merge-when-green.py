@@ -33,7 +33,7 @@ merging.
 It never merges a jposluns/grc_library_new PR: that repository merges only through
 ``python3 tools/merge-grc-library-new.py <PR>``, which checks the /validate-pr and /retro rows. A --repo
 that names it (in any case, as a URL or an ssh remote) refuses before any gh call, and so does a PR whose
-URL, as gh pr view reports it, belongs to it; a missing or unreadable URL also refuses (3b882 part 3).
+URL, as gh pr view reports it, belongs to it; a missing or unreadable URL also refuses.
 
 Usage:
     python3 tools/merge-when-green.py <PR> --repo owner/name --admin
@@ -73,11 +73,11 @@ _FALLBACK_EVENT = "pull_request"  # a required workflow counts only from a run o
 # The one gh failure that engages the fallback before any rollup is read (3b132 QA r1): the token cannot read
 # the rollup's contexts, so `gh pr view --json statusCheckRollup,...` exits 1 with exactly this one line on
 # stderr (the reality fixture, jposluns/grc_library_ref #181). Exactly one trailing newline is removed first;
-# anything else, an added line or a second trailing newline included, is not it (3b882 fix round 7).
+# anything else, an added line or a second trailing newline included, is not it.
 _ROLLUP_FORBIDDEN = re.compile(r"GraphQL: Resource not accessible by personal access token "
                                r"\(repository\.pullRequest\.statusCheckRollup(?:\.[A-Za-z0-9_]+)*\)")
 _VIEW_FIELDS = "number,title,state,headRefOid,url"  # the PR read again without its rollup
-# 3b882 part 3: a grc_library_new PR merges only through its own tool, never through this one.
+# A grc_library_new PR merges only through its own tool, never through this one.
 _NEW_REPO = "jposluns/grc_library_new"
 _NEW_TOOL = "python3 tools/merge-grc-library-new.py"
 # A PR URL as gh pr view reports it: https://HOST/OWNER/NAME/pull/N. Anything else is unreadable and refuses.
@@ -87,7 +87,7 @@ _REPO_ROOT = __import__("pathlib").Path(__file__).resolve().parents[1]
 
 
 def normalize_repo(spec: str) -> str:
-    """PURE: the casefolded owner/name a --repo value names (3b882 part 3). A leading https://, http://,
+    """PURE: the casefolded owner/name a --repo value names. A leading https://, http://,
     ssh:// or git@ is removed, then any trailing slashes and .git, and the last two components split on / or :
     are kept, so a host prefix (github.com/, github.com:) drops. Only the comparison uses this; --repo is
     still passed to gh as given."""
@@ -109,7 +109,7 @@ def normalize_repo(spec: str) -> str:
 
 
 def pr_url_repo(url) -> str | None:
-    """PURE: the casefolded owner/name of the PR URL gh pr view reported (3b882 part 3); None for a
+    """PURE: the casefolded owner/name of the PR URL gh pr view reported; None for a
     missing, non-string or unrecognized URL, which the caller refuses (the repository is then unknown)."""
     if not isinstance(url, str):
         return None
@@ -544,9 +544,9 @@ def _self_test_actions_fallback() -> list[tuple[str, bool]]:
     ]:
         checks.append((name, rollup_forbidden(exc) == want))
     # The removesuffix carries the fixture's one trailing newline: the pattern alone refuses it, so this check
-    # fails without it (3b882 fix round 3; a stderr with no trailing newline matches either way, which
-    # forbidden-no-trailing-newline above pins, restored in 3b882 fix round 4). A second trailing newline is
-    # not removed, so forbidden-two-trailing-newlines-not above refuses it (3b882 fix round 7).
+    # fails without it (a stderr with no trailing newline matches either way, which
+    # forbidden-no-trailing-newline above pins). A second trailing newline is
+    # not removed, so forbidden-two-trailing-newlines-not above refuses it.
     checks.append(("forbidden-trailing-newline-stripped",
                    _ROLLUP_FORBIDDEN.fullmatch(fx) is None and rollup_forbidden(denied())))
     # gh() captures stderr, so the error can reach rollup_forbidden(): subprocess.run is stubbed here.
@@ -732,7 +732,7 @@ def _self_test() -> int:
     crw = lambda n, s, c: dict(cr(n, s, c), workflowName=REQUIRED_WORKFLOWS.get(n))
     rollups = {
         "skipped": [crw(lint, "COMPLETED", "SKIPPED")] + [crw(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS[1:]],
-        # 3b882 fix round 5 (round 4 agy-A finding 2): the green rollup also carries a check
+        # The green rollup also carries a check
         # named Custom check, so require-custom-present shows a custom name accepted.
         "green": [crw(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS + ("Custom check",)],
         # 3b105 QA r1: main() must hand the workflow map to evaluate(); these pass on names alone.
@@ -845,7 +845,7 @@ def _self_test() -> int:
             except SystemExit as exc:
                 both_refused = exc.code == 2
         checks.append(("require-and-require-none-conflict-refused", both_refused and not calls))
-        # 3b882 part 3: a grc_library_new PR merges only through its own tool. --repo in any spelling refuses
+        # A grc_library_new PR merges only through its own tool. --repo in any spelling refuses
         # before any gh call; a grc_library_new PR URL refuses however the command was spelled, and so does a
         # missing or unreadable URL; none makes a merge call, and the message names the tool.
         new_url = "https://github.com/jposluns/grc_library_new/pull/1"
@@ -1049,7 +1049,7 @@ def main(argv: list[str]) -> int:
         ap.print_usage(sys.stderr)
         print("ERROR: give a PR number (or --self-test).", file=sys.stderr)
         return 2
-    # 3b882 part 3 (a): --repo naming grc_library_new, in any spelling, refuses before any gh call.
+    # --repo naming grc_library_new, in any spelling, refuses before any gh call.
     if args.repo is not None and normalize_repo(args.repo) == _NEW_REPO:
         print(f"REFUSE to merge PR #{args.pr}: --repo {args.repo!r} is {_NEW_REPO}, whose PRs merge only through "
               f"{_NEW_TOOL} {args.pr} (it checks the /validate-pr and /retro rows); merge-when-green does not "
@@ -1073,7 +1073,7 @@ def main(argv: list[str]) -> int:
     except (subprocess.CalledProcessError, OSError, json.JSONDecodeError) as exc:
         print(f"ERROR: gh pr view failed: {_failure(exc)}", file=sys.stderr)
         return 2
-    # 3b882 part 3 (b): the server-reported URL decides, however the command was spelled (no --repo, run from
+    # The server-reported URL decides, however the command was spelled (no --repo, run from
     # a grc_library_new clone, for example). Without a readable URL the repository is unknown: refuse.
     url_repo = pr_url_repo(view.get("url"))
     if url_repo is None:
