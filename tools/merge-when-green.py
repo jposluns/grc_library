@@ -684,7 +684,6 @@ def _self_test() -> int:
         ("queued-refused", [cr("a", "QUEUED", None)], False),
         ("failure-refused", [cr("a", "COMPLETED", "SUCCESS"), cr("b", "COMPLETED", "FAILURE")], False),
         ("completed-null-conclusion-refused", [cr("a", "COMPLETED", None)], False),
-        ("unknown-shape-refused", [{"__typename": "Weird", "name": "x"}], False),
         ("unknown-shape-with-state-SUCCESS-refused", [{"__typename": "Weird", "name": "x", "state": "SUCCESS"}], False),
         ("non-dict-entry-refused", ["not-a-dict"], False),
         ("timed-out-refused", [cr("a", "COMPLETED", "TIMED_OUT")], False),
@@ -697,6 +696,7 @@ def _self_test() -> int:
         ("statuscontext-success", [sc("ci", "SUCCESS")], True),
         ("statuscontext-pending-refused", [sc("ci", "PENDING")], False),
         ("statuscontext-failure-refused", [sc("ci", "FAILURE")], False),
+        ("unknown-shape-refused", [{"__typename": "Weird", "name": "x"}], False),  # unrecognized shape -> unknown, refused
         ("mixed-green", [cr("a", "COMPLETED", "SUCCESS"), sc("b", "SUCCESS"), cr("c", "COMPLETED", "NEUTRAL")], True),
     ]
     for name, rollup, want_green in cases:
@@ -1002,8 +1002,18 @@ def _self_test() -> int:
         "github.com/jposluns/grc_library_new", "https://github.com/jposluns/grc_library_new.git",
         "HTTPS://GitHub.com/JPosluns/GRC_Library_New.GIT", "ssh://git@github.com/jposluns/grc_library_new.git",
         "git@github.com:jposluns/grc_library_new.git", "git@github.com:jposluns/grc_library_new"))))
-    checks.append(("normalize-repo-others-not-new", all(normalize_repo(s) != _NEW_REPO for s in (
-        "jposluns/grc_library", "jposluns/grc_library_ref", "jposluns/grc_library_newer", "other/grc_library_new"))))
+    # Exact outputs, so the check fails when the normalization itself is absent or wrong, not only when an
+    # input comes out equal to the protected repository.
+    checks.append(("normalize-repo-others-not-new", all(normalize_repo(s) == want != _NEW_REPO for s, want in (
+        ("jposluns/grc_library", "jposluns/grc_library"),
+        ("jposluns/grc_library_ref", "jposluns/grc_library_ref"),
+        ("jposluns/grc_library_newer", "jposluns/grc_library_newer"),
+        ("other/grc_library_new", "other/grc_library_new"),
+        ("JPosluns/GRC_Library_Ref.git/", "jposluns/grc_library_ref"),
+        ("https://github.com/JPosluns/GRC_Library.git", "jposluns/grc_library"),
+        ("git@github.com:Other/GRC_Library_New.git", "other/grc_library_new"),
+        ("ssh://git@github.com/jposluns/grc_library_newer.git", "jposluns/grc_library_newer"),
+        ("grc_library_new", "grc_library_new")))))
     checks.append(("pr-url-repo", pr_url_repo("https://github.com/JPosluns/GRC_Library_New/pull/31") == _NEW_REPO
                    and pr_url_repo("https://github.com/jposluns/grc_library/pull/1") == "jposluns/grc_library"
                    and all(pr_url_repo(u) is None for u in (None, 1, "", "jposluns/grc_library_new",
@@ -1050,7 +1060,9 @@ def main(argv: list[str]) -> int:
         ap.print_usage(sys.stderr)
         print("ERROR: give a PR number (or --self-test).", file=sys.stderr)
         return 2
-    # --repo naming grc_library_new, in any spelling, refuses before any gh call.
+    # --repo naming jposluns/grc_library_new, in any spelling that carries the owner, refuses here before any
+    # gh call. A bare name with no owner (grc_library_new) is not matched here: gh itself refuses that format,
+    # so gh pr view fails and this tool exits 2 without merging.
     if args.repo is not None and normalize_repo(args.repo) == _NEW_REPO:
         print(f"REFUSE to merge PR #{args.pr}: --repo {args.repo!r} is {_NEW_REPO}, whose PRs merge only through "
               f"{_NEW_TOOL} {args.pr} (it checks the /validate-pr and /retro rows); merge-when-green does not "

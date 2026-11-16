@@ -26222,10 +26222,14 @@ class PIIContentTests(LinterTestCase):
         # one, with a double quote directly followed by @ later on the line, may sit inside a
         # longer address at another domain. It stays reported (fail closed), and the module
         # docstring says so; a double-quoted remote with no such closing quote stays allowed.
+        # A quoted local part can hold white space or a parenthesis, so the address stays
+        # reported whatever character comes right before it.
         for body, needle in (
             ('Write to "git@github.com"@corp-mail-xyz.net here.\n', "git@github.com"),
             ('Write to "git@gitlab.com"@corp-mail-xyz.net here.\n', "git@gitlab.com"),
             ('Set "git@github.com:a" and "x"@corp-mail-xyz.net here.\n', "git@github.com"),
+            ('Write to "jane git@github.com"@corp-mail-xyz.net here.\n', "git@github.com"),
+            ('Write to "(git@github.com)"@corp-mail-xyz.net here.\n', "git@github.com"),
         ):
             with self.subTest(body=body):
                 fixture = self.make_fixture("standard-forge-double-quote.md", VALID_METADATA + "\n\n" + body)
@@ -26234,7 +26238,8 @@ class PIIContentTests(LinterTestCase):
                 self.assertIn(needle, result.stdout)
         wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_forge_double_quote")
         engine = wrapper._engine()
-        for line in ('"git@github.com"@corp-mail-xyz.net', '"git@gitlab.com:o/r" "x"@corp-mail-xyz.net'):
+        for line in ('"git@github.com"@corp-mail-xyz.net', '"git@gitlab.com:o/r" "x"@corp-mail-xyz.net',
+                     '"jane git@github.com"@corp-mail-xyz.net', '"(git@gitlab.com)"@corp-mail-xyz.net'):
             with self.subTest(line=line):
                 self.assertEqual(wrapper._forge_service_matches(engine, line), [])
         self.assertEqual(wrapper._forge_service_matches(engine, 'url = "git@gitlab.com:o/r"'),
@@ -26244,6 +26249,8 @@ class PIIContentTests(LinterTestCase):
         result = run_linter("tools/lint-pii-in-content.py", fixture)
         self.assertEqual(result.returncode, 0, f"stdout:\n{result.stdout}")
         self.assertIn("An address right after a double quote is still reported",
+                      " ".join(wrapper.__doc__.split()))
+        self.assertIn("and so is an address after any other character (white space, a parenthesis,",
                       " ".join(wrapper.__doc__.split()))
 
     def _assert_forge_address_after_an_at_sign_reported(self, line: str, needle: str) -> None:
@@ -45854,7 +45861,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-orphan-documents.py NO_FS F 7a5e4c9ba00700be7e6e97a67d6e24b8365f5e4463af5c5cc12f79a5a45f8ecd
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
-        lint-pii-in-content.py CWD F 8bde4b18d15074896e83d175ee73cde8bbd7eb78b8617ade5b3bedadd96c9da1
+        lint-pii-in-content.py CWD F 28223fe017ed08befec22b9f89663e64c3e0a115a4c4f661b99ca1dc9ca039e4
         lint-placeholder-leakage.py CWD F 011f3e7a9a38fc875d6ec0458f9ff22fdbcc6f531a1d316fc4229b6e791c7eea
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a
@@ -45900,7 +45907,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
         merge-grc-library-new.py NO_FS F f469764b2218641a4bf6a978c7ea610e8d68cde0ac42472ca26ceacd73be8766
-        merge-when-green.py NO_FS F 9a390ca0db689cb6d50ce29962ee95b899206d8763b0e5084c399d3838eb2563
+        merge-when-green.py NO_FS F bb5e71e9445c774f4d74a1ab951fe0e80a90116098c1c9d5ef692bc069ce54fb
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
         pre-push-guard.sh FIXED F e082e92fe082af59cee69da9d2a329dacf1cdf4e8e4d600f4c5b6fc2ce89dabf

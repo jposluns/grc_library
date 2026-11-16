@@ -68,10 +68,13 @@ Exemption layers:
     characters, so the match may be the end of a longer local part and
     the allowance fails closed. An address right after a double quote is
     still reported when a double quote directly followed by @ comes later on
-    the line, because a double quote can open an RFC 5322 quoted local part,
-    so the match is then inside a longer address at another domain; a
-    double-quoted remote with no such closing quote, such as a string value,
-    is allowed. After another URI scheme (an https:// credential
+    the line, and so is an address after any other character (white space, a
+    parenthesis, ssh:// or the start of the line included) when such a quote
+    follows it, because a double quote can open an RFC 5322 quoted local part,
+    which can hold white space and parentheses, so the match is then inside a
+    longer address at another domain; a double-quoted remote with no such
+    closing quote, such as a string value, is allowed. After another URI
+    scheme (an https:// credential
     such as https://git@github.com, or mailto:git@github.com) it is still reported,
     since neither is an ssh:// or scp-style remote. Write such an
     address after whitespace, after ssh://, or in parentheses.
@@ -176,9 +179,10 @@ FORGE_SERVICE_ADDRESSES = frozenset({"git@github.com", "git@gitlab.com"})
 # as https://, marks a URL credential, not an SSH remote). Nor "@", which is no local-part
 # character, but a match right after it (user@git@github.com) is the end of a longer
 # address, not a whole local part. Nor ":", which ends a URI scheme such as mailto:.
-# A double quote is no atext character, but it can open a quoted local part: after one, the
-# match is not the whole local part when a double quote directly followed by @ comes later
-# on the line, since the quoted string then closes into a longer address.
+# A double quote is no atext character, but it can open a quoted local part, which can hold
+# white space and parentheses: whatever comes before the match, it is not known to be the whole
+# local part when a double quote directly followed by @ comes later on the line, since a quoted
+# string may then close into a longer address.
 _LOCAL_PART_CHARS = frozenset(
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&'*+-/=?^_`{|}~."
 )
@@ -186,13 +190,13 @@ _LOCAL_PART_CHARS = frozenset(
 
 def _local_part_complete(line: str, start: int) -> bool:
     """True when the match at ``start`` is the whole local part, not a suffix of a longer one."""
+    if '"@' in line[start:]:
+        return False
     if start == 0 or line[:start].endswith("ssh://"):
         return True
     before = line[start - 1]
     if before.isspace():
         return True
-    if before == '"' and '"@' in line[start:]:
-        return False
     return before.isascii() and before not in "@:" and before not in _LOCAL_PART_CHARS
 
 
