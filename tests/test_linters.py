@@ -26623,16 +26623,64 @@ class PIIContentTests(LinterTestCase):
         result = run_linter("tools/lint-pii-in-content.py", fixture)
         self.assertEqual(result.returncode, 0, f"stdout:\n{result.stdout}")
 
+    def test_git_remote_allowance_refuses_a_dot_behind_highlight(self) -> None:
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail ==alice.== git@github.com:o/r now.\n",
+                                                               "git@github.com")
+
+    def test_git_remote_allowance_refuses_a_dot_behind_superscript(self) -> None:
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail ^alice.^ git@github.com:o/r now.\n",
+                                                               "git@github.com")
+
+    def test_git_remote_allowance_refuses_a_dot_behind_a_fullwidth_asterisk(self) -> None:
+        self._assert_remote_after_a_dot_behind_delimiters_reported(
+            "Mail \uff0aalice.\uff0a git@github.com:o/r now.\n", "git@github.com")
+
+    def test_git_remote_allowance_refuses_a_dot_behind_an_entity_encoded_delimiter(self) -> None:
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail &ast;alice.&ast; git@github.com:o/r now.\n",
+                                                               "git@github.com")
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail &#42;alice.&#42; git@gitlab.com:o/r now.\n",
+                                                               "git@gitlab.com")
+
+    def test_git_remote_allowance_refuses_a_dot_behind_a_delimiter_closed_after_the_token(self) -> None:
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail alice.[ git@github.com:o/r ] now.\n",
+                                                               "git@github.com")
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail alice.( git@gitlab.com:o/r ) now.\n",
+                                                               "git@gitlab.com")
+
+    def test_git_clone_url_after_an_undotted_marked_word_or_a_paragraph_break_still_passes(self) -> None:
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_clone_url_controls")
+        engine = wrapper._engine()
+        for line in ("Mail ==alice== git@github.com:o/r now.", "Mail ^alice^ git@github.com:o/r now.",
+                     "Mail \uff0aalice\uff0a git@gitlab.com:o/r now.", "Mail [alice] git@github.com:o/r now.",
+                     "Mail **alice** git@github.com:o/r now."):
+            with self.subTest(line=line):
+                self.assertEqual(len(wrapper._allowed_spans(engine, line)), 1)
+        self.assertEqual(wrapper._paragraphs("Clone it.\n\ngit@github.com:o/r"),
+                         [(0, "Clone it."), (11, "git@github.com:o/r")])
+        self.assertEqual(wrapper._allowed_spans(engine, "git@github.com:o/r"), [(0, 14)])
+        self.assertEqual(wrapper._allowed_spans(engine, "Clone it.\ngit@github.com:o/r"), [])
+        fixture = self.make_fixture("standard-git-clone-url-controls.md", VALID_METADATA
+                                    + "\n\nMail ==alice== git@github.com:o/r now.\n\nClone it.\n\n"
+                                    "git@github.com:org/repo.git\n")
+        result = run_linter("tools/lint-pii-in-content.py", fixture)
+        self.assertEqual(result.returncode, 0, f"stdout:\n{result.stdout}")
+
     def test_remote_rule_comments_point_to_the_module_docstring(self) -> None:
         import ast
 
         pointer = '# Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.'
         lines = Path(__file__).resolve().read_text(encoding="utf-8").split("\n")
         tree = ast.parse("\n".join(lines))
-        cls = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == "PIIContentTests")
-        methods = [n for n in cls.body if isinstance(n, ast.FunctionDef)
-                   and ("forge" in n.name or "remote" in n.name)]
+        exercises = re.compile(r"git@git(?:hub|lab)\.com|_forge_service_matches|_allowed_spans|_local_part_"
+                               r"|_quote_follows|_paragraphs")
+        methods = [n for cls in tree.body
+                   if isinstance(cls, ast.ClassDef) and cls.name in ("PIIContentTests", "PiiInContentEngineTransferTests")
+                   for n in cls.body if isinstance(n, ast.FunctionDef)
+                   and ("forge" in n.name or "remote" in n.name
+                        or exercises.search("\n".join(lines[n.lineno - 1:n.end_lineno])))]
         self.assertGreaterEqual(len(methods), 30)
+        self.assertIn("test_git_clone_url_after_an_undotted_marked_word_or_a_paragraph_break_still_passes",
+                      {n.name for n in methods})
         pointed = 0
         for node in methods:
             for number in range(node.lineno, node.end_lineno + 1):
@@ -46230,7 +46278,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-orphan-documents.py NO_FS F 7a5e4c9ba00700be7e6e97a67d6e24b8365f5e4463af5c5cc12f79a5a45f8ecd
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
-        lint-pii-in-content.py CWD F 145b53229642e3661dafd941097219969ecab58152e353e1e3cf3c8fc049116e
+        lint-pii-in-content.py CWD F 0f31deaff0bcfcdc868a624c2d6a88c9b0ece33343f5f3fdafffefb9b264bf10
         lint-placeholder-leakage.py CWD F 011f3e7a9a38fc875d6ec0458f9ff22fdbcc6f531a1d316fc4229b6e791c7eea
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a

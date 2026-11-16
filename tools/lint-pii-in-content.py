@@ -100,16 +100,23 @@ Exemption layers:
     a double quote or an apostrophe (&quot;, &apos; or a decimal or
     hexadecimal reference to 34 or 39, in any letter case, with any leading
     zeros, with or without its final semicolon), since a quoted local part
-    can be folded and close on a later line. The nearest character before
-    the token, skipping white space, line breaks, Markdown block quote
-    markers and runs of the Markdown emphasis, strikethrough and code span
-    delimiters (*, _, ` and ~), is a dot, a closing parenthesis, a character whose NFKC form is
-    either, or the end of a character reference, the end of an HTML tag or
+    can be folded and close on a later line. The run before the token holds
+    a refusing character. That run is found by walking back from the token
+    over white space, line breaks, Markdown block quote markers and every
+    character that, after NFKC normalization and after decoding character
+    references, is neither a letter, a digit nor white space (so any inline
+    marker: the Markdown delimiters *, _, `, ~, == and ^, a fullwidth
+    asterisk, &ast; or &#42;, or a bracket that a later character closes
+    after the token), up to the nearest letter or digit, which is tested
+    too. A refusing character is a dot, a closing parenthesis, a character
+    whose NFKC form is either, or the end of a character reference (any
+    reference refuses, whatever it renders), the end of an HTML tag or
     comment (a ">" that is not a block quote marker), or a character whose
-    NFKC form ends in a dot or a closing parenthesis (such as U+2488 or
+    NFKC form holds a dot or a closing parenthesis (such as U+2488 or
     U+2474), since an obsolete local part such as alice. git@github.com:o/r,
-    alice.<!----> git@github.com:o/r or **alice.** git@github.com:o/r (it
-    renders as alice. git@github.com:o/r) is the address alice.git@github.com.
+    alice.<!----> git@github.com:o/r, **alice.** git@github.com:o/r or
+    ==alice.== git@github.com:o/r (each renders as alice.
+    git@github.com:o/r) is the address alice.git@github.com.
     The paragraph holds an @ sign, a character whose NFKC form is one or a
     character reference that renders one, other than the @ of a match that
     passes every other test here; then every match in the paragraph is
@@ -123,7 +130,9 @@ Exemption layers:
     followed later on the line by any double quote is reported, even when
     the match is the whole local part, and so is one followed by a quote
     mark later in its paragraph, one after a sentence-ending dot, a closing
-    parenthesis or an HTML tag (Clone it. git@github.com:o/r), every remote
+    parenthesis or an HTML tag, even with other punctuation or a line break
+    between (Clone it. git@github.com:o/r or Clone it. - git@github.com:o/r),
+    every remote
     in a paragraph that holds any other @, and every remote whose token
     holds a carriage return. A carriage return is not a token delimiter, so
     a remote at the end of a CRLF line (git@github.com:o/r, then CR and LF)
@@ -132,7 +141,7 @@ Exemption layers:
     passes the token rule, since the space or tab ends its token first.
     Write a remote as one of the four forms, alone in its token on one
     physical line, with no dot, closing parenthesis or tag before it (even
-    behind emphasis or code span delimiters) and no quote mark after it or
+    behind any run of inline markers or other punctuation) and no quote mark after it or
     other @ anywhere in its paragraph.
   - CHANGELOG.md is exempt because it can describe sanitization fixes
     that quote (now-removed) PII.
@@ -223,26 +232,28 @@ EXAMPLE_DOMAINS = {
 # Phase 23.63 removed `noreply.github.com` (no corpus reference)
 # and `posluns.com` (only `.ca` is used in AUTHORS / CITATION).
 
-# The only two addresses the git remote form allowance can cover. The rule and why: see "Git remote forms" in the module docstring.
+# The only two addresses the git remote form allowance can cover. The rule and why: see
+# "Git remote forms" in the module docstring.
 FORGE_SERVICE_ADDRESSES = frozenset({"git@github.com", "git@gitlab.com"})
 # The four remote forms as one whole-token pattern, and the token delimiters. Group "ssh" or
-# "scp" is the user and host, the engine's match. The rule and why: see "Git remote forms" in the module docstring.
+# "scp" is the user and host, the engine's match. The rule and why: see "Git remote forms" in
+# the module docstring.
 _REMOTE_TOKEN_RE = re.compile(
     r"(?:ssh://(?P<ssh>git@(?:github|gitlab)\.com)/|(?P<scp>git@(?:github|gitlab)\.com):)"
     r"[A-Za-z0-9._\-]+/[A-Za-z0-9._\-]+[.,;:)]?"
 )
 _TOKEN_DELIMITERS = " \t"
-# Markdown emphasis, strikethrough and code span delimiters, skipped in runs like block quote
-# markers when looking for the character before a token. The rule and why: see "Git remote forms" in the module docstring.
-_INLINE_DELIMITERS = "*_`~"
 # A quote mark: a double quote, a character whose NFKC form is one (U+FF02), or a character
 # reference that renders a double quote or an apostrophe, in any letter case, with any leading
-# zeros and with or without its final semicolon. The rule and why: see "Git remote forms" in the module docstring.
+# zeros and with or without its final semicolon. The rule and why: see "Git remote forms" in
+# the module docstring.
 _QUOTE_RE = re.compile(r'["\uff02]|&(?:quot|apos|#0*3[49]|#x0*2[27]);?', re.IGNORECASE)
 # An @ sign: the character itself, a character whose NFKC form is one (U+FE6B, U+FF20), or a
-# character reference that renders one. The rule and why: see "Git remote forms" in the module docstring.
+# character reference that renders one. The rule and why: see "Git remote forms" in the
+# module docstring.
 _AT_RE = re.compile(r"[@\ufe6b\uff20]|&(?:commat|#0*64|#x0*40);?", re.IGNORECASE)
-# A character reference ending at the end of the searched text. The rule and why: see "Git remote forms" in the module docstring.
+# A character reference ending at the end of the searched text. The rule and why: see "Git
+# remote forms" in the module docstring.
 _REFERENCE_END_RE = re.compile(r"&(?:#[0-9]+|#x[0-9a-f]+|[a-z][a-z0-9]*);?\Z", re.IGNORECASE)
 
 
@@ -269,23 +280,31 @@ def _quote_follows(text: str) -> bool:
 
 
 def _local_part_continues_before(text: str, pos: int) -> bool:
-    """True when the text before ``pos``, after skipping white space, line breaks, runs of
-    _INLINE_DELIMITERS and Markdown block quote markers (a ">" with only white space and ">"
-    before it on its line), ends in a character whose NFKC form ends in a dot or a closing
-    parenthesis, in a character reference, or in any other ">". The rule and why: see "Git remote forms" in the module docstring."""
+    """True when the run before ``pos`` holds a refusing character. The run is the white space,
+    the Markdown block quote markers (a ">" with only white space and ">" before it on its line)
+    and every character whose NFKC form holds no letter or digit, back to the nearest character
+    whose NFKC form holds one, which is tested too. A refusing character is one whose NFKC form
+    holds a dot or a closing parenthesis, the end of a character reference (_REFERENCE_END_RE),
+    or any other ">". The rule and why: see "Git remote forms" in the module docstring."""
     i = pos
-    while True:
-        while i > 0 and (text[i - 1].isspace() or text[i - 1] in _INLINE_DELIMITERS):
+    while i > 0:
+        char = text[i - 1]
+        if char.isspace():
             i -= 1
-        if i == 0:
-            return False
+            continue
         line_start = text.rfind("\n", 0, i) + 1
-        if text[i - 1] != ">" or text[line_start:i].strip(" \t>"):
-            break
-        i = line_start
-    if text[i - 1] == ">" or unicodedata.normalize("NFKC", text[i - 1]).endswith((".", ")")):
-        return True
-    return _REFERENCE_END_RE.search(text, 0, i) is not None
+        if char == ">" and not text[line_start:i].strip(" \t>"):
+            i = line_start
+            continue
+        if char == ">" or _REFERENCE_END_RE.search(text, max(text.rfind("&", 0, i), 0), i):
+            return True
+        form = unicodedata.normalize("NFKC", char)
+        if "." in form or ")" in form:
+            return True
+        if any(c.isalnum() for c in form):
+            return False
+        i -= 1
+    return False
 
 
 def _paragraphs(text: str) -> list[tuple[int, str]]:
