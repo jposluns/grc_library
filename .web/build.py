@@ -4188,11 +4188,13 @@ def _adopter_metadata(text, rel):
     else. The section heading that stops the read is a level-two ``## ``
     heading; a ``# `` title line, which opens a file above its block, does
     not stop it. The rule is any thematic break (``---``, ``***``, ``___``,
-    spaces between the marks allowed). A heading or rule stops the read only
-    when it is the whole line and is indented by at most three spaces: text
-    after ``---`` makes a plain line, and four spaces or a tab before ``## ``
-    or ``---`` make an indented code line, not a heading or rule, so the read
-    goes on."""
+    spaces between the marks allowed). Either stops the read only when
+    indented by at most three spaces; four spaces or a tab before ``## `` or
+    ``---`` make an indented code line, so the read goes on. A rule must be
+    the whole line: text after ``---`` makes a plain line. A heading carries
+    its text on the same line: exactly two hashes, then a space, a tab or the
+    line end, and any text after that (``## Scope`` stops the read; ``##Scope``
+    and ``### Scope`` do not)."""
     fields = {}
     seen = False
     for line in text.splitlines():
@@ -4230,14 +4232,27 @@ def _adopter_first_paragraph(lines):
     """First real prose paragraph. It stops at a horizontal rule (any
     thematic break: ``---``, ``***``, ``___``) or a ``# `` or ``## `` heading
     wherever one falls, and, once the paragraph has started, also at a blank
-    line or a deeper heading (``### `` and below); blank lines and deeper
-    headings before the paragraph are skipped. A heading or rule is
-    recognized only as the whole line after at most three leading spaces, as
-    in CommonMark; four spaces or a tab before a hash or a rule make an
-    indented code line, which is prose here."""
+    line, a deeper heading (``### `` and below) or a code-fence line (see
+    _adopter_fence_line); blank lines, deeper headings and whole fenced code
+    blocks before the paragraph are skipped, and a line inside a fenced block
+    is code, never a heading, rule or prose. A heading or rule is recognized
+    only after at most three leading spaces, as in CommonMark; four spaces or
+    a tab before a hash or a rule make an indented code line, which is prose
+    here. A rule must be the whole line; a heading carries its text after its
+    hashes and the space or tab that follows them (see _adopter_heading)."""
     para = []
+    in_fence = False
     for nxt in lines:
         st = nxt.strip()
+        if _adopter_fence_line(nxt):
+            # A fence opened after the prose ends it, as a fenced code block
+            # interrupts a paragraph; one before the prose is skipped whole.
+            if para:
+                break
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
         if _ADOPTER_RULE_RE.match(nxt) or _adopter_heading(nxt, 1, 2):
             break
         if _adopter_heading(nxt, 3):
@@ -8200,12 +8215,19 @@ def parse_compliance_tsc_status(text):
             f"instead of one; {update}{accepted}"
         )
     start = heads[0]
+    # The section ends at its first thematic break, read through the shared
+    # anchored check. The pin closes it with exactly ---, so a break in any
+    # other form ("***", "- - -", an indented "---") ending the section is
+    # the missing-closing-rule error, not a line mismatch against the pin.
     end = next((i for i in range(start, len(lines))
                 if _ADOPTER_RULE_RE.match(lines[i])), None)
-    if end is None:
+    if end is None or lines[end] != "---":
+        other = ("" if end is None else
+                 f"line {end + 1} reads {lines[end]!r}, a thematic break "
+                 f"other than ---, so ")
         raise BuildError(
-            f"{where} no --- after {CROSSWALK_TSC_SECTION_HEADING!r} ends "
-            f"its section; {update}{accepted}"
+            f"{where} {other}no --- after {CROSSWALK_TSC_SECTION_HEADING!r} "
+            f"ends its section; {update}{accepted}"
         )
     found = lines[start:end + 1]
     pinned = {

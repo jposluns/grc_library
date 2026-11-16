@@ -951,8 +951,10 @@ class LanguageLinterTests(LinterTestCase):
         """Prose after a closing "_" or "__" emphasis delimiter, path text after
         a comma and a digit run before "/", an all-uppercase label after a host
         label with a lowercase letter, a query whose key is followed by an invalid
-        escape, a non-scheme "://" and text after ",)" inside parentheses are
-        outside the URL token and still flagged.
+        escape, a non-scheme "://" and text that follows straight after a ")"
+        closing a parenthesized group ending in "," (the "Organisations" in
+        "a(b,)Organisations", which is outside the parentheses) are outside
+        the URL token and still flagged.
 
         The host case follows the gate's host rule: an all-uppercase top-level
         label is accepted only when no host label holds a lowercase letter, so
@@ -2875,9 +2877,43 @@ class StandardsCurrencyTests(LinterTestCase):
                 f"without governance/register-canonical-citations.md.\n"
                 f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
             )
+            # A missing baseline also exits 2, so the exit code alone does not show that the
+            # register was read first and refused: the error must name the register file.
+            self.assertIn("register-canonical-citations.md", result.stderr, result.stderr)
+            self.assertNotIn("standards-currency-unpinned-baseline.json", result.stderr, result.stderr)
         finally:
             import shutil
             shutil.rmtree(synthetic_root, ignore_errors=True)
+
+    def test_root_override_with_only_the_baseline_missing_exits_2_naming_it(self) -> None:
+        # With the register present, a default-scope run reads the UNPINNED baseline next; a
+        # missing baseline fails closed with exit 2 and an error that names the baseline file,
+        # not the register.
+        synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-root-no-unpinned-baseline-", dir=FIXTURE_DIR))
+        self.addCleanup(shutil.rmtree, synthetic_root, True)
+        (synthetic_root / "governance").mkdir()
+        (synthetic_root / "governance" / "register-canonical-citations.md").write_text(
+            "# Register\n\n## Standards\n\n"
+            "| Standard ID | Current version | Publication date | Topic | Superseded versions |\n"
+            "| --- | --- | --- | --- | --- |\n"
+            "| ISO-27001 | 2022 | 2022-10 | ISMS | 2013 |\n",
+            encoding="utf-8",
+        )
+        result = run_linter(
+            ".claude/skills/corpus-management/tools/lint-standards-currency.py",
+            "--root",
+            str(synthetic_root),
+        )
+        self.assertEqual(
+            result.returncode,
+            2,
+            f"linter should exit 2 when --root names a directory with the register but "
+            f"without {self.BASELINE_REL}.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("standards-currency-unpinned-baseline.json", result.stderr, result.stderr)
+        self.assertIn("No such file or directory", result.stderr, result.stderr)
+        self.assertNotIn("register-canonical-citations.md", result.stderr, result.stderr)
 
     # Every run names the register standards no citation grammar reads, derived from the register
     # at run time (disclose-guard-residuals); the lines are advisory and never a finding. One list

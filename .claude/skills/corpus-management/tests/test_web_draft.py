@@ -18883,6 +18883,29 @@ class AdopterDocsFixtureTests(unittest.TestCase):
             with self.subTest(body=body):
                 self.assertEqual(self.mod._adopter_purpose("## Purpose\n\n" + body), lede)
 
+    def test_purpose_lede_skips_a_fence_directly_after_the_heading(self):
+        """A fenced code block before the Purpose prose is skipped whole: its
+        info string is not the lede, and a "# " comment inside it is code, not
+        a heading that ends the read."""
+        for fence in ("```", "~~~"):
+            text = (f"## Purpose\n{fence}bash\n# install\nmake all\n{fence}\n\n"
+                    "Real prose.\n")
+            with self.subTest(fence=fence):
+                self.assertEqual(self.mod._adopter_purpose(text), "Real prose.")
+        self.assertEqual(
+            self.mod._adopter_purpose(
+                "## Purpose\n\n```\n## Not a heading\n---\n```\nReal prose.\nMore.\n"),
+            "Real prose. More.")
+
+    def test_purpose_lede_ends_at_a_fence_after_prose_with_no_blank_line(self):
+        """A fence opened straight after the prose, with no blank line, ends
+        the paragraph, as a fenced code block interrupts a paragraph in
+        CommonMark: neither the fence line nor the code joins the lede."""
+        for fence in ("```", "~~~"):
+            text = f"## Purpose\nReal prose.\n{fence}bash\nls -l\n{fence}\nAfter.\n"
+            with self.subTest(fence=fence):
+                self.assertEqual(self.mod._adopter_purpose(text), "Real prose.")
+
     def test_outline_read_takes_a_level_two_heading_within_three_spaces(self):
         """The page outline lists the level-two headings the other reads stop at:
         one to three leading spaces and a tab after the hashes are allowed; four
