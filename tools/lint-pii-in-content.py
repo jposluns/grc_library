@@ -49,16 +49,26 @@ Exemption layers:
   - Per-file exemptions: a small set of AI security guides and
     research notes whose content legitimately includes IP-shaped
     threat indicators or address examples.
-  - Forge SSH service addresses (FORGE_SERVICE_ADDRESSES): exactly
-    ``git@github.com`` and ``git@gitlab.com``, the SSH service address of
-    a code-hosting site as written in an ssh:// or scp-style remote, are
-    not flagged. They name a hosting service's shared login, not a
-    person. The match is exact and case-sensitive, and only when the
-    engine's regex captured the whole domain, so another local part at
-    those domains, ``git`` at any other domain, and a longer domain that
-    begins with ``github.com`` are reported as before (maintainer
-    decision 2026-11-15). The allowance also needs
-    the match to be the whole local part (_local_part_complete): a match
+  - Git remote forms (FORGE_SERVICE_ADDRESSES, maintainer decisions
+    2026-11-15 and 2026-11-16): an address-shaped match is allowed only
+    when it is exactly part of one of four git remote forms followed by a
+    repository path on the same line: ``git@github.com:`` or
+    ``git@gitlab.com:`` (scp style), or ``ssh://git@github.com/`` or
+    ``ssh://git@gitlab.com/``. Such a remote names a hosting service's
+    shared login, not a person. The user and host are exact and
+    case-sensitive, and the engine's regex must have captured the whole
+    domain. The repository path is at least owner/repository: segments of
+    ASCII letters, digits, underscores, dots and hyphens, each starting
+    with a letter, digit or underscore, joined by "/", ending at the end of
+    the line, at white space or at one of ) ] } > , ; ' ! ? or a backtick.
+    The scp form starts at the start of the line, after white space or
+    after an ASCII character that cannot sit in a local part; the ssh://
+    form starts at the start of the line or after an ASCII character that
+    cannot sit in a URI scheme. Every other match is reported as before: a
+    bare address with no repository path, a form split across lines,
+    another user at github.com or gitlab.com, ``git`` at any other domain,
+    a near-miss host, and a longer domain that begins with ``github.com``.
+    The match must also be the whole local part (_local_part_complete): a match
     right after @ (user@git@github.com or user@git@gitlab.com) is still
     reported, because the engine reports only its git@ suffix and that
     suffix is the end of a longer address, not a whole local part;
@@ -73,16 +83,23 @@ Exemption layers:
     because a double quote can open an RFC 5322 quoted local part, which can
     hold white space and parentheses, and white space, a comment or a folded
     line break can separate its closing quote from the @ after it, so the
-    match may be inside a longer address at another domain. The rule looks
+    match may be inside a longer address at another domain. A quoted local
+    part can itself be folded across lines and close on a later line, so the
+    allowance is also refused when a double quote, or the character
+    reference &quot;, &#34; or &#x22;, appears anywhere after the match in
+    the rest of its paragraph (up to the next empty line, since a fold
+    always continues on a line that starts with white space). The rule looks
     for any later double quote, not for an @ after one, so no quoting,
     spacing, comment or folding form can hide a second address. The accepted
     over-refusal: an allowed address followed later on the line by any double
     quote is reported, even when the match is the whole local part, as in a
-    double-quoted remote such as a string value. After another URI scheme (an
+    double-quoted remote such as a string value, and so is one followed by a
+    double quote later in its paragraph. After another URI scheme (an
     https:// credential such as https://git@github.com, or
     mailto:git@github.com) it is still reported, since neither is an ssh://
-    or scp-style remote. Write such an address after whitespace, after
-    ssh://, or in parentheses, with no double quote later on the line.
+    or scp-style remote. Write a remote as one of the four forms with its
+    repository path on one line, with no double quote after it in its
+    paragraph.
   - CHANGELOG.md is exempt because it can describe sanitization fixes
     that quote (now-removed) PII.
   - Fenced code blocks are skipped so example syntax does not produce
@@ -100,6 +117,7 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
@@ -169,13 +187,24 @@ EXAMPLE_DOMAINS = {
 # Phase 23.63 removed `noreply.github.com` (no corpus reference)
 # and `posluns.com` (only `.ca` is used in AUTHORS / CITATION).
 
-# Forge SSH service addresses (maintainer decision 2026-11-15): the SSH
-# service address of a code-hosting site, as written in an
-# ssh:// or scp-style remote, names the service's shared login, not a person.
-# Only these two exact addresses are allowed. This is not a domain allowance:
-# any other local part at github.com or gitlab.com, and git at any other
-# domain, is reported as before.
+# Git remote forms (maintainer decisions 2026-11-15 and 2026-11-16): the SSH
+# service address of a code-hosting site names the service's shared login, not a
+# person, but only as the user and host of an exact git remote form with a repository
+# path (_git_remote_form). Only these two exact addresses can be allowed, and a bare
+# one is reported. This is not a domain allowance: any other local part at github.com
+# or gitlab.com, and git at any other domain, is reported as before.
 FORGE_SERVICE_ADDRESSES = frozenset({"git@github.com", "git@gitlab.com"})
+# The repository path after "git@host:" or "ssh://git@host/": owner/repository at least,
+# then the end of the line, white space or closing punctuation. Any other following
+# character (@, :, a double quote, a non-ASCII letter and so on) means the text is not an
+# exact remote form.
+_REPO_PATH_RE = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_.\-]*(?:/[A-Za-z0-9_][A-Za-z0-9_.\-]*)+(?=\Z|[\s)\]}>,;'!?`])")
+# Characters that may appear in a URI scheme: one directly before "ssh://" makes it
+# part of another scheme (such as xssh://), not the ssh:// form.
+_SCHEME_CHARS = frozenset("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-.")
+# A double quote or its HTML character reference: a quoted local part around the match
+# needs one of these after it to close.
+_QUOTE_MARKS = ('"', "&quot;", "&#34;", "&#x22;")
 # The engine's EMAIL_RE starts a match at a word boundary, so for
 # o'git@github.com or alice!git@gitlab.com it captures only the git@ suffix. The
 # allowance applies only when the character before the match cannot sit in a local
@@ -214,6 +243,50 @@ def _local_part_complete(line: str, start: int) -> bool:
     return before.isascii() and before not in "@:" and before not in _LOCAL_PART_CHARS
 
 
+def _git_remote_form(line: str, start: int, end: int) -> bool:
+    """True when ``line[start:end]`` is exactly the user and host of a git remote form.
+
+    The forms are ``git@<host>:<path>`` (scp style) and ``ssh://git@<host>/<path>``, with
+    the repository path (_REPO_PATH_RE) on the same line. A bare address, a form split across
+    lines, a form after a local-part character (scp style) or after a URI scheme character
+    (ssh://) is not one.
+    """
+    if end >= len(line):
+        return False
+    sep = line[end]
+    if sep == ":":
+        if start > 0:
+            before = line[start - 1]
+            if not before.isspace() and (not before.isascii() or before in "@:"
+                                         or before in _LOCAL_PART_CHARS):
+                return False
+    elif sep == "/" and line[:start].endswith("ssh://"):
+        lead = start - len("ssh://")
+        if lead > 0:
+            before = line[lead - 1]
+            if not before.isspace() and (not before.isascii() or before in _SCHEME_CHARS):
+                return False
+    else:
+        return False
+    return _REPO_PATH_RE.match(line, end + 1) is not None
+
+
+def _quote_follows(text: str) -> bool:
+    """True when ``text`` holds a double quote or its character reference (_QUOTE_MARKS)."""
+    lowered = text.lower()
+    return any(mark in lowered for mark in _QUOTE_MARKS)
+
+
+def _rest_of_paragraph(lines: list[str], lineno: int) -> str:
+    """The lines after line ``lineno`` (one-based) up to the next empty line, joined."""
+    rest = []
+    for following in lines[lineno:]:
+        if following == "":
+            break
+        rest.append(following)
+    return "\n".join(rest)
+
+
 def _engine():
     """Import the pack-owned engine, ensuring its tools/ dir is importable."""
     pack_tools = str(PACK_TOOLS)
@@ -230,8 +303,8 @@ def scan(path: Path) -> list[tuple[int, str, str]]:
     test patches ``mod.scan`` and runs ``main``; the detection regexes and the
     check live in the pack engine (gate_lint_pii_in_content.py). The engine takes
     the grc example-domain allow-list as a keyword; the wrapper supplies it here.
-    The wrapper then drops the email findings the FORGE_SERVICE_ADDRESSES
-    allowance covers, one per covered match on the same line.
+    The wrapper then drops the email findings the git remote form allowance covers,
+    one per covered match on the same line, given the rest of that line's paragraph.
     """
     engine = _engine()
     findings = engine.scan(path, example_domains=EXAMPLE_DOMAINS)
@@ -239,8 +312,10 @@ def scan(path: Path) -> list[tuple[int, str, str]]:
                for _, label, value in findings):
         return findings
     allowed: dict[tuple[int, str], int] = {}
-    for lineno, line in engine.iter_non_code_lines(engine.read_text_safe(path) or ""):
-        for value in _forge_service_matches(engine, line):
+    text = engine.read_text_safe(path) or ""
+    lines = text.splitlines()
+    for lineno, line in engine.iter_non_code_lines(text):
+        for value in _forge_service_matches(engine, line, _rest_of_paragraph(lines, lineno)):
             allowed[(lineno, value)] = allowed.get((lineno, value), 0) + 1
     kept = []
     for lineno, label, value in findings:
@@ -251,15 +326,20 @@ def scan(path: Path) -> list[tuple[int, str, str]]:
     return kept
 
 
-def _forge_service_matches(engine, line: str) -> list[str]:
-    """The matches on one line that the FORGE_SERVICE_ADDRESSES allowance covers: an
-    engine EMAIL_RE match whose text is exactly one of those addresses and whose domain
-    is the whole domain, not an ASCII prefix the regex truncated (the engine's own
-    completeness rule, as for its example-domain exemption), and whose local part is the
-    whole local part (_local_part_complete)."""
+def _forge_service_matches(engine, line: str, following: str = "") -> list[str]:
+    """The matches on one line that the git remote form allowance covers: an engine
+    EMAIL_RE match whose text is exactly one of FORGE_SERVICE_ADDRESSES, whose domain is
+    the whole domain, not an ASCII prefix the regex truncated (the engine's own
+    completeness rule, as for its example-domain exemption), that is exactly the user and
+    host of a git remote form with a repository path (_git_remote_form), whose local part
+    is the whole local part (_local_part_complete), and with no double quote or quote
+    character reference after it on the line or in ``following``, the rest of its
+    paragraph (_quote_follows)."""
     return [m.group(0) for m in engine.EMAIL_RE.finditer(line)
             if m.group(0) in FORGE_SERVICE_ADDRESSES and engine._email_domain_complete(line, m.end())
-            and _local_part_complete(line, m.start())]
+            and _git_remote_form(line, m.start(), m.end())
+            and _local_part_complete(line, m.start())
+            and not _quote_follows(line[m.end():] + "\n" + following)]
 
 
 def main(argv: list[str]) -> int:

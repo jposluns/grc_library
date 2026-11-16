@@ -26165,9 +26165,13 @@ class PIIContentTests(LinterTestCase):
                      "\u2019git@github.com here", "\u00bfgit@github.com here"):
             with self.subTest(line=line):
                 self.assertEqual(wrapper._forge_service_matches(engine, line), [])
-        self.assertEqual(wrapper._forge_service_matches(engine, "ssh://git@github.com/x (git@gitlab.com)"),
+        # Without an owner/repository path neither address is a git remote form, so both stay
+        # reported; the same addresses with a repository path are allowed.
+        self.assertEqual(wrapper._forge_service_matches(engine, "ssh://git@github.com/x (git@gitlab.com)"), [])
+        self.assertEqual(wrapper._forge_service_matches(engine, "git@github.com: and git@gitlab.com/x"), [])
+        self.assertEqual(wrapper._forge_service_matches(engine, "ssh://git@github.com/o/x (git@gitlab.com:o/r)"),
                          ["git@github.com", "git@gitlab.com"])
-        self.assertEqual(wrapper._forge_service_matches(engine, "git@github.com: and git@gitlab.com/x"),
+        self.assertEqual(wrapper._forge_service_matches(engine, "git@github.com:o/r and ssh://git@gitlab.com/o/x"),
                          ["git@github.com", "git@gitlab.com"])
 
     def test_forge_allowance_needs_an_ssh_remote_not_another_uri_scheme(self) -> None:
@@ -26326,6 +26330,85 @@ class PIIContentTests(LinterTestCase):
     def test_forge_allowance_does_not_apply_after_an_at_sign_gitlab(self) -> None:
         self._assert_forge_address_after_an_at_sign_reported("Remote: user@git@gitlab.com",
                                                              "git@gitlab.com")
+
+    def test_git_remote_forms_with_a_repository_path_pass(self) -> None:
+        # Each exact git remote form, user and host exact and followed by an owner/repository
+        # path on the same line, is a remote spelling and not a person, so it is not reported.
+        # A double quote in a later paragraph does not refuse it.
+        for body in (
+            "Clone git@github.com:org/repo.git here.\n",
+            "Clone ssh://git@github.com/org/repo.git here.\n",
+            "Clone git@gitlab.com:group/sub/repo.git here.\n",
+            "Clone ssh://git@gitlab.com/group/repo here.\n",
+            'Clone git@github.com:org/repo.git here.\n\nSay "hi".\n',
+        ):
+            with self.subTest(body=body):
+                fixture = self.make_fixture("standard-git-remote-form.md", VALID_METADATA + "\n\n" + body)
+                result = run_linter("tools/lint-pii-in-content.py", fixture)
+                self.assertEqual(result.returncode, 0, f"{body!r} must pass.\nstdout:\n{result.stdout}")
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_form_allowed")
+        engine = wrapper._engine()
+        for line, expected in (
+            ("git@github.com:o/r", ["git@github.com"]),
+            ("ssh://git@github.com/o/r", ["git@github.com"]),
+            ("git@gitlab.com:o/r", ["git@gitlab.com"]),
+            ("ssh://git@gitlab.com/o/r", ["git@gitlab.com"]),
+            ("(git@github.com:o/r.git)", ["git@github.com"]),
+            ("<ssh://git@gitlab.com/o/r>", ["git@gitlab.com"]),
+            ("x = 'ssh://git@github.com/o/r.git'", ["git@github.com"]),
+        ):
+            with self.subTest(line=line):
+                self.assertEqual(wrapper._forge_service_matches(engine, line), expected)
+
+    def test_git_remote_forms_refuse_folded_quoted_near_miss_and_split_matches(self) -> None:
+        # Only an exact remote form on one line, with no double quote after it in its paragraph
+        # that could close a quoted local part around it, is allowed. A quoted local part can be
+        # folded across lines and close before an @ at another domain on a later line, so each
+        # of these stays reported.
+        for body, needle in (
+            ('"jane git@github.com\n more"@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@github.com\n "@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@github.com\r\n "@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@gitlab.com\r\n "@corp-mail-xyz.net\n', "git@gitlab.com"),
+            ('"jane git@github.com:o/r\n "@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane\n git@gitlab.com:o/r\n "@corp-mail-xyz.net\n', "git@gitlab.com"),
+            ("&quot;jane git@github.com:o/r\n &quot;@corp-mail-xyz.net\n", "git@github.com"),
+            ('Write to "git@github.com:o/r"@corp-mail-xyz.net here.\n', "git@github.com"),
+            ("Write to 'git@gitlab.com:o/r' here.\n", "git@gitlab.com"),
+            ("Clone git@githubXcom.io:o/r here.\n", "git@githubXcom.io"),
+            ("Clone git@github.com.mirror-xyz.net:o/r here.\n", "git@github.com.mirror-xyz.net"),
+            ("Clone jane@github.com:o/r here.\n", "jane@github.com"),
+            ("Clone ssh://jane@gitlab.com/o/r here.\n", "jane@gitlab.com"),
+            ("Clone git@github.com:\norg/repo.git here.\n", "git@github.com"),
+            ("Clone ssh://\ngit@gitlab.com/org/repo here.\n", "git@gitlab.com"),
+            ("Clone git@github.com\n:org/repo.git here.\n", "git@github.com"),
+            ("Contact git@github.com here.\n", "git@github.com"),
+        ):
+            with self.subTest(body=body):
+                fixture = self.make_fixture("standard-git-remote-refused.md", VALID_METADATA + "\n\n" + body)
+                result = run_linter("tools/lint-pii-in-content.py", fixture)
+                self.assertEqual(result.returncode, 1, f"{body!r} must stay reported.\nstdout:\n{result.stdout}")
+                self.assertIn(needle, result.stdout)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_form_refused")
+        engine = wrapper._engine()
+        for line in ("git@githubXcom:o/r", "git@github.com.example:o/r", "jane@github.com:o/r",
+                     "x.git@github.com:o/r", "ssh://jane@gitlab.com/o/r", "git@github.com:", "git@github.com",
+                     "git@github.com:o", "git@github.com:/o/r", "ssh://git@github.com:o/r",
+                     "xssh://git@github.com/o/r", "https://git@github.com/o/r", '"git@github.com:o/r"',
+                     "'git@gitlab.com:o/r'", "git@github.com:o/r@corp-mail-xyz.net", "git@github.com:o/r(c)",
+                     "git@github.com:o/r\u00e9", "ssh://git@gitlab.com/o/r&quot;@corp-mail-xyz.net"):
+            with self.subTest(line=line):
+                self.assertEqual(wrapper._forge_service_matches(engine, line), [])
+        for following in (' "@corp-mail-xyz.net', " &quot;@corp-mail-xyz.net", " &#34;@corp-mail-xyz.net",
+                          " &#X22;@corp-mail-xyz.net", 'more\n "@corp-mail-xyz.net'):
+            with self.subTest(following=following):
+                self.assertEqual(wrapper._forge_service_matches(engine, "jane git@github.com:o/r", following), [])
+        doc = " ".join(wrapper.__doc__.split())
+        for fragment in ("allowed only when it is exactly part of one of four git remote forms",
+                         "a bare address with no repository path, a form split across lines",
+                         "appears anywhere after the match in the rest of its paragraph"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, doc)
 
 
 class InternalReferencesTests(LinterTestCase):
@@ -45912,7 +45995,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-orphan-documents.py NO_FS F 7a5e4c9ba00700be7e6e97a67d6e24b8365f5e4463af5c5cc12f79a5a45f8ecd
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
-        lint-pii-in-content.py CWD F 6da5d8e909c716f46b423803f7790efbf5d0e1312bc459d51136893473fc4938
+        lint-pii-in-content.py CWD F 2f474996f717f09204de1628bfed1225d9266f99d00b35ce7e5462fdf608410a
         lint-placeholder-leakage.py CWD F 011f3e7a9a38fc875d6ec0458f9ff22fdbcc6f531a1d316fc4229b6e791c7eea
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a
@@ -45958,7 +46041,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
         merge-grc-library-new.py NO_FS F f469764b2218641a4bf6a978c7ea610e8d68cde0ac42472ca26ceacd73be8766
-        merge-when-green.py NO_FS F de754f374eb862f9827d2347a32cfe78669e8a141694065646cbf3ddd65cf53b
+        merge-when-green.py NO_FS F babbe83220b290a22103757a5a389d69239608183d6eeb7dbfce5056dafb04aa
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
         pre-push-guard.sh FIXED F e082e92fe082af59cee69da9d2a329dacf1cdf4e8e4d600f4c5b6fc2ce89dabf

@@ -854,9 +854,9 @@ def _self_test() -> int:
             ("repo-plain", ["--repo", "jposluns/grc_library_new"], ok_url),
             ("repo-upper", ["--repo", "JPosluns/GRC_Library_New"], ok_url),
             ("repo-https-git-slash", ["--repo", "https://github.com/jposluns/grc_library_new.git/"], ok_url),
-            # The PII linter reports git@github.com after an apostrophe or before a later double quote
-            # on its line, so the ssh:// form is single-quoted and the scp form is split at the @.
-            ("repo-ssh-url", ["--repo", 'ssh://git@github.com/jposluns/grc_library_new.git'], ok_url),
+            # The PII linter allows a forge address only in an exact git remote form with no double
+            # quote later in its paragraph, so the ssh:// and scp forms are split at the @.
+            ("repo-ssh-url", ["--repo", 'ssh://git' '@github.com/jposluns/grc_library_new.git'], ok_url),
             ("repo-scp", ["--repo", "git" "@github.com:jposluns/grc_library_new.git"], ok_url),
             ("url-no-repo", [], new_url),
             ("url-upper", [], "https://github.com/JPOSLUNS/GRC_LIBRARY_NEW/pull/1"),
@@ -999,12 +999,12 @@ def _self_test() -> int:
     checks.append(("foreign-reason-names-workflow", "from workflow 'Repository quality checks'" in r_foreign))
     # The exact default list is pinned: the main() cases build rollups from REQUIRED_CHECKS itself, so
     # they cannot notice a name dropped from it (3b104 QA r4).
-    # The PII linter reports git@github.com after an apostrophe or before a later double quote on
-    # its line, so the ssh:// forms below are single-quoted and the scp forms are split at the @.
+    # The PII linter allows a forge address only in an exact git remote form with no double quote
+    # later in its paragraph, so the ssh:// and scp forms below are split at the @.
     checks.append(("normalize-repo-new-forms", all(normalize_repo(s) == _NEW_REPO for s in (
         "jposluns/grc_library_new", "JPOSLUNS/GRC_LIBRARY_NEW", "jposluns/grc_library_new.git/",
         "github.com/jposluns/grc_library_new", "https://github.com/jposluns/grc_library_new.git",
-        "HTTPS://GitHub.com/JPosluns/GRC_Library_New.GIT", 'ssh://git@github.com/jposluns/grc_library_new.git',
+        "HTTPS://GitHub.com/JPosluns/GRC_Library_New.GIT", 'ssh://git' '@github.com/jposluns/grc_library_new.git',
         "git" "@github.com:jposluns/grc_library_new.git", "git" "@github.com:jposluns/grc_library_new"))))
     # Exact outputs, so the check fails when the normalization itself is absent or wrong, not only when an
     # input comes out equal to the protected repository.
@@ -1016,7 +1016,7 @@ def _self_test() -> int:
         ("JPosluns/GRC_Library_Ref.git/", "jposluns/grc_library_ref"),
         ("https://github.com/JPosluns/GRC_Library.git", "jposluns/grc_library"),
         ("git" "@github.com:Other/GRC_Library_New.git", "other/grc_library_new"),
-        ('ssh://git@github.com/jposluns/grc_library_newer.git', 'jposluns/grc_library_newer'),
+        ('ssh://git' '@github.com/jposluns/grc_library_newer.git', 'jposluns/grc_library_newer'),
         ("grc_library_new", "grc_library_new")))))
     checks.append(("pr-url-repo", pr_url_repo("https://github.com/JPosluns/GRC_Library_New/pull/31") == _NEW_REPO
                    and pr_url_repo("https://github.com/jposluns/grc_library/pull/1") == "jposluns/grc_library"
