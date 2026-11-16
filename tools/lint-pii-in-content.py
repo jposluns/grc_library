@@ -67,7 +67,8 @@ Exemption layers:
     inside or after any other character (a parenthesis, an angle bracket, a
     quote, an HTML tag or comment, a non-ASCII space or any other non-ASCII
     character, another URI scheme such as https:// or mailto:, or a carriage
-    return at the end of a CRLF line), another user at github.com or
+    return in the same token, such as one right after the remote at the end
+    of a CRLF line), another user at github.com or
     gitlab.com, ``git`` at any other domain, a near-miss host, and a longer
     domain that begins with ``github.com``.
     So a match right after @ (user@git@github.com or user@git@gitlab.com) is
@@ -121,7 +122,12 @@ Exemption layers:
     the match is the whole local part, and so is one followed by a quote
     mark later in its paragraph, one after a sentence-ending dot, a closing
     parenthesis or an HTML tag (Clone it. git@github.com:o/r), every remote
-    in a paragraph that holds any other @, and every remote on a CRLF line.
+    in a paragraph that holds any other @, and every remote whose token
+    holds a carriage return. A carriage return is not a token delimiter, so
+    a remote at the end of a CRLF line (git@github.com:o/r, then CR and LF)
+    is reported, but one followed by an ASCII space or tab before the
+    carriage return (git@github.com:o/r, a space, then CR and LF) still
+    passes the token rule, since the space or tab ends its token first.
     Write a remote as one of the four forms, alone in its token on one
     physical line, with no dot, closing parenthesis or tag before it and no
     quote mark after it or other @ anywhere in its paragraph.
