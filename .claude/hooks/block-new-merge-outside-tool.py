@@ -10,10 +10,14 @@ mcp__github__merge_pull_request (decision D4).
 
 Rule (plan 3b882m section 4):
   1. Allow when the raw Bash command fully matches the sanctioned pattern, ASCII only, and
-     the payload cwd does not name grc_library_new; exit 2 when it does, since the relative
-     tools/ path would run that clone's copy of the tool (3b882 fix round 5).
+     no directory of the normalized payload cwd is named grc_library_new (a whole path
+     component, split at / or \\); exit 2 when one is, since the relative tools/ path would
+     run that clone's copy of the tool (3b882 fix round 5). A parent directory whose name
+     only contains grc_library_new, such as /home/grc_library_new_fan/grc_library, does not
+     refuse it (3b882 fix round 9).
   2. Otherwise exit 2 when (a) the normalized text, or the payload cwd, names
-     grc_library_new and (b) the normalized text matches one of the merge patterns. The
+     grc_library_new (here the cwd is read as text, so a longer directory name that contains
+     grc_library_new counts) and (b) the normalized text matches one of the merge patterns. The
      merge tool's name is one of them (3b882 fix round 6), so any other spelling of the
      tool command (a trailing or doubled space, ./tools/, -I) from such a cwd refuses. From
      any other cwd such a spelling refuses only when its text names grc_library_new (a path
@@ -74,8 +78,10 @@ REASON = (
     "grc_library_new (a path through such a clone); from any other cwd, a spelling that does "
     "not name grc_library_new (python3 ./tools/merge-grc-library-new.py N from a grc_library "
     "checkout) is allowed, since the tool's own hyphenated name does not name grc_library_new. "
-    "When the payload cwd names grc_library_new, the sanctioned command is refused too, and so "
-    "is any command that names "
+    "When a directory of the payload cwd is named grc_library_new, the sanctioned command is "
+    "refused too (a parent directory whose name only contains grc_library_new, such as "
+    "/home/grc_library_new_fan/grc_library, does not refuse it); when the payload cwd names "
+    "grc_library_new anywhere, so is any command that names "
     "tools/ together with a glob character (*, ? or [), since its relative tools/ path would run "
     "that clone's copy of the tool; this also refuses such a command that runs no merge "
     "(an ls tools/*.py included). Residual not closed by this hook: "
@@ -117,6 +123,12 @@ def merge_text(text):
     return any(p.search(text) for p in MERGE_PATTERNS)
 
 
+def cwd_is_new_clone(cwd):
+    """Whether a directory of the normalized ``cwd`` is named exactly grc_library_new: a whole
+    path component, split at / or \\ (3b882 fix round 9), not a substring of a longer name."""
+    return NEW in re.split(r"[/\\]", cwd)
+
+
 def decide(raw):
     """Return True when the payload text must be refused."""
     try:
@@ -137,7 +149,7 @@ def decide(raw):
         if not isinstance(command, str):
             return False
         if SANCTIONED.fullmatch(command):
-            return NEW in cwd
+            return cwd_is_new_clone(cwd)
         text = normalize(command)
         if NEW in cwd and "tools/" in text and any(c in text for c in GLOB_CHARS):
             return True

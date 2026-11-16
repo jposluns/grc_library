@@ -58,8 +58,11 @@ Exemption layers:
     those domains, ``git`` at any other domain, and a longer domain that
     begins with ``github.com`` are reported as before (maintainer
     decision 2026-11-15, 3b882 fix round 3). The allowance also needs
-    the match to be the whole local part (_local_part_complete): an
-    address wrapped in backticks or single quotes (a Markdown code span
+    the match to be the whole local part (_local_part_complete): a match
+    right after @ (user@git@github.com or user@git@gitlab.com) is still
+    reported, because the engine reports only its git@ suffix and that
+    suffix is the end of a longer address, not a whole local part (3b882
+    fix round 9); an address wrapped in backticks or single quotes (a Markdown code span
     such as `git@github.com`, or 'git@gitlab.com') is still reported,
     because the backtick and the apostrophe are RFC 5322 local-part
     characters, so the match may be the end of a longer local part and
@@ -162,7 +165,9 @@ FORGE_SERVICE_ADDRESSES = frozenset({"git@github.com", "git@gitlab.com"})
 # o'git@github.com or alice!git@gitlab.com it captures only the git@ suffix. The
 # allowance applies only when the character before the match cannot sit in a local
 # part: not an RFC 5322 atext character or dot, and not a non-ASCII character (RFC 6531),
-# except whitespace, or the "/" that ends the "://" of an ssh:// remote.
+# except whitespace, or the "/" that ends the "://" of an ssh:// remote. 3b882 fix round 9:
+# nor "@", which is no local-part character, but a match right after it (user@git@github.com)
+# is the end of a longer address, not a whole local part.
 _LOCAL_PART_CHARS = frozenset(
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&'*+-/=?^_`{|}~."
 )
@@ -175,7 +180,7 @@ def _local_part_complete(line: str, start: int) -> bool:
     before = line[start - 1]
     if before.isspace():
         return True
-    return before.isascii() and before not in _LOCAL_PART_CHARS
+    return before.isascii() and before != "@" and before not in _LOCAL_PART_CHARS
 
 
 def _engine():

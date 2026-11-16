@@ -169,8 +169,10 @@ drive end-to-end on the maintainer's behalf:
    command names grc_library_new (a path through such a clone); from any other cwd, a spelling
    that does not name grc_library_new (such as `python3 ./tools/merge-grc-library-new.py N`
    from a grc_library checkout) is allowed, since the tool's own hyphenated name does not name
-   grc_library_new. When the payload cwd names grc_library_new, it also refuses the
-   sanctioned command, and any command that names
+   grc_library_new. When a directory of the payload cwd is named grc_library_new, it also
+   refuses the sanctioned command (a parent directory whose name only contains
+   grc_library_new, such as `/home/grc_library_new_fan/grc_library`, does not refuse it);
+   when the payload cwd names grc_library_new anywhere, it refuses any command that names
    tools/ together with a glob character (`*`, `?` or `[`), since its relative tools/ path
    would run that clone's copy of the tool; that also refuses such a command that runs no
    merge, such as `ls tools/*.py`. It matches text only, so it also
@@ -183,7 +185,10 @@ drive end-to-end on the maintainer's behalf:
    pathname expansion that reaches the merge tool without a glob character beside tools/,
    such as `t*/` in place of tools/, a glob run from a cwd inside tools/, or an extended glob
    when extglob is on;
-   gh aliases; web UI merges; direct pushes to main; a merge queue entry (a GraphQL
+   gh aliases that hide pr merge; a merge run from a grc_library_new clone when the payload
+   cwd is elsewhere and the text names neither; MCP merge tools under other names; merges
+   from the web UI, from other machines or from other accounts; direct pushes to main; a
+   merge queue entry (a GraphQL
    `enqueuePullRequest`), even one that names grc_library_new; GitHub completing an
    auto-merge enabled earlier (from the web UI or before this hook); and merges whose text
    never names grc_library_new: a GraphQL

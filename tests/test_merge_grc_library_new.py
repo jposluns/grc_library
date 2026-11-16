@@ -72,8 +72,13 @@ LOG_SHAPE = (
 
 
 def gfm_cells(row):
-    """The cells of a table row split as GFM does: a backslash escapes the character after it,
-    so only an unescaped pipe separates cells (a backslash-backslash pair escapes itself)."""
+    """The cells of a table row split close to GFM: only an unescaped pipe separates cells (a
+    backslash-backslash pair escapes itself).
+
+    This over-approximates GFM: GFM's backslash escape applies only before ASCII punctuation,
+    while this helper treats a backslash as escaping any character after it. The two differ
+    only when that character is not ASCII punctuation, so it is never a pipe or a backslash,
+    and the split is the same (3b882 fix round 9)."""
     cells, cur, i = [], "", 0
     while i < len(row):
         if row[i] == "\\" and i + 1 < len(row):
@@ -411,13 +416,15 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
     def snapshot(self):
         # Every entry under the temporary root: a file by its bytes, a symlink by its target, a
         # directory and anything else by its kind, so a created directory shows as a change
-        # (3b882 fix round 7).
+        # (3b882 fix round 7); each with its st_mode (lstat, so a symlink's own), so a mode
+        # change to any entry shows as a change too (3b882 fix round 9).
         def entry(p):
+            mode = p.lstat().st_mode
             if p.is_symlink():
-                return ("symlink", str(p.readlink()))
+                return ("symlink", str(p.readlink()), mode)
             if p.is_file():
-                return ("file", p.read_bytes())
-            return ("dir",) if p.is_dir() else ("other",)
+                return ("file", p.read_bytes(), mode)
+            return ("dir", mode) if p.is_dir() else ("other", mode)
         return {p: entry(p)
                 for p in sorted(Path(self.tmp.name).rglob("*")) if "__pycache__" not in p.parts}
 
@@ -431,6 +438,13 @@ class MergeGrcLibraryNewMergeTests(unittest.TestCase):
         created = Path(self.tmp.name) / "created-by-the-tool"
         created.mkdir()
         self.assertEqual(self.changed_paths(before, self.snapshot()), [created])
+
+    def test_T5_snapshot_sees_a_mode_change(self):
+        # 3b882 fix round 9 (round 8 agy-B F2): a mode change to an existing file, with its bytes
+        # unchanged, is a change.
+        before = self.snapshot()
+        self.log.chmod(self.log.stat().st_mode ^ 0o100)
+        self.assertEqual(self.changed_paths(before, self.snapshot()), [self.log])
 
     def test_T5_dry_run_writes_no_file_and_the_merge_changes_only_the_log(self):
         before = self.snapshot()

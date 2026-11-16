@@ -26196,6 +26196,29 @@ class PIIContentTests(LinterTestCase):
             with self.subTest(fragment=fragment):
                 self.assertIn(fragment, doc)
 
+    def _assert_forge_address_after_an_at_sign_reported(self, line: str, needle: str) -> None:
+        # 3b882 fix round 9 (round 8 agy-A F1 and F3): for user@git@github.com the engine reports
+        # git@github.com. A match right after "@" is not a whole local part, so the forge
+        # allowance must not drop it, and the module docstring says so.
+        fixture = self.make_fixture("standard-forge-after-at.md", VALID_METADATA + "\n\n" + line + "\n")
+        result = run_linter("tools/lint-pii-in-content.py", fixture)
+        self.assertEqual(result.returncode, 1, f"{line!r} must stay reported.\nstdout:\n{result.stdout}")
+        self.assertIn(needle, result.stdout)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_forge_after_at")
+        self.assertEqual(wrapper._forge_service_matches(wrapper._engine(), line), [])
+        self.assertFalse(wrapper._local_part_complete(line, line.index(needle)))
+        doc = " ".join(wrapper.__doc__.split())
+        self.assertIn("a match right after @ (user@git@github.com or user@git@gitlab.com) is "
+                      "still reported", doc)
+
+    def test_forge_allowance_does_not_apply_after_an_at_sign_github(self) -> None:
+        self._assert_forge_address_after_an_at_sign_reported("Remote: user@git@github.com",
+                                                             "git@github.com")
+
+    def test_forge_allowance_does_not_apply_after_an_at_sign_gitlab(self) -> None:
+        self._assert_forge_address_after_an_at_sign_reported("Remote: user@git@gitlab.com",
+                                                             "git@gitlab.com")
+
 
 class InternalReferencesTests(LinterTestCase):
     """tools/lint-internal-references.py"""
@@ -45781,7 +45804,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-orphan-documents.py NO_FS F 7a5e4c9ba00700be7e6e97a67d6e24b8365f5e4463af5c5cc12f79a5a45f8ecd
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
-        lint-pii-in-content.py CWD F 85daac4e81e4726e6d82fa10a92f80c19b0ee3d64c88cfcb870f9cd3cec8102b
+        lint-pii-in-content.py CWD F d27b015bbc48466f46dd98f8e19a247d72078db68f7fafffc7742a8359449cc2
         lint-placeholder-leakage.py CWD F 011f3e7a9a38fc875d6ec0458f9ff22fdbcc6f531a1d316fc4229b6e791c7eea
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a
@@ -45826,7 +45849,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint_common.py PASSIVE F c3f9567cb927a4a4599fc2704a690a93d145aef8edfa2a90eb660b246aadbedd
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
-        merge-grc-library-new.py NO_FS F 03f0b497b2ec7b953c41c06870c04bd3f2aa0fa29c9e4650ebf1fb1c626a90ac
+        merge-grc-library-new.py NO_FS F 3ca0ccdd21f2b7da5411a58dacabe41840d5197d855dff8fc791c6a967cf7d9c
         merge-when-green.py NO_FS F 9f59dd45329481042b04c7cc1ddb2da1edde3a4bc54b0a35e522c79603832a86
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
@@ -62358,7 +62381,13 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
                          "directory name",
                          # 3b882 fix round 6 (round 5 claude F1)
                          "the sanctioned relative command runs the copy of the tool in the cwd, "
-                         "from any checkout"):
+                         "from any checkout",
+                         # 3b882 fix round 9 (round 8 claude F1): the three items REASON names as
+                         # not closed, worded as in REASON.
+                         "gh aliases that hide pr merge; a merge run from a grc_library_new clone "
+                         "when the payload cwd is elsewhere and the text names neither",
+                         "MCP merge tools under other names",
+                         "merges from the web UI, from other machines or from other accounts"):
             with self.subTest(fragment=fragment):
                 self.assertIn(fragment, " ".join(source.replace('"\n    "', "").split()))
                 self.assertIn(fragment, playbook)
@@ -62461,6 +62490,39 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
                 self.assertIn(fragment, playbook)
         self.assertNotIn("names grc_library_new, the merge tool command itself is refused in any "
                          "literal spelling", source)
+
+    def test_h2_sanctioned_command_refused_only_when_a_cwd_component_is_grc_library_new(self):
+        # 3b882 fix round 9 (round 8 agy-B F1): the sanctioned command is refused only when a
+        # directory of the payload cwd is named grc_library_new (a whole path component, any
+        # case); a grc_library clone under a parent whose name merely contains grc_library_new
+        # keeps it.
+        for command in (self.SANCTIONED + " 33", self.SANCTIONED + " 33 --dry-run"):
+            for cwd in ("/home/grc_library_new_fan/grc_library",
+                        "/home/u/grc_library_new.notes/grc_library",
+                        "/srv/old-grc_library_new/grc_library"):
+                with self.subTest(command=command, allowed_cwd=cwd):
+                    self._allowed(command, cwd=cwd)
+            for cwd in ("/home/grc_library_new_fan/grc_library_new", "/home/u/grc_library_new/",
+                        "/srv/grc_library_new/sub/dir", "/home/u/GRC_LIBRARY_NEW/tools",
+                        "/home/u/grc%5Flibrary_new", "C:\\Users\\u\\grc_library_new"):
+                with self.subTest(command=command, refused_cwd=cwd):
+                    self._refused(command, cwd=cwd)
+        # Rules 2 and 2a still read the cwd as text, so from such a parent a merge or a tools/
+        # glob stays refused (accepted over-refusal).
+        self._refused("gh pr merge 33", cwd="/home/grc_library_new_fan/grc_library")
+        self._refused("ls tools/*.py", cwd="/home/grc_library_new_fan/grc_library")
+        source = " ".join(self.HOOK.read_text(encoding="utf-8").replace('"\n    "', "").split())
+        playbook = (REPO_ROOT / ".claude" / "playbooks" / "pr-lifecycle.md").read_text(encoding="utf-8")
+        playbook = " ".join(playbook.split())
+        for fragment in ("a directory of the payload cwd is named grc_library_new",
+                         "a parent directory whose name only contains grc_library_new, such as",
+                         "when the payload cwd names grc_library_new anywhere"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, source)
+                self.assertIn(fragment, playbook)
+        self.assertIn("a whole path component", source)
+        self.assertNotIn("When the payload cwd names grc_library_new, the sanctioned command is "
+                         "refused too", source)
 
     def test_h3_accepted_over_refusal_is_pinned_as_refused(self):
         for command in (
@@ -62672,7 +62734,10 @@ class MergeGrcLibraryNewRowCheckTests(unittest.TestCase):
         # An unclosed fence runs to the end of the text; a closed one does not hide later rows,
         # and a shorter or different closing fence does not close it.
         self.assertEqual(self._missing("```\n" + self.VALIDATE_ROW, self.RETRO_ROW), ["validate-pr"])
-        self.assertEqual(self._missing("```\nx\n```\n" + self.VALIDATE_ROW, self.RETRO_ROW), [])
+        # 3b882 fix round 9 (round 8 agy-A F2): the closed fence holds a row in each register, so
+        # the case fails both with fence parsing removed ([]) and with a fence that never closes.
+        self.assertEqual(self._missing("```\n" + self.VALIDATE_ROW + "\n```\n" + self.VALIDATE_ROW,
+                                       "```\n" + self.RETRO_ROW + "\n```\n"), ["retro"])
         self.assertEqual(self._missing("````\nx\n```\n" + self.VALIDATE_ROW + "\n````",
                                        self.RETRO_ROW), ["validate-pr"])
         self.assertEqual(self._missing("~~~\nx\n```\n" + self.VALIDATE_ROW + "\n~~~",

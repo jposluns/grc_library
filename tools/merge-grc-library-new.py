@@ -794,7 +794,11 @@ def self_test() -> int:
         ("retro marker absent", missing_rows(v_row, r_row.replace(" (/retro)", ""), 31), ["retro"]),
         ("fenced rows", missing_rows("```\n" + v_row + "\n```", "~~~\n" + r_row + "\n~~~", 31),
          ["validate-pr", "retro"]),
-        ("closed fence", missing_rows("```\nx\n```\n" + v_row, r_row, 31), []),
+        # 3b882 fix round 9 (round 8 agy-A F2): a row inside the closed fence in each register, so
+        # this fails with fence parsing removed ([]) or with a fence that never closes.
+        ("closed fence",
+         missing_rows("```\n" + v_row + "\n```\n" + v_row, "```\n" + r_row + "\n```\n", 31),
+         ["retro"]),
         ("prose line", missing_rows("Moved #31 " + REPO_TAG + " on 2026-11-14.", r_row, 31),
          ["validate-pr"]),
         ("undated row", missing_rows(v_row.replace("2026-11-14", "PR"), r_row, 31), ["validate-pr"]),
