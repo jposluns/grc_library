@@ -58,8 +58,8 @@ here is complete. As a SECOND, BEST-EFFORT layer the shim removes the
 entry shapes it recognises: every ``sys.path`` entry whose RESOLVED
 path (``os.path.realpath``; the empty entry resolves against the
 current working directory, exactly like ``.``) is a pack ``tools/``
-directory (guards against a pack tools directory reached through a symlink, a stale module trusted by its origin,
-a pack tools directory on sys.path, a concurrent import during verification), a pack ROOT, or a
+directory (guards against a pack tools directory reached through a symlink,
+a pack tools directory on sys.path), a pack ROOT, or a
 pack root's PARENT (corrects the premise of a repository root wrongly treated as a dotted route,
 guards against an unscrubbed empty sys.path entry). The repository root carries NO dotted
 route of its own to the in-repo pack: ``.claude`` is not a Python
@@ -618,7 +618,12 @@ def _refuse_symlinked_override(root: Path, what: str) -> None:
     BEFORE verification and WITHOUT any resolve(), so the pack the verifier
     reads is exactly the pack the path names and a link cannot redirect it
     (guards against an override through a symlinked path). A component that cannot be checked
-    refuses too (fail closed)."""
+    refuses too (fail closed). The refusal is deliberate fail-closed behaviour
+    and covers EVERY ancestor, system directories included: a valid pack
+    under a symlinked system directory (``/tmp`` or ``/var`` on macOS, or a
+    symlinked ``/home``) is refused even though it would verify, because the
+    path is never resolved. Name the pack by its resolved, link-free path
+    instead."""
     for component in (root, *root.parents):
         try:
             symlinked = component.is_symlink()
@@ -750,9 +755,11 @@ def _pack_tools_entry(entry: str) -> bool:
     deliberately claims no more than that: it cannot see an entry whose
     target changes afterwards (a symlink retargeted, a path created or
     renamed into place, or a relative entry re-resolved after a chdir:
-    guards against a sys.path entry retargeted after the scrub), a plain directory holding a symlink named
+    a sys.path entry retargeted after the scrub, which the name guard
+    covers), a plain directory holding a symlink named
     ``aiqt_corpus.py`` to the pack's file (only the entry is resolved,
-    never the files under it: guards against a module symlink inside a plain entry), a bind mount,
+    never the files under it: a module symlink inside a plain entry,
+    which the name guard covers), a bind mount,
     or a hard-linked copy; for the name ``aiqt_corpus`` every one of those
     is closed by the name guard, not here (see REMAINING in the module
     docstring). An entry that is not a ``str`` -- bytes, an int, or any
@@ -856,8 +863,7 @@ def _scrub_pack_tools_entries() -> None:
     entry resolved against the current working directory exactly like
     ``.``: corrects the premise of a repository root wrongly treated as a dotted route, guards against an unscrubbed empty sys.path entry) at
     the START
-    of bootstrap, BEFORE any discovery or verification
-    (guards against a stale module trusted by its origin). For the bare name ``aiqt_corpus`` the
+    of bootstrap, BEFORE any discovery or verification. For the bare name ``aiqt_corpus`` the
     guarantee is the ``sys.meta_path`` name guard, which never consults
     ``sys.path``; this scrub removes the entry shapes it RECOGNISES and
     claims NO more (guards against a pack tools directory on sys.path): the repository root carries
@@ -1105,8 +1111,7 @@ def ensure_on_path() -> Path:
     working directory, exactly like ``.``: corrects the premise of a repository root wrongly treated as a dotted route,
     guards against an unscrubbed empty sys.path entry), and no pack
     directory is ever placed on ``sys.path``
-    (guards against a concurrent import during verification, a pack tools directory on sys.path,
-    a stale module trusted by its origin); the repository root carries NO dotted
+    (guards against a pack tools directory on sys.path); the repository root carries NO dotted
     route of its own to the in-repo pack (``.claude`` is not a Python
     identifier)
     and is kept; what remains outside the guard -- the CLASS of dotted
@@ -1165,7 +1170,7 @@ def ensure_on_path() -> Path:
     try:
         # SECOND layer, before discovery or verification: no sys.path
         # entry the scrub recognises may reach a pack
-        # (guards against a stale module trusted by its origin).
+        # (guards against a pack tools directory on sys.path).
         _scrub_pack_tools_entries()
         tools = find_pack_tools()
         if tools is None:

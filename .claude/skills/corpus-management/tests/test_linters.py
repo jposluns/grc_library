@@ -932,9 +932,10 @@ class LanguageLinterTests(LinterTestCase):
 
     def test_url_mask_emphasis_digit_and_escape_glue_still_flagged(self) -> None:
         # Prose right after a closing "_" / "__" emphasis delimiter, a digit run
-        # before "/", an all-uppercase label glued to a lowercase host, an invalid
-        # query escape, a non-scheme "://" and ",)" inside parentheses are outside
-        # the token and still flagged.
+        # before "/", an all-uppercase label glued to a lowercase host, a query
+        # key holding an invalid escape before "=" (the token ends at the "?", so
+        # the whole query text is checked, as the URL rule states), a non-scheme
+        # "://" and ",)" inside parentheses are outside the token and still flagged.
         for index, (body, word) in enumerate((
                 ("See _https://x.org/a_(organisations) here.\n", "organisations"),
                 ("See __https://x.org/a__(organisations) here.\n", "organisations"),
@@ -43217,7 +43218,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         README.md DATA F 67fe21d3b7f132009e1e6e14899a090f897ede778d89cea59053ca2f3e20ced7
         adopt-bootstrap-ref.py OWN F ec19e2c45233ad02ca422349c0778a3c17463e6fc23fe9bf0591d822ac8d531c
         adopt-preflight-guard.py FIXED F 73ab980af0fa53c8a485af18b7bdaee1b7bfef218c37982593e30c66d7f85f66
-        aiqt_bootstrap.py PASSIVE F e96062b129567ff3754f41d5fab54015037bad6ebcedc287a911e63449aaf87a
+        aiqt_bootstrap.py PASSIVE F 58476a2cd3a8c9cd8577bdbe1f8bed3e350661bf9b832110a99927f1632b30ef
         aiqt_rules.py NO_FS F dda2a6a5a217513fc2848e59029e111402fe85e8e765d6b9de7186bd8d9472d9
         alignment-register-aliases.json DATA F 7d9b0be1db9dcc1f81870c96309e2837cdf7da6fc16a78ea4f4b4ccca4e7b7e8
         alignment-register-exclusions.json DATA F 391924062319d3d5a618b1750b37dec6c0ee0c0d21b77b26518b16e51a418f19
@@ -43242,7 +43243,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-length-on-pr.py NO_FS F 91c9308103f36414f1975e2233cd82644551ca4a3996c4a2b9310b437004434a
         check-changelog-on-pr.py NO_FS F 00fa478d33343ae5d955e3faa7f99d9c61c6cda6f7a5e414dfcaf6ec6f7bf25b
         check-changelog-preflight-commit.py NO_FS F 9ec0a028e7e916fdfa542f6688b909b08a1c69fe66b3a7cb82d979689885f978
-        check-class-completeness.py NO_FS F 73b08c1b5a3c539010e3fa016d9f1d8d6f7e3fb8d795ba38ea6998c998d0e538
+        check-class-completeness.py NO_FS F 4fb4106dfdabd3d3916c4218366947dd394427f635bb4f900d905777787ba01c
         check-claude-md-size.py NO_FS F 5f0c8e37d4a1b36a6be924354a6cdfca69a4ba5498e77cee52012ccefc99764b
         check-clause-preservation.py OWN F 96d156bb17eb92ea45d096dae64345313ba8962de62b38a413a988aa7f8c8737
         check-clean-language-upstream.py NO_FS F 68e539ea645383d29ec9ded3cb44012af2afcfc78f820c172070a8c492665159
@@ -43347,7 +43348,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-todo-index-reference-parity.py OWN F 46ffb499a50fa6b5d64ac594776e5a26ad4e3c696fc48d8b5e4fc8b4646a2b22
         lint-todo-list-tag.py OWN F 10ee5371268378b28c9097a588515231d625ab63b5e5b1b9f3533f4d85db9b2d
         lint-todo-marked-done.py ROOT F 9d5f28f83917e26a4cd0bffde756fded4a2bf4259b809472bc1757a6dbc1b212
-        lint-todo-number-permanence.py OWN F 7f9a8b614f3637dc9465ec9f60d08a5743125a9c940dd6cc87909c781c50e0b7
+        lint-todo-number-permanence.py OWN F c51f07374f5314d06d6327f4657e5110dddb6d987d4e66252938501c47a31f88
         lint-todo-staleness.py NO_FS F 6a89123607678239f036cab7bf02e0a0885216f55ba0b23fb53799e30c40cffb
         lint-tooling-backlog-refs.py OWN F be54fcdef171bc30e7d0393ca2c097904f464cad7bde9a233f7ee663edd741a5
         lint-tooling-provenance-freshness.py OWN F ab5b885be8a4a7af28e6c441ea4439cc32ce553a6167946ec40d49f50f0f6b02

@@ -1253,7 +1253,7 @@ class HistoricalContextRegressionTests(unittest.TestCase):
             self.assertEqual(code, 1, register)
             self.assertIn(message, err, register)
 
-    def test_absolute_path_and_input_guards(self):
+    def test_absolute_path_and_fence_guards(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
         # The absolute-path guard.
         code, _, err = self.run_json("\n" + s + "\n\n", hx(hrow(s, path="/ai/citation.md")))

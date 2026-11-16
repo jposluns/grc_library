@@ -204,9 +204,10 @@ def _self_test() -> int:
         checks.append(("attest-token-newline-refused", validate_attest_token("a\nb") is not None))
         checks.append(("attest-token-plain-ok", validate_attest_token("7 years") is None))
         afs = attest_file_set(root, tracked={"a.md"})
-        # b.md is on disk and found by corpus_files but is not tracked; the check
-        # confirms both and that the git-tracked set excludes it.
-        checks.append(("attest-set-git-tracked-only",
+        # The tracked set is injected here, so _git_tracked itself is not
+        # exercised: b.md is on disk and found by corpus_files but is not in the
+        # injected set; the check confirms both and that the attest set excludes it.
+        checks.append(("attest-set-injected-tracked-only",
                        (root / "b.md").is_file()
                        and "b.md" in {f.name for f in corpus_files(root)}
                        and [f.name for f in afs] == ["a.md"]))

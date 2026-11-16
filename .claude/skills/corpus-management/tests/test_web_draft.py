@@ -18495,6 +18495,20 @@ class AdopterDocsFixtureTests(unittest.TestCase):
     def setUpClass(cls):
         cls.mod = _load_build()
 
+    def test_lede_stops_at_a_top_level_heading(self):
+        """The lede paragraph under a Purpose heading ends at a top-level
+        ``# `` heading, as at a ``## `` heading or a horizontal rule: the
+        heading text is never appended to the prose."""
+        for text in ("## Purpose\n\nFirst prose line.\n# Next Part\n",
+                     "## Purpose\n\n# Next Part\n\nLater prose.\n"):
+            with self.subTest(text=text):
+                lede = self.mod._adopter_purpose(text)
+                self.assertNotIn("Next Part", lede)
+                self.assertNotIn("Later prose", lede)
+        self.assertEqual(
+            self.mod._adopter_purpose("## Purpose\n\nFirst prose line.\n# Next Part\n"),
+            "First prose line.")
+
     def _block(self, overrides=None, drop=(), extra=()):
         fields = [(n, v) for n, v in self.FIELDS if n not in drop]
         if overrides:

@@ -355,9 +355,11 @@ THREEB_LEAD_PARTIAL_RE = re.compile(
 #
 # THIS DICT'S COMPLETENESS, NOT THE PARSE, IS THIS GATE'S FALSE-POSITIVE SURFACE:
 # the parse cannot tell a partial or sub-item close from a full retirement, so
-# every legitimate live-and-retired coexistence must be enumerated here as its
-# own row, and any future partial close against a still-open umbrella must add its
-# own row in the same PR that records the close.
+# every legitimate live-and-retired coexistence must be covered by a row here:
+# its own row, or a FAMILY row (above) whose substring matches several partial
+# closes of the same live id. Any future partial close against a still-open
+# umbrella must add a row in the same PR that records the close, unless a family
+# row for that id already matches its heading.
 #
 # Two classes, both audited in the earlier repository:
 #   PRE-RULE GRANDFATHER: the number was reassigned to different work BEFORE the

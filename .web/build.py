@@ -4164,11 +4164,12 @@ def _adopter_metadata(text, rel):
 
 def _adopter_first_paragraph(lines):
     """First real prose paragraph, skipping sub-headings, stopping at the next
-    second-level section (a ``## `` heading) or a horizontal rule."""
+    top-level or second-level section (a ``# `` or ``## `` heading) or a
+    horizontal rule."""
     para = []
     for nxt in lines:
         st = nxt.strip()
-        if st == "---" or re.match(r"^##\s", nxt):
+        if st == "---" or re.match(r"^##?\s", nxt):
             break
         if re.match(r"^#{3,}\s", nxt):
             if para:
