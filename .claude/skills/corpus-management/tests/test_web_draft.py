@@ -18546,6 +18546,116 @@ class DomainPurposeBoundaryTests(unittest.TestCase):
                 self.assertEqual(got, "Alpha.")
 
 
+class SharedBoundaryCheckRoutingTests(unittest.TestCase):
+    """Every read in build.py that ends or splits on a heading or thematic
+    break, beyond the adopter and domain Purpose reads, goes through the
+    shared anchored check (_adopter_heading, _ADOPTER_RULE_RE and the strict
+    form _adopter_marker_end). Each read is shown to consult the shared check
+    on the boundary line, and where the anchored reading differs from the old
+    raw test, the differing line shape is pinned."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = _load_build()
+
+    def _consulted(self, call):
+        """The (kind, line) pairs the shared check saw while ``call`` ran;
+        a BuildError from a fixture that is not a whole document is ignored."""
+        seen = []
+        real_heading = self.mod._adopter_heading
+        real_rule = self.mod._ADOPTER_RULE_RE
+
+        def heading_spy(line, low, high=None):
+            seen.append(("heading", line))
+            return real_heading(line, low, high)
+
+        class RuleSpy:
+            def match(self, line):
+                seen.append(("rule", line))
+                return real_rule.match(line)
+
+        with mock.patch.object(self.mod, "_adopter_heading", heading_spy), \
+                mock.patch.object(self.mod, "_ADOPTER_RULE_RE", RuleSpy()):
+            try:
+                call()
+            except self.mod.BuildError:
+                pass
+        return seen
+
+    def _narrative(self, head, tail="Body.\n"):
+        return head + tail + "\n" + self.mod._NARR_TERMINATOR + "\n"
+
+    def test_narrative_title_and_terminator_reads_use_the_shared_check(self):
+        seen = self._consulted(lambda: self.mod._narrative_body_lines(
+            self._narrative("# T\n\n**F:** v\n---\n"), "executive/x.md"))
+        self.assertIn(("heading", "# T"), seen)
+        self.assertIn(("rule", "---"), seen)
+
+    def test_narrative_title_within_three_spaces_is_read(self):
+        body = self.mod._narrative_body_lines(
+            self._narrative("   # T\n**F:** v\n---\n"), "executive/x.md")
+        self.assertEqual(body, ["Body.", ""])
+        with self.assertRaises(self.mod.BuildError):
+            self.mod._narrative_body_lines(
+                self._narrative("    # T\n**F:** v\n---\n"), "executive/x.md")
+
+    def test_narrative_terminator_is_an_anchored_thematic_break(self):
+        for label, rule in (("star rule", "***"), ("spaced dash rule", "- - -"),
+                            ("three-space rule", "   ---")):
+            with self.subTest(case=label):
+                body = self.mod._narrative_body_lines(
+                    self._narrative(f"# T\n**F:** v\n{rule}\n"), "executive/x.md")
+                self.assertEqual(body, ["Body.", ""])
+        for label, line in (("four-space rule", "    ---"), ("tab rule", "\t---")):
+            with self.subTest(case=label):
+                body = self.mod._narrative_body_lines(
+                    self._narrative(f"# T\n**F:** v\n{line}\n---\n"), "executive/x.md")
+                self.assertEqual(body, ["Body.", ""])
+
+    def test_narrative_classifier_reads_headings_through_the_shared_check(self):
+        seen = self._consulted(
+            lambda: self.mod._classify_narrative_line("## S", "executive/x.md"))
+        self.assertIn(("heading", "## S"), seen)
+        self.assertEqual(self.mod._classify_narrative_line("## S", "executive/x.md"), "h2")
+        self.assertEqual(self.mod._classify_narrative_line("### S", "executive/x.md"), "h3")
+        for line in ("##\tS", "#### S", "# S", "## S ##", "##"):
+            with self.subTest(refused=line):
+                with self.assertRaises(self.mod.BuildError):
+                    self.mod._classify_narrative_line(line, "executive/x.md")
+
+    def test_narrative_hash_led_line_that_is_no_heading_is_not_read_as_one(self):
+        for line in ("#hashtag prose", "####### seven hashes"):
+            with self.subTest(case=line):
+                self.assertEqual(
+                    self.mod._classify_narrative_line(line, "executive/x.md"), "p")
+
+    def test_llms_heading_lines_use_the_shared_strict_form(self):
+        seen = self._consulted(lambda: self.mod._llms_links("llms.txt", "# T\n\n## S\n"))
+        self.assertIn(("heading", "# T"), seen)
+        self.assertIn(("heading", "## S"), seen)
+        self.assertEqual(self.mod._llms_links("llms.txt", "# T\n\n## S\n"), [])
+        for line in ("#\tT", "   # T", "### T", "#T"):
+            with self.subTest(refused=line):
+                with self.assertRaises(self.mod.BuildError):
+                    self.mod._llms_links("llms.txt", line + "\n")
+
+    def test_crosswalk_section_reads_use_the_shared_check(self):
+        for name, call in (
+                ("citations register", lambda: self.mod._parse_citations_register_sections(
+                    "## S\n", True)),
+                ("compliance matrix", lambda: self.mod.parse_compliance_matrix("## S\n")),
+                ("reverse matrix", lambda: self.mod.parse_reverse_matrix("## S\n"))):
+            with self.subTest(read=name):
+                self.assertIn(("heading", "## S"), self._consulted(call))
+
+    def test_compliance_tsc_section_reads_use_the_shared_check(self):
+        heading = self.mod.CROSSWALK_TSC_SECTION_HEADING
+        seen = self._consulted(lambda: self.mod.parse_compliance_tsc_status(
+            heading + "\n\nText.\n\n---\n"))
+        self.assertIn(("heading", heading), seen)
+        self.assertIn(("rule", "---"), seen)
+
+
 class AdopterDocsFixtureTests(unittest.TestCase):
     """18, 19 and 21: the .claude/skills/corpus-management/docs/ metadata
     reader's loud failure classes, on fixtures (only the leading block is

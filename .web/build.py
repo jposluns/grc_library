@@ -1163,7 +1163,10 @@ def narrative_source_file(rel_path, tracked, seen, root=None):
 
 def _narrative_body_lines(text, source_rel):
     """Return the BODY lines of one narrative source: everything after the
-    first ``---`` metadata terminator, with the trailing corpus
+    first metadata terminator (a thematic break, read through the shared
+    anchored check _ADOPTER_RULE_RE, so ``---``, ``***`` or ``___`` within
+    three spaces ends the block and a rule indented by four spaces or a tab
+    does not), with the trailing corpus
     ``**End of Document**`` terminator required and dropped (the page chrome
     supplies the title and the closing sections, so neither the H1, the
     metadata block, nor the terminator is rendered). Loud on document-model
@@ -1171,10 +1174,10 @@ def _narrative_body_lines(text, source_rel):
     document terminator each raise BuildError."""
     lines = text.splitlines()
     first_content = next((ln for ln in lines if ln.strip()), "")
-    if not first_content.startswith("# "):
+    if not _adopter_heading(first_content, 1, 1):
         raise BuildError(f"{source_rel}: narrative source has no leading '# ' title line")
     for i, ln in enumerate(lines):
-        if ln.strip() == "---":
+        if _ADOPTER_RULE_RE.match(ln):
             body = lines[i + 1:]
             break
     else:
@@ -1244,16 +1247,22 @@ def _classify_narrative_line(line, source_rel):
             f"{source_rel}: a pipe is only supported inside a '|'-led and "
             f"'|'-terminated table row: {line[:60]!r}"
         )
-    if line.startswith("#"):
+    if _adopter_heading(line, 1):
+        # A heading is recognized by the shared anchored check, so a
+        # hash-led line that is no ATX heading ('#tag', seven hashes) is
+        # prose, as in the adopter reads; of the headings, only the strict
+        # '## Text' / '### Text' form renders.
         # A CommonMark CLOSING-hash sequence (a trailing '#' run alone or
         # preceded by whitespace, '## Text ##' / '## Text #' / '## ###')
         # would leak the hashes into the rendered heading text; the
         # supported forms are '## Text' / '### Text' with NO trailing
         # hashes. A hash attached to content ('## C#') is content, not a
         # closing sequence, and stays supported.
-        for marker, kind in (("## ", "h2"), ("### ", "h3")):
-            if line.startswith(marker) and line[len(marker):].strip():
-                if re.search(r"(?:^|[ \t])#+$", line[len(marker):].strip()):
+        for level, kind in ((2, "h2"), (3, "h3")):
+            marker = "#" * level + " "
+            end = _adopter_marker_end(line, level)
+            if end is not None and line[end:].strip():
+                if re.search(r"(?:^|[ \t])#+$", line[end:].strip()):
                     raise BuildError(
                         f"{source_rel}: closing-hash ATX headings unsupported "
                         f"(the supported form is '{marker}Text' with no "
@@ -3226,9 +3235,9 @@ def _llms_links(rel, text):
         end = start + len(line)
         if not line:
             continue
-        if line.startswith("# "):
+        if _adopter_marker_end(line, 1) is not None:
             _llms_prose(rel, text, start + 2, end, "a heading")
-        elif line.startswith("## "):
+        elif _adopter_marker_end(line, 2) is not None:
             _llms_prose(rel, text, start + 3, end, "a heading")
         elif line.startswith("> "):
             _llms_prose(rel, text, start + 2, end, "a block-quote line")
@@ -4116,9 +4125,12 @@ def _adopter_fence_line(line):
 # A thematic break is three or more of one of "-", "*" or "_", with spaces or
 # tabs between them and nothing else on the line. An ATX heading is one to six
 # hashes followed by a space, a tab or the line end; seven or more hashes make a
-# plain line. Every adopter heading, rule and section read below, and the
-# domain Purpose read in read_domain_purpose, goes through these two; the other
-# boundary reads in this file keep their own checks.
+# plain line. Every heading, rule and section read in this file goes through
+# these two: the adopter reads below, the domain Purpose read, the narrative
+# title, metadata terminator and line classifier, the llms.txt grammar and the
+# crosswalk register and matrix section reads. The narrative classifier and
+# the llms.txt grammar admit a heading only in its strict form (the hashes at
+# the line start, then one space), read through _adopter_marker_end.
 _ADOPTER_RULE_RE = re.compile(r" {0,3}([-*_])[ \t]*(?:\1[ \t]*){2,}$")
 _ADOPTER_HEADING_RE = re.compile(r" {0,3}(#{1,6})(?:[ \t]|$)")
 
@@ -4137,6 +4149,19 @@ def _adopter_heading_text(line, level):
     if not _adopter_heading(line, level, level):
         return None
     return line[_ADOPTER_HEADING_RE.match(line).end():].strip()
+
+
+def _adopter_marker_end(line, level):
+    """For the strict readers, which admit a heading only as its hashes at
+    the line start followed by one space: the offset just after that space
+    when ``line`` is an ATX heading of exactly ``level`` hashes (see
+    _adopter_heading) in that form; None for any other line."""
+    if not _adopter_heading(line, level, level):
+        return None
+    hashes = _ADOPTER_HEADING_RE.match(line).span(1)
+    if hashes[0] != 0 or line[hashes[1]:hashes[1] + 1] != " ":
+        return None
+    return hashes[1] + 1
 
 
 def _adopter_flatten(text):
@@ -7917,8 +7942,9 @@ def _parse_citations_register_sections(text, require_heading):
     heading = None
     state = "outside"  # outside -> header -> rows
     for line in text.splitlines():
-        if line.startswith("## "):
-            heading = line[len("## "):].strip()
+        section = _adopter_heading_text(line, 2)
+        if section is not None:
+            heading = section
             state = "outside"
             continue
         if not line.strip().startswith("|"):
@@ -8019,7 +8045,8 @@ def parse_compliance_matrix(text):
     domain = None
     state = "outside"
     for line in text.splitlines():
-        m = re.match(r"^## (.+) domain\s*$", line)
+        section = _adopter_heading_text(line, 2)
+        m = re.fullmatch(r"(.+) domain", section) if section is not None else None
         if m:
             slug = m.group(1).strip().lower().replace(" ", "-")
             if slug not in DOMAIN_SCOPE:
@@ -8038,7 +8065,7 @@ def parse_compliance_matrix(text):
             rows_by_domain[slug] = []
             state = "outside"
             continue
-        if line.startswith("## "):
+        if section is not None:
             domain = None
             state = "outside"
             continue
@@ -8165,15 +8192,16 @@ def parse_compliance_tsc_status(text):
     where = f"crosswalk: {CROSSWALK_COMPLIANCE_MATRIX_PATH}:"
     lines = text.splitlines()
     heads = [i for i, line in enumerate(lines)
-             if line == CROSSWALK_TSC_SECTION_HEADING]
+             if _adopter_heading_text(line, 2)
+             == _adopter_heading_text(CROSSWALK_TSC_SECTION_HEADING, 2)]
     if len(heads) != 1:
         raise BuildError(
             f"{where} {len(heads)} {CROSSWALK_TSC_SECTION_HEADING!r} headings "
             f"instead of one; {update}{accepted}"
         )
     start = heads[0]
-    end = next((i for i in range(start, len(lines)) if lines[i] == "---"),
-               None)
+    end = next((i for i in range(start, len(lines))
+                if _ADOPTER_RULE_RE.match(lines[i])), None)
     if end is None:
         raise BuildError(
             f"{where} no --- after {CROSSWALK_TSC_SECTION_HEADING!r} ends "
@@ -8189,8 +8217,8 @@ def parse_compliance_tsc_status(text):
     status = next((s for s, want in pinned.items() if found == want), None)
     if status is None:
         # The first line off the pin, the reading-guide line in either form.
-        # Both lists end at their only line that is exactly ---, so they
-        # differ before either ends.
+        # The found lines end at their first thematic break and the pin
+        # at its only one, its last line, so they differ before either ends.
         want = pinned[False]
         at = next(n for n, (got, line) in enumerate(zip(found, want))
                   if got != line and not (line == bare and got == populating))
@@ -8240,8 +8268,9 @@ def parse_reverse_matrix(text):
     current = None
     state = "outside"
     for line in text.splitlines():
-        if line.startswith("## "):
-            heading = line[3:].strip()
+        section = _adopter_heading_text(line, 2)
+        if section is not None:
+            heading = section
             current = None
             state = "outside"
             continue
