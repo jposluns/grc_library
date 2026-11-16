@@ -25922,6 +25922,46 @@ class SecretsLinterTests(LinterTestCase):
         self.assertLinterFails(result)
 
 
+def _remote_rule_comment_problems(source: str, pointer: str) -> tuple[list, list, int]:
+    """Check the comments of the git remote tests of the two PII test classes in ``source``.
+
+    A remote test is a method whose name holds "forge" or "remote" or whose lines exercise the
+    allowance. Every comment (tokenize) in its lines and in the comment and decorator lines
+    directly above its def must be exactly ``pointer``, and it must have no docstring. Returns
+    the problems as (method, line, comment or "docstring"), the method names and the number of
+    pointers seen."""
+    import ast
+    import io
+    import tokenize
+
+    lines = source.split("\n")
+    tree = ast.parse(source)
+    exercises = re.compile(r"git@git(?:hub|lab)\.com|_forge_service_matches|_allowed_spans|_local_part_"
+                           r"|_quote_follows|_paragraphs")
+    methods = [n for cls in tree.body
+               if isinstance(cls, ast.ClassDef) and cls.name in ("PIIContentTests", "PiiInContentEngineTransferTests")
+               for n in cls.body if isinstance(n, ast.FunctionDef)
+               and ("forge" in n.name or "remote" in n.name
+                    or exercises.search("\n".join(lines[n.lineno - 1:n.end_lineno])))]
+    problems = []
+    pointed = 0
+    for node in methods:
+        first = min([node.lineno] + [d.lineno for d in node.decorator_list])
+        while first > 1 and lines[first - 2].strip().startswith(("#", "@")):
+            first -= 1
+        chunk = "\n".join(lines[first - 1:node.end_lineno]) + "\n"
+        for token in tokenize.generate_tokens(io.StringIO(chunk).readline):
+            if token.type != tokenize.COMMENT:
+                continue
+            if token.string.strip() == pointer:
+                pointed += 1
+            else:
+                problems.append((node.name, first + token.start[0] - 1, token.string))
+        if ast.get_docstring(node, clean=False) is not None:
+            problems.append((node.name, node.lineno, "docstring"))
+    return problems, [n.name for n in methods], pointed
+
+
 class PIIContentTests(LinterTestCase):
     """tools/lint-pii-in-content.py"""
 
@@ -26665,31 +26705,55 @@ class PIIContentTests(LinterTestCase):
         result = run_linter("tools/lint-pii-in-content.py", fixture)
         self.assertEqual(result.returncode, 0, f"stdout:\n{result.stdout}")
 
-    def test_remote_rule_comments_point_to_the_module_docstring(self) -> None:
-        import ast
+    def test_git_remote_allowance_refuses_a_dot_anywhere_in_the_word_before_the_remote(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        for body, needle in (
+            ("Mail [alice.][r] git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail [alice.][1] git@gitlab.com:o/r now.\n", "git@gitlab.com"),
+            ("Mail [alice.]{.x} git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice.{:x} git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice.x git@gitlab.com:o/r now.\n", "git@gitlab.com"),
+            ("Mail alice&rpar;x git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice&#46;x git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail [alice\uff0e][r] git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail [alice.][r]\n- git@github.com:o/r now.\n", "git@github.com"),
+        ):
+            self._assert_remote_after_a_dot_behind_delimiters_reported(body, needle)
+        self._assert_remote_bodies_reported("standard-git-remote-reference-link.md", (
+            ("Mail [alice.][r] git@github.com:o/r now.\n\n[r]: https://example.org/x\n", "git@github.com"),
+        ))
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_word_rule")
+        doc = " ".join(wrapper.__doc__.split())
+        for fragment in ("The word before the token holds a refusing character anywhere in it",
+                         "[alice.][r] git@github.com:o/r or alice.{:x} git@github.com:o/r"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, doc)
 
+    def test_remote_rule_comments_point_to_the_module_docstring(self) -> None:
         pointer = '# Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.'
-        lines = Path(__file__).resolve().read_text(encoding="utf-8").split("\n")
-        tree = ast.parse("\n".join(lines))
-        exercises = re.compile(r"git@git(?:hub|lab)\.com|_forge_service_matches|_allowed_spans|_local_part_"
-                               r"|_quote_follows|_paragraphs")
-        methods = [n for cls in tree.body
-                   if isinstance(cls, ast.ClassDef) and cls.name in ("PIIContentTests", "PiiInContentEngineTransferTests")
-                   for n in cls.body if isinstance(n, ast.FunctionDef)
-                   and ("forge" in n.name or "remote" in n.name
-                        or exercises.search("\n".join(lines[n.lineno - 1:n.end_lineno])))]
+        problems, methods, pointed = _remote_rule_comment_problems(
+            Path(__file__).resolve().read_text(encoding="utf-8"), pointer)
         self.assertGreaterEqual(len(methods), 30)
         self.assertIn("test_git_clone_url_after_an_undotted_marked_word_or_a_paragraph_break_still_passes",
-                      {n.name for n in methods})
-        pointed = 0
-        for node in methods:
-            for number in range(node.lineno, node.end_lineno + 1):
-                stripped = lines[number - 1].strip()
-                if stripped.startswith("#"):
-                    with self.subTest(method=node.name, line=number):
-                        self.assertEqual(stripped, pointer)
-                    pointed += 1
+                      set(methods))
+        self.assertEqual(problems, [])
         self.assertGreater(pointed, 0)
+        clean = ("class PIIContentTests:\n"
+                 "    @staticmethod\n"
+                 "    def test_remote_x():\n"
+                 "        " + pointer + "\n"
+                 "        return 1\n")
+        self.assertEqual(_remote_rule_comment_problems(clean, pointer), ([], ["test_remote_x"], 1))
+        for planted, line in (
+            (clean.replace("return 1\n", "return 1  # a dot before the token refuses\n"), 5),
+            (clean.replace("    @staticmethod\n", "    # a dot before the token refuses\n    @staticmethod\n"), 2),
+            (clean.replace("    def test_remote_x():\n",
+                           "    # a dot before the token refuses\n    def test_remote_x():\n"), 3),
+            (clean.replace("        return 1\n", "        \"\"\"A dot refuses.\"\"\"\n        return 1\n"), 3),
+        ):
+            with self.subTest(planted=planted):
+                problems, _, _ = _remote_rule_comment_problems(planted, pointer)
+                self.assertEqual([p[1] for p in problems], [line])
         wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_pointer")
         self.assertIn("  - Git remote forms (FORGE_SERVICE_ADDRESSES,", wrapper.__doc__)
 
@@ -46278,7 +46342,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-orphan-documents.py NO_FS F 7a5e4c9ba00700be7e6e97a67d6e24b8365f5e4463af5c5cc12f79a5a45f8ecd
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
-        lint-pii-in-content.py CWD F 0f31deaff0bcfcdc868a624c2d6a88c9b0ece33343f5f3fdafffefb9b264bf10
+        lint-pii-in-content.py CWD F 40a4e6a77572c87e2fe2e957ff5d03d0a12289d359b2bc5f6820f37a9ae3af4d
         lint-placeholder-leakage.py CWD F 011f3e7a9a38fc875d6ec0458f9ff22fdbcc6f531a1d316fc4229b6e791c7eea
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a

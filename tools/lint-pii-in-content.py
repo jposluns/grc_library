@@ -100,22 +100,26 @@ Exemption layers:
     a double quote or an apostrophe (&quot;, &apos; or a decimal or
     hexadecimal reference to 34 or 39, in any letter case, with any leading
     zeros, with or without its final semicolon), since a quoted local part
-    can be folded and close on a later line. The run before the token holds
-    a refusing character. That run is found by walking back from the token
-    over white space, line breaks, Markdown block quote markers and every
-    character that, after NFKC normalization and after decoding character
-    references, is neither a letter, a digit nor white space (so any inline
-    marker: the Markdown delimiters *, _, `, ~, == and ^, a fullwidth
-    asterisk, &ast; or &#42;, or a bracket that a later character closes
-    after the token), up to the nearest letter or digit, which is tested
-    too. A refusing character is a dot, a closing parenthesis, a character
-    whose NFKC form is either, or the end of a character reference (any
-    reference refuses, whatever it renders), the end of an HTML tag or
-    comment (a ">" that is not a block quote marker), or a character whose
-    NFKC form holds a dot or a closing parenthesis (such as U+2488 or
-    U+2474), since an obsolete local part such as alice. git@github.com:o/r,
-    alice.<!----> git@github.com:o/r, **alice.** git@github.com:o/r or
-    ==alice.== git@github.com:o/r (each renders as alice.
+    can be folded and close on a later line. The word before the token
+    holds a refusing character anywhere in it. That word is the
+    whitespace-delimited word (split at ASCII white space and line breaks
+    only) before the token; when it holds no letter or digit after NFKC
+    normalization and after decoding character references, it is tested and
+    the word before it is taken too, back to the nearest word that holds a
+    letter or digit, which is tested too, and a Markdown block quote marker
+    (a word of only ">" with only white space and ">" before it on its line)
+    is passed over. A word is tested after NFKC normalization and after
+    decoding character references, whatever markup surrounds the dot (an
+    inline marker, a link label, a reference, an attribute block or a
+    bracket that a later character closes after the token). A refusing
+    character is a dot, a closing parenthesis, a character whose NFKC form
+    is either, or the end of a character reference (any reference refuses,
+    whatever it renders), a ">" that is not a block quote marker (the end of
+    an HTML tag or comment), or a character whose NFKC form holds a dot or a
+    closing parenthesis (such as U+2488 or U+2474), since an obsolete local
+    part such as alice. git@github.com:o/r, alice.<!----> git@github.com:o/r,
+    **alice.** git@github.com:o/r, [alice.][r] git@github.com:o/r or
+    alice.{:x} git@github.com:o/r (each renders as alice.
     git@github.com:o/r) is the address alice.git@github.com.
     The paragraph holds an @ sign, a character whose NFKC form is one or a
     character reference that renders one, other than the @ of a match that
@@ -129,10 +133,11 @@ Exemption layers:
     that holds no character. The accepted over-refusal: an allowed address
     followed later on the line by any double quote is reported, even when
     the match is the whole local part, and so is one followed by a quote
-    mark later in its paragraph, one after a sentence-ending dot, a closing
-    parenthesis or an HTML tag, even with other punctuation or a line break
-    between (Clone it. git@github.com:o/r or Clone it. - git@github.com:o/r),
-    every remote
+    mark later in its paragraph, one whose word before holds a dot, a
+    closing parenthesis, a character reference or an HTML tag anywhere, even
+    with punctuation-only words or a line break between (Clone it.
+    git@github.com:o/r, Clone it. - git@github.com:o/r, e.g.
+    git@github.com:o/r or v1.2 git@github.com:o/r), every remote
     in a paragraph that holds any other @, and every remote whose token
     holds a carriage return. A carriage return is not a token delimiter, so
     a remote at the end of a CRLF line (git@github.com:o/r, then CR and LF)
@@ -140,9 +145,9 @@ Exemption layers:
     carriage return (git@github.com:o/r, a space, then CR and LF) still
     passes the token rule, since the space or tab ends its token first.
     Write a remote as one of the four forms, alone in its token on one
-    physical line, with no dot, closing parenthesis or tag before it (even
-    behind any run of inline markers or other punctuation) and no quote mark after it or
-    other @ anywhere in its paragraph.
+    physical line, with no dot, closing parenthesis, character reference or
+    tag anywhere in the word before it (or in a punctuation-only word between)
+    and no quote mark after it or other @ anywhere in its paragraph.
   - CHANGELOG.md is exempt because it can describe sanitization fixes
     that quote (now-removed) PII.
   - Fenced code blocks are skipped so example syntax does not produce
@@ -161,6 +166,7 @@ from __future__ import annotations
 
 import argparse
 import bisect
+import html
 import re
 import sys
 import unicodedata
@@ -252,9 +258,12 @@ _QUOTE_RE = re.compile(r'["\uff02]|&(?:quot|apos|#0*3[49]|#x0*2[27]);?', re.IGNO
 # character reference that renders one. The rule and why: see "Git remote forms" in the
 # module docstring.
 _AT_RE = re.compile(r"[@\ufe6b\uff20]|&(?:commat|#0*64|#x0*40);?", re.IGNORECASE)
-# A character reference ending at the end of the searched text. The rule and why: see "Git
+# A character reference, with or without its final semicolon. The rule and why: see "Git
 # remote forms" in the module docstring.
-_REFERENCE_END_RE = re.compile(r"&(?:#[0-9]+|#x[0-9a-f]+|[a-z][a-z0-9]*);?\Z", re.IGNORECASE)
+_REFERENCE_RE = re.compile(r"&(?:#[0-9]+|#x[0-9a-f]+|[a-z][a-z0-9]*);?", re.IGNORECASE)
+# The characters that split the words before a remote token. The rule and why: see "Git remote
+# forms" in the module docstring.
+_WORD_DELIMITERS = " \t\n\r\x0b\x0c"
 
 
 def _local_part_complete(line: str, start: int) -> bool:
@@ -279,32 +288,40 @@ def _quote_follows(text: str) -> bool:
     return _QUOTE_RE.search(text) is not None
 
 
+def _rendered(word: str) -> str:
+    """``word`` after NFKC normalization and after decoding character references."""
+    return unicodedata.normalize("NFKC", html.unescape(unicodedata.normalize("NFKC", word)))
+
+
 def _local_part_continues_before(text: str, pos: int) -> bool:
-    """True when the run before ``pos`` holds a refusing character. The run is the white space,
-    the Markdown block quote markers (a ">" with only white space and ">" before it on its line)
-    and every character whose NFKC form holds no letter or digit, back to the nearest character
-    whose NFKC form holds one, which is tested too. A refusing character is one whose NFKC form
-    holds a dot or a closing parenthesis, the end of a character reference (_REFERENCE_END_RE),
-    or any other ">". The rule and why: see "Git remote forms" in the module docstring."""
-    i = pos
-    while i > 0:
-        char = text[i - 1]
-        if char.isspace():
-            i -= 1
-            continue
-        line_start = text.rfind("\n", 0, i) + 1
-        if char == ">" and not text[line_start:i].strip(" \t>"):
-            i = line_start
-            continue
-        if char == ">" or _REFERENCE_END_RE.search(text, max(text.rfind("&", 0, i), 0), i):
-            return True
-        form = unicodedata.normalize("NFKC", char)
-        if "." in form or ")" in form:
-            return True
-        if any(c.isalnum() for c in form):
+    """True when the word before ``pos`` holds a refusing character anywhere in it. Words are
+    split at _WORD_DELIMITERS only. A word whose rendered form (_rendered) holds no letter or
+    digit is tested and the word before it is taken too, back to the nearest word whose rendered
+    form holds one, which is tested too; a Markdown block quote marker (a word of only ">" with
+    only white space and ">" before it on its line) is passed over. A word refuses when it holds
+    a ">" or a character reference (_REFERENCE_RE), or when its rendered form holds a dot or a
+    closing parenthesis. The rule and why: see "Git remote forms" in the module docstring."""
+    end = pos
+    while True:
+        while end > 0 and text[end - 1] in _WORD_DELIMITERS:
+            end -= 1
+        if end == 0:
             return False
-        i -= 1
-    return False
+        start = end
+        while start > 0 and text[start - 1] not in _WORD_DELIMITERS:
+            start -= 1
+        word = text[start:end]
+        line_start = text.rfind("\n", 0, start) + 1
+        if not word.strip(">") and not text[line_start:start].strip(" \t>"):
+            end = start
+            continue
+        rendered = _rendered(word)
+        if (">" in word or _REFERENCE_RE.search(unicodedata.normalize("NFKC", word))
+                or "." in rendered or ")" in rendered):
+            return True
+        if any(c.isalnum() for c in rendered):
+            return False
+        end = start
 
 
 def _paragraphs(text: str) -> list[tuple[int, str]]:
@@ -334,7 +351,7 @@ def _allowed_spans(engine, paragraph: str) -> list[tuple[int, int]]:
     text is exactly one of FORGE_SERVICE_ADDRESSES, that is the user and host of a whole
     whitespace-delimited token that is exactly one git remote form, with no quote mark after it
     on its line (_local_part_complete) or on a later line of the paragraph (_quote_follows), and
-    no dot, closing parenthesis, tag or character reference before its token
+    no dot, closing parenthesis, tag or character reference in the word before its token
     (_local_part_continues_before). When the paragraph holds any @ sign (_AT_RE) other than
     the @ of such a match, no match in it is covered. The rule and why: see "Git remote forms" in the module docstring."""
     spans = []
@@ -412,8 +429,8 @@ def _forge_service_matches(engine, line: str, following: str = "") -> list[str]:
     EMAIL_RE match whose text is exactly one of FORGE_SERVICE_ADDRESSES, that is the user and
     host of a whole whitespace-delimited token that is exactly one git remote form, with no
     quote mark after it on the line (_local_part_complete) or in ``following``
-    (_quote_follows), no dot, closing parenthesis, tag or character reference before its
-    token (_local_part_continues_before), and no other @ sign in the paragraph
+    (_quote_follows), no dot, closing parenthesis, tag or character reference in the word
+    before its token (_local_part_continues_before), and no other @ sign in the paragraph
     (_allowed_spans). The rule and why: see "Git remote forms" in the module docstring."""
     paragraph = line + "\n" + following if following else line
     return [paragraph[start:end] for start, end in _allowed_spans(engine, paragraph)
