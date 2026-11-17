@@ -614,8 +614,9 @@ def invokes_merge_tool(cmd: str) -> bool:
     complete (3b108 QA r1), so this over-gates by intent. THREAT MODEL, stated: a speed bump for an
     honest actor's slip, not an adversarial control; a deliberately obfuscated command (a glob such as
     gree[n] or gree*, a variable holding part of the name, code run through python -c) can still evade,
-    and merge-when-green.py enforces the open-findings decision itself on every merge. after dropping quotes and backslash-newline
-    continuations, any mention of merge-when-green gates, except a single simple command (one line,
+    and merge-when-green.py enforces the open-findings decision itself on every merge. After dropping
+    each backslash-newline continuation and then every single quote, double quote, backtick and
+    backslash, any mention of merge-when-green gates, except a single simple command (one line,
     no shell operator, no substitution) that passes --dry-run or --self-test. A read of the file is
     gated too; that costs little, since this hook blocks only while its blocking state holds, and
     merge-when-green.py enforces the open-findings check itself on every merge."""
