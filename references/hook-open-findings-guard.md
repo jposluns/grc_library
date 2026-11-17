@@ -124,14 +124,26 @@ python3 -I tools/open-findings-row.py --set-disposition --id ID [--ledger PATH] 
 - **Refusals (exit 1), row-adding modes** (`--set-disposition` has its own, below). A row this hook would parse as malformed; a severity outside `error`,
   `warning` and `note`; an `error` or `warning` disposition that fails the grammar (for example
   `FIXED (d44d9b2b)`, `ROUTED pending-decisions` or `FIXED d44d9b2b`); a `FIXED` class row without a
-  valid clause; more than one clause on any row; a duplicate or mismatched id; a missing or ambiguous
+  valid clause; more than one clause on any row; `repository-tag-unclassifiable`, a `[repo: ...]` tag
+  that the shared rule, `row_repository` in `tools/ledger_repository_scope.py`, reads as bad: two tags,
+  a tag that is not the Disposition cell's final token, a final tag after an unclosed `[` or a stray
+  `]` (one with no `[` open) before the tag (a closed class span is skipped as a unit, so brackets
+  inside it do not count; for example `FIXED #1 [class: "a [repo: grc_library_new]`,
+  `FIXED #1 [class-exempt: bogus [repo: grc_library_new]` or `ROUTED see a] [repo: grc_library]`),
+  a value other than `grc_library` or
+  `grc_library_new`, or a successor tag whose Found cell is not exactly one ISO date on or after the
+  successor's first day (the class-attestation check fails closed on the same rows); a duplicate or
+  mismatched id; a missing or ambiguous
   anchor; and any splice this hook would read as anything other than the earlier rows plus the new one.
   The new row must have a valid ISO Found date (`YYYY-MM-DD`), or `found-not-iso` refuses it.
   Note dispositions are not grammar-checked, as here, but their columns and clause count are.
   Refusing an unattested `FIXED` class row is deliberately stricter than the merge guard warning,
-  matching the D14 pre-push check for this repository's rows. D14 skips a row tagged as the
-  successor repository's (a final `[repo: grc_library_new]` token in the Disposition cell, Found
-  on or after 2026-11-08), while this refusal reads no repository tag and still covers that row.
+  matching the D14 pre-push check for this repository's rows. D14 skips a row the shared rule reads
+  as the successor repository's (a final `[repo: grc_library_new]` token in the Disposition cell,
+  Found on or after 2026-11-08), and so does this refusal: such a row is not refused for a missing
+  or invalid class clause, while its clause count is still checked. The `repository-tag-unclassifiable`
+  refusal applies on `--append` and `--set-disposition`, and on `--after`, which runs the same row
+  checks.
 - **`--open`.** Records an `error` or `warning` row with an empty disposition. Without the flag such a
   row is refused. With it, an empty error row makes the merge guard block the merge while an empty warning row is
   surfaced without blocking. Either row must not land in `## Closed today`, which this hook does not scan.

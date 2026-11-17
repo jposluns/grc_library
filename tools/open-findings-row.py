@@ -30,7 +30,9 @@ leading the Finding cell of any row the guard reads in `## Open` or `## Closed t
 unfenced finding-row-shaped line (the hook's MISFILED_ROW_RE) outside them, which covers the dated
 archive below `## Closed today` and a mis-filed row above it. CONSEQUENCE, stated: the hook reads the
 same leading token as a CLASS token (P-1.67), so a FIXED row owes a `[class: "<token>" @ <count>]` or
-`[class-exempt: <reason>]` clause, and this tool refuses one without it, as D14 does.
+`[class-exempt: <reason>]` clause, and this tool refuses one without it, as D14 does. D14 skips a row
+the shared repository-tag rule reads as the successor's (see repository-tag-unclassifiable below), so
+this tool does not refuse such a row for a missing or invalid clause either; class-multi still applies.
 
 PLACEMENT.
   --after ANCHOR_ID  after the one row the guard reads in `## Open` or `## Closed today` whose Finding
@@ -54,7 +56,7 @@ unescaped pipe, written as one space and the cell, then the row's own trailing w
 space added (the guard's str.strip would drop it, so both shapes read the same). Every other line,
 the other cells, the line ends and the final line end are kept byte for byte. The changed row is
 then held to the same checks as a new row: check_row (columns, Found date, severity, disposition
-grammar, class clauses, the id), the splice re-parse (the guard must read the same rows with only
+grammar, class clauses, the repository tag, the id), the splice re-parse (the guard must read the same rows with only
 this row's disposition changed, and the mis-filed list must not change), the merge guard's
 decide_exit before and after, and the report-only class count over this checkout's git-tracked
 set. Its refusals (exit 1) are the stdin ones listed under REFUSALS below (not-utf8, multiline,
@@ -78,8 +80,18 @@ comparison, so a FIXED row can be set back to ROUTED.
 REFUSALS (exit 1). not-utf8, multiline, bad-line-char (a CR or another character str.splitlines
 treats as a line break), malformed-columns, severity-unknown, disposition-invalid, disposition-empty
 (an error or warning row with an empty disposition; --open admits it: an empty error row
-makes the merge guard block the merge, while an empty warning row is surfaced without blocking), class-unattested, class-bad-exempt, class-multi (on any row: one clause
-per row), found-not-iso, id-invalid, id-not-in-row, duplicate-id, anchor-not-found, anchor-ambiguous,
+makes the merge guard block the merge, while an empty warning row is surfaced without blocking), class-unattested
+and class-bad-exempt (neither on a row the shared rule reads as the successor's), class-multi (on any row: one clause
+per row), repository-tag-unclassifiable (a `[repo: ...]` tag that the shared rule,
+row_repository in tools/ledger_repository_scope.py, reads as bad: two tags, a tag that is not the
+Disposition cell's final token, a final tag after an unclosed `[` or a stray `]`
+(one with no `[` open) before the tag (a closed class span is skipped as a unit, so brackets inside it
+do not count; `FIXED #1 [class: "a [repo: grc_library_new]`,
+`FIXED #1 [class-exempt: bogus [repo: grc_library_new]` and `ROUTED see a] [repo: grc_library]`
+are refused), a value other than grc_library or grc_library_new, or a successor tag whose Found cell
+is not exactly one ISO date on or after the successor's first day; a tag inside a `[class: ...]`
+span is ignored, and a tag inside a `[class-exempt: ...]` clause is not; the class-attestation
+check fails closed on the same rows), found-not-iso, id-invalid, id-not-in-row, duplicate-id, anchor-not-found, anchor-ambiguous,
 no-dated-open-row, open-row-in-closed (an --open row may not land in `## Closed today`, which the guard
 does not scan), splice-mismatch, misfiled-grew, merge-guard-regressed. A block the ledger already has
 is reported, not refused, so dispositioning stays possible. A note row's disposition is not
@@ -232,6 +244,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lint_common import REPO_ROOT, resolve_working  # noqa: E402
+from ledger_repository_scope import row_repository  # noqa: E402  # the shared repository-tag rule
 
 HOOK_REL = Path(".claude") / "hooks" / "block-on-open-findings.py"
 MATCHER_REL = Path("tools") / "check-class-completeness.py"
@@ -436,6 +449,11 @@ def check_row(hook, row: str, finding_id: str, *, allow_open: bool) -> tuple[lis
             codes.append("disposition-invalid")
         elif not allow_open:
             codes.append("disposition-empty")
+    # The shared repository-tag rule (ledger_repository_scope.row_repository), read once: the
+    # class-attestation check fails closed on a 'bad' row and skips a 'foreign' (successor) row before
+    # its attestation test, so this tool refuses the first and does not hold the second to the
+    # attestation either.
+    scope = row_repository(found, disp, hook)
     state = hook.class_attestation_state(disp)
     class_spans = [m.span() for m in hook.CLASS_ATTEST_RE.finditer(disp)]
     exempt_count = sum(
@@ -444,8 +462,12 @@ def check_row(hook, row: str, finding_id: str, *, allow_open: bool) -> tuple[lis
     )
     if state == "multi" or len(class_spans) + exempt_count > 1:
         codes.append("class-multi")
-    elif hook.fixed_class_rows_unattested([(sev, finding, disp)]):
+    elif scope != "foreign" and hook.fixed_class_rows_unattested([(sev, finding, disp)]):
         codes.append("class-bad-exempt" if state == "bad-exempt" else "class-unattested")
+    # The same reading the class-attestation check fails closed on, so this tool never writes a row
+    # that check refuses.
+    if scope == "bad":
+        codes.append("repository-tag-unclassifiable")
     if hook.leading_class_token("[" + finding_id + "]") != finding_id:
         codes.append("id-invalid")
     elif hook.leading_class_token(finding) != finding_id:
