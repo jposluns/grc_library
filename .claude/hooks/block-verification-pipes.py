@@ -761,7 +761,8 @@ def emitter_is_plain(raw):
     continuation split apart is a real opener. An ALLOW-LIST: only literal
     text, single- and double-quoted literals, simple $name / ${name}
     parameter references and braced all-digit ${N} references, where N is
-    any [0-9]+ string (the special ${0}, ${01} and ${10} included), may
+    any [0-9]+ string (the special parameter ${0}, a leading-zero ${01} and
+    a positional ${10} included), may
     appear. Anything that can run code or transform
     disqualifies the stage: a $( command or arithmetic substitution, a $[
     arithmetic substitution, a backquote substitution, a bash-5.3 ${ cmd; }
