@@ -12,8 +12,9 @@ per-iteration rows record every sweep a session runs. A row qualifies as a resum
 first cell parses as a date on or after the session's start date and the row mentions both "resume"
 and "validate" (case-insensitive).
 
-WHAT IT BLOCKS. `gh pr create` and `gh pr merge`, and any command that mentions tools/merge-when-green.py
-other than a simple direct --dry-run or --self-test (3b108; see invokes_merge_tool), when no qualifying
+WHAT IT BLOCKS. `gh pr create` and `gh pr merge`, and any command that mentions merge-when-green
+(after quotes, backticks and backslashes are dropped) other than a single simple direct --dry-run or
+--self-test command (3b108; see invokes_merge_tool), when no qualifying
 row exists for the session. Once
 the row exists the hook passes for the rest of the session. ALL `gh pr create`/`merge` are gated
 regardless of `--repo` (the orchestrator opens PRs only against this library; over-gating a
@@ -188,11 +189,20 @@ def invokes_merge_tool(cmd: str) -> bool:
     complete (3b108 QA r1), so this over-gates by intent. THREAT MODEL, stated: a speed bump for an
     honest actor's slip, not an adversarial control; a deliberately obfuscated command (a glob such as
     gree[n] or gree*, a variable holding part of the name, code run through python -c) can still evade,
-    and merge-when-green.py enforces the open-findings decision itself on every merge. after dropping quotes and backslash-newline
-    continuations, any mention of merge-when-green gates, except a single simple command (one line,
-    no shell operator, no substitution) that passes --dry-run or --self-test. A read of the file is
-    gated too; that costs little, since this hook blocks only while its blocking state holds, and
-    merge-when-green.py enforces the open-findings check itself on every merge."""
+    and merge-when-green.py does not apply this hook's resume /validate check, so this hook's residue
+    has no backstop there. After dropping
+    each backslash-newline continuation and then every single quote, double quote, backtick and
+    backslash, any mention of merge-when-green gates, except a single simple direct command that passes
+    --dry-run or --self-test. Simple: the command as written is one line holding none of ; & | ` $( < >
+    backslash or #, so command substitution is refused; this character check alone lets a plain
+    variable such as $FOO through, and the direct check still applies. Direct: in the shlex words, the
+    first is merge-when-green.py (by basename), or the first word's basename starts with python and
+    only two-character options other than -m and -c stand between it and merge-when-green.py, and
+    --dry-run or --self-test is a word after the tool. So env python3 ..., timeout 60 python3 ...,
+    $PY ..., python3 -X dev ..., a --dry-run or --self-test placed before the tool and a command shlex
+    cannot split all gate. A read of the file is gated too; that costs little, since this hook blocks
+    only while its blocking state holds, and merge-when-green.py does not apply this hook's check, so
+    a merge this hook misses has no backstop there."""
     if not isinstance(cmd, str):
         return False
     norm = cmd.replace("\\\n", "")
@@ -200,9 +210,9 @@ def invokes_merge_tool(cmd: str) -> bool:
         norm = norm.replace(q, "")
     if "merge-when-green" not in norm:
         return False
-    # The exemption needs the flag among the tool's OWN arguments in a direct invocation (the tool, or a
-    # python interpreter with single-letter options, then the tool): a comment, a `bash -c ... --dry-run`
-    # ($0 of the inner shell) or any other placement gates (3b108 QA r2).
+    # The exemption needs the flag among the tool's OWN arguments in a direct invocation (the tool first,
+    # or a python interpreter with only two-character options other than -m and -c, then the tool): a
+    # comment, a `bash -c ... --dry-run` ($0 of the inner shell) or any other placement gates (3b108 QA r2).
     simple = "\n" not in cmd.strip() and not any(op in cmd for op in (";", "&", "|", "`", "$(", "<", ">", "\\", "#"))
     if simple:
         try:
@@ -221,13 +231,16 @@ def invokes_merge_tool(cmd: str) -> bool:
 
 def is_blocking_command(cmd: str) -> bool:
     """PURE. Does this command open or merge a PR? Deliberately robust (over-gating is the safe
-    direction; the costly error is a MISSED create/merge). Two complementary detectors, OR'd:
+    direction; the costly error is a MISSED create/merge). Three complementary detectors, OR'd:
 
       (1) SUBSTRING on the whitespace-flattened command -- catches operator-glued / semicolon-chained
           / unbalanced-quote forms (`gh pr create&&echo`, `gh pr merge;x`, `gh pr create # '`).
       (2) ORDERED TOKEN SUBSEQUENCE `gh` -> `pr` -> `create`|`merge` over shlex tokens -- catches
           quoted subcommands (`gh "pr" create`, `gh pr 'create'`) and interleaved flags
           (`gh -R x pr create`), which the substring misses because the quotes or flags break the literal text; shlex removes the quotes.
+      (3) MERGE TOOL (invokes_merge_tool, checked first): any mention of merge-when-green other than a
+          single simple direct --dry-run or --self-test command, because that tool runs `gh pr merge`
+          as a subprocess that neither gh detector sees.
 
     Token parsing uses `punctuation_chars=True`, so operator-glued verbs (`create&&echo`) split to a
     bare `create` token and are caught even when combined with interleaved flags.
