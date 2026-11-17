@@ -616,11 +616,16 @@ def invokes_merge_tool(cmd: str) -> bool:
     gree[n] or gree*, a variable holding part of the name, code run through python -c) can still evade,
     and merge-when-green.py enforces the open-findings decision itself on every merge. After dropping
     each backslash-newline continuation and then every single quote, double quote, backtick and
-    backslash, any mention of merge-when-green gates, except a single simple command (one line holding
-    none of ; & | ` $( < > backslash or #, so command substitution is refused but a plain variable such
-    as $FOO is allowed) that passes --dry-run or --self-test. A read of the file is
-    gated too; that costs little, since this hook blocks only while its blocking state holds, and
-    merge-when-green.py enforces the open-findings check itself on every merge."""
+    backslash, any mention of merge-when-green gates, except a single simple direct command that passes
+    --dry-run or --self-test. Simple: the command as written is one line holding none of ; & | ` $( < >
+    backslash or #, so command substitution is refused; this character check alone lets a plain
+    variable such as $FOO through, and the direct check still applies. Direct: in the shlex words, the
+    first is merge-when-green.py (by basename), or the first word's basename starts with python and
+    only two-character options other than -m and -c stand between it and merge-when-green.py, and
+    --dry-run or --self-test is a word after the tool. So env python3 ..., timeout 60 python3 ...,
+    $PY ..., python3 -X dev ..., a flag before the tool and a command shlex cannot split all gate. A
+    read of the file is gated too; that costs little, since this hook blocks only while its blocking
+    state holds, and merge-when-green.py enforces the open-findings check itself on every merge."""
     if not isinstance(cmd, str):
         return False
     norm = cmd.replace("\\\n", "")
