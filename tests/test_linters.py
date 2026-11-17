@@ -76940,13 +76940,14 @@ class BlockVerificationPipesTests(unittest.TestCase):
             for c in funsub:
                 self.assertFalse(self.hook.command_is_blocked(c))
 
-    def test_braced_positional_emitter_reads_like_bare(self):
-        # A braced positional parameter in a plain echo or printf emitter
+    def test_status_read_after_all_digit_braced_emitter_allowed_as_after_bare_and_named(self):
+        # An all-digit braced parameter ${N} (a positional such as ${1} or
+        # ${10}, or the special ${0}) in a plain echo or printf emitter
         # only emits data, as the bare $1 and the braced ${name} do, so the
         # $? read after it is the consumer's status and masks nothing. Each
-        # braced positional row below, single- and multi-digit, double-quoted
-        # and unquoted, was refused as pipeline-status before ${N} was read
-        # like $N; every bare and named row was allowed already.
+        # all-digit braced row below, single- and multi-digit, double-quoted
+        # and unquoted, was refused as pipeline-status before ${N} was
+        # allowed; every bare and named row was allowed already.
         forms = ('$1', '${1}', '$9', '${9}', '${10}', '${123}', '$0', '${0}',
                  '$x', '${x}', '$name_2', '${name_2}')
         rows = []
@@ -77377,9 +77378,9 @@ class BlockVerificationPipesTests(unittest.TestCase):
         # literal text (such as .txt), other operator/operand structures,
         # or all ways of crossing a shell quote boundary.
         # Left out on purpose:
-        #   - ${x} and ${1}, the forms the allow-list takes (the braced
-        #     positional is data like $1; see
-        #     test_braced_positional_emitter_reads_like_bare);
+        #   - ${x} and ${1}, the forms the allow-list takes (an all-digit
+        #     braced ${N} is data like $N; see
+        #     test_status_read_after_all_digit_braced_emitter_allowed_as_after_bare_and_named);
         #   - ${!@} and ${!*}, with or without an operator: they read as
         #     ${!prefix@} and ${!prefix*} with an empty prefix as well as
         #     an indirection (3653, 3789-3791), and the section does not
