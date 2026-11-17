@@ -54,7 +54,7 @@ the terminal word; evidence and rationale remain author judgement.
    `gh pr view 1 && git merge x` are gated; this is text matching, not a shell model, so a command run
    through another shell or `eval`, fed on stdin or through a heredoc, built from a variable or an alias,
    quoted in a way shlex reads differently from bash, or split by a mix of continuations bash joins and
-   does not, can evade when the hook does not see `gh`, `pr` and the verb as one command's words; 3b112), or a command that mentions `tools/merge-when-green.py` other than as a single simple direct
+   does not, can evade when the hook does not see `gh`, `pr` and the verb as one command's words; 3b112), or a command that mentions `merge-when-green` other than as a single simple direct
    `--dry-run` or `--self-test` command (over-gated by intent, since shell parsing cannot find every
    way to run it; `merge-when-green.py` also applies this guard's decision itself; the text match is a speed bump for an
    honest actor's slip, not an adversarial control, so a deliberately obfuscated command can still evade it; 3b108), because shipping past a known wrong behaviour is the thing worth
@@ -68,8 +68,8 @@ the terminal word; evidence and rationale remain author judgement.
    the first is `merge-when-green.py` (at any path), or the first word's base name starts with
    `python` and only two-character options other than `-m` and `-c` stand between it and
    `merge-when-green.py`, and `--dry-run` or `--self-test` is a word after the tool. So
-   `env python3 ...`, `timeout 60 python3 ...`, `$PY ...`, `python3 -X dev ...`, a flag placed
-   before the tool and a command shlex cannot split all gate.
+   `env python3 ...`, `timeout 60 python3 ...`, `$PY ...`, `python3 -X dev ...`, a `--dry-run`
+   or `--self-test` placed before the tool and a command shlex cannot split all gate.
    A `warning` does NOT block a PR (an in-flight change should finish rather than be
    abandoned half-landed) and is surfaced instead. Notes never block.
 2. **Mis-filed finding-row (second condition, P-1.70, 2026-09-10).** A row carrying the finding-row

@@ -623,9 +623,10 @@ def invokes_merge_tool(cmd: str) -> bool:
     first is merge-when-green.py (by basename), or the first word's basename starts with python and
     only two-character options other than -m and -c stand between it and merge-when-green.py, and
     --dry-run or --self-test is a word after the tool. So env python3 ..., timeout 60 python3 ...,
-    $PY ..., python3 -X dev ..., a flag before the tool and a command shlex cannot split all gate. A
-    read of the file is gated too; that costs little, since this hook blocks only while its blocking
-    state holds, and merge-when-green.py enforces the open-findings check itself on every merge."""
+    $PY ..., python3 -X dev ..., a --dry-run or --self-test placed before the tool and a command shlex
+    cannot split all gate. A read of the file is gated too; that costs little, since this hook blocks
+    only while its blocking state holds, and merge-when-green.py enforces the open-findings check
+    itself on every merge."""
     if not isinstance(cmd, str):
         return False
     norm = cmd.replace("\\\n", "")
