@@ -76940,6 +76940,51 @@ class BlockVerificationPipesTests(unittest.TestCase):
             for c in funsub:
                 self.assertFalse(self.hook.command_is_blocked(c))
 
+    def test_braced_positional_emitter_reads_like_bare(self):
+        # A braced positional parameter in a plain echo or printf emitter
+        # only emits data, as the bare $1 and the braced ${name} do, so the
+        # $? read after it is the consumer's status and masks nothing. Each
+        # braced positional row below, single- and multi-digit, double-quoted
+        # and unquoted, was refused as pipeline-status before ${N} was read
+        # like $N; every bare and named row was allowed already.
+        forms = ('$1', '${1}', '$9', '${9}', '${10}', '${123}', '$0', '${0}',
+                 '$x', '${x}', '$name_2', '${name_2}')
+        rows = []
+        for form in forms:
+            rows += [
+                'echo "' + form + '" | tail -1; echo $?',
+                'echo ' + form + ' | tail -1; echo $?',
+                "printf '%s\\n' \"" + form + '" | head -1; echo rc=$?',
+                "printf '%s' " + form + ' | cut -c1-160; echo rc=$?',
+            ]
+        rows += [
+            'echo "${1}" | head -1; echo rc=$?',
+            "printf '%s' ${1} | tail -1; echo rc=$?",
+            'echo "${1} and ${10} of ${name}" | tail -1; echo $?',
+            'printf \'%s %s\' ${1} "$2" | head -1; rc=$?',
+        ]
+        self.check(rows, False)
+        for row in rows:
+            with self.subTest(command=row):
+                self.assertIsNone(self.hook.shell_violation(row))
+        # Boundaries that keep refusing: an operator or transformation after
+        # a positional, a substitution beside it, a brace substitution, a
+        # non-emitter first stage and a third stage.
+        refused = [
+            'echo "${1:-$(false)}" | tail -1; echo $?',
+            'echo "${1@P}" | tail -1; echo $?',
+            'echo "${1}$(false)" | tail -1; echo $?',
+            'echo ${10}`false` | tail -1; echo $?',
+            'echo "${ 1; }" | tail -1; echo $?',
+            'cat "${1}" | tail -1; echo $?',
+            'echo "${1}" | cat | tail -1; echo $?',
+        ]
+        self.check(refused, True)
+        for row in refused:
+            with self.subTest(command=row):
+                self.assertEqual(self.hook.shell_violation(row)[0],
+                                 'pipeline-status')
+
     def _emitter_mutant(self, old, new):
         # An in-memory copy of the hook with one exact edit of whole code
         # lines (never comment text); the hook file and self.hook are never
@@ -77008,7 +77053,8 @@ class BlockVerificationPipesTests(unittest.TestCase):
                 if parameter in ('arr[@]', 'arr[*]'):
                     return family == 'none'
                 return family != 'names' or parameter == 'x'
-            return family != 'names' and (parameter, family) != ('x', 'none')
+            return family != 'names' and not (
+                family == 'none' and parameter in ('x', '1'))
 
         expansions = []
         for prefix in ('', '!', '#'):
@@ -77331,7 +77377,9 @@ class BlockVerificationPipesTests(unittest.TestCase):
         # literal text (such as .txt), other operator/operand structures,
         # or all ways of crossing a shell quote boundary.
         # Left out on purpose:
-        #   - ${x}, the one form the allow-list takes;
+        #   - ${x} and ${1}, the forms the allow-list takes (the braced
+        #     positional is data like $1; see
+        #     test_braced_positional_emitter_reads_like_bare);
         #   - ${!@} and ${!*}, with or without an operator: they read as
         #     ${!prefix@} and ${!prefix*} with an empty prefix as well as
         #     an indirection (3653, 3789-3791), and the section does not

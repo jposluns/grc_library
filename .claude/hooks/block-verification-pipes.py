@@ -777,6 +777,8 @@ def emitter_is_plain(raw):
             return True, i + 1  # $( command, $(( or $[ arithmetic substitution
         if nxt == "{":
             m = re.match(r"\$\{[A-Za-z_][A-Za-z0-9_]*\}", joined[i:])
+            if not m:  # a braced positional ${1} or ${10} is data like $1
+                m = re.match(r"\$\{[0-9]+\}", joined[i:])
             if not m:
                 return True, i + 1  # ${ cmd; }, ${| cmd; } or ${name OP ...}
             return False, i + m.end()  # a simple ${name} only emits data
