@@ -58618,8 +58618,9 @@ class TodoNumberPermanenceTests(LinterTestCase):
         """The default run skips P-TODO.md for an absent private sibling AND for a usable sibling
         with no P-TODO.md in it. The skip line and the DEGRADED notice each name the case that
         applies, so the second never reads as "no private sibling". An explicit --root run whose
-        directory lacks P-TODO.md names that directory and prints no DEGRADED notice, since the
-        caller chose the root and no default lookup was degraded. Exit status is 0 in all three."""
+        directory lacks P-TODO.md prints the fixed phrase "not in the --root directory" (not the
+        directory's path) and no DEGRADED notice, since the caller chose the root and no default
+        lookup was degraded. Exit status is 0 in all three."""
         import contextlib
         root = Path(tempfile.mkdtemp(prefix="perm-skip-reason-", dir=FIXTURE_DIR))
         try:
@@ -58701,10 +58702,11 @@ class TodoNumberPermanenceTests(LinterTestCase):
         # Negative control: 'P-1.51b-ii' (a sub-slice label) must NOT extract the
         # parent 'P-1.51', so a live P-1.51 coexisting with a P-1.51b-ii DONE
         # heading is clean (the historic coexistence state).
+        done = "# DONE\n\n### PR #1789: P-1.51b-ii sensitive slice (2026-08-29)\n\nBody.\n"
         root, result = self._run(
             "perm-pid-compound",
             "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n",
-            "# DONE\n\n### PR #1789: P-1.51b-ii sensitive slice (2026-08-29)\n\nBody.\n",
+            done,
             ptodo="# P-TODO\n\n### P-1.51 A live umbrella\n\nBody.\n",
         )
         try:
@@ -58714,6 +58716,12 @@ class TodoNumberPermanenceTests(LinterTestCase):
             self.assertNotIn("OK: P-TODO.md not present (", result.stdout)
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
+        # The parse itself: the compound token yields no P-id at all, neither the parent
+        # P-1.51 nor a truncated prefix such as P-1.51b. A clean exit alone cannot show
+        # this, since a truncated P-1.51b differs from the live P-1.51 and is not flagged.
+        retired = self._perm_module().parse_retired(done)
+        self.assertNotIn("P-1.51", retired)
+        self.assertEqual(sorted(k for k in retired if k.startswith("P-")), [], retired)
 
     def test_pid_destination_cue_not_retired(self) -> None:
         # A P-id preceded by a destination cue ('absorbed into P-1.55') names a
