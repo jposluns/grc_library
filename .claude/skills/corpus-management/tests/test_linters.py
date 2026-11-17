@@ -58617,7 +58617,9 @@ class TodoNumberPermanenceTests(LinterTestCase):
     def test_skip_and_degraded_name_which_absence(self) -> None:
         """The default run skips P-TODO.md for an absent private sibling AND for a usable sibling
         with no P-TODO.md in it. The skip line and the DEGRADED notice each name the case that
-        applies, so the second never reads as "no private sibling". Exit status is 0 in both."""
+        applies, so the second never reads as "no private sibling". An explicit --root run whose
+        directory lacks P-TODO.md names that directory and prints no DEGRADED notice, since the
+        caller chose the root and no default lookup was degraded. Exit status is 0 in all three."""
         import contextlib
         root = Path(tempfile.mkdtemp(prefix="perm-skip-reason-", dir=FIXTURE_DIR))
         try:
@@ -58655,6 +58657,18 @@ class TodoNumberPermanenceTests(LinterTestCase):
                 self.assertEqual(len(notice), 1, out)
                 self.assertIn(degraded, notice[0])
                 self.assertNotIn(wrong, out)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+        root, result = self._run("perm-skip-reason-root",
+                                 "# TODO\n\n## Priority 2\n\n### 2.3 A public item\n\nBody.\n",
+                                 "# DONE\n")
+        try:
+            both = result.stdout + result.stderr
+            self.assertEqual(result.returncode, 0, both)
+            self.assertIn("OK: P-TODO.md not present (not in the --root directory). "
+                          "Scanning .working/TODO.md only.", result.stdout.splitlines())
+            self.assertNotIn("DEGRADED:", both)
+            self.assertNotIn("no private sibling", both)
         finally:
             shutil.rmtree(root, ignore_errors=True)
 
