@@ -116,9 +116,10 @@ def validate_attest_token(token: str) -> str | None:
     quote) cannot be carried; the author picks a different distinctive token rather
     than the tool inventing an escaping scheme two parsers must agree on. Every trailing
     backslash run is refused, an even run included, by design: an even run leaves the
-    closing quote unescaped only for a reader that treats backslash as an escape, so
-    refusing every trailing run keeps the end of the token independent of how any
-    consumer reads backslashes."""
+    closing quote unescaped for every reader, but a reader that treats backslash as an
+    escape takes half as many backslashes into the token as one that does not (and an
+    odd run escapes the closing quote for that reader alone), so refusing every trailing
+    run keeps the end of the token independent of how any consumer reads backslashes."""
     if not token.strip():
         return "empty token"
     if '"' in token:

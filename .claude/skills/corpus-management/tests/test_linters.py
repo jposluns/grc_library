@@ -43381,7 +43381,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-length-on-pr.py NO_FS F 91c9308103f36414f1975e2233cd82644551ca4a3996c4a2b9310b437004434a
         check-changelog-on-pr.py NO_FS F 00fa478d33343ae5d955e3faa7f99d9c61c6cda6f7a5e414dfcaf6ec6f7bf25b
         check-changelog-preflight-commit.py NO_FS F 9ec0a028e7e916fdfa542f6688b909b08a1c69fe66b3a7cb82d979689885f978
-        check-class-completeness.py NO_FS F 7106c760a62cca34fbb1decad46883dd761121328a6acea0fc6761cef5177c42
+        check-class-completeness.py NO_FS F afaa2c8b27a5906c9ee65261769e9acea1cb6c8cc6104d745fe4cc2d1c490033
         check-claude-md-size.py NO_FS F 5f0c8e37d4a1b36a6be924354a6cdfca69a4ba5498e77cee52012ccefc99764b
         check-clause-preservation.py OWN F 96d156bb17eb92ea45d096dae64345313ba8962de62b38a413a988aa7f8c8737
         check-clean-language-upstream.py NO_FS F 68e539ea645383d29ec9ded3cb44012af2afcfc78f820c172070a8c492665159
@@ -43486,7 +43486,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-todo-index-reference-parity.py OWN F 46ffb499a50fa6b5d64ac594776e5a26ad4e3c696fc48d8b5e4fc8b4646a2b22
         lint-todo-list-tag.py OWN F 10ee5371268378b28c9097a588515231d625ab63b5e5b1b9f3533f4d85db9b2d
         lint-todo-marked-done.py ROOT F 9d5f28f83917e26a4cd0bffde756fded4a2bf4259b809472bc1757a6dbc1b212
-        lint-todo-number-permanence.py OWN F fd8d8138cad756fdeef8ce0e7dbe5eeeaee8f4c886fd517861572b4a7cd429e0
+        lint-todo-number-permanence.py OWN F aca35e56bd4afc369ba273a09b7868831ad65bbcd88e6a57ea1552e6f4cf25a7
         lint-todo-staleness.py NO_FS F 6a89123607678239f036cab7bf02e0a0885216f55ba0b23fb53799e30c40cffb
         lint-tooling-backlog-refs.py OWN F be54fcdef171bc30e7d0393ca2c097904f464cad7bde9a233f7ee663edd741a5
         lint-tooling-provenance-freshness.py OWN F ab5b885be8a4a7af28e6c441ea4439cc32ce553a6167946ec40d49f50f0f6b02
@@ -58515,6 +58515,21 @@ class TodoNumberPermanenceTests(LinterTestCase):
                              f"counter above floor wrongly flagged.\n{result2.stdout}\n{result2.stderr}")
         finally:
             shutil.rmtree(root2, ignore_errors=True)
+
+    def test_floor_entry_in_stale_counter_report_has_no_section_marker(self) -> None:
+        """A counter blocked only by the public floor names the floor entry as
+        "floor 2.32", not "\u00a7floor 2.32": the section marker belongs before an
+        item id, and the floor entry is a placeholder for the highest ordinal
+        ever allocated, not an id."""
+        root, result = self._run(
+            "perm-floor-marker",
+            "# TODO\n\n## Priority 2\n\n**Next item number: 2.32.**\n",
+            "# DONE\n", floor={"2": 32})
+        try:
+            self.assertLinterFails(result, "but floor 2.32 already exist(s)")
+            self.assertNotIn("\u00a7floor", result.stdout)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
 
     def test_recycled_number_flagged(self) -> None:
         # the recycle defect shape: a live item wearing a number DONE.md retired

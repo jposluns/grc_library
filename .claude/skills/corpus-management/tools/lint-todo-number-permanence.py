@@ -1111,7 +1111,7 @@ def main(argv: list[str]) -> int:
         for section, raw, lineno, highest, names in stale:
             print(
                 f"  .working/TODO.md:{lineno}: section {section} counter is '{raw}' but "
-                f"{', '.join(('' if n.startswith('P-') else '§') + n for n in names)} already exist(s) "
+                f"{', '.join(('' if n.startswith(('P-', 'floor ')) else '§') + n for n in names)} already exist(s) "
                 f"(highest used ordinal {highest}); advance it past {highest}"
             )
 
