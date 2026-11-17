@@ -35,7 +35,8 @@ shell tokens have `gh`, then `pr`, then `create` or `merge`, with no fresh `gh` 
 `gh pr 'merge'` is caught, and `echo "gh pr merge"` and `gh pr view 1 && git merge x` are gated; text
 matching, not a shell model, so the class the is_blocking_command docstring states (another shell or eval,
 stdin or a heredoc, a variable or alias, shlex-vs-bash quoting, mixed continuations) can evade when the hook does not see gh, pr and the verb as one command's words; 3b112), or any command
-that mentions tools/merge-when-green.py other than a simple direct --dry-run or --self-test (3b108;
+that mentions merge-when-green (after quotes, backticks and backslashes are dropped) other than a
+single simple direct --dry-run or --self-test command (3b108;
 see invokes_merge_tool), because
 shipping past a known wrong behaviour is the thing worth preventing. A `warning` does not block a PR
 (an in-flight change should finish rather than be abandoned half-landed) and is surfaced instead.
@@ -634,9 +635,9 @@ def invokes_merge_tool(cmd: str) -> bool:
         norm = norm.replace(q, "")
     if "merge-when-green" not in norm:
         return False
-    # The exemption needs the flag among the tool's OWN arguments in a direct invocation (the tool, or a
-    # python interpreter with single-letter options, then the tool): a comment, a `bash -c ... --dry-run`
-    # ($0 of the inner shell) or any other placement gates (3b108 QA r2).
+    # The exemption needs the flag among the tool's OWN arguments in a direct invocation (the tool first,
+    # or a python interpreter with only two-character options other than -m and -c, then the tool): a
+    # comment, a `bash -c ... --dry-run` ($0 of the inner shell) or any other placement gates (3b108 QA r2).
     simple = "\n" not in cmd.strip() and not any(op in cmd for op in (";", "&", "|", "`", "$(", "<", ">", "\\", "#"))
     if simple:
         try:
@@ -660,8 +661,8 @@ def is_blocking_command(cmd: str) -> bool:
           (operator-glued and unbalanced-quote forms);
       (2) the ordered shlex token subsequence `gh` (bare or a path ending /gh), `pr`, `create` or
           `merge` (quoted subcommands such as gh "pr" merge or gh pr 'merge', and interleaved flags);
-      (3) a mention of tools/merge-when-green.py other than a simple direct --dry-run or --self-test
-          (3b108; see invokes_merge_tool).
+      (3) any mention of merge-when-green (after quotes, backticks and backslashes are dropped) other
+          than a single simple direct --dry-run or --self-test command (3b108; see invokes_merge_tool).
     The token match allows any tokens or operators between gh, pr and the verb, and a fresh gh resets
     it, so `gh pr view 12 && git merge main` and `echo "gh pr merge"` are gated (over-gating is the safe
     direction). The gh detectors run on the text as written AND with backslash-newlines joined, and
