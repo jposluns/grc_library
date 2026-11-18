@@ -5,7 +5,8 @@ The operational store's open-findings ledger is shared with the successor reposi
 that owns the row; no clause means this repository. ``row_repository`` is the only reading of
 that clause. tools/check-class-attestation-on-pr.py uses it to skip the successor's rows and to
 fail closed on an unclassifiable tag, and tools/open-findings-row.py uses it to refuse writing a
-row that the check would fail, so the writer and the check cannot disagree.
+row that the check would fail closed on as an unclassifiable repository tag, so the writer and
+the check cannot disagree on a row's repository.
 
 THE RULE. A `[repo: ...]` clause inside a `[class: "<token>" @ n]` span is part of the
 declared token and is ignored. A clause inside a `[class-exempt: ...]` clause is not ignored: it

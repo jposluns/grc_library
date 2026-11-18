@@ -45636,7 +45636,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         iso27001_reference.py PASSIVE F 01119eacf328d0bfe36ae40f9800a6c7fe37ef895bca70b219341ac07aec53e3
         iso_27001_reference.py PASSIVE F e8789346ac57b557de2f5c93c7fc2b31651b49be25bc8180e8bdc84310b21418
         lease_id.py PASSIVE F 30cae58af0f3e1667913689fe3f22b0b470f892025af76f2e9a5f1a00d2e0f72
-        ledger_repository_scope.py PASSIVE F 9b21bdc6db489d854c671459e5cc4525c814e9dcd95b01e2382f057b17aaefa6
+        ledger_repository_scope.py PASSIVE F 1e1a4349e39eeed184ca8450be13a68a6ee8d6fc4f8f61703c2611ec81afb6e4
         lint-acronym-consistency.py CWD F 2608f2b4ef320586a895895235ce268e75dcca39f4a1e0618019ef8f1f59c3a9
         lint-aiqt-vendor-digest.py NO_FS F f0c899025d8ce7f633249166d3d87e8d6391ada2507ccee775cf4730178e2b84
         lint-alignment-citation-existence.py CWD F 98916885286c45121fb03f9a05866d80879a9300f6ee461bc4da107db1ec5657
@@ -45742,7 +45742,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
         merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
-        open-findings-row.py OWN F 952ced48e0202d8ee28ee0bc5fad09a5f18267b67990bb24735087154bcf13d4
+        open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
         pre-push-guard.sh FIXED F e082e92fe082af59cee69da9d2a329dacf1cdf4e8e4d600f4c5b6fc2ce89dabf
         pre-push-hook.py TRANSPORT F d193c170d963cbca2e64bb76ce0b1dfbe7999b9f5af6c0701ae11d95f9d7f659
         preflight-changelog.py NO_FS F a50874e9bb41aaf17949348e2ea14633f4f6e44b05ff24e4461dc05c74316911
@@ -84521,10 +84521,11 @@ class OpenFindingsRowTests(unittest.TestCase):
 
     def test_residual_unclosed_quoted_class_token_closed_by_its_quoted_bracket_reads_as_successor(self) -> None:
         # A stated residual of the shared rule, pinned at its current result and not endorsed: the
-        # balance test is a depth counter over brackets only, so a `]` quoted inside an unclosed
-        # class token that brings the depth back to the opener's level closes that clause's `[`,
-        # and the final successor tag after it reads as the successor's. A change to this result
-        # must also change the residual stated in row_repository's docstring.
+        # text has no '@ n', so the class-token pattern never matches it and no class span is
+        # skipped; its brackets are counted raw by the depth counter, the `]` after `"a` closes the
+        # `[` before `class:`, and the final successor tag after it reads as the successor's. The
+        # quote plays no part. A change to this result must also change the residual stated in
+        # row_repository's docstring.
         hook = load_linter_module(".claude/hooks/block-on-open-findings.py", "_ofr_residual_hook")
         check = load_linter_module("tools/check-class-attestation-on-pr.py", "_d14_residual")
         disp = 'FIXED #1 [class: "a ] [repo: grc_library_new]'
@@ -84561,9 +84562,9 @@ class OpenFindingsRowTests(unittest.TestCase):
                 self.assertIn("NEW-1", notes[0])
                 # The writer, given the same row on --append, agrees with the check on these rows:
                 # where the check reports no failure and lists the row as excluded, the writer writes
-                # it. On successor rows the writer keeps its own row checks (disposition grammar,
-                # severity, the id checks and class-multi), stricter than the check, which skips
-                # the row; each of them is pinned below.
+                # it. On successor rows the writer keeps its own row checks, stricter than the check,
+                # which skips the row; four of them are pinned below: class-multi,
+                # disposition-invalid, severity-unknown and id-not-in-row.
                 rc, out, err = self.run_tool(row, "--id", "NEW-1", "--append", "--dry-run")
                 self.assertEqual("refused" in out + err, fails != [], out + err)
                 self.assertEqual(rc, 0, out + err)
@@ -84595,9 +84596,11 @@ class OpenFindingsRowTests(unittest.TestCase):
         self.assertEqual(rc, 1, out + err)
         self.assertIn("refused: disposition-invalid", err)
         self.assertNotIn("result: WOULD-WRITE", out)
-        # The same holds for the severity: the check skips a successor row before reading its
-        # severity, so it reports no failure and lists the row as excluded, while the writer
-        # refuses a severity outside the vocabulary with severity-unknown.
+        # The same holds for the severity: the check's evaluate step never reads the severity
+        # of a row in the ledger sections it scans (it binds it as _sev and never uses it), so
+        # an unknown severity on such a row, skipped or not, never causes a failure and this
+        # row is listed as excluded, while the writer refuses a severity outside the
+        # vocabulary with severity-unknown.
         row = "| 2026-11-10 | eror | [NEW-1] a finding | probe | FIXED #2701 [repo: grc_library_new] |"
         fails, notes = check.evaluate(hook.parse_dispositioned_rows_full("## Open\n" + row + "\n"), hook,
                                       lambda token: (0, [], []))
@@ -84608,7 +84611,7 @@ class OpenFindingsRowTests(unittest.TestCase):
         self.assertEqual(rc, 1, out + err)
         self.assertIn("refused: severity-unknown", err)
         self.assertNotIn("result: WOULD-WRITE", out)
-        # And for the id checks: the check reads no --id and skips a successor row, so it reports
+        # And for id-not-in-row: the check reads no --id and skips a successor row, so it reports
         # no failure and lists the row as excluded, while the writer, given an --id that the row's
         # Finding cell does not lead with, refuses it with id-not-in-row.
         row = self.dated_row("2026-11-10", "FIXED #2701 [repo: grc_library_new]")
@@ -84632,7 +84635,7 @@ class OpenFindingsRowTests(unittest.TestCase):
                 self.assertRefused(self.dated_row("2026-11-10", disp), code)
         out = self.assertRefused(self.dated_row("2026-11-07", self.SUCCESSOR_FIXED[0][1]),
                                  "repository-tag-unclassifiable")
-        self.assertIn("refused: class-unattested", out)
+        self.assertNotIn("refused: class-unattested", out)
 
     def test_successor_fixed_row_not_held_to_attestation_on_set_disposition(self) -> None:
         self.ledger.write_text(self.LEDGER.replace(
@@ -84644,6 +84647,30 @@ class OpenFindingsRowTests(unittest.TestCase):
         for name, disp, code in self.OWN_FIXED:
             with self.subTest(case=name):
                 self.assertRefused(disp, code, "--set-disposition", fid="OPEN-A")
+
+    def test_bad_scope_fixed_row_refused_for_repository_tag_not_class_attestation(self) -> None:
+        # A FIXED row with no class clause whose successor tag precedes the successor's first day
+        # reads as bad under the shared rule. The class-attestation check fails closed on it before
+        # its attestation test, so the writer refuses it as repository-tag-unclassifiable only and
+        # never as class-unattested, on --append and on --set-disposition alike.
+        disp = "FIXED #1 [repo: grc_library_new]"
+        hook = load_linter_module(".claude/hooks/block-on-open-findings.py", "_ofr_bad_scope_hook")
+        check = load_linter_module("tools/check-class-attestation-on-pr.py", "_d14_bad_scope")
+        self.assertIsNone(hook.CLASS_ATTEST_RE.search(disp))
+        self.assertEqual(check.row_repository("2026-11-07", disp, hook), "bad")
+        cases = (
+            ("--append", self.LEDGER, self.dated_row("2026-11-07", disp), ("--append",), "NEW-1"),
+            ("--set-disposition", self.LEDGER.replace(
+                self.REPO_TAG_OPEN_A, "| 2026-11-07 | warning | [OPEN-A] first open |"),
+             disp, ("--set-disposition",), "OPEN-A"),
+        )
+        for mode, ledger, stdin, args, fid in cases:
+            with self.subTest(mode=mode):
+                self.ledger.write_text(ledger, encoding="utf-8")
+                out = self.assertRefused(stdin, "repository-tag-unclassifiable", *args, fid=fid)
+                self.assertNotIn("refused: class-unattested", out)
+                self.assertEqual([ln for ln in out.splitlines() if ln.startswith("refused: ")],
+                                 ["refused: repository-tag-unclassifiable"])
 
     def test_tool_defines_no_disposition_grammar(self) -> None:
         import ast
