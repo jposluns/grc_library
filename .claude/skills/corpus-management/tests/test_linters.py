@@ -6392,6 +6392,18 @@ class CrossFileSectionRefTests(LinterTestCase):
             # The link target "(t.md)" and the nested parenthetical close,
             # but nothing closes the parenthesis opened before the link.
             ("| Owner | Section 8 exception path ([policy](t.md) (see §2) |", True),
+            # A parenthesis inside a code span or escaped with a backslash is
+            # text, not structure: it neither opens a nested parenthetical
+            # nor closes the link's own parenthesis.
+            ("| Owner | Section 8 exception path ([policy](t.md) `(` §2) |", False),
+            ("| Owner | Section 8 exception path ([policy](t.md) ``a(b`` §2) |", False),
+            ("| Owner | Section 8 exception path ([policy](t.md) \\( §2) |", False),
+            ("| Owner | Section 8 exception path ([policy](t.md) `)` §2 |", True),
+            ("| Owner | Section 8 exception path ([policy](t.md) \\) §2 |", True),
+            # An escaped backtick opens no code span, so the parenthesis after
+            # it is counted, and a double backslash leaves a parenthesis bare.
+            ("| Owner | Section 8 exception path ([policy](t.md) \\`(` §2) |", True),
+            ("| Owner | Section 8 exception path ([policy](t.md) \\\\) §2 |", False),
         ):
             with self.subTest(line=line, target_holds_section_8=True):
                 citer = VALID_METADATA + f"\n\n## 8. Exceptions\n\n{line}\n"
@@ -43381,7 +43393,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-length-on-pr.py NO_FS F 91c9308103f36414f1975e2233cd82644551ca4a3996c4a2b9310b437004434a
         check-changelog-on-pr.py NO_FS F 00fa478d33343ae5d955e3faa7f99d9c61c6cda6f7a5e414dfcaf6ec6f7bf25b
         check-changelog-preflight-commit.py NO_FS F 9ec0a028e7e916fdfa542f6688b909b08a1c69fe66b3a7cb82d979689885f978
-        check-class-completeness.py NO_FS F afaa2c8b27a5906c9ee65261769e9acea1cb6c8cc6104d745fe4cc2d1c490033
+        check-class-completeness.py NO_FS F 4053d6e6797cfeee3b0b9118d1b92add2ac7724da4f2cc27c48fa56530d4d9eb
         check-claude-md-size.py NO_FS F 5f0c8e37d4a1b36a6be924354a6cdfca69a4ba5498e77cee52012ccefc99764b
         check-clause-preservation.py OWN F 96d156bb17eb92ea45d096dae64345313ba8962de62b38a413a988aa7f8c8737
         check-clean-language-upstream.py NO_FS F 68e539ea645383d29ec9ded3cb44012af2afcfc78f820c172070a8c492665159
@@ -43486,7 +43498,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-todo-index-reference-parity.py OWN F 46ffb499a50fa6b5d64ac594776e5a26ad4e3c696fc48d8b5e4fc8b4646a2b22
         lint-todo-list-tag.py OWN F 10ee5371268378b28c9097a588515231d625ab63b5e5b1b9f3533f4d85db9b2d
         lint-todo-marked-done.py ROOT F 9d5f28f83917e26a4cd0bffde756fded4a2bf4259b809472bc1757a6dbc1b212
-        lint-todo-number-permanence.py OWN F aca35e56bd4afc369ba273a09b7868831ad65bbcd88e6a57ea1552e6f4cf25a7
+        lint-todo-number-permanence.py OWN F 66f3f6271cc0d360515f081795ccec7e0ebd0c26a0f0170bb7e7d13958c0e362
         lint-todo-staleness.py NO_FS F 6a89123607678239f036cab7bf02e0a0885216f55ba0b23fb53799e30c40cffb
         lint-tooling-backlog-refs.py OWN F be54fcdef171bc30e7d0393ca2c097904f464cad7bde9a233f7ee663edd741a5
         lint-tooling-provenance-freshness.py OWN F ab5b885be8a4a7af28e6c441ea4439cc32ce553a6167946ec40d49f50f0f6b02
@@ -58688,53 +58700,53 @@ class TodoNumberPermanenceTests(LinterTestCase):
         root, result = self._run(
             "perm-pid-recycle",
             "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n",
-            "# DONE\n\n### PR #1487: P-3.247 Canada CPPA legal-currency, record the "
-            "C-36/PPCDA successor (2026-08-12)\n\nBody.\n",
-            ptodo="# P-TODO\n\n### P-3.247 A new item wearing a retired private "
+            "# DONE\n\n### PR #901: P-9.7 a synthetic retired item, record the "
+            "synthetic successor (2026-08-12)\n\nBody.\n",
+            ptodo="# P-TODO\n\n### P-9.7 A new item wearing a retired private "
             "number\n\nBody.\n",
         )
         try:
-            self.assertLinterFails(result, "P-3.247")
+            self.assertLinterFails(result, "P-9.7")
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
 
     def test_pid_compound_suffix_no_parent_leak(self) -> None:
-        # Negative control: 'P-1.51b-ii' (a sub-slice label) must NOT extract the
-        # parent 'P-1.51', so a live P-1.51 coexisting with a P-1.51b-ii DONE
+        # Negative control: 'P-9.51b-ii' (a sub-slice label) must NOT extract the
+        # parent 'P-9.51', so a live P-9.51 coexisting with a P-9.51b-ii DONE
         # heading is clean (the historic coexistence state).
-        done = "# DONE\n\n### PR #1789: P-1.51b-ii sensitive slice (2026-08-29)\n\nBody.\n"
+        done = "# DONE\n\n### PR #902: P-9.51b-ii a synthetic slice (2026-08-29)\n\nBody.\n"
         root, result = self._run(
             "perm-pid-compound",
             "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n",
             done,
-            ptodo="# P-TODO\n\n### P-1.51 A live umbrella\n\nBody.\n",
+            ptodo="# P-TODO\n\n### P-9.51 A live umbrella\n\nBody.\n",
         )
         try:
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            # The live P-1.51 is only checked if P-TODO.md was read.
+            # The live P-9.51 is only checked if P-TODO.md was read.
             self.assertIn("OK: 2 live backlog item(s) (.working/TODO.md + P-TODO.md),", result.stdout)
             self.assertNotIn("OK: P-TODO.md not present (", result.stdout)
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
         # The parse itself: the compound token yields no P-id at all, neither the parent
-        # P-1.51 nor a truncated prefix such as P-1.51b. A clean exit alone cannot show
-        # this, since a truncated P-1.51b differs from the live P-1.51 and is not flagged.
+        # P-9.51 nor a truncated prefix such as P-9.51b. A clean exit alone cannot show
+        # this, since a truncated P-9.51b differs from the live P-9.51 and is not flagged.
         retired = self._perm_module().parse_retired(done)
-        self.assertNotIn("P-1.51", retired)
+        self.assertNotIn("P-9.51", retired)
         self.assertEqual(sorted(k for k in retired if k.startswith("P-")), [], retired)
 
     def test_pid_destination_cue_not_retired(self) -> None:
-        # A P-id preceded by a destination cue ('absorbed into P-1.55') names a
-        # LIVE id pointed at, not a retirement, so a live P-1.55 is not flagged.
+        # A P-id preceded by a destination cue ('absorbed into P-9.55') names a
+        # LIVE id pointed at, not a retirement, so a live P-9.55 is not flagged.
         root, result = self._run(
             "perm-pid-dest",
             "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n",
-            "# DONE\n\n### PR #1900: P-1.51 absorbed into P-1.55 (2026-08-29)\n\nBody.\n",
-            ptodo="# P-TODO\n\n### P-1.55 A live destination item\n\nBody.\n",
+            "# DONE\n\n### PR #903: P-9.51 absorbed into P-9.55 (2026-08-29)\n\nBody.\n",
+            ptodo="# P-TODO\n\n### P-9.55 A live destination item\n\nBody.\n",
         )
         try:
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            # The live P-1.55 is only checked if P-TODO.md was read.
+            # The live P-9.55 is only checked if P-TODO.md was read.
             self.assertIn("OK: 2 live backlog item(s) (.working/TODO.md + P-TODO.md),", result.stdout)
             self.assertNotIn("OK: P-TODO.md not present (", result.stdout)
         finally:
@@ -58991,12 +59003,12 @@ class TodoNumberPermanenceTests(LinterTestCase):
                     "### PR #2: P-9.3 \u2014 phase two (2026-08-02)\n\nBody.\n")
         two_family = ("# DONE\n\n### PR #1: P-9.3 Phase 1 slice (2026-08-01)\n\nBody.\n\n"
                       "### PR #2: P-9.3 Phase 2 slice (2026-08-02)\n\nBody.\n")
-        one_160 = "# DONE\n\n### PR #10: P-1.60 part 1 rollout (2026-08-01)\n\nBody.\n"
+        one_961 = "# DONE\n\n### PR #10: P-9.61 part 1 rollout (2026-08-01)\n\nBody.\n"
         three = ("# DONE\n\n### PR #1: P-9.3 Phase rollout one completed (2026-08-01)\n\n"
                  "Body.\n\n### PR #2: P-9.3 Phase rollout two completed (2026-08-02)\n\n"
                  "Body.\n\n### PR #3: P-9.3 Phase maintenance slice (2026-08-03)\n\n"
                  "Body.\n")
-        ptodo160 = "# P-TODO\n\n### P-1.60 A live umbrella\n\nBody.\n"
+        ptodo961 = "# P-TODO\n\n### P-9.61 A live umbrella\n\nBody.\n"
         generic = "holds no text beyond the id and the 'PR #<n>:' heading prefix"
         every = "matches every one of the 2 retirement headings the gate reads for P-9.3"
         two_of_three = ("matches 2 of the 3 retirement headings the gate reads for P-9.3 "
@@ -59008,8 +59020,8 @@ class TodoNumberPermanenceTests(LinterTestCase):
                  ["P-9.3", "R #", value], generic),
                 ("a numbered heading prefix", self.PEXEMPT_DONE, self.PEXEMPT_PTODO,
                  ["P-9.3", "PR #1423:", value], "a pull request number names the pull request"),
-                ("a part of the id found in every heading", one_160, ptodo160,
-                 ["P-1.60", "1", value], generic),
+                ("a part of the id found in every heading", one_961, ptodo961,
+                 ["P-9.61", "1", value], generic),
                 ("punctuation found in every heading", two_bang, ptodo93,
                  ["P-9.3", "!", value], every),
                 ("the id and a dash found in every heading", two_dash, ptodo93,
@@ -59047,8 +59059,8 @@ class TodoNumberPermanenceTests(LinterTestCase):
                  [["P-9.3", "P-9.3 Phase", value]]),
                 ("one marker per heading", two_family, ptodo93,
                  [["P-9.3", "Phase 1 slice", value], ["P-9.3", "Phase 2 slice", value]]),
-                ("own text of the one heading", one_160, ptodo160,
-                 [["P-1.60", "rollout", value]]),
+                ("own text of the one heading", one_961, ptodo961,
+                 [["P-9.61", "rollout", value]]),
                 ("one marker per heading of three", three, ptodo93,
                  [["P-9.3", "rollout one", value], ["P-9.3", "rollout two", value],
                   ["P-9.3", "maintenance", value]]),
@@ -59067,26 +59079,26 @@ class TodoNumberPermanenceTests(LinterTestCase):
 
     def test_pid_token_boundaries(self) -> None:
         # Direct parse_retired boundary controls: undotted 'P-384' (NIST curve)
-        # and paren-protected '(P-39.1)' are NOT retired ids; a letter-suffix id
-        # ('P-3.202b') does NOT leak its parent 'P-3.202'; an id-first heading
+        # and paren-protected '(P-9.39)' are NOT retired ids; a letter-suffix id
+        # ('P-9.20b') does NOT leak its parent 'P-9.20'; an id-first heading
         # with a trailing (date, PR) paren is caught.
         m = self._perm_module()
         r = lambda h: list(m.parse_retired(h).keys())
         self.assertNotIn("P-384", r(
-            "### TODO §3.70: tighten to the P-384 / RSA-4096 floor (PR #1052)"))
+            "### TODO §3.70: raise a synthetic floor to the P-384 / RSA-4096 pair (PR #904)"))
         self.assertIn("3.70", r(
-            "### TODO §3.70: tighten to the P-384 / RSA-4096 floor (PR #1052)"))
-        self.assertNotIn("P-39.1", r(
-            "### TODO §3.100: re-ingested Quebec Law 25 (P-39.1) source (2026-07-18)"))
-        self.assertEqual(["P-3.202b"], r(
-            "### PR #1362: P-3.202b PR-checklist renumbering (2026-08-03)"))
-        self.assertIn("P-3.245", r(
-            "### P-3.245: gate-50 PR-number extraction hardened (2026-08-25, PR #1716)"))
-        # Mutation-sensitive compound rejection: 'P-1.51b-ii' must yield
+            "### TODO §3.70: raise a synthetic floor to the P-384 / RSA-4096 pair (PR #904)"))
+        self.assertNotIn("P-9.39", r(
+            "### TODO §3.100: re-ingested a synthetic source (P-9.39) text (2026-07-18)"))
+        self.assertEqual(["P-9.20b"], r(
+            "### PR #905: P-9.20b a synthetic checklist renumbering (2026-08-03)"))
+        self.assertIn("P-9.45", r(
+            "### P-9.45: a synthetic number extraction hardened (2026-08-25, PR #906)"))
+        # Mutation-sensitive compound rejection: 'P-9.51b-ii' must yield
         # NOTHING; removing the P_RETIRED_RE trailing '(?![-\w])' lookahead
-        # truncates it to 'P-1.51b', so this assertion then FAILS.
-        self.assertEqual([], r("### PR #1789: P-1.51b-ii sensitive slice (2026-08-29)"))
-        self.assertEqual([], r("### PR #1456: ... + P-1.33-35 created (2026-08-08)"))
+        # truncates it to 'P-9.51b', so this assertion then FAILS.
+        self.assertEqual([], r("### PR #902: P-9.51b-ii a synthetic slice (2026-08-29)"))
+        self.assertEqual([], r("### PR #907: ... + P-9.33-35 created (2026-08-08)"))
 
     def test_pid_retirement_cue_in_parenthetical(self) -> None:
         # An explicit 'closes P-x.y' retirement INSIDE a parenthetical is
@@ -59095,38 +59107,38 @@ class TodoNumberPermanenceTests(LinterTestCase):
         # P-x.y' destination in the same paren is NOT retired.
         m = self._perm_module()
         r = lambda h: list(m.parse_retired(h).keys())
-        got = r("### PR #1506: ISO/IEC 42001 clause-attribution accuracy "
-                "(2026-08-13; closes P-3.216, advances P-3.210)")
-        self.assertIn("P-3.216", got)       # in-paren retirement caught
-        self.assertNotIn("P-3.210", got)    # in-paren live destination untouched
+        got = r("### PR #908: a synthetic attribution accuracy fix "
+                "(2026-08-13; closes P-9.16, advances P-9.10)")
+        self.assertIn("P-9.16", got)       # in-paren retirement caught
+        self.assertNotIn("P-9.10", got)    # in-paren live destination untouched
         # 'superseded by P-x' points at a live id -> not a retirement cue
-        self.assertEqual([], r("### PR #9: work superseded by P-1.55 (2026-08-29)"))
+        self.assertEqual([], r("### PR #9: work superseded by P-9.55 (2026-08-29)"))
 
     def test_pid_bare_in_paren_not_caught_accepted_limitation(self) -> None:
         # ACCEPTED LIMITATION: a BARE in-paren id with no retirement verb is NOT
         # detected, because the paren-strip is FP-critical (catching bare in-paren
-        # ids would also flag the LIVE 'advances P-3.210' in the same fixture).
-        # This pins the deliberate tradeoff: '(P-1.25.26)' (a completed sub-item
-        # of the live P-1.25 umbrella) is not caught. If a future change makes
+        # ids would also flag the LIVE 'advances P-9.10' in the same fixture).
+        # This pins the deliberate tradeoff: '(P-9.25.26)' (a completed sub-item
+        # of the live P-9.25 umbrella) is not caught. If a future change makes
         # this caught, re-confirm it does NOT also catch a live in-paren id.
         m = self._perm_module()
         r = lambda h: list(m.parse_retired(h).keys())
         self.assertEqual([], r(
-            "### PR #1618: website build wave 0 S1 (P-1.25.26) - web-gen check "
-            "in pre-push guard (2026-08-17)"))
+            "### PR #909: a synthetic build step (P-9.25.26) - a synthetic check "
+            "in a guard (2026-08-17)"))
         # but the SAME paren with an explicit retirement verb IS caught:
-        self.assertIn("P-3.216", r(
-            "### PR #1506: accuracy (2026-08-13; closes P-3.216, advances P-3.210)"))
+        self.assertIn("P-9.16", r(
+            "### PR #908: accuracy (2026-08-13; closes P-9.16, advances P-9.10)"))
 
     def test_pid_grammar_parity_with_todo_id_re(self) -> None:
         # P_RETIRED_RE's token grammar must agree with lint_common.TODO_ID_RE's
         # P-branch, so a live id and a retired id compare as equal strings.
         m = self._perm_module()
         import lint_common
-        for tok in ["P-1.1", "P-3.247", "P-1.25.12", "P-1.40a", "P-3.202b"]:
+        for tok in ["P-9.1", "P-9.7", "P-9.25.12", "P-9.40a", "P-9.20b"]:
             self.assertTrue(lint_common.TODO_ID_RE.fullmatch(tok), tok)
             self.assertTrue(m.P_RETIRED_RE.fullmatch(tok), tok)
-        for tok in ["P-384", "P-1.51b-ii", "P-1.33-35"]:
+        for tok in ["P-384", "P-9.51b-ii", "P-9.33-35"]:
             self.assertIsNone(m.P_RETIRED_RE.fullmatch(tok), tok)
 
     def test_ptodo_index_format_parsed_as_live(self) -> None:
@@ -62117,7 +62129,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.23.7", "0.23.7 removes internal work references from the lint-standards-currency origin in core/gates.toml and from two --aiqt-root refusal messages in tools/corpus_mgmt_compiler.py; gate 62 refuses as malformed a table cell whose local-section exception path leaves its link's parenthesis unclosed and accepts as local a closed exception path holding a nested parenthetical, which it formerly checked against the target, and the corpus-scan-integrity origin in core/clauses.toml is reworded; no gate or register key changes (PATCH); the residual lists in tools/gate_lint_language.py's docstring and URL-mask comment now name the comma-and-digit path form; the compiler now refuses an explicit --aiqt-root unless its tools/aiqt_corpus.py is a regular file, so a symlinked core, formerly accepted, is refused, and that refusal now reads 'no regular tools/aiqt_corpus.py there'. The release history in src/README.md describes each version from 0.22.2")
+        self.assertEqual(man["pack"]["version"], "0.23.7", "0.23.7 removes internal work references from the gate and clause origins in core/gates.toml and core/clauses.toml and from two --aiqt-root refusal messages in tools/corpus_mgmt_compiler.py; gate 62 refuses as malformed a table cell whose local-section exception path leaves its link's parenthesis unclosed and accepts as local a closed exception path holding a nested parenthetical, which it formerly checked against the target, and the corpus-scan-integrity origin in core/clauses.toml is reworded; no gate or register key changes (PATCH); the residual lists in tools/gate_lint_language.py's docstring and URL-mask comment now name the comma-and-digit path form; the compiler now refuses an explicit --aiqt-root unless its tools/aiqt_corpus.py is a regular file: a symlinked core formerly passed the compiler's own pre-check and was refused only by the verified loader, and is now refused by the pre-check, whose refusal reads 'no regular tools/aiqt_corpus.py there'. The release history in src/README.md describes each version from 0.22.2")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")
@@ -67646,10 +67658,12 @@ class AIQTVendorDigestTests(LinterTestCase):
                 mod.find_pack_tools()
 
     def test_module_swapped_after_verification_runs_verified_bytes(self):
-        """A module file rewritten after verification never runs: either
-        outcome is accepted, the import running the verified bytes or the
-        bootstrap refusing with ImportError; the test fails only when the
-        swapped-in bytes run or the module origin is not the pack file."""
+        """A module file rewritten after verification never runs: the import
+        succeeds and runs the verified bytes, with the pack file as the module
+        origin. The rewrite happens only after _verified() has captured and
+        digest-checked the bytes, and nothing reads the file again, so success
+        is the one outcome; a refusal with ImportError fails the test, as do
+        the swapped-in bytes running or another module origin."""
         # The bytes that execute as aiqt_corpus are the bytes
         # verify_vendor_dir() validated (captured and digest-checked by
         # _verified, executed by ensure_on_path), never a re-read of
@@ -67684,8 +67698,9 @@ class AIQTVendorDigestTests(LinterTestCase):
                 try:
                     mod.ensure_on_path()
                     corpus = importlib.import_module("aiqt_corpus")
-                except ImportError:
-                    return  # refusal is the other accepted outcome
+                except ImportError as exc:
+                    self.fail("the bootstrap refused a pack whose module file was "
+                              f"rewritten only after verification: {exc}")
                 self.assertFalse(
                     getattr(corpus, "SWAPPED_IN", False),
                     "the swapped-in module bytes ran: the import did not "

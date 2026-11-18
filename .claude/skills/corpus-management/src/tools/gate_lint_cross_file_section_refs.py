@@ -191,6 +191,44 @@ def reference_cells(line: str) -> list[str]:
     return cells
 
 
+def closes_open_parenthesis(text: str) -> bool:
+    """Whether ``text`` closes one parenthesis already open before it.
+
+    Parentheses are counted with nesting, so a nested parenthetical does not
+    close the open one. A parenthesis inside a code span, or escaped by an odd
+    run of backslashes, is text and is not counted. Code spans follow the rule
+    ``reference_cells`` uses: a backtick run not escaped opens code only when an
+    equal-length closing run exists, and inside code backslashes are literal.
+    """
+    depth = 1
+    backslashes = 0
+    i = 0
+    while i < len(text):
+        char = text[i]
+        if char == "\\":
+            backslashes += 1
+            i += 1
+            continue
+        escaped = backslashes % 2 == 1
+        backslashes = 0
+        if char == "`" and not escaped:
+            end = i + 1
+            while end < len(text) and text[end] == "`":
+                end += 1
+            closing = re.search(r"(?<!`)`{%d}(?!`)" % (end - i), text[end:])
+            i = end + closing.end() if closing else end
+            continue
+        if not escaped:
+            if char == "(":
+                depth += 1
+            elif char == ")":
+                depth -= 1
+                if depth == 0:
+                    return True
+        i += 1
+    return False
+
+
 def check_file(
     path: Path,
     repo_root: Path,
@@ -245,16 +283,9 @@ def check_file(
                             and not re.match(r"\s+of\s+(?:the\s+)?target\b", intervening, re.I)):
                         # Scan with balanced parentheses: a nested
                         # parenthetical inside the exception path does not
-                        # close the link's own parenthesis.
-                        depth = 1
-                        for ch in cell[following.end():]:
-                            if ch == "(":
-                                depth += 1
-                            elif ch == ")":
-                                depth -= 1
-                                if depth == 0:
-                                    break
-                        if depth == 0:
+                        # close the link's own parenthesis, and a parenthesis
+                        # in a code span or escaped is not counted.
+                        if closes_open_parenthesis(cell[following.end():]):
                             continue
                         # Without its closing parenthesis the row would fall
                         # through to the target check and pass whenever the

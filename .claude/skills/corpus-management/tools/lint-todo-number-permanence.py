@@ -82,7 +82,7 @@ false-negative cost:
      a destination cue (``absorbed into P-N.M``) or followed by a creation
      participle (``P-N.M created``), both naming a LIVE id, and (c) relies
      on the EXEMPT rows for live-umbrella partial closes (the P-id rows,
-     including two same-id FAMILY rows, are read from the private sibling's
+     which may include same-id FAMILY rows, are read from the private sibling's
      ``todo-number-exempt.json``, so this public file names no private
      id; with no sibling there is no private list to check either). Series P-1 has NO public
      floor backstop, so this pass is its ONLY recycle protection.
@@ -302,7 +302,7 @@ P_RETIRED_RE = re.compile(r"\bP-\d+(?:\.\d+){1,2}[a-z]?(?!\.\d)(?![-\w])")
 # A P-id immediately preceded by a destination/relocation cue names a LIVE id
 # pointed AT ('absorbed into P-N.M', 're-homed to P-N.M', '-> P-N.M'); one
 # immediately followed by a creation participle names a LIVE id being opened
-# ('P-N.M created'). Measured 2026-08-29 in the earlier repository: zero
+# ('P-N.M created'). Measured in the earlier repository: zero
 # activations across the ledger (real destination mentions sat inside
 # parentheses, already stripped), so both guards are prophylactic at zero
 # measured false-negative cost.
@@ -360,7 +360,7 @@ THREEB_LEAD_PARTIAL_RE = re.compile(
 # entries by 4 lines and both exemptions lapsed), which would make the gate
 # unusable per-commit. Each § substring below was checked to match exactly ONE of
 # DONE.md's entry headings, so an exemption cannot widen to another entry. The
-# P-id partial-close rows (read from the private sibling, see PEXEMPT_REL) add two FAMILY rows (a distinctive id-prefixed
+# P-id partial-close rows (read from the private sibling, see PEXEMPT_REL) may include FAMILY rows (a distinctive id-prefixed
 # substring matching a batch of the SAME id's headings, e.g. 'P-N.M Phase'):
 # these are id-scoped by _exempt so they still cannot widen to a DIFFERENT item,
 # only to more of the same live id's own partial closes.

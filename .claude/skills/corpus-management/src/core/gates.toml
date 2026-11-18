@@ -13,7 +13,7 @@ title = "Language and style audit (Canadian-first -ize orthography, dash ban, en
 source = "tools/gate_lint_language.py"
 enforces = "language-convention"
 entry_point = ".claude/skills/corpus-management/tools/lint-language.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-language.py, grc gate 2 (engine transferred in compile PR-5, check logic and vocabulary verbatim; thin Model-2 wrapper supplies the grc scan roots. Phase-4 PR-F: the ise/isation/commonwealth/yse VOCAB moved to defaults/grc/language.toml; the engine was parameterized (run() takes a LanguageVocabulary, compiles ise/yse patterns from it) and the wrapper loads it via _language_config())"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-language.py, grc gate 2 (engine moved into the pack, check logic and vocabulary verbatim; thin Model-2 wrapper supplies the grc scan roots. Later, the ise/isation/commonwealth/yse VOCAB moved to defaults/grc/language.toml; the engine was parameterized (run() takes a LanguageVocabulary, compiles ise/yse patterns from it) and the wrapper loads it via _language_config())"
 
 [[gates]]
 id = "lint-unbalanced-fences"
@@ -21,7 +21,7 @@ title = "Unbalanced-fence audit (no scanned file ends inside an open fenced code
 source = "tools/gate_lint_unbalanced_fences.py"
 enforces = "corpus-scan-integrity"
 entry_point = ".claude/skills/corpus-management/tools/lint-unbalanced-fences.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-unbalanced-fences.py, grc gate 66 (engine transferred in compile PR-6, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan walk)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-unbalanced-fences.py, grc gate 66 (engine moved into the pack, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan walk)"
 
 [[gates]]
 id = "lint-nested-markdown-links"
@@ -29,7 +29,7 @@ title = "Nested-markdown-link audit"
 source = "tools/gate_lint_nested_markdown_links.py"
 enforces = "markdown-link-integrity"
 entry_point = ".claude/skills/corpus-management/tools/lint-nested-markdown-links.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-nested-markdown-links.py, grc gate 68 (engine transferred in compile PR-7, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan walk)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-nested-markdown-links.py, grc gate 68 (engine moved into the pack, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan walk)"
 
 [[gates]]
 id = "lint-ungated-dashes"
@@ -37,7 +37,7 @@ title = "Ungated-surface dash audit"
 source = "tools/gate_lint_ungated_dashes.py"
 enforces = "language-convention"
 entry_point = ".claude/skills/corpus-management/tools/lint-ungated-dashes.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-ungated-dashes.py, grc gate 82 (engine transferred in compile PR-8, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc operational scan scope). Reuses the existing language-convention clause (the same dash ban the corpus language gate enforces), so no new clause/rule was added."
+origin = "grc_library .claude/skills/corpus-management/tools/lint-ungated-dashes.py, grc gate 82 (engine moved into the pack, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc operational scan scope). Reuses the existing language-convention clause (the same dash ban the corpus language gate enforces), so no new clause/rule was added."
 
 [[gates]]
 id = "lint-bare-normative-shall"
@@ -45,7 +45,7 @@ title = "Bare normative-wording audit"
 source = "tools/gate_lint_bare_normative_shall.py"
 enforces = "normative-wording"
 entry_point = ".claude/skills/corpus-management/tools/lint-bare-normative-shall.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-bare-normative-shall.py, grc gate 56 (engine transferred in compile PR-9, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan walk and the grc-specific exempt-file set)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-bare-normative-shall.py, grc gate 56 (engine moved into the pack, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan walk and the grc-specific exempt-file set)"
 
 [[gates]]
 id = "lint-links"
@@ -53,7 +53,7 @@ title = "Broken-internal-link audit"
 source = "tools/gate_lint_links.py"
 enforces = "markdown-link-resolution"
 entry_point = ".claude/skills/corpus-management/tools/lint-links.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-links.py, grc gate 3 (engine transferred in compile PR-10, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan walk + default roots; engine is repo_root-free via a repo_root parameter)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-links.py, grc gate 3 (engine moved into the pack, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan walk + default roots; engine is repo_root-free via a repo_root parameter)"
 
 [[gates]]
 id = "lint-required-sections"
@@ -61,7 +61,7 @@ title = "Required-sections-by-doctype audit"
 source = "tools/gate_lint_required_sections.py"
 enforces = "required-sections"
 entry_point = ".claude/skills/corpus-management/tools/lint-required-sections.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-required-sections.py, grc gate 19 (engine transferred in compile PR-11, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc section model REQUIRED_SECTIONS + target selection; engine takes the required-map + repo_root as parameters)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-required-sections.py, grc gate 19 (engine moved into the pack, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc section model REQUIRED_SECTIONS + target selection; engine takes the required-map + repo_root as parameters)"
 
 [[gates]]
 id = "lint-citations"
@@ -69,7 +69,7 @@ title = "Framework-citation denylist audit"
 source = "tools/gate_lint_citations.py"
 enforces = "citation-denylist"
 entry_point = ".claude/skills/corpus-management/tools/lint-citations.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-citations.py, grc gate 5 (engine transferred in compile PR-12, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc DENYLIST + per-term PATH_EXEMPTIONS + scan scope; engine takes the denylist + exemptions + repo_root as parameters)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-citations.py, grc gate 5 (engine moved into the pack, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc DENYLIST + per-term PATH_EXEMPTIONS + scan scope; engine takes the denylist + exemptions + repo_root as parameters)"
 
 [[gates]]
 id = "lint-section-placement"
@@ -77,7 +77,7 @@ title = "Section-placement audit"
 source = "tools/gate_lint_section_placement.py"
 enforces = "section-placement"
 entry_point = ".claude/skills/corpus-management/tools/lint-section-placement.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-section-placement.py, grc gate 38 (engine transferred in compile PR-13, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc PLACEMENT_RULES + target selection; engine takes the placement_rules + repo_root as parameters; run() keeps the relative_to try/except matching this gate's old main)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-section-placement.py, grc gate 38 (engine moved into the pack, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc PLACEMENT_RULES + target selection; engine takes the placement_rules + repo_root as parameters; run() keeps the relative_to try/except matching this gate's old main)"
 
 [[gates]]
 id = "lint-shall-near-uncertainty"
@@ -85,7 +85,7 @@ title = "Mandatory-near-uncertainty audit"
 source = "tools/gate_lint_shall_near_uncertainty.py"
 enforces = "shall-near-uncertainty"
 entry_point = ".claude/skills/corpus-management/tools/lint-shall-near-uncertainty.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-shall-near-uncertainty.py, grc gate 9 (engine transferred in compile PR-14, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan scope + exempt-file set; the marker/word patterns + window moved to defaults/grc/uncertainty.toml in Phase-4 PR-I (loader-compiled {regex,ignorecase} tables + int window) and run() takes them as an UncertaintyVocabulary; the check ALGORITHM stays in the engine; the grc EXEMPT_FILES filter is wrapper config so the engine is repo_root-free)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-shall-near-uncertainty.py, grc gate 9 (engine moved into the pack, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the grc scan scope + exempt-file set; the marker/word patterns + window later moved to defaults/grc/uncertainty.toml (loader-compiled {regex,ignorecase} tables + int window) and run() takes them as an UncertaintyVocabulary; the check ALGORITHM stays in the engine; the grc EXEMPT_FILES filter is wrapper config so the engine is repo_root-free)"
 
 [[gates]]
 id = "lint-todo-marked-done"
@@ -93,7 +93,7 @@ title = "Backlog marked-done audit"
 source = "tools/gate_lint_todo_marked_done.py"
 enforces = "todo-forward-only"
 entry_point = ".claude/skills/corpus-management/tools/lint-todo-marked-done.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-todo-marked-done.py, grc gate 57 (engine transferred in compile PR-15, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the scan target; check_file is fully generic (no config), the engine is repo_root-free, run() has no try/except matching this gate's old main)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-todo-marked-done.py, grc gate 57 (engine moved into the pack, check logic verbatim; the project tool became a thin Model-2 wrapper supplying the scan target; check_file is fully generic (no config), the engine is repo_root-free, run() has no try/except matching this gate's old main)"
 
 [[gates]]
 id = "lint-positional-backlog-tokens"
@@ -101,7 +101,7 @@ title = "Positional backlog-token audit"
 source = "tools/gate_lint_positional_backlog_tokens.py"
 enforces = "positional-backlog-token"
 entry_point = ".claude/skills/corpus-management/tools/lint-positional-backlog-tokens.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-positional-backlog-tokens.py, grc gate 69 (engine transferred in compile PR-16, check logic + output verbatim; thin Model-2 wrapper supplies the grc scan scope + exempt-file set; the engine check_file is generic, and the wrapper keeps a check_file SHIM (exempt-check + engine check) so a direct-call regression test observes the original signature - the first direct-call-coupled transfer)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-positional-backlog-tokens.py, grc gate 69 (engine moved into the pack, check logic + output verbatim; thin Model-2 wrapper supplies the grc scan scope + exempt-file set; the engine check_file is generic, and the wrapper keeps a check_file SHIM (exempt-check + engine check) so a direct-call regression test observes the original signature - the first direct-call-coupled transfer)"
 
 [[gates]]
 id = "lint-stub-documents"
@@ -109,7 +109,7 @@ title = "Stub document audit"
 source = "tools/gate_lint_stub_documents.py"
 enforces = "no-stub-documents"
 entry_point = ".claude/skills/corpus-management/tools/lint-stub-documents.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-stub-documents.py, grc gate 16 (engine transferred in compile PR-17, check logic + output verbatim; thin Model-2 wrapper supplies the grc target selection; the stub-phrase list + word-count threshold are profile-loaded (defaults/grc/stubs.toml, Phase-4 PR-G) and passed to run() as a StubVocabulary, is_target/iter_targets stay in the wrapper; run() keeps the is_relative_to conditional matching this gate's old main)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-stub-documents.py, grc gate 16 (engine moved into the pack, check logic + output verbatim; thin Model-2 wrapper supplies the grc target selection; the stub-phrase list + word-count threshold are profile-loaded (defaults/grc/stubs.toml) and passed to run() as a StubVocabulary, is_target/iter_targets stay in the wrapper; run() keeps the is_relative_to conditional matching this gate's old main)"
 
 [[gates]]
 id = "lint-filename-title-alignment"
@@ -117,7 +117,7 @@ title = "Filename and Document Title alignment audit"
 source = "tools/gate_lint_filename_title_alignment.py"
 enforces = "filename-title-alignment"
 entry_point = ".claude/skills/corpus-management/tools/lint-filename-title-alignment.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-filename-title-alignment.py, grc gate 7 (engine transferred in compile PR-18, check logic + output verbatim; thin Model-2 wrapper supplies the min-overlap + scan scope; the doctype set + synonym map are profile-loaded (defaults/grc/alignment.toml, Phase-4 PR-E) and composed in _alignment_config(); the engine takes synonyms/doctypes/min_overlap as parameters. gate 67 reads the composed doctypes via the wrapper's _alignment_config() - a cross-gate coupling)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-filename-title-alignment.py, grc gate 7 (engine moved into the pack, check logic + output verbatim; thin Model-2 wrapper supplies the min-overlap + scan scope; the doctype set + synonym map are profile-loaded (defaults/grc/alignment.toml) and composed in _alignment_config(); the engine takes synonyms/doctypes/min_overlap as parameters. gate 67 reads the composed doctypes via the wrapper's _alignment_config() - a cross-gate coupling)"
 
 [[gates]]
 id = "lint-standards-currency"
@@ -133,7 +133,7 @@ title = "Corpus-to-project directional-dependency audit"
 source = "tools/gate_lint_directional_dependency.py"
 enforces = "directional-dependency"
 entry_point = ".claude/skills/corpus-management/tools/lint-directional-dependency.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-directional-dependency.py, grc gate 53 (engine transferred in compile PR-20, check + marker-aware fence + self-test + output verbatim; thin Model-2 wrapper supplies the grc PROJECT_GOV_DIR + derived scan roots + exempt prefixes; the engine takes project_gov_dir + repo_root as parameters, and --self-test delegates to the engine's _self_test)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-directional-dependency.py, grc gate 53 (engine moved into the pack, check + marker-aware fence + self-test + output verbatim; thin Model-2 wrapper supplies the grc PROJECT_GOV_DIR + derived scan roots + exempt prefixes; the engine takes project_gov_dir + repo_root as parameters, and --self-test delegates to the engine's _self_test)"
 
 [[gates]]
 id = "lint-roles"
@@ -141,7 +141,7 @@ title = "Owner and Approving Authority role audit"
 source = "tools/gate_lint_roles.py"
 enforces = "role-authority"
 entry_point = ".claude/skills/corpus-management/tools/lint-roles.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-roles.py, grc gate 8 (engine transferred in compile PR-21, OWNER_PATTERN/APPROVER_PATTERN + is_placeholder + check_file + output verbatim; thin Model-2 wrapper supplies the grc role-authority register path + parse (load_known_roles) + EXTRA_KNOWN_ROLES allow-list + default scan roots + iter_markdown_files + the register-prerequisite exit 2 + the --root override; the engine takes the known-role set + repo_root as parameters. No aiqt_corpus (uses path.read_text). Bare relative_to like gate 56, matching the old main.)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-roles.py, grc gate 8 (engine moved into the pack, OWNER_PATTERN/APPROVER_PATTERN + is_placeholder + check_file + output verbatim; thin Model-2 wrapper supplies the grc role-authority register path + parse (load_known_roles) + EXTRA_KNOWN_ROLES allow-list + default scan roots + iter_markdown_files + the register-prerequisite exit 2 + the --root override; the engine takes the known-role set + repo_root as parameters. No aiqt_corpus (uses path.read_text). Bare relative_to like gate 56, matching the old main.)"
 
 [[gates]]
 id = "lint-placeholder-leakage"
@@ -149,7 +149,7 @@ title = "Placeholder leakage audit"
 source = "tools/gate_lint_placeholder_leakage.py"
 enforces = "placeholder-leakage"
 entry_point = ".claude/skills/corpus-management/tools/lint-placeholder-leakage.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-placeholder-leakage.py, grc gate 12 (engine transferred in compile PR-22, fence-aware scan + grouped/reporting run + output verbatim; the PATTERNS marker set moved to defaults/grc/placeholders.toml in Phase-4 PR-H (loader-compiled nested {regex,ignorecase}+label tables, order-preserved) and run() takes the composed (pattern,label) pairs; thin Model-2 wrapper supplies the grc exempt-file/exempt-dir sets + template-/worklist- prefix carve-outs + iter_targets + is_exempt + default scan root; the engine takes repo_root as a parameter and keeps the try/except relative_to display fallback, matching the old main. aiqt_corpus import guard, like the bare-normative-shall engine.)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-placeholder-leakage.py, grc gate 12 (engine moved into the pack, fence-aware scan + grouped/reporting run + output verbatim; the PATTERNS marker set later moved to defaults/grc/placeholders.toml (loader-compiled nested {regex,ignorecase}+label tables, order-preserved) and run() takes the composed (pattern,label) pairs; thin Model-2 wrapper supplies the grc exempt-file/exempt-dir sets + template-/worklist- prefix carve-outs + iter_targets + is_exempt + default scan root; the engine takes repo_root as a parameter and keeps the try/except relative_to display fallback, matching the old main. aiqt_corpus import guard, like the bare-normative-shall engine.)"
 
 [[gates]]
 id = "lint-gate-count-consistency"
@@ -157,7 +157,7 @@ title = "Cross-file gate-count consistency audit"
 source = "tools/gate_lint_gate_count_consistency.py"
 enforces = "gate-count-consistency"
 entry_point = ".claude/skills/corpus-management/tools/lint-gate-count-consistency.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-gate-count-consistency.py, grc gate 39 (engine transferred in compile PR-23, the heaviest gate-wave transfer: PATTERNS count-idiom set + word-number machinery + Finding + count_collection + resolve_match + scan_file (Markdown version-history aware; patterns anchored, fences not separately skipped) + grouped/reporting run all byte-verbatim; thin Model-2 wrapper supplies the grc canonical-count sources (SPEC_PATH §6 parse + RULES_DIR/SKILLS_DIR) + SCAN_SUFFIXES + EXEMPT_FILES/EXEMPT_DIRS + iter_targets + a scan_file shim for the importlib direct-load test; the engine takes counts + repo_root + spec_rel as parameters. aiqt_corpus import guard (read_text_safe).)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-gate-count-consistency.py, grc gate 39 (engine moved into the pack, the heaviest gate-wave transfer: PATTERNS count-idiom set + word-number machinery + Finding + count_collection + resolve_match + scan_file (Markdown version-history aware; patterns anchored, fences not separately skipped) + grouped/reporting run all byte-verbatim; thin Model-2 wrapper supplies the grc canonical-count sources (SPEC_PATH §6 parse + RULES_DIR/SKILLS_DIR) + SCAN_SUFFIXES + EXEMPT_FILES/EXEMPT_DIRS + iter_targets + a scan_file shim for the importlib direct-load test; the engine takes counts + repo_root + spec_rel as parameters. aiqt_corpus import guard (read_text_safe).)"
 
 [[gates]]
 id = "lint-date-format"
@@ -165,7 +165,7 @@ title = "Metadata date-format audit"
 source = "tools/gate_lint_date_format.py"
 enforces = "date-format"
 entry_point = ".claude/skills/corpus-management/tools/lint-date-format.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-date-format.py, grc gate 14 (engine transferred in SHARED/SAFETY-lane PR-33, the first SHARED-mapped scan-gate transfer via Pattern A; ISO_DATE_RE + validate_date + PLACEHOLDER_VALUES + fence-aware scan moved verbatim to the pack engine; the project tool became a thin wrapper supplying the grc scan scope (iter_markdown_targets) + grouped reporting in main, and keeps a module-global scan shim delegating to the engine so the scan-scope regression test (which patches mod.scan + runs main) still intercepts; the engine scan is repo_root-free and scope-free. aiqt_corpus import guard (iter_non_code_lines, read_text_safe).)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-date-format.py, grc gate 14 (engine moved into the pack, the first SHARED-mapped scan-gate transfer via Pattern A; ISO_DATE_RE + validate_date + PLACEHOLDER_VALUES + fence-aware scan moved verbatim to the pack engine; the project tool became a thin wrapper supplying the grc scan scope (iter_markdown_targets) + grouped reporting in main, and keeps a module-global scan shim delegating to the engine so the scan-scope regression test (which patches mod.scan + runs main) still intercepts; the engine scan is repo_root-free and scope-free. aiqt_corpus import guard (iter_non_code_lines, read_text_safe).)"
 
 [[gates]]
 id = "lint-license-consistency"
@@ -173,7 +173,7 @@ title = "Metadata license-consistency audit"
 source = "tools/gate_lint_license_consistency.py"
 enforces = "license-consistency"
 entry_point = ".claude/skills/corpus-management/tools/lint-license-consistency.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-license-consistency.py, grc gate 15 (engine transferred in SHARED/SAFETY-lane PR-34 via Pattern A; CANONICAL_LICENSE + the raw-line scan moved verbatim to the pack engine; the wrapper keeps main + the grc scan scope (iter_markdown_targets) + the grc EXEMPT_FILES set (NOTICE.md, nuanced by design) + grouped reporting, reads CANONICAL_LICENSE from the engine, and keeps a module-global scan shim delegating to the engine so the scan-scope test (patches mod.scan + runs main) still intercepts; the dead LICENSE_LINE_RE + its sole-user import re were removed. aiqt_corpus import guard (read_text_safe).)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-license-consistency.py, grc gate 15 (engine moved into the pack via Pattern A; CANONICAL_LICENSE + the raw-line scan moved verbatim to the pack engine; the wrapper keeps main + the grc scan scope (iter_markdown_targets) + the grc EXEMPT_FILES set (NOTICE.md, nuanced by design) + grouped reporting, reads CANONICAL_LICENSE from the engine, and keeps a module-global scan shim delegating to the engine so the scan-scope test (patches mod.scan + runs main) still intercepts; the dead LICENSE_LINE_RE + its sole-user import re were removed. aiqt_corpus import guard (read_text_safe).)"
 
 [[gates]]
 id = "lint-section-anchors"
@@ -181,7 +181,7 @@ title = "Cross-document section-anchor audit"
 source = "tools/gate_lint_section_anchors.py"
 enforces = "section-anchor-resolution"
 entry_point = ".claude/skills/corpus-management/tools/lint-section-anchors.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-section-anchors.py, grc gate 17 (engine transferred in SHARED/SAFETY-lane PR-35 via Pattern A; LINK_RE + HEADING_RE + slugify + extract_anchors + the anchor-resolution scan moved verbatim to the pack engine; the wrapper keeps main + the grc scan scope (iter_markdown_targets) + grouped reporting and a module-global scan shim delegating to the engine so the scan-scope test (patches mod.scan + runs main) still intercepts; the engine scan takes repo_root as a keyword (for the finding's display path) so it is repository-root-free, the wrapper shim supplies REPO_ROOT. aiqt_corpus import guard (iter_non_code_lines, read_text_safe).)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-section-anchors.py, grc gate 17 (engine moved into the pack via Pattern A; LINK_RE + HEADING_RE + slugify + extract_anchors + the anchor-resolution scan moved verbatim to the pack engine; the wrapper keeps main + the grc scan scope (iter_markdown_targets) + grouped reporting and a module-global scan shim delegating to the engine so the scan-scope test (patches mod.scan + runs main) still intercepts; the engine scan takes repo_root as a keyword (for the finding's display path) so it is repository-root-free, the wrapper shim supplies REPO_ROOT. aiqt_corpus import guard (iter_non_code_lines, read_text_safe).)"
 
 [[gates]]
 id = "lint-intra-doc-refs"
@@ -189,7 +189,7 @@ title = "Intra-document section-reference audit"
 source = "tools/gate_lint_intra_doc_refs.py"
 enforces = "intra-doc-section-refs"
 entry_point = ".claude/skills/corpus-management/tools/lint-intra-doc-refs.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-intra-doc-refs.py, grc gate 18 (engine transferred in SHARED/SAFETY-lane PR-36 via Pattern A; HEADING_RE + REF_PATTERNS + extract_sections + is_cross_doc_context (window scan + cross_doc_words + external_frameworks vocabularies, verbatim) + the resolution scan moved to the pack engine; the wrapper keeps main + the grc scan scope (iter_markdown_targets) + the grc EXEMPT_FILES set (.working/CHANGELOG.md, specification-citation-verification.md) + grouped reporting and a module-global scan shim delegating to the engine so the scan-scope test (patches mod.scan + runs main) still intercepts; the engine scan is scope-free and repository-root-free. aiqt_corpus import guard (iter_non_code_lines, read_text_safe).)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-intra-doc-refs.py, grc gate 18 (engine moved into the pack via Pattern A; HEADING_RE + REF_PATTERNS + extract_sections + is_cross_doc_context (window scan + cross_doc_words + external_frameworks vocabularies, verbatim) + the resolution scan moved to the pack engine; the wrapper keeps main + the grc scan scope (iter_markdown_targets) + the grc EXEMPT_FILES set (.working/CHANGELOG.md, specification-citation-verification.md) + grouped reporting and a module-global scan shim delegating to the engine so the scan-scope test (patches mod.scan + runs main) still intercepts; the engine scan is scope-free and repository-root-free. aiqt_corpus import guard (iter_non_code_lines, read_text_safe).)"
 
 [[gates]]
 id = "lint-secrets-in-content"
@@ -197,7 +197,7 @@ title = "Secret-content detection audit"
 source = "tools/gate_lint_secrets_in_content.py"
 enforces = "secret-content"
 entry_point = ".claude/skills/corpus-management/tools/lint-secrets-in-content.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-secrets-in-content.py, grc gate 21 (engine transferred in SHARED/SAFETY-lane PR-37 via Pattern A, the first SAFETY-mapped transfer; the 14 SECRET_PATTERNS (label + compiled regex, verbatim) + the redacting fence-aware scan moved to the pack engine; the wrapper keeps main + the grc scan scope (iter_targets over SCAN_SUFFIXES) + EXEMPT_FILES + grouped reporting and a module-global scan shim delegating to the engine so the scan-scope test (patches mod.scan + runs main) still intercepts; the engine is scope-free and repository-root-free. EXEMPT_FILES gains gate_lint_secrets_in_content.py defensively (same 'documents secret formats by design' rationale as the wrapper's self-exemption; the engine does not currently self-match, so the current findings and exit status are unchanged and the defensive exemption merely keeps the engine out of the reported scan count; it also prevents a future false positive). aiqt_corpus import guard.)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-secrets-in-content.py, grc gate 21 (engine moved into the pack via Pattern A, the first SAFETY-mapped transfer; the 14 SECRET_PATTERNS (label + compiled regex, verbatim) + the redacting fence-aware scan moved to the pack engine; the wrapper keeps main + the grc scan scope (iter_targets over SCAN_SUFFIXES) + EXEMPT_FILES + grouped reporting and a module-global scan shim delegating to the engine so the scan-scope test (patches mod.scan + runs main) still intercepts; the engine is scope-free and repository-root-free. EXEMPT_FILES gains gate_lint_secrets_in_content.py defensively (same 'documents secret formats by design' rationale as the wrapper's self-exemption; the engine does not currently self-match, so the current findings and exit status are unchanged and the defensive exemption merely keeps the engine out of the reported scan count; it also prevents a future false positive). aiqt_corpus import guard.)"
 
 [[gates]]
 id = "lint-pii-in-content"
@@ -205,7 +205,7 @@ title = "PII-content detection audit"
 source = "tools/gate_lint_pii_in_content.py"
 enforces = "pii-content"
 entry_point = ".claude/skills/corpus-management/tools/lint-pii-in-content.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-pii-in-content.py, grc gate 22 (engine transferred in SHARED/SAFETY-lane PR-38 via Pattern A, the second SAFETY-mapped transfer; the 5 detection regexes (EMAIL_RE/US_SSN_RE/US_PHONE_RE/IPV4_RE/STREET_RE) + the IP filters (is_documentation_ip/is_version_ip) + the fence-aware scan moved to the pack engine; scan gained an example_domains keyword so the grc example-domain allow-list stays wrapper config; the wrapper keeps main + the grc scan scope (iter_targets over SCAN_SUFFIXES) + EXEMPT_FILES + EXAMPLE_DOMAINS + grouped reporting and a module-global scan shim delegating to the engine (supplying example_domains) so the scan-scope test (patches mod.scan + runs main) still intercepts; the engine is scope-free and repository-root-free. EXEMPT_FILES gains gate_lint_pii_in_content.py defensively (same 'documents PII formats by design' rationale as the wrapper's self-exemption; the engine does not currently self-match, so findings and exit status are unchanged and the exemption keeps the engine out of the reported scan count). aiqt_corpus import guard.)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-pii-in-content.py, grc gate 22 (engine moved into the pack via Pattern A, the second SAFETY-mapped transfer; the 5 detection regexes (EMAIL_RE/US_SSN_RE/US_PHONE_RE/IPV4_RE/STREET_RE) + the IP filters (is_documentation_ip/is_version_ip) + the fence-aware scan moved to the pack engine; scan gained an example_domains keyword so the grc example-domain allow-list stays wrapper config; the wrapper keeps main + the grc scan scope (iter_targets over SCAN_SUFFIXES) + EXEMPT_FILES + EXAMPLE_DOMAINS + grouped reporting and a module-global scan shim delegating to the engine (supplying example_domains) so the scan-scope test (patches mod.scan + runs main) still intercepts; the engine is scope-free and repository-root-free. EXEMPT_FILES gains gate_lint_pii_in_content.py defensively (same 'documents PII formats by design' rationale as the wrapper's self-exemption; the engine does not currently self-match, so findings and exit status are unchanged and the exemption keeps the engine out of the reported scan count). aiqt_corpus import guard.)"
 
 [[gates]]
 id = "lint-internal-references"
@@ -213,7 +213,7 @@ title = "Internal-reference detection audit"
 source = "tools/gate_lint_internal_references.py"
 enforces = "internal-reference"
 entry_point = ".claude/skills/corpus-management/tools/lint-internal-references.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-internal-references.py, grc gate 23 (engine transferred in SHARED/SAFETY-lane PR-39 via Pattern A, the third SAFETY-mapped transfer; the 5 detection regexes (INTERNAL_TLD_RE/AWS/AZURE/GCP_REGION_RE/CIDR_RE) + is_documentation_subnet + the fence-aware scan moved verbatim to the pack engine; the wrapper keeps main (verbatim) + the grc scan scope (iter_targets over SCAN_SUFFIXES) + EXEMPT_FILES + grouped reporting and a module-global scan shim delegating to the engine so the scan-scope test (patches mod.scan + runs main) still intercepts; the engine is scope-free and repository-root-free. EXEMPT_FILES gains gate_lint_internal_references.py defensively (documents the formats by design; the engine does not self-match, so findings and exit status are unchanged and the exemption keeps it out of the reported scan count). aiqt_corpus import guard.)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-internal-references.py, grc gate 23 (engine moved into the pack via Pattern A, the third SAFETY-mapped transfer; the 5 detection regexes (INTERNAL_TLD_RE/AWS/AZURE/GCP_REGION_RE/CIDR_RE) + is_documentation_subnet + the fence-aware scan moved verbatim to the pack engine; the wrapper keeps main (verbatim) + the grc scan scope (iter_targets over SCAN_SUFFIXES) + EXEMPT_FILES + grouped reporting and a module-global scan shim delegating to the engine so the scan-scope test (patches mod.scan + runs main) still intercepts; the engine is scope-free and repository-root-free. EXEMPT_FILES gains gate_lint_internal_references.py defensively (documents the formats by design; the engine does not self-match, so findings and exit status are unchanged and the exemption keeps it out of the reported scan count). aiqt_corpus import guard.)"
 
 [[gates]]
 id = "lint-external-link-domains"
@@ -221,7 +221,7 @@ title = "External-link-domain allow-list audit"
 source = "tools/gate_lint_external_link_domains.py"
 enforces = "external-link-domain"
 entry_point = ".claude/skills/corpus-management/tools/lint-external-link-domains.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-external-link-domains.py, grc gate 24 (engine transferred in SHARED/SAFETY-lane PR-40 via Pattern A, the fourth SAFETY-mapped transfer, completing the SAFETY scan set (g21-24); URL_RE + is_allowed + the fence-aware scan moved to the pack engine; scan/is_allowed gained an allow_list keyword so the grc 142-entry publisher allow-list stays wrapper config; the wrapper keeps main (verbatim) + the grc scan scope (iter_targets over SCAN_SUFFIXES) + EXEMPT_FILES + ALLOW_LIST + a module-global scan shim delegating to the engine (supplying allow_list) so the scan-scope test (patches mod.scan + runs main) still intercepts; the engine is scope-free and repository-root-free. EXEMPT_FILES gains gate_lint_external_link_domains.py defensively (does not self-match; findings+exit unchanged; keeps it out of the reported count). aiqt_corpus import guard.)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-external-link-domains.py, grc gate 24 (engine moved into the pack via Pattern A, the fourth SAFETY-mapped transfer, completing the SAFETY scan set (g21-24); URL_RE + is_allowed + the fence-aware scan moved to the pack engine; scan/is_allowed gained an allow_list keyword so the grc 142-entry publisher allow-list stays wrapper config; the wrapper keeps main (verbatim) + the grc scan scope (iter_targets over SCAN_SUFFIXES) + EXEMPT_FILES + ALLOW_LIST + a module-global scan shim delegating to the engine (supplying allow_list) so the scan-scope test (patches mod.scan + runs main) still intercepts; the engine is scope-free and repository-root-free. EXEMPT_FILES gains gate_lint_external_link_domains.py defensively (does not self-match; findings+exit unchanged; keeps it out of the reported count). aiqt_corpus import guard.)"
 
 [[gates]]
 id = "lint-acronym-consistency"
@@ -229,7 +229,7 @@ title = "Inline acronym-consistency audit"
 source = "tools/gate_lint_acronym_consistency.py"
 enforces = "acronym-consistency"
 entry_point = ".claude/skills/corpus-management/tools/lint-acronym-consistency.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-acronym-consistency.py, grc gate 20 (engine transferred in SHARED/SAFETY-lane PR-41 via Pattern A + a 2nd patched seam; GLOSSARY_ROW_RE + INLINE_DEF_RE + STOPWORDS + parse_glossary (parameterized by the glossary path) + the overlap scan moved verbatim to the pack engine; the wrapper keeps main (verbatim, incl the --root glossary rebinding) + the grc GLOSSARY path + the grc scan scope (iter_markdown_targets, DEFAULT_EXEMPT_DIRS, is_narrative_root) + EXEMPT_FILES, and TWO module-global shims (parse_glossary supplying the grc GLOSSARY path, and scan) because the scan-scope test patches BOTH mod.parse_glossary and mod.scan; keeping both as wrapper shims preserves that interception. The engine functions are scope-free and repository-root-free. aiqt_corpus import guard.)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-acronym-consistency.py, grc gate 20 (engine moved into the pack via Pattern A + a 2nd patched seam; GLOSSARY_ROW_RE + INLINE_DEF_RE + STOPWORDS + parse_glossary (parameterized by the glossary path) + the overlap scan moved verbatim to the pack engine; the wrapper keeps main (verbatim, incl the --root glossary rebinding) + the grc GLOSSARY path + the grc scan scope (iter_markdown_targets, DEFAULT_EXEMPT_DIRS, is_narrative_root) + EXEMPT_FILES, and TWO module-global shims (parse_glossary supplying the grc GLOSSARY path, and scan) because the scan-scope test patches BOTH mod.parse_glossary and mod.scan; keeping both as wrapper shims preserves that interception. The engine functions are scope-free and repository-root-free. aiqt_corpus import guard.)"
 
 [[gates]]
 id = "lint-cross-doc-numbers"
@@ -237,7 +237,7 @@ title = "Cross-document number-consistency audit"
 source = "tools/gate_lint_cross_doc_numbers.py"
 enforces = "cross-doc-numbers"
 entry_point = ".claude/skills/corpus-management/tools/lint-cross-doc-numbers.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-cross-doc-numbers.py, grc gate 25 (engine transferred in SHARED/SAFETY-lane PR-42 via Pattern A; the scan-scope test patches only mod.scan but its dict return makes the capture return {} not [] (the '2nd-seam' aspect); TERM_PATTERNS + TERMS_SCANNED_IN_CODE_FENCES + UNIT_TO_MINUTES + normalise + the per-file scan moved verbatim to the pack engine; the wrapper keeps main (verbatim, incl the cross-document aggregation + divergence report) + the grc scan scope (iter_markdown_targets) + EXEMPT_FILES + a module-global scan shim delegating to the engine so the scan-scope test still intercepts; the engine is scope-free and repository-root-free. NO engine self-exemption is needed: gate 25 scans .md only, so the engine .py is out of scope by suffix (as the old .py wrapper was). aiqt_corpus import guard.)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-cross-doc-numbers.py, grc gate 25 (engine moved into the pack via Pattern A; the scan-scope test patches only mod.scan but its dict return makes the capture return {} not [] (the '2nd-seam' aspect); TERM_PATTERNS + TERMS_SCANNED_IN_CODE_FENCES + UNIT_TO_MINUTES + normalise + the per-file scan moved verbatim to the pack engine; the wrapper keeps main (verbatim, incl the cross-document aggregation + divergence report) + the grc scan scope (iter_markdown_targets) + EXEMPT_FILES + a module-global scan shim delegating to the engine so the scan-scope test still intercepts; the engine is scope-free and repository-root-free. NO engine self-exemption is needed: gate 25 scans .md only, so the engine .py is out of scope by suffix (as the old .py wrapper was). aiqt_corpus import guard.)"
 
 [[gates]]
 id = "lint-cobit-iso31000-citations"
@@ -245,7 +245,7 @@ title = "COBIT/ISO 31000 citation-existence audit"
 source = "tools/gate_lint_cobit_iso31000_citations.py"
 enforces = "cobit-iso31000-citations"
 entry_point = ".claude/skills/corpus-management/tools/lint-cobit-iso31000-citations.py"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-cobit-iso31000-citations.py, grc gate 61 (engine transferred in SHARED/SAFETY-lane PR-43)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-cobit-iso31000-citations.py, grc gate 61 (engine moved into the pack)"
 
 [[gates]]
 id = "lint-metadata-line-breaks"

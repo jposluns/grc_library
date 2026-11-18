@@ -18591,21 +18591,52 @@ class SharedBoundaryCheckRoutingTests(unittest.TestCase):
         self.assertIn(("heading", "# T"), seen)
         self.assertIn(("rule", "---"), seen)
 
-    def test_narrative_title_within_three_spaces_is_read(self):
+    def test_narrative_title_is_a_flush_left_hash_and_space_line(self):
+        """The title is one hash and a space at the line start, then the
+        title text; an indented title, a hash and a tab, and a title with no
+        text are refused."""
         body = self.mod._narrative_body_lines(
-            self._narrative("   # T\n**F:** v\n---\n"), "executive/x.md")
+            self._narrative("# T\n**F:** v\n---\n"), "executive/x.md")
         self.assertEqual(body, ["Body.", ""])
-        with self.assertRaises(self.mod.BuildError):
-            self.mod._narrative_body_lines(
-                self._narrative("    # T\n**F:** v\n---\n"), "executive/x.md")
-
-    def test_narrative_terminator_is_an_anchored_thematic_break(self):
-        for label, rule in (("star rule", "***"), ("spaced dash rule", "- - -"),
-                            ("three-space rule", "   ---")):
+        for label, title in (("one-space title", " # T"),
+                             ("three-space title", "   # T"),
+                             ("four-space title", "    # T"),
+                             ("hash and a tab", "#\tT"),
+                             ("bare hash", "#"), ("hash and a space", "# ")):
             with self.subTest(case=label):
-                body = self.mod._narrative_body_lines(
-                    self._narrative(f"# T\n**F:** v\n{rule}\n"), "executive/x.md")
-                self.assertEqual(body, ["Body.", ""])
+                with self.assertRaisesRegex(
+                        self.mod.BuildError,
+                        "^" + re.escape("executive/x.md: narrative source has no "
+                                        "leading '# ' title line ")):
+                    self.mod._narrative_body_lines(
+                        self._narrative(f"{title}\n**F:** v\n---\n"), "executive/x.md")
+
+    def test_narrative_terminator_is_a_line_reading_exactly_three_dashes(self):
+        body = self.mod._narrative_body_lines(
+            self._narrative("# T\n**F:** v\n---\n"), "executive/x.md")
+        self.assertEqual(body, ["Body.", ""])
+        others = (("star rule", "***"), ("underscore rule", "___"),
+                  ("spaced dash rule", "- - -"), ("mixed spacing rule", "_ __"),
+                  ("five dashes", "-----"), ("one-space rule", " ---"),
+                  ("three-space rule", "   ---"), ("trailing space", "--- "))
+        # Any other thematic break form ends no metadata block: alone it
+        # leaves the block without its terminator, and before a '---' it is
+        # a line of the block that is not a field line, refused by number.
+        for label, rule in others:
+            with self.subTest(case=label, after="none"):
+                with self.assertRaisesRegex(
+                        self.mod.BuildError,
+                        "^" + re.escape("executive/x.md: no '---' metadata "
+                                        "terminator found ")):
+                    self.mod._narrative_body_lines(
+                        self._narrative(f"# T\n**F:** v\n{rule}\n"), "executive/x.md")
+            with self.subTest(case=label, after="---"):
+                with self.assertRaisesRegex(
+                        self.mod.BuildError,
+                        "^" + re.escape(f"executive/x.md: line 3: {rule!r} ")):
+                    self.mod._narrative_body_lines(
+                        self._narrative(f"# T\n**F:** v\n{rule}\n---\n"),
+                        "executive/x.md")
         # A rule indented by four spaces or a tab is no terminator: it is read
         # as a line of the metadata block that is not a field line, so it is
         # refused there by its line number (were it taken as the terminator,
@@ -18668,11 +18699,21 @@ class SharedBoundaryCheckRoutingTests(unittest.TestCase):
                 with self.assertRaises(self.mod.BuildError):
                     self.mod._classify_narrative_line(line, "executive/x.md")
 
-    def test_narrative_hash_led_line_that_is_no_heading_is_not_read_as_one(self):
-        for line in ("#hashtag prose", "####### seven hashes"):
+    def test_narrative_hash_led_line_that_is_no_heading_is_refused(self):
+        """Every body line led by a hash that is not '## Text' or '### Text'
+        fails the build, a hash-led line that is no ATX heading included."""
+        for line in ("#hashtag prose", "####### seven hashes", "#", "##Text"):
             with self.subTest(case=line):
-                self.assertEqual(
-                    self.mod._classify_narrative_line(line, "executive/x.md"), "p")
+                with self.assertRaisesRegex(
+                        self.mod.BuildError,
+                        "^" + re.escape("executive/x.md: only '## ' and '### ' "
+                                        "section headings are supported in the "
+                                        f"body: {line!r}")):
+                    self.mod._classify_narrative_line(line, "executive/x.md")
+        for line in ("> #hashtag prose", "- ####### seven hashes"):
+            with self.subTest(nested=line):
+                with self.assertRaises(self.mod.BuildError):
+                    self.mod._classify_narrative_line(line, "executive/x.md")
 
     def test_llms_heading_lines_use_the_shared_strict_form(self):
         seen = self._consulted(lambda: self.mod._llms_links("llms.txt", "# T\n\n## S\n"))
@@ -18733,6 +18774,16 @@ class SectionReaderShapeTableTests(unittest.TestCase):
               "```\n## inside\n``` not a closing fence\n---\n```",
               "```py\n# inside\n***\n```")
 
+    # A read whose outcome for one shape differs from the one its category
+    # states, keyed by (read, shape). The narrative title is a flush-left
+    # '# ' line, so an indented title and a hash and a tab are refused; the
+    # narrative metadata terminator is a line reading exactly '---'.
+    SHAPE_EXPECTED = {
+        ("narrative title", "#\tTitle"): "refuse",
+        ("narrative title", "   # Title"): "refuse",
+        ("narrative terminator", "---"): "stop",
+    }
+
     # The outcome each read gives per category. "go": the read goes on past
     # the shape; "stop": the shape ends the read; "refuse": a BuildError;
     # "section": the shape is taken as a section heading; "none": it is not.
@@ -18744,9 +18795,11 @@ class SectionReaderShapeTableTests(unittest.TestCase):
                             "h2": "refuse", "h2-bare": "refuse", "h3": "refuse",
                             "h3-bare": "refuse", "text": "refuse", "fence": "refuse"},
         # The shape sits between the metadata block and its terminator: a
-        # thematic break is the terminator ("stop"); any other shape is a
-        # line of the metadata block that is not a field line ("refuse").
-        "narrative terminator": {"rule": "stop", "h1": "refuse", "h1-bare": "refuse",
+        # line reading exactly '---' is the terminator ("stop", stated in
+        # SHAPE_EXPECTED); any other shape, every other thematic break form
+        # included, is a line of the metadata block that is not a field line
+        # ("refuse").
+        "narrative terminator": {"rule": "refuse", "h1": "refuse", "h1-bare": "refuse",
                                  "h2": "refuse", "h2-bare": "refuse", "h3": "refuse",
                                  "h3-bare": "refuse", "text": "refuse", "fence": "refuse"},
         "adopter metadata": {"rule": "stop", "h1": "go", "h1-bare": "go",
@@ -18761,8 +18814,10 @@ class SectionReaderShapeTableTests(unittest.TestCase):
         "adopter outline": {"rule": "none", "h1": "none", "h1-bare": "none",
                             "h2": "section", "h2-bare": "none", "h3": "none",
                             "h3-bare": "none", "text": "none", "fence": "none"},
+        # A level-two heading with no text is no section heading, so the
+        # table under it sits above the first section heading ("refuse").
         "citations register": {"rule": "refuse", "h1": "refuse", "h1-bare": "refuse",
-                               "h2": "section", "h2-bare": "section", "h3": "refuse",
+                               "h2": "section", "h2-bare": "refuse", "h3": "refuse",
                                "h3-bare": "refuse", "text": "refuse", "fence": "refuse"},
         # The shape sits between a domain heading of the live matrix and its
         # table: a level-two heading ends the domain section, so the domain
@@ -18771,9 +18826,10 @@ class SectionReaderShapeTableTests(unittest.TestCase):
                               "h2": "stop", "h2-bare": "stop", "h3": "go",
                               "h3-bare": "go", "text": "go", "fence": "go"},
         # The shape sits between an instrument heading and its table: only a
-        # level-two heading takes the table into a section of its own.
+        # level-two heading with text takes the table into a section of its
+        # own; one with no text is no heading.
         "reverse matrix": {"rule": "none", "h1": "none", "h1-bare": "none",
-                           "h2": "section", "h2-bare": "section", "h3": "none",
+                           "h2": "section", "h2-bare": "none", "h3": "none",
                            "h3-bare": "none", "text": "none", "fence": "none"},
         # The shape sits just before the --- that closes the live matrix's
         # pinned reading-guide section: a thematic break ends the section
@@ -18912,10 +18968,11 @@ class SectionReaderShapeTableTests(unittest.TestCase):
         wrong = []
         for site, outcomes in self.EXPECTED.items():
             for shape, category in self._shapes():
+                want = self.SHAPE_EXPECTED.get((site, shape), outcomes[category])
                 got = self._shape_outcome(site, shape, category)
-                if got != outcomes[category]:
+                if got != want:
                     wrong.append(f"{site}: {shape!r} ({category}) gave {got}, "
-                                 f"expected {outcomes[category]}")
+                                 f"expected {want}")
         self.assertEqual(wrong, [], "\n" + "\n".join(wrong))
 
     def test_crosswalk_matrix_readers_read_no_table_line_inside_a_fence(self):
@@ -18946,14 +19003,14 @@ class SectionReaderShapeTableTests(unittest.TestCase):
     def test_line_classifier_refuses_every_rule_heading_and_fence_it_does_not_render(self):
         """The narrative line classifier renders only '## Text' and '### Text'
         headings; every thematic-break form, every fence, a heading with no
-        text and any indented line fail the build, and a hash-led line that is
-        no heading is prose."""
+        text, any indented line and a hash-led line that is no heading fail
+        the build."""
         wrong = []
         expected = {"h2": "h2", "h3": "h3"}
         for shape, category in self._shapes():
             first = shape.split("\n")[0]
             want = expected.get(category, "refuse")
-            if category == "text" and first in ("#hashtag", "####### seven", "--- x"):
+            if category == "text" and first == "--- x":
                 want = "p"
             if first != first.lstrip():
                 want = "refuse"
@@ -18982,11 +19039,13 @@ class SectionReaderShapeTableTests(unittest.TestCase):
     def test_refusal_messages_state_the_accepted_forms(self):
         end = self.mod._NARR_TERMINATOR
         with self.assertRaisesRegex(self.mod.BuildError,
-                                    r"no leading '# ' title line.*'# Title'.*three spaces"):
+                                    r"no leading '# ' title line.*flush-left '# Title'.*"
+                                    r"one hash and a space at the line start"):
             self.mod._narrative_body_lines(f"#\n**F:** v\n---\nBody.\n\n{end}\n",
                                            "executive/x.md")
         with self.assertRaisesRegex(self.mod.BuildError,
-                                    r"metadata terminator.*'-', '\*' or '_'.*three spaces"):
+                                    r"no '---' metadata terminator.*exactly '---'.*"
+                                    r"no other thematic break form"):
             self.mod._narrative_body_lines(f"# T\n**F:** v\nBody.\n\n{end}\n",
                                            "executive/x.md")
         for line in ("--- -", "***"):

@@ -896,6 +896,23 @@ class HistoricalContextTests(unittest.TestCase):
             s + "\n", *mode, register=HREG, exceptions=hx(hrow(s)))[0], 0)
         self.assertEqual(
             self.invoke(s + "\n", *mode, register=HREG)[0], 1)
+        # Negative cases: nothing but a sanction row in the data file lets a stale
+        # citation through. A legacy exception, the same row written only in the
+        # Markdown register page (now a generated view, never read for policy),
+        # sanctions nothing and fails in enforce mode.
+        rows = W.HCR.load(hx(hrow(s)))
+        legacy_page = "# Register\n\n## Exceptions\n\n" + W.HCR.render(rows) + "\n"
+        code, out, err = self.invoke(s + "\n", *mode, register=HREG, page=legacy_page)
+        self.assertEqual(code, 1, out + err)
+        self.assertNotIn("HISTORICAL", out)
+        # Nor does report mode's allowance carry over: a stale citation the legacy
+        # check does not match stays advisory in report mode but blocks in enforce
+        # mode when no row sanctions it.
+        other = "The previous edition, ISO 27001:2013, was withdrawn in 2022."
+        self.assertEqual(self.invoke(other + "\n", register=HREG)[0], 0)
+        code, out, _ = self.invoke(other + "\n", *mode, register=HREG)
+        self.assertEqual(code, 1, out)
+        self.assertIn("BLOCKING", out)
 
     def test_declaration_schema(self):
         current = HSENT.replace("27001:2013", "27001:2022")
@@ -936,7 +953,11 @@ class HistoricalContextTests(unittest.TestCase):
 
 
 class HistoricalContextRegressionTests(unittest.TestCase):
-    """Each counterexample is a regression."""
+    """Edge cases of the historical-context sanction: the binding of a row to one
+    occurrence, the strict register data and its generated page, the sentence and
+    line model, and the wrapper's screens. Each test pins a counterexample the
+    sanction must refuse or a contract it must keep; the enforce-mode test of the
+    sanction itself is in HistoricalContextTests."""
     invoke = CitationCoverageTests.invoke
     run_json = HistoricalContextTests.run_json
 

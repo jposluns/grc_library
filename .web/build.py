@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static-site generator for the grclibrary.ai public site: the promoted baseline-template tree (the PR 2b rebuild, flipped to the site root at the draft-site promotion): the fixed pages, per-domain, per-type and per-document pages, the Browse adventure's need pages, the decide hub and concern pages, the executive reading room, and the crosswalk views and instrument pages.
+"""Static-site generator for the grclibrary.ai public site: the promoted baseline-template tree (the rebuild on the shared family site template, flipped to the site root at the draft-site promotion): the fixed pages, per-domain, per-type and per-document pages, the Browse adventure's need pages, the decide hub and concern pages, the executive reading room, and the crosswalk views and instrument pages.
 
 WHAT THIS IS. A stdlib-only generator that renders the public site from the
 LIVE corpus at build time.
@@ -70,11 +70,11 @@ domain READMEs, ``.claude/skills/corpus-management/data/narrative.yml``, and, fo
 registry-listed ``executive/`` narrative sources (each admitted only through the
 renderer-confinement validator above). Beyond that allow-list the tree
 reads its own template tree ``.web/templates-draft/``; the pinned baseline
-runtime files under ``.web/baseline/`` and their pin ``.web/site-card/pin.toml``
-(PR 2b), each copied file verified by SHA-256 at build time, and runs the
+runtime files under ``.web/baseline/`` and their pin ``.web/site-card/pin.toml``,
+each copied file verified by SHA-256 at build time, and runs the
 pinned palette gate ``.web/site-card/check_palette.py`` (verified by SHA-256 against
 the same pin, never served) on the served ``palettes.css``; for the crosswalk
-(PR 5) and the comply page built on its model, the compliance alignment
+pages and the comply page built on their model, the compliance alignment
 matrix, the reverse framework-control crosswalk, and the canonical citations
 register (``compliance/matrix-grc-compliance-alignment.md``,
 ``governance/matrix-reverse-framework-control-crosswalk.md``,
@@ -191,7 +191,7 @@ class Variant(NamedTuple):
     document_routes: bool = False
     # The variant's own fixed page set (DRAFT_PAGES for the promoted tree).
     pages: tuple = None
-    # Baseline-template draft rules (PR 2b, promoted to the root at the
+    # Baseline-template draft rules (promoted to the root at the
     # draft-site promotion): the tree renders through render_draft_variant
     # (its own templates, partials and figure values), copies the pinned
     # baseline assets under <prefix>assets/baseline/ with SHA-256
@@ -201,7 +201,7 @@ class Variant(NamedTuple):
     draft_rules: bool = False
 
 
-# The fixed pages of the promoted tree (the PR 2b baseline-template rebuild,
+# The fixed pages of the promoted tree (the baseline-template rebuild,
 # flipped to the site root at the draft-site promotion): (template under
 # .web/templates-draft/, output path at the dist root). The per-domain,
 # per-type and per-document routes come from the same machinery the fixed
@@ -1172,12 +1172,15 @@ _NARR_METADATA_LINE_RE = re.compile(r"^\*\*([^*]+):\*\*\s*(.*?)\s*$")
 
 def _narrative_body_lines(text, source_rel):
     """Return the BODY lines of one narrative source: everything after the
-    first metadata terminator (a thematic break outside any fence, read
-    through the shared section reader _md_read and stated in
-    _MD_SECTION_ENDS["narrative metadata"], so any CommonMark break form
-    within three spaces ends the block and a rule indented by four spaces or
-    a tab does not); the first non-blank line must be a level-one heading
-    with its title text, read the same way; every line between that title
+    first metadata terminator, a line reading exactly '---' outside any
+    fence (read through the shared section reader _md_read, which finds
+    the thematic break that _MD_SECTION_ENDS["narrative metadata"] states,
+    and taken only in that one form: an indented '---', a '---' with
+    trailing whitespace and every other break form, such as '***' or
+    '- - -', are not the terminator); the first non-blank line must be a
+    flush-left '# ' title line with its title text (one hash and a space at
+    the line start, so an indented title or a '#' and a tab is refused);
+    every line between that title
     and the terminator must be blank or a flush-left '**Field:** value'
     line (_NARR_METADATA_LINE_RE), so a file whose metadata block lacks its
     terminator is refused at its first other line instead of being read up
@@ -1192,27 +1195,27 @@ def _narrative_body_lines(text, source_rel):
     lines = text.splitlines()
     items = list(_md_read(lines))
     first = next((it for it in items if it.line.strip()), None)
-    if first is None or _md_heading_text(first, 1) in (None, ""):
+    if (first is None or not first.line.startswith("# ")
+            or _md_heading_text(first, 1) in (None, "")):
         raise BuildError(
             f"{source_rel}: narrative source has no leading '# ' title line "
-            f"(the first non-blank line must be a level-one ATX heading with "
-            f"its title text, '# Title' or '#' and a tab, after at most three "
-            f"spaces)")
+            f"(the first non-blank line must be a flush-left '# Title' line: "
+            f"one hash and a space at the line start, then the title text)")
     ends = _MD_SECTION_ENDS["narrative metadata"]
-    end = next((it.index for it in items if _md_ends(it, ends)), None)
+    end = next((it.index for it in items
+                if _md_ends(it, ends) and it.line == "---"), None)
     if end is None:
         raise BuildError(
-            f"{source_rel}: no metadata terminator found (a thematic break "
-            f"outside any fence: three or more of one of '-', '*' or '_', "
-            f"spaces or tabs between them allowed, after at most three "
-            f"spaces, such as '---')")
+            f"{source_rel}: no '---' metadata terminator found (a line "
+            f"reading exactly '---', flush left and outside any fence; no "
+            f"other thematic break form ends the metadata block)")
     for number in range(first.index + 1, end):
         line = lines[number]
         if line.strip() and not _NARR_METADATA_LINE_RE.match(line):
             raise BuildError(
                 f"{source_rel}: line {number + 1}: {line!r} before the metadata "
                 f"terminator is not a metadata line (between the title and the "
-                f"first thematic break each line is blank or a flush-left "
+                f"'---' terminator each line is blank or a flush-left "
                 f"'**Field:** value' line; a metadata block missing its "
                 f"terminator is refused, not read up to a rule in the body)")
     body = lines[end + 1:]
@@ -1282,11 +1285,12 @@ def _classify_narrative_line(line, source_rel):
             f"'|'-terminated table row: {line[:60]!r}"
         )
     kind = _md_classify(line)[0]
-    if kind == "heading":
-        # A heading is recognized by the shared section reader, so a
-        # hash-led line that is no ATX heading ('#tag', seven hashes) is
-        # prose, as in the adopter reads; of the headings, only the strict
-        # '## Text' / '### Text' form renders.
+    if kind == "heading" or line.startswith("#"):
+        # Every hash-led line is a heading candidate: a heading the shared
+        # section reader recognizes, and also a hash-led line that is no
+        # ATX heading ('#tag', seven hashes), which is refused rather than
+        # rendered as prose. Only the strict '## Text' / '### Text' form
+        # renders.
         # A CommonMark CLOSING-hash sequence (a trailing '#' run alone or
         # preceded by whitespace, '## Text ##' / '## Text #' / '## ###')
         # would leak the hashes into the rendered heading text; the
@@ -4012,8 +4016,8 @@ def _doc_page_url(base, path):
 
 
 # ---------------------------------------------------------------------------
-# The /draft tree (PR 2b): the grclibrary.ai rebuild on the shared family site
-# template (baseline 1.11.1, pinned under .web/baseline/ by PR 2a). The tree is
+# The /draft tree: the grclibrary.ai rebuild on the shared family site
+# template (baseline 1.11.1, pinned under .web/baseline/). The tree is
 # VARIANT-SCOPED by Variant.draft_rules, renders from its own templates under
 # .web/templates-draft/, and is self-contained: every internal link and asset
 # is {{BASE}}-prefixed and the pinned baseline runtime files are copied to
@@ -8079,8 +8083,11 @@ def _parse_citations_register_sections(text, require_heading):
     state = "outside"  # outside -> header -> rows
     for item in _md_read(text.splitlines()):
         line = item.line
+        # A level-two heading with no text ('##', '## ') is no section
+        # heading: it names no section, so it neither opens one nor
+        # satisfies the heading a register table must sit under.
         section = _md_heading_text(item, 2)
-        if section is not None:
+        if section:
             heading = section
             state = "outside"
             continue
@@ -8418,8 +8425,10 @@ def parse_reverse_matrix(text):
     state = "outside"
     for item in _md_read(text.splitlines()):
         line = item.line
+        # A level-two heading with no text ('##', '## ') is no section
+        # heading: it names no instrument, so it opens no section.
         section = _md_heading_text(item, 2)
-        if section is not None:
+        if section:
             heading = section
             current = None
             state = "outside"
