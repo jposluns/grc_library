@@ -133,10 +133,10 @@ Exemption layers:
     widening, and a word it cannot widen is tested alone. The widening reads
     one character at a time, so a bracket or brace written as a character
     reference opens and closes nothing.
-    Residual: the markup between a dotted name and the remote that this
-    allowance is known to refuse is exactly the refused cases its tests pin,
-    in tests/test_linters.py, class PIIContentTests. Those are chiefly the
-    cases passed to _assert_remote_after_a_dot_behind_delimiters_reported by
+    Residual: the refused cases the tests pin for markup between a dotted
+    name and the remote, in tests/test_linters.py, class PIIContentTests,
+    are the cases passed to
+    _assert_remote_after_a_dot_behind_delimiters_reported by
     test_git_remote_allowance_refuses_a_dot_behind_strong_emphasis,
     test_git_remote_allowance_refuses_a_dot_behind_emphasis,
     test_git_remote_allowance_refuses_a_dot_behind_underscore_emphasis,
@@ -145,15 +145,24 @@ Exemption layers:
     test_git_remote_allowance_refuses_a_dot_behind_highlight,
     test_git_remote_allowance_refuses_a_dot_behind_superscript,
     test_git_remote_allowance_refuses_a_dot_behind_a_fullwidth_asterisk,
-    test_git_remote_allowance_refuses_a_dot_behind_an_entity_encoded_delimiter,
+    test_git_remote_allowance_refuses_any_character_reference_in_the_word_before_the_remote,
     test_git_remote_allowance_refuses_a_dot_behind_a_delimiter_closed_after_the_token,
     test_git_remote_allowance_refuses_a_dot_anywhere_in_the_word_before_the_remote
     and
-    test_git_remote_allowance_refuses_a_dot_behind_an_empty_link_a_spaced_label_or_an_extension,
+    test_git_remote_allowance_refuses_a_dot_behind_an_empty_link_a_spaced_label_or_an_extension;
     the cases of
-    test_git_remote_token_rule_refuses_markup_unicode_space_and_nfkc_continuations,
+    test_git_remote_allowance_refuses_obsolete_local_part_syntax,
+    test_git_remote_allowance_refuses_a_comment_or_domain_literal_around_the_remote
+    and
+    test_git_remote_token_rule_refuses_markup_unicode_space_and_nfkc_continuations;
+    the refused lines of
+    test_git_remote_allowance_states_the_markup_it_does_not_read_and_the_forms_it_refuses;
+    the refused case of
+    test_git_clone_url_after_an_undotted_marked_word_or_a_paragraph_break_still_passes;
     and the refused controls of the three test_git_remote_residual_allows_
-    tests. Any other markup there is not guaranteed to be read and may let
+    tests. The refusals guaranteed for markup between a dotted name and the
+    remote are the general rules this docstring states plus those pinned
+    cases. Any other markup there is not guaranteed to be read and may let
     the remote through. Spellings found so far that let it through, given
     as examples only and not as a complete list: a reStructuredText
     substitution or role (alice. |x| git@github.com:o/r); a word inside a
@@ -169,9 +178,10 @@ Exemption layers:
     the rule reads one paragraph. Refused cases the tests pin include an
     empty-text link or image (alice. [][r] git@github.com:o/r), a reference
     label with white space in it ([alice.][r x] git@github.com:o/r), a
-    kramdown comment with no word between it and the remote
-    (alice. {::comment} x {:/comment} git@github.com:o/r) and an HTML
-    comment (alice. <!-- a b --> git@github.com:o/r). A
+    kramdown comment holding one word with no bracket or brace, directly
+    before the remote (as in alice. {::comment} x {:/comment}
+    git@github.com:o/r) and an HTML comment
+    (alice. <!-- a b --> git@github.com:o/r). A
     parenthesis, angle bracket or tag separated from the token by white
     space (( git@github.com:o/r ) or <a href=' git@github.com:o/r '>) is not
     part of its token, so the token rule does not read it; it can make no
@@ -390,10 +400,11 @@ def _local_part_continues_before(text: str, pos: int) -> bool:
     a ">" or a character reference (_REFERENCE_RE), or when its rendered form holds a dot or a
     closing parenthesis. A word whose rendered form holds one of _SPAN_CHARACTERS is widened to
     its markup span (_span_start), tested as one word and passed over even when it holds a letter
-    or digit (_span_start gives the exact widening). The markup between a dotted name and the
-    remote that this is known to refuse is exactly the refused cases the tests pin, named in the
-    module docstring; any other markup there is not guaranteed to be read and may let the remote
-    through. It refuses the legitimate forms 1. git@github.com:o/r and | v1 | example.org |
+    or digit (_span_start gives the exact widening). The refusals guaranteed for markup between a
+    dotted name and the remote are the general rules stated in the module docstring plus the
+    refused cases the tests pin, which include those named in the module docstring; any other
+    markup there is not guaranteed to be read and may let the remote through. It refuses the
+    legitimate forms 1. git@github.com:o/r and | v1 | example.org |
     git@github.com:o/r |. The rule and why: see "Git remote forms" in the module docstring."""
     end = pos
     while True:
