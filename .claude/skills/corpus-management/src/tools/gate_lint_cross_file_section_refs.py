@@ -25,7 +25,9 @@ and every cell is checked; an unmatched backtick is literal and backslashes
 inside code are literal. A local heading
 reference in a table cell is excluded when real descriptive text intervenes
 before a nearby following parenthesized link with a matching closing parenthesis,
-and no link precedes that mark in the cell. A cell of that shape whose
+and no link precedes that mark in the cell. The opening parenthesis before the
+link counts only when it is outside any code span and not escaped with a
+backslash; otherwise the cell is not of that shape. A cell of that shape whose
 parenthesis is not closed after the link is refused as malformed, whether or
 not the target holds the cited number, instead of being checked as a citation
 of the target. "Of the target" describes the
@@ -191,21 +193,15 @@ def reference_cells(line: str) -> list[str]:
     return cells
 
 
-def _closes_open_parenthesis(cell: str, start: int) -> bool:
-    """Whether ``cell[start:]`` closes one parenthesis already open before ``start``.
+def _bare_characters(cell: str):
+    """Yield ``(index, char)`` for each character of ``cell`` that is structure.
 
-    Parentheses are counted with nesting, so a nested parenthetical does not
-    close the open one. Only a parenthesis at or after ``start`` is counted. A
-    parenthesis is ignored only inside a code span, or after an odd run of
-    backslashes, that the scanned text itself opens. The scan begins at the
-    start of the cell, so a code span opened before ``start`` is part of the
-    scanned text: a parenthesis it encloses after ``start`` is ignored, and a
-    span or escape opened outside the cell is not seen. Code spans follow the
-    rule ``reference_cells`` uses: a backtick run not escaped opens code only
-    when an equal-length closing run exists, and inside code backslashes are
-    literal.
+    The scan begins at the start of the cell. A character is skipped when it is
+    inside a code span, is a backslash, or follows an odd run of backslashes.
+    Code spans follow the rule ``reference_cells`` uses: a backtick run not
+    escaped opens code only when an equal-length closing run exists, and inside
+    code backslashes are literal.
     """
-    depth = 1
     backslashes = 0
     i = 0
     while i < len(cell):
@@ -223,14 +219,44 @@ def _closes_open_parenthesis(cell: str, start: int) -> bool:
             closing = re.search(r"(?<!`)`{%d}(?!`)" % (end - i), cell[end:])
             i = end + closing.end() if closing else end
             continue
-        if not escaped and i >= start:
-            if char == "(":
-                depth += 1
-            elif char == ")":
-                depth -= 1
-                if depth == 0:
-                    return True
+        if not escaped:
+            yield i, char
         i += 1
+
+
+def _is_bare(cell: str, index: int) -> bool:
+    """Whether ``cell[index]`` is outside any code span and not escaped.
+
+    The cell is scanned from its start with the rule ``_bare_characters``
+    applies, the same rule ``_closes_open_parenthesis`` uses.
+    """
+    return any(i == index for i, _char in _bare_characters(cell))
+
+
+def _closes_open_parenthesis(cell: str, start: int) -> bool:
+    """Whether ``cell[start:]`` closes one parenthesis already open before ``start``.
+
+    Parentheses are counted with nesting, so a nested parenthetical does not
+    close the open one. Only a parenthesis at or after ``start`` is counted. A
+    parenthesis is ignored only inside a code span, or after an odd run of
+    backslashes, that the scanned text itself opens. The scan begins at the
+    start of the cell, so a code span opened before ``start`` is part of the
+    scanned text: a parenthesis it encloses after ``start`` is ignored, and a
+    span or escape opened outside the cell is not seen. Code spans follow the
+    rule ``reference_cells`` uses: a backtick run not escaped opens code only
+    when an equal-length closing run exists, and inside code backslashes are
+    literal.
+    """
+    depth = 1
+    for i, char in _bare_characters(cell):
+        if i < start:
+            continue
+        if char == "(":
+            depth += 1
+        elif char == ")":
+            depth -= 1
+            if depth == 0:
+                return True
     return False
 
 
@@ -285,6 +311,11 @@ def check_file(
                             and number in own_sections and following is not None
                             and not any(m.end() <= match.start() for m in md_link_re.finditer(cell))
                             and re.fullmatch(r"\s+[^()]*\S[^()]*\(\s*", intervening)
+                            # The opening parenthesis before the link counts
+                            # only when it is outside any code span and not
+                            # escaped; otherwise it is text and the cell is
+                            # checked as a citation of the target.
+                            and _is_bare(cell, match.end() + len(intervening.rstrip()) - 1)
                             and not re.match(r"\s+of\s+(?:the\s+)?target\b", intervening, re.I)):
                         # Scan with balanced parentheses: a nested
                         # parenthetical inside the exception path does not
