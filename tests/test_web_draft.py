@@ -18029,8 +18029,9 @@ class SiteReviewFixRound2Tests(unittest.TestCase):
         correction's (1.12.12), the WCO SAFE attribution sweep's (1.12.13),
         its follow-up's (1.12.14, findings WCO-SWEEP-REST-0507 and
         WCO-SWEEP-REV7-0922), the programme-claims PR's (1.12.15), the
-        CTPAT MSC register retitle's (1.12.16) and draft claimsfu1's BASC
-        register correction (1.12.17)."""
+        CTPAT MSC register retitle's (1.12.16), draft claimsfu1's BASC
+        register correction (1.12.17) and the AEO/AEO-S column key
+        correction (1.12.18)."""
         text = (REPO_ROOT / "compliance" /
                 "matrix-grc-compliance-alignment.md"
                 ).read_text(encoding="utf-8")
@@ -18041,7 +18042,7 @@ class SiteReviewFixRound2Tests(unittest.TestCase):
                       "the [Cross-Framework Alignment Matrix]"
                       "(../governance/matrix-cross-framework-alignment.md).",
                       text)
-        self.assertIn("**Version:** 1.12.17\\\n", text)
+        self.assertIn("**Version:** 1.12.18\\\n", text)
 
     def test_quick_reference_purpose_matches_its_exception_rows(self):
         """Item 3: the Purpose said "the absolute prohibitions" though
@@ -18139,7 +18140,8 @@ class SiteReviewFixRound3Tests(unittest.TestCase):
         PR again (1.12.15), each with the same Date; the CTPAT MSC register
         retitle bumps it to 1.12.16 and sets the Date to 2026-11-07, and
         draft claimsfu1's BASC register correction bumps it to 1.12.17 with
-        the same Date."""
+        the same Date, and the AEO/AEO-S column key correction bumps it
+        to 1.12.18 and sets the Date to 2026-11-18."""
         text = (REPO_ROOT / "compliance" /
                 "matrix-grc-compliance-alignment.md"
                 ).read_text(encoding="utf-8")
@@ -18148,8 +18150,8 @@ class SiteReviewFixRound3Tests(unittest.TestCase):
                       "to the control domains and section references of "
                       "ten compliance, security, assurance, and AI-control "
                       "frameworks, so a reader can trace", text)
-        self.assertIn("**Version:** 1.12.17\\\n", text)
-        self.assertIn("**Date:** 2026-11-07\\\n", text)
+        self.assertIn("**Version:** 1.12.18\\\n", text)
+        self.assertIn("**Date:** 2026-11-18\\\n", text)
 
 
 class BaselinePinGateTests(unittest.TestCase):
@@ -20666,13 +20668,15 @@ class ProgrammeClaimsTests(unittest.TestCase):
         Compendium" as the AEO-S key reference, and the class-wide search
         found the MSC register's "HMRC AEO Compendium application
         documentation". The AEO Compendium is a WCO publication; the
-        matrix now cites the HMRC handbook the library holds."""
+        matrix now cites the HMRC handbook the library holds. Its gov.uk
+        link is now the page the citations register's AEO/AEOS (UK) row
+        links (authorised-economic-operator-certification)."""
         found = [f"{rel}: {line[:60]}" for rel, line in self._corpus_lines()
                  if "HMRC AEO Compendium" in line]
         self.assertEqual(found, [])
         self.assertIn(
-            "| AEO-S (UK) | HMRC: https://www.gov.uk/guidance/apply-for-"
-            "authorised-economic-operator-status | UK HMRC AEO security and "
+            "| AEO-S (UK) | HMRC: https://www.gov.uk/guidance/authorised-"
+            "economic-operator-certification | UK HMRC AEO security and "
             "safety "
             "criteria handbook (Customs Technical Handbook, section 11) |",
             self._lines(self.SUPPLY_MATRIX))
@@ -20768,8 +20772,13 @@ class ProgrammeClaimsTests(unittest.TestCase):
         Safety)", a second AEO-S form. Both now give the single
         expansion."""
         mod = _load_build()
-        row = (f"| AEO/AEO-S | UK HMRC {self._AEO_S_EXPANSION} | Requirement "
-               "area headings |")
+        row = (f"| AEO/AEO-S | UK HMRC {self._AEO_S_EXPANSION} | The "
+               "organization's own scoping of the HMRC criteria, in IT and "
+               "non-IT areas, not HMRC requirement area headings. The held "
+               "handbook's security and safety criteria headings (section "
+               "11, 11.1 to 11.17) name no information systems area; its "
+               "computer systems heading is under the record keeping "
+               "criterion, as 8.10 Protection of computer systems |")
         lines = self._lines(self.COMPLIANCE_MATRIX)
         self.assertEqual(lines.count(row), 1)
         self.assertIn(row, mod.CROSSWALK_TSC_SECTION_OPENING.split("\n"))
@@ -21572,8 +21581,15 @@ class ProgrammeClaimsTests(unittest.TestCase):
         "building and boundary security); for cargo units, procedures for "
         "how incidents are reported and recorded and what action is to be "
         "taken, including reporting to law enforcement or senior management "
-        f"(§11.12, cargo security); {_SECTION_12_4_CLAUSE}; the "
-        "organization maps these to IT incidents as its own scoping | "
+        f"(§11.12, cargo security); {_SECTION_12_4_CLAUSE}; under the record "
+        "keeping criterion, among what the handbook says actions should "
+        "normally include, dealing with incidents which compromise document "
+        "security and documented remedial action taken as a result of any "
+        "actual incidents if applicable (§8.12, documentation security), and "
+        "among the actions it says businesses should consider, logs where "
+        "each user and their actions are recorded (§8.10, protection of "
+        "computer systems), neither stated as a requirement; the organization "
+        "maps these to IT incidents as its own scoping | "
         "Candidate overlap, subject to HMRC acceptance; the HMRC notification "
         "(§12.4) is made on form C122, apart from any CBP notification |")
 
@@ -21630,7 +21646,15 @@ class ProgrammeClaimsTests(unittest.TestCase):
             "boundary security) and, for cargo units, incident reporting and "
             "recording and the action to be taken, including reporting to law "
             "enforcement or senior management (§11.12, cargo security); "
-            f"{self._SECTION_12_4_CLAUSE}; CBSA supplement needed |", rows[0])
+            f"{self._SECTION_12_4_CLAUSE}; under the record keeping "
+            "criterion, among what the handbook says actions should normally "
+            "include, dealing with incidents which compromise document "
+            "security and documented remedial action taken as a result of any "
+            "actual incidents if applicable (§8.12, documentation security), "
+            "and among the actions it says businesses should consider, logs "
+            "where each user and their actions are recorded (§8.10, "
+            "protection of computer systems), neither stated as a "
+            "requirement; CBSA supplement needed |", rows[0])
         self.assertNotIn("Incident reporting to HMRC", text)
         self.assertNotIn("HMRC submission guidance", text)
 
@@ -24408,19 +24432,25 @@ class ProgrammeClaimsTests(unittest.TestCase):
         surrounding prose keeps the library's -ize spelling. The link is
         scheme-qualified because the language lint masks only http(s) URL
         tokens; a bare -ised address is reported as a spelling finding.
-        The citations register's AEO/AEOS (UK) row names a different page
-        (authorised-economic-operator-certification) and is unchanged."""
+        The key reference and the citations register's AEO/AEOS (UK) row
+        now link the same page (authorised-economic-operator-certification),
+        the one the held HMRC Customs Technical Handbook (AEO) introduction
+        links."""
         dead = "apply-for-" + "authorized-economic-operator-status"
         found = [f"{rel}:{number}" for rel, number, line in self._md_lines()
                  if dead in line]
         self.assertEqual(found, [])
+        address = ("https://www.gov.uk/guidance/authorised-economic-"
+                   "operator-certification")
         prefix = "| AEO-S (UK) | HMRC: "
-        self.assertEqual(
-            self._matrix_cell(prefix, 2),
-            "HMRC: https://www.gov.uk/guidance/apply-for-authorised-"
-            "economic-operator-status")
+        self.assertEqual(self._matrix_cell(prefix, 2), f"HMRC: {address}")
         self.assertIn("UK HMRC AEO security and safety criteria handbook",
                       self._matrix_cell(prefix, 3))
+        rows = [line for line in self._lines(
+                    "governance/register-canonical-citations.md")
+                if line.startswith("| AEO/AEOS (UK) |")]
+        self.assertEqual(len(rows), 1, rows)
+        self.assertEqual(rows[0].split("|")[6].strip(), address)
 
     # HMRC section 11.2's "computer system, accounting records and
     # documents" (line 38). No held HMRC line names a retention period.
@@ -24859,6 +24889,7 @@ class MscRegisterRound3Tests(unittest.TestCase):
             "be obtained for employment purposes",
             "together with a summary of the consumer's rights under section "
             "1681m(a)(3)",
+            "(redesignated section 1681m(a)(4) by Pub. L. 111-203)",
             "the consumer have consented, orally, in writing or "
             "electronically, to the procurement of the report by that "
             "person",
@@ -25001,7 +25032,9 @@ class MscRegisterRound3Tests(unittest.TestCase):
             "unless ",
             "a person ",
             "together with a summary of the consumer's rights under section "
-            "1681m(a)(3), ",
+            "1681m(a)(3) (redesignated section 1681m(a)(4) by Pub. L. "
+            "111-203), ",
+            " (redesignated section 1681m(a)(4) by Pub. L. 111-203)",
             ", whose only interaction with the person in connection with the "
             "application, when the report is procured or caused to be "
             "procured, has been by mail, telephone, computer or other "
@@ -26683,7 +26716,7 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
         (ProgrammeClaimsTests.UK_PROCEDURE, 25,
          "The handbook's section 11 does not name cybersecurity;",
          _IT_MEASURES_8_1 + "section 8.1)"),
-        (ProgrammeClaimsTests.IT_REGISTER, 61,
+        (ProgrammeClaimsTests.IT_REGISTER, 63,
          "The held HMRC criteria (UK HMRC AEO security and safety criteria "
          "handbook, section 11) set out no IT control requirement:",
          _IT_MEASURES_8_1 + "section 8.1)"),

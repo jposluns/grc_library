@@ -45553,7 +45553,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         adopt-preflight-guard.py FIXED F ec8cd157cd485bb1b01221ed34f3796dbb9252b84a75b3d3e0c1f6c847a19330
         aiqt_bootstrap.py PASSIVE F 2d094f059929c9ce413f4aabb02fff22f45c553759eb6956574240b094462353
         aiqt_rules.py NO_FS F 21c90dc9027d3c498ed7e4919b31b09df22a78d5975396d3c6541c5395d36d1b
-        alignment-register-aliases.json DATA F 7aba74ebc7e34d89145f754cc53763e03df0bbf7f366765bbd94df5e47fdb812
+        alignment-register-aliases.json DATA F 8ced0bd8ac668ce76a24d2eb44db5ea4c5bdabe4014536bab2a34071e1196167
         alignment-register-exclusions.json DATA F ae28ec61a6a973f24a33af86957dff0d1f0d0740dc82b5aec393a5bb882c3df0
         alignment_citation_ids.json DATA F cfa3de2c52597f242d12bfce2d71756e897c173de8df9a1577aed4f42b571d56
         alignment_citation_reference.py PASSIVE F 4d26e0d5906e57bbe205f641575c6589d0afad3f60d8b4995aa07c26caf1db4b

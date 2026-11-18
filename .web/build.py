@@ -5194,7 +5194,12 @@ CROSSWALK_TSC_SECTION_OPENING = "\n".join((
     "or beside a numbered Pillar II standard or Section VI, never beside a "
     "Pillar II reference alone |",
     "| AEO/AEO-S | UK HMRC Authorized Economic Operator Security and "
-    "Safety | Requirement area headings |",
+    "Safety | The organization's own scoping of the HMRC criteria, in IT "
+    "and non-IT areas, not HMRC requirement area headings. The held "
+    "handbook's security and safety criteria headings (section 11, 11.1 "
+    "to 11.17) name no information systems area; its computer systems "
+    "heading is under the record keeping criterion, as 8.10 Protection of "
+    "computer systems |",
     "| AICPA TSC 2017 | AICPA 2017 Trust Services Criteria (TSP Section "
     "100), the criteria used to evaluate controls in a SOC 2 examination; "
     "the 2022 revision updated the points of focus, not the criteria | "
