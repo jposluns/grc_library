@@ -32,7 +32,10 @@ archive below `## Closed today` and a mis-filed row above it. CONSEQUENCE, state
 same leading token as a CLASS token (P-1.67), so a FIXED row owes a `[class: "<token>" @ <count>]` or
 `[class-exempt: <reason>]` clause, and this tool refuses one without it, as D14 does. D14 skips a row
 the shared repository-tag rule reads as the successor's (see repository-tag-unclassifiable below), so
-this tool does not refuse such a row for a missing or invalid clause either; class-multi still applies.
+this tool does not refuse such a row for a missing or invalid clause either. D14 fails closed on a row
+that rule reads as bad before its attestation test, so this tool refuses such a row as
+repository-tag-unclassifiable and not for its clause: only a row the rule reads as this repository's
+is held to class-unattested and class-bad-exempt. class-multi still applies on every row.
 
 PLACEMENT.
   --after ANCHOR_ID  after the one row the guard reads in `## Open` or `## Closed today` whose Finding
@@ -81,7 +84,9 @@ REFUSALS (exit 1). not-utf8, multiline, bad-line-char (a CR or another character
 treats as a line break), malformed-columns, severity-unknown, disposition-invalid, disposition-empty
 (an error or warning row with an empty disposition; --open admits it: an empty error row
 makes the merge guard block the merge, while an empty warning row is surfaced without blocking), class-unattested
-and class-bad-exempt (neither on a row the shared rule reads as the successor's), class-multi (on any row: one clause
+and class-bad-exempt (only on a row the shared rule reads as this repository's: neither on a row it
+reads as the successor's nor on one it reads as bad, which is refused as repository-tag-unclassifiable
+instead), class-multi (on any row: one clause
 per row), repository-tag-unclassifiable (a `[repo: ...]` tag that the shared rule,
 row_repository in tools/ledger_repository_scope.py, reads as bad: two tags, a tag that is not the
 Disposition cell's final token, a final tag after an unclosed `[` or a stray `]`
@@ -451,8 +456,8 @@ def check_row(hook, row: str, finding_id: str, *, allow_open: bool) -> tuple[lis
             codes.append("disposition-empty")
     # The shared repository-tag rule (ledger_repository_scope.row_repository), read once: the
     # class-attestation check fails closed on a 'bad' row and skips a 'foreign' (successor) row before
-    # its attestation test, so this tool refuses the first and does not hold the second to the
-    # attestation either.
+    # its attestation test, so this tool refuses the first as repository-tag-unclassifiable and holds
+    # only an 'own' row to the attestation, so a 'bad' row is not also misreported as unattested.
     scope = row_repository(found, disp, hook)
     state = hook.class_attestation_state(disp)
     class_spans = [m.span() for m in hook.CLASS_ATTEST_RE.finditer(disp)]
@@ -462,10 +467,10 @@ def check_row(hook, row: str, finding_id: str, *, allow_open: bool) -> tuple[lis
     )
     if state == "multi" or len(class_spans) + exempt_count > 1:
         codes.append("class-multi")
-    elif scope != "foreign" and hook.fixed_class_rows_unattested([(sev, finding, disp)]):
+    elif scope == "own" and hook.fixed_class_rows_unattested([(sev, finding, disp)]):
         codes.append("class-bad-exempt" if state == "bad-exempt" else "class-unattested")
     # The same reading the class-attestation check fails closed on, so this tool never writes a row
-    # that check refuses.
+    # that check fails closed on as an unclassifiable repository tag.
     if scope == "bad":
         codes.append("repository-tag-unclassifiable")
     if hook.leading_class_token("[" + finding_id + "]") != finding_id:
@@ -1295,6 +1300,11 @@ def self_test() -> int:
        codes("FIXED #1 [class-exempt: singleton] [class-exempt: cross-repo]", sev="note"), ["class-multi"])
     ck("a FIXED class row with no clause", codes("FIXED #1"), ["class-unattested"])
     ck("an off-set exemption reason", codes("FIXED #1 [class-exempt: too-hard]"), ["class-bad-exempt"])
+    ck("a FIXED class row with no clause and an unclassifiable tag is refused for the tag only",
+       codes("FIXED #1 [repo: grc_library_private]"), ["repository-tag-unclassifiable"])
+    ck("an off-set exemption reason with an unclassifiable tag is refused for the tag only",
+       codes("FIXED #1 [class-exempt: too-hard] [repo: grc_library_private]"),
+       ["repository-tag-unclassifiable"])
     ck("two clauses on a FIXED row", codes('FIXED #1 [class: "x" @ 1] [class-exempt: singleton]'), ["class-multi"])
     ck("two clauses on a ROUTED row (one clause per row)",
        codes("ROUTED 3b330 [class-exempt: singleton] [class-exempt: cross-repo]"), ["class-multi"])
