@@ -27,9 +27,9 @@ reference in a table cell is excluded when no link precedes it in the cell and
 the text between it and a nearby following link is an exception path. That
 text is an exception path only when both conditions hold, so the second can
 only narrow the first: (a) it fully matches ``_EXCEPTION_PATH_RE``, the 0.23.7
-pattern, that is, it begins with a space, holds a non-space character, which
+pattern, that is, it begins with whitespace, holds a non-whitespace character, which
 may itself be a parenthesis, and otherwise no parenthesis, and ends, ignoring
-spaces, with an opening parenthesis; and (b) read with ``_bare_characters``,
+whitespace, with an opening parenthesis; and (b) read with ``_bare_characters``,
 its last opening parenthesis is bare. A parenthesis is bare when it is outside
 any code span and not escaped with a backslash. The path is closed when the
 text after the link closes every bare opening parenthesis in the text before
