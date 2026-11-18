@@ -6404,6 +6404,12 @@ class CrossFileSectionRefTests(LinterTestCase):
             # it is counted, and a double backslash leaves a parenthesis bare.
             ("| Owner | Section 8 exception path ([policy](t.md) \\`(` §2) |", True),
             ("| Owner | Section 8 exception path ([policy](t.md) \\\\) §2 |", False),
+            # A code span opened before the link that encloses the closing
+            # parenthesis makes that parenthesis text, so nothing closes the
+            # link's own parenthesis; a code span closed before the link
+            # leaves the closing parenthesis counted.
+            ("| Owner | Section 8 exception path `([policy](t.md))` |", True),
+            ("| Owner | Section 8 `exception` path ([policy](t.md) §2) |", False),
         ):
             with self.subTest(line=line, target_holds_section_8=True):
                 citer = VALID_METADATA + f"\n\n## 8. Exceptions\n\n{line}\n"
@@ -43393,7 +43399,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-length-on-pr.py NO_FS F 91c9308103f36414f1975e2233cd82644551ca4a3996c4a2b9310b437004434a
         check-changelog-on-pr.py NO_FS F 00fa478d33343ae5d955e3faa7f99d9c61c6cda6f7a5e414dfcaf6ec6f7bf25b
         check-changelog-preflight-commit.py NO_FS F 9ec0a028e7e916fdfa542f6688b909b08a1c69fe66b3a7cb82d979689885f978
-        check-class-completeness.py NO_FS F 4053d6e6797cfeee3b0b9118d1b92add2ac7724da4f2cc27c48fa56530d4d9eb
+        check-class-completeness.py NO_FS F dd060e4b9474d3ad7d65d720224294fae4efff2310d49b75384c821c021ccd00
         check-claude-md-size.py NO_FS F 5f0c8e37d4a1b36a6be924354a6cdfca69a4ba5498e77cee52012ccefc99764b
         check-clause-preservation.py OWN F 96d156bb17eb92ea45d096dae64345313ba8962de62b38a413a988aa7f8c8737
         check-clean-language-upstream.py NO_FS F 68e539ea645383d29ec9ded3cb44012af2afcfc78f820c172070a8c492665159
@@ -62129,7 +62135,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.23.7", "0.23.7 removes internal work references from the gate and clause origins in core/gates.toml and core/clauses.toml and from two --aiqt-root refusal messages in tools/corpus_mgmt_compiler.py; gate 62 refuses as malformed a table cell whose local-section exception path leaves its link's parenthesis unclosed and accepts as local a closed exception path holding a nested parenthetical, which it formerly checked against the target, and the corpus-scan-integrity origin in core/clauses.toml is reworded; no gate or register key changes (PATCH); the residual lists in tools/gate_lint_language.py's docstring and URL-mask comment now name the comma-and-digit path form; the compiler now refuses an explicit --aiqt-root unless its tools/aiqt_corpus.py is a regular file: a symlinked core formerly passed the compiler's own pre-check and was refused only by the verified loader, and is now refused by the pre-check, whose refusal reads 'no regular tools/aiqt_corpus.py there'. The release history in src/README.md describes each version from 0.22.2")
+        self.assertEqual(man["pack"]["version"], "0.23.7", "0.23.7 replaces the numbered pull-request, phase and item labels and a dated option-decision label in the gate and clause origins in core/gates.toml and core/clauses.toml with a plain description (the transfer-lane label those origins carry is unchanged) and removes internal work references from two --aiqt-root refusal messages in tools/corpus_mgmt_compiler.py; gate 62 refuses as malformed a table cell whose local-section exception path leaves its link's parenthesis unclosed and accepts as local a closed exception path holding a nested parenthetical, which it formerly checked against the target, and the corpus-scan-integrity origin in core/clauses.toml is reworded; no gate or register key changes (PATCH); the residual lists in tools/gate_lint_language.py's docstring and URL-mask comment now name the comma-and-digit path form; the compiler now refuses an explicit --aiqt-root unless its tools/aiqt_corpus.py is a regular file: a symlinked core formerly passed the compiler's own pre-check and was refused only by the verified loader, and is now refused by the pre-check, whose refusal reads 'no regular tools/aiqt_corpus.py there'. The release history in src/README.md describes each version from 0.22.2")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")

@@ -217,7 +217,7 @@ def _self_test() -> int:
         checks.append(("attest-token-newline-refused", validate_attest_token("a\nb") is not None))
         checks.append(("attest-token-trailing-backslash-refused",
                        validate_attest_token("token\\") is not None))
-        checks.append(("attest-token-even-trailing-backslash-run-refused",
+        checks.append(("attest-token-any-trailing-backslash-run-refused",
                        validate_attest_token("token\\\\") is not None))
         checks.append(("attest-token-plain-ok", validate_attest_token("7 years") is None))
         afs = attest_file_set(root, tracked={"a.md"})

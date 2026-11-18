@@ -191,20 +191,25 @@ def reference_cells(line: str) -> list[str]:
     return cells
 
 
-def _closes_open_parenthesis(text: str) -> bool:
-    """Whether ``text`` closes one parenthesis already open before it.
+def _closes_open_parenthesis(cell: str, start: int) -> bool:
+    """Whether ``cell[start:]`` closes one parenthesis already open before ``start``.
 
     Parentheses are counted with nesting, so a nested parenthetical does not
-    close the open one. A parenthesis inside a code span, or escaped by an odd
-    run of backslashes, is text and is not counted. Code spans follow the rule
-    ``reference_cells`` uses: a backtick run not escaped opens code only when an
-    equal-length closing run exists, and inside code backslashes are literal.
+    close the open one. Only a parenthesis at or after ``start`` is counted. A
+    parenthesis is ignored only inside a code span, or after an odd run of
+    backslashes, that the scanned text itself opens. The scan begins at the
+    start of the cell, so a code span opened before ``start`` is part of the
+    scanned text: a parenthesis it encloses after ``start`` is ignored, and a
+    span or escape opened outside the cell is not seen. Code spans follow the
+    rule ``reference_cells`` uses: a backtick run not escaped opens code only
+    when an equal-length closing run exists, and inside code backslashes are
+    literal.
     """
     depth = 1
     backslashes = 0
     i = 0
-    while i < len(text):
-        char = text[i]
+    while i < len(cell):
+        char = cell[i]
         if char == "\\":
             backslashes += 1
             i += 1
@@ -213,12 +218,12 @@ def _closes_open_parenthesis(text: str) -> bool:
         backslashes = 0
         if char == "`" and not escaped:
             end = i + 1
-            while end < len(text) and text[end] == "`":
+            while end < len(cell) and cell[end] == "`":
                 end += 1
-            closing = re.search(r"(?<!`)`{%d}(?!`)" % (end - i), text[end:])
+            closing = re.search(r"(?<!`)`{%d}(?!`)" % (end - i), cell[end:])
             i = end + closing.end() if closing else end
             continue
-        if not escaped:
+        if not escaped and i >= start:
             if char == "(":
                 depth += 1
             elif char == ")":
@@ -284,8 +289,10 @@ def check_file(
                         # Scan with balanced parentheses: a nested
                         # parenthetical inside the exception path does not
                         # close the link's own parenthesis, and a parenthesis
-                        # in a code span or escaped is not counted.
-                        if _closes_open_parenthesis(cell[following.end():]):
+                        # in a code span or escaped is not counted. The scan
+                        # starts at the cell's start, so a code span opened
+                        # before the link is known.
+                        if _closes_open_parenthesis(cell, following.end()):
                             continue
                         # Without its closing parenthesis the row would fall
                         # through to the target check and pass whenever the
