@@ -94,10 +94,13 @@ line ends in a backslash also refuses (false block, safe direction).
 Round 10 also narrows the pipeline-status guard in two reviewed ways: a
 two-stage pipeline whose first stage is a plain echo or printf data emitter
 (round 11: "plain" is an allow-list judged after backslash-newline
-continuations are removed, so only literal text, quoted literals and simple
-$name/${name} references pass; any command substitution, backquote, bash-5.3
-${ cmd; } / ${| cmd; } brace substitution or ${name@OP} parameter operator
-disqualifies it; leading do, then, else and assignment words are skipped)
+continuations are removed, so only literal text, quoted literals, simple
+$name/${name} references and braced all-digit ${N} references pass, where
+N is any [0-9]+ string, so the special parameter ${0}, a leading-zero ${01}
+and a long ${2147483648} are data too; any command substitution,
+backquote, bash-5.3 ${ cmd; } / ${| cmd; } brace substitution or
+${name@OP} parameter operator disqualifies it; leading do, then, else and
+assignment words are skipped)
 feeds data into its consumer, whose
 status is exactly what $? then reads, so it sets no pending warning; and an
 executed single-command && continuation replaces the guarded pipeline's
@@ -756,8 +759,11 @@ def emitter_is_plain(raw):
     Judged after _strip_line_continuations, because bash removes a
     backslash-newline before it recognizes a substitution, so an opener a
     continuation split apart is a real opener. An ALLOW-LIST: only literal
-    text, single- and double-quoted literals and simple $name / ${name}
-    parameter references may appear. Anything that can run code or transform
+    text, single- and double-quoted literals, simple $name / ${name}
+    parameter references and braced all-digit ${N} references, where N is
+    any [0-9]+ string (the special parameter ${0}, a leading-zero ${01} and
+    a positional ${10} included), may
+    appear. Anything that can run code or transform
     disqualifies the stage: a $( command or arithmetic substitution, a $[
     arithmetic substitution, a backquote substitution, a bash-5.3 ${ cmd; }
     or ${| cmd; } brace substitution, and every ${name OP ...} parameter
@@ -777,9 +783,11 @@ def emitter_is_plain(raw):
             return True, i + 1  # $( command, $(( or $[ arithmetic substitution
         if nxt == "{":
             m = re.match(r"\$\{[A-Za-z_][A-Za-z0-9_]*\}", joined[i:])
+            if not m:  # braced all-digit ${N} (${0} too) is data like $N
+                m = re.match(r"\$\{[0-9]+\}", joined[i:])
             if not m:
                 return True, i + 1  # ${ cmd; }, ${| cmd; } or ${name OP ...}
-            return False, i + m.end()  # a simple ${name} only emits data
+            return False, i + m.end()  # ${name} or all-digit ${N}: data
         return False, i + 1  # a bare $name / $1 / $? only emits data
 
     while i < n:
