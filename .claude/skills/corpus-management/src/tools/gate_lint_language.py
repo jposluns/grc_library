@@ -117,8 +117,10 @@ Checks for:
   wrapped across lines, a host with no dot or a numeric or mixed-case top-level
   label, an all-uppercase top-level label after a host label with a lowercase
   letter, a URL with userinfo, path text after a punctuation run the token rules
-  end at (including the part of a dotted version such as "v1.2/" from the dot
-  on), path text after a "_" (or run of "_") followed by anything other than an
+  end at (including the text after a comma and a digit run before "/", as in
+  "/a,1/organisations", and the part of a dotted version such as "v1.2/" from
+  the dot on), path text after a "_" (or run of "_") followed by anything
+  other than an
   ASCII letter or digit (in an emphasized URL), text after a "_" run followed
   by anything other than an ASCII letter or digit in a URL after a literal "_"
   or "__" that is not emphasis (for example in an inline code span or a string
@@ -621,8 +623,10 @@ def mask_allowed_spans(line: str, spans: tuple[str, ...]) -> str:
 # safe as false positives): a URL wrapped across lines, a host with no dot or a
 # numeric or mixed-case top-level label, an all-uppercase top-level label after a
 # host label with a lowercase letter, a URL with userinfo, path text after a
-# punctuation run the rules above end the token at (including the part of a dotted
-# version such as "v1.2/" from the dot on), path text after a "_" (or run of "_")
+# punctuation run the rules above end the token at (including the text after a
+# comma and a digit run before "/", as in "/a,1/organisations", and the part of
+# a dotted version such as "v1.2/" from the dot on), path text after a "_" (or
+# run of "_")
 # followed by anything other than an ASCII letter or digit (in an emphasized URL),
 # text after a "_" run followed by anything other than an ASCII letter or digit in
 # a URL after a literal "_" or "__" that is not emphasis (for example in an inline

@@ -1,6 +1,6 @@
-# Test fixture for CobitTitleTextTests.test_round6_base_differential. Every line
+# Test fixture for CobitTitleTextTests.test_base_engine_differential. Every line
 # after this 3-line header is .corpus-management/tools/gate_lint_cobit_title_text.py
-# at commit 9d7c9e5d160c8ae516209e29650c92a83e3fbb66 of the old repository, unchanged.
+# as it stood in the old repository, unchanged.
 #!/usr/bin/env python3
 """COBIT objective-title canonicality - pack engine.
 

@@ -30,7 +30,7 @@ duplicated within one file is already caught by the duplicate check rather
 than by this join. The 2 version texts must also be identical, so
 ``2026.06.9`` in one file against ``2026.6.9`` in the other disagrees.
 
-It also asserts Library-Version ORDERING (the GR-1 extension): entries
+It also asserts Library-Version ORDERING: entries
 are newest-first, so within each file the cutoff-scoped headers'
 ``Library Version`` values must be STRICTLY DECREASING top-down (the
 change-tracking rule's "version numbers across CHANGELOG entries
@@ -39,8 +39,8 @@ reverse-chronological file). Versions compare as integer tuples, never
 strings (``2026.06.9`` above ``2026.06.10`` is a violation a string
 compare would miss). This is the CHANGELOG version-monotonicity control
 the change-tracking rule describes; gate 13 deliberately skips
-.working/CHANGELOG.md (no ``Version`` metadata field), so before this extension
-the described control did not exist anywhere.
+.working/CHANGELOG.md (no ``Version`` metadata field), so without this check
+the described control would exist nowhere.
 
 Repository epoch (the rename to the new repository, ``EPOCH_START`` =
 2026-11-09). Pull-request numbers restarted at #1 on that date, while the old
@@ -54,18 +54,17 @@ names one pull request. The gate therefore reads dates as well as numbers:
   comparison only through the deferral exception, with a printed note. The old
   repository's cutoff, its dynamic floor and its historical exemptions belong to
   that repository's archived history and do not apply here.
-- Root grammar (EP6, EP7, EP8). The root ``.working/CHANGELOG.md`` is read by a grammar of
+- Root grammar. The root ``.working/CHANGELOG.md`` is read by a grammar of
   line shapes, not by pattern detection alone; ``main`` removes at most 1 leading byte order
-  mark (U+FEFF), once, before the root is read (EP13b: ``root_findings`` removes none, so a
+  mark (U+FEFF), once, before the root is read (``root_findings`` removes none, so a
   second one stays in line 1, where the strict character rule refuses it), and the root is
-  split into lines on LF only (``lf_lines``; EP13, ep13qx L1 and ep13qs L1): a CR before an LF
+  split into lines on LF only (``lf_lines``): a CR before an LF
   is part of the line ending, and a vertical tab, a form feed, U+001C to U+001E, U+0085,
   U+2028 and U+2029 stay in their line, so the strict character rule refuses each and line
   numbers count as an editor counts them; ``pr_headers`` reads the root over the same LF-only
-  split, so its line numbers match the rule's (EP13b). Strict character rule (EP12, after
-  rounds 9 to 12 each found a new Markdown form that hid a CalVer version in the root; widened
-  in EP13 after ep13qs M1; an allowlist since EP13b, after ep13qg M2 found GitHub inline math,
-  such as ``$2026$.11.67``, hiding one): every root line that is not blank (the title, the
+  split, so its line numbers match the rule's. Strict character rule (an allowlist rather than
+  a list of refused forms, because Markdown forms keep appearing that can hide a CalVer version
+  in the root, such as GitHub inline math in ``$2026$.11.67``): every root line that is not blank (the title, the
   intro, the weekly bullets and headings, and the canonical lines with their summary tails)
   may hold only these characters of printable ASCII (U+0020 to U+007E): ASCII letters, digits,
   the space and ``.``, ``,``, ``:``, ``;``, ``-``, ``'``, ``"``, ``(``, ``)``, ``/``, ``#``,
@@ -73,8 +72,8 @@ names one pull request. The gate therefore reads dates as well as numbers:
   ``*`` only as the 2 bold delimiters of a canonical header (its leading ``**`` and the ``**``
   that closes its date, version and PR header). Every other character is refused, among them
   ``$``, ``{``, ``}``, ``^``, ``[``, ``]``, ``<``, ``>``, ``\\``, ``~``, ``_``, the backtick,
-  a tab and every character outside printable ASCII, so a renderer syntax that a later round
-  finds is refused unless the allowlist names its characters. No HTML character reference is
+  a tab and every character outside printable ASCII, so a renderer syntax this docstring does not
+  name is refused unless the allowlist names its characters. No HTML character reference is
   allowed either (an ``&`` followed by a name, by ``#`` and decimal digits or by ``#x`` and
   hexadecimal digits, and then ``;``, such as ``&#46;``, ``&#x200B;`` or ``&amp;``); a plain
   ``&`` is allowed. Each refused character or reference fails the line
@@ -85,11 +84,11 @@ names one pull request. The gate therefore reads dates as well as numbers:
   character or character reference can split a version in the root, and no backtick or ``*``
   can join a digit to one (``3*2026.06.9``). The intro, weekly-bullet and summary-tail rules
   read each line as
-  written: nothing is removed first (EP13; until EP13 a root read removed every backtick and
-  every emphasis marker, which joined ``3*2026.06.9`` into ``32026.06.9``).
+  written: nothing is removed first (removing every backtick and every emphasis marker
+  before the read would join ``3*2026.06.9`` into ``32026.06.9``).
   Above its first ``## Week of`` heading (the whole
   file when it has none) it must hold only these lines: the ``# Changelog`` title, which must be
-  its first non-blank line (EP8, ep7qa; a root without it fails, and so does a canonical
+  its first non-blank line (a root without it fails, and so does a canonical
   per-PR line placed before it); the intro paragraph
   directly after the title (blank lines may come between), each of whose lines starts with a
   letter and holds no date-like token, no ``X.Y.Z`` version, no CalVer library version
@@ -97,25 +96,24 @@ names one pull request. The gate therefore reads dates as well as numbers:
   with a number, after an optional ``-``, ``:``, ``.``, ``no.``, ``number`` or ``#``, so
   ``PR #N``, ``PR N``, ``PRN``, ``PR-N``, ``PR: N`` and ``PR no. N`` among them; ``GH-N``;
   ``owner/repo#N``; ``grc_library#N``, where the bare form names only the repository's own
-  name, EP8b, so ``issue#42`` is not a PR identity; ``pull N``, ``pull request N``,
-  ``pull-request N`` or a ``pull/N`` URL) or a bare ``#N`` (EP9b, ep8qg L6); blank lines
+  name, so ``issue#42`` is not a PR identity; ``pull N``, ``pull request N``,
+  ``pull-request N`` or a ``pull/N`` URL) or a bare ``#N``; blank lines
   (empty, or holding only
   spaces and tabs); and canonical per-PR lines, ``**YYYY-MM-DD | X.Y.Z | PR #N**`` at column 0,
   optionally followed by ``" - <summary>"``, with a valid ASCII ISO date, a parseable ``X.Y.Z``
   version and exactly 1 PR number of ``CUTOFF_PR`` (1) or more. A canonical line in the root
-  whose summary tail holds a CalVer library version fails too (EP9b: every per-PR record
+  whose summary tail holds a CalVer library version fails too (every per-PR record
   carries one, so the tail would carry a record unread); a non-CalVer ``X.Y.Z`` such as
   ``1.0.2`` is allowed there. In the mirror a canonical line whose summary tail holds an
   ``X.Y.Z`` version and a labelled PR identity naming a number other than the header's PR
-  fails (EP8, ep7qc L3). Header parity compares only the PR number and the version of a
+  fails. Header parity compares only the PR number and the version of a
   canonical line, not the whole line, so every mirror canonical line (a mirror line that
   fully matches the compact comparison shape) meets the same strict character rule as a root
   line, must end at an LF (a line that ``splitlines`` ends at another line boundary fails at
   that character's column), and has its summary tail read as written, as the root reads its
-  lines (EP13, ep13qx M1 and ep13qa M1). The link scanner, the second read and the
-  normalization (character-reference decoding, removal of format, control and
-  default-ignorable characters, and NFKC) that read the tail before EP13 are deleted. Any
-  other line in that region
+  lines. The tail gets no second read: no link scan and no normalization (no
+  character-reference decoding, no removal of format, control or default-ignorable
+  characters and no NFKC). Any other line in that region
   fails: with the specific failure of the mirror rules below when they also fail it, otherwise
   as an old-repository record when its first date is before ``EPOCH_START``, and otherwise as
   outside the root grammar, with a message naming the canonical shape (a legacy ``##`` header,
@@ -124,8 +122,8 @@ names one pull request. The gate therefore reads dates as well as numbers:
   only when it is dated on or after ``EPOCH_START`` and carries a version at or above
   ``VERSION_FLOOR``; otherwise it fails as below. At and below the first ``## Week of`` heading
   the root must hold only ``## Week of YYYY-MM-DD`` headings with a valid date, blank lines and
-  ``- `` bullets that hold no CalVer library version (EP9b, which replaces the EP8
-  version-with-date and version-with-labelled-PR rules): no ``CALVER_RE`` token, an optional
+  ``- `` bullets that hold no CalVer library version (whether or not a date or a
+  labelled PR goes with it): no ``CALVER_RE`` token, an optional
   ``v`` or ``V``, then ``20`` and 2 digits, a dot, 1 or 2 digits, a dot and digits, read after
   the root read. Every per-PR record carries one. A non-CalVer ``X.Y.Z`` such as ``1.0.2``
   or ``4.0.3`` is allowed, so ``- OWASP ASVS references moved from 4.0.3 to 5.0.0 after the
@@ -133,7 +131,7 @@ names one pull request. The gate therefore reads dates as well as numbers:
   a per-PR line below the weekly summaries
   (per-PR lines belong only to the current week), a weekly heading with an invalid date fails
   as unparseable, and every other line fails with a message naming the allowed lines.
-- Mirror classification (EP4, widened in EP5, corrected in EP6, order-free in EP7) reads every
+- Mirror classification reads every
   line of the detailed mirror raw and fails closed for each line it detects; it detects entries
   by content, so, unlike the root grammar, it is open-ended. A table row (a line whose first
   character other than a space or a tab is ``|``) is skipped. Before detection inline code spans
@@ -142,7 +140,7 @@ names one pull request. The gate therefore reads dates as well as numbers:
   ``/``, such as ``2026-11-9``, ``2026/11/10`` or ``2026-06-21``, read Unicode-wide; an ``X.Y.Z``
   token joined by dots is not date-like there. A line is an entry candidate in any of 3 ways:
 
-  - by content, in any order (EP7, ep6qx 2 and ep6qc M2): the line holds 3 separate tokens, in
+  - by content, in any order: the line holds 3 separate tokens, in
     any order and with any separators (spaces, colons, slashes, commas, ``|`` and others): a
     date-like token (3 runs of digits joined by ``-``, ``/`` or a Unicode dash from U+2010 to
     U+2015, a ``T`` time suffix allowed; a year-first date joined by dots with a month of 1 to
@@ -151,33 +149,33 @@ names one pull request. The gate therefore reads dates as well as numbers:
     ``YYYY.MM.patch`` version cannot match; a day and a month name with a year, joined by
     spaces, such as ``10 November 2026``, ``21 Jun 2026`` or ``November 10, 2026``, or by
     those dashes, such as ``10-Nov-2026`` or ``2026-Nov-10``; or the 8-digit form
-    ``20261110``; EP8c, ep7qc L1 and ep7qa), an ``X.Y.Z`` version (with or without a
+    ``20261110``), an ``X.Y.Z`` version (with or without a
     ``Version`` or ``Library Version`` label, a leading ``v`` or a suffix such as ``-rc1``) and a
     numbered PR identity (a labelled PR identity as in the root grammar above, such as ``PR #N``,
     ``PR: N``, ``PR no. N``, ``PR number N``, ``PRN``, ``GH-N``, ``owner/repo#N``,
-    ``pull-request N`` or a ``pull/N`` URL, or a bare ``#N``; EP8, ep7qc M1). Emphasis markers are
+    ``pull-request N`` or a ``pull/N`` URL, or a bare ``#N``). Emphasis markers are
     removed first, so ``__2026.11.67__`` reads as a version. A dot-joined token read as both the
     date and the version counts once, so
     ``Version 2026.11.10, PR #2`` alone is not a candidate;
-  - by a leading triple (``TRIPLE_RE``, EP5): after an opening of markup only, the line starts
+  - by a leading triple (``TRIPLE_RE``): after an opening of markup only, the line starts
     with a date-like token, an ``X.Y.Z`` version and a PR cell that may be a bare number closing
     its cell (``- 2026-11-10, Version 2026.12.2, 2``);
-  - by its canonical opening (narrowed in EP8c after ep7qx 2 and ep7qc L2): it starts at
+  - by its canonical opening: it starts at
     column 0 with ``## ``, ``**`` or ``- **``, and its heading text (after ``## ``) or its first
     bold span (after ``**`` or ``- **``) starts, after optional spaces, with ``Week of`` or with
     a date-like token that ends that text or is followed, after optional spaces, by ``,`` and
     then a ``Version`` or ``Library Version`` label, an ``X.Y.Z`` version or a numbered PR
     identity (``PR #N``, ``PR N``, ``PRs #N``, ``pull N`` or ``#N``) that ends that text (an
-    optional ``:`` or ``.`` aside) or is followed by ``,`` or ``|`` (EP9d, ep9qg L5), or by
+    optional ``:`` or ``.`` aside) or is followed by ``,`` or ``|``, or by
     ``|`` and then an
-    ``X.Y.Z`` version or ``MILESTONE:`` (narrowed in EP9b after ep8qg L5), the cell joints of the 2 comparison
+    ``X.Y.Z`` version or ``MILESTONE:``, the cell joints of the 2 comparison
     shapes and the milestone form (``## 2026-11-10, Library Version ...``,
     ``**2026-11-10 | 2026.11.67 | ...**`` and ``**2026-11-10 | MILESTONE:**``), or that text
     holds a ``|`` cell
     separator together with an ``X.Y.Z`` version or a numbered PR identity (``PR #N``,
     ``PR N``, ``PRs #N``, ``pull N`` or ``#N``) that ends its cell (an optional ``:`` or
-    ``.`` aside; EP9d, ep9qg L5), the cell form of the compact shape
-    (``**PR #5 | 2026.12.5**``, EP5, ep4qc L2 W5).
+    ``.`` aside), the cell form of the compact shape
+    (``**PR #5 | 2026.12.5**``).
 
   Every other line is not a candidate: a line without the full date, version and PR triple
   and without a canonical opening is a body line, so
@@ -189,8 +187,8 @@ names one pull request. The gate therefore reads dates as well as numbers:
   ``**2026-11-10 | PR #1 review:** done.``,
   ``## Ruling of 2026-11-10``, ``## Follow-up for PR #1`` and
   ``**Gate 59 | 2026-11-10 review:** done.`` pass. The bold milestone form behind a markup-only opening
-  (``* **2026-07-29 | MILESTONE:** split landed in PR #3127.``) is a candidate too (EP7, ep6qc
-  M2), and the milestone exemption never excuses it. A body line that holds all 3 tokens, such as
+  (``* **2026-07-29 | MILESTONE:** split landed in PR #3127.``) is a candidate too, and the
+  milestone exemption never excuses it. A body line that holds all 3 tokens, such as
   ``- Corrects the 2026-11-09, Library Version 2026.11.66, PR #1 header.``, is a candidate by
   content and fails; a record quoted in an inline code span or a table row is not read.
 - A candidate by content, by a leading triple or as a milestone behind an opening that is not
@@ -206,7 +204,7 @@ names one pull request. The gate therefore reads dates as well as numbers:
   ASCII ISO date (read with ``datetime.date.fromisoformat``), a parseable
   ``X.Y.Z`` version and exactly 1 PR number of ``CUTOFF_PR`` (1) or more, with no leading zero in
   the PR number or in a version part apart from a 2-digit month (``2027.01.5``, the CalVer
-  ``YYYY.MM.patch`` form), so ``PR #02`` and ``2026.11.067`` fail (EP7, ep6qc L4); or it
+  ``YYYY.MM.patch`` form), so ``PR #02`` and ``2026.11.067`` fail; or it
   must fully match one of the named exempt shapes: a ``## Week of YYYY-MM-DD``
   heading, an old weekly roll-up bold line ``**Week of YYYY-MM-DD (PRs #A-#B)**``,
   or the bold milestone form ``**YYYY-MM-DD | MILESTONE:**``, whether or not its
@@ -218,7 +216,7 @@ names one pull request. The gate therefore reads dates as well as numbers:
   and days); when the line has none, the first date in any other form the content rule reads
   apart from a dot-joined year-first date (a date joined by a Unicode dash, a day-first date
   with a 4-digit year joined by ``-``, ``/`` or dots, a day and a month name with a year joined
-  by spaces or dashes, or the 8-digit form; EP9b, the EP8c open item), so
+  by spaces or dashes, or the 8-digit form), so
   ``### 21-Jun-2026 | 2026.06.9 | PR: 3127`` names ``21-Jun-2026``; and when it has none of
   those, the first dot-joined year-first date. A later date on the line (``reverts the 2026-11-02
   change``) does not make it one. A milestone dated before ``EPOCH_START`` is one too. The 2
@@ -230,10 +228,10 @@ names one pull request. The gate therefore reads dates as well as numbers:
   unparseable only in a line that matches a comparison shape, a weekly shape or the milestone
   form in full, or as the date-like token right after a candidate's marker; anywhere else, as in
   ``- 2026/11/09 | 2026.11.66 | PR #1``, the line fails with the message naming the expected
-  shapes (EP9b, ep8qg L7). A legacy line that names more than 1 PR (``PR #1 and PR #2``) fails
+  shapes. A legacy line that names more than 1 PR (``PR #1 and PR #2``) fails
   with the message that one header per PR is required. Every comparison shape needs a PR number
   of 1 or more with no leading zero, so a line naming ``PR #0`` (below ``CUTOFF_PR``) matches no
-  comparison shape and fails with the message naming the expected shapes (EP9b, ep8qg L7).
+  comparison shape and fails with the message naming the expected shapes.
 - ``VERSION_FLOOR`` is ``2026.11.66``, the first version shipped by a new-repository PR (main
   starts at 2026.11.65). A line that fully matches a comparison shape with a valid date on or
   after ``EPOCH_START`` but carries a version below ``VERSION_FLOOR`` is an old-repository
@@ -287,7 +285,7 @@ names one pull request. The gate therefore reads dates as well as numbers:
 PR numbers cited below without further qualification are old-repository PRs;
 they record why each rule exists.
 
-No floor in the new repository (EP2). The old repository scoped the comparison
+No floor in the new repository. The old repository scoped the comparison
 to ``max(CUTOFF_PR, oldest PR still in the mirror)``, because its root kept
 every per-PR line while its mirror kept only the current week. That floor let a
 root header with no mirror entry pass whenever the mirror held only a higher or
@@ -314,9 +312,8 @@ non-decreasing pairs (its 2026-06-21 window) are dated before ``EPOCH_START``,
 so they fail as old-repository records rather than as ordering violations, and
 no second baseline constant is needed.
 
-Store scope (maintainer ruling 2026-09-30 17:07Z, option B, simplified 21:03Z;
-clean-base allowed 2026-10-22 01:29Z; shared with gate 50 through
-``lint_common.store_scope``). The detailed mirror lives
+Store scope (shared with gate 50 through ``lint_common.store_scope``). The
+detailed mirror lives
 in the operational store every open branch shares, so another open PR's in-flight
 mirror entry would otherwise read as MISSING from this branch's root. A mirror
 record defers only when all of these hold: this branch has a clean-base scope (see

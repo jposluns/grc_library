@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Class-completeness pre-commit aid (P-1.5): surface every corpus occurrence of a
+"""Class-completeness pre-commit aid: surface every corpus occurrence of a
 distinctive string BEFORE committing, so a fix applied to ONE instance is applied (or
 routed) at the WIDTH OF THE CLASS, not just the one file the change started in.
 
@@ -37,9 +37,11 @@ Exit codes: the advisory reporting path is 0 always (it reports; it never blocks
 --attest MODE: run the probe for ONE token over the GIT-TRACKED corpus set and
 emit the paste-ready ledger clause ``[class: "<token>" @ <count>]`` as the last stdout line.
 Counting over the git-tracked intersection (not the raw working tree) keeps the attested
-count and the D14 reproduce-count on the same universe, so an untracked scratch file can
-neither inflate nor spuriously fail either side. Attestation probes are CASE-SENSITIVE
-(the D14 check re-runs the identical probe); ``-i`` is rejected with --attest. A token
+count reproducible for the clause's reader, the open-findings ledger in the private
+operational store and its hook: re-running the identical probe over the same tracked set
+gives the same count, so an untracked scratch file can neither inflate the count nor make
+a re-run disagree with it. Attestation probes are CASE-SENSITIVE (a re-run repeats the
+identical probe); ``-i`` is rejected with --attest. A token
 containing a double quote cannot be carried by the quoted clause and is refused; a literal
 ``|`` is emitted table-escaped as ``\\|``. With --attest, exit 0 with the clause on success
 and 2 when the attestation cannot be issued (a refused token, an unenumerable git-tracked
@@ -81,7 +83,8 @@ def find_occurrences(
     reading the given files, so it is directly unit-testable."""
     out: dict[str, list[tuple[str, int, str]]] = {s: [] for s in strings}
     skipped: list[str] = []
-    needles = [(s, s.lower() if ignore_case else s) for s in strings]
+    # A string given twice is searched once, so its hits are not appended twice.
+    needles = [(s, s.lower() if ignore_case else s) for s in dict.fromkeys(strings)]
     for f in files:
         try:
             rel = str(f.relative_to(root))
@@ -99,7 +102,8 @@ def find_occurrences(
                     continue
                 # Count EVERY occurrence on the line, not just whether
                 # the line matches, so a second instance on the SAME physical line (plausible
-                # in a table row) is not invisible to the D14 growth check. One record per
+                # in a table row) is not invisible to a re-run that checks the count has
+                # not grown. One record per
                 # occurrence; the attest and reproduce sides both count this way, so they stay
                 # on the same measure.
                 for _ in range(hay.count(needle)):
@@ -111,8 +115,14 @@ def validate_attest_token(token: str) -> str | None:
     """PURE. None when the token can be carried by the quoted clause; else the reason.
 
     The clause delimits the token with double quotes inside a markdown table cell, so a
-    quote or a line break cannot be carried; the author picks a different distinctive
-    token rather than the tool inventing an escaping scheme two parsers must agree on."""
+    quote, a line break or a trailing backslash (which would sit before the closing
+    quote) cannot be carried; the author picks a different distinctive token rather
+    than the tool inventing an escaping scheme two parsers must agree on. Every trailing
+    backslash run is refused, an even run included, by design: an even run leaves the
+    closing quote unescaped for every reader, but a reader that treats backslash as an
+    escape takes half as many backslashes into the token as one that does not (and an
+    odd run escapes the closing quote for that reader alone), so refusing every trailing
+    run keeps the end of the token independent of how any consumer reads backslashes."""
     if not token.strip():
         return "empty token"
     if '"' in token:
@@ -120,13 +130,16 @@ def validate_attest_token(token: str) -> str | None:
                 'one cannot be carried; pick a different distinctive token')
     if "\n" in token or "\r" in token:
         return "a token cannot span lines"
+    if token.endswith("\\"):
+        return ("a token ending in a backslash would sit before the closing double quote of the "
+                "clause; pick a different distinctive token")
     return None
 
 
 def format_attest_clause(token: str, count: int) -> str:
     """PURE. The paste-ready Disposition-cell clause. A literal ``|`` is escaped as ``\\|``
     so the clause survives the ledger's markdown-table cell (an unescaped pipe splits it);
-    the consumers (the open-findings hook and D14) unescape it."""
+    the open-findings hook, the consumer that remains, unescapes it."""
     escaped = token.replace("|", "\\|")
     return f'[class: "{escaped}" @ {count}]'
 
@@ -143,9 +156,10 @@ def _git_tracked(root: Path) -> set[str]:
 
 
 def attest_file_set(root: Path = REPO_ROOT, tracked: set[str] | None = None) -> list[Path]:
-    """The GIT-TRACKED corpus markdown set an attestation counts over: ``corpus_files``
-    intersected with ``git ls-files``, so an untracked scratch ``.md`` can neither inflate an
-    attested count nor spuriously fail the D14 reproduce-check. Working-tree CONTENT of
+    """The GIT-TRACKED corpus markdown set an attestation counts over: the ``git ls-files``
+    paths that ``is_markdown_target`` accepts, kept even when locally absent (NOT
+    ``corpus_files``, which needs a locally present file), so an untracked scratch ``.md``
+    can neither inflate an attested count nor make a re-run of the probe disagree with it. Working-tree CONTENT of
     tracked paths is what is read, so uncommitted edits to tracked files are counted (the
     attest reflects the fixed state before its commit). ``tracked`` is injectable for
     tests (the pure half); the default observes git (the thin observer)."""
@@ -156,8 +170,8 @@ def attest_file_set(root: Path = REPO_ROOT, tracked: set[str] | None = None) -> 
     # locally ABSENT (an unstaged deletion) or a broken symlink would be dropped by an
     # rglob+is_file discovery and silently vanish from the probe, letting a sibling in that
     # file escape; kept in the set here, it is handed to find_occurrences, which reports it
-    # as SKIPPED (unreadable), which the D14 reproduce-check treats as a fail-closed
-    # coverage escape. is_markdown_target is pure (suffix + exempt-dir parts, no stat), so
+    # as SKIPPED (unreadable), which --attest treats as a fail-closed coverage
+    # escape (exit 2, no clause). is_markdown_target is pure (suffix + exempt-dir parts, no stat), so
     # it classifies a non-materialized path correctly.
     return sorted(
         root / rel
@@ -201,12 +215,22 @@ def _self_test() -> int:
                        validate_attest_token('has "quote"') is not None))
         checks.append(("attest-token-empty-refused", validate_attest_token("  ") is not None))
         checks.append(("attest-token-newline-refused", validate_attest_token("a\nb") is not None))
+        checks.append(("attest-token-trailing-backslash-refused",
+                       validate_attest_token("token\\") is not None))
+        checks.append(("attest-token-any-trailing-backslash-run-refused",
+                       validate_attest_token("token\\\\") is not None))
         checks.append(("attest-token-plain-ok", validate_attest_token("7 years") is None))
         afs = attest_file_set(root, tracked={"a.md"})
-        checks.append(("attest-set-git-tracked-only", [f.name for f in afs] == ["a.md"]))
+        # The tracked set is injected here, so _git_tracked itself is not
+        # exercised: b.md is on disk and found by corpus_files but is not in the
+        # injected set; the check confirms both and that the attest set excludes it.
+        checks.append(("attest-set-injected-tracked-only",
+                       (root / "b.md").is_file()
+                       and "b.md" in {f.name for f in corpus_files(root)}
+                       and [f.name for f in afs] == ["a.md"]))
         # A tracked-but-locally-absent markdown path stays in the
         # attest set (not silently dropped) and is reported SKIPPED by the reader, so the
-        # D14 reproduce-check fails closed on it rather than under-counting.
+        # attestation fails closed on it rather than under-counting.
         afs3 = attest_file_set(root, tracked={"a.md", "ghost.md"})
         checks.append(("F3-attest-set-keeps-tracked-absent",
                        sorted(f.name for f in afs3) == ["a.md", "ghost.md"]))
@@ -233,7 +257,7 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--self-test", action="store_true", help="run the built-in self-test")
     ap.add_argument("--attest", action="store_true",
                     help="probe ONE token over the git-tracked corpus set and emit the "
-                         "paste-ready [class: ...] ledger clause (P-1.67)")
+                         "paste-ready [class: ...] ledger clause")
     args = ap.parse_args(argv[1:])
     if args.self_test:
         return _self_test()
@@ -241,13 +265,24 @@ def main(argv: list[str]) -> int:
         ap.print_usage(sys.stderr)
         print("ERROR: give at least one distinctive string (or --self-test).", file=sys.stderr)
         return 2
+    # Strings the search treats as equal are searched and counted once, under the first
+    # spelling given: find_occurrences lowercases each string under -i, so strings that
+    # differ only in case find the same hits, and without -i only an identical string does.
+    # Each copy would otherwise be listed and totalled again (guards against an inflated
+    # count). The merge comes before the --attest one-token check, so an identical token
+    # repeated there is one token, not a refusal.
+    first = {}
+    for s in args.strings:
+        first.setdefault(s.lower() if args.ignore_case else s, s)
+    args.strings = list(first.values())
     if args.attest:
         if len(args.strings) != 1:
             print("ERROR: --attest takes exactly one distinctive token.", file=sys.stderr)
             return 2
         if args.ignore_case:
-            print("ERROR: --attest is case-sensitive by design (the D14 reproduce-check "
-                  "re-runs the identical probe); give the token in its written case.",
+            print("ERROR: --attest is case-sensitive by design (a re-run of the identical "
+                  "probe must reproduce the attested count); give the token in its written "
+                  "case.",
                   file=sys.stderr)
             return 2
         token = args.strings[0]

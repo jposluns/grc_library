@@ -114,7 +114,7 @@ def main(argv: list[str]) -> int:
              "actual repository root derived from this file's location.",
     )
     args = parser.parse_args(argv[1:])
-    if args.root is not None:  # 3b50b2d1: a missing, empty or non-directory --root is refused
+    if args.root is not None:  # a missing, empty or non-directory --root is refused
         args.root = require_dir(args.root, "--root")
     if args.root is not None:
         REGISTER = args.root.resolve() / "governance" / "register-ai-security-tooling-landscape.md"

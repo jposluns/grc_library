@@ -896,10 +896,12 @@ class LanguageLinterTests(LinterTestCase):
         self.assertLinterFails(
             run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] organisations")
 
-    def test_url_mask_round3_glue_still_flagged(self) -> None:
-        # A capitalized sentence glued to a path-less host, prose after "~~" and
-        # a bracketed authority that is not an IPv6 literal are outside the
-        # token and still flagged.
+    def test_url_mask_glued_sentence_strike_bracket_and_bad_escape_prose_still_flagged(self) -> None:
+        # A capitalized sentence glued to a path-less host, prose after "~~"
+        # and a bracketed authority that is not an IPv6 literal are outside
+        # the token and still flagged. At an invalid percent escape ("%GG")
+        # the token stops before the percent sign, so the glued text
+        # begins with %GG and the flagged word is "GGorganisations".
         for index, (body, word) in enumerate((
                 ("See https://ico.org.uk.Organisations must register.\n", "Organisations"),
                 ("See ~~https://x.org/a~~organisations here.\n", "organisations"),
@@ -907,9 +909,26 @@ class LanguageLinterTests(LinterTestCase):
                 ("See https://x.org/%GGorganisations here.\n", "GGorganisations"))):
             with self.subTest(body=body):
                 fixture = self.make_fixture(
-                    f"standard-url-round3-{index}.md", VALID_METADATA + "\n\n" + body)
+                    f"standard-url-glued-prose-{index}.md", VALID_METADATA + "\n\n" + body)
                 self.assertLinterFails(
                     run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] " + word)
+
+    def test_url_mask_glued_sentence_strike_and_bad_escape_keep_url_portion_masked(self) -> None:
+        # The glued-prose cases above pass even with no URL mask at all, since
+        # the prose is flagged either way. Here a word the rule would flag sits
+        # inside the valid URL portion before each break: it is not reported,
+        # while the glued text after the break is. A bracketed authority that
+        # is not an IPv6 literal masks nothing, so it has no masked portion.
+        for index, (body, word) in enumerate((
+                ("See https://authorisations.org.uk.Organisations must register.\n", "Organisations"),
+                ("See ~~https://x.org/authorisations~~organisations here.\n", "organisations"),
+                ("See https://x.org/authorisations%GGorganisations here.\n", "GGorganisations"))):
+            with self.subTest(body=body, masked="authorisations"):
+                fixture = self.make_fixture(
+                    f"standard-url-glued-prose-masked-{index}.md", VALID_METADATA + "\n\n" + body)
+                result = run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture)
+                self.assertLinterFails(result, "[isation] " + word)
+                self.assertNotIn("authorisations", result.stdout + result.stderr)
 
     def test_url_after_emphasis_underscore_exempt(self) -> None:
         # A URL in Markdown underscore emphasis is recognized (the
@@ -928,11 +947,32 @@ class LanguageLinterTests(LinterTestCase):
                 self.assertLinterFails(
                     run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] organisations")
 
-    def test_url_mask_round4_glue_still_flagged(self) -> None:
-        # Prose right after a closing "_" / "__" emphasis delimiter, a digit run
-        # before "/", an all-uppercase label glued to a lowercase host, an invalid
-        # query escape, a non-scheme "://" and ",)" inside parentheses are outside
-        # the token and still flagged.
+    def test_url_mask_emphasis_comma_digit_upper_label_bad_query_key_nested_colon_and_paren_flagged(self) -> None:
+        """Prose after a closing "_" or "__" emphasis delimiter, path text after
+        a comma and a digit run before "/", an all-uppercase label after a host
+        label with a lowercase letter, a query whose key is followed by an invalid
+        escape, a non-scheme "://" and text that follows straight after a ")"
+        closing a parenthesized group ending in "," (the "Organisations" in
+        "a(b,)Organisations", which is outside the parentheses) are outside
+        the URL token and still flagged.
+
+        The host case follows the gate's host rule: an all-uppercase top-level
+        label is accepted only when no host label holds a lowercase letter, so
+        in "ico.org.uk.ORGANISATIONS" the host ends at ".uk" and
+        ".ORGANISATIONS" is checked as prose. The rule does not tell a word
+        from a real top-level label, so a real all-uppercase top-level label
+        after a host label with a lowercase letter is checked the same way (an
+        under-mask that fails safe as a false positive), while a host written
+        wholly in capitals, such as "X.ORG.UK", is masked with its uppercase
+        label.
+
+        The query case follows the gate's own token rule: "?" continues the
+        token only when "a query key, any run (possibly empty) of letters,
+        digits, ".", "_", "~", "+", "-" or %XX escapes, reaches "="", and
+        otherwise ends it. An invalid escape such as "%zz" is not a key
+        character, so in "?organisations%zz=1" the key stops at the "%" and
+        does not reach the "=" after it; the token ends at the "?" and the
+        query text is checked."""
         for index, (body, word) in enumerate((
                 ("See _https://x.org/a_(organisations) here.\n", "organisations"),
                 ("See __https://x.org/a__(organisations) here.\n", "organisations"),
@@ -945,13 +985,33 @@ class LanguageLinterTests(LinterTestCase):
                 ("See https://x.org/a(b,)Organisations here.\n", "Organisations"))):
             with self.subTest(body=body):
                 fixture = self.make_fixture(
-                    f"standard-url-round4-{index}.md", VALID_METADATA + "\n\n" + body)
+                    f"standard-url-emphasis-digit-escape-{index}.md", VALID_METADATA + "\n\n" + body)
                 self.assertLinterFails(
                     run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] " + word)
+        # The valid URL portion before each break is still masked: a word
+        # the rule would flag in prose sits inside it and is not reported,
+        # while the text after the break is.
+        for index, (body, word) in enumerate((
+                ("See _https://x.org/authorisations_(organisations) here.\n", "organisations"),
+                ("See __https://x.org/authorisations__(organisations) here.\n", "organisations"),
+                ("See _https://x.org/authorisations_.organisations here.\n", "organisations"),
+                ("See __https://x.org/authorisations__,organisations here.\n", "organisations"),
+                ("See https://x.org/authorisations,1/organisations here.\n", "organisations"),
+                ("See https://authorisations.org.uk.ORGANISATIONS here.\n", "ORGANISATIONS"),
+                ("See https://x.org/authorisations?organisations%zz=1 here.\n", "organisations"),
+                ("See https://x.org/authorisations/a://organisations here.\n", "organisations"),
+                ("See https://x.org/authorisations(b,)Organisations here.\n", "Organisations"))):
+            with self.subTest(body=body, masked="authorisations"):
+                fixture = self.make_fixture(
+                    f"standard-url-emphasis-digit-escape-masked-{index}.md", VALID_METADATA + "\n\n" + body)
+                result = run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture)
+                self.assertLinterFails(result, "[isation] " + word)
+                self.assertNotIn("authorisations", result.stdout + result.stderr)
 
-    def test_url_mask_round5_closer_before_punctuation_flagged(self) -> None:
-        # Prose after a closing "_" / "__" followed by punctuation that a URL
-        # path could hold ("#", "-", "&", "$") is outside the token.
+    def test_url_mask_closer_before_punctuation_flagged(self) -> None:
+        # Prose after a closing "_" / "__" followed by punctuation that the URL
+        # token otherwise continues through ("-", "&" and "$" in a path, "#" as
+        # the start of a fragment) is outside the token.
         for index, body in enumerate((
                 "See _https://x.org/a_#organisations here.\n",
                 "See __https://x.org/a__-organisations here.\n",
@@ -959,9 +1019,23 @@ class LanguageLinterTests(LinterTestCase):
                 "See __https://x.org/a__$organisations here.\n")):
             with self.subTest(body=body):
                 fixture = self.make_fixture(
-                    f"standard-url-round5-{index}.md", VALID_METADATA + "\n\n" + body)
+                    f"standard-url-closer-punctuation-{index}.md", VALID_METADATA + "\n\n" + body)
                 self.assertLinterFails(
                     run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture), "[isation] organisations")
+        # The URL before the closing delimiter is still masked: a word the rule
+        # would flag in prose sits in its path and is not reported, so the case
+        # above fails for the delimiter, not because no URL was masked.
+        for index, body in enumerate((
+                "See _https://x.org/authorisations_#organisations here.\n",
+                "See __https://x.org/authorisations__-organisations here.\n",
+                "See _https://x.org/authorisations_&organisations here.\n",
+                "See __https://x.org/authorisations__$organisations here.\n")):
+            with self.subTest(body=body, masked="authorisations"):
+                fixture = self.make_fixture(
+                    f"standard-url-closer-punctuation-masked-{index}.md", VALID_METADATA + "\n\n" + body)
+                result = run_linter(".claude/skills/corpus-management/tools/lint-language.py", fixture)
+                self.assertLinterFails(result, "[isation] organisations")
+                self.assertNotIn("authorisations", result.stdout + result.stderr)
 
     def test_spelling_word_bounded_by_letters_flagged(self) -> None:
         # The spelling checks bound a word by ASCII letters, not \b, so a word in
@@ -2818,9 +2892,43 @@ class StandardsCurrencyTests(LinterTestCase):
                 f"without governance/register-canonical-citations.md.\n"
                 f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
             )
+            # A missing baseline also exits 2, so the exit code alone does not show that the
+            # register was read first and refused: the error must name the register file.
+            self.assertIn("register-canonical-citations.md", result.stderr, result.stderr)
+            self.assertNotIn("standards-currency-unpinned-baseline.json", result.stderr, result.stderr)
         finally:
             import shutil
             shutil.rmtree(synthetic_root, ignore_errors=True)
+
+    def test_root_override_with_only_the_baseline_missing_exits_2_naming_it(self) -> None:
+        # With the register present, a default-scope run reads the UNPINNED baseline next; a
+        # missing baseline fails closed with exit 2 and an error that names the baseline file,
+        # not the register.
+        synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-root-no-unpinned-baseline-", dir=FIXTURE_DIR))
+        self.addCleanup(shutil.rmtree, synthetic_root, True)
+        (synthetic_root / "governance").mkdir()
+        (synthetic_root / "governance" / "register-canonical-citations.md").write_text(
+            "# Register\n\n## Standards\n\n"
+            "| Standard ID | Current version | Publication date | Topic | Superseded versions |\n"
+            "| --- | --- | --- | --- | --- |\n"
+            "| ISO-27001 | 2022 | 2022-10 | ISMS | 2013 |\n",
+            encoding="utf-8",
+        )
+        result = run_linter(
+            ".claude/skills/corpus-management/tools/lint-standards-currency.py",
+            "--root",
+            str(synthetic_root),
+        )
+        self.assertEqual(
+            result.returncode,
+            2,
+            f"linter should exit 2 when --root names a directory with the register but "
+            f"without {self.BASELINE_REL}.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("standards-currency-unpinned-baseline.json", result.stderr, result.stderr)
+        self.assertIn("No such file or directory", result.stderr, result.stderr)
+        self.assertNotIn("register-canonical-citations.md", result.stderr, result.stderr)
 
     # Every run names the register standards no citation grammar reads, derived from the register
     # at run time (disclose-guard-residuals); the lines are advisory and never a finding. One list
@@ -2942,14 +3050,17 @@ class StandardsCurrencyTests(LinterTestCase):
         import contextlib
         from unittest import mock
 
-        root = self._not_covered_root(self.COVERED_ROW, self.UNCOVERED_ROW)
+        # The unmatched row sits on the Not covered line until a reader is gained for it;
+        # the row with a superseded edition sits on the Superseded editions matched line.
+        root = self._not_covered_root(self.COVERED_ROW, self.UNCOVERED_ROW, self.UNMATCHED_ROW)
+        gained = ("Example Widget Norm", "Example Gadget Rule")
         mod = load_linter_module(".claude/skills/corpus-management/tools/lint-standards-currency.py", "currency_not_covered")
         engine = mod._engine()
         original = engine.discover
 
         def with_widget_reader(source, suffix):
             found = original(source, suffix)
-            if source == "Example Widget Norm":
+            if source in gained:
                 found.append(dict(channel="grammar", identity=engine.identity_key(source)))
             return found
 
@@ -2964,6 +3075,9 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertEqual(code, 0, before)
         self.assertTrue(
             self._residual_line(before, self.SUPERSEDED_MATCHED).endswith(": Example Widget Norm")
+        )
+        self.assertTrue(
+            self._residual_line(before, self.NOT_COVERED).endswith(": Example Gadget Rule"), before
         )
         code, after = run(mock.patch.object(engine, "discover", with_widget_reader))
         self.assertEqual(code, 0, after)
@@ -2982,8 +3096,8 @@ class StandardsCurrencyTests(LinterTestCase):
         # adopter guides, excluded in docs/ before the move, stay excluded in
         # the skill's docs/ directory. The expected directories are written out
         # here, not read from lint_common.
-        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-standards-currency.py", "currency_fx3a_scope")
-        root = Path(tempfile.mkdtemp(prefix="currency-fx3a-")).resolve()
+        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-standards-currency.py", "currency_planted_scope")
+        root = Path(tempfile.mkdtemp(prefix="currency-planted-")).resolve()
         self.addCleanup(shutil.rmtree, root, ignore_errors=True)
         planted = (
             "governance/a.md",
@@ -6244,7 +6358,9 @@ class CrossFileSectionRefTests(LinterTestCase):
         result = run_linter(".claude/skills/corpus-management/tools/lint-cross-file-section-refs.py", fixture)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
-    def test_round_two_table_local_exception_requires_description_and_close(self) -> None:
+    def test_table_local_exception_requires_description_and_close(self) -> None:
+        # The target lacks section 8, so a row the local-section exception
+        # does not cover is read as a citation of the target and fails.
         self.make_fixture("t.md", self.TARGET_BODY + "\n\n## 4. Other\n")
         for line, should_fail in (
             ("| Owner | §8 ([t](t.md)) |", True),
@@ -6252,13 +6368,56 @@ class CrossFileSectionRefTests(LinterTestCase):
             ("| Owner | §8 of the target ([t](t.md)) |", True),
             ("| Owner | Section 8 exception path ([policy](t.md) §2) |", False),
             ("| Owner | Section 8 exception path ([policy](t.md) §2 |", True),
+            # A nested parenthetical inside a closed exception path is
+            # balanced, so the path is closed and the row stays local.
+            ("| Owner | Section 8 exception path ([policy](t.md) (see §2)) |", False),
         ):
             with self.subTest(line=line):
                 citer = VALID_METADATA + f"\n\n## 8. Exceptions\n\n{line}\n"
-                fixture = self.make_fixture("standard-round-two-cross-ref.md", citer)
+                fixture = self.make_fixture("standard-table-exception-cross-ref.md", citer)
                 result = run_linter(".claude/skills/corpus-management/tools/lint-cross-file-section-refs.py", fixture)
                 if should_fail:
                     self.assertLinterFails(result, "§8")
+                else:
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        # The target now holds section 8, so a row read as a citation of the
+        # target resolves (the first row shows it); a row whose exception
+        # path leaves its parenthesis unclosed still fails, by its own refusal.
+        self.make_fixture("t.md", self.TARGET_BODY + "\n\n## 4. Other\n\n## 8. Exceptions\n")
+        for line, should_fail in (
+            ("| Owner | §8 ([t](t.md)) |", False),
+            ("| Owner | Section 8 exception path ([policy](t.md) §2) |", False),
+            ("| Owner | Section 8 exception path ([policy](t.md) §2 |", True),
+            ("| Owner | Section 8 exception path ([policy](t.md) (see §2)) |", False),
+            # The link target "(t.md)" and the nested parenthetical close,
+            # but nothing closes the parenthesis opened before the link.
+            ("| Owner | Section 8 exception path ([policy](t.md) (see §2) |", True),
+            # A parenthesis inside a code span or escaped with a backslash is
+            # text, not structure: it neither opens a nested parenthetical
+            # nor closes the link's own parenthesis.
+            ("| Owner | Section 8 exception path ([policy](t.md) `(` §2) |", False),
+            ("| Owner | Section 8 exception path ([policy](t.md) ``a(b`` §2) |", False),
+            ("| Owner | Section 8 exception path ([policy](t.md) \\( §2) |", False),
+            ("| Owner | Section 8 exception path ([policy](t.md) `)` §2 |", True),
+            ("| Owner | Section 8 exception path ([policy](t.md) \\) §2 |", True),
+            # An escaped backtick opens no code span, so the parenthesis after
+            # it is counted, and a double backslash leaves a parenthesis bare.
+            ("| Owner | Section 8 exception path ([policy](t.md) \\`(` §2) |", True),
+            ("| Owner | Section 8 exception path ([policy](t.md) \\\\) §2 |", False),
+            # A code span opened before the link that encloses the closing
+            # parenthesis makes that parenthesis text, so nothing closes the
+            # link's own parenthesis; a code span closed before the link
+            # leaves the closing parenthesis counted.
+            ("| Owner | Section 8 exception path `([policy](t.md))` |", True),
+            ("| Owner | Section 8 `exception` path ([policy](t.md) §2) |", False),
+        ):
+            with self.subTest(line=line, target_holds_section_8=True):
+                citer = VALID_METADATA + f"\n\n## 8. Exceptions\n\n{line}\n"
+                fixture = self.make_fixture("standard-table-exception-cross-ref.md", citer)
+                result = run_linter(".claude/skills/corpus-management/tools/lint-cross-file-section-refs.py", fixture)
+                if should_fail:
+                    self.assertLinterFails(result, "§8")
+                    self.assertIn("no closing parenthesis", result.stdout)
                 else:
                     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
@@ -8051,7 +8210,7 @@ class PreflightVersionDateTests(LinterTestCase):
             self._stage(sp, tmp)
             env = dict(_os.environ)
             env["PREFLIGHT_VD_TODAY"] = self.TODAY
-            env["AIQT_PACK_ROOT"] = "~nonexistent_r11_user/pack"
+            env["AIQT_PACK_ROOT"] = "~nonexistent_tilde_user/pack"
             r = sp2.run([sys.executable, str(REPO_ROOT / ".claude/skills/corpus-management/tools/preflight-version-date.py"),
                          "--base", base], capture_output=True, text=True, cwd=str(tmp), env=env)
             self.assertEqual(r.returncode, 2, f"bad pack root must be a clean scope error: {r.stderr}")
@@ -22071,13 +22230,13 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.git("worktree", "lock", "--reason", "kept for a reason", str(checkouts[0]))
         self.git("worktree", "lock", str(checkouts[1]))
         loose = Path(self.tmp.name) / "on-branch"
-        self.git("worktree", "add", "-b", "round5-loose", str(loose), "HEAD")
+        self.git("worktree", "add", "-b", "loose-ref-branch", str(loose), "HEAD")
         packed = Path(self.tmp.name) / "on-packed-branch"
-        self.git("worktree", "add", "-b", "round5-packed", str(packed), "HEAD")
+        self.git("worktree", "add", "-b", "packed-ref-branch", str(packed), "HEAD")
         self.git("pack-refs", "--all")
-        self.git("update-ref", "refs/heads/round5-loose", "HEAD")
+        self.git("update-ref", "refs/heads/loose-ref-branch", "HEAD")
         common = self.common_dir()
-        self.assertFalse(Path(common, "refs", "heads", "round5-packed").exists())
+        self.assertFalse(Path(common, "refs", "heads", "packed-ref-branch").exists())
         read = subprocess.run([sys.executable, "-I", "-c", self.REGISTRATIONS, self.report_code(),
                                common], cwd=self.root, env=self.env, capture_output=True,
                               text=True, timeout=60)
@@ -22093,7 +22252,7 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         self.assertEqual({r["locked"] for r in listed}, {None, "", "kept for a reason"}, listed)
         self.assertEqual(len([r for r in listed if r["prunable"]]), 1, listed)
         self.assertEqual({r["branch"] for r in listed},
-                         {None, "refs/heads/round5-loose", "refs/heads/round5-packed"}, listed)
+                         {None, "refs/heads/loose-ref-branch", "refs/heads/packed-ref-branch"}, listed)
         self.assertEqual(records, listed)
         self.assertTrue(all(not r["head_problem"] for r in got["records"]), got)
         for path in (checkouts[0], checkouts[1]):
@@ -25639,7 +25798,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         # root header fails in CI too; a clean root skips only the mirror checks.
         import contextlib
         from unittest import mock
-        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "_mp_ep2_nomirror")
+        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "_mp_nomirror")
         for root_text, rc in (("**2026-11-08 | 2026.12.1 | PR #3127** - old\n", 1),
                               (self._new_headers(1), 0)):
             with tempfile.TemporaryDirectory() as tmp:
@@ -25720,7 +25879,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         # Latin-1 byte passed and claimed the epoch rule passed.
         rc, out = self._no_mirror_run(
             "**2026-10-30 | 2026.10.1 | PR #3127** - caf\xe9\n".encode("latin-1"),
-            "_mp_ep3_nomirror_latin1")
+            "_mp_nomirror_latin1")
         self.assertEqual(rc, 1, out)
         self.assertIn("FAIL: root .working/CHANGELOG.md is not valid UTF-8", out)
         self.assertNotIn("passed", out)
@@ -25759,7 +25918,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         rc, out = self._no_mirror_run(
             ("**2026-11-10 | 2026.12.1 | PR #1** - a\n"
              "**2026-11-09 | 2026.12.1 | PR #1** - b\n").encode("utf-8"),
-            "_mp_ep3_nomirror_dup")
+            "_mp_nomirror_dup")
         self.assertEqual(rc, 1, out)
         self.assertIn("appearing more than once in root .working/CHANGELOG.md (>= #1): #1", out)
         self.assertIn("root .working/CHANGELOG.md Library Version ordering violated", out)
@@ -26022,7 +26181,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         ("M1 zero-width space", "\u200b**2026-11-10 | 2026.11.67 | PR #2**"),
         ("M2 PR first, cells", "**PR #2** | 2026-11-10 | 2026.11.67"),
         ("M2 PR first, list item", "- **PR #2:** 2026-11-10, Library Version 2026.11.67"),
-        ("ep5qx 1 linked PR cell", "* **2026-11-10 | 2026.11.67 | [PR #2](../../pull/2)**"),
+        ("single linked PR cell", "* **2026-11-10 | 2026.11.67 | [PR #2](../../pull/2)**"),
     )
 
     # Old records (some PR first) in root form. The link target of the linked old record, which
@@ -26054,15 +26213,15 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         # test was written) has 0 root-grammar failures and still compares its PR #1 line.
         mod = load_linter_module(
             ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py",
-            "_mp_ep6_real_root")
+            "_mp_real_root")
         text = (REPO_ROOT / ".working/CHANGELOG.md").read_text(encoding="utf-8")
         found = mod.root_findings(text)
         self.assertEqual(found.lines(), set())
         self.assertTrue(mod.pr_headers(text))
-        rc, out = self._no_mirror_run(text.encode("utf-8"), "_mp_ep6_real_root_run")
+        rc, out = self._no_mirror_run(text.encode("utf-8"), "_mp_real_root_run")
         self.assertEqual(rc, 0, out)
 
-    def test_root_grammar_fails_every_ep5_probe_in_root_form(self) -> None:
+    def test_root_grammar_fails_every_probe_in_root_form(self) -> None:
         # In the earlier repository each new #2 line passed unread because pattern detection
         # missed its shape. The closed root grammar fails every line that is not a canonical
         # per-PR line, naming the canonical shape.
@@ -26075,7 +26234,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 self.assertIn("**YYYY-MM-DD | X.Y.Z | PR #N** at column 0", result.stdout)
                 self.assertNotIn("headers match", result.stdout)
 
-    def test_root_grammar_fails_every_ep5_old_probe_in_root_form(self) -> None:
+    def test_root_grammar_fails_every_old_probe_in_root_form(self) -> None:
         # In the earlier repository the old records passed. In root form each fails, as an
         # old-repository record or as outside the root grammar. A month-name date (21 Jun
         # 2026) is read as a date, so that probe fails as old too.
@@ -26145,7 +26304,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertNotIn("line 12", result.stdout)
         self.assertNotIn("MISSING", result.stdout)
 
-    def test_mirror_body_lines_from_ep5qc_l1_pass(self) -> None:
+    def test_real_looking_mirror_body_lines_pass(self) -> None:
         # In the earlier repository real-looking mirror body lines failed. An X.Y.Z token is not
         # date-like, table rows and inline code spans are skipped, and a bold span holding "|"
         # needs a date, version or PR to be a candidate. A triple after words is no longer body
@@ -26405,7 +26564,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     EMPHASIS_OLD = ("- PR #3127 | __2026.06.9__ | 2026-06-21",
                     "- *PR #3127* | _2026.06.9_ | 2026-06-21")
 
-    def test_ep8a_emphasized_versions_and_prs_are_read(self) -> None:
+    def test_emphasized_versions_and_prs_are_read(self) -> None:
         # In the earlier repository a version or a PR in Markdown emphasis was read by no
         # detector, so these lines passed unread in the mirror, below the root's first week
         # heading and in the intro. The mirror now removes emphasis markers before detection,
@@ -26446,7 +26605,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                          "grc_library#{n}", "pull {n}", "pull request {n}", "pull-request {n}",
                          "https://example.invalid/acme/grc_library/pull/{n}")
 
-    def test_ep8a_every_labelled_pr_form_below_the_week_fails(self) -> None:
+    def test_every_labelled_pr_form_below_the_week_fails(self) -> None:
         # In the earlier repository a bullet below the root's first week heading holding a
         # version and a PR in a form the earlier detector missed (PR: 2, PR number 2, GH-2 and
         # others) passed unread. A bullet now fails when it holds a version together with a
@@ -26471,7 +26630,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 self.assertEqual(result.returncode, 0, result.stdout)
                 self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
 
-    def test_ep8a_summary_tail_naming_another_pr_fails(self) -> None:
+    def test_summary_tail_naming_another_pr_fails(self) -> None:
         # In the earlier repository a canonical line's free summary tail carried a second PR's
         # record unread, in the root and in the mirror. A tail holding an X.Y.Z version and a
         # labelled PR identity naming another number now fails in both surfaces (a new record
@@ -26497,7 +26656,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn("for all 2 PR(s) at or above #1,", result.stdout)
 
-    def test_ep8a_root_title_rule_and_mirror_byte_order_mark(self) -> None:
+    def test_root_title_rule_and_mirror_byte_order_mark(self) -> None:
         # The root must start with the # Changelog title, so a missing title, a title after
         # another line, a root holding only a week heading and an empty root each fail at the line
         # where the title belongs. In the earlier repository a byte order mark before the mirror's
@@ -26525,7 +26684,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 self.assertEqual(result.returncode, 0, result.stdout)
                 self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
 
-    def test_ep8a_wording_names_the_detection_dependent_rules(self) -> None:
+    def test_wording_names_the_detection_dependent_rules(self) -> None:
         # In the earlier repository the gate docstring and the specification said the root
         # grammar was "closed end to end" and that a line is old when its "first year-first date"
         # is before EPOCH_START. Both now name the 3 rules that depend on token detection and say
@@ -26542,7 +26701,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertIn("its first date (as defined below) is before `EPOCH_START`", spec)
         self.assertIn("as ``old`` when its first date (``_first_date``", gate)
 
-    def test_ep8b_bare_repo_form_names_only_this_repository(self) -> None:
+    def test_bare_repo_form_names_only_this_repository(self) -> None:
         # In the earlier repository the bare repo#N form of the labelled PR detector read any word
         # glued to #N, so issue#42 counted as a PR: a weekly bullet with a version, a mirror body
         # line with a date and a version, and a summary tail with a version all failed. The bare
@@ -26591,7 +26750,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         "## 2026\u201006\u201021, Library Version 2026.06.9, PR #3127",
         "### 21.06.2026 | 2026.06.9 | PR #3127", "### 2026-Jun-21 | 2026.06.9 | GH-3127")
 
-    def test_ep8c_wider_mirror_dates_are_read(self) -> None:
+    def test_wider_mirror_dates_are_read(self) -> None:
         # DATE_ANY_RE now also reads a DD.MM.YYYY date, a date joined by a Unicode dash from
         # U+2010 to U+2015, D-Mon-YYYY, YYYY-Mon-D and YYYYMMDD, so each mirror-only line fails:
         # a new record as a shape gate 59 cannot compare and an old one as a record to archive. A
@@ -26614,7 +26773,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 self.assertEqual(result.returncode, 0, result.stdout)
                 self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
 
-    def test_ep8c_malformed_legacy_headers_fail_in_the_mirror(self) -> None:
+    def test_malformed_legacy_headers_fail_in_the_mirror(self) -> None:
         # The leading-zero test puts its legacy probe in the root, where the root grammar fails
         # every legacy header whatever its digits. Each malformed legacy header here sits in the
         # mirror against a valid compact root counterpart, and the mirror's own shape failure is
@@ -26633,7 +26792,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn("for all 2 PR(s) at or above #1,", result.stdout)
 
-    def test_ep8c_specification_names_the_forms_the_code_reads(self) -> None:
+    def test_specification_names_the_forms_the_code_reads(self) -> None:
         # In the earlier repository the specification still named the bare PR form repo#N
         # after the code stopped reading it. The gate 59 sentences now name grc_library#N, and
         # the specification and the gate docstring name the wider date forms and the canonical
@@ -26703,7 +26862,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertEqual(result.returncode, 1, result.stdout)
         self.assertIn(named, self._fail_lines(result.stdout, "root"))
 
-    def test_ep9b_root_code_span_records_are_refused(self) -> None:
+    def test_root_code_span_records_are_refused(self) -> None:
         # In the earlier repository the root read a code span's text by removing its backticks;
         # the strict character rule now refuses the backtick, so each probe fails by that rule,
         # named at its first backtick.
@@ -26714,7 +26873,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             with self.subTest(where="intro", probe=probe):
                 self._root_strict_fails(probe, "intro", "`")
 
-    def test_ep9b_root_bullets_hold_no_calver_version(self) -> None:
+    def test_root_bullets_hold_no_calver_version(self) -> None:
         # In the earlier repository a dated bullet with a bare #N or no PR, and a bullet naming
         # its PR as "pull request number N", "pull request no. N" or "PR \#N", passed below the
         # week heading. Every bullet holding a CalVer library version now fails, new and old.
@@ -26722,7 +26881,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             with self.subTest(probe=probe):
                 self._root_calver_fails(probe, "bullet")
 
-    def test_ep9b_root_backslash_escapes_are_refused(self) -> None:
+    def test_root_backslash_escapes_are_refused(self) -> None:
         # In the earlier repository the root read a version written with Markdown backslash
         # escapes (2026\.11\.67) by removing the escapes. The strict character rule now refuses
         # the backslash itself, so each probe fails by that rule, named at its first backslash.
@@ -26735,7 +26894,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         with self.subTest(where="tail"):
             self._root_strict_fails(" - bumps 2026\\.12\\.3", "tail", "\\")
 
-    def test_ep9b_root_summary_tail_holds_no_calver_version(self) -> None:
+    def test_root_summary_tail_holds_no_calver_version(self) -> None:
         # A canonical root line's summary tail fails when it holds a CalVer library version, in
         # plain text or in a code span, new and old (the strict character rule refuses an escaped
         # tail); a tail holding a non-CalVer X.Y.Z and another PR passes in the root. The mirror
@@ -26756,7 +26915,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn("for all 2 PR(s) at or above #1,", result.stdout)
 
-    def test_ep9b_realistic_bullets_pass(self) -> None:
+    def test_realistic_bullets_pass(self) -> None:
         # In the earlier repository any X.Y.Z token counted as a library version, so realistic
         # bullets naming a schema or standard version with a date or a PR failed. Only a CalVer
         # library version fails now, so each passes.
@@ -26767,7 +26926,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 self.assertEqual(result.returncode, 0, result.stdout)
                 self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
 
-    def test_ep9b_closing_underscore_dates_are_read_in_the_mirror(self) -> None:
+    def test_closing_underscore_dates_are_read_in_the_mirror(self) -> None:
         # In the earlier repository no test needed the closing-underscore alternative of
         # EMPHASIS_RE. In each probe the date reads only after its closing "_" is removed, so a new
         # record fails as a shape gate 59 cannot compare and an old one as a record to archive.
@@ -26784,7 +26943,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 self.assertEqual(result.returncode, 1, result.stdout)
                 self.assertIn(f"line 3 PR #3127 ({date})", self._mirror_old_line(result.stdout))
 
-    def test_ep9b_dated_mirror_notes_pass(self) -> None:
+    def test_dated_mirror_notes_pass(self) -> None:
         # In the earlier repository a dated body note whose date is followed by "," or "|" was a
         # candidate by its canonical opening and failed. After a date and "," the opening now needs
         # a Version label, a version or a numbered PR identity, and after a date and "|" a version
@@ -26805,7 +26964,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 self.assertEqual(result.returncode, 1, result.stdout)
                 self.assertIn(f"line 3 ({line!r})", self._fail_lines(result.stdout, "mirror"))
 
-    def test_ep9b_first_date_reads_the_wider_forms(self) -> None:
+    def test_first_date_reads_the_wider_forms(self) -> None:
         # In the earlier repository, when a mirror line had no year-first ASCII date, the
         # old-record reading skipped the wider date forms DATE_ANY_RE reads and named the
         # version 2026.06.9 as the date. It now reads them, so each old line names its own date.
@@ -26822,7 +26981,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 self.assertEqual(result.returncode, 1, result.stdout)
                 self.assertIn(f"line 3 PR #3127 ({date})", self._mirror_old_line(result.stdout))
 
-    def test_ep9b_texts_name_what_the_code_reads_and_reports(self) -> None:
+    def test_texts_name_every_intro_pr_identity_and_how_lines_are_reported(self) -> None:
         # In the earlier repository the specification and the docstring named fewer intro PR
         # identities than the code rejects, and said a PR #0 header fails as below CUTOFF_PR
         # and that every non-ISO date fails as unparseable. Both texts now name the full list
@@ -26913,7 +27072,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertIn("hold a CalVer library version in their summary tail", root)
         self.assertIn(f"line 2 PR #2 ({version})", root)
 
-    def test_ep9d_root_hidden_calver_versions_are_refused(self) -> None:
+    def test_root_hidden_calver_versions_are_refused(self) -> None:
         for mark in self.CALVER_HIDDEN_MARKS:
             for probe in (f"- Released 2026{mark}.11.67 in PR #2 on 2026-11-10.",
                           f"- 2026-06-21 | 2026{mark}.06.9 | PR #3127"):
@@ -26925,7 +27084,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             with self.subTest(where="tail", mark=mark):
                 self._root_strict_fails(f" - also lands PR #3 at 2026{mark}.11.68", "tail", mark)
 
-    def test_ep9d_root_emphasis_split_versions_are_refused(self) -> None:
+    def test_root_emphasis_split_versions_are_refused(self) -> None:
         # Each probe fails by the strict character rule at its first "*".
         for probe in self.CALVER_EMPHASIS_BULLETS:
             with self.subTest(where="bullet", probe=probe):
@@ -26937,7 +27096,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             with self.subTest(where="tail", tail=tail):
                 self._root_strict_fails(tail, "tail", "*")
 
-    def test_ep9d_mirror_tail_code_span_records_are_refused(self) -> None:
+    def test_mirror_tail_code_span_records_are_refused(self) -> None:
         # In the earlier repository the mirror read the text of a code span in a summary tail.
         # Every mirror canonical line now meets the strict character rule, so each tail fails by
         # that rule at its first backtick; a tail with no other PR passes.
@@ -26953,7 +27112,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn("for all 2 PR(s) at or above #1,", result.stdout)
 
-    def test_ep9d_dated_mirror_notes_naming_a_pr_pass(self) -> None:
+    def test_dated_mirror_notes_naming_a_pr_pass(self) -> None:
         # In the earlier repository a dated note whose opening or cell names a PR that does not
         # end its span or cell was a candidate and failed. The PR identity of the opening's
         # comma joint or of a cell now reads as an entry only when it ends its span or cell (an
@@ -26978,7 +27137,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 self.assertEqual(result.returncode, 1, result.stdout)
                 self.assertIn(f"line 3 ({line!r})", self._fail_lines(result.stdout, "mirror"))
 
-    def test_ep9d_mirror_full_width_date_stays_a_candidate(self) -> None:
+    def test_mirror_full_width_date_stays_a_candidate(self) -> None:
         # DATE_ANY_RE stays Unicode-wide (no re.ASCII), because the mirror's content rule reads it
         # without NFKC; with re.ASCII this line, whose only date is in full-width digits, would
         # pass unread. The comment now says only the parts patterns are ASCII-only.
@@ -26988,7 +27147,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertEqual(result.returncode, 1, result.stdout)
         self.assertIn(f"line 3 ({line!r})", self._fail_lines(result.stdout, "mirror"))
 
-    def test_ep9d_texts_name_what_the_code_reads_and_reports(self) -> None:
+    def test_texts_replace_the_stale_cutoff_and_digit_wording(self) -> None:
         gate = (SKILL_ROOT / "tools" / "lint-changelog-mirror-header-parity.py").read_text(
             encoding="utf-8")
         spec = (SKILL_ROOT / "specs" / "specification-audit-programme.md").read_text(
@@ -27027,7 +27186,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     CALVER_URL_INTROS = ("Versions follow [the notes](https://example.org/2026.11.66).",)
     CALVER_URL_TAILS = (" - see [the notes](https://example.org/2026.11.68)",)
 
-    def test_ep10_root_link_split_versions_are_refused(self) -> None:
+    def test_root_link_split_versions_are_refused(self) -> None:
         for probe in self.CALVER_LINK_BULLETS + self.CALVER_URL_BULLETS:
             with self.subTest(where="bullet", probe=probe):
                 self._root_strict_fails(probe, "bullet", "[")
@@ -27038,7 +27197,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             with self.subTest(where="tail", tail=tail):
                 self._root_strict_fails(tail, "tail", "[")
 
-    def test_ep10_mirror_tail_links_are_refused(self) -> None:
+    def test_mirror_tail_links_are_refused(self) -> None:
         # In the earlier repository the mirror read a link in a summary tail as its text and its
         # URL. Every mirror canonical line now meets the strict character rule, so each tail
         # fails at its "[".
@@ -27065,7 +27224,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     IGNORABLE_CODES = (0x034F, 0x115F, 0x1160, 0x17B4, 0x17B5, 0x180B, 0x180F, 0x3164, 0xFE00,
                        0xFE0F, 0xFFA0, 0xE0100, 0xE01EF)
 
-    def test_ep10_root_default_ignorable_split_versions_are_refused(self) -> None:
+    def test_root_default_ignorable_split_versions_are_refused(self) -> None:
         for index, code in enumerate(self.IGNORABLE_CODES):
             for form, mark in (("raw", chr(code)), ("reference", f"&#x{code:X};")):
                 for probe in (f"- Released 2026{mark}.11.67 in PR #2 on 2026-11-10.",
@@ -27083,7 +27242,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             with self.subTest(where="tail", code=f"U+{code:04X}", form=form):
                 self._root_strict_fails(f" - also lands PR #3 at 2026{mark}.11.68", "tail", mark)
 
-    def test_ep10_mirror_tail_message_names_a_labelled_pr_identity(self) -> None:
+    def test_mirror_tail_message_names_a_labelled_pr_identity(self) -> None:
         # tail_prs reads only labelled PR identities, so the FAIL message says "a labelled PR
         # identity"; a bare #N in the tail is not read and passes.
         same = self._new_headers(1)
@@ -27115,11 +27274,11 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     # A real-world link whose URL holds balanced parentheses and no version.
     WIKIPEDIA_LINK = "[patches](https://en.wikipedia.org/wiki/Patch_(computing))"
 
-    def _ep11a_gate(self, name: str):
+    def _mirror_parity_gate(self, name: str):
         return load_linter_module(
             ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", name)
 
-    def test_ep11a_root_link_forms_are_refused(self) -> None:
+    def test_root_link_forms_are_refused(self) -> None:
         same = self._new_headers(1)
         head = "**2026-11-10 | 2026.12.2 | PR #2**"
         for form in self.LINK_FORMS + self.LINK_UNMODELLED_FORMS:
@@ -27143,7 +27302,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                           self._fail_lines(result.stdout, "root"))
             self.assertIn("line 12 column 17: refused character ']' (U+005D)", failed)
 
-    def test_ep11a_real_world_link_is_refused_in_root_and_mirror_tail(self) -> None:
+    def test_real_world_link_is_refused_in_root_and_mirror_tail(self) -> None:
         # The root refuses any link, and so does a mirror canonical line.
         same = self._new_headers(1)
         head = "**2026-11-10 | 2026.12.2 | PR #2**"
@@ -27165,7 +27324,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     CONTROL_MARKS = (("U+0001", "\x01"), ("U+007F", "\x7f"), ("U+0081", "\x81"),
                      ("&#x81;", "&#x81;"), ("&#x9D;", "&#x9D;"))
 
-    def test_ep11a_root_control_characters_are_refused(self) -> None:
+    def test_root_control_characters_are_refused(self) -> None:
         for name, mark in self.CONTROL_MARKS:
             for probe in (f"- Released 2026{mark}.11.67 in PR #2 on 2026-11-10.",
                           f"- 2026-06-21 | 2026{mark}.06.9 | PR #3127"):
@@ -27186,7 +27345,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                        "Read [the notes](https://example.org/2026-11-10/) first.",
                        "Read [the notes](https://example.org/v1.2.3/) first.")
 
-    def test_ep11a_intro_and_mirror_tail_tokens_in_a_url_are_read(self) -> None:
+    def test_intro_and_mirror_tail_tokens_in_a_url_are_read(self) -> None:
         for probe in self.URL_ONLY_INTROS:
             with self.subTest(where="intro", probe=probe):
                 self._root_strict_fails(probe, "intro", "[")
@@ -27203,7 +27362,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     # across 2 links (or a link the scanner misread) or behind a C1 numeric character reference
     # that html.unescape remapped. Each now fails by the strict character rule, named at its
     # first refused character or reference.
-    ROUND12_FORMS = (
+    LINKED_VERSION_FORMS = (
         ('- 2026-06-21 | [2026](u "a\\"b)c").[06](u "a\\"b)c").9 | PR #3127', "["),
         ("- 2026-06-21 | [20](u\\)x)[26](v\\)y).06.9 | PR #3127", "["),
         ("- 2026-06-21 | [20](u&#41;x)[26](v&#41;y).06.9 | PR #3127", "["),
@@ -27217,8 +27376,8 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         ("- Released 2026&#150;.11.67 in PR #3.", "&#150;"),
         ("- Released 2026&#159;.11.67 in PR #3.", "&#159;"))
 
-    def test_ep12_round_12_hiding_forms_are_refused(self) -> None:
-        for probe, token in self.ROUND12_FORMS:
+    def test_hiding_forms_are_refused_in_bullets_and_tail(self) -> None:
+        for probe, token in self.LINKED_VERSION_FORMS:
             with self.subTest(where="bullet", probe=probe):
                 self._root_strict_fails(probe, "bullet", token)
         with self.subTest(where="tail"):
@@ -27232,7 +27391,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 "Versions follow [20](u&#41;x)[26](v&#41;y).11.66 and later.", "intro", "[")
             self.assertIn("line 3 column 23: HTML character reference '&#41;'", failed)
 
-    def test_ep12_each_refused_character_and_reference_is_named(self) -> None:
+    def test_each_refused_character_and_reference_is_named(self) -> None:
         # Each refused ASCII character, characters just outside printable ASCII (U+001F, U+007F,
         # U+0080) and a no-break space, and each reference form (named, decimal, hexadecimal in
         # either case) fail with their own message; a line with several refusals names each one.
@@ -27250,7 +27409,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertIn("line 1 column 12: refused character '_' (U+005F)",
                       self._fail_lines(result.stdout, "root"))
 
-    def test_ep12_plain_ampersand_and_real_root_pass(self) -> None:
+    def test_plain_ampersand_and_real_root_pass(self) -> None:
         # A plain "&" (no name, number and ";" after it) is allowed in every root line it reads.
         same = self._new_headers(1)
         head = "**2026-11-10 | 2026.12.2 | PR #2**"
@@ -27267,13 +27426,13 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 self.assertEqual(result.returncode, 0, result.stdout)
                 self.assertNotIn("strict character rule", result.stdout)
         # The real root passes the strict character rule unchanged.
-        mod = self._ep11a_gate("_mp_ep12_real_root")
+        mod = self._mirror_parity_gate("_mp_real_root_strict_chars")
         text = (REPO_ROOT / ".working" / "CHANGELOG.md").read_text(encoding="utf-8")
         found = mod.root_findings(text)
         self.assertEqual(found.chars, [])
         self.assertFalse(found, sorted(found.lines()))
 
-    def test_ep12_texts_describe_the_strict_rule(self) -> None:
+    def test_texts_describe_the_strict_rule(self) -> None:
         # The gate docstring and the specification describe the strict character rule and no
         # longer describe the removed root reads.
         gate = (SKILL_ROOT / "tools" / "lint-changelog-mirror-header-parity.py").read_text(
@@ -27311,29 +27470,29 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     # character rule now refuses every backtick and every "*" but the 2 bold delimiters of a
     # canonical header, and the root reads each line as written. The last 2 forms join or split
     # a version with "*" and with a backtick at once.
-    ROUND13_JOIN_FORMS = (
+    JOINED_VERSION_FORMS = (
         ("- Released build 3*2026.06.9 to adopters.", "*"),
         ("- Released `PR #3`2026.06.9 to adopters.", "`"),
         ("- Released 3`2026.06.9` to adopters.", "`"),
         ("- Released build 3*2026*.06.9 to adopters.", "*"),
         ("- Released 2026`.06.9` to adopters.", "`"))
-    ROUND13_JOIN_TAILS = ((" - Released build 3*2026.06.9", "*"),
+    JOINED_VERSION_TAILS = ((" - Released build 3*2026.06.9", "*"),
                           (" - Released `PR #3`2026.06.9", "`"),
                           (" - Released build 3*2026*.06.9", "*"),
                           (" - Released 2026`.06.9`", "`"))
 
-    def test_ep13_root_join_and_split_forms_are_refused(self) -> None:
-        for probe, token in self.ROUND13_JOIN_FORMS:
+    def test_root_join_and_split_forms_are_refused(self) -> None:
+        for probe, token in self.JOINED_VERSION_FORMS:
             with self.subTest(where="bullet", probe=probe):
                 self._root_strict_fails(probe, "bullet", token)
             intro = "Versions follow" + probe[len("- Released"):]
             with self.subTest(where="intro", probe=intro):
                 self._root_strict_fails(intro, "intro", token)
-        for tail, token in self.ROUND13_JOIN_TAILS:
+        for tail, token in self.JOINED_VERSION_TAILS:
             with self.subTest(where="tail", tail=tail):
                 self._root_strict_fails(tail, "tail", token)
 
-    def test_ep13_star_is_allowed_only_as_a_canonical_bold_delimiter(self) -> None:
+    def test_star_is_allowed_only_as_a_canonical_bold_delimiter(self) -> None:
         # A canonical line passes with its 2 bold delimiters; a "*" anywhere else fails.
         same = self._new_headers(1)
         result = self._parity_run(same, same)
@@ -27343,7 +27502,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self._root_strict_fails("- Tooling: a * b.", "bullet", "*")
         self._root_strict_fails("This file * records changes.", "intro", "*")
 
-    def test_ep13_real_root_holds_no_backtick(self) -> None:
+    def test_real_root_holds_no_backtick(self) -> None:
         # The real root's backticked path (its line 10) is written as plain text, and a backticked
         # file reference in a root bullet fails by the strict character rule.
         text = (REPO_ROOT / ".working" / "CHANGELOG.md").read_text(encoding="utf-8")
@@ -27357,11 +27516,11 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     # record there. Header parity compares only the PR number and the version of a canonical line,
     # not the whole line, so every mirror canonical line now meets the root's strict character
     # rule, and its tail is read as written.
-    ROUND13_MIRROR_TWO_LINKS = ' - also lands PR #3127 at [2026](u "a\\"b)c").[06](u "a\\"b)c").9'
+    MIRROR_TWO_LINK_TAIL = ' - also lands PR #3127 at [2026](u "a\\"b)c").[06](u "a\\"b)c").9'
 
-    def test_ep13_mirror_canonical_lines_meet_the_strict_rule(self) -> None:
+    def test_mirror_canonical_lines_meet_the_strict_rule(self) -> None:
         with self.subTest(form="two links"):
-            self._mirror_strict_fails(self.ROUND13_MIRROR_TWO_LINKS, "[")
+            self._mirror_strict_fails(self.MIRROR_TWO_LINK_TAIL, "[")
         for tail, token in ((" - also lands PR #3127 at 3*2026.06.9", "*"),
                             (" - also lands `PR #3127` at `2026.06.9`", "`"),
                             (" - also lands PR #3127 at 2026&#46;06.9", "&#46;"),
@@ -27384,7 +27543,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             self.assertEqual(result.returncode, 1, result.stdout)
             self.assertIn("line 1 PR #2 (names #3127)", self._fail_lines(result.stdout, "mirror"))
 
-    def test_ep13_mirror_canonical_line_ends_only_at_lf(self) -> None:
+    def test_mirror_canonical_line_ends_only_at_lf(self) -> None:
         # splitlines() ends a mirror line at a vertical tab, a form feed, U+001C to U+001E, U+0085,
         # U+2028 or U+2029, none of which ends a line in Markdown, so in the earlier repository the
         # rest of a canonical line was read as a separate line. Such a canonical line now fails at
@@ -27393,11 +27552,11 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             with self.subTest(mark=f"U+{ord(mark):04X}"):
                 self._mirror_strict_fails(f" - also lands PR #3127 at 2026{mark}.06.9", mark)
 
-    def test_ep13_removed_tail_reads_are_gone(self) -> None:
+    def test_removed_tail_reads_are_gone(self) -> None:
         # No path reads a line through the link scanner, the second read, ROOT_IGNORABLE, the Cf
         # and Cc removal, NFKC or html.unescape any more, so they are deleted, and the root
         # read, which removed backticks and emphasis, is deleted too.
-        mod = self._ep11a_gate("_mp_ep13_removed")
+        mod = self._mirror_parity_gate("_mp_removed_mirror")
         for name in ("root_read", "root_reads", "root_flatten", "root_links", "root_link_urls",
                      "root_unlinked_reads", "_root_plain", "_root_inline_end",
                      "_root_bracket_end", "ROOT_IGNORABLE", "BACKSLASH_ESCAPE_RE",
@@ -27410,7 +27569,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             with self.subTest(code=code):
                 self.assertNotIn(code, gate)
 
-    def test_ep13_root_splits_lines_on_lf_only(self) -> None:
+    def test_root_splits_lines_on_lf_only(self) -> None:
         # In the earlier repository root_findings split lines with str.splitlines(), which also
         # ends a line at a vertical tab, a form feed, U+001C to U+001E, U+0085, U+2028 and
         # U+2029, so those characters vanished before the strict rule and later line numbers
@@ -27429,7 +27588,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             failed = self._fail_lines(result.stdout, "root")
             self.assertIn("line 12 column 16: character U+2028 outside printable ASCII", failed)
             self.assertIn("line 13 column 11: refused character '~' (U+007E)", failed)
-        mod = self._ep11a_gate("_mp_ep13_lf")
+        mod = self._mirror_parity_gate("_mp_lf_mirror")
         with self.subTest(where="CR LF"):
             found = mod.root_findings(("# Changelog\n\n" + same).replace("\n", "\r\n"))
             self.assertFalse(found, sorted(found.lines()))
@@ -27441,7 +27600,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertEqual(mod.lf_lines("a\n"), ["a"])
         self.assertEqual(mod.lf_lines(""), [])
 
-    def test_ep13_texts_describe_the_wider_strict_rule(self) -> None:
+    def test_texts_describe_the_wider_strict_rule(self) -> None:
         # The gate docstring and the specification describe the backtick and "*" refusals, the rule
         # on every mirror canonical line and the LF-only split, and no longer describe the removed
         # reads; gate 11's docstring says root file references are plain text.
@@ -27469,14 +27628,14 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     # digits, the space, . , : ; - ' " ( ) / # | & % + ? ! = @ and "*" only as a canonical
     # header's 2 bold delimiters; every other character fails with its line, column and code
     # point.
-    ROUND13B_MATH_FORMS = ("- Released $2026$.11.67 in PR #2.",
+    MATH_SPAN_VERSION_FORMS = ("- Released $2026$.11.67 in PR #2.",
                            "- Released $2{}026.11.67$ in PR #2.",
                            "- 2026-06-21 | $20{26}.06.9$ | PR #3127")
     ROOT_ALLOWED = ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
                     " .,:;-'\"()/#|&%+?!=@")
 
-    def test_ep13b_inline_math_forms_are_refused(self) -> None:
-        for probe in self.ROUND13B_MATH_FORMS:
+    def test_inline_math_forms_are_refused(self) -> None:
+        for probe in self.MATH_SPAN_VERSION_FORMS:
             with self.subTest(where="bullet", probe=probe):
                 self._root_strict_fails(probe, "bullet", "$")
         with self.subTest(where="intro"):
@@ -27489,7 +27648,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         for column, token in ((14, "{"), (15, "}"), (25, "$")):
             self.assertIn(f"line 12 column {column}: {self._strict_what(token)}", failed)
 
-    def test_ep13b_allowlist_refuses_every_other_character(self) -> None:
+    def test_allowlist_refuses_every_other_character(self) -> None:
         # A lone dollar, braces, a caret and every character the refused list of the earlier
         # repository named fail through the gate; in process, every printable ASCII character
         # outside the allowlist is refused and every allowlisted one passes.
@@ -27498,7 +27657,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                       "&amp;", "&#46;", "&#x2E;"):
             with self.subTest(token=token):
                 self._root_strict_fails(f"- Tooling note {token} here.", "bullet", token)
-        mod = self._ep11a_gate("_mp_ep13b_allowlist")
+        mod = self._mirror_parity_gate("_mp_allowlist")
         self.assertEqual(mod.ROOT_ALLOWED_CHARS, frozenset(self.ROOT_ALLOWED))
         self.assertFalse(hasattr(mod, "ROOT_REFUSED_CHARS"))
         for code in range(0x20, 0x7f):
@@ -27512,7 +27671,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         head = "**2026-11-10 | 2026.12.2 | PR #2**"
         self.assertEqual(mod.root_character_findings(head + " - " + self.ROOT_ALLOWED), [])
 
-    def test_ep13b_texts_describe_the_allowlist(self) -> None:
+    def test_texts_describe_the_allowlist(self) -> None:
         gate = (SKILL_ROOT / "tools" / "lint-changelog-mirror-header-parity.py").read_text(
             encoding="utf-8")
         spec = (SKILL_ROOT / "specs" / "specification-audit-programme.md").read_text(
@@ -27531,7 +27690,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                       "delimiters of a canonical header", failed)
         self.assertNotIn("other than [ ] < >", failed)
 
-    def test_ep13b_root_strips_at_most_one_byte_order_mark(self) -> None:
+    def test_root_strips_at_most_one_byte_order_mark(self) -> None:
         # In the earlier repository main and root_findings each removed 1 leading byte order
         # mark, so a root that starts with 2 passed. main removes at most 1, once, and the
         # strict character rule refuses any other.
@@ -27541,20 +27700,20 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertIn("line 1 column 1: character U+FEFF outside printable ASCII",
                       self._fail_lines(result.stdout, "root"))
         rc, out = self._no_mirror_run(("\ufeff\ufeff# Changelog\n" + same).encode("utf-8"),
-                                      "_mp_ep13b_two_boms", titled=False)
+                                      "_mp_two_boms", titled=False)
         self.assertEqual(rc, 1, out)
         self.assertIn("line 1 column 1: character U+FEFF outside printable ASCII", out)
         rc, out = self._no_mirror_run(("\ufeff# Changelog\n" + same).encode("utf-8"),
-                                      "_mp_ep13b_one_bom", titled=False)
+                                      "_mp_one_bom", titled=False)
         self.assertEqual(rc, 0, out)
-        mod = self._ep11a_gate("_mp_ep13b_bom")
+        mod = self._mirror_parity_gate("_mp_bom")
         self.assertEqual(mod.root_findings("\ufeff# Changelog\n\n" + same).chars,
                          [(1, 1, "character U+FEFF outside printable ASCII")])
 
-    def test_ep13b_root_pr_headers_split_on_lf_only(self) -> None:
+    def test_root_pr_headers_split_on_lf_only(self) -> None:
         # In the earlier repository pr_headers split the root with str.splitlines(), so a form
         # feed in an earlier line moved its line numbers off the strict character rule's.
-        mod = self._ep11a_gate("_mp_ep13b_pr_headers")
+        mod = self._mirror_parity_gate("_mp_pr_headers")
         text = ("# Changelog\n\nIntro\x0cmore.\n\n"
                 "**2026-11-10 | 2026.12.2 | PR #2** - tooling: a $b\n")
         found = mod.root_findings(text)
@@ -27739,8 +27898,9 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
 
     def test_low_numbered_new_pr_is_in_scope(self) -> None:
-        # The earlier repository had a floor of 463 and exempted #462; numbering restarted at
-        # #1, so a new root header below 463 and missing from the mirror must fail and be named.
+        # The earlier repository had a floor of 463 and exempted the PR just below it; numbering
+        # restarted at #1, so a new root header below 463 and missing from the mirror must fail
+        # and be named.
         result = self._parity_run(self._new_headers(463, 462, 1), self._new_headers(463, 1))
         self.assertEqual(result.returncode, 1, result.stdout)
         self.assertIn("MISSING from the detailed mirror (>= #1): #462\n", result.stdout)
@@ -28934,55 +29094,55 @@ class AuditGateParityTests(LinterTestCase):
     # One test per known bypass of the gate-line allowlist. In the earlier repository,
     # before the allowlist, each passed, or was refused only by a different rule.
 
-    def test_r1_second_call_after_the_gate_is_refused(self) -> None:
+    def test_second_call_after_the_gate_is_refused(self) -> None:
         self._assert_refused_on_every_reader("python3 -B .claude/skills/corpus-management/tools/x.py && python3 .claude/skills/corpus-management/tools/x.py",
                                              "python3 -I .claude/skills/corpus-management/tools/x.py && python3 .claude/skills/corpus-management/tools/x.py")
 
-    def test_r2_quoted_option_is_refused(self) -> None:
+    def test_quoted_option_is_refused(self) -> None:
         self._assert_refused_on_every_reader('python3 "-B" .claude/skills/corpus-management/tools/x.py && python3 .claude/skills/corpus-management/tools/x.py',
                                              "python3 '-B' .claude/skills/corpus-management/tools/x.py")
 
-    def test_r2_quoted_or_pathed_interpreter_is_refused(self) -> None:
+    def test_quoted_or_pathed_interpreter_is_refused(self) -> None:
         self._assert_refused_on_every_reader('"python3" -B .claude/skills/corpus-management/tools/x.py', "'python3' -B .claude/skills/corpus-management/tools/x.py",
                                              '"/usr/bin/python3" -X dev .claude/skills/corpus-management/tools/x.py')
 
-    def test_r2_interpreter_behind_a_shell_is_refused(self) -> None:
+    def test_interpreter_behind_a_shell_is_refused(self) -> None:
         self._assert_refused_on_every_reader("python3 .claude/skills/corpus-management/tools/x.py && bash -c 'python3 -B .claude/skills/corpus-management/tools/x.py'",
                                              "sh -c 'python3 .claude/skills/corpus-management/tools/x.py'")
 
-    def test_r2_interpreter_behind_eval_is_refused(self) -> None:
+    def test_interpreter_behind_eval_is_refused(self) -> None:
         self._assert_refused_on_every_reader("python3 .claude/skills/corpus-management/tools/x.py; eval 'python3 -B .claude/skills/corpus-management/tools/x.py'")
 
-    def test_r2_interpreter_behind_env_is_refused(self) -> None:
+    def test_interpreter_behind_env_is_refused(self) -> None:
         self._assert_refused_on_every_reader("python3 .claude/skills/corpus-management/tools/x.py && env python3 -B .claude/skills/corpus-management/tools/x.py")
 
-    def test_r2_substitution_is_refused(self) -> None:
+    def test_substitution_is_refused(self) -> None:
         self._assert_refused_on_every_reader(
             "python3 .claude/skills/corpus-management/tools/x.py && $(command -v python3) -B .claude/skills/corpus-management/tools/x.py",
             "python3 .claude/skills/corpus-management/tools/x.py && `command -v python3` -B .claude/skills/corpus-management/tools/x.py",
             'python3 .claude/skills/corpus-management/tools/x.py "$(python3 -B .claude/skills/corpus-management/tools/y.py)"', '"$PYTHON" -B .claude/skills/corpus-management/tools/x.py')
 
-    def test_r2_operator_joined_call_is_refused(self) -> None:
+    def test_operator_joined_call_is_refused(self) -> None:
         self._assert_refused_on_every_reader(
             "(python3 -B .claude/skills/corpus-management/tools/x.py)", "python3 .claude/skills/corpus-management/tools/x.py 2>&1 | python3 -E .claude/skills/corpus-management/tools/x.py",
             "python3 .claude/skills/corpus-management/tools/x.py||python3 -B .claude/skills/corpus-management/tools/x.py",
             "python3 -I .claude/skills/corpus-management/tools/x.py; /usr/bin/python3.11 -X dev .claude/skills/corpus-management/tools/x.py")
 
-    def test_r3_glob_expanded_interpreter_is_refused(self) -> None:
+    def test_glob_expanded_interpreter_is_refused(self) -> None:
         self._assert_refused_on_every_reader(
             "python3 .claude/skills/corpus-management/tools/x.py && /usr/bin/pyt?on3 -B .claude/skills/corpus-management/tools/x.py",
             "python3 .claude/skills/corpus-management/tools/x.py && pytho[n]3 -B .claude/skills/corpus-management/tools/x.py",
             "python3 .claude/skills/corpus-management/tools/x.py && /usr/bin/pyth*3 -B .claude/skills/corpus-management/tools/x.py")
 
-    def test_r3_brace_expanded_interpreter_is_refused(self) -> None:
+    def test_brace_expanded_interpreter_is_refused(self) -> None:
         self._assert_refused_on_every_reader(
             "python3 .claude/skills/corpus-management/tools/x.py && {/usr/bin/python3,-B,.claude/skills/corpus-management/tools/x.py}")
 
-    def test_r3_redirection_prefix_is_refused(self) -> None:
+    def test_redirection_prefix_is_refused(self) -> None:
         self._assert_refused_on_every_reader(
             "python3 .claude/skills/corpus-management/tools/x.py; 2>/dev/null python3 -B .claude/skills/corpus-management/tools/x.py")
 
-    def test_r3_unlisted_wrapper_is_refused(self) -> None:
+    def test_unlisted_wrapper_is_refused(self) -> None:
         self._assert_refused_on_every_reader(
             "python3 .claude/skills/corpus-management/tools/x.py && stdbuf -oL python3 -B .claude/skills/corpus-management/tools/x.py",
             "python3 .claude/skills/corpus-management/tools/x.py && setsid python3 -B .claude/skills/corpus-management/tools/x.py",
@@ -28991,12 +29151,12 @@ class AuditGateParityTests(LinterTestCase):
             "python3 .claude/skills/corpus-management/tools/x.py && busybox sh -c 'python3 -B .claude/skills/corpus-management/tools/x.py'",
             "python3 .claude/skills/corpus-management/tools/x.py && find . -name x.py -exec python3 -B .claude/skills/corpus-management/tools/x.py ;")
 
-    def test_r3_unlisted_keyword_is_refused(self) -> None:
+    def test_unlisted_keyword_is_refused(self) -> None:
         self._assert_refused_on_every_reader(
             "python3 .claude/skills/corpus-management/tools/x.py; coproc python3 -B .claude/skills/corpus-management/tools/x.py",
             "python3 .claude/skills/corpus-management/tools/x.py; function f { python3 -B .claude/skills/corpus-management/tools/x.py; }")
 
-    def test_r3_other_interpreter_name_is_refused(self) -> None:
+    def test_other_interpreter_name_is_refused(self) -> None:
         self._assert_refused_on_every_reader(
             "python3 .claude/skills/corpus-management/tools/x.py && python3.14t -B .claude/skills/corpus-management/tools/x.py",
             "python3 .claude/skills/corpus-management/tools/x.py && python2 -B .claude/skills/corpus-management/tools/x.py",
@@ -29004,14 +29164,14 @@ class AuditGateParityTests(LinterTestCase):
             "python3 .claude/skills/corpus-management/tools/x.py && python3-dbg -B .claude/skills/corpus-management/tools/x.py",
             "python3 .claude/skills/corpus-management/tools/x.py && ./.claude/skills/corpus-management/tools/x.py")
 
-    def test_r3_environment_assignment_is_refused(self) -> None:
+    def test_environment_assignment_is_refused(self) -> None:
         self._assert_refused_on_every_reader("PYTHONDONTWRITEBYTECODE=1 python3 .claude/skills/corpus-management/tools/x.py",
                                              "PYTHONPATH=tools python3 .claude/skills/corpus-management/tools/x.py")
 
-    def test_r3_trailing_comment_is_refused(self) -> None:
+    def test_trailing_comment_is_refused(self) -> None:
         self._assert_refused_on_every_reader("python3 .claude/skills/corpus-management/tools/x.py # note")
 
-    def test_r3_quoted_argument_text_is_refused(self) -> None:
+    def test_quoted_argument_text_is_refused(self) -> None:
         # In the earlier repository, before the allowlist, the parser accepted quoted text on
         # purpose; under the allowlist an argument is a plain word, so quoting (and the
         # operator characters it can carry) never reaches a gate line.
@@ -29019,7 +29179,7 @@ class AuditGateParityTests(LinterTestCase):
             "python3 .claude/skills/corpus-management/tools/x.py --message 'run python3 -B now'",
             "python3 .claude/skills/corpus-management/tools/x.py --label ';' python3 -B .claude/skills/corpus-management/tools/x.py")
 
-    def test_r3_runner_label_substitution_is_refused(self) -> None:
+    def test_runner_label_substitution_is_refused(self) -> None:
         agp = self._gate_parity_module("_agp_label")
         root = Path(tempfile.mkdtemp(prefix="synthetic-parity-label-", dir=FIXTURE_DIR))
         try:
@@ -29033,7 +29193,7 @@ class AuditGateParityTests(LinterTestCase):
         finally:
             shutil.rmtree(root, ignore_errors=True)
 
-    def test_r3_indented_or_prefixed_run_gate_is_refused(self) -> None:
+    def test_indented_or_prefixed_run_gate_is_refused(self) -> None:
         # In the earlier repository gate 35 anchored run_gate at column 0 and skipped an
         # indented line, which bash still runs. Gate 35 now refuses it.
         agp = self._gate_parity_module("_agp_indented")
@@ -29052,7 +29212,7 @@ class AuditGateParityTests(LinterTestCase):
         finally:
             shutil.rmtree(root, ignore_errors=True)
 
-    def test_r3_yaml_continuation_is_refused(self) -> None:
+    def test_yaml_continuation_is_refused(self) -> None:
         # In the earlier repository, before the allowlist, the parser read one physical line;
         # a plain scalar continued on a deeper line was run whole by YAML but read only up to
         # its first line. A continuation line is now refused as a line shape, or, shaped as a
@@ -29080,7 +29240,7 @@ class AuditGateParityTests(LinterTestCase):
         finally:
             shutil.rmtree(root, ignore_errors=True)
 
-    def test_r3_workflow_gate_step_with_other_keys_is_refused(self) -> None:
+    def test_workflow_gate_step_with_other_keys_is_refused(self) -> None:
         # A key no step has, or a key repeated, is refused by the skeleton before the
         # gate-step check.
         agp = self._gate_parity_module("_agp_step_keys")
@@ -29103,7 +29263,7 @@ class AuditGateParityTests(LinterTestCase):
         finally:
             shutil.rmtree(root, ignore_errors=True)
 
-    def test_r3_precommit_gate_hook_with_args_or_another_language_is_refused(self) -> None:
+    def test_precommit_gate_hook_with_args_or_another_language_is_refused(self) -> None:
         agp = self._gate_parity_module("_agp_hook_keys")
         root = Path(tempfile.mkdtemp(prefix="synthetic-parity-hook-keys-", dir=FIXTURE_DIR))
         try:
@@ -29126,7 +29286,7 @@ class AuditGateParityTests(LinterTestCase):
         finally:
             shutil.rmtree(root, ignore_errors=True)
 
-    def test_r3_unnamed_step_or_hook_is_refused(self) -> None:
+    def test_unnamed_step_or_hook_is_refused(self) -> None:
         # A step or hook the parsers do not read as an item would run unchecked beside
         # the read gate lines.
         agp = self._gate_parity_module("_agp_unnamed")
@@ -29148,7 +29308,7 @@ class AuditGateParityTests(LinterTestCase):
         finally:
             shutil.rmtree(root, ignore_errors=True)
 
-    def test_r4_carriage_return_is_refused(self) -> None:
+    def test_carriage_return_is_refused(self) -> None:
         # In the earlier repository both readers split the runner at CR as well as LF, so
         # `x.py\r&& python3 -B ...` read as a clean gate line and a line without run_gate,
         # while bash runs it as one line, the second call included. A CR in a YAML comment
@@ -29534,17 +29694,17 @@ class AuditGateParityTests(LinterTestCase):
     # The YAML surfaces accept only the block-mapping line shapes the current steps and
     # hooks use. In the earlier repository each test below passed: the fixture's extra
     # step or hook was skipped, or the hook was accepted.
-    _R5_WORKFLOW = _WORKFLOW_HEAD + "      - name: A\n        run: python3 .claude/skills/corpus-management/tools/a.py\n"
-    _R5_PRECOMMIT = (_PRECOMMIT_HEAD + "      - id: a\n        name: A\n"
+    _ONE_STEP_WORKFLOW = _WORKFLOW_HEAD + "      - name: A\n        run: python3 .claude/skills/corpus-management/tools/a.py\n"
+    _ONE_HOOK_PRECOMMIT = (_PRECOMMIT_HEAD + "      - id: a\n        name: A\n"
                      "        entry: python3 .claude/skills/corpus-management/tools/a.py\n        language: system\n"
                      "        pass_filenames: false\n        always_run: true\n")
 
     def _assert_yaml_refused(self, parser: str, base: str, cases, message: str) -> None:
         """``base`` parses to its one gate; ``base`` plus each case is a ParseError
         matching ``message``."""
-        agp = self._gate_parity_module(f"_agp_r5_{parser}")
+        agp = self._gate_parity_module(f"_agp_parser_{parser}")
         parse = getattr(agp, parser)
-        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r5-", dir=FIXTURE_DIR))
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-parser-", dir=FIXTURE_DIR))
         try:
             path = root / "surface.yaml"
             path.write_text(base, encoding="utf-8")
@@ -29557,40 +29717,40 @@ class AuditGateParityTests(LinterTestCase):
         finally:
             shutil.rmtree(root, ignore_errors=True)
 
-    def test_r5_quoted_key_is_refused(self) -> None:
+    def test_quoted_key_is_refused(self) -> None:
         not_plain = "is not an unquoted key directly followed by a colon"
-        self._assert_yaml_refused("parse_workflow", self._R5_WORKFLOW, (
+        self._assert_yaml_refused("parse_workflow", self._ONE_STEP_WORKFLOW, (
             '      - "name": B\n        "run": python3 -B .claude/skills/corpus-management/tools/b.py\n',
             "      - 'name': B\n        'run': python3 -B .claude/skills/corpus-management/tools/b.py\n",
             '      - name: B\n        "run": python3 -B .claude/skills/corpus-management/tools/b.py\n'), not_plain)
-        self._assert_yaml_refused("parse_precommit", self._R5_PRECOMMIT, (
+        self._assert_yaml_refused("parse_precommit", self._ONE_HOOK_PRECOMMIT, (
             '      - "id": b\n        "name": B\n        "entry": python3 -B .claude/skills/corpus-management/tools/b.py\n'
             '        "language": system\n',), not_plain)
 
-    def test_r5_space_before_colon_is_refused(self) -> None:
+    def test_space_before_colon_is_refused(self) -> None:
         not_plain = "is not an unquoted key directly followed by a colon"
-        self._assert_yaml_refused("parse_workflow", self._R5_WORKFLOW, (
+        self._assert_yaml_refused("parse_workflow", self._ONE_STEP_WORKFLOW, (
             "      - run : python3 -B .claude/skills/corpus-management/tools/b.py\n",
             "      - name: B\n        run : python3 -B .claude/skills/corpus-management/tools/b.py\n"), not_plain)
-        self._assert_yaml_refused("parse_precommit", self._R5_PRECOMMIT, (
+        self._assert_yaml_refused("parse_precommit", self._ONE_HOOK_PRECOMMIT, (
             "      - id : b\n        name: B\n        entry : python3 -B .claude/skills/corpus-management/tools/b.py\n"
             "        language: system\n",), not_plain)
 
-    def test_r5_flow_mapping_is_refused(self) -> None:
+    def test_flow_mapping_is_refused(self) -> None:
         not_plain = "is not an unquoted key directly followed by a colon"
-        self._assert_yaml_refused("parse_precommit", self._R5_PRECOMMIT, (
+        self._assert_yaml_refused("parse_precommit", self._ONE_HOOK_PRECOMMIT, (
             "      - {id: b, name: B, entry: python3 -B .claude/skills/corpus-management/tools/b.py, language: system}\n",),
             not_plain)
-        self._assert_yaml_refused("parse_workflow", self._R5_WORKFLOW, (
+        self._assert_yaml_refused("parse_workflow", self._ONE_STEP_WORKFLOW, (
             "      - {name: B, run: python3 -B .claude/skills/corpus-management/tools/b.py}\n",), not_plain)
-        self._assert_yaml_refused("parse_workflow", self._R5_WORKFLOW, (
+        self._assert_yaml_refused("parse_workflow", self._ONE_STEP_WORKFLOW, (
             "      - name: Checkout\n        with: {run: python3 -B .claude/skills/corpus-management/tools/b.py}\n",),
             "with value that begins with '{'")
 
-    def test_r5_precommit_pass_filenames_must_be_false(self) -> None:
+    def test_precommit_pass_filenames_must_be_false(self) -> None:
         # pre-commit appends the staged file names to the entry unless pass_filenames is
         # false, so the gate would run with arguments the other surfaces do not pass.
-        base = self._R5_PRECOMMIT
+        base = self._ONE_HOOK_PRECOMMIT
         without = base.replace("        pass_filenames: false\n", "")
         self._assert_yaml_refused("parse_precommit", base, (
             "      - id: b\n        name: B\n        entry: python3 .claude/skills/corpus-management/tools/b.py\n"
@@ -29598,8 +29758,8 @@ class AuditGateParityTests(LinterTestCase):
             "      - id: b\n        name: B\n        entry: python3 .claude/skills/corpus-management/tools/b.py\n"
             "        language: system\n        always_run: true\n"),
             "does not have pass_filenames: false")
-        agp = self._gate_parity_module("_agp_r5_pass_filenames")
-        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r5-", dir=FIXTURE_DIR))
+        agp = self._gate_parity_module("_agp_pass_filenames")
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-parser-", dir=FIXTURE_DIR))
         try:
             path = root / "surface.yaml"
             for text in (without, without + "        pass_filenames: true\n"):
@@ -29611,22 +29771,22 @@ class AuditGateParityTests(LinterTestCase):
         finally:
             shutil.rmtree(root, ignore_errors=True)
 
-    def test_r5_step_or_hook_with_another_first_key_is_refused(self) -> None:
+    def test_step_or_hook_with_another_first_key_is_refused(self) -> None:
         # An item at the steps' or hooks' dash column that opens with another key is not
         # read as a step or hook, so it would run unchecked.
-        self._assert_yaml_refused("parse_workflow", self._R5_WORKFLOW, (
+        self._assert_yaml_refused("parse_workflow", self._ONE_STEP_WORKFLOW, (
             "      - uses: ./.github/actions/x\n        name: B\n",),
             "step whose first key is 'uses'")
-        self._assert_yaml_refused("parse_precommit", self._R5_PRECOMMIT, (
+        self._assert_yaml_refused("parse_precommit", self._ONE_HOOK_PRECOMMIT, (
             "      - name: B\n        id: b\n",), "hook whose first key is 'name'")
 
-    def test_r5_current_yaml_line_shapes_are_accepted(self) -> None:
+    def test_current_yaml_line_shapes_are_accepted(self) -> None:
         # The shapes the real surfaces use outside gate steps and hooks stay accepted: a
         # trailing comment on a uses: value, a with: mapping, comment lines between steps,
         # an excluded step's `run: |` block (whose `#` and quoted lines are its text), and a
         # gate hook's pinned types_or: list.
-        agp = self._gate_parity_module("_agp_r5_accepted")
-        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r5-", dir=FIXTURE_DIR))
+        agp = self._gate_parity_module("_agp_parser_accepted")
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-parser-", dir=FIXTURE_DIR))
         try:
             workflow, precommit = root / "quality.yml", root / "pre-commit.yaml"
             # Each setup step's shape is pinned (a full 40-hex SHA, the step's own
@@ -29643,7 +29803,7 @@ class AuditGateParityTests(LinterTestCase):
                 "        if: github.event_name == 'pull_request'\n        run: |\n"
                 "          echo \"a\n\n          # text, not a comment\n"
                 "            echo 'b\n", encoding="utf-8")
-            precommit.write_text(self._R5_PRECOMMIT.replace(
+            precommit.write_text(self._ONE_HOOK_PRECOMMIT.replace(
                 "        always_run: true\n", "        types_or: [markdown, python, shell]\n"),
                 encoding="utf-8")
             for parse, path in ((agp.parse_workflow, workflow), (agp.parse_precommit, precommit)):
@@ -29660,7 +29820,7 @@ class AuditGateParityTests(LinterTestCase):
         """Gate 35 over a copy of the real surfaces, with each (surface, old, new) edit
         replacing the FIRST occurrence of ``old`` in that surface by ``new`` (the
         workflow has 1 job, lint, since the gate-36 shard jobs were retired)."""
-        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r6-", dir=FIXTURE_DIR))
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-residual-", dir=FIXTURE_DIR))
         try:
             for name in self._ISOLATED_SURFACES:
                 text = (_resolve_path(name)).read_text(encoding="utf-8")
@@ -29700,12 +29860,12 @@ class AuditGateParityTests(LinterTestCase):
                           "\\.py$|^.claude/skills/corpus-management/tools/lint-language\\.py$|^\\.claude/skills/corpus-management/src/tools/"
                           "gate_lint_language\\.py$)\n")
 
-    def test_r6_error1_quote_closed_on_a_comment_line_is_refused(self) -> None:
+    def test_quote_closed_on_a_comment_line_is_refused(self) -> None:
         # In the earlier repository, with the line-shape reader, a quoted value left open
         # was closed on a later comment line, which gate 35 skipped, so YAML read the gate
         # steps or hooks between as part of the value. No value may begin with a quote now,
         # apart from the one pinned python-version: "3.14"
-        # (test_r6b_python_version_is_one_pinned_quoted_value).
+        # (test_python_version_is_one_pinned_quoted_value).
         cases = []
         for quote in ('"', "'"):
             cases.append((f"workflow {quote}", "value that begins with a quote", (
@@ -29725,11 +29885,11 @@ class AuditGateParityTests(LinterTestCase):
     # pinned value, keyed by key name.
     _WF_PYTHON = '          python-version: "3.14"\n'
 
-    def test_r6b_python_version_is_one_pinned_quoted_value(self) -> None:
+    def test_python_version_is_one_pinned_quoted_value(self) -> None:
         # Failed in the earlier repository under the first fixed-skeleton version of the
         # reader, where the quoted line was refused as a value that begins with a quote.
-        agp = self._gate_parity_module("_agp_r6b_pinned")
-        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-r6b-", dir=FIXTURE_DIR))
+        agp = self._gate_parity_module("_agp_pinned")
+        root = Path(tempfile.mkdtemp(prefix="synthetic-parity-pinned-", dir=FIXTURE_DIR))
         try:
             workflow = root / "quality.yml"
             workflow.write_text(self._WORKFLOW_JOB_HEAD + self._WF_CHECKOUT_STEP
@@ -29754,7 +29914,7 @@ class AuditGateParityTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(agp.WORKFLOW_PINNED_QUOTED_VALUES, {"python-version": '"3.14"'})
 
-    def test_r6b_other_quoted_python_versions_are_refused(self) -> None:
+    def test_other_quoted_python_versions_are_refused(self) -> None:
         # Only the exact text "3.14", opened and closed on its line with nothing after it, is
         # allowed; another version, single quotes, a trailing comment and an unclosed quote
         # (which would leave a later comment line inside the value) are refused, and so is
@@ -29774,7 +29934,7 @@ class AuditGateParityTests(LinterTestCase):
                 ('pre-commit "3.14"', self._PC, self._PC_LANGUAGE_FILES,
                  '        files: "3.14"\n'))))
 
-    def test_r6_error2_step_or_hook_outside_its_list_is_refused(self) -> None:
+    def test_step_or_hook_outside_its_list_is_refused(self) -> None:
         # In the earlier repository a `- name:` or `- id:` line was read as a step or hook
         # at any column under any key, though YAML reads it as another key's value. A step
         # is now only an item of jobs.lint.steps and a hook only an item of repos[].hooks,
@@ -29812,13 +29972,13 @@ class AuditGateParityTests(LinterTestCase):
                 (self._PC, "\n" + parity_hook, nested(parity_hook, 2)),)),
         ))
 
-    def test_r6_warn1_stated_residuals_match_the_structural_reader(self) -> None:
+    def test_stated_residuals_match_the_structural_reader(self) -> None:
         # In the earlier repository the residuals said the uncovered regions were "unread
         # by this check" and that "no key YAML reads is passed over", while the gate
         # counted gates inside other keys' values and skipped comment lines YAML read as
         # value text. The residuals now name what the skeleton leaves unpinned, in gate 35
         # and the spec.
-        agp = self._gate_parity_module("_agp_r6_residuals")
+        agp = self._gate_parity_module("_agp_residuals")
         spec = (REPO_ROOT / ".claude/skills/corpus-management/specs/specification-audit-programme.md").read_text(
             encoding="utf-8")
         texts = {"gate 35": " ".join(agp.__doc__.split()),
@@ -29836,7 +29996,7 @@ class AuditGateParityTests(LinterTestCase):
             with self.subTest(name=name):
                 self.assertTrue(hasattr(agp, name))
 
-    def test_r6_warn2_step_under_an_excluded_steps_with_is_refused(self) -> None:
+    def test_step_under_an_excluded_steps_with_is_refused(self) -> None:
         # A gate step placed as the with: value of the excluded Checkout step. In the
         # earlier repository the last two cases exited 1 (the step went unread and the
         # counts differed).
@@ -29858,7 +30018,7 @@ class AuditGateParityTests(LinterTestCase):
                  + "".join("      " + line + "\n" for line in moved.splitlines())))),
         ))
 
-    def test_r6_warn3_gate_hook_run_deciding_values_are_pinned(self) -> None:
+    def test_gate_hook_run_deciding_values_are_pinned(self) -> None:
         # The keys files, types and types_or decide whether pre-commit runs a hook, and in
         # the earlier repository any value was accepted. A gate hook now has exactly one of
         # always_run, files, types and types_or, with a value in PRECOMMIT_GATE_SELECTORS;
@@ -29888,7 +30048,7 @@ class AuditGateParityTests(LinterTestCase):
                 (self._PC, "repos:\n", "fail_fast: true\nrepos:\n"),)),
         ))
 
-    def test_r6_note1_yaml_specials_in_flow_lists_are_refused(self) -> None:
+    def test_yaml_specials_in_flow_lists_are_refused(self) -> None:
         # In the earlier repository `types_or: [yes, null]` passed the plain-word list
         # check, though YAML reads a boolean and a null. Only the exact lists the hooks use
         # remain.
@@ -29901,7 +30061,7 @@ class AuditGateParityTests(LinterTestCase):
                 ("[null]", self._PC_LINKS, self._PC_LINKS.replace("[markdown]", "[null]")),
                 ("[true]", self._PC_LINKS, self._PC_LINKS.replace("[markdown]", "[true]")))))
 
-    def test_r6_note2_job_values_and_duplicate_keys_are_refused(self) -> None:
+    def test_job_values_and_duplicate_keys_are_refused(self) -> None:
         # Two residuals the earlier repository stated: a job-level if: and a second steps:
         # (a reader keeps the last). A duplicate key is now refused at every level, and
         # the job holds only name, runs-on and steps.
@@ -30074,11 +30234,11 @@ class AuditGateParityTests(LinterTestCase):
              '# run_gate "Repository-internal link audit"'),
             (self._PC, self._PC_LINKS, ""))
 
-    def test_r6_current_surfaces_read_every_gate(self) -> None:
+    def test_current_surfaces_read_every_gate(self) -> None:
         # Every current hook is read, in the runner's order and count; every current
         # workflow gate step is read, in the runner's order, and they are exactly the
         # runner's gates the CI subset names.
-        agp = self._gate_parity_module("_agp_r6_current")
+        agp = self._gate_parity_module("_agp_current")
         runner = agp.parse_runner(_resolve_path(agp.RUNNER_PATH))
         self.assertEqual([e[1:] for e in agp.parse_precommit(_resolve_path(agp.PRECOMMIT_PATH))],
                          [e[1:] for e in runner])
@@ -30088,7 +30248,7 @@ class AuditGateParityTests(LinterTestCase):
         self.assertEqual([e[1:] for e in agp.parse_workflow(_resolve_path(agp.WORKFLOW_PATH))],
                          [e[1:] for e in runner if e[1] in subset_names])
 
-    def test_r3_same_bypass_on_all_three_surfaces_is_refused(self) -> None:
+    def test_same_bypass_on_all_three_surfaces_is_refused(self) -> None:
         # Argv parity cannot see a tail added identically to every surface; the allowlist
         # refuses it on each.
         synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-parity-every-surface-",
@@ -30991,7 +31151,7 @@ def _pinned_rule_collections() -> tuple[str, ...]:
     return vendored + rendered
 
 
-class Fx3bScopeTests(unittest.TestCase):
+class SkillSpecsGateScopeTests(unittest.TestCase):
     """Scope fixes that follow gate 6's widening to the skill's specs/."""
 
     SPEC = ".claude/skills/corpus-management/specs/specification-audit-programme.md"
@@ -31031,7 +31191,7 @@ class Fx3bScopeTests(unittest.TestCase):
 
     def test_d15_scope_follows_gate_6(self) -> None:
         mod = load_linter_module(".claude/skills/corpus-management/tools/check-alignment-register-on-pr.py",
-                                 "d15_scope_fx3b")
+                                 "d15_scope_skill_specs")
         self.assertTrue(mod.in_scope(self.SPEC))
         self.assertTrue(mod.in_scope("ai/framework-ai-assurance-evidence.md"))
         self.assertFalse(mod.in_scope(".claude/skills/corpus-management/docs/guide.md"))
@@ -31040,7 +31200,7 @@ class Fx3bScopeTests(unittest.TestCase):
 
     def test_review_cadence_excludes_ingestion_instruction_by_name(self) -> None:
         mod = load_linter_module(".claude/skills/corpus-management/tools/check-review-cadence.py",
-                                 "review_cadence_fx3b")
+                                 "review_cadence_skill_specs")
         rels = {p.relative_to(REPO_ROOT).as_posix() for p in mod.iter_active_docs()}
         self.assertNotIn(self.INGESTION, rels)
         self.assertIn(self.SPEC, rels)
@@ -31076,11 +31236,11 @@ class Fx3bScopeTests(unittest.TestCase):
 
     def test_cross_file_refs_matches_path_qualified_exempt_entry(self) -> None:
         self._cross_file_exempt_case(".claude/skills/corpus-management/tools/lint-cross-file-section-refs.py",
-                                     "xfile_refs_fx3b")
+                                     "xfile_refs_skill_specs")
 
     def test_cross_file_names_matches_path_qualified_exempt_entry(self) -> None:
         self._cross_file_exempt_case(".claude/skills/corpus-management/tools/lint-cross-file-section-names.py",
-                                     "xfile_names_fx3b")
+                                     "xfile_names_skill_specs")
 
 
 # The project document directories under .claude that the root-walking gates must reach,
@@ -31231,8 +31391,8 @@ class ReviewCadenceTests(LinterTestCase):
         # specs/ directory. The adopter guides, outside this gate in docs/ before
         # the move, stay outside in the skill's docs/ directory. The expected
         # directories are written out here, not read from lint_common.
-        mod = load_linter_module(".claude/skills/corpus-management/tools/check-review-cadence.py", "_check_review_cadence_fx3a")
-        root = Path(tempfile.mkdtemp(prefix="cadence-fx3a-")).resolve()
+        mod = load_linter_module(".claude/skills/corpus-management/tools/check-review-cadence.py", "_check_review_cadence_planted")
+        root = Path(tempfile.mkdtemp(prefix="cadence-planted-")).resolve()
         self.addCleanup(shutil.rmtree, root, ignore_errors=True)
         planted = (
             "governance/a.md",
@@ -35820,7 +35980,7 @@ class DocumentDateStalenessTests(LinterTestCase):
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
     def test_future_dated_date_flagged(self) -> None:
-        # R8a: a metadata Date AFTER today (UTC) is impossible for a
+        # A metadata Date AFTER today (UTC) is impossible for a
         # "last updated" field and must fail, even when the commit date
         # is otherwise fine (the lag check alone leaves a future Date
         # gate-invisible). A far-future date is used so the assertion is
@@ -38929,7 +39089,7 @@ class DocumentControlCodeTests(LinterTestCase):
     # The earlier token regex, the reference for the omitted-predicate findings.
     BASE_NIST_CODE_RE = re.compile(r"\b((?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2})(?:-\d+)?\b")
 
-    E1_CELLS = (
+    HYPHEN_WORD_CELLS = (
         "GV.OC-PR.IP",
         "GV.OC–PR.IP",
         "DE.CM—ID.BE",
@@ -38970,16 +39130,16 @@ class DocumentControlCodeTests(LinterTestCase):
                     ))
         return expected
 
-    def test_e1_hyphen_followed_by_word_is_not_a_suffix(self) -> None:
+    def test_hyphen_followed_by_word_is_not_a_suffix(self) -> None:
         # A hyphen plus a Category or a word is not a suffix. Without the predicates
         # the findings equal the reconstructed baseline's; with them, the second
         # Category or CSF 1.1 code is reported as before, prose reports nothing, and
         # DE.CM-07a is an unknown Subcategory.
-        mod = load_linter_module(self.SCRIPT, "_document_control_e1")
+        mod = load_linter_module(self.SCRIPT, "_document_control_hyphen_word")
         engine = mod._engine()
-        body = "".join(f"| Control {i} | {cell} | LOG-01 |\n" for i, cell in enumerate(self.E1_CELLS))
+        body = "".join(f"| Control {i} | {cell} | LOG-01 |\n" for i, cell in enumerate(self.HYPHEN_WORD_CELLS))
         fixture = self.make_fixture(
-            "fake-doc-e1-cells.md",
+            "fake-doc-hyphen-word-cells.md",
             "# X\n\n## Control mapping\n\n"
             "| Control Area | NIST CSF | CSA CCM v4.1 |\n| --- | --- | --- |\n" + body,
         )
@@ -39771,8 +39931,7 @@ class VerifyReferenceModulesOscalTests(unittest.TestCase):
 
 # WorkingProseHygieneTests retired; its subject, lint-working-prose-hygiene.py (gate 51), does
 # not ship. In the earlier repository its one test pinned the audit programme specification's
-# wording about that gate's docstring; its R19_BREAKS and R20_SHAPES tables had no remaining
-# test.
+# wording about that gate's docstring; its line-break and shape tables had no remaining test.
 
 
 class ScanScopeParityTests(LinterTestCase):
@@ -42627,7 +42786,7 @@ class DailyChangelogRollupGrammarTests(unittest.TestCase):
                     run(flipped, ["--changelog", str(changelog)], closed)
         self.assertEqual({name: os.environ.get(name) for name in names}, before)
 
-    def test_docstring_and_spec_state_the_round_7_scope(self) -> None:
+    def test_docstring_and_spec_state_the_exit_status_reader_rule_and_inputs(self) -> None:
         # In the earlier repository, the docstring said the exit status is
         # ALWAYS 0, though argparse exits 2 and a closed stdout gives 120; the
         # reader rule did not say the whole END line must match; and the
@@ -43215,14 +43374,14 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         README.md DATA F 67fe21d3b7f132009e1e6e14899a090f897ede778d89cea59053ca2f3e20ced7
         adopt-bootstrap-ref.py OWN F ec19e2c45233ad02ca422349c0778a3c17463e6fc23fe9bf0591d822ac8d531c
         adopt-preflight-guard.py FIXED F 73ab980af0fa53c8a485af18b7bdaee1b7bfef218c37982593e30c66d7f85f66
-        aiqt_bootstrap.py PASSIVE F bc5496de79c394e76703b34380bfc1bbb9ae1a8c489aa719d0a75344d3c915dc
+        aiqt_bootstrap.py PASSIVE F 1f617d3d14213da6e225dabc21c49c253a3738531304e5c7924e87878c1d2206
         aiqt_rules.py NO_FS F dda2a6a5a217513fc2848e59029e111402fe85e8e765d6b9de7186bd8d9472d9
         alignment-register-aliases.json DATA F 7d9b0be1db9dcc1f81870c96309e2837cdf7da6fc16a78ea4f4b4ccca4e7b7e8
         alignment-register-exclusions.json DATA F 391924062319d3d5a618b1750b37dec6c0ee0c0d21b77b26518b16e51a418f19
         alignment_citation_ids.json DATA F d0b0715098bebee865866404e4045980625b3f6e2b42ccf4b91c8b7d620e60ac
         alignment_citation_reference.py PASSIVE F 06b70dfa9cff225ff5d5ddce6e46f556ec8ce7400d5e77acebbab846ef311cd0
         build-alignment-citation-registry.py NO_FS F cd586fab699580471f86d542136c947e2b2229fe2cefa2ba5da09676b7a3f009
-        build-citation-publishers.py NO_FS F 883be6f4d96edcfb940338f4a87e8f74de1e462ecd4d947bc26d50f01299a7dd
+        build-citation-publishers.py NO_FS F a6947aa364eb29279683abb8c4da57d48a2dfc7e2ea811ce68677a83d1572105
         build-corpus-management.py OWN F 99b180645666face6dd915ae22373c669aec0c388462690a3f3f86ee61caa1b7
         build-historical-citation-exceptions.py OWN F af5228d9ba0f537f6aa8f338b3c8975dbab27ddcc2b505f9de484106dfc31abd
         build-narrative-registry.py NO_FS F 8c68374bcddb319e009ef9845357c98560faa038cf27b9dfa0ef904b58a8e5ae
@@ -43240,10 +43399,10 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-length-on-pr.py NO_FS F 91c9308103f36414f1975e2233cd82644551ca4a3996c4a2b9310b437004434a
         check-changelog-on-pr.py NO_FS F 00fa478d33343ae5d955e3faa7f99d9c61c6cda6f7a5e414dfcaf6ec6f7bf25b
         check-changelog-preflight-commit.py NO_FS F 9ec0a028e7e916fdfa542f6688b909b08a1c69fe66b3a7cb82d979689885f978
-        check-class-completeness.py NO_FS F 999fa17b1d75f58c6b39cfa49d11dc5e54cf1fb4893376ee4bbe528c03597ff3
+        check-class-completeness.py NO_FS F dd060e4b9474d3ad7d65d720224294fae4efff2310d49b75384c821c021ccd00
         check-claude-md-size.py NO_FS F 5f0c8e37d4a1b36a6be924354a6cdfca69a4ba5498e77cee52012ccefc99764b
         check-clause-preservation.py OWN F 96d156bb17eb92ea45d096dae64345313ba8962de62b38a413a988aa7f8c8737
-        check-clean-language-upstream.py NO_FS F c35409a171a04e8a18c1a0089d597fd1823165e0d963221e040b3b2efa91e85c
+        check-clean-language-upstream.py NO_FS F 68e539ea645383d29ec9ded3cb44012af2afcfc78f820c172070a8c492665159
         check-commit-on-main.py NO_FS F a9672ae752b0434a1e94118bccf3dcc640bd321967ea3e6d775c0f1a8f153f7e
         check-daily-changelog-rollup.py SKIP F 9ac1a4b9a151c9f5b9cefcb93dfceea2d194611c4fc0567e90bdbcc0158598bd
         check-date-cobump-on-pr.py NO_FS F 302cb52aff2cc9b7a4c2a9c5f8c3646d6270bd4932dea572dcbe08e762292cb9
@@ -43280,14 +43439,14 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-ccm-aicm-citations.py CWD F b2c3b6225f1d68dcc904b167ef69963c35ac03b169d87478ac39e1f94edb6242
         lint-ccm-provider-member-in-range.py CWD F 3b6aed2769f3d8eb23d754862c355f16e760518d051462b6a217b62a9a31ac7b
         lint-changelog-link-coverage.py CWD F 5e0c2e8520be9e8418bf0835decd744ff234ed93b9c3a707255121120cdf9437
-        lint-changelog-mirror-header-parity.py OWN F f0c62caaa13c8d790cd3d02159d5c9ec7491b8694b4ade30d3c165ba1503f38e
+        lint-changelog-mirror-header-parity.py OWN F 40485f1f4f78ad5b0cb731e03dfbcdcc6b823d8a6f51632954f5b5424184e88f
         lint-citation-currency-cadence.py NO_FS F 01bc84108f08b8d88711e0e8a9bb7bd5aec5b27b24e67594697dbd4d2ddbc7eb
-        lint-citation-verification-freshness.py OWN F 6fef148ac78796357de64b363f2d9002b0f5030fe0924de4c5b09d44b1179ea7
+        lint-citation-verification-freshness.py OWN F 79cb0052bf58680bc98f3d8ca9efd21ea06d2eedecee4ca500df567ffd0a6d0d
         lint-citations.py ROOT F 223b54a1983967480c8ae2b80e3d59c98c2921d9bf7c411913470505a7f9b060
         lint-claude-rules-sync.py OWN F 4e375feac86fed164e9bef4b5055692ee0b1e832a8bc3ab7dc54ce89fb93186d
         lint-cobit-iso31000-citations.py CWD F bdb88516b2a7be63c386f9d302b931d8ab6c070b3837e9ea6e619babad61eeff
         lint-cobit-title-text.py CWD F effc72d7b5320bdfb6371840aa67de751c55f1f9d34f358909ac82092bedfba9
-        lint-collection-enumeration-consistency.py NO_FS F e66ad0d0bf430451d1fa6d78e223a5d5af1edf31f4441731753dea061bd590bc
+        lint-collection-enumeration-consistency.py NO_FS F be222202b9df1a9c628e982cbcbd1f104bca12c2948f6661119359494ee0d37f
         lint-cross-doc-numbers.py CWD F 1e52e0be3d4b626dbadcbb0dff30aaec11e63b6404ca5577ecf5f562ece2b94d
         lint-cross-file-section-names.py CWD F 6e20b7114ab82452d0d9711e80c85235882baae36e108bae7a8ab25eb5830283
         lint-cross-file-section-refs.py CWD F eeaf1d07db7c72f64660a0964614ccb4de1cbd648cfebf94ba96e940b0575c48
@@ -43310,13 +43469,13 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-library-version-monotonicity.py OWN F 46e0c1f3d2551fbb1fd4ced97cc220b4a61e3a3d8be826c9c1df5d2a46976d6a
         lint-license-consistency.py CWD F 4b79d50767f0b5a51f7734387584fd58b7d77956ecad00a2887347f84b620e9e
         lint-links.py ROOT F 92fc6fb1c68b715455a0ca6e45437aa1809c46e404d4c0d5a0917b64f3bcf824
-        lint-listing-surface-completeness.py NO_FS F 883baec9004bd08709a57c9ea64634e7e65ce275e1e104eab2259d305480ef73
+        lint-listing-surface-completeness.py NO_FS F 67333037567c9b2e1d1ffdbac13c951d609967b4aaebd3c065f24391a78a7590
         lint-matrix-control-codes.py OWN F 88e8bb5cf39951e9d4d8684442ac272288ee5a63d171438c1fd927e2fd969864
         lint-metadata-line-breaks.py ROOT F 8e18d7b327c86b85b7932c61dc5af33895d5b4dbaf7c8aa733755f545395bf90
         lint-metadata.py ROOT F ab21e76f903684c8f307a01a76b42a8a48434af31be15e566730885e444b2647
         lint-narrative-authority-boundary.py ROOT F 9f742c770fc0acf74dcfdb167447211a01a9e5579d28845fc2d5c15fcaa2d98c
         lint-narrative-boundary.py OWN F 9120967597d11fa94a27e9ff0b01d8dc53193fc7a2afc45b44907f0862b43db5
-        lint-narrative-disclaimer.py NO_FS F 9e9c956e4a5edded7cd611494c2161cac18a78741b87ffc32a26f9be65a5b8de
+        lint-narrative-disclaimer.py NO_FS F 6db7eec07802e0eda1f27f2b18c734d45c018cc3c5ccdb3865bc0c454ef1199c
         lint-narrative-metadata.py CWD F 616db5b3f5f1d1775fbbc0273e50b168c451400d2347f45a4ee97069dc4e5f3d
         lint-narrative-vocabulary.py CWD F c8fa9fd041e2ea8ea7bc246efc1100795b8e69dcab5b218d5d72ae65ca6c66a0
         lint-nested-markdown-links.py ROOT F 36b09b7bb5221bf0c3589f22426453fee35a9744ce451cd54d3518880be0a5d8
@@ -43326,7 +43485,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-positional-backlog-tokens.py ROOT F 014dc171dfd4511c153270b53577d62337fe3a5216dfc4f6f95b84d8e4cc80b1
         lint-ref-absence-claims.py ROOT F 8e4eae72e7fab0e3e8fb889d1e2d80bf4c0e0468f85bedd14fffae25d491699d
         lint-required-sections.py CWD F d4b84278b59d2e8cb78de9953424f45417127e5ebc8d189431bc7d66f0132cd2
-        lint-retention-consistency.py OWN F 721d4d56fe131183be2c9c82e0c5b1c377dca0edd9bea8d610f4819fae2288fc
+        lint-retention-consistency.py OWN F b88e1a9b80c7ec9f6a5dddd822d71b3bafd96c50c62e14c6c16d5e9adc6dd164
         lint-roles.py ROOT F fa17709c4bd944b4536afd791a756e53a0f3040860c813d9c9f2412acef6e886
         lint-scan-scope-parity.py OWN F 3896541e18c4a614d03a959b961b2c75481f3afa90d4c8b6cfb1bd19c3e94565
         lint-secrets-in-content.py CWD F 1c210aa09247efe62684ddaef51f91693e10fef228562e275865d538898a5a4e
@@ -43336,7 +43495,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-sibling-placeholders.py NO_FS F 71e2d7087eaff47ca5a57e9f5ba1f9048d577bf08781069511b73c31fdd45fa8
         lint-skill-verdict-carrier-completeness.py OWN F 972851a3cc7dfcd4751e57520bd29691b4125abda340fba62cb1761759abcd60
         lint-ssdf-control-ids.py CWD F 15fe8459dc1a29286d72dd6fafd50687b7cfacc0bf52895f97d57aa8fdd3d051
-        lint-standards-currency.py OWN F 9d32271adbdc1da6c287e8226a92fac0ee5c431bdb27d84bfe530b5f668914c3
+        lint-standards-currency.py OWN F efd89c4c4397bd6c05e993d541b5f6a97861abe5705e44fabb9517d2944d1d10
         lint-startup-character-ceiling.py NO_FS F d6417cd2e9987e8038f664931a8d3f8a1e54e9d28d655ea93187e1dcc2a17daf
         lint-stdlib-only-imports.py NO_FS F d08a512bb89bef359817bfb7fac4051e7e69ad971ccd6663372d6a444efa218d
         lint-structure.py OWN F de53071ea54f72ec560227d6779f4fccb282bdf97b840f11343352566a0f5bc9
@@ -43345,16 +43504,16 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-todo-index-reference-parity.py OWN F 46ffb499a50fa6b5d64ac594776e5a26ad4e3c696fc48d8b5e4fc8b4646a2b22
         lint-todo-list-tag.py OWN F 10ee5371268378b28c9097a588515231d625ab63b5e5b1b9f3533f4d85db9b2d
         lint-todo-marked-done.py ROOT F 9d5f28f83917e26a4cd0bffde756fded4a2bf4259b809472bc1757a6dbc1b212
-        lint-todo-number-permanence.py OWN F abc29a18bbb34d57abdf9d72ff70a46150c1d99322312fa3818dd1a3fa589c19
+        lint-todo-number-permanence.py OWN F 66f3f6271cc0d360515f081795ccec7e0ebd0c26a0f0170bb7e7d13958c0e362
         lint-todo-staleness.py NO_FS F 6a89123607678239f036cab7bf02e0a0885216f55ba0b23fb53799e30c40cffb
         lint-tooling-backlog-refs.py OWN F be54fcdef171bc30e7d0393ca2c097904f464cad7bde9a233f7ee663edd741a5
-        lint-tooling-provenance-freshness.py OWN F 38a5222e69c3ec9c43c1ea917f39d8b17683ae3f91b6c361e4b10a34d0f4027a
+        lint-tooling-provenance-freshness.py OWN F ab5b885be8a4a7af28e6c441ea4439cc32ce553a6167946ec40d49f50f0f6b02
         lint-unbalanced-fences.py ROOT F be18adf8de595de46e7d2149a9e6c0053288f41fdecc3b8748c3a609f94ff294
         lint-ungated-dashes.py NO_FS F 81bd8a51ed9d04864b908024f4cd4bf9d45b123075b626e2b3540accfcaedbec
         lint-unused-imports.py CWD F ca0774461f0ea6a973bc510a7b68f51790eb3c21e2e580470af4fc64c9060b2e
         lint-version-bump-recency.py CWD F 8fd558e8fb978be293e66ee1af301c13f517d582bf101f2969c94a8e771d5a72
         lint-version-date-consistency.py OWN F c07c0009130b660eb3ef8c3a1e06c659a99d8eea3663a2fbd84d47773c87e099
-        lint-web-corpus-links.py OWN F 590157e1f8c31f8c867b1f31e5976d95a8e04ef2a00fa7a0c636589b3bb7e80a
+        lint-web-corpus-links.py OWN F e69c56be54024ab612c87f8a39f39807334f029426e5e266f860f41ff251479f
         lint_common.py PASSIVE F 91dd0425ff9aae5d86504ac94fa4964988d899f38715295566434c17d1e2daec
         matrix_code_parse.py PASSIVE F 62df77ba801019b06afea2a1474836a90dc2e8385f7d99becef9d393c511f622
         measure-regression-timings.py WRITE F 3fa6dd03e89eaf23d6b92a01f4369f11ff863a475bc81926319b7c734fa007d1
@@ -43375,8 +43534,8 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         safe_fs.py PASSIVE F 13c29f1625ffc04ba289a42a2ba241e2d68a77c9420b114f2a96e58c4b5ad35a
         scan-publication-instruction-content.py OWN F 62fd62e2345b14ae59e33db7ef62cf131bdbdb9eb2f75cc3f5bab3391cbdd17f
         skill-verdict-fields.json DATA F 3a9c5b89ed3acc1a7bdbda02b5630379c1ef016fc58b34e4338a485ad3fd4cb8
-        standards-currency-unpinned-baseline.json DATA F 25526fa37844734661ef142a8d54c27a79ed13df1ed3b18955343be1246d7fc5
-        suggest-listing-surfaces.py SKIP F 1fc1c10ac7ec86e31942c812521708f89b1c37237d01b078caa2e42886e5ba63
+        standards-currency-unpinned-baseline.json DATA F a8acbbc26630f704a95ea6f790debc8315a53d20c8191e9c6e4fcacd9772055a
+        suggest-listing-surfaces.py SKIP F 51981aba8f7c07cfee1a5536e13e38cec4314973a3eca3630d8c726d9ed7ffd4
         sweep-preflight-exemptions.json DATA F 2c11643eb1082a34c9d2cafed9cf04c6481c3e8322a44f426aa0f55729ad75df
         sweep-preflight-scanner.py NO_FS F 0354f7c93485b246f46fdb4e10facb822349f38f813332215d16c92f635c9d5e
         tail-safe.sh COMMAND F 1a847b4353a77cf809372510d4c51256299d456870e4a41d8f70c7332ca05a75
@@ -43388,7 +43547,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Repository-relative argument-handling dependencies outside .claude/skills/corpus-management/tools/.
     DEPENDENCIES = """
-        .claude/skills/corpus-management/src/tools/corpus_mgmt_compiler.py 2f2bfa2407b38dc14b666a2833f96000e1c4bf9ae524c51d1b6f282ca380665b
+        .claude/skills/corpus-management/src/tools/corpus_mgmt_compiler.py 3b2855d56d438b8766ea414ab415e1f76afbe57f09ce3faccb27c9866627ac8c
         .claude/skills/corpus-management/src/tools/pack_release_delta.py 1836a112482c4fa721817222ef559700e919b54e3df7ba98a4e94af5ffbdcf07
         .claude/skills/corpus-management/src/tools/profile_loader.py c54f863c1d19ea5a934e05194504538a75d2b4893e7b16aa9d4c386c932bfb6b
         .claude/aiqt/tools/aiqt_corpus.py f2292eb511e960d9c38881a54bee92d0fc5c7b5cbe0c7b5cb002cb78da08245f
@@ -43880,7 +44039,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
             with self.subTest(forged=forged):
                 self.assertTrue(self._parent_launch_violations(forged.encode(), child))
 
-    def test_R3_CHILD_1_W1_launch_list_goes_straight_to_subprocess(self):
+    def test_child_launch_list_goes_straight_to_subprocess(self):
         child = "runner.py"
         launch = 'subprocess.run([sys.executable, "-I", str(_RUNNER), str(_GATE)])\n'
         parent = ('"""Starts runner.py."""\nimport subprocess, sys\nfrom pathlib import Path\n'
@@ -43914,14 +44073,14 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
             with self.subTest(forged=forged):
                 self.assertTrue(self._parent_launch_violations(forged.encode(), child))
 
-    _R4_LAUNCH = 'subprocess.run([sys.executable, "-I", str(_RUNNER), str(_GATE)])\n'
-    _R4_GATE = '_GATE = Path(_DIR) / "gate.py"\n'
-    _R4_PARENT = ('"""Starts runner.py."""\nimport subprocess, sys\nfrom pathlib import Path\n'
+    _RUNNER_LAUNCH_LINE = 'subprocess.run([sys.executable, "-I", str(_RUNNER), str(_GATE)])\n'
+    _GATE_PATH_LINE = '_GATE = Path(_DIR) / "gate.py"\n'
+    _RUNNER_PARENT_SOURCE = ('"""Starts runner.py."""\nimport subprocess, sys\nfrom pathlib import Path\n'
                   "_DIR = str(Path(__file__).resolve().parent)\n"
-                  '_RUNNER = Path(_DIR) / "runner.py"\n' + _R4_GATE + _R4_LAUNCH)
-    _R4_ENTRY = "child argv entry not built from the parent's own directory: str(_GATE)"
+                  '_RUNNER = Path(_DIR) / "runner.py"\n' + _GATE_PATH_LINE + _RUNNER_LAUNCH_LINE)
+    _CHILD_ENTRY_FINDING = "child argv entry not built from the parent's own directory: str(_GATE)"
 
-    def test_R4_CHILD_1_rebound_file_is_not_an_anchor(self):
+    def test_child_rebound_file_is_not_an_anchor(self):
         codex = ("import subprocess, sys\nfrom pathlib import Path\n"
                  '_RUNNER = Path(__file__).resolve().parent / "runner.py"\n'
                  "__file__ = sys.argv[1]\n_GATE = Path(__file__).resolve()\n"
@@ -43930,17 +44089,17 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         for forged in (
                 codex,
                 codex.replace("sys.executable, ", 'sys.executable, "-I", '),
-                self._R4_PARENT.replace(imports, imports + "from os import curdir as __file__\n"),
-                self._R4_PARENT.replace(imports, imports + "match sys.argv:\n"
+                self._RUNNER_PARENT_SOURCE.replace(imports, imports + "from os import curdir as __file__\n"),
+                self._RUNNER_PARENT_SOURCE.replace(imports, imports + "match sys.argv:\n"
                                         "    case [_, __file__]:\n        pass\n"),
-                self._R4_PARENT.replace(imports, imports + "def _f():\n    global __file__\n"
+                self._RUNNER_PARENT_SOURCE.replace(imports, imports + "def _f():\n    global __file__\n"
                                         "    __file__ = sys.argv[1]\n_f()\n"),
-                self._R4_PARENT.replace(imports, imports + "sys.modules[__name__].__file__ = sys.argv[1]\n")):
+                self._RUNNER_PARENT_SOURCE.replace(imports, imports + "sys.modules[__name__].__file__ = sys.argv[1]\n")):
             with self.subTest(forged=forged):
-                self.assertIn(self._R4_ENTRY, self._parent_launch_violations(forged.encode(), "runner.py"))
+                self.assertIn(self._CHILD_ENTRY_FINDING, self._parent_launch_violations(forged.encode(), "runner.py"))
 
-    def test_R4_W1_every_binding_form_counts_against_a_single_binding(self):
-        parent, gate, launch = self._R4_PARENT, self._R4_GATE, self._R4_LAUNCH
+    def test_every_binding_form_counts_against_a_single_binding(self):
+        parent, gate, launch = self._RUNNER_PARENT_SOURCE, self._GATE_PATH_LINE, self._RUNNER_LAUNCH_LINE
         self.assertEqual(self._parent_launch_violations(parent.encode(), "runner.py"), [])
         for forged in (
                 parent.replace(gate, gate + "match sys.argv:\n    case [_, _GATE, *_]:\n        pass\n"),
@@ -43952,10 +44111,10 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
                 parent.replace(gate, gate + "try:\n    pass\nexcept OSError as _GATE:\n    pass\n"),
                 parent.replace(gate, gate + "sys.modules[__name__]._GATE = sys.argv[1]\n")):
             with self.subTest(forged=forged):
-                self.assertIn(self._R4_ENTRY, self._parent_launch_violations(forged.encode(), "runner.py"))
+                self.assertIn(self._CHILD_ENTRY_FINDING, self._parent_launch_violations(forged.encode(), "runner.py"))
 
-    def test_R4_W2_launch_takes_only_the_list_reviewed_keywords_and_isolation(self):
-        parent = self._R4_PARENT
+    def test_launch_takes_only_the_list_reviewed_keywords_and_isolation(self):
+        parent = self._RUNNER_PARENT_SOURCE
         accepted = parent.replace("str(_GATE)])", "str(_GATE)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, "
                                   "stderr=subprocess.DEVNULL, start_new_session=True)")
         self.assertEqual(self._parent_launch_violations(accepted.encode(), "runner.py"), [])
@@ -43978,7 +44137,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
                 for message, prefix in zip(violations, expected):
                     self.assertTrue(message.startswith(prefix), violations)
 
-    def test_R5_W1_absolute_literal_part_is_not_joined_onto_the_anchor(self):
+    def test_absolute_literal_part_is_not_joined_onto_the_anchor(self):
         child = "preflight_language_runner.py"
         live = (SKILL_ROOT / "tools" / self.CHILDREN[child]).read_text()
         self.assertEqual(self._parent_launch_violations(live.encode(), child), [])
@@ -43993,13 +44152,13 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
                 self.assertIn(line, live)
                 self.assertEqual(self._parent_launch_violations(
                     live.replace(line, forged).encode(), child), expected)
-        parent, gate = self._R4_PARENT, self._R4_GATE
+        parent, gate = self._RUNNER_PARENT_SOURCE, self._GATE_PATH_LINE
         nested = parent.replace(gate, gate.replace('"gate.py"', '"sub/gate.py"'))
         self.assertEqual(self._parent_launch_violations(nested.encode(), "runner.py"), [])
         forged = parent.replace(gate, gate.replace('"gate.py"', '"/tmp/gate.py"'))
-        self.assertEqual(self._parent_launch_violations(forged.encode(), "runner.py"), [self._R4_ENTRY])
+        self.assertEqual(self._parent_launch_violations(forged.encode(), "runner.py"), [self._CHILD_ENTRY_FINDING])
 
-    def test_R5_CHILD_STR_str_or_Path_bound_in_any_form_is_refused(self):
+    def test_shadowed_str_or_Path_bound_in_any_form_is_refused(self):
         codex = ("import subprocess, sys\nfrom pathlib import Path\n"
                  '_RUNNER = Path(__file__).resolve().parent / "runner.py"\n'
                  '_GATE = Path(__file__).resolve().parent / "gate.py"\n'
@@ -44023,13 +44182,13 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
                     f"try:\n    pass\nexcept OSError as {name}:\n    pass\n",
                     f"match sys.argv:\n    case [_, {name}]:\n        pass\n",
                     f"import builtins\nbuiltins.{name} = repr\n"):
-                forged = self._R4_PARENT.replace(imports, imports + binding)
+                forged = self._RUNNER_PARENT_SOURCE.replace(imports, imports + binding)
                 with self.subTest(forged=forged):
                     self.assertIn(f"{name} bound other than by an import",
                                   self._parent_launch_violations(forged.encode(), "runner.py"))
 
-    def test_R5_N1_launch_keywords_take_no_integer_file_descriptor(self):
-        parent = self._R4_PARENT
+    def test_launch_keywords_take_no_integer_file_descriptor(self):
+        parent = self._RUNNER_PARENT_SOURCE
         for value in ("None", "True", "False"):
             accepted = parent.replace("str(_GATE)])", f"str(_GATE)], stdin={value})")
             with self.subTest(accepted=accepted):
@@ -44042,7 +44201,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
                 self.assertEqual(len(violations), 1, violations)
                 self.assertTrue(violations[0].startswith(keyword), violations)
 
-    def test_N2_drift_lists_every_changed_pin_as_an_inventory_line(self):
+    def test_drift_lists_every_changed_pin_as_an_inventory_line(self):
         files = {"a.py": b"import sys\nopen(sys.argv[1])\n", "b.sh": b"#!/bin/sh\ncat \"$1\"\n"}
         rows = {path: ("OWN", *self._pin(path, data)) for path, data in files.items()}
         self._check(files, rows)
@@ -44068,7 +44227,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         with self.assertRaisesRegex(AssertionError, "re-review this tool's path arguments"):
             self._check({"new.py": changed}, rows)
 
-    def test_F1_R2_1_ordinary_argv_imports(self):
+    def test_ordinary_argv_imports_fall_back_and_drift(self):
         for source in ("from sys import argv\nopen(argv[1])\n",
                        "from sys import argv as paths\nopen(paths[1])\n",
                        "import sys\nx.args = sys.argv\nopen(x.args[1])\n"):
@@ -44079,7 +44238,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
                        "import sys\ndef main(*, paths):\n    open(paths[1])\nmain(paths=sys.argv)\n"):
             self._assert_fallback_and_drift(source)
 
-    def test_F2_inventory_key_collision(self):
+    def test_inventory_key_collision(self):
         with tempfile.TemporaryDirectory(prefix="inventory-") as directory:
             root = Path(directory)
             (root / "sub").mkdir()
@@ -44100,7 +44259,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
             with self.assertRaisesRegex(AssertionError, "symlink"):
                 self._files(root)
 
-    def test_F3_R2_3_unrelated_and_mutated_parsers(self):
+    def test_unrelated_and_mutated_parsers(self):
         for source in (
                 "import argparse\np = argparse.ArgumentParser()\nns = make_parser().parse_args()\n",
                 "import argparse\np = argparse.ArgumentParser()\nadd_path_args(p)\np.parse_args()\n",
@@ -44108,7 +44267,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
                 "import argparse\ndef f(p: argparse.ArgumentParser): pass\nmake_parser().parse_args()\n"):
             self._assert_fallback_and_drift(source)
 
-    def test_F4_delegated_compiler_changes_the_pin(self):
+    def test_delegated_compiler_changes_the_pin(self):
         import hashlib
         path = ".claude/skills/corpus-management/src/tools/corpus_mgmt_compiler.py"
         rows = self._rows(self.DEPENDENCIES, 2)
@@ -44127,7 +44286,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
             with self.assertRaisesRegex(AssertionError, "re-review this tool's path arguments"):
                 self.test_external_argument_dependencies_are_pinned()
 
-    def test_F5_R2_4_surface_identity_and_helper_flags(self):
+    def test_surface_identity_and_helper_flags(self):
         first = ("import argparse\np = argparse.ArgumentParser()\n"
                  "p.add_argument('strings')\np.parse_args()\n")
         second = first.replace("p.parse_args()", "p.add_argument('strings')\np.parse_args()")
@@ -44148,18 +44307,18 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
                  "import sys\nFLAGS = ('--check', '--path')\nstrict_flags(sys.argv, FLAGS)\n")):
             self._assert_fallback_and_drift(source, changed)
 
-    def test_R2_2_lint_common_is_not_a_blanket_exemption(self):
+    def test_lint_common_is_not_a_blanket_exemption(self):
         self._assert_fallback_and_drift(
             "import sys, lint_common\ndef main(argv):\n"
             "    for p in lint_common.iter_targets(argv): open(p)\nmain(sys.argv)\n")
 
-    def test_R2_5_intermixed_and_R2_6_orig_argv(self):
+    def test_intermixed_parsers_and_orig_argv_fall_back_and_drift(self):
         for source in ("ns, rest = p.parse_known_intermixed_args()\n",
                        "ns = p.parse_intermixed_args()\n",
                        "import sys\nopen(sys.orig_argv[2])\n"):
             self._assert_fallback_and_drift(source)
 
-    def test_F6_guard_binding_shadow_evasion(self):
+    def test_guard_binding_shadow_evasion(self):
         base = "from lint_common import guard_explicit_paths\n"
         call = "guard_explicit_paths(['x'])\n"
         resolved, violations = self._guard_binding(base + call)
@@ -44185,7 +44344,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
             "lc.guard_explicit_paths(['x'])\n")[1])
         self.assertFalse(self._guard_binding("other.guard_explicit_paths(['x'])\n")[0])
 
-    def test_R2_10_shell_and_data_are_inventoried(self):
+    def test_shell_and_data_are_inventoried(self):
         for source in (b"#!/bin/sh\nfor arg; do cat \"$arg\"; done\n",
                        b"#!/bin/sh\nset -- input\ncat \"$1\"\n"):
             with self.assertRaisesRegex(AssertionError, "unclassified tools"):
@@ -45247,7 +45406,7 @@ class BuildTaxonomySectionOutlineTests(unittest.TestCase):
     def test_extract_purpose_skips_fenced_blocks(self):
         # A ## Purpose heading inside a fenced example is not the
         # document's purpose, in the heading search or in the fallback.
-        bt = load_linter_module(".claude/skills/corpus-management/tools/build-taxonomy.py", "build_taxonomy_fx7a")
+        bt = load_linter_module(".claude/skills/corpus-management/tools/build-taxonomy.py", "build_taxonomy_fenced_purpose")
         meta = "# T\n\n**Version:** 1.0.0\\\n**Date:** 2026-01-01\n\n---\n\n"
         text = (meta + "Real intro.\n\n## Steps\n\n```\n## Purpose\n\nFenced purpose.\n```\n\n"
                 "~~~\n## Purpose\n\nTilde purpose.\n~~~\n")
@@ -45258,7 +45417,7 @@ class BuildTaxonomySectionOutlineTests(unittest.TestCase):
     def test_extract_purpose_falls_back_to_overview(self):
         # With no Purpose heading and no intro paragraph, the first
         # paragraph under ## Overview is the purpose.
-        bt = load_linter_module(".claude/skills/corpus-management/tools/build-taxonomy.py", "build_taxonomy_fx7b")
+        bt = load_linter_module(".claude/skills/corpus-management/tools/build-taxonomy.py", "build_taxonomy_overview_purpose")
         text = ("# T\n\n**Version:** 1.0.0\\\n**Date:** 2026-01-01\n\n---\n\n"
                 "## Overview\n\nOverview paragraph.\n\n### Sub\n\nLater.\n\n## Next\n")
         self.assertEqual(bt.extract_purpose(text), "Overview paragraph.")
@@ -46381,7 +46540,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         return next(ln for ln in register.splitlines() if ln.startswith(f"| {row} | ")).split(" | ")[1]
 
     # Each of these suffixes fails after every accepted prefix of both statute rows.
-    STATUTE_ROUND_5_SUFFIXES = (
+    STATUTE_ENDING_SUFFIXES = (
         "; the successor Privacy Law 2026 commences and ends the 1988 Act",
         "; Act No. 5 of 2026 commences",
         "; Bill 2026 commences",
@@ -46430,7 +46589,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             ("2023 (Act enacted 2023-08-11)", "2023", india),
             (india_current, "2023", india),
         ):
-            for suffix in self.STATUTE_ROUND_5_SUFFIXES + (", replacing", " (successor)", " (ended)"):
+            for suffix in self.STATUTE_ENDING_SUFFIXES + (", replacing", " (successor)", " (ended)"):
                 self.assertFalse(match(listed, prefix + suffix, row), prefix + suffix)
         for current in (
             # A form repeated, or a form of the other row.
@@ -46602,7 +46761,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
 
     # Listed editions that carry an EU instrument number but do not begin "Regulation" or
     # "Directive", per landing row, with the topic they replace.
-    ROUND_7_UNREADABLE_CITATIONS = (
+    UNREADABLE_REPEAL_CITATIONS = (
         ("EU GDPR", "Regulation (EU) 2016/679", (
             "(EU) 2016/679 (repealed)",
             "regulation (EU) 2016/679 (repealed)",
@@ -46628,7 +46787,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         # allowlist cannot read fails, however it begins, and says how to fix it.
         match = self.mod.edition_matches
         rows = {"EU GDPR": "EU GDPR", "EU NIS2": "EU NIS 2 Directive", "EU AI Act": "EU AI Act"}
-        for name, topic, shapes in self.ROUND_7_UNREADABLE_CITATIONS:
+        for name, topic, shapes in self.UNREADABLE_REPEAL_CITATIONS:
             row = rows[name]
             current = self._register_current(row)
             self.assertTrue(match(topic, current, row), (topic, current))
@@ -46654,7 +46813,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             self.assertEqual(e.status, "match", e)
 
     # Ending wording by stem, each in an amending Act name.
-    ROUND_7_ENDING_ACT_WORDS = (
+    ENDING_ACT_WORDS = (
         "Repeal", "Repealing", "Rescind", "Rescission", "Revoke", "Revocation", "Lapse", "Lapsing",
         "Cease", "Cessation", "Supersede", "Supersession", "Expire", "Expiration", "Expiry",
         "Dissolve", "Dissolution", "Discontinue", "Discontinuance", "Closure", "Winding Up",
@@ -46667,7 +46826,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         self.assertEqual(self.mod.STATUTE_AMENDING_ACTS,
                          frozenset({"the Privacy and Other Legislation Amendment Act 2024"}))
         self.assertTrue(match("1988", self._register_current(au), au))
-        for word in self.ROUND_7_ENDING_ACT_WORDS:
+        for word in self.ENDING_ACT_WORDS:
             for act in (f"the Privacy {word} Amendment Act 2026", f"the Privacy and Other Legislation "
                         f"{word} Amendment Act 2024"):
                 note = f", as amended by {act} (Cth) No. 1, 2026 (Royal Assent 1 January 2026)"
@@ -52124,7 +52283,7 @@ class ReferenceManifestGeneratorTests(unittest.TestCase):
 
             def __call__(self, *_args):
                 raise object.__getattribute__(self, "exc")
-        for label, exc in (("an ordinary exception", RuntimeError("refman-sentinel-n2")),
+        for label, exc in (("an ordinary exception", RuntimeError("refman-sentinel-ordinary")),
                            ("a SystemExit", SystemExit(0))):
             with self.subTest(f"in process, reading the type name raises {label}"):
                 mod = self._load("_refman_unreadable_name")
@@ -52136,7 +52295,7 @@ class ReferenceManifestGeneratorTests(unittest.TestCase):
                 self.assertEqual(len(err.splitlines()), 1, err)
                 self.assertIn("cannot decide (the repository check or the origin reads failed "
                               "(an exception whose type name could not be read))", err)
-                self.assertNotIn("refman-sentinel-n2", err)
+                self.assertNotIn("refman-sentinel-ordinary", err)
         with self.subTest("in process, reading the type name raises KeyboardInterrupt"):
             mod = self._load("_refman_unreadable_interrupt")
             mod.type = _Unreadable(KeyboardInterrupt())
@@ -54223,7 +54382,7 @@ BAI07, CSA CCM v4.1 AIS domain, and OWASP ASVS v5.
             self._check_closed_title_pair(
                 "MEA03 " + separator + " {title} " + separator + " note")
 
-    def test_claude_round3_closing_separator_table(self) -> None:
+    def test_closing_separator_table(self) -> None:
         for template in (
             "MEA03 – {title} – is the anchor",
             "MEA03 — {title} — anchors this",
@@ -54382,7 +54541,7 @@ BAI07, CSA CCM v4.1 AIS domain, and OWASP ASVS v5.
                 result = run_linter(self.SCRIPT, fixture)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
-    def test_round6_review_findings(self) -> None:
+    def test_joined_or_marked_managed_titles_are_each_flagged_once(self) -> None:
         for line in (
             "APO12: Managed–Compliance", "APO12: Managed—Compliance",
             "APO12: Managed(Compliance)", "APO12: Managed[Compliance",
@@ -54399,12 +54558,12 @@ BAI07, CSA CCM v4.1 AIS domain, and OWASP ASVS v5.
             "APO12: Managed Risk\x60Adjusted Performance",
         ):
             with self.subTest(line=line):
-                fixture = self.make_fixture("round6.md", "# Fixture\n\n" + line + "\n")
+                fixture = self.make_fixture("cobit-title-line.md", "# Fixture\n\n" + line + "\n")
                 result = run_linter(self.SCRIPT, fixture)
                 self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
                 self.assertEqual(result.stdout.count("[cobit-title]"), 1)
 
-    def test_round6_disclosed_false_positive_examples(self) -> None:
+    def test_disclosed_false_positive_examples(self) -> None:
         for line in (
             "APO10 Managed Vendors' SLAs are tracked",
             "DSS05 Managed Security Services' KPIs are reported",
@@ -54423,13 +54582,13 @@ BAI07, CSA CCM v4.1 AIS domain, and OWASP ASVS v5.
 
 
     # The earlier engine: .corpus-management/tools/gate_lint_cobit_title_text.py as it
-    # stood in the old repository, at the commit the fixture filename names. The new
-    # repository has no history, so its bytes are vendored below a 3-line header.
-    COBIT_BASE_FIXTURE = SKILL_ROOT / "tests" / "fixtures" / "gate_lint_cobit_title_text.at-9d7c9e5d.py.txt"
+    # stood in the old repository. The new repository has no history, so its bytes are
+    # vendored below a 3-line header, and COBIT_BASE_SHA256 pins them.
+    COBIT_BASE_FIXTURE = SKILL_ROOT / "tests" / "fixtures" / "gate_lint_cobit_title_text.base.py.txt"
     COBIT_BASE_HEADER_LINES = 3
     COBIT_BASE_SHA256 = "166e8730e9227c0d9a908b879995fcb9d9100e8e9eb2ff6ab4dad3ed8b84bcf6"
 
-    def test_round6_base_differential(self) -> None:
+    def test_base_engine_differential(self) -> None:
         import hashlib
         import types
         from collections import Counter
@@ -54438,7 +54597,7 @@ BAI07, CSA CCM v4.1 AIS domain, and OWASP ASVS v5.
         lines = self.COBIT_BASE_FIXTURE.read_bytes().splitlines(keepends=True)
         base_bytes = b"".join(lines[self.COBIT_BASE_HEADER_LINES:])
         self.assertEqual(hashlib.sha256(base_bytes).hexdigest(), self.COBIT_BASE_SHA256,
-                         "the vendored base engine must be the commit 9d7c9e5d bytes")
+                         "the vendored base engine must be the earlier repository's bytes")
         base_source = base_bytes.decode("utf-8")
         saved_path = sys.path[:]
         try:
@@ -54449,8 +54608,8 @@ BAI07, CSA CCM v4.1 AIS domain, and OWASP ASVS v5.
             from cobit_iso31000_reference import COBIT_OBJECTIVES
             engines = []
             for name, source in (
-                ("_cobit_base_r6", base_source),
-                ("_cobit_new_r6", source_path.read_text(encoding="utf-8")),
+                ("_cobit_base_title", base_source),
+                ("_cobit_new_title", source_path.read_text(encoding="utf-8")),
             ):
                 engine = types.ModuleType(name)
                 exec(compile(source, name, "exec"), engine.__dict__)
@@ -56062,7 +56221,7 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
         # Rows against the aid's own model: a dash after a tag whose unquoted attribute value holds
         # U+0001, and one inside the span after such a tag, are both findings, since nothing is
         # exempt; an en dash too. The control row (a hyphen) is no finding.
-        mod = self._load("_pcl_r18_attr_aid")
+        mod = self._load("_pcl_attr_aid")
         for line in ('a <b x=\x01 y="`"> — `', '`x` <b a=\x01 c="`"> `y — z`',
                      'a <b x=\x01 y="`"> – `'):
             with self.subTest(line=line):
@@ -56126,7 +56285,7 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
         # (commonmark_lines), and the dash after it, or inside a span crossing it, is a finding.
         # Row 1 also runs through the CLI in both modes. In the earlier repository row 1 failed
         # against the code before the fix, which gave no finding and exited 0.
-        mod = self._load("_pcl_r19_break_aid")
+        mod = self._load("_pcl_break_aid")
         for line in ("x [a](u`\u2028v) — `", "x `u\u2028v — w` y"):
             with self.subTest(line=line):
                 self.assertEqual(mod.commonmark_lines(line), [line])
@@ -56410,7 +56569,7 @@ class TodoIndexRowGrammarParityTests(unittest.TestCase):
         # The gate 78 part of the removed three-reader test. Gate 78 reads rows and headings through
         # todo_index_rows and keeps neither parser that module replaced. The hook and the audit tool
         # that test also read do not ship.
-        g = self._load("_fx4_gate78_mod", ".claude/skills/corpus-management/tools/lint-todo-number-permanence.py")
+        g = self._load("_gate78_mod", ".claude/skills/corpus-management/tools/lint-todo-number-permanence.py")
         self.assertEqual(g.index_rows.__module__, "todo_index_rows")
         self.assertEqual(g.item_headings.__module__, "todo_index_rows")
         for gone in ("parse_todo_index", "LIVE_HEADING_RE"):
@@ -56420,7 +56579,7 @@ class TodoIndexRowGrammarParityTests(unittest.TestCase):
         # The gate 78 part of the removed divergence 2 test (header gate). Rows without the index
         # header are not live, rows under it keep their own line numbers, and an item moved to the
         # private list is therefore not a duplicate.
-        g = self._load("_fx4_gate78_d2", ".claude/skills/corpus-management/tools/lint-todo-number-permanence.py")
+        g = self._load("_gate78_dup", ".claude/skills/corpus-management/tools/lint-todo-number-permanence.py")
         text = "# TODO\n| 1.1 | a | `[public]` |\n| 2.3 | b | `[public]` |\n"
         self.assertEqual(g.parse_live_list(text), {})
         self.assertEqual(g.parse_live_list(self.HDR + text), {"1.1": [4], "2.3": [5]})
@@ -56431,7 +56590,7 @@ class TodoIndexRowGrammarParityTests(unittest.TestCase):
         # The gate 78 part of the removed all-shapes test. One fixture holds every row, heading
         # and bullet shape the readers differed on; gate 78's live ids are the ids the audit tool
         # counted, and RB-6 keeps its own line.
-        g = self._load("_fx4_gate78_all", ".claude/skills/corpus-management/tools/lint-todo-number-permanence.py")
+        g = self._load("_gate78_all", ".claude/skills/corpus-management/tools/lint-todo-number-permanence.py")
         text = (self.HDR
                 + "| 1.1 | readable | `[public]` |\n"
                 + "   | 1.2 | indented three spaces | `[public]` |\n"
@@ -56457,7 +56616,7 @@ class TodoIndexRowGrammarParityTests(unittest.TestCase):
     def test_gate78_indented_row_cross_list_duplicate_end_to_end(self):
         # The gate 78 part of the removed indented-row test. A public row indented by one space is
         # live, and the same id in the private list is reported with both locations.
-        g = self._load("_fx4_gate78_ind", ".claude/skills/corpus-management/tools/lint-todo-number-permanence.py")
+        g = self._load("_gate78_ind", ".claude/skills/corpus-management/tools/lint-todo-number-permanence.py")
         text = self.HDR + " | 3.1 | fine | `[public]` |\n"
         self.assertEqual(g.parse_live_list(text), {"3.1": [3]})
         r = self._gate78(text, "## Q\n- **3.1 [private] copied** x\n")
@@ -56564,6 +56723,101 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
         self.assertIn("OK", result.stdout)
+
+    def test_check_class_completeness_self_test_keeps_case_ids(self) -> None:
+        # The tracked-set and same-line checks keep their F3 and F4 case ids (a
+        # maintainer ruling lets such ids stay), so a self-test FAIL line names the
+        # case each check covers.
+        source = (REPO_ROOT / ".claude/skills/corpus-management/tools/"
+                  "check-class-completeness.py").read_text(encoding="utf-8")
+        for case_id in ("F3-attest-set-keeps-tracked-absent",
+                        "F3-tracked-absent-file-reported-skipped",
+                        "F4-same-line-occurrences-counted-twice"):
+            with self.subTest(case_id=case_id):
+                self.assertIn(f'checks.append(("{case_id}",', source)
+
+    def test_check_class_completeness_counts_a_repeated_string_once(self) -> None:
+        # A string given twice on the command line is listed and totalled once; before,
+        # each hit was appended once per copy and the list printed once per copy, so the
+        # advisory total grew with the square of the repetitions.
+        import contextlib
+        from unittest import mock
+        mod = load_linter_module(".claude/skills/corpus-management/tools/check-class-completeness.py",
+                                 "class_completeness_repeat")
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as td:
+            doc = Path(td) / "doc.md"
+            doc.write_text("a needle here\nanother needle, and a needle\n", encoding="utf-8")
+            for argv in (["needle"], ["needle", "needle"], ["needle", "needle", "needle"]):
+                with self.subTest(argv=argv):
+                    buf = io.StringIO()
+                    with mock.patch.object(mod, "corpus_files", return_value=[doc]), \
+                            contextlib.redirect_stdout(buf):
+                        rc = mod.main(["check-class-completeness.py", *argv])
+                    out = buf.getvalue()
+                    self.assertEqual(rc, 0, out)
+                    self.assertEqual(out.count("=== 3 occurrence(s) of 'needle' ==="), 1, out)
+                    self.assertEqual(out.count("=== "), 1, out)
+                    self.assertIn("ADVISORY: 3 occurrence(s) across 1 searched corpus file(s)", out)
+
+    def test_check_class_completeness_counts_strings_equal_under_ignore_case_once(self) -> None:
+        # Under -i the search lowercases each string, so strings that differ only in case
+        # find the same hits; they are listed and totalled once, under the first spelling
+        # given. Without -i they are different searches and each keeps its own count.
+        import contextlib
+        from unittest import mock
+        mod = load_linter_module(".claude/skills/corpus-management/tools/check-class-completeness.py",
+                                 "class_completeness_case_repeat")
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as td:
+            doc = Path(td) / "doc.md"
+            doc.write_text("a needle here\nanother Needle, and a NEEDLE\n", encoding="utf-8")
+            for argv, blocks, total in (
+                    (["-i", "needle", "Needle"], ["=== 3 occurrence(s) of 'needle' ==="], 3),
+                    (["-i", "NEEDLE", "needle", "Needle"], ["=== 3 occurrence(s) of 'NEEDLE' ==="], 3),
+                    (["-i", "needle", "needle"], ["=== 3 occurrence(s) of 'needle' ==="], 3),
+                    (["needle", "Needle"], ["=== 1 occurrence(s) of 'needle' ===",
+                                            "=== 1 occurrence(s) of 'Needle' ==="], 2)):
+                with self.subTest(argv=argv):
+                    buf = io.StringIO()
+                    with mock.patch.object(mod, "corpus_files", return_value=[doc]), \
+                            contextlib.redirect_stdout(buf):
+                        rc = mod.main(["check-class-completeness.py", *argv])
+                    out = buf.getvalue()
+                    self.assertEqual(rc, 0, out)
+                    for block in blocks:
+                        self.assertEqual(out.count(block), 1, out)
+                    self.assertEqual(out.count("=== "), len(blocks), out)
+                    self.assertIn(f"ADVISORY: {total} occurrence(s) across 1 searched corpus file(s)", out)
+            # The search itself counts a string given twice once, whoever calls it.
+            occ, _ = mod.find_occurrences(["needle", "needle"], [doc], root=Path(td))
+            self.assertEqual(len(occ["needle"]), 1)
+            occ, _ = mod.find_occurrences(["needle", "needle"], [doc], ignore_case=True, root=Path(td))
+            self.assertEqual(len(occ["needle"]), 3)
+
+    def test_check_class_completeness_attest_merges_a_repeated_token(self) -> None:
+        # An identical token given twice under --attest is one token: the repeat is merged
+        # before the one-token check, so the clause and count match a single-token run.
+        # Two different tokens are still refused.
+        import contextlib
+        from unittest import mock
+        mod = load_linter_module(".claude/skills/corpus-management/tools/check-class-completeness.py",
+                                 "class_completeness_attest_repeat")
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as td:
+            doc = Path(td) / "doc.md"
+            doc.write_text("a needle here\nanother needle, and a needle\n", encoding="utf-8")
+            outs = {}
+            for argv, want in ((["--attest", "needle"], 0),
+                               (["--attest", "needle", "needle"], 0),
+                               (["--attest", "needle", "other"], 2)):
+                with self.subTest(argv=argv):
+                    buf, err = io.StringIO(), io.StringIO()
+                    with mock.patch.object(mod, "attest_file_set", return_value=[doc]), \
+                            contextlib.redirect_stdout(buf), contextlib.redirect_stderr(err):
+                        rc = mod.main(["check-class-completeness.py", *argv])
+                    self.assertEqual(rc, want, buf.getvalue() + err.getvalue())
+                    outs[tuple(argv)] = buf.getvalue()
+            self.assertIn('[class: "needle" @ 3]', outs[("--attest", "needle")])
+            self.assertEqual(outs[("--attest", "needle", "needle")],
+                             outs[("--attest", "needle")])
 
     def test_check_clean_language_upstream_self_test_passes(self) -> None:
         # The clean-language upstream-drift check's classify() self-test (drift on a changed /
@@ -58208,7 +58462,7 @@ class TodoNumberPermanenceTests(LinterTestCase):
             m.find_stale_counters({}, {}, {"2": ("2.33", 10)}, floor={"2": 32}))
 
     def _run(self, name: str, todo: str, done: str | None, ptodo: str | None = None,
-             floor: dict | None = None):
+             floor: dict | None = None, pexempt: dict | None = None):
         """Build a synthetic {.working/TODO.md, .working/DONE.md} root and run the gate.
 
         Returns the completed process. The caller cleans up via the returned
@@ -58241,6 +58495,9 @@ class TodoNumberPermanenceTests(LinterTestCase):
             (root / ".working" / "DONE.md").write_text(done, encoding="utf-8")
         if ptodo is not None:
             (root / "P-TODO.md").write_text(ptodo, encoding="utf-8")
+        if pexempt is not None:
+            import json as _json
+            (root / "todo-number-exempt.json").write_text(_json.dumps(pexempt), encoding="utf-8")
         if floor is not None:
             import json as _json
             (root / ".claude/skills/corpus-management/tools").mkdir(parents=True, exist_ok=True)
@@ -58276,6 +58533,21 @@ class TodoNumberPermanenceTests(LinterTestCase):
                              f"counter above floor wrongly flagged.\n{result2.stdout}\n{result2.stderr}")
         finally:
             shutil.rmtree(root2, ignore_errors=True)
+
+    def test_floor_entry_in_stale_counter_report_has_no_section_marker(self) -> None:
+        """A counter blocked only by the public floor names the floor entry as
+        "floor 2.32", not "\u00a7floor 2.32": the section marker belongs before an
+        item id, and the floor entry is a placeholder for the highest ordinal
+        ever allocated, not an id."""
+        root, result = self._run(
+            "perm-floor-marker",
+            "# TODO\n\n## Priority 2\n\n**Next item number: 2.32.**\n",
+            "# DONE\n", floor={"2": 32})
+        try:
+            self.assertLinterFails(result, "but floor 2.32 already exist(s)")
+            self.assertNotIn("\u00a7floor", result.stdout)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
 
     def test_recycled_number_flagged(self) -> None:
         # the recycle defect shape: a live item wearing a number DONE.md retired
@@ -58363,7 +58635,10 @@ class TodoNumberPermanenceTests(LinterTestCase):
     def test_skip_and_degraded_name_which_absence(self) -> None:
         """The default run skips P-TODO.md for an absent private sibling AND for a usable sibling
         with no P-TODO.md in it. The skip line and the DEGRADED notice each name the case that
-        applies, so the second never reads as "no private sibling". Exit status is 0 in both."""
+        applies, so the second never reads as "no private sibling". An explicit --root run whose
+        directory lacks P-TODO.md prints the fixed phrase "not in the --root directory" (not the
+        directory's path) and no DEGRADED notice, since the caller chose the root and no default
+        lookup was degraded. Exit status is 0 in all three."""
         import contextlib
         root = Path(tempfile.mkdtemp(prefix="perm-skip-reason-", dir=FIXTURE_DIR))
         try:
@@ -58403,6 +58678,18 @@ class TodoNumberPermanenceTests(LinterTestCase):
                 self.assertNotIn(wrong, out)
         finally:
             shutil.rmtree(root, ignore_errors=True)
+        root, result = self._run("perm-skip-reason-root",
+                                 "# TODO\n\n## Priority 2\n\n### 2.3 A public item\n\nBody.\n",
+                                 "# DONE\n")
+        try:
+            both = result.stdout + result.stderr
+            self.assertEqual(result.returncode, 0, both)
+            self.assertIn("OK: P-TODO.md not present (not in the --root directory). "
+                          "Scanning .working/TODO.md only.", result.stdout.splitlines())
+            self.assertNotIn("DEGRADED:", both)
+            self.assertNotIn("no private sibling", both)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
 
     def _perm_module(self):
         import importlib.util
@@ -58413,98 +58700,411 @@ class TodoNumberPermanenceTests(LinterTestCase):
         return mod
 
     def test_pid_retired_recycle_flagged(self) -> None:
-        # Positive control: a replay of the recycled P-3.247 incident. A LIVE
-        # private-list P-id whose number DONE.md retired must be flagged; in the
-        # earlier repository, before the P_RETIRED_RE pass, this was a silent
-        # false-negative.
+        # Positive control: a private-list P-id whose number DONE.md has retired is
+        # reused for a new LIVE item and must be flagged; in the earlier repository,
+        # before the P_RETIRED_RE pass, this was a silent false-negative.
         root, result = self._run(
             "perm-pid-recycle",
             "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n",
-            "# DONE\n\n### PR #1487: P-3.247 Canada CPPA legal-currency, record the "
-            "C-36/PPCDA successor (2026-08-12)\n\nBody.\n",
-            ptodo="# P-TODO\n\n### P-3.247 A new item wearing a retired private "
+            "# DONE\n\n### PR #901: P-9.7 a synthetic retired item, record the "
+            "synthetic successor (2026-08-12)\n\nBody.\n",
+            ptodo="# P-TODO\n\n### P-9.7 A new item wearing a retired private "
             "number\n\nBody.\n",
         )
         try:
-            self.assertLinterFails(result, "P-3.247")
+            self.assertLinterFails(result, "P-9.7")
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
 
     def test_pid_compound_suffix_no_parent_leak(self) -> None:
-        # Negative control: 'P-1.51b-ii' (a sub-slice label) must NOT extract the
-        # parent 'P-1.51', so a live P-1.51 coexisting with a P-1.51b-ii DONE
+        # Negative control: 'P-9.51b-ii' (a sub-slice label) must NOT extract the
+        # parent 'P-9.51', so a live P-9.51 coexisting with a P-9.51b-ii DONE
         # heading is clean (the historic coexistence state).
+        done = "# DONE\n\n### PR #902: P-9.51b-ii a synthetic slice (2026-08-29)\n\nBody.\n"
         root, result = self._run(
             "perm-pid-compound",
             "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n",
-            "# DONE\n\n### PR #1789: P-1.51b-ii sensitive slice (2026-08-29)\n\nBody.\n",
-            ptodo="# P-TODO\n\n### P-1.51 A live umbrella\n\nBody.\n",
+            done,
+            ptodo="# P-TODO\n\n### P-9.51 A live umbrella\n\nBody.\n",
         )
         try:
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            # The live P-1.51 is only checked if P-TODO.md was read.
+            # The live P-9.51 is only checked if P-TODO.md was read.
             self.assertIn("OK: 2 live backlog item(s) (.working/TODO.md + P-TODO.md),", result.stdout)
             self.assertNotIn("OK: P-TODO.md not present (", result.stdout)
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
+        # The parse itself: the compound token yields no P-id at all, neither the parent
+        # P-9.51 nor a truncated prefix such as P-9.51b. A clean exit alone cannot show
+        # this, since a truncated P-9.51b differs from the live P-9.51 and is not flagged.
+        retired = self._perm_module().parse_retired(done)
+        self.assertNotIn("P-9.51", retired)
+        self.assertEqual(sorted(k for k in retired if k.startswith("P-")), [], retired)
 
     def test_pid_destination_cue_not_retired(self) -> None:
-        # A P-id preceded by a destination cue ('absorbed into P-1.55') names a
-        # LIVE id pointed at, not a retirement, so a live P-1.55 is not flagged.
+        # A P-id preceded by a destination cue ('absorbed into P-9.55') names a
+        # LIVE id pointed at, not a retirement, so a live P-9.55 is not flagged.
         root, result = self._run(
             "perm-pid-dest",
             "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n",
-            "# DONE\n\n### PR #1900: P-1.51 absorbed into P-1.55 (2026-08-29)\n\nBody.\n",
-            ptodo="# P-TODO\n\n### P-1.55 A live destination item\n\nBody.\n",
+            "# DONE\n\n### PR #903: P-9.51 absorbed into P-9.55 (2026-08-29)\n\nBody.\n",
+            ptodo="# P-TODO\n\n### P-9.55 A live destination item\n\nBody.\n",
         )
         try:
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            # The live P-1.55 is only checked if P-TODO.md was read.
+            # The live P-9.55 is only checked if P-TODO.md was read.
             self.assertIn("OK: 2 live backlog item(s) (.working/TODO.md + P-TODO.md),", result.stdout)
             self.assertNotIn("OK: P-TODO.md not present (", result.stdout)
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
 
+    # A fixture private store's exemption rows, in the format the private sibling's
+    # todo-number-exempt.json holds: a family row and a single-entry row, each keyed by a
+    # private backlog id, which the public tool no longer carries.
+    PEXEMPT_FIXTURE = {"rows": [
+        ["P-9.3", "P-9.3 Phase", "date not recorded; heading: P-9.3 Phase"],
+        ["P-9.2", "P-9.2 first slice",
+         "2026-09-23; heading: P-9.2 first slice"],
+    ]}
+    PEXEMPT_DONE = ("# DONE\n\n### PR #1423: P-9.3 Phase 1 - a synthetic partial "
+                    "close (2026-08-06)\n\nBody.\n\n"
+                    "### PR #1500: P-9.2 first slice (2026-09-23)\n\nBody.\n")
+    PEXEMPT_PTODO = ("# P-TODO\n\n### P-9.3 A synthetic family umbrella (live)\n\nBody.\n\n"
+                     "### P-9.2 A synthetic umbrella (live)\n\nBody.\n")
+
     def test_pid_exempt_partial_close(self) -> None:
-        # EXEMPT positive control: a live P-1.25 umbrella with a 'P-1.25 Phase N'
+        # EXEMPT positive control: a live P-9.3 umbrella with a 'P-9.3 Phase N'
         # partial-close DONE heading passes via the family EXEMPT row.
         root, result = self._run(
             "perm-pid-exempt",
             "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n",
-            "# DONE\n\n### PR #1423: P-1.25 Phase 1 - narrative disclaimer-presence "
-            "gate (gate 89) (2026-08-06)\n\nBody.\n",
-            ptodo="# P-TODO\n\n### P-1.25 Executive narrative umbrella (live)\n\nBody.\n",
+            "# DONE\n\n### PR #1423: P-9.3 Phase 1 - a synthetic partial "
+            "close (2026-08-06)\n\nBody.\n",
+            ptodo="# P-TODO\n\n### P-9.3 A synthetic family umbrella (live)\n\nBody.\n",
+            # The family row is read from the private store, not from the public tool.
+            pexempt=self.PEXEMPT_FIXTURE,
         )
         try:
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            # The exemption is only exercised if the live P-1.25 in P-TODO.md was read.
+            # The exemption is only exercised if the live P-9.3 in P-TODO.md was read.
             self.assertIn("OK: 2 live backlog item(s) (.working/TODO.md + P-TODO.md),", result.stdout)
             self.assertNotIn("OK: P-TODO.md not present (", result.stdout)
         finally:
             import shutil; shutil.rmtree(root, ignore_errors=True)
 
+    def test_public_exempt_rows_name_no_private_backlog_id(self) -> None:
+        # The public tool keeps only rows without a private backlog id; a private-id row in
+        # EXEMPT would publish that id, and the private rows start empty until main() reads
+        # the private store.
+        m = self._perm_module()
+        pid = re.compile(r"\bP-\d+\.\d+")
+        leaked = [k for k, v in m.EXEMPT.items()
+                  if pid.search(k[0]) or pid.search(k[1]) or pid.search(v)]
+        self.assertEqual(leaked, [])
+        self.assertEqual(m.PRIVATE_EXEMPT, {})
+        self.assertIn(("3.57", "apply wave complete"), m.EXEMPT)
+        self.assertEqual(m.PEXEMPT_REL, "todo-number-exempt.json")
+
+    def test_pid_partial_close_flagged_without_the_private_exempt_file(self) -> None:
+        # With the private list present but no exemption file beside it, a private-id
+        # partial close has no row and is reported (fail closed); with the fixture store
+        # file it passes. Both live ids are named, so neither row lives in the tool.
+        root, result = self._run("perm-pid-no-pexempt",
+                                 "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n",
+                                 self.PEXEMPT_DONE, ptodo=self.PEXEMPT_PTODO)
+        try:
+            self.assertLinterFails(result, "P-9.3")
+            self.assertIn("P-9.2", result.stdout)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+        root, result = self._run("perm-pid-pexempt",
+                                 "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n",
+                                 self.PEXEMPT_DONE, ptodo=self.PEXEMPT_PTODO,
+                                 pexempt=self.PEXEMPT_FIXTURE)
+        try:
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("OK: 3 live backlog item(s) (.working/TODO.md + P-TODO.md),", result.stdout)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_private_exempt_store_read_through_the_sibling_resolver(self) -> None:
+        """The default lookup reads the exemption rows from the private sibling that
+        resolve_sibling returns, the resolver the private list is read through. With the
+        store absent the private list and its rows are skipped together (exit 0, one
+        DEGRADED notice); with the store present the fixture rows exempt both partial
+        closes; a malformed file or a directory in its place exits 2 naming it."""
+        import contextlib
+        import json as _json
+        root = Path(tempfile.mkdtemp(prefix="perm-pexempt-store-", dir=FIXTURE_DIR))
+        try:
+            (root / ".working").mkdir(parents=True, exist_ok=True)
+            (root / ".working/TODO.md").write_text(
+                "# TODO\n\n| ID | Item | Tags |\n| --- | --- | --- |\n| 2.3 | A public item | `[public]` |\n",
+                encoding="utf-8")
+            done = root / ".working" / "DONE.md"
+            done.write_text(self.PEXEMPT_DONE, encoding="utf-8")
+            store = root / "private"
+            store.mkdir()
+            (store / "P-TODO.md").write_text(self.PEXEMPT_PTODO, encoding="utf-8")
+
+            def run(resolved):
+                m = self._perm_module()
+                m.REPO_ROOT = root
+                m.resolve_working = lambda _rel, **_kw: done
+                m.resolve_sibling = lambda _name, _s=resolved, **_kw: _s
+                out, err = io.StringIO(), io.StringIO()
+                with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                    rc = m.main(["lint-todo-number-permanence.py"])
+                return rc, out.getvalue(), err.getvalue(), m
+
+            rc, out, err, m = run(None)
+            self.assertEqual(rc, 0, out + err)
+            self.assertEqual(m.PRIVATE_EXEMPT, {})
+            self.assertEqual(len([ln for ln in out.splitlines()
+                                  if ln.startswith("DEGRADED: gate 78 skipped ")]), 1, out)
+            rc, out, err, m = run(store)
+            self.assertEqual(rc, 1, out + err)
+            self.assertIn("P-9.3", out)
+            self.assertIn("P-9.2", out)
+            pexempt = store / "todo-number-exempt.json"
+            pexempt.write_text(_json.dumps(self.PEXEMPT_FIXTURE), encoding="utf-8")
+            rc, out, err, m = run(store)
+            self.assertEqual(rc, 0, out + err)
+            self.assertEqual(set(m.PRIVATE_EXEMPT),
+                             {("P-9.3", "P-9.3 Phase"),
+                              ("P-9.2", "P-9.2 first slice")})
+            for label, body in (("not JSON", "{rows"),
+                                ("a row of two parts", '{"rows": [["P-9.3", "P-9.3 Phase"]]}'),
+                                ("no rows list", '{"row": []}')):
+                with self.subTest(malformed=label):
+                    pexempt.write_text(body, encoding="utf-8")
+                    rc, out, err, _m = run(store)
+                    self.assertEqual(rc, 2, out + err)
+                    self.assertIn(f"ERROR: cannot parse {pexempt}", err)
+            pexempt.rename(store / "moved-aside.json")
+            pexempt.mkdir()
+            rc, out, err, _m = run(store)
+            self.assertEqual(rc, 2, out + err)
+            self.assertIn(f"{pexempt} is present but is not a regular file", err)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_private_exempt_row_with_a_blank_field_is_refused(self) -> None:
+        """A loaded exemption row whose id, heading marker or value is empty or only
+        whitespace exits 2 naming the row and the field: a whitespace-only marker is a
+        substring of ordinary headings, so it would exempt every retirement of its id.
+        Without an exemption file the recycled ids are reported (exit 1)."""
+        todo = "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n"
+        root, result = self._run("perm-pexempt-none", todo, self.PEXEMPT_DONE,
+                                 ptodo=self.PEXEMPT_PTODO)
+        try:
+            self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+            self.assertIn("P-9.3", result.stdout)
+            self.assertIn("P-9.2", result.stdout)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+        good = self.PEXEMPT_FIXTURE["rows"][1]
+        for label, row, field in (
+                ("space heading marker", ["P-9.3", " ", "date not recorded; heading: "],
+                 "heading marker"),
+                ("tab heading marker", ["P-9.3", "\t", "date not recorded; heading: "],
+                 "heading marker"),
+                ("empty heading marker", ["P-9.3", "", "date not recorded; heading: "],
+                 "heading marker"),
+                ("whitespace id", ["  ", "P-9.3 Phase", "date not recorded; heading: P-9.3 Phase"],
+                 "id"),
+                ("whitespace value", ["P-9.3", "P-9.3 Phase", " "], "value")):
+            with self.subTest(malformed=label):
+                root, result = self._run("perm-pexempt-blank", todo, self.PEXEMPT_DONE,
+                                         ptodo=self.PEXEMPT_PTODO,
+                                         pexempt={"rows": [good, row]})
+                try:
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                    self.assertIn("ERROR: cannot parse ", result.stderr)
+                    self.assertIn(f"row 2 has an empty or whitespace-only {field} field",
+                                  result.stderr)
+                    self.assertNotIn("OK:", result.stdout)
+                finally:
+                    shutil.rmtree(root, ignore_errors=True)
+
+    def test_private_exempt_row_outside_the_documented_form_is_refused(self) -> None:
+        """A loaded exemption row exits 2 naming the row unless its id is a private
+        backlog id, its value is '<date>; heading: <substring>' (or 'date not recorded;
+        heading: <substring>'), and its heading marker holds text beyond the id and the
+        'PR #<n>:' heading prefix. A marker that is only the id, a part of the id or
+        the heading prefix is found in every retirement heading of that id, so it would
+        exempt every reuse of the number; the gate would then pass a recycled id."""
+        todo = "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n"
+        good = self.PEXEMPT_FIXTURE["rows"][1]
+        value = "date not recorded; heading: P-9.3 Phase"
+        marker_reason = "holds no text beyond the id and the 'PR #<n>:' heading prefix"
+        id_reason = "is not a private backlog id"
+        value_reason = "is not in the '<date>; heading: <substring>' form"
+        for label, row, reason in (
+                ("marker is the id", ["P-9.3", "P-9.3", value], marker_reason),
+                ("marker is a one-letter part of the id", ["P-9.3", "P", value],
+                 marker_reason),
+                ("marker is a leading part of the id", ["P-9.3", "P-9", value],
+                 marker_reason),
+                ("marker is the id with a trailing space", ["P-9.3", "P-9.3 ", value],
+                 marker_reason),
+                ("marker is the heading prefix start", ["P-9.3", "PR #", value],
+                 marker_reason),
+                ("marker is the heading prefix", ["P-9.3", "PR #1423:", value],
+                 marker_reason),
+                ("marker is the heading prefix and the id",
+                 ["P-9.3", "PR #1423: P-9.3", value], marker_reason),
+                ("id is a public id", ["9.3", "P-9.3 Phase", value], id_reason),
+                ("id is padded", [" P-9.3", "P-9.3 Phase", value], id_reason),
+                ("id is not an id", ["P-9.3 Phase", "P-9.3 Phase", value], id_reason),
+                ("value has no heading part", ["P-9.3", "P-9.3 Phase", "2026-08-06"],
+                 value_reason),
+                ("value has no date part", ["P-9.3", "P-9.3 Phase", "heading: P-9.3 Phase"],
+                 value_reason),
+                ("value date is not ISO", ["P-9.3", "P-9.3 Phase",
+                                           "2026-8-6; heading: P-9.3 Phase"], value_reason),
+                ("value heading is blank", ["P-9.3", "P-9.3 Phase",
+                                            "2026-08-06; heading:  "], value_reason)):
+            with self.subTest(malformed=label):
+                root, result = self._run("perm-pexempt-form", todo, self.PEXEMPT_DONE,
+                                         ptodo=self.PEXEMPT_PTODO,
+                                         pexempt={"rows": [good, row]})
+                try:
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                    self.assertIn("ERROR: cannot parse ", result.stderr)
+                    self.assertIn("row 2 ", result.stderr)
+                    self.assertIn(reason, result.stderr)
+                    self.assertNotIn("OK:", result.stdout)
+                finally:
+                    shutil.rmtree(root, ignore_errors=True)
+        # The documented rows still load: a marker with text beyond the id, with or
+        # without the heading prefix, and either value form.
+        for label, rows in (
+                ("fixture rows", self.PEXEMPT_FIXTURE["rows"]),
+                ("marker after the heading prefix",
+                 [["P-9.3", "PR #1423: P-9.3 Phase", value], good])):
+            with self.subTest(accepted=label):
+                root, result = self._run("perm-pexempt-form-ok", todo, self.PEXEMPT_DONE,
+                                         ptodo=self.PEXEMPT_PTODO, pexempt={"rows": rows})
+                try:
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                finally:
+                    shutil.rmtree(root, ignore_errors=True)
+
+    def test_private_exempt_marker_binds_to_the_retirement_headings(self) -> None:
+        """A loaded marker is checked against the retirement headings the gate reads for
+        its id. It exits 2 naming the row when it is found in a heading that holds only the
+        id and the 'PR #<n>:' prefix, when it matches none of the id's retirement headings,
+        or when it matches every one of two or more of them and is not in the family form
+        (the id, one space and one word starting with a letter, as in 'P-9.3 Phase'). A
+        marker not in the family form must match exactly one retirement heading of its
+        id, so one matching two of three headings exits 2 too, as does one matching
+        all three. A value date that is not a calendar date exits 2 naming the row."""
+        todo = "# TODO\n\n## Priority 3\n\n### 3.9 A public item\n\nBody.\n"
+        value = "date not recorded; heading: x"
+        ptodo93 = "# P-TODO\n\n### P-9.3 A live umbrella\n\nBody.\n"
+        two_bang = ("# DONE\n\n### PR #1: P-9.3 phase one done! (2026-08-01)\n\nBody.\n\n"
+                    "### PR #2: P-9.3 phase two done! (2026-08-02)\n\nBody.\n")
+        two_dash = ("# DONE\n\n### PR #1: P-9.3 \u2014 phase one (2026-08-01)\n\nBody.\n\n"
+                    "### PR #2: P-9.3 \u2014 phase two (2026-08-02)\n\nBody.\n")
+        two_family = ("# DONE\n\n### PR #1: P-9.3 Phase 1 slice (2026-08-01)\n\nBody.\n\n"
+                      "### PR #2: P-9.3 Phase 2 slice (2026-08-02)\n\nBody.\n")
+        one_961 = "# DONE\n\n### PR #10: P-9.61 part 1 rollout (2026-08-01)\n\nBody.\n"
+        three = ("# DONE\n\n### PR #1: P-9.3 Phase rollout one completed (2026-08-01)\n\n"
+                 "Body.\n\n### PR #2: P-9.3 Phase rollout two completed (2026-08-02)\n\n"
+                 "Body.\n\n### PR #3: P-9.3 Phase maintenance slice (2026-08-03)\n\n"
+                 "Body.\n")
+        ptodo961 = "# P-TODO\n\n### P-9.61 A live umbrella\n\nBody.\n"
+        generic = "holds no text beyond the id and the 'PR #<n>:' heading prefix"
+        every = "matches every one of the 2 retirement headings the gate reads for P-9.3"
+        two_of_three = ("matches 2 of the 3 retirement headings the gate reads for P-9.3 "
+                        "and is not in the family form")
+        all_three = "matches every one of the 3 retirement headings the gate reads for P-9.3"
+        bad_date = "has a date that is not a calendar date"
+        for label, done, ptodo, row, reason in (
+                ("a fragment of the heading prefix", self.PEXEMPT_DONE, self.PEXEMPT_PTODO,
+                 ["P-9.3", "R #", value], generic),
+                ("a numbered heading prefix", self.PEXEMPT_DONE, self.PEXEMPT_PTODO,
+                 ["P-9.3", "PR #1423:", value], "a pull request number names the pull request"),
+                ("a part of the id found in every heading", one_961, ptodo961,
+                 ["P-9.61", "1", value], generic),
+                ("punctuation found in every heading", two_bang, ptodo93,
+                 ["P-9.3", "!", value], every),
+                ("the id and a dash found in every heading", two_dash, ptodo93,
+                 ["P-9.3", "P-9.3 \u2014", value], every),
+                ("a word found in every heading, not in the family form", two_family, ptodo93,
+                 ["P-9.3", "slice", value], every),
+                ("a word found in two of three headings, not in the family form", three,
+                 ptodo93, ["P-9.3", "rollout", value], two_of_three),
+                ("the id and two words found in two of three headings", three, ptodo93,
+                 ["P-9.3", "P-9.3 Phase rollout", value], two_of_three),
+                ("a word found in all three headings, not in the family form", three,
+                 ptodo93, ["P-9.3", "Phase", value], all_three),
+                ("a marker found in no heading", self.PEXEMPT_DONE, self.PEXEMPT_PTODO,
+                 ["P-9.3", "no such text", value],
+                 "matches none of the 1 retirement heading(s) the gate reads for P-9.3"),
+                ("an impossible month", self.PEXEMPT_DONE, self.PEXEMPT_PTODO,
+                 ["P-9.3", "P-9.3 Phase", "2026-13-45; heading: P-9.3 Phase"], bad_date),
+                ("an all-zero date", self.PEXEMPT_DONE, self.PEXEMPT_PTODO,
+                 ["P-9.3", "P-9.3 Phase", "0000-00-00; heading: P-9.3 Phase"], bad_date),
+                ("a day past the month's end", self.PEXEMPT_DONE, self.PEXEMPT_PTODO,
+                 ["P-9.3", "P-9.3 Phase", "2026-02-30; heading: P-9.3 Phase"], bad_date)):
+            with self.subTest(refused=label):
+                root, result = self._run("perm-pexempt-bind", todo, done, ptodo=ptodo,
+                                         pexempt={"rows": [row]})
+                try:
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                    self.assertIn("ERROR: cannot parse ", result.stderr)
+                    self.assertIn("row 1 ", result.stderr)
+                    self.assertIn(reason, result.stderr)
+                    self.assertNotIn("OK:", result.stdout)
+                finally:
+                    shutil.rmtree(root, ignore_errors=True)
+        for label, done, ptodo, rows in (
+                ("the family form matching every heading", two_family, ptodo93,
+                 [["P-9.3", "P-9.3 Phase", value]]),
+                ("one marker per heading", two_family, ptodo93,
+                 [["P-9.3", "Phase 1 slice", value], ["P-9.3", "Phase 2 slice", value]]),
+                ("own text of the one heading", one_961, ptodo961,
+                 [["P-9.61", "rollout", value]]),
+                ("one marker per heading of three", three, ptodo93,
+                 [["P-9.3", "rollout one", value], ["P-9.3", "rollout two", value],
+                  ["P-9.3", "maintenance", value]]),
+                ("the family form matching every heading of three", three, ptodo93,
+                 [["P-9.3", "P-9.3 Phase", value]]),
+                ("a leap day", self.PEXEMPT_DONE, self.PEXEMPT_PTODO,
+                 [["P-9.3", "P-9.3 Phase", "2024-02-29; heading: P-9.3 Phase"],
+                  self.PEXEMPT_FIXTURE["rows"][1]])):
+            with self.subTest(accepted=label):
+                root, result = self._run("perm-pexempt-bind-ok", todo, done, ptodo=ptodo,
+                                         pexempt={"rows": rows})
+                try:
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                finally:
+                    shutil.rmtree(root, ignore_errors=True)
+
     def test_pid_token_boundaries(self) -> None:
         # Direct parse_retired boundary controls: undotted 'P-384' (NIST curve)
-        # and paren-protected '(P-39.1)' are NOT retired ids; a letter-suffix id
-        # ('P-3.202b') does NOT leak its parent 'P-3.202'; an id-first heading
+        # and paren-protected '(P-9.39)' are NOT retired ids; a letter-suffix id
+        # ('P-9.20b') does NOT leak its parent 'P-9.20'; an id-first heading
         # with a trailing (date, PR) paren is caught.
         m = self._perm_module()
         r = lambda h: list(m.parse_retired(h).keys())
         self.assertNotIn("P-384", r(
-            "### TODO §3.70: tighten to the P-384 / RSA-4096 floor (PR #1052)"))
+            "### TODO §3.70: raise a synthetic floor to the P-384 / RSA-4096 pair (PR #904)"))
         self.assertIn("3.70", r(
-            "### TODO §3.70: tighten to the P-384 / RSA-4096 floor (PR #1052)"))
-        self.assertNotIn("P-39.1", r(
-            "### TODO §3.100: re-ingested Quebec Law 25 (P-39.1) source (2026-07-18)"))
-        self.assertEqual(["P-3.202b"], r(
-            "### PR #1362: P-3.202b PR-checklist renumbering (2026-08-03)"))
-        self.assertIn("P-3.245", r(
-            "### P-3.245: gate-50 PR-number extraction hardened (2026-08-25, PR #1716)"))
-        # Mutation-sensitive compound rejection: 'P-1.51b-ii' must yield
+            "### TODO §3.70: raise a synthetic floor to the P-384 / RSA-4096 pair (PR #904)"))
+        self.assertNotIn("P-9.39", r(
+            "### TODO §3.100: re-ingested a synthetic source (P-9.39) text (2026-07-18)"))
+        self.assertEqual(["P-9.20b"], r(
+            "### PR #905: P-9.20b a synthetic checklist renumbering (2026-08-03)"))
+        self.assertIn("P-9.45", r(
+            "### P-9.45: a synthetic number extraction hardened (2026-08-25, PR #906)"))
+        # Mutation-sensitive compound rejection: 'P-9.51b-ii' must yield
         # NOTHING; removing the P_RETIRED_RE trailing '(?![-\w])' lookahead
-        # truncates it to 'P-1.51b', so this assertion then FAILS.
-        self.assertEqual([], r("### PR #1789: P-1.51b-ii sensitive slice (2026-08-29)"))
-        self.assertEqual([], r("### PR #1456: ... + P-1.33-35 created (2026-08-08)"))
+        # truncates it to 'P-9.51b', so this assertion then FAILS.
+        self.assertEqual([], r("### PR #902: P-9.51b-ii a synthetic slice (2026-08-29)"))
+        self.assertEqual([], r("### PR #907: ... + P-9.33-35 created (2026-08-08)"))
 
     def test_pid_retirement_cue_in_parenthetical(self) -> None:
         # An explicit 'closes P-x.y' retirement INSIDE a parenthetical is
@@ -58513,38 +59113,38 @@ class TodoNumberPermanenceTests(LinterTestCase):
         # P-x.y' destination in the same paren is NOT retired.
         m = self._perm_module()
         r = lambda h: list(m.parse_retired(h).keys())
-        got = r("### PR #1506: ISO/IEC 42001 clause-attribution accuracy "
-                "(2026-08-13; closes P-3.216, advances P-3.210)")
-        self.assertIn("P-3.216", got)       # in-paren retirement caught
-        self.assertNotIn("P-3.210", got)    # in-paren live destination untouched
+        got = r("### PR #908: a synthetic attribution accuracy fix "
+                "(2026-08-13; closes P-9.16, advances P-9.10)")
+        self.assertIn("P-9.16", got)       # in-paren retirement caught
+        self.assertNotIn("P-9.10", got)    # in-paren live destination untouched
         # 'superseded by P-x' points at a live id -> not a retirement cue
-        self.assertEqual([], r("### PR #9: work superseded by P-1.55 (2026-08-29)"))
+        self.assertEqual([], r("### PR #9: work superseded by P-9.55 (2026-08-29)"))
 
     def test_pid_bare_in_paren_not_caught_accepted_limitation(self) -> None:
         # ACCEPTED LIMITATION: a BARE in-paren id with no retirement verb is NOT
         # detected, because the paren-strip is FP-critical (catching bare in-paren
-        # ids would also flag the LIVE 'advances P-3.210' in the same fixture).
-        # This pins the deliberate tradeoff: '(P-1.25.26)' (a completed sub-item
-        # of the live P-1.25 umbrella) is not caught. If a future change makes
+        # ids would also flag the LIVE 'advances P-9.10' in the same fixture).
+        # This pins the deliberate tradeoff: '(P-9.25.26)' (a completed sub-item
+        # of the live P-9.25 umbrella) is not caught. If a future change makes
         # this caught, re-confirm it does NOT also catch a live in-paren id.
         m = self._perm_module()
         r = lambda h: list(m.parse_retired(h).keys())
         self.assertEqual([], r(
-            "### PR #1618: website build wave 0 S1 (P-1.25.26) - web-gen check "
-            "in pre-push guard (2026-08-17)"))
+            "### PR #909: a synthetic build step (P-9.25.26) - a synthetic check "
+            "in a guard (2026-08-17)"))
         # but the SAME paren with an explicit retirement verb IS caught:
-        self.assertIn("P-3.216", r(
-            "### PR #1506: accuracy (2026-08-13; closes P-3.216, advances P-3.210)"))
+        self.assertIn("P-9.16", r(
+            "### PR #908: accuracy (2026-08-13; closes P-9.16, advances P-9.10)"))
 
     def test_pid_grammar_parity_with_todo_id_re(self) -> None:
         # P_RETIRED_RE's token grammar must agree with lint_common.TODO_ID_RE's
         # P-branch, so a live id and a retired id compare as equal strings.
         m = self._perm_module()
         import lint_common
-        for tok in ["P-1.1", "P-3.247", "P-1.25.12", "P-1.40a", "P-3.202b"]:
+        for tok in ["P-9.1", "P-9.7", "P-9.25.12", "P-9.40a", "P-9.20b"]:
             self.assertTrue(lint_common.TODO_ID_RE.fullmatch(tok), tok)
             self.assertTrue(m.P_RETIRED_RE.fullmatch(tok), tok)
-        for tok in ["P-384", "P-1.51b-ii", "P-1.33-35"]:
+        for tok in ["P-384", "P-9.51b-ii", "P-9.33-35"]:
             self.assertIsNone(m.P_RETIRED_RE.fullmatch(tok), tok)
 
     def test_ptodo_index_format_parsed_as_live(self) -> None:
@@ -58703,7 +59303,7 @@ class TodoNumberPermanenceTests(LinterTestCase):
             "perm-subbullet",
             "# TODO\n\n## Priority 5\n\n**Next item number: 5.10.**\n\n"
             "### 5.9 AI jurisdiction overlays\n\nBody.\n",
-            "# DONE\n\n### TODO §5.9-R1 + §6.3-R3 (deep-assessment r1): stale "
+            "# DONE\n\n### TODO §5.9-R1 + §6.3-R3 (deep assessment): stale "
             "sub-bullets closed as already-resolved (2026-07-12)\n\nBody.\n",
         )
         try:
@@ -61535,7 +62135,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.23.6", "0.23.6 removes internal work references from two notes in core/id-history.toml; ids, events and dates are unchanged (PATCH). The release history in src/README.md describes each version from 0.22.2")
+        self.assertEqual(man["pack"]["version"], "0.23.7", "0.23.7 replaces the numbered pull-request, phase and item labels and a dated option-decision label in the gate and clause origins in core/gates.toml and core/clauses.toml with a plain description (one of the two transfer-lane labels is removed; the other, which those origins carry, is unchanged) and removes internal work references from two --aiqt-root refusal messages in tools/corpus_mgmt_compiler.py; gate 62 refuses as malformed a table cell whose local-section exception path leaves its link's parenthesis unclosed and accepts as local a closed exception path holding a nested parenthetical, which it formerly checked against the target, and the corpus-scan-integrity origin in core/clauses.toml is reworded; no gate or register key changes (PATCH); the residual lists in tools/gate_lint_language.py's docstring and URL-mask comment now name the comma-and-digit path form; the compiler now refuses an explicit --aiqt-root unless its tools/aiqt_corpus.py is a regular file: a symlinked core formerly passed the compiler's own pre-check and was refused only by the verified loader, and is now refused by the pre-check, whose refusal reads 'no regular tools/aiqt_corpus.py there'. The release history in src/README.md describes each version from 0.22.2")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")
@@ -64497,7 +65097,7 @@ class HookScriptOperandTests(unittest.TestCase):
         for command in ('/usr/bin/python3 -I', '/usr/bin/python3 -I --', '/usr/bin/python3 -I -W ignore'):
             self._refused(command)
 
-class HookRoundSevenTests(unittest.TestCase):
+class HookCommandGrammarTests(unittest.TestCase):
 
     def _gate(self, command, expected=2):
         import json
@@ -64598,8 +65198,8 @@ class HookRoundSevenTests(unittest.TestCase):
             self.assertTrue(argv[2].startswith('$CLAUDE_PROJECT_DIR/.claude/hooks/'), argv)
 
 
-class HookRoundEightTests(unittest.TestCase):
-    _gate = HookRoundSevenTests._gate
+class HookProjectAnchorGrammarTests(unittest.TestCase):
+    _gate = HookCommandGrammarTests._gate
 
     def test_project_anchor_grammar(self):
         anchor = '"$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'
@@ -64797,8 +65397,8 @@ class HookRoundEightTests(unittest.TestCase):
                         self.assertEqual(blocked, expected, (has_private, mode, bash_command))
 
 
-class HookRoundNineTests(unittest.TestCase):
-    _gate = HookRoundSevenTests._gate
+class HookLeaseAssignmentGrammarTests(unittest.TestCase):
+    _gate = HookCommandGrammarTests._gate
     ANCHOR = '"$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'
 
     def test_lease_assignment_grammar(self):
@@ -65349,7 +65949,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
              "ASVS and BSI {probe}.\n",
              "ASVS and {probe}.\n"),
         ),
-        "test_round5_table_and_exclusion_seams": (
+        "test_table_and_exclusion_seams": (
             ("asvs", "V2.14",
              "| ASVS requirement | Tool | Tool version |\n| --- | --- | --- |\n| ASVS V1.2.4 | ZAP | {probe} |\n",
              "| ASVS requirement | Tool | Notes |\n| --- | --- | --- |\n| ASVS V1.2.4 | ZAP | {probe} |\n"),
@@ -65372,7 +65972,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
              "Mobile ASVS {probe}.\n",
              "ASVS {probe}.\n"),
         ),
-        "test_round6_signalled_columns_and_header_rows_are_not_identifiers": (
+        "test_signalled_columns_and_header_rows_are_not_identifiers": (
             ("asvs", "V2.14",
              "| ASVS | Tools |\n| --- | --- |\n| V1.2.4 | ZAP {probe} |\n",
              "| ASVS | Notes |\n| --- | --- |\n| V1.2.4 | ZAP {probe} |\n"),
@@ -65402,7 +66002,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
              "ASVS aligns with ISO/IEC 27001:2013/Cor 1:2014 {probe}.\n",
              "ASVS aligns with {probe}.\n"),
         ),
-        "test_round7_an_edition_before_the_name_scopes_the_line": (
+        "test_an_edition_before_the_name_scopes_the_line": (
             ("asvs", "V9.9.9",
              "3.0.1 ASVS requirement {probe}.\n",
              "5.0.0 ASVS requirement {probe}.\n"),
@@ -65410,7 +66010,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
              "Version 3.0 of the ASVS requires {probe}.\n",
              "Version 5.0 of the ASVS requires {probe}.\n"),
         ),
-        "test_round7_markdown_and_more_standard_forms_are_excluded": (
+        "test_markdown_and_more_standard_forms_are_excluded": (
             ("asvs", "V8.9.9",
              "Align web apps to OWASP ASVS V6.3.1 and mobile apps to OWASP MASVS {probe}.\n",
              "Align web apps to OWASP ASVS V6.3.1 and mobile apps to OWASP ASVS {probe}.\n"),
@@ -65433,7 +66033,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
              "ASVS and the CMMI standard {probe}.\n",
              "ASVS and the {probe}.\n"),
         ),
-        "test_round8_shortcut_links_tool_headers_and_titles_are_excluded": (
+        "test_shortcut_links_tool_headers_and_titles_are_excluded": (
             ("asvs", "V8.9",
              "ASVS mappings use [CWE] {probe}.\n\n[CWE]: https://cwe.mitre.org/\n",
              "ASVS mappings use {probe}.\n\n[CWE]: https://cwe.mitre.org/\n"),
@@ -65444,7 +66044,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
              "| ASVS |\n| --- |\n| IEEE Standard for Information Technology {probe} |\n",
              "| ASVS |\n| --- |\n| {probe} |\n"),
         ),
-        "test_round9_long_standard_names_and_generic_columns_are_excluded": (
+        "test_long_standard_names_and_generic_columns_are_excluded": (
             ("asvs", "V8.9.9",
              "ASVS maps to NIST Cybersecurity Framework {probe}.\n",
              "ASVS maps to {probe}.\n"),
@@ -65672,22 +66272,22 @@ class AlignmentCitationExistenceTests(LinterTestCase):
     def test_an_identifier_in_no_held_edition_is_flagged_even_when_attributed_to_4(self) -> None:
         self.assertLinterFails(self._run("asvs-403fab.md", "ASVS 4.0.3 requirement V9.9.9.\n"), "V9.9.9")
 
-    def test_round5_table_and_exclusion_seams(self) -> None:
-        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-r5.md", body))
-        r = self._run("asvs-r5.md", "ASVS maps CWE-4.14 terms.\n")
+    def test_table_and_exclusion_seams(self) -> None:
+        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-seams.md", body))
+        r = self._run("asvs-seams.md", "ASVS maps CWE-4.14 terms.\n")
         self.assertEqual(r.returncode, 0, r.stdout)
-        self.assertLinterFails(self._run("asvs-r5b.md", "OWASP ASVS: **3** levels; L1 includes V1.2.99.\n"), "V1.2.99")
-        self.assertLinterFails(self._run("asvs-r5c.md",
+        self.assertLinterFails(self._run("asvs-seams-b.md", "OWASP ASVS: **3** levels; L1 includes V1.2.99.\n"), "V1.2.99")
+        self.assertLinterFails(self._run("asvs-seams-c.md",
                                          "| Requirement ID | OWASP ASVS |\n|---|---|\n| V1.2.99 | Implemented |\n"), "V1.2.99")
 
     # --- signalled columns and header cells ---
-    def test_round6_cells_naming_asvs_are_checked_in_signalled_columns(self) -> None:
+    def test_cells_naming_asvs_are_checked_in_signalled_columns(self) -> None:
         for body in ("| Obligation | Library artefact |\n|---|---|\n| Input validation | standard (OWASP ASVS V1.2.99) |\n",
                      "| Requirement | NIST SSDF | ISO 27001 |\n|---|---|---|\n| SQLi | PW.5.1, OWASP ASVS V1.2.99 | A.8.28 |\n",
                      "Crosswalk NIST to ASVS V1.2.99.\n", "ASVS: 3 **levels**; L1 includes V1.2.99.\n"):
             self.assertLinterFails(self._run("asvs-r6fn.md", body), "V1.2.99")
 
-    def test_round6_signalled_columns_and_header_rows_are_not_identifiers(self) -> None:
+    def test_signalled_columns_and_header_rows_are_not_identifiers(self) -> None:
         self.assertIdentifierScopeProbes(lambda body: self._run("asvs-r6fp.md", body))
 
     def test_a_header_cell_naming_asvs_is_still_checked(self) -> None:
@@ -65695,29 +66295,29 @@ class AlignmentCitationExistenceTests(LinterTestCase):
                                          "| Control | ASVS V1.2.99 mapping |\n| --- | --- |\n| X | y |\n"), "V1.2.99")
 
     # --- bare integers and edition placement ---
-    def test_round7_a_bare_integer_is_never_an_edition(self) -> None:
+    def test_a_bare_integer_is_never_an_edition(self) -> None:
         for body in ("OWASP ASVS: 3 requirements apply here (V1.2.99).\n", "OWASP ASVS 1-3 levels: V1.2.99 applies.\n",
                      "ASVS \u00a73 maps to V1.2.99.\n", "ASVS[^1] requires V1.2.99.\n\n[^1]: note.\n",
                      "ASVS 3 requirement V1.2.99.\n",
                      "| Control | ASVS (6 controls) |\n| --- | --- |\n| X | V1.2.99 |\n"):
             self.assertLinterFails(self._run("asvs-r7int.md", body), "V1.2.99")
 
-    def test_round7_an_edition_before_the_name_scopes_the_line(self) -> None:
+    def test_an_edition_before_the_name_scopes_the_line(self) -> None:
         self.assertIdentifierScopeProbes(lambda body: self._run("asvs-r7before.md", body))
 
-    def test_round7_markdown_and_more_standard_forms_are_excluded(self) -> None:
+    def test_markdown_and_more_standard_forms_are_excluded(self) -> None:
         self.assertIdentifierScopeProbes(lambda body: self._run("asvs-r7fp.md", body))
 
     # --- section signs, ranges and shortcut links ---
-    def test_round8_section_sign_and_hyphen_range_are_checked(self) -> None:
+    def test_section_sign_and_hyphen_range_are_checked(self) -> None:
         self.assertLinterFails(self._run("asvs-r8sec.md", "ASVS 5.0.0: see ASVS \u00a73.2 requirement V3.2.99.\n"), "V3.2.99")
         self.assertLinterFails(self._run("cwe-r8range.md", "Weakness range: CWE-79-CWE-99999.\n"), "CWE-99999")
 
-    def test_round8_shortcut_links_tool_headers_and_titles_are_excluded(self) -> None:
+    def test_shortcut_links_tool_headers_and_titles_are_excluded(self) -> None:
         self.assertIdentifierScopeProbes(lambda body: self._run("asvs-r8fp.md", body))
 
     # --- long standard names and generic columns ---
-    def test_round9_misses_are_checked(self) -> None:
+    def test_asvs_and_cwe_identifiers_in_prose_and_tables_are_checked(self) -> None:
         for body, tok in (("Mapped to NIST and OWASP Application Security Verification Standard V1.2.99.\n", "V1.2.99"),
                           ("See \u00a73.0 ASVS mapping: V1.2.99.\n", "V1.2.99"),
                           ("| Control | \u00a73.0 ASVS mapping |\n|---|---|\n|X|V1.2.99|\n", "V1.2.99"),
@@ -65727,7 +66327,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
                           ("| ASVS ID | Guidance |\n| --- | --- |\n| V1.2.4 | also see V1.2.99 |\n", "V1.2.99")):
             self.assertLinterFails(self._run("asvs-r9fn.md", body), tok)
 
-    def test_round9_long_standard_names_and_generic_columns_are_excluded(self) -> None:
+    def test_long_standard_names_and_generic_columns_are_excluded(self) -> None:
         self.assertIdentifierScopeProbes(lambda body: self._run("asvs-r9fp.md", body))
 
     # --- table context boundaries ---
@@ -67064,6 +67664,12 @@ class AIQTVendorDigestTests(LinterTestCase):
                 mod.find_pack_tools()
 
     def test_module_swapped_after_verification_runs_verified_bytes(self):
+        """A module file rewritten after verification never runs: the import
+        succeeds and runs the verified bytes, with the pack file as the module
+        origin. The rewrite happens only after _verified() has captured and
+        digest-checked the bytes, and nothing reads the file again, so success
+        is the one outcome; a refusal with ImportError fails the test, as do
+        the swapped-in bytes running or another module origin."""
         # The bytes that execute as aiqt_corpus are the bytes
         # verify_vendor_dir() validated (captured and digest-checked by
         # _verified, executed by ensure_on_path), never a re-read of
@@ -67098,8 +67704,9 @@ class AIQTVendorDigestTests(LinterTestCase):
                 try:
                     mod.ensure_on_path()
                     corpus = importlib.import_module("aiqt_corpus")
-                except ImportError:
-                    return  # refusal is the other accepted outcome
+                except ImportError as exc:
+                    self.fail("the bootstrap refused a pack whose module file was "
+                              f"rewritten only after verification: {exc}")
                 self.assertFalse(
                     getattr(corpus, "SWAPPED_IN", False),
                     "the swapped-in module bytes ran: the import did not "
@@ -67140,7 +67747,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                 patch.dict(os.environ, {"AIQT_PACK_ROOT": str(pack)}):
             os.environ.pop("GRC_AIQT_PACK", None)
             with self.assertRaisesRegex(ImportError,
-                                        "RBQ26-c3-module-swap-race"):
+                                        re.escape("executed bytes could differ from the verified ones.")):
                 mod.find_pack_tools()
 
     def test_concurrent_import_during_bootstrap_cannot_run_disk_bytes(self):
@@ -67244,7 +67851,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                              timeout=30)
         self.assertEqual(res.returncode, 1, res.stdout + res.stderr)
         self.assertIn("REFUSED:", res.stdout)
-        self.assertIn("RBQ26-c3-module-swap-race", res.stdout)
+        self.assertIn("executed bytes could differ from the verified ones.", res.stdout)
         self.assertNotIn("PASSED", res.stdout)
 
     def test_verified_loader_compiles_without_inherited_flags(self):
@@ -67916,7 +68523,7 @@ class AIQTVendorDigestTests(LinterTestCase):
             with patch.dict(os.environ, {"AIQT_PACK_ROOT": str(pack)}):
                 os.environ.pop("GRC_AIQT_PACK", None)
                 with self.assertRaisesRegex(
-                        ImportError, "RBQ38-c3-realpath-valueerror"):
+                        ImportError, re.escape("uninspectable sys.path entry in place.")):
                     mod.ensure_on_path()
         finally:
             sys.modules.pop("aiqt_corpus", None)
@@ -68174,18 +68781,18 @@ class AIQTVendorDigestTests(LinterTestCase):
             self.assertNotIn("keeps names OTHER than", text,
                              f"the {where} docstring must not claim the "
                              "scrub keeps other names unimportable "
-                             "(RBQ40-c3-dotted-name-residual)")
+                             "(the disclosed residual of a pack file imported under a dotted name)")
             self.assertNotIn("keeps OTHER names", text,
                              f"the {where} docstring must not claim the "
                              "scrub keeps other names unimportable "
-                             "(RBQ40-c3-dotted-name-residual)")
+                             "(the disclosed residual of a pack file imported under a dotted name)")
             self.assertNotIn(
                 "legitimate ``sys.path`` entry that cannot be scrubbed "
                 "away", text,
                 f"the {where} docstring must not repeat the false "
                 "premise that the repository root is a dotted route to "
-                "the in-repo pack (RBQ43-c3-repo-root-premise)")
-        self.assertIn("RBQ43-c3-repo-root-premise", docs["module"],
+                "the in-repo pack (corrects the premise of a repository root wrongly treated as a dotted route)")
+        self.assertIn("a repository root wrongly treated as a dotted route", docs["module"],
                       "REMAINING must name the corrected premise")
         self.assertIn("``.claude`` is not a Python identifier",
                       docs["module"],
@@ -68231,7 +68838,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                           "REFUSED tools.aiqt_corpus"],
                          "no dotted spelling may reach the in-repo pack "
                          "through a repository-root entry "
-                         "(RBQ43-c3-repo-root-premise)")
+                         "(corrects the premise of a repository root wrongly treated as a dotted route)")
         self.assertEqual(lines[3],
                          f"LOADED tools.aiqt_corpus {expected_file}",
                          "a pack-root entry is a real dotted route")
@@ -68260,11 +68867,11 @@ class AIQTVendorDigestTests(LinterTestCase):
                 os.environ.pop("GRC_AIQT_PACK", None)
                 mod.ensure_on_path()
                 self.assertNotIn(str(pack), sys.path,
-                                 "a pack-root entry must be scrubbed "
-                                 "(RBQ43-c3-repo-root-premise)")
+                                 "a pack-root entry must be scrubbed: it is a "
+                                 "recognized dotted route to the pack file")
                 self.assertNotIn(str(pack.parent), sys.path,
                                  "a pack-root-parent entry must be "
-                                 "scrubbed (RBQ43-c3-repo-root-premise)")
+                                 "scrubbed: it is a recognized dotted route to the pack file")
                 self.assertIn(str(base), sys.path,
                               "a repository-root-shaped entry (its "
                               "pack-root grandchild sits below the "
@@ -68334,7 +68941,7 @@ class AIQTVendorDigestTests(LinterTestCase):
             self.assertIs(sys.meta_path[0], mod._NAME_GUARD,
                           "a re-run must put the guard back at the FRONT "
                           "of sys.meta_path, displacing a finder inserted "
-                          "ahead of it (RBQ40-c3-guard-not-refronted)")
+                          "ahead of it (guards against a finder left in front of the guard)")
             self.assertIn(front, sys.meta_path,
                           "the foreign finder is displaced, not removed")
             self.assertGreater(sys.meta_path.index(front),
@@ -68373,7 +68980,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                 self.assertFalse(
                     mod._pack_tools_entry(entry),
                     "a non-str entry must be reported unmatched, never "
-                    "raise (RBQ40-c3-nonstr-path-typeerror)")
+                    "raise (guards against a TypeError out of the scrub)")
         saved_module = sys.modules.pop("aiqt_corpus", None)
         saved_path = list(sys.path)
         saved_meta = list(sys.meta_path)
@@ -68389,7 +68996,8 @@ class AIQTVendorDigestTests(LinterTestCase):
                 except TypeError as exc:
                     self.fail("ensure_on_path() raised TypeError on a "
                               f"non-str sys.path entry: {exc} "
-                              "(RBQ40-c3-nonstr-path-typeerror)")
+                              "(guards against a TypeError out of the scrub on a "
+                              "non-str entry)")
             self.assertEqual(str(tools), str(pack / "tools"),
                              "the bootstrap must complete normally with "
                              "non-str entries present")
@@ -68498,7 +69106,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                     f"guard after a {op} step: a concurrent import's "
                     "unlocked list(sys.meta_path) snapshot can land in "
                     "exactly that gap and fall through to sys.path "
-                    "(RBQ43-c3-refront-race)")
+                    "(guards against a guardless gap during the re-front)")
             self.assertIs(sys.meta_path[0], guard,
                           "after the re-run the guard is at index 0")
             self.assertEqual(
@@ -68543,7 +69151,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                     "aiqt_corpus", sys.modules,
                     "the refused pre-bootstrap module must be removed "
                     "from sys.modules, not left importable "
-                    "(RBQ43-c3-prebootstrap-module-stays)")
+                    "(guards against an unmarked pre-guard module left importable)")
                 with self.assertRaises(ModuleNotFoundError):
                     importlib.import_module("aiqt_corpus")
         finally:
@@ -68605,7 +69213,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                                  "the empty entry must be resolved against "
                                  "the working directory and scrubbed "
                                  "exactly like '.' when that directory is "
-                                 "a pack place (RBQ48-c3-empty-entry-route)")
+                                 "a pack place (guards against an unscrubbed empty sys.path entry)")
                 self.assertEqual(lines[1], "DOT SCRUBBED",
                                  "'.' must keep being scrubbed at a pack "
                                  "place: '' and '.' are the same route")
@@ -68614,7 +69222,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                         lines[2], f"REFUSED {dotted}",
                         "no dotted spelling may reach the pack through "
                         "the empty entry after the scrub "
-                        "(RBQ48-c3-empty-entry-route)")
+                        "(guards against an unscrubbed empty sys.path entry)")
 
     def test_every_refusal_path_removes_unmarked_module(self):
         # In the earlier repository, the bootstrap removed a refused
@@ -68659,7 +69267,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                     "aiqt_corpus", sys.modules,
                     "a pre-existing module seen by a FAILING bootstrap "
                     "must be removed from sys.modules "
-                    "(RBQ48-c3-other-refusal-paths)")
+                    "(guards against a refused module left in sys.modules)")
                 with self.assertRaises(ModuleNotFoundError):
                     importlib.import_module("aiqt_corpus")
                 # Case B: the mid-install marker check. A successful run
@@ -68675,7 +69283,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                     "aiqt_corpus", sys.modules,
                     "a module refused by the mid-install marker check "
                     "must be removed from sys.modules "
-                    "(RBQ48-c3-other-refusal-paths)")
+                    "(guards against a refused module left in sys.modules)")
                 # Case C: the after-installation re-check. An installer
                 # that leaves an unmarked module behind stands in for a
                 # racing publisher.
@@ -68693,7 +69301,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                     "aiqt_corpus", sys.modules,
                     "a module refused by the after-installation re-check "
                     "must be removed from sys.modules "
-                    "(RBQ48-c3-other-refusal-paths)")
+                    "(guards against a refused module left in sys.modules)")
                 with self.assertRaises(ModuleNotFoundError):
                     importlib.import_module("aiqt_corpus")
         finally:
@@ -68728,8 +69336,8 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIn("path of Python identifiers", docs["module"],
                       "the module docstring must state the dotted routes "
                       "as a class over identifier paths")
-        for marker in ("RBQ48-c3-symlink-dotted-route",
-                       "RBQ48-c3-empty-entry-route",
+        for marker in ("a dotted route through a symlinked directory",
+                       "an unscrubbed empty sys.path entry",
                        "any other such route",
                        "no list of such routes here is complete"):
             self.assertIn(marker, docs["module"],
@@ -68742,7 +69350,7 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIn("RECOGNISES", docs["scrub"],
                       "the scrub must claim only the entry shapes it "
                       "recognises")
-        self.assertIn("RBQ48-c3-empty-entry-route", docs["dotted"],
+        self.assertIn("an unscrubbed empty sys.path entry", docs["dotted"],
                       "_pack_dotted_entry must document the empty entry "
                       "resolved exactly like '.'")
         for where, doc_text in docs.items():
@@ -68778,7 +69386,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                 mod._scrub_pack_tools_entries.__doc__.split()),
         }
         for where in ("module", "dotted", "scrub"):
-            self.assertIn("RBQ48-c3-symlink-dotted-route", docs[where],
+            self.assertIn("a dotted route through a symlinked directory", docs[where],
                           f"the {where} docstring must disclose the "
                           "symlink-in-plain-entry dotted route as a "
                           "residual the scrub does not recognise")
@@ -68816,13 +69424,13 @@ class AIQTVendorDigestTests(LinterTestCase):
                          "the plain directory holding the symlinks is not "
                          "an entry shape the scrub recognises: the kept "
                          "entry is the disclosed residual "
-                         "(RBQ48-c3-symlink-dotted-route)")
+                         "(a dotted route through a symlinked directory)")
         self.assertEqual(lines[1],
                          f"LOADED xtools.aiqt_corpus False {real_file}",
                          "the symlink route really loads the on-disk pack "
                          "bytes without the installation marker: the "
                          "disclosed residual "
-                         "(RBQ48-c3-symlink-dotted-route)")
+                         "(a dotted route through a symlinked directory)")
         self.assertEqual(
             lines[2],
             f"LOADED yclaude.aiqt.tools.aiqt_corpus False {real_file}",
@@ -68859,7 +69467,7 @@ class AIQTVendorDigestTests(LinterTestCase):
             sys.modules["aiqt_corpus"] = impostor
             with patch.dict(os.environ,
                             {"AIQT_PACK_ROOT":
-                             "~no_such_user_zz9_rbq53/pack"}):
+                             "~no_such_user_tilde_override/pack"}):
                 os.environ.pop("GRC_AIQT_PACK", None)
                 with self.assertRaises(RuntimeError):
                     mod.ensure_on_path()
@@ -68867,7 +69475,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                 "aiqt_corpus", sys.modules,
                 "a RuntimeError bootstrap failure must remove the "
                 "unmarked pre-existing module "
-                "(RBQ53-c3-non-importerror-failure)")
+                "(guards against cleanup skipped on a non-ImportError failure)")
             with self.assertRaises(ModuleNotFoundError):
                 importlib.import_module("aiqt_corpus")
             # Routes 2 and 3: _load_verifier raises OSError (aiqt_rules.py
@@ -68901,7 +69509,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                         "aiqt_corpus", sys.modules,
                         f"a bootstrap failure via the {label} route must "
                         "remove the unmarked pre-existing module "
-                        "(RBQ53-c3-non-importerror-failure)")
+                        "(guards against cleanup skipped on a non-ImportError failure)")
                     with self.assertRaises(ModuleNotFoundError):
                         importlib.import_module("aiqt_corpus")
             # Routes 4 and 5: BaseException failures that are NOT Exception
@@ -68910,8 +69518,8 @@ class AIQTVendorDigestTests(LinterTestCase):
             # to `except Exception` left all 104 tests passing, so these
             # routes pin the breadth: the unmarked module is removed and the
             # SAME exception object propagates unchanged.
-            for exc in (KeyboardInterrupt("rbq57-interrupt"),
-                        SystemExit("rbq57-exit")):
+            for exc in (KeyboardInterrupt("sentinel-interrupt"),
+                        SystemExit("sentinel-exit")):
                 with self.subTest(route=type(exc).__name__):
                     impostor = types.ModuleType("aiqt_corpus")
                     sys.modules["aiqt_corpus"] = impostor
@@ -68927,13 +69535,13 @@ class AIQTVendorDigestTests(LinterTestCase):
                         ctx.exception, exc,
                         "the failure handler must re-raise the SAME "
                         "exception object unchanged "
-                        "(RBQ57-c3-baseexception-untested)")
+                        "(guards against a failure handler narrowed below BaseException)")
                     self.assertNotIn(
                         "aiqt_corpus", sys.modules,
                         "a KeyboardInterrupt or SystemExit bootstrap "
                         "failure must remove the unmarked pre-existing "
-                        "module (RBQ53-c3-non-importerror-failure, "
-                        "RBQ57-c3-baseexception-untested)")
+                        "module (guards against cleanup skipped on a non-ImportError failure, "
+                        "a failure handler narrowed below BaseException)")
                     with self.assertRaises(ModuleNotFoundError):
                         importlib.import_module("aiqt_corpus")
         finally:
@@ -68987,13 +69595,13 @@ class AIQTVendorDigestTests(LinterTestCase):
                     sys.modules.get("aiqt_corpus"), verified,
                     "a marked, verified module must survive another "
                     "run's failure "
-                    "(RBQ51-c3-handler-unpublishes-verified)")
+                    "(guards against a failing run unpublishing a verified module)")
                 self.assertIs(
                     mod._NAME_GUARD._module, verified,
                     "the racing run's publication of the same object "
                     "must not be retracted by this run's failure "
-                    "(RBQ51-c3-handler-unpublishes-verified, "
-                    "RBQ53-c3-left-alone-wording)")
+                    "(guards against a failing run unpublishing a verified module, "
+                    "removing or unpublishing a racing publication of the same object)")
                 self.assertIs(importlib.import_module("aiqt_corpus"),
                               verified)
                 # Failing re-run case: a later run that fails (shapeless
@@ -69007,7 +69615,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                     sys.modules.get("aiqt_corpus"), verified,
                     "a failing re-run must not remove the marked module "
                     "an earlier successful run left "
-                    "(RBQ51-c3-handler-unpublishes-verified)")
+                    "(guards against a failing run unpublishing a verified module)")
                 self.assertIs(importlib.import_module("aiqt_corpus"),
                               verified)
         finally:
@@ -69047,31 +69655,34 @@ class AIQTVendorDigestTests(LinterTestCase):
                 stale, normalized,
                 f"the stale absolute claim {stale!r} must be gone: it "
                 "held only for a different module object or only for "
-                "ImportError failures (RBQ53-c3-left-alone-wording, "
-                "RBQ53-c3-non-importerror-failure)")
+                "ImportError failures (a racing publication of the same object is a disclosed "
+                "limit of the identity check; guards against cleanup skipped on a "
+                "non-ImportError failure)")
         helper_doc = " ".join(mod._remove_refused_module.__doc__.split())
         self.assertIn("OBJECT IDENTITY", helper_doc,
                       "the helper must state that its checks are object "
-                      "identity (RBQ53-c3-left-alone-wording)")
+                      "identity, which cannot tell a refusal from a racing "
+                      "publication of the same object")
         self.assertIn("DIFFERENT module object", helper_doc,
                       "the helper may claim to leave alone only a "
                       "DIFFERENT module object, never any racing "
-                      "publication (RBQ53-c3-left-alone-wording)")
+                      "publication: identity alone cannot tell a refusal "
+                      "from a racing publication of the same object")
         marked_doc = " ".join(
             mod._marked_for_verified_bytes.__doc__.split())
-        self.assertIn("RBQ51-c3-handler-unpublishes-verified", marked_doc,
+        self.assertIn("a failing run unpublishing a verified module", marked_doc,
                       "the marker helper must state why a marked module "
                       "survives another run's failure")
         for where, doc in (("module", " ".join(mod.__doc__.split())),
                            ("ensure_on_path",
                             " ".join(mod.ensure_on_path.__doc__.split()))):
-            self.assertIn("RBQ53-c3-non-importerror-failure", doc,
+            self.assertIn("cleanup skipped on a non-ImportError failure", doc,
                           f"the {where} docstring must document the "
                           "failure path as covering every exception type")
             self.assertIn("UNMARKED", doc,
                           f"the {where} docstring must scope the "
                           "failure-path removal to an unmarked module")
-            self.assertIn("RBQ51-c3-handler-unpublishes-verified", doc,
+            self.assertIn("a failing run unpublishing a verified module", doc,
                           f"the {where} docstring must state the "
                           "marked-module guarantee")
         # In the earlier repository, the docstring wording overclaimed
@@ -69091,19 +69702,19 @@ class AIQTVendorDigestTests(LinterTestCase):
                           "marker lookup raises is unmarked"):
                 self.assertNotIn(
                     stale, doc,
-                    f"the {where} docstring may not overclaim the RBQ58 "
+                    f"the {where} docstring, on a namespace read that raises, may not overclaim the "
                     f"protection: {stale!r} must be narrowed to "
                     "``Exception`` "
-                    "(RBQ59-c3-baseexception-descriptor-wording)")
+                    "(the disclosed residual of a descriptor that raises BaseException)")
             for required in ("``Exception``", "``BaseException``",
                              "in-process forgery",
-                             "RBQ59-c3-baseexception-descriptor-wording"):
+                             "a descriptor that raises BaseException"):
                 self.assertIn(
                     required, doc,
                     f"the {where} docstring must disclose the "
                     "BaseException-raising descriptor residual: missing "
                     f"{required!r} "
-                    "(RBQ59-c3-baseexception-descriptor-wording)")
+                    "(the disclosed residual of a descriptor that raises BaseException)")
 
     def test_refused_midinstall_publication_is_retracted(self):
         # The guard retraction in _remove_refused_module is load-bearing
@@ -69155,12 +69766,12 @@ class AIQTVendorDigestTests(LinterTestCase):
                 "aiqt_corpus", sys.modules,
                 "the module refused by the after-installation re-check "
                 "must be removed from sys.modules "
-                "(RBQ48-c3-other-refusal-paths)")
+                "(guards against a refused module left in sys.modules)")
             self.assertIsNot(
                 mod._NAME_GUARD._module, foreign,
                 "the mid-install publication of the refused module must "
-                "be retracted (RBQ51-c3-retraction-untested, "
-                "RBQ53-c3-retraction-load-bearing)")
+                "be retracted (guards against a mid-install publication left in the guard, "
+                "a guard serving a refused module to a later import)")
             with self.assertRaises(ModuleNotFoundError):
                 importlib.import_module("aiqt_corpus")
         finally:
@@ -69205,12 +69816,12 @@ class AIQTVendorDigestTests(LinterTestCase):
                     mod._verified_corpus_source, captured,
                     "a refused unpinned override's bytes must never "
                     "replace the captured verified bytes "
-                    "(RBQ57-c3-refused-override-bytes)")
+                    "(guards against a refused override's bytes taken as the reference)")
                 self.assertIs(
                     sys.modules.get("aiqt_corpus"), verified,
                     "the earlier run's verified module must survive a "
                     "refused unpinned override's failing re-run "
-                    "(RBQ57-c3-refused-override-bytes)")
+                    "(guards against a refused override's bytes taken as the reference)")
                 self.assertIs(importlib.import_module("aiqt_corpus"),
                               verified)
         finally:
@@ -69256,7 +69867,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                     "aiqt_corpus", sys.modules,
                     "a wrong-digest marker must be treated as unmarked "
                     "once bytes were captured "
-                    "(RBQ57-c3-digest-compare-untested)")
+                    "(guards against a marker accepted without its digest compared)")
                 with self.assertRaises(ModuleNotFoundError):
                     importlib.import_module("aiqt_corpus")
         finally:
@@ -69311,7 +69922,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                             "aiqt_corpus", sys.modules,
                             "an entry without __dict__ must be treated "
                             "as unmarked and removed by the failure "
-                            "handler (RBQ57-c3-no-dict-module)")
+                            "handler (guards against an entry with no mapping namespace)")
                         with self.assertRaises(ModuleNotFoundError):
                             importlib.import_module("aiqt_corpus")
                 # Acceptance-check site: a successful discovery must
@@ -69396,7 +70007,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                         "an entry whose __dict__ descriptor raises must "
                         "be treated as unmarked and removed by the "
                         "failure handler "
-                        "(RBQ58-c3-dict-descriptor-raises)")
+                        "(guards against a namespace read that raises)")
                     with self.assertRaises(ModuleNotFoundError):
                         importlib.import_module("aiqt_corpus")
                 # Acceptance-check site: a successful discovery must
@@ -69411,7 +70022,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                         "aiqt_corpus", sys.modules,
                         "an entry whose __dict__ descriptor raises must "
                         "be refused and removed by the acceptance check "
-                        "(RBQ58-c3-dict-descriptor-raises)")
+                        "(guards against a namespace read that raises)")
                     with self.assertRaises(ModuleNotFoundError):
                         importlib.import_module("aiqt_corpus")
                 # Mid-install site: a raising entry that appears while
@@ -69433,7 +70044,7 @@ class AIQTVendorDigestTests(LinterTestCase):
                         "aiqt_corpus", sys.modules,
                         "an entry whose __dict__ descriptor raises must "
                         "be refused and removed by the mid-install check "
-                        "(RBQ58-c3-dict-descriptor-raises)")
+                        "(guards against a namespace read that raises)")
                     with self.assertRaises(ModuleNotFoundError):
                         importlib.import_module("aiqt_corpus")
         finally:
@@ -69499,36 +70110,36 @@ class AIQTVendorDigestTests(LinterTestCase):
             ["BOOTSTRAP FAILED", "KEPT True", "SERVED True"],
             "the self-marked planted module must survive the no-bytes "
             "failure corner and be served by a later plain import: the "
-            "DISCLOSED keep choice (RBQ57-c3-self-marked-planted); if "
+            "DISCLOSED keep choice (the disclosed residual of a planted module that sets its own marker); if "
             "this behaviour changes, the disclosure must change with it")
         self.assertEqual(
             results["unmarked-control"],
             ["BOOTSTRAP FAILED", "KEPT False", "SERVED refused"],
             "the unmarked control must still be removed and fail closed "
-            "(RBQ53-c3-non-importerror-failure)")
+            "(guards against cleanup skipped on a non-ImportError failure)")
         # The disclosure itself: present, and the refuted claims gone.
         mod = load_linter_module("tools/aiqt_bootstrap.py",
                                  "aiqt_bootstrap_selfmarked")
         marked_doc = " ".join(
             mod._marked_for_verified_bytes.__doc__.split())
         module_doc = " ".join(mod.__doc__.split())
-        for required in ("RBQ57-c3-self-marked-planted", "SELF-MARKED",
+        for required in ("a planted module that sets its own marker", "SELF-MARKED",
                          "NO acceptance check"):
             self.assertIn(
                 required, marked_doc,
                 "the marker helper must disclose the self-marked planted "
                 f"corner accurately: missing {required!r} "
-                "(RBQ57-c3-self-marked-planted)")
-        self.assertIn("RBQ57-c3-self-marked-planted", module_doc,
+                "(the disclosed residual of a planted module that sets its own marker)")
+        self.assertIn("a planted module that sets its own marker", module_doc,
                       "the module docstring must carry the self-marked "
-                      "disclosure too (RBQ57-c3-self-marked-planted)")
+                      "disclosure too (the disclosed residual of a planted module that sets its own marker)")
         for stale in ("carries no marker at all",
                       "loses nothing a later run's acceptance check "
                       "would not refuse"):
             self.assertNotIn(
                 stale, marked_doc,
                 f"the refuted claim {stale!r} must be gone "
-                "(RBQ57-c3-self-marked-planted)")
+                "(the disclosed residual of a planted module that sets its own marker)")
 
     def test_compiler_pin_precheck_fires_without_the_shim(self):
         # The compiler's own PIN.toml pre-check must refuse a pin-less
@@ -69556,6 +70167,32 @@ class AIQTVendorDigestTests(LinterTestCase):
         self.assertIn("no regular PIN.toml at", output)
         self.assertNotIn("PERMISSIVE-SHIM-BOUND", output)
         self.assertNotIn("pack root not found", output)
+
+    def test_compiler_module_precheck_refuses_a_symlinked_core(self):
+        # The compiler's own pre-check reads tools/aiqt_corpus.py with a
+        # non-following lstat, so a symlink there is refused BY ITSELF,
+        # even beside a regular PIN.toml. The permissive stand-in shim
+        # would bind any root, so a following check lets the run reach
+        # the shim (PERMISSIVE-SHIM-BOUND appears) instead.
+        base = self._fixture_base("compiler-module-precheck-")
+        compiler = self._compiler_with_permissive_shim(base)
+        root = base / "pack"
+        (root / "tools").mkdir(parents=True)
+        real = base / "elsewhere-aiqt_corpus.py"
+        real.write_text("# core\n", encoding="utf-8")
+        (root / "tools" / "aiqt_corpus.py").symlink_to(real)
+        (root / "PIN.toml").write_text("", encoding="utf-8")
+        env = {k: v for k, v in os.environ.items()
+               if k not in ("AIQT_PACK_ROOT", "GRC_AIQT_PACK")}
+        with tempfile.TemporaryDirectory() as tmp:
+            res = subprocess.run(
+                [sys.executable, "-I", str(compiler), "--check",
+                 "--root", tmp, "--aiqt-root", str(root)],
+                capture_output=True, text=True, env=env, timeout=120)
+        output = res.stdout + res.stderr
+        self.assertEqual(res.returncode, 2, output)
+        self.assertIn("no regular tools/aiqt_corpus.py there", output)
+        self.assertNotIn("PERMISSIVE-SHIM-BOUND", output)
 
     def test_compiler_origin_postcheck_fires_without_the_shim(self):
         # The compiler's own post-bind origin check must refuse BY ITSELF
@@ -70353,7 +70990,7 @@ class LanguageEngineProfileTests(unittest.TestCase):
                 self.assertEqual(self.scan(word), [])
         self.assertEqual(self.scan("de-emphasised"), [("ise", 1, "de-emphasised")])
 
-    def test_round3_stems_flagged(self):
+    def test_prefixed_ise_stems_flagged(self):
         # In the earlier repository, the base "initialise" and further prefixed
         # stems were not listed, so "initialised", "uninitialised" and "reutilised"
         # passed. Each -ise inflection is flagged, its -isation noun where the word
@@ -70383,7 +71020,7 @@ class LanguageEngineProfileTests(unittest.TestCase):
 
     # Further forms that passed in the earlier repository, and the bases
     # they need, with the -isation noun where the word exists.
-    ROUND4_FORMS = {
+    LISTED_ISE_FORMS = {
         "underemphasise": False, "overoptimise": False, "miscategorise": True,
         "restandardise": True, "preinitialise": True, "deoptimise": True,
         "revitalise": True, "desensitise": True, "decriminalise": True,
@@ -70391,7 +71028,7 @@ class LanguageEngineProfileTests(unittest.TestCase):
         "legitimise": True, "delegitimise": True, "apologise": False,
         "vitalise": True, "sensitise": True, "criminalise": True,
     }
-    ROUND4_BASES = ("mobilise", "legitimise", "apologise", "vitalise", "sensitise",
+    LISTED_ISE_BASES = ("mobilise", "legitimise", "apologise", "vitalise", "sensitise",
                     "criminalise", "immobilise")
     # Words that end in "ise" in every dialect, several after a listed prefix.
     ISE_CONTROLS = (
@@ -70402,22 +71039,22 @@ class LanguageEngineProfileTests(unittest.TestCase):
         "promise", "raise", "praise", "noise", "poise", "cruise", "bruise", "rise",
         "wise", "guise", "arise", "apprise")
 
-    def round4_words(self, stem):
+    def ise_inflections(self, stem):
         return (stem, stem + "d", stem + "s", stem[:-1] + "ing")
 
-    def test_round4_forms_flagged(self):
-        for stem in self.ROUND4_BASES:
+    def test_listed_ise_bases_and_forms_flagged(self):
+        for stem in self.LISTED_ISE_BASES:
             self.assertIn(stem, self.vocab.ise_stems)
         self.assertNotIn("aestheticise", self.vocab.ise_stems)
-        for stem, noun in self.ROUND4_FORMS.items():
+        for stem, noun in self.LISTED_ISE_FORMS.items():
             ize = stem[:-3] + "ize"
             with self.subTest(stem=stem):
-                for word in self.round4_words(stem):
+                for word in self.ise_inflections(stem):
                     for value in (word, word.upper(), word.capitalize()):
                         for generator in (False, True):
                             self.assertEqual(self.scan(value, generator=generator),
                                              [("ise", 1, value)])
-                for word in self.round4_words(ize):
+                for word in self.ise_inflections(ize):
                     self.assertEqual(self.scan(word), [])
                 if noun:
                     word = stem[:-1] + "ation"
@@ -70724,14 +71361,14 @@ class LanguageEngineProfileTests(unittest.TestCase):
         self.assertEqual(self.scan("re-organised", language=empty),
                          [("ise", 1, "organised")])
 
-    def test_preflight_flags_the_round4_forms(self):
+    def test_preflight_flags_the_listed_ise_forms(self):
         # .claude/skills/corpus-management/tools/preflight-changelog.py runs the same engine across its process
         # boundary, so it must report exactly what gate 2 reports.
-        preflight = load_linter_module(".claude/skills/corpus-management/tools/preflight-changelog.py", "_preflight_round4")
+        preflight = load_linter_module(".claude/skills/corpus-management/tools/preflight-changelog.py", "_preflight_listed_ise_forms")
         texts = []
-        for stem in self.ROUND4_FORMS:
+        for stem in self.LISTED_ISE_FORMS:
             ize = stem[:-3] + "ize"
-            texts += [*self.round4_words(stem), *self.round4_words(ize),
+            texts += [*self.ise_inflections(stem), *self.ise_inflections(ize),
                       stem[:-1] + "ation"]
         texts += ["re-organised", "non-re-standardised", "unreorganised",
                   *self.ISE_CONTROLS]
@@ -70787,7 +71424,7 @@ class LanguageEngineProfileTests(unittest.TestCase):
                           "~~" + self.BLANK + "~~organisations")
         self.assertMasked("https://x.org/~organisations", " " * 28)
 
-    def test_mask_urls_round7_caret_control_and_non_ascii_end_token(self):
+    def test_mask_urls_caret_control_and_non_ascii_end_token(self):
         # "^", an ASCII control character and any non-ASCII character end
         # the token, so prose glued after them stays checked.
         for stop in ("^", "\x00", "\x1f", "\x7f", "\u00e9", "\u00a0", "\u2019"):
@@ -70800,7 +71437,7 @@ class LanguageEngineProfileTests(unittest.TestCase):
         self.assertMasked("https://x.org/caf\u00e9/organisations",
                           " " * 17 + "\u00e9/organisations")
 
-    def test_mask_urls_round3_glue_ends_token(self):
+    def test_mask_urls_glue_ends_token(self):
         # Each glue must end the token (discriminates the "(" and "~ + @ $"
         # punctuation lookaheads and the six-character extension cap), and a
         # symbol glued after punctuation ends it too.
@@ -70815,7 +71452,7 @@ class LanguageEngineProfileTests(unittest.TestCase):
         self.assertEqual(self.engine.spelling_matches(self.URL + ".analyse", self.language),
                          [("yse", "analyse")])
 
-    def test_mask_urls_round4_digit_run_glue_ends_token(self):
+    def test_mask_urls_digit_run_glue_ends_token(self):
         # After ".,;:!?" a run of digits followed by "&", "%", "=", "#", "/" or
         # ")" ends the token like a letter does, so these glue forms stay
         # reported. Under-masked as a result (residual): a dotted version followed
@@ -70850,7 +71487,7 @@ class LanguageEngineProfileTests(unittest.TestCase):
             with self.subTest(rest=rest):
                 self.assertMasked(self.URL + rest, self.BLANK + rest)
 
-    def test_mask_urls_round4_survivors(self):
+    def test_mask_urls_query_escape_and_nested_scheme_bounds(self):
         # An invalid escape in a query key ends the token, a nested plain
         # "http://" continues it, and a "://" after a non-scheme does not.
         self.assertEqual(self.engine.spelling_matches(
@@ -70959,7 +71596,7 @@ class LanguageEngineProfileTests(unittest.TestCase):
         # character (only a letter or digit continues it), so prose after "_#",
         # "_-", "_/", "_$" and the rest is checked; a "_" inside the path of an
         # emphasized URL stays a path character only when a letter or digit
-        # follows it (see test_mask_urls_round6_emphasis_residuals).
+        # follows it (see test_mask_urls_emphasis_residuals).
         for delim in ("_", "__"):
             for punct in "!\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~":
                 rest = punct + "organisations"
@@ -70976,7 +71613,7 @@ class LanguageEngineProfileTests(unittest.TestCase):
         self.assertMasked("_https://x.org/a_b/organisations_", "_" + " " * 31 + "_")
         self.assertMasked("__https://x.org/a_b/c__", "__" + " " * 19 + "__")
 
-    def test_mask_urls_round6_emphasis_residuals(self):
+    def test_mask_urls_emphasis_residuals(self):
         # A closer followed by a digit continues the token like one followed by a
         # letter (pins the digits in the closer lookahead).
         self.assertMasked("_https://x.org/v_2/c_", "_" + " " * 19 + "_")
@@ -71008,7 +71645,7 @@ class LanguageEngineProfileTests(unittest.TestCase):
                                              generator=True)],
                     ["isation"])
 
-    def test_mask_urls_round7_underscore_run(self):
+    def test_mask_urls_underscore_run(self):
         # In an emphasized URL a whole run of "_" continues the token when an ASCII
         # letter or digit follows the run, and ends it otherwise, so the triple
         # underscore below is a path run and "organisations" is masked.
@@ -72772,7 +73409,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
         self.check(['echo $((1 << 2))\n: &',
                     '(( (1) )); cat <<E\nz &\nE'], True)
 
-    def test_round9_crlf_heredoc_terminator_divergence_refuses(self):
+    def test_crlf_heredoc_terminator_divergence_refuses(self):
         # A CRLF delimiter word kept its \r, so the "EOF\r" body line matched
         # it (defence in depth) and the next line's bare & / status read is
         # seen again; either way these block. An earlier revision in the
@@ -72783,7 +73420,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
             "cat <<EOF\r\nbody\r\nEOF\r\nfalse | cat; echo $?\r\n",
         ], True)
 
-    def test_round9_backslash_continued_terminator_refuses(self):
+    def test_backslash_continued_terminator_refuses(self):
         # Bash joins "E\<newline>OF" into the delimiter EOF and runs the next
         # line; the hook compares physical lines, never matches, and would
         # swallow ": &". An earlier revision in the earlier repository allowed
@@ -72795,7 +73432,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
             self.hook.shell_violation("cat <<EOF\nE\\\nOF\n: &")[0],
             'heredoc-divergence')
 
-    def test_round9_case_arm_parentheses_keep_arithmetic_tracking(self):
+    def test_case_arm_parentheses_keep_arithmetic_tracking(self):
         # Two case pattern arms' ) dropped the arithmetic fallback counter to
         # zero early, so a later << registered a heredoc and hid the next line.
         # A lone ) now only decrements; the span closes only at the adjacent
@@ -72809,7 +73446,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
             'echo $(( $(case 1 in 1) echo 1;; 2) echo 2;; esac) + (1 << (2)) ))\n: &'
         )[0], 'arithmetic-shift')
 
-    def test_round9_terminated_heredoc_controls_still_allow(self):
+    def test_terminated_heredoc_controls_still_allow(self):
         # Controls that must keep allowing under the new refusal: an LF heredoc
         # that terminates, a tab-stripped <<- heredoc, a quoted-delimiter
         # heredoc, and STRICT arithmetic completed before a real heredoc
@@ -72821,7 +73458,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
             '(( 1 + 2 )); cat <<E\nz &\nE',
         ], False)
 
-    def test_round10_later_delimiter_divergence_refuses(self):
+    def test_later_delimiter_divergence_refuses(self):
         # Bash ends the heredoc at the joined "E\<newline>OF" (or at the
         # $'EOF' delimiter's own expansion) and runs the hidden lines, while
         # a LATER physical delimiter satisfied the earlier unterminated
@@ -72844,7 +73481,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
         # a backslash mid-line, keep allowing.
         self.check(['cat <<EOF\nx \\ y\nEOF', "cat <<'PY'\na | b\nPY"], False)
 
-    def test_round10_nested_pair_fallback_shift_refuses(self):
+    def test_nested_pair_fallback_shift_refuses(self):
         # A nested adjacent )) (from ((2)) or esac)+) inside a rejected span
         # drove the earlier fallback close early, so a later << registered a
         # heredoc whose LATER matching delimiter hid the lines in between. Any
@@ -72867,7 +73504,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
         # Strict arithmetic shifts never enter the fallback and keep allowing.
         self.check(['echo $((1 << 2))', '(( flags << 1 ))'], False)
 
-    def test_round10_data_emitter_pipeline_allows(self):
+    def test_data_emitter_pipeline_allows(self):
         # A plain echo/printf data emitter piped into one consumer (a writer
         # or a hook under test) does not mask a status; $? reads the consumer.
         # These three discriminate the plain-emitter rule -- each was blocked
@@ -72900,7 +73537,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
             'cmd | cat; echo $?',
         ], True)
 
-    def test_round11_split_substitution_emitter_refuses(self):
+    def test_split_substitution_emitter_refuses(self):
         # The earlier raw-text emitter check searched the RAW stage text
         # for "$(" / backquote, so a backslash-newline splitting the
         # opener hid a command substitution and the stage read as a plain
@@ -72930,7 +73567,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
             for c in split:
                 self.assertFalse(self.hook.command_is_blocked(c))
 
-    def test_round11_bash53_substitution_emitter_refuses(self):
+    def test_bash53_substitution_emitter_refuses(self):
         # Pin the bash-5.3 spellings the allow-list disqualifies. A ${
         # cmd; } brace function substitution, a ${| cmd; } brace
         # substitution and a ${name@P} prompt-expansion parameter
@@ -73760,7 +74397,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
                                   if mutant.command_is_blocked(command)], [])
         self.check(commands, True)  # the loaded hook is unchanged
 
-    def test_round10_and_continuation_clears_pending(self):
+    def test_and_continuation_clears_pending(self):
         # An executed single-command && continuation replaces the pipeline's
         # status, and a skipped one leaves the pipeline's own nonzero
         # status, so the later read is never the masking filter's. A ||
@@ -73980,7 +74617,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
 class BlockingHookMessageContractTests(unittest.TestCase):
     """Per-rendered-message refusal inventory and contract."""
 
-    P = "/__p195__/grc_library"
+    P = "/__hook_contract__/grc_library"
     SHIPPED_HOOKS = ("block-branch-to-main-edit", "block-bulk-git-add",
                      "block-repeated-tool-failure", "block-unbumped-version-commit",
                      "block-verification-pipes")
@@ -74200,8 +74837,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     return spy
 
                 stack.enter_context(patch.dict(os.environ, {
-                    "CLAUDE_PROJECT_DIR": self.P, "GRC_DROP_ROOT": "/__p195__/drop",
-                    "GRC_STORE": "/__p195__/private", "HOME": "/__p195__/home",
+                    "CLAUDE_PROJECT_DIR": self.P, "GRC_DROP_ROOT": "/__hook_contract__/drop",
+                    "GRC_STORE": "/__hook_contract__/private", "HOME": "/__hook_contract__/home",
                     "PATH": "/usr/bin:/bin",
                 }, clear=True))
                 p(sys, "dont_write_bytecode", True)
@@ -74242,7 +74879,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 m(common, "resolve_working", None)  # also covers import-time HELD_FILE
                 state = importlib.import_module("_hook_state")
                 recorder = m(state, "record_block", None)
-                mod = load_linter_module(script, "_p195_" + hook.replace("-", "_"))
+                mod = load_linter_module(script, "_hook_contract_" + hook.replace("-", "_"))
                 self.assertEqual(mod.__file__, filename)
                 p(Path, "resolve", lambda path, **kw: Path(os.path.abspath(path)))
                 p(sys, "stdout", stdout)
@@ -74586,7 +75223,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         """The branch-to-main part of the removed printed-path test. A project directory
         holding a newline or an ESC is shown escaped in the refusal."""
         from unittest.mock import patch
-        branch = load_linter_module(".claude/hooks/block-branch-to-main-edit.py", "_fx4_esc_branch")
+        branch = load_linter_module(".claude/hooks/block-branch-to-main-edit.py", "_odd_char_branch")
         for label, raw, shown in self.ODD_PATH_CHARS:
             with self.subTest(char=label), tempfile.TemporaryDirectory() as td:
                 odd = Path(td).resolve() / ("odd" + raw + "dir")
@@ -74600,7 +75237,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         the refusal names an unusual project path as one printable shell word that bash reads
         back as that exact path."""
         from unittest.mock import patch
-        branch = load_linter_module(".claude/hooks/block-branch-to-main-edit.py", "_fx4_word_branch")
+        branch = load_linter_module(".claude/hooks/block-branch-to-main-edit.py", "_odd_segment_branch")
         with tempfile.TemporaryDirectory() as td:
             odd = Path(td).resolve() / ("odd" + self.ODD_SEGMENT + "dir")
             with patch.object(branch, "_current_branch", lambda root: "main"):
@@ -74614,7 +75251,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         for hook in self.WORD_HOOKS:
             with self.subTest(site=hook + " _shell_word"):
                 mod = load_linter_module(".claude/hooks/%s.py" % hook,
-                                         "_fx4_word_" + hook.replace("-", "_"))
+                                         "_odd_word_" + hook.replace("-", "_"))
                 self.assertEqual(mod._shell_word("-drop/.x"), "./-drop/.x")
                 self.assertEqual(mod._shell_word("-a b/.x"), "'./-a b/.x'")
                 self.assertEqual(mod._shell_word("-a\nb/.x"), "$'./-a\\nb/.x'")
@@ -74771,7 +75408,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
 
         def render(text, **kwargs):
             namespace = {}
-            exec(compile(text, "<p195-synthetic>", "exec"), namespace)
+            exec(compile(text, "<hook-contract-synthetic>", "exec"), namespace)
             return namespace["main"](**kwargs)
 
         self.assertEqual(render(source), render(changed_docs))
@@ -75652,23 +76289,23 @@ class ClausePreservationTests(unittest.TestCase):
         "dot_component": ("Read [x](a/x.md) now.\n", "Read [x](../a/./x.md) now.\n",
                           "'.' path component", (DOT_RULE,)),
         # Rows: a ")" the renderer does not treat as the end of a target.
-        "r6_escaped_fragment": ("R [a](x.md#f\\)](y.md)) n.\n",
+        "escaped_fragment_case": ("R [a](x.md#f\\)](y.md)) n.\n",
                                 "R [a](../p/x.md#f\\)](../p/y.md)) n.\n",
                                 "backslash in the BASE unit at raw offset 12",
                                 (BACKSLASH_RULE,), SIBLINGS),
-        "r6_escaped_query": ("R [a](x.md?q=\\)](y.md)) n.\n",
+        "escaped_query_case": ("R [a](x.md?q=\\)](y.md)) n.\n",
                              "R [a](../p/x.md?q=\\)](../p/y.md)) n.\n",
                              "backslash in the BASE unit at raw offset 13",
                              (BACKSLASH_RULE,), SIBLINGS),
-        "r6_escaped_anchor_only": ("R [a](x.md#f\\)](y.md)) n.\n",
+        "escaped_anchor_only_case": ("R [a](x.md#f\\)](y.md)) n.\n",
                                    "R [a](x.md#f\\)](../p/y.md)) n.\n",
                                    "backslash in the BASE unit at raw offset 12",
                                    (BACKSLASH_RULE,), SIBLINGS),
-        "r6_balanced_parentheses": ("R [a](https://e.com/W_(b)#s](y.md)) n.\n",
+        "balanced_parentheses_case": ("R [a](https://e.com/W_(b)#s](y.md)) n.\n",
                                     "R [a](https://e.com/W_(b)#s](../p/y.md)) n.\n",
                                     "'(' in a link target in the BASE unit at raw offset 22",
                                     (LINK_PAREN_RULE,), SIBLINGS),
-        "r6_angle_destination": ("R [a](<https://e.com/x#f)](y.md z>) n.\n",
+        "angle_destination_case": ("R [a](<https://e.com/x#f)](y.md z>) n.\n",
                                  "R [a](<https://e.com/x#f)](../p/y.md z>) n.\n",
                                  "'<' in the BASE unit at raw offset 6", (LESS_RULE,), SIBLINGS),
         "codex_escaped_fragment": ("[x](a.md#f\\)](b.md))\n", "[x](../a.md#f\\)](../b.md))\n",
@@ -75891,18 +76528,18 @@ class ClausePreservationTests(unittest.TestCase):
         self.rejected("final_dotdot_file")
         self.rejected("final_dotdot_dir")
 
-    def test_rebased_rejects_round6_escaped_parenthesis(self):
-        for name in ("r6_escaped_fragment", "r6_escaped_query", "r6_escaped_anchor_only",
+    def test_rebased_rejects_escaped_parenthesis(self):
+        for name in ("escaped_fragment_case", "escaped_query_case", "escaped_anchor_only_case",
                      "codex_escaped_fragment", "codex_escaped_query",
                      "codex_escaped_fragment_kept", "codex_escaped_query_kept"):
             with self.subTest(name=name):
                 self.rejected(name)
 
-    def test_rebased_rejects_round6_balanced_parentheses(self):
-        self.rejected("r6_balanced_parentheses")
+    def test_rebased_rejects_balanced_parentheses(self):
+        self.rejected("balanced_parentheses_case")
 
-    def test_rebased_rejects_round6_angle_destination(self):
-        self.rejected("r6_angle_destination")
+    def test_rebased_rejects_angle_destination(self):
+        self.rejected("angle_destination_case")
 
     def test_rebased_rejects_backslash_anywhere(self):
         self.rejected("backslash_prose")
@@ -77675,9 +78312,9 @@ class StoreScopeCeilingTests(LinterTestCase):
     _OWN_522_ROOT = "**2026-11-23 | 2026.12.10 | PR #522** - own\n\n"
     _HDR = "| Date | PR | Families | Tier | Disposition |\n|---|---|---|---|---|\n"
     _LATER_PR_ROWS = ("| 2026-09-30 | #2652 | c | T | SHIP final |\n"
-                      "| 2026-09-30 | #2652 | c | T | IN PROGRESS: r1 dispatched |\n")
+                      "| 2026-09-30 | #2652 | c | T | IN PROGRESS: review dispatched |\n")
     _OWN_PR_ROWS = ("| 2026-09-30 | #2650 | c | T | SHIP final |\n"
-                    "| 2026-09-30 | #2650 | c | T | IN PROGRESS: r1 dispatched |\n")
+                    "| 2026-09-30 | #2650 | c | T | IN PROGRESS: review dispatched |\n")
     MARKER = "- **Worker provenance:** applied, path not recorded\n"
 
     @staticmethod
@@ -77849,7 +78486,7 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.git(root, "commit", "-q", "-m", "child work")
         if parent in ("advanced", "merge-committed"):
             self.git(root, "checkout", "-q", "parent")
-            self.git(root, "commit", "-q", "--allow-empty", "-m", "parent r2")
+            self.git(root, "commit", "-q", "--allow-empty", "-m", "parent advances")
         self.git(root, "checkout", "-q", "main")
         if parent == "squash-merged":
             (root / ".working").mkdir(parents=True, exist_ok=True)
@@ -78636,7 +79273,7 @@ class StoreScopeCeilingTests(LinterTestCase):
                 f'"headRepositoryOwner": {{"login": "{owner}"}}, '
                 f'"headRepository": {{"name": "{name}"}}{url_field}}}')
 
-    def test_r8_01_legacy_tail_naming_a_pr_is_uncertain(self) -> None:
+    def test_legacy_tail_naming_a_pr_is_uncertain(self) -> None:
         # The legacy cell runs to the end of the line; in the earlier repository its tail was
         # probed for `#N` alone, so an unsupported continuation naming a PR by label or bare number
         # (`/ PR 2665`) left the parsed prefix CERTAIN. The tail is now probed with the shared
@@ -78901,7 +79538,7 @@ class AIQTCutoverTests(unittest.TestCase):
         self.assertEqual(leftovers, [])
 
 
-class AIQTRoundTwoTests(unittest.TestCase):
+class AIQTBoundaryRegressionTests(unittest.TestCase):
     """Boundary regressions, including real entry points and negative controls."""
 
     load = staticmethod(AIQTCutoverTests.load)
@@ -79947,7 +80584,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
         result = self.check(root)
         self.assertLinterFails(result, "3.99")
 
-    def test_r3_01_single_quoted_example_flagged_until_backticked(self) -> None:
+    def test_single_quoted_example_flagged_until_backticked(self) -> None:
         # Single quotes are interpreted nowhere, so a single-quoted
         # illustrative literal is FLAGGED (ambiguity keeps real pointers
         # flagged) and is cleared with backticks or the marker; the
@@ -80081,7 +80718,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
         # The probe now matches the promised families against the interpreter
         # basename within the supported 256-byte shebang budget; a resolved
         # other interpreter stays out. Over-budget inputs are pinned by
-        # test_r4_f3_mode_shebang_budget_and_explicit_exemption.
+        # test_mode_shebang_budget_and_explicit_exemption.
         root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_MINIMAL)
         (root / self.TOOLS_REL / "hook-ash").write_text(
             "#!/bin/ash\n# Provenance (TODO 3.99) from the plan.\n", encoding="utf-8")
@@ -80126,7 +80763,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
                 (root2 / self.TOOLS_REL / fname).write_text(reworded, encoding="utf-8")
                 self.assertLinterFails(self.check(root2), item_id)
 
-    def test_r3_01_apostrophes_and_stray_quotes_never_hide_pointer(self) -> None:
+    def test_apostrophes_and_stray_quotes_never_hide_pointer(self) -> None:
         # In the earlier repository, the two-pass strip let a blanked
         # backtick or quote span manufacture an apostrophe boundary, and
         # an inch mark or a quote hugging a single-quoted literal could
@@ -80153,7 +80790,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
                 (root / self.TOOLS_REL / fname).write_text(text, encoding="utf-8")
                 self.assertLinterFails(self.check(root), "3.99")
 
-    def test_r3_01_prefixed_double_quoted_literals_still_blanked(self) -> None:
+    def test_prefixed_double_quoted_literals_still_blanked(self) -> None:
         # The outside-abutment guard must not expose prefixed literals; an
         # r-string or f-string probe is still an illustrative literal (the
         # live witness is the raw-string regex in
@@ -80167,7 +80804,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
         result = self.check(root)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
-    def test_r3_02_unbalanced_markdown_fence_refused(self) -> None:
+    def test_unbalanced_markdown_fence_refused(self) -> None:
         # In the earlier repository, a line-leading inline triple-backtick
         # span, and a three-backtick line inside a four-backtick fence,
         # both miscounted the shared fence toggle, which then read
@@ -80193,12 +80830,12 @@ class ToolingBacklogRefsTests(LinterTestCase):
                 self.assertIn("fence", result.stderr)
                 self.assertNotIn("OK:", result.stdout)
 
-    def test_r3_03_env_shebang_grammar_selected_exactly(self) -> None:
+    def test_env_shebang_grammar_selected_exactly(self) -> None:
         # In the earlier repository, assignments, option operands and
         # attached -S payloads were mistaken for the interpreter, so valid
         # env shebangs were silently unselected. The documented grammar
         # resolves each form; missing interpreters now refuse, which
-        # test_r4_f3_r4_02_unknown_interpreters_refused pins.
+        # test_unknown_interpreters_refused pins.
         selected = (
             ("hook-s-assign", "#!/usr/bin/env -S PYTHONUTF8=1 python3"),
             ("hook-s-unset", "#!/usr/bin/env -S -u PYTHONPATH python3"),
@@ -80222,7 +80859,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
                 self.assertIn(name, result.stdout)
         self.assertNotIn("3.98", result.stdout + result.stderr)
 
-    def test_r3_04_inaccessible_symlink_target_refused(self) -> None:
+    def test_inaccessible_symlink_target_refused(self) -> None:
         # With the symlink's target directory unexaminable, the walk
         # classifies the link among the filenames, and in the earlier
         # repository its non-scan suffix then skipped it before the symlink
@@ -80250,8 +80887,8 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertEqual(result2.returncode, 2, result2.stdout + result2.stderr)
         self.assertIn("dangling.assets", result2.stderr)
 
-    def test_r4_f1_raw_markdown_fences(self) -> None:
-        gate = load_linter_module(self.GATE, "tbr_r4_f1")
+    def test_fence_text_in_headings_does_not_open_a_fence(self) -> None:
+        gate = load_linter_module(self.GATE, "tbr_fence_heading")
         from aiqt_corpus import is_fence_line
         for heading in ("# ``` x", "## ```a", "#```"):
             for count in (1, 2):
@@ -80266,9 +80903,9 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertEqual([c.item_id for c in gate.candidate_refs(
             Path("notes.md"), text)], ["3.99"])
 
-    def test_r4_f2_every_unclassifiable_entry_refused(self) -> None:
+    def test_every_unclassifiable_entry_refused(self) -> None:
         from unittest.mock import patch
-        gate = load_linter_module(self.GATE, "tbr_r4_f2")
+        gate = load_linter_module(self.GATE, "tbr_opaque_assets")
         root = self.make_repo("# Clean.\n", private=self.PRIVATE_MINIMAL)
         targets = [root / self.TOOLS_REL / name for name in
                    ("opaque.assets", "ordinary.assets", "fixtures")]
@@ -80289,9 +80926,9 @@ class ToolingBacklogRefsTests(LinterTestCase):
                         _, errors = gate.iter_scan_files(root)
                     self.assertTrue(any(str(target) in e for e in errors), errors)
 
-    def test_r4_f2_non_scan_file_read_failure_refused(self) -> None:
+    def test_non_scan_file_read_failure_refused(self) -> None:
         from unittest.mock import patch
-        gate = load_linter_module(self.GATE, "tbr_r4_f2_read")
+        gate = load_linter_module(self.GATE, "tbr_opaque_assets_read")
         root = self.make_repo("# Clean.\n", private=self.PRIVATE_MINIMAL)
         target = root / self.TOOLS_REL / "opaque.assets"
         target.write_text("data", encoding="utf-8")
@@ -80304,7 +80941,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
             _, errors = gate.iter_scan_files(root)
         self.assertTrue(any(str(target) in e for e in errors), errors)
 
-    def test_r4_f3_r4_02_unknown_interpreters_refused(self) -> None:
+    def test_unknown_interpreters_refused(self) -> None:
         tails = (
             "-vSpython3", "-S -iu FOO python3", "-S -iC / python3",
             "-S --uns FOO python3", "-S --ch / python3",
@@ -80313,7 +80950,7 @@ class ToolingBacklogRefsTests(LinterTestCase):
             "-S --unknown python3", "-S ${INTERPRETER}", "-S #comment python3",
             "-S 9FLAG=value python3", "-S -u ${NAME} python3",
         )
-        gate = load_linter_module(self.GATE, "tbr_r4_f3")
+        gate = load_linter_module(self.GATE, "tbr_shebang_tails")
         root = self.make_repo("# Clean.\n", private=self.PRIVATE_MINIMAL)
         for suffix in ("", ".assets", ".py"):
             for tail in tails:
@@ -80333,8 +80970,8 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertIn("hook.assets", result.stderr)
         self.assertNotIn("OK:", result.stdout)
 
-    def test_r4_f3_mode_shebang_budget_and_explicit_exemption(self) -> None:
-        gate = load_linter_module(self.GATE, "tbr_r4_f3_mode")
+    def test_mode_shebang_budget_and_explicit_exemption(self) -> None:
+        gate = load_linter_module(self.GATE, "tbr_shebang_mode")
         root = self.make_repo("# Clean.\n", private=self.PRIVATE_MINIMAL)
         path = root / self.TOOLS_REL / "hook"
         cases = (b"no shebang\n", b"#!\n", b"#!/usr/bin/env \xff\n",
@@ -80362,8 +80999,8 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertEqual(errors, [])
         self.assertTrue(any(c.item_id == "3.99" for _, c in findings))
 
-    def test_r4_f3_supported_env_operands_and_other_interpreter(self) -> None:
-        gate = load_linter_module(self.GATE, "tbr_r4_f3_supported")
+    def test_supported_env_operands_and_other_interpreter(self) -> None:
+        gate = load_linter_module(self.GATE, "tbr_env_operands")
         root = self.make_repo("# Clean.\n", private=self.PRIVATE_MINIMAL)
         for tail in ("-S -a label python3", "-S --argv0 label python3",
                      "-S -i -u FOO -C / python3", "-S -- python3",
@@ -80380,8 +81017,8 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertEqual(errors, [])
         self.assertNotIn(path, files)
 
-    def test_r4_01_html_marker_boundaries(self) -> None:
-        gate = load_linter_module(self.GATE, "tbr_r4_01")
+    def test_html_marker_boundaries(self) -> None:
+        gate = load_linter_module(self.GATE, "tbr_html_marker")
         cases = (
             "TODO 3.99. <!-- todo-ref-ok: -->",
             "TODO 3.99. <!-- todo-ref-ok: --> outside reason",
@@ -80409,8 +81046,8 @@ class ToolingBacklogRefsTests(LinterTestCase):
             self.assertEqual([c.item_id for c in gate.candidate_refs(
                 Path("notes.md"), text)], ["3.99"])
 
-    def test_r4_03_complete_pr_anchor_required(self) -> None:
-        gate = load_linter_module(self.GATE, "tbr_r4_03")
+    def test_complete_pr_anchor_required(self) -> None:
+        gate = load_linter_module(self.GATE, "tbr_pr_anchor")
         for verb in ("closing", "introducing"):
             for tail in ("#123garbage", "#123", "#123abc)", "#123.4)", "#１２３)", "#123`garbage`)"):
                 with self.subTest(verb=verb, tail=tail):
@@ -80421,14 +81058,14 @@ class ToolingBacklogRefsTests(LinterTestCase):
                 text = "# TODO 3.99 (" + verb + " PR " + tail + "\n"
                 self.assertEqual(gate.candidate_refs(Path("sample.py"), text), [])
 
-    def test_r4_f4_inch_mark_residue_documented(self) -> None:
-        gate = load_linter_module(self.GATE, "tbr_r4_f4")
+    def test_inch_mark_residue_documented(self) -> None:
+        gate = load_linter_module(self.GATE, "tbr_inch_mark")
         self.assertIn("it can close", gate.__doc__)
         text = '# Use a " separator; TODO 3.99 asks for a 6" pipe.\n'
         self.assertEqual(gate.candidate_refs(Path("sample.py"), text), [])
 
-    def test_r4_f5_both_double_quote_abutment_guards(self) -> None:
-        gate = load_linter_module(self.GATE, "tbr_r4_f5")
+    def test_both_double_quote_abutment_guards(self) -> None:
+        gate = load_linter_module(self.GATE, "tbr_quote_abutment")
         for text in ('# the "cfg""TODO 3.99" x\n',
                      '# the "TODO 3.99""cfg" x\n'):
             with self.subTest(text=text):
@@ -80480,8 +81117,8 @@ class ToolingBacklogRefsTests(LinterTestCase):
                     self.assertIn(f"{form!r} points at 3.99", result.stdout)
 
     def test_generated_data_bare_section_not_reported(self) -> None:
-        # GUARD (passes before and after round 2): in the generated files
-        # only the bare section form is set aside, because the copied
+        # GUARD: in the generated files only the bare section form is
+        # set aside, because the copied
         # metadata cites sections of the documents it describes (design
         # note 12); a bare section 8.9 there is not a finding.
         for rel, shape in self.GENERATED_FIXTURES:
@@ -80557,8 +81194,8 @@ class ToolingBacklogRefsTests(LinterTestCase):
                     self.assertNotIn("3.99", result.stdout)
 
     def test_scanned_data_file_bare_section_reported(self) -> None:
-        # GUARD (passes before and after round 2): the bare section form is
-        # set aside only in the generated files; in the hand-maintained
+        # GUARD: the bare section form is set aside only in the
+        # generated files; in the hand-maintained
         # relationship-model-source.json beside them it is still a finding.
         root = self.make_repo("# A clean tool file.\n", private=self.PRIVATE_P_TODO)
         self.write_extra(
@@ -80570,8 +81207,8 @@ class ToolingBacklogRefsTests(LinterTestCase):
         self.assertIn("'section 3.98' points at 3.98", result.stdout)
 
     def test_generated_data_paths_match_generator_constants(self) -> None:
-        # GUARD (passes before and after round 2): GENERATED_DATA_PATHS is
-        # exactly the two generators' write targets, read from their own
+        # GUARD: GENERATED_DATA_PATHS is exactly the two generators'
+        # write targets, read from their own
         # constants (build-taxonomy.py TAXONOMY, build-narrative-registry.py
         # REGISTRY_NAME), so a moved or renamed output fails here.
         gate = load_linter_module(self.GATE, "tbr_generated_paths")
@@ -80603,7 +81240,8 @@ class ToolingBacklogRefsTests(LinterTestCase):
                 self.assertIn("'section 3.99' points at 3.99", result.stdout)
 
     def test_gfm_section_cue_not_flagged(self) -> None:
-        # GUARD (passes before and after round 2). Design note 5: GFM names
+        # GUARD: a GFM section cue is not flagged. Design note 5: GFM
+        # names
         # an external specification, so its section number next to the cue
         # is not a backlog pointer (the citation at
         # gate_lint_metadata_line_breaks.py, GFM 0.29 section 6.10).
@@ -81077,7 +81715,7 @@ class TableCellCountTests(LinterTestCase):
             with self.subTest(text=text):
                 self.assertEqual(self.finding_heads(text), ["doc.md:1 unclosed-html-block"])
 
-    def test_round_six_surviving_mutants_are_pinned(self) -> None:
+    def test_script_block_surviving_mutants_are_pinned(self) -> None:
         # Surviving mutants k and c (g and h are in
         # test_unquoted_attribute_value_read_both_ways): "<SCRIPT>" starts a
         # type-1 block under either reading, which ends at "</script>", so the
@@ -83962,15 +84600,15 @@ class WebSiteHardeningTests(unittest.TestCase):
     """Site-hardening regression tests for the grclibrary.ai generator
     (re-based at the draft-site promotion).
 
-    W1: the dist-root ``_headers`` file carries exactly the four repo-owned
+    The dist-root ``_headers`` file carries exactly the four repo-owned
     header rules under one ``/*`` rule, emitted once, at the output root
     alone, with the spec section 9 CSP (the old live rule's style-src
     'unsafe-inline' widening left with the old root tree at the promotion);
     the zone's automatic headers (X-Content-Type-Options, Referrer-Policy,
     Strict-Transport-Security) are never repeated in it.
-    W2: the site renders a real 404 page (static noindex, root only,
-    excluded from sitemap.xml). W3: ``.well-known/security.txt`` carries
-    exactly the pinned RFC 9116 fields. W4: robots.txt advertises the
+    The site renders a real 404 page (static noindex, root only,
+    excluded from sitemap.xml). ``.well-known/security.txt`` carries
+    exactly the pinned RFC 9116 fields. robots.txt advertises the
     sitemap. Each test fails without its feature.
     """
 
@@ -84103,7 +84741,7 @@ class WebSiteHardeningTests(unittest.TestCase):
             "the shared topbar partial must be rendered into the 404 page")
 
     def test_404_excluded_from_sitemap(self) -> None:
-        self.assertIn("404.html", self.by_rel, "the 404 page must render (W2)")
+        self.assertIn("404.html", self.by_rel, "the 404 page must render")
         sitemap = self._sole("sitemap.xml")
         # "/404.html", not the bare substring "404": a future URL containing
         # 404 in a slug or count must not trip the error-page exclusion check.

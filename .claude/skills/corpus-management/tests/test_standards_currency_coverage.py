@@ -896,6 +896,23 @@ class HistoricalContextTests(unittest.TestCase):
             s + "\n", *mode, register=HREG, exceptions=hx(hrow(s)))[0], 0)
         self.assertEqual(
             self.invoke(s + "\n", *mode, register=HREG)[0], 1)
+        # Negative cases: nothing but a sanction row in the data file lets a stale
+        # citation through. A legacy exception, the same row written only in the
+        # Markdown register page (now a generated view, never read for policy),
+        # sanctions nothing and fails in enforce mode.
+        rows = W.HCR.load(hx(hrow(s)))
+        legacy_page = "# Register\n\n## Exceptions\n\n" + W.HCR.render(rows) + "\n"
+        code, out, err = self.invoke(s + "\n", *mode, register=HREG, page=legacy_page)
+        self.assertEqual(code, 1, out + err)
+        self.assertNotIn("HISTORICAL", out)
+        # Nor does report mode's allowance carry over: a stale citation the legacy
+        # check does not match stays advisory in report mode but blocks in enforce
+        # mode when no row sanctions it.
+        other = "The previous edition, ISO 27001:2013, was withdrawn in 2022."
+        self.assertEqual(self.invoke(other + "\n", register=HREG)[0], 0)
+        code, out, _ = self.invoke(other + "\n", *mode, register=HREG)
+        self.assertEqual(code, 1, out)
+        self.assertIn("BLOCKING", out)
 
     def test_declaration_schema(self):
         current = HSENT.replace("27001:2013", "27001:2022")
@@ -935,8 +952,12 @@ class HistoricalContextTests(unittest.TestCase):
         )
 
 
-class HistoricalContextRoundTwoTests(unittest.TestCase):
-    """Each counterexample is a regression."""
+class HistoricalContextRegressionTests(unittest.TestCase):
+    """Edge cases of the historical-context sanction: the binding of a row to one
+    occurrence, the strict register data and its generated page, the sentence and
+    line model, and the wrapper's screens. Each test pins a counterexample the
+    sanction must refuse or a contract it must keep; the enforce-mode test of the
+    sanction itself is in HistoricalContextTests."""
     invoke = CitationCoverageTests.invoke
     run_json = HistoricalContextTests.run_json
 
@@ -1138,7 +1159,7 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
                 finally:
                     os.chmod(root / H.DATA_REL, 0o600)
 
-    def test_round_three_structural_rules(self):
+    def test_sentence_structural_rules(self):
         # The sentence is the WHOLE of its line or cell.
         for doc, sent in [
             ("The earlier ISO/IEC 27001:2013 edition, e.g.\n",
@@ -1221,10 +1242,11 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
             self.assertEqual(code, 1, body)
             self.assertIn(message, err, body)
 
-    def test_round_five_containers_and_parsing(self):
+    def test_containers_and_parsing(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
         # A code span in the sentence could, once masked, expose a fence that hides a later
-        # citation; it is refused, and the later citation still blocks.
+        # citation; the declaration is refused, so nothing in the document is sanctioned or
+        # masked. This checks the refusal only, not the later citation's own finding.
         fence = "ISO/IEC 27001:2013 ```was the previous edition```."
         assert_refused(self, "\n" + fence + "\n\nPCI DSS 4.0 governs certification.\n", fence)
         # Legacy-check line eligibility comes from the original text, not the masked one.
@@ -1233,6 +1255,14 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
         masked = "            ```was```.\nPCI DSS 4.0 x\n"
         original = "ISO/IEC 27001:2013 ```was```.\nPCI DSS 4.0 x\n"
         self.assertEqual(eng.check_text(masked, compiled, eligible_from=original), [(2, "PCI")])
+        # Line 1 opens no fence in either text (the masked line starts with twelve spaces and
+        # the original with text), so the case above holds whichever text decides
+        # eligibility. Below, the masked text alone would open a fence
+        # (hiding line 2) or lose one (exposing line 2); the original decides both.
+        self.assertEqual(eng.check_text("```was```.\nPCI DSS 4.0 x\n", compiled, eligible_from=original),
+                         [(2, "PCI")])
+        self.assertEqual(eng.check_text("   \nPCI DSS 4.0 x\n   \n", compiled,
+                                        eligible_from="```\nPCI DSS 4.0 x\n```\n"), [])
         # A no-break-space line is not a Markdown blank line.
         code, found, _ = self.run_json("Our programme relies on\n\u00a0\n" + s + "\n\u00a0\n", hx(hrow(s)))
         self.assertEqual(code, 1)
@@ -1253,17 +1283,25 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
             self.assertEqual(code, 1, register)
             self.assertIn(message, err, register)
 
-    def test_round_nine_guards(self):
+    def test_leading_slash_refused_by_canonical_path_rule_and_text_after_fence_by_fence_guard(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
-        # The absolute-path guard.
+        # There is no separate absolute-path check: a leading slash leaves an
+        # empty first path component, which the canonical repo .md path rule
+        # refuses. The same row without the slash is accepted, so the slash
+        # alone causes the refusal.
+        code, found, _ = self.run_json("\n" + s + "\n\n", hx(hrow(s)))
+        self.assertEqual(code, 0)
+        self.assertIn("HISTORICAL", [f["kind"] for f in found])
         code, _, err = self.run_json("\n" + s + "\n\n", hx(hrow(s, path="/ai/citation.md")))
         self.assertEqual(code, 1)
         self.assertIn("path must be a canonical repo .md path", err)
-        # A fence line carrying text after its run does not close the block.
+        # Separately, with a slash-free row: a fence line carrying text after its run does not
+        # close the block, and the fence guard refuses the document. The fence guard does not
+        # look at the path, so it plays no part in refusing the leading slash.
         self.assertIn("HCE-001: the document's fenced blocks are not all simple three-character fences",
                       assert_refused(self, "```\nx\n```y\n\n" + s + "\n\n", s))
 
-    def test_round_eight_lookalikes_and_rows(self):
+    def test_lookalikes_and_rows(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
         # A non-ASCII lookalike letter hides a present-tense verb from the word screen and from
         # the reviewer; the data file refuses non-ASCII text, and the engine alone refuses the
@@ -1288,7 +1326,7 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
         code, found, _ = self.run_json("\n" + s + "\n\n", hx(hrow(s)))
         self.assertEqual((code, [f["kind"] for f in found]), (0, ["HISTORICAL"]))
 
-    def test_round_seven_markup_and_line_model(self):
+    def test_markup_and_line_model(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
         tbl = "<table><tr><th>Current baseline</th></tr><tr><td>"
         # Comment markers a regex pairs but a renderer does not (in a code span, in a fence,
@@ -1350,7 +1388,7 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("not valid TOML", err)
 
-    def test_round_six_line_model_and_html(self):
+    def test_line_model_and_html(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
         # With NO exceptions, a U+2028 earlier in the file must not shift which line the legacy
         # check reads; the stale citation keeps blocking.

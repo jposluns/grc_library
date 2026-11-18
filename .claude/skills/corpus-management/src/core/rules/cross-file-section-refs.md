@@ -35,7 +35,10 @@ row, a reference to a heading in the citing document remains local when no
 link precedes it in the cell and a nearby following markdown link appears in
 parentheses after non-whitespace descriptive text. The parenthesized link must
 start within the configured adjacency window and have a matching closing
-parenthesis after its link and any citation text. `Of the target` identifies
+parenthesis after its link and any citation text; nested parentheses are
+counted, so a nested parenthetical does not close it. A table cell that
+meets the other conditions of this exception but has no such closing
+parenthesis is refused as malformed. `Of the target` identifies
 the linked target and does not qualify as local description.
 Only the explicit `of [the] target` wording is treated as a target citation in this table-cell local-section exception; `of the policy` remains a documented residual.
 A line is a table row for this exception only when its first non-whitespace

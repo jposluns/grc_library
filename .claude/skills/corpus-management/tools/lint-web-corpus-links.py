@@ -106,6 +106,9 @@ def _self_test() -> int:
             print("FAIL self-test: a missing target was not flagged"); ok = False
         if "../../../etc/passwd" not in reasons:
             print("FAIL self-test: an escaped target was not flagged"); ok = False
+        elif reasons["../../../etc/passwd"] != "resolves outside repo":
+            # A missing-file reason here means the escape check did not run.
+            print("FAIL self-test: an escaped target was not reported as outside the repository"); ok = False
         if "ai" not in reasons:
             print("FAIL self-test: a directory target was not flagged"); ok = False
         if ok:
@@ -128,7 +131,7 @@ def main(argv: list[str]) -> int:
         return _self_test()
 
     if args.manifest is not None:
-        # 3b50b2d2: an explicit manifest must be a readable regular file. An empty value was
+        # An explicit manifest must be a readable regular file. An empty value was
         # Path('.'), and an out-of-tree or unrelated file parsed to zero rows and passed.
         if not args.manifest.strip() or not Path(args.manifest).is_file():
             print(f"ERROR: --manifest {args.manifest!r}: not a regular file; nothing would be "
@@ -142,7 +145,7 @@ def main(argv: list[str]) -> int:
             print(f"ERROR: cannot read manifest {manifest_path}: {exc}", file=sys.stderr)
             return 2
         if n_rows == 0:
-            # 3b50b2d2: zero parsed rows means nothing was checked (a wrong file or a format
+            # Zero parsed rows means nothing was checked (a wrong file or a format
             # drift); it used to print OK.
             print(f"ERROR: manifest {manifest_path}: no link rows parsed; nothing was checked.",
                   file=sys.stderr)

@@ -7,187 +7,187 @@ schema_version = 1
 id = "claude-generated-artefacts-note"
 title = "Generated corpus artefacts are never hand-edited"
 source = "core/policies/generated-artefacts-note.md"
-origin = "grc_library .claude/CLAUDE.md, the Project section's generated-artefacts bullet (transferred verbatim in compile PR-2)"
+origin = "grc_library .claude/CLAUDE.md, the Project section's generated-artefacts bullet (transferred verbatim when the pack first generated this rule)"
 
 [[clauses]]
 id = "language-convention"
 title = "Corpus language convention (Canadian-first English, -ize orthography, no em/en dashes)"
 source = "core/rules/language-convention.md"
-origin = "grc_library .claude/CLAUDE.md language-convention section (transferred in compile PR-3; heading raised h2 to standalone h1 with a blank line after, body otherwise verbatim; the CLAUDE.md section is now a pointer stub)"
+origin = "grc_library .claude/CLAUDE.md language-convention section (transferred when the pack took over this section; heading raised h2 to standalone h1 with a blank line after, body otherwise verbatim; the CLAUDE.md section is now a pointer stub)"
 
 [[clauses]]
 id = "authoring-conventions"
 title = "Corpus authoring conventions (mirror same-type document shape; citation accuracy and currency; linter-enforced prose style)"
 source = "core/rules/authoring-conventions.md"
-origin = "grc_library .claude/CLAUDE.md Conventions section (transferred in compile PR-4; heading raised h2 Conventions to standalone h1 Authoring conventions, body otherwise verbatim; the CLAUDE.md section is now a pointer stub)"
+origin = "grc_library .claude/CLAUDE.md Conventions section (transferred when the pack took over this section; heading raised h2 Conventions to standalone h1 Authoring conventions, body otherwise verbatim; the CLAUDE.md section is now a pointer stub)"
 
 [[clauses]]
 id = "corpus-scan-integrity"
 title = "Corpus scan integrity (balanced fences; no file ends inside an open code block)"
 source = "core/rules/corpus-scan-integrity.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-unbalanced-fences.py gate rationale (new clause in compile PR-6; generated AI-facing rule via gensrc, kind=file, like language-convention, per the Option-A maintainer decision 2026-09-10)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-unbalanced-fences.py gate rationale (new clause added with the transfer of the grc gate 66 engine into the pack; by maintainer decision a generated AI-facing rule via gensrc, kind=file, like language-convention)"
 
 [[clauses]]
 id = "markdown-link-integrity"
 title = "Markdown link integrity (no nested markdown links outside code spans)"
 source = "core/rules/markdown-link-integrity.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-nested-markdown-links.py gate rationale (new clause in compile PR-7; generated AI-facing rule via gensrc, kind=file, like corpus-scan-integrity)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-nested-markdown-links.py gate rationale (new clause added when this gate's engine moved into the pack; generated AI-facing rule via gensrc, kind=file, like corpus-scan-integrity)"
 
 [[clauses]]
 id = "normative-wording"
 title = "Normative wording (new content uses must; shall reserved for permitted quotations and legacy)"
 source = "core/rules/normative-wording.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-bare-normative-shall.py gate rationale + governance/specification-master-project.md FR-44 convention (new clause in compile PR-9; generated AI-facing rule via gensrc, kind=file, like markdown-link-integrity)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-bare-normative-shall.py gate rationale + governance/specification-master-project.md FR-44 convention (new clause added when this gate's engine moved into the pack; generated AI-facing rule via gensrc, kind=file, like markdown-link-integrity)"
 
 [[clauses]]
 id = "markdown-link-resolution"
 title = "Markdown link resolution (internal link targets resolve to an existing in-repo path)"
 source = "core/rules/markdown-link-resolution.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-links.py gate rationale (new clause in compile PR-10; generated AI-facing rule via gensrc, kind=file, like markdown-link-integrity; distinct from markdown-link-integrity which is only the nested-link malformation and corpus-scan-integrity which is fences)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-links.py gate rationale (new clause added when this gate's engine moved into the pack; generated AI-facing rule via gensrc, kind=file, like markdown-link-integrity; distinct from markdown-link-integrity which is only the nested-link malformation and corpus-scan-integrity which is fences)"
 
 [[clauses]]
 id = "required-sections"
 title = "Required sections by document type (a modelled doctype carries its required sections)"
 source = "core/rules/required-sections.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-required-sections.py gate rationale (new clause in compile PR-11; generated AI-facing rule via gensrc, kind=file, like markdown-link-resolution; the grc-specific section MODEL stays in the wrapper as project config, not in the clause)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-required-sections.py gate rationale (new clause added when this gate's engine moved into the pack; generated AI-facing rule via gensrc, kind=file, like markdown-link-resolution; the grc-specific section MODEL stays in the wrapper as project config, not in the clause)"
 
 [[clauses]]
 id = "citation-denylist"
 title = "Citation denylist (documents do not cite known-wrong framework/standard identifiers)"
 source = "core/rules/citation-denylist.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-citations.py gate rationale (new clause in compile PR-12; generated AI-facing rule via gensrc, kind=file, like required-sections; the grc-specific DENYLIST + per-term PATH_EXEMPTIONS are wrapper config, not in the clause)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-citations.py gate rationale (new clause added when this gate's engine moved into the pack; generated AI-facing rule via gensrc, kind=file, like required-sections; the grc-specific DENYLIST + per-term PATH_EXEMPTIONS are wrapper config, not in the clause)"
 
 [[clauses]]
 id = "section-placement"
 title = "Section placement (named sections appear in their required top/bottom position)"
 source = "core/rules/section-placement.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-section-placement.py gate rationale (new clause in compile PR-13; generated AI-facing rule via gensrc, kind=file, like citation-denylist; the grc-specific PLACEMENT_RULES are wrapper config, not in the clause; distinct from required-sections which is section PRESENCE not ORDER)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-section-placement.py gate rationale (new clause added when this gate's engine moved into the pack; generated AI-facing rule via gensrc, kind=file, like citation-denylist; the grc-specific PLACEMENT_RULES are wrapper config, not in the clause; distinct from required-sections which is section PRESENCE not ORDER)"
 
 [[clauses]]
 id = "shall-near-uncertainty"
 title = "Mandatory requirements near uncertainty markers (no shall/must within N lines of a TBD/TODO/placeholder marker)"
 source = "core/rules/shall-near-uncertainty.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-shall-near-uncertainty.py gate rationale (new clause in compile PR-14; generated AI-facing rule via gensrc, kind=file, like section-placement; the marker/word patterns + window are the defaults/grc/uncertainty.toml profile since Phase-4 PR-I (the check ALGORITHM is the engine), the grc-specific exempt-file set is wrapper config)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-shall-near-uncertainty.py gate rationale (new clause added when this gate's engine moved into the pack; generated AI-facing rule via gensrc, kind=file, like section-placement; the marker/word patterns + window now live in the defaults/grc/uncertainty.toml profile (the check ALGORITHM is the engine), the grc-specific exempt-file set is wrapper config)"
 
 [[clauses]]
 id = "todo-forward-only"
 title = "Forward-looking backlog (no item marked done in place)"
 source = "core/rules/todo-forward-only.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-todo-marked-done.py gate rationale (new clause in compile PR-15; generated AI-facing rule via gensrc, kind=file, like shall-near-uncertainty; the done-marker patterns live in the pack engine as the generic check, the scan target is wrapper config)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-todo-marked-done.py gate rationale (new clause added when this gate's engine moved into the pack; generated AI-facing rule via gensrc, kind=file, like shall-near-uncertainty; the done-marker patterns live in the pack engine as the generic check, the scan target is wrapper config)"
 
 [[clauses]]
 id = "positional-backlog-token"
 title = "Positional backlog-token references (no citing a backlog item by its renumber-fragile position)"
 source = "core/rules/positional-backlog-token.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-positional-backlog-tokens.py gate rationale (new clause in compile PR-16; generated AI-facing rule via gensrc, kind=file, like todo-forward-only; the POSITIONAL_REF pattern lives in the pack engine as the generic check, the exempt-file set is wrapper config)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-positional-backlog-tokens.py gate rationale (new clause added when this gate's engine moved into the pack; generated AI-facing rule via gensrc, kind=file, like todo-forward-only; the POSITIONAL_REF pattern lives in the pack engine as the generic check, the exempt-file set is wrapper config)"
 
 [[clauses]]
 id = "no-stub-documents"
 title = "No stub documents (production documents meet a word-count floor and carry no stub-indicator phrase)"
 source = "core/rules/no-stub-documents.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-stub-documents.py gate rationale (new clause in compile PR-17; generated AI-facing rule via gensrc, kind=file, like positional-backlog-token; the stub-phrase list + word-count threshold are profile-loaded (defaults/grc/stubs.toml, Phase-4 PR-G) and passed to the engine's generic check, the exempt-file/target-selection is wrapper config)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-stub-documents.py gate rationale (new clause added when this gate's engine moved into the pack; generated AI-facing rule via gensrc, kind=file, like positional-backlog-token; the stub-phrase list + word-count threshold are profile-loaded (defaults/grc/stubs.toml) and passed to the engine's generic check, the exempt-file/target-selection is wrapper config)"
 
 [[clauses]]
 id = "filename-title-alignment"
 title = "Filename and document-title alignment (the filename stem shares a content word with the title)"
 source = "core/rules/filename-title-alignment.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-filename-title-alignment.py gate rationale (new clause in compile PR-18; generated AI-facing rule via gensrc, kind=file, like no-stub-documents; the doctype-prefix set + synonym map + min-overlap threshold are wrapper config, not in the clause)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-filename-title-alignment.py gate rationale (new clause added when this gate's engine moved into the pack; generated AI-facing rule via gensrc, kind=file, like no-stub-documents; the doctype-prefix set + synonym map + min-overlap threshold are wrapper config, not in the clause)"
 
 [[clauses]]
 id = "standards-currency"
 title = "Standards currency (external-standard citations use the current, not a superseded, version)"
 source = "core/rules/standards-currency.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-standards-currency.py gate rationale (new clause in compile PR-19; generated AI-facing rule via gensrc, kind=file, like filename-title-alignment; the canonical-citations register + repo root are wrapper config, the pattern-compile+check is the engine)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-standards-currency.py gate rationale (new clause added when this gate's engine moved into the pack; generated AI-facing rule via gensrc, kind=file, like filename-title-alignment; the canonical-citations register + repo root are wrapper config, the pattern-compile+check is the engine)"
 
 [[clauses]]
 id = "directional-dependency"
 title = "Directional dependency (a deliverable document does not link into project-internal governance)"
 source = "core/rules/directional-dependency.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-directional-dependency.py gate rationale (new clause in compile PR-20; generated AI-facing rule via gensrc, kind=file, like standards-currency; the project-governance directory name + scan scope are wrapper config, the marker-aware fence + link check is the engine)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-directional-dependency.py gate rationale (new clause added when this gate's engine moved into the pack; generated AI-facing rule via gensrc, kind=file, like standards-currency; the project-governance directory name + scan scope are wrapper config, the marker-aware fence + link check is the engine)"
 
 [[clauses]]
 id = "role-authority"
 title = "Role authority (Owner and Approving Authority metadata values resolve to a known role)"
 source = "core/rules/role-authority.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-roles.py gate rationale (new clause in compile PR-21; generated AI-facing rule via gensrc, kind=file, like directional-dependency; the role-authority register path + table format, the EXTRA_KNOWN_ROLES allow-list, and the scan scope are wrapper config, the metadata-value extraction + placeholder skip + membership check is the engine)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-roles.py gate rationale (new clause added when this gate's engine moved into the pack; generated AI-facing rule via gensrc, kind=file, like directional-dependency; the role-authority register path + table format, the EXTRA_KNOWN_ROLES allow-list, and the scan scope are wrapper config, the metadata-value extraction + placeholder skip + membership check is the engine)"
 
 [[clauses]]
 id = "placeholder-leakage"
 title = "Placeholder leakage (a production document contains no placeholder marker)"
 source = "core/rules/placeholder-leakage.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-placeholder-leakage.py gate rationale (new clause in compile PR-22; generated AI-facing rule via gensrc, kind=file, like role-authority; the exempt-file/exempt-dir sets + template-/worklist- prefix carve-outs + scan scope are wrapper config, the fence-aware scan is the engine; the marker pattern set is the defaults/grc/placeholders.toml profile since Phase-4 PR-H)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-placeholder-leakage.py gate rationale (new clause added when this gate's engine moved into the pack; generated AI-facing rule via gensrc, kind=file, like role-authority; the exempt-file/exempt-dir sets + template-/worklist- prefix carve-outs + scan scope are wrapper config, the fence-aware scan is the engine; the marker pattern set now lives in the defaults/grc/placeholders.toml profile)"
 
 [[clauses]]
 id = "gate-count-consistency"
 title = "Gate-count consistency (a prose reference to a governed collection's size matches its canonical count)"
 source = "core/rules/gate-count-consistency.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-gate-count-consistency.py gate rationale (new clause in compile PR-23; generated AI-facing rule via gensrc, kind=file, like placeholder-leakage; the canonical-count sources (spec path + rule/skill dirs) + scanned suffixes + exempt sets are wrapper config, the count-idiom pattern set + word-number machinery + version-history-aware scan is the engine)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-gate-count-consistency.py gate rationale (new clause added when this gate's engine moved into the pack; generated AI-facing rule via gensrc, kind=file, like placeholder-leakage; the canonical-count sources (spec path + rule/skill dirs) + scanned suffixes + exempt sets are wrapper config, the count-idiom pattern set + word-number machinery + version-history-aware scan is the engine)"
 
 [[clauses]]
 id = "date-format"
 title = "Date-format metadata (the **Date:** field is an ISO 8601 YYYY-MM-DD calendar date)"
 source = "core/rules/date-format.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-date-format.py gate rationale (new clause in SHARED/SAFETY-lane PR-33; generated AI-facing rule via gensrc, kind=file, like gate-count-consistency; the plausible year range + template/worklist filename prefixes are the check's parameters in the engine, the ISO_DATE_RE + validate_date + PLACEHOLDER_VALUES + fence-aware scan is the engine, the grc scan scope is wrapper config)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-date-format.py gate rationale (new clause added when this gate's engine moved into the pack; generated AI-facing rule via gensrc, kind=file, like gate-count-consistency; the plausible year range + template/worklist filename prefixes are the check's parameters in the engine, the ISO_DATE_RE + validate_date + PLACEHOLDER_VALUES + fence-aware scan is the engine, the grc scan scope is wrapper config)"
 
 [[clauses]]
 id = "license-consistency"
 title = "License consistency (the **License:** field is exactly the canonical license string)"
 source = "core/rules/license-consistency.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-license-consistency.py gate rationale (new clause in SHARED/SAFETY-lane PR-34; generated AI-facing rule via gensrc, kind=file, like date-format; the canonical license string is fixed in the engine, the raw-line (non-fence-aware) scan is the engine, the grc scan scope + exempt-file set are wrapper config)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-license-consistency.py gate rationale (new clause added when this gate's engine moved into the pack; generated AI-facing rule via gensrc, kind=file, like date-format; the canonical license string is fixed in the engine, the raw-line (non-fence-aware) scan is the engine, the grc scan scope + exempt-file set are wrapper config)"
 
 [[clauses]]
 id = "section-anchor-resolution"
 title = "Section-anchor resolution (a link whose target carries a #anchor fragment resolves to a real heading slug in the target)"
 source = "core/rules/section-anchor-resolution.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-section-anchors.py gate rationale (new clause in SHARED/SAFETY-lane PR-35; generated AI-facing rule via gensrc, kind=file, like license-consistency; the GitHub-flavour slugify + heading extraction + anchor-resolution scan is the engine, the grc scan scope is wrapper config; the engine scan takes repo_root as a keyword so it is repository-root-free)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-section-anchors.py gate rationale (new clause added when this gate's engine moved into the pack; generated AI-facing rule via gensrc, kind=file, like license-consistency; the GitHub-flavour slugify + heading extraction + anchor-resolution scan is the engine, the grc scan scope is wrapper config; the engine scan takes repo_root as a keyword so it is repository-root-free)"
 
 [[clauses]]
 id = "intra-doc-section-refs"
 title = "Intra-document section references (a section-N reference matches a numbered heading in the same document)"
 source = "core/rules/intra-doc-section-refs.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-intra-doc-refs.py gate rationale (new clause in SHARED/SAFETY-lane PR-36; generated AI-facing rule via gensrc, kind=file, like section-anchor-resolution; the heading/reference regexes + the cross-doc heuristic (window scan + doctype-word + framework-name vocabularies) + the resolution scan is the engine, the grc scan scope + exempt-file set are wrapper config)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-intra-doc-refs.py gate rationale (new clause added when this gate's engine moved into the pack; generated AI-facing rule via gensrc, kind=file, like section-anchor-resolution; the heading/reference regexes + the cross-doc heuristic (window scan + doctype-word + framework-name vocabularies) + the resolution scan is the engine, the grc scan scope + exempt-file set are wrapper config)"
 
 [[clauses]]
 id = "secret-content"
 title = "Secret content (content carries no high-confidence secret pattern)"
 source = "core/rules/secret-content.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-secrets-in-content.py gate rationale (new clause in SHARED/SAFETY-lane PR-37; first SAFETY-mapped transfer; generated AI-facing rule via gensrc, kind=file, like intra-doc-section-refs; the SECRET_PATTERNS vocabulary + the redacting fence-aware scan is the engine, the grc scanned-suffix set + exempt-file set are wrapper config; the engine is added to the exempt set defensively, mirroring the wrapper's own self-exemption, because it now documents the secret formats by design)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-secrets-in-content.py gate rationale (new clause added when this gate's engine moved into the pack; first SAFETY-mapped transfer; generated AI-facing rule via gensrc, kind=file, like intra-doc-section-refs; the SECRET_PATTERNS vocabulary + the redacting fence-aware scan is the engine, the grc scanned-suffix set + exempt-file set are wrapper config; the engine is added to the exempt set defensively, mirroring the wrapper's own self-exemption, because it now documents the secret formats by design)"
 
 [[clauses]]
 id = "pii-content"
 title = "PII content (content carries no suspected personally-identifying information)"
 source = "core/rules/pii-content.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-pii-in-content.py gate rationale (new clause in SHARED/SAFETY-lane PR-38; second SAFETY-mapped transfer; generated AI-facing rule via gensrc, kind=file, like secret-content; the detection regexes (email/SSN/phone/IPv4/street) + the IP filters + the redaction-free fence-aware scan is the engine, the grc scanned-suffix set + exempt-file set + example-domain allow-list are wrapper config; scan takes example_domains as a keyword so the engine carries no grc allow-list; the engine is added to the exempt set defensively, mirroring the wrapper's self-exemption)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-pii-in-content.py gate rationale (new clause added when this gate's engine moved into the pack; second SAFETY-mapped transfer; generated AI-facing rule via gensrc, kind=file, like secret-content; the detection regexes (email/SSN/phone/IPv4/street) + the IP filters + the redaction-free fence-aware scan is the engine, the grc scanned-suffix set + exempt-file set + example-domain allow-list are wrapper config; scan takes example_domains as a keyword so the engine carries no grc allow-list; the engine is added to the exempt set defensively, mirroring the wrapper's self-exemption)"
 
 [[clauses]]
 id = "internal-reference"
 title = "Internal reference (content exposes no internal-deployment hostname, cloud region, or non-documentation subnet)"
 source = "core/rules/internal-reference.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-internal-references.py gate rationale (new clause in SHARED/SAFETY-lane PR-39; third SAFETY-mapped transfer; generated AI-facing rule via gensrc, kind=file, like pii-content; the 5 detection regexes + the documentation-subnet filter + the fence-aware scan is the engine, the grc scanned-suffix set + exempt-file set are wrapper config; the engine is added to the exempt set defensively, mirroring the wrapper's self-exemption)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-internal-references.py gate rationale (new clause added when this gate's engine moved into the pack; third SAFETY-mapped transfer; generated AI-facing rule via gensrc, kind=file, like pii-content; the 5 detection regexes + the documentation-subnet filter + the fence-aware scan is the engine, the grc scanned-suffix set + exempt-file set are wrapper config; the engine is added to the exempt set defensively, mirroring the wrapper's self-exemption)"
 
 [[clauses]]
 id = "external-link-domain"
 title = "External-link domain (every external http(s) URL's host is on the project publisher allow-list)"
 source = "core/rules/external-link-domain.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-external-link-domains.py gate rationale (new clause in SHARED/SAFETY-lane PR-40; fourth SAFETY-mapped transfer; generated AI-facing rule via gensrc, kind=file, like internal-reference; the URL regex + host-matching is_allowed + the fence-aware scan is the engine, the grc publisher allow-list + scanned-suffix set + exempt-file set are wrapper config; scan/is_allowed take allow_list as a keyword so the engine carries no grc allow-list; the engine is added to the exempt set defensively)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-external-link-domains.py gate rationale (new clause added when this gate's engine moved into the pack; fourth SAFETY-mapped transfer; generated AI-facing rule via gensrc, kind=file, like internal-reference; the URL regex + host-matching is_allowed + the fence-aware scan is the engine, the grc publisher allow-list + scanned-suffix set + exempt-file set are wrapper config; scan/is_allowed take allow_list as a keyword so the engine carries no grc allow-list; the engine is added to the exempt set defensively)"
 
 [[clauses]]
 id = "acronym-consistency"
 title = "Acronym consistency (an inline acronym definition overlaps the glossary expansion by at least one significant word)"
 source = "core/rules/acronym-consistency.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-acronym-consistency.py gate rationale (new clause in SHARED/SAFETY-lane PR-41, the first 2nd-seam SHARED transfer; generated AI-facing rule via gensrc, kind=file, like external-link-domain; the GLOSSARY_ROW_RE + INLINE_DEF_RE + STOPWORDS + parse_glossary + the overlap scan is the engine, the grc glossary-register path + scan scope + exempt-file set are wrapper config; parse_glossary takes the glossary path as a parameter and both parse_glossary and scan stay wrapper module-global shims because the scan-scope test patches BOTH)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-acronym-consistency.py gate rationale (new clause added when this gate's engine moved into the pack, the first 2nd-seam SHARED transfer; generated AI-facing rule via gensrc, kind=file, like external-link-domain; the GLOSSARY_ROW_RE + INLINE_DEF_RE + STOPWORDS + parse_glossary + the overlap scan is the engine, the grc glossary-register path + scan scope + exempt-file set are wrapper config; parse_glossary takes the glossary path as a parameter and both parse_glossary and scan stay wrapper module-global shims because the scan-scope test patches BOTH)"
 
 [[clauses]]
 id = "cross-doc-numbers"
 title = "Cross-document number consistency (a tracked canonical term carries one consistent numeric value across documents)"
 source = "core/rules/cross-doc-numbers.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-cross-doc-numbers.py gate rationale (new clause in SHARED/SAFETY-lane PR-42, the second 2nd-seam SHARED transfer, though it only patches scan (whose dict return makes the scope-test capture return {}); generated AI-facing rule via gensrc, kind=file, like acronym-consistency; the TERM_PATTERNS + TERMS_SCANNED_IN_CODE_FENCES + UNIT_TO_MINUTES + normalise + the per-file scan is the engine, the grc scan scope + exempt-file set are wrapper config; the cross-document aggregation stays in the wrapper's main. The engine .py is out of the .md-only scan scope, so no engine self-exemption is needed (unlike the SAFETY .py-scanning gates))"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-cross-doc-numbers.py gate rationale (new clause added when this gate's engine moved into the pack, the second 2nd-seam SHARED transfer, though it only patches scan (whose dict return makes the scope-test capture return {}); generated AI-facing rule via gensrc, kind=file, like acronym-consistency; the TERM_PATTERNS + TERMS_SCANNED_IN_CODE_FENCES + UNIT_TO_MINUTES + normalise + the per-file scan is the engine, the grc scan scope + exempt-file set are wrapper config; the cross-document aggregation stays in the wrapper's main. The engine .py is out of the .md-only scan scope, so no engine self-exemption is needed (unlike the SAFETY .py-scanning gates))"
 
 [[clauses]]
 id = "cobit-iso31000-citations"
 title = "COBIT and ISO 31000 citation existence (a cited framework code resolves to a real catalogue entry)"
 source = "core/rules/cobit-iso31000-citations.md"
-origin = "grc_library .claude/skills/corpus-management/tools/lint-cobit-iso31000-citations.py gate rationale (new clause in SHARED/SAFETY-lane PR-43)"
+origin = "grc_library .claude/skills/corpus-management/tools/lint-cobit-iso31000-citations.py gate rationale (new clause added when this gate's engine moved into the pack)"
 
 [[clauses]]
 id = "metadata-line-breaks"

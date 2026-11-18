@@ -533,7 +533,7 @@ def report_one(doc_path: str, plan=None, indexed=_UNPLANNED, generators=_UNPLANN
 
 
 def main(argv: list[str]) -> int:
-    # 3b50b2e2: a flag-like token used to be treated as a document name; parse strictly (use '--'
+    # A flag-like token used to be treated as a document name; parse strictly (use '--'
     # before a path that begins with '-'). A path that does not exist yet stays valid: this tool
     # plans listing surfaces for PROPOSED documents (SuggestListingSurfacesTests).
     docs = positional_args(argv[1:], known_flags=())

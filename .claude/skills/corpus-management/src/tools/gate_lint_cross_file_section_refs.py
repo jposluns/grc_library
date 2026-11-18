@@ -25,7 +25,10 @@ and every cell is checked; an unmatched backtick is literal and backslashes
 inside code are literal. A local heading
 reference in a table cell is excluded when real descriptive text intervenes
 before a nearby following parenthesized link with a matching closing parenthesis,
-and no link precedes that mark in the cell. "Of the target" describes the
+and no link precedes that mark in the cell. A cell of that shape whose
+parenthesis is not closed after the link is refused as malformed, whether or
+not the target holds the cited number, instead of being checked as a citation
+of the target. "Of the target" describes the
 target, so it is checked. Prose remains subject to the adjacent-link check.
 Only explicit "of [the] target" wording is treated as a target citation in
 this table-cell exception; "of the policy" remains a documented residual.
@@ -188,6 +191,49 @@ def reference_cells(line: str) -> list[str]:
     return cells
 
 
+def _closes_open_parenthesis(cell: str, start: int) -> bool:
+    """Whether ``cell[start:]`` closes one parenthesis already open before ``start``.
+
+    Parentheses are counted with nesting, so a nested parenthetical does not
+    close the open one. Only a parenthesis at or after ``start`` is counted. A
+    parenthesis is ignored only inside a code span, or after an odd run of
+    backslashes, that the scanned text itself opens. The scan begins at the
+    start of the cell, so a code span opened before ``start`` is part of the
+    scanned text: a parenthesis it encloses after ``start`` is ignored, and a
+    span or escape opened outside the cell is not seen. Code spans follow the
+    rule ``reference_cells`` uses: a backtick run not escaped opens code only
+    when an equal-length closing run exists, and inside code backslashes are
+    literal.
+    """
+    depth = 1
+    backslashes = 0
+    i = 0
+    while i < len(cell):
+        char = cell[i]
+        if char == "\\":
+            backslashes += 1
+            i += 1
+            continue
+        escaped = backslashes % 2 == 1
+        backslashes = 0
+        if char == "`" and not escaped:
+            end = i + 1
+            while end < len(cell) and cell[end] == "`":
+                end += 1
+            closing = re.search(r"(?<!`)`{%d}(?!`)" % (end - i), cell[end:])
+            i = end + closing.end() if closing else end
+            continue
+        if not escaped and i >= start:
+            if char == "(":
+                depth += 1
+            elif char == ")":
+                depth -= 1
+                if depth == 0:
+                    return True
+        i += 1
+    return False
+
+
 def check_file(
     path: Path,
     repo_root: Path,
@@ -239,8 +285,24 @@ def check_file(
                             and number in own_sections and following is not None
                             and not any(m.end() <= match.start() for m in md_link_re.finditer(cell))
                             and re.fullmatch(r"\s+[^()]*\S[^()]*\(\s*", intervening)
-                            and not re.match(r"\s+of\s+(?:the\s+)?target\b", intervening, re.I)
-                            and re.match(r"[^()]*\)", cell[following.end():])):
+                            and not re.match(r"\s+of\s+(?:the\s+)?target\b", intervening, re.I)):
+                        # Scan with balanced parentheses: a nested
+                        # parenthetical inside the exception path does not
+                        # close the link's own parenthesis, and a parenthesis
+                        # in a code span or escaped is not counted. The scan
+                        # starts at the cell's start, so a code span opened
+                        # before the link is known.
+                        if _closes_open_parenthesis(cell, following.end()):
+                            continue
+                        # Without its closing parenthesis the row would fall
+                        # through to the target check and pass whenever the
+                        # target holds the same number, so refuse it here.
+                        findings.append(
+                            f"{path.relative_to(repo_root)}:{lineno}: local section "
+                            f"§{number} is followed by descriptive text and a "
+                            f"parenthesized link with no closing parenthesis in "
+                            f"its table cell"
+                        )
                         continue
                     if link is not None:
                         target = resolve_target(path, link, repo_root)

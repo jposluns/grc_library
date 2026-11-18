@@ -81,8 +81,10 @@ false-negative cost:
      yield nothing, not the parent ``P-N.M``), (b) skips an id preceded by
      a destination cue (``absorbed into P-N.M``) or followed by a creation
      participle (``P-N.M created``), both naming a LIVE id, and (c) relies
-     on the same EXEMPT dict for live-umbrella partial closes (the P-id
-     section, including two same-id FAMILY rows). Series P-1 has NO public
+     on the EXEMPT rows for live-umbrella partial closes (the P-id rows,
+     which may include same-id FAMILY rows, are read from the private sibling's
+     ``todo-number-exempt.json``, so this public file names no private
+     id; with no sibling there is no private list to check either). Series P-1 has NO public
      floor backstop, so this pass is its ONLY recycle protection.
 
      ACCEPTED LIMITATION (bare in-paren ids). The P-pass strips parentheticals
@@ -178,7 +180,9 @@ false-negative cost:
      still-open umbrella item legitimately names a live number (for example
      ``### TODO §N.M (apply wave complete; item stays open for the matrix
      TSC-column residual): ...``). Those are listed in ``EXEMPT`` keyed by
-     ``(id, distinctive_heading_substring)`` with a rationale, so an
+     ``(id, distinctive_heading_substring)`` with the entry's date (a row
+     keyed by a private backlog id goes in the private sibling's
+     ``todo-number-exempt.json`` instead, read into ``PRIVATE_EXEMPT``), so an
      exemption cannot silently widen to a different entry. In the earlier
      repository, a line-number key was tried first and REJECTED on
      measurement: one unrelated PR shifted both entries by 4 lines and both
@@ -256,6 +260,7 @@ import argparse
 import os
 import re
 import sys
+from datetime import date as _date
 from pathlib import Path
 
 from lint_common import InaccessiblePath, print_degraded, resolve_working, resolve_sibling, require_dir, strict_kind
@@ -269,6 +274,10 @@ DONE_REL = ".working/DONE.md"
 # The private backlog list lives ONLY in the private sibling (no in-repo
 # fallback, unlike .working/); absent for public CI / adopter clones.
 PTODO_REL = "P-TODO.md"
+# The partial-close exemption rows keyed by a private backlog id live beside the private list,
+# in the same sibling, so the public tool names no private id. Format: a JSON object
+# {"rows": [[id, distinctive heading substring, "<date>; heading: <substring>"], ...]}.
+PEXEMPT_REL = "todo-number-exempt.json"
 
 # Live index rows and '### <id>' headings are read through .claude/skills/corpus-management/tools/todo_index_rows.py (index_rows, item_headings),
 # the grammar the audit tool and the decision-log hook count with (design note 5). The gate keeps no
@@ -293,7 +302,7 @@ P_RETIRED_RE = re.compile(r"\bP-\d+(?:\.\d+){1,2}[a-z]?(?!\.\d)(?![-\w])")
 # A P-id immediately preceded by a destination/relocation cue names a LIVE id
 # pointed AT ('absorbed into P-N.M', 're-homed to P-N.M', '-> P-N.M'); one
 # immediately followed by a creation participle names a LIVE id being opened
-# ('P-N.M created'). Measured 2026-08-29 in the earlier repository: zero
+# ('P-N.M created'). Measured in the earlier repository: zero
 # activations across the ledger (real destination mentions sat inside
 # parentheses, already stripped), so both guards are prophylactic at zero
 # measured false-negative cost.
@@ -339,23 +348,32 @@ THREEB_ID_RE = re.compile(_THREEB_ID)
 THREEB_LEAD_PARTIAL_RE = re.compile(
     r"^(?:[\w.-]|\s*[:,-]?\s*\(|\s*[:,-]?\s*(?:parts?|partial(?:ly)?|phase|slice|split)\b)", re.IGNORECASE)
 
-# (id, distinctive DONE.md heading substring) -> rationale. A partial close
-# recorded against a still-open umbrella item. Keyed by a heading SUBSTRING, not
+# (id, distinctive DONE.md heading substring) -> the exempted entry's date and
+# that heading (no code reads the values; _exempt matches the keys). A value's
+# heading text leaves out finding ids, so it can be shorter than its key's
+# substring (the key keeps them, since it must match the entry). Each row is a
+# pre-rule grandfather (a number reassigned before the permanent-id rule) or a
+# partial close recorded against a still-open umbrella item; both classes are
+# described below. Keyed by a heading SUBSTRING, not
 # by line number: a line key looked tighter but re-fired on any unrelated edit
 # that shifted DONE.md (measured in the earlier repository: one PR moved two
 # entries by 4 lines and both exemptions lapsed), which would make the gate
 # unusable per-commit. Each § substring below was checked to match exactly ONE of
 # DONE.md's entry headings, so an exemption cannot widen to another entry. The
-# P-id partial-close section adds two FAMILY rows (a distinctive id-prefixed
+# P-id partial-close rows (read from the private sibling, see PEXEMPT_REL) may include FAMILY rows (a distinctive id-prefixed
 # substring matching a batch of the SAME id's headings, e.g. 'P-N.M Phase'):
 # these are id-scoped by _exempt so they still cannot widen to a DIFFERENT item,
 # only to more of the same live id's own partial closes.
+# The DONE.md entries these rows name live in the private operational store;
+# with --root, the entries are read from that root's .working/DONE.md instead.
 #
 # THIS DICT'S COMPLETENESS, NOT THE PARSE, IS THIS GATE'S FALSE-POSITIVE SURFACE:
 # the parse cannot tell a partial or sub-item close from a full retirement, so
-# every legitimate live-and-retired coexistence must be enumerated here with its
-# reason, and any future partial close against a still-open umbrella must add its
-# own row in the same PR that records the close.
+# every legitimate live-and-retired coexistence must be covered by a row here:
+# its own row, or a FAMILY row (above) whose substring matches several partial
+# closes of the same live id. Any future partial close against a still-open
+# umbrella must add a row in the same PR that records the close, unless a family
+# row for that id already matches its heading.
 #
 # Two classes, both audited in the earlier repository:
 #   PRE-RULE GRANDFATHER: the number was reassigned to different work BEFORE the
@@ -370,609 +388,39 @@ THREEB_LEAD_PARTIAL_RE = re.compile(
 EXEMPT: dict[tuple[str, str], str] = {
     # --- pre-rule grandfathers (7 ids, 8 rows: one id collides on two DONE lines) ---
     ("3.2", "CHANGELOG detailed-mirror per-PR-header parity check"): (
-        "PRE-RULE GRANDFATHER. The live row (authoritative standards register) drew "
-        "3.2 in 60641dc7 (2026-07-09, the one-item-one-action TODO restructure), "
-        "after the unrelated gate-59 item that held 3.2 retired on 2026-07-01 "
-        "(bdb37ea5, PR #521). Both halves predate the 2026-07-15 rule."
+        "2026-07-01; heading: CHANGELOG detailed-mirror per-PR-header parity check"
     ),
     ("3.3", "Citation-verification consistency cross-check"): (
-        "PRE-RULE GRANDFATHER. The live row (CLAUDE.md removal-ledger cadence) was "
-        "renumbered into 3.3 by 60641dc7 (2026-07-09) and still carries its "
-        "'(was 3.12)' breadcrumb; the unrelated citation-consistency item that held "
-        "3.3 retired 2026-07-01 (a9feaef9, PR #522). Both predate 2026-07-15."
+        "2026-07-01; heading: Citation-verification consistency cross-check"
     ),
     ("3.9", "document the scratch `ref/` base as the standing citation"): (
-        "PRE-RULE GRANDFATHER. The live row (require-registration citation-currency "
-        "gate) drew 3.9 in 60641dc7 (2026-07-09); the unrelated ref-base "
-        "documentation item that held 3.9 retired 2026-07-01 (2330abe0, PR #515). "
-        "Both predate 2026-07-15."
+        "2026-07-01; heading: document the scratch `ref/` base as the standing citation"
     ),
     ("3.13", "protected `.claude/CLAUDE.md` wind-down"): (
-        "PRE-RULE GRANDFATHER. 3.13 was reassigned twice pre-rule: 7afb1f64 "
-        "(2026-07-01) gave it to the audit-surfaced gate extensions after the "
-        "CLAUDE.md-optimization item retired in the same-day wind-down (ca1ef503, "
-        "PR #523), and 60641dc7 (2026-07-09) split that into the live "
-        "mutation-probe item. Both predate 2026-07-15."
+        "2026-07-01; heading: protected `.claude/CLAUDE.md` wind-down"
     ),
     ("3.14", "protected `.claude/CLAUDE.md` wind-down"): (
-        "PRE-RULE GRANDFATHER. The live row (ETSI Securing-AI alignment map) was "
-        "renumbered from 3.16 into the freed 3.14 by 60641dc7 (2026-07-09) and "
-        "still carries its '(was 3.16)' breadcrumb; the prior 3.14 retired "
-        "2026-07-01 in this multi-id wind-down entry (ca1ef503, PR #523). Both "
-        "predate 2026-07-15."
+        "2026-07-01; heading: protected `.claude/CLAUDE.md` wind-down"
     ),
     ("3.14", "tooling half"): (
-        "PRE-RULE GRANDFATHER, and NOT a partial close despite how the heading "
-        "reads. The umbrella whose tooling half closed here was "
-        "'### 3.14 Reinforce the section-close cross-FILE cleanup checklist line "
-        "...' (TODO.md:196 at 2330abe0, 2026-07-01), which has since fully "
-        "retired; 60641dc7 (2026-07-09) then renumbered the unrelated ETSI item "
-        "into 3.14. The live 3.14 is not the item this entry trimmed. Both "
-        "predate 2026-07-15."
+        "2026-07-01; heading: tooling half"
     ),
     ("4.5", "gate 56 bare-normative-shall audit"): (
-        "PRE-RULE GRANDFATHER. This entry closed sub-item S4 of the old "
-        "'### 4.5 Audit-gate candidates from the 2026-06-22 review' on 2026-06-29 "
-        "(e08f9c5f, PR #466); 0cce6a2b (2026-06-30, the priority-prefixed "
-        "renumber) then reassigned 4.5 to the fork-facing reference-base item that "
-        "is live today (retitled, not renumbered, by d3543457 on 2026-07-12). Both "
-        "predate 2026-07-15."
+        "2026-06-29; heading: gate 56 bare-normative-shall audit"
     ),
     ("4.6", "QA-cadence mechanical enforcement closed as satisfied"): (
-        "PRE-RULE GRANDFATHER. The old 4.6 (QA-cadence mechanical enforcement) was "
-        "closed in full as satisfied on 2026-06-29 (057fd160, PR #471), its "
-        "unmechanizable half becoming a standing CLAUDE.md convention rather than a "
-        "live item; 7afb1f64 (2026-07-01) then reassigned 4.6, and 60641dc7 "
-        "(2026-07-09) split that into the live fork update-assessment item. Both "
-        "predate 2026-07-15."
+        "2026-06-29; heading: QA-cadence mechanical enforcement closed as satisfied"
     ),
     # --- partial closes against a still-open umbrella (open-ended class) ---
     ("3.57", "apply wave complete"): (
-        "PARTIAL CLOSE against a still-open umbrella. The DONE.md heading says so "
-        "in its own words: '(apply wave complete; item stays open for the matrix "
-        "TSC-column residual)', and the body confirms '§3.57 stays open only for "
-        "the deferred matrix TSC-column mapping'. TODO 3.57 is legitimately live."
+        "date not recorded; heading: apply wave complete"
     ),
     ("5.9", "NYC-LL144"): (
-        "PARTIAL CLOSE against a still-open umbrella. The entry retires the "
-        "NYC-LL144 CANDIDATE inside section 5.9 ('NYC-LL144 candidate reconciled "
-        "and struck', PR #1136, 2026-07-24), not the umbrella, whose body ends "
-        "'§5.9 stays open.' Note the heading does not say so, unlike the 3.57 "
-        "entry, so this exemption rests on reading the entry body. Note also the "
-        "date: this partial close is POST-rule, which is why this class is not a "
-        "closed historical set."
-    ),
-    # --- P-id partial closes. The private backlog ids (P-N.M) that
-    #     P_RETIRED_RE detects. Each is a live private backlog umbrella whose
-    #     DONE headings closed one phase/batch/sub-item. Two are FAMILY rows
-    #     (a distinctive id-prefixed substring matching a batch of same-id
-    #     headings): scoped to the id by _exempt, so a family row cannot
-    #     widen to a different item, only to more of the SAME live id's own
-    #     partial closes, which is acceptable because recycling that id is
-    #     forbidden anyway. ---
-    ("P-1.25", "P-1.25 Phase"): (
-        "PARTIAL CLOSE family (5 headings, DONE:581/586/591/3210/3214). The "
-        "'Executive narrative + executive-experience layer' umbrella (P-1.25) is "
-        "live at P-TODO; each 'Phase N' entry closed one build phase of it."
-    ),
-    ("P-1.77", "P-1.77 pt1 gate-98 whole-pin canonical-form schema"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2034, 2026-09-06). P-1.77 "
-        "('gate/tool hardening tail') is live at P-TODO with two remaining parts "
-        "(parity-argv gate-35 full-invocation compare; runtime-pin delegation to the "
-        "guardrails aiqt-core vendor-digest-verify); #2034 closed only pt1, the gate-98 "
-        "whole-pin canonical-form schema + crash/display/output safety. The DONE heading "
-        "says 'pt1', so the partial nature is on the heading itself."
-    ),
-    ("P-1.77", "P-1.77 pt2 gate-35 argv-parity"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2041, 2026-09-07). P-1.77 "
-        "('gate/tool hardening tail') stays live at P-TODO after #2041: pt2 closed the "
-        "parity-argv gate-35 full-invocation (argv) compare across the workflow, "
-        "runner, and pre-commit, leaving pt3 (runtime-pin delegation to the guardrails aiqt-core "
-        "vendor-digest-verify). The DONE heading says 'pt2', so the partial nature is "
-        "on the heading itself."
-    ),
-    ("P-1.60", "P-1.60 batch 1"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2044, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 1 closed the named SP 800-124 / COBIT / CCM residual cells (1 fix, 4 verified "
-        "correct, 3 stale premises), and the corpus-wide audit of every cell in every table "
-        "continues in later batches. The DONE heading says 'batch 1', so the partial nature "
-        "is on the heading itself."
-    ),
-    ("P-1.60", "P-1.60 batch 2"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2045, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 2 audited the whole 54-row master-matrix semantic-fit worklist (3 firm mis-fits "
-        "fixed, 2 questionable routed), and the per-document alignment tables + non-worklisted "
-        "rows remain. The DONE heading says 'batch 2', so the partial nature is on the heading."
-    ),
-    ("P-1.60", "P-1.60 batch 3"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2046, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 3 fixed 2 tri-family-unanimous matrix mis-fits (A&A-01 removal; CCC-05->CCC-04 "
-        "multi-surface) and routed the contested line-66 strip + CCC-05 methodology question. "
-        "The DONE heading says 'batch 3', so the partial nature is on the heading itself."
-    ),
-    ("P-1.60", "P-1.60 batch 4a"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2047, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 4a fixed 3 range-independent precise-spec CCM mis-fits in security-domain "
-        "alignment tables (CEK-03->CEK-04, drop TVM-05, IAM-02->IAM-13) and routed the 5 "
-        "pervasive range-sweep findings to the family-vs-spec methodology decision. The DONE "
-        "heading says 'batch 4a', so the partial nature is on the heading itself."
-    ),
-    ("P-1.60", "P-1.60 batch 5"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2048, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 5 fixed 5 register-to-document parity mis-fits in the document-index register "
-        "(incl. the non-existent IPY-05); the governance per-document tables audited clean, and "
-        "the other domains' tables + the range-sweep methodology decision remain. The DONE "
-        "heading says 'batch 5', so the partial nature is on the heading itself."
-    ),
-    ("P-1.60", "P-1.60 batch 6"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2049, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 6 fixed 1 register framework mis-attribution (COBIT CCC) and confirmed the full "
-        "register CCM column existence+parity clean; other domains' per-document tables + the "
-        "range-sweep methodology decision remain. The DONE heading says 'batch 6', so the "
-        "partial nature is on the heading itself."
-    ),
-    ("P-1.60", "P-1.60 batch 8"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2050, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 8 fixed 3 precise-spec CCM mis-fits in operations alignment tables (I&S-06 x2 "
-        "wrong-direction; TVM-02 on an EOL row); the remaining domains' tables + the range-sweep "
-        "methodology decision remain. The DONE heading says 'batch 8', so the partial nature is "
-        "on the heading itself."
-    ),
-    ("P-1.60", "P-1.60 batch 9"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2051, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 9 fixed 3 precise-spec CCM mis-fits in dev-security alignment tables (IAM-15 "
-        "moved session->access; LOG-14 and I&S-08 dropped); the remaining domains' tables + the "
-        "range-sweep methodology decision remain. The DONE heading says 'batch 9', so the "
-        "partial nature is on the heading itself."
-    ),
-    ("P-1.60", "P-1.60 batch 10"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2052, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 10 fixed 1 STA direction mis-fit (STA-13->STA-16) in the supplier-audit procedure; "
-        "the remaining domains' tables + the range-sweep methodology decision remain. The DONE "
-        "heading says 'batch 10', so the partial nature is on the heading itself."
-    ),
-    ("P-1.60", "P-1.60 batch 11"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2053, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 11 fixed 2 AICM control mis-fits in ai-domain alignment tables (AIS-13->IAM-18; "
-        "drop MDS-09); the remaining ai AICM docs + other domains + the range-sweep methodology "
-        "decision remain. The DONE heading says 'batch 11', so the partial nature is on the heading."
-    ),
-    ("P-1.60", "P-1.60 batch 12"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2054, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 12 fixed 3 DSP control mis-fits in privacy alignment tables (DSP-02->DSP-16 x2; "
-        "DSP-04->DSP-12); the remaining domains + the range-sweep methodology decision remain. "
-        "The DONE heading says 'batch 12', so the partial nature is on the heading itself."
-    ),
-    ("P-1.60", "P-1.60 batch 13"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2055, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 13 fixed 2 GRC-01->GRC-02 mis-fits on enterprise-risk docs (combined "
-        "risk+resilience+compliance CCM audit); the non-CCM columns + the range-sweep "
-        "methodology decision remain. The DONE heading says 'batch 13', so partial on the heading."
-    ),
-    ("P-1.60", "P-1.60 batch 15a"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2056, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 15a fixed 4 ISO 27001:2022 Annex A mis-fits in security alignment tables (A.5.36 "
-        "catch-all + A.6.6); the ISO 15b queue + non-CCM columns + range-sweep decision remain. "
-        "The DONE heading says 'batch 15a', so the partial nature is on the heading itself."
-    ),
-    ("P-1.60", "P-1.60 batch 15b"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2057, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 15b fixed 3 more ISO 27001:2022 Annex A mis-fits (A.8.11->A.5.11, A.5.25->A.6.8, "
-        "A.5.10->A.5.14); the guideline ISO findings + non-CCM columns + range-sweep decision remain. "
-        "The DONE heading says 'batch 15b', so the partial nature is on the heading itself."
-    ),
-    ("P-1.60", "P-1.60 batch 16"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2058, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 16 fixed 2 ISO Annex A mis-fits in governance (A.8.20->A.5.29 + register mirror; "
-        "A.5.1->A.5.36); the remaining domains ISO + non-CCM columns + range-sweep decision remain. "
-        "The DONE heading says 'batch 16', so the partial nature is on the heading itself."
-    ),
-    ("P-1.60", "P-1.60 batch 17"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2059, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 17 fixed 4 ISO Annex A mis-fits in operations (A.8.2 drop, A.5.13/14->A.5.9 multi-surface, "
-        "A.8.24->A.8.5/A.8.2, A.8.23 range-drop); privacy ISO + non-CCM columns + range-sweep decision remain. "
-        "The DONE heading says 'batch 17', so the partial nature is on the heading itself."
-    ),
-    ("P-1.60", "P-1.60 batch 18"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2060, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 18 fixed 1 ISO Annex A mis-fit in privacy (A.8.16 drop from presence-inference); "
-        "CSF columns + register-ISO surface + the range-sweep/AICM decisions remain. The DONE "
-        "heading says 'batch 18', so the partial nature is on the heading itself."
-    ),
-    ("P-1.60", "P-1.60 batch 19"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2061, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 19 (wrong-direction A) excised 4 CCC-05 'Change Agreements' (provider-to-tenant) "
-        "mis-fits from internal change / software-eval surfaces (matrix rows 197/216/368 + "
-        "procedure-change-management range CCC-01 to CCC-04); CSF columns + register-ISO surface + "
-        "the pure-breadth/AICM decisions remain. The DONE heading says 'batch 19', so the partial "
-        "nature is on the heading itself."
-    ),
-    ("P-1.60", "P-1.60 batch 20"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2062, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 20 (register-alignment) fixed 3 register Primary-Alignment-Families cells asserting "
-        "codes/standards the source docs do not cite (register:83 SA-3->SR-12 + drop A.5.33; :123 drop "
-        "A.8.28; :233 drop CIS Benchmarks/OWASP SAMM); :232 A.8.25-28 range accepted (pure-breadth). "
-        "CSF columns + pure-breadth/AICM decisions remain. The DONE heading says 'batch 20'."
-    ),
-    ("P-1.60", "P-1.60 batch 21"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2063, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 21 (ESG-disclosure strip, maintainer-decided #2045/#2046) stripped 7 establish-a-programme "
-        "codes from matrix:66 (the ESG+AI-Ethics DISCLOSURE guideline reports outcomes, does not establish "
-        "the programmes): CCM GRC-01/GRC-06 + AICM GRC-10/11/13 -> N/A, ISO drop §9.1, CSF drop GV.OV; "
-        "kept ISO §7.4 + CSF GV.OC. CSF-cyber-scope + AICM + remaining decisions still open. DONE says 'batch 21'."
-    ),
-    ("P-1.60", "P-1.60 batch 22"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2064, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 22 (range-embedded wrong-actor A) enumerated around 2 service-customer-facing CCM members "
-        "in 5 internal-doc ranges: IAM-11 (access-control:182 + identity-management:160 + production-security:225) and CEK-08 "
-        "(data-classification:144 + production-security:224), each held-title-verified as provider-to-tenant. "
-        "CSF-cyber-scope + AICM + I&S/IPY residual + remaining decisions still open. DONE says 'batch 22'."
-    ),
-    ("P-1.60", "P-1.60 batch 23"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2065, 2026-09-07). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "batch 23 (dev-security range-embedded wrong-actor, routed from #2064 A3) enumerated around the "
-        "same 2 service-customer CCM members in 4 dev-security internal-doc ranges: IAM-11 (security-baseline:226) "
-        "+ CEK-08 (security-baseline:229, developer-security-requirements:158 + :352), held-title-verified. "
-        "CSF-cyber-scope + AICM + I&S/IPY residual still open. DONE says 'batch 23'."
-    ),
-    ("P-1.60", "P-1.60 CCM-Hybrid batch-1 -"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2081, 2026-09-08). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "CCM-Hybrid batch-1 removed provider-to-tenant CCM members (I&S-06/STA-04/DSP-18) from the "
-        "matrix cells and kept I&S-06 on the genuine multi-tenant container row (codex caught the "
-        "over-strip). NIST 800-53 / COBIT columns and other framework work remain. DONE heading "
-        "says 'CCM-Hybrid batch-1'."
-    ),
-    ("P-1.60", "P-1.60 CCM-Hybrid batch-2 -"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2082, 2026-09-08). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "CCM-Hybrid batch-2 excised wrong-direction range members (LOG-08/CCC-05/I&S-06) across 5 "
-        "docs and added the family-range mapping convention. NIST 800-53 / COBIT columns and other "
-        "framework work remain. DONE heading says 'CCM-Hybrid batch-2'."
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 1"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2178, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "the ai-slice batches remediate the ai/ domain framework-alignment tables (bare clause "
-        "headings and function names to specific sub-clauses/controls) and continue the lane."
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 2"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2179, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "ai-slice batch 2 corrected the audit-cert framework alignment table to specific units."
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 3"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2180, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "ai-slice batch 3 corrected the value-and-decision + maturity-model frameworks to specific units."
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 4"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2181, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "ai-slice batch 4 corrected the model-doc-transparency framework to specific units."
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 5"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2182, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "ai-slice batch 5 corrected the inference-cost + model-succession standards to specific units."
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 6"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2183, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "ai-slice batch 6 corrected the access-permissions + security-and-risk standards to specific units."
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 7"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2184, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "ai-slice batch 7 corrected the human-oversight + tco standards to specific units."
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 8"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2185, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "ai-slice batch 8 corrected the testing standard to specific units."
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 9"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2186, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "ai-slice batch 9 corrected the governance-and-risk framework to specific units."
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 10"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2189, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "ai-slice batch 10 corrected the data-quality standard ISO 5259-2 cell to specific units."
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 11"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2190, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "ai-slice batch 11 corrected the security-and-risk OWASP LLM cell to specific 2026 entries."
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 12"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2191, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "ai-slice batch 12 corrected the testing standard NIST cell to specific MEASURE subcats."
-    ),
-    ("P-1.60", "P-1.60 ai-slice control-fit remediation batch 13"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2192, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "ai-slice batch 13 closed the ai pass (testing OWASP cell + final structural leaves)."
-    ),
-    ("P-1.60", "P-1.60 non-ai security-domain control-fit batch 1"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2193, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "opened the non-ai lane (security domain) after the ai-slice closed."
-    ),
-    ("P-1.60", "P-1.60 non-ai security batch 2"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2194, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "security batch 2 corrected the data-classification alignment table to specific units."
-    ),
-    ("P-1.60", "P-1.60 non-ai security batch 3"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2195, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "security batch 3 corrected auth + remote-working alignment cells to specific units."
-    ),
-    ("P-1.60", "P-1.60 security batch 4"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2196, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "security batch 4 corrected the information-security policy alignment cells to specific units."
-    ),
-    ("P-1.60", "P-1.60 security batch 5"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2197, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "security batch 5 corrected the privileged-access-management alignment cells to specific units."
-    ),
-    ("P-1.60", "P-1.60 security batch 6"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2198, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "security batch 6 corrected four information-security policy alignment rows (CSF 2.0 + COBIT)."
-    ),
-    ("P-1.60", "P-1.60 security batch 7"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2199, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "security batch 7 completed the information-security policy AI Model Security alignment row."
-    ),
-    ("P-1.60", "P-1.60 security batch 8"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2200, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "security batch 8 corrected the identity-and-access-management policy alignment rows."
-    ),
-    ("P-1.60", "P-1.60 security batch 9"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2201, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "security batch 9 corrected the data-classification standard alignment rows."
-    ),
-    ("P-1.60", "P-1.60 security batch 10"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2202, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "security batch 10 corrected the logging-and-monitoring and SaaS-posture CSF cells."
-    ),
-    ("P-1.60", "P-1.60 security batch 11"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2203, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "security batch 11 narrowed the access-control and identity-management procedure COBIT cells."
-    ),
-    ("P-1.60", "P-1.60 security batch 12"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2204, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "security batch 12 corrected the acceptance-into-service and network-communications COBIT cells."
-    ),
-    ("P-1.60", "P-1.60 security batch 13"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2205, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "security batch 13 corrected the onboarding, crypto-key-operations, and incident-response procedure cells."
-    ),
-    ("P-1.60", "P-1.60 security batch 14"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2206, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "security batch 14 (disciplinary-process) closed the security domain."
-    ),
-    ("P-1.60", "P-1.60 operations batch 1"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2207, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "operations batch 1 corrected the change-management-and-configuration-control cells."
-    ),
-    ("P-1.60", "P-1.60 operations batch 2"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2208, 2026-09-13). P-1.60 "
-        "('corpus-wide alignment-table high-assurance control-fit audit') is live at P-TODO; "
-        "operations batch 2 corrected the patch-management procedure cells."
-    ),
-    ("P-3.202", "P-3.202 synchronous-model cutover-leftover"): (
-        "PARTIAL CLOSE (provisional; DONE:3186, #1361). P-3.202 is live at P-TODO "
-        "and its detail says the comprehensive sweep is INCOMPLETE, so #1361 is "
-        "read as a slice, not a full close. The DONE heading itself does not say "
-        "'partial', so the substantiation rests on the live P-TODO detail, not "
-        "the heading; the disposition (was #1361 a partial advance, or should "
-        "P-3.202 be closed?) is ROUTED to the maintainer (pending-decisions "
-        "2026-08-29). Provisionally EXEMPT to keep the gate green; revisit on the "
-        "maintainer's call."
-    ),
-    ("P-3.209", "P-3.209 batch"): (
-        "PARTIAL CLOSE family (9 headings, DONE:596-628). The security/risk/"
-        "resilience defect-hunt umbrella (P-3.209) is live at P-TODO; each "
-        "'batch N' entry closed one batch of it."
-    ),
-    ("P-3.209", "P-3.209 cadence-consistency findings"): (
-        "PARTIAL CLOSE (DONE:216, #1677; findings F45/F47/F41-42 of the live "
-        "P-3.209 defect-hunt umbrella)."
-    ),
-    ("P-1.31", "P-1.31 item"): (
-        "PARTIAL CLOSE FAMILY of the still-live P-1.31 umbrella (external "
-        "AI-review advisory). The five governance-coverage documents the "
-        "maintainer selected (items 6/1/10/2/7) landed as PRs #1821-#1825. "
-        "Their five 'PR #NNNN: P-1.31 item N' DONE headings are partial closes; "
-        "P-1.31 remains live for held items 3/4/5/8/9. The exemption is "
-        "id-scoped, so it cannot widen to a different item."
-    ),
-    ("P-3.214", "P-3.214 ISO 19011:2018"): (
-        "PARTIAL CLOSE (DONE:632, #1392) of the live P-3.214 reference-currency "
-        "umbrella (ISO 19011 edition migration)."
-    ),
-    ("P-3.214", "P-3.214 currency"): (
-        "PARTIAL CLOSE (DONE:636, #1391) of the live P-3.214 reference-currency "
-        "umbrella (CRA staging + ISO 27017 edition)."
-    ),
-    ("P-3.214", "P-3.214 B-3"): (
-        "PARTIAL CLOSE (DONE:640, #1390) of the live P-3.214 reference-currency "
-        "umbrella (ISO 19011 clause-structure)."
-    ),
-    ("P-3.214", "P-3.214 confirmed errors"): (
-        "PARTIAL CLOSE (DONE:648, #1388) of the live P-3.214 reference-currency "
-        "umbrella (Bill C-27 lapsed + NIST 800-61 Rev.3 inversion)."
-    ),
-    ("P-3.217", "P-3.217 HIGH citation defects"): (
-        "PARTIAL CLOSE (DONE:3318, #1507) of the live P-3.217 orphaned-finding-set "
-        "umbrella (MED/LOW tier stays open)."
-    ),
-    ("P-3.217", "P-3.217 residue M16/M17"): (
-        "PARTIAL CLOSE (DONE:3321, #1508) of the live P-3.217 umbrella (MED/LOW "
-        "tier stays open)."
-    ),
-    ("P-3.217", "P-3.217 HIGH-tier disposition"): (
-        "PARTIAL CLOSE (DONE:3563, #1797; the HIGH-tier disposition) of the live "
-        "P-3.217 umbrella (MED/LOW tier stays open)."
-    ),
-    ("P-1.70", "P-1.70 part 3"): (
-        "PARTIAL CLOSE. PR #1994 closed part 3 (overlap-aware class-attestation clause "
-        "counting) of the still-open P-1.70 umbrella; parts 1-2 (repair the legacy "
-        "malformed Closed-today rows; structural fail-closed on any in-window malformed "
-        "row) remain live in P-TODO.md. Dated 2026-09-05, after the 2026-07-15 rule."
-    ),
-    ("P-1.70", "P-1.70 part-2b"): (
-        "PARTIAL CLOSE. PR #1996 closed part-2b (the mis-filed finding-row detector: D14 "
-        "fail-closed + hook warning) of the still-open P-1.70 umbrella; the L250 archive-row "
-        "reword and the warn-to-block posture decision remain. Dated 2026-09-05, after the "
-        "2026-07-15 rule."
-    ),
-    ("P-1.36", "grc-machinery guardrail inventory-and-classify"): (
-        "PARTIAL CLOSE. The 2026-09-17 audit-deliverable slice-1 (bounded "
-        "inventory-and-classify: mechanical-vs-prose backstop coverage + the 17 "
-        "blocking-hook message-form conformance pass) closed against the still-open "
-        "P-1.36 umbrella; slice-2 (blocking-hook message-form reframe) and later slices "
-        "(A37 restore, A1/A3 erosion backstops) remain live in P-TODO.md. Dated "
-        "2026-09-17, after the 2026-07-15 rule."
-    ),
-    ("P-1.36", "CONSIDER-INSTEAD hook-message form"): (
-        "PARTIAL CLOSE. PR #2366 reworded the 17 live blocking-hook messages to the "
-        "BLOCKED / WHY / CONSIDER-INSTEAD form (slice-2, the message-form reframe the "
-        "slice-1 entry above anticipated), against the still-open P-1.36 umbrella; later "
-        "slices (A37 restore, A1/A3 erosion backstops) remain live in P-TODO.md. Dated "
-        "2026-09-18, after the 2026-07-15 rule."
-    ),
-    ("P-1.63", "P-1.63(d) gate 96 checks OWASP ASVS"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2576, 2026-09-25). P-1.63 "
-        "(the SCAN-FIRST stranded/fabricated-code remediation program) stays live at "
-        "P-TODO.md: #2576 shipped only part (d), extending gate 96 to OWASP ASVS and "
-        "MITRE CWE; the umbrella's other parts and its routed follow-up (tracked in "
-        "P-TODO.md) remain open."
-    ),
-    ("P-1.63", "matrix batch-5c"): (
-        "PARTIAL CLOSE. PR #2375 removed 17 mis-fit control codes from the master matrix (adjacent-but-not-core, per the DIRECT source-verified-fit threshold): LOG-15/16 @153, DSP-03 @155/@279, DSP-21 @179/@280, GRC-13 @84/@279, DSP-20 @55, AIS-04/05/07/TVM-06 @352, AIS-04/05/09 @384, AIS-04 @400. "
-        "14 unanimous tri-family + 3 source-verified splits (@384 self-declares non-policy + no table; "
-        "@55 retains lineage docs, does not create provenance). Stranded 21->4. The 4 remaining are all "
-        "maintainer-decisions (DSP-20 @279 structural, A&A-02/05 @382 label, IAM-09 @399 fit-split) - "
-        "the adjudicable stranded campaign is complete. Dated 2026-09-18, after the 2026-07-15 rule."
-    ),
-    ("P-1.63", "matrix batch-5b"): (
-        "PARTIAL CLOSE. PR #2374 added AIS-08 (API Security, CCM) to standard-ai-access and removed 2 "
-        "matrix mis-fits (CCC-01 @364 - QA/testing doc has CCC-02 not the change-mgmt policy; GRC-03 @83 "
-        "- risk-policy governs risk not org-wide policy reviews); both removes unanimous tri-family. "
-        "Stranded 24->21. Deferred to maintainer: IAM-09 @399 (fit split) and A&A-02/05 @382 "
-        "(CCM-vs-AICM label; doc already covers via AICM range A&A-01-A&A-06). ~21 remain live in "
-        "P-TODO.md. Dated 2026-09-18, after the 2026-07-15 rule."
-    ),
-    ("P-1.63", "matrix batch-5a"): (
-        "PARTIAL CLOSE. PR #2373 (dev-security/ai cluster) added 7 source-verified codes: AIS-12 to the "
-        "ai-coding-guideline code-review AICM cell; AIS-05/AIS-06 (CCM) + AIS-12 (new AICM row) to "
-        "policy-secure-development; IAM-16 (AICM) + IAM-01/IAM-15 (CCM) as 3 new rows to standard-ai-access. "
-        "Removed 1 matrix mis-fit (IAM-17 @399). Stranded 32->24. Deferred to residue: the column-style "
-        "structural rows (@352 AIS-04/05/07/TVM-06, @400 AIS-04), companion-guide routes (@384), moderate "
-        "adds (@399 AIS-08/IAM-09), and the CCM-vs-AICM-relabel maintainer questions. ~24 remain live in "
-        "P-TODO.md. Dated 2026-09-18, after the 2026-07-15 rule."
-    ),
-    ("P-1.63", "matrix batch-4b"): (
-        "PARTIAL CLOSE. PR #2372 added 4 AICM codes as 3 new AICM framework-table rows (HRS-14 human-"
-        "capital, GRC-11/GRC-15 risk-policy, GRC-10 risk-standard); all AICM-only, non-structural (list-"
-        "style tables take a new AICM row). Stranded 36->32. Deferred DSP-20 + GRC-13 (tri-family HOLD). "
-        "~32 remain live in P-TODO.md. Dated 2026-09-18, after the 2026-07-15 rule."
-    ),
-    ("P-1.63", "matrix batch-4a"): (
-        "PARTIAL CLOSE. PR #2371 (governance/risk cluster) added 2 CCM codes (A&A-02 continuous-assurance, "
-        "GRC-01 risk-policy) and removed 2 matrix mis-fits (GRC-05 @54, GRC-02 @65); stranded 40->36. "
-        "Deferred: 6 AICM new-row adds (DSP-20/HRS-14/GRC-11/GRC-15/GRC-10/GRC-13 = batch-4b) + GRC-03 @83 "
-        "medium-confidence remove. ~36 remain live in P-TODO.md. Dated 2026-09-18, after the 2026-07-15 rule."
-    ),
-    ("P-1.63", "matrix batch-3a"): (
-        "PARTIAL CLOSE. PR #2370 (privacy cluster) added 4 source-verified CCM codes to 4 privacy docs "
-        "(DSP-04 governance, DSP-10 cross-border, SEF-03 breach-response, DSP-01 DSR) and removed 2 "
-        "mis-fits from the matrix (DSP-04 @280, DSP-06 @293). Stranded "
-        "46->40. Routed: DSP-03 (dropped on codex HOLD - governance policy lacks a data-inventory control; no clean home), DSP-20/GRC-13/DSP-21 (AICM structural), @296 DSP-06 parallel-case. ~40 remain "
-        "live in P-TODO.md. Dated 2026-09-18, after the 2026-07-15 rule."
-    ),
-    ("P-1.63", "matrix batch-2b"): (
-        "PARTIAL CLOSE. PR #2369 resolved the 5 batch-2a-disputed codes via deep adjudication: DCS-01 "
-        "ADDED to physical-security (fits, exact titles); I&S-08 @169, DCS-02/DCS-03 @195, UEM-03 @198 "
-        "REMOVED from the matrix as mis-fits (+ DCS-05 @195, covered elsewhere). Stranded 52->46. I&S-08 "
-        "@193 + the DCS-02/03 relocations remain routed. ~46 candidates remain live in P-TODO.md. Dated "
-        "2026-09-18, after the 2026-07-15 rule."
-    ),
-    ("P-1.63", "matrix campaign batch-2a"): (
-        "PARTIAL CLOSE. PR #2368 added 8 source-verified CCM codes to 6 security/operations docs' "
-        "framework tables (matrix batch-2a, approach A add-if-fits), resolving 8 more of the stranded "
-        "candidates (60->52); ~52 candidates + the AICM-structural (LOG-15/16, DSP-21), matrix-REMOVE "
-        "(DSP-03, DCS-05) sub-batches remain live in P-TODO.md. Dated 2026-09-18, after the 2026-07-15 rule."
-    ),
-    ("P-1.63", "matrix campaign batch-1a"): (
-        "PARTIAL CLOSE. PR #2367 added 11 source-verified CCM codes to 5 security docs' framework "
-        "tables (matrix batch-1a of the SCAN-FIRST stranded-code umbrella, approach A add-if-fits), "
-        "resolving 11 of the 71 matrix-vs-doc stranded candidates; ~60 candidates + batch-1b "
-        "(AICM-column add, DSP-03 remove) remain live in P-TODO.md. Dated 2026-09-18, after the "
-        "2026-07-15 rule."
-    ),
-    ("P-1.63", "stranded matrix CCM code fix (GRC-01 dropped)"): (
-        "PARTIAL CLOSE. PR #2331 corrected the 2 GRC-01 stranded CCM codes "
-        "(master-matrix rows 84/86 -> GRC-02) as the first verified increment of the "
-        "still-open P-1.63 SCAN-FIRST stranded/fabricated-code umbrella; the 73 remaining "
-        "stranded candidates (audit-stranded-matrix-code.py) plus part (d) gate-flip "
-        "remain live in P-TODO.md. Dated 2026-09-17, after the 2026-07-15 rule."
-    ),
-    ("P-3.213", "P-3.213 PR1 citation-coverage discovery"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #2471, 2026-09-23). P-3.213 "
-        "('SYSTEMIC: register-coverage currency blind spot') is the maintainer's chosen "
-        "4-PR build, live at P-TODO.md after PR1: #2471 shipped only the citation-coverage "
-        "discovery engine + report mode (advisory), leaving PR2 (ISO/IEC-family migration), "
-        "PR3 (NIST/IEEE/ETSI/CEN migration), and PR4 (flip to enforce). The DONE body says "
-        "'the umbrella stays OPEN (PR2/PR3 family migration, PR4 enforcement)'. Dated "
-        "2026-09-23, after the 2026-07-15 rule."
-    ),
-    ("P-3.213", "P-3.213 part (gate 6 ratchet) merged, item stays open"): (
-        "PARTIAL CLOSE against a still-open umbrella (DONE #3035, 2026-10-28). PR #3035 "
-        "shipped gate 6's ratchet on each standard's UNPINNED citation count and its "
-        "complete exit-code list; the P-3.213 register-coverage umbrella stays live at "
-        "P-TODO.md. The DONE heading "
-        "says 'item stays open'. Dated 2026-10-28, after the 2026-07-15 rule."
-    ),
+        "2026-07-24; heading: NYC-LL144"
+    ),
+    # Rows keyed by a private backlog id (P-N.M) are not kept in this public file: they live in
+    # the private sibling's todo-number-exempt.json and are read into PRIVATE_EXEMPT at run time
+    # (see _load_private_exempt).
 }
 
 
@@ -1230,9 +678,129 @@ def parse_counters(text: str) -> dict[str, tuple[str, int]]:
     return counters
 
 
+# The private-id rows read from the private sibling's PEXEMPT_REL by main(); empty when the
+# sibling or the file is absent, so a private-id partial close then has no exemption.
+PRIVATE_EXEMPT: dict[tuple[str, str], str] = {}
+
+# The documented row forms: the id is a private backlog id, and the value is
+# '<date>; heading: <substring>' or 'date not recorded; heading: <substring>'.
+_PEXEMPT_ID_RE = re.compile(r"P-\d+(?:\.\d+){1,2}[a-z]?")
+_PEXEMPT_VALUE_RE = re.compile(r"(?P<date>\d{4}-\d\d-\d\d|date not recorded); heading: .*\S.*")
+# The lead of a retirement heading before the id: '### ' and an optional 'PR #<n>:' prefix.
+_PEXEMPT_HEADING_LEAD_RE = re.compile(r"### (?:PR ?#\d+:? )?")
+_PEXEMPT_PR_NUMBER_RE = re.compile(r"PR ?#(\d+)")
+
+
+def _family_form(item_id: str, marker: str) -> bool:
+    """The documented family form: the id, one space and one word that starts with an
+    ASCII letter and holds only ASCII letters, digits and inner hyphens ('P-9.3 Phase').
+    A family row names a batch of the same id's partial closes, so it alone may match
+    every retirement heading of its id."""
+    return re.fullmatch(re.escape(item_id) + r" [A-Za-z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)*",
+                        marker) is not None
+
+
+def _generic_headings(item_id: str, headings: "list[str]") -> "list[str]":
+    """Headings that hold nothing beyond the id and the heading prefix: '### <id>' and
+    '### PR #<n>: <id>', followed by a space or a colon, for a placeholder pull request
+    number and for each heading lead and pull request number found in ``headings``. A
+    marker found in one of these is found in a retirement heading that has no text of
+    its own, so it does not tell one retirement of the id from another."""
+    leads = {"### ", "### PR #0: "}
+    for heading in headings:
+        lead = _PEXEMPT_HEADING_LEAD_RE.match(heading)
+        if lead:
+            leads.add(lead.group(0))
+        for number in _PEXEMPT_PR_NUMBER_RE.findall(heading):
+            leads.add(f"### PR #{number}: ")
+    return [lead + item_id + end for lead in sorted(leads) for end in (" ", ":")]
+
+
+def _check_marker_binding(n: int, item_id: str, marker: str, headings: "list[str]") -> None:
+    """Refuse row ``n`` unless its marker binds to the retirement headings the gate reads
+    for ``item_id`` (``headings``) the way an exemption must: it is not found in a heading
+    that holds only the id and the 'PR #<n>:' prefix, and, when the id has any of
+    ``headings``, a row not in the family form (``_family_form``) matches exactly one of
+    them, while a family row matches at least one. A marker matching two or more headings
+    would exempt each of them, so only a family row, which names a batch of the id's
+    partial closes, may do that; a row matching two of three headings is refused as one
+    matching all of them is. A row for an id with no retirement heading exempts nothing
+    yet, so only the first rule applies."""
+    if any(marker in generic for generic in _generic_headings(item_id, headings)):
+        raise ValueError(
+            f"row {n} heading marker {marker!r} holds no text beyond the id and the "
+            f"'PR #<n>:' heading prefix: it is found in a heading that holds only those, "
+            f"so it would match every retirement heading of {item_id} (a pull request "
+            f"number names the pull request, which can record more than one entry for "
+            f"the same id, not the entry)")
+    if not headings:
+        return
+    hits = sum(1 for heading in headings if marker in heading)
+    if hits == 0:
+        raise ValueError(
+            f"row {n} heading marker {marker!r} matches none of the {len(headings)} "
+            f"retirement heading(s) the gate reads for {item_id}")
+    if hits >= 2 and not _family_form(item_id, marker):
+        if hits == len(headings):
+            raise ValueError(
+                f"row {n} heading marker {marker!r} matches every one of the "
+                f"{len(headings)} retirement headings the gate reads for {item_id} and "
+                f"is not in the family form '<id> <word>'")
+        raise ValueError(
+            f"row {n} heading marker {marker!r} matches {hits} of the {len(headings)} "
+            f"retirement headings the gate reads for {item_id} and is not in the family "
+            f"form '<id> <word>' (a row not in the family form must match exactly one)")
+
+
+def _load_private_exempt(text: str, done_text: "str | None" = None) -> dict[tuple[str, str], str]:
+    """Parse the private exemption file: a JSON object whose ``rows`` member is a list of
+    ``[id, distinctive heading substring, value]`` string triples. Raises ``ValueError``
+    naming the first malformed part (guards against a malformed row silently exempting
+    nothing, or everything). A field that is empty or only whitespace is malformed: a
+    whitespace-only heading substring occurs in ordinary headings, so it would exempt
+    every retirement of its id. So is a row outside the documented form: an id that is
+    not a private backlog id, and a value that is not '<date>; heading: <substring>' or
+    whose date is not a calendar date. With ``done_text`` (the DONE.md the gate reads,
+    empty when there is none), each marker is checked against the retirement headings
+    the gate reads for its id (``_check_marker_binding``)."""
+    import json
+    data = json.loads(text)
+    if not isinstance(data, dict) or not isinstance(data.get("rows"), list):
+        raise ValueError("the file is not a JSON object with a 'rows' list")
+    rows: dict[tuple[str, str], str] = {}
+    retired = parse_retired(done_text) if done_text is not None else {}
+    headings = done_headings(done_text) if done_text is not None else {}
+    for n, row in enumerate(data["rows"], 1):
+        if (not isinstance(row, list) or len(row) != 3
+                or not all(isinstance(part, str) for part in row)):
+            raise ValueError(f"row {n} is not three strings")
+        for field, part in zip(("id", "heading marker", "value"), row):
+            if not part.strip():
+                raise ValueError(f"row {n} has an empty or whitespace-only {field} field")
+        item_id, marker, value = row
+        if not _PEXEMPT_ID_RE.fullmatch(item_id):
+            raise ValueError(f"row {n} id {item_id!r} is not a private backlog id (P-<n>.<m>)")
+        value_form = _PEXEMPT_VALUE_RE.fullmatch(value)
+        if not value_form:
+            raise ValueError(f"row {n} value {value!r} is not in the "
+                             "'<date>; heading: <substring>' form")
+        if value_form.group("date") != "date not recorded":
+            try:
+                _date.fromisoformat(value_form.group("date"))
+            except ValueError:
+                raise ValueError(f"row {n} value {value!r} has a date that is not a "
+                                 "calendar date") from None
+        if done_text is not None:
+            _check_marker_binding(n, item_id, marker,
+                                  [headings.get(ln, "") for ln in
+                                   sorted(set(retired.get(item_id, [])))])
+        rows[(item_id, marker)] = value
+    return rows
+
+
 def _exempt(item_id: str, heading: str) -> bool:
     """True if (id, heading) matches a recorded partial-close exemption."""
-    for (exempt_id, marker) in EXEMPT:
+    for (exempt_id, marker) in (*EXEMPT, *PRIVATE_EXEMPT):
         if exempt_id == item_id and marker in heading:
             return True
     return False
@@ -1316,7 +884,7 @@ def find_cross_list_collisions(
 
 
 def main(argv: list[str]) -> int:
-    global REPO_ROOT
+    global REPO_ROOT, PRIVATE_EXEMPT
     parser = argparse.ArgumentParser(
         description="Detect a recycled TODO item number or a stale item-number counter."
     )
@@ -1393,6 +961,8 @@ def main(argv: list[str]) -> int:
     if args.root is not None:
         cand = REPO_ROOT / PTODO_REL   # verbatim under an explicit synthetic root
         ptodo_path = cand if cand.is_file() else None
+        pexempt = REPO_ROOT / PEXEMPT_REL
+        pexempt_path = pexempt if pexempt.is_file() else None
     else:
         # Strict: an ABSENT sibling still takes the degraded path below, but one that is
         # present and unusable (a file, a FIFO, a dangling link, an unsearchable parent) refuses.
@@ -1404,6 +974,7 @@ def main(argv: list[str]) -> int:
             return 2
         cand = (private / PTODO_REL) if private is not None else None
         ptodo_path = None
+        pexempt_path = None
         if cand is not None:
             # Probe as gate 90 does (list the sibling, then strict_kind), not with
             # Path.is_file, which reads a file in an unsearchable sibling as absent (3.12+) or
@@ -1411,6 +982,8 @@ def main(argv: list[str]) -> int:
             try:
                 os.listdir(private)
                 kind = strict_kind(cand)
+                pexempt = private / PEXEMPT_REL
+                pexempt_kind = strict_kind(pexempt)
             except OSError as exc:
                 print(f"ERROR: the private sibling is present but unusable: cannot examine "
                       f"{exc.filename or cand} ({exc.strerror}).", file=sys.stderr)
@@ -1420,6 +993,11 @@ def main(argv: list[str]) -> int:
                       f"but is not a regular file.", file=sys.stderr)
                 return 2
             ptodo_path = cand if kind == "file" else None
+            if pexempt_kind not in (None, "file"):
+                print(f"ERROR: the private sibling is present but unusable: {pexempt} is present "
+                      f"but is not a regular file.", file=sys.stderr)
+                return 2
+            pexempt_path = pexempt if pexempt_kind == "file" else None
         # The DEFAULT lookup's skips exit 0, so a green full-suite run must not read as a pass.
         # Each skip names its own cause; the private list is skipped for an absent sibling AND
         # for a usable sibling with no private list in it, so the notice says which.
@@ -1446,6 +1024,10 @@ def main(argv: list[str]) -> int:
         )
         reading = ptodo_path
         ptodo_text = ptodo_path.read_text(encoding="utf-8") if ptodo_path is not None else ""
+        reading = pexempt_path
+        pexempt_text = (
+            pexempt_path.read_text(encoding="utf-8") if pexempt_path is not None else None
+        )
     except OSError as exc:
         print(f"ERROR: cannot read a required file: {exc}", file=sys.stderr)
         return 2
@@ -1453,6 +1035,15 @@ def main(argv: list[str]) -> int:
         print(f"ERROR: cannot decode {reading} as UTF-8 ({exc.reason} at byte {exc.start}).",
               file=sys.stderr)
         return 2
+    # An absent sibling or file leaves no private-id row (the private list is skipped with the
+    # sibling); a present but malformed file exits 2 naming it rather than exempting nothing.
+    PRIVATE_EXEMPT = {}
+    if pexempt_text is not None:
+        try:
+            PRIVATE_EXEMPT = _load_private_exempt(pexempt_text, done_text)
+        except ValueError as exc:
+            print(f"ERROR: cannot parse {pexempt_path}: {exc}.", file=sys.stderr)
+            return 2
     # Name only the lists actually read, and say so explicitly when the private list is absent (gate 81's style).
     lists_read = f"{TODO_REL} + {PTODO_REL}" if ptodo_path is not None else TODO_REL
     if ptodo_path is None:
@@ -1520,7 +1111,7 @@ def main(argv: list[str]) -> int:
         for section, raw, lineno, highest, names in stale:
             print(
                 f"  .working/TODO.md:{lineno}: section {section} counter is '{raw}' but "
-                f"{', '.join(('' if n.startswith('P-') else '§') + n for n in names)} already exist(s) "
+                f"{', '.join(('' if n.startswith(('P-', 'floor ')) else '§') + n for n in names)} already exist(s) "
                 f"(highest used ordinal {highest}); advance it past {highest}"
             )
 
@@ -1530,7 +1121,12 @@ def main(argv: list[str]) -> int:
     print("its item, and every edit advances its section's 'Next item number' counter.")
     print("Fix the artefact (renumber the new item, or advance the counter); do not")
     print("weaken this gate. A legitimate partial-close entry against a still-open")
-    print("umbrella item goes in EXEMPT with its rationale and its DONE.md line.")
+    print("umbrella item goes in EXEMPT (a private backlog id's row goes in the private")
+    print(f"sibling's {PEXEMPT_REL} instead), keyed by its id and a distinctive heading")
+    print("substring, valued '<date>; heading: <substring>' with the entry's date, or")
+    print("'date not recorded; heading: <substring>' when it has none, the value's")
+    print("heading text leaving out finding ids that the key keeps; a family row's")
+    print("substring may match several of that same id's partial-close headings.")
     return 1
 
 
