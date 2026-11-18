@@ -191,7 +191,7 @@ def reference_cells(line: str) -> list[str]:
     return cells
 
 
-def closes_open_parenthesis(text: str) -> bool:
+def _closes_open_parenthesis(text: str) -> bool:
     """Whether ``text`` closes one parenthesis already open before it.
 
     Parentheses are counted with nesting, so a nested parenthetical does not
@@ -285,7 +285,7 @@ def check_file(
                         # parenthetical inside the exception path does not
                         # close the link's own parenthesis, and a parenthesis
                         # in a code span or escaped is not counted.
-                        if closes_open_parenthesis(cell[following.end():]):
+                        if _closes_open_parenthesis(cell[following.end():]):
                             continue
                         # Without its closing parenthesis the row would fall
                         # through to the target check and pass whenever the
