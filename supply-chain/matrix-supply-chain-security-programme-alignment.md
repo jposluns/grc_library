@@ -2,8 +2,8 @@
 
 **Document Title:** Supply Chain Security Programme Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.16\
-**Date:** 2026-11-07\
+**Version:** 1.0.17\
+**Date:** 2026-11-18\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](../compliance/logistics/register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](../compliance/logistics/register-pip-canada-controls.md), [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](../compliance/logistics/template-trade-compliance-gap-assessment.md)\
@@ -61,7 +61,7 @@ The following matrix maps the common supply chain security domains against each 
 | **Incident Reporting to Authority** | ✓ | ✓ (§12.4: disclosure of security incidents to HMRC, as a change that may affect AEO status) | ✓ | ✓ | ✓ | ✓ | ~ | Unverifiable | ✓ |
 | **Security Assessment / Audit** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Unverifiable | ✓ |
 | **Business Continuity** | ~ | ~ (§8.9, §8.10, §8.12) | ~ | ~ | ~ | ~ | ~ | Unverifiable | ✓ |
-| **Risk Assessment** | ✓ | ✓ | ✓ | ~ | ✓ | ✓ | ✓ | Unverifiable | ~ |
+| **Risk Assessment** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Unverifiable | ~ |
 | **Customs Compliance Record** | ~ | ✓ (§1.4, §7.1) | ✓ | ~ | N/A | ✓ | ✓ | Unverifiable | ~ |
 | **Financial Solvency** | ~ | ✓ (§1.4, §9.1) | ✓ | ~ | N/A | ✓ | ✓ | Unverifiable | ✓ |
 
@@ -169,7 +169,7 @@ The following evidence types are candidate overlaps: each may be collected once 
 | Programme | Authority | Key Reference |
 |---|---|---|
 | CTPAT | CBP: www.cbp.gov/border-security/ports-entry/cargo-security/CTPAT | MSC document published on CBP portal |
-| AEO-S (UK) | HMRC: https://www.gov.uk/guidance/apply-for-authorised-economic-operator-status | UK HMRC AEO security and safety criteria handbook (Customs Technical Handbook, section 11) |
+| AEO-S (UK) | HMRC: https://www.gov.uk/guidance/authorised-economic-operator-certification | UK HMRC AEO security and safety criteria handbook (Customs Technical Handbook, section 11) |
 | AEO (EU) | European Commission DG TAXUD | Union Customs Code (Regulation EU 952/2013) |
 | PIP | CBSA: www.cbsa-asfc.gc.ca/security-securite/pip-pep | PIP Partnership Agreement |
 | BASC | World BASC Organization (WBO) | BASC Standards and Requirements |

@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.238\
-**Date:** 2026-11-07\
+**Version:** 1.27.239\
+**Date:** 2026-11-18\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -351,7 +351,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Dev Security | Standard | Software Evaluation, Acceptance and Lifecycle Management Standard | [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) | Chief Information Officer | Annual | ISO/IEC/IEEE 12207:2026, ISO/IEC 27002:2022, ISO/IEC 25010, COBIT 2019 BAI03/BAI07/BAI09, CSA CCM AIS/TVM | template |
 | Dev Security | Standard | Quality Assurance and Testing Standard | [`dev-security/standard-quality-assurance-and-testing.md`](../dev-security/standard-quality-assurance-and-testing.md) | Chief Information Officer | Annual | ISO 9001 §8.6, ISO/IEC 27001:2022 Annex A.8.29, COBIT 2019 BAI03, CSA CCM CCC-02, NIST SP 800-53 Rev. 5 SA | template |
 | Resilience | Plan | IT Disaster Recovery Plan | [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md) | Chief Information Officer | Annual | ISO 22301:2019, COBIT 2019 DSS04, NIST SP 800-34r1, CSA CCM BCR-08, BCR-09, BCR-11 | template |
-| Compliance | Register | US CTPAT IT and Cybersecurity Compliance Controls Register | [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md) | Chief Compliance Officer | Annual | CTPAT MSC 2020 IT, AEO-S (UK/HMRC), BASC | template |
+| Compliance | Register | US CTPAT IT and Cybersecurity Compliance Controls Register | [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md) | Chief Compliance Officer | Annual | CTPAT MSC IT (library summary; no complete CBP criteria text held), AEO-S (UK/HMRC), BASC | template |
 | Compliance | Register | Canada PIP IT and Cybersecurity Compliance Controls Register | [`compliance/logistics/register-pip-canada-controls.md`](../compliance/logistics/register-pip-canada-controls.md) | Chief Compliance Officer | Annual | CBSA PIP IT, CTPAT IT, AEO-S, WCO SAFE Framework | template |
 | Compliance | Register | Compliance Obligations Register Template | [`compliance/register-compliance-obligations-template.md`](../compliance/register-compliance-obligations-template.md) | Chief Compliance Officer | Annual | GDPR Arts 28/32, COBIT 2019, NIST SP 800-53 Rev. 5 | template |
 | Compliance | Template | Trade Compliance Programme Gap Assessment Template | [`compliance/logistics/template-trade-compliance-gap-assessment.md`](../compliance/logistics/template-trade-compliance-gap-assessment.md) | Chief Compliance Officer | Annual | CTPAT, AEO-S (UK/HMRC), AEO (EU), PIP (CBSA), BASC, ISO 28000:2022 | template |

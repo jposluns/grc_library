@@ -2,8 +2,8 @@
 
 **Document Title:** FedRAMP Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.19\
-**Date:** 2026-11-03\
+**Version:** 0.0.20\
+**Date:** 2026-11-18\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`operations/standard-cloud-security-configuration-baseline.md`](../../operations/standard-cloud-security-configuration-baseline.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -130,8 +130,8 @@ Under the held 2026 Consolidated Rules (rule FRC-CSO-PKG), the FedRAMP Certifica
 
 | Certification-package artefact | Defined by | Relevance |
 | --- | --- | --- |
-| Certification Package Overview (CPO) | 2026 Consolidated Rules certification package (FRC-CSO-PKG) | For Rev5, replaces the historically required System Security Plan (not including appendices); supplied in human-readable and JSON formats |
-| Security Decision Record (SDR) | 2026 Consolidated Rules certification package (FRC-CSO-PKG) | Persistently maintained record of a provider's security decisions; replaces the traditional System Security Plan for both types |
+| Certification Package Overview (CPO) | 2026 Consolidated Rules certification package (FRC-CSO-PKG) | For Rev5, replaces the historically required base System Security Plan (not including appendices); supplied in human-readable and JSON formats |
+| Security Decision Record (SDR) | 2026 Consolidated Rules certification package (FRC-CSO-PKG) | Persistently maintained, verified, and validated record of a provider's security decisions; the rules say it replaces the traditional System Security Plan, while for Rev5 the base System Security Plan is replaced by the Certification Package Overview, and their crosswalk maps the System Security Plan and its appendices onto the two together |
 | Ongoing Certification Report (OCR) | 2026 Consolidated Rules certification package (FRC-CSO-PKG), following the report-availability rule (CCM-OCR-AVL) | A real or example report is part of the initial certification package; Ongoing Certification reporting then follows the cadence under Operating expectations |
 
 Key Security Indicators (KSIs) are not a certification-package artefact type: they are the 20x specification's measured-outcome indicators (the finalized 2026 KSI content, folded into the Consolidated Rules), and the Security Decision Record carries the Key Security Indicator information for a 20x certification.

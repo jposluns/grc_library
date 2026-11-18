@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.12.17\
-**Date:** 2026-11-07\
+**Version:** 1.12.18\
+**Date:** 2026-11-18\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
@@ -40,7 +40,7 @@ This matrix maps GRC library documents to the control domains and section refere
 | PIP | Partners in Protection (Canada Border Services Agency) | Programme requirement areas |
 | BASC v6 | BASC (Business Alliance for Secure Commerce): the Norm V6-2022 (CSMS, §4 to §9.4) and the applicable Security Standard 6.0.2/6.0.3 (§1 to §5) | Clause references; each cell names the instrument (Norm or Security Standard) so the clause resolves |
 | WCO SAFE | WCO SAFE Framework of Standards | Pillar II references, Pillar II Standards 1 (Partnership) and 2 (Security), Annex IV elements (A, B, F, I, K, L and M) and Section VI (Trade Continuity and Resumption); each standard, element and section is cited with its held title; a cell that cites an Annex IV element cites the element alone, or beside a numbered Pillar II standard or Section VI, never beside a Pillar II reference alone |
-| AEO/AEO-S | UK HMRC Authorized Economic Operator Security and Safety | Requirement area headings |
+| AEO/AEO-S | UK HMRC Authorized Economic Operator Security and Safety | The organization's own scoping of the HMRC criteria, in IT and non-IT areas, not HMRC requirement area headings. The held handbook's security and safety criteria headings (section 11, 11.1 to 11.17) name no information systems area; its computer systems heading is under the record keeping criterion, as 8.10 Protection of computer systems |
 | AICPA TSC 2017 | AICPA 2017 Trust Services Criteria (TSP Section 100), the criteria used to evaluate controls in a SOC 2 examination; the 2022 revision updated the points of focus, not the criteria | Criterion identifiers only: CC1.1 to CC9.2 (common criteria), A1.1 to A1.3 (Availability), C1.1 to C1.2 (Confidentiality), PI1.1 to PI1.5 (Processing Integrity), and P1.1 to P8.1 (Privacy); never a category name or a privacy group heading such as P1.0 |
 
 Read across a row to identify which frameworks a given document supports. Read down a column to identify which GRC library documents map or align to a framework's requirements; a mapping does not establish that those documents satisfy the framework. A cell containing "N/A" indicates no direct mapping; the document may still provide contextual support. "N/A" is used in particular for the customs and trade-security columns (CTPAT, PIP, BASC, WCO SAFE, AEO/AEO-S) on documents whose subject is not customs or trade security. The AICPA TSC 2017 column is being populated domain by domain; until a row's Trust Services Criteria mapping has been assessed, its "N/A" in that column records that no mapping has been made yet and does not assert that no criterion applies.

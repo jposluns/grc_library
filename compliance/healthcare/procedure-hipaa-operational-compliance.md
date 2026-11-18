@@ -2,8 +2,8 @@
 
 **Document Title:** HIPAA Operational Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.6\
-**Date:** 2026-11-03\
+**Version:** 0.0.7\
+**Date:** 2026-11-18\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/healthcare/annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md), [`compliance/healthcare/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`privacy/procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -116,13 +116,13 @@ The governing text is 45 CFR Part 164 (the HIPAA Privacy, Security, and Breach N
 
 | Operational area | 45 CFR Part 164 | ISO/IEC 27001:2022 | NIST SP 800-66r2 |
 | --- | --- | --- | --- |
-| Individual rights (access, amendment, accounting) | 164.524, 164.526, 164.528 | A.5.34 | SP 800-66r2 |
-| Notice and minimum necessary | 164.520, 164.502, 164.514 | A.5.34 | SP 800-66r2 |
+| Individual rights (access, amendment, accounting) | 164.524, 164.526, 164.528 | A.5.34 | - |
+| Notice and minimum necessary | 164.520, 164.502, 164.514 | A.5.34 | - |
 | Documentation and retention | 164.316(b)(2), 164.530(j) | A.5.33 | SP 800-66r2 |
-| Breach determination and notification | 164.402, 164.404, 164.406, 164.408, 164.410, 164.412, 164.414 | A.5.26 | SP 800-66r2 |
+| Breach determination and notification | 164.402, 164.404, 164.406, 164.408, 164.410, 164.412, 164.414 | A.5.26 | - |
 | Business associate agreements | 164.502(e), 164.504(e), 164.314(a) | A.5.20 | SP 800-66r2 |
 
-NIST SP 800-66r2 (Implementing the HIPAA Security Rule) is the HHS-referenced implementation guide for the Security Rule safeguards this procedure depends on; consult it for risk-analysis and safeguard-implementation detail.
+NIST SP 800-66r2 (Implementing the HIPAA Security Rule) is the HHS-referenced implementation guide for the Security Rule safeguards this procedure depends on; consult it for risk-analysis and safeguard-implementation detail. It is scoped to the Security Rule and does not directly address the Privacy, Breach Notification or Enforcement Rules, so the Privacy Rule rows for individual rights and for notice and minimum necessary, and the breach determination and notification row, carry no SP 800-66r2 mapping (-). The breach row rests on the Breach Notification Rule itself, 45 CFR Part 164 Subpart D (sections 164.400 to 164.414).
 
 ---
 
