@@ -6436,12 +6436,16 @@ class CrossFileSectionRefTests(LinterTestCase):
                 "| Owner | §8 text `( [policy](t.md)` |",
                 "| Owner | Section 8 exception path `([policy](t.md))` |",
                 "| Owner | Section 8 exception path \\([policy](t.md)) |",
-                # A second opening parenthesis before the link, after
-                # descriptive text or with no text at all, makes the cell no
-                # exception path, even with one closing parenthesis after
-                # the link, so it too is read as a citation of the target.
-                "| Owner | §8 text ( ([policy](t.md)) |",
+                # Text before the link whose only non-space characters are
+                # parentheses is no exception path, even with one closing
+                # parenthesis after the link, so it too is read as a
+                # citation of the target.
                 "| Owner | §8 (([policy](t.md)) |",
+                "| Owner | §8 ( ([policy](t.md))) |",
+                # A bare closing parenthesis before the link that no bare
+                # opening parenthesis precedes makes the cell no exception
+                # path, so it is read as a citation of the target.
+                "| Owner | Section 8 exception path) see ([policy](t.md)) |",
             ):
                 with self.subTest(line=line, target_holds_section_8=not should_fail):
                     citer = VALID_METADATA + f"\n\n## 8. Exceptions\n\n{line}\n"
@@ -6451,6 +6455,35 @@ class CrossFileSectionRefTests(LinterTestCase):
                         self.assertLinterFails(result, "§8")
                         self.assertIn("does not resolve", result.stdout)
                         self.assertNotIn("no closing parenthesis", result.stdout)
+                    else:
+                        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        # Every bare opening parenthesis the text before the link leaves
+        # unmatched must be closed after the link: a second unmatched opening
+        # parenthesis closed only once is malformed, and a closed nested
+        # parenthetical stays local. An escaped or code-span parenthesis in
+        # that text is ignored, so it does not block the exception. The
+        # outcome is the same whether or not the target holds section 8.
+        for target_body, holds_section_8 in (
+            (self.TARGET_BODY + "\n\n## 4. Other\n", False),
+            (self.TARGET_BODY + "\n\n## 4. Other\n\n## 8. Exceptions\n", True),
+        ):
+            self.make_fixture("t.md", target_body)
+            for line, malformed in (
+                ("| Owner | §8 text ( ([policy](t.md)) |", True),
+                ("| Owner | Section 8 (see the exception path ([policy](t.md)) |", True),
+                ("| Owner | Section 8 (see the exception path ([policy](t.md))) |", False),
+                ("| Owner | Section 8 exception `(` path ([policy](t.md)) |", False),
+                ("| Owner | Section 8 exception `)` path ([policy](t.md)) |", False),
+                ("| Owner | Section 8 exception \\( path ([policy](t.md)) |", False),
+                ("| Owner | Section 8 exception \\) path ([policy](t.md)) |", False),
+            ):
+                with self.subTest(line=line, target_holds_section_8=holds_section_8):
+                    citer = VALID_METADATA + f"\n\n## 8. Exceptions\n\n{line}\n"
+                    fixture = self.make_fixture("standard-table-exception-cross-ref.md", citer)
+                    result = run_linter(".claude/skills/corpus-management/tools/lint-cross-file-section-refs.py", fixture)
+                    if malformed:
+                        self.assertLinterFails(result, "§8")
+                        self.assertIn("no closing parenthesis", result.stdout)
                     else:
                         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
