@@ -139,7 +139,7 @@ drive end-to-end on the maintainer's behalf:
    (3b106). A grc_library_new PR merges ONLY through
    `python3 tools/merge-grc-library-new.py <N>` (add `--dry-run` to run every check and stop
    before the merge); `tools/merge-when-green.py` refuses grc_library_new, by `--repo` in any
-   spelling and by the PR URL gh reports, and names that tool (3b882). Before any merge call
+   spelling and by the PR URL gh reports, and names that tool (PR #3138). Before any merge call
    the tool refuses unless: the PR's /validate-pr and /retro rows, each tagged
    `[repo: grc_library_new]`, are in `validate-pr/history-grc_library_new.md` and
    `improvement-log-grc_library_new.md` in the operational store; the admin-merge log there is

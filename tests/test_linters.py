@@ -46552,7 +46552,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint_common.py PASSIVE F c3f9567cb927a4a4599fc2704a690a93d145aef8edfa2a90eb660b246aadbedd
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
-        merge-grc-library-new.py NO_FS F f469764b2218641a4bf6a978c7ea610e8d68cde0ac42472ca26ceacd73be8766
+        merge-grc-library-new.py NO_FS F 99c3d7eb8742695145e93147223d6472c7c5630977b63ea636d65dd99ebb03cb
         merge-when-green.py NO_FS F babbe83220b290a22103757a5a389d69239608183d6eeb7dbfce5056dafb04aa
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
@@ -62989,13 +62989,14 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
         new = self.NEW
         fullwidth = "".join(chr(ord(c) + 0xFEE0) for c in "grc_library_new")
         commands = (
-            # texts/text-guard-findings.md line 4
+            # The repository flag before the merge verb, as an SSH remote, or after a redirection.
             "gh pr -R %s merge 31" % new,
             "gh pr --repo %s merge" % new,
             "gh pr merge 31 -R git@github.com:%s" % new,
             "gh pr merge 31 -R ssh://git@github.com/%s" % new,
             "gh pr merge 2>/dev/null -R %s" % new,
-            # line 6
+            # Bundled short flags, GH_REPO in the environment, a cd into the repository, a pull
+            # request URL, xargs, brace expansion and merge-when-green with --require-none.
             "gh pr merge -dR %s 31" % new,
             "gh pr merge -sb 31 32 -R %s" % new,
             "export GH_REPO=%s; gh pr merge 31" % new,
@@ -63008,13 +63009,14 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
             "echo 31 | xargs -I{} gh pr merge {} -R %s" % new,
             "gh pr merge {31,32} -R %s" % new,
             "python3 tools/merge-when-green.py 31 --require-none --repo %s --admin" % new,
-            # line 11
+            # A merge behind bash -c -- or env -.
             'bash -c -- "gh pr merge 33 -R %s"' % new,
             "env - gh pr merge 33 -R %s" % new,
-            # line 14
+            # A --help=false option, or a merge behind time named by absolute path.
             "gh pr merge 33 -R %s --squash --help=false" % new,
             "/usr/bin/time gh pr merge 33 -R %s --squash" % new,
-            # line 16
+            # A merge behind a command runner (setsid, stdbuf, ionice, flock, doas, coproc, script,
+            # su or uv run) or a shell function, GIT_DIR naming the repository, or fullwidth digits.
             "setsid gh pr merge 33 -R %s" % new,
             "stdbuf -o0 gh pr merge 33 -R %s" % new,
             "ionice gh pr merge 33 -R %s" % new,
@@ -63290,7 +63292,10 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
     MCP_GRAPHQL = "mcp__github__graphql"
     MCP_REST = "mcp__github__call_rest_api"
 
-    def test_mcp_graphql_merge_mutation_naming_grc_library_new_is_refused(self):
+    def test_hook_invoked_with_mcp_graphql_merge_mutation_naming_grc_library_new_refuses(self):
+        """Checks the hook's decision when it is invoked with mcp__github__graphql payloads.
+        .claude/settings.json does not register the hook for this tool name, so a real session
+        does not run it for these calls."""
         merge = "mutation($id:ID!){mergePullRequest(input:{pullRequestId:$id}){clientMutationId}}"
         auto = ("mutation($id:ID!){enablePullRequestAutoMerge(input:{pullRequestId:$id,"
                 "mergeMethod:SQUASH}){clientMutationId}}")
@@ -63302,7 +63307,10 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
             with self.subTest(tool_input=tool_input):
                 self._refused(dict(tool_name=self.MCP_GRAPHQL, tool_input=tool_input))
 
-    def test_mcp_rest_merges_endpoint_naming_grc_library_new_is_refused(self):
+    def test_hook_invoked_with_mcp_rest_merges_endpoint_naming_grc_library_new_refuses(self):
+        """Checks the hook's decision when it is invoked with mcp__github__call_rest_api
+        payloads. .claude/settings.json does not register the hook for this tool name, so a real
+        session does not run it for these calls."""
         for tool_input in (
                 dict(method="POST", endpoint="repos/jposluns/grc_library_new/merges",
                      body=dict(base="main", head="feature")),
@@ -63387,7 +63395,7 @@ class MergeGrcLibraryNewRowCheckTests(unittest.TestCase):
     VALIDATE_REL = "validate-pr/history-grc_library_new.md"
     RETRO_REL = "improvement-log-grc_library_new.md"
     VALIDATE_ROW = ("| 2026-11-14 | #31 [repo: grc_library_new] | train 1 | claude (executed) "
-                    "| VPR31NEW-C1 | dispositioned |")
+                    "| ZZZ31NEW-C1 | dispositioned |")
     RETRO_ROW = ("| 2026-11-14 | #31 (/retro) [NEW31-RETRO] [repo: grc_library_new] | Train 1 "
                  "| went well | went badly | cause | actions |")
     PREAMBLE_V = ("# PR-Scoped Validation History: grc_library_new\n\n"

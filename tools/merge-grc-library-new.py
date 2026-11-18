@@ -73,9 +73,10 @@ Exit codes: 0 both rows present, the dry run passed, the merge read back clean a
 was appended, or the self-test passed; 1 refused (a row is missing, the PR state, head, title or CI
 does not allow a merge, or an undispositioned error finding is open); 2 usage error, the store, a
 register, the admin-merge log or the open-findings ledger cannot be found, read or accepted, the
-open-findings check cannot be loaded, or a gh call failed (before the merge, or the merge call
-itself, whose state must then be read before any retry); 3 merged but the read-back of the merge
-commit, or the append or read-back of the log row, failed.
+open-findings check cannot be loaded, a gh call failed (before the merge, or the merge call
+itself, whose state must then be read before any retry), a gh result cannot be read, or an
+Actions runs listing is incomplete, inconsistent or holds a malformed run record; 3 merged but
+the read-back of the merge commit, or the append or read-back of the log row, failed.
 """
 from __future__ import annotations
 
