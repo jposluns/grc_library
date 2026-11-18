@@ -26712,10 +26712,20 @@ class PIIContentTests(LinterTestCase):
         for body, _needle in cases:
             with self.subTest(body=body):
                 word = body.split(" git@")[0].split(" ")[-1]
-                self.assertNotIn(".", word)
-                self.assertNotIn(")", word)
+                for form in (word, wrapper._rendered(word)):
+                    self.assertNotIn(".", form)
+                    self.assertNotIn(")", form)
                 self.assertEqual(wrapper._allowed_spans(engine, body.rstrip("\n")), [])
         self._assert_remote_bodies_reported("standard-git-remote-any-reference.md", cases)
+
+    def test_git_remote_allowance_refuses_a_plain_ampersand_word_such_as_r_and_d_before_the_remote(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_plain_ampersand")
+        engine = wrapper._engine()
+        self.assertEqual(wrapper._allowed_spans(engine, "Mail RD git@github.com:o/r now."), [(8, 22)])
+        self.assertEqual(wrapper._allowed_spans(engine, "Mail R&D git@github.com:o/r now."), [])
+        self._assert_remote_bodies_reported("standard-git-remote-plain-ampersand.md",
+                                            (("Mail R&D git@github.com:o/r now.\n", "git@github.com"),))
 
     def test_git_remote_allowance_refuses_a_dot_behind_a_delimiter_closed_after_the_token(self) -> None:
         self._assert_remote_after_a_dot_behind_delimiters_reported("Mail alice.[ git@github.com:o/r ] now.\n",
@@ -46497,7 +46507,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-orphan-documents.py NO_FS F 7a5e4c9ba00700be7e6e97a67d6e24b8365f5e4463af5c5cc12f79a5a45f8ecd
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
-        lint-pii-in-content.py CWD F a0a37e8b077e0bd549954fb642b11b62add4d2dc9de358a6e204e179c824d01a
+        lint-pii-in-content.py CWD F 1d6e93b63657cbe2466cf40deef98bc3083b44fddbef92fb408f322871590ff1
         lint-placeholder-leakage.py CWD F 011f3e7a9a38fc875d6ec0458f9ff22fdbcc6f531a1d316fc4229b6e791c7eea
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a

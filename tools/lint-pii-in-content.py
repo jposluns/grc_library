@@ -202,7 +202,13 @@ Exemption layers:
     closing parenthesis, a character reference or an HTML tag anywhere, even
     with punctuation-only words or a line break between (Clone it.
     git@github.com:o/r, Clone it. - git@github.com:o/r, e.g.
-    git@github.com:o/r or v1.2 git@github.com:o/r), a numbered list item (1.
+    git@github.com:o/r or v1.2 git@github.com:o/r), one whose word before
+    is plain text that the character reference test reads as a reference,
+    since that test refuses any ampersand followed by a letter, a number
+    sign and digits, or a number sign, x and hex digits, whether or not a
+    semicolon follows and whether or not it is a real reference (so plain
+    words such as R&D, Q&A and AT&T before the remote are refused too, as
+    is a fullwidth look-alike of a reference), a numbered list item (1.
     git@github.com:o/r or 1) git@github.com:o/r), a table row with a dot in
     an earlier cell (| v1 | example.org | git@github.com:o/r |, since each
     pipe is a punctuation-only word), one after a dotted word behind a
@@ -400,7 +406,11 @@ def _local_part_continues_before(text: str, pos: int) -> bool:
     closing parenthesis. The character reference test runs on the NFKC-normalized word, so a
     fullwidth look-alike of a reference (for example U+FF06 FULLWIDTH AMPERSAND before amp;)
     is refused too, though it is plain text and not a reference; that is an accepted
-    over-refusal residual. A word whose rendered form holds one of _SPAN_CHARACTERS is widened to
+    over-refusal residual. The character reference test refuses any ampersand followed by a
+    letter, a number sign and digits, or a number sign, x and hex digits, whether or not a
+    semicolon follows and whether or not it is a real reference, so plain words such as R&D,
+    Q&A and AT&T before the remote are refused too; that is an accepted over-refusal as well.
+    A word whose rendered form holds one of _SPAN_CHARACTERS is widened to
     its markup span (_span_start), tested as one word and passed over even when it holds a letter
     or digit (_span_start gives the exact widening). The refusals guaranteed for markup between a
     dotted name and the remote are the general rules stated in the module docstring plus the
