@@ -24,17 +24,21 @@ Every line is split into cells on unescaped pipes outside matched code spans,
 and every cell is checked; an unmatched backtick is literal and backslashes
 inside code are literal. A local heading
 reference in a table cell is excluded when no link precedes it in the cell and
-the text between it and a nearby following link, which begins with a space, is
-an exception path. A parenthesis is bare when it is outside any code span and
-not escaped with a backslash; an escaped or code-span parenthesis is ignored.
-The text is an exception path only when it holds at least one character that is
-neither a space nor a bare parenthesis, holds no bare closing parenthesis
-without a bare opening parenthesis before it in that text, and ends, ignoring
-spaces, with a bare opening parenthesis. The path is closed when the text after
-the link closes every bare opening parenthesis the text before the link leaves
-unmatched. A cell of that shape whose path is not closed is refused as
-malformed, whether or not the target holds the cited number, instead of being
-checked as a citation of the target. "Of the target" describes the
+the text between it and a nearby following link is an exception path. That
+text is an exception path only when both conditions hold, so the second can
+only narrow the first: (a) it fully matches ``_EXCEPTION_PATH_RE``, the 0.23.7
+pattern, that is, it begins with a space, holds a non-space character, which may itself be
+a parenthesis, and otherwise no parenthesis, and ends, ignoring spaces, with
+an opening parenthesis; and (b) read with ``_bare_characters``, its last opening
+parenthesis is bare and it holds no bare closing parenthesis. A parenthesis is
+bare when it is outside any code span and not escaped with a backslash. The
+path is closed when the text after the link closes every bare opening
+parenthesis left unmatched in the text before the link. A cell of that shape
+whose path is not closed is refused as malformed, whether or not the target
+holds the cited number, instead of being checked as a citation of the target.
+Parentheses before the section reference are neither counted nor required to
+be closed; that text is read only for a preceding link and for where code
+spans begin. "Of the target" describes the
 target, so it is checked. Prose remains subject to the adjacent-link check.
 Only explicit "of [the] target" wording is treated as a target citation in
 this table-cell exception; "of the policy" remains a documented residual.
@@ -230,35 +234,29 @@ def _bare_characters(cell: str):
         i += 1
 
 
+_EXCEPTION_PATH_RE = re.compile(r"\s+[^()]*\S[^()]*\(\s*")
+
+
 def _exception_path_depth(cell: str, start: int, end: int) -> int:
     """Count the bare opening parentheses ``cell[start:end]`` leaves unmatched.
 
-    Return 0 when that text is not an exception path. A parenthesis is bare
-    when ``_bare_characters`` yields it, scanning the cell from its start, so a
-    parenthesis inside a code span or escaped with a backslash is ignored. The
-    text is an exception path only when it holds at least one character that
-    is neither a space nor a bare parenthesis, holds no bare closing
-    parenthesis without a bare opening parenthesis before it in the text, and
-    ends, ignoring spaces, with a bare opening parenthesis.
+    Return 0 when that text is not an exception path. The text is an exception
+    path only when (a) it fully matches ``_EXCEPTION_PATH_RE``, the 0.23.7
+    test, and (b) read with ``_bare_characters``, scanning the cell from its
+    start, its last opening parenthesis is bare and it holds no bare closing
+    parenthesis. A parenthesis inside a code span or escaped with a backslash
+    is not bare. Because (a) is required, a text the 0.23.7 test refused is
+    never an exception path.
     """
-    bare = {i: char for i, char in _bare_characters(cell) if start <= i < end}
-    if not any(
-        not cell[i].isspace() and bare.get(i) not in ("(", ")")
-        for i in range(start, end)
-    ):
+    if not _EXCEPTION_PATH_RE.fullmatch(cell[start:end]):
         return 0
-    depth = 0
-    for char in bare.values():
-        if char == "(":
-            depth += 1
-        elif char == ")":
-            if depth == 0:
-                return 0
-            depth -= 1
-    last = start + len(cell[start:end].rstrip()) - 1
+    bare = {i: char for i, char in _bare_characters(cell) if start <= i < end}
+    if ")" in bare.values():
+        return 0
+    last = cell.rfind("(", start, end)
     if bare.get(last) != "(":
         return 0
-    return depth
+    return sum(1 for char in bare.values() if char == "(")
 
 
 def _closes_open_parenthesis(cell: str, start: int, depth: int = 1) -> bool:
@@ -343,12 +341,10 @@ def check_file(
                     if (line.lstrip().startswith("|") and link is not None
                             and number in own_sections and following is not None
                             and not any(m.end() <= match.start() for m in md_link_re.finditer(cell))
-                            # The text before the link begins with a space and
-                            # is an exception path: descriptive, with no stray
-                            # bare closing parenthesis, and ending with a bare
-                            # opening parenthesis. Otherwise the cell is
-                            # checked as a citation of the target.
-                            and re.match(r"\s", intervening)
+                            # The text before the link passes the 0.23.7
+                            # pattern and its last opening parenthesis is bare
+                            # with no bare closing parenthesis. Otherwise the
+                            # cell is checked as a citation of the target.
                             and open_count > 0
                             and not re.match(r"\s+of\s+(?:the\s+)?target\b", intervening, re.I)):
                         # Scan with balanced parentheses: the text after the
