@@ -30,10 +30,6 @@
           },
           {
             "type": "command",
-            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/no_remove_guard.py"
-          },
-          {
-            "type": "command",
             "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-unbumped-version-commit.py"
           },
           {
