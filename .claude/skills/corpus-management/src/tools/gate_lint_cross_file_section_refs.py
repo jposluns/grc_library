@@ -27,13 +27,16 @@ reference in a table cell is excluded when no link precedes it in the cell and
 the text between it and a nearby following link is an exception path. That
 text is an exception path only when both conditions hold, so the second can
 only narrow the first: (a) it fully matches ``_EXCEPTION_PATH_RE``, the 0.23.7
-pattern, that is, it begins with a space, holds a non-space character, which may itself be
-a parenthesis, and otherwise no parenthesis, and ends, ignoring spaces, with
-an opening parenthesis; and (b) read with ``_bare_characters``, its last opening
-parenthesis is bare and it holds no bare closing parenthesis. A parenthesis is
-bare when it is outside any code span and not escaped with a backslash. The
-path is closed when the text after the link closes every bare opening
-parenthesis left unmatched in the text before the link. A cell of that shape
+pattern, that is, it begins with a space, holds a non-space character, which
+may itself be a parenthesis, and otherwise no parenthesis, and ends, ignoring
+spaces, with an opening parenthesis; and (b) read with ``_bare_characters``,
+its last opening parenthesis is bare. A parenthesis is bare when it is outside
+any code span and not escaped with a backslash. The path is closed when the
+text after the link closes every bare opening parenthesis in the text before
+the link, so a bare opening parenthesis standing as the descriptive character
+leaves two to close. A bare closing parenthesis there can only be the
+descriptive character, before the last opening parenthesis, so it closes none
+and leaves that one opening parenthesis to close, as in 0.23.7. A cell of that shape
 whose path is not closed is refused as malformed, whether or not the target
 holds the cited number, instead of being checked as a citation of the target.
 Parentheses before the section reference are neither counted nor required to
@@ -238,21 +241,23 @@ _EXCEPTION_PATH_RE = re.compile(r"\s+[^()]*\S[^()]*\(\s*")
 
 
 def _exception_path_depth(cell: str, start: int, end: int) -> int:
-    """Count the bare opening parentheses ``cell[start:end]`` leaves unmatched.
+    """Count the bare opening parentheses in ``cell[start:end]``.
 
     Return 0 when that text is not an exception path. The text is an exception
     path only when (a) it fully matches ``_EXCEPTION_PATH_RE``, the 0.23.7
     test, and (b) read with ``_bare_characters``, scanning the cell from its
-    start, its last opening parenthesis is bare and it holds no bare closing
-    parenthesis. A parenthesis inside a code span or escaped with a backslash
-    is not bare. Because (a) is required, a text the 0.23.7 test refused is
-    never an exception path.
+    start, its last opening parenthesis is bare. A parenthesis inside a code
+    span or escaped with a backslash is not bare. Because (a) is required, a
+    text the 0.23.7 test refused is never an exception path. A bare closing
+    parenthesis passes (a) only as the descriptive character, before the last
+    opening parenthesis and with no other parenthesis in the text, so it
+    closes none and the count is 1: such a cell keeps the 0.23.7 decision,
+    local when the text after the link closes that parenthesis and malformed
+    when it does not.
     """
     if not _EXCEPTION_PATH_RE.fullmatch(cell[start:end]):
         return 0
     bare = {i: char for i, char in _bare_characters(cell) if start <= i < end}
-    if ")" in bare.values():
-        return 0
     last = cell.rfind("(", start, end)
     if bare.get(last) != "(":
         return 0
@@ -342,9 +347,9 @@ def check_file(
                             and number in own_sections and following is not None
                             and not any(m.end() <= match.start() for m in md_link_re.finditer(cell))
                             # The text before the link passes the 0.23.7
-                            # pattern and its last opening parenthesis is bare
-                            # with no bare closing parenthesis. Otherwise the
-                            # cell is checked as a citation of the target.
+                            # pattern and its last opening parenthesis is
+                            # bare. Otherwise the cell is checked as a
+                            # citation of the target.
                             and open_count > 0
                             and not re.match(r"\s+of\s+(?:the\s+)?target\b", intervening, re.I)):
                         # Scan with balanced parentheses: the text after the
