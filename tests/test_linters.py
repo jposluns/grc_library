@@ -25927,9 +25927,11 @@ def _remote_rule_comment_problems(source: str, pointer: str) -> tuple[list, list
 
     A remote test is a method (def or async def) of either class, or of a class nested in one,
     whose name holds "forge" or "remote" or whose lines exercise the allowance. Every comment
-    (tokenize) indented into its class from the end of the statement before it in its class body
-    (or the class line) through the start of the statement after it (or the end of the class) must
-    be exactly ``pointer``: its own lines, the blank, comment and decorator lines above its def,
+    (tokenize) at any column inside the method's own lines (its first decorator through its last
+    line), and every comment indented into its class from the end of the statement before it in
+    its class body (or the class line) through the start of the statement after it (or the end of
+    the class), must be exactly ``pointer``: its own lines, the blank, comment and decorator lines
+    above its def,
     the comments after its last statement and the class-level comments next to it. It must have no
     docstring. Returns the problems as (method, line, comment or "docstring"), the method names
     and the number of pointers seen."""
@@ -25971,7 +25973,8 @@ def _remote_rule_comment_problems(source: str, pointer: str) -> tuple[list, list
     seen = set()
     for node, low, high, column in tests:
         for number, offset, string in comments:
-            if not low <= number <= high or offset <= column or number in seen:
+            inside = begin(node) <= number <= node.end_lineno
+            if not low <= number <= high or (offset <= column and not inside) or number in seen:
                 continue
             seen.add(number)
             if string.strip() == pointer:
@@ -26799,6 +26802,45 @@ class PIIContentTests(LinterTestCase):
             with self.subTest(fragment=fragment):
                 self.assertIn(fragment, doc)
 
+    def test_git_remote_residual_a_bracket_opened_by_a_character_reference_is_not_read(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_encoded_bracket")
+        engine = wrapper._engine()
+        self.assertEqual(wrapper._allowed_spans(engine, "Mail alice. [ x ] git@github.com:o/r now."), [])
+        for line in ("Mail alice. &#91; x ] git@github.com:o/r now.",
+                     "Mail alice. &lsqb; x ] git@github.com:o/r now.",
+                     "Mail alice. &#x5b; x ] git@github.com:o/r now."):
+            with self.subTest(line=line):
+                self.assertEqual(len(wrapper._allowed_spans(engine, line)), 1)
+        self.assertIn("A bracket opened by a character reference (alice. &#91; x ] git@github.com:o/r",
+                      " ".join(wrapper.__doc__.split()))
+
+    def test_git_remote_residual_a_nested_kramdown_comment_is_read_only_back_to_the_nearest_opener(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_nested_extension")
+        engine = wrapper._engine()
+        self.assertEqual(wrapper._allowed_spans(
+            engine, "Mail alice. {::comment} x {:/comment} git@github.com:o/r now."), [])
+        for line in ("Mail alice. {::comment} x {::comment} y {:/comment} git@github.com:o/r now.",
+                     "Mail alice. {::comment} x {::comment} y {:/} git@github.com:o/r now."):
+            with self.subTest(line=line):
+                self.assertEqual(len(wrapper._allowed_spans(engine, line)), 1)
+        self.assertIn("A kramdown comment with another {:: inside it "
+                      "(alice. {::comment} x {::comment} y {:/comment} git@github.com:o/r",
+                      " ".join(wrapper.__doc__.split()))
+
+    def test_git_remote_residual_a_paired_template_block_with_letters_between_its_tags_is_not_read(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_template_pair")
+        engine = wrapper._engine()
+        self.assertEqual(wrapper._allowed_spans(
+            engine, "Mail alice. {% comment %}{% endcomment %} git@github.com:o/r now."), [])
+        self.assertEqual(len(wrapper._allowed_spans(
+            engine, "Mail alice. {% comment %} x {% endcomment %} git@github.com:o/r now.")), 1)
+        self.assertIn("A paired template block with letters between its tags "
+                      "(alice. {% comment %} x {% endcomment %} git@github.com:o/r",
+                      " ".join(wrapper.__doc__.split()))
+
     def test_remote_rule_comments_point_to_the_module_docstring(self) -> None:
         pointer = '# Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.'
         problems, methods, pointed = _remote_rule_comment_problems(
@@ -26841,6 +26883,12 @@ class PIIContentTests(LinterTestCase):
                 "return 1\n", "return 1  " + planted_comment + "\n"), 5),
             ("in a nested class", nested.replace("return 1\n", "return 1  " + planted_comment + "\n"), 5),
             ("at nested class level after the method", nested + "        " + planted_comment + "\n", 6),
+            ("at column 0 inside the method",
+             clean.replace("        return 1\n", planted_comment + "\n        return 1\n"), 5),
+            ("at column 0 inside a nested class method",
+             nested.replace("            return 1\n", planted_comment + "\n            return 1\n"), 5),
+            ("at the class column inside a nested class method",
+             nested.replace("            return 1\n", "    " + planted_comment + "\n            return 1\n"), 5),
         ):
             with self.subTest(case=case):
                 problems, _, _ = _remote_rule_comment_problems(planted, pointer)
@@ -46433,7 +46481,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-orphan-documents.py NO_FS F 7a5e4c9ba00700be7e6e97a67d6e24b8365f5e4463af5c5cc12f79a5a45f8ecd
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
-        lint-pii-in-content.py CWD F a9f451797fb32258b27e11195a2658ca52997af580f9f815e4fa7cc20eeaa8af
+        lint-pii-in-content.py CWD F 94661618fd84cbd1deefb09ca98d335d7e11d5f36d137a7c326852c669183a90
         lint-placeholder-leakage.py CWD F 011f3e7a9a38fc875d6ec0458f9ff22fdbcc6f531a1d316fc4229b6e791c7eea
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a

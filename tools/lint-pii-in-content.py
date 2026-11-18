@@ -113,8 +113,10 @@ Exemption layers:
     inline marker, a link label, a reference, an attribute block or a
     bracket that a later character closes after the token). A refusing
     character is a dot, a closing parenthesis, a character whose NFKC form
-    is either, or the end of a character reference (any reference refuses,
-    whatever it renders), a ">" that is not a block quote marker (the end of
+    is either, or the end of a character reference (any reference in a
+    word the walk reaches refuses, whatever it renders; one behind a word
+    that ends the walk is not read, as below), a ">" that is not a block
+    quote marker (the end of
     an HTML tag or comment), or a character whose NFKC form holds a dot or a
     closing parenthesis (such as U+2488 or U+2474), since an obsolete local
     part such as alice. git@github.com:o/r, alice.<!----> git@github.com:o/r,
@@ -122,26 +124,45 @@ Exemption layers:
     alice.{:x} git@github.com:o/r (each renders as alice.
     git@github.com:o/r) is the address alice.git@github.com.
     A word whose rendered form holds a square bracket or a curly brace (a
-    link, an image, a footnote, a task box, an attribute block, a template
-    tag or an extension) is taken back across white space and line breaks
-    to the word that opens every bracket and brace it closes, and a word
-    that closes a kramdown extension ({:/name} or {:/}) is taken back to the
-    nearest {:: before it; that whole span is tested as one word and then
-    passed over, even when it holds a letter or digit, and the word before
-    it is taken too. So an empty-text link or image (alice. [][r]
+    link, an image, a footnote, a task box, an attribute block, a single
+    template tag or an extension) is taken back across white space and line
+    breaks to the word that opens every bracket and brace it closes; that
+    walk reads one character at a time, so a bracket or brace counts only
+    when it is written as itself or as a character whose NFKC form is one,
+    not as a character reference. A word that closes a kramdown extension
+    ({:/name} or {:/}) is taken back to the nearest {:: before it, not to
+    an earlier one; that whole span is tested as one word and then passed
+    over, even when it holds a letter or digit, and the word before it is
+    taken too. So an empty-text link or image (alice. [][r]
     git@github.com:o/r or alice. ![][r] git@github.com:o/r), a reference
     label with white space in it ([alice.][r x] git@github.com:o/r) and a
-    kramdown comment (alice. {::comment} x {:/comment} git@github.com:o/r),
+    kramdown comment with no other {:: inside it
+    (alice. {::comment} x {:/comment} git@github.com:o/r),
     which each render as alice. git@github.com:o/r, are refused. An HTML
     comment between (alice. <!-- x --> git@github.com:o/r) is refused by its
     ">". The rule does not read markup that renders as nothing or as white
     space when its last word holds a letter or digit and none of its words
     holds a bracket, a brace, a ">" or a character reference: a
     reStructuredText substitution or role
-    (alice. |x| git@github.com:o/r), a template, macro or shortcode syntax
-    in any other markup language that uses none of those characters, a
-    bracket or brace opened in an earlier paragraph, and markup that spans a
-    line that holds no character (the rule reads one paragraph). A
+    (alice. |x| git@github.com:o/r) and a template, macro or shortcode
+    syntax in any other markup language that uses none of those characters.
+    Nor does it read a bracket or brace opened in an earlier paragraph, or
+    markup that spans a line that holds no character (the rule reads one
+    paragraph). Three forms whose words do hold a bracket, a brace or a
+    character reference are not read either, and the rule allows the remote
+    after each of them. A bracket opened by a character reference
+    (alice. &#91; x ] git@github.com:o/r, or &lsqb; or &#x5b;) is not read:
+    the walk does not see the encoded bracket open, so the closing ] is
+    passed over alone, the letter in x ends the walk, and neither the
+    reference nor the dot before it is tested (a plain [ there refuses).
+    A kramdown comment with another {:: inside it
+    (alice. {::comment} x {::comment} y {:/comment} git@github.com:o/r, or
+    the same with {:/}) is read only back to the nearest {::, so x is read
+    as an ordinary word and its letter ends the walk. A paired template
+    block with letters between its tags
+    (alice. {% comment %} x {% endcomment %} git@github.com:o/r) is read
+    one tag at a time, each back only to its own opening brace, so x between
+    the tags is read as an ordinary word and its letter ends the walk. A
     parenthesis, angle bracket or tag separated from the token by white
     space (( git@github.com:o/r ) or <a href=' git@github.com:o/r '>) is not
     part of its token, so the token rule does not read it; it can make no
@@ -330,9 +351,10 @@ def _rendered(word: str) -> str:
 def _span_start(text: str, start: int, end: int) -> int:
     """The start of the markup span that holds the word ``text[start:end]``: back across
     _WORD_DELIMITERS to the word that opens every square bracket and curly brace the span
-    closes, and, when the word closes a kramdown extension ({:/), back to the nearest {:: before
-    it. ``start`` when nothing opens them. The rule and why: see "Git remote forms" in the
-    module docstring."""
+    closes, each character rendered alone (so a bracket or brace written as a character
+    reference opens nothing), and, when the word closes a kramdown extension ({:/), back to the
+    nearest {:: before it, not to an earlier one. ``start`` when nothing opens them. The rule
+    and why: see "Git remote forms" in the module docstring."""
     close = text.find("{:/", start, end)
     floor = text.rfind("{::", 0, close) if close >= 0 else -1
     depth = 0
@@ -360,8 +382,10 @@ def _local_part_continues_before(text: str, pos: int) -> bool:
     closing parenthesis. A word whose rendered form holds one of _SPAN_CHARACTERS is widened to
     its markup span (_span_start), tested as one word and passed over even when it holds a letter
     or digit. The rule does not read markup that renders as nothing when none of its words holds
-    one of _SPAN_CHARACTERS, a ">" or a character reference, nor markup across a paragraph break;
-    it refuses the legitimate forms 1. git@github.com:o/r and | v1 | example.org |
+    one of _SPAN_CHARACTERS, a ">" or a character reference, nor markup across a paragraph break,
+    nor a bracket opened by a character reference, a kramdown extension with another {:: inside
+    it or a paired template block with letters between its tags (it allows the remote after
+    each); it refuses the legitimate forms 1. git@github.com:o/r and | v1 | example.org |
     git@github.com:o/r |. The rule and why: see "Git remote forms" in the module docstring."""
     end = pos
     while True:
