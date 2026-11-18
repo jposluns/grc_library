@@ -63384,6 +63384,93 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
         self._refused(dict(tool_name=self.MCP, tool_input=[]), cwd="/home/u/grc_library_new")
 
 
+class NoRemoveGuardHookTests(unittest.TestCase):
+    """.claude/hooks/no_remove_guard.py, registered under the first Bash PreToolUse matcher.
+    Unlike the hooks that refuse with a BLOCKED line on stderr and exit 2, it denies with exit 0
+    and one JSON object on stdout (a hookSpecificOutput deny with its reason, plus a
+    systemMessage), and it allows with exit 0 and no output at all. The hook runs as a subprocess
+    with a JSON payload on stdin, in a temporary working directory, so a missing hook file
+    (python3 exits 2 with "can't open file") fails every case."""
+
+    HOOK = REPO_ROOT / ".claude" / "hooks" / "no_remove_guard.py"
+    COMMAND = '/usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/no_remove_guard.py'
+    SET_ASIDE = ("/tmp/grc/deleteme", "/tmp/deleteme-grc")
+
+    def _run(self, command=None, *, raw=None):
+        import json
+        if raw is None:
+            raw = json.dumps(dict(hook_event_name="PreToolUse", session_id="h",
+                                  cwd="/home/u/grc_library", tool_name="Bash",
+                                  tool_input=dict(command=command))).encode("utf-8")
+        with tempfile.TemporaryDirectory() as td:
+            return subprocess.run([sys.executable, "-I", str(self.HOOK)], input=raw, cwd=td,
+                                  capture_output=True, timeout=60)
+
+    def _assert_denied(self, proc, context):
+        import json
+        self.assertEqual((proc.returncode, proc.stderr), (0, b""), context)
+        out = proc.stdout.decode("utf-8")
+        # Exactly one JSON object on one line.
+        self.assertTrue(out.endswith("\n"), (context, out))
+        self.assertEqual(out.count("\n"), 1, (context, out))
+        obj = json.loads(out)
+        self.assertEqual(sorted(obj), ["hookSpecificOutput", "systemMessage"], context)
+        decision = obj["hookSpecificOutput"]
+        self.assertEqual(sorted(decision),
+                         ["hookEventName", "permissionDecision", "permissionDecisionReason"], context)
+        self.assertEqual(decision["hookEventName"], "PreToolUse", context)
+        self.assertEqual(decision["permissionDecision"], "deny", context)
+        for text in (decision["permissionDecisionReason"], obj["systemMessage"]):
+            self.assertIsInstance(text, str, context)
+            for folder in self.SET_ASIDE:
+                self.assertIn(folder, text, context)
+        return decision["permissionDecisionReason"]
+
+    def test_self_test_passes(self):
+        with tempfile.TemporaryDirectory() as td:
+            # Liveness ceiling for loaded hosts; the self-test itself takes seconds.
+            proc = subprocess.run([sys.executable, "-I", str(self.HOOK), "--self-test"], cwd=td,
+                                  capture_output=True, timeout=300)
+        out = proc.stdout.decode("utf-8", "replace")
+        err = proc.stderr.decode("utf-8", "replace")
+        self.assertEqual(proc.returncode, 0, out[-4000:] + err[-4000:])
+        self.assertNotIn("FAIL [", out)
+        self.assertNotIn("Traceback", err)
+        self.assertRegex(out, r"(?m)^self-test: ([1-9][0-9]*) cases, \1 passed, 0 failed$")
+
+    def test_removal_is_denied_with_the_json_deny_shape(self):
+        for command in ("rm x", "rm -rf build"):
+            with self.subTest(command=command):
+                reason = self._assert_denied(self._run(command), command)
+                self.assertIn("git rm -f", reason)
+
+    def test_malformed_payload_is_denied_with_the_same_shape(self):
+        for raw in (b"{", b"not json", b'{"tool_name": "Bash", "tool_input": "x"}'):
+            with self.subTest(raw=raw):
+                self._assert_denied(self._run(raw=raw), raw)
+
+    def test_status_set_aside_move_and_isolated_script_are_allowed(self):
+        for command in ("git status",
+                        "mv --backup=numbered build.log /tmp/grc/deleteme/",
+                        "python3 -I /home/u/scratch/scripts/edit_readme.py"):
+            with self.subTest(command=command):
+                proc = self._run(command)
+                self.assertEqual((proc.returncode, proc.stdout, proc.stderr), (0, b"", b""))
+
+    def test_registered_once_under_the_first_bash_matcher(self):
+        import json
+        settings = json.loads((REPO_ROOT / ".claude" / "settings.json").read_text(encoding="utf-8"))
+        pre = settings["hooks"]["PreToolUse"]
+        first_bash = [i for i, group in enumerate(pre) if group.get("matcher") == "Bash"][0]
+        found = [(event, index, hook)
+                 for event, groups in settings["hooks"].items()
+                 for index, group in enumerate(groups)
+                 for hook in group.get("hooks", [])
+                 if "no_remove_guard" in hook.get("command", "")]
+        self.assertEqual(found, [("PreToolUse", first_bash,
+                                  {"type": "command", "command": self.COMMAND})])
+
+
 class MergeGrcLibraryNewRowCheckTests(unittest.TestCase):
     """tools/merge-grc-library-new.py: the register row
     check, the refusal of a store or register it cannot read, the store-only rule (registers are
@@ -72631,9 +72718,9 @@ def _rewrite_slot_share_fixture(test, source, path):
 
 
 class HookDescendantIsolationTests(unittest.TestCase):
-    COUNTS = {'.claude/hooks/block-branch-to-main-edit.py': 3, '.claude/hooks/block-idle-stop-with-actionable-backlog.py': 1, '.claude/hooks/block-turn-end-with-outstanding-work.py': 2, '.claude/hooks/block-unbumped-version-commit.py': 4, '.claude/hooks/clock-inject.py': 1, '.claude/hooks/future-stamp-write.py': 2, '.claude/hooks/nmw-actionable': 1, '.claude/hooks/stamp-truth-stop.py': 1, '.claude/hooks/stop-guard-unattended.py': 18, 'tools/audit-backlog-actionability.py': 3, 'tools/lint_common.py': 18}
+    COUNTS = {'.claude/hooks/block-branch-to-main-edit.py': 3, '.claude/hooks/block-idle-stop-with-actionable-backlog.py': 1, '.claude/hooks/block-turn-end-with-outstanding-work.py': 2, '.claude/hooks/block-unbumped-version-commit.py': 4, '.claude/hooks/clock-inject.py': 1, '.claude/hooks/future-stamp-write.py': 2, '.claude/hooks/nmw-actionable': 1, '.claude/hooks/no_remove_guard.py': 2, '.claude/hooks/stamp-truth-stop.py': 1, '.claude/hooks/stop-guard-unattended.py': 18, 'tools/audit-backlog-actionability.py': 3, 'tools/lint_common.py': 18}
     NONPYTHON = {"['git', '-C', repo, *args]", "['git', '-C', repo_root, 'rev-parse', '--abbrev-ref', 'HEAD']", "['git', '-C', self.pd, 'rev-parse', 'HEAD']", "['git', '-C', str(repo), 'config', 'remote.origin.url', url]", "['git', '-C', str(repo_root), 'rev-parse', '--absolute-git-dir']", "['git', '-C', str(root), 'rev-parse', '--is-inside-work-tree']", "['git', '-C', str(root), *args]", "['git', '-c', 'core.warnAmbiguousRefs=false', '-c', 'trace2.normalTarget=', '-c', 'trace2.perfTarget=', '-c', 'trace2.eventTarget=', '-C', str(REPO), *args]", "['git', 'check-ref-format', '--allow-onelevel', name]", "['git', 'check-ref-format', text]", "['git', 'config', '--file', os.path.join(current, b'config'), '--get', 'core.worktree']", "['git', 'init', '-q', str(repo)]", "['git', 'ls-tree', '-z', '--full-tree', rev, '--', f':(literal){path}']", "['git', 'show', f'{ref}:{path}', '--']", "['git', 'show', f'{ref}:{path}']", "['git', *args]", "['git', *here, '-c', 'core.warnAmbiguousRefs=true', 'rev-parse', '--symbolic-full-name', name]", "['git', *here, 'rev-parse', '--absolute-git-dir']", "['git', *here, 'rev-parse', '--path-format=absolute', '--git-common-dir']", "['git', *here, 'rev-parse', '--path-format=absolute', '--git-path', 'index']", "['git', *here, 'rev-parse', '--show-object-format']", "['git', *here, 'rev-parse', '--show-toplevel']", "['git', *here, 'rev-parse', '--verify', '--quiet', '--end-of-options', name + '^{commit}']", "['git', *here, 'rev-parse', '--verify', '--quiet', '--end-of-options', name]", "['sleep', '60']", "['timeout', '60', 'sleep', '60']", "[git, 'init', '-q', os.path.join(parent, 'real')]", "[git, 'rev-parse', '--git-dir']", "command if command is not None else ['timeout', '60', 'sleep', '60']"}
-    PYTHON_TARGETS = {'block-idle-stop-with-actionable-backlog.py': {'str(script)'}, 'block-unbumped-version-commit.py': {"str(d5 / '.claude' / 'hooks' / 'hook.py')"}, 'clock-inject.py': {'code'}, 'future-stamp-write.py': {'code'}, 'stamp-truth-stop.py': {'code'}, 'nmw-actionable': {'TOOL'}, 'stop-guard-unattended.py': {'exe', 'hook', 'code', "os.path.join(r, '.claude', 'hooks', os.path.basename(__file__))"}}
+    PYTHON_TARGETS = {'block-idle-stop-with-actionable-backlog.py': {'str(script)'}, 'block-unbumped-version-commit.py': {"str(d5 / '.claude' / 'hooks' / 'hook.py')"}, 'clock-inject.py': {'code'}, 'future-stamp-write.py': {'code'}, 'stamp-truth-stop.py': {'code'}, 'nmw-actionable': {'TOOL'}, 'no_remove_guard.py': {'path'}, 'stop-guard-unattended.py': {'exe', 'hook', 'code', "os.path.join(r, '.claude', 'hooks', os.path.basename(__file__))"}}
 
     def test_every_python_descendant_is_isolated(self):
         import ast
@@ -72885,7 +72972,7 @@ class HookRoundSevenTests(unittest.TestCase):
                 for value in node:
                     yield from commands(value)
         commands = list(commands(json.loads((REPO_ROOT / '.claude/settings.json').read_text())))
-        self.assertEqual(len(commands), 27)
+        self.assertEqual(len(commands), 28)
         for command in commands:
             argv = shlex.split(command)
             if command.endswith("/clock-inject.py"):
@@ -72893,7 +72980,10 @@ class HookRoundSevenTests(unittest.TestCase):
                                  'ORCH_LEASE_FILE=$CLAUDE_PROJECT_DIR/../private/session-state.md')
                 command = command.split(" ", 1)[1]
             self.assertEqual(argv[:2], ['/usr/bin/python3', '-I'])
-            self.assertRegex(command, r'^/usr/bin/python3 -I "\$CLAUDE_PROJECT_DIR"/\.claude/hooks/[a-z0-9-]+\.py$')
+            # Hook names are lowercase words joined by hyphens, except no_remove_guard: its own
+            # broad layer refuses any command that names a hyphenated file name holding the word
+            # remove, so that one name keeps its underscores.
+            self.assertRegex(command, r'^/usr/bin/python3 -I "\$CLAUDE_PROJECT_DIR"/\.claude/hooks/(?:[a-z0-9-]+|no_remove_guard)\.py$')
             self.assertTrue(argv[2].startswith('$CLAUDE_PROJECT_DIR/.claude/hooks/'), argv)
 
     def test_adopter_documentation(self):
@@ -73005,7 +73095,7 @@ class HookRoundEightTests(unittest.TestCase):
                    for event, groups in settings['hooks'].items()
                    for group in groups for hook in group['hooks']
                    if hook.get('type') == 'command']
-        self.assertEqual(len(entries), 27)
+        self.assertEqual(len(entries), 28)
         marker_names = {
             'block-on-open-findings': ('open-findings', 'open-findings-misfiled'),
             'block-new-merge-outside-tool': ('new-merge-outside-tool',),
@@ -73171,7 +73261,7 @@ class HookRoundEightTests(unittest.TestCase):
                         with self.subTest(private=has_private, mode=mode,
                                           event=event, command=command):
                             launcher = command.split(" ", 1)[1] if command.startswith("ORCH_LEASE_FILE=") else command
-                            self.assertRegex(launcher, r'^/usr/bin/python3 -I "\$CLAUDE_PROJECT_DIR"/\.claude/hooks/[a-z0-9-]+\.py$')
+                            self.assertRegex(launcher, r'^/usr/bin/python3 -I "\$CLAUDE_PROJECT_DIR"/\.claude/hooks/(?:[a-z0-9-]+|no_remove_guard)\.py$')
                             name = Path(launcher.rsplit('/', 1)[1]).stem
                             markers = tuple('BLOCKED (' + label + '): ' for label in
                                             marker_names.get(name, (name.removeprefix('block-'),)))
@@ -73208,6 +73298,10 @@ class HookRoundEightTests(unittest.TestCase):
                                                 (command, proc.stdout, proc.stderr))
                             else:
                                 self.assertEqual(proc.returncode, 0, (command, proc.stdout, proc.stderr))
+                            if name == 'no_remove_guard':
+                                # This hook denies with exit 0 and a JSON decision on stdout, so an
+                                # unexpected deny shows as output rather than as exit 2.
+                                self.assertEqual(proc.stdout, '', (command, proc.stderr))
                             for output in (proc.stdout, proc.stderr):
                                 self.assertNotIn("can't open file", output)
                                 self.assertNotIn('Traceback', output)
@@ -82408,10 +82502,11 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         for event, groups in settings["hooks"].items():
             for entry in groups:
                 for hook in entry.get("hooks", []):
-                    for name in re.findall(r"\.claude/hooks/([a-z0-9-]+)\.py",
+                    for name in re.findall(r"\.claude/hooks/([a-z0-9_-]+)\.py",
                                            hook.get("command", "")):
                         combos.add((event, entry.get("matcher"), name))
         for want in (("PreToolUse", "Bash", "block-new-merge-outside-tool"),
+                     ("PreToolUse", "Bash", "no_remove_guard"),
                      ("PreToolUse", "mcp__github__merge_pull_request",
                       "block-new-merge-outside-tool")):
             with self.subTest(combination=want):
