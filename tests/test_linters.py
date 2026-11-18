@@ -26790,7 +26790,7 @@ class PIIContentTests(LinterTestCase):
                 self.assertEqual(wrapper._allowed_spans(engine, line), [])
         self.assertEqual(len(wrapper._allowed_spans(engine, "Mail alice. |x| git@github.com:o/r now.")), 1)
         doc = " ".join(wrapper.__doc__.split())
-        for fragment in ("The rule does not read markup that renders as nothing",
+        for fragment in ("Any other markup there is not guaranteed to be read and may let the remote through",
                          "alice. |x| git@github.com:o/r",
                          "a numbered list item (1. git@github.com:o/r or 1) git@github.com:o/r)",
                          "a table row with a dot in an earlier cell (| v1 | example.org | git@github.com:o/r |",
@@ -26798,11 +26798,12 @@ class PIIContentTests(LinterTestCase):
             with self.subTest(fragment=fragment):
                 self.assertIn(fragment, doc)
         doc = " ".join(wrapper._local_part_continues_before.__doc__.split())
-        for fragment in ("does not read markup that renders as nothing", "1. git@github.com:o/r"):
+        for fragment in ("not guaranteed to be read and may let the remote through", "1. git@github.com:o/r"):
             with self.subTest(fragment=fragment):
                 self.assertIn(fragment, doc)
 
-    def test_git_remote_residual_a_bracket_opened_by_a_character_reference_is_not_read(self) -> None:
+    def test_git_remote_residual_allows_the_remote_after_a_word_inside_a_bracket_opened_by_a_reference(
+            self) -> None:
         # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_encoded_bracket")
         engine = wrapper._engine()
@@ -26812,10 +26813,12 @@ class PIIContentTests(LinterTestCase):
                      "Mail alice. &#x5b; x ] git@github.com:o/r now."):
             with self.subTest(line=line):
                 self.assertEqual(len(wrapper._allowed_spans(engine, line)), 1)
-        self.assertIn("A bracket opened by a character reference (alice. &#91; x ] git@github.com:o/r",
+        self.assertIn("a word inside a bracket opened by a character reference (alice. &#91; x ] "
+                      "git@github.com:o/r",
                       " ".join(wrapper.__doc__.split()))
 
-    def test_git_remote_residual_a_nested_kramdown_comment_is_read_only_back_to_the_nearest_opener(self) -> None:
+    def test_git_remote_residual_allows_the_remote_after_a_separate_word_between_two_kramdown_openers(
+            self) -> None:
         # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_nested_extension")
         engine = wrapper._engine()
@@ -26825,11 +26828,12 @@ class PIIContentTests(LinterTestCase):
                      "Mail alice. {::comment} x {::comment} y {:/} git@github.com:o/r now."):
             with self.subTest(line=line):
                 self.assertEqual(len(wrapper._allowed_spans(engine, line)), 1)
-        self.assertIn("A kramdown comment with another {:: inside it "
+        self.assertIn("a separate word between two kramdown {:: openers "
                       "(alice. {::comment} x {::comment} y {:/comment} git@github.com:o/r",
                       " ".join(wrapper.__doc__.split()))
 
-    def test_git_remote_residual_a_paired_template_block_with_letters_between_its_tags_is_not_read(self) -> None:
+    def test_git_remote_residual_allows_the_remote_after_a_separate_word_between_template_tags(
+            self) -> None:
         # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
         wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_template_pair")
         engine = wrapper._engine()
@@ -26837,7 +26841,7 @@ class PIIContentTests(LinterTestCase):
             engine, "Mail alice. {% comment %}{% endcomment %} git@github.com:o/r now."), [])
         self.assertEqual(len(wrapper._allowed_spans(
             engine, "Mail alice. {% comment %} x {% endcomment %} git@github.com:o/r now.")), 1)
-        self.assertIn("A paired template block with letters between its tags "
+        self.assertIn("a separate word between the tags of a paired template block "
                       "(alice. {% comment %} x {% endcomment %} git@github.com:o/r",
                       " ".join(wrapper.__doc__.split()))
 
@@ -46481,7 +46485,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-orphan-documents.py NO_FS F 7a5e4c9ba00700be7e6e97a67d6e24b8365f5e4463af5c5cc12f79a5a45f8ecd
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
-        lint-pii-in-content.py CWD F 94661618fd84cbd1deefb09ca98d335d7e11d5f36d137a7c326852c669183a90
+        lint-pii-in-content.py CWD F c6e39e0a3c0bbb6b429c5fe7aae8fd7429ca1f1d1a2179e23a425d690438fc9a
         lint-placeholder-leakage.py CWD F 011f3e7a9a38fc875d6ec0458f9ff22fdbcc6f531a1d316fc4229b6e791c7eea
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a

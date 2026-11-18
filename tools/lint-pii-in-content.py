@@ -108,14 +108,15 @@ Exemption layers:
     the word before it is taken too, back to the nearest word that holds a
     letter or digit, which is tested too, and a Markdown block quote marker
     (a word of only ">" with only white space and ">" before it on its line)
-    is passed over. A word is tested after NFKC normalization and after
-    decoding character references, whatever markup surrounds the dot (an
-    inline marker, a link label, a reference, an attribute block or a
-    bracket that a later character closes after the token). A refusing
+    is passed over. A word the walk reaches is tested after NFKC
+    normalization and after decoding character references, so markup
+    around a dot in that word (such as an inline marker, a link label, a
+    reference, an attribute block or a bracket that a later character
+    closes after the token) does not hide the dot. A refusing
     character is a dot, a closing parenthesis, a character whose NFKC form
     is either, or the end of a character reference (any reference in a
     word the walk reaches refuses, whatever it renders; one behind a word
-    that ends the walk is not read, as below), a ">" that is not a block
+    that ends the walk is not read), a ">" that is not a block
     quote marker (the end of
     an HTML tag or comment), or a character whose NFKC form holds a dot or a
     closing parenthesis (such as U+2488 or U+2474), since an obsolete local
@@ -125,44 +126,52 @@ Exemption layers:
     git@github.com:o/r) is the address alice.git@github.com.
     A word whose rendered form holds a square bracket or a curly brace (a
     link, an image, a footnote, a task box, an attribute block, a single
-    template tag or an extension) is taken back across white space and line
-    breaks to the word that opens every bracket and brace it closes; that
-    walk reads one character at a time, so a bracket or brace counts only
-    when it is written as itself or as a character whose NFKC form is one,
-    not as a character reference. A word that closes a kramdown extension
-    ({:/name} or {:/}) is taken back to the nearest {:: before it, not to
-    an earlier one; that whole span is tested as one word and then passed
-    over, even when it holds a letter or digit, and the word before it is
-    taken too. So an empty-text link or image (alice. [][r]
-    git@github.com:o/r or alice. ![][r] git@github.com:o/r), a reference
-    label with white space in it ([alice.][r x] git@github.com:o/r) and a
-    kramdown comment with no other {:: inside it
-    (alice. {::comment} x {:/comment} git@github.com:o/r),
-    which each render as alice. git@github.com:o/r, are refused. An HTML
-    comment between (alice. <!-- x --> git@github.com:o/r) is refused by its
-    ">". The rule does not read markup that renders as nothing or as white
-    space when its last word holds a letter or digit and none of its words
-    holds a bracket, a brace, a ">" or a character reference: a
-    reStructuredText substitution or role
-    (alice. |x| git@github.com:o/r) and a template, macro or shortcode
-    syntax in any other markup language that uses none of those characters.
-    Nor does it read a bracket or brace opened in an earlier paragraph, or
-    markup that spans a line that holds no character (the rule reads one
-    paragraph). Three forms whose words do hold a bracket, a brace or a
-    character reference are not read either, and the rule allows the remote
-    after each of them. A bracket opened by a character reference
-    (alice. &#91; x ] git@github.com:o/r, or &lsqb; or &#x5b;) is not read:
-    the walk does not see the encoded bracket open, so the closing ] is
-    passed over alone, the letter in x ends the walk, and neither the
-    reference nor the dot before it is tested (a plain [ there refuses).
-    A kramdown comment with another {:: inside it
-    (alice. {::comment} x {::comment} y {:/comment} git@github.com:o/r, or
-    the same with {:/}) is read only back to the nearest {::, so x is read
-    as an ordinary word and its letter ends the walk. A paired template
-    block with letters between its tags
-    (alice. {% comment %} x {% endcomment %} git@github.com:o/r) is read
-    one tag at a time, each back only to its own opening brace, so x between
-    the tags is read as an ordinary word and its letter ends the walk. A
+    template tag or an extension) is widened back across white space and
+    line breaks toward a word that opens the brackets and braces it closes,
+    then tested as one word and passed over, even when it holds a letter or
+    digit, and the word before it is taken too; _span_start gives the exact
+    widening, and a word it cannot widen is tested alone. The widening reads
+    one character at a time, so a bracket or brace written as a character
+    reference opens and closes nothing.
+    Residual: the markup between a dotted name and the remote that this
+    allowance is known to refuse is exactly the refused cases its tests pin,
+    in tests/test_linters.py, class PIIContentTests. Those are chiefly the
+    cases passed to _assert_remote_after_a_dot_behind_delimiters_reported by
+    test_git_remote_allowance_refuses_a_dot_behind_strong_emphasis,
+    test_git_remote_allowance_refuses_a_dot_behind_emphasis,
+    test_git_remote_allowance_refuses_a_dot_behind_underscore_emphasis,
+    test_git_remote_allowance_refuses_a_dot_behind_a_code_span,
+    test_git_remote_allowance_refuses_a_dot_behind_strikethrough,
+    test_git_remote_allowance_refuses_a_dot_behind_highlight,
+    test_git_remote_allowance_refuses_a_dot_behind_superscript,
+    test_git_remote_allowance_refuses_a_dot_behind_a_fullwidth_asterisk,
+    test_git_remote_allowance_refuses_a_dot_behind_an_entity_encoded_delimiter,
+    test_git_remote_allowance_refuses_a_dot_behind_a_delimiter_closed_after_the_token,
+    test_git_remote_allowance_refuses_a_dot_anywhere_in_the_word_before_the_remote
+    and
+    test_git_remote_allowance_refuses_a_dot_behind_an_empty_link_a_spaced_label_or_an_extension,
+    the cases of
+    test_git_remote_token_rule_refuses_markup_unicode_space_and_nfkc_continuations,
+    and the refused controls of the three test_git_remote_residual_allows_
+    tests. Any other markup there is not guaranteed to be read and may let
+    the remote through. Spellings found so far that let it through, given
+    as examples only and not as a complete list: a reStructuredText
+    substitution or role (alice. |x| git@github.com:o/r); a word inside a
+    bracket opened by a character reference (alice. &#91; x ]
+    git@github.com:o/r, or &lsqb; or &#x5b;); a separate word between two
+    kramdown {:: openers (alice. {::comment} x {::comment} y {:/comment}
+    git@github.com:o/r, or the same with {:/}); a separate word between the
+    tags of a paired template block (alice. {% comment %} x {% endcomment %}
+    git@github.com:o/r); a stray closing bracket or brace inside a kramdown
+    comment or a single template comment tag (alice. {::comment} ] x
+    {:/comment} git@github.com:o/r, or alice. {# ] x #}
+    git@github.com:o/r); and markup opened in an earlier paragraph, since
+    the rule reads one paragraph. Refused cases the tests pin include an
+    empty-text link or image (alice. [][r] git@github.com:o/r), a reference
+    label with white space in it ([alice.][r x] git@github.com:o/r), a
+    kramdown comment with no word between it and the remote
+    (alice. {::comment} x {:/comment} git@github.com:o/r) and an HTML
+    comment (alice. <!-- a b --> git@github.com:o/r). A
     parenthesis, angle bracket or tag separated from the token by white
     space (( git@github.com:o/r ) or <a href=' git@github.com:o/r '>) is not
     part of its token, so the token rule does not read it; it can make no
@@ -187,8 +196,8 @@ Exemption layers:
     git@github.com:o/r or v1.2 git@github.com:o/r), a numbered list item (1.
     git@github.com:o/r or 1) git@github.com:o/r), a table row with a dot in
     an earlier cell (| v1 | example.org | git@github.com:o/r |, since each
-    pipe is a punctuation-only word), one after a dotted word behind any
-    bracketed or braced word (Clone it. [mirror][m] git@github.com:o/r), every remote
+    pipe is a punctuation-only word), one after a dotted word behind a
+    bracketed word (such as Clone it. [mirror][m] git@github.com:o/r), every remote
     in a paragraph that holds any other @, and every remote whose token
     holds a carriage return. A carriage return is not a token delimiter, so
     a remote at the end of a CRLF line (git@github.com:o/r, then CR and LF)
@@ -352,8 +361,8 @@ def _span_start(text: str, start: int, end: int) -> int:
     """The start of the markup span that holds the word ``text[start:end]``: back across
     _WORD_DELIMITERS to the word that opens every square bracket and curly brace the span
     closes, each character rendered alone (so a bracket or brace written as a character
-    reference opens nothing), and, when the word closes a kramdown extension ({:/), back to the
-    nearest {:: before it, not to an earlier one. ``start`` when nothing opens them. The rule
+    reference opens nothing), and, when the word closes a kramdown extension ({:/), no nearer
+    than the nearest {:: before it. ``start`` when no such word is found. The rule
     and why: see "Git remote forms" in the module docstring."""
     close = text.find("{:/", start, end)
     floor = text.rfind("{::", 0, close) if close >= 0 else -1
@@ -381,11 +390,10 @@ def _local_part_continues_before(text: str, pos: int) -> bool:
     a ">" or a character reference (_REFERENCE_RE), or when its rendered form holds a dot or a
     closing parenthesis. A word whose rendered form holds one of _SPAN_CHARACTERS is widened to
     its markup span (_span_start), tested as one word and passed over even when it holds a letter
-    or digit. The rule does not read markup that renders as nothing when none of its words holds
-    one of _SPAN_CHARACTERS, a ">" or a character reference, nor markup across a paragraph break,
-    nor a bracket opened by a character reference, a kramdown extension with another {:: inside
-    it or a paired template block with letters between its tags (it allows the remote after
-    each); it refuses the legitimate forms 1. git@github.com:o/r and | v1 | example.org |
+    or digit (_span_start gives the exact widening). The markup between a dotted name and the
+    remote that this is known to refuse is exactly the refused cases the tests pin, named in the
+    module docstring; any other markup there is not guaranteed to be read and may let the remote
+    through. It refuses the legitimate forms 1. git@github.com:o/r and | v1 | example.org |
     git@github.com:o/r |. The rule and why: see "Git remote forms" in the module docstring."""
     end = pos
     while True:
