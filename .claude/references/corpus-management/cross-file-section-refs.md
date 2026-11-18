@@ -34,13 +34,26 @@ spans, and every cell is checked. An unmatched backtick run is literal, and
 backslashes inside code spans are literal; escaped pipes and pipes inside code
 spans remain within their cells. In a table
 row, a reference to a heading in the citing document remains local when no
-link precedes it in the cell and a nearby following markdown link appears in
-parentheses after non-whitespace descriptive text. The parenthesized link must
-start within the configured adjacency window and have a matching closing
-parenthesis after its link and any citation text; nested parentheses are
-counted, so a nested parenthetical does not close it. A table cell that
-meets the other conditions of this exception but has no such closing
-parenthesis is refused as malformed. `Of the target` identifies
+link precedes it in the cell and a nearby following markdown link, starting
+within the configured adjacency window, appears in parentheses after
+non-whitespace descriptive text. The text between the reference and the link
+must begin with whitespace, hold non-whitespace descriptive text, and end,
+ignoring whitespace, with an opening parenthesis; besides that opening
+parenthesis it may hold at most one parenthesis, which counts as descriptive
+text. A parenthesis is bare when it is outside any inline code span and not
+escaped with a backslash. The last opening parenthesis in that text must be
+bare; when it is in a code span or escaped, it is text, and the cell is
+checked as a citation of the target. Every bare opening parenthesis in that
+text must be closed after the link and any citation text, so a bare opening
+parenthesis standing as the descriptive character must be closed twice;
+nested parentheses are counted, so a nested parenthetical does not close one,
+and a parenthesis in a code span or escaped is not counted. A bare closing
+parenthesis there can stand only as the descriptive character, before the
+last opening parenthesis, and closes none of them. Parentheses before the
+reference are neither counted nor required to be closed. A table cell that
+meets the other conditions of this exception but does not close every bare
+opening parenthesis is refused as malformed, whether or not the target holds
+the cited number. `Of the target` identifies
 the linked target and does not qualify as local description.
 Only the explicit `of [the] target` wording is treated as a target citation in this table-cell local-section exception; `of the policy` remains a documented residual.
 A line is a table row for this exception only when its first non-whitespace

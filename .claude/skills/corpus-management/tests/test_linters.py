@@ -6404,11 +6404,12 @@ class CrossFileSectionRefTests(LinterTestCase):
             # it is counted, and a double backslash leaves a parenthesis bare.
             ("| Owner | Section 8 exception path ([policy](t.md) \\`(` §2) |", True),
             ("| Owner | Section 8 exception path ([policy](t.md) \\\\) §2 |", False),
-            # A code span opened before the link that encloses the closing
-            # parenthesis makes that parenthesis text, so nothing closes the
-            # link's own parenthesis; a code span closed before the link
-            # leaves the closing parenthesis counted.
-            ("| Owner | Section 8 exception path `([policy](t.md))` |", True),
+            # A code span opened before the link that encloses the opening
+            # parenthesis makes that parenthesis text, so the cell is no
+            # exception path and is read as a citation of the target, which
+            # holds section 8; a code span closed before the link leaves the
+            # opening and closing parentheses counted.
+            ("| Owner | Section 8 exception path `([policy](t.md))` |", False),
             ("| Owner | Section 8 `exception` path ([policy](t.md) §2) |", False),
         ):
             with self.subTest(line=line, target_holds_section_8=True):
@@ -6420,6 +6421,107 @@ class CrossFileSectionRefTests(LinterTestCase):
                     self.assertIn("no closing parenthesis", result.stdout)
                 else:
                     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        # An opening parenthesis before the link inside a code span, or
+        # escaped with a backslash, is text, not structure, whether or not a
+        # parenthesis follows the link: the cell is no exception path and is
+        # read as a citation of the target. It fails by the target check when
+        # the target lacks section 8, and resolves when the target holds it.
+        for target_body, should_fail in (
+            (self.TARGET_BODY + "\n\n## 4. Other\n", True),
+            (self.TARGET_BODY + "\n\n## 4. Other\n\n## 8. Exceptions\n", False),
+        ):
+            self.make_fixture("t.md", target_body)
+            for line in (
+                "| Owner | §8 text `( [policy](t.md)` ) |",
+                "| Owner | §8 text `( [policy](t.md)` |",
+                "| Owner | Section 8 exception path `([policy](t.md))` |",
+                "| Owner | Section 8 exception path \\([policy](t.md)) |",
+            ):
+                with self.subTest(line=line, target_holds_section_8=not should_fail):
+                    citer = VALID_METADATA + f"\n\n## 8. Exceptions\n\n{line}\n"
+                    fixture = self.make_fixture("standard-table-exception-cross-ref.md", citer)
+                    result = run_linter(".claude/skills/corpus-management/tools/lint-cross-file-section-refs.py", fixture)
+                    if should_fail:
+                        self.assertLinterFails(result, "§8")
+                        self.assertIn("does not resolve", result.stdout)
+                        self.assertNotIn("no closing parenthesis", result.stdout)
+                    else:
+                        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        # The text before the link must fully match the descriptive-text
+        # pattern, which allows one non-space character, a parenthesis
+        # included, besides the link's own opening parenthesis, and that
+        # opening parenthesis must be bare. A cell that does not is a
+        # citation of the target: it fails by the target check when the
+        # target lacks section 8 and resolves when the target holds it. A
+        # cell that does is local when the text after the link closes every
+        # bare opening parenthesis before it, and malformed when it does not,
+        # whether or not the target holds section 8; an escaped or code-span
+        # parenthesis standing as the descriptive character is not counted.
+        for target_body, holds_section_8 in (
+            (self.TARGET_BODY + "\n\n## 4. Other\n", False),
+            (self.TARGET_BODY + "\n\n## 4. Other\n\n## 8. Exceptions\n", True),
+        ):
+            self.make_fixture("t.md", target_body)
+            for line, outcome in (
+                ("| Owner | §8 text ( ([policy](t.md)) |", "malformed"),
+                ("| Owner | Section 8 (see the exception path ([policy](t.md)) |", "malformed"),
+                ("| Owner | Section 8 (see the exception path ([policy](t.md))) |", "local"),
+                ("| Owner | Section 8 exception `(` path ([policy](t.md)) |", "local"),
+                ("| Owner | Section 8 exception `)` path ([policy](t.md)) |", "local"),
+                ("| Owner | Section 8 exception \\( path ([policy](t.md)) |", "local"),
+                ("| Owner | Section 8 exception \\) path ([policy](t.md)) |", "local"),
+                # A bare opening parenthesis as the only descriptive character
+                # leaves two bare opening parentheses to close.
+                ("| Owner | §8 (([policy](t.md)) |", "malformed"),
+                ("| Owner | §8 ( ([policy](t.md)) |", "malformed"),
+                ("| Owner | §8 ( ([policy](t.md))) |", "local"),
+                # Two or more parentheses before the link besides the link's
+                # own, escaped, in a code span or bare, are still parentheses
+                # for the pattern, so the cell is a citation of the target.
+                ("| Owner | Section 8 see `f()` path ([policy](t.md)) |", "citation"),
+                ("| Owner | Section 8 see \\( and \\) path ([policy](t.md)) |", "citation"),
+                ("| Owner | Section 8 see `(` and `(` path ([policy](t.md)) |", "citation"),
+                ("| Owner | Section 8 see `(` and ( path ([policy](t.md))) |", "citation"),
+                # A closed parenthetical before the link's opening parenthesis.
+                ("| Owner | Section 8 exception (see note) path ([policy](t.md)) |", "citation"),
+                # Three bare opening parentheses before the link, closed three,
+                # two or one times after it.
+                ("| Owner | Section 8 (a (b path ([policy](t.md)))) |", "citation"),
+                ("| Owner | Section 8 (a (b path ([policy](t.md))) |", "citation"),
+                ("| Owner | Section 8 (a (b path ([policy](t.md)) |", "citation"),
+                # A bare closing parenthesis before the link can only be the
+                # descriptive character, so the link's opening parenthesis is
+                # the one bare opening parenthesis to close: the cell is local
+                # when the text after the link closes it and malformed when it
+                # does not.
+                ("| Owner | Section 8 exception path) see ([policy](t.md)) |", "local"),
+                ("| Owner | Section 8 exception path) see ([policy](t.md) |", "malformed"),
+                ("| Owner | Section 8 exception path) see ([policy](t.md) more |", "malformed"),
+                ("| Owner | Section 8 ) ([policy](t.md)) |", "local"),
+                ("| Owner | Section 8 ) ([policy](t.md) |", "malformed"),
+                ("| Owner | Section 8 exception \\\\) path ([policy](t.md)) |", "local"),
+                ("| Owner | Section 8 exception \\\\) path ([policy](t.md) |", "malformed"),
+                # With a last opening parenthesis escaped or in a code span,
+                # a bare closing parenthesis before it changes nothing: the
+                # cell is a citation of the target.
+                ("| Owner | Section 8 exception path) see \\([policy](t.md)) |", "citation"),
+                ("| Owner | Section 8 exception path) see `([policy](t.md)` |", "citation"),
+                ("| Owner | Section 8 exception path ([policy](t.md)) |", "local"),
+                ("| Owner | Section 8 exception path ([policy](t.md) |", "malformed"),
+            ):
+                with self.subTest(line=line, target_holds_section_8=holds_section_8):
+                    citer = VALID_METADATA + f"\n\n## 8. Exceptions\n\n{line}\n"
+                    fixture = self.make_fixture("standard-table-exception-cross-ref.md", citer)
+                    result = run_linter(".claude/skills/corpus-management/tools/lint-cross-file-section-refs.py", fixture)
+                    if outcome == "malformed":
+                        self.assertLinterFails(result, "§8")
+                        self.assertIn("no closing parenthesis", result.stdout)
+                    elif outcome == "citation" and not holds_section_8:
+                        self.assertLinterFails(result, "§8")
+                        self.assertIn("does not resolve", result.stdout)
+                        self.assertNotIn("no closing parenthesis", result.stdout)
+                    else:
+                        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_of_the_policy_table_residual_passes(self) -> None:
         self.make_fixture("t.md", self.TARGET_BODY)
@@ -62135,7 +62237,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.23.7", "0.23.7 replaces the numbered pull-request, phase and item labels and a dated option-decision label in the gate and clause origins in core/gates.toml and core/clauses.toml with a plain description (one of the two transfer-lane labels is removed; the other, which those origins carry, is unchanged) and removes internal work references from two --aiqt-root refusal messages in tools/corpus_mgmt_compiler.py; gate 62 refuses as malformed a table cell whose local-section exception path leaves its link's parenthesis unclosed and accepts as local a closed exception path holding a nested parenthetical, which it formerly checked against the target, and the corpus-scan-integrity origin in core/clauses.toml is reworded; no gate or register key changes (PATCH); the residual lists in tools/gate_lint_language.py's docstring and URL-mask comment now name the comma-and-digit path form; the compiler now refuses an explicit --aiqt-root unless its tools/aiqt_corpus.py is a regular file: a symlinked core formerly passed the compiler's own pre-check and was refused only by the verified loader, and is now refused by the pre-check, whose refusal reads 'no regular tools/aiqt_corpus.py there'. The release history in src/README.md describes each version from 0.22.2")
+        self.assertEqual(man["pack"]["version"], "0.23.8", "0.23.8 makes gate 62 treat a table cell as a local-section exception path only when the text between its section reference and its link both matches the 0.23.7 pattern and, read with the shared bare-character scanner, has a bare last opening parenthesis, so the exception can only narrow; every bare opening parenthesis in that text must be closed after the link or the cell is refused as malformed with the existing message, and the text before the section reference is not read for parentheses. Changed from 0.23.7: a bare opening parenthesis standing as the descriptive character leaves two to close, so a cell closed once after the link is refused as malformed instead of accepted as local (an intended malformed refusal); a last opening parenthesis that is escaped or in a code span and is closed after the link makes the cell a citation of the target instead of local (a tightening); an escaped or code-span last opening parenthesis with nothing bare closing it after the link makes the cell a citation of the target instead of malformed, still refused when the target lacks the cited number, and only such cells leave malformed; a bare closing parenthesis before the link keeps the 0.23.7 decision, local when the text after the link closes the one opening parenthesis and malformed when it does not; no cell 0.23.7 checked as a citation of the target becomes local; no gate or register key changes (PATCH). The release history in src/README.md describes each version from 0.22.2")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")

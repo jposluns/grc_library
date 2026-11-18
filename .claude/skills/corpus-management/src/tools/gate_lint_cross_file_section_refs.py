@@ -23,12 +23,25 @@ The engine fires ONLY on two high-confidence resolvable-target classes:
 Every line is split into cells on unescaped pipes outside matched code spans,
 and every cell is checked; an unmatched backtick is literal and backslashes
 inside code are literal. A local heading
-reference in a table cell is excluded when real descriptive text intervenes
-before a nearby following parenthesized link with a matching closing parenthesis,
-and no link precedes that mark in the cell. A cell of that shape whose
-parenthesis is not closed after the link is refused as malformed, whether or
-not the target holds the cited number, instead of being checked as a citation
-of the target. "Of the target" describes the
+reference in a table cell is excluded when no link precedes it in the cell and
+the text between it and a nearby following link is an exception path. That
+text is an exception path only when both conditions hold, so the second can
+only narrow the first: (a) it fully matches ``_EXCEPTION_PATH_RE``, the 0.23.7
+pattern, that is, it begins with whitespace, holds a non-whitespace character, which
+may itself be a parenthesis, and otherwise no parenthesis, and ends, ignoring
+whitespace, with an opening parenthesis; and (b) read with ``_bare_characters``,
+its last opening parenthesis is bare. A parenthesis is bare when it is outside
+any code span and not escaped with a backslash. The path is closed when the
+text after the link closes every bare opening parenthesis in the text before
+the link, so a bare opening parenthesis standing as the descriptive character
+leaves two to close. A bare closing parenthesis there can only be the
+descriptive character, before the last opening parenthesis, so it closes none
+and leaves that one opening parenthesis to close, as in 0.23.7. A cell of that shape
+whose path is not closed is refused as malformed, whether or not the target
+holds the cited number, instead of being checked as a citation of the target.
+Parentheses before the section reference are neither counted nor required to
+be closed; that text is read only for a preceding link and for where code
+spans begin. "Of the target" describes the
 target, so it is checked. Prose remains subject to the adjacent-link check.
 Only explicit "of [the] target" wording is treated as a target citation in
 this table-cell exception; "of the policy" remains a documented residual.
@@ -191,21 +204,17 @@ def reference_cells(line: str) -> list[str]:
     return cells
 
 
-def _closes_open_parenthesis(cell: str, start: int) -> bool:
-    """Whether ``cell[start:]`` closes one parenthesis already open before ``start``.
+def _bare_characters(cell: str):
+    """Yield ``(index, char)`` for each character of ``cell`` that is structure.
 
-    Parentheses are counted with nesting, so a nested parenthetical does not
-    close the open one. Only a parenthesis at or after ``start`` is counted. A
-    parenthesis is ignored only inside a code span, or after an odd run of
-    backslashes, that the scanned text itself opens. The scan begins at the
-    start of the cell, so a code span opened before ``start`` is part of the
-    scanned text: a parenthesis it encloses after ``start`` is ignored, and a
-    span or escape opened outside the cell is not seen. Code spans follow the
-    rule ``reference_cells`` uses: a backtick run not escaped opens code only
-    when an equal-length closing run exists, and inside code backslashes are
-    literal.
+    The scan begins at the start of the cell. A character is skipped when it is
+    inside a code span, is a backslash, follows an odd run of backslashes, or is
+    a backtick: a backtick run not escaped is never yielded, whether or not an
+    equal-length closing run makes it open a code span.
+    Code spans follow the rule ``reference_cells`` uses: a backtick run not
+    escaped opens code only when an equal-length closing run exists, and inside
+    code backslashes are literal.
     """
-    depth = 1
     backslashes = 0
     i = 0
     while i < len(cell):
@@ -223,14 +232,61 @@ def _closes_open_parenthesis(cell: str, start: int) -> bool:
             closing = re.search(r"(?<!`)`{%d}(?!`)" % (end - i), cell[end:])
             i = end + closing.end() if closing else end
             continue
-        if not escaped and i >= start:
-            if char == "(":
-                depth += 1
-            elif char == ")":
-                depth -= 1
-                if depth == 0:
-                    return True
+        if not escaped:
+            yield i, char
         i += 1
+
+
+_EXCEPTION_PATH_RE = re.compile(r"\s+[^()]*\S[^()]*\(\s*")
+
+
+def _exception_path_depth(cell: str, start: int, end: int) -> int:
+    """Count the bare opening parentheses in ``cell[start:end]``.
+
+    Return 0 when that text is not an exception path. The text is an exception
+    path only when (a) it fully matches ``_EXCEPTION_PATH_RE``, the 0.23.7
+    test, and (b) read with ``_bare_characters``, scanning the cell from its
+    start, its last opening parenthesis is bare. A parenthesis inside a code
+    span or escaped with a backslash is not bare. Because (a) is required, a
+    text the 0.23.7 test refused is never an exception path. A bare closing
+    parenthesis passes (a) only as the descriptive character, before the last
+    opening parenthesis and with no other parenthesis in the text, so it
+    closes none and the count is 1: such a cell keeps the 0.23.7 decision,
+    local when the text after the link closes that parenthesis and malformed
+    when it does not.
+    """
+    if not _EXCEPTION_PATH_RE.fullmatch(cell[start:end]):
+        return 0
+    bare = {i: char for i, char in _bare_characters(cell) if start <= i < end}
+    last = cell.rfind("(", start, end)
+    if bare.get(last) != "(":
+        return 0
+    return sum(1 for char in bare.values() if char == "(")
+
+
+def _closes_open_parenthesis(cell: str, start: int, depth: int = 1) -> bool:
+    """Whether ``cell[start:]`` closes ``depth`` parentheses already open before ``start``.
+
+    Parentheses are counted with nesting, so a nested parenthetical does not
+    close an open one. Only a parenthesis at or after ``start`` is counted. A
+    parenthesis is ignored only inside a code span, or after an odd run of
+    backslashes, that the scanned text itself opens. The scan begins at the
+    start of the cell, so a code span opened before ``start`` is part of the
+    scanned text: a parenthesis it encloses after ``start`` is ignored, and a
+    span or escape opened outside the cell is not seen. Code spans follow the
+    rule ``reference_cells`` uses: a backtick run not escaped opens code only
+    when an equal-length closing run exists, and inside code backslashes are
+    literal.
+    """
+    for i, char in _bare_characters(cell):
+        if i < start:
+            continue
+        if char == "(":
+            depth += 1
+        elif char == ")":
+            depth -= 1
+            if depth == 0:
+                return True
     return False
 
 
@@ -281,18 +337,29 @@ def check_file(
                         None,
                     )
                     intervening = cell[match.end():following.start()] if following else ""
+                    # Bare opening parentheses the text before the link leaves
+                    # unmatched; 0 when that text is not an exception path.
+                    open_count = (
+                        _exception_path_depth(cell, match.end(), following.start())
+                        if following else 0
+                    )
                     if (line.lstrip().startswith("|") and link is not None
                             and number in own_sections and following is not None
                             and not any(m.end() <= match.start() for m in md_link_re.finditer(cell))
-                            and re.fullmatch(r"\s+[^()]*\S[^()]*\(\s*", intervening)
+                            # The text before the link passes the 0.23.7
+                            # pattern and its last opening parenthesis is
+                            # bare. Otherwise the cell is checked as a
+                            # citation of the target.
+                            and open_count > 0
                             and not re.match(r"\s+of\s+(?:the\s+)?target\b", intervening, re.I)):
-                        # Scan with balanced parentheses: a nested
-                        # parenthetical inside the exception path does not
-                        # close the link's own parenthesis, and a parenthesis
-                        # in a code span or escaped is not counted. The scan
-                        # starts at the cell's start, so a code span opened
-                        # before the link is known.
-                        if _closes_open_parenthesis(cell, following.end()):
+                        # Scan with balanced parentheses: the text after the
+                        # link must close every parenthesis the text before it
+                        # left open, a nested parenthetical does not close an
+                        # open one, and a parenthesis in a code span or
+                        # escaped is not counted. The scan starts at the
+                        # cell's start, so a code span opened before the link
+                        # is known.
+                        if _closes_open_parenthesis(cell, following.end(), open_count):
                             continue
                         # Without its closing parenthesis the row would fall
                         # through to the target check and pass whenever the
