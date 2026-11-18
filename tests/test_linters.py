@@ -26704,6 +26704,18 @@ class PIIContentTests(LinterTestCase):
                                                                "git@github.com")
         self._assert_remote_after_a_dot_behind_delimiters_reported("Mail &#42;alice.&#42; git@gitlab.com:o/r now.\n",
                                                                "git@gitlab.com")
+        cases = (("Mail &ast;alice&ast; git@github.com:o/r now.\n", "git@github.com"),
+                 ("Mail &#42;alice&#42; git@gitlab.com:o/r now.\n", "git@gitlab.com"),
+                 ("Mail &amp;alice git@github.com:o/r now.\n", "git@github.com"))
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_any_reference")
+        engine = wrapper._engine()
+        for body, _needle in cases:
+            with self.subTest(body=body):
+                word = body.split(" git@")[0].split(" ")[-1]
+                self.assertNotIn(".", word)
+                self.assertNotIn(")", word)
+                self.assertEqual(wrapper._allowed_spans(engine, body.rstrip("\n")), [])
+        self._assert_remote_bodies_reported("standard-git-remote-any-reference.md", cases)
 
     def test_git_remote_allowance_refuses_a_dot_behind_a_delimiter_closed_after_the_token(self) -> None:
         self._assert_remote_after_a_dot_behind_delimiters_reported("Mail alice.[ git@github.com:o/r ] now.\n",
@@ -26711,7 +26723,7 @@ class PIIContentTests(LinterTestCase):
         self._assert_remote_after_a_dot_behind_delimiters_reported("Mail alice.( git@gitlab.com:o/r ) now.\n",
                                                                "git@gitlab.com")
 
-    def test_git_clone_url_after_an_undotted_marked_word_or_a_paragraph_break_still_passes(self) -> None:
+    def test_git_clone_url_passes_after_an_undotted_marked_word_or_a_paragraph_break_and_is_refused_after_a_dotted_line(self) -> None:
         wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_clone_url_controls")
         engine = wrapper._engine()
         for line in ("Mail ==alice== git@github.com:o/r now.", "Mail ^alice^ git@github.com:o/r now.",
@@ -26850,7 +26862,7 @@ class PIIContentTests(LinterTestCase):
         problems, methods, pointed = _remote_rule_comment_problems(
             Path(__file__).resolve().read_text(encoding="utf-8"), pointer)
         self.assertGreaterEqual(len(methods), 30)
-        self.assertIn("test_git_clone_url_after_an_undotted_marked_word_or_a_paragraph_break_still_passes",
+        self.assertIn("test_git_clone_url_passes_after_an_undotted_marked_word_or_a_paragraph_break_and_is_refused_after_a_dotted_line",
                       set(methods))
         self.assertEqual(problems, [])
         self.assertGreater(pointed, 0)
@@ -46485,7 +46497,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-orphan-documents.py NO_FS F 7a5e4c9ba00700be7e6e97a67d6e24b8365f5e4463af5c5cc12f79a5a45f8ecd
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
-        lint-pii-in-content.py CWD F 022613a4acfd58c7aea044898055f9fac07dc19918412ddfdd4f20a56fd4560a
+        lint-pii-in-content.py CWD F a0a37e8b077e0bd549954fb642b11b62add4d2dc9de358a6e204e179c824d01a
         lint-placeholder-leakage.py CWD F 011f3e7a9a38fc875d6ec0458f9ff22fdbcc6f531a1d316fc4229b6e791c7eea
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a

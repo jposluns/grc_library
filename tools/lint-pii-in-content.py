@@ -158,7 +158,7 @@ Exemption layers:
     the refused lines of
     test_git_remote_allowance_states_the_markup_it_does_not_read_and_the_forms_it_refuses;
     the refused case of
-    test_git_clone_url_after_an_undotted_marked_word_or_a_paragraph_break_still_passes;
+    test_git_clone_url_passes_after_an_undotted_marked_word_or_a_paragraph_break_and_is_refused_after_a_dotted_line;
     and the refused controls of the three test_git_remote_residual_allows_
     tests. The refusals guaranteed for markup between a dotted name and the
     remote are the general rules this docstring states plus those pinned
@@ -178,9 +178,8 @@ Exemption layers:
     the rule reads one paragraph. Refused cases the tests pin include an
     empty-text link or image (alice. [][r] git@github.com:o/r), a reference
     label with white space in it ([alice.][r x] git@github.com:o/r), a
-    kramdown comment holding one word with no bracket or brace, directly
-    before the remote (as in alice. {::comment} x {:/comment}
-    git@github.com:o/r) and an HTML comment
+    kramdown comment such as alice. {::comment} x {:/comment}
+    git@github.com:o/r and an HTML comment
     (alice. <!-- a b --> git@github.com:o/r). A
     parenthesis, angle bracket or tag separated from the token by white
     space (( git@github.com:o/r ) or <a href=' git@github.com:o/r '>) is not
@@ -398,7 +397,10 @@ def _local_part_continues_before(text: str, pos: int) -> bool:
     form holds one, which is tested too; a Markdown block quote marker (a word of only ">" with
     only white space and ">" before it on its line) is passed over. A word refuses when it holds
     a ">" or a character reference (_REFERENCE_RE), or when its rendered form holds a dot or a
-    closing parenthesis. A word whose rendered form holds one of _SPAN_CHARACTERS is widened to
+    closing parenthesis. The character reference test runs on the NFKC-normalized word, so a
+    fullwidth look-alike of a reference (for example U+FF06 FULLWIDTH AMPERSAND before amp;)
+    is refused too, though it is plain text and not a reference; that is an accepted
+    over-refusal residual. A word whose rendered form holds one of _SPAN_CHARACTERS is widened to
     its markup span (_span_start), tested as one word and passed over even when it holds a letter
     or digit (_span_start gives the exact widening). The refusals guaranteed for markup between a
     dotted name and the remote are the general rules stated in the module docstring plus the
