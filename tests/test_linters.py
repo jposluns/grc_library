@@ -76948,7 +76948,7 @@ class BlockVerificationPipesTests(unittest.TestCase):
         # all-digit braced row below, single- and multi-digit, double-quoted
         # and unquoted, was refused as pipeline-status before ${N} was
         # allowed; every bare and named row was allowed already.
-        forms = ('$1', '${1}', '$9', '${9}', '${10}', '${123}', '$0', '${0}',
+        forms = ('$1', '${1}', '$9', '${9}', '${10}', '${123}', '$0', '${0}', '${01}', '${2147483648}',
                  '$x', '${x}', '$name_2', '${name_2}')
         rows = []
         for form in forms:
