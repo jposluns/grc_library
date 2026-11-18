@@ -63385,7 +63385,9 @@ class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
 
 
 class NoRemoveGuardHookTests(unittest.TestCase):
-    """.claude/hooks/no_remove_guard.py, registered under the first Bash PreToolUse matcher.
+    """.claude/hooks/no_remove_guard.py, tracked in this repository but not registered in the
+    tracked .claude/settings.json: its SCOPE is the grc main session only, and the main session
+    registers it in an untracked local settings file that workers do not load.
     Unlike the hooks that refuse with a BLOCKED line on stderr and exit 2, it denies with exit 0
     and one JSON object on stdout (a hookSpecificOutput deny with its reason, plus a
     systemMessage), and it allows with exit 0 and no output at all. The hook runs as a subprocess
@@ -63393,7 +63395,6 @@ class NoRemoveGuardHookTests(unittest.TestCase):
     (python3 exits 2 with "can't open file") fails every case."""
 
     HOOK = REPO_ROOT / ".claude" / "hooks" / "no_remove_guard.py"
-    COMMAND = '/usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/no_remove_guard.py'
     SET_ASIDE = ("/tmp/grc/deleteme", "/tmp/deleteme-grc")
 
     def _run(self, command=None, *, raw=None):
@@ -63457,18 +63458,39 @@ class NoRemoveGuardHookTests(unittest.TestCase):
                 proc = self._run(command)
                 self.assertEqual((proc.returncode, proc.stdout, proc.stderr), (0, b"", b""))
 
-    def test_registered_once_under_the_first_bash_matcher(self):
+    def test_not_registered_in_tracked_settings_and_scoped_to_main_session(self):
+        import ast
         import json
-        settings = json.loads((REPO_ROOT / ".claude" / "settings.json").read_text(encoding="utf-8"))
-        pre = settings["hooks"]["PreToolUse"]
-        first_bash = [i for i, group in enumerate(pre) if group.get("matcher") == "Bash"][0]
-        found = [(event, index, hook)
-                 for event, groups in settings["hooks"].items()
-                 for index, group in enumerate(groups)
-                 for hook in group.get("hooks", [])
-                 if "no_remove_guard" in hook.get("command", "")]
-        self.assertEqual(found, [("PreToolUse", first_bash,
-                                  {"type": "command", "command": self.COMMAND})])
+        text = (REPO_ROOT / ".claude" / "settings.json").read_text(encoding="utf-8")
+        settings = json.loads(text)
+
+        def strings(node):
+            if isinstance(node, dict):
+                for key, value in node.items():
+                    yield key
+                    yield from strings(value)
+            elif isinstance(node, list):
+                for value in node:
+                    yield from strings(value)
+            elif isinstance(node, str):
+                yield node
+        # No key or value anywhere in the tracked settings names the guard, in either spelling,
+        # so no session started in this repository registers it from the tracked file.
+        for value in strings(settings):
+            for name in ("no_remove_guard", "no-remove-guard"):
+                self.assertNotIn(name, value)
+        # The tracked settings still register other PreToolUse Bash hooks, so the absence above
+        # is not an empty or unreadable file.
+        self.assertTrue(any(group.get("matcher") == "Bash" and group.get("hooks")
+                            for group in settings["hooks"]["PreToolUse"]))
+        # Its SCOPE paragraph names the main session only and excludes workers.
+        docstring = ast.get_docstring(ast.parse(self.HOOK.read_bytes()))
+        scope = [" ".join(paragraph.split()) for paragraph in docstring.split("\n\n")
+                 if paragraph.startswith("SCOPE.")]
+        self.assertEqual(len(scope), 1, scope)
+        self.assertTrue(scope[0].startswith(
+            "SCOPE. This guard is for the grc orchestrator's MAIN session only. "
+            "It is not for workers:"), scope[0])
 
 
 class MergeGrcLibraryNewRowCheckTests(unittest.TestCase):
@@ -72972,7 +72994,7 @@ class HookRoundSevenTests(unittest.TestCase):
                 for value in node:
                     yield from commands(value)
         commands = list(commands(json.loads((REPO_ROOT / '.claude/settings.json').read_text())))
-        self.assertEqual(len(commands), 28)
+        self.assertEqual(len(commands), 27)
         for command in commands:
             argv = shlex.split(command)
             if command.endswith("/clock-inject.py"):
@@ -72980,10 +73002,7 @@ class HookRoundSevenTests(unittest.TestCase):
                                  'ORCH_LEASE_FILE=$CLAUDE_PROJECT_DIR/../private/session-state.md')
                 command = command.split(" ", 1)[1]
             self.assertEqual(argv[:2], ['/usr/bin/python3', '-I'])
-            # Hook names are lowercase words joined by hyphens, except no_remove_guard: its own
-            # broad layer refuses any command that names a hyphenated file name holding the word
-            # remove, so that one name keeps its underscores.
-            self.assertRegex(command, r'^/usr/bin/python3 -I "\$CLAUDE_PROJECT_DIR"/\.claude/hooks/(?:[a-z0-9-]+|no_remove_guard)\.py$')
+            self.assertRegex(command, r'^/usr/bin/python3 -I "\$CLAUDE_PROJECT_DIR"/\.claude/hooks/[a-z0-9-]+\.py$')
             self.assertTrue(argv[2].startswith('$CLAUDE_PROJECT_DIR/.claude/hooks/'), argv)
 
     def test_adopter_documentation(self):
@@ -73095,7 +73114,7 @@ class HookRoundEightTests(unittest.TestCase):
                    for event, groups in settings['hooks'].items()
                    for group in groups for hook in group['hooks']
                    if hook.get('type') == 'command']
-        self.assertEqual(len(entries), 28)
+        self.assertEqual(len(entries), 27)
         marker_names = {
             'block-on-open-findings': ('open-findings', 'open-findings-misfiled'),
             'block-new-merge-outside-tool': ('new-merge-outside-tool',),
@@ -73261,7 +73280,7 @@ class HookRoundEightTests(unittest.TestCase):
                         with self.subTest(private=has_private, mode=mode,
                                           event=event, command=command):
                             launcher = command.split(" ", 1)[1] if command.startswith("ORCH_LEASE_FILE=") else command
-                            self.assertRegex(launcher, r'^/usr/bin/python3 -I "\$CLAUDE_PROJECT_DIR"/\.claude/hooks/(?:[a-z0-9-]+|no_remove_guard)\.py$')
+                            self.assertRegex(launcher, r'^/usr/bin/python3 -I "\$CLAUDE_PROJECT_DIR"/\.claude/hooks/[a-z0-9-]+\.py$')
                             name = Path(launcher.rsplit('/', 1)[1]).stem
                             markers = tuple('BLOCKED (' + label + '): ' for label in
                                             marker_names.get(name, (name.removeprefix('block-'),)))
@@ -73298,10 +73317,6 @@ class HookRoundEightTests(unittest.TestCase):
                                                 (command, proc.stdout, proc.stderr))
                             else:
                                 self.assertEqual(proc.returncode, 0, (command, proc.stdout, proc.stderr))
-                            if name == 'no_remove_guard':
-                                # This hook denies with exit 0 and a JSON decision on stdout, so an
-                                # unexpected deny shows as output rather than as exit 2.
-                                self.assertEqual(proc.stdout, '', (command, proc.stderr))
                             for output in (proc.stdout, proc.stderr):
                                 self.assertNotIn("can't open file", output)
                                 self.assertNotIn('Traceback', output)
@@ -82502,11 +82517,10 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         for event, groups in settings["hooks"].items():
             for entry in groups:
                 for hook in entry.get("hooks", []):
-                    for name in re.findall(r"\.claude/hooks/([a-z0-9_-]+)\.py",
+                    for name in re.findall(r"\.claude/hooks/([a-z0-9-]+)\.py",
                                            hook.get("command", "")):
                         combos.add((event, entry.get("matcher"), name))
         for want in (("PreToolUse", "Bash", "block-new-merge-outside-tool"),
-                     ("PreToolUse", "Bash", "no_remove_guard"),
                      ("PreToolUse", "mcp__github__merge_pull_request",
                       "block-new-merge-outside-tool")):
             with self.subTest(combination=want):
