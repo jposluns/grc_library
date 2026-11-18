@@ -136,7 +136,77 @@ drive end-to-end on the maintainer's behalf:
    (never a bare `mcp__github__merge_pull_request` or `gh pr merge`): it refuses unless the
    required checks succeeded and pins the merge to the head commit it evaluated with
    `--match-head-commit`, so a push landing after the green read is never merged unchecked
-   (3b106). The maintainer does not gate-keep merges of PRs they have personally authored.
+   (3b106). A grc_library_new PR merges ONLY through
+   `python3 tools/merge-grc-library-new.py <N>` (add `--dry-run` to run every check and stop
+   before the merge); `tools/merge-when-green.py` refuses grc_library_new, by `--repo` in any
+   spelling and by the PR URL gh reports, and names that tool (PR #3138). Before any merge call
+   the tool refuses unless: the PR's /validate-pr and /retro rows, each tagged
+   `[repo: grc_library_new]`, are in `validate-pr/history-grc_library_new.md` and
+   `improvement-log-grc_library_new.md` in the operational store; the admin-merge log there is
+   a regular file (not a symlink) it can read and write, has the expected header and ends in
+   its table; no undispositioned `error` finding is open (an unreadable or unparseable ledger,
+   or an unloadable check, refuses); gh reports the PR OPEN on base `main` in
+   grc_library_new; the head is a 40-character lowercase hex SHA, which it pins; the title
+   ends with
+   `(CalVer <v>, README <v>)` and holds no control, line-breaking or format character
+   (Unicode category Cc, Zl, Zp or Cf, such as a newline, a bidi override like U+202E, a
+   zero-width space U+200B or a soft hyphen U+00AD); and the latest `pull_request` runs of "Repository quality
+   checks" (`.github/workflows/quality.yml`) and "Pull request attribution"
+   (`.github/workflows/pr-attribution.yml`) on that head concluded success, with no
+   same-named run from any other workflow file. It then squash-merges with an
+   explicit subject and body, `--match-head-commit` and `--admin`, and reads the merge commit
+   back: a trailer, a message that differs from the one sent, or a parent count other than one
+   exits 3 with `MERGED BUT`. It prints the admin-merge log row, PR cell
+   `#N [repo: grc_library_new]` (any control, line-breaking or format character in a cell
+   becomes a space), appends it to the log and reads it back; a failed append or
+   read-back exits 3 and prints the row to add by hand. The hook
+   `.claude/hooks/block-new-merge-outside-tool.py` refuses any other Bash command or
+   `mcp__github__merge_pull_request` call that names grc_library_new (or runs from a
+   directory with a path component named grc_library_new) and mentions a pull-request merge, an auto-merge (a GraphQL
+   `enablePullRequestAutoMerge`), a branch merge (a GraphQL `mergeBranch`) or a REST
+   `repos/<owner>/<repo>/merges` call (the cwd is matched by whole path component here, so a
+   merge from a directory whose name only contains grc_library_new, such as
+   `/home/grc_library_new_fan/grc_library`, is not refused). It refuses the merge tool command
+   in any literal spelling other than the sanctioned one when a directory of the payload cwd is
+   named grc_library_new or the command names grc_library_new (a path through such a clone); from any other cwd, a spelling
+   that does not name grc_library_new (such as `python3 ./tools/merge-grc-library-new.py N`
+   from a grc_library checkout) is allowed, since the tool's own hyphenated name does not name
+   grc_library_new. When a directory of the payload cwd is named grc_library_new, it also
+   refuses the sanctioned command, since its relative tools/ path would run that clone's copy
+   of the tool (a parent directory whose name only contains grc_library_new, such as
+   `/home/grc_library_new_fan/grc_library`, does not refuse it); when the payload cwd names
+   grc_library_new anywhere, it refuses any command that names tools/ together with a glob
+   character (`*`, `?` or `[`), since, when the cwd is a grc_library_new clone, the shell's
+   pathname expansion can reach that clone's copy of the tool. That check reads the cwd as
+   text, so it also refuses such a command from a directory whose name only contains
+   grc_library_new, where no such clone is involved, and one that runs no merge, such as
+   `ls tools/*.py`. It matches text only, so it also
+   refuses commit messages, greps, echo and heredoc bodies that name both, and its refusal
+   names what it does not close (the sanctioned relative command runs the copy of the tool
+   in the cwd, from any checkout, such as a grc_library worktree on an unmerged branch or a
+   stale or edited copy, and the hook does not check which copy that is; commands built at
+   runtime; shell quoting, backslash escapes or
+   brace expansion that split a word, such as `p''r` or a brace list in the repository name;
+   pathname expansion that reaches the merge tool without a glob character beside tools/,
+   such as `t*/` in place of tools/, a glob run from a cwd inside tools/, or an extended glob
+   when extglob is on;
+   gh aliases that hide pr merge; a merge run from a grc_library_new clone when the payload
+   cwd is elsewhere and the text names neither; MCP merge tools under other names (the hook
+   is registered in `.claude/settings.json` only for Bash and
+   `mcp__github__merge_pull_request`, so an MCP GraphQL or REST tool call under another name
+   does not run it); merges
+   from the web UI, from other machines or from other accounts; direct pushes to main; a
+   merge queue entry (a GraphQL
+   `enqueuePullRequest`), even one that names grc_library_new; GitHub completing an
+   auto-merge enabled earlier (from the web UI or before this hook); and merges whose text
+   never names grc_library_new: a GraphQL
+   `mergePullRequest`, `enablePullRequestAutoMerge` or `mergeBranch` by node id, a REST
+   `repositories/<id>/pulls/N/merge` or `repositories/<id>/merges` call, or
+   `gh pr merge N` from a grc_library_new clone under another directory name or from a clone
+   where `gh repo set-default` points at grc_library_new; and the merge tool command run
+   from a grc_library_new clone under another directory name, which runs that clone's copy
+   of the tool).
+   The maintainer does not gate-keep merges of PRs they have personally authored.
    **CORRECTED 2026-07-25 (codex deep-assessment M-04): a plain merge attempt does NOT
    resolve `mergeable_state: blocked`.** This file previously claimed it did; that was
    false against the live protection config, which requires one approval, so the plain
@@ -158,7 +228,13 @@ drive end-to-end on the maintainer's behalf:
    in flight, floors the window at the log's own oldest row, and counts a row by its
    PRESENCE whatever its Mechanism cell says, so a future plain merge is recorded honestly
    rather than forced to keep reading `--admin`. Write the row AFTER the merge from the
-   OBSERVED CI state, never in anticipation of one.
+   OBSERVED CI state, never in anticipation of one. The log is shared with grc_library_new:
+   a PR cell of exactly `#N [repo: <name>]` counts for PR N of that
+   repository only, so a `#N [repo: grc_library_new]` row never counts as, or masks,
+   grc_library PR N, while a bare `#N` still means grc_library PR N. Check 6 requires rows for
+   grc_library PRs only. For a grc_library_new merge, `tools/merge-grc-library-new.py` writes
+   its row itself after the merge; add a row by hand only when the tool reports
+   `MERGED BUT the log row was not written` and prints the row.
 8. After merge: sync local `main`, delete the feature branch locally, confirm the
    remote branch is gone.
 9. After every merge (durable across sessions): consult the `## Up next` queue at the top of the

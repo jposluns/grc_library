@@ -99,6 +99,19 @@
           {
             "type": "command",
             "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-claude-attribution.py"
+          },
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-new-merge-outside-tool.py"
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__github__merge_pull_request",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-new-merge-outside-tool.py"
           }
         ]
       },

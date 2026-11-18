@@ -25922,6 +25922,70 @@ class SecretsLinterTests(LinterTestCase):
         self.assertLinterFails(result)
 
 
+def _remote_rule_comment_problems(source: str, pointer: str) -> tuple[list, list, int]:
+    """Check the comments of the git remote tests of the two PII test classes in ``source``.
+
+    A remote test is a method (def or async def) of either class, or of a class nested in one,
+    whose name holds "forge" or "remote" or whose lines exercise the allowance. Every comment
+    (tokenize) at any column inside the method's own lines (its first decorator through its last
+    line), and every comment indented into its class from the end of the statement before it in
+    its class body (or the class line) through the start of the statement after it (or the end of
+    the class), must be exactly ``pointer``: its own lines, the blank, comment and decorator lines
+    above its def,
+    the comments after its last statement and the class-level comments next to it. It must have no
+    docstring. Returns the problems as (method, line, comment or "docstring"), the method names
+    and the number of pointers seen."""
+    import ast
+    import io
+    import tokenize
+
+    lines = source.split("\n")
+    tree = ast.parse(source)
+    exercises = re.compile(r"git@git(?:hub|lab)\.com|_forge_service_matches|_allowed_spans|_local_part_"
+                           r"|_quote_follows|_paragraphs")
+    comments = [(token.start[0], token.start[1], token.string)
+                for token in tokenize.generate_tokens(io.StringIO(source).readline)
+                if token.type == tokenize.COMMENT]
+
+    def begin(node) -> int:
+        return min([node.lineno] + [d.lineno for d in getattr(node, "decorator_list", [])])
+
+    def remote_tests(cls, last: int) -> list:
+        found = []
+        for index, node in enumerate(cls.body):
+            high = begin(cls.body[index + 1]) - 1 if index + 1 < len(cls.body) else last
+            if isinstance(node, ast.ClassDef):
+                found += remote_tests(node, high)
+            elif (isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                  and ("forge" in node.name or "remote" in node.name
+                       or exercises.search("\n".join(lines[node.lineno - 1:node.end_lineno])))):
+                low = cls.body[index - 1].end_lineno + 1 if index else cls.lineno + 1
+                found.append((node, low, high, cls.col_offset))
+        return found
+
+    tests = []
+    for index, cls in enumerate(tree.body):
+        if isinstance(cls, ast.ClassDef) and cls.name in ("PIIContentTests", "PiiInContentEngineTransferTests"):
+            last = begin(tree.body[index + 1]) - 1 if index + 1 < len(tree.body) else len(lines)
+            tests += remote_tests(cls, last)
+    problems = []
+    pointed = 0
+    seen = set()
+    for node, low, high, column in tests:
+        for number, offset, string in comments:
+            inside = begin(node) <= number <= node.end_lineno
+            if not low <= number <= high or (offset <= column and not inside) or number in seen:
+                continue
+            seen.add(number)
+            if string.strip() == pointer:
+                pointed += 1
+            else:
+                problems.append((node.name, number, string))
+        if ast.get_docstring(node, clean=False) is not None:
+            problems.append((node.name, node.lineno, "docstring"))
+    return problems, [node.name for node, _, _, _ in tests], pointed
+
+
 class PIIContentTests(LinterTestCase):
     """tools/lint-pii-in-content.py"""
 
@@ -26109,6 +26173,754 @@ class PIIContentTests(LinterTestCase):
         )
         result = run_linter("tools/lint-pii-in-content.py", fixture)
         self.assertLinterFails(result, "phone")
+
+    def test_forge_ssh_service_address_not_flagged(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        fixture = self.make_fixture(
+            "standard-forge-ssh.md",
+            VALID_METADATA
+            + "\n\nClone ssh://git@github.com/org/repo.git or git@github.com:org/repo.git,"
+            " or git@gitlab.com:org/repo.git.\n",
+        )
+        result = run_linter("tools/lint-pii-in-content.py", fixture)
+        self.assertEqual(
+            result.returncode,
+            0,
+            "a forge SSH service address must not be reported.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_forge_allowance_is_narrow(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        for body, needle in (
+            ("Contact jane@github.com here.\n", "jane@github.com"),
+            ("Contact git@forge-host-xyz.net here.\n", "git@forge-host-xyz.net"),
+            ("Contact git@github.com.mirror-xyz.net here.\n", "git@github.com.mirror-xyz.net"),
+            ("Contact git@github.com\uff0emirror-xyz.net here.\n", "git@github.com"),
+            ("Contact GIT@github.com here.\n", "GIT@github.com"),
+            # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+            ("Contact o'git@github.com here.\n", "git@github.com"),
+            ("Contact alice!git@gitlab.com here.\n", "git@gitlab.com"),
+            ("Contact a/git@github.com here.\n", "git@github.com"),
+            # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+            ("Contact \u2019git@github.com here.\n", "git@github.com"),
+            ("Contact \u00bfgit@github.com here.\n", "git@github.com"),
+        ):
+            with self.subTest(body=body):
+                fixture = self.make_fixture("standard-forge-narrow.md", VALID_METADATA + "\n\n" + body)
+                result = run_linter("tools/lint-pii-in-content.py", fixture)
+                self.assertEqual(result.returncode, 1, f"{body!r} must stay reported.\nstdout:\n{result.stdout}")
+                self.assertIn(needle, result.stdout)
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_forge_allowance")
+        engine = wrapper._engine()
+        for line in ("jane@github.com here", "git@example.org here", "git@github.com.other.example here",
+                     "o'git@github.com here", "alice!git@gitlab.com here", "a/git@github.com here",
+                     "x -git@github.com", "{git@gitlab.com}", "~git@github.com", "=git@gitlab.com",
+                     "\u2019git@github.com here", "\u00bfgit@github.com here"):
+            with self.subTest(line=line):
+                self.assertEqual(wrapper._forge_service_matches(engine, line), [])
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        self.assertEqual(wrapper._forge_service_matches(engine, "ssh://git@github.com/x (git@gitlab.com)"), [])
+        self.assertEqual(wrapper._forge_service_matches(engine, "git@github.com: and git@gitlab.com/x"), [])
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        self.assertEqual(wrapper._forge_service_matches(engine, "ssh://git@github.com/o/x (git@gitlab.com:o/r)"),
+                         [])
+        self.assertEqual(wrapper._forge_service_matches(engine, "git@github.com:o/r and ssh://git@gitlab.com/o/x"),
+                         ["git@github.com", "git@gitlab.com"])
+
+    def test_forge_allowance_needs_an_ssh_remote_not_another_uri_scheme(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        for body, needle in (
+            ("Open https://git@github.com/org/repo here.\n", "git@github.com"),
+            ("Write to mailto:git@gitlab.com here.\n", "git@gitlab.com"),
+        ):
+            with self.subTest(body=body):
+                fixture = self.make_fixture("standard-forge-scheme.md", VALID_METADATA + "\n\n" + body)
+                result = run_linter("tools/lint-pii-in-content.py", fixture)
+                self.assertEqual(result.returncode, 1, f"{body!r} must stay reported.\nstdout:\n{result.stdout}")
+                self.assertIn(needle, result.stdout)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_forge_scheme")
+        engine = wrapper._engine()
+        for line in ("https://git@github.com/o/r", "http://git@gitlab.com/o/r", "mailto:git@github.com",
+                     "x:git@gitlab.com"):
+            with self.subTest(line=line):
+                self.assertEqual(wrapper._forge_service_matches(engine, line), [])
+        self.assertEqual(wrapper._forge_service_matches(engine, "ssh://git@github.com/o/r"),
+                         ["git@github.com"])
+
+    def test_forge_allowance_fails_closed_inside_backticks_and_single_quotes(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        for body, needle in (
+            ("Contact `git@github.com` here.\n", "git@github.com"),
+            ("Contact 'git@gitlab.com' here.\n", "git@gitlab.com"),
+            ("Clone `git@github.com:org/repo.git` here.\n", "git@github.com"),
+            ("Clone 'git@gitlab.com:org/repo.git' here.\n", "git@gitlab.com"),
+        ):
+            with self.subTest(body=body):
+                fixture = self.make_fixture("standard-forge-quoted.md", VALID_METADATA + "\n\n" + body)
+                result = run_linter("tools/lint-pii-in-content.py", fixture)
+                self.assertEqual(result.returncode, 1, f"{body!r} must stay reported.\nstdout:\n{result.stdout}")
+                self.assertIn(needle, result.stdout)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_forge_quoted")
+        engine = wrapper._engine()
+        for line in ("`git@github.com`", "'git@gitlab.com'", "see `git@github.com:o/r` here"):
+            with self.subTest(line=line):
+                self.assertEqual(wrapper._forge_service_matches(engine, line), [])
+        doc = " ".join(wrapper.__doc__.split())
+        for fragment in ("wrapped in backticks or single quotes", "is still reported",
+                         "the allowance fails closed"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, doc)
+
+    def test_forge_allowance_fails_closed_after_a_double_quote(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        for body, needle in (
+            ('Write to "git@github.com"@corp-mail-xyz.net here.\n', "git@github.com"),
+            ('Write to "git@gitlab.com"@corp-mail-xyz.net here.\n', "git@gitlab.com"),
+            ('Set "git@github.com:a" and "x"@corp-mail-xyz.net here.\n', "git@github.com"),
+            ('Write to "jane git@github.com"@corp-mail-xyz.net here.\n', "git@github.com"),
+            ('Write to "(git@github.com)"@corp-mail-xyz.net here.\n', "git@github.com"),
+        ):
+            with self.subTest(body=body):
+                fixture = self.make_fixture("standard-forge-double-quote.md", VALID_METADATA + "\n\n" + body)
+                result = run_linter("tools/lint-pii-in-content.py", fixture)
+                self.assertEqual(result.returncode, 1, f"{body!r} must stay reported.\nstdout:\n{result.stdout}")
+                self.assertIn(needle, result.stdout)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_forge_double_quote")
+        engine = wrapper._engine()
+        for line in ('"git@github.com"@corp-mail-xyz.net', '"git@gitlab.com:o/r" "x"@corp-mail-xyz.net',
+                     '"jane git@github.com"@corp-mail-xyz.net', '"(git@gitlab.com)"@corp-mail-xyz.net'):
+            with self.subTest(line=line):
+                self.assertEqual(wrapper._forge_service_matches(engine, line), [])
+        self.assertEqual(wrapper._forge_service_matches(engine, 'url = "git@gitlab.com:o/r"'), [])
+        fixture = self.make_fixture("standard-forge-double-quoted-remote.md", VALID_METADATA
+                                    + '\n\nSet url = "git@github.com:org/repo.git" here.\n')
+        result = run_linter("tools/lint-pii-in-content.py", fixture)
+        self.assertEqual(result.returncode, 1, f"stdout:\n{result.stdout}")
+        self.assertIn("git@github.com", result.stdout)
+        self.assertIn("An address right after a double quote is still reported",
+                      " ".join(wrapper.__doc__.split()))
+        self.assertIn("and so is an address after any other character (white space, a parenthesis,",
+                      " ".join(wrapper.__doc__.split()))
+
+    def test_forge_allowance_fails_closed_before_any_later_double_quote(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        for body, needle in (
+            ('"jane git@github.com" @corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@github.com"(work)@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@gitlab.com"\t@corp-mail-xyz.net\n', "git@gitlab.com"),
+            ('"jane git@github.com"\r\n @corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@github.com"(c)@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@github.com" (c) @corp-mail-xyz.net\n', "git@github.com"),
+        ):
+            with self.subTest(body=body):
+                fixture = self.make_fixture("standard-forge-later-quote.md", VALID_METADATA + "\n\n" + body)
+                result = run_linter("tools/lint-pii-in-content.py", fixture)
+                self.assertEqual(result.returncode, 1, f"{body!r} must stay reported.\nstdout:\n{result.stdout}")
+                self.assertIn(needle, result.stdout)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_forge_later_quote")
+        engine = wrapper._engine()
+        for line in ('"jane git@github.com" @corp-mail-xyz.net', '"jane git@github.com"(work)@corp-mail-xyz.net',
+                     '"jane git@gitlab.com"\t@corp-mail-xyz.net', '"jane git@github.com"\r',
+                     '"jane git@github.com"(c)@corp-mail-xyz.net', '"jane git@github.com" (c) @corp-mail-xyz.net'):
+            with self.subTest(line=line):
+                self.assertEqual(wrapper._forge_service_matches(engine, line), [])
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        self.assertEqual(wrapper._forge_service_matches(engine, 'Say "hi", then clone git@github.com:o/r'),
+                         ["git@github.com"])
+        fixture = self.make_fixture("standard-forge-no-later-quote.md", VALID_METADATA
+                                    + '\n\nSay "hi", then clone git@github.com:org/repo.git here.\n')
+        result = run_linter("tools/lint-pii-in-content.py", fixture)
+        self.assertEqual(result.returncode, 0, f"stdout:\n{result.stdout}")
+
+    def test_forge_allowance_docstrings_state_the_later_double_quote_rule(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_forge_quote_doc")
+        doc = " ".join(wrapper.__doc__.split())
+        for fragment in ("still reported when a double quote appears anywhere after the match on the line",
+                         "so the match may be inside a longer address at another domain",
+                         "no quoting, spacing, comment or folding form can hide a second address",
+                         "an allowed address followed later on the line by any double quote is reported"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, doc)
+        self.assertNotIn("is then inside", doc)
+        helper_doc = " ".join(wrapper._local_part_complete.__doc__.split())
+        for fragment in ("a double quote appears anywhere after the match on the line",
+                         "accepted over-refusal"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, helper_doc)
+
+    def _assert_forge_address_after_an_at_sign_reported(self, line: str, needle: str) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        fixture = self.make_fixture("standard-forge-after-at.md", VALID_METADATA + "\n\n" + line + "\n")
+        result = run_linter("tools/lint-pii-in-content.py", fixture)
+        self.assertEqual(result.returncode, 1, f"{line!r} must stay reported.\nstdout:\n{result.stdout}")
+        self.assertIn(needle, result.stdout)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_forge_after_at")
+        self.assertEqual(wrapper._forge_service_matches(wrapper._engine(), line), [])
+        self.assertFalse(wrapper._local_part_complete(line, line.index(needle)))
+        doc = " ".join(wrapper.__doc__.split())
+        self.assertIn("a match right after @ (user@git@github.com or user@git@gitlab.com) is "
+                      "still reported", doc)
+
+    def test_forge_allowance_does_not_apply_after_an_at_sign_github(self) -> None:
+        self._assert_forge_address_after_an_at_sign_reported("Remote: user@git@github.com",
+                                                             "git@github.com")
+
+    def test_forge_allowance_does_not_apply_after_an_at_sign_gitlab(self) -> None:
+        self._assert_forge_address_after_an_at_sign_reported("Remote: user@git@gitlab.com",
+                                                             "git@gitlab.com")
+
+    def test_git_remote_forms_with_a_repository_path_pass(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        for body in (
+            "Clone git@github.com:org/repo.git here.\n",
+            "Clone ssh://git@github.com/org/repo.git here.\n",
+            "Clone ssh://git@gitlab.com/group/repo here.\n",
+            'Clone git@github.com:org/repo.git here.\n\nSay "hi".\n',
+        ):
+            with self.subTest(body=body):
+                fixture = self.make_fixture("standard-git-remote-form.md", VALID_METADATA + "\n\n" + body)
+                result = run_linter("tools/lint-pii-in-content.py", fixture)
+                self.assertEqual(result.returncode, 0, f"{body!r} must pass.\nstdout:\n{result.stdout}")
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_form_allowed")
+        engine = wrapper._engine()
+        for line, expected in (
+            ("git@github.com:o/r", ["git@github.com"]),
+            ("ssh://git@github.com/o/r", ["git@github.com"]),
+            ("git@gitlab.com:o/r", ["git@gitlab.com"]),
+            ("ssh://git@gitlab.com/o/r", ["git@gitlab.com"]),
+            # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+            ("(git@github.com:o/r.git)", []),
+            ("<ssh://git@gitlab.com/o/r>", []),
+            ("x = 'ssh://git@github.com/o/r.git'", []),
+        ):
+            with self.subTest(line=line):
+                self.assertEqual(wrapper._forge_service_matches(engine, line), expected)
+
+    def test_git_remote_forms_refuse_folded_quoted_near_miss_and_split_matches(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        for body, needle in (
+            ('"jane git@github.com\n more"@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@github.com\n "@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@github.com\r\n "@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@gitlab.com\r\n "@corp-mail-xyz.net\n', "git@gitlab.com"),
+            ('"jane git@github.com:o/r\n "@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane\n git@gitlab.com:o/r\n "@corp-mail-xyz.net\n', "git@gitlab.com"),
+            ("&quot;jane git@github.com:o/r\n &quot;@corp-mail-xyz.net\n", "git@github.com"),
+            ('Write to "git@github.com:o/r"@corp-mail-xyz.net here.\n', "git@github.com"),
+            ("Write to 'git@gitlab.com:o/r' here.\n", "git@gitlab.com"),
+            ("Clone git@githubXcom.io:o/r here.\n", "git@githubXcom.io"),
+            ("Clone git@github.com.mirror-xyz.net:o/r here.\n", "git@github.com.mirror-xyz.net"),
+            ("Clone jane@github.com:o/r here.\n", "jane@github.com"),
+            ("Clone ssh://jane@gitlab.com/o/r here.\n", "jane@gitlab.com"),
+            ("Clone git@github.com:\norg/repo.git here.\n", "git@github.com"),
+            ("Clone ssh://\ngit@gitlab.com/org/repo here.\n", "git@gitlab.com"),
+            ("Clone git@github.com\n:org/repo.git here.\n", "git@github.com"),
+            ("Contact git@github.com here.\n", "git@github.com"),
+        ):
+            with self.subTest(body=body):
+                fixture = self.make_fixture("standard-git-remote-refused.md", VALID_METADATA + "\n\n" + body)
+                result = run_linter("tools/lint-pii-in-content.py", fixture)
+                self.assertEqual(result.returncode, 1, f"{body!r} must stay reported.\nstdout:\n{result.stdout}")
+                self.assertIn(needle, result.stdout)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_form_refused")
+        engine = wrapper._engine()
+        for line in ("git@githubXcom:o/r", "git@github.com.example:o/r", "jane@github.com:o/r",
+                     "x.git@github.com:o/r", "ssh://jane@gitlab.com/o/r", "git@github.com:", "git@github.com",
+                     "git@github.com:o", "git@github.com:/o/r", "ssh://git@github.com:o/r",
+                     "xssh://git@github.com/o/r", "https://git@github.com/o/r", '"git@github.com:o/r"',
+                     "'git@gitlab.com:o/r'", "git@github.com:o/r@corp-mail-xyz.net", "git@github.com:o/r(c)",
+                     "git@github.com:o/r\u00e9", "ssh://git@gitlab.com/o/r&quot;@corp-mail-xyz.net"):
+            with self.subTest(line=line):
+                self.assertEqual(wrapper._forge_service_matches(engine, line), [])
+        for following in (' "@corp-mail-xyz.net', " &quot;@corp-mail-xyz.net", " &#34;@corp-mail-xyz.net",
+                          " &#X22;@corp-mail-xyz.net", 'more\n "@corp-mail-xyz.net'):
+            with self.subTest(following=following):
+                self.assertEqual(wrapper._forge_service_matches(engine, "jane git@github.com:o/r", following), [])
+        doc = " ".join(wrapper.__doc__.split())
+        for fragment in ("allowed only when it is exactly part of one of four git remote forms",
+                         "a bare address with no repository path, a form split across lines",
+                         "appears anywhere after the match in the rest of its paragraph"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, doc)
+
+    def _assert_remote_bodies_reported(self, name: str, cases) -> None:
+        for body, needle in cases:
+            with self.subTest(body=body):
+                fixture = self.make_fixture(name, VALID_METADATA + "\n\n" + body)
+                result = run_linter("tools/lint-pii-in-content.py", fixture)
+                self.assertEqual(result.returncode, 1, f"{body!r} must stay reported.\nstdout:\n{result.stdout}")
+                self.assertIn(needle, result.stdout)
+
+    def test_git_remote_allowance_reads_lf_delimited_physical_lines(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        cases = (
+            ('"jane git@github.com:o/r\x0c\x0c "@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@github.com:o/r\x0c\n "@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@github.com:o/r\x0b\x0b "@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@github.com:o/r\u2028\u2028 "@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@github.com:o/r\u2029\n "@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@gitlab.com:o/r\r\r "@corp-mail-xyz.net\n', "git@gitlab.com"),
+            ('"jane git@gitlab.com:o/r\x85\x85 "@corp-mail-xyz.net\n', "git@gitlab.com"),
+        )
+        self._assert_remote_bodies_reported("standard-git-remote-physical-lines.md", cases)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_physical_lines")
+        engine = wrapper._engine()
+        for body, _ in cases:
+            with self.subTest(paragraph=body):
+                self.assertEqual(wrapper._allowed_spans(engine, body.rstrip("\n")), [])
+        self.assertEqual(wrapper._paragraphs("a\x0c\x0cb\r\rc\n\nd"), [(0, "a\x0c\x0cb\r\rc"), (9, "d")])
+
+    def test_git_remote_allowance_paragraph_ends_only_at_a_line_with_no_character(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        self._assert_remote_bodies_reported("standard-git-remote-space-line.md", (
+            ('Clone git@github.com:o/r here.\n   \nSay "hi".\n', "git@github.com"),
+            ('"jane git@github.com:o/r\n   \n "@corp-mail-xyz.net\n', "git@github.com"),
+            ('"jane git@gitlab.com:o/r\n\t\n "@corp-mail-xyz.net\n', "git@gitlab.com"),
+        ))
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_space_line")
+        self.assertEqual(wrapper._paragraphs("a\n  \nb\n\nc\n"), [(0, "a\n  \nb"), (8, "c")])
+        doc = " ".join(wrapper.__doc__.split())
+        for fragment in ("splits it into physical lines at LF only",
+                         "A paragraph is a run of physical lines up to the next line that holds no character at all",
+                         "a line of only white space does not end it"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, doc)
+        self.assertNotIn("up to the next empty line", doc)
+
+    def test_git_remote_allowance_refuses_every_quote_character_reference(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        cases = (
+            ("&#034;jane git@github.com:o/r &#034;@corp-mail-xyz.net\n", "git@github.com"),
+            ("&#x0022;jane git@github.com:o/r &#x0022;@corp-mail-xyz.net\n", "git@github.com"),
+            ("&#34;jane git@github.com:o/r &#034;@corp-mail-xyz.net\n", "git@github.com"),
+            ("&#34;jane git@gitlab.com:o/r &#00034;@corp-mail-xyz.net\n", "git@gitlab.com"),
+            ("&#34;jane git@github.com:o/r &#x022;@corp-mail-xyz.net\n", "git@github.com"),
+            ("&#34;jane git@github.com:o/r &#X00022;@corp-mail-xyz.net\n", "git@github.com"),
+            ("&QUOT;jane git@github.com:o/r\n &QUOT;@corp-mail-xyz.net\n", "git@github.com"),
+            ("\uff02jane git@github.com:o/r \uff02@corp-mail-xyz.net\n", "git@github.com"),
+        )
+        self._assert_remote_bodies_reported("standard-git-remote-quote-reference.md", cases)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_quote_reference")
+        engine = wrapper._engine()
+        for following in (" &#034;", " &#x0022;", " &#00034;", " &#x022;", " &#x00022;", " &#34",
+                          " &quot", " &apos;", " &#39;", " &#x27;", " &#0039;", " \uff02"):
+            with self.subTest(following=following):
+                self.assertTrue(wrapper._quote_follows(following))
+                self.assertEqual(wrapper._forge_service_matches(engine, "jane git@github.com:o/r", following), [])
+        self.assertEqual(wrapper._forge_service_matches(engine, "Clone git@github.com:o/r", "then push."),
+                         ["git@github.com"])
+
+    def test_git_remote_allowance_refuses_obsolete_local_part_syntax(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        cases = (
+            ("Mail alice. git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice.(c)git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice.\n git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice. ssh://git@gitlab.com/o/r now.\n", "git@gitlab.com"),
+            ("Mail alice\uff0e git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail &#39;git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice&#46; git@gitlab.com:o/r now.\n", "git@gitlab.com"),
+        )
+        self._assert_remote_bodies_reported("standard-git-remote-obsolete-local-part.md", cases)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_obsolete")
+        engine = wrapper._engine()
+        for body, _ in cases:
+            with self.subTest(paragraph=body):
+                self.assertEqual(wrapper._allowed_spans(engine, body.rstrip("\n")), [])
+
+    def test_git_remote_allowance_refuses_a_comment_or_domain_literal_around_the_remote(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        cases = (
+            ("x(git@github.com:o/r)@corp-mail-xyz.net\n", "git@github.com"),
+            ("x(ssh://git@github.com/o/r)@corp-mail-xyz.net\n", "git@github.com"),
+            ("x(git@github.com:o/r) @corp-mail-xyz.net\n", "git@github.com"),
+            ("x(git@gitlab.com:o/r)\n @corp-mail-xyz.net\n", "git@gitlab.com"),
+            ("user@(git@github.com:o/r)corp-mail-xyz.net\n", "git@github.com"),
+            ("user@[git@gitlab.com:o/r]\n", "git@gitlab.com"),
+            ("x(git@github.com:o/r)&#64;corp-mail-xyz.net\n", "git@github.com"),
+            ("x(git@github.com:o/r)\uff20corp-mail-xyz.net\n", "git@github.com"),
+            ("x.(git@github.com:o/r) git@gitlab.com:a/b\n", "git@gitlab.com"),
+        )
+        self._assert_remote_bodies_reported("standard-git-remote-comment.md", cases)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_comment")
+        engine = wrapper._engine()
+        for body, _ in cases:
+            with self.subTest(paragraph=body):
+                self.assertEqual(wrapper._allowed_spans(engine, body.rstrip("\n")), [])
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        self.assertEqual(wrapper._allowed_spans(engine, "Clone git@github.com:o/r or\ngit@gitlab.com:o/x"),
+                         [(6, 20), (28, 42)])
+        for body in ("Clone git@github.com:o/r or\ngit@gitlab.com:o/x here.\n\nMail x@corp-mail-xyz.example.\n",):
+            with self.subTest(body=body):
+                fixture = self.make_fixture("standard-git-remote-alone.md", VALID_METADATA + "\n\n" + body)
+                result = run_linter("tools/lint-pii-in-content.py", fixture)
+                self.assertEqual(result.returncode, 0, f"{body!r} must pass.\nstdout:\n{result.stdout}")
+
+    def test_git_remote_allowance_refuses_a_remote_after_a_non_ascii_character(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        cases = (
+            ("Clone \u2019git@github.com:o/r here.\n", "git@github.com"),
+            ("Clone \u00bfgit@gitlab.com:o/r here.\n", "git@gitlab.com"),
+            ("Clone \u2019ssh://git@github.com/o/r here.\n", "git@github.com"),
+            ("Clone \u00bfssh://git@gitlab.com/o/r here.\n", "git@gitlab.com"),
+        )
+        self._assert_remote_bodies_reported("standard-git-remote-non-ascii.md", cases)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_non_ascii")
+        engine = wrapper._engine()
+        for body, _ in cases:
+            with self.subTest(line=body):
+                self.assertEqual(wrapper._forge_service_matches(engine, body.rstrip("\n")), [])
+
+    def test_git_remote_allowance_docstring_states_the_paragraph_refusals(self) -> None:
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_doc")
+        doc = " ".join(wrapper.__doc__.split())
+        for fragment in ("or a decimal or hexadecimal reference to 34 or 39, in any letter case, with any leading zeros",
+                         "is a dot, a closing parenthesis, a character whose NFKC form is either, "
+                         "or the end of a character reference",
+                         "other than the @ of a match that passes every other test here",
+                         "every remote in a paragraph that holds any other @"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, doc)
+        self.assertNotIn("The rule looks for any later double quote, not for an @ after one", doc)
+
+    def test_git_remote_token_rule_fails_closed_on_wider_forms(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        self._assert_remote_bodies_reported("standard-git-remote-token-refused.md", (
+            ("Clone git@gitlab.com:group/sub/repo.git here.\n", "git@gitlab.com"),
+            ("See (git@github.com:o/r.git) here.\n", "git@github.com"),
+            ("See <ssh://git@gitlab.com/o/r> here.\n", "git@gitlab.com"),
+            ("Set x = 'ssh://git@github.com/o/r.git' here.\n", "git@github.com"),
+            ("Clone git@github.com:o/r! now.\n", "git@github.com"),
+            ("Clone git@github.com:o/r]. now.\n", "git@github.com"),
+            ("Clone git@github.com:o/r\r\n", "git@github.com"),
+        ))
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_token_refused")
+        engine = wrapper._engine()
+        for line in ("git@gitlab.com:group/sub/repo.git", "(git@github.com:o/r)", "<ssh://git@gitlab.com/o/r>",
+                     "git@github.com:o/r!", "git@github.com:o/r?", "git@github.com:o/r]", "git@github.com:o/r'",
+                     "git@github.com:o/r,,", "git@github.com:o/r\x0c", "ssh://git@github.com/o/r/",
+                     "ssh://git@github.com/o", "git@github.com:o/r\u00e9", "git@github.com:o\u00e9/r"):
+            with self.subTest(line=line):
+                self.assertEqual(wrapper._forge_service_matches(engine, line), [])
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        for line in ("git@github.com:o/r.", "git@github.com:o/r.git,", "x\tssh://git@gitlab.com/o/r;",
+                     "ssh://git@github.com/o.x/r_y-z.git: done", "(see git@gitlab.com:o/r) now"):
+            with self.subTest(line=line):
+                self.assertEqual(len(wrapper._forge_service_matches(engine, line)), 1)
+        fixture = self.make_fixture("standard-git-remote-token-allowed.md", VALID_METADATA
+                                    + "\n\nClone git@github.com:o/r.git, then git@gitlab.com:o/r; or"
+                                    " ssh://git@github.com/o/r: done.\n\n> git@gitlab.com:o/r\n")
+        result = run_linter("tools/lint-pii-in-content.py", fixture)
+        self.assertEqual(result.returncode, 0, f"stdout:\n{result.stdout}")
+        doc = " ".join(wrapper.__doc__.split())
+        for fragment in ("only when the whole whitespace-delimited token that contains it is exactly that form",
+                         "Every other match, whatever precedes or follows it, is reported"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, doc)
+
+    def test_git_remote_token_rule_refuses_markup_unicode_space_and_nfkc_continuations(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        cases = (
+            ("Mail alice<b></b>git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice<!---->git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice.<!---->git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice.<!----> git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice.<b></b>\n git@gitlab.com:o/r now.\n", "git@gitlab.com"),
+            ("Mail alice\u2488 git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice.\u2474 git@github.com:o/r now.\n", "git@github.com"),
+            ("Clone alice\u00a0git@github.com:o/r now.\n", "git@github.com"),
+            ("Clone alice\u2003git@github.com:o/r now.\n", "git@github.com"),
+            ("Clone alice\u202fgit@gitlab.com:o/r now.\n", "git@gitlab.com"),
+            ("Clone alice\u3000ssh://git@github.com/o/r now.\n", "git@github.com"),
+            ("> Mail alice.\n> git@github.com:o/r now.\n", "git@github.com"),
+        )
+        self._assert_remote_bodies_reported("standard-git-remote-markup-space-nfkc.md", cases)
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_markup_space_nfkc")
+        engine = wrapper._engine()
+        for body, _ in cases:
+            with self.subTest(paragraph=body):
+                self.assertEqual(wrapper._allowed_spans(engine, body.rstrip("\n")), [])
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        self.assertEqual(wrapper._allowed_spans(engine, "> Clone it\n> git@github.com:o/r"), [(13, 27)])
+
+    def _assert_remote_after_a_dot_behind_delimiters_reported(self, body: str, needle: str) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        self._assert_remote_bodies_reported("standard-git-remote-delimited-dot.md", ((body, needle),))
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_delimited_dot")
+        self.assertEqual(wrapper._allowed_spans(wrapper._engine(), body.rstrip("\n")), [])
+
+    def test_git_remote_allowance_refuses_a_dot_behind_strong_emphasis(self) -> None:
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail **alice.** git@github.com:o/r now.\n",
+                                                               "git@github.com")
+        self._assert_remote_after_a_dot_behind_delimiters_reported("> Mail **alice.**\n> git@github.com:o/r now.\n",
+                                                               "git@github.com")
+
+    def test_git_remote_allowance_refuses_a_dot_behind_emphasis(self) -> None:
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail *alice.* git@github.com:o/r now.\n",
+                                                               "git@github.com")
+
+    def test_git_remote_allowance_refuses_a_dot_behind_underscore_emphasis(self) -> None:
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail _alice._ git@gitlab.com:o/r now.\n",
+                                                               "git@gitlab.com")
+
+    def test_git_remote_allowance_refuses_a_dot_behind_a_code_span(self) -> None:
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail `alice.` git@github.com:o/r now.\n",
+                                                               "git@github.com")
+
+    def test_git_remote_allowance_refuses_a_dot_behind_strikethrough(self) -> None:
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail ~~alice.~~ git@github.com:o/r now.\n",
+                                                               "git@github.com")
+
+    def test_git_remote_allowance_allows_a_remote_after_an_emphasised_word_with_no_dot(self) -> None:
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_emphasis_no_dot")
+        engine = wrapper._engine()
+        for line in ("Mail **alice** git@github.com:o/r now.", "Mail *alice* git@github.com:o/r now.",
+                     "Mail _alice_ git@gitlab.com:o/r now.", "Mail `alice` git@github.com:o/r now.",
+                     "Mail ~~alice~~ git@github.com:o/r now.", "> **Clone it**\n> git@github.com:o/r"):
+            with self.subTest(line=line):
+                self.assertEqual(len(wrapper._allowed_spans(engine, line)), 1)
+        fixture = self.make_fixture("standard-git-remote-emphasis-no-dot.md", VALID_METADATA
+                                    + "\n\nMail **alice** git@github.com:o/r now.\n")
+        result = run_linter("tools/lint-pii-in-content.py", fixture)
+        self.assertEqual(result.returncode, 0, f"stdout:\n{result.stdout}")
+
+    def test_git_remote_allowance_refuses_a_dot_behind_highlight(self) -> None:
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail ==alice.== git@github.com:o/r now.\n",
+                                                               "git@github.com")
+
+    def test_git_remote_allowance_refuses_a_dot_behind_superscript(self) -> None:
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail ^alice.^ git@github.com:o/r now.\n",
+                                                               "git@github.com")
+
+    def test_git_remote_allowance_refuses_a_dot_behind_a_fullwidth_asterisk(self) -> None:
+        self._assert_remote_after_a_dot_behind_delimiters_reported(
+            "Mail \uff0aalice.\uff0a git@github.com:o/r now.\n", "git@github.com")
+
+    def test_git_remote_allowance_refuses_any_character_reference_in_the_word_before_the_remote(self) -> None:
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail &ast;alice.&ast; git@github.com:o/r now.\n",
+                                                               "git@github.com")
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail &#42;alice.&#42; git@gitlab.com:o/r now.\n",
+                                                               "git@gitlab.com")
+        cases = (("Mail &ast;alice&ast; git@github.com:o/r now.\n", "git@github.com"),
+                 ("Mail &#42;alice&#42; git@gitlab.com:o/r now.\n", "git@gitlab.com"),
+                 ("Mail &amp;alice git@github.com:o/r now.\n", "git@github.com"))
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_any_reference")
+        engine = wrapper._engine()
+        for body, _needle in cases:
+            with self.subTest(body=body):
+                word = body.split(" git@")[0].split(" ")[-1]
+                for form in (word, wrapper._rendered(word)):
+                    self.assertNotIn(".", form)
+                    self.assertNotIn(")", form)
+                self.assertEqual(wrapper._allowed_spans(engine, body.rstrip("\n")), [])
+        self._assert_remote_bodies_reported("standard-git-remote-any-reference.md", cases)
+
+    def test_git_remote_allowance_refuses_a_plain_ampersand_word_such_as_r_and_d_before_the_remote(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_plain_ampersand")
+        engine = wrapper._engine()
+        self.assertEqual(wrapper._allowed_spans(engine, "Mail RD git@github.com:o/r now."), [(8, 22)])
+        self.assertEqual(wrapper._allowed_spans(engine, "Mail R&D git@github.com:o/r now."), [])
+        self._assert_remote_bodies_reported("standard-git-remote-plain-ampersand.md",
+                                            (("Mail R&D git@github.com:o/r now.\n", "git@github.com"),))
+
+    def test_git_remote_allowance_refuses_a_dot_behind_a_delimiter_closed_after_the_token(self) -> None:
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail alice.[ git@github.com:o/r ] now.\n",
+                                                               "git@github.com")
+        self._assert_remote_after_a_dot_behind_delimiters_reported("Mail alice.( git@gitlab.com:o/r ) now.\n",
+                                                               "git@gitlab.com")
+
+    def test_git_clone_url_passes_after_an_undotted_marked_word_or_a_paragraph_break_and_is_refused_after_a_dotted_line(self) -> None:
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_clone_url_controls")
+        engine = wrapper._engine()
+        for line in ("Mail ==alice== git@github.com:o/r now.", "Mail ^alice^ git@github.com:o/r now.",
+                     "Mail \uff0aalice\uff0a git@gitlab.com:o/r now.", "Mail [alice] git@github.com:o/r now.",
+                     "Mail **alice** git@github.com:o/r now."):
+            with self.subTest(line=line):
+                self.assertEqual(len(wrapper._allowed_spans(engine, line)), 1)
+        self.assertEqual(wrapper._paragraphs("Clone it.\n\ngit@github.com:o/r"),
+                         [(0, "Clone it."), (11, "git@github.com:o/r")])
+        self.assertEqual(wrapper._allowed_spans(engine, "git@github.com:o/r"), [(0, 14)])
+        self.assertEqual(wrapper._allowed_spans(engine, "Clone it.\ngit@github.com:o/r"), [])
+        fixture = self.make_fixture("standard-git-clone-url-controls.md", VALID_METADATA
+                                    + "\n\nMail ==alice== git@github.com:o/r now.\n\nClone it.\n\n"
+                                    "git@github.com:org/repo.git\n")
+        result = run_linter("tools/lint-pii-in-content.py", fixture)
+        self.assertEqual(result.returncode, 0, f"stdout:\n{result.stdout}")
+
+    def test_git_remote_allowance_refuses_a_dot_anywhere_in_the_word_before_the_remote(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        for body, needle in (
+            ("Mail [alice.][r] git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail [alice.][1] git@gitlab.com:o/r now.\n", "git@gitlab.com"),
+            ("Mail [alice.]{.x} git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice.{:x} git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice.x git@gitlab.com:o/r now.\n", "git@gitlab.com"),
+            ("Mail alice&rpar;x git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice&#46;x git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail [alice\uff0e][r] git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail [alice.][r]\n- git@github.com:o/r now.\n", "git@github.com"),
+        ):
+            self._assert_remote_after_a_dot_behind_delimiters_reported(body, needle)
+        self._assert_remote_bodies_reported("standard-git-remote-reference-link.md", (
+            ("Mail [alice.][r] git@github.com:o/r now.\n\n[r]: https://example.org/x\n", "git@github.com"),
+        ))
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_word_rule")
+        doc = " ".join(wrapper.__doc__.split())
+        for fragment in ("The word before the token holds a refusing character anywhere in it",
+                         "[alice.][r] git@github.com:o/r or alice.{:x} git@github.com:o/r"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, doc)
+
+    def test_git_remote_allowance_refuses_a_dot_behind_an_empty_link_a_spaced_label_or_an_extension(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        for body, needle in (
+            ("Mail alice. [][r] git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice. [][r]\ngit@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice. ![][r] git@gitlab.com:o/r now.\n", "git@gitlab.com"),
+            ("Mail alice. [][r x] git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail [alice.][r x] git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail [alice.][r\tx] git@gitlab.com:o/r now.\n", "git@gitlab.com"),
+            ("Mail [alice.][r\nx] git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail [alice.][r y x] git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice. {::comment}x{:/comment} git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice. {::comment} a b {:/comment} git@github.com:o/r now.\n", "git@github.com"),
+            ("Mail alice. {::comment} a b {:/} git@gitlab.com:o/r now.\n", "git@gitlab.com"),
+            ("Mail alice. <!-- a b --> git@github.com:o/r now.\n", "git@github.com"),
+        ):
+            self._assert_remote_after_a_dot_behind_delimiters_reported(body, needle)
+        self._assert_remote_bodies_reported("standard-git-remote-empty-link.md", (
+            ("Mail alice. [][r] git@github.com:o/r now.\n\n[r]: https://example.org/x\n", "git@github.com"),
+        ))
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_markup_words")
+        engine = wrapper._engine()
+        for line in ("Mail [alice] git@github.com:o/r now.", "See [the docs][d] git@github.com:o/r now.",
+                     "- [ ] git@github.com:o/r", "Mail alice {::comment} a b {:/comment} git@github.com:o/r now."):
+            with self.subTest(line=line):
+                self.assertEqual(len(wrapper._allowed_spans(engine, line)), 1)
+
+    def test_git_remote_allowance_states_the_markup_it_does_not_read_and_the_forms_it_refuses(self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_residual")
+        engine = wrapper._engine()
+        for line in ("1. git@github.com:o/r", "1) git@gitlab.com:o/r", "| v1 | example.org | git@github.com:o/r |",
+                     "Clone it. [mirror][m] git@github.com:o/r"):
+            with self.subTest(line=line):
+                self.assertEqual(wrapper._allowed_spans(engine, line), [])
+        self.assertEqual(len(wrapper._allowed_spans(engine, "Mail alice. |x| git@github.com:o/r now.")), 1)
+        doc = " ".join(wrapper.__doc__.split())
+        for fragment in ("Any other markup there is not guaranteed to be read and may let the remote through",
+                         "alice. |x| git@github.com:o/r",
+                         "a numbered list item (1. git@github.com:o/r or 1) git@github.com:o/r)",
+                         "a table row with a dot in an earlier cell (| v1 | example.org | git@github.com:o/r |",
+                         "alice. {::comment} x {:/comment} git@github.com:o/r"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, doc)
+        doc = " ".join(wrapper._local_part_continues_before.__doc__.split())
+        for fragment in ("not guaranteed to be read and may let the remote through", "1. git@github.com:o/r"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, doc)
+
+    def test_git_remote_residual_allows_the_remote_after_a_word_inside_a_bracket_opened_by_a_reference(
+            self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_encoded_bracket")
+        engine = wrapper._engine()
+        self.assertEqual(wrapper._allowed_spans(engine, "Mail alice. [ x ] git@github.com:o/r now."), [])
+        for line in ("Mail alice. &#91; x ] git@github.com:o/r now.",
+                     "Mail alice. &lsqb; x ] git@github.com:o/r now.",
+                     "Mail alice. &#x5b; x ] git@github.com:o/r now."):
+            with self.subTest(line=line):
+                self.assertEqual(len(wrapper._allowed_spans(engine, line)), 1)
+        self.assertIn("a word inside a bracket opened by a character reference (alice. &#91; x ] "
+                      "git@github.com:o/r",
+                      " ".join(wrapper.__doc__.split()))
+
+    def test_git_remote_residual_allows_the_remote_after_a_separate_word_between_two_kramdown_openers(
+            self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_nested_extension")
+        engine = wrapper._engine()
+        self.assertEqual(wrapper._allowed_spans(
+            engine, "Mail alice. {::comment} x {:/comment} git@github.com:o/r now."), [])
+        for line in ("Mail alice. {::comment} x {::comment} y {:/comment} git@github.com:o/r now.",
+                     "Mail alice. {::comment} x {::comment} y {:/} git@github.com:o/r now."):
+            with self.subTest(line=line):
+                self.assertEqual(len(wrapper._allowed_spans(engine, line)), 1)
+        self.assertIn("a separate word between two kramdown {:: openers "
+                      "(alice. {::comment} x {::comment} y {:/comment} git@github.com:o/r",
+                      " ".join(wrapper.__doc__.split()))
+
+    def test_git_remote_residual_allows_the_remote_after_a_separate_word_between_template_tags(
+            self) -> None:
+        # Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_template_pair")
+        engine = wrapper._engine()
+        self.assertEqual(wrapper._allowed_spans(
+            engine, "Mail alice. {% comment %}{% endcomment %} git@github.com:o/r now."), [])
+        self.assertEqual(len(wrapper._allowed_spans(
+            engine, "Mail alice. {% comment %} x {% endcomment %} git@github.com:o/r now.")), 1)
+        self.assertIn("a separate word between the tags of a paired template block "
+                      "(alice. {% comment %} x {% endcomment %} git@github.com:o/r",
+                      " ".join(wrapper.__doc__.split()))
+
+    def test_remote_rule_comments_point_to_the_module_docstring(self) -> None:
+        pointer = '# Rule: see "Git remote forms" in the tools/lint-pii-in-content.py module docstring.'
+        problems, methods, pointed = _remote_rule_comment_problems(
+            Path(__file__).resolve().read_text(encoding="utf-8"), pointer)
+        self.assertGreaterEqual(len(methods), 30)
+        self.assertIn("test_git_clone_url_passes_after_an_undotted_marked_word_or_a_paragraph_break_and_is_refused_after_a_dotted_line",
+                      set(methods))
+        self.assertEqual(problems, [])
+        self.assertGreater(pointed, 0)
+        clean = ("class PIIContentTests:\n"
+                 "    @staticmethod\n"
+                 "    def test_remote_x():\n"
+                 "        " + pointer + "\n"
+                 "        return 1\n")
+        self.assertEqual(_remote_rule_comment_problems(clean, pointer), ([], ["test_remote_x"], 1))
+        for planted, line in (
+            (clean.replace("return 1\n", "return 1  # a dot before the token refuses\n"), 5),
+            (clean.replace("    @staticmethod\n", "    # a dot before the token refuses\n    @staticmethod\n"), 2),
+            (clean.replace("    def test_remote_x():\n",
+                           "    # a dot before the token refuses\n    def test_remote_x():\n"), 3),
+            (clean.replace("        return 1\n", "        \"\"\"A dot refuses.\"\"\"\n        return 1\n"), 3),
+        ):
+            with self.subTest(planted=planted):
+                problems, _, _ = _remote_rule_comment_problems(planted, pointer)
+                self.assertEqual([p[1] for p in problems], [line])
+        nested = ("class PIIContentTests:\n"
+                  "    class Inner:\n"
+                  "        async def test_remote_y(self):\n"
+                  "            " + pointer + "\n"
+                  "            return 1\n")
+        self.assertEqual(_remote_rule_comment_problems(nested, pointer), ([], ["test_remote_y"], 1))
+        planted_comment = "# a dot before the token refuses"
+        for case, planted, line in (
+            ("above the def after a blank line",
+             clean.replace("    @staticmethod\n", "    " + planted_comment + "\n\n    @staticmethod\n"), 2),
+            ("at class level after the method",
+             clean + "    " + planted_comment + "\n\n    def test_other():\n        return 2\n", 6),
+            ("after the last statement of the method", clean + "        " + planted_comment + "\n", 6),
+            ("in an async def", clean.replace("    def test_remote_x", "    async def test_remote_x").replace(
+                "return 1\n", "return 1  " + planted_comment + "\n"), 5),
+            ("in a nested class", nested.replace("return 1\n", "return 1  " + planted_comment + "\n"), 5),
+            ("at nested class level after the method", nested + "        " + planted_comment + "\n", 6),
+            ("at column 0 inside the method",
+             clean.replace("        return 1\n", planted_comment + "\n        return 1\n"), 5),
+            ("at column 0 inside a nested class method",
+             nested.replace("            return 1\n", planted_comment + "\n            return 1\n"), 5),
+            ("at the class column inside a nested class method",
+             nested.replace("            return 1\n", "    " + planted_comment + "\n            return 1\n"), 5),
+        ):
+            with self.subTest(case=case):
+                problems, _, _ = _remote_rule_comment_problems(planted, pointer)
+                self.assertEqual([p[1] for p in problems], [line])
+        wrapper = load_linter_module("tools/lint-pii-in-content.py", "_pii_remote_pointer")
+        self.assertIn("  - Git remote forms (FORGE_SERVICE_ADDRESSES,", wrapper.__doc__)
 
 
 class InternalReferencesTests(LinterTestCase):
@@ -45645,7 +46457,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-audit-spec-detailed-prose.py OWN F 623c3da0c87d70965ad2c952e76819fcba4fc4c74fc218a5db835edb633c0742
         lint-bare-normative-shall.py ROOT F cc394bfe8920422dc0ef8ffda61da81951e0c0d20726fbfef574438da65f6aef
         lint-baseline-pin.py OWN F 38eb62fa2d783bbc91988f631c7d48af7c6476c6876362a3154052df458f985d
-        lint-bookkeeping-parity.py NO_FS F 8641ed080b92c71a2ef5458f137e27842da44800790d7629de205d20213e7abd
+        lint-bookkeeping-parity.py NO_FS F 3f7d9bb3894f37fc218d768cc7107aa91c8d6b269dfe77cce39b78024d9ddb97
         lint-ccm-aicm-citations.py CWD F 6a1eb4d255f76d35ed337441b0f7127ffd6d943d8c47730921e6f872491685a7
         lint-ccm-provider-member-in-range.py CWD F 8c0f050c7b64e301190c3350398a52e9267e05f2274fa46fb5d31dc7fc6c4871
         lint-changelog-link-coverage.py CWD F 0eb2c21687bcae9e697ab26d0273e766530ec144f1417ac04309badae1bd1bd2
@@ -45695,7 +46507,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-orphan-documents.py NO_FS F 7a5e4c9ba00700be7e6e97a67d6e24b8365f5e4463af5c5cc12f79a5a45f8ecd
         lint-overnight-file.py NO_FS F 3a3829570fc11db6ef9174dde84575bf10cf8331f17cebb9aa4b76ae44b0ec36
         lint-paired-skill-step-parity.py NO_FS F 136cf8f4c186836cb8c354a1d7defb5f3c0ab3581982abb5b17f75d9b6251397
-        lint-pii-in-content.py CWD F 3892a7ab7f09960df0bdeb187a3e2b61f406483620d6baa1eaa238ea91166d8e
+        lint-pii-in-content.py CWD F 1d6e93b63657cbe2466cf40deef98bc3083b44fddbef92fb408f322871590ff1
         lint-placeholder-leakage.py CWD F 011f3e7a9a38fc875d6ec0458f9ff22fdbcc6f531a1d316fc4229b6e791c7eea
         lint-playbook-pointer-integrity.py OWN F b9fd8091f144264ad208000382efefd1dc23cb5e42704d9278fc3b16ccf4e8d0
         lint-positional-backlog-tokens.py ROOT F 6d8e00722c3dcf73ab31abd67cad738715a73cb301510258cfe26986cb12d91a
@@ -45740,7 +46552,8 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint_common.py PASSIVE F c3f9567cb927a4a4599fc2704a690a93d145aef8edfa2a90eb660b246aadbedd
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
-        merge-when-green.py NO_FS F 216550193aa2d3bc251e5fbe9da522fc2988be0da96f0d01417e30bb7fcf218c
+        merge-grc-library-new.py NO_FS F 99c3d7eb8742695145e93147223d6472c7c5630977b63ea636d65dd99ebb03cb
+        merge-when-green.py NO_FS F babbe83220b290a22103757a5a389d69239608183d6eeb7dbfce5056dafb04aa
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
         pre-push-guard.sh FIXED F e082e92fe082af59cee69da9d2a329dacf1cdf4e8e4d600f4c5b6fc2ce89dabf
@@ -62134,6 +62947,680 @@ class TodoIndexRowGrammarParityTests(unittest.TestCase):
         self.assertIn("FAIL: 1 item-number permanence finding(s)", r.stdout)
 
 
+class BlockNewMergeOutsideToolHookTests(unittest.TestCase):
+    """.claude/hooks/block-new-merge-outside-tool.py. The hook runs as a subprocess with a JSON
+    payload on stdin, in a temporary working directory; it reads no store, so no GRC_STORE is
+    needed. A refusal must exit 2 with the hook's own BLOCKED marker, so a missing hook file
+    (python3 exits 2 with "can't open file") never passes a refusal case."""
+
+    HOOK = REPO_ROOT / ".claude" / "hooks" / "block-new-merge-outside-tool.py"
+    MARKER = "BLOCKED (new-merge-outside-tool): "
+    NEW = "jposluns/grc_library_new"
+    MCP = "mcp__github__merge_pull_request"
+    SANCTIONED = "python3 tools/merge-grc-library-new.py"
+
+    def _run(self, payload=None, *, cwd="/home/u/grc_library", raw=None):
+        import json
+        if raw is None:
+            if isinstance(payload, str):
+                payload = dict(tool_name="Bash", tool_input=dict(command=payload))
+            payload = dict(dict(hook_event_name="PreToolUse", session_id="h", cwd=cwd), **payload)
+            raw = json.dumps(payload).encode("utf-8")
+        with tempfile.TemporaryDirectory() as td:
+            return subprocess.run([sys.executable, "-I", str(self.HOOK)], input=raw, cwd=td,
+                                  capture_output=True, timeout=60)
+
+    def _refused(self, payload=None, **kw):
+        proc = self._run(payload, **kw)
+        err = proc.stderr.decode("utf-8", "replace")
+        self.assertEqual(proc.returncode, 2, (payload, kw, err))
+        self.assertTrue(err.startswith(self.MARKER), (payload, kw, err))
+        self.assertIn(self.SANCTIONED, err)
+        self.assertNotIn("Traceback", err)
+        self.assertEqual(proc.stdout, b"")
+
+    def _allowed(self, payload=None, **kw):
+        proc = self._run(payload, **kw)
+        err = proc.stderr.decode("utf-8", "replace")
+        self.assertEqual(proc.returncode, 0, (payload, kw, err))
+        self.assertEqual((proc.stdout, err), (b"", ""), (payload, kw))
+
+    def test_merge_spellings_naming_grc_library_new_are_refused(self):
+        new = self.NEW
+        fullwidth = "".join(chr(ord(c) + 0xFEE0) for c in "grc_library_new")
+        commands = (
+            # The repository flag before the merge verb, as an SSH remote, or after a redirection.
+            "gh pr -R %s merge 31" % new,
+            "gh pr --repo %s merge" % new,
+            "gh pr merge 31 -R git@github.com:%s" % new,
+            "gh pr merge 31 -R ssh://git@github.com/%s" % new,
+            "gh pr merge 2>/dev/null -R %s" % new,
+            # Bundled short flags, GH_REPO in the environment, a cd into the repository, a pull
+            # request URL, xargs, brace expansion and merge-when-green with --require-none.
+            "gh pr merge -dR %s 31" % new,
+            "gh pr merge -sb 31 32 -R %s" % new,
+            "export GH_REPO=%s; gh pr merge 31" % new,
+            "GH_REPO=%s gh pr merge 31" % new,
+            "env -i GH_REPO=%s gh pr merge 31" % new,
+            "time GH_REPO=%s gh pr merge 31" % new,
+            "cd ../grc_library_new && gh pr merge 12",
+            "(cd ../grc_library_new; gh pr merge 12)",
+            "gh pr merge 31 -R %s https://github.com/jposluns/grc_library/pull/31" % new,
+            "echo 31 | xargs -I{} gh pr merge {} -R %s" % new,
+            "gh pr merge {31,32} -R %s" % new,
+            "python3 tools/merge-when-green.py 31 --require-none --repo %s --admin" % new,
+            # A merge behind bash -c -- or env -.
+            'bash -c -- "gh pr merge 33 -R %s"' % new,
+            "env - gh pr merge 33 -R %s" % new,
+            # A --help=false option, or a merge behind time named by absolute path.
+            "gh pr merge 33 -R %s --squash --help=false" % new,
+            "/usr/bin/time gh pr merge 33 -R %s --squash" % new,
+            # A merge behind a command runner (setsid, stdbuf, ionice, flock, doas, coproc, script,
+            # su or uv run) or a shell function, GIT_DIR naming the repository, or fullwidth digits.
+            "setsid gh pr merge 33 -R %s" % new,
+            "stdbuf -o0 gh pr merge 33 -R %s" % new,
+            "ionice gh pr merge 33 -R %s" % new,
+            "flock /tmp/l gh pr merge 33 -R %s" % new,
+            "doas gh pr merge 33 -R %s" % new,
+            "coproc gh pr merge 33 -R %s" % new,
+            "script -qc 'gh pr merge 33 -R %s'" % new,
+            "su -c 'gh pr merge 33 -R %s'" % new,
+            "m() { gh pr merge \"$@\"; }; m 33 -R %s" % new,
+            "uv run gh pr merge 33 -R %s" % new,
+            "GIT_DIR=../grc_library_new/.git gh pr merge 33",
+            "gh pr merge \uff13\uff13 -R %s" % new,
+            # The REST merge endpoint, reached through gh api with PUT.
+            "gh api -X PUT repos/%s/pulls/33/merge" % new,
+            "gh api --method PUT repos/%s/pulls/33/merge -f merge_method=squash" % new,
+            "gh pr merge 33 -R jposluns/grc%5Flibrary_new",
+            "gh pr merge 33 -R jposluns/%s" % fullwidth,
+            "GH PR MERGE 33 -R JPOSLUNS/GRC_LIBRARY_NEW",
+            "gh api graphql -F owner=jposluns -F name=grc_library_new "
+            "-f query='mutation { mergePullRequest(input: {pullRequestId: $id}) { clientMutationId } }'",
+            "python3 tools/merge-when-green.py 33 --repo %s --admin" % new,
+            "python3 tools/merge-when-green.py 33 --repo https://github.com/JPOSLUNS/GRC_LIBRARY_NEW",
+        )
+        for command in commands:
+            with self.subTest(command=command):
+                self._refused(command)
+        for cwd in ("/home/u/grc_library_new", "/home/u/grc_library_new/tools", "/home/u/GRC_Library_New"):
+            with self.subTest(cwd=cwd):
+                self._refused("gh pr merge 33", cwd=cwd)
+                self._refused("gh pr merge 33 --squash --admin", cwd=cwd)
+        for owner, repo in (("jposluns", "grc_library_new"), ("JPOSLUNS", "GRC_Library_New"),
+                            ("jposluns", fullwidth)):
+            with self.subTest(owner=owner, repo=repo):
+                self._refused(dict(tool_name=self.MCP, tool_input=dict(
+                    owner=owner, repo=repo, pullNumber=33, merge_method="squash")))
+        with self.subTest(mcp="cwd only"):
+            self._refused(dict(tool_name=self.MCP, tool_input=dict(pullNumber=33)),
+                          cwd="/home/u/grc_library_new")
+
+    def test_sanctioned_and_unrelated_commands_are_allowed(self):
+        for command in (
+            self.SANCTIONED + " 33",
+            self.SANCTIONED + " 33 --dry-run",
+            self.SANCTIONED + " 999999",
+            "gh pr view 33 -R %s" % self.NEW,
+            "gh pr checks 33 -R %s" % self.NEW,
+            "gh pr merge 3200 -R jposluns/grc_library",
+            "gh pr merge 3200 --squash",
+            "python3 tools/merge-when-green.py 3200 --repo jposluns/grc_library --admin",
+            "pwd",
+        ):
+            with self.subTest(command=command):
+                self._allowed(command)
+        # Run from a grc_library_new clone, the relative
+        # tools/ path would run that clone's copy of the tool, so the sanctioned text refuses.
+        for command in (self.SANCTIONED + " 33", self.SANCTIONED + " 33 --dry-run"):
+            for cwd in ("/home/u/grc_library_new", "/home/u/grc_library_new/tools",
+                        "/home/u/GRC_Library_New"):
+                with self.subTest(command=command, cwd=cwd):
+                    self._refused(command, cwd=cwd)
+        source = self.HOOK.read_text(encoding="utf-8")
+        playbook = (REPO_ROOT / ".claude" / "playbooks" / "pr-lifecycle.md").read_text(encoding="utf-8")
+        playbook = " ".join(playbook.split())
+        for fragment in ("relative tools/ path would run that clone's copy of the tool",
+                         "the merge tool command run from a grc_library_new clone under another "
+                         "directory name",
+                         "the sanctioned relative command runs the copy of the tool in the cwd, "
+                         "from any checkout",
+                         # The three items REASON names as
+                         # not closed, worded as in REASON.
+                         "gh aliases that hide pr merge; a merge run from a grc_library_new clone "
+                         "when the payload cwd is elsewhere and the text names neither",
+                         "MCP merge tools under other names",
+                         "merges from the web UI, from other machines or from other accounts"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, " ".join(source.replace('"\n    "', "").split()))
+                self.assertIn(fragment, playbook)
+        self._allowed(dict(tool_name=self.MCP, tool_input=dict(
+            owner="jposluns", repo="grc_library", pullNumber=3200)))
+        self._allowed(dict(tool_name="Bash", tool_input=dict(command="gh pr view 33")),
+                      cwd="/home/u/grc_library_new")
+        # The sanctioned pattern must match the WHOLE raw command, ASCII only.
+        for command in (
+            self.SANCTIONED + " 33; gh pr merge 33 -R %s" % self.NEW,
+            self.SANCTIONED + " 33 && gh pr merge 33 -R %s" % self.NEW,
+            self.SANCTIONED + " 33\ngh pr merge 33 -R %s" % self.NEW,
+            self.SANCTIONED + " 33 --dry-run # gh pr merge 33 -R %s" % self.NEW,
+            "gh pr merge 33 -R %s; " % self.NEW + self.SANCTIONED + " 33",
+        ):
+            with self.subTest(command=command):
+                self._refused(command)
+
+    def test_merge_tool_variant_spellings_from_a_grc_library_new_clone_are_refused(self):
+        # A spelling that misses the sanctioned fullmatch
+        # (a trailing, doubled, leading or tab space, ./tools/, -I or another interpreter path)
+        # fell to rule 2, which had no merge pattern for the tool, so it ran the clone's copy.
+        tool = "tools/merge-grc-library-new.py"
+        spellings = (
+            "python3 %s 31 " % tool,
+            "python3  %s 31" % tool,
+            "python3 %s  31" % tool,
+            " python3 %s 31" % tool,
+            "python3\t%s 31" % tool,
+            "python3 ./%s 31" % tool,
+            "python3 -I %s 31" % tool,
+            "/usr/bin/python3 %s 31" % tool,
+            "python3 %s 31 --dry-run " % tool,
+            "python3 %s 31  --dry-run" % tool,
+            "python3 %s --check-rows 31" % tool.upper(),
+        )
+        for command in spellings:
+            for cwd in ("/home/u/grc_library_new", "/home/u/grc_library_new/tools",
+                        "/home/u/GRC_Library_New"):
+                with self.subTest(command=command, cwd=cwd):
+                    self._refused(command, cwd=cwd)
+            with self.subTest(command=command, cwd="grc_library"):
+                self._allowed(command, cwd="/home/u/grc_library")
+
+    def test_glob_spellings_of_the_merge_tool_from_a_grc_library_new_clone_are_refused(self):
+        # The shell expands a glob beside tools/ to the
+        # clone's copy of the tool, so from a grc_library_new cwd a command naming tools/ with
+        # a glob character (*, ? or [) refuses; from a grc_library cwd it stays allowed.
+        spellings = (
+            "python3 tools/merge-grc-l*-new.py 31",
+            "python3 tools/merge-grc-library-ne?.py 31",
+            "python3 tools/merge-grc-library-[n]ew.py 31",
+            "python3 tools/*-new.py 31",
+        )
+        for command in spellings:
+            for cwd in ("/home/u/grc_library_new", "/home/u/grc_library_new/tools",
+                        "/home/u/GRC_Library_New"):
+                with self.subTest(command=command, cwd=cwd):
+                    self._refused(command, cwd=cwd)
+            with self.subTest(command=command, cwd="grc_library"):
+                self._allowed(command, cwd="/home/u/grc_library")
+        # The stated over-refusal: such a command refuses even when it runs no merge.
+        self._refused("ls tools/*.py", cwd="/home/u/grc_library_new")
+        self._allowed("ls tools/*.py", cwd="/home/u/grc_library")
+        source = " ".join(self.HOOK.read_text(encoding="utf-8").replace('"\n    "', "").split())
+        playbook = (REPO_ROOT / ".claude" / "playbooks" / "pr-lifecycle.md").read_text(encoding="utf-8")
+        playbook = " ".join(playbook.split())
+        for fragment in ("names tools/ together with a glob character",
+                         "pathname expansion that reaches the merge tool without a glob character "
+                         "beside tools/"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, source)
+                self.assertIn(fragment, playbook)
+        self.assertNotIn("in any spelling, is refused", source)
+
+    def test_merge_tool_variant_spelling_refused_only_from_or_through_a_new_clone(self):
+        # The tool's hyphenated name
+        # merge-grc-library-new does not name grc_library_new, so a variant spelling refuses
+        # only from a grc_library_new cwd, or from any cwd when its text names grc_library_new
+        # (a path through such a clone); the REASON text and the playbook say exactly that.
+        tool = "tools/merge-grc-library-new.py"
+        for cwd in ("/home/u/grc_library", "/home/u/elsewhere", "/"):
+            for command in ("python3 ./%s 31" % tool, "python3 -I %s 31" % tool,
+                            "python3 %s 31 " % tool, "/usr/bin/python3 %s --dry-run 31" % tool):
+                with self.subTest(command=command, cwd=cwd):
+                    self._allowed(command, cwd=cwd)
+            for command in ("python3 ../grc_library_new/%s 31" % tool,
+                            "python3 /home/u/grc_library_new/%s 31" % tool,
+                            "python3 /home/u/GRC_Library_New/%s 31" % tool):
+                with self.subTest(command=command, cwd=cwd):
+                    self._refused(command, cwd=cwd)
+        source = " ".join(self.HOOK.read_text(encoding="utf-8").replace('"\n    "', "").split())
+        playbook = (REPO_ROOT / ".claude" / "playbooks" / "pr-lifecycle.md").read_text(encoding="utf-8")
+        playbook = " ".join(playbook.split())
+        for fragment in ("in any literal spelling other than the sanctioned one",
+                         "or the command names grc_library_new (a path through such a clone)",
+                         "since the tool's own hyphenated name does not name grc_library_new"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, source)
+                self.assertIn(fragment, playbook)
+        self.assertNotIn("names grc_library_new, the merge tool command itself is refused in any "
+                         "literal spelling", source)
+
+    def test_sanctioned_command_refused_only_when_a_cwd_component_is_grc_library_new(self):
+        # The sanctioned command is refused only when a
+        # directory of the payload cwd is named grc_library_new (a whole path component, any
+        # case); a grc_library clone under a parent whose name merely contains grc_library_new
+        # keeps it.
+        for command in (self.SANCTIONED + " 33", self.SANCTIONED + " 33 --dry-run"):
+            for cwd in ("/home/grc_library_new_fan/grc_library",
+                        "/home/u/grc_library_new.notes/grc_library",
+                        "/srv/old-grc_library_new/grc_library"):
+                with self.subTest(command=command, allowed_cwd=cwd):
+                    self._allowed(command, cwd=cwd)
+            for cwd in ("/home/grc_library_new_fan/grc_library_new", "/home/u/grc_library_new/",
+                        "/srv/grc_library_new/sub/dir", "/home/u/GRC_LIBRARY_NEW/tools",
+                        "/home/u/grc%5Flibrary_new", "C:\\Users\\u\\grc_library_new"):
+                with self.subTest(command=command, refused_cwd=cwd):
+                    self._refused(command, cwd=cwd)
+        # The merge-pattern rule matches the cwd by whole path component too, so from such a
+        # parent a grc_library merge is allowed; the tools/ glob rule still reads the cwd as
+        # text (accepted over-refusal).
+        for command in ("gh pr merge 33",
+                        "gh pr merge 5 --repo jposluns/grc_library --squash",
+                        "python3 tools/merge-when-green.py 5 --repo jposluns/grc_library --admin"):
+            with self.subTest(command=command, parent_cwd=True):
+                self._allowed(command, cwd="/home/grc_library_new_fan/grc_library")
+                self._refused(command, cwd="/home/grc_library_new_fan/grc_library_new")
+        self._refused("ls tools/*.py", cwd="/home/grc_library_new_fan/grc_library")
+        source = " ".join(self.HOOK.read_text(encoding="utf-8").replace('"\n    "', "").split())
+        playbook = (REPO_ROOT / ".claude" / "playbooks" / "pr-lifecycle.md").read_text(encoding="utf-8")
+        playbook = " ".join(playbook.split())
+        for fragment in ("a directory of the payload cwd is named grc_library_new",
+                         "a parent directory whose name only contains grc_library_new, such as",
+                         "when the payload cwd names grc_library_new anywhere"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, source)
+                self.assertIn(fragment, playbook)
+        self.assertIn("a whole path component", source)
+        self.assertIn("that cwd test matches a whole path component", source)
+        self.assertIn("the cwd is matched by whole path component here", playbook)
+        self.assertNotIn("or runs from a grc_library_new clone,", source)
+        self.assertNotIn("When the payload cwd names grc_library_new, the sanctioned command is "
+                         "refused too", source)
+
+    def test_accepted_over_refusal_is_pinned_as_refused(self):
+        for command in (
+            'git commit -m "docs: gh pr merge for grc_library_new goes through the tool"',
+            "grep -rn 'gh pr merge' docs/grc_library_new-notes.md",
+            "echo gh pr merge 31 -R %s" % self.NEW,
+            "cat <<'EOF'\ngh pr merge 31 -R %s\nEOF" % self.NEW,
+        ):
+            with self.subTest(command=command):
+                self._refused(command)
+        self._refused("gh pr view 33 && echo merge", cwd="/home/u/grc_library_new")
+
+    def test_auto_merge_branch_merge_and_rest_merges_naming_grc_library_new_are_refused(self):
+        # An auto-merge, a branch merge and a REST merges
+        # call that name grc_library_new are refused; the same text naming grc_library is not.
+        new = self.NEW
+        auto = ("gh api graphql -F owner=jposluns -F name=%s -f query='mutation($id:ID!)"
+                "{enablePullRequestAutoMerge(input:{pullRequestId:$id,mergeMethod:SQUASH})"
+                "{clientMutationId}}' -F id=PR_x")
+        branch = ("gh api graphql -F owner=jposluns -F name=%s -f query='mutation($id:ID!)"
+                  "{mergeBranch(input:{repositoryId:$id,base:\"main\",head:\"feature\"})"
+                  "{clientMutationId}}' -F id=R_x")
+        rest = "gh api -X POST repos/jposluns/%s/merges -f base=main -f head=feature"
+        commands = (
+            auto % "grc_library_new",
+            branch % "grc_library_new",
+            rest % "grc_library_new",
+            "gh api --method POST /repos/%s/merges -f base=main -f head=feature" % new,
+            "gh api -X POST https://api.github.com/repos/%s/merges -f base=main" % new,
+            "gh api -X POST repos/jposluns/grc%5Flibrary_new/merges -f base=main -f head=x",
+            "GH API GRAPHQL -F NAME=GRC_LIBRARY_NEW -F QUERY='MUTATION{ENABLEPULLREQUESTAUTOMERGE}'",
+        )
+        for command in commands:
+            with self.subTest(command=command):
+                self._refused(command)
+        for command in (auto % "grc_library", branch % "grc_library", rest % "grc_library"):
+            with self.subTest(allowed=command):
+                self._allowed(command)
+        with self.subTest(cwd="grc_library_new clone"):
+            self._refused("gh api -X POST repos/{owner}/{repo}/merges -f base=main -f head=x",
+                          cwd="/home/u/grc_library_new")
+        # The hook residual and the playbook name what stays outside.
+        source = self.HOOK.read_text(encoding="utf-8")
+        playbook = (REPO_ROOT / ".claude" / "playbooks" / "pr-lifecycle.md").read_text(encoding="utf-8")
+        playbook = " ".join(playbook.split())
+        for fragment in ("enablePullRequestAutoMerge", "mergeBranch", "repositories/<id>/merges",
+                         "enqueuePullRequest", "auto-merge enabled earlier"):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, source)
+                self.assertIn(fragment, playbook)
+
+    # For a tool other than Bash the hook once read only the
+    # tool name, owner and repo, so an MCP GraphQL query or REST endpoint naming grc_library_new
+    # and a merge was allowed. It now reads every string value of tool_input, nested ones included.
+    MCP_GRAPHQL = "mcp__github__graphql"
+    MCP_REST = "mcp__github__call_rest_api"
+
+    def test_hook_invoked_with_mcp_graphql_merge_mutation_naming_grc_library_new_refuses(self):
+        """Checks the hook's decision when it is invoked with mcp__github__graphql payloads.
+        .claude/settings.json does not register the hook for this tool name, so a real session
+        does not run it for these calls."""
+        merge = "mutation($id:ID!){mergePullRequest(input:{pullRequestId:$id}){clientMutationId}}"
+        auto = ("mutation($id:ID!){enablePullRequestAutoMerge(input:{pullRequestId:$id,"
+                "mergeMethod:SQUASH}){clientMutationId}}")
+        for tool_input in (
+                dict(query=merge, variables=dict(owner="jposluns", name="grc_library_new", id="PR_x")),
+                dict(query=auto, variables=dict(owner="jposluns", name="GRC_Library_New", id="PR_x")),
+                dict(query='query{repository(owner:"jposluns",name:"grc_library_new"){id}} ' + merge),
+                dict(requests=[dict(query=merge, variables=dict(repo="jposluns/grc%5Flibrary_new"))])):
+            with self.subTest(tool_input=tool_input):
+                self._refused(dict(tool_name=self.MCP_GRAPHQL, tool_input=tool_input))
+
+    def test_hook_invoked_with_mcp_rest_merges_endpoint_naming_grc_library_new_refuses(self):
+        """Checks the hook's decision when it is invoked with mcp__github__call_rest_api
+        payloads. .claude/settings.json does not register the hook for this tool name, so a real
+        session does not run it for these calls."""
+        for tool_input in (
+                dict(method="POST", endpoint="repos/jposluns/grc_library_new/merges",
+                     body=dict(base="main", head="feature")),
+                dict(method="POST", endpoint="/repos/%s/merges" % self.NEW),
+                dict(method="PUT", endpoint="repos/jposluns/grc_library_new/pulls/33/merge",
+                     body=dict(merge_method="squash")),
+                dict(method="POST", endpoint="repos/{owner}/{repo}/merges",
+                     params=dict(owner="jposluns", repo="grc_library_new"))):
+            with self.subTest(tool_input=tool_input):
+                self._refused(dict(tool_name=self.MCP_REST, tool_input=tool_input))
+
+    def test_mcp_graphql_and_rest_merges_naming_another_repository_are_allowed(self):
+        merge = "mutation($id:ID!){mergePullRequest(input:{pullRequestId:$id}){clientMutationId}}"
+        for tool, tool_input in (
+                (self.MCP_GRAPHQL, dict(query=merge, variables=dict(owner="jposluns",
+                                                                    name="grc_library", id="PR_x"))),
+                (self.MCP_REST, dict(method="POST", endpoint="repos/jposluns/grc_library/merges",
+                                     body=dict(base="main", head="feature"))),
+                (self.MCP_REST, dict(method="PUT", endpoint="repos/jposluns/grc_library/pulls/3200/merge",
+                                     body=dict(merge_method="squash")))):
+            with self.subTest(tool=tool, tool_input=tool_input):
+                self._allowed(dict(tool_name=tool, tool_input=tool_input))
+
+    def test_hook_reads_nothing_and_parses_no_shell(self):
+        import ast
+        source = self.HOOK.read_text(encoding="utf-8")
+        tree = ast.parse(source)
+        imported = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                imported.update(alias.name.split(".")[0] for alias in node.names)
+            elif isinstance(node, ast.ImportFrom):
+                imported.add((node.module or "").split(".")[0])
+        for forbidden in ("lint_common", "subprocess", "shlex", "_hook_state", "_hookutil",
+                          "socket", "urllib.request", "http", "importlib"):
+            self.assertNotIn(forbidden, imported)
+        self.assertNotIn("open(", source)
+        names = {n.id for n in ast.walk(tree) if isinstance(n, ast.Name)}
+        attrs = {n.attr for n in ast.walk(tree) if isinstance(n, ast.Attribute)}
+        for call in ("open", "exec", "eval", "__import__"):
+            self.assertNotIn(call, names)
+        for attr in ("read_text", "read_bytes", "open", "system", "popen", "environ", "getenv"):
+            self.assertNotIn(attr, attrs)
+        self.assertIn(self.SANCTIONED, source)
+        # The refusal names the merge tool and states the residual cases it does not catch.
+        for fragment in ("built at runtime", "gh aliases", "web UI", "direct pushes to main",
+                         "MCP merge tools under other names", "over-refusal",
+                         "never names grc_library_new", "mergePullRequest by node id",
+                         "repositories/<id>/pulls/N/merge", "another directory name",
+                         "gh repo set-default",
+                         "shell quoting, backslash escapes or brace expansion that split a word"):
+            self.assertIn(fragment, source)
+        # The docstring states the text checked for a non-shell tool, owner/repo included.
+        self.assertIn("the text also carries owner/repo", ast.get_docstring(tree))
+
+    def test_malformed_stdin_refuses_only_on_a_merge_in_its_text_or_cwd(self):
+        trigger = "gh pr merge 33 -R %s" % self.NEW
+        for raw in (b"", b"not json", b"[]", b"null", b"42", b'"gh pr merge 33"',
+                    b"\xff\xfe\x00 gh pr merge 33", b'{"tool_name": "Bash"',
+                    b'{"tool_name": "Bash", "tool_input": "x"}',
+                    b'{"tool_name": "Bash", "tool_input": {"command": 7}}',
+                    b'{"tool_name": "Bash", "tool_input": {"command": null}, "cwd": 3}'):
+            with self.subTest(raw=raw):
+                self._allowed(raw=raw)
+        for raw in (trigger.encode("utf-8"), b"{" + trigger.encode("utf-8"),
+                    b"\xff " + trigger.encode("utf-8"),
+                    b'{"tool_name": "Bash", "tool_input": {"command": "' + trigger.encode("utf-8") + b'"'):
+            with self.subTest(raw=raw):
+                self._refused(raw=raw)
+        # A parsed payload whose command is not a string still refuses on its cwd and tool name.
+        self._refused(dict(tool_name=self.MCP, tool_input=[]), cwd="/home/u/grc_library_new")
+
+
+class MergeGrcLibraryNewRowCheckTests(unittest.TestCase):
+    """tools/merge-grc-library-new.py: the register row
+    check, the refusal of a store or register it cannot read, the store-only rule (registers are
+    read only from the operational store, never a sibling or in-repo fallback) and the tool's own
+    --self-test. Every test points GRC_STORE at a temporary directory, so none reads the
+    operational store."""
+
+    TOOL = "tools/merge-grc-library-new.py"
+    VALIDATE_REL = "validate-pr/history-grc_library_new.md"
+    RETRO_REL = "improvement-log-grc_library_new.md"
+    VALIDATE_ROW = ("| 2026-11-14 | #31 [repo: grc_library_new] | train 1 | claude (executed) "
+                    "| ZZZ31NEW-C1 | dispositioned |")
+    RETRO_ROW = ("| 2026-11-14 | #31 (/retro) [NEW31-RETRO] [repo: grc_library_new] | Train 1 "
+                 "| went well | went badly | cause | actions |")
+    PREAMBLE_V = ("# PR-Scoped Validation History: grc_library_new\n\n"
+                  "Per-PR /validate-pr rows for jposluns/grc_library_new. Append below.\n\n")
+    PREAMBLE_R = ("# Improvement Log: grc_library_new\n\n"
+                  "Per-PR /retro rows for jposluns/grc_library_new. Append below.\n\n")
+
+    def setUp(self):
+        self.mod = load_linter_module(self.TOOL, "_merge_grc_library_new_rows")
+
+    def _missing(self, validate, retro, pr=31):
+        return self.mod.missing_rows(self.PREAMBLE_V + validate + "\n",
+                                     self.PREAMBLE_R + retro + "\n", pr)
+
+    def _store(self, tmp, validate=None, retro=None):
+        store = Path(tmp) / "store"
+        (store / "validate-pr").mkdir(parents=True)
+        if validate is not None:
+            (store / self.VALIDATE_REL).write_text(self.PREAMBLE_V + validate + "\n", encoding="utf-8")
+        if retro is not None:
+            (store / self.RETRO_REL).write_text(self.PREAMBLE_R + retro + "\n", encoding="utf-8")
+        return store
+
+    def _run(self, store, *args):
+        env = dict(os.environ)
+        env["GRC_STORE"] = str(store)
+        return subprocess.run([sys.executable, "-I", str(REPO_ROOT / self.TOOL), *args],
+                              cwd=str(REPO_ROOT), env=env, capture_output=True, text=True,
+                              timeout=120)
+
+    # The pure row check.
+
+    def test_row_check_both_rows_present_none_missing(self):
+        self.assertEqual(self._missing(self.VALIDATE_ROW, self.RETRO_ROW), [])
+
+    def test_row_check_validate_row_missing(self):
+        self.assertEqual(self._missing("", self.RETRO_ROW), ["validate-pr"])
+
+    def test_row_check_retro_row_missing(self):
+        self.assertEqual(self._missing(self.VALIDATE_ROW, ""), ["retro"])
+
+    def test_row_check_both_rows_missing_in_order(self):
+        self.assertEqual(self._missing("", ""), ["validate-pr", "retro"])
+
+    def test_row_check_near_miss_other_pr_numbers(self):
+        # #3 and #310 are other PRs, never #31; a digit of any script after #31 extends the number.
+        for other in ("#3", "#310", "#31٣"):
+            with self.subTest(other=other):
+                self.assertEqual(
+                    self._missing(self.VALIDATE_ROW.replace("#31", other),
+                                  self.RETRO_ROW.replace("#31", other)),
+                    ["validate-pr", "retro"])
+        self.assertEqual(self._missing(self.VALIDATE_ROW, self.RETRO_ROW, pr=3),
+                         ["validate-pr", "retro"])
+
+    def test_row_check_near_miss_fullwidth_digits(self):
+        wide = "#３１"
+        self.assertEqual(self._missing(self.VALIDATE_ROW.replace("#31", wide),
+                                       self.RETRO_ROW.replace("#31", wide)),
+                         ["validate-pr", "retro"])
+
+    def test_row_check_near_miss_grc_library_tag(self):
+        tag, other = "[repo: grc_library_new]", "[repo: grc_library]"
+        self.assertEqual(self._missing(self.VALIDATE_ROW.replace(tag, other),
+                                       self.RETRO_ROW.replace(tag, other)),
+                         ["validate-pr", "retro"])
+
+    def test_row_check_near_miss_untagged_row(self):
+        tag = " [repo: grc_library_new]"
+        self.assertEqual(self._missing(self.VALIDATE_ROW.replace(tag, ""),
+                                       self.RETRO_ROW.replace(tag, "")),
+                         ["validate-pr", "retro"])
+
+    def test_row_check_near_miss_retro_row_without_retro_marker(self):
+        self.assertEqual(self._missing(self.VALIDATE_ROW, self.RETRO_ROW.replace(" (/retro)", "")),
+                         ["retro"])
+
+    def test_row_check_near_miss_tag_outside_the_pr_cell_or_no_date(self):
+        rows = ("| PR | #31 [repo: grc_library_new] | x |",
+                "| 2026-11-14 | train 1 | #31 [repo: grc_library_new] |",
+                "| 2026-11-14 | #31 [repo: grc_library_new] |",
+                "Moved #31 [repo: grc_library_new] here on 2026-11-14.",
+                " | 2026-11-14 | #31 [repo: grc_library_new] | indented | x |")
+        for row in rows:
+            with self.subTest(row=row):
+                self.assertEqual(self._missing(row, self.RETRO_ROW), ["validate-pr"])
+
+    def test_row_check_near_miss_fenced_rows(self):
+        for fence in ("```", "~~~~", "   ```text"):
+            with self.subTest(fence=fence):
+                close = fence.strip().rstrip("text")
+                self.assertEqual(
+                    self._missing(f"{fence}\n{self.VALIDATE_ROW}\n{close}",
+                                  f"{fence}\n{self.RETRO_ROW}\n{close}"),
+                    ["validate-pr", "retro"])
+        # An unclosed fence runs to the end of the text; a closed one does not hide later rows,
+        # and a shorter or different closing fence does not close it.
+        self.assertEqual(self._missing("```\n" + self.VALIDATE_ROW, self.RETRO_ROW), ["validate-pr"])
+        # The closed fence holds a row in each register, so
+        # the case fails both with fence parsing removed ([]) and with a fence that never closes.
+        self.assertEqual(self._missing("```\n" + self.VALIDATE_ROW + "\n```\n" + self.VALIDATE_ROW,
+                                       "```\n" + self.RETRO_ROW + "\n```\n"), ["retro"])
+        self.assertEqual(self._missing("````\nx\n```\n" + self.VALIDATE_ROW + "\n````",
+                                       self.RETRO_ROW), ["validate-pr"])
+        self.assertEqual(self._missing("~~~\nx\n```\n" + self.VALIDATE_ROW + "\n~~~",
+                                       self.RETRO_ROW), ["validate-pr"])
+
+    def test_row_check_crlf_rows_still_match(self):
+        self.assertEqual(self.mod.missing_rows(self.VALIDATE_ROW + "\r\n", self.RETRO_ROW + "\r\n", 31), [])
+
+    # The row check through the read-only --check-rows mode.
+
+    def test_check_rows_cli_both_rows_present_exits_0(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            result = self._run(self._store(tmp, self.VALIDATE_ROW, self.RETRO_ROW), "--check-rows", "31")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn(self.VALIDATE_REL, result.stdout)
+        self.assertIn(self.RETRO_REL, result.stdout)
+
+    def test_check_rows_cli_validate_row_missing_exits_1_naming_it(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            result = self._run(self._store(tmp, self.VALIDATE_ROW.replace("#31", "#310"), self.RETRO_ROW),
+                               "--check-rows", "31")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(self.VALIDATE_REL, result.stderr)
+        self.assertNotIn(self.RETRO_REL, result.stderr)
+
+    def test_check_rows_cli_retro_row_missing_exits_1_naming_it(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            result = self._run(self._store(tmp, self.VALIDATE_ROW, ""), "--check-rows", "31")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(self.RETRO_REL, result.stderr)
+        self.assertNotIn(self.VALIDATE_REL, result.stderr)
+
+    def test_check_rows_cli_rows_only_in_grc_library_registers_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = self._store(tmp)
+            (store / "validate-pr" / "history.md").write_text(self.VALIDATE_ROW + "\n", encoding="utf-8")
+            (store / "improvement-log.md").write_text(self.RETRO_ROW + "\n", encoding="utf-8")
+            result = self._run(store, "--check-rows", "31")
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn(self.VALIDATE_REL, result.stderr)
+        self.assertIn(self.RETRO_REL, result.stderr)
+
+    # A store or register that cannot be read refuses (exit 2), naming it.
+
+    def test_store_absent_or_a_file_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            absent = self._run(Path(tmp) / "absent", "--check-rows", "31")
+            (Path(tmp) / "file").write_text("x", encoding="utf-8")
+            a_file = self._run(Path(tmp) / "file", "--check-rows", "31")
+        self.assertEqual(absent.returncode, 2, absent.stdout + absent.stderr)
+        self.assertIn("store", absent.stderr)
+        self.assertEqual(a_file.returncode, 2, a_file.stdout + a_file.stderr)
+        self.assertIn(str(Path(tmp) / "file"), a_file.stderr)
+
+    def test_register_absent_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            result = self._run(self._store(tmp, self.VALIDATE_ROW, None), "--check-rows", "31")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn(self.RETRO_REL, result.stderr)
+        self.assertNotIn(self.VALIDATE_REL, result.stderr)
+
+    def test_register_invalid_utf8_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = self._store(tmp, None, self.RETRO_ROW)
+            (store / self.VALIDATE_REL).write_bytes(b"\xff\xfe" + self.VALIDATE_ROW.encode() + b"\n")
+            result = self._run(store, "--check-rows", "31")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn(self.VALIDATE_REL, result.stderr)
+
+    def test_register_a_directory_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = self._store(tmp, self.VALIDATE_ROW, None)
+            (store / self.RETRO_REL).mkdir()
+            result = self._run(store, "--check-rows", "31")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn(self.RETRO_REL, result.stderr)
+
+    def test_register_mode_000_refused(self):
+        if os.geteuid() == 0:
+            self.skipTest("root reads a mode 000 file")
+        with tempfile.TemporaryDirectory() as tmp:
+            store = self._store(tmp, self.VALIDATE_ROW, self.RETRO_ROW)
+            target = store / self.VALIDATE_REL
+            target.chmod(0)
+            try:
+                result = self._run(store, "--check-rows", "31")
+            finally:
+                target.chmod(0o600)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn(self.VALIDATE_REL, result.stderr)
+
+    def test_bad_pr_number_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = self._store(tmp, self.VALIDATE_ROW, self.RETRO_ROW)
+            for arg in ("031", "0", "3x", "３１", ""):
+                with self.subTest(arg=arg):
+                    result = self._run(store, "--check-rows", arg)
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+
+    # Never a sibling or in-repo fallback, and never a store inside the repository.
+
+    def test_sibling_and_in_repo_fallbacks_are_never_read(self):
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as tmp:
+            parent = Path(tmp)
+            root = parent / "repo"
+            for base in (root / ".working", parent / "grc_library_private" / ".working",
+                         root / "store"):
+                (base / "validate-pr").mkdir(parents=True)
+                (base / self.VALIDATE_REL).write_text(self.VALIDATE_ROW + "\n", encoding="utf-8")
+                (base / self.RETRO_REL).write_text(self.RETRO_ROW + "\n", encoding="utf-8")
+            for store in (parent / "absent", root / "store"):
+                with self.subTest(store=store), mock.patch.dict(os.environ, {"GRC_STORE": str(store)}):
+                    code, lines = self.mod.check_rows(31, root=root)
+                    self.assertEqual(code, 2, lines)
+
+    def test_self_test_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            result = self._run(Path(tmp) / "absent", "--self-test")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("OK", result.stdout)
+
+
 class OrchestratorAdvisoryToolTests(unittest.TestCase):
     """Orchestrator-side tools' own ``--self-test`` runs, wired here so they cannot
     silently rot.
@@ -62215,7 +63702,7 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
                 calls.append(a)
                 if a[:2] == ("pr", "view"):
                     return json.dumps({"state": "OPEN", "statusCheckRollup": [], "headRefOid": head,
-                                       "number": 1, "title": "t"})
+                                       "number": 1, "title": "t", "url": f"https://github.com/{repo}/pull/1"})
                 if a[:1] == ("api",):
                     return json.dumps({"total_count": len(runs), "workflow_runs": runs})
                 return ""
@@ -62271,7 +63758,8 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
                 fields = a[a.index("--json") + 1].split(",")
                 if "statusCheckRollup" in fields:
                     return subprocess.CompletedProcess(cmd, rollup_result[0], "", rollup_result[1])
-                full = {"state": "OPEN", "headRefOid": head, "number": 1, "title": "t"}
+                full = {"state": "OPEN", "headRefOid": head, "number": 1, "title": "t",
+                        "url": f"https://github.com/{repo or 'jposluns/grc_library'}/pull/1"}
                 return subprocess.CompletedProcess(cmd, 0, json.dumps({k: full[k] for k in fields}), "")
             if a[:1] == ("api",):
                 page = {"total_count": len(runs), "workflow_runs": runs}
@@ -62298,7 +63786,8 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
         self.assertEqual(rc, 0, err)
         views = [c for c in calls if c[:2] == ("pr", "view")]
         self.assertEqual(len(views), 2)
-        self.assertEqual(views[1], ("pr", "view", "1", "--repo", repo, "--json", "number,title,state,headRefOid"))
+        self.assertEqual(views[1], ("pr", "view", "1", "--repo", repo, "--json",
+                                    "number,title,state,headRefOid,url"))
         self.assertIn(("api", f"repos/{repo}/actions/runs?head_sha={head}&per_page=100"), calls)
         merges = [c for c in calls if c[:2] == ("pr", "merge")]
         self.assertEqual(len(merges), 1)
@@ -62334,6 +63823,128 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
                 self.assertEqual(rc, 2)
                 self.assertEqual([c[:2] for c in calls], [("pr", "view")])
                 self.assertIn(result[1].splitlines()[0], err)
+
+    # A grc_library_new PR merges only through
+    # tools/merge-grc-library-new.py. merge-when-green refuses it with exit 1, naming that tool, and makes no
+    # merge call, whether --repo names that repository (in any case, URL or ssh spelling) or the PR URL that
+    # gh pr view reports belongs to it; a missing or unreadable URL also refuses. gh is stubbed (patched and
+    # restored by mock.patch.object), so no real gh runs.
+    _MWG_NEW_TOOL = "python3 tools/merge-grc-library-new.py"
+    _MWG_HEAD = "3f0c9e71a2b48d5609ce17f4b23a8d60e95c1b7a"
+
+    def _mwg_drive_url(self, mod, url, repo, *flags, omit_url=False):
+        """main() with gh stubbed: an open PR, green on the default required checks, whose view reports
+        ``url`` (left out when ``omit_url``), returning only the requested --json fields, as the real gh does.
+        Returns (exit code, gh calls, stderr)."""
+        import contextlib
+        import json
+        from unittest import mock
+        rollup = [{"__typename": "CheckRun", "name": n, "status": "COMPLETED", "conclusion": "SUCCESS",
+                   "workflowName": mod.REQUIRED_WORKFLOWS.get(n)} for n in mod.REQUIRED_CHECKS]
+        calls = []
+
+        def gh(*a):
+            calls.append(a)  # every call, a merge included, is recorded before dispatch
+            if a[:2] == ("pr", "view"):
+                full = {"state": "OPEN", "statusCheckRollup": rollup, "headRefOid": self._MWG_HEAD,
+                        "number": 1, "title": "t"}
+                if not omit_url:
+                    full["url"] = url
+                fields = a[a.index("--json") + 1].split(",")
+                return json.dumps({k: full[k] for k in fields if k in full})
+            return ""
+        err = io.StringIO()
+        with mock.patch.object(mod, "gh", gh), \
+                mock.patch.object(mod, "open_findings_block", lambda root, ledger=None: (0, "")), \
+                contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+            rc = mod.main(["merge-when-green.py", "1", *(["--repo", repo] if repo else []), *flags])
+        return rc, calls, err.getvalue()
+
+    def test_merge_when_green_refuses_grc_library_new_repo_spellings(self) -> None:
+        # A --repo that normalizes to jposluns/grc_library_new refuses before any gh call, so before
+        # any merge call, even when the server would report a grc_library URL.
+        mod = load_linter_module("tools/merge-when-green.py", "_mwg_new_repo_spellings")
+        grc_url = "https://github.com/jposluns/grc_library/pull/1"
+        for spelling in (
+            "jposluns/grc_library_new",
+            "JPOSLUNS/GRC_LIBRARY_NEW",
+            "JPosluns/Grc_Library_New",
+            "jposluns/grc_library_new/",
+            "jposluns/grc_library_new.git",
+            "github.com/jposluns/grc_library_new",
+            "https://github.com/jposluns/grc_library_new",
+            "https://github.com/jposluns/grc_library_new/",
+            "https://github.com/jposluns/grc_library_new.git",
+            "https://github.com/jposluns/grc_library_new.git/",
+            "HTTPS://GitHub.com/JPosluns/GRC_Library_New.GIT",
+            "ssh://git@github.com/jposluns/grc_library_new.git",
+            "git@github.com:jposluns/grc_library_new.git",
+            "git@github.com:jposluns/grc_library_new",
+            "GIT@GITHUB.COM:JPOSLUNS/GRC_LIBRARY_NEW.GIT",
+        ):
+            for flags in (["--admin"], [], ["--dry-run"]):
+                with self.subTest(spelling=spelling, flags=flags):
+                    rc, calls, err = self._mwg_drive_url(mod, grc_url, spelling, *flags)
+                    self.assertEqual(rc, 1, err)
+                    self.assertEqual(calls, [])
+                    self.assertIn(self._MWG_NEW_TOOL, err)
+
+    def test_merge_when_green_refuses_grc_library_new_pr_url(self) -> None:
+        # The PR URL that gh pr view reports decides, however the command was spelled: a
+        # grc_library_new URL refuses with no --repo, and also when --repo names another repository.
+        mod = load_linter_module("tools/merge-when-green.py", "_mwg_new_pr_url")
+        new_url = "https://github.com/jposluns/grc_library_new/pull/1"
+        for label, url, repo in (
+            ("no --repo", new_url, None),
+            ("upper-case URL", "https://github.com/JPOSLUNS/GRC_LIBRARY_NEW/pull/1", None),
+            ("mixed-case URL", "https://github.com/JPosluns/Grc_Library_New/pull/31", None),
+            ("--repo names grc_library", new_url, "jposluns/grc_library"),
+        ):
+            for flags in (["--admin"], ["--dry-run"]):
+                with self.subTest(label, flags=flags):
+                    rc, calls, err = self._mwg_drive_url(mod, url, repo, *flags)
+                    self.assertEqual(rc, 1, err)
+                    self.assertFalse([c for c in calls if c[:2] == ("pr", "merge")])
+                    self.assertIn(self._MWG_NEW_TOOL, err)
+                    self.assertIn("url", calls[0][calls[0].index("--json") + 1].split(","))
+
+    def test_merge_when_green_refuses_a_missing_or_unreadable_pr_url(self) -> None:
+        # Without a readable PR URL the repository is unknown, so the merge refuses.
+        mod = load_linter_module("tools/merge-when-green.py", "_mwg_unreadable_pr_url")
+        for label, url, omit in (
+            ("missing", None, True),
+            ("null", None, False),
+            ("a number", 1, False),
+            ("empty", "", False),
+            ("a repository URL, not a PR URL", "https://github.com/jposluns/grc_library", False),
+            ("owner and name only", "jposluns/grc_library", False),
+            ("PR number not decimal", "https://github.com/jposluns/grc_library/pull/x1", False),
+        ):
+            with self.subTest(label):
+                rc, calls, err = self._mwg_drive_url(mod, url, "jposluns/grc_library", "--admin", omit_url=omit)
+                self.assertEqual(rc, 1, err)
+                self.assertFalse([c for c in calls if c[:2] == ("pr", "merge")])
+                self.assertIn(self._MWG_NEW_TOOL, err)
+
+    def test_merge_when_green_still_merges_a_grc_library_pr(self) -> None:
+        # grc_library is unchanged: with its own URL reported (and now read), the merge goes ahead,
+        # pinned to the evaluated head. A near-miss name is not grc_library_new.
+        mod = load_linter_module("tools/merge-when-green.py", "_mwg_grc_library_allowed")
+        grc_url = "https://github.com/jposluns/grc_library/pull/1"
+        for repo, url in (
+            (None, grc_url),
+            ("jposluns/grc_library", grc_url),
+            ("https://github.com/jposluns/grc_library.git", grc_url),
+            ("jposluns/grc_library_newer", "https://github.com/jposluns/grc_library_newer/pull/1"),
+        ):
+            with self.subTest(repo=repo):
+                rc, calls, err = self._mwg_drive_url(mod, url, repo, "--admin")
+                self.assertEqual(rc, 0, err)
+                self.assertIn("url", calls[0][calls[0].index("--json") + 1].split(","))
+                merges = [c for c in calls if c[:2] == ("pr", "merge")]
+                self.assertEqual(len(merges), 1)
+                self.assertEqual(merges[0][merges[0].index("--match-head-commit") + 1], self._MWG_HEAD)
+                self.assertIn("--admin", merges[0])
 
     def test_check_clean_language_upstream_self_test_passes(self) -> None:
         # P-1.13: the clean-language upstream-drift check's classify() self-test (drift on a
@@ -71274,7 +72885,7 @@ class HookRoundSevenTests(unittest.TestCase):
                 for value in node:
                     yield from commands(value)
         commands = list(commands(json.loads((REPO_ROOT / '.claude/settings.json').read_text())))
-        self.assertEqual(len(commands), 25)
+        self.assertEqual(len(commands), 27)
         for command in commands:
             argv = shlex.split(command)
             if command.endswith("/clock-inject.py"):
@@ -71394,9 +73005,10 @@ class HookRoundEightTests(unittest.TestCase):
                    for event, groups in settings['hooks'].items()
                    for group in groups for hook in group['hooks']
                    if hook.get('type') == 'command']
-        self.assertEqual(len(entries), 25)
+        self.assertEqual(len(entries), 27)
         marker_names = {
             'block-on-open-findings': ('open-findings', 'open-findings-misfiled'),
+            'block-new-merge-outside-tool': ('new-merge-outside-tool',),
             'block-wrong-repo-tool': ('wrong-repo-tool-abspath',
                                      'wrong-repo-tool-sibling', 'wrong-repo-git'),
             'block-turn-end-with-outstanding-work': ('turn-end-outstanding-work',),
@@ -71580,6 +73192,8 @@ class HookRoundEightTests(unittest.TestCase):
                                 'Task': {'description': 'Inspect fixture', 'prompt': 'Read the fixture.',
                                          'subagent_type': 'general-purpose'},
                                 'Read': {'file_path': str(project / 'README.md')},
+                                'mcp__github__merge_pull_request': {
+                                    'owner': 'jposluns', 'repo': 'grc_library', 'pullNumber': 1},
                             }
                             payload = dict(hook_event_name=event, cwd=str(project),
                                            session_id='launcher-smoke', tool_name=tool,
@@ -78118,6 +79732,16 @@ class BlockingHookMessageContractTests(unittest.TestCase):
              "Generated with"),
         ):
             add(name, command, evidence=(fragment,))
+        add = group("block-new-merge-outside-tool", "run")
+        for name, tool, tool_input in (
+            ("bash-pr-merge", "Bash", {"command": "gh pr merge 33 -R jposluns/grc_library_new"}),
+            ("bash-api-merge", "Bash",
+             {"command": "gh api -X PUT repos/jposluns/grc_library_new/pulls/33/merge"}),
+            ("mcp-merge", "mcp__github__merge_pull_request",
+             {"owner": "jposluns", "repo": "grc_library_new", "pullNumber": 33}),
+        ):
+            add(name, (tool, tool_input),
+                evidence=("python3 tools/merge-grc-library-new.py", "direct pushes to main"))
         add = group("block-on-open-findings", "give",
                     ("decide_exit", "print('\\n'.join(lines),", 1), "open-findings")
         for name in ("error", "error-many", "error-precedence"):
@@ -78457,6 +80081,9 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 elif hook in ("block-bulk-git-add", "block-verification-pipes",
                               "block-claude-attribution"):
                     bash(arg)
+                elif hook == "block-new-merge-outside-tool":
+                    tool, tool_input = arg
+                    payload.update(tool_name=tool, tool_input=tool_input)
                 elif hook == "block-on-open-findings":
                     bash("gh pr create")
                     header = ("## Open\n| Found | Severity | Finding | Source | Disposition |\n"
@@ -80772,8 +82399,23 @@ class BlockingHookMessageContractTests(unittest.TestCase):
 
     def test_population_matches_registered_blocking_hooks(self):
         registered = self._registered_blocking_hooks()
-        self.assertEqual(len(registered), 18)
+        self.assertEqual(len(registered), 19)
         self.assertEqual(registered, set(self._case_registry()))
+        # A hook registered under two matchers keeps its name when one entry goes,
+        # so each required (event, matcher, hook) combination is asserted on its own.
+        settings = json.loads((REPO_ROOT / ".claude" / "settings.json").read_text(encoding="utf-8"))
+        combos = set()
+        for event, groups in settings["hooks"].items():
+            for entry in groups:
+                for hook in entry.get("hooks", []):
+                    for name in re.findall(r"\.claude/hooks/([a-z0-9-]+)\.py",
+                                           hook.get("command", "")):
+                        combos.add((event, entry.get("matcher"), name))
+        for want in (("PreToolUse", "Bash", "block-new-merge-outside-tool"),
+                     ("PreToolUse", "mcp__github__merge_pull_request",
+                      "block-new-merge-outside-tool")):
+            with self.subTest(combination=want):
+                self.assertIn(want, combos)
         for hook, cases in self._case_registry().items():
             self.assertTrue(cases, hook)
             self.assertEqual(len(cases), len({c["id"] for c in cases}), hook)
@@ -90278,6 +91920,67 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertIn("[bypass-log] PR #2651", err)
         self.assertEqual(runner.calls, [])
         self.assertNotIn("declared own PR", out)
+
+    _TAGGED_LOG = (
+        "| Date (UTC) | PR | CI state at merge | Mechanism | Justification | Change |\n"
+        "| --- | --- | --- | --- | --- | --- |\n"
+        "| 2026-11-15 | #31 [repo: grc_library_new] | green | admin squash | j | c |\n"
+        "| 2026-11-15 | #2408 [repo: grc_library] | green | admin squash | j | c |\n"
+        "| 2026-09-20 | #2407 | green | admin squash | j | c |\n")
+
+    def test_gate_50_check6_tagged_row_counts_for_its_own_repository_only(self) -> None:
+        # The shared log's tagged form: a PR cell '#N [repo: grc_library_new]' (the form
+        # tools/merge-grc-library-new.py prints) counts for PR N of grc_library_new only and
+        # never as grc_library PR N; '[repo: grc_library]' names this repository explicitly.
+        self.assertEqual(self.bp.parse_bypass_prs(self._TAGGED_LOG), {2407, 2408})
+        self.assertEqual(self.bp.parse_bypass_prs(self._TAGGED_LOG, repo="grc_library"),
+                         {2407, 2408})
+        self.assertEqual(self.bp.parse_bypass_prs(self._TAGGED_LOG, repo="grc_library_new"), {31})
+        self.assertEqual(self.bp.parse_bypass_prs("", repo="grc_library_new"), set())
+
+    def test_gate_50_check6_bare_row_keeps_its_grc_library_meaning(self) -> None:
+        # A bare '#N' still means grc_library PR N, and never counts for grc_library_new.
+        bare = "| 2026-07-25 | #1174 | --admin |\n| 2026-07-25 |  #1175  | x |\n"
+        self.assertEqual(self.bp.parse_bypass_prs(bare), {1174, 1175})
+        self.assertEqual(self.bp.parse_bypass_prs(bare, repo="grc_library_new"), set())
+        # Near misses count for no repository: text after the tag, a tag without its space, an
+        # owner-prefixed cell (the pre-tool bypass rows) and a tag before the number.
+        near = ("| 2026-11-15 | #31 [repo: grc_library_new] extra | x |\n"
+                "| 2026-11-15 | #32 [repo:grc_library_new] | x |\n"
+                "| 2026-11-13 | jposluns/grc_library_new #30 | x |\n"
+                "| 2026-11-15 | [repo: grc_library_new] #33 | x |\n")
+        for repo in ("grc_library", "grc_library_new"):
+            with self.subTest(repo=repo):
+                self.assertEqual(self.bp.parse_bypass_prs(near, repo=repo), set())
+
+    def _check6_tagged_main(self, own_row: str):
+        """Gate 50's main() as in _check6_main, own PR #2651 uncertain (so never exempt), with the
+        merge-bypass log holding rows for #2654 and #2600 plus ``own_row``."""
+        root = (self.header(2665) + self.header(2654) + self.header(2651) + self.header(2600))
+        files = dict([("CHANGELOG.md", root), ("TODO.md", "")])
+        working = dict([("merge-bypass-log.md", self._Stub(
+            "| 2026-09-30 | #2654 | --admin |\n" + own_row + "| 2026-07-01 | #2600 | --admin |\n"))])
+        scope = self.lc.StoreScope(2665, 2651, 2665, None, (), (), False)
+        runner = self._GhRunner(gh=(0, "{}", ""))
+        with self.patch.object(self.bp, "_gh_runner", runner):
+            rc, out, err = self._gate_50_main(files, working, scope)
+        self.assertEqual(runner.calls, [])
+        return rc, out, err
+
+    def test_gate_50_main_check6_tagged_new_repo_row_never_satisfies_a_grc_library_demand(self) -> None:
+        # Through main(): a grc_library_new row for #2651 leaves grc_library #2651's demand.
+        rc, out, err = self._check6_tagged_main(
+            "| 2026-11-15 | #2651 [repo: grc_library_new] | --admin |\n")
+        self.assertEqual(rc, 1, out + err)
+        self.assertIn("[bypass-log] PR #2651", err)
+
+    def test_gate_50_main_check6_bare_or_own_repo_tagged_row_satisfies_the_demand(self) -> None:
+        for row in ("| 2026-11-15 | #2651 | --admin |\n",
+                    "| 2026-11-15 | #2651 [repo: grc_library] | --admin |\n"):
+            with self.subTest(row=row):
+                rc, out, err = self._check6_tagged_main(row)
+                self.assertEqual(rc, 0, out + err)
+                self.assertNotIn("[bypass-log]", err)
 
     def test_gate_50_cli_runs_every_check_against_fixture_store(self) -> None:
         # Old 32 (r4, all three families): the REAL CLI in a fixture repository (REPO_ROOT comes

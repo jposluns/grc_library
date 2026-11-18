@@ -49,6 +49,181 @@ Exemption layers:
   - Per-file exemptions: a small set of AI security guides and
     research notes whose content legitimately includes IP-shaped
     threat indicators or address examples.
+  - Git remote forms (FORGE_SERVICE_ADDRESSES, maintainer decisions
+    2026-11-15 and 2026-11-16): an address-shaped match is allowed only
+    when it is exactly part of one of four git remote forms, and only when
+    the whole whitespace-delimited token that contains it is exactly that
+    form: git@github.com:OWNER/REPO, ssh://git@github.com/OWNER/REPO,
+    git@gitlab.com:OWNER/REPO or ssh://git@gitlab.com/OWNER/REPO, where
+    OWNER and REPO are one or more ASCII letters, digits, dots, underscores
+    and hyphens (so REPO may end in .git) joined by exactly one "/". The
+    token starts at the start of a physical line or after an ASCII space or
+    tab, and is followed by an ASCII space, a tab or the end of the line,
+    or by exactly one of . , ; : ) and then one of those. Such a remote
+    names a hosting service's shared login, not a person; the user and host
+    are exact and case-sensitive. Every other match, whatever precedes or
+    follows it, is reported as before: a bare address with no repository
+    path, a form split across lines, a deeper path (group/sub/repo), a form
+    inside or after any other character (a parenthesis, an angle bracket, a
+    quote, an HTML tag or comment, a non-ASCII space or any other non-ASCII
+    character, another URI scheme such as https:// or mailto:, or a carriage
+    return in the same token, such as one right after the remote at the end
+    of a CRLF line), another user at github.com or
+    gitlab.com, ``git`` at any other domain, a near-miss host, and a longer
+    domain that begins with ``github.com``.
+    So a match right after @ (user@git@github.com or user@git@gitlab.com) is
+    still reported, because the engine reports only its git@ suffix and that
+    suffix is the end of a longer address, not a whole local part; and an
+    address wrapped in backticks or single quotes (a Markdown code span such
+    as `git@github.com`, or 'git@gitlab.com') is still reported by the token
+    rule, since the backtick or apostrophe is part of its token; both are
+    RFC 5322 local-part characters, so the match may be the end of a longer
+    local part and the allowance fails closed. An address right after a
+    double quote is still reported by the token rule. A token the rule admits is also still reported when a
+    double quote appears anywhere after the match on the line, and so is an
+    address after any other character (white space, a parenthesis, ssh:// or
+    the start of the line included) when one does, because a double quote
+    can open an RFC 5322 quoted local part, which can hold white space, and
+    white space, a comment or a folded line break can separate its closing
+    quote from the @ after it, so the match may be inside a longer address
+    at another domain.
+    Lines and paragraphs: the allowance reads the file without newline
+    translation and splits it into physical lines at LF only, so a carriage
+    return, form feed, vertical tab, U+0085, U+2028 or U+2029 does not end a
+    line (and is not a token delimiter). A paragraph is a run of physical
+    lines up to the next line that holds no character at all; a line of
+    only white space does not end it, because an obsolete RFC 5322 fold can
+    continue across such a line. An admitted token is still refused when
+    any of these holds within its paragraph. A quote mark appears anywhere
+    after the match in the rest of its paragraph: a double quote, a
+    character whose NFKC form is one, or a character reference that renders
+    a double quote or an apostrophe (&quot;, &apos; or a decimal or
+    hexadecimal reference to 34 or 39, in any letter case, with any leading
+    zeros, with or without its final semicolon), since a quoted local part
+    can be folded and close on a later line. The word before the token
+    holds a refusing character anywhere in it. That word is the
+    whitespace-delimited word (split at ASCII white space and line breaks
+    only) before the token; when it holds no letter or digit after NFKC
+    normalization and after decoding character references, it is tested and
+    the word before it is taken too, back to the nearest word that holds a
+    letter or digit, which is tested too, and a Markdown block quote marker
+    (a word of only ">" with only white space and ">" before it on its line)
+    is passed over. A word the walk reaches is tested after NFKC
+    normalization and after decoding character references, so markup
+    around a dot in that word (such as an inline marker, a link label, a
+    reference, an attribute block or a bracket that a later character
+    closes after the token) does not hide the dot. A refusing
+    character is a dot, a closing parenthesis, a character whose NFKC form
+    is either, or the end of a character reference (any reference in a
+    word the walk reaches refuses, whatever it renders; one behind a word
+    that ends the walk is not read), a ">" that is not a block
+    quote marker (the end of
+    an HTML tag or comment), or a character whose NFKC form holds a dot or a
+    closing parenthesis (such as U+2488 or U+2474), since an obsolete local
+    part such as alice. git@github.com:o/r, alice.<!----> git@github.com:o/r,
+    **alice.** git@github.com:o/r, [alice.][r] git@github.com:o/r or
+    alice.{:x} git@github.com:o/r (each renders as alice.
+    git@github.com:o/r) is the address alice.git@github.com.
+    A word whose rendered form holds a square bracket or a curly brace (a
+    link, an image, a footnote, a task box, an attribute block, a single
+    template tag or an extension) is widened back across white space and
+    line breaks toward a word that opens the brackets and braces it closes,
+    then tested as one word and passed over, even when it holds a letter or
+    digit, and the word before it is taken too; _span_start gives the exact
+    widening, and a word it cannot widen is tested alone. The widening reads
+    one character at a time, so a bracket or brace written as a character
+    reference opens and closes nothing.
+    Residual: the refused cases the tests pin for markup between a dotted
+    name and the remote, in tests/test_linters.py, class PIIContentTests,
+    are the cases passed to
+    _assert_remote_after_a_dot_behind_delimiters_reported by
+    test_git_remote_allowance_refuses_a_dot_behind_strong_emphasis,
+    test_git_remote_allowance_refuses_a_dot_behind_emphasis,
+    test_git_remote_allowance_refuses_a_dot_behind_underscore_emphasis,
+    test_git_remote_allowance_refuses_a_dot_behind_a_code_span,
+    test_git_remote_allowance_refuses_a_dot_behind_strikethrough,
+    test_git_remote_allowance_refuses_a_dot_behind_highlight,
+    test_git_remote_allowance_refuses_a_dot_behind_superscript,
+    test_git_remote_allowance_refuses_a_dot_behind_a_fullwidth_asterisk,
+    test_git_remote_allowance_refuses_any_character_reference_in_the_word_before_the_remote,
+    test_git_remote_allowance_refuses_a_dot_behind_a_delimiter_closed_after_the_token,
+    test_git_remote_allowance_refuses_a_dot_anywhere_in_the_word_before_the_remote
+    and
+    test_git_remote_allowance_refuses_a_dot_behind_an_empty_link_a_spaced_label_or_an_extension;
+    the cases of
+    test_git_remote_allowance_refuses_obsolete_local_part_syntax,
+    test_git_remote_allowance_refuses_a_comment_or_domain_literal_around_the_remote
+    and
+    test_git_remote_token_rule_refuses_markup_unicode_space_and_nfkc_continuations;
+    the refused lines of
+    test_git_remote_allowance_states_the_markup_it_does_not_read_and_the_forms_it_refuses;
+    the refused case of
+    test_git_clone_url_passes_after_an_undotted_marked_word_or_a_paragraph_break_and_is_refused_after_a_dotted_line;
+    and the refused controls of the three test_git_remote_residual_allows_
+    tests. The refusals guaranteed for markup between a dotted name and the
+    remote are the general rules this docstring states plus those pinned
+    cases. Any other markup there is not guaranteed to be read and may let
+    the remote through. Spellings found so far that let it through, given
+    as examples only and not as a complete list: a reStructuredText
+    substitution or role (alice. |x| git@github.com:o/r); a word inside a
+    bracket opened by a character reference (alice. &#91; x ]
+    git@github.com:o/r, or &lsqb; or &#x5b;); a separate word between two
+    kramdown {:: openers (alice. {::comment} x {::comment} y {:/comment}
+    git@github.com:o/r, or the same with {:/}); a separate word between the
+    tags of a paired template block (alice. {% comment %} x {% endcomment %}
+    git@github.com:o/r); a stray closing bracket or brace inside a kramdown
+    comment or a single template comment tag (alice. {::comment} ] x
+    {:/comment} git@github.com:o/r, or alice. {# ] x #}
+    git@github.com:o/r); and markup opened in an earlier paragraph, since
+    the rule reads one paragraph. Refused cases the tests pin include an
+    empty-text link or image (alice. [][r] git@github.com:o/r), a reference
+    label with white space in it ([alice.][r x] git@github.com:o/r), a
+    kramdown comment such as alice. {::comment} x {:/comment}
+    git@github.com:o/r and an HTML comment
+    (alice. <!-- a b --> git@github.com:o/r). A
+    parenthesis, angle bracket or tag separated from the token by white
+    space (( git@github.com:o/r ) or <a href=' git@github.com:o/r '>) is not
+    part of its token, so the token rule does not read it; it can make no
+    longer address without a second @ or a double quote, which the
+    paragraph tests below refuse.
+    The paragraph holds an @ sign, a character whose NFKC form is one or a
+    character reference that renders one, other than the @ of a match that
+    passes every other test here; then every match in the paragraph is
+    refused, since a longer address that holds an admitted token inside a
+    quoted string, a comment or a domain literal, which may all hold white
+    space (x( git@github.com:o/r )@corp.example or
+    user@[ git@github.com:o/r ]), needs a second @. With these refusals no
+    quoting, spacing, comment or folding form can hide a second address
+    around an allowed match, since RFC 5322 folding never crosses a line
+    that holds no character. The accepted over-refusal: an allowed address
+    followed later on the line by any double quote is reported, even when
+    the match is the whole local part, and so is one followed by a quote
+    mark later in its paragraph, one whose word before holds a dot, a
+    closing parenthesis, a character reference or an HTML tag anywhere, even
+    with punctuation-only words or a line break between (Clone it.
+    git@github.com:o/r, Clone it. - git@github.com:o/r, e.g.
+    git@github.com:o/r or v1.2 git@github.com:o/r), one whose word before
+    is plain text that the character reference test reads as a reference,
+    since that test refuses any ampersand followed by a letter, a number
+    sign and digits, or a number sign, x and hex digits, whether or not a
+    semicolon follows and whether or not it is a real reference (so plain
+    words such as R&D, Q&A and AT&T before the remote are refused too, as
+    is a fullwidth look-alike of a reference), a numbered list item (1.
+    git@github.com:o/r or 1) git@github.com:o/r), a table row with a dot in
+    an earlier cell (| v1 | example.org | git@github.com:o/r |, since each
+    pipe is a punctuation-only word), one after a dotted word behind a
+    bracketed word (such as Clone it. [mirror][m] git@github.com:o/r), every remote
+    in a paragraph that holds any other @, and every remote whose token
+    holds a carriage return. A carriage return is not a token delimiter, so
+    a remote at the end of a CRLF line (git@github.com:o/r, then CR and LF)
+    is reported, but one followed by an ASCII space or tab before the
+    carriage return (git@github.com:o/r, a space, then CR and LF) still
+    passes the token rule, since the space or tab ends its token first.
+    Write a remote as one of the four forms, alone in its token on one
+    physical line, with no dot, closing parenthesis, character reference or
+    tag anywhere in the word before it (or in a punctuation-only, bracketed
+    or braced word between) and no quote mark after it or other @ anywhere
+    in its paragraph.
   - CHANGELOG.md is exempt because it can describe sanitization fixes
     that quote (now-removed) PII.
   - Fenced code blocks are skipped so example syntax does not produce
@@ -66,7 +241,11 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import bisect
+import html
+import re
 import sys
+import unicodedata
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
@@ -135,6 +314,182 @@ EXAMPLE_DOMAINS = {
 # Phase 23.63 removed `noreply.github.com` (no corpus reference)
 # and `posluns.com` (only `.ca` is used in AUTHORS / CITATION).
 
+# The only two addresses the git remote form allowance can cover. The rule and why: see
+# "Git remote forms" in the module docstring.
+FORGE_SERVICE_ADDRESSES = frozenset({"git@github.com", "git@gitlab.com"})
+# The four remote forms as one whole-token pattern, and the token delimiters. Group "ssh" or
+# "scp" is the user and host, the engine's match. The rule and why: see "Git remote forms" in
+# the module docstring.
+_REMOTE_TOKEN_RE = re.compile(
+    r"(?:ssh://(?P<ssh>git@(?:github|gitlab)\.com)/|(?P<scp>git@(?:github|gitlab)\.com):)"
+    r"[A-Za-z0-9._\-]+/[A-Za-z0-9._\-]+[.,;:)]?"
+)
+_TOKEN_DELIMITERS = " \t"
+# A quote mark: a double quote, a character whose NFKC form is one (U+FF02), or a character
+# reference that renders a double quote or an apostrophe, in any letter case, with any leading
+# zeros and with or without its final semicolon. The rule and why: see "Git remote forms" in
+# the module docstring.
+_QUOTE_RE = re.compile(r'["\uff02]|&(?:quot|apos|#0*3[49]|#x0*2[27]);?', re.IGNORECASE)
+# An @ sign: the character itself, a character whose NFKC form is one (U+FE6B, U+FF20), or a
+# character reference that renders one. The rule and why: see "Git remote forms" in the
+# module docstring.
+_AT_RE = re.compile(r"[@\ufe6b\uff20]|&(?:commat|#0*64|#x0*40);?", re.IGNORECASE)
+# A character reference, with or without its final semicolon. The rule and why: see "Git
+# remote forms" in the module docstring.
+_REFERENCE_RE = re.compile(r"&(?:#[0-9]+|#x[0-9a-f]+|[a-z][a-z0-9]*);?", re.IGNORECASE)
+# The characters that split the words before a remote token. The rule and why: see "Git remote
+# forms" in the module docstring.
+_WORD_DELIMITERS = " \t\n\r\x0b\x0c"
+# The characters that make a word before a remote token a markup span that is passed over. The
+# rule and why: see "Git remote forms" in the module docstring.
+_SPAN_CHARACTERS = "[]{}"
+
+
+def _local_part_complete(line: str, start: int) -> bool:
+    """True when the match at ``start`` can be taken as the whole local part of a git remote.
+
+    The whole token that holds it (_TOKEN_DELIMITERS) must be exactly one of the four forms
+    (_REMOTE_TOKEN_RE) with the match as its user and host. False too when a double quote
+    appears anywhere after the match on the line (or another quote mark, _quote_follows), an
+    accepted over-refusal. The rule and why: see "Git remote forms" in the module docstring.
+    """
+    if _quote_follows(line[start:]):
+        return False
+    first = max(line.rfind(c, 0, start) for c in _TOKEN_DELIMITERS) + 1
+    ends = [i for i in (line.find(c, start) for c in _TOKEN_DELIMITERS) if i >= 0]
+    m = _REMOTE_TOKEN_RE.fullmatch(line, first, min(ends, default=len(line)))
+    return m is not None and m.start(m.lastgroup) == start
+
+
+def _quote_follows(text: str) -> bool:
+    """True when ``text`` holds a quote mark (_QUOTE_RE): a double quote, a character whose
+    NFKC form is one, or a character reference that renders a double quote or an apostrophe."""
+    return _QUOTE_RE.search(text) is not None
+
+
+def _rendered(word: str) -> str:
+    """``word`` after NFKC normalization and after decoding character references."""
+    return unicodedata.normalize("NFKC", html.unescape(unicodedata.normalize("NFKC", word)))
+
+
+def _span_start(text: str, start: int, end: int) -> int:
+    """The start of the markup span that holds the word ``text[start:end]``: back across
+    _WORD_DELIMITERS to the word that opens every square bracket and curly brace the span
+    closes, each character rendered alone (so a bracket or brace written as a character
+    reference opens nothing), and, when the word closes a kramdown extension ({:/), no nearer
+    than the nearest {:: before it. ``start`` when no such word is found. The rule
+    and why: see "Git remote forms" in the module docstring."""
+    close = text.find("{:/", start, end)
+    floor = text.rfind("{::", 0, close) if close >= 0 else -1
+    depth = 0
+    i = end
+    while i > 0:
+        char = _rendered(text[i - 1])
+        if char in "]}":
+            depth += 1
+        elif char in "[{" and depth:
+            depth -= 1
+        i -= 1
+        if i <= start and depth == 0 and (floor < 0 or i <= floor) and (
+                i == 0 or text[i - 1] in _WORD_DELIMITERS):
+            return i
+    return start
+
+
+def _local_part_continues_before(text: str, pos: int) -> bool:
+    """True when the word before ``pos`` holds a refusing character anywhere in it. Words are
+    split at _WORD_DELIMITERS only. A word whose rendered form (_rendered) holds no letter or
+    digit is tested and the word before it is taken too, back to the nearest word whose rendered
+    form holds one, which is tested too; a Markdown block quote marker (a word of only ">" with
+    only white space and ">" before it on its line) is passed over. A word refuses when it holds
+    a ">" or a character reference (_REFERENCE_RE), or when its rendered form holds a dot or a
+    closing parenthesis. The character reference test runs on the NFKC-normalized word, so a
+    fullwidth look-alike of a reference (for example U+FF06 FULLWIDTH AMPERSAND before amp;)
+    is refused too, though it is plain text and not a reference; that is an accepted
+    over-refusal residual. The character reference test refuses any ampersand followed by a
+    letter, a number sign and digits, or a number sign, x and hex digits, whether or not a
+    semicolon follows and whether or not it is a real reference, so plain words such as R&D,
+    Q&A and AT&T before the remote are refused too; that is an accepted over-refusal as well.
+    A word whose rendered form holds one of _SPAN_CHARACTERS is widened to
+    its markup span (_span_start), tested as one word and passed over even when it holds a letter
+    or digit (_span_start gives the exact widening). The refusals guaranteed for markup between a
+    dotted name and the remote are the general rules stated in the module docstring plus the
+    refused cases the tests pin, which include those named in the module docstring; any other
+    markup there is not guaranteed to be read and may let the remote through. It refuses the
+    legitimate forms 1. git@github.com:o/r and | v1 | example.org |
+    git@github.com:o/r |. The rule and why: see "Git remote forms" in the module docstring."""
+    end = pos
+    while True:
+        while end > 0 and text[end - 1] in _WORD_DELIMITERS:
+            end -= 1
+        if end == 0:
+            return False
+        start = end
+        while start > 0 and text[start - 1] not in _WORD_DELIMITERS:
+            start -= 1
+        word = text[start:end]
+        line_start = text.rfind("\n", 0, start) + 1
+        if not word.strip(">") and not text[line_start:start].strip(" \t>"):
+            end = start
+            continue
+        if any(c in _SPAN_CHARACTERS for c in _rendered(word)):
+            start = _span_start(text, start, end)
+            word = text[start:end]
+        rendered = _rendered(word)
+        if (">" in word or _REFERENCE_RE.search(unicodedata.normalize("NFKC", word))
+                or "." in rendered or ")" in rendered):
+            return True
+        if any(c.isalnum() for c in rendered) and not any(c in _SPAN_CHARACTERS for c in rendered):
+            return False
+        end = start
+
+
+def _paragraphs(text: str) -> list[tuple[int, str]]:
+    """``(offset, paragraph)`` for each run of LF-delimited physical lines that hold at least
+    one character. Only LF ends a line, and only a line with no character at all ends a
+    paragraph: a line of only white space, a carriage return, a form feed, a vertical tab,
+    U+0085, U+2028 and U+2029 do not."""
+    result = []
+    start = None
+    offset = 0
+    for line in text.split("\n"):
+        if line == "":
+            if start is not None:
+                result.append((start, text[start:offset - 1]))
+                start = None
+        elif start is None:
+            start = offset
+        offset += len(line) + 1
+    if start is not None:
+        result.append((start, text[start:]))
+    return result
+
+
+def _allowed_spans(engine, paragraph: str) -> list[tuple[int, int]]:
+    """The ``(start, end)`` offsets in ``paragraph`` of the matches the git remote form
+    allowance covers. Each is an engine EMAIL_RE match on one LF-delimited physical line whose
+    text is exactly one of FORGE_SERVICE_ADDRESSES, that is the user and host of a whole
+    whitespace-delimited token that is exactly one git remote form, with no quote mark after it
+    on its line (_local_part_complete) or on a later line of the paragraph (_quote_follows), and
+    no dot, closing parenthesis, tag or character reference in the word before its token
+    (_local_part_continues_before). When the paragraph holds any @ sign (_AT_RE) other than
+    the @ of such a match, no match in it is covered. The rule and why: see "Git remote forms" in the module docstring."""
+    spans = []
+    offset = 0
+    for line in paragraph.split("\n"):
+        for m in engine.EMAIL_RE.finditer(line):
+            start, end = m.start(), m.end()
+            lead = start - len("ssh://") if line[:start].endswith("ssh://") else start
+            if (m.group(0) in FORGE_SERVICE_ADDRESSES and _local_part_complete(line, start)
+                    and not _quote_follows(paragraph[offset + len(line):])
+                    and not _local_part_continues_before(paragraph, offset + lead)):
+                spans.append((offset + start, offset + end))
+        offset += len(line) + 1
+    own_at = {start + len("git") for start, _ in spans}
+    if any(m.start() not in own_at for m in _AT_RE.finditer(paragraph)):
+        return []
+    return spans
+
 
 def _engine():
     """Import the pack-owned engine, ensuring its tools/ dir is importable."""
@@ -152,8 +507,54 @@ def scan(path: Path) -> list[tuple[int, str, str]]:
     test patches ``mod.scan`` and runs ``main``; the detection regexes and the
     check live in the pack engine (gate_lint_pii_in_content.py). The engine takes
     the grc example-domain allow-list as a keyword; the wrapper supplies it here.
+    The wrapper then drops the email findings the git remote form allowance covers,
+    one per covered match on the same engine line. The allowance reads the file itself
+    without newline translation and works on LF-delimited physical lines and paragraphs
+    (_paragraphs, _allowed_spans); each covered match is mapped back to the engine's line
+    number, which splits at every line break str.splitlines knows. The engine's lines and
+    the untranslated text's str.splitlines lines are the same lines.
     """
-    return _engine().scan(path, example_domains=EXAMPLE_DOMAINS)
+    engine = _engine()
+    findings = engine.scan(path, example_domains=EXAMPLE_DOMAINS)
+    if not any(label == "email address" and value in FORGE_SERVICE_ADDRESSES
+               for _, label, value in findings):
+        return findings
+    try:
+        text = path.read_bytes().decode("utf-8")
+    except UnicodeDecodeError:
+        return findings
+    line_starts = []
+    position = 0
+    for piece in text.splitlines(keepends=True):
+        line_starts.append(position)
+        position += len(piece)
+    allowed: dict[tuple[int, str], int] = {}
+    for offset, paragraph in _paragraphs(text):
+        for start, end in _allowed_spans(engine, paragraph):
+            lineno = bisect.bisect_right(line_starts, offset + start)
+            value = paragraph[start:end]
+            allowed[(lineno, value)] = allowed.get((lineno, value), 0) + 1
+    kept = []
+    for lineno, label, value in findings:
+        if label == "email address" and allowed.get((lineno, value), 0) > 0:
+            allowed[(lineno, value)] -= 1
+            continue
+        kept.append((lineno, label, value))
+    return kept
+
+
+def _forge_service_matches(engine, line: str, following: str = "") -> list[str]:
+    """The matches on one physical line that the git remote form allowance covers, when
+    ``following`` is the rest of its paragraph (the line opens the paragraph): an engine
+    EMAIL_RE match whose text is exactly one of FORGE_SERVICE_ADDRESSES, that is the user and
+    host of a whole whitespace-delimited token that is exactly one git remote form, with no
+    quote mark after it on the line (_local_part_complete) or in ``following``
+    (_quote_follows), no dot, closing parenthesis, tag or character reference in the word
+    before its token (_local_part_continues_before), and no other @ sign in the paragraph
+    (_allowed_spans). The rule and why: see "Git remote forms" in the module docstring."""
+    paragraph = line + "\n" + following if following else line
+    return [paragraph[start:end] for start, end in _allowed_spans(engine, paragraph)
+            if end <= len(line)]
 
 
 def main(argv: list[str]) -> int:

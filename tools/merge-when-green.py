@@ -30,6 +30,11 @@ the project does not use ``gh pr checks`` per the sourced token limitation in th
 reference); it is the final GATE on the merge itself. ``--dry-run`` reports the verdict without
 merging.
 
+It never merges a jposluns/grc_library_new PR: that repository merges only through
+``python3 tools/merge-grc-library-new.py <PR>``, which checks the /validate-pr and /retro rows. A --repo
+that names it (in any case, as a URL or an ssh remote) refuses before any gh call, and so does a PR whose
+URL, as gh pr view reports it, belongs to it; a missing or unreadable URL also refuses.
+
 Usage:
     python3 tools/merge-when-green.py <PR> --repo owner/name --admin
     python3 tools/merge-when-green.py <PR> --repo owner/name --dry-run
@@ -67,11 +72,49 @@ ACTIONS_FALLBACK = {"jposluns/grc_library_ref": {"validate": ".github/workflows/
 _FALLBACK_EVENT = "pull_request"  # a required workflow counts only from a run on this event
 # The one gh failure that engages the fallback before any rollup is read (3b132 QA r1): the token cannot read
 # the rollup's contexts, so `gh pr view --json statusCheckRollup,...` exits 1 with exactly this one line on
-# stderr (the reality fixture, jposluns/grc_library_ref #181). Anything else, an added line included, is not it.
+# stderr (the reality fixture, jposluns/grc_library_ref #181). Exactly one trailing newline is removed first;
+# anything else, an added line or a second trailing newline included, is not it.
 _ROLLUP_FORBIDDEN = re.compile(r"GraphQL: Resource not accessible by personal access token "
                                r"\(repository\.pullRequest\.statusCheckRollup(?:\.[A-Za-z0-9_]+)*\)")
-_VIEW_FIELDS = "number,title,state,headRefOid"  # the PR read again without its rollup
+_VIEW_FIELDS = "number,title,state,headRefOid,url"  # the PR read again without its rollup
+# A grc_library_new PR merges only through its own tool, never through this one.
+_NEW_REPO = "jposluns/grc_library_new"
+_NEW_TOOL = "python3 tools/merge-grc-library-new.py"
+# A PR URL as gh pr view reports it: https://HOST/OWNER/NAME/pull/N. Anything else is unreadable and refuses.
+_PR_URL = re.compile(r"https://[A-Za-z0-9.-]+(?::[0-9]+)?/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)/pull/[0-9]+/?",
+                     re.ASCII)
 _REPO_ROOT = __import__("pathlib").Path(__file__).resolve().parents[1]
+
+
+def normalize_repo(spec: str) -> str:
+    """PURE: the casefolded owner/name a --repo value names. A leading https://, http://,
+    ssh:// or git@ is removed, then any trailing slashes and .git, and the last two components split on / or :
+    are kept, so a host prefix (github.com/, github.com:) drops. Only the comparison uses this; --repo is
+    still passed to gh as given."""
+    s = spec.strip().casefold()
+    for scheme in ("https://", "http://", "ssh://"):
+        if s.startswith(scheme):
+            s = s[len(scheme):]
+            break
+    if s.startswith("git@"):
+        s = s[len("git@"):]
+    while True:
+        t = s.rstrip("/")
+        if t.endswith(".git"):
+            t = t[:-len(".git")]
+        if t == s:
+            break
+        s = t
+    return "/".join([p for p in re.split(r"[/:]", s) if p][-2:])
+
+
+def pr_url_repo(url) -> str | None:
+    """PURE: the casefolded owner/name of the PR URL gh pr view reported; None for a
+    missing, non-string or unrecognized URL, which the caller refuses (the repository is then unknown)."""
+    if not isinstance(url, str):
+        return None
+    m = _PR_URL.fullmatch(url)
+    return f"{m[1]}/{m[2]}".casefold() if m else None
 
 
 def evaluate(rollup: list[dict], required: tuple[str, ...] = (), workflows: dict | None = None) -> tuple[bool, str]:
@@ -214,14 +257,14 @@ def evaluate_runs(payload, head: str, workflows: dict) -> tuple[bool, str]:
 
 def rollup_forbidden(exc: BaseException) -> bool:
     """PURE: whether a failed gh call is exactly the rollup permission error (3b132 QA r1): exit status 1 and
-    a stderr that is that one line. Another message (an integration token's included), a path outside the
+    a stderr that is that one line, with at most one trailing newline. Another message (an integration token's included), a path outside the
     rollup, another exit status, any other output, or no captured stderr is not, and the caller then stops
     as on any gh failure.
     RESIDUE, stated: this matches the gh CLI's wording as captured in the reality fixture. A gh release that
     rewords the error, or a response carrying more than one error, is not matched, so the fallback is
     unreachable again for it: that refuses, and never merges."""
     return (isinstance(exc, subprocess.CalledProcessError) and exc.returncode == 1
-            and isinstance(exc.stderr, str) and _ROLLUP_FORBIDDEN.fullmatch(exc.stderr.rstrip("\n")) is not None)
+            and isinstance(exc.stderr, str) and _ROLLUP_FORBIDDEN.fullmatch(exc.stderr.removesuffix("\n")) is not None)
 
 
 class _Unreadable(Exception):
@@ -378,7 +421,8 @@ def open_findings_block(root, ledger=None) -> tuple[int, str]:
     shell command text, which a merge through this tool can evade in many shell forms; checking here
     makes the rule hold for every invocation. It reuses the hook's parse and decision functions, so the
     two can never disagree. No hook file (an adopter checkout) or no readable ledger allows, matching the
-    hook's fail-open posture; a hook file that exists but cannot be loaded REFUSES (ignorance refuses)."""
+    hook's fail-open posture; a hook file that exists but cannot be loaded REFUSES (ignorance refuses).
+    It reads the ledger once and judges that same text with parse_open_rows and decide_exit."""
     import contextlib
     import importlib.util
     import io
@@ -480,6 +524,7 @@ def _self_test_actions_fallback() -> list[tuple[str, bool]]:
     for name, exc, want in [
         ("forbidden-fixture", denied(), True),
         ("forbidden-no-trailing-newline", denied(fx.rstrip("\n")), True),
+        ("forbidden-two-trailing-newlines-not", denied(fx + "\n"), False),
         ("forbidden-rollup-root", denied(fx.split(".nodes")[0] + ")\n"), True),
         ("forbidden-integration-token-not", denied(fx.replace("personal access token", "integration")), False),
         ("forbidden-pr-path-not", denied(fx.split(".statusCheckRollup")[0] + ")\n"), False),
@@ -498,6 +543,12 @@ def _self_test_actions_fallback() -> list[tuple[str, bool]]:
          denied("GraphQL: Could not resolve to a PullRequest with the number of 181. (repository.pullRequest)\n"), False),
     ]:
         checks.append((name, rollup_forbidden(exc) == want))
+    # The removesuffix carries the fixture's one trailing newline: the pattern alone refuses it, so this check
+    # fails without it (a stderr with no trailing newline matches either way, which
+    # forbidden-no-trailing-newline above pins). A second trailing newline is
+    # not removed, so forbidden-two-trailing-newlines-not above refuses it.
+    checks.append(("forbidden-trailing-newline-stripped",
+                   _ROLLUP_FORBIDDEN.fullmatch(fx) is None and rollup_forbidden(denied())))
     # gh() captures stderr, so the error can reach rollup_forbidden(): subprocess.run is stubbed here.
     seen, captured, real_run = [], None, subprocess.run
     subprocess.run = lambda cmd, **kw: (seen.append((cmd, kw)), subprocess.CompletedProcess(cmd, 1, "", fx))[1]
@@ -523,7 +574,8 @@ def _self_test_actions_fallback() -> list[tuple[str, bool]]:
                     raise rollup_error
                 if not with_rollup and view_error is not None:
                     raise view_error
-                full = {"state": state, "statusCheckRollup": list(rollup), "headRefOid": h, "number": 1, "title": "t"}
+                full = {"state": state, "statusCheckRollup": list(rollup), "headRefOid": h, "number": 1, "title": "t",
+                        "url": "https://github.com/jposluns/grc_library_ref/pull/1"}
                 return json.dumps({k: full[k] for k in json_arg(a).split(",") if k in full})
             if a[:1] == ("api",):
                 if api_error is not None:
@@ -644,7 +696,7 @@ def _self_test() -> int:
         ("statuscontext-success", [sc("ci", "SUCCESS")], True),
         ("statuscontext-pending-refused", [sc("ci", "PENDING")], False),
         ("statuscontext-failure-refused", [sc("ci", "FAILURE")], False),
-        ("unknown-shape-refused", [{"__typename": "Weird", "name": "x"}], False),  # no state -> pending
+        ("unknown-shape-refused", [{"__typename": "Weird", "name": "x"}], False),  # unrecognized shape -> unknown, refused
         ("mixed-green", [cr("a", "COMPLETED", "SUCCESS"), sc("b", "SUCCESS"), cr("c", "COMPLETED", "NEUTRAL")], True),
     ]
     for name, rollup, want_green in cases:
@@ -680,7 +732,9 @@ def _self_test() -> int:
     crw = lambda n, s, c: dict(cr(n, s, c), workflowName=REQUIRED_WORKFLOWS.get(n))
     rollups = {
         "skipped": [crw(lint, "COMPLETED", "SKIPPED")] + [crw(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS[1:]],
-        "green": [crw(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS],
+        # The green rollup also carries a check
+        # named Custom check, so require-custom-present shows a custom name accepted.
+        "green": [crw(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS + ("Custom check",)],
         # 3b105 QA r1: main() must hand the workflow map to evaluate(); these pass on names alone.
         "foreign": [dict(cr(n, "COMPLETED", "SUCCESS"), workflowName="Other") for n in REQUIRED_CHECKS],
         "no-workflow": [cr(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS],
@@ -688,11 +742,13 @@ def _self_test() -> int:
                      + [dict(cr(lint, "COMPLETED", "SUCCESS"), workflowName="Other")],
     }
     head = "3f0c9e71a2b48d5609ce17f4b23a8d60e95c1b7a"  # realistic, so a hard-coded SHA cannot coincide
-    def view(r, h=head, fields=None, state="OPEN"):
+    ok_url = "https://github.com/jposluns/grc_library/pull/1"
+    def view(r, h=head, fields=None, state="OPEN", url=ok_url):
         # Only the requested --json fields come back, as from the real gh (3b106 QA r3).
-        full = {"state": state, "statusCheckRollup": r, "headRefOid": h, "number": 1, "title": "t"}
+        # url=None leaves it out.
+        full = {"state": state, "statusCheckRollup": r, "headRefOid": h, "number": 1, "title": "t", "url": url}
         wanted = full.keys() if fields is None else [f for f in fields.split(",") if f]
-        return json.dumps({k: full[k] for k in wanted if k in full})
+        return json.dumps({k: full[k] for k in wanted if k in full and not (k == "url" and url is None)})
     json_arg = lambda a: a[a.index("--json") + 1] if "--json" in a else ""
     real_gh = globals()["gh"]
     real_block = globals()["open_findings_block"]
@@ -717,8 +773,8 @@ def _self_test() -> int:
         # --require replaces the list and must be enforced; --require-none must reach evaluate() as ()
         # (3b104 QA r3): a custom name missing from a green rollup refuses, and require-none passes it.
         globals()["gh"] = lambda *a: view(rollups["green"], fields=json_arg(a))
-        for label, flags, want_rc in (("require-custom-missing", ["--require", "Custom check"], 1),
-                                      ("require-custom-present", ["--require", lint], 0)):
+        for label, flags, want_rc in (("require-custom-missing", ["--require", "Absent check"], 1),
+                                      ("require-custom-present", ["--require", "Custom check"], 0)):
             with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
                 rc = main(["merge-when-green.py", "1", "--dry-run", *flags])
             checks.append((f"main-{label}", rc == want_rc))
@@ -790,6 +846,42 @@ def _self_test() -> int:
             except SystemExit as exc:
                 both_refused = exc.code == 2
         checks.append(("require-and-require-none-conflict-refused", both_refused and not calls))
+        # A grc_library_new PR merges only through its own tool. --repo in any spelling refuses
+        # before any gh call; a grc_library_new PR URL refuses however the command was spelled, and so does a
+        # missing or unreadable URL; none makes a merge call, and the message names the tool.
+        new_url = "https://github.com/jposluns/grc_library_new/pull/1"
+        for label, flags, url in (
+            ("repo-plain", ["--repo", "jposluns/grc_library_new"], ok_url),
+            ("repo-upper", ["--repo", "JPosluns/GRC_Library_New"], ok_url),
+            ("repo-https-git-slash", ["--repo", "https://github.com/jposluns/grc_library_new.git/"], ok_url),
+            # The PII linter allows a forge address only in an exact git remote form with no double
+            # quote later in its paragraph, so the ssh:// and scp forms are split at the @.
+            ("repo-ssh-url", ["--repo", 'ssh://git' '@github.com/jposluns/grc_library_new.git'], ok_url),
+            ("repo-scp", ["--repo", "git" "@github.com:jposluns/grc_library_new.git"], ok_url),
+            ("url-no-repo", [], new_url),
+            ("url-upper", [], "https://github.com/JPOSLUNS/GRC_LIBRARY_NEW/pull/1"),
+            ("url-repo-other", ["--repo", "jposluns/grc_library"], new_url),
+            ("url-missing", [], None),
+            ("url-not-a-pr", [], "https://github.com/jposluns/grc_library"),
+            ("url-not-a-string", [], 1),
+        ):
+            calls.clear()
+            def rec_url(*a, _u=url):
+                calls.append(a)  # every call, a merge included, is recorded before dispatch
+                return view(rollups["green"], head, json_arg(a), url=_u) if a[:2] == ("pr", "view") else ""
+            globals()["gh"] = rec_url
+            err = _io.StringIO()
+            with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(err):
+                rc = main(["merge-when-green.py", "1", "--admin", *flags])
+            checks.append((f"grc-library-new-{label}-refused", rc == 1 and _NEW_TOOL in err.getvalue()
+                           and not any(c[:2] == ("pr", "merge") for c in calls)
+                           and (not calls if label.startswith("repo-") else True)))
+        calls.clear()
+        globals()["gh"] = rec
+        with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
+            rc = main(["merge-when-green.py", "1", "--repo", "jposluns/grc_library", "--admin"])
+        checks.append(("grc-library-url-read-and-merges", rc == 0 and calls and "url" in json_arg(calls[0]).split(",")
+                       and sum(1 for c in calls if c[:2] == ("pr", "merge")) == 1))
         # A blocked ledger stops main() before any merge, on a dry run too (3b108).
         globals()["open_findings_block"] = lambda root, ledger=None: (1, "an open error finding")
         for dry in ([], ["--dry-run"]):
@@ -907,6 +999,30 @@ def _self_test() -> int:
     checks.append(("foreign-reason-names-workflow", "from workflow 'Repository quality checks'" in r_foreign))
     # The exact default list is pinned: the main() cases build rollups from REQUIRED_CHECKS itself, so
     # they cannot notice a name dropped from it (3b104 QA r4).
+    # The PII linter allows a forge address only in an exact git remote form with no double quote
+    # later in its paragraph, so the ssh:// and scp forms below are split at the @.
+    checks.append(("normalize-repo-new-forms", all(normalize_repo(s) == _NEW_REPO for s in (
+        "jposluns/grc_library_new", "JPOSLUNS/GRC_LIBRARY_NEW", "jposluns/grc_library_new.git/",
+        "github.com/jposluns/grc_library_new", "https://github.com/jposluns/grc_library_new.git",
+        "HTTPS://GitHub.com/JPosluns/GRC_Library_New.GIT", 'ssh://git' '@github.com/jposluns/grc_library_new.git',
+        "git" "@github.com:jposluns/grc_library_new.git", "git" "@github.com:jposluns/grc_library_new"))))
+    # Exact outputs, so the check fails when the normalization itself is absent or wrong, not only when an
+    # input comes out equal to the protected repository.
+    checks.append(("normalize-repo-others-not-new", all(normalize_repo(s) == want != _NEW_REPO for s, want in (
+        ("jposluns/grc_library", "jposluns/grc_library"),
+        ("jposluns/grc_library_ref", "jposluns/grc_library_ref"),
+        ("jposluns/grc_library_newer", "jposluns/grc_library_newer"),
+        ("other/grc_library_new", "other/grc_library_new"),
+        ("JPosluns/GRC_Library_Ref.git/", "jposluns/grc_library_ref"),
+        ("https://github.com/JPosluns/GRC_Library.git", "jposluns/grc_library"),
+        ("git" "@github.com:Other/GRC_Library_New.git", "other/grc_library_new"),
+        ('ssh://git' '@github.com/jposluns/grc_library_newer.git', 'jposluns/grc_library_newer'),
+        ("grc_library_new", "grc_library_new")))))
+    checks.append(("pr-url-repo", pr_url_repo("https://github.com/JPosluns/GRC_Library_New/pull/31") == _NEW_REPO
+                   and pr_url_repo("https://github.com/jposluns/grc_library/pull/1") == "jposluns/grc_library"
+                   and all(pr_url_repo(u) is None for u in (None, 1, "", "jposluns/grc_library_new",
+                                                             "https://github.com/jposluns/grc_library_new",
+                                                             "https://github.com/jposluns/grc_library_new/pull/x"))))
     checks.append(("default-required-list-exact",
                    REQUIRED_CHECKS == ("Lint markdown corpus", "PR attribution (title and body)")))
     _, r_status_only = evaluate([sc("Lint", "SUCCESS")], ("Lint",))
@@ -948,13 +1064,21 @@ def main(argv: list[str]) -> int:
         ap.print_usage(sys.stderr)
         print("ERROR: give a PR number (or --self-test).", file=sys.stderr)
         return 2
+    # --repo naming jposluns/grc_library_new, in any spelling that carries the owner, refuses here before any
+    # gh call. A bare name with no owner (grc_library_new) is not matched here: gh itself refuses that format,
+    # so gh pr view fails and this tool exits 2 without merging.
+    if args.repo is not None and normalize_repo(args.repo) == _NEW_REPO:
+        print(f"REFUSE to merge PR #{args.pr}: --repo {args.repo!r} is {_NEW_REPO}, whose PRs merge only through "
+              f"{_NEW_TOOL} {args.pr} (it checks the /validate-pr and /retro rows); merge-when-green does not "
+              "merge them.", file=sys.stderr)
+        return 1
     repo_args = ["--repo", args.repo] if args.repo else []
     fallback = ACTIONS_FALLBACK.get(args.repo or "")
     unreadable = False  # the token could not read the rollup at all (3b132 QA r1)
     try:
         try:
             raw = gh("pr", "view", args.pr, *repo_args,
-                     "--json", "statusCheckRollup,number,title,state,headRefOid")
+                     "--json", "statusCheckRollup,number,title,state,headRefOid,url")
         except subprocess.CalledProcessError as exc:
             if fallback is None or not rollup_forbidden(exc):
                 raise
@@ -966,6 +1090,18 @@ def main(argv: list[str]) -> int:
     except (subprocess.CalledProcessError, OSError, json.JSONDecodeError) as exc:
         print(f"ERROR: gh pr view failed: {_failure(exc)}", file=sys.stderr)
         return 2
+    # The server-reported URL decides, however the command was spelled (no --repo, run from
+    # a grc_library_new clone, for example). Without a readable URL the repository is unknown: refuse.
+    url_repo = pr_url_repo(view.get("url"))
+    if url_repo is None:
+        print(f"REFUSE to merge PR #{args.pr}: gh pr view reported no readable PR URL ({view.get('url')!r}), so "
+              f"its repository is unknown; a {_NEW_REPO} PR merges only through {_NEW_TOOL} <PR>.", file=sys.stderr)
+        return 1
+    if url_repo == _NEW_REPO:
+        print(f"REFUSE to merge PR #{args.pr}: its URL {view.get('url')} belongs to {_NEW_REPO}, whose PRs merge "
+              f"only through {_NEW_TOOL} <PR> (it checks the /validate-pr and /retro rows); merge-when-green does "
+              "not merge them.", file=sys.stderr)
+        return 1
     if view.get("state") != "OPEN":
         print(f"REFUSE: PR #{args.pr} is {view.get('state')}, not OPEN.", file=sys.stderr)
         return 1
