@@ -197,7 +197,9 @@ def _bare_characters(cell: str):
     """Yield ``(index, char)`` for each character of ``cell`` that is structure.
 
     The scan begins at the start of the cell. A character is skipped when it is
-    inside a code span, is a backslash, or follows an odd run of backslashes.
+    inside a code span, is a backslash, follows an odd run of backslashes, or is
+    a backtick: a backtick run not escaped is never yielded, whether or not an
+    equal-length closing run makes it open a code span.
     Code spans follow the rule ``reference_cells`` uses: a backtick run not
     escaped opens code only when an equal-length closing run exists, and inside
     code backslashes are literal.
@@ -310,7 +312,11 @@ def check_file(
                     if (line.lstrip().startswith("|") and link is not None
                             and number in own_sections and following is not None
                             and not any(m.end() <= match.start() for m in md_link_re.finditer(cell))
-                            and re.fullmatch(r"\s+[^()]*\S[^()]*\(\s*", intervening)
+                            # The descriptive text, its required non-space
+                            # character included, holds no parenthesis, so a
+                            # second opening parenthesis before the link is
+                            # not this shape.
+                            and re.fullmatch(r"\s+[^()]*[^()\s][^()]*\(\s*", intervening)
                             # The opening parenthesis before the link counts
                             # only when it is outside any code span and not
                             # escaped; otherwise it is text and the cell is

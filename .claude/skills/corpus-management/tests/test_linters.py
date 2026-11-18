@@ -6436,6 +6436,12 @@ class CrossFileSectionRefTests(LinterTestCase):
                 "| Owner | §8 text `( [policy](t.md)` |",
                 "| Owner | Section 8 exception path `([policy](t.md))` |",
                 "| Owner | Section 8 exception path \\([policy](t.md)) |",
+                # A second opening parenthesis before the link, after
+                # descriptive text or with no text at all, makes the cell no
+                # exception path, even with one closing parenthesis after
+                # the link, so it too is read as a citation of the target.
+                "| Owner | §8 text ( ([policy](t.md)) |",
+                "| Owner | §8 (([policy](t.md)) |",
             ):
                 with self.subTest(line=line, target_holds_section_8=not should_fail):
                     citer = VALID_METADATA + f"\n\n## 8. Exceptions\n\n{line}\n"
