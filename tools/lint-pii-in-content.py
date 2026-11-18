@@ -121,6 +121,32 @@ Exemption layers:
     **alice.** git@github.com:o/r, [alice.][r] git@github.com:o/r or
     alice.{:x} git@github.com:o/r (each renders as alice.
     git@github.com:o/r) is the address alice.git@github.com.
+    A word whose rendered form holds a square bracket or a curly brace (a
+    link, an image, a footnote, a task box, an attribute block, a template
+    tag or an extension) is taken back across white space and line breaks
+    to the word that opens every bracket and brace it closes, and a word
+    that closes a kramdown extension ({:/name} or {:/}) is taken back to the
+    nearest {:: before it; that whole span is tested as one word and then
+    passed over, even when it holds a letter or digit, and the word before
+    it is taken too. So an empty-text link or image (alice. [][r]
+    git@github.com:o/r or alice. ![][r] git@github.com:o/r), a reference
+    label with white space in it ([alice.][r x] git@github.com:o/r) and a
+    kramdown comment (alice. {::comment} x {:/comment} git@github.com:o/r),
+    which each render as alice. git@github.com:o/r, are refused. An HTML
+    comment between (alice. <!-- x --> git@github.com:o/r) is refused by its
+    ">". The rule does not read markup that renders as nothing or as white
+    space when its last word holds a letter or digit and none of its words
+    holds a bracket, a brace, a ">" or a character reference: a
+    reStructuredText substitution or role
+    (alice. |x| git@github.com:o/r), a template, macro or shortcode syntax
+    in any other markup language that uses none of those characters, a
+    bracket or brace opened in an earlier paragraph, and markup that spans a
+    line that holds no character (the rule reads one paragraph). A
+    parenthesis, angle bracket or tag separated from the token by white
+    space (( git@github.com:o/r ) or <a href=' git@github.com:o/r '>) is not
+    part of its token, so the token rule does not read it; it can make no
+    longer address without a second @ or a double quote, which the
+    paragraph tests below refuse.
     The paragraph holds an @ sign, a character whose NFKC form is one or a
     character reference that renders one, other than the @ of a match that
     passes every other test here; then every match in the paragraph is
@@ -137,7 +163,11 @@ Exemption layers:
     closing parenthesis, a character reference or an HTML tag anywhere, even
     with punctuation-only words or a line break between (Clone it.
     git@github.com:o/r, Clone it. - git@github.com:o/r, e.g.
-    git@github.com:o/r or v1.2 git@github.com:o/r), every remote
+    git@github.com:o/r or v1.2 git@github.com:o/r), a numbered list item (1.
+    git@github.com:o/r or 1) git@github.com:o/r), a table row with a dot in
+    an earlier cell (| v1 | example.org | git@github.com:o/r |, since each
+    pipe is a punctuation-only word), one after a dotted word behind any
+    bracketed or braced word (Clone it. [mirror][m] git@github.com:o/r), every remote
     in a paragraph that holds any other @, and every remote whose token
     holds a carriage return. A carriage return is not a token delimiter, so
     a remote at the end of a CRLF line (git@github.com:o/r, then CR and LF)
@@ -146,8 +176,9 @@ Exemption layers:
     passes the token rule, since the space or tab ends its token first.
     Write a remote as one of the four forms, alone in its token on one
     physical line, with no dot, closing parenthesis, character reference or
-    tag anywhere in the word before it (or in a punctuation-only word between)
-    and no quote mark after it or other @ anywhere in its paragraph.
+    tag anywhere in the word before it (or in a punctuation-only, bracketed
+    or braced word between) and no quote mark after it or other @ anywhere
+    in its paragraph.
   - CHANGELOG.md is exempt because it can describe sanitization fixes
     that quote (now-removed) PII.
   - Fenced code blocks are skipped so example syntax does not produce
@@ -264,6 +295,9 @@ _REFERENCE_RE = re.compile(r"&(?:#[0-9]+|#x[0-9a-f]+|[a-z][a-z0-9]*);?", re.IGNO
 # The characters that split the words before a remote token. The rule and why: see "Git remote
 # forms" in the module docstring.
 _WORD_DELIMITERS = " \t\n\r\x0b\x0c"
+# The characters that make a word before a remote token a markup span that is passed over. The
+# rule and why: see "Git remote forms" in the module docstring.
+_SPAN_CHARACTERS = "[]{}"
 
 
 def _local_part_complete(line: str, start: int) -> bool:
@@ -293,6 +327,29 @@ def _rendered(word: str) -> str:
     return unicodedata.normalize("NFKC", html.unescape(unicodedata.normalize("NFKC", word)))
 
 
+def _span_start(text: str, start: int, end: int) -> int:
+    """The start of the markup span that holds the word ``text[start:end]``: back across
+    _WORD_DELIMITERS to the word that opens every square bracket and curly brace the span
+    closes, and, when the word closes a kramdown extension ({:/), back to the nearest {:: before
+    it. ``start`` when nothing opens them. The rule and why: see "Git remote forms" in the
+    module docstring."""
+    close = text.find("{:/", start, end)
+    floor = text.rfind("{::", 0, close) if close >= 0 else -1
+    depth = 0
+    i = end
+    while i > 0:
+        char = _rendered(text[i - 1])
+        if char in "]}":
+            depth += 1
+        elif char in "[{" and depth:
+            depth -= 1
+        i -= 1
+        if i <= start and depth == 0 and (floor < 0 or i <= floor) and (
+                i == 0 or text[i - 1] in _WORD_DELIMITERS):
+            return i
+    return start
+
+
 def _local_part_continues_before(text: str, pos: int) -> bool:
     """True when the word before ``pos`` holds a refusing character anywhere in it. Words are
     split at _WORD_DELIMITERS only. A word whose rendered form (_rendered) holds no letter or
@@ -300,7 +357,12 @@ def _local_part_continues_before(text: str, pos: int) -> bool:
     form holds one, which is tested too; a Markdown block quote marker (a word of only ">" with
     only white space and ">" before it on its line) is passed over. A word refuses when it holds
     a ">" or a character reference (_REFERENCE_RE), or when its rendered form holds a dot or a
-    closing parenthesis. The rule and why: see "Git remote forms" in the module docstring."""
+    closing parenthesis. A word whose rendered form holds one of _SPAN_CHARACTERS is widened to
+    its markup span (_span_start), tested as one word and passed over even when it holds a letter
+    or digit. The rule does not read markup that renders as nothing when none of its words holds
+    one of _SPAN_CHARACTERS, a ">" or a character reference, nor markup across a paragraph break;
+    it refuses the legitimate forms 1. git@github.com:o/r and | v1 | example.org |
+    git@github.com:o/r |. The rule and why: see "Git remote forms" in the module docstring."""
     end = pos
     while True:
         while end > 0 and text[end - 1] in _WORD_DELIMITERS:
@@ -315,11 +377,14 @@ def _local_part_continues_before(text: str, pos: int) -> bool:
         if not word.strip(">") and not text[line_start:start].strip(" \t>"):
             end = start
             continue
+        if any(c in _SPAN_CHARACTERS for c in _rendered(word)):
+            start = _span_start(text, start, end)
+            word = text[start:end]
         rendered = _rendered(word)
         if (">" in word or _REFERENCE_RE.search(unicodedata.normalize("NFKC", word))
                 or "." in rendered or ")" in rendered):
             return True
-        if any(c.isalnum() for c in rendered):
+        if any(c.isalnum() for c in rendered) and not any(c in _SPAN_CHARACTERS for c in rendered):
             return False
         end = start
 
