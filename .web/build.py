@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static-site generator for the grclibrary.ai public site: the promoted baseline-template tree (the rebuild on the shared family site template, flipped to the site root at the draft-site promotion): the fixed pages, per-domain, per-type and per-document pages, the Browse adventure's need pages, the decide hub and concern pages, the executive reading room, and the crosswalk views and instrument pages.
+"""Static-site generator for the grclibrary.ai public site: the promoted baseline-template tree (the PR 2b rebuild, flipped to the site root at the draft-site promotion): the fixed pages, per-domain, per-type and per-document pages, the Browse adventure's need pages, the decide hub and concern pages, the executive reading room, and the crosswalk views and instrument pages.
 
 WHAT THIS IS. A stdlib-only generator that renders the public site from the
 LIVE corpus at build time.
@@ -70,16 +70,16 @@ domain READMEs, ``.claude/skills/corpus-management/data/narrative.yml``, and, fo
 registry-listed ``executive/`` narrative sources (each admitted only through the
 renderer-confinement validator above). Beyond that allow-list the tree
 reads its own template tree ``.web/templates-draft/``; the pinned baseline
-runtime files under ``.web/baseline/`` and their pin ``.web/site-card/pin.toml``,
-each copied file verified by SHA-256 at build time, and runs the
+runtime files under ``.web/baseline/`` and their pin ``.web/site-card/pin.toml``
+(PR 2b), each copied file verified by SHA-256 at build time, and runs the
 pinned palette gate ``.web/site-card/check_palette.py`` (verified by SHA-256 against
 the same pin, never served) on the served ``palettes.css``; for the crosswalk
-pages and the comply page built on their model, the compliance alignment
+(PR 5) and the comply page built on its model, the compliance alignment
 matrix, the reverse framework-control crosswalk, and the canonical citations
 register (``compliance/matrix-grc-compliance-alignment.md``,
 ``governance/matrix-reverse-framework-control-crosswalk.md``,
 ``governance/register-canonical-citations.md``), each parsed structurally and
-loud on schema change; and the
+loud on schema change; and (maintainer decision 2026-11-03) the
 top-level ``.claude/skills/corpus-management/docs/*.md`` adopter documents,
 each read for its own canonical metadata block, purpose paragraph, and
 section outline. Its draft-only file checks read no file content: the adopter
@@ -134,7 +134,7 @@ import subprocess
 import sys
 import unicodedata
 import urllib.parse
-from collections import Counter, namedtuple
+from collections import Counter
 from html import unescape as html_unescape
 from html.parser import HTMLParser
 from pathlib import Path
@@ -191,7 +191,7 @@ class Variant(NamedTuple):
     document_routes: bool = False
     # The variant's own fixed page set (DRAFT_PAGES for the promoted tree).
     pages: tuple = None
-    # Baseline-template draft rules (promoted to the root at the
+    # Baseline-template draft rules (PR 2b, promoted to the root at the
     # draft-site promotion): the tree renders through render_draft_variant
     # (its own templates, partials and figure values), copies the pinned
     # baseline assets under <prefix>assets/baseline/ with SHA-256
@@ -201,7 +201,7 @@ class Variant(NamedTuple):
     draft_rules: bool = False
 
 
-# The fixed pages of the promoted tree (the baseline-template rebuild,
+# The fixed pages of the promoted tree (the PR 2b baseline-template rebuild,
 # flipped to the site root at the draft-site promotion): (template under
 # .web/templates-draft/, output path at the dist root). The per-domain,
 # per-type and per-document routes come from the same machinery the fixed
@@ -229,7 +229,7 @@ DRAFT_PAGES = (
 
 # The site variant table: exactly one indexable root variant (the promoted
 # baseline-template tree; the old root and the v2/v3 staging trees are removed
-# at the draft-site promotion). A future
+# at the draft-site promotion, maintainer decision 2026-11-04). A future
 # staging variant belongs in this table, so the template source, URL prefix,
 # and indexability policy stay coupled.
 VARIANTS = (
@@ -331,7 +331,7 @@ def type_slug(type_name):
 ROOT_DOMAIN = "root"
 
 # Reading-progression rank for the per-domain document list on each domain page
-# (source + type-priority ordering): a domain's
+# (maintainer-directed 2026-07-15, "source + type-priority ordering"): a domain's
 # documents read most-foundational-first (govern -> define -> do -> reference), then
 # alphabetically by title within a type, instead of alphabetically by type string.
 # This MUST stay in sync with ``TYPE_ORDER`` in ``.claude/skills/corpus-management/tools/build-taxonomy.py`` (the
@@ -423,7 +423,7 @@ HEADERS_FILE = (
 )
 
 # The ``_redirects`` rules Cloudflare Pages applies from the dist root,
-# emitted at the draft-site promotion:
+# emitted at the draft-site promotion (maintainer decisions 2026-11-04):
 # every pre-promotion /draft/ address maps to its promoted root address
 # through the splat (the promoted tree is the draft tree with the prefix
 # stripped, so every target exists by construction); the old About page's
@@ -695,30 +695,21 @@ def read_domain_purpose(domain):
     callout already states it, so the lead never repeats it. Every corpus domain
     README follows the section model and carries a Purpose section; a missing
     file or missing section is a coupling breakage the generator-health check
-    must surface. Every line is read through the shared section reader
-    _md_read: the Purpose heading is a level-two heading outside any fence,
-    and the section ends where _MD_SECTION_ENDS["domain purpose"] states (a
-    level-one or level-two heading or a thematic break). A fence line, a line
-    inside a fenced block and a deeper heading are paragraph breaks, never
-    section text, so a heading or rule inside a fence ends nothing; a line
-    indented by four spaces or a tab is section text."""
+    must surface."""
     p = REPO_ROOT / domain / "README.md"
     if not p.is_file():
         raise BuildError(f"domain README not found at {p}")
-    ends = _MD_SECTION_ENDS["domain purpose"]
+    # Collect the section's lines (stripped), stopping at the next heading / rule.
     lines = []
     in_purpose = False
-    for item in _md_read(p.read_text(encoding="utf-8").splitlines()):
+    for line in p.read_text(encoding="utf-8").splitlines():
         if not in_purpose:
-            if _md_heading_text(item, 2) == "Purpose":
+            if re.match(r"^##\s+Purpose\s*$", line):
                 in_purpose = True
             continue
-        if _md_ends(item, ends):
+        if line.strip().startswith("## ") or line.strip() == "---":
             break
-        if item.kind in ("fence", "code", "heading"):
-            lines.append("")
-            continue
-        lines.append(item.line.strip())
+        lines.append(line.strip())
 
     i = 0
     while i < len(lines) and not lines[i]:
@@ -1063,6 +1054,7 @@ _NARR_MD_EM_RE = re.compile(r"\*([^*\s](?:[^*]*[^*\s])?)\*")
 _NARR_MD_UNDERSCORE_EM_RE = re.compile(r"(?<![A-Za-z0-9])_[^_\s][^_]*_(?![A-Za-z0-9])")
 _NARR_MD_AUTOLINK_RE = re.compile(r"<[a-z][a-z0-9+.-]*:")
 _NARR_MD_SCHEME_RE = re.compile(r"^[a-z][a-z0-9+.-]*:", re.I)
+_NARR_MD_HR_RE = re.compile(r"^(-{3,}|\*{3,}|_{3,})$")
 _NARR_MD_SETEXT_UNDERLINE_RE = re.compile(r"^(=+|-{2})[ \t]*$")
 _NARR_MD_SPACED_BREAK_RE = re.compile(r"^([-*_=])(?:[ \t]+\1)+[ \t]*$")
 _NARR_MD_RAW_HTML_RE = re.compile(r"<[A-Za-z/!?]")
@@ -1165,60 +1157,24 @@ def narrative_source_file(rel_path, tracked, seen, root=None):
     return path
 
 
-# One line of a narrative metadata block: the corpus '**Field:** value'
-# form, flush left (the same pattern as the corpus metadata field reader).
-_NARR_METADATA_LINE_RE = re.compile(r"^\*\*([^*]+):\*\*\s*(.*?)\s*$")
-
-
 def _narrative_body_lines(text, source_rel):
     """Return the BODY lines of one narrative source: everything after the
-    first metadata terminator, a line reading exactly '---' outside any
-    fence (read through the shared section reader _md_read, which finds
-    the thematic break that _MD_SECTION_ENDS["narrative metadata"] states,
-    and taken only in that one form: an indented '---', a '---' with
-    trailing whitespace and every other break form, such as '***' or
-    '- - -', are not the terminator); the first non-blank line must be a
-    flush-left '# ' title line with its title text (one hash and a space at
-    the line start, so an indented title or a '#' and a tab is refused);
-    every line between that title
-    and the terminator must be blank or a flush-left '**Field:** value'
-    line (_NARR_METADATA_LINE_RE), so a file whose metadata block lacks its
-    terminator is refused at its first other line instead of being read up
-    to a thematic break in its body, which would drop the body above that
-    break; with the trailing corpus ``**End of Document**`` terminator
-    required and dropped (the page chrome supplies the title and the
-    closing sections, so neither the H1, the metadata block, nor the
-    terminator is rendered). Loud on document-model drift: a missing leading
-    H1, a missing metadata terminator, a line before the terminator that is
-    not a metadata line (named by file and line number), or a missing
+    first ``---`` metadata terminator, with the trailing corpus
+    ``**End of Document**`` terminator required and dropped (the page chrome
+    supplies the title and the closing sections, so neither the H1, the
+    metadata block, nor the terminator is rendered). Loud on document-model
+    drift: a missing leading H1, a missing metadata terminator, or a missing
     document terminator each raise BuildError."""
     lines = text.splitlines()
-    items = list(_md_read(lines))
-    first = next((it for it in items if it.line.strip()), None)
-    if (first is None or not first.line.startswith("# ")
-            or _md_heading_text(first, 1) in (None, "")):
-        raise BuildError(
-            f"{source_rel}: narrative source has no leading '# ' title line "
-            f"(the first non-blank line must be a flush-left '# Title' line: "
-            f"one hash and a space at the line start, then the title text)")
-    ends = _MD_SECTION_ENDS["narrative metadata"]
-    end = next((it.index for it in items
-                if _md_ends(it, ends) and it.line == "---"), None)
-    if end is None:
-        raise BuildError(
-            f"{source_rel}: no '---' metadata terminator found (a line "
-            f"reading exactly '---', flush left and outside any fence; no "
-            f"other thematic break form ends the metadata block)")
-    for number in range(first.index + 1, end):
-        line = lines[number]
-        if line.strip() and not _NARR_METADATA_LINE_RE.match(line):
-            raise BuildError(
-                f"{source_rel}: line {number + 1}: {line!r} before the metadata "
-                f"terminator is not a metadata line (between the title and the "
-                f"'---' terminator each line is blank or a flush-left "
-                f"'**Field:** value' line; a metadata block missing its "
-                f"terminator is refused, not read up to a rule in the body)")
-    body = lines[end + 1:]
+    first_content = next((ln for ln in lines if ln.strip()), "")
+    if not first_content.startswith("# "):
+        raise BuildError(f"{source_rel}: narrative source has no leading '# ' title line")
+    for i, ln in enumerate(lines):
+        if ln.strip() == "---":
+            body = lines[i + 1:]
+            break
+    else:
+        raise BuildError(f"{source_rel}: no '---' metadata terminator found")
     non_blank = [j for j, ln in enumerate(body) if ln.strip()]
     if not non_blank or body[non_blank[-1]].strip() != _NARR_TERMINATOR:
         raise BuildError(
@@ -1284,24 +1240,16 @@ def _classify_narrative_line(line, source_rel):
             f"{source_rel}: a pipe is only supported inside a '|'-led and "
             f"'|'-terminated table row: {line[:60]!r}"
         )
-    kind = _md_classify(line)[0]
-    if kind == "heading" or line.startswith("#"):
-        # Every hash-led line is a heading candidate: a heading the shared
-        # section reader recognizes, and also a hash-led line that is no
-        # ATX heading ('#tag', seven hashes), which is refused rather than
-        # rendered as prose. Only the strict '## Text' / '### Text' form
-        # renders.
+    if line.startswith("#"):
         # A CommonMark CLOSING-hash sequence (a trailing '#' run alone or
         # preceded by whitespace, '## Text ##' / '## Text #' / '## ###')
         # would leak the hashes into the rendered heading text; the
         # supported forms are '## Text' / '### Text' with NO trailing
         # hashes. A hash attached to content ('## C#') is content, not a
         # closing sequence, and stays supported.
-        for level, kind in ((2, "h2"), (3, "h3")):
-            marker = "#" * level + " "
-            end = _adopter_marker_end(line, level)
-            if end is not None and line[end:].strip():
-                if re.search(r"(?:^|[ \t])#+$", line[end:].strip()):
+        for marker, kind in (("## ", "h2"), ("### ", "h3")):
+            if line.startswith(marker) and line[len(marker):].strip():
+                if re.search(r"(?:^|[ \t])#+$", line[len(marker):].strip()):
                     raise BuildError(
                         f"{source_rel}: closing-hash ATX headings unsupported "
                         f"(the supported form is '{marker}Text' with no "
@@ -1330,16 +1278,8 @@ def _classify_narrative_line(line, source_rel):
         raise BuildError(
             f"{source_rel}: spaced thematic breaks unsupported: {line[:60]!r}"
         )
-    # Every other thematic-break form the shared section reader finds
-    # ('--- -', '*** *', '-- --', '---' with trailing space) is refused too.
-    if kind == "rule":
-        spaced = len(line.split()) > 1
-        raise BuildError(
-            f"{source_rel}: "
-            f"{'spaced thematic breaks' if spaced else 'horizontal rules'} "
-            f"unsupported (the body admits no thematic break in any form: "
-            f"three or more of one of '-', '*' or '_', spaces or tabs between "
-            f"them allowed): {line[:60]!r}")
+    if _NARR_MD_HR_RE.match(line):
+        raise BuildError(f"{source_rel}: horizontal rules unsupported: {line[:60]!r}")
     if line == "-" or (line.startswith("- ") and not line[2:].strip()):
         raise BuildError(f"{source_rel}: empty list item: {line[:60]!r}")
     if line.startswith("- "):
@@ -1374,13 +1314,8 @@ def _classify_narrative_line(line, source_rel):
             f"{source_rel}: only flat '- ' unordered and 'N. ' ordered lists "
             f"are supported: {line[:60]!r}"
         )
-    # A fence the shared section reader opens is refused; so is any other
-    # line led by three backticks or tildes (a backtick run whose info string
-    # holds a backtick opens no fence, but would render as a code span).
-    if kind == "fence" or line.startswith(("```", "~~~")):
-        raise BuildError(
-            f"{source_rel}: fenced code unsupported (no line may open with "
-            f"three or more backticks or tildes): {line[:60]!r}")
+    if line.startswith(("```", "~~~")):
+        raise BuildError(f"{source_rel}: fenced code unsupported: {line[:60]!r}")
     # A raw HTML tag or block opener at line start ('<div>', '</div>',
     # '<!-- -->', '<!DOCTYPE', '<?'): rejected here as a block-level
     # construct; the inline escaper independently rejects the same shape
@@ -3287,9 +3222,9 @@ def _llms_links(rel, text):
         end = start + len(line)
         if not line:
             continue
-        if _adopter_marker_end(line, 1) is not None:
+        if line.startswith("# "):
             _llms_prose(rel, text, start + 2, end, "a heading")
-        elif _adopter_marker_end(line, 2) is not None:
+        elif line.startswith("## "):
             _llms_prose(rel, text, start + 3, end, "a heading")
         elif line.startswith("> "):
             _llms_prose(rel, text, start + 2, end, "a block-quote line")
@@ -4016,8 +3951,8 @@ def _doc_page_url(base, path):
 
 
 # ---------------------------------------------------------------------------
-# The /draft tree: the grclibrary.ai rebuild on the shared family site
-# template (baseline 1.11.1, pinned under .web/baseline/). The tree is
+# The /draft tree (PR 2b): the grclibrary.ai rebuild on the shared family site
+# template (baseline 1.11.1, pinned under .web/baseline/ by PR 2a). The tree is
 # VARIANT-SCOPED by Variant.draft_rules, renders from its own templates under
 # .web/templates-draft/, and is self-contained: every internal link and asset
 # is {{BASE}}-prefixed and the pinned baseline runtime files are copied to
@@ -4072,7 +4007,7 @@ def draft_type_plural(type_name):
         ) from None
 
 
-# The adopter-document layer:
+# The adopter-document layer (maintainer decision 2026-11-03 14:59Z):
 # every top-level .claude/skills/corpus-management/docs/*.md adopter document
 # gets a draft document page and a row in the draft's generated listings,
 # like a corpus document. The adopter documentation lives in the skill's
@@ -4092,7 +4027,7 @@ def draft_type_plural(type_name):
 # directory. ADOPTER_DOCS_AREA is the area key the records carry in place
 # of a corpus domain (a registry key, never a path). ADOPTER_ROUTE_AREA is
 # the public route segment of every adopter document page,
-# /documents/adopter/<name>/: the route is
+# /documents/adopter/<name>/ (maintainer decision 2026-11-08): the route is
 # keyed by the adopter area, never by
 # ADOPTER_DOCS_HOME, so no public route, link or sitemap entry carries the
 # dot-prefixed skill directory.
@@ -4161,132 +4096,15 @@ def _tracked_repo_files():
     return tracked
 
 
-# A line that ends an adopter read is matched whole and after at most three
-# spaces, as in CommonMark: four spaces or a tab make an indented code line.
-# A thematic break is three or more of one of "-", "*" or "_", with spaces or
-# tabs between them and nothing else on the line. An ATX heading is one to six
-# hashes followed by a space, a tab or the line end; seven or more hashes make a
-# plain line. Every heading, rule, fence and section read in this file goes
-# through these two by way of the shared section reader (_md_classify for a
-# line read alone, _md_read for a run of lines with fence tracking): the
-# adopter metadata, lede, intro and outline reads below, the domain Purpose
-# read, the narrative title, metadata terminator and line classifier, the
-# llms.txt grammar and the crosswalk register, matrix and reading-guide
-# section reads. The narrative classifier and the llms.txt grammar admit a
-# heading only in its strict form (the hashes at the line start, then one
-# space), read through _adopter_marker_end.
-_ADOPTER_RULE_RE = re.compile(r" {0,3}([-*_])[ \t]*(?:\1[ \t]*){2,}$")
-_ADOPTER_HEADING_RE = re.compile(r" {0,3}(#{1,6})(?:[ \t]|$)")
-
-
-def _adopter_heading(line, low, high=None):
-    """True when ``line`` is an ATX heading of ``low`` to ``high`` hashes
-    (up to six when ``high`` is None) after at most three spaces, the
-    hashes followed by a space, a tab or the line end."""
-    m = _ADOPTER_HEADING_RE.match(line)
-    return bool(m) and low <= len(m.group(1)) <= (6 if high is None else high)
-
-
-def _adopter_heading_text(line, level):
-    """The text of ``line`` when it is an ATX heading of exactly ``level``
-    hashes (see _adopter_heading), stripped; None otherwise. Read through
-    _md_classify, so a line read alone takes the same check as _md_read."""
-    kind, got, heading = _md_classify(line)
-    return heading if kind == "heading" and got == level else None
-
-
-# The shared section reader. A fence opens after at most three spaces with
-# three or more backticks or three or more tildes; a backtick fence's info
-# string holds no backtick. It closes, as CommonMark states, only on a line of
-# the same mark at least as long as the opener, after at most three spaces,
-# with nothing after it but spaces or tabs; an unclosed fence runs to the end
-# of the input. Outside a fence a line is a thematic break (_ADOPTER_RULE_RE),
-# an ATX heading of one to six hashes (_adopter_heading; its text may be
-# empty, and a read that needs a title checks the text), or a plain line.
-_MD_FENCE_OPEN_RE = re.compile(r" {0,3}(`{3,}|~{3,})(.*)$")
-_MD_FENCE_CLOSE_RE = re.compile(r" {0,3}(`{3,}|~{3,})[ \t]*$")
-_MdLine = namedtuple("_MdLine", "index line kind level text")
-
-# Where each section read stops, stated once per read: the heading levels
-# that end it wherever they fall, and whether a thematic break ends it. A
-# read that also stops at a softer boundary once its paragraph has started
-# (a blank line, a deeper heading, a fence) states that in its own code.
-_MD_SECTION_ENDS = {
-    "domain purpose": ((1, 2), True),
-    "narrative metadata": ((), True),
-    "adopter metadata": ((2,), True),
-    "adopter lede": ((1, 2), True),
-    "adopter intro": ((2,), False),
-    "compliance tsc section": ((), True),
-}
-
-
-def _md_fence_open(line):
-    """``(mark, length)`` when ``line`` opens a fence, else None."""
-    m = _MD_FENCE_OPEN_RE.match(line)
-    if not m or (m.group(1)[0] == "`" and "`" in m.group(2)):
-        return None
-    return m.group(1)[0], len(m.group(1))
-
-
-def _md_classify(line):
-    """``(kind, level, text)`` for one line read alone, outside any fence:
-    ``fence`` (an opening fence line), ``rule``, ``heading`` (with its level
-    and stripped text) or ``text``."""
-    if _md_fence_open(line):
-        return "fence", 0, None
-    if _ADOPTER_RULE_RE.match(line):
-        return "rule", 0, None
-    if _adopter_heading(line, 1):
-        m = _ADOPTER_HEADING_RE.match(line)
-        return "heading", len(m.group(1)), line[m.end():].strip()
-    return "text", 0, None
-
-
-def _md_read(lines):
-    """Yield one _MdLine per line, tracking fences: ``fence`` for an opening
-    or closing fence line, ``code`` for a line inside a fence, else the kind
-    _md_classify gives."""
-    fence = None
-    for i, line in enumerate(lines):
-        if fence is not None:
-            m = _MD_FENCE_CLOSE_RE.match(line)
-            if m and m.group(1)[0] == fence[0] and len(m.group(1)) >= fence[1]:
-                fence = None
-                yield _MdLine(i, line, "fence", 0, None)
-            else:
-                yield _MdLine(i, line, "code", 0, None)
-            continue
-        kind, level, heading = _md_classify(line)
-        if kind == "fence":
-            fence = _md_fence_open(line)
-        yield _MdLine(i, line, kind, level, heading)
-
-
-def _md_heading_text(item, level):
-    """The text of ``item`` when it is a heading of exactly ``level``."""
-    return item.text if item.kind == "heading" and item.level == level else None
-
-
-def _md_ends(item, ends):
-    """True when ``item`` ends a read whose ``_MD_SECTION_ENDS`` entry is
-    ``ends``."""
-    levels, rule = ends
-    return ((item.kind == "rule" and rule)
-            or (item.kind == "heading" and item.level in levels))
-
-
-def _adopter_marker_end(line, level):
-    """For the strict readers, which admit a heading only as its hashes at
-    the line start followed by one space: the offset just after that space
-    when ``line`` is an ATX heading of exactly ``level`` hashes (see
-    _adopter_heading) in that form; None for any other line."""
-    if _adopter_heading_text(line, level) is None:
-        return None
-    hashes = _ADOPTER_HEADING_RE.match(line).span(1)
-    if hashes[0] != 0 or line[hashes[1]:hashes[1] + 1] != " ":
-        return None
-    return hashes[1] + 1
+def _adopter_fence_line(line):
+    """A code-fence marker line (backtick or tilde, indented under four
+    columns), mirroring the taxonomy generator's shared fence predicate so a
+    heading inside a fenced example (governance/worked-example.md carries a whole
+    example document in a fence) never reads as structure."""
+    stripped = line.lstrip(" ")
+    if len(line) - len(stripped) >= 4:
+        return False
+    return stripped.startswith("```") or stripped.startswith("~~~")
 
 
 def _adopter_flatten(text):
@@ -4310,23 +4128,13 @@ def _adopter_metadata(text, rel):
     fenced example document (governance/worked-example.md carries a whole one) can
     never read as the file's own block, and a file with no
     leading block fails the build loudly instead of rendering something
-    else. The section heading that stops the read is a level-two ``## ``
-    heading; a ``# `` title line, which opens a file above its block, does
-    not stop it. The rule is any thematic break (``---``, ``***``, ``___``,
-    spaces between the marks allowed). Either stops the read only when
-    indented by at most three spaces; four spaces or a tab before ``## `` or
-    ``---`` make an indented code line, so the read goes on. A rule must be
-    the whole line: text after ``---`` makes a plain line. A heading carries
-    its text on the same line: exactly two hashes, then a space, a tab or the
-    line end, and any text after that (``## Scope`` stops the read; ``##Scope``
-    and ``### Scope`` do not)."""
+    else."""
     fields = {}
     seen = False
-    ends = _MD_SECTION_ENDS["adopter metadata"]
-    for item in _md_read(text.splitlines()):
-        line = item.line
+    for line in text.splitlines():
         s = line.strip()
-        if item.kind == "fence" or _md_ends(item, ends):
+        if _adopter_fence_line(line) or s.startswith("---") \
+                or s.startswith("## "):
             break
         if not s and seen:
             break
@@ -4355,37 +4163,14 @@ def _adopter_metadata(text, rel):
 
 
 def _adopter_first_paragraph(lines):
-    """First real prose paragraph. It stops at a horizontal rule (any
-    thematic break: ``---``, ``***``, ``___``) or a ``# `` or ``## `` heading
-    wherever one falls, and, once the paragraph has started, also at a blank
-    line, a deeper heading (``### `` and below) or an opening fence line;
-    blank lines, deeper headings and whole fenced code blocks before the
-    paragraph are skipped, and a line inside a fenced block is code, never a
-    heading, rule or prose. Fences are read by the shared section reader
-    (_md_read): a fence opens after at most three spaces with three or more
-    backticks or tildes, and closes only on a line of the same mark at least
-    as long as the opener with nothing after it but spaces or tabs, so a
-    shorter run, the other mark or a run with text after it inside a fenced
-    block is code and does not close it. A heading or rule is recognized
-    only after at most three leading spaces, as in CommonMark; four spaces or
-    a tab before a hash or a rule make an indented code line, which is prose
-    here. A rule must be the whole line; a heading carries its text after its
-    hashes and the space or tab that follows them (see _adopter_heading)."""
+    """First real prose paragraph, skipping sub-headings, stopping at the next
+    top-level section or a horizontal rule."""
     para = []
-    ends = _MD_SECTION_ENDS["adopter lede"]
-    for item in _md_read(lines):
-        st = item.line.strip()
-        if item.kind == "fence":
-            # A fence opened after the prose ends it, as a fenced code block
-            # interrupts a paragraph; one before the prose is skipped whole.
-            if para:
-                break
-            continue
-        if item.kind == "code":
-            continue
-        if _md_ends(item, ends):
+    for nxt in lines:
+        st = nxt.strip()
+        if st == "---" or re.match(r"^##\s", nxt):
             break
-        if item.kind == "heading":
+        if re.match(r"^#{3,}\s", nxt):
             if para:
                 break
             continue
@@ -4401,44 +4186,30 @@ def _adopter_purpose(text):
     """The document's lede: the first paragraph under a ``## Purpose`` or
     ``## Overview`` heading outside any code fence, else the intro paragraph
     between the metadata block and the first section (the worked examples
-    carry no Overview heading). Empty string only if neither is present.
-    Both reads take the shared section reader _md_read: the Purpose or
-    Overview heading is a level-two heading within three spaces outside any
-    fence; the intro read ends where _MD_SECTION_ENDS["adopter intro"] states
-    (a level-two heading), a title, a deeper heading, a thematic break and a
-    fence are skipped before the paragraph and end it once started, a line
-    inside a fence is code, and a line indented by four spaces or a tab is
-    prose."""
+    carry no Overview heading). Empty string only if neither is present."""
     lines = text.splitlines()
-    for item in _md_read(lines):
-        heading = _md_heading_text(item, 2)
-        if heading is not None and re.match(r"(?:\d+\.\s+)?(?:Purpose|Overview)\b",
-                                            heading, re.I):
-            return _adopter_flatten(_adopter_first_paragraph(lines[item.index + 1:]))
+    in_fence = False
+    for i, ln in enumerate(lines):
+        if _adopter_fence_line(ln):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        if re.match(r"^##\s+(?:\d+\.\s+)?(?:Purpose|Overview)\b",
+                    ln.strip(), re.I):
+            return _adopter_flatten(_adopter_first_paragraph(lines[i + 1:]))
     started = False
     para = []
-    ends = _MD_SECTION_ENDS["adopter intro"]
-    for item in _md_read(lines):
-        ln = item.line
+    for ln in lines:
         st = ln.strip()
-        # A fence before the intro prose is skipped whole; one after it ends
-        # the paragraph, as a fenced code block interrupts a paragraph.
-        if item.kind == "fence":
-            if para:
-                break
-            continue
-        if item.kind == "code":
-            continue
-        if _md_ends(item, ends):
+        if st.startswith("## "):
             break
-        # A title, a deeper heading or a thematic break is skipped before the
-        # paragraph and ends it once started.
-        if item.kind in ("heading", "rule"):
-            if para:
-                break
+        if st.startswith("# "):
             continue
         if re.match(r"^\*\*[^*]+:\*\*", ln):
             started = True
+            continue
+        if st == "---" or re.match(r"^#{3,}\s", ln):
             continue
         if not st:
             if para:
@@ -4452,11 +4223,19 @@ def _adopter_purpose(text):
 
 
 def _adopter_sections(text):
-    """The ordered level-two headings outside code fences (the page outline),
-    each within three spaces, as the metadata and intro reads take them."""
-    return [heading for heading in (
-        _md_heading_text(item, 2) for item in _md_read(text.splitlines()))
-        if heading]
+    """The ordered ``## `` headings outside code fences (the page outline)."""
+    out = []
+    in_fence = False
+    for ln in text.splitlines():
+        if _adopter_fence_line(ln):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        m = re.match(r"^##\s+(.+?)\s*$", ln)
+        if m:
+            out.append(m.group(1).strip())
+    return out
 
 
 def parse_adopter_docs():
@@ -5068,9 +4847,9 @@ DRAFT_EXAMPLE_DOC = "governance/policy-exception-and-risk-acceptance-management.
 # The landing tile's example domain (the mockup's "Open a domain: Governance").
 DRAFT_EXAMPLE_DOMAIN = "governance"
 
-# The browse page's "By need" entries (approved mockup copy, except the
-# Find a solution and Write a policy lines, which differ from the mockup; the
-# mockup's placeholder targets, two Browse anchors,
+# The browse page's "By need" entries (approved mockup copy, with the Find a
+# solution and Write a policy lines changed by maintainer directive
+# 2026-11-03 17:55Z; the mockup's placeholder targets, two Browse anchors,
 # the search page and one example document, are retired for the five need
 # pages of the Browse adventure, design D section 3). (title, tag, href,
 # line).
@@ -5298,11 +5077,11 @@ _DRAFT_NARR_TABLE_RE = re.compile(r"<table>(.*?)</table>", re.S)
 # two alignment matrices, the canonical citations register, and .claude/skills/corpus-management/data/taxonomy.yml,
 # structural and loud on schema change exactly like parse_taxonomy. The
 # crosswalk page is a left-rail page (spec 7.32) whose side list carries the
-# Views links, one per topic view of design C 3.7 (the views stay by
-# topic), and every instrument by
-# group; each view is a plain link to its view page (a preset form that
-# switched columns in place did so out of sight, so the rail navigates
-# and no page loads matrix.js).
+# Views links, one per topic view of design C 3.7 (maintainer decision
+# 2026-11-03 18:53Z: the views stay by topic), and every instrument by
+# group; each view is a plain link to its view page (maintainer defect
+# report 2026-11-04: the matrix.js preset form switched columns out of
+# sight, so the rail navigates and no page loads matrix.js).
 
 CROSSWALK_COMPLIANCE_MATRIX = (
     REPO_ROOT / "compliance" / "matrix-grc-compliance-alignment.md"
@@ -5794,7 +5573,8 @@ CROSSWALK_ALIASES = {
     "PIPEDA Sch 1 Principle 3 (withdrawal of consent)": "pipeda",
     "PIPEDA Sch 1 Principle 9 (amendment)": "pipeda",
     "PIPEDA Sch 1 Principle 9 (Individual Access)": "pipeda",
-    # The quebec-law-25 instrument is CQLR c. P-39.1 as amended by S.Q. 2021,
+    # QC-LAW25-RESEARCH-0405 (maintainer decision 2026-11-06): the
+    # quebec-law-25 instrument is CQLR c. P-39.1 as amended by S.Q. 2021,
     # c. 25 (Law 25), not the amending act, so every P-39.1 spelling is an
     # alias and no spelling names the amending act alone.
     "Quebec Law 25": "quebec-law-25",
@@ -5990,8 +5770,8 @@ def normalize_concern_frameworks(names):
 class CrosswalkPreset(NamedTuple):
     """One topic view (design C 3.7): a page at crosswalk/view/<slug>/
     rendering its topic's columns, linked as a plain Views link in the
-    crosswalk side list (design C 3.8; there is no matrix.js preset form,
-    the rail links navigate)."""
+    crosswalk side list (design C 3.8; the matrix.js preset form left with
+    the maintainer defect report 2026-11-04, the rail links navigate)."""
 
     slug: str
     label: str
@@ -5999,8 +5779,8 @@ class CrosswalkPreset(NamedTuple):
     related: tuple    # instrument-page keys linked beneath the view's table
 
 
-# The topic views of design C 3.7, which stay by topic. A topic may take
-# columns from several instrument
+# The topic views of design C 3.7 (maintainer decision 2026-11-03 18:53Z:
+# the views stay by topic). A topic may take columns from several instrument
 # groups, and one column may sit in several topics.
 CROSSWALK_TOPICS = (
     CrosswalkPreset("security", "Security",
@@ -6360,7 +6140,7 @@ def run_palette_gate(palettes=None, gate=None, pin_path=None, baseline=None):
 
 def _draft_nav(current=None):
     """The topbar partial's per-page current-page markers. Each bar link
-    opens its own page, and a page
+    opens its own page (maintainer decision 2026-11-03 23:27Z), and a page
     marks the link of the section it belongs to: the need, domain and type
     pages under Browse, every document page under All Documents, the decide
     hub, concern, subtype index and reading-room pages under Decisions, and
@@ -6457,8 +6237,8 @@ def draft_landing_values(figures, docs_by_path):
         "XW_INSTRUMENT_COUNT": str(
             len([i for i in CROSSWALK_INSTRUMENTS if i.main_table])
         ),
-        # The Standards Start here entry's count, recounted from the
-        # register at build time so
+        # The Standards Start here entry's count (maintainer decisions
+        # 2026-11-04 16:09 EST), recounted from the register at build time so
         # the landing claim that every count is computed stays true.
         "STANDARDS_ROW_COUNT": str(sum(
             len(rows) for _, rows in parse_citations_register_sections(
@@ -6659,7 +6439,7 @@ def _draft_search_row(d, facets=False):
 
 
 def draft_search_values(full_docs, adopter_docs):
-    # The search page is just a search: the
+    # The search page is just a search (maintainer, 2026-11-03 14:29Z): the
     # type and area chips and the "Recently updated" framing duplicated
     # Browse and are gone; the full list stays as search.js's scope and as
     # the page's content without script. Every corpus domain document and
@@ -6749,10 +6529,10 @@ def draft_search_values(full_docs, adopter_docs):
 
 
 def draft_documents_values(full_docs):
-    """The full document index (design A, design B section 4 without a
+    """The full document index (design A PR A3, design B section 4 without a
     template change): every non-root corpus document, one row each in title
     order, filtered on the page by the baseline search.js. Type and area are
-    search.js facet groups (spec 7.29; All Documents
+    search.js facet groups (spec 7.29; maintainer 2026-11-03: All Documents
     carries the filters, and type is a filter of it, not a separate
     heading), each chip's count recounted from the rows it filters and each
     chip a plain link to its facet address. From the 1.7.0 baseline both groups
@@ -7100,7 +6880,7 @@ def draft_document_values(doc, docs_by_path):
     )
     # Spec 7.6 allows two rails only, so a document page takes the logo-only
     # rail; the source document's outline is body content, a plain list
-    # under its own heading.
+    # under its own heading (maintainer, 2026-11-03 12:16Z).
     rail = f'<div class="rail">{logo}</div>'
     outline_section = ""
     sections = doc.get("sections", [])
@@ -8081,17 +7861,12 @@ def _parse_citations_register_sections(text, require_heading):
     seen = set()
     heading = None
     state = "outside"  # outside -> header -> rows
-    for item in _md_read(text.splitlines()):
-        line = item.line
-        # A level-two heading with no text ('##', '## ') is no section
-        # heading: it names no section, so it neither opens one nor
-        # satisfies the heading a register table must sit under.
-        section = _md_heading_text(item, 2)
-        if section:
-            heading = section
+    for line in text.splitlines():
+        if line.startswith("## "):
+            heading = line[len("## "):].strip()
             state = "outside"
             continue
-        if item.kind in ("fence", "code") or not line.strip().startswith("|"):
+        if not line.strip().startswith("|"):
             state = "outside"
             continue
         cells = _xw_table_cells(line)
@@ -8188,12 +7963,8 @@ def parse_compliance_matrix(text):
     rows_by_domain = {}
     domain = None
     state = "outside"
-    for item in _md_read(text.splitlines()):
-        line = item.line
-        if item.kind in ("fence", "code"):
-            line = ""
-        section = _md_heading_text(item, 2)
-        m = re.fullmatch(r"(.+) domain", section) if section is not None else None
+    for line in text.splitlines():
+        m = re.match(r"^## (.+) domain\s*$", line)
         if m:
             slug = m.group(1).strip().lower().replace(" ", "-")
             if slug not in DOMAIN_SCOPE:
@@ -8212,7 +7983,7 @@ def parse_compliance_matrix(text):
             rows_by_domain[slug] = []
             state = "outside"
             continue
-        if section is not None:
+        if line.startswith("## "):
             domain = None
             state = "outside"
             continue
@@ -8338,30 +8109,20 @@ def parse_compliance_tsc_status(text):
     )
     where = f"crosswalk: {CROSSWALK_COMPLIANCE_MATRIX_PATH}:"
     lines = text.splitlines()
-    items = list(_md_read(lines))
-    heads = [it.index for it in items
-             if _md_heading_text(it, 2)
-             == _adopter_heading_text(CROSSWALK_TSC_SECTION_HEADING, 2)]
+    heads = [i for i, line in enumerate(lines)
+             if line == CROSSWALK_TSC_SECTION_HEADING]
     if len(heads) != 1:
         raise BuildError(
             f"{where} {len(heads)} {CROSSWALK_TSC_SECTION_HEADING!r} headings "
             f"instead of one; {update}{accepted}"
         )
     start = heads[0]
-    # The section ends at its first thematic break outside any fence, read
-    # through the shared section reader and stated in _MD_SECTION_ENDS. The
-    # pin closes it with exactly ---, so a break in any other form ("***",
-    # "- - -", an indented "---") ending the section is the
-    # missing-closing-rule error, not a line mismatch against the pin.
-    ends = _MD_SECTION_ENDS["compliance tsc section"]
-    end = next((it.index for it in items[start:] if _md_ends(it, ends)), None)
-    if end is None or lines[end] != "---":
-        other = ("" if end is None else
-                 f"line {end + 1} reads {lines[end]!r}, a thematic break "
-                 f"other than ---, so ")
+    end = next((i for i in range(start, len(lines)) if lines[i] == "---"),
+               None)
+    if end is None:
         raise BuildError(
-            f"{where} {other}no --- after {CROSSWALK_TSC_SECTION_HEADING!r} "
-            f"ends its section; {update}{accepted}"
+            f"{where} no --- after {CROSSWALK_TSC_SECTION_HEADING!r} ends "
+            f"its section; {update}{accepted}"
         )
     found = lines[start:end + 1]
     pinned = {
@@ -8373,8 +8134,8 @@ def parse_compliance_tsc_status(text):
     status = next((s for s, want in pinned.items() if found == want), None)
     if status is None:
         # The first line off the pin, the reading-guide line in either form.
-        # The found lines end at their first thematic break and the pin
-        # at its only one, its last line, so they differ before either ends.
+        # Both lists end at their only line that is exactly ---, so they
+        # differ before either ends.
         want = pinned[False]
         at = next(n for n, (got, line) in enumerate(zip(found, want))
                   if got != line and not (line == bare and got == populating))
@@ -8423,18 +8184,13 @@ def parse_reverse_matrix(text):
     heading = None
     current = None
     state = "outside"
-    for item in _md_read(text.splitlines()):
-        line = item.line
-        # A level-two heading with no text ('##', '## ') is no section
-        # heading: it names no instrument, so it opens no section.
-        section = _md_heading_text(item, 2)
-        if section:
-            heading = section
+    for line in text.splitlines():
+        if line.startswith("## "):
+            heading = line[3:].strip()
             current = None
             state = "outside"
             continue
-        if (heading is None or item.kind in ("fence", "code")
-                or not line.strip().startswith("|")):
+        if heading is None or not line.strip().startswith("|"):
             state = "outside"
             continue
         cells = _xw_table_cells(line)
@@ -8820,7 +8576,7 @@ def render_crosswalk_table(xw, keys, full):
     alone has one, and it is never wider than its cap. The wrapper is the
     focusable region named by the caption's words; it scrolls sideways
     only, at the table's full height. No page marks the table data-matrix
-    or loads matrix.js (the rail views
+    or loads matrix.js (maintainer defect report 2026-11-04: the rail views
     navigate instead), so a page's columns never change and no table takes
     the spec 7.34 column highlight, a matrix.js feature; ``full`` scopes
     the caption to the full table."""
@@ -8895,8 +8651,8 @@ def render_crosswalk_table(xw, keys, full):
         f"Corpus domains by instruments, {len(keys)} in the full table"
         if full else f"Corpus domains by {len(keys)} {noun}"
     )
-    # The box scrolls sideways only (the crosswalk must not scroll
-    # vertically). baseline.css caps a
+    # The box scrolls sideways only (maintainer 2026-11-04 12:58Z: the
+    # crosswalk must not scroll vertically). baseline.css caps a
     # .tablewrap.bounded, and any .tablewrap holding table.sticky, at 75vh
     # with overflow: auto, and the horizontal scrollbar's gutter counts
     # against that cap, so a table within a gutter of 75vh scrolled
@@ -9094,7 +8850,7 @@ def render_crosswalk_caveats(xw, keys=(), inst=None):
         + ": the alignment is not an official mapping, certification claim, "
         "legal opinion, or reproduction of third-party framework "
         "content.</p>",
-        # The breadth pointer:
+        # The breadth pointer (maintainer decisions 2026-11-04 16:09 EST):
         # the crosswalk maps depth for its instruments; every register row,
         # mapped here or not, is listed on the standards page.
         "<p>The standards, laws, frameworks, and programmes in the "
@@ -9106,16 +8862,17 @@ def render_crosswalk_caveats(xw, keys=(), inst=None):
 
 
 def render_crosswalk_rail(xw, current=None, instrument=None):
-    """The crosswalk side list (spec 7.32; one side rail, on the left, which
-    the right rail stood in for until the template carried it): the Views
-    list, All plus
+    """The crosswalk side list (spec 7.32; maintainer direction 2026-11-03
+    15:06Z and 15:09Z: one side rail, on the left, which the right rail
+    stood in for until the template carried it): the Views list, All plus
     one view per topic, then every instrument under its group, the "Also
     in the corpus" instruments included, each linking its page. Every view
     is a plain link to the page that shows it, and the current page's view
-    is marked. The rail navigates to the static view pages and the
-    crosswalk page loads no matrix script: the matrix sits below the fold
-    at every width, so view links that switched columns in place would
-    change nothing the visitor could see. The instrument pages carry
+    is marked. Maintainer defect report 2026-11-04 20:10 EST: as matrix.js
+    presets the view links switched columns in place while the matrix sat
+    below the fold at every width, so a rail click changed nothing the
+    visitor could see; the rail now navigates to the static view pages and
+    the crosswalk page loads no matrix script. The instrument pages carry
     the same rail with ``instrument`` set: the hub and views offered the
     sideways paths that an instrument page then dropped,
     so the rail renders there too, its own instrument marked current and no
@@ -9228,9 +8985,9 @@ def draft_crosswalk_values(xw, preset=None):
     """Per-page values for the crosswalk table page: the full table when
     ``preset`` is None, else that topic's columns only, the page its view
     link in the side list opens (design C 3.7). No page carries matrix.js,
-    a preset, or a status line (an in-place column switch would happen
-    below the fold, so a rail click would show the visitor nothing; the
-    views are plain links)."""
+    a preset, or a status line (maintainer defect report 2026-11-04 20:10
+    EST: the in-place column switch happened below the fold, so a rail
+    click showed the visitor nothing; the views are plain links now)."""
     main_keys = [i.key for i in CROSSWALK_INSTRUMENTS if i.main_table]
     if preset is None:
         keys = main_keys
@@ -9308,9 +9065,12 @@ def _xw_register_block(inst, row):
     The record renders in the main column, never as a ``side`` record:
     the baseline rule ``.doc > .side { grid-column: 1; grid-row: span 7 }``
     (baseline.css) puts a side record in the label column, and the section
-    label that follows it here is a label-column item too, so it would
-    clear the whole 7-row span and leave the main column empty for the
-    record's full height under the lead."""
+    label that follows it here is a label-column item too, so it had to
+    clear the whole 7-row span and the main column sat empty for the
+    record's full height under the lead (maintainer defect report
+    2026-11-04 20:11 EST: "a massive gap below the first sentence" on
+    /crosswalk/mitre-atlas/, and the same gap on every instrument page
+    with a register row)."""
     if row is None:
         return (
             "<p>The canonical citations register carries no row for this "
@@ -9416,8 +9176,8 @@ def _standards_section_slug(heading):
 
 
 def draft_standards_values(xw):
-    """Per-page values for the standards page at standards/: every
-    citations-register row, grouped
+    """Per-page values for the standards page at standards/ (maintainer
+    decisions 2026-11-04 16:09 EST): every citations-register row, grouped
     by register section in register order, each entry headed by the row's
     Standard ID (joined with its Current version only in the safe publisher
     forms) over the register's Current version cell
@@ -9808,8 +9568,8 @@ def render_draft_variant(figures, variant, ledger=None):
             figures, docs_by_path, crosswalk),
         "solutions.html": lambda: draft_solutions_values(figures, concerns),
         "policies.html": lambda: draft_policies_values(figures, docs_by_path),
-        # Static template prose carried over from the old root at promotion:
-        # the Contributors page and the
+        # Static template prose carried over from the old root at promotion
+        # (maintainer decisions 2026-11-04): the Contributors page and the
         # For-AI page. Neither belongs to a top-bar section.
         "contributors.html": _draft_nav,
         "for-ai.html": _draft_nav,

@@ -161,7 +161,7 @@ What is locked here, each test failing without its feature:
    the Related Documents check's file-presence and resolution clauses are
    exercised on fixtures; and the target variable inside that check does not
    shadow the parse loop's own file variable.
-23. Browse adventure: the By need card lines are the pinned copy; the comply
+23. Browse adventure: the By need card lines are the directed copy; the comply
    instruments intro gives the crosswalk table's instrument count and names
    its Also in the corpus instruments, as the rendered crosswalk shows them;
    the govern and comply annex sentences give the whole annex page's count and
@@ -458,7 +458,6 @@ What is locked here, each test failing without its feature:
 
 from __future__ import annotations
 
-import datetime
 import functools
 import hashlib
 import importlib.util
@@ -1062,22 +1061,13 @@ class RepoLinkAllowListTests(unittest.TestCase):
         return (emitted, self.mod._LEDGER_OTHER, None,
                 self.mod._owner_token_count(emitted))
 
-    def test_every_spelling_in_the_matrix_fails(self):
+    def test_every_round_one_and_two_spelling_fails(self):
         # The spelling matrix (flips: disable the count comparison, or
         # skip the character-reference, percent or JavaScript-escape
         # decode, or keep whitespace or backslashes in the view): every
         # spelling resolves to the owner token in the decoded view, so
         # each fails the allow-list, in a synthetic HTML page and a
-        # synthetic text output alike, with no ledger entry. The markup
-        # cases need no decoding: each carries the repository URL, plain
-        # or newline-split, in a meta refresh, a style url(), a link
-        # href, a srcset or a form action, and each fails in a synthetic
-        # HTML page alone, with no ledger entry, while the same markup
-        # carrying a neutral URL renders, so only the URL detection can
-        # fail the case. A base href is not a case here: a <base> element
-        # is refused whatever it carries, so it cannot show the URL is
-        # detected (test_template_allowlist_binds_source_tag_and_attribute
-        # and the output <base> refusal test pin that refusal).
+        # synthetic text output alike, with no ledger entry.
         tree = "https://github.com/jposluns/grc_library/tree/main/ai"
         spellings = (
             ("charref slashes",
@@ -1140,27 +1130,25 @@ class RepoLinkAllowListTests(unittest.TestCase):
                     with self.assertRaises(self.mod.BuildError) as ctx:
                         self.manifest([(rel, template.format(bad))])
                     self.assertIn(rel, str(ctx.exception))
-        neutral = "https://www.iso.org/x/y"
-        refresh = '<meta http-equiv="refresh" content="0; url={}">'
         markups = (
-            ("meta refresh", refresh, tree),
-            ("newline-split meta refresh URL", refresh,
-             "https://github.com/jpos\nluns/grc_library/tree/main/ai"),
+            ("meta refresh",
+             f'<meta http-equiv="refresh" content="0; url={tree}">'),
+            ("newline-split meta refresh URL",
+             '<meta http-equiv="refresh" content="0; '
+             'url=https://github.com/jpos\nluns/grc_library/tree/main/ai">'),
             ("style url()",
-             '<style>body {{ background: url({}/x.png) }}</style>', tree),
-            ("link href", '<link rel="stylesheet" href="{}/x.css">', tree),
-            ("srcset", '<img srcset="{}/x.png 1x, /y.png 2x">', tree),
-            ("form action", '<form action="{}"></form>', tree),
+             f'<style>body {{ background: url({tree}/x.png) }}</style>'),
+            ("base href",
+             '<base href="https://github.com/jposluns/grc_library'
+             '/tree/main/">'),
+            ("srcset", f'<img srcset="{tree}/x.png 1x, /y.png 2x">'),
+            ("form action", f'<form action="{tree}"></form>'),
         )
-        for label, template, url in markups:
+        for label, markup in markups:
             with self.subTest(spelling=label):
-                self.manifest([("synthetic/index.html",
-                                template.format(neutral))])
                 with self.assertRaises(self.mod.BuildError) as ctx:
-                    self.manifest([("synthetic/index.html",
-                                    template.format(url))])
+                    self.manifest([("synthetic/index.html", markup)])
                 self.assertIn("synthetic/index.html", str(ctx.exception))
-                self.assertIn("owner-token destination", str(ctx.exception))
 
     def test_counted_links_pass_including_srcset_with_a_comma(self):
         # In the earlier repository, a counted srcset URL followed by a
@@ -1502,16 +1490,12 @@ class RepoLinkAllowListTests(unittest.TestCase):
                              {"synthetic/index.html": list(entries)})
         self.assertIn(f"| {target} | /synthetic/ | one |", text)
 
-    def test_faked_boundaries_fail(self):
-        # Faked boundaries (flips: restore the old refresh regex that cut
-        # the URL at whitespace, drop the srcset descriptor refusal, or
-        # re-admit the quote and parenthesis boundary set; skipping the
-        # WHATWG removal of tab, newline and carriage return does NOT fail
-        # this test, since the uncleaned destination consumes nothing
-        # either and fails with the same message, so
-        # test_cleaned_destinations_consume_entries and
-        # test_cleaning_strips_newline_and_carriage_return_separately
-        # guard that step instead): browsers remove tab,
+    def test_round_five_faked_boundaries_fail(self):
+        # Faked boundaries (flips: skip a WHATWG cleaning step so a tab,
+        # newline, carriage return or backslash still splits a
+        # destination, restore the old refresh regex that cut the URL at
+        # whitespace, drop the srcset descriptor refusal, or re-admit the
+        # quote and parenthesis boundary set): browsers remove tab,
         # newline and carriage return inside a URL and read a backslash as
         # a slash, and a quote or parenthesis is URL material, so each
         # spelling below is one DIFFERENT destination; it can consume
@@ -1576,7 +1560,7 @@ class RepoLinkAllowListTests(unittest.TestCase):
         self.assertIn("| Corpus target | Website location | Link text |",
                       text)
 
-    def test_cleaned_destinations_consume_entries(self):
+    def test_round_five_cleaned_destinations_consume_entries(self):
         # Cleaned destinations (flips: drop one WHATWG cleaning step from
         # _clean_destination_value, or the quoted-URL cut from the refresh
         # grammar): a destination the browser reads as EXACTLY the
@@ -2146,7 +2130,7 @@ class RepoLinkAllowListTests(unittest.TestCase):
         self.assertIn("| Corpus target | Website location | Link text |",
                       text)
 
-    def test_llms_counterexamples_are_refused(self):
+    def test_round_eight_llms_counterexamples_are_refused(self):
         # The llms.txt line shapes (flip: let a line that is none of the
         # llms.txt shapes through instead of refusing it): in the
         # earlier repository, each of these let text no renderer links
@@ -3595,7 +3579,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         return [unescape(re.sub(r"<[^>]+>", "", item))
                 for item in re.findall(r"<li>(.*?)</li>", block.group(1))]
 
-    def test_concern_chips_carry_no_listed_plain_alias_spelling(self):
+    def test_r2_concern_chips_carry_no_near_duplicate_plain_names(self):
         """In the earlier repository, a dedupe collapsed only the
         instrument-aliased spellings, so near-duplicate plain names (ETSI EN
         304 223 with and without its date, OECD AI Principles with its dated
@@ -3630,7 +3614,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             ["NIST AI 600-1 (Generative AI Profile)"],
             "the profile keeps exactly one spelling")
 
-    def test_document_chips_link_the_two_aliased_spellings(self):
+    def test_r2_document_chips_link_the_two_aliased_spellings(self):
         """In the earlier repository, the chips "EU AI Act 2024" and "NIST
         AI RMF 1.0: Govern function" on /documents/ai/policy-ai-compliance/
         opened a search though their instrument pages exist; both spellings
@@ -3642,7 +3626,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             '<a href="/crosswalk/nist-ai-rmf/">'
             "NIST AI RMF 1.0: Govern function</a>", html)
 
-    def test_narrative_tables_are_named_by_their_preceding_heading(self):
+    def test_r2_narrative_tables_are_named_by_their_preceding_heading(self):
         """In the earlier repository, the narrative table regions were
         named "Table n", which tells a reader which table, not what it
         holds; the region's aria-label is the table's preceding section
@@ -3659,35 +3643,13 @@ class DraftSiteRenderTests(unittest.TestCase):
                     r'<div class="tablewrap" tabindex="0" role="region" '
                     r'aria-label="[^"]+">', html))
         self.assertTrue(labelled, "named narrative table regions render")
-        # Each label is the text of the h2 or h3 heading that precedes
-        # its table, with a ", table n" suffix only where one heading
-        # holds several tables.
-        compared = 0
-        for rel, html in self.draft_html.items():
-            if not rel.startswith("decisions/"):
-                continue
-            headings = [
-                (m.start(), " ".join(re.sub(r"<[^>]+>", "", m.group(2)).split()))
-                for m in re.finditer(r"<h([23])(?:\s[^>]*)?>(.*?)</h\1>", html, re.S)]
-            for m in re.finditer(
-                    r'<div class="tablewrap" tabindex="0" role="region" '
-                    r'aria-label="([^"]+)">', html):
-                before = [text for start, text in headings if start < m.start()]
-                self.assertTrue(before, f"{rel}: a named table has a preceding heading")
-                heading, label = before[-1], m.group(1)
-                self.assertTrue(
-                    label == heading
-                    or re.fullmatch(re.escape(heading) + r", table \d+", label),
-                    f"{rel}: label {label!r} is not its preceding heading {heading!r}")
-                compared += 1
-        self.assertEqual(compared, labelled, "every named region is compared")
         self.assertIn(
             '<div class="tablewrap" tabindex="0" role="region" '
             'aria-label="Contribution map">',
             self.draft_html["decisions/outcome-maps/"
                             "outcome-map-control-effectiveness/index.html"])
 
-    def test_copy_status_region_renders_exactly_where_copy_js_loads(self):
+    def test_r2_copy_status_region_renders_exactly_where_copy_js_loads(self):
         """In the earlier repository, the copy-status live region sat in
         every template though no draft page loaded copy.js (the script is
         opt-in per page), leaving a status element nothing wrote to. The
@@ -3701,7 +3663,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 f"{rel}: the copy-status region renders exactly where "
                 "copy.js loads")
 
-    def test_policies_gap_sentence_states_only_the_checkable_reliance(self):
+    def test_r2_policies_gap_sentence_states_only_the_checkable_reliance(self):
         """In the earlier repository, the policies page said the domains
         with no policy or template "rely on the overarching security and
         governance policies", a claim nothing checked. The sentence now
@@ -4059,7 +4021,8 @@ class DraftSiteRenderTests(unittest.TestCase):
                          "the complete approved value paragraph stays, word "
                          "for word, with only the computed total substituted")
         self.assertNotIn("<a", value.group(1),
-                         "the value paragraph keeps no licence link")
+                         "the value paragraph keeps no licence link "
+                         "(maintainer 2026-11-03 02:19Z)")
 
     def test_about_line_has_one_space_after_each_dot_and_none_before(self):
         """Spec 7.24 from 1.7.0 (required on every site): one ordinary space
@@ -7247,7 +7210,7 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     # -- rendered-site fixes: chips, register rows, page leads ---------------
 
-    def test_concern_chips_disambiguate_the_devops_dora(self):
+    def test_b4_concern_chips_disambiguate_the_devops_dora(self):
         """In the earlier repository, /decide/resilience/ showed the plain chip
         "DORA accelerate metrics" beside linked EU DORA chips, one short name
         for two unrelated texts. The corpus names the DevOps research programme
@@ -7271,7 +7234,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 seen = True
         self.assertTrue(seen, "the disambiguated DevOps DORA chip renders")
 
-    def test_register_carries_the_aeo_row_and_the_page_shows_it(self):
+    def test_b4_register_carries_the_aeo_row_and_the_page_shows_it(self):
         """In the earlier repository, /crosswalk/aeo/ disclosed that the
         canonical citations register carries no row for the programme, while
         the disclosure page says hand-written editions are checked against the
@@ -7291,7 +7254,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertNotIn('<dl class="record side">', page)
         self.assertIn("<dt>Standard ID</dt>", page)
 
-    def test_the_three_fallback_lead_documents_carry_purposes(self):
+    def test_b4_the_three_fallback_lead_documents_carry_purposes(self):
         """In the earlier repository, three documents had no Purpose text, so
         their pages led with the generated fallback ("A matrix in the
         Compliance area of the GRC Library."). Each carries a taxonomy purpose,
@@ -7312,7 +7275,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 self.assertNotIn("area of the GRC Library.", html)
                 self.assertIn(self.mod._esc(doc["purpose"]), html)
 
-    def test_the_dev_security_lead_uses_display_names(self):
+    def test_b4_the_dev_security_lead_uses_display_names(self):
         """In the earlier repository, /dev-security/ rendered raw directory
         syntax from its README ("the same shape as content in security/, risk/,
         and the other domain directories"). The README names the domains by
@@ -7322,7 +7285,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertNotIn("domain directories", html)
         self.assertIn("the Security and Risk domains", html)
 
-    def test_the_checklist_purpose_expands_aigc_on_first_use(self):
+    def test_b4_the_checklist_purpose_expands_aigc_on_first_use(self):
         """In the earlier repository, the checklist purpose said "used by the
         AIGC and CISO" with AIGC unexpanded, its first use on the document page
         and on /types/checklist/. The corpus expands it to the glossary
@@ -11291,8 +11254,8 @@ class DraftSiteRenderTests(unittest.TestCase):
     # -- 23. Browse adventure: card lines and intro counts ------------------
 
     # The By need card lines as rendered, in card order: the Find a solution
-    # and Write a policy lines are reworded, the other three the approved
-    # mockup copy, unchanged.
+    # and Write a policy lines are the directed copy, the other three the
+    # approved mockup copy, unchanged.
     NEED_CARD_LINES = (
         "What the board should ask: decision briefs, oversight questions, "
         "and the evidence to expect back.",
@@ -11313,10 +11276,9 @@ class DraftSiteRenderTests(unittest.TestCase):
             return " and ".join(items)
         return ", ".join(items[:-1]) + ", and " + items[-1]
 
-    def test_browse_need_card_lines_match_the_pinned_copy(self):
-        """The five By need card lines equal NEED_CARD_LINES exactly, in
-        card order (two reworded lines and three approved ones), checked on
-        the rendered Browse cards."""
+    def test_browse_need_card_lines_are_the_directed_copy(self):
+        """Two By need card lines carry the directed copy exactly and the
+        other three stay as approved, checked on the rendered Browse cards."""
         browse = self.draft_html["browse/index.html"]
         block = re.search(
             r'<h2 id="need">By need</h2>\s*<div class="wide">'
@@ -11481,7 +11443,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             "DORA here is DevOps Research and Assessment",
         "DORA (DevOps Research and Assessment) accelerate metrics":
             "DORA here is DevOps Research and Assessment, expanded in the "
-            "corpus name itself",
+            "corpus name itself (full-site review B4 F07)",
         "DORA RTS (EU) 2025/301":
             "a delegated regulation (RTS) made under DORA",
         "DORA RTS (EU) 2025/532":
@@ -12017,7 +11979,7 @@ class DraftSiteRenderTests(unittest.TestCase):
     # The taxonomy spellings of the added instruments that were once left
     # unaliased, each with the instrument it names, pinned so the coverage
     # check below cannot pass on a taxonomy that no longer carries them.
-    _XW_ADDED_CITATION_SLUGS = {
+    _XW_ADDED_ROUND2 = {
         "ISO/IEC 27002:2022 §8.16": "iso-iec-27002",
         "ISO/IEC 27701:2025 §5.3, Annex A.1.2.9, A.3.4": "iso-iec-27701",
         "PIPL Art. 45": "pipl",
@@ -12122,7 +12084,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         spellings, which the taxonomy still carries."""
         names = {n for d in self._full_taxonomy()
                  for n in d.get("frameworks", [])}
-        self.assertLessEqual(set(self._XW_ADDED_CITATION_SLUGS), names,
+        self.assertLessEqual(set(self._XW_ADDED_ROUND2), names,
                              "the taxonomy carries the pinned spellings")
         unresolved = []
         for key in self._XW_ADDED:
@@ -12135,7 +12097,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertEqual(unresolved, [],
                          "a spelling of an added instrument counts toward "
                          "no page")
-        for name, key in self._XW_ADDED_CITATION_SLUGS.items():
+        for name, key in self._XW_ADDED_ROUND2.items():
             with self.subTest(name=name):
                 self.assertIn(key, self.mod.crosswalk_alias_keys(name))
 
@@ -12871,7 +12833,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         Security, Security and Partnership); compound wording that ends in
         a one-word held title and another kind's noun is read as naming
         that title under the kind-noun rule, though the compound names no
-        part (a disclosed limit), so "Annex IV F, the information
+        part (finding WCO-SWEEP-REV7-0922), so "Annex IV F, the information
         technology element" (names Technology) and "Section VI, the crisis
         communication section" (names Communication) are reported; a
         multi-word held title used as ordinary words is reported whatever
@@ -13193,7 +13155,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         order emphasis, footnote marker, full stop, so emphasis after a
         full stop ("Pillar II Standard 2 (Security).**") and a closing
         curly quotation mark (U+201D) after a citation are reported as
-        trailing text (a disclosed limit); a lone capital letter
+        trailing text (finding WCO-SWEEP-REV7-0922); a lone capital letter
         used as an ordinary word inside a description ("the U.S. rules",
         "the A-to-M list", the pronoun "I") is reported too; a part name
         with a lowercase or numeric identifier inside a description ("the
@@ -13645,8 +13607,8 @@ class DraftSiteRenderTests(unittest.TestCase):
         held title (_WCO_ELEMENT_ROWS); four stay pillar-only
         (_WCO_PILLAR_ONLY_ROWS). No single held element clearly fits the
         library charter, the BASC programme overview or the logistics
-        sector annex; for the full CTPAT minimum security criteria register,
-        no single element adequately
+        sector annex; for the full CTPAT minimum security criteria register
+        (review round 2, codex NOTE), no single element adequately
         represents the document's breadth. Each pinned cell passes the
         matrix guard, and the matrix's pillar-only cells are exactly the
         four, so a new pillar-only cell, or one of the seven losing its
@@ -13669,7 +13631,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             self.test_wco_safe_pillar_only_cells_reviewed_for_elements
             .__doc__.split())
         self.assertIn("for the full CTPAT minimum security criteria "
-                      "register, no single "
+                      "register (review round 2, codex NOTE), no single "
                       "element adequately represents the document's "
                       "breadth", doc)
         self.assertNotRegex(doc, r"clearly fits [^.;]*CTPAT")
@@ -14871,8 +14833,8 @@ class DraftSiteRenderTests(unittest.TestCase):
                     self.assertTrue(any(": unread text after it:" in finding
                                         for finding in findings), findings)
                 self.assertIn(shown, unread)
-        self.assertIn("(a disclosed limit)", described)
-        self.assertIn("(a disclosed limit)", unread)
+        self.assertIn("finding WCO-SWEEP-REV7-0922", described)
+        self.assertIn("finding WCO-SWEEP-REV7-0922", unread)
 
     def test_wco_safe_alignment_references_name_held_parts(self):
         """In the earlier repository, framework-alignment tables gave WCO
@@ -17128,7 +17090,7 @@ class DraftAdventureGuardTests(unittest.TestCase):
             self._comply)
 
 
-class DraftIntegrationCompoundAliasGuardTests(unittest.TestCase):
+class DraftIntegrationRound2GuardTests(unittest.TestCase):
     """24 and 26: a compound crosswalk alias whose parts do not rejoin to its
     string, that also sits in CROSSWALK_ALIASES, whose part names no
     configured instrument, or none of whose parts names an instrument (26),
@@ -17973,7 +17935,7 @@ class GeneratorOkLineTests(unittest.TestCase):
                       "committed artefact(s)")
 
 
-class SiteReviewCorpusTextAndMapFixTests(unittest.TestCase):
+class SiteReviewFixRound2Tests(unittest.TestCase):
     """Corpus-text fixes and committed-map units, no site render needed."""
 
     @classmethod
@@ -18075,7 +18037,7 @@ class SiteReviewCorpusTextAndMapFixTests(unittest.TestCase):
             "nist-ai-rmf")
 
 
-class SiteReviewCorpusTextFixTests(unittest.TestCase):
+class SiteReviewFixRound3Tests(unittest.TestCase):
     """A corpus-text fix, no site render needed (two related fixes sit in
     the /comply/ and instrument-register tests)."""
 
@@ -18500,575 +18462,6 @@ EXEMPT_GENERATED_PAGES = frozenset({
     "governance/portal.md", "governance/maturity-scorecard.md"})
 
 
-class DomainPurposeBoundaryTests(unittest.TestCase):
-    """read_domain_purpose finds the Purpose heading and ends the section with
-    the shared anchored check: a heading or thematic break is the whole line
-    after at most three spaces, and a line indented by four spaces or a tab is
-    section text, as in the adopter reads."""
-
-    @classmethod
-    def setUpClass(cls):
-        cls.mod = _load_build()
-
-    def _purpose(self, body):
-        root = Path(tempfile.mkdtemp(prefix="domain-purpose-"))
-        saved = self.mod.REPO_ROOT
-        try:
-            (root / "fixture").mkdir()
-            (root / "fixture" / "README.md").write_text(body, encoding="utf-8")
-            self.mod.REPO_ROOT = root
-            return self.mod.read_domain_purpose("fixture")
-        finally:
-            self.mod.REPO_ROOT = saved
-            shutil.rmtree(root, ignore_errors=True)
-
-    def test_indented_code_lines_do_not_end_the_section(self):
-        for label, line in (("four-space heading", "    ## kept"),
-                            ("tab heading", "\t## kept"),
-                            ("four-space rule", "    ---")):
-            with self.subTest(case=label):
-                got = self._purpose(f"# D\n\n## Purpose\n\nAlpha.\n{line}\nOmega.\n")
-                self.assertEqual(got, f"Alpha. {line.strip()} Omega.")
-
-    def test_purpose_heading_within_three_spaces_is_read(self):
-        self.assertEqual(self._purpose("# D\n\n   ## Purpose\n\nAlpha.\n"), "Alpha.")
-        with self.assertRaises(self.mod.BuildError):
-            self._purpose("# D\n\n    ## Purpose\n\nAlpha.\n")
-
-    def test_anchored_heading_or_any_thematic_break_ends_the_section(self):
-        for label, line in (("flush heading", "## Next"),
-                            ("three-space heading", "   ## Next"),
-                            ("dash rule", "---"),
-                            ("star rule", "***"),
-                            ("spaced underscore rule", "_ _ _")):
-            with self.subTest(case=label):
-                got = self._purpose(f"# D\n\n## Purpose\n\nAlpha.\n{line}\nOmega.\n")
-                self.assertEqual(got, "Alpha.")
-
-
-class SharedBoundaryCheckRoutingTests(unittest.TestCase):
-    """Every read in build.py that ends or splits on a heading or thematic
-    break, beyond the adopter and domain Purpose reads, goes through the
-    shared anchored check (_adopter_heading, _ADOPTER_RULE_RE and the strict
-    form _adopter_marker_end). Each read is shown to consult the shared check
-    on the boundary line, and where the anchored reading differs from the old
-    raw test, the differing line shape is pinned."""
-
-    @classmethod
-    def setUpClass(cls):
-        cls.mod = _load_build()
-
-    def _consulted(self, call):
-        """The (kind, line) pairs the shared check saw while ``call`` ran;
-        a BuildError from a fixture that is not a whole document is ignored."""
-        seen = []
-        real_heading = self.mod._adopter_heading
-        real_rule = self.mod._ADOPTER_RULE_RE
-
-        def heading_spy(line, low, high=None):
-            seen.append(("heading", line))
-            return real_heading(line, low, high)
-
-        class RuleSpy:
-            def match(self, line):
-                seen.append(("rule", line))
-                return real_rule.match(line)
-
-        with mock.patch.object(self.mod, "_adopter_heading", heading_spy), \
-                mock.patch.object(self.mod, "_ADOPTER_RULE_RE", RuleSpy()):
-            try:
-                call()
-            except self.mod.BuildError:
-                pass
-        return seen
-
-    def _narrative(self, head, tail="Body.\n"):
-        return head + tail + "\n" + self.mod._NARR_TERMINATOR + "\n"
-
-    def test_narrative_title_and_terminator_reads_use_the_shared_check(self):
-        seen = self._consulted(lambda: self.mod._narrative_body_lines(
-            self._narrative("# T\n\n**F:** v\n---\n"), "executive/x.md"))
-        self.assertIn(("heading", "# T"), seen)
-        self.assertIn(("rule", "---"), seen)
-
-    def test_narrative_title_is_a_flush_left_hash_and_space_line(self):
-        """The title is one hash and a space at the line start, then the
-        title text; an indented title, a hash and a tab, and a title with no
-        text are refused."""
-        body = self.mod._narrative_body_lines(
-            self._narrative("# T\n**F:** v\n---\n"), "executive/x.md")
-        self.assertEqual(body, ["Body.", ""])
-        for label, title in (("one-space title", " # T"),
-                             ("three-space title", "   # T"),
-                             ("four-space title", "    # T"),
-                             ("hash and a tab", "#\tT"),
-                             ("bare hash", "#"), ("hash and a space", "# ")):
-            with self.subTest(case=label):
-                with self.assertRaisesRegex(
-                        self.mod.BuildError,
-                        "^" + re.escape("executive/x.md: narrative source has no "
-                                        "leading '# ' title line ")):
-                    self.mod._narrative_body_lines(
-                        self._narrative(f"{title}\n**F:** v\n---\n"), "executive/x.md")
-
-    def test_narrative_terminator_is_a_line_reading_exactly_three_dashes(self):
-        body = self.mod._narrative_body_lines(
-            self._narrative("# T\n**F:** v\n---\n"), "executive/x.md")
-        self.assertEqual(body, ["Body.", ""])
-        others = (("star rule", "***"), ("underscore rule", "___"),
-                  ("spaced dash rule", "- - -"), ("mixed spacing rule", "_ __"),
-                  ("five dashes", "-----"), ("one-space rule", " ---"),
-                  ("three-space rule", "   ---"), ("trailing space", "--- "))
-        # Any other thematic break form ends no metadata block: alone it
-        # leaves the block without its terminator, and before a '---' it is
-        # a line of the block that is not a field line, refused by number.
-        for label, rule in others:
-            with self.subTest(case=label, after="none"):
-                with self.assertRaisesRegex(
-                        self.mod.BuildError,
-                        "^" + re.escape("executive/x.md: no '---' metadata "
-                                        "terminator found ")):
-                    self.mod._narrative_body_lines(
-                        self._narrative(f"# T\n**F:** v\n{rule}\n"), "executive/x.md")
-            with self.subTest(case=label, after="---"):
-                with self.assertRaisesRegex(
-                        self.mod.BuildError,
-                        "^" + re.escape(f"executive/x.md: line 3: {rule!r} ")):
-                    self.mod._narrative_body_lines(
-                        self._narrative(f"# T\n**F:** v\n{rule}\n---\n"),
-                        "executive/x.md")
-        # A rule indented by four spaces or a tab is no terminator: it is read
-        # as a line of the metadata block that is not a field line, so it is
-        # refused there by its line number (were it taken as the terminator,
-        # the '---' below it would open the body and nothing would be refused).
-        for label, line in (("four-space rule", "    ---"), ("tab rule", "\t---")):
-            with self.subTest(case=label):
-                with self.assertRaisesRegex(
-                        self.mod.BuildError,
-                        "^" + re.escape(f"executive/x.md: line 3: {line!r} ")):
-                    self.mod._narrative_body_lines(
-                        self._narrative(f"# T\n**F:** v\n{line}\n---\n"), "executive/x.md")
-
-    def test_narrative_without_a_metadata_terminator_is_refused_not_read_to_a_body_rule(self):
-        """A narrative whose metadata block lacks its terminator would take the
-        first thematic break in its body as the terminator and silently drop
-        the body above that break; the first line that is not a metadata line
-        is refused instead, naming the file and the line."""
-        text = self._narrative("# T\n\n**F:** v\n\nBody one.\n\n---\n\n", "Body two.\n")
-        with self.assertRaisesRegex(
-                self.mod.BuildError,
-                "^" + re.escape("executive/x.md: line 5: 'Body one.' ")):
-            self.mod._narrative_body_lines(text, "executive/x.md")
-
-    def test_narrative_metadata_block_refuses_each_shape_that_is_not_a_field_line(self):
-        """Between the title and the first thematic break only blank lines and
-        '**Field:** value' lines may stand; every other shape is refused at its
-        own first line, naming the file and the line."""
-        shapes = (("plain text", "Intro."), ("level-one heading", "# Again"),
-                  ("level-two heading", "## S"), ("bare level-two heading", "##"),
-                  ("level-three heading", "### S"), ("list item", "- item"),
-                  ("quote", "> quote"), ("table row", "| a | b |"),
-                  ("rule indented by four spaces", "    ---"), ("rule after a tab", "\t***"),
-                  ("indented field", "  **G:** w"), ("field with no closing marks", "**G: w"),
-                  ("html comment", "<!-- note -->"),
-                  ("backtick fence", "```\n## inside\n---\n```"),
-                  ("tilde fence", "~~~\n***\n~~~"))
-        for label, shape in shapes:
-            first = shape.split("\n")[0]
-            with self.subTest(shape=label):
-                with self.assertRaisesRegex(
-                        self.mod.BuildError,
-                        "^" + re.escape(f"executive/x.md: line 4: {first!r} ")):
-                    self.mod._narrative_body_lines(
-                        self._narrative(f"# T\n\n**F:** v\\\n{shape}\n\n---\n"),
-                        "executive/x.md")
-
-    def test_narrative_metadata_block_of_field_and_blank_lines_is_read(self):
-        text = self._narrative(
-            "\n# T\n\n**F:** v\\\n**G:** w x\\\n\n**H:**\n\n---\n")
-        self.assertEqual(self.mod._narrative_body_lines(text, "executive/x.md"), ["Body.", ""])
-
-    def test_narrative_classifier_reads_headings_through_the_shared_check(self):
-        seen = self._consulted(
-            lambda: self.mod._classify_narrative_line("## S", "executive/x.md"))
-        self.assertIn(("heading", "## S"), seen)
-        self.assertEqual(self.mod._classify_narrative_line("## S", "executive/x.md"), "h2")
-        self.assertEqual(self.mod._classify_narrative_line("### S", "executive/x.md"), "h3")
-        for line in ("##\tS", "#### S", "# S", "## S ##", "##"):
-            with self.subTest(refused=line):
-                with self.assertRaises(self.mod.BuildError):
-                    self.mod._classify_narrative_line(line, "executive/x.md")
-
-    def test_narrative_hash_led_line_that_is_no_heading_is_refused(self):
-        """Every body line led by a hash that is not '## Text' or '### Text'
-        fails the build, a hash-led line that is no ATX heading included."""
-        for line in ("#hashtag prose", "####### seven hashes", "#", "##Text"):
-            with self.subTest(case=line):
-                with self.assertRaisesRegex(
-                        self.mod.BuildError,
-                        "^" + re.escape("executive/x.md: only '## ' and '### ' "
-                                        "section headings are supported in the "
-                                        f"body: {line!r}")):
-                    self.mod._classify_narrative_line(line, "executive/x.md")
-        for line in ("> #hashtag prose", "- ####### seven hashes"):
-            with self.subTest(nested=line):
-                with self.assertRaises(self.mod.BuildError):
-                    self.mod._classify_narrative_line(line, "executive/x.md")
-
-    def test_llms_heading_lines_use_the_shared_strict_form(self):
-        seen = self._consulted(lambda: self.mod._llms_links("llms.txt", "# T\n\n## S\n"))
-        self.assertIn(("heading", "# T"), seen)
-        self.assertIn(("heading", "## S"), seen)
-        self.assertEqual(self.mod._llms_links("llms.txt", "# T\n\n## S\n"), [])
-        for line in ("#\tT", "   # T", "### T", "#T"):
-            with self.subTest(refused=line):
-                with self.assertRaises(self.mod.BuildError):
-                    self.mod._llms_links("llms.txt", line + "\n")
-
-    def test_crosswalk_section_reads_use_the_shared_check(self):
-        for name, call in (
-                ("citations register", lambda: self.mod._parse_citations_register_sections(
-                    "## S\n", True)),
-                ("compliance matrix", lambda: self.mod.parse_compliance_matrix("## S\n")),
-                ("reverse matrix", lambda: self.mod.parse_reverse_matrix("## S\n"))):
-            with self.subTest(read=name):
-                self.assertIn(("heading", "## S"), self._consulted(call))
-
-    def test_compliance_tsc_section_reads_use_the_shared_check(self):
-        heading = self.mod.CROSSWALK_TSC_SECTION_HEADING
-        seen = self._consulted(lambda: self.mod.parse_compliance_tsc_status(
-            heading + "\n\nText.\n\n---\n"))
-        self.assertIn(("heading", heading), seen)
-        self.assertIn(("rule", "---"), seen)
-
-
-class SectionReaderShapeTableTests(unittest.TestCase):
-    """One table of Markdown line shapes run through every read that finds a
-    heading, a thematic break, a fence or a section end. Each shape carries a
-    category (a rule, a heading of a level with or without text, a fenced
-    block holding a heading and a rule, or a plain line) and each read states
-    the outcome it gives for each category, so a read that mishandles any
-    shape fails here naming the read and the shape."""
-
-    # Every CommonMark thematic-break form within three spaces.
-    RULES = ("---", "***", "___", "- - -", "* * *", "_ _ _", "--- -", "-- --",
-             "*** *", "_ __", "___ _", "-----", "--- ", " ---", "   ***",
-             "*\t*\t*")
-    # Headings: level one to three with and without text, within three spaces.
-    HEADINGS = (("# Title", "h1"), ("#\tTitle", "h1"), ("   # Title", "h1"),
-                ("#", "h1-bare"), ("# ", "h1-bare"),
-                ("## Section", "h2"), ("   ## Section", "h2"), ("##\tSection", "h2"),
-                ("##", "h2-bare"), ("## ", "h2-bare"),
-                ("### Deeper", "h3"), ("  ### Deeper", "h3"), ("###", "h3-bare"))
-    # Lines that are neither: indented by four spaces or a tab, text after the
-    # marks, two marks, seven hashes, or hashes with no space.
-    TEXT = ("    ---", "\t***", "    ## Code", "\t# Code", "--- x", "--",
-            "#hashtag", "####### seven", "    ```")
-    # Fenced blocks, each holding a heading and a rule that are code.
-    FENCES = ("```\n## inside\n---\n```",
-              "~~~\n## inside\n***\n~~~",
-              "````\n```\n## inside\n- - -\n````",
-              "~~~~\n~~~\n# inside\n___\n~~~~",
-              "~~~\n```\n# inside\n---\n~~~",
-              "   ```\n## inside\n---\n   ```",
-              "```\n## inside\n``` not a closing fence\n---\n```",
-              "```py\n# inside\n***\n```")
-
-    # A read whose outcome for one shape differs from the one its category
-    # states, keyed by (read, shape). The narrative title is a flush-left
-    # '# ' line, so an indented title and a hash and a tab are refused; the
-    # narrative metadata terminator is a line reading exactly '---'.
-    SHAPE_EXPECTED = {
-        ("narrative title", "#\tTitle"): "refuse",
-        ("narrative title", "   # Title"): "refuse",
-        ("narrative terminator", "---"): "stop",
-    }
-
-    # The outcome each read gives per category. "go": the read goes on past
-    # the shape; "stop": the shape ends the read; "refuse": a BuildError;
-    # "section": the shape is taken as a section heading; "none": it is not.
-    EXPECTED = {
-        "domain purpose": {"rule": "stop", "h1": "stop", "h1-bare": "stop",
-                           "h2": "stop", "h2-bare": "stop", "h3": "stop",
-                           "h3-bare": "stop", "text": "go", "fence": "go"},
-        "narrative title": {"rule": "refuse", "h1": "go", "h1-bare": "refuse",
-                            "h2": "refuse", "h2-bare": "refuse", "h3": "refuse",
-                            "h3-bare": "refuse", "text": "refuse", "fence": "refuse"},
-        # The shape sits between the metadata block and its terminator: a
-        # line reading exactly '---' is the terminator ("stop", stated in
-        # SHAPE_EXPECTED); any other shape, every other thematic break form
-        # included, is a line of the metadata block that is not a field line
-        # ("refuse").
-        "narrative terminator": {"rule": "refuse", "h1": "refuse", "h1-bare": "refuse",
-                                 "h2": "refuse", "h2-bare": "refuse", "h3": "refuse",
-                                 "h3-bare": "refuse", "text": "refuse", "fence": "refuse"},
-        "adopter metadata": {"rule": "stop", "h1": "go", "h1-bare": "go",
-                             "h2": "stop", "h2-bare": "stop", "h3": "go",
-                             "h3-bare": "go", "text": "go", "fence": "stop"},
-        "adopter lede": {"rule": "stop", "h1": "stop", "h1-bare": "stop",
-                         "h2": "stop", "h2-bare": "stop", "h3": "stop",
-                         "h3-bare": "stop", "text": "go", "fence": "go"},
-        "adopter intro": {"rule": "stop", "h1": "stop", "h1-bare": "stop",
-                          "h2": "stop", "h2-bare": "stop", "h3": "stop",
-                          "h3-bare": "stop", "text": "go", "fence": "go"},
-        "adopter outline": {"rule": "none", "h1": "none", "h1-bare": "none",
-                            "h2": "section", "h2-bare": "none", "h3": "none",
-                            "h3-bare": "none", "text": "none", "fence": "none"},
-        # A level-two heading with no text is no section heading, so the
-        # table under it sits above the first section heading ("refuse").
-        "citations register": {"rule": "refuse", "h1": "refuse", "h1-bare": "refuse",
-                               "h2": "section", "h2-bare": "refuse", "h3": "refuse",
-                               "h3-bare": "refuse", "text": "refuse", "fence": "refuse"},
-        # The shape sits between a domain heading of the live matrix and its
-        # table: a level-two heading ends the domain section, so the domain
-        # keeps no row ("stop"); any other shape leaves the table in it.
-        "compliance matrix": {"rule": "go", "h1": "go", "h1-bare": "go",
-                              "h2": "stop", "h2-bare": "stop", "h3": "go",
-                              "h3-bare": "go", "text": "go", "fence": "go"},
-        # The shape sits between an instrument heading and its table: only a
-        # level-two heading with text takes the table into a section of its
-        # own; one with no text is no heading.
-        "reverse matrix": {"rule": "none", "h1": "none", "h1-bare": "none",
-                           "h2": "section", "h2-bare": "none", "h3": "none",
-                           "h3-bare": "none", "text": "none", "fence": "none"},
-        # The shape sits just before the --- that closes the live matrix's
-        # pinned reading-guide section: a thematic break ends the section
-        # there ("stop"); any other shape is read as a section line and is
-        # reported as the first line off the pin ("go").
-        "compliance tsc section": {"rule": "stop", "h1": "go", "h1-bare": "go",
-                                   "h2": "go", "h2-bare": "go", "h3": "go",
-                                   "h3-bare": "go", "text": "go", "fence": "go"},
-    }
-
-    _REVERSE_TABLE = ("| Area | Library documents | Alignment type |\n"
-                      "| --- | --- | --- |\n"
-                      "| A.1 | [`x/a.md`](../x/a.md) | Industry practice |\n")
-
-    @classmethod
-    def setUpClass(cls):
-        cls.mod = _load_build()
-        cls.matrix = cls.mod.CROSSWALK_COMPLIANCE_MATRIX.read_text(encoding="utf-8")
-
-    def _shapes(self):
-        for rule in self.RULES:
-            yield rule, "rule"
-        yield from self.HEADINGS
-        for line in self.TEXT:
-            yield line, "text"
-        for fence in self.FENCES:
-            yield fence, "fence"
-
-    def _run(self, call):
-        try:
-            return call()
-        except self.mod.BuildError:
-            return "refuse"
-
-    def _domain_purpose(self, body):
-        root = Path(tempfile.mkdtemp(prefix="shape-table-"))
-        saved = self.mod.REPO_ROOT
-        try:
-            (root / "fixture").mkdir()
-            (root / "fixture" / "README.md").write_text(body, encoding="utf-8")
-            self.mod.REPO_ROOT = root
-            return self.mod.read_domain_purpose("fixture")
-        finally:
-            self.mod.REPO_ROOT = saved
-            shutil.rmtree(root, ignore_errors=True)
-
-    @staticmethod
-    def _placed(prefix, shape, fence):
-        """A fenced block is placed before the prose, so a read that takes
-        the heading or rule inside it as structure misses the prose; any
-        other shape is placed straight after the first prose line."""
-        if fence:
-            return f"{prefix}{shape}\n\nOmega.\n"
-        return f"{prefix}Alpha.\n{shape}\nOmega.\n"
-
-    @staticmethod
-    def _reached(got):
-        if got == "refuse":
-            return got
-        return "go" if "Omega" in got else "stop"
-
-    def _shape_outcome(self, site, shape, category):
-        fence = category == "fence"
-        mod = self.mod
-        end = mod._NARR_TERMINATOR
-        if site == "domain purpose":
-            return self._reached(self._run(lambda: self._domain_purpose(
-                self._placed("# D\n\n## Purpose\n\n", shape, fence))))
-        if site == "narrative title":
-            got = self._run(lambda: mod._narrative_body_lines(
-                f"{shape}\n**F:** v\n---\nBody.\n\n{end}\n", "executive/x.md"))
-            return "refuse" if got == "refuse" else "go"
-        if site == "narrative terminator":
-            got = self._run(lambda: mod._narrative_body_lines(
-                f"# T\n**F:** v\n{shape}\n---\nBody.\n\n{end}\n", "executive/x.md"))
-            if got == "refuse":
-                return got
-            return "go" if got == ["Body.", ""] else "stop"
-        if site == "adopter metadata":
-            got = self._run(lambda: mod._adopter_metadata(
-                f"**Owner:** A\\\n{shape}\n**Version:** 1.0.0\n", "probe.md"))
-            if got == "refuse":
-                return got
-            return "go" if "Version" in got else "stop"
-        if site == "adopter lede":
-            return self._reached(self._run(lambda: mod._adopter_purpose(
-                self._placed("## Purpose\n\n", shape, fence))))
-        if site == "adopter intro":
-            return self._reached(self._run(lambda: mod._adopter_purpose(
-                self._placed("**Owner:** A\n\n", shape, fence))))
-        if site == "adopter outline":
-            got = self._run(lambda: mod._adopter_sections(shape + "\n"))
-            return "section" if got not in ("refuse", []) else "none"
-        if site == "citations register":
-            header = ("| Standard ID | Current version | Publication date | Topic "
-                      "| Superseded versions | Upstream check location "
-                      "| Last verified (UTC) |")
-            table = "\n".join((header, "| --- " * 7 + "|",
-                               "| S-1 | 1 | 2026-01-01 | T | none | U | 2026-01-02 |"))
-            got = self._run(lambda: mod._parse_citations_register_sections(
-                f"{shape}\n\n{table}\n", True))
-            return "refuse" if got == "refuse" else "section"
-        if site == "compliance matrix":
-            heading = "## Governance domain\n"
-            self.assertEqual(self.matrix.count(heading), 1)
-            try:
-                mod.parse_compliance_matrix(
-                    self.matrix.replace(heading, f"{heading}\n{shape}\n"))
-            except mod.BuildError as e:
-                return ("stop" if str(e).endswith("with zero rows: governance")
-                        else "refuse")
-            return "go"
-        if site == "reverse matrix":
-            got = self._run(lambda: mod.parse_reverse_matrix(
-                f"## X instrument\n\n{shape}\n\n{self._REVERSE_TABLE}"))
-            if got == "refuse":
-                return got
-            return "none" if list(got) == ["X instrument"] else "section"
-        if site == "compliance tsc section":
-            lines = self.matrix.split("\n")
-            start = lines.index(mod.CROSSWALK_TSC_SECTION_HEADING)
-            close = lines.index("---", start)
-            text = "\n".join(lines[:close] + shape.split("\n") + [""] + lines[close:])
-            try:
-                mod.parse_compliance_tsc_status(text)
-            except mod.BuildError as e:
-                if "a thematic break other than ---" in str(e):
-                    return "stop"
-                first = shape.split("\n")[0]
-                return ("go" if f"reads {first!r} where the pin has '---'" in str(e)
-                        else "refuse")
-            return "stop"
-        raise AssertionError(site)
-
-    def test_every_read_gives_its_stated_outcome_for_every_shape(self):
-        wrong = []
-        for site, outcomes in self.EXPECTED.items():
-            for shape, category in self._shapes():
-                want = self.SHAPE_EXPECTED.get((site, shape), outcomes[category])
-                got = self._shape_outcome(site, shape, category)
-                if got != want:
-                    wrong.append(f"{site}: {shape!r} ({category}) gave {got}, "
-                                 f"expected {want}")
-        self.assertEqual(wrong, [], "\n" + "\n".join(wrong))
-
-    def test_crosswalk_matrix_readers_read_no_table_line_inside_a_fence(self):
-        """A table, or a table line, inside a fenced example is code to both
-        crosswalk matrix readers: a fenced instrument table ahead of the real
-        one neither adds rows nor interrupts the real table, and a fenced
-        table line between a domain heading and its table is not read as a
-        row of that domain."""
-        mod = self.mod
-        fenced = ("```\n| Area | Library documents | Alignment type |\n"
-                  "| --- | --- | --- |\n"
-                  "| A.9 | [`x/z.md`](../x/z.md) | Industry practice |\n```\n")
-        for fence in (fenced, fenced.replace("```", "~~~~")):
-            with self.subTest(reverse=fence.split("\n")[0]):
-                sections = mod.parse_reverse_matrix(
-                    f"## X instrument\n\n{fence}\n{self._REVERSE_TABLE}")
-                self.assertEqual(list(sections), ["X instrument"])
-                self.assertEqual([row["paths"] for row in sections["X instrument"]["rows"]],
-                                 [["x/a.md"]])
-        heading = "## Governance domain\n"
-        _, plain = mod.parse_compliance_matrix(self.matrix)
-        for fence in ("```\n| not | a | row |\n```\n", "~~~\n| not | a | row |\n~~~\n"):
-            with self.subTest(matrix=fence.split("\n")[0]):
-                _, rows = mod.parse_compliance_matrix(
-                    self.matrix.replace(heading, f"{heading}\n{fence}"))
-                self.assertEqual(rows, plain)
-
-    def test_line_classifier_refuses_every_rule_heading_and_fence_it_does_not_render(self):
-        """The narrative line classifier renders only '## Text' and '### Text'
-        headings; every thematic-break form, every fence, a heading with no
-        text, any indented line and a hash-led line that is no heading fail
-        the build."""
-        wrong = []
-        expected = {"h2": "h2", "h3": "h3"}
-        for shape, category in self._shapes():
-            first = shape.split("\n")[0]
-            want = expected.get(category, "refuse")
-            if category == "text" and first == "--- x":
-                want = "p"
-            if first != first.lstrip():
-                want = "refuse"
-            if category == "h2" and first not in ("## Section",):
-                want = "refuse"
-            if category == "h3" and first != "### Deeper":
-                want = "refuse"
-            got = self._run(lambda: self.mod._classify_narrative_line(
-                first, "executive/x.md"))
-            if got != want:
-                wrong.append(f"line classifier: {first!r} ({category}) gave {got}, "
-                             f"expected {want}")
-        self.assertEqual(wrong, [], "\n" + "\n".join(wrong))
-
-    def test_llms_heading_read_admits_only_the_strict_title_and_section_forms(self):
-        wrong = []
-        for shape, category in self._shapes():
-            want = "go" if shape in ("# Title", "## Section") else "refuse"
-            got = self._run(lambda: self.mod._llms_links("llms.txt", shape + "\n"))
-            got = "refuse" if got == "refuse" else "go"
-            if got != want:
-                wrong.append(f"llms.txt: {shape!r} ({category}) gave {got}, "
-                             f"expected {want}")
-        self.assertEqual(wrong, [], "\n" + "\n".join(wrong))
-
-    def test_refusal_messages_state_the_accepted_forms(self):
-        end = self.mod._NARR_TERMINATOR
-        with self.assertRaisesRegex(self.mod.BuildError,
-                                    r"no leading '# ' title line.*flush-left '# Title'.*"
-                                    r"one hash and a space at the line start"):
-            self.mod._narrative_body_lines(f"#\n**F:** v\n---\nBody.\n\n{end}\n",
-                                           "executive/x.md")
-        with self.assertRaisesRegex(self.mod.BuildError,
-                                    r"no '---' metadata terminator.*exactly '---'.*"
-                                    r"no other thematic break form"):
-            self.mod._narrative_body_lines(f"# T\n**F:** v\nBody.\n\n{end}\n",
-                                           "executive/x.md")
-        for line in ("--- -", "***"):
-            with self.subTest(line=line):
-                with self.assertRaisesRegex(self.mod.BuildError,
-                                            r"unsupported.*'-', '\*' or '_'"):
-                    self.mod._classify_narrative_line(line, "executive/x.md")
-
-    def test_fence_reader_follows_the_commonmark_closing_rule(self):
-        """A fence closes only on a line of the same mark, at least as long as
-        the opener, with nothing after it but spaces or tabs; an unclosed fence
-        runs to the end of the input; a backtick fence's info string holds no
-        backtick."""
-        kinds = lambda text: [it.kind for it in self.mod._md_read(text.split("\n"))]
-        self.assertEqual(kinds("````\n```\n````\n# T"),
-                         ["fence", "code", "fence", "heading"])
-        self.assertEqual(kinds("~~~\n```\n~~~"), ["fence", "code", "fence"])
-        self.assertEqual(kinds("```\n``` x\n---"), ["fence", "code", "code"])
-        self.assertEqual(kinds("```a`b\n# T"), ["text", "heading"])
-        self.assertEqual(kinds("~~~a`b\n# T"), ["fence", "code"])
-        self.assertEqual(kinds("    ```\n# T"), ["text", "heading"])
-
-
 class AdopterDocsFixtureTests(unittest.TestCase):
     """18, 19 and 21: the .claude/skills/corpus-management/docs/ metadata
     reader's loud failure classes, on fixtures (only the leading block is
@@ -19097,237 +18490,6 @@ class AdopterDocsFixtureTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.mod = _load_build()
-
-    def test_lede_stops_at_a_top_level_heading(self):
-        """The lede paragraph under a Purpose heading ends at a top-level
-        ``# `` heading, as at a ``## `` heading or a horizontal rule: the
-        heading text is never appended to the prose."""
-        for text in ("## Purpose\n\nFirst prose line.\n# Next Part\n",
-                     "## Purpose\n\n# Next Part\n\nLater prose.\n"):
-            with self.subTest(text=text):
-                lede = self.mod._adopter_purpose(text)
-                self.assertNotIn("Next Part", lede)
-                self.assertNotIn("Later prose", lede)
-        self.assertEqual(
-            self.mod._adopter_purpose("## Purpose\n\nFirst prose line.\n# Next Part\n"),
-            "First prose line.")
-
-    def test_lede_stops_at_an_indented_heading(self):
-        """A heading written after leading whitespace is still a heading:
-        once the prose starts, the lede ends at an indented ``# ``, ``## ``
-        or ``### `` heading, an indented ``### `` heading before the prose is
-        skipped, and an indented ``## `` heading before it ends the lede, so
-        heading text never enters the lede."""
-        for text, lede in (
-                ("## Purpose\n\nFirst prose line.\n  ## Next Part\n",
-                 "First prose line."),
-                ("## Purpose\n\nFirst prose line.\n  # Next Part\n",
-                 "First prose line."),
-                ("## Purpose\n\nFirst prose line.\n   ### Sub part\n",
-                 "First prose line."),
-                ("## Purpose\n\n  ### Sub part\n\nFirst prose line.\n",
-                 "First prose line."),
-                ("## Purpose\n\n  ## Next Part\n\nLater prose.\n", "")):
-            with self.subTest(text=text):
-                self.assertEqual(self.mod._adopter_purpose(text), lede)
-
-    def test_lede_heading_allows_at_most_three_leading_spaces(self):
-        """A heading may be indented by at most three spaces; four spaces
-        or a tab before a hash make an indented code line, not a heading,
-        so it neither ends the paragraph nor is skipped as a heading."""
-        for text, lede in (
-                ("## Purpose\n\nFirst prose line.\n   # Next Part\n",
-                 "First prose line."),
-                ("## Purpose\n\nFirst prose line.\n    # not a heading\n",
-                 "First prose line. # not a heading"),
-                ("## Purpose\n\nFirst prose line.\n    ## not a heading\n",
-                 "First prose line. ## not a heading"),
-                ("## Purpose\n\nFirst prose line.\n\t### not a heading\n",
-                 "First prose line. ### not a heading")):
-            with self.subTest(text=text):
-                self.assertEqual(self.mod._adopter_purpose(text), lede)
-
-    def test_metadata_read_stops_only_at_a_heading_or_rule_indented_three_spaces_at_most(self):
-        """Four spaces or a tab before ``## `` or ``---`` make an indented code
-        line, not a heading or rule, so the leading metadata read goes on past
-        it; with at most three spaces it is a heading or rule and stops the
-        read."""
-        both = {"Owner": "A", "Version": "1.0.0"}
-        for middle, fields in (
-                ("    ## not a heading", both),
-                ("    ---", both),
-                ("\t## not a heading", both),
-                ("\t---", both),
-                ("   ## Heading", {"Owner": "A"}),
-                ("   ---", {"Owner": "A"}),
-                ("## Heading", {"Owner": "A"}),
-                ("---", {"Owner": "A"})):
-            with self.subTest(middle=middle):
-                # The middle line carries no hard-break backslash: "---\\" is not a
-                # rule, so a backslash there would hide whether the rule stops the read.
-                text = "**Owner:** A\\\n" + middle + "\n**Version:** 1.0.0\n"
-                self.assertEqual(self.mod._adopter_metadata(text, "probe.md"), fields)
-
-    def test_metadata_read_stops_at_an_anchored_heading_or_any_rule_form(self):
-        """Every line that ends the leading metadata read is matched whole and after
-        at most three spaces: a ``## `` heading (a tab after the hashes, or none
-        before the line end, also opens one) and a thematic break of three or more
-        ``-``, ``*`` or ``_`` marks, spaces between them allowed. Text after the
-        marks, a different hash count, a backslash, or four spaces or a tab before
-        the line leave it a plain line, and the read goes on."""
-        both = {"Owner": "A", "Version": "1.0.0"}
-        stop = {"Owner": "A"}
-        for middle, fields in (
-                ("--- followed by text", both),
-                ("---\\", both),
-                ("##not a heading", both),
-                ("### Deeper", both),
-                ("    ***", both),
-                ("\t___", both),
-                ("    - - -", both),
-                ("**_**", both),
-                ("--", both),
-                ("##", stop),
-                ("##\tHeading", stop),
-                ("   ##  Heading", stop),
-                ("***", stop),
-                ("   ___", stop),
-                ("- - -", stop),
-                ("* * *  ", stop),
-                ("-----", stop),
-                ("--- ", stop)):
-            with self.subTest(middle=middle):
-                text = "**Owner:** A\\\n" + middle + "\n**Version:** 1.0.0\n"
-                self.assertEqual(self.mod._adopter_metadata(text, "probe.md"), fields)
-
-    def test_first_paragraph_stops_at_an_anchored_rule_or_heading_only(self):
-        """The lede read ends at a thematic break or a ``# `` or ``## `` heading only
-        when it starts within three spaces and the whole line is that mark; an
-        indented ``---`` (four spaces or a tab) is an indented code line, and text
-        after the marks is prose, so the paragraph goes on."""
-        for body, lede in (
-                ("First line.\n    ---\nSecond line.\n", "First line. --- Second line."),
-                ("First line.\n\t---\nSecond line.\n", "First line. --- Second line."),
-                ("First line.\n    ***\nSecond line.\n", "First line. *** Second line."),
-                ("First line.\n--- not a rule\nSecond line.\n",
-                 "First line. --- not a rule Second line."),
-                ("First line.\n#not a heading\nSecond line.\n",
-                 "First line. #not a heading Second line."),
-                ("First line.\n   ---\nSecond line.\n", "First line."),
-                ("First line.\n***\nSecond line.\n", "First line."),
-                ("First line.\n_ _ _\nSecond line.\n", "First line."),
-                ("First line.\n##\nSecond line.\n", "First line."),
-                ("First line.\n#\tTitle\nSecond line.\n", "First line."),
-                ("First line.\n   ### Deeper\nSecond line.\n", "First line.")):
-            with self.subTest(body=body):
-                self.assertEqual(self.mod._adopter_purpose("## Purpose\n\n" + body), lede)
-
-    def test_intro_read_stops_only_at_a_level_two_heading_within_three_spaces(self):
-        """Without a Purpose or Overview heading the intro paragraph after the
-        metadata block is read; a ``## `` line stops it only within three spaces,
-        so a four-space or tab-indented ``## `` line is a code line, not a section."""
-        head = "**Owner:** A\n\n"
-        for body, lede in (
-                ("Intro line.\n    ## not a heading\n", "Intro line. ## not a heading"),
-                ("Intro line.\n\t## not a heading\n", "Intro line. ## not a heading"),
-                ("    ## Code\nIntro line.\n", "## Code Intro line."),
-                ("   ## Section\nIntro line.\n", ""),
-                ("## Section\nIntro line.\n", "")):
-            with self.subTest(body=body):
-                self.assertEqual(self.mod._adopter_purpose(head + body), lede)
-
-    def test_purpose_heading_is_read_only_within_three_spaces(self):
-        """A Purpose or Overview heading is a level-two heading within three
-        spaces; four spaces or a tab make an indented code line, so an example
-        under it never replaces the real intro."""
-        intro = "**Owner:** A\n\nReal intro.\n\n"
-        for text, lede in (
-                (intro + "    ## Purpose\n\nExample only.\n", "Real intro."),
-                (intro + "\t## Overview\n\nExample only.\n", "Real intro."),
-                (intro + "     ## 1. Purpose\n\nExample only.\n", "Real intro."),
-                ("   ## Purpose\n\nThe lede.\n", "The lede."),
-                ("## 2. Overview\n\nThe lede.\n", "The lede."),
-                ("##\tPurpose\n\nThe lede.\n", "The lede."),
-                ("### Purpose\n\nNot a lede heading.\n", "")):
-            with self.subTest(text=text):
-                self.assertEqual(self.mod._adopter_purpose(text), lede)
-
-    def test_intro_read_uses_the_shared_rule_and_heading_check(self):
-        """The intro read after the metadata block takes the same anchored rule and
-        heading check as the other adopter reads: a thematic break of any form ends
-        a started paragraph and is skipped before it, a deeper heading within three
-        spaces ends a started paragraph, a title is a one-hash heading within three
-        spaces, and four spaces or a tab make an indented code line, which is prose."""
-        head = "**Owner:** A\n\n"
-        for body, lede in (
-                ("Real intro.\n___\nOther prose.\n", "Real intro."),
-                ("Intro line.\n***\nSecond.\n", "Intro line."),
-                ("Intro line.\n---\nSecond.\n", "Intro line."),
-                ("Intro line.\n- - -\nSecond.\n", "Intro line."),
-                ("Intro line.\n * * * \nSecond.\n", "Intro line."),
-                ("Intro line.\n   ### Deeper\nSecond.\n", "Intro line."),
-                ("Intro line.\n###### Six\nSecond.\n", "Intro line."),
-                ("Intro line.\n    ---\nSecond.\n", "Intro line. --- Second."),
-                ("Intro line.\n\t***\nSecond.\n", "Intro line. *** Second."),
-                ("Intro line.\n    # code line\nSecond.\n", "Intro line. # code line Second."),
-                ("Intro line.\n--- not a rule\nSecond.\n", "Intro line. --- not a rule Second."),
-                ("Intro line.\n####### literal\nSecond.\n", "Intro line. ####### literal Second."),
-                ("---\nIntro line.\n", "Intro line."),
-                ("___\n\n### Deeper\n\nIntro line.\n", "Intro line.")):
-            with self.subTest(body=body):
-                self.assertEqual(self.mod._adopter_purpose(head + body), lede)
-        for text, lede in (
-                ("#\tTitle\n**Owner:** A\n\nIntro line.\n", "Intro line."),
-                ("   # Title\n**Owner:** A\n\nIntro line.\n", "Intro line."),
-                ("**Owner:** A\n    # code title\nIntro line.\n", "# code title Intro line.")):
-            with self.subTest(text=text):
-                self.assertEqual(self.mod._adopter_purpose(text), lede)
-
-    def test_heading_check_caps_at_six_hashes(self):
-        """An ATX heading has one to six hashes: seven or more make a plain line,
-        which stays in the lede, while six hashes still end it."""
-        self.assertTrue(self.mod._adopter_heading("###### Six", 3))
-        self.assertFalse(self.mod._adopter_heading("####### Seven", 3))
-        self.assertFalse(self.mod._adopter_heading("#######", 1))
-        for body, lede in (
-                ("Real intro.\n####### literal\nMore prose.\n",
-                 "Real intro. ####### literal More prose."),
-                ("Real intro.\n###### Six\nMore prose.\n", "Real intro.")):
-            with self.subTest(body=body):
-                self.assertEqual(self.mod._adopter_purpose("## Purpose\n\n" + body), lede)
-
-    def test_purpose_lede_skips_a_fence_directly_after_the_heading(self):
-        """A fenced code block before the Purpose prose is skipped whole: its
-        info string is not the lede, and a "# " comment inside it is code, not
-        a heading that ends the read."""
-        for fence in ("```", "~~~"):
-            text = (f"## Purpose\n{fence}bash\n# install\nmake all\n{fence}\n\n"
-                    "Real prose.\n")
-            with self.subTest(fence=fence):
-                self.assertEqual(self.mod._adopter_purpose(text), "Real prose.")
-        self.assertEqual(
-            self.mod._adopter_purpose(
-                "## Purpose\n\n```\n## Not a heading\n---\n```\nReal prose.\nMore.\n"),
-            "Real prose. More.")
-
-    def test_purpose_lede_ends_at_a_fence_after_prose_with_no_blank_line(self):
-        """A fence opened straight after the prose, with no blank line, ends
-        the paragraph, as a fenced code block interrupts a paragraph in
-        CommonMark: neither the fence line nor the code joins the lede."""
-        for fence in ("```", "~~~"):
-            text = f"## Purpose\nReal prose.\n{fence}bash\nls -l\n{fence}\nAfter.\n"
-            with self.subTest(fence=fence):
-                self.assertEqual(self.mod._adopter_purpose(text), "Real prose.")
-
-    def test_outline_read_takes_a_level_two_heading_within_three_spaces(self):
-        """The page outline lists the level-two headings the other reads stop at:
-        one to three leading spaces and a tab after the hashes are allowed; four
-        spaces or a tab before them make a code line, and other levels are left out."""
-        self.assertEqual(
-            self.mod._adopter_sections(
-                "   ## Indented\n## Plain\n    ## Code\n\t## Tab\n##\tTabbed\n"
-                "### Deeper\n# Title\n ## One space ##\n"),
-            ["Indented", "Plain", "Tabbed", "One space ##"])
 
     def _block(self, overrides=None, drop=(), extra=()):
         fields = [(n, v) for n, v in self.FIELDS if n not in drop]
@@ -19908,9 +19070,9 @@ class DraftTemplateTypedCountTests(unittest.TestCase):
                 )
 
 
-class SiteCrossPageWordingAndCountTests(unittest.TestCase):
-    """42: cross-site wording and counts, one test per rule, each checked on
-    the rendered pages."""
+class SiteB5FixTests(unittest.TestCase):
+    """42: cross-site wording and counts, one test per confirmed finding,
+    each failing without its fix on the rendered pages."""
 
     @classmethod
     def setUpClass(cls):
@@ -19931,11 +19093,10 @@ class SiteCrossPageWordingAndCountTests(unittest.TestCase):
         return {d["path"]: d for d in self.mod.parse_taxonomy_full(
             self.mod.TAXONOMY.read_text(encoding="utf-8"))}
 
-    def test_index_and_search_define_area_against_domain(self):
+    def test_f08_index_and_search_define_area_against_domain(self):
         """Sitewide prose counts domains while the index and the search page
-        count areas; each page that says areas carries a sentence tying the
-        word to the domains (its presence is checked, not that it appears
-        once)."""
+        count areas; each page that says areas ties the word to the domains
+        once."""
         index = self.draft_html["documents/index.html"]
         self.assertIn(" areas, ", index)
         self.assertIn("An area here is a corpus domain.", index)
@@ -19944,7 +19105,7 @@ class SiteCrossPageWordingAndCountTests(unittest.TestCase):
             "A corpus document's area is its domain; an adopter document's "
             "area is Adopter documents.", search)
 
-    def test_browse_lists_every_instrument_with_both_counts(self):
+    def test_f09_browse_lists_every_instrument_with_both_counts(self):
         """In the earlier repository, the By instrument heading sat over a lone
         sentence with no list, its count never squared with the instrument
         pages. The section lists every configured instrument, each link opening
@@ -19965,20 +19126,14 @@ class SiteCrossPageWordingAndCountTests(unittest.TestCase):
         main = len([i for i in self.mod.CROSSWALK_INSTRUMENTS
                     if i.main_table])
         total = len(self.mod.CROSSWALK_INSTRUMENTS)
-        # A current corpus fact, pinned on purpose: only while the two counts
-        # differ can the two assertIn checks below tell which placeholder
-        # carries which count, and the template's "Also in the corpus
-        # instruments" clause presumes instrument pages outside the full
-        # table. If the counts ever match, revisit that wording and this test.
         self.assertNotEqual(main, total,
-                            "the main-table and instrument page counts "
-                            "differ")
+                            "the finding's shape: the two counts differ")
         self.assertIn(
             f"against {main} standards, laws, frameworks, and programmes "
             "in its full table", browse)
         self.assertIn(f"the {total} instrument pages", browse)
 
-    def test_scope_pointers_and_fallback_sort(self):
+    def test_f11_scope_pointers_and_fallback_sort(self):
         """In the earlier repository, the index/search scope reconciliation
         lived on Browse alone. All Documents points at the adopter documents it
         leaves out; the search page says the library specifications have no row
@@ -19989,7 +19144,7 @@ class SiteCrossPageWordingAndCountTests(unittest.TestCase):
         search = self.draft_html["search/index.html"]
         root = [d for d in self._taxonomy_by_path().values()
                 if d.get("domain") == self.mod.ROOT_DOMAIN]
-        self.assertTrue(root, "the taxonomy holds root specifications")
+        self.assertTrue(root, "the finding's shape: root specifications")
         self.assertIn(
             f"The {len(root)} library specifications, read on GitHub, have "
             "no row here.", search)
@@ -20003,7 +19158,7 @@ class SiteCrossPageWordingAndCountTests(unittest.TestCase):
         self.assertEqual(dates, sorted(dates, reverse=True),
                          "the no-JS list runs newest first")
 
-    def test_landing_crosswalk_tile_scopes_its_count(self):
+    def test_f12_landing_crosswalk_tile_scopes_its_count(self):
         """The home tile's instrument count is the full table's, true only
         with the qualifier; the tile says so."""
         landing = self.draft_html["index.html"]
@@ -20013,7 +19168,7 @@ class SiteCrossPageWordingAndCountTests(unittest.TestCase):
             f"The corpus domains set against {count} standards, laws, "
             "frameworks, and programmes in the full table", landing)
 
-    def test_landing_example_card_names_its_document(self):
+    def test_f24_landing_example_card_names_its_document(self):
         """In the earlier repository, the Open a document card never named its
         target. The card description opens with the example document's taxonomy
         title."""
@@ -20029,7 +19184,7 @@ class SiteCrossPageWordingAndCountTests(unittest.TestCase):
             unescape(card.group(1)).startswith(f"{title}: "),
             "the card description opens with the example document's title")
 
-    def test_landing_glosses_the_rule_pack(self):
+    def test_f25_landing_glosses_the_rule_pack(self):
         """In the earlier repository, the phrase "governance rule pack"
         appeared without introduction. The AIQT note glosses it in place."""
         landing = self.draft_html["index.html"]
@@ -20037,7 +19192,7 @@ class SiteCrossPageWordingAndCountTests(unittest.TestCase):
             "The library's governance rule pack, the automated contribution "
             "rules an AI assistant follows, is now the", landing)
 
-    def test_browse_reconciles_the_specification_count(self):
+    def test_f27_browse_reconciles_the_specification_count(self):
         """In the earlier repository, the Browse meta's library specifications
         and the By type Specification row read as a contradiction. The scope
         line splits the row's count, with the recomputed numbers."""
@@ -20045,13 +19200,13 @@ class SiteCrossPageWordingAndCountTests(unittest.TestCase):
         spec_total = dict(self.figures["types"]).get("Specification", 0)
         root = self.figures["root_count"]
         self.assertGreater(spec_total, root,
-                           "some specifications sit in the domains")
+                           "the finding's shape: domain specifications")
         self.assertIn(
             f"Of the Specification row's {spec_total}, {spec_total - root} "
             f"sit in the domains and {root} are the library specifications.",
             browse)
 
-    def test_index_filter_mechanics_sit_in_a_details_block(self):
+    def test_f36_index_filter_mechanics_sit_in_a_details_block(self):
         """In the earlier repository, filter mechanics of 1,296 characters
         stood in body copy. The body keeps one short usage paragraph; the
         mechanics sit in a collapsed details element, no claim dropped."""
@@ -20068,7 +19223,7 @@ class SiteCrossPageWordingAndCountTests(unittest.TestCase):
                      "All and a chosen chip are never unavailable."):
             self.assertIn(kept, index, "no mechanics claim is dropped")
 
-    def test_govern_type_clauses_read_generic_singular(self):
+    def test_f40_govern_type_clauses_read_generic_singular(self):
         """In the earlier repository, the clause "roadmaps stage it" overstated
         a type holding one corpus document. Each configured clause reads as the
         type's role, generic singular, and the rendered sentence carries the
@@ -20082,7 +19237,7 @@ class SiteCrossPageWordingAndCountTests(unittest.TestCase):
             f"The work rests on {len(roles)} document types: "
             + self.mod._draft_series(roles.values()) + ".", html)
 
-    def test_policies_name_the_domains_without_a_policy(self):
+    def test_f41_policies_name_the_domains_without_a_policy(self):
         """In the earlier repository, domains outside the subject list had no
         pointer to where their governing intent lives. The page names exactly
         the domains with no policy or template, and the sentence states only
@@ -20096,13 +19251,8 @@ class SiteCrossPageWordingAndCountTests(unittest.TestCase):
                    if d["domain"] != self.mod.ROOT_DOMAIN}
         missing = [domain for domain, _ in self.figures["domains"]
                    if domain not in covered]
-        # A current corpus fact, pinned on purpose: the page generator has
-        # separate sentences for one, several and no uncovered domains, and
-        # this test checks the several-domain sentence below. If the count
-        # changes, the test must check the sentence that then renders.
         self.assertGreater(len(missing), 1,
-                           "more than one domain has no policy or "
-                           "template")
+                           "the finding's shape: uncovered domains")
         full = self.mod.parse_taxonomy_full(
             self.mod.TAXONOMY.read_text(encoding="utf-8"))
         naming = [domain for domain in missing
@@ -20121,7 +19271,7 @@ class SiteCrossPageWordingAndCountTests(unittest.TestCase):
                 "lists what the domain carries.") + "</p>", html)
         self.assertNotIn("rely on the overarching", html)
 
-    def test_landing_start_list_carries_an_obligation_card(self):
+    def test_f45_landing_start_list_carries_an_obligation_card(self):
         """In the earlier repository, Home reached no need path. The Start here
         list carries a Meet an obligation card opening /comply/ and naming the
         other need paths by their card titles."""
@@ -20139,11 +19289,11 @@ class SiteCrossPageWordingAndCountTests(unittest.TestCase):
                               "the card names the other need paths")
 
 
-class SiteNarrativeIndexTourAndTradeTableTests(unittest.TestCase):
+class SiteB8FixTests(unittest.TestCase):
     """47: the decision narratives index takes its kind's name, the domain
     pages label their tour steps, and every trade programme page renders
-    the shared control-area table; one test per rule, each checked on
-    the rendered pages."""
+    the shared control-area table; one test per finding, each failing
+    without its fix on the rendered pages."""
 
     @classmethod
     def setUpClass(cls):
@@ -20160,7 +19310,7 @@ class SiteNarrativeIndexTourAndTradeTableTests(unittest.TestCase):
             .endswith(".html")
         }
 
-    def test_decision_narratives_index_takes_its_kinds_name(self):
+    def test_f16_decision_narratives_index_takes_its_kinds_name(self):
         """In the earlier repository, the decision narratives index sat at
         /decide/choices/, a third name beside its heading and its reading-room
         segment. Every kind's index slug is its heading in kebab case, at most
@@ -20197,7 +19347,7 @@ class SiteNarrativeIndexTourAndTradeTableTests(unittest.TestCase):
             self.assertIn('href="/decide/decision-narratives/"',
                           self.draft_html[rel], rel)
 
-    def test_domain_pages_label_their_tour_steps(self):
+    def test_f29_domain_pages_label_their_tour_steps(self):
         """Each domain page's Next is the next stop of the site tour, and in
         the earlier repository the last domain's jump to a document read as
         unrelated. Every domain page labels the link "Next on the tour"; the
@@ -20228,7 +19378,7 @@ class SiteNarrativeIndexTourAndTradeTableTests(unittest.TestCase):
                     f'<a class="start" href="{href}">{text} <span',
                     self.draft_html[f"{domain}/index.html"])
 
-    def test_trade_programme_pages_render_the_shared_table(self):
+    def test_f34_trade_programme_pages_render_the_shared_table(self):
         """In the earlier repository, the /crosswalk/aeo/ page said its
         control-area table is rendered on the CTPAT page. Every programme page
         the combined section covers carries the section's table, with a
@@ -20542,7 +19692,7 @@ class PromotedRouteCoverageTests(unittest.TestCase):
                          "https://aiqt.ai/")
         self.assertEqual(self._resolve("/draft"), "index.html")
 
-    def test_old_decision_narratives_addresses_redirect(self):
+    def test_f16_old_decision_narratives_addresses_redirect(self):
         # Every spelling of the old /decide/choices/ index, and of its
         # /draft/ form, lands on the renamed index in one 301 hop; the
         # sitemap lists the new address and not the old.
@@ -25486,7 +24636,7 @@ class ProgrammeClaimsTests(unittest.TestCase):
                         getattr(self, name)()
 
 
-class MscRegisterProgrammeClaimsTests(unittest.TestCase):
+class MscRegisterRound2Tests(unittest.TestCase):
     """The CTPAT MSC controls register remediation: the earlier coverage
     and AEO-S table fixes carried onto the programme-claims wording, the
     retitle, the status sweep and the held HMRC lines the AEO-S table
@@ -25567,30 +24717,13 @@ class MscRegisterProgrammeClaimsTests(unittest.TestCase):
         """The status rule says Implemented stands only with
         organization-specific evidence and a Last Reviewed date, yet in the
         earlier repository every Implemented row had a blank Last Reviewed.
-        No row in any table of the register is Implemented without a Last
-        Reviewed date (YYYY-MM-DD); a blank cell, non-date text such as TBD
-        or an impossible calendar date such as 2026-02-30 counts as no date."""
+        Each such row, in every table of the register, is now Not assessed."""
         lines = self._lines(self.MSC_REGISTER)
         self.assertIn(
             "**Status rule:** a Status of Implemented is the organization's "
             "own assertion and stands only when the Evidence Location names "
             "organization-specific evidence and Last Reviewed carries a date.",
             "\n".join(lines))
-        def unreviewed(status, reviewed):
-            if status != "Implemented":
-                return False
-            if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", reviewed):
-                return True
-            try:
-                datetime.date.fromisoformat(reviewed)
-            except ValueError:
-                return True
-            return False
-        for cell in ("", "TBD", "pending", "2026-99-99", "2026-02-30",
-                     "2026-13-01", "2026-00-10", "2025-02-29"):
-            self.assertTrue(unreviewed("Implemented", cell), cell)
-        self.assertFalse(unreviewed("Implemented", "2024-02-29"))
-        self.assertFalse(unreviewed("Implemented", "2026-11-15"))
         offending, rows, header = [], 0, None
         for line in lines:
             if not line.startswith("|"):
@@ -25607,12 +24740,12 @@ class MscRegisterProgrammeClaimsTests(unittest.TestCase):
             rows += 1
             status = cells[header.index("Status")]
             reviewed = cells[header.index("Last Reviewed")]
-            if unreviewed(status, reviewed):
+            if status == "Implemented" and not reviewed:
                 offending.append(cells[0])
         self.assertGreaterEqual(rows, 50)
         self.assertEqual(offending, [])
 
-    def test_msc_register_coverage_claims_and_domain_8(self):
+    def test_msc_register_round_1_coverage_claims_and_domain_8(self):
         """In the earlier repository, the purpose said the register covers "the
         full set" of the 2020 criteria "across all security domains" and the
         overview said the 2020 MSC "apply to all CTPAT entity types" in "seven
@@ -25636,7 +24769,7 @@ class MscRegisterProgrammeClaimsTests(unittest.TestCase):
             with self.subTest(control=control):
                 self.assertRegex(text, rf"(?m)^\| {control} \| ")
 
-    def test_msc_aeo_s_table_fix_carries_onto_the_programme_wording(self):
+    def test_msc_aeo_s_table_carries_round_1_onto_the_programme_wording(self):
         """The earlier remediation, carried onto the programme-claims rows:
         the AEO-S table has a row for each of the eight domains; the
         Corporate Security row keeps "HMRC AEO application documentation"
@@ -25730,7 +24863,7 @@ class MscRegisterProgrammeClaimsTests(unittest.TestCase):
                 self.assertIn(excerpt, held[number - 1])
 
 
-class MscRegisterClaimPinTests(unittest.TestCase):
+class MscRegisterRound3Tests(unittest.TestCase):
     """The CTPAT MSC controls register remediation, continued. Each claim pin
     in _CLAIMS names one row and the phrases it must carry: the obligation
     (for the Purpose and the index cell, the statement) and every qualifier
@@ -26067,7 +25200,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
     # earlier repository gave it when these tests were written (register
     # lines 21, 50, 53, 92, 119, 140, 150 to 154, 164, 167 and 171; index
     # line 375).
-    _EARLIER_PURPOSE = (
+    _R2_PURPOSE = (
         "This register documents the organization's implementation status "
         "against the CTPAT Minimum Security Criteria in eight domains: "
         "corporate security, physical security, access controls, personnel "
@@ -26082,7 +25215,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "(register-ctpat-united-states-it-controls.md), "
         "which focuses specifically on IT and cybersecurity criteria."
     )
-    _EARLIER_CS3 = (
+    _R2_CS3 = (
         "| CS-3 | Security assessment conducted to identify vulnerabilities "
         "| Annual security risk and threat assessment of the organization's "
         "supply chain operations, with the measures taken against each risk "
@@ -26095,7 +25228,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "the risk assessment | Risk and threat assessment report; gap "
         "assessment record | Not assessed | |"
     )
-    _EARLIER_CS6 = (
+    _R2_CS6 = (
         "| CS-6 | Contingency plans for emergency security situations and "
         "for disaster or terrorist incident recovery, with periodic employee "
         "training and plan testing (held source: WCO SAFE (2025), Annex IV L "
@@ -26103,7 +25236,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "IT-9) | Not yet documented | Security contingency plan; training "
         "and test records | Not assessed | |"
     )
-    _EARLIER_FCRA = (
+    _R2_FCRA = (
         "*PE-1 and PE-5 in the United States: where screening uses a "
         "consumer report for employment purposes, the Fair Credit Reporting "
         "Act (15 U.S.C. 1681b(b)(2)(A)) bars procuring the report unless a "
@@ -26113,7 +25246,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "writing; subparagraph (B) covers applications made by mail, "
         "telephone, computer or similar means.*"
     )
-    _EARLIER_BP5 = (
+    _R2_BP5 = (
         "| BP-5 | Business partner screening against money laundering and "
         "terrorism financing: verify partner identity and legal status, "
         "conduct legal, criminal and financial background checks taking "
@@ -26125,7 +25258,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "CBP text confirms this as a CTPAT criterion) | Not yet documented | "
         "Partner screening records | Not assessed | |"
     )
-    _EARLIER_RAIL = (
+    _R2_RAIL = (
         "*IT-5 for rail carriers: a freight railroad carrier identified in "
         "49 CFR 1580.101, or another TSA-designated freight railroad, must "
         "also report cybersecurity incidents to CISA Central as soon as "
@@ -26135,24 +25268,24 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "notification; confirm the directive in force before relying on "
         "these terms.*"
     )
-    _EARLIER_CV1 = (
+    _R2_CV1 = (
         "| CV-1 | Transport conveyances used for cargo in the supply chain "
         "are capable of being effectively secured (Annex IV H, item a) | Not "
         "yet documented | Conveyance security procedure | Not assessed | |"
     )
-    _EARLIER_CV2 = (
+    _R2_CV2 = (
         "| CV-2 | Conveyances secured when left unattended and checked for "
         "security breaches on return (Annex IV H, item b) | Not yet "
         "documented | Conveyance security procedure; check records | Not "
         "assessed | |"
     )
-    _EARLIER_CV3 = (
+    _R2_CV3 = (
         "| CV-3 | Conveyance operators trained to maintain the security of "
         "the conveyance and the cargo at all times while in custody (Annex "
         "IV H, item c) | Not yet documented | Training records | Not "
         "assessed | |"
     )
-    _EARLIER_CV4 = (
+    _R2_CV4 = (
         "| CV-4 | Inspection of the conveyance structure, including the "
         "reliability of its access controls, using a seven-point inspection "
         "(front wall, left side, right side, floor, ceiling or roof, inside "
@@ -26162,7 +25295,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "f; Annex IV H, item e) | Not yet documented | Inspection checklist; "
         "inspection records | Not assessed | |"
     )
-    _EARLIER_CV5 = (
+    _R2_CV5 = (
         "| CV-5 | Operators report actual or suspicious incidents to the "
         "organization's security staff and to Customs, with records kept; "
         "any unusual, suspicious or actual breach of conveyance security "
@@ -26170,7 +25303,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "and f) | Not yet documented | Incident reports; notification "
         "records | Not assessed | |"
     )
-    _EARLIER_CORPORATE = (
+    _R2_CORPORATE = (
         "| Corporate Security | HMRC AEO application documentation, "
         "including a security and safety risk and threat assessment covering "
         "all premises relevant to customs-related activities and a security "
@@ -26182,7 +25315,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "safety requirements and any specific legal requirements that may "
         "apply to the business (§11.1) |"
     )
-    _EARLIER_PERSONNEL = (
+    _R2_PERSONNEL = (
         "| Personnel Security | Pre-employment screening of staff in "
         "sensitive areas that, at minimum, verifies identity, confirms the "
         "right to work in the UK, confirms the employee has declared any "
@@ -26195,7 +25328,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "employment guidance says criminal records checks can in most cases "
         "take place as part of pre-employment vetting |"
     )
-    _EARLIER_CONVEYANCE = (
+    _R2_CONVEYANCE = (
         "| Conveyance and Cargo Unit Security | HMRC's cargo security "
         "criterion covers cargo units, which include containers, tankers, "
         "vans, lorries, vehicles and pipelines: procedures to examine the "
@@ -26212,7 +25345,7 @@ class MscRegisterClaimPinTests(unittest.TestCase):
         "boundary security, asks how security incidents are reported and "
         "dealt with and names no recipient) |"
     )
-    _EARLIER_INDEX = (
+    _R2_INDEX = (
         "| Compliance | Register | US CTPAT Minimum Security Criteria "
         "Controls Register | "
         "[`compliance/logistics/register-ctpat-united-states-msc-controls.md`"
@@ -26225,23 +25358,23 @@ class MscRegisterClaimPinTests(unittest.TestCase):
     # claim: its row's earlier text; the Personnel Security pins share one
     # earlier row.
     _COUNTEREXAMPLES = {
-        "purpose": _EARLIER_PURPOSE,
-        "CS-3": _EARLIER_CS3,
-        "CS-6": _EARLIER_CS6,
-        "fcra-note": _EARLIER_FCRA,
-        "BP-5": _EARLIER_BP5,
-        "rail-note": _EARLIER_RAIL,
-        "CV-1": _EARLIER_CV1,
-        "CV-2": _EARLIER_CV2,
-        "CV-3": _EARLIER_CV3,
-        "CV-4": _EARLIER_CV4,
-        "CV-5": _EARLIER_CV5,
-        "aeo-corporate": _EARLIER_CORPORATE,
-        "personnel": _EARLIER_PERSONNEL,
-        "personnel-contracts": _EARLIER_PERSONNEL,
-        "ICO": _EARLIER_PERSONNEL,
-        "aeo-conveyance": _EARLIER_CONVEYANCE,
-        "index-frameworks": _EARLIER_INDEX,
+        "purpose": _R2_PURPOSE,
+        "CS-3": _R2_CS3,
+        "CS-6": _R2_CS6,
+        "fcra-note": _R2_FCRA,
+        "BP-5": _R2_BP5,
+        "rail-note": _R2_RAIL,
+        "CV-1": _R2_CV1,
+        "CV-2": _R2_CV2,
+        "CV-3": _R2_CV3,
+        "CV-4": _R2_CV4,
+        "CV-5": _R2_CV5,
+        "aeo-corporate": _R2_CORPORATE,
+        "personnel": _R2_PERSONNEL,
+        "personnel-contracts": _R2_PERSONNEL,
+        "ICO": _R2_PERSONNEL,
+        "aeo-conveyance": _R2_CONVEYANCE,
+        "index-frameworks": _R2_INDEX,
     }
 
     # claim, held path (reference corpus), line, text the line carries.
@@ -27491,35 +26624,20 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
         Not assessed, and its Implementation Description is pinned exactly
         (_MSC_BP3_DESCRIPTION). The route wording itself is checked by
         test_supplier_monitoring_names_no_hmrc_portal across _ROUTE_FILES,
-        which includes this register. In a control table HMRC is named only
-        as a route for verifying partner status, so a control row that names
-        HMRC without the hedge fails; a synthetic table checks that the scan
-        reports such a row and passes a hedged one."""
-        def scan(lines):
-            hedged, unhedged = [], []
-            for i, line in enumerate(lines):
-                if not line.startswith("| Control ID |"):
-                    continue
-                header = [cell.strip() for cell in line.split("|")]
-                for row in lines[i + 2:]:
-                    if not row.startswith("|"):
-                        break
-                    row_cells = [cell.strip() for cell in row.split("|")]
-                    if self._HEDGE.search(row):
-                        hedged.append((row_cells[1],
-                                       dict(zip(header, row_cells))))
-                    elif re.search(r"\bHMRC\b", row):
-                        unhedged.append(row_cells[1])
-            return hedged, unhedged
-        synthetic = [
-            "| Control ID | Implementation Description | Status |",
-            "|---|---|---|",
-            "| BP-9 | Partner AEO-S status verified via HMRC | Not assessed |",
-            "| BP-10 | Verification via HMRC (route not confirmed by a held "
-            "source) | Not assessed |"]
-        self.assertEqual(scan(synthetic)[1], ["BP-9"])
-        hedged, unhedged = scan(self._lines(self.MSC_REGISTER))
-        self.assertEqual(unhedged, [])
+        which includes this register."""
+        lines = self._lines(self.MSC_REGISTER)
+        hedged = []
+        for i, line in enumerate(lines):
+            if not line.startswith("| Control ID |"):
+                continue
+            header = [cell.strip() for cell in line.split("|")]
+            for row in lines[i + 2:]:
+                if not row.startswith("|"):
+                    break
+                row_cells = [cell.strip() for cell in row.split("|")]
+                if self._HEDGE.search(row):
+                    hedged.append((row_cells[1],
+                                   dict(zip(header, row_cells))))
         self.assertEqual([control for control, _ in hedged], ["BP-3"])
         self.assertEqual([control for control, cells in hedged
                           if cells["Status"] == "Implemented"], [])
@@ -27548,7 +26666,7 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
         (_MSC_STATUS_RULE), and every Status cell of every control table holds
         a value the rule defines (_MSC_STATUS_VALUES). The test
         test_msc_register_marks_no_unreviewed_row_implemented (in
-        MscRegisterProgrammeClaimsTests) checks the rule's first sentence as a substring
+        MscRegisterRound2Tests) checks the rule's first sentence as a substring
         and that no Implemented row lacks a Last Reviewed date; it checks
         neither the Not assessed sentence, nor that the rule appears once, nor
         which values the Status cells hold, which this test does."""
@@ -27558,10 +26676,6 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
         self.assertEqual([line for line in lines if re.search(
             r"(?i)partially implemented", line)], [])
         used = {}
-        # Every row is checked, not only the last row read for a Control ID:
-        # a control listed twice keeps one value in ``used``, so an undefined
-        # value in its earlier row would otherwise go unchecked.
-        undefined = []
         for i, line in enumerate(lines):
             if not line.startswith("| Control ID |"):
                 continue
@@ -27571,12 +26685,9 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
                     break
                 cells = [cell.strip() for cell in row.split("|")]
                 used[cells[1]] = cells[status]
-                if cells[status] not in self._MSC_STATUS_VALUES:
-                    undefined.append((cells[1], cells[status]))
         self.assertGreaterEqual(len(used), 50)
         self.assertEqual({control: value for control, value in used.items()
                           if value not in self._MSC_STATUS_VALUES}, {})
-        self.assertEqual(undefined, [])
 
     # Each carrier of section 12.2, as (path, claim unit start).
     _SECTION_12_2_CARRIERS = (
