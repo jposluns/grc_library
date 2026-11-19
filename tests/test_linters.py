@@ -19135,6 +19135,93 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                 [[41, "SIGSTOP"], [42, "SIGSTOP"], [41, "SIGSTOP"], [42, "SIGSTOP"], [41, "SIGKILL"],
                  [42, "SIGKILL"]]) + "\n", detail)
 
+    def test_run_shell_stubbed_test_helper_process_lists_do_not_follow_the_listing(self) -> None:
+        """_procs_under and _all_procs_named return process ids in ascending order whatever order the /proc
+        listing gives, so the self-test SIGKILLs the processes _procs_under returns in the same order on every
+        platform. A clone of each reads a stand-in /proc listing 9, 10, 100 and self, once in ascending order
+        and once reversed, where every process is this user's, has its working directory in the path given and
+        has the command line given; both return 9, 10 then 100 over both listings. A helper that follows the
+        listing returns 100, 10 then 9 over the reversed one."""
+        driver = (
+            "import io, json, runpy, sys, types\n"
+            "t = runpy.run_path(sys.argv[1])\n"
+            "names = ('9', '10', '100', 'self')\n"
+            "def stand_in(order):\n"
+            "    def listdir(path):\n"
+            "        assert path == '/proc', path\n"
+            "        return sorted(names, key=lambda n: (not n.isdigit(), int(n) if n.isdigit() else 0),\n"
+            "                      reverse=order == 'reverse')\n"
+            "    def readlink(path):\n"
+            "        assert path.endswith('/cwd'), path\n"
+            "        return '/stand-in/work'\n"
+            "    return types.SimpleNamespace(listdir=listdir, readlink=readlink, getuid=lambda: 4242, sep='/',\n"
+            "                                 stat=lambda path: types.SimpleNamespace(st_uid=4242),\n"
+            "                                 path=types.SimpleNamespace(realpath=lambda path: path))\n"
+            "def stand_in_open(path, mode='r'):\n"
+            "    assert path.endswith('/cmdline') and mode == 'rb', path\n"
+            "    return io.BytesIO(b'stand-in\\0--flag\\0')\n"
+            "def clone(name, **bound):\n"
+            "    fn = t[name]\n"
+            "    g = dict(fn.__globals__)\n"
+            "    g.update(bound)\n"
+            "    return types.FunctionType(fn.__code__, g, fn.__name__, fn.__defaults__)\n"
+            "out = {}\n"
+            "for order in ('ascending', 'reverse'):\n"
+            "    under = clone('_procs_under', os=stand_in(order))\n"
+            "    named = clone('_all_procs_named', os=stand_in(order), open=stand_in_open)\n"
+            "    out[order] = [under(['/stand-in/work']), named('stand-in --flag')]\n"
+            "print('RESULT', json.dumps(out))\n")
+        result = self._run_selftest([sys.executable, "-I", "-B", "-c", driver,
+                                     str(REPO_ROOT / "tools" / "run-shell-stubbed.py")], timeout=120)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        pids = [9, 10, 100]
+        named = [[pid, "stand-in --flag"] for pid in pids]
+        self.assertEqual(result.stdout, "RESULT " + json.dumps({"ascending": [pids, named],
+                                                                "reverse": [pids, named]}) + "\n", detail)
+
+    def test_run_shell_stubbed_capture_scan_order_does_not_follow_the_listing(self) -> None:
+        """_probe_capture scans /proc in ascending process id order whatever order the listing gives: the scan
+        stops at its time limit, so which processes it found before that limit, and so which it describes,
+        would otherwise follow the listing, which the filesystem orders and the platform does not fix. Two
+        captures of this interpreter as the probe read a stand-in listing of 9, 10, 100 and self, once in
+        ascending order and once reversed, where 9, 10 and 100 are stand-in members of the run's session; each
+        reads their stat lines in the order 9, 10, 100 and describes each of them. A scan that follows the
+        listing reads 100, 10 then 9 over the reversed one."""
+        out, detail = self._probe_capture_driver(
+            "import tempfile\n"
+            "real_read, real_listdir = g['_capture_read'], g['_capture_listdir']\n"
+            "fake, sid = ('9', '10', '100'), 987654321\n"
+            "def run(order, log):\n"
+            "    def listdir(path):\n"
+            "        if path == '/proc':\n"
+            "            return sorted(fake + ('self',), reverse=order == 'reverse',\n"
+            "                          key=lambda n: (not n.isdigit(), int(n) if n.isdigit() else 0))\n"
+            "        if path.split('/')[2] in fake:\n"
+            "            return []\n"
+            "        return real_listdir(path)\n"
+            "    def read(path):\n"
+            "        entry = path.split('/')[2]\n"
+            "        if entry not in fake:\n"
+            "            return real_read(path)\n"
+            "        if path.endswith('/stat'):\n"
+            "            with open(log, 'a') as fh:\n"
+            "                fh.write(entry + '\\n')\n"
+            "            return f'{entry} (stand-in) S 1 {entry} {sid} 0 -1 0 0 0 0 0 0 0 0 0 0 1 0 5000 0 0\\n'\n"
+            "        return 'State:\\tS (sleeping)\\n' if path.endswith('/status') else ''\n"
+            "    g['_capture_listdir'], g['_capture_read'] = listdir, read\n"
+            "    lines = capture(os.getpid(), sid, None, budget=8.0)\n"
+            "    with open(log) as fh:\n"
+            "        return [fh.read().split(), lines]\n"
+            "with tempfile.TemporaryDirectory() as tmp:\n"
+            "    runs = {order: run(order, os.path.join(tmp, order)) for order in ('ascending', 'reverse')}\n"
+            "print(json.dumps(runs))\n")
+        for order in ("ascending", "reverse"):
+            reads, lines = out[order]
+            self.assertEqual(reads, ["9", "10", "100"], f"{order}{detail}")
+            for pid in reads:
+                self.assertIn(f"pid {pid} (run-session): State: S (sleeping)", "\n".join(lines), f"{order}{detail}")
+
     def test_run_shell_stubbed_first_temp_dir_removal_error_is_taken_as_a_failed_attempt(self) -> None:
         """Row X14, its temp dir part, driven, and row X1: a clone of run calls a clone of _run_shells whose
         stand-in shell (pid 41) is reaped by its first wait, whose scans find no member, whose kill reports the
@@ -52042,7 +52129,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         residual-scan.py NO_FS F fd8ff448f4d83f48d3e1116ac9b10d3c5ab8ed4d959ae888924679dd37cb194f
         run-linter-regression.py FIXED F 2c0d701c578569c68c73e4f697425cf0638e49baa9e93d3994ae44de98bb8e17
         run-pr-time-checks.sh FIXED F 2caed4bb6e25ef2dd77397ca021c6af8752991b3a80d5a0c3fc83a38df384c35
-        run-shell-stubbed.py NO_FS F 1c47f6b0bf71bf6bfe5391b07333f45c280472acbd844e4bedf7bb5705a7a6f8
+        run-shell-stubbed.py NO_FS F 465d8727efe5b9f21596c6d9885018e729078c79014346c1eea56a041a0fe974
         run_all_audits.sh FIXED F ec86a76e9dec99394069b2fccab2fb84c152f9e9a16214f02358d8e2c60862fc
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900

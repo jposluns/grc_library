@@ -346,10 +346,12 @@ def _rmtree(path: str) -> None:
 
 
 def _procs_under(paths) -> "list[int]":
-    """PIDs owned by this user whose working directory is inside one of paths (a test helper)."""
+    """PIDs owned by this user whose working directory is inside one of paths (a test helper), in ascending
+    process id order (_proc_entry_order), not the order the listing gives, so the order a caller signals
+    them in is the same on every platform."""
     roots = [os.path.realpath(x) + os.sep for x in paths]
     out = []
-    for entry in os.listdir("/proc"):
+    for entry in sorted(os.listdir("/proc"), key=_proc_entry_order):
         if not entry.isdigit():
             continue
         try:
@@ -364,9 +366,10 @@ def _procs_under(paths) -> "list[int]":
 
 
 def _all_procs_named(cmdline: str) -> "list[tuple[int, str]]":
-    """(pid, cmdline) of processes owned by this user whose command line is exactly cmdline (a test helper)."""
+    """(pid, cmdline) of processes owned by this user whose command line is exactly cmdline (a test helper),
+    in ascending process id order (_proc_entry_order), not the order the listing gives."""
     out = []
-    for entry in os.listdir("/proc"):
+    for entry in sorted(os.listdir("/proc"), key=_proc_entry_order):
         if not entry.isdigit():
             continue
         try:
@@ -3278,7 +3281,9 @@ def _probe_capture(pid, sid, stack_fd, budget=5.0, limit=16384, members=64, fds=
             put("procs", f"probe process group and session unreadable: {exc!r}")
         step("scanning /proc")
         found = {}
-        for entry in _capture_listdir("/proc"):
+        # Ascending process id order (_proc_entry_order), not the listing's own: the scan stops at its time
+        # limit, so the processes found before it, and so those described, would follow the listing.
+        for entry in sorted(_capture_listdir("/proc"), key=_proc_entry_order):
             if stopped(scan_deadline):
                 put("procs", f"process scan stopped at the time limit; {len(found)} processes found before it")
                 break
