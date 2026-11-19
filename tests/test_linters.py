@@ -16206,14 +16206,13 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"--self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: OK", result.stdout)
 
-    def test_run_shell_stubbed_session_scan_reads_a_non_utf8_command_name(self) -> None:
-        """_session_members read /proc/<pid>/stat as strict UTF-8 and caught only OSError, so one process on the
-        host whose command name held a byte that is not UTF-8 (0xff) raised UnicodeDecodeError, which failed the
-        tool's self-test and test_run_shell_stubbed_self_test. The scan and _fixture_identity beside it run here
-        over a fake /proc: a session leader named with 0xff, a member whose name holds 0xfe and a closing
-        parenthesis, a process of another session, an entry without a stat file and a non-numeric entry. The scan
-        returns the (pid, state) pairs of the session and _fixture_identity the leader's start time; neither
-        raises. The third read, SIGNAL_PROBE's registered_watch, runs in the next test."""
+    def test_run_shell_stubbed_session_scan_and_fixture_identity_read_a_non_utf8_command_name(self) -> None:
+        """_session_members and _fixture_identity each read /proc/<pid>/stat, whose command name may hold any
+        byte, including one that is not UTF-8 and a closing parenthesis. Both run here over a fake /proc: a
+        session leader named with 0xff, a member whose name holds 0xfe and a closing parenthesis, a process of
+        another session, an entry without a stat file and a non-numeric entry. The scan returns the (pid, state)
+        pairs of the session and _fixture_identity the leader's start time; neither raises. SIGNAL_PROBE's
+        registered_watch, the third read, has its own test in this class."""
         tail = b" 0 -1 4194304 0 0 0 0 0 0 0 0 20 0 1 0 %d 0 0\n"
         entries = {
             "41": b"41 (bad\xff name) S 1 41 41" + tail % 5001,
@@ -16258,20 +16257,19 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertIn('RESULT _fixture_identity "5001"\n', result.stdout, detail)
 
     def test_run_shell_stubbed_signal_probe_registers_a_watcher_with_a_non_utf8_command_name(self) -> None:
-        """The third /proc/<pid>/stat read made lenient beside _session_members is SIGNAL_PROBE's
-        registered_watch, which reads the fixture watcher's start time and writes "<pid> <start time> <dump fd>"
-        to the registry descriptor. That read sits inside "except Exception: pass", so a strict decode of a
-        command name holding 0xff did not raise: it left the watcher unregistered, and the test above still passed
-        with only this read reverted. Here the tool's own SIGNAL_PROBE text runs as _sigterm_cleanup_check runs it
-        (python -I -B -c, then the tool path and the ready, hold, dump and registry descriptors), except that the
-        path names a stand-in for the tool. The stand-in supplies the four names the probe takes from the tool
-        (run, _fixture_watch, _Terminated and _self_test_limits): its _fixture_watch returns watcher pid 41
-        without forking; its _self_test_limits calls _fixture_watch through its module globals on entry, as the
-        tool's does through _fixture_lifetime, and so reaches registered_watch; its run reports its call; and it
-        binds the probe's global name open (not builtins.open) to a function that serves /proc paths from a fake
-        /proc in which 41's command name holds 0xff and a closing parenthesis. The probe exits 0 after calling
-        run, registered_watch returns the watcher after one read, of /proc/41/stat, and the registry receives
-        "41 5001 <dump fd>"."""
+        """SIGNAL_PROBE's registered_watch reads the fixture watcher's start time from /proc/<pid>/stat and
+        writes "<pid> <start time> <dump fd>" to the registry descriptor. The read sits inside "except Exception:
+        pass", so a strict decode of a command name holding 0xff would not raise: it would leave the watcher
+        unregistered, which only the registry content shows. Here the tool's own SIGNAL_PROBE text runs as
+        _sigterm_cleanup_check runs it (python -I -B -c, then the tool path and the ready, hold, dump and registry
+        descriptors), except that the path names a stand-in for the tool. The stand-in supplies the four names the
+        probe takes from the tool (run, _fixture_watch, _Terminated and _self_test_limits): its _Terminated is an
+        Exception, as the tool's is; its _fixture_watch returns watcher pid 41 without forking; its
+        _self_test_limits calls _fixture_watch through its module globals on entry, as the tool's does through
+        _fixture_lifetime, and so reaches registered_watch; its run reports its call; and it binds the probe's
+        global name open (not builtins.open) to a function that serves /proc paths from a fake /proc in which 41's
+        command name holds 0xff and a closing parenthesis. The probe exits 0 after calling run, registered_watch
+        returns the watcher after one read, of /proc/41/stat, and the registry receives "41 5001 <dump fd>"."""
         tail = b" 0 -1 4194304 0 0 0 0 0 0 0 0 20 0 1 0 %d 0 0\n"
         standin = (
             "import contextlib, sys\n"
@@ -16282,7 +16280,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
             "    assert path.startswith('/proc/'), path\n"
             "    return real_open(ROOT + path[len('/proc'):], *args, **kwargs)\n"
             "sys.modules['__main__'].open = probe_open\n"
-            "class _Terminated(BaseException):\n"
+            "class _Terminated(Exception):\n"
             "    pass\n"
             "@contextlib.contextmanager\n"
             "def _self_test_limits():\n"
@@ -16332,6 +16330,5066 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertEqual(out["rc"], 0, detail)
         self.assertEqual(out["stdout"], "WATCH (41, 'writer') ['/proc/41/stat']\nRUN ('hold',)\n", detail)
         self.assertEqual(out["registry"], f"41 5001 {out['dump_fd']}\n", detail)
+
+    def test_run_shell_stubbed_session_members_raises_on_an_unparsable_stat_line(self) -> None:
+        """_session_members does not read a /proc entry whose stat line it cannot parse as an exited process: it
+        raises _UnparsableStat naming that entry and carrying the members it did read, so its callers fail closed.
+        _fixture_identity reads that entry as having no start time and does not raise. Each case runs over its
+        own fake /proc holding a session leader (41, named with 0xff), a member whose name holds 0xfe and a
+        closing parenthesis (42), a process of another session (43) and entry 46, whose stat line has no closing
+        parenthesis, ends at the closing parenthesis, has fewer than four fields after it or has a session field
+        that is not a number. The scan of session 41 raises _UnparsableStat naming /proc/46/stat, with members 41
+        and 42, in every case, and _fixture_identity(46) returns None."""
+        tail = b" 0 -1 4194304 0 0 0 0 0 0 0 0 20 0 1 0 %d 0 0\n"
+        cases = {
+            "no-paren": b"46 noparen R 41 41 41" + tail % 5006,
+            "cut-at-paren": b"46 (cut)",
+            "short-after-paren": b"46 (short) R 41\n",
+            "non-numeric-session": b"46 (nan) R 41 41 zz" + tail % 5006,
+        }
+        driver = (
+            "import json, os, runpy, sys, types\n"
+            "t = runpy.run_path(sys.argv[1])\n"
+            "real_open = open\n"
+            "for case in sorted(os.listdir(sys.argv[2])):\n"
+            "    root = os.path.join(sys.argv[2], case)\n"
+            "    def fake_open(path, *args, **kwargs):\n"
+            "        assert path.startswith('/proc/'), path\n"
+            "        return real_open(root + path[len('/proc'):], *args, **kwargs)\n"
+            "    def listdir(path):\n"
+            "        assert path == '/proc', path\n"
+            "        return os.listdir(root)\n"
+            "    for name, arg in (('_session_members', 41), ('_fixture_identity', 46)):\n"
+            "        fn = t[name]\n"
+            "        g = dict(fn.__globals__)\n"
+            "        g.update(open=fake_open, os=types.SimpleNamespace(listdir=listdir))\n"
+            "        call = types.FunctionType(fn.__code__, g, fn.__name__, fn.__defaults__)\n"
+            "        try:\n"
+            "            value = call(arg)\n"
+            "        except Exception as exc:\n"
+            "            members = json.dumps(sorted(getattr(exc, 'members', [])))\n"
+            "            print('RESULT', case, name, 'raised', type(exc).__name__, exc, members)\n"
+            "        else:\n"
+            "            print('RESULT', case, name, json.dumps(sorted(value) if isinstance(value, list) else value))\n"
+        )
+        with tempfile.TemporaryDirectory(prefix="session-scan-unparsable-test-") as tmp:
+            for case, line in cases.items():
+                entries = {
+                    "41": b"41 (bad\xff name) S 1 41 41" + tail % 5001,
+                    "42": b"42 (x) \xfe) R 41 41 41" + tail % 5002,
+                    "43": b"43 (other) S 1 43 99" + tail % 5003,
+                    "46": line,
+                }
+                for entry, data in entries.items():
+                    (Path(tmp) / case / entry).mkdir(parents=True)
+                    (Path(tmp) / case / entry / "stat").write_bytes(data)
+            result = self._run_selftest([sys.executable, "-I", "-B", "-c", driver,
+                                         str(REPO_ROOT / "tools" / "run-shell-stubbed.py"), tmp], timeout=120)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        for case in cases:
+            with self.subTest(case):
+                self.assertIn(f"RESULT {case} _session_members raised _UnparsableStat unparsable stat line, "
+                              f'session unknown: /proc/46/stat [[41, "S"], [42, "R"]]\n', result.stdout, detail)
+                self.assertIn(f"RESULT {case} _fixture_identity null\n", result.stdout, detail)
+
+    def _run_shell_stubbed_unparsable_member(self, body: str, states=("S", "R")):
+        """Runs body in a driver over a fake /proc holding a session leader (41), a member whose name holds
+        0xfe and a closing parenthesis (42), a process of another session (43) and entry 46, a member whose
+        stat line is cut before its session field; states gives the states of 41 and 42. The driver binds t,
+        the tool's globals; clone(name, **bound), a clone of the named tool function with bound added to its
+        globals; scan, a clone of _session_members that reads the fake /proc; sends, a list; and kill, a
+        stand-in for os.kill that appends [pid, signal name] to sends and sets the state in that pid's fake
+        stat line to T for SIGSTOP and Z for SIGKILL. Returns the driver's completed process."""
+        tail = b" 0 -1 4194304 0 0 0 0 0 0 0 0 20 0 1 0 %d 0 0\n"
+        entries = {
+            "41": b"41 (lead) %s 1 41 41" % states[0].encode() + tail % 5001,
+            "42": b"42 (x) \xfe) %s 41 41 41" % states[1].encode() + tail % 5002,
+            "43": b"43 (other) S 1 43 99" + tail % 5003,
+            "46": b"46 (member) S 41 41\n",
+        }
+        driver = (
+            "import json, os, runpy, signal, sys, types\n"
+            "t = runpy.run_path(sys.argv[1])\n"
+            "root = sys.argv[2]\n"
+            "real_open = open\n"
+            "def fake_open(path, *args, **kwargs):\n"
+            "    assert path.startswith('/proc/'), path\n"
+            "    return real_open(root + path[len('/proc'):], *args, **kwargs)\n"
+            "def listdir(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return os.listdir(root)\n"
+            "def clone(name, **bound):\n"
+            "    fn = t[name]\n"
+            "    g = dict(fn.__globals__)\n"
+            "    g.update(bound)\n"
+            "    return types.FunctionType(fn.__code__, g, fn.__name__, fn.__defaults__)\n"
+            "scan = clone('_session_members', open=fake_open, os=types.SimpleNamespace(listdir=listdir))\n"
+            "sends = []\n"
+            "def kill(pid, sig):\n"
+            "    sends.append([pid, signal.Signals(sig).name])\n"
+            "    path = os.path.join(root, str(pid), 'stat')\n"
+            "    with real_open(path, 'rb') as fh:\n"
+            "        head, rest = fh.read().rsplit(b')', 1)\n"
+            "    state = {signal.SIGSTOP: b'T', signal.SIGKILL: b'Z'}[sig]\n"
+            "    with real_open(path, 'wb') as fh:\n"
+            "        fh.write(head + b') ' + state + rest[2:])\n"
+        ) + body
+        with tempfile.TemporaryDirectory(prefix="session-scan-caller-test-") as tmp:
+            for entry, data in entries.items():
+                (Path(tmp) / entry).mkdir()
+                (Path(tmp) / entry / "stat").write_bytes(data)
+            return self._run_selftest([sys.executable, "-I", "-B", "-c", driver,
+                                       str(REPO_ROOT / "tools" / "run-shell-stubbed.py"), tmp], timeout=120)
+
+    def test_run_shell_stubbed_session_survivors_count_an_unparsable_stat_line(self) -> None:
+        """_session_survivors counts the pid of an entry whose stat line it cannot parse as a survivor, since its
+        process is not known to have exited. Over the fake /proc of _run_shell_stubbed_unparsable_member, with
+        the leader (41) and member 42 zombies, a clone of _session_survivors reading it returns [46] after a
+        0.2 s timeout, where reading the cut line as an exited process returns no survivor."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "survivors = clone('_session_survivors', _session_members=scan)(41, timeout=0.2)\n"
+            "print('RESULT', json.dumps(survivors))\n", states=("Z", "Z"))
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT [46]\n", detail)
+
+    def test_run_shell_stubbed_kill_session_reports_an_unparsable_stat_line_not_contained(self) -> None:
+        """_kill_session does not report a session contained while an entry whose stat line it cannot parse
+        remains, and never signals that entry. Over the fake /proc of _run_shell_stubbed_unparsable_member, a
+        clone of _kill_session whose os.kill is the driver's kill stops and kills the leader (41) and member 42,
+        which become zombies, sends nothing to 46, and returns False, where reading the cut line as an exited
+        process returns True."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "contained = clone('_kill_session', _session_members=scan, os=types.SimpleNamespace(kill=kill))(41)\n"
+            "print('RESULT', json.dumps(contained), json.dumps(sorted(sends)))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout,
+                         'RESULT false [[41, "SIGKILL"], [41, "SIGSTOP"], [41, "SIGSTOP"], [42, "SIGKILL"], '
+                         '[42, "SIGSTOP"], [42, "SIGSTOP"]]\n', detail)
+
+    def test_run_shell_stubbed_fixture_watch_holds_on_an_unparsable_stat_line(self) -> None:
+        """The fixture watcher does not end its watch while an entry whose stat line it cannot parse remains, and
+        never signals that entry. A clone of _fixture_watch runs its watcher's code in this process: its os.fork
+        returns 0, its os.pipe returns a pipe holding the registration "41 5001", its _fixture_identity returns
+        "5001", its os.kill is the driver's kill, its os._exit raises, and its clock advances 1 s per read with
+        sleep doing nothing. Over the fake /proc of _run_shell_stubbed_unparsable_member it stops and kills the
+        leader (41) and member 42, sends nothing to 46, and exits only once its clock reaches TEST_WAIT, where
+        reading the cut line as an exited process ends the watch on the next pass."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "class Exited(BaseException):\n"
+            "    pass\n"
+            "def _exit(status):\n"
+            "    raise Exited(status)\n"
+            "clock = [0.0]\n"
+            "def monotonic():\n"
+            "    clock[0] += 1.0\n"
+            "    return clock[0]\n"
+            "r, w = os.pipe()\n"
+            "os.write(w, b'41 5001\\n')\n"
+            "fake_os = types.SimpleNamespace(pipe=lambda: (r, w), fork=lambda: 0, close=os.close,\n"
+            "                                setsid=lambda: None, read=os.read, kill=kill, _exit=_exit)\n"
+            "watch = clone('_fixture_watch', os=fake_os, _session_members=scan,\n"
+            "              _fixture_identity=lambda pid: '5001',\n"
+            "              time=types.SimpleNamespace(monotonic=monotonic, sleep=lambda seconds: None))\n"
+            "try:\n"
+            "    watch()\n"
+            "except Exited:\n"
+            "    pass\n"
+            "os.close(r)\n"
+            "print('RESULT', json.dumps(sorted(sends)), json.dumps(clock[0] >= t['TEST_WAIT']))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout,
+                         'RESULT [[41, "SIGKILL"], [41, "SIGSTOP"], [42, "SIGKILL"], [42, "SIGSTOP"]] true\n',
+                         detail)
+
+    def test_run_shell_stubbed_main_exits_3_on_an_unparsable_stat_line(self) -> None:
+        """An _UnparsableStat raised in the grace loop reaches main through run and ends the run with exit code 3
+        and one standard error line naming the /proc entry and the shell and saying containment could not be
+        shown, after the session kill and the reap have run. A clone of main calls a clone of run whose
+        _run_shells is a clone whose grace loop reads the fake /proc of _run_shell_stubbed_unparsable_member,
+        so it raises for entry 46; its Popen records the shell. Its _kill_session reads the shell's real
+        session with the tool's own _session_members (the real /proc), calls the tool's own _kill_session with
+        the real session id, which reads the real /proc too, and reads the session again. The real shell runs
+        "sleep 30 & true", so a background member is alive in the real session when the kill runs. The driver
+        exits with main's return value: 3, with the kill called once, for the shell's session, finding a live
+        member, returning True and leaving none alive, and the shell reaped with status 0, where an uncaught
+        _UnparsableStat ends the driver with a traceback and exit 1."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "created, kills = [], []\n"
+            "class Shell(subprocess.Popen):\n"
+            "    def __init__(self, *args, **kwargs):\n"
+            "        super().__init__(*args, **kwargs)\n"
+            "        created.append(self)\n"
+            "def kill_session(sid):\n"
+            "    before = t['_live'](t['_session_members'](sid))\n"
+            "    contained = t['_kill_session'](sid)\n"
+            "    kills.append([sid, bool(before), contained, t['_live'](t['_session_members'](sid))])\n"
+            "    return contained\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', _session_members=scan, _kill_session=kill_session, subprocess=popen)\n"
+            "main = clone('main', run=clone('run', _run_shells=shells))\n"
+            "try:\n"
+            "    rc = main(['--shell', 'bash', 'sleep 30 & true'])\n"
+            "finally:\n"
+            "    print('RESULT', json.dumps([k[0] == created[0].pid for k in kills]),\n"
+            "          json.dumps([k[1:] for k in kills]), json.dumps([p.returncode for p in created]),\n"
+            "          flush=True)\n"
+            "sys.exit(rc)\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 3, detail)
+        self.assertEqual(result.stderr, "ERROR: unparsable stat line, session unknown: /proc/46/stat; "
+                                        "containment of the bash run could not be shown\n", detail)
+        self.assertEqual(result.stdout, "RESULT [true] [[true, true, []]] [0]\n", detail)
+
+    def test_run_shell_stubbed_held_command_check_fails_named_on_an_unparsable_stat_line(self) -> None:
+        """The held-command check of _untimed_wait_term_check returns the named failure
+        held-command-session-unknown, never a pass, when its session scan raises _UnparsableStat. A clone of the
+        check runs over the fake /proc of _run_shell_stubbed_unparsable_member: its Popen is a stand-in probe
+        (pid 41) that writes "sid 41" and "idle" to the readiness pipe and records signals, its wchan read
+        returns do_wait, and its _kill_session and _procs_under only record or return nothing, so no real
+        process is signalled. The check returns False with that one failure, sends no SIGTERM to the probe
+        (only the kill of its own cleanup), and still runs the session kill for 41, where an uncaught
+        _UnparsableStat leaves no failure recorded."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "signals, killed = [], []\n"
+            "class Probe:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        os.write(int(argv[-1]), b'sid 41\\nidle\\n')\n"
+            "    def poll(self):\n"
+            "        return self.returncode\n"
+            "    def send_signal(self, sig):\n"
+            "        signals.append(signal.Signals(sig).name)\n"
+            "    def kill(self):\n"
+            "        signals.append('kill')\n"
+            "        self.returncode = -9\n"
+            "    def wait(self, timeout=None):\n"
+            "        return self.returncode\n"
+            "popen = types.SimpleNamespace(Popen=Probe, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "check = clone('_untimed_wait_term_check', subprocess=popen, _session_members=scan,\n"
+            "              _probe_main_wchan=lambda pid: 'do_wait', _kill_session=killed.append,\n"
+            "              _procs_under=lambda paths: [])\n"
+            "failures = []\n"
+            "try:\n"
+            "    outcome = check(failures, timeout=5)\n"
+            "except Exception as exc:\n"
+            "    outcome = 'raised ' + type(exc).__name__\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(failures), json.dumps(signals), json.dumps(killed))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, 'RESULT false [["untimed-wait-acts-on-term:held-command-session-unknown", '
+                                        'false]] ["kill"] [41]\n', detail)
+
+    def test_run_shell_stubbed_main_names_an_unparsable_stat_line_read_only_in_the_kill(self) -> None:
+        """An unparsable stat line that only the session kill reads is reported as that line, not as processes
+        still alive at the kill deadline: main exits 3 with one standard error line naming /proc/46/stat and the
+        shell, and no report. A clone of main calls a clone of run whose _run_shells reads the real /proc in its
+        grace loop (the real shell runs true and is reaped by then, so its session is empty) and whose
+        _kill_session is a clone of the tool's own reading the fake /proc of _run_shell_stubbed_unparsable_member
+        with the real session id: no entry there is in that session and entry 46 cannot be parsed, so the kill
+        signals nothing and returns False on its first pass, with no process known to be alive and no deadline
+        reached. Reporting it as processes still alive prints "== bash rc=0" and that warning instead."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "kills = []\n"
+            "fake_kill = clone('_kill_session', _session_members=scan, os=types.SimpleNamespace(kill=kill))\n"
+            "def kill_session(sid):\n"
+            "    kills.append(fake_kill(sid))\n"
+            "    return kills[-1]\n"
+            "shells = clone('_run_shells', _kill_session=kill_session)\n"
+            "main = clone('main', run=clone('run', _run_shells=shells))\n"
+            "try:\n"
+            "    rc = main(['--shell', 'bash', 'true'])\n"
+            "finally:\n"
+            "    print('RESULT', json.dumps(kills), json.dumps(sends), flush=True)\n"
+            "sys.exit(rc)\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 3, detail)
+        self.assertEqual(result.stdout, "RESULT [false] []\n", detail)
+        self.assertEqual(result.stderr, "ERROR: unparsable stat line, session unknown: /proc/46/stat; "
+                                        "containment of the bash run could not be shown\n", detail)
+
+    def test_run_shell_stubbed_main_prints_only_earlier_shells_reports_on_an_unparsable_stat_line(self) -> None:
+        """With two shells, an unparsable stat line in one shell's cleanup does not drop the report of an
+        earlier shell that finished, and the shell whose cleanup read it has no report: main prints only the
+        earlier shells' reports, then one standard error line naming the /proc entry,
+        the shell and each later shell, which is not started, and returns 3. A clone of main calls a clone of
+        run whose _run_shells reads the real /proc in its grace loop for every shell but one and, for that one,
+        the fake /proc of _run_shell_stubbed_unparsable_member, which raises for entry 46; its Popen records
+        each shell, the real shells run "echo hi" and the kill is the tool's own. With the line in the second
+        shell (sh), the bash report is printed and the ERROR line names sh; with it in the first (bash), nothing
+        is printed on standard output, sh is not started and the ERROR line says so."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import contextlib, io, subprocess\n"
+            "created = []\n"
+            "class Shell(subprocess.Popen):\n"
+            "    def __init__(self, *args, **kwargs):\n"
+            "        super().__init__(*args, **kwargs)\n"
+            "        created.append(self)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "for raise_in in (2, 1):\n"
+            "    created.clear()\n"
+            "    def members(sid):\n"
+            "        return scan(sid) if len(created) == raise_in else t['_session_members'](sid)\n"
+            "    shells = clone('_run_shells', _session_members=members, subprocess=popen)\n"
+            "    main = clone('main', run=clone('run', _run_shells=shells))\n"
+            "    out, err = io.StringIO(), io.StringIO()\n"
+            "    with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):\n"
+            "        rc = main(['echo hi'])\n"
+            "    print('RESULT', json.dumps([raise_in, rc, [p.returncode for p in created],\n"
+            "                                out.getvalue(), err.getvalue()]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        line = ("ERROR: unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the {} run could not be shown")
+        self.assertEqual(result.stdout, "".join("RESULT " + json.dumps(case) + "\n" for case in (
+            [2, 3, [0, 0], "== bash rc=0\n-- stdout\n| hi\n", line.format("sh") + "\n"],
+            [1, 3, [0], "", line.format("bash") + "; the sh run was not started\n"])), detail)
+
+    def test_run_shell_stubbed_termination_keeps_its_exit_over_an_unparsable_stat_line(self) -> None:
+        """An unparsable stat line read in a shell's cleanup while a termination is already propagating does not
+        replace it: the tool's _Terminated leaves main, as it would without the line, with the entry and the
+        shell added to it as a note, and the kill and the reap still run. A clone of main calls a clone of run
+        whose _run_shells reads the fake /proc of _run_shell_stubbed_unparsable_member in its grace loop, so it
+        raises for entry 46; its Popen is the real one, except that its first wait, once the real shell (running
+        true) has exited, raises _Terminated(15), as the SIGTERM handler would; its _kill_session records the
+        session and calls the tool's own. Replacing the termination with the line makes main return 3."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "created, kills = [], []\n"
+            "class Shell(subprocess.Popen):\n"
+            "    def __init__(self, *args, **kwargs):\n"
+            "        self.terminated = False\n"
+            "        super().__init__(*args, **kwargs)\n"
+            "        created.append(self)\n"
+            "    def wait(self, timeout=None):\n"
+            "        status = super().wait(timeout)\n"
+            "        if not self.terminated:\n"
+            "            self.terminated = True\n"
+            "            raise t['_Terminated'](15)\n"
+            "        return status\n"
+            "def kill_session(sid):\n"
+            "    kills.append(sid)\n"
+            "    return t['_kill_session'](sid)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', _session_members=scan, _kill_session=kill_session, subprocess=popen)\n"
+            "main = clone('main', run=clone('run', _run_shells=shells))\n"
+            "try:\n"
+            "    outcome = ['returned', main(['--shell', 'bash', 'true'])]\n"
+            "except Exception as exc:\n"
+            "    outcome = [type(exc).__name__, list(exc.args), getattr(exc, '__notes__', [])]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(len(created) == 1 and kills == [created[0].pid]),\n"
+            "      json.dumps([p.returncode for p in created]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout,
+                         'RESULT ["_Terminated", [15], ["unparsable stat line, session unknown: /proc/46/stat; '
+                         'containment of the bash run could not be shown"]] true [0]\n', detail)
+
+    def test_run_shell_stubbed_kill_session_deadline_return_reports_an_unparsable_stat_line(self) -> None:
+        """_kill_session's return at its deadline does not report a session contained while an entry whose stat
+        line it cannot parse remains. Over the fake /proc of _run_shell_stubbed_unparsable_member, a clone of
+        _kill_session runs with a clock that reads 0 until its first sleep; its os.kill passes SIGSTOP to the
+        driver's kill and only records SIGKILL; its sleep makes each recorded SIGKILL take effect (the state
+        becomes Z) and moves the clock to the five-second deadline. So the leader (41) and member 42 are
+        stopped, then killed, and die only on the last pass; the loop then ends at the deadline, and the final
+        read finds them zombies and entry 46 unknown. It returns False with the clock at 5.0, where dropping
+        "not unknown and" from that return gives True; it stores [46] in _KILL_UNKNOWN[41], where a return
+        that stores nothing leaves _run_shells no entry to report; and it stores nothing in _KILL_ALIVE, as
+        no member it read is alive."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "clock, deferred = [0.0], []\n"
+            "def kill_later(pid, sig):\n"
+            "    if sig == signal.SIGKILL:\n"
+            "        sends.append([pid, 'SIGKILL'])\n"
+            "        deferred.append(pid)\n"
+            "    else:\n"
+            "        kill(pid, sig)\n"
+            "def sleep(seconds):\n"
+            "    for pid in deferred:\n"
+            "        path = os.path.join(root, str(pid), 'stat')\n"
+            "        with real_open(path, 'rb') as fh:\n"
+            "            head, rest = fh.read().rsplit(b')', 1)\n"
+            "        with real_open(path, 'wb') as fh:\n"
+            "            fh.write(head + b') Z' + rest[2:])\n"
+            "    deferred.clear()\n"
+            "    clock[0] = 5.0\n"
+            "fake_time = types.SimpleNamespace(monotonic=lambda: clock[0], sleep=sleep)\n"
+            "contained = clone('_kill_session', _session_members=scan, os=types.SimpleNamespace(kill=kill_later),\n"
+            "                  time=fake_time)(41)\n"
+            "print('RESULT', json.dumps(contained), json.dumps(sorted(sends)), json.dumps(clock[0]),\n"
+            "      json.dumps(t['_KILL_UNKNOWN'].get(41)), json.dumps(t.get('_KILL_ALIVE', {}).get(41)))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout,
+                         'RESULT false [[41, "SIGKILL"], [41, "SIGSTOP"], [41, "SIGSTOP"], [42, "SIGKILL"], '
+                         '[42, "SIGSTOP"], [42, "SIGSTOP"]] 5.0 [46] null\n', detail)
+
+    def test_run_shell_stubbed_fallback_sweep_kills_readable_members_on_an_unparsable_stat_line(self) -> None:
+        """The fallback sweep of _run_shells, run when the shell is still unreaped after the session kill, still
+        SIGKILLs the live members its scan did read when that scan meets an unparsable stat line, never signals
+        that entry, and then raises the _UnparsableStat naming it, with the shell set. A clone of _run_shells
+        runs with no real process: its Popen is a stand-in shell (pid 41) whose waits time out until the group
+        kill; its _kill_session only records; its os.killpg records the group kill; its os.kill is the driver's
+        kill; and its session scan reads nothing until the group kill, then the fake /proc of
+        _run_shell_stubbed_unparsable_member, which raises for entry 46 with live members 41 and 42. The clone
+        raises _UnparsableStat naming /proc/46/stat for bash, after SIGKILLs to 41 and 42 and none to 46, and
+        reaps the shell, where a sweep that lets the scan raise kills no member."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "kills, waits = [], []\n"
+            "def grouped():\n"
+            "    return any(send[1] == 'killpg SIGKILL' for send in sends)\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if not grouped():\n"
+            "            raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "        self.returncode = -9\n"
+            "        return -9\n"
+            "def killpg(pgid, sig):\n"
+            "    sends.append([pgid, 'killpg ' + signal.Signals(sig).name])\n"
+            "def members(sid):\n"
+            "    return scan(sid) if grouped() else []\n"
+            "fake_os = types.SimpleNamespace(path=os.path, makedirs=os.makedirs, devnull=os.devnull,\n"
+            "                                killpg=killpg, kill=kill)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, os=fake_os, _session_members=members,\n"
+            "               _kill_session=lambda sid: kills.append(sid) or True)\n"
+            "try:\n"
+            "    shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "    outcome = ['returned']\n"
+            "except Exception as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc), getattr(exc, 'shell', None)]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(sends), json.dumps(kills), json.dumps(waits))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, 'RESULT ["_UnparsableStat", "unparsable stat line, session unknown: '
+                                        '/proc/46/stat", "bash"] [[41, "killpg SIGKILL"], [41, "SIGKILL"], '
+                                        '[42, "SIGKILL"]] [41] [30, 2.0, 2.0]\n', detail)
+
+    def test_run_shell_stubbed_kill_session_deadline_return_records_members_still_alive(self) -> None:
+        """_kill_session's return at its deadline, with an entry whose stat line it cannot parse left and
+        members it read still alive, stores both: the entry in _KILL_UNKNOWN and the live members in
+        _KILL_ALIVE, so _run_shells can report the line and say processes were still alive. Over the fake
+        /proc of _run_shell_stubbed_unparsable_member, a clone of _kill_session runs with a clock that reads 0
+        until its first sleep; its os.kill passes SIGSTOP to the driver's kill and only records SIGKILL, which
+        never takes effect; its sleep moves the clock to the five-second deadline. So the leader (41) and
+        member 42 are stopped, are sent SIGKILL and are still stopped at the final read, which finds entry 46
+        unknown. It returns False with the clock at 5.0 and stores [46] in _KILL_UNKNOWN[41] and 41 and 42 in
+        _KILL_ALIVE[41], where a deadline return that keeps no live member stores nothing in _KILL_ALIVE."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "clock = [0.0]\n"
+            "def kill_later(pid, sig):\n"
+            "    if sig == signal.SIGKILL:\n"
+            "        sends.append([pid, 'SIGKILL'])\n"
+            "    else:\n"
+            "        kill(pid, sig)\n"
+            "def sleep(seconds):\n"
+            "    clock[0] = 5.0\n"
+            "fake_time = types.SimpleNamespace(monotonic=lambda: clock[0], sleep=sleep)\n"
+            "fake_os = types.SimpleNamespace(kill=kill_later)\n"
+            "contained = clone('_kill_session', _session_members=scan, os=fake_os, time=fake_time)(41)\n"
+            "print('RESULT', json.dumps(contained), json.dumps(sorted(sends)), json.dumps(clock[0]),\n"
+            "      json.dumps(t['_KILL_UNKNOWN'].get(41)),\n"
+            "      json.dumps(sorted(t.get('_KILL_ALIVE', {}).get(41, []))))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout,
+                         'RESULT false [[41, "SIGKILL"], [41, "SIGSTOP"], [41, "SIGSTOP"], [42, "SIGKILL"], '
+                         '[42, "SIGSTOP"], [42, "SIGSTOP"]] 5.0 [46] [41, 42]\n', detail)
+
+    def test_run_shell_stubbed_main_names_members_still_alive_beside_an_unparsable_stat_line(self) -> None:
+        """When the session kill returns at its deadline with an entry whose stat line it cannot parse left
+        and members it read still alive, main's one standard error line names the entry, says processes of
+        the run were still alive at the kill deadline and names the shell, and main exits 3. A clone of main
+        calls a clone of run whose _run_shells reads the real /proc in its grace loop (the real shell runs
+        true and is reaped by then) and whose _kill_session runs a clone of the tool's own over the fake /proc
+        of _run_shell_stubbed_unparsable_member for session 41, with a clock that reaches the deadline at its
+        first sleep and an os.kill under which SIGKILL never takes effect, then files what that clone stored
+        for 41 under the real session id. Reporting only the line leaves the still-alive part out."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "clock, kills = [0.0], []\n"
+            "def kill_later(pid, sig):\n"
+            "    if sig == signal.SIGKILL:\n"
+            "        sends.append([pid, 'SIGKILL'])\n"
+            "    else:\n"
+            "        kill(pid, sig)\n"
+            "def sleep(seconds):\n"
+            "    clock[0] = 5.0\n"
+            "fake_time = types.SimpleNamespace(monotonic=lambda: clock[0], sleep=sleep)\n"
+            "fake_os = types.SimpleNamespace(kill=kill_later)\n"
+            "fake_kill = clone('_kill_session', _session_members=scan, os=fake_os, time=fake_time)\n"
+            "def kill_session(sid):\n"
+            "    kills.append(fake_kill(41))\n"
+            "    for name in ('_KILL_UNKNOWN', '_KILL_ALIVE'):\n"
+            "        if name in t and 41 in t[name]:\n"
+            "            t[name][sid] = t[name].pop(41)\n"
+            "    return kills[-1]\n"
+            "shells = clone('_run_shells', _kill_session=kill_session)\n"
+            "main = clone('main', run=clone('run', _run_shells=shells))\n"
+            "try:\n"
+            "    rc = main(['--shell', 'bash', 'true'])\n"
+            "finally:\n"
+            "    print('RESULT', json.dumps(kills), json.dumps(len(sends)), flush=True)\n"
+            "sys.exit(rc)\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 3, detail)
+        self.assertEqual(result.stdout, "RESULT [false] 6\n", detail)
+        self.assertEqual(result.stderr, "ERROR: unparsable stat line, session unknown: /proc/46/stat; "
+                                        "processes of this run were still alive at the kill deadline; "
+                                        "containment of the bash run could not be shown\n", detail)
+
+    def test_run_shell_stubbed_main_names_a_failed_reap_beside_an_unparsable_stat_line(self) -> None:
+        """When only the session kill reads an unparsable stat line and the shell is never reaped, with no
+        exception propagating, main's one standard error line names the entry, says the shell could not be
+        reaped after the fallback SIGKILL and names the shell, and main exits 3. A clone of main calls a clone
+        of run whose _run_shells runs with no real process: its Popen is a stand-in shell (pid 41) whose
+        every wait times out; its session scan reads nothing; its os.killpg records the group kill; and its
+        _kill_session stores [46] in _KILL_UNKNOWN for the session and returns False, as the tool's own does
+        when only it reads the line. Dropping the failed reap leaves it out of the line."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits = []\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "def killpg(pgid, sig):\n"
+            "    sends.append([pgid, 'killpg ' + signal.Signals(sig).name])\n"
+            "def kill_session(sid):\n"
+            "    t['_KILL_UNKNOWN'][sid] = [46]\n"
+            "    return False\n"
+            "fake_os = types.SimpleNamespace(path=os.path, makedirs=os.makedirs, devnull=os.devnull,\n"
+            "                                killpg=killpg, kill=kill)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, os=fake_os, _session_members=lambda sid: [],\n"
+            "               _kill_session=kill_session)\n"
+            "main = clone('main', run=clone('run', _run_shells=shells))\n"
+            "try:\n"
+            "    rc = main(['--shell', 'bash', 'true'])\n"
+            "finally:\n"
+            "    print('RESULT', json.dumps(sends), json.dumps(waits), flush=True)\n"
+            "sys.exit(rc)\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 3, detail)
+        self.assertEqual(result.stdout, 'RESULT [[41, "killpg SIGKILL"]] [30, 2.0, 2.0]\n', detail)
+        self.assertEqual(result.stderr, "ERROR: unparsable stat line, session unknown: /proc/46/stat; "
+                                        "shell could not be reaped after fallback SIGKILL; "
+                                        "containment of the bash run could not be shown\n", detail)
+
+    def test_run_shell_stubbed_kill_line_is_noted_on_an_exception_raised_in_the_reap(self) -> None:
+        """An unparsable stat line only the session kill read is not lost when the reap after the kill
+        raises: it is added as a note to that exception, which keeps propagating. A clone of _run_shells runs
+        with no real process: its Popen is a stand-in shell (pid 41) whose wait for the command times out;
+        its session scan reads nothing; its os.killpg records the group kill; and its _kill_session stores
+        [46] in _KILL_UNKNOWN for the session and returns False. In case wait, the first wait after the kill
+        raises KeyboardInterrupt, as SIGINT's default handler would; in case killpg, that wait times out and
+        the fallback's group kill raises PermissionError. In both, the next wait reaps the shell and the
+        exception leaves the clone with the entry and the shell as its note, where settling the line only
+        when the reap raised nothing leaves it with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits, case = [], ['']\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if len(waits) == 2 and case[0] == 'wait':\n"
+            "            raise KeyboardInterrupt\n"
+            "        if len(waits) == 3:\n"
+            "            self.returncode = -9\n"
+            "            return -9\n"
+            "        raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "def killpg(pgid, sig):\n"
+            "    sends.append([pgid, 'killpg ' + signal.Signals(sig).name])\n"
+            "    if case[0] == 'killpg':\n"
+            "        raise PermissionError(1, 'Operation not permitted')\n"
+            "def kill_session(sid):\n"
+            "    t['_KILL_UNKNOWN'][sid] = [46]\n"
+            "    return False\n"
+            "fake_os = types.SimpleNamespace(path=os.path, makedirs=os.makedirs, devnull=os.devnull,\n"
+            "                                killpg=killpg, kill=kill)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, os=fake_os, _session_members=lambda sid: [],\n"
+            "               _kill_session=kill_session)\n"
+            "for case[0] in ('wait', 'killpg'):\n"
+            "    waits.clear()\n"
+            "    sends.clear()\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', case[0], json.dumps(outcome), json.dumps(sends), json.dumps(waits))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f'RESULT {case} {json.dumps([name, [note]])} [[41, "killpg SIGKILL"]] [30, 2.0, 2.0]\n'
+            for case, name in (("wait", "KeyboardInterrupt"), ("killpg", "PermissionError"))), detail)
+
+    def test_run_shell_stubbed_deferred_termination_carries_an_unparsable_stat_line(self) -> None:
+        """A SIGTERM deferred during a shell's cleanup and raised after it, over the _UnparsableStat that
+        cleanup raised, carries the entry and the shell as a note, as a termination already propagating when
+        the line is read does. A clone of main calls a clone of run whose _run_shells reads the fake /proc of
+        _run_shell_stubbed_unparsable_member in its grace loop, so it raises for entry 46; the real shell runs
+        true; its _kill_session calls the tool's own _on_signal with SIGTERM, which the active deferral
+        records, then the tool's own kill. The _Terminated(15) raised at the end of the shell leaves main with
+        that note, after the kill and the reap, where raising it with no note loses the entry and the shell."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "created, kills = [], []\n"
+            "class Shell(subprocess.Popen):\n"
+            "    def __init__(self, *args, **kwargs):\n"
+            "        super().__init__(*args, **kwargs)\n"
+            "        created.append(self)\n"
+            "def kill_session(sid):\n"
+            "    kills.append(sid)\n"
+            "    t['_on_signal'](15, None)\n"
+            "    return t['_kill_session'](sid)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', _session_members=scan, _kill_session=kill_session, subprocess=popen)\n"
+            "main = clone('main', run=clone('run', _run_shells=shells))\n"
+            "try:\n"
+            "    outcome = ['returned', main(['--shell', 'bash', 'true'])]\n"
+            "except Exception as exc:\n"
+            "    outcome = [type(exc).__name__, list(exc.args), getattr(exc, '__notes__', [])]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(len(created) == 1 and kills == [created[0].pid]),\n"
+            "      json.dumps([p.returncode for p in created]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout,
+                         'RESULT ["_Terminated", [15], ["unparsable stat line, session unknown: /proc/46/stat; '
+                         'containment of the bash run could not be shown"]] true [0]\n', detail)
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("X4 | a SIGTERM or SIGHUP deferred during the cleanup and drained after it | _Terminated, chained "
+                      "over any exception in flight | the same note | nothing | runs | restored", doc)
+
+    def test_run_shell_stubbed_main_merges_unparsable_stat_lines_read_at_two_points_of_a_cleanup(self) -> None:
+        """Entries whose stat lines cannot be parsed, read both in the grace loop and in the session kill of
+        the same shell, end the run with one standard error line naming each entry once and the containment
+        text once, and main exits 3. A clone of main calls a clone of run whose _run_shells reads the fake
+        /proc of _run_shell_stubbed_unparsable_member in its grace loop, so it raises for entry 46; the real
+        shell runs true; its _kill_session calls the tool's own kill on the real session, then stores only
+        [47] in _KILL_UNKNOWN for the session and returns False, as if the kill had read 47 alone. The line
+        names 46 and 47, so the two lists are merged: adding the kill's entries as a note gives the
+        containment text twice, and keeping only the kill's list drops 46."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "created, kills = [], []\n"
+            "class Shell(subprocess.Popen):\n"
+            "    def __init__(self, *args, **kwargs):\n"
+            "        super().__init__(*args, **kwargs)\n"
+            "        created.append(self)\n"
+            "def kill_session(sid):\n"
+            "    kills.append(t['_kill_session'](sid))\n"
+            "    t['_KILL_UNKNOWN'][sid] = [47]\n"
+            "    return False\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', _session_members=scan, _kill_session=kill_session, subprocess=popen)\n"
+            "main = clone('main', run=clone('run', _run_shells=shells))\n"
+            "try:\n"
+            "    rc = main(['--shell', 'bash', 'true'])\n"
+            "finally:\n"
+            "    print('RESULT', json.dumps(kills), json.dumps([p.returncode for p in created]), flush=True)\n"
+            "sys.exit(rc)\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 3, detail)
+        self.assertEqual(result.stdout, "RESULT [true] [0]\n", detail)
+        self.assertEqual(result.stderr, "ERROR: unparsable stat line, session unknown: /proc/46/stat, "
+                                        "/proc/47/stat; containment of the bash run could not be shown\n", detail)
+
+    def test_run_shell_stubbed_main_names_members_alive_at_the_kill_deadline_beside_a_grace_loop_line(self) -> None:
+        """When the grace loop reads an unparsable stat line and the session kill, reading no such line itself,
+        returns at its deadline with members still alive, main's one standard error line still says processes
+        of the run were still alive at the kill deadline, and main exits 3. A clone of main calls a clone of
+        run whose _run_shells reads the fake /proc of _run_shell_stubbed_unparsable_member in its grace loop,
+        so it raises for entry 46; the real shell runs true. Its _kill_session runs a clone of the tool's own
+        for session 41 over that fake /proc without entry 46 (as if its process had exited), with a clock that
+        reaches the deadline at its first sleep and an os.kill under which SIGKILL never takes effect, then
+        files what that clone stored for 41 under the real session id. Storing live members only when an
+        unknown entry is left, or stating them only beside a line the kill read, leaves the still-alive part
+        out."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "clock, kills, created = [0.0], [], []\n"
+            "class Shell(subprocess.Popen):\n"
+            "    def __init__(self, *args, **kwargs):\n"
+            "        super().__init__(*args, **kwargs)\n"
+            "        created.append(self)\n"
+            "def kill_later(pid, sig):\n"
+            "    if sig == signal.SIGKILL:\n"
+            "        sends.append([pid, 'SIGKILL'])\n"
+            "    else:\n"
+            "        kill(pid, sig)\n"
+            "def sleep(seconds):\n"
+            "    clock[0] = 5.0\n"
+            "def listdir_without_46(path):\n"
+            "    return [entry for entry in listdir(path) if entry != '46']\n"
+            "scan_without_46 = clone('_session_members', open=fake_open,\n"
+            "                        os=types.SimpleNamespace(listdir=listdir_without_46))\n"
+            "fake_time = types.SimpleNamespace(monotonic=lambda: clock[0], sleep=sleep)\n"
+            "fake_kill = clone('_kill_session', _session_members=scan_without_46,\n"
+            "                  os=types.SimpleNamespace(kill=kill_later), time=fake_time)\n"
+            "def kill_session(sid):\n"
+            "    kills.append(fake_kill(41))\n"
+            "    for name in ('_KILL_UNKNOWN', '_KILL_ALIVE'):\n"
+            "        if name in t and 41 in t[name]:\n"
+            "            t[name][sid] = t[name].pop(41)\n"
+            "    return kills[-1]\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', _session_members=scan, _kill_session=kill_session, subprocess=popen)\n"
+            "main = clone('main', run=clone('run', _run_shells=shells))\n"
+            "try:\n"
+            "    rc = main(['--shell', 'bash', 'true'])\n"
+            "finally:\n"
+            "    print('RESULT', json.dumps(kills), json.dumps(len(sends)),\n"
+            "          json.dumps([p.returncode for p in created]), flush=True)\n"
+            "sys.exit(rc)\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 3, detail)
+        self.assertEqual(result.stdout, "RESULT [false] 6 [0]\n", detail)
+        self.assertEqual(result.stderr, "ERROR: unparsable stat line, session unknown: /proc/46/stat; "
+                                        "processes of this run were still alive at the kill deadline; "
+                                        "containment of the bash run could not be shown\n", detail)
+
+    def test_run_shell_stubbed_propagating_exception_carries_one_note_per_shell(self) -> None:
+        """A KeyboardInterrupt or _Terminated already propagating through a shell's cleanup carries one note
+        for that shell, naming each entry and the containment text once, when unparsable stat lines are read
+        at two points of the cleanup. A clone of _run_shells runs with no real process: its Popen is a
+        stand-in shell (pid 41) whose wait for the command raises the case's exception (KeyboardInterrupt, as
+        SIGINT's default handler would, or the tool's _Terminated(15)) and whose next wait reaps it; its grace
+        loop reads the fake /proc of _run_shell_stubbed_unparsable_member, which raises for entry 46; and its
+        _kill_session stores [46, 47] in _KILL_UNKNOWN and [41] in _KILL_ALIVE for the session and returns
+        False, as if the kill had read 46 again and 47 as well with a member alive at its deadline. The
+        exception leaves the clone with one note, where adding a note at each point gives two, naming 46
+        twice and the containment text twice."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits, case = [], [None]\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if len(waits) == 1:\n"
+            "            raise case[0]\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def kill_session(sid):\n"
+            "    t['_KILL_UNKNOWN'][sid] = [46, 47]\n"
+            "    t['_KILL_ALIVE'][sid] = [41]\n"
+            "    return False\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=scan, _kill_session=kill_session)\n"
+            "for case[0] in (KeyboardInterrupt(), t['_Terminated'](15)):\n"
+            "    waits.clear()\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', json.dumps(outcome), json.dumps(waits))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat, /proc/47/stat; "
+                "processes of this run were still alive at the kill deadline; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {json.dumps([name, [note]])} [30, 2.0]\n"
+            for name in ("KeyboardInterrupt", "_Terminated")), detail)
+
+    def test_run_shell_stubbed_grace_loop_line_is_noted_on_an_exception_raised_after_it(self) -> None:
+        """An unparsable stat line the grace loop read and raised is not lost when an exception raised after
+        it in the same cleanup replaces it: that exception keeps propagating with the entry and the shell as
+        its note. A clone of _run_shells runs with no real process: its Popen is a stand-in shell (pid 41)
+        whose wait for the command returns; its session scan reads the fake /proc of
+        _run_shell_stubbed_unparsable_member once, in the grace loop, which raises for entry 46, and nothing
+        after; its os.killpg records the group kill. In case kill, its _kill_session raises PermissionError
+        and the next wait reaps the shell; in case wait, the first wait after the kill raises
+        KeyboardInterrupt; in case killpg, that wait times out and the fallback's group kill raises
+        PermissionError. In those two the next wait reaps the shell. In each case the exception leaves the
+        clone with the note, where leaving the line only as its context gives it no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits, scans, case = [], [], ['']\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if len(waits) == 1:\n"
+            "            return 0\n"
+            "        if len(waits) == 2 and case[0] == 'wait':\n"
+            "            raise KeyboardInterrupt\n"
+            "        if len(waits) == 2 and case[0] == 'killpg':\n"
+            "            raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "        self.returncode = -9\n"
+            "        return -9\n"
+            "def members(sid):\n"
+            "    scans.append(sid)\n"
+            "    return scan(sid) if len(scans) == 1 else []\n"
+            "def killpg(pgid, sig):\n"
+            "    sends.append([pgid, 'killpg ' + signal.Signals(sig).name])\n"
+            "    if case[0] == 'killpg':\n"
+            "        raise PermissionError(1, 'Operation not permitted')\n"
+            "def kill_session(sid):\n"
+            "    if case[0] == 'kill':\n"
+            "        raise PermissionError(1, 'Operation not permitted')\n"
+            "    return True\n"
+            "fake_os = types.SimpleNamespace(path=os.path, makedirs=os.makedirs, devnull=os.devnull,\n"
+            "                                killpg=killpg, kill=kill)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, os=fake_os, _session_members=members,\n"
+            "               _kill_session=kill_session)\n"
+            "for case[0] in ('kill', 'wait', 'killpg'):\n"
+            "    waits.clear()\n"
+            "    scans.clear()\n"
+            "    sends.clear()\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', case[0], json.dumps(outcome), json.dumps(sends), json.dumps(waits))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        group = '[[41, "killpg SIGKILL"]]'
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {case} {json.dumps([name, [note]])} {sends} {waits}\n"
+            for case, name, sends, waits in (
+                ("kill", "PermissionError", "[]", "[30, 2.0]"),
+                ("wait", "KeyboardInterrupt", group, "[30, 2.0, 2.0]"),
+                ("killpg", "PermissionError", group, "[30, 2.0, 2.0]"))), detail)
+
+    def test_run_shell_stubbed_line_is_noted_on_an_exception_raised_at_the_end_of_the_shell(self) -> None:
+        """An unparsable stat line a shell's cleanup raised is not lost when the temp dir removal or the mask
+        restore after the cleanup raises: that exception keeps propagating with the entry and the shell as its
+        note. A clone of _run_shells runs with no real process: its Popen is a stand-in shell (pid 41) whose
+        every wait reaps it; its grace loop reads the fake /proc of _run_shell_stubbed_unparsable_member, which
+        raises for entry 46; its _kill_session returns True. In case restore, its signal module raises
+        KeyboardInterrupt after the second SIG_SETMASK, the mask restore after the cleanup, as a SIGINT
+        blocked during the cleanup and delivered there would; in case rmtree, its _rmtree removes the temp dir
+        and raises OSError. In both the exception leaves the clone with the note, where leaving the line only
+        as its context gives it no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "case, setmasks = [''], []\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "class SignalModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(signal, name)\n"
+            "    def pthread_sigmask(self, how, mask):\n"
+            "        previous = signal.pthread_sigmask(how, mask)\n"
+            "        if how == signal.SIG_SETMASK:\n"
+            "            setmasks.append(how)\n"
+            "            if case[0] == 'restore' and len(setmasks) == 2:\n"
+            "                raise KeyboardInterrupt\n"
+            "        return previous\n"
+            "def rmtree(path):\n"
+            "    t['_rmtree'](path)\n"
+            "    if case[0] == 'rmtree':\n"
+            "        raise OSError(39, 'Directory not empty')\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, signal=SignalModel(), _session_members=scan,\n"
+            "               _kill_session=lambda sid: True, _rmtree=rmtree)\n"
+            "for case[0] in ('restore', 'rmtree'):\n"
+            "    setmasks.clear()\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', case[0], json.dumps(outcome), json.dumps(len(setmasks)))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {case} {json.dumps([name, [note]])} 2\n"
+            for case, name in (("restore", "KeyboardInterrupt"), ("rmtree", "OSError"))), detail)
+
+    def test_run_shell_stubbed_caller_handled_line_is_not_noted_on_a_later_exception(self) -> None:
+        """A run called while its caller handles an _UnparsableStat an earlier run raised for the same shell
+        does not carry that earlier line onto an exception raised in its own cleanup: the walk along the
+        __context__ chain stops at the caller's own handled exception. A driver handles an _UnparsableStat
+        naming entry 99 with shell set to bash, and calls a clone of _run_shells with no real process: its
+        Popen is a stand-in shell (pid 41) whose every wait reaps it; its session scan reads nothing, so the
+        run reads no line of its own; its _kill_session returns True; and its signal module raises
+        KeyboardInterrupt after the second SIG_SETMASK, the mask restore after the cleanup, as a SIGINT
+        blocked during the cleanup and delivered there would. That KeyboardInterrupt has the caller's
+        exception as its context, and leaves the clone with no note, where a walk that does not stop at the
+        caller's exception notes entry 99 and the bash run on it; the caller's exception is unchanged."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "setmasks = []\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "class SignalModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(signal, name)\n"
+            "    def pthread_sigmask(self, how, mask):\n"
+            "        previous = signal.pthread_sigmask(how, mask)\n"
+            "        if how == signal.SIG_SETMASK:\n"
+            "            setmasks.append(how)\n"
+            "            if len(setmasks) == 2:\n"
+            "                raise KeyboardInterrupt\n"
+            "        return previous\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, signal=SignalModel(), _session_members=lambda sid: [],\n"
+            "               _kill_session=lambda sid: True)\n"
+            "earlier = t['_UnparsableStat'](['99'], [])\n"
+            "earlier.shell, earlier.results = 'bash', []\n"
+            "try:\n"
+            "    raise earlier\n"
+            "except t['_UnparsableStat'] as caller:\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, getattr(exc, '__notes__', []), exc.__context__ is caller]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(len(setmasks)),\n"
+            "      json.dumps([str(earlier), earlier.entries, earlier.shell, getattr(earlier, '__notes__', [])]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout,
+                         'RESULT ["KeyboardInterrupt", [], true] 2 '
+                         '["unparsable stat line, session unknown: /proc/99/stat", ["99"], "bash", []]\n', detail)
+
+    def test_run_shell_stubbed_line_is_not_merged_into_the_callers_handled_line(self) -> None:
+        """A run called while its caller handles an _UnparsableStat an earlier run raised for the same shell
+        raises a new _UnparsableStat for a line of its own, with shell set, and leaves the caller's exception
+        unchanged: the caller's own handled exception is checked before a merge into an _UnparsableStat of
+        the same shell. A driver handles an _UnparsableStat naming entry 99 with shell set to bash, and calls
+        a clone of _run_shells with no real process: its Popen is a stand-in shell (pid 41) whose every wait
+        reaps it; its grace loop reads the fake /proc of _run_shell_stubbed_unparsable_member, which raises
+        for entry 46; its _kill_session returns True. The clone raises an _UnparsableStat naming only
+        /proc/46/stat, with shell bash and the run's results list set, and the caller's exception still names
+        only entry 99, where checking the merge first folds entry 46 into the caller's exception and the run
+        then ends in UnboundLocalError."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=scan, _kill_session=lambda sid: True)\n"
+            "earlier = t['_UnparsableStat'](['99'], [])\n"
+            "earlier.shell, earlier.results = 'bash', []\n"
+            "results = []\n"
+            "try:\n"
+            "    raise earlier\n"
+            "except t['_UnparsableStat'] as caller:\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, results)\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, str(exc), getattr(exc, 'entries', None),\n"
+            "                   getattr(exc, 'shell', None), getattr(exc, 'results', None) is results,\n"
+            "                   getattr(exc, '__notes__', []), exc is caller]\n"
+            "print('RESULT', json.dumps(outcome),\n"
+            "      json.dumps([str(earlier), earlier.entries, earlier.shell, getattr(earlier, '__notes__', [])]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout,
+                         'RESULT ["_UnparsableStat", "unparsable stat line, session unknown: /proc/46/stat", '
+                         '["46"], "bash", true, [], false] '
+                         '["unparsable stat line, session unknown: /proc/99/stat", ["99"], "bash", []]\n', detail)
+
+    def test_run_shell_stubbed_kill_session_keeps_an_unparsable_stat_line_gone_by_a_later_scan(self) -> None:
+        """_kill_session does not report a session contained when one of its scans reads an entry whose stat
+        line it cannot parse and a later scan no longer finds it: every such entry any of its scans read is
+        kept to the return. Over the fake /proc of _run_shell_stubbed_unparsable_member, a clone of
+        _kill_session whose os.kill is the driver's kill reads through a scan that shows entry 46 at one read
+        only and renames it away (to gone-46, not a pid entry) for every other: in case stop, the first read,
+        in the stopping phase; in case kill, the third read, the first of the killing phase. In each case it
+        stops and kills the leader (41) and member 42, sends nothing to 46, returns False and stores [46] in
+        _KILL_UNKNOWN[41], where keeping only the last scan's entries returns True and stores nothing."""
+        outputs, details = [], []
+        for present in (1, 3):
+            result = self._run_shell_stubbed_unparsable_member(
+                f"present, reads = {present}, []\n"
+                "def flaky(sid):\n"
+                "    reads.append(sid)\n"
+                "    here, away = os.path.join(root, '46'), os.path.join(root, 'gone-46')\n"
+                "    if len(reads) == present:\n"
+                "        if os.path.exists(away):\n"
+                "            os.rename(away, here)\n"
+                "    elif os.path.exists(here):\n"
+                "        os.rename(here, away)\n"
+                "    return scan(sid)\n"
+                "contained = clone('_kill_session', _session_members=flaky, os=types.SimpleNamespace(kill=kill))(41)\n"
+                "print('RESULT', json.dumps(contained), json.dumps(sorted(sends)), "
+                "json.dumps(t['_KILL_UNKNOWN'].get(41)))\n")
+            detail = f"\ncase {present} stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+            self.assertEqual(result.returncode, 0, detail)
+            outputs.append(result.stdout)
+            details.append(detail)
+        expected = ('RESULT false [[41, "SIGKILL"], [41, "SIGSTOP"], [41, "SIGSTOP"], [42, "SIGKILL"], '
+                    '[42, "SIGSTOP"], [42, "SIGSTOP"]] [46]\n')
+        self.assertEqual(outputs, [expected, expected], "".join(details))
+
+    def test_run_shell_stubbed_fallback_sweep_line_is_noted_on_an_interrupted_member_signal(self) -> None:
+        """An exception that interrupts the fallback sweep's member signalling, after the sweep's scan met an
+        unparsable stat line, carries that line as a note. The clone of _run_shells is the one of
+        test_run_shell_stubbed_fallback_sweep_kills_readable_members_on_an_unparsable_stat_line, except that
+        its os.kill records the signal and raises KeyboardInterrupt, as a SIGINT delivered while the members
+        are signalled would. The KeyboardInterrupt leaves the clone with one note naming /proc/46/stat and the
+        bash run, after the group kill, one SIGKILL (to 41) and the reap, where settling the line only once
+        the signalling is done loses it."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "kills, waits = [], []\n"
+            "def grouped():\n"
+            "    return any(send[1] == 'killpg SIGKILL' for send in sends)\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if not grouped():\n"
+            "            raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "        self.returncode = -9\n"
+            "        return -9\n"
+            "def killpg(pgid, sig):\n"
+            "    sends.append([pgid, 'killpg ' + signal.Signals(sig).name])\n"
+            "def interrupted(pid, sig):\n"
+            "    sends.append([pid, signal.Signals(sig).name])\n"
+            "    raise KeyboardInterrupt\n"
+            "def members(sid):\n"
+            "    return scan(sid) if grouped() else []\n"
+            "fake_os = types.SimpleNamespace(path=os.path, makedirs=os.makedirs, devnull=os.devnull,\n"
+            "                                killpg=killpg, kill=interrupted)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, os=fake_os, _session_members=members,\n"
+            "               _kill_session=lambda sid: kills.append(sid) or True)\n"
+            "try:\n"
+            "    shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(sends), json.dumps(kills), json.dumps(waits))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, 'RESULT ["KeyboardInterrupt", ["unparsable stat line, session unknown: '
+                                        '/proc/46/stat; containment of the bash run could not be shown"]] '
+                                        '[[41, "killpg SIGKILL"], [41, "SIGKILL"]] [41] [30, 2.0, 2.0]\n', detail)
+
+    def test_run_shell_stubbed_deferred_termination_does_not_note_the_callers_handled_line(self) -> None:
+        """A SIGTERM deferred during a run called while its caller handles an _UnparsableStat an earlier run
+        raised for bash, and raised by a drain once the run is done, does not carry that earlier line as a
+        note: the caller's own handled exception is not this run's. A driver handles an _UnparsableStat naming
+        entry 99 with shell set to bash, and calls a clone of run whose _run_shells is a clone with no real
+        process: its Popen is a stand-in shell (pid 41) whose every wait reaps it, and its session scan reads
+        nothing, so the run reads no line of its own. In case shell, its _kill_session calls the tool's own
+        _on_signal with SIGTERM, which the active deferral records, so the drain at the end of the shell
+        raises it; in case run, the run's signal module calls _on_signal with SIGTERM once it has restored the
+        SIGHUP handler, so the run's own drain raises it. Each ends in _Terminated(15) with no note, where a
+        drain that does not exclude the caller's exception notes entry 99 and the bash run on it; the
+        caller's exception is unchanged."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def kill_with_term(sid):\n"
+            "    t['_on_signal'](signal.SIGTERM, None)\n"
+            "    return True\n"
+            "class SignalModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(signal, name)\n"
+            "    def signal(self, sig, handler):\n"
+            "        previous = signal.signal(sig, handler)\n"
+            "        if sig == signal.SIGHUP and handler is not t['_on_signal']:\n"
+            "            t['_on_signal'](signal.SIGTERM, None)\n"
+            "        return previous\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "outcomes = []\n"
+            "for case in ('shell', 'run'):\n"
+            "    shells = clone('_run_shells', subprocess=popen, _session_members=lambda sid: [],\n"
+            "                   _kill_session=kill_with_term if case == 'shell' else (lambda sid: True))\n"
+            "    run = clone('run', _run_shells=shells, signal=SignalModel() if case == 'run' else signal)\n"
+            "    earlier = t['_UnparsableStat'](['99'], [])\n"
+            "    earlier.shell, earlier.results = 'bash', []\n"
+            "    try:\n"
+            "        raise earlier\n"
+            "    except t['_UnparsableStat']:\n"
+            "        try:\n"
+            "            run('true', shells=('bash',))\n"
+            "            outcome = [case, 'returned']\n"
+            "        except BaseException as exc:\n"
+            "            outcome = [case, type(exc).__name__, list(exc.args), getattr(exc, '__notes__', [])]\n"
+            "    outcomes.append(outcome + [str(earlier), getattr(earlier, '__notes__', [])])\n"
+            "print('RESULT', json.dumps(outcomes))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout,
+                         'RESULT [["shell", "_Terminated", [15], [], '
+                         '"unparsable stat line, session unknown: /proc/99/stat", []], '
+                         '["run", "_Terminated", [15], [], '
+                         '"unparsable stat line, session unknown: /proc/99/stat", []]]\n', detail)
+
+    def test_run_shell_stubbed_kill_line_is_noted_when_the_kill_itself_raises(self) -> None:
+        """An unparsable stat line the session kill read is not lost when the kill itself raises before it
+        returns: the kill stores the entry as soon as a scan reads it, and the exception, which keeps
+        propagating, gets the entry and the shell as a note. A clone of _run_shells runs with no real
+        process: its Popen is a stand-in shell (pid 41) whose every wait reaps it; its grace loop reads
+        nothing; and its _kill_session is a clone of the tool's own whose scan raises for entry 46 with a
+        running member 100, and whose os.kill records the signal and raises PermissionError in case
+        PermissionError and KeyboardInterrupt in case KeyboardInterrupt. Each exception leaves the clone with
+        that note, after one SIGSTOP to 100, where storing the entry only when the kill returns, or reading
+        it only after the kill returns, leaves the exception with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "case = ['']\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def kill_scan(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(100, 'S')])\n"
+            "def refused(pid, sig):\n"
+            "    sends.append([pid, signal.Signals(sig).name])\n"
+            "    if case[0] == 'PermissionError':\n"
+            "        raise PermissionError(1, 'Operation not permitted')\n"
+            "    raise KeyboardInterrupt\n"
+            "kill_session = clone('_kill_session', _session_members=kill_scan,\n"
+            "                     os=types.SimpleNamespace(kill=refused))\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=lambda sid: [],\n"
+            "               _kill_session=kill_session)\n"
+            "for case[0] in ('PermissionError', 'KeyboardInterrupt'):\n"
+            "    sends.clear()\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', case[0], json.dumps(outcome), json.dumps(sends))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f'RESULT {case} {json.dumps([case, [note]])} [[100, "SIGSTOP"]]\n'
+            for case in ("PermissionError", "KeyboardInterrupt")), detail)
+
+    def test_run_shell_stubbed_interrupted_fallback_sweep_keeps_the_grace_loop_line(self) -> None:
+        """An exception that interrupts the fallback sweep's member signalling, after the sweep's scan met an
+        unparsable stat line, ends the run with one note naming that entry and the one the grace loop read
+        earlier, each once. A clone of _run_shells runs with no real process: its Popen is a stand-in shell
+        (pid 41) whose waits time out until the group kill and then reap it; its session scan raises for
+        entry 46 in the grace loop and for entry 47, with live member 200, in the fallback sweep; its
+        _kill_session returns True; and its os.kill records the signal and raises KeyboardInterrupt. The
+        KeyboardInterrupt leaves the clone with one note naming /proc/47/stat, /proc/46/stat and the bash
+        run, after the group kill, one SIGKILL (to 200) and the reap, where taking only the first line found
+        along the exception chain names 47 alone."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits, phase = [], ['grace']\n"
+            "def grouped():\n"
+            "    return any(send[1] == 'killpg SIGKILL' for send in sends)\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if not grouped():\n"
+            "            raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "        self.returncode = -9\n"
+            "        return -9\n"
+            "def killpg(pgid, sig):\n"
+            "    sends.append([pgid, 'killpg ' + signal.Signals(sig).name])\n"
+            "def interrupted(pid, sig):\n"
+            "    sends.append([pid, signal.Signals(sig).name])\n"
+            "    raise KeyboardInterrupt\n"
+            "def members(sid):\n"
+            "    if phase[0] == 'grace':\n"
+            "        raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "    raise t['_UnparsableStat'](['47'], [(200, 'S')])\n"
+            "def kill_session(sid):\n"
+            "    phase[0] = 'kill'\n"
+            "    return True\n"
+            "fake_os = types.SimpleNamespace(path=os.path, makedirs=os.makedirs, devnull=os.devnull,\n"
+            "                                killpg=killpg, kill=interrupted)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, os=fake_os, _session_members=members,\n"
+            "               _kill_session=kill_session)\n"
+            "try:\n"
+            "    shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(sends), json.dumps(waits))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, 'RESULT ["KeyboardInterrupt", ["unparsable stat line, session unknown: '
+                                        '/proc/47/stat, /proc/46/stat; containment of the bash run could not '
+                                        'be shown"]] [[41, "killpg SIGKILL"], [200, "SIGKILL"]] [30, 2.0, 2.0]\n',
+                         detail)
+
+    def test_run_shell_stubbed_second_deferred_termination_keeps_the_line(self) -> None:
+        """A second SIGTERM, deferred while run restores its handlers and raised by its drain over a
+        termination that already carries an unparsable stat line, carries that line as well. A clone of run
+        calls a clone of _run_shells with no real process: its Popen is a stand-in shell (pid 41) whose every
+        wait reaps it; its grace loop raises for entry 46; and its _kill_session calls the tool's own
+        _on_signal with SIGTERM, which the active deferral records, so the drain at the end of the shell
+        raises _Terminated(15) with the entry and the shell as its note. The run's signal module calls
+        _on_signal with SIGTERM once it has restored the SIGHUP handler, so the run's own drain raises a
+        second _Terminated(15) over the first. That one leaves the run with the same note. run's own except
+        carries the same line, so this test also passes with a drain that notes only an active
+        _UnparsableStat; test_run_shell_stubbed_drain_deferral_walks_the_chain pins the drain's walk."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "def kill_with_term(sid):\n"
+            "    t['_on_signal'](signal.SIGTERM, None)\n"
+            "    return True\n"
+            "class SignalModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(signal, name)\n"
+            "    def signal(self, sig, handler):\n"
+            "        previous = signal.signal(sig, handler)\n"
+            "        if sig == signal.SIGHUP and handler is not t['_on_signal']:\n"
+            "            t['_on_signal'](signal.SIGTERM, None)\n"
+            "        return previous\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=kill_with_term)\n"
+            "run = clone('run', _run_shells=shells, signal=SignalModel())\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    first = exc.__context__\n"
+            "    outcome = [type(exc).__name__, list(exc.args), getattr(exc, '__notes__', []),\n"
+            "               type(first).__name__, list(getattr(first, 'args', [])), getattr(first, '__notes__', [])]\n"
+            "print('RESULT', json.dumps(outcome))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(["_Terminated", [15], [note],
+                                                                "_Terminated", [15], [note]]) + "\n", detail)
+
+    def test_run_shell_stubbed_run_cleanup_raise_keeps_the_line(self) -> None:
+        """An exception that run's own cleanup raises (a handler restore or the final drain) over a termination
+        that already carries an unparsable stat line, with no second deferred signal to follow, carries that
+        line as well. A clone of run calls a clone of _run_shells with no real process: its Popen is a
+        stand-in shell (pid 41) whose every wait reaps it; its grace loop raises for entry 46; and its
+        _kill_session stores entry 47 as one the kill read, then calls the tool's own _on_signal with SIGTERM,
+        which the active deferral records, so the drain at the end of the shell raises _Terminated(15) with
+        both entries and the shell as its note. The run's signal module raises KeyboardInterrupt instead of
+        restoring the handler of the case's name (SIGINT, SIGTERM or SIGHUP), and in case drain the run's own
+        drain raises KeyboardInterrupt once it has run. Each KeyboardInterrupt leaves the run with that note,
+        naming each entry once, where carrying the line only on a second deferred termination leaves it with
+        none. In case caller, run is called while its caller handles an _UnparsableStat an earlier run raised
+        for the same shell (entry 99) and the SIGINT restore raises: the note names 46 and 47 only, and the
+        caller's exception gets no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "case = ['']\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "def kill_with_term(sid):\n"
+            "    t['_KILL_UNKNOWN'][sid] = [47]\n"
+            "    t['_on_signal'](signal.SIGTERM, None)\n"
+            "    return False\n"
+            "class SignalModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(signal, name)\n"
+            "    def signal(self, sig, handler):\n"
+            "        if handler is not t['_on_signal'] and signal.Signals(sig).name == case[0]:\n"
+            "            raise KeyboardInterrupt\n"
+            "        return signal.signal(sig, handler)\n"
+            "drains = []\n"
+            "def drain(caller_exception=None):\n"
+            "    drains.append(caller_exception)\n"
+            "    t['_drain_deferral'](caller_exception)\n"
+            "    if case[0] == 'drain' and len(drains) == 2:\n"
+            "        raise KeyboardInterrupt\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=kill_with_term, _drain_deferral=drain)\n"
+            "run = clone('run', _run_shells=shells, signal=SignalModel(), _drain_deferral=drain)\n"
+            "for name in ('SIGINT', 'SIGTERM', 'SIGHUP', 'drain', 'caller'):\n"
+            "    case[0] = 'SIGINT' if name == 'caller' else name\n"
+            "    drains.clear()\n"
+            "    caller = None\n"
+            "    try:\n"
+            "        if name == 'caller':\n"
+            "            earlier = t['_UnparsableStat'](['99'], [])\n"
+            "            earlier.shell, earlier.results = 'bash', []\n"
+            "            try:\n"
+            "                raise earlier\n"
+            "            except BaseException as handled:\n"
+            "                caller = handled\n"
+            "                run('true', shells=('bash',))\n"
+            "        else:\n"
+            "            run('true', shells=('bash',))\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "    if caller is not None:\n"
+            "        outcome.append(getattr(caller, '__notes__', []))\n"
+            "    print('RESULT', name, json.dumps(outcome))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat, /proc/47/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {name} {json.dumps(['KeyboardInterrupt', [note]] + ([[]] if name == 'caller' else []))}\n"
+            for name in ("SIGINT", "SIGTERM", "SIGHUP", "drain", "caller")), detail)
+
+    def test_run_shell_stubbed_interrupted_scan_keeps_the_entry_it_read(self) -> None:
+        """An interrupt raised inside a session scan after the scan has read an unparsable stat line does not
+        lose that entry: the scan records it as it reads it, and the KeyboardInterrupt keeps propagating as
+        itself, with the entry and the shell as its note. The scan is a clone of the tool's own
+        _session_members over a /proc listing of 46 and 47, where 46's stat line is cut before its session
+        field and opening /proc/47/stat raises KeyboardInterrupt. A clone of _run_shells runs with no real
+        process: its Popen is a stand-in shell (pid 41) whose every wait reaps it. In case grace its grace
+        loop uses that scan and its _kill_session returns True; in case kill its grace loop reads nothing and
+        its _kill_session is a clone of the tool's own whose scan is that scan and whose os.kill fails the
+        test; in case run a clone of run calls the case grace clone. Each case ends with KeyboardInterrupt
+        with that note and leaves no armed session, where keeping the entries only in the scan's local list
+        ends each with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return ['46', '47']\n"
+            "def interrupting_open(path, *args, **kwargs):\n"
+            "    if path == '/proc/47/stat':\n"
+            "        raise KeyboardInterrupt\n"
+            "    return fake_open(path, *args, **kwargs)\n"
+            "interrupted = clone('_session_members', open=interrupting_open,\n"
+            "                    os=types.SimpleNamespace(listdir=listing))\n"
+            "def refused(pid, sig):\n"
+            "    raise AssertionError('no member may be signalled')\n"
+            "kill_session = clone('_kill_session', _session_members=interrupted,\n"
+            "                     os=types.SimpleNamespace(kill=refused))\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "grace = clone('_run_shells', subprocess=popen, _session_members=interrupted,\n"
+            "              _kill_session=lambda sid: True)\n"
+            "kill = clone('_run_shells', subprocess=popen, _session_members=lambda sid: [],\n"
+            "             _kill_session=kill_session)\n"
+            "run = clone('run', _run_shells=grace)\n"
+            "calls = {'grace': lambda: grace('true', ('bash',), ('gh', 'git'), 30, []),\n"
+            "         'kill': lambda: kill('true', ('bash',), ('gh', 'git'), 30, []),\n"
+            "         'run': lambda: run('true', shells=('bash',))}\n"
+            "for name in ('grace', 'kill', 'run'):\n"
+            "    try:\n"
+            "        calls[name]()\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', name, json.dumps(outcome), json.dumps(sorted(t.get('_SCAN_UNREAD', {}))))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {name} {json.dumps(['KeyboardInterrupt', [note]])} []\n"
+            for name in ("grace", "kill", "run")), detail)
+
+    def test_run_shell_stubbed_kill_second_loop_store_keeps_the_entry(self) -> None:
+        """An unparsable stat line that only a scan of the session kill's second loop reads is not lost when a
+        signal in that loop raises: the second loop stores the entry after its scan, before it signals. A
+        clone of _run_shells runs with no real process: its Popen is a stand-in shell (pid 41) whose every
+        wait reaps it; its grace loop reads nothing; and its _kill_session is a clone of the tool's own whose
+        first scan reads nothing (so the first loop stores nothing and ends) and whose later scans raise for
+        entry 47 with a stopped member 100, and whose os.kill records the signal and raises PermissionError in
+        case PermissionError and KeyboardInterrupt in case KeyboardInterrupt. Each exception leaves the clone
+        with that note, after two scans and one SIGSTOP to 100, where dropping only the second loop's store
+        leaves it with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "case, scans = [''], []\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def kill_scan(sid):\n"
+            "    scans.append(sid)\n"
+            "    if len(scans) == 1:\n"
+            "        return []\n"
+            "    raise t['_UnparsableStat'](['47'], [(100, 'T')])\n"
+            "def refused(pid, sig):\n"
+            "    sends.append([pid, signal.Signals(sig).name])\n"
+            "    if case[0] == 'PermissionError':\n"
+            "        raise PermissionError(1, 'Operation not permitted')\n"
+            "    raise KeyboardInterrupt\n"
+            "kill_session = clone('_kill_session', _session_members=kill_scan,\n"
+            "                     os=types.SimpleNamespace(kill=refused))\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=lambda sid: [],\n"
+            "               _kill_session=kill_session)\n"
+            "for case[0] in ('PermissionError', 'KeyboardInterrupt'):\n"
+            "    sends.clear()\n"
+            "    scans.clear()\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', case[0], json.dumps(outcome), json.dumps(sends), len(scans))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/47/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f'RESULT {case} {json.dumps([case, [note]])} [[100, "SIGSTOP"]] 2\n'
+            for case in ("PermissionError", "KeyboardInterrupt")), detail)
+
+    def test_run_shell_stubbed_caller_reraise_over_a_run_line_is_a_stated_residual(self) -> None:
+        """The stated residual: when run's cleanup re-raises the caller's own handled exception over a line of
+        the run, that exception ends the run with no note and carries none of the run's entries, which remain
+        only along its __context__ chain; and the module docstring, run's cleanup comment and _run_shells'
+        cleanup comment each state it. A clone of run is called while its caller handles a RuntimeError, and
+        calls a clone of _run_shells with no real process: its Popen is a stand-in shell (pid 41) whose every
+        wait reaps it, its grace loop raises for entry 46 and its _kill_session returns True. The run's signal
+        module raises the caller's RuntimeError instead of restoring SIGINT. The run ends with that same
+        RuntimeError, with no note, whose __context__ is the line naming /proc/46/stat; the statement appears
+        once in the tool source, in its module docstring, and the cleanup comments of run and of _run_shells
+        each name exit table row X5."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "caller = RuntimeError('caller')\n"
+            "class SignalModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(signal, name)\n"
+            "    def signal(self, sig, handler):\n"
+            "        if sig == signal.SIGINT and handler is not t['_on_signal']:\n"
+            "            raise caller\n"
+            "        return signal.signal(sig, handler)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True)\n"
+            "run = clone('run', _run_shells=shells, signal=SignalModel())\n"
+            "try:\n"
+            "    try:\n"
+            "        raise caller\n"
+            "    except RuntimeError:\n"
+            "        run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    context = exc.__context__\n"
+            "    outcome = [type(exc).__name__, exc is caller, getattr(exc, '__notes__', []),\n"
+            "               type(context).__name__, str(context), getattr(context, '__notes__', [])]\n"
+            "phrase = \"re-raised over a line of the run is exit table row X5\"\n"
+            "with real_open(sys.argv[1], encoding='utf-8') as fh:\n"
+            "    source = fh.read()\n"
+            "run_src = source.split('\\ndef run(', 1)[1].split('\\ndef _run_shells(', 1)[0]\n"
+            "shells_src = source.split('\\ndef _run_shells(', 1)[1].split('\\ndef _printable(', 1)[0]\n"
+            "flat = lambda s: ' '.join(s.replace('#', ' ').split())\n"
+            "named = ['are exit table row X5.' in flat(run_src), 'run) is exit table row X5.' in flat(shells_src)]\n"
+            "print('RESULT', json.dumps(outcome), source.count(phrase), phrase in t['__doc__'], json.dumps(named))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            ["RuntimeError", True, [], "_UnparsableStat", "unparsable stat line, session unknown: /proc/46/stat",
+             []]) + " 1 True [true, true]\n", detail)
+
+    def test_run_shell_stubbed_settlement_raise_keeps_the_entries(self) -> None:
+        """An exception raised while the innermost finally of _run_shells settles the entries the kill or a scan
+        recorded, after it has taken them from _KILL_UNKNOWN and _SCAN_UNREAD, does not lose them: it keeps
+        propagating as itself, with the entries and the shell as its note, and leaves no record behind. A
+        clone of _run_shells runs with no real process: its Popen is a stand-in shell (pid 41) whose every
+        wait reaps it, and its grace loop reads nothing. Its _kill_session stores entry 47 in _KILL_UNKNOWN and
+        returns False in case kill, records entry 46 in _SCAN_UNREAD and returns True in case scan, and does
+        both in case both. A stand-in for a caller's signal handler raises KeyboardInterrupt at the first call
+        of _carry_shell_lines (point carry) or of _settle_unparsable (point settle), then delegates. Each case
+        ends with that KeyboardInterrupt with the one note and with no record left, where popping the records
+        before the settlement ends each with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "case, point, raised = [''], [''], []\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def kill_session(sid):\n"
+            "    if case[0] in ('kill', 'both'):\n"
+            "        t['_KILL_UNKNOWN'][sid] = [47]\n"
+            "    if case[0] in ('scan', 'both'):\n"
+            "        t['_SCAN_UNREAD'][sid].append(46)\n"
+            "    return case[0] == 'scan'\n"
+            "def handler_at(name):\n"
+            "    real = t[name]\n"
+            "    def call(*args):\n"
+            "        if point[0] == name and not raised:\n"
+            "            raised.append(name)\n"
+            "            raise KeyboardInterrupt('caller handler')\n"
+            "        return real(*args)\n"
+            "    return call\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=lambda sid: [],\n"
+            "               _kill_session=kill_session,\n"
+            "               _carry_shell_lines=handler_at('_carry_shell_lines'),\n"
+            "               _settle_unparsable=handler_at('_settle_unparsable'))\n"
+            "for point[0] in ('_carry_shell_lines', '_settle_unparsable'):\n"
+            "    for case[0] in ('kill', 'scan', 'both'):\n"
+            "        raised.clear()\n"
+            "        try:\n"
+            "            shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "            outcome = ['returned']\n"
+            "        except BaseException as exc:\n"
+            "            outcome = [type(exc).__name__, list(exc.args), getattr(exc, '__notes__', [])]\n"
+            "        left = [sorted(t[name]) for name in ('_KILL_UNKNOWN', '_SCAN_UNREAD', '_KILL_ALIVE')]\n"
+            "        print('RESULT', point[0], case[0], json.dumps(outcome), json.dumps(raised), json.dumps(left))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        named = {"kill": "/proc/47/stat", "scan": "/proc/46/stat", "both": "/proc/47/stat, /proc/46/stat"}
+        expected = ""
+        for point in ("_carry_shell_lines", "_settle_unparsable"):
+            for case in ("kill", "scan", "both"):
+                note = (f"unparsable stat line, session unknown: {named[case]}; "
+                        "containment of the bash run could not be shown")
+                expected += (f"RESULT {point} {case} "
+                             f"{json.dumps(['KeyboardInterrupt', ['caller handler'], [note]])} "
+                             f"{json.dumps([point])} [[], [], []]\n")
+        self.assertEqual(result.stdout, expected, detail)
+
+    def test_run_shell_stubbed_scan_interrupted_at_the_close_keeps_the_entry(self) -> None:
+        """An interrupt raised as a session scan closes the stat file of an entry it has read does not lose that
+        entry when its line cannot be parsed, and does not record it when its line parses: the scan records the
+        entry as soon as its read returns, before the close and the parse, and drops it once the line parses.
+        The scan is a clone of the tool's own _session_members over a /proc listing of one entry, whose file's
+        close raises KeyboardInterrupt once the file is closed: entry 46, whose stat line is cut before its
+        session field, or entry 43, a process of another session whose line parses. A clone of _run_shells runs
+        with no real process: its Popen is a stand-in shell (pid 41) whose every wait reaps it. In case grace
+        its grace loop uses that scan and its _kill_session returns True; in case kill its grace loop reads
+        nothing and its _kill_session is a clone of the tool's own whose scan is that scan and whose os.kill
+        fails the test; in case run a clone of run calls the case grace clone. Over 46 each case ends with
+        KeyboardInterrupt with the entry and the shell as its note, where recording the entry only once its
+        parse has failed, after the close, ends each with no note; over 43 each ends with no note. None leaves
+        an armed session."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "only = ['']\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return [only[0]]\n"
+            "class InterruptedClose:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return self.fh.__enter__()\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        self.fh.__exit__(*exc_info)\n"
+            "        raise KeyboardInterrupt('at the close')\n"
+            "def closing_open(path, *args, **kwargs):\n"
+            "    return InterruptedClose(fake_open(path, *args, **kwargs))\n"
+            "interrupted = clone('_session_members', open=closing_open,\n"
+            "                    os=types.SimpleNamespace(listdir=listing))\n"
+            "def refused(pid, sig):\n"
+            "    raise AssertionError('no member may be signalled')\n"
+            "kill_session = clone('_kill_session', _session_members=interrupted,\n"
+            "                     os=types.SimpleNamespace(kill=refused))\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "grace = clone('_run_shells', subprocess=popen, _session_members=interrupted,\n"
+            "              _kill_session=lambda sid: True)\n"
+            "kill = clone('_run_shells', subprocess=popen, _session_members=lambda sid: [],\n"
+            "             _kill_session=kill_session)\n"
+            "run = clone('run', _run_shells=grace)\n"
+            "calls = {'grace': lambda: grace('true', ('bash',), ('gh', 'git'), 30, []),\n"
+            "         'kill': lambda: kill('true', ('bash',), ('gh', 'git'), 30, []),\n"
+            "         'run': lambda: run('true', shells=('bash',))}\n"
+            "for only[0] in ('46', '43'):\n"
+            "    for name in ('grace', 'kill', 'run'):\n"
+            "        try:\n"
+            "            calls[name]()\n"
+            "            outcome = ['returned']\n"
+            "        except BaseException as exc:\n"
+            "            outcome = [type(exc).__name__, list(exc.args), getattr(exc, '__notes__', [])]\n"
+            "        print('RESULT', only[0], name, json.dumps(outcome), json.dumps(sorted(t['_SCAN_UNREAD'])))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {entry} {name} {json.dumps(['KeyboardInterrupt', ['at the close'], notes])} []\n"
+            for entry, notes in (("46", [note]), ("43", [])) for name in ("grace", "kill", "run")), detail)
+
+    def test_run_shell_stubbed_timeout_after_the_read_propagates_and_keeps_the_entry(self) -> None:
+        """An OSError raised once a session scan's read has returned, such as the TimeoutError of a caller's
+        SIGALRM handler at the close or during the parse, is not taken as an exited process: it propagates, and
+        the entry the read recorded is not removed, so the run is not reported contained and the caller's
+        exception is not swallowed. The scan is a clone of the tool's own _session_members over a /proc listing
+        of one entry, entry 46 (its stat line cut before its session field) or entry 43 (a process of another
+        session whose line parses); at point close its file's close raises TimeoutError once the file is
+        closed, and at point parse the line it reads raises TimeoutError as it is split. As in the close test,
+        case grace uses that scan in a clone of _run_shells' grace loop, case kill in a clone of the tool's own
+        _kill_session, and case run calls the case grace clone through a clone of run. Each ends with that
+        TimeoutError: with the entry and the shell as its note over 46; with no note over 43 at the close,
+        where the line parsed before the close; and with 43 as its note during the parse, the stated
+        fail-closed residual. None leaves an armed session. Catching OSError around the close and the parse,
+        and removing the recorded entry there, ends each case returned and contained."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "only, point = [''], ['']\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return [only[0]]\n"
+            "class Cut(str):\n"
+            "    def rsplit(self, *args):\n"
+            "        raise TimeoutError('during the parse')\n"
+            "class Reader:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def read(self):\n"
+            "        line = self.fh.read()\n"
+            "        return Cut(line) if point[0] == 'parse' else line\n"
+            "class Timed:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return Reader(self.fh.__enter__())\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        self.fh.__exit__(*exc_info)\n"
+            "        if point[0] == 'close':\n"
+            "            raise TimeoutError('at the close')\n"
+            "def timed_open(path, *args, **kwargs):\n"
+            "    return Timed(fake_open(path, *args, **kwargs))\n"
+            "timed = clone('_session_members', open=timed_open,\n"
+            "              os=types.SimpleNamespace(listdir=listing))\n"
+            "def refused(pid, sig):\n"
+            "    raise AssertionError('no member may be signalled')\n"
+            "kill_session = clone('_kill_session', _session_members=timed,\n"
+            "                     os=types.SimpleNamespace(kill=refused))\n"
+            "grace = clone('_run_shells', subprocess=popen, _session_members=timed,\n"
+            "              _kill_session=lambda sid: True)\n"
+            "kill = clone('_run_shells', subprocess=popen, _session_members=lambda sid: [],\n"
+            "             _kill_session=kill_session)\n"
+            "run = clone('run', _run_shells=grace)\n"
+            "calls = {'grace': lambda: grace('true', ('bash',), ('gh', 'git'), 30, []),\n"
+            "         'kill': lambda: kill('true', ('bash',), ('gh', 'git'), 30, []),\n"
+            "         'run': lambda: run('true', shells=('bash',))}\n"
+            "for point[0] in ('close', 'parse'):\n"
+            "    for only[0] in ('46', '43'):\n"
+            "        for name in ('grace', 'kill', 'run'):\n"
+            "            try:\n"
+            "                results = calls[name]()\n"
+            "                outcome = ['returned', [r['contained'] for r in results]]\n"
+            "            except BaseException as exc:\n"
+            "                outcome = [type(exc).__name__, list(exc.args), getattr(exc, '__notes__', [])]\n"
+            "            print('RESULT', point[0], only[0], name, json.dumps(outcome),\n"
+            "                  json.dumps(sorted(t['_SCAN_UNREAD'])))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+
+        def note(entry):
+            return (f"unparsable stat line, session unknown: /proc/{entry}/stat; "
+                    "containment of the bash run could not be shown")
+
+        # An entry whose parse the raise cut short has no parse result recorded, and the note says so.
+        def unread(entry):
+            return (f"stat line parse result not recorded before an interruption, session unknown: /proc/{entry}/stat; "
+                    "containment of the bash run could not be shown")
+        cases = (("close", "46", "at the close", [note("46")]), ("close", "43", "at the close", []),
+                 ("parse", "46", "during the parse", [unread("46")]),
+                 ("parse", "43", "during the parse", [unread("43")]))
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {point} {entry} {name} {json.dumps(['TimeoutError', [message], notes])} []\n"
+            for point, entry, message, notes in cases for name in ("grace", "kill", "run")), detail)
+
+    def test_run_shell_stubbed_interrupted_final_carry_keeps_the_note(self) -> None:
+        """An exception that interrupts run's final carry of the run's lines as notes does not end the run with
+        no note: the carry is made again onto that exception, whose __context__ chain holds the first. A clone
+        of run calls a clone of _run_shells with no real process: its Popen is a stand-in shell (pid 41) whose
+        every wait reaps it, its grace loop reads the fake /proc, whose entry 46 cannot be parsed, and its
+        _kill_session returns True, so _run_shells raises the line naming /proc/46/stat. The run's signal
+        module raises RuntimeError instead of restoring SIGINT, and the first call of run's
+        _carry_shell_lines raises KeyboardInterrupt, as a caller's signal handler would there. The run ends
+        with that KeyboardInterrupt with the entry and the shell as its one note and leaves no armed session,
+        where the unprotected carry ends it with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "class SignalModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(signal, name)\n"
+            "    def signal(self, sig, handler):\n"
+            "        if sig == signal.SIGINT and handler is not t['_on_signal']:\n"
+            "            raise RuntimeError('restore')\n"
+            "        return signal.signal(sig, handler)\n"
+            "raised = []\n"
+            "def carry(*args):\n"
+            "    if not raised:\n"
+            "        raised.append(True)\n"
+            "        raise KeyboardInterrupt('at the carry')\n"
+            "    return t['_carry_shell_lines'](*args)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=scan,\n"
+            "               _kill_session=lambda sid: True)\n"
+            "run = clone('run', _run_shells=shells, signal=SignalModel(), _carry_shell_lines=carry)\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, list(exc.args), getattr(exc, '__notes__', [])]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(raised), json.dumps(sorted(t['_SCAN_UNREAD'])))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(["KeyboardInterrupt", ["at the carry"], [note]])
+                         + " [true] []\n", detail)
+
+    def test_run_shell_stubbed_termination_after_a_caller_reraise_is_a_stated_exit(self) -> None:
+        """The stated exit: a SIGTERM deferred during the cleanup and drained after the cleanup re-raised the
+        caller's own handled exception over a line of the run ends the run as the run's own _Terminated with
+        no note, chained over the caller's exception, whose __context__ alone holds the line; and the module
+        docstring states it. A clone of run is called while its caller handles a RuntimeError, and calls a
+        clone of _run_shells with no real process: its Popen is a stand-in shell (pid 41) whose every wait
+        reaps it, its grace loop raises for entry 46 and its _kill_session returns True. The run's signal
+        module records a pending SIGTERM in the deferral and raises the caller's RuntimeError instead of
+        restoring SIGINT, so run's drain raises _Terminated(15)."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "caller = RuntimeError('caller')\n"
+            "class SignalModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(signal, name)\n"
+            "    def signal(self, sig, handler):\n"
+            "        if sig == signal.SIGINT and handler is not t['_on_signal']:\n"
+            "            t['_DEFERRED']['pending'] = signal.SIGTERM\n"
+            "            raise caller\n"
+            "        return signal.signal(sig, handler)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True)\n"
+            "run = clone('run', _run_shells=shells, signal=SignalModel())\n"
+            "try:\n"
+            "    try:\n"
+            "        raise caller\n"
+            "    except RuntimeError:\n"
+            "        run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    line = caller.__context__\n"
+            "    outcome = [type(exc).__name__, [int(arg) for arg in exc.args], getattr(exc, '__notes__', []),\n"
+            "               exc.__context__ is caller, type(line).__name__, str(line)]\n"
+            "phrase = \"or by the drain of run after its handler restores\"\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(t['_DEFERRED']), phrase in t['__doc__'])\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            ["_Terminated", [15], [], True, "_UnparsableStat",
+             "unparsable stat line, session unknown: /proc/46/stat"])
+            + " " + json.dumps({"active": False, "pending": None}) + " True\n", detail)
+
+    def test_run_shell_stubbed_kill_scan_after_a_skipped_arm_keeps_the_entry(self) -> None:
+        """An exception that skips the grace loop's arm of the shell's session does not leave the kill's scans
+        unarmed: _run_shells renews the arm with setdefault before the kill, so an entry an interrupted kill
+        scan read is still settled. The arm is modelled by a _SCAN_UNREAD stand-in, a dict whose item
+        assignment raises KeyboardInterrupt (an interrupt landing at the arm), bound in clones of _run_shells,
+        _shell_unread and the scan. A clone of _run_shells runs with no real process: its Popen is a stand-in
+        shell (pid 41) whose every wait reaps it, its grace loop reads nothing and its _kill_session is a clone
+        of the tool's own whose scan, a clone of _session_members over a /proc listing of entry 46 alone (its
+        line cut before its session field), raises KeyboardInterrupt as it closes that entry's file. The run
+        ends with that KeyboardInterrupt, with the entry and the shell as its note, and leaves no armed
+        session, where a kill scan left unarmed loses the entry and ends it with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "class Arm(dict):\n"
+            "    def __setitem__(self, key, value):\n"
+            "        raise KeyboardInterrupt('at the arm')\n"
+            "armed = Arm()\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return ['46']\n"
+            "class InterruptedClose:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return self.fh.__enter__()\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        self.fh.__exit__(*exc_info)\n"
+            "        raise KeyboardInterrupt('at the close')\n"
+            "def closing_open(path, *args, **kwargs):\n"
+            "    return InterruptedClose(fake_open(path, *args, **kwargs))\n"
+            "interrupted = clone('_session_members', open=closing_open, _SCAN_UNREAD=armed,\n"
+            "                    os=types.SimpleNamespace(listdir=listing))\n"
+            "def refused(pid, sig):\n"
+            "    raise AssertionError('no member may be signalled')\n"
+            "kill_session = clone('_kill_session', _session_members=interrupted,\n"
+            "                     os=types.SimpleNamespace(kill=refused))\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=lambda sid: [],\n"
+            "               _kill_session=kill_session, _SCAN_UNREAD=armed,\n"
+            "               _shell_unread=clone('_shell_unread', _SCAN_UNREAD=armed))\n"
+            "try:\n"
+            "    shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, list(exc.args), getattr(exc, '__notes__', [])]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(sorted(armed)))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(["KeyboardInterrupt", ["at the close"], [note]])
+                         + " []\n", detail)
+
+    def test_run_shell_stubbed_kill_reraising_the_caller_exception_raises_the_line(self) -> None:
+        """The stated exit: the caller's own handled exception re-raised during the shell's kill, over a line
+        the grace loop read, does not end the run; the line is raised, with the shell set, chained over it. A
+        clone of run is called while its caller handles a RuntimeError, and calls a clone of _run_shells with no
+        real process: its Popen is a stand-in shell (pid 41) whose every wait reaps it, its grace loop reads
+        the fake /proc, whose entry 46 cannot be parsed, and its _kill_session raises the caller's RuntimeError.
+        The run ends with an _UnparsableStat naming /proc/46/stat, for bash, with no note, whose __context__ is
+        the caller's RuntimeError, and leaves no armed session; the module docstring states the exit."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "caller = RuntimeError('caller')\n"
+            "def kill_session(sid):\n"
+            "    raise caller\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=scan,\n"
+            "               _kill_session=kill_session)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "try:\n"
+            "    try:\n"
+            "        raise caller\n"
+            "    except RuntimeError:\n"
+            "        run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc), getattr(exc, 'shell', None),\n"
+            "               getattr(exc, '__notes__', []), exc.__context__ is caller]\n"
+            "phrase = 'exit table row X18 when re-raised during the shell'\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(sorted(t['_SCAN_UNREAD'])), phrase in t['__doc__'])\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            ["_UnparsableStat", "unparsable stat line, session unknown: /proc/46/stat", "bash", [], True])
+            + " [] True\n", detail)
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("X18 | caller-handler residual, as observed: the caller's own handled exception re-raised "
+                      "during a shell's kill, reap or settlement, "
+                      "over a line of that shell | _UnparsableStat for that shell, chained over the caller's exception "
+                      "| the line names the entries and the shell | nothing | runs | restored", doc)
+
+    def test_run_shell_stubbed_handler_error_during_the_parse_propagates_and_keeps_the_entry(self) -> None:
+        """Pins an observation of the caller-handler residual (outside the exit table), not a defined exit.
+        A ValueError or IndexError raised during a session scan's parse by anything other than the line itself,
+        such as a caller's signal handler, is not taken as an unparsable line: it propagates with the entry
+        noted, and the entry stays recorded. The scan is a clone of the tool's own _session_members over a /proc
+        listing of one entry, entry 46 (its stat line cut before its session field) or entry 43 (a process of
+        another session whose line parses), whose read returns a line that raises ValueError or IndexError as it
+        is split. As in the timeout test, case grace uses that scan in a clone of _run_shells' grace loop, case
+        kill in a clone of the tool's own _kill_session, and case run calls the case grace clone through a clone
+        of run. Each ends with that exception, with the entry and the shell as its note (over 43 too, the
+        stated fail-closed residual), and none leaves an armed session, where catching ValueError and IndexError
+        around the parse names the entry as unparsable and ends each case with _UnparsableStat."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "only, kind = [''], ['']\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return [only[0]]\n"
+            "def handler():\n"
+            "    raise {'value': ValueError, 'index': IndexError}[kind[0]]('from a handler')\n"
+            "class Cut(str):\n"
+            "    def rsplit(self, *args):\n"
+            "        handler()\n"
+            "class Reader:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def read(self):\n"
+            "        return Cut(self.fh.read())\n"
+            "class Handled:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return Reader(self.fh.__enter__())\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        return self.fh.__exit__(*exc_info)\n"
+            "def handled_open(path, *args, **kwargs):\n"
+            "    return Handled(fake_open(path, *args, **kwargs))\n"
+            "handled = clone('_session_members', open=handled_open,\n"
+            "                os=types.SimpleNamespace(listdir=listing))\n"
+            "def refused(pid, sig):\n"
+            "    raise AssertionError('no member may be signalled')\n"
+            "kill_session = clone('_kill_session', _session_members=handled,\n"
+            "                     os=types.SimpleNamespace(kill=refused))\n"
+            "grace = clone('_run_shells', subprocess=popen, _session_members=handled,\n"
+            "              _kill_session=lambda sid: True)\n"
+            "kill = clone('_run_shells', subprocess=popen, _session_members=lambda sid: [],\n"
+            "             _kill_session=kill_session)\n"
+            "run = clone('run', _run_shells=grace)\n"
+            "calls = {'grace': lambda: grace('true', ('bash',), ('gh', 'git'), 30, []),\n"
+            "         'kill': lambda: kill('true', ('bash',), ('gh', 'git'), 30, []),\n"
+            "         'run': lambda: run('true', shells=('bash',))}\n"
+            "for kind[0] in ('value', 'index'):\n"
+            "    for only[0] in ('46', '43'):\n"
+            "        for name in ('grace', 'kill', 'run'):\n"
+            "            try:\n"
+            "                results = calls[name]()\n"
+            "                outcome = ['returned', [r['contained'] for r in results]]\n"
+            "            except BaseException as exc:\n"
+            "                outcome = [type(exc).__name__, list(exc.args), getattr(exc, '__notes__', [])]\n"
+            "            print('RESULT', kind[0], only[0], name, json.dumps(outcome),\n"
+            "                  json.dumps(sorted(t['_SCAN_UNREAD'])))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+
+        # The raise comes during the parse, so no parse result was recorded for the entry, and the note says so.
+        def note(entry):
+            return (f"stat line parse result not recorded before an interruption, session unknown: /proc/{entry}/stat; "
+                    "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {kind} {entry} {name} {json.dumps([error, ['from a handler'], [note(entry)]])} []\n"
+            for kind, error in (("value", "ValueError"), ("index", "IndexError"))
+            for entry in ("46", "43") for name in ("grace", "kill", "run")), detail)
+
+    def test_run_shell_stubbed_handler_timeout_during_a_wait_propagates_with_the_line(self) -> None:
+        """Pins an observation of the caller-handler residual (outside the exit table), not a defined exit.
+        A subprocess.TimeoutExpired that a caller's signal handler raises during a wait of the shell is not
+        taken as that wait timing out: it propagates, with the shell's line noted on it, once the cleanup has
+        run; one the wait itself raises still is its timeout. A clone of _run_shells runs with no real process:
+        its Popen is a stand-in shell (pid 41) whose waits return 0, reaping it except in case fallback, where
+        the first two leave it unreaped; its grace loop reads the fake /proc, whose entry 46 cannot be parsed;
+        its _kill_session returns True; and its os.killpg and os.kill only record. In cases main (timeout 30),
+        untimed (timeout None), reap and fallback, the first, first, second or third wait calls a handler
+        function that raises TimeoutExpired('handler', 5), as a caller's SIGALRM handler run inside the wait
+        would. Each ends with that TimeoutExpired, with the entry and the shell as its note, and leaves no armed
+        session, where taking it as the wait's own timeout ends each with the _UnparsableStat naming 46. In
+        case own, the first wait (timeout 30) raises TimeoutExpired itself, and the run ends with that
+        _UnparsableStat."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits, case = [], ['']\n"
+            "at = {'main': 1, 'untimed': 1, 'reap': 2, 'fallback': 3, 'own': 1}\n"
+            "def handler():\n"
+            "    raise subprocess.TimeoutExpired('handler', 5)\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if len(waits) == at[case[0]]:\n"
+            "            if case[0] == 'own':\n"
+            "                raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "            handler()\n"
+            "        if case[0] != 'fallback' or len(waits) > 2:\n"
+            "            self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "class OsModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(os, name)\n"
+            "    def killpg(self, pid, sig):\n"
+            "        sends.append([pid, 'killpg'])\n"
+            "    def kill(self, pid, sig):\n"
+            "        sends.append([pid, 'kill'])\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=scan,\n"
+            "               _kill_session=lambda sid: True, os=OsModel())\n"
+            "for case[0] in ('main', 'untimed', 'reap', 'fallback', 'own'):\n"
+            "    del waits[:]\n"
+            "    Shell.returncode = None\n"
+            "    timeout = None if case[0] == 'untimed' else 30\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), timeout, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', case[0], json.dumps(outcome), json.dumps(waits),\n"
+            "          json.dumps(sorted(t['_SCAN_UNREAD'])))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {case} {json.dumps(outcome)} {json.dumps(waits)} []\n" for case, outcome, waits in (
+                ("main", ["TimeoutExpired", [note]], [30, 2.0]),
+                ("untimed", ["TimeoutExpired", [note]], [1.0, 2.0]),
+                ("reap", ["TimeoutExpired", [note]], [30, 2.0]),
+                ("fallback", ["TimeoutExpired", [note]], [30, 2.0, 2.0]),
+                ("own", ["_UnparsableStat", []], [30, 2.0]))), detail)
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("X15 | a subprocess.TimeoutExpired during a wait of the shell, or in the try around it | taken "
+                      "as that wait timing out only when the wait itself raised it (inferred: also when a handler with "
+                      "no Python frame of its own raises it); otherwise outside the exit table (the caller-handler "
+                      "residual; observed: that exception, once the cleanup has run) | the "
+                      "shell's line, if any, noted on it | nothing | runs | restored", doc)
+
+    def test_run_shell_stubbed_run_shells_drain_after_a_caller_reraise_is_a_stated_exit(self) -> None:
+        """The stated exit of the drain of _run_shells: a SIGTERM deferred during the cleanup and drained by
+        _run_shells after the temp dir removal re-raised the caller's own handled exception over a line of the
+        run ends the run as the run's own _Terminated with no note, chained over the caller's exception, whose
+        __context__ alone holds the line; and the module docstring states it for both drains. A clone of run is
+        called while its caller handles a RuntimeError, and calls a clone of _run_shells with no real process:
+        its Popen is a stand-in shell (pid 41) whose every wait reaps it, its grace loop raises for entry 46,
+        its _kill_session returns True, and its _rmtree removes the temp dir, records a pending SIGTERM in the
+        deferral and raises the caller's RuntimeError. The run ends with _Terminated(15) and leaves the deferral
+        inactive with nothing pending."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "caller = RuntimeError('caller')\n"
+            "removed = []\n"
+            "def rmtree(path):\n"
+            "    t['_rmtree'](path)\n"
+            "    removed.append(not os.path.exists(path))\n"
+            "    t['_DEFERRED']['pending'] = signal.SIGTERM\n"
+            "    raise caller\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True, _rmtree=rmtree)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "try:\n"
+            "    try:\n"
+            "        raise caller\n"
+            "    except RuntimeError:\n"
+            "        run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    line = caller.__context__\n"
+            "    outcome = [type(exc).__name__, [int(arg) for arg in exc.args], getattr(exc, '__notes__', []),\n"
+            "               exc.__context__ is caller, type(line).__name__, str(line)]\n"
+            "phrase = 'by the drain of _run_shells after the temp dir removal and the mask restore'\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(removed), json.dumps(t['_DEFERRED']),\n"
+            "      json.dumps(sorted(t['_SCAN_UNREAD'])), phrase in t['__doc__'])\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            ["_Terminated", [15], [], True, "_UnparsableStat",
+             "unparsable stat line, session unknown: /proc/46/stat"])
+            + " [true] " + json.dumps({"active": False, "pending": None}) + " [] True\n", detail)
+
+    def test_run_shell_stubbed_retry_jump_back_window_is_stated(self) -> None:
+        """The retry jump-back window of run's final carry is stated, not closed, with its outcome and the
+        reason: the module docstring says an exception raised at that jump ends the run with no note, that its
+        __context__ is the exception the final carry began with, whose chain holds the lines, and why it is not
+        closed; run's comment says the same. The retry is still a loop whose try ends before its jump back.
+        The final carry of _run_shells is stated the same way, in the docstring and beside its except clause."""
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = tool.split('"""', 2)[1]
+        for phrase in ("or in the retry's except body (its store of the exception that interrupted the carry), both "
+                       "outside the\n",
+                       "retry's try, is exit table row X11. A handler around that jump would need a jump back of its "
+                       "own, outside\n"):
+            self.assertIn(phrase, doc)
+        self.assertIn("# row X11. Stated, not closed: any handler around this jump needs a\n", tool)
+        for phrase in ("That retry covers run's own carry only: an exception raised during the final carry of "
+                       "_run_shells (its\n",
+                       "_carry_shell_lines(late, ...) at the end of a shell's cleanup; a signal handler run there, for "
+                       "example)\nis exit table row X10.\n",
+                       "of _run_shells passes through that finally unchanged only when run's cleanup completes normally "
+                       "(a\n",
+                       "pending deferred signal makes _drain_deferral raise a termination that replaces it, and the "
+                       "line is\n"):
+            self.assertIn(phrase, doc)
+        self.assertIn("            except BaseException as late:\n"
+                      "                # An exception raised during this carry (a signal handler run there, for\n"
+                      "                # example) is exit table row X10. Stated, not closed: this carry has no\n", tool)
+        self.assertEqual(tool.count("            while True:\n                try:\n"
+                                    "                    shells_met, exc, seen = [], carried, set()\n"), 1)
+
+    def test_run_shell_stubbed_record_pop_raise_keeps_the_line(self) -> None:
+        """An exception raised in the finally that pops a shell's records, once the settlement has raised that
+        shell's unparsable stat line, leaves the run with that line as its note. A clone of
+        run calls a clone of _run_shells with no real process: its Popen is a stand-in shell (pid 41) whose
+        every wait reaps it, its grace loop raises for entry 46, its _kill_session returns True and its
+        _SCAN_UNREAD is a dict whose pop raises KeyboardInterrupt. The run ends with that KeyboardInterrupt,
+        noted with entry 46 and the shell and chained over the line, where a carry that covers only the
+        cleanup's own body ends it with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "class PopRaises(dict):\n"
+            "    def pop(self, *args):\n"
+            "        raise KeyboardInterrupt('record pop')\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True, _SCAN_UNREAD=PopRaises())\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', []),\n"
+            "               type(exc.__context__).__name__]\n"
+            "print('RESULT', json.dumps(outcome))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = "unparsable stat line, session unknown: /proc/46/stat; containment of the bash run could not be shown"
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            ["KeyboardInterrupt", "record pop", [note], "_UnparsableStat"]) + "\n", detail)
+
+    def test_run_shell_stubbed_output_close_raise_keeps_the_line(self) -> None:
+        """An exception raised as a shell's captured output files close, once the settlement has raised that
+        shell's unparsable stat line, leaves the run with that line as its note. The clones
+        of run and _run_shells are those of test_run_shell_stubbed_record_pop_raise_keeps_the_line with the
+        tool's own _SCAN_UNREAD; the open of _run_shells opens each file for writing through a wrapper whose
+        exit closes it and then, for the case's file (stdout or stderr), raises KeyboardInterrupt. Each case
+        ends with that KeyboardInterrupt, noted with entry 46 and the shell and chained over the line, where
+        a carry that covers only the cleanup's own body ends it with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "case = ['']\n"
+            "class Closing:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return self.fh\n"
+            "    def __exit__(self, *exc):\n"
+            "        self.fh.close()\n"
+            "        if self.fh.name.endswith('/' + case[0]):\n"
+            "            raise KeyboardInterrupt(case[0] + ' close')\n"
+            "def opener(path, *args, **kwargs):\n"
+            "    fh = real_open(path, *args, **kwargs)\n"
+            "    return Closing(fh) if args[:1] == ('w',) else fh\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True, open=opener)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "for name in ('stdout', 'stderr'):\n"
+            "    case[0] = name\n"
+            "    try:\n"
+            "        run('true', shells=('bash',))\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', []),\n"
+            "                   type(exc.__context__).__name__]\n"
+            "    print('RESULT', name, json.dumps(outcome))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = "unparsable stat line, session unknown: /proc/46/stat; containment of the bash run could not be shown"
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {name} " + json.dumps(["KeyboardInterrupt", name + " close", [note], "_UnparsableStat"]) + "\n"
+            for name in ("stdout", "stderr")), detail)
+
+    def test_run_shell_stubbed_final_carry_raise_with_no_pending_signal_ends_with_no_note(self) -> None:
+        """The stated exit of a raise during the final carry of _run_shells when no deferred signal is pending,
+        so run's cleanup completes normally: a clone of run calls a clone of
+        _run_shells with no real process (the stand-ins of test_run_shell_stubbed_record_pop_raise_keeps_the_line,
+        with the tool's own _SCAN_UNREAD); its grace loop raises for entry 46, its _rmtree removes the temp dir
+        and then raises KeyboardInterrupt('removal'), and its _carry_shell_lines raises
+        KeyboardInterrupt('final carry') when handed that removal exception, as a signal handler run during the
+        final carry would. As the module docstring states, the new exception replaces late and ends the run
+        with no note, run's carry does not reach it, and the line stays on its __context__ chain: the removal
+        exception, with no note, chained over the _UnparsableStat for entry 46."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "real_rmtree, real_carry = t['_rmtree'], t['_carry_shell_lines']\n"
+            "def rmtree(path):\n"
+            "    real_rmtree(path)\n"
+            "    raise KeyboardInterrupt('removal')\n"
+            "def carry(active, shell, caller_exception):\n"
+            "    if isinstance(active, KeyboardInterrupt) and str(active) == 'removal':\n"
+            "        raise KeyboardInterrupt('final carry')\n"
+            "    return real_carry(active, shell, caller_exception)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True, _rmtree=rmtree, _carry_shell_lines=carry)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "def chain(exc):\n"
+            "    out = []\n"
+            "    while exc is not None:\n"
+            "        out.append([type(exc).__name__, getattr(exc, '__notes__', [])])\n"
+            "        exc = exc.__context__\n"
+            "    return out\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [str(exc), str(exc.__context__), chain(exc)]\n"
+            "    line = exc.__context__.__context__\n"
+            "    outcome.append(getattr(line, 'entries', None) or list(line.args[:1]))\n"
+            "print('RESULT', json.dumps(outcome))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            ["final carry", "removal",
+             [["KeyboardInterrupt", []], ["KeyboardInterrupt", []], ["_UnparsableStat", []]],
+             ["46"]]) + "\n", detail)
+
+    def test_run_shell_stubbed_final_carry_raise_under_a_raising_handler_restore_is_noted(self) -> None:
+        """Row X10's handler-restore case: the final carry of _run_shells raises as in
+        test_run_shell_stubbed_final_carry_raise_with_no_pending_signal_ends_with_no_note, and run's restore of
+        the SIGINT handler raises RuntimeError('restore') (run is cloned with a stand-in signal module that keeps
+        handlers in a dict). That RuntimeError replaces the final carry's exception, run's carry catches it and
+        notes the line on it, and its chain holds the final carry's exception, the removal exception and the
+        _UnparsableStat for entry 46. The row states this outcome."""
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("a handler restore of run that raises replaces it the same way, and run's carry notes the line "
+                      "on that exception, row X3)", doc)
+        self.assertIn("X3 | an unparsable stat line while an exception of the run's own propagates | that exception | "
+                      "one note per shell naming the entries | nothing, except that an exception raised in the "
+                      "settlement's finally while it pops the five records (_KILL_UNKNOWN, _SCAN_UNREAD, "
+                      "_KILL_ALIVE, _SCAN_UNPARSED and _SCAN_PARSED_LATER, in that order) leaves each record it "
+                      "had not yet popped | runs | restored", doc)
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "real_rmtree, real_carry = t['_rmtree'], t['_carry_shell_lines']\n"
+            "def rmtree(path):\n"
+            "    real_rmtree(path)\n"
+            "    raise KeyboardInterrupt('removal')\n"
+            "def carry(active, shell, caller_exception):\n"
+            "    if isinstance(active, KeyboardInterrupt) and str(active) == 'removal':\n"
+            "        raise KeyboardInterrupt('final carry')\n"
+            "    return real_carry(active, shell, caller_exception)\n"
+            "class Handlers:\n"
+            "    SIGINT, SIGTERM, SIGHUP = signal.SIGINT, signal.SIGTERM, signal.SIGHUP\n"
+            "    def __init__(self):\n"
+            "        self.table = {self.SIGINT: 'int', self.SIGTERM: 'term', self.SIGHUP: 'hup'}\n"
+            "    def getsignal(self, sig):\n"
+            "        return self.table[sig]\n"
+            "    def signal(self, sig, handler):\n"
+            "        if sig == self.SIGINT and handler == 'int':\n"
+            "            raise RuntimeError('restore')\n"
+            "        old, self.table[sig] = self.table[sig], handler\n"
+            "        return old\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True, _rmtree=rmtree, _carry_shell_lines=carry)\n"
+            "run = clone('run', _run_shells=shells, signal=Handlers())\n"
+            "def chain(exc):\n"
+            "    out = []\n"
+            "    while exc is not None:\n"
+            "        out.append([type(exc).__name__, str(exc), getattr(exc, '__notes__', [])])\n"
+            "        exc = exc.__context__\n"
+            "    return out\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = chain(exc)\n"
+            "print('RESULT', json.dumps(outcome))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = "unparsable stat line, session unknown: /proc/46/stat; containment of the bash run could not be shown"
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            [["RuntimeError", "restore", [note]], ["KeyboardInterrupt", "final carry", []],
+             ["KeyboardInterrupt", "removal", []],
+             ["_UnparsableStat", "unparsable stat line, session unknown: /proc/46/stat", []]]) + "\n", detail)
+
+    def test_run_shell_stubbed_raise_in_the_carry_retry_except_body_is_a_stated_exit(self) -> None:
+        """Row X11, its except-body case, driven: run's restore of the SIGINT handler raises
+        RuntimeError('restore') over an exception of _run_shells that carries the line of entry 46, so run's
+        carry begins with it; the carry raises KeyboardInterrupt('carry') once, and a trace function raises
+        RuntimeError('except body') at the line event of the retry's except body (its store of that
+        KeyboardInterrupt). The run ends with that RuntimeError, no note, chained over the KeyboardInterrupt,
+        whose __context__ is the exception the carry began with; the row states this outcome. The jump back
+        itself is driven by test_run_shell_stubbed_raise_at_the_jump_back_to_the_carry_retry_is_a_stated_exit."""
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("X11 | at the jump back to run's carry retry, or in that retry's except body | that exception | "
+                      "no note; its __context__ chain holds the exception the final carry began with", doc)
+        result = self._run_shell_stubbed_unparsable_member(
+            "def shells(*args):\n"
+            "    line = t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "    line.shell, line.results = 'bash', []\n"
+            "    try:\n"
+            "        raise line\n"
+            "    except BaseException:\n"
+            "        raise KeyboardInterrupt('shells')\n"
+            "class Handlers:\n"
+            "    SIGINT, SIGTERM, SIGHUP = signal.SIGINT, signal.SIGTERM, signal.SIGHUP\n"
+            "    def __init__(self):\n"
+            "        self.table = {self.SIGINT: 'int', self.SIGTERM: 'term', self.SIGHUP: 'hup'}\n"
+            "    def getsignal(self, sig):\n"
+            "        return self.table[sig]\n"
+            "    def signal(self, sig, handler):\n"
+            "        if sig == self.SIGINT and handler == 'int':\n"
+            "            raise RuntimeError('restore')\n"
+            "        old, self.table[sig] = self.table[sig], handler\n"
+            "        return old\n"
+            "real_carry = t['_carry_shell_lines']\n"
+            "calls = []\n"
+            "def carry(active, shell, caller_exception):\n"
+            "    calls.append(str(active))\n"
+            "    if len(calls) == 1:\n"
+            "        raise KeyboardInterrupt('carry')\n"
+            "    return real_carry(active, shell, caller_exception)\n"
+            "run = clone('run', _run_shells=shells, signal=Handlers(), _carry_shell_lines=carry)\n"
+            "source = open(sys.argv[1], encoding='utf-8').read().splitlines()\n"
+            "store = [n + 1 for n, text in enumerate(source) if text.strip() == 'carried = again']\n"
+            "assert len(store) == 1, store\n"
+            "def local(frame, event, arg):\n"
+            "    if event == 'line' and frame.f_lineno == store[0]:\n"
+            "        sys.settrace(None)\n"
+            "        frame.f_trace = None\n"
+            "        raise RuntimeError('except body')\n"
+            "    return local\n"
+            "def tracer(frame, event, arg):\n"
+            "    return local if frame.f_code is run.__code__ else None\n"
+            "def chain(exc):\n"
+            "    out = []\n"
+            "    while exc is not None:\n"
+            "        out.append([type(exc).__name__, str(exc), getattr(exc, '__notes__', [])])\n"
+            "        exc = exc.__context__\n"
+            "    return out\n"
+            "sys.settrace(tracer)\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = chain(exc)\n"
+            "finally:\n"
+            "    sys.settrace(None)\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(calls))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            [["RuntimeError", "except body", []], ["KeyboardInterrupt", "carry", []],
+             ["RuntimeError", "restore", []], ["KeyboardInterrupt", "shells", []],
+             ["_UnparsableStat", "unparsable stat line, session unknown: /proc/46/stat", []]])
+            + " " + json.dumps(["restore"]) + "\n", detail)
+
+    def test_run_shell_stubbed_raise_between_popen_and_the_try_is_a_stated_exit(self) -> None:
+        """Row X16, driven: a clone of run calls a clone of _run_shells whose Popen is a stand-in shell (pid 41)
+        that records each wait, whose _kill_session records each call and whose _rmtree records the removal; a
+        trace function raises KeyboardInterrupt('window') at the line event of the statement between Popen and
+        the try that follows, as a caller's handler for another signal could. The run ends with that
+        KeyboardInterrupt and no note; the shell is neither killed nor reaped, the temp dir is removed, the
+        caller's mask is back and the records are empty, as the row states."""
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("X16 | a trace function raising after Popen has "
+                      "created the shell and before the try that follows, or a signal handler or trace function "
+                      "raising after the entry to that try's finally and before the protected try in it "
+                      "(inferred from the control flow for a signal handler; the stand-in case, a trace function "
+                      "raising at either point, is driven by its tests) | that exception, or one chained over it, "
+                      "no result | none | nothing | the shell is neither killed with its session nor reaped; the temp "
+                      "dir removal, mask restore and drain still run | restored", doc)
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits, kills, removed = [], [], []\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "real_rmtree = t['_rmtree']\n"
+            "def rmtree(path):\n"
+            "    real_rmtree(path)\n"
+            "    removed.append(not os.path.exists(path))\n"
+            "def kill_session(sid):\n"
+            "    kills.append(sid)\n"
+            "    return True\n"
+            "shells = clone('_run_shells', subprocess=popen, _kill_session=kill_session, _rmtree=rmtree)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "source = open(sys.argv[1], encoding='utf-8').read().splitlines()\n"
+            "window = [n + 1 for n, text in enumerate(source) if text.strip() == 'timed_out = \"\"']\n"
+            "assert len(window) == 1, window\n"
+            "def local(frame, event, arg):\n"
+            "    if event == 'line' and frame.f_lineno == window[0]:\n"
+            "        sys.settrace(None)\n"
+            "        frame.f_trace = None\n"
+            "        raise KeyboardInterrupt('window')\n"
+            "    return local\n"
+            "def tracer(frame, event, arg):\n"
+            "    return local if frame.f_code is shells.__code__ else None\n"
+            "mask_before = signal.pthread_sigmask(signal.SIG_BLOCK, [])\n"
+            "sys.settrace(tracer)\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', [])]\n"
+            "finally:\n"
+            "    sys.settrace(None)\n"
+            "mask_after = signal.pthread_sigmask(signal.SIG_BLOCK, [])\n"
+            "print('RESULT', json.dumps(outcome), json.dumps([waits, kills, removed]),\n"
+            "      mask_before == mask_after, json.dumps([t['_SCAN_UNREAD'], t['_KILL_UNKNOWN']]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(["KeyboardInterrupt", "window", []]) + " "
+                         + json.dumps([[], [], [True]]) + " True " + json.dumps([{}, {}]) + "\n", detail)
+
+    def test_run_shell_stubbed_raise_at_the_jump_back_to_the_carry_retry_is_a_stated_exit(self) -> None:
+        """Row X11, its jump-back case, driven: as in
+        test_run_shell_stubbed_raise_in_the_carry_retry_except_body_is_a_stated_exit, run's restore of the SIGINT
+        handler raises RuntimeError('restore') over an exception of _run_shells that carries the line of entry 46,
+        and the carry raises KeyboardInterrupt('carry') once. A trace function raises RuntimeError('jump back') at
+        the second line event of the retry's loop line (while True), which fires after the except body has run and
+        before the retry's try is entered again (observed on Python 3.14.4). The run ends with that RuntimeError,
+        no note, chained over RuntimeError('restore'), the exception the carry began with, and the carry is not
+        made again; the row states this outcome."""
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("X11 | at the jump back to run's carry retry, or in that retry's except body | that exception | "
+                      "no note; its __context__ chain holds the exception the final carry began with", doc)
+        result = self._run_shell_stubbed_unparsable_member(
+            "def shells(*args):\n"
+            "    line = t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "    line.shell, line.results = 'bash', []\n"
+            "    try:\n"
+            "        raise line\n"
+            "    except BaseException:\n"
+            "        raise KeyboardInterrupt('shells')\n"
+            "class Handlers:\n"
+            "    SIGINT, SIGTERM, SIGHUP = signal.SIGINT, signal.SIGTERM, signal.SIGHUP\n"
+            "    def __init__(self):\n"
+            "        self.table = {self.SIGINT: 'int', self.SIGTERM: 'term', self.SIGHUP: 'hup'}\n"
+            "    def getsignal(self, sig):\n"
+            "        return self.table[sig]\n"
+            "    def signal(self, sig, handler):\n"
+            "        if sig == self.SIGINT and handler == 'int':\n"
+            "            raise RuntimeError('restore')\n"
+            "        old, self.table[sig] = self.table[sig], handler\n"
+            "        return old\n"
+            "real_carry = t['_carry_shell_lines']\n"
+            "calls = []\n"
+            "def carry(active, shell, caller_exception):\n"
+            "    calls.append(str(active))\n"
+            "    if len(calls) == 1:\n"
+            "        raise KeyboardInterrupt('carry')\n"
+            "    return real_carry(active, shell, caller_exception)\n"
+            "run = clone('run', _run_shells=shells, signal=Handlers(), _carry_shell_lines=carry)\n"
+            "source = open(sys.argv[1], encoding='utf-8').read().splitlines()\n"
+            "start = [n + 1 for n, text in enumerate(source) if text.strip() == 'carried = late']\n"
+            "assert len(start) == 1 and source[start[0]].strip() == 'while True:', start\n"
+            "loop = start[0] + 1\n"
+            "hits = []\n"
+            "def local(frame, event, arg):\n"
+            "    if event == 'line' and frame.f_lineno == loop:\n"
+            "        hits.append(loop)\n"
+            "        if len(hits) == 2:\n"
+            "            sys.settrace(None)\n"
+            "            frame.f_trace = None\n"
+            "            raise RuntimeError('jump back')\n"
+            "    return local\n"
+            "def tracer(frame, event, arg):\n"
+            "    return local if frame.f_code is run.__code__ else None\n"
+            "def chain(exc):\n"
+            "    out = []\n"
+            "    while exc is not None:\n"
+            "        out.append([type(exc).__name__, str(exc), getattr(exc, '__notes__', [])])\n"
+            "        exc = exc.__context__\n"
+            "    return out\n"
+            "sys.settrace(tracer)\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = chain(exc)\n"
+            "finally:\n"
+            "    sys.settrace(None)\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(calls), len(hits))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            [["RuntimeError", "jump back", []], ["RuntimeError", "restore", []], ["KeyboardInterrupt", "shells", []],
+             ["_UnparsableStat", "unparsable stat line, session unknown: /proc/46/stat", []]])
+            + " " + json.dumps(["restore"]) + " 2\n", detail)
+
+    def test_run_shell_stubbed_fallback_signal_errors_are_taken_as_failed_signals(self) -> None:
+        """Row X14, its fallback parts, driven: a clone of run calls a clone of _run_shells whose stand-in shell
+        (pid 41) stays unreaped until the fallback's own wait, so the fallback runs; the grace loop's scans
+        find no member, and the fallback's scan is the fake /proc of _run_shell_stubbed_unparsable_member (41
+        and 42 live, entry 46 cut). Case sweep: each signal the member sweep sends is sent and then raises
+        TimeoutError, as a caller's SIGALRM handler inside that call would. Case group: the group kill is sent
+        and then raises ProcessLookupError, as a caller's handler could. In both, the call's error is taken as
+        that call's failure: the sweep still signals 41 and 42, and the run ends with the shell's
+        _UnparsableStat for entry 46 (row X2), not with the handler's exception. The row states these parts."""
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("a signal the fallback sweep sends, the ProcessLookupError of a signal the kill sends or of the "
+                      "reap's group kill, the first temp dir removal attempt | no exception from it: it is taken as "
+                      "that call's failure", doc)
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "phase, groups = ['grace'], []\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        if phase[0] == 'sweep':\n"
+            "            self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "def members(sid):\n"
+            "    return scan(sid) if phase[0] == 'sweep' else []\n"
+            "def make(case):\n"
+            "    def killpg(pgid, sig):\n"
+            "        phase[0] = 'sweep'\n"
+            "        groups.append([pgid, signal.Signals(sig).name])\n"
+            "        if case == 'group':\n"
+            "            raise ProcessLookupError('group kill')\n"
+            "    def sweep_kill(pid, sig):\n"
+            "        kill(pid, sig)\n"
+            "        if case == 'sweep':\n"
+            "            raise TimeoutError('sweep')\n"
+            "    proxy = types.SimpleNamespace(**vars(os))\n"
+            "    proxy.killpg, proxy.kill = killpg, sweep_kill\n"
+            "    shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "                   _kill_session=lambda sid: True, os=proxy)\n"
+            "    return clone('run', _run_shells=shells)\n"
+            "for case in ('sweep', 'group'):\n"
+            "    phase[0] = 'grace'\n"
+            "    del sends[:], groups[:]\n"
+            "    for record in (t['_KILL_UNKNOWN'], t['_SCAN_UNREAD'], t['_KILL_ALIVE']):\n"
+            "        record.clear()\n"
+            "    root_stat = os.path.join(root, '42', 'stat')\n"
+            "    with real_open(root_stat, 'rb') as fh:\n"
+            "        head, rest = fh.read().rsplit(b')', 1)\n"
+            "    with real_open(root_stat, 'wb') as fh:\n"
+            "        fh.write(head + b') R' + rest[2:])\n"
+            "    root_stat = os.path.join(root, '41', 'stat')\n"
+            "    with real_open(root_stat, 'rb') as fh:\n"
+            "        head, rest = fh.read().rsplit(b')', 1)\n"
+            "    with real_open(root_stat, 'wb') as fh:\n"
+            "        fh.write(head + b') S' + rest[2:])\n"
+            "    try:\n"
+            "        make(case)('true', shells=('bash',))\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT ' + json.dumps([case, outcome, list(sends), list(groups),\n"
+            "                                  sorted(t['_SCAN_UNREAD'].items())]), flush=True)\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        line = ["_UnparsableStat", "unparsable stat line, session unknown: /proc/46/stat", []]
+        self.assertEqual(found, [
+            ["sweep", line, [[41, "SIGKILL"], [42, "SIGKILL"]], [[41, "SIGKILL"]], []],
+            ["group", line, [[41, "SIGKILL"], [42, "SIGKILL"]], [[41, "SIGKILL"]], []],
+        ], detail)
+
+    def test_run_shell_stubbed_kill_lookup_error_is_taken_as_a_gone_process(self) -> None:
+        """Row X14, its kill part, driven: a clone of the tool's own _kill_session over the fake /proc of
+        _run_shell_stubbed_unparsable_member, whose os.kill sends each signal and then raises
+        ProcessLookupError, as a caller's handler inside that call could. Every such error is taken as that
+        signal's failure: the kill stops 41 and 42, stops them again and kills them, and returns False only
+        because entry 46 is unreadable, which it keeps in _KILL_UNKNOWN; nothing propagates. The row states
+        this part; the per-shell cleanup and mask columns are not exercised here, as the kill runs alone."""
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("the ProcessLookupError of a signal the kill sends or of the reap's group kill", doc)
+        result = self._run_shell_stubbed_unparsable_member(
+            "def lookup_kill(pid, sig):\n"
+            "    kill(pid, sig)\n"
+            "    raise ProcessLookupError('kill')\n"
+            "killer = clone('_kill_session', _session_members=scan, os=types.SimpleNamespace(kill=lookup_kill))\n"
+            "try:\n"
+            "    outcome = ['returned', killer(41)]\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc)]\n"
+            "print('RESULT', json.dumps([outcome, sends, sorted(t['_KILL_UNKNOWN'].items())]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            [["returned", False],
+             [[41, "SIGSTOP"], [42, "SIGSTOP"], [41, "SIGSTOP"], [42, "SIGSTOP"], [41, "SIGKILL"], [42, "SIGKILL"]],
+             [[41, [46]]]]) + "\n", detail)
+
+    def test_run_shell_stubbed_session_scan_order_does_not_follow_the_listing(self) -> None:
+        """_session_members reads /proc in ascending process id order whatever order the listing gives, so
+        the kill signals members in that order on every platform. Over the fake /proc of
+        _run_shell_stubbed_unparsable_member, a clone of _session_members whose listing is in ascending order
+        and one whose listing is reversed both raise for entry 46 with members 41 then 42; a clone of
+        _kill_session over the reversed listing, whose os.kill is the driver's kill, stops 41 and 42, stops
+        them again and kills them, each time 41 before 42, and returns False for entry 46. A scan that
+        follows the listing gives 42 before 41 over the reversed one."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "def listing(order):\n"
+            "    def listdir(path):\n"
+            "        assert path == '/proc', path\n"
+            "        return sorted(os.listdir(root), reverse=order == 'reverse')\n"
+            "    return types.SimpleNamespace(listdir=listdir)\n"
+            "scans = []\n"
+            "for order in ('ascending', 'reverse'):\n"
+            "    ordered = clone('_session_members', open=fake_open, os=listing(order))\n"
+            "    try:\n"
+            "        scans.append([order, ordered(41), []])\n"
+            "    except Exception as exc:\n"
+            "        scans.append([order, exc.members, exc.entries])\n"
+            "reverse = clone('_session_members', open=fake_open, os=listing('reverse'))\n"
+            "killer = clone('_kill_session', _session_members=reverse, os=types.SimpleNamespace(kill=kill))\n"
+            "print('RESULT', json.dumps(scans), json.dumps(killer(41)), json.dumps(sends))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            [["ascending", [[41, "S"], [42, "R"]], ["46"]], ["reverse", [[41, "S"], [42, "R"]], ["46"]]])
+            + " false " + json.dumps(
+                [[41, "SIGSTOP"], [42, "SIGSTOP"], [41, "SIGSTOP"], [42, "SIGSTOP"], [41, "SIGKILL"],
+                 [42, "SIGKILL"]]) + "\n", detail)
+
+    def test_run_shell_stubbed_test_helper_process_lists_do_not_follow_the_listing(self) -> None:
+        """_procs_under and _all_procs_named return process ids in ascending order whatever order the /proc
+        listing gives, so the self-test SIGKILLs the processes _procs_under returns in the same order on every
+        platform. A clone of each reads a stand-in /proc listing 9, 10, 100 and self, once in ascending order
+        and once reversed, where every process is this user's, has its working directory in the path given and
+        has the command line given; both return 9, 10 then 100 over both listings. A helper that follows the
+        listing returns 100, 10 then 9 over the reversed one."""
+        driver = (
+            "import io, json, runpy, sys, types\n"
+            "t = runpy.run_path(sys.argv[1])\n"
+            "names = ('9', '10', '100', 'self')\n"
+            "def stand_in(order):\n"
+            "    def listdir(path):\n"
+            "        assert path == '/proc', path\n"
+            "        return sorted(names, key=lambda n: (not n.isdigit(), int(n) if n.isdigit() else 0),\n"
+            "                      reverse=order == 'reverse')\n"
+            "    def readlink(path):\n"
+            "        assert path.endswith('/cwd'), path\n"
+            "        return '/stand-in/work'\n"
+            "    return types.SimpleNamespace(listdir=listdir, readlink=readlink, getuid=lambda: 4242, sep='/',\n"
+            "                                 stat=lambda path: types.SimpleNamespace(st_uid=4242),\n"
+            "                                 path=types.SimpleNamespace(realpath=lambda path: path))\n"
+            "def stand_in_open(path, mode='r'):\n"
+            "    assert path.endswith('/cmdline') and mode == 'rb', path\n"
+            "    return io.BytesIO(b'stand-in\\0--flag\\0')\n"
+            "def clone(name, **bound):\n"
+            "    fn = t[name]\n"
+            "    g = dict(fn.__globals__)\n"
+            "    g.update(bound)\n"
+            "    return types.FunctionType(fn.__code__, g, fn.__name__, fn.__defaults__)\n"
+            "out = {}\n"
+            "for order in ('ascending', 'reverse'):\n"
+            "    under = clone('_procs_under', os=stand_in(order))\n"
+            "    named = clone('_all_procs_named', os=stand_in(order), open=stand_in_open)\n"
+            "    out[order] = [under(['/stand-in/work']), named('stand-in --flag')]\n"
+            "print('RESULT', json.dumps(out))\n")
+        result = self._run_selftest([sys.executable, "-I", "-B", "-c", driver,
+                                     str(REPO_ROOT / "tools" / "run-shell-stubbed.py")], timeout=120)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        pids = [9, 10, 100]
+        named = [[pid, "stand-in --flag"] for pid in pids]
+        self.assertEqual(result.stdout, "RESULT " + json.dumps({"ascending": [pids, named],
+                                                                "reverse": [pids, named]}) + "\n", detail)
+
+    def test_run_shell_stubbed_capture_scan_order_does_not_follow_the_listing(self) -> None:
+        """_probe_capture scans /proc in ascending process id order whatever order the listing gives: the scan
+        stops at its time limit, so which processes it found before that limit, and so which it describes,
+        would otherwise follow the listing, which the filesystem orders and the platform does not fix. Two
+        captures of this interpreter as the probe read a stand-in listing of 9, 10, 100 and self, once in
+        ascending order and once reversed, where 9, 10 and 100 are stand-in members of the run's session; each
+        reads their stat lines in the order 9, 10, 100 and describes each of them. A scan that follows the
+        listing reads 100, 10 then 9 over the reversed one."""
+        out, detail = self._probe_capture_driver(
+            "import tempfile\n"
+            "real_read, real_listdir = g['_capture_read'], g['_capture_listdir']\n"
+            "fake, sid = ('9', '10', '100'), 987654321\n"
+            "def run(order, log):\n"
+            "    def listdir(path):\n"
+            "        if path == '/proc':\n"
+            "            return sorted(fake + ('self',), reverse=order == 'reverse',\n"
+            "                          key=lambda n: (not n.isdigit(), int(n) if n.isdigit() else 0))\n"
+            "        if path.split('/')[2] in fake:\n"
+            "            return []\n"
+            "        return real_listdir(path)\n"
+            "    def read(path):\n"
+            "        entry = path.split('/')[2]\n"
+            "        if entry not in fake:\n"
+            "            return real_read(path)\n"
+            "        if path.endswith('/stat'):\n"
+            "            with open(log, 'a') as fh:\n"
+            "                fh.write(entry + '\\n')\n"
+            "            return f'{entry} (stand-in) S 1 {entry} {sid} 0 -1 0 0 0 0 0 0 0 0 0 0 1 0 5000 0 0\\n'\n"
+            "        return 'State:\\tS (sleeping)\\n' if path.endswith('/status') else ''\n"
+            "    g['_capture_listdir'], g['_capture_read'] = listdir, read\n"
+            "    lines = capture(os.getpid(), sid, None, budget=8.0)\n"
+            "    with open(log) as fh:\n"
+            "        return [fh.read().split(), lines]\n"
+            "with tempfile.TemporaryDirectory() as tmp:\n"
+            "    runs = {order: run(order, os.path.join(tmp, order)) for order in ('ascending', 'reverse')}\n"
+            "print(json.dumps(runs))\n")
+        for order in ("ascending", "reverse"):
+            reads, lines = out[order]
+            self.assertEqual(reads, ["9", "10", "100"], f"{order}{detail}")
+            for pid in reads:
+                self.assertIn(f"pid {pid} (run-session): State: S (sleeping)", "\n".join(lines), f"{order}{detail}")
+
+    def test_run_shell_stubbed_first_temp_dir_removal_error_is_taken_as_a_failed_attempt(self) -> None:
+        """Row X14, its temp dir part, driven, and row X1: a clone of run calls a clone of _run_shells whose
+        stand-in shell (pid 41) is reaped by its first wait, whose scans find no member, whose kill reports the
+        session empty and whose _rmtree is a clone of the tool's own whose first shutil.rmtree raises
+        TimeoutError, as a caller's SIGALRM handler inside that call would. The error is taken as that first
+        attempt's failure: the second attempt removes the temp dir, and the run returns its result with no
+        exception, the caller's mask back and the records empty, the outcome of row X1 (no stat line is read
+        here, so none fails to parse). Both rows state this outcome."""
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("X1 | no raise, every stat line parses | returns the results | none | nothing | runs | restored",
+                      doc)
+        self.assertIn("the first temp dir removal attempt | no exception from it: it is taken as that call's failure",
+                      doc)
+        result = self._run_shell_stubbed_unparsable_member(
+            "import shutil, subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "attempts, paths = [], []\n"
+            "def first_fails(path):\n"
+            "    attempts.append(path)\n"
+            "    if len(attempts) == 1:\n"
+            "        paths.append(path)\n"
+            "        raise TimeoutError('first removal')\n"
+            "    shutil.rmtree(path)\n"
+            "rmtree = clone('_rmtree', shutil=types.SimpleNamespace(rmtree=first_fails))\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=lambda sid: [],\n"
+            "               _kill_session=lambda sid: True, _rmtree=rmtree)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "mask_before = signal.pthread_sigmask(signal.SIG_BLOCK, [])\n"
+            "try:\n"
+            "    results = run('true', shells=('bash',))\n"
+            "    outcome = ['returned', [r['contained'] for r in results]]\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', [])]\n"
+            "mask_after = signal.pthread_sigmask(signal.SIG_BLOCK, [])\n"
+            "print('RESULT', json.dumps(outcome), len(attempts), [os.path.exists(p) for p in paths],\n"
+            "      mask_before == mask_after,\n"
+            "      json.dumps([t['_SCAN_UNREAD'], t['_KILL_UNKNOWN'], t['_KILL_ALIVE']]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(["returned", [True]]) + " 2 [False] True "
+                         + json.dumps([{}, {}, {}]) + "\n", detail)
+
+    def test_run_shell_stubbed_cleanup_deadline_reasons_and_bound(self) -> None:
+        """The reason _cleanup_deadline_check returns for each outcome, and the hang bound it gives the outer
+        supervisor. A clone of the check runs with no real process: its clock is a counter that starts at
+        100.0, its _supervise_test is a stand-in that advances the clock by the calibration time for the
+        calibration call and by 5.0 for the wrapper call, writes the ready file (sid 4242 and a time 1.25 s
+        after the wrapper call starts) when the case asks for it, and returns the case's (rc, failure, clean).
+        A failure with no ready file written is the before-kill stage. Once the ready file was written, a
+        failure naming the check in flight is the outer deadline even when a cleanup suffix follows, and a
+        failure naming only a cleanup or an unverified cleanup is the cleanup stage. The calibration reason
+        carries only rc, failure, clean and elapsed. The bound is the base
+        plus the scale times the calibration time, capped, and the outer ceiling is that bound plus 7.0."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import tempfile as real_tempfile\n"
+            "now = [100.0]\n"
+            "clock = types.SimpleNamespace(monotonic=lambda: now[0])\n"
+            "files = []\n"
+            "def named(*args, **kwargs):\n"
+            "    files.append(real_tempfile.NamedTemporaryFile())\n"
+            "    return files[-1]\n"
+            "def check(calibration, outcome, ready, measured=0.5):\n"
+            "    calls = []\n"
+            "    def supervise(callback, ceiling, name, cleanup_wait=None, report=True):\n"
+            "        calls.append([name, ceiling, cleanup_wait, report])\n"
+            "        if name == 'cleanup-hang-calibration':\n"
+            "            now[0] += measured\n"
+            "            return calibration\n"
+            "        if ready:\n"
+            "            files[-1].write(('4242 %.3f' % (now[0] + 1.25)).encode())\n"
+            "            files[-1].flush()\n"
+            "        now[0] += 5.0\n"
+            "        return outcome\n"
+            "    now[0] = 100.0\n"
+            "    probe = clone('_cleanup_deadline_check', _supervise_test=supervise, time=clock,\n"
+            "                  tempfile=types.SimpleNamespace(NamedTemporaryFile=named))\n"
+            "    return [probe(), calls]\n"
+            "ok, wrap = (0, None, True), 'cleanup-hang-regression-wrapper'\n"
+            "cases = [\n"
+            "    check((1, None, True), ok, True),\n"
+            "    check(ok, (1, wrap + ':in-flight=unrecorded', True), False),\n"
+            "    check(ok, (1, wrap + ':in-flight=cleanup-hang', True), True),\n"
+            "    check(ok, (1, wrap + ':in-flight=cleanup-hang:cleanup', False), True),\n"
+            "    check(ok, (2, None, True), True),\n"
+            "    check(ok, (3, None, True), True),\n"
+            "    check(ok, (1, wrap + ':cleanup', False), True),\n"
+            "    check(ok, (1, wrap + ':cleanup-unverified', False), True),\n"
+            "    check(ok, (0, None, True), True),\n"
+            "    check(ok, (0, None, True), True, measured=6.0),\n"
+            "    check(ok, (2, None, True), True, measured=10.0),\n"
+            "]\n"
+            "print('RESULT', json.dumps(cases))\n"
+            "print('DOC', ' '.join(t['_cleanup_deadline_check'].__doc__.split()))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        wrap = "cleanup-hang-regression-wrapper"
+        calibration = ["cleanup-hang-calibration", 30.0, 5.0, False]
+        def calls(ceiling):
+            return [calibration, [wrap, ceiling, 5.0, False]]
+        def reason(stage, rc, failure, clean, ready_at, hang="5.00", measured="0.50", elapsed="5.50"):
+            return (f"stage={stage} rc={rc} failure={failure} clean={clean} elapsed={elapsed}s "
+                    f"ready-at={ready_at} hang-limit={hang}s calibration={measured}s")
+        expected = [
+            ["stage=calibration rc=1 failure=None clean=True elapsed=0.50s", [calibration]],
+            [reason("before-kill", 1, wrap + ":in-flight=unrecorded", True, "never"), calls(12.0)],
+            [reason("outer-deadline", 1, wrap + ":in-flight=cleanup-hang", True, "1.75s"), calls(12.0)],
+            [reason("outer-deadline", 1, wrap + ":in-flight=cleanup-hang:cleanup", False, "1.75s"), calls(12.0)],
+            [reason("inner-deadline-missing", 2, None, True, "1.75s"), calls(12.0)],
+            [reason("inner-deadline-unnamed", 3, None, True, "1.75s"), calls(12.0)],
+            [reason("cleanup", 1, wrap + ":cleanup", False, "1.75s"), calls(12.0)],
+            [reason("cleanup", 1, wrap + ":cleanup-unverified", False, "1.75s"), calls(12.0)],
+            ["", calls(12.0)],
+            ["", calls(34.0)],
+            [reason("inner-deadline-missing", 2, None, True, "11.25s", hang="30.00", measured="10.00",
+                    elapsed="15.00"), calls(37.0)],
+        ]
+        lines = result.stdout.splitlines()
+        self.assertEqual(len(lines), 2, detail)
+        self.assertEqual(lines[0], "RESULT " + json.dumps(expected), detail)
+        self.assertIn("a reason naming the stage reached (calibration, before-kill, outer-deadline, cleanup, "
+                      "inner-deadline-missing, inner-deadline-unnamed or probe-exit-N, N being the probe's exit "
+                      "code)", lines[1], detail)
+
+    def test_run_shell_stubbed_settlement_except_raise_is_a_stated_exit(self) -> None:
+        """The stated exit of a second raise inside the settlement's except clause: a clone of run calls a
+        clone of _run_shells with no real process (the stand-ins of
+        test_run_shell_stubbed_record_pop_raise_keeps_the_line); its grace loop raises for entry 46, its
+        _kill_session records entry 47 in the tool's _SCAN_UNREAD only, its _shell_unread raises
+        KeyboardInterrupt('settlement') at its first call (the settlement's read of the records), and its
+        _carry_shell_lines raises KeyboardInterrupt('settlement except') when handed that exception (the
+        except clause's carry). As the module docstring states, the second exception replaces the one the
+        except was carrying, the finally pops the five records, so entry 47, which the records alone held,
+        is lost, and the line already raised along its chain (entry 46) is carried by the per-shell carry:
+        the run ends with the second KeyboardInterrupt, noted with entry 46 and the shell only, and no record
+        is left for the shell."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "def kill_session(sid):\n"
+            "    t['_SCAN_UNREAD'].setdefault(sid, []).append('47')\n"
+            "    return True\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "real_unread, real_carry = t['_shell_unread'], t['_carry_shell_lines']\n"
+            "first = []\n"
+            "def unread(sid):\n"
+            "    if not first:\n"
+            "        first.append(sid)\n"
+            "        raise KeyboardInterrupt('settlement')\n"
+            "    return real_unread(sid)\n"
+            "def carry(active, shell, caller_exception):\n"
+            "    if isinstance(active, KeyboardInterrupt) and str(active) == 'settlement':\n"
+            "        raise KeyboardInterrupt('settlement except')\n"
+            "    return real_carry(active, shell, caller_exception)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=kill_session, _shell_unread=unread, _carry_shell_lines=carry)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "def chain(exc):\n"
+            "    out = []\n"
+            "    while exc is not None:\n"
+            "        out.append(type(exc).__name__)\n"
+            "        exc = exc.__context__\n"
+            "    return out\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [str(exc), getattr(exc, '__notes__', []), str(exc.__context__), chain(exc)]\n"
+            "records = [41 in t[name] for name in ('_KILL_UNKNOWN', '_SCAN_UNREAD', '_KILL_ALIVE')]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(records), first)\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = "unparsable stat line, session unknown: /proc/46/stat; containment of the bash run could not be shown"
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            ["settlement except", [note], "settlement",
+             ["KeyboardInterrupt", "KeyboardInterrupt", "_UnparsableStat"]])
+            + " " + json.dumps([False, False, False]) + " [41]\n", detail)
+        self.assertNotIn("/proc/47/stat", result.stdout, detail)
+
+    def test_run_shell_stubbed_docstrings_carry_no_backlog_or_round_tags(self) -> None:
+        """The module docstring and the _own_wait_timeout docstring of run-shell-stubbed.py keep their
+        technical text with no backlog tag, no round letter tag and no revision-history sentence about what an
+        earlier round listed."""
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        docs = [tool.split('"""', 2)[1], tool.split("def _own_wait_timeout(", 1)[1].split('"""', 2)[1]]
+        for doc in docs:
+            self.assertNotRegex(doc, r"\b3b8[0-9]{2}\b")
+            self.assertNotRegex(doc, r"\b[Rr]ound\s+z[a-z]\b")
+            self.assertNotRegex(doc, r"\bzd\s+listed\b")
+        self.assertIn("a caller's frame whose local variable self is bound to the shell does not qualify, and\n",
+                      docs[0])
+        self.assertIn("named self alone, which a caller's frame can bind to p, does not qualify it. A deadline",
+                      docs[1])
+        self.assertIn("not by a signal handler run during it. Popen.wait raises its own", docs[1])
+
+    def test_run_shell_stubbed_comments_and_tests_carry_no_backlog_or_round_tags(self) -> None:
+        """The code comments of run-shell-stubbed.py and the source of every run_shell_stubbed method of this
+        class (docstrings, comments, subTest labels and assertion strings) keep their technical text with no
+        backlog tag, no round letter tag and no revision-history phrase about what an earlier round listed or
+        took as closed."""
+        import inspect
+        tag = re.compile(r"\b3b8[0-9]{2}\b|\b[Rr]ound\s+z[a-z]\b|\bz[a-z]\s+(?:listed|took)\b")
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        comments = [line.strip() for line in tool.splitlines() if line.lstrip().startswith("#")]
+        self.assertGreater(len(comments), 20)
+        for line in comments:
+            with self.subTest(comment=line):
+                self.assertIsNone(tag.search(line))
+        for phrase in ("# One carry for every exit. An exception already in",
+                       "# only, not the final carry of _run_shells, which is exit table row X10.",
+                       "# example) is exit table row X10. Stated, not closed: this carry has no",
+                       "# retry, and a retry's own jump back would be such a point again (exit table",
+                       "# row X12)."):
+            self.assertIn(phrase, comments)
+        names = sorted(n for n in vars(type(self)) if "run_shell_stubbed" in n)
+        self.assertGreater(len(names), 10)
+        for name in names:
+            with self.subTest(method=name):
+                self.assertIsNone(tag.search(inspect.getsource(getattr(type(self), name))))
+
+    def test_run_shell_stubbed_pass_through_sentences_carry_the_cleanup_qualifier(self) -> None:
+        """Every sentence of run-shell-stubbed.py, in its module docstring or its comments, saying that an
+        exception coming out of _run_shells passes through run's finally unchanged says it holds only when run's
+        cleanup completes normally, and that a pending deferred signal makes _drain_deferral raise a termination
+        that replaces that exception. The docstring states it once, in row X10, and the two comments that
+        stated it point to that row instead, as does the row its handler-restore case."""
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        comments = " ".join(" ".join(line.strip().lstrip("#").split())
+                            for line in tool.splitlines() if line.lstrip().startswith("#"))
+        claim = re.compile(r"passes through (?:that|the) finally (?:above )?unchanged")
+        qualifier = " only when run's cleanup completes normally"
+        self.assertIn("This retry covers this carry only, not the final carry of _run_shells, which is exit "
+                      "table row X10.", comments)
+        self.assertIn("An exception raised during this carry (a signal handler run there, for example) is exit "
+                      "table row X10.", comments)
+        self.assertIn("then noted on that termination; a handler restore of run that raises replaces it the same "
+                      "way, and run's carry notes the line on that exception, row X3)", doc)
+        for text, expected in ((doc, 1), (comments, 0)):
+            found = list(claim.finditer(text))
+            self.assertEqual(len(found), expected)
+            for match in found:
+                with self.subTest(sentence=text[match.start():match.end() + len(qualifier)]):
+                    self.assertEqual(text[match.end():match.end() + len(qualifier)], qualifier)
+                    self.assertIn("a pending deferred signal makes _drain_deferral raise a termination that "
+                                  "replaces it", text[match.end():match.end() + 200])
+
+    def test_run_shell_stubbed_iteration_carry_and_settlement_residual_are_stated(self) -> None:
+        """The module docstring states the per-shell carry of an exception already in flight
+        and lists the settlement-except residual: an exception raised inside
+        the settlement's except before its carry is done replaces it, and entries the records alone held are
+        lost when the finally pops them. The comment beside that except points to the docstring, and the carry
+        reads the exception in flight at the top of the per-shell cleanup, before the temp dir removal."""
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        for phrase in ("An exception of the run's own that leaves a shell's iteration already in flight (one raised in "
+                       "the finally that pops the shell's records, or at the close of its captured output files, for "
+                       "example) is carried that shell's lines at the top of the per-shell cleanup, before the temp dir "
+                       "removal (exit table row X3)",
+                       "An exception raised inside the settlement's except clause before its carry is done is exit "
+                       "table row X6.",
+                       "X6 | inside the settlement's except clause, before its carry is done | the new exception | no "
+                       "note for entries the records alone held; lines already raised along its chain are noted on it by the "
+                       "per-shell carry"):
+            self.assertIn(phrase, doc)
+        self.assertIn("# is exit table row X6, and a trace function raising at the try\n", tool)
+        self.assertEqual(tool.count("                        in_flight = sys.exception()\n"
+                                    "                        if in_flight is not None and in_flight is not "
+                                    "caller_exception:\n"
+                                    "                            _carry_shell_lines(in_flight, shell, "
+                                    "caller_exception)\n"
+                                    "                    finally:\n"
+                                    "                        _rmtree(tmp)\n"), 1)
+
+    def test_run_shell_stubbed_exit_statements_point_to_the_exit_table(self) -> None:
+        """The exits of a shell's cleanup in run-shell-stubbed.py are stated once, in the exit table of the
+        module docstring (rows X1 to X18); every other comment or docstring names a row instead. Each
+        pointer ("exit table row X8", "exit table rows X6 and X7") must name a row the table has, and no
+        text outside the module docstring may state an outcome the table owns: that the three signals stay
+        blocked in the calling thread, that a cleanup is skipped, that entries are left only in the
+        records, that the records are popped whether or not the entries were settled or carried, or that an
+        exception loses the entries, ends the run with no note, carries no note or none of the run's entries,
+        replaces late, is left without the note, takes a line as its note or always survives. The earlier
+        checks stay: no sentence says the records are popped only
+        once the entries are settled, and loss-denial wording (never, not, cannot, no longer, no, nothing,
+        none or a word ending in n't followed within four words, with spaces or commas between them, by
+        lost, lose or loses; without loss; is never dropped) is rejected anywhere in the tool's text, as no
+        recorded entry is safe from rows X6 and X7. The sentences at the arm of _SCAN_UNREAD, in the
+        _shell_unread docstring and in the _kill_session docstring are pinned with their pointers."""
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        flat = " ".join(" ".join(line.strip().lstrip("#").split()) for line in tool.splitlines())
+        module_doc = tool.split('"""', 2)[1]
+        table = module_doc.split("\nExit table.", 1)[1].split("\n\n", 1)[0]
+        rows = re.findall(r"^(X\d+) \|", table, re.MULTILINE)
+        self.assertEqual(rows, [f"X{n}" for n in range(1, 19)])
+        for claim in ("does not lose", "pops the three only once the entries are settled",
+                      "and only then pops it", "once the reap has run and the entries are settled"):
+            with self.subTest(claim=claim):
+                self.assertNotIn(claim, flat)
+        outside = tool.replace(module_doc, "", 1)
+        flat_outside = " ".join(" ".join(line.strip().lstrip("#").split()) for line in outside.splitlines())
+        pointer = re.compile(r"\bexit table rows? (X\d+(?:(?:, | and | or )X\d+)*)")
+        named = pointer.findall(flat_outside)
+        self.assertGreaterEqual(len(named), 6, named)
+        for ids in named:
+            for row in re.findall(r"X\d+", ids):
+                with self.subTest(pointer=ids, row=row):
+                    self.assertIn(row, rows)
+        outcome = re.compile(r"\bstays? blocked in the calling thread\b"
+                             r"|\bskips? the (?:whole |per-shell )?cleanup\b"
+                             r"|\bcleanup (?:of that shell )?is skipped\b"
+                             r"|\bonly in the (?:module's )?records\b"
+                             r"|\bwhether or not (?:they|the entries) were settled or carried\b"
+                             r"|\bloses (?:it|them|those|the entries)\b"
+                             r"|\bends the run with no note\b|\bcarries no note\b|\breplaces late\b"
+                             r"|\bwithout the note\b|\bcarries none of the run's entries\b"
+                             r"|\bas its note\b|\balways survives?\b", re.IGNORECASE)
+        for sample in ("SIGHUP, SIGINT and SIGTERM stay blocked in the calling thread",
+                       "skips the per-shell cleanup", "leaves them only in the records",
+                       "pops it whether or not they were settled or carried", "loses the entries",
+                       "that exception ends the run with no note", "the exception carries no note",
+                       "replaces late and ends the run", "the line is left without the note",
+                       "carries none of the run's entries", "with the entries and the shell as its note",
+                       "Settled _SCAN_UNREAD entries always survive every cleanup exception."):
+            with self.subTest(outcome=sample):
+                self.assertIsNotNone(outcome.search(sample))
+        found = outcome.search(flat_outside)
+        self.assertIsNone(found, found and flat_outside[max(0, found.start() - 200):found.end() + 40])
+        unread = " ".join(tool.split("def _shell_unread(", 1)[1].split('"""', 2)[1].split())
+        self.assertIn("pops the three, then _SCAN_UNPARSED and _SCAN_PARSED_LATER, in the settlement's finally "
+                      "once that finally is entered; see exit table rows X6 and X7.", unread)
+        self.assertIn("pops it in the settlement's finally once that finally is entered (exit table rows X6 and "
+                      "X7).", flat)
+        self.assertIn("this scan removes an entry only if this scan recorded it, once its line parses, and on no "
+                      "other path (an entry an earlier scan recorded stays recorded, so the run fails closed). A "
+                      "later exception is exit table row X3, subject to exit table rows X6, X7 and X12.", flat)
+        members = " ".join(tool.split("def _session_members(", 1)[1].split('"""', 2)[1].split())
+        for sentence in ("(a later exception in the cleanup is exit table row X3, subject to exit table rows X6, X7 "
+                         "and X12)",
+                         "The window between the read's return and the append is exit table row X13, the "
+                         "parse of a line that parses and the removal after it exit table row X17, and an "
+                         "OSError of the open or the read exit table row X14."):
+            with self.subTest(members=sentence[:40]):
+                self.assertIn(sentence, members)
+        self.assertIn("The caller-handler residual, not an exit table row (row X16 covers a trace function "
+                      "here): a Python signal handler the caller installed for a signal other "
+                      "than the three can run between Popen and the try below, and Popen's own error path "
+                      "neither kills nor waits for a child it created (read in the Python 3.14.4 source).",
+                      flat)
+        denial = re.compile(r"\b(?:never|not|cannot|no longer|no|nothing|none|\w+n't)(?:[\s,]+[\w'-]+){0,4}?"
+                            r"[\s,]+(?:lost|lose|loses)\b|\bwithout (?:any )?loss\b"
+                            r"|\b(?:is|are) (?:never|not) dropped\b", re.IGNORECASE)
+        for sample in ("is never lost", "A settled _SCAN_UNREAD entry cannot ever be lost.",
+                       "is not at any point lost", "won't be lost", "no longer gets lost",
+                       "A settled _SCAN_UNREAD entry is never, under any circumstances, lost.",
+                       "Settled below, so no recorded entry is lost.", "nothing is lost",
+                       "none of them is lost"):
+            with self.subTest(sample=sample):
+                self.assertIsNotNone(denial.search(sample))
+        found = denial.search(flat)
+        self.assertIsNone(found, found and flat[max(0, found.start() - 200):found.end() + 40])
+        kill = " ".join(tool.split("def _kill_session(", 1)[1].split('"""', 2)[1].split())
+        self.assertIn("and _run_shells settles both once the reap has run, subject to exit table rows X6 and "
+                      "X7.", kill)
+        self.assertIn("so one an interrupted scan read is settled by the finally below once the reap has run, "
+                      "subject to exit table rows X6 and X7.", flat)
+
+    def test_run_shell_stubbed_caller_reraise_at_record_pop_or_output_close_is_a_stated_exit(self) -> None:
+        """The stated exit of a caller re-raise in a shell's iteration: when the finally that pops a shell's
+        records, or the close of its captured stdout, re-raises the caller's own handled exception once the
+        settlement has raised that shell's unparsable stat line, that exception ends the run with no note and
+        the line is its __context__ alone; the module docstring names both points in the caller re-raise
+        residual and limits the per-shell carry to the run's own exceptions. The
+        clones are those of test_run_shell_stubbed_record_pop_raise_keeps_the_line, called while the caller
+        handles a RuntimeError, with a records dict whose pop, or an output wrapper whose close, raises it."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "caller = RuntimeError('caller')\n"
+            "class PopRaises(dict):\n"
+            "    def pop(self, *args):\n"
+            "        raise caller\n"
+            "class Closing:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return self.fh\n"
+            "    def __exit__(self, *exc):\n"
+            "        self.fh.close()\n"
+            "        if self.fh.name.endswith('/stdout'):\n"
+            "            raise caller\n"
+            "def opener(path, *args, **kwargs):\n"
+            "    fh = real_open(path, *args, **kwargs)\n"
+            "    return Closing(fh) if args[:1] == ('w',) else fh\n"
+            "for name, bound in (('pop', {'_SCAN_UNREAD': PopRaises()}), ('close', {'open': opener})):\n"
+            "    caller.__context__ = None\n"
+            "    shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "                   _kill_session=lambda sid: True, **bound)\n"
+            "    run = clone('run', _run_shells=shells)\n"
+            "    try:\n"
+            "        try:\n"
+            "            raise caller\n"
+            "        except RuntimeError:\n"
+            "            run('true', shells=('bash',))\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, exc is caller, getattr(exc, '__notes__', []),\n"
+            "                   type(exc.__context__).__name__, str(exc.__context__)]\n"
+            "    print('RESULT', name, json.dumps(outcome))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        expected = json.dumps(["RuntimeError", True, [], "_UnparsableStat",
+                               "unparsable stat line, session unknown: /proc/46/stat"])
+        self.assertEqual(result.stdout, f"RESULT pop {expected}\nRESULT close {expected}\n", detail)
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        for phrase in ("re-raised over a line of the run is exit table row X5 when a step after that shell's kill, reap "
+                       "and settlement re-raises it (the finally that pops that shell's records or the close of its "
+                       "captured output files, the temp dir removal, the mask restore or a drain of _run_shells, or a "
+                       "handler restore or the drain of run)",
+                       "An exception of the run's own that leaves a shell's iteration already in flight",
+                       "The caller's own handled exception re-raised at either of those points is exit table row X5.",
+                       "X5 | caller-handler residual, as observed: the caller's own handled exception re-raised after "
+                       "a shell's settlement (record pop, output "
+                       "close, temp dir removal, mask restore, a drain or a handler restore of run), or a deferred "
+                       "SIGTERM or SIGHUP drained, or another exception of the run's own raised, after such a re-raise | "
+                       "that exception, or the run's own _Terminated or that other exception chained over the caller's "
+                       "| no note; the line only on the __context__ chain of the caller's exception | nothing | runs | "
+                       "restored"):
+            self.assertIn(phrase, doc)
+
+    def test_run_shell_stubbed_own_exception_after_a_caller_reraise_is_a_stated_exit(self) -> None:
+        """The stated exit of a run's own exception after a caller re-raise: once the finally that pops a shell's
+        records has re-raised the caller's own handled exception over that shell's unparsable stat line, a
+        KeyboardInterrupt the temp dir removal raises ends the run with no note, chained over the caller's
+        exception, whose __context__ alone holds the line; the module docstring states the window.
+        The clones are those of
+        test_run_shell_stubbed_caller_reraise_at_record_pop_or_output_close_is_a_stated_exit in its pop case,
+        with an _rmtree that removes the temp dir and then raises KeyboardInterrupt."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "caller = RuntimeError('caller')\n"
+            "class PopRaises(dict):\n"
+            "    def pop(self, *args):\n"
+            "        raise caller\n"
+            "removed = []\n"
+            "def rmtree(path):\n"
+            "    t['_rmtree'](path)\n"
+            "    removed.append(not os.path.exists(path))\n"
+            "    raise KeyboardInterrupt('removal')\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True, _SCAN_UNREAD=PopRaises(), _rmtree=rmtree)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "try:\n"
+            "    try:\n"
+            "        raise caller\n"
+            "    except RuntimeError:\n"
+            "        run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', []),\n"
+            "               exc.__context__ is caller, getattr(caller, '__notes__', []),\n"
+            "               type(caller.__context__).__name__]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(removed))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            ["KeyboardInterrupt", "removal", [], True, [], "_UnparsableStat"]) + " [true]\n", detail)
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("or any other exception of the run's own raised after it (a KeyboardInterrupt of the temp dir "
+                      "removal, or of a SIGINT delivered at the mask restore, for example), as the walks of "
+                      "_carry_shell_lines and of run's carry stop at the caller's exception", doc)
+
+    def test_run_shell_stubbed_cleanup_entry_trace_raise_is_a_stated_exit(self) -> None:
+        """The stated exit of a raise at cleanup entry: a trace function that raises KeyboardInterrupt at the
+        line event of the try that opens the per-shell cleanup of _run_shells, or of the try that opens the
+        finally body of run, once the settlement has raised the shell's unparsable stat line, ends the run with
+        that KeyboardInterrupt with no note, chained over the line; the module docstring states the window.
+        The clones are those of
+        test_run_shell_stubbed_record_pop_raise_keeps_the_line with the tool's own records, and the trace
+        function fires once, only in the code object of the named function at that line."""
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        shells_try = ("            try:\n                try:\n                    try:\n"
+                      "                        # One carry for every exit.")
+        run_try = ("        try:\n            try:\n"
+                   "                if threading.current_thread() is threading.main_thread():\n"
+                   "                    # Residual: TERM/HUP handled between these stores raises\n")
+        self.assertEqual(tool.count(shells_try), 1)
+        self.assertEqual(tool.count(run_try), 1)
+        targets = [["_run_shells", tool[:tool.index(shells_try)].count("\n") + 1],
+                   ["run", tool[:tool.index(run_try)].count("\n") + 1]]
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "targets = " + json.dumps(targets) + "\n"
+            "for name, line in targets:\n"
+            "    fired = []\n"
+            "    code = t[name].__code__\n"
+            "    def tracer(frame, event, arg):\n"
+            "        if frame.f_code is not code:\n"
+            "            return None\n"
+            "        if event == 'line' and frame.f_lineno == line and not fired:\n"
+            "            fired.append(line)\n"
+            "            raise KeyboardInterrupt('entry ' + name)\n"
+            "        return tracer\n"
+            "    sys.settrace(tracer)\n"
+            "    try:\n"
+            "        run('true', shells=('bash',))\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', []),\n"
+            "                   type(exc.__context__).__name__]\n"
+            "    finally:\n"
+            "        sys.settrace(None)\n"
+            "    print('RESULT', name, json.dumps(outcome), json.dumps(fired))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {name} " + json.dumps(["KeyboardInterrupt", "entry " + name, [], "_UnparsableStat"])
+            + f" [{line}]\n" for name, line in targets), detail)
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("A trace function (sys.settrace) that raises at the line event of the try that opens the "
+                      "per-shell cleanup of _run_shells is exit table row X8; at the line event of the try that opens "
+                      "the finally body of run, or of the try nested directly in it (the try around the activation, "
+                      "observed on Python 3.14.4), row X9", doc)
+
+    def test_run_shell_stubbed_run_activation_try_trace_raise_is_a_stated_exit(self) -> None:
+        """The stated exit of a raise at the try nested in run's finally body: a trace function that raises
+        KeyboardInterrupt at the line event of the try around the activation, the try nested directly in the one
+        that opens the finally body of run, once the settlement has raised the shell's unparsable stat line, ends
+        the run with that KeyboardInterrupt with no note, chained over the line, although the try whose except
+        BaseException clause makes run's carry encloses it; the module docstring states the exit. The clones are
+        those of test_run_shell_stubbed_cleanup_entry_trace_raise_is_a_stated_exit, and the trace function
+        fires once, only in the code object of run at that line."""
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        run_try = ("        try:\n            try:\n"
+                   "                if threading.current_thread() is threading.main_thread():\n"
+                   "                    # Residual: TERM/HUP handled between these stores raises\n")
+        self.assertEqual(tool.count(run_try), 1)
+        line = tool[:tool.index(run_try)].count("\n") + 2
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "line = " + str(line) + "\n"
+            "fired = []\n"
+            "code = t['run'].__code__\n"
+            "def tracer(frame, event, arg):\n"
+            "    if frame.f_code is not code:\n"
+            "        return None\n"
+            "    if event == 'line' and frame.f_lineno == line and not fired:\n"
+            "        fired.append(line)\n"
+            "        raise KeyboardInterrupt('activation try')\n"
+            "    return tracer\n"
+            "sys.settrace(tracer)\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', []),\n"
+            "               type(exc.__context__).__name__]\n"
+            "finally:\n"
+            "    sys.settrace(None)\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(fired))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            ["KeyboardInterrupt", "activation try", [], "_UnparsableStat"]) + f" [{line}]\n", detail)
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("or of the try nested directly in it (the try around the activation, observed on Python 3.14.4), "
+                      "row X9", doc)
+        self.assertIn("X9 | a trace function at the line event of the try that opens run's finally body, or of the try "
+                      "nested directly in it | the trace's exception, no result | no note; the line on its __context__ "
+                      "chain | nothing | ran before it (inferred); run's handler restores and drain are skipped, so "
+                      "on the main thread _on_signal stays the SIGTERM and SIGHUP handler (run called on another "
+                      "thread installs no handler, so the caller's own stay) | restored by that cleanup "
+                      "(inferred)", doc)
+
+    def test_run_shell_stubbed_final_carry_sentence_names_the_except_body_exit(self) -> None:
+        """The module docstring's sentence on run's final carry does not claim without exception that a raise
+        during that carry keeps the lines: it points to the class of exits, and its residual names the retry's
+        except body beside the jump back to the retry as a point outside the retry's try."""
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("An exception raised while run makes its final carry of the lines as notes is carried again by "
+                      "the retry of that carry, onto that exception, whose chain holds the first (exit table row X3)", doc)
+        self.assertIn("or in the retry's except body (its store of the exception that interrupted the carry), both "
+                      "outside the retry's try, is exit table row X11.", doc)
+
+    def test_run_shell_stubbed_caller_timeout_with_a_local_self_is_not_the_wait_own(self) -> None:
+        """A subprocess.TimeoutExpired that a caller's callback raises during the shell's second wait, from a
+        Python frame whose local variable self is bound to the shell, is not taken as that wait timing out: the
+        wait's own frame is identified by its code object, so the exception propagates with the shell's line
+        noted on it, where a check of a local named self takes it as the wait's own and ends the run with the
+        _UnparsableStat naming 46 and no note. The clone of _run_shells is that of
+        test_run_shell_stubbed_handler_timeout_during_a_wait_propagates_with_the_line. In case collision the
+        second wait calls callback(shell), which binds self = shell and raises TimeoutExpired('caller alarm', 5);
+        in case own the first wait raises TimeoutExpired itself and the run ends with that _UnparsableStat."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits, case = [], ['']\n"
+            "at = {'collision': 2, 'own': 1}\n"
+            "def callback(shell):\n"
+            "    self = shell\n"
+            "    raise subprocess.TimeoutExpired('caller alarm', 5)\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if len(waits) == at[case[0]]:\n"
+            "            if case[0] == 'own':\n"
+            "                raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "            callback(self)\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "class OsModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(os, name)\n"
+            "    def killpg(self, pid, sig):\n"
+            "        sends.append([pid, 'killpg'])\n"
+            "    def kill(self, pid, sig):\n"
+            "        sends.append([pid, 'kill'])\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=scan,\n"
+            "               _kill_session=lambda sid: True, os=OsModel())\n"
+            "for case[0] in ('collision', 'own'):\n"
+            "    del waits[:]\n"
+            "    Shell.returncode = None\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', case[0], json.dumps(outcome), json.dumps(waits),\n"
+            "          json.dumps(sorted(t['_SCAN_UNREAD'])))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        lines = result.stdout.splitlines()
+        self.assertEqual(len(lines), 2, detail)
+        collision = json.loads(lines[0].split(" ", 2)[2].rsplit(" ", 3)[0])
+        self.assertTrue(lines[0].startswith("RESULT collision "), detail)
+        self.assertEqual(collision[0], "TimeoutExpired", detail)
+        self.assertIn("caller alarm", collision[1], detail)
+        self.assertEqual(collision[2], [note], detail)
+        self.assertTrue(lines[0].endswith(" [30, 2.0] []"), detail)
+        own = json.loads(lines[1].split(" ", 2)[2].rsplit(" ", 3)[0])
+        self.assertTrue(lines[1].startswith("RESULT own "), detail)
+        self.assertEqual([own[0], own[2]], ["_UnparsableStat", []], detail)
+        self.assertTrue(lines[1].endswith(" [30, 2.0] []"), detail)
+
+    def test_run_shell_stubbed_handler_timeout_through_a_shell_wait_is_not_the_wait_own(self) -> None:
+        """A subprocess.TimeoutExpired that a caller's handler raises during the shell's second wait through
+        one of the shell's own wait methods, or re-raises from such a wait, is not taken as that wait timing
+        out: its traceback then holds the handler's frame between the shell's frames, so the exception
+        propagates with the shell's line noted on it, where a check of the innermost frame alone takes it as
+        the wait's own and ends the run with the _UnparsableStat naming 46 and no note. The clone of
+        _run_shells is that of test_run_shell_stubbed_handler_timeout_during_a_wait_propagates_with_the_line,
+        and a wait with timeout 0 raises TimeoutExpired itself. In case nested the second wait calls
+        handler(shell), which calls shell.wait(timeout=0) and lets its TimeoutExpired propagate; in case saved
+        the handler catches that TimeoutExpired and raises the saved object; in case own the first wait raises
+        TimeoutExpired itself and the run ends with that _UnparsableStat."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits, case, saved = [], [''], []\n"
+            "at = {'nested': 2, 'saved': 2, 'own': 1}\n"
+            "def handler(shell):\n"
+            "    if case[0] == 'nested':\n"
+            "        shell.wait(timeout=0)\n"
+            "    try:\n"
+            "        shell.wait(timeout=0)\n"
+            "    except subprocess.TimeoutExpired as exc:\n"
+            "        saved.append(exc)\n"
+            "    raise saved[-1]\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if timeout == 0:\n"
+            "            raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "        if len(waits) == at[case[0]]:\n"
+            "            if case[0] == 'own':\n"
+            "                raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "            handler(self)\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "class OsModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(os, name)\n"
+            "    def killpg(self, pid, sig):\n"
+            "        sends.append([pid, 'killpg'])\n"
+            "    def kill(self, pid, sig):\n"
+            "        sends.append([pid, 'kill'])\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=scan,\n"
+            "               _kill_session=lambda sid: True, os=OsModel())\n"
+            "for case[0] in ('nested', 'saved', 'own'):\n"
+            "    del waits[:]\n"
+            "    Shell.returncode = None\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', json.dumps([case[0], outcome, waits, sorted(t['_SCAN_UNREAD'])]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        lines = result.stdout.splitlines()
+        self.assertEqual(len(lines), 3, detail)
+        self.assertTrue(all(line.startswith("RESULT [") for line in lines), detail)
+        outcomes = [json.loads(line[len("RESULT "):]) for line in lines]
+        timed_out = "Command 'shell' timed out after 0 seconds"
+        for index, case in enumerate(("nested", "saved")):
+            with self.subTest(case=case):
+                self.assertEqual(outcomes[index], [case, ["TimeoutExpired", timed_out, [note]], [30, 2.0, 0], []],
+                                 detail)
+        own = outcomes[2]
+        self.assertEqual([own[0], own[1][0], own[1][2], own[2], own[3]],
+                         ["own", "_UnparsableStat", [], [30, 2.0], []], detail)
+
+    def test_run_shell_stubbed_handler_timeout_at_the_mask_restore_is_not_the_wait_own(self) -> None:
+        """A subprocess.TimeoutExpired that a caller's handler raises through one of the shell's own wait methods
+        while _run_shells restores the spawn mask, inside the try around the wait and before the wait begins, is
+        not taken as the command timing out: the frame right after the catching frame of _run_shells is then
+        the signal module's, not one of the shell's, so the exception propagates with the shell's line noted on
+        it, where a check that skips every frame before the first of the shell's takes it as the wait's own and
+        ends the run with the _UnparsableStat naming 46 and no note. The clone of _run_shells is that of
+        test_run_shell_stubbed_handler_timeout_through_a_shell_wait_is_not_the_wait_own, with a signal module
+        whose first SIG_SETMASK (the mask restore at the top of that try) calls handler(), as a signal delivered
+        at that restore would, and a wait with timeout 0 raises TimeoutExpired itself. In case restore the
+        handler calls shell.wait(timeout=0) and lets its TimeoutExpired propagate; in case own no handler runs,
+        the first wait raises TimeoutExpired itself and the run ends with that _UnparsableStat."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits, case, made, setmasks = [], [''], [], []\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        made.append(self)\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if timeout == 0 or (case[0] == 'own' and len(waits) == 1):\n"
+            "            raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def handler():\n"
+            "    made[-1].wait(timeout=0)\n"
+            "class SignalModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(signal, name)\n"
+            "    def pthread_sigmask(self, how, mask):\n"
+            "        previous = signal.pthread_sigmask(how, mask)\n"
+            "        if how == signal.SIG_SETMASK:\n"
+            "            setmasks.append(how)\n"
+            "            if case[0] == 'restore' and len(setmasks) == 1:\n"
+            "                handler()\n"
+            "        return previous\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "class OsModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(os, name)\n"
+            "    def killpg(self, pid, sig):\n"
+            "        sends.append([pid, 'killpg'])\n"
+            "    def kill(self, pid, sig):\n"
+            "        sends.append([pid, 'kill'])\n"
+            "shells = clone('_run_shells', subprocess=popen, signal=SignalModel(), _session_members=scan,\n"
+            "               _kill_session=lambda sid: True, os=OsModel())\n"
+            "for case[0] in ('restore', 'own'):\n"
+            "    del waits[:], made[:], setmasks[:]\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', json.dumps([case[0], outcome, waits, sorted(t['_SCAN_UNREAD'])]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        lines = result.stdout.splitlines()
+        self.assertEqual(len(lines), 2, detail)
+        self.assertTrue(all(line.startswith("RESULT [") for line in lines), detail)
+        outcomes = [json.loads(line[len("RESULT "):]) for line in lines]
+        timed_out = "Command 'shell' timed out after 0 seconds"
+        self.assertEqual(outcomes[0], ["restore", ["TimeoutExpired", timed_out, [note]], [0, 2.0], []], detail)
+        own = outcomes[1]
+        self.assertEqual([own[0], own[1][0], own[1][2], own[2], own[3]],
+                         ["own", "_UnparsableStat", [], [30, 2.0], []], detail)
+
+    def test_run_shell_stubbed_settlement_entry_trace_raise_is_a_stated_exit(self) -> None:
+        """The stated exit of a raise at the entry to a shell's settlement: once the session kill has
+        recorded an unparsable stat entry that no exception carries yet, a trace function that raises
+        KeyboardInterrupt at the line event of the try that opens the settlement in _run_shells ends the run
+        with that KeyboardInterrupt with no note and no __context__, the entry left only in _KILL_UNKNOWN;
+        the module docstring states the class of such exits and that it fails closed only in that the run
+        does not report contained. The clones are those of
+        test_run_shell_stubbed_cleanup_entry_trace_raise_is_a_stated_exit, with a scan that finds no member
+        and a kill stand-in that records entry 46, and the trace function fires once, only in the code
+        object of _run_shells at that line."""
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        settle_try = ("try:\n" + " " * 48 + "kill_unknown, kill_alive = _shell_unread(p.pid)\n"
+                      + " " * 48 + "active = sys.exception()\n")
+        self.assertEqual(tool.count(settle_try), 1)
+        line = tool[:tool.index(settle_try)].count("\n") + 1
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def kill(sid):\n"
+            "    t['_KILL_UNKNOWN'][sid] = [46]\n"
+            "    return False\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=lambda sid: [],\n"
+            "               _kill_session=kill)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            f"line = {line}\n"
+            "fired = []\n"
+            "code = t['_run_shells'].__code__\n"
+            "def tracer(frame, event, arg):\n"
+            "    if frame.f_code is not code:\n"
+            "        return None\n"
+            "    if event == 'line' and frame.f_lineno == line and not fired:\n"
+            "        fired.append(line)\n"
+            "        raise KeyboardInterrupt('settlement entry')\n"
+            "    return tracer\n"
+            "sys.settrace(tracer)\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', []),\n"
+            "               exc.__context__ is None]\n"
+            "finally:\n"
+            "    sys.settrace(None)\n"
+            "print('RESULT ' + json.dumps([outcome, sorted(t['_KILL_UNKNOWN'].items()), fired]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [text[len("RESULT "):] for text in result.stdout.splitlines() if text.startswith("RESULT ")]
+        self.assertEqual(len(found), 1, detail)
+        outcome, kill_unknown, fired = json.loads(found[0])
+        self.assertEqual(outcome, ["KeyboardInterrupt", "settlement entry", [], True], detail)
+        self.assertEqual(kill_unknown, [[41, [46]]], detail)
+        self.assertEqual(fired, [line], detail)
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("A signal handler or trace function raising at any other point of the cleanup or of a final "
+                      "carry is exit table row X12, and at the entry to a shell's settlement row X7.", doc)
+        self.assertIn("X12 | a signal handler or trace function at any other point outside a carry's handler, once a "
+                      "line of the run has been raised | that exception, no result | no note; the entry can drop from "
+                      "the chain", doc)
+
+    def test_run_shell_stubbed_settlement_and_cleanup_entry_trace_raise_skip_the_cleanup(self) -> None:
+        """A trace function that raises KeyboardInterrupt at the line event of the try that opens a shell's
+        settlement, or of the try that opens the per-shell cleanup of _run_shells, skips that shell's whole
+        cleanup: the temp dir removal, the signal mask restore and the drain of _run_shells never run, so
+        SIGHUP, SIGINT and SIGTERM stay blocked in the calling thread. At the settlement entry with an
+        exception already in flight (a KeyboardInterrupt a grace-loop scan raised after recording entry 46),
+        the trace's KeyboardInterrupt has that exception as its __context__, neither carries a note, and the
+        entry stays in _SCAN_UNREAD. A control run with no trace function removes the temp dir, restores the
+        mask and drains. The module docstring, the _kill_session docstring and the comments state it."""
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        settle_try = ("try:\n" + " " * 48 + "kill_unknown, kill_alive = _shell_unread(p.pid)\n"
+                      + " " * 48 + "active = sys.exception()\n")
+        shells_try = ("            try:\n                try:\n                    try:\n"
+                      "                        # One carry for every exit.")
+        for anchor in (settle_try, shells_try):
+            self.assertEqual(tool.count(anchor), 1, anchor)
+        settle_line = tool[:tool.index(settle_try)].count("\n") + 1
+        cleanup_line = tool[:tool.index(shells_try)].count("\n") + 1
+        cases = [["settle", settle_line], ["settle-in-flight", settle_line], ["cleanup", cleanup_line],
+                 ["control", None]]
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess, tempfile\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "def record_kill(sid):\n"
+            "    t['_KILL_UNKNOWN'][sid] = [46]\n"
+            "    return False\n"
+            "hits = []\n"
+            "def scan_raises(sid):\n"
+            "    if sid in t['_SCAN_UNREAD'] and not hits:\n"
+            "        hits.append(sid)\n"
+            "        t['_SCAN_UNREAD'][sid].append(46)\n"
+            "        raise KeyboardInterrupt('scan')\n"
+            "    return []\n"
+            "def mkdtemp(prefix):\n"
+            "    return tempfile.mkdtemp(prefix=prefix, dir=root)\n"
+            "def names(sigs):\n"
+            "    return sorted(signal.Signals(s).name for s in t['_CLEANUP_SIGNALS'] if s in sigs)\n"
+            "for name, line in " + repr(cases) + ":\n"
+            "    for record in (t['_KILL_UNKNOWN'], t['_SCAN_UNREAD'], t['_KILL_ALIVE']):\n"
+            "        record.clear()\n"
+            "    removed, drains, fired = [], [], []\n"
+            "    def rm(path):\n"
+            "        removed.append(path)\n"
+            "        t['_rmtree'](path)\n"
+            "    def drain(caller_exception=None):\n"
+            "        drains.append(1)\n"
+            "        return t['_drain_deferral'](caller_exception)\n"
+            "    members = scan_raises if name == 'settle-in-flight' else (lambda sid: [])\n"
+            "    kill = (lambda sid: True) if name == 'settle-in-flight' else record_kill\n"
+            "    shells = clone('_run_shells', subprocess=popen, _session_members=members, _kill_session=kill,\n"
+            "                   _rmtree=rm, _drain_deferral=drain,\n"
+            "                   tempfile=types.SimpleNamespace(mkdtemp=mkdtemp))\n"
+            "    run = clone('run', _run_shells=shells)\n"
+            "    code = t['_run_shells'].__code__\n"
+            "    def tracer(frame, event, arg):\n"
+            "        if frame.f_code is not code:\n"
+            "            return None\n"
+            "        if event == 'line' and frame.f_lineno == line and not fired:\n"
+            "            fired.append(line)\n"
+            "            raise KeyboardInterrupt(name + ' entry')\n"
+            "        return tracer\n"
+            "    saved = signal.pthread_sigmask(signal.SIG_BLOCK, ())\n"
+            "    if line is not None:\n"
+            "        sys.settrace(tracer)\n"
+            "    try:\n"
+            "        run('true', shells=('bash',))\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        ctx = exc.__context__\n"
+            "        outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', []),\n"
+            "                   None if ctx is None else [type(ctx).__name__, str(ctx),\n"
+            "                                             getattr(ctx, '__notes__', [])]]\n"
+            "    finally:\n"
+            "        sys.settrace(None)\n"
+            "    blocked = names(signal.pthread_sigmask(signal.SIG_SETMASK, saved))\n"
+            "    print('RESULT ' + json.dumps([name, outcome[0], outcome[1:] if line else [], len(removed),\n"
+            "                                  len(drains), blocked, sorted(t['_SCAN_UNREAD'].items()),\n"
+            "                                  sorted(t['_KILL_UNKNOWN'].items()), fired]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        cut = ["SIGHUP", "SIGINT", "SIGTERM"]
+        self.assertEqual(found, [
+            ["settle", "KeyboardInterrupt", ["settle entry", [], None], 0, 0, cut, [[41, []]], [[41, [46]]],
+             [settle_line]],
+            ["settle-in-flight", "KeyboardInterrupt", ["settle-in-flight entry", [],
+                                                       ["KeyboardInterrupt", "scan", []]],
+             0, 0, cut, [[41, [46]]], [], [settle_line]],
+            ["cleanup", "KeyboardInterrupt", ["cleanup entry", [], ["_UnparsableStat", found[2][2][2][1], []]],
+             0, 0, cut, [], [], [cleanup_line]],
+            ["control", "_UnparsableStat", [], 1, 1, [], [], [], []],
+        ], detail)
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        kill = " ".join(tool.split("def _kill_session(", 1)[1].split('"""', 2)[1].split())
+        flat = " ".join(" ".join(line.strip().lstrip("#").split()) for line in tool.splitlines())
+        self.assertIn("of _run_shells is exit table row X8;", doc)
+        self.assertIn("and at the entry to a shell's settlement row X7.", doc)
+        self.assertIn("X7 | a trace function at the line event of the try that opens the settlement, after a scan "
+                      "recorded an unparsable entry no exception carries yet | the trace's exception, no result | "
+                      "no note; its __context__ is the exception already in flight, if any, which carries no note "
+                      "either | each entry stays in whichever record held it (_SCAN_UNREAD, _KILL_UNKNOWN or both), as "
+                      "the settlement's finally is never entered | skipped | main thread: blocked", doc)
+        self.assertIn("X8 | a trace function at the line event of the try that opens the per-shell cleanup of "
+                      "_run_shells | the trace's exception, no result | no note; the line on its __context__ "
+                      "chain | nothing, popped by the settlement | skipped | main thread: blocked", doc)
+        self.assertIn("and _run_shells settles both once the reap has run, subject to exit table rows X6 and "
+                      "X7.", kill)
+        self.assertIn("settled by the finally below once the reap has run, subject to exit table rows X6 and "
+                      "X7.", flat)
+        self.assertIn("before the settlement begins, is exit table row X7;", flat)
+        self.assertIn("A trace function raising at the try that opens this cleanup is exit table row X8.", flat)
+
+    def test_run_shell_stubbed_exit_table_trace_rows_off_the_main_thread(self) -> None:
+        """Exit table rows X7, X8 and X2 driven on a worker thread with the stand-ins of
+        test_run_shell_stubbed_settlement_and_cleanup_entry_trace_raise_skip_the_cleanup: a trace function
+        raising KeyboardInterrupt at the try that opens the settlement (row X7, with and without a scan's
+        KeyboardInterrupt in flight) or the per-shell cleanup (row X8) skips the cleanup and leaves the
+        records as the rows state, but none of SIGHUP, SIGINT and SIGTERM is blocked afterwards, as the run
+        blocks them only on the main thread, and the drain of _run_shells, which runs only on the main
+        thread, is never called. The control run (row X2) removes the temp dir. Rows X7 and X8 state the
+        main-thread condition."""
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        settle_try = ("try:\n" + " " * 48 + "kill_unknown, kill_alive = _shell_unread(p.pid)\n"
+                      + " " * 48 + "active = sys.exception()\n")
+        shells_try = ("            try:\n                try:\n                    try:\n"
+                      "                        # One carry for every exit.")
+        for anchor in (settle_try, shells_try):
+            self.assertEqual(tool.count(anchor), 1, anchor)
+        settle_line = tool[:tool.index(settle_try)].count("\n") + 1
+        cleanup_line = tool[:tool.index(shells_try)].count("\n") + 1
+        cases = [["settle", settle_line], ["settle-in-flight", settle_line], ["cleanup", cleanup_line],
+                 ["control", None]]
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess, tempfile, threading\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "def record_kill(sid):\n"
+            "    t['_KILL_UNKNOWN'][sid] = [46]\n"
+            "    return False\n"
+            "hits = []\n"
+            "def scan_raises(sid):\n"
+            "    if sid in t['_SCAN_UNREAD'] and not hits:\n"
+            "        hits.append(sid)\n"
+            "        t['_SCAN_UNREAD'][sid].append(46)\n"
+            "        raise KeyboardInterrupt('scan')\n"
+            "    return []\n"
+            "def mkdtemp(prefix):\n"
+            "    return tempfile.mkdtemp(prefix=prefix, dir=root)\n"
+            "def names(sigs):\n"
+            "    return sorted(signal.Signals(s).name for s in t['_CLEANUP_SIGNALS'] if s in sigs)\n"
+            "def body():\n"
+            "  for name, line in " + repr(cases) + ":\n"
+            "    for record in (t['_KILL_UNKNOWN'], t['_SCAN_UNREAD'], t['_KILL_ALIVE']):\n"
+            "        record.clear()\n"
+            "    removed, drains, fired = [], [], []\n"
+            "    def rm(path):\n"
+            "        removed.append(path)\n"
+            "        t['_rmtree'](path)\n"
+            "    def drain(caller_exception=None):\n"
+            "        drains.append(1)\n"
+            "        return t['_drain_deferral'](caller_exception)\n"
+            "    members = scan_raises if name == 'settle-in-flight' else (lambda sid: [])\n"
+            "    kill = (lambda sid: True) if name == 'settle-in-flight' else record_kill\n"
+            "    shells = clone('_run_shells', subprocess=popen, _session_members=members, _kill_session=kill,\n"
+            "                   _rmtree=rm, _drain_deferral=drain,\n"
+            "                   tempfile=types.SimpleNamespace(mkdtemp=mkdtemp))\n"
+            "    run = clone('run', _run_shells=shells)\n"
+            "    code = t['_run_shells'].__code__\n"
+            "    def tracer(frame, event, arg):\n"
+            "        if frame.f_code is not code:\n"
+            "            return None\n"
+            "        if event == 'line' and frame.f_lineno == line and not fired:\n"
+            "            fired.append(line)\n"
+            "            raise KeyboardInterrupt(name + ' entry')\n"
+            "        return tracer\n"
+            "    saved = signal.pthread_sigmask(signal.SIG_BLOCK, ())\n"
+            "    if line is not None:\n"
+            "        sys.settrace(tracer)\n"
+            "    try:\n"
+            "        run('true', shells=('bash',))\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        ctx = exc.__context__\n"
+            "        outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', []),\n"
+            "                   None if ctx is None else [type(ctx).__name__, str(ctx),\n"
+            "                                             getattr(ctx, '__notes__', [])]]\n"
+            "    finally:\n"
+            "        sys.settrace(None)\n"
+            "    blocked = names(signal.pthread_sigmask(signal.SIG_SETMASK, saved))\n"
+            "    print('RESULT ' + json.dumps([name, outcome[0], outcome[1:] if line else [], len(removed),\n"
+            "                                  len(drains), blocked, sorted(t['_SCAN_UNREAD'].items()),\n"
+            "                                  sorted(t['_KILL_UNKNOWN'].items()), fired]), flush=True)\n"
+            "worker = threading.Thread(target=body)\n"
+            "worker.start()\n"
+            "worker.join()\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(len(found), 4, detail)
+        self.assertEqual(found, [
+            ["settle", "KeyboardInterrupt", ["settle entry", [], None], 0, 0, [], [[41, []]], [[41, [46]]],
+             [settle_line]],
+            ["settle-in-flight", "KeyboardInterrupt", ["settle-in-flight entry", [],
+                                                       ["KeyboardInterrupt", "scan", []]],
+             0, 0, [], [[41, [46]]], [], [settle_line]],
+            ["cleanup", "KeyboardInterrupt", ["cleanup entry", [], ["_UnparsableStat", found[2][2][2][1], []]],
+             0, 0, [], [], [], [cleanup_line]],
+            ["control", "_UnparsableStat", [], 1, 0, [], [], [], []],
+        ], detail)
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("\"main thread: blocked\" means the three stay blocked when run was called from the main "
+                      "thread, while a caller on another thread never had them blocked by the run, so its mask is "
+                      "unchanged.", doc)
+        self.assertIn("(_SCAN_UNREAD, _KILL_UNKNOWN or both), as the settlement's finally is never entered | skipped | "
+                      "main thread: blocked X8 |", doc)
+        self.assertIn("nothing, popped by the settlement | skipped | main thread: blocked X9 |", doc)
+
+    def test_run_shell_stubbed_exit_table_scan_window_and_handler_oserror_rows(self) -> None:
+        """Exit table rows X13 and X14 driven through the tool's own _session_members over the stand-in /proc,
+        listing entry 46 only (its stat line cut before its session field), in a clone of _run_shells called
+        through a clone of run. Case read-return: the stand-in read returns the line and then raises
+        KeyboardInterrupt, as a signal handler run as the read returns would (row X13): the run ends with that
+        KeyboardInterrupt with no note, as the scan never recorded the entry. Case open: the stand-in open
+        raises TimeoutError, as a caller's SIGALRM handler inside the open would (row X14): the scan takes it
+        as the open's failure and skips the entry as exited, so the run returns and reports contained. The
+        control reads the line and ends with _UnparsableStat (row X2). No case leaves an entry in
+        _SCAN_UNREAD. Rows X2 and X13 to X16 are in the table with these outcomes."""
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "mode = ['']\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return ['46']\n"
+            "class Reader:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def read(self):\n"
+            "        line = self.fh.read()\n"
+            "        if mode[0] == 'read-return':\n"
+            "            raise KeyboardInterrupt('as the read returns')\n"
+            "        return line\n"
+            "class Handled:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return Reader(self.fh.__enter__())\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        return self.fh.__exit__(*exc_info)\n"
+            "def handled_open(path, *args, **kwargs):\n"
+            "    if mode[0] == 'open':\n"
+            "        raise TimeoutError('inside the open')\n"
+            "    return Handled(fake_open(path, *args, **kwargs))\n"
+            "members = clone('_session_members', open=handled_open,\n"
+            "                os=types.SimpleNamespace(listdir=listing))\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "for mode[0] in ('read-return', 'open', 'control'):\n"
+            "    for record in (t['_KILL_UNKNOWN'], t['_SCAN_UNREAD'], t['_KILL_ALIVE']):\n"
+            "        record.clear()\n"
+            "    try:\n"
+            "        results = run('true', shells=('bash',))\n"
+            "        outcome = ['returned', [r['contained'] for r in results], []]\n"
+            "    except BaseException as exc:\n"
+            "        shown = [str(exc)] if isinstance(exc, KeyboardInterrupt) else []\n"
+            "        outcome = [type(exc).__name__, shown, getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT ' + json.dumps([mode[0]] + outcome + [sorted(t['_SCAN_UNREAD'].items())]),\n"
+            "          flush=True)\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(found, [
+            ["read-return", "KeyboardInterrupt", ["as the read returns"], [], []],
+            ["open", "returned", [True], [], []],
+            ["control", "_UnparsableStat", [], [], []],
+        ], detail)
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        for row in ("X2 | an unparsable stat line with nothing in flight at the settlement | _UnparsableStat for "
+                    "that shell, later shells not started | the line names the entries and the shell | nothing | "
+                    "runs | restored",
+                    "X13 | a signal handler run as a session scan's read returns, before _session_members "
+                    "records the entry (inferred from the control flow for a signal handler; the stand-in case, "
+                    "an exception the read raises as it returns, is driven by its test) | that exception, no "
+                    "result | no note "
+                    "for that entry, unless a later scan of the cleanup (the kill's or the fallback sweep's) "
+                    "reads it again, which records it and has it noted on that exception | nothing: the "
+                    "interrupted scan had not yet recorded it, and a later scan's record is popped by the "
+                    "settlement | runs | restored",
+                    "X14 | an OSError (TimeoutError included) raised inside a call the "
+                    "cleanup takes an OSError from as its own: the open or the read of a scan, a signal the "
+                    "fallback sweep sends, the ProcessLookupError of a signal the kill sends or of the reap's "
+                    "group kill, the first temp dir removal attempt | no exception from it: it is taken as that "
+                    "call's failure (a scan skips the entry as exited) | none | the skipped entry is not "
+                    "recorded | runs | restored",
+                    "X15 | a subprocess.TimeoutExpired during a wait of the shell, or in the try around it | taken "
+                    "as that wait timing out only when the wait itself raised it (inferred: also when a handler with "
+                    "no Python frame of its own raises it); otherwise outside the exit table (the caller-handler "
+                    "residual; observed: that exception, once the cleanup has run) | the "
+                    "shell's line, if any, noted on it | nothing | runs | restored",
+                    "X16 | a trace function raising after Popen has "
+                    "created the shell and before the try that follows, or a signal handler or trace function "
+                    "raising after the entry to that try's finally and before the protected try in it "
+                    "(inferred from the control flow for a signal handler; the stand-in case, a trace function "
+                    "raising at either point, is driven by its tests) | that exception, or one chained over "
+                    "it, no result | none | nothing | the shell is neither killed with its session nor reaped; "
+                    "the temp dir removal, mask restore and drain still run | restored"):
+            with self.subTest(row=row[:3]):
+                self.assertIn(row, doc)
+
+    def test_run_shell_stubbed_cleanup_scan_reads_again_an_entry_an_interrupted_scan_had_not_recorded(self) -> None:
+        """Exit table row X13, its later-scan clause, driven with the tool's own _kill_session (not stubbed) over
+        the stand-in /proc, listing entry 46 only (its stat line cut before its session field), in a clone of
+        _run_shells called through a clone of run. The stand-in read of the grace loop's first scan returns the
+        line and then raises KeyboardInterrupt, as a signal handler run as the read returns would, before the
+        scan records the entry; every later read returns the line. The kill's scans read entry 46 again, record
+        it and cannot parse it, so the run ends with that KeyboardInterrupt noted with entry 46 and the shell,
+        sends no signal (no member is read) and leaves no record. Where a later scan of the session skips an
+        entry an earlier scan read, the run ends with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "reads, between = [], []\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return ['46']\n"
+            "class Reader:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def read(self):\n"
+            "        line = self.fh.read()\n"
+            "        reads.append(line)\n"
+            "        if len(reads) == 2:\n"
+            "            between.append({str(k): list(v) for k, v in t['_SCAN_UNREAD'].items()})\n"
+            "        if len(reads) == 1:\n"
+            "            raise KeyboardInterrupt('as the read returns')\n"
+            "        return line\n"
+            "class Handled:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return Reader(self.fh.__enter__())\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        return self.fh.__exit__(*exc_info)\n"
+            "def handled_open(path, *args, **kwargs):\n"
+            "    return Handled(fake_open(path, *args, **kwargs))\n"
+            "members = clone('_session_members', open=handled_open,\n"
+            "                os=types.SimpleNamespace(listdir=listing))\n"
+            "kill_session = clone('_kill_session', _session_members=members, os=types.SimpleNamespace(kill=kill))\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=kill_session)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', [])]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(sends), json.dumps(len(reads) > 1),\n"
+            "      json.dumps([t['_SCAN_UNREAD'], t['_KILL_UNKNOWN'], t['_KILL_ALIVE']]), json.dumps(between))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = "unparsable stat line, session unknown: /proc/46/stat; containment of the bash run could not be shown"
+        # Between the interrupted scan and the cleanup scan the record is armed and empty: the interrupted
+        # scan had not recorded entry 46.
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(["KeyboardInterrupt", "as the read returns", [note]])
+                         + " [] true " + json.dumps([{}, {}, {}]) + " " + json.dumps([{"41": []}]) + "\n",
+                         detail)
+
+    def _run_shell_stubbed_interrupted_first_scan(self, interrupt: str, own_kill: bool, stale: bool = False):
+        """Drives a clone of run over a clone of _run_shells whose Popen is a stand-in shell (pid 41) that every
+        wait reaps, with the tool's own _session_members over the stand-in /proc listing entry 46 only. The
+        grace loop's first scan is interrupted by KeyboardInterrupt: during the parse (interrupt 'parse': the
+        read returns a line whose split raises, as a signal handler run during the parse would) or at the
+        close (interrupt 'close': the cut line is parsed and found unparsable, then the close raises). Every
+        later read returns a line that parses, of another session (46). With own_kill the tool's own
+        _kill_session runs over the same scan; otherwise the kill is a stand-in that returns True and reads
+        nothing. Interrupt 'none' interrupts nothing: the first read returns the cut line, found unparsable.
+        With stale, _SCAN_UNPARSED and _SCAN_PARSED_LATER hold entry 46 for pid 41 before the run, as an
+        earlier shell with the same process id could leave them. Prints the outcome, the number of reads,
+        _SCAN_UNREAD as the second read returned, the signals sent, the five records afterwards
+        (_SCAN_UNREAD, _KILL_UNKNOWN, _KILL_ALIVE, _SCAN_UNPARSED and _SCAN_PARSED_LATER), _SCAN_UNPARSED
+        and _SCAN_PARSED_LATER as the first read returned, and _SCAN_PARSED_LATER each time the settlement
+        reads the parse records."""
+        return self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            f"interrupt, own_kill = {interrupt!r}, {own_kill!r}\n"
+            "reads, between, first, settled = [], [], [], []\n"
+            f"if {stale!r}:\n"
+            "    t['_SCAN_UNPARSED'][41] = [46]\n"
+            "    t['_SCAN_PARSED_LATER'][41] = [46]\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return ['46']\n"
+            "class Line(str):\n"
+            "    def rsplit(self, *args, **kwargs):\n"
+            "        raise KeyboardInterrupt('during the parse')\n"
+            "class Reader:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def read(self):\n"
+            "        line = self.fh.read()\n"
+            "        reads.append(line)\n"
+            "        if len(reads) == 1:\n"
+            "            first.append([{str(k): list(v) for k, v in t[name].items()}\n"
+            "                          for name in ('_SCAN_UNPARSED', '_SCAN_PARSED_LATER')])\n"
+            "        if len(reads) == 2:\n"
+            "            between.append({str(k): list(v) for k, v in t['_SCAN_UNREAD'].items()})\n"
+            "        if len(reads) > 1:\n"
+            "            return '46 (sh) S 1 46 46 0 -1'\n"
+            "        return Line(line) if interrupt == 'parse' else line\n"
+            "class Handled:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return Reader(self.fh.__enter__())\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        self.fh.__exit__(*exc_info)\n"
+            "        if interrupt == 'close' and len(reads) == 1:\n"
+            "            raise KeyboardInterrupt('at the close')\n"
+            "        return False\n"
+            "def handled_open(path, *args, **kwargs):\n"
+            "    return Handled(fake_open(path, *args, **kwargs))\n"
+            "members = clone('_session_members', open=handled_open,\n"
+            "                os=types.SimpleNamespace(listdir=listing))\n"
+            "if own_kill:\n"
+            "    kill_session = clone('_kill_session', _session_members=members,\n"
+            "                         os=types.SimpleNamespace(kill=kill))\n"
+            "else:\n"
+            "    kill_session = lambda sid: True\n"
+            "real_unparsed = t['_unparsed_entries']\n"
+            "def unparsed_entries(sid, kill_unknown):\n"
+            "    settled.append({str(k): list(v) for k, v in t['_SCAN_PARSED_LATER'].items()})\n"
+            "    return real_unparsed(sid, kill_unknown)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=kill_session, _unparsed_entries=unparsed_entries)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', [])]\n"
+            "print('RESULT ' + json.dumps([outcome, len(reads), between, sends,\n"
+            "      [t['_SCAN_UNREAD'], t['_KILL_UNKNOWN'], t['_KILL_ALIVE'], t.get('_SCAN_UNPARSED', {}),\n"
+            "       t.get('_SCAN_PARSED_LATER', {})], first, settled]))\n")
+
+    def test_run_shell_stubbed_note_names_an_entry_read_but_not_parsed_before_an_interruption(self) -> None:
+        """A scan that recorded entry 46 as its read returned and was interrupted during the parse never parsed
+        the line, so the run's note names the entry as a stat line parse result not recorded before an interruption,
+        not as an unparsable stat line, and the run still ends with that KeyboardInterrupt (not shown
+        contained). The kill is a stand-in that reads nothing, so no later scan parses the line."""
+        result = self._run_shell_stubbed_interrupted_first_scan("parse", False)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(len(found), 1, detail)
+        note = ("stat line parse result not recorded before an interruption, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(found[0][0], ["KeyboardInterrupt", "during the parse", [note]], detail)
+        self.assertNotIn("unparsable stat line", found[0][0][2][0], detail)
+        self.assertEqual(found[0][3], [], detail)
+        self.assertEqual(found[0][4], [{}, {}, {}, {}, {}], detail)
+
+    def test_run_shell_stubbed_note_names_an_entry_parsed_and_found_unparsable_as_unparsable(self) -> None:
+        """A scan that recorded entry 46, parsed its cut line and found it unparsable, and was then interrupted
+        at the close, names the entry as an unparsable stat line, not as one whose parse result was not recorded,
+        and the run
+        ends with that KeyboardInterrupt (not shown contained). The kill is a stand-in that reads nothing."""
+        result = self._run_shell_stubbed_interrupted_first_scan("close", False)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(len(found), 1, detail)
+        note = "unparsable stat line, session unknown: /proc/46/stat; containment of the bash run could not be shown"
+        self.assertEqual(found[0][0], ["KeyboardInterrupt", "at the close", [note]], detail)
+        self.assertEqual(found[0][3], [], detail)
+        self.assertEqual(found[0][4], [{}, {}, {}, {}, {}], detail)
+
+    def test_run_shell_stubbed_cleanup_scan_reads_again_and_keeps_an_entry_an_earlier_scan_recorded(self) -> None:
+        """An entry an earlier scan recorded stays recorded when a later scan reads it again. The grace loop's
+        first scan records entry 46 as its read returns and is interrupted during the parse; between that scan
+        and the cleanup scan the record holds 46 for the session. The tool's own _kill_session then reads entry
+        46 again (its line now parses, of another session), keeps it recorded, puts it in _SCAN_PARSED_LATER
+        and drops its parse result mark, so the run ends with that KeyboardInterrupt noted with entry 46 as a
+        stat line unparsable or not parsed when recorded, parsed by a later scan (still recorded, so
+        fail-closed), sends no signal and leaves no record. Where a later scan skips an entry already
+        recorded, the kill reads nothing."""
+        result = self._run_shell_stubbed_interrupted_first_scan("parse", True)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(len(found), 1, detail)
+        note = ("stat line unparsable or not parsed when recorded, parsed by a later scan: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(found[0][0], ["KeyboardInterrupt", "during the parse", [note]], detail)
+        self.assertNotIn("unparsable stat line", found[0][0][2][0], detail)
+        self.assertGreater(found[0][1], 1, detail)
+        self.assertEqual(found[0][2], [{"41": [46]}], detail)
+        self.assertEqual(found[0][3], [], detail)
+        self.assertEqual(found[0][4], [{}, {}, {}, {}, {}], detail)
+
+    def test_run_shell_stubbed_note_names_an_entry_found_unparsable_and_parsed_by_a_later_scan(self) -> None:
+        """An entry a scan found unparsable and a later scan parsed is named by what happened. The grace loop's
+        first scan records entry 46, parses its cut line and finds it unparsable, and is then interrupted at
+        the close; the tool's own _kill_session reads entry 46 again, its line now parsing, of another
+        session, so the entry stays recorded (fail-closed) and is put in _SCAN_PARSED_LATER. The run ends with
+        that KeyboardInterrupt noted with entry 46 as a stat line unparsable or not parsed when recorded,
+        parsed by a later scan, not as an unparsable stat line, sends no signal and leaves no record. Where
+        the tool keeps no record of an entry a later scan parsed, the note names entry 46 as an unparsable
+        stat line."""
+        result = self._run_shell_stubbed_interrupted_first_scan("close", True)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(len(found), 1, detail)
+        note = ("stat line unparsable or not parsed when recorded, parsed by a later scan: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(found[0][0], ["KeyboardInterrupt", "at the close", [note]], detail)
+        self.assertNotIn("unparsable stat line", found[0][0][2][0], detail)
+        self.assertGreater(found[0][1], 1, detail)
+        self.assertEqual(found[0][2], [{"41": [46]}], detail)
+        self.assertEqual(found[0][3], [], detail)
+        self.assertEqual(found[0][4], [{}, {}, {}, {}, {}], detail)
+
+    def test_run_shell_stubbed_arm_resets_the_parse_records_an_earlier_shell_left(self) -> None:
+        """An entry an earlier shell with the same process id left in _SCAN_UNPARSED and _SCAN_PARSED_LATER
+        does not name a fresh entry: the arm resets both with _SCAN_UNREAD. Both records hold entry 46 for
+        pid 41 before the run; the grace loop's first scan records 46 as its read returns and is interrupted
+        during the parse, and the kill is a stand-in that reads nothing, so no scan parses the line. As the
+        first read returns both records are empty for the session, and the run ends with that
+        KeyboardInterrupt noted with entry 46 as a stat line parse result not recorded before an interruption
+        (fail-closed), sends no signal and leaves no record. Where the arm does not reset them, the left
+        entries show as the first read returns and the note names entry 46 as parsed by a later scan."""
+        result = self._run_shell_stubbed_interrupted_first_scan("parse", False, stale=True)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(len(found), 1, detail)
+        note = ("stat line parse result not recorded before an interruption, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(found[0][0], ["KeyboardInterrupt", "during the parse", [note]], detail)
+        self.assertNotIn("parsed by a later scan", found[0][0][2][0], detail)
+        self.assertEqual(found[0][3], [], detail)
+        self.assertEqual(found[0][4], [{}, {}, {}, {}, {}], detail)
+        self.assertEqual(found[0][5], [[{"41": []}, {"41": []}]], detail)
+
+    def test_run_shell_stubbed_raised_unparsable_line_keeps_priority_over_a_later_scan_parse(self) -> None:
+        """A line already raised for the shell that names an entry as parsed and found unparsable keeps that
+        name when a later scan parses the entry's line: merge gives found-unparsable priority. The grace
+        loop's first scan records entry 46, parses its cut line, finds it unparsable and raises
+        _UnparsableStat with nothing in flight; the tool's own _kill_session then reads entry 46 again, its
+        line now parsing, of another session, so the entry stays recorded and is put in _SCAN_PARSED_LATER,
+        where the settlement still finds it. The settlement's line names entry 46 as parsed by a later scan
+        and is merged into the raised line, so the run ends with _UnparsableStat naming entry 46 as an
+        unparsable stat line only (exit table row X2), sends no signal and leaves no record. Where merge gave
+        a later scan's parse priority, the run would name entry 46 as parsed by a later scan."""
+        result = self._run_shell_stubbed_interrupted_first_scan("none", True)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(len(found), 1, detail)
+        self.assertEqual(found[0][0], ["_UnparsableStat", "unparsable stat line, session unknown: /proc/46/stat",
+                                       []], detail)
+        self.assertNotIn("parsed by a later scan", found[0][0][1], detail)
+        self.assertGreater(found[0][1], 1, detail)
+        self.assertEqual(found[0][3], [], detail)
+        self.assertEqual(found[0][4], [{}, {}, {}, {}, {}], detail)
+        self.assertIn({"41": [46]}, found[0][6], detail)
+
+    def test_run_shell_stubbed_later_scan_parse_clears_the_parse_result_mark(self) -> None:
+        """A later scan's parse of an entry an earlier scan recorded drops that entry's parse result mark and
+        keeps the entry recorded. A clone of _session_members over the stand-in /proc (entry 46 only) runs
+        twice for session 41, armed with an empty record: the first scan records 46 as its read returns and is
+        interrupted during the parse (the split raises KeyboardInterrupt), which leaves 46 recorded and
+        marked; the second scan reads 46 again, its line now parsing, of another session, and returns no
+        member. Afterwards 46 is still recorded in _SCAN_UNREAD and no longer marked in _SCAN_UNPARSED. Where
+        only the scan that recorded an entry drops its mark, the mark still holds 46."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "reads = []\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return ['46']\n"
+            "class Line(str):\n"
+            "    def rsplit(self, *args, **kwargs):\n"
+            "        raise KeyboardInterrupt('during the parse')\n"
+            "class Reader:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def read(self):\n"
+            "        line = self.fh.read()\n"
+            "        reads.append(line)\n"
+            "        return Line(line) if len(reads) == 1 else '46 (sh) S 1 46 46 0 -1'\n"
+            "class Handled:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return Reader(self.fh.__enter__())\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        return self.fh.__exit__(*exc_info)\n"
+            "def handled_open(path, *args, **kwargs):\n"
+            "    return Handled(fake_open(path, *args, **kwargs))\n"
+            "members = clone('_session_members', open=handled_open,\n"
+            "                os=types.SimpleNamespace(listdir=listing))\n"
+            "t['_SCAN_UNREAD'][41] = []\n"
+            "steps = []\n"
+            "for _ in range(2):\n"
+            "    try:\n"
+            "        steps.append(['returned', members(41)])\n"
+            "    except BaseException as exc:\n"
+            "        steps.append([type(exc).__name__, str(exc)])\n"
+            "    steps.append([{str(k): list(v) for k, v in t['_SCAN_UNREAD'].items()},\n"
+            "                  {str(k): list(v) for k, v in t['_SCAN_UNPARSED'].items()}])\n"
+            "print('RESULT ' + json.dumps([steps, len(reads)]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(found, [[[
+            ["KeyboardInterrupt", "during the parse"],
+            [{"41": [46]}, {"41": [46]}],
+            ["returned", []],
+            [{"41": [46]}, {"41": []}],
+        ], 2]], detail)
+
+    def test_run_shell_stubbed_later_scan_parse_records_the_entry_as_parsed_later(self) -> None:
+        """_SCAN_PARSED_LATER holds an entry an earlier scan recorded whose line a later scan parsed, and a scan
+        that finds the line unparsable again takes it out. A clone of _session_members over the stand-in /proc
+        (entry 46 only) runs three times for session 41, armed with an empty record: the first read returns
+        the cut line (found unparsable: _UnparsableStat, 46 recorded, its mark dropped), the second a line
+        that parses, of another session (no member returned, 46 still recorded and now in
+        _SCAN_PARSED_LATER), the third the cut line again (_UnparsableStat, 46 still recorded and out of
+        _SCAN_PARSED_LATER). Where the tool keeps no such record, the second step shows none."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "reads = []\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return ['46']\n"
+            "class Reader:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def read(self):\n"
+            "        line = self.fh.read()\n"
+            "        reads.append(line)\n"
+            "        return '46 (sh) S 1 46 46 0 -1' if len(reads) == 2 else line\n"
+            "class Handled:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return Reader(self.fh.__enter__())\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        return self.fh.__exit__(*exc_info)\n"
+            "def handled_open(path, *args, **kwargs):\n"
+            "    return Handled(fake_open(path, *args, **kwargs))\n"
+            "members = clone('_session_members', open=handled_open,\n"
+            "                os=types.SimpleNamespace(listdir=listing))\n"
+            "t['_SCAN_UNREAD'][41] = []\n"
+            "steps = []\n"
+            "for _ in range(3):\n"
+            "    try:\n"
+            "        steps.append(['returned', members(41)])\n"
+            "    except BaseException as exc:\n"
+            "        steps.append([type(exc).__name__, str(exc)])\n"
+            "    steps.append([{str(k): list(v) for k, v in t['_SCAN_UNREAD'].items()},\n"
+            "                  {str(k): list(v) for k, v in t['_SCAN_UNPARSED'].items()},\n"
+            "                  {str(k): list(v) for k, v in t.get('_SCAN_PARSED_LATER', {}).items()}])\n"
+            "print('RESULT ' + json.dumps([steps, len(reads)]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        unparsable = "unparsable stat line, session unknown: /proc/46/stat"
+        self.assertEqual(found, [[[
+            ["_UnparsableStat", unparsable],
+            [{"41": [46]}, {"41": []}, {"41": []}],
+            ["returned", []],
+            [{"41": [46]}, {"41": []}, {"41": [46]}],
+            ["_UnparsableStat", unparsable],
+            [{"41": [46]}, {"41": []}, {"41": []}],
+        ], 3]], detail)
+
+    def test_run_shell_stubbed_record_pop_raise_leaves_the_records_not_yet_popped(self) -> None:
+        """Exit table row X3, its record-pop clause, driven: a clone of run calls a clone of _run_shells whose
+        Popen is a stand-in shell (pid 41) whose every wait reaps it; its grace loop scans the stand-in /proc
+        (entry 46 only, its stat line cut) through a clone of _session_members, which records 46 in
+        _SCAN_UNREAD; its _kill_session stores [46] in _KILL_UNKNOWN and [42] in _KILL_ALIVE and returns False.
+        The five records are dicts whose pop raises KeyboardInterrupt at the call a case chooses: the
+        settlement's pop of _KILL_UNKNOWN, of _SCAN_UNREAD, of _KILL_ALIVE, of _SCAN_UNPARSED or of
+        _SCAN_PARSED_LATER, which it pops in that order (the first and the third are also popped once before
+        the kill). Each case ends with that KeyboardInterrupt and leaves the shell's session in the record
+        whose pop raised and in each record after it, and in no other; the control raises at no pop, ends with
+        _UnparsableStat (row X2) and leaves no record. Where the settlement pops each record whatever an
+        earlier pop raised, the first case leaves only _KILL_UNKNOWN; where it does not pop
+        _SCAN_PARSED_LATER, the last raising case ends with _UnparsableStat and every case leaves that
+        record."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "case = ['']\n"
+            "class Records(dict):\n"
+            "    def __init__(self, name, raise_at):\n"
+            "        super().__init__()\n"
+            "        self.name, self.raise_at, self.calls = name, raise_at, 0\n"
+            "    def pop(self, *args):\n"
+            "        self.calls += 1\n"
+            "        if case[0] == self.name and self.calls == self.raise_at:\n"
+            "            raise KeyboardInterrupt('record pop')\n"
+            "        return dict.pop(self, *args)\n"
+            "kill_unknown = Records('kill-unknown', 2)\n"
+            "scan_unread = Records('scan-unread', 1)\n"
+            "kill_alive = Records('kill-alive', 2)\n"
+            "scan_unparsed = Records('scan-unparsed', 1)\n"
+            "parsed_later = Records('parsed-later', 1)\n"
+            "records = (kill_unknown, scan_unread, kill_alive, scan_unparsed, parsed_later)\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return ['46']\n"
+            "members = clone('_session_members', open=fake_open, _SCAN_UNREAD=scan_unread,\n"
+            "                _SCAN_UNPARSED=scan_unparsed, _SCAN_PARSED_LATER=parsed_later,\n"
+            "                os=types.SimpleNamespace(listdir=listing))\n"
+            "def kill_session(sid):\n"
+            "    kill_unknown[sid] = [46]\n"
+            "    kill_alive[sid] = [42]\n"
+            "    return False\n"
+            "unread = clone('_shell_unread', _KILL_UNKNOWN=kill_unknown, _SCAN_UNREAD=scan_unread,\n"
+            "               _KILL_ALIVE=kill_alive)\n"
+            "marked = clone('_unparsed_entries', _SCAN_UNPARSED=scan_unparsed)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members, _kill_session=kill_session,\n"
+            "               _shell_unread=unread, _unparsed_entries=marked, _KILL_UNKNOWN=kill_unknown,\n"
+            "               _SCAN_UNREAD=scan_unread, _KILL_ALIVE=kill_alive, _SCAN_UNPARSED=scan_unparsed,\n"
+            "               _SCAN_PARSED_LATER=parsed_later)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "for case[0] in ('kill-unknown', 'scan-unread', 'kill-alive', 'scan-unparsed', 'parsed-later',\n"
+            "                'control'):\n"
+            "    for record in records:\n"
+            "        dict.clear(record)\n"
+            "        record.calls = 0\n"
+            "    try:\n"
+            "        run('true', shells=('bash',))\n"
+            "        outcome = ['returned', '']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, str(exc) if isinstance(exc, KeyboardInterrupt) else '']\n"
+            "    left = [sorted(record) for record in records]\n"
+            "    print('RESULT ' + json.dumps([case[0]] + outcome + [left]), flush=True)\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(found, [
+            ["kill-unknown", "KeyboardInterrupt", "record pop", [[41], [41], [41], [41], [41]]],
+            ["scan-unread", "KeyboardInterrupt", "record pop", [[], [41], [41], [41], [41]]],
+            ["kill-alive", "KeyboardInterrupt", "record pop", [[], [], [41], [41], [41]]],
+            ["scan-unparsed", "KeyboardInterrupt", "record pop", [[], [], [], [41], [41]]],
+            ["parsed-later", "KeyboardInterrupt", "record pop", [[], [], [], [], [41]]],
+            ["control", "_UnparsableStat", "", [[], [], [], [], []]],
+        ], detail)
+
+    def test_run_shell_stubbed_raise_entering_the_cleanup_finally_is_a_stated_exit(self) -> None:
+        """Row X16, its window inside the finally, driven: a clone of run calls a clone of _run_shells whose
+        Popen is a stand-in shell (pid 41) that records each wait, whose session scan and _kill_session record
+        each call and whose _rmtree records the removal; a trace function raises KeyboardInterrupt('window') at
+        the line event of the first statement of the finally that follows the command's wait (reaped = True),
+        before the protected try in it, as a signal handler or trace function could. The run ends with that
+        KeyboardInterrupt and no note; the shell is neither scanned, killed with its session nor reaped (its
+        only wait is the command's own, with the run's timeout), the temp dir is removed, the caller's mask is
+        back, the deferral is inactive and the records are empty, as the row states. Where that statement sits
+        inside the protected try, the kill and the reap run."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits, scans, kills, removed = [], [], [], []\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "real_rmtree = t['_rmtree']\n"
+            "def rmtree(path):\n"
+            "    real_rmtree(path)\n"
+            "    removed.append(not os.path.exists(path))\n"
+            "def members(sid):\n"
+            "    scans.append(sid)\n"
+            "    return scan(sid)\n"
+            "def kill_session(sid):\n"
+            "    kills.append(sid)\n"
+            "    return True\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members, _kill_session=kill_session,\n"
+            "               _rmtree=rmtree)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "source = open(sys.argv[1], encoding='utf-8').read().splitlines()\n"
+            "window = [n + 1 for n, text in enumerate(source) if text.strip() == 'reaped = True']\n"
+            "assert len(window) == 1, window\n"
+            "def local(frame, event, arg):\n"
+            "    if event == 'line' and frame.f_lineno == window[0]:\n"
+            "        sys.settrace(None)\n"
+            "        frame.f_trace = None\n"
+            "        raise KeyboardInterrupt('window')\n"
+            "    return local\n"
+            "def tracer(frame, event, arg):\n"
+            "    return local if frame.f_code is shells.__code__ else None\n"
+            "mask_before = signal.pthread_sigmask(signal.SIG_BLOCK, [])\n"
+            "sys.settrace(tracer)\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', [])]\n"
+            "finally:\n"
+            "    sys.settrace(None)\n"
+            "mask_after = signal.pthread_sigmask(signal.SIG_BLOCK, [])\n"
+            "print('RESULT', json.dumps(outcome), json.dumps([waits, scans, kills, removed]),\n"
+            "      json.dumps([mask_before == mask_after, t['_DEFERRED']['active']]),\n"
+            "      json.dumps([t['_SCAN_UNREAD'], t['_KILL_UNKNOWN'], t['_KILL_ALIVE']]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(["KeyboardInterrupt", "window", []]) + " "
+                         + json.dumps([[30], [], [], [True]]) + " " + json.dumps([True, False]) + " "
+                         + json.dumps([{}, {}, {}]) + "\n", detail)
+
+    def test_run_shell_stubbed_exit_table_parse_window_row(self) -> None:
+        """Exit table row X17 driven through the tool's own _session_members over the stand-in /proc, listing
+        entry 46 only, in a clone of _run_shells called through a clone of run. Case parse: the stand-in read
+        returns a stat line that parses (session 46), whose split raises KeyboardInterrupt, as a signal handler
+        run during the parse would: the scan recorded the entry as its read returned, so the run ends with that
+        KeyboardInterrupt, carrying one note that names the entry as a stat line parse result not recorded before an
+        interruption (fail-closed). The control
+        reads the cut line and ends with _UnparsableStat (row X2). No case leaves an entry in _SCAN_UNREAD.
+        Row X17 is in the table with this outcome."""
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "mode = ['']\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return ['46']\n"
+            "class Line(str):\n"
+            "    def rsplit(self, *args, **kwargs):\n"
+            "        raise KeyboardInterrupt('during the parse')\n"
+            "class Reader:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def read(self):\n"
+            "        line = self.fh.read()\n"
+            "        if mode[0] == 'parse':\n"
+            "            return Line('46 (sh) S 1 46 46 0 -1')\n"
+            "        return line\n"
+            "class Handled:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return Reader(self.fh.__enter__())\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        return self.fh.__exit__(*exc_info)\n"
+            "def handled_open(path, *args, **kwargs):\n"
+            "    return Handled(fake_open(path, *args, **kwargs))\n"
+            "members = clone('_session_members', open=handled_open,\n"
+            "                os=types.SimpleNamespace(listdir=listing))\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "for mode[0] in ('parse', 'control'):\n"
+            "    for record in (t['_KILL_UNKNOWN'], t['_SCAN_UNREAD'], t['_KILL_ALIVE']):\n"
+            "        record.clear()\n"
+            "    try:\n"
+            "        results = run('true', shells=('bash',))\n"
+            "        outcome = ['returned', [r['contained'] for r in results], []]\n"
+            "    except BaseException as exc:\n"
+            "        shown = [str(exc)] if isinstance(exc, KeyboardInterrupt) else []\n"
+            "        outcome = [type(exc).__name__, shown, getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT ' + json.dumps([mode[0]] + outcome + [sorted(t['_SCAN_UNREAD'].items())]),\n"
+            "          flush=True)\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(len(found), 2, detail)
+        self.assertEqual(found[0][:3], ["parse", "KeyboardInterrupt", ["during the parse"]], detail)
+        self.assertEqual(len(found[0][3]), 1, detail)
+        self.assertIn("/proc/46/stat", found[0][3][0], detail)
+        self.assertIn("stat line parse result not recorded before an interruption", found[0][3][0], detail)
+        self.assertEqual(found[0][4], [], detail)
+        self.assertEqual(found[1], ["control", "_UnparsableStat", [], [], []], detail)
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("X17 | a signal handler raising during a scan's parse of a stat line that parses, or between that "
+                "parse and the drop from _SCAN_UNREAD (inferred from the control flow) | that exception, no "
+                "result | one note naming the entry as a stat line parse result not recorded before an interruption "
+                "(fail-closed) | nothing | runs | restored", doc)
+
+    def test_run_shell_stubbed_trace_raise_after_the_final_carry_is_a_stated_exit(self) -> None:
+        """The trace residual stated generally: a trace function that raises KeyboardInterrupt at a line event
+        outside a carry's handler, after a line of the run has been raised, ends the run with no note. In case
+        _run_shells the temp dir removal (the tool's _rmtree, then a raise of KeyboardInterrupt('removal'))
+        raises over the shell's unparsable stat line, the final carry of _run_shells carries the line onto it,
+        and the trace function raises at the bare raise after that carry; in case run, run's drain (the tool's
+        _drain_deferral, then a raise of KeyboardInterrupt('drain')) raises over the line, run's carry carries
+        it, and the trace function raises at run's check of whether its carried exception is late. Each run
+        ends with the trace's KeyboardInterrupt with no note, chained over the carried exception, which holds
+        the note; the module docstring states the residual generally and names these points.
+        The shell and scan are those of
+        test_run_shell_stubbed_cleanup_entry_trace_raise_is_a_stated_exit; a trace function that raises is
+        unset by the interpreter, so it fires once, only in the code object of the named function."""
+        tool = (REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        shells_raise = ("                _carry_shell_lines(late, shell, caller_exception)\n"
+                        "                raise\n    return results\n")
+        run_late = "            if carried is late:\n                raise\n            raise carried\n"
+        for anchor in (shells_raise, run_late):
+            self.assertEqual(tool.count(anchor), 1, anchor)
+
+        def line_of(anchor: str, offset: int) -> int:
+            return tool[:tool.index(anchor)].count("\n") + 1 + offset
+
+        targets = [["_run_shells", line_of(shells_raise, 1)], ["run", line_of(run_late, 0)]]
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "def rmtree(path):\n"
+            "    t['_rmtree'](path)\n"
+            "    raise KeyboardInterrupt('removal')\n"
+            "def drain(caller_exception):\n"
+            "    t['_drain_deferral'](caller_exception)\n"
+            "    raise KeyboardInterrupt('drain')\n"
+            "targets = " + json.dumps(targets) + "\n"
+            "for name, line in targets:\n"
+            "    shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "                   _kill_session=lambda sid: True,\n"
+            "                   **({'_rmtree': rmtree} if name == '_run_shells' else {}))\n"
+            "    run = clone('run', _run_shells=shells,\n"
+            "                **({'_drain_deferral': drain} if name == 'run' else {}))\n"
+            "    fired = []\n"
+            "    code = t[name].__code__\n"
+            "    def tracer(frame, event, arg):\n"
+            "        if frame.f_code is not code:\n"
+            "            return None\n"
+            "        if event == 'line' and frame.f_lineno == line and not fired:\n"
+            "            fired.append(line)\n"
+            "            raise KeyboardInterrupt('trace ' + name)\n"
+            "        return tracer\n"
+            "    sys.settrace(tracer)\n"
+            "    try:\n"
+            "        run('true', shells=('bash',))\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', []),\n"
+            "                   type(exc.__context__).__name__, str(exc.__context__),\n"
+            "                   getattr(exc.__context__, '__notes__', [])]\n"
+            "    finally:\n"
+            "        sys.settrace(None)\n"
+            "    print('RESULT', name, json.dumps(outcome), json.dumps(fired))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        first = {"_run_shells": "removal", "run": "drain"}
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {name} " + json.dumps(["KeyboardInterrupt", "trace " + name, [],
+                                            "KeyboardInterrupt", first[name], [note]])
+            + f" [{line}]\n" for name, line in targets), detail)
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("and at any other line event outside a carry's handler, once a line of the run has been raised "
+                      "(the bare raise after the final carry of _run_shells, and run's check of whether its carried "
+                      "exception is late and the raises after that check, for example), row X12. That a signal handler "
+                      "can run at any of those points is not established.", doc)
+
+    def test_run_shell_stubbed_drain_deferral_walks_the_chain(self) -> None:
+        """_drain_deferral, called directly with no handler of _run_shells or run around it, raises the pending
+        termination with a note for each unparsable stat line along the __context__ chain of the exception it
+        finds propagating, and stops at the caller's own handled exception. With a SIGTERM pending and the
+        deferral active, the tool's own _drain_deferral is called while handling: in case line, an
+        _UnparsableStat raised for bash naming /proc/46/stat; in case carried, a _Terminated(15) that carries
+        that line as its bash record (_carry_line); in case chained, a KeyboardInterrupt raised while that line
+        was propagating; in case caller, that line given as the caller's exception; and in case below-caller, the
+        chained KeyboardInterrupt with the line given as the caller's exception. Each raises _Terminated(15),
+        with the line as its note in the first three cases and with no note in the last two, and leaves the
+        deferral inactive with nothing pending, where noting only an active _UnparsableStat leaves cases carried
+        and chained with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "def line():\n"
+            "    exc = t['_UnparsableStat'](['46'], [])\n"
+            "    exc.shell, exc.results = 'bash', []\n"
+            "    return exc\n"
+            "def raised(case):\n"
+            "    first = line()\n"
+            "    if case in ('line', 'caller'):\n"
+            "        return first, (first if case == 'caller' else None)\n"
+            "    if case == 'carried':\n"
+            "        top = t['_Terminated'](15)\n"
+            "        t['_carry_line'](top, first, 'bash')\n"
+            "        return top, None\n"
+            "    try:\n"
+            "        raise first\n"
+            "    except BaseException:\n"
+            "        try:\n"
+            "            raise KeyboardInterrupt\n"
+            "        except BaseException as top:\n"
+            "            return top, (first if case == 'below-caller' else None)\n"
+            "for case in ('line', 'carried', 'chained', 'caller', 'below-caller'):\n"
+            "    top, caller = raised(case)\n"
+            "    t['_DEFERRED']['active'], t['_DEFERRED']['pending'] = True, signal.SIGTERM\n"
+            "    try:\n"
+            "        try:\n"
+            "            raise top\n"
+            "        except BaseException:\n"
+            "            t['_drain_deferral'](caller)\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, [int(arg) for arg in exc.args], getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', case, json.dumps(outcome), json.dumps(t['_DEFERRED']))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {case} {json.dumps(['_Terminated', [15], notes])} "
+            f"{json.dumps({'active': False, 'pending': None})}\n"
+            for case, notes in (("line", [note]), ("carried", [note]), ("chained", [note]), ("caller", []),
+                                ("below-caller", []))), detail)
+
+    def test_run_shell_stubbed_interrupted_fallback_sweep_scan_keeps_the_entry(self) -> None:
+        """An interrupt raised inside the fallback sweep's session scan after that scan has read an unparsable
+        stat line does not lose the entry. A clone of _run_shells runs with no real process: its Popen is a
+        stand-in shell (pid 41) whose waits time out until the group kill and then reap it; its grace loop
+        reads nothing; its _kill_session returns True; and its fallback sweep's scan is a clone of the tool's
+        own _session_members over a /proc listing of 46 and 47, where 46's stat line is cut before its session
+        field. In case next, opening /proc/47/stat raises KeyboardInterrupt; in case close, the close of
+        /proc/46/stat raises it once the file is closed. Each case ends with that KeyboardInterrupt with the
+        entry and the shell as its note, after the group kill and the reap, with no member signalled and no
+        armed session left, where recording the entry only once its parse has failed ends case close with no
+        note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "case, phase, waits = [''], ['grace'], []\n"
+            "def grouped():\n"
+            "    return any(send[1] == 'killpg SIGKILL' for send in sends)\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if not grouped():\n"
+            "            raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "        self.returncode = -9\n"
+            "        return -9\n"
+            "def killpg(pgid, sig):\n"
+            "    sends.append([pgid, 'killpg ' + signal.Signals(sig).name])\n"
+            "def refused(pid, sig):\n"
+            "    raise AssertionError('no member may be signalled')\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return ['46', '47']\n"
+            "class InterruptedClose:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return self.fh.__enter__()\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        self.fh.__exit__(*exc_info)\n"
+            "        raise KeyboardInterrupt('at the close')\n"
+            "def interrupting_open(path, *args, **kwargs):\n"
+            "    if case[0] == 'next' and path == '/proc/47/stat':\n"
+            "        raise KeyboardInterrupt('at the next entry')\n"
+            "    if case[0] == 'close' and path == '/proc/46/stat':\n"
+            "        return InterruptedClose(fake_open(path, *args, **kwargs))\n"
+            "    return fake_open(path, *args, **kwargs)\n"
+            "sweep_scan = clone('_session_members', open=interrupting_open,\n"
+            "                   os=types.SimpleNamespace(listdir=listing))\n"
+            "def members(sid):\n"
+            "    if phase[0] == 'grace':\n"
+            "        return []\n"
+            "    return sweep_scan(sid)\n"
+            "def kill_session(sid):\n"
+            "    phase[0] = 'kill'\n"
+            "    return True\n"
+            "fake_os = types.SimpleNamespace(path=os.path, makedirs=os.makedirs, devnull=os.devnull,\n"
+            "                                killpg=killpg, kill=refused)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, os=fake_os, _session_members=members,\n"
+            "               _kill_session=kill_session)\n"
+            "for case[0] in ('next', 'close'):\n"
+            "    phase[0] = 'grace'\n"
+            "    sends.clear()\n"
+            "    waits.clear()\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, list(exc.args), getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', case[0], json.dumps(outcome), json.dumps(sends), json.dumps(waits),\n"
+            "          json.dumps(sorted(t['_SCAN_UNREAD'])))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {case} {json.dumps(['KeyboardInterrupt', [args], [note]])} "
+            '[[41, "killpg SIGKILL"]] [30, 2.0, 2.0] []\n'
+            for case, args in (("next", "at the next entry"), ("close", "at the close"))), detail)
+
+    def test_run_shell_stubbed_signal_probe_reraises_a_termination_from_its_stat_read(self) -> None:
+        """SIGNAL_PROBE's registered_watch passes over an Exception from its stat read, except the tool's
+        _Terminated, which it raises again so that a termination ends the probe. The stand-in here is the one the
+        registered_watch test in this class uses, with an open that raises _Terminated(15). Its _Terminated is an
+        Exception, as the tool's is: a BaseException would pass "except Exception" whether or not the probe raised
+        it again. The probe exits with a status other than 0 and _Terminated: 15 ending its last standard error
+        line, never reaches run, and writes nothing to the registry."""
+        standin = (
+            "import contextlib, sys\n"
+            "def probe_open(path, *args, **kwargs):\n"
+            "    raise _Terminated(15)\n"
+            "sys.modules['__main__'].open = probe_open\n"
+            "class _Terminated(Exception):\n"
+            "    pass\n"
+            "@contextlib.contextmanager\n"
+            "def _self_test_limits():\n"
+            "    print('WATCH', _fixture_watch(), flush=True)\n"
+            "    yield\n"
+            "def _fixture_watch():\n"
+            "    return 41, 'writer'\n"
+            "def run(*args, **kwargs):\n"
+            "    print('RUN', args, flush=True)\n"
+        )
+        driver = (
+            "import json, os, runpy, subprocess, sys\n"
+            "probe = runpy.run_path(sys.argv[1])['SIGNAL_PROBE']\n"
+            "ready_r, ready_w = os.pipe()\n"
+            "hold_r, hold_w = os.pipe()\n"
+            "stack_r, stack_w = os.pipe()\n"
+            "reg_r, reg_w = os.pipe()\n"
+            "result = subprocess.run(\n"
+            "    [sys.executable, '-I', '-B', '-c', probe,\n"
+            "     sys.argv[2], str(ready_w), str(hold_r), str(stack_w), str(reg_w)],\n"
+            "    capture_output=True, text=True, timeout=60, pass_fds=(ready_w, hold_r, stack_w, reg_w))\n"
+            "for fd in (ready_w, hold_r, hold_w, stack_w, reg_w):\n"
+            "    os.close(fd)\n"
+            "registry = b''\n"
+            "while True:\n"
+            "    chunk = os.read(reg_r, 4096)\n"
+            "    if not chunk:\n"
+            "        break\n"
+            "    registry += chunk\n"
+            "for fd in (ready_r, stack_r, reg_r):\n"
+            "    os.close(fd)\n"
+            "print(json.dumps({'rc': result.returncode, 'stdout': result.stdout, 'stderr': result.stderr,\n"
+            "                  'registry': registry.decode('utf-8', 'replace')}))\n"
+        )
+        with tempfile.TemporaryDirectory(prefix="signal-probe-term-test-") as tmp:
+            standin_path = Path(tmp) / "stand-in-tool.py"
+            standin_path.write_text(standin, encoding="utf-8")
+            result = self._run_selftest([sys.executable, "-I", "-B", "-c", driver,
+                                         str(REPO_ROOT / "tools" / "run-shell-stubbed.py"), str(standin_path)],
+                                        timeout=120)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        out = json.loads(result.stdout)
+        self.assertNotEqual(out["rc"], 0, detail)
+        self.assertTrue((out["stderr"].splitlines() or [""])[-1].endswith("_Terminated: 15"), detail)
+        self.assertEqual(out["stdout"], "", detail)
+        self.assertEqual(out["registry"], "", detail)
 
     def test_run_shell_stubbed_self_test_behind_a_slow_reaper(self) -> None:
         """P-TODO 3b125: the run-shell-stubbed self-test passes on a loaded host whose reaper is slow. The run's
@@ -47071,7 +52129,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         residual-scan.py NO_FS F fd8ff448f4d83f48d3e1116ac9b10d3c5ab8ed4d959ae888924679dd37cb194f
         run-linter-regression.py FIXED F 2c0d701c578569c68c73e4f697425cf0638e49baa9e93d3994ae44de98bb8e17
         run-pr-time-checks.sh FIXED F 2caed4bb6e25ef2dd77397ca021c6af8752991b3a80d5a0c3fc83a38df384c35
-        run-shell-stubbed.py NO_FS F f95cb3aae829b74081d9ac6a0b9f1c74d7c9b1ac554c81797191cd08a9630fe7
+        run-shell-stubbed.py NO_FS F 465d8727efe5b9f21596c6d9885018e729078c79014346c1eea56a041a0fe974
         run_all_audits.sh FIXED F ec86a76e9dec99394069b2fccab2fb84c152f9e9a16214f02358d8e2c60862fc
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900
