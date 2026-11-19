@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """no-remove-guard: a Claude Code PreToolUse hook for the Bash tool that denies file removal.
 
-BEST EFFORT (round 50). This is a command-text guard: it decides from the text of a shell command alone,
+BEST EFFORT (round 56). This is a command-text guard: it decides from the text of a shell command alone,
 and the grammar it reads is open (bash itself, every program a command starts, and the settings,
 aliases, functions and files those read can each change what the same text runs). It is a best-effort
 first layer against accidental removal. It cannot stop deliberate evasion, and every review round has
@@ -38,8 +38,9 @@ absolute path to this file:
                                           "command": "python3 -I /absolute/path/to/no_remove_guard.py",
                                           "timeout": 10}]}]}}
 
-Round 37 (grc round 36 MEDIUM): the file is draft-offpath/norm1/no_remove_guard.py, with underscores. Its
-earlier name, no-remove-guard.py, holds the word remove at a hyphen boundary, so once the guard was
+Round 37 (grc round 36 MEDIUM): the file's name is no_remove_guard.py, with underscores (it was developed
+as draft-offpath/norm1/no_remove_guard.py; round 52, grc review of round 50, words that path as history,
+so that this sentence holds wherever the file is installed). Its earlier name, no-remove-guard.py, holds the word remove at a hyphen boundary, so once the guard was
 registered under that name the broad layer refused every command that named the file (its --self-test,
 sha256sum, git add, git diff, git commit); the removal-word test is unchanged, and the self-test holds
 allow rows for those five commands on this name. Keep the underscores if you copy or rename the file.
@@ -48,11 +49,18 @@ the file actually running, so a copy or rename by an installer whose path holds 
 refuses fails the self-test where it is installed. Round 49 (grc review of round 48): that row takes the
 path as the self-test was started with it (os.path.abspath(__file__)), not the resolved real path
 (os.path.realpath(__file__)), which followed a symlink installed under a refused name to its allowed
-target, so the row passed there. Round 50 (grc review of round 49): abspath resolves a relative start
-(python3 -I no_remove_guard.py --self-test) against the working directory, and resolves no symlink;
-a broad row runs the same sha256sum command on the earlier name no-remove-guard.py in the same
-directory and requires the broad refusal, so the check is shown to fail on a refused name. Run the
-self-test by the path you register.
+target, so the row passed there. Round 51 (grc review of round 50) corrects round 50's reason for
+abspath: since Python 3.9 the main script's __file__ is already absolute, so a relative start (python3 -I
+no_remove_guard.py --self-test) needs no abspath (witnessed at round 51 with python3 3.14.4 on the review
+host: a script started by a relative path, by a relative path through a symlink, or loaded by importlib
+from a relative path had an absolute __file__). The reason that still holds is the symlinked install:
+abspath, unlike realpath, resolves no symlink, so the row tests the name the self-test was started by
+(the symlink start above kept the link's name). abspath stays as a no-op guard for a loader or a Python
+before 3.9 that leaves __file__ relative (not witnessed). A broad row builds the same sha256sum command
+on the earlier name no-remove-guard.py in the same directory (the directory from os.path.abspath(__file__),
+as in the allow row) and requires the broad refusal; it shows only that the broad layer refuses that
+command text, and that the own-path allow row would then fail its pin check is inference (round 51
+rewords round 50, which said the check is shown to fail). Run the self-test by the path you register.
 
 Before you register it, confirm that the grc main session's Bash tool runs its commands in bash: this
 guard models bash only (see PURPOSE).
@@ -418,7 +426,24 @@ row id (_BROAD_REFUSED_ALLOW_ROWS; round 32 pinned only their count). Round 34 a
 whose diff holds a line with a removal word, such as -rm x; in a hunk that edits a script (patch -p1
 <<'EOF' with --- a/build.sh, +++ b/build.sh, @@ -1 +1 @@, -rm x; and +echo x;), is refused by the broad
 layer, as a patch body is not exempt text (probed through decide_raw at round 50: broad-refusal, the
-inner layer allowing; a broad row of the self-test pins it).
+inner layer allowing; a broad row of the self-test pins it). Round 51 (grc review of round 50): the same
+removal word on a context line, which a diff writes with a leading space ( rm x; in a hunk @@ -1,2 +1,2 @@
+with  rm x;, -echo a; and +echo b;), is refused earlier, as cannot-parse, by the inner layer's
+here-document command-position rule (the body line is a removal command in command position after the
+space), so this over-refusal reaches every patch here-document that keeps such a line as context (probed
+through decide_raw at round 51: cannot-parse, broad-refusal with that rule reverted, allow with the deny
+logic off; a cannot-parse row of the self-test pins it).
+Round 53 (grc field data from the live guard, not reproduced here): within minutes the broad layer
+refused four of grc's own record or memory lines that erased nothing. The guard's own name trips it:
+written with a hyphen or a space (no-remove-guard, the no-remove guard), its middle word remove is a
+removal word; the file name no_remove_guard.py does not, as the removal-word test reads an underscore
+as part of the word. A record, ledger or memory line that only mentions a removal word is refused like
+any other text: a ledger line saying the session must never use rm, or a memory index line linking a
+note whose name holds a removal word at a hyphen boundary (feedback-delete-policy.md). Reissue the line
+without the word, as the broad-refusal message advises (grc reports that this worked each time). Four
+broad rows of the self-test pin these shapes with synthetic lines (probed through _evaluate at round 53:
+broad-refusal, the inner layer allowing; the same lines with the word taken out were allowed, and no
+allow row pins that).
 Round 35 (qanorm34 N2: B1, J1, J2, D1). Rounds 32 to 34 withdrew the exceptions for named shapes (a
 denylist), and each round left a way to run the exempt text in the same command: git rebase -x, submodule
 foreach and bisect run fed "$(git log -1 --format=%B)", a hook written under .git//hooks, rg --pre sh on a
@@ -572,7 +597,9 @@ command -v rm, sed -n /rm/p f, grep 'rm' f, tee rm.log and git grep rm (git is a
 for).
 Every internal error, an unreadable payload (not JSON, not
 an object, no tool_name, no tool_input object, a command that is not a string or holds a NUL) and a
-missed internal deadline deny.
+missed internal deadline deny. Round 52 (grc review of round 50): an unreadable payload denies with a
+reason of its own, which says the hook input was malformed and gives no file-removal advice; an
+internal error, a missed deadline and a stdin read failure keep the internal-error reason.
 A deny is written in the repository hooks' output contract (exit 0, hookSpecificOutput with
 permissionDecision "deny" and a permissionDecisionReason, plus a systemMessage); an allow is no output
 and exit 0; if the deny itself cannot be written it exits 2 with a note on stderr.
@@ -649,7 +676,8 @@ RESIDUAL. This guard is defence in depth, not a boundary. It does not catch:
       decide_raw at round 50: patch --rem -p1 < fix.patch, patch --remo -p1 < fix.patch, patch --remov -p1
       < fix.patch and the patch -E -p1 here-document above with --rem in place of -E each got allow, the
       inner layer allowing too; an allow row of the self-test pins the --rem file form and the --rem
-      here-document). It loses
+      here-document, and round 51, grc review of round 50, adds allow rows for the --remo and --remov
+      file forms, probed through decide_raw at round 51: allow, the inner layer allowing too). It loses
       the file at each such path; its content survives only where something else holds it: for git apply
       and patch, HEAD, for a tracked file with no uncommitted change; for git am, which commits the
       removal, not HEAD but the parent of the commit that removes the file (HEAD^ right after git am
@@ -1154,6 +1182,10 @@ RESIDUAL. This guard is defence in depth, not a boundary. It does not catch:
   passes those words to the script); an ipython program that ast cannot parse and whose text holds the
   words of a round 15 removal form anywhere (ipython -c 'print("git clean") ; %time 1'); and an ipython
   program that names get_ipython and holds a removal word or form anywhere, even in a string.
+  Round 54 (grc review of rounds 51 to 53): a hook payload that starts with a UTF-8 byte order mark is
+  denied as malformed input (fail closed) even when the rest would be allowed, on input the hook harness
+  does not send, and the guard keeps that deny rather than strip the mark, so it accepts nothing more
+  (a fail-closed row of the self-test pins it).
   Round 18 (qanorm17) adds these denies: a process substitution inside an array assignment NAME=( ... )
   is walked as a command; a shell (bash, sh and the rest above), at, batch, python or perl, also behind
   the wrappers it knows, that reads its program from stdin (no -c, -e, -m or script operand, or sh -s, or
@@ -1292,6 +1324,7 @@ DENY = "deny"
 CANNOT_PARSE = "cannot-parse"
 BROAD = "broad-refusal"
 ERROR = "error"
+MALFORMED = "malformed-input"
 
 _REASONS = {
     BROAD: ("no-remove-guard: refused in the safe direction by the broad text layer. The parser found no "
@@ -1356,6 +1389,11 @@ _REASONS = {
             "read the hook payload or ran past its deadline, so it could not evaluate this call. Move "
             "what you want gone into one of the set-aside folders, /tmp/grc/deleteme or "
             "/tmp/deleteme-grc, leave the deletion to a human, and report the guard failure."),
+    MALFORMED: ("no-remove-guard: denied in the safe direction because the hook input was malformed. It "
+                "was not UTF-8 JSON, was not a JSON object, had no string tool_name, or, for a Bash call, "
+                "had no tool_input object or no string command, or a command that holds a NUL byte. The "
+                "guard did not evaluate any command, so this says nothing about what the command does. "
+                "Report the malformed hook input."),
 }
 _BANNERS = {
     BROAD: ("no-remove-guard refused a Bash call whose text holds a removal word or a destructive git form; "
@@ -1368,6 +1406,7 @@ _BANNERS = {
                    "/tmp/grc/deleteme or /tmp/deleteme-grc."),
     ERROR: ("no-remove-guard denied a Bash call after an internal error (fail-closed); use the set-aside "
             "folders /tmp/grc/deleteme or /tmp/deleteme-grc."),
+    MALFORMED: "no-remove-guard denied a tool call whose hook input was malformed (fail-closed).",
 }
 
 # The self-test flips this to show that each deny and cannot-parse case is denied through this verdict
@@ -6755,18 +6794,18 @@ def decide_command(command):
 def decide_payload(data):
     try:
         if not isinstance(data, dict):
-            return ERROR
+            return MALFORMED
         tool_name = data.get("tool_name")
         if not isinstance(tool_name, str):
-            return ERROR
+            return MALFORMED
         if tool_name != "Bash":
             return ALLOW
         tool_input = data.get("tool_input")
         if not isinstance(tool_input, dict):
-            return ERROR
+            return MALFORMED
         command = tool_input.get("command")
         if not isinstance(command, str) or "\x00" in command:
-            return ERROR
+            return MALFORMED
         return decide_command(command)
     except Exception:
         return ERROR
@@ -6775,6 +6814,10 @@ def decide_payload(data):
 def decide_raw(raw):
     try:
         data = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        # Round 52 (grc review of round 50): bytes that are not UTF-8 or not JSON are malformed input; any
+        # other failure here (a nesting too deep to parse, for one) stays an internal error
+        return MALFORMED
     except Exception:
         return ERROR
     return decide_payload(data)
@@ -8270,6 +8313,10 @@ _CANNOT_PARSE_CASES = (
     'ls | xargs sh -c \'grep x "$@"\' sh',
     "ls | xe -s 'grep x'",
     'ls | parallel -J prof grep x',
+    # Round 51 (grc review of round 50): a patch here-document whose diff keeps a removal word on a context
+    # line ( rm x;, with the leading space a diff writes): the here-document command-position rule reads
+    # it as a removal command in command position, an over-refusal in the safe direction (see BROAD LAYER)
+    "patch -p1 <<'EOF'\n--- a/build.sh\n+++ b/build.sh\n@@ -1,2 +1,2 @@\n rm x;\n-echo a;\n+echo b;\nEOF",
 )
 
 _ALLOW_CASES = (
@@ -8790,16 +8837,23 @@ _ALLOW_CASES = (
     # is os.path.abspath(__file__), the installed name as the self-test was started with it, not
     # os.path.realpath(__file__), which resolved a symlink installed under a refused name to its allowed
     # target, so the row passed there; abspath resolves no symlink, so this row tests the name itself.
-    # Round 50 (grc review of round 49): abspath resolves a relative __file__ (a self-test started as
-    # python3 -I no_remove_guard.py --self-test) against the working directory, so the row names the file
-    # by the absolute form of the path it was started by. The broad row on no-remove-guard.py in
-    # _BROAD_CASES shows the same command on a refused name fails this row.
+    # Round 51 (grc review of round 50): since Python 3.9 the main script's __file__ is already absolute
+    # (witnessed with python3 3.14.4 for a relative start, a relative start through a symlink and an
+    # importlib load from a relative path), so abspath is kept for what still holds: unlike realpath it
+    # resolves no symlink, so a symlinked install is tested by its own name; it is a no-op guard for a
+    # loader or a Python before 3.9 that leaves __file__ relative (not witnessed). The broad row on
+    # no-remove-guard.py in _BROAD_CASES shows only that the broad layer refuses the same command on a
+    # refused name in this directory; that this row would then fail its pin check is inference.
     "sha256sum " + shlex.quote(os.path.abspath(__file__)),
     # Round 50 (grc review of round 49): GNU patch reads --rem (also --remo, --remov) as an unambiguous
     # prefix of --remove-empty-files, the long spelling of -E; none holds the word remove, so both layers
     # allow them (see RESIDUAL, the round 48 item, MED-2)
     "patch --rem -p1 < fix.patch",
     "patch --rem -p1 <<'EOF'\n--- a/old.c\n+++ /dev/null\n@@ -1 +0,0 @@\n-int x;\nEOF",
+    # Round 51 (grc review of round 50): the --remo and --remov file forms, so each abbreviation the
+    # RESIDUAL round 48 item names has an allow row
+    "patch --remo -p1 < fix.patch",
+    "patch --remov -p1 < fix.patch",
 )
 
 # Round 32 (D-2385): the _ALLOW_CASES rows the broad layer refuses (each row still passes the inner layer).
@@ -8819,7 +8873,8 @@ _ALLOW_CASES = (
 # sha256sum row) after the last row, so no id moves; none of them is refused. Round 49 changes the
 # sha256sum row in place (abspath for realpath), so no id moves; it is still not refused. Round 50 appends
 # 2 rows (patch --rem with a diff file and with a here-document) after the last row, so no id moves; none
-# of them is refused.
+# of them is refused. Round 51 appends 2 rows (patch --remo and patch --remov with a diff file) after the
+# last row, so no id moves; none of them is refused.
 _BROAD_REFUSED_ALLOW_ROWS = frozenset((
     0, 1, 3, 4, 5, 6, 7, 9, 11, 12, 13, 14, 16, 17, 20, 21, 22, 23, 24, 25, 28, 29, 36, 37, 39, 40, 41, 42, 43,
     44, 45, 49, 50, 51, 52, 54, 55, 56, 57, 58, 61, 62, 63, 64, 70, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
@@ -8865,10 +8920,26 @@ _BROAD_CASES = (
     # Round 50 (grc review of round 49): a patch here-document whose diff holds a line with a removal word
     # (rm x;) is refused by the broad layer, an over-refusal in the safe direction (see BROAD LAYER)
     "patch -p1 <<'EOF'\n--- a/build.sh\n+++ b/build.sh\n@@ -1 +1 @@\n-rm x;\n+echo x;\nEOF",
-    # Round 50 (grc review of round 49): the own-path row of _ALLOW_CASES run on a refused installed name,
-    # the earlier name no-remove-guard.py beside this file: the broad layer refuses it, so an install
-    # under that name fails the own-path allow row (whose pin check requires allow from both layers)
+    # Round 50 (grc review of round 49), reworded at round 51 (grc review of round 50): the command of the
+    # own-path row of _ALLOW_CASES built on a refused name, the earlier name no-remove-guard.py, in the
+    # directory the own-path row derives (os.path.dirname of os.path.abspath(__file__)). The row shows
+    # only that the broad layer refuses this command text; no file of that name is installed or hashed,
+    # and that an install under that name would fail the own-path allow row (absent from
+    # _BROAD_REFUSED_ALLOW_ROWS, so a broad refusal of it fails the pin check) is inference. The name is
+    # fixed on purpose: the own-path allow row already tests the installed name, and this control must be
+    # refused on every install, while the name the own-path check derives (the installed name itself) is
+    # allowed on the shipped no_remove_guard.py and on any allowed rename, so a control on it could not
+    # expect refusal there; only the directory, which the two can share, comes from the install.
     "sha256sum " + shlex.quote(os.path.join(os.path.dirname(os.path.abspath(__file__)), "no-remove-guard.py")),
+    # Round 53 (grc field data from the live guard): record, ledger and memory lines that erase nothing
+    # but mention a removal word are refused (see BROAD LAYER, the round 53 over-refusal note); synthetic
+    # lines in the shapes of grc's four lines: a record line naming the guard with a hyphen or a space
+    # (two rows), a ledger line that the session must never use rm, and a memory index line linking a
+    # note whose name holds a removal word at a hyphen boundary
+    "echo '- 2026-01-01: the no-remove guard refused a status line' >> notes/record.md",
+    "cat >> notes/record.md <<'EOF'\n- round 9: no-remove-guard refused one line, reissued without it\nEOF",
+    "echo '- rule: this session must never use rm on a tracked file' >> notes/ledger.md",
+    "echo '- [Set-aside policy](feedback-delete-policy.md): move, never erase' >> memory/MEMORY.md",
 )
 
 # Round 32 (D-2385, D-2384): each row passes with its rule in place and fails with that rule reverted
@@ -9052,6 +9123,10 @@ _FAIL_CLOSED_CASES = (
     ("payload that is not JSON", b"not json"),
     ("payload that is not UTF-8", b"\xff\xfe"),
     ("payload that is a JSON array", b"[]"),
+    # Round 54 (grc review of rounds 51 to 53): a payload that starts with a UTF-8 byte order mark is
+    # malformed input, even when the rest is a Bash payload the guard would allow (see RESIDUAL)
+    ("payload that starts with a UTF-8 byte order mark",
+     b'\xef\xbb\xbf{"tool_name": "Bash", "tool_input": {"command": "ls"}}'),
 )
 
 
@@ -9139,11 +9214,27 @@ def _self_test():
         record("rule-revert", "[{}] {}".format(rule, command), passed, detail)
     record("rule-revert", "every round 32 to round 35 rule has a row",
            set(r for r, _c, _e in _RULE_CASES) == set(_RULES))
+    # Round 52 (grc review of round 50): a malformed payload denies as malformed input, not as an internal
+    # error. Round 54 (grc review of rounds 51 to 53): the second row per case checks that the deny output
+    # is a deny whose reason equals _REASONS[MALFORMED] and whose banner equals _BANNERS[MALFORMED] (which
+    # shows the malformed-input message was chosen, but cannot catch a wrong text, as the code emits the
+    # same constant), and that the reason holds the literal fragments "hook input was malformed" and "did
+    # not evaluate any command" (which catch a reason text changed away from what it should say)
     for label, payload in _FAIL_CLOSED_CASES:
         got = _run_case(payload)
         flipped = _with_deny_logic_off(payload)
-        record("fail-closed", label, got == ERROR and flipped == ERROR,
+        record("fail-closed", label, got == MALFORMED and flipped == MALFORMED,
                "got {}, with the deny logic off got {}".format(got, flipped))
+        obj = hook_output(got)
+        hso = obj.get("hookSpecificOutput", {}) if isinstance(obj, dict) else {}
+        reason = hso.get("permissionDecisionReason", "")
+        record("fail-closed", "{}: malformed-input reason".format(label),
+               hso.get("permissionDecision") == "deny"
+               and reason == _REASONS[MALFORMED]
+               and "hook input was malformed" in reason
+               and "did not evaluate any command" in reason
+               and obj.get("systemMessage") == _BANNERS[MALFORMED],
+               "reason {!r}".format(reason[:120]))
 
     # An internal error denies, and the flip does not turn it into an allow.
     saved = globals()["_command_argvs"]
@@ -9166,7 +9257,8 @@ def _self_test():
     record("detector", "the $'...' NUL check on its own", "a NUL from $'...' decoding" in found,
            "found {}".format(sorted(found)))
 
-    # Output contract: the deny shape, and every fixed message names both set-aside folders.
+    # Output contract: the deny shape, and every fixed message but the malformed-input one names both
+    # set-aside folders.
     shape_ok = True
     for decision in (DENY, CANNOT_PARSE, BROAD, ERROR):
         obj = hook_output(decision)
@@ -9178,6 +9270,20 @@ def _self_test():
             shape_ok = shape_ok and "/tmp/grc/deleteme" in text and "/tmp/deleteme-grc" in text
     record("contract", "deny output shape and set-aside folders in every message",
            shape_ok and hook_output(ALLOW) is None)
+    # Round 52 (grc review of round 50): the malformed-input deny has the same shape, a reason and banner
+    # of its own, and no file-removal advice (it names no set-aside folder)
+    obj = hook_output(MALFORMED)
+    hso = obj.get("hookSpecificOutput", {}) if isinstance(obj, dict) else {}
+    record("contract", "malformed-input deny has its own plain reason and no file-removal advice",
+           sorted(obj) == ["hookSpecificOutput", "systemMessage"]
+           and hso.get("hookEventName") == "PreToolUse" and hso.get("permissionDecision") == "deny"
+           and hso.get("permissionDecisionReason") == _REASONS[MALFORMED]
+           and obj.get("systemMessage") == _BANNERS[MALFORMED]
+           and "malformed" in _REASONS[MALFORMED] and "malformed" in _BANNERS[MALFORMED]
+           and all(_REASONS[MALFORMED] != _REASONS[d] and _BANNERS[MALFORMED] != _BANNERS[d]
+                   for d in (DENY, CANNOT_PARSE, BROAD, ERROR))
+           and not any(s in text for text in (_REASONS[MALFORMED], _BANNERS[MALFORMED])
+                       for s in ("deleteme", "set-aside", "removes files")))
     record("contract", "cannot-parse message says it denies in the safe direction",
            "safe direction" in _REASONS[CANNOT_PARSE] and "could not parse" in _REASONS[CANNOT_PARSE])
     # Round 13 (qanorm12 finding 4): the cannot-parse message names getattr and folded text as triggers
@@ -9205,7 +9311,7 @@ def _self_test():
             ("end-to-end broad refusal", json.dumps(_bash("echo rm -rf x")).encode("utf-8"), BROAD),
             ("end-to-end allow", json.dumps(_bash("echo hello")).encode("utf-8"), ALLOW),
             ("end-to-end exception allow", json.dumps(_bash("git commit -m 'remove x'")).encode("utf-8"), ALLOW),
-            ("end-to-end malformed payload", b"{", ERROR)):
+            ("end-to-end malformed payload", b"{", MALFORMED)):
         try:
             proc = subprocess.run([sys.executable, "-I", path], input=stdin_bytes, stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE, timeout=60)

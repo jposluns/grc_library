@@ -63892,7 +63892,7 @@ class NoRemoveGuardHookTests(unittest.TestCase):
     and one JSON object on stdout (a hookSpecificOutput deny with its reason, plus a
     systemMessage), and it allows with exit 0 and no output at all. The hook runs as a subprocess
     with a JSON payload on stdin, in a temporary working directory, so a missing hook file
-    (python3 exits 2 with "can't open file") fails every case."""
+    (python3 exits 2 with "can't open file") fails every case that runs the hook."""
 
     HOOK = REPO_ROOT / ".claude" / "hooks" / "no_remove_guard.py"
     SET_ASIDE = ("/tmp/grc/deleteme", "/tmp/deleteme-grc")
@@ -63907,7 +63907,8 @@ class NoRemoveGuardHookTests(unittest.TestCase):
             return subprocess.run([sys.executable, "-I", str(self.HOOK)], input=raw, cwd=td,
                                   capture_output=True, timeout=60)
 
-    def _assert_denied(self, proc, context):
+    def _assert_deny_shape(self, proc, context):
+        """Assert the JSON deny shape and return the reason and the system message."""
         import json
         self.assertEqual((proc.returncode, proc.stderr), (0, b""), context)
         out = proc.stdout.decode("utf-8")
@@ -63923,9 +63924,14 @@ class NoRemoveGuardHookTests(unittest.TestCase):
         self.assertEqual(decision["permissionDecision"], "deny", context)
         for text in (decision["permissionDecisionReason"], obj["systemMessage"]):
             self.assertIsInstance(text, str, context)
+        return decision["permissionDecisionReason"], obj["systemMessage"]
+
+    def _assert_denied(self, proc, context):
+        reason, message = self._assert_deny_shape(proc, context)
+        for text in (reason, message):
             for folder in self.SET_ASIDE:
                 self.assertIn(folder, text, context)
-        return decision["permissionDecisionReason"]
+        return reason
 
     def test_self_test_passes(self):
         with tempfile.TemporaryDirectory() as td:
@@ -63945,10 +63951,24 @@ class NoRemoveGuardHookTests(unittest.TestCase):
                 reason = self._assert_denied(self._run(command), command)
                 self.assertIn("git rm -f", reason)
 
-    def test_malformed_payload_is_denied_with_the_same_shape(self):
+    def test_malformed_payload_is_denied_with_the_same_shape_and_the_malformed_input_reason(self):
+        guard = load_linter_module(".claude/hooks/no_remove_guard.py", "no_remove_guard_malformed_reason")
+        expected_reason = guard._REASONS[guard.MALFORMED]
+        expected_message = guard._BANNERS[guard.MALFORMED]
+        # A literal word of the expected reason, so the check below does not only compare the module
+        # with itself.
+        self.assertIn("malformed", expected_reason)
         for raw in (b"{", b"not json", b'{"tool_name": "Bash", "tool_input": "x"}'):
             with self.subTest(raw=raw):
-                self._assert_denied(self._run(raw=raw), raw)
+                reason, message = self._assert_deny_shape(self._run(raw=raw), raw)
+                self.assertEqual(reason, expected_reason, raw)
+                self.assertIn("malformed", reason, raw)
+                self.assertEqual(message, expected_message, raw)
+                # The guard evaluated no command, so the malformed-input deny gives no file-removal
+                # advice and names no set-aside folder.
+                for folder in self.SET_ASIDE:
+                    for text in (reason, message):
+                        self.assertNotIn(folder, text, raw)
 
     def test_status_set_aside_move_and_isolated_script_are_allowed(self):
         for command in ("git status",
