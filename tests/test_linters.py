@@ -19103,6 +19103,38 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
              [[41, "SIGSTOP"], [42, "SIGSTOP"], [41, "SIGSTOP"], [42, "SIGSTOP"], [41, "SIGKILL"], [42, "SIGKILL"]],
              [[41, [46]]]]) + "\n", detail)
 
+    def test_run_shell_stubbed_session_scan_order_does_not_follow_the_listing(self) -> None:
+        """_session_members reads /proc in ascending process id order whatever order the listing gives, so
+        the kill signals members in that order on every platform. Over the fake /proc of
+        _run_shell_stubbed_unparsable_member, a clone of _session_members whose listing is in ascending order
+        and one whose listing is reversed both raise for entry 46 with members 41 then 42; a clone of
+        _kill_session over the reversed listing, whose os.kill is the driver's kill, stops 41 and 42, stops
+        them again and kills them, each time 41 before 42, and returns False for entry 46. A scan that
+        follows the listing gives 42 before 41 over the reversed one."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "def listing(order):\n"
+            "    def listdir(path):\n"
+            "        assert path == '/proc', path\n"
+            "        return sorted(os.listdir(root), reverse=order == 'reverse')\n"
+            "    return types.SimpleNamespace(listdir=listdir)\n"
+            "scans = []\n"
+            "for order in ('ascending', 'reverse'):\n"
+            "    ordered = clone('_session_members', open=fake_open, os=listing(order))\n"
+            "    try:\n"
+            "        scans.append([order, ordered(41), []])\n"
+            "    except Exception as exc:\n"
+            "        scans.append([order, exc.members, exc.entries])\n"
+            "reverse = clone('_session_members', open=fake_open, os=listing('reverse'))\n"
+            "killer = clone('_kill_session', _session_members=reverse, os=types.SimpleNamespace(kill=kill))\n"
+            "print('RESULT', json.dumps(scans), json.dumps(killer(41)), json.dumps(sends))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            [["ascending", [[41, "S"], [42, "R"]], ["46"]], ["reverse", [[41, "S"], [42, "R"]], ["46"]]])
+            + " false " + json.dumps(
+                [[41, "SIGSTOP"], [42, "SIGSTOP"], [41, "SIGSTOP"], [42, "SIGSTOP"], [41, "SIGKILL"],
+                 [42, "SIGKILL"]]) + "\n", detail)
+
     def test_run_shell_stubbed_first_temp_dir_removal_error_is_taken_as_a_failed_attempt(self) -> None:
         """Row X14, its temp dir part, driven, and row X1: a clone of run calls a clone of _run_shells whose
         stand-in shell (pid 41) is reaped by its first wait, whose scans find no member, whose kill reports the
@@ -52010,7 +52042,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         residual-scan.py NO_FS F fd8ff448f4d83f48d3e1116ac9b10d3c5ab8ed4d959ae888924679dd37cb194f
         run-linter-regression.py FIXED F 2c0d701c578569c68c73e4f697425cf0638e49baa9e93d3994ae44de98bb8e17
         run-pr-time-checks.sh FIXED F 2caed4bb6e25ef2dd77397ca021c6af8752991b3a80d5a0c3fc83a38df384c35
-        run-shell-stubbed.py NO_FS F bde398391f08ec7078b2543caea77afb373261dd9297cf48510cee301d03955d
+        run-shell-stubbed.py NO_FS F 1c47f6b0bf71bf6bfe5391b07333f45c280472acbd844e4bedf7bb5705a7a6f8
         run_all_audits.sh FIXED F ec86a76e9dec99394069b2fccab2fb84c152f9e9a16214f02358d8e2c60862fc
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900

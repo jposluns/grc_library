@@ -448,6 +448,14 @@ class _UnparsableStat(Exception):
                 self.add_note(note)
 
 
+def _proc_entry_order(entry: str) -> "tuple[int, int, str]":
+    """Sort key for a /proc listing: process ids (ASCII digits) in ascending numeric order, then every
+    other name in code point order. int() is applied only to ASCII digits, so the key never raises."""
+    if entry.isascii() and entry.isdigit():
+        return (0, int(entry), entry)
+    return (1, 0, entry)
+
+
 def _session_members(sid: int) -> "list[tuple[int, str]]":
     """(pid, state) of every process whose session id is sid.
 
@@ -484,7 +492,10 @@ def _session_members(sid: int) -> "list[tuple[int, str]]":
     run that reads one is not shown contained. The kernel writes every stat line as
     the pid, the command name in parentheses and the numeric fields, so only a stand-in /proc or a
     changed kernel format gives such a line. The name ends at the last closing parenthesis, so a name
-    holding one is read correctly."""
+    holding one is read correctly. Entries are read in ascending process id order (_proc_entry_order),
+    not in the order the listing gives, which the filesystem sets and the platform does not fix, so the
+    members returned, the order in which the kill and the fallback sweep signal them, and the entries an
+    _UnparsableStat names are the same on every platform."""
     out, unparsable = [], []
     # Recorded the moment its read returns where _run_shells armed the session, before the close and
     # the parse, so an exception that interrupts the close or the rest of the scan leaves an entry
@@ -501,7 +512,9 @@ def _session_members(sid: int) -> "list[tuple[int, str]]":
     # name them apart from the lines found unparsable; this scan takes out an entry whose line it finds
     # unparsable.
     later = None if recorded is None else _SCAN_PARSED_LATER.setdefault(sid, [])
-    for entry in os.listdir("/proc"):
+    # Ascending process id order, not the listing's own order: that order is the filesystem's, and the
+    # members (so the order the kill and the fallback sweep signal them) would follow it.
+    for entry in sorted(os.listdir("/proc"), key=_proc_entry_order):
         if not entry.isdigit():
             continue
         fresh = recorded is not None and int(entry) not in recorded
