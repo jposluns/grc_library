@@ -508,15 +508,22 @@ def _store_dir(root: "Path", *, strict: bool = False) -> "Path | None":
     ``strict=True`` (3b74) keeps both fallbacks (an ABSENT store and an in-repo store return None)
     but raises :class:`InaccessiblePath` for a store path that cannot be examined, is not a
     directory, or is a directory this account cannot search (``os.access(store, os.X_OK)``; its
-    message is "present but not searchable", 3b677 r7), which the default reads as absent. Both
+    message is "present but not searchable", 3b677 r7). The default reads the first two as absent
+    but returns an unsearchable directory as the store: a file lookup in it then finds nothing and
+    falls through (Python 3.11 raises PermissionError instead); a directory lookup returns it. Both
     modes also catch the RuntimeError that Python 3.11's ``resolve()`` raises on a relative
     ``GRC_STORE`` symlink loop (it escaped as a traceback, since ``_store_root`` ran outside the
     ``try``).
 
     With ``GRC_STORE`` unset the store is identified by its NAME alone (``<repo-parent>/private``,
-    the fleet-standard ``/opt/<project>/private``): no marker file or other signal is consulted, so
-    under ``strict=True`` any present but unusable entry of that name refuses, whoever put it
-    there. An error from probing that entry itself (any of the shapes above) then names that
+    the fleet-standard ``/opt/<project>/private``): no marker file or other signal is consulted.
+    Under ``strict=True`` an entry of that name that is present but not a directory (a regular
+    file, a FIFO, or a symlink to either) raises :class:`InaccessiblePath` (``ENOTDIR``,
+    "present but not a directory"), whoever put it there, where the default returns None and
+    its callers fall through. An entry that cannot be examined (a dangling link among them) and
+    a directory this account cannot search raise too. A directory whose real path is inside the
+    repository is not refused: both modes return None for it, as for an absent store. An error
+    from probing that entry itself (any of the shapes above) then names that
     convention and the ``GRC_STORE`` override (3b677 r5); a store directory that passes is
     returned, and an error from an entry beneath it (raised by a caller such as
     :func:`resolve_working`) names only that entry."""
