@@ -46,8 +46,196 @@ Usage:
     python3 tools/run-shell-stubbed.py --self-test
 
 Output: per shell, the exit code, stdout, stderr and each stubbed call as `STUB <name> <argv...>`.
-Exit codes: 0 ran (or self-test passed); 1 self-test failed; 2 usage error; 3 processes of the run were
-still alive at the kill deadline or the shell could not be reaped within the cleanup deadlines.
+Exit codes: 0 ran (or self-test passed); 1 self-test failed, or an exception left main uncaught, such as
+the _Terminated of a SIGTERM or SIGHUP (Python prints its traceback and exits 1; a KeyboardInterrupt of
+SIGINT ends the process as Python's default handling does); 2 usage error; 3 containment of the run was
+not shown: processes of the run were still alive at the kill deadline, the shell could not be reaped within
+the cleanup deadlines, or a /proc stat line could not be parsed, so the run's session could not be read. Any
+/proc entry's line counts, a process outside the run's session included, as the session of an entry whose
+line cannot be parsed is unknown. Such a line, read in the grace loop before the session kill, in the kill or
+in the fallback sweep after it, is settled once that shell's kill and reap have run, and its exit is exit
+table row X2: the reports of the shells that finished are printed, then one stderr line naming the /proc
+entries, that shell (which has no report) and each later shell. Entries read at more than one of those
+points are merged into that line, each named once. The line also states processes of the run the kill
+still found alive at its deadline, whichever of those points read the line, and a shell that could not be
+reaped. An exception of the run's own, such as the _Terminated of SIGTERM or SIGHUP or the
+KeyboardInterrupt of SIGINT, propagating when the line is settled (already when it is read, or raised
+after it by the kill, a wait or a group kill of the reap, the temp dir removal or the mask restore, where
+a SIGINT blocked during the cleanup is delivered) is exit table row X3: a line of that shell met later is
+merged into its note, which replaces the earlier one. A SIGTERM or SIGHUP deferred during the cleanup and
+raised once it is done is exit table row X4.
+_session_members records each entry as soon as its read returns, before the file is closed and before
+the line is parsed, and drops it once the line parses if that scan recorded it (an entry an earlier scan
+recorded stays recorded); once that shell's kill and reap have run, a recorded entry is settled as the
+kill's entries are. Only an OSError of the open or the read is taken as an exited process (exit table row
+X14). An exception of the run's own that interrupts a scan once an entry is recorded (a KeyboardInterrupt
+of SIGINT raised while the scan closes that entry's file, or while it opens or reads the next /proc
+entry, for example) is exit table row X3, and one raised during the parse is exit table row X17 for a
+line that parses and exit table row X3 for a line that does not; row X12 bounds each. No handler covers
+the parse, so an exception raised there is not taken as an unparsable line. Each entry a scan records is
+also marked, just before the record, and the mark is dropped once a scan records the result of parsing
+its line: found unparsable, or parsed, by the scan that recorded it or by a later one. An entry still
+recorded and marked at the settlement, one whose parse result no scan recorded before an interruption,
+is named in the note as a stat line parse result not recorded before an interruption, distinct from an
+unparsable stat line (a line parsed and found unparsable). An entry a later scan parsed stays recorded,
+its mark dropped, and that scan also puts it in _SCAN_PARSED_LATER, which a later scan that finds the
+line unparsable again takes it out of; an entry still recorded and in that record at the settlement is
+named in the note as a stat line unparsable or not parsed when recorded, parsed by a later scan, not as
+an unparsable stat line, unless a line already raised for that shell names it as parsed and found
+unparsable: merge gives that priority, so it is then named as an unparsable stat line. The run is not
+shown contained in any of these cases.
+A subprocess.TimeoutExpired raised during a wait of the shell, or in the try around it, is exit table row
+X15. The wait itself raised it when the frame right after the frame of _run_shells that caught it, and
+every later frame of its traceback to the innermost, runs the code object of a method of the shell's Popen
+class, with self bound to that shell, so no handler frame lies between the catching frame and the wait or
+inside the wait; a caller's frame whose local variable self is bound to the shell does not qualify, and
+one a caller's signal handler or callback raises during the wait, or in the try around it before the wait
+begins (at the mask restore, for example), by itself or through one of the shell's own wait methods
+(p.wait(timeout=0), for example), or re-raises from an earlier wait of the shell, is not the wait's own;
+such an exception is outside the exit table (the caller-handler residual below).
+_run_shells renews the arm with setdefault
+before the kill and before the fallback sweep, so an exception that skips the grace loop's arm leaves
+no scan unarmed. The window between the read's return and that record is exit table row X13, the
+parse of a line that parses and the drop after it exit table row X17, and an OSError of a call whose
+OSError the cleanup takes as its own exit table row X14.
+A KeyboardInterrupt of SIGINT raised in the cleanup is neither caught nor replaced by
+the runner: it is exit table row X3, and a later step that raises over it is row X4 (a deferred SIGTERM
+or SIGHUP raised as _Terminated at the end of the shell) or row X3 (another exception the cleanup raises).
+The caller's own handled exception (the one the caller was handling when it called run, raised again by a
+caller's signal handler, at a handler restore or elsewhere: a case of the caller-handler residual below,
+whose rows record what the code does with it, as observed, not a defined exit)
+re-raised over a line of the run is exit table row X5 when a
+step after that shell's kill, reap and settlement re-raises it (the finally that pops that shell's records
+or the close of its captured output files, the temp dir removal, the mask restore or a drain of
+_run_shells, or a handler restore or the drain of run), with a SIGTERM or SIGHUP deferred during the
+cleanup and drained after it, by the drain of _run_shells after the temp dir removal and the mask restore
+or by the drain of run after its handler restores, or any other exception of the run's own raised after
+it (a KeyboardInterrupt of the temp dir removal, or of a SIGINT delivered at the mask restore, for
+example), as the walks of _carry_shell_lines and of run's carry stop at the caller's exception; and it is
+exit table row X18 when re-raised during the shell's kill, reap or settlement, over a line of that shell.
+An exception raised while run makes its final carry of the lines as notes is carried again by the retry
+of that carry, onto that exception, whose chain holds the first (exit table row X3); one raised at the
+jump back to that retry (a signal handler run there, as CPython runs pending handlers at a backward jump)
+or in the retry's except body (its store of the exception that interrupted the carry), both outside the
+retry's try, is exit table row X11. A handler around that jump would need a jump back of its own, outside
+it, the same window.
+That retry covers run's own carry only: an exception raised during the final carry of _run_shells (its
+_carry_shell_lines(late, ...) at the end of a shell's cleanup; a signal handler run there, for example)
+is exit table row X10.
+An exception of the run's own that leaves a shell's iteration already in flight (one raised in the
+finally that pops the shell's records, or at the close of its captured output files, for example) is
+carried that shell's lines at the top of the per-shell cleanup, before the temp dir removal (exit table
+row X3); an exception raised during that carry is carried by the cleanup's own except clause. The caller's
+own handled exception re-raised at either of those points is exit table row X5. An exception raised
+inside the settlement's except clause before its carry is done is exit table row X6.
+A trace function (sys.settrace) that raises at the line event of the try that opens the per-shell cleanup
+of _run_shells is exit table row X8; at the line event of the try that opens the finally body of run, or
+of the try nested directly in it (the try around the activation, observed on Python 3.14.4), row X9; and
+at any other line event outside a carry's handler, once a line of the run has been raised (the bare raise
+after the final carry of _run_shells, and run's check of whether its carried exception is late and the
+raises after that check, for example), row X12. That a signal handler can run at any of those points is
+not established. A signal handler or trace function raising at any other point of the cleanup or of a
+final carry is exit table row X12, and at the entry to a shell's settlement row X7. A handler added around
+one such point has points of its own, so the class is stated, not closed.
+
+Caller-handler residual. An exception that a caller's own signal handler raises at an arbitrary point
+inside the tool is outside the exit table: the tool defines no exit for it, and the rows below state the
+exits of the tool's own exceptions (the KeyboardInterrupt of SIGINT under Python's default handler, the
+_Terminated of SIGTERM or SIGHUP, and what the tool's own calls raise); a row that names a signal handler
+means the run's own. Known cases: a ChildProcessError raised inside the shell's waitpid, which Popen takes
+as a child already reaped, so the shell can look reaped with exit 0; an OSError (a TimeoutError of a
+SIGALRM handler, for example) raised inside a call whose OSError the cleanup takes as that call's failure,
+which is then taken as that failure (a scan skips the entry as exited); a subprocess.TimeoutExpired raised
+during a wait of the shell or in the try around it; a ValueError or IndexError raised during a scan's
+parse, or a TimeoutError at a scan's close; an exception raised after Popen has created the shell and
+before the try that follows, which leaves the shell neither killed with its session nor reaped; and the
+caller's own handled exception raised again during or after a shell's cleanup (rows X5 and X18 record
+what the code does with it, as observed). A test that drives one of these cases with a stand-in pins what
+the code does at that one point as an observation of this residual, not a defined exit.
+
+Exit table. The exits of a shell's cleanup are stated once, here, and a comment or docstring elsewhere
+names the row. Columns: the row; where the raise lands; what the run raises or returns; its note or
+context; what is left in _SCAN_UNREAD and _KILL_UNKNOWN afterwards; whether the per-shell cleanup of
+_run_shells (temp dir removal, mask restore, drain) runs; SIGHUP, SIGINT and SIGTERM afterwards. "restored"
+means the caller's mask is back; "main thread: blocked" means the three stay blocked when run was called
+from the main thread, while a caller on another thread never had them blocked by the run, so its mask is
+unchanged.
+X1 | no raise, every stat line parses | returns the results | none | nothing | runs | restored
+X2 | an unparsable stat line with nothing in flight at the settlement | _UnparsableStat for that shell,
+   later shells not started | the line names the entries and the shell | nothing | runs | restored
+X3 | an unparsable stat line while an exception of the run's own propagates | that exception | one
+   note per shell naming the entries | nothing, except that an exception raised in the settlement's finally
+   while it pops the five records (_KILL_UNKNOWN, _SCAN_UNREAD, _KILL_ALIVE, _SCAN_UNPARSED and
+   _SCAN_PARSED_LATER, in that order) leaves each record it had not yet popped | runs | restored
+X4 | a SIGTERM or SIGHUP deferred during the cleanup and drained after it | _Terminated, chained over
+   any exception in flight | the same note | nothing | runs | restored
+X5 | caller-handler residual, as observed: the caller's own handled exception re-raised after a shell's
+   settlement (record pop, output close,
+   temp dir removal, mask restore, a drain or a handler restore of run), or a deferred SIGTERM or SIGHUP
+   drained, or another exception of the run's own raised, after such a re-raise | that exception, or the
+   run's own _Terminated or that other exception chained over the caller's | no note; the line only on
+   the __context__ chain of the caller's exception | nothing | runs | restored
+X6 | inside the settlement's except clause, before its carry is done | the new exception | no note for
+   entries the records alone held; lines already raised along its chain are noted on it by the per-shell
+   carry | nothing: the settlement's finally pops the records, so those entries are lost | runs | restored
+X7 | a trace function at the line event of the try that opens the settlement, after a scan recorded an
+   unparsable entry no exception carries yet | the trace's exception, no result | no note; its
+   __context__ is the exception already in flight, if any, which carries no note either | each entry
+   stays in whichever record held it (_SCAN_UNREAD, _KILL_UNKNOWN or both), as the settlement's finally
+   is never entered | skipped | main thread: blocked
+X8 | a trace function at the line event of the try that opens the per-shell cleanup of _run_shells | the
+   trace's exception, no result | no note; the line on its __context__ chain | nothing, popped by the
+   settlement | skipped | main thread: blocked
+X9 | a trace function at the line event of the try that opens run's finally body, or of the try nested
+   directly in it | the trace's exception, no result | no note; the line on its __context__ chain |
+   nothing | ran before it (inferred); run's handler restores and drain are skipped, so on the main thread
+   _on_signal stays the SIGTERM and SIGHUP handler (run called on another thread installs no handler, so
+   the caller's own stay) | restored by that cleanup (inferred)
+X10 | during the final carry of _run_shells | that exception, replacing the one carried; run's carry
+   does not reach it, as its except clause covers only its own finally body and an exception coming out
+   of _run_shells passes through that finally unchanged only when run's cleanup completes normally (a
+   pending deferred signal makes _drain_deferral raise a termination that replaces it, and the line is
+   then noted on that termination; a handler restore of run that raises replaces it the same way, and
+   run's carry notes the line on that exception, row X3) | no note; the line on its __context__ chain |
+   nothing | ran before it | as that cleanup left them
+X11 | at the jump back to run's carry retry, or in that retry's except body | that exception | no note;
+   its __context__ chain holds the exception the final carry began with | nothing | ran before it | as
+   that cleanup left them
+X12 | a signal handler or trace function at any other point outside a carry's handler, once a line of
+   the run has been raised | that exception, no result | no note; the entry can drop from the chain | as
+   at that point | as at that point | as at that point
+X13 | a signal handler run as a session scan's read returns, before _session_members records the entry
+   (inferred from the control flow for a signal handler; the stand-in case, an exception the read raises
+   as it returns, is driven by its test) | that exception, no result | no note for that entry, unless a later
+   scan of the cleanup (the kill's or the fallback sweep's) reads it again, which records it and has it
+   noted on that exception | nothing: the interrupted scan had not yet recorded it, and a later scan's
+   record is popped by the settlement | runs | restored
+X14 | an OSError (TimeoutError included) raised inside a call the cleanup takes
+   an OSError from as its own: the open or the read of a scan, a signal the fallback sweep sends, the
+   ProcessLookupError of a signal the kill sends or of the reap's group kill, the first temp dir removal
+   attempt | no exception from it: it is taken as that call's failure (a scan skips the entry as
+   exited) | none | the skipped entry is not recorded | runs | restored
+X15 | a subprocess.TimeoutExpired during a wait of the shell, or in the try around it | taken as that
+   wait timing out only when the wait itself raised it (inferred: also when a handler with no Python frame
+   of its own raises it); otherwise outside the exit table (the caller-handler residual; observed: that
+   exception, once the cleanup has run) | the shell's line, if any,
+   noted on it | nothing | runs | restored
+X16 | a trace function raising after Popen has created the
+   shell and before the try that follows, or a signal handler or trace function raising after the entry
+   to that try's finally and before the protected try in it (inferred from the control flow for a signal
+   handler; the stand-in case, a trace function raising at either point, is driven by its tests) | that
+   exception, or one chained over it, no result | none |
+   nothing | the shell is neither killed with its session nor reaped; the temp dir removal, mask restore
+   and drain still run | restored
+X17 | a signal handler raising during a scan's parse of a stat line that parses, or between that parse
+   and the drop from _SCAN_UNREAD (inferred from the control flow) | that exception, no result | one note
+   naming the entry as a stat line parse result not recorded before an interruption (fail-closed) |
+   nothing |
+   runs | restored
+X18 | caller-handler residual, as observed: the caller's own handled exception re-raised during a shell's
+   kill, reap or settlement, over a line
+   of that shell | _UnparsableStat for that shell, chained over the caller's exception | the line names
+   the entries and the shell | nothing | runs | restored
 
 Self-test stage sigterm-cleans-up: when its wait for the SIGTERMed probe's exit reaches the deadline, it prints,
 before killing the probe and on stderr, lines prefixed `sigterm-cleans-up: probe-exit-wait-timeout: ` (3b363):
@@ -191,21 +379,364 @@ def _all_procs_named(cmdline: str) -> "list[tuple[int, str]]":
     return out
 
 
+# The session field of a stat line, as the kernel writes it (%d). Only text int() accepts is admitted, and at
+# most 19 digits, so int() cannot raise on it; a field int() would also accept in another form (a sign of +, an
+# underscore, a non-ASCII digit, more digits) is unparsable, which fails closed.
+_SESSION_FIELD = re.compile(r"-?[0-9]{1,19}")
+
+
+class _UnparsableStat(Exception):
+    """Raised by _session_members when a /proc/<pid>/stat file is present but its line cannot be parsed.
+    entries names each such /proc entry, in the order read; members holds the (pid, state) pairs of the
+    session that the scan did read. The process of such an entry is not known to have exited, nor to be
+    outside the session. When _run_shells raises it (see _settle_unparsable), shell names the shell whose
+    cleanup read the line and results is the list of the results of the shells that finished before it.
+    merge folds into it the entries and notes of another one met later in the same shell's cleanup, each
+    entry named once (exit table row X2); _carry_line uses it the same way for the one record per shell
+    it keeps on another exception (exit table row X3). unparsed names the entries still marked in
+    _SCAN_UNPARSED: recorded, but no scan recorded the result of parsing their line before an interruption
+    (an interruption between the parse and the drop of the mark included). parsed_later names the entries
+    in _SCAN_PARSED_LATER: recorded by a scan that found the line unparsable or recorded no parse result,
+    and parsed by a later scan; an entry in both is taken as parsed later. The message names the first as
+    a stat line parse result not recorded before an interruption, the second as a stat line unparsable or
+    not parsed when recorded, parsed by a later scan, and every other entry as an unparsable stat line.
+    After a merge, an entry one line names as parsed and found unparsable is named so, and otherwise an
+    entry one line names as parsed by a later scan is named so."""
+
+    def __init__(self, entries, members, unparsed=(), parsed_later=()):
+        later = {str(entry) for entry in parsed_later}
+        skipped = {str(entry) for entry in unparsed} - later
+        self.entries, self.members = entries, members
+        self.unparsed = [entry for entry in entries if str(entry) in skipped]
+        self.parsed_later = [entry for entry in entries if str(entry) in later]
+        super().__init__(self.message(entries, self.unparsed, self.parsed_later))
+
+    @staticmethod
+    def message(entries, unparsed=(), parsed_later=()) -> str:
+        later = {str(entry) for entry in parsed_later}
+        skipped = {str(entry) for entry in unparsed} - later
+        failed = [entry for entry in entries if str(entry) not in skipped and str(entry) not in later]
+        unread = [entry for entry in entries if str(entry) in skipped]
+        parsed = [entry for entry in entries if str(entry) in later]
+        parts = []
+        if failed or not (unread or parsed):
+            parts.append("unparsable stat line, session unknown: "
+                         + ", ".join(f"/proc/{entry}/stat" for entry in failed))
+        if unread:
+            parts.append("stat line parse result not recorded before an interruption, session unknown: "
+                         + ", ".join(f"/proc/{entry}/stat" for entry in unread))
+        if parsed:
+            parts.append("stat line unparsable or not parsed when recorded, parsed by a later scan: "
+                         + ", ".join(f"/proc/{entry}/stat" for entry in parsed))
+        return "; ".join(parts)
+
+    def merge(self, other) -> None:
+        mine = {str(entry) for entry in getattr(self, "unparsed", [])}
+        theirs = {str(entry) for entry in getattr(other, "unparsed", [])}
+        mine_later = {str(entry) for entry in getattr(self, "parsed_later", [])}
+        theirs_later = {str(entry) for entry in getattr(other, "parsed_later", [])}
+        failed = (({str(entry) for entry in self.entries} - mine - mine_later)
+                  | ({str(entry) for entry in other.entries} - theirs - theirs_later))
+        known = {str(entry) for entry in self.entries}
+        self.entries = self.entries + [entry for entry in other.entries if str(entry) not in known]
+        later = (mine_later | theirs_later) - failed
+        self.parsed_later = [entry for entry in self.entries if str(entry) in later]
+        self.unparsed = [entry for entry in self.entries if str(entry) in (mine | theirs) - failed - later]
+        self.args = (self.message(self.entries, self.unparsed, self.parsed_later),)
+        for note in getattr(other, "__notes__", []):
+            if note not in getattr(self, "__notes__", []):
+                self.add_note(note)
+
+
 def _session_members(sid: int) -> "list[tuple[int, str]]":
-    """(pid, state) of every process whose session id is sid."""
-    out = []
+    """(pid, state) of every process whose session id is sid.
+
+    A /proc entry whose stat file vanishes or cannot be read (OSError) is skipped as an exited process.
+    A stat line that is present but has no closing parenthesis, fewer than four fields after it or a
+    session field that is not a number is neither skipped nor read as an exited process: once every entry
+    is read, _UnparsableStat is raised, naming each such entry and carrying the members that were read,
+    so a caller fails closed rather than taking the session to be those members alone. Where _run_shells
+    has armed that session, each entry is appended to _SCAN_UNREAD[sid] as soon as its read returns,
+    before its file is closed and before its line is parsed, and is removed again once the line parses
+    (an entry already there from an earlier scan stays), so an exception that interrupts the close or
+    the rest of the scan leaves an unparsable one recorded (a later exception in the cleanup is exit
+    table row X3, subject to exit table rows X6, X7 and X12). Only an OSError of the open or the read skips
+    an entry; the close and the parse sit outside that handler, so an exception raised there, an OSError
+    such as TimeoutError included, propagates, and the entry stays recorded unless its line parsed before
+    the close, which removed it (exit table rows X3 and X17). No handler covers the parse:
+    the line's shape is checked (_SESSION_FIELD), so an exception raised during it propagates as well and
+    is not taken as an unparsable line (one a caller's signal handler raises there is the caller-handler
+    residual of the module docstring). The window between the read's return and the append is exit table
+    row X13, the parse of a line that parses and the removal after it exit table row X17, and an OSError of
+    the open or the read exit table row X14. An entry this scan records is first marked in
+    _SCAN_UNPARSED[sid], and the mark is dropped once a scan records the result of parsing its line: found
+    unparsable, or parsed, by this scan or a later one. An entry a later scan parsed stays recorded, and
+    that scan puts it in _SCAN_PARSED_LATER[sid] just before it drops the mark; a later scan that finds
+    its line unparsable takes it out again. An entry still recorded and marked at the settlement is named
+    as a stat line parse result not recorded before an interruption, and one still recorded and in
+    _SCAN_PARSED_LATER as a stat line unparsable or not parsed when recorded, parsed by a later scan,
+    unless a line already raised for that shell names it as parsed and found unparsable, which merge
+    gives priority, so it is then named as an unparsable stat line; a
+    mark that an interruption between the mark and the record leaves on an entry not recorded names
+    nothing. Every entry in
+    /proc is read, not only the session's: a line whose session field cannot be read does not show that
+    its process is outside the session, so an unparsable line for any process on the host raises, and a
+    run that reads one is not shown contained. The kernel writes every stat line as
+    the pid, the command name in parentheses and the numeric fields, so only a stand-in /proc or a
+    changed kernel format gives such a line. The name ends at the last closing parenthesis, so a name
+    holding one is read correctly."""
+    out, unparsable = [], []
+    # Recorded the moment its read returns where _run_shells armed the session, before the close and
+    # the parse, so an exception that interrupts the close or the rest of the scan leaves an entry
+    # already read recorded; this scan removes an entry only if this scan recorded it, once its line
+    # parses, and on no other path (an entry an earlier scan recorded stays recorded, so the run fails
+    # closed). A later exception is exit table row X3, subject to exit table rows X6, X7 and X12.
+    recorded = _SCAN_UNREAD.get(sid)
+    # Entries whose parse result no scan has recorded (_SCAN_UNPARSED); marked just before the record, so
+    # every recorded entry stays marked until a scan records its parse result. An interruption between the
+    # two can leave a mark on an entry that is not recorded, which is harmless: only a recorded entry
+    # reaches the note.
+    unparsed = None if recorded is None else _SCAN_UNPARSED.setdefault(sid, [])
+    # Entries an earlier scan recorded whose line this scan parses (_SCAN_PARSED_LATER), so the note can
+    # name them apart from the lines found unparsable; this scan takes out an entry whose line it finds
+    # unparsable.
+    later = None if recorded is None else _SCAN_PARSED_LATER.setdefault(sid, [])
     for entry in os.listdir("/proc"):
         if not entry.isdigit():
             continue
+        fresh = recorded is not None and int(entry) not in recorded
+        # Only the open and the read are taken as an exited process (OSError). The close and the parse are
+        # outside that handler: an exception raised there (a KeyboardInterrupt of SIGINT, for
+        # example) propagates, and an entry already recorded stays recorded for the settlement (exit table
+        # rows X3 and X17: X3 for the close and for the parse of a line that does not parse, X17 for the
+        # parse of a line that parses).
         try:
             # A command name may hold any byte; errors="replace" keeps the read from raising.
-            with open(f"/proc/{entry}/stat", encoding="utf-8", errors="replace") as fh:
-                fields = fh.read().rsplit(")", 1)[1].split()
+            stat_file = open(f"/proc/{entry}/stat", encoding="utf-8", errors="replace")
         except OSError:
             continue
-        if int(fields[3]) == sid:  # after the command name: state, ppid, pgrp, session
+        with stat_file as fh:
+            try:
+                line = fh.read()
+            except OSError:
+                continue
+            if fresh:
+                if int(entry) not in unparsed:
+                    unparsed.append(int(entry))
+                recorded.append(int(entry))
+            # The line's own shape is checked, not caught: no handler covers the parse, so an exception
+            # raised during it is not taken as an unparsable line; it propagates, and the entry stays
+            # recorded for the settlement (exit table rows X3 and X17).
+            parts = line.rsplit(")", 1)
+            fields = parts[1].split() if len(parts) == 2 else []
+            if len(fields) >= 4 and _SESSION_FIELD.fullmatch(fields[3]):
+                session = int(fields[3])  # after the command name: state, ppid, pgrp, session
+                if fresh:
+                    recorded.remove(int(entry))
+                elif later is not None and int(entry) in recorded and int(entry) not in later:
+                    # An entry an earlier scan recorded stays recorded and is put in
+                    # _SCAN_PARSED_LATER before its mark goes, so an interruption between the two
+                    # leaves it in both, which names it as parsed later.
+                    later.append(int(entry))
+                # The parse result is recorded, so the mark goes, whichever scan recorded the entry.
+                if unparsed is not None and int(entry) in unparsed:
+                    unparsed.remove(int(entry))
+            else:
+                # Parsed and found unparsable: the parse result is recorded, so the mark goes, and an
+                # entry an earlier scan put in _SCAN_PARSED_LATER is taken out of it.
+                if unparsed is not None and int(entry) in unparsed:
+                    unparsed.remove(int(entry))
+                if later is not None and int(entry) in later:
+                    later.remove(int(entry))
+                session = None
+        if session is None:
+            unparsable.append(entry)
+            continue
+        if session == sid:
             out.append((int(entry), fields[0]))
+    if unparsable:
+        raise _UnparsableStat(unparsable, out)
     return out
+
+
+def _session_scan(scan, sid: int) -> "tuple[list[tuple[int, str]], list[int]]":
+    """scan(sid) as (members, unknown), where scan is _session_members or a self-test stand-in for it.
+    When scan raises _UnparsableStat, members is the list of pairs it did read and unknown the pids of
+    the entries it named, whose session is unknown; otherwise unknown is empty. A caller passes its own
+    global _session_members, so a stand-in bound in a cloned function's globals is the one called."""
+    try:
+        return scan(sid), []
+    except _UnparsableStat as exc:
+        return exc.members, [int(entry) for entry in exc.entries]
+
+
+# Session id to the pids of the /proc entries whose stat line any scan of _kill_session could not parse, as
+# stored after each scan that read one, so a kill that raises after such a scan leaves them as well (only a
+# nonempty list is stored; an entry a scan read before an exception interrupted it is in _SCAN_UNREAD),
+# and, in _KILL_ALIVE, to the pids of the members it read still alive when it returned at its deadline (only
+# a nonempty list is stored, whether or not such an entry was left).
+# _run_shells pops its shell's session from both before the kill and, in the settlement's finally once the
+# reap has run, after it, so
+# where the kill returns False or raises it can name those entries, and say whether processes of the run
+# were still alive at the kill deadline, instead of reporting processes still alive alone; it says so as
+# well on a line the grace loop or the fallback sweep read. The dicts are mutated, never rebound, so a self-test clone of _kill_session or
+# _run_shells shares them.
+_KILL_UNKNOWN = {}
+_KILL_ALIVE = {}
+# Session id to the pids of the /proc entries _session_members has recorded and not removed: appended by
+# _session_members as soon as the read of each entry returns, before the close and the parse, and removed
+# once that line parses by the scan that recorded it (an entry an earlier scan recorded stays, even where
+# a later scan parses its line; see _SCAN_PARSED_LATER), only for a
+# session _run_shells has armed (set to an empty list before its grace
+# loop), so an exception that interrupts a scan after it read such an entry (a KeyboardInterrupt of SIGINT
+# raised while it closes that entry's file or opens or reads the next entry, for example) leaves it
+# recorded. _run_shells reads its shell's session once the reap has run, settles those entries with the
+# kill's, and pops it in the settlement's finally once that finally is entered (exit table rows X6 and
+# X7). Mutated, never rebound, so a self-test clone shares it.
+_SCAN_UNREAD = {}
+# Session id to the pids of the entries whose parse result no scan has recorded (the mark):
+# _session_members appends an entry just before it records it, and drops it once a scan records the result
+# of parsing its line, found unparsable or parsed, whichever scan recorded the entry. An entry still marked
+# and recorded at the settlement is named in the note as a stat line parse result not recorded before an
+# interruption, distinct from an unparsable stat line (a line parsed and found unparsable); an entry a later
+# scan parsed stays recorded and is named by _SCAN_PARSED_LATER, unless a line already raised for that
+# shell names it as parsed and found unparsable, which merge gives priority. The run is not shown
+# contained either way. _run_shells pops it fourth of the five records in the settlement's finally, after _KILL_UNKNOWN,
+# _SCAN_UNREAD and _KILL_ALIVE. Mutated, never rebound, so a self-test clone shares it.
+_SCAN_UNPARSED = {}
+# Session id to the pids of the entries an earlier scan recorded whose line a later scan parsed:
+# _session_members appends such an entry when a scan it was already recorded for parses its line, just
+# before that scan drops its mark, and takes it out when a later scan finds the line unparsable again.
+# An entry still recorded and in this record at the settlement is named in the note as a stat line
+# unparsable or not parsed when recorded, parsed by a later scan, not as an unparsable stat line, unless
+# a line already raised for that shell names it as parsed and found unparsable: merge gives that
+# priority, so it is then named as an unparsable stat line. Either way it stays recorded, so the run is
+# not shown contained. _run_shells pops it last of the five records in the
+# settlement's finally. Mutated, never rebound, so a self-test clone shares it.
+_SCAN_PARSED_LATER = {}
+# Notes _run_shells adds to the report of a shell's unparsable stat line: live members the kill found at its
+# deadline, and a failed reap.
+_ALIVE_NOTE = "processes of this run were still alive at the kill deadline"
+_REAP_NOTE = "shell could not be reaped after fallback SIGKILL"
+
+
+def _shell_unread(sid) -> "tuple[list[int], list[int]]":
+    """(unknown, alive) for the session sid, read from _KILL_UNKNOWN, _SCAN_UNREAD and _KILL_ALIVE
+    without popping them: unknown is the kill's entries, then each scan entry not already among them,
+    each named once; alive is the kill's live members at its deadline. _run_shells pops the three, then
+    _SCAN_UNPARSED and _SCAN_PARSED_LATER, in the settlement's finally once that finally is entered; see
+    exit table rows X6 and X7."""
+    unknown = list(_KILL_UNKNOWN.get(sid, []))
+    known = {str(pid) for pid in unknown}
+    unknown += [pid for pid in _SCAN_UNREAD.get(sid, []) if str(pid) not in known]
+    return unknown, list(_KILL_ALIVE.get(sid, []))
+
+
+def _unparsed_entries(sid, kill_unknown) -> "list[int]":
+    """The marked pids: those in _SCAN_UNPARSED[sid] that kill_unknown, the kill's record of unparsable
+    entries (_KILL_UNKNOWN, as the caller binds it), does not hold for sid. A scan marks an entry just
+    before it records it as it reads it, and the mark stays until a scan records its parse result, so
+    these are entries whose parse result no scan recorded before an interruption; they can include a mark
+    that an interruption between the mark and the record left on an entry that was never recorded.
+    _UnparsableStat keeps only the recorded ones: it names as marked only those of its entries that are
+    marked, so such a mark names nothing."""
+    failed = {str(pid) for pid in kill_unknown.get(sid, [])}
+    return [pid for pid in _SCAN_UNPARSED.get(sid, []) if str(pid) not in failed]
+
+
+def _unparsable_note(exc, shell) -> str:
+    """The note that carries exc, an _UnparsableStat met in the cleanup of shell, onto another exception:
+    its entries, its own notes (such as processes still alive at the kill deadline) and the shell."""
+    return ("; ".join([str(exc)] + getattr(exc, "__notes__", []))
+            + f"; containment of the {shell} run could not be shown")
+
+
+def _shell_lines(exc, shell, caller_exception):
+    """The unparsable stat lines of shell that exc and its __context__ chain carry, newest first: for
+    each exception along the chain, the exception itself if it is an _UnparsableStat raised for shell,
+    else the record of shell that _carry_line keeps on it. The walk stops at caller_exception, the
+    caller's own handled exception, which is not this run's."""
+    lines, seen = [], set()
+    while exc is not None and exc is not caller_exception and id(exc) not in seen:
+        seen.add(id(exc))
+        if isinstance(exc, _UnparsableStat) and getattr(exc, "shell", None) == shell:
+            lines.append(exc)
+        else:
+            record = getattr(exc, "_unparsable_records", {}).get(shell)
+            if record is not None:
+                lines.append(record)
+        exc = exc.__context__
+    return lines
+
+
+def _carry_shell_lines(active, shell, caller_exception) -> bool:
+    """Carry onto active every line of shell along its chain (_shell_lines), so a line carried onto a
+    later exception does not hide an earlier one further down the chain: merged into active if active is
+    an _UnparsableStat raised for shell (_UnparsableStat.merge), else onto it as the one note for shell
+    (_carry_line). True if the chain holds any such line."""
+    lines = _shell_lines(active, shell, caller_exception)
+    for line in lines:
+        if line is active:
+            continue
+        if isinstance(active, _UnparsableStat) and getattr(active, "shell", None) == shell:
+            active.merge(line)
+        else:
+            _carry_line(active, line, shell)
+    return bool(lines)
+
+
+def _carry_line(active, line, shell) -> None:
+    """Carry line, an _UnparsableStat met in the cleanup of shell, onto active, another exception, as one
+    note for that shell. active keeps one record per shell (_unparsable_records). For the first line of a
+    shell the record is a copy of it, and its note (_unparsable_note) is added unless active already has
+    that note. A later line of the shell is merged into the record (_UnparsableStat.merge), and the
+    record's new note replaces the earlier one, so each entry and the containment text appear once."""
+    records = getattr(active, "_unparsable_records", None)
+    if records is None:
+        records = active._unparsable_records = {}
+    record = records.get(shell)
+    if record is line:
+        return
+    earlier = None
+    if record is None:
+        record = records[shell] = _UnparsableStat(list(line.entries), [], getattr(line, "unparsed", ()),
+                                                  getattr(line, "parsed_later", ()))
+    else:
+        earlier = _unparsable_note(record, shell)
+    record.merge(line)
+    note = _unparsable_note(record, shell)
+    notes = getattr(active, "__notes__", [])
+    if earlier is not None and earlier != note and earlier in notes:
+        if note in notes:
+            notes.remove(earlier)
+        else:
+            notes[notes.index(earlier)] = note
+    elif note not in notes:
+        active.add_note(note)
+
+
+def _settle_unparsable(exc, active, caller_exception, shell, results) -> None:
+    """Settle exc, an _UnparsableStat met in the cleanup of shell. active is the exception the caller
+    found propagating where it settles exc: for a line the grace loop or the fallback sweep read, the one
+    that was propagating when the line was read (exc.__context__); for a line only the kill read, and for
+    the live members the kill found at its deadline, the one propagating once the reap has run
+    (sys.exception(), which in a finally block run for a propagating exception returns that exception), which
+    can be one raised after the line was read, by a wait or a group kill of the reap. If active is None or
+    the caller's own handled exception (even an _UnparsableStat an earlier run raised for the same shell),
+    exc is raised with shell and results set on it (exit table rows X2 and X18). Otherwise, if active is an
+    _UnparsableStat raised for the same shell, exc's entries and notes are merged into it
+    (_UnparsableStat.merge) and this returns. Otherwise, unless active is an _UnparsableStat with the same
+    message as exc, active (a _Terminated, a KeyboardInterrupt or any other) is not replaced: exc is handed
+    to _carry_line with active and shell, and this returns (exit table row X3)."""
+    if active is None or active is caller_exception:
+        exc.shell, exc.results = shell, results
+        raise exc
+    if isinstance(active, _UnparsableStat) and getattr(active, "shell", None) == shell:
+        active.merge(exc)
+        return
+    if isinstance(active, _UnparsableStat) and str(active) == str(exc):
+        return
+    _carry_line(active, exc, shell)
 
 
 GRACE_SECONDS = 2.0
@@ -219,15 +750,57 @@ def _live(members) -> "list[int]":
     return [pid for pid, state in members if state not in ("Z", "X")]
 
 
+def _own_wait_timeout(exc, p) -> bool:
+    """True if exc, a subprocess.TimeoutExpired taken from a wait of p, was raised by that wait itself and
+    not by a signal handler run during it. Popen.wait raises its own from a method of p
+    (Popen._wait, once its deadline has passed), entered from Popen.wait with no other frame between them;
+    a caller's handler (a SIGALRM handler that raises TimeoutExpired, for example) runs in a Python frame of
+    its own below that method. exc must be the exception the calling frame has just caught, so the first
+    entry of its traceback is that catching frame, the caller of the wait; the frame right after it and
+    every later frame to the innermost must therefore be one of p's. A handler that raises TimeoutExpired
+    itself leaves its own frame innermost; one that raises it through a wait method of p (p.wait(timeout=0),
+    for example) or re-raises one saved from an earlier wait of p leaves its own frame between p's frames,
+    when it runs during the wait, or between the catching frame and p's frames, when it runs in the
+    catching frame's try before the wait begins (at a mask restore, for example); so none is taken as the
+    wait's own. Skipping the frames before the first of p's would take the last of these as the wait's
+    own. A frame is one of p's when its code object is the code of a function defined on the class of p or
+    on a base of it, with self bound to p: a local variable
+    named self alone, which a caller's frame can bind to p, does not qualify it. A deadline
+    check was not used: it cannot tell a handler's raise after the deadline from the wait's own. A handler
+    with no Python frame of its own (a C callable) that raises TimeoutExpired is exit table row X15."""
+    codes = [getattr(getattr(member, "__func__", member), "__code__", None)
+             for klass in type(p).__mro__ for member in vars(klass).values()]
+
+    def own(frame) -> bool:
+        # Code objects compare equal by content, so identity is tested, not membership.
+        return frame.f_locals.get("self") is p and any(code is frame.f_code for code in codes)
+
+    # The first entry is the catching frame; the wait's own frames follow it directly.
+    tb = exc.__traceback__
+    tb = None if tb is None else tb.tb_next
+    if tb is None:
+        return False
+    while tb is not None:
+        if not own(tb.tb_frame):
+            return False
+        tb = tb.tb_next
+    return True
+
+
 def _session_survivors(sid: int, timeout: float = 5.0) -> "list[int]":
     """Live members of a finished run's session, read once none is left or timeout has passed (a test helper).
     A killed process stays in /proc as a zombie until its reaper collects it, and a loaded host delays that; a
-    zombie is dead, so it is not a survivor and the wait does not stay for it (3b125, QA r1)."""
+    zombie is dead, so it is not a survivor and the wait does not stay for it, as a zombie a slow reaper
+    leaves on a loaded host would otherwise be counted as a survivor. The pid of a
+    /proc entry whose stat line cannot be parsed (_UnparsableStat) counts as a survivor, as its process is not
+    known to have exited: the wait stays for it until timeout and the list returned includes it."""
     deadline = time.monotonic() + timeout
-    live = _live(_session_members(sid))
+    members, unknown = _session_scan(_session_members, sid)
+    live = _live(members) + unknown
     while live and time.monotonic() < deadline:
         time.sleep(0.02)
-        live = _live(_session_members(sid))
+        members, unknown = _session_scan(_session_members, sid)
+        live = _live(members) + unknown
     return live
 
 
@@ -236,10 +809,26 @@ def _kill_session(sid: int) -> bool:
     moves a child into a new process group but not out of the session, and setsid is not reachable (3b116
     QA r3). A fork loop can outpace killing, so members are first STOPPED until a pass finds none still
     running (a stopped process cannot fork), then killed until the session is empty (3b116 QA r6). True when
-    the session is empty; False if members remained at the deadline."""
+    the session is empty; False if members remained at the deadline, or if any of its scans read an entry whose
+    stat line cannot be parsed (_UnparsableStat), even one gone by a later scan, as the session is then not
+    known to be empty. Such an entry is never signalled, as its session is unknown; the pids of every such
+    entry are stored in _KILL_UNKNOWN[sid] after each scan that returns or raises _UnparsableStat, at each
+    of its three scan sites, so an exception the kill raises after such a scan (from os.kill, for example)
+    leaves them there. An entry a scan had read when an exception interrupted that scan itself is not in
+    _KILL_UNKNOWN: _session_members records it in _SCAN_UNREAD[sid] as it reads it, where _run_shells has
+    armed that session, and _run_shells settles both once the reap has run, subject to exit table rows X6
+    and X7. When it returns at its deadline with members it read still alive,
+    their pids are stored in _KILL_ALIVE[sid], whether or not such an entry is left."""
     deadline = time.monotonic() + 5.0
+    # Every entry a scan could not parse is kept to the return, so one gone by a later scan still leaves
+    # the session not known to be empty.
+    unread = []
     while time.monotonic() < deadline:
-        running = [pid for pid, state in _session_members(sid) if state not in ("T", "t", "Z", "X")]
+        found, unknown = _session_scan(_session_members, sid)
+        unread += [pid for pid in unknown if pid not in unread]
+        if unread:
+            _KILL_UNKNOWN[sid] = unread
+        running = [pid for pid, state in found if state not in ("T", "t", "Z", "X")]
         if not running:
             break
         for pid in running:
@@ -248,9 +837,13 @@ def _kill_session(sid: int) -> bool:
             except ProcessLookupError:
                 pass
     while time.monotonic() < deadline:
-        members = [pid for pid, state in _session_members(sid) if state not in ("Z", "X")]
+        found, unknown = _session_scan(_session_members, sid)
+        unread += [pid for pid in unknown if pid not in unread]
+        if unread:
+            _KILL_UNKNOWN[sid] = unread
+        members = [pid for pid, state in found if state not in ("Z", "X")]
         if not members:
-            return True
+            return not unread
         # Stop every member again before killing any: a job-control group orphaned by a kill is sent SIGCONT
         # by the kernel and could resume forking (3b116 QA r9).
         for pid in members:
@@ -264,7 +857,14 @@ def _kill_session(sid: int) -> bool:
             except ProcessLookupError:
                 pass
         time.sleep(0.02)
-    return not [pid for pid, state in _session_members(sid) if state not in ("Z", "X")]
+    found, unknown = _session_scan(_session_members, sid)
+    unread += [pid for pid in unknown if pid not in unread]
+    if unread:
+        _KILL_UNKNOWN[sid] = unread
+    alive = [pid for pid, state in found if state not in ("Z", "X")]
+    if alive:
+        _KILL_ALIVE[sid] = alive
+    return not unread and not alive
 
 
 def _prepare(tmp: str, stubs) -> tuple[str, str, str]:
@@ -308,7 +908,7 @@ class _Terminated(Exception):
 # defence. This covers only SIGTERM and SIGHUP (the signals _on_signal is
 # installed for): SIGINT keeps the default handler, so a KeyboardInterrupt
 # arriving while the three are unblocked can still cut _kill_session short
-# (the nested finally still reaps), a stated residual. Only the main thread
+# (the nested finally still reaps), a stated residual (exit table row X3). Only the main thread
 # activates, drains or resets this state (CPython runs Python signal handlers
 # in the main thread, so _on_signal itself always runs there): a run on a
 # non-main thread must neither activate, clear nor drain the record the main
@@ -325,7 +925,7 @@ def _on_signal(signum, _frame):
     raise _Terminated(signum)
 
 
-def _drain_deferral():
+def _drain_deferral(caller_exception=None):
     # Re-take after deactivation: a handler between the first take and the
     # flag change still records. Once inactive, _on_signal raises directly.
     # The self-test models this window with a __setitem__ hook, not a real
@@ -339,12 +939,28 @@ def _drain_deferral():
     late, _DEFERRED["pending"] = _DEFERRED["pending"], None
     pending = pending if pending is not None else late
     if pending is not None:
-        raise _Terminated(pending)
+        terminated = _Terminated(pending)
+        # The walk below hands _carry_line each _UnparsableStat a shell's cleanup raised (its shell set)
+        # and each record another exception keeps, along the __context__ chain of the exception the
+        # termination is raised over (exit table row X4). It stops at the caller's own handled
+        # exception (caller_exception), which the run was called inside and is not this run's (exit
+        # table row X5).
+        active, seen = sys.exception(), set()
+        while active is not None and active is not caller_exception and id(active) not in seen:
+            seen.add(id(active))
+            if isinstance(active, _UnparsableStat) and getattr(active, "shell", None):
+                _carry_line(terminated, active, active.shell)
+            for shell, record in getattr(active, "_unparsable_records", {}).items():
+                _carry_line(terminated, record, shell)
+            active = active.__context__
+        raise terminated
 
 
 def run(command: str, shells=("bash", "sh"), stubs=DEFAULT_STUBS, timeout: int = 30) -> list[dict]:
     """Run command under each shell (restricted bash; sh as restricted bash --posix); one result dict each."""
     results = []
+    # The exception the caller is handling, if any, is not this run's: the drain below never notes it.
+    caller_exception = sys.exception()
     # SIGTERM and SIGHUP are turned into an exception so the finally blocks kill the session and remove the temp
     # dir (only SIGINT did before; QA r8). Handlers are installed only from the main thread.
     saved_handlers = {}
@@ -367,7 +983,8 @@ def run(command: str, shells=("bash", "sh"), stubs=DEFAULT_STUBS, timeout: int =
         # directly, so the restores then run undeferred. A second TERM/HUP
         # during the TERM or HUP restore can leave _on_signal installed
         # (inferred: CPython runs pending handlers before installing a handler).
-        # A restore call that raises (SIGINT or a raising caller handler,
+        # A restore call that raises (SIGINT or a raising caller handler, the
+        # latter the caller-handler residual of the module docstring,
         # or TypeError from a saved None for a handler installed outside
         # Python, even without a signal) may leave its own handler unrestored,
         # possibly still _on_signal (inferred for SIGINT or a pending caller
@@ -380,25 +997,61 @@ def run(command: str, shells=("bash", "sh"), stubs=DEFAULT_STUBS, timeout: int =
         # _on_signal installed; only the first later TERM/HUP is recorded
         # while pending is None; the rest are dropped, and none is raised.
         try:
-            if threading.current_thread() is threading.main_thread():
-                # Residual: TERM/HUP handled between these stores raises
-                # directly. Inferred unreachable on CPython 3.12 and later:
-                # plain dict stores contain no eval-breaker point.
-                _DEFERRED["pending"] = None
-                _DEFERRED["active"] = True
-        finally:
             try:
-                if saved_handlers:
-                    try:
-                        signal.signal(signal.SIGINT, saved_handlers[signal.SIGINT])
-                    finally:
-                        try:
-                            signal.signal(signal.SIGTERM, saved_handlers[signal.SIGTERM])
-                        finally:
-                            signal.signal(signal.SIGHUP, saved_handlers[signal.SIGHUP])
-            finally:
                 if threading.current_thread() is threading.main_thread():
-                    _drain_deferral()
+                    # Residual: TERM/HUP handled between these stores raises
+                    # directly. Inferred unreachable on CPython 3.12 and later:
+                    # plain dict stores contain no eval-breaker point.
+                    _DEFERRED["pending"] = None
+                    _DEFERRED["active"] = True
+            finally:
+                try:
+                    if saved_handlers:
+                        try:
+                            signal.signal(signal.SIGINT, saved_handlers[signal.SIGINT])
+                        finally:
+                            try:
+                                signal.signal(signal.SIGTERM, saved_handlers[signal.SIGTERM])
+                            finally:
+                                signal.signal(signal.SIGHUP, saved_handlers[signal.SIGHUP])
+                finally:
+                    if threading.current_thread() is threading.main_thread():
+                        _drain_deferral(caller_exception)
+        except BaseException as late:
+            # An exception the activation, a handler restore or the drain raises, with or
+            # without a second deferred signal, carries every unparsable stat line along its
+            # __context__ chain as one note per shell (_carry_shell_lines; exit table rows X3
+            # and X4). The walk stops at the caller's own handled exception, which is not
+            # this run's: that exception re-raised by the cleanup (a handler restore or a
+            # caller signal handler raising the object the caller was handling when it called
+            # run) over a line of the run, and a deferred SIGTERM or SIGHUP the drain raises
+            # after that re-raise, are exit table row X5.
+            # An exception that interrupts this carry (one a signal handler raises, for
+            # example; a caller's handler is the caller-handler residual) is met by a retry,
+            # whatever raised it: the carry is made again onto it, and its chain holds late
+            # (exit table row X3), subject to exit table row X12. An exception raised at the
+            # jump back to the retry (outside its try) or in its except body is exit table
+            # row X11. Stated, not closed: any handler around this jump needs a
+            # jump back of its own outside it. This retry covers this carry
+            # only, not the final carry of _run_shells, which is exit table row X10.
+            carried = late
+            while True:
+                try:
+                    shells_met, exc, seen = [], carried, set()
+                    while exc is not None and exc is not caller_exception and id(exc) not in seen:
+                        seen.add(id(exc))
+                        if isinstance(exc, _UnparsableStat) and getattr(exc, "shell", None):
+                            shells_met.append(exc.shell)
+                        shells_met += list(getattr(exc, "_unparsable_records", {}))
+                        exc = exc.__context__
+                    for shell in dict.fromkeys(shells_met):
+                        _carry_shell_lines(carried, shell, caller_exception)
+                    break
+                except BaseException as again:
+                    carried = again
+            if carried is late:
+                raise
+            raise carried
 
 
 def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
@@ -450,17 +1103,11 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                                      start_new_session=True,
                                      preexec_fn=None if spawn_mask is None else functools.partial(
                                          signal.pthread_sigmask, signal.SIG_SETMASK, spawn_mask))
-                # Residual (3b341 item (b), decision V, 2026-10-14): a Python
-                # signal handler the caller installed for a signal other than
-                # the three (SIGALRM or SIGUSR1, for example) can run and raise
-                # after Popen has created the shell and before the try below
-                # is entered; Popen's own error path closes its pipes but
-                # neither kills nor waits for a child it created (read in the
-                # Python 3.14.4 source). The shell is then neither reaped nor
-                # killed with its session here; the outer finally still tries
-                # to remove the temp dir, restores the mask and drains the
-                # deferral, and an exception propagates (the handler's, or one
-                # chained over it) with no result.
+                # The caller-handler residual, not an exit table row (row X16 covers
+                # a trace function here): a Python signal handler the caller installed
+                # for a signal other than the three can run between Popen and the
+                # try below, and Popen's own error path neither kills nor waits for
+                # a child it created (read in the Python 3.14.4 source).
                 # Accepted: blocking every signal across this window was not
                 # adopted, and the spawn mask belongs to 3b281 part B2.
                 # Bounds: for an eligible spawn the three are blocked here, so
@@ -497,11 +1144,23 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                             try:
                                 rc = p.wait(timeout=UNTIMED_WAIT_POLL_SECONDS)
                                 break
-                            except subprocess.TimeoutExpired:
-                                pass
+                            except subprocess.TimeoutExpired as waited:
+                                # Only the wait's own timeout is a poll; any other (one a caller's
+                                # signal handler raised during it, for example) is re-raised here
+                                # (_own_wait_timeout; exit table row X15, which sets a caller's
+                                # handler outside the table as the caller-handler residual).
+                                if not _own_wait_timeout(waited, p):
+                                    raise
                     else:
                         rc = p.wait(timeout=timeout)
-                except subprocess.TimeoutExpired:
+                except subprocess.TimeoutExpired as waited:
+                    # A TimeoutExpired that is not the wait's own (one a caller's signal handler
+                    # raised during the wait, for example) is not taken as the command timing
+                    # out: it is re-raised, and the cleanup below runs and notes this shell's line
+                    # on it as on any exception in flight (exit table row X15; a caller's handler
+                    # is the caller-handler residual, outside the table).
+                    if not _own_wait_timeout(waited, p):
+                        raise
                     rc, timed_out = None, f"timed out after {timeout}s"
                 finally:
                     # A second signal must not cut cleanup short (3b116 QA r9). Two layers
@@ -517,7 +1176,7 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                     # mask restore is recorded, not raised, and is raised as
                     # _Terminated after the mask restore (3b281 round 4).
                     # Residuals, stated plainly: a signal landing between entering this
-                    # finally and the protected try still raises before cleanup began
+                    # finally and the protected try is exit table row X16
                     # (the activation itself now sits inside that try, so a raise taken
                     # during it still reaches the kill and the reap; round 5, item 3);
                     # SIGINT keeps the default handler and is covered only by the mask; and
@@ -573,57 +1232,186 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                             # OSError (or anything else) raised by _kill_session
                             # cannot skip p.wait() (3b281 round 4, gemini W).
                             try:
+                                # Armed before the grace loop's first scan: each scan of this
+                                # shell's session from here on (grace loop, kill, fallback sweep)
+                                # records each entry as it reads it and removes it only if its line
+                                # parses in that scan, so one an interrupted scan read is settled by
+                                # the finally below once the reap has run, subject to exit table rows
+                                # X6 and X7.
+                                _SCAN_UNREAD[p.pid] = []
+                                # Reset with it, so an entry an earlier shell with the same process id
+                                # left in either record (exit table row X3, its record-pop clause) does
+                                # not misname a fresh entry.
+                                _SCAN_UNPARSED[p.pid] = []
+                                _SCAN_PARSED_LATER[p.pid] = []
                                 grace_end = time.monotonic() + GRACE_SECONDS
                                 while time.monotonic() < grace_end and _live(_session_members(p.pid)):
                                     time.sleep(0.02)  # let a backgrounded call finish recording (QA r8)
                                 killed = len(_live(_session_members(p.pid)))
+                            except _UnparsableStat as exc:
+                                # Raised after the kill and the reap below, or, if another exception
+                                # is already propagating, noted on that one, which goes on (exit table rows
+                                # X2 and X3; inferred from the control flow, not driven by a test: the
+                                # caller's own handled exception in flight there is exit table row X18).
+                                _settle_unparsable(exc, exc.__context__, caller_exception, shell, results)
                             finally:
                                 try:
+                                    # Renewed, not reset: an exception raised before the grace
+                                    # loop's arm (which skips that loop) would otherwise leave the
+                                    # kill's scans unarmed, and one an interrupted kill scan read
+                                    # would be lost; an entry already recorded stays.
+                                    _SCAN_UNREAD.setdefault(p.pid, [])
+                                    _KILL_UNKNOWN.pop(p.pid, None)
+                                    _KILL_ALIVE.pop(p.pid, None)
                                     contained = _kill_session(p.pid)
                                 finally:
                                     # Bound both waits. An interrupted first wait still
                                     # runs the fallback when returncode is unset.
                                     # An interrupt after waitpid but before returncode
-                                    # is set can leave the shell already reaped.
+                                    # is set can leave the shell already reaped (exit table
+                                    # rows X3 and X15).
                                     try:
                                         p.wait(timeout=GRACE_SECONDS)
-                                    except subprocess.TimeoutExpired:
-                                        pass
+                                    except subprocess.TimeoutExpired as waited:
+                                        # Only the wait's own timeout is the shell left unreaped; any
+                                        # other (one a caller's signal handler raised, for example) is
+                                        # re-raised and propagates once the fallback below has run
+                                        # (exit table row X15; a caller's handler is the
+                                        # caller-handler residual, outside the table).
+                                        if not _own_wait_timeout(waited, p):
+                                            raise
                                     finally:
-                                        if p.returncode is None:
-                                            # Residuals: members a raising _kill_session
-                                            # left alive are swept only if the shell is
-                                            # still unreaped; if the first wait reaps it,
-                                            # the fallback and its sweep are skipped.
-                                            # One-snapshot sweep; interrupts
-                                            # during fallback itself; killpg errors other
-                                            # than ProcessLookupError, or session-scan
-                                            # errors, propagate and skip the member sweep.
-                                            # After the waitpid race, the shell PID is
-                                            # signalled without a poll.
-                                            # If the propagating exception is the caller's
-                                            # own handled object (e.g. a bare raise in a
-                                            # caller signal handler), the guard below
-                                            # suppresses the note; propagation also means
-                                            # no result reports reaped False.
-                                            try:
-                                                with contextlib.suppress(ProcessLookupError):
-                                                    os.killpg(p.pid, signal.SIGKILL)
-                                                # Job-control children can have their own
-                                                # process groups in the same session.
-                                                for pid in _live(_session_members(p.pid)):
-                                                    with contextlib.suppress(OSError):
-                                                        os.kill(pid, signal.SIGKILL)
-                                            finally:
-                                                # May be the caller's handled exception
-                                                # when run() is called inside except.
-                                                exc = sys.exception()
+                                        try:
+                                            if p.returncode is None:
+                                                # Residuals: members a raising _kill_session
+                                                # left alive are swept only if the shell is
+                                                # still unreaped; if the first wait reaps it,
+                                                # the fallback and its sweep are skipped.
+                                                # One-snapshot sweep; interrupts
+                                                # during fallback itself; killpg errors other
+                                                # than ProcessLookupError, or session-scan
+                                                # errors other than an unparsable stat line,
+                                                # propagate and skip the member sweep. On an
+                                                # unparsable line the live members the scan
+                                                # did read are still killed, then the line is
+                                                # settled as in the grace loop.
+                                                # After the waitpid race, the shell PID is
+                                                # signalled without a poll.
+                                                # If the propagating exception is the caller's
+                                                # own handled object (e.g. a bare raise in a
+                                                # caller signal handler), the guard below
+                                                # suppresses the note; propagation also means
+                                                # no result reports reaped False (exit table rows X3
+                                                # and X18).
                                                 try:
-                                                    p.wait(timeout=GRACE_SECONDS)
-                                                except subprocess.TimeoutExpired:
-                                                    reaped = False
-                                                    if exc is not None and exc is not caller_exception:
-                                                        exc.add_note("shell could not be reaped after fallback SIGKILL")
+                                                    with contextlib.suppress(ProcessLookupError):
+                                                        os.killpg(p.pid, signal.SIGKILL)
+                                                    # Job-control children can have their own
+                                                    # process groups in the same session.
+                                                    unparsable = None
+                                                    # Renewed as before the kill, so the sweep scan
+                                                    # never runs unarmed.
+                                                    _SCAN_UNREAD.setdefault(p.pid, [])
+                                                    try:
+                                                        members = _session_members(p.pid)
+                                                    except _UnparsableStat as scan_exc:
+                                                        members, unparsable = scan_exc.members, scan_exc
+                                                    try:
+                                                        for pid in _live(members):
+                                                            with contextlib.suppress(OSError):
+                                                                os.kill(pid, signal.SIGKILL)
+                                                    except BaseException as interrupted:
+                                                        # An exception that interrupts the signalling, such
+                                                        # as a KeyboardInterrupt, is exit table row X3.
+                                                        if unparsable is not None:
+                                                            _settle_unparsable(unparsable, interrupted,
+                                                                               caller_exception, shell, results)
+                                                        raise
+                                                    if unparsable is not None:
+                                                        _settle_unparsable(unparsable, unparsable.__context__,
+                                                                           caller_exception, shell, results)
+                                                finally:
+                                                    # May be the caller's handled exception
+                                                    # when run() is called inside except.
+                                                    exc = sys.exception()
+                                                    try:
+                                                        p.wait(timeout=GRACE_SECONDS)
+                                                    except subprocess.TimeoutExpired as waited:
+                                                        # A raised one is not a failed reap: it
+                                                        # propagates (_own_wait_timeout; exit table row X15).
+                                                        if not _own_wait_timeout(waited, p):
+                                                            raise
+                                                        reaped = False
+                                                        if exc is not None and exc is not caller_exception:
+                                                            exc.add_note(_REAP_NOTE)
+                                        finally:
+                                            # The entries only the kill read are taken and settled here, in a
+                                            # finally, so a kill that raises once it has read them, or a wait,
+                                            # group kill or sweep that raises after the kill, cannot skip them:
+                                            # the exception then propagating gets them as a note (exit table
+                                            # row X3, subject to exit table rows X6 and X7).
+                                            # A line the grace loop or the sweep raised, replaced by an
+                                            # exception raised after it (by the kill, a wait or a group kill),
+                                            # is carried onto that exception here as well. The kill keeps live
+                                            # members it read only at its deadline return (no member it could
+                                            # read is alive at its other return); they are stated on this
+                                            # shell's line whichever point read it, and so is a failed reap
+                                            # that no propagating exception already carries.
+                                            # Entries any scan of this shell recorded as it read them
+                                            # (_SCAN_UNREAD), an interrupted scan's included, are read here
+                                            # too and settled with the kill's, each named by its marks in
+                                            # _SCAN_UNPARSED and _SCAN_PARSED_LATER; one already on a line is
+                                            # named once. A KeyboardInterrupt raised inside a scan after it
+                                            # read such an entry is exit table row X3, and the caller's own
+                                            # handled exception there is exit table row X18.
+                                            # The records are read, not popped, and the five (_KILL_UNKNOWN,
+                                            # _SCAN_UNREAD, _KILL_ALIVE, _SCAN_UNPARSED and
+                                            # _SCAN_PARSED_LATER, in that order) are popped only in the
+                                            # finally below: an exception raised while they are settled
+                                            # (one a signal handler the cleanup mask does not block raises,
+                                            # for example; a caller's handler there is the caller-handler
+                                            # residual) finds them still in
+                                            # place, and the except below reads them again and carries them
+                                            # and this shell's lines along its chain onto it before it
+                                            # propagates. Residual, inferred from the control flow: an
+                                            # exception raised inside that except before its carry is done
+                                            # is exit table row X6, and a trace function raising at the try
+                                            # below, before the settlement begins, is exit table row X7;
+                                            # a failed reap is stated on the carried line only where it is stated above.
+                                            try:
+                                                kill_unknown, kill_alive = _shell_unread(p.pid)
+                                                active = sys.exception()
+                                                own_line = _carry_shell_lines(active, shell, caller_exception)
+                                                if kill_unknown or (kill_alive and own_line):
+                                                    unknown_exc = _UnparsableStat(
+                                                        kill_unknown, [], _unparsed_entries(p.pid, _KILL_UNKNOWN),
+                                                        _SCAN_PARSED_LATER.get(p.pid, []))
+                                                    if kill_alive:
+                                                        unknown_exc.add_note(_ALIVE_NOTE)
+                                                    if not reaped and (active is None or active is caller_exception):
+                                                        unknown_exc.add_note(_REAP_NOTE)
+                                                    _settle_unparsable(unknown_exc, active, caller_exception, shell,
+                                                                       results)
+                                            except BaseException as interrupted:
+                                                # The line settled above, raised for this shell, is merged
+                                                # into itself here, which names each entry once.
+                                                own_line = _carry_shell_lines(interrupted, shell, caller_exception)
+                                                kill_unknown, kill_alive = _shell_unread(p.pid)
+                                                if kill_unknown or (kill_alive and own_line):
+                                                    carried = _UnparsableStat(
+                                                        kill_unknown, [], _unparsed_entries(p.pid, _KILL_UNKNOWN),
+                                                        _SCAN_PARSED_LATER.get(p.pid, []))
+                                                    if kill_alive:
+                                                        carried.add_note(_ALIVE_NOTE)
+                                                    _settle_unparsable(carried, interrupted, caller_exception,
+                                                                       shell, results)
+                                                raise
+                                            finally:
+                                                _KILL_UNKNOWN.pop(p.pid, None)
+                                                _SCAN_UNREAD.pop(p.pid, None)
+                                                _KILL_ALIVE.pop(p.pid, None)
+                                                _SCAN_UNPARSED.pop(p.pid, None)
+                                                _SCAN_PARSED_LATER.pop(p.pid, None)
             with open(out_path, encoding="utf-8", errors="replace") as fh:
                 out = fh.read()
             with open(err_path, encoding="utf-8", errors="replace") as fh:
@@ -648,22 +1436,53 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
             # delivered is recorded while still active and neither wiped nor
             # skipped (round 5, item 3); it is raised here, after the restore,
             # as the _Terminated _on_signal would have raised (replacing, with
-            # chaining, an exception already propagating: the run stops either
-            # way). This clearing covers every path, including reentry for the
-            # next shell and the self-test clones.
+            # chaining, an exception already propagating: exit table row X4).
+            # This clearing covers every path that reaches this finally, including
+            # reentry for the next shell and the self-test clones; a raise at the
+            # try that opens it is exit table row X8, and one at the try that opens
+            # the settlement exit table row X7.
+            # An exception the temp removal, the mask restore (where a SIGINT
+            # blocked during the cleanup is delivered) or the drain raises over
+            # this shell's unparsable stat line is exit table row X3 or X4; the
+            # caller's own handled exception re-raised there (a caller signal
+            # handler raising the object the caller was handling when it called
+            # run) is exit table row X5.
             try:
-                _rmtree(tmp)
-            finally:
                 try:
-                    if spawn_mask is not None:
-                        signal.pthread_sigmask(signal.SIG_SETMASK, spawn_mask)
-                    elif cleanup_mask is not None:
-                        signal.pthread_sigmask(signal.SIG_SETMASK, cleanup_mask)
+                    try:
+                        # One carry for every exit. An exception already in
+                        # flight here (raised in the finally that pops the records, at the close
+                        # of the output files, or anywhere else in the try above) is carried this
+                        # shell's lines before the cleanup runs (exit table row X3), subject to
+                        # exit table rows X6, X7 and X12;
+                        # an exception this carry raises is carried by the except below. The caller's own handled exception, which sys.exception()
+                        # returns here when nothing is in flight, gets none: it is not this run's
+                        # (re-raised at the record pop or the output close, exit table row X5).
+                        # A trace function raising at the try that opens this cleanup is exit
+                        # table row X8.
+                        in_flight = sys.exception()
+                        if in_flight is not None and in_flight is not caller_exception:
+                            _carry_shell_lines(in_flight, shell, caller_exception)
+                    finally:
+                        _rmtree(tmp)
                 finally:
-                    # Drain after mask restoration, including a signal
-                    # recorded between the initial take and deactivation.
-                    if threading.current_thread() is threading.main_thread():
-                        _drain_deferral()
+                    try:
+                        if spawn_mask is not None:
+                            signal.pthread_sigmask(signal.SIG_SETMASK, spawn_mask)
+                        elif cleanup_mask is not None:
+                            signal.pthread_sigmask(signal.SIG_SETMASK, cleanup_mask)
+                    finally:
+                        # Drain after mask restoration, including a signal
+                        # recorded between the initial take and deactivation.
+                        if threading.current_thread() is threading.main_thread():
+                            _drain_deferral(caller_exception)
+            except BaseException as late:
+                # An exception raised during this carry (a signal handler run there, for
+                # example) is exit table row X10. Stated, not closed: this carry has no
+                # retry, and a retry's own jump back would be such a point again (exit table
+                # row X12).
+                _carry_shell_lines(late, shell, caller_exception)
+                raise
     return results
 
 
@@ -689,8 +1508,16 @@ def main(argv=None) -> int:
             return 2
     stubs = tuple(dict.fromkeys(DEFAULT_STUBS + tuple(args.stub)))
     shells = ("bash", "sh") if args.shell == "both" else (args.shell,)
+    failed = None
+    try:
+        results = run(args.command, shells, stubs)
+    except _UnparsableStat as exc:
+        # Raised by _run_shells once the kill and the reap of the shell whose cleanup read the line have run:
+        # that shell's session could not be read, so its containment is not shown and it has no report. The
+        # reports of the shells that finished before it are printed first, then the ERROR line below.
+        failed, results = exc, getattr(exc, "results", [])
     uncontained = False
-    for r in run(args.command, shells, stubs):
+    for r in results:
         print(f"== {r['shell']} rc={r['rc']}")
         uncontained = uncontained or not r["contained"] or not r["reaped"]
         if r["killed"]:
@@ -707,6 +1534,17 @@ def main(argv=None) -> int:
             if r[label]:
                 print(f"-- {label}\n" + "\n".join("| " + _printable(line)
                                                        for line in r[label].rstrip("\n").split("\n")))
+    if failed is not None:
+        # One line: the entries, any note on the exception (such as processes still alive at the kill
+        # deadline, or a failed reap), the shell, and each later shell, which was not started.
+        name = getattr(failed, "shell", None)
+        label = f"the {name} run" if name else "the run"
+        later = shells[shells.index(name) + 1:] if name in shells else ()
+        sys.stdout.flush()
+        print("ERROR: " + "; ".join([str(failed)] + getattr(failed, "__notes__", []))
+              + f"; containment of {label} could not be shown"
+              + "".join(f"; the {shell} run was not started" for shell in later), file=sys.stderr)
+        return 3
     return 3 if uncontained else 0  # an uncontained run is not a normal result (QA r7)
 
 
@@ -926,7 +1764,42 @@ def _supervise_test(callback, ceiling, name, cleanup_wait=TEST_WAIT, report=True
     return rc, failure, clean
 
 
-def _cleanup_deadline_check():
+# The inner hang limit of _cleanup_deadline_check has to cover the fork of the inner supervisor, _prepare,
+# the bash spawn, the 0.1 s wait and a /proc scan before the modelled kill writes its ready file. Each of
+# those slows down on a loaded host, so a fixed 3.0 s limit can expire first for reasons unrelated to the
+# code. The limit is therefore the base plus CLEANUP_HANG_SCALE times the time the same steps took just
+# before (a supervised run of a bash `true`), capped so the case stays well inside the self-test's own
+# execution deadline; the outer supervisor keeps its 7.0 s margin above that limit.
+CLEANUP_HANG_BASE = 3.0
+CLEANUP_HANG_SCALE = 4.0
+CLEANUP_HANG_CAP = 30.0
+
+
+def _cleanup_deadline_check() -> str:
+    """The cleanup-hang-deadline case: a kill that hangs inside run's cleanup is still bounded by the public
+    self-test supervisor. Returns "" when it passes, else a reason naming the stage reached (calibration,
+    before-kill, outer-deadline, cleanup, inner-deadline-missing, inner-deadline-unnamed or probe-exit-N, N
+    being the probe's exit code) and the elapsed time; every reason after calibration also gives the time
+    the ready file was written, the hang limit and the calibration time, while the calibration reason
+    carries only rc, failure, clean and elapsed. A failure with no ready file written is the before-kill
+    stage. Once the ready file was written, a supervisor failure that names the check in flight is the
+    outer deadline, even with a cleanup suffix after it; one that names only a cleanup or an unverified
+    cleanup is the cleanup stage."""
+    start = time.monotonic()
+
+    def calibrate():
+        globals().update(GRACE_SECONDS=0)
+        with _self_test_limits():
+            run("true", shells=("bash",))
+        return 0
+    rc, failure, clean = _supervise_test(
+        calibrate, CLEANUP_HANG_CAP, "cleanup-hang-calibration",
+        cleanup_wait=5.0, report=False)
+    measured = time.monotonic() - start
+    if rc != 0 or failure is not None or not clean:
+        return (f"stage=calibration rc={rc} failure={failure} clean={clean} "
+                f"elapsed={measured:.2f}s")
+    hang = min(CLEANUP_HANG_CAP, CLEANUP_HANG_BASE + CLEANUP_HANG_SCALE * measured)
     # C1: exercise the public self-test supervisor, not just its helper.
     # A second supervisor bounds this regression if that wiring is removed.
     with tempfile.NamedTemporaryFile() as ready:
@@ -936,7 +1809,7 @@ def _cleanup_deadline_check():
                 with _self_test_limits():
                     def failed_kill(sid):
                         with open(ready.name, "w") as stream:
-                            stream.write(str(sid))
+                            stream.write(f"{sid} {time.monotonic():.3f}")
                         # The reap after the kill is bounded (3b281 round 5,
                         # item 2), so a kill that merely fails no longer hangs
                         # the cleanup; the modelled hang moves into the kill
@@ -946,18 +1819,43 @@ def _cleanup_deadline_check():
                     globals()["_kill_session"] = failed_kill
                     run("sleep 3600", shells=("bash",))
                 return 0
-            globals().update(TEST_WAIT=0.1, TEST_PROCESS_WAIT=2.9,
+            globals().update(TEST_WAIT=0.1, TEST_PROCESS_WAIT=hang - 0.1,
                              _self_test_worker=blocked)
             output = io.StringIO()
             with contextlib.redirect_stdout(output):
                 rc = _self_test()
-            return 0 if (rc == 1 and "self-test-execution-deadline"
-                         in output.getvalue()) else 1
+            if rc != 1:
+                return 2
+            return 0 if "self-test-execution-deadline" in output.getvalue() else 3
         rc, failure, clean = _supervise_test(
-            probe, 10.0, "cleanup-hang-regression-wrapper",
+            probe, hang + 7.0, "cleanup-hang-regression-wrapper",
             cleanup_wait=5.0, report=False)
         ready.seek(0)
-        return rc == 0 and failure is None and clean and bool(ready.read())
+        written = ready.read().decode("utf-8", "replace").split()
+    elapsed = time.monotonic() - start
+    if rc == 0 and failure is None and clean and written:
+        return ""
+    if not written:
+        stage = "before-kill"
+    elif failure is not None and ":in-flight=" in failure:
+        # The supervisor reached its deadline and killed the probe; a cleanup suffix added after the
+        # name of the check in flight does not change that.
+        stage = "outer-deadline"
+    elif failure is not None and failure.endswith((":cleanup", ":cleanup-unverified")):
+        # The probe ended in time, but its process tree or private directory was not shown to be gone.
+        stage = "cleanup"
+    elif rc == 2:
+        stage = "inner-deadline-missing"
+    elif rc == 3:
+        stage = "inner-deadline-unnamed"
+    else:
+        stage = f"probe-exit-{rc}"
+    try:
+        ready_at = f"{float(written[1]) - start:.2f}s"
+    except (IndexError, ValueError):
+        ready_at = "never"
+    return (f"stage={stage} rc={rc} failure={failure} clean={clean} elapsed={elapsed:.2f}s "
+            f"ready-at={ready_at} hang-limit={hang:.2f}s calibration={measured:.2f}s")
 
 
 def _in_flight_stages_check():
@@ -1064,10 +1962,14 @@ def _fixture_watch():
             while sessions and time.monotonic() < deadline:
                 sessions = {sid: started for sid, started in sessions.items()
                             if _fixture_identity(sid) in (started, None)}
-                live = [(sid, pid) for sid in sessions
-                        for pid, state in _session_members(sid)
-                        if state not in ("Z", "X")]
-                if not live:
+                # An entry whose stat line cannot be parsed is never signalled, and while one
+                # remains the sessions are not known to be empty, so the watch goes on to its deadline.
+                live, unknown = [], []
+                for sid in sessions:
+                    found, unread = _session_scan(_session_members, sid)
+                    live += [(sid, pid) for pid, state in found if state not in ("Z", "X")]
+                    unknown += unread
+                if not live and not unknown:
                     break
                 # Stop all before killing any, including job-control groups.
                 for sig in (signal.SIGSTOP, signal.SIGKILL):
@@ -1323,7 +2225,7 @@ def _unreaped_reporting_check(audit=False):
 
 # sha256 of the residual comment between Popen and the cleanup try in
 # _run_shells, its lines stripped and joined with "\n" (3b341 item (b)).
-SPAWN_RESIDUAL_SHA256 = "b567af6b255e331f97dfb59d79506ac4593083beb344f07c14bad5276d29e8ea"
+SPAWN_RESIDUAL_SHA256 = "4cb447e002ac23b6cb1f62876ff6685d98cc36a6cb6f4ae1d042e6a3ebfe8bd2"
 
 
 def _spawn_residual_pin_check():
@@ -2787,7 +3689,13 @@ def _untimed_wait_term_check(failures, timeout=TEST_WAIT, _exit_wait=None):
                 return fail(f"kernel-wait-timeout:{wchan}")
             time.sleep(0.01)
             wchan = _probe_main_wchan(proc.pid)
-        if sid not in _live(_session_members(sid)):
+        try:
+            held = sid in _live(_session_members(sid))
+        except _UnparsableStat:
+            # An unparsable stat line leaves the session unknown, so the shell
+            # is not known to be live: a named failure, never a pass.
+            return fail("held-command-session-unknown")
+        if not held:
             return fail("held-command-gone")
         proc.send_signal(signal.SIGTERM)
         deadline = time.monotonic() + (3 * GRACE_SECONDS + 2 * TEST_WAIT
@@ -3091,7 +3999,9 @@ def _self_test_worker() -> int:
                       f"in-flight-stages-named ({reason})", flush=True)
             else:
                 _test_stage("cleanup-hang-deadline")
-                policy.append(("cleanup-hang-deadline", _cleanup_deadline_check()))
+                hang_failure = _cleanup_deadline_check()
+                policy.append(("cleanup-hang-deadline" + (": " + hang_failure if hang_failure else ""),
+                               not hang_failure))
                 _test_stage("in-flight-stages-named")
                 policy.append(("in-flight-stages-named", _in_flight_stages_check()))
             _test_stage("production-policy")
